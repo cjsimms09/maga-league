@@ -163,5 +163,63 @@ const roster = (...positions) => positions.map(p);
     marked.length === 1, String(marked.length));
 }
 
+/* ── THE ONESIE CLOCK, AND THE RULE IT MUST NOT REVERSE ────────────────────
+ *
+ * Found auditing the legality strip against Cory's real board on 2026-08-14: the
+ * soft branch of `line()` printed no picks-left count, while the hard branch
+ * always had. So DEF/K open read as the SAME SENTENCE at twelve picks left and at
+ * zero, and on his actual draft that identical text appeared at picks 88, 93,
+ * 108, 113, 128 and 133 while the count ran 7 down to 2.
+ *
+ * ⚠ AND THE STATUS RULE IS CORRECT — THE FLAG I RAISED AGAINST IT WAS NOT.
+ *
+ * I read "streamable — by design?" at zero picks left as a reassuring sentence
+ * over an unfillable lineup, and went looking for the recorded decision expecting
+ * to overturn it. THE DRAFT IS NOT THE LINEUP DEADLINE: the draft is 22 August,
+ * week 1 is mid-September, and an empty DEF or K is filled off the wire in
+ * between — which is precisely the plan `exitSummary` already emits. So ILLEGAL
+ * would be the false label. Not free, either: the roster is 15 (9 + 6 bench), so
+ * two late claims into a full roster cost two drops, and `priceOnesie` already
+ * prices that. Priced, not prohibited.
+ *
+ * The four PROTECTED checks below exist because I nearly changed this, and the
+ * next reader arriving at the same wrong intuition should hit an assertion that
+ * explains itself rather than a silent behaviour they are free to "fix". */
+{
+  const full = roster('QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB');   // only K + DEF open
+  const wide = L.assess(full, STARTERS, 8);
+  const tight = L.assess(full, STARTERS, 2);
+  const none = L.assess(full, STARTERS, 0);
+
+  check('the streamable line now carries the picks-left clock the hard branch '
+    + 'always had', /8 picks left/.test(wide.line), wide.line);
+  check('CONTROL — and the sentence really does CHANGE as the picks run out, '
+    + 'which is the whole complaint', wide.line !== tight.line,
+  [wide.line, tight.line]);
+  check('at zero it says zero rather than going silent', /0 picks left/.test(none.line),
+    none.line);
+
+  check('softCount counts the open streamable slots, so a consumer no longer has '
+    + 'to recompute the endgame', wide.softCount === 2, wide.softCount);
+  check('onesieSqueeze is FALSE while the onesies still fit', wide.onesieSqueeze === false,
+    { left: 8, squeeze: wide.onesieSqueeze });
+  check('and TRUE once every remaining pick is spoken for', tight.onesieSqueeze === true
+    && none.onesieSqueeze === true, { two: tight.onesieSqueeze, zero: none.onesieSqueeze });
+
+  /* THE PROTECTED RULE. Each of these would go red if a future pass "fixed" the
+   * onesie behaviour without Cory ruling on it first. */
+  check('PROTECTED — the squeeze does NOT escalate the status, at any count',
+    [wide, tight, none].every(a => a.status === 'streamable'),
+    [wide.status, tight.status, none.status]);
+  check('PROTECTED — nor does it make the exit non-deliberate',
+    L.exitSummary(full, STARTERS, 0).deliberate === true);
+  check('PROTECTED — nor does it start suppressing paths; a onesie squeeze must '
+    + 'not silently begin blocking picks',
+  L.suppressReason(full, STARTERS, 1, { player_id: 'z', name: 'Flier', position: 'WR' }) === null,
+  L.suppressReason(full, STARTERS, 1, { player_id: 'z', name: 'Flier', position: 'WR' }));
+  check('PROTECTED — the line stays informational: no "unfilled", no alarm word',
+    !/unfilled/.test(none.line) && /streamable — by design\?/.test(none.line), none.line);
+}
+
 console.log(`\n${pass}/${pass + fail} legality checks passed`);
 process.exit(fail ? 1 : 0);

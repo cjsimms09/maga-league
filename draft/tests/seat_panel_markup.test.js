@@ -76,7 +76,19 @@ function extractFn(sig) {
   }
   return '';
 }
-const HELPERS = ['  function seatForCurrentPick() {', '  function roundLabel(overall) {'];
+/* ⚠️ `seatPlanHost` JOINED THIS LIST WHEN THE PANEL LEARNED TO MOUNT ITSELF,
+ * and leaving it out is what turned this suite red: `renderSeatPlan` stopped
+ * reading `$('#seat-plan')` directly and started asking a helper for its host,
+ * so extracting the renderer alone produced `seatPlanHost is not defined`.
+ *
+ * IT TAKES THE EARLY-RETURN PATH HERE and never touches `document`, because the
+ * `$` stub below DOES return a host for '#seat-plan'. That is deliberate and it
+ * is the branch worth exercising in this file: this suite is about what the
+ * panel SAYS, and the view-supplies-the-container case is the one where the
+ * markup is the only variable. The create-a-container branch has its own file
+ * (`seat_panel_mounts.test.js`), driven against a DOM stub. */
+const HELPERS = ['  function seatPlanHost() {',
+  '  function seatForCurrentPick() {', '  function roundLabel(overall) {'];
 const helperSrc = HELPERS.map(extractFn);
 ck('every shared helper renderSeatPlan needs was extracted',
   helperSrc.every(x => x.length > 30), HELPERS.filter((h, i) => helperSrc[i].length <= 30));
@@ -186,6 +198,53 @@ if (tossupSeat) {
     gapOf(good).indexOf(PLAN.seats[0].gap_units) >= 0
     && gapOf(h).indexOf(PLAN.seats[0].gap_units) < 0,
     'healthy=[' + gapOf(good).slice(0, 90) + '] stripped=[' + gapOf(h).slice(0, 90) + ']');
+}
+
+// ── THE OTHER ELEVEN SEATS — CORY'S ASK, RENDERED AT LAST ─────────────────
+/* He asked for "a look ahead to what complete strategy may be for rest of
+ * draft". `seat_plan.json` has carried all twelve seats since it was written and
+ * `renderSeatPlan` rendered exactly ONE — whichever pick was live.
+ * `panel_spec.js` has said so for days: "Twelve seats exist; ONE is rendered.
+ * The other eleven are the look-ahead, unbuilt." No new modelling was needed.
+ *
+ * ⚠ THE LOAD-BEARING PROPERTY IS THAT IT LEADS WITH THE SLOT, NOT THE NAME.
+ * The artifact's own assumption says: "The SEAT ORDER held under ADP drift from
+ * -25% to +15%; the NAMES did not." Twelve names presented as a plan would be a
+ * confident list of the least robust thing in the file — the exact shape this
+ * week's audit kept finding. So these checks pin the framing, not just presence:
+ * a future edit that promotes the names and demotes the slots breaks them. */
+{
+  const src = SRC;
+  ck('the whole-draft view is emitted at all', /class="sp-all"/.test(src));
+  ck('it renders EVERY seat the artifact carries, not a window of them',
+    /\(d\.seats \|\| \[\]\)\.slice\(\)\.sort/.test(src));
+  ck('the slot is the emphasised column — it is the part that survived drift',
+    /class="spa-slot"><b>' \+ escapeHtml\(s\.slot\)/.test(src));
+  ck('and the lede says so IN WORDS, so the reader is told which half to trust',
+    /slot order<\/b> is the plan/.test(src) && /names<\/b> did not/.test(src));
+  ck('the drift range the claim rests on is quoted, not asserted vaguely',
+    /25% to \+15%/.test(src));
+  ck('the live seat is marked, so the look-ahead cannot be mistaken for the '
+    + 'pick on the clock', /spa-live/.test(src));
+
+  /* A NULL PLAN PLAYER IS A FINDING, NOT AN EMPTY CELL. Pick 88 has none because
+   * the preseason waiver line and the realized wire genuinely disagree, and the
+   * artifact records why. Blanking it would read as "nothing planned". */
+  ck('a seat with no plan player says the methods disagree rather than '
+    + 'rendering blank', /methods disagree/.test(src));
+  ck('and it falls back to the superseded name so the disagreement is checkable',
+    /superseded_plan_player[\s\S]{0,80}\.name/.test(src));
+
+  /* THE ARTIFACT REALLY HAS TWELVE, or the feature is dressing an empty list. */
+  const seats = (PLAN.seats || []);
+  ck('CONTROL — the artifact carries a seat for every pick Cory owns',
+    seats.length === (PLAN.my_picks || []).length && seats.length >= 10,
+    { seats: seats.length, picks: (PLAN.my_picks || []).length });
+  ck('CONTROL — and at least one of them has a null plan player, so the clause '
+    + 'above is not vacuous', seats.some(s => !s.plan_player),
+  seats.filter(s => !s.plan_player).map(s => s.pick));
+  ck('CONTROL — the assumption this framing quotes is really in the artifact',
+    /SEAT ORDER held/.test(String(PLAN.assumption)), PLAN.assumption);
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

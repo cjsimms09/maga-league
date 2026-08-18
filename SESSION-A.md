@@ -1,5 +1,78 @@
 # SESSION A — the model & draft lane (read this first, every time)
 
+> **📣 READ `DRAFT-WEEK-BRIEF.md` BEFORE THIS FILE** (08-17; `MONDAY-BRIEF.md`
+> is still accurate but superseded as the entry point). Four things you need
+> before you touch anything:
+>
+> 1. **🔴 P0 — THE BOARD `main` PUBLISHES IS FROZEN AT 08-15, THE DRAFT IS 08-22,
+>    AND CORY HAS ASSIGNED THIS TO YOU (2026-08-17).** Nothing else you could do
+>    this week outranks it: a frozen board on the 22nd means Cory drafts off
+>    week-old ADP and every other improvement is invisible.
+>
+>    **The merge is DONE — do not redo it.** The two original refusals (the
+>    ADP-sd band ratchet, `config-check.yml`) were fixed on the relay branch and
+>    merged to `main` as `be528c64`, verified end to end first. The refire then
+>    got further than any run since the 15th: **board builds clean, 693 players,
+>    dormant health 100%, replacement-sensitivity properties HOLD.**
+>
+>    **It now refuses on SIX artifact-parity tests** —
+>    `test_constant_multiple_sweep::test_no_new_field_has_joined_the_constant_multiple_family`,
+>    `test_empirical_draft_value::test_board_replacement_constants_match_the_shipped_board`,
+>    `test_measured_ceiling::test_the_measured_ceiling_is_ON_and_its_sibling_is_not`,
+>    `test_qb_scoring_arbitrage::test_A_ZERO_BONUS_REPRODUCES_THE_BOARDS_OWN_RANKS`,
+>    `test_variance_inputs::test_artifact_coverage_matches_board`,
+>    `test_variance_inputs::test_committed_artifact_matches_regeneration`.
+>    They pass locally because locally the board IS the committed one; only a real
+>    rebuild surfaces them. **This is the same thing as your own 08-16 inbox item
+>    "10 OF 11 REGISTERED ARTIFACTS ARE STALE" — it is not tidiness, it is the
+>    publication blocker.**
+>
+>    **CHECK BEFORE YOU REGENERATE.** Four of the six read the BOARD, not a
+>    committed artifact. Confirm they are staleness and not a genuine board
+>    change first. The board moved 682 → 693 players and the CI diagnosis says
+>    healthy, so a real defect is unlikely — **and unlikely is not checked.** That
+>    distinction is what the ceiling error was made of.
+>
+>    **TWO PATHS, both written up in `ROUTES.md → TO: A` and
+>    `draft/audit/board_publish_stall_2026-08-17.md`.** Path A: regenerate the six
+>    against a fresh board, commit, refire — about an hour, needs egress. Path B
+>    (recommended): these artifacts derive from a board that rebuilds NIGHTLY, so
+>    Path A recurs forever; `artifact_registry.json` already carries a
+>    `regenerate_command` per entry and `check_artifact_freshness.py` already
+>    regenerates and diffs — **the six are simply not registered.** Register them
+>    and regenerate inside `draft-data.yml` between the build and the gate.
+>
+>    **The relay cannot do this and it is not a preference:** Sleeper and FFC both
+>    return HTTP 000 from its sandbox, and the proxy refuses the preserved
+>    `refused-candidate-board` artifact with a 403. It has no way to obtain or
+>    build a fresh board. **Do not "fix" this by widening the gate or hand-editing
+>    `public/draft_data.json`** — the gate is the only thing that has been working.
+>    Issue #8 tracks it and auto-closes on the first clean rebuild.
+> 2. **The `ceiling` weight is set wrong and is held at zero on purpose.** Three
+>    preregistered runs across two independent seed sets say a non-zero weight
+>    beats the shipped zero — 3/3 seeds, separably, at every value from 0.15 to
+>    0.65. It does **not** ship before 08-22; that date was fixed in all four
+>    preregs before any produced a number. Brief §7b. **This is Cory's call, not
+>    yours.**
+> 3. **The one draft-day action is now rehearsable and rehearsed** — re-take the
+>    pre-draft freeze after the final board build. `PRE_DRAFT_FREEZE_PATH=` lets
+>    you prove the command works without deleting the real artifact. Rehearsed
+>    08-17: 682 players, all 44 declared fields, 0 missing. Brief §4.
+> 4. **Four preregs are written and gated to AFTER the draft** by their own text
+>    (volatility wiring, `need`, survivorship bound, the ceiling shipping
+>    decision). Running one early because you have capacity is the drift they
+>    exist to prevent. **Writing a new prereg is always allowed; running a gated
+>    one is not.**
+>
+> The through-line of 08-17, and the thing to carry into whatever you pick up:
+> **every defect found that day was a claim that could not fail** — a dispersion
+> field that was `proj_mean × a constant`, a ceiling experiment that could only
+> return collinear, a join floor twenty-seven points below anything observed, a
+> verdict labelled "CI includes $0" over intervals that exclude zero, a routes
+> gap filed as the upstream's when it was ours. When something has been green
+> for a long time, ask what would have to be true for it to go red.
+
+
 _Resume ritual: **"You are session A, read SESSION-A.md and STATUS.md, then continue."**
 Files are truth, not memory. A rule changes HERE, in the commit that changes the
 behaviour — never only in chat._
@@ -21,8 +94,9 @@ sequencing, or measure has improved the work.
 **Impact = expected DOLLARS to Cory, weighted by how soon he can act.** State the
 one-sentence reason before running anything. Fixing a way the model is *wrong* beats
 making it marginally more right. Draft-relevant work wins until **Aug 22**; then the
-priority flips to in-season (the biggest known pool — ~$2,100 of Cory's left on benches
-over three years, and weekly-high is 37.5% of the pot, rewarding distribution shape, and
+priority flips to in-season (the biggest known pool — ~$2,400 of Cory's left on benches
+over three years, corrected upward 2026-08-15 from the superseded $2,100 (see
+EFFICIENCY-LEAK.md), and weekly-high is 37.5% of the pot, rewarding distribution shape, and
 almost nobody plays it). A recoverable deadline yields to an **unrecoverable** one even
 when the recoverable pool is larger (why the weekly grading cron jumped ahead of louder
 work). The draft edge is real but **small and fragile** — don't oversell it.

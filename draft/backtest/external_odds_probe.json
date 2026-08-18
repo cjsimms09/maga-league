@@ -1,0 +1,215 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by external_odds_probe.py",
+ "asked_markets": [
+  "player_props",
+  "player_pass_yds",
+  "player_rush_yds",
+  "player_receptions",
+  "player_anytime_td",
+  "totals",
+  "season_wins",
+  "outrights"
+ ],
+ "event_id": 71515752,
+ "league": "usa-nfl",
+ "parameter_honoured": {
+  "honoured": false,
+  "real_keys": 5,
+  "control_keys": 5,
+  "note": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+ },
+ "availability": {
+  "player_props": {
+   "state": "unmeasured",
+   "matched": [],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  },
+  "season_win_totals": {
+   "state": "unmeasured",
+   "matched": [],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  },
+  "game_totals": {
+   "state": "unmeasured",
+   "matched": [
+    "Totals"
+   ],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  },
+  "sides": {
+   "state": "unmeasured",
+   "matched": [
+    "ML",
+    "Spread"
+   ],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  }
+ },
+ "observed_markets": {
+  "player_props": [],
+  "season_win_totals": [],
+  "game_totals": [
+   "Totals"
+  ],
+  "sides": [
+   "ML",
+   "Spread"
+  ]
+ },
+ "unclassified": [
+  "American Football",
+  "USA - NFL"
+ ],
+ "credit": {
+  "spent": 2,
+  "remaining": 96,
+  "note": "measured from the provider's own remaining counter, not from how many calls we think we made"
+ },
+ "verdict": "VOID \u2014 the parameter was not read",
+ "default_markets": {
+  "player_props": [],
+  "season_win_totals": [],
+  "game_totals": [
+   "Totals"
+  ],
+  "sides": [
+   "ML",
+   "Spread"
+  ]
+ },
+ "raw_shape": [
+  "DraftKings",
+  "FanDuel",
+  "bookmakerIds",
+  "bookmakers",
+  "league",
+  "odds",
+  "sport",
+  "urls"
+ ],
+ "raw_names": [
+  "American Football",
+  "ML",
+  "Spread",
+  "Totals",
+  "USA - NFL"
+ ],
+ "selection_sample": [
+  "ML",
+  "Spread",
+  "Totals"
+ ],
+ "provider_urls": {
+  "DraftKings": "https://sportsbook.draftkings.com/event/34118042",
+  "FanDuel": "https://sportsbook.fanduel.com/event/35607262"
+ },
+ "discovery": {
+  "verdict": "no candidate path answered",
+  "proves_absence": false,
+  "tried": [
+   {
+    "path": "/v3/markets",
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
+   },
+   {
+    "path": "/v3/odds/markets",
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
+   },
+   {
+    "path": "/v3/props",
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
+   },
+   {
+    "path": "/v3/outrights",
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
+   }
+  ],
+  "exists_but_forbidden": [],
+  "answered": [],
+  "note": "none of the candidate paths answered. That is a fact about our guesses, not about the provider: every path here was invented by us, and a 404 on an invented path proves only that we spelled it wrong. The question stays OPEN."
+ },
+ "events_listed": 136,
+ "census": {
+  "status": "measured",
+  "total": 136,
+  "undated": 0,
+  "already_started": 0,
+  "upcoming": 136,
+  "now": "2026-08-14T06:38:42",
+  "within": {
+   "7": 0,
+   "14": 0
+  },
+  "beyond": {
+   "7": {
+    "n": 136,
+    "first": "2026-09-10T00:20:00",
+    "last": "2026-11-10T01:15:00",
+    "ids": [
+     71515752,
+     71387370,
+     71515754,
+     71515756,
+     71515758,
+     71515760,
+     71515762,
+     71515764,
+     71515766,
+     71515768,
+     71515770,
+     71515772,
+     71515774,
+     71515776,
+     71445306,
+     71474268,
+     71466824,
+     71515778,
+     71515780,
+     71515782
+    ],
+    "ids_truncated": true
+   },
+   "14": {
+    "n": 136,
+    "first": "2026-09-10T00:20:00",
+    "last": "2026-11-10T01:15:00",
+    "ids": [
+     71515752,
+     71387370,
+     71515754,
+     71515756,
+     71515758,
+     71515760,
+     71515762,
+     71515764,
+     71515766,
+     71515768,
+     71515770,
+     71515772,
+     71515774,
+     71515776,
+     71445306,
+     71474268,
+     71466824,
+     71515778,
+     71515780,
+     71515782
+    ],
+    "ids_truncated": true
+   }
+  },
+  "marginal": {
+   "7->14": 0
+  },
+  "span": {
+   "first": "2026-09-10T00:20:00",
+   "last": "2026-11-10T01:15:00"
+  },
+  "note": "`within[h]` counts UPCOMING events inside h days. Undated events are their own bucket and are never counted as beyond the horizon; events already started are excluded from both."
+ },
+ "event_date": "2026-09-10T00:20:00Z"
+}

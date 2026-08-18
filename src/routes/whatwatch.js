@@ -166,4 +166,108 @@ function panelRows(entries, bandSamples, viewerId) {
   return [...priced, ...unpriced];
 }
 
-module.exports = { CFG, remainStats, sweat, highSweat, sweatLabel, needLine, panelRows };
+/* ── THE LEAGUE-WIDE SWING LAYER (member-site pass, 2026-08-16) ──────────────
+ *
+ * Cory's extension to this panel: "what to watch that could swing a matchup"
+ * across ALL games — the one-line STAKE per game, so everyone tracks
+ * everyone's matchups. The stake is computed from real standings arithmetic
+ * (re-rank the table under each result of THIS game, holding everything else
+ * fixed), never from vibes: what place the winner takes, whether the playoff
+ * cut line moves, who holds the toilet, where the $100 lead is riding.
+ *
+ * Per-NFL-game grouping ("which league matchups can the MNF slate still flip")
+ * needs the per-player feed this panel already declares missing (remainKnown);
+ * `gameStake` takes the game as a PAIR so the grouping layer can call it
+ * unchanged the week that feed lands.
+ */
+
+/** Rank owners the way the standings sort: wins desc, then points-for desc.
+ *  @returns { [owner_id]: rank } (1-based) */
+function rankOwners(rows) {
+  const sorted = [...rows].sort((a, b) => b.wins - a.wins || b.pf - a.pf);
+  const out = {};
+  sorted.forEach((r, i) => { out[r.owner_id] = i + 1; });
+  return out;
+}
+
+/**
+ * The one-line stake of a single game.
+ * @param aId/bId  the two owners in the game
+ * @param ctx { rows: [{owner_id, wins, losses, pf}] (all teams, current),
+ *              cut: playoff spots, names: id -> name,
+ *              whLeaderId: who currently leads the weekly $100 (optional) }
+ * @returns string | null  (null = nothing sharper than "a game happens")
+ */
+function gameStake(aId, bId, ctx) {
+  if (!ctx || !Array.isArray(ctx.rows) || ctx.rows.length < 4) return null;
+  const rows = ctx.rows;
+  const nameOf = id => (ctx.names && ctx.names[id]) || `#${id}`;
+  const a = rows.find(r => Number(r.owner_id) === Number(aId));
+  const b = rows.find(r => Number(r.owner_id) === Number(bId));
+  const parts = [];
+  if (a && b) {
+    const bump = (winner) => rows.map(r => {
+      if (r.owner_id === winner.owner_id) return { ...r, wins: (r.wins || 0) + 1 };
+      return r;
+    });
+    const ifA = rankOwners(bump(a));
+    const ifB = rankOwners(bump(b));
+    const cut = Number(ctx.cut) || 4;
+    const last = rows.length;
+    // The playoff line: does THIS game decide who sits inside the cut tonight?
+    const aCross = ifA[a.owner_id] <= cut && ifB[a.owner_id] > cut;
+    const bCross = ifB[b.owner_id] <= cut && ifA[b.owner_id] > cut;
+    if (aCross && bCross) {
+      parts.push(`playoff-line game — the winner sits ${ord(Math.min(ifA[a.owner_id], ifB[b.owner_id]))}, inside the top ${cut}; the loser falls out`);
+    } else if (aCross || bCross) {
+      const who = aCross ? a : b, rankW = aCross ? ifA[a.owner_id] : ifB[b.owner_id],
+        rankL = aCross ? ifB[a.owner_id] : ifA[b.owner_id];
+      parts.push(`${nameOf(who.owner_id)} is playing for the cut: a win sits ${ord(rankW)} (top ${cut}), a loss ${ord(rankL)}`);
+    } else if (ifA[a.owner_id] < ifB[a.owner_id] || ifB[b.owner_id] < ifA[b.owner_id]) {
+      // No cut drama — say the sharpest real movement in the table.
+      const aMove = ifB[a.owner_id] - ifA[a.owner_id];   // places A gains by winning
+      const bMove = ifA[b.owner_id] - ifB[b.owner_id];
+      const who = aMove >= bMove ? a : b;
+      const win = who === a ? ifA[a.owner_id] : ifB[b.owner_id];
+      const lose = who === a ? ifB[a.owner_id] : ifA[b.owner_id];
+      if (win !== lose) parts.push(`${nameOf(who.owner_id)} climbs to ${ord(win)} with a win, sits ${ord(lose)} with a loss`);
+    }
+    // The toilet: only when THIS game decides who holds last place tonight.
+    const aLast = ifB[a.owner_id] === last, bLast = ifA[b.owner_id] === last;
+    if (aLast && bLast) parts.push('the loser holds last place — the toilet is on the line');
+    else if ((aLast && ifA[a.owner_id] !== last) || (bLast && ifB[b.owner_id] !== last)) {
+      const who = aLast ? a : b;
+      parts.push(`${nameOf(who.owner_id)} climbs off the bottom with a win`);
+    }
+  }
+  if (ctx.whLeaderId != null && (Number(ctx.whLeaderId) === Number(aId) || Number(ctx.whLeaderId) === Number(bId))) {
+    parts.push(`the $100 lead (${nameOf(Number(ctx.whLeaderId))}) is riding in this one`);
+  }
+  return parts.length ? parts.join(' · ') : null;
+}
+
+function ord(n) {
+  const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+/**
+ * The narrower "game night" window used to PROMOTE the watch panel from
+ * elsewhere — the scoreboard banner, the home page link (Cory, 2026-08-18:
+ * "only on Sunday night game and Monday! And go away Tuesday through Sunday
+ * afternoon"). NOT the panel's own /watch gate (member.js `inWindow`), which
+ * stays open all Sunday on purpose — the early/late slate has real sweat too
+ * and narrowing that would hide live games, not just quiet promotion.
+ * Sunday from 7pm ET (ahead of the 8:20 SNF kickoff) through midnight, plus
+ * all of Monday. Off Tuesday through Sunday afternoon.
+ */
+function primetimeWindow(now) {
+  const et = new Date((now || new Date()).toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = et.getDay();
+  if (day === 1) return true;                // Monday, all day
+  if (day === 0) return et.getHours() >= 19;  // Sunday, from 7pm ET
+  return false;
+}
+
+module.exports = { CFG, remainStats, sweat, highSweat, sweatLabel, needLine, panelRows,
+  rankOwners, gameStake, ord, primetimeWindow };

@@ -229,5 +229,132 @@ function ctxAt(pick, board) {
     })());
 }
 
+
+// --- THE ARTIFACT FLAG IS GENERAL, AND THE PANEL ACTUALLY SHOWS IT ----------
+/* `consensus()` has returned `lead_driver`, `driver_is_artifact`, `runner_up`
+ * and `gap_to_second` since it was written, with a comment stating exactly why:
+ * "A 7/7 driven by `need` is the artifact flag; a 7/7 driven by `value` is real
+ * agreement." This suite asserted all four are CORRECT. Nothing asserted anyone
+ * READS them — and nothing did. Rule 14 on the one field whose job is to stop
+ * the misread the strip invites.
+ *
+ * MEASURED ON THE 2026-08-14 LIVE BOARD AT PICK 33, CORY'S FIRST PICK
+ * (HISTORY — the 08-17 rebuild flipped this case to a live-driven consensus;
+ * see the re-pin at the bottom of this block):
+ *
+ *     rec list #1     Colston Loveland (TE) 17.3
+ *     shadow strip    "7 of 7 -> Zay Flowers"   (no contested flag)
+ *     Flowers's rank in the real list: 4th
+ *
+ * all seven driven by `need` at values 42.7 / 21.3 / 42.7 / 85.4 / 42.7 / 64.0 /
+ * 42.7 — one need computation times each strategy's need weight. Seven
+ * "independent strategies" are seven multiples of one number, and `need` is
+ * weighted ZERO on the board he drafts from. */
+{
+  const fs = require('fs');
+  const path = require('path');
+  const ROOT = path.join(__dirname, '..', '..');
+  const E2 = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+  const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  const row = (drv) => ([
+    { player_id: 'x', player: 'A', position: 'RB', key: 'k1', driver: drv, runner_up: 'B', gap_to_second: 2 },
+    { player_id: 'x', player: 'A', position: 'RB', key: 'k2', driver: drv, runner_up: 'B', gap_to_second: 3 },
+  ]);
+
+  // -- the general form: `need` is not special, it is just one of the five zeros
+  const zeroed = Object.keys(E2.MEASURED_WEIGHTS).filter(k => E2.MEASURED_WEIGHTS[k] === 0);
+  check('CONTROL — production really does zero more than one term, or the '
+    + 'generalisation below is pointless', zeroed.length >= 2, zeroed.join(','));
+  check('EVERY zero-weighted driver raises driver_zero_weighted, not only `need`',
+    zeroed.every(k => SH.consensus(row(k)).driver_zero_weighted === true),
+    zeroed.filter(k => !SH.consensus(row(k)).driver_zero_weighted).join(','));
+  check('and a LIVE term does not — the flag means "the board ignores this", not '
+    + '"the shadows agreed"',
+  SH.consensus(row('value')).driver_zero_weighted === false,
+  JSON.stringify(SH.consensus(row('value')).driver_zero_weighted));
+  check('FAIL ARM — driver_is_artifact alone would have missed the other four, '
+    + 'which is why the general form was added',
+  zeroed.filter(k => SH.consensus(row(k)).driver_is_artifact).length < zeroed.length,
+  zeroed.filter(k => SH.consensus(row(k)).driver_is_artifact).join(','));
+
+  // -- and the strip renders it
+  check('the panel reads lead_driver rather than computing its own',
+    /cons\.lead_driver/.test(APP));
+  check('it treats the artifact flag as a WARNING state, not a decoration',
+    /cons\.driver_is_artifact \|\| cons\.driver_zero_weighted/.test(APP)
+      && /ONE TERM, NOT/.test(APP));
+  check('it says the board weights that term zero — the fact that makes the '
+    + 'unanimity hollow', /which the board weights 0/.test(APP));
+  check('the runner-up and margin are rendered too, both previously computed and '
+    + 'dropped', /cons\.runner_up/.test(APP) && /cons\.gap_to_second/.test(APP));
+  check('and each strategy row shows the term that drove IT, so a reader can see '
+    + 'seven-arguments vs one-argument-seven-times without trusting a summary',
+  /r\.driver/.test(APP) && /sp-rowdriver/.test(APP));
+
+  // -- the measured case, re-derived rather than quoted
+  /* RE-PINNED 2026-08-18, THE THIRD TIME THIS CASE HAS MOVED, and the pin
+   * moves WITH the reason on the record each time. 08-14: pick 33 was 7/7
+   * Zay Flowers via `need` — hollow, flagged (block comment above, history).
+   * 08-17: the rebuild re-spread the board; 6/7 Colston Loveland via
+   * `keeper`, a live-weighted term — real agreement, unflagged. 08-18: the
+   * keeper-vorp badge fix collapsed the incumbent-bar subsidy that was
+   * inflating the keeper term (~15 phantom points; intervention-rate.test.js
+   * carries the measurement), and pick 33 stopped being a consensus at all:
+   * 5/7 via `value`, contested. A control pinned to a pick that no longer
+   * shows the phenomenon pins nothing — so the case moved to where the live
+   * board actually exhibits BOTH sides today, which is a STRONGER pin than
+   * either predecessor:
+   *
+   *   pick 68: 7/7 Parker Washington via `need`  — zero-weighted, FLAGGED
+   *            (the firing side, now measured live, not only synthetic)
+   *   pick 73: 7/7 Jayden Reed via `value`       — live-weighted, quiet
+   *
+   * Both are uncontested, which retires the old "contested might catch it"
+   * question by measurement: `contested` reads false on the hollow case and
+   * the real one alike — it cannot tell them apart, and that is exactly why
+   * the separate artifact signal exists. */
+  const B2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const keepers = (B2.kept_players || []).slice();
+  const priced = B2.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
+  const liveCase = (pick) => {
+    const gone = new Set(priced.slice(0, pick - 1).map(x => String(x.player_id)));
+    keepers.forEach(t => gone.add(String(t.player_id)));
+    const board = B2.players.filter(x => !gone.has(String(x.player_id)));
+    const ctx = { board: board, nextPick: pick + 15, totalPicks: 150, myPicksLeft: 12,
+      roster: keepers.slice(), doctrine: null, myPickIndex: 0, totalMyPicks: 12,
+      currentKeepers: keepers.slice(), league: B2.league, weights: E2.MEASURED_WEIGHTS,
+      runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: pick,
+      intervening: 15, roundsLeft: 12 };
+    return SH.consensus(SH.project(board, ctx, 4, keepers.slice()));
+  };
+  const cHollow = liveCase(68);
+  const cReal = liveCase(73);
+  [['68', cHollow], ['73', cReal]].forEach(([p, c]) => console.log(
+    '      pick ' + p + ': ' + c.agree + '/' + c.n + ' -> ' + c.lead
+    + ' · driver ' + c.lead_driver + ' · zero-weighted ' + c.driver_zero_weighted
+    + ' · contested ' + c.contested));
+  check('CONTROL — the live board still carries a unanimous HOLLOW consensus, '
+    + 'and the flag fires on it (the firing side, measured live)',
+  cHollow.agree === cHollow.n && cHollow.driver_zero_weighted === true
+    && cHollow.driver_is_artifact === true,
+  cHollow.agree + '/' + cHollow.n + ' driver ' + cHollow.lead_driver);
+  check('CONTROL — the live board also carries a unanimous REAL consensus, or '
+    + 'there is nothing here to mislabel', cReal.agree >= Math.ceil(cReal.n * 0.75),
+  cReal.agree + '/' + cReal.n);
+  check('and it is NOT flagged — the strip stays quiet on agreement driven by '
+    + 'a term the board really uses',
+  cReal.driver_zero_weighted === false && cReal.driver_is_artifact === false,
+  'driver ' + cReal.lead_driver);
+  check('FAIL ARM — the real case\'s lead driver is genuinely nonzero in '
+    + 'MEASURED_WEIGHTS, or the quiet strip above would be the exact mislabel '
+    + 'this section exists to catch', (E2.MEASURED_WEIGHTS[cReal.lead_driver] || 0) !== 0,
+  cReal.lead_driver + '=' + E2.MEASURED_WEIGHTS[cReal.lead_driver]);
+  check('CONTROL — `contested` cannot tell the hollow case from the real one '
+    + '(false on BOTH), which is why the separate signal exists rather than '
+    + 'reusing that flag',
+  cHollow.contested === false && cReal.contested === false,
+  'hollow=' + cHollow.contested + ' real=' + cReal.contested);
+}
+
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);
 process.exit(fail ? 1 : 0);

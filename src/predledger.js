@@ -22,6 +22,18 @@
 // cannot do if the banner's state was never written down.
 
 const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
+               // The grade for a `survival` row: was he still there at the pick
+               // we spoke about. `buildEntry` REJECTS an undeclared kind, so
+               // omitting this would have thrown away every resolution silently
+               // from the client's point of view — the loop would read as closed
+               // in the code and be empty in the data.
+               'survival_resolved', 'run_resolved',
+               // The grade for an `lrm` row: at the pick the strip called safe,
+               // was anybody from that pool still on the board. Declared here at
+               // the same time the resolver was written, because an undeclared
+               // kind is REJECTED by buildEntry — which is how the loop would
+               // read as closed in the code and be empty in the data.
+               'lrm_resolved',
                'doctrine', 'doctrine_decline',
                // Experiment 31 data collection. Every non-Cory pick in a MOCK
                // room is Sleeper's default ordering executing — especially the
@@ -64,6 +76,20 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                // good — and only after the one night it could be collected.
                'opponent_prediction',            // predicted before the pick
                'opponent_prediction_resolved',   // graded against the actual
+               // A FOURTH TIME, to me, on 2026-08-14 — and caught the same way,
+               // by `emitted ⊆ registered` going red rather than by anyone
+               // reading the emit site. I added the coverage row precisely
+               // because the opponent experiment had no denominator, and the
+               // row carrying the denominator would itself have 400'd at the
+               // boundary and been lost. The instrument built to stop evidence
+               // going missing, going missing.
+               //
+               // The lesson is not "remember to register kinds" — it has been
+               // forgotten four times, so remembering is not the mechanism.
+               // The test IS the mechanism, and it works.
+               'opponent_prediction_coverage',   // the denominator: how many
+                                                 // opponent picks were due vs
+                                                 // predicted, and why any gap
 
                /* ── IN-SEASON KINDS (experiment 37's rail) ──────────────────
                 *
@@ -294,6 +320,49 @@ async function append(store, raw, { now } = {}) {
 }
 
 /**
+ * Append MANY entries in one pass — the player-week emitter writes hundreds of
+ * rows a week, and append()'s per-call listKeys makes that O(n²) against a
+ * season's ledger. Same validation, same write path, same append-only
+ * invariant; the difference is ONE key listing and ONE seq-block reservation.
+ *
+ * THE COUNTER IS RESERVED BEFORE ANY ENTRY IS WRITTEN, deliberately: a crash
+ * mid-batch then leaves a gap in the seq stream (harmless — readAll filters
+ * nulls) rather than a counter BEHIND the max written key, which would make
+ * every later append() collide with an existing key and refuse forever.
+ */
+async function appendBatch(store, raws, { now } = {}) {
+  if (!raws || !raws.length) return [];
+  const nowIso = (now ? new Date(now) : new Date()).toISOString();
+  const season = String(raws[0].season);
+  for (const raw of raws) {
+    if (raw == null || raw.season == null) throw new Error('ledger entry needs a season');
+    if (String(raw.season) !== season) {
+      throw new Error('appendBatch: one batch, one season — mixed seasons would '
+        + 'interleave two counters and corrupt both');
+    }
+    buildEntry(raw, { nowIso, seq: 0 });   // validate BEFORE reserving any seq
+  }
+  const ck = counterKey(season);
+  const existing = await store.listKeys(`pred:${season}:`);
+  let cur = await store.get(ck);
+  if (cur == null) {
+    cur = existing.reduce((m, k) => Math.max(m, Number(k.split(':').pop()) || 0), 0);
+  }
+  cur = Number(cur);
+  await store.set(ck, cur + raws.length);   // reserve the block FIRST (see above)
+  const out = [];
+  for (const raw of raws) {
+    cur += 1;
+    const entry = buildEntry(raw, { nowIso, seq: cur });
+    const key = seqKey(season, cur);
+    assertFreshKey(existing, key);
+    await store.set(key, entry);
+    out.push(entry);
+  }
+  return out;
+}
+
+/**
  * Read the whole ledger for a season, sorted by seq. READ-ONLY — this is the
  * path grading and verification use, and it performs no writes, ever.
  */
@@ -307,5 +376,5 @@ module.exports = {
   KINDS, COUNTERFACTUAL_KINDS, FORECAST_TYPES,
   assertCounterfactual, assertForecast,
   seqKey, counterKey, buildEntry, assertFreshKey,
-  nextSeq, append, readAll,
+  nextSeq, append, appendBatch, readAll,
 };

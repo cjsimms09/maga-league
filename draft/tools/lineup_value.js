@@ -20,7 +20,9 @@
  * IS NOT: the full objective. The real quantity is a sum over WEEKS of the best
  *   legal lineup that week, which needs weekly distributions, byes and injuries.
  *   A lineup is a MAX OVER STARTABLE PLAYERS, so variance changes the answer
- *   even when means agree -- and proj_sd is currently 0.25 * proj_mean, a
+ *   even when means agree -- and proj_sd was 0.25 * proj_mean on a bundle board
+ *   until 2026-08-17 (PRE-08-17; the harness now carries measured p90/p10/sd per (position, band)); production's is now the measured sd ratio. It is
+ *   still proj_mean x a per-CELL constant, so it remains
  *   manufactured constant. THAT IS WHY THIS IS A LOWER BOUND ON THE ANSWER
  *   RATHER THAN THE ANSWER, and it is C's uncertainty work that lifts it.
  *

@@ -1,0 +1,149 @@
+name: Config check (read-only)
+
+# VERIFY A HUMAN CONFIG STEP WITHOUT REVEALING A VALUE.
+#
+# Built 2026-08-15 when Cory added SITE_URL (repo variable) + GRADE_CRON_KEY
+# (repo secret) for the weekly weights mirror and asked "can you check that it
+# was done right" — and there was no way to: secrets are unreadable by design,
+# and the workflow that consumes them (weekly-grade.yml) only becomes
+# dispatchable once it reaches the default branch. This is the gap filler for
+# that class of question, kept because the next config step will raise it
+# again.
+#
+# READ-ONLY BY CONSTRUCTION: prints PASS/FAIL per item and string LENGTHS
+# only — never a value. Secrets echoed into logs get masked by Actions anyway,
+# but this never puts one in a position to be masked.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SITE_URL repository variable
+        env:
+          V: ${{ vars.SITE_URL }}
+        run: |
+          if [ -z "$V" ]; then echo "FAIL  SITE_URL variable is NOT set (Variables tab, not Secrets)"; exit 1; fi
+          echo "PASS  SITE_URL is set (${#V} chars)"
+          case "$V" in
+            https://*) echo "PASS  it starts with https://";;
+            *) echo "FAIL  it does not start with https:// — value looks wrong"; exit 1;;
+          esac
+
+      - name: GRADE_CRON_KEY repository secret
+        env:
+          K: ${{ secrets.GRADE_CRON_KEY }}
+        run: |
+          if [ -z "$K" ]; then echo "FAIL  GRADE_CRON_KEY secret is NOT set (Secrets tab)"; exit 1; fi
+          echo "PASS  GRADE_CRON_KEY is set (${#K} chars)"
+
+      - name: The site answers at SITE_URL
+        env:
+          V: ${{ vars.SITE_URL }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$V/build-stamp.json" || echo 000)
+          if [ "$code" = "200" ]; then echo "PASS  $V/build-stamp.json answers 200"; else
+            echo "FAIL  $V/build-stamp.json returned $code — check the URL value"; exit 1; fi
+
+      - name: weights-read endpoint (THE endpoint the weekly job actually calls)
+        env:
+          V: ${{ vars.SITE_URL }}
+          K: ${{ secrets.GRADE_CRON_KEY }}
+        run: |
+          # CORRECTED 2026-08-15, after this check burned three runs testing
+          # the WRONG DOOR: the weekly runner calls the read-only weights-read
+          # function, NEVER grade-cron's manual key (that would RUN a grading
+          # pass as a side effect — the runner's own header forbids it), and
+          # grade-cron is a SCHEDULED function whose direct-hit semantics are
+          # not a reliable oracle anyway. weights-read is a plain GET, safe to
+          # probe. It ships with the relay branch, so until that merges the
+          # honest verdict on the live site is NOT-DEPLOYED-YET, not failure.
+          body=$(curl -s --max-time 30 -w "\n%{http_code}" "$V/.netlify/functions/weights-read?key=$K" || echo "curl-failed
+          000")
+          code=$(printf '%s' "$body" | tail -1)
+          resp=$(printf '%s' "$body" | head -1 | cut -c1-200)
+          case "$code" in
+            200) echo "PASS  weights-read answered 200 with the stored key: $resp";;
+            401|403) echo "FAIL  weights-read REFUSED the stored key ($code: $resp) — the Netlify GRADE_CRON_KEY and the GitHub secret do not match"; exit 1;;
+            404) echo "WAIT  weights-read is not on the live site yet (404) — it deploys with the relay-branch merge; both GitHub values above are verified and nothing more is needed from a human";;
+            *) echo "WARN  weights-read returned $code ($resp) — inconclusive; GitHub values above are still verified";;
+          esac
+
+      # ── Added 2026-08-16: Cory added the OpenAI + odds keys and asked for a
+      # check ("openAI api key is in github already so so is the odds api").
+      # Same contract as above: presence + length only, never a value. The
+      # odds key is checked under BOTH plausible names since the instruction
+      # said ODDS_API_KEY but the tab autocompletes nothing — whichever is
+      # set passes, and the step names the one it found.
+      # Name hunt (2026-08-16): the strict OPENAI_API_KEY check below came back
+      # EMPTY though Cory says both keys are in — so the names differ or the
+      # values landed in the Variables tab / another scope. Actions cannot
+      # enumerate secrets, but it CAN reference candidates: this prints which
+      # of the plausible names are set (never a value), so the fix is one
+      # rename instead of a guessing game.
+      - name: Which key names actually exist (diagnostic, never fails)
+        env:
+          S_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          S_OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          S_OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
+          S_OPENAI: ${{ secrets.OPENAI }}
+          S_OPENAI_SECRET: ${{ secrets.OPENAI_SECRET }}
+          S_CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+          S_ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          S_THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          S_ODDS_API: ${{ secrets.ODDS_API }}
+          S_ODDSAPI_KEY: ${{ secrets.ODDSAPI_KEY }}
+          S_ODDS_KEY: ${{ secrets.ODDS_KEY }}
+          S_BETTING_API_KEY: ${{ secrets.BETTING_API_KEY }}
+          S_SLEEPER_API_KEY: ${{ secrets.SLEEPER_API_KEY }}
+          S_SLEEPER_API: ${{ secrets.SLEEPER_API }}
+          S_SLEEPER_KEY: ${{ secrets.SLEEPER_KEY }}
+          S_SLEEPER: ${{ secrets.SLEEPER }}
+          S_BALL_DONT_LIE_API: ${{ secrets.BALL_DONT_LIE_API }}
+          S_BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+          S_BALL_DONT_LIE_API_KEY: ${{ secrets.BALL_DONT_LIE_API_KEY }}
+          S_BALLDONTLIE: ${{ secrets.BALLDONTLIE }}
+          S_SPORTSGAME_ODDS_API: ${{ secrets.SPORTSGAME_ODDS_API }}
+          S_SPORTSGAMEODDS_API_KEY: ${{ secrets.SPORTSGAMEODDS_API_KEY }}
+          S_SPORTS_GAME_ODDS_API: ${{ secrets.SPORTS_GAME_ODDS_API }}
+          S_SPORTSGAMEODDS: ${{ secrets.SPORTSGAMEODDS }}
+          V_OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+          V_ODDS_API_KEY: ${{ vars.ODDS_API_KEY }}
+        run: |
+          found=0
+          for v in S_OPENAI_API_KEY S_OPENAI_KEY S_OPEN_AI_API_KEY S_OPENAI S_OPENAI_SECRET S_CHATGPT_API_KEY \
+                   S_ODDS_API_KEY S_THE_ODDS_API_KEY S_ODDS_API S_ODDSAPI_KEY S_ODDS_KEY S_BETTING_API_KEY \
+                   S_SLEEPER_API_KEY S_SLEEPER_API S_SLEEPER_KEY S_SLEEPER \
+                   S_BALL_DONT_LIE_API S_BALLDONTLIE_API_KEY S_BALL_DONT_LIE_API_KEY S_BALLDONTLIE \
+                   S_SPORTSGAME_ODDS_API S_SPORTSGAMEODDS_API_KEY S_SPORTS_GAME_ODDS_API S_SPORTSGAMEODDS \
+                   V_OPENAI_API_KEY V_ODDS_API_KEY; do
+            val="${!v}"
+            kind="secret"; case "$v" in V_*) kind="VARIABLE (wrong tab — move to Secrets)";; esac
+            name="${v#S_}"; name="${name#V_}"
+            if [ -n "$val" ]; then echo "FOUND  $name is set as a $kind (${#val} chars)"; found=1; fi
+          done
+          [ "$found" = "1" ] || echo "NONE of the candidate names are set in this repo's Actions secrets/variables — the keys may be in a different repo, or under Codespaces/Dependabot secrets instead of Actions secrets"
+
+      - name: OPENAI_API_KEY repository secret
+        env:
+          K: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$K" ]; then echo "FAIL  OPENAI_API_KEY secret is NOT set (Secrets tab, exact name)"; exit 1; fi
+          echo "PASS  OPENAI_API_KEY is set (${#K} chars)"
+          case "$K" in
+            sk-*) echo "PASS  it has the expected sk- prefix";;
+            *) echo "WARN  it does not start with sk- — double-check you pasted the key itself, not a label";;
+          esac
+
+      - name: Odds API repository secret (ODDS_API_KEY or THE_ODDS_API_KEY)
+        env:
+          K1: ${{ secrets.ODDS_API_KEY }}
+          K2: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          if [ -n "$K1" ]; then echo "PASS  ODDS_API_KEY is set (${#K1} chars)"; exit 0; fi
+          if [ -n "$K2" ]; then echo "PASS  THE_ODDS_API_KEY is set (${#K2} chars) — workflows will use this name"; exit 0; fi
+          echo "FAIL  neither ODDS_API_KEY nor THE_ODDS_API_KEY is set — check the Secrets tab spelling"; exit 1

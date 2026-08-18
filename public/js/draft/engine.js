@@ -17,10 +17,17 @@
 
   // ---- config knobs (every magic number lives here, with its reasoning) ----
   const CFG = {
-    // Mirrors survival.js — a source-provided sd always wins over both.
-    ADP_SD_FLOOR: 3.0,        // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,        // was 0.22; see survival.js for why, and for why
-    ADP_SD_CAP: 15.0,         // this is an interim, not a calibration
+    /* Mirrors survival.js — a source-provided sd always wins over both.
+     * READ FROM survival.js RATHER THAN RETYPED (2026-08-17): this used to be
+     * a hand-copied 0.15/3.0/15.0, and when Cory's adp_sd ruling moved the
+     * real constants to 0.11/2.0 (SHIPPED block in keepers.py; parity held by
+     * test_survival_parity.py) the copy silently kept the OLD pair — a mirror
+     * that can drift is a second source of truth wearing the first one's name.
+     * adpSd itself is S.adpSd, so these keys were documentation; now they are
+     * documentation that cannot lie. */
+    ADP_SD_FLOOR: S.CFG.ADP_SD_FLOOR,
+    ADP_SD_RATE: S.CFG.ADP_SD_RATE,
+    ADP_SD_CAP: S.CFG.ADP_SD_CAP,
     RUN_WINDOW: 10,           // picks of history the Bayesian update looks at
     RUN_DAMPING: 0.5,         // how hard observed rates move the hazard
     RUN_MIN: 0.6,             // clamp: a cold position can't go below this
@@ -76,6 +83,24 @@
     PATHS_POOL: 10,
     get PATHS_BAND() { return (this.COIN_FLIP_GAP == null ? 1 : this.COIN_FLIP_GAP) * 4; },
     PATHS_MAX: 4,
+    /* THE FLOOR ON DIRECTIONS OFFERED (2026-08-14). PATHS_BAND above answers
+     * "are these priced alike"; it was also answering "does this option exist",
+     * and at 10 of Cory's 12 picks the answer to the second was ONE. A single
+     * direction is not a decision, and its leader is by construction the same
+     * player the recommendations panel already prints at #1 — which is exactly
+     * what he reported seeing.
+     *
+     * THREE, NOT FOUR OR TWO, and the reason is his own two complaints, which
+     * point in opposite directions and bracket it. Two leaves no middle option
+     * to reject, which is how a menu of two becomes a yes/no. Four is what the
+     * panel showed at pick 110 — leaders 0.0, 0.5, 0.7 and 3.6 apart, four
+     * things at equal visual weight separated by less than a point — which he
+     * could not read. PATHS_MAX stays 4, so this narrows nothing; it is a floor
+     * under the count, not a new target for it.
+     *
+     * It is a FLOOR, so a board that genuinely holds only two clusters still
+     * renders two. This never invents a direction. */
+    PATHS_MIN: 3,
     // Tier-urgency at/above this makes a path a "cliff — take it now" direction
     // rather than a "value" one; it drives both the name and the when-it's-right.
     PATHS_CLIFF_URGENCY: 6.0,
@@ -114,8 +139,9 @@
      *
      * The bench branch does not contain `value` at all — deliberately, VONA is
      * meaningless for a man you cannot start — so VALUE_WEIGHT_FLOOR does not
-     * reach it. Its intended anchor is CEILING, and MEASURED_WEIGHTS sets
-     * ceiling to 0, which left `0.5*stack + 1*keeper` deciding 120 of 240
+     * reach it. Its intended anchor is CEILING, and MEASURED_WEIGHTS then set
+     * ceiling to 0 (ruled to 0.45 on 2026-08-17 — see the record at the
+     * constant), which left `0.5*stack + 1*keeper` deciding 120 of 240
      * simulated picks. A flat same-NFL-team bonus was choosing my round-8
      * through round-13 picks.
      *
@@ -217,6 +243,14 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* WIRE-COMPARED BENCH BRANCH — ON by Cory's ruling, 2026-08-16 ("1. Yes"),
+     * made with the evidence in front of him: the QB2 anomaly that blocked
+     * this was exonerated (it belongs to VONA_SLOT_AWARE, which stays false),
+     * and the wire branch's bench timing matches the league's real history
+     * (bench_wire_comparison_claim_2026-08-15.md + the 60-room 3-arm sim).
+     * See the bench branch of vona() below for the formula. The standing gate
+     * protocol is unchanged for every OTHER switch: off until Cory rules. */
+    VONA_WIRE_BENCH: true,
     /* THE STRUCTURAL CAP, RESTORED 2026-08-13. It was added 2026-08-12 after the
      * roster-construction run, MEASURED (modal draft QB3 TE3 -> QB2 TE2), and
      * deleted the next day on my reading of Cory's "delete the cap" instruction.
@@ -318,7 +352,54 @@
      * the higher ceiling (the weekly-payout lean) — that lives in the recommend() sort,
      * not the composite. CEILING_LATE_FROM is the draft-fraction the ramp starts at. */
     CEILING_LATE_FROM: 0.6,       // ceiling term = 0 until 60% of the draft, then ramps to full
-    CEILING_TIEBREAK: true,       // same-tier/same-position near-ties lean to higher ceiling
+    /* ── TURNED OFF 2026-08-17. IT CANNOT EXPRESS UPSIDE ON THIS BOARD. ──────
+     *
+     * Cory, live: *"has Nix as the pick yet isn't the top QB on the rankings on
+     * the side?"* Reproduced exactly at pick 88 with Burrow rostered — the
+     * engine promoted Bo Nix over Brock Purdy and said so in its own words:
+     *
+     *   #123 Bo Nix       score 33.57  ceiling 478.61
+     *        "↑ ahead of Brock Purdy on upside — within 2 pts, higher ceiling"
+     *   #124 Brock Purdy  score 35.02  ceiling 460.87
+     *
+     * Nix projects 335.72 against Purdy's 350.2. He is 14.5 points WORSE and was
+     * promoted for "upside".
+     *
+     * THE REASON IS STRUCTURAL, NOT A TUNING MISS. `proj_ceiling` is
+     * `proj_mean × a per-(position, band) constant` — Spearman EXACTLY 1.000000
+     * against proj_mean inside every cell, 16 of 16 measured on this board
+     * (draft/audit/ceiling_is_still_a_cell_constant_2026-08-17.md). So:
+     *
+     *   - WITHIN a band the ratio is constant, so `cap(b) > cap(a)` can only
+     *     agree with the score it is trying to break. The swap never fires.
+     *   - ACROSS bands it decides on the difference between two cell constants.
+     *     Those are NOT ordered by quality — QB runs 1.230/1.316/1.426/1.484/1.094
+     *     but RB runs 1.721/1.635/1.640/1.890/1.434 and WR 1.296/1.740/1.318/
+     *     1.506/1.317. Which of two tied players wins depends on which cell he
+     *     landed in, and that is unrelated to his upside.
+     *
+     * So the tiebreak is either a NO-OP or ARBITRARY. It is never information.
+     * Here it was arbitrary in the direction that cost Cory trust in the column.
+     *
+     * THIS IS A HOLD, NOT A DELETION. The mechanism is sound and the day
+     * `proj_ceiling` carries per-player information — VOLATILITY-WIRING-PREREG.md
+     * §2, whose data is already committed — flipping this back on makes it mean
+     * what it always claimed to mean. `ceiling_tiebreak_needs_a_real_ceiling.test.js`
+     * ties the flag to that data property rather than to this date, so it
+     * unblocks itself automatically and fails loudly if the flag is flipped
+     * while the ceiling is still degenerate.
+     *
+     * The engine already warned about this class in the swap's own comment:
+     * "from the outside indistinguishable from a broken sort". It was not
+     * indistinguishable — it WAS wrong, for a reason the comment could not see. */
+    CEILING_TIEBREAK: true,       // the MECHANISM stays on; moreUpsideThanTheCellExplains() decides when it may fire
+    /* How much bigger b's ceiling/mean ratio must be before it counts as real
+     * upside rather than rounding. Within a cell today's ratios agree to ~1e-6
+     * (two-decimal storage), so anything above that noise floor is the right
+     * bar; 1e-3 leaves three orders of magnitude of headroom and still admits
+     * any genuine per-player spread — the measured realized-volatility signal
+     * spreads 1.57x-1.88x within a band, which clears this by a mile. */
+    CEILING_RATIO_EPS: 1e-3,
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
     RAIL_RUNAWAY_RATIO: 3.0,      // top score this many times the runner-up
     RAIL_DEFAULT_POS_CAP: { QB: 3, K: 2, DEF: 2, TE: 3 },
@@ -356,6 +437,10 @@
     // length of the list on screen — reporting a change below the fold would be
     // reporting a change you cannot see.
     WEIGHT_DIFF_DEPTH: 5,
+    /* The DEEPER window rankDiff also reports, so "no change to the top 5"
+     * cannot be read as "no change" — see the note in rankDiff. 25 because that
+     * is the candidate depth the war room actually renders. */
+    WEIGHT_DIFF_DEEP: 25,
 
     // --- auto-adjusting weights by draft phase ---
     // Round boundaries for the four phases. Not fitted — three prior drafts is
@@ -436,6 +521,10 @@
    *                   deviate without backing" demands. The weekly-payout ceiling LEAN is NOT
    *                   lost: it lives in the same-tier CEILING TIEBREAK (acts only on genuine
    *                   ties, where value is silent) and in the opt-in "Ceiling Chase" doctrine.
+   *                   ── SUPERSEDED 2026-08-17: the -4.8 was measured on a degenerate board
+   *                   (see the 08-14 block below) and the re-derivation on real ceilings
+   *                   reversed it. Cory ruled the weight non-zero; the full record is at
+   *                   MEASURED_WEIGHTS itself. This entry stays as the history of the zero.
    *   - tier 0, risk 0 : measured DRAG — they pull picks off the value anchor toward a
    *                   mechanism no payout rewards (tier −$235, risk −$143 pooled), worst
    *                   in the early rounds where the anchor is strongest.
@@ -503,10 +592,14 @@
    *               It is not evidence that ceiling is worthless. It is not
    *               evidence of anything.
    *
-   * THE VALUES ARE UNCHANGED AND THAT IS DELIBERATE. A null measurement is not a
+   * THE VALUES WERE UNCHANGED AND THAT WAS DELIBERATE. A null measurement is not a
    * licence to move a weight in the other direction — discovering that we do not
    * know what risk is worth is not discovering that it is worth something. Zero
    * stays until an experiment on a board carrying the real fields says otherwise.
+   * (For ceiling, that experiment now EXISTS and REVERSED the zero — measured-p90
+   * ceilings landed 2026-08-17, three preregistered runs beat zero 3/3, and Cory
+   * ruled 0.45 the same day. The record is at MEASURED_WEIGHTS. risk remains at
+   * zero exactly as this block argues.)
    * What changes is the LABEL: these are UNMEASURED settings sitting at a
    * default, not measured ones, and the panel copy below no longer claims they
    * "did nothing".
@@ -514,7 +607,69 @@
    * The other six are unaffected: vona, tier_urgency, need, ceiling, keeper, bye
    * and stack all vary on a bundle board (lab_term_degeneracy.js prints the
    * spread for each), so their experiments had something to measure. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
+  /* ── WHICH OF THE TWO A TEST SHOULD PASS, because getting this backwards is
+   *    silent and cost a full session on 2026-08-14 ─────────────────────────
+   *
+   * DEFAULT_WEIGHTS if you are testing a MECHANISM — "does the tier term do what
+   * it claims". Five of the eight terms are zero in MEASURED_WEIGHTS, and a
+   * zeroed term cannot exercise anything, so a mechanism test under production
+   * weights is a test of multiplication by zero. `engine.test.js` is right to
+   * use DEFAULT_WEIGHTS throughout.
+   *
+   * MEASURED_WEIGHTS if you are testing a SURFACE — "is the list Cory sees
+   * ranked / distinct / marked / capped". `app.js` initialises `state.weights`
+   * from this constant, so any other choice grades a board no screen renders.
+   * Measured on the same boards with weights as the only variable: the TOP
+   * recommendation differs at 7 of Cory's 12 picks, and 34 of 120 name slots.
+   *
+   * AND NEVER `|| undefined`. `rec_rows.test.js` and `paths_offer_options.test.js`
+   * both read `(D.defaults && D.defaults.weights) || undefined` — a key that has
+   * never existed on the artifact — so they silently took the mechanism weights
+   * while claiming to test the surface. Both suites now THROW if this export
+   * disappears rather than falling back to anything. */
+  /* ── ceiling 0 → 0.45, RULED 2026-08-17. Cory, verbatim: "IS THIS STUDIES?
+   * IF SO, YES." It is studies: three preregistered runs across two independent
+   * seed sets; EVERY value tested from 0.15 to 0.65 beats the shipped zero,
+   * 3/3 seeds, separably in 3/3 (the §7b record, DRAFT-WEEK-BRIEF.md; prereg
+   * draft/backtest/CEILING-REDERIVATION-PREREG.md, result
+   * draft/backtest/EXP-CEILING-REDERIVATION.md). The old zero was measured on
+   * a board where proj_ceiling was proj_mean x a constant — rank-identical to
+   * value (Spearman 1.0000) — and could not have come out any other way.
+   *
+   * WHY 0.45 AND NOT HIGHER — Cory asked "SHOULD IT BE HIGHER?" and the answer
+   * is NO: FRONTIER.md exp 21 (150 paired rooms on Cory's real keeper base)
+   * measured an INVERTED-U on ceiling tilt — λ=0.25 +$44/season, λ=0.5 +$56
+   * (CI [33, 78]), λ=2 −$18, λ=3 −$27 (CI excludes zero). 0.45 sits at the
+   * measured peak; higher moves toward the provably negative arm.
+   * POLICY-TOURNAMENT.md §5 reproduced the same shape from a different control.
+   *
+   * PREREG DEVIATION, RECORDED EXPLICITLY: all four preregs fixed a
+   * no-change-before-08-22 rule BEFORE any of them produced a number. Cory, as
+   * owner, explicitly overrode that hold on 2026-08-17. This is a RULED
+   * deviation, dated — not silent drift.
+   *
+   * CAVEAT THAT TRAVELS WITH THIS WEIGHT (attached, not resolved): under the
+   * measured-p90 ceilings (same-day ruling), upsideBonus's per-position
+   * normalization medians collapsed (QB 20.8→3.0, TE 13.1→2.5), so the term
+   * saturates at CEILING_MAX_BONUS for ~79 players (67 on the evening rebuild
+   * of the same day — the count moves with the daily board) and is near-binary
+   * at QB/TE. The 3/3-seed evidence EMBEDS this saturation; the September
+   * quantile re-run certifies or reverts.
+   *
+   * AUTHORITY (register 25): autoWeights() already ships phase ceilings 0.45
+   * (anchor) / 0.6 (build) / 0.8 (fill) / 0.5 (endgame), so when AUTO drives
+   * the weights IT is authoritative and this constant is the fallback / manual
+   * base. (Auto is a persisted browser toggle — app.js AUTO_KEY — and defaults
+   * OFF in a fresh browser; register 25's audit of which system is live at the
+   * table stands open.) 0.45 aligns this fallback with the low end of AUTO's
+   * own phase ramp, at the measured peak — so the toggle stops being a model
+   * change about upside.
+   *
+   * Blast radius, measured through recommend() on the live board at Cory's
+   * picks, ceiling 0 vs 0.45: 0 of the top-60 move at picks 33, 48 and 68;
+   * 19 move at 108 (max 4 spots); 32 at 128 (max 10); the TOP RECOMMENDATION
+   * NEVER CHANGES. A late-round bench-ordering change, not a board-wide one. */
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.45,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
   /* Which zeros are measured and which are merely defaults, as data rather than
@@ -527,7 +682,29 @@
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
-    ceiling: 'UNMEASURED — collinear with value on the backtest board',
+    ceiling: 'MEASURED, AND RULED NON-ZERO 2026-08-17 (Cory: "IS THIS STUDIES? '
+      + 'IF SO, YES"). The old zero came from a -4.8 [-26,+17] result taken on '
+      + 'a board where proj_ceiling was proj_mean x a constant, making the '
+      + 'ceiling term rank-identical to the value term (Spearman 1.0000); it '
+      + 'could not have come out any other way. Re-derived on the first '
+      + 'real-ceiling board (505 distinct ceiling/mean ratios where there was '
+      + '1): three preregistered runs, two independent seed sets, every value '
+      + 'from 0.15 to 0.65 beat the zero, 3/3 seeds positive and 3/3 separable '
+      + '— a zero-versus-non-zero result that does NOT depend on picking a '
+      + 'value. THE MAGNITUDE is set by FRONTIER.md exp 21\'s inverted-U '
+      + '(λ=0.25 +$44, λ=0.5 +$56 CI [33,78], λ=2 -$18, λ=3 -$27): 0.45 is '
+      + 'the measured peak, and Cory\'s "SHOULD IT BE HIGHER?" is answered NO '
+      + 'by the negative arm. PREREG DEVIATION, DATED: all four preregs fixed '
+      + 'a no-change-before-08-22 rule before producing numbers; Cory as owner '
+      + 'explicitly overrode that hold on 2026-08-17. CAVEATS THAT TRAVEL: the '
+      + 'collinearity is REDUCED, NOT REMOVED — the measured ceiling is still '
+      + 'proj_mean x a per-CELL constant, varying between bands and not within '
+      + 'them, so this prices cross-band dispersion only; and under the '
+      + 'measured-p90 ceilings the term saturates at CEILING_MAX_BONUS for '
+      + '~79 players, near-binary at QB/TE — the 3/3-seed evidence embeds that '
+      + 'saturation. The September quantile re-run certifies or reverts. '
+      + 'Prereg: draft/backtest/CEILING-REDERIVATION-PREREG.md. Result: '
+      + 'draft/backtest/EXP-CEILING-REDERIVATION.md',
   };
 
   /* Named strategies, as weight sets.
@@ -559,11 +736,21 @@
         + 'is full. The mask that does know runs on the needrule card, not here — filling '
         + 'QB and TE moves this top 70 by zero players. Cross-check the card before taking '
         + 'a second one-start starter. '
-        + 'RISK AND CEILING ARE OFF BUT WERE NEVER MEASURED: the backtest board carries '
-        + 'none of risk\'s five inputs, and its ceiling is a fixed 1.35x of the projection, '
-        + 'so both experiments were incapable of returning anything but zero. They stay at '
-        + 'zero as a default, not as a finding — a null measurement is no reason to turn '
-        + 'something on either.',
+        + 'RISK IS OFF AND WAS NEVER MEASURED: the backtest board carries none of its '
+        + 'five inputs, so that experiment was incapable of returning anything but zero. '
+        + 'It stays at zero as a default, not as a finding. '
+        + 'CEILING IS ON AT 0.45, RULED BY CORY 2026-08-17. Its old zero came '
+        + 'from a broken experiment — the board\'s ceiling used to be a fixed 1.35x of '
+        + 'the projection, so raising the ceiling slider was arithmetically the same as '
+        + 'raising value. Re-run 2026-08-17 on a board with real per-player ceilings, '
+        + 'EVERY setting tested from 0.15 to 0.65 beat zero in all three seeds, and a '
+        + 'third run on independent seeds replicated it. 0.45 is the measured peak of '
+        + 'the exp-21 inverted-U (heavier tilt measured NEGATIVE), so higher is not '
+        + 'better. This SHIPS BEFORE 8/22 on Cory\'s explicit override of the prereg '
+        + 'hold — a ruled, dated deviation, recorded at the weight. What it moves is '
+        + 'small and late: top-60 unchanged at picks 33-68, bench ordering shifts from '
+        + '~pick 100, the top recommendation never changes. September\'s quantile '
+        + 're-run certifies or reverts.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares
@@ -623,7 +810,7 @@
     depth = depth || CFG.WEIGHT_DIFF_DEPTH;
     const a = (before || []).slice(0, depth).map(s => s.player.name);
     const b = (after || []).slice(0, depth).map(s => s.player.name);
-    if (!a.length || !b.length) return { changed: false, message: '' };
+    if (!a.length || !b.length) return { changed: false, deepMoved: 0, message: '' };
     if (a[0] !== b[0]) {
       return { changed: true, topChanged: true,
         message: 'Now recommends ' + b[0] + ' over ' + a[0] + '.' };
@@ -637,9 +824,37 @@
           + (dropped.length ? dropped.join(', ') + ' out' : '') + '.' };
     }
     const moved = b.some((n, i) => a[i] !== n);
-    return { changed: moved, topChanged: false,
-      message: moved ? 'Reordered the top ' + depth + ', same names.'
-                     : 'No change to the top ' + depth + '.' };
+    /* ⚠️ "NO CHANGE" WAS A LIE ABOUT A DEEPER BOARD (2026-08-17).
+     *
+     * Cory: "All of our adjustment bars seemed to have no affect." Measured on
+     * the live board, that is what the tool TOLD him, and it was wrong:
+     *
+     *   tier  @ pick 33    9 of the top 25 reordered   -> "No change to the top 5."
+     *   risk  @ pick 33   16 of the top 25 reordered   -> "No change to the top 5."
+     *   risk  @ pick 120  17 of the top 25 reordered   -> "No change to the top 5."
+     *
+     * In 5 of 12 measured cells substantial movement was reported as nothing.
+     * The bars were never dead; this sentence was. A man who moves a slider,
+     * reads "No change", and concludes the adjuster does nothing has been
+     * misled by his own tool — and then stops using the adjusters, which is the
+     * expensive part.
+     *
+     * WEIGHT_DIFF_DEPTH stays 5 for the HEADLINE, because "did my actual pick
+     * change" is the first question and the top 5 is the right window for it.
+     * What changes is that a quiet top 5 no longer implies a quiet board: the
+     * deeper count is measured and reported beside it. Both facts, neither
+     * standing in for the other. */
+    const deepA = (before || []).map(s => s.player.name);
+    const deepB = (after || []).map(s => s.player.name);
+    const deepN = Math.min(CFG.WEIGHT_DIFF_DEEP || 25, deepA.length, deepB.length);
+    let deepMoved = 0;
+    for (let i = 0; i < deepN; i++) if (deepA[i] !== deepB[i]) deepMoved++;
+    const deeper = deepMoved
+      ? ' ' + deepMoved + ' of the top ' + deepN + ' reordered below it.' : '';
+    return { changed: moved || deepMoved > 0, topChanged: false,
+      deepMoved: deepMoved, deepDepth: deepN,
+      message: (moved ? 'Reordered the top ' + depth + ', same names.'
+                      : 'No change to the top ' + depth + '.') + deeper };
   }
 
   // Positional injury rates -> how much bye/injury insurance a bench body is worth.
@@ -813,7 +1028,92 @@
      * destroyed ordering among players who cannot start, and every one of them
      * showed up as the board filling with one-start positions. */
     const rate = INJURY_RATE[player.position] || 0.15;
+    if (CFG.VONA_WIRE_BENCH) {
+      const wb = wireBenchValue(player, ctx, forgone, rate);
+      if (wb != null) return wb;
+      // No wire sample for this position (K/DEF -- nflverse is offense-only,
+      // see wire_level.js's own accounting) -- fall back to the vorp rule
+      // rather than inventing a floor with no evidence behind it.
+    }
     return rate * (player.vorp || 0) - forgone;
+  }
+
+  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15.
+   *
+   * ⚠️ "OFF BY DEFAULT" WAS TRUE WHEN WRITTEN AND IS NOT NOW (session E,
+   * 2026-08-17; register E22). `CFG.VONA_WIRE_BENCH` was ruled ON 2026-08-16.
+   * The flag reads as enabled and the branch still cannot do its job, for TWO
+   * independent reasons, and only the first is already on the record:
+   *
+   *   1. FILED ALREADY (ROUTES, 2026-08-16): the branch is unreachable while
+   *      `VONA_SLOT_AWARE` is false, because `vona()` returns `straight` at the
+   *      top. Ruling pending; not this lane's to re-file.
+   *
+   *   2. NOT PREVIOUSLY FILED, AND IT CHANGES THE REMEDY: even reachable, the
+   *      DATA never arrives. `app.js:2079` reads `state.data.wire_level`, and
+   *      **`build.py` never writes `wire_level` onto the board** — the artifact
+   *      `draft/data/wire_level.json` is committed and real (422 scored
+   *      acquisitions, 2023-25) but is not joined into `public/draft_data.json`.
+   *      So `ctx.wireWeekly` is null in production.
+   *
+   * MEASURED with `VONA_SLOT_AWARE` forced true: supplying the committed
+   * artifact changes **65 player scores** at pick 93 (e.g. Joe Flacco −198.55 →
+   * −155.29). So the remedy on file — "finish slot-aware so the branch is
+   * reachable" — is NOT SUFFICIENT on its own: the branch would run and take its
+   * fallback for every player.
+   *
+   * AND THE FALLBACK IS THE WRONG ONE TO BE TAKING WHOLESALE. The `wb == null`
+   * path below is documented as the K/DEF case ("nflverse is offense-only"), i.e.
+   * a per-POSITION gap. With the map absent entirely, every position takes the
+   * two-position path.
+   *
+   * Cory's design, stated directly: "once you're drafting for bench (not a
+   * starter slot), a duplicate shouldn't be compared to the best available in
+   * the DRAFT — it should be compared to what you can get FREE off waivers. A
+   * backup QB averaging 24 isn't worth a roster spot if the wire gives you
+   * 22; a backup WR at 12 is, because the wire won't give you 10." The
+   * INJURY_RATE*vorp formula above cannot express this: vorp compares to the
+   * last real STARTER leaguewide, never to the wire, so a backup QB and a
+   * backup RB with equal vorp price identically even though replacing the QB
+   * costs nothing (the wire is nearly as good) and replacing the RB costs a
+   * lot (the wire is much worse).
+   *
+   * MEASURED (draft/tools/wire_level.js, 422 real 2023-2025 acquisition-week
+   * scores, committed at draft/data/wire_level.json so this is not a number
+   * anyone has to trust from prose): weekly medians QB 23.38, RB 7.80,
+   * WR 11.10, TE 11.60. Real bench-QB candidates score far below what the
+   * wire already gives (weeklyMine - wireWeekly often negative -> edgePerWeek
+   * floors at 0, INJURY_RATE*0 - forgone = -forgone, a hard discount), while
+   * real bench-RB candidates clear the wire by enough to price as genuine
+   * insurance.
+   *
+   * PROVEN, NOT ASSUMED: draft/tests/vona_wire_bench.test.js checks the
+   * arithmetic directly (both hand-built numbers and a K/DEF fallback case)
+   * and draft/tools/bench_wire_room_sim.js is a real, committed, runnable
+   * multi-room simulation — run it and read its output rather than trusting
+   * a claim about what it showed.
+   *
+   * STILL UNRESOLVED, stated so it is not lost: the first prototype's ad-hoc
+   * 60-room run reported QB2 in 100% of simulated rooms vs. 57% in real
+   * history — higher than history and not explained. The committed simulator
+   * above is what settles whether that persists on a reproducible run.
+   *
+   * ctx.wireWeekly: {POS: weekly points}, threaded through the same
+   * survivalCtx object ctx.roster/ctx.league already ride on rather than a
+   * module-level constant — a hardcoded snapshot would silently go stale as
+   * more wire data accumulates in-season, with nothing to catch it. Absent
+   * or missing a position -> null, so the caller falls back to the vorp rule
+   * exactly as if VONA_WIRE_BENCH were off, rather than inventing a number.
+   */
+  function wireBenchValue(player, ctx, forgone, rate) {
+    const wireWeekly = (ctx && ctx.wireWeekly) || {};
+    const wire = wireWeekly[player.position];
+    if (wire == null) return null;
+    const games = player.games_expected || 15;
+    const weeklyMine = (player.proj_mean || 0) / games;
+    const edgePerWeek = Math.max(0, weeklyMine - wire);
+    const seasonEdge = edgePerWeek * games;
+    return rate * seasonEdge - forgone;
   }
 
   /* The flex-eligible slice of the board, cached per scoring pass. Eligibility
@@ -1030,8 +1330,10 @@
      *
      * WHY THE ONESIE CAP DID NOT FIX IT, and this is the part that matters: the
      * cap treats the OUTPUT while this drives the INPUT. And the term was
-     * supposed to be OFF — MEASURED_WEIGHTS.ceiling is 0, because the ceiling
-     * effect measured -4.8 with a [-26,+17] interval and could not be signed.
+     * supposed to be OFF — MEASURED_WEIGHTS.ceiling was 0 at the time (ruled
+     * to 0.45 on 2026-08-17; see the record at the constant), because the
+     * ceiling effect measured -4.8 with a [-26,+17] interval and could not be
+     * signed.
      * But the bench branch floors it: `Math.max(BENCH_CEILING_FLOOR, w.ceiling)`
      * with BENCH_CEILING_FLOOR = 0.25 SILENTLY RE-ENABLES A WEIGHT THE
      * MEASUREMENT SET TO ZERO, for every bench pick. So the deliberately-
@@ -1217,9 +1519,39 @@
      * instead of silently promoting every duplicate. */
     const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|sus|susp|suspended|na|dnr|cov)$/i;
     if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
+      /* ⚠️ THE LINE SAID "insurance, not a starter" WHILE PRICING HIM AS A
+       * STARTER (session E, 2026-08-18; register E20).
+       *
+       * `discount: 1` means NO discount is applied — the application below is
+       * gated on `onesie.discount < 1` — so this branch prices a duplicate at
+       * FULL standalone value, exactly as if the position were empty. That is
+       * defensible on the football: if your starter is on PUP, this man plays.
+       * It is the opposite of what the old sentence told the reader.
+       *
+       * MEASURED on the live board with George Kittle (TE, PUP, proj 152.8)
+       * rostered and the FLEX closed: Travis Kelce ranks **4th at pick 73,
+       * score 6.1**. With the same roster and a HEALTHY TE1 he is 8th at 0.6 —
+       * a tenfold difference in score, under a line that said he was not being
+       * treated as a starter.
+       *
+       * The value exception fifty lines above was corrected away from
+       * `discount: 1` for precisely this reason ("it used to return discount 1
+       * … which is how a second quarterback reached FULL VALUE and board rank
+       * 1"). This branch is the one place that correction should NOT apply —
+       * the principle there is "priced low because he cannot start", and here he
+       * can. So the PRICE stays and the SENTENCE changes.
+       *
+       * AND IT NAMES WHAT THE MODEL DOES NOT KNOW. Every status in SERIOUS is
+       * treated identically: measured, PUP and IR produce the same rank and the
+       * same score, so "out roughly four games and then back" is priced exactly
+       * like "out for the season". Whether duration should enter is a model
+       * question, filed for A — but a reader deciding in the seconds a pick
+       * allows should not have to infer it. */
       return { duplicate: true, discount: 1, exception: 'injury',
-        why: pos + '2 — your starter is flagged ' + starter.injury_status
-          + '; this is insurance, not a starter' };
+        why: pos + (have + 1) + ' — your ' + pos + '1 is flagged '
+          + starter.injury_status + ', so he is priced as a STARTER at full value, '
+          + 'NOT discounted as a backup. The model does not weigh how long that '
+          + 'status lasts.' };
     }
 
     /* THE CAP LANDS HERE, AFTER EVERY EXCEPTION HAS HAD ITS SAY.
@@ -1832,7 +2164,8 @@
           /* PUBLISH THE TERM THAT WAS USED, NOT THE ONE THE WEIGHT VECTOR NAMES.
            * The bench branch scores on `max(BENCH_CEILING_FLOOR, w.ceiling)` times
            * a separately recomputed ceiling, while this published
-           * `w.ceiling * ceiling` — which is 0 under MEASURED_WEIGHTS. So on every
+           * `w.ceiling * ceiling` — which was 0 under MEASURED_WEIGHTS when this
+           * was found (0.45 since the 2026-08-17 ruling). So on every
            * bench pick the components disagreed with the score by up to 25 points,
            * and `share_of_gap` in the decision contract was computed against a gap
            * the components had not produced. Rule 16 broken by ARITHMETIC rather
@@ -2125,6 +2458,89 @@
    * are within TIE_THRESHOLD, lean to the higher ceiling — in this league a coin-flip
    * between equals goes to the one with more weekly-high upside. Bounded to genuine
    * near-ties, so it never overrides a real value gap. */
+  /* ── THE GUARD THAT STOPS THIS TIEBREAK FROM DECIDING ON A BAND CONSTANT ───
+   *
+   * Cory, live 2026-08-17: *"has Nix as the pick yet isn't the top QB on the
+   * rankings on the side?"* Reproduced at pick 88 — the engine promoted
+   * Bo Nix (proj 335.72, ceiling 478.61) over Brock Purdy (proj 350.2, ceiling
+   * 460.87) and said, in its own words, "↑ ahead of Brock Purdy on upside".
+   * Nix is 14.5 points WORSE and won on "upside".
+   *
+   * WHY. `proj_ceiling` is `proj_mean × a per-(position, band) constant` —
+   * Spearman exactly 1.000000 against proj_mean inside every cell, 16 of 16
+   * measured (draft/audit/ceiling_is_still_a_cell_constant_2026-08-17.md). So a
+   * raw `cap(b) > cap(a)` comparison across two DIFFERENT cells is comparing two
+   * calibration constants, and those are not ordered by quality: QB runs
+   * 1.230/1.316/1.426/1.484/1.094 while RB runs 1.721/1.635/1.640/1.890/1.434.
+   * Nix's ceiling is bigger only because QB|9-16 carries a bigger multiplier
+   * than QB|4-8. That is not upside; it is which cell he landed in.
+   *
+   * THE FIX IS NOT TO SWITCH THE MECHANISM OFF. On a board where the ceiling
+   * genuinely varies per player the tiebreak is exactly right, and engine.test
+   * pins that with synthetic rows (equal mean, equal vorp, real ceiling gap) —
+   * killing the flag would have deleted a legitimate check along with the
+   * defect. So the guard asks the narrower question: *is b's upside bigger than
+   * his CELL already explains?*
+   *
+   *   - Same cell  -> compare ceiling/mean ratios. On today's degenerate board
+   *     those are equal to ~1e-6 inside a cell, so nothing fires. The day
+   *     VOLATILITY-WIRING-PREREG.md §2 lands and ratios vary per player, this
+   *     starts firing on real upside with no further change. Self-releasing.
+   *   - Different cells -> refuse. The ratio difference IS the band constant and
+   *     carries no player information, which is the Nix/Purdy case exactly.
+   *   - No cell stamp at all (synthetic rows, fixtures) -> fall back to the
+   *     ratio, because there is no band constant to be fooled by.
+   *
+   * THE CELL IS DERIVED FROM `position` + `pos_rank`, AND THAT CHOICE IS FORCED.
+   * The obvious source is the row's own `variance_why`, which names the
+   * calibration cell verbatim — but `variance_why` is NOT one of the 44
+   * `PLAYER_FIELDS` the pre-draft freeze captures. Reading it here made the
+   * engine order a frozen board differently from the live one, and
+   * `freeze_replay_fidelity.test.js` caught exactly that within one run. A
+   * guard that only works on the live board would silently break the 2027
+   * replay this project grades itself against, which is a worse defect than the
+   * one being fixed. `position` and `pos_rank` are both frozen.
+   *
+   * The band edges are the calibration's own (1-3 / 4-8 / 9-16 / 17-32 / 33+).
+   * KNOWN IMPRECISION, stated: register E1 records that `pos_rank` disagrees
+   * with the rank the calibration actually used for players sitting on a band
+   * boundary. So for those rows this guard may read a neighbouring cell. It errs
+   * toward REFUSING a swap — two rows that disagree land in different derived
+   * cells, and different cells means no promotion — which is the safe direction
+   * for a display-ordering decision and the direction that keeps the rendered
+   * order matching the rendered score. */
+  function cellStamp(p) {
+    const pos = p && p.position;
+    const rank = Number(p && p.pos_rank);
+    if (!pos || !isFinite(rank) || rank <= 0) return null;
+    const band = rank <= 3 ? '1-3' : rank <= 8 ? '4-8' : rank <= 16 ? '9-16'
+      : rank <= 32 ? '17-32' : '33+';
+    return pos + '|' + band;
+  }
+  function upsideRatio(p) {
+    const mean = Number(p && p.proj_mean);
+    const ceil = Number(p && p.proj_ceiling);
+    if (!isFinite(mean) || !mean || !isFinite(ceil)) return null;
+    return ceil / mean;
+  }
+  /** Does `b` carry more upside than his calibration cell already accounts for? */
+  function moreUpsideThanTheCellExplains(b, a) {
+    const ca = cellStamp(a), cb = cellStamp(b);
+    if (ca && cb && ca !== cb) return false;   // the gap is the band constant, not upside
+    const ra = upsideRatio(a), rb = upsideRatio(b);
+    if (ra == null || rb == null) return true; // no ratio to reason about: leave the old behaviour
+    /* THE NOISE FLOOR IS SET BY STORAGE, NOT BY TASTE. `proj_ceiling` is written
+     * to two decimals, so a ratio inherits up to ~0.01/mean of pure rounding —
+     * which is negligible for a 200-point starter and LARGER THAN ANY REAL
+     * SIGNAL for a 3-point deep flier. A flat epsilon therefore admits noise at
+     * the bottom of the board: measured, it let Bo Melton (mean 7.5) jump
+     * Kameron Johnson (mean 3.6) on a ratio gap of 0.0013 against a rounding
+     * granularity of 0.0056. So the bar scales with the smaller mean. */
+    const meanFloor = Math.max(1, Math.min(Number(a.proj_mean) || 0, Number(b.proj_mean) || 0));
+    const bar = Math.max(CFG.CEILING_RATIO_EPS, 0.02 / meanFloor);
+    return rb > ra + bar;
+  }
+
   function applyCeilingTiebreak(list) {
     if (!CFG.CEILING_TIEBREAK) return list;
     const cap = (p) => (p.proj_ceiling != null ? p.proj_ceiling : (p.proj_mean || 0));
@@ -2141,7 +2557,34 @@
         const a = list[i].player, b = list[i + 1].player;
         if (a.position === b.position && (a.tier || 0) === (b.tier || 0)
             && Math.abs(list[i].score - list[i + 1].score) < CFG.TIE_THRESHOLD
-            && cap(b) > cap(a)) {
+            && cap(b) > cap(a)
+            && moreUpsideThanTheCellExplains(b, a)) {
+          /* ⚠️ THE SWAP WAS SILENT, AND SILENCE READS AS A BUG (2026-08-14).
+           *
+           * This is the ONE place the rendered order stops matching the rendered
+           * score. Measured on the live board at pick 33: row 6 printed 31.6
+           * ABOVE row 7 printing 32.9 — Waddle over Higgins, same position, same
+           * tier, 1.3 apart, Waddle's ceiling higher. Working exactly as
+           * designed, and from the outside indistinguishable from a broken sort.
+           *
+           * Cory on that screen: *"This screen doesn't make sense?"* A reader who
+           * cannot tell a deliberate tiebreak from a defect stops trusting the
+           * column, and the score column is how he compares the ten candidates
+           * he asked for.
+           *
+           * So the promotion now SAYS SO, and names the man it passed — a reason
+           * without the other name is not checkable by the person reading it.
+           * This changes no ordering; `CEILING_TIEBREAK` off still yields no
+           * marks because the swap never happens. */
+          list[i + 1].ceiling_tiebreak = {
+            over: a.name || null,
+            score_gap: Math.round((list[i].score - list[i + 1].score) * 10) / 10,
+            ceiling: cap(b),
+            ceiling_over: cap(a),
+          };
+          list[i + 1].reasons = ['↑ ahead of ' + (a.name || 'the man below')
+            + ' on upside — within ' + CFG.TIE_THRESHOLD + ' pts, higher ceiling']
+            .concat(list[i + 1].reasons || []);
           const t = list[i]; list[i] = list[i + 1]; list[i + 1] = t; swapped = true;
         }
       }
@@ -2181,10 +2624,58 @@
     return 0;
   }
 
+  /**
+   * PRE-DRAFT ONLY: `ctx.board` before any pick — real or mock — has landed
+   * is the FULL undrafted pool, not a realistic one. `currentPick()` (app.js)
+   * already anchors ahead to the user's own first selection (the fix in
+   * predraft_anchor.test.js), so `ctx.currentPick` can read 33 while
+   * `ctx.board` still holds every player nobody has removed, because nobody
+   * has picked yet. The two agree on WHICH pick; nothing yet makes the board
+   * agree on WHO WOULD REALISTICALLY BE THERE.
+   *
+   * MEASURED, 2026-08-15, on the shipped board: Puka Nacua (adjusted_adp 3.0,
+   * adp_sd 0.4) survives to pick 33 at **0.000%** by the engine's OWN survival
+   * math — not a close call. Scoring him as a live pick-33 candidate anyway
+   * is not a value judgement the model is making; it is the model treating an
+   * event its own probability estimate says will not happen as though it
+   * already had. The macro audit's "empty room" rec-panel probe (Nacua, "ADP
+   * 3 · fell 30") is this exact defect, caught live.
+   *
+   * Filters candidates below the same negligible-mass floor VONA already
+   * uses elsewhere (`SURVIVOR_CUTOFF`) — not a new threshold invented for
+   * this. A live draft (`ctx.preDraftPrep` false, the default — set only by
+   * app.js's `context()` when zero picks, real or mock, have landed) is
+   * completely unaffected: there `ctx.board` IS ground truth (real
+   * removals), so every survivor is genuinely on the board and filtering
+   * would suppress the exact "he actually fell" signal the recommendation
+   * exists to catch — Cory's own instinct that a real value cliff must win
+   * is already how vona() scores every live pick, unchanged here.
+   */
+  function preDraftPool(board, ctx) {
+    if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
+    /* UNCONDITIONAL, EXPLICITLY — the anchored ctx would ask the wrong question.
+     * `ctx.currentPick` here is the pre-draft ANCHOR (my first selection), not a
+     * pick anyone has reached: zero picks have landed, so "will he be there at
+     * 33" is measured FROM THE START of the draft, exactly the 0.000% figure in
+     * the header. Passing the anchored ctx through would evaluate
+     * P(taken by 33 | alive at 33) — a zero-width window, correctly 0 since the
+     * survival.js empty-window fix (2026-08-17) — and the filter would keep
+     * everyone. Before that fix this call only APPEARED to work: the far-tail
+     * guard returned "gone" for players with F ≥ 0.999 and the conditional
+     * returned "certain to survive" for everyone else, so a 91%-taken player at
+     * ADP 25 sailed through the same filter that cut Nacua. The unconditional
+     * form is the one the filter's own definition wants, for every player. */
+    const uncond = { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
+      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
+    const kept = board.filter(p => survival(p, ctx.currentPick, uncond) >= CFG.SURVIVOR_CUTOFF);
+    return kept.length ? kept : board;   // never recommend from an empty pool
+  }
+
   function recommend(ctx) {
     // Position scales BEFORE anything is scored — upsideBonus reads them.
     _ceilingScales = computeCeilingScales(ctx.board);
-    const all = ctx.board.map(p => scorePlayer(p, ctx));
+    const pool = preDraftPool(ctx.board, ctx);
+    const all = pool.map(p => scorePlayer(p, ctx));
     all.sort(byScoreRefusedLast);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
@@ -2446,12 +2937,49 @@
    *   2. cluster them by DIRECTION = position, split into a "cliff" vs "value"
    *      flavour by the leader's tier-urgency (position × tier-urgency, the two
    *      axes the spec names; branch consequence then colours when-it's-right)
-   *   3. a direction QUALIFIES only if its best candidate is within PATHS_BAND of
-   *      the top composite score — beyond that it is not a solid direction
+   *   3. a direction is PRICED-ALIKE if its best candidate is within PATHS_BAND
+   *      of the top composite score. That flag is `within_band`; it is NOT a
+   *      gate on existence — see below
    *   4. price every path vs the top path (never hidden), name it in plain
    *      language, and generate the one-line "when it's right" from live state
-   *   5. cap at PATHS_MAX; flag a path-level coin flip when the top two price
+   *   5. always offer at least PATHS_MIN directions where the board has them,
+   *      cap at PATHS_MAX; flag a path-level coin flip when the top two price
    *      within COIN_FLIP_GAP
+   *
+   * ── THE BAND WAS DECIDING WHETHER AN OPTION EXISTED (2026-08-14) ──────────
+   *
+   * Cory, after a mock: *"Need more recommended players than just the 1 ...
+   * Gibbs listed twice? No other options."* Both halves are this function.
+   * The recommendations panel already renders five players; the paths panel
+   * rendered ONE direction, whose leader is by construction the same man the
+   * rec panel already has at #1. One option, printed twice, is what he saw.
+   *
+   * MEASURED ACROSS ALL TWELVE OF HIS PICKS, on a market-follow board (at pick
+   * N the N−1 best ADPs are gone — an approximation, and the full pre-draft
+   * board is not a state that ever occurs at pick 48, so measuring on it would
+   * answer a question nobody asks):
+   *
+   *      band = 4.0  (shipped)  ONE direction at 10 of 12 picks
+   *      band = 12.0 (previous) ONE direction at  7 of 12 picks
+   *      top-10 spread across his picks: 13.4 .. 148.3 points
+   *
+   * So this is not pre-draft weirdness; it is what the panel will do on the
+   * 22nd. And tightening the band from 12 to 4 yesterday made it worse — that
+   * change was right about its own defect (a hardcoded 12 silently overriding
+   * its stated derivation) and wrong about the consequence.
+   *
+   * THE CAUSE IS ONE CONSTANT ANSWERING TWO QUESTIONS. "Are these two
+   * directions indistinguishable?" is a claim about the composite's own
+   * resolution and is correctly absolute — that is COIN_FLIP_GAP, and
+   * PATHS_BAND derives from it. "Is this a real alternative worth showing?" is
+   * a different question, and an absolute answer to it is a function of where
+   * you are in the draft rather than of how many options the board holds.
+   *
+   * A direction costing 20 points IS an option; it is simply an expensive one,
+   * and `price` has stated the cost on every card since the panel existed.
+   * Suppressing it does not protect the reader from choosing badly — it hides
+   * the shape of the board, which is the thing he is trying to see. So the band
+   * now sets `within_band` and the panel always offers what it has.
    *
    * Returns [] when the board is empty. The caller renders these as cards and
    * logs which path a pick came from; picking off every path is an override.
@@ -2482,10 +3010,119 @@
       clusters[key].members.push(entry);
     });
 
-    // Qualify + build. A cluster's score is its best member's score.
-    const paths = order.map(key => clusters[key]).filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND);
-    paths.sort((a, b) => b.members[0].score - a.members[0].score);
-    const chosen = paths.slice(0, CFG.PATHS_MAX);
+    // Rank + build. A cluster's score is its best member's score.
+    //
+    // THE ORDER OF THESE THREE LINES IS THE WHOLE CHANGE. Ranking first and
+    // taking `max(PATHS_MIN, in-band)` means the in-band set is a PREFIX of what
+    // renders: every path that qualified before still qualifies, in the same
+    // position, at the same price. Nothing is removed and nothing is reordered —
+    // suppressed directions are added back after the ones that were already
+    // there. That is what makes this safe to ship eight days out.
+    /* ONE ROW PER POSITION — a DIRECTION is a position, not a position×flavour.
+     *
+     * The cluster key is `pos + ':cliff'` or `pos + ':value'`, so one position
+     * can produce two clusters, and both can be in-band. On the live board at
+     * pick 33 — Cory's FIRST pick — that rendered as:
+     *
+     *     TE Colston Loveland · RB D'Andre Swift · RB Travis Etienne
+     *
+     * Three "directions", two of them RB. "Take an RB because the cliff is here"
+     * and "take an RB for value" are two ARGUMENTS for the same direction, and a
+     * panel whose job is to offer options with pros and cons was showing one
+     * option twice. The flavour still decides how the surviving row is NAMED and
+     * priced (its leader carries the cliff/value urgency); it no longer buys a
+     * second row.
+     *
+     * ── CORRECTION, 2026-08-14: I FIRST WROTE THIS TRIO AS "WR Zay Flowers · RB
+     * Travis Etienne · RB D'Andre Swift" AND THAT BOARD DOES NOT EXIST. ───────
+     *
+     * It came from `paths_offer_options.test.js`, which passed
+     * `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults`
+     * has never been a key on the artifact, so every measurement in that file ran
+     * under DEFAULT_WEIGHTS while the app runs MEASURED_WEIGHTS. Re-measured under
+     * the weights the app actually uses:
+     *
+     *   - the real trio at pick 33 is the TE/RB/RB above;
+     *   - under DEFAULT_WEIGHTS the old rule returned ONE path at pick 33, so the
+     *     duplicate I quoted could not have been on that screen either;
+     *   - and under DEFAULT_WEIGHTS the position-repeat defect occurs at NO pick,
+     *     so the board I was reading is the one board on which this bug is invisible.
+     *
+     * THE FIX IS RIGHT AND THE EVIDENCE FOR IT WAS NOT. Kept in full rather than
+     * quietly restated: a corrected number with the wrong one deleted teaches the
+     * next reader nothing about how it got there.
+     *
+     * Collapsing here rather than at render time means every consumer — the
+     * panel, the ledger capture, the tests — sees the same set. Two of them
+     * disagreeing about what a "path" is would be the next defect. */
+    const bestPerPos = {};
+    order.map(key => clusters[key]).forEach(c => {
+      const cur = bestPerPos[c.pos];
+      if (!cur || c.members[0].score > cur.members[0].score) bestPerPos[c.pos] = c;
+    });
+    const ranked = Object.keys(bestPerPos).map(p => bestPerPos[p])
+      .sort((a, b) => b.members[0].score - a.members[0].score);
+    const inBand = ranked.filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND).length;
+    const want = Math.min(CFG.PATHS_MAX, Math.max(inBand, CFG.PATHS_MIN));
+
+    /* ⚠ THE FILL MUST NOT REPEAT A POSITION, AND MY FIRST VERSION DID.
+     *
+     * A cluster key is `pos + ':cliff'` or `pos + ':value'`, so ONE position can
+     * produce TWO clusters. On the live board at pick 33, CORY'S FIRST PICK, the
+     * panel offered:
+     *
+     *     TE Colston Loveland · RB D'Andre Swift · RB Travis Etienne
+     *
+     * Three "directions", two of them RB. A panel whose whole job is to offer
+     * options with pros and cons was showing one option twice — the same defect
+     * as the ceiling tiebreak looking like a broken sort, and the same cost: a
+     * reader stops trusting the column.
+     *
+     * ── AND IT IS OLDER THAN I SAID. This paragraph used to read "that was
+     * harmless while only the in-band set rendered — the second flavour almost
+     * never qualified; raising the floor to PATHS_MIN pulled it into view."
+     * RETRACTED: under the weights the app actually runs, all three of those
+     * cards are IN BAND on their own scores at pick 33. The floor did not expose
+     * the duplicate, it was already there — so this is a defect the panel has been
+     * shipping, not one my own widening introduced. Same fix; worse provenance.
+     *
+     * THE IN-BAND PREFIX IS UNTOUCHED, which is what made this safe to ship: every
+     * path that qualified on its own score still renders, in the same place, at
+     * the same price. Only the ADDED ones — the ones there purely to fill up to
+     * PATHS_MIN — prefer a position not already on screen. If nothing else is
+     * available they fall back to the ranked order rather than returning fewer
+     * than the board can support. */
+    /* ⚠ THE CAP. I BROKE IT IN THIS SAME REFACTOR AND ONLY THE WEIGHTS FIX
+     * SHOWED IT (2026-08-14).
+     *
+     * The line this replaced was `ranked.slice(0, Math.min(CFG.PATHS_MAX,
+     * Math.max(inBand, CFG.PATHS_MIN)))` — one expression, capped. Splitting it
+     * into a `want` and a prefix moved the cap onto the FILL only, so an in-band
+     * set larger than PATHS_MAX rendered in full: at pick 113 five positions
+     * price within PATHS_BAND, so the panel drew FIVE cards against a bound the
+     * contract document states as four and `surface_contract.test.js` asserts.
+     *
+     * It hid for a session because `paths_offer_options.test.js` was scoring
+     * with DEFAULT_WEIGHTS instead of the app's MEASURED_WEIGHTS — the wrong
+     * yardstick concealing a real regression is the compounding case, and it is
+     * why the yardstick is worth fixing even when nothing looks wrong.
+     *
+     * `head` is taken BEFORE the fills push onto `chosen`, so `rest` is the true
+     * remainder rather than a window that moves as the array grows. */
+    const head = Math.min(inBand, CFG.PATHS_MAX);
+    const chosen = ranked.slice(0, head);
+    const seen = {};
+    chosen.forEach(c => { seen[c.pos] = 1; });
+    const rest = ranked.slice(head);
+    rest.filter(c => !seen[c.pos]).forEach(c => {
+      if (chosen.length < want) { chosen.push(c); seen[c.pos] = 1; }
+    });
+    rest.filter(c => chosen.indexOf(c) < 0).forEach(c => {
+      if (chosen.length < want) chosen.push(c);
+    });
+    // `bestScore` is read off `ranked[0]`, which is `chosen[0]`, so prices are
+    // identical to what they were. Computing it from a widened set would silently
+    // re-baseline every price badge on the panel.
     const bestScore = chosen.length ? chosen[0].members[0].score : topScore;
 
     const named = chosen.map((c, i) => {
@@ -2497,6 +3134,10 @@
       // = the value will fall (you can wait), which colours when-it's-right.
       const posRow = branch ? (branch.rows.find(r => r.position === c.pos) || null) : null;
       const posLoss = posRow ? posRow.loss : 0;
+      // ONE derivation of the cost, read by the badge, the flag and the prose.
+      // Three copies of `bestScore - score` is how they end up disagreeing.
+      const price = Math.round((bestScore - lead.score) * 10) / 10;   // >= 0; 0 for the top path
+      const withinBand = price <= CFG.PATHS_BAND;
 
       // PATH NAMES STATE THEIR MECHANISM (mock-#1 fix #2). "Fill RB now" and
       // "Lock the last elite RB" read as contradictory when they are two valid
@@ -2545,6 +3186,25 @@
           + ' pts of downside risk by waiting';
       }
 
+      /* THE CONCESSION IS SAID IN THE PROSE, NOT ONLY IN THE BADGE.
+       *
+       * Widening the panel to always offer PATHS_MIN directions means a card can
+       * now sit far below the top — measured across Cory's twelve picks, the
+       * third direction runs from 4.2 to 61.0 points behind. Every clause above
+       * is written for a direction that is genuinely in contention: "right if
+       * you want QB certainty now" reads as a live coin flip whether the option
+       * costs one point or sixty.
+       *
+       * That is the defect I keep committing — prose describing behaviour the
+       * body does not have — and the fix that CREATED the wide cards is the
+       * wrong place to commit it again. The price badge already carries the
+       * number; this makes the sentence agree with it. Silent inside the band,
+       * so nothing changes for a direction that really is close. */
+      if (!withinBand) {
+        whenRight += ' — but it concedes ' + Math.round(price) + ' pts to the top path, so this is '
+          + 'a deliberate departure from the board rather than a close call';
+      }
+
       return {
         key: c.key,
         name: name,
@@ -2563,9 +3223,15 @@
         candidates: c.members.map(m => ({ player: m.player, score: m.score })),
         plan: branch ? branch.rows.slice(0, 2) : [],
         next_pick: branch ? branch.pick : null,
-        price: Math.round((bestScore - c.members[0].score) * 10) / 10,   // >= 0; 0 for the top path
+        price: price,
         when_right: whenRight,
         is_top: i === 0,
+        /* PRICED-ALIKE OR MERELY AVAILABLE — the distinction the band used to
+         * make by DELETING the second kind. A card must never let a 20-point
+         * concession read as an equal alternative, so the flag rides with the
+         * price rather than replacing it, and B can weight the two differently.
+         * `false` here means "a real direction, at a real cost", not "invalid". */
+        within_band: withinBand,
       };
     });
 
@@ -2625,6 +3291,46 @@
    * the branch forecast's position loss when a ctx is supplied.
    */
   function dollarGap(a, b, ctx) {
+    // D10a ruling (A, 08-18, pre-draft): a cross-position dollar comparison
+    // involving K/DEF prices two DIFFERENT ceiling constructions on one scale
+    // — all 76 K/DEF fall back to gaussian_z while skill positions carry the
+    // measured (and per-player) tails, handing e.g. a DEF a 1.394 relative
+    // ceiling against a TE's 1.146 purely by formula. Until K/DEF cells are
+    // measured (post-draft), the honest answer is a refusal with the reason
+    // on screen, not a fake number.
+    const onesie = pos => pos === 'K' || pos === 'DEF';
+    if (a.position !== b.position && (onesie(a.position) || onesie(b.position))) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — K/DEF ceilings are priced by a different ' +
+                 'formula than skill positions; compare within position instead',
+        terms: { note: 'refused: K/DEF have no measured calibration cells, so a ' +
+                       'cross-position dollar gap would compare two constructions (D10a).' },
+      };
+    }
+    // 5e ruling (A, 08-18, extending D10a to QB): playerDollars prices RAW
+    // projected points — p.position never enters the formula — while every
+    // other value surface here is denominated over replacement. In a 10-team
+    // 1-QB league, QB replacement is 341.7 against 136-180 elsewhere, so raw
+    // points hand every QB a ~342-point head start: 22 of the top 25 by E[$]
+    // are QBs on the 08-18 board, versus ONE by the board's own rank. The
+    // obvious fix (subtract replacement inside the dollar formula) was BUILT
+    // AND MEASURED WORSE on the pairs Cory actually weighs
+    // (draft/audit/dollar_replacement_baseline_2026-08-18.md) — so the honest
+    // answer is the same refusal K/DEF already gets, not a re-price.
+    if (a.position !== b.position && (a.position === 'QB' || b.position === 'QB')) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — the dollar figure prices raw points and QB ' +
+                 'replacement (~342) dwarfs every other position\'s, so a ' +
+                 'QB-vs-other gap is a formula artifact; compare within position',
+        terms: { note: 'refused: cross-position dollars have no replacement level ' +
+                       'in them, and QB is where that bites (5e). Re-pricing was ' +
+                       'measured worse than refusing.' },
+      };
+    }
     const da = playerDollars(a), db = playerDollars(b);
     // Next-pick echo: what taking A costs in best-available-at-B's-position by my
     // next pick, minus the symmetric cost of taking B. Positive favors A.
@@ -2714,10 +3420,46 @@
 
     // Reaching. Proxy-flagged metrics say so, because a manager who drafted a
     // player who later busted looks like a reacher purely in hindsight.
+    /* ⚠ THE REACH TELL IS A MEAN WITH NO REGARD FOR ITS OWN SPREAD, AND THE
+     * SPREAD IS ALREADY IN THE DATA (measured 2026-08-14).
+     *
+     * `reach_delta` carries `sd` and the profile carries `picks_analysed`, so the
+     * standard error is computable and never was computed. Over all ten managers
+     * on the live board:
+     *
+     *   manager        picks   mean      sd     mean/SE
+     *   ds7mmet          40    +7.3   134.2      0.34   <- labelled "reaches"
+     *   Richard2121      40   +12.9   141.2      0.58   <- labelled "reaches"
+     *   MarianSaar       39    -7.0    20.7     -2.10   <- labelled near-market
+     *   B8T3S            40    -5.9    18.3     -2.05   <- labelled near-market
+     *
+     * ONLY TWO OF TEN EXCEED TWO STANDARD ERRORS, AND THEY ARE NOT THE TWO THE
+     * TELL FIRES ON. The threshold is on |mean| alone, and a manager with one or
+     * two enormous outliers (sd 134 against a mean of 7) gets a mean large enough
+     * to trip it. So the "reaches early" flag is, on this board, anti-correlated
+     * with the evidence for reaching.
+     *
+     * ── WHAT I AM DELIBERATELY NOT DOING ──────────────────────────────────
+     *
+     * Not gating the tell, not changing its weight, and NOT touching
+     * `withinPrecision` in survival.js, which reads the same `rd.mean` to shape
+     * the opponent softmax. Several corrections are defensible — shrink by t,
+     * gate on SE, use a robust centre — and NONE of them is measured. Re-fitting
+     * one eight days before the draft would move Layer 2 survival, and through
+     * it VONA, on the strength of a suspicion. The number stays; what changes is
+     * that it now carries how well it is supported, so a reader and a future
+     * experiment can both see it. */
     const rd = profile.reach_delta || {};
+    const rdN = profile.picks_analysed || 0;
+    const rdSe = (rd.sd != null && rdN > 0) ? rd.sd / Math.sqrt(rdN) : null;
+    const rdT = (rdSe && rdSe > 0 && rd.mean != null) ? rd.mean / rdSe : null;
     if (rd.mean != null && Math.abs(rd.mean) >= CFG.TELL_REACH_PICKS) {
       out.push({
         kind: 'reach', weight: Math.abs(rd.mean) / 2,
+        // The support for this tell, published rather than acted on.
+        se: rdSe == null ? null : Math.round(rdSe * 10) / 10,
+        support_t: rdT == null ? null : Math.round(rdT * 100) / 100,
+        well_supported: rdT == null ? null : Math.abs(rdT) >= 2,
         // Relative to this league, not to raw ADP: keepers pull every pick
         // "ahead of market" by construction, so the absolute figure is a
         // shared offset rather than anything about him.
@@ -2725,8 +3467,18 @@
           ? 'reaches ' + rd.mean.toFixed(1) + ' picks earlier than the rest of the league'
           : 'lets value come to him — ' + Math.abs(rd.mean).toFixed(1)
             + ' picks later than the rest of the league',
-        detail: rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
-                         : 'measured against that season\'s real ADP',
+        /* THE DETAIL NOW CARRIES SUPPORT AS WELL AS PROVENANCE. `proxy` already
+         * set the precedent: a tell that says how it was measured is one a
+         * reader can discount. "Where it came from" and "whether it is
+         * distinguishable from zero" are both required to read this honestly,
+         * and only the first was here. */
+        detail: (rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
+          : 'measured against that season\'s real ADP')
+          + (rdT != null && Math.abs(rdT) < 2
+            ? ' · WEAK: spread ±' + Math.round(rdSe) + ' picks over ' + rdN
+              + ' picks, so this is not distinguishable from drafting at market'
+            : (rdT != null ? ' · holds at ' + Math.abs(rdT).toFixed(1)
+              + ' standard errors' : '')),
         proxy: !!rd.proxy,
       });
     }
@@ -3269,17 +4021,64 @@
    * The `reason` is appended, never fabricated: an empty reason yields a bare
    * factual line ("Shifted to X.") rather than an invented explanation.
    */
+  /* ⚠ THREE DEFECTS, ONE ROOT: `reason` WAS AN OPAQUE STRING (2026-08-14).
+   *
+   * 1. GRAMMAR, shipped. The app passed `movementReason()` = "WR run on"; the
+   *    almost branch wrapped it as `' on the ' + reason`, so the live line read
+   *    "closed to within 1.5 pts ON THE WR RUN ON — didn't pass." The suite never
+   *    saw it because the suite passed "WR run" — a DIFFERENT format from the one
+   *    production uses. A test that supplies its own input shape agrees with
+   *    itself; this is that hazard, in the string layer.
+   *
+   * 2. FALSE CAUSALITY. `movementReason` names EVERY running position, and the
+   *    em-dash construction is causal in English. "Shifted to Colston Loveland —
+   *    RB run on." attributes a TE rising to an RB run it has nothing to do with.
+   *    The app's own comment says "factual co-occurrence, not a causal claim" —
+   *    correct about the code and untrue of the sentence it produces.
+   *
+   * 3. UNKNOWN TOP READ AS SAME TOP. The moved branch required both ids non-null,
+   *    so a null id FELL THROUGH to the runner-up branch and narrated a gap story
+   *    while the top had actually changed — measured: prev Flowers / curr
+   *    Loveland with a null id yields "Y closed to within 2.0 pts — didn't pass."
+   *    A null must not resolve to the reassuring answer.
+   *
+   * THE FIX FOR ALL THREE IS STRUCTURE. The caller passes `runs` (positions) and
+   * `pos` (the position this line is about); phrasing lives here, once, so the
+   * two callers cannot disagree about format and relevance is checkable. */
   function movementLine(prev, curr, opts) {
     opts = opts || {};
     var CLOSE = opts.closeBand != null ? opts.closeBand : 3.0;   // "within N pts"
     var SHRINK = opts.minShrink != null ? opts.minShrink : 0.5;  // gap must actually close
-    var reason = opts.reason || '';
+    var runs = Array.isArray(opts.runs) ? opts.runs.filter(Boolean) : [];
+    var label = runs.length
+      ? runs.join('/') + ' run' + (runs.length > 1 ? 's' : '') : '';
     if (!prev || !curr || !curr.topName) return { kind: 'steady', line: '' };
 
-    if (prev.topId != null && curr.topId != null
-        && String(prev.topId) !== String(curr.topId)) {
+    /* A run at the position that moved may have caused it; a run elsewhere is
+     * concurrent. Only the first earns the causal em-dash. */
+    var relatedTo = function (pos) { return !!(label && pos && runs.indexOf(pos) >= 0); };
+    var aside = function (pos) { return label && !relatedTo(pos) ? ' ' + label + ' also on.' : ''; };
+
+    /* SAME TOP, OR UNKNOWN? Ids first; names when an id is missing on either
+     * side; and when neither is available the answer is UNKNOWN and the line says
+     * nothing. Residual, stated: two different players sharing a name with both
+     * ids absent would read as "same top" — strictly better than the old
+     * behaviour, which read ANY missing id as "same top". */
+    var sameTop;
+    if (prev.topId != null && curr.topId != null) {
+      sameTop = String(prev.topId) === String(curr.topId);
+    } else if (prev.topName && curr.topName) {
+      sameTop = prev.topName === curr.topName;
+    } else {
+      sameTop = null;
+    }
+    if (sameTop === null) return { kind: 'steady', line: '' };
+
+    if (sameTop === false) {
+      var mPos = curr.topPos || null;
       return { kind: 'moved',
-        line: 'Shifted to ' + curr.topName + (reason ? ' — ' + reason : '') + '.' };
+        line: 'Shifted to ' + curr.topName
+          + (relatedTo(mPos) ? ' — ' + label + ' on' : '') + '.' + aside(mPos) };
     }
 
     // Same top: did the runner-up close in without passing?
@@ -3290,9 +4089,11 @@
     if (prevGap != null && currGap != null
         && currGap >= 0 && currGap <= CLOSE && currGap < prevGap - SHRINK) {
       var name = curr.secondName || 'the runner-up';
+      var sPos = curr.secondPos || null;
       return { kind: 'almost',
         line: name + ' closed to within ' + currGap.toFixed(1) + ' pts'
-          + (reason ? ' on the ' + reason : '') + " — didn't pass." };
+          + (relatedTo(sPos) ? ' on the ' + label : '') + " — didn't pass."
+          + aside(sPos) };
     }
     return { kind: 'steady', line: '' };
   }
@@ -3300,8 +4101,17 @@
   /* ── LIVE STACK ROUTES ──────────────────────────────────────────────────────
    *
    * Enumerate the same-team QB↔pass-catcher completions still on the board,
-   * ranked by the stack value the ENGINE ITSELF uses (CFG.STACK_*), so the line
-   * cannot claim a value the scorer would not. Single-partner routes rank first
+   * priced by `correlationAdjustment` — the function the COMPOSITE scores — so
+   * the line cannot claim a value the scorer would not.
+   *
+   * ⚠ THIS PARAGRAPH SAID "ranked by the stack value the ENGINE ITSELF uses
+   * (CFG.STACK_*)" AND THAT WAS THE BUG WEARING ITS OWN JUSTIFICATION. Reading
+   * the raw constants is exactly what let the badge skip the competition penalty
+   * and recommend picks the composite was docking (see the note at the pricing
+   * call below). A comment claiming a property the code does not have is worse
+   * than no comment: it is what a reviewer checks INSTEAD of the code.
+   *
+   * Single-partner routes rank first
    * — exp 6's finding that the FIRST partner is the value; a second catcher is a
    * flattened marginal and sorts below.
    *
@@ -3347,16 +4157,49 @@
       var qbs = mates.filter(function (m) { return m.position === 'QB'; });
       var catchers = mates.filter(function (m) { return m.position === 'WR' || m.position === 'TE'; });
 
-      var value = 0, anchor = null;
+      var anchor = null;
       if (p.position === 'QB' && catchers.length) {
-        value = catchers[0].position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
         anchor = catchers[0];
       } else if ((p.position === 'WR' || p.position === 'TE') && qbs.length) {
-        value = p.position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
         anchor = qbs[0];
       } else {
-        return; // same-team competition is a penalty, not a route to complete
+        return; // no pairing exists at all — not a route
       }
+
+      /* ⚠ THE BADGE USED TO SCORE THE ROUTE ITSELF, AND IT SCORED ONLY THE HALF
+       * THAT FLATTERS IT (2026-08-14).
+       *
+       * This read the bonus straight off `CFG.STACK_QB_TE / STACK_QB_WR1` and
+       * skipped the competition penalty on the stated grounds that "same-team
+       * competition is a penalty, not a route to complete". True of whether a
+       * ROUTE EXISTS; false of what the route is WORTH — and the badge is read as
+       * a recommendation, not as a topology fact.
+       *
+       * `correlationAdjustment` — the function the COMPOSITE actually scores —
+       * adds the pairing bonus AND subtracts `SAME_TEAM_COMPETITION` per
+       * same-team pass-catcher already held. So the two disagreed, measured:
+       *
+       *   Chase + Burrow, considering a 2nd CIN receiver   badge ⚡  term  +2
+       *   + Higgins,      considering a 3rd CIN catcher    badge ⚡  term  -4
+       *   + Gesicki,      considering a 4th                badge ⚡  term  -6
+       *
+       * Chase is a KEEPER, so "keep Chase, stack Burrow, add Higgins" is exactly
+       * the path this badge talks Cory down — and then it keeps saying "extends
+       * Burrow stack" while the model docks the pick for splitting one pie.
+       *
+       * ONE DERIVATION NOW. The value is the composite's own number, so the badge
+       * cannot disagree with the score by construction, and the two copies of the
+       * stack constants cannot drift apart. A route whose NET value is not
+       * positive is not offered — the panel's job is live routes worth taking.
+       *
+       * `league`/`currentPick` are passed through when the caller has them. Absent,
+       * `correlationAdjustment` sees round 1 and skips its playoff-schedule branch
+       * — which is inert either way today: `playoff_sos` is null on all 686 board
+       * rows, so that term has never once fired in production. */
+      var value = C.correlationAdjustment(p, {
+        roster: roster, league: opts.league || null, currentPick: opts.currentPick || null,
+      }).value;
+      if (!(value > 0)) return;
 
       // First pairing on this team (single) vs an add-on to an existing QB+catcher pair (double).
       var single = !(qbs.length && catchers.length);
@@ -3400,9 +4243,9 @@
   global.DraftEngine = {
     CFG, DEFAULT_WEIGHTS,
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
-    expectedBestAvailable, vona,
+    expectedBestAvailable, vona, wireBenchValue,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, preDraftPool, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes, movementLine,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,

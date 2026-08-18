@@ -127,11 +127,39 @@ function liveContext(opts) {
     runMultipliers: o.runMultipliers != null ? o.runMultipliers : null,
     ceilingAllStages: o.ceilingAllStages != null ? o.ceilingAllStages : false,
     drift: o.drift != null ? o.drift : null,
+    // BOARD SLOTS -> SELECTIONS. survival.js converts pick numbers onto the
+    // live-selection scale that `adjusted_adp` lives on, and it can only do
+    // that with the pick board. A probe without it measures the pre-fix
+    // system: 3 slots of error today, 18 once the slate locks.
+    pickBoard: o.pickBoard !== undefined ? o.pickBoard
+      : ((data.pick_order || {}).picks || null),
+    // Mirrors app.js's context() exactly: read from the board if present,
+    // else the caller's override, else null -- same as pickBoard above.
+    // app.js's own comment explains why the board rarely carries it yet
+    // (draft/build.py does not embed wire_level -- separate, undone work).
+    wireWeekly: o.wireWeekly !== undefined ? o.wireWeekly : (data.wire_level || null),
     currentPick: o.currentPick,
     intervening: o.intervening
       || interveningFor(data, o.currentPick, o.nextPick, mySlot),
     roundsLeft: totalPicks == null ? 0
       : Math.max(0, Math.ceil((totalPicks - o.currentPick) / teams)),
+    // DEFAULTS FALSE, DELIBERATELY, FOR EVERY CALLER OF THIS BUILDER. app.js
+    // sets this true ONLY in the narrow pre-draft-prep window (zero picks —
+    // real or mock — recorded), where `board` is not yet ground truth about
+    // who is realistically still available. Every tool that calls
+    // `liveContext` is already simulating an in-progress or historical draft
+    // — a mock walk, a room replay, a backtest — where `o.board` (or the
+    // loaded artifact) IS ground truth for that simulation. Filtering it
+    // again by survival-to-currentPick would be double-counting a discount
+    // the simulation already applied by actually removing players.
+    preDraftPrep: o.preDraftPrep != null ? o.preDraftPrep : false,
+    /* OPPONENT-NEED LAYER input (ON in production since Cory's take-a-swing
+     * ruling, 2026-08-17). Harness default NULL = no tilt, which is exact:
+     * the layer only fires for seats mapped to a live owner
+     * (team.owner_first), and a simulated room has no Sleeper seat mapping
+     * unless the caller supplies one — pass o.opponentNeed to measure the
+     * tilted system. Null is the honest un-tilted engine, not a stub. */
+    opponentNeed: o.opponentNeed !== undefined ? o.opponentNeed : null,
   };
 
   // ── BOTH DIRECTIONS, BECAUSE BOTH WERE LIVE DEFECTS ─────────────────────

@@ -162,17 +162,32 @@ def test_published_sd_is_used_when_present():
 
 
 def test_fitted_sd_is_tighter_than_the_old_heuristic():
-    """Old rule: max(3, 0.22*adp) -> 22.0 at adp=100, roughly double reality."""
+    """Old rule: max(3, 0.22*adp) -> 22.0 at adp=100, roughly double reality.
+
+    Re-pinned 2026-08-17, Cory's adp_sd ruling (0.11/2.0): at the shipped rate
+    the cap no longer binds at adp=100 (it binds from CAP/RATE ~ 136), so the
+    probe reads the LINEAR region there and the clamp is asserted separately
+    below, at a point derived from the constants instead of hard-coded — a
+    literal probe point is how this pin went stale when the ruling landed.
+    The 0.22 literal stays: it reconstructs the OLD heuristic on purpose, as
+    the fail-arm this test exists to keep dead.
+    """
     sd, src = adp.fitted_sd(100.0, None)
     old = max(3.0, 0.22 * 100.0)
     assert sd < old
-    assert sd == pytest.approx(15.0)   # clamped
+    assert sd == pytest.approx(adp._K.ADP_SD_RATE * 100.0)   # linear here now
     assert src == "clamped-linear"
+    cap_from = adp._K.ADP_SD_CAP / adp._K.ADP_SD_RATE
+    assert adp.fitted_sd(cap_from + 10.0, None)[0] == adp._K.ADP_SD_CAP
 
 
 def test_fitted_sd_floor_and_ceiling():
-    assert adp.fitted_sd(1.0, None)[0] == 3.0        # floor
-    assert adp.fitted_sd(300.0, None)[0] == 15.0     # ceiling
+    # Symbolic, not literal — the 3.0/15.0 literals stranded this pin when the
+    # 2026-08-17 ruling moved the floor to 2.0. The VALUES are pinned once,
+    # with the citation, in test_acceptance/test_survival_parity's chain back
+    # to keepers.py's SHIPPED block.
+    assert adp.fitted_sd(1.0, None)[0] == adp._K.ADP_SD_FLOOR     # floor
+    assert adp.fitted_sd(300.0, None)[0] == adp._K.ADP_SD_CAP     # ceiling
 
 
 # --- fallback provenance ----------------------------------------------------
@@ -445,3 +460,90 @@ def test_a_TEAM_WITH_NO_BYE_AT_ALL_does_not_get_a_derived_LABEL(monkeypatch):
     assert board[0].get("bye") in (None, "", 0), board[0]
     assert board[0].get("bye_source") != "team-derived", (
         "claimed a derivation for a player with no teammate to derive from")
+
+
+def test_the_PUBLISHED_STDEV_survives_the_primary_merge(monkeypatch):
+    """FANTASYPROS CARRIES NO STDEV, AND THE MERGE ONLY RESCUED THE BYE.
+
+    `merge_primary_over_ffc` preserved FFC's bye onto a FantasyPros row with the
+    reasoning "the primary source carries no bye". FP carries no STDEV either —
+    same reasoning, one field — so every primary row fell back to
+    `fitted_sd(adp, None)`, a clamped linear rule, and the only source that
+    publishes real draft-position dispersion was used for FOUR players on a
+    1,841-row board.
+
+    IT IS THE SHAPE OF THE SURVIVAL CURVE. With a fitted sd, two players at the
+    same ADP have IDENTICAL survival by construction; the published stdev is the
+    only thing that knows one is a consensus pick and the other splits the room.
+    Survival is the panel that answers "will he be there at my next pick", which
+    is the question the war room exists for.
+    """
+    ffc = {"1": {"adp": 10.0, "adp_sd": 2.5, "adp_sd_source": "ffc",
+                 "adp_source": "ffc", "bye": 9},
+           "2": {"adp": 40.0, "adp_sd": 6.0, "adp_sd_source": "ffc",
+                 "adp_source": "ffc"},
+           "3": {"adp": 99.0, "adp_sd": 9.0, "adp_sd_source": "ffc",
+                 "adp_source": "ffc"}}
+    # The primary prices 1 and 2 and carries neither a bye nor an sd.
+    primary = {"1": {"adp": 11.0, "adp_sd": 15.0, "adp_sd_source": "clamped-linear",
+                     "adp_source": "fantasypros"},
+               "2": {"adp": 38.0, "adp_sd": 15.0, "adp_sd_source": "clamped-linear",
+                     "adp_source": "fantasypros"}}
+    merged, stats = adp.merge_primary_over_ffc(ffc, primary)
+
+    assert merged["1"]["adp"] == 11.0, "the MEAN still comes from the primary source"
+    assert merged["1"]["adp_sd"] == 2.5, "the published dispersion must survive"
+    assert merged["1"]["adp_sd_source"] == "ffc-published"
+    assert merged["1"]["bye"] == 9, "the bye rescue must not regress"
+    assert merged["2"]["adp"] == 38.0 and merged["2"]["adp_sd"] == 6.0
+
+    # A player FFC never priced keeps whatever the primary had — a measured value
+    # is never invented where none exists.
+    merged2, _ = adp.merge_primary_over_ffc(
+        {}, {"9": {"adp": 50.0, "adp_sd": 15.0, "adp_sd_source": "clamped-linear",
+                   "adp_source": "fantasypros"}})
+    assert merged2["9"]["adp_sd"] == 15.0
+    assert merged2["9"]["adp_sd_source"] == "clamped-linear"
+
+    # And a FITTED value on the FFC side must NOT be promoted over the primary's.
+    merged3, _ = adp.merge_primary_over_ffc(
+        {"7": {"adp": 60.0, "adp_sd": 9.0, "adp_sd_source": "clamped-linear",
+               "adp_source": "ffc"}},
+        {"7": {"adp": 58.0, "adp_sd": 8.7, "adp_sd_source": "clamped-linear",
+               "adp_source": "fantasypros"}})
+    assert merged3["7"]["adp_sd"] == 8.7, (
+        "only a PUBLISHED sd may override the primary's; a fitted one is not "
+        "evidence and swapping one guess for another is noise")
+
+    # The split is REPORTED, because "the sd is fitted" and "the sd is measured"
+    # are different claims and the build log could not tell them apart at all.
+    #
+    # THREE, NOT TWO — and the first version of this assertion said two. The two
+    # primary rows that had a published sd rescued onto them, PLUS the FFC-only
+    # row whose sd was published all along. A rescued value and a native one are
+    # the same claim about the same thing; counting only the rescues would have
+    # under-reported how much of the board rests on a measurement.
+    assert stats["published_sd"] == 3 and stats["fitted_sd"] == 0, stats
+
+
+def test_EVERY_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM(monkeypatch):
+    """`adp_sd_source` was computed by `fitted_sd` and never copied onto the
+    player, so the shipped board carried it on ZERO of 1,841 rows — it died three
+    lines from the artifact, exactly like `bye_source` and
+    `arithmetic_check.condition` before it.
+
+    Same class every time: a producer emits provenance, a consumer never reads
+    it, and a measured number becomes indistinguishable from a guessed one."""
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10, year=2026)["adp"]
+    players = [{"player_id": pid} for pid in table]
+    players.append({"player_id": "999999", "proj_mean": 40.0})   # falls back
+    adp.apply_with_fallback(players, table, teams=10)
+    for p in players:
+        assert p.get("adp_sd") is not None, p
+        assert p.get("adp_sd_source"), (
+            "a row with a spread and no provenance is exactly the state that "
+            "shipped: %r" % p)
+    fb = [p for p in players if p["adp_source"] == "search_rank"]
+    assert fb and all(p["adp_sd_source"] == "fallback-clamped" for p in fb), (
+        "the fallback must declare itself as never-a-measurement")

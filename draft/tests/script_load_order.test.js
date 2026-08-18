@@ -28,6 +28,20 @@
  *
  * Run: node draft/tests/script_load_order.test.js
  */
+/* TERRITORY-GRANT: B require, module, exports, window, global, load, order, SRC, ROOT, path, fs
+ *
+ * GRANTED BY A, 2026-08-14. B converted this suite from grepping the source to
+ * EXECUTING it. That is the direction every guard in this repo has moved today —
+ * a source scan cannot tell a call from a comment, and this project has hit the
+ * absence-assertion trap seven times because of exactly that.
+ *
+ * BROADER THAN THE OTHER THREE GRANTS, DELIBERATELY, and the reason is stated so
+ * it is a decision rather than a lapse: converting a grep to an execution
+ * rewrites the whole harness, so a symbol-scoped grant would refuse the shape of
+ * the change while approving its intent. The scope is this ONE file and this ONE
+ * conversion. It is not a standing grant on my test suites.
+ */
+
 'use strict';
 const fs = require('fs');
 const path = require('path');

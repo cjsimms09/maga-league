@@ -928,9 +928,23 @@ def test_a_player_the_source_gave_NO_spread_for_is_OMITTED_not_stored_as_nulls()
     """A row of all-None is indistinguishable from a measured zero once it is on
     disk, and it inflates the dispersion count so a later reader thinks coverage is
     complete. MUTATION: emit every player — `dispersion_rows` stops being a
-    coverage figure and becomes a copy of `row_count`."""
-    d = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None))
+    coverage figure and becomes a copy of `row_count`.
+
+    ⚠ THE FIXTURE GAINED `drafts=None` WHEN `DISPERSION_KEEP` WIDENED, and that is
+    a correction to the fixture rather than a relaxation of the assertion. This
+    test's own sentence says "a row of all-None"; `drafts` is one of the Nones and
+    the fixture had been leaving it at 3510, so it was really testing "no bounds"
+    under a name that claimed more. A row carrying a selection count is now KEPT on
+    purpose — the marginal day needs exactly that number and no other field
+    supplies it — and the row that says NOTHING is still dropped, which is what the
+    assertion below has always been about."""
+    d = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None,
+                                drafts=None))
     assert d == {}
+    # AND THE NARROWER CLAIM THE OLD FIXTURE ACTUALLY TESTED, kept explicitly so
+    # the widening is visible rather than inferred from a passing suite.
+    kept = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None))
+    assert list(kept) == ["1"] and kept["1"]["drafts"] == 3510
 
 
 def test_ONE_published_bound_is_enough_to_keep_him():
@@ -1183,9 +1197,15 @@ def test_num_teams_IS_NOT_THE_TEAM_COUNT():
 # Same shape as the row-drop count: an instrument that raises a question it has
 # the information to answer. It answers this one now.
 #
-# OPTIONAL AND ADDITIVE, ON PURPOSE. `board_vs_market.py` is A's and reads this
-# report; silently reclassifying misses would move A's numbers without A asking.
+# OPTIONAL AND ADDITIVE, ON PURPOSE. `board_vs_market.py` reads this report, and
+# silently reclassifying misses would move its numbers without its author asking.
 # Passing no `kept` reproduces today's output exactly.
+#
+# ⚠ CORRECTED 2026-08-14: these two comments said `board_vs_market.py` is A's. It
+# is NOT — it carries `# TERRITORY: C` and the header rule in territory-check.sh
+# is what decides ownership, not my memory of who wrote it. A wrong attribution
+# in a comment is not harmless: it would have had me PARK a change to my own file
+# and wait on a lane that does not own it.
 
 KEPT = [{"player_id": "7564", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}]
 
@@ -1220,9 +1240,9 @@ def test_a_GENUINE_miss_is_still_a_miss():
 
 
 def test_WITHOUT_kept_the_report_is_UNCHANGED():
-    """A's `board_vs_market.py` reads this report. MUTATION: classify anyway — A's
-    numbers move under them without A asking, which is the lane boundary breaking
-    quietly rather than loudly."""
+    """`board_vs_market.py` reads this report. MUTATION: classify anyway — its
+    numbers move underneath it without its caller asking, which is a consumer
+    contract breaking quietly rather than loudly."""
     key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
     board = _board({"player_id": "99", "name": "Chase Brown",
                     "position": "RB", "team": "CIN"})
@@ -2004,8 +2024,67 @@ def test_a_CHECKER_THAT_THROWS_MUST_NOT_COST_THE_DAY(tmp_path, monkeypatch):
 # The classification is checked against `capture()`'s source, so a NEW helper
 # forces a decision instead of silently joining whichever set is convenient.
 
+def _calls(fn) -> set:
+    """Every bare name this function CALLS — prose excluded.
+
+    ⚠ ONE DEFINITION, USED BY BOTH CLASSIFICATION TESTS. My first version of the
+    `assemble_day` one was a second copy of the regex `capture()`'s uses, and it
+    failed immediately on the word "`capture()`" appearing in a DOCSTRING. Two
+    copies of "what does this function call", drifting, in a file whose recurring
+    finding is exactly that — so there is one, and it reads code rather than
+    English: the docstring and every comment are removed first.
+
+    That also closes the direction the old regex could not see. A name mentioned
+    in prose was an unexplained failure; a call that only APPEARS in prose was
+    indistinguishable from a real one, so a helper deleted from the body but left
+    in a comment would still look classified.
+    """
+    import ast
+    import inspect
+    import textwrap
+    src = textwrap.dedent(inspect.getsource(fn))
+    tree = ast.parse(src)
+    for node in ast.walk(tree):
+        if (isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef,
+                              ast.Module)) and ast.get_docstring(node)):
+            node.body = node.body[1:]
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            f = node.func
+            if isinstance(f, ast.Name):
+                out.add(f.id)
+            elif isinstance(f, ast.Attribute):
+                out.add(f.attr)
+    return out
+
+
+#: `_series_of` was briefly on this list and is deliberately NOT any more, and
+#: the round trip is worth recording because the classification test drove
+#: every step of it. Filed under GUARDS first (the collapse guard reads it,
+#: wrapped) — refused, because `save()` reaches it via `coverage()` so a
+#: failure legitimately aborts the WRITE. Moved here — then refused AGAIN by
+#: the other direction of the same test once the read moved inside
+#: `collapse_verdict`: `capture` no longer calls it, so a fault injected into
+#: it was being injected into nothing. Wrapping a call site does not make a
+#: function a guard, and classifying one `capture` does not call proves
+#: nothing at all.
 WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
-GUARDS = ["integrity"]
+#: `blocking_fatal` joined `integrity` here the moment it was written, because the
+#: check above FORCED the decision — it failed naming the new call by name rather
+#: than letting it default into whichever list was convenient. That is the whole
+#: point of the classification test, and it is the first time it has fired.
+#: `sel_pct_units` is a REPORT, and reports live in this list for the reason the
+#: list exists: it sits between a saved day and the reader, and a bug in it must
+#: not be able to reach back and cost the day. It is called inside the report
+#: `try` for exactly that, and the parametrised test below proves it rather than
+#: trusting the placement.
+#: `collapse_verdict` joined them on 2026-08-14 — the truncated-200 refusal.
+#: It REFUSES a collapsed board by design, and that refusal propagates; what
+#: must never propagate is the guard itself throwing, so `capture` wraps the
+#: call and only the verdict escapes. The parametrised test below proves the
+#: wrap rather than trusting it.
+GUARDS = ["integrity", "blocking_fatal", "sel_pct_units", "collapse_verdict"]
 #: The SOURCE. Not a guard and not the write: if it fails there is no board at
 #: all, so aborting is the only honest outcome. Grouped with the write path for
 #: the loud-and-no-partial-file assertion because the requirement is identical.
@@ -2064,17 +2143,22 @@ def test_EVERY_HELPER_capture_CALLS_IS_CLASSIFIED_as_write_or_guard():
 
     MUTATION: drop a name from either list — the parametrised tests keep passing
     on a smaller set and the coverage quietly shrinks with nothing saying so."""
-    import inspect
-    import re as _re
-    body = inspect.getsource(C.capture)
-    known = set(WRITE_PATH) | set(GUARDS) | set(SOURCE) | {"load", "save", "capture"}
-    called = {m.group(1) for m in _re.finditer(r"\b([a-z_][a-z0-9_]*)\(", body)}
+    known = set(WRITE_PATH) | set(GUARDS) | set(SOURCE) | {"load", "save"}
+    called = _calls(C.capture)
     module_level = {n for n in called if hasattr(C, n) and n not in dir(__builtins__)}
     missing = module_level - known
     assert not missing, (
         "capture() calls %s and neither list covers them — classify each as WRITE "
         "PATH (may abort, must be loud and leave no partial file) or GUARD (must "
         "never cost the day)" % sorted(missing))
+    # AND THE OTHER DIRECTION, which this check did not have and rule 13f names:
+    # `module_level - known` is empty whenever `_calls` returns NOTHING, so a
+    # reader that stopped reading would report a fully classified function
+    # forever. Every classified name must still be a call.
+    for name in WRITE_PATH + GUARDS + SOURCE:
+        assert name in called, (
+            "%s is classified but capture() no longer calls it — the parametrised "
+            "tests above are injecting a fault into nothing" % name)
 
 
 # ── WHEN THE SPREAD DOES NOT ARRIVE, SAY WHY IN THE SAME BREATH ────────────
@@ -2263,3 +2347,1778 @@ def test_the_REAL_config_yields_the_REAL_BOARD_DEPTH():
     # the other. 147 is how many SELECTIONS happen, not how deep the draft is.
     assert po["live_picks"] == 147
     assert po["live_picks"] == d["last_pick"] - len(po["forfeited"])
+
+# ── THE SAME INVARIANT, ONE LAYER UP: INSIDE THE FETCH ─────────────────────
+#
+# THE INVARIANT ABOVE WAS CHECKED FOR EVERY HELPER `capture()` CALLS AND FOR NONE
+# OF THE HELPERS `fetch_mfl` CALLS — and `fetch_mfl` is where the riskiest line in
+# the whole path lived: `dispersion = dispersion_of(parsed)`, unguarded, inside a
+# `pragma: no cover` function, on the morning of the first day it would ever meet
+# MFL's real response. A raise there aborts the capture and costs a day no
+# provider will serve again, in exchange for a field the archive did without
+# entirely until 2026-08-13.
+#
+# So the second half of `fetch_mfl` — everything below the two HTTP reads — is now
+# `assemble_day`, pure and executable, and the invariant reaches it. Same split
+# `dispersion_of` got, same reason, one level out.
+#
+# The three roles are the ones `capture()` already names:
+#   SOURCE  `mfl_adp.parse` — no board without it, so raising is the honest outcome
+#   GUARD   `dispersion_of`, `dispersion_diagnosis` — enhancements; may not stop
+#           a day reaching disk
+#   REPORT  the note
+
+ASSEMBLE_SOURCE = ["parse"]
+ASSEMBLE_GUARDS = ["dispersion_of", "dispersion_diagnosis"]
+
+#: One MFL row in the shape the live endpoint actually returns — observed keys,
+#: string values and all. `_parsed` above starts from `parse`'s OUTPUT; this
+#: starts from MFL's, so the assertions below exercise the whole assembly rather
+#: than the half of it that was already reachable.
+def _texts(**over):
+    row = {"id": "13593", "averagePick": "10.5", "draftsSelectedIn": "3510",
+           "minPick": "2", "maxPick": "40", "draftSelPct": "70", "rank": "1"}
+    row.update(over)
+    adp = {"adp": {"totalDrafts": "5011", "player": [row]}}
+    players = {"players": {"player": [
+        {"id": "13593", "name": "Jefferson, Justin", "position": "WR", "team": "MIN"}]}}
+    return json.dumps(adp), json.dumps(players)
+
+
+def test_assemble_day_TURNS_THE_TWO_RAW_EXPORTS_INTO_A_DAY():
+    """The whole assembly, end to end, for the first time — it was unreachable
+    behind `pragma: no cover` until it was split out.
+
+    MUTATION: return `rows` keyed by the players export instead of the ADP report.
+    Every id still resolves in the test above because both fixtures use the same
+    one; the archive silently keys a day by whichever export happened to be
+    richer, and the ADP curve is attributed to the wrong players."""
+    adp_text, players_text = _texts()
+    rws, plrs, total, note, disp = C.assemble_day(adp_text, players_text, "n")
+    assert rws == {"13593": 10.5}
+    assert plrs["13593"] == {"name": "Justin Jefferson", "position": "WR",
+                             "team": "MIN"}
+    assert total == 5011
+    assert disp == {"13593": {"min_pick": 2.0, "max_pick": 40.0, "sel_pct": 70.0,
+                              "drafts": 3510}}
+    assert note == "n", "a successful assembly adds nothing to the note"
+
+
+@pytest.mark.parametrize("victim", ASSEMBLE_GUARDS)
+def test_A_GUARD_INSIDE_THE_FETCH_MUST_NOT_COST_THE_DAY(victim, monkeypatch, capsys):
+    """THE ONE THIS SPLIT EXISTS FOR. Both of these were written after the archive
+    was already running and neither is load-bearing: the day was worth keeping
+    without a spread for two days, and it is worth keeping without one again.
+
+    MUTATION: let it propagate — an optional field kills an unrefetchable day, and
+    it does it in a function nothing can execute, so nothing says it will."""
+    adp_text, players_text = _texts()
+    hit = {"x": False}
+
+    def boom(*a, **k):
+        hit["x"] = True
+        raise KeyError("injected fault in %s" % victim)
+
+    monkeypatch.setattr(C, victim, boom)
+    rws, plrs, total, note, disp = C.assemble_day(adp_text, players_text, "n")
+    assert hit["x"], "%s was never called — this proved nothing" % victim
+    assert rws == {"13593": 10.5}, "the day survived %s failing" % victim
+    assert total == 5011, "and so did the coverage figure beside it"
+
+
+def test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG():
+    """SURVIVING IS NOT ENOUGH — a day whose spread silently became `None` is
+    indistinguishable from a day MFL published no spread for, and `dispersion_health`
+    would then blame the feed for our bug. The note travels with the snapshot into
+    the archive; the print reaches the CI log. Both name the exception.
+
+    MUTATION: swallow it quietly — the archive gains days with no spread and no
+    reason, and the diagnosis built to make the fix a diff has nothing to read."""
+    import mfl_adp as MFL
+    adp_text, players_text = _texts()
+    real = C.dispersion_of
+    try:
+        C.dispersion_of = lambda p: (_ for _ in ()).throw(TypeError("bad shape"))
+        rws, _p, _t, note, disp = C.assemble_day(adp_text, players_text, "mfl PPR")
+    finally:
+        C.dispersion_of = real
+    assert rws == {"13593": 10.5}
+    assert disp == {}
+    assert "DISPERSION PARSE FAILED" in note and "TypeError" in note, note
+    assert "bad shape" in note, "and WHICH failure, so the fix is a diff: %s" % note
+    assert note.startswith("mfl PPR"), "the market's own note must survive: %s" % note
+    assert MFL.parse  # the source is untouched by any of this
+
+
+def test_THE_SOURCE_INSIDE_THE_FETCH_ABORTS_RATHER_THAN_INVENTING_A_DAY(monkeypatch):
+    """The other direction, and it must stay this way. If `parse` fails there is no
+    board — `capture()` refuses a zero-row day precisely so a dated empty snapshot
+    never reaches the archive to be replayed later as a frozen market.
+
+    MUTATION: guard `parse` the way the enhancements are guarded — the capture
+    writes a day with no rows in it, or `capture` raises its zero-row refusal and
+    the real reason is gone."""
+    import mfl_adp as MFL
+    adp_text, players_text = _texts()
+
+    def boom(*a, **k):
+        raise ValueError("MFL returned something parse cannot read")
+
+    monkeypatch.setattr(MFL, "parse", boom)
+    with pytest.raises(ValueError):
+        C.assemble_day(adp_text, players_text, "n")
+
+
+def test_EVERY_HELPER_assemble_day_CALLS_IS_CLASSIFIED_as_source_or_guard():
+    """Same forcing function as `capture()`'s, and it has already earned its keep
+    once today — the capture-side version failed by name when `blocking_fatal` was
+    added, which is how `blocking_fatal` came to be inside the guard's `try` rather
+    than beside it.
+
+    MUTATION: drop a name from either list — the parametrised test keeps passing on
+    a smaller set and the invariant quietly stops covering the line it was built
+    for."""
+    import mfl_adp as MFL
+    known = set(ASSEMBLE_SOURCE) | set(ASSEMBLE_GUARDS)
+    called = _calls(C.assemble_day)
+    interesting = {n for n in called
+                   if (hasattr(C, n) or hasattr(MFL, n)) and n not in dir(__builtins__)}
+    missing = interesting - known
+    assert not missing, (
+        "assemble_day calls %s and neither list covers them — classify each as "
+        "SOURCE (may raise; there is no day without it) or GUARD (must never cost "
+        "the day)" % sorted(missing))
+    for name in ASSEMBLE_GUARDS + ASSEMBLE_SOURCE:
+        assert name in called, (
+            "%s is classified but assemble_day no longer calls it — the "
+            "parametrised test above is injecting a fault into nothing" % name)
+
+
+# ── ONE BAD DAY MUST NOT COST ALL THE REST ─────────────────────────────────
+#
+# `integrity` judges the WHOLE archive; `capture()` refused to write whenever ANY
+# day in it was fatal. So a single corrupt day — from a bug, a bad merge, a hand
+# edit — would have blocked EVERY SUBSEQUENT CAPTURE, not just its own. The
+# workflow step fails, the commit step is gated on it, and the days accumulate as
+# nothing until a human notices the red run.
+#
+# This is the board-pin lesson for the fourth time in this file and by far the
+# largest instance: the previous three could each cost a day. This one could cost
+# every day that came after it, and the archive exists BECAUSE those days are
+# unrepeatable.
+#
+# The rule is unchanged in the case the check was built for — corruption in the
+# day being written still refuses. What changed is that yesterday's corruption is
+# no longer allowed to destroy today's board, because refusing does not unwrite
+# it, does not fix it, and is not even how anyone finds out: the standing check
+# over the committed archive is.
+
+def _fatal(kind="bad_adp", day=("2026", "2026-08-10")):
+    return {"kind": kind, "day": day, "n": 1}
+
+
+def test_only_TODAYS_OWN_CORRUPTION_may_stop_todays_write():
+    """MUTATION: return `ig["fatal"]` whole — one bad day anywhere blocks every
+    capture that follows it, permanently, which is the defect this replaced."""
+    ig = {"fatal": [_fatal(day=("2026", "2026-08-10")),
+                    _fatal(kind="row_count_mismatch", day=("2026", "2026-08-14"))]}
+    blocking = C.blocking_fatal(ig, 2026, "2026-08-14")
+    assert [f["kind"] for f in blocking] == ["row_count_mismatch"]
+
+
+def test_the_SAME_DATE_IN_ANOTHER_SEASON_is_not_todays_day():
+    """Two seasons legitimately hold the same observation date — the archive keys on
+    (year, date) and a 2025 backfill sitting beside a 2026 capture is normal.
+
+    MUTATION: compare the date only — a corrupt historical season blocks the live
+    one, which is the original defect wearing a smaller hat."""
+    ig = {"fatal": [_fatal(day=("2025", "2026-08-14"))]}
+    assert C.blocking_fatal(ig, 2026, "2026-08-14") == []
+    assert len(C.blocking_fatal(ig, 2025, "2026-08-14")) == 1
+
+
+def test_the_YEAR_MATCHES_WHETHER_IT_ARRIVES_AS_INT_OR_STRING():
+    """`capture(2026, ...)` passes an int; `integrity` stamps `str(s["year"])`; a
+    round trip through JSON turns the tuple into a list. All three are the same day.
+
+    MUTATION: compare the raw values — the types never match, `blocking_fatal`
+    returns empty for everything, and a genuinely corrupt day sails onto disk while
+    the test above still passes."""
+    assert len(C.blocking_fatal({"fatal": [_fatal(day=["2026", "2026-08-14"])]},
+                                2026, "2026-08-14")) == 1
+    assert len(C.blocking_fatal({"fatal": [_fatal(day=("2026", "2026-08-14"))]},
+                                "2026", "2026-08-14")) == 1
+
+
+def test_a_FINDING_THAT_CANNOT_NAME_A_DAY_DOES_NOT_BLOCK_ONE():
+    """Every fatal kind carries `day` today. A future archive-wide check that does
+    not is not evidence about the board in hand, and it may not destroy it — it is
+    printed with the others instead. The same asymmetry decides it as everywhere
+    else here: a corrupt archive is recoverable, a lost day is not.
+
+    MUTATION: block on unattributable findings — a new whole-archive check silently
+    acquires the power to end the capture, which is how this defect got in."""
+    assert C.blocking_fatal({"fatal": [{"kind": "something_new"}]},
+                            2026, "2026-08-14") == []
+    assert C.blocking_fatal({"fatal": [{"kind": "x", "day": None}]},
+                            2026, "2026-08-14") == []
+
+
+def test_NOTHING_WRONG_blocks_nothing_and_a_MISSING_report_is_not_a_finding():
+    """`ig` is a stub with an empty `fatal` when the checker itself failed, and that
+    path must not be read as corruption."""
+    assert C.blocking_fatal({"fatal": [], "ok": True}, 2026, "2026-08-14") == []
+    assert C.blocking_fatal({}, 2026, "2026-08-14") == []
+    assert C.blocking_fatal(None, 2026, "2026-08-14") == []
+
+
+def test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD(tmp_path, monkeypatch, capsys):
+    """END TO END, because the unit above proves the decision and this proves it is
+    the decision `capture()` actually makes.
+
+    An archive holding one fatal day from last week; today's fetch is good. Today
+    must reach disk, and the older finding must still be shouted — a corruption
+    that stops blocking must not also stop being reported.
+
+    MUTATION: keep `if not ig["ok"]` — every capture after the first bad day is
+    lost, and the archive this file exists to protect stops growing."""
+    p = tmp_path / "arch.json"
+    p.write_text(json.dumps({"series": [
+        {"year": "2026", "observed_at": "2026-08-10",
+         "rows": {"1": 4.5}, "row_count": 999, "total_drafts": 10},
+    ], "players": {"1": {"name": "A B"}}}))
+
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5, "2": 9.0}, {"1": {"name": "A B"}},
+                                      10, "n", {}))
+    C.capture(2026, "2026-08-14", path=str(p))
+
+    days = {s["observed_at"] for s in json.loads(p.read_text())["series"]}
+    assert days == {"2026-08-10", "2026-08-14"}, (
+        "today's unrefetchable board was discarded over a week-old finding")
+    out = capsys.readouterr().out
+    assert "OTHER DAYS" in out and "row_count_mismatch" in out, (
+        "and it went quiet about the corruption while it was at it:\n%s" % out)
+
+
+def test_TODAYS_corruption_STILL_REFUSES_even_beside_an_older_one(tmp_path,
+                                                                  monkeypatch):
+    """The half that must not have moved. MUTATION: return `[]` unconditionally —
+    every test above still passes and the refusal built to keep a corrupt day out
+    of a permanent archive has silently become a no-op."""
+    p = tmp_path / "arch.json"
+    p.write_text(json.dumps({"series": [
+        {"year": "2026", "observed_at": "2026-08-10",
+         "rows": {"1": 4.5}, "row_count": 999, "total_drafts": 10},
+    ], "players": {}}))
+    before = p.read_text()
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": -4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    with pytest.raises(RuntimeError) as e:
+        C.capture(2026, "2026-08-14", path=str(p))
+    assert "bad_adp" in str(e.value)
+    assert p.read_text() == before, "and it must not have touched the file"
+
+
+# ── IS `sel_pct` A PERCENT OR A FRACTION? DERIVED, NOT ASSUMED ─────────────
+#
+# `TRUNCATION_SEL_PCT = 50.0` and the note's `%.1f%%` both read MFL's
+# `draftSelPct` as a whole percent. That reading rests on ONE row quoted in a
+# comment — no captured MFL response in this repo carries the field, and MFL is
+# unreachable from here — so it was an assumption going live on the first day the
+# spread is ever captured.
+#
+# It is DERIVABLE from what the snapshot already stores: `drafts` per player and
+# `total_drafts` for the report give the rate, and a derived rate against the
+# published one settles the scale on day one rather than never.
+#
+# WHAT IS AND IS NOT AT STAKE, so this is not read as worse than it is. `sd` is
+# `(max - min) / d_n` and does not touch `sel_pct`. A wrong scale mislabels
+# `truncated` and prints a wrong figure in a note; it moves no number anyone
+# drafts on, and the raw value is archived so the reading can be corrected later
+# over every day already captured.
+
+def _day(sel_scale=1.0, total=125, rows=(("a", 70, 87), ("b", 20, 25),
+                                         ("c", 8, 10))):
+    """A day whose published rates are EXACTLY consistent with its counts.
+
+    Built from selection counts and a total, so the fixture cannot accidentally
+    encode the answer: each `sel_pct` is computed from `drafts/total`, then scaled
+    by `sel_scale` to plant a units error.
+    """
+    disp = {}
+    for pid, _pct, n in rows:
+        disp[pid] = {"min_pick": 1, "max_pick": 100, "drafts": n,
+                     "sel_pct": (n / total * 100.0) * sel_scale}
+    return {"total_drafts": total, "dispersion": disp}
+
+
+def test_the_UNITS_CHECK_FIRES_on_a_planted_fraction():
+    """Proved before the real feed is judged by it. MUTATION: compare the
+    published rate against `drafts/total` WITHOUT the x100 — percent and fraction
+    swap places and the check confidently reports the wrong scale."""
+    assert C.sel_pct_units(_day(sel_scale=1.0))["verdict"] == "percent"
+    frac = C.sel_pct_units(_day(sel_scale=0.01))
+    assert frac["verdict"] == "fraction", frac
+    assert frac["expected_percent"] is False
+    assert "100x" in frac["note"]
+
+
+def test_a_rate_that_is_NEITHER_says_so_rather_than_picking_the_closer_one():
+    """The answer that matters most, because it is the one that means STOP. If
+    `draftSelPct` is not the selection rate at all, rounding it to whichever of
+    two guesses is nearer would put a confident label on a field nobody
+    understands.
+
+    MUTATION: return `percent` unless it matches `fraction` — an unrecognised
+    feed silently becomes the assumption this check was built to test."""
+    odd = C.sel_pct_units(_day(sel_scale=3.7))
+    assert odd["verdict"] == "disagrees", odd
+    assert "NOTHING" in odd["note"]
+
+
+def test_ROUNDING_IN_THE_PUBLISHED_FIGURE_is_not_read_as_a_units_error():
+    """MFL publishes `draftSelPct` rounded to whole percents ("70"). At the real
+    archive's scale — 125 drafts — one rounding step is 0.4 points on a figure of
+    5.6, which is 7%. A tolerance tight enough to call that a units error would
+    fail on the first real day, every day.
+
+    ⚠ MY FIRST FIXTURE PROVED NOTHING AND THE GATE SAID SO. It rounded counts of
+    87, 25 and 10 against a total of 125 — all of which divide evenly into whole
+    percents — so `round()` changed nothing, the median ratio was exactly 1.0, and
+    the tight-tolerance mutation SURVIVED. A test that cannot fail for the reason
+    it names is not evidence, so the count here is deliberately one that does NOT
+    divide evenly, and the planted distortion is asserted before the verdict is.
+
+    7 of 125 is also the realistic worst case rather than an invented one: it is
+    the shape of a deep player on the live board, and it is where the rounding
+    error is largest.
+
+    MUTATION: drop the tolerance to 1e-9 — every real day reports `disagrees` and
+    a check built to answer a question becomes a daily false alarm."""
+    d = {"total_drafts": 125,
+         "dispersion": {"deep": {"min_pick": 40, "max_pick": 150, "drafts": 7,
+                                 "sel_pct": round(7 / 125 * 100.0)}}}
+    implied = 7 / 125 * 100.0
+    assert d["dispersion"]["deep"]["sel_pct"] != implied, (
+        "the fixture's rounding is a no-op, so this proves nothing — pick a count "
+        "that does not divide evenly into whole percents")
+    r = C.sel_pct_units(d)
+    assert r["verdict"] == "percent", r
+    assert abs(r["median_ratio"] - 1.0) > 0.05, (
+        "and the distortion must be REAL: ratio %s is inside any tolerance, so a "
+        "tighter one would still pass" % r["median_ratio"])
+
+
+def test_a_DAY_WITH_NO_SPREAD_is_UNMEASURED_and_specifically_not_percent():
+    """The two days archived before the parser kept the spread are exactly this
+    shape, and they are not evidence that the scale is right.
+
+    MUTATION: default to `percent` when there is nothing to check — the assumption
+    this exists to test gets confirmed by days that contain none of it."""
+    assert C.sel_pct_units({"total_drafts": 125, "dispersion": None})["verdict"] \
+        == "unmeasured"
+    assert C.sel_pct_units({"dispersion": _day()["dispersion"]})["verdict"] \
+        == "unmeasured", "no total_drafts means no derivable rate"
+    assert C.sel_pct_units({})["verdict"] == "unmeasured"
+    assert C.sel_pct_units(None)["verdict"] == "unmeasured"
+
+
+def test_a_ZERO_SELECTION_row_cannot_imply_a_rate_and_is_SKIPPED():
+    """Dividing by a zero selection count is not a disagreement, and counting a
+    published zero as agreement would let a feed of zeroes certify any scale.
+
+    MUTATION: keep them — one malformed row drags the median and the verdict flips
+    on data that says nothing either way."""
+    d = _day()
+    d["dispersion"]["dead"] = {"drafts": 0, "sel_pct": 0.0,
+                               "min_pick": 1, "max_pick": 2}
+    r = C.sel_pct_units(d)
+    assert r["verdict"] == "percent" and r["rows"] == 3, r
+    allzero = {"total_drafts": 125,
+               "dispersion": {"x": {"drafts": 0, "sel_pct": 0.0}}}
+    assert C.sel_pct_units(allzero)["verdict"] == "unmeasured"
+
+
+def test_the_REAL_ARCHIVE_is_judged_and_the_verdict_is_RECORDED_not_assumed():
+    """Against the committed archive, so this stops being a fixture exercise the
+    morning real data lands. Today every day predates the spread, so the honest
+    answer is `unmeasured` — and that is asserted rather than skipped, because a
+    check that can only say "nothing yet" has not looked.
+
+    WHEN THE FIRST REAL DAY LANDS this will read `percent` (or tell us it does
+    not), and the assertion below tightens to require a measured verdict."""
+    # THE SHIPPED PATH, from the module rather than rebuilt here — a second copy
+    # of where the archive lives is how a test ends up judging a file nobody
+    # writes. `C.SERIES` is the one `capture()` itself uses.
+    p = C.SERIES
+    if not p.exists():
+        pytest.skip("UNCHECKED: no committed archive")
+    days = json.loads(p.read_text())["series"]
+    judged = [(s["observed_at"], C.sel_pct_units(s)) for s in days]
+    assert judged, "the archive has no days at all"
+    measured = [(d, v) for d, v in judged if v["verdict"] != "unmeasured"]
+    for day, v in measured:
+        assert v["verdict"] == "percent", (
+            "%s: MFL's draftSelPct is not the percent scale TRUNCATION_SEL_PCT "
+            "assumes — %s" % (day, v["note"]))
+    # AND THE COUNT IS PINNED, so a day that stops being judged is visible.
+    unmeasured = len(judged) - len(measured)
+    assert unmeasured <= 3, (
+        "%d days carry no derivable rate; only the three captured before the "
+        "parser kept the spread (08-11, -12, -13) should" % unmeasured)
+
+
+def test_THE_DRAFTABLE_MISSES_ARE_NAMED_not_only_counted():
+    """`no_sleeper_match_draftable` is reported in the capture summary every
+    morning and NOBODY CAN ACT ON IT, because it is computed by SUBTRACTION —
+    `no_sleeper_match - len(excluded)` — so the players it counts were never
+    identified. I hit this trying to answer "which players did the prune cost us
+    market coverage on": my own ad-hoc enumeration disagreed with the module twice
+    in one session, once listing three of our own keepers.
+
+    A count of a set nobody can enumerate is the shape this lane keeps finding in
+    other people's code.
+
+    MUTATION: report the count alone — the number moves 6 to 11 across a rebuild
+    and the only way to learn WHO is to re-derive the exclusions by hand and get
+    them wrong."""
+    key = {"1": {"name": "Real Player", "position": "WR", "team": "CIN"},
+           "2": {"name": "A Linebacker", "position": "LB", "team": "CIN"},
+           "3": {"name": "Kept Guy", "position": "RB", "team": "DET"}}
+    board = [{"player_id": "x", "name": "Somebody Else", "position": "WR",
+              "team": "SEA"}]
+    _ids, rep = C.crosswalk_map(key, board, kept=[{"name": "Kept Guy"}],
+                                positions={"QB", "RB", "WR", "TE", "K", "DEF"})
+    assert rep["no_sleeper_match_draftable"] == 1
+    assert rep["no_sleeper_match_draftable_ids"] == ["1"], rep
+    assert rep["no_sleeper_match_draftable_truncated"] is False
+
+
+def test_THE_NAMED_SET_AND_THE_ARITHMETIC_MUST_AGREE():
+    """A FREE CONTROL THAT DID NOT EXIST. The count subtracts `len(excluded)` from
+    `no_sleeper_match`, which is only sound while every excluded id is itself
+    unresolved. Nothing checked that. Now the set is built directly, so its size
+    and the subtraction are two independent routes to one number — and a
+    disagreement means the exclusion sets have drifted out of the unresolved
+    population, which would silently inflate `crosswalk_rate_draftable`.
+
+    MUTATION: derive the ids by filtering something other than `unresolved` — the
+    two numbers part company and the rate quietly climbs toward a better-than-real
+    figure, which is the direction this kind of error always goes."""
+    key = {str(i): {"name": "P%d" % i, "position": "WR", "team": "CIN"}
+           for i in range(1, 6)}
+    key["9"] = {"name": "Linebacker", "position": "LB", "team": "CIN"}
+    _ids, rep = C.crosswalk_map(key, [], kept=None,
+                                positions={"QB", "RB", "WR", "TE", "K", "DEF"})
+    assert len(rep["no_sleeper_match_draftable_ids"]) == \
+        rep["no_sleeper_match_draftable"], rep
+
+
+# ── THE MARGINAL DAY: WHAT TODAY'S DRAFTERS DID, NOT WHAT THE SEASON AVERAGES ──
+#
+# Measured 2026-08-14: MFL's published ADP moves a median 0.17-0.21 picks a day
+# inside the top 150, and `total_drafts` goes 115 -> 119 -> 125. The stability is
+# ARITHMETIC — one day's new drafts carry 3-5% of the weight — so the published
+# number is structurally incapable of showing what today's room did. Six days from
+# the draft, that is the only part anybody would act on.
+#
+# ⚠ I NEARLY BUILT THIS ON A DEFECT THAT DOES NOT EXIST. I had it written down
+# that `sel_pct` was extracted by `mfl_adp.parse` and then discarded on the way to
+# disk, making the marginal day permanently underivable — urgent, and false.
+# `dispersion_of` stores it, `append_snapshot` archives it, and the three days on
+# disk carry `dispersion: None` for the plain reason that `dispersion_of` reached
+# MAIN at f1e1d4e 13:02 on 08-13, one hour AFTER that day's 12:03 capture. I had
+# dated the code from the commit on MY BRANCH (6472968, 05:22) instead of from the
+# hour it could actually run. `DISPERSION_SINCE = "2026-08-14"` was right the
+# whole time. Merged is not executed — and neither is committed.
+#
+# SO THE GAP IS NOT STORAGE. It is that nothing DERIVES the marginal day from what
+# is already being stored, and two cumulative snapshots contain it exactly, because
+# a mean times its count is a sum:
+#     new       = drafts1 - drafts0
+#     marginal  = (adp1*drafts1 - adp0*drafts0) / new
+#
+# AND THE DENOMINATOR IS `drafts`, NEVER `sel_pct * total_drafts`. Both are "how
+# many drafts he was selected in", which is exactly the coincidence A's first
+# criterion is about — say the comparison out loud and they part company. MFL
+# publishes `draftSelPct` rounded to whole percents, so its quantum is
+# total_drafts/100: 1.25 drafts today, and ~50 at the 5011-draft depth MFL
+# reported for a finished 2023. The DAILY INCREMENT does not grow with the season;
+# the rounding error does. `draftsSelectedIn` is an exact integer and is sitting in
+# the same row.
+
+def _mday(day, adp, drafts, total, lo=5, hi=400):
+    return {"year": "2026", "observed_at": day, "rows": {"1": float(adp)},
+            "total_drafts": total,
+            "dispersion": {"1": {"min_pick": lo, "max_pick": hi,
+                                 "sel_pct": round(drafts / total * 100.0),
+                                 "drafts": drafts}}}
+
+
+def test_THE_MARGINAL_ADP_IS_DERIVED_EXACTLY_from_the_counts_not_the_percents():
+    """60 selections at 80.0, then 62 at 83.87: the two new drafters took him at
+    200.0. The published board moved 3.9 picks and calls that a quiet day.
+
+    MUTATION 1: difference the MEANS instead of the sums — reports 3.87, the damped
+    figure, which is the one quantity this function exists to see past.
+    MUTATION 2: use `sel_pct * total_drafts / 100` as the count. Both days publish
+    "50" (60/119 = 50.4%, 62/125 = 49.6%), so the derived increment is 3.0 rather
+    than 2 and the marginal comes back 160.7 — a 20% miss, in the direction that
+    makes the new drafters look tamer than they were."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", (60 * 80.0 + 200.0 + 200.0) / 62, 62, 125)
+    assert a["dispersion"]["1"]["sel_pct"] == b["dispersion"]["1"]["sel_pct"] == 50
+    r = C.marginal_adp(a, b)
+    assert r["status"] == "measured", r
+    row = r["rows"]["1"]
+    assert row["new_selections"] == 2
+    assert abs(row["marginal_adp"] - 200.0) < 1e-9, row
+    assert abs(row["published_move"] - 3.87096774193549) < 1e-6, row
+
+
+def test_THE_DERIVED_MEAN_MUST_LIE_INSIDE_THE_OBSERVED_RANGE_or_the_premise_is_wrong():
+    """The one falsifiable check this derivation admits, and it costs nothing.
+
+    Every new selection is a REAL PICK, so their mean cannot fall outside the
+    later day's own observed [min_pick, max_pick] — that range already contains
+    them. If it does, the decomposition's premise is false: `averagePick` is not
+    averaged over `draftsSelectedIn`, or the two snapshots are not the same
+    accumulation. That turns "MFL's fields mean what their names say" from an
+    assumption into a measurement, on the first morning two snapshots exist.
+
+    MUTATION: drop the check — a marginal ADP of 200 gets reported for a player
+    MFL says was never taken later than 150, with the same confidence as a sound
+    one, and the wrongness is invisible because the number is plausible."""
+    a = _mday("2026-08-13", 80.0, 60, 119, hi=150)
+    b = _mday("2026-08-14", (60 * 80.0 + 200.0 + 200.0) / 62, 62, 125, hi=150)
+    r = C.marginal_adp(a, b)
+    assert r["outside_observed_range"] == ["1"], r
+    assert r["rows"]["1"]["outside_observed_range"] is True
+    # STILL REPORTED, NOT DELETED. Rule 17a — preserve before you alarm. The
+    # number is the evidence that the premise is wrong; discarding it leaves the
+    # alarm with nothing to point at.
+    assert abs(r["rows"]["1"]["marginal_adp"] - 200.0) < 1e-9
+
+
+def test_A_PLAYER_WITH_NO_NEW_SELECTIONS_IS_SKIPPED_not_divided_by_zero():
+    """MUTATION: divide anyway — one unchanged player raises ZeroDivisionError and
+    takes the whole day's derivation down with him, on a day that cannot be
+    refetched."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", 80.0, 60, 125)
+    r = C.marginal_adp(a, b)
+    assert r["rows"] == {}
+    assert r["skipped_no_new_selections"] == 1
+
+
+def test_A_SHRINKING_SELECTION_COUNT_IS_REFUSED():
+    """A cumulative count cannot fall. If it does, the two snapshots are not the
+    same accumulation — a restatement, a re-scoped feed, or our own units drifting.
+
+    MUTATION: allow it — the negative denominator flips the sign and the marginal
+    ADP comes back pointing the wrong way, with nothing to say it is odd."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", 81.0, 55, 125)
+    r = C.marginal_adp(a, b)
+    assert r["rows"] == {}
+    assert r["refused_count_fell"] == 1
+
+
+def test_MARGINAL_WITHOUT_DISPERSION_IS_UNMEASURED_not_zero():
+    """Every day on disk before 2026-08-14 is exactly this case.
+
+    MUTATION: treat a missing dispersion as full coverage — the days that CANNOT
+    be derived report a marginal equal to the published move, which is the damped
+    number wearing the undamped name, across the whole back-archive at once."""
+    a = {"observed_at": "2026-08-13", "rows": {"1": 80.0}, "total_drafts": 119}
+    b = {"observed_at": "2026-08-14", "rows": {"1": 81.0}, "total_drafts": 125}
+    r = C.marginal_adp(a, b)
+    assert r["status"] == "unmeasured"
+    assert "dispersion" in r["note"]
+    assert r["rows"] == {}
+
+
+def test_THE_SNAPSHOTS_MUST_BE_PASSED_EARLIER_FIRST():
+    """Swapping them does not fail — it silently returns the mirror image, and a
+    caller reading `marginal_adp(today, yesterday)` gets a confident number for a
+    day that ran backwards.
+
+    MUTATION: sort them internally instead of refusing. That is worse, not better:
+    it makes the argument order stop meaning anything, so `published_move` and
+    `new_selections` quietly describe a different pair than the caller named."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", 83.87, 62, 125)
+    with pytest.raises(ValueError, match="earlier"):
+        C.marginal_adp(b, a)
+
+
+# ── AND SOMETHING HAS TO READ IT ─────────────────────────────────────────────
+# The derivation above is useless sitting in a module. It needs the two right
+# days chosen for it, and choosing days is exactly where this file has already
+# been burned: `capture()` carries a comment about finding today "by (year, date)
+# rather than taken as `series[-1]`", and I spent part of 08-14 comparing a board
+# file to ITSELF because I picked the wrong two refs.
+
+def _md(day, year, players, total, disp=True, hi=400):
+    """players: {pid: (adp, drafts)}."""
+    s = {"year": year, "observed_at": day, "total_drafts": total,
+         "rows": {p: float(a) for p, (a, _n) in players.items()}, "dispersion": None}
+    if disp:
+        s["dispersion"] = {p: {"min_pick": 1, "max_pick": hi,
+                               "sel_pct": round(n / total * 100.0), "drafts": n}
+                           for p, (_a, n) in players.items()}
+    return s
+
+
+def test_IT_PICKS_THE_LAST_TWO_DAYS_THAT_ACTUALLY_CARRY_A_SPREAD():
+    """08-11 and 08-12 have no dispersion — the parser was still discarding it.
+    Taking `series[-1]` and `series[-2]` works only while the tail happens to be
+    complete, and the tail is exactly what a daily capture keeps changing.
+
+    MUTATION: use the last two rows regardless — the pair straddles the day the
+    spread started arriving, `marginal_adp` returns UNMEASURED, and a report that
+    could have been produced says there is nothing to see."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 119, disp=False),
+           _md("2026-08-13", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert (r["earlier"], r["later"]) == ("2026-08-13", "2026-08-14")
+
+
+def test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR():
+    """MUTATION: drop the year filter — asking about 2025 silently answers with
+    2026, because the series is sorted by (year, date) and the most recent rows
+    are always the newest season. Two seasons differenced against each other is
+    not a slow day, it is a different question."""
+    ser = [_md("2025-08-20", "2025", {"1": (30.0, 700)}, 800),
+           _md("2025-08-21", "2025", {"1": (31.0, 720)}, 830),
+           _md("2026-08-13", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2025")
+    assert (r["earlier"], r["later"]) == ("2025-08-20", "2025-08-21"), r
+
+
+def test_ONE_SPREAD_DAY_IS_UNMEASURED_and_says_how_many_it_found():
+    """THIS IS TONIGHT. The 12:02 capture on 2026-08-14 is the first contact
+    between `dispersion_of` and MFL's real response, so the first marginal day
+    cannot exist before 08-15. A report that printed nothing tonight would be
+    indistinguishable from one that was broken.
+
+    MUTATION: return `measured` with no rows — the step reads as a working
+    instrument observing a market where nobody moved."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 119, disp=False),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "unmeasured"
+    assert r["spread_days_found"] == 1
+    assert "2026-08-15" in r["note"] or "one more" in r["note"]
+
+
+def test_THE_RANKING_IS_BY_DISTANCE_FROM_THE_STANDING_PRICE_not_by_the_move():
+    """The actionable quantity is where today's room took a player versus what
+    the board is charging for him NOW — not how far the cumulative average
+    drifted, which is the damped number this whole exercise exists to get past.
+
+    Player 2's board price moved 1.0 pick while his four new drafters averaged
+    46.0 against a standing price of 21.0. Player 1's price moved 10.0 — ten
+    times as much — on a smaller real disagreement.
+
+    MUTATION: rank by `published_move` — the order inverts, and the report leads
+    with the player the market has ALREADY repriced instead of the one it has
+    not."""
+    ser = [_md("2026-08-13", "2026", {"1": (80.0, 60), "2": (20.0, 100)}, 119),
+           _md("2026-08-14", "2026", {"1": (90.0, 90), "2": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    top = r["ranked"][0]
+    assert top["player_id"] == "2", r["ranked"]
+    assert abs(top["gap"] - 25.0) < 1e-9 and abs(top["adp_later"] - 21.0) < 1e-9
+    assert abs(r["rows"]["1"]["published_move"] - 10.0) < 1e-9
+
+
+def test_A_SINGLE_NEW_DRAFTER_IS_NOT_A_MARKET_and_is_kept_out_of_the_RANKING():
+    """One new selection makes the "mean of the new picks" a single person's
+    pick. Ranked by distance from the price, those rows win every morning by
+    construction, and the report becomes a list of the thinnest players on the
+    board wearing the authority of an average.
+
+    KEPT IN `rows`, EXCLUDED FROM `ranked` — rule 17a. The row is real evidence
+    and gets thrown away by nobody; it just does not get to lead the report.
+
+    MUTATION: rank everything — player 3 moved one pick of published ADP on a
+    single new drafter and leads, displacing a player four drafters agreed on."""
+    ser = [_md("2026-08-13", "2026", {"2": (20.0, 100), "3": (30.0, 50)}, 119),
+           _md("2026-08-14", "2026", {"2": (21.0, 104), "3": (31.0, 51)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    assert abs(r["rows"]["3"]["marginal_adp"] - 81.0) < 1e-9   # kept
+    assert [x["player_id"] for x in r["ranked"]] == ["2"]
+    assert r["ranking_excluded_thin"] == 1
+
+
+def test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH():
+    """FOUND BY REHEARSING THE WORKFLOW STEP, not by reasoning about it. Run
+    against a realistic board, the top 15 came back as players priced 222 to 458
+    — a 10x15 draft ends at 150, so not one of them can be reached. Deep players
+    win a ranking by |gap| structurally: they carry the largest ADP values and the
+    thinnest denominators, so they will crowd out the actionable rows EVERY
+    morning, and the report would have looked busy while saying nothing.
+
+    THE TEST IS `min(price, marginal) <= DRAFT_RANGE` — EITHER end inside, never
+    both. The two rows that matter most are precisely the ones that straddle it:
+
+      a RISER  the board prices him at 291 and today's room took him at 20
+      a FALLER the board prices him at 50 and today's room took him at 300
+
+    MUTATION 1: scope on the board price alone — the riser disappears, and a
+    player the market has not noticed being taken 271 picks early is the single
+    most actionable row this report can produce.
+    MUTATION 2: scope on the marginal alone — the faller disappears, and a player
+    we are about to spend a fifth-round pick on quietly stopped going there.
+
+    NOT A SILENT CAP: the excluded count is reported, so a morning where
+    everything interesting sat outside the range says so rather than looking
+    like a quiet day."""
+    a = _md("2026-08-13", "2026",
+            {"deep": (460.0, 10), "riser": (400.0, 10), "faller": (40.0, 100)},
+            119, hi=600)
+    b = _md("2026-08-14", "2026",
+            {"deep": (450.0, 14), "riser": (4080.0 / 14, 14), "faller": (50.0, 104)},
+            125, hi=600)
+    r = C.latest_marginal(a and [a, b], "2026")
+    assert abs(r["rows"]["riser"]["marginal_adp"] - 20.0) < 1e-9, r["rows"]["riser"]
+    assert abs(r["rows"]["faller"]["marginal_adp"] - 300.0) < 1e-9
+    assert abs(r["rows"]["deep"]["marginal_adp"] - 425.0) < 1e-9   # kept, rule 17a
+    assert [x["player_id"] for x in r["ranked"]] == ["riser", "faller"], r["ranked"]
+    assert r["ranking_excluded_out_of_range"] == 1
+    assert r["draft_range"] == 150
+
+
+# ── THE SPREAD AND THE COUNT ARE TWO CONSUMERS OF ONE ROW ────────────────────
+#
+# `dispersion_of` drops any player with no min/max bound, and that was right when
+# `dispersion` had exactly one consumer: a SPREAD, which `drafts` and `sel_pct`
+# genuinely cannot describe. `marginal_adp` arrived today with a different need —
+# `drafts` alone, the exact per-player denominator — and it reads the same record.
+#
+# So a player MFL gives a selection count but no bounds is now dropped carrying a
+# number nothing else can supply. Whether that happens at all is unknown until the
+# first real capture: `dispersion_health` says so itself — "suspect the field names
+# in mfl_adp.parse — minPick, maxPick, draftSelPct — BEFORE suspecting MFL... the
+# shape is right and only the names are unproven." If minPick/maxPick turn out
+# absent, EVERY row is dropped and the marginal day becomes silently underivable
+# even though its input was in the response.
+
+def test_A_PLAYER_WITH_A_COUNT_BUT_NO_BOUNDS_IS_KEPT_for_the_marginal_day():
+    """MUTATION: keep the bounds-only test — a feed that publishes
+    `draftsSelectedIn` without `minPick`/`maxPick` loses every selection count,
+    and `marginal_adp` reports UNMEASURED on a day whose denominator arrived."""
+    parsed = [{"mfl_id": "1", "min_pick": 3, "max_pick": 40, "sel_pct": 70.0, "drafts": 88},
+              {"mfl_id": "2", "min_pick": None, "max_pick": None,
+               "sel_pct": 50.0, "drafts": 62},
+              {"mfl_id": "3", "min_pick": None, "max_pick": None,
+               "sel_pct": None, "drafts": None}]
+    d = C.dispersion_of(parsed)
+    assert set(d) == {"1", "2"}, d
+    assert d["2"]["drafts"] == 62
+    # STILL DROPS THE ROW THAT SAYS NOTHING. All-None on disk is a measurement of
+    # nothing wearing the shape of one.
+    assert "3" not in d
+
+
+def test_THE_SPREAD_ALARM_COUNTS_ROWS_WITH_A_BOUND_not_rows_with_anything():
+    """Keeping count-only rows would inflate `dispersion_health`'s coverage — the
+    instrument that fires when the spread never arrives — until it reported a
+    healthy day on a feed that sent no bounds at all. The alarm has to keep
+    counting the thing it is about.
+
+    MUTATION: count every dispersion row — a capture carrying selection counts and
+    NO bounds reports full spread coverage, and the escalation that exists for
+    exactly that case never fires."""
+    ser = [{"year": "2026", "observed_at": "2026-08-14", "rows": {"1": 1.0, "2": 2.0},
+            "row_count": 2,
+            "dispersion": {"1": {"min_pick": 3, "max_pick": 40, "sel_pct": 70.0,
+                                 "drafts": 88},
+                           "2": {"min_pick": None, "max_pick": None,
+                                 "sel_pct": 50.0, "drafts": 62}}}]
+    h = C.dispersion_health(ser, "2026")
+    assert h["rows"] == 1, h        # one row carries a spread, not two
+    assert h["adp_rows"] == 2
+
+
+# ── THE FIRST REAL CAPTURE MOVED A NUMBER I HAD DECLARED FROM THREE DAYS ─────
+#
+# `MIN_NEW_SELECTIONS = 3` was declared from the cadence: "total_drafts gained 4
+# and then 6 over the two most recent days, so requiring 3 means a majority of the
+# day's drafts took him." The 2026-08-14 capture gained **2** (125 -> 127).
+#
+# At +2, the MOST new selections any player can have is 2, so NOT ONE can reach 3
+# and `ranked` is empty — every row filed under `ranking_excluded_thin`. The report
+# would print a correct-looking table with nothing in it, every morning the market
+# happens to be quiet, and the reason would be invisible.
+#
+# THE FIX IS NOT A LOWER THRESHOLD. Lowering it to reach a number is the move this
+# project refuses; two drafters are two drafters however they are labelled. The
+# window widens instead: compare against the most recent EARLIER day that adds
+# enough drafts to make a qualifying player arithmetically possible, and say which
+# window was used.
+
+def test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW():
+    """08-13 -> 08-14 adds 2 drafts, so no player can reach 3 new selections. The
+    answer is to reach further back, not to lower the bar.
+
+    MUTATION: keep the one-day window — `ranked` is empty, every row lands in
+    `ranking_excluded_thin`, and a quiet day is indistinguishable from a broken
+    instrument."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 106)}, 127)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert (r["earlier"], r["later"]) == ("2026-08-12", "2026-08-14"), r
+    assert r["window_days"] == 2 and r["window_qualifying"] == 1, r
+    assert r["rows"]["1"]["new_selections"] == 6
+    # AND THE PROVIDER'S FIGURE IS CARRIED WITHOUT DECIDING: +8 here, which would
+    # also have passed the old total_drafts test — the two agree in this fixture
+    # and the point is that only one of them is consulted.
+    assert r["provider_total_drafts_delta"] == 8
+
+
+def test_THE_WINDOW_STAYS_AT_ONE_DAY_WHEN_ONE_DAY_IS_ENOUGH():
+    """Widening is a fallback, not the default: the whole point is the MARGINAL
+    day, and reaching back further than necessary blends days that could have been
+    read separately.
+
+    MUTATION: always take the widest window — the instrument stops being marginal
+    and starts being a slow-moving average, which is the thing it was built to see
+    past."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 110)}, 131)]
+    r = C.latest_marginal(ser, "2026")
+    assert (r["earlier"], r["later"]) == ("2026-08-13", "2026-08-14")
+    assert r["window_days"] == 1 and r["window_qualifying"] == 1
+
+
+def test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty():
+    """Two thin days in a row and nothing further back: there is genuinely no
+    derivable marginal figure yet, and that must read as UNMEASURED with the
+    reason, not as a market where nobody moved.
+
+    MUTATION: report the widest window anyway — a table built on one new draft
+    goes out labelled the same as one built on twelve."""
+    ser = [_md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 105)}, 126)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "unmeasured"
+    assert "new selections" in r["note"]
+    assert r["window_qualifying"] == 0
+
+
+def test_A_SNAPSHOT_WITH_NO_total_drafts_STILL_DERIVES_THE_MARGINAL_DAY():
+    """This test used to assert that a missing `total_drafts` did not manufacture
+    a window, because the window arithmetic subtracted the field and a zero
+    default made the widest window always look wide enough.
+
+    THAT PREMISE IS GONE AND THAT IS THE POINT. The window is now decided by how
+    many players cleared the selection floor — exact per-player integers — so
+    `total_drafts` cannot corrupt it however it is missing or wrong. Re-aimed at
+    the stronger property that replaced the guard: the day derives ANYWAY, and
+    the provider's figure is reported as UNKNOWN rather than as a number.
+
+    MUTATION: make the decision consult `total_drafts` again — a day MFL happened
+    not to stamp becomes underivable, when every number the derivation needs is
+    present on the players themselves."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 127)]
+    ser[0]["total_drafts"] = None
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert r["rows"]["1"]["new_selections"] == 4
+    assert r["provider_total_drafts_delta"] is None
+
+
+# ── `total_drafts` IS NOT EXACT, SO IT MUST NOT DECIDE ANYTHING ──────────────
+#
+# MEASURED on the first real snapshot, 2026-08-14: MFL reports
+# `totalDrafts = 127`, and 25 players carry a `draftsSelectedIn` LARGER than that
+# — up to 130 — with `draftSelPct` up to 102.0. Recovering the denominator from
+# each player's own pair (drafts / (sel_pct/100)) gives 127.0-128.4 for the 180
+# players with 100+ drafts, so the pool really is ~127-128 and MFL's own
+# aggregate disagrees with its own per-player counts by two or three.
+#
+# THAT IS FINE FOR THE MARGINAL ADP ITSELF, which uses per-player `drafts` — an
+# exact integer. It is NOT fine for the window decision, which I wrote against
+# `total_drafts` deltas: a field wrong by up to 3 cannot decide a threshold of 3.
+
+def test_THE_WINDOW_IS_DECIDED_BY_PLAYERS_QUALIFYING_not_by_total_drafts():
+    """`total_drafts` says the window gained only 1 — below the floor — while a
+    player's own exact count gained 4. The player is what matters.
+
+    MUTATION: decide on the `total_drafts` delta — a real, derivable marginal day
+    is thrown away because MFL's aggregate under-reported by three, which it
+    demonstrably does."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 126)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert r["rows"]["1"]["new_selections"] == 4
+    assert r["window_qualifying"] == 1, r
+
+
+def test_A_WINDOW_NOBODY_QUALIFIES_IN_WIDENS_even_if_total_drafts_looks_ample():
+    """The mirror case: `total_drafts` claims +9, comfortably over the floor, but
+    no player's own count moved by 3. Widening is decided by the players.
+
+    MUTATION: trust the aggregate — the report goes out with an empty `ranked`
+    table on a day it could have reached back one more and filled it."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 110),
+           _md("2026-08-13", "2026", {"1": (20.5, 102)}, 119),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 128)]
+    r = C.latest_marginal(ser, "2026")
+    assert (r["earlier"], r["later"]) == ("2026-08-12", "2026-08-14"), r
+    assert r["rows"]["1"]["new_selections"] == 4
+
+
+def test_total_drafts_IS_STILL_REPORTED_but_labelled_as_the_providers_figure():
+    """It is real context — the pool's rough size — and dropping it would lose a
+    measurement. It just does not decide.
+
+    MUTATION: stop reporting it — the reader loses the only handle on how big the
+    pool is, and the inconsistency this test exists to document becomes invisible."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 126)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["provider_total_drafts_delta"] == 1
+    assert "not" in (r.get("provider_total_drafts_note") or "").lower()
+
+
+# ── THE DAILY AUDIT: what must never be wrong, and what is wrong every day ────
+#
+# Cory, 2026-08-14: "the daily data capture process needs to be correct and fixed
+# so we don't keep having problems and the data itself needs to be accurate and we
+# need understand what it means so we don't misuse it."
+#
+# Two categories, and conflating them is how a real alarm gets muted. A FATAL
+# violation means OUR pipeline or the provider's export is broken and the day
+# cannot be trusted. An OBSERVED inconsistency is MFL disagreeing with itself in a
+# way that is present every day, bounded, and now understood — reporting it as a
+# failure would make the audit red forever and therefore ignored.
+
+def _real_ish(**over):
+    d = {"observed_at": "2026-08-14", "year": "2026", "total_drafts": 127,
+         "rows": {"1": 20.0, "2": 300.0},
+         "dispersion": {"1": {"min_pick": 3, "max_pick": 60, "sel_pct": 99.0, "drafts": 126},
+                        "2": {"min_pick": 200, "max_pick": 400, "sel_pct": 12.0, "drafts": 16}}}
+    d["row_count"] = len(d["rows"])
+    d.update(over)
+    return d
+
+
+def test_A_CLEAN_DAY_HAS_NO_FATAL_FINDINGS():
+    r = C.snapshot_audit(_real_ish())
+    assert r["fatal"] == [], r
+    assert r["ok"] is True
+
+
+def test_AN_ADP_OUTSIDE_ITS_OWN_MIN_MAX_IS_FATAL():
+    """A mean pick outside the observed range of the picks it averages is
+    arithmetically impossible. If it happens, `averagePick` and min/max are not
+    describing the same population and NOTHING on the day may be trusted —
+    including the marginal ADP, which assumes exactly that they do.
+
+    MUTATION: skip the check — the single strongest evidence that the fields mean
+    what we think stops being looked at."""
+    d = _real_ish()
+    d["rows"]["1"] = 500.0           # above its own max_pick of 60
+    r = C.snapshot_audit(d)
+    assert any(f["kind"] == "adp_outside_range" for f in r["fatal"]), r
+    assert r["ok"] is False
+
+
+def test_A_ROW_COUNT_THAT_LIES_IS_FATAL():
+    """MUTATION: drop it — every coverage figure downstream reads `row_count`, so
+    the archive would carry a permanent record whose own summary contradicts it."""
+    d = _real_ish(row_count=999)
+    assert any(f["kind"] == "row_count_mismatch" for f in C.snapshot_audit(d)["fatal"])
+
+
+def test_DRAFTS_ABOVE_total_drafts_IS_OBSERVED_NOT_FATAL_and_is_QUANTIFIED():
+    """This happens EVERY day. Measured 2026-08-14: 25 players carry a
+    `draftsSelectedIn` above MFL's own `totalDrafts` of 127, up to 130, and 12
+    carry `draftSelPct` above 100. Recovering the denominator from each player's
+    own pair gives 127.0-128.4 across the 180 players with 100+ drafts, so the
+    pool is ~127-128 and MFL's aggregate disagrees with its own per-player counts
+    by two or three.
+
+    REPORTING IT AS FATAL WOULD MAKE THE AUDIT RED EVERY MORNING and therefore
+    ignored — the muted-alarm shape this project keeps finding. But it must be
+    QUANTIFIED, because the day the excess jumps from 3 to 30 is the day
+    something actually changed.
+
+    MUTATION: treat it as fatal — the audit fails on its first real day and
+    somebody switches it off."""
+    d = _real_ish()
+    d["dispersion"]["1"]["drafts"] = 130      # above total_drafts of 127
+    d["dispersion"]["1"]["sel_pct"] = 102.0
+    r = C.snapshot_audit(d)
+    assert r["fatal"] == [], r
+    obs = {o["kind"]: o for o in r["observed"]}
+    assert obs["drafts_above_total"]["n"] == 1
+    assert obs["drafts_above_total"]["worst_excess"] == 3
+    assert obs["sel_pct_above_100"]["n"] == 1
+
+
+def test_AN_OBSERVED_INCONSISTENCY_THAT_GROWS_PAST_ITS_BOUND_IS_FATAL():
+    """Bounded is the whole reason it is tolerated. An excess of 3 on a pool of
+    127 is MFL's aggregation lagging its own counts; an excess of 40 is a
+    different fact and must not inherit the tolerance granted to the first.
+
+    MUTATION: tolerate any excess — the category stops being "understood and
+    bounded" and becomes "ignored", which is the same thing one word later."""
+    d = _real_ish()
+    d["dispersion"]["1"]["drafts"] = 200       # excess of 73 on a pool of 127
+    r = C.snapshot_audit(d)
+    assert any(f["kind"] == "drafts_above_total_UNBOUNDED" for f in r["fatal"]), r
+
+
+# ── AN ABSENT DAY IS NOT A CORRUPT DAY ──────────────────────────────────────
+#
+# FOUND BY EXECUTING THE WORKFLOW STEP, NOT BY READING IT. The daily audit step
+# does `C.snapshot_audit(today or {})`, and on a year the archive does not hold
+# `today` is None — so every invariant ran against an empty dict and the first one
+# fired FATAL `row_count_mismatch`, with a note accusing the archive of carrying
+# "a permanent record whose own summary contradicts its contents". There was no
+# record. There was no day.
+
+def test_AN_ABSENT_SNAPSHOT_IS_UNMEASURED_not_a_fatal_row_count_mismatch():
+    """The caller shape that produces this is the live one: `days[-1] if days else
+    None`, then `or {}`. Reported as FATAL it makes the loudest possible claim —
+    the archive is corrupt, do not use the day — out of the archive simply not
+    holding the year that was asked for.
+
+    MUTATION: drop the guard and let `{}` fall through — `row_count` is None,
+    `len(rows)` is 0, they differ, and the audit condemns an archive that is
+    fine."""
+    out = C.snapshot_audit({})
+    assert out["status"] == "unmeasured"
+    assert out["fatal"] == [] and out["observed"] == []
+    assert out["ok"] is None, "ok must be None, not False — False is a verdict"
+    assert out["players"] == 0
+    assert "NOT a clean bill of health" in out["note"]
+    # AND None IS THE SAME CASE, because the live caller passes `today or {}`.
+    assert C.snapshot_audit(None)["status"] == "unmeasured"
+
+
+def test_A_REAL_SNAPSHOT_STILL_REPORTS_measured_so_the_guard_discriminates():
+    """The other arm. A guard that swallowed every snapshot would make the audit
+    permanently silent, which is a worse failure than the one it fixes.
+
+    MUTATION: return the unmeasured shape unconditionally — every morning reports
+    "no snapshot", nobody's invariants are ever checked, and the escalation fires
+    daily until it is switched off."""
+    snap = {"year": "2026", "observed_at": "2026-08-14",
+            "rows": {"1": 10.0, "2": 20.0}, "row_count": 2, "total_drafts": 100,
+            "dispersion": {"1": {"min_pick": 5.0, "max_pick": 15.0, "drafts": 50,
+                                 "sel_pct": 100.0},
+                           "2": {"min_pick": 12.0, "max_pick": 30.0, "drafts": 50,
+                                 "sel_pct": 100.0}}}
+    out = C.snapshot_audit(snap)
+    assert out["status"] == "measured"
+    assert out["players"] == 2
+    assert out["ok"] is True and out["fatal"] == []
+    assert out["checked"], "a measured audit must name the invariants it ran"
+
+
+def test_THE_MEASURED_RETURN_CARRIES_A_STATUS_at_all():
+    """`snapshot_audit` never returned a `status` key, so the workflow's headline
+    printed a literal `None` beside a real result and any reader branching on
+    status saw the same value for a clean day and a missing one. The absent-day
+    guard above is only usable because both paths now answer the same question.
+
+    MUTATION: return the measured dict without `status` — the workflow's
+    `r["status"] != "measured"` raises KeyError on every healthy morning, which
+    the new SystemExit turns into a red job on good data."""
+    snap = {"year": "2026", "observed_at": "2026-08-14", "rows": {"1": 10.0},
+            "row_count": 1, "total_drafts": 100, "dispersion": None}
+    for got in (C.snapshot_audit(snap), C.snapshot_audit({})):
+        assert "status" in got, got
+        assert got["status"] in ("measured", "unmeasured")
+        assert set(("status", "ok", "fatal", "observed", "checked", "players")) <= set(got)
+
+
+# ── A TRUNCATED 200 IS THE ONLY BROKEN RESPONSE THAT LOOKS LIKE A GOOD DAY ───
+#
+# Measured by substituting the wire under `capture` and breaking it nine ways. A
+# connection error, a 404, a 403, an empty body, garbage and a zero-player export
+# ALL raise and leave the archive untouched. A 200 carrying 20 of 681 players in
+# a perfectly valid MFL shape wrote a 20-row day with no complaint — into an
+# APPEND-ONLY archive whose days cannot be refetched.
+#
+# ⚠ THESE TEST `collapse_verdict`, NOT A COPY OF IT. The first cut left the
+# condition inline in `capture` — which is `pragma: no cover` egress — so the
+# tests pinned a reimplementation of the arithmetic living in THIS FILE. The
+# mutation gate killed nothing: changing the shipped condition left them all
+# green. The function was extracted for that reason and nothing else.
+
+
+def _cday(n, day="2026-08-13", year="2026"):
+    return {"year": year, "observed_at": day,
+            "rows": {str(i): float(i + 1) for i in range(n)},
+            "row_count": n, "total_drafts": 120, "dispersion": None}
+
+
+def test_A_BOARD_THAT_KEEPS_UNDER_HALF_OF_YESTERDAY_IS_REFUSED():
+    """20 of 681 is 2.9%. The largest REAL day-over-day loss this feed has shown
+    is 36 of 708 — 5.1% — so a floor at 50% sits ten times above the drift and
+    cannot fire on it.
+
+    MUTATION: reuse `ROW_DROP_FLOOR` (30 ROWS) as the write-time bar — an ordinary
+    Tuesday that sheds 36 marginal players is refused, and the archive starts
+    losing real, unrefetchable days to its own alarm."""
+    ser = [_cday(681)]
+    assert C.collapse_verdict(20, ser, "2026", "2026-08-14")["refuse"] is True
+    assert C.collapse_verdict(340, ser, "2026", "2026-08-14")["refuse"] is True
+    assert C.collapse_verdict(341, ser, "2026", "2026-08-14")["refuse"] is False
+    # AND THE REAL OBSERVED DRIFT MUST SURVIVE — this is the calibration itself.
+    assert C.collapse_verdict(672, [_cday(708)], "2026", "2026-08-14")["refuse"] is False
+
+
+def test_THE_FIRST_DAY_HAS_NO_YESTERDAY_AND_SAYS_SO_rather_than_passing():
+    """A season's first capture has nothing to compare. Refusing it would lose the
+    first day of every year; reporting a plain pass would be a check whose only
+    possible answer is "nothing yet" claiming to have looked (rule 13f).
+
+    MUTATION: return `refuse: True` when `prior` is empty — no 2027 board is ever
+    archived. Or return a bare `refuse: False` with `status: measured` — the first
+    morning of the season certifies a board nothing examined."""
+    got = C.collapse_verdict(681, [], "2026", "2026-08-14")
+    assert got["refuse"] is False
+    assert got["status"] == "first_day"
+    assert got["was"] is None and got["kept"] is None
+    # A DIFFERENT YEAR'S DAYS ARE NOT A YESTERDAY EITHER.
+    other = C.collapse_verdict(681, [_cday(700, year="2025")], "2026", "2026-08-14")
+    assert other["status"] == "first_day"
+
+
+def test_A_PREVIOUS_DAY_WITH_NO_ROWS_IS_NOT_A_DENOMINATOR():
+    """Two days archived before the parser worked hold no rows. A share of zero is
+    not a quantity, and `now / 0` is the crash — inside the guard that stands
+    between a good board and the disk.
+
+    MUTATION: divide anyway — the guard raises ZeroDivisionError, `capture` catches
+    it, prints "COULD NOT RUN", and every day after an empty one is written
+    unjudged with nobody the wiser."""
+    got = C.collapse_verdict(681, [_cday(0)], "2026", "2026-08-14")
+    assert got["refuse"] is False and got["status"] == "prior_empty"
+    assert got["kept"] is None
+
+
+def test_THE_FLOOR_IS_A_SEPARATE_CONSTANT_FROM_THE_REPORTING_ONE():
+    """Two thresholds meaning different things must not be one name (rule 11).
+    `ROW_DROP_FLOOR` is 30 ROWS and reports inside `coverage`, AFTER the write;
+    this is a FRACTION and refuses BEFORE it.
+
+    MUTATION: set them equal — 30 read as a share refuses every board smaller than
+    thirty times yesterday, which is every board there has ever been."""
+    assert C.COLLAPSE_KEEP_FRACTION != C.ROW_DROP_FLOOR
+    assert 0.0 < C.COLLAPSE_KEEP_FRACTION < 1.0, "a share, not a row count"
+    assert C.ROW_DROP_FLOOR >= 1, "a row count, not a share"
+
+
+def test_THE_COMPARISON_IS_AGAINST_YESTERDAY_not_the_first_or_the_biggest_day():
+    """Against the biggest day ever seen, one unusually deep morning permanently
+    raises the bar and later normal days are refused. Against the first, the bar
+    never moves with the feed.
+
+    MUTATION: take `prior[0]` instead of the latest — with a 700-row day on the
+    10th and a 300-row day on the 13th, today's ordinary 310 is refused against a
+    board four days stale."""
+    ser = [_cday(700, "2026-08-10"), _cday(300, "2026-08-13")]
+    got = C.collapse_verdict(310, ser, "2026", "2026-08-14")
+    assert got["was"] == 300, "must compare against the LATEST earlier day"
+    assert got["refuse"] is False
+    # AND THE SAME BOARD AGAINST THE WRONG DAY IS WHAT THE MUTATION DOES.
+    assert C.collapse_verdict(310, [_cday(700, "2026-08-10")],
+                              "2026", "2026-08-14")["refuse"] is True
+
+
+def test_A_LATER_DAY_IS_NOT_A_YESTERDAY():
+    """A same-day re-run must compare against the day BEFORE, not against the copy
+    of itself already in the archive — which would always be a 100% keep and pass
+    unconditionally.
+
+    MUTATION: drop the `< observed_at` filter — a re-dispatched truncated morning
+    compares 20 rows against the 20 already written by the bad run, keeps 100%,
+    and the collapse is certified clean on its second attempt."""
+    ser = [_cday(681, "2026-08-13"), _cday(20, "2026-08-14")]
+    got = C.collapse_verdict(20, ser, "2026", "2026-08-14")
+    assert got["was"] == 681, "the same date must not be its own baseline"
+    assert got["refuse"] is True
+
+
+# ── ARE TWO DAYS ONE CUMULATIVE SERIES AT ALL ───────────────────────────────
+#
+# THE GAP IS BETWEEN A PER-PLAYER GUARD AND A POPULATION ONE. `marginal_adp`
+# already refuses an INDIVIDUAL player whose count fell, which handles MFL's
+# aggregation lag. It cannot see the provider RE-SCOPING its sample — a rolling
+# window advancing, a season boundary, a format filter changing — where counts
+# fall for many players at once, the per-player guard drops every one of them,
+# and the marginal comes back as a real-looking number over whichever players
+# survived the break.
+#
+# ⚠ WRITTEN BEFORE THE FIRST DAY IT CAN FIRE. The archive holds one dispersion
+# day; tomorrow is the first morning two exist to compare. A guard that arrives
+# after the day it was needed is a post-mortem.
+
+
+def _cum(dt, n, cnt, td=100, start=0):
+    return {"year": "2026", "observed_at": dt, "total_drafts": td,
+            "rows": {str(i): 10.0 + i for i in range(start, start + n)},
+            "dispersion": {str(i): {"drafts": cnt, "min_pick": 1.0,
+                                    "max_pick": 50.0, "sel_pct": 100.0}
+                           for i in range(start, start + n)}}
+
+
+def test_A_POOL_RESET_IS_CAUGHT_even_though_every_player_would_be_dropped_singly():
+    """Every count falls, so `marginal_adp`'s per-player refusal would drop every
+    row and report "nothing qualified" — a fact about the floor, not about the
+    provider re-scoping its sample.
+
+    MUTATION: rely on the per-player guard alone — a partial reset (say half the
+    pool) leaves the other half, `new = drafts1 - drafts0` is computed for them,
+    and a marginal ADP is published over a population selected by the break."""
+    got = C.cumulative_break(_cum("2026-08-13", 50, 40, td=100),
+                             _cum("2026-08-14", 50, 10, td=30))
+    assert got["status"] == "measured"
+    assert got["usable"] is False
+    assert got["fell"] == 50 and got["fell_share"] == 1.0
+    assert got["total_drafts_fell"] is True
+    assert "not one accumulating series" in got["note"]
+
+
+def test_THE_AGGREGATION_LAG_IS_TOLERATED_so_the_alarm_can_be_believed():
+    """MFL disagrees with itself every day — 25 of 681 players (3.7%) carried a
+    count above `total_drafts` on 2026-08-14. A check that fires on a handful of
+    players moving backwards would be red every morning and therefore unread.
+
+    MUTATION: refuse on ANY fall — the ordinary daily lag stops the marginal
+    being derived at all, and the instrument built to see today's drafters never
+    sees one."""
+    later = _cum("2026-08-14", 100, 55, td=120)
+    later["dispersion"]["0"] = dict(later["dispersion"]["0"], drafts=40)
+    got = C.cumulative_break(_cum("2026-08-13", 100, 50, td=100), later)
+    assert got["fell"] == 1
+    assert got["usable"] is True
+    assert "within the" in got["note"]
+
+
+def test_THE_PROVIDERS_OWN_TOTAL_FALLING_IS_ENOUGH_on_its_own():
+    """`total_drafts` is an aggregate that LAGS its own per-player counts — this
+    module measured that — so it decides nothing by itself normally. But it is
+    cumulative too, and a cumulative aggregate going DOWN is the provider having
+    re-scoped, whatever the per-player share says.
+
+    MUTATION: judge on the player share alone — a re-scope that happens to leave
+    most individual counts alone (a format filter dropping whole leagues) passes,
+    and the marginal is derived across a boundary."""
+    got = C.cumulative_break(_cum("2026-08-13", 100, 50, td=200),
+                             _cum("2026-08-14", 100, 55, td=120))
+    assert got["fell"] == 0, "no player moved backwards"
+    assert got["total_drafts_fell"] is True
+    assert got["usable"] is False, got
+
+
+def test_TWO_DAYS_WITH_NO_SHARED_COUNTS_ARE_UNMEASURED_not_clean():
+    """The days archived before the dispersion parser landed carry no counts at
+    all. Reported as "no falls" they would read as a verified cumulative series,
+    which is the strongest possible claim resting on nothing.
+
+    MUTATION: return `usable: True` on an empty overlap — every pair involving a
+    pre-dispersion day certifies itself."""
+    # ⚠ THE TWO ABSENCES ARE DIFFERENT AND EACH MUST NAME ITSELF. The first cut
+    # accepted either note for either case, so a mutation collapsing the two
+    # branches SURVIVED — the test could not tell them apart.
+    #
+    # (a) NO OVERLAP AT ALL: one day has no dispersion, or the ids are disjoint.
+    for a, b in (({"observed_at": "2026-08-12", "dispersion": None},
+                  _cum("2026-08-14", 10, 20)),
+                 (_cum("2026-08-13", 10, 20, start=0),
+                  _cum("2026-08-14", 10, 30, start=500))):
+        got = C.cumulative_break(a, b)
+        assert got["status"] == "unmeasured", got
+        assert got["usable"] is None
+        assert "share no player" in got["note"], got["note"]
+
+    # (b) THE PLAYERS OVERLAP BUT NEITHER DAY CARRIES A COUNT — the days archived
+    # before `dispersion_of` parsed `draftsSelectedIn`. A separate branch, and
+    # without this case it is unreachable from any fixture here.
+    def _nocount(dt):
+        d = _cum(dt, 10, 20)
+        d["dispersion"] = {k: {"min_pick": 1.0, "max_pick": 50.0, "drafts": None}
+                           for k in d["dispersion"]}
+        return d
+    got = C.cumulative_break(_nocount("2026-08-13"), _nocount("2026-08-14"))
+    assert got["status"] == "unmeasured", got
+    assert got["usable"] is None
+    assert "BOTH days" in got["note"], got["note"]
+
+
+def test_latest_marginal_REFUSES_A_BROKEN_PAIR_and_says_which_it_was():
+    """The consumer. "Nothing qualified" and "the series broke" are different
+    facts and only one of them is about the market — a reader who gets the first
+    concludes the drafters were quiet.
+
+    MUTATION: drop the check from the window loop — the reset pair is used, every
+    player is refused individually, and the run reports UNMEASURED with a note
+    about the new-selection floor."""
+    healthy = [_cum("2026-08-13", 50, 40, td=100), _cum("2026-08-14", 50, 50, td=120)]
+    assert C.latest_marginal(healthy, "2026")["status"] == "measured"
+
+    # ⚠ A PARTIAL RESET, NOT A TOTAL ONE, AND THAT IS THE WHOLE TEST. The first
+    # fixture reset EVERY player, so `marginal_adp`'s per-player guard alone
+    # already produced `unmeasured` and the mutation that removes this check
+    # SURVIVED. The dangerous case is the one where survivors WOULD qualify: half
+    # the pool is re-scoped, the other half still clears the new-selection floor,
+    # and a marginal ADP is published over a population selected by the break.
+    earlier = _cum("2026-08-13", 50, 40, td=100)
+    later = _cum("2026-08-14", 50, 50, td=120)
+    for i in range(25):                      # half the pool goes backwards
+        later["dispersion"][str(i)] = dict(later["dispersion"][str(i)], drafts=5)
+    survivors = sum(1 for i in range(25, 50))
+    assert survivors >= C.MIN_NEW_SELECTIONS, "the survivors must be able to qualify"
+    got = C.latest_marginal([earlier, later], "2026")
+    assert got["status"] == "unmeasured", (
+        "half the pool was re-scoped and the other half still clears the floor — "
+        "without the series check this publishes a marginal over the survivors")
+    assert got["cumulative_break"]["usable"] is False
+    assert got["cumulative_break"]["fell"] == 25
+    assert "not one accumulating series" in got["cumulative_break"]["note"]
+
+
+def test_THE_TOLERANCE_IS_DECLARED_AND_THE_OBSERVED_SHARE_IS_REPORTED():
+    """This archive holds ONE dispersion day, so no day-over-day count movement
+    has ever been observed and the bar cannot be derived from any. It is set from
+    the only related figure that HAS been measured — the 3.7% same-day
+    aggregation lag — and the OBSERVED share is reported every day so it can be
+    re-derived from real movement once there is some.
+
+    MUTATION: report only the verdict — the number that would let anyone
+    recalibrate this is thrown away daily, and the declared bar becomes permanent
+    by default."""
+    got = C.cumulative_break(_cum("2026-08-13", 100, 50), _cum("2026-08-14", 100, 55))
+    assert got["fell_share"] is not None
+    assert got["tolerance"] == C.CUMULATIVE_FALL_TOLERANCE
+    assert 0.0 < C.CUMULATIVE_FALL_TOLERANCE < 1.0
+
+
+# ── WHERE THE LOST PLAYERS SAT, not merely how many ─────────────────────────
+#
+# `row_drop_note` read "the board LOST 36 players in a day" and stopped. True,
+# alarming, and pointing at nothing actionable: measured on the live archive,
+# all 37 sat beyond pick 169 and NOT ONE was inside our 150-pick draft. A count
+# without a depth is the kind of number that gets misused in both directions —
+# panic when it is harmless, and a shrug on the day it is not.
+
+def _dd_rows(*adps):
+    return {str(1000 + i): a for i, a in enumerate(adps)}
+
+
+#: A player present on BOTH days, so `later` is never empty.
+#:
+#: ⚠ THESE FIXTURES USED `{}` FOR `later` AS SHORTHAND FOR "all of them went".
+#: Since 2026-08-17 an empty side is `unknown`, because in production an empty
+#: snapshot means OUR capture failed rather than the board losing everyone —
+#: so the old shorthand was a shape that cannot legitimately occur. Keeping one
+#: survivor makes each fixture a board that lost SOME players, which is what is
+#: actually under test, and stops these cases from depending on a shape the
+#: function is now required to refuse.
+_DD_KEEP = {"9999": 5.0}
+
+
+def _dd_later(*_unused):
+    return dict(_DD_KEEP)
+
+
+def test_drop_depth_OUTSIDE_the_draft_is_named_as_such():
+    """The live case, 2026-08-12 -> 08-13, in miniature.
+
+    MUTATION: return `outside_draft` unconditionally — every drop reads harmless
+    including the one that takes a startable player off the board."""
+    out = C.drop_depth({**_dd_rows(170.0, 300.0, 441.0), **_DD_KEEP}, _dd_later(), 150)
+    assert out["verdict"] == "outside_draft", out
+    assert out["lost"] == 3 and out["lost_inside_draft"] == 0
+    assert out["shallowest_lost"] == 170.0
+    assert "150" in out["note"] and "170.0" in out["note"]
+
+
+def test_drop_depth_INSIDE_the_draft_is_the_arm_that_must_fire():
+    """The whole reason the measurement exists. If the cutoff ever climbs into
+    the draftable range this is the only thing that would say so.
+
+    MUTATION: `elif not inside` -> `elif True` — the alarming arm becomes
+    unreachable and every drop, at any depth, reports as harmless."""
+    out = C.drop_depth({**_dd_rows(12.0, 300.0), **_DD_KEEP}, _dd_later(), 150)
+    assert out["verdict"] == "inside_draft", out
+    assert out["lost_inside_draft"] == 1
+    assert out["note"].startswith("⚠")
+    assert "INSIDE pick 150" in out["note"]
+
+
+def test_drop_depth_REFUSES_to_reassure_when_it_cannot_read_the_rows():
+    """An unparseable row must not be silently skipped. Dropping it would leave
+    `vals` empty, `inside` empty, and the verdict `outside_draft` — the most
+    reassuring possible answer produced by a schema nobody could parse.
+
+    MUTATION: count unparseable rows and then ignore the count."""
+    out = C.drop_depth({"a": {"no_pick_field": 1}, "b": 12.0, **_DD_KEEP}, _dd_later(), 150)
+    assert out["verdict"] == "unknown", out
+    assert out["unparseable"] == 1
+    assert "reassuring possible lie" in out["note"]
+
+
+def test_drop_depth_WITHOUT_a_config_says_unknown_and_never_zero():
+    """MUTATION: default `draftable` to 150 — a guessed draft range produces a
+    confident "none were draftable" on a league nobody read."""
+    out = C.drop_depth({**_dd_rows(12.0, 300.0), **_DD_KEEP}, _dd_later(), None)
+    assert out["verdict"] == "unknown", out
+    assert out["lost_inside_draft"] is None
+    assert out["draftable_picks"] is None
+
+
+def test_the_draft_range_is_READ_from_the_league_config_not_assumed(monkeypatch,
+                                                                    tmp_path):
+    """150 is teams x rounds for THIS league and would be wrong for any other.
+
+    MUTATION: `return 150` — passes against our own config and silently
+    mis-scopes every verdict in a 12-team or 16-round room."""
+    (tmp_path / "league_config.json").write_text(json.dumps({"teams": 12,
+                                                            "rounds": 16}))
+    monkeypatch.setattr(C, "CONFIG_DIR", tmp_path)
+    assert C._draftable_picks() == 192
+
+    (tmp_path / "league_config.json").write_text(json.dumps({"teams": 10}))
+    assert C._draftable_picks() is None, "a config missing `rounds` is not a 150"
+
+
+def test_a_TYPO_in_the_config_path_must_not_read_as_a_missing_config():
+    """This function shipped reading `HERE.parent`, and this module has no
+    `HERE`. Every call raised NameError, `except Exception` swallowed it, and
+    the verdict came back "the league config could not be read" — a coding error
+    wearing the costume of a missing file, on the one path whose whole job is to
+    refuse to reassure.
+
+    MUTATION: widen the catch back to `except Exception`."""
+    import pathlib
+    class Exploding(pathlib.PurePosixPath):
+        def __truediv__(self, other):
+            raise NameError("name 'HERE' is not defined")
+    with pytest.raises(NameError):
+        real = C.CONFIG_DIR
+        try:
+            C.CONFIG_DIR = Exploding("/nope")
+            C._draftable_picks()
+        finally:
+            C.CONFIG_DIR = real
+
+
+def test_row_deltas_ARE_DAY_OVER_DAY_even_when_the_archive_is_out_of_order():
+    """`days` was sorted and `counts` was not, so every delta — and
+    `largest_drop`, which gates the note — was correct only while the archive
+    happened to be appended in date order.
+
+    MUTATION: iterate the raw series instead of the day-sorted one."""
+    def snap(day, n):
+        return {"year": "2026", "observed_at": day, "row_count": n,
+                "rows": {str(i): float(i + 1) for i in range(n)}}
+    ordered = [snap("2026-08-01", 700), snap("2026-08-02", 660)]
+    shuffled = [ordered[1], ordered[0]]          # same days, backfilled order
+    a = C.coverage(ordered, "2026")
+    b = C.coverage(shuffled, "2026")
+    assert a["row_deltas"] == b["row_deltas"] == [-40], (a["row_deltas"],
+                                                        b["row_deltas"])
+    assert a["largest_drop"] == b["largest_drop"] == -40
+
+
+def test_drop_depth_is_ABSENT_not_zeroed_when_no_drop_cleared_the_floor():
+    """MUTATION: emit an empty dict instead of None — a consumer branching on
+    truthiness reads "measured, and nothing was lost" from a run that never
+    looked (rule 13f)."""
+    steady = [{"year": "2026", "observed_at": "2026-08-0%d" % d, "row_count": 700,
+               "rows": {"1": 5.0}} for d in (1, 2, 3)]
+    cov = C.coverage(steady, "2026")
+    assert cov["largest_drop"] == 0
+    assert cov["drop_depth"] is None
+
+
+# ── UNDECODED AT A ROSTERED POSITION, AND INSIDE OUR DRAFT ──────────────────
+#
+# `_classify_undraftable` already separates a keeper and an IDP from a player we
+# lost, and its own docstring says the survivor count is "printed in the capture
+# summary every morning and nobody could act on it". Live: 11 survivors, ALL
+# beyond pick 150, shallowest Travis Hunter at ADP 153.0 — a three-pick margin.
+
+def _rep(ids, truncated=False, total=None):
+    return {"no_sleeper_match_draftable_ids": [str(i) for i in ids],
+            "no_sleeper_match_draftable_truncated": truncated,
+            "no_sleeper_match_draftable": total if total is not None else len(ids)}
+
+
+def test_undecoded_ALL_OUTSIDE_the_draft_is_clear_and_reports_the_margin():
+    """The live state. The margin is the point: 3 picks is close enough that the
+    gate is worth having before the draft rather than after.
+
+    MUTATION: drop `margin` — the report says "clear" and loses the only number
+    that says how nearly it was not."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": 153.0, "2": 444.0}, 150)
+    assert out["verdict"] == "clear", out
+    assert out["inside"] == 0
+    assert out["shallowest_outside"] == 153.0 and out["margin"] == 3.0
+    assert "3.0 picks outside" in out["note"]
+
+
+def test_undecoded_INSIDE_the_draft_is_the_arm_that_must_fire():
+    """A player this room can take, at a position it rosters, not kept, with no
+    market price. This is the only reason the other buckets are worth computing.
+
+    MUTATION: `a <= draftable` -> `a < 0` — nothing is ever inside, the gate is
+    permanently green, and the board silently loses a draftable player."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": 148.0, "2": 444.0}, 150)
+    assert out["verdict"] == "undecoded_in_draft", out
+    assert out["inside"] == 1 and out["players"] == ["1"]
+    assert out["note"].startswith("⚠") and "148.0" in out["note"]
+
+
+def test_a_TRUNCATED_list_cannot_support_a_verdict_of_clear():
+    """The producer caps the ids at 40. On the day it truncates, the players past
+    the cap are exactly the ones nobody sees — and "none of the 40 I was shown was
+    draftable" would print as "none was draftable" (rule 13f).
+
+    MUTATION: ignore the truncation flag."""
+    out = C.undecoded_inside_draft(_rep(range(40), truncated=True, total=97),
+                                   {str(i): 400.0 for i in range(40)}, 150)
+    assert out["verdict"] == "unknown", out
+    assert out["inside"] is None
+    assert "TRUNCATED" in out["note"] and "97" in out["note"]
+
+
+def test_an_UNREADABLE_pick_must_not_come_back_as_clear():
+    """Same defect `drop_depth` was fixed for one commit earlier, reproduced by
+    me in this function: `if a is None: continue` drops the player from BOTH
+    buckets and the verdict reads `clear`.
+
+    MUTATION: `unpriced.append(...)` -> bare `continue`."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": {"no_pick": 1}, "2": 444.0}, 150)
+    assert out["verdict"] == "unknown", out
+    assert out["inside"] is None
+    assert "no readable pick" in out["note"]
+
+
+def test_a_KNOWN_inside_player_still_fires_even_with_an_unreadable_row():
+    """Unknown must not outrank a confirmed hit. If one player is provably inside
+    the draft, that is the finding, whatever else failed to parse.
+
+    MUTATION: return `unknown` whenever anything is unpriced — the real alarm is
+    downgraded by an unrelated bad row."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": 100.0, "2": {"x": 1}}, 150)
+    assert out["verdict"] == "undecoded_in_draft", out
+    assert out["inside"] == 1
+
+
+def test_without_a_draft_range_the_verdict_is_unknown_not_clear():
+    """MUTATION: default `draftable` to 150 — a guessed range produces a
+    confident "none was draftable" for a league nobody read."""
+    out = C.undecoded_inside_draft(_rep([1]), {"1": 10.0}, None)
+    assert out["verdict"] == "unknown" and out["inside"] is None, out
+
+
+# ── WHAT THIS ADP IS DENOMINATED IN, beside the rows ────────────────────────
+#
+# Ten modules read this archive and only `board_vs_market` knows MFL pools
+# superflex, 2QB, dynasty, keeper and IDP drafts into one ADP. The other nine
+# can read a gap against our board as OUR BOARD being wrong — A's criterion 1,
+# and the failure this project keeps paying for.
+
+def _dn_series(day="2026-08-14"):
+    return [{"year": "2026", "observed_at": day,
+             "rows": {"a": 10.0, "b": 20.0, "c": 400.0}}]
+
+
+_DN_PLAYERS = {"a": {"name": "A", "position": "WR"},
+               "b": {"name": "B", "position": "LB"},
+               "c": {"name": "C", "position": "DE"}}
+
+
+def test_denomination_MEASURES_the_unrosterable_share_inside_the_draft():
+    """MUTATION: count over the WHOLE board instead of inside the draft — the
+    share is dominated by the deep pool and stops describing the population any
+    decision is made from."""
+    out = C.denomination(_dn_series(), _DN_PLAYERS,
+                         rostered={"QB", "RB", "WR", "TE", "K", "DEF"}, draftable=150)
+    assert out["status"] == "measured", out
+    assert out["rows_inside_draft"] == 2          # ADP 400 is outside
+    assert out["unrosterable_inside_draft"] == 1  # the LB; the DE is outside
+    assert out["unrosterable_share"] == 0.5
+    assert "not denominated in the same thing" in out["note"]
+
+
+def test_denomination_WITHOUT_settings_is_unknown_never_a_clean_zero():
+    """"We could not tell what we roster" and "nothing is contaminated" must
+    never render the same.
+
+    MUTATION: initialise `unros = 0` instead of None — an unreadable settings
+    file reports a pristine 0.0% contaminated board."""
+    out = C.denomination(_dn_series(), _DN_PLAYERS, rostered=None, draftable=150)
+    assert out["status"] == "unknown", out
+    assert out["unrosterable_inside_draft"] is None
+    assert out["unrosterable_share"] is None
+    assert "NOT a statement that the board is clean" in out["note"]
+
+
+def test_denomination_counts_a_MISSING_POSITION_separately_from_a_clean_one():
+    """A row whose position the decode key does not carry is not evidence that
+    the row is rosterable.
+
+    MUTATION: fold unknown positions into the rosterable side — every gap in the
+    decode key quietly improves the contamination figure."""
+    players = dict(_DN_PLAYERS, b={"name": "B"})       # no position
+    out = C.denomination(_dn_series(), players,
+                         rostered={"QB", "RB", "WR", "TE", "K", "DEF"}, draftable=150)
+    assert out["unknown_position_inside_draft"] == 1, out
+    assert out["unrosterable_inside_draft"] == 0
+    assert "carry no position" in out["note"]
+
+
+def test_denomination_is_REMEASURED_on_the_newest_day_not_the_first():
+    """MUTATION: read days[0] — the archive's oldest day becomes a permanent
+    claim about a board that moves every morning."""
+    ser = [{"year": "2026", "observed_at": "2026-08-10", "rows": {"a": 10.0}},
+           {"year": "2026", "observed_at": "2026-08-14", "rows": {"a": 10.0, "b": 20.0}}]
+    out = C.denomination(ser, _DN_PLAYERS,
+                         rostered={"QB", "RB", "WR", "TE", "K", "DEF"}, draftable=150)
+    assert out["observed_at"] == "2026-08-14", out
+    assert out["rows_inside_draft"] == 2
+
+
+def test_denomination_on_an_EMPTY_archive_says_unmeasured():
+    """MUTATION: return a measured-looking block with zeroes for an archive that
+    holds nothing (rule 13f)."""
+    out = C.denomination([], {}, rostered={"WR"}, draftable=150)
+    assert out["status"] == "unmeasured", out
+    assert "unrosterable_share" not in out
+
+
+def test_the_archive_CARRIES_its_denomination_after_a_save(tmp_path):
+    """The consumer this exists for reads the FILE, not the function.
+
+    MUTATION: drop the key from `save()` — every guard above still passes and no
+    reader ever sees any of it."""
+    p = tmp_path / "arch.json"
+    C.save(_dn_series(), path=p, players=_DN_PLAYERS)
+    got = json.loads(p.read_text())
+    assert "denomination" in got, sorted(got)
+    assert got["denomination"]["pooled_across_formats"] is True
+    assert got["denomination"]["observed_at"] == "2026-08-14"
+
+
+# ── THE CENSUS TURNS THE DENOMINATION CLAIM INTO A MEASUREMENT ──────────────
+#
+# The note shipped this morning asserted "superflex, 2QB, dynasty, keeper and
+# IDP alike" — a true list with the wrong emphasis. The census says the dominant
+# divergence is none of those: 55.3% of the sampled pool is FULL PPR and 6.1% is
+# half-PPR like us, against superflex at 21.1%.
+
+_CENSUS = {"readable_leagues": 114, "matched": 0, "observed_at": None,
+           "teams": {"10": 21, "12": 51},
+           "reception_points": {"0.4-0.6 (half-PPR)": 7, "0.9-1.1 (full PPR)": 63},
+           "pass_td_points": {"6 (OURS)": 30, "4 (market standard)": 47},
+           "superflex": {"False": 90, "True": 24},
+           "keeper_type": {"(absent)": 94, "dynasty": 11}}
+
+
+def test_the_LARGEST_divergence_is_found_not_assumed():
+    """MUTATION: hard-code `largest_divergence = "superflex"` — the note names
+    the contaminant everyone expects and misses the one that dominates. Superflex
+    is 21.1% here; half-PPR is 6.1%."""
+    got = C.census_agreement(_CENSUS)
+    assert got["status"] == "measured", got
+    assert got["largest_divergence"] == "half-PPR", got["share_sharing_each_rule"]
+    assert got["largest_divergence_share"] == 0.0614
+    assert got["share_sharing_each_rule"]["single-QB"] == 0.7895
+
+
+def test_the_JOINT_rate_is_carried_because_the_marginals_look_survivable():
+    """Each rule alone reads fine — 78.9% single-QB, 82.5% redraft. Together,
+    NOT ONE of the 114 sampled leagues plays our game.
+
+    MUTATION: drop `matched_our_format` — the note reports five reassuring
+    marginals and loses the only number that says they never co-occur."""
+    got = C.census_agreement(_CENSUS)
+    assert got["matched_our_format"] == 0, got
+    assert got["readable_leagues"] == 114
+
+
+def test_an_EMPTY_census_says_unmeasured_not_a_clean_market():
+    """MUTATION: return zero shares for an absent census — every rule reads as
+    0% shared, which looks like maximum contamination measured, rather than
+    nothing measured."""
+    got = C.census_agreement({})
+    assert got["status"] == "unmeasured", got
+    assert "share_sharing_each_rule" not in got
+
+
+def test_an_UNDATED_census_row_is_flagged_in_the_note(monkeypatch):
+    """The one census row on disk predates the fix that made a keyless row raise,
+    so it carries no `observed_at` and the next is not due until the monthly run.
+
+    MUTATION: drop the undated caveat — a single stale observation reads as a
+    current reading of the market's composition."""
+    ser = [{"year": "2026", "observed_at": "2026-08-14", "rows": {"a": 10.0}}]
+    out = C.denomination(ser, {"a": {"name": "A", "position": "WR"}},
+                         rostered={"WR"}, draftable=150, census=_CENSUS)
+    assert "CARRIES NO DATE" in out["note"], out["note"]
+    assert out["census"]["largest_divergence"] == "half-PPR"
+
+    dated = dict(_CENSUS, observed_at="2026-08-12")
+    out2 = C.denomination(ser, {"a": {"name": "A", "position": "WR"}},
+                          rostered={"WR"}, draftable=150, census=dated)
+    assert "CARRIES NO DATE" not in out2["note"]
+    assert "2026-08-12" in out2["note"], out2["note"]
+
+
+def test_AN_EMPTY_SNAPSHOT_IS_UNKNOWN_not_a_reassuring_none_lost():
+    """⚠ A DAY WE CAPTURED NOTHING MUST NOT READ AS A QUIET DAY.
+
+    Measured against the live series 2026-08-17: `drop_depth({}, full, 150)`
+    returned `none_lost` with the note "no players left the board between these
+    two days" — the most reassuring sentence available for a total capture
+    failure. The opposite direction (today empty) already alarmed loudly, so
+    the hole had never surfaced: only the silent side was broken.
+
+    It is reachable because the caller passes `.get("rows") or {}` — a snapshot
+    missing its `rows` key becomes an empty dict instead of raising. That is
+    the `|| var=""` shape one function downstream.
+
+    MUTATION: drop the guard and an empty earlier side reports `none_lost`
+    again — a suppressed alarm, which is the bug class itself."""
+    full = {str(i): {"adp": float(i)} for i in range(1, 685)}
+
+    gone = C.drop_depth({}, full, 150)
+    assert gone["verdict"] == "unknown", gone
+    assert "EARLIER snapshot carries no rows" in gone["note"]
+    assert "not 'nothing was lost'" in gone["note"]
+    assert gone["lost_inside_draft"] is None
+
+    today = C.drop_depth(full, {}, 150)
+    assert today["verdict"] == "unknown", today
+    assert "LATER snapshot carries no rows" in today["note"]
+
+    both = C.drop_depth({}, {}, 150)
+    assert both["verdict"] == "unknown"
+    assert "neither snapshot" in both["note"]
+
+    # AND A REAL DAY STILL MEASURES. Without this the guard could pass by
+    # making every verdict `unknown`, which is the other way to be useless.
+    real = C.drop_depth(full, {k: v for k, v in full.items() if int(k) < 600}, 150)
+    assert real["verdict"] == "outside_draft", real
+    assert real["lost"] == 85 and real["lost_inside_draft"] == 0

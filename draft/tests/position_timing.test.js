@@ -101,15 +101,24 @@ ck('and it covers all six draftable positions, onesies included',
 
 // ── 0b. K AND DEF ARE GOVERNED BY THE ROSTER RULE, NOT BY DROP-OFF ───────
 // Measured: best-to-replacement is 10 pts at K (ranks 8-12 are IDENTICAL at 97)
-// and 18 at DEF, both inside the noise on one skill player (~79). So on this
+// and — since the 2026-08-16 DEF projection-vocabulary correction (Cory's "we
+// fix now" ruling, DECISIONS #0; LAR 114 -> 132, replacement 99 -> 103) — 29
+// at DEF. The DEF drop is no longer noise-sized, but its collectable D* (14,
+// ~0.8/wk over a season) still sits under the tool's TAKE-NOW bar (~1.2/wk on
+// this board), so the roster rule suppresses nothing actionable. So on this
 // board they must never out-rank a real position.
 const onesieRows = seen.flatMap(s => s.t.rows.filter(r => ['K', 'DEF'].indexOf(r.position) >= 0));
 ck('K and DEF never say TAKE NOW on this board', !onesieRows.some(r => r.verdict === 'TAKE NOW'),
   onesieRows.filter(r => r.verdict === 'TAKE NOW').map(r => r.position));
 ck('and their verdicts quote the bar they failed to clear',
   onesieRows.filter(r => r.verdict === 'WAIT').every(r => /bar/.test(r.why || '')));
-ck('CONTROL — their drops really are tiny, so the rule is not hiding a real signal',
-  onesieRows.every(r => r.Dstar <= 8), onesieRows.map(r => r.position + ':' + r.Dstar).slice(0, 6));
+// REPINNED 2026-08-16 (8 -> 15): the DEF correction above legitimately raised
+// DEF's D* to 14 — real projected TD points, not noise. The control's claim is
+// now "under the TAKE-NOW bar", not "tiny": 15/17 sits below the ~1.2/wk bar
+// the real positions must clear, so a D* past this pin would be a signal the
+// roster rule is actually hiding, and SHOULD fail here.
+ck('CONTROL — their drops stay under the TAKE-NOW bar, so the rule is not hiding a real signal',
+  onesieRows.every(r => r.Dstar <= 15), onesieRows.map(r => r.position + ':' + r.Dstar).slice(0, 6));
 
 // ── 1. A DROP YOU CANNOT COLLECT IS NEVER A REASON ───────────────────────
 let collectViolations = [], starViolations = [];
@@ -213,7 +222,17 @@ ck('and the flag names the 59.6 rather than hand-waving at "the plan"',
   const skill = [];
   ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB'].forEach(p =>
     skill.push({ position: p, proj_mean: 200, player_id: 'x' + skill.length }));
-  const board = pool.slice(0, 400);
+  /* BOARD SLICED BY ADP, NOT ARRAY ORDER — RE-PINNED 2026-08-17. This was
+   * `pool.slice(0, 400)`, which contained K and DEF only by the ACCIDENT of
+   * the artifact interleaving them by VORP. Cory's same-day K/DEF demotion
+   * ruling (vorp.py: onesies sort AFTER every skill player, because their
+   * cross-position VORP was never purchasable) moved every K and DEF past
+   * index ~530, so a 400-row prefix of the artifact stopped containing the
+   * two positions this scenario exists to force — `t.rows.find('K')` came
+   * back undefined and the suite crashed. Slicing the ADP ordering keeps the
+   * same "real 400-player board" and cannot lose a position to a re-sort:
+   * K/DEF ADPs live around 110-160, well inside any plausible slice. */
+  const board = byAdp.slice(0, 400);
   CURRENT_PICK = 133;
   // TWO picks left, K and DEF both unfilled: every remaining pick is spoken for.
   const t = positionTiming({ board: board, roster: skill, nextPick: 148, currentPick: 133,

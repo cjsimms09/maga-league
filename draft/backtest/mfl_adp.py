@@ -77,6 +77,21 @@ def parse(adp_json, players_json):
         # This parser read `averagePick` and `draftsSelectedIn` and dropped the
         # rest, so every daily snapshot since 2026-08-11 lost the only
         # player-specific spread any source gives us. Meanwhile the board's
+        # MEASURED ON THE FIRST REAL SPREAD, 2026-08-14, AND IT CORRECTS
+        # THIS JUSTIFICATION. Inside the draft range the board's `adp_sd` is NOT a
+        # clamp: it is FFC-PUBLISHED for 142 of the 146 players priced inside pick
+        # 150, with 38 distinct values across adp 0-50, 41 across 50-100 and 47
+        # across 100-150. The saturation is real but lives ENTIRELY BEYOND PICK
+        # 150 — 348 rows at 30.00 (`fallback-clamped`) and 122 at 15.00 — which is
+        # the deep pool A's own comment calls a place where "nothing reaches a
+        # decision today".
+        #
+        # So the capture is still worth having — a day's spread is perishable, MFL
+        # is a genuine second opinion, and the deep pool IS content-free — but NOT
+        # for the reason written below, which was true of the board as a whole and
+        # false of the part that drafts get made from. Kept unedited so the
+        # correction is visible rather than tidied away:
+        #
         # `adp_sd` is a clamp that saturates in both directions — 15.00 for
         # every player at adp >= 100, 30.00 for the entire search_rank fallback
         # by construction — and it drives survival, which drives VONA.

@@ -1,0 +1,118 @@
+name: Historical props fetch (The Odds API, paid plan — COSTS REAL CREDITS)
+
+# Built 2026-08-16 under Cory's directive (verbatim in
+# draft/audit/historical_props_study_2026-08-16.md §1): does paying for
+# historical player-props data improve projections? ACCESS CONFIRMED LIVE
+# the same day — key-probe.yml on main, run 31967817943, proved the
+# upgraded ODDS_API_KEY answers the historical events list AND the
+# player_pass_yds prop market with real data (6 bookmakers), plan size
+# ~100,000 credits/month (x-requests-remaining: 99988 after the probe).
+#
+# ⚠️ COSTS REAL API CREDITS — do NOT auto-fire. This workflow is
+# workflow_dispatch ONLY (no schedule trigger exists or should be added).
+# dry_run defaults to true and does a REAL-but-cheap mechanics check
+# (schedule fetch + one events-list call, ~2 credits) without spending the
+# expensive per-event odds calls. Setting dry_run=false spends real budget —
+# read the credit estimate in the dry-run's own log output BEFORE flipping
+# it, or run the `plan` subcommand locally (no network to the-odds-api at
+# all) to see the exact number first.
+#
+# EXACT CREDIT COST, the vendor's own formula (10 credits x markets x
+# regions per odds-with-markets request), 6 markets x 1 region:
+#
+#     scope=sample_week1   ~16 games x 60 credits + ~2 (events-list)
+#                           = ~962 credits/season  (~2,886 for all 3 seasons)
+#     scope=full_season     272 games x 60 credits + ~36 (18 weekly events-
+#                           list calls x ~2) = ~16,356 credits/season
+#                           (~49,068 for all 3 seasons — 2023+2024+2025 —
+#                           which is ~49% of the confirmed ~100,000/mo plan,
+#                           leaving headroom for retries and the existing
+#                           weekly odds-capture.yml usage)
+#
+# `fetch_historical_props.py plan --season Y --scope S` computes this exact
+# number locally with zero network calls to the-odds-api — run it before
+# every real dispatch. RECOMMENDED SEQUENCE for a human authorizing spend:
+# (1) dispatch scope=sample_week1 for one season first (~962 credits) to
+# validate the real pipeline end to end against real data; (2) only then
+# dispatch scope=full_season for 2023, 2024, 2025 (~16,356 credits each).
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to fetch (explicit — no default sweep across seasons)'
+        required: true
+        type: choice
+        options: ['2023', '2024', '2025']
+      scope:
+        description: 'sample_week1 (cheap pilot, ~962 credits) or full_season (~16,356 credits)'
+        required: true
+        type: choice
+        options: ['sample_week1', 'full_season']
+        default: 'sample_week1'
+      dry_run:
+        description: 'Real schedule + events-list calls (cheap, ~2 credits) but SKIP every paid odds call'
+        required: false
+        default: true
+        type: boolean
+      max_credits:
+        description: 'Refuse to spend more than this many credits (safety valve; blank = no cap)'
+        required: false
+        default: '20000'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet pandas nfl_data_py
+      - name: Print the exact credit estimate BEFORE spending anything
+        run: |
+          python3 draft/tools/fetch_historical_props.py plan \
+            --season "${{ inputs.season }}" --scope "${{ inputs.scope }}"
+      - name: Fetch (dry-run verifies mechanics; real mode spends credits)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          set -uo pipefail
+          ARGS="--season ${{ inputs.season }} --scope ${{ inputs.scope }}"
+          if [ -n "${{ inputs.max_credits }}" ]; then
+            ARGS="$ARGS --max-credits ${{ inputs.max_credits }}"
+          fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "DRY RUN: real schedule + events-list calls, NO paid odds calls, nothing committed."
+            python3 draft/tools/fetch_historical_props.py fetch $ARGS --dry-run
+          else
+            echo "⚠️ REAL FETCH — spending real ODDS_API_KEY credits."
+            python3 draft/tools/fetch_historical_props.py fetch $ARGS
+          fi
+      - name: Commit the snapshot
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/historical_props_*.json
+          if git diff --cached --quiet; then
+            echo "no change — nothing to commit"
+            exit 0
+          fi
+          git commit -m "Historical props snapshot: season ${{ inputs.season }}, scope ${{ inputs.scope }} [skip deploy]" \
+            -m "Automated fetch via historical-props-fetch.yml. Real ODDS_API_KEY credits spent — see the run log's credit_estimate for the exact count."
+          for i in 1 2 3; do
+            git fetch origin main || true
+            git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((i * 5))
+          done
+          echo "::error::RESULT NOT PUSHED — real credits were already spent on this fetch and the corrected data is now stranded on this ephemeral runner. Re-dispatching re-spends the credits a second time."
+          exit 1

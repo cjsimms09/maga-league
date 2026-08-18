@@ -62,6 +62,9 @@ concurrency:
 jobs:
   capture:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash   # -eo pipefail; a bare `run:` omits pipefail
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -125,6 +128,35 @@ jobs:
               if cov["missing_listed_truncated"]:
                   print("...and more — %d total, first %d listed."
                         % (cov["missing"], len(cov["missing_days"])))
+
+          # ── A DROP THAT REACHES THE DRAFTABLE RANGE IS THE ONE THAT MATTERS ──
+          #
+          # The count alone was already reported and is not actionable: measured
+          # 08-12 -> 08-13, all 37 players the board lost sat beyond pick 169 and
+          # none was inside our 150. That is the expected shape, because MFL's
+          # cutoff removes the LEAST-DRAFTED players and anyone going inside pick
+          # 150 of a 10-team room appears in nearly every draft.
+          #
+          # EXPECTED IS NOT GUARANTEED, and this is the only thing that would say
+          # so. `inside_draft` means our ADP source has stopped pricing a player
+          # our room can actually take — a real degradation of the board, days
+          # from a draft — so it FAILS rather than printing. `unknown` fails too:
+          # it means the depth could not be established, and "we could not tell"
+          # must not be quieter than "we looked and it was fine".
+          dd = cov.get("drop_depth")
+          if dd is not None:
+              print("**DEEPEST DROP** — %s" % dd["note"])
+              if dd["verdict"] == "inside_draft":
+                  print("::error::%d of the %d players the board dropped were priced"
+                        " INSIDE pick %s — the ADP source no longer prices players"
+                        " this room can draft"
+                        % (dd["lost_inside_draft"], dd["lost"], dd["draftable_picks"]))
+                  raise SystemExit(1)
+              if dd["verdict"] == "unknown":
+                  print("::error::a drop of %d cleared the floor and its DEPTH could"
+                        " not be established (%s) — an unmeasurable drop is not a"
+                        " harmless one" % (dd["lost"], dd["note"]))
+                  raise SystemExit(1)
 
           # DID *THIS* RUN RESUME FROM AN OUTAGE. Escalates on the day the gap
           # becomes detectable and self-clears afterwards, so a permanent
@@ -301,6 +333,10 @@ jobs:
               print("**F5 READINESS DID NOT RUN** (%s: %s) — not a clean result."
                     % (type(e).__name__, e))
 
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
           # ── CAN WE DECODE WHAT WE CAN DRAFT ───────────────────────────────
           # The third question about this archive, after "is it complete" and
           # "did anyone leave the board". It holds MFL's player ids and every
@@ -352,6 +388,37 @@ jobs:
                         "undecoded at a rostered position: **%d**"
                         % (xrep["kept_not_draftable"], xrep["position_not_rostered"],
                            xrep["no_sleeper_match_draftable"]))
+
+                  # ── AND THE ONE SLICE OF IT THAT *IS* ESCALATED ─────────────
+                  #
+                  # This does NOT contradict "REPORTED, NOT ESCALATED" above; the
+                  # argument there is still right and it is about a DIFFERENT
+                  # number. Failing every morning over the whole-board count would
+                  # be red-by-design: it is 11 today and every one of them is a
+                  # deep player nobody drafts — Drew Lock at ADP 444.
+                  #
+                  # Inside the range this room actually drafts the count is ZERO,
+                  # and it is zero for a reason that can stop being true: the
+                  # nearest undecoded player is Travis Hunter at ADP 153.0, THREE
+                  # PICKS outside a 150-pick draft. That is not a static property
+                  # of the name matcher — it becomes true the day a player drifts
+                  # across pick 150 or a new name lands — and unlike the deep-pool
+                  # misses it is worth knowing BEFORE the draft rather than after.
+                  # A gate that is zero today, actionable, and time-bound is the
+                  # opposite of red-by-design.
+                  _ser = sorted(C.load(), key=lambda s: str(s.get("observed_at")))
+                  _rows = (_ser[-1].get("rows") or {}) if _ser else {}
+                  ud = C.undecoded_inside_draft(xrep, _rows, C._draftable_picks())
+                  print("Draftable decode: %s" % ud["note"])
+                  if ud["verdict"] == "undecoded_in_draft":
+                      print("::error::%d player(s) inside our draft are at a rostered"
+                            " position, not kept, and did not decode: %s"
+                            % (ud["inside"], ", ".join(ud["players"][:10])))
+                      raise SystemExit(1)
+                  if ud["verdict"] == "unknown":
+                      print("::error::whether any undecoded player falls inside our"
+                            " draft could NOT be established — %s" % ud["note"])
+                      raise SystemExit(1)
           except Exception as e:                      # noqa: BLE001
               # A DECODE REPORT THAT DIES MUST NOT TAKE THE SNAPSHOT WITH IT.
               # This step is `if: always()` and the commit below is gated on the
@@ -359,6 +426,10 @@ jobs:
               # the day's board is the thing that cannot be refetched.
               print("**DECODE CHECK DID NOT RUN** (%s: %s) — not a clean result."
                     % (type(e).__name__, e))
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
@@ -392,6 +463,16 @@ jobs:
           # PRESERVE BEFORE YOU ALARM. The pin's failure is caught, the snapshot is
           # committed and pushed, and THEN the run goes red — same shape as moving
           # the gap alarm after the commit, for the same reason.
+          # ⚠ A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main. This step ends
+          # `git push origin HEAD:main`, and on a branch checkout HEAD is the
+          # BRANCH TIP — so a manual run from a branch would push that whole
+          # branch to main, bypassing integration. INERT ON THE SCHEDULED PATH:
+          # `schedule:` only fires from the default branch, so ref_name is always
+          # main there and this changes nothing about tonight's capture.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — NOT committing."
+            exit 0
+          fi
           pinfail=0
           python3 - <<'PIN' || pinfail=1
           import json, os, subprocess, sys
@@ -418,7 +499,11 @@ jobs:
             echo "::error::Committing the ADP snapshot FIRST; this run goes red below."
           fi
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/data/external_adp_series.json draft/data/board_pins.json || true
+          # ⚠ NO `|| true`. A failed `git add` leaves nothing staged, the
+          # `git diff --cached --quiet` below is then TRUE, no commit happens,
+          # and this step exits 0 having archived nothing — a perishable day
+          # lost behind a green tick.
+          git add draft/data/external_adp_series.json draft/data/board_pins.json
           git diff --cached --quiet && { echo "no change — same-day rerun"; exit "$pinfail"; }
           # [skip deploy]: this is a data archive under draft/, which the deploy
           # gate already skips. The marker is belt-and-braces, not a substitute
@@ -456,6 +541,861 @@ jobs:
           echo "SNAPSHOT COULD NOT BE PUSHED after retries — TODAY'S BOARD IS LOST"
           echo "and cannot be refetched. Rerun today, not tomorrow."
           exit 1
+      # ── EVERY SOURCE'S OWN PRICE, AFTER THE DAY IS SAFE ────────────────────
+      #
+      # `adp_series.json` stores the MERGED price with no source field, so every
+      # day we record what the anchor said and destroy what every other source
+      # said. `merge_primary_over_ffc` overwrites 211 of FFC's 215 prices — 144
+      # inside the draftable board, including Allen, Lamar, Burrow, Maye, Daniels,
+      # Hurts, Herbert and Prescott — and none of it is recoverable, because
+      # neither provider serves ADP as of a past date. The anchor question ("does
+      # FFC actually price quarterbacks earlier, and by how much") is unanswerable
+      # from disk, and would be unanswerable next August too.
+      #
+      # ⚠ IT RUNS AFTER THE COMMIT AND IT `continue-on-error`s, DELIBERATELY, FOR
+      # THE SAME REASON THE ALARM BELOW IS LAST. The MFL snapshot is the
+      # perishable, unrefetchable thing. A NEW FETCH MUST NOT BE ABLE TO COST IT A
+      # DAY — not by failing, not by timing out, not by turning the job red before
+      # the commit. Every failure mode here is a missing day in ITS OWN archive,
+      # which is regrettable and recoverable-ish; a missing day in the snapshot is
+      # neither.
+      #
+      # It writes a SEPARATE FILE and commits separately, so a half-written source
+      # archive can never appear inside the snapshot commit.
+      - name: Record what each source said, separately
+        id: src
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 8
+        run: |
+          # THE LOGIC IS IN A MODULE, NOT HERE, AND THAT IS THE FIX RATHER THAN A
+          # TIDY-UP. This step was fifty lines of Python inline, and it guessed at
+          # both providers' APIs: it passed `FP.fetch(year)` — which returns
+          # `(text, url, diag)` — straight into `FP.parse` as html, and keyed FFC
+          # rows on `entry["player_id"]`, a field FFC does not send. NEITHER GUESS
+          # RAISES. Both produce an empty dict, the step goes green, and the
+          # archive gains a dated row with no board behind it — which every later
+          # coverage report counts as a captured day. Code inside YAML cannot be
+          # tested, which is exactly how both defects got written.
+          # TEE'D INTO THE STEP SUMMARY, because the number this archive exists
+          # to produce — the per-position gap between what FFC and FantasyPros
+          # charge for the same player — is the whole point of recording it, and
+          # a figure that only ever lands in a job log is a figure nobody reads
+          # (rule 14: the consumer exists the day the writer does).
+          # ⚠ `|| rc=$?`, NOT a bare pipeline followed by `rc=$?`. `run:` executes
+          # under `bash -e`, so a failing pipeline ABORTS THE STEP AT THAT LINE —
+          # the closing fence and the failure note below would never be written,
+          # and the summary would end mid-code-block on exactly the runs that
+          # have something to say. Same shape as the pin failure that once killed
+          # the snapshot commit: the reporting path must survive what it reports.
+          set -o pipefail
+          rc=0
+          {
+            echo "## Per-source ADP prices"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/external_source_run.py \
+            --year "${{ github.event.inputs.year || '2026' }}" \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          [ "$rc" = 0 ] || echo "**NO SOURCE CAPTURED** — see the log above. The day's MFL snapshot is committed and unaffected." >> "$GITHUB_STEP_SUMMARY"
+          # COMMIT WHATEVER LANDED FIRST, THEN FAIL. When one source recorded and
+          # the other did not, `rc` is 0 and the day is real; when NOTHING
+          # recorded, `rc` is 1 and there is nothing staged, so this block is a
+          # no-op either way — the ordering is the same rule the pin follows one
+          # step up. Preserve before you alarm.
+          # ⚠ A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main. This step ends
+          # `git push origin HEAD:main`, and on a branch checkout HEAD is the
+          # BRANCH TIP — so a manual run from a branch would push that whole
+          # branch to main, bypassing integration. INERT ON THE SCHEDULED PATH:
+          # `schedule:` only fires from the default branch, so ref_name is always
+          # main there and this changes nothing about tonight's capture.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — NOT committing."
+            # ⚠ `exit "$rc"`, NOT `exit 0`. The guard exists to stop a branch
+            # dispatch WRITING, not to hide what the run found — and a rehearsal
+            # showed it swallowing a total capture failure into a green step. The
+            # production path was already correct (on main the guard never fires
+            # and `exit "$rc"` runs below), and "the production path is fine" is
+            # precisely the reasoning that lets a failure-reads-as-success
+            # survive somewhere less visible.
+            exit "$rc"
+          fi
+          git add draft/data/external_source_prices.json
+          if ! git diff --cached --quiet; then
+            git config user.name "lab-bot"; git config user.email "actions@github.com"
+            git commit -m "D3: per-source ADP prices [skip deploy]"
+            # A PUSH THAT NEVER SUCCEEDED MUST NOT READ AS SUCCESS. The loop
+            # used to `break` on success and otherwise simply run out of
+            # iterations — nothing told the two apart, `exit "$rc"` carried the
+            # runner's 0, and the step went green having lost the day. The CI
+            # checkout is discarded when the job ends, so an unpushed commit is
+            # gone. Same failure the MFL step's own `SNAPSHOT COULD NOT BE
+            # PUSHED` exit exists for, one step up.
+            pushed=0
+            for i in 1 2 3 4 5; do
+              # A MASKED FETCH REBASES ONTO A STALE origin/main and the push
+              # then fails for a reason that names the push, not the fetch.
+              git fetch origin main || { echo "::warning::fetch failed; rebase is against a stale origin/main"; }
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::warning::PER-SOURCE PRICES COULD NOT BE PUSHED after 5 tries."
+              echo "::warning::Neither provider serves ADP as of a past date, so"
+              echo "::warning::today's alternatives are lost unless this is rerun TODAY."
+              echo "**PER-SOURCE PRICES NOT PUSHED** — rerun today, not tomorrow." \
+                >> "$GITHUB_STEP_SUMMARY"
+              rc=1
+            fi
+          fi
+          # AND NOW THE STEP CARRIES THE RUNNER'S VERDICT. Without this the step
+          # goes GREEN on a total capture failure — `[ ... ] || echo` succeeds, so
+          # the last command's status is 0 and "no source reached us at all" reads
+          # exactly like a clean morning. `continue-on-error: true` still keeps the
+          # JOB green and the MFL snapshot untouched; this only makes the failure
+          # visible, which is the entire difference between a day missing and a
+          # fortnight missing.
+          exit "$rc"
+
+      # ── IS THE BOARD FRESH, AND WAS IT REBUILT OR ONLY EDITED ─────────────
+      #
+      # Nothing measured this, and on 2026-08-14 I was watching for a late
+      # nightly rebuild by hand — which is a mechanism implemented as a person
+      # staring at a terminal. The pin has carried `sha256` AND `built_at` since
+      # it was written; nothing read them together.
+      #
+      # Neither answers it alone, measured rather than supposed: three commits
+      # that morning carried three different digests and the SAME `built_at`, and
+      # 136 of the first 400 player rows differed. `built_at` alone calls that
+      # board unchanged; the digest alone calls it rebuilt. A nightly build that
+      # quietly stops firing stays invisible to the digest for as long as anyone
+      # keeps editing the file in place.
+      #
+      # Runs AFTER the pin is committed so today's pin is in the series. Reads
+      # bytes already on disk — worst case is a missing paragraph.
+      - name: Is the board fresh, and was it rebuilt or edited
+        id: fresh
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'AGE' >> "$GITHUB_STEP_SUMMARY"
+          import datetime, json, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Board freshness")
+          try:
+              import board_pin as BP
+              today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+              ser = (json.load(open(BP.SERIES)) or {}).get("series") or []
+              r = BP.staleness(ser, today=today)
+              if r["state"] == "unmeasured":
+                  print("**UNMEASURED** — %s" % r["note"])
+              else:
+                  print("state **%s** · content last changed `%s` (%s day(s) ago)"
+                        % (r["state"].upper(), r["last_content_change"],
+                           r["days_since_content_change"]))
+                  if r["rebuild_measurable"]:
+                      print("last rebuild `%s` (%s day(s) ago)"
+                            % (r["last_rebuild"], r["days_since_rebuild"]))
+                  else:
+                      print("**REBUILD AGE UNMEASURABLE** — %s" % r["note"])
+                  if r["state"] == "edited":
+                      print("⚠ **EDITED IN PLACE, NOT REBUILT** — the artifact "
+                            "changed and the pipeline did not run. `built_at` no "
+                            "longer describes this file.")
+          except Exception as e:                      # noqa: BLE001
+              print("**FRESHNESS CHECK DID NOT RUN** (%s: %s) — not a clean "
+                    "result; nothing was measured." % (type(e).__name__, e))
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
+          AGE
+
+      # ── WHERE THE PLATFORM OUR ROOM DRAFTS ON DISAGREES WITH THE PRICE ────
+      #
+      # `board_vs_market.sleeper_divergence` had no caller. I built it this
+      # morning, measured a real effect with it — Sleeper places quarterbacks a
+      # median 36 slots earlier than the market price, inside the draftable 150 —
+      # and then left the function sitting there, which is rule 14 exactly: the
+      # consumer has to exist the day the writer does, or the number is only ever
+      # true on the day somebody happens to run it by hand.
+      #
+      # ⚠ AFTER THE COMMIT, `always()` AND `continue-on-error`, for the reason
+      # spelled out twice above: the MFL snapshot is the unrefetchable thing and
+      # no report may cost it a day. This one reads bytes already on disk, so its
+      # worst case is a missing paragraph in a summary.
+      - name: Where Sleeper disagrees with the price
+        id: sleeper
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'DIV' >> "$GITHUB_STEP_SUMMARY"
+          import json, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Sleeper ordering vs the market price")
+          try:
+              import board_vs_market as BM
+              board = json.load(open("public/draft_data.json"))
+              r = BM.sleeper_divergence(board)
+              if r["status"] != "measured":
+                  # NOT CHECKED IS NOT CLEAN (rule 13f). `collapsed` and
+                  # `unmeasured` are real states and each names its own cause.
+                  print("**%s** — %s" % (r["status"].upper(), r.get("note")))
+              else:
+                  print("`%d ranked`, `%d parked at a sentinel` (%s), "
+                        "`%d distinct` Sleeper ranks."
+                        % (r["ranked"], r["unranked"], r["sentinels"], r["distinct"]))
+                  print("")
+                  print("| pos | n | median | mean |")
+                  print("|---|---|---|---|")
+                  for k, v in r["by_position"].items():
+                      print("| %s | %d | %+.1f | %+.1f |"
+                            % (k, v["n"], v["median"], v["mean"]))
+                  print("")
+                  print("Negative = Sleeper places the player EARLIER than the "
+                        "market. `sleeper_rank` is a SEARCH ordering, not a "
+                        "draft-position estimate — this is a mechanism with a "
+                        "sign, not evidence anybody drafted off the list.")
+          except Exception as e:                      # noqa: BLE001
+              print("**DIVERGENCE CHECK DID NOT RUN** (%s: %s) — not a clean "
+                    "result; nothing was compared." % (type(e).__name__, e))
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
+          DIV
+
+      # ── IS THE MARKET WE COMPARE AGAINST EVEN PLAYING OUR GAME ─────────
+      #
+      # A's criterion 1 — "are the two ends of this comparison denominated in the
+      # same thing" — turned on the market side of every comparison in this
+      # workflow. MFL is not A market: it is EVERY draft on its platform pooled,
+      # so superflex, 2QB, dynasty, keeper and room sizes from eight to sixteen
+      # all land in one average. That sat in a docstring as a caveat for two days.
+      # Measured 2026-08-14 it is the largest effect in the comparison:
+      # quarterbacks a median 49.8 rank slots earlier than our board prices them,
+      # and among non-quarterbacks the shift tracks AGE at rho +0.425.
+      #
+      # IT RUNS DAILY BECAUSE THE COMPOSITION MOVES. MFL's pool in mid-August is
+      # not its pool the week of the 22nd — best-ball and dynasty startups run
+      # early, single-QB redraft rooms fill in late — so a composition measured
+      # once and filed is a fact about the day it was taken. The one number that
+      # matters on the 22nd is whether it is still this contaminated.
+      # ── AND THE PER-SOURCE ARCHIVE GETS THE SAME TREATMENT AS THE MFL ONE ──
+      #
+      # `source_audit` was written this morning with NO CONSUMER — rule 14 on my
+      # own newest work, in the same session I raised it about somebody else's. It
+      # judges the file `external_source_run` writes one step above: FATAL for the
+      # internally impossible (a declared count disagreeing with its own rows, an
+      # sd for a player with no price, a pick number <= 0, two entries for one
+      # source-day, a declared field that stopped being written) and OBSERVED for
+      # a source that vanished, a board that lost a quarter overnight, or the
+      # format parameters drifting between two days.
+      - name: Is the per-source archive trustworthy
+        id: srcaudit
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'SAUD' >> "$GITHUB_STEP_SUMMARY"
+          import json, os, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Is the per-source archive trustworthy")
+          bad = 0
+          try:
+              import external_source_capture as S
+              year = "${{ github.event.inputs.year || '2026' }}"
+              ser = S.load()
+              days = sorted({str(s.get("observed_at")) for s in ser
+                             if str(s.get("year")) == year and s.get("observed_at")})
+              if not days:
+                  # NO DAY IS A CAPTURE FAILURE, NOT A CLEAN AUDIT — the same
+                  # absent-is-not-corrupt lesson the MFL audit needed today.
+                  print("**NO DAY FOR %s** — the per-source archive holds nothing "
+                        "for this year, which is the capture failing." % year)
+                  bad = 1
+              else:
+                  r = S.source_audit(ser, year, days[-1])
+                  print("`%s` — sources %s. %s"
+                        % (r["observed_at"], ", ".join("`%s`" % x for x in r["sources"]),
+                           r["note"]))
+                  cd = r.get("cross_day") or {}
+                  print("")
+                  print("- cross-day: **%s** — %s" % (cd.get("status"), cd.get("note") or
+                        ("compared against %s" % cd.get("against"))))
+                  if r["fatal"]:
+                      bad = 1
+                      print("")
+                      print("| FATAL | source | detail |")
+                      print("|---|---|---|")
+                      for f in r["fatal"]:
+                          print("| `%s` | %s | %s |"
+                                % (f["check"], f.get("source"),
+                                   str(f.get("note") or f)[:180]))
+                  if r["observed"]:
+                      print("")
+                      print("| observed | source | detail |")
+                      print("|---|---|---|")
+                      for o in r["observed"]:
+                          print("| `%s` | %s | %s |"
+                                % (o["check"], o.get("source"),
+                                   str(o.get("note") or o)[:180]))
+                  if not r["fatal"] and not r["observed"]:
+                      print("")
+                      print("**Nothing fatal and nothing observed.**")
+
+                  # ── THE FALSIFIER A'S REVISIT CONDITION CANNOT REACH ──────
+                  # A closed the dispersion fit on a stability test that refits
+                  # across PLAYERS, and set the revisit condition as "when the
+                  # 1-25 band survives a half-sample refit". That band IS the top
+                  # 25 picks of FFC's board — 25 rows today, about 25 on draft
+                  # day — so more days add DAYS, NOT PLAYERS and the trigger can
+                  # never fire. What more days DO buy is the same players
+                  # re-measured, which answers the other question: does a
+                  # player's own published sd hold still?
+                  print("")
+                  print("### Does a published spread hold still across days?")
+                  for src in sorted(r["sources"]):
+                      st = S.sd_stability(ser, src, year)
+                      if st["status"] != "measured":
+                          print("- **%s** — %s" % (src, st["note"]))
+                          continue
+                      print("- **%s**: `%d` of `%d` players carrying a published "
+                            "sd on 2+ days moved their own sd by more than "
+                            "`%.0f%%` of its median, across `%d` days."
+                            % (src, st["moved"], st["players"],
+                               100.0 * st["tolerance"], st["days"]))
+                      if st["by_band"]:
+                          print("")
+                          print("| %s band (its own pick scale) | n | moved | median spread | worst |"
+                                % src)
+                          print("|---|---|---|---|---|")
+                          for k, b in st["by_band"].items():
+                              print("| %s | %d | %d | %s | %s |"
+                                    % (k, b["n"], b["moved"], b["median_spread"],
+                                       b["worst_spread"]))
+                      print("")
+                      print("_Steady here while a cross-PLAYER refit stays unstable "
+                            "means the instability is CROSS-SECTIONAL and no amount "
+                            "of waiting fixes it. Unsteady here means the feed is "
+                            "noisy at the top of its own board — a second, "
+                            "independent reason not to fit a constant to it._")
+          except Exception as e:                      # noqa: BLE001
+              bad = 1
+              print("**THE PER-SOURCE AUDIT DID NOT RUN** (%s: %s) — a fact about "
+                    "this job, not a clean archive." % (type(e).__name__, e))
+              raise SystemExit(1)
+          finally:
+              with open(os.environ["GITHUB_OUTPUT"], "a") as g:
+                  g.write("untrustworthy=%d\n" % bad)
+          SAUD
+
+      - name: Whose game is the market playing — format composition
+        id: fmt
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'FMT' >> "$GITHUB_STEP_SUMMARY"
+          import json, os, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Is the market drafting our format?")
+          flags, standing = [], []
+          try:
+              import board_vs_market as BM
+              arc = json.load(open("draft/data/external_adp_series.json"))
+              brd = json.load(open("public/draft_data.json"))
+              f = BM.format_composition(arc, brd)
+              if f["status"] != "measured":
+                  # THIN AND UNMEASURED ARE DIFFERENT FACTS AND BOTH ARE STATES.
+                  # "Not checked" is not "clean" (rule 13f), and a thin crosswalk
+                  # is a crosswalk finding rather than a market one.
+                  print("**%s** — %s" % (f["status"].upper(), f.get("note")))
+                  if f["status"] == "thin":
+                      flags.append("crosswalk thin: %d players" % f["n"])
+              else:
+                  print("`%d` players crosswalked inside pick %d on %s "
+                        "(`%d` carry an age, `%d` do not)."
+                        % (f["n"], f["top_n"], f["observed_at"], f["aged"], f["no_age"]))
+                  print("")
+                  print("| pos | n | median rank delta |")
+                  print("|---|---|---|")
+                  for k, v in f["by_position"].items():
+                      print("| %s | %d | %+.1f |" % (k, v["n"], v["median"]))
+                  print("")
+                  sfx, dyn = f["superflex"] or {}, f["dynasty"] or {}
+                  print("- **superflex/2QB**: QB median `%+.1f` slots against a "
+                        "`%.1f` threshold (one round of our fifteen, over the `%d` "
+                        "ranked) → **%s**"
+                        % (sfx.get("qb_median_slots", 0.0),
+                           sfx.get("threshold_slots", 0.0),
+                           sfx.get("ranked_over", 0),
+                           "DETECTED" if sfx.get("detected") else "not detected"))
+                  print("- **dynasty/keeper**: age rho among the `%d` "
+                        "non-quarterbacks `%s` against `%.2f` → **%s**"
+                        % (dyn.get("n", 0), dyn.get("age_rho_non_qb"),
+                           dyn.get("threshold_rho", 0.0),
+                           "DETECTED" if dyn.get("detected") else "not detected"))
+                  print("")
+                  print(f["note"])
+                  # ⚠ STANDING, NOT ESCALATED. The market has been contaminated
+                  # on every day we hold, so escalating on the CONDITION would
+                  # turn this red every morning and therefore unread by the 22nd.
+                  # What escalates is a CHANGE in it, or the instrument breaking.
+                  if sfx.get("detected"):
+                      standing.append("superflex (QB %+.1f slots)" % sfx["qb_median_slots"])
+                  if dyn.get("detected"):
+                      standing.append("dynasty (age rho %+.3f)" % dyn["age_rho_non_qb"])
+                  print("")
+                  print("| the market takes these EARLIEST vs our board | pos | age | board | market | delta |")
+                  print("|---|---|---|---|---|---|")
+                  for r in f["rows"][:8]:
+                      print("| %s | %s | %s | %.1f | %.1f | %+.1f |"
+                            % (r["name"], r["position"], r["age"],
+                               r["board_adp"], r["market_adp"], r["delta"]))
+
+              s = BM.spread_composition(arc, brd)
+              print("")
+              print("### And is its SPREAD the same quantity as `adp_sd`?")
+              if s["status"] != "measured":
+                  print("**%s** — %s" % (s["status"].upper(), s.get("note")))
+              else:
+                  print("Per pick, on `%d` paired players: market `%.3f`, board "
+                        "`%.3f` — a ratio of `%.2f`. The part the board's own "
+                        "within-format disagreement cannot account for is `%.3f`, "
+                        "or `%.0f%%` of the market's variance."
+                        % (s["n"], s["market_cv"], s["board_cv"], s["ratio"],
+                           s["excess_cv"], 100.0 * (s["excess_share_of_variance"] or 0)))
+                  print("")
+                  print("| band (board adp) | n | market cv | board cv |")
+                  print("|---|---|---|---|")
+                  for k, v in s["by_band"].items():
+                      print("| %s | %d | %.3f | %.3f |"
+                            % (k, v["n"], v["market_cv"], v["board_cv"]))
+                  print("")
+                  print(s["note"])
+                  print("")
+                  print("_Two explanations were killed before that one: SKEW in "
+                        "the range estimator (real — the mean sits 0.35-0.39 through "
+                        "its own range, not 0.50 — but calibrated to it the "
+                        "estimator is unbiased, x1.02 at n=125), and SUPERFLEX "
+                        "widening quarterbacks (QB has the SMALLEST ratio of any "
+                        "position, 2.2 against 4.0 at receiver)._")
+              # ── AND IS IT THE SAME POOL IT WAS YESTERDAY ────────────────
+              # Contamination is the steady state — the market has been mixed on
+              # every day we hold — so a step that reports it each morning is a
+              # number nobody diffs (rule 9). What is worth waking up for is a
+              # CHANGE, and the archive already carries every day's rows, so the
+              # comparison costs nothing but reading them.
+              tr = BM.format_trend(arc, brd)
+              print("")
+              print("### Is it the same pool it was yesterday?")
+              if tr["status"] != "measured":
+                  print("**%s** — %s" % (tr["status"].upper(), tr.get("note")))
+              else:
+                  print("| day | n | QB slots | as a fraction | superflex | age rho | dynasty |")
+                  print("|---|---|---|---|---|---|---|")
+                  for d in tr["days"]:
+                      print("| %s | %s | %s | %s | %s | %s | %s |"
+                            % (d["observed_at"], d["n"], d["qb_median_slots"],
+                               d["qb_median_fraction"], d["superflex"],
+                               d["age_rho_non_qb"], d["dynasty"]))
+                  print("")
+                  print(tr["note"])
+                  if tr["moving"] or tr["flipped"]:
+                      flags.append("composition drift %+.3f%s"
+                                   % (tr["drift"],
+                                      (" — %s FLIPPED" % ",".join(tr["flipped"]))
+                                      if tr["flipped"] else ""))
+          except Exception as e:                      # noqa: BLE001
+              print("**FORMAT CHECK DID NOT RUN** (%s: %s) — not a clean result; "
+                    "nothing was compared." % (type(e).__name__, e))
+              flags.append("format check crashed: %s" % type(e).__name__)
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("flags=%s\n" % ("; ".join(flags) or ""))
+              fh.write("standing=%s\n" % ("; ".join(standing) or ""))
+          FMT
+
+      # ── IS TODAY'S DATA TRUSTWORTHY AT ALL ─────────────────────────────
+      #
+      # Cory, 2026-08-14: "the daily data capture process needs to be correct...
+      # the data itself needs to be accurate and we need understand what it means
+      # so we don't misuse it." This is that check, and it runs before anything
+      # reads the day.
+      #
+      # TWO CATEGORIES, because conflating them is how a real alarm gets muted.
+      # FATAL is arithmetically impossible — an ADP outside its own min/max means
+      # `averagePick` and the range are not describing one population, and the
+      # marginal-ADP derivation assumes they are. OBSERVED is MFL disagreeing with
+      # itself every day in a way now measured and bounded: 25 players with a
+      # per-player count above `totalDrafts`, worst excess 3 on a pool of 127.
+      #
+      # Reporting the second as a failure would make this red every morning and
+      # therefore ignored. Not reporting it would lose the day the excess jumps
+      # from 3 to 30 — which is why the magnitude is printed, not just the fact.
+      - name: Is today's data trustworthy — the invariants, and MFL against itself
+        id: audit
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'AUD'
+          import json, os, sys
+          sys.path.insert(0, "draft/backtest")
+          _sum = os.environ.get("GITHUB_STEP_SUMMARY")
+          fh = open(_sum, "a") if _sum else sys.stdout
+          def md(x=""): print(x, file=fh)
+          md("## Is today's data trustworthy")
+          bad = 0
+          try:
+              import external_adp_capture as C
+              year = "${{ github.event.inputs.year || '2026' }}"
+              days = [s for s in C.load() if str(s.get("year")) == year]
+              today = days[-1] if days else None
+              r = C.snapshot_audit(today or {})
+              # ⚠ NO DAY IS A CAPTURE FAILURE, NOT A CLEAN AUDIT. This used to
+              # print "`None` — 0 players" and then run every invariant against an
+              # empty dict, so an ABSENT day reported FATAL `row_count_mismatch` —
+              # the archive accused of corruption for holding nothing.
+              #
+              # ⚠ AND IT IS AN `if/else`, NOT AN EARLY `raise SystemExit(0)`. The
+              # first cut of this fix exited here — and SystemExit is a
+              # BaseException, so it flies past `except Exception`, runs `finally`,
+              # and SKIPS the `GITHUB_OUTPUT` write below. The escalation reads
+              # that flag. The alarm would have been silenced by its own fix.
+              if r["status"] != "measured":
+                  md("**NO SNAPSHOT FOR %s** — %s" % (year, r["note"]))
+                  bad = 1
+              elif r["fatal"]:
+                  bad = 1
+                  md("`%s` — %d players, %d invariant(s) checked."
+                     % (today.get("observed_at"), r["players"], len(r["checked"])))
+                  md("")
+                  md("| FATAL | detail |")
+                  md("|---|---|")
+                  for f in r["fatal"]:
+                      md("| `%s` | %s |" % (f["kind"], f["note"][:220]))
+              else:
+                  md("`%s` — %d players, %d invariant(s) checked."
+                     % (today.get("observed_at"), r["players"], len(r["checked"])))
+                  md("")
+                  md("**No fatal finding.** Every invariant that cannot be wrong held.")
+              if r["status"] == "measured" and r["observed"]:
+                  md("")
+                  md("| known inconsistency | n | worst | bound |")
+                  md("|---|---|---|---|")
+                  for o in r["observed"]:
+                      md("| `%s` | %s | %s | %s |"
+                         % (o["kind"], o.get("n"), o.get("worst_excess", o.get("worst")),
+                            o.get("bound", "—")))
+                  md("")
+                  md("These are MFL disagreeing with ITSELF, not our pipeline. "
+                     "`total_drafts` is the provider's aggregate and it lags its "
+                     "own per-player counts, so it is **not an exact bound and "
+                     "decides nothing** — the marginal day is derived from "
+                     "per-player `drafts`, which are exact integers.")
+          except Exception as e:                      # noqa: BLE001
+              bad = 1
+              md("**THE AUDIT DID NOT RUN** (%s: %s) — that is a fact about this "
+                 "job, not a clean day." % (type(e).__name__, e))
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
+          finally:
+              if fh is not sys.stdout:
+                  fh.close()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as g:
+              g.write("untrustworthy=%d\n" % bad)
+          AUD
+
+      # WHAT TODAY'S DRAFTERS DID, as opposed to what the season averages.
+      #
+      # Measured 2026-08-14 and it is the reason this step exists: the published
+      # ADP moves a median 0.17-0.21 picks a day inside the top 150, which reads
+      # as a market that has settled. It has not. `total_drafts` went 115 -> 119
+      # -> 125, so one day's drafts carry 3-5% of the weight and the cumulative
+      # mean CANNOT move much even if every new drafter behaved differently. The
+      # calm is arithmetic, not evidence — and six days from our draft, the 3-5%
+      # is the only part anybody would act on.
+      #
+      # `marginal_adp` recovers it exactly, because a mean times its count is a
+      # sum and `dispersion` has carried `draftsSelectedIn` per player since
+      # 2026-08-14. Nothing is smoothed, estimated or windowed.
+      #
+      # ⚠ IT WILL SAY UNMEASURED TONIGHT AND THAT IS CORRECT. Tonight's run is
+      # the FIRST contact between `dispersion_of` and MFL's real response, so
+      # there is exactly one spread day and a difference needs two. The first
+      # derivable marginal day is 2026-08-15. The step says which case it is in,
+      # because "nothing printed" and "nobody moved" must not look alike.
+      - name: What today's drafters did, as opposed to the season average
+        id: marginal
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'MARG'
+          import os, sys
+          sys.path.insert(0, "draft/backtest")
+
+          # ⚠ THE SUMMARY IS OPENED, NOT REDIRECTED, AND THE SIBLING STEPS ARE NOT
+          # WRONG TO REDIRECT — this one is different because it emits an
+          # ANNOTATION as well as prose. `::error::` is a workflow command parsed
+          # from the step's STDOUT; written into $GITHUB_STEP_SUMMARY it is just
+          # eight literal characters in a markdown blob. I wrote it that way
+          # first. That is rule 9 exactly — a mechanism degraded into a note —
+          # inside the step whose whole job is to stop a damped number being read
+          # as a real one.
+          _sum = os.environ.get("GITHUB_STEP_SUMMARY")
+          fh = open(_sum, "a") if _sum else sys.stdout
+
+          def md(line=""):
+              print(line, file=fh)
+
+          def alarm(line):
+              print("::error::" + line)          # STDOUT, deliberately
+
+          md("## The marginal day — the new drafts only")
+          try:
+              import external_adp_capture as C
+              r = C.latest_marginal(C.load(), "${{ github.event.inputs.year || '2026' }}")
+              if r["status"] != "measured":
+                  # NOT CHECKED IS NOT CLEAN (rule 13f).
+                  md("**UNMEASURED** — %s" % r.get("note"))
+              else:
+                  md("`%s` -> `%s`. %d player(s) derived; %d had no new "
+                     "selections, %d had a count that FELL, %d ranked too thin "
+                     "(< %d new selections), %d outside the %d-pick draft range "
+                     "at BOTH ends."
+                     % (r["earlier"], r["later"], len(r["rows"]),
+                        r["skipped_no_new_selections"], r["refused_count_fell"],
+                        r["ranking_excluded_thin"], r["min_new_selections"],
+                        r["ranking_excluded_out_of_range"], r["draft_range"]))
+                  if r["outside_observed_range"]:
+                      # THE FALSIFICATION ARM FIRED. A mean of real picks cannot
+                      # sit outside the day's own observed range, so this is the
+                      # premise failing rather than a big move, and it invalidates
+                      # the whole table rather than one row of it.
+                      alarm("MARGINAL ADP OUTSIDE THE OBSERVED RANGE for %d "
+                            "player(s) — the decomposition's premise is wrong "
+                            "(averagePick may not be averaged over "
+                            "draftsSelectedIn, or the two snapshots are not the "
+                            "same accumulation). Infer NOTHING from this table "
+                            "until that is settled."
+                            % len(r["outside_observed_range"]))
+                      md("")
+                      md("> ⚠ **%d player(s) derive a mean outside the day's own "
+                         "observed range.** See the run annotation — the premise "
+                         "is in question, not just these rows."
+                         % len(r["outside_observed_range"]))
+                  md("")
+                  md("| player | board says | today's drafters | gap | n new | published move |")
+                  md("|---|---|---|---|---|---|")
+                  for x in r["ranked"][:15]:
+                      md("| `%s`%s | %.1f | %.1f | %+.1f | %d | %+.2f |"
+                         % (x["player_id"],
+                            " ⚠" if x["outside_observed_range"] else "",
+                            x["adp_later"], x["marginal_adp"], x["gap"],
+                            x["new_selections"], x["published_move"]))
+                  md("")
+                  md("Ranked by distance from the STANDING PRICE, not by how far "
+                     "the average drifted — the drift is the damped number this "
+                     "exists to see past. Positive gap = today's drafters took "
+                     "him LATER than the board is charging.")
+          except Exception as e:                      # noqa: BLE001
+              md("**THE MARGINAL DAY DID NOT RUN** (%s: %s) — not a clean "
+                 "result; nothing was derived." % (type(e).__name__, e))
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
+          finally:
+              if fh is not sys.stdout:
+                  fh.close()
+          MARG
+
+      # WHICH PLAYERS THE SOURCES ARE ARGUING ABOUT — the aggregate Cory asked
+      # for ("We need an aggregate!! The more data aggregated the better the info.
+      # But needs to be done methodically and accurately"), finally reaching a
+      # surface somebody reads.
+      #
+      # ⚠ IT AGGREGATES WITHIN-POSITION ORDER, NOT PICK NUMBERS, and that is the
+      # whole design rather than a detail. Measured on 314 shared players: the
+      # median MFL/FantasyPros ADP ratio is 0.494 at QB against 1.388 at RB —
+      # one mechanism, not four, because MFL's pool includes superflex leagues.
+      # But compared on ORDER WITHIN A POSITION the same two sources agree at
+      # rho 0.98/0.97/0.96/0.94. Format moves WHERE a position sits; it barely
+      # touches WHO IS BETTER THAN WHOM inside it, and that is the only space in
+      # which averaging these sources is defensible.
+      #
+      # ⚠ AND AN EMPTY DISAGREEMENT TABLE IS AMBIGUOUS ON ITS OWN — it means "the
+      # sources agree" or "there was only one of them", which are opposite. The
+      # corroborated counts are printed beside it for exactly that reason, and
+      # `latest_consensus` refuses to aggregate a lone source at all.
+      #
+      # `consensus_order` was built, tested thirteen ways, and called by NOTHING
+      # until this step existed. Rule 14, found by sweeping this lane for
+      # functions with no production caller.
+      - name: Which players the two sources are arguing about
+        id: cons
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'CONS' >> "$GITHUB_STEP_SUMMARY"
+          import json, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Multi-source consensus — within-position order")
+          try:
+              import external_adp_consensus as CN
+              import external_source_capture as SC
+              positions = json.load(
+                  open("draft/data/player_positions.json"))["positions"]
+              r = CN.latest_consensus(SC.load(), positions,
+                                      "${{ github.event.inputs.year || '2026' }}")
+              if r["status"] != "measured":
+                  # NOT CHECKED IS NOT CLEAN (rule 13f).
+                  print("**UNMEASURED** — %s" % r.get("note"))
+              else:
+                  print("`%s`, sources `%s`.%s"
+                        % (r["day"], "` + `".join(r["sources"]),
+                           (" %d earlier day(s) held one source only."
+                            % r["single_source_days"])
+                           if r["single_source_days"] else ""))
+                  print("")
+                  print("| pos | ranked | corroborated | single-source | median disagreement |")
+                  print("|---|---|---|---|---|")
+                  for pos, c in sorted(r["coverage"].items()):
+                      print("| %s | %d | %d | %d | %s |"
+                            % (pos, c["players"], c["corroborated"],
+                               c["single_source"],
+                               "—" if c["median_disagreement"] is None
+                               else "%.3f" % c["median_disagreement"]))
+                  # NAMES, NOT SLEEPER IDS. A table of bare ids is a mechanism
+                  # nobody can act on at 8am — the board already holds the decode
+                  # key and a missing one says so rather than printing a blank.
+                  names, prices, dropped = {}, {}, None
+                  try:
+                      board = json.load(open("public/draft_data.json"))
+                      names = {str(p.get("player_id")): p.get("name")
+                               for p in (board.get("players") or [])}
+                      prices = {str(p.get("player_id")): p.get("adp")
+                                for p in (board.get("players") or [])}
+                  except Exception as e:              # noqa: BLE001
+                      print("")
+                      print("_(board unreadable — %s — showing ids, and NOT scoped "
+                            "to the draft range)_" % type(e).__name__)
+                      # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+                      # emit a summary section and exit 0, so a crashed check
+                      # was indistinguishable from a clean one.
+                      raise SystemExit(1)
+                  dis = r["disagreements"]
+                  # SCOPED TO WHAT WE CAN DRAFT, and counted rather than silent.
+                  # Unscoped, this table led with TE39 and TE40 on the real board.
+                  # The price gates RELEVANCE only — it never touches the rank.
+                  if prices:
+                      dis, dropped = CN.in_draft_range(dis, prices, limit=150)
+                  print("")
+                  if dropped:
+                      print("_%d argument(s) hidden: the board prices those players "
+                            "outside pick 150, or not at all._" % dropped)
+                      print("")
+                  if not dis:
+                      print("**No disagreement to report.** Read that against the "
+                            "corroborated counts above: with players corroborated "
+                            "it means the sources agree; with none, nothing was "
+                            "compared.")
+                  else:
+                      print("| player | pos | consensus | ranks by source | apart |")
+                      print("|---|---|---|---|---|")
+                      for d in dis[:20]:
+                          pid = d["player_id"]
+                          print("| %s | %s | %d | %s | %.0f |"
+                                % (names.get(pid) or ("`%s` (unknown id)" % pid),
+                                   d["position"], d["consensus_rank"],
+                                   ", ".join("%s %s" % (k, v) for k, v in
+                                             sorted(d["ranks"].items())),
+                                   d["rank_steps"]))
+                      print("")
+                      print("`apart` is HOW MANY PLAYERS separate the sources at "
+                            "that position — the column the table is sorted on. "
+                            "The share-of-the-position figure it replaced is "
+                            "comparable across SOURCES and not across POSITIONS: "
+                            "the intersection is 25 quarterbacks against 76 "
+                            "receivers, so one rank step is 0.040 at QB and 0.013 "
+                            "at WR, and sorting on it ordered the table partly by "
+                            "how shallow each position is.")
+                      print("")
+                      print("The consensus rank is the MEDIAN of ranks, never the "
+                            "mean: two sources at RB4 and one at RB19 should "
+                            "return RB4 and report the argument, not RB9 — a rank "
+                            "no source holds and no reader can defend.")
+
+                  # ── WHERE THE AGGREGATE DISAGREES WITH OUR BOARD ───────────
+                  #
+                  # The question a reader actually has, and the one that cannot be
+                  # asked naively. The consensus is mapped onto FFC's pick scale
+                  # (the only format-matched anchor: half-ppr, teams=10) while the
+                  # board is built primarily on FantasyPros — so a whole position
+                  # can shift by the gap between two providers' scales and look
+                  # like a finding. Measured 2026-08-14: TE moved +21.5 with a
+                  # typical move of 21.5, and WR -9.3 of 9.3. Every tight end, one
+                  # way. `block_shift` refuses those positions rather than
+                  # printing them.
+                  anchor = {}
+                  for d in SC.load():
+                      if d.get("source") == "ffc" and d.get("observed_at") == r["day"]:
+                          anchor = {k: v for k, v in (d.get("rows") or {}).items()
+                                    if v is not None}
+                  scaled = CN.to_pick_scale(r["order"], anchor, positions) if anchor else {}
+                  lines, refused = [], []
+                  for pos, blk in sorted(scaled.items()):
+                      if blk.get("status") != "anchored":
+                          continue
+                      pairs = [(x["player_id"], x["adp"], float(prices[x["player_id"]]))
+                               for x in blk["rows"]
+                               if x.get("adp") is not None
+                               and prices.get(x["player_id"]) is not None
+                               and float(prices[x["player_id"]]) <= 150]
+                      bs = CN.block_shift([c - b for _p, c, b in pairs])
+                      if bs["systematic"] is not False:
+                          refused.append((pos, bs))
+                          continue
+                      for pid, c, b in pairs:
+                          lines.append((abs(c - b), pid, pos, c, b))
+                  print("")
+                  print("### Where the aggregate disagrees with our board")
+                  for pos, bs in refused:
+                      print("- **%s SUPPRESSED** — %s"
+                            % (pos, bs.get("note") or "nothing comparable"))
+                  if lines:
+                      lines.sort(reverse=True)
+                      print("")
+                      print("| player | pos | consensus pick | board adp | move |")
+                      print("|---|---|---|---|---|")
+                      for _m, pid, pos, c, b in lines[:12]:
+                          print("| %s | %s | %.1f | %.1f | %+.1f |"
+                                % (names.get(pid) or ("`%s`" % pid), pos, c, b, c - b))
+                  elif not refused:
+                      print("- nothing to compare: no position survived both the "
+                            "anchor and the draft-range scope.")
+          except Exception as e:                      # noqa: BLE001
+              print("**THE CONSENSUS DID NOT RUN** (%s: %s) — not a clean result; "
+                    "nothing was aggregated." % (type(e).__name__, e))
+              # ⚠ NON-ZERO, NOT A PRINTED APOLOGY. This branch used to
+              # emit a summary section and exit 0, so a crashed check
+              # was indistinguishable from a clean one.
+              raise SystemExit(1)
+          CONS
+
       # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
       # the standing check escalates by failing. Losing a day of a perishable
       # curve deserves the same channel — but only ONCE, on the run that can
@@ -505,6 +1445,18 @@ jobs:
           echo "::error::This fires ONCE and then self-clears; the summary carries it daily."
           exit 1
 
+      - name: Escalate if today's data failed an invariant
+        if: always() && (steps.audit.outputs.untrustworthy == '1' || steps.srcaudit.outputs.untrustworthy == '1')
+        run: |
+          echo "::error::TODAY'S SNAPSHOT FAILED AN INVARIANT THAT CANNOT BE WRONG."
+          echo "::error::See the step summary for which. These are arithmetic"
+          echo "::error::impossibilities — an ADP outside its own min/max means"
+          echo "::error::averagePick and the pick range are not describing the same"
+          echo "::error::population, and the marginal-ADP derivation assumes they are."
+          echo "::error::The day IS committed (it cannot be refetched); do not READ"
+          echo "::error::it until this is understood."
+          exit 1
+
       - name: Escalate ONLY if a DRAFTABLE player left the board
         if: always() && steps.cov.outputs.draftable_loss == '1'
         run: |
@@ -516,3 +1468,72 @@ jobs:
           echo "::error::Check the player is not simply retired/suspended before treating"
           echo "::error::it as a capture defect. See the step summary."
           exit 1
+
+      # ⚠ WHAT THIS ESCALATES ON, AND WHAT IT DELIBERATELY DOES NOT.
+      #
+      # NOT the contamination. The market has been superflex- and dynasty-mixed on
+      # all four days we hold, and the shift has moved 0.003 of the board across
+      # them. Escalating a standing condition makes this red every morning, and the
+      # audit step above already carries the note about how a real alarm gets muted
+      # by its second. It is printed in the summary and stamped in `standing`.
+      #
+      # It DOES escalate on the three things that mean the answer changed or the
+      # instrument did: the pool's composition drifting or a verdict flipping (the
+      # market becoming usable is a decision, and finding it out on the 23rd is
+      # finding it out too late), the crosswalk decaying below half the draft range
+      # so no verdict can be taken at all, and the check crashing — which is the
+      # one state that would otherwise read as "nothing to report".
+      - name: Escalate if the market stopped being the market we measured
+        if: always() && steps.fmt.outputs.flags != ''
+        run: |
+          echo "::error::THE MARKET COMPARISON'S GROUND MOVED — ${{ steps.fmt.outputs.flags }}"
+          echo "::error::Every comparison in this workflow ranks our board against"
+          echo "::error::MFL's pooled board. That pool is superflex- and"
+          echo "::error::dynasty-mixed by measurement, which is a STANDING fact and"
+          echo "::error::not what this is about. This fires because the pool CHANGED,"
+          echo "::error::the crosswalk got too thin to judge it, or the check did not"
+          echo "::error::run. Read the composition table in the summary before"
+          echo "::error::trusting any board-vs-market number from today."
+          exit 1
+
+      # ⚠ WHY THIS EXISTS AT ALL, AND WHY IT IS THE LAST THING IN THE FILE.
+      #
+      # Seven steps here carry `continue-on-error: true`, for a good reason: an
+      # analysis crash must never cost the perishable capture. FIVE OF THEM WERE
+      # WATCHED BY NOTHING. `external_source_run.py` returns 1 when the league
+      # format is unreadable or the player pool is down — a deliberate, loud
+      # refusal — and the workflow swallowed it: the archive silently missed its
+      # day and the job went green. The code failed correctly and the harness
+      # made it invisible.
+      #
+      # `outcome`, NOT `conclusion`. `conclusion` is the value AFTER
+      # continue-on-error is applied, so it is 'success' for every one of these
+      # by construction and a check on it could never fire. `outcome` is the
+      # result before, and it tells 'failure' apart from 'skipped'.
+      #
+      # AND IT IS LAST SO THE DAY LANDS FIRST. Same rule as every other
+      # escalation in this file: the commit is above, the alarm is below.
+      - name: Escalate if any analysis step failed instead of reporting
+        if: always()
+        run: |
+          failed=""
+          for s in \
+            "per-source archive:${{ steps.src.outcome }}" \
+            "board freshness:${{ steps.fresh.outcome }}" \
+            "sleeper divergence:${{ steps.sleeper.outcome }}" \
+            "format composition:${{ steps.fmt.outcome }}" \
+            "daily invariants:${{ steps.audit.outcome }}" \
+            "marginal day:${{ steps.marginal.outcome }}" \
+            "source consensus:${{ steps.cons.outcome }}" \
+            "per-source audit:${{ steps.srcaudit.outcome }}" ; do
+            name="${s%%:*}"; res="${s##*:}"
+            [ "$res" = "failure" ] && failed="$failed $name"
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::AN ANALYSIS STEP FAILED AND THE DAY IS NOT FULLY JUDGED:$failed"
+            echo "::error::These carry continue-on-error so the capture survives a"
+            echo "::error::crash — that is deliberate. It is NOT deliberate for the"
+            echo "::error::job to go green afterwards. Read the step above for the"
+            echo "::error::traceback; the snapshot itself is committed and intact."
+            exit 1
+          fi

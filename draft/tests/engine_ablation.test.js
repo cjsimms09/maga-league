@@ -1,0 +1,435 @@
+// TERRITORY: A
+// THE ENGINE ABLATION DRIVER — mechanics only: determinism, flag plumbing
+// (every ablation flag PROVEN to change behavior where its mechanism lives —
+// a flag that changes nothing is a broken ablation), flag SCOPING (my policy
+// only, never the opponent room), room parity with archetype_rooms.js, and
+// artifact hygiene. What the layers MEASURED belongs in
+// draft/audit/engine_ablation_2026-08-16.md — a strategy question has no
+// pass/fail, only a report.
+//
+// Seeds here are 9001+ — the smoke pool reserved for mechanics, excluded
+// from every ranking.
+//
+// Run: node draft/tests/engine_ablation.test.js
+'use strict';
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const crypto = require('crypto');
+const { execSync } = require('child_process');
+const ROOT = path.join(__dirname, '..', '..');
+global.window = global;
+const S = require(path.join(ROOT, 'public', 'js', 'draft', 'survival.js'));
+const C = require(path.join(ROOT, 'public', 'js', 'draft', 'composite.js'));
+const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+require(path.join(ROOT, 'public', 'js', 'draft', 'needrule.js'));
+const LC = require(path.join(ROOT, 'draft', 'tools', 'live_context.js'));
+const EA = require(path.join(ROOT, 'draft', 'tools', 'engine_ablation.js'));
+
+let pass = 0, fail = 0;
+const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
+  : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '\n        -> ' + JSON.stringify(d).slice(0, 300) : ''))); };
+
+const TEST_OUT = path.join(os.tmpdir(), 'engine_ablation.test-out.json');
+const COMMITTED = path.join(ROOT, 'draft', 'data', 'engine_ablation_2026.json');
+const committedHashBefore = fs.existsSync(COMMITTED)
+  ? crypto.createHash('sha256').update(fs.readFileSync(COMMITTED)).digest('hex') : null;
+
+function run(extra) {
+  return execSync('node draft/tools/engine_ablation.js ' + extra,
+    { cwd: ROOT, env: Object.assign({}, process.env,
+      { ENGINE_ABLATION_OUT: TEST_OUT }) }).toString();
+}
+function readOut() { return JSON.parse(fs.readFileSync(TEST_OUT, 'utf8')); }
+function stripTime(doc) { const d = Object.assign({}, doc); delete d.generated_at; return d; }
+
+const WIRE = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'wire_level.json'), 'utf8')).per_week;
+const LEAGUE = { teams: 10, rounds: 15,
+  starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+const mk = (id, pos, pm, vorp, extra) => Object.assign(
+  { player_id: id, name: pos + id, position: pos, proj_mean: pm, vorp,
+    adjusted_adp: 50 + (Number(id) || 0), tier: 1 }, extra || {});
+const baseCtx = over => Object.assign({
+  board: [], roster: [], league: LEAGUE, currentPick: 100, nextPick: 113,
+  myPicksLeft: 5, totalPicks: 150, myPickIndex: 7, totalMyPicks: 12,
+  weights: E.DEFAULT_WEIGHTS, wireWeekly: WIRE, currentKeepers: [],
+  intervening: [], roundsLeft: 5 }, over);
+
+// ── 1. withFlags: sets, scopes, restores — including on throw ──────────────
+{
+  const shipped = E.CFG.VONA_WIRE_BENCH;
+  let inside = null;
+  EA.withFlags([['E', 'VONA_WIRE_BENCH', !shipped]], () => { inside = E.CFG.VONA_WIRE_BENCH; });
+  ck('withFlags sets the flag inside the callback and restores it after',
+    inside === !shipped && E.CFG.VONA_WIRE_BENCH === shipped);
+  let threw = false;
+  try {
+    EA.withFlags([['E', 'VONA_WIRE_BENCH', !shipped], ['S', 'ROOM_MIX_PRIOR', false]],
+      () => { throw new Error('boom'); });
+  } catch (e) { threw = true; }
+  ck('withFlags restores every flag even when the callback throws',
+    threw && E.CFG.VONA_WIRE_BENCH === shipped && S.CFG.ROOM_MIX_PRIOR === true);
+}
+
+// ── 2. EVERY CFG-GATED LAYER'S FLIP CHANGES THE SURFACE ITS MECHANISM LIVES ON
+// (the non-vacuity mandate: a flag that changes nothing is a broken ablation).
+// Layers that CANNOT move the shipped surface are proven twice: mechanism
+// live under DEFAULT_WEIGHTS / the reachable config, AND inert in the shipped
+// config — the inertness is a finding, not a gap, and both halves are pinned.
+{
+  // Board-level flips that reach the real pick-33 surface (production ctx).
+  const topN = c => E.recommend(c).slice(0, 15)
+    .map(s => s.player.name + ':' + (s.score == null ? 'null' : s.score.toFixed(3))).join('|');
+  const mkCtx = () => { const c2 = LC.liveContext({ currentPick: 33, nextPick: 48 }); c2.wireWeekly = WIRE; return c2; };
+  const base = topN(mkCtx());
+  [['kov_ramp', [['C', 'KOV_MEASURED_RAMP', false]]],
+    ['room_mix', [['S', 'ROOM_MIX_PRIOR', false]]],
+    ['conserve', [['E', 'CONSERVE_SURVIVAL_ON', false]]],
+    ['vona_slot_aware', [['E', 'VONA_SLOT_AWARE', true]]],
+    ['stage2_cap', [['E', 'STAGE2_CAP', true]]],
+  ].forEach(([name, flip]) => {
+    const alt = EA.withFlags(flip, () => topN(mkCtx()));
+    ck('flag plumbing — ' + name + ' flip changes the top-15 at the real pick 33',
+      alt !== base);
+  });
+
+  /* ── ceiling_tiebreak MOVED OUT OF THE LIVE-BOARD LOOP, 2026-08-17 ────────
+   *
+   * It used to sit in the list above and assert that flipping the flag changes
+   * the live top-15. That stopped being true, and the reason is a FIX rather
+   * than a regression: `moreUpsideThanTheCellExplains()` now refuses a swap
+   * whose only justification is the two players' calibration constants, and on
+   * a board where `proj_ceiling` is `proj_mean × a per-cell constant` that is
+   * every cross-cell swap. So the tiebreak is correctly INERT here, and an
+   * assertion that it must visibly move the live board was asserting the defect.
+   * (It fired live: Bo Nix, 14.5 points worse than Brock Purdy, promoted over
+   * him "on upside" — Cory caught it on the screen.)
+   *
+   * The flag is still plumbed and that still needs proving, so the check moves
+   * to a board where the ceiling carries real information — same cell, equal
+   * mean, genuinely different ceilings — which is the only place the mechanism
+   * was ever meant to speak. When VOLATILITY-WIRING-PREREG.md §2 lands and the
+   * live ceilings vary per player, this can move back up into the loop. */
+  {
+    const wr = (name, mean, ceil, rank) => ({ name, position: 'WR', tier: 1,
+      pos_rank: rank, proj_mean: mean, proj_ceiling: ceil, vorp: 50,
+      proj_floor: mean * 0.5, adp: 40, player_id: name });
+    const ctx = () => ({ board: [wr('steady', 150, 175, 1), wr('boom', 150, 230, 2)],
+      roster: [], league: { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } },
+      currentPick: 40, nextPick: 53, totalPicks: 150, myPicksLeft: 11,
+      roundsLeft: 11, runMultipliers: {}, weights: E.DEFAULT_WEIGHTS });
+    const on = E.recommend(ctx()).map(s => s.player.name).join('|');
+    const off = EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () =>
+      E.recommend(ctx()).map(s => s.player.name).join('|'));
+    ck('flag plumbing — ceiling_tiebreak flip changes the order where the ceiling '
+      + 'actually carries information', on !== off, { on: on, off: off });
+    ck('  and it is INERT on the live board, because every cross-cell swap there '
+      + 'would be decided by a calibration constant',
+      EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkCtx())) === base,
+      'if this ever fails the live ceiling has started carrying per-player '
+      + 'information — good news, and the check above moves back into the loop');
+  }
+}
+{
+  // ONESIE_DISCOUNT: a QB2 behind a rostered starter, starters+flex full.
+  const roster = [mk('r1', 'QB', 380, 60), mk('r2', 'RB', 250, 70), mk('r3', 'RB', 240, 60),
+    mk('r4', 'WR', 260, 70), mk('r5', 'WR', 250, 60), mk('r6', 'TE', 180, 40), mk('r7', 'RB', 200, 20)];
+  const board = [mk('1', 'QB', 330, 40), mk('2', 'QB', 300, 10), mk('3', 'RB', 150, 5), mk('4', 'WR', 140, 4)];
+  const qb = board[0];
+  const on = E.scorePlayer(qb, baseCtx({ board, roster }));
+  const off = EA.withFlags([['E', 'ONESIE_DISCOUNT', false]],
+    () => E.scorePlayer(qb, baseCtx({ board, roster })));
+  ck('flag plumbing — ONESIE_DISCOUNT flip changes a QB2\'s score '
+    + '(discounted ' + on.score + ' vs undiscounted ' + off.score + ')',
+    on.score !== off.score && on.score < off.score);
+
+  // ONESIE_HARD_CAP: a third QB — capped only while the flag is on.
+  const roster2 = roster.concat([mk('r8', 'QB', 300, 30)]);
+  const capOn = E.scorePlayer(qb, baseCtx({ board, roster: roster2 }));
+  const capOff = EA.withFlags([['E', 'ONESIE_HARD_CAP', false]],
+    () => E.scorePlayer(qb, baseCtx({ board, roster: roster2 })));
+  ck('flag plumbing — ONESIE_HARD_CAP flip changes a QB3\'s capped state',
+    capOn.onesie && capOn.onesie.capped === true
+    && capOff.onesie && !capOff.onesie.capped);
+}
+{
+  // ONESIE_NEED_DISCOUNT and FLEX_DISCOUNT rewrite need.value, which
+  // MEASURED_WEIGHTS multiplies by 0. Mechanism proven live under
+  // DEFAULT_WEIGHTS; inert under MEASURED_WEIGHTS — BOTH pinned, because the
+  // in-frame zero these layers measure is exactly this arithmetic.
+  const rosterEmptyQB = [mk('r2', 'RB', 250, 70), mk('r3', 'RB', 240, 60),
+    mk('r4', 'WR', 260, 70), mk('r5', 'WR', 250, 60), mk('r6', 'TE', 180, 40)];
+  const board = [mk('1', 'QB', 330, 40), mk('2', 'QB', 300, 10), mk('3', 'RB', 150, 5)];
+  const qb = board[0];
+  const dOn = E.scorePlayer(qb, baseCtx({ board, roster: rosterEmptyQB }));
+  const dOff = EA.withFlags([['E', 'ONESIE_NEED_DISCOUNT', false]],
+    () => E.scorePlayer(qb, baseCtx({ board, roster: rosterEmptyQB })));
+  ck('flag plumbing — ONESIE_NEED_DISCOUNT flip moves the score under DEFAULT_WEIGHTS '
+    + '(mechanism live: ' + dOn.score + ' vs ' + dOff.score + ')', dOn.score !== dOff.score);
+  const mOn = E.scorePlayer(qb, baseCtx({ board, roster: rosterEmptyQB, weights: E.MEASURED_WEIGHTS }));
+  const mOff = EA.withFlags([['E', 'ONESIE_NEED_DISCOUNT', false]],
+    () => E.scorePlayer(qb, baseCtx({ board, roster: rosterEmptyQB, weights: E.MEASURED_WEIGHTS })));
+  ck('…and is INERT under MEASURED_WEIGHTS (w.need=0) — the vacuous-by-weights '
+    + 'finding the audit reports, pinned', mOn.score === mOff.score);
+
+  const rosterFlex = [mk('r1', 'QB', 380, 60), mk('r2', 'RB', 250, 70), mk('r3', 'RB', 240, 60),
+    mk('r4', 'WR', 260, 70), mk('r5', 'WR', 250, 60), mk('r6', 'TE', 180, 40)];
+  const rb = mk('9', 'RB', 180, 30);
+  const boardF = [rb, mk('10', 'RB', 170, 25), mk('11', 'WR', 160, 20)];
+  const fOn = E.scorePlayer(rb, baseCtx({ board: boardF, roster: rosterFlex }));
+  const fOff = EA.withFlags([['E', 'FLEX_DISCOUNT', false]],
+    () => E.scorePlayer(rb, baseCtx({ board: boardF, roster: rosterFlex })));
+  ck('flag plumbing — FLEX_DISCOUNT flip moves a flex-only RB under DEFAULT_WEIGHTS',
+    fOn.score !== fOff.score);
+  const fmOn = E.scorePlayer(rb, baseCtx({ board: boardF, roster: rosterFlex, weights: E.MEASURED_WEIGHTS }));
+  const fmOff = EA.withFlags([['E', 'FLEX_DISCOUNT', false]],
+    () => E.scorePlayer(rb, baseCtx({ board: boardF, roster: rosterFlex, weights: E.MEASURED_WEIGHTS })));
+  ck('…and FLEX_DISCOUNT is likewise INERT under MEASURED_WEIGHTS, pinned',
+    fmOn.score === fmOff.score);
+}
+{
+  // VONA_WIRE_BENCH: unreachable in the shipped config (slot-aware false ⇒
+  // vona() returns `straight` first) — BOTH halves pinned: live under
+  // slot-aware VONA, dead in the shipped path. This is the audit's
+  // dead-code finding, held by test.
+  const roster = [mk('r1', 'QB', 380, 60), mk('r2', 'RB', 250, 70), mk('r3', 'RB', 240, 60),
+    mk('r4', 'WR', 260, 70), mk('r5', 'WR', 250, 60), mk('r6', 'TE', 180, 40), mk('r7', 'RB', 200, 20)];
+  const board = [mk('1', 'QB', 330, 40), mk('2', 'QB', 300, 10), mk('3', 'RB', 150, 5)];
+  const qb = board[0];
+  const ctxOf = () => baseCtx({ board, roster });
+  const liveOn = EA.withFlags([['E', 'VONA_SLOT_AWARE', true]], () => E.vona(qb, board, 113, ctxOf()));
+  const liveOff = EA.withFlags([['E', 'VONA_SLOT_AWARE', true], ['E', 'VONA_WIRE_BENCH', false]],
+    () => E.vona(qb, board, 113, ctxOf()));
+  ck('flag plumbing — VONA_WIRE_BENCH flip moves bench VONA where the branch is '
+    + 'reachable (slot-aware true): ' + liveOn + ' vs ' + liveOff, liveOn !== liveOff);
+  const deadOn = E.vona(qb, board, 113, ctxOf());
+  const deadOff = EA.withFlags([['E', 'VONA_WIRE_BENCH', false]], () => E.vona(qb, board, 113, ctxOf()));
+  ck('…and is DEAD in the shipped config (VONA_SLOT_AWARE=false): flip changes '
+    + 'nothing — the unreachability finding, pinned', deadOn === deadOff);
+}
+{
+  // Weight-carried layers: keeper (KOV) and stack.
+  const young = mk('12', 'WR', 200, 80, { age: 22, years_exp: 1, adjusted_adp: 58 });
+  const board = [young, mk('13', 'WR', 150, 20, { adjusted_adp: 61 })];
+  const ctxK = baseCtx({ board, roster: [mk('r2', 'RB', 250, 70)], currentPick: 45, nextPick: 58 });
+  const kOn = E.scorePlayer(young, Object.assign({}, ctxK, { weights: E.MEASURED_WEIGHTS }));
+  const kOff = E.scorePlayer(young, Object.assign({}, ctxK,
+    { weights: Object.assign({}, E.MEASURED_WEIGHTS, { keeper: 0 }) }));
+  ck('weight plumbing — keeper 1→0 moves a keeper-eligible young player\'s score',
+    kOn.score !== kOff.score, { on: kOn.score, off: kOff.score });
+  const wrS = mk('14', 'WR', 200, 40, { team: 'BUF' });
+  const rosterS = [mk('r1', 'QB', 380, 60, { team: 'BUF' }), mk('r2', 'RB', 250, 70)];
+  const ctxS = baseCtx({ board: [wrS, mk('15', 'WR', 150, 20)], roster: rosterS });
+  const sOn = E.scorePlayer(wrS, Object.assign({}, ctxS, { weights: E.MEASURED_WEIGHTS }));
+  const sOff = E.scorePlayer(wrS, Object.assign({}, ctxS,
+    { weights: Object.assign({}, E.MEASURED_WEIGHTS, { stack: 0 }) }));
+  ck('weight plumbing — stack 1→0 moves a stacked WR\'s score',
+    sOn.score !== sOff.score, { on: sOn.score, off: sOff.score });
+}
+{
+  // Board transforms: real changes, no mutation of the canonical row.
+  const data = LC.loadBoard();
+  /* ⚠️ SYNTHESISED, NOT SEARCHED — and the reason is a RULING, not a bug.
+   *
+   * This used to hunt the live board for a player with a non-zero
+   * `opportunity_adj`. Cory set `opportunity_cap = 0.0` on 2026-08-17 ("Remove
+   * 1") after the layer graded neutral on ordering in 17 of 18 cells and worse
+   * on level in 18 of 18, so `opportunity_adj` is now EXACTLY 0.0 for all 535
+   * skill players. The find() returned undefined and this file died on
+   * `undefined.proj_baseline` — red on `main`, and since the JS step globs
+   * every *.test.js, red for the whole suite.
+   *
+   * The subject here is the TRANSFORM (does stripOpportunity revert proj_mean
+   * and shift vorp by the same delta), not whether the board currently has an
+   * opportunity layer switched on. Tying a transform test to a policy constant
+   * is what made a legitimate ruling look like a regression. So the row is
+   * built to order: real board fields, a deliberately non-zero adjustment.
+   *
+   * If the layer is ever switched back on, this still tests the same thing. */
+  const base = data.players.find(p => p.proj_mean > 0 && p.vorp != null);
+  const row = Object.assign({}, base, {
+    proj_baseline: base.proj_mean - 10,
+    opportunity_adj: 0.05,
+    opportunity_z: 0.5,
+    depth_chart_order: base.depth_chart_order > 0 ? base.depth_chart_order : 1,
+  });
+  const so = EA.stripOpportunity(row);
+  ck('strip_opportunity reverts proj_mean to proj_baseline and shifts vorp by the same delta',
+    so.proj_mean === row.proj_baseline
+    && Math.abs((so.vorp - row.vorp) - (row.proj_baseline - row.proj_mean)) < 1e-9);
+  ck('strip_opportunity removes opportunity_z/adj; strip_depth_chart removes depth_chart_order; '
+    + 'the canonical row is untouched (clone, not mutation)',
+    !('opportunity_z' in so) && !('opportunity_adj' in so)
+    && !('depth_chart_order' in EA.stripDepthChart(row))
+    && row.opportunity_z != null && row.depth_chart_order != null);
+  // depth_chart's one live path in the shipped config is KOV's keep model.
+  const kpWith = C.keepProbability({ position: 'RB', age: 23, depth_chart_order: 3 }, 8, LEAGUE);
+  const kpWithout = C.keepProbability({ position: 'RB', age: 23 }, 8, LEAGUE);
+  ck('depth_chart mechanism — keepProbability moves when depth_chart_order is stripped',
+    kpWith !== kpWithout);
+}
+
+// ── 3. SCOPING — an ablation flips MY policy only, never the opponent room ──
+{
+  const R = EA.loadRoom();
+  const arms = EA.buildArms();
+  const seen = [];
+  const orig = S.positionProbabilities;
+  S.positionProbabilities = function () {
+    seen.push(S.CFG.ROOM_MIX_PRIOR);
+    return orig.apply(this, arguments);
+  };
+  let d;
+  try {
+    d = EA.draftRoom(R, 9001, arms.minus_room_mix, 'measured');
+  } finally {
+    S.positionProbabilities = orig;
+  }
+  // The driver's only direct S.positionProbabilities caller is the opponent
+  // generator (the engine reaches it through its own closure), so every
+  // recorded value is an OPPONENT call — all must see the shipped prior.
+  ck('SCOPING — every opponent positionProbabilities call sees the SHIPPED '
+    + 'ROOM_MIX_PRIOR while the minus_room_mix arm drafts (' + seen.length + ' calls)',
+    !d.crashed && seen.length > 100 && seen.every(v => v === true));
+  ck('…and the flag is restored after the room', S.CFG.ROOM_MIX_PRIOR === true);
+}
+
+// ── 4. driver runs: determinism, seed variation, parity, divergence controls ─
+/* ⚠️ ROOMS RAISED 2 -> 6, 2026-08-18, AND THE CONTROL IS WHY.
+ *
+ * `minus_conserve` diverged in 0 of 2 rooms, so its known-positive control —
+ * "the ablation provably reaches the choice" — failed, and the whole file went
+ * red on `main`. The tempting reading was that the conservation layer had gone
+ * inert, which would have been a real finding.
+ *
+ * MEASURED INSTEAD OF ASSUMED: same seed, more rooms — 6 rooms diverges 1,
+ * 16 rooms diverges 3. The layer is LIVE. Two rooms was simply too thin for
+ * this arm's control to fire reliably, so the control was a coin flip wearing
+ * the clothes of a guarantee.
+ *
+ * The fix is the SAMPLE, never the assertion. Deleting the control or lowering
+ * its bar would have converted a flaky check into a permanently passing one,
+ * which is this repo's most-repeated defect. 6 is the smallest count at which
+ * every arm's control fired on the smoke seed. */
+const FAST = '--rooms 6 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped,minus_opportunity,minus_conserve,minus_wire_bench';
+{
+  const a = run(FAST); const outA = stripTime(readOut());
+  const b = run(FAST); const outB = stripTime(readOut());
+  ck('same seed + config reproduce an identical artifact (generated_at aside), twice',
+    a === b && JSON.stringify(outA) === JSON.stringify(outB));
+  run('--rooms 6 --seed 9007 --sims 200 --arms full,baseline_bpa,stripped,minus_opportunity,minus_conserve,minus_wire_bench');
+  const outC = stripTime(readOut());
+  ck('a different seed produces different rooms — not the same draft re-served',
+    JSON.stringify(outA.detail.full) !== JSON.stringify(outC.detail.full));
+  fs.writeFileSync(TEST_OUT + '.a', JSON.stringify(outA));
+}
+{
+  const out = JSON.parse(fs.readFileSync(TEST_OUT + '.a', 'utf8'));
+  // CONTROL — ablations that must reach the picks on these seeds do.
+  ['baseline_bpa', 'stripped', 'minus_opportunity', 'minus_conserve'].forEach(a => {
+    ck('CONTROL — ' + a + ' diverges from its control on the smoke seeds '
+      + '(the ablation provably reaches the choice)',
+      out.paired_vs_control[a].rooms_diverged > 0,
+      out.paired_vs_control[a]);
+  });
+  // The zero-divergence identity: an arm whose rooms never diverged must have
+  // EXACTLY zero deltas — pairing and season-memo accounting are exact.
+  const wb = out.paired_vs_control.minus_wire_bench;
+  ck('minus_wire_bench never diverges (the dead-code finding at driver level) '
+    + 'and its paired deltas are EXACTLY zero in both season models',
+    wb.rooms_diverged === 0
+    && ['zero', 'wire'].every(m => ['mean_weekly', 'champ_prob'].every(k =>
+      wb[m][k].mean === 0 && wb[m][k].ci95[0] === 0 && wb[m][k].ci95[1] === 0)));
+  // Artifact discipline.
+  ck('_territory is the artifact\'s first key; question verbatim; layers + '
+    + 'dark layers enumerated; classification rule recorded',
+    Object.keys(out)[0] === '_territory'
+    && out.question_verbatim === EA.QUESTION_VERBATIM
+    && out.layers.wire_bench && out.layers.opportunity
+    && out.dark_layers.doctrine_tilt && out.dark_layers.run_detection
+    && typeof out.classification_rule === 'string');
+  ck('both season rulers are present per room (zero-replacement AND wire-floor)',
+    out.detail.full.every(r => r.zero && r.wire
+      && r.zero.mean_weekly > 50 && r.wire.mean_weekly > 50
+      && r.wire.mean_weekly >= r.zero.mean_weekly - 1e-9));
+}
+{
+  // PARITY — the copied room mechanics cannot drift from archetype_rooms.js:
+  // full == shipped, baseline_bpa == bpa_vorp, pick for pick, same seeds.
+  const archOut = path.join(os.tmpdir(), 'engine_ablation.arch-par.json');
+  execSync('node draft/tools/archetype_rooms.js --rooms 2 --seed 9001 '
+    + '--arms shipped,bpa_vorp --sims 200',
+    { cwd: ROOT, env: Object.assign({}, process.env, { ARCHETYPE_ROOMS_OUT: archOut }) });
+  const arch = JSON.parse(fs.readFileSync(archOut, 'utf8'));
+  const mine = JSON.parse(fs.readFileSync(TEST_OUT + '.a', 'utf8'));
+  const names = r => r.picksLog.map(p => p.name).join('|');
+  const pairs = [['shipped', 'full'], ['bpa_vorp', 'baseline_bpa']];
+  ck('ROOM PARITY — full/baseline_bpa reproduce archetype_rooms\' shipped/bpa_vorp '
+    + 'pick-for-pick and to the same weekly mean (the no-drift pin on the copied mechanics)',
+    pairs.every(([a, b]) => [0, 1].every(i =>
+      names(arch.detail[a][i]) === names(mine.detail[b][i])
+      && arch.detail[a][i].mean_weekly === mine.detail[b][i].zero.mean_weekly)));
+}
+
+// ── 5. classify(): the preregistered rule, both directions, boundary cases ──
+{
+  const d = (zm, zc, wm, wc) => ({
+    zero: { mean_weekly: { mean: zm[0], ci95: zm }, champ_prob: { mean: zc[0], ci95: zc } },
+    wire: { mean_weekly: { mean: wm[0], ci95: wm }, champ_prob: { mean: wc[0], ci95: wc } } });
+  ck('classify — CI-clear positive add-direction delta EARNS',
+    EA.classify(d([0.2, 0.6], [0.001, 0.02], [0.1, 0.5], [0.001, 0.02]), 'add_to_stripped') === 'EARNS');
+  ck('classify — the SAME deltas in a remove direction read as HURTS (sign convention)',
+    EA.classify(d([0.2, 0.6], [0.001, 0.02], [0.1, 0.5], [0.001, 0.02]), 'remove_from_full') === 'HURTS');
+  ck('classify — a remove-direction NEGATIVE delta means the layer helped: EARNS',
+    EA.classify(d([-0.6, -0.2], [-0.02, -0.001], [-0.5, -0.1], [-0.02, -0.001]), 'remove_from_full') === 'EARNS');
+  ck('classify — straddling CIs are FREE (boundary: ci95 touching zero from inside)',
+    EA.classify(d([-0.1, 0.3], [-0.01, 0.01], [-0.2, 0.2], [-0.01, 0.01]), 'add_to_stripped') === 'FREE');
+  ck('classify — clear-positive in one replacement model, clear-negative in the '
+    + 'other is named a bracket artifact, never EARNS',
+    /bracket artifact/.test(
+      EA.classify(d([0.2, 0.6], [0.001, 0.02], [-0.5, -0.1], [-0.02, -0.001]), 'add_to_stripped')));
+}
+
+// ── 6. hygiene: committed artifact untouched, shipped defaults intact ───────
+{
+  const committedHashAfter = fs.existsSync(COMMITTED)
+    ? crypto.createHash('sha256').update(fs.readFileSync(COMMITTED)).digest('hex') : null;
+  ck('the committed artifact was never touched by these runs (ENGINE_ABLATION_OUT redirects)',
+    committedHashBefore === committedHashAfter);
+  ck('engine/survival/composite defaults match the shipped rulings after all runs '
+    + '(VONA_WIRE_BENCH=true, VONA_SLOT_AWARE=false, STAGE2_CAP=false, '
+    + 'ROOM_MIX_PRIOR=true, KOV_MEASURED_RAMP=true, CONSERVE_SURVIVAL_ON=true)',
+    E.CFG.VONA_WIRE_BENCH === true && E.CFG.VONA_SLOT_AWARE === false
+    && E.CFG.STAGE2_CAP === false && S.CFG.ROOM_MIX_PRIOR === true
+    && C.CFG.KOV_MEASURED_RAMP === true && E.CFG.CONSERVE_SURVIVAL_ON === true
+    && E.CFG.ONESIE_DISCOUNT === true && E.CFG.ONESIE_HARD_CAP === true
+    && E.CFG.FLEX_DISCOUNT === true && E.CFG.CEILING_TIEBREAK === true);
+}
+{
+  // The committed artifact (when present) embeds the replay frame BY HASH —
+  // the no-retype rule enforced by test, not comment.
+  if (fs.existsSync(COMMITTED)) {
+    const doc = JSON.parse(fs.readFileSync(COMMITTED, 'utf8'));
+    const rf = doc.replay_frame;
+    const replayFile = path.join(ROOT, 'draft', 'data', 'engine_ablation_replay_2026.json');
+    const sha = crypto.createHash('sha256').update(fs.readFileSync(replayFile)).digest('hex');
+    ck('committed artifact embeds the replay frame with a sha256 that matches the '
+      + 'committed replay artifact byte-for-byte', rf && rf.sha256 === sha);
+    ck('committed artifact: _territory first, verdict per layer-carrying arm, 120 rooms',
+      Object.keys(doc)[0] === '_territory' && doc.rooms === 120
+      && Object.keys(doc.verdicts).length >= 25);
+  } else {
+    ck('committed artifact present', false, 'draft/data/engine_ablation_2026.json missing');
+  }
+}
+
+console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
+if (fail) { console.log('\nFAILED'); process.exit(1); }
+console.log('\nWHAT THIS GUARANTEES: every ablation flag provably changes behavior');
+console.log('where its mechanism lives (and the vacuous-by-weights / dead-code layers');
+console.log('are pinned INERT — the finding, held by test); flips are scoped to my');
+console.log('policy and never reach the opponent room; the driver is deterministic');
+console.log('per seed; the copied room mechanics are pick-for-pick equal to');
+console.log('archetype_rooms.js; no run touches the committed artifact or defaults.');
+console.log('WHAT IT DOES NOT: judge any layer — see the audit doc.');

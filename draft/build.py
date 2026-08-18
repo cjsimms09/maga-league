@@ -28,6 +28,7 @@ import board_activity  # noqa: E402
 import config_schema  # noqa: E402
 import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
+from backtest import lab_scoring_gap  # noqa: E402
 import vorp as vorp_mod  # noqa: E402
 import managers as managers_mod  # noqa: E402
 import keeper_slate as keeper_slate_mod  # noqa: E402
@@ -45,6 +46,28 @@ ARTIFACT_VERSION = 2
 ADP_PROVENANCE: dict = {}
 OPPORTUNITY_PROVENANCE: dict = {}
 PROJECTION_PROVENANCE: dict = {}
+
+
+def attach_sleeper_column(board: list[dict], baseline: dict) -> int:
+    """Stamp the raw Sleeper projection on every row Sleeper actually projected.
+
+    Returns how many rows this call stamped. See the call site in build_bundle
+    for the defect this closes (`proj_sleeper` was gated on FantasyPros).
+
+    `baseline` is the PRE-FALLBACK truth: a player absent from it has no Sleeper
+    projection, and `proj_baseline` will be carrying projections._rank_fallback's
+    ADP decay for him. Stamping that as `proj_sleeper` would put a fabricated
+    number under a source's name, so it is refused — absent is not zero and it is
+    not a guess either.
+    """
+    stamped = 0
+    for p in board:
+        if (p.get("proj_sleeper") is None
+                and baseline.get(str(p.get("player_id"))) is not None
+                and p.get("proj_baseline") is not None):
+            p["proj_sleeper"] = round(float(p["proj_baseline"]), 2)
+            stamped += 1
+    return stamped
 
 # Below this many players carrying non-zero projected points, the provider has
 # not published projections for the season yet and the baseline is worthless.
@@ -93,6 +116,48 @@ IDENTITY_PATH = HERE / "config" / "identity_map.json"
 # Sleeper handle <-> owner_id lives (money_history already keys on it), so this
 # reads it rather than introducing a second copy.
 MY_REAL_NAME = "Cory"
+
+
+def preserve_local_rulings(existing: dict, fetched: dict) -> dict:
+    """Sleeper owns what it RETURNS. Every other committed key is a local ruling.
+
+    THE BUG THIS CLOSES, found 2026-08-17 from the publication gate. The nightly
+    always runs `build.py --league-id ...`, and that path rebuilt the config from
+    `si.import_league()` and saved it verbatim, carrying over exactly two keys by
+    hand: `keepers` and `my_draft_slot`. **Everything else the commissioner or
+    Cory had decided was destroyed on every build**, because Sleeper has never
+    heard of it.
+
+    What that wiped, the same day Cory ruled on it: `use_measured_ceiling`. His
+    words were "We absolutely need to change draft board if we aren't considering
+    upside", the flag went on, and the next nightly turned it back off —
+    reverting the board to the Gaussian ceiling the ruling had overturned.
+    `test_measured_ceiling::test_the_measured_ceiling_is_ON_and_its_sibling_is_not`
+    caught it and refused to publish. **The gate was right and the refusal was the
+    system working.**
+
+    `my_draft_slot` was already special-cased here, with a comment about a
+    hardcoded slot 4 silently undoing a slot change. So this exact class had bitten
+    once before and was fixed ONE KEY AT A TIME. That is why this is a rule about
+    provenance rather than a third named key: the next local ruling to be added
+    would otherwise be wiped in the same silence.
+
+    THE RULE. A key Sleeper supplies is Sleeper's — it wins, because the league's
+    structure is not ours to remember. A key only the committed file has is a
+    decision made here, and a fetch that does not mention it is not evidence that
+    it was revoked. Absence is not a retraction.
+
+    NOTE THE ONE THING THIS GIVES UP, because it is a real trade: if Sleeper stops
+    returning a key it used to return, the last committed value now persists
+    instead of disappearing. That is the safer direction — a stale league setting
+    is visible on the board and in provenance, whereas a silently reverted local
+    ruling looks exactly like a board that was never configured.
+    """
+    out = dict(fetched)
+    for key, value in existing.items():
+        if key not in out:
+            out[key] = value
+    return out
 
 
 def adp_season_stamps(adp_source: str | None, year: int) -> dict:
@@ -392,6 +457,54 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
                            "starting point, not a forecast.",
             })
 
+    # THE CORY-RULED PROJECTION-CORRECTNESS RECORD (2026-08-16, "Don't agree
+    # with timelines we fix now" — DECISIONS #0 DEF TD vocabulary, #000 FP
+    # dropped receptions), stamped BY THE BUILD from what its own scoring path
+    # just did — never retyped counts. Run 31948330004's gate refused every
+    # fresh board because only the promotion's HAND stamp
+    # (provenance.projection_correctness_2026_08_16, committed board) carried
+    # the record and build.py never wrote it; fresh boards run the fixed code
+    # paths (scoring.normalize_def_stat_line inside baseline_from_projections;
+    # adp.recover_fp_dropped_stats inside the FP parse, whose measured diag
+    # already lands at provenance.projections.fantasypros.fp_proj_recovered)
+    # but carried no provenance of it. This stamp is the native home;
+    # test_projection_correctness.py accepts either. The DEF rows are
+    # re-derived here from the SAME payload the baseline was scored from, so
+    # the record cannot disagree with the board it rides.
+    from scoring import (normalize_def_stat_line as _pc_norm,   # noqa: E402
+                         score_stat_line as _pc_score)
+    _pc_rows = (projections if PROJECTION_PROVENANCE.get("source") == "sleeper_projections"
+                else stats)
+    _pc_def = []
+    for _pc_pid, _pc_line in (_pc_rows or {}).items():
+        if str(_pc_pid).isdigit():
+            continue        # team defenses only — Sleeper keys DSTs by team code
+        _pc_stats = (_pc_line.get("stats")
+                     if isinstance(_pc_line, dict) and "stats" in _pc_line else _pc_line)
+        if not isinstance(_pc_stats, dict):
+            continue
+        _pc_old = _pc_score(_pc_stats, cfg["scoring"])
+        _pc_new = _pc_score(_pc_norm(_pc_stats), cfg["scoring"])
+        if _pc_new != _pc_old:
+            _pc_def.append({"team": str(_pc_pid),
+                            "old": round(_pc_old, 2), "new": round(_pc_new, 2)})
+    PROJECTION_PROVENANCE["projection_correctness"] = {
+        "ruling": "Cory 2026-08-16: 'Don't agree with timelines we fix now'",
+        "date_fixed": "2026-08-16",
+        "def_td_vocabulary": {
+            "algorithm": "scoring.normalize_def_stat_line (DEF_PROJ_TD_ALIASES, "
+                         "aggregate-wins / components-sum)",
+            "def_rows_corrected": sorted(_pc_def, key=lambda r: r["team"]),
+        },
+        "fp_dropped_stats": {
+            "algorithm": "adp.recover_fp_dropped_stats (rec_rec receptions, 2pt_tds)",
+            "diag_home": "provenance.projections.fantasypros.fp_proj_recovered",
+        },
+    }
+    if _pc_def:
+        print(f"  projection-correctness: DEF TD vocabulary corrected "
+              f"{len(_pc_def)} rows (stamped in provenance.projections)")
+
     # TEAM -> BYE WEEK, derived from the pool itself. Sleeper populates
     # metadata.bye_week on only SOME players per team, but a bye belongs to the
     # TEAM, so one populated player is enough to fix it for the whole roster. Most
@@ -524,8 +637,21 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             ADP_PROVENANCE["fantasypros"] = {"error": f"{type(fpx).__name__}: {fpx}"}
             print(f"  ! FantasyPros anchor skipped ({type(fpx).__name__}: {fpx}); FFC stands")
 
+        # `projections=baseline` IS LOAD-BEARING, NOT A CONVENIENCE. The deep-pool
+        # ordering inside apply_with_fallback used to read `p["proj_mean"]`, which
+        # is not assigned until `projections.blend()` fifty lines BELOW this call
+        # — so it was empty on every build and all 348 fallback players got the
+        # identical unprojected sentinel. `baseline` is computed at :365 and is
+        # the same quantity in the same scoring, available here. Passing it is
+        # what makes the ordering actually run.
+        #
+        # It cannot simply be deferred until after blend(): `raw_adp` is copied
+        # from `adp` at :571, still above blend, so an ordering applied later
+        # would never reach raw_adp — which is the field the acceptance test
+        # reads and the one a stale-ordering bug hides in.
         ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
-            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n))
+            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n,
+            projections=baseline))
         # apply_with_fallback hardcodes adp_source='ffc' in its provenance; the per-player
         # rows already carry the true source, so correct the top-level label to the real
         # primary now (it drives the War Room's "priced by" banner).
@@ -572,8 +698,62 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         p["consensus_rank"] = p["raw_adp"]
         p.update(adp_season_stamps(p.get("adp_source"), adp_year))
 
+    # ── THE SCORING GAP, MEASURED WHERE THE STAT LINES STILL EXIST ──────────
+    #
+    # Our league scores pass_td 6 / pass_int -2; the ADP that prices this board
+    # comes from a scoring=HALF consensus — 4 and -1. So `proj_mean` knows a
+    # quarterback is worth more here and every ADP-anchored quantity does not.
+    # That is a candidate mechanism for a deviation we have already measured 18
+    # of 18 times, and it had no number attached to it.
+    #
+    # HERE because the raw payload exists exactly once. A built board carries
+    # only already-scored points, so the difference between two scorings is not
+    # recoverable downstream — the measurement has to happen while `projections`
+    # is still in hand. It fits nothing and changes no price.
+    try:
+        PROJECTION_PROVENANCE["scoring_gap_vs_adp_market"] = lab_scoring_gap.measure(
+            projections, cfg["scoring"], players)
+    except Exception as exc:  # noqa: BLE001 — a measurement must never fail a build
+        PROJECTION_PROVENANCE["scoring_gap_vs_adp_market"] = {
+            "measured": False, "why": f"{type(exc).__name__}: {exc}"}
+
     opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
     board = proj_mod.blend(players, baseline, opportunity, cfg)
+
+    # ── THE FIELD NAMED AFTER ONE SOURCE WAS GATED ON A SECOND ──────────────
+    #
+    # `proj_sleeper` used to be stamped ONLY inside the FantasyPros block below,
+    # so a player FP missed lost his Sleeper number from every surface that reads
+    # the per-source columns. app.js:593 named this trap in prose — "'does this
+    # player have a Sleeper projection' cannot be answered by the field called
+    # proj_sleeper" — and left it standing. Measured on the shipped board while
+    # building the blend study (draft/audit/proj_mean_blend_2026-08-16.md):
+    # **77 rows** carried a real Sleeper projection with `proj_sleeper` absent,
+    # and it is not a tail problem —
+    #
+    #   · consensus.js averages whatever per-source fields are present, so those
+    #     rows rendered our own model ALONE under the raw-projection label.
+    #     Kenneth Walker (ADP 17, a keeper) displayed 171.2 where Sleeper says
+    #     225.5 — a 54-point understatement on a second-round player, labelled
+    #     "Our model proj" on the war room six days before the draft.
+    #   · memberweek.js derives the member-facing WIN ODDS from proj_sleeper and
+    #     correctly refuses a starter it thinks Sleeper does not project. It was
+    #     refusing on players Sleeper projects fine.
+    #
+    # Stamped here, from the SAME value the old line used (`proj_baseline`, raw
+    # and unmodelled), independent of any other source. The FP block below keeps
+    # its own assignment — it is now a no-op on these rows, and leaving it means
+    # this fix cannot be undone by an edit to FP's branch.
+    #
+    # ONLY WHERE SLEEPER ACTUALLY PROJECTED HIM. `proj_baseline` falls back to
+    # projections._rank_fallback (an ADP decay) when Sleeper has no number, and
+    # stamping THAT as `proj_sleeper` would replace a missing value with a
+    # fabricated one wearing a source's name — absent is not zero, and it is not
+    # a guess either. `baseline` is the pre-fallback truth and is still in scope
+    # here, which is why the stamp belongs at this line and not inside blend().
+    _sleeper_stamped = attach_sleeper_column(board, baseline)
+    PROJECTION_PROVENANCE["sleeper_column_attached"] = _sleeper_stamped
+    print(f"  projections: Sleeper raw column on {_sleeper_stamped} players")
 
     # SECOND PROJECTION SOURCE (C3 real consensus). The projection column is a check
     # on our OWN machinery, and a single-source check can be wrong in the same
@@ -610,29 +790,292 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
-    # ── THE INACTIVE PRUNE IS WRITTEN AND HELD, NOT ABANDONED ───────────────
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL — is attached AFTER the activity
+    # prune below, not here beside the other two sources. See the block after
+    # the prune for why (population reproducibility — runs 31949909332 and
+    # 31950441042, 2026-08-16).
+
+    # ── PLAYERS WHO HAVE NOT PLAYED A DOWN IN TWO YEARS ─────────────────────
     #
-    # `board_activity.dormant` identifies 1,158 rows nobody in the system expects
-    # to play in 2026 — Tom Brady, Brees, Gronkowski, Zeke, Thielen, three
-    # retired kickers. Dropping them here is correct and was verified not to move
-    # anything actionable: 0 ranked inside 150, 0 with positive VORP, 0 inside the
-    # relevant board, 0 market-priced, 0 projected, 0 rookies, 0 DEF.
+    # Tom Brady, Drew Brees, Gronkowski, Edelman, Antonio Brown, Fitzgerald,
+    # Todd Gurley and Marshawn Lynch were all on the 2026 board. `load_players`
+    # gates on `p.get("active") is False`, and Sleeper leaves `active` UNSET for
+    # much of what it lists — `None is False` is False, so a null sails through.
+    # The only other gate is `search_rank`, which Sleeper never retires; Brady's
+    # is 74, so no rank ceiling would have caught him either.
     #
-    # WHAT I VERIFIED WAS DECISIONS, NOT DEPENDENTS, and that gap is why it is
-    # held. Simulating the pruned board against the suite turned FIVE tests red:
-    # the crosswalk cases lose their same-name/same-position hazard entirely
-    # (Frank Gore Sr and Jr are both dormant, and no collision survives),
-    # waiver_replacement's cells move with the board size, and two of my own
-    # assertions require dormant rows to still exist.
+    # HERE, NOT IN `load_players`, because this is the first point where both a
+    # market ADP and a projection exist — and those are the two exemptions that
+    # stop this deleting somebody real. Run it earlier and 7 rows FFC actually
+    # prices go with it.
     #
-    # Every one of those is a fixture depending on the board containing what the
-    # prune removes, and each needs re-basing onto a planted hazard rather than a
-    # live one. That is the work, and shipping the prune before it is done would
-    # turn main red at the 08:00 rebuild for a change working exactly as intended.
+    # The evidence is `nflverse_weekly_points_*.json`: did this player score in a
+    # real NFL game in 2024 or 2025. That is a MEASUREMENT, where `active` is
+    # metadata that can be left unset. `board_activity` owns the conditions and
+    # every exemption, and is IMPORTED rather than reimplemented so there is one
+    # definition of dormant instead of two that drift.
     #
-    # The guarantee stands either way and is NOT held: `test_board_activity`
-    # asserts no dormant row reaches a rank, a VORP or the relevant board, which
-    # is the property that matters whether or not they are pruned.
+    # It REFUSES rather than pruning when the stores cannot be read: an absence
+    # of evidence must never read as evidence of absence, and a build that
+    # quietly dropped half the board because an artifact moved would be far worse
+    # than one carrying eight retired players.
+    #
+    # ── HELD 08-13, RESTORED 08-14, AND WHAT CHANGED IS EVIDENCE ────────────
+    #
+    # C wrote this, then held it: the blast radius had been verified on
+    # DECISIONS but not on DEPENDENTS, and simulating it turned five tests red.
+    # That was the right call and the reason it is un-held is that every one of
+    # those reds is now measured away rather than argued away — on a real 683-row
+    # pruned board the python suite runs 1,848 passed / 0 failed, and the last
+    # blocker was a LIVE DEFECT (waiver_replacement priced the 2023-25 wire
+    # through the 2026 board, moving TE 6.30 -> 3.20 under the prune) fixed at
+    # the root by `player_positions.json`.
+    #
+    # I re-verified the JS half, which did not exist when C simulated it: on the
+    # pruned board every one of Cory's twelve picks still scores 536+ candidates
+    # and renders 3 strategy directions (2 at his last), and the board-size
+    # assertions hold — 616 byes and 683 names, both against floors of 500.
+    #
+    # AND IT DOES SOMETHING NOBODY MEASURED, WHICH IS WHY IT IS WORTH LANDING
+    # BEFORE THE DRAFT RATHER THAN AFTER. Cory: *"The search for player tool is
+    # not working and not convenient."* 165 of the dropped rows share a SURNAME
+    # with a top-150 player, so on the clock "jones" returns 24 hits and
+    # "williams" 26, with Dalvin Cook, Jared Cook, Rohan Jones and Tanner Brown
+    # sitting among the men he can actually take. It also removes the board's
+    # only same-name/same-position collision (Frank Gore Sr and Jr) and both
+    # duplicate names — the "listed twice" hazard, at the root.
+    # ZERO draftable rows are lost at any position (`adp <= 225`).
+    #
+    # The guarantee test stays either way and that is deliberate: the prune can
+    # be reverted, skipped by its own exception guard, or refused because the
+    # stores moved, and in each of those cases the dormant rows are back.
+    # `test_board_activity` asserts no dormant row reaches a rank, a VORP or the
+    # relevant board — a property that must hold whether or not this ran.
+    # Snapshot the PRE-prune board for the position record below. The record's
+    # own contract says "written from the board BEFORE any filter", but as
+    # first coded it iterated `board` AFTER the prune reassigned it — so a
+    # player seen for the FIRST time on a board that also prunes him would
+    # never enter the union, exactly the row the wire measurement needs.
+    # (2026-08-15 data audit; test_data_assumptions.py pins the contract.)
+    _pre_prune_board = list(board)
+    try:
+        _act = board_activity.dormant({"players": board})
+        if _act["status"] == "measured" and _act["n"]:
+            _drop = {str(p.get("player_id")) for p in _act["rows"]}
+            before = len(board)
+            board = [p for p in board if str(p.get("player_id")) not in _drop]
+            print(f"  inactive: dropped {before - len(board)} player(s) with no "
+                  f"scored week in {_act['seasons_read']} — not rookies, not "
+                  f"market-priced, not projected ({len(board)} remain)")
+        elif _act["status"] != "measured":
+            print(f"  ! inactive filter NOT APPLIED — {_act['note']}")
+    except Exception as _ax:  # noqa: BLE001 — a hygiene filter is never a build dependency
+        print(f"  ! inactive filter skipped ({type(_ax).__name__}: {_ax}); "
+              f"the board keeps every row it had")
+
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL, own_v6 since 2026-08-16 (Cory:
+    # "YES on V6", upgrading his same-day v4 acceptance; v6 = v4's QB arm +
+    # v5's component arms, cleared the REC-3 bar at all four positions: beat
+    # both naive baselines, both metrics, held-out 2025). Same
+    # additive pattern as FantasyPros above: attach alongside, never a build
+    # dependency, never touches proj_mean/proj_baseline/VORP/ranking — the
+    # promotion swapped the ALGORITHM behind the labeled third-opinion column,
+    # not its role; entering proj_mean's composition stays blocked on the
+    # January 2027 Sleeper grade (REC-2). The v6 path reads committed stores
+    # (zero egress, unlike v1's live fetches). Coverage: QB/RB/WR/TE with
+    # prior-season NFL production; rookies and K/DEF carry no proj_ownmodel —
+    # same "absent, not zero" discipline as proj_feed.js.
+    #
+    # AFTER THE ACTIVITY PRUNE, DELIBERATELY (2026-08-16, runs 31949909332 and
+    # 31950441042): computed before the prune, the model's population was the
+    # FULL draftable pool (1,863 rows), whose ~90 later-pruned 2024/25
+    # producers entered the v2 OLS fit and v5's league-efficiency/availability
+    # means — so every published value depended on rows the published board no
+    # longer carries, and NO recompute from the artifact could reproduce the
+    # column (the gate's soundness test measured 352 mismatching rows against
+    # both honest artifact populations; reproduced offline at 351 by
+    # simulating the pre-prune pool). Here the population is exactly the rows
+    # the board publishes — players + kept_players, the keeper split being
+    # below — so the column is auditable from the artifact alone, which is
+    # also the population class the promotion's accepted hand-attach used.
+    # The prune never reads proj_ownmodel (dormant() judges market/projection/
+    # rookie/keeper), so ordering it first changes nothing the prune sees; and
+    # if the prune ever refuses and the full board ships, this population IS
+    # that board, so the reproducibility contract holds on that arm too.
+    try:
+        from own_projections import compute_own_projections, attach_own_model
+        own_proj, own_diag = compute_own_projections(board, cfg, season=year_n)
+        PROJECTION_PROVENANCE["own_model"] = own_diag
+        attached_own = attach_own_model(board, own_proj)
+        PROJECTION_PROVENANCE["own_model_attached"] = attached_own
+        # The ALGORITHM NAME comes from the diag (own_projections.py stamps
+        # provenance["algorithm"]), never typed here: this line said "(own_v6)"
+        # verbatim, which is one promotion away from lying in the build log —
+        # the same class as the FFC footer credit (2026-08-10). Surfaces that
+        # name the algorithm read provenance; so does the log.
+        print(f"  projections: own model ({own_diag.get('algorithm', '?')}) "
+              f"3rd source on {attached_own} players")
+    except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
+        PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
+        print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
+
+    # ── ROOKIE CAPITAL PRIOR — Cory's take-a-swing ruling, 2026-08-17 ──────
+    # The own-model column above is walk-forward and carries NO rookie (0 of
+    # 153). The preregistered Prior(pos, capital-bucket) CLEARED its 25% bar
+    # on the 3-season all-seats replay (+25.1 pooled optimal = 38% of the
+    # Cory gap, realistic-arm league position 2/10 -> 4/10 —
+    # league_benchmark_2026-08-16.md §4), and sat gated on Cory's recorded
+    # approval. He gave it, verbatim in league_config's rookie_capital_prior
+    # key (preserved across rebuilds by preserve_local_rulings), so the fill
+    # runs IN THE BUILD — the one-shot applier's patch died at every nightly
+    # rebuild, which is exactly the erasure class preserve_local_rulings
+    # exists for, applied one level down. Same additive discipline as the
+    # own-model attach: proj_mean/VORP/ranks untouched; only null
+    # proj_ownmodel on years_exp==0 skill players gains a value.
+    _rcp = (cfg.get("rookie_capital_prior") or {})
+    if _rcp.get("enabled"):
+        try:
+            sys.path.insert(0, str(HERE / "tools"))
+            from apply_rookie_prior_own_model_2026 import fill_players
+            # `board` HERE is the players LIST (load_players scope), not the
+            # artifact dict — board["players"] threw TypeError on the first CI
+            # build, the by-design except swallowed it into a skip line, and
+            # the ruled layer silently vanished from the candidate (refused by
+            # the gate's vanished-stamp assertion, run 32079172201 — the gate
+            # caught in CI what this comment now prevents at the source).
+            _n = fill_players(board)
+            PROJECTION_PROVENANCE["rookie_capital_prior"] = {
+                "applied": _n, "ruled": _rcp.get("ruled"),
+                "cory_approval_verbatim": _rcp.get("cory_approval_verbatim")}
+            print(f"  projections: rookie capital prior filled {_n} rookies "
+                  f"(Cory's ruling {_rcp.get('ruled')})")
+        except Exception as rpx:  # noqa: BLE001 — an upgrade, never a dependency
+            PROJECTION_PROVENANCE["rookie_capital_prior"] = {
+                "error": f"{type(rpx).__name__}: {rpx}"}
+            print(f"  ! rookie capital prior skipped ({type(rpx).__name__}: {rpx})")
+
+    # ── NFL DRAFT CAPITAL — AN INFORMATIONAL COLUMN, NOT A PROJECTION ──────
+    #
+    # Cory 2026-08-17: "I'd want to give these players a boost due to upside
+    # potential especially in dead rounds." This is STEP 0 of that and only
+    # step 0 — nothing can key on "first-round rookie WR" until a board row
+    # carries the NFL round. It changes no projection, no ranking and no
+    # weight; draft/tests/test_draft_capital.py proves the attach is additive
+    # rather than trusting this comment.
+    #
+    # WHY IT IS NOT A BOOST YET. The evidence
+    # (draft/audit/rookie_wr_capital_2026-08-17.md, EXPLORATORY) is that rd1
+    # rookie WRs are the only tier NOT MEASURABLY WORSE than streaming the
+    # spot — +7.4 vs the wire on n=15, interval [-19.7, +34.3], which spans
+    # zero. The decisive rows are rd3 (0 of 17 reached 150 pts) and rd4-7
+    # (-99.4, 1 of 55, and that one is Puka Nacua). What that licenses today is
+    # a WARNING about the bottom tiers, not a boost for the top one, and the
+    # boost itself is gated on the harness arm that graded the other ten
+    # strategy ideas.
+    #
+    # Wrapped like the own-model attach above: an upgrade, never a dependency.
+    try:
+        from draft_capital import attach_capital, load_capital
+        cap_diag = attach_capital(board, load_capital(), season=year_n)
+        PROJECTION_PROVENANCE["draft_capital"] = cap_diag
+        _unm = cap_diag["unmatched_this_class"]
+        print(f"  draft capital: attached to {cap_diag['attached']} players "
+              f"({cap_diag['matched_by_id']} by id, "
+              f"{cap_diag['matched_by_name']} by name)")
+        if _unm:
+            # PRINTED, NOT COUNTED. A rookie missing from this column reads to
+            # every consumer as "not a rookie", so the names have to be visible
+            # in the build log where a human will see them.
+            print(f"  ! {len(_unm)} of this year's class did not join the "
+                  f"board by name: {', '.join(_unm)}")
+    except Exception as capx:  # noqa: BLE001
+        PROJECTION_PROVENANCE["draft_capital"] = {"error": f"{type(capx).__name__}: {capx}"}
+        print(f"  ! draft-capital column skipped ({type(capx).__name__}: {capx})")
+
+    # ── LATE-SEASON TRAJECTORY (F7) — THE ONE MEASURED 50/50 TIE-BREAKER ───
+    #
+    # edge_hunt_2026-08-16 §3: of nine pick-time-knowable features graded over
+    # 259 historical near-ties, eight predicted NOTHING; the hotter-prior-
+    # season-finish side won 58.0% of 176 (Wilson 95% CI [.506, .650]; p=.035,
+    # Bonferroni x9=.31 — a lean, not a law). A ruled 2026-08-17: APPLY the
+    # prepared diff — trajectory fact FIRST in verdict.js tiebreakFacts (that
+    # half is PREPARED at draft/patches/tiebreak_facts_bake.patch; a sibling
+    # worktree owns app.js/verdict.js today) plus this board field, its data
+    # plumbing. Informational column, same contract as draft capital above:
+    # no projection, ranking or weight reads it, absence stays absence, and
+    # test_late_trajectory.py proves the attach is additive.
+    try:
+        from late_trajectory import attach_late_trajectory, compute_late_trajectory
+        lt_diag = attach_late_trajectory(board, compute_late_trajectory(year_n))
+        PROJECTION_PROVENANCE["late_trajectory"] = lt_diag
+        print(f"  late trajectory: attached to {lt_diag['attached']} players "
+              f"(F7 from the {year_n - 1} component store)")
+    except Exception as ltx:  # noqa: BLE001 — an upgrade, never a dependency
+        PROJECTION_PROVENANCE["late_trajectory"] = {"error": f"{type(ltx).__name__}: {ltx}"}
+        print(f"  ! late-trajectory column skipped ({type(ltx).__name__}: {ltx})")
+
+    # ── SAY WHAT proj_mean IS, AND SAY IT SEPARATELY FROM WHAT WE DISPLAY ───
+    #
+    # `consensus_sources` was set to 2 inside the FantasyPros branch and never
+    # revisited when the own model became a third column, so the provenance has
+    # been asserting 2 while three sources attach. Nothing reads the field, so
+    # this was never a live defect — but it is a durable record stating
+    # something untrue about the board's own projections, and the name is the
+    # reason: "consensus sources" reads equally as "sources inside proj_mean"
+    # and "sources in the displayed consensus", which are DIFFERENT NUMBERS
+    # (1 and up to 3). A field that answers two questions answers neither.
+    #
+    # So both are now stated explicitly and neither is inferable from the other:
+    #
+    #   proj_mean_composition        what the board RANKS ON. Single-source
+    #                                Sleeper. Entering a blend here stays gated
+    #                                on the January 2027 Sleeper grade (REC-2).
+    #                                Cory OVERRODE that gate on 2026-08-16 for a
+    #                                blend rather than a swap ("A blended
+    #                                proj_mean is a smaller, safer change than a
+    #                                swap ... Let's do it"); the study he ordered
+    #                                RAN and REFUSED — the control arm does not
+    #                                exist, so "does it make the board worse" is
+    #                                unanswerable, and all five coverage policies
+    #                                failed the preregistered rookie-bloc veto.
+    #                                Full verdict:
+    #                                draft/audit/proj_mean_blend_2026-08-16.md.
+    #   display_consensus_sources    how many raw columns consensus.js can
+    #                                average. PER POSITION, because it is not
+    #                                uniform and the uniform number is the lie:
+    #                                K and DEF are Sleeper-only BY NECESSITY —
+    #                                FantasyPros' feed does not cover them and
+    #                                the own model never has — and NO ROOKIE at
+    #                                any position carries three.
+    _cov: dict = {}
+    for _p in board:
+        _pos = _p.get("position") or "?"
+        _c = _cov.setdefault(_pos, {"n": 0, "sleeper": 0, "fantasypros": 0, "own": 0})
+        _c["n"] += 1
+        _c["sleeper"] += int(_p.get("proj_sleeper") is not None)
+        _c["fantasypros"] += int(_p.get("proj_fantasypros") is not None)
+        _c["own"] += int(_p.get("proj_ownmodel") is not None)
+    PROJECTION_PROVENANCE["proj_mean_composition"] = {
+        "sources": ["sleeper"],
+        "formula": "sleeper_baseline * (1 + opportunity_adj)",
+        "blended": False,
+        "gate": "REC-2 (January 2027 Sleeper grade)",
+        "override_ruled": "Cory 2026-08-16 — for a BLEND, not a swap",
+        "override_outcome": "REFUSED — draft/audit/proj_mean_blend_2026-08-16.md",
+    }
+    PROJECTION_PROVENANCE["display_consensus_sources"] = {
+        "note": ("count of RAW per-source columns available to consensus.js — a "
+                 "display sanity check beside the valuation, never an input to "
+                 "proj_mean. Partial and uneven by position; K/DEF are "
+                 "Sleeper-only by necessity."),
+        "by_position": _cov,
+    }
+    # Corrected in place rather than removed: no consumer reads it, and a field
+    # that silently disappears is harder to notice than one that starts telling
+    # the truth. It counts DISPLAY columns, which is the reading the FP branch
+    # meant when it wrote 2.
+    PROJECTION_PROVENANCE["consensus_sources"] = max(
+        [1] + [1 + int(c["fantasypros"] > 0) + int(c["own"] > 0) for c in _cov.values()])
 
     # ── THE POSITION RECORD IS **NOT** HELD, AND THAT IS DELIBERATE ─────────
     #
@@ -656,7 +1099,7 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         _prev = json.loads(_pp.read_text())if _pp.exists() else {}
         _pos = dict(_prev.get("positions") or {})
         _added = 0
-        for _p in board:
+        for _p in _pre_prune_board:
             _q = _p.get("position")
             if _q and str(_p.get("player_id")) not in _pos:
                 _pos[str(_p["player_id"])] = _q
@@ -792,12 +1235,59 @@ def load_opportunity(cfg: dict, offline: bool) -> dict:
         weekly = None
         # Record the shape we actually received. The audit's point: this code had
         # never run against a real response, and a schema drift would be silent.
+        OPPORTUNITY_PROVENANCE["pbp_seasons_requested"] = list(seasons)
         try:
             OPPORTUNITY_PROVENANCE["pbp_columns"] = sorted(map(str, pbp.columns))[:200]
             OPPORTUNITY_PROVENANCE["pbp_rows"] = int(len(pbp))
             print(f"  pbp: {len(pbp)} rows, {len(pbp.columns)} columns")
         except Exception:  # noqa: BLE001 — diagnostics must never break the build
             pass
+        # ── WHICH SEASONS CAME BACK, READ FROM THE FRAME ─────────────────────
+        #
+        # `seasons` above is what we ASKED FOR. Six fields on every board row —
+        # target_share, wopr, opportunity_share/_z/_adj, games_expected — are
+        # priors built from whatever actually arrived, and they print beside
+        # injury_status as if they were current numbers. Until now the artifact
+        # recorded only `pbp_rows`, so which seasons produced them was an
+        # inference from a row count.
+        #
+        # THAT INFERENCE WAS DOABLE AND C DID IT — 2024 (49492) + 2025 (48771) =
+        # 98263, matching the board exactly (draft/backtest/nflverse_pbp_census.json).
+        # But the nearest competing pair, 2022+2025, is only 58 rows away, so an
+        # upstream revision that size would make the count identify the WRONG
+        # pair rather than fail to match. And it is not hypothetical that a
+        # season can go missing: `import_weekly_data` 404s for 2025 in this
+        # environment, so a neighbouring nfl_data_py call has demonstrably
+        # returned less than it was asked for.
+        #
+        # So it is READ, not inferred, and the source of the reading is declared
+        # — a field that is silently absent reads exactly like one that agrees.
+        try:
+            if "season" in pbp.columns:
+                by_season = pbp["season"].value_counts().to_dict()
+                src = "frame.season"
+            else:  # nflfastR game_id is "<season>_<week>_<away>_<home>"
+                by_season = pbp["game_id"].astype(str).str.slice(0, 4).value_counts().to_dict()
+                src = "frame.game_id-prefix"
+            rows_by_season = {int(k): int(v) for k, v in by_season.items()}
+            observed = sorted(rows_by_season)
+            OPPORTUNITY_PROVENANCE["pbp_seasons_observed"] = observed
+            OPPORTUNITY_PROVENANCE["pbp_rows_by_season"] = dict(sorted(rows_by_season.items()))
+            OPPORTUNITY_PROVENANCE["pbp_seasons_source"] = src
+            if observed != sorted(seasons):
+                # NOT fatal — a build with one season of priors is still better
+                # than none — but it must never be silent, because the six
+                # fields keep printing with the same confidence either way.
+                OPPORTUNITY_PROVENANCE["pbp_seasons_mismatch"] = True
+                print(f"  ! pbp: asked for {sorted(seasons)}, RECEIVED {observed} "
+                      f"— opportunity priors rest on the received set")
+            else:
+                OPPORTUNITY_PROVENANCE["pbp_seasons_mismatch"] = False
+                print(f"  pbp seasons: {observed} (rows {rows_by_season})")
+        except Exception as exc:  # noqa: BLE001 — diagnostics never break the build
+            # Absence would read as agreement. Say why instead.
+            OPPORTUNITY_PROVENANCE["pbp_seasons_source"] = (
+                f"unreadable — {type(exc).__name__}: {exc}")
         metrics = proj_mod.opportunity_metrics(
             pbp, weekly, seasons, cfg.get("recency_weights", [0.7, 0.3]))
         OPPORTUNITY_PROVENANCE["status"] = "ok"
@@ -1072,7 +1562,13 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
         except Exception as exc:  # noqa: BLE001 — profiles still build, on the proxy path
             print(f"  ! historical ADP unavailable ({exc}); manager market metrics stay proxied")
 
-    profiles = managers_mod.build_profiles(drafts, players_db, historical_adp=hist)
+    # `season_now` has been a build_profiles parameter since it was written and
+    # was never passed, so the rookie metric had no way to ask "was he a rookie
+    # AT THAT DRAFT" and fell back to today's years_exp — which pinned it at 0.0
+    # for every manager (register E13). Supplying it is the whole fix.
+    profiles = managers_mod.build_profiles(
+        drafts, players_db, historical_adp=hist,
+        season_now=int(cfg.get("season") or time.gmtime().tm_year))
     proxied = [p["name"] for p in profiles.get("managers", {}).values()
                if (p.get("reach_delta") or {}).get("proxy")]
     if proxied:
@@ -1098,7 +1594,20 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
             series = doc.get("series", []) if isinstance(doc, dict) else (doc or [])
         except (ValueError, OSError):
             series = []
-    series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id)
+    # THE SITUATION TRAVELS WITH THE NUMBER (2026-08-17). Until today this froze
+    # a bare float per player, so a January 2027 grade could have said "we
+    # projected 415.88, he scored 380" and never "he was QB2 carrying a
+    # Questionable tag when we wrote that". Every field in SITUATION_FIELDS is
+    # LIVE STATE — true today and therefore never recoverable for today again —
+    # which is why this could not wait until after the draft.
+    situation = proj_series_mod.situation_from_board(players)
+    # The DISTRIBUTION rides with the projection (2026-08-17). Freezing the mean
+    # alone means a 2027 grade can ask "did the projection hit" and never "was
+    # our ceiling calibrated" — the question that turned out to matter.
+    dist = proj_series_mod.distribution_from_board(players)
+    series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id,
+                                             situation_by_id=situation,
+                                             dist_by_id=dist)
     froze = ["sleeper(%d)" % len(proj_by_id)]
     # SECOND SOURCE, frozen the same day (2026-08-10): the projection-source grade
     # is only clean if EVERY source is frozen preseason, not just Sleeper — a FP
@@ -1109,7 +1618,9 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
     fp_by_id = {str(p["player_id"]): p["proj_fantasypros"]
                 for p in players if p.get("proj_fantasypros") is not None}
     if fp_by_id:
-        series = proj_series_mod.append_snapshot(series, today, "fantasypros", fp_by_id)
+        series = proj_series_mod.append_snapshot(series, today, "fantasypros", fp_by_id,
+                                                 situation_by_id=situation,
+                                                 dist_by_id=dist)
         froze.append("fantasypros(%d)" % len(fp_by_id))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(
@@ -1147,7 +1658,11 @@ def _update_adp_series(artifact: dict, *, today: str, path: Path = ADP_SERIES_PA
         except (ValueError, OSError):
             series = []      # corrupt/missing series starts fresh, loudly below
 
-    series = adp_series_mod.append_snapshot(series, today, adp_by_id)
+    # Same situational capture as the projection freeze (2026-08-17). An ADP
+    # move is only interpretable next to the roster state that caused it.
+    series = adp_series_mod.append_snapshot(
+        series, today, adp_by_id,
+        situation_by_id=proj_series_mod.situation_from_board(players))
     span = adp_series_mod.span_days(series)
 
     stamped = 0
@@ -1234,6 +1749,24 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     available = keepers_mod.adjusted_adp(players, order, cfg, kept_ids)
     available, vorp_diag = vorp_mod.apply_vorp(available, cfg)
     available = vorp_mod.assign_tiers(available)
+
+    # E's sweep-16 finding, ruled at the SOURCE (A, 08-18): kept_players are a
+    # different population from `available` and never pass through apply_vorp,
+    # so they shipped with vorp absent — and engine.js's `(player.vorp || 0)`
+    # turned absent into a confident zero, flipping the keeper-target bar
+    # negative and naming the wrong man on screen at pick 33 ("Zay Flowers
+    # beats Ja'Marr Chase by 17"). The board's own identity (vorp ==
+    # proj_mean − replacement[pos], 682/682 rows) is applied here so every
+    # consumer gets the same number; E's UI-side derivation becomes the
+    # designed no-op fallback. Unknown position stays ABSENT — never a
+    # fallback constant (the || 0 lesson, again).
+    _repl = (vorp_diag or {}).get("replacement_points") or {}
+    for rec in kept_players:
+        if rec.get("vorp") is None:
+            rp = _repl.get(rec.get("position"))
+            pm = rec.get("proj_mean")
+            if rp is not None and pm is not None:
+                rec["vorp"] = round(float(pm) - float(rp), 2)
 
     # GRAB-BY — "stick to value, know when to grab". Per-position EVLW (value lost to
     # waiting one pick) + grab-by pick, aware of MY keepers' filled slots. Forecast
@@ -1357,7 +1890,8 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             # `opportunity_adj` is set only by projections.blend(), in the same
             # statement that applies the adjustment to the projection. It cannot
             # be non-null unless the adjustment actually happened.
-            "opportunity_applied": any(p.get("opportunity_adj") for p in available),
+            "opportunity_applied": any(p.get("opportunity_adj") is not None
+                                       for p in available),
             "opportunity_adj_coverage": round(
                 sum(1 for p in available if p.get("opportunity_adj") is not None)
                 / max(1, len(available)), 3),
@@ -1432,7 +1966,18 @@ def _assert_provenance_matches_data(players: list, artifact: dict) -> None:
     prov = artifact["provenance"]
     claimed = str(prov.get("opportunity_adjustment", "unknown"))
     claims_ok = claimed == "ok"
-    observed = any(p.get("opportunity_adj") for p in players)
+    # `is not None`, NOT truthiness — the same rule _assert_opportunity_coverage
+    # below already states for opportunity_z. Under Cory's ruled
+    # `opportunity_cap: 0.0` blend() runs and writes adj == 0.0 on every
+    # player: the adjustment reached every projection (multiplying by 1+0.0)
+    # and the metrics status is honestly "ok". A truthiness read called those
+    # zeros "never ran" and killed the FIRST build that ever carried the
+    # ruling (run 32042127531 — every earlier nightly had the cap erased back
+    # to 0.15 by the config-rewrite bug, so this line was never exercised at
+    # cap 0). The docstring above this field's writer already said "cannot be
+    # non-null unless the adjustment actually happened" — the code just
+    # didn't test what the comment said.
+    observed = any(p.get("opportunity_adj") is not None for p in players)
 
     prov["opportunity_claimed_ok"] = claims_ok
     prov["opportunity_observed_in_data"] = observed
@@ -1609,6 +2154,7 @@ def main() -> None:
         cfg_raw = si.import_league(args.league_id, keeper_rules=existing.get("keepers"))
         if existing.get("my_draft_slot"):
             cfg_raw["my_draft_slot"] = existing["my_draft_slot"]
+        cfg_raw = preserve_local_rulings(existing, cfg_raw)
         config_schema.save(config_schema.validate(cfg_raw), CONFIG_PATH)
     if not CONFIG_PATH.exists():
         raise SystemExit(f"no league config at {CONFIG_PATH} — run with --league-id first")
@@ -1638,6 +2184,21 @@ def main() -> None:
         _update_proj_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships regardless
         print(f"  ! projection snapshot not updated ({exc})")
+    # WEEKLY ROSTER STATE (2026-08-17). Depth chart and injury designation are
+    # LIVE state — this Tuesday's values, overwritten next Tuesday with no
+    # record the first ones existed. That is exactly why VAR_BACKUP and
+    # VAR_INJURED could not be fitted on 2021-2025 at all: not measured-and-
+    # small, unmeasurable. Nothing recovers those seasons; every season from
+    # here is recoverable only if the capture starts before the state moves.
+    # Non-fatal, like its siblings — the board ships regardless.
+    try:
+        import roster_state as roster_state_mod
+        _rs = roster_state_mod.capture(artifact.get("players") or [],
+                                       artifact["built_at"][:10])
+        print(f"  roster state: {_rs['players']} players, "
+              f"{_rs['snapshots']} snapshots retained")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ! roster state not captured ({exc})")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))

@@ -238,17 +238,75 @@ def adjusted_adp(players: list[dict], order: TruePickOrder, cfg: dict,
 # LOOK LESS VALUABLE -- "he would have lasted regardless" -- so the optimizer
 # systematically UNDERVALUED keepers, and that decision locks 2026-08-20.
 #
-# NOT CLAIMED: that 0.15 is right. C is explicit that 142 of 145 draftable
-# players carry a COMPUTED sd either way, so both formulas are guesses until
-# MFL's published dispersion accumulates. What is claimed is narrower and
-# sufficient: two of them cannot both be right, and the keeper decision was
-# running on the one that was never updated. Matching the engine is the choice
-# that makes the keeper optimizer agree with the board Cory will draft from.
+# ⚠️ "UNTIL MFL'S PUBLISHED DISPERSION ACCUMULATES" — IT ALREADY HAS.
+#
+# This block used to end: "NOT CLAIMED: that 0.15 is right. C is explicit that
+# 142 of 145 draftable players carry a COMPUTED sd either way, so both formulas
+# are guesses until MFL's published dispersion accumulates."
+#
+# Measured on the shipped board 2026-08-14, that premise is false. 219 rows
+# carry a PUBLISHED dispersion (`adp_sd_source` starting "ffc"), and inside pick
+# 150 it is 142 of 146 — the near-inverse of the sentence above. The measurement
+# the comment was waiting for is on the board, so the rule is no longer
+# ungradeable, and "both formulas are guesses" stopped being true before anyone
+# went back to check.
+#
+# GRADED AGAINST IT, fitted / measured by ADP band:
+#
+#     adp   1- 25   n= 22   measured  2.40   fitted  3.00   1.29
+#     adp  25- 50   n= 22   measured  4.25   fitted  5.70   1.27
+#     adp  50-100   n= 49   measured  7.80   fitted 11.10   1.24
+#     adp 100-150   n= 51   measured 12.50   fitted 15.00   1.20
+#     adp 150-400   n= 75   measured 16.10   fitted 15.00   0.93
+#
+# Systematically ~25% WIDE across every band the draft actually happens in, and
+# monotone across four independent bands rather than noisy. An over-wide sd
+# flattens survival, which is the same direction of error the 0.22 rate had.
+#
+# ── THE RATE WAS HELD AT 0.15 UNTIL 2026-08-17; IT NOW SHIPS THE MEASURED
+#    0.11, ON CORY'S RULING (details in the SHIPPED block below). ────────────
+#
+# Rate, two independent estimators over adp 20-200 (n=173):
+#     least-squares slope through origin   0.1083
+#     median of per-player sd/adp          0.1099
+# They agree to 1.5%, so 0.11 is measured rather than chosen. 0.15 was 36%
+# steep. The hold ("source selection under review", 2026-08-14) ended when
+# the ratchet fired on three of four bands in one day against a tightening
+# market and Cory ruled: ship, order the backtest, reserve reversion.
+#
+# THE FLOOR MOVED WITH IT, WHICH THE HOLD ALWAYS REQUIRED. At 0.11
+# the bare linear rule already tracks the market at the top of the board — 1.10
+# against a measured 1.30 at adp 10, 2.20 against 1.95 at adp 20 — so the floor
+# of 3.0, which binds below adp 27, is what makes the 1-25 band read 1.25. Move
+# the rate without it and that band stays mispriced. Measured floor candidates:
+# adp<10 median 1.30, adp<15 median 1.85, min 0.60 across 219 rows.
+#
+# THE CAP IS SEPARATE AND UNDETERMINED: n=30 above adp 200 with a max of 42.3.
+# A first candidate that moved all three made the aggregate WORSE, 1.121 against
+# 1.103, because a median of ratios mixes the capped region with the linear one.
+# That is the "fitted a threshold to a metric I had not justified" error this
+# session already made once and retracted, and it is not being made twice.
+#
+# BLAST RADIUS, MEASURED BEFORE THE CHANGE. The fitted rule only fires where no
+# published sd exists: 119 rows, of which exactly ONE is inside pick 150. This
+# is a deep-pool correction, and it moves nothing about my own twelve picks.
 #
 # test_survival_parity.py pins these against survival.js by PARSING IT, so the
-# next one-sided edit fails a test instead of shipping.
-ADP_SD_FLOOR = 3.0
-ADP_SD_RATE = 0.15
+# next one-sided edit fails a test instead of shipping. `test_adp_sd_measured.py`
+# grades them against the published dispersion, which parity structurally cannot.
+# SHIPPED 2026-08-17 ON CORY'S RULING, verbatim: "SHIP, ORDER BACKTEST AND
+# RESERVE RIGHT TO CHANGE IF BACKTEST SHOWS DIFFERENT DATA." Rate and floor
+# move TOGETHER, as the note above requires. The pair was chosen from the
+# published market, not hand-picked: at rate 0.11, floor 2.0 reads every
+# band at 0.95-1.02x the FFC-published dispersion on the 2026-08-17 board
+# (floor 3.0 left band 1-25 at 1.36x; floor 1.5 overshot it to 0.79x). The
+# rate itself is the 2026-08-14 two-estimator derivation (LSQ 0.1083,
+# median 0.1099, n=173, agreeing to 1.5%). The cap stays untouched — still
+# undetermined, still not being fitted in passing (see the retraction
+# above). The ordered backtest grades 0.15-vs-0.11 survival against the
+# league's own 2023-25 drafts; if it disagrees, this reverts.
+ADP_SD_FLOOR = 2.0
+ADP_SD_RATE = 0.11
 ADP_SD_CAP = 15.0
 
 

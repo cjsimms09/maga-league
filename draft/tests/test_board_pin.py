@@ -185,14 +185,51 @@ def test_THE_RECOVERY_PATH_ACTUALLY_REPRODUCES_THE_PINNED_BYTES():
         return                                    # nothing to pin in this checkout
     sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
                          capture_output=True, text=True).stdout.strip()
+    if not sha:
+        return                                    # not a git checkout — nothing to recover FROM
     raw = (root / path).read_bytes()
     pinned = B.pin(raw, sha, "2026-08-12", path=path)
     rec = subprocess.run(["git", "show", "%s:%s" % (sha, path)], cwd=root,
                          capture_output=True)
     assert rec.returncode == 0, rec.stderr[:200]
-    assert hashlib.sha256(rec.stdout).hexdigest() == pinned["sha256"], (
-        "the pin's own recover_with does not reproduce the pinned bytes")
-    assert len(rec.stdout) == len(raw)
+
+    # THE PREMISE, CHECKED INSTEAD OF ASSUMED — fixed 2026-08-15. This test
+    # blocked the nightly board rebuild twice (runs 39 and 40) and got filed
+    # as "needs live data to diagnose". It didn't. The acceptance gate runs
+    # pytest AFTER build.py rewrites public/draft_data.json and BEFORE the
+    # commit step, so on every night the live fetch actually changed the
+    # board, the working-tree bytes pinned here did not exist at HEAD yet —
+    # and recovery from HEAD "failed" precisely because the rebuild
+    # SUCCEEDED. The CI evidence names the mechanism exactly: the recovered
+    # digest was byte-identical across both failing runs (HEAD's committed
+    # board, unchanged on main) while the pinned digest differed per run
+    # (each night's fresh build). A pin naming HEAD for bytes HEAD does not
+    # contain is a lie, and asserting the recovery of a lie proves nothing
+    # about the recovery path.
+    dirty = subprocess.run(["git", "hash-object", "--", path], cwd=root,
+                           capture_output=True, text=True).stdout.strip() != \
+        subprocess.run(["git", "rev-parse", "%s:%s" % (sha, path)], cwd=root,
+                       capture_output=True, text=True).stdout.strip()
+    if not dirty:
+        # CLEAN TREE — the real contract, unchanged from the original: the
+        # pin's own recover_with instruction reproduces the pinned bytes.
+        assert hashlib.sha256(rec.stdout).hexdigest() == pinned["sha256"], (
+            "the pin's own recover_with does not reproduce the pinned bytes")
+        assert len(rec.stdout) == len(raw)
+    else:
+        # MID-REBUILD (the nightly gate's normal state on a data-refresh
+        # night): the equality contract is untestable, but the run is NOT
+        # vacuous — assert the digest DISCRIMINATES: a pin of bytes that are
+        # genuinely not at HEAD must fail verification against HEAD. That is
+        # the pin system's tamper-evidence doing its job, demonstrated on a
+        # real divergence rather than a synthetic one.
+        assert hashlib.sha256(rec.stdout).hexdigest() != pinned["sha256"], (
+            "the working tree differs from HEAD (hash-object says so) yet the "
+            "recovered bytes hash equal to the pin — the digest is not "
+            "discriminating and the pin proves nothing")
+        print("UNCHECKED (equality contract): %s differs from HEAD — a freshly "
+              "rebuilt board cannot be recovered from history until committed. "
+              "Discrimination arm ran instead." % path)
 
 
 def test_the_pin_series_carries_its_own_field_population():
@@ -236,3 +273,138 @@ def test_a_pin_field_that_NEVER_ARRIVES_is_still_named():
     assert "built_at" in doc["population"]["fields"]
     assert doc["population"]["fields"]["built_at"]["missing"] == 2
     assert "built_at" in doc["population"]["empty"]
+
+
+# ── IS THE BOARD STALE, AND WAS IT REBUILT OR ONLY EDITED? ───────────────────
+#
+# Proven from git on 2026-08-14: three commits to public/draft_data.json with
+# sha256 25b10172 / 2814c6de / 7fa64ad7 — 1,679,767 then 1,648,204 then
+# 1,647,977 bytes — and `built_at` identical at 2026-08-13T23:13:18Z on all
+# three. The board is rebuilt once and then EDITED IN PLACE, so `built_at` alone
+# cannot answer "is this board fresh" and sha256 alone cannot answer "has the
+# pipeline run". The pin already carries both; nothing read them together.
+
+def _pin(day, sha, built_at="2026-08-13T09:20:18Z"):
+    return {"observed_at": day, "sha256": sha, "built_at": built_at,
+            "commit": "c" + sha[:6], "path": "public/draft_data.json"}
+
+
+def test_AN_EDIT_IN_PLACE_IS_NOT_A_REBUILD():
+    """THE CASE THAT WAS MEASURED. Content moved — 136 of 400 player rows, the
+    field being `adp_unordered` — while `built_at` stayed frozen. Reading only
+    `built_at` calls that board unchanged; reading only the digest calls it
+    rebuilt. Neither is true and the difference matters: an edit means somebody
+    changed the artifact, a rebuild means the pipeline ran.
+
+    MUTATION: report `rebuilt` whenever the digest moves — a stalled nightly build
+    reads as healthy for as long as anyone keeps hand-editing the file, which is
+    precisely the morning this was found on."""
+    ser = [_pin("2026-08-12", "aaa"), _pin("2026-08-13", "bbb")]
+    r = B.staleness(ser, today="2026-08-13")
+    assert r["state"] == "edited", r
+    assert r["days_since_rebuild"] is not None
+    assert r["days_since_content_change"] == 0
+
+
+def test_A_REBUILD_IS_RECOGNISED_BY_built_at_ADVANCING():
+    """MUTATION: compare `built_at` for inequality only — a board rebuilt from an
+    older snapshot, or a clock that goes backwards, counts as progress."""
+    ser = [_pin("2026-08-12", "aaa", "2026-08-12T09:00:00Z"),
+           _pin("2026-08-13", "bbb", "2026-08-13T09:20:18Z")]
+    r = B.staleness(ser, today="2026-08-13")
+    assert r["state"] == "rebuilt"
+    assert r["days_since_rebuild"] == 0
+    ser_back = [_pin("2026-08-12", "aaa", "2026-08-13T09:20:18Z"),
+                _pin("2026-08-13", "bbb", "2026-08-12T09:00:00Z")]
+    back = B.staleness(ser_back, today="2026-08-13")
+    assert back["state"] != "rebuilt"
+    # AND THE REBUILD DATE MUST NOT ADVANCE EITHER. The gate caught this: the
+    # state line and the last_rebuild walk are two separate comparisons, and I had
+    # only asserted the first. Mutating the walk to `!=` left the state correct
+    # while the reported rebuild DATE jumped forward on a clock that went
+    # backwards — a survived mutation is a missing assertion, not a spare one.
+    # DATED BY THE BUILD, so the newest build we have SEEN is 08-13T09:20 — the
+    # stamp the 08-12 pin happens to carry. The 08-13 pin's older stamp is the
+    # backwards clock and is not progress.
+    assert back["last_rebuild"] == "2026-08-13", back
+
+
+def test_A_FROZEN_BOARD_REPORTS_ITS_TRUE_AGE():
+    """MUTATION: measure staleness from the last PIN rather than the last CHANGE —
+    the pin runs daily, so `days_since` is always 0 and a board frozen for a week
+    reads as captured this morning. The instrument would then be reporting that
+    itself ran."""
+    # ⚠ FIXTURE CORRECTED: it used the default built_at of 08-13 on pins taken on
+    # 08-08 and 08-09 — a pin carrying a stamp from its own future, which cannot
+    # happen. It also asserted "6 days since rebuild" for a board built the day
+    # before, which was the pin-dating defect enshrined in a test. A board built
+    # on 08-07 and unchanged since we started pinning on 08-08:
+    ser = [_pin("2026-08-08", "aaa", "2026-08-07T09:00:00Z"),
+           _pin("2026-08-09", "aaa", "2026-08-07T09:00:00Z"),
+           _pin("2026-08-13", "aaa", "2026-08-07T09:00:00Z")]
+    r = B.staleness(ser, today="2026-08-14")
+    assert r["state"] == "frozen"
+    # CONTENT age is dated by OBSERVATION — a change can only be placed at the pin
+    # that first saw it — while REBUILD age is dated by the build's own stamp.
+    assert r["days_since_content_change"] == 6      # last CHANGE was before 08-08
+    assert r["days_since_rebuild"] == 7             # built 08-07
+
+
+def test_ONE_PIN_IS_UNMEASURED_not_zero_days_stale():
+    """A single pin has nothing to compare against. Reporting 0 days would make a
+    brand-new archive indistinguishable from a board that changed this morning.
+
+    MUTATION: return zeroes for a one-pin series — the first run of this check
+    always reports perfect freshness, which is the reading it can least afford."""
+    r = B.staleness([_pin("2026-08-13", "aaa")], today="2026-08-14")
+    assert r["state"] == "unmeasured"
+    assert r["days_since_content_change"] is None
+    assert B.staleness([], today="2026-08-14")["state"] == "unmeasured"
+
+
+def test_A_MISSING_built_at_IS_UNKNOWN_not_unrebuilt():
+    """`population()`'s docstring already anticipates a board that stops carrying
+    `built_at` — it yields an explicit null. A null must not be read as "no
+    rebuild happened", which would report a stalled pipeline that is in fact
+    unobserved.
+
+    MUTATION: treat a missing `built_at` as no change — the day the field
+    disappears, this check starts reporting a rebuild failure that nobody can
+    reproduce because the evidence is absent rather than negative."""
+    ser = [_pin("2026-08-12", "aaa", None), _pin("2026-08-13", "bbb", None)]
+    r = B.staleness(ser, today="2026-08-13")
+    assert r["rebuild_measurable"] is False
+    assert r["days_since_rebuild"] is None
+    assert "built_at" in r["note"]
+
+
+def test_A_REBUILD_IS_DATED_BY_WHEN_IT_HAPPENED_not_when_we_noticed():
+    """MY OWN DEFECT, CAUGHT BY SIMULATING TOMORROW'S REPORT ON TODAY'S DATA — and
+    it is the exact class this file's other findings are about: a measurement
+    about the past computed through the present.
+
+    The real numbers. Pins: 08-12 carrying built_at 08-12T09:19, 08-13 carrying
+    08-13T09:20. The nightly rebuild then ran at 08-13T23:13, AFTER that day's pin
+    was taken. So if the 08-14 rebuild never fires, the 08-14 pin STILL carries a
+    built_at that advanced — to 08-13T23:13 — and `last_rebuild` dated by the pin
+    reports **2026-08-14, zero days ago.**
+
+    On the exact morning a rebuild fails, the instrument built to catch a stalled
+    rebuild would report perfect freshness. `observed_at` dates the OBSERVATION;
+    `built_at` dates the BUILD, and the age has to come from the build.
+
+    MUTATION: date the rebuild by the pin's `observed_at` — a stalled nightly
+    reads as zero days old for as long as any earlier rebuild remains the newest
+    one anybody has pinned."""
+    ser = [_pin("2026-08-12", "aaa", "2026-08-12T09:19:29Z"),
+           _pin("2026-08-13", "bbb", "2026-08-13T09:20:18Z"),
+           _pin("2026-08-14", "ccc", "2026-08-13T23:13:18Z")]
+    r = B.staleness(ser, today="2026-08-14")
+    assert r["state"] == "rebuilt"          # a rebuild DID happen between pins
+    assert r["last_rebuild"] == "2026-08-13", r      # ...on the 13th, not the 14th
+    assert r["days_since_rebuild"] == 1, r
+    # AND THE NEXT MORNING IT KEEPS AGEING rather than resetting.
+    ser2 = ser + [_pin("2026-08-15", "ccc", "2026-08-13T23:13:18Z")]
+    r2 = B.staleness(ser2, today="2026-08-15")
+    assert r2["state"] == "frozen"
+    assert r2["days_since_rebuild"] == 2, r2

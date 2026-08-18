@@ -1,0 +1,99 @@
+# TERRITORY: C
+name: FFDP probe — does Fantasy Football Data Pros serve a real per-player ceiling?
+
+# Cory, 2026-08-17: "Fantasy Football Data Pros (FFDP) look at this api for
+# projected ceiling and other stats we could gather and use." Raised directly
+# in the register-4q discussion about where a genuinely per-player,
+# opportunity/age/team-aware ceiling could come from, versus this repo's
+# current historical-error band.
+#
+# WHY THIS IS CHEAP. FFDP is confirmed free, GET-only, NO API KEY REQUIRED —
+# unlike every other external source touched this session (Sleeper,
+# FantasyPros, the-odds-api.com), this needs no credential and no credit
+# budget. The only cost is a few CI minutes.
+#
+# WHAT THIS DOES NOT DO. It does not assume a `ceiling` field exists or
+# guess at exact field names — it scrapes FFDP's own docs page for the
+# endpoints IT advertises, tries those first, falls back to a small declared
+# guess-list only if the scrape finds nothing, and walks whatever JSON comes
+# back for every key name. It commits ONE diagnostic artifact
+# (discovery_ffdp_probe.json) and touches nothing else — no board field, no
+# calibration, no live pipeline.
+#
+# ⚠ MANUAL ONLY, DELIBERATELY. This is a QUESTION, not a feed. If the answer
+# turns out to be ACTIONABLE (a real ceiling field, independent of anything
+# already ingested), the follow-up is new ingest work — not a cron here.
+#
+# DISPATCH FROM `main`. Same push-guard reason as every other fetch workflow
+# this week: a feature-branch dispatch had its verdict discarded on 08-16 and
+# cost a day.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ffdp-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install
+        run: pip install pytest -q
+
+      - name: The decisions are tested before anything is asked
+        run: python3 -m pytest draft/tests/test_discovery_ffdp_probe.py -q
+
+      - name: Probe
+        run: |
+          {
+            echo "## FFDP probe"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/discovery_ffdp_probe.py 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f draft/backtest/discovery_ffdp_probe.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("draft/backtest/discovery_ffdp_probe.json"))
+          print("**%s**" % r.get("verdict"))
+          print("Docs endpoints found: `%s`" % r.get("docs_endpoints_found"))
+          un = r.get("unclassified") or []
+          if un:
+              print("Unclassified field names: `%s`" % "`, `".join(un[:30]))
+          PY
+          fi
+
+      - name: Commit the answer, including a null
+        if: always()
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the answer is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — answer not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/discovery_ffdp_probe.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "FFDP probe: does it serve a real per-player ceiling? [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::error::PROBE ANSWER NOT PUSHED."
+              exit 1
+            fi
+          fi

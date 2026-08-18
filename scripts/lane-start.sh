@@ -142,5 +142,9 @@ say "  Both of today's mis-routings would have been caught by exactly one of the
 say ""
 say "  AN ITEM ADDRESSED TO YOU PREEMPTS YOUR TASK LIST. Handle it, DELETE the line,"
 say "  commit with what you did — then go straight back to what you were doing."
+say ""
+say "  TRIAGE THE QUEUE, DON'T READ IT TOP-TO-BOTTOM:  bash scripts/inbox.sh ${LANE:-A}"
+say "  (decisions first, sender-resolved receipts batch-cleared, then work by age;"
+say "   your outbox — items you routed that nobody closed — is inbox.sh ${LANE:-A} --sent)"
 say "───────────────────────────────────────────────────────────────────────"
 exit 0

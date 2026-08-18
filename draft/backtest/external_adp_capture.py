@@ -43,6 +43,9 @@ from pathlib import Path
 import field_population as FP
 
 SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.json"
+#: Anchored the same way as SERIES rather than to a module-local `HERE`, which
+#: this module does not define — see `_draftable_picks`.
+CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
 
 #: The fields a snapshot is SUPPOSED to carry, declared rather than derived. Derived
 #: from the rows, a field that stops being written simply stops existing and the
@@ -51,6 +54,32 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: A day-over-day drop of at least this many players earns a note. Declared, not
 #: tuned: ~5% of a ~700-player board, the size of the drop that prompted this.
 ROW_DROP_FLOOR = 30
+
+#: A day keeping less than this share of the previous day's board is a TRUNCATED
+#: FETCH, not the feed moving, and it is refused BEFORE the write.
+#:
+#: DECLARED FROM THE FEED'S OWN OBSERVED MOVEMENT, not fitted to a failure: the
+#: largest real day-over-day loss this archive has recorded is 36 of 708 rows,
+#: 5.1% (`row_drop_note`, 2026-08-13). Half is ten times that, so this cannot
+#: fire on drift — only on a board that mostly did not arrive.
+#:
+#: ⚠ IT IS A SEPARATE CONSTANT FROM `ROW_DROP_FLOOR` ON PURPOSE. That one is a
+#: REPORTING threshold inside `coverage`, it runs AFTER the write, and 30 rows is
+#: ordinary here. Reusing it would refuse a normal Tuesday.
+COLLAPSE_KEEP_FRACTION = 0.5
+
+#: What share of players may have a LOWER cumulative draft count than yesterday
+#: before the two days stop being one cumulative series.
+#:
+#: ⚠ DECLARED, NOT DERIVED, AND SAYING SO IS THE POINT. This archive holds ONE
+#: day of dispersion, so no day-over-day count movement has ever been observed
+#: and there is nothing to derive from. The bar is set from the only related
+#: figure that HAS been measured: MFL's own aggregation lag put 25 of 681 players
+#: (3.7%) above `total_drafts` on 2026-08-14, so 5% sits just above the largest
+#: same-day inconsistency the feed has shown. `cumulative_break` reports the
+#: OBSERVED share every day precisely so this can be re-derived from real
+#: movement once there is some.
+CUMULATIVE_FALL_TOLERANCE = 0.05
 
 SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
                    "source_note", "dispersion"]
@@ -92,6 +121,21 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
         # DISPERSION, BESIDE THE MEAN AND NOT INSIDE IT.
         #
         # MFL publishes minPick/maxPick/draftSelPct per player. The board's
+        # MEASURED ON THE FIRST REAL SPREAD, 2026-08-14, AND IT CORRECTS
+        # THIS JUSTIFICATION. Inside the draft range the board's `adp_sd` is NOT a
+        # clamp: it is FFC-PUBLISHED for 142 of the 146 players priced inside pick
+        # 150, with 38 distinct values across adp 0-50, 41 across 50-100 and 47
+        # across 100-150. The saturation is real but lives ENTIRELY BEYOND PICK
+        # 150 — 348 rows at 30.00 (`fallback-clamped`) and 122 at 15.00 — which is
+        # the deep pool A's own comment calls a place where "nothing reaches a
+        # decision today".
+        #
+        # So the capture is still worth having — a day's spread is perishable, MFL
+        # is a genuine second opinion, and the deep pool IS content-free — but NOT
+        # for the reason written below, which was true of the board as a whole and
+        # false of the part that drafts get made from. Kept unedited so the
+        # correction is visible rather than tidied away:
+        #
         # `adp_sd` is a clamp that saturates in both directions — 15.00 for every
         # player at adp >= 100, and exactly 30.00 for the whole search_rank
         # fallback by construction — so it carries no player-specific information
@@ -219,7 +263,107 @@ _D_N = {2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326, 6: 2.534, 7: 2.704, 8: 2.847,
 #: Below this selection rate the observed min/max is cut by drafts simply ENDING
 #: before the player was taken, so the range understates. Declared from the shape
 #: of the thing rather than tuned: at 50% the median draft did not take him.
+#:
+#: ⚠ 50.0 IS ON THE PERCENT SCALE, which is an ASSUMPTION about MFL's feed and not
+#: yet a measurement. See `sel_pct_units`.
 TRUNCATION_SEL_PCT = 50.0
+
+#: How far the implied rate may sit from the published one and still be called the
+#: same quantity. MFL publishes `draftSelPct` rounded to whole percents ("70"), so
+#: at a small denominator the rounding alone moves the ratio by several percent —
+#: this is a UNITS test (1x vs 100x), not a precision one, and the band is wide on
+#: purpose so it answers the question it was built for and no other.
+SEL_PCT_UNITS_TOLERANCE = 0.15
+
+
+def sel_pct_units(snapshot: dict) -> dict:
+    """Is `sel_pct` a PERCENT or a FRACTION? Answered from the day, not assumed.
+
+    THE ONE THING ABOUT THE FEED WE READ BUT NEVER CHECKED. `TRUNCATION_SEL_PCT`
+    is 50.0 and the note prints `%.1f%%`, both of which read `draftSelPct` as a
+    whole percent. That reading comes from ONE row quoted in a comment — no
+    captured MFL response in this repo carries the field, and MFL is unreachable
+    from here (the proxy 403s CONNECT), so it could not be verified before the
+    first real capture.
+
+    IT IS VERIFIABLE FROM WHAT WE ALREADY STORE, which is the point. The snapshot
+    carries `drafts` (selections) per player and `total_drafts` for the report, so
+    the rate is DERIVABLE — and a derived rate against a published one settles the
+    scale on the first day rather than never.
+
+    WHY THIS IS A LABEL CHECK AND NOT AN ALARM, stated so nobody reads it as worse
+    than it is. `sd` does not use `sel_pct` at all: the estimator is
+    `(max - min) / d_n`. A wrong scale mislabels `truncated` and prints a wrong
+    figure in a note; it does not move a single number anyone drafts on. And the
+    raw value is archived verbatim, so the interpretation can be corrected later
+    over every day already captured. That is the design working — capture raw,
+    interpret afterwards — and this makes the interpretation checkable instead of
+    permanent.
+
+    FOUR ANSWERS, and "unmeasured" is one of them rather than a quiet pass:
+
+      percent      the published figure matches drafts/total_drafts * 100
+      fraction     it matches drafts/total_drafts — every threshold here is 100x
+                   wrong and every row would read as truncated
+      disagrees    neither. `draftSelPct` is not the selection rate we think it
+                   is, and NOTHING should be inferred from it until it is known
+      unmeasured   no dispersion, no `total_drafts`, or no row with both — the
+                   two days before the parser kept the spread are exactly this,
+                   and they are not evidence of anything
+    """
+    out = {"verdict": None, "rows": 0, "median_ratio": None,
+           "expected_percent": True, "note": None}
+    disp = (snapshot or {}).get("dispersion") or {}
+    total = (snapshot or {}).get("total_drafts")
+    try:
+        total = float(total)
+    except (TypeError, ValueError):
+        total = None
+    if not disp or not total or total <= 0:
+        return dict(out, verdict="unmeasured",
+                    note="no dispersion or no total_drafts on this day — nothing "
+                         "to derive the rate from")
+
+    ratios = []
+    for rec in disp.values():
+        sel, n = (rec or {}).get("sel_pct"), (rec or {}).get("drafts")
+        try:
+            sel, n = float(sel), float(n)
+        except (TypeError, ValueError):
+            continue
+        # A player with no selections cannot imply a rate, and a published zero
+        # divides into nothing. Both are skipped rather than counted as agreement.
+        if n <= 0 or sel <= 0:
+            continue
+        ratios.append(sel / (n / total * 100.0))
+    if not ratios:
+        return dict(out, verdict="unmeasured",
+                    note="no row carried both a selection count and a published "
+                         "rate — the scale is still unestablished")
+
+    from statistics import median
+    med = median(ratios)
+    out = dict(out, rows=len(ratios), median_ratio=med)
+    if abs(med - 1.0) <= SEL_PCT_UNITS_TOLERANCE:
+        return dict(out, verdict="percent",
+                    note="published rate matches drafts/total_drafts x 100 across "
+                         "%d rows — TRUNCATION_SEL_PCT=%.1f is on the right scale"
+                         % (len(ratios), TRUNCATION_SEL_PCT))
+    if abs(med - 0.01) <= SEL_PCT_UNITS_TOLERANCE / 100.0:
+        return dict(out, verdict="fraction", expected_percent=False,
+                    note="published rate is a FRACTION, not a percent — "
+                         "TRUNCATION_SEL_PCT=%.1f is 100x too high, so every row "
+                         "reads as truncated and every note prints a rate 100x "
+                         "too small. The stored spread is unaffected: `sd` does "
+                         "not use sel_pct, and the raw value is archived, so this "
+                         "is re-derivable over every day already captured."
+                         % TRUNCATION_SEL_PCT)
+    return dict(out, verdict="disagrees", expected_percent=False,
+                note="`draftSelPct` is neither drafts/total_drafts nor 100x it "
+                     "(median ratio %.4g over %d rows) — it is not the selection "
+                     "rate we take it for. Infer NOTHING from it until this is "
+                     "understood; `sd` is unaffected and the raw value is archived."
+                     % (med, len(ratios)))
 
 
 def _expected_range(n: int) -> float:
@@ -238,8 +382,28 @@ def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
     """MFL's published min/max pick -> an estimated sd of that player's pick, or None.
 
     THE READER FOR TOMORROW'S DATA, and rule 14 on my own newest work. A's item #1
-    is that 94.6% of the board's `adp_sd` sits on two values — 1,418 players at
-    exactly 30.0 and 246 at exactly 15.0, 71 distinct values across 1,759 players.
+    is that the board's `adp_sd` collapses onto two clamp values, 30.0 and 15.0.
+
+    ⚠ THE FIGURES THAT USED TO SIT HERE WERE WRITTEN AS "the board today" AND THE
+    BOARD REBUILDS NIGHTLY. Dated instead, because a bare number in a docstring is
+    a measurement pretending to be a constant:
+
+        2026-08-13   1,841 players    74 distinct   94.8% on the top two
+        2026-08-17     682 players   140 distinct   68.8%
+
+    AND MOST BUT NOT ALL OF THAT IMPROVEMENT IS REAL, which the two rows alone do
+    not show: the board was PRUNED from 1,841 to 682, and pruning drops exactly the
+    deep players who carry the 30.0 clamp, so some of the fall is population rather
+    than dispersion. Holding the population fixed to the 672 players on both boards
+    separates them — 85.7% -> 68.3%, so of the 26.0-point fall about 9.1 is pruning
+    and 17.4 is real. Comparing the two `ALL` rows straight across would have
+    credited the clamp fix with the pruning's share.
+
+    Re-measure rather than trust this block:
+        python3 -c "import json,collections; d=json.load(open('public/draft_data.json')); \
+c=collections.Counter(p['adp_sd'] for p in d['players']); \
+print(len(d['players']), len(c), c.most_common(2))"
+
     My answer was to capture MFL's real dispersion. CAPTURING IS NOT FIXING: the
     spread lands tomorrow and nothing reads it.
 
@@ -264,11 +428,42 @@ def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
     EXIST; STATUS SAYS WHY (A's invariant). One selection gives a range of zero,
     and returning 0.0 would assert the market is CERTAIN about a player it has seen
     once — the most confident number on the board resting on the least evidence.
+
+    ⚠ THIS IS NOT `adp_sd` AND MUST NOT BE SUBSTITUTED FOR IT — measured, not
+    asserted, and it is why `scale` and `comparable_to_board_adp_sd` ride on every
+    row this returns rather than sitting in a docstring nobody copies. Inside pick
+    150 this figure runs ~2.7x the board's FFC-published `adp_sd` PER PICK, on 144
+    paired players (`board_vs_market.spread_composition`, 2026-08-14). Two
+    explanations were killed before the honest one survived:
+
+      * SKEW IN THIS ESTIMATOR — REFUTED. The provider's mean sits 0.35-0.39 of the
+        way through its own observed range rather than at 0.50, so the pick
+        distribution really is right-skewed; but calibrated to that skew the range
+        estimator comes back essentially UNBIASED (x1.02 at n=125). Real, and not
+        the cause.
+      * SUPERFLEX WIDENING QUARTERBACKS — REFUTED for the SPREAD (it is confirmed
+        in the MEAN, at a median 49.8 rank slots). Were format mixing showing up as
+        spread it would be worst at QB; QB has the SMALLEST ratio of any position.
+
+    What is left is a spread PROPORTIONAL to the pick number on both sides, with
+    the provider's coefficient ~2.7x ours — the shape a pool of mixed room sizes
+    produces mechanically. The excess is deliberately not attributed further: a
+    rougher crowd widens it too and what we hold cannot split the two. The
+    consequence stands either way — `survival.js` reads
+    `normalCdf(currentPick, adp, adp_sd)`, and feeding this number into that
+    denominator would triple every survival curve's width on a change that
+    describes MFL's league mix rather than our room.
     """
     lo, hi = row.get("min_pick"), row.get("max_pick")
     n = row.get("drafts")
     base = {"sd": None, "n": None, "basis": "range/d_n", "truncated": None,
-            "status": None, "note": None}
+            "status": None, "note": None,
+            # THE DENOMINATION TRAVELS WITH THE NUMBER. A consumer that reads
+            # `["sd"]` and nothing else is the exact failure this lane has now
+            # paid for repeatedly; a consumer that copies the dict carries the
+            # refusal with it whether or not anybody read the docstring.
+            "scale": "provider-internal picks (pooled formats and room sizes)",
+            "comparable_to_board_adp_sd": False}
     if lo is None or hi is None:
         return dict(base, status="absent",
                     note="MFL published no min/max for this player — absent, not zero")
@@ -354,6 +549,45 @@ def integrity(archive) -> dict:
     return out
 
 
+def blocking_fatal(ig, year, observed_at) -> list:
+    """Of everything `integrity` found wrong, what may stop TODAY reaching disk.
+
+    ONLY EVIDENCE ABOUT TODAY. `integrity` judges the WHOLE archive, and
+    `capture()` was refusing to write whenever ANY day in it was fatal — so one
+    corrupt day, from any cause, would have blocked EVERY SUBSEQUENT CAPTURE
+    FOREVER. Not one day lost: all of them, silently, until a human noticed the
+    workflow going red. The guard that exists to protect an unrefetchable archive
+    was one bad row away from being the thing that emptied it.
+
+    That is the board-pin lesson for the fourth time in this file, and it is the
+    largest instance of it: the previous three could cost a day, this one could
+    cost the rest of them.
+
+    WHICH ERROR IS WORSE, THE SAME WAY IT IS DECIDED EVERYWHERE ELSE HERE. Today's
+    board is perishable and unrepeatable. Yesterday's corruption is already on
+    disk, already in git, and already caught by the standing CI check that runs
+    `integrity` over the committed archive — refusing to write today does not
+    unwrite it, does not fix it, and does not even report it any louder. It only
+    adds a second, permanent loss to a recoverable one.
+
+    A FINDING THAT CANNOT NAME A DAY DOES NOT BLOCK EITHER, for the same reason:
+    it is not evidence about today. It is printed with the rest. Every fatal kind
+    that exists today carries `day`; a future archive-wide check that does not
+    must be able to say what it means for the day in hand before it is allowed to
+    destroy one.
+
+    Corruption in TODAY'S snapshot still refuses, unchanged — that is the case the
+    check was built for, and it is the only one where refusing prevents anything.
+    """
+    today = (str(year), str(observed_at))
+    out = []
+    for f in ((ig or {}).get("fatal") or []):
+        day = f.get("day")
+        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:
+            out.append(f)
+    return out
+
+
 #: What `mfl_adp.parse` looks for when it extracts a spread. Named here so a
 #: failure can be reported as a DIFF against what arrived, rather than as a
 #: request to go and read the parser.
@@ -397,10 +631,19 @@ def spread_summary(dispersion: dict) -> dict:
     """A whole day's spreads — because the claim under test is about a DAY.
 
     "Does a real spread beat the clamp" is not answerable one player at a time. The
-    board today carries 71 distinct `adp_sd` values across 1,759 players with 94.6%
-    on two of them, so the number that decides whether tomorrow is any better is
-    DISTINCT VALUES — not a mean, which a fully collapsed distribution reports
-    perfectly healthily, and which is how the clamp survived this long.
+    board's `adp_sd` piles onto two clamp values, so the number that decides whether
+    tomorrow is any better is DISTINCT VALUES — not a mean, which a fully collapsed
+    distribution reports perfectly healthily, and which is how the clamp survived
+    this long.
+
+    ⚠ NO COUNT IS QUOTED HERE ON PURPOSE. This sentence used to read "the board
+    today carries 71 distinct values across 1,759 players with 94.6% on two of
+    them", and the board rebuilds nightly: measured 74/1,841/94.8% on 2026-08-13
+    and 140/682/68.8% on 2026-08-17, having moved again in between. The CLAIM is
+    what this function rests on and the claim holds — dispersion is clamp-dominated
+    and distinct values is the metric that sees it. The arithmetic belongs to
+    whichever board is on disk, and `spread_from_dispersion` carries the dated
+    series and the one-liner that reproduces it.
 
     UNTIL TOMORROW THE ESTIMATOR IS UNVALIDATED AGAINST REAL DATA, and there is no
     stored feed carrying both a published sd and min/max to check it against. This
@@ -463,7 +706,12 @@ def dispersion_health(series: list, year) -> dict:
                          "rather than a fault to diagnose." % DISPERSION_SINCE)
 
     def n_of(s):
-        return len(s.get("dispersion") or {})
+        # ROWS WITH A BOUND, not rows with anything. This alarm is about the
+        # SPREAD arriving; counting selection-count-only rows would report full
+        # coverage on a feed that sent no bounds at all — muting the escalation
+        # that exists for precisely that case.
+        return sum(1 for v in (s.get("dispersion") or {}).values()
+                   if any((v or {}).get(k) is not None for k in DISPERSION_BOUNDS))
 
     latest = judged[-1]
     rows, adp_rows = n_of(latest), int(latest.get("row_count") or 0)
@@ -486,6 +734,685 @@ def dispersion_health(series: list, year) -> dict:
                      "— before suspecting MFL. They sit in the same response dict as "
                      "`averagePick`, which works, so the shape is right and only the "
                      "names are unproven." % len(judged))
+
+
+def cumulative_break(earlier: dict, later: dict) -> dict:
+    """Are these two days ONE cumulative series? -> verdict, before any marginal.
+
+    ⚠ THE GAP THIS CLOSES IS BETWEEN A PER-PLAYER GUARD AND A POPULATION ONE, and
+    it is the shape this lane keeps finding. `marginal_adp` already refuses an
+    INDIVIDUAL player whose count fell (`refused_count_fell`) — correct, and it
+    handles MFL's aggregation lag, which moves a handful of players. It does NOT
+    handle the case where the provider RE-SCOPES ITS SAMPLE: a rolling window
+    advancing, a season boundary, a format filter changing. Then counts fall for
+    MANY players at once, the per-player guard silently drops every one of them,
+    and the marginal is computed from the survivors — a real-looking number over
+    a population selected by the very thing that broke.
+
+    `new = drafts1 - drafts0` is only "what today's drafters did" while the two
+    counts are readings of the same accumulating total. That is an ASSUMPTION
+    about the provider, it has never been checked, and tomorrow is the first day
+    two dispersion days exist to check it with. Built before then on purpose: a
+    guard that arrives after the day it was needed is a post-mortem.
+    """
+    e = (earlier or {}).get("dispersion") or {}
+    l = (later or {}).get("dispersion") or {}
+    shared = [k for k in l if k in e]
+    base = {"status": "unmeasured", "shared": len(shared), "fell": 0,
+            "fell_share": None, "worst_fall": None, "usable": None,
+            "tolerance": CUMULATIVE_FALL_TOLERANCE,
+            "total_drafts_fell": None, "note": None}
+    if not shared:
+        # ⚠ NOT "no falls, all clear". Two days with no player in common cannot
+        # be judged, and the days before dispersion landed have no counts at all.
+        return dict(base, note="the two days share no player carrying a draft "
+                               "count, so nothing was compared — that is the "
+                               "archive's shape, not a clean result")
+    falls = []
+    for k in shared:
+        a, b = (e[k] or {}).get("drafts"), (l[k] or {}).get("drafts")
+        if a is None or b is None:
+            continue
+        if b < a:
+            falls.append((k, a - b))
+    counted = [k for k in shared
+               if (e[k] or {}).get("drafts") is not None
+               and (l[k] or {}).get("drafts") is not None]
+    if not counted:
+        return dict(base, note="no shared player carries a count on BOTH days")
+    share = len(falls) / float(len(counted))
+    td0, td1 = (earlier or {}).get("total_drafts"), (later or {}).get("total_drafts")
+    td_fell = (None if td0 is None or td1 is None else bool(td1 < td0))
+    usable = share <= CUMULATIVE_FALL_TOLERANCE and not td_fell
+    return dict(base, status="measured", shared=len(counted), fell=len(falls),
+                fell_share=round(share, 4),
+                worst_fall=(max(x for _k, x in falls) if falls else 0),
+                usable=usable, total_drafts_fell=td_fell,
+                note=("%d of %d shared players (%.1f%%) have FEWER cumulative "
+                      "drafts than yesterday%s. Above the %.0f%% tolerance, so "
+                      "these two days are not one accumulating series and "
+                      "`new = drafts1 - drafts0` is not 'what today's drafters "
+                      "did' — the marginal must not be derived across them."
+                      % (len(falls), len(counted), 100.0 * share,
+                         " and the provider's own total_drafts FELL" if td_fell else "",
+                         100.0 * CUMULATIVE_FALL_TOLERANCE))
+                if not usable else
+                ("%d of %d shared players (%.1f%%) fell, within the %.0f%% "
+                 "tolerance — consistent with the aggregation lag already "
+                 "measured on this feed, and the two days read as one series."
+                 % (len(falls), len(counted), 100.0 * share,
+                    100.0 * CUMULATIVE_FALL_TOLERANCE)))
+
+
+def marginal_adp(earlier: dict, later: dict) -> dict:
+    """What TODAY'S drafters did — recovered exactly from two cumulative days.
+
+    THE PROBLEM THIS SOLVES, MEASURED RATHER THAN ASSUMED. On 2026-08-14 the
+    published ADP moved a median 0.17-0.21 picks a day inside the top 150, which
+    reads as a market that has made up its mind. It is not: `total_drafts` went
+    115 -> 119 -> 125, so a day's new drafts carry 3-5% of the weight and the
+    published mean CANNOT move even if every new drafter behaved differently. The
+    calm is arithmetic. Six days from a draft, the 3-5% is the only part anybody
+    would act on, and it is the part the headline number averages away.
+
+    A MEAN TIMES ITS COUNT IS A SUM, so two cumulative snapshots contain the
+    interval between them exactly — no smoothing, no estimation, no window:
+
+        new      = drafts1 - drafts0
+        marginal = (adp1*drafts1 - adp0*drafts0) / new
+
+    THE DENOMINATOR IS `drafts`, AND NEVER `sel_pct * total_drafts`. Both phrases
+    say "the number of drafts he was selected in", which is exactly the coincidence
+    A's first criterion exists to catch — say the comparison out loud and the two
+    part company. MFL publishes `draftSelPct` rounded to whole percents, so its
+    quantum is total_drafts/100: 1.25 drafts today, and ~50 at the 5011-draft depth
+    MFL reported for a finished 2023. The daily increment does not grow with the
+    season. The rounding error does. `draftsSelectedIn` is an exact integer sitting
+    in the same row, and `dispersion_of` has been archiving it since 2026-08-14.
+
+    RETURNS, per player kept:
+      `marginal_adp`   the mean pick of the NEW selections alone
+      `new_selections` the exact integer increment
+      `published_move` adp1 - adp0, beside it rather than instead of it, because
+                       the gap between the two IS the finding
+      `outside_observed_range`  the falsification arm — see below
+
+    THE ONE FALSIFIABLE CHECK THIS ADMITS, and it costs nothing. Every new
+    selection is a real pick, so their mean must lie inside the LATER day's own
+    observed [min_pick, max_pick], which already contains them. If it does not, the
+    premise is false — `averagePick` is not averaged over `draftsSelectedIn`, or
+    the two snapshots are not the same accumulation. That converts "MFL's fields
+    mean what their names say" from an assumption into a measurement, on the first
+    morning two snapshots exist. The offending row is REPORTED, NOT DROPPED
+    (rule 17a): the number is the evidence, and deleting it leaves the alarm with
+    nothing to point at.
+
+    UNMEASURED IS A VERDICT, NOT A ZERO. Every day archived before 2026-08-14 has
+    no dispersion, and calling their marginal move zero would make the entire
+    back-archive look like a settled market.
+    """
+    a, b = earlier or {}, later or {}
+    da, db = a.get("observed_at"), b.get("observed_at")
+    # REFUSED, NOT SORTED. Swapping the arguments returns the exact mirror image
+    # rather than failing, so a caller who reads them the wrong way round gets a
+    # confident number for a day that ran backwards. Sorting internally would be
+    # worse: it makes the argument order stop meaning anything, and
+    # `published_move` would quietly describe a different pair than the caller
+    # named.
+    if da and db and str(da) >= str(db):
+        raise ValueError(
+            "marginal_adp(earlier, later): %r is not earlier than %r. Refusing "
+            "rather than reordering — the sign of every move here depends on "
+            "which day the caller believes is which." % (da, db))
+
+    out = {"status": None, "earlier": da, "later": db, "rows": {},
+           "skipped_no_new_selections": 0, "refused_count_fell": 0,
+           "outside_observed_range": [], "note": None}
+
+    dispa, dispb = a.get("dispersion") or {}, b.get("dispersion") or {}
+    if not dispa or not dispb:
+        which = [n for n, d in (("earlier", dispa), ("later", dispb)) if not d]
+        return dict(out, status="unmeasured",
+                    note="no `dispersion` on the %s snapshot, so the per-player "
+                         "selection count that makes this exact is absent. Days "
+                         "captured before %s have none, and their marginal move is "
+                         "UNKNOWN rather than zero."
+                         % (" and ".join(which), DISPERSION_SINCE))
+
+    rowsa, rowsb = a.get("rows") or {}, b.get("rows") or {}
+    for pid, recb in dispb.items():
+        reca = dispa.get(pid)
+        if reca is None or pid not in rowsa or pid not in rowsb:
+            continue
+        try:
+            n0, n1 = int(reca.get("drafts")), int(recb.get("drafts"))
+            adp0, adp1 = float(rowsa[pid]), float(rowsb[pid])
+        except (TypeError, ValueError):
+            continue
+        if n1 < n0:
+            out["refused_count_fell"] += 1
+            continue
+        if n1 == n0:
+            out["skipped_no_new_selections"] += 1
+            continue
+        new = n1 - n0
+        marginal = (adp1 * n1 - adp0 * n0) / new
+        lo, hi = recb.get("min_pick"), recb.get("max_pick")
+        outside = False
+        try:
+            # A bound the source did not publish cannot falsify anything, so a
+            # missing one is skipped rather than treated as an open range that
+            # always passes — the check has to be able to say "not checked".
+            if lo is not None and marginal < float(lo) - 1e-9:
+                outside = True
+            if hi is not None and marginal > float(hi) + 1e-9:
+                outside = True
+        except (TypeError, ValueError):
+            outside = False
+        if outside:
+            out["outside_observed_range"].append(pid)
+        out["rows"][pid] = {
+            "new_selections": new,
+            "marginal_adp": marginal,
+            "published_move": adp1 - adp0,
+            # BOTH PRICES TRAVEL WITH THE ROW. A consumer that has to re-join
+            # against `rows` to say what the board is charging is a second
+            # derivation of a fact this function already held, and the re-join is
+            # where the wrong day gets picked.
+            "adp_earlier": adp0,
+            "adp_later": adp1,
+            "drafts": [n0, n1],
+            "outside_observed_range": outside,
+        }
+    out["outside_observed_range"].sort()
+    out["status"] = "measured"
+    if out["outside_observed_range"]:
+        out["note"] = (
+            "%d player(s) derive a marginal ADP outside the LATER day's own "
+            "observed [min_pick, max_pick]. A mean of real picks cannot do that, "
+            "so the decomposition's premise is wrong — most likely `averagePick` "
+            "is not averaged over `draftsSelectedIn`, or the two snapshots are not "
+            "the same accumulation. Infer nothing from any row here until that is "
+            "settled; the rows are kept because they are the evidence."
+            % len(out["outside_observed_range"]))
+    return out
+
+
+#: Below this many new selections, the "mean of the new picks" is one person's
+#: pick wearing the authority of an average. Declared from the cadence, not tuned:
+#: `total_drafts` gained 4 and 6 over the two most recent days, so requiring 3
+#: means a majority of the day's drafts took him. Rows below it are KEPT and
+#: reported — they are simply not allowed to lead, because ranking by distance
+#: from the price puts the thinnest player on the board first every morning.
+MIN_NEW_SELECTIONS = 3
+
+
+def _total_drafts(snapshot):
+    """The report's own draft count, or None. NEVER 0 for a missing field: the
+    window arithmetic below subtracts these, and a missing count read as zero
+    would manufacture a window as wide as the whole season."""
+    try:
+        v = (snapshot or {}).get("total_drafts")
+        return None if v is None else int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+#: Our league's rules, and the census bucket that counts as agreeing with each.
+#: Keyed off the census's own vocabulary rather than re-derived, so a change in
+#: how the census bins a rule shows up as a KeyError-shaped absence rather than a
+#: quietly wrong share.
+_OUR_RULES = (("10 teams", "teams", "10"),
+              ("half-PPR", "reception_points", "0.4-0.6 (half-PPR)"),
+              ("6-pt passing TD", "pass_td_points", "6 (OURS)"),
+              ("single-QB", "superflex", "False"),
+              ("redraft", "keeper_type", "(absent)"))
+
+
+def _format_census():
+    """The newest row of the MFL format census, or None.
+
+    A's data file; read, never written. None rather than a default, because a
+    missing census must make the denomination note say LESS, not say the same
+    thing with no evidence behind it.
+    """
+    try:
+        doc = json.loads((SERIES.parent / "format_census_series.json").read_text())
+    except (OSError, ValueError):
+        return None
+    ser = [s for s in (doc.get("series") or []) if s.get("readable_leagues")]
+    if not ser:
+        return None
+    return sorted(ser, key=lambda s: str(s.get("observed_at") or ""))[-1]
+
+
+def census_agreement(row: dict) -> dict:
+    """How much of MFL's sampled pool plays OUR game, rule by rule.
+
+    ⚠ THIS EXISTS BECAUSE I ASSERTED SOMETHING I HAD NOT MEASURED. The
+    `denomination` note I shipped this morning said MFL pools "superflex, 2QB,
+    dynasty, keeper and IDP" drafts — a true list, and the wrong emphasis. The
+    census says the dominant divergence is NONE OF THOSE: 55.3% of the sampled
+    pool is FULL PPR and only 6.1% is half-PPR like us, against superflex at just
+    21.1%. Reception scoring lifts every pass-catching back and receiver relative
+    to our board, and my note did not mention it at all.
+
+    THE HEADLINE IS THE JOINT RATE, NOT THE MARGINALS. Each rule taken alone
+    looks survivable — 78.9% are single-QB, 82.5% are redraft. Taken together,
+    `matched` is 0 of 114: not one sampled league plays our game.
+    """
+    n = int((row or {}).get("readable_leagues") or 0)
+    if not n:
+        return {"status": "unmeasured",
+                "note": "the format census holds no readable leagues, so how much "
+                        "of MFL's pool plays our game is unmeasured."}
+    shares, worst = {}, None
+    for label, field, bucket in _OUR_RULES:
+        got = int(((row.get(field) or {}).get(bucket)) or 0)
+        shares[label] = round(got / float(n), 4)
+        if worst is None or shares[label] < shares[worst]:
+            worst = label
+    return {"status": "measured",
+            "readable_leagues": n,
+            "matched_our_format": row.get("matched"),
+            "observed_at": row.get("observed_at"),
+            "share_sharing_each_rule": shares,
+            "largest_divergence": worst,
+            "largest_divergence_share": shares[worst]}
+
+
+def _rostered_for_archive():
+    """`rostered_positions` off the Sleeper league settings on disk, or None.
+
+    A SEPARATE READER FROM `rostered_positions(settings)` ON PURPOSE — that
+    function takes the settings dict and stays pure, and `save()` has no settings
+    argument. Narrow catch for the same reason `_draftable_picks` has one: a typo
+    here must raise rather than come back as "the league could not be read".
+    """
+    try:
+        ls = json.loads((SERIES.parent / "sleeper_league_settings.json").read_text())
+    except (OSError, ValueError):
+        return None
+    return rostered_positions(ls) or None
+
+
+def denomination(series: list, players: dict, rostered=None, draftable=None,
+                 census=None) -> dict:
+    """WHAT THIS ADP IS DENOMINATED IN, measured on the newest day and written
+    beside the rows.
+
+    ⚠ TEN MODULES IN THIS REPO READ THIS ARCHIVE AND ONE OF THEM KNOWS. MFL pools
+    EVERY draft on its platform into a single ADP. `board_vs_market` measures and
+    reports that; the other nine readers get a number with no statement of what
+    population produced it, and the natural mistake is to read a board-vs-market
+    gap as OUR board being wrong when the two ends are not denominated in the
+    same thing. That is A's own criterion 1, and it is the failure mode this
+    project keeps paying for.
+
+    ⚠ AND THE FIRST VERSION OF THIS NOTE, SHIPPED THIS MORNING, NAMED THE WRONG
+    CONTAMINANT. It said "superflex, 2QB, dynasty, keeper and IDP alike" — a true
+    list with the wrong emphasis, and asserted rather than measured. The format
+    census says the dominant divergence is none of those: **55.3% of the sampled
+    pool is FULL PPR and only 6.1% is half-PPR like us**, against superflex at
+    21.1%. Reception scoring lifts every pass-catching back and receiver relative
+    to our board, and the note did not mention it. The list is gone; the census
+    numbers are carried instead, so the claim moves with the evidence.
+
+    MEASURED, NOT ASSERTED, and re-measured every day rather than written once:
+    on 2026-08-14, 27 of the 170 rows priced inside our 150-pick draft — 15.9% —
+    sit at positions this league cannot roster at all. A sentence in a docstring
+    would have gone stale; this number moves with the board.
+
+    `rostered=None` (settings unreadable) yields `unknown`, never a comforting 0%,
+    because "we could not tell what we roster" and "nothing is contaminated" must
+    never render the same.
+    """
+    days = sorted((s for s in (series or []) if s.get("observed_at")),
+                  key=lambda s: str(s.get("observed_at")))
+    if not days:
+        return {"status": "unmeasured", "note": "the archive holds no dated day, "
+                "so nothing can be said about what its ADP is denominated in."}
+    last = days[-1]
+    rows = last.get("rows") or {}
+    # THE CENSUS TURNS THE CLAIM INTO A MEASUREMENT. Absent, it says less rather
+    # than saying the same thing with nothing behind it.
+    census = census_agreement(census if census is not None else (_format_census() or {}))
+    if census.get("status") == "measured":
+        census["note"] = (
+            "Of %d readable MFL leagues sampled, %s matched our format; the "
+            "largest single divergence is %s, shared by only %.1f%% of them "
+            "(our board's own rule). ⚠ THAT SAMPLE CARRIES NO DATE — the one "
+            "census row predates the fix that made a keyless row raise, and the "
+            "next is not due until the monthly run, so treat it as one undated "
+            "observation rather than a current reading."
+            % (census["readable_leagues"], census["matched_our_format"],
+               census["largest_divergence"],
+               100.0 * census["largest_divergence_share"])
+            if census.get("observed_at") is None else
+            "Of %d readable MFL leagues sampled on %s, %s matched our format; "
+            "the largest single divergence is %s, shared by only %.1f%%."
+            % (census["readable_leagues"], census["observed_at"],
+               census["matched_our_format"], census["largest_divergence"],
+               100.0 * census["largest_divergence_share"]))
+
+    def _adp(v):
+        if isinstance(v, dict):
+            for k in ("adp", "pick", "avg_pick", "average_pick", "rank"):
+                if v.get(k) is not None:
+                    try:
+                        return float(v[k])
+                    except (TypeError, ValueError):
+                        return None
+            return None
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    inside = [p for p in rows if draftable is not None
+              and (_adp(rows[p]) or float("inf")) <= draftable]
+    unros = unknown_pos = None
+    if rostered:
+        unros, unknown_pos = 0, 0
+        for p in inside:
+            pos = str(((players or {}).get(p) or {}).get("position") or "").upper()
+            if not pos:
+                unknown_pos += 1
+            elif pos not in rostered:
+                unros += 1
+    out = {
+        "status": "measured" if (rostered and draftable is not None) else "unknown",
+        "observed_at": last.get("observed_at"),
+        "pooled_across_formats": True,
+        "rows_inside_draft": len(inside) if draftable is not None else None,
+        "unrosterable_inside_draft": unros,
+        "unknown_position_inside_draft": unknown_pos,
+        "draftable_picks": draftable,
+    }
+    out["unrosterable_share"] = (round(unros / float(len(inside)), 4)
+                                 if (unros is not None and inside) else None)
+    if out["status"] != "measured":
+        out["note"] = (
+            "UNKNOWN — %s could not be read, so the share of this board that our "
+            "league cannot roster is unmeasured. This is NOT a statement that the "
+            "board is clean."
+            % ("the roster settings" if not rostered else "the draft range"))
+    else:
+        out["note"] = (
+            "MFL pools EVERY draft on its platform into one ADP, so this is not "
+            "denominated in the same thing our board is. Measured on %s: %d of the "
+            "%d rows priced inside pick %d (%.1f%%) sit at positions this league "
+            "cannot roster at all%s. A gap between this market and our board is "
+            "therefore NOT evidence that our board is wrong. `board_vs_market` "
+            "measures the superflex and dynasty signatures directly; read them "
+            "before attributing any gap.%s"
+            % (last.get("observed_at"), unros, len(inside), draftable,
+               100.0 * out["unrosterable_share"],
+               "" if not unknown_pos else
+               ", and %d more carry no position in the decode key" % unknown_pos,
+               (" " + census["note"]) if census.get("note") else ""))
+    out["census"] = census
+    return out
+
+
+def undecoded_inside_draft(report: dict, rows: dict, draftable=None) -> dict:
+    """Of the players undecoded AT A ROSTERED POSITION, how many can we draft?
+
+    ⚠ THE NUMBER THIS REFINES IS PRINTED EVERY MORNING AND GATED BY NOTHING.
+    `_classify_undraftable` already does the hard part — it separates a keeper and
+    an IDP from a player we actually lost, and its own docstring says the survivor
+    count is "printed in the capture summary every morning and nobody could act on
+    it". Measured on the live archive that count is 11, and ALL ELEVEN sit beyond
+    our 150-pick draft; the shallowest is Travis Hunter at ADP 153.0.
+
+    SO THE WHOLE-BOARD COUNT CANNOT BE GATED AT ZERO — it is 11 today and failing
+    every morning over Drew Lock at ADP 444 would train everyone to ignore it.
+    Restricted to the range this room actually drafts it IS zero, which makes it
+    gateable, and the three-pick margin under Travis Hunter is the reason to gate
+    it now rather than after the draft.
+
+    This builds ON that classification and does not repeat it: I started writing a
+    parallel classifier and it shadowed `rostered_positions`, broke six passing
+    tests, and re-derived a finding this module's docstring already records. One
+    definition, not two that drift.
+    """
+    ids = report.get("no_sleeper_match_draftable_ids") or []
+    if draftable is None:
+        return {"inside": None, "checked": len(ids), "players": [],
+                "shallowest_outside": None, "margin": None, "verdict": "unknown",
+                "note": "the draft range could not be read, so 'is any of them "
+                        "draftable' has no answer. %d undecoded at a rostered "
+                        "position." % len(ids)}
+    # ⚠ A TRUNCATED LIST CANNOT SUPPORT A ZERO. The ids are capped at 40 by the
+    # producer, so on a bad day the ones past the cap are exactly the ones nobody
+    # would see — and "none of the 40 I was shown was draftable" would print as
+    # "none was draftable" (rule 13f).
+    if report.get("no_sleeper_match_draftable_truncated"):
+        return {"inside": None, "checked": len(ids), "players": [],
+                "shallowest_outside": None, "margin": None, "verdict": "unknown",
+                "note": "the undecoded list is TRUNCATED at %d of %s, so a count "
+                        "of zero inside the draft would be a statement about the "
+                        "cap and not about the board."
+                        % (len(ids), report.get("no_sleeper_match_draftable"))}
+
+    def _adp(v):
+        if isinstance(v, dict):
+            for k in ("adp", "pick", "avg_pick", "average_pick", "rank"):
+                if v.get(k) is not None:
+                    try:
+                        return float(v[k])
+                    except (TypeError, ValueError):
+                        return None
+            return None
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    inside, outside, unpriced = [], [], []
+    for pid in ids:
+        a = _adp((rows or {}).get(str(pid)))
+        if a is None:
+            # ⚠ COUNTED, NOT SKIPPED — I wrote `continue` here first, which is the
+            # same defect `drop_depth` was fixed for one commit earlier. A player
+            # undecoded at a rostered position whose pick will not parse falls out
+            # of BOTH buckets, and the verdict then reads `clear`: the most
+            # reassuring answer, produced by the rows nobody could read.
+            unpriced.append(str(pid))
+            continue
+        (inside if a <= draftable else outside).append((a, str(pid)))
+    inside.sort(); outside.sort()
+    shallow = outside[0][0] if outside else None
+    if unpriced and not inside:
+        return {"inside": None, "checked": len(ids), "players": [],
+                "shallowest_outside": shallow, "margin": None,
+                "verdict": "unknown",
+                "note": "%d of %d undecoded player(s) carry no readable pick, so "
+                        "whether they fall inside pick %d cannot be stated: %s"
+                        % (len(unpriced), len(ids), draftable,
+                           ", ".join(unpriced[:5]))}
+    if inside:
+        verdict = "undecoded_in_draft"
+        note = ("⚠ %d player(s) priced inside pick %d are at a position this "
+                "league rosters, are not kept, and did not decode — the shallowest "
+                "at ADP %.1f. The board has no market price for a player this room "
+                "can take." % (len(inside), draftable, inside[0][0]))
+    else:
+        verdict = "clear"
+        note = ("%d undecoded at a rostered position and NONE inside pick %d. "
+                "Nearest is ADP %s — %s picks outside the draft."
+                % (len(ids), draftable,
+                   "n/a" if shallow is None else "%.1f" % shallow,
+                   "n/a" if shallow is None else "%.1f" % (shallow - draftable)))
+    return {"inside": len(inside), "checked": len(ids),
+            "players": [p for _a, p in inside],
+            "shallowest_outside": shallow,
+            "margin": None if shallow is None else round(shallow - draftable, 2),
+            "verdict": verdict, "note": note}
+
+
+def latest_marginal(series: list, year) -> dict:
+    """The most recent derivable marginal day, chosen rather than assumed.
+
+    THE TWO DAYS ARE FOUND BY (YEAR, SPREAD), NEVER BY `series[-1]`. Every
+    ingredient of that mistake is already here: the series is sorted by
+    (year, observed_at) so the newest rows are always the newest SEASON, and the
+    days before 2026-08-14 carry no dispersion at all. Taking the last two rows
+    works exactly as long as the tail happens to be complete, and a daily capture
+    changes the tail every morning. `capture()` already carries this lesson in a
+    comment; I still spent part of 2026-08-14 comparing a board file to itself.
+
+    RANKED BY DISTANCE FROM THE STANDING PRICE — `marginal_adp - adp_later` — and
+    not by how far the published average drifted. The drift is the damped number
+    this whole path exists to see past: a player whose board price moved 1.0 pick
+    while today's four drafters averaged 25 picks later than it is the finding;
+    a player the market has ALREADY repriced is not.
+
+    UNMEASURED UNTIL THERE ARE TWO SPREAD DAYS, and it says how many it found.
+    Tonight's 12:02 capture is the first contact between `dispersion_of` and MFL's
+    real response, so the first marginal day cannot exist before 2026-08-15. A
+    report that printed nothing tonight would be indistinguishable from a broken
+    one, six days before the draft.
+    """
+    days = [s for s in (series or [])
+            if str(s.get("year")) == str(year) and (s.get("dispersion") or {})]
+    days.sort(key=lambda s: str(s.get("observed_at")))
+    if len(days) < 2:
+        return {"status": "unmeasured", "spread_days_found": len(days),
+                "rows": {}, "ranked": [], "ranking_excluded_thin": 0,
+                "earlier": None, "later": None,
+                "note": "only %d day in %s carries a spread, and a marginal day "
+                        "needs two. The spread first reaches disk on %s, so the "
+                        "first derivable day is one more capture away — this is "
+                        "UNKNOWN, not a market where nobody moved."
+                        % (len(days), year, DISPERSION_SINCE)}
+
+    # DEFERRED IMPORT, and the cycle is the reason: `board_vs_market` imports THIS
+    # module, so a top-level import here would not resolve. The range is not
+    # re-declared for that convenience — rule 11 — because a second copy of "how
+    # many picks Cory can reach" is exactly the kind of duplicate that goes stale
+    # in one place only. It is imported WITHOUT a fallback: a report that silently
+    # loses its scope is worse than one that fails and says so.
+    from board_vs_market import DRAFT_RANGE
+
+    # ── THE WINDOW WIDENS WHEN A SINGLE DAY CANNOT QUALIFY ANYBODY ──────────
+    #
+    # `MIN_NEW_SELECTIONS` was declared from a cadence of +4 and +6 drafts a day.
+    # The first real capture gained TWO (125 -> 127). At +2 the most new selections
+    # any player can have is 2, so not one can reach 3 and `ranked` comes back
+    # empty with every row filed as "thin" — a correct-looking table with nothing
+    # in it, on any morning the market is quiet, and no way to see why.
+    #
+    # THE THRESHOLD IS NOT LOWERED. Two drafters are two drafters however they are
+    # labelled, and tuning a bar to reach a number is the move this project
+    # refuses. Instead the comparison reaches back to the most recent earlier day
+    # that makes a qualifying player ARITHMETICALLY POSSIBLE — which is
+    # MIN_NEW_SELECTIONS drafts, derived rather than chosen, because below it no
+    # player can qualify no matter how the drafters behaved.
+    #
+    # ONE DAY STAYS THE DEFAULT. Widening is a fallback: the instrument is about
+    # the MARGINAL day, and reaching back further than necessary blends days that
+    # could have been read apart.
+    # ── THE WINDOW IS DECIDED BY PLAYERS QUALIFYING, NOT BY `total_drafts` ──
+    #
+    # `MIN_NEW_SELECTIONS` was declared from a cadence of +4 and +6 drafts a day;
+    # 2026-08-14 gained two. At that width no player can reach three, `ranked`
+    # comes back empty with every row filed as thin, and a quiet morning is
+    # indistinguishable from a broken instrument. So the comparison reaches back.
+    #
+    # ⚠ BUT NOT ON `total_drafts`, WHICH IS NOT EXACT. Measured on that same
+    # snapshot: MFL reports `totalDrafts = 127` while 25 players carry a
+    # `draftsSelectedIn` above it — up to 130 — and `draftSelPct` up to 102.0.
+    # Recovering the denominator from each player's own pair gives 127.0-128.4
+    # across the 180 players with 100+ drafts, so the pool is ~127-128 and MFL's
+    # aggregate disagrees with its own per-player counts by two or three.
+    #
+    # A FIELD WRONG BY THREE CANNOT DECIDE A THRESHOLD OF THREE. The per-player
+    # `drafts` are exact integers, and whether anybody clears the floor is
+    # directly computable from them — so the window widens until at least one
+    # player does, and `total_drafts` is reported as context rather than consulted.
+    later = days[-1]
+    n_late = _total_drafts(later)
+    earlier, out, qualifying, broke = None, None, 0, None
+    for cand in reversed(days[:-1]):
+        earlier = cand
+        # ⚠ IS THIS PAIR ONE CUMULATIVE SERIES AT ALL, before deriving anything
+        # from the difference between them. `marginal_adp` refuses an INDIVIDUAL
+        # player whose count fell, which is right and handles MFL's aggregation
+        # lag. It cannot see a provider RE-SCOPING its sample: then counts fall
+        # for many players at once, the per-player guard drops every one of them,
+        # and the marginal comes back as a real-looking number computed over
+        # whichever players happened to survive the break.
+        broke = cumulative_break(cand, later)
+        if broke["status"] == "measured" and not broke["usable"]:
+            continue
+        out = marginal_adp(cand, later)
+        qualifying = sum(1 for r in out["rows"].values()
+                         if r["new_selections"] >= MIN_NEW_SELECTIONS)
+        if qualifying:
+            break
+    n_early = _total_drafts(earlier)
+    delta = None if n_late is None or n_early is None else n_late - n_early
+    if not qualifying:
+        return {"status": "unmeasured", "spread_days_found": len(days),
+                "rows": {}, "ranked": [], "ranking_excluded_thin": 0,
+                "ranking_excluded_out_of_range": 0,
+                # WHY, NOT JUST THAT. "Nothing qualified" and "the series broke"
+                # are different facts and only one of them is about the market.
+                "cumulative_break": broke,
+                "earlier": earlier.get("observed_at"), "later": later.get("observed_at"),
+                "window_days": len(days) - 1, "window_qualifying": 0,
+                "provider_total_drafts_delta": delta,
+                "min_new_selections": MIN_NEW_SELECTIONS,
+                "note": "no player gained %d new selections at ANY width back to "
+                        "%s — there is no derivable marginal figure yet, which is "
+                        "UNKNOWN rather than a quiet market."
+                        % (MIN_NEW_SELECTIONS, earlier.get("observed_at"))}
+
+    out = marginal_adp(earlier, later)
+    out["window_days"] = days.index(later) - days.index(earlier)
+    out["window_qualifying"] = qualifying
+    # REPORTED, NOT CONSULTED. It is the only handle anyone has on the pool's
+    # rough size, so dropping it would lose a measurement — but it is the
+    # provider's aggregate and it disagrees with the provider's own per-player
+    # counts, so it decides nothing here.
+    out["provider_total_drafts_delta"] = delta
+    out["provider_total_drafts_note"] = (
+        "MFL's own aggregate, reported for context and NOT used to choose this "
+        "window: on 2026-08-14 it read 127 while 25 players carried a higher "
+        "per-player count, up to 130. The window is decided by how many players "
+        "actually cleared %d new selections, which is exact."
+        % MIN_NEW_SELECTIONS)
+    thin = 0
+    out_of_range = 0
+    ranked = []
+    for pid, r in out["rows"].items():
+        if r["new_selections"] < MIN_NEW_SELECTIONS:
+            thin += 1
+            continue
+        # EITHER END INSIDE, NEVER BOTH. A player the board prices at 291 whom
+        # today's room took at 20 is the most actionable row this can produce, and
+        # scoping on the price alone deletes him. So does scoping on the marginal
+        # alone, to the player priced at 50 who quietly stopped going there.
+        if min(r["adp_later"], r["marginal_adp"]) > DRAFT_RANGE:
+            out_of_range += 1
+            continue
+        ranked.append({"player_id": pid,
+                       "gap": r["marginal_adp"] - r["adp_later"],
+                       "marginal_adp": r["marginal_adp"],
+                       "adp_later": r["adp_later"],
+                       "published_move": r["published_move"],
+                       "new_selections": r["new_selections"],
+                       "outside_observed_range": r["outside_observed_range"]})
+    ranked.sort(key=lambda x: (-abs(x["gap"]), x["player_id"]))
+    out["ranked"] = ranked
+    out["ranking_excluded_thin"] = thin
+    # NO SILENT CAPS. A morning where everything interesting sat outside the
+    # draft range must say so, not look like a quiet day.
+    out["ranking_excluded_out_of_range"] = out_of_range
+    out["min_new_selections"] = MIN_NEW_SELECTIONS
+    out["draft_range"] = DRAFT_RANGE
+    return out
 
 
 #: A qualifying board older than this is still F5-legal and still stale. Declared
@@ -768,6 +1695,25 @@ def _classify_undraftable(report: dict, players: dict, ids: dict,
     out["no_sleeper_match_draftable"] = max(
         0, int(report.get("no_sleeper_match") or 0) - len(excluded))
 
+    # ⚠ AND NAMED, NOT ONLY COUNTED. This figure is printed in the capture summary
+    # every morning and nobody could act on it: computed by SUBTRACTION, the
+    # players it counts were never identified. Trying to answer "which players did
+    # the prune cost us market coverage on" — the count moved 6 to 11 across one
+    # rebuild — my own ad-hoc enumeration disagreed with this module twice in a
+    # session, once listing three of our own keepers as misses. A count of a set
+    # nobody can enumerate is the shape this lane keeps finding elsewhere.
+    #
+    # THE SET IS ALSO A FREE CONTROL. The subtraction is only sound while every
+    # excluded id is itself unresolved, and nothing checked that. Built directly,
+    # its size and the subtraction become two independent routes to one number;
+    # they disagree exactly when the exclusion sets drift out of the unresolved
+    # population, which would inflate `crosswalk_rate_draftable` — and this class
+    # of error always goes in the flattering direction.
+    draftable_missing = [str(pid) for pid, _m in unresolved
+                         if str(pid) not in excluded]
+    out["no_sleeper_match_draftable_ids"] = draftable_missing[:40]
+    out["no_sleeper_match_draftable_truncated"] = len(draftable_missing) > 40
+
     # THE RATE THAT ANSWERS THE QUESTION. `crosswalk_rate` is "how much of the
     # source can we decode"; what decides whether the archive is usable is "how
     # much of what we can actually DRAFT can we decode". A keeper is draftable by
@@ -1017,6 +1963,145 @@ def dropped_inside(series: list, year, last_pick=None) -> dict:
                          ", ".join(inside[:12]))))
 
 
+def _draftable_picks():
+    """teams x rounds, READ from the league config. None if unreadable.
+
+    None rather than 150: a depth verdict that says "none of them were draftable"
+    on a guessed range is worse than no verdict, because it reassures. Same shape
+    and same reasoning as `external_source_run._our_pass_td`.
+    """
+    # ⚠ THE CATCH IS NARROW ON PURPOSE, and this function is why. It first read
+    # `HERE.parent / "config"`, and this module has no `HERE` — so every call
+    # raised NameError, a bare `except Exception` swallowed it, and the verdict
+    # came back "the league config could not be read". A coding error wearing the
+    # costume of a missing file. `except Exception` around a path expression is
+    # the same defect as `|| <fallback>`: it converts "this code is wrong" into
+    # "proceed with something else" and reports success either way.
+    #
+    # Only the ways a FILE can genuinely fail are caught. A typo raises.
+    try:
+        cfg = json.loads((CONFIG_DIR / "league_config.json").read_text())
+    except (OSError, ValueError):
+        return None
+    t, r = cfg.get("teams"), cfg.get("rounds")
+    return int(t) * int(r) if t and r else None
+
+
+def _adp_of(row):
+    """The pick value in a snapshot row, whatever shape the row is.
+
+    The archive stores a bare float today (`341.5`). It has stored dicts before
+    and may again, and a depth measurement that silently reads None off every row
+    would report "0 of 37 were draftable" — the most reassuring possible answer —
+    on a schema it simply could not parse. So the shapes are enumerated and an
+    unparseable row is counted, not dropped.
+    """
+    if isinstance(row, dict):
+        for k in ("adp", "pick", "avg_pick", "average_pick", "rank"):
+            if row.get(k) is not None:
+                try:
+                    return float(row[k])
+                except (TypeError, ValueError):
+                    return None
+        return None
+    try:
+        return float(row)
+    except (TypeError, ValueError):
+        return None
+
+
+def drop_depth(earlier: dict, later: dict, draftable=None) -> dict:
+    """WHERE the players a snapshot lost were priced — not merely how many.
+
+    ⚠ THIS EXISTS BECAUSE THE COUNT ALONE INVITES THE WRONG REACTION. The note
+    below used to read "the board LOST 36 players in a day" and stop there. That
+    sentence is true and it is alarming, and the alarm points at nothing a reader
+    can act on: measured on 08-12 -> 08-13, ALL 37 lost players were priced
+    beyond pick 169 (median 441, shallowest 169.2) and NOT ONE was inside our
+    150-pick draft. The board did not lose anything our room can take.
+
+    The mechanism makes that structural rather than lucky: MFL's cutoff removes
+    the LEAST-DRAFTED players, and a player going inside pick 150 of a 10-team
+    league appears in nearly every draft. But structural is not guaranteed, which
+    is the whole reason to measure it every day instead of asserting it once.
+
+    `draftable=None` means the league config could not be read, and the verdict
+    is then `unknown` rather than a reassuring zero.
+    """
+    # ⚠ AN EMPTY SIDE IS NOT A QUIET DAY, AND THE FAILURE IS ASYMMETRIC.
+    # Measured 2026-08-17 against the live series: with `earlier` empty and
+    # `later` full this returned `none_lost` — "no players left the board
+    # between these two days" — which is the most reassuring sentence available
+    # for a day on which we captured NOTHING. The other direction already
+    # alarms, so nothing had ever surfaced the hole.
+    #
+    # The call site is `drop_depth(mine[i - 1].get("rows") or {}, ...)`, so a
+    # snapshot with no `rows` key arrives here as `{}` rather than raising —
+    # the `|| var=""` shape exactly, one function further along.
+    #
+    # Vacuously true is not true enough: nothing can be said to have left a
+    # board that was never observed, so the verdict is `unknown`.
+    if not earlier or not later:
+        which = ("neither snapshot carries any rows" if not earlier and not later
+                 else "the EARLIER snapshot carries no rows" if not earlier
+                 else "the LATER snapshot carries no rows")
+        return {
+            "lost": 0, "gained": 0, "unparseable": 0,
+            "draftable_picks": draftable, "lost_inside_draft": None,
+            "shallowest_lost": None, "median_lost": None,
+            "verdict": "unknown",
+            "note": "%s, so what the board lost between them cannot be "
+                    "measured. This is a fact about OUR capture, not about the "
+                    "board — and it is emphatically not 'nothing was lost', "
+                    "which is what an empty earlier side reported until "
+                    "2026-08-17." % which,
+        }
+
+    lost = [p for p in earlier if p not in later]
+    vals, unparseable = [], 0
+    for p in lost:
+        v = _adp_of(earlier[p])
+        if v is None:
+            unparseable += 1
+        else:
+            vals.append(v)
+    vals.sort()
+    inside = None if draftable is None else [v for v in vals if v <= draftable]
+    if draftable is None:
+        verdict, note = "unknown", (
+            "the league config could not be read, so 'was anything DRAFTABLE lost' "
+            "has no answer here. %d player(s) left the board." % len(lost))
+    elif unparseable:
+        verdict, note = "unknown", (
+            "%d of %d lost row(s) carried no readable pick value, so the depth of "
+            "the loss cannot be stated. Reporting 'none were draftable' off rows "
+            "that could not be parsed would be the most reassuring possible lie."
+            % (unparseable, len(lost)))
+    elif not vals:
+        verdict, note = "none_lost", "no players left the board between these two days."
+    elif not inside:
+        verdict, note = "outside_draft", (
+            "%d player(s) left the board and NONE was priced inside pick %d — the "
+            "shallowest sat at %.1f, the median at %.1f. This does not touch any "
+            "player our room can draft."
+            % (len(vals), draftable, vals[0], vals[len(vals) // 2]))
+    else:
+        verdict, note = "inside_draft", (
+            "⚠ %d of %d player(s) that left the board were priced INSIDE pick %d "
+            "(shallowest %.1f). This one DOES reach the draftable range and the "
+            "board is now missing players our room could take."
+            % (len(inside), len(vals), draftable, min(inside)))
+    return {
+        "lost": len(lost), "gained": sum(1 for p in later if p not in earlier),
+        "unparseable": unparseable,
+        "draftable_picks": draftable,
+        "lost_inside_draft": None if inside is None else len(inside),
+        "shallowest_lost": vals[0] if vals else None,
+        "median_lost": vals[len(vals) // 2] if vals else None,
+        "verdict": verdict, "note": note,
+    }
+
+
 def coverage(series: list, year) -> dict:
     """What we actually hold for a season — reported, never assumed.
 
@@ -1048,19 +2133,34 @@ def coverage(series: list, year) -> dict:
     dead-capture case is covered by anything below.
     """
     ser = _series_of(series)
-    days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
-    counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
+    # ⚠ SORTED BY DAY, NOT BY ARCHIVE ORDER. `days` was sorted and `counts` was
+    # not, so `row_deltas` was day-over-day movement only while the archive
+    # happened to be appended in date order. It is today, and a single backfilled
+    # snapshot would have turned every delta into noise with nothing saying so —
+    # including `largest_drop`, which gates the note below.
+    mine = sorted((s for s in ser if str(s.get("year")) == str(year)),
+                  key=lambda s: str(s.get("observed_at")))
+    days = [s["observed_at"] for s in mine]
+    counts = [s.get("row_count") or 0 for s in mine]
     # Day-over-day row movement. One snapshot cannot show movement, so the largest
     # drop is None rather than 0 — 0 would read as "measured, and stable" (rule 13f).
     deltas = [counts[i] - counts[i - 1] for i in range(1, len(counts))]
     worst = min(deltas) if deltas else None
     drop_note = None
+    depth = None
     if worst is not None and worst <= -ROW_DROP_FLOOR:
+        # WHICH PAIR OF DAYS PRODUCED THE WORST DROP, so the depth measured below
+        # is the depth of THAT drop and not of some other one.
+        i = deltas.index(worst) + 1
+        depth = drop_depth(mine[i - 1].get("rows") or {},
+                           mine[i].get("rows") or {}, _draftable_picks())
         drop_note = (
             "the board LOST %d players in a day (%s). More drafts with fewer priced "
             "players is not self-explanatory: check whether MFL's CUTOFF is a "
             "percentage of drafts rather than a count, which would raise the bar as "
-            "drafts accumulate." % (abs(worst), " -> ".join(str(c) for c in counts)))
+            "drafts accumulate. ── WHERE THEY SAT (%s -> %s): %s"
+            % (abs(worst), " -> ".join(str(c) for c in counts),
+               days[i - 1], days[i], depth["note"]))
     out = {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,
@@ -1077,6 +2177,11 @@ def coverage(series: list, year) -> dict:
         "row_deltas": deltas,
         "largest_drop": (min(deltas) if deltas else None),
         "row_drop_note": drop_note,
+        # THE DEPTH OF THE WORST DROP, as structure rather than only as prose, so
+        # a consumer can branch on `verdict` without parsing a sentence. None when
+        # no drop cleared the floor — NOT a zeroed dict, which would read as
+        # "measured, and nothing was lost" (rule 13f).
+        "drop_depth": depth,
         # A DAY WITH ZERO ROWS IS NOT A DAY CAPTURED. It is a failed fetch wearing
         # a date, and counting it would make a broken run look like coverage.
         "empty_snapshots": sum(1 for c in counts if c == 0),
@@ -1205,6 +2310,27 @@ def players_of(obj) -> dict:
         return load_players(obj)
     if isinstance(obj, dict):
         return obj.get("players") or {}
+    if isinstance(obj, list):
+        # ⚠ THE ONE SHAPE THE DOCSTRING ABOVE PROMISES AND CANNOT DELIVER, and
+        # it is the shape production passed. The key lives on the archive
+        # WRAPPER; a list of snapshots provably cannot carry it, so returning
+        # {} here was not a fact about the archive — it was a fact about the
+        # argument, silently formatted as an empty answer.
+        #
+        # IT HAS NOW COST TWO SEPARATE CALLERS. The capture workflow printed
+        # "Decode: 0.0%" off `players_of(load())` and was fixed in place to
+        # pass `C.SERIES`. `ingest_run.adp_id_map` was left alone because it
+        # "already refuses an empty key by name" — but it unions the archive
+        # key with the LIVE MFL export, so the union was never empty, the
+        # refusal never fired, and the archive's own 712-entry key was simply
+        # never used. A guard that only catches BOTH halves missing does not
+        # catch one half missing.
+        raise TypeError(
+            "players_of() was handed the series LIST, which cannot carry a "
+            "decode key — the key lives on the archive wrapper alongside it. "
+            "Returning {} here reads as 'the archive has no key' when it means "
+            "'you passed the wrong object'. Pass the archive dict, or the path "
+            "(external_adp_capture.SERIES), not load().")
     return {}
 
 
@@ -1272,6 +2398,16 @@ def save(series: list, path=None, players=None) -> None:
         # in this repo could resolve one without a live call to MFL, which is the
         # exact dependency the archive exists to outlive. Its population is recorded
         # for the same reason every other durable record here carries one.
+        # AND SO DOES THE DENOMINATION, for the same reason and by the same rule.
+        # `population` says which FIELDS are empty and `coverage` says which DAYS
+        # are missing; neither says WHAT THIS ADP IS. Ten modules read this file
+        # and only `board_vs_market` knows the board is pooled across superflex,
+        # dynasty, keeper and IDP drafts — so the other nine can read a gap
+        # against our board as our board being wrong. Measured on the newest day,
+        # re-measured every write, `unknown` when the settings cannot be read.
+        "denomination": denomination(series or [], merged,
+                                     rostered=_rostered_for_archive(),
+                                     draftable=_draftable_picks()),
         "players": merged,
         "players_population": FP.of_records(
             [dict(v, mfl_id=k) for k, v in sorted(merged.items())],
@@ -1350,10 +2486,26 @@ PLAYERS_PARAMS = {"TYPE": "players", "JSON": "1"}
 #: Which of MFL's per-player fields describe the SPREAD rather than the mean.
 DISPERSION_FIELDS = ("min_pick", "max_pick", "sel_pct", "drafts")
 
-#: A player is kept only if the source published at least one BOUND. `drafts` and
-#: `sel_pct` alone do not describe a spread, and a row of all-None on disk is
-#: indistinguishable from a measured zero.
+#: What makes a row a SPREAD. `drafts` and `sel_pct` alone do not describe one, so
+#: the health alarm and the spread summary count rows carrying at least one of
+#: these — never rows carrying anything at all.
 DISPERSION_BOUNDS = ("min_pick", "max_pick")
+
+#: What makes a row WORTH KEEPING, which is a wider question than what makes it a
+#: spread — and the two were the same test until `marginal_adp` arrived.
+#:
+#: `dispersion` had exactly one consumer when it was written, so "no bound" and
+#: "nothing useful" were the same thing. The marginal day reads `drafts` — the
+#: exact per-player denominator, available from no other field — off the same
+#: record, and a player MFL counts but does not bound was being dropped carrying
+#: the one number nothing else supplies.
+#:
+#: THIS IS NOT HYPOTHETICAL UNTIL THE FIRST REAL CAPTURE PROVES IT EITHER WAY:
+#: `dispersion_health` says of these very fields that "the shape is right and only
+#: the names are unproven". If `minPick`/`maxPick` turn out absent, the bounds-only
+#: test drops EVERY row and the marginal day becomes silently underivable on a day
+#: whose denominator did arrive.
+DISPERSION_KEEP = ("min_pick", "max_pick", "drafts")
 
 
 def dispersion_of(parsed: list) -> dict:
@@ -1379,7 +2531,10 @@ def dispersion_of(parsed: list) -> dict:
         pid = r.get("mfl_id")
         if pid is None:
             continue
-        if all(r.get(k) is None for k in DISPERSION_BOUNDS):
+        # KEPT IF IT CARRIES ANYTHING A CONSUMER NEEDS, dropped only if it says
+        # nothing — a row of all-None on disk is a measurement of nothing wearing
+        # the shape of one.
+        if all(r.get(k) is None for k in DISPERSION_KEEP):
             continue
         out[str(pid)] = {k: r.get(k) for k in DISPERSION_FIELDS}
     return out
@@ -1391,6 +2546,10 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     Returns `(rows, players, total_drafts, note, dispersion)` — `rows` is
     {mfl_id: adp}, `players` is {mfl_id: {name, position, team}}, `dispersion` is
     {mfl_id: {min_pick, max_pick, sel_pct, drafts}}.
+
+    THIS IS THE EGRESS AND NOTHING ELSE. Everything after the two HTTP reads is
+    `assemble_day`, which is pure and tested; only the parts that genuinely
+    cannot run outside CI stay behind this `pragma: no cover`.
 
     DISPERSION IS PART OF THE PERISHABLE DAY. MFL publishes minPick, maxPick and
     draftSelPct per player; `parse` discarded them until 2026-08-13, so the two
@@ -1417,7 +2576,6 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     so loudly, rather than throwing away an observation that cannot be refetched.
     """
     import urllib.request
-    import mfl_adp as MFL
 
     def get(params, what):
         req = urllib.request.Request(_mfl_url(year, params),
@@ -1439,6 +2597,38 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
               % (type(e).__name__, e))
         players_text, note = "{}", note + " (players export FAILED this run)"
 
+    return assemble_day(adp_text, players_text, note)
+
+
+def assemble_day(adp_text, players_text, note=""):
+    """The two MFL exports -> one day's board. PURE, SO THE GUARDS CAN BE PROVEN.
+
+    Returns `(rows, players, total_drafts, note, dispersion)` — the same tuple
+    `fetch_mfl` has always returned, because this IS the second half of
+    `fetch_mfl`, moved out from behind `pragma: no cover`.
+
+    WHY IT MOVED, AND IT IS THE SAME REASON `dispersion_of` MOVED. Everything
+    below the two HTTP reads is a transformation with no egress in it, and it was
+    living inside a function nothing can execute — so the standing invariant this
+    module tests everywhere else, A GUARD MAY NEVER COST THE DAY, was checked for
+    every helper `capture()` calls and for NONE of the helpers `fetch_mfl` calls,
+    while the riskiest line in the whole path sat in here.
+
+    THE THREE ROLES ARE THE SAME ONES `capture()` ALREADY NAMES:
+
+      SOURCE   `mfl_adp.parse` — if it fails there is no board, so raising is the
+               only honest outcome and the caller must not paper over it.
+      GUARD    `dispersion_of`, `dispersion_diagnosis` — enhancements. Neither
+               existed before 2026-08-13 and the archive was worth keeping
+               without them, so neither may stop a day reaching disk.
+      REPORT   the note. Never load-bearing.
+
+    The ADP curve is the perishable thing. Names, spread and diagnosis are all
+    recoverable or optional; the mean as of a past date is not, and no provider
+    serves it again.
+    """
+    import mfl_adp as MFL
+
     parsed = MFL.parse(adp_text, players_text)
     rows = {r["mfl_id"]: r["adp"] for r in parsed}
     players = {r["mfl_id"]: {"name": r.get("name"), "position": r.get("position"),
@@ -1446,7 +2636,29 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
                for r in parsed}
     # Only players the source actually gave a spread for. A row with every field
     # None would be indistinguishable from a measured zero once it is on disk.
-    dispersion = dispersion_of(parsed)
+    #
+    # ⚠ GUARDED, BECAUSE THE SPREAD IS AN ENHANCEMENT AND THE DAY IS NOT.
+    # An ADP day cannot be refetched. `dispersion_of` is pure and tested, but
+    # 2026-08-14 is the FIRST contact between it and MFL's real response — MFL is
+    # unreachable from here, so no amount of care rehearses that — and an
+    # unexpected shape in one row would raise, abort the capture, and cost a day
+    # that no later run can recover, in exchange for a field we did without
+    # entirely until yesterday.
+    #
+    # The diagnosis two blocks down already carries this rule in its own comment:
+    # "must never cost the capture". This line did not, and it is the one most
+    # likely to meet something new. Failing to a spread of NOTHING is honest —
+    # `dispersion_health` already reports an absent spread by name, and the note
+    # says which exception it was, so the fix is a diff rather than a second
+    # unrefetchable day of guessing.
+    try:
+        dispersion = dispersion_of(parsed)
+    except Exception as e:                          # noqa: BLE001
+        dispersion = {}
+        note = note + (" | DISPERSION PARSE FAILED (%s: %s) — the day's ADP is "
+                       "captured, the spread is not" % (type(e).__name__, e))
+        print("assemble_day: dispersion parse FAILED (%s: %s) — capturing the "
+              "day's ADP anyway" % (type(e).__name__, e))
     # IF THE SPREAD DID NOT ARRIVE, SAY WHY IN THE SAME BREATH. MFL cannot be
     # reached from the dev environment (the agent proxy 403s CONNECT to
     # api.myfantasyleague.com:443), so the scheduled run is the first contact
@@ -1471,6 +2683,41 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     return rows, players, total, note, dispersion
 
 
+def collapse_verdict(now: int, series, year, observed_at) -> dict:
+    """Is today's board a TRUNCATED FETCH rather than the feed moving? -> verdict.
+
+    EXTRACTED FROM `capture` SO IT IS REACHABLE AT ALL. `capture` is egress and
+    carries `pragma: no cover`; a guard living inside it can only be tested by
+    reimplementing its arithmetic in the test file, and a test that reimplements
+    the thing it checks passes no matter what the shipped code does. THE MUTATION
+    GATE PROVED THAT ON THE FIRST CUT OF THIS GUARD: changing the real condition
+    inside `capture` left every test written for it green.
+
+    `refuse: False` WITH A `status` SAYS WHICH KIND OF PASS IT IS. The season's
+    first capture has no yesterday, and that is `first_day` rather than a clean
+    bill — a check whose only possible answer is "nothing to compare" has not
+    looked (rule 13f).
+    """
+    prior = [s for s in _series_of(series)
+             if str(s.get("year")) == str(year)
+             and (s.get("observed_at") or "") < str(observed_at)]
+    if not prior:
+        return {"refuse": False, "status": "first_day", "now": now, "was": None,
+                "kept": None, "floor": COLLAPSE_KEEP_FRACTION,
+                "note": "no earlier day for %s, so nothing was compared — that is "
+                        "the archive's age, not a judgement on this board" % year}
+    was = len((sorted(prior, key=lambda s: s.get("observed_at") or "")[-1]
+               .get("rows") or {}))
+    if not was:
+        return {"refuse": False, "status": "prior_empty", "now": now, "was": was,
+                "kept": None, "floor": COLLAPSE_KEEP_FRACTION,
+                "note": "the previous day holds no rows, so a share of it is not "
+                        "a quantity — nothing was compared"}
+    kept = now / float(was)
+    return {"refuse": kept < COLLAPSE_KEEP_FRACTION, "status": "measured",
+            "now": now, "was": was, "kept": kept, "floor": COLLAPSE_KEEP_FRACTION,
+            "note": "kept %.1f%% of yesterday's %d rows" % (100.0 * kept, was)}
+
 def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only)
     rows, players, total, note, dispersion = fetch_mfl(year)
     if not rows:
@@ -1481,6 +2728,45 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "capture for %s on %s returned ZERO rows — refusing to write an empty "
             "snapshot, because a dated empty board is indistinguishable from a real "
             "one downstream (%s)" % (year, observed_at, note))
+    # ⚠ A TRUNCATED BOARD IS THE ONE BROKEN RESPONSE THAT LOOKS LIKE A GOOD DAY.
+    # Measured by breaking the wire nine ways against this exact function: a
+    # connection error, a 404, a 403, an empty body, garbage and a zero-player
+    # export ALL raise and leave the archive untouched. A 200 carrying 20 of 681
+    # players in a perfectly valid MFL shape wrote a 20-row day with no complaint
+    # — into an APPEND-ONLY archive whose days cannot be refetched, where every
+    # later coverage figure counts it as a captured day.
+    #
+    # `if not rows` above catches only ZERO. This catches the collapse.
+    #
+    # WHY REFUSE RATHER THAN MARK, given this file's own rule that a lost day is
+    # permanent and a corrupt one is recoverable: a truncated day is NOT
+    # recoverable-by-noticing. A 20-row day reads as a 20-row day forever, and
+    # nothing downstream can tell it from a market that priced 20 players. The
+    # day is also not lost — this workflow takes `workflow_dispatch`, and three
+    # of its seven runs to date were dispatches, so a refused morning is re-run
+    # rather than gone.
+    # ⚠ AND THE GUARD MUST NOT BE ABLE TO KILL THE DAY EITHER — the fourth time
+    # this file has had to say so, and the standing classification test caught me
+    # not saying it. REFUSING BECAUSE THE BOARD COLLAPSED is the point; ABORTING
+    # BECAUSE THIS CODE THREW is the alarm destroying what it watches. So the
+    # measurement sits in a `try` and only the VERDICT propagates.
+    verdict = {"refuse": False, "status": "guard_failed"}
+    try:
+        verdict = collapse_verdict(len(rows), load(path), year, observed_at)
+    except Exception as e:                                       # noqa: BLE001
+        print("collapse guard COULD NOT RUN (%s: %s) — the truncation check did "
+              "not happen and the day is being written unjudged. That is a fact "
+              "about this guard, not about the board." % (type(e).__name__, e))
+    if verdict["refuse"]:
+        raise RuntimeError(
+            "capture for %s on %s returned %d rows against %d yesterday — %s, "
+            "under the %.0f%% floor. Refusing to write: a truncated 200 is "
+            "indistinguishable downstream from a market that priced this many "
+            "players, and this archive cannot refetch the day to correct it. "
+            "Re-dispatch the workflow (%s)"
+            % (year, observed_at, verdict["now"], verdict["was"],
+               verdict["note"], 100.0 * verdict["floor"], note))
+
     series = append_snapshot(load(path), year, observed_at, rows, total,
                              source_note=note, dispersion=dispersion)
 
@@ -1503,22 +2789,42 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     # standing CI test runs `integrity` against the committed archive and would
     # catch it, and the file can be corrected. A lost day is PERMANENT. So a
     # checker that cannot RUN reports loudly and does not block; a checker that
-    # runs and finds corruption still refuses.
+    # runs and finds corruption in TODAY'S SNAPSHOT still refuses.
+    #
+    # ⚠ AND IT IS SCOPED TO TODAY — see `blocking_fatal`. `integrity` judges the
+    # whole archive, so refusing on `ok` meant one corrupt day anywhere would have
+    # blocked every future capture until someone noticed, turning one recoverable
+    # loss into an unbounded permanent one.
+    #
+    # BOTH GUARD CALLS SIT IN ONE `try`, deliberately. `blocking_fatal` is the
+    # second thing standing between a good board and the disk, and it would have
+    # been the fourth guard in this file able to destroy what it protects if a bug
+    # in it were allowed to propagate.
     try:
         ig = integrity({"series": series, "players": merge_players(
             load_players(path), players or {})})
+        blocking = blocking_fatal(ig, year, observed_at)
     except Exception as e:                          # noqa: BLE001
         ig = {"ok": True, "fatal": [], "reported": [], "status": "check_failed"}
+        blocking = []
         print("INTEGRITY CHECK ITSELF FAILED (%s: %s) — WRITING THE DAY ANYWAY. A "
               "bug in the guard is not evidence the data is bad, and the day cannot "
               "be refetched. The standing check on the committed archive still runs."
               % (type(e).__name__, e))
-    if not ig["ok"]:
+    # LOUD ABOUT WHAT IT IS NOT REFUSING FOR. An older day going fatal is a real
+    # finding and must not become quiet just because it no longer stops the write.
+    older = [f for f in (ig.get("fatal") or []) if f not in blocking]
+    if older:
+        print("⚠ THE ARCHIVE HAS %d FATAL FINDING(S) ON OTHER DAYS — WRITING TODAY "
+              "ANYWAY, because refusing does not unwrite them and today's board "
+              "cannot be refetched. FIX THE ARCHIVE: %s"
+              % (len(older), json.dumps(older, default=str)[:400]))
+    if blocking:
         raise RuntimeError(
             "REFUSING TO WRITE — integrity check failed for %s on %s: %s. The "
             "archive is append-only and its days cannot be refetched, so a corrupt "
             "snapshot would be permanent."
-            % (year, observed_at, json.dumps(ig["fatal"])[:400]))
+            % (year, observed_at, json.dumps(blocking, default=str)[:400]))
 
     save(series, path, players=players)
 
@@ -1551,6 +2857,20 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
                           # NAMED, because a dispersion count of zero after this landed
                           # means MFL stopped publishing it — not that spreads are zero.
                           "dispersion_rows": len(dispersion),
+                          # THE SCALE OF `sel_pct`, ANSWERED FROM TODAY'S OWN DAY.
+                          # `TRUNCATION_SEL_PCT` reads MFL's figure as a whole
+                          # percent on the strength of one row quoted in a comment.
+                          # Printed here because this is the first surface anyone
+                          # reads on the morning it first matters — a check whose
+                          # answer nobody sees is rule 14 in the other direction.
+                          # Found by (year, date) rather than taken as `series[-1]`:
+                          # today IS appended last, and depending on that is how a
+                          # report ends up describing a different day than the one
+                          # it names.
+                          "sel_pct_units": sel_pct_units(next(
+                              (s for s in series
+                               if str(s.get("year")) == str(year)
+                               and s.get("observed_at") == observed_at), {})),
                           # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
                           # Printed beside the capture count because the two failed
                           # independently for two days and only one of them was visible.
@@ -1568,3 +2888,165 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     return rep if rep is not None else {"year": str(year), "uncounted": True,
                                         "note": "coverage not computed — see "
                                                 "REPORT FAILED above"}
+
+
+#: How far MFL's per-player `draftsSelectedIn` may exceed its own `totalDrafts`
+#: before the disagreement stops being the aggregation lag we have measured and
+#: becomes a different fact. DERIVED FROM THE OBSERVATION, not chosen to pass:
+#: on 2026-08-14 the worst excess was 3 on a pool of 127 (2.4%), so the bound is
+#: set at 5% of the pool with a floor of 5 — comfortably above what MFL does and
+#: far below anything that would indicate the two fields describe different
+#: populations.
+#: The day the two constants below were derived from a real snapshot. Named
+#: rather than written into prose, so a note can say WHEN it was calibrated
+#: without claiming those were this morning's numbers.
+DRAFTS_EXCESS_CALIBRATION = "2026-08-14"
+
+DRAFTS_EXCESS_TOLERANCE = 0.05
+DRAFTS_EXCESS_FLOOR = 5
+
+
+def snapshot_audit(snapshot: dict) -> dict:
+    """Is this day trustworthy? -> {ok, fatal, observed, checked}.
+
+    WRITTEN TO A DIRECT REQUEST (Cory, 2026-08-14): *"the daily data capture
+    process needs to be correct... the data itself needs to be accurate and we
+    need understand what it means so we don't misuse it."*
+
+    TWO CATEGORIES, AND CONFLATING THEM IS HOW A REAL ALARM GETS MUTED.
+
+    **FATAL** — arithmetically impossible, so either our pipeline or MFL's export
+    is broken and nothing on the day may be used. `min_pick <= adp <= max_pick` is
+    the strongest of these: a mean pick outside the range of the picks it averages
+    cannot happen, and the marginal-ADP derivation assumes exactly that those
+    fields describe one population.
+
+    **OBSERVED** — MFL disagreeing with itself, every day, in a way that is now
+    measured and bounded. On 2026-08-14: 25 of 681 players carried a
+    `draftsSelectedIn` above `totalDrafts` (127), the worst by 3, and 12 carried
+    `draftSelPct` above 100 — up to 102.0. Recovering the denominator from each
+    player's own pair gives 127.0-128.4 across the 180 with 100+ drafts, so the
+    pool really is ~127-128 and MFL's aggregate simply lags its own counts.
+
+    ⚠ THE CONSEQUENCE, WHICH IS THE POINT OF SAYING ANY OF THIS: `total_drafts`
+    IS NOT AN EXACT BOUND AND MUST NOT DECIDE ANYTHING. `latest_marginal` used to
+    choose its window on `total_drafts` deltas — a field wrong by up to 3 deciding
+    a threshold of 3 — and now decides on per-player `drafts`, which are exact.
+    Anything else reading `total_drafts` as a hard denominator is wrong by ~2%.
+
+    AND THE TOLERANCE IS ITSELF CHECKED. Bounded is the reason the second category
+    is tolerated at all; an excess of 40 on a pool of 127 is not the lag we
+    measured, so it is promoted to FATAL rather than inheriting the tolerance
+    granted to an excess of 3.
+    """
+    # ⚠ AN ABSENT DAY IS NOT A CORRUPT DAY, AND THIS REPORTED IT AS ONE. Handed
+    # {} — which is what a caller asking about a year the archive does not hold
+    # gets — every check below ran against an empty dict and the first one fired:
+    # "row_count says None and the day holds 0 rows", FATAL, with a note about a
+    # permanent record contradicting its own contents. The archive was fine; there
+    # was no day. FOUND BY EXECUTING THE WORKFLOW STEP RATHER THAN READING IT,
+    # which is the whole reason that sweep exists.
+    if not snapshot:
+        return {"status": "unmeasured", "ok": None, "fatal": [], "observed": [],
+                "checked": [], "players": 0,
+                "note": "no snapshot was handed to the audit — that is a fact "
+                        "about which day was asked for, not about the archive, "
+                        "and it is NOT a clean bill of health"}
+    rows = (snapshot or {}).get("rows") or {}
+    disp = (snapshot or {}).get("dispersion") or {}
+    td = (snapshot or {}).get("total_drafts")
+    fatal, observed, checked = [], [], []
+
+    def fail(kind, note, **extra):
+        fatal.append(dict({"kind": kind, "note": note}, **extra))
+
+    checked.append("row_count")
+    if (snapshot or {}).get("row_count") != len(rows):
+        fail("row_count_mismatch",
+             "row_count says %s and the day holds %d rows. Every coverage figure "
+             "downstream reads row_count, so the archive would carry a permanent "
+             "record whose own summary contradicts its contents."
+             % ((snapshot or {}).get("row_count"), len(rows)))
+
+    checked.append("dispersion_keys_in_rows")
+    orphan = [k for k in disp if k not in rows]
+    if orphan:
+        fail("dispersion_orphan",
+             "%d dispersion row(s) have no priced player — the two halves of the "
+             "day describe different populations." % len(orphan),
+             ids=orphan[:10])
+
+    checked.append("adp_within_min_max")
+    outside = []
+    for pid, v in disp.items():
+        lo, hi, adp = (v or {}).get("min_pick"), (v or {}).get("max_pick"), rows.get(pid)
+        if adp is None or lo is None or hi is None:
+            continue
+        if not (float(lo) <= float(adp) <= float(hi)):
+            outside.append({"player_id": pid, "min": lo, "adp": adp, "max": hi})
+    if outside:
+        fail("adp_outside_range",
+             "%d player(s) have an ADP outside their OWN observed pick range. A "
+             "mean of picks cannot fall outside the picks it averages, so "
+             "`averagePick` and min/max are not describing the same population — "
+             "and the marginal-ADP derivation assumes they are." % len(outside),
+             examples=outside[:5])
+
+    checked.append("min_pick_at_least_1")
+    bad_lo = [pid for pid, v in disp.items()
+              if (v or {}).get("min_pick") is not None and float(v["min_pick"]) < 1]
+    if bad_lo:
+        fail("min_pick_below_one",
+             "%d player(s) report being drafted before pick 1." % len(bad_lo),
+             ids=bad_lo[:10])
+
+    # ── OBSERVED: MFL against itself, measured and bounded ──────────────────
+    if td:
+        checked.append("drafts_vs_total_drafts")
+        over = [(pid, v["drafts"] - int(td)) for pid, v in disp.items()
+                if (v or {}).get("drafts") is not None and v["drafts"] > int(td)]
+        if over:
+            worst = max(x for _p, x in over)
+            bound = max(DRAFTS_EXCESS_FLOOR, DRAFTS_EXCESS_TOLERANCE * int(td))
+            entry = {"kind": "drafts_above_total", "n": len(over),
+                     "worst_excess": worst, "total_drafts": int(td),
+                     "bound": round(bound, 1),
+                     # ⚠ DERIVED FROM TODAY, NOT FROM THE DAY THIS WAS
+                     # CALIBRATED. This note used to read "Measured 2026-08-14: 25
+                     # players, worst excess 3 on a pool of 127" — frozen prose
+                     # sitting beside three fields computing the same quantities
+                     # live. On the 20th it would still have said 25 and 3.
+                     "note": "MFL's aggregate lags its own per-player counts: %d "
+                             "player(s) today, worst excess %d on a pool of %d. "
+                             "`total_drafts` is therefore NOT an exact bound and "
+                             "must not decide anything."
+                             % (len(over), worst, int(td)),
+                     # THE CALIBRATION KEPT AS PROVENANCE, clearly dated and
+                     # clearly not a claim about this run.
+                     "bound_calibrated_on": DRAFTS_EXCESS_CALIBRATION}
+            if worst > bound:
+                fail("drafts_above_total_UNBOUNDED",
+                     "worst excess %d exceeds the measured lag bound of %.1f — "
+                     "that is no longer the aggregation lag we understand, and "
+                     "it must not inherit the tolerance calibrated on %s."
+                     % (worst, bound, DRAFTS_EXCESS_CALIBRATION), **{k: v for k, v in entry.items()
+                                          if k not in ("kind", "note")})
+            else:
+                observed.append(entry)
+
+    checked.append("sel_pct_above_100")
+    hot = [(pid, v["sel_pct"]) for pid, v in disp.items()
+           if (v or {}).get("sel_pct") is not None and v["sel_pct"] > 100]
+    if hot:
+        observed.append({"kind": "sel_pct_above_100", "n": len(hot),
+                         "worst": max(x for _p, x in hot),
+                         # SAME FIX: the numbers come from `hot`, not from the
+                         # afternoon this was first observed.
+                         "note": "the same lag seen from the other side: a player "
+                                 "counted in more drafts than the aggregate knows "
+                                 "about exceeds 100%%. Today: %d player(s), worst "
+                                 "%.1f." % (len(hot), max(x for _p, x in hot)),
+                         "calibrated_on": DRAFTS_EXCESS_CALIBRATION})
+
+    return {"status": "measured", "ok": not fatal, "fatal": fatal,
+            "observed": observed, "checked": checked, "players": len(rows)}

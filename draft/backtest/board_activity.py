@@ -74,6 +74,20 @@ PROJECTION_HEALTH_FLOOR = 0.5
 #: occupied rather than removed, so 10 x 15 = 150 rows leave the pool.
 DEPTH = 150
 
+#: How deep a market price still counts as "somebody is drafting him".
+#: ADDED 2026-08-15, from the first in-run diagnosis of a refused nightly
+#: board (draft/tools/diagnose_refused_board.py, run 31897110098): the fresh
+#: FantasyPros consensus table carried a ROB GRONKOWSKI row at ADP 298.0 with
+#: proj_mean 0.0 — retired since 2021, priced by nobody in any real sense,
+#: yet the unconditional market exemption spared him and the retired-player
+#: invariant went red, blocking the publish. The voucher's own words are
+#: "somebody is drafting him"; in a 150-pick draft an ADP of 298 means
+#: nobody is. 1.5x the draft's depth keeps every conceivably-reachable row
+#: spared (the deepest real pick is 150; 225 matches the "relevant board"
+#: bound the external-ADP work already uses) while a deep-table ghost row
+#: no longer vouches for a retiree.
+MARKET_SPARE_DEPTH = DEPTH * 1.5
+
 
 def _store(season, root=None):
     p = Path(root or HERE) / ("nflverse_weekly_points_%d.json" % season)
@@ -109,6 +123,24 @@ def _priced(p):
     return p.get("adp_source") not in (None, "search_rank")
 
 
+def market_vouches(p):
+    """Does the market DRAFTABLY price him — the spare rule and the prune audit's
+    shared definition, one function so the two can never drift apart (the
+    dual-maintenance failure this repo keeps finding, avoided at birth).
+
+    Priced with NO adp number at all -> vouched (fail-safe: deleting somebody
+    real is far worse than keeping a retiree, per this module's own tests).
+    Priced with a KNOWN adp beyond MARKET_SPARE_DEPTH -> not vouched: that is
+    the FantasyPros deep-table ghost row (Gronkowski at 298.0, Ruggs, Foles),
+    not a player anyone is drafting."""
+    if not _priced(p):
+        return False
+    adp = _num(p.get("raw_adp"))
+    if adp is None:
+        adp = _num(p.get("adp"))
+    return adp is None or adp <= MARKET_SPARE_DEPTH
+
+
 def projection_health(board: dict) -> dict:
     """What fraction of the market-priced rows carry a projection.
 
@@ -129,6 +161,62 @@ def projection_health(board: dict) -> dict:
                      % (100 * rate, 100 * PROJECTION_HEALTH_FLOOR))}
 
 
+def keeper_ids(root=None) -> dict:
+    """The REAL keeper designations. `{status, ids, teams, note}`.
+
+    WHY THIS EXISTS, AND IT IS A'S FINDING RATHER THAN MINE. `dormant()` had four
+    exemptions and a keeper was none of them. A player kept through a two-season
+    injury — no scored week in 2024 or 2025, dropped by FFC, unprojected — matches
+    every dormancy condition, and `build.py` builds `kept_players` by FILTERING
+    `players` (line ~1266) long after the prune's insertion point (~613). A keeper
+    removed at 613 does not appear in `kept_players` at 1266; he is simply gone,
+    and the artifact the whole draft plan rests on is short a player with nothing
+    saying so.
+
+    MY OWN REDESIGN MADE IT SHARPER, WHICH IS WHY IT IS WORTH FIXING NOW. The old
+    "scored recently" rule accidentally protected an injured keeper who had played
+    in 2024. "Who vouches for him" does not, so an unprojected, unpriced keeper is
+    dormant by construction.
+
+    MEASURED, not hypothetical: today 0 of the 3 real designations and 0 of the 17
+    predicted are dormant, so nothing is broken. The safety rests entirely on the
+    coincidence that nobody in this league is currently keeping a two-year
+    absentee, and keeper lock is 2026-08-21.
+
+    ⚠ IT READS THE REAL DESIGNATIONS ONLY — `draft/config/keepers.json`, the same
+    file `build.py:load_keepers` uses — and DELIBERATELY NOT
+    `predicted_keepers.json`. That file is quarantined research ("PREDICTED slates
+    for MOCK/REHEARSAL ONLY — never applied to the live board") and sparing a row
+    on the strength of a prediction would couple the live board to it, in the one
+    direction that looks harmless and is still the coupling.
+
+    ABSENT AND UNREADABLE ARE DIFFERENT STATES. No file means no designations yet
+    — genuinely nothing to protect, and `build.py` says so and builds anyway. A
+    file that will not parse means the keeper set is UNKNOWN, and a prune under an
+    unknown keeper set is the loss this exists to prevent, so `dormant()` refuses
+    on that and only that.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+    base = _Path(root) if root else _Path(__file__).resolve().parent.parent
+    p = base / "config" / "keepers.json"
+    if not p.exists():
+        return {"status": "absent", "ids": frozenset(), "teams": 0,
+                "note": "no keepers.json — no designations exist yet, which is a "
+                        "fact about the league rather than a failure to read one"}
+    try:
+        doc = _json.loads(p.read_text())
+    except (ValueError, OSError) as e:                              # noqa: BLE001
+        return {"status": "unreadable", "ids": frozenset(), "teams": 0,
+                "note": "keepers.json is present but unreadable (%s: %s), so the "
+                        "keeper set is UNKNOWN" % (type(e).__name__, e)}
+    teams = doc.get("teams") or []
+    ids = {str(k["player_id"]) for t in teams for k in (t.get("keepers") or [])
+           if k.get("player_id") is not None}
+    return {"status": "read", "ids": frozenset(ids), "teams": len(teams),
+            "note": "%d real designation(s) across %d team(s)" % (len(ids), len(teams))}
+
+
 def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
     """Rows nothing in the system expects to play in 2026.
 
@@ -139,13 +227,16 @@ def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
     kickers at all — the weekly store scores none, so Gostkowski, Tucker and Dan
     Bailey were structurally invisible to it.
 
-    Three sources can vouch for a player and any ONE of them spares him:
+    Four sources can vouch for a player and any ONE of them spares him:
 
       the market      a real ADP from FFC or FantasyPros — somebody is drafting
                       him, and no absence of mine outranks that
       a projection    either source putting a number on his 2026, which is a
                       positive claim that he exists
       being a rookie  no NFL history is the correct history
+      BEING KEPT      a real keeper designation. A manager saying "this is my
+                      player for 2026" is the strongest possible claim that he
+                      exists, and it is the one this rule could not see.
 
     When none of the three does, nobody in the system expects him to play. That
     catches the retired greats, the 2024 leftovers and the retired kickers alike,
@@ -159,6 +250,10 @@ def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
     IT REFUSES when projections are not healthy. That is the failure that would
     matter: a build whose projection fetch died makes every row unprojected, and
     an unguarded rule would delete the whole board rather than eight retirees.
+
+    IT ALSO REFUSES WHEN THE KEEPER DESIGNATIONS CANNOT BE READ — see
+    `keeper_ids`. An unreadable keeper file is not "no keepers"; it is "I do not
+    know who is kept", and pruning under that is how a keeper disappears.
     """
     health = projection_health(board)
     if not health["ok"]:
@@ -166,22 +261,38 @@ def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
                 "note": "REFUSING to judge — %s. Treating that as 'nobody is "
                         "projected' would drop the board." % health["note"]}
 
+    keep = keeper_ids(root)
+    if keep["status"] == "unreadable":
+        return {"status": "unmeasured", "rows": [], "n": 0, "health": health,
+                "keepers": keep,
+                "note": "REFUSING to judge — %s. Pruning without knowing who is "
+                        "kept is how a keeper leaves the board silently."
+                        % keep["note"]}
+
     sc = scored_ids(seasons, root)
-    rows = []
+    rows, spared_keepers = [], []
     for p in (board or {}).get("players") or []:
         if (_num(p.get("years_exp")) or 0) == 0:
             continue                                  # a rookie's blank is correct
-        if _priced(p):
-            continue                                  # the market prices him
+        if market_vouches(p):
+            continue                                  # the market DRAFTABLY prices him
         if (_num(p.get("proj_mean")) or 0) > 0:
             continue                                  # somebody projects him
+        if str(p.get("player_id")) in keep["ids"]:
+            # A KEPT PLAYER IS NEVER DORMANT, whatever else is true of him. He is
+            # counted rather than merely skipped, because "0 keepers spared" and
+            # "the keeper check never ran" are different states and only one of
+            # them is good news.
+            spared_keepers.append(str(p.get("player_id")))
+            continue
         rows.append(dict(p, scored_recently=(
             str(p.get("player_id")) in sc["ids"] if sc["seasons_read"] else None)))
     return {"status": "measured", "rows": rows, "n": len(rows), "health": health,
             "seasons_read": sc["seasons_read"],
             "seasons_missing": sc["seasons_missing"],
-            "note": "not a rookie, not market-priced, and carrying no projection "
-                    "— nothing in the system expects them in 2026"}
+            "keepers": dict(keep, spared=sorted(spared_keepers)),
+            "note": "not a rookie, not draftably market-priced, carrying no projection and "
+                    "not kept — nothing in the system expects them in 2026"}
 
 
 #: The surfaces a dormant row must never reach. Each is a place a number becomes

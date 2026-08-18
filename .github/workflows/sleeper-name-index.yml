@@ -1,0 +1,90 @@
+name: SLEEPER NAME INDEX — the join two studies are blocked on
+# Register 4t. FantasyPros keys players by NAME; nflverse_weekly_points_*.json keys
+# realized points by SLEEPER ID. Nothing committed joins the two, so both of these
+# stop dead:
+#
+#   * grading the expert-spread ceiling (EXPERT-SPREAD-CEILING-PREREG.md §3), and
+#   * Cory's 2026-08-18 question — "should we see which experts drafted better in
+#     2025 then use those experts to apply to model for 2026" — which needs each
+#     expert's ranks scored against realized outcomes.
+#
+# WHY NOT JUST USE THE 2026 BOARD'S NAMES: because public/draft_data.json holds the
+# players relevant in 2026, so joining a 2024 study through it drops everyone who
+# busted in 2024 and left the league. The survivors stay and the failures vanish.
+# For a study about UPSIDE that is not a coverage limitation, it is a result
+# generator. Sleeper's pool retains retired and inactive players.
+#
+# Commits ONE index file. Touches no board, no calibration, no projection.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # Collision handling is the whole value of this file. Prove it before fetching.
+      - name: Prove the join refuses to guess before trusting it
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check pytest
+          python3 -m pytest draft/tests/test_sleeper_name_index.py -q
+
+      - name: Build the index
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, "draft")
+          sys.path.insert(0, "draft/backtest")
+          import sleeper_name_index as NI
+          raise SystemExit(NI.main())
+          PY
+
+      - name: Report real coverage against the FantasyPros names we must join
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import glob, json, sys
+          sys.path.insert(0, "draft/backtest")
+          import sleeper_name_index as NI
+          art = json.load(open("draft/backtest/sleeper_name_index.json"))
+          for f in sorted(glob.glob("draft/backtest/fp_expert_ranks_*.json")):
+              d = json.load(open(f))
+              c = NI.coverage_against(art, [p["name"] for p in d["players"]])
+              print(f"{d['season']}: {c['resolved']}/{c['asked']} resolved "
+                    f"({c['resolved_pct']}%), {c['unresolved_collision']} ambiguous, "
+                    f"{c['unresolved_missing']} missing")
+              if c["missing_names"]:
+                  print("   first misses:", ", ".join(c["missing_names"][:12]))
+          PY
+
+      - name: Commit the index
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          if [ -n "$(git status --porcelain draft/backtest/sleeper_name_index.json)" ]; then
+            git add draft/backtest/sleeper_name_index.json
+            git commit -m "Build the Sleeper name index [skip deploy]"
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push origin HEAD:main && break
+              sleep $((2**i))
+            done
+          else
+            echo "No change to the index."
+          fi
+
+      - name: Upload regardless
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sleeper-name-index
+          path: draft/backtest/sleeper_name_index.json
+          if-no-files-found: warn

@@ -286,9 +286,21 @@ if (block) {
     .map(p => ({ team_slot: p.slot, pick_no: p.overall, roster: [], profile: null, room: [] }));
   const expectedIv = ((art.pick_order || {}).picks || [])
     .filter(p => p.overall >= CUR && p.overall < NEXT).length - 1;   // minus my own
+  /* THE PICK BOARD IS THREADED, and its absence was a real gap in a file about
+   * SURVIVAL (session E, 2026-08-18; register E21). `survival.js:liveIndexOf`
+   * converts a board slot to a live selection index through `ctx.pickBoard`,
+   * and when it is missing it converts by IDENTITY and increments
+   * `SCALE.unconverted` — a counter that exists, in its own words, so a surface
+   * can say the scale is unconverted "instead of quietly showing numbers from
+   * the wrong one". This block already reads `art.pick_order.picks` two lines
+   * above to build `iv`; it simply never passed the same rows as the scale.
+   * Measured on the live board at pick 33: 48 of 650 players shift, up to
+   * 12.5pp (Terry McLaurin 80.2% -> 92.8%), concentrated in the ADP band around
+   * the next pick, which is exactly where survival feeds VONA. */
   const ctx = { board: board, roster: [], league: art.league, currentPick: CUR, nextPick: NEXT,
     weights: E.MEASURED_WEIGHTS, totalPicks: 150, myPicksLeft: 8, progress: 34 / 150,
     roundsLeft: 11, intervening: iv, runMultipliers: {}, drift: null,
+    pickBoard: ((art.pick_order || {}).picks) || null,
     currentKeepers: [], ceilingAllStages: false };
 
   const wasOn = E.CFG.CONSERVE_SURVIVAL_ON;
@@ -433,9 +445,19 @@ if (block) {
      JSON.stringify(noRun.byId) !== JSON.stringify(inRun.byId),
      'a run on the same board, same window served cached pre-run numbers');
 
-  const driftA = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+  /* TARGET 44, NOT 32, since the empty-window fix (the 41%-wall root cause).
+   * At target 32 the intervening picks (20-31) cover the WHOLE window, Layer 2
+   * is fully trusted there (w = 1), and Layer 2 prices picks by need/value —
+   * it never reads ADP, so drift legitimately cannot move the number. Before
+   * the fix, drift only reached target 32 through the BUG: the zero-width
+   * remainder leg returned taken = 1 for players whose (drift-shifted) F
+   * crossed 0.999, so shifting the offset moved WHICH players were flattened.
+   * A target past the modelled window keeps a real Layer-1 remainder —
+   * effectiveAdp/effectiveSd, the actual drift consumers — inside the number,
+   * which is the honest configuration for this key check. */
+  const driftA = S.conservedSurvival(bb, 44, Object.assign({}, runBase,
     { runMultipliers: {}, drift: null }));
-  const driftB = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+  const driftB = S.conservedSurvival(bb, 44, Object.assign({}, runBase,
     // The REAL drift shape: effectiveAdp reads {applied, offset} and effectiveSd
     // reads {applied, sdScale}. `{mean: 4.5}` — my first guess — is inert, and the
     // test correctly went red on it. A fixture invented rather than read from the

@@ -21,7 +21,9 @@
  * REAL   the league's starters: QB1 RB2 WR2 TE1 FLEX1 K1 DEF1.
  *
  * NOT REAL — and each one BIASES THE ANSWER IN A NAMED DIRECTION:
- *   · WEEKLY POINTS ARE FLAT (proj_mean / 17). proj_sd is 0.25 * proj_mean, a
+ *   · WEEKLY POINTS ARE FLAT (proj_mean / 17). proj_sd was 0.25 * proj_mean on a
+ *     bundle board until 2026-08-17 (PRE-08-17; the harness now carries measured p90/p10/sd per (position, band)); it is now the measured sd ratio and
+ *     still proj_mean x a per-CELL constant, i.e. a
  *     manufactured constant, so there is no honest weekly distribution to draw
  *     from. THIS UNDERSTATES DEPTH: with no week-to-week variance you never
  *     start a backup who happened to outscore your starter, which is one of the

@@ -94,5 +94,67 @@ const season = LO.seasonOf(history, years[years.length - 1]);
     partial.length === claims.length / 2);
 }
 
+// ── THE SCHEDULED MIDDLE (loop closure 2026-08-15) ──────────────────────────
+// The resolvers above existed from the day the emitter landed, and NOTHING
+// scheduled them: every checkpoint would have pended forever while grade-cron
+// graded an empty join. This block walks the whole arc the way the cron now
+// runs it — emission → premature pass resolves NOTHING and says why →
+// season-final pass resolves ONCE → a re-run finds nothing pending.
+{
+  // emission fixture: real season, real checkpoint, appended as ledger entries
+  const claims = CRON.buildCheckpoint(season, 7, 4);
+  const ledger = claims.map(c => ({ kind: 'forecast',
+    method: 'analyzer-checkpoint-v1', payload: c }));
+  // plus a non-analyzer forecast that must NEVER be swept up by this pass
+  ledger.push({ kind: 'forecast', method: 'weekly-claims-v1',
+    payload: { key: 'wk|x', ftype: 'probability', value: 0.5 } });
+
+  check('the pending scan finds exactly the analyzer checkpoints, no other rail',
+    CRON.pendingAnalyzerForecasts(ledger).length === claims.length);
+
+  // PREMATURE: a season with a missing regular-season week is NOT final
+  const partial = { ...season,
+    weeks: Object.fromEntries(Object.entries(season.weeks || {})
+      .filter(([w]) => Number(w) !== 3)) };
+  check('a season missing week 3 reads NOT FINAL — a hole is never assumed scored',
+    CRON.seasonIsFinal(partial) === false);
+  check('  while the real, complete season reads final',
+    CRON.seasonIsFinal(season) === true);
+
+  // SEASON-FINAL: the pass resolves everything, once
+  const pending = CRON.pendingAnalyzerForecasts(ledger);
+  const res = CRON.buildFinalResolutions(pending, season);
+  check('at season-final the pass resolves every pending checkpoint',
+    res.length === claims.length);
+  check('  playoff outcomes are 0/1 and exactly `spots` teams resolve as in',
+    res.filter(r => r.outcome === 1 && /playoff/.test(r.forecast_key)).length === 4);
+
+  /* THE PINNED CUT. A forecast made under spots=4 must resolve against the
+   * top FOUR even if the league later moves to 6 — the rule its own
+   * resolution_rule promises. Proven by resolving a spots=6 forecast for a
+   * team that finished 5th-or-6th: under its own pinned cut it is IN. */
+  const rec = ST.actualStandings(season);
+  const order = ST.seedOrder(Object.values(rec));
+  const fifth = String(order[4]);
+  const AC = require('../../src/analyzer_claims.js');
+  const wide = AC.playoffForecast({ season: 2099, throughWeek: 7, rid: fifth,
+    playoff_prob: 0.5, spots: 6 });
+  const wideRes = CRON.buildFinalResolutions([wide], season);
+  check('the cut is read from each forecast\'s OWN subject.spots (spots=6 claim: '
+    + '5th place resolves IN while the spots=4 claims above resolved it OUT)',
+  wideRes.length === 1 && wideRes[0].outcome === 1);
+  check('  and a forecast with no pinned cut is refused, never guessed',
+    CRON.buildFinalResolutions([{ ...wide, subject: { rid: fifth } }], season).length === 0);
+
+  // DEDUPE: append the resolutions, re-run the scan — nothing pending
+  const after = ledger.concat(res.map(r => ({ kind: 'forecast_resolution',
+    method: 'analyzer-checkpoint-v1', payload: r })));
+  check('A RE-RUN AFTER RESOLUTION FINDS NOTHING PENDING — forecast_key dedupe, '
+    + 'the same discipline claims-cron uses, so Sundays never stack duplicates',
+  CRON.pendingAnalyzerForecasts(after).length === 0);
+  const res2 = CRON.buildFinalResolutions(CRON.pendingAnalyzerForecasts(after), season);
+  check('  and the second pass appends zero resolutions', res2.length === 0);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

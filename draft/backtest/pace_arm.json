@@ -1,0 +1,1209 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/pace_arm.py",
+ "_note": "\u00a75 of the pace study. READ AMENDMENT 1 of the prereg FIRST: \u00a75's originally-registered feature failed the persistence gate, this arm runs the survivor of an eight-way screen, and \u00a74b already showed tempo(Y-1)->plays(Y) cannot be resolved from zero WITHOUT reading any fantasy outcome. This file is a confirmation of that null, not the primary evidence.",
+ "preregistration": "draft/audit/pace_of_play_prereg_2026-08-16.md \u00a75 + AMENDMENT 1, both committed before this file",
+ "pace_metric": "neutral_sec_per_play",
+ "tilt": "v *= 1 + k*(mean_sec - sec_prev[team])/mean_sec, RB/WR/TE only \u2014 the structural analogue of own_model_v5.py:482-483's Vegas tilt, INVERTED because fewer seconds per play is faster",
+ "leak_protocol": {
+  "registered_selection_fold": {
+   "graded": 2024,
+   "priors": [
+    2022,
+    2023
+   ],
+   "status": "UNAVAILABLE",
+   "why": "a 2024 grade needs season_totals(2022), which reads nflverse_weekly_points_2022.json. Only 2023, 2024 and 2025 exist, and that store sits under C's nflverse* prefix, so manufacturing the missing year is out of this lane. 2025 is the only gradable fold in the repo."
+  },
+  "graded_fold": {
+   "graded": 2025,
+   "priors": [
+    2023,
+    2024
+   ],
+   "tempo_from": 2024
+  },
+  "features_are_leak_free": "every feature is from [2023, 2024]; tempo is from 2024; no season-2025 game is read by any predictor \u2014 own_model_v2._assert_no_leak enforces it and would raise",
+  "k_IS_NOT_leak_free": "\u26a0 k is an IN-SAMPLE optimum over the declared grid on the graded season, NOT a selected constant. It is a BEST-CASE upper bound and is legitimate evidence only if it FAILS: a failure means no selection rule could have rescued the arm. A pass would prove nothing without the missing fold."
+ },
+ "k_selection": {
+  "status": "selected",
+  "chosen_k": 1.0,
+  "chosen": "own_v6_pace+1.00",
+  "candidates": [
+   {
+    "k": 1.0,
+    "name": "own_v6_pace+1.00",
+    "mae_sum": 94.14,
+    "spearman_mean": 0.7875
+   },
+   {
+    "k": 0.75,
+    "name": "own_v6_pace+0.75",
+    "mae_sum": 94.16,
+    "spearman_mean": 0.788
+   },
+   {
+    "k": 0.5,
+    "name": "own_v6_pace+0.50",
+    "mae_sum": 94.2,
+    "spearman_mean": 0.7881
+   },
+   {
+    "k": 0.25,
+    "name": "own_v6_pace+0.25",
+    "mae_sum": 94.24,
+    "spearman_mean": 0.7875
+   }
+  ]
+ },
+ "test_fold": {
+  "graded_season": 2025,
+  "prior_seasons": [
+   2023,
+   2024
+  ],
+  "pace_from": 2024,
+  "marker_gate": {
+   "status": "ok",
+   "markers": [
+    {
+     "player_id": "4137",
+     "pick_no": 48,
+     "position": "RB",
+     "realized": 29.3
+    },
+    {
+     "player_id": "12504",
+     "pick_no": 63,
+     "position": "RB",
+     "realized": 8.3
+    }
+   ]
+  },
+  "teams_with_tempo": 32,
+  "head_to_head_shared_population": {
+   "QB": {
+    "n": 58,
+    "status": "measured",
+    "own_v6": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v5": {
+     "mae": 73.3,
+     "spearman": 0.7188
+    },
+    "own_v4": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v3": {
+     "mae": 74.76,
+     "spearman": 0.7189
+    },
+    "own_v2": {
+     "mae": 76.14,
+     "spearman": 0.7166
+    },
+    "own_v6_pace+0.25": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v6_pace+0.50": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v6_pace+0.75": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v6_pace+1.00": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v6_pace-0.50": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v6_vegascontrol+0.50": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "naive_prev": {
+     "mae": 78.89,
+     "spearman": 0.708
+    },
+    "recency_blend": {
+     "mae": 74.09,
+     "spearman": 0.7213
+    },
+    "walk_forward_v1": {
+     "mae": 103.88,
+     "spearman": 0.6712
+    }
+   },
+   "RB": {
+    "n": 99,
+    "status": "measured",
+    "own_v6": {
+     "mae": 37.54,
+     "spearman": 0.7968
+    },
+    "own_v5": {
+     "mae": 37.54,
+     "spearman": 0.7968
+    },
+    "own_v4": {
+     "mae": 38.66,
+     "spearman": 0.7957
+    },
+    "own_v3": {
+     "mae": 38.66,
+     "spearman": 0.7957
+    },
+    "own_v2": {
+     "mae": 40.81,
+     "spearman": 0.7751
+    },
+    "own_v6_pace+0.25": {
+     "mae": 37.47,
+     "spearman": 0.797
+    },
+    "own_v6_pace+0.50": {
+     "mae": 37.42,
+     "spearman": 0.7971
+    },
+    "own_v6_pace+0.75": {
+     "mae": 37.36,
+     "spearman": 0.7977
+    },
+    "own_v6_pace+1.00": {
+     "mae": 37.31,
+     "spearman": 0.7977
+    },
+    "own_v6_pace-0.50": {
+     "mae": 37.68,
+     "spearman": 0.7972
+    },
+    "own_v6_vegascontrol+0.50": {
+     "mae": 37.83,
+     "spearman": 0.7954
+    },
+    "naive_prev": {
+     "mae": 42.37,
+     "spearman": 0.7612
+    },
+    "recency_blend": {
+     "mae": 41.86,
+     "spearman": 0.7682
+    },
+    "walk_forward_v1": {
+     "mae": 56.25,
+     "spearman": 0.7444
+    }
+   },
+   "WR": {
+    "n": 151,
+    "status": "measured",
+    "own_v6": {
+     "mae": 33.44,
+     "spearman": 0.7663
+    },
+    "own_v5": {
+     "mae": 33.44,
+     "spearman": 0.7663
+    },
+    "own_v4": {
+     "mae": 33.87,
+     "spearman": 0.7552
+    },
+    "own_v3": {
+     "mae": 33.87,
+     "spearman": 0.7552
+    },
+    "own_v2": {
+     "mae": 33.87,
+     "spearman": 0.7488
+    },
+    "own_v6_pace+0.25": {
+     "mae": 33.47,
+     "spearman": 0.7661
+    },
+    "own_v6_pace+0.50": {
+     "mae": 33.51,
+     "spearman": 0.767
+    },
+    "own_v6_pace+0.75": {
+     "mae": 33.55,
+     "spearman": 0.7669
+    },
+    "own_v6_pace+1.00": {
+     "mae": 33.6,
+     "spearman": 0.7665
+    },
+    "own_v6_pace-0.50": {
+     "mae": 33.38,
+     "spearman": 0.7681
+    },
+    "own_v6_vegascontrol+0.50": {
+     "mae": 33.69,
+     "spearman": 0.772
+    },
+    "naive_prev": {
+     "mae": 37.47,
+     "spearman": 0.7374
+    },
+    "recency_blend": {
+     "mae": 36.62,
+     "spearman": 0.737
+    },
+    "walk_forward_v1": {
+     "mae": 46.59,
+     "spearman": 0.6964
+    }
+   },
+   "TE": {
+    "n": 84,
+    "status": "measured",
+    "own_v6": {
+     "mae": 23.33,
+     "spearman": 0.7987
+    },
+    "own_v5": {
+     "mae": 23.33,
+     "spearman": 0.7987
+    },
+    "own_v4": {
+     "mae": 23.73,
+     "spearman": 0.792
+    },
+    "own_v3": {
+     "mae": 23.73,
+     "spearman": 0.792
+    },
+    "own_v2": {
+     "mae": 23.71,
+     "spearman": 0.7813
+    },
+    "own_v6_pace+0.25": {
+     "mae": 23.3,
+     "spearman": 0.7993
+    },
+    "own_v6_pace+0.50": {
+     "mae": 23.27,
+     "spearman": 0.8003
+    },
+    "own_v6_pace+0.75": {
+     "mae": 23.25,
+     "spearman": 0.7993
+    },
+    "own_v6_pace+1.00": {
+     "mae": 23.23,
+     "spearman": 0.7983
+    },
+    "own_v6_pace-0.50": {
+     "mae": 23.39,
+     "spearman": 0.7989
+    },
+    "own_v6_vegascontrol+0.50": {
+     "mae": 23.4,
+     "spearman": 0.7974
+    },
+    "naive_prev": {
+     "mae": 26.73,
+     "spearman": 0.744
+    },
+    "recency_blend": {
+     "mae": 24.04,
+     "spearman": 0.7871
+    },
+    "walk_forward_v1": {
+     "mae": 34.06,
+     "spearman": 0.6866
+    }
+   }
+  },
+  "ordering": {
+   "own_v6": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5493,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.0317,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4597,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 83
+    }
+   },
+   "own_v6_pace+0.25": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5395,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 11,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.0372,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 23,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4615,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 2,
+     "adjacent_pairs": 83
+    }
+   },
+   "own_v6_pace+0.50": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5472,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 17,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.0443,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 33,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4741,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 7,
+     "adjacent_pairs": 83
+    }
+   },
+   "own_v6_pace+0.75": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5498,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 20,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.0327,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 42,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4749,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 11,
+     "adjacent_pairs": 83
+    }
+   },
+   "own_v6_pace+1.00": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5539,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 25,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.0355,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 49,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4713,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 17,
+     "adjacent_pairs": 83
+    }
+   },
+   "own_v6_pace-0.50": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5418,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 14,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.0247,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 40,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4505,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 8,
+     "adjacent_pairs": 83
+    }
+   },
+   "own_v6_vegascontrol+0.50": {
+    "QB": {
+     "status": "measured",
+     "n": 58,
+     "n_top": 36,
+     "spearman_top": 0.5369,
+     "spearman_top_base": 0.5369,
+     "adjacent_pairs_flipped_vs_own_v6": 0,
+     "adjacent_pairs": 57
+    },
+    "RB": {
+     "status": "measured",
+     "n": 99,
+     "n_top": 36,
+     "spearman_top": 0.5416,
+     "spearman_top_base": 0.5493,
+     "adjacent_pairs_flipped_vs_own_v6": 28,
+     "adjacent_pairs": 98
+    },
+    "WR": {
+     "status": "measured",
+     "n": 151,
+     "n_top": 36,
+     "spearman_top": 0.008,
+     "spearman_top_base": 0.0317,
+     "adjacent_pairs_flipped_vs_own_v6": 57,
+     "adjacent_pairs": 150
+    },
+    "TE": {
+     "status": "measured",
+     "n": 84,
+     "n_top": 36,
+     "spearman_top": 0.4453,
+     "spearman_top_base": 0.4597,
+     "adjacent_pairs_flipped_vs_own_v6": 21,
+     "adjacent_pairs": 83
+    }
+   }
+  }
+ },
+ "verdict": {
+  "bar": "improves BOTH MAE and Spearman at >=2 of RB/WR/TE and degrades NEITHER metric at ANY of the three",
+  "positions_improving_both": 1,
+  "degraded": [
+   "WR MAE",
+   "TE Spearman"
+  ],
+  "clears": false,
+  "per_position": {
+   "RB": {
+    "mae_own_v6": 37.54,
+    "mae_pace": 37.31,
+    "mae_gain": 0.23,
+    "spearman_own_v6": 0.7968,
+    "spearman_pace": 0.7977,
+    "spearman_gain": 0.0009
+   },
+   "WR": {
+    "mae_own_v6": 33.44,
+    "mae_pace": 33.6,
+    "mae_gain": -0.16,
+    "spearman_own_v6": 0.7663,
+    "spearman_pace": 0.7665,
+    "spearman_gain": 0.0002
+   },
+   "TE": {
+    "mae_own_v6": 23.33,
+    "mae_pace": 23.23,
+    "mae_gain": 0.1,
+    "spearman_own_v6": 0.7987,
+    "spearman_pace": 0.7983,
+    "spearman_gain": -0.0004
+   }
+  }
+ },
+ "movers": {
+  "RB": {
+   "top_n": 60,
+   "max_abs_delta": -9.96,
+   "max_abs_delta_pct": -6.33,
+   "median_abs_delta": 1.77,
+   "players_changing_rank_within_top_n": 37,
+   "largest_movers": [
+    {
+     "player_id": "8136",
+     "name": "Rachaad White",
+     "team_prev": "TB",
+     "tempo_prev": 35.77,
+     "own_v6": 157.37,
+     "with_pace": 147.41,
+     "delta": -9.96,
+     "delta_pct": -6.33,
+     "rank_own_v6": 21
+    },
+    {
+     "player_id": "4098",
+     "name": "Kareem Hunt",
+     "team_prev": "KC",
+     "tempo_prev": 31.78,
+     "own_v6": 107.31,
+     "with_pace": 113.24,
+     "delta": 5.93,
+     "delta_pct": 5.53,
+     "rank_own_v6": 36
+    },
+    {
+     "player_id": "11584",
+     "name": "Bucky Irving",
+     "team_prev": "TB",
+     "tempo_prev": 35.77,
+     "own_v6": 227.5,
+     "with_pace": 222.13,
+     "delta": -5.37,
+     "delta_pct": -2.36,
+     "rank_own_v6": 6
+    },
+    {
+     "player_id": "3198",
+     "name": null,
+     "team_prev": "BAL",
+     "tempo_prev": 35.18,
+     "own_v6": 222.13,
+     "with_pace": 216.97,
+     "delta": -5.16,
+     "delta_pct": -2.32,
+     "rank_own_v6": 7
+    },
+    {
+     "player_id": "7021",
+     "name": "Rico Dowdle",
+     "team_prev": "DAL",
+     "tempo_prev": 32.08,
+     "own_v6": 105.66,
+     "with_pace": 110.56,
+     "delta": 4.9,
+     "delta_pct": 4.64,
+     "rank_own_v6": 38
+    },
+    {
+     "player_id": "9509",
+     "name": "Bijan Robinson",
+     "team_prev": "ATL",
+     "tempo_prev": 32.12,
+     "own_v6": 256.71,
+     "with_pace": 261.58,
+     "delta": 4.87,
+     "delta_pct": 1.9,
+     "rank_own_v6": 2
+    },
+    {
+     "player_id": "9508",
+     "name": "Tyjae Spears",
+     "team_prev": "TEN",
+     "tempo_prev": 35.63,
+     "own_v6": 81.74,
+     "with_pace": 76.9,
+     "delta": -4.84,
+     "delta_pct": -5.92,
+     "rank_own_v6": 43
+    },
+    {
+     "player_id": "6813",
+     "name": "Jonathan Taylor",
+     "team_prev": "IND",
+     "tempo_prev": 31.96,
+     "own_v6": 200.97,
+     "with_pace": 205.5,
+     "delta": 4.53,
+     "delta_pct": 2.25,
+     "rank_own_v6": 10
+    },
+    {
+     "player_id": "11651",
+     "name": "Isaac Guerendo",
+     "team_prev": "SF",
+     "tempo_prev": 35.41,
+     "own_v6": 78.26,
+     "with_pace": 74.14,
+     "delta": -4.12,
+     "delta_pct": -5.26,
+     "rank_own_v6": 49
+    },
+    {
+     "player_id": "8132",
+     "name": "Tyler Allgeier",
+     "team_prev": "ATL",
+     "tempo_prev": 32.12,
+     "own_v6": 90.03,
+     "with_pace": 94.1,
+     "delta": 4.07,
+     "delta_pct": 4.52,
+     "rank_own_v6": 41
+    },
+    {
+     "player_id": "5248",
+     "name": null,
+     "team_prev": "LAC",
+     "tempo_prev": 35.22,
+     "own_v6": 79.44,
+     "with_pace": 75.69,
+     "delta": -3.75,
+     "delta_pct": -4.72,
+     "rank_own_v6": 46
+    },
+    {
+     "player_id": "5967",
+     "name": "Tony Pollard",
+     "team_prev": "TEN",
+     "tempo_prev": 35.63,
+     "own_v6": 140.96,
+     "with_pace": 137.25,
+     "delta": -3.71,
+     "delta_pct": -2.63,
+     "rank_own_v6": 22
+    },
+    {
+     "player_id": "5995",
+     "name": "Justice Hill",
+     "team_prev": "BAL",
+     "tempo_prev": 35.18,
+     "own_v6": 80.46,
+     "with_pace": 76.76,
+     "delta": -3.7,
+     "delta_pct": -4.6,
+     "rank_own_v6": 44
+    },
+    {
+     "player_id": "8154",
+     "name": "Brian Robinson",
+     "team_prev": "WAS",
+     "tempo_prev": 31.91,
+     "own_v6": 127.28,
+     "with_pace": 130.87,
+     "delta": 3.59,
+     "delta_pct": 2.82,
+     "rank_own_v6": 26
+    },
+    {
+     "player_id": "3164",
+     "name": null,
+     "team_prev": "DAL",
+     "tempo_prev": 32.08,
+     "own_v6": 69.68,
+     "with_pace": 72.91,
+     "delta": 3.23,
+     "delta_pct": 4.64,
+     "rank_own_v6": 53
+    }
+   ]
+  },
+  "WR": {
+   "top_n": 60,
+   "max_abs_delta": -7.14,
+   "max_abs_delta_pct": -4.49,
+   "median_abs_delta": 2.89,
+   "players_changing_rank_within_top_n": 49,
+   "largest_movers": [
+    {
+     "player_id": "2216",
+     "name": "Mike Evans",
+     "team_prev": "TB",
+     "tempo_prev": 35.77,
+     "own_v6": 159.17,
+     "with_pace": 152.03,
+     "delta": -7.14,
+     "delta_pct": -4.49,
+     "rank_own_v6": 19
+    },
+    {
+     "player_id": "6786",
+     "name": "CeeDee Lamb",
+     "team_prev": "DAL",
+     "tempo_prev": 32.08,
+     "own_v6": 215.99,
+     "with_pace": 223.11,
+     "delta": 7.12,
+     "delta_pct": 3.3,
+     "rank_own_v6": 3
+    },
+    {
+     "player_id": "11624",
+     "name": "Xavier Worthy",
+     "team_prev": "KC",
+     "tempo_prev": 31.78,
+     "own_v6": 155.78,
+     "with_pace": 162.11,
+     "delta": 6.33,
+     "delta_pct": 4.06,
+     "rank_own_v6": 21
+    },
+    {
+     "player_id": "1426",
+     "name": "DeAndre Hopkins",
+     "team_prev": "KC",
+     "tempo_prev": 31.78,
+     "own_v6": 112.93,
+     "with_pace": 119.17,
+     "delta": 6.24,
+     "delta_pct": 5.53,
+     "rank_own_v6": 47
+    },
+    {
+     "player_id": "9500",
+     "name": "Josh Downs",
+     "team_prev": "IND",
+     "tempo_prev": 31.96,
+     "own_v6": 122.9,
+     "with_pace": 129.02,
+     "delta": 6.12,
+     "delta_pct": 4.98,
+     "rank_own_v6": 40
+    },
+    {
+     "player_id": "5927",
+     "name": "Terry McLaurin",
+     "team_prev": "WAS",
+     "tempo_prev": 31.91,
+     "own_v6": 163.41,
+     "with_pace": 169.49,
+     "delta": 6.08,
+     "delta_pct": 3.72,
+     "rank_own_v6": 16
+    },
+    {
+     "player_id": "8112",
+     "name": "Drake London",
+     "team_prev": "ATL",
+     "tempo_prev": 32.12,
+     "own_v6": 176.75,
+     "with_pace": 182.48,
+     "delta": 5.73,
+     "delta_pct": 3.24,
+     "rank_own_v6": 10
+    },
+    {
+     "player_id": "9997",
+     "name": "Zay Flowers",
+     "team_prev": "BAL",
+     "tempo_prev": 35.18,
+     "own_v6": 164.96,
+     "with_pace": 159.3,
+     "delta": -5.66,
+     "delta_pct": -3.43,
+     "rank_own_v6": 14
+    },
+    {
+     "player_id": "11635",
+     "name": "Ladd McConkey",
+     "team_prev": "LAC",
+     "tempo_prev": 35.22,
+     "own_v6": 164.61,
+     "with_pace": 159.1,
+     "delta": -5.51,
+     "delta_pct": -3.35,
+     "rank_own_v6": 15
+    },
+    {
+     "player_id": "6819",
+     "name": "Michael Pittman",
+     "team_prev": "IND",
+     "tempo_prev": 31.96,
+     "own_v6": 141.23,
+     "with_pace": 146.64,
+     "delta": 5.41,
+     "delta_pct": 3.83,
+     "rank_own_v6": 27
+    },
+    {
+     "player_id": "5872",
+     "name": "Deebo Samuel",
+     "team_prev": "SF",
+     "tempo_prev": 35.41,
+     "own_v6": 137.81,
+     "with_pace": 132.48,
+     "delta": -5.33,
+     "delta_pct": -3.87,
+     "rank_own_v6": 30
+    },
+    {
+     "player_id": "4981",
+     "name": "Calvin Ridley",
+     "team_prev": "TEN",
+     "tempo_prev": 35.63,
+     "own_v6": 126.2,
+     "with_pace": 120.87,
+     "delta": -5.33,
+     "delta_pct": -4.22,
+     "rank_own_v6": 37
+    },
+    {
+     "player_id": "4037",
+     "name": "Chris Godwin",
+     "team_prev": "TB",
+     "tempo_prev": 35.77,
+     "own_v6": 113.07,
+     "with_pace": 107.83,
+     "delta": -5.24,
+     "delta_pct": -4.63,
+     "rank_own_v6": 46
+    },
+    {
+     "player_id": "8142",
+     "name": "Alec Pierce",
+     "team_prev": "IND",
+     "tempo_prev": 31.96,
+     "own_v6": 97.16,
+     "with_pace": 102.0,
+     "delta": 4.84,
+     "delta_pct": 4.98,
+     "rank_own_v6": 57
+    },
+    {
+     "player_id": "7571",
+     "name": "Rashod Bateman",
+     "team_prev": "BAL",
+     "tempo_prev": 35.18,
+     "own_v6": 101.38,
+     "with_pace": 96.73,
+     "delta": -4.65,
+     "delta_pct": -4.59,
+     "rank_own_v6": 52
+    }
+   ]
+  },
+  "TE": {
+   "top_n": 60,
+   "max_abs_delta": -3.07,
+   "max_abs_delta_pct": -3.05,
+   "median_abs_delta": 0.6,
+   "players_changing_rank_within_top_n": 25,
+   "largest_movers": [
+    {
+     "player_id": "8111",
+     "name": "Cade Otton",
+     "team_prev": "TB",
+     "tempo_prev": 35.77,
+     "own_v6": 100.76,
+     "with_pace": 97.69,
+     "delta": -3.07,
+     "delta_pct": -3.05,
+     "rank_own_v6": 15
+    },
+    {
+     "player_id": "8210",
+     "name": "Chig Okonkwo",
+     "team_prev": "TEN",
+     "tempo_prev": 35.63,
+     "own_v6": 83.72,
+     "with_pace": 81.3,
+     "delta": -2.42,
+     "delta_pct": -2.89,
+     "rank_own_v6": 24
+    },
+    {
+     "player_id": "1339",
+     "name": "Zach Ertz",
+     "team_prev": "WAS",
+     "tempo_prev": 31.91,
+     "own_v6": 97.38,
+     "with_pace": 99.72,
+     "delta": 2.34,
+     "delta_pct": 2.4,
+     "rank_own_v6": 17
+    },
+    {
+     "player_id": "8110",
+     "name": "Jake Ferguson",
+     "team_prev": "DAL",
+     "tempo_prev": 32.08,
+     "own_v6": 87.75,
+     "with_pace": 89.72,
+     "delta": 1.97,
+     "delta_pct": 2.25,
+     "rank_own_v6": 21
+    },
+    {
+     "player_id": "7828",
+     "name": "Noah Gray",
+     "team_prev": "KC",
+     "tempo_prev": 31.78,
+     "own_v6": 76.46,
+     "with_pace": 78.42,
+     "delta": 1.96,
+     "delta_pct": 2.56,
+     "rank_own_v6": 28
+    },
+    {
+     "player_id": "8131",
+     "name": "Isaiah Likely",
+     "team_prev": "BAL",
+     "tempo_prev": 35.18,
+     "own_v6": 87.0,
+     "with_pace": 85.09,
+     "delta": -1.91,
+     "delta_pct": -2.2,
+     "rank_own_v6": 22
+    },
+    {
+     "player_id": "4217",
+     "name": "George Kittle",
+     "team_prev": "SF",
+     "tempo_prev": 35.41,
+     "own_v6": 167.99,
+     "with_pace": 166.13,
+     "delta": -1.86,
+     "delta_pct": -1.11,
+     "rank_own_v6": 3
+    },
+    {
+     "player_id": "1466",
+     "name": "Travis Kelce",
+     "team_prev": "KC",
+     "tempo_prev": 31.78,
+     "own_v6": 142.56,
+     "with_pace": 144.22,
+     "delta": 1.66,
+     "delta_pct": 1.16,
+     "rank_own_v6": 5
+    },
+    {
+     "player_id": "6826",
+     "name": "Cole Kmet",
+     "team_prev": "CHI",
+     "tempo_prev": 32.51,
+     "own_v6": 102.14,
+     "with_pace": 103.74,
+     "delta": 1.6,
+     "delta_pct": 1.57,
+     "rank_own_v6": 13
+    },
+    {
+     "player_id": "5012",
+     "name": "Mark Andrews",
+     "team_prev": "BAL",
+     "tempo_prev": 35.18,
+     "own_v6": 138.76,
+     "with_pace": 137.34,
+     "delta": -1.42,
+     "delta_pct": -1.02,
+     "rank_own_v6": 6
+    },
+    {
+     "player_id": "11604",
+     "name": "Brock Bowers",
+     "team_prev": "LV",
+     "tempo_prev": 34.62,
+     "own_v6": 189.17,
+     "with_pace": 187.88,
+     "delta": -1.29,
+     "delta_pct": -0.68,
+     "rank_own_v6": 1
+    },
+    {
+     "player_id": "5010",
+     "name": "Will Dissly",
+     "team_prev": "LAC",
+     "tempo_prev": 35.22,
+     "own_v6": 55.79,
+     "with_pace": 54.5,
+     "delta": -1.29,
+     "delta_pct": -2.31,
+     "rank_own_v6": 32
+    },
+    {
+     "player_id": "7553",
+     "name": "Kyle Pitts",
+     "team_prev": "ATL",
+     "tempo_prev": 32.12,
+     "own_v6": 106.14,
+     "with_pace": 107.23,
+     "delta": 1.09,
+     "delta_pct": 1.03,
+     "rank_own_v6": 12
+    },
+    {
+     "player_id": "10212",
+     "name": "Josh Whyle",
+     "team_prev": "TEN",
+     "tempo_prev": 35.63,
+     "own_v6": 34.78,
+     "with_pace": 33.71,
+     "delta": -1.07,
+     "delta_pct": -3.08,
+     "rank_own_v6": 47
+    },
+    {
+     "player_id": "3258",
+     "name": null,
+     "team_prev": "TEN",
+     "tempo_prev": 35.63,
+     "own_v6": 34.87,
+     "with_pace": 33.88,
+     "delta": -0.99,
+     "delta_pct": -2.84,
+     "rank_own_v6": 46
+    }
+   ]
+  }
+ },
+ "controls": {
+  "negative_control_k": -0.5,
+  "per_position": {
+   "RB": {
+    "own_v6": {
+     "mae": 37.54,
+     "spearman": 0.7968
+    },
+    "negative_control": {
+     "mae": 37.68,
+     "spearman": 0.7972
+    },
+    "positive_control_vegas": {
+     "mae": 37.83,
+     "spearman": 0.7954
+    }
+   },
+   "WR": {
+    "own_v6": {
+     "mae": 33.44,
+     "spearman": 0.7663
+    },
+    "negative_control": {
+     "mae": 33.38,
+     "spearman": 0.7681
+    },
+    "positive_control_vegas": {
+     "mae": 33.69,
+     "spearman": 0.772
+    }
+   },
+   "TE": {
+    "own_v6": {
+     "mae": 23.33,
+     "spearman": 0.7987
+    },
+    "negative_control": {
+     "mae": 23.39,
+     "spearman": 0.7989
+    },
+    "positive_control_vegas": {
+     "mae": 23.4,
+     "spearman": 0.7974
+    }
+   }
+  },
+  "negative_control_beats_own_v6_on_both_metrics_at": [
+   "WR"
+  ],
+  "negative_control_note": "the registered sign says FAST teams get the boost. Wherever the REVERSED sign beats own_v6 on both metrics and the registered sign does not, the arm is void at that position \u2014 it is fitting something that is not tempo.",
+  "positive_control_moved_the_cells": true,
+  "positive_control_limitation": "v5 ALREADY carries the Vegas tilt at vg=0.50 for RB and WR, so at those two positions this control is a DOUBLED tilt, not an added one \u2014 it proves the pipe transmits, which is what 13f asks, but it is not 'a known-good signal added to a model lacking it'. TE is the clean case: v5 chose vg=0.00 there, so the control genuinely ADDS the Vegas tilt at TE \u2014 and it makes TE worse on both metrics, independently reproducing v5's own preregistered choice of vg=0.00 at TE. The harness works.",
+  "positive_control_note": "SESSION-A 13f \u2014 if the KNOWN-GOOD Vegas signal through this identical pipe does not move the cells, the harness cannot detect a real effect and no null it reports is evidence about pace"
+ },
+ "multiplicity": "eight pace metrics were screened for persistence; two cleared; one is graded here. Every number above is the survivor of that screen. Separately, 2025 has now been read by v4, v5, v6 and this arm \u2014 a fourth read of the same season."
+}

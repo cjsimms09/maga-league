@@ -1,0 +1,2150 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/fetch_historical_props.py",
+ "_note": "Per-player weekly PROP-LINE consensus (median across bookmakers), player-prop markets only, keyed by the player NAME the odds API returns on the outcome's `description` field \u2014 NOT yet crosswalked to a sleeper id (see props_season_projection.py's name-matching step). Absent-vs-zero: a player/market with no bookmaker quote in the fetched snapshot is absent from the row, never a zero.",
+ "season": 2025,
+ "provenance": {
+  "source": "api.the-odds-api.com /v4/historical (paid plan)",
+  "scope": "sample_week1",
+  "markets": [
+   "player_anytime_td",
+   "player_pass_tds",
+   "player_pass_yds",
+   "player_reception_yds",
+   "player_receptions",
+   "player_rush_yds"
+  ],
+  "regions": "us",
+  "credit_estimate": {
+   "games": 16,
+   "markets": 6,
+   "regions": 1,
+   "snapshots_per_game": 1,
+   "odds_calls": 16,
+   "odds_credits": 960,
+   "events_list_calls": 1,
+   "events_list_credits_est": 1,
+   "total_credits_est": 961,
+   "formula": "odds_credits = games * snapshots_per_game * 10 * markets * regions (vendor formula); events_list_credits_est = events_list_calls * 2 (empirically observed in key-probe run 31967817943, not vendor-documented)"
+  },
+  "credits_remaining_last_seen": "59817",
+  "health": {
+   "weeks_fetched": 1,
+   "games_planned": 16,
+   "events_matched": 16,
+   "min_event_match_rate": 0.7,
+   "suspect_weeks": [],
+   "complete": true,
+   "per_week": {
+    "1": {
+     "games_planned": 16,
+     "events_matched": 16,
+     "odds_ok": 16,
+     "odds_empty": 0,
+     "players": 528
+    }
+   }
+  }
+ },
+ "weeks": [
+  {
+   "week": 1,
+   "players": {
+    "Atlanta Falcons D/ST": {
+     "any_td": 0.17
+    },
+    "Atlanta Falcons Defense": {
+     "any_td": 0.13
+    },
+    "Baker Mayfield": {
+     "any_td": 0.14,
+     "pass_td": 1.5,
+     "pass_yd": 244.5,
+     "rush_yd": 14.5
+    },
+    "Bijan Robinson": {
+     "any_td": 1.0,
+     "rec": 3.5,
+     "rec_yd": 24.0,
+     "rush_yd": 75.5
+    },
+    "Bucky Irving": {
+     "any_td": 0.8,
+     "rec": 3.0,
+     "rec_yd": 20.5,
+     "rush_yd": 70.5
+    },
+    "Cade Otton": {
+     "any_td": 0.31,
+     "rec": 3.5,
+     "rec_yd": 33.5
+    },
+    "Carlos Washington Jr.": {
+     "any_td": 0.06
+    },
+    "Casey Washington": {
+     "any_td": 0.1
+    },
+    "Charlie Woerner": {
+     "any_td": 0.07
+    },
+    "Darnell Mooney": {
+     "any_td": 0.3
+    },
+    "David Sills V": {
+     "any_td": 0.11
+    },
+    "Devin Culp": {
+     "any_td": 0.07
+    },
+    "Drake London": {
+     "any_td": 0.52,
+     "rec": 6.5,
+     "rec_yd": 77.0
+    },
+    "Emeka Egbuka": {
+     "any_td": 0.38,
+     "rec": 4.5,
+     "rec_yd": 57.5
+    },
+    "Feleipe Franks": {
+     "any_td": 0.05
+    },
+    "Jamal Agnew": {
+     "any_td": 0.07
+    },
+    "Kameron Johnson": {
+     "any_td": 0.07
+    },
+    "KhaDarel Hodge": {
+     "any_td": 0.11
+    },
+    "Ko Kieft": {
+     "any_td": 0.07
+    },
+    "Kyle Pitts": {
+     "any_td": 0.31,
+     "rec": 3.5,
+     "rec_yd": 37.0
+    },
+    "Michael Penix Jr.": {
+     "any_td": 0.13,
+     "pass_td": 1.5,
+     "pass_yd": 235.5,
+     "rush_yd": 4.5
+    },
+    "Mike Evans": {
+     "any_td": 0.61,
+     "rec": 5.5,
+     "rec_yd": 71.5
+    },
+    "Nathan Carter": {
+     "any_td": 0.06
+    },
+    "No Scorer": {
+     "any_td": 0.01
+    },
+    "Payne Durham": {
+     "any_td": 0.13
+    },
+    "Rachaad White": {
+     "any_td": 0.25,
+     "rec": 1.5,
+     "rec_yd": 11.5,
+     "rush_yd": 21.0
+    },
+    "Ray-Ray McCloud III": {
+     "any_td": 0.28,
+     "rec_yd": 28.5
+    },
+    "Ryan Miller": {
+     "any_td": 0.08
+    },
+    "Sean Tucker": {
+     "any_td": 0.13
+    },
+    "Sterling Shepard": {
+     "any_td": 0.19,
+     "rec": 2.5,
+     "rec_yd": 18.5
+    },
+    "Tampa Bay Buccaneers D/ST": {
+     "any_td": 0.18
+    },
+    "Tampa Bay Buccaneers Defense": {
+     "any_td": 0.15
+    },
+    "Teagan Quitoriano": {
+     "any_td": 0.04
+    },
+    "Tez Johnson": {
+     "any_td": 0.1
+    },
+    "Tyler Allgeier": {
+     "any_td": 0.32,
+     "rush_yd": 22.5
+    },
+    "Baltimore Ravens D/ST": {
+     "any_td": 0.17
+    },
+    "Baltimore Ravens Defense": {
+     "any_td": 0.16
+    },
+    "Buffalo Bills D/ST": {
+     "any_td": 0.17
+    },
+    "Buffalo Bills Defense": {
+     "any_td": 0.15
+    },
+    "Charlie Kolar": {
+     "any_td": 0.13
+    },
+    "Curtis Samuel": {
+     "any_td": 0.12
+    },
+    "Dalton Kincaid": {
+     "any_td": 0.28,
+     "rec": 3.5,
+     "rec_yd": 33.5
+    },
+    "Dawson Knox": {
+     "any_td": 0.18,
+     "rec": 1.5,
+     "rec_yd": 10.5
+    },
+    "DeAndre Hopkins": {
+     "any_td": 0.21,
+     "rec": 1.5,
+     "rec_yd": 15.5
+    },
+    "Derrick Henry": {
+     "any_td": 0.95,
+     "rec": 1.5,
+     "rec_yd": 5.5,
+     "rush_yd": 82.5
+    },
+    "Devontez Walker": {
+     "any_td": 0.08
+    },
+    "Elijah Moore": {
+     "any_td": 0.11
+    },
+    "Jackson Hawes": {
+     "any_td": 0.05
+    },
+    "James Cook": {
+     "any_td": 0.69,
+     "rec": 1.5,
+     "rec_yd": 12.5,
+     "rush_yd": 55.0
+    },
+    "Josh Allen": {
+     "any_td": 0.69,
+     "pass_td": 1.5,
+     "pass_yd": 230.0,
+     "rush_yd": 32.0
+    },
+    "Joshua Palmer": {
+     "any_td": 0.23,
+     "rec": 2.5,
+     "rec_yd": 28.5
+    },
+    "Justice Hill": {
+     "any_td": 0.17,
+     "rec": 2.5,
+     "rec_yd": 18.5,
+     "rush_yd": 8.5
+    },
+    "Keaton Mitchell": {
+     "any_td": 0.11
+    },
+    "Keon Coleman": {
+     "any_td": 0.35,
+     "rec": 2.5,
+     "rec_yd": 36.5
+    },
+    "Khalil Shakir": {
+     "any_td": 0.35,
+     "rec": 4.5,
+     "rec_yd": 47.5
+    },
+    "LaJohntay Wester": {
+     "any_td": 0.07
+    },
+    "Lamar Jackson": {
+     "any_td": 0.39,
+     "pass_td": 1.5,
+     "pass_yd": 231.5,
+     "rush_yd": 47.0
+    },
+    "Mark Andrews": {
+     "any_td": 0.43,
+     "rec": 4.5,
+     "rec_yd": 45.5
+    },
+    "Patrick Ricard": {
+     "any_td": 0.06
+    },
+    "Rasheen Ali": {
+     "any_td": 0.09
+    },
+    "Rashod Bateman": {
+     "any_td": 0.32,
+     "rec": 2.5,
+     "rec_yd": 38.5
+    },
+    "Ray Davis": {
+     "any_td": 0.17,
+     "rush_yd": 17.5
+    },
+    "Reggie Gilliam": {
+     "any_td": 0.05
+    },
+    "Ty Johnson": {
+     "any_td": 0.13
+    },
+    "Tylan Wallace": {
+     "any_td": 0.1
+    },
+    "Tyrell Shavers": {
+     "any_td": 0.1
+    },
+    "Zay Flowers": {
+     "any_td": 0.44,
+     "rec": 4.5,
+     "rec_yd": 58.5
+    },
+    "Aaron Jones": {
+     "any_td": 0.48,
+     "rec": 2.5,
+     "rec_yd": 17.5,
+     "rush_yd": 49.5
+    },
+    "Adam Thielen": {
+     "any_td": 0.26,
+     "rec": 2.5,
+     "rec_yd": 29.0
+    },
+    "Ben Yurosek": {
+     "any_td": 0.05
+    },
+    "C.J. Ham": {
+     "any_td": 0.07
+    },
+    "Caleb Williams": {
+     "any_td": 0.2,
+     "pass_td": 1.5,
+     "pass_yd": 219.5,
+     "rush_yd": 22.5
+    },
+    "Chicago Bears D/ST": {
+     "any_td": 0.18
+    },
+    "Chicago Bears Defense": {
+     "any_td": 0.12
+    },
+    "Cole Kmet": {
+     "any_td": 0.17,
+     "rec": 1.5,
+     "rec_yd": 14.5
+    },
+    "Colston Loveland": {
+     "any_td": 0.23,
+     "rec": 2.5,
+     "rec_yd": 27.5
+    },
+    "D'Andre Swift": {
+     "any_td": 0.51,
+     "rec": 2.5,
+     "rec_yd": 15.5,
+     "rush_yd": 54.5
+    },
+    "DJ Moore": {
+     "any_td": 0.44,
+     "rec": 5.5,
+     "rec_yd": 57.5
+    },
+    "Devin Duvernay": {
+     "any_td": 0.07
+    },
+    "Durham Smythe": {
+     "any_td": 0.07
+    },
+    "J.J. McCarthy": {
+     "any_td": 0.17,
+     "pass_td": 1.5,
+     "pass_yd": 220.5,
+     "rush_yd": 17.5
+    },
+    "Jahdae Walker": {
+     "any_td": 0.07
+    },
+    "Jalen Nailor": {
+     "any_td": 0.22,
+     "rec": 1.5,
+     "rec_yd": 19.5
+    },
+    "Jordan Mason": {
+     "any_td": 0.44,
+     "rush_yd": 40.5
+    },
+    "Josh Oliver": {
+     "any_td": 0.13
+    },
+    "Justin Jefferson": {
+     "any_td": 0.57,
+     "rec": 6.5,
+     "rec_yd": 78.5
+    },
+    "Kyle Monangai": {
+     "any_td": 0.25
+    },
+    "Luther Burden III": {
+     "any_td": 0.15,
+     "rec": 1.5
+    },
+    "Minnesota Vikings D/ST": {
+     "any_td": 0.18
+    },
+    "Minnesota Vikings Defense": {
+     "any_td": 0.12
+    },
+    "Myles Price": {
+     "any_td": 0.06
+    },
+    "Olamide Zaccheaus": {
+     "any_td": 0.22,
+     "rec": 2.5,
+     "rec_yd": 22.0
+    },
+    "Rome Odunze": {
+     "any_td": 0.4,
+     "rec": 3.5,
+     "rec_yd": 49.5
+    },
+    "Roschon Johnson": {
+     "any_td": 0.25
+    },
+    "T.J. Hockenson": {
+     "any_td": 0.34,
+     "rec": 4.5,
+     "rec_yd": 43.5
+    },
+    "Tai Felton": {
+     "any_td": 0.13
+    },
+    "Tim Jones": {
+     "any_td": 0.08
+    },
+    "Ty Chandler": {
+     "any_td": 0.06
+    },
+    "Andrei Iosivas": {
+     "any_td": 0.22,
+     "rec": 2.5,
+     "rec_yd": 21.5
+    },
+    "Blake Whiteheart": {
+     "any_td": 0.05
+    },
+    "Cam Grandy": {
+     "any_td": 0.06
+    },
+    "Cedric Tillman": {
+     "any_td": 0.31,
+     "rec": 3.5,
+     "rec_yd": 40.0
+    },
+    "Charlie Jones": {
+     "any_td": 0.08
+    },
+    "Chase Brown": {
+     "any_td": 0.93,
+     "rec": 2.5,
+     "rec_yd": 19.5,
+     "rush_yd": 66.5
+    },
+    "Cincinnati Bengals D/ST": {
+     "any_td": 0.17
+    },
+    "Cincinnati Bengals Defense": {
+     "any_td": 0.15
+    },
+    "Cleveland Browns D/ST": {
+     "any_td": 0.17
+    },
+    "Cleveland Browns Defense": {
+     "any_td": 0.13
+    },
+    "David Njoku": {
+     "any_td": 0.35,
+     "rec": 5.5,
+     "rec_yd": 49.5
+    },
+    "DeAndre Carter": {
+     "any_td": 0.11
+    },
+    "Drew Sample": {
+     "any_td": 0.07
+    },
+    "Dylan Sampson": {
+     "any_td": 0.42,
+     "rush_yd": 37.5
+    },
+    "Gage Larvadain": {
+     "any_td": 0.08
+    },
+    "Harold Fannin Jr.": {
+     "any_td": 0.19
+    },
+    "Isaiah Bond": {
+     "any_td": 0.07
+    },
+    "Ja'Marr Chase": {
+     "any_td": 0.8,
+     "rec": 6.5,
+     "rec_yd": 85.5
+    },
+    "Jamari Thrash": {
+     "any_td": 0.2,
+     "rec": 1.5,
+     "rec_yd": 16.5
+    },
+    "Jermaine Burton": {
+     "any_td": 0.11
+    },
+    "Jerome Ford": {
+     "any_td": 0.54,
+     "rec": 2.5,
+     "rec_yd": 14.5,
+     "rush_yd": 45.5
+    },
+    "Jerry Jeudy": {
+     "any_td": 0.42,
+     "rec": 4.5,
+     "rec_yd": 64.5
+    },
+    "Joe Burrow": {
+     "any_td": 0.15,
+     "pass_td": 2.5,
+     "pass_yd": 268.5,
+     "rush_yd": 7.5
+    },
+    "Joe Flacco": {
+     "any_td": 0.07,
+     "pass_td": 1.5,
+     "pass_yd": 242.0
+    },
+    "Mike Gesicki": {
+     "any_td": 0.27,
+     "rec": 2.5,
+     "rec_yd": 21.0
+    },
+    "Mitchell Tinsley": {
+     "any_td": 0.07
+    },
+    "Noah Fant": {
+     "any_td": 0.12
+    },
+    "Raheim Sanders": {
+     "any_td": 0.05
+    },
+    "Samaje Perine": {
+     "any_td": 0.13
+    },
+    "Tahj Brooks": {
+     "any_td": 0.09
+    },
+    "Tanner Hudson": {
+     "any_td": 0.09
+    },
+    "Tee Higgins": {
+     "any_td": 0.59,
+     "rec": 5.5,
+     "rec_yd": 65.0
+    },
+    "Adam Prentice": {
+     "any_td": 0.06
+    },
+    "Adam Trautman": {
+     "any_td": 0.11
+    },
+    "Bo Nix": {
+     "any_td": 0.31,
+     "pass_td": 1.5,
+     "pass_yd": 214.5,
+     "rush_yd": 19.5
+    },
+    "Bryce Oliver": {
+     "any_td": 0.06
+    },
+    "Calvin Ridley": {
+     "any_td": 0.32,
+     "rec": 4.5,
+     "rec_yd": 51.5
+    },
+    "Cam Ward": {
+     "any_td": 0.15,
+     "pass_td": 0.5,
+     "pass_yd": 190.5,
+     "rush_yd": 14.0
+    },
+    "Cameron Ward": {
+     "any_td": 0.13,
+     "pass_td": 0.5,
+     "pass_yd": 187.5,
+     "rush_yd": 12.5
+    },
+    "Chigoziem Okonkwo": {
+     "any_td": 0.18,
+     "rec": 3.5,
+     "rec_yd": 31.5,
+     "rush_yd": 0.5
+    },
+    "Chimere Dike": {
+     "any_td": 0.05
+    },
+    "Courtland Sutton": {
+     "any_td": 0.58,
+     "rec": 4.5,
+     "rec_yd": 58.5
+    },
+    "David Martin-Robinson": {
+     "any_td": 0.05
+    },
+    "Denver Broncos D/ST": {
+     "any_td": 0.15
+    },
+    "Denver Broncos Defense": {
+     "any_td": 0.18
+    },
+    "Elic Ayomanor": {
+     "any_td": 0.16,
+     "rec": 2.5,
+     "rec_yd": 22.5
+    },
+    "Evan Engram": {
+     "any_td": 0.39,
+     "rec": 3.5,
+     "rec_yd": 35.0
+    },
+    "Gunnar Helm": {
+     "any_td": 0.07
+    },
+    "J.K. Dobbins": {
+     "any_td": 0.5,
+     "rec": 1.5,
+     "rec_yd": 10.0,
+     "rush_yd": 42.5
+    },
+    "Jaleel McLaughlin": {
+     "any_td": 0.11
+    },
+    "Julius Chestnut": {
+     "any_td": 0.1
+    },
+    "Kalel Mullings": {
+     "any_td": 0.12
+    },
+    "Lucas Krull": {
+     "any_td": 0.09
+    },
+    "Marvin Mims Jr.": {
+     "any_td": 0.35,
+     "rec": 3.5,
+     "rec_yd": 37.5
+    },
+    "Michael Burton": {
+     "any_td": 0.05
+    },
+    "Nate Adkins": {
+     "any_td": 0.09
+    },
+    "Pat Bryant": {
+     "any_td": 0.13,
+     "rec_yd": 7.5
+    },
+    "RJ Harvey": {
+     "any_td": 0.5,
+     "rec": 2.0,
+     "rec_yd": 12.5,
+     "rush_yd": 41.5
+    },
+    "Tennessee Titans D/ST": {
+     "any_td": 0.15
+    },
+    "Tennessee Titans Defense": {
+     "any_td": 0.11
+    },
+    "Tony Pollard": {
+     "any_td": 0.57,
+     "rec": 2.5,
+     "rec_yd": 15.0,
+     "rush_yd": 61.5
+    },
+    "Trent Sherfield Sr.": {
+     "any_td": 0.11
+    },
+    "Troy Franklin": {
+     "any_td": 0.19,
+     "rec": 2.5,
+     "rec_yd": 19.5
+    },
+    "Tyler Badie": {
+     "any_td": 0.08
+    },
+    "Tyler Lockett": {
+     "any_td": 0.15,
+     "rec": 2.5,
+     "rec_yd": 21.5
+    },
+    "Van Jefferson": {
+     "any_td": 0.09
+    },
+    "Amon-Ra St. Brown": {
+     "any_td": 0.52,
+     "rec": 6.5,
+     "rec_yd": 65.5
+    },
+    "Ben Sims": {
+     "any_td": 0.05
+    },
+    "Bo Melton": {
+     "any_td": 0.07
+    },
+    "Brock Wright": {
+     "any_td": 0.09
+    },
+    "Chris Brooks": {
+     "any_td": 0.14
+    },
+    "Craig Reynolds": {
+     "any_td": 0.04
+    },
+    "David Montgomery": {
+     "any_td": 0.5,
+     "rec": 1.5,
+     "rec_yd": 9.5,
+     "rush_yd": 40.5
+    },
+    "Detroit Lions D/ST": {
+     "any_td": 0.17
+    },
+    "Detroit Lions Defense": {
+     "any_td": 0.14
+    },
+    "Dominic Lovett": {
+     "any_td": 0.07
+    },
+    "Dontayvion Wicks": {
+     "any_td": 0.29,
+     "rec_yd": 17.5
+    },
+    "Emanuel Wilson": {
+     "any_td": 0.18,
+     "rush_yd": 13.5
+    },
+    "Green Bay Packers D/ST": {
+     "any_td": 0.17
+    },
+    "Green Bay Packers Defense": {
+     "any_td": 0.16
+    },
+    "Isaac TeSlaa": {
+     "any_td": 0.18,
+     "rec": 1.5,
+     "rec_yd": 9.5
+    },
+    "Jahmyr Gibbs": {
+     "any_td": 0.79,
+     "rec": 3.5,
+     "rec_yd": 24.0,
+     "rush_yd": 68.5
+    },
+    "Jameson Williams": {
+     "any_td": 0.35,
+     "rec": 3.5,
+     "rec_yd": 53.5
+    },
+    "Jared Goff": {
+     "any_td": 0.06,
+     "pass_td": 1.5,
+     "pass_yd": 240.5,
+     "rush_yd": 1.5
+    },
+    "Jayden Reed": {
+     "any_td": 0.35,
+     "rec_yd": 34.5
+    },
+    "John FitzPatrick": {
+     "any_td": 0.06
+    },
+    "Jordan Love": {
+     "any_td": 0.14,
+     "pass_td": 1.5,
+     "pass_yd": 237.0,
+     "rush_yd": 5.5
+    },
+    "Josh Jacobs": {
+     "any_td": 0.97,
+     "rec": 2.5,
+     "rec_yd": 15.5,
+     "rush_yd": 70.5
+    },
+    "Kalif Raymond": {
+     "any_td": 0.1,
+     "rec": 1.5,
+     "rec_yd": 10.5
+    },
+    "Luke Musgrave": {
+     "any_td": 0.13
+    },
+    "Malik Heath": {
+     "any_td": 0.1
+    },
+    "MarShawn Lloyd": {
+     "any_td": 0.22
+    },
+    "Matthew Golden": {
+     "any_td": 0.34,
+     "rec": 3.5,
+     "rec_yd": 48.5
+    },
+    "Romeo Doubs": {
+     "any_td": 0.33,
+     "rec_yd": 38.5
+    },
+    "Sam LaPorta": {
+     "any_td": 0.35,
+     "rec": 3.5,
+     "rec_yd": 40.5
+    },
+    "Savion Williams": {
+     "any_td": 0.11
+    },
+    "Shane Zylstra": {
+     "any_td": 0.03
+    },
+    "Sione Vaki": {
+     "any_td": 0.04
+    },
+    "Tom Kennedy": {
+     "any_td": 0.09
+    },
+    "Tucker Kraft": {
+     "any_td": 0.39,
+     "rec": 3.5,
+     "rec_yd": 40.0
+    },
+    "Adonai Mitchell": {
+     "any_td": 0.16,
+     "rec": 1.5,
+     "rec_yd": 13.5
+    },
+    "Alec Ingold": {
+     "any_td": 0.05
+    },
+    "Alec Pierce": {
+     "any_td": 0.23,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Anthony Gould": {
+     "any_td": 0.07
+    },
+    "Ashton Dulin": {
+     "any_td": 0.07
+    },
+    "DJ Giddens": {
+     "any_td": 0.12
+    },
+    "Daniel Jones": {
+     "any_td": 0.35,
+     "pass_td": 1.5,
+     "pass_yd": 207.5,
+     "rush_yd": 25.5
+    },
+    "Darren Waller": {
+     "any_td": 0.25
+    },
+    "De'Von Achane": {
+     "any_td": 0.81,
+     "rec": 4.5,
+     "rec_yd": 30.5,
+     "rush_yd": 58.5
+    },
+    "Dee Eskridge": {
+     "any_td": 0.12
+    },
+    "Drew Ogletree": {
+     "any_td": 0.05
+    },
+    "Indianapolis Colts D/ST": {
+     "any_td": 0.17
+    },
+    "Indianapolis Colts Defense": {
+     "any_td": 0.13
+    },
+    "Jaylen Waddle": {
+     "any_td": 0.41,
+     "rec": 4.5,
+     "rec_yd": 57.5
+    },
+    "Jeff Wilson Jr.": {
+     "any_td": 0.09
+    },
+    "Jonathan Taylor": {
+     "any_td": 0.98,
+     "rec": 2.5,
+     "rec_yd": 11.5,
+     "rush_yd": 80.5
+    },
+    "Josh Downs": {
+     "any_td": 0.29,
+     "rec": 4.5,
+     "rec_yd": 46.5
+    },
+    "Julian Hill": {
+     "any_td": 0.2,
+     "rec": 1.5,
+     "rec_yd": 16.0
+    },
+    "Malik Washington": {
+     "any_td": 0.2,
+     "rec": 2.5,
+     "rec_yd": 22.5
+    },
+    "Miami Dolphins D/ST": {
+     "any_td": 0.18
+    },
+    "Miami Dolphins Defense": {
+     "any_td": 0.14
+    },
+    "Michael Pittman Jr.": {
+     "any_td": 0.36,
+     "rec": 4.5,
+     "rec_yd": 46.5
+    },
+    "Mo Alie-Cox": {
+     "any_td": 0.1
+    },
+    "Nick Westbrook-Ikhine": {
+     "any_td": 0.15
+    },
+    "Ollie Gordon II": {
+     "any_td": 0.4,
+     "rush_yd": 25.0
+    },
+    "Tahj Washington": {
+     "any_td": 0.07
+    },
+    "Tanner Conner": {
+     "any_td": 0.09
+    },
+    "Tua Tagovailoa": {
+     "any_td": 0.09,
+     "pass_td": 1.5,
+     "pass_yd": 247.0,
+     "rush_yd": 1.5
+    },
+    "Tyler Goodson": {
+     "any_td": 0.11
+    },
+    "Tyler Warren": {
+     "any_td": 0.3,
+     "rec": 3.5,
+     "rec_yd": 36.5
+    },
+    "Tyreek Hill": {
+     "any_td": 0.51,
+     "rec": 5.5,
+     "rec_yd": 69.0
+    },
+    "Will Mallory": {
+     "any_td": 0.05
+    },
+    "Austin Trammell": {
+     "any_td": 0.07
+    },
+    "Bhayshul Tuten": {
+     "any_td": 0.17
+    },
+    "Brenton Strange": {
+     "any_td": 0.23,
+     "rec": 3.5,
+     "rec_yd": 29.5
+    },
+    "Brian Thomas Jr": {
+     "any_td": 0.56,
+     "rec": 5.5,
+     "rec_yd": 76.5
+    },
+    "Bryce Young": {
+     "any_td": 0.18,
+     "pass_td": 1.5,
+     "pass_yd": 215.0,
+     "rush_yd": 15.5
+    },
+    "Brycen Tremayne": {
+     "any_td": 0.04
+    },
+    "Carolina Panthers D/ST": {
+     "any_td": 0.17
+    },
+    "Carolina Panthers Defense": {
+     "any_td": 0.12
+    },
+    "Chuba Hubbard": {
+     "any_td": 0.74,
+     "rec": 2.5,
+     "rec_yd": 9.5,
+     "rush_yd": 60.5
+    },
+    "David Moore": {
+     "any_td": 0.12
+    },
+    "Dyami Brown": {
+     "any_td": 0.18,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Hunter Long": {
+     "any_td": 0.07
+    },
+    "Hunter Renfrow": {
+     "any_td": 0.16,
+     "rec": 2.5,
+     "rec_yd": 17.5
+    },
+    "Ja'Tavion Sanders": {
+     "any_td": 0.23,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Jacksonville Jaguars D/ST": {
+     "any_td": 0.18
+    },
+    "Jacksonville Jaguars Defense": {
+     "any_td": 0.15
+    },
+    "James Mitchell": {
+     "any_td": 0.05
+    },
+    "Jimmy Horn Jr.": {
+     "any_td": 0.1
+    },
+    "Johnny Mundt": {
+     "any_td": 0.08
+    },
+    "LeQuint Allen Jr.": {
+     "any_td": 0.1
+    },
+    "Mitchell Evans": {
+     "any_td": 0.07
+    },
+    "Parker Washington": {
+     "any_td": 0.18,
+     "rec": 1.5,
+     "rec_yd": 11.5
+    },
+    "Quintin Morris": {
+     "any_td": 0.07
+    },
+    "Rico Dowdle": {
+     "any_td": 0.25,
+     "rush_yd": 24.0
+    },
+    "Tank Bigsby": {
+     "any_td": 0.53,
+     "rush_yd": 44.5
+    },
+    "Tetairoa McMillan": {
+     "any_td": 0.44,
+     "rec": 5.5,
+     "rec_yd": 65.5
+    },
+    "Tim Patrick": {
+     "any_td": 0.15
+    },
+    "Tommy Tremble": {
+     "any_td": 0.15,
+     "rec": 1.5,
+     "rec_yd": 9.5
+    },
+    "Travis Etienne Jr.": {
+     "any_td": 0.52,
+     "rec": 2.5,
+     "rec_yd": 14.5,
+     "rush_yd": 38.5
+    },
+    "Travis Hunter": {
+     "any_td": 0.42,
+     "rec": 4.5,
+     "rec_yd": 48.5
+    },
+    "Trenton Irwin": {
+     "any_td": 0.07
+    },
+    "Trevor Etienne": {
+     "any_td": 0.1
+    },
+    "Trevor Lawrence": {
+     "any_td": 0.23,
+     "pass_td": 1.5,
+     "pass_yd": 240.5,
+     "rush_yd": 16.5
+    },
+    "Xavier Legette": {
+     "any_td": 0.32,
+     "rec": 3.5,
+     "rec_yd": 37.0
+    },
+    "Blake Corum": {
+     "any_td": 0.15
+    },
+    "Braxton Berrios": {
+     "any_td": 0.05
+    },
+    "C.J. Stroud": {
+     "any_td": 0.12,
+     "pass_td": 1.5,
+     "pass_yd": 232.5,
+     "rush_yd": 11.5
+    },
+    "Cade Stover": {
+     "any_td": 0.09
+    },
+    "Cody Schrader": {
+     "any_td": 0.05
+    },
+    "Colby Parkinson": {
+     "any_td": 0.07
+    },
+    "Dalton Schultz": {
+     "any_td": 0.27,
+     "rec": 2.5,
+     "rec_yd": 29.5
+    },
+    "Dameon Pierce": {
+     "any_td": 0.19
+    },
+    "Dare Ogunbowale": {
+     "any_td": 0.16
+    },
+    "Davante Adams": {
+     "any_td": 0.5,
+     "rec": 4.5,
+     "rec_yd": 56.5
+    },
+    "Davis Allen": {
+     "any_td": 0.06
+    },
+    "Houston Texans D/ST": {
+     "any_td": 0.16
+    },
+    "Houston Texans Defense": {
+     "any_td": 0.12
+    },
+    "Jakob Johnson": {
+     "any_td": 0.05
+    },
+    "Jarquez Hunter": {
+     "any_td": 0.08
+    },
+    "Jayden Higgins": {
+     "any_td": 0.24,
+     "rec": 2.5,
+     "rec_yd": 32.5
+    },
+    "Jaylin Noel": {
+     "any_td": 0.18,
+     "rec": 1.5,
+     "rec_yd": 17.5
+    },
+    "Jordan Whittington": {
+     "any_td": 0.1
+    },
+    "Justin Watson": {
+     "any_td": 0.09
+    },
+    "Konata Mumpfield": {
+     "any_td": 0.07
+    },
+    "Kyren Williams": {
+     "any_td": 0.8,
+     "rec": 1.5,
+     "rec_yd": 9.5,
+     "rush_yd": 68.5
+    },
+    "Los Angeles Rams D/ST": {
+     "any_td": 0.16
+    },
+    "Los Angeles Rams Defense": {
+     "any_td": 0.12
+    },
+    "Matthew Stafford": {
+     "any_td": 0.06,
+     "pass_td": 1.5,
+     "pass_yd": 234.0
+    },
+    "Nick Chubb": {
+     "any_td": 0.44,
+     "rec_yd": 3.5,
+     "rush_yd": 47.5
+    },
+    "Nico Collins": {
+     "any_td": 0.54,
+     "rec": 6.0,
+     "rec_yd": 81.0
+    },
+    "Puka Nacua": {
+     "any_td": 0.55,
+     "rec": 6.5,
+     "rec_yd": 72.5
+    },
+    "Terrance Ferguson": {
+     "any_td": 0.11
+    },
+    "Tutu Atwell": {
+     "any_td": 0.21,
+     "rec": 2.5,
+     "rec_yd": 22.5
+    },
+    "Tyler Higbee": {
+     "any_td": 0.26,
+     "rec": 2.5,
+     "rec_yd": 23.0
+    },
+    "Woody Marks": {
+     "any_td": 0.12
+    },
+    "Xavier Hutchinson": {
+     "any_td": 0.15,
+     "rec": 1.5,
+     "rec_yd": 19.5
+    },
+    "Xavier Smith": {
+     "any_td": 0.05
+    },
+    "Brashard Smith": {
+     "any_td": 0.12
+    },
+    "Derius Davis": {
+     "any_td": 0.07
+    },
+    "Elijah Mitchell": {
+     "any_td": 0.08
+    },
+    "Hassan Haskins": {
+     "any_td": 0.07
+    },
+    "Hollywood Brown": {
+     "rec": 3.5
+    },
+    "Isiah Pacheco": {
+     "any_td": 0.49,
+     "rec": 1.5,
+     "rec_yd": 9.5,
+     "rush_yd": 48.5
+    },
+    "Jalen Royals": {
+     "any_td": 0.17
+    },
+    "Jared Wiley": {
+     "any_td": 0.05
+    },
+    "Jason Brownlee": {
+     "any_td": 0.1
+    },
+    "JuJu Smith-Schuster": {
+     "any_td": 0.2,
+     "rec": 1.5,
+     "rec_yd": 19.5
+    },
+    "Justin Herbert": {
+     "any_td": 0.19,
+     "pass_td": 1.5,
+     "pass_yd": 233.5,
+     "rush_yd": 16.5
+    },
+    "Kansas City Chiefs D/ST": {
+     "any_td": 0.18
+    },
+    "Kansas City Chiefs Defense": {
+     "any_td": 0.15
+    },
+    "Kareem Hunt": {
+     "any_td": 0.29,
+     "rec_yd": 3.5,
+     "rush_yd": 23.0
+    },
+    "KeAndre Lambert-Smith": {
+     "any_td": 0.11
+    },
+    "Keenan Allen": {
+     "any_td": 0.3,
+     "rec": 3.5,
+     "rec_yd": 39.5
+    },
+    "Kimani Vidal": {
+     "any_td": 0.05
+    },
+    "Ladd McConkey": {
+     "any_td": 0.45,
+     "rec": 5.5,
+     "rec_yd": 72.5
+    },
+    "Los Angeles Chargers D/ST": {
+     "any_td": 0.17
+    },
+    "Los Angeles Chargers Defense": {
+     "any_td": 0.12
+    },
+    "Marquise Brown": {
+     "any_td": 0.39,
+     "rec": 3.5,
+     "rec_yd": 40.5
+    },
+    "Najee Harris": {
+     "any_td": 0.37,
+     "rush_yd": 23.5
+    },
+    "Nikko Remigio": {
+     "any_td": 0.07
+    },
+    "Noah Gray": {
+     "any_td": 0.21,
+     "rec": 2.5,
+     "rec_yd": 19.5
+    },
+    "Omarion Hampton": {
+     "any_td": 0.52,
+     "rec": 1.5,
+     "rec_yd": 12.5,
+     "rush_yd": 48.0
+    },
+    "Oronde Gadsden II": {
+     "any_td": 0.04
+    },
+    "Patrick Mahomes": {
+     "any_td": 0.2,
+     "pass_td": 1.5,
+     "pass_yd": 249.5,
+     "rush_yd": 17.5
+    },
+    "Quentin Johnston": {
+     "any_td": 0.25,
+     "rec": 2.5,
+     "rec_yd": 25.5
+    },
+    "Robert Tonyan": {
+     "any_td": 0.06
+    },
+    "Scott Matlock": {
+     "any_td": 0.03
+    },
+    "Travis Kelce": {
+     "any_td": 0.48,
+     "rec": 5.5,
+     "rec_yd": 48.5
+    },
+    "Tre Harris": {
+     "any_td": 0.11
+    },
+    "Tucker Fisk": {
+     "any_td": 0.04
+    },
+    "Tyler Conklin": {
+     "any_td": 0.18,
+     "rec": 1.5,
+     "rec_yd": 18.5
+    },
+    "Tyquan Thornton": {
+     "any_td": 0.14
+    },
+    "Will Dissly": {
+     "any_td": 0.15,
+     "rec": 1.5,
+     "rec_yd": 16.0
+    },
+    "Xavier Worthy": {
+     "any_td": 0.6,
+     "rec": 5.5,
+     "rec_yd": 62.0,
+     "rush_yd": 4.5
+    },
+    "Alex Bachman": {
+     "any_td": 0.04
+    },
+    "Antonio Gibson": {
+     "any_td": 0.09
+    },
+    "Ashton Jeanty": {
+     "any_td": 0.8,
+     "rec": 2.5,
+     "rec_yd": 17.5,
+     "rush_yd": 70.5
+    },
+    "Austin Hooper": {
+     "any_td": 0.14,
+     "rec_yd": 10.5
+    },
+    "Brock Bowers": {
+     "any_td": 0.43,
+     "rec": 6.5,
+     "rec_yd": 64.5
+    },
+    "DeMario Douglas": {
+     "any_td": 0.22,
+     "rec": 3.5,
+     "rec_yd": 33.5
+    },
+    "Dont'e Thornton Jr.": {
+     "any_td": 0.22,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Drake Maye": {
+     "any_td": 0.26,
+     "pass_td": 1.5,
+     "pass_yd": 215.5,
+     "rush_yd": 29.5
+    },
+    "Dylan Laube": {
+     "any_td": 0.05
+    },
+    "Efton Chism III": {
+     "any_td": 0.07
+    },
+    "Geno Smith": {
+     "any_td": 0.13,
+     "pass_td": 1.5,
+     "pass_yd": 230.5,
+     "rush_yd": 9.5
+    },
+    "Hunter Henry": {
+     "any_td": 0.33,
+     "rec": 3.5,
+     "rec_yd": 33.5
+    },
+    "Ian Thomas": {
+     "any_td": 0.04
+    },
+    "Jack Bech": {
+     "any_td": 0.11
+    },
+    "Jack Westover": {
+     "any_td": 0.06
+    },
+    "Jakobi Meyers": {
+     "any_td": 0.35,
+     "rec": 4.5,
+     "rec_yd": 53.5
+    },
+    "Justin Shorter": {
+     "any_td": 0.04
+    },
+    "Kayshon Boutte": {
+     "any_td": 0.13,
+     "rec": 1.5,
+     "rec_yd": 16.5
+    },
+    "Kyle Williams": {
+     "any_td": 0.09
+    },
+    "Las Vegas Raiders D/ST": {
+     "any_td": 0.17
+    },
+    "Las Vegas Raiders Defense": {
+     "any_td": 0.13
+    },
+    "Mack Hollins": {
+     "any_td": 0.15
+    },
+    "Michael Mayer": {
+     "any_td": 0.13,
+     "rec": 1.5,
+     "rec_yd": 14.5
+    },
+    "New England Patriots D/ST": {
+     "any_td": 0.17
+    },
+    "New England Patriots Defense": {
+     "any_td": 0.14
+    },
+    "Raheem Mostert": {
+     "any_td": 0.16
+    },
+    "Rhamondre Stevenson": {
+     "any_td": 0.51,
+     "rec": 1.5,
+     "rec_yd": 8.5,
+     "rush_yd": 42.5
+    },
+    "Stefon Diggs": {
+     "any_td": 0.37,
+     "rec": 4.5,
+     "rec_yd": 47.5
+    },
+    "Tre Tucker": {
+     "any_td": 0.17,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "TreVeyon Henderson": {
+     "any_td": 0.55,
+     "rec": 2.5,
+     "rec_yd": 20.5,
+     "rush_yd": 40.5
+    },
+    "Zamir White": {
+     "any_td": 0.07
+    },
+    "Alvin Kamara": {
+     "any_td": 0.72,
+     "rec": 4.5,
+     "rec_yd": 28.5,
+     "rush_yd": 60.5
+    },
+    "Arizona Cardinals D/ST": {
+     "any_td": 0.17
+    },
+    "Arizona Cardinals Defense": {
+     "any_td": 0.15
+    },
+    "Bam Knight": {
+     "any_td": 0.09
+    },
+    "Brandin Cooks": {
+     "any_td": 0.13,
+     "rec": 1.5,
+     "rec_yd": 17.5
+    },
+    "Chris Olave": {
+     "any_td": 0.39,
+     "rec": 4.5,
+     "rec_yd": 50.5
+    },
+    "Devaughn Vele": {
+     "any_td": 0.14
+    },
+    "Devin Neal": {
+     "any_td": 0.08
+    },
+    "Elijah Higgins": {
+     "any_td": 0.07
+    },
+    "Emari Demercado": {
+     "any_td": 0.09
+    },
+    "Greg Dortch": {
+     "any_td": 0.12
+    },
+    "Jack Stoll": {
+     "any_td": 0.06
+    },
+    "James Conner": {
+     "any_td": 0.97,
+     "rec": 2.5,
+     "rec_yd": 15.5,
+     "rush_yd": 72.5
+    },
+    "Juwan Johnson": {
+     "any_td": 0.21,
+     "rec": 2.5,
+     "rec_yd": 25.5
+    },
+    "Kendre Miller": {
+     "any_td": 0.15
+    },
+    "Kyler Murray": {
+     "any_td": 0.38,
+     "pass_td": 1.5,
+     "pass_yd": 223.5,
+     "rush_yd": 26.5
+    },
+    "Marvin Harrison Jr.": {
+     "any_td": 0.49,
+     "rec": 4.5,
+     "rec_yd": 58.5
+    },
+    "Mason Tipton": {
+     "any_td": 0.07
+    },
+    "Michael Wilson": {
+     "any_td": 0.23,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Moliki Matavao": {
+     "any_td": 0.05
+    },
+    "New Orleans Saints D/ST": {
+     "any_td": 0.17
+    },
+    "New Orleans Saints Defense": {
+     "any_td": 0.11
+    },
+    "Rashid Shaheed": {
+     "any_td": 0.25,
+     "rec": 3.5,
+     "rec_yd": 40.0
+    },
+    "Spencer Rattler": {
+     "any_td": 0.17,
+     "pass_td": 1.5,
+     "pass_yd": 199.5,
+     "rush_yd": 19.5
+    },
+    "Tip Reiman": {
+     "any_td": 0.06
+    },
+    "Travis Vokolek": {
+     "any_td": 0.04
+    },
+    "Trey Benson": {
+     "any_td": 0.25,
+     "rush_yd": 25.5
+    },
+    "Trey McBride": {
+     "any_td": 0.42,
+     "rec": 6.5,
+     "rec_yd": 64.5
+    },
+    "Trey Palmer": {
+     "any_td": 0.05
+    },
+    "Velus Jones Jr.": {
+     "any_td": 0.05
+    },
+    "Xavier Weaver": {
+     "any_td": 0.08
+    },
+    "Zay Jones": {
+     "any_td": 0.12,
+     "rec": 1.5,
+     "rec_yd": 13.5
+    },
+    "Aaron Rodgers": {
+     "any_td": 0.07,
+     "pass_td": 1.5,
+     "pass_yd": 203.0,
+     "rush_yd": 0.5
+    },
+    "Allen Lazard": {
+     "any_td": 0.12,
+     "rec": 1.5,
+     "rec_yd": 11.5
+    },
+    "Andrew Beck": {
+     "any_td": 0.04
+    },
+    "Arian Smith": {
+     "any_td": 0.04
+    },
+    "Ben Skowronek": {
+     "any_td": 0.06
+    },
+    "Braelon Allen": {
+     "any_td": 0.33,
+     "rush_yd": 29.0
+    },
+    "Breece Hall": {
+     "any_td": 0.48,
+     "rec": 2.5,
+     "rec_yd": 17.5,
+     "rush_yd": 45.0
+    },
+    "Calvin Austin III": {
+     "any_td": 0.21,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Connor Heyward": {
+     "any_td": 0.04
+    },
+    "DK Metcalf": {
+     "any_td": 0.42,
+     "rec": 4.5,
+     "rec_yd": 55.5
+    },
+    "Darnell Washington": {
+     "any_td": 0.07
+    },
+    "Garrett Wilson": {
+     "any_td": 0.32,
+     "rec": 4.5,
+     "rec_yd": 53.0
+    },
+    "Isaiah Davis": {
+     "any_td": 0.07
+    },
+    "Jaylen Warren": {
+     "any_td": 0.45,
+     "rec": 2.5,
+     "rec_yd": 18.5,
+     "rush_yd": 53.0
+    },
+    "Jeremy Ruckert": {
+     "any_td": 0.06
+    },
+    "Jonnu Smith": {
+     "any_td": 0.21,
+     "rec": 2.5,
+     "rec_yd": 26.5
+    },
+    "Josh Reynolds": {
+     "any_td": 0.11,
+     "rec": 1.5,
+     "rec_yd": 19.5
+    },
+    "Justin Fields": {
+     "any_td": 0.36,
+     "pass_td": 0.5,
+     "pass_yd": 173.0,
+     "rush_yd": 43.5
+    },
+    "Kaleb Johnson": {
+     "any_td": 0.21,
+     "rush_yd": 22.5
+    },
+    "Kene Nwangwu": {
+     "any_td": 0.04
+    },
+    "Kenneth Gainwell": {
+     "any_td": 0.15
+    },
+    "Mason Taylor": {
+     "any_td": 0.15,
+     "rec": 2.5,
+     "rec_yd": 21.5
+    },
+    "New York Jets D/ST": {
+     "any_td": 0.17
+    },
+    "New York Jets Defense": {
+     "any_td": 0.11
+    },
+    "Pat Freiermuth": {
+     "any_td": 0.22,
+     "rec": 2.5,
+     "rec_yd": 27.5
+    },
+    "Pittsburgh Steelers D/ST": {
+     "any_td": 0.17
+    },
+    "Pittsburgh Steelers Defense": {
+     "any_td": 0.11
+    },
+    "Roman Wilson": {
+     "any_td": 0.17
+    },
+    "Scott Miller": {
+     "any_td": 0.09
+    },
+    "Stone Smartt": {
+     "any_td": 0.04
+    },
+    "Trey Sermon": {
+     "any_td": 0.05
+    },
+    "Tyler Johnson": {
+     "any_td": 0.07
+    },
+    "Xavier Gipson": {
+     "any_td": 0.04
+    },
+    "AJ Brown": {
+     "any_td": 0.49,
+     "rec": 4.5,
+     "rec_yd": 70.5
+    },
+    "AJ Dillon": {
+     "any_td": 0.12
+    },
+    "Ben VanSumeren": {
+     "any_td": 0.04
+    },
+    "Brevyn Spann-Ford": {
+     "any_td": 0.06
+    },
+    "CeeDee Lamb": {
+     "any_td": 0.51,
+     "rec": 6.5,
+     "rec_yd": 72.5,
+     "rush_yd": 0.5
+    },
+    "Cooper Rush": {
+     "any_td": 0.07
+    },
+    "Dak Prescott": {
+     "any_td": 0.13,
+     "pass_td": 1.5,
+     "pass_yd": 249.0,
+     "rush_yd": 6.5
+    },
+    "Dallas Cowboys D/ST": {
+     "any_td": 0.15
+    },
+    "Dallas Cowboys Defense": {
+     "any_td": 0.13
+    },
+    "Dallas Goedert": {
+     "any_td": 0.31,
+     "rec": 3.5,
+     "rec_yd": 39.5
+    },
+    "DeVonta Smith": {
+     "any_td": 0.42,
+     "rec": 4.5,
+     "rec_yd": 52.5
+    },
+    "George Pickens": {
+     "any_td": 0.37,
+     "rec": 4.5,
+     "rec_yd": 56.5
+    },
+    "Grant Calcaterra": {
+     "any_td": 0.09
+    },
+    "Hunter Luepke": {
+     "any_td": 0.06
+    },
+    "Jahan Dotson": {
+     "any_td": 0.11,
+     "rec_yd": 8.0
+    },
+    "Jake Ferguson": {
+     "any_td": 0.29,
+     "rec": 3.5,
+     "rec_yd": 38.0
+    },
+    "Jalen Brooks": {
+     "any_td": 0.05
+    },
+    "Jalen Hurts": {
+     "any_td": 0.92,
+     "pass_td": 1.5,
+     "pass_yd": 214.5,
+     "rush_yd": 40.5
+    },
+    "Jalen Tolbert": {
+     "any_td": 0.17,
+     "rec_yd": 9.5
+    },
+    "Javonte Williams": {
+     "any_td": 0.4,
+     "rec": 2.5,
+     "rec_yd": 12.5,
+     "rush_yd": 36.0
+    },
+    "Jaydon Blue": {
+     "any_td": 0.15
+    },
+    "John Metchie III": {
+     "any_td": 0.08
+    },
+    "KaVontae Turpin": {
+     "any_td": 0.13,
+     "rec_yd": 15.5,
+     "rush_yd": 4.5
+    },
+    "Kylen Granson": {
+     "any_td": 0.06
+    },
+    "Luke Schoonmaker": {
+     "any_td": 0.09
+    },
+    "Miles Sanders": {
+     "any_td": 0.11
+    },
+    "Philadelphia Eagles D/ST": {
+     "any_td": 0.19
+    },
+    "Philadelphia Eagles Defense": {
+     "any_td": 0.18
+    },
+    "Ryan Flournoy": {
+     "any_td": 0.06
+    },
+    "Saquon Barkley": {
+     "any_td": 1.08,
+     "rec": 2.5,
+     "rec_yd": 14.0,
+     "rush_yd": 96.5
+    },
+    "Will Shipley": {
+     "any_td": 0.15,
+     "rush_yd": 11.5
+    },
+    "AJ Barner": {
+     "any_td": 0.24,
+     "rec": 2.5,
+     "rec_yd": 21.5
+    },
+    "Brayden Willis": {
+     "any_td": 0.08
+    },
+    "Brian Robinson Jr.": {
+     "any_td": 0.28
+    },
+    "Brock Purdy": {
+     "any_td": 0.16,
+     "pass_td": 1.5,
+     "pass_yd": 245.0,
+     "rush_yd": 12.5
+    },
+    "Christian McCaffrey": {
+     "any_td": 0.79,
+     "rec": 3.5,
+     "rec_yd": 29.5,
+     "rush_yd": 62.5
+    },
+    "Cody White": {
+     "any_td": 0.05
+    },
+    "Cooper Kupp": {
+     "any_td": 0.36,
+     "rec": 3.5,
+     "rec_yd": 40.5
+    },
+    "Dareke Young": {
+     "any_td": 0.06
+    },
+    "Elijah Arroyo": {
+     "any_td": 0.13
+    },
+    "Eric Saubert": {
+     "any_td": 0.06
+    },
+    "George Holani": {
+     "any_td": 0.06
+    },
+    "George Kittle": {
+     "any_td": 0.46,
+     "rec": 4.5,
+     "rec_yd": 63.5
+    },
+    "Isaac Guerendo": {
+     "any_td": 0.17
+    },
+    "Jake Bobo": {
+     "any_td": 0.13
+    },
+    "Jake Tonges": {
+     "any_td": 0.06
+    },
+    "James Jordan": {
+     "any_td": 0.09
+    },
+    "Jauan Jennings": {
+     "any_td": 0.37,
+     "rec": 4.5,
+     "rec_yd": 48.5
+    },
+    "Jaxon Smith-Njigba": {
+     "any_td": 0.49,
+     "rec": 5.5,
+     "rec_yd": 60.5
+    },
+    "Jordan Watkins": {
+     "any_td": 0.2
+    },
+    "Kenneth Walker III": {
+     "any_td": 0.58,
+     "rec": 2.5,
+     "rec_yd": 14.5,
+     "rush_yd": 62.5
+    },
+    "Kyle Juszczyk": {
+     "any_td": 0.1
+    },
+    "Luke Farrell": {
+     "any_td": 0.09
+    },
+    "Marquez Valdes-Scantling": {
+     "any_td": 0.12
+    },
+    "Nick Kallerup": {
+     "any_td": 0.05
+    },
+    "Ricky Pearsall": {
+     "any_td": 0.38,
+     "rec": 3.5,
+     "rec_yd": 45.5
+    },
+    "Robbie Ouzts": {
+     "any_td": 0.06
+    },
+    "Russell Gage": {
+     "any_td": 0.07
+    },
+    "Sam Darnold": {
+     "any_td": 0.12,
+     "pass_td": 1.5,
+     "pass_yd": 206.0,
+     "rush_yd": 9.0
+    },
+    "San Francisco 49ers D/ST": {
+     "any_td": 0.18
+    },
+    "San Francisco 49ers Defense": {
+     "any_td": 0.12
+    },
+    "Seattle Seahawks D/ST": {
+     "any_td": 0.18
+    },
+    "Seattle Seahawks Defense": {
+     "any_td": 0.11
+    },
+    "Skyy Moore": {
+     "any_td": 0.08
+    },
+    "Tory Horton": {
+     "any_td": 0.21,
+     "rec": 2.5,
+     "rec_yd": 24.5
+    },
+    "Zach Charbonnet": {
+     "any_td": 0.24,
+     "rec": 1.5,
+     "rec_yd": 9.5,
+     "rush_yd": 29.5
+    },
+    "Austin Ekeler": {
+     "any_td": 0.44,
+     "rec": 2.5,
+     "rec_yd": 22.0,
+     "rush_yd": 24.0
+    },
+    "Beaux Collins": {
+     "any_td": 0.08
+    },
+    "Ben Sinnott": {
+     "any_td": 0.07
+    },
+    "Cam Skattebo": {
+     "any_td": 0.22,
+     "rush_yd": 16.5
+    },
+    "Chris Manhertz": {
+     "any_td": 0.04
+    },
+    "Chris Moore": {
+     "any_td": 0.06
+    },
+    "Chris Rodriguez Jr.": {
+     "any_td": 0.35,
+     "rush_yd": 23.5
+    },
+    "Daniel Bellinger": {
+     "any_td": 0.08
+    },
+    "Darius Slayton": {
+     "any_td": 0.22,
+     "rec": 2.0,
+     "rec_yd": 28.0
+    },
+    "Deebo Samuel Sr.": {
+     "any_td": 0.39,
+     "rec": 3.5,
+     "rec_yd": 46.5
+    },
+    "Devin Singletary": {
+     "any_td": 0.2
+    },
+    "Gunner Olszewski": {
+     "any_td": 0.05
+    },
+    "Jacory Croskey-Merritt": {
+     "any_td": 0.29,
+     "rush_yd": 29.5
+    },
+    "Jalin Hyatt": {
+     "any_td": 0.09
+    },
+    "Jayden Daniels": {
+     "any_td": 0.44,
+     "pass_td": 1.5,
+     "pass_yd": 224.0,
+     "rush_yd": 44.5
+    },
+    "Jaylin Lane": {
+     "any_td": 0.16
+    },
+    "Jeremy McNichols": {
+     "any_td": 0.13
+    },
+    "John Bates": {
+     "any_td": 0.07
+    },
+    "Luke McCaffrey": {
+     "any_td": 0.05
+    },
+    "Malik Nabers": {
+     "any_td": 0.48,
+     "rec": 6.5,
+     "rec_yd": 75.5
+    },
+    "New York Giants D/ST": {
+     "any_td": 0.17
+    },
+    "New York Giants Defense": {
+     "any_td": 0.11
+    },
+    "Noah Brown": {
+     "any_td": 0.19,
+     "rec": 1.5,
+     "rec_yd": 19.5
+    },
+    "Russell Wilson": {
+     "any_td": 0.13,
+     "pass_td": 1.5,
+     "pass_yd": 217.0,
+     "rush_yd": 8.5
+    },
+    "Terry McLaurin": {
+     "any_td": 0.56,
+     "rec": 4.5,
+     "rec_yd": 54.0
+    },
+    "Theo Johnson": {
+     "any_td": 0.22,
+     "rec": 2.5,
+     "rec_yd": 25.5
+    },
+    "Thomas Fidone": {
+     "any_td": 0.03
+    },
+    "Tyrone Tracy Jr.": {
+     "any_td": 0.51,
+     "rec": 2.5,
+     "rec_yd": 11.5,
+     "rush_yd": 55.5
+    },
+    "Wan'Dale Robinson": {
+     "any_td": 0.22,
+     "rec": 4.5,
+     "rec_yd": 34.5
+    },
+    "Washington Commanders D/ST": {
+     "any_td": 0.17
+    },
+    "Washington Commanders Defense": {
+     "any_td": 0.15
+    },
+    "Zach Ertz": {
+     "any_td": 0.38,
+     "rec": 3.5,
+     "rec_yd": 32.5
+    }
+   },
+   "health": {
+    "games_planned": 16,
+    "events_matched": 16,
+    "odds_ok": 16,
+    "odds_empty": 0,
+    "players": 528
+   }
+  }
+ ]
+}

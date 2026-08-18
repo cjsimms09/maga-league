@@ -4,113 +4,113 @@
   "run_min": 3
  },
  "real": {
-  "run_share": 0.46,
-  "runs_per_draft": 19.67,
-  "mean_run_len": 3.16,
+  "run_share": 0.463,
+  "runs_per_draft": 19.33,
+  "mean_run_len": 3.15,
   "timing": {
    "q1": {
-    "QB": 0.099,
-    "RB": 0.321,
-    "WR": 0.457,
-    "TE": 0.111
+    "QB": 0.089,
+    "RB": 0.316,
+    "WR": 0.468,
+    "TE": 0.114
    },
    "q2": {
-    "QB": 0.111,
-    "RB": 0.272,
-    "WR": 0.272,
-    "TE": 0.099
+    "QB": 0.127,
+    "RB": 0.278,
+    "WR": 0.241,
+    "TE": 0.101
    },
    "q3": {
-    "QB": 0.123,
-    "RB": 0.309,
-    "WR": 0.296,
-    "TE": 0.086
+    "QB": 0.127,
+    "RB": 0.329,
+    "WR": 0.316,
+    "TE": 0.089
    },
    "q4": {
-    "QB": 0.123,
-    "RB": 0.333,
-    "WR": 0.383,
-    "TE": 0.111
+    "QB": 0.127,
+    "RB": 0.291,
+    "WR": 0.367,
+    "TE": 0.114
    },
    "q5": {
-    "QB": 0.098,
-    "RB": 0.28,
-    "WR": 0.305,
-    "TE": 0.073
+    "QB": 0.1,
+    "RB": 0.25,
+    "WR": 0.325,
+    "TE": 0.075
    }
   }
  },
  "sim_independent": {
-  "run_share": 0.391,
-  "runs_per_draft": 18.92,
+  "run_share": 0.393,
+  "runs_per_draft": 18.96,
   "mean_run_len": 3.11,
   "timing": {
    "q1": {
-    "QB": 0.169,
-    "RB": 0.294,
-    "WR": 0.349,
-    "TE": 0.129
+    "QB": 0.151,
+    "RB": 0.293,
+    "WR": 0.364,
+    "TE": 0.125
    },
    "q2": {
-    "QB": 0.169,
-    "RB": 0.293,
-    "WR": 0.349,
-    "TE": 0.129
-   },
-   "q3": {
-    "QB": 0.164,
-    "RB": 0.297,
-    "WR": 0.343,
-    "TE": 0.129
-   },
-   "q4": {
-    "QB": 0.167,
-    "RB": 0.294,
-    "WR": 0.347,
+    "QB": 0.147,
+    "RB": 0.292,
+    "WR": 0.364,
     "TE": 0.128
    },
+   "q3": {
+    "QB": 0.151,
+    "RB": 0.29,
+    "WR": 0.36,
+    "TE": 0.124
+   },
+   "q4": {
+    "QB": 0.147,
+    "RB": 0.289,
+    "WR": 0.364,
+    "TE": 0.122
+   },
    "q5": {
-    "QB": 0.175,
-    "RB": 0.285,
-    "WR": 0.342,
-    "TE": 0.133
+    "QB": 0.158,
+    "RB": 0.286,
+    "WR": 0.356,
+    "TE": 0.126
    }
   }
  },
  "sim_fitted": {
-  "run_share": 0.45,
-  "runs_per_draft": 20.88,
+  "run_share": 0.458,
+  "runs_per_draft": 21.29,
   "mean_run_len": 3.23,
   "timing": {
    "q1": {
-    "QB": 0.169,
-    "RB": 0.294,
-    "WR": 0.351,
-    "TE": 0.128
+    "QB": 0.151,
+    "RB": 0.289,
+    "WR": 0.367,
+    "TE": 0.124
    },
    "q2": {
-    "QB": 0.168,
-    "RB": 0.294,
-    "WR": 0.35,
+    "QB": 0.144,
+    "RB": 0.297,
+    "WR": 0.361,
     "TE": 0.129
    },
    "q3": {
-    "QB": 0.165,
-    "RB": 0.296,
-    "WR": 0.343,
-    "TE": 0.129
+    "QB": 0.151,
+    "RB": 0.292,
+    "WR": 0.361,
+    "TE": 0.121
    },
    "q4": {
-    "QB": 0.168,
-    "RB": 0.29,
-    "WR": 0.347,
-    "TE": 0.132
+    "QB": 0.143,
+    "RB": 0.293,
+    "WR": 0.364,
+    "TE": 0.125
    },
    "q5": {
-    "QB": 0.174,
+    "QB": 0.16,
     "RB": 0.286,
-    "WR": 0.342,
-    "TE": 0.133
+    "WR": 0.354,
+    "TE": 0.128
    }
   }
  },
@@ -118,128 +118,130 @@
  "fit_grid": [
   {
    "cascade": 0.0,
-   "run_share": 0.391,
-   "runs_per_draft": 18.92,
-   "err": 0.069
+   "run_share": 0.393,
+   "runs_per_draft": 18.96,
+   "err": 0.07
   },
   {
    "cascade": 1.0,
    "run_share": 0.41,
    "runs_per_draft": 19.54,
-   "err": 0.05
+   "err": 0.053
   },
   {
    "cascade": 2.0,
-   "run_share": 0.423,
-   "runs_per_draft": 19.96,
-   "err": 0.037
-  },
-  {
-   "cascade": 4.0,
-   "run_share": 0.45,
-   "runs_per_draft": 20.88,
-   "err": 0.01
-  },
-  {
-   "cascade": 8.0,
-   "run_share": 0.495,
-   "runs_per_draft": 22.42,
+   "run_share": 0.428,
+   "runs_per_draft": 20.21,
    "err": 0.035
   },
   {
+   "cascade": 4.0,
+   "run_share": 0.458,
+   "runs_per_draft": 21.29,
+   "err": 0.005
+  },
+  {
+   "cascade": 8.0,
+   "run_share": 0.487,
+   "runs_per_draft": 22.08,
+   "err": 0.024
+  },
+  {
    "cascade": 16.0,
-   "run_share": 0.566,
-   "runs_per_draft": 24.75,
-   "err": 0.106
+   "run_share": 0.549,
+   "runs_per_draft": 24.08,
+   "err": 0.086
   }
  ],
  "checks": [
   {
    "stat": "run_share",
-   "real": 0.46,
-   "sim": 0.45,
+   "real": 0.463,
+   "sim": 0.458,
    "tolerance": 0.05,
    "reproduces": true
   },
   {
    "stat": "runs_per_draft",
-   "real": 19.67,
-   "sim": 20.88,
+   "real": 19.33,
+   "sim": 21.29,
    "tolerance": 1.5,
-   "reproduces": true
+   "reproduces": false
   },
   {
    "stat": "mean_run_len",
-   "real": 3.16,
+   "real": 3.15,
    "sim": 3.23,
    "tolerance": 0.5,
    "reproduces": true
   },
   {
    "stat": "timing_q1_RB",
-   "real": 0.321,
-   "sim": 0.294,
+   "real": 0.316,
+   "sim": 0.289,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_WR",
-   "real": 0.457,
-   "sim": 0.351,
+   "real": 0.468,
+   "sim": 0.367,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_QB",
-   "real": 0.099,
-   "sim": 0.169,
+   "real": 0.089,
+   "sim": 0.151,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_RB",
-   "real": 0.309,
-   "sim": 0.296,
+   "real": 0.329,
+   "sim": 0.292,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_WR",
-   "real": 0.296,
-   "sim": 0.343,
+   "real": 0.316,
+   "sim": 0.361,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_QB",
-   "real": 0.123,
-   "sim": 0.165,
+   "real": 0.127,
+   "sim": 0.151,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_RB",
-   "real": 0.28,
+   "real": 0.25,
    "sim": 0.286,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_WR",
-   "real": 0.305,
-   "sim": 0.342,
+   "real": 0.325,
+   "sim": 0.354,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_QB",
-   "real": 0.098,
-   "sim": 0.174,
+   "real": 0.1,
+   "sim": 0.16,
    "tolerance": 0.15,
    "reproduces": true
   }
  ],
- "cannot_reproduce": [],
+ "cannot_reproduce": [
+  "runs_per_draft"
+ ],
  "not_measurable_locally": [
   "reach / ADP-deviation distribution \u2014 historical ADP lives in the CI-built bundles (egress); this comparison runs in the replay-bridge job"
  ]

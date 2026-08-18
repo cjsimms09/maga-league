@@ -91,6 +91,31 @@ def test_there_is_no_accessor_that_hands_over_the_whole_pick_list():
     assert not hasattr(s, "picks")
 
 
+def test_keepers_union_the_seasons_separate_ledger_draft():
+    """2023's shape: the main draft carries NO is_keeper flags and a separate
+    ledger draft carries all of them. keepers() must union both — reading
+    only the main draft gave 2023 an empty slate and every 2023 replay
+    decided keeper slots as live picks (live-edge run, 2026-08-17)."""
+    hist = {"seasons": [{
+        "season": 2023, "owners": [],
+        "drafts": [
+            {"draft_id": "main", "picks": [
+                {"pick_no": 1, "roster_id": 1, "player_id": "kp1",
+                 "is_keeper": None},
+                {"pick_no": 2, "roster_id": 2, "player_id": "liv",
+                 "is_keeper": None}]},
+            {"draft_id": "ledger", "picks": [
+                {"pick_no": 1, "roster_id": 1, "player_id": "kp1",
+                 "is_keeper": True}]},
+        ]}]}
+    s = AsOfDataStore(2023, hist)
+    assert [k["player_id"] for k in s.keepers()] == ["kp1"]
+    # and a keeper flagged in BOTH records appears once, not twice.
+    hist["seasons"][0]["drafts"][0]["picks"][0]["is_keeper"] = True
+    assert [k["player_id"] for k in AsOfDataStore(2023, hist).keepers()] == \
+        ["kp1"]
+
+
 def test_config_and_keepers_are_pre_draft_facts():
     s = store()
     cfg = s.league_config()

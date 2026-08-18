@@ -119,25 +119,17 @@ function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
  * overlaid on top so a position CORRECTION reaches this measurement, and the
  * ledger reports which source answered so the coupling cannot come back
  * silently a third time. */
-function positionMap() {
-  const m = {};
-  const hist = path.join(ROOT, 'draft', 'data', 'player_positions.json');
-  let fromHistory = 0;
-  if (fs.existsSync(hist)) {
-    const h = readJson(hist).positions || {};
-    Object.keys(h).forEach(id => { m[id] = h[id]; fromHistory++; });
-  }
-  const board = readJson(path.join(ROOT, 'public', 'draft_data.json'));
-  let fromBoard = 0;
-  (board.players || []).forEach(p => {
-    if (p.position) { m[String(p.player_id)] = p.position; fromBoard++; }
-  });
-  Object.defineProperty(m, '__sources', {
-    value: { history: fromHistory, board: fromBoard, history_file: fs.existsSync(hist) },
-    enumerable: false,
-  });
-  return m;
-}
+/* THE ONE DEFINITION NOW LIVES IN `position_map.js`, AND THIS IS WHY.
+ *
+ * This function was the original fix, and its own comment said the coupling
+ * "cannot come back silently a third time". It came back FIVE more times —
+ * waiver_supply, roster_shape, lineup_skill, opponent_persistence and
+ * value_anchor_independent each grew their own map from the live board.
+ *
+ * A local fix plus a warning comment does not generalise. A required module
+ * does. Re-exported under the old name so this file's call sites are unchanged
+ * and the behaviour is byte-identical (asserted in position_map.test.js). */
+const positionMap = require(path.join(ROOT, 'draft', 'tools', 'position_map.js')).positionMap;
 
 /* Every completed arrival, with the week it arrived. THE WEEK IS THE DICT KEY —
  * a transaction row carries `type/status/roster_ids/adds/drops/waiver_bid/

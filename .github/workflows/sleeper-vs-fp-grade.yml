@@ -1,0 +1,124 @@
+name: SLEEPER-VS-FP-GRADE — Sleeper vs FantasyPros vs own_v6 vs blends, on 2025
+
+# WHY THIS EXISTS. Cory, 2026-08-16: "we still haven't answered why we're
+# drafting are using sleeper projections vs fantasy pros vs a blend of both".
+# proj_mean_blend refused this exact test on two blockers and step 2 removed
+# both: Sleeper DOES serve a historical projection (leak-gated clean for 2025 —
+# draft/audit/sleeper_vs_fp_grade_2026-08-16.md), and FantasyPros' per-player
+# rows, which were never retained, are re-fetchable FROM CI, which is where
+# this runs. proj_mean_blend §9.2 asked for exactly this fetch.
+#
+# WHY A WORKFLOW. www.fantasypros.com answers 403 and api.sleeper.app answers
+# 000 from the dev sandbox — a policy denial at the gateway, not a TLS problem
+# and not something to route around.
+#
+# ONE SEASON, AND IT IS DECLARED RATHER THAN WORKED AROUND. own_v6 exists only
+# for 2025 (it needs two prior weekly-points stores; 2021/2022 do not exist)
+# and Sleeper's 2023/2024 are refused upstream as leaked/partial.
+#
+# NOTHING SHIPS FROM THIS JOB under any outcome. A winner becomes a
+# DECISIONS-NEEDED.md item describing the prepared diff. Cory rules.
+#
+# MANUAL ONLY, DELIBERATELY. This is a QUESTION, not a feed.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sleeper-vs-fp-grade
+  cancel-in-progress: false
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Install the test runner and the model's own dependencies
+        run: pip install pytest -q
+
+      # BOTH PREREGISTRATIONS MUST PRE-EXIST THE FETCH — the leak gates that
+      # licensed this grade, and the grade's own rules. If either is missing,
+      # the rules were not fixed before the data was seen and any number here
+      # would be the post-hoc grading the whole programme refuses.
+      - name: Preregistrations precede the fetch
+        run: |
+          for f in draft/backtest/SLEEPER-HIST-PROJ-PREREG.md \
+                   draft/backtest/SLEEPER-VS-FP-PREREG.md \
+                   draft/audit/sleeper_vs_fp_grade_2026-08-16.md; do
+            if [ ! -f "$f" ]; then
+              echo "::error::$f missing — refusing to fetch anything."
+              exit 1
+            fi
+          done
+
+      # "The gate failed" and "the gate could not run" are different facts.
+      - name: The metrics are tested before anything is asked
+        run: |
+          for t in draft/tests/test_sleeper_hist_proj.py \
+                   draft/tests/test_sleeper_vs_fp_grade.py; do
+            if ! python3 -m pytest "$t" --collect-only -q > /dev/null 2>&1; then
+              echo "::error::THE GATE COULD NOT RUN — $t did not even collect."
+              python3 -m pytest "$t" --collect-only -q
+              exit 1
+            fi
+          done
+          python3 -m pytest draft/tests/test_sleeper_hist_proj.py \
+                            draft/tests/test_sleeper_vs_fp_grade.py -q
+
+      - name: Grade the three sources and the two blends
+        id: grade
+        timeout-minutes: 30
+        run: |
+          set -o pipefail
+          rc=0
+          {
+            echo "## SLEEPER-VS-FP-GRADE — 2025, shared population"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/sleeper_vs_fp_grade.py \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
+      # THE ANSWER IS COMMITTED WHETHER IT IS A HIT, A NULL OR A REFUSAL.
+      - name: Commit the answer, including a refusal
+        if: always()
+        run: |
+          # A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main. The answer
+          # still lands in the step summary and the job log above.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the answer is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — answer not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          # BOTH FILES. The verdict, and the per-player rows under it —
+          # proj_mean_blend §9.2 asked a future egress run to retain them and the
+          # two runs before this one did not, so register rows 20b and 21 are
+          # still waiting on a population that was fetched twice and thrown away
+          # twice. The sandbox cannot re-fetch (403/000): a row not committed
+          # here costs another dispatch to recover.
+          git add draft/backtest/sleeper_vs_fp_grade.json || true
+          git add draft/backtest/sleeper_vs_fp_rows_2025.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "SLEEPER-VS-FP-GRADE: three-way 2025 verdict [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::error::VERDICT NOT PUSHED — the fetch is spent and the answer is lost."
+              exit 1
+            fi
+          fi

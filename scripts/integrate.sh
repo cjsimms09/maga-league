@@ -17,7 +17,29 @@
 #
 # Usage:  bash scripts/integrate.sh <branch> <side A|B|C> [--push]
 set -uo pipefail
-cd "$(dirname "$0")/.."
+# ⚠️ THIS SCRIPT REPLACES ITS OWN SOURCE FILE MID-RUN, AND BASH READS SCRIPTS
+# LAZILY. `git checkout main` below swaps scripts/integrate.sh on disk to main's
+# version; bash then continues reading from the SAME BYTE OFFSET in a DIFFERENT
+# FILE. So a run started from a branch executes that branch's code up to the
+# checkout and main's code after it — at an offset that no longer means anything
+# if the two differ in length.
+#
+# MEASURED 2026-08-14: a fix to the JS classification was invoked from its own
+# branch, and the gate printed main's OLD refusal message. The script cannot fix
+# itself, and every previous edit to it landed unpredictably — including,
+# plausibly, edits nobody realised were half-applied.
+#
+# Re-exec from a private COPY before touching git. The copy cannot be swapped by
+# a checkout, so the whole run executes one version of this file. ROOT travels in
+# the environment because $0 is now a temp path and `dirname $0` would resolve
+# outside the repository.
+if [ -z "${INTEGRATE_ROOT:-}" ]; then
+  INTEGRATE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+  _self="$(mktemp)"; cp "$0" "$_self"
+  export INTEGRATE_ROOT
+  exec bash "$_self" "$@"
+fi
+cd "$INTEGRATE_ROOT"
 
 BRANCH="${1:-}"; SIDE="${2:-}"; PUSH="${3:-}"
 [ -n "$BRANCH" ] && [ -n "$SIDE" ] || { echo "usage: integrate.sh <branch> <A|B|C> [--push]"; exit 2; }
@@ -58,6 +80,40 @@ echo "== fetching $BRANCH"
 git fetch -q origin "$BRANCH" || { echo "FAIL: cannot fetch $BRANCH"; exit 1; }
 REF="origin/$BRANCH"
 
+# ── 1b. THIS SCRIPT MERGES THE REMOTE. SAY SO, AND REFUSE WHEN THEY DIFFER ──
+#
+# Every line below operates on `origin/$BRANCH`. That is deliberate — the branch
+# being integrated usually belongs to another session and only the remote ref
+# exists here. But it means "commit the fix, then integrate" WITHOUT A PUSH
+# integrates the commit before the fix, merges cleanly, runs both suites on the
+# stale tree, and prints the same success it prints for a correct integration.
+#
+# C hit exactly that on 2026-08-11: a fix to territory-check.sh was committed and
+# not pushed, integrate.sh merged the previous commit — a guard that refused any
+# second argument — and every `territory-check.sh <side> --range ...` call inside
+# THIS script was refused for every lane for ~20 minutes. Nothing reported a
+# problem. The only symptom was main being wrong afterwards.
+#
+# THAT IS THE FAILURE CLASS THIS REPO KEEPS NAMING: a step that reports success
+# for work it did not do. It is not a habit problem, because a habit produces no
+# evidence when it lapses; the local ref is right there and can be asked.
+#
+# Guarded on the local branch EXISTING, because integrate is also run for
+# branches where only the remote ref is present — the normal case for C's work,
+# and there is nothing stale about a branch you have never checked out.
+if git rev-parse --verify --quiet "refs/heads/$BRANCH" >/dev/null; then
+  AHEAD="$(git rev-list --count "$REF..$BRANCH" 2>/dev/null || echo 0)"
+  if [ "$AHEAD" != "0" ]; then
+    echo "REFUSING: local '$BRANCH' has $AHEAD commit(s) the remote does not."
+    git log --oneline "$REF..$BRANCH" | sed 's/^/     /'
+    echo "  integrate.sh merges $REF, so those commits WOULD NOT BE MERGED and"
+    echo "  this run would report success for work it did not do."
+    echo "  Push first:  git push -u origin $BRANCH"
+    exit 2
+  fi
+  echo "   local '$BRANCH' matches $REF — nothing unpushed"
+fi
+
 # ── 2. TERRITORY, FROM THE OTHER SIDE'S PERSPECTIVE ─────────────────────────
 # The point of asking as SIDE rather than as A: A merging is legitimate, so an
 # A-side check would exempt everything. The question that matters is whether the
@@ -86,6 +142,28 @@ fi
 echo "== territory: has main's side stayed in ITS lane?"
 if ! bash scripts/territory-check.sh A --range "$BASE" origin/main; then
   echo "REFUSED: main contains edits outside side A's lane. Nothing merged."
+  # ── AND SAY THE LIKELY CAUSE, BECAUSE IT IS ALMOST ALWAYS THIS ────────────
+  #
+  # The exemption above passes a would-be trespass when the file is BYTE-
+  # IDENTICAL to origin/main — merged, not edited. So when another lane
+  # legitimately merges its own files to main and this branch has not caught
+  # up, those files differ, the exemption cannot fire, and every one of them
+  # reports as a trespass by A. Nothing is wrong; the branch is just behind.
+  #
+  # Hit twice in one session, and both times the refusal was correct and the
+  # message sent me to read territory-check rather than to `git merge`. A guard
+  # whose true message is "you are out of date" should say that instead of
+  # making the reader derive it — the diagnosis is one command away and this is
+  # the only place that knows to run it.
+  behind="$(git rev-list --count "HEAD..origin/main" 2>/dev/null || echo 0)"
+  if [ "$behind" != "0" ]; then
+    echo
+    echo "  LIKELY CAUSE: this branch is $behind commit(s) behind origin/main."
+    echo "  A file another lane merged to main is exempt only while it is"
+    echo "  byte-identical here — behind main it is not, so it reads as YOUR edit."
+    echo "  Catch up first, then re-run:"
+    echo "      git merge origin/main && git push"
+  fi
   exit 1
 fi
 
@@ -201,7 +279,18 @@ rollback() {
 }
 
 echo "== python suite"
-if ! timeout 600 python -m pytest draft/tests -q </dev/null; then
+# `-m "not repo_parity"`, THE SAME SELECTION THE PUBLICATION GATE RUNS, for
+# the same reason (2026-08-17). The marked nodes fail when the repo/market
+# STATE is new or old — a stale freeze, a ratchet against today's market —
+# never because the merge candidate is bad, and they are red on main and on
+# the candidate alike. Refusing a merge over them blocks nothing except the
+# gate itself, which is how three writers ended up pushing to main around
+# this script inside one hour on 08-17. The marked set is pinned to an
+# explicit node list by draft/tests/test_gate_selection.py, so this line
+# cannot silently widen: adding a marker without recording it there is
+# itself a test failure. The marked nodes still run in every normal pytest
+# and in ci.yml's full suite, where their red stays visible.
+if ! timeout 600 python -m pytest draft/tests -q -m "not repo_parity" </dev/null; then
   echo "REFUSED: python suite red on the merged tree. Rolling main back."
   rollback; exit 1
 fi
@@ -217,13 +306,55 @@ fi
 # suite that failed.
 JS_TMO="${INTEGRATE_JS_TIMEOUT:-400}"
 echo "== js suites (per-suite timeout ${JS_TMO}s)"
-red=""; slow=""
+# ⚠️ A SUITE THAT DIED IS NOT A SUITE THAT FAILED, AND THIS COULD NOT TELL THEM
+# APART — it discarded output with `>/dev/null 2>&1` and judged on the exit code
+# alone. `js-sweep.sh` already makes exactly this distinction, and the reason is
+# written there: "Two suites went RED here on one run and green on the next,
+# standalone exit 0 both times — and NEITHER printed a `FAIL` line... That is the
+# signature of a process that DIED (OOM, signal, resource limit under 239
+# sequential node starts), not of a test that ran and disagreed."
+#
+# The gate never inherited that fix. One rule, two implementations, and only one
+# of them correct — the same shape as the four adp_sd formulas and as `picks`
+# versus `my_picks`.
+#
+# WHAT IT COST, 2026-08-14: this refused `review-harness-only` for `trashtalk`,
+# rolled main back, and reported "JS suites red". trashtalk then passed 25/25
+# three times in a row on the exact merged tree. The merge was blocked on
+# evidence that did not exist — which is precisely what this script's own
+# TIMEOUT branch four lines below says it must never do.
+#
+# So the classification now matches js-sweep's, and INFRA gets ONE retry. A
+# retry is legitimate for a process that died and never for a real FAIL, which
+# is the whole point of keeping them apart.
+red=""; slow=""; infra=""
 for f in draft/tests/*.test.js; do
-  timeout "$JS_TMO" node "$f" >/dev/null 2>&1 </dev/null
-  rc=$?
-  if [ "$rc" = 124 ]; then slow="$slow $(basename "$f" .test.js)"
-  elif [ "$rc" != 0 ]; then red="$red $(basename "$f" .test.js)"; fi
+  name="$(basename "$f" .test.js)"
+  out="$(timeout "$JS_TMO" node "$f" 2>&1 </dev/null)"; rc=$?
+  if [ "$rc" = 124 ]; then slow="$slow $name"; continue; fi
+  if [ "$rc" != 0 ]; then
+    if echo "$out" | grep -qE '^FAIL'; then
+      red="$red $name"
+    else
+      # Died without asserting. Re-run ONCE before believing it.
+      out2="$(timeout "$JS_TMO" node "$f" 2>&1 </dev/null)"; rc2=$?
+      if [ "$rc2" = 0 ]; then
+        echo "   $name: died once (exit $rc, no FAIL line), passed on re-run — not a code failure"
+      elif echo "$out2" | grep -qE '^FAIL'; then
+        red="$red $name"
+      else
+        infra="$infra $name"
+      fi
+    fi
+  fi
 done
+if [ -n "$infra" ]; then
+  echo "REFUSED: JS suite(s) DIED WITHOUT ASSERTING, twice:$infra"
+  echo "  INCONCLUSIVE, not a failure — no assertion disagreed, the process did"
+  echo "  not survive to run them. Debug the machine, not the code."
+  echo "  Rolling main back rather than merging on evidence that does not exist."
+  rollback; exit 1
+fi
 if [ -n "$slow" ]; then
   echo "REFUSED: JS suite(s) TIMED OUT at ${JS_TMO}s:$slow"
   echo "  INCONCLUSIVE, not a failure — raise INTEGRATE_JS_TIMEOUT or fix the suite."
@@ -288,7 +419,22 @@ echo "   tree clean: nothing staged, nothing modified, no merge in progress"
 CI_BUDGET="${CI_WAIT_SECONDS:-600}"
 echo
 echo "== CI: is main green BEFORE this merge is called done?"
-bash "$(dirname "$0")/ci_status.sh" latest main
+# ⚠️ $INTEGRATE_ROOT, NOT `dirname "$0"`. THIS LINE WAS BROKEN BY THE RE-EXEC
+# FIX ABOVE AND THE BREAK WAS SILENT. After `exec bash "$_self"`, $0 is a mktemp
+# path, so `dirname "$0"` is /tmp and this resolved to /tmp/ci_status.sh — which
+# does not exist. MEASURED 2026-08-14 during the review-schema-fix integration:
+#
+#   == CI: is main green BEFORE this merge is called done?
+#   bash: /tmp/ci_status.sh: No such file or directory
+#   OK: review-schema-fix merged into main. Suites green LOCALLY.
+#
+# The gate printed the failure and merged anyway, because a missing file exits
+# 127 and 127 is neither 1 nor 2, so every branch below fell through to silence.
+# The re-exec comment predicted this exact failure ("$0 is now a temp path and
+# `dirname $0` would resolve outside the repository") and then two call sites
+# were left using it. A check that cannot run reads exactly like a check that
+# passed.
+bash "$INTEGRATE_ROOT/scripts/ci_status.sh" latest main
 prior=$?
 if [ "$prior" = "1" ]; then
   echo "   *** MAIN'S LAST COMPLETED RUN IS RED, and it was red before this merge."
@@ -300,11 +446,49 @@ fi
 
 echo "OK: $BRANCH merged into main. Suites green LOCALLY."
 if [ "$PUSH" = "--push" ]; then
-  git push origin main && echo "pushed."
+  # ── A FAILED PUSH MUST NOT BE FOLLOWED BY A WAIT FOR ITS CI ───────────────
+  #
+  # This read `git push origin main && echo "pushed."` — and the `&&` guarded
+  # only the ECHO. On a rejected push the script walked straight on and printed
+  # "waiting for the run on the SHA just pushed", then polled for 600 seconds
+  # for a commit that was never pushed, and timed out as "COULD NOT REACH CI".
+  #
+  # OBSERVED 2026-08-14: another lane pushed to main during the ten minutes this
+  # was running the suites, so the push was rejected with "! [rejected] main ->
+  # main (fetch first)". The one line that said so scrolled past between a
+  # "merged into main. Suites green LOCALLY." and ten minutes of polling — and
+  # the run's whole visible ending was about CI rather than about the push.
+  #
+  # It is the failure class this repo keeps naming, in the script written to
+  # stop it: a step reporting on work it did not do. The remedy is not a louder
+  # message, it is refusing to make the downstream claim at all.
+  if ! git push origin main; then
+    echo
+    echo "*** PUSH REJECTED — main is NOT updated on the remote."
+    behind="$(git rev-list --count "HEAD..origin/main" 2>/dev/null || echo '?')"
+    echo "    The merge is committed LOCALLY at $(git rev-parse --short HEAD) and"
+    echo "    nothing has been lost. The usual cause is another lane pushing to"
+    echo "    main while this run was in the suites (currently $behind commit(s)"
+    echo "    ahead of you on the remote)."
+    echo "    Re-run after catching up:  git fetch origin main && git merge origin/main"
+    echo "    NOT VERIFIED: no CI was waited for, because there is nothing pushed"
+    echo "    to wait for."
+    exit 1
+  fi
+  echo "pushed."
   SHA="$(git rev-parse HEAD)"
+  # AND ASSERT THE REMOTE ACTUALLY HAS IT, rather than trusting the exit code —
+  # the same reason the merge is asserted with `merge-base --is-ancestor` above
+  # instead of being assumed from `git merge` returning 0.
+  git fetch -q origin main 2>/dev/null || true
+  if ! git merge-base --is-ancestor "$SHA" origin/main 2>/dev/null; then
+    echo "*** PUSH REPORTED SUCCESS BUT $SHA IS NOT ON origin/main."
+    echo "    Refusing to wait for CI on a commit the remote does not have."
+    exit 1
+  fi
   echo
   echo "== CI: waiting for the run on the SHA just pushed (${CI_BUDGET}s budget)"
-  bash "$(dirname "$0")/ci_status.sh" sha "$SHA" "$CI_BUDGET"
+  bash "$INTEGRATE_ROOT/scripts/ci_status.sh" sha "$SHA" "$CI_BUDGET"
   ci=$?
   case "$ci" in
     0) echo "VERIFIED: $BRANCH merged into main and CI IS GREEN for $(git rev-parse --short HEAD)." ;;

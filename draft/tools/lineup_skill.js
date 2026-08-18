@@ -55,12 +55,17 @@ const ROOT = path.join(__dirname, '..', '..');
 const HIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
 const BOARD = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
-const POS = {};
-(BOARD.players || []).forEach(p => { POS[String(p.player_id)] = p.position; });
-/* A defence arrives as a TEAM CODE where every other id is numeric — the same
- * convention as the transaction log, and the same trap: requiring a numeric id
- * silently deletes a position from every roster. */
-const posOf = pid => (/^\d+$/.test(String(pid)) ? POS[String(pid)] : 'DEF');
+/* POSITION COMES FROM THE RECORD, NOT THE LIVE BOARD. Against a pruned board
+ * this measurement fell from 458 team-weeks to 315 — 31% of the sample it rests
+ * on — purely because retired players stopped resolving.
+ *
+ * A defence arrives as a TEAM CODE where every other id is numeric, the same
+ * trap as the transaction log: requiring a numeric id silently deletes a
+ * position from every roster. position_map handles it in ONE place, and it
+ * returns null rather than 'DEF' for an id that is neither — this file's old
+ * rule labelled every unrecognisable id a defence. */
+const PM = require(path.join(ROOT, 'draft', 'tools', 'position_map.js'));
+const posOf = PM.resolver();
 
 const FLEX_ELIG = ['RB', 'WR', 'TE'];
 /* The seats come from the SEASON's own `roster_positions`, not from this year's

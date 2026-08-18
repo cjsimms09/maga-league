@@ -1,0 +1,2611 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/empirical_draft_value_additions.py",
+ "_note": "Additions A (availability) and B (format mispricing) to the empirical draft-value study. Preregistered in draft/audit/empirical_draft_value_2026-08-16.md \u00a7\u00a712-14. GAMES ARE COUNTED FROM THE COMPONENT STORE, never from the weekly-points stores \u2014 nflverse_weekly_points_2025.json drops zero-point rows and its row presence means 'scored something', not 'played'. AVAILABILITY, never injury: these stores cannot tell an injury from a healthy scratch.",
+ "a1_bust_attribution": {
+  "by_position": {
+   "QB": {
+    "n": 48,
+    "starter_rate": 0.438,
+    "starter_ci95": [
+     0.307,
+     0.577
+    ],
+    "starter_n": 21,
+    "production_rate": 0.271,
+    "production_ci95": [
+     0.166,
+     0.41
+    ],
+    "production_n": 13,
+    "absence_rate": 0.042,
+    "absence_ci95": [
+     0.012,
+     0.14
+    ],
+    "absence_n": 2,
+    "both_rate": 0.25,
+    "both_ci95": [
+     0.149,
+     0.388
+    ],
+    "both_n": 12,
+    "share_of_misses_that_are_pure_absence": 0.074,
+    "share_ci95": [
+     0.021,
+     0.234
+    ],
+    "mean_availability": 0.832
+   },
+   "RB": {
+    "n": 141,
+    "starter_rate": 0.404,
+    "starter_ci95": [
+     0.327,
+     0.487
+    ],
+    "starter_n": 57,
+    "production_rate": 0.298,
+    "production_ci95": [
+     0.229,
+     0.378
+    ],
+    "production_n": 42,
+    "absence_rate": 0.071,
+    "absence_ci95": [
+     0.039,
+     0.126
+    ],
+    "absence_n": 10,
+    "both_rate": 0.227,
+    "both_ci95": [
+     0.166,
+     0.303
+    ],
+    "both_n": 32,
+    "share_of_misses_that_are_pure_absence": 0.119,
+    "share_ci95": [
+     0.066,
+     0.205
+    ],
+    "mean_availability": 0.817
+   },
+   "WR": {
+    "n": 157,
+    "starter_rate": 0.478,
+    "starter_ci95": [
+     0.401,
+     0.555
+    ],
+    "starter_n": 75,
+    "production_rate": 0.306,
+    "production_ci95": [
+     0.239,
+     0.382
+    ],
+    "production_n": 48,
+    "absence_rate": 0.096,
+    "absence_ci95": [
+     0.059,
+     0.152
+    ],
+    "absence_n": 15,
+    "both_rate": 0.121,
+    "both_ci95": [
+     0.079,
+     0.181
+    ],
+    "both_n": 19,
+    "share_of_misses_that_are_pure_absence": 0.183,
+    "share_ci95": [
+     0.114,
+     0.28
+    ],
+    "mean_availability": 0.846
+   },
+   "TE": {
+    "n": 42,
+    "starter_rate": 0.452,
+    "starter_ci95": [
+     0.312,
+     0.601
+    ],
+    "starter_n": 19,
+    "production_rate": 0.286,
+    "production_ci95": [
+     0.172,
+     0.436
+    ],
+    "production_n": 12,
+    "absence_rate": 0.19,
+    "absence_ci95": [
+     0.1,
+     0.333
+    ],
+    "absence_n": 8,
+    "both_rate": 0.071,
+    "both_ci95": [
+     0.025,
+     0.19
+    ],
+    "both_n": 3,
+    "share_of_misses_that_are_pure_absence": 0.348,
+    "share_ci95": [
+     0.188,
+     0.551
+    ],
+    "mean_availability": 0.854
+   }
+  },
+  "by_round_band": {
+   "1-3": {
+    "n": 90,
+    "starter_rate": 0.744,
+    "starter_ci95": [
+     0.646,
+     0.823
+    ],
+    "starter_n": 67,
+    "production_rate": 0.078,
+    "production_ci95": [
+     0.038,
+     0.152
+    ],
+    "production_n": 7,
+    "absence_rate": 0.089,
+    "absence_ci95": [
+     0.046,
+     0.166
+    ],
+    "absence_n": 8,
+    "both_rate": 0.089,
+    "both_ci95": [
+     0.046,
+     0.166
+    ],
+    "both_n": 8,
+    "share_of_misses_that_are_pure_absence": 0.348,
+    "share_ci95": [
+     0.188,
+     0.551
+    ],
+    "mean_availability": 0.867
+   },
+   "4-6": {
+    "n": 90,
+    "starter_rate": 0.511,
+    "starter_ci95": [
+     0.41,
+     0.612
+    ],
+    "starter_n": 46,
+    "production_rate": 0.244,
+    "production_ci95": [
+     0.167,
+     0.342
+    ],
+    "production_n": 22,
+    "absence_rate": 0.122,
+    "absence_ci95": [
+     0.07,
+     0.206
+    ],
+    "absence_n": 11,
+    "both_rate": 0.122,
+    "both_ci95": [
+     0.07,
+     0.206
+    ],
+    "both_n": 11,
+    "share_of_misses_that_are_pure_absence": 0.25,
+    "share_ci95": [
+     0.146,
+     0.394
+    ],
+    "mean_availability": 0.838
+   },
+   "7-10": {
+    "n": 115,
+    "starter_rate": 0.339,
+    "starter_ci95": [
+     0.259,
+     0.43
+    ],
+    "starter_n": 39,
+    "production_rate": 0.391,
+    "production_ci95": [
+     0.307,
+     0.483
+    ],
+    "production_n": 45,
+    "absence_rate": 0.078,
+    "absence_ci95": [
+     0.042,
+     0.142
+    ],
+    "absence_n": 9,
+    "both_rate": 0.191,
+    "both_ci95": [
+     0.13,
+     0.273
+    ],
+    "both_n": 22,
+    "share_of_misses_that_are_pure_absence": 0.118,
+    "share_ci95": [
+     0.064,
+     0.21
+    ],
+    "mean_availability": 0.84
+   },
+   "11-15": {
+    "n": 93,
+    "starter_rate": 0.215,
+    "starter_ci95": [
+     0.144,
+     0.309
+    ],
+    "starter_n": 20,
+    "production_rate": 0.441,
+    "production_ci95": [
+     0.344,
+     0.542
+    ],
+    "production_n": 41,
+    "absence_rate": 0.075,
+    "absence_ci95": [
+     0.037,
+     0.147
+    ],
+    "absence_n": 7,
+    "both_rate": 0.269,
+    "both_ci95": [
+     0.189,
+     0.367
+    ],
+    "both_n": 25,
+    "share_of_misses_that_are_pure_absence": 0.096,
+    "share_ci95": [
+     0.047,
+     0.185
+    ],
+    "mean_availability": 0.793
+   }
+  },
+  "by_band_and_position": {
+   "1-3": {
+    "QB": {
+     "n": 7,
+     "starter_rate": 0.714,
+     "starter_ci95": [
+      0.359,
+      0.918
+     ],
+     "starter_n": 5,
+     "production_rate": 0.0,
+     "production_ci95": [
+      0.0,
+      0.354
+     ],
+     "production_n": 0,
+     "absence_rate": 0.0,
+     "absence_ci95": [
+      0.0,
+      0.354
+     ],
+     "absence_n": 0,
+     "both_rate": 0.286,
+     "both_ci95": [
+      0.082,
+      0.641
+     ],
+     "both_n": 2,
+     "share_of_misses_that_are_pure_absence": 0.0,
+     "share_ci95": [
+      0.0,
+      0.658
+     ],
+     "mean_availability": 0.911
+    },
+    "RB": {
+     "n": 38,
+     "starter_rate": 0.737,
+     "starter_ci95": [
+      0.58,
+      0.85
+     ],
+     "starter_n": 28,
+     "production_rate": 0.079,
+     "production_ci95": [
+      0.027,
+      0.208
+     ],
+     "production_n": 3,
+     "absence_rate": 0.079,
+     "absence_ci95": [
+      0.027,
+      0.208
+     ],
+     "absence_n": 3,
+     "both_rate": 0.105,
+     "both_ci95": [
+      0.042,
+      0.241
+     ],
+     "both_n": 4,
+     "share_of_misses_that_are_pure_absence": 0.3,
+     "share_ci95": [
+      0.108,
+      0.603
+     ],
+     "mean_availability": 0.868
+    },
+    "WR": {
+     "n": 40,
+     "starter_rate": 0.75,
+     "starter_ci95": [
+      0.598,
+      0.858
+     ],
+     "starter_n": 30,
+     "production_rate": 0.1,
+     "production_ci95": [
+      0.04,
+      0.231
+     ],
+     "production_n": 4,
+     "absence_rate": 0.1,
+     "absence_ci95": [
+      0.04,
+      0.231
+     ],
+     "absence_n": 4,
+     "both_rate": 0.05,
+     "both_ci95": [
+      0.014,
+      0.165
+     ],
+     "both_n": 2,
+     "share_of_misses_that_are_pure_absence": 0.4,
+     "share_ci95": [
+      0.168,
+      0.687
+     ],
+     "mean_availability": 0.859
+    },
+    "TE": {
+     "n": 5,
+     "starter_rate": 0.8,
+     "starter_ci95": [
+      0.376,
+      0.964
+     ],
+     "starter_n": 4,
+     "production_rate": 0.0,
+     "production_ci95": [
+      0.0,
+      0.434
+     ],
+     "production_n": 0,
+     "absence_rate": 0.2,
+     "absence_ci95": [
+      0.036,
+      0.624
+     ],
+     "absence_n": 1,
+     "both_rate": 0.0,
+     "both_ci95": [
+      0.0,
+      0.434
+     ],
+     "both_n": 0,
+     "share_of_misses_that_are_pure_absence": 1.0,
+     "share_ci95": [
+      0.207,
+      1.0
+     ],
+     "mean_availability": 0.863
+    }
+   },
+   "4-6": {
+    "QB": {
+     "n": 15,
+     "starter_rate": 0.333,
+     "starter_ci95": [
+      0.152,
+      0.583
+     ],
+     "starter_n": 5,
+     "production_rate": 0.333,
+     "production_ci95": [
+      0.152,
+      0.583
+     ],
+     "production_n": 5,
+     "absence_rate": 0.067,
+     "absence_ci95": [
+      0.012,
+      0.298
+     ],
+     "absence_n": 1,
+     "both_rate": 0.267,
+     "both_ci95": [
+      0.109,
+      0.52
+     ],
+     "both_n": 4,
+     "share_of_misses_that_are_pure_absence": 0.1,
+     "share_ci95": [
+      0.018,
+      0.404
+     ],
+     "mean_availability": 0.817
+    },
+    "RB": {
+     "n": 29,
+     "starter_rate": 0.517,
+     "starter_ci95": [
+      0.344,
+      0.686
+     ],
+     "starter_n": 15,
+     "production_rate": 0.276,
+     "production_ci95": [
+      0.147,
+      0.457
+     ],
+     "production_n": 8,
+     "absence_rate": 0.069,
+     "absence_ci95": [
+      0.019,
+      0.22
+     ],
+     "absence_n": 2,
+     "both_rate": 0.138,
+     "both_ci95": [
+      0.055,
+      0.306
+     ],
+     "both_n": 4,
+     "share_of_misses_that_are_pure_absence": 0.143,
+     "share_ci95": [
+      0.04,
+      0.399
+     ],
+     "mean_availability": 0.846
+    },
+    "WR": {
+     "n": 34,
+     "starter_rate": 0.559,
+     "starter_ci95": [
+      0.395,
+      0.711
+     ],
+     "starter_n": 19,
+     "production_rate": 0.206,
+     "production_ci95": [
+      0.103,
+      0.368
+     ],
+     "production_n": 7,
+     "absence_rate": 0.176,
+     "absence_ci95": [
+      0.083,
+      0.335
+     ],
+     "absence_n": 6,
+     "both_rate": 0.059,
+     "both_ci95": [
+      0.016,
+      0.191
+     ],
+     "both_n": 2,
+     "share_of_misses_that_are_pure_absence": 0.4,
+     "share_ci95": [
+      0.198,
+      0.643
+     ],
+     "mean_availability": 0.832
+    },
+    "TE": {
+     "n": 12,
+     "starter_rate": 0.583,
+     "starter_ci95": [
+      0.32,
+      0.807
+     ],
+     "starter_n": 7,
+     "production_rate": 0.167,
+     "production_ci95": [
+      0.047,
+      0.448
+     ],
+     "production_n": 2,
+     "absence_rate": 0.167,
+     "absence_ci95": [
+      0.047,
+      0.448
+     ],
+     "absence_n": 2,
+     "both_rate": 0.083,
+     "both_ci95": [
+      0.015,
+      0.354
+     ],
+     "both_n": 1,
+     "share_of_misses_that_are_pure_absence": 0.4,
+     "share_ci95": [
+      0.118,
+      0.769
+     ],
+     "mean_availability": 0.865
+    }
+   },
+   "7-10": {
+    "QB": {
+     "n": 5,
+     "starter_rate": 0.6,
+     "starter_ci95": [
+      0.231,
+      0.882
+     ],
+     "starter_n": 3,
+     "production_rate": 0.2,
+     "production_ci95": [
+      0.036,
+      0.624
+     ],
+     "production_n": 1,
+     "absence_rate": 0.0,
+     "absence_ci95": [
+      0.0,
+      0.434
+     ],
+     "absence_n": 0,
+     "both_rate": 0.2,
+     "both_ci95": [
+      0.036,
+      0.624
+     ],
+     "both_n": 1,
+     "share_of_misses_that_are_pure_absence": 0.0,
+     "share_ci95": [
+      0.0,
+      0.658
+     ],
+     "mean_availability": 0.9
+    },
+    "RB": {
+     "n": 39,
+     "starter_rate": 0.282,
+     "starter_ci95": [
+      0.165,
+      0.438
+     ],
+     "starter_n": 11,
+     "production_rate": 0.41,
+     "production_ci95": [
+      0.271,
+      0.566
+     ],
+     "production_n": 16,
+     "absence_rate": 0.051,
+     "absence_ci95": [
+      0.014,
+      0.169
+     ],
+     "absence_n": 2,
+     "both_rate": 0.256,
+     "both_ci95": [
+      0.146,
+      0.411
+     ],
+     "both_n": 10,
+     "share_of_misses_that_are_pure_absence": 0.071,
+     "share_ci95": [
+      0.02,
+      0.226
+     ],
+     "mean_availability": 0.825
+    },
+    "WR": {
+     "n": 57,
+     "starter_rate": 0.386,
+     "starter_ci95": [
+      0.271,
+      0.516
+     ],
+     "starter_n": 22,
+     "production_rate": 0.386,
+     "production_ci95": [
+      0.271,
+      0.516
+     ],
+     "production_n": 22,
+     "absence_rate": 0.07,
+     "absence_ci95": [
+      0.028,
+      0.167
+     ],
+     "absence_n": 4,
+     "both_rate": 0.158,
+     "both_ci95": [
+      0.085,
+      0.274
+     ],
+     "both_n": 9,
+     "share_of_misses_that_are_pure_absence": 0.114,
+     "share_ci95": [
+      0.045,
+      0.26
+     ],
+     "mean_availability": 0.845
+    },
+    "TE": {
+     "n": 14,
+     "starter_rate": 0.214,
+     "starter_ci95": [
+      0.076,
+      0.476
+     ],
+     "starter_n": 3,
+     "production_rate": 0.429,
+     "production_ci95": [
+      0.214,
+      0.674
+     ],
+     "production_n": 6,
+     "absence_rate": 0.214,
+     "absence_ci95": [
+      0.076,
+      0.476
+     ],
+     "absence_n": 3,
+     "both_rate": 0.143,
+     "both_ci95": [
+      0.04,
+      0.399
+     ],
+     "both_n": 2,
+     "share_of_misses_that_are_pure_absence": 0.273,
+     "share_ci95": [
+      0.097,
+      0.566
+     ],
+     "mean_availability": 0.835
+    }
+   },
+   "11-15": {
+    "QB": {
+     "n": 21,
+     "starter_rate": 0.381,
+     "starter_ci95": [
+      0.208,
+      0.591
+     ],
+     "starter_n": 8,
+     "production_rate": 0.333,
+     "production_ci95": [
+      0.172,
+      0.546
+     ],
+     "production_n": 7,
+     "absence_rate": 0.048,
+     "absence_ci95": [
+      0.008,
+      0.227
+     ],
+     "absence_n": 1,
+     "both_rate": 0.238,
+     "both_ci95": [
+      0.106,
+      0.451
+     ],
+     "both_n": 5,
+     "share_of_misses_that_are_pure_absence": 0.077,
+     "share_ci95": [
+      0.014,
+      0.333
+     ],
+     "mean_availability": 0.801
+    },
+    "RB": {
+     "n": 35,
+     "starter_rate": 0.086,
+     "starter_ci95": [
+      0.03,
+      0.224
+     ],
+     "starter_n": 3,
+     "production_rate": 0.429,
+     "production_ci95": [
+      0.28,
+      0.591
+     ],
+     "production_n": 15,
+     "absence_rate": 0.086,
+     "absence_ci95": [
+      0.03,
+      0.224
+     ],
+     "absence_n": 3,
+     "both_rate": 0.4,
+     "both_ci95": [
+      0.256,
+      0.564
+     ],
+     "both_n": 14,
+     "share_of_misses_that_are_pure_absence": 0.094,
+     "share_ci95": [
+      0.032,
+      0.242
+     ],
+     "mean_availability": 0.728
+    },
+    "WR": {
+     "n": 26,
+     "starter_rate": 0.154,
+     "starter_ci95": [
+      0.061,
+      0.335
+     ],
+     "starter_n": 4,
+     "production_rate": 0.577,
+     "production_ci95": [
+      0.389,
+      0.745
+     ],
+     "production_n": 15,
+     "absence_rate": 0.038,
+     "absence_ci95": [
+      0.007,
+      0.189
+     ],
+     "absence_n": 1,
+     "both_rate": 0.231,
+     "both_ci95": [
+      0.11,
+      0.421
+     ],
+     "both_n": 6,
+     "share_of_misses_that_are_pure_absence": 0.045,
+     "share_ci95": [
+      0.008,
+      0.218
+     ],
+     "mean_availability": 0.845
+    },
+    "TE": {
+     "n": 11,
+     "starter_rate": 0.455,
+     "starter_ci95": [
+      0.213,
+      0.72
+     ],
+     "starter_n": 5,
+     "production_rate": 0.364,
+     "production_ci95": [
+      0.152,
+      0.646
+     ],
+     "production_n": 4,
+     "absence_rate": 0.182,
+     "absence_ci95": [
+      0.051,
+      0.477
+     ],
+     "absence_n": 2,
+     "both_rate": 0.0,
+     "both_ci95": [
+      0.0,
+      0.259
+     ],
+     "both_n": 0,
+     "share_of_misses_that_are_pure_absence": 0.333,
+     "share_ci95": [
+      0.097,
+      0.7
+     ],
+     "mean_availability": 0.864
+    }
+   }
+  },
+  "if_nobody_got_hurt": {
+   "1-3": {
+    "n": 90,
+    "actual_starter_rate": 0.744,
+    "actual_ci95": [
+     0.646,
+     0.823
+    ],
+    "if_everyone_played_16": 0.856,
+    "if_16_ci95": [
+     0.768,
+     0.914
+    ],
+    "lift": 0.111,
+    "per_season": {
+     "2023": {
+      "actual": 0.633,
+      "if_16_games": 0.833
+     },
+     "2024": {
+      "actual": 0.8,
+      "if_16_games": 0.8
+     },
+     "2025": {
+      "actual": 0.8,
+      "if_16_games": 0.933
+     }
+    }
+   },
+   "4-6": {
+    "n": 90,
+    "actual_starter_rate": 0.511,
+    "actual_ci95": [
+     0.41,
+     0.612
+    ],
+    "if_everyone_played_16": 0.667,
+    "if_16_ci95": [
+     0.564,
+     0.755
+    ],
+    "lift": 0.156,
+    "per_season": {
+     "2023": {
+      "actual": 0.5,
+      "if_16_games": 0.6
+     },
+     "2024": {
+      "actual": 0.6,
+      "if_16_games": 0.733
+     },
+     "2025": {
+      "actual": 0.433,
+      "if_16_games": 0.667
+     }
+    }
+   },
+   "7-10": {
+    "n": 115,
+    "actual_starter_rate": 0.339,
+    "actual_ci95": [
+     0.259,
+     0.43
+    ],
+    "if_everyone_played_16": 0.461,
+    "if_16_ci95": [
+     0.373,
+     0.552
+    ],
+    "lift": 0.122,
+    "per_season": {
+     "2023": {
+      "actual": 0.385,
+      "if_16_games": 0.487
+     },
+     "2024": {
+      "actual": 0.256,
+      "if_16_games": 0.436
+     },
+     "2025": {
+      "actual": 0.378,
+      "if_16_games": 0.459
+     }
+    }
+   },
+   "11-15": {
+    "n": 93,
+    "actual_starter_rate": 0.215,
+    "actual_ci95": [
+     0.144,
+     0.309
+    ],
+    "if_everyone_played_16": 0.323,
+    "if_16_ci95": [
+     0.236,
+     0.423
+    ],
+    "lift": 0.108,
+    "per_season": {
+     "2023": {
+      "actual": 0.161,
+      "if_16_games": 0.258
+     },
+     "2024": {
+      "actual": 0.219,
+      "if_16_games": 0.344
+     },
+     "2025": {
+      "actual": 0.267,
+      "if_16_games": 0.367
+     }
+    }
+   }
+  },
+  "log_variance_decomposition": {
+   "QB": {
+    "n": 47,
+    "games_share_of_log_variance": 0.631,
+    "ci95": [
+     0.364,
+     0.783
+    ],
+    "mean_games": 13.6,
+    "mean_ppg": 20.8
+   },
+   "RB": {
+    "n": 141,
+    "games_share_of_log_variance": 0.265,
+    "ci95": [
+     0.145,
+     0.402
+    ],
+    "mean_games": 13.1,
+    "mean_ppg": 10.5
+   },
+   "WR": {
+    "n": 157,
+    "games_share_of_log_variance": 0.436,
+    "ci95": [
+     0.202,
+     0.622
+    ],
+    "mean_games": 13.6,
+    "mean_ppg": 10.6
+   },
+   "TE": {
+    "n": 42,
+    "games_share_of_log_variance": 0.415,
+    "ci95": [
+     0.225,
+     0.724
+    ],
+    "mean_games": 13.7,
+    "mean_ppg": 9.2
+   }
+  },
+  "_note": "ABSENCE = missed >=4 games AND his own per-game rate over 16 games would have made him a league starter. PRODUCTION = played >75% and was not good enough. BOTH = missed games and would have missed the cut anyway. AVAILABILITY, not injury \u2014 these stores cannot tell injury from a healthy scratch."
+ },
+ "a2_persistence": {
+  "availability_to_availability": {
+   "QB": {
+    "n": 173,
+    "spearman": 0.524,
+    "ci95": [
+     0.335,
+     0.685
+    ],
+    "per_season": {
+     "2023": 0.372,
+     "2024": 0.502,
+     "2025": 0.684
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "RB": {
+    "n": 313,
+    "spearman": 0.506,
+    "ci95": [
+     0.397,
+     0.597
+    ],
+    "per_season": {
+     "2023": 0.544,
+     "2024": 0.527,
+     "2025": 0.448
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "WR": {
+    "n": 440,
+    "spearman": 0.421,
+    "ci95": [
+     0.336,
+     0.498
+    ],
+    "per_season": {
+     "2023": 0.434,
+     "2024": 0.44,
+     "2025": 0.391
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "TE": {
+    "n": 239,
+    "spearman": 0.579,
+    "ci95": [
+     0.472,
+     0.663
+    ],
+    "per_season": {
+     "2023": 0.629,
+     "2024": 0.539,
+     "2025": 0.564
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   }
+  },
+  "availability_to_residual": {
+   "QB": {
+    "n": 173,
+    "spearman": -0.425,
+    "ci95": [
+     -0.555,
+     -0.282
+    ],
+    "per_season": {
+     "2023": -0.507,
+     "2024": -0.371,
+     "2025": -0.399
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "RB": {
+    "n": 309,
+    "spearman": -0.311,
+    "ci95": [
+     -0.411,
+     -0.206
+    ],
+    "per_season": {
+     "2023": -0.344,
+     "2024": -0.306,
+     "2025": -0.294
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "WR": {
+    "n": 433,
+    "spearman": -0.351,
+    "ci95": [
+     -0.446,
+     -0.252
+    ],
+    "per_season": {
+     "2023": -0.308,
+     "2024": -0.332,
+     "2025": -0.41
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "TE": {
+    "n": 237,
+    "spearman": -0.288,
+    "ci95": [
+     -0.402,
+     -0.164
+    ],
+    "per_season": {
+     "2023": -0.309,
+     "2024": -0.279,
+     "2025": -0.266
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   }
+  }
+ },
+ "a2_persistence_established_players_only": {
+  "availability_to_availability": {
+   "QB": {
+    "n": 70,
+    "spearman": 0.215,
+    "ci95": [
+     -0.05,
+     0.441
+    ],
+    "per_season": {
+     "2023": 0.116,
+     "2024": 0.26,
+     "2025": 0.185
+    },
+    "same_sign_seasons": 3,
+    "verdict": "not distinguishable from noise"
+   },
+   "RB": {
+    "n": 168,
+    "spearman": 0.274,
+    "ci95": [
+     0.132,
+     0.413
+    ],
+    "per_season": {
+     "2023": 0.26,
+     "2024": 0.298,
+     "2025": 0.281
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "WR": {
+    "n": 260,
+    "spearman": 0.243,
+    "ci95": [
+     0.088,
+     0.385
+    ],
+    "per_season": {
+     "2023": 0.36,
+     "2024": 0.218,
+     "2025": 0.158
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "TE": {
+    "n": 111,
+    "spearman": 0.31,
+    "ci95": [
+     0.122,
+     0.481
+    ],
+    "per_season": {
+     "2023": 0.36,
+     "2024": 0.207,
+     "2025": 0.346
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   }
+  },
+  "availability_to_residual": {
+   "QB": {
+    "n": 70,
+    "spearman": -0.06,
+    "ci95": [
+     -0.378,
+     0.285
+    ],
+    "per_season": {
+     "2023": -0.246,
+     "2024": 0.217,
+     "2025": -0.198
+    },
+    "same_sign_seasons": 2,
+    "verdict": "not distinguishable from noise"
+   },
+   "RB": {
+    "n": 166,
+    "spearman": -0.168,
+    "ci95": [
+     -0.32,
+     -0.003
+    ],
+    "per_season": {
+     "2023": -0.209,
+     "2024": -0.2,
+     "2025": -0.091
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   },
+   "WR": {
+    "n": 260,
+    "spearman": -0.17,
+    "ci95": [
+     -0.331,
+     0.028
+    ],
+    "per_season": {
+     "2023": 0.013,
+     "2024": -0.216,
+     "2025": -0.266
+    },
+    "same_sign_seasons": 2,
+    "verdict": "not distinguishable from noise"
+   },
+   "TE": {
+    "n": 111,
+    "spearman": -0.209,
+    "ci95": [
+     -0.387,
+     -0.03
+    ],
+    "per_season": {
+     "2023": -0.262,
+     "2024": -0.155,
+     "2025": -0.189
+    },
+    "same_sign_seasons": 3,
+    "verdict": "FINDING"
+   }
+  },
+  "_note": "restricted to players whose prior-season availability was >= 0.75 \u2014 strips the roster-status channel out of the correlation. POST-HOC ROBUSTNESS ARM, added because the unrestricted number is dominated by depth-chart churn; labelled as post-hoc, not preregistered."
+ },
+ "a3_position_and_age": {
+  "populations": {
+   "all_skill_players": {
+    "by_position": {
+     "QB": {
+      "n": 227,
+      "mean_availability": 0.512,
+      "ci95": [
+       0.467,
+       0.559
+      ],
+      "median_availability": 0.438,
+      "p_missed_4plus": 0.709,
+      "p_missed_4plus_ci95": [
+       0.647,
+       0.764
+      ],
+      "per_season_mean": {
+       "2023": 0.508,
+       "2024": 0.532,
+       "2025": 0.497
+      }
+     },
+     "RB": {
+      "n": 423,
+      "mean_availability": 0.607,
+      "ci95": [
+       0.569,
+       0.642
+      ],
+      "median_availability": 0.688,
+      "p_missed_4plus": 0.598,
+      "p_missed_4plus_ci95": [
+       0.551,
+       0.644
+      ],
+      "per_season_mean": {
+       "2023": 0.583,
+       "2024": 0.614,
+       "2025": 0.622
+      }
+     },
+     "WR": {
+      "n": 602,
+      "mean_availability": 0.632,
+      "ci95": [
+       0.593,
+       0.669
+      ],
+      "median_availability": 0.728,
+      "p_missed_4plus": 0.563,
+      "p_missed_4plus_ci95": [
+       0.523,
+       0.602
+      ],
+      "per_season_mean": {
+       "2023": 0.651,
+       "2024": 0.593,
+       "2025": 0.65
+      }
+     },
+     "TE": {
+      "n": 313,
+      "mean_availability": 0.584,
+      "ci95": [
+       0.548,
+       0.618
+      ],
+      "median_availability": 0.625,
+      "p_missed_4plus": 0.649,
+      "p_missed_4plus_ci95": [
+       0.594,
+       0.699
+      ],
+      "per_season_mean": {
+       "2023": 0.578,
+       "2024": 0.575,
+       "2025": 0.597
+      }
+     }
+    },
+    "rb_minus_wr_availability": {
+     "diff": -0.025,
+     "ci95": [
+      -0.082,
+      0.031
+     ],
+     "per_season": {
+      "2023": -0.068,
+      "2024": 0.021,
+      "2025": -0.028
+     },
+     "same_sign_seasons": 2,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "drafted_picks_only": {
+    "by_position": {
+     "QB": {
+      "n": 48,
+      "mean_availability": 0.832,
+      "ci95": [
+       0.734,
+       0.92
+      ],
+      "median_availability": 1.0,
+      "p_missed_4plus": 0.292,
+      "p_missed_4plus_ci95": [
+       0.182,
+       0.432
+      ],
+      "per_season_mean": {
+       "2023": 0.772,
+       "2024": 0.914,
+       "2025": 0.812
+      }
+     },
+     "RB": {
+      "n": 141,
+      "mean_availability": 0.817,
+      "ci95": [
+       0.775,
+       0.856
+      ],
+      "median_availability": 0.938,
+      "p_missed_4plus": 0.298,
+      "p_missed_4plus_ci95": [
+       0.229,
+       0.378
+      ],
+      "per_season_mean": {
+       "2023": 0.807,
+       "2024": 0.82,
+       "2025": 0.825
+      }
+     },
+     "WR": {
+      "n": 157,
+      "mean_availability": 0.846,
+      "ci95": [
+       0.8,
+       0.891
+      ],
+      "median_availability": 0.938,
+      "p_missed_4plus": 0.248,
+      "p_missed_4plus_ci95": [
+       0.187,
+       0.321
+      ],
+      "per_season_mean": {
+       "2023": 0.889,
+       "2024": 0.822,
+       "2025": 0.827
+      }
+     },
+     "TE": {
+      "n": 42,
+      "mean_availability": 0.854,
+      "ci95": [
+       0.799,
+       0.903
+      ],
+      "median_availability": 0.938,
+      "p_missed_4plus": 0.286,
+      "p_missed_4plus_ci95": [
+       0.172,
+       0.436
+      ],
+      "per_season_mean": {
+       "2023": 0.87,
+       "2024": 0.835,
+       "2025": 0.858
+      }
+     }
+    },
+    "rb_minus_wr_availability": {
+     "diff": -0.029,
+     "ci95": [
+      -0.099,
+      0.033
+     ],
+     "per_season": {
+      "2023": -0.083,
+      "2024": -0.002,
+      "2025": -0.002
+     },
+     "same_sign_seasons": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   }
+  },
+  "age_vs_availability": {
+   "QB": {
+    "n": 171,
+    "spearman": -0.102,
+    "ci95": [
+     -0.268,
+     0.059
+    ],
+    "per_season": {
+     "2023": -0.189,
+     "2024": -0.097,
+     "2025": -0.03
+    },
+    "same_sign_seasons": 3,
+    "verdict": "not distinguishable from noise",
+    "_coverage_caveat": "GAP 3 \u2014 2026-board ages only, survivorship-biased"
+   },
+   "RB": {
+    "n": 263,
+    "spearman": 0.074,
+    "ci95": [
+     -0.06,
+     0.213
+    ],
+    "per_season": {
+     "2023": 0.026,
+     "2024": 0.176,
+     "2025": 0.028
+    },
+    "same_sign_seasons": 3,
+    "verdict": "not distinguishable from noise",
+    "_coverage_caveat": "GAP 3 \u2014 2026-board ages only, survivorship-biased"
+   },
+   "WR": {
+    "n": 399,
+    "spearman": -0.029,
+    "ci95": [
+     -0.13,
+     0.084
+    ],
+    "per_season": {
+     "2023": 0.014,
+     "2024": -0.07,
+     "2025": -0.011
+    },
+    "same_sign_seasons": 2,
+    "verdict": "not distinguishable from noise",
+    "_coverage_caveat": "GAP 3 \u2014 2026-board ages only, survivorship-biased"
+   },
+   "TE": {
+    "n": 239,
+    "spearman": 0.031,
+    "ci95": [
+     -0.163,
+     0.24
+    ],
+    "per_season": {
+     "2023": 0.183,
+     "2024": 0.09,
+     "2025": -0.151
+    },
+    "same_sign_seasons": 2,
+    "verdict": "not distinguishable from noise",
+    "_coverage_caveat": "GAP 3 \u2014 2026-board ages only, survivorship-biased"
+   }
+  }
+ },
+ "b_format_delta": {
+  "per_season": {
+   "2023": {
+    "QB": {
+     "mean_signed_delta_rank_top40": 0.07,
+     "promoted_5plus": 0,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 0,
+     "starter_set_k": 10,
+     "league_top_k_points": 3610.0,
+     "market_top_k_points": 3054.0,
+     "league_replacement": 320.7,
+     "market_replacement": 264.7,
+     "league_mean_vor": 40.3,
+     "market_mean_vor": 40.7,
+     "spearman_pick_vs_league_rank": 0.429,
+     "spearman_pick_vs_market_rank": 0.4,
+     "market_minus_league_tracking": -0.029,
+     "league_share_of_starter_points": 0.234,
+     "market_share_of_starter_points": 0.18
+    },
+    "RB": {
+     "mean_signed_delta_rank_top40": 0.03,
+     "promoted_5plus": 0,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 1,
+     "starter_set_k": 21,
+     "league_top_k_points": 4409.8,
+     "market_top_k_points": 4867.5,
+     "league_replacement": 171.1,
+     "market_replacement": 187.6,
+     "league_mean_vor": 38.9,
+     "market_mean_vor": 44.2,
+     "spearman_pick_vs_league_rank": 0.425,
+     "spearman_pick_vs_market_rank": 0.437,
+     "market_minus_league_tracking": 0.012,
+     "league_share_of_starter_points": 0.285,
+     "market_share_of_starter_points": 0.287
+    },
+    "WR": {
+     "mean_signed_delta_rank_top40": 0.0,
+     "promoted_5plus": 1,
+     "demoted_5plus": 1,
+     "window_n": 40,
+     "starter_set_turnover": 1,
+     "starter_set_k": 29,
+     "league_top_k_points": 5894.3,
+     "market_top_k_points": 7127.6,
+     "league_replacement": 162.6,
+     "market_replacement": 198.6,
+     "league_mean_vor": 40.7,
+     "market_mean_vor": 47.2,
+     "spearman_pick_vs_league_rank": 0.65,
+     "spearman_pick_vs_market_rank": 0.662,
+     "market_minus_league_tracking": 0.012,
+     "league_share_of_starter_points": 0.382,
+     "market_share_of_starter_points": 0.42
+    },
+    "TE": {
+     "mean_signed_delta_rank_top40": 0.03,
+     "promoted_5plus": 1,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 1,
+     "starter_set_k": 10,
+     "league_top_k_points": 1535.0,
+     "market_top_k_points": 1923.2,
+     "league_replacement": 119.1,
+     "market_replacement": 141.3,
+     "league_mean_vor": 34.4,
+     "market_mean_vor": 51.0,
+     "spearman_pick_vs_league_rank": 0.28,
+     "spearman_pick_vs_market_rank": 0.209,
+     "market_minus_league_tracking": -0.071,
+     "league_share_of_starter_points": 0.099,
+     "market_share_of_starter_points": 0.113
+    }
+   },
+   "2024": {
+    "QB": {
+     "mean_signed_delta_rank_top40": 0.0,
+     "promoted_5plus": 0,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 0,
+     "starter_set_k": 10,
+     "league_top_k_points": 3957.2,
+     "market_top_k_points": 3332.7,
+     "league_replacement": 333.2,
+     "market_replacement": 283.0,
+     "league_mean_vor": 62.5,
+     "market_mean_vor": 50.3,
+     "spearman_pick_vs_league_rank": 0.274,
+     "spearman_pick_vs_market_rank": 0.291,
+     "market_minus_league_tracking": 0.018,
+     "league_share_of_starter_points": 0.248,
+     "market_share_of_starter_points": 0.193
+    },
+    "RB": {
+     "mean_signed_delta_rank_top40": 0.0,
+     "promoted_5plus": 1,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 0,
+     "starter_set_k": 21,
+     "league_top_k_points": 4890.9,
+     "market_top_k_points": 5345.9,
+     "league_replacement": 174.0,
+     "market_replacement": 194.5,
+     "league_mean_vor": 58.9,
+     "market_mean_vor": 60.1,
+     "spearman_pick_vs_league_rank": 0.538,
+     "spearman_pick_vs_market_rank": 0.535,
+     "market_minus_league_tracking": -0.003,
+     "league_share_of_starter_points": 0.306,
+     "market_share_of_starter_points": 0.309
+    },
+    "WR": {
+     "mean_signed_delta_rank_top40": 0.05,
+     "promoted_5plus": 0,
+     "demoted_5plus": 1,
+     "window_n": 40,
+     "starter_set_turnover": 1,
+     "starter_set_k": 29,
+     "league_top_k_points": 5578.7,
+     "market_top_k_points": 6725.5,
+     "league_replacement": 158.4,
+     "market_replacement": 190.7,
+     "league_mean_vor": 34.0,
+     "market_mean_vor": 41.2,
+     "spearman_pick_vs_league_rank": 0.377,
+     "spearman_pick_vs_market_rank": 0.392,
+     "market_minus_league_tracking": 0.015,
+     "league_share_of_starter_points": 0.349,
+     "market_share_of_starter_points": 0.389
+    },
+    "TE": {
+     "mean_signed_delta_rank_top40": 0.0,
+     "promoted_5plus": 0,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 1,
+     "starter_set_k": 10,
+     "league_top_k_points": 1535.2,
+     "market_top_k_points": 1903.9,
+     "league_replacement": 117.3,
+     "market_replacement": 148.5,
+     "league_mean_vor": 36.2,
+     "market_mean_vor": 41.9,
+     "spearman_pick_vs_league_rank": 0.481,
+     "spearman_pick_vs_market_rank": 0.473,
+     "market_minus_league_tracking": -0.009,
+     "league_share_of_starter_points": 0.096,
+     "market_share_of_starter_points": 0.11
+    }
+   },
+   "2025": {
+    "QB": {
+     "mean_signed_delta_rank_top40": 0.0,
+     "promoted_5plus": 0,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 1,
+     "starter_set_k": 10,
+     "league_top_k_points": 3691.2,
+     "market_top_k_points": 3122.5,
+     "league_replacement": 338.9,
+     "market_replacement": 285.7,
+     "league_mean_vor": 30.2,
+     "market_mean_vor": 26.6,
+     "spearman_pick_vs_league_rank": 0.064,
+     "spearman_pick_vs_market_rank": 0.104,
+     "market_minus_league_tracking": 0.039,
+     "league_share_of_starter_points": 0.237,
+     "market_share_of_starter_points": 0.184
+    },
+    "RB": {
+     "mean_signed_delta_rank_top40": 0.15,
+     "promoted_5plus": 0,
+     "demoted_5plus": 1,
+     "window_n": 40,
+     "starter_set_turnover": 0,
+     "starter_set_k": 21,
+     "league_top_k_points": 5018.2,
+     "market_top_k_points": 5508.7,
+     "league_replacement": 167.4,
+     "market_replacement": 188.9,
+     "league_mean_vor": 71.6,
+     "market_mean_vor": 73.4,
+     "spearman_pick_vs_league_rank": 0.671,
+     "spearman_pick_vs_market_rank": 0.681,
+     "market_minus_league_tracking": 0.01,
+     "league_share_of_starter_points": 0.322,
+     "market_share_of_starter_points": 0.324
+    },
+    "WR": {
+     "mean_signed_delta_rank_top40": 0.0,
+     "promoted_5plus": 1,
+     "demoted_5plus": 1,
+     "window_n": 40,
+     "starter_set_turnover": 2,
+     "starter_set_k": 29,
+     "league_top_k_points": 5295.2,
+     "market_top_k_points": 6412.6,
+     "league_replacement": 145.1,
+     "market_replacement": 172.1,
+     "league_mean_vor": 37.5,
+     "market_mean_vor": 49.0,
+     "spearman_pick_vs_league_rank": 0.358,
+     "spearman_pick_vs_market_rank": 0.347,
+     "market_minus_league_tracking": -0.011,
+     "league_share_of_starter_points": 0.34,
+     "market_share_of_starter_points": 0.377
+    },
+    "TE": {
+     "mean_signed_delta_rank_top40": 0.03,
+     "promoted_5plus": 1,
+     "demoted_5plus": 0,
+     "window_n": 40,
+     "starter_set_turnover": 0,
+     "starter_set_k": 10,
+     "league_top_k_points": 1571.1,
+     "market_top_k_points": 1946.6,
+     "league_replacement": 135.8,
+     "market_replacement": 168.2,
+     "league_mean_vor": 21.3,
+     "market_mean_vor": 26.5,
+     "spearman_pick_vs_league_rank": -0.029,
+     "spearman_pick_vs_market_rank": 0.004,
+     "market_minus_league_tracking": 0.032,
+     "league_share_of_starter_points": 0.101,
+     "market_share_of_starter_points": 0.115
+    }
+   }
+  },
+  "pooled": {
+   "QB": {
+    "mean_signed_delta_rank_top40": 0.02,
+    "delta_rank_ci95": [
+     -0.17,
+     0.23
+    ],
+    "starter_set_turnover_per_season": {
+     "2023": 0,
+     "2024": 0,
+     "2025": 1
+    },
+    "vor_shift_league_minus_market_per_season": {
+     "2023": -0.4,
+     "2024": 12.2,
+     "2025": 3.6
+    },
+    "vor_shift_mean": 5.1,
+    "share_of_starter_points": {
+     "league": 0.24,
+     "market": 0.186
+    },
+    "room_tracking_market_minus_league": {
+     "per_season": {
+      "2023": -0.029,
+      "2024": 0.018,
+      "2025": 0.039
+     },
+     "mean": 0.009,
+     "same_sign_seasons": 2,
+     "rank_gap_ci95": [
+      -0.33,
+      0.42
+     ]
+    }
+   },
+   "RB": {
+    "mean_signed_delta_rank_top40": 0.06,
+    "delta_rank_ci95": [
+     -0.25,
+     0.36
+    ],
+    "starter_set_turnover_per_season": {
+     "2023": 1,
+     "2024": 0,
+     "2025": 0
+    },
+    "vor_shift_league_minus_market_per_season": {
+     "2023": -5.3,
+     "2024": -1.2,
+     "2025": -1.8
+    },
+    "vor_shift_mean": -2.8,
+    "share_of_starter_points": {
+     "league": 0.304,
+     "market": 0.307
+    },
+    "room_tracking_market_minus_league": {
+     "per_season": {
+      "2023": 0.012,
+      "2024": -0.003,
+      "2025": 0.01
+     },
+     "mean": 0.006,
+     "same_sign_seasons": 2,
+     "rank_gap_ci95": [
+      -0.16,
+      0.36
+     ]
+    }
+   },
+   "WR": {
+    "mean_signed_delta_rank_top40": 0.02,
+    "delta_rank_ci95": [
+     -0.38,
+     0.42
+    ],
+    "starter_set_turnover_per_season": {
+     "2023": 1,
+     "2024": 1,
+     "2025": 2
+    },
+    "vor_shift_league_minus_market_per_season": {
+     "2023": -6.5,
+     "2024": -7.2,
+     "2025": -11.5
+    },
+    "vor_shift_mean": -8.4,
+    "share_of_starter_points": {
+     "league": 0.357,
+     "market": 0.395
+    },
+    "room_tracking_market_minus_league": {
+     "per_season": {
+      "2023": 0.012,
+      "2024": 0.015,
+      "2025": -0.011
+     },
+     "mean": 0.005,
+     "same_sign_seasons": 2,
+     "rank_gap_ci95": [
+      -0.51,
+      0.26
+     ]
+    }
+   },
+   "TE": {
+    "mean_signed_delta_rank_top40": 0.02,
+    "delta_rank_ci95": [
+     -0.27,
+     0.3
+    ],
+    "starter_set_turnover_per_season": {
+     "2023": 1,
+     "2024": 1,
+     "2025": 0
+    },
+    "vor_shift_league_minus_market_per_season": {
+     "2023": -16.6,
+     "2024": -5.7,
+     "2025": -5.2
+    },
+    "vor_shift_mean": -9.2,
+    "share_of_starter_points": {
+     "league": 0.099,
+     "market": 0.113
+    },
+    "room_tracking_market_minus_league": {
+     "per_season": {
+      "2023": -0.071,
+      "2024": -0.009,
+      "2025": 0.032
+     },
+     "mean": -0.016,
+     "same_sign_seasons": 2,
+     "rank_gap_ci95": [
+      -0.5,
+      0.51
+     ]
+    }
+   }
+  },
+  "top_movers": {
+   "QB": {
+    "promoted_by_this_format": [
+     {
+      "season": 2023,
+      "name": "Joe Flacco",
+      "delta_rank": -3,
+      "market_rank": 33,
+      "league_rank": 30,
+      "league_pts": 126.8,
+      "market_pts": 100.8
+     },
+     {
+      "season": 2025,
+      "name": "Jared Goff",
+      "delta_rank": -3,
+      "market_rank": 11,
+      "league_rank": 8,
+      "league_pts": 347.8,
+      "market_pts": 281.8
+     },
+     {
+      "season": 2025,
+      "name": "Joe Burrow",
+      "delta_rank": -3,
+      "market_rank": 34,
+      "league_rank": 31,
+      "league_pts": 141.3,
+      "market_pts": 113.3
+     },
+     {
+      "season": 2023,
+      "name": "Matthew Stafford",
+      "delta_rank": -2,
+      "market_rank": 15,
+      "league_rank": 13,
+      "league_pts": 291.1,
+      "market_pts": 243.1
+     },
+     {
+      "season": 2023,
+      "name": "Kirk Cousins",
+      "delta_rank": -2,
+      "market_rank": 24,
+      "league_rank": 22,
+      "league_pts": 185.7,
+      "market_pts": 149.7
+     },
+     {
+      "season": 2023,
+      "name": "Bailey Zappe",
+      "delta_rank": -2,
+      "market_rank": 38,
+      "league_rank": 36,
+      "league_pts": 80.4,
+      "market_pts": 68.4
+     },
+     {
+      "season": 2024,
+      "name": "Jordan Love",
+      "delta_rank": -2,
+      "market_rank": 17,
+      "league_rank": 15,
+      "league_pts": 281.1,
+      "market_pts": 231.1
+     },
+     {
+      "season": 2025,
+      "name": "Aaron Rodgers",
+      "delta_rank": -2,
+      "market_rank": 18,
+      "league_rank": 16,
+      "league_pts": 254.8,
+      "market_pts": 209.3
+     },
+     {
+      "season": 2025,
+      "name": "Brock Purdy",
+      "delta_rank": -2,
+      "market_rank": 24,
+      "league_rank": 22,
+      "league_pts": 212.2,
+      "market_pts": 172.2
+     },
+     {
+      "season": 2023,
+      "name": "Dak Prescott",
+      "delta_rank": -1,
+      "market_rank": 4,
+      "league_rank": 3,
+      "league_pts": 381.7,
+      "market_pts": 317.7
+     }
+    ],
+    "demoted_by_this_format": [
+     {
+      "season": 2024,
+      "name": "Justin Fields",
+      "delta_rank": 3,
+      "market_rank": 30,
+      "league_rank": 33,
+      "league_pts": 129.1,
+      "market_pts": 119.1
+     },
+     {
+      "season": 2024,
+      "name": "Anthony Richardson",
+      "delta_rank": 3,
+      "market_rank": 23,
+      "league_rank": 26,
+      "league_pts": 178.9,
+      "market_pts": 163.4
+     },
+     {
+      "season": 2023,
+      "name": "Kenny Pickett",
+      "delta_rank": 3,
+      "market_rank": 29,
+      "league_rank": 32,
+      "league_pts": 122.2,
+      "market_pts": 110.2
+     },
+     {
+      "season": 2025,
+      "name": "Michael Penix",
+      "delta_rank": 2,
+      "market_rank": 31,
+      "league_rank": 33,
+      "league_pts": 138.3,
+      "market_pts": 120.3
+     },
+     {
+      "season": 2025,
+      "name": "Cam Ward",
+      "delta_rank": 2,
+      "market_rank": 22,
+      "league_rank": 24,
+      "league_pts": 207.5,
+      "market_pts": 177.5
+     },
+     {
+      "season": 2025,
+      "name": "Jaxson Dart",
+      "delta_rank": 2,
+      "market_rank": 16,
+      "league_rank": 18,
+      "league_pts": 247.2,
+      "market_pts": 221.2
+     },
+     {
+      "season": 2024,
+      "name": "Geno Smith",
+      "delta_rank": 2,
+      "market_rank": 15,
+      "league_rank": 17,
+      "league_pts": 273.7,
+      "market_pts": 239.7
+     },
+     {
+      "season": 2023,
+      "name": "Ryan Tannehill",
+      "delta_rank": 2,
+      "market_rank": 39,
+      "league_rank": 41,
+      "league_pts": 71.6,
+      "market_pts": 67.6
+     },
+     {
+      "season": 2023,
+      "name": "Tyrod Taylor",
+      "delta_rank": 2,
+      "market_rank": 37,
+      "league_rank": 39,
+      "league_pts": 77.7,
+      "market_pts": 69.7
+     },
+     {
+      "season": 2023,
+      "name": "Bryce Young",
+      "delta_rank": 2,
+      "market_rank": 23,
+      "league_rank": 25,
+      "league_pts": 174.2,
+      "market_pts": 152.2
+     }
+    ]
+   },
+   "RB": {
+    "promoted_by_this_format": [
+     {
+      "season": 2024,
+      "name": "Tank Bigsby",
+      "delta_rank": -6,
+      "market_rank": 39,
+      "league_rank": 33,
+      "league_pts": 114.8,
+      "market_pts": 117.8
+     },
+     {
+      "season": 2023,
+      "name": "David Montgomery",
+      "delta_rank": -4,
+      "market_rank": 18,
+      "league_rank": 14,
+      "league_pts": 189.2,
+      "market_pts": 197.2
+     },
+     {
+      "season": 2024,
+      "name": "Jonathan Taylor",
+      "delta_rank": -4,
+      "market_rank": 18,
+      "league_rank": 14,
+      "league_pts": 213.2,
+      "market_pts": 221.7
+     },
+     {
+      "season": 2024,
+      "name": "Jordan Mason",
+      "delta_rank": -4,
+      "market_rank": 40,
+      "league_rank": 36,
+      "league_pts": 109.5,
+      "market_pts": 115.0
+     },
+     {
+      "season": 2025,
+      "name": "Jacory Croskey-Merritt",
+      "delta_rank": -4,
+      "market_rank": 31,
+      "league_rank": 27,
+      "league_pts": 132.9,
+      "market_pts": 137.4
+     },
+     {
+      "season": 2023,
+      "name": "Gus Edwards",
+      "delta_rank": -3,
+      "market_rank": 22,
+      "league_rank": 19,
+      "league_pts": 178.2,
+      "market_pts": 184.2
+     },
+     {
+      "season": 2023,
+      "name": "James Conner",
+      "delta_rank": -3,
+      "market_rank": 28,
+      "league_rank": 25,
+      "league_pts": 159.6,
+      "market_pts": 171.1
+     },
+     {
+      "season": 2023,
+      "name": "Kareem Hunt",
+      "delta_rank": -3,
+      "market_rank": 40,
+      "league_rank": 37,
+      "league_pts": 110.0,
+      "market_pts": 117.0
+     },
+     {
+      "season": 2023,
+      "name": "Derrick Henry",
+      "delta_rank": -2,
+      "market_rank": 10,
+      "league_rank": 8,
+      "league_pts": 215.4,
+      "market_pts": 225.4
+     },
+     {
+      "season": 2023,
+      "name": "De'Von Achane",
+      "delta_rank": -2,
+      "market_rank": 24,
+      "league_rank": 22,
+      "league_pts": 164.6,
+      "market_pts": 177.6
+     }
+    ],
+    "demoted_by_this_format": [
+     {
+      "season": 2025,
+      "name": "Chuba Hubbard",
+      "delta_rank": 5,
+      "market_rank": 37,
+      "league_rank": 42,
+      "league_pts": 107.7,
+      "market_pts": 121.7
+     },
+     {
+      "season": 2023,
+      "name": "Tyjae Spears",
+      "delta_rank": 4,
+      "market_rank": 34,
+      "league_rank": 38,
+      "league_pts": 107.7,
+      "market_pts": 132.2
+     },
+     {
+      "season": 2023,
+      "name": "Austin Ekeler",
+      "delta_rank": 4,
+      "market_rank": 25,
+      "league_rank": 29,
+      "league_pts": 151.5,
+      "market_pts": 173.5
+     },
+     {
+      "season": 2023,
+      "name": "Jaylen Warren",
+      "delta_rank": 4,
+      "market_rank": 20,
+      "league_rank": 24,
+      "league_pts": 160.4,
+      "market_pts": 188.4
+     },
+     {
+      "season": 2025,
+      "name": "Aaron Jones",
+      "delta_rank": 3,
+      "market_rank": 40,
+      "league_rank": 43,
+      "league_pts": 104.7,
+      "market_pts": 118.7
+     },
+     {
+      "season": 2025,
+      "name": "Rhamondre Stevenson",
+      "delta_rank": 3,
+      "market_rank": 27,
+      "league_rank": 30,
+      "league_pts": 128.5,
+      "market_pts": 143.5
+     },
+     {
+      "season": 2024,
+      "name": "Jaylen Warren",
+      "delta_rank": 3,
+      "market_rank": 37,
+      "league_rank": 40,
+      "league_pts": 103.0,
+      "market_pts": 122.0
+     },
+     {
+      "season": 2023,
+      "name": "Antonio Gibson",
+      "delta_rank": 3,
+      "market_rank": 38,
+      "league_rank": 41,
+      "league_pts": 98.3,
+      "market_pts": 120.8
+     },
+     {
+      "season": 2023,
+      "name": "Tony Pollard",
+      "delta_rank": 3,
+      "market_rank": 15,
+      "league_rank": 18,
+      "league_pts": 179.5,
+      "market_pts": 206.0
+     },
+     {
+      "season": 2025,
+      "name": "Rachaad White",
+      "delta_rank": 2,
+      "market_rank": 32,
+      "league_rank": 34,
+      "league_pts": 117.9,
+      "market_pts": 136.9
+     }
+    ]
+   },
+   "WR": {
+    "promoted_by_this_format": [
+     {
+      "season": 2025,
+      "name": "Tee Higgins",
+      "delta_rank": -7,
+      "market_rank": 22,
+      "league_rank": 15,
+      "league_pts": 166.4,
+      "market_pts": 192.9
+     },
+     {
+      "season": 2023,
+      "name": "Deebo Samuel",
+      "delta_rank": -5,
+      "market_rank": 14,
+      "league_rank": 9,
+      "league_pts": 209.5,
+      "market_pts": 238.5
+     },
+     {
+      "season": 2023,
+      "name": "DK Metcalf",
+      "delta_rank": -4,
+      "market_rank": 19,
+      "league_rank": 15,
+      "league_pts": 190.9,
+      "market_pts": 223.4
+     },
+     {
+      "season": 2023,
+      "name": "Jordan Addison",
+      "delta_rank": -4,
+      "market_rank": 27,
+      "league_rank": 23,
+      "league_pts": 172.6,
+      "market_pts": 205.6
+     },
+     {
+      "season": 2024,
+      "name": "Jameson Williams",
+      "delta_rank": -4,
+      "market_rank": 23,
+      "league_rank": 19,
+      "league_pts": 176.8,
+      "market_pts": 202.8
+     },
+     {
+      "season": 2025,
+      "name": "DJ Moore",
+      "delta_rank": -4,
+      "market_rank": 31,
+      "league_rank": 27,
+      "league_pts": 147.6,
+      "market_pts": 170.1
+     },
+     {
+      "season": 2023,
+      "name": "Mike Evans",
+      "delta_rank": -3,
+      "market_rank": 7,
+      "league_rank": 4,
+      "league_pts": 239.3,
+      "market_pts": 277.3
+     },
+     {
+      "season": 2023,
+      "name": "Amari Cooper",
+      "delta_rank": -3,
+      "market_rank": 17,
+      "league_rank": 14,
+      "league_pts": 191.0,
+      "market_pts": 227.0
+     },
+     {
+      "season": 2023,
+      "name": "Jakobi Meyers",
+      "delta_rank": -3,
+      "market_rank": 31,
+      "league_rank": 28,
+      "league_pts": 165.0,
+      "market_pts": 197.0
+     },
+     {
+      "season": 2024,
+      "name": "Jordan Addison",
+      "delta_rank": -3,
+      "market_rank": 20,
+      "league_rank": 17,
+      "league_pts": 180.5,
+      "market_pts": 211.5
+     }
+    ],
+    "demoted_by_this_format": [
+     {
+      "season": 2023,
+      "name": "Garrett Wilson",
+      "delta_rank": 7,
+      "market_rank": 23,
+      "league_rank": 30,
+      "league_pts": 161.3,
+      "market_pts": 207.8
+     },
+     {
+      "season": 2025,
+      "name": "Stefon Diggs",
+      "delta_rank": 6,
+      "market_rank": 14,
+      "league_rank": 20,
+      "league_pts": 162.0,
+      "market_pts": 203.0
+     },
+     {
+      "season": 2024,
+      "name": "Wan'Dale Robinson",
+      "delta_rank": 5,
+      "market_rank": 37,
+      "league_rank": 42,
+      "league_pts": 126.9,
+      "market_pts": 168.4
+     },
+     {
+      "season": 2025,
+      "name": "Keenan Allen",
+      "delta_rank": 4,
+      "market_rank": 29,
+      "league_rank": 33,
+      "league_pts": 135.1,
+      "market_pts": 172.1
+     },
+     {
+      "season": 2024,
+      "name": "DJ Moore",
+      "delta_rank": 4,
+      "market_rank": 17,
+      "league_rank": 21,
+      "league_pts": 171.5,
+      "market_pts": 216.0
+     },
+     {
+      "season": 2023,
+      "name": "Adam Thielen",
+      "delta_rank": 4,
+      "market_rank": 15,
+      "league_rank": 19,
+      "league_pts": 177.3,
+      "market_pts": 227.8
+     },
+     {
+      "season": 2025,
+      "name": "Khalil Shakir",
+      "delta_rank": 3,
+      "market_rank": 33,
+      "league_rank": 36,
+      "league_pts": 130.4,
+      "market_pts": 166.4
+     },
+     {
+      "season": 2025,
+      "name": "Jakobi Meyers",
+      "delta_rank": 3,
+      "market_rank": 32,
+      "league_rank": 35,
+      "league_pts": 131.4,
+      "market_pts": 166.4
+     },
+     {
+      "season": 2025,
+      "name": "Justin Jefferson",
+      "delta_rank": 3,
+      "market_rank": 26,
+      "league_rank": 29,
+      "league_pts": 145.1,
+      "market_pts": 183.1
+     },
+     {
+      "season": 2025,
+      "name": "Michael Pittman",
+      "delta_rank": 3,
+      "market_rank": 18,
+      "league_rank": 21,
+      "league_pts": 160.3,
+      "market_pts": 199.3
+     }
+    ]
+   },
+   "TE": {
+    "promoted_by_this_format": [
+     {
+      "season": 2025,
+      "name": "Darren Waller",
+      "delta_rank": -6,
+      "market_rank": 33,
+      "league_rank": 27,
+      "league_pts": 76.7,
+      "market_pts": 88.7
+     },
+     {
+      "season": 2023,
+      "name": "Taysom Hill",
+      "delta_rank": -5,
+      "market_rank": 15,
+      "league_rank": 10,
+      "league_pts": 119.1,
+      "market_pts": 131.6
+     },
+     {
+      "season": 2024,
+      "name": "Taysom Hill",
+      "delta_rank": -4,
+      "market_rank": 23,
+      "league_rank": 19,
+      "league_pts": 90.8,
+      "market_pts": 102.3
+     },
+     {
+      "season": 2023,
+      "name": "Tucker Kraft",
+      "delta_rank": -3,
+      "market_rank": 31,
+      "league_rank": 28,
+      "league_pts": 58.4,
+      "market_pts": 72.4
+     },
+     {
+      "season": 2023,
+      "name": "Michael Mayer",
+      "delta_rank": -3,
+      "market_rank": 32,
+      "league_rank": 29,
+      "league_pts": 57.9,
+      "market_pts": 71.4
+     },
+     {
+      "season": 2024,
+      "name": "Foster Moreau",
+      "delta_rank": -3,
+      "market_rank": 27,
+      "league_rank": 24,
+      "league_pts": 82.2,
+      "market_pts": 96.2
+     },
+     {
+      "season": 2024,
+      "name": "Josh Oliver",
+      "delta_rank": -3,
+      "market_rank": 39,
+      "league_rank": 36,
+      "league_pts": 52.2,
+      "market_pts": 62.2
+     },
+     {
+      "season": 2025,
+      "name": "Dallas Goedert",
+      "delta_rank": -3,
+      "market_rank": 6,
+      "league_rank": 3,
+      "league_pts": 155.1,
+      "market_pts": 185.1
+     },
+     {
+      "season": 2024,
+      "name": "Dallas Goedert",
+      "delta_rank": -2,
+      "market_rank": 29,
+      "league_rank": 27,
+      "league_pts": 75.1,
+      "market_pts": 94.1
+     },
+     {
+      "season": 2025,
+      "name": "Tucker Kraft",
+      "delta_rank": -2,
+      "market_rank": 21,
+      "league_rank": 19,
+      "league_pts": 101.2,
+      "market_pts": 117.2
+     }
+    ],
+    "demoted_by_this_format": [
+     {
+      "season": 2023,
+      "name": "Luke Musgrave",
+      "delta_rank": 4,
+      "market_rank": 29,
+      "league_rank": 33,
+      "league_pts": 56.6,
+      "market_pts": 73.1
+     },
+     {
+      "season": 2025,
+      "name": "Evan Engram",
+      "delta_rank": 3,
+      "market_rank": 28,
+      "league_rank": 31,
+      "league_pts": 71.8,
+      "market_pts": 95.3
+     },
+     {
+      "season": 2025,
+      "name": "Cade Otton",
+      "delta_rank": 3,
+      "market_rank": 27,
+      "league_rank": 30,
+      "league_pts": 73.8,
+      "market_pts": 99.8
+     },
+     {
+      "season": 2024,
+      "name": "Jake Ferguson",
+      "delta_rank": 3,
+      "market_rank": 25,
+      "league_rank": 28,
+      "league_pts": 72.7,
+      "market_pts": 101.2
+     },
+     {
+      "season": 2024,
+      "name": "Chig Okonkwo",
+      "delta_rank": 3,
+      "market_rank": 18,
+      "league_rank": 21,
+      "league_pts": 87.6,
+      "market_pts": 113.6
+     },
+     {
+      "season": 2023,
+      "name": "Noah Fant",
+      "delta_rank": 3,
+      "market_rank": 28,
+      "league_rank": 31,
+      "league_pts": 57.4,
+      "market_pts": 73.4
+     },
+     {
+      "season": 2023,
+      "name": "Dalton Kincaid",
+      "delta_rank": 3,
+      "market_rank": 12,
+      "league_rank": 15,
+      "league_pts": 101.9,
+      "market_pts": 134.9
+     },
+     {
+      "season": 2025,
+      "name": "Mason Taylor",
+      "delta_rank": 2,
+      "market_rank": 32,
+      "league_rank": 34,
+      "league_pts": 66.9,
+      "market_pts": 88.9
+     },
+     {
+      "season": 2025,
+      "name": "Gunnar Helm",
+      "delta_rank": 2,
+      "market_rank": 31,
+      "league_rank": 33,
+      "league_pts": 69.7,
+      "market_pts": 91.7
+     },
+     {
+      "season": 2025,
+      "name": "Chig Okonkwo",
+      "delta_rank": 2,
+      "market_rank": 19,
+      "league_rank": 21,
+      "league_pts": 94.8,
+      "market_pts": 121.8
+     }
+    ]
+   }
+  },
+  "market_table_substitutions": {
+   "rec": 1.0,
+   "pass_td": 4.0
+  },
+  "_note": "LEAGUE = frozen table (0.5 PPR, 6-pt pass TD). MARKET = the same table with rec 0.5->1.0 and pass_td 6.0->4.0 and NOTHING else. Both scored from component_stats through one engine, so the 2025 component-vs-committed divergence cancels inside every comparison. Negative delta_rank = THIS FORMAT PROMOTES HIM relative to the market's format."
+ }
+}

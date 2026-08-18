@@ -282,3 +282,106 @@ def test_a_player_the_merge_has_never_seen_is_ADDED_with_no_history_claimed():
     assert out["newguy"]["games"] == {2025: 12}
     assert out["newguy"]["spells"] == {} and out["newguy"]["position"] is None
     assert out["newguy"]["games_only_seasons"] == [2025]
+
+
+# ── THE NUMBER A ASKED FOR, PUBLISHED RATHER THAN COMPUTABLE ───────────────
+#
+# A: "nothing in this repo has ever measured it." That was effectively true and I
+# had built `weeks_out_by_position` — it had NO caller, NO artifact and had never
+# been RUN on real data. A function nobody runs is not a measurement; it is rule
+# 14 in my own module, which is the defect I keep finding in other people's.
+#
+# So the number is now COMMITTED: `draft/backtest/weeks_out_when_injured.json`.
+#
+# WHY IT MATTERS TO A: four of six bench verdicts flip between the per-week and
+# ongoing wire levels (Reed 102%→67%, Purdy 100%→83%, Henry 122%→71%, Higgins
+# 119%→78%). A bye is one week; an injury is E[weeks out | injured], and that is
+# the quantity that selects between them.
+#
+# TWO CAVEATS TRAVEL WITH EVERY NUMBER IN IT, because without them it is worse
+# than nothing:
+#   `missed` is WEEKS WITH NO PRODUCTION, not weeks injured — a healthy backup and
+#   an inactive one look identical in this data. The draftable-only arm reduces
+#   the conflation (a starter who misses a week is far more likely to be hurt);
+#   it does not remove it.
+#   15-31% of spells are RIGHT-CENSORED, so every mean is a LOWER BOUND.
+
+def _weeks_out_artifact():
+    import json as _json
+    from pathlib import Path as _P
+    p = _P(__file__).resolve().parent.parent / "backtest" / "weeks_out_when_injured.json"
+    if not p.exists():
+        pytest.skip("UNCHECKED: weeks_out_when_injured.json absent")
+    return _json.loads(p.read_text())
+
+
+def test_the_PUBLISHED_weeks_out_is_INTERNALLY_CONSISTENT():
+    """The artifact needs network to regenerate (nflverse), so it cannot be
+    regenerate-and-compared the way `waiver_replacement.json` is. What CAN be
+    checked without egress is that it is arithmetically coherent and that nothing
+    silently dropped out of it.
+
+    MUTATION: hand-edit a `completed_n` — the parts stop summing to `n` and this
+    fires. Without it the file is a pinned copy nothing verifies."""
+    doc = _weeks_out_artifact()
+    for arm in ("all_players", "draftable_only"):
+        got = doc[arm]
+        assert got, "%s is empty" % arm
+        for pos, r in got.items():
+            if r["status"] != "measured":
+                continue
+            assert r["completed_n"] + r["censored_n"] == r["n"], (arm, pos, r)
+            assert 0.0 <= r["censored_fraction"] <= 1.0, (arm, pos, r)
+            assert r["mean_completed"] > 0, (arm, pos, r)
+
+
+def test_the_CENSORING_CAVEAT_IS_CARRIED_not_left_to_the_reader():
+    """A mean over completed spells alone UNDERSTATES the answer, and the amount
+    is invisible in the number itself. A reader who takes 2.7 as "expect about
+    three weeks" is reading a lower bound as a point estimate.
+
+    MUTATION: drop the caveats — the file still looks like a measurement and every
+    consumer silently inherits the understatement."""
+    doc = _weeks_out_artifact()
+    blob = " ".join(doc.get("caveats") or [])
+    assert "LOWER BOUND" in blob, "the censoring caveat is gone: %r" % blob[:200]
+    assert "not weeks injured" in blob, (
+        "the injury-vs-benching conflation is not stated, and it is the one that "
+        "decides whether this number answers A's question at all")
+    for arm in ("all_players", "draftable_only"):
+        for pos, r in doc[arm].items():
+            if r["status"] == "measured":
+                assert "CENSORED" in (r.get("caveat") or "").upper(), (arm, pos)
+
+
+def test_2025_IS_DECLARED_ABSENT_rather_than_quietly_omitted():
+    """2025 is the season CLOSEST to the board and `import_weekly_data` 404s for
+    it everywhere I have tried. A reader who does not know that will read this as
+    "recent" when it stops at 2024.
+
+    MUTATION: list only the seasons present — the gap becomes invisible and the
+    number ages without anyone noticing."""
+    doc = _weeks_out_artifact()
+    assert doc["seasons"] == [2023, 2024], doc["seasons"]
+    assert 2025 in (doc.get("seasons_unavailable") or []), doc
+    assert doc.get("why_2025_absent"), "and the reason must be stated, not implied"
+
+
+def test_the_DRAFTABLE_ARM_IS_A_DIFFERENT_ANSWER_and_both_are_kept():
+    """Restricting to draftable players is not cosmetic: a fringe player's missed
+    week is often a benching, a starter's is usually an injury. Both arms are kept
+    because the restriction is a JUDGEMENT and the reader should see it move.
+
+    Measured 2023+2024: WR 2.698 over everyone against 2.106 draftable-only, TE
+    2.444 against 2.091. MUTATION: publish one arm — the judgement disappears into
+    the number and nobody can tell it was made."""
+    doc = _weeks_out_artifact()
+    a, d = doc["all_players"], doc["draftable_only"]
+    moved = [p for p in ("QB", "RB", "WR", "TE")
+             if a.get(p, {}).get("status") == "measured"
+             and d.get(p, {}).get("status") == "measured"
+             and a[p]["mean_completed"] != d[p]["mean_completed"]]
+    assert len(moved) >= 3, (
+        "the restriction barely moves the answer (%s), so publishing both arms is "
+        "noise rather than a disclosed judgement" % moved)
+    assert doc["players_draftable"] < doc["players_all"]

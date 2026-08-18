@@ -99,6 +99,86 @@ const scored = [
   check('null args -> zero routes, no throw', E.liveStackRoutes(null, null).count === 0);
 }
 
+// --- THE BADGE AND THE SCORE ARE ONE NUMBER ---------------------------------
+/* THIS SUITE TESTED TOPOLOGY AND NEVER THE VALUE, so it stayed green while the
+ * badge and the composite disagreed about the same player (found 2026-08-14).
+ *
+ * `liveStackRoutes` scored routes off `CFG.STACK_QB_TE / STACK_QB_WR1` directly
+ * and skipped the same-team competition penalty — reasoning that competition is
+ * "a penalty, not a route to complete". True of whether a route EXISTS; false of
+ * what it is WORTH. `correlationAdjustment`, which is what the COMPOSITE scores,
+ * subtracts SAME_TEAM_COMPETITION per catcher already held. Measured before the
+ * fix, with Chase (a real keeper) on the roster:
+ *
+ *     Chase + Burrow, considering a 2nd CIN receiver    badge yes   term  +2
+ *     + Higgins,      considering a 3rd CIN catcher     badge yes   term  -4
+ *     + Gesicki,      considering a 4th                 badge yes   term  -6
+ *
+ * So the card said "extends Burrow stack" on picks the model was docking. The
+ * route value is now the composite's own number, and these checks make the two
+ * inseparable rather than merely equal today. */
+{
+  const C = require('../../public/js/draft/composite.js');
+  const LG = { teams: 10 };
+  const mk = (pos, team, name) => ({ player_id: name, name: name, position: pos, team: team });
+  const term = (rost, p) => C.correlationAdjustment(p, { roster: rost, league: LG, currentPick: 60 }).value;
+
+  const base = [mk('WR', 'CIN', 'Chase'), mk('QB', 'CIN', 'Burrow')];
+  const second = mk('WR', 'CIN', 'Higgins');
+  const third = mk('TE', 'CIN', 'Gesicki');
+
+  const r2 = E.liveStackRoutes(base, [{ player: second }], { league: LG, currentPick: 60 });
+  check('a 2nd same-team catcher alongside the QB is still a route — the penalty '
+    + 'nets against the bonus, it does not veto the pairing', !!r2.partnerIds.Higgins);
+  check('and its value is the COMPOSITE value, not the gross bonus',
+    r2.partnerIds.Higgins.value === term(base, second),
+    r2.partnerIds.Higgins.value + ' vs ' + term(base, second));
+  check('FAIL ARM — that value is NOT the gross pairing bonus, or this check '
+    + 'would pass under the old behaviour too',
+  r2.partnerIds.Higgins.value !== E.CFG.STACK_QB_WR1,
+  r2.partnerIds.Higgins.value + ' / gross ' + E.CFG.STACK_QB_WR1);
+
+  const stacked = base.concat([second]);
+  check('CONTROL — a 3rd same-team catcher really does score NEGATIVE in the '
+    + 'composite, or the case below is not the case I claim', term(stacked, third) < 0,
+  String(term(stacked, third)));
+  const r3 = E.liveStackRoutes(stacked, [{ player: third }], { league: LG, currentPick: 60 });
+  check('so it is NOT offered as a route — the badge cannot recommend a pick the '
+    + 'model is docking', !r3.partnerIds.Gesicki, JSON.stringify(r3.routes.map(x => x.partner)));
+
+  /* THE INVARIANT, over every route the suite's own fixtures produce. */
+  const all = E.liveStackRoutes(roster, scored, { league: LG, currentPick: 60 });
+  check('CONTROL — the fixture board yields routes to check', all.count >= 1, String(all.count));
+  check('EVERY route value equals the composite term for that player on that '
+    + 'roster — one derivation, so they cannot drift apart',
+  all.routes.every(rt => {
+    const p = scored.find(x => x.player.player_id === rt.partner_id).player;
+    return rt.value === term(roster, p);
+  }), JSON.stringify(all.routes.map(rt => [rt.partner, rt.value])));
+  check('and no route is ever offered with a non-positive value',
+    all.routes.every(rt => rt.value > 0),
+    JSON.stringify(all.routes.map(rt => [rt.partner, rt.value])));
+}
+
+// --- THE PLAYOFF-SCHEDULE BRANCH IS INERT, AND THAT IS WORTH KNOWING --------
+/* `correlationAdjustment` carries a third effect nobody would guess from the
+ * name `stack`: a playoff-schedule bump from round 6, worth up to +/-4 x sos.
+ * It is correctly guarded ("never invented") and it has never fired — the field
+ * is null on every row of the shipped board. Asserted so that the day C lands
+ * `playoff_sos`, this goes red and somebody re-reads what `stack` now contains
+ * rather than discovering it in a recommendation. */
+{
+  const B = require('../../public/draft_data.json');
+  const withSos = B.players.filter(p => p.playoff_sos != null);
+  check('playoff_sos is absent from the live board, so the schedule branch of '
+    + 'the stack term has never contributed to a recommendation',
+  withSos.length === 0, withSos.length + ' rows carry it');
+  check('CONTROL — the branch exists and would fire if the field arrived, so '
+    + 'this is a live dependency and not dead code',
+  /round >= CFG\.CORRELATION_MIN_ROUND && player\.playoff_sos != null/.test(
+    require('fs').readFileSync('public/js/draft/composite.js', 'utf8')));
+}
+
 console.log('');
 console.log(pass + '/' + (pass + fail) + ' stack-route checks passed');
 if (fail) process.exit(1);

@@ -2,6 +2,28 @@
 // MATCHUP already-placed bet — the page shows the standing wager on this game
 // instead of only offering to create another, and hides the create-form so you
 // can't double-bet the same matchup.
+//
+// ── RED ON main SINCE 2026-08-16 ~23:01, CI ONLY, THREE OF SIX CLAUSES ──────
+//
+// This bet is written for `week: 1`. `/matchup`'s bet lookup filters on
+// `Number(b.week) === Number(weekNo)`, and `weekNo` falls through
+// `liveMatchup.week || sData.week || 1` — so the moment `sleeper.bundle()`
+// returns ANYTHING, a real `/v1/state/nfl` week overrides the `1` fallback
+// and the lookup misses a bet that is genuinely there. No owner mapping is
+// involved — `sData.week` doesn't need `sleeper_map` populated, just a
+// state-endpoint fetch that reaches the network.
+//
+// `src/seed-data.js` hardcodes a real Sleeper league id, identical in every
+// environment, so the only thing that differs is whether the fetch reaches
+// the network. Locally it never does (this sandbox's proxy 403s
+// api.sleeper.app). CI has real internet and gets back the real current
+// week, which is not 1. REPRODUCED locally with a mock `/v1/state/nfl`
+// reporting `week: 3` and nothing else populated: same 3-passed/3-failed
+// split as the CI logs, byte for byte.
+//
+// SLEEPER_BASE MUST BE SET BEFORE THE REQUIRE — `sleeper.js` reads
+// `process.env.SLEEPER_BASE` once, at module load.
+process.env.SLEEPER_BASE = 'http://127.0.0.1:1';
 const os = require('os'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mbet-'));

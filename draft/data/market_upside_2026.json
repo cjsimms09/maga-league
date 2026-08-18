@@ -1,0 +1,4624 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by market_upside_artifact.py",
+ "_what": "market-implied P(at least threshold) per player season stat, from Kalshi real-money ladders captured 2026-08-17. DISPLAY DATA: published prices, not a model claim; thin markets are visible via open_interest, incoherent ladders excluded.",
+ "captured_at": "2026-08-18T11:26:45.028658+00:00",
+ "season": 2026,
+ "players_covered": 125,
+ "ladders_dropped_incoherent": 105,
+ "ladders_unmatched_name": 4,
+ "players": [
+  {
+   "player_id": "5859",
+   "name": "A.J. Brown",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.01
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 252.3
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.99
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.44
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.36
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.23
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.15
+      }
+     ],
+     "p_top_rung": 0.15,
+     "top_threshold": 14.0,
+     "open_interest": 1962.6
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.82
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.43
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.27
+      }
+     ],
+     "p_top_rung": 0.27,
+     "top_threshold": 1500.0,
+     "open_interest": 1472.8
+    }
+   }
+  },
+  {
+   "player_id": "4199",
+   "name": "Aaron Jones Sr.",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.3
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 12.0,
+     "open_interest": 100.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "96",
+   "name": "Aaron Rodgers",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.74
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.12
+      }
+     ],
+     "p_top_rung": 0.12,
+     "top_threshold": 4500.0,
+     "open_interest": 332.7
+    }
+   }
+  },
+  {
+   "player_id": "11625",
+   "name": "Adonai Mitchell",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 76.8
+    }
+   }
+  },
+  {
+   "player_id": "8142",
+   "name": "Alec Pierce",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 12.6
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 12.6
+    }
+   }
+  },
+  {
+   "player_id": "4035",
+   "name": "Alvin Kamara",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "7547",
+   "name": "Amon-Ra St. Brown",
+   "position": "WR",
+   "stats": {
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.77
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.53
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.32
+      }
+     ],
+     "p_top_rung": 0.32,
+     "top_threshold": 1500.0,
+     "open_interest": 43.4
+    }
+   }
+  },
+  {
+   "player_id": "12527",
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 4.1
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "4892",
+   "name": "Baker Mayfield",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.56
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.33
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 546.2
+    }
+   }
+  },
+  {
+   "player_id": "12490",
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 77.8
+    }
+   }
+  },
+  {
+   "player_id": "9509",
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 48.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 143.1
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.9
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.73
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.5
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.27
+      }
+     ],
+     "p_top_rung": 0.27,
+     "top_threshold": 1500.0,
+     "open_interest": 685.8
+    }
+   }
+  },
+  {
+   "player_id": "11586",
+   "name": "Blake Corum",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.23
+      }
+     ],
+     "p_top_rung": 0.23,
+     "top_threshold": 10.0,
+     "open_interest": 363.1
+    }
+   }
+  },
+  {
+   "player_id": "8155",
+   "name": "Breece Hall",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 6.3
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.8
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.45
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 575.5
+    }
+   }
+  },
+  {
+   "player_id": "11631",
+   "name": "Brian Thomas Jr.",
+   "position": "WR",
+   "stats": {
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.51
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.32
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.19
+      }
+     ],
+     "p_top_rung": 0.19,
+     "top_threshold": 1250.0,
+     "open_interest": 765.9
+    }
+   }
+  },
+  {
+   "player_id": "11604",
+   "name": "Brock Bowers",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.71
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.45
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 165.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.76
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.42
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.2
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.14
+      }
+     ],
+     "p_top_rung": 0.14,
+     "top_threshold": 1500.0,
+     "open_interest": 2360.7
+    }
+   }
+  },
+  {
+   "player_id": "9228",
+   "name": "Bryce Young",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.58
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.44
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 397.5
+    }
+   }
+  },
+  {
+   "player_id": "11584",
+   "name": "Bucky Irving",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.55
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.19
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.08
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 268.7
+    }
+   }
+  },
+  {
+   "player_id": "11560",
+   "name": "Caleb Williams",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.8
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.62
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.47
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.23
+      }
+     ],
+     "p_top_rung": 0.23,
+     "top_threshold": 4500.0,
+     "open_interest": 9868.8
+    }
+   }
+  },
+  {
+   "player_id": "12481",
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.65
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.37
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.14
+      }
+     ],
+     "p_top_rung": 0.14,
+     "top_threshold": 1250.0,
+     "open_interest": 300.5
+    }
+   }
+  },
+  {
+   "player_id": "12522",
+   "name": "Cam Ward",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.72
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.45
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.29
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 435.6
+    }
+   }
+  },
+  {
+   "player_id": "6786",
+   "name": "CeeDee Lamb",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.48
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 34.1
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.99
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.55
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 245.3
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.65
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.5
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.32
+      }
+     ],
+     "p_top_rung": 0.32,
+     "top_threshold": 1500.0,
+     "open_interest": 324.8
+    }
+   }
+  },
+  {
+   "player_id": "9224",
+   "name": "Chase Brown",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 57.9
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 211.4
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.55
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.41
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 16.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 16.0,
+     "open_interest": 507.6
+    }
+   }
+  },
+  {
+   "player_id": "8144",
+   "name": "Chris Olave",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.62
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.4
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 29.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.7
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.58
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.33
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.18
+      }
+     ],
+     "p_top_rung": 0.18,
+     "top_threshold": 1500.0,
+     "open_interest": 365.1
+    }
+   }
+  },
+  {
+   "player_id": "4034",
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 131.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.73
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.44
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 121.9
+    }
+   }
+  },
+  {
+   "player_id": "8167",
+   "name": "Christian Watson",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 101.7
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 1145.3
+    }
+   }
+  },
+  {
+   "player_id": "7594",
+   "name": "Chuba Hubbard",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 12.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "12517",
+   "name": "Colston Loveland",
+   "position": "TE",
+   "stats": {
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.59
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.34
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.15
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.15
+      }
+     ],
+     "p_top_rung": 0.15,
+     "top_threshold": 12.0,
+     "open_interest": 2231.9
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.65
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.32
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.2
+      }
+     ],
+     "p_top_rung": 0.2,
+     "top_threshold": 1250.0,
+     "open_interest": 3637.5
+    }
+   }
+  },
+  {
+   "player_id": "4983",
+   "name": "DJ Moore",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.37
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 165.6
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.73
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.4
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 48.4
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.63
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.43
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.22
+      }
+     ],
+     "p_top_rung": 0.22,
+     "top_threshold": 1250.0,
+     "open_interest": 4606.9
+    }
+   }
+  },
+  {
+   "player_id": "5846",
+   "name": "DK Metcalf",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.29
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 640.3
+    }
+   }
+  },
+  {
+   "player_id": "5870",
+   "name": "Daniel Jones",
+   "position": "QB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "2133",
+   "name": "Davante Adams",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "5892",
+   "name": "David Montgomery",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.59
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.56
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.22
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 869.2
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.63
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.18
+      }
+     ],
+     "p_top_rung": 0.18,
+     "top_threshold": 1250.0,
+     "open_interest": 1460.1
+    }
+   }
+  },
+  {
+   "player_id": "9226",
+   "name": "De'Von Achane",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 15.4
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 254.2
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.39
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.23
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 16.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 16.0,
+     "open_interest": 190.3
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.73
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.61
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.43
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.15
+      }
+     ],
+     "p_top_rung": 0.15,
+     "top_threshold": 1500.0,
+     "open_interest": 272.2
+    }
+   }
+  },
+  {
+   "player_id": "13417",
+   "name": "De'Zhaun Stribling",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 432.7
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 1750.3
+    }
+   }
+  },
+  {
+   "player_id": "9501",
+   "name": "Demario Douglas",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 46.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 189.4
+    }
+   }
+  },
+  {
+   "player_id": "13346",
+   "name": "Denzel Boston",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 951.3
+    }
+   }
+  },
+  {
+   "player_id": "3198",
+   "name": "Derrick Henry",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.81
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.8
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.52
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.34
+      }
+     ],
+     "p_top_rung": 0.34,
+     "top_threshold": 1500.0,
+     "open_interest": 265.0
+    }
+   }
+  },
+  {
+   "player_id": "11564",
+   "name": "Drake Maye",
+   "position": "QB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.26
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 12.0,
+     "open_interest": 211.1
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "13423",
+   "name": "Eli Heidenreich",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "12514",
+   "name": "Emeka Egbuka",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.4
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.15
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 1608.2
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.76
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.46
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 5094.4
+    }
+   }
+  },
+  {
+   "player_id": "13269",
+   "name": "Fernando Mendoza",
+   "position": "QB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "8146",
+   "name": "Garrett Wilson",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "4217",
+   "name": "George Kittle",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 129.4
+    }
+   }
+  },
+  {
+   "player_id": "8137",
+   "name": "George Pickens",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.52
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.3
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.01
+      }
+     ],
+     "p_top_rung": 0.01,
+     "top_threshold": 120.0,
+     "open_interest": 166.9
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.85
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.42
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.34
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 541.5
+    }
+   }
+  },
+  {
+   "player_id": "12506",
+   "name": "Harold Fannin Jr.",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.7
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 249.6
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.58
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.29
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 167.9
+    }
+   }
+  },
+  {
+   "player_id": "3214",
+   "name": "Hunter Henry",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 3.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 40.3
+    }
+   }
+  },
+  {
+   "player_id": "8131",
+   "name": "Isaiah Likely",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.31
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 76.9
+    }
+   }
+  },
+  {
+   "player_id": "8205",
+   "name": "Isiah Pacheco",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "7564",
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "stats": {
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.83
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.67
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.39
+      }
+     ],
+     "p_top_rung": 0.39,
+     "top_threshold": 1500.0,
+     "open_interest": 443.0
+    }
+   }
+  },
+  {
+   "player_id": "12533",
+   "name": "Jacory Croskey-Merritt",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.55
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.31
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 52.4
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 145.9
+    }
+   }
+  },
+  {
+   "player_id": "13286",
+   "name": "Jadarian Price",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.52
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.34
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.14
+      }
+     ],
+     "p_top_rung": 0.14,
+     "top_threshold": 1250.0,
+     "open_interest": 514.3
+    }
+   }
+  },
+  {
+   "player_id": "9221",
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 63.8
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 524.5
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.83
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.75
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.49
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.28
+      }
+     ],
+     "p_top_rung": 0.28,
+     "top_threshold": 1500.0,
+     "open_interest": 621.1
+    }
+   }
+  },
+  {
+   "player_id": "11646",
+   "name": "Jalen Coker",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 3.1
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 1558.5
+    }
+   }
+  },
+  {
+   "player_id": "6904",
+   "name": "Jalen Hurts",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.73
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.22
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 250.5
+    }
+   }
+  },
+  {
+   "player_id": "8138",
+   "name": "James Cook III",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 70.5
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.84
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.63
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.4
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 16.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 16.0,
+     "open_interest": 57.3
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.73
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.47
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 242.3
+    }
+   }
+  },
+  {
+   "player_id": "8148",
+   "name": "Jameson Williams",
+   "position": "WR",
+   "stats": {
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.75
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.44
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.23
+      }
+     ],
+     "p_top_rung": 0.23,
+     "top_threshold": 1250.0,
+     "open_interest": 268.8
+    }
+   }
+  },
+  {
+   "player_id": "9488",
+   "name": "Jaxon Smith-Njigba",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 10.1
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.82
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.67
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.39
+      }
+     ],
+     "p_top_rung": 0.39,
+     "top_threshold": 1500.0,
+     "open_interest": 1619.2
+    }
+   }
+  },
+  {
+   "player_id": "12508",
+   "name": "Jaxson Dart",
+   "position": "QB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.69
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.39
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.3
+      }
+     ],
+     "p_top_rung": 0.3,
+     "top_threshold": 10.0,
+     "open_interest": 2018.5
+    }
+   }
+  },
+  {
+   "player_id": "7526",
+   "name": "Jaylen Waddle",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.51
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 118.1
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.72
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.41
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.24
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 2907.5
+    }
+   }
+  },
+  {
+   "player_id": "8228",
+   "name": "Jaylen Warren",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.44
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 12.0,
+     "open_interest": 12.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 56.8
+    }
+   }
+  },
+  {
+   "player_id": "13287",
+   "name": "Jeremiyah Love",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 120.6
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.62
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.39
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.2
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 16.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 16.0,
+     "open_interest": 799.7
+    }
+   }
+  },
+  {
+   "player_id": "6783",
+   "name": "Jerry Jeudy",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 88.0
+    }
+   }
+  },
+  {
+   "player_id": "13345",
+   "name": "Jonah Coleman",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "6813",
+   "name": "Jonathan Taylor",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 1.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "11583",
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.45
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.24
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.1
+      }
+     ],
+     "p_top_rung": 0.1,
+     "top_threshold": 10.0,
+     "open_interest": 174.5
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 228.5
+    }
+   }
+  },
+  {
+   "player_id": "6804",
+   "name": "Jordan Love",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.59
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.2
+      }
+     ],
+     "p_top_rung": 0.2,
+     "top_threshold": 4500.0,
+     "open_interest": 1382.1
+    }
+   }
+  },
+  {
+   "player_id": "13281",
+   "name": "Jordyn Tyson",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.07
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.04
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 1602.7
+    }
+   }
+  },
+  {
+   "player_id": "4984",
+   "name": "Josh Allen",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.8
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.56
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.37
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 1765.2
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.91
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.71
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.43
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 268.4
+    }
+   }
+  },
+  {
+   "player_id": "5850",
+   "name": "Josh Jacobs",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.67
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.53
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.27
+      }
+     ],
+     "p_top_rung": 0.27,
+     "top_threshold": 1250.0,
+     "open_interest": 256.3
+    }
+   }
+  },
+  {
+   "player_id": "6794",
+   "name": "Justin Jefferson",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.56
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.42
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.31
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.19
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 465.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.75
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.5
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.28
+      }
+     ],
+     "p_top_rung": 0.28,
+     "top_threshold": 1500.0,
+     "open_interest": 4072.0
+    }
+   }
+  },
+  {
+   "player_id": "13298",
+   "name": "KC Concepcion",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 35.2
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 518.2
+    }
+   }
+  },
+  {
+   "player_id": "13414",
+   "name": "Kaelon Black",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "9504",
+   "name": "Kayshon Boutte",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 386.9
+    }
+   }
+  },
+  {
+   "player_id": "13330",
+   "name": "Kenyon Sadiq",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.26
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.1
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 92.4
+    }
+   }
+  },
+  {
+   "player_id": "12534",
+   "name": "Kyle Monangai",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.56
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.34
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 303.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 1244.9
+    }
+   }
+  },
+  {
+   "player_id": "7553",
+   "name": "Kyle Pitts Sr.",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 12.6
+    }
+   }
+  },
+  {
+   "player_id": "5849",
+   "name": "Kyler Murray",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.58
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.42
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.27
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 1026.1
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "8150",
+   "name": "Kyren Williams",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "11635",
+   "name": "Ladd McConkey",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.52
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.15
+      }
+     ],
+     "p_top_rung": 0.15,
+     "top_threshold": 120.0,
+     "open_interest": 223.4
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.72
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.52
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.26
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.13
+      }
+     ],
+     "p_top_rung": 0.13,
+     "top_threshold": 1500.0,
+     "open_interest": 7019.6
+    }
+   }
+  },
+  {
+   "player_id": "4881",
+   "name": "Lamar Jackson",
+   "position": "QB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 122.8
+    }
+   }
+  },
+  {
+   "player_id": "12519",
+   "name": "Luther Burden III",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.47
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 409.3
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.43
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.24
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.15
+      }
+     ],
+     "p_top_rung": 0.15,
+     "top_threshold": 10.0,
+     "open_interest": 982.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.68
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.2
+      }
+     ],
+     "p_top_rung": 0.2,
+     "top_threshold": 1250.0,
+     "open_interest": 4661.9
+    }
+   }
+  },
+  {
+   "player_id": "13294",
+   "name": "Makai Lemon",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.17
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.13
+      }
+     ],
+     "p_top_rung": 0.13,
+     "top_threshold": 1250.0,
+     "open_interest": 477.9
+    }
+   }
+  },
+  {
+   "player_id": "11632",
+   "name": "Malik Nabers",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.61
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 207.2
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.75
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.28
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 6278.9
+    }
+   }
+  },
+  {
+   "player_id": "8161",
+   "name": "Malik Willis",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.36
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 4500.0,
+     "open_interest": 474.0
+    }
+   }
+  },
+  {
+   "player_id": "5012",
+   "name": "Mark Andrews",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "11628",
+   "name": "Marvin Harrison Jr.",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 31.1
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.79
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.34
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.21
+      }
+     ],
+     "p_top_rung": 0.21,
+     "top_threshold": 1250.0,
+     "open_interest": 809.8
+    }
+   }
+  },
+  {
+   "player_id": "12501",
+   "name": "Matthew Golden",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 49.9
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 483.4
+    }
+   }
+  },
+  {
+   "player_id": "6819",
+   "name": "Michael Pittman Jr.",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 16.7
+    }
+   }
+  },
+  {
+   "player_id": "10232",
+   "name": "Michael Wilson",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.53
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 237.8
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.5
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.34
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 5280.6
+    }
+   }
+  },
+  {
+   "player_id": "2216",
+   "name": "Mike Evans",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.27
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.15
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 125.3
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.62
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.38
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.23
+      }
+     ],
+     "p_top_rung": 0.23,
+     "top_threshold": 1250.0,
+     "open_interest": 869.9
+    }
+   }
+  },
+  {
+   "player_id": "13305",
+   "name": "Mike Washington Jr.",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 8.0
+    }
+   }
+  },
+  {
+   "player_id": "7569",
+   "name": "Nico Collins",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.7
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.62
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 742.8
+    }
+   }
+  },
+  {
+   "player_id": "13276",
+   "name": "Omar Cooper Jr.",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "12507",
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.51
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.24
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.13
+      }
+     ],
+     "p_top_rung": 0.13,
+     "top_threshold": 1500.0,
+     "open_interest": 2466.1
+    }
+   }
+  },
+  {
+   "player_id": "12493",
+   "name": "Oronde Gadsden",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 36.4
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 189.0
+    }
+   }
+  },
+  {
+   "player_id": "9487",
+   "name": "Parker Washington",
+   "position": "WR",
+   "stats": {
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.29
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.14
+      }
+     ],
+     "p_top_rung": 0.14,
+     "top_threshold": 1250.0,
+     "open_interest": 2561.0
+    }
+   }
+  },
+  {
+   "player_id": "7600",
+   "name": "Pat Freiermuth",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "9754",
+   "name": "Quentin Johnston",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 28.7
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 484.4
+    }
+   }
+  },
+  {
+   "player_id": "12512",
+   "name": "Quinshon Judkins",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.64
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.45
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.3
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 604.2
+    }
+   }
+  },
+  {
+   "player_id": "12489",
+   "name": "RJ Harvey",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 12.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 57.0
+    }
+   }
+  },
+  {
+   "player_id": "10229",
+   "name": "Rashee Rice",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.39
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.31
+      }
+     ],
+     "p_top_rung": 0.31,
+     "top_threshold": 120.0,
+     "open_interest": 192.7
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "7611",
+   "name": "Rhamondre Stevenson",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 70.1
+    }
+   }
+  },
+  {
+   "player_id": "11638",
+   "name": "Ricky Pearsall",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 118.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 551.7
+    }
+   }
+  },
+  {
+   "player_id": "11620",
+   "name": "Rome Odunze",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 25.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.67
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.36
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.17
+      }
+     ],
+     "p_top_rung": 0.17,
+     "top_threshold": 1250.0,
+     "open_interest": 487.0
+    }
+   }
+  },
+  {
+   "player_id": "8121",
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 17.6
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 1318.3
+    }
+   }
+  },
+  {
+   "player_id": "10859",
+   "name": "Sam LaPorta",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.48
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 80.0
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.42
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.01
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 86.8
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.46
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.18
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 94.4
+    }
+   }
+  },
+  {
+   "player_id": "4866",
+   "name": "Saquon Barkley",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.66
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.44
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.28
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 16.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 16.0,
+     "open_interest": 1136.7
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.62
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.42
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.23
+      }
+     ],
+     "p_top_rung": 0.23,
+     "top_threshold": 1500.0,
+     "open_interest": 606.5
+    }
+   }
+  },
+  {
+   "player_id": "6801",
+   "name": "Tee Higgins",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.71
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.41
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 178.3
+    }
+   }
+  },
+  {
+   "player_id": "5927",
+   "name": "Terry McLaurin",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 238.6
+    }
+   }
+  },
+  {
+   "player_id": "12526",
+   "name": "Tetairoa McMillan",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "5967",
+   "name": "Tony Pollard",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 12.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "7543",
+   "name": "Travis Etienne Jr.",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.65
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.41
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.21
+      }
+     ],
+     "p_top_rung": 0.21,
+     "top_threshold": 1250.0,
+     "open_interest": 84.0
+    }
+   }
+  },
+  {
+   "player_id": "1466",
+   "name": "Travis Kelce",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 0.0
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.48
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.15
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 165.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.4
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.21
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 500.5
+    }
+   }
+  },
+  {
+   "player_id": "12529",
+   "name": "TreVeyon Henderson",
+   "position": "RB",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.49
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.33
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 2019.4
+    }
+   }
+  },
+  {
+   "player_id": "7523",
+   "name": "Trevor Lawrence",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.78
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.67
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.43
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.28
+      }
+     ],
+     "p_top_rung": 0.28,
+     "top_threshold": 4500.0,
+     "open_interest": 975.2
+    }
+   }
+  },
+  {
+   "player_id": "8130",
+   "name": "Trey McBride",
+   "position": "TE",
+   "stats": {
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.77
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.47
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1500.0,
+     "open_interest": 135.1
+    }
+   }
+  },
+  {
+   "player_id": "9484",
+   "name": "Tucker Kraft",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 448.3
+    }
+   }
+  },
+  {
+   "player_id": "8132",
+   "name": "Tyler Allgeier",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 56.2
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 40.0
+    }
+   }
+  },
+  {
+   "player_id": "12545",
+   "name": "Tyler Shough",
+   "position": "QB",
+   "stats": {
+    "pass_yd": {
+     "label": "passing yards",
+     "survival": [
+      {
+       "threshold": 3000.0,
+       "p_at_least": 0.72
+      },
+      {
+       "threshold": 3500.0,
+       "p_at_least": 0.59
+      },
+      {
+       "threshold": 4000.0,
+       "p_at_least": 0.35
+      },
+      {
+       "threshold": 4500.0,
+       "p_at_least": 0.13
+      }
+     ],
+     "p_top_rung": 0.13,
+     "top_threshold": 4500.0,
+     "open_interest": 1283.5
+    }
+   }
+  },
+  {
+   "player_id": "12518",
+   "name": "Tyler Warren",
+   "position": "TE",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.25
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 278.9
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.32
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.23
+      }
+     ],
+     "p_top_rung": 0.23,
+     "top_threshold": 1250.0,
+     "open_interest": 1279.1
+    }
+   }
+  },
+  {
+   "player_id": "8126",
+   "name": "Wan'Dale Robinson",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 851.2
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 44.2
+    }
+   }
+  },
+  {
+   "player_id": "12474",
+   "name": "Woody Marks",
+   "position": "RB",
+   "stats": {
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 10.0,
+     "open_interest": 0.0
+    },
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    }
+   }
+  },
+  {
+   "player_id": "11624",
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 43.0
+    }
+   }
+  },
+  {
+   "player_id": "9753",
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "stats": {
+    "rush_yd": {
+     "label": "rushing yards",
+     "survival": null,
+     "p_top_rung": null,
+     "top_threshold": null,
+     "open_interest": 56.8
+    }
+   }
+  },
+  {
+   "player_id": "9997",
+   "name": "Zay Flowers",
+   "position": "WR",
+   "stats": {
+    "rec": {
+     "label": "receptions",
+     "survival": [
+      {
+       "threshold": 75.0,
+       "p_at_least": 0.55
+      },
+      {
+       "threshold": 100.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 120.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 120.0,
+     "open_interest": 236.3
+    },
+    "rec_td": {
+     "label": "receiving TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.6
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.29
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.23
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.15
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 14.0,
+     "open_interest": 424.8
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.69
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.51
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.33
+      },
+      {
+       "threshold": 1500.0,
+       "p_at_least": 0.17
+      }
+     ],
+     "p_top_rung": 0.17,
+     "top_threshold": 1500.0,
+     "open_interest": 1341.8
+    }
+   }
+  }
+ ]
+}

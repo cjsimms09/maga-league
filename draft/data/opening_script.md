@@ -1,55 +1,55 @@
 # OPENING SCRIPT — generated, never typed
 
-_board `2026-08-13T23:13:18Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$353/season vs control (CI [306.0, 399.62], 1.0 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$64)_
+_board `2026-08-18T11:20:33Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Balanced Value (the control)** (19b race ran; no archetype cleared the paired CI + even-money band)_
 
 My live picks: **33, 48, 53, 68, 73, 88…**
 
-## PRIMARY — both TEs gone (the predicted board)
-_Marian keeps Bowers (high, intel) + Richard keeps Bijan/McBride/Nico (certain, intel): TE de-anchors — take one whenever; WR-feast and Early-QB gained the probability mass._
+## PRIMARY — the effective board (designations are facts, predictions fill the rest)
+_4 teams designated on Sleeper (their real slates supersede intel wholesale), 3 still run on predicted slates. Supersessions: cashworth: designated Ashton Jeanty, Chase Brown (prediction missed); MarianSaar: freed Brock Bowers (predicted kept — actually in the pool) · designated Justin Jefferson (prediction missed)._
 
 ### Pick 33
-- **TARGET**: DeVonta Smith (WR, VORP 44.4, 27% survives)
-- fallback 1: Zay Flowers (WR, VORP 42.7, 60% survives)
-- fallback 2: Ladd McConkey (WR, VORP 38.0, 87% survives)
-- fallback 3: Colston Loveland (TE, VORP 38.0, 83% survives)
-- fallback 4: Breece Hall (RB, VORP 36.1, 32% survives)
+- **TARGET**: Colston Loveland (TE, VORP 37.0, 78% survives)
+- fallback 1: Lamar Jackson (QB, VORP 30.3, 52% survives)
+- fallback 2: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 3: Drake Maye (QB, VORP 26.0, 98% survives)
+- fallback 4: Ladd McConkey (WR, VORP 25.1, 95% survives)
 
 ### Pick 48
-- **TARGET**: Jaylen Waddle (WR, VORP 35.8, 30% survives)
-- fallback 1: Mike Evans (WR, VORP 28.9, 88% survives)
-- fallback 2: Jameson Williams (WR, VORP 26.5, 82% survives)
-- fallback 3: Drake Maye (QB, VORP 26.0, 62% survives)
-- fallback 4: Tyler Warren (TE, VORP 24.3, 55% survives)
+- **TARGET**: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 1: Drake Maye (QB, VORP 26.0, 50% survives)
+- fallback 2: Mike Evans (WR, VORP 24.6, 97% survives)
+- fallback 3: Tyler Warren (TE, VORP 23.2, 43% survives)
+- fallback 4: Sam LaPorta (TE, VORP 22.1, 90% survives)
 
 ### Pick 53
-- **TARGET**: Mike Evans (WR, VORP 28.9, 74% survives)
-- fallback 1: Jameson Williams (WR, VORP 26.5, 63% survives)
-- fallback 2: Drake Maye (QB, VORP 26.0, 37% survives)
-- fallback 3: Tyler Warren (TE, VORP 24.3, 30% survives)
-- fallback 4: D'Andre Swift (RB, VORP 23.8, 27% survives)
+- **TARGET**: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 1: Mike Evans (WR, VORP 24.6, 86% survives)
+- fallback 2: Sam LaPorta (TE, VORP 22.1, 83% survives)
+- fallback 3: Joe Burrow (QB, VORP 20.4, 40% survives)
+- fallback 4: Houston Texans (DEF, VORP 15.0, 100% survives)
 
-## CONTINGENCY — Bowers available (Marian keeps someone else)
-_The elite-TE-anchor question returns: watch the TE room's panic — survival to my next pick collapses if his ADP jumps on scarcity._
+## CONTINGENCY — the predicted-only slates bust
+_Only FACTS removed here (real designations + my three): every keeper we merely predict returns to the pool. If an undesignated team keeps less than predicted, this branch is the board you're actually looking at._
 
 ### Pick 33
-- **TARGET**: DeVonta Smith (WR, VORP 44.4, 27% survives)
-- fallback 1: Zay Flowers (WR, VORP 42.7, 60% survives)
-- fallback 2: Ladd McConkey (WR, VORP 38.0, 87% survives)
-- fallback 3: Colston Loveland (TE, VORP 38.0, 83% survives)
-- fallback 4: Breece Hall (RB, VORP 36.1, 32% survives)
+- **TARGET**: Colston Loveland (TE, VORP 37.0, 78% survives)
+- fallback 1: Lamar Jackson (QB, VORP 30.3, 52% survives)
+- fallback 2: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 3: Drake Maye (QB, VORP 26.0, 98% survives)
+- fallback 4: Ladd McConkey (WR, VORP 25.1, 95% survives)
 
 ### Pick 48
-- **TARGET**: Jaylen Waddle (WR, VORP 35.8, 30% survives)
-- fallback 1: Mike Evans (WR, VORP 28.9, 88% survives)
-- fallback 2: Jameson Williams (WR, VORP 26.5, 82% survives)
-- fallback 3: Drake Maye (QB, VORP 26.0, 62% survives)
-- fallback 4: Tyler Warren (TE, VORP 24.3, 55% survives)
+- **TARGET**: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 1: Drake Maye (QB, VORP 26.0, 50% survives)
+- fallback 2: Mike Evans (WR, VORP 24.6, 97% survives)
+- fallback 3: Tyler Warren (TE, VORP 23.2, 43% survives)
+- fallback 4: Sam LaPorta (TE, VORP 22.1, 90% survives)
 
 ### Pick 53
-- **TARGET**: Mike Evans (WR, VORP 28.9, 74% survives)
-- fallback 1: Jameson Williams (WR, VORP 26.5, 63% survives)
-- fallback 2: Drake Maye (QB, VORP 26.0, 37% survives)
-- fallback 3: Tyler Warren (TE, VORP 24.3, 30% survives)
-- fallback 4: D'Andre Swift (RB, VORP 23.8, 27% survives)
+- **TARGET**: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 1: Mike Evans (WR, VORP 24.6, 86% survives)
+- fallback 2: Sam LaPorta (TE, VORP 22.1, 83% survives)
+- fallback 3: Joe Burrow (QB, VORP 20.4, 40% survives)
+- fallback 4: Houston Texans (DEF, VORP 15.0, 100% survives)
 
 _Regenerates on: slot assignment · keeper designations landing (picked up by the nightly draft-data rebuild) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._

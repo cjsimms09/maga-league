@@ -14,9 +14,12 @@ on:
   workflow_dispatch:
     inputs:
       league:
-        description: 'usa-nfl-preseason or usa-nfl'
+        # EMPTY MEANS EVERY REGISTERED LEAGUE. It defaulted to preseason, which
+        # is how the scheduled capture came to ask for preseason and nothing else
+        # for the whole of August.
+        description: 'usa-nfl-preseason, usa-nfl, or empty for every registered league'
         required: false
-        default: 'usa-nfl-preseason'
+        default: ''
       max_events:
         description: 'cap events (0 = all)'
         required: false
@@ -65,8 +68,22 @@ jobs:
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || vars.ODDS_API_KEY }}
         run: |
+          # ── THE LEAGUE DEFAULT WAS PRESEASON, AND ONLY PRESEASON ───────────
+          #
+          # This read `'usa-nfl-preseason'`. `market_filters.LEAGUES` registers
+          # BOTH leagues, but the cron passed one — so the scheduled capture has
+          # never once asked for a regular-season game. Preseason ends around
+          # 08-29, after which the job would have kept running daily, GREEN,
+          # capturing an empty slate, while the entire regular season went by
+          # uncaptured. A job that succeeds at doing nothing is the failure this
+          # repository keeps finding, and those weeks are unrecoverable.
+          #
+          # Empty default = every registered league. Manual dispatch can still
+          # name one. Costs nothing extra today: C's census puts the nearest
+          # regular-season kickoff 27 days out, so the horizon keeps the slate at
+          # zero until 08-27 and the budget does not bind (500/day against ~32).
           python draft/backtest/market_capture.py \
-            --league "${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
+            --league "${{ github.event.inputs.league || '' }}" \
             --max-events "${{ github.event.inputs.max_events || '0' }}" \
             --horizon-days "${{ github.event.inputs.horizon_days || '14' }}"
 
@@ -95,7 +112,7 @@ jobs:
         run: |
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/market_snapshots || true
-          git commit -m "Market snapshot: ${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
+          git commit -m "Market snapshot: ${{ github.event.inputs.league || 'all registered leagues' }}" \
             || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
 

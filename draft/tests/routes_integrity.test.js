@@ -30,10 +30,32 @@
 // sides, which is incident 1 by design and incident 2 as well. C called that and
 // they are right.
 //
+// ⚠️ AND IT IS NOT SET — 2026-08-18, checked rather than assumed. There is no
+// `.gitattributes` in this repo at all; `git check-attr merge -- ROUTES.md` says
+// `unspecified`. I had told A the opposite in a ROUTES item and corrected it.
+// This does not soften the paragraph above, it sharpens it: we apply the union BY
+// HAND, and the union check below is what makes us. So `merge=union`'s failure
+// mode is our failure mode with none of the escape hatch — you cannot turn off a
+// setting that was never set. The resurrections of 08-18 came from exactly that.
+//
 // So the guard is not about merging. It catches the RESULT at the commit that
 // causes it, rather than whenever somebody next reads the file.
 //
 // Run: node draft/tests/routes_integrity.test.js
+/* TERRITORY-GRANT: B key, base, inBase, lost, unionLost, itemsOf, execSync, ROOT
+ *
+ * GRANTED BY A, 2026-08-14. This arm fired on every legitimate merge: the union
+ * rule was "every item from either side survives", but an item B closed
+ * deliberately still exists on my side, and the merge correctly preserves the
+ * deletion. The check could not tell a closure from a casualty.
+ *
+ * Using the MERGE BASE to separate them is the correct discrimination, and it
+ * keeps the case this arm exists for — an item new on the other side and absent
+ * from the base is still a hard failure. It falls back to the strict rule with
+ * no base, so a noisy guard is preferred to a blind one. That is my own suite's
+ * standard applied better than I applied it.
+ */
+
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -69,6 +91,150 @@ const isHeading = l => /^## TO: /.test(l);
   ck('CONTROL — there are items to check at all', items.length > 5, items.length);
 }
 
+// ── CHECK 1b: NEAR-DUPLICATES (incident 2, the half check 1 cannot see) ──
+// Check 1's comment says a duplicated block is "byte-identical by construction".
+// That is true the instant a merge makes it and stops being true the moment
+// anyone EDITS one copy.
+//
+// Found 2026-08-18 (relay), on the relay's own item: the keeper-vorp route
+// existed twice — an OPEN copy, and forty lines below it a closure plus the
+// same item struck through. Exactly incident 2 from this file's header, and
+// check 1 passed, because `~~text~~` is not byte-equal to `text`. Striking a
+// resurrected copy through is the single most natural edit to make, and it is
+// precisely the edit that defeats an equality test.
+//
+// So this compares a NORMALISED key — checkbox state, emphasis, strikethrough,
+// backticks and whitespace removed — over a long prefix. Long enough that two
+// genuinely different items from one author on one day cannot collide.
+{
+  // EMOJI HAVE TO GO TOO, and my first cut proved it: the real resurrected pair
+  // differed by a leading 🔴 as well as the strikethrough, so a normaliser that
+  // stripped only emphasis would have missed the very case it was written for.
+  const norm = l => l
+    .replace(/^- \[[ xX]\]\s*/, '')
+    .replace(/~~/g, '')
+    .replace(/\*\*/g, '')
+    .replace(/`/g, '')
+    .replace(/[^\p{L}\p{N}·\s.,:;()\/-]/gu, '')   // drop emoji and symbols
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .slice(0, 110);
+  // WITHIN A SECTION, NOT ACROSS THE FILE.
+  //
+  // The same item legitimately appears in several inboxes: the 08-17 standing
+  // rules ("you do not stop a capture job", "we can't get it is not a finished
+  // answer", "new rule 3d") were BROADCAST to TO: A, B, C, D and E on purpose.
+  // The file is organised by addressee, so the same text in two different
+  // inboxes is design, and the same text TWICE IN ONE inbox is the corruption.
+  //
+  // ⚠️ AND THE MEASUREMENT SAYS THIS IS A LATENT FIX, NOT A LIVE ONE — I claimed
+  // it was already miscounting the broadcasts and it was not. Both keyings return
+  // 12 today, and the global-only set is EMPTY: every broadcast copy survives a
+  // global key only because each one names its own addressee in the item text
+  // ("relay/pm → A" vs "relay/pm → D"), which the normaliser keeps. That is luck
+  // in the wording, not a property of broadcasting. One rule posted five times in
+  // identical words — the obvious way to write one — would have handed A five
+  // "corruptions" that were all deliberate. Section keying is what makes the
+  // check's meaning independent of how the copies happen to be phrased.
+  const seen = new Map();
+  let section = null;
+  LINES.forEach(l => {
+    if (isHeading(l)) { section = l.trim(); return; }
+    if (!isItem(l)) return;
+    const k = norm(l);
+    if (k.length < 40) return;              // too short to be a safe key
+    const key = (section || '(no section)') + ' :: ' + k;
+    seen.set(key, (seen.get(key) || 0) + 1);
+  });
+  const near = [...seen.entries()].filter(([, n]) => n > 1);
+  // A RATCHET, NOT A NEW WALL. The pairs left belong to their lanes, this check
+  // did not exist when they were made, and turning them into a hard red four days
+  // before the draft would block A on somebody else's history. (This paragraph
+  // used to name "the pace-of-play study, the artifact-freshness infra item" as
+  // the two survivors — both are repaired now; the two that remain are named
+  // below.) So it fails only when the count GROWS — the same
+  // shape as routes_backlog_baseline, and for the same reason: a guard nobody
+  // can satisfy gets switched off.
+  //
+  // Lower this number in the commit that earns it.
+  //
+  // ⚠️ THE BASELINE IS 12, NOT 2, AND MY FIRST READ OF IT WAS WRONG. The failure
+  // line prints two examples and I took that for the total. The real count is
+  // TWELVE pairs spanning 08-14 to 08-17 — including three of the relay's own
+  // `relay/pm → D` items from 08-17. Byte-equality sees none of them.
+  //
+  // Re-measured after section keying and still 12, now attributable:
+  //   ## TO: A  8   (08-14 to 08-16 — pace-of-play, artifact-freshness,
+  //                  conditional-value, projection-correctness, archetypes,
+  //                  projection-program, the pick-33 data audit, the C answer)
+  //   ## TO: B  1   (08-14, the h2h defect)
+  //   ## TO: D  3   (08-17, the relay's own standing rules — mine to repair)
+  // TEN OF THE TWELVE ARE REPAIRED as of 2026-08-18 and the number is now 2.
+  //
+  // ⚙️ AND THE MECHANISM IS OUR OWN MERGE DOCTRINE, which matters far more than
+  // the ten lines. `git blame`:
+  //
+  //     89a731cc  08-17 21:20  "Close five informational items in A's queue"
+  //     bcdeef0a  08-18 00:19  "Merge the red-team lane's three fixes"  +51 lines
+  //
+  // E's branch forked BEFORE the closures and still carried the `- [ ]` copies.
+  // The merge took both sides — exactly what the union check three blocks below
+  // demands, and its stated guarantee is "a true union loses nothing". It does.
+  // But the union of "closed on main" and "still open on a stale branch" is BOTH
+  // COPIES, so seven items A had already dealt with went straight back into A's
+  // inbox, four days before the draft, counted as open by routes_response_check.
+  //
+  // A UNION IS SAFE AGAINST LOSS AND UNSAFE AGAINST RESURRECTION. Two different
+  // failures; only one of them had a gate, and the gate for one manufactured the
+  // other. Union-merging is still right — `draft/tools/routes_resurrections.py`
+  // and `draft/tests/test_routes_resurrections.py` are the missing half, and the
+  // repair is authorised only where the closed copy provably CONTAINS the open
+  // one (every difflib opcode `equal` or `insert`), verified again at write time.
+  //
+  // The 2 that remain are `## TO: A` L1370+L2282 and L1373+L2338 — CLOSED on both
+  // sides, so a block pasted twice rather than a resurrection. Nobody's inbox is
+  // affected by them and nothing automatic will touch them.
+  // Ten of the twelve are one OPEN copy and one CLOSED copy — a resurrection.
+  // The other two (## TO: A, L1370+L2282 and L1373+L2338) are CLOSED on BOTH
+  // sides, so they are not resurrections at all, just a block pasted twice.
+  //
+  // WHICH COPY IS SAFE TO DELETE IS NOT THE OBVIOUS ONE, and the lengths say so:
+  // in seven of the eight A pairs the CLOSED copy is the LONGER one (L1364 1774
+  // chars open vs L2242 2349 closed), so deleting "the stale closed one" throws
+  // away the copy carrying the evidence. That is the exact 16-line loss I already
+  // caused and had to recover from HEAD. Only the three D pairs are byte-equal in
+  // body (1164/1047/1311 on both sides) — which is why those are the only three
+  // this session repairs, and the other nine go back to A and B as a report.
+  //
+  // NOT REPAIRED BY SCRIPT, DELIBERATELY. I removed two of these by hand and one
+  // deletion took 16 lines of evidence with it, because the copy A had CLOSED was
+  // the bodyless one and the copy carrying the body was the one still open.
+  // Recovered from HEAD — but the lesson stands: a mailbox whose contract is
+  // line-by-line is not safe to de-duplicate mechanically, and the pairs below
+  // belong to the lanes that wrote them.
+  const KNOWN_NEAR_DUPES = 2;
+  ck('near-duplicate items have not INCREASED (ratchet, baseline '
+     + KNOWN_NEAR_DUPES + ')',
+    near.length <= KNOWN_NEAR_DUPES,
+    near.map(([k, n]) => n + '× ' + k.slice(0, 80)));
+  if (near.length && near.length <= KNOWN_NEAR_DUPES) {
+    console.log('      NOTE — ' + near.length + ' pre-existing near-duplicate(s), '
+      + 'owned by their lanes, not failing:');
+    near.forEach(([k, n]) => console.log('        ' + n + '× ' + k.slice(0, 84)));
+  }
+
+  // KNOWN-POSITIVE: the real pair, which check 1 above does NOT flag.
+  const a = '- [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD**';
+  const b = '- [x] 2026-08-18 · relay · ~~**YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD**~~';
+  ck('FAIL ARM — a struck-through resurrection IS detected by the normalised key',
+    norm(a) === norm(b), norm(a).slice(0, 60) + ' | ' + norm(b).slice(0, 60));
+  ck('  and check 1\'s byte-equality would MISS that same pair', a !== b);
+  ck('CONTROL — two genuinely different items do NOT collide',
+    norm('- [ ] 2026-08-18 · relay · the board is stale against its calibration table')
+    !== norm('- [ ] 2026-08-18 · relay · the inbox has no latency guard at all here'));
+}
+
 // ── CHECK 2: EVERY ITEM SITS UNDER A `## TO:` HEADING (incident 2) ───────
 // A resurrected block often lands outside its heading, and an item with no
 // addressee is an item nobody's inbox shows.
@@ -85,7 +251,7 @@ const isHeading = l => /^## TO: /.test(l);
   ck('CONTROL — the file really is organised by addressee', heads.length >= 2,
     heads.map(h => h.trim()));
   const lanes = heads.map(h => h.replace('## TO: ', '').trim());
-  ck('and every heading names a known lane', lanes.every(x => ['A', 'B', 'C'].indexOf(x) >= 0),
+  ck('and every heading names a known lane', lanes.every(x => ['A', 'B', 'C', 'D', 'E'].indexOf(x) >= 0),
     lanes);
   ck('no lane has TWO headings — a second one splits an inbox in half and each '
     + 'half looks complete', new Set(lanes).size === lanes.length, lanes);
@@ -203,10 +369,43 @@ const isHeading = l => /^## TO: /.test(l);
    * a named function, driven here on synthetic sides, and the real stages just
    * feed it when they exist. */
   const itemsOf = t => t.split('\n').filter(isItem);
-  const unionLost = (oursTxt, theirsTxt, resolvedItems) => {
+  /* SURVIVAL, WIDENED 2026-08-18 — the same both-files doctrine the closure
+   * ratchet adopted the day the archive landed. Verbatim-in-ROUTES.md was the
+   * only accepted survival, and that made two legitimate resolutions read as
+   * corruption: (1) an item whose resolution is the ARCHIVE — the stale side
+   * of a merge still carries pre-archive copies, and "restoring" them
+   * resurrects 60+ items the archive already holds; (2) an item EDITED in the
+   * resolution — E's own datestamp correction (08-17 -> 08-18, their commit
+   * d6a8d084) changed headline lines byte-wise, and a date fix must not
+   * require keeping the wrong-dated twin alive. So a line survives if it is
+   * verbatim in the resolution, verbatim in ROUTES-ARCHIVE.md, or its
+   * NORMALISED key (checkbox and date stripped, whitespace collapsed, first
+   * 80 chars) appears in either. A genuinely deleted item has no normalised
+   * twin anywhere and still fails — the FAIL ARM below proves it. */
+  //: emphasis stripped too (08-18, same night): B's triage keeps a resolved
+  //: item's text as an indented reference with the `**`/`~~` removed, so a
+  //: key that retains markdown reads a preserved item as a deletion.
+  const normKey = l => l.replace(/^- \[[ x]\] /, '')
+    .replace(/^\d{4}-\d{2}-\d{2} · /, '')
+    .replace(/~~|\*\*|`/g, '')
+    .replace(/\s+/g, ' ').slice(0, 80);
+  let archiveTxt = '';
+  try { archiveTxt = fs.readFileSync(path.join(ROOT, 'ROUTES-ARCHIVE.md'), 'utf8'); }
+  catch (e) { /* no archive yet */ }
+  const unionLost = (oursTxt, theirsTxt, resolvedItems, resolvedFullTxt) => {
     const both = new Set(itemsOf(oursTxt).concat(itemsOf(theirsTxt)));
-    const now = new Set(resolvedItems);
-    return [...both].filter(l => !now.has(l));
+    const now = new Set(resolvedItems.concat(itemsOf(archiveTxt)));
+    const nowNorm = new Set([...now].map(normKey));
+    /* THIRD SURVIVAL FORM, added 08-18 the same night as the second: B's
+     * inbox-backlog triage collapses resolved items into ONE ticked summary
+     * whose body lists them as INDENTED reference lines — the content
+     * survives verbatim, just not as item lines. A deleted item leaves no
+     * text at all, so substring-survival in the full resolution (or the
+     * archive) still catches real deletion while accepting the collapse. */
+    const full = ((resolvedFullTxt || '') + '\n' + archiveTxt)
+      .replace(/~~|\*\*|`/g, '').replace(/[ \t]+/g, ' ');
+    return [...both].filter(l => !now.has(l) && !nowNorm.has(normKey(l))
+      && !full.includes(normKey(l)));
   };
   {
     const A = '## TO: C\n- [ ] 2026-08-13 · A · an item only A wrote, long enough to be real\n';
@@ -226,14 +425,27 @@ const isHeading = l => /^## TO: /.test(l);
     console.log('SKIP  merge-union against real stages — no merge in progress '
       + '(the logic above was still exercised)');
   } else {
-    const lost = unionLost(ours, theirs, LINES.filter(isItem));
+    /* ⚠️ THIS BRANCH CRASHED ON `now is not defined` UNTIL 2026-08-14, and the
+     * shape is the one this repo keeps paying for: `now` is scoped INSIDE
+     * `unionLost` above, and this line is outside it. The branch only runs while
+     * a merge is in progress, so every ordinary run printed SKIP and passed —
+     * the guard died precisely and only when it was doing its job.
+     *
+     * It was live for a full day of ROUTES merges. I saw a FAIL line from here
+     * this morning, never saw a total, and did not ask why. A crash after a
+     * `ck` reads exactly like a suite that stopped at the failure. */
+    const resolved = LINES.filter(isItem);
+    const lost = unionLost(ours, theirs, resolved, LINES.join('\n'));
     ck('MERGE — every item line from EITHER side survives the resolution',
       lost.length === 0, lost.map(l => l.slice(0, 90)));
     ck('CONTROL — both sides genuinely carry items, or the union proves nothing',
       itemsOf(ours).length > 0 && itemsOf(theirs).length > 0,
       { ours: itemsOf(ours).length, theirs: itemsOf(theirs).length });
+    ck('and the summary below can actually be computed — this line threw for a '
+      + 'day, which is how a guard fails silently in the only state it matters',
+    Number.isFinite(resolved.length));
     console.log('      merge union: ours ' + itemsOf(ours).length + ' + theirs '
-      + itemsOf(theirs).length + ' -> ' + now.size + ' resolved');
+      + itemsOf(theirs).length + ' -> ' + resolved.length + ' resolved');
   }
 }
 

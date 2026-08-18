@@ -7,7 +7,35 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      # ⚠️ fetch-depth: 0 IS NOT COSMETIC — TWO GUARDS DEPEND ON IT.
+      #
+      # actions/checkout@v4 defaults to fetch-depth: 1, so the runner had ONE
+      # commit and no parents. That silently did two different kinds of damage,
+      # both diagnosed 2026-08-17 from run 32059003700 and run 32055856888:
+      #
+      #   1. IT MADE main RED. test_core_needs_no_reviewer.py's NORMAL-path arm
+      #      shells out to `independent_review.py --base HEAD~1 --head HEAD`.
+      #      HEAD~1 does not resolve on a depth-1 clone, the reviewer refuses an
+      #      empty diff and exits 1, and the assertion "an unavailable NORMAL
+      #      review must stay non-blocking (exit 0)" went red. The test was
+      #      RIGHT and the checkout was wrong: reproduced exactly by cloning
+      #      this repo --depth 1 and running the same command, where the
+      #      reviewer's own refusal text already names the cause ("or the
+      #      checkout is shallow").
+      #
+      #   2. IT MADE A GUARD LIE — the worse half. The merge-completeness step
+      #      below is gated on `git rev-parse -q --verify HEAD^2`. On a depth-1
+      #      clone HEAD^2 never resolves, so on a REAL merge commit the step
+      #      printed "not a merge commit — merge-completeness check N/A" and
+      #      passed. Proven, not inferred: ac4b2253 on main has two parents, and
+      #      its own run printed exactly that line. A half-landed merge could
+      #      not have been caught by the check that exists to catch it — the
+      #      "a check that cannot fail, reported as a check that passed" family.
+      #
+      # Do not remove this. tools/test_ci_checkout_depth.py fails if it goes.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - uses: actions/setup-python@v5
@@ -42,7 +70,18 @@ jobs:
           print('all workflow YAML parses')
           PY
       - name: Python deps
-        run: pip install pytest
+        # numpy + pandas: test_barbell_middle / test_tiered_outcome_model /
+        # test_pbp_two_point import them at collection time, so without them
+        # pytest aborts the WHOLE Python step at collection (exit 2, run
+        # 32038354284) and every other Python suite silently goes unrun.
+        #
+        # 2026-08-18: install from draft/requirements.txt instead of a
+        # hardcoded trio. The hardcoded list WAS the venv-gap class — the
+        # fourth instance (run 32146131568: requests + lxml missing for the
+        # census suites) was only reachable because this line and the
+        # requirements file could drift apart. One source of truth now;
+        # pytest is in the file.
+        run: pip install -r draft/requirements.txt
       # ┌─────────────────────────────────────────────────────────────────────┐
       # │ SESSION A: READ BEFORE EDITING THIS BLOCK (B, 2026-08-10)            │
       # │ The npm-install-ordering bug is ALREADY FIXED here — deps install in │
@@ -145,7 +184,34 @@ jobs:
         # if: always() — independent of the JS suites; a JS failure must not hide a
         # Python regression by skipping this step (the vacuous-CI failure, 2026-08-09).
         if: always()
-        run: python -m pytest draft/tests -q
+        # `tools` IS LISTED SEPARATELY, and the reason is a guard firing.
+        # tools/test_reviewer_schema_strict.py was written into draft/tests/ and
+        # test_core_needs_no_reviewer went red — correctly: draft/** is the
+        # product tree and that file imports the reviewer. The guard allows one
+        # excluded file per tree, so exempting a second would widen exactly what
+        # its CONTROL says cannot widen. The file moved instead; this keeps it
+        # running every build rather than only when the reviewer is invoked.
+        # `-m "not repo_parity"` ADDED 2026-08-17 (A's ruling on the relay's
+        # routed item). The marked nodes are red-by-design against live state
+        # — the ADP-sd ratchet awaiting Cory's rate decision, the freeze
+        # staleness alarm before a re-take — so with them in THIS step main's
+        # CI was permanently red, and a permanently red gate confirms
+        # nothing: B's matchup_placed_bet/trashtalk failures sat unnoticed
+        # for fifteen hours inside the standing red. The pins still run, in
+        # the next step, where their red is VISIBLE but cannot repaint the
+        # whole run. The marked set is pinned to an explicit node list by
+        # test_gate_selection.py, so this exclusion cannot silently widen.
+        run: python -m pytest draft/tests tools -q -m "not repo_parity"
+
+      - name: Standing state alarms — repo_parity pins, allowed red, never silent
+        # These fire when repo/market STATE is new or old, never because a
+        # commit is bad. continue-on-error keeps them from repainting main
+        # red; the log keeps them visible; the silent-skip guard below
+        # verifies this step RAN.
+        id: parity_pins
+        if: always()
+        continue-on-error: true
+        run: python -m pytest draft/tests -q -m "repo_parity"
 
       - name: Baseline regression — live engine vs the FROZEN measured core
         # EVERY RUN, NO FILE FILTER, by explicit instruction. This week's
@@ -186,6 +252,7 @@ jobs:
         run: |
           bash netlify-ignore.test.sh
           bash scripts/territory-check.test.sh
+          bash scripts/integrate_staleness.test.sh
           if git rev-parse -q --verify HEAD^2 >/dev/null; then
             mb=$(git merge-base HEAD^1 HEAD^2)
             echo "merge commit detected — checking completeness (base HEAD^1, source HEAD^2)"
@@ -197,6 +264,73 @@ jobs:
       # A silently-SKIPPED step reads as success. This sentinel runs last, always,
       # and fails if any critical suite step did not actually run (skipped/cancelled)
       # — the guard Cory asked for against a step vanishing rather than failing.
+      - name: Register rechecks — a finding nobody acted on turns this RED
+        # Cory, 2026-08-17: "I feel like we are still make tons of findings but
+        # no one is following up or acting on any of them.. that needs to change."
+        #
+        # He is right, and the relay was the biggest contributor — it filed six
+        # register rows and nine queue items in one evening and acted on almost
+        # none of them. The register ALREADY carried the right field: every row
+        # has an owner and a "recheck MM-DD". Nothing read them. A recheck date
+        # that no build enforces is indistinguishable from a row nobody intends
+        # to look at again.
+        #
+        # Same mechanism this repo already trusts for commitments — a date, and
+        # a check that fires when it passes — pointed at DEFECT-REGISTER.md. One
+        # check covers every finding ever filed, including the ones not written
+        # yet. It fails on exactly one thing: a row still OPEN after the date its
+        # own author promised to look again. Changing the date and saying why is
+        # a legitimate way to clear it. Silence is not.
+        if: always()
+        run: node draft/tools/register_recheck_check.js
+
+      - name: Board freshness — a board older than its own inputs turns this RED
+        # Register 35. The board publishes without its upstream inputs and
+        # NOTHING triggers the rebuild. Twice on 2026-08-18: A's keeper-vorp fix
+        # landed 073aadfc at 03:20:28Z against a board built 02:03:30Z, resolved
+        # only because an unrelated rebuild happened to fire at 03:49; then the
+        # calibration table was regenerated f6acbe76 at 03:59:04Z against that
+        # 03:49:25Z board — 9m39s stale — by a commit whose own message says it
+        # "moves every proj_ceiling/proj_floor/proj_sd on the board."
+        #
+        # The row asks for exactly one thing: "fail a parity check that NAMES the
+        # stale artifact." That check already existed and was already tested —
+        # board_input_staleness.test.js, 14 checks including a control proving it
+        # discriminates rather than always firing. **Nothing ran it against the
+        # LIVE board.** The suite proved the tool works; no step asked the tool
+        # anything. That is the same gap register 28 named in a different place:
+        # a guard that is written but not wired.
+        #
+        # It exits 0 on today's board (built 05:33:24Z, every declared input
+        # older), so wiring it changes nothing until it is right to change
+        # something. When it does fire it prints WHICH input is newer and by how
+        # long, which is the "names the stale artifact" half of the ask.
+        if: always()
+        run: node draft/tools/board_input_staleness.js
+
+      - name: Predictions — graded by their own date, and the grade must CHANGE something
+        # Cory, 2026-08-18: "Still don't think we are making predictions, grading
+        # and closing the loop. No one is in charge of it.."
+        #
+        # He was right about the ownership. Preregistrations were being written and
+        # some were graded, but nothing connected the two or noticed when a grade
+        # never arrived. PREDICTION-LEDGER.md gives every prediction an owner and a
+        # grade-by date; this check is what makes those cost something.
+        #
+        # It fails on TWO things, and the second is the one that matters:
+        #   1. a row past its grade-by date still OPEN — nobody came back for it;
+        #   2. a row marked GRADED whose "what changed" cell is EMPTY. Cory,
+        #      08-17: "a grade that moved nothing." A measurement with no
+        #      consequence is a note, not a closed loop. "NOTHING — <reason>" is a
+        #      real answer and passes; silence does not.
+        #
+        # It does NOT judge whether the prediction was good or the consequence
+        # right — both are human calls. It enforces only that the loop closed.
+        if: always()
+        run: |
+          node draft/tests/prediction_ledger_check.test.js
+          node draft/tools/prediction_ledger_check.js
+
       - name: Commitments — a date, and a check that FIRES if the date passes
         # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
         # draft/data/commitments.json carries a due date AND a verification that
@@ -214,6 +348,18 @@ jobs:
         if: always()
         run: node draft/tools/commitments_check.js
 
+      - name: Lane status — work that exists but main cannot see (REPORT ONLY)
+        # E built this after b26e1713 sat stranded 16h with a league-facing
+        # banner on it, and asked A to wire it (ROUTES 08-17; wired 08-18).
+        # REPORTS ONLY, by design: never merges, never deletes, never fails
+        # the build — `|| true` keeps even a tool crash from failing CI,
+        # because a visibility aid that can redden main becomes a thing
+        # people delete. It prints one line per unmerged branch and a ⚠️
+        # when one looks stranded (3+ commits, 12h+ old). fetch-depth: 0 is
+        # already set for the checkout, so remote branches are visible.
+        if: always()
+        run: git fetch --all --quiet && node draft/tools/lane_status.js || true
+
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()
         # Outcomes are success/failure/skipped/cancelled. A real failure is reported by
@@ -222,7 +368,7 @@ jobs:
         # than run at all — which would otherwise leave the run green-looking.
         run: |
           bad=0
-          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}"; do
+          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}" "ParityPins:${{ steps.parity_pins.conclusion }}"; do
             name="${pair%%:*}"; res="${pair##*:}"
             if [ "$res" = "skipped" ] || [ "$res" = "cancelled" ] || [ -z "$res" ]; then
               echo "SILENT SKIP: the $name suite did not run (conclusion='$res')"; bad=1

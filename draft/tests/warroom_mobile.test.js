@@ -77,6 +77,18 @@ ck('the recommendation is ordered ABOVE THE PLAN and WATCH (rec-to-top)',
   recOrd != null && planOrd != null && watchOrd != null && recOrd < planOrd && recOrd < watchOrd,
   `recs:${recOrd} plan:${planOrd} watch:${watchOrd} — rec must be the smallest`);
 
+// #seat-plan (app.js's seatPlanHost() stopgap, see its comment) was absent from
+// this list entirely until 2026-08-15, so it defaulted to CSS order 0 — lower
+// than EVERY declared host, including .wr-search at order 1 — and rendered
+// first regardless of where app.js anchored it in the DOM (flex `order`
+// overrides DOM position). That buried the recommendation at 1005px on a phone
+// viewport. Guards the same class of regression the rec-to-top check above
+// guards, for the one host that check didn't know to look for.
+const seatOrd = orderOf('seat-plan');
+ck('#seat-plan has an explicit order and does not precede the recommendation',
+  seatOrd != null && recOrd != null && seatOrd >= recOrd,
+  `seat-plan:${seatOrd} recs:${recOrd} — an unordered #seat-plan defaults to 0 and jumps the queue`);
+
 // The duplicate MVS surface stays hidden on the war room (it restated four other
 // surfaces; 302px of noise Cory flagged).
 ck('the duplicate MVS surface is hidden on the war room',

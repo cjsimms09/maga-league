@@ -38,8 +38,11 @@
     // published stdev, or a fit against this league's own prior drafts, and
     // both need the networked build. Until then this is a less-wrong constant,
     // and it is labelled as such rather than presented as calibrated.
-    ADP_SD_FLOOR: 3.0,          // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,          // was 0.22 — see above
+    ADP_SD_FLOOR: 2.0,          // was 3.0 — moved WITH the rate (they bind together
+                                // below pick ~27); band 1-25 reads 0.95x market at this pair
+    ADP_SD_RATE: 0.11,          // was 0.15 — SHIPPED 2026-08-17 on Cory's ruling
+                                // ("SHIP, ORDER BACKTEST AND RESERVE RIGHT TO CHANGE").
+                                // Derivation + band measurements: keepers.py, same block.
     ADP_SD_CAP: 15.0,           // beyond this the curve is flat regardless
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
     BLEND_DECAY: 12,            // picks over which Layer 2's weight decays past the horizon
@@ -79,7 +82,57 @@
     // A man who has taken the same player in two prior drafts will take him
     // again above market. Three straight years is not a coincidence.
     AFFINITY: { 2: 1.7, 3: 2.4, 4: 3.0 },
+    /* ── THE MEASURED ROOM, AS A BASE RATE — GATED, SHIPS OFF ──────────────
+     * draft/backtest/draft_behavior.py forward-tested the room's 2023-24
+     * behavior against its 2025 draft (preregistered in
+     * draft/audit/draft_behavior_2026-08-15.md §2; both criteria passed). The
+     * decomposition is the part that matters: the LEAGUE-level bucket mix +
+     * need term carried the win (position log-loss 1.408 vs 1.479 base), and
+     * the PER-OWNER term made it strictly worse (1.428) — owner signatures do
+     * not detectably persist year over year (mean rho 0.074, perm p=0.56).
+     * So this switch feeds the LEAGUE prior only, never per-owner terms.
+     *
+     * ON by Cory's ruling, 2026-08-16 ("YES on room mix prior, turn it on"),
+     * made with the forward-test evidence and the ≤3.1pp delta measurement
+     * (draft/tools/room_prior_measure.js) in front of him. The gate protocol
+     * is unchanged for other switches: off until ruled. Flipping back false
+     * restores the pure need/value softmax for unprofiled seats. */
+    ROOM_MIX_PRIOR: true,
+    // Blend weight when ON. Deliberately the SAME magnitude as BUCKET_BLEND
+    // above (0.25) — the existing "his observed mix is a rate, not a law"
+    // weight — rather than a new tuned constant.
+    ROOM_MIX_W: 0.25,
+    /* ── OPPONENT-NEED LAYER — measured, ships OFF (Cory's call) ───────────
+     * draft/backtest/opponent_need_model.py graded need-conditioned opponent
+     * tendencies on 213 real pick gaps, 15,650 (gap x player) observations,
+     * walk-forward on this room's 2024-25 drafts with the as-of rule (a
+     * tendency for season Y counts only seasons < Y). Pooled Brier delta
+     * -0.0039 [95% CI -0.0067, -0.0015] vs the engine-form baseline; the
+     * 2025 calibrated-dispersion arm held at -0.0012 [-0.0022, -0.0003];
+     * the 2025 engine-sd slice alone was null (+0.00001 [-0.0033, +0.0030])
+     * — both directions in draft/audit/opponent_need_2026-08-17.md.
+     * Tendencies are measured frequencies (n on every cell, conditional
+     * refused below n=5); artifact: draft/data/opponent_need_2026.json.
+     * Gate stays FALSE until Cory rules; flipping it needs no other change.
+     *
+     * CORY RULED — ON, 2026-08-17 (the take-a-swing ruling, verbatim in
+     * league_config.rookie_capital_prior alongside the other layer it
+     * enabled): "fix this model, even if we need to lower our standards for
+     * this year only... lets at least take a swing." The measured basis for
+     * ON: pooled ΔBrier improved with the CI strictly below zero, never
+     * significantly worse in any slice; the 2025 engine-sd null is stated
+     * above, not hidden. January re-grades with 2026 outcomes. */
+    OPPONENT_NEED_LAYER: true,
+    // Blend weight when ON. Deliberately BUCKET_BLEND / ROOM_MIX_W's existing
+    // 0.25 magnitude — an existing constant reused, not a new tuned one.
+    OPPONENT_NEED_W: 0.25,
     RUN_WINDOW: 10,
+    /* THE "SAFE" THRESHOLD THE LRM STRIP COMMITS TO. Lived as a bare 0.85 inside
+     * `lrmLastSafe` in app.js, which meant the grader had to carry its own copy
+     * of the number it grades against — the two would agree until somebody tuned
+     * one. It is the strip's only quantitative claim, so it belongs where both
+     * the claim and its resolution can read it. */
+    LRM_SAFE_P: 0.85,
     RUN_DAMPING: 0.5,
     RUN_MIN: 0.6,
     RUN_MAX: 1.8,
@@ -110,6 +163,28 @@
     const idx = Math.min(curve.length - 1, Math.max(0, Math.floor(progress * curve.length)));
     return curve[idx];
   }
+
+  /* THE ROOM'S MEASURED POSITIONAL MIX BY ROUND BUCKET — 377 non-keeper
+   * decisions, 2023-25, keeper-corrected (2023's flags live in a parallel
+   * draft; a flag-only count silently includes 30 keeper placements).
+   *
+   * Copied from draft/data/draft_behavior.json `league_bucket_mix` and
+   * DRIFT-GUARDED: room_prior.test.js re-reads the artifact and fails if these
+   * numbers no longer match it, so the copy cannot rot silently (the no-retype
+   * rule, enforced by a test rather than a comment).
+   *
+   * Buckets are the ARTIFACT's: early r1-3, mid r4-9, late r10-15. Note the
+   * artifact's mid boundary (<=9) differs from bucketMix's profile boundary
+   * (<=8) above — the prior uses the boundary its own data was measured on.
+   * `early` is n=18 (rounds 1-3 are keeper rounds in this league), so the
+   * prior is thin exactly where 2026's board will also be keeper-dominated;
+   * mid and late carry n=178 and n=180. Consumed ONLY behind
+   * CFG.ROOM_MIX_PRIOR (ships false). */
+  const LEAGUE_MIX = {
+    early: { QB: 0.0556, RB: 0.5,    WR: 0.4444, TE: 0,      K: 0,      DEF: 0 },
+    mid:   { QB: 0.1067, RB: 0.3202, WR: 0.4438, TE: 0.1236, K: 0,      DEF: 0.0056 },
+    late:  { QB: 0.1222, RB: 0.2556, WR: 0.2111, TE: 0.0833, K: 0.1722, DEF: 0.1556 },
+  };
 
   // ---- shared math ----
   function erf(x) {
@@ -193,9 +268,64 @@
     return adpSd(adpOf(p), p.adp_sd) * (d && d.applied ? d.sdScale : 1);
   }
 
+  /* ⚠️ BOARD SLOTS AND SELECTIONS ARE TWO SCALES AND THIS FILE USED ONLY ONE.
+   *
+   * `adpOf` returns `adjusted_adp`, which counts SELECTIONS — keepers.py maps
+   * market ADP onto the live sequence, with kept players removed from the
+   * numbering. Every pick number handed to this module is a BOARD SLOT, keeper
+   * slots included. They were compared directly.
+   *
+   * keepers.py already has the converter and REFUSES rather than defaulting:
+   *
+   *     live_index_of: no board rows. REFUSING to fall back to the pick number
+   *     — that is exactly the scale confusion this exists to fix.
+   *
+   * `grab_by.py:233` calls it. This file had ZERO conversions — grep for
+   * `live_index` in it returned 0. One rule, implemented on one side.
+   *
+   * MEASURED COST at my first pick, board slot 33:
+   *
+   *                        today (3 keepers)     after keeper lock (17)
+   *     live index of 33         30                      15
+   *     Josh Allen          4.0% vs 1.5%           61.8% vs 1.5%
+   *     A.J. Brown          0.0% vs 0.0%           95.9% vs 0.0%
+   *     Nico Collins        0.2% vs 0.0%           97.4% vs 0.0%
+   *
+   * Small today because only my three keepers are on the board. THE SLATE LOCKS
+   * 20 AUGUST AND THE DRAFT IS THE 22nd, so the live error on the night is the
+   * right-hand column: the board says a 96%-available receiver is certainly
+   * gone. It understates survival, which manufactures urgency and makes the
+   * tool reach.
+   *
+   * B reported "Josh Allen reads 98% where he should read 61%". The mechanism B
+   * named was a different defect (applySlot, fixed separately) — but 61% is
+   * this one's correct post-lock answer, to a tenth.
+   */
+  /** Observable counters, so "did the conversion actually run" is a fact a test
+   *  and a surface can read rather than a thing anyone assumes. */
+  const SCALE = { converted: 0, unconverted: 0 };
+  function liveIndexOf(boardPick, ctx) {
+    const rows = (ctx && ctx.pickBoard) || null;
+    if (!rows || !rows.length) {
+      // NOT a silent identity. keepers.py refuses here; refusing in the browser
+      // would blank the war room mid-draft, so this converts by identity AND
+      // records that it did, so a surface can say the scale is unconverted
+      // instead of quietly showing numbers from the wrong one.
+      SCALE.unconverted += 1;
+      return boardPick;
+    }
+    SCALE.converted += 1;
+    let n = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r.keeper_slot && Number(r.overall) <= boardPick) n += 1;
+    }
+    return n;
+  }
   // =============================================== Layer 1 — ADP baseline
   function layer1Taken(player, pick, ctx) {
-    return normalCdf(pick, effectiveAdp(player, ctx), effectiveSd(player, ctx));
+    return normalCdf(liveIndexOf(pick, ctx),
+                     effectiveAdp(player, ctx), effectiveSd(player, ctx));
   }
 
   /**
@@ -208,9 +338,36 @@
    * produces. Bayes:  P(taken by n | survived to c) = (F(n) - F(c)) / (1 - F(c))
    */
   function layer1TakenGivenAvailable(player, pick, currentPick, ctx) {
+    /* ⚠ AN EMPTY WINDOW CONTAINS NO PICKS, AND THIS CHECK MUST COME BEFORE THE
+     * FAR-TAIL GUARD BELOW — the ordering was THE 41% WALL (Cory's capture,
+     * 2026-08-17: every fallen elite at every position printing one identical
+     * "gone by your next pick" number).
+     *
+     * The chain: survivalProbability's remainder leg asks for P(taken between
+     * windowEnd and targetPick | alive at windowEnd), and whenever Layer 2
+     * covers the whole window those two picks are EQUAL — the window is
+     * [48, 48), zero picks, so the true conditional is
+     * (F(48) − F(48)) / (1 − F(48)) = 0. But every player 25+ picks past his
+     * ADP has F ≥ 0.999 at ANY current pick, so the guard fired first and
+     * returned 1: "certainly taken inside a window in which nobody picks".
+     * That single impossibility multiplied survival by zero —
+     * 1 − survivesWindow × (1 − 1) = 1 — so the ROOM model's differentiated
+     * answer (Layer 2, which genuinely splits these players) was computed and
+     * then discarded for exactly the players the shortlist leads with. Every
+     * fallen player's raw survival became EXACTLY 0, the conservation tilt got
+     * identical weights w_i = 1, and exp(−λ·1) handed them all one number.
+     * Pinned by survival_fallen_uniform.test.js, which reproduces the board
+     * state from the capture. */
+    if (currentPick != null && currentPick > 0 && pick <= currentPick) return 0;
     const fN = layer1Taken(player, pick, ctx);
     if (currentPick == null || currentPick <= 0) return fN;
     const fC = layer1Taken(player, currentPick, ctx);
+    /* Far past his ADP over a REAL (non-empty) window, the guard is the honest
+     * limit of this model, not a shortcut: P(alive at n | alive at c) for a
+     * normal is Q(z_n)/Q(z_c) ≈ exp(−(z_n²−z_c²)/2)·(z_c/z_n), which is ~0 for
+     * any n > c once z_c ≥ 3 — the market model genuinely converges to "gone",
+     * and the float arithmetic underflows (0/0) before the formula can say so.
+     * The same test proves the convergence with this closed form. */
     if (fC >= 0.999) return 1;           // he should already be gone; treat as gone
     return Math.max(0, Math.min(1, (fN - fC) / (1 - fC)));
   }
@@ -327,6 +484,46 @@
     return out;
   }
 
+  /* ── OPPONENT-NEED LAYER helper (GATED — dead code while the flag is off) ─
+   * Consumes draft/data/opponent_need_2026.json (ctx.opponentNeed, loaded by
+   * app.js alongside the other artifacts). The artifact ships RAW COUNTS, not
+   * baked rates, because need states change with every pick: the n>=cond_floor
+   * conditional and the fallback chain (owner-conditional -> owner
+   * unconditioned -> league bucket) are evaluated HERE against the seat's
+   * LIVE roster — the same chain the backtest measured. Returns a normalised
+   * {pos: p} or null when the seat cannot be resolved to an owner (seats are
+   * unassigned until Sleeper locks the order — the War Room's own stated
+   * truth; an unresolved seat gets NO tilt rather than a guessed one). */
+  function opponentNeedDist(artifact, ownerKey, round, roster, keys) {
+    var owners = artifact && artifact.owner_tendency_counts_2026;
+    var league = artifact && artifact.league_tendencies_2026;
+    if (!owners || !league || !ownerKey || !round) return null;
+    var floor = artifact.cond_floor || 5;
+    var bucket = round <= 3 ? 'early' : (round <= 9 ? 'mid' : 'late');
+    var ob = owners[ownerKey] && owners[ownerKey][bucket];
+    var lb = league[bucket];
+    var starters = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
+    var out = {}, tot = 0;
+    keys.forEach(function (pos) {
+      var filled = (roster || []).filter(function (r) { return r.position === pos; }).length;
+      var bit = filled < (starters[pos] || 0) ? 'open' : 'filled';
+      var rate = 0;
+      var cell = ob && ob[pos];
+      if (cell && cell[bit] && cell[bit].n >= floor) {
+        rate = cell[bit].take / cell[bit].n;
+      } else if (cell && cell.uncond && cell.uncond.n >= floor) {
+        rate = cell.uncond.take / cell.uncond.n;
+      } else if (lb && lb[pos] && lb[pos].n > 0) {
+        rate = lb[pos].take / lb[pos].n;
+      }
+      out[pos] = rate;
+      tot += rate;
+    });
+    if (!(tot > 0)) return null;
+    keys.forEach(function (pos) { out[pos] /= tot; });
+    return out;
+  }
+
   function positionProbabilities(team, board, ctx) {
     const league = ctx.league || {};
     const starters = league.starters || {};
@@ -396,11 +593,47 @@
     keys.forEach(k => { const e = Math.exp(utility[k] - max); out[k] = e; sum += e; });
     keys.forEach(k => { out[k] /= sum; });
 
+    const round = roundOf(team.pick_no, (league.teams || 10));
+
+    // ---- the measured room, as a base rate (GATED — ships off) ------------
+    // Blended, never substituted: the room's 2023-25 bucket mix is a rate over
+    // a few hundred picks, and the need/value softmax above still carries the
+    // live roster. Weight matches BUCKET_BLEND's magnitude. Applied BEFORE the
+    // per-owner tilts so a profiled seat's own evidence still acts on top —
+    // the forward test's decomposition (audit doc §3) is why the LEAGUE prior
+    // is the only thing this switch feeds.
+    if (CFG.ROOM_MIX_PRIOR && round) {
+      const bucket = round <= 3 ? 'early' : (round <= 9 ? 'mid' : 'late');
+      const prior = LEAGUE_MIX[bucket];
+      if (prior) {
+        const w = CFG.ROOM_MIX_W;
+        let total = 0;
+        keys.forEach(k => { out[k] = (1 - w) * out[k] + w * (prior[k] || 0); total += out[k]; });
+        if (total > 0) keys.forEach(k => { out[k] /= total; });
+      }
+    }
+
+    // ---- the measured opponent-need tendency (GATED — ships off) ----------
+    // Blended exactly where ROOM_MIX_PRIOR blends, and with the same 0.25
+    // magnitude, AFTER the room prior and BEFORE the per-owner tilts. The
+    // seat's owner key comes from the live draft object's seat mapping
+    // (team.owner_first, set by app.js once Sleeper assigns the order);
+    // unmapped seats get no tilt.
+    if (CFG.OPPONENT_NEED_LAYER && round && ctx.opponentNeed) {
+      const needT = opponentNeedDist(ctx.opponentNeed, team.owner_first, round,
+                                     roster, keys);
+      if (needT) {
+        const wN = CFG.OPPONENT_NEED_W;
+        let totN = 0;
+        keys.forEach(k => { out[k] = (1 - wN) * out[k] + wN * (needT[k] || 0); totN += out[k]; });
+        if (totN > 0) keys.forEach(k => { out[k] /= totN; });
+      }
+    }
+
     // ---- what his own past drafts say -------------------------------------
     // Applied AFTER the softmax, as bounded multipliers on a proper
     // distribution, then renormalised. Doing it inside the utility would let a
     // tendency compound with the exponential and run away.
-    const round = roundOf(team.pick_no, (league.teams || 10));
     if (profile && round) {
       const mix = bucketMix(profile, round);
       let total = 0;
@@ -959,7 +1192,10 @@
   }
 
   // ======================== Layer 3 — live Bayesian run detection (hazard) ====
-  function runMultipliers(recentPicks, board, currentPick) {
+  // `ctx` is OPTIONAL and last so no existing caller breaks. Without it
+  // liveIndexOf converts by identity and increments SCALE.unconverted, which is
+  // the pre-fix behaviour made VISIBLE rather than silently retained.
+  function runMultipliers(recentPicks, board, currentPick, ctx) {
     const out = {};
     if (!recentPicks || recentPicks.length < 4) return out;
     const window = recentPicks.slice(-CFG.RUN_WINDOW);
@@ -972,8 +1208,13 @@
     const expected = {};
     let expTotal = 0;
     (board || []).forEach(pl => {
-      const mass = normalCdf(currentPick, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd))
-        - normalCdf(start, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd));
+      // SAME SCALE FIX. This estimates how many players of each position the
+      // room "should" have taken between two picks; both bounds are board slots
+      // and adpOf is on the selection scale, so the window was measured in the
+      // wrong units and the drift correction inherited it.
+      const liveNow = liveIndexOf(currentPick, ctx), liveStart = liveIndexOf(start, ctx);
+      const mass = normalCdf(liveNow, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd))
+        - normalCdf(liveStart, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd));
       if (mass > 0) {
         expected[pl.position] = (expected[pl.position] || 0) + mass;
         expTotal += mass;
@@ -1304,19 +1545,348 @@
     return out;
   }
 
-  const api = { expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
+  /* ══ GRADING THE SURVIVAL CALL — the cheapest closed loop we have ═══════
+   *
+   * Cory: *"close the loop to actually grade these and find useful info wherever
+   * we can."* `loop_closure.js` measured seven claims the model makes and never
+   * learns from. This closes the one with the shortest feedback cycle and the
+   * highest leverage:
+   *
+   *   · SHORTEST — a survival call names a pick. Within a handful of picks the
+   *     player is either still on the board or he is not. It does not wait for a
+   *     week, a season, or a payout. **The draft itself grades it.**
+   *   · HIGHEST LEVERAGE — survival drives `expectedBestAvailable`, which is
+   *     VONA, which is 62% of what moves the composite. Grading survival is
+   *     grading the input Cory said has to be locked solid.
+   *
+   * ── WHY BRIER AND NOT ACCURACY ────────────────────────────────────────
+   *
+   * These are PROBABILITIES, not calls. "He survives with p=0.7" is not wrong
+   * when he goes; it is wrong only if 0.7 was the wrong number. Accuracy would
+   * reward a model that said 1.0 or 0.0 about everything and punish an honest
+   * 0.7 — the opposite of what we want. The Brier score, mean (p − outcome)²,
+   * is minimised by reporting your true belief, so it cannot be gamed by
+   * overconfidence.
+   *
+   * A BASELINE SHIPS WITH IT, because a Brier score alone is unreadable. The
+   * comparison is against always predicting the observed base rate: beat that
+   * and the model knows something about WHICH player survives, not merely how
+   * many do. `skill` is the fraction of that baseline's error removed — positive
+   * is real information, zero is "no better than counting", negative is worse
+   * than knowing nothing.
+   *
+   * ── WHAT IT DELIBERATELY REFUSES ──────────────────────────────────────
+   *
+   * A capture whose `to_pick` has not been reached yet is NOT resolved as a
+   * survival. Absence of a pick is not evidence he lasted; it is evidence the
+   * draft has not got there. Resolving early would score every open prediction
+   * as a correct "survived" and manufacture a flawless model.
+   */
+  function resolveSurvival(captures, opts) {
+    /* NOT NAMED `ctx`, DELIBERATELY. The app-wiring seam guard scrapes
+     * `ctx.<field>` reads out of the engine modules and requires the live
+     * `context()` to supply every one of them — so calling this parameter `ctx`
+     * made the guard demand that `context()` provide `picks`, which it neither
+     * does nor should. This is a pick LOG passed by one caller, not the shared
+     * draft context, and the two must not share a name. The guard was right. */
+    opts = opts || {};
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.player_id != null;
+    });
+    // How far the draft has actually got. A capture cannot be graded past it.
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+
+    const out = [];
+    (captures || []).forEach(function (cap) {
+      const payload = cap.payload || cap;
+      const toPick = Number(payload.to_pick);
+      const fromPick = Number(cap.pick != null ? cap.pick : payload.from_pick);
+      const estimates = payload.estimates || [];
+      if (!isFinite(toPick) || !estimates.length) return;
+      if (reached < toPick) return;                 // not yet resolvable — say nothing
+
+      /* ⚠ THE BOUNDARY AT `to_pick` IS THE ONE THAT MATTERED, AND I HAD IT
+       * BACKWARDS. This read `n <= toPick`, so a player taken AT to_pick scored
+       * as "did not survive".
+       *
+       * But `to_pick` is CORY'S OWN NEXT PICK (`myNextTurn()`) — nobody else can
+       * pick there. So the only way a player is taken AT to_pick is that he was
+       * still on the board when Cory's turn came and CORY DRAFTED HIM. That is
+       * the survival call coming TRUE, scored as a miss.
+       *
+       * And it is biased, not merely wrong: the players Cory actually drafts are
+       * the ones the model rated highest and predicted would last. Every
+       * successful recommendation would have been recorded as a survival failure,
+       * so the Brier score would look worst exactly where the model was right.
+       *
+       * Survived to pick N means: still there when my turn at N came up — i.e.
+       * not taken at any pick STRICTLY BEFORE N. */
+      const takenInWindow = {};
+      picks.forEach(function (p) {
+        const n = Number(p.overall);
+        if (n > fromPick && n < toPick) takenInWindow[String(p.player_id)] = n;
+      });
+
+      const results = estimates.map(function (e) {
+        const gone = Object.prototype.hasOwnProperty.call(takenInWindow, String(e.player_id));
+        const outcome = gone ? 0 : 1;               // 1 = survived
+        const p = Math.max(0, Math.min(1, Number(e.survival)));
+        return { player_id: String(e.player_id), position: e.position || null,
+          predicted: p, survived: outcome,
+          taken_at: gone ? takenInWindow[String(e.player_id)] : null,
+          sq_error: Math.round((p - outcome) * (p - outcome) * 1e6) / 1e6 };
+      }).filter(function (r) { return isFinite(r.predicted); });
+      if (!results.length) return;
+
+      const n = results.length;
+      const brier = results.reduce(function (s, r) { return s + r.sq_error; }, 0) / n;
+      const base = results.reduce(function (s, r) { return s + r.survived; }, 0) / n;
+      // The base-rate forecaster predicts `base` for everyone, every time.
+      const baseBrier = results.reduce(function (s, r) {
+        return s + (base - r.survived) * (base - r.survived);
+      }, 0) / n;
+      // SKILL IS UNDEFINED, NOT ZERO, WHEN THE BASELINE IS PERFECT. If every
+      // player survived, base is 1 and the baseline scores 0 — there is nothing
+      // to improve on and a ratio would divide by zero. Reporting 0 there would
+      // read as "no skill" when the truth is "this round cannot show skill".
+      const skill = baseBrier > 1e-9
+        ? Math.round((1 - brier / baseBrier) * 1000) / 1000 : null;
+
+      out.push({ method: 'survival-resolver-v1',
+        payload: { from_pick: fromPick, to_pick: toPick, n: n,
+          brier: Math.round(brier * 1e6) / 1e6,
+          base_rate: Math.round(base * 1000) / 1000,
+          baseline_brier: Math.round(baseBrier * 1e6) / 1e6,
+          skill: skill,
+          skill_note: skill === null
+            ? 'undefined: every player resolved the same way, so the base rate is '
+              + 'already perfect and there is nothing for the model to improve on'
+            : 'fraction of the base-rate forecaster\'s error removed; 0 = no better '
+              + 'than counting, negative = worse than knowing nothing',
+          results: results } });
+    });
+    return out;
+  }
+
+  /* ══ GRADING THE RUN CALL ═══════════════════════════════════════════════
+   *
+   * The second draft-day loop, and it grades another VONA input: run
+   * multipliers feed `survivalProbability`, so a run call that is wrong makes
+   * every survival number downstream of it wrong too.
+   *
+   * THE CLAIM: "position P is going faster than usual right now" — `detectRuns`
+   * fires when the multiplier clears RUN_BANNER_AT. Within a few picks the room
+   * either kept taking that position or it did not.
+   *
+   * ── THE BASELINE IS THE TRAP, AND IT IS WHY THIS IS NOT "after vs before" ──
+   *
+   * The obvious grade is "did P go faster AFTER the call than BEFORE it". That
+   * is biased against the model by construction: the call FIRES because P just
+   * went fast, so the before-window is elevated by selection and regression to
+   * the mean alone would score most correct calls as failures. It is the same
+   * shape as the survival boundary bug — a comparison that looks neutral and
+   * systematically punishes the model for the cases it fired on.
+   *
+   * So the baseline is the position's share of THE WHOLE DRAFT SO FAR: how often
+   * this position normally goes in this room, measured on this draft, unaffected
+   * by the window that triggered the call.
+   *
+   * ── AND THE MULTIPLIER IS REPORTED, NOT SCORED ────────────────────────────
+   *
+   * A multiplier of 1.6 claims more than 1.4 does. But nothing here knows what
+   * excess a 1.6 SHOULD produce, and inventing a mapping now would be fitting a
+   * curve to zero observations. Each row carries the multiplier beside the
+   * measured excess so the relationship becomes measurable once there are rows —
+   * and stays honestly unasserted until then.
+   *
+   * The forward window is RUN_WINDOW, the same horizon `runMultipliers` looks
+   * BACK over. Grading a 10-pick detector on a 3-pick future would measure the
+   * window, not the call.
+   */
+  function resolveRun(captures, opts) {
+    opts = opts || {};
+    const W = opts.window || CFG.RUN_WINDOW;
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.position;
+    });
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+
+    const out = [];
+    (captures || []).forEach(function (cap) {
+      const at = Number(cap.pick);
+      const positions = ((cap.payload || cap).positions) || [];
+      if (!isFinite(at) || !positions.length) return;
+      if (reached < at + W) return;             // window not complete — say nothing
+
+      const before = picks.filter(function (p) { return Number(p.overall) < at; });
+      // A baseline off three picks is not a baseline. Refuse rather than divide
+      // by a number that cannot mean anything.
+      if (before.length < W) return;
+      const after = picks.filter(function (p) {
+        const n = Number(p.overall); return n > at && n <= at + W;
+      });
+      if (!after.length) return;
+
+      const share = function (list, pos) {
+        return list.filter(function (p) { return p.position === pos; }).length / list.length;
+      };
+      const results = positions.map(function (row) {
+        const b = share(before, row.position), o = share(after, row.position);
+        return { position: row.position, multiplier: row.multiplier,
+          baseline_rate: Math.round(b * 1000) / 1000,
+          observed_rate: Math.round(o * 1000) / 1000,
+          excess: Math.round((o - b) * 1000) / 1000,
+          continued: o > b };
+      });
+      const nCont = results.filter(function (r) { return r.continued; }).length;
+      out.push({ method: 'run-resolver-v1',
+        payload: { at_pick: at, window: W, n_before: before.length, n_after: after.length,
+          positions: results, n_called: results.length, n_continued: nCont,
+          baseline_note: 'baseline is the position\'s share of the whole draft before '
+            + 'the call, NOT the window that triggered it — an after-vs-before '
+            + 'comparison is biased against a detector that fires on a spike',
+          multiplier_note: 'the multiplier is recorded beside the measured excess, '
+            + 'not scored against it: no mapping from multiplier to expected excess '
+            + 'has been established, and inventing one on zero rows would be fitting' } });
+    });
+    return out;
+  }
+
+  /* ══ RESOLVE THE LAST-RESPONSIBLE-MOMENT CALLS ═════════════════════════
+   *
+   * The LRM strip makes the most actionable claim on the war room: "startable QB
+   * safe until pick 73". It has been CAPTURED since decision-capture went in
+   * (`PredLedger.lrm`, method `survival-snapshot-v0`) and GRADED BY NOTHING —
+   * one of four open loops, and the one that resolves entirely inside the draft.
+   * If it is not closed before 22 August the evidence is not recoverable later,
+   * which is the same shape as the in-season capture gap.
+   *
+   * ── WHY THIS IS A HIT RATE AND NOT A BRIER SCORE ───────────────────────
+   *
+   * `resolveSurvival` scores probabilities, so Brier is right there. An LRM call
+   * is NOT a probability — it is a DEADLINE produced by thresholding one at 0.85.
+   * The only number the strip commits to is that threshold, so the honest grade
+   * is: of the calls that said "safe until N", how often was somebody from that
+   * pool actually still there at N? That rate belongs against 0.85, and a gap
+   * between them is calibration evidence rather than a bug.
+   *
+   * ── WHAT COUNTS AS THE CALL COMING TRUE ────────────────────────────────
+   *
+   * The claim is about the POOL, not the named target: the strip says a startable
+   * option survives, and names one only so the reader can check it. So a call
+   * hits when ANY member of the pool it was computed over is still undrafted when
+   * pick N arrives. The capture stores the pool ids for exactly this reason; a
+   * capture without them is skipped rather than graded against the target alone,
+   * because grading the named man would be a harder claim than the one made.
+   *
+   * SAME BOUNDARY AS `resolveSurvival`, and for the same reason: `by_pick` is
+   * one of CORY'S OWN picks, so a player taken AT it was taken BY HIM — the call
+   * coming true. Strictly-before is the test.
+   */
+  function resolveLrm(captures, opts) {
+    opts = opts || {};                    // never `ctx` — see resolveSurvival
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.player_id != null;
+    });
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+    const takenAt = {};
+    picks.forEach(function (p) { takenAt[String(p.player_id)] = Number(p.overall); });
+
+    const rows = [], noDeadline = [];
+    (captures || []).forEach(function (cap) {
+      const payload = cap.payload || cap;
+      const list = payload.last_responsible_moment || [];
+      const from = Number(cap.pick != null ? cap.pick : payload.from_pick);
+      list.forEach(function (r) {
+        ['startable', 'elite'].forEach(function (band) {
+          /* ⚠ `Number(null)` IS 0 AND `isFinite(0)` IS TRUE, so my first version
+           * graded a NULL DEADLINE as a deadline of pick 0 — which every pool
+           * trivially survives, scoring a free HIT. Measured on a constructed
+           * case: a TE row with `elite_by: null` came back "by 0 · HIT".
+           *
+           * A null here is not a deadline at all. It is the strip saying "elite
+           * tier gone — there is no safe moment left", which is a DIFFERENT claim
+           * and a real one. Counting it as a satisfied deadline would inflate the
+           * hit rate exactly where the model admitted it had nothing to offer.
+           * Skipped and COUNTED, so it shows up as unresolved rather than
+           * disappearing into the numerator. */
+          const raw = r[band + '_by'];
+          if (raw == null) { noDeadline.push({ position: r.position, band: band }); return; }
+          const by = Number(raw);
+          const pool = r[band + '_pool_ids'];
+          if (!isFinite(by) || by <= 0 || !Array.isArray(pool) || !pool.length) return;
+          if (reached < by) return;                  // not resolvable yet
+          const alive = pool.filter(function (id) {
+            const n = takenAt[String(id)];
+            return !(n != null && n > from && n < by);
+          });
+          rows.push({
+            position: r.position, band: band, from_pick: from, by_pick: by,
+            pool_size: pool.length, survivors: alive.length,
+            hit: alive.length > 0,
+            target: r[band + '_target'] || null,
+          });
+        });
+      });
+    });
+
+    const n = rows.length;
+    const hits = rows.filter(function (r) { return r.hit; }).length;
+    return {
+      n: n,
+      hits: hits,
+      hit_rate: n ? hits / n : null,
+      /* THE NUMBER THE STRIP COMMITTED TO. Reported beside the outcome so the
+       * comparison is the reader's, not a verdict I baked in. */
+      implied: CFG.LRM_SAFE_P,
+      calibration_gap: n ? (hits / n) - CFG.LRM_SAFE_P : null,
+      by_band: ['startable', 'elite'].map(function (b) {
+        const sub = rows.filter(function (r) { return r.band === b; });
+        return { band: b, n: sub.length,
+          hits: sub.filter(function (r) { return r.hit; }).length,
+          hit_rate: sub.length ? sub.filter(function (r) { return r.hit; }).length / sub.length : null };
+      }),
+      rows: rows,
+      /* THE "NO SAFE MOMENT LEFT" CALLS, kept apart from the scored ones. They
+       * are a real claim and a gradeable one, but not THIS grade — folding them
+       * in would credit the model for the calls where it offered no deadline. */
+      no_deadline: noDeadline,
+      /* A NULL IS NOT A SCORE. Nothing resolvable yet means exactly that, and
+       * the caller must not read `hit_rate: null` as a failure. */
+      resolvable: n > 0,
+    };
+  }
+
+  const api = { resolveSurvival, resolveRun, resolveLrm,
+    expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
     layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,
     positionProbabilities, withinPositionProbability, withinFromPool,
     runMultipliers, detectRuns, layer2Weight, withinPrecision,
     roundOf, tendencyTilt, bucketMix, openingTilt, runFollowTilt,
+    // The gated room prior's data — exported so room_prior.test.js can hold it
+    // against draft/data/draft_behavior.json (the drift guard).
+    LEAGUE_MIX,
     affinityMultiplier, tendencyReasons,
     roomMixture,
     survivalProbability,
     positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
     bumpBoard, boardVersion,
     conservedSurvival, solveTilt,
+    // THE SCALE CONVERTER AND ITS COUNTERS, EXPORTED ON PURPOSE. "Did the
+    // board-slot -> live-selection conversion actually run" must be a fact a
+    // test and a surface can read, not a thing anyone assumes. `SCALE` is the
+    // live evidence: unconverted > 0 with a pick board present means the
+    // context is not being threaded and every survival number is on the wrong
+    // scale, which is exactly how this defect survived until 2026-08-14.
+    liveIndexOf, SCALE,
   };
   global.DraftSurvival = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

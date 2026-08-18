@@ -65,6 +65,53 @@ const PRODUCTION_INPUTS = {
   'draft-config.json': 'Draft-day configuration.',
   'state.json': 'Slot-picker UI state.',
   'ledger.csv': 'The decision ledger export.',
+  'player_positions.json': 'Ground-truth id -> position, union-over-builds, never '
+    + 'pruned. Fallback for inferPositions() (src/routes/lineup.js) on players the '
+    + 'starters-array heuristic cannot classify — anyone who only ever started in a '
+    + 'FLEX-type slot. About real historical rosters of THIS league, same as '
+    + 'league_history.json, not a future-season signal.',
+  'controls.json': 'Cory\'s adaptation controls for the weekly own-projection '
+    + 'loop (draft/data/weekly_own/) — read by /admin/model-scoreboard to '
+    + 'DISPLAY adaptation state (the same page reads grades_<season>.json via '
+    + 'a templated name for the scoreboard numbers). Cory-only display; never '
+    + 'an input to a ranking or a member surface. Declared 2026-08-16 with '
+    + 'the weekly-own loop.',
+  'conditional_value_2026.json': 'The stack+handcuff premiums for CORY\'S '
+    + 'keeper roster — PROMOTED FROM RESEARCH TO DISPLAY BY CORY\'S RULING, '
+    + '2026-08-17 (verbatim: "Yes!"), on the evidence in '
+    + 'draft/audit/conditional_value_2026-08-16.md. This is exactly the '
+    + '"decision with a name on it" this file requires: the war room prints '
+    + 'the premium as its own labelled chip BESIDE board value (the queued '
+    + 'doc\'s contract — each printed separately). DISPLAY ONLY: the engine, '
+    + 'composite, VORP and build never read it, pinned by '
+    + 'test_conditional_value.py\'s scoring-side gate. The header\'s own '
+    + 'warning ("a displayed number on a decision surface IS an input, '
+    + 'because Cory reads it while picking") is TRUE here and is the point — '
+    + 'Cory ruled to read it.',
+  'opponent_need_2026.json': 'Need-conditioned opponent pick tendencies for '
+    + 'THIS league, fitted on its own 2023-25 drafts (league_history.json) by '
+    + 'draft/backtest/opponent_need_model.py — declared 2026-08-17 when the '
+    + 'survival need-tilt landed. NOT display-only and declared as such: '
+    + 'survival.js (CFG.OPPONENT_NEED_LAYER) tilts pick-survival odds with it, '
+    + 'on the measured evidence in draft/audit/opponent_need_2026-08-17.md '
+    + '(Brier −0.0039 vs base, cluster-bootstrap CI95 [−0.0067, −0.0015], '
+    + 'excluding zero) — pinned by test_opponent_need.py and registered in '
+    + 'artifact_registry.json (id: opponent_need_2026). Degrades honestly: a '
+    + 'missing artifact means the blend runs WITHOUT the tilt, never a '
+    + 'guessed one.',
+  'expert_spread_2026.json': 'Observed 2026 preseason expert-rank disagreement '
+    + '(FantasyPros, ~200 experts) — DISPLAY BADGE ordered by A 2026-08-18 on '
+    + 'Cory\'s ruling ("Yes! Best way to implement this data into our model??") '
+    + 'after the skill grading proved the flat consensus is already the '
+    + 'optimal ranking, so the experts\' remaining value is WHERE THEY SPLIT. '
+    + 'Read by app.js (loadExpertSpread) and rendered via '
+    + 'public/js/draft/expert_spread.js — DISPLAY ONLY, same contract as '
+    + 'conditional_value_2026.json above: engine.js/composite.js/valuation.js/'
+    + 'survival.js never read it (nothing in expert_spread.js touches a rank, '
+    + 'a score or a dollar), pinned by expert_spread_display.test.js\'s own '
+    + 'ratio-not-raw-spread and reliability-floor checks. The badge prints a '
+    + 'FACT ("experts split"), never the spread number itself, in THE PICK\'s '
+    + 'name and alternatives.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not

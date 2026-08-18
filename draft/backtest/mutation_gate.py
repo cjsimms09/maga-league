@@ -11,7 +11,7 @@ reported a collection ERROR instead of a test failure, the grep for
 `^FAILED|passed|failed` matched nothing, and the harness printed nothing at all.
 Silence is indistinguishable from survival, and I nearly recorded it as one.
 
-SEVEN WAYS A MUTATION RUN LIES, each refused here by name:
+EIGHT WAYS A MUTATION RUN LIES, each refused here by name:
 
   INVALID_BASELINE    the suite was already red; its own failure is credited to
                       the mutation and every kill in the batch is unearned — OR
@@ -25,6 +25,9 @@ SEVEN WAYS A MUTATION RUN LIES, each refused here by name:
   INVALID_COLLECTION  tests disappeared, so fewer failures means fewer TESTS
   SURVIVED (wrong)    something unrelated broke and the kill is credited to an
                       assertion that never fired
+  MUST_FAIL_NOT_COLLECTED  the named test does not exist under these paths, so it
+                      can never be among the failures and the verdict could only
+                      ever be SURVIVED — a stale name reported as a coverage hole
 
 KILLED requires ALL of: green baseline, target present AND UNIQUE, mutant
 compiles, collection count unchanged, and THE NAMED TEST among the failures.
@@ -52,7 +55,7 @@ from pathlib import Path
 
 #: Verdicts that mean "this run proved nothing" — never a kill, never a survival.
 INVALID = ("INVALID_BASELINE", "TARGET_NOT_FOUND", "AMBIGUOUS_TARGET",
-           "INVALID_SYNTAX", "INVALID_COLLECTION")
+           "INVALID_SYNTAX", "INVALID_COLLECTION", "MUST_FAIL_NOT_COLLECTED")
 
 #: WHERE AN IN-FLIGHT MUTATION IS DECLARED, so that a run which is KILLED rather
 #: than finished cannot leave a mutant behind in a working tree.
@@ -68,7 +71,49 @@ INVALID = ("INVALID_BASELINE", "TARGET_NOT_FOUND", "AMBIGUOUS_TARGET",
 #: Deliberately OUTSIDE the repository. A marker inside the tree is one `git add
 #: -A` away from being committed, which is the failure it exists to prevent. It
 #: lives for the duration of one mutation and is removed on every exit path.
-JOURNAL = Path(__import__("tempfile").gettempdir()) / "mutation_gate_inflight.json"
+#:
+#: ⚠ AND IT MUST NOT BE SHARED WITH THE PROCESSES THIS MODULE SPAWNS. `JOURNAL`
+#: was one global path, and `test_mutation_gate.py` writes and unlinks THAT EXACT
+#: FILE — it has to, it is the suite that tests the journal. The manifest records
+#: mutations against `mutation_gate.py` whose test path IS that suite, so on every
+#: scheduled `verify_manifest` run the child destroyed the parent's restore record
+#: while the parent's mutant sat on disk.
+#:
+#: OBSERVED, NOT REASONED. 2026-08-14 00:55 UTC, mid-run, diffed against a
+#: known-good copy: `mutation_gate.py` on disk held `"all_killed": True and
+#: all(...)` while `/tmp/mutation_gate_inflight.json` named
+#: `/tmp/pytest-of-root/.../subject.py` and a child's pid. A kill in that window
+#: leaves a gate that reports every batch as fully killed, permanently, with
+#: nothing on disk declaring it — the shape of the incident above, in the module
+#: written to prevent it.
+#:
+#: So the DIRECTORY is a per-process question. `_pytest` hands every child a
+#: private one; a process nobody told resolves the default, which is what every
+#: existing caller and every test already does.
+JOURNAL_DIR_ENV = "MUTATION_GATE_JOURNAL_DIR"
+
+
+def _journal_path() -> Path:
+    """Where THIS process declares an in-flight mutation. Resolved per call.
+
+    Per CALL and not at import, because `_pytest` sets the variable for the child
+    and a module-level constant would have been frozen before that mattered.
+    """
+    import os
+    import tempfile
+    return (Path(os.environ.get(JOURNAL_DIR_ENV) or tempfile.gettempdir())
+            / "mutation_gate_inflight.json")
+
+
+#: THERE IS NO `JOURNAL` CONSTANT, DELIBERATELY. Keeping one "for callers" is
+#: what made the first version of this fix decoration: `test_mutation_gate.py`
+#: wrote `MG.JOURNAL` twelve times, the constant still resolved to the default
+#: temp dir, and every child went on clobbering its parent's record exactly as
+#: before while the new isolation sat unused one name away.
+#:
+#: A name that LOOKS like the path in use and is not is this repo's most common
+#: defect — a consumer reading a field its author believed in. So the name does
+#: not exist and there is one way to ask.
 
 
 def _pid_alive(pid: int) -> bool:
@@ -107,7 +152,7 @@ def repair(journal=None) -> dict:
                  ALARM: refuse to write, keep the journal, and name the file — an
                  automatic "restore" here would silently discard real work.
     """
-    j = Path(journal or JOURNAL)
+    j = Path(journal or _journal_path())
     if not j.exists():
         return {"status": "clean"}
     try:
@@ -153,7 +198,8 @@ def _declare(p: Path, original: str, mutated: str):
     """
     import os
     import signal
-    JOURNAL.write_text(json.dumps({
+    journal = _journal_path()
+    journal.write_text(json.dumps({
         "pid": os.getpid(), "file": str(p),
         "original": original, "mutated": mutated}))
 
@@ -161,7 +207,7 @@ def _declare(p: Path, original: str, mutated: str):
         try:
             p.write_text(original, encoding="utf-8")
             _purge_pycache(str(p))
-            JOURNAL.unlink(missing_ok=True)
+            journal.unlink(missing_ok=True)
             sys.stderr.write("mutation_gate: caught signal %d — restored %s\n"
                              % (signum, p))
         finally:
@@ -186,7 +232,7 @@ def _undeclare(prev):
             signal.signal(sig, handler)
         except (ValueError, OSError):
             pass
-    JOURNAL.unlink(missing_ok=True)
+    _journal_path().unlink(missing_ok=True)
 
 
 def _pytest(args, timeout=600):
@@ -205,10 +251,18 @@ def _pytest(args, timeout=600):
     removes anything already there.
     """
     import os
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
-    return subprocess.run([sys.executable, "-B", "-m", "pytest", *args, "-q",
-                           "-p", "no:cacheprovider"],
-                          capture_output=True, text=True, timeout=timeout, env=env)
+    import tempfile
+    # A PRIVATE JOURNAL DIRECTORY FOR THE CHILD — see `_journal_path`. Without
+    # this, a child that touches the journal (the gate's own suite does, because
+    # it is the suite that tests it) deletes the record that would restore the
+    # PARENT's mutant, and the parent's corruption becomes permanent and silent.
+    with tempfile.TemporaryDirectory(prefix="mutation_gate_child_") as jdir:
+        env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
+                   **{JOURNAL_DIR_ENV: jdir})
+        return subprocess.run([sys.executable, "-B", "-m", "pytest", *args, "-q",
+                               "-p", "no:cacheprovider"],
+                              capture_output=True, text=True, timeout=timeout,
+                              env=env)
 
 
 def _purge_pycache(path: str):
@@ -223,13 +277,32 @@ def _purge_pycache(path: str):
                 pass
 
 
+def _test_name(s: str) -> str:
+    """`path::test_x[param]` -> `test_x`. THE ONE NORMALISATION, USED ON BOTH SIDES.
+
+    It was applied only to what pytest REPORTED, never to what the caller CLAIMED,
+    and the verdict is decided by `t in failed` — exact membership. So naming a
+    parametrised case the way pytest prints it,
+    `test_A_GUARD_MUST_NOT_COST_THE_DAY[dispersion_of]`, produced a `must_fail`
+    entry that could never match anything. Alone it reads SURVIVED, which looks
+    like a coverage hole and sends the reader to fix a test that is working.
+    Beside a second name that does match it is worse: the run reports KILLED and
+    the manifest keeps a name that will never fire again.
+
+    I hit both halves of that within one unit. Normalising the claim the same way
+    as the evidence is the fix, and it belongs here rather than at each call site
+    — which is the multi-derivation this repo keeps finding.
+    """
+    return s.split("::")[-1].split("[")[0].strip()
+
+
 def _failed_names(stdout: str) -> list:
     """Test names pytest reported as FAILED, from the summary lines."""
     out = []
     for line in stdout.splitlines():
         m = re.match(r"^FAILED\s+(\S+)", line.strip())
         if m:
-            out.append(m.group(1).split("::")[-1].split("[")[0])
+            out.append(_test_name(m.group(1)))
     return out
 
 
@@ -271,6 +344,26 @@ def _compiles(path: str):
         return False, "the mutant does not compile: %s at line %s" % (e.msg, e.lineno)
 
 
+def _missing_tests(names, test_paths):
+    """Which of `names` pytest does NOT collect from `test_paths`.
+
+    ⚠ RETURNS [] WHEN THE COLLECTION ITSELF FAILED, deliberately, because an
+    unreadable collection is already refused by INVALID_BASELINE with a message
+    that names the real cause. Reporting every test as "missing" here would
+    replace an accurate diagnosis with a misleading one.
+    """
+    # ⚠ `--collect-only` WITHOUT `-q`. Adding `-q` collapses the whole listing to
+    # "path: 22" — a COUNT, not the names — so every name read as missing and the
+    # guard would have refused every run. Caught by pointing it at a name that
+    # provably exists. The plain form prints one `path::name` per line, which is
+    # what this needs.
+    r = _pytest([*test_paths, "--collect-only"])
+    if r.returncode not in (0, 1) or "::" not in r.stdout:
+        return []
+    body = r.stdout
+    return [n for n in names if n and ("::%s" % n) not in body]
+
+
 def check(target_file: str, old: str, new: str, test_paths, must_fail,
           *, baseline=None) -> dict:
     """Apply one mutation, run the tests, restore, and return a verdict.
@@ -296,7 +389,8 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
 
     p = Path(target_file)
     src = p.read_text(encoding="utf-8")
-    must = [must_fail] if isinstance(must_fail, str) else list(must_fail)
+    must = [_test_name(m)
+            for m in ([must_fail] if isinstance(must_fail, str) else must_fail)]
     res = {"file": str(p), "old": old[:80], "old_full": old, "new": new,
            "must_fail": must,
            "verdict": None, "detail": None, "failed": [],
@@ -361,6 +455,28 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
                            "suite. Nothing can fail here, so nothing can be "
                            "proved; run the path the way CI runs it."
                            % baseline.get("rc"))
+
+    # ⚠ A must_fail THAT DOES NOT COLLECT CAN NEVER BE THE THING THAT FAILS.
+    # THE EIGHTH LIE, and it cost me two SURVIVED verdicts in one day — which
+    # makes it a structural gap rather than carelessness. Both times a test was
+    # renamed (once by a blanket helper rename that also rewrote a test's own
+    # name) and the manifest kept pointing at the old name. KILLED requires THE
+    # NAMED TEST among the failures; a name nothing collects is never among them,
+    # so the verdict is SURVIVED no matter how thoroughly the mutation is caught.
+    # SURVIVED is the actionable verdict — it sends you to write a test for a hole
+    # that does not exist — and the mirror case is worse still: a real hole hidden
+    # behind a typo looks identical.
+    #
+    # ASKED BEFORE THE FILE IS TOUCHED, so a run that cannot prove anything costs
+    # nothing and leaves no mutant.
+    missing = _missing_tests(must, test_paths)
+    if missing:
+        return dict(res, verdict="MUST_FAIL_NOT_COLLECTED",
+                    detail="must_fail names %s, which pytest does not collect from "
+                           "%s. KILLED requires the NAMED test among the failures, "
+                           "so this run could only ever report SURVIVED — a "
+                           "coverage hole that is really a stale name."
+                           % (", ".join(missing), " ".join(map(str, test_paths))))
 
     mutated = src.replace(old, new, 1)
     prev = _declare(p, src, mutated)     # journal + signal handlers FIRST

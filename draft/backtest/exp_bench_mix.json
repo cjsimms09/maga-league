@@ -1,0 +1,59 @@
+{
+ "_territory": "TERRITORY: A \u2014 research artifact, no production reader",
+ "experiment": "EXP-BENCH-MIX \u2014 realized starting-lineup yield of bench draft picks by position, 2023-2025",
+ "prereg": "header of draft/backtest/exp_bench_mix.py",
+ "team_seasons": 30,
+ "bench_picks_total": 181,
+ "unknown_position_rows": 1,
+ "by_position": {
+  "?": {
+   "bench_picks_total": 1,
+   "bench_picks_per_team_season": 0.03,
+   "mean_starts_per_pick": 0,
+   "pct_never_started": 100.0,
+   "mean_started_pts_per_pick": 0.0,
+   "total_started_pts": 0.0
+  },
+  "K": {
+   "bench_picks_total": 1,
+   "bench_picks_per_team_season": 0.03,
+   "mean_starts_per_pick": 0,
+   "pct_never_started": 100.0,
+   "mean_started_pts_per_pick": 0.0,
+   "total_started_pts": 0.0
+  },
+  "QB": {
+   "bench_picks_total": 18,
+   "bench_picks_per_team_season": 0.6,
+   "mean_starts_per_pick": 3,
+   "pct_never_started": 38.9,
+   "mean_started_pts_per_pick": 64.0,
+   "total_started_pts": 1152.1
+  },
+  "RB": {
+   "bench_picks_total": 73,
+   "bench_picks_per_team_season": 2.43,
+   "mean_starts_per_pick": 3.23,
+   "pct_never_started": 45.2,
+   "mean_started_pts_per_pick": 39.6,
+   "total_started_pts": 2890.6
+  },
+  "TE": {
+   "bench_picks_total": 12,
+   "bench_picks_per_team_season": 0.4,
+   "mean_starts_per_pick": 3.83,
+   "pct_never_started": 33.3,
+   "mean_started_pts_per_pick": 38.2,
+   "total_started_pts": 458.1
+  },
+  "WR": {
+   "bench_picks_total": 76,
+   "bench_picks_per_team_season": 2.53,
+   "mean_starts_per_pick": 3.71,
+   "pct_never_started": 36.8,
+   "mean_started_pts_per_pick": 40.9,
+   "total_started_pts": 3107.3
+  }
+ },
+ "scoring_note": "started points are the league's own realized weekly points (players_points), weeks 1-17"
+}

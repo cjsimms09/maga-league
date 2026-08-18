@@ -134,5 +134,40 @@ check('K and DEF wait to the late rounds', byPos.K.verdict === 'WAIT' && byPos.D
   check('the survivor is not the early stud who will be gone', qb.best_next.name !== 'QB30');
 }
 
+
+// --- WIRE-COVERED ONESIE CAP — the QB denominator fix (Cory, 2026-08-17) ----
+// The empirical study measured the QB wire AT replacement in this league, the
+// DP plan takes QB at pick 73, the top-3 drafters wait to R7.1 — yet a one-pick
+// −8pt drop printed GRAB-SOON while the LRM strip said "startable until 93" on
+// the same screen. The cap makes the verdict read the LRM boundary.
+{
+  const board = [
+    at('QB', 360, 30),   // stud, going soon — the drop that used to force GRAB-SOON
+    at('QB', 340, 55),
+    at('QB', 320, 120),
+    at('QB', 315, 130),
+  ];
+  const roster = [{ position: 'RB' }, { position: 'RB' }, { position: 'WR' }];
+  const noCap = GB.report(board, roster, [33, 48], LEAGUE, ['QB']);
+  const capped = GB.report(board, roster, [33, 48], LEAGUE, ['QB'], { QB: 93 });
+  const q0 = noCap.positions[0], q1 = capped.positions[0];
+  check('FAIL ARM — without LRM bounds the old myopic verdict fires (control: the cap changes something real)',
+    q0.verdict === 'TAKE-NOW' || q0.verdict === 'GRAB-SOON', q0.verdict);
+  check('with the LRM boundary past my picks, the QB verdict caps at WAIT', q1.verdict === 'WAIT', q1.verdict);
+  check('and says WHY in the wire-covered sentence (measured fact, not a vibe)',
+    /replacement-level/.test(q1.wire_covered || ''), q1.wire_covered);
+  check('grab_by becomes my LAST pick inside the startable boundary', q1.grab_by_pick === 48,
+    String(q1.grab_by_pick));
+  check('the EVLW FACT still prints — the cap moves the verdict, never the number',
+    q1.evlw === q0.evlw && q1.evlw > 0, `${q0.evlw} vs ${q1.evlw}`);
+  // Boundary INSIDE the window: urgency is real and must survive the cap.
+  const tight = GB.report(board, roster, [33, 48], LEAGUE, ['QB'], { QB: 20 });
+  check('a boundary BEFORE all my picks leaves the urgent verdict alone (the cliff is real)',
+    tight.positions[0].verdict === q0.verdict, tight.positions[0].verdict);
+  // TE is deliberately NOT wire-covered — its elite cliff is measured.
+  check('TE is not in WIRE_COVERED (elite cliff is real, the cap must not touch it)',
+    !GB.WIRE_COVERED.TE && GB.WIRE_COVERED.QB && GB.WIRE_COVERED.K && GB.WIRE_COVERED.DEF);
+}
+
 console.log(`\n${pass}/${pass + fail} grabby checks passed`);
 process.exit(fail ? 1 : 0);

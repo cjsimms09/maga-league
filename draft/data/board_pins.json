@@ -19,50 +19,86 @@
    "n_players": 1759,
    "built_at": "2026-08-13T09:20:18Z",
    "recover_with": "git show 55957d4f6af2d8a16f043f6825d2ddb0edebf308:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-14",
+   "commit": "3f3366a28983ee7d7dff7065ec8b62e6df6d31a7",
+   "path": "public/draft_data.json",
+   "sha256": "dfb29b37f9186abd88834eeb631739c04a853bed9f2bd4a76a8c52c13075aece",
+   "n_players": 686,
+   "built_at": "2026-08-14T09:15:36Z",
+   "recover_with": "git show 3f3366a28983ee7d7dff7065ec8b62e6df6d31a7:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-15",
+   "commit": "54352a1140cb3962a7972985c23a12b36d716ba9",
+   "path": "public/draft_data.json",
+   "sha256": "dfb29b37f9186abd88834eeb631739c04a853bed9f2bd4a76a8c52c13075aece",
+   "n_players": 686,
+   "built_at": "2026-08-14T09:15:36Z",
+   "recover_with": "git show 54352a1140cb3962a7972985c23a12b36d716ba9:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-16",
+   "commit": "ef270f0cca39fb6ba9fcc97d470af0728f291d86",
+   "path": "public/draft_data.json",
+   "sha256": "14d5d4306d9ae5a079322014955c08d4f674c6c6ee54a3b42a9cfb48fabb3c7a",
+   "n_players": 677,
+   "built_at": "2026-08-15T17:52:22Z",
+   "recover_with": "git show ef270f0cca39fb6ba9fcc97d470af0728f291d86:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-17",
+   "commit": "5ae8d9fa257e5bcebf0baf50a998e383d8b69852",
+   "path": "public/draft_data.json",
+   "sha256": "ee2c2109f94a991831fdae37bd61d1f1c4f26365bda96c1d75637fe023f19d7a",
+   "n_players": 677,
+   "built_at": "2026-08-15T17:52:22Z",
+   "recover_with": "git show 5ae8d9fa257e5bcebf0baf50a998e383d8b69852:public/draft_data.json"
   }
  ],
  "population": {
   "version": "field-population/v1",
-  "rows": 2,
+  "rows": 6,
   "fields": {
    "observed_at": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "commit": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "path": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "sha256": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "n_players": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "built_at": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "recover_with": {
-    "present": 2,
+    "present": 6,
     "null": 0,
     "missing": 0,
     "pct": 100.0

@@ -1,0 +1,1624 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/sleeper_hist_proj.py",
+ "_prereg": "draft/backtest/SLEEPER-HIST-PROJ-PREREG.md (committed before any fetch)",
+ "_note": "Feasibility + leakage verdict on Sleeper's HISTORICAL projection endpoints, under our frozen scoring table. A year that failed a gate carries its refusal as the verdict and NO accuracy number. The rho cells inside l2_rank_ceiling are the LEAK DIAGNOSTIC, not a grade \u2014 a leaked arm's number must never be read as one.",
+ "control": {
+  "year": 2026,
+  "counts": {
+   "rows": 9413,
+   "rows_with_stats": 9412,
+   "rows_scored_nonzero": 637,
+   "rows_scored_zero": 8775
+  },
+  "status": "pass"
+ },
+ "post_hoc_season_parameter": {
+  "2023_vs_2024": {
+   "status": "distinct",
+   "shared": 546,
+   "identical": 6,
+   "identical_fraction": 0.011
+  },
+  "2024_vs_2025": {
+   "status": "distinct",
+   "shared": 510,
+   "identical": 6,
+   "identical_fraction": 0.0118
+  },
+  "2023_vs_2025": {
+   "status": "distinct",
+   "shared": 425,
+   "identical": 4,
+   "identical_fraction": 0.0094
+  }
+ },
+ "years": {
+  "2023": {
+   "year": 2023,
+   "gates": {
+    "l1_identity": {
+     "status": "pass",
+     "eligible": 350,
+     "matches": 3,
+     "fraction": 0.0086
+    },
+    "l2_rank_ceiling": {
+     "status": "pass",
+     "over_ceiling": [],
+     "cells": {
+      "QB": {
+       "n": 74,
+       "status": "measured",
+       "spearman": 0.796,
+       "mae": 57.27,
+       "bias": 30.6
+      },
+      "RB": {
+       "n": 134,
+       "status": "measured",
+       "spearman": 0.8064,
+       "mae": 33.79,
+       "bias": 15.91
+      },
+      "WR": {
+       "n": 194,
+       "status": "measured",
+       "spearman": 0.8189,
+       "mae": 30.99,
+       "bias": 15.27
+      },
+      "TE": {
+       "n": 99,
+       "status": "measured",
+       "spearman": 0.7327,
+       "mae": 20.79,
+       "bias": 4.18
+      }
+     }
+    },
+    "l3_provenance": {
+     "status": "no_timestamp",
+     "keys_present": [],
+     "note": "the payload carries no date, week or update marker; this gate is UNDECIDABLE and blocks nothing \u2014 had a marker been present it would have named the season it was generated in"
+    },
+    "l4_markers": {
+     "status": "leaked_markers",
+     "n": 4,
+     "verdicts": {
+      "missing": 3,
+      "leak_sized": 1
+     },
+     "detail": [
+      {
+       "pid": "167",
+       "pos": "QB",
+       "prior": 312.3,
+       "realized": 0.0,
+       "projected": null,
+       "verdict": "missing"
+      },
+      {
+       "pid": "96",
+       "pos": "QB",
+       "prior": 278.0,
+       "realized": 0.0,
+       "projected": null,
+       "verdict": "missing"
+      },
+      {
+       "pid": "4988",
+       "pos": "RB",
+       "prior": 247.2,
+       "realized": 21.1,
+       "projected": null,
+       "verdict": "missing"
+      },
+      {
+       "pid": "2307",
+       "pos": "QB",
+       "prior": 226.56,
+       "realized": 1.24,
+       "projected": 21.56,
+       "verdict": "leak_sized"
+      }
+     ]
+    }
+   },
+   "metrics": null,
+   "counts": {
+    "rows": 8971,
+    "rows_with_stats": 6691,
+    "rows_scored_nonzero": 690,
+    "rows_scored_zero": 6001
+   },
+   "population": {
+    "excluded_no_position": 97,
+    "excluded_no_weekly_row": 92,
+    "graded": 501
+   },
+   "status": "leaked_markers",
+   "key_census": {
+    "adp_2qb": {
+     "rows": 6691,
+     "distinct": 677
+    },
+    "adp_dynasty": {
+     "rows": 6691,
+     "distinct": 1,
+     "values": {
+      "999.0": 6691
+     }
+    },
+    "adp_dynasty_2qb": {
+     "rows": 6691,
+     "distinct": 622
+    },
+    "adp_dynasty_half_ppr": {
+     "rows": 6691,
+     "distinct": 689
+    },
+    "adp_dynasty_ppr": {
+     "rows": 6691,
+     "distinct": 715
+    },
+    "adp_dynasty_std": {
+     "rows": 6691,
+     "distinct": 681
+    },
+    "adp_half_ppr": {
+     "rows": 6691,
+     "distinct": 711
+    },
+    "adp_idp": {
+     "rows": 6691,
+     "distinct": 710
+    },
+    "adp_ppr": {
+     "rows": 6691,
+     "distinct": 714
+    },
+    "adp_rookie": {
+     "rows": 6691,
+     "distinct": 1,
+     "values": {
+      "999.0": 6691
+     }
+    },
+    "adp_std": {
+     "rows": 6691,
+     "distinct": 628
+    },
+    "blk_kick": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "bonus_rec_rb": {
+     "rows": 163,
+     "distinct": 45
+    },
+    "bonus_rec_te": {
+     "rows": 116,
+     "distinct": 44
+    },
+    "bonus_rec_wr": {
+     "rows": 230,
+     "distinct": 82
+    },
+    "cmp_pct": {
+     "rows": 91,
+     "distinct": 67
+    },
+    "def_fum_td": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "def_kr_td": {
+     "rows": 7,
+     "distinct": 1,
+     "values": {
+      "1.0": 7
+     }
+    },
+    "fgm_40_49": {
+     "rows": 56,
+     "distinct": 7,
+     "values": {
+      "8.0": 14,
+      "1.0": 14,
+      "2.0": 9,
+      "7.0": 9,
+      "9.0": 8,
+      "5.0": 1,
+      "10.0": 1
+     }
+    },
+    "fgm_50p": {
+     "rows": 43,
+     "distinct": 6,
+     "values": {
+      "4.0": 13,
+      "1.0": 11,
+      "3.0": 8,
+      "5.0": 5,
+      "2.0": 3,
+      "6.0": 3
+     }
+    },
+    "fgm_yds": {
+     "rows": 56,
+     "distinct": 15
+    },
+    "fgmiss_40_49": {
+     "rows": 44,
+     "distinct": 3,
+     "values": {
+      "2.0": 23,
+      "1.0": 11,
+      "3.0": 10
+     }
+    },
+    "fgmiss_50p": {
+     "rows": 42,
+     "distinct": 3,
+     "values": {
+      "2.0": 30,
+      "1.0": 10,
+      "3.0": 2
+     }
+    },
+    "fum_lost": {
+     "rows": 186,
+     "distinct": 5,
+     "values": {
+      "1.0": 143,
+      "3.0": 18,
+      "4.0": 14,
+      "2.0": 10,
+      "5.0": 1
+     }
+    },
+    "fum_rec": {
+     "rows": 32,
+     "distinct": 3,
+     "values": {
+      "9.0": 19,
+      "8.0": 8,
+      "10.0": 5
+     }
+    },
+    "gp": {
+     "rows": 6691,
+     "distinct": 2,
+     "values": {
+      "18.0": 6659,
+      "1.0": 32
+     }
+    },
+    "idp_ff": {
+     "rows": 247,
+     "distinct": 4,
+     "values": {
+      "1.0": 161,
+      "2.0": 74,
+      "3.0": 10,
+      "4.0": 2
+     }
+    },
+    "idp_fum_rec": {
+     "rows": 183,
+     "distinct": 3,
+     "values": {
+      "1.0": 170,
+      "2.0": 11,
+      "3.0": 2
+     }
+    },
+    "idp_int": {
+     "rows": 216,
+     "distinct": 6,
+     "values": {
+      "1.0": 105,
+      "2.0": 55,
+      "3.0": 41,
+      "4.0": 13,
+      "6.0": 1,
+      "5.0": 1
+     }
+    },
+    "idp_sack": {
+     "rows": 300,
+     "distinct": 27
+    },
+    "idp_tkl": {
+     "rows": 438,
+     "distinct": 115
+    },
+    "idp_tkl_ast": {
+     "rows": 438,
+     "distinct": 56
+    },
+    "idp_tkl_solo": {
+     "rows": 438,
+     "distinct": 83
+    },
+    "int": {
+     "rows": 32,
+     "distinct": 7,
+     "values": {
+      "13.0": 10,
+      "12.0": 7,
+      "11.0": 5,
+      "14.0": 4,
+      "10.0": 3,
+      "16.0": 2,
+      "15.0": 1
+     }
+    },
+    "pass_2pt": {
+     "rows": 41,
+     "distinct": 3,
+     "values": {
+      "1.0": 34,
+      "2.0": 6,
+      "4.0": 1
+     }
+    },
+    "pass_att": {
+     "rows": 91,
+     "distinct": 66
+    },
+    "pass_cmp": {
+     "rows": 91,
+     "distinct": 63
+    },
+    "pass_fd": {
+     "rows": 91,
+     "distinct": 87
+    },
+    "pass_int": {
+     "rows": 84,
+     "distinct": 12,
+     "values": {
+      "1.0": 37,
+      "12.0": 9,
+      "14.0": 9,
+      "13.0": 9,
+      "11.0": 4,
+      "2.0": 4,
+      "6.0": 3,
+      "9.0": 2,
+      "7.0": 2,
+      "5.0": 2,
+      "10.0": 2,
+      "15.0": 1
+     }
+    },
+    "pass_int_td": {
+     "rows": 45,
+     "distinct": 2,
+     "values": {
+      "1.0": 40,
+      "2.0": 5
+     }
+    },
+    "pass_td": {
+     "rows": 84,
+     "distinct": 24
+    },
+    "pass_yd": {
+     "rows": 91,
+     "distinct": 87
+    },
+    "pr_td": {
+     "rows": 10,
+     "distinct": 1,
+     "values": {
+      "1.0": 10
+     }
+    },
+    "pts_allow_0": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "pts_half_ppr": {
+     "rows": 1123,
+     "distinct": 544
+    },
+    "pts_ppr": {
+     "rows": 1123,
+     "distinct": 555
+    },
+    "pts_std": {
+     "rows": 1123,
+     "distinct": 511
+    },
+    "rec": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_0_4": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_10_19": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_20_29": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_2pt": {
+     "rows": 10,
+     "distinct": 1,
+     "values": {
+      "1.0": 10
+     }
+    },
+    "rec_30_39": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_40p": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_5_9": {
+     "rows": 511,
+     "distinct": 92
+    },
+    "rec_fd": {
+     "rows": 511,
+     "distinct": 317
+    },
+    "rec_td": {
+     "rows": 358,
+     "distinct": 10,
+     "values": {
+      "1.0": 173,
+      "2.0": 50,
+      "4.0": 34,
+      "5.0": 30,
+      "3.0": 30,
+      "7.0": 18,
+      "6.0": 15,
+      "9.0": 4,
+      "10.0": 3,
+      "8.0": 1
+     }
+    },
+    "rec_yd": {
+     "rows": 511,
+     "distinct": 317
+    },
+    "rush_2pt": {
+     "rows": 29,
+     "distinct": 1,
+     "values": {
+      "1.0": 29
+     }
+    },
+    "rush_att": {
+     "rows": 378,
+     "distinct": 125
+    },
+    "rush_fd": {
+     "rows": 382,
+     "distinct": 211
+    },
+    "rush_td": {
+     "rows": 198,
+     "distinct": 11,
+     "values": {
+      "1.0": 84,
+      "2.0": 31,
+      "3.0": 23,
+      "4.0": 16,
+      "6.0": 14,
+      "7.0": 14,
+      "5.0": 7,
+      "8.0": 4,
+      "11.0": 3,
+      "9.0": 1,
+      "10.0": 1
+     }
+    },
+    "rush_yd": {
+     "rows": 382,
+     "distinct": 211
+    },
+    "sack": {
+     "rows": 32,
+     "distinct": 14
+    },
+    "safe": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "xpm": {
+     "rows": 56,
+     "distinct": 23
+    },
+    "xpmiss": {
+     "rows": 41,
+     "distinct": 3,
+     "values": {
+      "2.0": 24,
+      "1.0": 15,
+      "3.0": 2
+     }
+    },
+    "yds_allow_0_100": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    }
+   }
+  },
+  "2024": {
+   "year": 2024,
+   "gates": {
+    "l1_identity": {
+     "status": "pass",
+     "eligible": 327,
+     "matches": 4,
+     "fraction": 0.0122
+    },
+    "l2_rank_ceiling": {
+     "status": "pass",
+     "over_ceiling": [],
+     "cells": {
+      "QB": {
+       "n": 72,
+       "status": "measured",
+       "spearman": 0.8418,
+       "mae": 53.08,
+       "bias": 19.77
+      },
+      "RB": {
+       "n": 129,
+       "status": "measured",
+       "spearman": 0.8242,
+       "mae": 32.89,
+       "bias": 11.72
+      },
+      "WR": {
+       "n": 197,
+       "status": "measured",
+       "spearman": 0.8473,
+       "mae": 28.22,
+       "bias": 17.44
+      },
+      "TE": {
+       "n": 101,
+       "status": "measured",
+       "spearman": 0.6765,
+       "mae": 22.75,
+       "bias": 6.66
+      }
+     }
+    },
+    "l3_provenance": {
+     "status": "no_timestamp",
+     "keys_present": [],
+     "note": "the payload carries no date, week or update marker; this gate is UNDECIDABLE and blocks nothing \u2014 had a marker been present it would have named the season it was generated in"
+    },
+    "l4_markers": {
+     "status": "leaked_markers",
+     "n": 2,
+     "verdicts": {
+      "leak_sized": 2
+     },
+     "detail": [
+      {
+       "pid": "8162",
+       "pos": "QB",
+       "prior": 290.12,
+       "realized": -0.84,
+       "projected": 40.18,
+       "verdict": "leak_sized"
+      },
+      {
+       "pid": "4179",
+       "pos": "QB",
+       "prior": 228.66,
+       "realized": 8.1,
+       "projected": 14.2,
+       "verdict": "leak_sized"
+      }
+     ]
+    }
+   },
+   "metrics": null,
+   "counts": {
+    "rows": 9147,
+    "rows_with_stats": 7571,
+    "rows_scored_nonzero": 684,
+    "rows_scored_zero": 6887
+   },
+   "population": {
+    "excluded_no_position": 103,
+    "excluded_no_weekly_row": 82,
+    "graded": 499
+   },
+   "status": "leaked_markers",
+   "key_census": {
+    "adp_2qb": {
+     "rows": 7571,
+     "distinct": 1048
+    },
+    "adp_dynasty": {
+     "rows": 7571,
+     "distinct": 1,
+     "values": {
+      "999.0": 7571
+     }
+    },
+    "adp_dynasty_2qb": {
+     "rows": 7571,
+     "distinct": 1174
+    },
+    "adp_dynasty_half_ppr": {
+     "rows": 7571,
+     "distinct": 916
+    },
+    "adp_dynasty_ppr": {
+     "rows": 7571,
+     "distinct": 1052
+    },
+    "adp_dynasty_std": {
+     "rows": 7571,
+     "distinct": 913
+    },
+    "adp_half_ppr": {
+     "rows": 7571,
+     "distinct": 959
+    },
+    "adp_idp": {
+     "rows": 7571,
+     "distinct": 930
+    },
+    "adp_ppr": {
+     "rows": 7571,
+     "distinct": 1409
+    },
+    "adp_rookie": {
+     "rows": 7571,
+     "distinct": 1,
+     "values": {
+      "999.0": 7571
+     }
+    },
+    "adp_std": {
+     "rows": 7571,
+     "distinct": 940
+    },
+    "blk_kick": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "bonus_rec_rb": {
+     "rows": 164,
+     "distinct": 46
+    },
+    "bonus_rec_te": {
+     "rows": 107,
+     "distinct": 49
+    },
+    "bonus_rec_wr": {
+     "rows": 236,
+     "distinct": 76
+    },
+    "cmp_pct": {
+     "rows": 94,
+     "distinct": 60
+    },
+    "def_fum_td": {
+     "rows": 62,
+     "distinct": 1,
+     "values": {
+      "1.0": 62
+     }
+    },
+    "def_kr_td": {
+     "rows": 6,
+     "distinct": 1,
+     "values": {
+      "1.0": 6
+     }
+    },
+    "fgm_40_49": {
+     "rows": 52,
+     "distinct": 8,
+     "values": {
+      "8.0": 15,
+      "7.0": 14,
+      "2.0": 14,
+      "9.0": 3,
+      "1.0": 3,
+      "4.0": 1,
+      "6.0": 1,
+      "5.0": 1
+     }
+    },
+    "fgm_50p": {
+     "rows": 51,
+     "distinct": 6,
+     "values": {
+      "1.0": 18,
+      "4.0": 16,
+      "3.0": 8,
+      "5.0": 7,
+      "6.0": 1,
+      "2.0": 1
+     }
+    },
+    "fgm_yds": {
+     "rows": 52,
+     "distinct": 16
+    },
+    "fgmiss_40_49": {
+     "rows": 44,
+     "distinct": 3,
+     "values": {
+      "2.0": 27,
+      "1.0": 14,
+      "3.0": 3
+     }
+    },
+    "fgmiss_50p": {
+     "rows": 50,
+     "distinct": 3,
+     "values": {
+      "2.0": 27,
+      "1.0": 16,
+      "3.0": 7
+     }
+    },
+    "fum_lost": {
+     "rows": 195,
+     "distinct": 6,
+     "values": {
+      "1.0": 150,
+      "3.0": 23,
+      "2.0": 14,
+      "4.0": 5,
+      "5.0": 2,
+      "9.0": 1
+     }
+    },
+    "fum_rec": {
+     "rows": 32,
+     "distinct": 3,
+     "values": {
+      "9.0": 23,
+      "10.0": 8,
+      "8.0": 1
+     }
+    },
+    "gp": {
+     "rows": 7571,
+     "distinct": 2,
+     "values": {
+      "18.0": 7539,
+      "1.0": 32
+     }
+    },
+    "idp_blk_kick": {
+     "rows": 2,
+     "distinct": 1,
+     "values": {
+      "1.0": 2
+     }
+    },
+    "idp_ff": {
+     "rows": 381,
+     "distinct": 4,
+     "values": {
+      "1.0": 313,
+      "2.0": 61,
+      "3.0": 6,
+      "4.0": 1
+     }
+    },
+    "idp_fum_rec": {
+     "rows": 304,
+     "distinct": 3,
+     "values": {
+      "1.0": 284,
+      "2.0": 19,
+      "3.0": 1
+     }
+    },
+    "idp_int": {
+     "rows": 315,
+     "distinct": 5,
+     "values": {
+      "1.0": 191,
+      "2.0": 81,
+      "3.0": 31,
+      "4.0": 9,
+      "5.0": 3
+     }
+    },
+    "idp_sack": {
+     "rows": 553,
+     "distinct": 26
+    },
+    "idp_safe": {
+     "rows": 26,
+     "distinct": 1,
+     "values": {
+      "1.0": 26
+     }
+    },
+    "idp_tkl": {
+     "rows": 1349,
+     "distinct": 130
+    },
+    "idp_tkl_ast": {
+     "rows": 1344,
+     "distinct": 60
+    },
+    "idp_tkl_solo": {
+     "rows": 1348,
+     "distinct": 94
+    },
+    "int": {
+     "rows": 32,
+     "distinct": 5,
+     "values": {
+      "13.0": 13,
+      "12.0": 10,
+      "14.0": 7,
+      "15.0": 1,
+      "11.0": 1
+     }
+    },
+    "pass_2pt": {
+     "rows": 33,
+     "distinct": 2,
+     "values": {
+      "1.0": 32,
+      "4.0": 1
+     }
+    },
+    "pass_att": {
+     "rows": 94,
+     "distinct": 59
+    },
+    "pass_cmp": {
+     "rows": 94,
+     "distinct": 61
+    },
+    "pass_fd": {
+     "rows": 94,
+     "distinct": 82
+    },
+    "pass_int": {
+     "rows": 84,
+     "distinct": 15
+    },
+    "pass_int_td": {
+     "rows": 80,
+     "distinct": 2,
+     "values": {
+      "1.0": 72,
+      "2.0": 8
+     }
+    },
+    "pass_td": {
+     "rows": 89,
+     "distinct": 27
+    },
+    "pass_yd": {
+     "rows": 94,
+     "distinct": 82
+    },
+    "pr_td": {
+     "rows": 2,
+     "distinct": 1,
+     "values": {
+      "1.0": 2
+     }
+    },
+    "pts_allow_0": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "pts_half_ppr": {
+     "rows": 1527,
+     "distinct": 514
+    },
+    "pts_ppr": {
+     "rows": 1527,
+     "distinct": 537
+    },
+    "pts_std": {
+     "rows": 1527,
+     "distinct": 491
+    },
+    "rec": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_0_4": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_10_19": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_20_29": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_30_39": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_40p": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_5_9": {
+     "rows": 508,
+     "distinct": 89
+    },
+    "rec_fd": {
+     "rows": 508,
+     "distinct": 317
+    },
+    "rec_td": {
+     "rows": 394,
+     "distinct": 10,
+     "values": {
+      "1.0": 196,
+      "2.0": 61,
+      "3.0": 42,
+      "4.0": 25,
+      "6.0": 24,
+      "7.0": 19,
+      "5.0": 18,
+      "8.0": 7,
+      "10.0": 1,
+      "9.0": 1
+     }
+    },
+    "rec_yd": {
+     "rows": 508,
+     "distinct": 317
+    },
+    "rush_2pt": {
+     "rows": 7,
+     "distinct": 1,
+     "values": {
+      "1.0": 7
+     }
+    },
+    "rush_att": {
+     "rows": 457,
+     "distinct": 117
+    },
+    "rush_fd": {
+     "rows": 459,
+     "distinct": 207
+    },
+    "rush_td": {
+     "rows": 180,
+     "distinct": 11,
+     "values": {
+      "1.0": 69,
+      "2.0": 30,
+      "3.0": 23,
+      "4.0": 16,
+      "7.0": 15,
+      "6.0": 7,
+      "5.0": 6,
+      "8.0": 6,
+      "9.0": 4,
+      "10.0": 3,
+      "15.0": 1
+     }
+    },
+    "rush_yd": {
+     "rows": 459,
+     "distinct": 207
+    },
+    "sack": {
+     "rows": 32,
+     "distinct": 12,
+     "values": {
+      "43.0": 7,
+      "41.0": 5,
+      "39.0": 4,
+      "40.0": 4,
+      "42.0": 3,
+      "46.0": 2,
+      "47.0": 2,
+      "37.0": 1,
+      "48.0": 1,
+      "44.0": 1,
+      "38.0": 1,
+      "45.0": 1
+     }
+    },
+    "safe": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "xpm": {
+     "rows": 52,
+     "distinct": 24
+    },
+    "xpmiss": {
+     "rows": 47,
+     "distinct": 4,
+     "values": {
+      "2.0": 26,
+      "1.0": 18,
+      "3.0": 2,
+      "4.0": 1
+     }
+    },
+    "yds_allow_0_100": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    }
+   }
+  },
+  "2025": {
+   "year": 2025,
+   "gates": {
+    "l1_identity": {
+     "status": "pass",
+     "eligible": 335,
+     "matches": 3,
+     "fraction": 0.009
+    },
+    "l2_rank_ceiling": {
+     "status": "pass",
+     "over_ceiling": [],
+     "cells": {
+      "QB": {
+       "n": 70,
+       "status": "measured",
+       "spearman": 0.7941,
+       "mae": 58.3,
+       "bias": 22.11
+      },
+      "RB": {
+       "n": 125,
+       "status": "measured",
+       "spearman": 0.7538,
+       "mae": 37.21,
+       "bias": 5.78
+      },
+      "WR": {
+       "n": 186,
+       "status": "measured",
+       "spearman": 0.7724,
+       "mae": 34.85,
+       "bias": 13.07
+      },
+      "TE": {
+       "n": 105,
+       "status": "measured",
+       "spearman": 0.806,
+       "mae": 22.13,
+       "bias": -0.7
+      }
+     }
+    },
+    "l3_provenance": {
+     "status": "no_timestamp",
+     "keys_present": [],
+     "note": "the payload carries no date, week or update marker; this gate is UNDECIDABLE and blocks nothing \u2014 had a marker been present it would have named the season it was generated in"
+    },
+    "l4_markers": {
+     "status": "pass",
+     "n": 2,
+     "verdicts": {
+      "full_season": 2
+     },
+     "detail": [
+      {
+       "pid": "4137",
+       "pos": "RB",
+       "prior": 230.3,
+       "realized": 29.3,
+       "projected": 203.5,
+       "verdict": "full_season"
+      },
+      {
+       "pid": "4018",
+       "pos": "RB",
+       "prior": 219.2,
+       "realized": 0.0,
+       "projected": 117.9,
+       "verdict": "full_season"
+      }
+     ]
+    },
+    "l5_ghosts": {
+     "status": "not_applicable",
+     "ghost_count": null,
+     "note": "no later store exists to establish departure"
+    }
+   },
+   "metrics": null,
+   "counts": {
+    "rows": 9290,
+    "rows_with_stats": 8625,
+    "rows_scored_nonzero": 638,
+    "rows_scored_zero": 7987
+   },
+   "population": {
+    "excluded_no_position": 97,
+    "excluded_no_weekly_row": 55,
+    "graded": 486
+   },
+   "status": "clean",
+   "key_census": {
+    "adp_2qb": {
+     "rows": 8625,
+     "distinct": 1375
+    },
+    "adp_dynasty": {
+     "rows": 8625,
+     "distinct": 893
+    },
+    "adp_dynasty_2qb": {
+     "rows": 8625,
+     "distinct": 1276
+    },
+    "adp_dynasty_half_ppr": {
+     "rows": 8625,
+     "distinct": 961
+    },
+    "adp_dynasty_ppr": {
+     "rows": 8625,
+     "distinct": 1182
+    },
+    "adp_dynasty_std": {
+     "rows": 8625,
+     "distinct": 948
+    },
+    "adp_half_ppr": {
+     "rows": 8625,
+     "distinct": 1379
+    },
+    "adp_idp": {
+     "rows": 8625,
+     "distinct": 1204
+    },
+    "adp_idp_1qb": {
+     "rows": 8593,
+     "distinct": 679
+    },
+    "adp_ppr": {
+     "rows": 8625,
+     "distinct": 1663
+    },
+    "adp_rookie": {
+     "rows": 8625,
+     "distinct": 1,
+     "values": {
+      "999.0": 8625
+     }
+    },
+    "adp_std": {
+     "rows": 8625,
+     "distinct": 1059
+    },
+    "blk_kick": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "bonus_rec_rb": {
+     "rows": 150,
+     "distinct": 48
+    },
+    "bonus_rec_te": {
+     "rows": 110,
+     "distinct": 48
+    },
+    "bonus_rec_wr": {
+     "rows": 209,
+     "distinct": 81
+    },
+    "cmp_pct": {
+     "rows": 75,
+     "distinct": 53
+    },
+    "def_fum_td": {
+     "rows": 43,
+     "distinct": 2,
+     "values": {
+      "1.0": 42,
+      "2.0": 1
+     }
+    },
+    "def_kr_td": {
+     "rows": 9,
+     "distinct": 2,
+     "values": {
+      "1.0": 8,
+      "2.0": 1
+     }
+    },
+    "fgm_40_49": {
+     "rows": 53,
+     "distinct": 7,
+     "values": {
+      "8.0": 18,
+      "2.0": 10,
+      "7.0": 9,
+      "1.0": 8,
+      "9.0": 5,
+      "4.0": 2,
+      "6.0": 1
+     }
+    },
+    "fgm_50p": {
+     "rows": 49,
+     "distinct": 8,
+     "values": {
+      "1.0": 16,
+      "6.0": 9,
+      "5.0": 8,
+      "4.0": 8,
+      "3.0": 5,
+      "9.0": 1,
+      "2.0": 1,
+      "7.0": 1
+     }
+    },
+    "fgm_yds": {
+     "rows": 53,
+     "distinct": 18
+    },
+    "fgmiss_40_49": {
+     "rows": 40,
+     "distinct": 3,
+     "values": {
+      "2.0": 30,
+      "1.0": 9,
+      "3.0": 1
+     }
+    },
+    "fgmiss_50p": {
+     "rows": 51,
+     "distinct": 3,
+     "values": {
+      "2.0": 22,
+      "1.0": 18,
+      "3.0": 11
+     }
+    },
+    "fum_lost": {
+     "rows": 204,
+     "distinct": 5,
+     "values": {
+      "1.0": 144,
+      "2.0": 33,
+      "3.0": 17,
+      "4.0": 9,
+      "5.0": 1
+     }
+    },
+    "fum_rec": {
+     "rows": 32,
+     "distinct": 4,
+     "values": {
+      "8.0": 14,
+      "10.0": 10,
+      "9.0": 7,
+      "7.0": 1
+     }
+    },
+    "gp": {
+     "rows": 8625,
+     "distinct": 2,
+     "values": {
+      "18.0": 8593,
+      "1.0": 32
+     }
+    },
+    "idp_ff": {
+     "rows": 387,
+     "distinct": 4,
+     "values": {
+      "1.0": 319,
+      "2.0": 57,
+      "3.0": 9,
+      "4.0": 2
+     }
+    },
+    "idp_fum_rec": {
+     "rows": 301,
+     "distinct": 3,
+     "values": {
+      "1.0": 277,
+      "2.0": 23,
+      "3.0": 1
+     }
+    },
+    "idp_int": {
+     "rows": 348,
+     "distinct": 5,
+     "values": {
+      "1.0": 233,
+      "2.0": 79,
+      "3.0": 29,
+      "4.0": 6,
+      "5.0": 1
+     }
+    },
+    "idp_sack": {
+     "rows": 540,
+     "distinct": 23
+    },
+    "idp_safe": {
+     "rows": 17,
+     "distinct": 1,
+     "values": {
+      "1.0": 17
+     }
+    },
+    "idp_tkl": {
+     "rows": 1318,
+     "distinct": 130
+    },
+    "idp_tkl_ast": {
+     "rows": 1318,
+     "distinct": 64
+    },
+    "idp_tkl_solo": {
+     "rows": 1318,
+     "distinct": 86
+    },
+    "int": {
+     "rows": 32,
+     "distinct": 7,
+     "values": {
+      "12.0": 12,
+      "13.0": 7,
+      "14.0": 4,
+      "11.0": 4,
+      "10.0": 3,
+      "15.0": 1,
+      "16.0": 1
+     }
+    },
+    "pass_2pt": {
+     "rows": 34,
+     "distinct": 2,
+     "values": {
+      "1.0": 32,
+      "2.0": 2
+     }
+    },
+    "pass_att": {
+     "rows": 75,
+     "distinct": 51
+    },
+    "pass_cmp": {
+     "rows": 75,
+     "distinct": 47
+    },
+    "pass_fd": {
+     "rows": 75,
+     "distinct": 62
+    },
+    "pass_int": {
+     "rows": 74,
+     "distinct": 13
+    },
+    "pass_int_td": {
+     "rows": 80,
+     "distinct": 2,
+     "values": {
+      "1.0": 71,
+      "2.0": 9
+     }
+    },
+    "pass_td": {
+     "rows": 74,
+     "distinct": 24
+    },
+    "pass_yd": {
+     "rows": 75,
+     "distinct": 62
+    },
+    "pr_td": {
+     "rows": 7,
+     "distinct": 1,
+     "values": {
+      "1.0": 7
+     }
+    },
+    "pts_allow_0": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    },
+    "pts_half_ppr": {
+     "rows": 1480,
+     "distinct": 467
+    },
+    "pts_ppr": {
+     "rows": 1480,
+     "distinct": 478
+    },
+    "pts_std": {
+     "rows": 1479,
+     "distinct": 446
+    },
+    "rec": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_0_4": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_10_19": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_20_29": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_2pt": {
+     "rows": 26,
+     "distinct": 1,
+     "values": {
+      "1.0": 26
+     }
+    },
+    "rec_30_39": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_40p": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_5_9": {
+     "rows": 469,
+     "distinct": 91
+    },
+    "rec_fd": {
+     "rows": 472,
+     "distinct": 279
+    },
+    "rec_td": {
+     "rows": 295,
+     "distinct": 10,
+     "values": {
+      "1.0": 111,
+      "2.0": 57,
+      "3.0": 37,
+      "4.0": 29,
+      "5.0": 19,
+      "7.0": 16,
+      "6.0": 14,
+      "8.0": 8,
+      "9.0": 3,
+      "11.0": 1
+     }
+    },
+    "rec_yd": {
+     "rows": 472,
+     "distinct": 279
+    },
+    "rush_2pt": {
+     "rows": 21,
+     "distinct": 1,
+     "values": {
+      "1.0": 21
+     }
+    },
+    "rush_att": {
+     "rows": 370,
+     "distinct": 112
+    },
+    "rush_fd": {
+     "rows": 373,
+     "distinct": 176
+    },
+    "rush_td": {
+     "rows": 148,
+     "distinct": 12,
+     "values": {
+      "1.0": 44,
+      "2.0": 27,
+      "4.0": 20,
+      "3.0": 18,
+      "5.0": 12,
+      "8.0": 6,
+      "6.0": 6,
+      "11.0": 5,
+      "7.0": 4,
+      "10.0": 3,
+      "14.0": 2,
+      "12.0": 1
+     }
+    },
+    "rush_yd": {
+     "rows": 373,
+     "distinct": 176
+    },
+    "sack": {
+     "rows": 32,
+     "distinct": 13
+    },
+    "safe": {
+     "rows": 9,
+     "distinct": 1,
+     "values": {
+      "1.0": 9
+     }
+    },
+    "xpm": {
+     "rows": 53,
+     "distinct": 25
+    },
+    "xpmiss": {
+     "rows": 49,
+     "distinct": 3,
+     "values": {
+      "2.0": 25,
+      "1.0": 23,
+      "3.0": 1
+     }
+    },
+    "yds_allow_0_100": {
+     "rows": 32,
+     "distinct": 1,
+     "values": {
+      "1.0": 32
+     }
+    }
+   }
+  }
+ },
+ "clean_years": [
+  2025
+ ],
+ "headline": "1/3 season(s) passed every leak gate: [2025]. A three-way grade becomes licensable UNDER ITS OWN SEPARATE PREREGISTRATION \u2014 no number is computed here."
+}

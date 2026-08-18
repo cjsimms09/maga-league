@@ -83,7 +83,15 @@ jobs:
               print(f'! historical ADP unavailable ({type(exc).__name__}: {exc}) '
                     '— market metrics stay PROXIED')
 
-          prof = M.build_profiles(drafts, players, historical_adp=hist)
+          # season_now: Sleeper's own season for this league — the epoch
+          # years_exp counts from. Without it the E13 rookie derivation
+          # declares itself UNDERIVABLE (the first regenerated artifact,
+          # 2026-08-18, said exactly that: the parameter was in the module's
+          # signature and never passed from here — Rule 3e, the null was a
+          # bug report about this caller).
+          season_now = int(si.fetch_league(league).get('season'))
+          prof = M.build_profiles(drafts, players, season_now=season_now,
+                                  historical_adp=hist)
 
           print('\n' + '-' * 78)
           print(f"drafts analysed      {prof['drafts_analysed']}  ({', '.join(prof.get('seasons') or [])})")
@@ -200,7 +208,10 @@ jobs:
                 % (', '.join(str(d.get('season')) for d in train), heldout.get('season')))
           print('=' * 78)
 
-          out = M.build_profiles(train, players)
+          # Same season_now epoch as the main build — the backtest's rookie
+          # leg is underivable without it, for the same E13 reason.
+          out = M.build_profiles(train, players,
+                                 season_now=int(si.fetch_league(os.environ['LEAGUE_ID']).get('season')))
           league_avg = out['league_average']
 
           # Who made each pick: historical picks carry roster_id, not picked_by.

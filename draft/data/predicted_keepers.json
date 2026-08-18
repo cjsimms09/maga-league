@@ -2,9 +2,9 @@
   "provenance": "predicted (flat-cost surplus) + Cory intel",
   "note": "PREDICTED slates for MOCK/REHEARSAL ONLY \u2014 never applied to the live board (Cory, 2026-08-11: a prediction rendered indistinguishably from a fact IS a fact as far as behaviour is concerned). Real designations are read from live Sleeper by the nightly draft-data rebuild; there is no keeper-watch process. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
   "round_cost_vorp": [
-    103.56,
-    64.78,
-    38.02
+    75.0,
+    48.9,
+    30.28
   ],
   "predictions": {
     "coryjsimms": {
@@ -14,27 +14,27 @@
           "player_id": "7564",
           "name": "Ja'Marr Chase",
           "position": "WR",
-          "vorp": 145.1,
+          "vorp": 106.6,
           "cost_round": 1,
-          "surplus": 41.5,
+          "surplus": 31.6,
           "confidence": "high"
         },
         {
           "player_id": "3198",
           "name": "Derrick Henry",
           "position": "RB",
-          "vorp": 124.2,
+          "vorp": 88.4,
           "cost_round": 2,
-          "surplus": 59.4,
+          "surplus": 39.5,
           "confidence": "high"
         },
         {
           "player_id": "8151",
           "name": "Kenneth Walker",
           "position": "RB",
-          "vorp": 106.4,
+          "vorp": 75.5,
           "cost_round": 3,
-          "surplus": 68.4,
+          "surplus": 45.2,
           "confidence": "high"
         }
       ],
@@ -44,7 +44,7 @@
     "ds7mmet": {
       "roster_id": "2",
       "predicted_keepers": [],
-      "next_best": "Emeka Egbuka",
+      "next_best": "Lamar Jackson",
       "source": "model"
     },
     "cashworth": {
@@ -66,27 +66,27 @@
           "player_id": "9221",
           "name": "Jahmyr Gibbs",
           "position": "RB",
-          "vorp": 156.0,
+          "vorp": 120.6,
           "cost_round": 1,
-          "surplus": 52.4,
+          "surplus": 45.6,
           "confidence": "high"
         },
         {
           "player_id": "6813",
           "name": "Jonathan Taylor",
           "position": "RB",
-          "vorp": 103.6,
+          "vorp": 75.0,
           "cost_round": 2,
-          "surplus": 38.8,
+          "surplus": 26.1,
           "confidence": "high"
         },
         {
           "player_id": "8112",
           "name": "Drake London",
           "position": "WR",
-          "vorp": 62.8,
+          "vorp": 42.6,
           "cost_round": 3,
-          "surplus": 24.8,
+          "surplus": 12.3,
           "confidence": "medium"
         }
       ],
@@ -100,32 +100,32 @@
           "player_id": "9488",
           "name": "Jaxon Smith-Njigba",
           "position": "WR",
-          "vorp": 97.2,
+          "vorp": 72.5,
           "cost_round": 1,
-          "surplus": -6.4,
+          "surplus": -2.5,
           "confidence": "low"
         },
         {
           "player_id": "11604",
           "name": "Brock Bowers",
           "position": "TE",
-          "vorp": 81.1,
+          "vorp": 66.1,
           "cost_round": 2,
-          "surplus": 16.3,
+          "surplus": 17.2,
           "confidence": "high",
           "override": "Cory intel (confirms model)"
         },
         {
-          "player_id": "6794",
-          "name": "Justin Jefferson",
-          "position": "WR",
-          "vorp": 63.0,
+          "player_id": "9226",
+          "name": "De'Von Achane",
+          "position": "RB",
+          "vorp": 50.6,
           "cost_round": 3,
-          "surplus": 25.0,
-          "confidence": "high"
+          "surplus": 20.3,
+          "confidence": "medium"
         }
       ],
-      "next_best": "De'Von Achane",
+      "next_best": "Justin Jefferson",
       "source": "model + intel override"
     },
     "mhagen": {
@@ -135,18 +135,18 @@
           "player_id": "4034",
           "name": "Christian McCaffrey",
           "position": "RB",
-          "vorp": 105.5,
+          "vorp": 76.7,
           "cost_round": 1,
-          "surplus": 1.9,
+          "surplus": 1.7,
           "confidence": "low"
         },
         {
           "player_id": "7547",
           "name": "Amon-Ra St. Brown",
           "position": "WR",
-          "vorp": 88.5,
+          "vorp": 64.9,
           "cost_round": 2,
-          "surplus": 23.7,
+          "surplus": 16.0,
           "confidence": "medium"
         },
         {
@@ -155,7 +155,7 @@
           "position": "QB",
           "vorp": 63.8,
           "cost_round": 3,
-          "surplus": 25.8,
+          "surplus": 33.5,
           "confidence": "high"
         }
       ],
@@ -169,19 +169,9 @@
           "player_id": "9509",
           "name": "Bijan Robinson",
           "position": "RB",
-          "vorp": 147.9,
+          "vorp": 113.6,
           "cost_round": 1,
-          "surplus": 44.3,
-          "confidence": "certain",
-          "override": "Cory intel (confirms model)"
-        },
-        {
-          "player_id": "7569",
-          "name": "Nico Collins",
-          "position": "WR",
-          "vorp": 64.8,
-          "cost_round": 2,
-          "surplus": 0.0,
+          "surplus": 38.6,
           "confidence": "certain",
           "override": "Cory intel (confirms model)"
         },
@@ -189,9 +179,19 @@
           "player_id": "8130",
           "name": "Trey McBride",
           "position": "TE",
-          "vorp": 63.2,
+          "vorp": 50.5,
+          "cost_round": 2,
+          "surplus": 1.6,
+          "confidence": "certain",
+          "override": "Cory intel (confirms model)"
+        },
+        {
+          "player_id": "7569",
+          "name": "Nico Collins",
+          "position": "WR",
+          "vorp": 47.9,
           "cost_round": 3,
-          "surplus": 25.2,
+          "surplus": 17.6,
           "confidence": "certain",
           "override": "Cory intel (confirms model)"
         }
@@ -206,22 +206,31 @@
           "player_id": "9493",
           "name": "Puka Nacua",
           "position": "WR",
-          "vorp": 124.7,
+          "vorp": 96.4,
           "cost_round": 1,
-          "surplus": 21.1,
+          "surplus": 21.4,
           "confidence": "medium"
         },
         {
           "player_id": "4866",
           "name": "Saquon Barkley",
           "position": "RB",
-          "vorp": 73.5,
+          "vorp": 48.9,
           "cost_round": 2,
-          "surplus": 8.7,
+          "surplus": 0.0,
+          "confidence": "low"
+        },
+        {
+          "player_id": "12507",
+          "name": "Omarion Hampton",
+          "position": "RB",
+          "vorp": 39.6,
+          "cost_round": 3,
+          "surplus": 9.3,
           "confidence": "medium"
         }
       ],
-      "next_best": "Breece Hall",
+      "next_best": "Jaylen Waddle",
       "source": "model"
     },
     "Sadbru": {

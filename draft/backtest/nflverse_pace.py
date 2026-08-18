@@ -103,7 +103,52 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
         if not team or team != team:                 # None or NaN
             continue
         a = agg.setdefault(str(team), {"plays": 0, "passes": 0, "games": set(),
-                                       "n_plays": 0, "n_passes": 0})
+                                       "n_plays": 0, "n_passes": 0,
+                                       # ⚠ THE SAME GAMES, COUNTED AFTER THE PLAY
+                                       # FILTERS. `games` is added before the
+                                       # SCRIMMAGE and kneel/spike filters, so a
+                                       # game contributing only special-teams rows
+                                       # for this team sits in the DENOMINATOR of
+                                       # `plays_per_game` and not in the numerator
+                                       # — A's criterion 1, found by saying the
+                                       # ratio out loud.
+                                       #
+                                       # MEASURED, AND IT IS ZERO. 2026-08-17, real
+                                       # pbp: `games_without_plays == 0` for 32/32
+                                       # teams in 2022, 2023 and 2024, REG-only and
+                                       # REG+POST alike — 192 team-seasons, no gap.
+                                       # A's `fetch_team_pace.py`, which imports the
+                                       # filter below rather than copying it, gets 0
+                                       # over 160 team-seasons of 2021-2025 and pins
+                                       # it in `test_fetch_team_pace.py`. So
+                                       # `plays_per_game` is NOT understated today.
+                                       #
+                                       # ⚠ THE PREVIOUS SENTENCE HERE WAS FALSE AND
+                                       # SAT UNCHALLENGED. It read "the pbp pull is
+                                       # egress-blocked from the sandbox so I cannot
+                                       # measure it". The pull returns HTTP 200 and
+                                       # ~20MB in about a second, and it is the same
+                                       # host `fetch_component_stats.py` was already
+                                       # using. Nothing was blocked; the claim was
+                                       # plausible and written down, which is the
+                                       # whole reason nobody re-tested it — the
+                                       # identical shape that filed a season of
+                                       # routes under nflverse's publication
+                                       # schedule when the file was served and OUR
+                                       # lookup 404'd (`draft/audit/
+                                       # routes_position_source_2026-08-17.md`).
+                                       # A recorded reason not to measure something
+                                       # is a claim, and it expires.
+                                       #
+                                       # THE FIELD STAYS ANYWAY, and measuring zero
+                                       # is why it can be trusted rather than why it
+                                       # can go. Zero today is not zero by
+                                       # construction: a mid-season pull, a partial
+                                       # release, or any team-week whose only rows
+                                       # are special teams all produce it. It is a
+                                       # guard, and a guard that has fired zero
+                                       # times is the one you keep.
+                                       "games_with_plays": set()})
         gid = r.get("game_id")
         if gid is not None and gid == gid:
             a["games"].add(str(gid))
@@ -113,6 +158,8 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
         if _truthy(r.get("qb_kneel")) or _truthy(r.get("qb_spike")):
             continue
         a["plays"] += 1
+        if gid is not None and gid == gid:
+            a["games_with_plays"].add(str(gid))
         if pt == "pass":
             a["passes"] += 1
         diff = r.get("score_differential")
@@ -132,6 +179,8 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
             # A NUMBER OFF ONE GAME RANKS BESIDE ONE OFF SEVENTEEN and nothing in
             # the value says which is which.
             out[team] = {"plays": a["plays"], "games": g, "status": "unmeasurable",
+                         "games_with_plays": len(a["games_with_plays"]),
+                         "games_without_plays": g - len(a["games_with_plays"]),
                          "plays_per_game": None, "neutral_plays_per_game": None,
                          "neutral_share": None, "pass_rate": None,
                          "neutral_pass_rate": None,
@@ -139,6 +188,11 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
             continue
         out[team] = {
             "plays": a["plays"], "games": g, "status": "measured",
+            "games_with_plays": len(a["games_with_plays"]),
+            # NAMED, not left to be derived by subtraction — a reader should not
+            # have to spot the gap to know the ratio below is over the wrong
+            # denominator.
+            "games_without_plays": g - len(a["games_with_plays"]),
             "plays_per_game": round(a["plays"] / g, 3),
             "neutral_plays_per_game": round(a["n_plays"] / g, 3),
             # The GAP is the interesting quantity: a low neutral share means the raw

@@ -1,9 +1,18 @@
 # TERRITORY: C
 """REAL WEEKLY VARIANCE — measured, not 0.25 x proj_mean.
 
-`build_bundle.py` writes `proj_sd = 0.25 * proj_mean`, so every player's spread is a
-constant multiple of his mean and `proj_ceiling` is rank-identical to `proj_mean`.
+`build_bundle.py` wrote `proj_sd = 0.25 * proj_mean`, so every player's spread was a
+constant multiple of his mean and `proj_ceiling` was rank-identical to `proj_mean`.
 Two of eight weights are dead for want of this one field (A, 2026-08-13).
+
+CORRECTED 2026-08-17 — past tense above is now literal. `build_bundle.py` no
+longer writes those constants; a bundle carries the measured p90/p10/sd per
+(position, band), fitted leave-one-season-out, and NOTHING off an unmeasured
+cell. What this module measures is still wanted, because the fix does not reach
+far enough: the measured spread remains `proj_mean x a per-CELL constant`,
+varying between bands and not within them, so there is still NO PER-PLAYER
+dispersion signal on any board. That is the gap this file's weekly variance —
+and, since 2026-08-17, snap-share volatility — would actually close.
 
 Production derives the wrong way round — `weekly_sd = season_sd / sqrt(games)` — where
 `season_sd` is itself `mean x a heuristic`. This inverts it: measure the weekly spread

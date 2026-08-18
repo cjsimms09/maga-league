@@ -1,0 +1,427 @@
+# TERRITORY: A
+"""THE GATE'S SELECTION IS PINNED: it excludes exactly the repo_parity set.
+
+Run 31926152660 (2026-08-16) proved the publication gate could never pass on
+a genuinely fresh board: seven committed-artifact == regeneration pins fail
+BY CONSTRUCTION once the nightly build rewrites the inputs the regeneration
+reads. The fix (a `repo_parity` marker deselected only by the gate) opens
+two new silent-failure lanes, and this file closes both:
+
+  1. THE MARKER SPREADS. `-m "not repo_parity"` deselects whatever carries
+     the marker — so one careless decorator on a board-soundness test would
+     silently remove it from the gate, and the gate would go green on a
+     defect it was built to refuse. The marked set is therefore pinned to an
+     EXPLICIT node list; growing it must edit this file, in review.
+  2. THE GATE'S EXPRESSION DRIFTS. If draft-data.yml's gate step stops
+     saying `-m "not repo_parity"` (or says something broader), either the
+     by-construction refusals come back or MORE than the parity set is
+     excluded. The expression is read from the WORKFLOW FILE ITSELF
+     (yaml.safe_load, never a copy typed here) and the selection it produces
+     is measured with pytest's own collector, so what is proved is what runs.
+
+2026-08-16, later the same day: eleven of the pins this file used to track
+were migrated OUT of pytest entirely into draft/data/artifact_registry.json +
+draft/tools/check_artifact_freshness.py (the permanent fix — see
+draft/audit/artifact_freshness_infra_2026-08-16.md), so this mechanism now
+guards a much smaller, real remainder. See REPO_PARITY_NODES below for what
+is still here and why each one does not fit the registry's shape.
+
+Run: python3 -m pytest draft/tests/test_gate_selection.py -q
+"""
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
+WORKFLOW = ROOT / ".github" / "workflows" / "draft-data.yml"
+
+#: The complete repo_parity set — every pin whose failure says the repo /
+#: market state is NEW, never that the candidate board is BAD — and NOTHING
+#: else.
+#:
+#: 2026-08-16, artifact-freshness infra (draft/audit/
+#: artifact_freshness_infra_2026-08-16.md): the ELEVEN committed-artifact ==
+#: regeneration pins that used to live here (model_accuracy_backtest,
+#: own_model_v2-v6, source_weight_prior, playoff_sos's object-parity pin,
+#: draft_replay_2025, replay_all_seats, props_season_projection's v6
+#: reproduction) are MIGRATED OUT of pytest entirely, into draft/data/
+#: artifact_registry.json + draft/tools/check_artifact_freshness.py — a
+#: single generic, informational (never-blocking) tool that replaces one
+#: bespoke test function per study. Their bespoke test_X_matches_regeneration
+#: functions and @pytest.mark.repo_parity decorators are REMOVED from their
+#: files (static shape / cross-artifact-identity assertions that were bundled
+#: into the same functions but do NOT depend on regeneration were kept, as
+#: new unmarked always-green tests, in the same files). Confirmed nothing was
+#: lost: `python3 draft/tools/check_artifact_freshness.py` reports the exact
+#: same STALE set the removed pytest tests used to fail on (10 of 11 STALE,
+#: replay_all_seats FRESH, zero errors — 2026-08-16, cross-checked against a
+#: full `pytest draft/tests -q` run on the same tree).
+#:
+#: What remains here is the species that does NOT fit "committed artifact vs
+#: regeneration of that SAME artifact" and so was deliberately left as a
+#: hand-marked pytest test (draft/data/artifact_registry.json's
+#: `_not_yet_migrated` section carries the same list with reasons):
+#:   · the 4 ADP-band ratchet params — keepers.py's shipped constant graded
+#:     against TODAY'S freshly fetched FFC market dispersion, not against a
+#:     committed artifact;
+#:   · playoff_sos's OTHER pin — committed-artifact COVERAGE of the live
+#:     board's player set (a partition, not a diff);
+#:   · the weekly workflow-YAML parse check — marked because the gate venv
+#:     carries no pyyaml, not because of board/artifact staleness.
+#: Adding a marker to any other test WILL fail this file until the addition
+#: is recorded here — that is the point, not an inconvenience.
+REPO_PARITY_NODES = {
+    # Added 2026-08-18 (E's sweep 16 / A's source fix). Both check the
+    # PUBLISHED board: keeper rows must carry vorp (the || 0 badge lie), and
+    # the vorp identity must hold boardwide. Red on a board that predates the
+    # build.py emit is repository state, never a candidate refusal — the
+    # fresh candidate carries the field, which is exactly what these verify
+    # after the rebuild lands. Forgetting this registration refused rebuild
+    # 32095127740 — the gate-selection pin working as designed.
+    "draft/tests/test_kept_players_carry_vorp.py::test_every_kept_player_on_the_published_board_carries_vorp",
+    "draft/tests/test_keeper_optimize_kept_players.py::test_kept_players_carry_proj_mean_AND_stamped_vorp",
+    "draft/tests/test_kept_players_carry_vorp.py::test_the_identity_the_fix_relies_on_still_holds_boardwide",
+    # Added 2026-08-17 by SESSION D (A's P0, keeper lock 08-20). ⚠️ TERRITORY: A
+    # file, edited by D — same stated trespass as the stale-refusal node below:
+    # unmarked, this sits RED inside the publication gate, and a calibration gap
+    # must never refuse the board rebuild that would fix it. SEND BACK to re-prep.
+    #
+    # A FIFTH shape. The registry compares an artifact to a regeneration of
+    # itself; this compares an artifact to the BOARD — every position priced with
+    # a proj_ceiling must have a measured calibration cell or a declared refusal.
+    #
+    # It was red on K (44 priced) and DEF (32 priced), all 76 carrying
+    # proj_ceiling_source "gaussian_z" while skill positions carry
+    # "measured-2023-25-p90"; cells_unmeasurable: 0 counted only cells that were
+    # ATTEMPTED, so K/DEF read as "no problem". GREEN since 2026-08-17: the
+    # artifact declares both in positions_not_measured with a reason, an unblock
+    # condition, an owner and a recheck date. Nothing was estimated.
+    #
+    # THE MARK IS NOT ABOUT BEING RED. It is that this check compares an artifact
+    # to the BOARD, so a future board pricing a new position would fail it — and
+    # a calibration gap must never refuse the rebuild that would fix it.
+    # draft/audit/kdef_calibration_p0_2026-08-17.md
+    #
+    # Its failure says the REPO STATE lacks data, never that the candidate board
+    # is bad — this set's defining property. ONLY this node: the control in that
+    # file is pure logic and must stay in the gate.
+    "draft/tests/test_calibration_covers_every_board_position.py::test_every_priced_board_position_is_calibrated_or_declared",
+
+    # Added 2026-08-18 (E's sweep 16 / A's source fix). Both check the
+    # PUBLISHED board: keeper rows must carry vorp (the || 0 badge lie), and
+    # the vorp identity must hold boardwide. Red on a board that predates the
+    # build.py emit is repository state, never a candidate refusal — the
+    # fresh candidate carries the field, which is exactly what these verify
+    # after the rebuild lands. Forgetting this registration refused rebuild
+    # 32095127740 — the gate-selection pin working as designed.
+    "draft/tests/test_kept_players_carry_vorp.py::test_every_kept_player_on_the_published_board_carries_vorp",
+    "draft/tests/test_keeper_optimize_kept_players.py::test_kept_players_carry_proj_mean_AND_stamped_vorp",
+    "draft/tests/test_kept_players_carry_vorp.py::test_the_identity_the_fix_relies_on_still_holds_boardwide",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[50-100]",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[100-150]",
+    "draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
+    "draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
+    # Added 2026-08-17. A THIRD shape again, and the registry's
+    # committed-artifact-vs-regeneration check structurally cannot cover it:
+    # the pre-draft freeze must NEVER be regenerated to compare against — a
+    # freeze regenerated today IS the thing it exists to protect against, and
+    # `freeze_pre_draft` refuses to overwrite for exactly that reason (no
+    # --force). So the check is committed-artifact-vs-its-OWN-DECLARATION:
+    # every field in PLAYER_FIELDS must appear on at least one frozen row.
+    #
+    # It is red today and correctly so — the 08-14 freeze predates FOURTEEN of
+    # its declared fields, all fourteen of which the live board carries. Its
+    # failure says the ARTIFACT is old, never that the candidate board is bad,
+    # which is this set's defining property. The fix is a dated draft-day
+    # action (delete by hand, re-freeze after the final board build).
+    #
+    # ONLY this node. The other two tests in that file are pure logic — they
+    # touch no artifact and no board — and a module-level pytestmark that swept
+    # them in here was refused by this very test, in the right words:
+    # "soundness tests the gate would silently skip".
+    "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+    # TERRITORY-GRANT: C test_calibration_population
+    #
+    # This block is VERBATIM what A's own session already authored and
+    # shipped to `main` (79a51073) — restored here after C's branch synced
+    # `test_calibration_population.py` (C's file, register 4r/4s) from main
+    # without its sibling registration in this file, which left the two
+    # mismatched and red. Not new logic; the same three node IDs A already
+    # approved, re-added so the pin stays correct.
+    #
+    # Added 2026-08-17 (register 4r). THE COMMITTED CALIBRATION IS CONTAMINATED:
+    # cli.py called PE.calibrate() with no `positions`, so the artifact behind
+    # every proj_ceiling/proj_floor/proj_sd was fitted on punters, DBs, a
+    # linebacker and a tackle, losing ~30% of the skill population
+    # (1,304 -> 910 graded, 15 of 32 cells unmeasurable).
+    #
+    # These three assert facts about that ARTIFACT, so their red says the repo
+    # STATE is wrong — never that a candidate board is bad, which is this set's
+    # defining property. They cannot be fixed by reverting: f774ff21 rebuilt the
+    # board and rewrote two test files to match the contaminated fit, so
+    # calibration + board + tests are a matched trio and un-matching one turns
+    # main red without improving a number Cory drafts on. The fix is a clean
+    # regeneration plus a board rebuild, which needs egress.
+    #
+    # test_the_driver_still_passes_the_filter is deliberately NOT here. It
+    # guards the CAUSE and must block, or the next dispatch re-contaminates.
+    "draft/tests/test_calibration_population.py::test_NO_POSITION_THIS_LEAGUE_DOES_NOT_ROSTER_IS_IN_THE_CALIBRATION",
+    "draft/tests/test_calibration_population.py::test_the_graded_population_has_not_quietly_collapsed",
+    "draft/tests/test_calibration_population.py::test_most_cells_are_actually_measured",
+    # Added 2026-08-18 by SESSION D. ⚠️ TERRITORY: A file, edited by D — third
+    # such trespass, same offer: SEND BACK and I re-prep it as a diff.
+    #
+    # A SIXTH shape, and the first that checks PROSE against an artifact:
+    # CLAUDE.md / OWNERS.md / ROUTES.md summarise replay_league_table.json for
+    # readers who will not open it, and all three crowned ds7mmet "the league's
+    # best drafter" — whom that artifact's own drafter study ranks 4th of 10.
+    # Both files forbade the read in advance. The claim is now derived from the
+    # artifact instead of remembered (same move as
+    # test_data_lifecycle_predicts_column.py).
+    #
+    # MARKED because a re-run of replay_all_seats.py can reorder the drafter
+    # ranking and turn these red on a day the board is fine — a stale sentence
+    # must never refuse a board rebuild. Green today.
+    #
+    # ONLY these four nodes. The other five in that file are pure logic — the
+    # detector's known-positive controls and the ranking's shape — and must
+    # stay in the gate, since without them the four below are vacuous.
+    # Added 2026-08-18 by SESSION D, register 18b. ⚠️ TERRITORY: A file again.
+    #
+    # The oracle lambda sweep re-derives two published cells from A's own
+    # exp_weekly_env.json as its VOIDING reproduction control. If A regenerates
+    # that artifact the check goes red -- correctly, because D's conclusion
+    # would then rest on a superseded reproduction -- but that is A's artifact
+    # being new, never the candidate board being bad.
+    #
+    # ONLY this node. The other six in that file read the committed sweep
+    # artifact alone and are pure logic; all six were verified to go red under
+    # five separate hand-planted corruptions before this was marked.
+    "draft/tests/test_oracle_lambda_sweep.py::test_the_published_lambdas_still_reproduce",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[CLAUDE.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[OWNERS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[ROUTES.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[STATUS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[DRAFT-WEEK-BRIEF.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[CLAUDE.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[OWNERS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[ROUTES.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[STATUS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[DRAFT-WEEK-BRIEF.md]",
+
+    # TERRITORY-GRANT: C test_calibration_population
+    #
+    # This block is VERBATIM what A's own session already authored and
+    # shipped to `main` (79a51073) — restored here after C's branch synced
+    # `test_calibration_population.py` (C's file, register 4r/4s) from main
+    # without its sibling registration in this file, which left the two
+    # mismatched and red. Not new logic; the same three node IDs A already
+    # approved, re-added so the pin stays correct.
+    #
+    # Added 2026-08-17 (register 4r). THE COMMITTED CALIBRATION IS CONTAMINATED:
+    # cli.py called PE.calibrate() with no `positions`, so the artifact behind
+    # every proj_ceiling/proj_floor/proj_sd was fitted on punters, DBs, a
+    # linebacker and a tackle, losing ~30% of the skill population
+    # (1,304 -> 910 graded, 15 of 32 cells unmeasurable).
+    #
+    # These three assert facts about that ARTIFACT, so their red says the repo
+    # STATE is wrong — never that a candidate board is bad, which is this set's
+    # defining property. They cannot be fixed by reverting: f774ff21 rebuilt the
+    # board and rewrote two test files to match the contaminated fit, so
+    # calibration + board + tests are a matched trio and un-matching one turns
+    # main red without improving a number Cory drafts on. The fix is a clean
+    # regeneration plus a board rebuild, which needs egress.
+    #
+    # test_the_driver_still_passes_the_filter is deliberately NOT here. It
+    # guards the CAUSE and must block, or the next dispatch re-contaminates.
+    "draft/tests/test_calibration_population.py::test_NO_POSITION_THIS_LEAGUE_DOES_NOT_ROSTER_IS_IN_THE_CALIBRATION",
+    "draft/tests/test_calibration_population.py::test_the_graded_population_has_not_quietly_collapsed",
+    "draft/tests/test_calibration_population.py::test_most_cells_are_actually_measured",
+    # Added 2026-08-17. DRAFT-WEEK-BRIEF.md is what CLAUDE.md points every
+    # session at, so its numbers are trusted without re-derivation — which makes
+    # a drifted number there costlier than one anywhere else. These three check
+    # the brief against the LIVE BOARD (coverage counts, keeper weekly_sd, the
+    # named injury-return ADPs), which is rebuilt nightly, so a failure says the
+    # BOARD is new rather than the brief is wrong. The brief's other numbers
+    # come from committed artifacts and are pinned as ordinary tests that must
+    # hold in CI — same split as test_freeze_not_stale, and for the same reason.
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_volatility_coverage_numbers_match_the_live_board",
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_keeper_variance_numbers_match_the_live_board",
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_named_injury_return_adps_match_the_live_board",
+    # Added 2026-08-17, and it is the one member of this set whose exclusion is
+    # not about artifact freshness at all — it is about not building a deadlock.
+    #
+    # It fails when the PUBLISHED board is more than three days old, which on
+    # 08-17 had been true on `main` since the 15th without anything in the repo
+    # saying so (draft/audit/board_publish_stall_2026-08-17.md). Every session
+    # runs pytest; none reads the issue tracker, so the fact had to live here.
+    #
+    # WHY IT MUST NEVER REACH THE PUBLICATION GATE: a staleness check that can
+    # refuse a publish guarantees the condition it warns about — the board is
+    # stale, therefore we may not replace it. draft-data.yml learned that on
+    # 08-14 ("failing the job because the CURRENT board is broken is backwards;
+    # a rebuild is exactly what repairs it") and made its pre-build suite
+    # advisory for the same reason. This node runs there, and locally, and never
+    # in the gate.
+    #
+    # Its failure says the PIPELINE stopped, never that the candidate board is
+    # bad — which is this set's defining property, arrived at from a third
+    # direction.
+    "draft/tests/test_published_board_is_not_stale.py::test_the_published_board_is_not_stale",
+    # Added 2026-08-17 by SESSION D. ⚠️ THIS FILE IS TERRITORY: A AND D EDITED
+    # IT — a deliberate, minimal, stated trespass, because the alternative was
+    # worse in draft week: leaving the node unmarked puts a RED test in the
+    # publication gate, and a study's staleness must never refuse Cory's board.
+    # `SEND BACK` and D will re-prep any other way you want it carried.
+    #
+    # A FOURTH shape, and the registry structurally cannot cover it. The
+    # registry asks "does this artifact still match a regeneration of itself".
+    # This asks something the registry has no concept of: "is the REASON an
+    # artifact recorded for REFUSING still true?" There is nothing to
+    # regenerate and diff — the claim is about the filesystem, not about
+    # content drift.
+    #
+    # It is red today and correctly so: props_season_projection_2025.json says
+    # `pending_real_data` and names three historical_props_*.json stores as not
+    # yet fetched. All three exist, hold three seasons of PAID odds-API data
+    # (12,559 player-weeks, 26,778 quotes), and landed in the SAME COMMIT as
+    # the refusal (b879113) — so no date comparison could have caught it, and
+    # artifact_registry.json deliberately excludes that artifact on the very
+    # premise that expired. The code is fine; only the artifact is stale.
+    # Fix is one command and it is A's, because the output is a graded verdict:
+    #     python3 draft/tools/props_season_projection.py
+    # draft/audit/row15_advanced_and_props_2026-08-17.md §B; register row 15b.
+    #
+    # Its failure says the REPO STATE is new (data arrived, artifact did not
+    # catch up), never that the candidate board is bad — this set's defining
+    # property, arrived at from a fourth direction. ONLY this node: the two
+    # controls in that file are pure logic over synthetic inputs, touch no
+    # board, and must stay in the gate.
+    "draft/tests/test_refusal_artifacts_are_not_stale.py::test_no_committed_artifact_claims_a_present_file_is_missing",
+    # Added 2026-08-17, triaging issue #8's six refusals (run 32035071758).
+    # Three of the six were this set's species and had simply never struck
+    # the gate before:
+    #   · EDV's BOARD_REPLACEMENT_2026 pin — the study's committed constants
+    #     against the fresh build's replacement levels, which move with the
+    #     morning's market (RB 189.10 -> 189.17 crossed the 0.05 tolerance).
+    #     Same shape as the ADP-band ratchet already in this set: a shipped
+    #     constant graded against today's data.
+    #   · variance_inputs coverage — committed artifact partitioning the
+    #     live board's player set; the fresh board's QB pool had grown to 90
+    #     against the artifact's 88. The same species as test_playoff_sos's
+    #     coverage pin, three lines up.
+    #   · variance_inputs regeneration — committed artifact vs regeneration
+    #     from the board the nightly just rewrote; belongs in
+    #     artifact_registry.json eventually (noted at the node), marked here
+    #     until it migrates.
+    # The OTHER three refusals in that run were real defects and are NOT
+    # here: the config-key erasure (fixed in build.py, pinned by
+    # test_config_keys_survive_rebuild.py), the resurrected opportunity
+    # layer the constant-multiple sweep caught (same root), and the QB-
+    # arbitrage helper not following the board's K/DEF demotion (fixed by
+    # detecting the board's own convention).
+    "draft/tests/test_empirical_draft_value.py::test_board_replacement_constants_match_the_shipped_board",
+    "draft/tests/test_variance_inputs.py::test_artifact_coverage_matches_board",
+    "draft/tests/test_variance_inputs.py::test_committed_artifact_matches_regeneration",
+}
+
+
+def _gate_step():
+    # importorskip, not a bare import: run 31948330004 proved the gate venv
+    # itself carries no pyyaml, so a bare import turned BOTH yaml-reading
+    # guards here into board refusals — a missing library blocking a live
+    # board, exactly the class this file exists to prevent. Where yaml is
+    # absent these two guards SKIP (visibly, in the skip count) and the
+    # marker-side pin below — which needs no yaml — still runs; where yaml
+    # exists (every dev env, the pre-merge suite) they enforce in full.
+    yaml = pytest.importorskip(
+        "yaml", reason="pyyaml absent — workflow-expression guards skip; "
+                       "the collector-side pin still enforces the marked set")
+    wf = yaml.safe_load(WORKFLOW.read_text())
+    steps = wf["jobs"]["build"]["steps"]
+    gates = [s for s in steps
+             if "Acceptance gate on the FRESH board" in (s.get("name") or "")]
+    assert len(gates) == 1, "the publication gate step moved or forked"
+    return gates[0], steps
+
+
+def _gate_marker_expression():
+    """The -m expression the gate actually passes to pytest, read from the
+    workflow file — never retyped here, so this file cannot agree with a
+    stale copy of the gate."""
+    gate, _ = _gate_step()
+    m = re.search(r'python -m pytest draft/tests\s+-q\s+-m\s+"([^"]+)"',
+                  gate["run"])
+    assert m, ("the gate step no longer invokes "
+               "`python -m pytest draft/tests -q -m \"...\"` — if the "
+               "invocation changed shape, re-derive this parse with it")
+    return m.group(1)
+
+
+def _collect(*extra):
+    """Node ids pytest would run for draft/tests under the given options."""
+    out = subprocess.run(
+        [sys.executable, "-m", "pytest", "draft/tests", "--collect-only",
+         "-q", "-p", "no:cacheprovider", *extra],
+        cwd=ROOT, capture_output=True, text=True, timeout=300)
+    assert out.returncode in (0, 5), out.stdout + out.stderr
+    return {line.strip() for line in out.stdout.splitlines()
+            if "::" in line and not line.startswith(("=", "warning"))}
+
+
+def test_the_workflow_gate_deselects_repo_parity_and_the_advisory_step_does_not():
+    """Both invocations verified from the parsed YAML: the gate carries the
+    exclusion; the advisory pre-build step keeps the FULL suite, because
+    before the build the tree is as committed and the parity pins are
+    meaningful there — that step is the anti-hand-edit check's nightly home."""
+    gate, steps = _gate_step()
+    assert _gate_marker_expression() == "not repo_parity", (
+        "the gate's marker expression changed — anything narrower readmits "
+        "the by-construction refusals, anything broader silently drops "
+        "soundness tests from the gate")
+    advisory = [s for s in steps
+                if "Run acceptance tests" in (s.get("name") or "")]
+    assert len(advisory) == 1
+    # `python -m pytest` itself contains `-m`; what must be absent is a
+    # marker expression AFTER the pytest invocation.
+    assert not re.search(r"pytest\s+draft/tests.*\s-m\s", advisory[0]["run"]), (
+        "the advisory pre-build step must run the FULL suite — it tests "
+        "committed state, where the repo_parity pins are exactly meaningful")
+    assert advisory[0].get("continue-on-error") is True
+
+
+def test_the_marked_set_is_exactly_the_declared_nodes():
+    """pytest's own collector, marker-side: `-m repo_parity` selects the
+    pinned list, whole and nothing more. A marker that spread to a soundness
+    test, or fell off a parity test, both land here."""
+    marked = _collect("-m", "repo_parity")
+    assert marked == REPO_PARITY_NODES, (
+        "the repo_parity-marked set drifted from the pinned list.\n"
+        "  unexpected marks (would VANISH from the publication gate): %s\n"
+        "  lost marks (would refuse fresh boards by construction again): %s"
+        % (sorted(marked - REPO_PARITY_NODES),
+           sorted(REPO_PARITY_NODES - marked)))
+
+
+def test_the_gate_selection_excludes_exactly_the_marked_set_and_nothing_else():
+    """End to end with the gate's OWN expression: full collection minus the
+    gate's collection == the pinned set. This is the sentence the fix rests
+    on — the gate skips the seven regeneration pins and not one test more."""
+    everything = _collect()
+    gate_selected = _collect("-m", _gate_marker_expression())
+    assert REPO_PARITY_NODES <= everything, (
+        "pinned nodes missing from the suite itself: %s"
+        % sorted(REPO_PARITY_NODES - everything))
+    excluded = everything - gate_selected
+    assert excluded == REPO_PARITY_NODES, (
+        "the gate's deselection is not exactly the repo_parity set.\n"
+        "  extra exclusions (soundness tests the gate would silently skip): %s\n"
+        "  missing exclusions (fresh boards refused by construction again): %s"
+        % (sorted(excluded - REPO_PARITY_NODES),
+           sorted(REPO_PARITY_NODES - excluded)))

@@ -1,6 +1,28 @@
 'use strict';
 // TRASH TALK — posts welded to a specific game (season+week+owner pair),
 // permanent, archived. Pure engine + the HTTP round trip over the real app.
+//
+// ── RED ON main SINCE 2026-08-16 ~23:01, CI ONLY, THREE OF SIX HTTP CLAUSES ─
+//
+// Same fix as `matchup_placed_bet.test.js`, and the verified mechanism is the
+// SAME root cause, not a second bug: the posts below go to `week: 1`, and
+// `/matchup`'s trash-talk read is keyed on `weekNo`, which falls through
+// `liveMatchup.week || sData.week || 1`. The moment `sleeper.bundle()`
+// returns anything, a real `/v1/state/nfl` week overrides the `1` fallback
+// and the thread lookup reads a week nobody posted to. No owner mapping is
+// involved and the opponent pairing was never the problem — the posts
+// themselves land in the right game every time (the engine assertions above
+// are network-independent and stayed green); only the PAGE's read of "this
+// week's thread" was looking at the wrong week.
+//
+// `src/seed-data.js` hardcodes a real league id identical in every
+// environment, so the only thing that differs is whether the fetch reaches
+// the network. REPRODUCED locally with a mock `/v1/state/nfl` reporting
+// `week: 3`: same 24-passed/3-failed split as the CI logs, same three names.
+//
+// SLEEPER_BASE MUST BE SET BEFORE THE REQUIRE — `sleeper.js` reads
+// `process.env.SLEEPER_BASE` once, at module load.
+process.env.SLEEPER_BASE = 'http://127.0.0.1:1';
 const os = require('os'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'trash-'));
@@ -106,6 +128,21 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
       JSON.stringify({ listed: a.map(p => p.body), reversed: b.map(p => p.body) }));
     ck('  and the order is total — no two posts tie',
       new Set(a.map(p => p.created_at + '|' + p.id)).size === a.length);
+    // ═══ THE COIN FLIP, PINNED (root cause of the integrate.sh rollback) ═══
+    // Stability across renders was never the whole property: same-millisecond
+    // posts also tied on newId()'s Date.now() prefix, so their relative order
+    // fell to the id's RANDOM suffix — a write-time coin flip against arrival
+    // order that no re-read could ever reproduce (the ids re-sort the same
+    // way every time, which is why 8/8 re-runs looked green after a red).
+    // `seq` now records true arrival order; this asserts the burst renders in
+    // exactly the order it was posted, which before the fix had ~50% odds per
+    // adjacent same-ms pair of being inverted.
+    ck('  a same-millisecond burst renders in ARRIVAL order, not id-suffix order',
+      a.map(p => p.body).join() === 'first,second,third,fourth,fifth',
+      a.map(p => p.body));
+    ck('  fixture check: seq is strictly increasing across the burst',
+      burst.every((p, i) => i === 0 || p.seq > burst[i - 1].seq),
+      burst.map(p => p.seq));
     // The season archive reads the same posts with NO key sort in front of it,
     // so the tie-break is the only thing holding it together.
     const arcA = (await TT.archiveForSeason(2026)).filter(p => p.game_id === g);

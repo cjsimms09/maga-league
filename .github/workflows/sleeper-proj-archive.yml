@@ -1,0 +1,72 @@
+name: Sleeper projection archive (free, captures a decaying source)
+
+# Cory's standing principle, stated for Kalshi on 2026-08-16 and applying
+# identically here: "Make sure we are happy about it 2027 and not upset we
+# didn't capture something."
+#
+# sleeper_hist_proj.py proved Sleeper DOES serve historical projections —
+# retiring a blocking claim four committed records had repeated without any of
+# them asking the API — and measured something worse than the original
+# problem while doing it:
+#
+#     HOLLOW RATE (rows present, stat lines emptied)
+#       2026 0.0%   2025 7.1%   2024 17.2%   2023 25.4%
+#
+# Monotone in age. Sleeper is not deleting seasons, it is EMPTYING them, so a
+# row count looks healthy while the content bleeds out. A quarter of 2023 is
+# already gone and every future backtest inherits that loss permanently.
+#
+# FREE: Sleeper's API needs no key and this is a read. There is no budget to
+# weigh here, only a clock.
+#
+# CAPTURE ONLY. Leak gating lives in sleeper_hist_proj.py and grading in
+# sleeper_vs_fp_grade.py; their verdict already stands (2025 clean, 2023/2024
+# refused, proj_mean stays on Sleeper). A REFUSED season is still archived —
+# refusal was about grading leak-free, not about the bytes being worthless.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Seasons to archive, space separated'
+        required: false
+        default: '2023 2024 2025'
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet pandas requests pytest
+      - name: Unit tests before any fetch
+        run: python3 -m pytest draft/tests/test_sleeper_proj_archive.py -q
+      - name: Capture
+        run: |
+          python3 draft/backtest/sleeper_proj_archive.py \
+            --seasons ${{ github.event.inputs.seasons || '2023 2024 2025' }} \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Commit the archive
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/sleeper_proj_archive_*.json
+          if git diff --cached --quiet; then
+            echo "no change — nothing to commit"; exit 0
+          fi
+          git commit -m "Sleeper projection archive: capture before further decay [skip deploy]" \
+            -m "Free capture. The source hollows ~7 points of stat-line loss per year of age; these bytes are unrecoverable once emptied."
+          for i in 1 2 3 4; do
+            if git push origin HEAD:main; then echo pushed; exit 0; fi
+            git pull --rebase --autostash origin main || true
+            sleep $((2 ** i))
+          done
+          echo "::error::could not push the archive after 4 attempts"; exit 1

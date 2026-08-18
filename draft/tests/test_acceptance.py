@@ -356,28 +356,79 @@ def test_variance_multiplier_is_clamped():
 
 
 def test_upside_ordering_now_differs_from_projection_ordering():
-    """THE test from the audit. Before the fix this could not pass by
-    construction: ceiling - mean was mean x constant within a position."""
-    cfg = {"opportunity_cap": 0.15}
-    players = [
-        _mk("bell", "RB", 210, years_exp=5, depth_chart_order=1),
-        _mk("comm", "RB", 205, years_exp=0, depth_chart_order=2),
-        _mk("mid", "RB", 200, years_exp=4, depth_chart_order=1),
-    ]
-    baseline = {p["player_id"]: p["proj_mean"] for p in players}
-    metrics = {"bell": {"opportunity_share": 0.30},
-               "comm": {"opportunity_share": 0.03},
-               "mid": {"opportunity_share": 0.15}}
-    PJ.blend(players, baseline, metrics, cfg)
+    """THE test from the audit, re-derived for REC-1 (2026-08-15).
 
+    The original degeneracy: ceiling - mean was mean x ONE constant across the
+    whole position, so upside ordering WAS projection ordering everywhere. Two
+    successive fixes broke it two different ways, and this test now pins both:
+
+    - MEASURED path (REC-1, Cory's ruling): sd/mean varies BY RANK BAND — the
+      measured 2023-25 table gives deep bands wider relative spread than the
+      top (RB 33+ 0.666 vs RB 1-3 0.492), so across bands the ceiling ordering
+      diverges from the mean ordering. WITHIN a measured band the ratio is
+      deliberately flat: that is what was measured, and the hand-set per-player
+      modifiers do not override a measurement (every intuition-based term added
+      to this model failed measurement — draft_plan's own record).
+    - FALLBACK path (no calibration on disk): the per-player variance modifiers
+      still differentiate a committee rookie from a bell-cow, exactly as the
+      audit's original fix built.
+
+    Pin moved 2026-08-18, clean 4s regeneration: the "RB|1-3 unmeasurable"
+    state this test previously pinned was itself a SYMPTOM of the 4s defect —
+    the silently dropped 2025 season cost every 1-3 cell a third of its rows
+    (n=6 < min_n 8). With all three seasons fitted, n=9 and RB|1-3 is measured
+    (20/20 cells), so EVERY row in this pool is on the measured path. The
+    divergence claim is unchanged — RB sd_ratio still varies by band.
+    """
+    cfg = {"opportunity_cap": 0.15}
+
+    def mkset():
+        players = [
+            _mk("bell", "RB", 210, years_exp=5, depth_chart_order=1),
+            _mk("comm", "RB", 205, years_exp=0, depth_chart_order=2),
+            _mk("mid", "RB", 200, years_exp=4, depth_chart_order=1),
+            # a deep-band back: measured RB|33+ carries a WIDER relative band
+            # than RB|1-3, so his ceiling-minus-mean can outrank a top back's
+            # despite a fraction of the projection.
+            *[_mk(f"deep{i}", "RB", 190 - i * 3, years_exp=4, depth_chart_order=1)
+              for i in range(35)],
+        ]
+        baseline = {p["player_id"]: p["proj_mean"] for p in players}
+        metrics = {"bell": {"opportunity_share": 0.30},
+                   "comm": {"opportunity_share": 0.03},
+                   "mid": {"opportunity_share": 0.15}}
+        return players, baseline, metrics
+
+    # ── measured path: band structure breaks the global tie ─────────────────
+    players, baseline, metrics = mkset()
+    PJ.blend(players, baseline, metrics, cfg)
+    # With the clean 3-season artifact every RB cell is measured (RB|1-3 n=9
+    # >= min_n 8 — it was only unmeasurable while 4s silently dropped 2025),
+    # so every row must be on the measured path; a position_variance source
+    # appearing here again means the calibration lost a season or a cell.
+    ranked = sorted(players, key=lambda p: -p["proj_mean"])
+    assert {p["proj_sd_source"] for p in ranked} == {"measured-2023-25-error"}
+    ratios = {p["player_id"]: (p["proj_ceiling"] - p["proj_mean"]) / p["proj_mean"]
+              for p in players}
+    assert len({round(v, 4) for v in ratios.values()}) > 1, (
+        "ceiling - mean collapsed back to mean x ONE constant — the original "
+        "degeneracy this test exists to block")
     by_mean = [p["player_id"] for p in sorted(players, key=lambda x: -x["proj_mean"])]
     by_upside = [p["player_id"] for p in
                  sorted(players, key=lambda x: -(x["proj_ceiling"] - x["proj_mean"]))]
-    assert by_mean != by_upside, (
-        f"UpsideBonus still just re-ranks proj_mean: {by_mean} == {by_upside}")
-    # And specifically: the committee rookie outranks the bell-cow on ceiling
-    # despite a lower projection, which is the whole point of the term.
-    assert by_upside.index("comm") < by_upside.index("bell")
+    assert by_mean != by_upside, "upside ordering is still just projection ordering"
+
+    # ── fallback path: the per-player modifiers still do their work ─────────
+    players, baseline, metrics = mkset()
+    import unittest.mock as _mock
+    with _mock.patch.object(PJ, "_sd_calibration", lambda: None):
+        PJ.blend(players, baseline, metrics, cfg)
+    assert players[0]["proj_sd_source"] == "position_variance"
+    by_upside_fb = [p["player_id"] for p in
+                    sorted(players, key=lambda x: -(x["proj_ceiling"] - x["proj_mean"]))]
+    # the committee rookie outranks the bell-cow on ceiling despite a lower
+    # projection — the whole point of the per-player term, alive on this path.
+    assert by_upside_fb.index("comm") < by_upside_fb.index("bell")
 
 
 # ---------------------------------------------------------------------------
@@ -425,6 +476,29 @@ def test_provenance_agreeing_with_data_passes_and_records_both():
     B._assert_provenance_matches_data(off, art2)
     assert art2["provenance"]["opportunity_claimed_ok"] is False
     assert art2["provenance"]["opportunity_observed_in_data"] is False
+
+
+def test_the_RULED_cap_zero_board_is_buildable():
+    """Run 32042127531: the first build ever to carry Cory's opportunity_cap
+    0.0 (every earlier nightly had the cap erased back to 0.15 by the
+    config-rewrite bug). blend() ran and wrote adj == 0.0 on every player —
+    the adjustment reached every projection, multiplying by 1+0.0 — and the
+    metrics status was honestly "ok". The asserter's truthiness read called
+    the zeros "never ran" and refused the ruled state as a provenance lie.
+    A falsy value is a decision, not an absence — the same rule
+    test_config_local_rulings_survive pins for config keys."""
+    import build as B
+    art = {"provenance": {"opportunity_adjustment": "ok"}}
+    ruled_off = [{"player_id": "1", "opportunity_adj": 0.0},
+                 {"player_id": "2", "opportunity_adj": 0.0}]
+    B._assert_provenance_matches_data(ruled_off, art)      # must NOT raise
+    assert art["provenance"]["opportunity_observed_in_data"] is True
+
+    # The refusal this asserter exists for still fires: claims ok, field
+    # genuinely absent (blend never ran).
+    never_ran = [{"player_id": "1", "opportunity_adj": None}]
+    with pytest.raises(SystemExit):
+        B._assert_provenance_matches_data(never_ran, {"provenance": {"opportunity_adjustment": "ok"}})
 
 
 def test_opportunity_applied_reads_the_field_that_proves_it():

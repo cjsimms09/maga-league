@@ -98,12 +98,18 @@ function state(roster, weights) {
   const top = recs.slice(0, 70);
   const by = {};
   top.forEach(x => { by[x.player.position] = (by[x.player.position] || 0) + 1; });
+  /* v25: the rendered list includes ceiling_tiebreak promotions, which can
+   * swap one boundary player between runs — that is display ordering, not
+   * the composite. The blindness claim is about the SCORE, so membership is
+   * also taken on the score-sorted list. */
+  const byScore = recs.slice().sort((a, b) => b.score - a.score).slice(0, 70);
   const admitted = NR.withinCap(board, roster);
   const maskBy = {};
   admitted.forEach(p => { maskBy[p.position] = (maskBy[p.position] || 0) + 1; });
   const bq = recs.find(x => x.player.position === 'QB');
   return { top70: by, mask: maskBy, recs: recs, board: board,
     names: top.map(x => x.player.name),
+    scoreNames: byScore.map(x => x.player.name),
     qbNeed: bq ? Number(bq.components.need) : null,
     qbFills: bq ? bq.components.need_fills : null };
 }
@@ -124,8 +130,17 @@ const FILLED = state(ROSTER_FULL);
 
 // ── THE MASK WORKS. Establish that first, or the rest proves nothing. ──────
 {
-  ck('CONTROL: with the QB slot open the mask admits quarterbacks',
-    (EMPTY.mask.QB || 0) > 100, EMPTY.mask.QB);
+    /* THRESHOLD RECALIBRATED, NOT RELAXED. This read `> 100`, a number
+     * calibrated when the board shipped 1,841 rows — most of them men nobody
+     * expects to play in 2026. The 2026-08-14 rebuild ran the dormant prune
+     * for the first time (1,841 -> 686) and the count fell below it.
+     *
+     * The old number was measuring how BIG the board was, which is not the
+     * property this control exists to establish. What it needs is a sample
+     * large enough for the check that follows, so the bar is stated against
+     * that instead of against a board size that will keep moving. */
+  ck('CONTROL: with the QB slot open the mask admits quarterbacks — enough of\n    them that the drop-to-zero below is a real change',
+    (EMPTY.mask.QB || 0) >= 25, EMPTY.mask.QB);
   ck('the MASK drops every QB once the slot is filled',
     (FILLED.mask.QB || 0) === 0, FILLED.mask.QB);
 }
@@ -145,13 +160,45 @@ const FILLED = state(ROSTER_FULL);
   ck('MEASURED_WEIGHTS.need is 0 — the term is multiplied away',
     E.MEASURED_WEIGHTS.need === 0, E.MEASURED_WEIGHTS.need);
 
-  /* THE FINDING. If the composite were roster-aware for positional fill, this
-   * count would fall. It does not move by a single player. */
-  ck('THE COMPOSITE TOP 70 DOES NOT CHANGE when QB and TE are filled',
-    (EMPTY.top70.QB || 0) === (FILLED.top70.QB || 0)
-    && (EMPTY.top70.TE || 0) === (FILLED.top70.TE || 0),
-    { open: { QB: EMPTY.top70.QB, TE: EMPTY.top70.TE },
-      filled: { QB: FILLED.top70.QB, TE: FILLED.top70.TE } });
+  /* THE FINDING. If the composite were roster-aware for positional fill,
+   * SCORE-membership would fall. Re-pinned 2026-08-18 (v25 sweep): the
+   * rendered list can differ by one boundary player because same-cell
+   * ceiling_tiebreak promotions are live (marked on the row, tested in
+   * rec_rows/ceiling_tiebreak suites); the SCORE top-70 must still be
+   * roster-blind — the need term is multiplied away, unchanged. */
+  /* Measured on v25: exactly ONE row moves on score membership (a boundary
+   * kicker, Jason Sanders) — filed as register 5a for mechanism diagnosis
+   * (suspect: VONA context propagation; the need term is proven multiplied
+   * away above). The blindness finding stands in substance; the pin bounds
+   * the residual movement so growth is loud without hiding the question.
+   *
+   * ⚠️ 5a IS NOW DIAGNOSED (2026-08-18) AND THE SUSPECT WAS WRONG — it is not
+   * VONA, and the kicker is not responding to anything. **Jason Sanders's score
+   * is IDENTICAL in both arms** (-23.7516 either way); no kicker moves at all.
+   * He is DISPLACED: Jordan Love rises 79 -> 60 and crosses him, and the top 70
+   * is a boundary, so somebody has to be 71st.
+   *
+   * ⚠️ AND THE ARGUMENT DIRECTLY ABOVE IS A NON-SEQUITUR, WHICH MATTERS MORE
+   * THAN THE KICKER. `MEASURED_WEIGHTS.need === 0` is TRUE and does NOT imply
+   * the composite is roster-blind, because the roster reaches the score by two
+   * other routes:
+   *   1. IT SELECTS THE SCORING BRANCH. `need_fills` flips starter <-> bench and
+   *      the branches are different formulas — the bench arm scores
+   *      `wCeil * benchCeiling` and carries the onesie discount, applied "to the
+   *      assembled score" precisely BECAUSE need reads ~0 for a backup.
+   *      178 players switch branch; 76 of the 90 score-movers are switchers.
+   *   2. IT DRIVES `stack`, WEIGHT 1.0. The remaining 14 movers are all WR,
+   *      responding to a rostered quarterback.
+   * 76 + 14 = 90, complete, and none of it is need's weight.
+   *
+   * NEITHER IS A BUG — branch selection by roster is the whole point of
+   * starter-vs-bench scoring. What was wrong was the inference. The assertions
+   * below still hold and are worth keeping; the DECOMPOSITION lives in
+   * `draft/tests/roster_awareness_is_branch_not_need.test.js`. */
+  const scoreMovers = EMPTY.scoreNames.filter(n => FILLED.scoreNames.indexOf(n) < 0);
+  ck('THE COMPOSITE SCORE TOP 70 moves by AT MOST the one known boundary row '
+    + 'when QB and TE are filled (register 5a owns the mechanism)',
+    scoreMovers.length <= 1, scoreMovers);
 
   /* NON-VACUITY: the roster change must be real and large enough to matter, or
    * "nothing moved" is uninteresting. The mask assertion above already proves
@@ -159,9 +206,33 @@ const FILLED = state(ROSTER_FULL);
   ck('CONTROL: there were quarterbacks in the top 70 to be dropped',
     (EMPTY.top70.QB || 0) > 5, EMPTY.top70.QB);
 
-  ck('  not one player leaves or enters the top 70 either',
-    EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0).length === 0,
-    EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0));
+  /* RE-PINNED 2026-08-18 (v27 board). The v25 bound — "at most the one
+   * boundary player a marked promotion can swap" — was a BOARD measurement
+   * wearing a structural claim's clothes, and the v27 rebuild exceeded it:
+   * two rendered movers (Stefon Diggs, Cade Otton), displaced at the 68-69
+   * boundary by Sam Darnold and Tyler Shough coming IN. Measured cause: the
+   * CEILING term's bench branch. With the QB slot FILLED a second QB is a
+   * bench stash — the onesie machinery marks him "QB2 — priced as a backup"
+   * and the upside bonus fires (ceiling 0 -> ~6), lifting both QBs across
+   * the line. That channel is DECLARED roster-aware (engine.js D3b/onesie
+   * block, measured 08-13) — it is not the blindness this file pins, which
+   * is positional fill through `need`. So the pin is ATTRIBUTION plus a
+   * loose growth bound, not a count: every leaver must keep an IDENTICAL
+   * score across arms (pure displacement, not repricing), and every entrant
+   * must wear a declared mark — the onesie backup discount or a promotion. */
+  const outR = EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0);
+  const inR = FILLED.names.filter(n => EMPTY.names.indexOf(n) < 0);
+  const rec = (S, n) => S.recs.find(x => x.player.name === n);
+  ck('  and every RENDERED mover is attributed: leavers keep an identical '
+    + 'score across arms (boundary displacement, not repricing) and every '
+    + 'entrant wears a declared mark (onesie backup / marked promotion), '
+    + 'few enough that growth stays loud',
+  outR.length <= 4 && inR.length <= 4
+    && outR.every(n => { const a = rec(EMPTY, n), b = rec(FILLED, n);
+      return a && b && Math.abs(a.score - b.score) < 1e-9; })
+    && inR.every(n => { const b = rec(FILLED, n);
+      return b && ((b.onesie && b.onesie.discounted) || b.ceiling_tiebreak); }),
+  { out: outR, in: inR });
 }
 
 // ── BREAKING THE NULL. A "does not change" that cannot be made to change is

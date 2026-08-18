@@ -11,7 +11,7 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
 - top-decile winner by season: {'naive': 2}
 - our blend beats naive on top-decile: 0/2 seasons
-- dollars by source (value-greedy roster, summed): {'our_blend': 200.0, 'naive': 100.0, 'ffc_adp': 1200.0}
+- dollars by source (value-greedy roster, summed): {'our_blend': 200.0, 'naive': 100.0, 'ffc_adp': 1825.0}
 - dollars ranking (best first): ['ffc_adp', 'our_blend', 'naive']
 - **provenance banner required: True** (true = a decision-time-safe source beats our blend and the War Room must say so)
 - **⚠ DISQUALIFIED (leak-suspect, NOT in the verdict): ['sleeper_proj']** — their summed value-greedy $ (shown, not ranked): {'sleeper_proj': 0.0}
@@ -20,11 +20,11 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
 ### 2024
 - top-decile (safe sources): winner **naive** (our 0.413 vs naive 0.587; our rank 2)
-- dollars (value-greedy roster): {'our_blend': 200.0, 'naive': 100.0, 'ffc_adp': 400.0, 'sleeper_proj': 0.0}
+- dollars (value-greedy roster): {'our_blend': 200.0, 'naive': 100.0, 'ffc_adp': 1025.0, 'sleeper_proj': 0.0}
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 57.09 | 0.581 | 0.413 | yes |
+  | our_blend | 57.08 | 0.581 | 0.413 | yes |
   | naive | 45.59 | 0.704 | 0.587 | yes |
   | ffc_adp | None | 0.378 | 0.312 | yes |
   | sleeper_proj | 33.05 | 0.819 | 0.692 | **NO — leak-suspect** |
@@ -35,7 +35,7 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 56.67 | 0.608 | 0.413 | yes |
+  | our_blend | 56.66 | 0.608 | 0.413 | yes |
   | naive | 46.25 | 0.704 | 0.565 | yes |
   | ffc_adp | None | 0.446 | 0.222 | yes |
   | sleeper_proj | 35.27 | 0.798 | 0.627 | **NO — leak-suspect** |

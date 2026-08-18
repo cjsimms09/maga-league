@@ -37,20 +37,33 @@ check('survival at ADP is ~50%', approx(E.survival(guy, 40), 0.5, 0.02));
 // assert the constant's VALUE once, with a citation for where the value comes
 // from. Then re-tuning touches exactly one line, and that line says why.
 //
-// SPEC: WORKORDERv3.md, adp_sd interim — "clamp(0.15 x adp, 3.0, 15.0)",
-// standing in for real per-player ADP dispersion until FFC's sd is reachable
-// (blocked at CONNECT by the network policy; see the allowlist note).
-check('the sd coefficients are the ones the work order specifies',
-  E.CFG.ADP_SD_RATE === 0.15 && E.CFG.ADP_SD_FLOOR === 3.0
+// SPEC, superseding WORKORDERv3.md's interim "clamp(0.15 x adp, 3.0, 15.0)":
+// re-pinned 2026-08-17, Cory's adp_sd ruling (0.11/2.0) — "SHIP, ORDER BACKTEST
+// AND RESERVE RIGHT TO CHANGE IF BACKTEST SHOWS DIFFERENT DATA". The rate is
+// the two-estimator measurement (LSQ 0.1083 / median 0.1099, n=173) and the
+// floor moved WITH it; derivation in keepers.py's SHIPPED block. The cap is
+// deliberately unchanged (undetermined, n=30 above adp 200). E.CFG now READS
+// these from survival.js's CFG rather than mirroring them by hand, and
+// test_survival_parity.py holds survival.js equal to keepers.py — so this one
+// literal line is the only place the VALUE is asserted, per the rule above.
+check('the sd coefficients are the shipped ruling pair',
+  E.CFG.ADP_SD_RATE === 0.11 && E.CFG.ADP_SD_FLOOR === 2.0
     && E.CFG.ADP_SD_CAP === 15.0,
   JSON.stringify([E.CFG.ADP_SD_RATE, E.CFG.ADP_SD_FLOOR, E.CFG.ADP_SD_CAP]));
 check('adpSd floors, rather than going to zero at the top of the board',
   approx(E.adpSd(5), E.CFG.ADP_SD_FLOOR));
 check('adpSd grows linearly with ADP between the floor and the cap',
   approx(E.adpSd(50), 50 * E.CFG.ADP_SD_RATE));
+/* The cap probes sit ABOVE where the cap starts to bind, DERIVED rather than
+ * typed: at the old 0.15 rate the cap bound from adp 100; at the shipped 0.11
+ * it binds from adp ~136 (CAP/RATE), so a hard-coded probe at 100 was really
+ * asserting the old rate — the exact strand-the-next-ruling failure the rule
+ * above exists to prevent. */
+const capFrom = E.CFG.ADP_SD_CAP / E.CFG.ADP_SD_RATE;
 check('and is capped, so a late-round ADP does not flatten the curve entirely',
-  approx(E.adpSd(100), E.CFG.ADP_SD_CAP) && approx(E.adpSd(200), E.CFG.ADP_SD_CAP),
-  String(E.adpSd(200)));
+  approx(E.adpSd(capFrom + 10), E.CFG.ADP_SD_CAP)
+    && approx(E.adpSd(capFrom * 2), E.CFG.ADP_SD_CAP),
+  String(E.adpSd(capFrom * 2)));
 check('a source-provided sd always beats the heuristic',
   E.adpSd(170, 6.5) === 6.5);
 check('and the cap never fires below the floor',
@@ -171,7 +184,13 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   }
   function mkCtx(roster, board) {
     return {
-      currentPick: 130, roster: roster || [],
+      // Round 5 — inside the MEASURED ramp's 4-6 peak (Cory's 2026-08-16
+      // ruling flipped KOV_MEASURED_RAMP on; the old fixture sat at pick 130 /
+      // round 13, where the measured ramp is zero because 0 of 31 round-13-15
+      // picks were ever kept, which would zero every mechanism this suite
+      // tests). The CLAIMS below are ramp-independent scarcity mechanics; the
+      // fixture just has to sit where the ramp is live.
+      currentPick: 45, roster: roster || [],
       board: board || [mkPlayer('bench', 5, 28)],
       league: { teams: 10, keeper_rules: { count: 3, cost_model: 'original_round' } },
     };
@@ -226,15 +245,18 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 
   // Endogeneity: under original_round cost, the round you take him in IS his
   // keeper price, so the same player must not price identically everywhere.
+  // Rounds 5 vs 6 on purpose: BOTH sit at the measured ramp's 1.0 peak, so the
+  // ramp cancels and any difference is the round-cost pricing alone (the old
+  // r8-vs-r13 arm confounded ramp and cost once the measured ramp shipped).
   {
     const p = mkPlayer('a', 60, 23);
     const board = [mkPlayer('x', 40, 27), mkPlayer('y', 20, 27), mkPlayer('z', 8, 29)];
     board[0].adjusted_adp = 80; board[1].adjusted_adp = 130; board[2].adjusted_adp = 200;
-    const at8 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 71 }));
-    const at13 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 121 }));
-    check('KOV: same player prices differently at round 8 vs 13 (endogeneity)',
-      at8.round === 8 && at13.round === 13 && at8.value !== at13.value,
-      `r8=${at8.round}/${at8.value} r13=${at13.round}/${at13.value}`);
+    const at5 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 45 }));
+    const at6 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 55 }));
+    check('KOV: same player prices differently at round 5 vs 6 (endogeneity, ramp held equal)',
+      at5.round === 5 && at6.round === 6 && at5.value !== at6.value,
+      `r5=${at5.round}/${at5.value} r6=${at6.round}/${at6.value}`);
   }
 })();
 
@@ -540,9 +562,37 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
       Array.isArray(paths) && paths.length <= E.CFG.PATHS_MAX, 'n=' + paths.length);
     check('paths: the top path is priced at zero (nothing costs less than the best)',
       paths.length > 0 && paths[0].price === 0, JSON.stringify(paths.map(p => p.price)));
-    check('paths: every price is >= 0 and within the qualifying band',
-      paths.every(p => p.price >= 0 && p.price <= E.CFG.PATHS_BAND),
-      JSON.stringify(paths.map(p => p.price)));
+    /* ── THIS ASSERTION PINNED THE DEFECT, AND ITS TWO HALVES SPLIT (08-14) ──
+     *
+     * It checked `price >= 0 && price <= PATHS_BAND` as one condition. The first
+     * half is a genuine invariant — a "cost" below zero is a badge that reads
+     * backwards, and it really can happen (an unsorted board produces −5.1, −9,
+     * −23.6; see paths_offer_options.test.js).
+     *
+     * THE SECOND HALF WAS PINNING THE THING CORY REPORTED. "Every rendered path
+     * is within the band" is the same statement as "the band decides whether an
+     * option exists", and measured across his twelve picks that left ONE
+     * direction at ten of them — whose leader is by construction the player the
+     * recommendations panel already prints at #1. *"Gibbs listed twice? No other
+     * options."*
+     *
+     * The band still means what it meant; it now sets `within_band` instead of
+     * deleting the card. So the checkable claim is that the FLAG is accurate,
+     * not that it is universally true — a test asserting the latter is a test
+     * that goes red when the panel starts offering alternatives. */
+    check('paths: no price is negative — a cost below zero is a badge that reads '
+      + 'backwards', paths.every(p => p.price >= 0),
+    JSON.stringify(paths.map(p => p.price)));
+    check('paths: within_band agrees with the price on every card, so an expensive '
+      + 'direction can never render as an equal',
+      paths.every(p => p.within_band === (p.price <= E.CFG.PATHS_BAND)),
+      JSON.stringify(paths.map(p => [p.price, p.within_band])));
+    check('paths: the in-band cards are a PREFIX — a widened panel never demotes '
+      + 'a direction that already qualified',
+      (function () {
+        const f = paths.map(p => p.within_band);
+        return f.lastIndexOf(true) < f.indexOf(false) || f.indexOf(false) < 0;
+      })(), JSON.stringify(paths.map(p => p.within_band)));
     check('paths: each direction groups a single position (a real direction, not a mix)',
       paths.every(p => p.candidates.every(c => c.player.position === p.position)));
     check('paths: every path names a plain-language direction and a when-it\'s-right',
@@ -919,6 +969,76 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     /lets value come to him/.test(E.managerTells({ sample_size: 3,
       reach_delta: { mean: -3.5 } })[0].text));
 
+  /* ── THE REACH TELL CARRIES ITS OWN SUPPORT ────────────────────────────
+   *
+   * `reach_delta` has always carried `sd`, and the profile `picks_analysed`, so
+   * the standard error was computable and never computed. The tell fired on
+   * |mean| alone. Measured over the ten managers on the live board, only TWO
+   * exceed two standard errors — and NEITHER is one the tell calls a reacher:
+   *
+   *     ds7mmet      mean  +7.3   sd 134.2   t = 0.34   <- "reaches"
+   *     Richard2121  mean +12.9   sd 141.2   t = 0.58   <- "reaches"
+   *     MarianSaar   mean  -7.0   sd  20.7   t = -2.10  <- "near market"
+   *     B8T3S        mean  -5.9   sd  18.3   t = -2.05  <- "near market"
+   *
+   * One or two enormous outliers (sd 134 against a mean of 7) drag the mean past
+   * the threshold, so the flag is anti-correlated with the evidence for reaching.
+   * It also contradicts this project's own standard, set in the VONA section of
+   * the surface contract: "three drafts give a direction, not a magnitude."
+   *
+   * NOT GATED, NOT RE-WEIGHTED, AND `withinPrecision` IN survival.js — which
+   * reads the same mean to shape the opponent softmax — IS UNTOUCHED. Several
+   * corrections are defensible and none is measured; fitting one eight days out
+   * would move Layer 2 survival, and through it VONA, on a suspicion. */
+  {
+    const weak = E.managerTells({ sample_size: 3, picks_analysed: 40,
+      reach_delta: { mean: 7.3, sd: 134.2, proxy: false } })[0];
+    check('a reach whose spread swamps it is marked WEAK rather than stated flat',
+      /WEAK/.test(weak.detail) && weak.well_supported === false, JSON.stringify(weak.detail));
+    check('and it names the spread and the sample, so the reader can check it',
+      /±21 picks over 40/.test(weak.detail), weak.detail);
+
+    const solid = E.managerTells({ sample_size: 3, picks_analysed: 39,
+      reach_delta: { mean: -7.0, sd: 20.7, proxy: false } })[0];
+    check('a reach that survives its own spread says so instead',
+      /holds at 2\.1 standard errors/.test(solid.detail) && solid.well_supported === true,
+      solid.detail);
+
+    check('CONTROL — both tells still FIRE and carry the same text and weight; '
+      + 'nothing was gated or re-weighted on the strength of this',
+    /reaches 7\.3 picks/.test(weak.text) && /lets value come to him/.test(solid.text)
+      && weak.weight === 7.3 / 2, JSON.stringify([weak.text, weak.weight]));
+
+    check('a profile with no sd degrades to the old behaviour rather than '
+      + 'inventing support', (function () {
+      const t = E.managerTells({ sample_size: 3, reach_delta: { mean: 4.0, proxy: false } })[0];
+      return t.support_t === null && t.well_supported === null && !/WEAK|standard errors/.test(t.detail);
+    })());
+
+    /* THE MEASUREMENT, RE-DERIVED FROM THE LIVE BOARD rather than quoted, so
+     * this goes red if the profiles change shape rather than silently ageing. */
+    const PROF = require('../../public/draft_data.json').manager_profiles || {};
+    const mgrs = Object.values(PROF.managers || {});
+    const tOf = m => {
+      const rd = m.reach_delta || {}, n = m.picks_analysed || 0;
+      if (rd.sd == null || !n || rd.mean == null) return null;
+      return rd.mean / (rd.sd / Math.sqrt(n));
+    };
+    const supported = mgrs.filter(m => { const t = tOf(m); return t != null && Math.abs(t) >= 2; });
+    check('CONTROL — the live board still carries ten profiles with sd, or the '
+      + 'claim below measures nothing', mgrs.length >= 8
+      && mgrs.every(m => tOf(m) != null), mgrs.length);
+    check('MEASURED: most managers reach-effects are NOT distinguishable from '
+      + 'zero, which is why the tell had to carry its support',
+    supported.length <= mgrs.length / 2,
+    supported.length + ' of ' + mgrs.length + ' exceed 2 SE');
+    check('and every manager the tell calls a REACHER on this board is one of '
+      + 'the unsupported ones — the flag is anti-correlated with the evidence',
+    mgrs.filter(m => (m.reach_delta || {}).mean > 0 && Math.abs(tOf(m)) >= 2).length === 0,
+    mgrs.filter(m => (m.reach_delta || {}).mean > 0)
+      .map(m => m.name + ' t=' + tOf(m).toFixed(2)).join(', '));
+  }
+
   check('a homer above the threshold is called out by team',
     /homer for KC/.test(E.managerTells({ sample_size: 3,
       homer_index: { team: 'KC', rate: 0.31 } })[0].text));
@@ -1114,15 +1234,24 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
                   mk('r5', 'WR', 5, 108, 35), mk('r6', 'TE', 6, 100, 34),
                   mk('r7', 'K', 7, 130, 33), mk('r8', 'DEF', 8, 125, 33)];
 
-  const lateCtx = w => ({
-    board: board, currentPick: 115, nextPick: 125, totalPicks: 150,
+  // The KOV-live context sits in ROUND 5 — the measured ramp's 4-6 peak, per
+  // Cory's 2026-08-16 ruling (KOV_MEASURED_RAMP on: keeper value lives where
+  // this league actually keeps from, rounds 4-6; rounds 10-15 measure ~zero).
+  // The old fixture sat at round 12, which the OLD reasoned ramp treated as
+  // fully open and the measured ramp zeroes.
+  const kovCtx = w => ({
+    board: board, currentPick: 45, nextPick: 55, totalPicks: 150,
     myPicksLeft: 4, roster: roster, league: L, weights: w || E.DEFAULT_WEIGHTS,
-    runMultipliers: {}, intervening: [], roundsLeft: 4,
+    runMultipliers: {}, intervening: [], roundsLeft: 11,
+    original_rounds: board.reduce((m, p) => { m[p.player_id] = 5; return m; }, {}),
+  });
+  const lateCtx = w => Object.assign({}, kovCtx(w), {
+    currentPick: 115, nextPick: 125, roundsLeft: 4,
     original_rounds: board.reduce((m, p) => { m[p.player_id] = 12; return m; }, {}),
   });
 
-  const kov = E.compositeTerms.keeperOptionValue(board[0], lateCtx());
-  check('at round 12 the KOV ramp is fully open, not zero',
+  const kov = E.compositeTerms.keeperOptionValue(board[0], kovCtx());
+  check('at round 5 the measured KOV ramp is fully open (the 4-6 peak)',
     kov.ramp === 1, JSON.stringify({ ramp: kov.ramp, round: kov.round }));
   check('and raw KOV is non-zero for a young player there',
     Math.abs(kov.raw_value) > 0, JSON.stringify(kov));
@@ -1134,27 +1263,26 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   const strong = [mk('s1', 'RB', 1, 300, 23), mk('s2', 'RB', 2, 295, 23),
                   mk('s3', 'WR', 3, 290, 23), mk('s4', 'WR', 4, 285, 24)];
   const crowded = E.compositeTerms.keeperOptionValue(board[0],
-    Object.assign({}, lateCtx(), { roster: strong }));
+    Object.assign({}, kovCtx(), { roster: strong }));
   check('a 4th keeper candidate behind three stronger ones is worth zero — the '
     + 'scarcity fix, not an inert term',
     crowded.value === 0 && crowded.raw_value > 0, JSON.stringify(crowded));
 
-  const early = E.compositeTerms.keeperOptionValue(board[0],
-    Object.assign({}, lateCtx(), { currentPick: 37 }));
-  check('at round 4 KOV is exactly zero — the ramp, working as specified, which '
-    + 'is why the 0/20 in the evidence bundle proved nothing',
-    early.value === 0 && early.ramp === 0, JSON.stringify(early));
+  const late = E.compositeTerms.keeperOptionValue(board[0], lateCtx());
+  check('at round 12 KOV is exactly zero — the MEASURED ramp (0 of 31 round-'
+    + '13-15 picks were ever kept; Cory ruled the measured shape in 2026-08-16)',
+    late.value === 0 && late.ramp === 0, JSON.stringify(late));
 
   // THE DEMANDED TEST: zero the term on a board that can exercise it. `need` is
   // zeroed in BOTH arms to isolate the keeper term — otherwise the D3 flex
   // discount (which lives in `need`) can reorder the flex-eligible top-5 hard
   // enough to mask the keeper effect on this synthetic board. With need off, the
   // ONLY difference is the keeper term, so a top-5 change proves it participates.
-  const withKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })))
+  const withKov = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })))
     .slice(0, 5).map(x => x.player.player_id).join();
-  const noKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })))
+  const noKov = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })))
     .slice(0, 5).map(x => x.player.player_id).join();
-  check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-12 BOARD — the term '
+  check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-5 BOARD — the term '
     + 'participates', withKov !== noKov, 'with: ' + withKov + '  without: ' + noKov);
 
   // Bye: it can only bite when the roster actually collides on a week.
@@ -1326,11 +1454,12 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     [0, 0.25, 1, 2, 3].every(v => at(v)[0].player.position !== 'K'));
 }
 
-// --- KOV is connected: it ramps to zero early and moves the board late ------
-// SPEC: item 17 left open whether the keeper term was disconnected or merely
-// zero. Finding 2 (this session) established KOV_ROUND_RAMP_START=6, so item
-// 17's rounds-3-5 boards produced ramp=0 by design. This proves the other
-// half: on a round-12 board the term is live and its removal changes the top 5.
+// --- KOV is connected: live where the measured ramp is open, zero where not -
+// SPEC (updated for Cory's 2026-08-16 ruling): item 17 left open whether the
+// keeper term was disconnected or merely zero; the answer is the RAMP decides,
+// and the ramp is now the MEASURED shape (open rounds 4-6, fraction 7-9, zero
+// 10-15). This proves both halves against that shape: a round-5 board carries
+// a live keeper component, a round-12 board carries none.
 {
   const L2 = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
                keeper_rules: { count: 3 } };
@@ -1344,16 +1473,17 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     myPicksLeft: 4, roster: [], league: L2, weights: w, runMultipliers: {},
     intervening: [], roundsLeft: 4, currentKeepers: [] });
   // The connection proof, robust to board shape: the keeper COMPONENT is
-  // non-zero at round 12 and exactly zero at round <=6. (On the real production
-  // board this reorders the top 5 — verified separately; a uniform synthetic
-  // board may not reorder, so we assert the load-bearing fact, not the effect.)
+  // non-zero where the measured ramp is open (round 5) and exactly zero where
+  // it measures nothing (round 12). (On the real production board the live arm
+  // reorders the top 5 — verified separately; a uniform synthetic board may
+  // not reorder, so we assert the load-bearing fact, not the effect.)
+  const live = E.recommend(Object.assign({}, c(E.DEFAULT_WEIGHTS), { currentPick: 45, nextPick: 56 }));
+  const liveKeeper = live.some(x => Math.abs((x.components || {}).keeper || 0) > 0);
   const late = E.recommend(c(E.DEFAULT_WEIGHTS));
-  const lateLive = late.some(x => Math.abs((x.components || {}).keeper || 0) > 0);
-  const early = E.recommend(Object.assign({}, c(E.DEFAULT_WEIGHTS), { currentPick: 35 }));
-  const earlyZero = early.every(x => !((x.components || {}).keeper));
-  check('at round <=6 the keeper term contributes nothing (the ramp)', earlyZero);
-  check('on a round-12 board the keeper term is LIVE (non-zero component)',
-    lateLive, 'no live keeper component at round 12');
+  const lateZero = late.every(x => !((x.components || {}).keeper));
+  check('at round 12 the keeper term contributes nothing (the measured ramp)', lateZero);
+  check('on a round-5 board the keeper term is LIVE (non-zero component)',
+    liveKeeper, 'no live keeper component at round 5');
 }
 
 // --- D9: the installed ceiling posture (Lab exp 21 + exp 2 §5) --------------
@@ -1416,10 +1546,13 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   check('measured: stack at 1.0 (the one adjuster that earned — D10 as ruled)',
     m.stack === 1.0, String(m.stack));
   check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
-  check('measured: ceiling SETTLED TO ZERO — the ledger measured -4.8 [-26,+17], a sign we '
-    + 'cannot distinguish from zero, yet at 0.65 it decided a third of late #1s (flip diag). '
-    + 'The weekly-payout lean lives in the same-tier tiebreak + Ceiling Chase doctrine now.',
-    m.ceiling === 0, String(m.ceiling));
+  check('measured: ceiling at 0.45 — RULED 2026-08-17 (Cory: "IS THIS STUDIES? IF SO, YES"). '
+    + 'The old -4.8 [-26,+17] zero was measured on a proj_mean-x-constant board (rank-identical '
+    + 'to value, Spearman 1.0000); three preregistered runs on real ceilings beat zero 3/3 seeds, '
+    + 'separably, at every value 0.15-0.65. 0.45 is the exp-21 inverted-U PEAK — "should it be '
+    + 'higher?" is answered NO by the provably negative heavy-tilt arm. Full record at '
+    + 'MEASURED_WEIGHTS in engine.js.',
+    m.ceiling === 0.45, String(m.ceiling));
   check('measured: bye OFF (a real null)', m.bye === 0, String(m.bye));
   // it must be a real, selectable preset AND the thing matchPreset names it
   const preset = E.WEIGHT_PRESETS.find(p => p.key === 'measured');

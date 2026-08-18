@@ -47,6 +47,7 @@ Exit 0 always — this is a reporter, not a gate. GitHub escalates on the marker
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 import sys
@@ -127,7 +128,28 @@ SERIES_WATCH = {
 # they are the reason the cadence argument at the top of this file was written,
 # and gating them behind the weekly analysis pass buried the fast failure inside
 # the slow one. The rest stay weekly: nothing they watch changes in a day.
-LIVENESS_ROWS = ("market_capture_alive", *SERIES_WATCH)
+LIVENESS_ROWS = ("market_capture_alive", *SERIES_WATCH,
+                 # ⚠️ DAILY, AND IT HAD TO BE — the invariant above applied to a
+                 # window measured in HOURS rather than days.
+                 #
+                 # The full examination is Monday-gated. The Mondays around the
+                 # draft are 08-17 and 08-24. The keeper lock is 08-21 and the
+                 # draft is 08-22, SO A WEEKLY pre_draft_freeze ROW COULD NOT
+                 # FIRE BETWEEN THE LOCK AND THE DRAFT — it would next speak two
+                 # days after the thing it protects was already lost.
+                 #
+                 # DATE CORRECTED 2026-08-18 (Cory: "Keeper lock is 8/21"). This
+                 # said 08-20; the repo carried both dates and nobody reconciled
+                 # them. THE CONCLUSION HERE GETS STRONGER, not weaker: the gap
+                 # between lock and draft is ONE day, not two, so the window in
+                 # which a weekly row could have helped is narrower still.
+                 #
+                 # That is bar_days + examination_lag > tolerable_loss_days with
+                 # the numbers that actually matter, and it is the identical
+                 # defect this file documents above for the ADP series. Adding
+                 # the row weekly would have produced a check that runs, reports
+                 # clean, and is configured so it cannot detect its own failure.
+                 "pre_draft_freeze")
 
 
 # ── KNOWN BLINDNESS, PARKED WITH A DEADLINE ─────────────────────────────────
@@ -190,8 +212,36 @@ def _row(name, state, detail, n=None):
 
 # ── THE ARCHIVES ────────────────────────────────────────────────────────────
 
+def _event_league(ev, snapshot_league):
+    """The league an observation belongs to: the event's own record first, the
+    snapshot's declared league as fallback, else unknown — never a guess."""
+    slug = (((ev.get("odds") or {}).get("league") or {}).get("slug")
+            or ev.get("league") or snapshot_league or "")
+    return str(slug).lower()
+
+
 def check_market_snapshots():
-    """Daily odds capture. Two questions: is it alive, and is Signal C askable."""
+    """Daily odds capture. Two questions: is it alive, and is Signal C askable.
+
+    ── THE BAR COUNTS ONLY EVENTS THAT CAN ANSWER THE QUESTION (2026-08-15) ──
+    Signal C asks whether line movement as a game approaches has structure.
+    On PRESEASON games — starters play a series, books barely move the number —
+    the honest answer is a statement about noise, and C measured that every
+    paired event on disk was `usa-nfl-preseason`: the bar (30 paired events)
+    was crossed on 08-12 and the escalation then fired EVERY DAY on data that
+    cannot answer what the bar was set for. An alarm that fires daily and moves
+    nothing is the muted-alarm shape; the threshold and the question were
+    denominated in different things (C's routed diagnosis, ROUTES 2026-08-14).
+
+    So the ESCALATE is gated on REGULAR-SEASON paired events — an event is
+    preseason if its league slug says so, and an event whose league this
+    process cannot read counts toward NEITHER side (absence of a label is not
+    evidence of a season type). Preseason and unlabelled pairs are still
+    counted and REPORTED in the quiet detail, so "the mechanism works, the
+    data is not yet worth asking of" stays visible — the pipe is not silenced,
+    its claim is corrected. First regular-season event enters a 14-day capture
+    horizon on 2026-08-27; this row starts speaking truthfully then.
+    """
     health = ROOT / "draft" / "market_snapshots" / "capture_health.json"
     if not health.exists():
         return _row("market_snapshots", "BLIND",
@@ -210,25 +260,43 @@ def check_market_snapshots():
     # a counter somebody has to remember to update.
     snaps = sorted((ROOT / "draft" / "market_snapshots").glob("*T*Z.json"))
     seen: dict[str, int] = {}
+    league_of: dict[str, str] = {}
     for p in snaps:
         try:
             d = json.loads(p.read_text())
         except (ValueError, OSError):
             continue
+        snap_league = d.get("league")
         for ev in (d.get("events") or []):
             eid = str(ev.get("event_id") or ev.get("id") or "")
             if eid:
                 seen[eid] = seen.get(eid, 0) + 1
-    paired = sum(1 for v in seen.values() if v >= 2)
-    if paired >= T["market_movement_events"]:
+                league_of.setdefault(eid, _event_league(ev, snap_league))
+
+    def classify(eid):
+        slug = league_of.get(eid, "")
+        if not slug:
+            return "unlabelled"
+        return "preseason" if "preseason" in slug else "regular"
+
+    paired = {"regular": 0, "preseason": 0, "unlabelled": 0}
+    for eid, v in seen.items():
+        if v >= 2:
+            paired[classify(eid)] += 1
+    paired_total = sum(paired.values())
+    if paired["regular"] >= T["market_movement_events"]:
         return _row("market_snapshots", "ESCALATE",
-                    f"{paired} events now carry two or more observations "
-                    f"(bar {T['market_movement_events']}) — Signal C is askable for the "
-                    "first time: does the model-market gap have structure or is it noise",
-                    n=paired)
+                    f"{paired['regular']} REGULAR-SEASON events now carry two or more "
+                    f"observations (bar {T['market_movement_events']}) — Signal C is "
+                    "askable for the first time: does the model-market gap have "
+                    "structure or is it noise",
+                    n=paired["regular"])
     return _row("market_snapshots", "quiet",
-                f"{len(snaps)} snapshots, {paired}/{len(seen)} events paired, "
-                f"last capture {age:.1f}d ago", n=paired)
+                f"{len(snaps)} snapshots, {paired_total}/{len(seen)} events paired "
+                f"(regular {paired['regular']}/{T['market_movement_events']} toward the "
+                f"bar; preseason {paired['preseason']} prove the pairing mechanism but "
+                f"cannot answer Signal C; unlabelled {paired['unlabelled']}), "
+                f"last capture {age:.1f}d ago", n=paired["regular"])
 
 
 def check_market_capture_alive():
@@ -396,6 +464,93 @@ def check_calibration_drift():
                 f"{len(rows)} reading(s), none beyond its floor", n=len(rows))
 
 
+def check_pre_draft_freeze():
+    """THE FREEZE IS THE ONE ARTIFACT WHERE THE CALENDAR, NOT A BUG, IS THE RISK.
+
+    `freeze_pre_draft.verify()` existed and NOTHING CALLED IT — intention with no
+    trigger, on the artifact whose entire value is that it was written once
+    before the draft. Routed in by the steering layer on 2026-08-14 after they
+    checked by hand: `grep -rn freeze_pre_draft .github/workflows scripts`
+    returned nothing.
+
+    THE EXPOSURE IS SPECIFIC AND IT IS NOT AN INTEGRITY FAILURE. The freeze is
+    intact and self-consistent today. But draft-data.yml rebuilds the board every
+    morning, so `source_artifact_sha256` stops matching tomorrow — and that is
+    EXPECTED, not an error. A freeze is a snapshot of a past board; drift from
+    the live board is what a snapshot IS. Alarming on drift would fire every day
+    from tomorrow and be ignored by the 20th, which is the cry-wolf failure that
+    gets banners ignored.
+
+    WHAT IS ACTUALLY WRONG IS DRAFTING ON A PROVISIONAL FREEZE AFTER THE LOCK.
+    The freeze says so in its own words: "the pre-lock run is a rehearsal.
+    Re-take after the slate confirms." If nobody remembers, the season's grading
+    baseline is taken against the wrong keeper state — and no later work
+    reconstructs a decision-time record after the decision.
+
+    THE TRIGGER IS DERIVED, NOT A DATE. `keeper_slate.keeper_lock_passed` is
+    computed from Sleeper placements on the live board. No "20 August" literal
+    appears here, so a lock that moves — or one that happens early — is still
+    caught. A hardcoded date is a second definition of the lock and would
+    disagree with the board on exactly the day it mattered.
+    """
+    freeze = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+    board = ROOT / "public" / "draft_data.json"
+    if not freeze.exists():
+        return _row("pre_draft_freeze", "ESCALATE",
+                    "NO FREEZE EXISTS. The pre-draft capture is irreversible — "
+                    "after the draft there is nothing to take it from.")
+    try:
+        doc = json.loads(freeze.read_text())
+    except (ValueError, OSError) as e:
+        return _row("pre_draft_freeze", "BLIND", f"freeze unreadable: {type(e).__name__}")
+
+    # 1. INTEGRITY. Recomputed, not trusted.
+    want = doc.get("_sha256_of_payload")
+    payload = {k: v for k, v in doc.items() if k != "_sha256_of_payload"}
+    got = hashlib.sha256(json.dumps(payload, sort_keys=True,
+                                    separators=(",", ":")).encode()).hexdigest()
+    if want != got:
+        return _row("pre_draft_freeze", "ESCALATE",
+                    f"FREEZE ALTERED since it was written (stamped {str(want)[:12]}, "
+                    f"actual {got[:12]}). Evidence preservation outranks everything "
+                    "else here — do not overwrite it, work out what changed.")
+
+    status = doc.get("status")
+    # 2. HAS THE LOCK PASSED? Asked of the LIVE board, which is the only thing
+    #    that knows. A missing board is BLIND, never "no".
+    if not board.exists():
+        return _row("pre_draft_freeze", "BLIND",
+                    "freeze intact, but the live board is absent so the keeper "
+                    "lock state cannot be read")
+    try:
+        slate = (json.loads(board.read_text()).get("keeper_slate") or {})
+    except (ValueError, OSError) as e:
+        return _row("pre_draft_freeze", "BLIND",
+                    f"freeze intact, board unreadable: {type(e).__name__}")
+
+    locked = bool(slate.get("keeper_lock_passed"))
+    if locked and status != "CONFIRMED":
+        return _row("pre_draft_freeze", "ESCALATE",
+                    f"THE KEEPER LOCK HAS PASSED AND THE FREEZE IS STILL {status}. "
+                    "It was built on PREDICTED opponent keepers. Re-take it now: "
+                    "the diff between the two runs IS the keeper-scarcity evidence, "
+                    "and it is unrecoverable once the draft starts.")
+
+    # 3. DRIFT — REPORTED, NEVER ESCALATED. See the docstring.
+    drift = ""
+    try:
+        live_sha = hashlib.sha256(board.read_bytes()).hexdigest()
+        if live_sha != doc.get("source_artifact_sha256"):
+            drift = ("; board has been rebuilt since (expected — daily job), so "
+                     "the freeze no longer describes the live artifact")
+    except OSError:
+        pass
+    return _row("pre_draft_freeze", "quiet",
+                f"freeze intact and {status}; keeper lock not yet passed"
+                f" ({slate.get('teams_designated')}/{slate.get('teams_expected')} "
+                f"teams designated){drift}")
+
+
 def check_components():
     """The component-grading surface. Escalates on MEASURABILITY, not interest."""
     p = ROOT / "draft" / "data" / "component_grades.json"
@@ -488,6 +643,7 @@ CHECKS = [
     check_pred_ledger,
     check_calibration_drift,
     check_components,
+    check_pre_draft_freeze,
     check_coherence,
 ]
 

@@ -35,6 +35,11 @@ import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
+# ONE SET OF DISPERSION CONSTANTS. keepers.py owns them and is import-safe: it
+# pulls in nothing local, so there is no cycle. See fitted_sd() for why this
+# module used to carry its own copy and what that cost.
+import keepers as _K
+
 FFC_BASE = "https://fantasyfootballcalculator.com/api/v1/adp"
 CACHE = Path(__file__).parent / ".cache"
 CACHE_TTL = 12 * 60 * 60  # FFC recomputes daily; one call per build is plenty.
@@ -346,7 +351,20 @@ def fitted_sd(adp_mean: float, published_sd: float | None) -> tuple[float, str]:
     """
     if published_sd and published_sd > 0:
         return float(published_sd), "ffc"
-    return max(3.0, min(0.15 * adp_mean, 15.0)), "clamped-linear"
+    # ⚠️ A FOURTH COPY OF THE RATE LIVED HERE AS THE LITERAL `0.15`.
+    #
+    # keepers.py carries ADP_SD_{FLOOR,RATE,CAP} and survival.js carries
+    # CFG.ADP_SD_*, and `test_survival_parity.py` pins those two to each other by
+    # parsing the JS. This line was in neither set — a third implementation of
+    # the same rule that no parity test could see, in the file that actually
+    # STAMPS the board. Changing the rate in keepers.py would have moved the
+    # keeper optimizer and the war room and left the shipped `adp_sd` alone.
+    #
+    # Same shape as `picks` versus `my_picks` and as the four adp_sd formulas C
+    # routed today: one rule, several copies, and the guard over it comparing two
+    # of them to each other.
+    return (min(_K.ADP_SD_CAP, max(_K.ADP_SD_FLOOR, _K.ADP_SD_RATE * adp_mean)),
+            "clamped-linear")
 
 
 def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
@@ -535,6 +553,101 @@ def build_fantasypros_table(sleeper_players: dict, *, year: int, half_ppr: bool 
     return rows, diag
 
 
+def recover_fp_dropped_stats(text: str, parsed: list[dict], scoring: dict) -> dict:
+    """Recover stat fields FantasyPros serves under names `_FP_STAT_MAP` does not
+    know, injecting them into `parsed` entries' stats IN PLACE. Returns a diag.
+
+    THE DEFECT THIS FIXES (DECISIONS-NEEDED #000, fixed 2026-08-16 under Cory's
+    ruling "Don't agree with timelines we fix now"): FP's live 2026 projections
+    payload serves receptions as `rec_rec` — measured across the full payload in
+    the committed raw capture (draft/audit/proj_correctness_evidence_2026-08-16
+    .json: raw_key_census shows `rec_rec` on all 437 receiving rows and `rec`/
+    `receptions` on none). The map knows only `rec`/`receptions`, so every FP
+    projection was scored WITHOUT reception points: WR/TE landed ~19% short
+    (the measured 0.82/0.81 FP-vs-Sleeper ratios), QBs were untouched (1.00),
+    and RBs' missing reception points were masked by FP's genuinely higher
+    rushing volumes. Adding back 0.5 x rec_rec puts 249 of 249 sampled WR/TE
+    within +-0.01 of FP's OWN half-PPR total (`points_half`) — receptions were
+    the whole gap, and the recovery is FP's exact number, not a rescale.
+
+    Also recovered: `2pt_tds` (FP's combined two-point conversions) — injected
+    only when the league prices pass_2pt/rush_2pt/rec_2pt IDENTICALLY, because
+    FP does not say which kind and only equal pricing makes the sum exact.
+
+    WHY HERE and not in `_FP_STAT_MAP` itself: draft/backtest is a read-only
+    record of graded experiments in this pass (and the FP ARCHIVE endpoints the
+    historical grades parsed DO serve `rec` — exp_fp_hist_proj graded 2023-25
+    with near-zero WR/TE bias, so their parses must not be touched). The live
+    build's attach point is this module, so the live fix lives here.
+
+    ALIAS DISCIPLINE (same class as scoring.DEF_PROJ_TD_ALIASES): a recovered
+    field is injected only when the mapped key is ABSENT — if a future payload
+    serves both `rec` and `rec_rec`, the map's key wins and nothing doubles.
+    """
+    diag = {"rec_recovered": 0, "twopt_recovered": 0, "skipped_dup_name": 0,
+            "raw_rows": 0}
+    try:
+        data = json.loads((text or "").strip())
+    except (ValueError, TypeError):
+        diag["reason"] = "raw payload is not clean JSON; nothing recovered"
+        return diag
+    raw_rows = data.get("players") if isinstance(data, dict) else data
+    if not isinstance(raw_rows, list):
+        diag["reason"] = "raw payload has no players list; nothing recovered"
+        return diag
+
+    def _norm(name):
+        return " ".join(str(name or "").lower().replace(".", "").replace("'", "")
+                        .replace("-", " ").split())
+
+    by_name: dict[str, list[dict]] = {}
+    for o in raw_rows:
+        if not isinstance(o, dict):
+            continue
+        name = ((o.get("player") or {}).get("name") or o.get("name")
+                or o.get("player_name"))
+        if not name:
+            continue
+        src = o.get("stats") if isinstance(o.get("stats"), dict) else o
+        by_name.setdefault(_norm(name), []).append(src)
+    diag["raw_rows"] = sum(len(v) for v in by_name.values())
+
+    twopt_ok = len({float(scoring.get(k, 0.0))
+                    for k in ("pass_2pt", "rush_2pt", "rec_2pt")}) == 1
+    diag["twopt_pricing_uniform"] = twopt_ok
+
+    def _num(v):
+        try:
+            return float(str(v).replace(",", ""))
+        except (TypeError, ValueError):
+            return None
+
+    for entry in parsed:
+        cands = by_name.get(_norm(entry.get("name")))
+        if not cands:
+            continue
+        if len(cands) > 1:
+            # Two raw rows share the name: recovery cannot know which one this
+            # entry is. Skip — the crosswalk's own collision logic will drop
+            # contested names later anyway; an ambiguous recovery must not guess.
+            diag["skipped_dup_name"] += 1
+            continue
+        src = cands[0]
+        stats = entry.setdefault("stats", {})
+        rec = _num(src.get("rec_rec"))
+        if rec is not None and "rec" not in stats:
+            stats["rec"] = rec
+            diag["rec_recovered"] += 1
+        two = _num(src.get("2pt_tds"))
+        if (twopt_ok and two and "rush_2pt" not in stats and "pass_2pt" not in stats
+                and "rec_2pt" not in stats):
+            # FP aggregates all three kinds; with uniform pricing any single key
+            # scores the sum exactly. rush_2pt chosen as the carrier.
+            stats["rush_2pt"] = two
+            diag["twopt_recovered"] += 1
+    return diag
+
+
 def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: dict,
                                   min_rows: int = 60) -> tuple[dict | None, dict]:
     """FantasyPros SEASON PROJECTIONS, scored under OUR league scoring and crosswalked to
@@ -561,7 +674,11 @@ def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: 
 
     text, url, fdiag = FP.fetch_projections(year)
     parsed = FP.parse_projections(text) if text else []
-    diag = {"fp_proj_url": url, "fp_proj_rows_parsed": len(parsed), "fp_proj_fetch": fdiag}
+    # Recover the fields the map drops (rec_rec receptions, 2pt_tds) BEFORE
+    # scoring — the WR/TE ~20% undercount fix (#000, Cory's 2026-08-16 ruling).
+    rdiag = recover_fp_dropped_stats(text, parsed, scoring) if parsed else {}
+    diag = {"fp_proj_url": url, "fp_proj_rows_parsed": len(parsed), "fp_proj_fetch": fdiag,
+            "fp_proj_recovered": rdiag}
     if len(parsed) < min_rows:
         diag["reason"] = f"only {len(parsed)} FP projection rows parsed (< {min_rows}); single-source"
         return None, diag
@@ -612,17 +729,47 @@ def merge_primary_over_ffc(ffc_table: dict, primary_table: dict) -> tuple[dict, 
     FFC's bye is preserved on primary rows (the primary source carries no bye). Returns
     (merged, stats). Same {pid: row} shape apply_with_fallback consumes — it then handles
     only the search_rank tier, so the fallback chain is primary -> FFC -> search_rank."""
-    merged = dict(ffc_table)                        # FFC is the coverage backbone (+ bye)
+    merged = dict(ffc_table)                        # FFC is the coverage backbone (+ bye + sd)
     for pid, prow in primary_table.items():
         row = dict(prow)
         base = ffc_table.get(pid, {})
         if base.get("bye") not in (None, "", 0):
             row["bye"] = base["bye"]
+        # ⚠️ AND THE STANDARD DEVIATION, FOR THE SAME REASON AS THE BYE.
+        #
+        # The line above preserves FFC's bye onto a primary row because "the
+        # primary source carries no bye". FANTASYPROS CARRIES NO STDEV EITHER,
+        # and that half was missed — so every primary row fell back to
+        # `fitted_sd(adp, None)`, a clamped linear rule, and the ONE source that
+        # publishes real draft-position dispersion was used for FOUR players.
+        #
+        # WHY IT MATTERS MORE THAN IT SOUNDS: `adp_sd` is the entire shape of the
+        # survival curve — "will he still be there at my next pick", which is the
+        # question the war room exists to answer. With a fitted sd, two players
+        # at the same ADP have IDENTICAL survival curves by construction; the
+        # published stdev is the only thing that knows one of them is a
+        # consensus pick and the other splits the room.
+        #
+        # The MEAN still comes from the primary source, which is the better ADP.
+        # Only the dispersion is taken from FFC, and only where FFC published
+        # one — a fitted value is never preferred over a measured one, and a
+        # measured one is never invented where it does not exist.
+        if base.get("adp_sd") is not None and base.get("adp_sd_source") == "ffc":
+            row["adp_sd"] = base["adp_sd"]
+            row["adp_sd_source"] = "ffc-published"
         merged[pid] = row
     primary_n = sum(1 for r in merged.values() if r.get("adp_source") == "fantasypros")
     ffc_n = sum(1 for r in merged.values() if r.get("adp_source") == "ffc")
+    pub_sd = sum(1 for r in merged.values()
+                 if str(r.get("adp_sd_source") or "").startswith("ffc"))
     return merged, {"primary_priced": primary_n, "ffc_gap_fill": ffc_n,
-                    "total_in_table": len(merged)}
+                    "total_in_table": len(merged),
+                    # HOW MANY SURVIVAL CURVES ARE SHAPED BY A MEASUREMENT rather
+                    # than by a clamped line. Reported because "the sd is fitted"
+                    # and "the sd is published" are different claims and the
+                    # board could not previously tell them apart at all.
+                    "published_sd": pub_sd,
+                    "fitted_sd": len(merged) - pub_sd}
 
 
 def _print_report(report: dict, strict_top_n: int) -> None:
@@ -636,7 +783,8 @@ def _print_report(report: dict, strict_top_n: int) -> None:
 
 def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
                         draft_picks: int | None = None,
-                        relevant: int | None = None) -> dict:
+                        relevant: int | None = None,
+                        projections: dict | None = None) -> dict:
     """Attach ADP to the board, falling back to `search_rank` **on the record**.
 
     `players` is mutated in place: each gets `adp`, `adp_sd` and `adp_source`.
@@ -691,7 +839,22 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     for p in players:
         row = adp_table.get(str(p.get("player_id")))
         if row:
+            # ⚠️ `adp_sd_source` IS COMPUTED AND WAS NEVER COPIED, so the board
+            # carried it on ZERO of 1,841 rows. `fitted_sd` returns
+            # ("ffc"|"clamped-linear") precisely so a consumer can tell a
+            # MEASURED dispersion from a fitted one — and the field died here,
+            # three lines from the artifact, exactly like `bye_source` and
+            # `arithmetic_check.condition` before it.
+            #
+            # It matters because `adp_sd` is the whole SHAPE of the survival
+            # curve. A published stdev knows that one player is a consensus pick
+            # and another splits the room; a clamped line cannot, and gives them
+            # identical curves at the same ADP. Without the provenance nothing
+            # downstream — and nobody reading the board — could tell which of
+            # those two things they were looking at.
             p.update({k: row[k] for k in ("adp", "adp_sd", "adp_source")})
+            if row.get("adp_sd_source"):
+                p["adp_sd_source"] = row["adp_sd_source"]
             # BYE WEEKS. Sleeper's /players/nfl dump carries metadata.bye_week,
             # and in the preseason it is empty for ALL of them — 0 of 1737 on
             # the 2026-08-07 build. So the bye grid and every bye-conflict
@@ -749,13 +912,51 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         # `ffc_max + 1` by construction and the relevant board is 225 deep, so
         # no fallback player can rank inside it. That is C's measurement and it
         # is the reason this was safe to leave for a day.
-        proj = p.get("proj_mean")
-        proj = float(proj) if isinstance(proj, (int, float)) and proj > 0 else None
+        # ⚠️ THIS READ `p.get("proj_mean")` AND proj_mean DOES NOT EXIST YET.
+        #
+        # Confirmed at line level in build.py: `apply_with_fallback` is called at
+        # :527, and `proj_mean` is first assigned inside `projections.blend()` —
+        # projections.py:238 — which build.py does not call until :576. So at the
+        # moment this loop runs, NO player carries the key. `ordered_by_proj` was
+        # empty on every build, every fallback row took the unprojected branch,
+        # and all 348 got `ffc_max + 600`.
+        #
+        # Measured on the shipped board: max real ADP 317, so the unprojected
+        # branch writes 917 — and 917 is what all 348 rows carry, including the
+        # 274 that DO end up with a projection once blend() runs. The ordering
+        # this comment block describes at length has never once executed.
+        #
+        # THE SECOND VERSION OF THE SAME DEFECT. The paragraph above records the
+        # first: `search_rank` was read here and no board dict carried it, so
+        # everybody got 600. That was fixed by ordering on projection instead —
+        # and the replacement reads a key that is equally absent at this point in
+        # the pipeline. A constant wearing the name of an ordering, twice, with
+        # the comment asserting the ordering both times.
+        #
+        # ── SO IT NOW READS WHAT THE CALLER HAS, NOT WHAT IT HOPES FOR ───────
+        #
+        # `projections` is the `baseline` map build.py already computes at :365 —
+        # player_id -> points in our scoring — which EXISTS when this runs. The
+        # value is passed in rather than fished out of the row, so "is it
+        # populated yet" stops being a question this function can get wrong.
+        # `_fallback_proj` reports how the caller answered, so a build that omits
+        # it is visible in provenance instead of silently pricing 274 players at
+        # a sentinel and calling them ranked.
+        proj = None
+        if projections:
+            raw_proj = projections.get(str(p.get("player_id")))
+            if isinstance(raw_proj, (int, float)) and raw_proj > 0:
+                proj = float(raw_proj)
+        if proj is None:                      # belt and braces: use the row if it has one
+            row_proj = p.get("proj_mean")
+            if isinstance(row_proj, (int, float)) and row_proj > 0:
+                proj = float(row_proj)
         if proj is not None:
             ordered_by_proj.append((proj, p))
         else:
             p["adp"] = ffc_max + 600.0
             p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
+            p["adp_sd_source"] = "fallback-clamped"   # never a measurement
             p["adp_source"] = "search_rank"
             unordered.append(p.get("player_id"))
         used_fallback.append(p.get("player_id"))
@@ -770,6 +971,7 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     for i, (_proj, _p) in enumerate(ordered_by_proj):
         _p["adp"] = ffc_max + 1.0 + i
         _p["adp_sd"] = max(8.0, min(0.25 * _p["adp"], 30.0))
+        _p["adp_sd_source"] = "fallback-clamped"      # never a measurement
         _p["adp_source"] = "search_rank"
 
     # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
@@ -826,9 +1028,17 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         "fallback_ordered_by_projection": len(ordered_by_proj),
         "fallback_unordered_tied": len(unordered),
         "fallback_ordering_basis": (
-            "proj_mean where present; the remainder share one price because "
-            "nothing on the board separates them. NOT search_rank — the board "
+            "the caller's projection map where present; the remainder share one "
+            "price because nothing separates them. NOT search_rank — the board "
             "does not carry it, and it is a popularity rank rather than a value"),
+        # ⚠️ THE COUNTS ABOVE WERE TRUE AND USELESS WITHOUT THIS ONE. They read
+        # "0 ordered, 348 tied" on every build and nobody noticed, because a
+        # deep pool that genuinely cannot be separated reports the same shape.
+        # This says WHY it was 0: no projection map was supplied, so the ordering
+        # had nothing to rank with. A silent zero and a legitimate zero are
+        # different states and looked identical for as long as this existed.
+        "fallback_projection_map_supplied": bool(projections),
+        "fallback_projection_map_size": len(projections or {}),
         "fallback_count_in_play": len(fb_in_play),
         "relevant_board": len(in_play),
         "fallback_rate": round(rate, 4),

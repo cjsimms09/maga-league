@@ -120,11 +120,45 @@ def _stable(cfg: dict) -> str:
     return json.dumps(c, sort_keys=True, default=str)
 
 
-def _changed_fields(a: dict, b: dict) -> list[str]:
-    keys = set(a) | set(b)
-    return sorted(k for k in keys
-                  if k != "imported_at" and json.dumps(a.get(k), sort_keys=True, default=str)
-                  != json.dumps(b.get(k), sort_keys=True, default=str))
+def _changed_fields(a: dict, b: dict, prefix: str = "") -> list[str]:
+    """Which config fields moved — AS DOTTED PATHS, not as top-level objects.
+
+    ⚠️ THIS USED TO COMPARE ONLY TOP-LEVEL KEYS, and that collapsed five settings
+    onto one name. `daily_waivers`, `waiver_budget`, `waiver_clear_days`,
+    `waiver_day_of_week` and `waiver_type` all land inside `config.waivers`, so
+    all five reported `reaches: ["waivers"]` and `has_consumer` credited a read
+    of ANY field in that object to EVERY setting landing in it.
+
+    Measured 2026-08-14 (routed by B, reproduced here): `field_reads["waivers"]`
+    is 0 on main, so nothing was wrong yet. B then added a legitimate read of
+    `config.waivers.type_code` — the league's waiver rule, correctly consumed —
+    and that single read would have marked all five as consumed, including
+    `daily_waivers`, whose registry note is still exactly true: "Reaches
+    config.waivers.daily_waivers; read by nobody."
+
+    THE FIX IS NOT TO PROMOTE daily_waivers, which is what the failure message
+    asks for. That would label a setting as read when nothing reads it — the
+    precise lie this suite exists to prevent — and the promotion would then be
+    pinned by test_every_imported_key_has_a_consumer demanding a consumer that
+    does not exist. The granularity was lost HERE, so it is restored HERE.
+
+    Recursive rather than one-level: nothing in the config nests deeper today,
+    and a rule that only holds at depth two is a rule waiting to be wrong.
+    """
+    out = []
+    for k in set(a) | set(b):
+        if not prefix and k == "imported_at":
+            continue
+        path = f"{prefix}{k}"
+        av, bv = a.get(k), b.get(k)
+        if (json.dumps(av, sort_keys=True, default=str)
+                == json.dumps(bv, sort_keys=True, default=str)):
+            continue
+        if isinstance(av, dict) and isinstance(bv, dict):
+            out.extend(_changed_fields(av, bv, prefix=path + "."))
+        else:
+            out.append(path)
+    return sorted(out)
 
 
 def measure() -> dict:

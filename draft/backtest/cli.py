@@ -17,6 +17,80 @@ import sleeper_import as SL
 from backtest.asof import AsOfDataStore
 from backtest import build_bundle as BB
 from backtest import grade as GR
+from backtest import projection_error as PE
+
+#: The only positions this league rosters and scores.
+#:
+#: ⚠️ NOT passed to `PE.calibrate()` as `positions=` — that parameter is a
+#: player_id -> position MAP (a fallback for rows with no position), NOT an
+#: allow-list, and passing a tuple there is inert. The relay made exactly that
+#: mistake on 2026-08-18 and shipped a source-string guard that stayed green
+#: while nothing was filtered. The real filter lives in
+#: `projection_error._rostered_only()`, applied to the POPULATION before the
+#: fit, and is tested behaviourally.
+SKILL_FOR_CALIBRATION = ("QB", "RB", "WR", "TE")
+
+
+def attach_dispersion_loso(bundles, actual):
+    """Attach measured dispersion to each bundle, LEAVE-ONE-SEASON-OUT.
+
+    Mutates `bundles` in place and returns human-readable report lines.
+
+    EXTRACTED FROM main() SO IT CAN BE TESTED. It was inline, which meant the
+    one piece of this change where a LEAK could actually occur — the choice of
+    which seasons to fit on — was reachable only by a full networked CI run.
+    An untestable leak guard is a leak guard nobody has checked.
+
+    THE LEAK IT GUARDS. A spread fitted on the season being graded is
+    foreknowledge the drafter did not have: the board would carry a p90 derived
+    partly from outcomes that had not happened yet. That is exp33 one level
+    down. `calibrate(exclude_season=)` RAISES rather than warns if handed the
+    excluded season, so the guard cannot be defeated by forgetting it here.
+
+    A SEASON WITH NOTHING TO FIT ON GETS NOTHING. Not a global fallback, not a
+    calibration fitted on itself — the dispersion fields are simply absent and
+    the note says why. `attach_dispersion` explains at length why a fallback is
+    worse than an absence.
+    """
+    lines = []
+    for b in bundles:
+        s = b.get("season")
+        others = [(o, actual.get(str(o.get("season")), {})) for o in bundles
+                  if str(o.get("season")) != str(s)]
+        others = [(o, a) for o, a in others if a]
+        if not others:
+            b.setdefault("notes", {})["dispersion"] = {
+                "attached": None, "why": "no out-of-season data to fit on"}
+            lines.append(f"{s}: no other graded season to fit on — dispersion left ABSENT")
+            continue
+        # ⚠️ POSITIONS MUST BE PASSED, AND NOT PASSING THEM COST US A BOARD.
+        #
+        # `error_rows(..., positions=None)` means NO FILTER, so this call fitted
+        # the calibration on every position present in the bundle. Measured on
+        # the 22:11 regeneration (1c8bfb90, register 4r): the artifact behind
+        # every proj_ceiling / proj_floor / proj_sd came back containing
+        # **P (punters) 9, DB 4, LB 1, T 1, FB 20** — none of which this league
+        # rosters — while every skill position LOST about 30% of its graded
+        # players (QB 186->134, RB 335->215, WR 497->336, TE 286->190; graded
+        # 1,304->910) and 15 of 32 cells stopped being measurable at all.
+        #
+        # It moved every ceiling and floor on the board four days before the
+        # draft, turned `main` red on 11 tests, and — worse — A's "NO SHIP"
+        # ruling on the band-split question was then measured on that fit.
+        #
+        # NOTHING ASSERTED THE POPULATION, which is why it was invisible. The
+        # parameter existed the whole time and was simply never used.
+        cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
+                           exclude_season=s)
+        rep = BB.attach_dispersion(b.get("players") or [], cal)
+        b.setdefault("notes", {})["dispersion"] = rep
+        b["notes"]["dispersion"]["fitted_without_season"] = s
+        b["notes"]["dispersion"]["fitted_on_seasons"] = [o.get("season") for o, _ in others]
+        a = rep["attached"]
+        lines.append(f"{s}: ceiling {a['proj_ceiling']}, floor {a['proj_floor']}, "
+                     f"sd {a['proj_sd']} attached over {rep['players']} players "
+                     f"({rep['players_with_no_measured_cell']} off any measured cell)")
+    return lines
 
 
 def main() -> int:
@@ -182,6 +256,35 @@ def main() -> int:
 
     if not bundles:
         print("\nNO BUNDLES — nothing to replay."); return 1
+
+    # ── SECOND PASS: MEASURED DISPERSION, LEAVE-ONE-SEASON-OUT ───────────────
+    #
+    # Until 2026-08-17 every bundle carried `proj_ceiling = 1.35 * proj_mean`
+    # and `proj_sd = 0.25 * proj_mean` — GLOBAL constants — so the engine's
+    # ceiling term was a fixed multiple of its value term (Spearman 1.0000) and
+    # no experiment run on a bundle could ever separate the two. That is why
+    # MEASURED_WEIGHTS.ceiling is 0.
+    #
+    # IT IS A SECOND PASS AND THAT IS NOT CIRCULAR. The calibration is fitted
+    # from proj_mean and ACTUALS only — it never reads dispersion — so bundles
+    # must exist before it can be fitted, and the spread is attached after.
+    #
+    # ONE CALIBRATION PER SEASON, EACH FITTED WITHOUT THAT SEASON. A spread
+    # fitted on the season being graded is foreknowledge the drafter did not
+    # have — the exp33 leak, one level down. `calibrate(exclude_season=)` RAISES
+    # if it is handed the excluded season, so this cannot leak by being
+    # forgotten. A season with no other season to fit on gets NO dispersion
+    # rather than a leaked one.
+    print("\n--- measured dispersion (leave-one-season-out) ---")
+    for line in attach_dispersion_loso(bundles, actual):
+        print("  " + line)
+
+    caveats.append("Dispersion (proj_ceiling/proj_floor/proj_sd) is the MEASURED "
+                   "per-(position,band) calibration fitted leave-one-season-out, "
+                   "not the former 1.35x/0.25x constants. It is still "
+                   "proj_mean x a per-CELL constant, so it varies between bands "
+                   "and not within them: a ceiling weight fitted here measures "
+                   "cross-band dispersion differences only.")
     caveats.append("Historical FFC ADP is name-matched against TODAY'S Sleeper "
                    "player list, so a player who has since changed teams or "
                    "retired may match differently than he would have that year.")

@@ -139,6 +139,24 @@ function simulate(seed) {
     const badge = D.badge(top, overall, NOISE_BAND);
     const drivers = D.drivers((top.components || {}).weighted);
 
+    // REACHABILITY — the difference between "this term never fired" and "this
+    // term COULD not have fired", which the dead-weight report could not tell
+    // apart and therefore reported as the same thing.
+    //
+    // Drivers are read off `scored[0]` alone, so a term is counted as firing only
+    // when the ONE player the engine ranks first happens to carry it. `reach`
+    // records the largest value each term reaches anywhere on the board at this
+    // pick, which answers the prior question: was there a player here who could
+    // have made it fire at all?
+    const reach = {};
+    scored.forEach(function (s) {
+      const w = (s.components || {}).weighted || {};
+      Object.keys(w).forEach(function (k) {
+        const v = Math.abs(Number(w[k]) || 0);
+        if (v > (reach[k] || 0)) reach[k] = v;
+      });
+    });
+
     results.push({
       overall: overall,
       round: Math.ceil(overall / TEAMS),
@@ -150,6 +168,7 @@ function simulate(seed) {
       tier: badge ? badge.tier : null,
       drivers: drivers.map(d => d.term),
       leadDriver: drivers.length ? drivers[0].term : null,
+      reach: reach,
       contested: !!top.contested,
       gapToSecond: top.gap_to_second != null ? top.gap_to_second : null,
     });
@@ -236,13 +255,45 @@ function report(nDrafts, opts) {
       + `  [${ev.klass}] ${bar}`);
   });
   const dead = known.filter(t => !(anyCount[t] || 0));
+
+  /* THE OLD REPORT OFFERED TWO EXPLANATIONS AND MEASURED NEITHER: a trigger
+   * "unreachable on a real board, or ... mis-specified". They are now separated,
+   * because on this board they are not the same finding and one of them is not a
+   * defect at all.
+   *
+   * `keeper` (MEASURED weight 1.0) never fires, and it is not broken. Cory's three
+   * keepers cost rounds 1, 2 and 3, so his first pick is 33. Keeper option value
+   * lives in the players taken in exactly those rounds: measured on the live board
+   * it reaches 36.1 (Gibbs), 33.3 (Bijan), 26.5 (Nacua) — and at pick 33 the whole
+   * remaining board tops out at 2.15, with 0.00 at every later pick. He is paying
+   * for the keepers with the picks that could have bought new keeper value. The
+   * term is STRUCTURALLY UNREACHABLE for this roster, not dead weight.
+   *
+   * So the check gets STRICTER, not looser: a dead term with material values sitting
+   * on the board is a real defect and still fails, while one that no available player
+   * could have triggered is reported with its ceiling. */
+  const reachedMax = {};
+  picks.forEach(function (p) {
+    Object.keys(p.reach || {}).forEach(function (k) {
+      if ((p.reach[k] || 0) > (reachedMax[k] || 0)) reachedMax[k] = p.reach[k];
+    });
+  });
+  const deadUnreachable = dead.filter(t => !((reachedMax[t] || 0) >= D.MATERIAL));
+  const deadDefect = dead.filter(t => (reachedMax[t] || 0) >= D.MATERIAL);
+
   console.log('');
-  if (dead.length) {
-    console.log('  ⚠️  DEAD WEIGHT — specced but NEVER fired in '
-      + nDrafts + ' drafts: ' + dead.join(', '));
-    console.log('     A named edge that never triggers is not an edge. Either its trigger is');
-    console.log('     unreachable on a real board, or it is mis-specified. Report, do not keep.');
-  } else {
+  if (deadDefect.length) {
+    console.log('  ⚠️  DEAD WEIGHT — specced, REACHABLE, and never fired in '
+      + nDrafts + ' drafts: ' + deadDefect.join(', '));
+    console.log('     A player carrying this term materially WAS on the board and the engine');
+    console.log('     never picked him. That is mis-specification. Report, do not keep.');
+  }
+  if (deadUnreachable.length) {
+    console.log('  ·  UNREACHABLE (not a defect) — no available player could trigger these: '
+      + deadUnreachable.map(t => t + ' (board max '
+        + (reachedMax[t] || 0).toFixed(2) + ' vs material ' + D.MATERIAL + ')').join(', '));
+  }
+  if (!dead.length) {
     console.log('  every classified term fired at least once.');
   }
   console.log('');
@@ -281,6 +332,8 @@ function report(nDrafts, opts) {
 
   return { rate: rate, perDraftMean: perDraftMean, picks: picks.length,
            interventions: interventions.length, dead: dead,
+           deadDefect: deadDefect, deadUnreachable: deadUnreachable,
+           reachedMax: reachedMax,
            meanMagnitude: mean(mags), medianMagnitude: median(mags),
            maxMagnitude: mags.length ? Math.max.apply(null, mags) : 0,
            reaches: early, falls: interventions.length - early,

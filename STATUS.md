@@ -1,18 +1,50 @@
 # STATUS — unattended run
 
-> **🧭 SESSION BOOTSTRAP:** a fresh session should start from its role file, not a
-> pasted prompt. **Session A → `SESSION-A.md`**, **Session B → `SESSION-B.md`** (both
-> at repo root); the shared rules live there and change there. Access rule (tools vs
-> history): **`ACCESS-RULE.md`**. Plain-English current queue: **`TODO.md`**. Resume
-> ritual: _"You are session A, read SESSION-A.md and STATUS.md, then continue."_
+> **📣 READ `DRAFT-WEEK-BRIEF.md` FIRST** (2026-08-17; draft is 08-22).
+> `MONDAY-BRIEF.md` is still accurate and superseded as the entry point.
+>
+> **🧭 SESSION BOOTSTRAP:** a fresh session starts from its role file, not a pasted
+> prompt. **A → `SESSION-A.md`** (model & draft) · **B → `SESSION-B.md`** (site &
+> in-season) · **C → `SESSION-C.md`** (external ingest — created 2026-08-17; C had
+> an inbox in `ROUTES.md` since 08-11 and no role file until then). Territory:
+> **`TERRITORY.md`**. Access rule: **`ACCESS-RULE.md`**. Plain-English queue:
+> **`TODO.md`**. Cross-lane inbox: **`ROUTES.md` → `## TO: <your lane>`**.
+> Resume ritual: _"You are session A, read SESSION-A.md and STATUS.md, then continue."_
+>
+> **⚠️ BRANCHES, NOT `main` — corrected 2026-08-17.** The block below used to end
+> *"Both sessions now commit to `main` directly — no branches"*. **That protocol is
+> VOID** and has been since 2026-08-09 — `TERRITORY.md` says so in its own heading
+> (*"⛔ THE MAIN-ONLY PROTOCOL BELOW IS VOID — the harness forces feature
+> branches"*). It survived here, on the first screen of the file every session is
+> told to read, for eight days. **Work on a feature branch. `main` is reached by
+> `scripts/integrate.sh`, and A owns integration.**
+>
+> **📉 THIS FILE IS 1,700 LINES AND MOSTLY HISTORY. Read to the end of this block,
+> then STOP and grep for what you need.** Boot cost measured 2026-08-17:
+> `CLAUDE.md` + brief + `SESSION-A.md` + `STATUS.md` ≈ **80,600 tokens** before any
+> work happens. Everything below the next heading is a dated record, not
+> instructions — the live queue is `TODO.md`, the live assignments are `ROUTES.md`,
+> and what is true today is in `DRAFT-WEEK-BRIEF.md`.
+
+---
+
+## 🗄️ RESOLVED — kept as the record, not as instructions (2026-08-08 hotfixes)
+
+_All four below were fixed on 2026-08-08 and are retained for provenance. They led
+the file for nine days, which is how the void branch instruction above survived._
 
 > **🩹 HOTFIX (2026-08-08): /history 500'd in production — `included_files` gap, NOT the merge.** The merge was clean (every B file byte-identical to `e2b7ce9`, all pages render 200 locally incl. `/history/season/2024`). But `history-data.js` reads its harvest (`draft/data/**`, `draft/config/**`, `public/draft_data.json`) from disk at request time, and `netlify.toml`'s `included_files` never bundled them → `ENOENT` in the function → every `/history` route 500s while Blob-backed pages stayed up. Proven by simulating the bundle (build() throws ENOENT on `league_history.json`) and by the fix (build() OK, 2024 present). Fixed forward with `[deploy]` — no rollback, since the cause was one config line, not the merge.
 > **🔧 DEPLOY-VERIFY WAS SILENTLY DEAD (pre-existing, found during the hotfix).** `deploy-verify.yml`'s heredoc terminator `PY` sat at column 0 inside a 10-space `run: |` block scalar → **invalid YAML**, so GitHub could not parse its triggers and every run created-and-instantly-failed with **zero jobs**. The deploy verifier — the one check that proves "deployed == HEAD" — had never actually run. Fixed (indent `PY` into the block; bash still gets a bare terminator after YAML dedent). Added a **CI workflow-YAML lint** so an unparseable workflow is a red build, not a silent hole. (`ci.yml` itself passes on every commit — that was never broken.)
 > **💰 MONEY BOARD REGRESSION = the SAME bundling gap (diagnosed 2026-08-08).** `/history/money` career totals read from `master_sheet_archive.json` (`A.moneyBoard.rows[].career`); it wasn't bundled → 500 in prod. Fixed by the same `included_files` addition. Reproduced: renders 10 real non-zero totals locally, throws ENOENT bundle-missing. NOT a merge side-effect, NOT the engine overwriting the old board (the legacy `?section=money` `$0`s are a separate pre-existing blob quirk). **Two guards added, both green + negative-controlled:** `bundling_guard.test.js` (every committed file a route `readFileSync`s must be in `included_files` — reverting the fix fails it, naming the files) and `history_smoke.test.js` (boots the app, logs in, asserts `/history`, `/history/season/2024`, `/history/records`, `/history/money` are 200 AND populated — money board must show real dollar totals, catching an empty table that alarms on nothing). Both wired into CI + the Sunday audit.
 > **📖 CHAPTER STATUS (confirmed):** `/history/season/2024` renders the written chapter (37KB prose) AND is linked from `/history` (season card + "Chapter written" tag, `index.ejs:106-112`, gated on `chapters.has(year)`) — reachable by tapping 2024, NOT committed-but-not-connected. 2023/2025/2016-22 correctly have records-only cards, no prose (`CHAPTERS={2024}`), per the voice-approval hold.
-> **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. **Both sessions now commit to `main` directly — no branches (TERRITORY.md § Branch protocol).**
+> **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. ~~**Both sessions now commit to `main` directly — no branches.**~~ **VOID since
+2026-08-09 — the harness forces feature branches** (`TERRITORY.md` § *"⛔ THE
+MAIN-ONLY PROTOCOL BELOW IS VOID"*). Struck inline 2026-08-17: the correction at
+the top of this file is not enough on its own, because anyone grepping for
+"branch" lands here first and reads a live instruction.
 > **🔀 BRANCH PROTOCOL LANDED (2026-08-08):** the jwdvn7/xs2lv6 divergence is merged to `main` (both sides, STATUS.md unioned, nothing lost) and cannot recur — `scripts/branch-check.sh` gates commits to main, the Sunday audit asserts no stray branches + deployed==HEAD. **Session B: the protocol is in TERRITORY.md — pull main, commit there, push immediately.**
 
+> **🟡 UPDATE 2026-08-16 (relay): the cron below IS BUILT** — `netlify/functions/grade-cron.js`, scheduled Tuesdays 12:00 UTC in netlify.toml, grades forecasts + decisions, appends the calibration ledger, consumes it into evidence weights, era-stamped, smoke-testable via ?key=GRADE_CRON_KEY. It goes LIVE with the relay-branch merge to main — the merge is the only gate left on this deadline. After merge: run the smoke test once, then this banner goes green.
 > **🔴 HARD DEADLINE — WEEKLY GRADING CRON LIVE BEFORE ~SEP 1, 2026 (unrecoverable if missed).**
 > The learning half is the least-built part of the system (audit: `docs/queued/annual-button.md`
 > § LEARNING-HALF STATUS): forward predictions are emitted + recorded, but **nothing grades them
@@ -294,7 +326,7 @@ _Last update: master-execution-order run, start._
 **DECISION: keep all 3 — Ja'Marr Chase, Derrick Henry, Kenneth Walker.** This
 matches my current Sleeper designation; the optimizer confirms it is optimal.
 Every keeper has positive surplus and surplus rises with each, so keep the max.
-Deadline (optimizer output by Aug 19, lock Aug 20) met on Aug 7.
+Deadline (optimizer output by Aug 19; lock then believed Aug 20 — Cory ruled 08-18 it is Aug 21 6:00 PM CDT) met on Aug 7.
 
 ```
 K0 KEEPER OPTIMIZER — real roster, cost_model=top_picks_flat (PROVISIONAL pending D2 top_picks_flat)
@@ -329,7 +361,7 @@ and `pick_order.my_picks = [34, 41, 54, 61, 74, 81, 94, 101, 114]`
 (my_picks_before_keepers started at slot 4 = pick 4). First real pick is 34.
 The pick-34 board supersedes every earlier pick-7 analysis. K0 is complete
 end to end — decision + implementation + verified artifact — well ahead of the
-Aug 19 output / Aug 20 lock deadline.
+Aug 19 output / lock deadline now ruled Aug 21 6:00 PM CDT (was believed Aug 20).
 
 What's implemented (D2=(b)): top_picks_flat added to the optimizer (positional
 cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV
@@ -501,6 +533,43 @@ Against the expected 9-item inventory. **All items resolved; one material CORREC
 | Richard2121 | 4–11 | 1711.2 | 90.4% | 4th-most PF, **BEST lineup-setter**, league-high 1849 PA → **points-unlucky, not bad** |
 **Cross-season joins MUST key on owner_id/user_id, never roster_id** (roster_id↔owner changes between seasons — 2024 champ roster 4 ≠ 2025 roster 4). `money_history` keys on owner (via per-season roster→owner resolve) ✓.
 **🎯 PRE-REGISTERED PREDICTION (log before harvest):** Richard2121 & MarianSaar banked multiple 2025 weekly highs despite records — payout already paid the ceiling-unlucky. Verify vs weeks 1–15.
+
+> **⚠️ CORRECTION, 2026-08-16 — VERIFIED AGAINST LIVE SLEEPER DESIGNATIONS.**
+> Both keeper claims below are **contradicted by `draft/config/keepers.json`**
+> (`_designations_source: "sleeper"`), read directly today. Four teams have now
+> designated:
+>
+> | slot | designated |
+> |---|---|
+> | 8 (Cory) | Henry, Chase, Walker |
+> | 1 | Jeanty, Chase Brown |
+> | 2 | Taylor, London, Gibbs |
+> | 3 | **Jefferson, Achane, JSN** |
+>
+> **Brock Bowers is NOT designated. Trey McBride is NOT designated.** Neither
+> name appears anywhere in the live slate.
+>
+> So: the "MarianSaar keeps Bowers — HIGH confidence" call below is **wrong** —
+> that owner designated Jefferson/Achane/JSN instead. And "Richard2121 LOCKED
+> (certain): Bijan + McBride + Nico" has **no designation behind it at all**;
+> Richard2121 is among the six teams still silent.
+>
+> **THE CONSEQUENCE, and it is the one that matters:** the "⚡ TE FORK
+> COLLAPSED / both-TEs-gone is the new PRIMARY scenario" conclusion below is
+> built on Bowers-kept AND McBride-kept. **Both halves are currently false.**
+> The elite-TE anchor at pick 34 may well still be on the board, and the
+> WR-feast / early-QB pivot that replaced it is resting on nothing.
+>
+> **NOT a claim that the TEs will be available.** Designations are not final —
+> `confirmed` is null, only 4 of 10 teams have declared, and Richard2121 and
+> MarianSaar can still designate before the lock. The honest state is: what was
+> recorded as HIGH-confidence and "certain" is **unconfirmed and presently
+> contradicted**, and the opening plan should carry BOTH branches live rather
+> than treating both-TEs-gone as primary.
+>
+> Original text preserved below, struck rather than deleted, per repo
+> convention. Found by the 2026-08-16 keeper study; verified independently
+> against `keepers.json` before this correction was written.
 
 **🔮 KEEPER PREDICTION (Cory intel, 2026-08-08):** **MarianSaar keeps Bowers — HIGH confidence, source: Cory intel** (to be ledgered at draft-prep; January grades keeper-prediction accuracy). **Scenario-conditional pick-34 dossier COMPUTED** (`keeper-intel-scenarios.md`): Bowers-available (last-elite-TE, 83%/60% survival to 34/41) vs Bowers-kept (McBride inherits — 46-pt VORP cliff to LaPorta confirmed, 80%/53% survival). Take-now premium is small in v1 dollars (rough model underprices the TE cliff VORP sees — quantile-V will sharpen); **the decision is room-panic-driven**: TE scarcity collapses survival-to-41 (60%→22% Bowers / 53%→16% McBride on a 10-spot ADP jump), making take-at-34 strongly correct the moment the board shows TE reaching. **✅ PREDICTED KEEPER SLATES BUILT (2026-08-08, `draft/predict_keepers.py` → `predicted_keepers.json`):** flat-cost surplus (round-cost VORP 104/62/36), the K0 optimizer pointed at all 10 seats. **VALIDATES — recovers my real keepers (Chase/Henry/Walker) exactly.** The model **independently predicts MarianSaar keeps Bowers** (surplus +20) — Cory's intel confirms → **high**. Predicted slates: **B8T3S** Gibbs/Taylor/London · **Richard2121** Bijan/McBride/Nico · **mhagen** CMC/St.Brown/Allen · **MarianSaar** JSN/**Bowers**/Achane · **Schmelley** Nacua/Barkley · **ds7mmet/cashworth/Jreis/Sadbru** keep-NONE (weak rosters clear no round cost; Jreis-kept-0-in-2024 precedent). 4 lock tests. **Remaining (A-9):** wire the predicted slates into mock/rehearsal boards (marked PREDICTED) + keeper-watch one-by-one replacement + confidence display.
 

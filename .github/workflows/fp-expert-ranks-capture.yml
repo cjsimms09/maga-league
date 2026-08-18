@@ -1,0 +1,102 @@
+name: FP EXPERT RANKS — capture every expert's rank for every player
+# Register 4t. Cory, 2026-08-18: "we need to get them from somewhere!!!"
+#
+# THE PROBE SAID NOBODY PUBLISHES A CEILING (ceiling-source-probe run 32087333128,
+# draft/backtest/discovery_ceiling_sources.json): six endpoints reachable, zero with a
+# per-player point ceiling. FantasyPros' season projections, their weekly projections
+# and Sleeper's projections all serve a mean and nothing around it.
+#
+# ONE ENDPOINT CARRIES SOMETHING BETTER, AND WE HAVE BEEN DISCARDING IT:
+# consensus-rankings?type=draft&experts=show returns EACH INDIVIDUAL EXPERT'S RANK
+# per player — 90 of them on Jahmyr Gibbs. Not FP's rank_min/rank_max/rank_std
+# summary (which we also discard), the observed ranks themselves, one per human.
+#
+# That is per-player BY CONSTRUCTION, which is the property proj_ceiling has never
+# had: today it is a cohort p90 applied to individuals, so every RB from projection
+# rank 33 down carries the identical multiplier 1.794 and Kimani Vidal's stated best
+# case is 95.1 points.
+#
+# THIS JOB CAPTURES AND COMMITS A STORE. IT COMPUTES NO CEILING AND TOUCHES NO BOARD.
+# Register 4t holds every ceiling change until after 08-22, and rank -> points is a
+# real modelling choice (overall or positional rank? which quantile?) that belongs in
+# a preregistered study against this store rather than inside a fetcher.
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to capture'
+        required: false
+        default: '2026'
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # The parser is what turns a payload into the store; if it is broken the store
+      # is wrong in a way that looks fine. Prove it before spending the fetch.
+      - name: Prove the parser before trusting the capture
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check pytest
+          python3 -m pytest draft/tests/test_fp_expert_ranks.py -q
+
+      # The year is passed as an ARGUMENT, never by mutating a module global. Run
+      # 32087677173 did the latter (`X.YEAR = 2025`); Python binds default arguments
+      # at definition time, so it re-captured 2026, found the file byte-identical,
+      # printed "No change to the store" and exited 0 — success reported for a
+      # capture of the wrong season. `main()` now also refuses if the season it wrote
+      # is not the one asked for.
+      - name: Capture
+        timeout-minutes: 15
+        env:
+          YEAR: ${{ github.event.inputs.year }}
+        run: |
+          set -euo pipefail
+          python3 - --year "${YEAR:-2026}" <<'PY'
+          import sys
+          sys.path.insert(0, "draft")
+          sys.path.insert(0, "draft/backtest")
+          import fp_expert_ranks as X
+          raise SystemExit(X.main(sys.argv[1:]))
+          PY
+
+      # A capture that produced no file for the requested season is a failure, not a
+      # "no change". This is the check the previous run did not have.
+      - name: The store for THIS season must exist
+        env:
+          YEAR: ${{ github.event.inputs.year }}
+        run: |
+          set -euo pipefail
+          f="draft/backtest/fp_expert_ranks_${YEAR:-2026}.json"
+          test -s "$f" || { echo "MISSING: $f — the capture did not write the season it was asked for."; exit 1; }
+          python3 -c "import json,sys; d=json.load(open('$f')); assert int(d['season'])==int('${YEAR:-2026}'), d['season']; assert d['coverage']['with_experts']>0, 'zero players carry expert ranks'; print('store OK:', d['season'], d['coverage']['with_experts'], 'players with experts')"
+
+      - name: Commit the store
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          if [ -n "$(git status --porcelain draft/backtest/)" ]; then
+            git add draft/backtest/fp_expert_ranks_*.json
+            git commit -m "Capture FantasyPros per-expert draft ranks [skip deploy]"
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push origin HEAD:main && break
+              sleep $((2**i))
+            done
+          else
+            echo "No change to the store."
+          fi
+
+      - name: Upload regardless
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fp-expert-ranks
+          path: draft/backtest/fp_expert_ranks_*.json
+          if-no-files-found: warn

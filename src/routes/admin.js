@@ -5,7 +5,11 @@ const H = require('../helpers');
 const L = require('../ledger');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
-const { getDoc, setDoc, store, newId, now } = require('../data');
+// CONCURRENCY (audit finding 1, 2026-08-16): owners / config / alerts /
+// ledger are single docs with several independent writers. Every whole-doc
+// writer in this router goes through mutateDoc — the serialized
+// read-modify-write — never through a bare getDoc + setDoc.
+const { getDoc, setDoc, mutateDoc, store, newId, now } = require('../data');
 const { hashPassword, requireCommissioner, aw } = require('../auth');
 const VE = require('./voteenact');   // vote → season-config enactment
 const DO = require('./draftorder');   // selection order: reverse reg-season + reverse bracket
@@ -93,6 +97,22 @@ async function automationHealth(world, season) {
       : 'has not fired yet this season — expected until a week needs a change',
     note: liveWeek && !alert ? 'It only sends when there is something to do, which is roughly one week in nine.' : null,
     href: '/lineup' });
+
+  // THE STARTER-PASSWORD CENSUS (audit finding 6, 2026-08-16). Every seeded
+  // account starts on the shared starter password with must_change_password
+  // set, and nothing told the commissioner WHO is still on it — an operational
+  // pre-draft check with no surface. It is a CENSUS, not an alarm (`ok: true`
+  // always): members not having logged in yet is not a broken job, and putting
+  // it in the red automation banner would cry wolf every day until week 1.
+  // Commissioner-only by this router's requireCommissioner gate.
+  const onStarter = (world.owners || []).filter(o => o.active && o.must_change_password);
+  out.push({ label: 'Starter passwords',
+    ok: true,
+    detail: onStarter.length
+      ? `${onStarter.length} account${onStarter.length === 1 ? '' : 's'} still on the starter password: ${onStarter.map(o => o.name).join(', ')}`
+      : 'every active account has set its own password',
+    note: onStarter.length ? 'Anyone on the shared starter password can be impersonated by anyone who knows it. Worth chasing before draft day.' : null,
+    href: '/admin?tab=owners' });
 
   return out;
 }
@@ -245,13 +265,14 @@ router.get('/', aw(async (req, res) => {
 router.post('/alerts', aw(async (req, res) => {
   const message = String(req.body.message || '').trim();
   if (message) {
-    const alerts = await getDoc('alerts', []);
-    alerts.push({
-      id: newId(), message,
-      level: ['info', 'warning', 'urgent'].includes(req.body.level) ? req.body.level : 'info',
-      active: true, created_at: now(),
+    await mutateDoc('alerts', [], alerts => {
+      alerts.push({
+        id: newId(), message,
+        level: ['info', 'warning', 'urgent'].includes(req.body.level) ? req.body.level : 'info',
+        active: true, created_at: now(),
+      });
+      return alerts;
     });
-    await setDoc('alerts', alerts);
     // NO EMAIL. An urgent alert is already pinned site-wide on every page, so
     // the email was a second copy of something nobody can miss — and under the
     // 2026-08-11 policy an announcement is not one of the three things that may
@@ -260,13 +281,16 @@ router.post('/alerts', aw(async (req, res) => {
   back(res, 'alerts');
 }));
 router.post('/alerts/:id/toggle', aw(async (req, res) => {
-  const alerts = await getDoc('alerts', []);
-  const a = alerts.find(x => x.id === req.params.id);
-  if (a) { a.active = !a.active; await setDoc('alerts', alerts); }
+  await mutateDoc('alerts', [], alerts => {
+    const a = alerts.find(x => x.id === req.params.id);
+    if (!a) return undefined;
+    a.active = !a.active;
+    return alerts;
+  });
   back(res, 'alerts');
 }));
 router.post('/alerts/:id/delete', aw(async (req, res) => {
-  await setDoc('alerts', (await getDoc('alerts', [])).filter(x => x.id !== req.params.id));
+  await mutateDoc('alerts', [], alerts => alerts.filter(x => x.id !== req.params.id));
   back(res, 'alerts');
 }));
 
@@ -360,9 +384,10 @@ router.post('/punishments/:id/delete', aw(async (req, res) => {
   res.redirect('/votes#punishments');
 }));
 router.post('/punishments-lock', aw(async (req, res) => {
-  const config = await getDoc('config', {});
-  config.punishments_locked = !config.punishments_locked;
-  await setDoc('config', config);
+  await mutateDoc('config', {}, config => {
+    config.punishments_locked = !config.punishments_locked;
+    return config;
+  });
   res.redirect('/votes#punishments');
 }));
 
@@ -411,17 +436,38 @@ router.post('/awards', aw(async (req, res) => {
 }));
 
 // ---------- standings ----------
+// ── FINAL STANDINGS: complete rankings or NOTHING SAVES ─────────────────────
+// (audit finding 2, 2026-08-16). This form FEEDS THE NEXT DRAFT'S PICK ORDER
+// (/draft/open reads last year's standings), and it used to check duplicate
+// ranks only: a submission missing an owner saved silently with nine names,
+// and a stray rank 11 in a ten-team league saved a non-contiguous list —
+// a wrong draft order discovered on draft day. Server-side rule: every ACTIVE
+// owner exactly once, ranks exactly the contiguous 1..N; anything else rejects
+// the WHOLE save with a message naming who is missing / which rank is wrong.
+// (N pairs + distinct + all within 1..N ⇒ exactly the permutation 1..N, so
+// the three checks below are complete, not a sample.)
 router.post('/standings', aw(async (req, res) => {
   const world = req.world;
   const year = parseInt(req.body.year, 10);
   const active = H.activeOwners(world.owners);
+  const N = active.length;
   const pairs = [];
   for (const o of active) {
     const r = parseInt(req.body[`rank_${o.id}`], 10);
     if (Number.isFinite(r) && r >= 1) pairs.push({ owner_id: o.id, rank: r });
   }
+  const missing = active.filter(o => !pairs.some(p => p.owner_id === o.id)).map(o => o.name);
+  if (missing.length) {
+    return back(res, 'standings', `&year=${year}` + msg(
+      `Not saved — no rank for ${missing.join(', ')}. Every active owner needs exactly one place (1–${N}); these standings set next year's draft order.`));
+  }
   const seen = new Set(pairs.map(p => p.rank));
-  if (seen.size !== pairs.length) return back(res, 'standings', `&year=${year}` + msg('Duplicate ranks — each place can only be used once.'));
+  if (seen.size !== pairs.length) return back(res, 'standings', `&year=${year}` + msg('Not saved — duplicate ranks: each place can only be used once.'));
+  const stray = pairs.filter(p => p.rank > N).map(p => p.rank);
+  if (stray.length) {
+    return back(res, 'standings', `&year=${year}` + msg(
+      `Not saved — rank${stray.length === 1 ? '' : 's'} ${stray.join(', ')} outside 1–${N}. Ranks must be exactly 1–${N} with no gaps.`));
+  }
   const seasons = await getDoc('seasons', {});
   if (!seasons[year]) return back(res, 'standings');
   seasons[year].standings = pairs.sort((a, b) => a.rank - b.rank).map(p => p.owner_id);
@@ -569,45 +615,56 @@ router.post('/owners', aw(async (req, res) => {
   const name = String(req.body.name || '').trim();
   const username = String(req.body.username || '').trim().toLowerCase();
   if (!name || !username) return back(res, 'owners');
-  const owners = await getDoc('owners', []);
-  if (owners.some(o => o.name.toLowerCase() === name.toLowerCase() || o.username === username)) {
-    return back(res, 'owners', msg('That name or username already exists.'));
-  }
   const temp = 'maga' + crypto.randomInt(1000, 9999);
-  owners.push({
-    id: Math.max(0, ...owners.map(o => o.id)) + 1, name, username,
-    password_hash: hashPassword(temp), must_change_password: true,
-    is_commissioner: false, active: true, wins: 0, losses: 0, ties: 0,
+  let dup = false;
+  await mutateDoc('owners', [], owners => {
+    if (owners.some(o => o.name.toLowerCase() === name.toLowerCase() || o.username === username)) {
+      dup = true;
+      return undefined;
+    }
+    owners.push({
+      id: Math.max(0, ...owners.map(o => o.id)) + 1, name, username,
+      password_hash: hashPassword(temp), must_change_password: true,
+      is_commissioner: false, active: true, wins: 0, losses: 0, ties: 0,
+    });
+    return owners;
   });
-  await setDoc('owners', owners);
+  if (dup) return back(res, 'owners', msg('That name or username already exists.'));
   back(res, 'owners', msg(`${name} added. Temporary password: ${temp}`));
 }));
 router.post('/owners/:id/reset-password', aw(async (req, res) => {
-  const owners = await getDoc('owners', []);
-  const o = owners.find(x => x.id === Number(req.params.id));
-  if (!o) return back(res, 'owners');
   const temp = 'maga' + crypto.randomInt(1000, 9999);
-  o.password_hash = hashPassword(temp);
-  o.must_change_password = true;
-  await setDoc('owners', owners);
-  back(res, 'owners', msg(`${o.name}'s temporary password: ${temp} (they must change it at next login)`));
+  let who = null;
+  await mutateDoc('owners', [], owners => {
+    const o = owners.find(x => x.id === Number(req.params.id));
+    if (!o) return undefined;
+    o.password_hash = hashPassword(temp);
+    o.must_change_password = true;
+    who = o.name;
+    return owners;
+  });
+  if (!who) return back(res, 'owners');
+  back(res, 'owners', msg(`${who}'s temporary password: ${temp} (they must change it at next login)`));
 }));
 router.post('/owners/:id/toggle-active', aw(async (req, res) => {
   if (Number(req.params.id) === req.owner.id) return back(res, 'owners', msg('You cannot deactivate yourself.'));
-  const owners = await getDoc('owners', []);
-  const o = owners.find(x => x.id === Number(req.params.id));
-  if (o) { o.active = !o.active; await setDoc('owners', owners); }
+  await mutateDoc('owners', [], owners => {
+    const o = owners.find(x => x.id === Number(req.params.id));
+    if (!o) return undefined;
+    o.active = !o.active;
+    return owners;
+  });
   back(res, 'owners');
 }));
 router.post('/owners/:id/record', aw(async (req, res) => {
-  const owners = await getDoc('owners', []);
-  const o = owners.find(x => x.id === Number(req.params.id));
-  if (o) {
+  await mutateDoc('owners', [], owners => {
+    const o = owners.find(x => x.id === Number(req.params.id));
+    if (!o) return undefined;
     o.wins = parseInt(req.body.wins, 10) || 0;
     o.losses = parseInt(req.body.losses, 10) || 0;
     o.ties = parseInt(req.body.ties, 10) || 0;
-    await setDoc('owners', owners);
-  }
+    return owners;
+  });
   back(res, 'owners');
 }));
 
@@ -675,13 +732,16 @@ router.post('/season', aw(async (req, res) => {
     }
     return back(res, 'season', `&year=${year}` + msg(`Season ${year} created — ${H.money(buy_in)} buy-in charged to all ${active.length} owners' tabs.`));
   }
-  // Buy-in changed mid-flight? Keep unpaid charges in sync.
-  const ledger = await L.allEntries();
+  // Buy-in changed mid-flight? Keep unpaid charges in sync (mutateDoc: a
+  // whole-ledger write racing a weekly-high entry could erase it).
   let touched = 0;
-  for (const e of ledger) {
-    if (e.type === 'buy_in' && e.year === year && !e.settled && e.amount !== -buy_in) { e.amount = -buy_in; touched++; }
-  }
-  if (touched) await setDoc('ledger', ledger);
+  await mutateDoc('ledger', [], ledger => {
+    touched = 0;
+    for (const e of ledger) {
+      if (e.type === 'buy_in' && e.year === year && !e.settled && e.amount !== -buy_in) { e.amount = -buy_in; touched++; }
+    }
+    return touched ? ledger : undefined;
+  });
   back(res, 'season', `&year=${year}` + msg(`Season ${year} saved.${touched ? ` ${touched} unpaid buy-in charge(s) updated to ${H.money(buy_in)}.` : ''}`));
 }));
 
@@ -732,11 +792,13 @@ router.post('/votes/:id/enact', aw(async (req, res) => {
   if (type === 'buy_in') {
     const newBuyIn = (result.seasons[targetYear] || {}).buy_in;
     if (Number.isFinite(newBuyIn)) {
-      const ledger = await L.allEntries();
-      for (const e of ledger) {
-        if (e.type === 'buy_in' && e.year === Number(targetYear) && !e.settled && e.amount !== -newBuyIn) { e.amount = -newBuyIn; tabs++; }
-      }
-      if (tabs) await setDoc('ledger', ledger);
+      await mutateDoc('ledger', [], ledger => {
+        tabs = 0;
+        for (const e of ledger) {
+          if (e.type === 'buy_in' && e.year === Number(targetYear) && !e.settled && e.amount !== -newBuyIn) { e.amount = -newBuyIn; tabs++; }
+        }
+        return tabs ? ledger : undefined;
+      });
     }
   }
 
@@ -749,10 +811,11 @@ router.post('/votes/:id/enact', aw(async (req, res) => {
 
 // ---------- league settings ----------
 router.post('/settings', aw(async (req, res) => {
-  const config = await getDoc('config', {});
-  const t = parseInt(req.body.vote_threshold, 10);
-  if (Number.isFinite(t) && t > 0 && t <= 20) config.vote_threshold = t;
-  await setDoc('config', config);
+  const config = await mutateDoc('config', {}, cfg => {
+    const t = parseInt(req.body.vote_threshold, 10);
+    if (Number.isFinite(t) && t > 0 && t <= 20) cfg.vote_threshold = t;
+    return cfg;
+  });
   back(res, 'season', msg(`Rule changes now need ${config.vote_threshold} YES votes.`));
 }));
 
@@ -760,26 +823,29 @@ router.post('/settings', aw(async (req, res) => {
 // countdown, and the pinned site-wide alert together (all derive from these).
 // A blank field clears the override so the derived default takes over again.
 router.post('/draft-day', aw(async (req, res) => {
-  const config = await getDoc('config', {});
   const date = String(req.body.draft_date || '').trim();
   const time = String(req.body.draft_time || '').trim();
   const place = String(req.body.draft_location || '').trim();
-  // Accept only a real YYYY-MM-DD (a bad date would silently break the countdown).
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date) && !isNaN(new Date(date + 'T12:00:00Z').getTime())) {
-    config.draft_date = date;
-  } else if (date === '') { delete config.draft_date; }
-  if (time) config.draft_time = time; else delete config.draft_time;
-  if (place) config.draft_location = place; else delete config.draft_location;
-  await setDoc('config', config);
+  const config = await mutateDoc('config', {}, cfg => {
+    // Accept only a real YYYY-MM-DD (a bad date would silently break the countdown).
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && !isNaN(new Date(date + 'T12:00:00Z').getTime())) {
+      cfg.draft_date = date;
+    } else if (date === '') { delete cfg.draft_date; }
+    if (time) cfg.draft_time = time; else delete cfg.draft_time;
+    if (place) cfg.draft_location = place; else delete cfg.draft_location;
+    return cfg;
+  });
   // Re-pin the alert to the freshly derived text so it never lags the config.
   try {
     const curYear = (H.currentSeason(req.world.seasons) || {}).year;
     const di = require('../dashboard').draftAnnouncement(config, new Date().toISOString(), curYear);
-    const alerts = await getDoc('alerts', []);
-    const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
-    if (pinned) { pinned.message = di.message; pinned.level = 'urgent'; pinned.active = !di.passed; }
-    else if (!di.passed) { alerts.unshift({ id: 'draftday2026', message: di.message, level: 'urgent', active: true, created_at: now() }); }
-    await setDoc('alerts', alerts);
+    await mutateDoc('alerts', [], alerts => {
+      const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
+      if (pinned) { pinned.message = di.message; pinned.level = 'urgent'; pinned.active = !di.passed; }
+      else if (!di.passed) { alerts.unshift({ id: 'draftday2026', message: di.message, level: 'urgent', active: true, created_at: now() }); }
+      else return undefined;
+      return alerts;
+    });
   } catch (e) { /* the config saved; the alert re-pin is best-effort */ }
   back(res, 'season', msg('Draft day updated.'));
 }));
@@ -794,28 +860,34 @@ router.post('/sync-records', aw(async (req, res) => {
   const recs = await sleeper.records(world.config.sleeper_league_id, uMap, active, { force: true });
   if (!recs || !recs.careerByUser) return back(res, 'owners', msg('Could not reach Sleeper to sync records.'));
   const era = H.sleeperEraByOwner(recs, uMap);
-  const owners = await getDoc('owners', []);
+  // mutateDoc — THE AUDIT'S NAMED RACE: this whole-doc owners write used to be
+  // able to eat a member's concurrent password change (finding 1). The
+  // serialized re-read inside the mutate is what makes both survive.
   let n = 0;
-  for (const o of owners) {
-    const e = era[o.id];
-    if (!e) continue;
-    // Baseline = the record you already had, minus what Sleeper can account for.
-    o.record_baseline = {
-      wins: Math.max(0, (o.wins || 0) - (e.wins || 0)),
-      losses: Math.max(0, (o.losses || 0) - (e.losses || 0)),
-      ties: Math.max(0, (o.ties || 0) - (e.ties || 0)),
-      through: `pre-${recs.seasonsCovered[0]}`,
-    };
-    n++;
-  }
-  await setDoc('owners', owners);
+  await mutateDoc('owners', [], owners => {
+    n = 0;
+    for (const o of owners) {
+      const e = era[o.id];
+      if (!e) continue;
+      // Baseline = the record you already had, minus what Sleeper can account for.
+      o.record_baseline = {
+        wins: Math.max(0, (o.wins || 0) - (e.wins || 0)),
+        losses: Math.max(0, (o.losses || 0) - (e.losses || 0)),
+        ties: Math.max(0, (o.ties || 0) - (e.ties || 0)),
+        through: `pre-${recs.seasonsCovered[0]}`,
+      };
+      n++;
+    }
+    return owners;
+  });
   back(res, 'owners', msg(`Synced ${n} owner${n === 1 ? '' : 's'}. Pre-${recs.seasonsCovered[0]} records frozen as-is; Sleeper seasons (${recs.seasonsCovered.join(', ')}) now update themselves.`));
 }));
 
 router.post('/unsync-records', aw(async (req, res) => {
-  const owners = await getDoc('owners', []);
-  for (const o of owners) delete o.record_baseline;
-  await setDoc('owners', owners);
+  await mutateDoc('owners', [], owners => {
+    for (const o of owners) delete o.record_baseline;
+    return owners;
+  });
   back(res, 'owners', msg('Back to manual records.'));
 }));
 
@@ -855,15 +927,15 @@ router.post('/propose-awards', aw(async (req, res) => {
 
 // ---------- sleeper ----------
 router.post('/sleeper', aw(async (req, res) => {
-  const config = await getDoc('config', {});
-  config.sleeper_league_id = String(req.body.league_id || '').trim();
-  config.sleeper_touched = true;
-  await setDoc('config', config);
+  const config = await mutateDoc('config', {}, cfg => {
+    cfg.sleeper_league_id = String(req.body.league_id || '').trim();
+    cfg.sleeper_touched = true;
+    return cfg;
+  });
   await store.del('sleeper-cache');
   back(res, 'sleeper', msg(config.sleeper_league_id ? 'Sleeper league connected.' : 'Sleeper league disconnected.'));
 }));
 router.post('/sleeper/map', aw(async (req, res) => {
-  const config = await getDoc('config', {});
   const owners = H.activeOwners(req.world.owners);
   const nameOf = id => (H.ownerById(owners, id) || {}).name || ('#' + id);
 
@@ -888,8 +960,7 @@ router.post('/sleeper/map', aw(async (req, res) => {
       + '. Each owner can hold one Sleeper team. Nothing was changed.'));
   }
 
-  config.sleeper_map = map;
-  await setDoc('config', config);
+  await mutateDoc('config', {}, cfg => { cfg.sleeper_map = map; return cfg; });
 
   // Say what actually landed. "Saved." is what a form says when it has no idea
   // whether the thing you wanted happened, and it is why nobody trusts it.
@@ -1111,6 +1182,130 @@ router.get('/draft-sheet', requireCory, aw(async (req, res) => {
     // The decision rule, one sentence, for the card (Cory's exact wording).
     rule: 'Best available within startable need — QB and DEF deferred — never over-draft a filled position.',
   });
+}));
+
+// THE PROJECTION-SOURCE COMPARISON (Cory, 2026-08-16: "It might cool if I
+// has an easy way to see 'our models' projections easily as well. I'd like
+// to see the ones we're using (fantasy pros) but maybe an easy way for me to
+// see our models test projections also?"). Server-rendered off the same
+// draft_data.json artifact as the sheet above — every number on this page is
+// the board's own number, no recomputation. Cory-only like the sheet: the
+// own-model column is exactly what the member-site access rule keeps off
+// every member page.
+router.get('/projections', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = {};
+  try { artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')); } catch (e) { artifact = {}; }
+  const POSITIONS = ['QB', 'RB', 'WR', 'TE'];
+  const posFilter = POSITIONS.includes(req.query.pos) ? req.query.pos : null;
+  const r1 = n => (n == null ? null : Math.round(Number(n) * 10) / 10);
+  const byPos = {};
+  for (const pos of (posFilter ? [posFilter] : POSITIONS)) {
+    byPos[pos] = (artifact.players || [])
+      .filter(p => p && p.position === pos && p.name
+        && (p.proj_mean != null || p.proj_ownmodel != null))
+      .slice().sort((a, b) => (b.proj_mean == null ? -1e9 : b.proj_mean)
+                            - (a.proj_mean == null ? -1e9 : a.proj_mean))
+      .slice(0, 40)
+      .map((p, i) => ({
+        rank: i + 1, name: p.name, team: p.team || '',
+        sleeper: r1(p.proj_sleeper), fpros: r1(p.proj_fantasypros),
+        own: r1(p.proj_ownmodel), mean: r1(p.proj_mean),
+        // own vs the number the tools actually use — the disagreement Cory
+        // reads this page for. Null when either side is absent.
+        delta: (p.proj_ownmodel != null && p.proj_mean != null)
+          ? r1(p.proj_ownmodel - p.proj_mean) : null,
+      }));
+  }
+  const prov = artifact.provenance || {};
+  res.render('admin/projections', {
+    byPos, posFilter,
+    builtAt: artifact.built_at || null,
+    // BOTH provenance homes, newest-authority first. The promotion's board
+    // refresh writes the diag at provenance.own_model (top level); a full
+    // build() writes it at provenance.projections.own_model. Reading only the
+    // top level stranded this page one nightly rebuild away from "none
+    // attached" while the column was full (model-representation audit,
+    // 2026-08-16) — the label must survive whichever writer ran last.
+    ownModel: prov.own_model || (prov.projections || {}).own_model || {},
+    projProv: prov.projections || null,
+  });
+}));
+
+// THE POST-DRAFT ANALYZER SURFACE (Cory, 2026-08-18, verbatim: "After draft
+// it should immediately be ready for me, I will make bet with Richard.").
+// Reads public/league_analysis_2026.json, produced by
+// draft/tools/league_analyzer.py off Sleeper + our board — this route does no
+// computation of its own, it only lays the artifact out. The `_claim` line is
+// rendered VERBATIM near the top by design: Cory must never quote a
+// projection to Richard as a result, and the artifact itself carries that
+// caveat (rehearsal warning pre-draft, "projections not results" after).
+router.get('/league-analysis', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = null;
+  try {
+    artifact = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', '..', 'public', 'league_analysis_2026.json'), 'utf8'));
+  } catch (e) { artifact = null; }
+  if (!artifact) {
+    return res.render('admin/league-analysis', {
+      artifact: null, standings: [], roundMeans: {}, rehearsal: false, claim: '', honesty: {},
+    });
+  }
+  const grades = (artifact.draft_grades || {}).teams || {};
+  const roundMeans = (artifact.draft_grades || {}).round_means || {};
+  // Join the grade (keyed by roster_id, from draft_grades.teams) onto each
+  // standings row (which already carries the owner name) — one row per team,
+  // never two derivations of who's who.
+  const standings = (artifact.projected_standings || []).map(r => ({
+    ...r,
+    grade: grades[String(r.roster_id)] || null,
+  }));
+  res.render('admin/league-analysis', {
+    artifact,
+    standings,
+    roundMeans,
+    rehearsal: !!artifact._rehearsal,
+    claim: artifact._claim || '',
+    honesty: artifact.honesty || {},
+  });
+}));
+
+// TEAM DEPTH CHARTS, ALL 32 (Cory, 2026-08-18: "we should always be looking or
+// thinking of new tools. ie depth chart tool for all 32 teams."). Data-ready,
+// not a build-from-scratch: every rostered player in draft_data.json already
+// carries `team` and `depth_chart_order` (confirmed 08-17 while answering
+// Cory's earlier ask for the SAME field on the drill-down, ROUTES.md item
+// "CORY'S NEXT TWO ASKS"). This just lays what's already on disk out by team.
+router.get('/depth-charts', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = {};
+  try { artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')); } catch (e) { artifact = {}; }
+  const POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+  const byTeam = {};
+  for (const p of (artifact.players || [])) {
+    if (!p || !p.team || p.team === 'FA') continue;
+    (byTeam[p.team] = byTeam[p.team] || []).push(p);
+  }
+  const teams = Object.keys(byTeam).sort().map(team => {
+    const byPos = {};
+    for (const pos of POS_ORDER) {
+      byPos[pos] = byTeam[team]
+        .filter(p => p.position === pos)
+        .sort((a, b) => {
+          const ao = a.depth_chart_order == null ? 999 : a.depth_chart_order;
+          const bo = b.depth_chart_order == null ? 999 : b.depth_chart_order;
+          return ao - bo;
+        })
+        .map(p => ({
+          name: p.name, order: p.depth_chart_order, injury: p.injury_status || null,
+          adp: p.adp != null ? Math.round(p.adp * 10) / 10 : null,
+          overallRank: p.overall_rank != null ? p.overall_rank : null,
+        }));
+    }
+    return { team, byPos };
+  });
+  res.render('admin/depth-charts', { teams, builtAt: artifact.built_at || null });
 }));
 
 // ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----
@@ -1442,6 +1637,124 @@ router.get('/export', aw(async (req, res) => {
   if (dump.config) delete dump.config.secret; // keep the session secret out of downloads
   res.setHeader('Content-Disposition', `attachment; filename="maga-league-backup-${new Date().toISOString().slice(0, 10)}.json"`);
   res.json(dump);
+}));
+
+// ── THE MODEL SCOREBOARD + CONTROL PANEL (Cory-only) ─────────────────────────
+// Cory, 2026-08-16: "A scoreboard of some sort of the models on the actual
+// site for me only would be nice! Include sleeper and fantasy pro projections
+// so I can see if any models bearing those." And: "Make a way for me to easily
+// switch between models in the site! ... make sure it's easily understandable
+// for me so I know exactly what each thing means."
+//
+// READS, never recomputes: the weekly learning ledger
+// (draft/data/weekly_own/grades_<season>.json, written by the Tuesday grade
+// cron — included_files already ships draft/data/** to the function bundle)
+// and the committed adaptation controls (draft/data/weekly_own/controls.json).
+// Every number on the page IS the ledger's number.
+//
+// THE ONE LIVE CONTROL here writes the `model_controls` league doc, and the
+// ONLY consumer of that doc is src/proj_feed.js (sourceFromControls) — the
+// shared season-rate feed the in-season surfaces draw from. No fake knobs:
+// anything this page cannot provably wire is shown as state, with the honest
+// path to change it named on the page.
+
+const OWN_WEEKLY_SEASON = 2026;
+
+function readWeeklyOwn(file) {
+  const fs = require('fs'), path = require('path');
+  const dir = process.env.OWN_WEEKLY_DIR
+    || path.join(__dirname, '..', '..', 'draft', 'data', 'weekly_own');
+  try { return JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8')); }
+  catch (e) { return null; }
+}
+
+router.get('/model-scoreboard', requireCory, aw(async (req, res) => {
+  const PF = require('../proj_feed');
+  const season = OWN_WEEKLY_SEASON;
+  const ledger = readWeeklyOwn(`grades_${season}.json`);
+  const controls = readWeeklyOwn('controls.json') || {};
+  const mc = await getDoc('model_controls', {});
+  const source = PF.sourceFromControls(mc);
+
+  // ── flatten the ledger for the view: weeks ASC, one column set per arm ──
+  const weeks = [];
+  const armNames = new Set();
+  const provNames = new Set();
+  if (ledger && ledger.weeks) {
+    for (const wk of Object.keys(ledger.weeks).map(Number).sort((a, b) => a - b)) {
+      const e = ledger.weeks[String(wk)];
+      const own = {}, prov = {};
+      for (const [arm, cell] of Object.entries(e.own_arms || {})) {
+        armNames.add(arm); own[arm] = cell;
+      }
+      for (const [arm, block] of Object.entries(e.providers || {})) {
+        provNames.add(arm);
+        prov[arm] = {
+          own_population: block.own_population,
+          shared: (block.shared_with_ours || {})[arm] || null,
+          shared_n: (block.shared_with_ours || {}).n,
+          note: block.population_note,
+        };
+      }
+      weeks.push({
+        week: wk, champion_arm: e.champion_arm, formula: e.formula,
+        population: e.population, own, prov,
+        top_misses: e.top_misses || [], miss_pattern: e.miss_pattern || '',
+      });
+    }
+  }
+  const cum = {};
+  const mean = a => (a.length ? Math.round(a.reduce((s, x) => s + x, 0) / a.length * 1000) / 1000 : null);
+  for (const arm of armNames) {
+    const maes = weeks.map(w => (w.own[arm] || {}).mae).filter(v => v != null);
+    const rhos = weeks.map(w => (w.own[arm] || {}).spearman).filter(v => v != null);
+    cum[arm] = { kind: 'own', mae: mean(maes), spearman: mean(rhos), weeks: maes.length };
+  }
+  for (const arm of provNames) {
+    // Cumulative on the SHARED population — the only honest cross-arm column.
+    const maes = weeks.map(w => ((w.prov[arm] || {}).shared || {}).mae).filter(v => v != null);
+    const rhos = weeks.map(w => ((w.prov[arm] || {}).shared || {}).spearman).filter(v => v != null);
+    cum[arm] = { kind: 'provider', mae: mean(maes), spearman: mean(rhos), weeks: maes.length };
+  }
+
+  res.render('admin/model-scoreboard', {
+    season,
+    ledger,
+    weeks,
+    cum,
+    armNames: [...armNames].sort(),
+    provNames: [...provNames].sort(),
+    champion: (ledger && ledger.champion) || { version: 'own_weekly_v1', arm: 'v1' },
+    activeArms: (ledger && ledger.active_arms) || [],
+    promotions: (ledger && ledger.promotions) || [],
+    latest: weeks.length ? weeks[weeks.length - 1] : null,
+    controls: { auto_adapt: controls.auto_adapt !== false,
+      champion_override: controls.champion_override || null },
+    source,
+    sources: PF.PROJ_SOURCES,
+    saved: req.query.saved || null,
+  });
+}));
+
+// The switch (Cory's "easily switch between models in the site"). Writes the
+// model_controls doc; src/proj_feed.js is the one consumer, so the lineup /
+// waiver / matchup surfaces that draw from the feed all change together on
+// their next render. History kept in the doc — his switches are part of
+// "know if the model adapted and how".
+router.post('/model-scoreboard/source', requireCory, aw(async (req, res) => {
+  const PF = require('../proj_feed');
+  const want = String((req.body || {}).source || '');
+  if (PF.PROJ_SOURCES.indexOf(want) < 0) {
+    return res.redirect('/admin/model-scoreboard?saved=invalid');
+  }
+  const mc = await getDoc('model_controls', {});
+  mc.projection_source = want;
+  mc.history = (mc.history || []).concat([{
+    at: now(), by: (req.owner || {}).name || (req.owner || {}).username || 'cory',
+    set: { projection_source: want },
+  }]).slice(-50);
+  await setDoc('model_controls', mc);
+  res.redirect('/admin/model-scoreboard?saved=' + encodeURIComponent(want));
 }));
 
 module.exports = router;

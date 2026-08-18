@@ -84,6 +84,16 @@ RETIRED = ("Tom Brady", "Drew Brees", "Rob Gronkowski", "Julian Edelman",
            "Antonio Brown", "Larry Fitzgerald", "Todd Gurley", "Marshawn Lynch")
 
 
+def _fixture_board():
+    """The board the instant BEFORE the activity filter first ran — A's input,
+    committed so the detector keeps being testable after it succeeds."""
+    p = (Path(__file__).resolve().parent / "fixtures" /
+         "board_pre_activity_filter.json")
+    if not p.exists():
+        pytest.skip("UNCHECKED: board_pre_activity_filter.json is absent")
+    return json.loads(p.read_text())
+
+
 def test_NO_RETIRED_PLAYER_IS_ON_THE_BOARD_AND_UNFLAGGED():
     """THE INVARIANT THAT SURVIVES THE FIX, which the first version did not.
 
@@ -155,7 +165,8 @@ def test_a_2024_LEFTOVER_IS_CAUGHT_even_though_he_played_recently():
 
 @pytest.mark.parametrize("kw,why", [
     ({"years_exp": 0}, "a rookie's blank history is the correct history"),
-    ({"adp_source": "fantasypros"}, "the market prices him, which outranks my absence"),
+    ({"adp_source": "fantasypros"}, "the market prices him with NO adp number — fail-safe spare"),
+    ({"adp_source": "fantasypros", "raw_adp": 150.0}, "the market prices him inside draftable depth"),
     ({"proj_mean": 3.2}, "a projection is a positive claim that he exists in 2026"),
 ])
 def test_the_DETECTOR_SPARES_anyone_something_else_vouches_for(kw, why):
@@ -165,6 +176,26 @@ def test_the_DETECTOR_SPARES_anyone_something_else_vouches_for(kw, why):
     MUTATION: remove any one of these guards — the accused set grows by exactly
     the players who had a reason to be there."""
     assert BA.dormant(_synthetic([_row(**kw)]))["rows"] == [], why
+
+
+def test_a_DEEP_TABLE_GHOST_PRICE_does_not_vouch():
+    """THE GRONKOWSKI CASE, pinned from the first in-run diagnosis of a refused
+    nightly board (draft/tools/diagnose_refused_board.py, CI run 31897110098):
+    FantasyPros' consensus table carried Rob Gronkowski — retired since 2021 —
+    at ADP 298.0 with proj_mean 0.0, and the unconditional market exemption
+    spared him, blocking the publish. An ADP beyond MARKET_SPARE_DEPTH (1.5x
+    the 150-pick draft) is a feed artifact, not "somebody is drafting him".
+
+    Both directions pinned so the bound cannot drift into deleting somebody
+    real: 298 -> dormant, 225 (exactly the bound) -> spared, and the predicate
+    is ONE exported function (market_vouches) shared with the prune audit."""
+    ghost = _row(adp_source="fantasypros", raw_adp=298.0)
+    assert [p["name"] for p in BA.dormant(_synthetic([ghost]))["rows"]] == ["Somebody"], (
+        "a 298.0 ADP in a 150-pick draft vouched for an unprojected veteran")
+    at_bound = _row(adp_source="fantasypros", raw_adp=BA.MARKET_SPARE_DEPTH)
+    assert BA.dormant(_synthetic([at_bound]))["rows"] == [], (
+        "a price exactly at MARKET_SPARE_DEPTH must still spare")
+    assert BA.market_vouches(at_bound) and not BA.market_vouches(ghost)
 
 
 # ── the guarantee ──────────────────────────────────────────────────────────
@@ -241,30 +272,57 @@ def test_NOTHING_DORMANT_PRICES_A_DECISION_ON_THE_SHIPPED_BOARD():
     assert got["dormant"] >= 0
 
 
-def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
-    """The EFFECT of the prune build.py now performs, checked against the real
-    artifact rather than a fixture — because the artifact is the exact input it
-    receives.
+@pytest.mark.parametrize("which", ["fixture", "shipped"])
+def test_PRUNING_A_BOARD_REMOVES_NOTHING_ACTIONABLE(which):
+    """The EFFECT of the prune, with every exemption asserted separately. A single
+    count would pass while any one of them had quietly stopped applying, and each
+    is a different way to delete a player somebody is drafting.
 
-    Every exemption is asserted separately. A single count would pass while any
-    one of them had quietly stopped applying, and each is a different way to
-    delete a player somebody is drafting: a market price, a projection, a
-    rookie's blank history, or a position the evidence cannot see at all.
+    ⚠ TWO ARMS, BECAUSE THE SHIPPED ARM STOPS RUNNING THE DAY THE PRUNE SUCCEEDS.
+    This used to run only against the artifact, and skipped when nothing was left
+    to drop — "the success state, not a broken detector", which is true and still
+    leaves seven assertions silently retired on the day they start mattering. A
+    detector that can only be tested while the defect is present stops being
+    tested the moment it works (A's finding, and A built the input for it:
+    `fixtures/board_pre_activity_filter.json`, the board the instant before the
+    filter first ran, 1,841 rows, from CI run 31750835657).
+
+      fixture   ALWAYS runs. 1,158 dormant under the current rule, Brady among
+                them, so the seven clauses are exercised forever.
+      shipped   still catches a live regression while the artifact has dormant
+                rows, and skips honestly once it does not.
 
     MUTATION: remove any exemption from `dormant` — the corresponding assertion
-    here names exactly which one went."""
-    b = board()
+    names exactly which one went, on the fixture arm regardless of the board."""
+    b = _fixture_board() if which == "fixture" else board()
     rows = BA.dormant(b)["rows"]
     if not rows:
-        pytest.skip("the board is already pruned — nothing dormant left to drop, "
-                    "which is the success state, not a broken detector")
+        assert which == "shipped", (
+            "the FIXTURE has nothing dormant in it — it exists precisely to hold "
+            "the hazard permanently, so this arm can never be allowed to skip")
+        pytest.skip("the shipped board is already pruned — nothing dormant left "
+                    "to drop, which is the success state. The fixture arm above "
+                    "still asserts every clause.")
     drop = {str(p.get("player_id")) for p in rows}
     gone = [p for p in b["players"] if str(p.get("player_id")) in drop]
 
     def num(v):
         return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
+    # THE BOUND, AND WHY IT IS BORROWED FOR THE FIXTURE. A trimmed the fixture to
+    # `players` and dropped `provenance`, so the relevant board cannot be derived
+    # from it. Falling through to None would make this clause vanish on the arm
+    # that runs forever — the exact silent retirement the two arms exist to
+    # prevent. It is the same league and the same build lineage, so the shipped
+    # board's bound applies, and it is ASSERTED present rather than defaulted.
     relevant = (((b.get("provenance") or {}).get("adp") or {})).get("relevant_board")
+    if relevant is None:
+        relevant = (((board().get("provenance") or {}).get("adp") or {})
+                    ).get("relevant_board")
+    assert relevant, (
+        "no relevant-board bound from either the board under test or the shipped "
+        "artifact — the 'inside the relevant board' clause below would silently "
+        "not run")
     for label, bad in (
         ("ranked inside the draft's depth",
          [p for p in gone if (num(p.get("overall_rank")) or 10 ** 9) <= BA.DEPTH]),
@@ -272,8 +330,15 @@ def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
          [p for p in gone if (num(p.get("vorp")) or 0) > 0]),
         ("inside the relevant board",
          [p for p in gone if relevant and (num(p.get("adp")) or 10 ** 9) <= relevant]),
-        ("priced by the market",
-         [p for p in gone if p.get("adp_source") not in (None, "search_rank")]),
+        # DRAFTABLY priced — BA.market_vouches, the same single predicate the
+        # spare rule uses, deliberately not a re-implementation (one definition,
+        # so the audit and the spare can never drift apart). Changed 2026-08-15
+        # with the MARKET_SPARE_DEPTH bound: a FantasyPros deep-table ghost row
+        # (Gronkowski at ADP 298.0 on the refused candidate board, CI run
+        # 31897110098) is prunable; anyone priced inside 1.5x the draft's
+        # depth is not.
+        ("draftably priced by the market",
+         [p for p in gone if BA.market_vouches(p)]),
         ("carrying a projection",
          [p for p in gone if (num(p.get("proj_mean")) or 0) > 0]),
         ("a rookie",
@@ -288,3 +353,127 @@ def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
     ):
         assert not bad, "the prune would drop %d player(s) %s: %s" % (
             len(bad), label, [p.get("name") for p in bad[:6]])
+
+
+# ── A KEPT PLAYER IS NEVER DORMANT ─────────────────────────────────────────
+#
+# A'S FINDING, NOT MINE, AND MY OWN REDESIGN MADE IT SHARPER. `dormant()` had
+# four exemptions and a keeper was none of them. A player kept through a
+# two-season injury — no scored week in 2024 or 2025, dropped by FFC, unprojected
+# — matches every dormancy condition.
+#
+# THE ORDERING IS WHAT MAKES IT LIVE. `build.py` builds `kept_players` by
+# FILTERING `players` at ~line 1266; the prune's insertion point is ~line 613. A
+# keeper removed at 613 never appears at 1266 — he is simply gone, and the
+# artifact the whole draft plan rests on is short a player with nothing saying so.
+#
+# The old "scored recently" rule accidentally protected an injured keeper who had
+# played in 2024. "Who vouches for him" does not. Measured today: 0 of the 3 real
+# designations and 0 of the 17 predicted are dormant — so nothing is broken, and
+# the safety rests entirely on nobody currently keeping a two-year absentee.
+# Keeper lock is 2026-08-20.
+
+def _keeperless_row(pid="99001"):
+    """A row that matches EVERY dormancy condition: not a rookie, no market
+    price, no projection."""
+    return {"player_id": pid, "name": "Kept Through Injury", "position": "RB",
+            "years_exp": 8, "adp_source": None, "proj_mean": 0.0}
+
+
+def _root_with_keepers(tmp_path, ids, name="keepers.json"):
+    cfg = tmp_path / "config"
+    cfg.mkdir(exist_ok=True)
+    (cfg / name).write_text(json.dumps(
+        {"teams": [{"draft_slot": 1,
+                    "keepers": [{"player_id": i} for i in ids]}]}))
+    return tmp_path
+
+
+def _board_with(rows):
+    """A board whose projection health passes, plus the rows under test."""
+    filler = [{"player_id": "f%d" % i, "years_exp": 3, "adp_source": "ffc",
+               "adp": 10.0 + i, "proj_mean": 100.0} for i in range(40)]
+    return {"players": filler + list(rows)}
+
+
+def test_a_KEPT_player_is_NOT_dormant_however_dead_he_looks(tmp_path):
+    """THE ASSERTION THIS EXISTS FOR. MUTATION: drop the keeper check — the row
+    below is pruned, `build.py` looks for him in `kept_players` 650 lines later
+    and does not find him, and a keeper leaves the board silently on 08-20."""
+    row = _keeperless_row()
+    root = _root_with_keepers(tmp_path, ["99001"])
+    d = BA.dormant(_board_with([row]), root=str(root))
+    assert d["status"] == "measured", d
+    assert [r["player_id"] for r in d["rows"]] == [], (
+        "a real keeper designation was flagged dormant: %s"
+        % [r["player_id"] for r in d["rows"]])
+    assert d["keepers"]["spared"] == ["99001"], (
+        "and the save must be COUNTED — '0 spared' and 'the check never ran' are "
+        "different states: %s" % d["keepers"])
+
+
+def test_the_HAZARD_IS_REAL_the_same_row_IS_dormant_without_a_designation(tmp_path):
+    """Proved by removing the designation, because the test above passes
+    perfectly against a rule that has stopped flagging anything at all."""
+    row = _keeperless_row()
+    root = _root_with_keepers(tmp_path, ["70000"])          # somebody else
+    d = BA.dormant(_board_with([row]), root=str(root))
+    assert [r["player_id"] for r in d["rows"]] == ["99001"], (
+        "the row is not dormant even WITHOUT a designation, so the test above "
+        "proves nothing about keepers: %s" % d)
+
+
+def test_an_UNREADABLE_keeper_file_REFUSES_rather_than_pruning_blind(tmp_path):
+    """An unreadable file is not 'no keepers', it is 'I do not know who is kept'.
+    Pruning under an unknown keeper set is the loss this exists to prevent.
+
+    MUTATION: treat a parse failure as an empty set — the prune runs with no
+    keeper protection at all, on the one path where nobody would look."""
+    cfg = tmp_path / "config"
+    cfg.mkdir()
+    (cfg / "keepers.json").write_text("{not json")
+    d = BA.dormant(_board_with([_keeperless_row()]), root=str(tmp_path))
+    assert d["status"] == "unmeasured", d
+    assert d["n"] == 0 and d["rows"] == []
+    assert "UNKNOWN" in d["keepers"]["note"] or "unreadable" in d["keepers"]["note"]
+
+
+def test_an_ABSENT_keeper_file_is_NOT_a_refusal(tmp_path):
+    """No file means no designations exist yet — a fact about the league, not a
+    failure to read one. `build.py` says exactly that and builds anyway.
+
+    MUTATION: refuse on absent too — the prune never runs before the first
+    designation is made, and the reason is invisible."""
+    d = BA.dormant(_board_with([_keeperless_row()]), root=str(tmp_path))
+    assert d["status"] == "measured", d
+    assert [r["player_id"] for r in d["rows"]] == ["99001"]
+    assert d["keepers"]["status"] == "absent"
+
+
+def test_the_PREDICTED_slate_is_NOT_read_as_a_designation(tmp_path):
+    """`predicted_keepers.json` is quarantined research — "PREDICTED slates for
+    MOCK/REHEARSAL ONLY — never applied to the live board". Sparing a row on the
+    strength of a prediction couples the live board to it, in the one direction
+    that looks harmless and is still the coupling.
+
+    MUTATION: fall back to the predicted slate when no real designation exists —
+    research data starts deciding which rows survive on the board Cory drafts
+    from, which is exactly what the quarantine forbids."""
+    cfg = tmp_path / "config"
+    cfg.mkdir()
+    (cfg / "predicted_keepers.json").write_text(json.dumps(
+        {"teams": [{"draft_slot": 1, "keepers": [{"player_id": "99001"}]}]}))
+    d = BA.dormant(_board_with([_keeperless_row()]), root=str(tmp_path))
+    assert d["keepers"]["status"] == "absent", (
+        "the predicted slate was read as a real designation: %s" % d["keepers"])
+    assert [r["player_id"] for r in d["rows"]] == ["99001"]
+
+
+def test_the_REAL_DESIGNATIONS_are_read_from_the_SHIPPED_config():
+    """Against the real file, so this stops being a fixture exercise. Today: 3
+    designations across 1 team — Cory's — because the rest of the league has not
+    designated yet. MUTATION: read a different path and this reports 0."""
+    k = BA.keeper_ids()
+    assert k["status"] == "read", k
+    assert k["teams"] >= 1 and len(k["ids"]) >= 3, k
+    assert {"3198", "7564", "8151"} <= set(k["ids"]), sorted(k["ids"])

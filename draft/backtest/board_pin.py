@@ -175,3 +175,139 @@ def pin_before(doc: dict, draft_date: str, draft_started_at: str = None):
 
     usable = [r for r in series if qualifies(r)]
     return usable[-1] if usable else None
+
+
+def _days(a, b):
+    """Whole days from `a` to `b`, both YYYY-MM-DD. None if either is unreadable."""
+    import datetime
+    try:
+        da = datetime.date.fromisoformat(str(a)[:10])
+        db = datetime.date.fromisoformat(str(b)[:10])
+    except (TypeError, ValueError):
+        return None
+    return (db - da).days
+
+
+def staleness(series, today) -> dict:
+    """Is the board fresh — and was it REBUILT or only EDITED IN PLACE?
+
+    ⚠ NEITHER FIELD ANSWERS THIS ALONE, and that was measured rather than
+    supposed. On 2026-08-14 three commits to `public/draft_data.json` carried
+    sha256 `25b10172` / `2814c6de` / `7fa64ad7` — 1,679,767 then 1,648,204 then
+    1,647,977 bytes — with `built_at` identical at `2026-08-13T23:13:18Z` on all
+    three. 136 of the first 400 player rows differed, the moving field being
+    `adp_unordered`.
+
+    So `built_at` alone calls that board unchanged, and the digest alone calls it
+    rebuilt. Neither is true, and the difference is the one worth having: an EDIT
+    means somebody changed the artifact, a REBUILD means the pipeline ran. A
+    nightly build that quietly stops firing is invisible to the digest for as long
+    as anyone keeps hand-editing the file — which is exactly the morning this was
+    found on, with the 08:00 rebuild an hour late and the board nine hours stale.
+
+    The pin has carried BOTH fields since it was written; nothing read them
+    together. Four states:
+
+      rebuilt     `built_at` advanced between the last two pins
+      edited      the digest moved and `built_at` did not
+      frozen      neither moved — and the age is measured from the last CHANGE,
+                  never from the last pin, because the pin runs daily and would
+                  otherwise report that it had itself run
+      unmeasured  fewer than two pins: nothing to compare against
+
+    ⚠ WHAT "ONE DAY SINCE REBUILD" MEANS IN PRACTICE, measured rather than
+    assumed. `draft-data.yml` declares `cron: 0 8 * * *`, and the scheduled runs
+    it has actually started are 09:07, 08:50, 08:52, 13:51, 09:40, 09:06, 11:37,
+    09:18 and 09:19 UTC — a GitHub queue delay of roughly **50 to 100 minutes**,
+    with the last two days both landing at ~09:18.
+
+    I recorded this because I got it wrong first: I called the rebuild "late" at
+    08:16 and set a stalled-by-08:45 threshold, borrowed from the D3 capture's own
+    delay (cron 11:20, runs ~12:02, ~40 minutes). Two different workflows queue
+    differently, so a threshold carried across from one to the other is a bar and
+    a measurement denominated in different things — the same mistake this file's
+    own findings keep being about. A rebuild missing at 08:45 is NORMAL; missing
+    at 10:00 is worth looking at.
+    """
+    ser = sorted([p for p in (series or []) if p.get("observed_at")],
+                 key=lambda p: str(p.get("observed_at")))
+    if len(ser) < 2:
+        return {"state": "unmeasured", "pins": len(ser),
+                "days_since_content_change": None, "days_since_rebuild": None,
+                "rebuild_measurable": False,
+                "note": "fewer than two pins — nothing to compare against. A "
+                        "single pin reporting zero days would make a brand-new "
+                        "archive indistinguishable from a board that changed this "
+                        "morning."}
+    last, prev = ser[-1], ser[-2]
+
+    # LAST CHANGE, NOT LAST PIN. Walk back to the newest pin whose digest differs
+    # from the current one; the day AFTER it is when the content last moved.
+    last_change = ser[0].get("observed_at")
+    for i in range(len(ser) - 1, 0, -1):
+        if ser[i].get("sha256") != ser[i - 1].get("sha256"):
+            last_change = ser[i].get("observed_at")
+            break
+    last_rebuild, measurable = None, True
+    stamps = [(p.get("observed_at"), p.get("built_at")) for p in ser]
+    if any(b in (None, "") for _d, b in stamps):
+        measurable = False
+    else:
+        # ⚠ DATED BY `built_at`, NOT BY THE PIN. Caught by simulating tomorrow's
+        # report on today's data, and it is this file's own recurring class — a
+        # measurement about the past computed through the present.
+        #
+        # The real numbers: pins on 08-12 (built 08-12T09:19) and 08-13 (built
+        # 08-13T09:20), then the nightly ran at 08-13T23:13, AFTER that day's pin.
+        # So even if the 08-14 rebuild never fires, the 08-14 pin carries a
+        # built_at that ADVANCED — and dating it by `observed_at` reported
+        # "last_rebuild 2026-08-14, zero days ago". On the exact morning a rebuild
+        # fails, the instrument built to catch a stalled rebuild would have
+        # reported perfect freshness.
+        #
+        # `observed_at` dates the OBSERVATION; `built_at` dates the BUILD.
+        # NO ADVANCE FOUND -> THE NEWEST BUILD WE HAVE SEEN.
+        #
+        # ⚠ PROVABLY THE SAME AS `ser[0]`, and the gate is what established it: I
+        # tried to plant `ser[0].built_at` as a mutation and it SURVIVED, because
+        # the loop only falls through when the sequence never increases — and the
+        # first element of a non-increasing sequence IS its maximum. So the two
+        # spellings cannot differ in any reachable state, and the mutation was
+        # dropped rather than paired with a test that could never fail.
+        #
+        # `max` is kept anyway: it says what the value MEANS instead of relying on
+        # a property of the loop above it, and it stays correct if that loop is
+        # ever reordered.
+        last_rebuild = max(str(p.get("built_at"))[:10] for p in ser)
+        for i in range(len(ser) - 1, 0, -1):
+            # ADVANCED, not merely different. A board rebuilt from an older
+            # snapshot, or a clock that goes backwards, is not progress.
+            if str(ser[i].get("built_at")) > str(ser[i - 1].get("built_at")):
+                last_rebuild = str(ser[i].get("built_at"))[:10]
+                break
+
+    if measurable and str(last.get("built_at")) > str(prev.get("built_at")):
+        state = "rebuilt"
+    elif last.get("sha256") != prev.get("sha256"):
+        state = "edited"
+    else:
+        state = "frozen"
+
+    return {
+        "state": state, "pins": len(ser),
+        "last_content_change": last_change,
+        "last_rebuild": last_rebuild,
+        "days_since_content_change": _days(last_change, today),
+        "days_since_rebuild": _days(last_rebuild, today) if measurable else None,
+        # A MISSING `built_at` IS UNKNOWN, NOT "NO REBUILD". `population()` already
+        # anticipates a board that stops carrying it and yields an explicit null;
+        # reading that null as a stalled pipeline would report a failure nobody
+        # can reproduce, because the evidence is absent rather than negative.
+        "rebuild_measurable": measurable,
+        "note": ("rebuild age UNMEASURABLE — a pin is missing `built_at`, which is "
+                 "unknown rather than 'no rebuild happened'"
+                 if not measurable else
+                 "an EDIT means somebody changed the artifact; a REBUILD means the "
+                 "pipeline ran. Age is measured from the last CHANGE, never from "
+                 "the last pin."),
+    }

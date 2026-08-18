@@ -183,16 +183,16 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}",
-     "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    if False:\n        ig = {}",
+     "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n        blocking = blocking_fatal(ig, year, observed_at)\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}\n        blocking = []",
+     "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    blocking = blocking_fatal(ig, year, observed_at)\n    if False:\n        ig = {}\n        blocking = []",
      "must_fail": [
       "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
      ],
      "verdict": "KILLED"
     },
     {
-     "old": "    if not ig[\"ok\"]:",
-     "new": "    if False:",
+     "old": "    if blocking:\n        raise RuntimeError(",
+     "new": "    if False:\n        raise RuntimeError(",
      "must_fail": [
       "test_capture_REFUSES_TO_WRITE_a_corrupt_archive"
      ],
@@ -259,6 +259,347 @@
      "new": "    judged = list(ser)",
      "must_fail": [
       "test_days_BEFORE_the_capture_could_carry_it_are_NOT_counted_against_us"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    try:\n        dispersion = dispersion_of(parsed)\n    except Exception as e:                          # noqa: BLE001\n        dispersion = {}",
+     "new": "    if True:\n        dispersion = dispersion_of(parsed)\n    if False:\n        dispersion = {}",
+     "must_fail": [
+      "test_A_GUARD_INSIDE_THE_FETCH_MUST_NOT_COST_THE_DAY",
+      "test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        note = note + (\" | DISPERSION PARSE FAILED (%s: %s) \u2014 the day's ADP is \"\n                       \"captured, the spread is not\" % (type(e).__name__, e))",
+     "new": "        note = note",
+     "must_fail": [
+      "test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    parsed = MFL.parse(adp_text, players_text)",
+     "new": "    try:\n        parsed = MFL.parse(adp_text, players_text)\n    except Exception:\n        parsed = []",
+     "must_fail": [
+      "test_THE_SOURCE_INSIDE_THE_FETCH_ABORTS_RATHER_THAN_INVENTING_A_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for f in ((ig or {}).get(\"fatal\") or []):\n        day = f.get(\"day\")\n        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:\n            out.append(f)",
+     "new": "    for f in ((ig or {}).get(\"fatal\") or []):\n        out.append(f)",
+     "must_fail": [
+      "test_only_TODAYS_OWN_CORRUPTION_may_stop_todays_write",
+      "test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:\n            out.append(f)",
+     "new": "        if False:\n            out.append(f)",
+     "must_fail": [
+      "test_TODAYS_corruption_STILL_REFUSES_even_beside_an_older_one",
+      "test_capture_REFUSES_TO_WRITE_a_corrupt_archive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:",
+     "new": "        if isinstance(day, (list, tuple)) and str(day[-1]) == str(observed_at):",
+     "must_fail": [
+      "test_the_SAME_DATE_IN_ANOTHER_SEASON_is_not_todays_day"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:",
+     "new": "        if isinstance(day, (list, tuple)) and tuple(day) == (year, observed_at):",
+     "must_fail": [
+      "test_the_YEAR_MATCHES_WHETHER_IT_ARRIVES_AS_INT_OR_STRING"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    older = [f for f in (ig.get(\"fatal\") or []) if f not in blocking]",
+     "new": "    older = []",
+     "must_fail": [
+      "test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        ratios.append(sel / (n / total * 100.0))",
+     "new": "        ratios.append(sel / (n / total))",
+     "must_fail": [
+      "test_the_UNITS_CHECK_FIRES_on_a_planted_fraction"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return dict(out, verdict=\"disagrees\", expected_percent=False,",
+     "new": "    return dict(out, verdict=\"percent\", expected_percent=True,",
+     "must_fail": [
+      "test_a_rate_that_is_NEITHER_says_so_rather_than_picking_the_closer_one"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "SEL_PCT_UNITS_TOLERANCE = 0.15",
+     "new": "SEL_PCT_UNITS_TOLERANCE = 1e-9",
+     "must_fail": [
+      "test_ROUNDING_IN_THE_PUBLISHED_FIGURE_is_not_read_as_a_units_error"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not disp or not total or total <= 0:\n        return dict(out, verdict=\"unmeasured\",",
+     "new": "    if not disp or not total or total <= 0:\n        return dict(out, verdict=\"percent\",",
+     "must_fail": [
+      "test_a_DAY_WITH_NO_SPREAD_is_UNMEASURED_and_specifically_not_percent",
+      "test_the_REAL_ARCHIVE_is_judged_and_the_verdict_is_RECORDED_not_assumed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if n <= 0 or sel <= 0:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_a_ZERO_SELECTION_row_cannot_imply_a_rate_and_is_SKIPPED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not ratios:\n        return dict(out, verdict=\"unmeasured\",",
+     "new": "    if not ratios:\n        return dict(out, verdict=\"percent\",",
+     "must_fail": [
+      "test_a_ZERO_SELECTION_row_cannot_imply_a_rate_and_is_SKIPPED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    rep = None\n    try:\n        rep = coverage(series, year)",
+     "new": "    rep = None\n    _units = sel_pct_units({})\n    try:\n        rep = coverage(series, year)",
+     "must_fail": [
+      "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        marginal = (adp1 * n1 - adp0 * n0) / new",
+     "new": "        marginal = adp1 - adp0",
+     "must_fail": [
+      "test_THE_MARGINAL_ADP_IS_DERIVED_EXACTLY_from_the_counts_not_the_percents"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            n0, n1 = int(reca.get(\"drafts\")), int(recb.get(\"drafts\"))",
+     "new": "            n0, n1 = (float(reca.get(\"sel_pct\")) * float(a.get(\"total_drafts\")) / 100.0), (float(recb.get(\"sel_pct\")) * float(b.get(\"total_drafts\")) / 100.0)",
+     "must_fail": [
+      "test_THE_MARGINAL_ADP_IS_DERIVED_EXACTLY_from_the_counts_not_the_percents"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if outside:\n            out[\"outside_observed_range\"].append(pid)",
+     "new": "        if False:\n            out[\"outside_observed_range\"].append(pid)",
+     "must_fail": [
+      "test_THE_DERIVED_MEAN_MUST_LIE_INSIDE_THE_OBSERVED_RANGE_or_the_premise_is_wrong"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if n1 == n0:\n            out[\"skipped_no_new_selections\"] += 1\n            continue",
+     "new": "        if False:\n            out[\"skipped_no_new_selections\"] += 1\n            continue",
+     "must_fail": [
+      "test_A_PLAYER_WITH_NO_NEW_SELECTIONS_IS_SKIPPED_not_divided_by_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if n1 < n0:\n            out[\"refused_count_fell\"] += 1\n            continue",
+     "new": "        if False:\n            out[\"refused_count_fell\"] += 1\n            continue",
+     "must_fail": [
+      "test_A_SHRINKING_SELECTION_COUNT_IS_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not dispa or not dispb:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_MARGINAL_WITHOUT_DISPERSION_IS_UNMEASURED_not_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if da and db and str(da) >= str(db):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_THE_SNAPSHOTS_MUST_BE_PASSED_EARLIER_FIRST"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    days = [s for s in (series or [])\n            if str(s.get(\"year\")) == str(year) and (s.get(\"dispersion\") or {})]",
+     "new": "    days = list(series or [])",
+     "must_fail": [
+      "test_IT_PICKS_THE_LAST_TWO_DAYS_THAT_ACTUALLY_CARRY_A_SPREAD",
+      "test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if str(s.get(\"year\")) == str(year) and (s.get(\"dispersion\") or {})]",
+     "new": "            if (s.get(\"dispersion\") or {})]",
+     "must_fail": [
+      "test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return {\"status\": \"unmeasured\", \"spread_days_found\": len(days),\n                \"rows\": {}, \"ranked\": [], \"ranking_excluded_thin\": 0,\n                \"earlier\": None, \"later\": None,",
+     "new": "        return {\"status\": \"measured\", \"spread_days_found\": len(days),\n                \"rows\": {}, \"ranked\": [], \"ranking_excluded_thin\": 0,\n                \"earlier\": None, \"later\": None,",
+     "must_fail": [
+      "test_ONE_SPREAD_DAY_IS_UNMEASURED_and_says_how_many_it_found"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    ranked.sort(key=lambda x: (-abs(x[\"gap\"]), x[\"player_id\"]))",
+     "new": "    ranked.sort(key=lambda x: (-abs(x[\"published_move\"]), x[\"player_id\"]))",
+     "must_fail": [
+      "test_THE_RANKING_IS_BY_DISTANCE_FROM_THE_STANDING_PRICE_not_by_the_move"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if r[\"new_selections\"] < MIN_NEW_SELECTIONS:\n            thin += 1\n            continue",
+     "new": "        if False:\n            thin += 1\n            continue",
+     "must_fail": [
+      "test_A_SINGLE_NEW_DRAFTER_IS_NOT_A_MARKET_and_is_kept_out_of_the_RANKING"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"adp_earlier\": adp0,\n            \"adp_later\": adp1,",
+     "new": "            \"adp_earlier\": adp1,\n            \"adp_later\": adp0,",
+     "must_fail": [
+      "test_THE_RANKING_IS_BY_DISTANCE_FROM_THE_STANDING_PRICE_not_by_the_move"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if min(r[\"adp_later\"], r[\"marginal_adp\"]) > DRAFT_RANGE:",
+     "new": "        if r[\"adp_later\"] > DRAFT_RANGE:",
+     "must_fail": [
+      "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if min(r[\"adp_later\"], r[\"marginal_adp\"]) > DRAFT_RANGE:",
+     "new": "        if r[\"marginal_adp\"] > DRAFT_RANGE:",
+     "must_fail": [
+      "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if min(r[\"adp_later\"], r[\"marginal_adp\"]) > DRAFT_RANGE:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if all(r.get(k) is None for k in DISPERSION_KEEP):",
+     "new": "        if all(r.get(k) is None for k in DISPERSION_BOUNDS):",
+     "must_fail": [
+      "test_A_PLAYER_WITH_A_COUNT_BUT_NO_BOUNDS_IS_KEPT_for_the_marginal_day"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return sum(1 for v in (s.get(\"dispersion\") or {}).values()\n                   if any((v or {}).get(k) is not None for k in DISPERSION_BOUNDS))",
+     "new": "        return len(s.get(\"dispersion\") or {})",
+     "must_fail": [
+      "test_THE_SPREAD_ALARM_COUNTS_ROWS_WITH_A_BOUND_not_rows_with_anything"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return None if v is None else int(v)",
+     "new": "        return 0 if v is None else int(v)",
+     "must_fail": [
+      "test_A_SNAPSHOT_WITH_NO_total_drafts_STILL_DERIVES_THE_MARGINAL_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        qualifying = sum(1 for r in out[\"rows\"].values()\n                         if r[\"new_selections\"] >= MIN_NEW_SELECTIONS)",
+     "new": "        qualifying = 1",
+     "must_fail": [
+      "test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if qualifying:\n            break",
+     "new": "        if True:\n            break",
+     "must_fail": [
+      "test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not qualifying:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    out[\"provider_total_drafts_delta\"] = delta",
+     "new": "    out[\"provider_total_drafts_delta\"] = 0",
+     "must_fail": [
+      "test_total_drafts_IS_STILL_REPORTED_but_labelled_as_the_providers_figure"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not (float(lo) <= float(adp) <= float(hi)):",
+     "new": "        if False:",
+     "must_fail": [
+      "test_AN_ADP_OUTSIDE_ITS_OWN_MIN_MAX_IS_FATAL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if (snapshot or {}).get(\"row_count\") != len(rows):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_A_ROW_COUNT_THAT_LIES_IS_FATAL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if worst > bound:",
+     "new": "            if False:",
+     "must_fail": [
+      "test_AN_OBSERVED_INCONSISTENCY_THAT_GROWS_PAST_ITS_BOUND_IS_FATAL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            else:\n                observed.append(entry)",
+     "new": "            else:\n                fatal.append(entry)",
+     "must_fail": [
+      "test_DRAFTS_ABOVE_total_drafts_IS_OBSERVED_NOT_FATAL_and_is_QUANTIFIED"
      ],
      "verdict": "KILLED"
     }
@@ -448,6 +789,32 @@
       "test_SIGTERM_MID_MUTATION_restores_the_file"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    must = [_test_name(m)\n            for m in ([must_fail] if isinstance(must_fail, str) else must_fail)]",
+     "new": "    must = [must_fail] if isinstance(must_fail, str) else list(must_fail)",
+     "must_fail": [
+      "test_a_PARAMETRISED_case_may_be_NAMED_THE_WAY_PYTEST_PRINTS_IT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        env = dict(os.environ, PYTHONDONTWRITEBYTECODE=\"1\",\n                   **{JOURNAL_DIR_ENV: jdir})",
+     "new": "        env = dict(os.environ, PYTHONDONTWRITEBYTECODE=\"1\")",
+     "must_fail": [
+      "test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents",
+      "test_a_CHILD_CANNOT_EVEN_SEE_THE_PARENTS_DECLARATION_mid_run"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    import os\n    import tempfile\n    return (Path(os.environ.get(JOURNAL_DIR_ENV) or tempfile.gettempdir())\n            / \"mutation_gate_inflight.json\")",
+     "new": "    import tempfile\n    return Path(tempfile.gettempdir()) / \"mutation_gate_inflight.json\"",
+     "must_fail": [
+      "test_the_JOURNAL_PATH_is_read_PER_CALL_not_frozen_at_import",
+      "test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
@@ -598,8 +965,8 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        if _priced(p):\n            continue",
-     "new": "        if False:\n            continue",
+     "old": "        if market_vouches(p):\n            continue                                  # the market DRAFTABLY prices him",
+     "new": "        if False:\n            continue                                  # the market DRAFTABLY prices him",
      "must_fail": [
       "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
      ],
@@ -642,6 +1009,46 @@
      "new": "        rows.append(dict(p, scored_recently=False))",
      "must_fail": [
       "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if str(p.get(\"player_id\")) in keep[\"ids\"]:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_a_KEPT_player_is_NOT_dormant_however_dead_he_looks"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if keep[\"status\"] == \"unreadable\":",
+     "new": "    if False:",
+     "must_fail": [
+      "test_an_UNREADABLE_keeper_file_REFUSES_rather_than_pruning_blind"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if keep[\"status\"] == \"unreadable\":",
+     "new": "    if keep[\"status\"] in (\"unreadable\", \"absent\"):",
+     "must_fail": [
+      "test_an_ABSENT_keeper_file_is_NOT_a_refusal"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    p = base / \"config\" / \"keepers.json\"",
+     "new": "    p = base / \"config\" / \"keepers.json\"\n    if not p.exists():\n        p = base / \"config\" / \"predicted_keepers.json\"",
+     "must_fail": [
+      "test_the_PREDICTED_slate_is_NOT_read_as_a_designation"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if (_num(p.get(\"proj_mean\")) or 0) > 0:\n            continue                                  # somebody projects him",
+     "new": "        if False:\n            continue                                  # somebody projects him",
+     "must_fail": [
+      "test_PRUNING_A_BOARD_REMOVES_NOTHING_ACTIONABLE"
      ],
      "verdict": "KILLED"
     }
@@ -798,6 +1205,1228 @@
      "new": "    return KNOWN_BYE_GAP",
      "must_fail": [
       "test_the_RATCHET_TIGHTENS_ITSELF_when_the_board_is_rebuilt"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return bool(built) and built > ADP_SD_SOURCE_FIX_LANDED",
+     "new": "    return False",
+     "must_fail": [
+      "test_the_adp_sd_source_RATCHET_TIGHTENS_ITSELF"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "ADP_SD_SOURCE_FIX_LANDED = \"2026-08-14T01:18:27Z\"",
+     "new": "ADP_SD_SOURCE_FIX_LANDED = \"2026-08-01T00:00:00Z\"",
+     "must_fail": [
+      "test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return bool(built) and built > RAW_ADP_ORDER_FIX_LANDED",
+     "new": "    return False",
+     "must_fail": [
+      "test_the_raw_adp_ORDER_RATCHET_TIGHTENS_ITSELF"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-14T13:02:23Z\"",
+     "new": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-01T00:00:00Z\"",
+     "must_fail": [
+      "test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/waiver_replacement.py": {
+   "tests": [
+    "draft/tests/test_waiver_replacement.py"
+   ],
+   "mutations": [
+    {
+     "old": "    rec = base / \"data\" / \"player_positions.json\"\n    if rec.exists():",
+     "new": "    rec = base / \"data\" / \"player_positions.json\"\n    if False:",
+     "must_fail": [
+      "test_PRUNING_THE_2026_BOARD_DOES_NOT_MOVE_A_2023_MEASUREMENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for p in (board or []):\n        pid, pos = p.get(\"player_id\"), p.get(\"position\")\n        if pid and pos:\n            out[str(pid)] = pos",
+     "new": "    for p in []:\n        pid, pos = p.get(\"player_id\"), p.get(\"position\")\n        if pid and pos:\n            out[str(pid)] = pos",
+     "must_fail": [
+      "test_the_RECORD_IS_OVERLAID_BY_THE_LIVE_BOARD_so_corrections_still_land"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if pid and pos:\n            out[str(pid)] = pos\n    return out",
+     "new": "        if pid and pos:\n            out[str(pid)] = pos\n    return {k: v for k, v in out.items() if k != \"10859\"}",
+     "must_fail": [
+      "test_THE_UNRESOLVABLE_ACQUISITIONS_ARE_KNOWN_AND_DO_NOT_GROW",
+      "test_the_RATCHET_TIGHTENS_ITSELF_when_the_gap_closes"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_adp_consensus.py": {
+   "tests": [
+    "draft/tests/test_external_adp_consensus.py"
+   ],
+   "mutations": [
+    {
+     "old": "        slots = sorted(float(a) for pid, a in (anchor or {}).items()\n                       if (positions or {}).get(str(pid)) == pos and a is not None)",
+     "new": "        slots = sorted(r[\"consensus\"] * 100 for r in rows\n                       if r.get(\"consensus\") is not None)",
+     "must_fail": [
+      "test_a_SUPERFLEX_SOURCE_CANNOT_MOVE_WHEN_A_POSITION_GOES",
+      "test_THE_LIVE_PICK_SCALE_IS_THE_ANCHORS_and_the_superflex_QBs_do_not_leak"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    ws = list(weights) or [1.0] * len(values)\n    if len(set(ws)) <= 1:\n        return round(median(values), 6)\n    pairs = sorted(zip(values, ws))\n    total = sum(w for _, w in pairs)\n    if total <= 0:\n        return round(median(values), 6)\n    acc = 0.0\n    for i, (v, w) in enumerate(pairs):\n        acc += w\n        if acc > total / 2.0:\n            return round(v, 6)\n        if acc == total / 2.0:",
+     "new": "    ws = list(weights) or [1.0] * len(values)\n    pairs = sorted(zip(values, ws))\n    total = sum(w for _, w in pairs)\n    if total <= 0:\n        return round(median(values), 6)\n    acc = 0.0\n    for i, (v, w) in enumerate(pairs):\n        acc += w\n        if acc >= total / 2.0:\n            return round(v, 6)\n        if False:",
+     "must_fail": [
+      "test_the_CONTAMINATED_SOURCE_STILL_GETS_A_VOTE_ON_ORDER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if pos not in POSITIONS or adp is None:\n            continue",
+     "new": "        if adp is None:\n            continue\n        pos = pos or \"UNK\"",
+     "must_fail": [
+      "test_a_PLAYER_WITH_NO_POSITION_is_dropped_rather_than_bucketed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                per_player.setdefault(pid, {})[name] = (\n                    _scale_position(i, ruler), i + 1, len(order))",
+     "new": "                per_player.setdefault(pid, {})[name] = (\n                    (i / (len(order) - 1) if len(order) > 1 else None), i + 1, len(order))",
+     "must_fail": [
+      "test_TWO_SOURCES_OF_DIFFERENT_DEPTH_AGREEING_read_as_AGREEMENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    lo_k = 0\n    for k in range(K - 1):\n        if ruler[k] <= i <= ruler[k + 1]:\n            lo_k = k\n            break\n    a, b = ruler[lo_k], ruler[lo_k + 1]\n    within = 0.0 if b == a else (i - a) / (b - a)\n    return round((lo_k + within) / (K - 1), 6)",
+     "new": "    return round((i - ruler[0]) / (ruler[-1] - ruler[0]), 6)",
+     "must_fail": [
+      "test_the_SHARED_POPULATION_IS_THE_RULER_and_a_clustered_source_still_maps"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    K = len(ruler)\n    if K < 2:\n        return None",
+     "new": "    K = len(ruler)\n    if K < 0:\n        return None",
+     "must_fail": [
+      "test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    usable = sorted(d for d, srcs in by_day.items() if len(srcs) >= MIN_SOURCES)",
+     "new": "    usable = sorted(by_day)",
+     "must_fail": [
+      "test_IT_PICKS_THE_LATEST_DAY_TWO_SOURCES_BOTH_REACHED",
+      "test_NO_DAY_WITH_TWO_SOURCES_IS_UNMEASURED_and_counts_the_lonely_days"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if str(s.get(\"year\")) != str(year):\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"coverage\": coverage(order),",
+     "new": "            \"coverage\": {},",
+     "must_fail": [
+      "test_THE_REPORT_CARRIES_CORROBORATION_so_an_empty_table_is_readable"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    day = usable[-1]",
+     "new": "    day = usable[0]",
+     "must_fail": [
+      "test_WITH_SEVERAL_QUALIFYING_DAYS_IT_TAKES_THE_LATEST"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if reachable:\n            kept.append(r)",
+     "new": "        if True:\n            kept.append(r)",
+     "must_fail": [
+      "test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            reachable = a is not None and float(a) <= float(limit)",
+     "new": "            reachable = a is None or float(a) <= float(limit)",
+     "must_fail": [
+      "test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"rank_steps\": r[\"disagreement\"] * max(shared - 1, 1),",
+     "new": "\"rank_steps\": r[\"disagreement\"] * shared,",
+     "must_fail": [
+      "test_THE_RANK_STEPS_ARE_THE_FRACTION_TIMES_THE_SHARED_DEPTH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    out.sort(key=lambda r: -r[\"rank_steps\"])",
+     "new": "    out.sort(key=lambda r: -r[\"disagreement\"])",
+     "must_fail": [
+      "test_THE_CROSS_POSITION_TABLE_IS_SORTED_ON_RANK_STEPS_not_the_fraction"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    systematic = abs(med) > float(tol) * mabs",
+     "new": "    systematic = abs(med) > 0",
+     "must_fail": [
+      "test_REAL_DISAGREEMENT_SCATTERED_AROUND_ZERO_IS_NOT_FLAGGED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if mabs == 0:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_AN_EMPTY_OR_ALL_ZERO_SET_IS_UNMEASURED_not_clean"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return {\"median\": None, \"median_abs\": None, \"systematic\": None,",
+     "new": "        return {\"median\": None, \"median_abs\": None, \"systematic\": False,",
+     "must_fail": [
+      "test_AN_EMPTY_OR_ALL_ZERO_SET_IS_UNMEASURED_not_clean"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_source_capture.py": {
+   "tests": [
+    "draft/tests/test_external_source_capture.py"
+   ],
+   "mutations": [
+    {
+     "old": "    key = (str(source), str(year), str(observed_at))\n    keep = [s for s in (series or [])\n            if (str(s.get(\"source\")), str(s.get(\"year\")),\n                str(s.get(\"observed_at\"))) != key]",
+     "new": "    key = (str(year), str(observed_at))\n    keep = [s for s in (series or [])\n            if (str(s.get(\"year\")), str(s.get(\"observed_at\"))) != key]",
+     "must_fail": [
+      "test_TWO_SOURCES_ON_ONE_DAY_ARE_BOTH_KEPT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"rows\": {str(k): float(v) for k, v in (rows or {}).items() if v is not None},",
+     "new": "\"rows\": {str(k): float(v or 0.0) for k, v in (rows or {}).items()},",
+     "must_fail": [
+      "test_a_NULL_PRICE_IS_NOT_STORED_AS_A_NUMBER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"by_position\": {k: {\"n\": len(v), \"median\": round(median(v), 2)}\n                                for k, v in sorted(per_pos.items())},",
+     "new": "                \"by_position\": {},",
+     "must_fail": [
+      "test_the_DISAGREEMENT_IS_REPORTED_PER_POSITION_not_just_overall"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(day) < 2:\n        return {\"status\": \"unmeasured\"",
+     "new": "    if len(day) < 0:\n        return {\"status\": \"unmeasured\"",
+     "must_fail": [
+      "test_ONE_SOURCE_ON_A_DAY_IS_UNMEASURED_not_agreement"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    thin = [d for d in days\n            if len({s.get(\"source\") for s in ser if s.get(\"observed_at\") == d}) < len(by)]",
+     "new": "    thin = []",
+     "must_fail": [
+      "test_a_DAY_MISSING_A_SOURCE_IS_NAMED_not_counted_as_covered"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"sd\": {str(k): float(v) for k, v in (sd or {}).items() if v is not None},\n        \"sd_count\": len([v for v in (sd or {}).values() if v is not None]),",
+     "new": "        \"sd\": {},\n        \"sd_count\": 0,",
+     "must_fail": [
+      "test_a_PUBLISHED_DISPERSION_IS_KEPT_beside_the_mean"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    day = sorted(day, key=lambda s: str(s.get(\"source\")))",
+     "new": "    day = list(day)",
+     "must_fail": [
+      "test_the_PAIR_DIRECTION_DOES_NOT_DEPEND_ON_APPEND_ORDER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"reads\": \"positive = priced LATER by %s than by %s\"\n                         % (b[\"source\"], a[\"source\"]),",
+     "new": "                \"reads\": \"positive = priced LATER by %s than by %s\"\n                         % (a[\"source\"], b[\"source\"]),",
+     "must_fail": [
+      "test_the_PAIR_DIRECTION_DOES_NOT_DEPEND_ON_APPEND_ORDER"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_source_run.py": {
+   "tests": [
+    "draft/tests/test_external_source_run.py"
+   ],
+   "mutations": [
+    {
+     "old": "        if not live:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_an_EMPTY_FETCH_IS_NOT_WRITTEN"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if r.get(\"error\"):\n            verdicts.append({\"source\": name, \"verdict\": \"failed\", \"rows\": 0,\n                             \"note\": r[\"error\"]})\n            continue",
+     "new": "        if r.get(\"error\"):\n            raise RuntimeError(r[\"error\"])",
+     "must_fail": [
+      "test_ONE_SOURCE_FAILING_DOES_NOT_COST_THE_OTHER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    parts = [\"%s:%s\" % (v[\"source\"], v[\"rows\"] if v[\"verdict\"] == \"recorded\"\n                        else v[\"verdict\"].upper()) for v in verdicts]",
+     "new": "    parts = [\"%s:%s\" % (v[\"source\"], v[\"rows\"]) for v in got]",
+     "must_fail": [
+      "test_a_FAILED_SOURCE_IS_NAMED_IN_THE_LOG_LINE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    head = (\"recorded %d/%d source(s)\" % (len(got), len(verdicts))) if got else \\\n        (\"NO SOURCE CAPTURED \u2014 nothing written; the day's MFL snapshot is \"\n         \"committed and unaffected\")",
+     "new": "    head = \"recorded %d/%d source(s)\" % (len(got), len(verdicts))",
+     "must_fail": [
+      "test_NOTHING_CAPTURED_SAYS_SO_rather_than_reading_as_success"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        live = {k: v for k, v in rows.items() if v is not None}\n        if not live:",
+     "new": "        live = dict(rows)\n        if not live or any(v is None for v in live.values()):",
+     "must_fail": [
+      "test_a_NULL_PRICE_INSIDE_A_REAL_BOARD_DOES_NOT_MAKE_IT_EMPTY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        live = {k: v for k, v in rows.items() if v is not None}",
+     "new": "        live = {str(i): v for i, v in enumerate(rows.values()) if v is not None}",
+     "must_fail": [
+      "test_the_TWO_SOURCES_LAND_ON_ONE_ID_SPACE",
+      "test_a_NULL_PRICE_INSIDE_A_REAL_BOARD_DOES_NOT_MAKE_IT_EMPTY",
+      "test_a_RERUN_REPLACES_the_days_rows_rather_than_doubling"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return {\"value\": None, \"field\": None,\n            \"note\": \"provider declared no draft count in %s",
+     "new": "    return {\"value\": 0, \"field\": None,\n            \"note\": \"provider declared no draft count in %s",
+     "must_fail": [
+      "test_an_UNDECLARED_DEPTH_IS_UNKNOWN_NOT_ZERO",
+      "test_a_GENERIC_TOTAL_IS_NOT_READ_AS_A_DRAFT_COUNT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                return {\"value\": int(v), \"field\": k, \"note\": None}",
+     "new": "                return {\"value\": int(v), \"field\": None, \"note\": None}",
+     "must_fail": [
+      "test_the_DEPTH_FIELD_IS_NAMED_so_a_renamed_field_is_visible"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            try:\n                return {\"value\": int(v), \"field\": k, \"note\": None}\n            except (TypeError, ValueError):",
+     "new": "            try:\n                return {\"value\": int(v), \"field\": k, \"note\": None}\n            except (KeyError,):",
+     "must_fail": [
+      "test_a_NON_NUMERIC_DEPTH_IS_REFUSED_not_silently_cast"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "DEPTH_KEYS = (\"total_drafts\", \"num_drafts\", \"draft_count\", \"n_drafts\", \"drafts\",\n              \"sample_size\")",
+     "new": "DEPTH_KEYS = (\"total\", \"total_drafts\", \"num_drafts\", \"draft_count\", \"n_drafts\",\n              \"drafts\", \"sample_size\")",
+     "must_fail": [
+      "test_a_GENERIC_TOTAL_IS_NOT_READ_AS_A_DRAFT_COUNT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for k in DEPTH_KEYS:\n        for scope in scopes:",
+     "new": "    for scope in scopes:\n        for k in DEPTH_KEYS:",
+     "must_fail": [
+      "test_the_DEPTH_SEARCH_DOES_NOT_INVENT_A_FIELD_ORDER_ADVANTAGE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                              sd=r.get(\"sd\"), params=r.get(\"params\"),\n                              note=r.get(\"note\"))",
+     "new": "                              sd=r.get(\"sd\"), params=None, note=r.get(\"note\"))",
+     "must_fail": [
+      "test_the_PARAMS_TRAVEL_WITH_THE_ROWS_through_apply"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                              sd=r.get(\"sd\"), params=r.get(\"params\"),",
+     "new": "                              sd=None, params=r.get(\"params\"),",
+     "must_fail": [
+      "test_the_PUBLISHED_SD_REACHES_THE_ARCHIVE_through_apply"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        series = S.append_day(series, name, year, observed_at, live,\n                              sd=r.get(\"sd\"), params=r.get(\"params\"),\n                              note=r.get(\"note\"))",
+     "new": "        series = list(series or []) + [{\"source\": name, \"year\": str(year),\n                                        \"observed_at\": observed_at, \"rows\": live,\n                                        \"row_count\": len(live),\n                                        \"sd\": r.get(\"sd\") or {},\n                                        \"sd_count\": len(r.get(\"sd\") or {}),\n                                        \"params\": r.get(\"params\") or {},\n                                        \"note\": r.get(\"note\")}]",
+     "must_fail": [
+      "test_a_RERUN_REPLACES_the_days_rows_rather_than_doubling"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    fmt = derive(cfg)",
+     "new": "    fmt = \"half-ppr\"",
+     "must_fail": [
+      "test_the_FFC_FORMAT_IS_THE_BOARDS_OWN_DERIVATION",
+      "test_an_UNKNOWN_FORMAT_IS_REFUSED_not_silently_defaulted"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if fmt not in formats:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_an_UNKNOWN_FORMAT_IS_REFUSED_not_silently_defaulted"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    rec = ((cfg or {}).get(\"scoring\") or {}).get(\"rec\")\n    if rec is None:",
+     "new": "    rec = ((cfg or {}).get(\"scoring\") or {}).get(\"rec\")\n    if False:",
+     "must_fail": [
+      "test_a_MISSING_CONFIG_IS_REFUSED_rather_than_assumed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    sd = {pid: r[\"adp_sd\"] for pid, r in table[\"adp\"].items()\n          if r.get(\"adp_sd\") is not None and r.get(\"adp_sd_source\") == \"ffc\"}",
+     "new": "    sd = {pid: r[\"adp_sd\"] for pid, r in table[\"adp\"].items()\n          if r.get(\"adp_sd\") is not None}",
+     "must_fail": [
+      "test_ONLY_FFC_s_PUBLISHED_SD_IS_ARCHIVED_not_our_own_clamp"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    table = A.build_adp_table(sleeper_players, fmt=fmt, teams=teams, year=int(year),\n                              strict_top_n=0)",
+     "new": "    table = A.build_adp_table(sleeper_players, fmt=fmt, teams=teams, year=int(year))",
+     "must_fail": [
+      "test_A_CROSSWALK_MISS_DOES_NOT_DISCARD_THE_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    rows_t, diag = A.build_fantasypros_table(sleeper_players, year=int(year),\n                                             half_ppr=half_ppr, min_rows=1)",
+     "new": "    rows_t, diag = A.build_fantasypros_table(sleeper_players, year=int(year),\n                                             half_ppr=half_ppr)",
+     "must_fail": [
+      "test_a_THIN_FANTASYPROS_DAY_IS_STILL_RECORDED_but_a_dead_one_is_not"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    rows = {pid: r[\"adp\"] for pid, r in table[\"adp\"].items() if r.get(\"adp\") is not None}",
+     "new": "    rows = {str(r.get(\"ffc_rank\")): r[\"adp\"] for pid, r in table[\"adp\"].items() if r.get(\"adp\") is not None}",
+     "must_fail": [
+      "test_the_FFC_CAPTURE_JOINS_A_s_BUILDER_and_keys_on_OUR_ids"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value \u2014 FFC exposes no such parameter, so this is \"\n             \"%s and we score %s; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\"\n             % (MARKET_PASS_TD, _our_pass_td()))",
+     "new": "        note=\"real human drafts at our exact format and league size; crosswalked \"\n             \"by draft/adp.py:build_adp_table, the same one the board uses\")",
+     "must_fail": [
+      "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and FFC serves no parameter for it \u2014 this source is \"\n                    \"4.0 like every other public source\"],",
+     "new": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],",
+     "must_fail": [
+      "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"format_axes_matched\": [\"reception scoring\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and this consensus is drawn from 4.0 drafts\",\n                    \"league size: FantasyPros consensus is not league-size \"\n                    \"specific; FFC's is\"],",
+     "new": "                \"format_axes_matched\": [\"reception scoring\"],\n                \"format_axes_unmatched\": [],",
+     "must_fail": [
+      "test_FANTASYPROS_CARRIES_THE_SAME_UNMATCHED_AXIS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "             % (MARKET_PASS_TD, _our_pass_td()))",
+     "new": "             % (4.0, 6.0))",
+     "must_fail": [
+      "test_OUR_SCORING_IN_THE_ARCHIVED_NOTE_IS_READ_not_a_literal"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_odds_probe.py": {
+   "tests": [
+    "draft/tests/test_external_odds_probe.py"
+   ],
+   "mutations": [
+    {
+     "old": "    if rk == ck:\n        return {\"honoured\": False,",
+     "new": "    if False:\n        return {\"honoured\": False,",
+     "must_fail": [
+      "test_AN_IGNORED_PARAMETER_VOIDS_THE_READING_rather_than_reading_as_absent"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if honoured.get(\"honoured\") is not True:\n        return {n: {\"state\": \"unmeasured\"",
+     "new": "    if False:\n        return {n: {\"state\": \"unmeasured\"",
+     "must_fail": [
+      "test_AN_IGNORED_PARAMETER_VOIDS_THE_READING_rather_than_reading_as_absent"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if real is None or control is None:\n        return {\"honoured\": None,",
+     "new": "    if False:\n        return {\"honoured\": None,",
+     "must_fail": [
+      "test_a_MISSING_CALL_IS_UNANSWERED_not_dishonoured"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    keys = tuple(all_names(payload))\n    n = json.dumps(payload, sort_keys=True).count(\":\")\n    return keys, n",
+     "new": "    return (json.dumps(payload, sort_keys=True),)",
+     "must_fail": [
+      "test_the_CONTROL_COMPARES_STRUCTURE_not_bytes"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        else:\n            unclassified.append(k)",
+     "new": "        else:\n            pass",
+     "must_fail": [
+      "test_a_MARKET_NAME_WE_DID_NOT_ANTICIPATE_IS_REPORTED_not_dropped"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                elif str(k).lower() in NAMING_FIELDS:\n                    add(selections if priced else named,\n                        seen_s if priced else seen_n, v)",
+     "new": "                elif str(k).lower() in (\"marketname\",):\n                    add(selections if priced else named,\n                        seen_s if priced else seen_n, v)",
+     "must_fail": [
+      "test_MARKET_NAMES_ARE_FOUND_WHEREVER_THEY_SIT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                    add(containers, seen_c, k)\n                    walk(v, depth + 1)",
+     "new": "                    add(named, seen_n, k)\n                    walk(v, depth + 1)",
+     "must_fail": [
+      "test_SCAFFOLDING_DOES_NOT_LAND_IN_THE_DISCOVERY_BUCKET"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(hits))",
+     "new": "    return sorted(set(named))",
+     "must_fail": [
+      "test_A_PROVIDER_THAT_KEYS_MARKETS_BY_NAME_IS_STILL_DISCOVERED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"asked_markets\": list(asked_markets or []),",
+     "new": "        \"asked_markets\": [],",
+     "must_fail": [
+      "test_the_ASKED_MARKETS_TRAVEL_WITH_THE_ANSWER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    actionable = [n for n, v in avail.items()\n                  if v[\"state\"] == \"available\" and n != \"sides\"]",
+     "new": "    actionable = [n for n, v in avail.items()\n                  if v[\"state\"] == \"available\"]",
+     "must_fail": [
+      "test_FINDING_ONLY_WHAT_WE_ALREADY_CAPTURE_IS_A_NULL_not_a_hit"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if rem_b is None or rem_a is None:\n        return {\"spent\": None, \"remaining\": rem_a,",
+     "new": "    if False:\n        return {\"spent\": None, \"remaining\": rem_a,",
+     "must_fail": [
+      "test_AN_UNKNOWN_CREDIT_COST_IS_NOT_FREE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            priced = any(str(k).lower() in PRICE_FIELDS for k in node)",
+     "new": "            priced = False",
+     "must_fail": [
+      "test_A_PLAYER_NAME_IS_A_SELECTION_not_a_market"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if str(k).strip().lower() in want:\n            books_seen.append(k)\n            continue",
+     "new": "        if False:\n            books_seen.append(k)\n            continue",
+     "must_fail": [
+      "test_a_MARKET_NAME_WE_DID_NOT_ANTICIPATE_IS_REPORTED_not_dropped"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rk and not ck:\n        return {\"honoured\": None, \"real_keys\": 0, \"control_keys\": 0,",
+     "new": "    if False:\n        return {\"honoured\": None, \"real_keys\": 0, \"control_keys\": 0,",
+     "must_fail": [
+      "test_AN_EVENT_WITH_NO_MARKETS_CANNOT_CONVICT_THE_PARAMETER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not t:\n            return (1, \"\", \"\")                  # undated: not \"far away\", not a corpse",
+     "new": "        if not t:\n            return (3, \"\", \"\")",
+     "must_fail": [
+      "test_A_GAME_ALREADY_PLAYED_IS_NOT_THE_NEAREST_ONE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not now or t >= now:\n            return (0, t, \"\")                   # upcoming, soonest first",
+     "new": "        return (0, t, \"\")",
+     "must_fail": [
+      "test_A_GAME_ALREADY_PLAYED_IS_NOT_THE_NEAREST_ONE",
+      "test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    named, _c, selections = _walk(payload)\n    if selections:\n        return True\n    return any(re.search(pat, k, re.I)\n               for k in named for pat, _ in FAMILIES.values())",
+     "new": "    return bool(market_keys(payload))",
+     "must_fail": [
+      "test_A_PAYLOAD_WITH_NO_PRICES_IS_A_PAYLOAD_WITH_NO_BOARD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    keys = tuple(all_names(payload))",
+     "new": "    keys = tuple(market_keys(payload))",
+     "must_fail": [
+      "test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    named, containers, selections = _walk(payload)\n    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(selections) | set(hits))",
+     "new": "    named, containers, selections = _walk(payload)\n    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(hits))",
+     "must_fail": [
+      "test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES",
+      "test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        # provider acknowledges, and every path here is one we made up.\n        \"proves_absence\": False,",
+     "new": "        # provider acknowledges, and every path here is one we made up.\n        \"proves_absence\": not answered,",
+     "must_fail": [
+      "test_A_PATH_THAT_DID_NOT_ANSWER_IS_NOT_A_PROVIDER_THAT_DOES_NOT_SERVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rows:\n        return {\"verdict\": \"not attempted\", \"proves_absence\": False, \"tried\": [],",
+     "new": "    if False:\n        return {\"verdict\": \"not attempted\", \"proves_absence\": False, \"tried\": [],",
+     "must_fail": [
+      "test_DISCOVERY_WITH_NOTHING_TRIED_IS_NOT_A_NULL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"answered\": [{\"path\": r.get(\"path\"), \"names\": list(r.get(\"names\") or [])[:40]}\n                     for r in answered],",
+     "new": "        \"answered\": [{\"path\": r.get(\"path\")} for r in answered],",
+     "must_fail": [
+      "test_A_PATH_THAT_ANSWERED_IS_REPORTED_WITH_WHAT_IT_SAID"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"tried\": [{\"path\": r.get(\"path\"), \"status\": r.get(\"status\"),\n                   \"error\": r.get(\"error\")} for r in rows],",
+     "new": "        \"tried\": [{\"path\": r.get(\"path\"), \"status\": r.get(\"status\")} for r in rows],",
+     "must_fail": [
+      "test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"exists_but_forbidden\": [r.get(\"path\") for r in rows\n                                 if \"403\" in str(r.get(\"error\") or \"\")\n                                 or int(r.get(\"status\") or 0) in (401, 403)],",
+     "new": "        \"exists_but_forbidden\": [],",
+     "must_fail": [
+      "test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        beyond[str(h)] = {\n            \"n\": len(out),\n            \"first\": out[0][0] if out else None,\n            \"last\": out[-1][0] if out else None,",
+     "new": "        beyond[str(h)] = {\n            \"n\": len(out),\n            \"first\": None,\n            \"last\": None,",
+     "must_fail": [
+      "test_THE_DROPPED_EVENTS_ARE_COUNTED_AND_DATED_not_just_subtracted"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    marginal = {\"%d->%d\" % (a, b): within[str(b)] - within[str(a)]\n                for a, b in zip(hs, hs[1:])}",
+     "new": "    marginal = {}",
+     "must_fail": [
+      "test_WIDENING_THE_HORIZON_IS_PRICED_IN_EVENTS_not_argued"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not t:\n            undated += 1\n        elif nowk and t < nowk:",
+     "new": "        if not t:\n            dated.append((\"9999\", (e or {}).get(\"id\")))\n        elif nowk and t < nowk:",
+     "must_fail": [
+      "test_AN_UNDATED_EVENT_IS_NOT_BEYOND_THE_HORIZON",
+      "test_THE_DROPPED_EVENTS_ARE_COUNTED_AND_DATED_not_just_subtracted"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rows:\n        return {\"status\": \"unmeasured\", \"total\": 0,",
+     "new": "    if False:\n        return {\"status\": \"unmeasured\", \"total\": 0,",
+     "must_fail": [
+      "test_AN_EMPTY_CATALOGUE_IS_UNMEASURED_not_a_clean_slate"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/board_vs_market.py": {
+   "tests": [
+    "draft/tests/test_board_vs_market.py"
+   ],
+   "mutations": [
+    {
+     "old": "    sentinels = {v for v, c in counts.items() if c >= 3 and v > 2 * n}",
+     "new": "    sentinels = set()",
+     "must_fail": [
+      "test_a_SENTINEL_RANK_IS_NOT_A_RANK"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    order = sorted(pairs, key=lambda kv: kv[1])\n    out, i = {}, 0",
+     "new": "    order = sorted(pairs, key=lambda kv: kv[1])\n    return {k: i + 1.0 for i, (k, _v) in enumerate(order)}\n    out, i = {}, 0",
+     "must_fail": [
+      "test_TIES_GET_THE_AVERAGE_RANK_not_the_order_they_arrived_in"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    pool = [r for r in rows if float(r[\"adp\"]) <= float(top_n)]",
+     "new": "    pool = list(rows)",
+     "must_fail": [
+      "test_BOTH_SIDES_ARE_RANKED_OVER_THE_SAME_POPULATION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if distinct < max(2, int(COLLAPSE_RATIO * len(live))):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_A_COLLAPSED_ORDERING_IS_REPORTED_not_averaged"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"by_position\": {k: {\"n\": len(v), \"median\": round(median(v), 1),\n                            \"mean\": round(sum(v) / len(v), 1)}\n                        for k, v in sorted(per.items())},",
+     "new": "        \"by_position\": {},",
+     "must_fail": [
+      "test_THE_DIVERGENCE_IS_REPORTED_PER_POSITION"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_pick_prediction.py": {
+   "tests": [
+    "draft/tests/test_external_pick_prediction.py"
+   ],
+   "mutations": [
+    {
+     "old": "        if is_keeper and not include_keepers:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_A_KEEPER_IS_NOT_A_MARKET_DECISION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if str(season) not in seasons:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_A_MISSING_SEASON_IS_NAMED_not_returned_empty"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    shared = set(pick_of)\n    for tbl in sources.values():\n        shared &= set(tbl or {})",
+     "new": "    shared = set(pick_of)\n    for tbl in sources.values():\n        shared |= set(tbl or {})",
+     "must_fail": [
+      "test_SOURCES_ARE_GRADED_ON_THE_SAME_PLAYERS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(shared) < MIN_SHARED:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_A_SHARED_POPULATION_TOO_THIN_IS_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"total_drafts\": (depth or {}).get(name),",
+     "new": "            \"total_drafts\": (depth or {}).get(name) or 0,",
+     "must_fail": [
+      "test_AN_UNDECLARED_DEPTH_IS_NOT_ZERO",
+      "test_THE_ACCUMULATION_DEPTH_TRAVELS_WITH_THE_COEFFICIENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"rho\": round(spearman(adp, got), 4),",
+     "new": "            \"rho\": round(spearman([-a for a in adp], got), 4),",
+     "must_fail": [
+      "test_THE_SIGN_IS_NOT_THE_SIBLING_EXPERIMENTS_SIGN",
+      "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"by_position\": {k: {\"n\": len(v),\n                                \"median_room_earlier_by\": round(median(v), 1)}\n                            for k, v in sorted(per.items())},",
+     "new": "            \"by_position\": {},",
+     "must_fail": [
+      "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                per.setdefault(pos, []).append(float(tbl[pid]) - pick_of[pid])",
+     "new": "                per.setdefault(pos, []).append(pick_of[pid] - float(tbl[pid]))",
+     "must_fail": [
+      "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        is_keeper = bool(p.get(\"is_keeper\")) or pid in kept_ids",
+     "new": "        is_keeper = bool(p.get(\"is_keeper\"))",
+     "must_fail": [
+      "test_A_KEEPER_FLAGGED_ON_ANOTHER_DRAFT_OF_THE_SAME_SEASON_STILL_COUNTS",
+      "test_THE_REAL_FILE_2023_IS_150_PICKS_WITH_30_KEEPERS_ACTUALLY_REMOVED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for p in primary[\"picks\"]:",
+     "new": "    for p in [q for d in drafts for q in d.get(\"picks\") or []]:",
+     "must_fail": [
+      "test_A_PLAYER_IN_TWO_DRAFTS_OF_ONE_SEASON_IS_RETURNED_ONCE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if extra:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_A_SECONDARY_DRAFT_WITH_A_PLAYER_THE_MAIN_ONE_LACKS_IS_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(drafts) > 1 and len(drafts[0][\"picks\"]) == len(drafts[1][\"picks\"]):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_TWO_DRAFTS_OF_EQUAL_SIZE_ARE_REFUSED_rather_than_arbitrated"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        expected = taken / float(n_blocks) if n_blocks else 0.0",
+     "new": "        expected = 10.0",
+     "must_fail": [
+      "test_A_WAVE_IS_MEASURED_AGAINST_THE_POSITIONS_OWN_FREQUENCY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"in_every_season\": all(c > 0 for c in per) if per else False,",
+     "new": "                \"in_every_season\": True,",
+     "must_fail": [
+      "test_A_WAVE_IN_ONE_SEASON_ONLY_IS_NOT_A_WAVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                    \"waves\": [b[\"start\"] for b in blocks\n                              if b[\"wave\"] and b[\"in_every_season\"]]}",
+     "new": "                    \"waves\": [b[\"start\"] for b in blocks if b[\"wave\"]]}",
+     "must_fail": [
+      "test_A_WAVE_IN_ONE_SEASON_ONLY_IS_NOT_A_WAVE"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_pace.py": {
+   "tests": [
+    "draft/tests/test_nflverse_pace.py"
+   ],
+   "mutations": [
+    {
+     "old": "            \"games_with_plays\": len(a[\"games_with_plays\"]),\n            # NAMED, not left to be derived by subtraction",
+     "new": "            \"games_with_plays\": g,\n            # NAMED, not left to be derived by subtraction",
+     "must_fail": [
+      "test_THE_GAME_COUNT_AND_THE_PLAY_COUNT_COME_FROM_DIFFERENT_FILTERS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if gid is not None and gid == gid:\n            a[\"games_with_plays\"].add(str(gid))",
+     "new": "        pass",
+     "must_fail": [
+      "test_THE_GAME_COUNT_AND_THE_PLAY_COUNT_COME_FROM_DIFFERENT_FILTERS"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/board_pin.py": {
+   "tests": [
+    "draft/tests/test_board_pin.py"
+   ],
+   "mutations": [
+    {
+     "old": "    if measurable and str(last.get(\"built_at\")) > str(prev.get(\"built_at\")):\n        state = \"rebuilt\"",
+     "new": "    if last.get(\"sha256\") != prev.get(\"sha256\"):\n        state = \"rebuilt\"",
+     "must_fail": [
+      "test_AN_EDIT_IN_PLACE_IS_NOT_A_REBUILD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if str(ser[i].get(\"built_at\")) > str(ser[i - 1].get(\"built_at\")):",
+     "new": "            if str(ser[i].get(\"built_at\")) != str(ser[i - 1].get(\"built_at\")):",
+     "must_fail": [
+      "test_A_REBUILD_IS_RECOGNISED_BY_built_at_ADVANCING"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    last_change = ser[0].get(\"observed_at\")\n    for i in range(len(ser) - 1, 0, -1):",
+     "new": "    last_change = ser[-1].get(\"observed_at\")\n    for i in range(0, 0, -1):",
+     "must_fail": [
+      "test_A_FROZEN_BOARD_REPORTS_ITS_TRUE_AGE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(ser) < 2:\n        return {\"state\": \"unmeasured\", \"pins\": len(ser),",
+     "new": "    if False:\n        return {\"state\": \"unmeasured\", \"pins\": len(ser),",
+     "must_fail": [
+      "test_ONE_PIN_IS_UNMEASURED_not_zero_days_stale"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if any(b in (None, \"\") for _d, b in stamps):\n        measurable = False",
+     "new": "    if False:\n        measurable = False",
+     "must_fail": [
+      "test_A_MISSING_built_at_IS_UNKNOWN_not_unrebuilt"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                last_rebuild = str(ser[i].get(\"built_at\"))[:10]",
+     "new": "                last_rebuild = ser[i].get(\"observed_at\")",
+     "must_fail": [
+      "test_A_REBUILD_IS_DATED_BY_WHEN_IT_HAPPENED_not_when_we_noticed"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_pick_run.py": {
+   "tests": [
+    "draft/tests/test_external_pick_run.py"
+   ],
+   "mutations": [
+    {
+     "old": "        if (r or {}).get(\"error\"):\n            dropped.append({\"source\": name, \"reason\": r[\"error\"]})\n            continue",
+     "new": "        if False:\n            dropped.append({\"source\": name, \"reason\": r[\"error\"]})\n            continue",
+     "must_fail": [
+      "test_A_SOURCE_THAT_FAILED_IS_DROPPED_AND_NAMED_not_passed_through_empty"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not rows:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_A_SOURCE_THAT_FETCHED_NOTHING_IS_DROPPED_TOO"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        depth[name] = ((r or {}).get(\"params\") or {}).get(\"total_drafts\")",
+     "new": "        depth[name] = ((r or {}).get(\"params\") or {}).get(\"total_drafts\") or 0",
+     "must_fail": [
+      "test_A_SOURCE_THAT_PUBLISHES_NO_DEPTH_CARRIES_NONE_and_never_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                if v is not None}",
+     "new": "                }",
+     "must_fail": [
+      "test_AN_UNPRICED_PLAYER_IS_STRIPPED_rather_than_compared_as_a_None"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(sources) < 2:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_ONE_SURVIVING_SOURCE_IS_NOT_A_COMPARISON_and_the_run_says_so"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_release.py": {
+   "tests": [
+    "draft/tests/test_nflverse_release.py"
+   ],
+   "mutations": [
+    {
+     "old": "    \"weekly_stats\":   (\"stats_player\",   \"stats_player_week_%d.parquet\", True),",
+     "new": "    \"weekly_stats\":   (\"player_stats\",   \"stats_player_week_%d.parquet\", True),",
+     "must_fail": [
+      "test_THE_WEEKLY_STATS_RELEASE_IS_stats_player_not_player_stats"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if kind not in RELEASES:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_AN_UNKNOWN_KIND_IS_REFUSED_BY_NAME_rather_than_guessed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not needs_season and season is not None:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_A_SEASONLESS_ASSET_REFUSES_A_SEASON_and_vice_versa"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "PLAYER_IDS_URL = (\"https://raw.githubusercontent.com/dynastyprocess/data/master/\"",
+     "new": "PLAYER_IDS_URL = (\"https://github.com/dynastyprocess/data/raw/master/\"",
+     "must_fail": [
+      "test_THE_ID_CROSSWALK_IS_ON_RAW_GITHUBUSERCONTENT_not_github_com"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if int(status) == 403:\n        return (\"nflverse returned 403 for %s",
+     "new": "    if False:\n        return (\"nflverse returned 403 for %s",
+     "must_fail": [
+      "test_A_404_IS_REPORTED_AS_THE_ASSET_WE_ASKED_FOR_not_as_missing_data"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "USER_AGENT = \"mfga-league-draft-tool/1.0\"",
+     "new": "USER_AGENT = \"python-urllib/3.11\"",
+     "must_fail": [
+      "test_THE_RUNNER_SENDS_THE_REPO_S_USER_AGENT"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_durability.json": {
+   "tests": [
+    "draft/tests/test_nflverse_artifacts.py"
+   ],
+   "mutations": [
+    {
+     "old": "\"mean_games\": 15.22",
+     "new": "\"mean_games\": 99.99",
+     "must_fail": [
+      "test_DURABILITY_BY_POSITION_AGREES_WITH_ITS_OWN_PLAYER_ROWS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"gap\": -1.28",
+     "new": "\"gap\": -9.99",
+     "must_fail": [
+      "test_DURABILITY_GAP_IS_THE_SUBTRACTION_IT_CLAIMS_TO_BE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "SURVIVORSHIP: the cut conditions",
+     "new": "the cut conditions",
+     "must_fail": [
+      "test_THE_CAVEATS_ARE_STILL_IN_THE_FILE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"median_abs_delta\": 0.52",
+     "new": "\"median_abs_delta\": 9.9",
+     "must_fail": [
+      "test_SHRINKAGE_MOVES_PLAYERS_TOWARD_THE_PRIOR_never_away"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/projection_spread_vs_realized.json": {
+   "tests": [
+    "draft/tests/test_nflverse_artifacts.py"
+   ],
+   "mutations": [
+    {
+     "old": "\"predicted_weekly_overstatement\": 1.74",
+     "new": "\"predicted_weekly_overstatement\": 9.99",
+     "must_fail": [
+      "test_THE_RECONCILIATION_PREDICTION_ACTUALLY_MATCHES_THE_OBSERVATION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"ratio\": 3.493",
+     "new": "\"ratio\": 9.999",
+     "must_fail": [
+      "test_EVERY_SPREAD_ROW_IS_A_RATIO_OF_THE_TWO_COLUMNS_BESIDE_IT"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_pace.json": {
+   "tests": [
+    "draft/tests/test_nflverse_artifacts.py"
+   ],
+   "mutations": [
+    {
+     "old": "\"raw_vs_neutral_rank_rho\": 0.5326",
+     "new": "\"raw_vs_neutral_rank_rho\": 0.95",
+     "must_fail": [
+      "test_PACE_KEEPS_RAW_AND_NEUTRAL_APART_for_every_team"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_run.py": {
+   "tests": [
+    "draft/tests/test_nflverse_release.py"
+   ],
+   "mutations": [
+    {
+     "old": "    \"spread\": [(\"weekly_rosters\", True), (\"weekly_stats\", True)],",
+     "new": "    \"spread\": [(\"weekly_stats\", True)],",
+     "must_fail": [
+      "test_THE_SPREAD_WORK_READS_BOTH_ROSTER_AND_STATS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if measurement not in NEEDS:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_AN_UNKNOWN_MEASUREMENT_IS_REFUSED_rather_than_given_an_empty_plan"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    bad = [s for s in seasons if int(s) >= DRAFTED_SEASON]",
+     "new": "    bad = []",
+     "must_fail": [
+      "test_THE_PLAN_REFUSES_THE_SEASON_BEING_DRAFTED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if a is None or b is None:\n            diffs.append({\"key\": key, \"field\": \"__present__\",",
+     "new": "        if False:\n            diffs.append({\"key\": key, \"field\": \"__present__\",",
+     "must_fail": [
+      "test_A_ROW_ON_ONE_SIDE_ONLY_IS_A_DIFFERENCE_not_a_skip"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for key in sorted(set(fresh or {}) | set(committed or {})):",
+     "new": "    for key in sorted(set(fresh or {}) & set(committed or {})):",
+     "must_fail": [
+      "test_A_ROW_ON_ONE_SIDE_ONLY_IS_A_DIFFERENCE_not_a_skip"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if x is None or y is None or abs(float(x) - float(y)) > float(tol):",
+     "new": "            if x is None or y is None or float(x) != float(y):",
+     "must_fail": [
+      "test_THE_TOLERANCE_IS_EXPLICIT_and_absolute"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                diffs.append({\"key\": key, \"field\": f, \"fresh\": x, \"committed\": y})",
+     "new": "                diffs.append({\"key\": key, \"field\": f})",
+     "must_fail": [
+      "test_A_CHANGED_FIELD_IS_NAMED_with_both_values"
      ],
      "verdict": "KILLED"
     }

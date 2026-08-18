@@ -20,6 +20,31 @@
   </a>
 <% } %>
 
+<%# ── KEEPER-SET DEADLINE — expires on its own the instant the deadline
+    passes (server-derived, same source as the pinned alert), so there is
+    nothing to remember to take down. `configured` gates this the same way
+    it gates the pinned alert (dashboard.js) — a fallback date never renders
+    with the authority of a ruling nobody made. %>
+<% const _kd = (typeof keeperInfo !== 'undefined' && keeperInfo) ? keeperInfo : null; %>
+<% if (_kd && _kd.configured && !_kd.passed) { %>
+  <%# Dedicated "kd-banner*" classes, not a reuse of "draft-banner*" — several
+      surfaces assert the DRAFT banner specifically is gone by testing for the
+      literal string `class="draft-banner`, which a shared prefix would also
+      match on this banner's inner spans regardless of the outer element's
+      class order. This banner's lifecycle is independent of the draft's (the
+      keeper deadline, not the draft date) so it needs its own identity anyway. %>
+  <a class="kd-banner<%= _kd.hoursLeft != null && _kd.hoursLeft <= 24 ? ' today' : '' %>" href="/draft#keepers" title="Set your keeper before it locks">
+    <span class="kd-banner-ico">🔒</span>
+    <span class="kd-banner-txt">
+      <b>Keeper Deadline — <%= _kd.when %></b>
+      <span class="kd-banner-sub">Set your keeper before it locks <span class="kd-banner-cue">→</span></span>
+    </span>
+    <% if (_kd.countdownText) { %>
+      <span class="kd-banner-count<%= _kd.hoursLeft != null && _kd.hoursLeft <= 24 ? ' today' : '' %>"><b><%= _kd.countdownText %></b></span>
+    <% } %>
+  </a>
+<% } %>
+
 <%# ── THE IN-SEASON HERO — your game, first thing, during a season week. Score,
     opponent, who's leading, and a lineup problem if there's a real one. Taps
     through to your full matchup. Absent off-season (the draft banner leads then). %>
@@ -44,12 +69,28 @@
         <span class="whs-who"><%= _wh.oppName %></span>
       </span>
     </div>
+    <%# The Tuesday preview line — what history says about this pairing, on the
+        page you land on (member-site pass, 2026-08-16). %>
+    <% if (_wh.prev && _wh.prev.leadLine) { %>
+      <div class="week-hero-prev">📜 <%= _wh.prev.leadLine %><%= _wh.prev.streakLine ? ' · ' + _wh.prev.streakLine : '' %></div>
+    <% } %>
     <% if (_wh.lineupWarn) { %>
       <div class="week-hero-warn">⚠️ Lineup problem: <%= _wh.lineupWarn.items.map(i => i.text).join(', ') %><% if (_wh.lineupWarn.count > _wh.lineupWarn.items.length) { %> +<%= _wh.lineupWarn.count - _wh.lineupWarn.items.length %> more<% } %> — fix it before kickoff →</div>
     <% } else { %>
       <div class="week-hero-foot">Open your matchup — bet it, talk trash, watch the starters <span class="week-hero-cue">→</span></div>
     <% } %>
   </a>
+<% } %>
+
+<%# ── RECORDS WATCH — last week's finals that entered the franchise book.
+    Dormant when nothing landed (the normal week). League-visible history. %>
+<% const _rb = (typeof recordBanners !== 'undefined' && recordBanners) ? recordBanners : []; %>
+<% if (_rb.length) { %>
+  <div class="rec-watch" role="region" aria-label="Records watch">
+    <% for (const ch of _rb) { %>
+      <div class="rec-watch-chip in"><span class="tag">📚</span><span><b>Into the book:</b> <%= ch.text %> — <a href="/history?section=records" style="color:inherit">the record book →</a></span></div>
+    <% } %>
+  </div>
 <% } %>
 
 <%# RIVALRY GAME OF THE WEEK — billed on the home page when one of the league's real
@@ -88,10 +129,26 @@
 </div>
 <% } %>
 
+<%# GAME NIGHT — Sunday night + Monday only (Cory, 2026-08-18: "put a link
+    on home page during that time but it should take to scores page"). Gone
+    Tuesday through Sunday afternoon; the always-on weekhub CTA below covers
+    the rest of the week. %>
+<% if (typeof gameNight !== 'undefined' && gameNight) { %>
+  <a class="gn-banner" href="/scoreboard">
+    <span class="gn-banner-ico">🔴</span>
+    <span class="gn-banner-txt"><b>Games are live</b><span class="gn-banner-sub">every score, the sweat meter, what's at stake — one screen</span></span>
+    <span class="gn-banner-cue">→</span>
+  </a>
+<% } %>
+
 <%# The Sunday landing — one tap to every game. Prominent, not buried. %>
 <a class="weekhub-cta" href="/scoreboard">
   <span class="whc-ico">🏈</span>
   <span class="whc-txt"><b>This Week — every game on one screen</b><span class="whc-sub">scores, the pick'em split, the $100 race, what's at stake →</span></span>
+</a>
+<a class="weekhub-cta races" href="/races">
+  <span class="whc-ico">🏁</span>
+  <span class="whc-txt"><b>The Races — playoff race, points crown, the toilet</b><span class="whc-sub">week-over-week movement · everyone's in one of them →</span></span>
 </a>
 
 <% if (roast) { %>
@@ -151,20 +208,20 @@
   const myTurn = draft.current && draft.current.owner_id === owner.id;
   const unvoted = openVotes.filter(v => !v.myChoice).length;
   const iOwe = myBalance < 0;
+  const pkNudge = (typeof pickemNudge !== 'undefined' && pickemNudge) ? pickemNudge : null;
 %>
-<% if (myTurn || unvoted || iOwe) { %>
+<% if (myTurn || unvoted || iOwe || pkNudge) { %>
 <div class="todo-strip">
   <span class="todo-label">Needs you</span>
   <% if (myTurn) { %><a class="todo-item urgent" href="/draft">🎯 Pick your draft spot</a><% } %>
+  <%# The one item with a hard weekly deadline — unpicked games vanish at kickoff. %>
+  <% if (pkNudge) { %><a class="todo-item" href="/pickem">🗳️ Pick this week's games (<%= pkNudge.made %> of <%= pkNudge.total %> in)</a><% } %>
   <% if (unvoted) { %><a class="todo-item" href="/votes">🗳 <%= unvoted %> vote<%= unvoted === 1 ? '' : 's' %> you haven't cast</a><% } %>
   <% if (iOwe) { %><a class="todo-item" href="/bank">💵 You owe <%= money(-myBalance) %></a><% } %>
 </div>
 <% } %>
 
 <div class="grid cols-2">
-
-  <%# THE MONEY — the real scoreboard, in dollars, beside the wins standings. %>
-  <%- include('partials/money-line') %>
 
   <% if (sleeperStandings.length) { %>
   <%
@@ -233,7 +290,7 @@
             <% const _fl = (typeof flags !== 'undefined' && r.owner_id != null) ? (flags[r.owner_id] || '') : ''; %>
             <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><%- include('partials/_owner_badges', { name: r.owner_name }) %><% if (_fl) { %> <span class="flag"><%= _fl %></span><% } %><% } else { %><b><%= r.owner_name || r.team %></b><%- include('partials/_owner_badges', { name: r.owner_name }) %><% } %><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"
-                title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
+                title="<%= bm.notes.join(' · ') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
             <td class="num" style="white-space:nowrap"><%= r.pf.toFixed(1) %></td>
             <% if (showPO) { %><td class="num po-cell" style="white-space:nowrap"><%- _poCell(r.owner_id) %></td><% } %>
@@ -274,6 +331,11 @@
     </div>
   </div>
   <% } %>
+
+  <%# THE MONEY — the real scoreboard, in dollars. Cory, 2026-08-18: keep it,
+      just move it below the actual matchups rather than beside the wins
+      standings — the games are what you look at first. %>
+  <%- include('partials/money-line') %>
 
   <% if (review) { %>
   <div class="card">

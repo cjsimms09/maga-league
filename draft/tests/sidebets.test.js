@@ -116,10 +116,21 @@ const BETS = [
   const V = f => fs.readFileSync(path.join(__dirname, '../../views', f), 'utf8');
 
   // The tracker/side-bet partial is included ONLY behind the section guard in
-  // bank.ejs — the one page that has a side-bets section.
+  // bank.ejs — the one page that has a side-bets section. Checked structurally
+  // (guard, then include, then the guard's else-branch) rather than by an
+  // 80-char proximity window: the commissioner edge report (2026-08-15)
+  // legitimately renders between the guard and the include, and the claim was
+  // never "adjacent", it was "inside the branch".
   const bank = V('bank.ejs');
-  const guarded = /section === 'sidebets'[\s\S]{0,80}include\('partials\/_side_bets'\)/.test(bank);
-  check('bank.ejs includes _side_bets ONLY inside the section===sidebets guard', guarded, 'guard not found');
+  const iGuard = bank.indexOf("section === 'sidebets') {");
+  const iInclude = bank.indexOf("include('partials/_side_bets')");
+  // The guard's ELSE branch is the money section; its opening copy is the
+  // anchor (a bare `} else {` search would find inner conditionals first).
+  const iMoney = bank.indexOf('Every dollar in and out');
+  const once = bank.match(/include\('partials\/_side_bets'\)/g) || [];
+  const guarded = iGuard >= 0 && iInclude > iGuard && iMoney > iInclude && once.length === 1;
+  check('bank.ejs includes _side_bets ONLY inside the section===sidebets guard', guarded,
+    `guard@${iGuard} include@${iInclude} money-else@${iMoney} count=${once.length}`);
 
   // The league-money surfaces never include the side-bet partial or its markup.
   for (const f of ['history.ejs', 'team.ejs', 'dashboard.ejs']) {

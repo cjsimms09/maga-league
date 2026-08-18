@@ -47,7 +47,16 @@ SKIP_FILES = {
 }
 SKIP_DIRS = ("node_modules", ".git", ".cache", os.path.join("draft", "data"),
              os.path.join("draft", "tests"), os.path.join("draft", "config"),
-             "tests", "coverage")
+             "tests", "coverage",
+             # Background-agent worktrees (Claude Code Agent tool,
+             # isolation:"worktree"): full duplicate checkouts of this repo
+             # under .claude/worktrees/. Scanning them double-counts every
+             # consumer and, worse, counts files this scan's own SKIP rules
+             # exclude at the top level (a worktree's draft/tests/ path does
+             # not match the relative SKIP_DIRS entries) — found 2026-08-15
+             # when two live worktrees turned test_settings_registry_truth
+             # red with "consumers" that were copies of excluded files.
+             ".claude")
 EXTS = (".js", ".py", ".html")
 
 
@@ -124,8 +133,48 @@ def scan(keys, *, require_settings: bool = True) -> dict:
     returns before believing it.
     """
     out = {k: {"reads": [], "nearby": []} for k in keys}
-    pats = {k: re.compile(r"\b" + re.escape(k) + r"\b") for k in keys}
-    acc = {k: _access_pat(k) for k in keys}
+
+    def _pat(k):
+        """A DOTTED PATH IS NOT AN IDENTIFIER, and matching it as one finds
+        nothing. settings_influence now reports nested config fields as
+        `waivers.daily_waivers` so five settings landing in one object stop
+        crediting each other's reads. That path never appears verbatim in the
+        bracket style — `cfg["waivers"]["daily_waivers"]` — so a naive
+        `\\bwaivers\\.daily_waivers\\b` would report every nested field unread
+        and turn a precision fix into a false NEGATIVE across the whole registry.
+        Both styles are matched, with arbitrary whitespace and either quote.
+
+        The LEAF ALONE IS DELIBERATELY NOT MATCHED. `type_code` or `budget` on
+        its own would collide with any dict in the repo carrying that key —
+        exactly the false positive this module's docstring already records for
+        `cfg["trades"]` vs the master sheet's trade notes. A false positive here
+        marks a setting as consumed when nothing consumes it, which is the lie
+        the registry exists to prevent, so the stricter half is the right side
+        to err on."""
+        parts = k.split(".")
+        if len(parts) == 1:
+            return re.compile(r"\b" + re.escape(k) + r"\b")
+        # ⚠️ THE CLOSING `"]` HAS TO BE CONSUMED. My first cut ran the segments
+        # straight together and matched ONLY the dot form: in
+        # `cfg["waivers"]["daily_waivers"]` the head is followed by a quote and a
+        # bracket before the next segment starts, so the pattern died there.
+        # Caught by exercising it against six access styles rather than by
+        # reading it — a silent false NEGATIVE here would have reported every
+        # nested field unread and made the whole registry look dead.
+        tail = r"['\"]?\s*[\]\)]?"
+        # `.get("x")` IS ORDERED FIRST ON PURPOSE. Python alternation is ordered,
+        # so a bare `\.\s*` would consume the dot before `get`, then demand the
+        # leaf immediately and fail — silently reporting `cfg["waivers"].get(
+        # "day_of_week")` as unread. Found by the style table below this file's
+        # fix, not by reading the regex.
+        seg = (r"\s*(?:\.\s*get\(\s*['\"]\s*|\.\s*|\[\s*['\"]\s*){p}\b" + tail)
+        return re.compile(r"\b" + re.escape(parts[0]) + r"\b" + tail
+                          + "".join(seg.format(p=re.escape(p)) for p in parts[1:]))
+
+    pats = {k: _pat(k) for k in keys}
+    # The access shape is asked of the LEAF: `x.waivers.daily_waivers` is a read
+    # of `daily_waivers`, and _access_pat knows what a read of a name looks like.
+    acc = {k: _access_pat(k.split(".")[-1]) for k in keys}
     for rel in _files():
         try:
             src = open(os.path.join(ROOT, rel), encoding="utf-8", errors="replace").read()

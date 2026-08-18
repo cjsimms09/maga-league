@@ -111,10 +111,43 @@ def _verdict(evlw: float, need: bool, best_now_survives_next: bool) -> str:
     return "WAIT"
 
 
+# WIRE-COVERED ONESIES — the QB denominator fix (Cory, 2026-08-17: "Model
+# still recommended QB too often"). Mirrors grabby.js onesieCap(): for a
+# position with ONE starting slot whose STARTABLE tier outlasts the room
+# (the empirical study measured the QB wire AT replacement — 330.8 vs 330.1
+# season pts in this 10-team league; K/DEF startables go undrafted), a
+# TAKE-NOW/GRAB-SOON verdict is capped to WAIT while any of my remaining
+# picks lands before the startable boundary, and grab_by becomes the LAST
+# such pick. The EVLW fact still prints; the VERDICT stops treating a
+# fungible position like a cliff. TE deliberately excluded — its elite
+# cliff is real and measured. Parity with grabby.js is the two-implementations
+# rule: same constant set, same rule, tested on both sides.
+WIRE_COVERED = ("QB", "K", "DEF")
+
+
+def onesie_cap(row: dict, remaining: list[int], lrm_bounds: dict | None) -> dict:
+    pos = row.get("position")
+    if pos not in WIRE_COVERED or not lrm_bounds or lrm_bounds.get(pos) is None:
+        return row
+    boundary = lrm_bounds[pos]
+    safe = [pk for pk in (remaining or []) if pk <= boundary]
+    if not safe:
+        return row
+    if row.get("verdict") in ("TAKE-NOW", "GRAB-SOON"):
+        row["verdict"] = "WAIT"
+        row["wire_covered"] = (
+            f"startable {pos}s outlast the room until pick {boundary} "
+            f"(measured: the {pos} wire is replacement-level in a 10-team "
+            f"league) — the drop to the next name is real but the SLOT is safe")
+    row["grab_by_pick"] = safe[-1]
+    return row
+
+
 def report(players: list[dict], drafted_ids: set[str], roster: list[dict],
            my_remaining: list[int], cfg: dict,
            positions=("QB", "RB", "WR", "TE", "K", "DEF"),
-           forecast_first: bool = False) -> dict:
+           forecast_first: bool = False,
+           lrm_bounds: dict | None = None) -> dict:
     """Per-position grab-by read for the CURRENT state. `players` = full board;
     `drafted_ids` = everyone already taken (keepers + picks); `roster` = MY players
     so far (for need); `my_remaining` = my remaining overall pick numbers (ascending,
@@ -149,7 +182,7 @@ def report(players: list[dict], drafted_ids: set[str], roster: list[dict],
         evlw = round(best_now - best_next, 2)
         survives_next = (second_pick is None) or (survival_probability(_adp(best), second_pick, best.get("adp_sd")) >= SURVIVE_THRESH)
         gb = grab_by_pick(avail, my_remaining, best_now)
-        rows.append({
+        rows.append(onesie_cap({
             "position": pos, "need": need,
             "best_now": {"name": best.get("name"), "player_id": best.get("player_id"),
                          "proj_mean": best_now, "tier": best.get("tier"),
@@ -161,7 +194,7 @@ def report(players: list[dict], drafted_ids: set[str], roster: list[dict],
             "survives_to_next_of_my_picks": survives_next,
             "grab_by_pick": gb,
             "verdict": _verdict(evlw, need, survives_next),
-        })
+        }, sorted(my_remaining or []), lrm_bounds))
 
     # The one-line "this pick" call: the neediest position with the highest EVLW.
     live = [r for r in rows if r["need"] and r.get("evlw") is not None]

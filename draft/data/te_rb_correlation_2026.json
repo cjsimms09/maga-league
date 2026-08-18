@@ -1,0 +1,1247 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/te_rb_correlation_check.py, importing conditional_value.py UNMODIFIED; verifies a claim from the Fantasy Football Analytics Textbook (modern-portfolio-theory.qmd: TE-RB pairs 'slightly negatively correlated') against this league's own component stores. GATED \u2014 nothing reads this artifact.",
+ "mandate": "draft/audit/textbook_crosscheck_2026-08-16.md",
+ "seasons": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "cls": "RB1-TE1",
+ "method": "identical construction to conditional_value.py's stack_correlation_classes(): same-team RB1/TE1 (by season points, min CATCHER_MIN_GAMES games), weekly Pearson r per team-season on shared active weeks (min MIN_PAIR_WEEKS=8), pooled across team-seasons by Fisher z weighted by n-3.",
+ "measured": {
+  "r_pooled": 0.0152,
+  "r_mean": 0.0125,
+  "r_sd_across_pairs": 0.3189,
+  "n_pairs": 153,
+  "n_weeks": 1939
+ },
+ "team_seasons": [
+  {
+   "season": 2021,
+   "team": "ARI",
+   "rb1": "4137",
+   "te1": "1339",
+   "n_weeks": 8,
+   "r": -0.282
+  },
+  {
+   "season": 2021,
+   "team": "ATL",
+   "rb1": "1535",
+   "te1": "7553",
+   "n_weeks": 15,
+   "r": -0.1435
+  },
+  {
+   "season": 2021,
+   "team": "BAL",
+   "rb1": "2168",
+   "te1": "5012",
+   "n_weeks": 15,
+   "r": -0.3391
+  },
+  {
+   "season": 2021,
+   "team": "BUF",
+   "rb1": "6130",
+   "te1": "5906",
+   "n_weeks": 14,
+   "r": -0.4903
+  },
+  {
+   "season": 2021,
+   "team": "CAR",
+   "rb1": "7594",
+   "te1": "7694",
+   "n_weeks": 12,
+   "r": 0.4514
+  },
+  {
+   "season": 2021,
+   "team": "CHI",
+   "rb1": "5892",
+   "te1": "6826",
+   "n_weeks": 12,
+   "r": -0.0961
+  },
+  {
+   "season": 2021,
+   "team": "CIN",
+   "rb1": "4018",
+   "te1": "2460",
+   "n_weeks": 16,
+   "r": -0.0999
+  },
+  {
+   "season": 2021,
+   "team": "CLE",
+   "rb1": "4988",
+   "te1": "4033",
+   "n_weeks": 11,
+   "r": 0.0295
+  },
+  {
+   "season": 2021,
+   "team": "DAL",
+   "rb1": "3164",
+   "te1": "5001",
+   "n_weeks": 16,
+   "r": 0.4993
+  },
+  {
+   "season": 2021,
+   "team": "DEN",
+   "rb1": "7588",
+   "te1": "5857",
+   "n_weeks": 15,
+   "r": -0.402
+  },
+  {
+   "season": 2021,
+   "team": "DET",
+   "rb1": "6790",
+   "te1": "5844",
+   "n_weeks": 11,
+   "r": -0.2015
+  },
+  {
+   "season": 2021,
+   "team": "GB",
+   "rb1": "4199",
+   "te1": "4602",
+   "n_weeks": 8,
+   "r": 0.3663
+  },
+  {
+   "season": 2021,
+   "team": "HOU",
+   "rb1": "1387",
+   "te1": "7568",
+   "n_weeks": 8,
+   "r": 0.3963
+  },
+  {
+   "season": 2021,
+   "team": "IND",
+   "rb1": "6813",
+   "te1": "4054",
+   "n_weeks": 16,
+   "r": -0.0899
+  },
+  {
+   "season": 2021,
+   "team": "KC",
+   "rb1": "5549",
+   "te1": "1466",
+   "n_weeks": 15,
+   "r": -0.4187
+  },
+  {
+   "season": 2021,
+   "team": "LA",
+   "rb1": "5916",
+   "te1": "3271",
+   "n_weeks": 11,
+   "r": -0.3627
+  },
+  {
+   "season": 2021,
+   "team": "LAC",
+   "rb1": "4663",
+   "te1": "367",
+   "n_weeks": 14,
+   "r": -0.0989
+  },
+  {
+   "season": 2021,
+   "team": "LV",
+   "rb1": "5850",
+   "te1": "2505",
+   "n_weeks": 8,
+   "r": 0.0205
+  },
+  {
+   "season": 2021,
+   "team": "MIA",
+   "rb1": "5980",
+   "te1": "4993",
+   "n_weeks": 16,
+   "r": -0.0871
+  },
+  {
+   "season": 2021,
+   "team": "MIN",
+   "rb1": "4029",
+   "te1": "5133",
+   "n_weeks": 12,
+   "r": 0.0229
+  },
+  {
+   "season": 2021,
+   "team": "NE",
+   "rb1": "5890",
+   "te1": "3214",
+   "n_weeks": 13,
+   "r": -0.2503
+  },
+  {
+   "season": 2021,
+   "team": "NO",
+   "rb1": "4035",
+   "te1": "6869",
+   "n_weeks": 8,
+   "r": 0.4937
+  },
+  {
+   "season": 2021,
+   "team": "NYG",
+   "rb1": "4866",
+   "te1": "4066",
+   "n_weeks": 10,
+   "r": -0.5036
+  },
+  {
+   "season": 2021,
+   "team": "NYJ",
+   "rb1": "7607",
+   "te1": "1425",
+   "n_weeks": 11,
+   "r": -0.3086
+  },
+  {
+   "season": 2021,
+   "team": "PHI",
+   "rb1": "6151",
+   "te1": "5022",
+   "n_weeks": 11,
+   "r": 0.6863
+  },
+  {
+   "season": 2021,
+   "team": "PIT",
+   "rb1": "7528",
+   "te1": "7600",
+   "n_weeks": 15,
+   "r": 0.0024
+  },
+  {
+   "season": 2021,
+   "team": "SEA",
+   "rb1": "4985",
+   "te1": "4089",
+   "n_weeks": 9,
+   "r": 0.3982
+  },
+  {
+   "season": 2021,
+   "team": "TB",
+   "rb1": "3969",
+   "te1": "515",
+   "n_weeks": 9,
+   "r": 0.2642
+  },
+  {
+   "season": 2021,
+   "team": "TEN",
+   "rb1": "3198",
+   "te1": "2545",
+   "n_weeks": 8,
+   "r": -0.4485
+  },
+  {
+   "season": 2021,
+   "team": "WAS",
+   "rb1": "6945",
+   "te1": "4531",
+   "n_weeks": 10,
+   "r": -0.2358
+  },
+  {
+   "season": 2022,
+   "team": "ATL",
+   "rb1": "8132",
+   "te1": "7553",
+   "n_weeks": 9,
+   "r": 0.2597
+  },
+  {
+   "season": 2022,
+   "team": "BAL",
+   "rb1": "3242",
+   "te1": "5012",
+   "n_weeks": 10,
+   "r": 0.2382
+  },
+  {
+   "season": 2022,
+   "team": "BUF",
+   "rb1": "6130",
+   "te1": "5906",
+   "n_weeks": 14,
+   "r": 0.1083
+  },
+  {
+   "season": 2022,
+   "team": "CAR",
+   "rb1": "4111",
+   "te1": "7694",
+   "n_weeks": 12,
+   "r": -0.1078
+  },
+  {
+   "season": 2022,
+   "team": "CHI",
+   "rb1": "5892",
+   "te1": "6826",
+   "n_weeks": 15,
+   "r": -0.3522
+  },
+  {
+   "season": 2022,
+   "team": "CIN",
+   "rb1": "4018",
+   "te1": "4973",
+   "n_weeks": 10,
+   "r": 0.0687
+  },
+  {
+   "season": 2022,
+   "team": "CLE",
+   "rb1": "4988",
+   "te1": "4033",
+   "n_weeks": 13,
+   "r": 0.1585
+  },
+  {
+   "season": 2022,
+   "team": "DAL",
+   "rb1": "5967",
+   "te1": "5001",
+   "n_weeks": 13,
+   "r": 0.0412
+  },
+  {
+   "season": 2022,
+   "team": "DEN",
+   "rb1": "1476",
+   "te1": "8172",
+   "n_weeks": 10,
+   "r": -0.3858
+  },
+  {
+   "season": 2022,
+   "team": "GB",
+   "rb1": "4199",
+   "te1": "4602",
+   "n_weeks": 16,
+   "r": -0.3069
+  },
+  {
+   "season": 2022,
+   "team": "HOU",
+   "rb1": "8129",
+   "te1": "5032",
+   "n_weeks": 11,
+   "r": -0.1398
+  },
+  {
+   "season": 2022,
+   "team": "JAX",
+   "rb1": "7543",
+   "te1": "4066",
+   "n_weeks": 16,
+   "r": -0.1323
+  },
+  {
+   "season": 2022,
+   "team": "KC",
+   "rb1": "2161",
+   "te1": "1466",
+   "n_weeks": 16,
+   "r": -0.4411
+  },
+  {
+   "season": 2022,
+   "team": "LA",
+   "rb1": "6938",
+   "te1": "3271",
+   "n_weeks": 13,
+   "r": 0.539
+  },
+  {
+   "season": 2022,
+   "team": "LAC",
+   "rb1": "4663",
+   "te1": "4089",
+   "n_weeks": 14,
+   "r": 0.0214
+  },
+  {
+   "season": 2022,
+   "team": "LV",
+   "rb1": "5850",
+   "te1": "5985",
+   "n_weeks": 13,
+   "r": 0.4084
+  },
+  {
+   "season": 2022,
+   "team": "MIA",
+   "rb1": "2749",
+   "te1": "4993",
+   "n_weeks": 15,
+   "r": 0.0472
+  },
+  {
+   "season": 2022,
+   "team": "MIN",
+   "rb1": "4029",
+   "te1": "5844",
+   "n_weeks": 9,
+   "r": -0.2875
+  },
+  {
+   "season": 2022,
+   "team": "NE",
+   "rb1": "7611",
+   "te1": "3214",
+   "n_weeks": 15,
+   "r": 0.1387
+  },
+  {
+   "season": 2022,
+   "team": "NO",
+   "rb1": "4035",
+   "te1": "7002",
+   "n_weeks": 13,
+   "r": -0.2073
+  },
+  {
+   "season": 2022,
+   "team": "NYG",
+   "rb1": "4866",
+   "te1": "8225",
+   "n_weeks": 11,
+   "r": -0.0651
+  },
+  {
+   "season": 2022,
+   "team": "PHI",
+   "rb1": "6151",
+   "te1": "5022",
+   "n_weeks": 11,
+   "r": 0.1022
+  },
+  {
+   "season": 2022,
+   "team": "PIT",
+   "rb1": "7528",
+   "te1": "7600",
+   "n_weeks": 14,
+   "r": 0.2411
+  },
+  {
+   "season": 2022,
+   "team": "SEA",
+   "rb1": "8151",
+   "te1": "5857",
+   "n_weeks": 14,
+   "r": -0.0417
+  },
+  {
+   "season": 2022,
+   "team": "SF",
+   "rb1": "4034",
+   "te1": "4217",
+   "n_weeks": 10,
+   "r": -0.2391
+  },
+  {
+   "season": 2022,
+   "team": "TB",
+   "rb1": "3969",
+   "te1": "8111",
+   "n_weeks": 13,
+   "r": -0.1039
+  },
+  {
+   "season": 2022,
+   "team": "TEN",
+   "rb1": "3198",
+   "te1": "3202",
+   "n_weeks": 15,
+   "r": 0.0707
+  },
+  {
+   "season": 2022,
+   "team": "WAS",
+   "rb1": "6945",
+   "te1": "2251",
+   "n_weeks": 11,
+   "r": 0.3844
+  },
+  {
+   "season": 2023,
+   "team": "ARI",
+   "rb1": "4137",
+   "te1": "8130",
+   "n_weeks": 12,
+   "r": 0.2185
+  },
+  {
+   "season": 2023,
+   "team": "ATL",
+   "rb1": "9509",
+   "te1": "7553",
+   "n_weeks": 16,
+   "r": -0.1048
+  },
+  {
+   "season": 2023,
+   "team": "BAL",
+   "rb1": "5248",
+   "te1": "5012",
+   "n_weeks": 10,
+   "r": 0.107
+  },
+  {
+   "season": 2023,
+   "team": "BUF",
+   "rb1": "8138",
+   "te1": "10236",
+   "n_weeks": 15,
+   "r": -0.3114
+  },
+  {
+   "season": 2023,
+   "team": "CAR",
+   "rb1": "7594",
+   "te1": "7694",
+   "n_weeks": 12,
+   "r": -0.2144
+  },
+  {
+   "season": 2023,
+   "team": "CHI",
+   "rb1": "7608",
+   "te1": "6826",
+   "n_weeks": 10,
+   "r": 0.717
+  },
+  {
+   "season": 2023,
+   "team": "CIN",
+   "rb1": "4018",
+   "te1": "5409",
+   "n_weeks": 11,
+   "r": 0.6063
+  },
+  {
+   "season": 2023,
+   "team": "CLE",
+   "rb1": "8143",
+   "te1": "4033",
+   "n_weeks": 16,
+   "r": -0.2011
+  },
+  {
+   "season": 2023,
+   "team": "DAL",
+   "rb1": "5967",
+   "te1": "8110",
+   "n_weeks": 16,
+   "r": -0.3017
+  },
+  {
+   "season": 2023,
+   "team": "DEN",
+   "rb1": "7588",
+   "te1": "6869",
+   "n_weeks": 14,
+   "r": 0.3643
+  },
+  {
+   "season": 2023,
+   "team": "DET",
+   "rb1": "9221",
+   "te1": "10859",
+   "n_weeks": 14,
+   "r": -0.1055
+  },
+  {
+   "season": 2023,
+   "team": "GB",
+   "rb1": "6828",
+   "te1": "9484",
+   "n_weeks": 8,
+   "r": 0.2636
+  },
+  {
+   "season": 2023,
+   "team": "HOU",
+   "rb1": "6130",
+   "te1": "5001",
+   "n_weeks": 14,
+   "r": -0.0455
+  },
+  {
+   "season": 2023,
+   "team": "IND",
+   "rb1": "6845",
+   "te1": "7602",
+   "n_weeks": 11,
+   "r": 0.214
+  },
+  {
+   "season": 2023,
+   "team": "JAX",
+   "rb1": "7543",
+   "te1": "4066",
+   "n_weeks": 16,
+   "r": 0.0211
+  },
+  {
+   "season": 2023,
+   "team": "KC",
+   "rb1": "8205",
+   "te1": "1466",
+   "n_weeks": 13,
+   "r": -0.0352
+  },
+  {
+   "season": 2023,
+   "team": "LA",
+   "rb1": "8150",
+   "te1": "3271",
+   "n_weeks": 11,
+   "r": 0.5223
+  },
+  {
+   "season": 2023,
+   "team": "LAC",
+   "rb1": "4663",
+   "te1": "4089",
+   "n_weeks": 11,
+   "r": -0.6708
+  },
+  {
+   "season": 2023,
+   "team": "LV",
+   "rb1": "5850",
+   "te1": "9482",
+   "n_weeks": 11,
+   "r": -0.027
+  },
+  {
+   "season": 2023,
+   "team": "MIA",
+   "rb1": "2749",
+   "te1": "5008",
+   "n_weeks": 11,
+   "r": -0.7381
+  },
+  {
+   "season": 2023,
+   "team": "MIN",
+   "rb1": "5987",
+   "te1": "5844",
+   "n_weeks": 14,
+   "r": -0.4555
+  },
+  {
+   "season": 2023,
+   "team": "NE",
+   "rb1": "3164",
+   "te1": "3214",
+   "n_weeks": 13,
+   "r": 0.1062
+  },
+  {
+   "season": 2023,
+   "team": "NO",
+   "rb1": "4035",
+   "te1": "4381",
+   "n_weeks": 12,
+   "r": 0.4173
+  },
+  {
+   "season": 2023,
+   "team": "NYG",
+   "rb1": "4866",
+   "te1": "2505",
+   "n_weeks": 8,
+   "r": 0.3409
+  },
+  {
+   "season": 2023,
+   "team": "NYJ",
+   "rb1": "8155",
+   "te1": "5133",
+   "n_weeks": 16,
+   "r": -0.0301
+  },
+  {
+   "season": 2023,
+   "team": "PHI",
+   "rb1": "6790",
+   "te1": "5022",
+   "n_weeks": 13,
+   "r": 0.111
+  },
+  {
+   "season": 2023,
+   "team": "PIT",
+   "rb1": "8228",
+   "te1": "7600",
+   "n_weeks": 10,
+   "r": -0.4426
+  },
+  {
+   "season": 2023,
+   "team": "SEA",
+   "rb1": "8151",
+   "te1": "5857",
+   "n_weeks": 12,
+   "r": 0.4478
+  },
+  {
+   "season": 2023,
+   "team": "SF",
+   "rb1": "4034",
+   "te1": "4217",
+   "n_weeks": 16,
+   "r": -0.3549
+  },
+  {
+   "season": 2023,
+   "team": "TB",
+   "rb1": "8136",
+   "te1": "8111",
+   "n_weeks": 15,
+   "r": 0.6422
+  },
+  {
+   "season": 2023,
+   "team": "TEN",
+   "rb1": "3198",
+   "te1": "8210",
+   "n_weeks": 16,
+   "r": 0.4695
+  },
+  {
+   "season": 2023,
+   "team": "WAS",
+   "rb1": "8154",
+   "te1": "2251",
+   "n_weeks": 13,
+   "r": 0.0448
+  },
+  {
+   "season": 2024,
+   "team": "ARI",
+   "rb1": "4137",
+   "te1": "8130",
+   "n_weeks": 15,
+   "r": -0.4434
+  },
+  {
+   "season": 2024,
+   "team": "ATL",
+   "rb1": "9509",
+   "te1": "7553",
+   "n_weeks": 16,
+   "r": 0.1666
+  },
+  {
+   "season": 2024,
+   "team": "BAL",
+   "rb1": "3198",
+   "te1": "5012",
+   "n_weeks": 16,
+   "r": -0.2438
+  },
+  {
+   "season": 2024,
+   "team": "BUF",
+   "rb1": "8138",
+   "te1": "10236",
+   "n_weeks": 12,
+   "r": 0.2187
+  },
+  {
+   "season": 2024,
+   "team": "CAR",
+   "rb1": "7594",
+   "te1": "11600",
+   "n_weeks": 13,
+   "r": 0.2429
+  },
+  {
+   "season": 2024,
+   "team": "CHI",
+   "rb1": "6790",
+   "te1": "6826",
+   "n_weeks": 13,
+   "r": 0.0995
+  },
+  {
+   "season": 2024,
+   "team": "CIN",
+   "rb1": "9224",
+   "te1": "4993",
+   "n_weeks": 15,
+   "r": 0.0915
+  },
+  {
+   "season": 2024,
+   "team": "CLE",
+   "rb1": "8143",
+   "te1": "4033",
+   "n_weeks": 9,
+   "r": 0.1446
+  },
+  {
+   "season": 2024,
+   "team": "DAL",
+   "rb1": "7021",
+   "te1": "8110",
+   "n_weeks": 12,
+   "r": 0.4699
+  },
+  {
+   "season": 2024,
+   "team": "DEN",
+   "rb1": "7588",
+   "te1": "6869",
+   "n_weeks": 13,
+   "r": -0.1919
+  },
+  {
+   "season": 2024,
+   "team": "DET",
+   "rb1": "9221",
+   "te1": "10859",
+   "n_weeks": 15,
+   "r": 0.017
+  },
+  {
+   "season": 2024,
+   "team": "GB",
+   "rb1": "5850",
+   "te1": "9484",
+   "n_weeks": 16,
+   "r": 0.2828
+  },
+  {
+   "season": 2024,
+   "team": "HOU",
+   "rb1": "4018",
+   "te1": "5001",
+   "n_weeks": 13,
+   "r": 0.0643
+  },
+  {
+   "season": 2024,
+   "team": "IND",
+   "rb1": "6813",
+   "te1": "4054",
+   "n_weeks": 8,
+   "r": -0.1886
+  },
+  {
+   "season": 2024,
+   "team": "JAX",
+   "rb1": "9225",
+   "te1": "4066",
+   "n_weeks": 8,
+   "r": -0.2936
+  },
+  {
+   "season": 2024,
+   "team": "KC",
+   "rb1": "4098",
+   "te1": "1466",
+   "n_weeks": 13,
+   "r": 0.1447
+  },
+  {
+   "season": 2024,
+   "team": "LA",
+   "rb1": "8150",
+   "te1": "6865",
+   "n_weeks": 14,
+   "r": -0.2596
+  },
+  {
+   "season": 2024,
+   "team": "LAC",
+   "rb1": "6806",
+   "te1": "5010",
+   "n_weeks": 12,
+   "r": -0.1509
+  },
+  {
+   "season": 2024,
+   "team": "LV",
+   "rb1": "5987",
+   "te1": "11604",
+   "n_weeks": 13,
+   "r": 0.1827
+  },
+  {
+   "season": 2024,
+   "team": "MIA",
+   "rb1": "9226",
+   "te1": "4144",
+   "n_weeks": 16,
+   "r": 0.0885
+  },
+  {
+   "season": 2024,
+   "team": "MIN",
+   "rb1": "4199",
+   "te1": "5844",
+   "n_weeks": 9,
+   "r": 0.6609
+  },
+  {
+   "season": 2024,
+   "team": "NE",
+   "rb1": "7611",
+   "te1": "3214",
+   "n_weeks": 15,
+   "r": 0.2795
+  },
+  {
+   "season": 2024,
+   "team": "NO",
+   "rb1": "4035",
+   "te1": "4381",
+   "n_weeks": 8,
+   "r": -0.4062
+  },
+  {
+   "season": 2024,
+   "team": "NYG",
+   "rb1": "11655",
+   "te1": "11597",
+   "n_weeks": 10,
+   "r": 0.2853
+  },
+  {
+   "season": 2024,
+   "team": "NYJ",
+   "rb1": "8155",
+   "te1": "5133",
+   "n_weeks": 14,
+   "r": -0.3156
+  },
+  {
+   "season": 2024,
+   "team": "PHI",
+   "rb1": "4866",
+   "te1": "5022",
+   "n_weeks": 9,
+   "r": 0.1764
+  },
+  {
+   "season": 2024,
+   "team": "PIT",
+   "rb1": "7528",
+   "te1": "7600",
+   "n_weeks": 16,
+   "r": 0.1041
+  },
+  {
+   "season": 2024,
+   "team": "SEA",
+   "rb1": "8151",
+   "te1": "5857",
+   "n_weeks": 8,
+   "r": 0.1121
+  },
+  {
+   "season": 2024,
+   "team": "SF",
+   "rb1": "8408",
+   "te1": "4217",
+   "n_weeks": 10,
+   "r": -0.3359
+  },
+  {
+   "season": 2024,
+   "team": "TB",
+   "rb1": "11584",
+   "te1": "8111",
+   "n_weeks": 14,
+   "r": -0.0747
+  },
+  {
+   "season": 2024,
+   "team": "TEN",
+   "rb1": "5967",
+   "te1": "8210",
+   "n_weeks": 15,
+   "r": 0.0688
+  },
+  {
+   "season": 2024,
+   "team": "WAS",
+   "rb1": "8154",
+   "te1": "1339",
+   "n_weeks": 13,
+   "r": -0.0922
+  },
+  {
+   "season": 2025,
+   "team": "ARI",
+   "rb1": "8122",
+   "te1": "8130",
+   "n_weeks": 12,
+   "r": 0.0174
+  },
+  {
+   "season": 2025,
+   "team": "ATL",
+   "rb1": "9509",
+   "te1": "7553",
+   "n_weeks": 16,
+   "r": 0.0724
+  },
+  {
+   "season": 2025,
+   "team": "BAL",
+   "rb1": "3198",
+   "te1": "5012",
+   "n_weeks": 16,
+   "r": -0.1459
+  },
+  {
+   "season": 2025,
+   "team": "BUF",
+   "rb1": "8138",
+   "te1": "10236",
+   "n_weeks": 11,
+   "r": -0.5965
+  },
+  {
+   "season": 2025,
+   "team": "CAR",
+   "rb1": "7021",
+   "te1": "11600",
+   "n_weeks": 12,
+   "r": -0.4265
+  },
+  {
+   "season": 2025,
+   "team": "CHI",
+   "rb1": "6790",
+   "te1": "12517",
+   "n_weeks": 14,
+   "r": -0.0378
+  },
+  {
+   "season": 2025,
+   "team": "CIN",
+   "rb1": "9224",
+   "te1": "5857",
+   "n_weeks": 12,
+   "r": -0.261
+  },
+  {
+   "season": 2025,
+   "team": "CLE",
+   "rb1": "12512",
+   "te1": "12506",
+   "n_weeks": 14,
+   "r": -0.4558
+  },
+  {
+   "season": 2025,
+   "team": "DAL",
+   "rb1": "7588",
+   "te1": "8110",
+   "n_weeks": 16,
+   "r": 0.3889
+  },
+  {
+   "season": 2025,
+   "team": "DEN",
+   "rb1": "12489",
+   "te1": "4066",
+   "n_weeks": 15,
+   "r": 0.0074
+  },
+  {
+   "season": 2025,
+   "team": "DET",
+   "rb1": "9221",
+   "te1": "10859",
+   "n_weeks": 9,
+   "r": -0.6775
+  },
+  {
+   "season": 2025,
+   "team": "GB",
+   "rb1": "5850",
+   "te1": "9484",
+   "n_weeks": 8,
+   "r": -0.2477
+  },
+  {
+   "season": 2025,
+   "team": "HOU",
+   "rb1": "12474",
+   "te1": "5001",
+   "n_weeks": 15,
+   "r": -0.0752
+  },
+  {
+   "season": 2025,
+   "team": "IND",
+   "rb1": "6813",
+   "te1": "12518",
+   "n_weeks": 16,
+   "r": 0.4003
+  },
+  {
+   "season": 2025,
+   "team": "JAX",
+   "rb1": "7543",
+   "te1": "9480",
+   "n_weeks": 11,
+   "r": -0.3212
+  },
+  {
+   "season": 2025,
+   "team": "KC",
+   "rb1": "4098",
+   "te1": "1466",
+   "n_weeks": 16,
+   "r": 0.4667
+  },
+  {
+   "season": 2025,
+   "team": "LA",
+   "rb1": "8150",
+   "te1": "6865",
+   "n_weeks": 13,
+   "r": 0.1233
+  },
+  {
+   "season": 2025,
+   "team": "LV",
+   "rb1": "12527",
+   "te1": "11604",
+   "n_weeks": 12,
+   "r": 0.059
+  },
+  {
+   "season": 2025,
+   "team": "MIA",
+   "rb1": "9226",
+   "te1": "2505",
+   "n_weeks": 9,
+   "r": 0.082
+  },
+  {
+   "season": 2025,
+   "team": "MIN",
+   "rb1": "8408",
+   "te1": "5844",
+   "n_weeks": 15,
+   "r": 0.6844
+  },
+  {
+   "season": 2025,
+   "team": "NE",
+   "rb1": "12529",
+   "te1": "3214",
+   "n_weeks": 16,
+   "r": -0.2934
+  },
+  {
+   "season": 2025,
+   "team": "NO",
+   "rb1": "4035",
+   "te1": "7002",
+   "n_weeks": 11,
+   "r": 0.2277
+  },
+  {
+   "season": 2025,
+   "team": "NYG",
+   "rb1": "11655",
+   "te1": "11597",
+   "n_weeks": 13,
+   "r": 0.3773
+  },
+  {
+   "season": 2025,
+   "team": "NYJ",
+   "rb1": "8155",
+   "te1": "12498",
+   "n_weeks": 13,
+   "r": 0.4674
+  },
+  {
+   "season": 2025,
+   "team": "PHI",
+   "rb1": "4866",
+   "te1": "5022",
+   "n_weeks": 15,
+   "r": 0.4464
+  },
+  {
+   "season": 2025,
+   "team": "PIT",
+   "rb1": "8228",
+   "te1": "7600",
+   "n_weeks": 14,
+   "r": 0.2799
+  },
+  {
+   "season": 2025,
+   "team": "SEA",
+   "rb1": "8151",
+   "te1": "11603",
+   "n_weeks": 16,
+   "r": 0.3474
+  },
+  {
+   "season": 2025,
+   "team": "SF",
+   "rb1": "4034",
+   "te1": "4217",
+   "n_weeks": 10,
+   "r": -0.2401
+  },
+  {
+   "season": 2025,
+   "team": "TB",
+   "rb1": "8136",
+   "te1": "8111",
+   "n_weeks": 14,
+   "r": 0.4989
+  },
+  {
+   "season": 2025,
+   "team": "TEN",
+   "rb1": "5967",
+   "te1": "8210",
+   "n_weeks": 16,
+   "r": -0.0771
+  },
+  {
+   "season": 2025,
+   "team": "WAS",
+   "rb1": "12533",
+   "te1": "1339",
+   "n_weeks": 13,
+   "r": -0.4549
+  }
+ ],
+ "verdict": "NOT slightly negatively correlated. Pooled r = 0.0152 across 153 team-seasons / 1939 shared weeks (2021-2025) \u2014 indistinguishable from zero, not negative. The spread across team-seasons (sd=0.3189) is wide and roughly symmetric around zero: some team-seasons show a real negative RB1/TE1 relationship, some a real positive one, and they cancel."
+}

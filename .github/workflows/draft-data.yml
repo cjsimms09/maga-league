@@ -39,8 +39,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     steps:
+      # fetch-depth: 2, not the default 1 — found 2026-08-15 when the nightly
+      # rebuild refused to publish. test_core_needs_no_reviewer.py diffs
+      # `HEAD~1` against `HEAD` to exercise independent_review.py's own
+      # unavailable-reviewer path; a depth-1 (shallow) clone has no `HEAD~1` to
+      # find, so the test's own subprocess exited via
+      # independent_review.py's "REFUSING: ...contains no changes" path (exit
+      # 1) instead of the CONFIG-unavailable path it meant to test (exit 0) —
+      # a false failure with nothing wrong in the reviewed change. Depth 2 is
+      # the minimum this specific test needs; independent-review.yml already
+      # uses fetch-depth: 0 for its own, different reason (diffing against
+      # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-python@v5
         with:
@@ -50,13 +64,67 @@ jobs:
       - name: Install dependencies
         run: pip install -r draft/requirements.txt
 
-      - name: Run acceptance tests
-        # A board that fails its own scoring tests must never be published.
+      - name: Run acceptance tests (against the CURRENT board, pre-build)
+        # ⚠ THIS DOES NOT GATE WHAT GETS PUBLISHED, and its old comment claimed it
+        # did: "A board that fails its own scoring tests must never be published."
+        # It runs BEFORE `Build the draft artifact`, so it tests the board already
+        # committed and then a NEW, UNTESTED one is built and pushed below.
+        #
+        # That is how 2026-08-14's rebuild reached main red: the new board carried
+        # a field (`adp_sd_source`) with no declared purpose, nine suites failed on
+        # it, and nothing stopped the push — an unattended bot darkened the gate
+        # for every lane and no owner was watching.
+        #
+        # Kept because failing fast on a board that is ALREADY broken is still
+        # worth the two minutes. The gate that actually protects publication is
+        # "Acceptance gate on the FRESH board" below.
+        #
+        # ⚠️ ADVISORY, AND IT HAD TO BECOME ADVISORY (2026-08-14). Failing the JOB
+        # here is backwards: it stops the rebuild BECAUSE the current board is
+        # broken, and a rebuild is exactly what repairs a broken board. So one red
+        # test on the committed artifact froze the pipeline that would replace it.
+        #
+        # That is not hypothetical. The 09:16Z rebuild published a board carrying
+        # `adp_sd_source` with no declared purpose; from that moment this step
+        # failed, and the next scheduled run — 08:00Z on the 15th, six days before
+        # keeper lock — would have died here without ever attempting a build.
+        # Stale ADP into a draft, caused by the guard rather than by the defect.
+        #
+        # Publication is still protected, and by the step that can actually do it:
+        # "Acceptance gate on the FRESH board" runs AFTER the build and DOES fail
+        # the job. Nothing untested gets published; a broken board simply no
+        # longer blocks its own repair.
+        # FULL SUITE HERE, DELIBERATELY — including the repo_parity pins the
+        # publication gate below deselects. At this point the tree is exactly
+        # as committed, so committed-artifact == regeneration is meaningful:
+        # this step is the nightly anti-hand-edit check. The gate excludes
+        # them only because it runs AFTER the build has rewritten the
+        # regeneration's inputs (see the gate step's comment).
+        continue-on-error: true
         run: python -m pytest draft/tests -q
 
       # The JS suites are not optional extras: keepers.test.js is the only thing
       # that catches the Python and browser keeper implementations diverging,
       # and a divergence there corrupts every pick number invisibly.
+      - name: ADP drift — does the board still make football sense?
+        # ADVISORY, NEVER BLOCKING. Cory, 2026-08-17: "BIG BOARD MAKE FOOTBALL
+        # SENSE (SHOULDNT STRAY TOO MUCH FROM ADP OR SOMETHING PROBABLY WRONG,
+        # IF WRONG SOMEONE NEEDS TO FIND AND FIX)."
+        #
+        # It runs on every build so a regression surfaces without anyone
+        # remembering to look — the check existed and fired once, by hand, which
+        # is how a check becomes a thing nobody runs.
+        #
+        # It does NOT gate the board. The two failures it reports are opposite:
+        # straying too far means we are probably wrong, straying too LITTLE means
+        # we are reproducing the consensus and have no edge at all. Neither is a
+        # reason to refuse a publish; both are reasons to look. Gating on it would
+        # make somebody widen the threshold at 2am on draft night.
+        continue-on-error: true
+        run: |
+          node draft/tests/adp_drift_check.test.js
+          node draft/tools/adp_drift_check.js | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Run engine and parity tests
         run: |
           node draft/tests/engine.test.js
@@ -144,6 +212,51 @@ jobs:
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
 
+      - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
+        # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
+        # EXPERIMENT. Tracing PREDICTION-LEDGER P39 on 2026-08-18 established
+        # that we have never once measured our own model against Sleeper on any
+        # season: the promotion bar in model_accuracy_v5/v6 is "beat BOTH NAIVE
+        # baselines", api.sleeper.app reads "no route", and v5 states the
+        # comparison "first becomes measurable at the January 2027 grade of the
+        # frozen 2026 proj_series, which prices Sleeper, FP and own_v5 on the
+        # same season". That series is built here.
+        #
+        # AND IT HAS ALREADY LOST A DAY SILENTLY. 2026-08-10 carries a `sleeper`
+        # row and no `fantasypros` row — FP capture rate 9/10 — and nothing
+        # reported it. The fetch half-failed and the run committed a partial day
+        # exactly as if nothing were wrong. Retroactive fetches leak (exp33), so
+        # that day can never be recovered.
+        #
+        # WARNS, DOES NOT FAIL, AND THAT IS DELIBERATE. Refusing to publish a
+        # whole draft board because one projection provider was unreachable
+        # would trade a real, immediate cost for a speculative one, and a gate
+        # that blocks the board on a third party's uptime gets switched off in a
+        # week. What was actually missing here was not enforcement — it was
+        # ANYONE KNOWING. So this makes a partial day loud and leaves the ruling
+        # on whether it should block to A (register row 41).
+        if: github.event.inputs.snapshot != 'true'
+        continue-on-error: true
+        run: |
+          python3 - <<'PYEOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          import datetime, json, os, pathlib
+          f = pathlib.Path("draft/data/proj_series.json")
+          if not f.exists():
+              print("::warning::proj_series.json is missing entirely"); raise SystemExit(0)
+          rows = json.loads(f.read_text()).get("series", [])
+          today = datetime.date.today().isoformat()
+          got = {r.get("source") for r in rows if r.get("date") == today}
+          want = {"sleeper", "fantasypros"}
+          missing = sorted(want - got)
+          if not got:
+              print(f"::warning::proj_series has NO row for {today} — the daily capture wrote nothing")
+          elif missing:
+              print(f"::warning::proj_series for {today} is PARTIAL: captured {sorted(got)}, MISSING {missing}. "
+                    "This day cannot be backfilled (exp33) and it is an input to the January 2027 source grade.")
+          else:
+              print(f"proj_series {today}: complete ({sorted(got)})")
+          PYEOF
+
       - name: Regenerate the opening script + predicted slates from the fresh board
         # The regeneration hook made mechanical: every artifact rebuild (which
         # includes slot-assignment and keeper-designation changes flowing into
@@ -156,10 +269,179 @@ jobs:
           python draft/opening_script.py
           python draft/room_read.py || echo "room read unchanged/skipped"
 
-      - name: Commit the artifact if it changed
+      - name: Acceptance gate on the FRESH board — nothing untested is published
+        # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
+        # after the artifact is built and before it is committed. A board is the
+        # single input every draft-day surface reads, so publishing one that fails
+        # its own suite is the most expensive silent failure available here — and
+        # on 22 August it would ship to the room Cory is drafting in.
+        #
+        # FAILS THE JOB rather than skipping the commit quietly. A rebuild that
+        # stops publishing is a visible red run; a rebuild that publishes a broken
+        # board is invisible until somebody else's merge goes red, which is exactly
+        # what happened. Freezing on the last good board is the safe direction.
+        # UNCHANGED FROM THE ORIGINAL: this step still `exit 1`s directly on
+        # failure, so every unconditioned step after it (Commit the artifact,
+        # below) is skipped automatically — the safety property this project
+        # depends on. The `set -o pipefail` matters: GitHub Actions runs `run:`
+        # blocks under `bash -e`, and without it `... | tee file` reports tee's
+        # exit code, not pytest's, which would silently defeat this whole gate
+        # (the exact class of bug draft-night-sync.yml hit earlier this session).
+        # `-m "not repo_parity"` — ADDED 2026-08-16 after run 31926152660: the
+        # gate refused a fresh board with 16 failures, of which 7 were
+        # committed-artifact == regeneration pins (model_accuracy, own-model
+        # v2-v6, source_weight_prior). Those regenerate from inputs THIS VERY
+        # RUN just rewrote (the fresh board's crosswalk rows, proj_series
+        # snapshot_dates, player_positions), so on any later day they fail BY
+        # CONSTRUCTION — refusing the board for being NEW, never for being
+        # BAD, and the gate could never pass on a genuinely fresh rebuild.
+        # They stay anti-hand-edit guards everywhere else: the advisory
+        # pre-build step above runs the FULL suite against committed state,
+        # and so does every local pytest. Only here, where the comparison's
+        # inputs were just rebuilt, are they deselected. Board-SOUNDNESS
+        # tests (field purpose, season stamps, dormant, sensitivity, the
+        # own-model column vs a fresh run from committed stores) are unmarked
+        # and still gate. draft/tests/test_gate_selection.py pins the marked
+        # set to an explicit 7-node list and proves this expression deselects
+        # exactly that set and nothing else; the classification of all 16 is
+        # in draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.
         if: github.event.inputs.snapshot != 'true'
         run: |
-          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json"
+          set -o pipefail
+          echo "== the board about to be committed must pass the suite that reads it"
+          echo "   (repo-parity pins deselected here ONLY — their inputs were just rebuilt; see test_gate_selection.py)"
+          if ! python -m pytest draft/tests -q -m "not repo_parity" 2>&1 | tee /tmp/board_gate_output.txt; then
+            echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
+            echo "    The previously published board is untouched and still live."
+            echo "    Fix the board (or whatever the suite is telling you about it)"
+            echo "    and re-run — do NOT bypass this to get a rebuild out."
+            exit 1
+          fi
+
+      - name: Make a refused publish LOUD, not just red — found 2026-08-15
+        # A run that fails and sits in the Actions tab is invisible until someone
+        # goes looking, which is exactly what happened here: the 08:36 UTC nightly
+        # refused to publish, left the board 24h+ stale and missing a whole
+        # projection source, and nobody knew until this step's absence was
+        # investigated by hand many hours later. The gate's DECISION was correct
+        # (don't ship a broken board); its SILENCE was the actual defect.
+        #
+        # `if: failure()` — runs ONLY when the acceptance gate above just failed,
+        # and does not change whether the job ends up red (it still does; see the
+        # unconditioned steps below, which stay skipped exactly as before). Opens
+        # (or updates, if already open — one tracking issue, not one per night) a
+        # labeled GitHub issue with the exact failing test names, so a human is
+        # notified same-day instead of by accident.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABEL="board-rebuild-broken"
+          gh label create "$LABEL" --color B60205 --description "Nightly board rebuild refused to publish" 2>/dev/null || true
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY_FILE=$(mktemp)
+          {
+            printf 'The nightly board rebuild ran at %s and refused to publish — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '**Failing tests:**\n\x60\x60\x60\n'
+            printf '%s\n' "${FAILING:-see run log, no FAILED lines parsed}"
+            printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
+            printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+          } > "$BODY_FILE"
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file "$BODY_FILE"
+          else
+            gh issue create --title "🔴 Board rebuild refused to publish" --label "$LABEL" --body-file "$BODY_FILE"
+          fi
+
+      - name: Diagnose the refusal in-run, where the candidate board exists
+        # The refused board lives only on this runner, and the artifact
+        # download path is unreachable from the relay sandbox (the GitHub
+        # redirect lands on Azure blob storage, 403'd at the egress proxy) —
+        # so the diagnosis runs HERE and lands in this log, which is
+        # retrievable. Measures via board_activity's and vorp's own
+        # functions; prints which exemption spares each unflagged retiree
+        # and the replacement-sensitivity behaviour on this exact board.
+        # [2026-08-16] The sensitivity section now NAMES THE ARM it measured
+        # (SMOOTH: allocation held, move = base x pct by construction; or
+        # STEP: a flex slot flipped, step derived from the allocation) —
+        # its old text asserted the STEP arm's sign as "the pinned
+        # expectation" and, on run 31926152660, misdiagnosed a board whose
+        # sensitivity test PASSED (+3.78 at +2% was correct smooth scaling;
+        # that run's real refusals were artifact-parity/field-purpose
+        # tests). See draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        run: python3 draft/tools/diagnose_refused_board.py || true
+
+      - name: Preserve the refused candidate board for offline diagnosis
+        # Added 2026-08-15. The failures that then blocked auto-publish
+        # (a retired player unflagged by board_activity.dormant, the
+        # replacement-sensitivity step — both measured CLEAN as of run
+        # 31926152660) reproduce ONLY against the fresh
+        # candidate board built from live fetches — and the runner discarded
+        # that board on every refused run, so every diagnosis attempt so far
+        # has been done blind, against yesterday's committed board where both
+        # tests pass. Preserving the refused candidate (plus the two config
+        # inputs it was built from) turns "needs live Sleeper access to
+        # debug" into "download one artifact and run the failing test
+        # locally". test_pick_log-style test isolation is unaffected: this
+        # uploads, commits nothing.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: refused-candidate-board
+          path: |
+            public/draft_data.json
+            draft/config/keepers.json
+            draft/data/predicted_keepers.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Close the tracking issue if this rebuild is the one that fixed it
+        # Reached only when the acceptance gate above SUCCEEDED (no special `if`
+        # needed — a step with no condition runs exactly when every prior step
+        # in the job has succeeded, GitHub Actions' own default). So "no open
+        # board-rebuild-broken issue" becomes a trustworthy signal rather than
+        # something to remember to check by hand.
+        if: github.event.inputs.snapshot != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABEL="board-rebuild-broken"
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING" ]; then
+            RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            gh issue comment "$EXISTING" --body "Rebuild at $(date -u +%Y-%m-%dT%H:%M:%SZ) passed clean. Closing — run: $RUN_URL"
+            gh issue close "$EXISTING"
+          fi
+
+      - name: Commit the artifact if it changed
+        # ⚠️ `draft/config/keepers.json` ADDED 2026-08-14 — it was REGENERATED EVERY
+        # RUN AND NEVER COMMITTED. The step above rebuilds it from live Sleeper
+        # designations, the board is then built from that fresh copy, and the file
+        # was thrown away with the runner. The repo kept whatever was last
+        # hand-committed.
+        #
+        # Measured: the committed file carried ONE team at draft_slot 4, while the
+        # board built beside it reported FOUR teams designated and slot 8. Neither
+        # was wrong — they were different vintages of the same input, and the
+        # disagreement is what sent me looking.
+        #
+        # THE BOARD WAS NEVER AFFECTED; it is built from the fresh copy. What was
+        # lost is REPRODUCIBILITY: you could not rebuild a published board from the
+        # repo, because the keeper input that produced it no longer existed
+        # anywhere. For a project whose premise is auditable evidence, an input
+        # that vanishes after use is the wrong kind of missing.
+        if: github.event.inputs.snapshot != 'true'
+        id: publish
+        run: |
+          # player_positions.json ADDED 2026-08-15 (data audit): build.py grows
+          # this union-over-builds record on the runner every rebuild, but it
+          # was never in this commit list — so the committed record was frozen
+          # at its last hand-commit and the union could not actually grow. A
+          # union that only grows in a discarded working tree is not a record.
+          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
@@ -170,4 +452,61 @@ jobs:
           git config user.email "actions@github.com"
           git add $EXISTING
           git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
-          git push
+          # PUSH-RACE RETRY (added 2026-08-17): run 32080224084 passed the whole
+          # gate, committed the board on the runner, and DIED here — a lane
+          # session pushed main between checkout and push, and the fresh board
+          # was lost with the workspace. The board commit touches only the
+          # rebuild's own data files, so a rebase over doc/lane commits is
+          # safe; three attempts, then fail loudly as before.
+          for attempt in 1 2 3; do
+            git push && break
+            [ "$attempt" = 3 ] && { echo "push still racing after 3 rebases"; exit 1; }
+            if ! git pull --rebase --autostash origin main; then
+              # A concurrent push edited one of the REBUILD'S OWN generated
+              # files (attempt 4 hit this on opening_script.json). For files
+              # this workflow regenerates, the fresh rebuild IS the truth —
+              # during a rebase the incoming rebuild commit is "theirs".
+              git checkout --theirs -- $EXISTING || true
+              git add $EXISTING
+              GIT_EDITOR=true git rebase --continue
+            fi
+          done
+          # Tell the verify step below whether a SERVED file actually moved —
+          # a push that only refreshed draft/ data (Lab lane) triggers no
+          # Netlify build by the gate's own rules, so polling for one would
+          # time out against correct behavior.
+          if git diff --name-only HEAD~1 HEAD | grep -q '^public/'; then
+            echo "served=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "served=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify the deploy actually shipped this board
+        # THE ONE DEPLOY NOBODY VERIFIED, found by the 2026-08-15 macro audit.
+        # deploy-verify.yml triggers on push — but this workflow pushes with
+        # GITHUB_TOKEN, and GitHub's recursion guard means a bot push triggers
+        # NO workflows. So the daily board deploy — draft morning's included —
+        # shipped on faith. This polls the live build-stamp from INSIDE the
+        # same run (no trigger needed) until it names the commit just pushed.
+        # A silent Netlify failure becomes a red nightly run instead of Cory
+        # drafting on yesterday's board. Runs ONLY when a served file moved,
+        # because a data-only push correctly builds nothing.
+        if: github.event.inputs.snapshot != 'true' && steps.publish.outputs.served == 'true'
+        env:
+          SITE: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
+        run: |
+          WANT="$(git rev-parse HEAD)"
+          echo "polling $SITE/build-stamp.json for ${WANT:0:12} (Netlify builds usually land in 1-3 min)"
+          deadline=$(( $(date +%s) + 600 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            GOT="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+                   | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' 2>/dev/null || echo '')"
+            if [ "$GOT" = "$WANT" ]; then
+              echo "deploy verified: live build-stamp reports ${GOT:0:12}"
+              exit 0
+            fi
+            echo "  live stamp: ${GOT:0:12} — waiting"
+            sleep 30
+          done
+          echo "::error::the board was pushed 10 minutes ago and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
+          exit 1

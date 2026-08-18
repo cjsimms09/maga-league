@@ -43,6 +43,15 @@ jobs:
             --in draft/backtest/bundles.json \
             --out draft/backtest/STRATEGY.md \
             --json draft/backtest/strategy-results.json
+      # THE LIVE-EDGE MEASUREMENT's choice side (ROUTES.md 2026-08-17): the
+      # REAL engine.js/survival.js in every seat's fixed-opponents
+      # counterfactual over the same era bundles. Choices only — grading joins
+      # the COMMITTED weekly stores offline via replay_seats_grade.py.
+      - name: Seat-level engine replay (choices only)
+        run: |
+          node draft/backtest/replay_seats.js \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices.json
       - name: Commit the report
         if: ${{ inputs.commit != 'false' }}
         run: |
@@ -52,17 +61,22 @@ jobs:
           # report and the aggregates are the deliverable.
           git add draft/backtest/BACKTEST.md draft/backtest/results.json \
             draft/backtest/STRATEGY.md draft/backtest/strategy-results.json \
-            draft/backtest/DIAGNOSTICS.txt || true
+            draft/backtest/DIAGNOSTICS.txt draft/backtest/engine_seat_choices.json || true
           git diff --cached --quiet && { echo "no report changes to commit"; exit 0; }
-          git commit -m "Backtest + strategy table against real prior drafts"
+          git commit -m "Backtest + strategy table + engine seat choices against real prior drafts"
           # Rebase onto whatever landed while CI ran, then push. Do NOT swallow a
           # failed push with '|| true' — a lost report is a fail-silently bug, and
           # this whole project treats those as the disease. Retry the race a few
           # times; surface a real failure loudly.
+          #
+          # Push to THE REF THAT WAS DISPATCHED, not a hardcoded main: dispatching
+          # this workflow on a branch used to generate the report on the branch's
+          # code and then push the WHOLE BRANCH to main — a merge nobody asked for.
+          # On a main dispatch GITHUB_REF_NAME is main and nothing changes.
           for i in 1 2 3 4 5; do
-            git fetch origin main
-            git rebase origin/main || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
-            if git push origin HEAD:main; then echo "report pushed"; exit 0; fi
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}" || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then echo "report pushed"; exit 0; fi
             echo "push race, retry $i"; sleep 3
           done
           echo "REPORT COULD NOT BE PUSHED after retries"; exit 1

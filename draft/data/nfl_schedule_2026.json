@@ -1,0 +1,2824 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by .github/workflows/bdl-schedule-capture.yml",
+ "_what": "2026 NFL schedule from Ball Don't Lie's FREE tier: date, week, teams.",
+ "_why": "weekly-props-fetch.yml refuses without --date ('the vegas store has no game dates'), so the paid Odds API credits \u2014 expiring ~08-31 \u2014 cannot be spent at all until a free schedule exists. This is that schedule.",
+ "_bdl_scope": "BDL's free key serves games/teams/players (200) but NOT odds (401) or player props (404) \u2014 see bdl_key_matrix.json.",
+ "captured_at": "2026-08-18T03:28:37.808882+00:00",
+ "season": 2026,
+ "games": 272,
+ "fetch_error": null,
+ "weeks": {
+  "1": {
+   "games": 16,
+   "first": "2026-09-10T00:20:00.000Z",
+   "last": "2026-09-15T00:15:00.000Z"
+  },
+  "2": {
+   "games": 16,
+   "first": "2026-09-18T00:15:00.000Z",
+   "last": "2026-09-22T00:15:00.000Z"
+  },
+  "3": {
+   "games": 16,
+   "first": "2026-09-25T00:15:00.000Z",
+   "last": "2026-09-29T00:15:00.000Z"
+  },
+  "4": {
+   "games": 16,
+   "first": "2026-10-02T00:15:00.000Z",
+   "last": "2026-10-06T00:15:00.000Z"
+  },
+  "5": {
+   "games": 15,
+   "first": "2026-10-09T00:15:00.000Z",
+   "last": "2026-10-13T00:15:00.000Z"
+  },
+  "6": {
+   "games": 14,
+   "first": "2026-10-16T00:15:00.000Z",
+   "last": "2026-10-20T00:15:00.000Z"
+  },
+  "7": {
+   "games": 14,
+   "first": "2026-10-23T00:15:00.000Z",
+   "last": "2026-10-27T00:15:00.000Z"
+  },
+  "8": {
+   "games": 14,
+   "first": "2026-10-30T00:15:00.000Z",
+   "last": "2026-11-03T01:15:00.000Z"
+  },
+  "9": {
+   "games": 15,
+   "first": "2026-11-06T01:15:00.000Z",
+   "last": "2026-11-10T01:15:00.000Z"
+  },
+  "10": {
+   "games": 14,
+   "first": "2026-11-13T01:15:00.000Z",
+   "last": "2026-11-17T01:15:00.000Z"
+  },
+  "11": {
+   "games": 13,
+   "first": "2026-11-20T01:15:00.000Z",
+   "last": "2026-11-24T01:15:00.000Z"
+  },
+  "12": {
+   "games": 16,
+   "first": "2026-11-26T01:00:00.000Z",
+   "last": "2026-12-01T01:15:00.000Z"
+  },
+  "13": {
+   "games": 14,
+   "first": "2026-12-04T01:15:00.000Z",
+   "last": "2026-12-08T01:15:00.000Z"
+  },
+  "14": {
+   "games": 15,
+   "first": "2026-12-11T01:15:00.000Z",
+   "last": "2026-12-15T01:15:00.000Z"
+  },
+  "15": {
+   "games": 16,
+   "first": "2026-12-18T01:15:00.000Z",
+   "last": "2026-12-22T01:15:00.000Z"
+  },
+  "16": {
+   "games": 16,
+   "first": "2026-12-25T01:15:00.000Z",
+   "last": "2026-12-29T01:15:00.000Z"
+  },
+  "17": {
+   "games": 16,
+   "first": "2027-01-01T01:15:00.000Z",
+   "last": "2027-01-05T01:15:00.000Z"
+  },
+  "18": {
+   "games": 16,
+   "first": "2027-01-10T05:00:00.000Z",
+   "last": "2027-01-10T05:00:00.000Z"
+  }
+ },
+ "rows": [
+  {
+   "game_id": 1392216,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-10T00:20:00.000Z",
+   "status": "9/9 - 8:20 PM EDT",
+   "home": "SEA",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392217,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-11T00:35:00.000Z",
+   "status": "9/10 - 8:35 PM EDT",
+   "home": "LAR",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392218,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "CIN",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392219,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "DET",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392220,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "TEN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392221,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "IND",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392222,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "PIT",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392223,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "CAR",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392224,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "JAX",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392225,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T17:00:00.000Z",
+   "status": "9/13 - 1:00 PM EDT",
+   "home": "HOU",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392226,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T20:25:00.000Z",
+   "status": "9/13 - 4:25 PM EDT",
+   "home": "LV",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392227,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T20:25:00.000Z",
+   "status": "9/13 - 4:25 PM EDT",
+   "home": "MIN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392228,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T20:25:00.000Z",
+   "status": "9/13 - 4:25 PM EDT",
+   "home": "PHI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392229,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-13T20:25:00.000Z",
+   "status": "9/13 - 4:25 PM EDT",
+   "home": "LAC",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392230,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-14T00:20:00.000Z",
+   "status": "9/13 - 8:20 PM EDT",
+   "home": "NYG",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392231,
+   "season": 2026,
+   "week": 1,
+   "date": "2026-09-15T00:15:00.000Z",
+   "status": "9/14 - 8:15 PM EDT",
+   "home": "KC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392232,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-18T00:15:00.000Z",
+   "status": "9/17 - 8:15 PM EDT",
+   "home": "BUF",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392233,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "ATL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392234,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "CHI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392235,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "TEN",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392236,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "NE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392237,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "NYJ",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392238,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "TB",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392239,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "BAL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392240,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T17:00:00.000Z",
+   "status": "9/20 - 1:00 PM EDT",
+   "home": "HOU",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392241,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T20:05:00.000Z",
+   "status": "9/20 - 4:05 PM EDT",
+   "home": "DEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392242,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T20:05:00.000Z",
+   "status": "9/20 - 4:05 PM EDT",
+   "home": "LAC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392243,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T20:25:00.000Z",
+   "status": "9/20 - 4:25 PM EDT",
+   "home": "DAL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392244,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T20:25:00.000Z",
+   "status": "9/20 - 4:25 PM EDT",
+   "home": "ARI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392245,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-20T20:25:00.000Z",
+   "status": "9/20 - 4:25 PM EDT",
+   "home": "SF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392246,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-21T00:20:00.000Z",
+   "status": "9/20 - 8:20 PM EDT",
+   "home": "KC",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392247,
+   "season": 2026,
+   "week": 2,
+   "date": "2026-09-22T00:15:00.000Z",
+   "status": "9/21 - 8:15 PM EDT",
+   "home": "LAR",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392248,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-25T00:15:00.000Z",
+   "status": "9/24 - 8:15 PM EDT",
+   "home": "GB",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392249,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "BUF",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392250,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "CLE",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392251,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "DET",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392252,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "IND",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392253,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "MIA",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392254,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "NYG",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392255,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "PIT",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392256,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "WSH",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392257,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T17:00:00.000Z",
+   "status": "9/27 - 1:00 PM EDT",
+   "home": "JAX",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392258,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T20:05:00.000Z",
+   "status": "9/27 - 4:05 PM EDT",
+   "home": "SF",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392259,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T20:05:00.000Z",
+   "status": "9/27 - 4:05 PM EDT",
+   "home": "TB",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392260,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T20:25:00.000Z",
+   "status": "9/27 - 4:25 PM EDT",
+   "home": "DAL",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392261,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-27T20:25:00.000Z",
+   "status": "9/27 - 4:25 PM EDT",
+   "home": "NO",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392262,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-28T00:20:00.000Z",
+   "status": "9/27 - 8:20 PM EDT",
+   "home": "DEN",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392263,
+   "season": 2026,
+   "week": 3,
+   "date": "2026-09-29T00:15:00.000Z",
+   "status": "9/28 - 8:15 PM EDT",
+   "home": "CHI",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392264,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-02T00:15:00.000Z",
+   "status": "10/1 - 8:15 PM EDT",
+   "home": "CLE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392265,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T13:30:00.000Z",
+   "status": "10/4 - 9:30 AM EDT",
+   "home": "WSH",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392266,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "BUF",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392267,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "CHI",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392268,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "CIN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392269,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "NYG",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392270,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "PHI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392271,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "TB",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392272,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "BAL",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392273,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T17:00:00.000Z",
+   "status": "10/4 - 1:00 PM EDT",
+   "home": "HOU",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392274,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T20:05:00.000Z",
+   "status": "10/4 - 4:05 PM EDT",
+   "home": "MIN",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392275,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T20:25:00.000Z",
+   "status": "10/4 - 4:25 PM EDT",
+   "home": "LV",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392276,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T20:25:00.000Z",
+   "status": "10/4 - 4:25 PM EDT",
+   "home": "SF",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392277,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-04T20:25:00.000Z",
+   "status": "10/4 - 4:25 PM EDT",
+   "home": "SEA",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392278,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-05T00:20:00.000Z",
+   "status": "10/4 - 8:20 PM EDT",
+   "home": "CAR",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392279,
+   "season": 2026,
+   "week": 4,
+   "date": "2026-10-06T00:15:00.000Z",
+   "status": "10/5 - 8:15 PM EDT",
+   "home": "NO",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392280,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-09T00:15:00.000Z",
+   "status": "10/8 - 8:15 PM EDT",
+   "home": "DAL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392281,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T13:30:00.000Z",
+   "status": "10/11 - 9:30 AM EDT",
+   "home": "JAX",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392282,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "TEN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392283,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "MIA",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392284,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "NE",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392285,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "NO",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392286,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "NYJ",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392287,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "PIT",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392288,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T17:00:00.000Z",
+   "status": "10/11 - 1:00 PM EDT",
+   "home": "WSH",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392289,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T20:05:00.000Z",
+   "status": "10/11 - 4:05 PM EDT",
+   "home": "LAC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392290,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T20:25:00.000Z",
+   "status": "10/11 - 4:25 PM EDT",
+   "home": "GB",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392291,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T20:25:00.000Z",
+   "status": "10/11 - 4:25 PM EDT",
+   "home": "ARI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392292,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-11T20:25:00.000Z",
+   "status": "10/11 - 4:25 PM EDT",
+   "home": "SEA",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392293,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-12T00:20:00.000Z",
+   "status": "10/11 - 8:20 PM EDT",
+   "home": "ATL",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392294,
+   "season": 2026,
+   "week": 5,
+   "date": "2026-10-13T00:15:00.000Z",
+   "status": "10/12 - 8:15 PM EDT",
+   "home": "LAR",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392295,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-16T00:15:00.000Z",
+   "status": "10/15 - 8:15 PM EDT",
+   "home": "DEN",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392296,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T13:30:00.000Z",
+   "status": "10/18 - 9:30 AM EDT",
+   "home": "JAX",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392297,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "ATL",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392298,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "CLE",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392299,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "IND",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392300,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "NE",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392301,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "NYG",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392302,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "PHI",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392303,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T17:00:00.000Z",
+   "status": "10/18 - 1:00 PM EDT",
+   "home": "TB",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392304,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T20:05:00.000Z",
+   "status": "10/18 - 4:05 PM EDT",
+   "home": "LAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392305,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T20:25:00.000Z",
+   "status": "10/18 - 4:25 PM EDT",
+   "home": "KC",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392306,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-18T20:25:00.000Z",
+   "status": "10/18 - 4:25 PM EDT",
+   "home": "LV",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392307,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-19T00:20:00.000Z",
+   "status": "10/18 - 8:20 PM EDT",
+   "home": "GB",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392308,
+   "season": 2026,
+   "week": 6,
+   "date": "2026-10-20T00:15:00.000Z",
+   "status": "10/19 - 8:15 PM EDT",
+   "home": "SF",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392309,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-23T00:15:00.000Z",
+   "status": "10/22 - 8:15 PM EDT",
+   "home": "CHI",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392310,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T13:30:00.000Z",
+   "status": "10/25 - 9:30 AM EDT",
+   "home": "NO",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392311,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "ATL",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392312,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "TEN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392313,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "MIN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392314,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "NYJ",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392315,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "CAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392316,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "BAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392317,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T17:00:00.000Z",
+   "status": "10/25 - 1:00 PM EDT",
+   "home": "HOU",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392318,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T20:05:00.000Z",
+   "status": "10/25 - 4:05 PM EDT",
+   "home": "ARI",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392319,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T20:25:00.000Z",
+   "status": "10/25 - 4:25 PM EDT",
+   "home": "DET",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392320,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-25T20:25:00.000Z",
+   "status": "10/25 - 4:25 PM EDT",
+   "home": "LV",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392321,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-26T00:20:00.000Z",
+   "status": "10/25 - 8:20 PM EDT",
+   "home": "SEA",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392322,
+   "season": 2026,
+   "week": 7,
+   "date": "2026-10-27T00:15:00.000Z",
+   "status": "10/26 - 8:15 PM EDT",
+   "home": "PHI",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392323,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-10-30T00:15:00.000Z",
+   "status": "10/29 - 8:15 PM EDT",
+   "home": "GB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392324,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "BUF",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392325,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "CIN",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392326,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "DAL",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392327,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "DET",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392328,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "NYJ",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392329,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "PIT",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392330,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "TB",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392331,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T18:00:00.000Z",
+   "status": "11/1 - 1:00 PM EST",
+   "home": "JAX",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392332,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T21:05:00.000Z",
+   "status": "11/1 - 4:05 PM EST",
+   "home": "LAR",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392333,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T21:25:00.000Z",
+   "status": "11/1 - 4:25 PM EST",
+   "home": "DEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392334,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-01T21:25:00.000Z",
+   "status": "11/1 - 4:25 PM EST",
+   "home": "MIA",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392335,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-02T01:20:00.000Z",
+   "status": "11/1 - 8:20 PM EST",
+   "home": "WSH",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392336,
+   "season": 2026,
+   "week": 8,
+   "date": "2026-11-03T01:15:00.000Z",
+   "status": "11/2 - 8:15 PM EST",
+   "home": "SEA",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392337,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-06T01:15:00.000Z",
+   "status": "11/5 - 8:15 PM EST",
+   "home": "BAL",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392338,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T14:30:00.000Z",
+   "status": "11/8 - 9:30 AM EST",
+   "home": "ATL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392339,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "IND",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392340,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "KC",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392341,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "MIA",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392342,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "NO",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392343,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "PHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392344,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "WSH",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392345,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T18:00:00.000Z",
+   "status": "11/8 - 1:00 PM EST",
+   "home": "CAR",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392346,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T21:05:00.000Z",
+   "status": "11/8 - 4:05 PM EST",
+   "home": "LAC",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392347,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T21:05:00.000Z",
+   "status": "11/8 - 4:05 PM EST",
+   "home": "SF",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392348,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T21:25:00.000Z",
+   "status": "11/8 - 4:25 PM EST",
+   "home": "NE",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392349,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-08T21:25:00.000Z",
+   "status": "11/8 - 4:25 PM EST",
+   "home": "SEA",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392350,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-09T01:20:00.000Z",
+   "status": "11/8 - 8:20 PM EST",
+   "home": "CHI",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392351,
+   "season": 2026,
+   "week": 9,
+   "date": "2026-11-10T01:15:00.000Z",
+   "status": "11/9 - 8:15 PM EST",
+   "home": "MIN",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392352,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-13T01:15:00.000Z",
+   "status": "11/12 - 8:15 PM EST",
+   "home": "NYG",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392353,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T14:30:00.000Z",
+   "status": "11/15 - 9:30 AM EST",
+   "home": "DET",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392354,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "ATL",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392355,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "CLE",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392356,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "GB",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392357,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "TEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392358,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "IND",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392359,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "NO",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392360,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T18:00:00.000Z",
+   "status": "11/15 - 1:00 PM EST",
+   "home": "NYJ",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392361,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T21:05:00.000Z",
+   "status": "11/15 - 4:05 PM EST",
+   "home": "LV",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392362,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T21:05:00.000Z",
+   "status": "11/15 - 4:05 PM EST",
+   "home": "ARI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392363,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-15T21:25:00.000Z",
+   "status": "11/15 - 4:25 PM EST",
+   "home": "DAL",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392364,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-16T01:20:00.000Z",
+   "status": "11/15 - 8:20 PM EST",
+   "home": "CIN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392365,
+   "season": 2026,
+   "week": 10,
+   "date": "2026-11-17T01:15:00.000Z",
+   "status": "11/16 - 8:15 PM EST",
+   "home": "BAL",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392366,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-20T01:15:00.000Z",
+   "status": "11/19 - 8:15 PM EST",
+   "home": "HOU",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392367,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "BUF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392368,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "CHI",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392369,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "DAL",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392370,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "DET",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392371,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "KC",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392372,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "NYG",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392373,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T18:00:00.000Z",
+   "status": "11/22 - 1:00 PM EST",
+   "home": "CAR",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392374,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T21:05:00.000Z",
+   "status": "11/22 - 4:05 PM EST",
+   "home": "LAC",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392375,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T21:25:00.000Z",
+   "status": "11/22 - 4:25 PM EST",
+   "home": "DEN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392376,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-22T21:25:00.000Z",
+   "status": "11/22 - 4:25 PM EST",
+   "home": "PHI",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392377,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-23T01:20:00.000Z",
+   "status": "11/22 - 8:20 PM EST",
+   "home": "SF",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392378,
+   "season": 2026,
+   "week": 11,
+   "date": "2026-11-24T01:15:00.000Z",
+   "status": "11/23 - 8:15 PM EST",
+   "home": "WSH",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392379,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-26T01:00:00.000Z",
+   "status": "11/25 - 8:00 PM EST",
+   "home": "LAR",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392380,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-26T18:00:00.000Z",
+   "status": "11/26 - 1:00 PM EST",
+   "home": "DET",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392381,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-26T21:30:00.000Z",
+   "status": "11/26 - 4:30 PM EST",
+   "home": "DAL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392382,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-27T01:20:00.000Z",
+   "status": "11/26 - 8:20 PM EST",
+   "home": "BUF",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392383,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-27T20:00:00.000Z",
+   "status": "11/27 - 3:00 PM EST",
+   "home": "PIT",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392384,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T18:00:00.000Z",
+   "status": "11/29 - 1:00 PM EST",
+   "home": "CIN",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392385,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T18:00:00.000Z",
+   "status": "11/29 - 1:00 PM EST",
+   "home": "CLE",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392386,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T18:00:00.000Z",
+   "status": "11/29 - 1:00 PM EST",
+   "home": "IND",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392387,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T18:00:00.000Z",
+   "status": "11/29 - 1:00 PM EST",
+   "home": "MIA",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392388,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T18:00:00.000Z",
+   "status": "11/29 - 1:00 PM EST",
+   "home": "MIN",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392389,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T18:00:00.000Z",
+   "status": "11/29 - 1:00 PM EST",
+   "home": "HOU",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392390,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T21:05:00.000Z",
+   "status": "11/29 - 4:05 PM EST",
+   "home": "JAX",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392391,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T21:25:00.000Z",
+   "status": "11/29 - 4:25 PM EST",
+   "home": "ARI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392392,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-29T21:25:00.000Z",
+   "status": "11/29 - 4:25 PM EST",
+   "home": "SF",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392393,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-11-30T01:20:00.000Z",
+   "status": "11/29 - 8:20 PM EST",
+   "home": "LAC",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392394,
+   "season": 2026,
+   "week": 12,
+   "date": "2026-12-01T01:15:00.000Z",
+   "status": "11/30 - 8:15 PM EST",
+   "home": "TB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392395,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-04T01:15:00.000Z",
+   "status": "12/3 - 8:15 PM EST",
+   "home": "LAR",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392396,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "ATL",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392397,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "CHI",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392398,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "CLE",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392399,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "TEN",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392400,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "NO",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392401,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "NYG",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392402,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T18:00:00.000Z",
+   "status": "12/6 - 1:00 PM EST",
+   "home": "TB",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392403,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T21:05:00.000Z",
+   "status": "12/6 - 4:05 PM EST",
+   "home": "DEN",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392404,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T21:05:00.000Z",
+   "status": "12/6 - 4:05 PM EST",
+   "home": "ARI",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392405,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T21:25:00.000Z",
+   "status": "12/6 - 4:25 PM EST",
+   "home": "MIN",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392406,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-06T21:25:00.000Z",
+   "status": "12/6 - 4:25 PM EST",
+   "home": "NE",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392407,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-07T01:20:00.000Z",
+   "status": "12/6 - 8:20 PM EST",
+   "home": "PIT",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392408,
+   "season": 2026,
+   "week": 13,
+   "date": "2026-12-08T01:15:00.000Z",
+   "status": "12/7 - 8:15 PM EST",
+   "home": "SEA",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392409,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-11T01:15:00.000Z",
+   "status": "12/10 - 8:15 PM EST",
+   "home": "NE",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392410,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "CLE",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392411,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "DET",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392412,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "MIA",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392413,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "NYJ",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392414,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "PHI",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392415,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "WSH",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392416,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "CAR",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392417,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T18:00:00.000Z",
+   "status": "12/13 - 1:00 PM EST",
+   "home": "BAL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392418,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T21:05:00.000Z",
+   "status": "12/13 - 4:05 PM EST",
+   "home": "LV",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392419,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T21:25:00.000Z",
+   "status": "12/13 - 4:25 PM EST",
+   "home": "CIN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392420,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T21:25:00.000Z",
+   "status": "12/13 - 4:25 PM EST",
+   "home": "SF",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392421,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-13T21:25:00.000Z",
+   "status": "12/13 - 4:25 PM EST",
+   "home": "SEA",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392422,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-14T01:20:00.000Z",
+   "status": "12/13 - 8:20 PM EST",
+   "home": "GB",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392423,
+   "season": 2026,
+   "week": 14,
+   "date": "2026-12-15T01:15:00.000Z",
+   "status": "12/14 - 8:15 PM EST",
+   "home": "JAX",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392424,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-18T01:15:00.000Z",
+   "status": "12/17 - 8:15 PM EST",
+   "home": "LAC",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392425,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-19T22:00:00.000Z",
+   "status": "12/19 - 5:00 PM EST",
+   "home": "PHI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392426,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T01:20:00.000Z",
+   "status": "12/19 - 8:20 PM EST",
+   "home": "BUF",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392427,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "GB",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392428,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "TEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392429,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "NYG",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392430,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "PIT",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392431,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "TB",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392432,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "WSH",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392433,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "CAR",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392434,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T18:00:00.000Z",
+   "status": "12/20 - 1:00 PM EST",
+   "home": "HOU",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392435,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T21:05:00.000Z",
+   "status": "12/20 - 4:05 PM EST",
+   "home": "ARI",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392436,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T21:25:00.000Z",
+   "status": "12/20 - 4:25 PM EST",
+   "home": "LV",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392437,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-20T21:25:00.000Z",
+   "status": "12/20 - 4:25 PM EST",
+   "home": "LAR",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392438,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-21T01:20:00.000Z",
+   "status": "12/20 - 8:20 PM EST",
+   "home": "MIN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392439,
+   "season": 2026,
+   "week": 15,
+   "date": "2026-12-22T01:15:00.000Z",
+   "status": "12/21 - 8:15 PM EST",
+   "home": "KC",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392440,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-25T01:15:00.000Z",
+   "status": "12/24 - 8:15 PM EST",
+   "home": "PHI",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392441,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-25T18:00:00.000Z",
+   "status": "12/25 - 1:00 PM EST",
+   "home": "CHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392442,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-25T21:30:00.000Z",
+   "status": "12/25 - 4:30 PM EST",
+   "home": "DEN",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392443,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-26T01:15:00.000Z",
+   "status": "12/25 - 8:15 PM EST",
+   "home": "SEA",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392444,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T05:00:00.000Z",
+   "status": "TBD",
+   "home": "ATL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392445,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T05:00:00.000Z",
+   "status": "TBD",
+   "home": "IND",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392446,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T05:00:00.000Z",
+   "status": "TBD",
+   "home": "MIN",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392447,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T05:00:00.000Z",
+   "status": "TBD",
+   "home": "PIT",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392448,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T18:00:00.000Z",
+   "status": "12/27 - 1:00 PM EST",
+   "home": "MIA",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392449,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T18:00:00.000Z",
+   "status": "12/27 - 1:00 PM EST",
+   "home": "NO",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392450,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T18:00:00.000Z",
+   "status": "12/27 - 1:00 PM EST",
+   "home": "NYJ",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392451,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T18:00:00.000Z",
+   "status": "12/27 - 1:00 PM EST",
+   "home": "BAL",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392452,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T21:05:00.000Z",
+   "status": "12/27 - 4:05 PM EST",
+   "home": "LV",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392453,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-27T21:25:00.000Z",
+   "status": "12/27 - 4:25 PM EST",
+   "home": "KC",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392454,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-28T01:20:00.000Z",
+   "status": "12/27 - 8:20 PM EST",
+   "home": "DAL",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392455,
+   "season": 2026,
+   "week": 16,
+   "date": "2026-12-29T01:15:00.000Z",
+   "status": "12/28 - 8:15 PM EST",
+   "home": "DET",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392456,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-01T01:15:00.000Z",
+   "status": "12/31 - 8:15 PM EST",
+   "home": "CIN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392457,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T05:00:00.000Z",
+   "status": "TBD",
+   "home": "NE",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392458,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T05:00:00.000Z",
+   "status": "TBD",
+   "home": "LAC",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392459,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T05:00:00.000Z",
+   "status": "TBD",
+   "home": "TB",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 1392460,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T05:00:00.000Z",
+   "status": "TBD",
+   "home": "JAX",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 1392461,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "ATL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 1392462,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "CLE",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 1392463,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "DAL",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 1392464,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "TEN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392465,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "MIA",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392466,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "NYJ",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1392467,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T18:00:00.000Z",
+   "status": "1/3 - 1:00 PM EST",
+   "home": "CAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392468,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T21:05:00.000Z",
+   "status": "1/3 - 4:05 PM EST",
+   "home": "ARI",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392469,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-03T21:25:00.000Z",
+   "status": "1/3 - 4:25 PM EST",
+   "home": "CHI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392470,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-04T01:20:00.000Z",
+   "status": "1/3 - 8:20 PM EST",
+   "home": "SF",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392471,
+   "season": 2026,
+   "week": 17,
+   "date": "2027-01-05T01:15:00.000Z",
+   "status": "1/4 - 8:15 PM EST",
+   "home": "GB",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 1392472,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "BUF",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 1392473,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "CIN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 1392474,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "DEN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1392475,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "GB",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1392476,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "IND",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 1392477,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "KC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 1392478,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "LAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392479,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "MIN",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392480,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "NE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 1392481,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "NO",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 1392482,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "NYG",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 1392483,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "ARI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 1392484,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "WSH",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392485,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "CAR",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 1392486,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "BAL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 1392487,
+   "season": 2026,
+   "week": 18,
+   "date": "2027-01-10T05:00:00.000Z",
+   "status": "TBD",
+   "home": "HOU",
+   "away": "TEN",
+   "postseason": false
+  }
+ ]
+}

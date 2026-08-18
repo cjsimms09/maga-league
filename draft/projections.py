@@ -8,7 +8,7 @@ because opportunity is a leading indicator, not a projection.
 from __future__ import annotations
 from statistics import mean, pstdev
 
-from scoring import score_stat_line
+from scoring import normalize_def_stat_line, score_stat_line
 
 # Week-to-week scoring volatility by position, as a fraction of season mean.
 # TEs and RBs swing harder per point than WRs (touchdown dependence and injury
@@ -21,6 +21,16 @@ CEILING_Z = 1.036  # 85th percentile
 
 # Expected games. Positional durability priors from historical games-missed.
 EXPECTED_GAMES = {"QB": 15.5, "RB": 14.2, "WR": 15.0, "TE": 14.8, "K": 16.5, "DEF": 17.0}
+
+# 4w plausibility rail: best realized REGULAR-SEASON total per position in
+# OUR stores (nflverse_weekly_points 2023-25, league scoring) × 1.20 record
+# headroom. RE-BASED 08-18 late (register 5d): the original bases were
+# computed on stores carrying PLAYOFF weeks as season data — the "best RB
+# season" was 72 points of playoffs. Corrected bases QB 512.4 / RB 365.6 /
+# WR 339.5 / TE 252.9; the 20% headroom is the one hand-set number and is
+# declared as such. The pin in test_player_volatility_tails.py regenerates
+# these from the stores, so a future phantom week fails loudly.
+PLAUSIBILITY_CEILING = {"QB": 615.0, "RB": 439.0, "WR": 407.0, "TE": 303.0}
 
 # --- per-player variance (audit P1.7) ---------------------------------------
 #
@@ -101,12 +111,22 @@ def player_variance(p: dict, metrics: dict | None = None) -> tuple[float, list[s
 
 
 def baseline_from_projections(raw: dict, scoring: dict) -> dict[str, float]:
-    """Convert provider stat-line projections into our league's points."""
+    """Convert provider stat-line projections into our league's points.
+
+    Team-defense rows are vocabulary-normalized first (projection TD components
+    -> the aggregates the league prices; see scoring.DEF_PROJ_TD_ALIASES and
+    DECISIONS-NEEDED #0, fixed 2026-08-16 under Cory's "we fix now" ruling).
+    The gate is the id shape: Sleeper keys DSTs by team code, never a numeric
+    id — and individual returners' rows, which carry the same component keys
+    but must NOT be normalized (st_td prices 0.0 for them), are always numeric.
+    """
     out = {}
     for pid, line in (raw or {}).items():
         stats = line.get("stats") if isinstance(line, dict) and "stats" in line else line
         if not isinstance(stats, dict):
             continue
+        if not str(pid).isdigit():
+            stats = normalize_def_stat_line(stats)
         out[str(pid)] = score_stat_line(stats, scoring)
     return out
 
@@ -114,9 +134,16 @@ def baseline_from_projections(raw: dict, scoring: dict) -> dict[str, float]:
 def opportunity_metrics(pbp, weekly, seasons: list[int], weights: list[float]) -> dict[str, dict]:
     """Recency-weighted opportunity composite per player from nflfastR data.
 
-    Returns {player_id: {wopr, target_share, air_yards_share, adot,
-                         opportunity_share, rz_share, snap_share, xfp_delta}}.
+    Returns {player_id: {target_share, air_yards_share, adot, wopr, rz_targets,
+                         carries, opportunity_share, gl_carries, rz_share}}.
     Tolerates missing columns — feeds change shape between seasons.
+
+    THE CONTRACT USED TO PROMISE `snap_share` AND `xfp_delta` AND NEITHER IS
+    COMPUTED ANYWHERE (corrected 2026-08-17). A docstring naming a field the
+    function does not produce is worse than silence: a reader plans around it,
+    and the absence looks like a data gap rather than a missing feature. Snap
+    share needs nflverse snap_counts, which this repo has never pulled — it is
+    a real gap and it is filed as one, not implied here.
     """
     import pandas as pd  # imported here so the module loads without pandas
 
@@ -210,20 +237,191 @@ def composite_z(metrics: dict[str, dict], players: list[dict]) -> dict[str, floa
     return out
 
 
+def _sd_calibration():
+    """C's measured 2023-25 projection-error calibration, with its own applier.
+
+    REC-1, APPLIED 2026-08-15 under Cory's ruling ("We need to fix!!!"), after the
+    decision arm was RE-RUN on the 86e42bc2 board (677 players) and reproduced the
+    original result exactly: roles identical at all twelve seats, the only movement
+    four bench players (PROJ-SD-DECISION-ARM.md, addendum). Returns
+    (projection_error module, loaded calibration) or None — and None means every
+    row falls back to the POSITION_VARIANCE path unchanged, which is the
+    pre-REC-1 behaviour, never a silent zero.
+    """
+    import sys
+    from pathlib import Path
+    bt = Path(__file__).resolve().parent / "backtest"
+    if str(bt) not in sys.path:
+        sys.path.insert(0, str(bt))
+    try:
+        import projection_error as PE
+        cal = PE.load()
+    except Exception:
+        return None
+    return (PE, cal) if (cal.get("cells")) else None
+
+
+def _weekly_cv_2025() -> dict[str, float]:
+    """Realized 2025 weekly cv per player, from weekly_volatility.json.
+
+    2025-ONLY, RULED (A, 2026-08-18, deciding the fork E flagged in
+    ceiling_fix_blast_radius §3): the persistence that licenses prospective use
+    is measured on ONE-year transitions (rho +0.482/+0.605), so a 2024 cv on a
+    2026 board is outside the measured support. A player without a 2025 cv is
+    ABSENT and keeps his cell constant — never a stale season, never the
+    positional mean. This is exactly the prereg §3 protection: the injury-return
+    group (Evans, G. Wilson, Nabers, Daniels) stays on cell constants rather
+    than being handed a reading from the last year they happened to play.
+
+    The artifact pre-filters min_weeks/min_mean, so every cv here already
+    cleared the stability floor. Missing file or season → {} → the layer is
+    inert, never a crash five days before the draft.
+    """
+    import json
+    from pathlib import Path
+    f = Path(__file__).resolve().parent / "backtest" / "weekly_volatility.json"
+    try:
+        per = json.loads(f.read_text()).get("per_player", {}).get("2025", {})
+        return {pid: row["cv"] for pid, row in per.items()
+                if isinstance(row, dict) and row.get("cv")}
+    except Exception:
+        return {}
+
+
 def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, dict],
           cfg: dict) -> list[dict]:
-    """Apply the capped opportunity adjustment and derive floor/ceiling."""
+    """Apply the capped opportunity adjustment and derive floor/ceiling.
+
+    proj_sd comes from the MEASURED 2023-25 error calibration where a
+    (position, projection-rank band) cell was measured (REC-1, applied under
+    Cory's 2026-08-22 ruling), and from the POSITION_VARIANCE path everywhere
+    else — K/DEF and any band the calibration marks unmeasurable.
+    """
     cap = float(cfg.get("opportunity_cap", 0.15))
     z = composite_z(metrics, players) if metrics else {}
+    pe = _sd_calibration()
 
+    # First pass: the mean, so the second pass can rank within position.
+    #
+    # WHICH POPULATION PICKS THE CELL — RULED (A, 2026-08-18, on E's band-edge
+    # finding, band_edge_misread_2026-08-17.md). This function ranks over the
+    # players it is GIVEN, which build.py makes players + kept_players — the
+    # FULL universe, keepers included. That is correct and deliberate, and the
+    # old comment here claiming the rank "MUST" match the published pos_rank
+    # was wrong on both counts:
+    #   1. The calibration was fitted on historical seasons where NOBODY is
+    #      withheld — its "WR 4-8" cell measures the world's WR4-8, so the
+    #      world's rank (Chase kept ahead of the field still counts) is the
+    #      one that reads the right cell. The published pos_rank answers a
+    #      different question — availability — and may legitimately differ at
+    #      band boundaries for exactly as many slots as keepers sit above.
+    #   2. Full-universe ranking is INVARIANT to keeper withholding: at the
+    #      08-20 lock, keepers move between `players` and `kept_players` but
+    #      this function sees their union either way. Under a published-rank
+    #      cell key, 46 players would re-band at lock for a reason that is
+    #      not football (E1's measured number); under this one, zero do.
+    means: dict[int, float] = {}
     for p in players:
         pid = str(p["player_id"])
         base = baseline.get(pid)
         if base is None:
             base = p.get("proj_mean") or _rank_fallback(p)
-        # A z of +2 earns the full cap; linear in between, clamped both ways.
         adj = max(-cap, min(cap, (z.get(pid, 0.0) / 2.0) * cap))
-        mean_proj = base * (1 + adj)
+        means[id(p)] = base * (1 + adj)
+        p["_blend_base"] = base
+        p["_blend_adj"] = adj
+
+    rank_of: dict[int, int] = {}
+    by_pos: dict[str, list[dict]] = {}
+    for p in players:
+        by_pos.setdefault(p.get("position") or "", []).append(p)
+    for pos, group in by_pos.items():
+        ordered = sorted(group, key=lambda x: -means[id(x)])
+        for i, p in enumerate(ordered):
+            rank_of[id(p)] = i + 1
+
+    # ── CELL-AVERAGE PLAYER MULTIPLIER, for the compose path below ─────────
+    #
+    # Cory, 2026-08-17: "The ceiling shouldn't be a calculated value?? It should
+    # be different depending on the player. That makes no sense."
+    #
+    # He was right and this is the pre-pass that lets it be fixed. REC-1's
+    # measured band sd was OVERWRITING player_variance rather than composing
+    # with it, so every player in a (position, rank-band) cell ended up with the
+    # SAME relative upside. Measured on the live board: within-cell variation in
+    # relative upside was 0.0006 — i.e. none. The bell-cow and the committee
+    # back the function above is written to separate had identical ceilings.
+    #
+    # The two quantities measure different things and belong multiplied:
+    #   * the band ratio sets the LEVEL   (how wrong projections are for a WR
+    #     ranked 33+ — measured, 1,304 player-seasons, worth keeping);
+    #   * player_variance sets the SPREAD (which players inside that band are
+    #     volatile — structural, and what was being destroyed).
+    #
+    # Normalising by the CELL AVERAGE is what keeps this honest: the mean sd
+    # inside every cell is preserved exactly, so the calibration is not
+    # overridden, only redistributed. We are not claiming to know better than
+    # the measurement about the level — only that the level is not the whole
+    # story about a player.
+    _cell_mults: dict[tuple, list[float]] = {}
+    _player_mult: dict[int, float] = {}
+    if pe is not None:
+        PE, _cal = pe
+        for p in players:
+            pid_ = str(p["player_id"])
+            v_, _w = player_variance(p, metrics.get(pid_) if metrics else None)
+            base_v = POSITION_VARIANCE.get(p.get("position") or "", 0.30)
+            m_ = (v_ / base_v) if base_v else 1.0
+            _player_mult[id(p)] = m_
+            _cell_mults.setdefault(
+                (p.get("position"), PE.band_of(rank_of.get(id(p)))), []).append(m_)
+    _cell_mean = {k: (sum(v) / len(v)) for k, v in _cell_mults.items() if v}
+
+    # ── PER-PLAYER TAILS FROM REALIZED VOLATILITY — prereg §2, wired 08-18 ──
+    #
+    # Cory: "fix!!!! floors and ceilings need to be corrected like I have
+    # agreed to." The construction is VOLATILITY-WIRING-PREREG.md §2 verbatim:
+    #     ceiling = proj_mean × p90_ratio[cell] × f(player_ratio)
+    #     floor   = proj_mean × p10_ratio[cell] / f(player_ratio)
+    #     player_ratio = cv_player / cv_cell_median   (realized 2025 weekly cv)
+    # f normalizes player_ratio by its cell mean — same discipline as the sd
+    # compose path above: the measured cell LEVEL is preserved (gate, tested),
+    # only redistributed among the players inside it. Within-cell p90/p10
+    # ceiling spread goes from exactly 1.0× to the measured 1.4–2.0×
+    # (ceiling_fix_blast_radius §2) — the field stops being a rescaled
+    # projection and starts carrying player-specific information, which is
+    # the single property every 08-17 finding said was missing.
+    _f_of: dict[int, float] = {}
+    if pe is not None and cfg.get("player_volatility_in_tails"):
+        PE, _cal = pe
+        cv_map = _weekly_cv_2025()
+        _cells_cv: dict[tuple, list[tuple[int, float]]] = {}
+        for p in players:
+            cv = cv_map.get(str(p["player_id"]))
+            if cv:
+                _cells_cv.setdefault(
+                    (p.get("position"), PE.band_of(rank_of.get(id(p)))),
+                    []).append((id(p), cv))
+        for _key, members in _cells_cv.items():
+            if len(members) < 2:
+                continue  # a 1-player median is the player himself: f ≡ 1
+            cvs = sorted(c for _, c in members)
+            n = len(cvs)
+            med = cvs[n // 2] if n % 2 else 0.5 * (cvs[n // 2 - 1] + cvs[n // 2])
+            if not med:
+                continue
+            raw = {i_: c / med for i_, c in members}
+            m = sum(raw.values()) / len(raw)
+            if not m:
+                continue
+            for i_, r in raw.items():
+                _f_of[i_] = r / m
+
+    for p in players:
+        pid = str(p["player_id"])
+        base = p.pop("_blend_base")
+        adj = p.pop("_blend_adj")
+        mean_proj = means[id(p)]
 
         var, var_why = player_variance(p, metrics.get(pid) if metrics else None)
         games = EXPECTED_GAMES.get(p["position"], 15.0)
@@ -231,22 +429,200 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         # per-player is what stops ceiling - mean collapsing into a constant
         # multiple of the mean, which is what made UpsideBonus inert.
         season_sd = mean_proj * var
+        sd_source = "position_variance"
+        # REC-1: the measured cell overrides the hand-set constant wherever one
+        # was measured. `variance` is re-derived from the applied sd so the
+        # board identity proj_sd == proj_mean × variance keeps holding.
+        ceiling_m, ceiling_source = None, "gaussian_z"
+        floor_m, floor_source = None, "gaussian_z"
+        if pe is not None:
+            PE, cal = pe
+            rank = rank_of.get(id(p))
+            sd_m, status = PE.proj_sd_for(cal, p.get("position"), rank, mean_proj)
+            if status == "measured" and sd_m is not None and mean_proj > 0:
+                band = PE.band_of(rank)
+                season_sd = sd_m
+                sd_source = "measured-2023-25-error"
+                band_why = ("sd level from measured 2023-25 projection error, "
+                            f"band {p.get('position')}|{band} (REC-1, applied "
+                            "under Cory's ruling; PROJ-SD-DECISION-ARM.md)")
+                # COMPOSE, DON'T CLOBBER — Cory's 2026-08-17 fix. Scale the
+                # measured band level by this player's own multiplier relative
+                # to his cell, so the cell mean is unchanged and the players
+                # inside it stop being interchangeable. Gated with the ceiling
+                # work: both are ungraded changes to a field engine.js reads.
+                rel = None
+                if cfg.get("player_spread_in_sd"):
+                    cmean = _cell_mean.get((p.get("position"), band))
+                    if cmean:
+                        rel = _player_mult.get(id(p), 1.0) / cmean
+                # THE REASONS SURVIVE UNCONDITIONALLY, and that is separate from
+                # whether the sd moves. Clobbering var_why was a pure
+                # information loss with no statistical claim attached to it —
+                # the war room's Why? panel was left asserting a ceiling with no
+                # account of why — so restoring it needs no measurement and is
+                # not gated. The MAGNITUDES are a different question and they
+                # are gated, because they are a claim.
+                #
+                # The wording distinguishes the two states on purpose. With the
+                # flag off these traits are TRUE OF THE PLAYER but NOT IN THE
+                # NUMBER, and a bare "spread: rookie" beside an unchanged sd
+                # would imply otherwise.
+                player_why = list(var_why)
+                if rel:
+                    season_sd = sd_m * rel
+                    sd_source = "measured-band-x-player-spread"
+                    var_why = [band_why] + [f"spread: {w}" for w in player_why]
+                else:
+                    var_why = [band_why] + [
+                        f"not in the sd (modifier unmeasured): {w}"
+                        for w in player_why]
+                var = season_sd / mean_proj
+            # THE OTHER HALF OF REC-1, WHICH WAS NEVER WIRED (found 2026-08-17).
+            # `proj_sd_for` was applied above the day REC-1 landed; its sibling
+            # `proj_ceiling_for` — measured, shipped, and carrying a docstring
+            # that states this exact defect — was left uncalled, so the ceiling
+            # went on being `mean + 1.036*sd`. That is a SYMMETRIC Gaussian over
+            # a distribution the same calibration measures as violently skewed,
+            # and the skew runs the opposite way in the deep bands: QB|33+ has
+            # p50 0.165 and p90 1.094, so a big sd manufactures a huge ceiling
+            # for players whose realized outcomes pile up near zero.
+            #
+            # MEASURED CONSEQUENCE of wiring it, on this board (533 rows move):
+            #     band 1-3    median  +16.7      band 17-32  median  +14.7
+            #     band 4-8    median  +29.6      band 33+    median   -7.5
+            # The Gaussian was INVENTING upside for deep players and hiding it
+            # in the early ones — which independently reproduces the barbell
+            # pass's finding that anchors out-ceiling swings with zero overlap,
+            # and supplies the mechanism for it.
+            #
+            # NONE OF THIS MOVES A RECOMMENDATION TODAY: engine.js ships
+            # `ceiling: 0.0`. It is a correctness fix to the field, and the
+            # question of whether the weight should come off zero is Cory's,
+            # gated on the harness arm — deliberately kept separate, because
+            # fixing a number and then acting on it in one step means never
+            # learning which of the two did the work.
+            # GATED OFF BY DEFAULT, AND NOT OUT OF TIMIDITY — proj_ceiling is
+            # NOT an inert field. engine.js's bench branch ranks on
+            # `proj_ceiling - proj_mean`, so changing this number changes real
+            # bench recommendations even though the composite's `ceiling` WEIGHT
+            # is 0.0. Landing it hot would let the nightly rebuild ship a
+            # behaviour change five days before the draft with nobody having
+            # graded it. Flip `use_measured_ceiling` in league_config.json to
+            # turn it on — one value, same reversibility pattern as
+            # opportunity_cap.
+            if cfg.get("use_measured_ceiling"):
+                cm, cstatus = PE.proj_ceiling_for(cal, p.get("position"), rank, mean_proj)
+                if cstatus == "measured" and cm is not None and mean_proj > 0:
+                    # Prereg §2: modulate the measured cell p90 by this
+                    # player's own realized-volatility ratio. A player with no
+                    # 2025 cv keeps the CELL constant (absent stays absent),
+                    # and the _source stamp names which construction he got —
+                    # one field name must never hold two quantities silently.
+                    #
+                    # 4w (D9 ruling, 08-18): the raw f is a WEEKLY ratio and a
+                    # season is the sum of ~G weeks, so applying f unscaled
+                    # put 31 physically impossible ceilings on the board
+                    # (Gibbs 679 vs a best-ever RB season ≈437). Rescaled:
+                    # season spread shrinks by at most √G under independence,
+                    # so 1+(f−1)/√G is the conservative per-player form —
+                    # keeps the 4j repair, kills the impossible numbers.
+                    f_ = _f_of.get(id(p))
+                    if f_:
+                        f_season = 1.0 + (f_ - 1.0) / (games ** 0.5)
+                        ceiling_m = cm * f_season
+                        ceiling_source = "measured-2023-25-p90-x-player-cv"
+                        var_why = var_why + [
+                            "tails: realized 2025 weekly cv x%.3f vs cell, "
+                            "season-rescaled /sqrt(%d) to x%.3f (prereg §2 + 4w)"
+                            % (f_, int(games), f_season)]
+                    else:
+                        ceiling_m, ceiling_source = cm, "measured-2023-25-p90"
+                    # 4w sanity rail, measured not assumed: no stated ceiling
+                    # may exceed the best season actually recorded at the
+                    # position in our own 2023-25 stores (league scoring)
+                    # plus 20% record-breaking headroom. Nothing asserted
+                    # this before, which is exactly why 679 shipped.
+                    cap = PLAUSIBILITY_CEILING.get((p.get("position") or "").upper())
+                    if ceiling_m is not None and cap and ceiling_m > cap:
+                        var_why = var_why + [
+                            "ceiling capped at %.0f: best realized %s season "
+                            "2023-25 + 20%% (4w rail)" % (cap, p.get("position"))]
+                        ceiling_m = cap
+                # THE FLOOR HAS THE SAME DEFECT AND IT IS WORSE. `mean - 0.674*sd`
+                # is a symmetric Gaussian over an asymmetric distribution, wrong by
+                # more than 0.15 of the projection in 16 of 20 measured cells. The
+                # deep bands are not close: WR|33+ is told his floor is 0.656 x
+                # projection against a measured 10th percentile of 0.049, and
+                # QB|33+ 0.584 against -0.001. Since the same formula also inflated
+                # their ceilings, the board flattered deep players on BOTH tails —
+                # which is precisely what makes a late flier look like a free roll.
+                # Rides the same flag: one construction, one defect, one switch.
+                fm, fstatus = PE.proj_floor_for(cal, p.get("position"), rank, mean_proj)
+                if fstatus == "measured" and fm is not None and mean_proj > 0:
+                    # Same f, divided: a volatile player's floor drops as his
+                    # ceiling rises. Note the deliberate asymmetry with the
+                    # ceiling: dividing preserves the cell's floor level only
+                    # approximately (E[1/f] ≥ 1), which the prereg accepts by
+                    # construction — the exact-preservation gate is on f
+                    # itself, verified where f is BUILT, not here.
+                    f_ = _f_of.get(id(p))
+                    if f_:
+                        # Same 4w season-rescale as the ceiling: one f, one
+                        # scale correction, divided instead of multiplied.
+                        floor_m = fm / (1.0 + (f_ - 1.0) / (games ** 0.5))
+                        floor_source = "measured-2023-25-p10-x-player-cv"
+                    else:
+                        floor_m, floor_source = fm, "measured-2023-25-p10"
 
         p["proj_baseline"] = round(base, 2)
         p["opportunity_z"] = round(z.get(pid, 0.0), 2)
         p["opportunity_adj"] = round(adj, 4)
         p["proj_mean"] = round(mean_proj, 2)
-        p["proj_floor"] = round(max(0.0, mean_proj + FLOOR_Z * season_sd), 2)
-        p["proj_ceiling"] = round(mean_proj + CEILING_Z * season_sd, 2)
+        # max(0, ...) stays: a negative floor is not a football outcome. Note the
+        # measured p10 for QB|33+ is itself -0.001, i.e. the clamp is doing real
+        # work rather than decorating.
+        p["proj_floor"] = round(max(0.0, floor_m if floor_m is not None
+                                    else mean_proj + FLOOR_Z * season_sd), 2)
+        p["proj_floor_source"] = floor_source
+        # Absent stays absent: an unmeasured band keeps the Gaussian rather than
+        # silently receiving a filled-in p90, and `proj_ceiling_source` is how a
+        # consumer tells the two apart — the same rule proj_sd_source follows,
+        # and the rule whose absence let `0.25 * proj_mean` reach the board once.
+        p["proj_ceiling"] = round(
+            ceiling_m if ceiling_m is not None else mean_proj + CEILING_Z * season_sd, 2)
+        p["proj_ceiling_source"] = ceiling_source
         p["proj_sd"] = round(season_sd, 2)
+        p["proj_sd_source"] = sd_source
         p["variance"] = round(var, 4)
         p["variance_why"] = var_why
         p["weekly_sd"] = round(season_sd / (games ** 0.5), 2)
         p["games_expected"] = games
+        # EVERY COMPUTED OPPORTUNITY FIELD IS RETAINED (2026-08-17). This block
+        # used to write THREE of the NINE that opportunity_metrics computes, so
+        # air_yards_share, adot, rz_targets, carries, gl_carries and rz_share
+        # were derived from play-by-play, consumed inside composite_z, and then
+        # dropped at the board's edge — 0 of 682 rows.
+        #
+        # The most expensive one is rz_share. Because it never reached an
+        # artifact, opportunity_inheritance_2026-08-17.md had to report that
+        # "red-zone vacancy is not measured at all" and drop that arm. It WAS
+        # measured. It was not kept. Retaining it costs nothing and is the
+        # difference between a study that can run and one that cannot.
+        #
+        # ABSENT STAYS ABSENT: a player with no play-by-play row gets None on
+        # every field rather than 0.0, because a rookie with no NFL snaps and a
+        # veteran measured at exactly zero share are different facts. (The three
+        # legacy fields keep their 0.0-when-present behaviour so no existing
+        # consumer changes; only their absence is now honest.)
         m = metrics.get(pid, {})
         p["wopr"] = round(m.get("wopr", 0.0), 3) if m else None
         p["target_share"] = round(m.get("target_share", 0.0), 3) if m else None
         p["opportunity_share"] = round(m.get("opportunity_share", 0.0), 3) if m else None
+        for _k, _nd in (("air_yards_share", 3), ("adot", 2), ("rz_share", 3),
+                        ("rz_targets", 2), ("carries", 2), ("gl_carries", 2)):
+            _v = m.get(_k) if m else None
+            p[_k] = round(float(_v), _nd) if _v is not None else None
     return players
 
 

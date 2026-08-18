@@ -1,0 +1,6 @@
+{
+ "_territory": "TERRITORY: A — read by draft/weekly_own_projection.py and draft/weekly_own_grade.py",
+ "_note": "Cory's adaptation controls for the weekly own-projection loop. auto_adapt=false holds mechanical promotions (grading continues); champion_override pins the champion column to a named active arm and pauses the rule while it stands. Contract: draft/data/weekly_own/README.md. Change by commit, on Cory's word — the commit IS the record.",
+ "auto_adapt": true,
+ "champion_override": null
+}
