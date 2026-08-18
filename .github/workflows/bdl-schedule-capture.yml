@@ -68,7 +68,7 @@ jobs:
                   except urllib.error.HTTPError as e:
                       # 429 is the free tier's rate limit, not a refusal — back off.
                       if e.code == 429:
-                          time.sleep(2 * (attempt + 1)); continue
+                          time.sleep(15 * (attempt + 1)); continue  # 5/min limit: back off past a full window
                       return e.code, {"error": e.read(200).decode("utf-8", "ignore")}
                   except Exception as e:
                       return 0, {"error": type(e).__name__}
@@ -89,7 +89,11 @@ jobs:
               print(f"  page {pages}: +{len(batch)} games (total {len(games)})")
               if not cursor or not batch:
                   break
-              time.sleep(0.4)
+              # Cory, 2026-08-18: BDL free tier is 5 REQUESTS/MINUTE (and 500k/month).
+              # 0.4s was 150/min — it only survived because 272 games fit in 3 pages.
+              # 12s is the documented rate, and the monthly budget is effectively
+              # unlimited for this use, so pace rather than race.
+              time.sleep(12)
 
           def team(t):
               return (t or {}).get("abbreviation") or (t or {}).get("full_name")
