@@ -282,24 +282,7 @@ function main() {
    *
    * The BLOCKED count deliberately still reads only `ROUTES.md` — an archived
    * item is not in anybody's inbox, so it cannot be blocking anybody. */
-  let censusItems = items;
-  try {
-    censusItems = items.concat(parse(fs.readFileSync(
-      path.join(ROOT, 'ROUTES-ARCHIVE.md'), 'utf8')));
-  } catch (e) { /* no archive yet — the census is simply ROUTES.md */ }
-
-  const pairs = {};
-  censusItems.forEach(function (i) {
-    if (!i.section) return;
-    //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
-    //: keying on it raw prints "relay → A → A" and splits one pair into two.
-    const from = i.who.replace(/\s*→.*$/, '').trim();
-    const k = from + ' → ' + i.section;
-    (pairs[k] = pairs[k] || { n: 0, done: 0, noDefault: 0 });
-    pairs[k].n++;
-    if (i.done) pairs[k].done++;
-    else if (!hasDefault(i)) pairs[k].noDefault++;
-  });
+  const pairs = closureByPair(items);
   const big = Object.keys(pairs).filter(k => pairs[k].n >= 5)
     .sort((a, b) => (pairs[a].done / pairs[a].n) - (pairs[b].done / pairs[b].n));
   if (big.length) {
@@ -410,7 +393,40 @@ function main() {
   return 0;
 }
 
+
+/* THE CLOSURE CENSUS, AS ONE FUNCTION BOTH THE TOOL AND ITS TEST CALL.
+ *
+ * It was inline in `main()`, and the test re-implemented it — over `ROUTES.md`
+ * ALONE. So when the archive move landed, the tool was fixed and the test was
+ * not, and `routes_response_check.test.js` sat red on four pairs
+ * (`A → A`, `A → B`, `C → A`, `C → B`) reporting a regression that had not
+ * happened: the closures were in the other file.
+ *
+ * Two copies of one rule is the defect. There is now one copy, exported.
+ */
+function closureByPair(items, rootDir) {
+  let censusItems = items;
+  try {
+    censusItems = items.concat(parse(fs.readFileSync(
+      path.join(rootDir || ROOT, 'ROUTES-ARCHIVE.md'), 'utf8')));
+  } catch (e) { /* no archive yet — the census is simply ROUTES.md */ }
+
+  const pairs = {};
+  censusItems.forEach(function (i) {
+    if (!i.section) return;
+    //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
+    //: keying on it raw prints "relay → A → A" and splits one pair into two.
+    const from = i.who.replace(/\s*→.*$/, '').trim();
+    const k = from + ' → ' + i.section;
+    (pairs[k] = pairs[k] || { n: 0, done: 0, noDefault: 0 });
+    pairs[k].n++;
+    if (i.done) pairs[k].done++;
+    else if (!hasDefault(i)) pairs[k].noDefault++;
+  });
+  return pairs;
+}
+
 module.exports = { parse, hasDefault, noAsk, broadcastKeys, isBroadcast, ageDays,
-  blocked, byLane, RESPOND_BY_DAYS, main };
+  blocked, byLane, closureByPair, RESPOND_BY_DAYS, main };
 
 if (require.main === module) process.exit(main());

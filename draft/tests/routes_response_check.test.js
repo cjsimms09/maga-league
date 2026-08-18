@@ -241,15 +241,22 @@ function item(date, done, body) {
     Object.values(bl.closure_by_pair).filter(v => v.done > 0).length);
 
   /* FAIL ARM — the regression the ratchet exists for, simulated. */
+  /* ⚠️ USE THE TOOL'S OWN CENSUS, NOT A SECOND COPY OF IT.
+   *
+   * This block used to re-implement the count over `ROUTES.md` ALONE. The tool
+   * counts across `ROUTES.md` AND `ROUTES-ARCHIVE.md` — deliberately, because an
+   * archived item is still CLOSED and "I archived it" must not be able to
+   * silence the ratchet.
+   *
+   * When the 101-item archive move landed on 08-18 the tool was fixed and this
+   * copy was not, so these two checks went red on `A → A`, `A → B`, `C → A` and
+   * `C → B`, reporting a regression that had not happened — the closures were
+   * simply in the other file. A test that disagrees with the tool it guards is
+   * worse than no test: it teaches the next reader that red means nothing.
+   *
+   * One definition now, exported, called by both. */
   const live = R.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'ROUTES.md'), 'utf8'));
-  const now = {};
-  live.forEach(i => {
-    if (!i.section) return;
-    const k = i.who.replace(/\s*→.*$/, '').trim() + ' → ' + i.section;
-    (now[k] = now[k] || { n: 0, done: 0 });
-    now[k].n++;
-    if (i.done) now[k].done++;
-  });
+  const now = R.closureByPair(live);
   const regressedAgainst = b => Object.keys(b)
     .filter(k => (now[k] ? now[k].done : 0) < b[k].done);
 
@@ -270,6 +277,24 @@ function item(date, done, body) {
     + 'unit is a count and not a rate',
   regressedAgainst(moreFiled).length === 0, regressedAgainst(moreFiled).join(', '));
 }
+
+/* CONTROL — the shared census must actually be reading the archive, or the two
+ * checks above are green for the wrong reason: a census that silently found no
+ * archive would agree with the old broken copy and prove nothing. */
+check('CONTROL — the closure census really does span BOTH files, which is the '
+  + 'whole reason archiving cannot silence the ratchet',
+(function () {
+  const fs = require('fs');
+  const path = require('path');
+  const routesOnly = R.parse(fs.readFileSync(
+    path.join(__dirname, '..', '..', 'ROUTES.md'), 'utf8'));
+  const spanning = R.closureByPair(routesOnly);
+  //: point it at a directory with no archive and the count MUST drop
+  const noArchive = R.closureByPair(routesOnly, path.join(__dirname, 'no-such-dir'));
+  const totalSpanning = Object.values(spanning).reduce((s, v) => s + v.done, 0);
+  const totalAlone = Object.values(noArchive).reduce((s, v) => s + v.done, 0);
+  return totalSpanning > totalAlone;
+})(), 'the census counted the same either way — it is not reading the archive');
 
 console.log('\n' + pass + '/' + (pass + fail) + ' routes-response checks passed');
 assert.strictEqual(fail, 0);
