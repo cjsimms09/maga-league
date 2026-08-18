@@ -42,6 +42,17 @@ Every clause of that is doing work:
 (`/admin/model-scoreboard`, `model_accuracy_v6.json`); the bar above is what it is
 now graded AGAINST.**
 
+**AND ONE SCALE CHANGES — the SEASON-LEVEL self-grade is ALL-PLAY, not W-L.**
+Ruled 2026-08-18 (A, from Cory's leeger find). Raw record pollutes the model's
+grade with schedule luck: the tool could build a genuinely better roster and go
+6-8 on matchups, or a worse one and go 9-5. The season grade is therefore the
+roster's ALL-PLAY record (vs every score in the league, every week — leeger's
+AWAL/Smart Wins construction, computed on our own committed weekly points) with
+raw W-L REPORTED beside it, never graded against. This changes nothing above:
+the weekly bar (start/sit, head-to-head, our scoring, published-only) was
+already luck-free by construction — points against a projection have no
+schedule. Only the season-summary number moves.
+
 ## 2. WHAT WE PREDICT — four quantities, not one
 
 Cory named them: **ceiling, floor, volatility** — and the point projection under them.
