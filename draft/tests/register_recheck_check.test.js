@@ -180,4 +180,63 @@ ok('the LIVE register has no row wearing a tick that means "not finished"', () =
     + invisible.map(r => r.id.trim()).join(', '));
 });
 
-console.log(`\n${pass}/15 checks passed`);
+
+ok('FAIL ARM — a row whose date was MOVED must enforce the new date, not the '
+  + 'first one written', () => {
+  /* Dates get moved — CLAUDE.md says owners may, with a reason — and a move is
+   * recorded by ANNOTATING the row, so the superseded date is still sitting in
+   * the text, earlier in the line. `recheckOf` takes the FIRST match, so an
+   * appended new date loses to the old one and the row fires on a date its owner
+   * already retired.
+   *
+   * Found live on 08-18: rows 4x (08-19 vs 08-20) and 21b (08-18 vs 08-23).
+   * Both happened to resolve to the EARLIER date, which is the safe direction —
+   * but relying on that is luck, not design. Fixed in the DATA, by writing the
+   * superseded one as "recheck WAS 08-19", which this regex deliberately does
+   * not match. */
+  const md = [
+    '| # | what | owner | status | next action |',
+    '| 21b | a thing | A | OPEN | owner A, recheck WAS 08-18 — replaced. recheck 08-23 |',
+  ].join('\n');
+  const a = R.audit(md, '2026-08-19');
+  assert.strictEqual(R.recheckOf(a.open[0]), '2026-08-23',
+    'the retired date won: ' + R.recheckOf(a.open[0]));
+  assert.strictEqual(a.overdue.length, 0,
+    'the row fired on a date its owner had already moved');
+});
+
+ok('CONTROL — "recheck WAS" is the ONLY escape, so a row cannot retire a date '
+  + 'it still means', () => {
+  const md = [
+    '| # | what | owner | status | next action |',
+    '| 9 | a thing | A | OPEN | recheck 08-18, and we should recheck 08-23 too |',
+  ].join('\n');
+  //: two LIVE dates, neither retired — the first still governs, and the row is
+  //: overdue. If this ever returned 08-23 the "WAS" convention would be
+  //: unnecessary and the fix above would be papering over a looser rule.
+  const a = R.audit(md, '2026-08-19');
+  assert.strictEqual(R.recheckOf(a.open[0]), '2026-08-18');
+  assert.strictEqual(a.overdue.length, 1);
+});
+
+ok('the LIVE register enforces one unambiguous date per open row', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const text = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'DEFECT-REGISTER.md'), 'utf8');
+  const a = R.audit(text, '2026-08-18');
+  /* Any open row carrying two DIFFERENT live dates is a row where the build's
+   * behaviour depends on word order. Retired dates must say "recheck WAS". */
+  const ambiguous = a.open.filter(r => {
+    const seen = new Set();
+    const re = /recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/gi;
+    let m;
+    while ((m = re.exec(r.all)) !== null) seen.add(m[2] + '-' + m[3]);
+    return seen.size > 1;
+  });
+  assert.strictEqual(ambiguous.length, 0,
+    'open rows with two live recheck dates — write the retired one as '
+    + '"recheck WAS MM-DD": ' + ambiguous.map(r => r.id.trim()).join(', '));
+});
+
+console.log(`\n${pass}/18 checks passed`);
