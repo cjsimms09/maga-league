@@ -31,6 +31,14 @@ TPRR and snap share both *persisted* — and both persistences were inherited.
 
 **`cv` survives 2 of 2. Raw `sd` survives 0 of 2.**
 
+> **CALIBRATION ADDED AFTER THE FACT, AND IT WEAKENS ONE OF THESE.** Measured on
+> synthetic data with zero true trait (n=300, 40 seeds): the partial statistic is
+> **unbiased** (mean −0.001) but **spreads about ±0.13**. So **the 2023→24 cell
+> at +0.133 sits on the noise floor and is weak on its own** — it is the 2024→25
+> cell at **+0.264** that carries this result, plus the fact that both point the
+> same way while `sd` points at nothing in either. **Read replication over size.**
+> `collinearity_check.NOISE_SPREAD_AT_N300`.
+
 ## What that means, and it is actionable before anything ships
 
 1. **There is a real, level-independent, persistent player volatility trait.**

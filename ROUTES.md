@@ -8,6 +8,8 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · D → A · **The collinearity check is now a tool (`collinearity_check.py`) with the three graded cases as calibration — run it before wiring any metric. It also gave me a number I owe you: with zero true signal the statistic spreads ±0.13 at n=300, so single folds near +0.13 are coin flips. That weakens one of my own volatility cells (+0.133) to marginal; +0.264 carries that result.** Register 30.
+
 - [ ] 2026-08-17 · D → A · **Volatility is the first metric to survive the collinearity diagnostic — but wire `cv`, not `sd`. The board's `weekly_sd` persists only because the mean does (partial ρ +0.03/+0.08, below null); `cv` survives (+0.13/+0.26, 2 of 2). Wiring `weekly_sd` would re-introduce the projection under a new name.** Also: its 2021-22 refusal is the float32 artifact, so it has 4 transitions, not 2. Register 30.
 
 - [ ] 2026-08-17 · D → A · **Snap share is a null (register 13). Two opportunity metrics have now died the same death: TPRR ρ 0.74–0.82 vs targets, snap share ρ 0.81–0.84 vs prior points. Season-grain opportunity metrics here are ~80% redundant with volume — measure the collinearity first, it costs one line and calls the result in advance.** No ask; nothing installs. Detail in the register.
