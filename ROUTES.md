@@ -37,14 +37,16 @@
 
   | | QB | RB | WR | TE |
   |---|---|---|---|---|
-  | **draft-day** ρ, median of 3 pairs (2022→23, 23→24, 24→25) | 0.025 | **0.363** | 0.064 | −0.044 |
-  | pairs positive | 2/3 | **3/3** | 2/3 | 1/3 |
-  | **in-season** ρ, median of 4 seasons (wk 1-9 → 10-17) | **0.347** | **0.292** | **0.210** | **0.176** |
-  | seasons positive | 4/4 | 3/4 | 3/4 | 3/4 |
+  | **draft-day** ρ, median of 4 pairs (2021→22 … 2024→25) | 0.063 | **0.329** | 0.095 | −0.006 |
+  | pairs positive | 3/4 | **4/4** | 3/4 | 2/4 |
+  | **in-season** ρ, median of 5 seasons (wk 1-9 → 10-17) | **0.320** | **0.276** | **0.174** | **0.258** |
+  | seasons positive | 5/5 | 4/5 | 3/5 | 4/5 |
+
+  **⚠️ UPDATED AFTER I FIRST WROTE THIS ITEM, AND THE UPDATE IS THE POINT.** The table above originally read 3 pairs; the 2021→2022 schedule was captured *after* the first three pairs were computed, so it is a genuinely out-of-sample test of the RB result rather than another in-sample season. **It came in at 0.294 — positive, in family with the other three, holding RB at 4/4.** This is the opposite of what happened to pace, which went 0.194 then 0.024 on its second pair.
 
   Every ρ is reported against a **400-run label-shuffle null** (starred cells in the module's own output clear p≤0.05). 13 of 16 season-positions are positive on the in-season test — that is the bar a weekly projection actually faces, because it never has to survive an offseason.
 
-  **RECOMMENDATION.** Ship P57 as a weekly arm at all four positions, built from weeks 1..W−1 of the CURRENT season only — never last season's rating, which is precisely what the draft-day column says does not carry. Hold P58 (RB draft-day prior) until after the draft; a **2021→2022 pair is capturing now** as a genuine out-of-sample fourth test of it, and three pairs is only one more than pace had when pace looked real (0.194, then 0.024).
+  **RECOMMENDATION.** Ship P57 as a weekly arm at all four positions, built from weeks 1..W−1 of the CURRENT season only — never last season's rating, which is precisely what the draft-day column says does not carry. Hold P58 (RB draft-day prior) until after the draft — **the out-of-sample fourth pair has now landed and RB held at 4/4**, so this is a real result rather than a promising one, and that is exactly why it waits for a graded arm instead of a rush job four days out.
 
   **DEFAULT if you say nothing by 09-03 18:00 UTC:** relay builds P57's arm and routes it to you graded; P58 stays untouched.
 
