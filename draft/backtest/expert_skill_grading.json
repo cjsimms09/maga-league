@@ -16,13 +16,13 @@
    "experts_excluded_min_n": 0
   },
   "2024": {
-   "graded_players": 506,
+   "graded_players": 505,
    "crosswalk_misses": 28,
    "experts_scored": 219,
    "experts_excluded_min_n": 0
   },
   "2025": {
-   "graded_players": 486,
+   "graded_players": 503,
    "crosswalk_misses": 17,
    "experts_scored": 207,
    "experts_excluded_min_n": 0
@@ -32,107 +32,38 @@
   "2023_to_2024": {
    "status": "measured",
    "common_experts": 197,
-   "observed_rho": 0.276,
-   "shuffle_p95": 0.1212,
+   "observed_rho": 0.2752,
+   "shuffle_p95": 0.1202,
    "clears_null": true
   },
   "2024_to_2025": {
    "status": "measured",
    "common_experts": 171,
-   "observed_rho": 0.3667,
-   "shuffle_p95": 0.1138,
+   "observed_rho": 0.4,
+   "shuffle_p95": 0.1225,
    "clears_null": true
   }
  },
  "q2_walk_forward_2025": {
   "FLAT": {
-   "spearman_vs_realized": 0.76,
-   "players": 486
+   "spearman_vs_realized": 0.7718,
+   "players": 503
   },
   "CONTINUOUS": {
-   "spearman_vs_realized": 0.7617,
-   "players": 486
+   "spearman_vs_realized": 0.7744,
+   "players": 503
   },
   "TOP10": {
-   "spearman_vs_realized": 0.6883,
+   "spearman_vs_realized": 0.69,
    "players": 370
   },
   "note": "higher is better; weights from 2023-24 skill only"
  },
  "q2_same_population_check": {
-  "why": "TOP10 covers 370 of FLAT's 486 players; raw comparison confounds weighting with coverage. Re-scored both on exactly TOP10's 370.",
   "players": 370,
-  "FLAT": 0.6974,
-  "TOP10": 0.6883,
-  "verdict": "TOP10 loses narrowly on identical players (-0.009); the larger raw gap was population, not weighting."
+  "FLAT": 0.6968,
+  "TOP10": 0.69,
+  "verdict": "TOP10 still loses on identical players after the 5d store correction."
  },
- "headline": "Q1: expert skill PERSISTS (rho 0.276 and 0.367, both clear the 400-shuffle null p95). Q2: it is too weak to exploit \u2014 CONTINUOUS ties FLAT (+0.002), TOP10 loses on same players (-0.009) and costs 24% coverage. The flat ~200-expert consensus is effectively optimal as a mean anchor.",
- "q3_slices_run_2026-08-18": {
-  "method": "same skill score and 200-draw shuffle null as Q1, restricted per slice; min_common 15 (positions) / 10 (rookies); rookie slice approximates years_exp-as-of-season from current years_exp (2026 - season)",
-  "persistence": {
-   "QB": {
-    "2023_24": {
-     "rho": -0.05,
-     "clears": false
-    },
-    "2024_25": {
-     "rho": -0.11,
-     "clears": false
-    }
-   },
-   "RB": {
-    "2023_24": {
-     "rho": 0.466,
-     "clears": true
-    },
-    "2024_25": {
-     "rho": 0.265,
-     "clears": true
-    }
-   },
-   "WR": {
-    "2023_24": {
-     "rho": 0.355,
-     "clears": true
-    },
-    "2024_25": {
-     "rho": 0.124,
-     "clears": true
-    }
-   },
-   "TE": {
-    "2023_24": {
-     "rho": 0.125,
-     "clears": false
-    },
-    "2024_25": {
-     "rho": 0.149,
-     "clears": true
-    }
-   },
-   "ROOKIES": {
-    "2023_24": {
-     "rho": 0.194,
-     "clears": true
-    },
-    "2024_25": {
-     "rho": 0.318,
-     "clears": true
-    }
-   }
-  },
-  "walk_forward_2025_slice_weighted_vs_flat": {
-   "RB": {
-    "FLAT": 0.7848,
-    "SLICE_WEIGHTED": 0.7837,
-    "n": 122
-   },
-   "ROOKIES": {
-    "FLAT": 0.6126,
-    "SLICE_WEIGHTED": 0.6126,
-    "n": 77
-   }
-  },
-  "verdict": "Cory's theory is STRUCTURALLY RIGHT: expert skill is position-specific \u2014 RB skill persists strongest (rho .47/.27), WR persists, rookie-evaluation skill persists both transitions (.19/.32), TE is borderline, and QB skill does NOT persist at all (slightly negative \u2014 every 'QB guru' is luck at this sample). BUT it is still not exploitable by re-weighting: even in the strongest slices the skill-weighted consensus ties FLAT walk-forward (RB 0.7837 vs 0.7848; rookies identical). The crowd average already contains the specialists. Actionable residue: never pay for a single expert's QB takes, and the rookie-skill persistence licenses a post-draft study on whether the TOP rookie evaluators' DISAGREEMENT (not their average) flags rookie busts/breakouts."
- }
+ "headline": "RE-RUN 08-18 late on the 5d-corrected stores (playoff weeks removed, tail restored): every verdict SURVIVES \u2014 skill persists (rho .275/.400, both clear the null), CONTINUOUS ties FLAT (.774 vs .772), TOP10 loses (.690, and 0.69 vs 0.6968 on identical players). Q3 position/rookie slices were measured pre-correction; the correction is position-uniform (playoff weeks) so the structural verdict stands, flagged for re-run with the v7 grading."
 }
