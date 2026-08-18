@@ -1271,6 +1271,43 @@ router.get('/league-analysis', requireCory, aw(async (req, res) => {
   });
 }));
 
+// TEAM DEPTH CHARTS, ALL 32 (Cory, 2026-08-18: "we should always be looking or
+// thinking of new tools. ie depth chart tool for all 32 teams."). Data-ready,
+// not a build-from-scratch: every rostered player in draft_data.json already
+// carries `team` and `depth_chart_order` (confirmed 08-17 while answering
+// Cory's earlier ask for the SAME field on the drill-down, ROUTES.md item
+// "CORY'S NEXT TWO ASKS"). This just lays what's already on disk out by team.
+router.get('/depth-charts', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = {};
+  try { artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')); } catch (e) { artifact = {}; }
+  const POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+  const byTeam = {};
+  for (const p of (artifact.players || [])) {
+    if (!p || !p.team || p.team === 'FA') continue;
+    (byTeam[p.team] = byTeam[p.team] || []).push(p);
+  }
+  const teams = Object.keys(byTeam).sort().map(team => {
+    const byPos = {};
+    for (const pos of POS_ORDER) {
+      byPos[pos] = byTeam[team]
+        .filter(p => p.position === pos)
+        .sort((a, b) => {
+          const ao = a.depth_chart_order == null ? 999 : a.depth_chart_order;
+          const bo = b.depth_chart_order == null ? 999 : b.depth_chart_order;
+          return ao - bo;
+        })
+        .map(p => ({
+          name: p.name, order: p.depth_chart_order, injury: p.injury_status || null,
+          adp: p.adp != null ? Math.round(p.adp * 10) / 10 : null,
+          overallRank: p.overall_rank != null ? p.overall_rank : null,
+        }));
+    }
+    return { team, byPos };
+  });
+  res.render('admin/depth-charts', { teams, builtAt: artifact.built_at || null });
+}));
+
 // ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----
 // The fat-finger fix: reassign or void any owner's slot claim mid-process.
 // Atomic at the document level (one read-modify-write of the ONE claim doc),
