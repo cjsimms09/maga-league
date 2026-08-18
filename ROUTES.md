@@ -844,6 +844,33 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D14 — 🔑 THE BLEND REFUSAL'S FIRST REASON HAS EXPIRED. RE-OPEN IT AFTER THE DRAFT,
+> NOT BEFORE.** (ledger P39) Cory, 08-18: *"If we are better at RBs and WR shouldn't we
+> use our projections?"*
+> **STATE, VERIFIED ELEMENT-WISE TODAY:** `proj_mean` **== `proj_sleeper` for 608 of
+> 608 players**; provenance `"sources": ["sleeper"]`, `"blended": false`; `engine.js`
+> never reads `proj_ownmodel`. **Our own model reaches the value term not at all**,
+> and the gaps are real (McCaffrey own 195.2 vs Sleeper 256.0). Your 08-16 refusal is
+> documented and was right on its evidence — this is not a bug report.
+> **WHAT CHANGED:** your reason (1) was *"the control arm does not exist — Sleeper
+> published no pre-2026 preseason archive and none was ever captured here."*
+> **`sleeper_hist_proj.json` was captured after that verdict, and 2025 passes every
+> leak gate.** The question *"does it rank players better than Sleeper alone"* now has
+> a 2025 answer. Reasons (2) rookie-bloc veto and (3) 0.94 error correlation are
+> untouched and must be re-tested rather than assumed away.
+> **AND YOUR OWN VERDICT ALREADY POINTS AT CORY'S ACTUAL IDEA:** *"the thing that has
+> proven superior is the better single source, not a blend of sources."* He is not
+> asking for a blend — he is asking to **use ours where ours is better**. That is
+> per-position SELECTION, which sidesteps the correlation argument entirely, and the
+> indicative 2025 cells say the split is real but **narrower than he thinks: RB yes
+> (.7968 vs .7538/.7649), WR NO (.7634 loses to Sleeper .7724).**
+> **REC: re-open after 08-22 as per-position selection, gated on P37's
+> shared-population run** — selection off unequal populations is how you promote a
+> sampling artifact into the value term.
+> **DEFAULT: nothing changes before the draft, and that default is correct.**
+> `proj_mean` → `vorp` → board ORDER is the widest blast radius in the model, and one
+> season of unequal-population evidence is not the basis for touching it four days out.
+>
 > **D13 — 📏 THE ONE NUMBER CORY'S WHOLE 2027 GOAL RESTS ON DOES NOT EXIST YET, AND
 > WE ARE ONE FIELD AWAY FROM NEVER HAVING TO FETCH FOR IT AGAIN.** (ledger P37/P38)
 > **THE GOOD NEWS FIRST:** the stated limit is dead. `model_accuracy_2025.json` says
