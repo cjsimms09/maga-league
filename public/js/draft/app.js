@@ -10863,8 +10863,50 @@
 
   function dispersionCaveat(p, board) {
     if (!p || p.proj_mean == null) return '';
-    const fs = p.proj_floor_source, cs = p.proj_ceiling_source;
-    const measured = /^measured-/.test(String(fs || '')) || /^measured-/.test(String(cs || ''));
+    const fs = String(p.proj_floor_source || ''), cs = String(p.proj_ceiling_source || '');
+    const measured = /^measured-/.test(fs) || /^measured-/.test(cs);
+    /* ⚠️ A THIRD SOURCE APPEARED AND THIS CAVEAT WOULD HAVE LIED ABOUT IT
+     * (session E, 2026-08-18; register E30).
+     *
+     * When this was written the board had two dispersion constructions: the
+     * measured per-CELL p10/p90, and the older Gaussian. The 2026-08-17
+     * volatility wiring added a third — `…-x-player-cv` — which composes the
+     * cell ratio with the PLAYER's own measured variability. On today's board:
+     *
+     *     measured-2023-25-p90-x-player-cv   268 players   per-player
+     *     measured-2023-25-p90               267 players   cohort constant
+     *     gaussian_z                         161 players   Gaussian
+     *
+     * Both measured forms start with `measured-`, so the branch below treated
+     * all 535 alike and told the reader "every <POS> in that band carries the
+     * same multiple". **For the 268 with per-player CV that is false, and it is
+     * false in the direction that matters** — it tells him to discount a figure
+     * that is actually about this player.
+     *
+     * The whole point of this caveat is that a label must say what the number
+     * is. It stopped doing that the moment the number changed under it, which is
+     * the failure mode this lane exists to catch, arriving in my own code. */
+    const perPlayer = /-x-player-cv$/.test(fs) || /-x-player-cv$/.test(cs);
+    /* ⚠️ THIS MUST NOT RETURN EARLY, and my first cut did.
+     *
+     * Which CONSTRUCTION produced the number (cohort constant vs per-player CV)
+     * and which POPULATION picked the band (published availability rank vs the
+     * ruled full-universe rank) are INDEPENDENT facts. A per-player row can
+     * still have its band chosen by the full-universe rank, and that repricing
+     * note is the one A added after ruling E1. Returning early dropped it for
+     * 268 of 696 rows — replacing one false label with a missing one. Caught by
+     * this file's own repricing checks going red. */
+    var lead = null;
+    if (perPlayer) {
+      lead = '  ^ floor/ceiling here ARE player-specific: the ' + (p.position || '?')
+        + ' band\n    p10/p90 composed with THIS player\'s own measured variability\n'
+        + '    (source: ' + (/-x-player-cv$/.test(cs) ? cs : fs) + ').\n';
+      if (!/-x-player-cv$/.test(fs) || !/-x-player-cv$/.test(cs)) {
+        /* Only one tail was upgraded — say which, rather than implying both. */
+        lead += '    NOTE: only the ' + (/-x-player-cv$/.test(cs) ? 'CEILING' : 'FLOOR')
+          + ' carries that; the other is still the band constant.\n';
+      }
+    }
     /* An unmeasured band keeps the old Gaussian, and a reader must be able to
      * tell the two apart — that distinction is the whole reason the _source
      * fields were frozen (freeze_pre_draft.py). Calling a Gaussian a "cohort
@@ -10877,12 +10919,17 @@
     const pos = p.position || '?';
     const applied = appliedCohort(p, board);
     if (!applied) {
+      if (lead) return lead;   // per-player: the cohort sentence would be false
       return '  ^ floor/ceiling are a COHORT p10/p90 x this projection, not a\n'
         + '    forecast for this player.\n';
     }
-    let out = '  ^ floor/ceiling are the ' + pos + ' ' + applied.label + ' COHORT\'s measured\n'
+    /* PER-PLAYER rows keep their own lead sentence — saying "every POS in that
+     * band carries the same multiple" about a row composed with that player's
+     * OWN cv is exactly the false label this branch was fixed for. What they
+     * still need, and what returning early lost, is the repricing note below. */
+    let out = lead || ('  ^ floor/ceiling are the ' + pos + ' ' + applied.label + ' COHORT\'s measured\n'
       + '    p10/p90 (2023-25) x this projection — NOT a forecast for this player.\n'
-      + '    Every ' + pos + ' in that band carries the same multiple.\n';
+      + '    Every ' + pos + ' in that band carries the same multiple.\n');
     const rankBand = dispersionBand(p.pos_rank);
     if (rankBand && rankBand.label !== applied.label) {
       /* The full-universe repricing, visible at the point of use rather than
