@@ -7,6 +7,33 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · ⭐ **THE P56 OPPONENT GATE HAS RUN, AND IT SPLIT THE ARM IN TWO. ONE HALF GOES IN THE WEEKLY LOOP, THE OTHER IS RB-ONLY AND MUST NOT TOUCH THE BOARD BEFORE 08-22.** `draft/backtest/opponent_strength.py` + `opponent_strength.json`, 25 tests green.
+
+  **ASK.** Build the weekly opponent-adjustment arm (**P57**) into `own_weekly_v1`, graded on start/sit accuracy and MAE like every other arm. **Do NOT build the draft-day RB version (P58) before 08-22** — the no-change-before-draft rule stands and this is four days out.
+
+  **EVIDENCE.** Opponent strength is the one new axis the 08-18 prior-art sweep did not already find inside the champion — `own_model_v5.py` carries usage `share`, `pace_lam`, xFP efficiency and a Vegas tilt, which is exactly why `pace_arm.json` and `advanced_efficiency_study.json` both came back `clears: false`. There is no opponent term anywhere in the model, and `prior_art.py --grep opponent` still returns nothing.
+
+  The gate is C's pace test, applied unchanged, because pace is the precedent: real within-band signal, ruled out on persistence alone. Ratings are `mean(points - that player's mean in his OTHER games that season)` per (defence, position) — a same-player, different-defence comparison, so a unit that faced six elite offences is not scored as bad. 32 defences rated at all four positions, every season, `MIN_GAMES 6`.
+
+  | | QB | RB | WR | TE |
+  |---|---|---|---|---|
+  | **draft-day** ρ, median of 3 pairs (2022→23, 23→24, 24→25) | 0.025 | **0.363** | 0.064 | −0.044 |
+  | pairs positive | 2/3 | **3/3** | 2/3 | 1/3 |
+  | **in-season** ρ, median of 4 seasons (wk 1-9 → 10-17) | **0.347** | **0.292** | **0.210** | **0.176** |
+  | seasons positive | 4/4 | 3/4 | 3/4 | 3/4 |
+
+  Every ρ is reported against a **400-run label-shuffle null** (starred cells in the module's own output clear p≤0.05). 13 of 16 season-positions are positive on the in-season test — that is the bar a weekly projection actually faces, because it never has to survive an offseason.
+
+  **RECOMMENDATION.** Ship P57 as a weekly arm at all four positions, built from weeks 1..W−1 of the CURRENT season only — never last season's rating, which is precisely what the draft-day column says does not carry. Hold P58 (RB draft-day prior) until after the draft; a **2021→2022 pair is capturing now** as a genuine out-of-sample fourth test of it, and three pairs is only one more than pace had when pace looked real (0.194, then 0.024).
+
+  **DEFAULT if you say nothing by 09-03 18:00 UTC:** relay builds P57's arm and routes it to you graded; P58 stays untouched.
+
+  **TWO BUGS FOUND BUILDING THIS, BOTH FIXED, BOTH RELEVANT TO YOUR OTHER JOINS:**
+  1. **BDL numbers the playoffs 1..5, not 19..22.** Folding a schedule into a `(team, week)` map without dropping `postseason` overwrites the regular-season week-1 opponent for all 14 playoff teams — and a `week in 1..17` filter *cannot* catch it, because the collision happens inside that range. Nothing looks wrong afterwards.
+  2. **A three-way team-code disagreement.** BDL says `WSH`/`LAR`; `component_stats` says `WAS`/`LA`. Raw joining silently drops Washington and the Rams as offences — **614 player-games across 2024-25** — while still rating all 32 defences, so the coverage numbers look healthy. Fixed by importing `draft/adp.py`'s `TEAM_ALIASES` rather than typing a fourth copy; a test asserts the identity so a private copy cannot reappear.
+
+  **AND ONE THAT IS YOURS-OR-C'S, FILED AS REGISTER 33 / P59:** `component_stats_2025.json` and `nflverse_weekly_points_2025.json` **do not cover the same players** — 1,067 of 5,752 player-games have no score, 347 distinct players, WR/TE-heavy. **The same join on 2024 drops exactly 0.** Both files self-report `coverage.complete: true` with 100% field population; the gap exists only *between* them, which is where no artifact-level check looks. Any 2025 study joining them is working on 81% of the population, and the missing 19% is the low-usage tail rather than a random sample.
+
 - [x] 2026-08-15 · this session · ✅ **MONDAY IS ONE COMMAND, THEN ONE DECISION. `bash scripts/verify-relay-session.sh`** — every mechanical claim on this branch, checked: both full suites, artifact-vs-generator consistency (wire levels, sim run, opening-script fingerprint), a diff-proof that NO engine scoring default moved vs main, and the territory gate's refusal pinned to EXACTLY the 8 files documented as Override #5 in TERRITORY.md (a ninth trespass appearing later fails the script, so the expected refusal can never quietly grow). Green run = merge is a deliberate lane-gate bypass per Override #5's authorization trail, nothing to re-derive. The script also prints the two judgment calls that are yours/Cory's — evidence complete, decisions deliberately NOT made by the relay. Also cleared while pre-running your gate: 6 new files were missing TERRITORY headers (added, JSON emitters patched to keep them), and **the board_pin nightly blocker was NOT a live-data mystery** — it pinned working-tree bytes against HEAD mid-rebuild, failing exactly when the rebuild fetched fresh data; fixed with both arms proven (clean-tree equality contract byte-for-byte unchanged, mid-rebuild discrimination arm added), commit `a18d2b92`, cherry-picked to main so tonight's 08:00 rebuild is down to 2 genuinely-live-data blockers (Gronkowski dormant flag, replacement-sensitivity sign flip).
 - [x] 2026-08-14 · C · ✅ **THE INACTIVE PRUNE IS CLEARED — every reason I held it is now measured away, and the one-line un-hold is in your file.** I held it myself on 08-13 because I had verified DECISIONS, not DEPENDENTS, and simulating it turned five tests red. It is now **1 failure, and that one is an artifact of my simulation, proven not assumed.**
 - [x] 2026-08-14 · C · ✅ **CAVEAT 1 ON THE DURABILITY CARD IS NOW MOSTLY LIFTED, AND CAVEAT 3 IS GONE ENTIRELY.** I wrote both of them; this is me retiring them with measurements rather than leaving them to be worked around. They are the two that told you to distrust the numbers.
