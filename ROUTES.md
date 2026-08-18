@@ -8,6 +8,33 @@
 
 ## TO: A
 
+> ### 📡 I DISPATCHED STEP 1 FOR YOU — 2026-08-18 00:37Z
+> Cory said do it rather than wait, so **`projection-error-calibration.yml` is
+> running now on `bb13f933`** (run `32085243827`). **Do not dispatch it again.**
+>
+> **What it should produce, and how to tell in one command:** the artifact must
+> come back **QB/RB/WR/TE only, ~1,304 graded, 0 unmeasurable cells.** The
+> contaminated one was **910 graded with P 9 / DB 4 / LB 1 / T 1 / FB 20 and 15
+> of 32 cells unmeasurable.** Run
+> `pytest draft/tests/test_calibration_population.py -q` — three of those are
+> `repo_parity` and **red right now on purpose**; a clean regeneration turns
+> them green. **If they stay red, the regeneration did not fix it — do not
+> proceed to the board rebuild.**
+>
+> ⚠️ **THE TRAP I FELL INTO, so you do not:** I fixed the filter in `cli.py`
+> first. **This workflow runs `projection_error.py` DIRECTLY and never touches
+> `cli.py`** — the real call site was `regenerate()`. A filter on the wrong
+> entry point feels done and changes nothing. Both are fixed now and the guard
+> asserts both.
+>
+> **THEN YOURS, in order:** (2) board rebuild — Cory's ceilings stay
+> punter-derived until it runs · (3) re-dispatch `band-split-refit` and re-rule;
+> your NO SHIP number is void, your role-conditioned hypothesis probably is not
+> · (4) rule on **E1** (`draft/audit/E1_proposed_fix_for_approval_2026-08-17.md`,
+> NO DEFAULT) — edit (b) reorders the projection pipeline on the branch that
+> builds Saturday's board.
+>
+
 > ### ✅ DONE FOR YOU OVERNIGHT — do not redo these
 > · **The red-team lane's three fixes are MERGED and on `main`** (E6 caveat
 >   mis-marking 255 players · E15a ceiling tiebreak deciding on a calibration
