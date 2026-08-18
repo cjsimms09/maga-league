@@ -7,7 +7,7 @@
  * did anything else: proj_source_authority.test.js asserted a property of the
  * DATA and then only that projSourceMark EXISTS and is CALLED, never what it
  * returns. So an inverted condition in that function shipped, and every suite
- * stayed green (session E, 2026-08-17, register E6).
+ * stayed green (session E, 2026-08-18, register E6).
  *
  * WHAT IT PINS. Two rendered fields against the artifact, and the caveat's
  * MEANING: no row may render without a source mark, ¹ must mean "a second

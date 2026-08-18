@@ -1,6 +1,6 @@
 # E's fifteenth sweep — the floor and the ceiling are COHORT statistics, and the war room called them forecasts
 
-**Session E (red team), 2026-08-17.** Board: `public/draft_data.json`, 682 rows.
+**Session E (red team), 2026-08-18.** Board: `public/draft_data.json`, 682 rows.
 
 This sweep closes a gap **my own fourteenth sweep named and did not cover**:
 

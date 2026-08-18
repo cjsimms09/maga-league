@@ -1,6 +1,6 @@
 # E's eighteenth sweep — which suites grade a board no surface renders
 
-**Session E (red team), 2026-08-17.** Cory's standing instruction after the
+**Session E (red team), 2026-08-18.** Cory's standing instruction after the
 Nix/Purdy fix: *"make sure other issues like this dont exist."*
 
 Three of my last four findings were one shape — **an absent or wrong input

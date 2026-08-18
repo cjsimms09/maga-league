@@ -183,7 +183,7 @@ function depletedBoard(roster, round) {
 }
 
 /* THE WEIGHT VECTOR IS THE THIRD FIXTURE DEFECT IN THIS FILE, AND IT IS THE
- * SAME ONE TWICE ABOVE (session E, 2026-08-17; register E19).
+ * SAME ONE TWICE ABOVE (session E, 2026-08-18; register E19).
  *
  * The two notes above both say a version of: the fixture did not match a real
  * draft, so the sweep was green while the very bug it was built for sat in the

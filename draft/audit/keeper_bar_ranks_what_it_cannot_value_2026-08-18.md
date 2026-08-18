@@ -1,6 +1,6 @@
 # E's seventeenth sweep — the keeper bar ranks rows it cannot value, and fixing it moves A's published term table
 
-**Session E (red team), 2026-08-17.** Sibling of E17.
+**Session E (red team), 2026-08-18.** Sibling of E17.
 
 **⚠️ STATUS CHANGED THE SAME DAY. This was written as FILED-NOT-FIXED, because
 applying it moves a published claim in a document marked `TERRITORY: A`. I routed

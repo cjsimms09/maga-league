@@ -83,7 +83,7 @@ const WEIGHTS = (function () {
   return w;
 })();
 
-/* THE PICK BOARD IS THREADED TOO (session E, 2026-08-17; register E21).
+/* THE PICK BOARD IS THREADED TOO (session E, 2026-08-18; register E21).
  * This file's own header is the canonical record of a fixture that did not
  * match production -- the `|| undefined` weights. The pick board was the same
  * class, one dimension over: `app.js:2066` threads `pick_order.picks` into

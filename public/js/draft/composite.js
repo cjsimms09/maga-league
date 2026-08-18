@@ -217,7 +217,7 @@
      *
      * ⚠️ A ROSTER ENTRY WHOSE VALUE WE NEVER KNEW IS NOT A CANDIDATE, AND
      * COUNTING ONE AS THE WEAKEST INCUMBENT MAKES THE SCREEN ASSERT SOMETHING
-     * IT CANNOT KNOW (session E, 2026-08-17; register E18).
+     * IT CANNOT KNOW (session E, 2026-08-18; register E18).
      *
      * `nextYearVorp` reads `(player.vorp || 0)`, so an entry with no `vorp`
      * scores as worth exactly zero rather than unknown — and since the bar is
@@ -251,7 +251,7 @@
      * with three valued keepers the bar is `ranked[2]`, all three outrank any
      * valueless row, and the bar is identical before and after this change at
      * every one of his twelve picks. It can only bind when FEWER THAN `slots`
-     * roster entries carry a real value — e.g. if he locks two keepers on 08-20
+     * roster entries carry a real value — e.g. if he locks two keepers on 08-21
      * and an off-board pick lands on his roster.
      */
     const incumbents = [];

@@ -181,7 +181,7 @@ def keeper_ids(root=None) -> dict:
     MEASURED, not hypothetical: today 0 of the 3 real designations and 0 of the 17
     predicted are dormant, so nothing is broken. The safety rests entirely on the
     coincidence that nobody in this league is currently keeping a two-year
-    absentee, and keeper lock is 2026-08-20.
+    absentee, and keeper lock is 2026-08-21.
 
     ⚠ IT READS THE REAL DESIGNATIONS ONLY — `draft/config/keepers.json`, the same
     file `build.py:load_keepers` uses — and DELIBERATELY NOT

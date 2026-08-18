@@ -1,6 +1,6 @@
 # E's fourteenth sweep — "make sure other issues like this don't exist"
 
-**Session E (red team), 2026-08-17.** Cory's instruction after the Nix/Purdy fix.
+**Session E (red team), 2026-08-18.** Cory's instruction after the Nix/Purdy fix.
 This is the systematic answer, and it is a **negative result with the method
 stated** rather than an assurance.
 
