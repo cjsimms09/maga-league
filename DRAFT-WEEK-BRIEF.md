@@ -50,7 +50,11 @@ with a measured win is now live, none of it invented tonight.
 
 **All three of Cory's rulings are IN THE LIVE ENGINE:** adp_sd 0.11/2.0 (every
 band 0.95-1.02x market; backtest ordered, reversion armed), ceiling weight
-0.45 (measured inverted-U peak; top rec verified unchanged at Cory's picks),
+0.45 (inside the measured winning band — the 3-seed prereg has every engine-scale
+value 0.15-0.65 beating zero; "at the peak" was retired 08-18 when A checked the
+formulas: exp 21's λ=0.5 inverted-U peak multiplies the RAW spread while the
+engine weight multiplies a 0.15-scaled, 20-point-capped bonus, so the two scales
+never shared an axis. Top rec verified unchanged at Cory's picks),
 the ruled board itself published (first since 08-15; issue #8 auto-closed).
 
 **The war room is the tabbed COCKPIT, desktop-first, deployed and probe-verified**
