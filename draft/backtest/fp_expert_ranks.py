@@ -164,7 +164,29 @@ def parse(payload) -> dict:
         "non_rostered_dropped": non_rostered,
         "expert_names": (payload.get("expert_names")
                          if isinstance(payload, dict) else None) or {},
+        "source_meta": _source_meta(payload),
     }
+
+
+#: Payload fields that say WHEN and WHAT this ranking is. The first version of this
+#: file dropped all of them, which is register 22's defect ("we keep one scalar and
+#: discard the rest") reappearing in the fetcher written to fix it.
+#:
+#: ⚠️ `last_updated` IS LOAD-BEARING, NOT PROVENANCE TRIVIA. The entire grading plan
+#: compares a season's PRESEASON expert ranks against that season's realized points.
+#: If `?year=2025` returns ranks revised DURING or AFTER 2025, the arm is scored on
+#: hindsight and will look excellent while being worthless. `2025`'s top-15 reads as
+#: genuinely preseason by eye — Malik Nabers 7th and Brian Thomas Jr. 13th, both of
+#: whom would sit far lower under hindsight — but an eyeball is not a check, and the
+#: source hands us the timestamp for free.
+_META_FIELDS = ("last_updated", "last_updated_ts", "year", "week", "type",
+                "scoring", "ranking_type_name", "total_experts", "count")
+
+
+def _source_meta(payload) -> dict:
+    if not isinstance(payload, dict):
+        return {}
+    return {k: payload[k] for k in _META_FIELDS if k in payload}
 
 
 def coverage(store: dict) -> dict:
@@ -237,6 +259,11 @@ def run(year: int, timeout=60):   # pragma: no cover  (egress, CI only)
         "api_key_found": bool(key),
         "fetch_error": err,          # 4s: a failed fetch is recorded, never a shrug
         **store,
+        "hindsight_warning": (
+            "GRADING VALIDITY: `source_meta.last_updated` must predate the season this "
+            "store is for. If FP revised these ranks DURING or AFTER the season, any arm "
+            "scored on them is reading hindsight and will look excellent while being "
+            "worthless. Check it before grading, do not assume it."),
         "coverage": coverage(store),
     }
     p = store_path(year)
