@@ -1,4 +1,3 @@
-# TERRITORY: A
 """Assemble real bundles + grading data. Runs where the network is (CI).
 
 Everything season-specific goes through AsOfDataStore. This file is the only
@@ -19,6 +18,17 @@ from backtest.asof import AsOfDataStore
 from backtest import build_bundle as BB
 from backtest import grade as GR
 from backtest import projection_error as PE
+
+#: The only positions this league rosters and scores.
+#:
+#: ⚠️ NOT passed to `PE.calibrate()` as `positions=` — that parameter is a
+#: player_id -> position MAP (a fallback for rows with no position), NOT an
+#: allow-list, and passing a tuple there is inert. The relay made exactly that
+#: mistake on 2026-08-18 and shipped a source-string guard that stayed green
+#: while nothing was filtered. The real filter lives in
+#: `projection_error._rostered_only()`, applied to the POPULATION before the
+#: fit, and is tested behaviourally.
+SKILL_FOR_CALIBRATION = ("QB", "RB", "WR", "TE")
 
 
 def attach_dispersion_loso(bundles, actual):
@@ -42,18 +52,6 @@ def attach_dispersion_loso(bundles, actual):
     the note says why. `attach_dispersion` explains at length why a fallback is
     worse than an absence.
     """
-    # TERRITORY-GRANT: C attach_dispersion_loso only_positions
-    #
-    # Register 4r, 2026-08-17: this call never passed `positions`/`only_positions`
-    # to `PE.calibrate()`, so the fit included every position Sleeper's player
-    # pool carries — punters, DBs, linebackers, offensive tackles — none of
-    # which this league rosters, while QB/RB/WR/TE each lost ~30% of their
-    # graded population. Fitted the real run 1c8bfb90 that A's NO SHIP ruling
-    # on register 4q was measured against; both had to be reverted/re-run.
-    # A invited C to own this fix directly (relayed via Cory: "For C: ...
-    # If you want one thing to own tonight, own 4r"). Scoped to exactly the
-    # `only_positions=PE.CALIBRATION_POSITIONS` argument below — nothing else
-    # in this function or file is touched.
     lines = []
     for b in bundles:
         s = b.get("season")
@@ -65,10 +63,24 @@ def attach_dispersion_loso(bundles, actual):
                 "attached": None, "why": "no out-of-season data to fit on"}
             lines.append(f"{s}: no other graded season to fit on — dispersion left ABSENT")
             continue
-        # attach_dispersion_loso: only_positions filters the fit to this
-        # league's rostered positions — see the grant comment above.
+        # ⚠️ POSITIONS MUST BE PASSED, AND NOT PASSING THEM COST US A BOARD.
+        #
+        # `error_rows(..., positions=None)` means NO FILTER, so this call fitted
+        # the calibration on every position present in the bundle. Measured on
+        # the 22:11 regeneration (1c8bfb90, register 4r): the artifact behind
+        # every proj_ceiling / proj_floor / proj_sd came back containing
+        # **P (punters) 9, DB 4, LB 1, T 1, FB 20** — none of which this league
+        # rosters — while every skill position LOST about 30% of its graded
+        # players (QB 186->134, RB 335->215, WR 497->336, TE 286->190; graded
+        # 1,304->910) and 15 of 32 cells stopped being measurable at all.
+        #
+        # It moved every ceiling and floor on the board four days before the
+        # draft, turned `main` red on 11 tests, and — worse — A's "NO SHIP"
+        # ruling on the band-split question was then measured on that fit.
+        #
+        # NOTHING ASSERTED THE POPULATION, which is why it was invisible. The
+        # parameter existed the whole time and was simply never used.
         cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
-                           only_positions=PE.CALIBRATION_POSITIONS,
                            exclude_season=s)
         rep = BB.attach_dispersion(b.get("players") or [], cal)
         b.setdefault("notes", {})["dispersion"] = rep

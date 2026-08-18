@@ -43,6 +43,8 @@ clothes, and a consumer pricing off it proceeds confidently.
 """
 from __future__ import annotations
 
+import os
+
 from pathlib import Path
 from statistics import pstdev
 
@@ -50,39 +52,51 @@ import field_population as FP
 
 #: Rank edges WITHIN a position, declared rather than tuned. They are round numbers
 #: chosen to match how a roster is actually filled — the starter, the flex-worthy
-#: second, the bench, the dart — not fitted to make any board look tight.
+#: second, the bench, the dart — not fitted to make any band look tight.
 BAND_EDGES = (3, 8, 16, 32)
 
-#: Register 4q, 2026-08-17: `BAND_EDGES` puts 935 of 1,304 graded players — 72%,
-#: every player Cory drafts from round 4 on — into ONE band per position, "33+".
-#: Inside that cell `proj_ceiling` is a constant multiple of `proj_mean` by
-#: construction, which is the mechanism behind both register 4j and 4p. This is
-#: the relay's specified split of that one band, for a SIDE refit only —
-#: `BAND_EDGES` itself is UNCHANGED and stays what `regenerate()`/`main()` fit and
-#: ship by default. Whether the refit ships is Cory's call: it moves ceiling,
-#: floor, the bench branch, `champodds` and the money proxy four days before his
-#: draft. See `regenerate_refit_v2()`, `slope_comparison()`, DEFECT-REGISTER.md
-#: row 4q.
-BAND_EDGES_REFIT_V2 = (3, 8, 16, 32, 48, 72, 100, 150)
-
-#: Register 4r, 2026-08-17 (relay, confirmed against the reverted run 1c8bfb90):
-#: NOTHING filtered the fit to positions this league actually rosters. Sleeper's
-#: player pool carries punters, DBs, linebackers, offensive tackles — measured
-#: contamination on the real run: 9 P, 4 DB, 1 LB, 1 T, 20 FB entered the fit
-#: while QB/RB/WR/TE each lost ~30% of their graded population (1,304 -> 910
-#: graded; 15 of 32 cells went unmeasurable). Reverted in 88b58a5d because it
-#: broke 11 tests and moved every ceiling/floor on the board on a contaminated
-#: population; A's NO SHIP ruling on register 4q was measured on this same
-#: contaminated fit and needs re-running clean (54faded3).
-#:
-#: K and DEF are deliberately NOT in this tuple — extending the calibration to
-#: them is a separate, already-tracked question (the K/DEF ceiling P0 in
-#: DEFECT-REGISTER.md), not this fix's scope. This tuple is exactly the four
-#: positions the pre-contamination artifact actually graded.
-CALIBRATION_POSITIONS = ("QB", "RB", "WR", "TE")
+# ── OVERRIDABLE SO THE BAND SPLIT CAN BE MEASURED WITHOUT EDITING THIS FILE ──
+#
+# Added 2026-08-17 (relay, register 4q). Measured: these four edges put
+# **935 of 1,304 graded players into a single `33+` cell per position** while
+# ranks 1-32 get four bands (36 / 59 / 94 / 180). Ranks 33 to 300+ therefore
+# share one number — which is every player Cory drafts from round 4 on — and
+# inside a cell `proj_ceiling` is a constant multiple of `proj_mean`. That is
+# the mechanism behind the board telling him a round-12 flier has
+# proportionally LESS upside than a first-rounder (median ceiling/mean by ADP
+# band: 1.640 -> 1.506 -> 1.434 -> 1.434 -> 1.434 -> 1.317).
+#
+# THE OVERRIDE EXISTS SO THE FIX CAN BE MEASURED BEFORE IT IS BELIEVED. The
+# refit has to run where Sleeper is reachable (Actions; the sandbox gets a 403),
+# and a workflow cannot vary a module constant. Rather than edit this file for
+# an experiment, `PROJECTION_BAND_EDGES=3,8,16,32,48,72,100,150` sets it for one
+# run, into a SIDE artifact, so the live calibration is untouched until someone
+# has seen both slopes side by side.
+#
+# DEFAULT IS COMPLETELY UNCHANGED. Absent or unparseable env var -> the four
+# edges above, exactly as before. Same reversibility pattern as
+# DRAFT_PICK_LOG_PATH and PRE_DRAFT_FREEZE_PATH: it makes the experiment
+# possible, not the change easy.
+#
+# MIN_N below still governs. A split that over-reaches degrades a thin cell to
+# `unmeasurable` rather than to a confident wrong number — which is why finer
+# edges are safe to TRY even though shipping them is Cory's call.
+_edges_env = os.environ.get("PROJECTION_BAND_EDGES", "").strip()
+if _edges_env:
+    try:
+        _parsed = tuple(int(x) for x in _edges_env.split(",") if x.strip())
+        if _parsed and list(_parsed) == sorted(set(_parsed)) and _parsed[0] > 0:
+            BAND_EDGES = _parsed
+    except ValueError:
+        pass  # keep the declared edges; a typo must never silently reband the model
 
 #: Below this many graded players a band reports `unmeasurable` rather than a number.
 MIN_N = 8
+
+#: The only positions this league rosters and scores. The calibration is a claim
+#: about how OUR projections miss for OUR players; a punter in the population is
+#: not a small impurity, it is a different question being answered.
+ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
 
 CALIBRATION_VERSION = "projection-error/v1"
 
@@ -94,20 +108,13 @@ SURVIVOR_CAVEAT = (
     "tighter than reality. `ungraded` is the size of the excluded set.")
 
 
-def band_of(rank, edges=BAND_EDGES) -> str:
-    """The band label for a within-position projection rank.
-
-    `edges` defaults to the SHIPPED `BAND_EDGES` — every existing caller that
-    does not pass it behaves exactly as before. It exists as a parameter, not
-    a second copy of this function, so `BAND_EDGES_REFIT_V2` can be banded
-    with the identical boundary logic rather than a hand-kept twin that could
-    drift from it (rule 11).
-    """
+def band_of(rank) -> str:
+    """The band label for a within-position projection rank."""
     if rank is None:
         return "unranked"
     r = int(rank)
     lo = 1
-    for hi in edges:
+    for hi in BAND_EDGES:
         if r <= hi:
             return "%d-%d" % (lo, hi)
         lo = hi + 1
@@ -120,43 +127,15 @@ def _players_of(bundle):
     return list(bundle or [])
 
 
-def _resolved_pos(pl, positions=None):
-    """A player's position: the board's own field, falling back to a supplied
-    `{pid: position}` lookup. ONE definition, used by `error_rows` and `report`
-    — register 4r's contamination happened because nothing filtered on this at
-    all; a second hand-kept copy of how a position is resolved is exactly the
-    two-places-that-drift shape rule 11 warns about, so this is the only one."""
-    return pl.get("position") or (positions or {}).get(str(pl.get("player_id")))
-
-
-def _filter_positions(players, positions, only_positions):
-    """`players` narrowed to `only_positions`, resolved the same way `error_rows`
-    resolves a row's position — `None` (the default) is NO filter, unchanged
-    behavior for every existing caller."""
-    if only_positions is None:
-        return players
-    allowed = set(only_positions)
-    return [pl for pl in players if _resolved_pos(pl, positions) in allowed]
-
-
-def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
-               only_positions=None) -> list:
+def error_rows(bundle, actual: dict, *, positions=None) -> list:
     """One row per player carrying BOTH a projection and a realized total.
 
     A player the projection covered but the season did not grade is EXCLUDED here and
     COUNTED in `report()` — see the module docstring; the exclusion is the bias, and
     hiding it is what would make the calibration wrong rather than merely limited.
-
-    `only_positions`, given, REFUSES any player whose resolved position is not in
-    it — register 4r: without this, the fit silently included every position
-    Sleeper's pool carries (punters, DBs, linebackers, offensive tackles...), not
-    just the ones this league rosters. This is a DIFFERENT thing from `positions`
-    above — that is a fallback LOOKUP for a player missing an explicit position —
-    and is left alone rather than repurposed, so a caller relying on its
-    documented behavior is not silently broken by this fix.
     """
     rows = []
-    players = _filter_positions(_players_of(bundle), positions, only_positions)
+    players = _players_of(bundle)
 
     # Rank within position, from the board's own ordering where it has one. A
     # recomputed rank would silently disagree with the one the engine consumed the
@@ -164,7 +143,8 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
     # nothing uses.
     by_pos = {}
     for pl in players:
-        by_pos.setdefault(_resolved_pos(pl, positions), []).append(pl)
+        pos = pl.get("position") or (positions or {}).get(str(pl.get("player_id")))
+        by_pos.setdefault(pos, []).append(pl)
     computed = {}
     for pos, group in by_pos.items():
         ordered = sorted(group, key=lambda x: -(float(x.get("proj_mean") or 0.0)))
@@ -175,7 +155,7 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
         pid = str(pl.get("player_id"))
         if pid not in actual:
             continue
-        pos = _resolved_pos(pl, positions)
+        pos = pl.get("position") or (positions or {}).get(pid)
         mean = float(pl.get("proj_mean") or 0.0)
         act = float(actual[pid])
         rank = pl.get("proj_rank")
@@ -186,20 +166,14 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
         ratio = round(act / mean, 6) if mean else None
         rows.append({"player_id": pid, "position": pos, "proj_mean": mean,
                      "actual": act, "error": round(act - mean, 4), "ratio": ratio,
-                     "proj_rank": rank, "band": band_of(rank, band_edges)})
+                     "proj_rank": rank, "band": band_of(rank)})
     return rows
 
 
-def report(bundle, actual: dict, *, positions=None, only_positions=None) -> dict:
-    """Coverage of one season's grade, with the excluded set named rather than lost.
-
-    `only_positions` narrows `on_board`/`graded`/`ungraded` to the same population
-    `error_rows` fits on — register 4r: without this, `on_board` would still count
-    every punter and defensive back on the roster as part of the population these
-    counts describe, even though none of them can ever reach a cell.
-    """
-    players = _filter_positions(_players_of(bundle), positions, only_positions)
-    rows = error_rows(bundle, actual, positions=positions, only_positions=only_positions)
+def report(bundle, actual: dict, *, positions=None) -> dict:
+    """Coverage of one season's grade, with the excluded set named rather than lost."""
+    players = _players_of(bundle)
+    rows = error_rows(bundle, actual, positions=positions)
     graded = len(rows)
     total = len(players)
     return {"season": bundle.get("season") if isinstance(bundle, dict) else None,
@@ -223,22 +197,12 @@ def _q(sorted_vals, p):
 
 
 def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
-              positions=None, band_edges=BAND_EDGES, only_positions=None) -> dict:
+              positions=None) -> dict:
     """Fit the error distribution per (position, band) across seasons.
 
     `exclude_season` REFUSES a bundle from that season. A spread fitted on the season
     being graded is the same leak `usage_shares` and `weekly_variance` already refuse:
     the backtest would report a calibration it could not have held on draft day.
-
-    `band_edges` defaults to the SHIPPED `BAND_EDGES` — pass `BAND_EDGES_REFIT_V2`
-    to fit register 4q's split-33+ refit instead. Never changes what the default
-    call ships.
-
-    `only_positions` defaults to `None` — NO FILTER, unchanged behavior for every
-    existing caller — but every caller that fits the SHIPPED/production
-    calibration must pass `CALIBRATION_POSITIONS`. Register 4r: the reverted run
-    1c8bfb90 called this with no filter at all and fit on punters, DBs and
-    linebackers alongside QB/RB/WR/TE.
     """
     bundles = list(bundles or [])
     actuals = list(actuals or [])
@@ -260,10 +224,9 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
         s = b.get("season") if isinstance(b, dict) else None
         if s is not None:
             seasons_used.append(s)
-        rep = report(b, act, positions=positions, only_positions=only_positions)
+        rep = report(b, act, positions=positions)
         ungraded += rep["ungraded"]
-        for r in error_rows(b, act, positions=positions, band_edges=band_edges,
-                            only_positions=only_positions):
+        for r in error_rows(b, act, positions=positions):
             if r["ratio"] is None:
                 continue
             buckets.setdefault((r["position"], r["band"]), []).append(r["ratio"])
@@ -349,6 +312,17 @@ def document(cal: dict) -> dict:
         "cells_measured": cal.get("cells_measured"),
         "cells_unmeasurable": cal.get("cells_unmeasurable"),
         "caveat": cal.get("caveat"), "band_note": cal.get("band_note"),
+        # ⚠ REGISTER 4s — WITHOUT THIS, THE ARTIFACT LOOKS COMPLETE WHEN A
+        # SEASON WAS DROPPED. `regenerate()` already bolted `skipped_seasons`
+        # onto its own return dict, but `document()` — the ONLY thing that
+        # decides what actually gets written to disk — never surfaced it, so
+        # the field existed in memory for one function call and then vanished.
+        # `actual_source_by_season` is the same class of trace, one layer
+        # earlier: which seasons' realized totals came from the committed
+        # store versus a live re-fetch, so a silently-succeeded-but-different
+        # source is visible too, not just an outright skip.
+        "skipped_seasons": cal.get("skipped_seasons"),
+        "actual_source_by_season": cal.get("actual_source_by_season"),
         "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
                   for k, v in (cal.get("cells") or {}).items()},
         "population": FP.of_records(rows, fields=CELL_FIELDS),
@@ -376,15 +350,91 @@ def save(cal: dict, path=None) -> None:
 CALIBRATION_SEASONS = (2023, 2024, 2025)
 
 
-def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; CI only)
+def _rostered_only(bundle):
+    """Drop every player at a position this league does not roster.
+
+    ⚠️ THIS IS THE REAL FIX, AND MY FIRST TWO WERE NOT FIXES AT ALL.
+    I passed `positions=("QB","RB","WR","TE")` to `calibrate()` twice — once
+    here and once in cli.py — and shipped a guard asserting that string appeared
+    in the source. Both were inert. **`positions` is a player_id -> position
+    MAP**, a fallback for rows that carry no `position` field
+    (`pl.get("position") or (positions or {}).get(pid)`), so for real rows the
+    `or` short-circuits and the argument is never read. The regeneration
+    dispatched at 00:37Z came back byte-identical: 910 graded, punters intact.
+
+    A test that asserts a string exists in a file is not a test of behaviour.
+    That is the defect class this repo is full of, committed by the person
+    cataloguing it.
+
+    So the filter is applied to the POPULATION, where it cannot be misread: a
+    row whose position is not rostered never reaches the fit.
+    """
+    players = [p for p in (bundle.get("players") or [])
+               if (p.get("position") or "").upper() in ROSTERED_POSITIONS]
+    out = dict(bundle)
+    out["players"] = players
+    return out
+
+
+def _actual_from_committed_store(season, scoring_cfg):
+    """`{sleeper_id: points}` for `season` from the COMMITTED
+    `nflverse_weekly_points_{season}.json` store, or `None` if it can't be
+    trusted for this purpose.
+
+    Register 4s, 2026-08-17 (A, chased to the mechanism): `regenerate()`
+    re-fetches weekly data LIVE for every season in `need`, even ones this
+    repo already holds a verified store for. The 22:11 -> 00:37Z -> 01:0xZ
+    sequence of regenerations lost 2025 entirely to a transient live-fetch
+    failure — `nfl.import_weekly_data([2025])` raised, `2025` landed in
+    `missing`, the pbp-recovery gate didn't fire, and `rest_of_season_points`
+    came back empty for a season this repo has held since 08-14. THREE LAYERS
+    SWALLOWED IT SILENTLY: the fetch exception, the unsurfaced `missing`
+    list, and `calibrate()`'s return shape having no field to say a season
+    was dropped — the artifact simply looked complete with one fewer season
+    inside it.
+
+    `nflverse_weekly_points_{season}.json` is exactly the same quantity
+    `rest_of_season_points(weekly_df, season, scoring_cfg, crosswalk)` would
+    produce — realized weekly points, summed from week 1, under OUR scoring
+    table — except it is READ, not re-fetched, so it cannot fail to a flaky
+    network call. It is ground truth other parts of this repo already grade
+    against (`nflverse_weekly_store.py`), not a fallback invented for this fix.
+
+    TRUSTED ONLY IF THE SCORING TABLE MATCHES. The store fingerprints the
+    scoring config it was captured under and refuses to mix two tables in one
+    file (`nflverse_weekly_store.append_week`); this function honors that same
+    discipline on the READ side — a store captured under a scoring table that
+    has since changed is not silently reused, it returns `None` and the
+    caller falls back to the live fetch exactly as before this fix existed.
+    """
+    import nflverse_weekly_store as WS
+
+    path = Path(__file__).resolve().parent / ("nflverse_weekly_points_%s.json" % season)
+    if not path.exists():
+        return None
+    weeks = WS.load(path=path)
+    if not weeks:
+        return None
+    live_fp = WS.scoring_fingerprint(scoring_cfg)
+    stored_fps = {w.get("scoring_fingerprint") for w in weeks}
+    if stored_fps != {live_fp}:
+        # A MIXED OR STALE STORE IS NOT SILENTLY TRUSTED. Every week must
+        # agree with the CURRENT scoring config, not just one of them — a
+        # store spanning a mid-season scoring-table edit would otherwise
+        # blend two rule sets into one "actual" total with nothing saying so.
+        return None
+    out = {}
+    for wk in weeks:
+        for pid, pts in (wk.get("points") or {}).items():
+            out[str(pid)] = out.get(str(pid), 0.0) + float(pts)
+    return out or None
+
+
+def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
     """The no-args entry point `artifact_registry.json` calls. Assembles real
     bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
     of them, `exclude_season=None` — this is the PRODUCTION calibration
     applied to 2026, not a leave-one-out skill test, so nothing is held out.
-
-    `band_edges` defaults to the SHIPPED `BAND_EDGES`, so every existing
-    caller (the registry, `main()`) is unaffected. `regenerate_refit_v2()`
-    is the only caller that passes anything else.
 
     ⚠ REUSES `cli.py`'s SEASON-ASSEMBLY MACHINERY RATHER THAN RE-DERIVING IT.
     `cli.py` already builds exactly this shape of bundle+actual pair, per
@@ -491,7 +541,7 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
         return {"players": [{"sleeper_id": pid, "adp": r["adp"]}
                             for pid, r in table["adp"].items()]}
 
-    bundles, actual, skipped = [], [], []
+    bundles, actual, skipped, actual_source = [], [], [], {}
     for season in CALIBRATION_SEASONS:
         store = AsOfDataStore(season, history, adp_loader=_adp)
         try:
@@ -509,11 +559,25 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
                            "%s: %s" % (type(exc).__name__, exc)})
             continue
         cfg = store.league_config()
-        act = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
+        # ⚠ REGISTER 4s — PREFER THE COMMITTED STORE OVER A LIVE RE-FETCH.
+        # `weekly` came from a live `nfl.import_weekly_data()` call above that
+        # can silently drop a season into `missing` on any transient failure
+        # (confirmed: 2025 was lost this way at 22:11, then again at 00:37Z,
+        # with nothing in the final artifact saying so). This repo already
+        # holds a verified, scoring-fingerprinted store for every calibration
+        # season — read it first; fall back to the live-fetched `weekly` only
+        # if the committed store doesn't exist or was captured under a
+        # different scoring table. See `_actual_from_committed_store`.
+        act = _actual_from_committed_store(season, cfg["scoring"])
+        if act is not None:
+            actual_source[str(season)] = "committed_store"
+        else:
+            act = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
+            actual_source[str(season)] = "live_fetch"
         if not act:
             skipped.append({"season": season, "reason": "nothing gradeable"})
             continue
-        bundles.append(bundle)
+        bundles.append(_rostered_only(bundle))
         actual.append(act)
 
     if not bundles:
@@ -521,110 +585,31 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
 
-    cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
-                    only_positions=CALIBRATION_POSITIONS)
+    # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT.
+    #
+    # `calibrate()` -> `error_rows(..., positions=None)` means NO FILTER, and
+    # `projection-error-calibration.yml` runs THIS module directly (not cli.py).
+    # The 2026-08-17 22:11 regeneration therefore fitted the artifact behind
+    # every proj_ceiling / proj_floor / proj_sd on P (punters) 9, DB 4, LB 1,
+    # T 1 and FB 20 — none of which this league rosters — while the skill
+    # positions lost ~30% of their graded players (QB 186->134, RB 335->215,
+    # WR 497->336, TE 286->190; graded 1,304->910) and 15 of 32 cells stopped
+    # being measurable.
+    #
+    # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
+    # workflow actually takes — a filter on the wrong call site is a fix that
+    # feels done and changes nothing. Register 4r.
+    cal = calibrate(bundles, actual, exclude_season=None)
     cal["skipped_seasons"] = skipped
+    # ⚠ REGISTER 4s — THE TRACE THAT DID NOT EXIST BEFORE THIS FIX. A season
+    # skipped for "nothing gradeable" (a live fetch that silently failed and
+    # had no committed store to fall back on) already lands in
+    # `skipped_seasons` above; this additionally names, for every season that
+    # DID produce a gradeable "actual", whether that came from the committed
+    # store or a live fetch — so "the artifact looks complete" can never again
+    # mean "and nobody can tell which seasons were actually verified."
+    cal["actual_source_by_season"] = actual_source
     return cal
-
-
-#: Side artifacts only — NEVER the production `CALIBRATION` path `save()`
-#: defaults to. Register 4q.
-REFIT_V2_CALIBRATION = Path(__file__).resolve().parent / "projection_error_calibration_refit_v2.json"
-REFIT_V2_COMPARISON = Path(__file__).resolve().parent / "projection_error_refit_v2_comparison.json"
-
-
-def regenerate_refit_v2() -> dict:  # pragma: no cover  (egress; CI only)
-    """Register 4q's refit. Calls `regenerate()` wholesale with the split-band
-    edges rather than a second season-assembly path — the same
-    two-places-that-drift shape this file already warns about (rule 11)."""
-    return regenerate(band_edges=BAND_EDGES_REFIT_V2)
-
-
-def slope_comparison(current_cal: dict, refit_cal: dict) -> dict:
-    """PURE. Places the SHIPPED ceiling/floor ratio for each `BAND_EDGES` band
-    beside the REFIT's finer bands that split it, so register 4q's question —
-    is the ratio actually flat inside `33+`, or does the one cell hide a real
-    slope — has a number instead of an argument.
-
-    Both `current_cal` and `refit_cal` are the tuple-keyed shape `calibrate()`
-    /`load()` return, not `document()`'s on-disk envelope. A band absent from
-    either calibration reports as `unmeasurable, n=0` rather than being
-    dropped, so a thin new band cannot silently disappear from the
-    comparison — the same rule `calibrate()` itself applies to a thin cell.
-    """
-    def _band_labels(edges):
-        labels, lo = [], 1
-        for hi in edges:
-            labels.append("%d-%d" % (lo, hi))
-            lo = hi + 1
-        labels.append("%d+" % lo)
-        return labels
-
-    def _rows(cal, edges):
-        cells = cal.get("cells") or {}
-        positions = sorted({k[0] for k in cells})
-        out = []
-        for pos in positions:
-            for band in _band_labels(edges):
-                c = cells.get((pos, band)) or {
-                    "n": 0, "status": "unmeasurable", "sd_ratio": None,
-                    "mean_ratio": None, "p10_ratio": None, "p90_ratio": None,
-                    "basis": "band absent from this calibration"}
-                out.append(dict(c, position=pos, band=band))
-        return out
-
-    return {
-        "_note": "Register 4q. `current` bands are the SHIPPED BAND_EDGES; "
-                 "`refit_v2` bands are BAND_EDGES_REFIT_V2 (the shipped `33+` "
-                 "split into 33-48/49-72/73-100/101-150/151+). Neither "
-                 "calibration is changed by producing this — it is the "
-                 "comparison the relay asked for before anyone ships the "
-                 "refit. THE POPULATION QUESTION IS DELIBERATELY UNRESOLVED "
-                 "HERE: both calibrations' p90/p10 are unconditional over "
-                 "every graded player, survivorship-biased per SURVIVOR_"
-                 "CAVEAT, and neither conditions on the player having "
-                 "actually held a role. That is a design call for Cory/A, "
-                 "not a constant this refit changes.",
-        "current_band_edges": list(BAND_EDGES),
-        "refit_band_edges": list(BAND_EDGES_REFIT_V2),
-        "current": _rows(current_cal, BAND_EDGES),
-        "refit_v2": _rows(refit_cal, BAND_EDGES_REFIT_V2),
-    }
-
-
-def main_refit_v2() -> int:  # pragma: no cover  (egress; CI only)
-    """Register 4q's dispatch entry point — separate from `main()` on
-    purpose. Writes ONLY the two side artifacts above; the production
-    `CALIBRATION` file (`projection_error_calibration.json`, what the board
-    build actually reads) is never opened for writing by this function.
-    Whether the refit ships is Cory's call, made from the comparison this
-    writes, not by this script.
-    """
-    import json as _json
-
-    current = load()
-    refit = regenerate_refit_v2()
-    if refit.get("status") == "VOID":
-        print("VOID — %s" % refit.get("reason"))
-        return 1
-
-    doc = document(refit)
-    doc["_side_artifact"] = True
-    doc["_defect"] = ("register 4q — BAND_EDGES_REFIT_V2 splits the shipped "
-                      "33+ band. NOT applied to the board. Compare against "
-                      "projection_error_calibration.json (BAND_EDGES) via "
-                      "projection_error_refit_v2_comparison.json.")
-    REFIT_V2_CALIBRATION.parent.mkdir(parents=True, exist_ok=True)
-    REFIT_V2_CALIBRATION.write_text(_json.dumps(doc, indent=2) + "\n")
-
-    comparison = slope_comparison(current, refit)
-    REFIT_V2_COMPARISON.write_text(_json.dumps(comparison, indent=2) + "\n")
-
-    print("register 4q refit: measured %d/%d cells; wrote %s and %s"
-         % (refit.get("cells_measured", 0),
-            refit.get("cells_measured", 0) + refit.get("cells_unmeasurable", 0),
-            REFIT_V2_CALIBRATION.name, REFIT_V2_COMPARISON.name))
-    return 0
 
 
 def main() -> int:  # pragma: no cover  (egress; CI only)
@@ -710,7 +695,4 @@ def proj_ceiling_for(cal, position, rank, proj_mean):
 
 
 if __name__ == "__main__":
-    import sys as _sys
-    if "--refit-v2" in _sys.argv:
-        raise SystemExit(main_refit_v2())
     raise SystemExit(main())
