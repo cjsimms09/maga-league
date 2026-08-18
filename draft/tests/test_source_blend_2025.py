@@ -139,7 +139,10 @@ def test_season_totals_reads_the_real_store_shape():
                         / "nflverse_weekly_points_2025.json").read_text())
     totals = SB.season_totals(store)
     assert len(totals) > 400, f"only {len(totals)} realized players — shape misread"
-    assert all(v > 0 for v in list(totals.values())[:50])
+    # 5d: the rebuilt store legitimately carries zero-total players
+    # (appearances that never scored) — presence is not positivity.
+    assert all(v >= 0 for v in totals.values())
+    assert sum(1 for v in totals.values() if v > 0) > 400
 
 
 def test_season_totals_tolerates_the_other_shape():
