@@ -212,6 +212,51 @@ jobs:
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
 
+      - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
+        # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
+        # EXPERIMENT. Tracing PREDICTION-LEDGER P39 on 2026-08-18 established
+        # that we have never once measured our own model against Sleeper on any
+        # season: the promotion bar in model_accuracy_v5/v6 is "beat BOTH NAIVE
+        # baselines", api.sleeper.app reads "no route", and v5 states the
+        # comparison "first becomes measurable at the January 2027 grade of the
+        # frozen 2026 proj_series, which prices Sleeper, FP and own_v5 on the
+        # same season". That series is built here.
+        #
+        # AND IT HAS ALREADY LOST A DAY SILENTLY. 2026-08-10 carries a `sleeper`
+        # row and no `fantasypros` row — FP capture rate 9/10 — and nothing
+        # reported it. The fetch half-failed and the run committed a partial day
+        # exactly as if nothing were wrong. Retroactive fetches leak (exp33), so
+        # that day can never be recovered.
+        #
+        # WARNS, DOES NOT FAIL, AND THAT IS DELIBERATE. Refusing to publish a
+        # whole draft board because one projection provider was unreachable
+        # would trade a real, immediate cost for a speculative one, and a gate
+        # that blocks the board on a third party's uptime gets switched off in a
+        # week. What was actually missing here was not enforcement — it was
+        # ANYONE KNOWING. So this makes a partial day loud and leaves the ruling
+        # on whether it should block to A (register row 41).
+        if: github.event.inputs.snapshot != 'true'
+        continue-on-error: true
+        run: |
+          python3 - <<'PYEOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          import datetime, json, os, pathlib
+          f = pathlib.Path("draft/data/proj_series.json")
+          if not f.exists():
+              print("::warning::proj_series.json is missing entirely"); raise SystemExit(0)
+          rows = json.loads(f.read_text()).get("series", [])
+          today = datetime.date.today().isoformat()
+          got = {r.get("source") for r in rows if r.get("date") == today}
+          want = {"sleeper", "fantasypros"}
+          missing = sorted(want - got)
+          if not got:
+              print(f"::warning::proj_series has NO row for {today} — the daily capture wrote nothing")
+          elif missing:
+              print(f"::warning::proj_series for {today} is PARTIAL: captured {sorted(got)}, MISSING {missing}. "
+                    "This day cannot be backfilled (exp33) and it is an input to the January 2027 source grade.")
+          else:
+              print(f"proj_series {today}: complete ({sorted(got)})")
+          PYEOF
+
       - name: Regenerate the opening script + predicted slates from the fresh board
         # The regeneration hook made mechanical: every artifact rebuild (which
         # includes slot-assignment and keeper-designation changes flowing into
