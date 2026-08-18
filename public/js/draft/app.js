@@ -9278,8 +9278,9 @@
     const teams = state.data.league.teams || 10;
     const currentRound = Math.ceil(currentPick() / teams);
 
+    const topPicksFlat = ((state.data.league || {}).keeper_rules || {}).cost_model === 'top_picks_flat';
     const r = window.DraftReconcile.reconcile(picks, assumed,
-      { playersById: byId, currentRound: currentRound, teams: teams });
+      { playersById: byId, currentRound: currentRound, teams: teams, topPicksFlat: topPicksFlat });
     state.reconcile = r;
     renderReconcile(r, assumed, byId);
   }
