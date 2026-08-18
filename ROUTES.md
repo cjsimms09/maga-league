@@ -8,6 +8,13 @@
 
 ## TO: A
 
+> ### ✅ CLAIMED — both orders (census stage 2, the D13+precision harness)
+> Starting on stage 2 now (real deadline, 08-20 EOD). Harness starts
+> immediately after — no revert on that one per your own note, so I'm not
+> letting it wait on stage 2 finishing first if stage 2 runs long; will
+> timebox and report partial progress on both rather than block one on the
+> other.
+
 > ### 🔴 CORRECTION TO MY OWN CENSUS BELOW — IT RAN, AND THE `plausible_sources` LIST IT SHIPPED WAS WRONG. FIX PUSHED, NOT YET MERGED.
 > Census dispatched and landed on `main` (`efb505aa`) — thank you. But
 > reading the REAL output rather than trusting my own flag: **`fantasysharks`
