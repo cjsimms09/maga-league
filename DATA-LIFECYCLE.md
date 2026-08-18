@@ -73,22 +73,63 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | store | captured | weekly job | → predicts | → graded | stops at | is that stop justified? |
 |---|---|---|---|---|---|---|
 | `nflverse_weekly_points_*` | ✅ 2021-25 | ✅ | ✅ | ✅ | **8** | this is the one complete chain |
-| `component_stats_*` | ✅ 2021-25 | ✅ | ✅ (own_v6) | via weekly points | 6-7 | **UNEXAMINED** — graded only indirectly |
-| `snap_counts_*` | ✅ 2021-25 | ✅ Wed | ✅ (projections) | ❌ | **6** | **UNEXAMINED** — feeds predictions, nothing grades its contribution |
-| `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **UNEXAMINED** — captured weekly, reaches nothing |
+| `component_stats_*` | ✅ 2021-25 | ✅ | ✅ (own_v6) | via weekly points | 6-7 | **UNEXAMINED — the last one, and the only store where it is genuinely true.** It predicts and is graded, but only *through* weekly points, so its own contribution is never isolated. Needs an **ablation of the live model**, prereg'd, post-08-22. Register 19, owner **A** |
+| `snap_counts_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **5** | **CORRECTED 08-17 (was recorded as step 6).** It reaches NO board field — 0 of 56 keys over 682 rows; `own_model_v6`/`build.py` never mention it; `projections.py` names it only to say it is not computed. **Reason already recorded** in `capture_registry.py:138`: a wiring gap, deliberate, *"a new input wired live five days before the draft is a worse instrument than a known one."* **MEASURED 08-17: null** — partial ρ 2 of 4 folds, cause is ρ 0.81–0.84 collinearity with prior points (same death as TPRR). **Trigger:** weekly grain or per-position. Register 13 |
+| `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **5** | **JUSTIFIED — measured 08-17.** Preregistered TPRR study, graded, `clears: false`: season TPRR is +0.74…+0.82 rank-collinear with target volume, so it duplicates rather than complements it. Rule 3d passes on the null. **Triggers:** weekly grain / per-position; a true routes feed; **and test `routes` as a volume measure** (ρ to TPRR only +0.30-0.44). Register 14 |
 | `weekly_volatility` | ✅ | ❌ | ❌ | ❌ | **4** | prereg'd (`VOLATILITY-WIRING-PREREG.md`), post-draft — **justified, dated** |
-| `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — the study returned a published NULL |
-| `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED, refined 08-18 (D, register 18b)** — perfect-foresight ceiling +0.238 weekly MAE at the true λ*=0.60 (the original grid's 0.5 was its own minimum; anyone holding +0.23 was approximately right). D's asymmetry finding: DUD games carry 5-10× the value of shootouts and want λ≈0.80 — the open question is asymmetric APPLICATION, preregistered post-draft |
-| `advanced_stats_*` (air yards / EPA / CPOE) | ✅ 2021-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — study ran, wiring never decided |
-| `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — season-total arm was graded, then stopped |
+| `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — a published NULL from a dedicated study with an instrument control, a negative control and disclosed multiplicity (`clears: false`, 1 of 3 positions). Sound; not reopened. **Trigger: a SECOND graded fold** — the null rests on one (2025), and two positions moved <0.25 MAE. **The registered second fold was abandoned on a false claim** that `nflverse_weekly_points_2022.json` does not exist; it does. Whether it is *valid* is the open question (its priors straddle the fingerprint boundary). Register 17 |
+| `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **RE-OPENED 08-17** — the +0.23 bounds a GAME-total oracle shared by both teams (208/208 games), **not** the team-level implied total this store holds. Register 18 — **trigger run 08-17: join 100%, ΔMAE +0.002/+0.008, a null.** **And the ceiling is now measured properly (18b, 08-18):** a PERFECT game-total oracle peaks at ΔMAE **+0.2379** (λ\*=0.60, both seasons, reproduction control 6/6) — **77% of the replay's ±0.310 detection floor**, so this channel's best case is smaller than the smallest effect our edge instrument can resolve. **That trigger was RUN 08-18 on Cory's ruling (register 32) and the store moves to step 5 with a MEASURED positive, not a null:** the team-level implied total, applied two-sided, is worth **+0.0343 ΔMAE net of a 60-draw placebo (p=0.0164)** — **4.3× the symmetric arm** — while the shared game total is a placebo-indistinguishable **null (p=0.377)**. **Still not wired, and the reason is size not doubt:** +0.0343 is 11% of the replay's ±0.310 detection floor. **⚠️ And the study's method finding reaches this whole table:** both arms cleared a preregistered out-of-sample bar and the placebo killed one — **a running-mean baseline plus any selective shrink buys +0.046 with zero information.** Register 33 / Q14 asks how many already-graded arms were measured without that control |
+| `advanced_stats_*` (air yards / EPA / CPOE) | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED — corrected 08-17 (was UNEXAMINED).** Preregistered, graded, published null (`advanced_efficiency_study.json`, 4 of 12 cells beat control). Rule 3d passes; the study records its own join population. **Trigger:** a different construction (per-position weight, or a higher `MIN_VOL` — both named by the study as suspected causes of the QB miss), or a 4th leak-free fold. Register 15a |
+| `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **7** | ✅ **GRADED 08-17** (was: refusing on a false claim). `clears: false`. The 0.93-0.97 Spearman is an in-season-information artifact, not skill — the arm sums all 18 weeks. The leak-free week-1 arm is also a null (register 15c). **Trigger:** repair `any_td` (decimal-odds corruption), then re-run both. Register 15b/15c |
 | `own_projections_2026` | ✅ | ✅ Thu | ✅ | ✅ | **8** | complete |
 
-**Two chains are complete. Four stores stop at step 4 or 6 with no recorded
-reason.** Those four are the register's new rows.
+**Two chains are complete. As of 2026-08-17 the "no recorded reason" count is
+ONE** — `component_stats_*`, graded only indirectly. `routes_*` was the last
+store stopping with no reason at all and now has a measured one (register 14). Session D walked the other two: `snap_counts` was recorded as a
+step-6 stop and is a step-4 stop **with** a reason (register 13), and
+`advanced_stats_*` was recorded as UNEXAMINED and is a published, graded null
+(register 15a). **Neither was a missing reason. Both were reasons this file had
+not reconciled with the code.**
 
-**Justified stops are not failures** — pace and Vegas both stop at step 5 with a
-measurement behind them, which is the standard working. The problem is never a
-NO; it is a NO nobody wrote down.
+**And one store turned out to be worse than unexamined.** `historical_props_*`
+holds 12,559 player-weeks of **paid** data and has **never been graded** — not
+because anyone decided not to, but because the artifact that grades it carries a
+stale refusal naming three stores that exist (register 15b). That is a fourth
+failure mode, and the sharpest one:
+
+> **step 6 was reached, the answer was affordable, and the command was simply
+> never re-run.** Nothing in the chain distinguishes "we decided not to grade
+> this" from "the grader last ran before the data arrived", because both leave
+> the same empty cell.
+
+`draft/tests/test_refusal_artifacts_are_not_stale.py` now sweeps every committed
+artifact for that shape: **no artifact may declare a file missing that is
+present.** It is red today, deliberately, and `repo_parity`-marked so it can
+never block a board publish.
+
+**Justified stops are not failures** — a stop at step 5 with a measurement behind
+it is the standard working. The problem is never a NO; it is a NO nobody wrote
+down.
+
+**But a measurement only justifies the stop it actually covers, and Vegas did
+not.** Session D re-opened it on 2026-08-17
+(`draft/audit/vegas_oracle_row18_2026-08-17.md`). The +0.23 came from an oracle
+reading the **combined game total** and handing it to **both** teams — 208 of 208
+games in each graded season share one multiplier — so it cannot separate a
+45-point offence from the 3-point one it played (r² 0.465 / 0.447 against team
+points). The store's own `_note` calls it a *"team* game-total ceiling"; the code
+computes a game total. **A spread-derived implied team total —
+`total_line/2 + spread_line/2`, which this store exists to provide — is not in
+the class that number bounds.** The stop was recorded against a bound that does
+not reach the feature.
+
+That is the third failure mode this file has to name, alongside "no reason
+written" and "a reason with no trigger": **a reason written, with a real
+measurement behind it, that does not cover the decision it is filed under.** It
+is the hardest of the three to spot, because everything about it looks finished.
+The tell was available in the published result and unread — the oracle scored
+**worse applied fully (+0.132) than at half (+0.228)**, which is what an input
+pointed at the wrong team half the time looks like.
 
 ## THE RULE FOR NEW DATA, SO THIS DOES NOT REGROW
 
@@ -103,6 +144,23 @@ finished thinking — which would trade a runner-minute for a season we can neve
 get back.
 
 And the reverse: **when a store reaches a prediction, step 6 becomes mandatory.**
-`snap_counts` feeds `projections.py` today and nothing grades its contribution —
-so we cannot say whether it helps, hurts, or does nothing. That is the same shape
-as a weight set by an experiment that could not fail.
+A store that feeds a projection with nothing grading its contribution is the same
+shape as a weight set by an experiment that could not fail — we cannot say
+whether it helps, hurts, or does nothing.
+
+**This paragraph used to name `snap_counts` as that example, and it was wrong.**
+Session D checked it on 2026-08-17
+(`draft/audit/snap_counts_row13_2026-08-17.md`): snap counts reach **no board
+field** — 0 of 56 keys across 682 rows — so the store is at step 4, not step 6,
+and there is no contribution to grade. `capture_registry.py:138` had it right the
+same day; this file and two register rows were written against the wrong version
+and nothing compared them.
+
+**Which is the lesson worth keeping, and it is about this file.** The table above
+is the artifact D's lane is judged on, and it asserted a wiring the board
+contradicted. **The claim is now checked rather than trusted** —
+`draft/tests/test_data_lifecycle_predicts_column.py` reads the "→ predicts"
+column against the real board, with a known-positive control proving the
+detector can find fields that are genuinely there. A step number in this table
+is now a testable claim, the same way `test_defect_register.py` made the
+register's owner column one.

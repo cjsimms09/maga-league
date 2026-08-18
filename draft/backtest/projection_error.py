@@ -317,6 +317,49 @@ CELL_FIELDS = ["position", "band", "n", "status", "sd_ratio", "mean_ratio",
 KEY_SEP = "|"
 
 
+#: Positions the board PRICES but this instrument cannot measure, each with the
+#: reason and what would lift it. Declared here rather than left as an absence,
+#: because `cells_unmeasurable` counts only cells that were ATTEMPTED — a
+#: position that never entered the universe contributes 0 to it and reads
+#: identically to one that had no problem. That is the absent-vs-zero defect at
+#: the artifact level, and on 2026-08-17 it was live: 44 kickers and 32 defences
+#: were priced on the unmeasured `gaussian_z` construction while this file
+#: reported nothing was unmeasurable.
+#:
+#: A position leaves this dict the moment its graded rows exist. Nothing is
+#: estimated for it in the meantime — a declared refusal is the answer, and a
+#: guessed discount would be fitting.
+POSITIONS_NOT_MEASURED = {
+    "K": {
+        "reason": "No kicker rows reach the graded stores: fetch_component_stats.py "
+                  "filters to POSITION_GROUPS = (QB, RB, WR, TE) and kickers are "
+                  "position_group 'SPEC'. Not a source gap — the file we already "
+                  "fetch served 569 kicker rows / 43 kickers / weeks 1-22 for 2024 "
+                  "(HTTP 200, probed 2026-08-17), with a 1:1 map to all eight of our "
+                  "kicker scoring keys.",
+        "unblocked_by": "C adding K to that filter and re-emitting 2023-25. The "
+                        "calibration then needs no code change — this module has "
+                        "never filtered positions. NOTE fgm_50p must absorb BOTH "
+                        "fg_made_50_59 and fg_made_60_, or every 60-yard field goal "
+                        "is silently dropped.",
+        "owner": "C", "recheck": "2026-08-19",
+        "audit": "draft/audit/kdef_calibration_p0_2026-08-17.md",
+    },
+    "DEF": {
+        "reason": "No team-defence rows exist in the nflverse player file at all — "
+                  "it carries individual defenders (DB/DL/LB), not units. DST "
+                  "scoring needs a team-level aggregation (sacks, INTs, fumble "
+                  "recoveries, return TDs, points allowed) that does not exist here.",
+        "unblocked_by": "A team-week defence construction from stats_team_week or "
+                        "pbp, built and graded. NOT attempted before the 2026-08-20 "
+                        "keeper lock: a new instrument measured once, late, is a "
+                        "worse instrument than a declared absence.",
+        "owner": "A", "recheck": "post-2026-08-22",
+        "audit": "draft/audit/kdef_calibration_p0_2026-08-17.md",
+    },
+}
+
+
 def document(cal: dict) -> dict:
     """The ON-DISK shape, as a dict — PURE, and the single definition of it.
 
@@ -340,13 +383,14 @@ def document(cal: dict) -> dict:
         "_note": "Measured projection error by position and PROJECTION RANK BAND. "
                  "Apply with projection_error.proj_sd_for / proj_ceiling_for — a band "
                  "with status `unmeasurable` returns None, and None must stay None: a "
-                 "fallback constant is how 0.25 * proj_mean reached the board.",
+                 "fallback constant is how 0.25 * proj_mean reached the board. AND READ `positions_not_measured`: `cells_unmeasurable` counts only cells that were ATTEMPTED, so a position that never entered the universe reads as no problem rather than as a refusal.",
         "version": cal.get("version", CALIBRATION_VERSION),
         "seasons": cal.get("seasons"), "min_n": cal.get("min_n"),
         "graded": cal.get("graded"), "ungraded": cal.get("ungraded"),
         "cells_measured": cal.get("cells_measured"),
         "cells_unmeasurable": cal.get("cells_unmeasurable"),
         "caveat": cal.get("caveat"), "band_note": cal.get("band_note"),
+        "positions_not_measured": POSITIONS_NOT_MEASURED,
         "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
                   for k, v in (cal.get("cells") or {}).items()},
         "population": FP.of_records(rows, fields=CELL_FIELDS),

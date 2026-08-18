@@ -1,0 +1,4602 @@
+{
+  "_territory": "TERRITORY: C \u2014 produced by discovery_projection_spread_capture.py",
+  "_note": "Stage 2 of the ffanalytics ask (ROUTES.md A->C 2026-08-18). Each source's own default scoring convention, NOT normalized to our league's rules -- a display-only disagreement badge, not a ceiling input (per the ask).",
+  "control_names_used": [
+    "amonra st brown",
+    "ashton jeanty",
+    "bijan robinson",
+    "brock bowers",
+    "ceedee lamb",
+    "christian mccaffrey",
+    "devon achane",
+    "jahmyr gibbs",
+    "james cook",
+    "jaxon smithnjigba",
+    "jonathan taylor",
+    "josh allen",
+    "puka nacua",
+    "saquon barkley",
+    "trey mcbride"
+  ],
+  "min_control_hits": 5,
+  "sources": {
+    "cbs": {
+      "source": "cbs",
+      "status": "VOID",
+      "reason": "planted-value control failed: only 0/15 known top players found in 377 parsed rows -- the parser is not trusted to have found a real table",
+      "control_hits": 0,
+      "rows_parsed": 377,
+      "urls": [
+        "https://www.cbssports.com/fantasy/football/stats/QB/2026/restofseason/projections/nonppr/",
+        "https://www.cbssports.com/fantasy/football/stats/RB/2026/restofseason/projections/nonppr/",
+        "https://www.cbssports.com/fantasy/football/stats/WR/2026/restofseason/projections/nonppr/",
+        "https://www.cbssports.com/fantasy/football/stats/TE/2026/restofseason/projections/nonppr/"
+      ]
+    },
+    "numberfire": {
+      "source": "numberfire",
+      "status": "VOID",
+      "reason": "planted-value control failed: only 0/15 known top players found in 0 parsed rows -- the parser is not trusted to have found a real table",
+      "control_hits": 0,
+      "rows_parsed": 0,
+      "urls": [
+        "https://www.numberfire.com/nfl/fantasy/remaining-projections/qb",
+        "https://www.numberfire.com/nfl/fantasy/remaining-projections/rb",
+        "https://www.numberfire.com/nfl/fantasy/remaining-projections/wr",
+        "https://www.numberfire.com/nfl/fantasy/remaining-projections/te"
+      ]
+    },
+    "fftoday": {
+      "source": "fftoday",
+      "status": "VOID",
+      "reason": "planted-value control failed: only 0/15 known top players found in 0 parsed rows -- the parser is not trusted to have found a real table",
+      "control_hits": 0,
+      "rows_parsed": 0,
+      "urls": [
+        "https://www.fftoday.com/rankings/playerproj.php?PosID=10&LeagueID=1",
+        "https://www.fftoday.com/rankings/playerproj.php?PosID=20&LeagueID=1",
+        "https://www.fftoday.com/rankings/playerproj.php?PosID=30&LeagueID=1",
+        "https://www.fftoday.com/rankings/playerproj.php?PosID=40&LeagueID=1"
+      ]
+    },
+    "walterfootball": {
+      "source": "walterfootball",
+      "status": "VOID",
+      "reason": "planted-value control failed: only 0/15 known top players found in 247 parsed rows -- the parser is not trusted to have found a real table",
+      "control_hits": 0,
+      "rows_parsed": 247,
+      "urls": [
+        "http://walterfootball.com/fantasy2026rankingsexcel.xlsx"
+      ]
+    },
+    "espn": {
+      "source": "espn",
+      "status": "OK",
+      "control_hits": 15,
+      "rows_parsed": 901,
+      "urls": [
+        "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info",
+        "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info",
+        "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info",
+        "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info"
+      ],
+      "rows": [
+        {
+          "name": "Philip Rivers",
+          "position": "QB",
+          "points": 12.96930582
+        },
+        {
+          "name": "Hendon Hooker",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Dillon Gabriel",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tanner McKee",
+          "position": "QB",
+          "points": 0.58957548
+        },
+        {
+          "name": "Kyler Murray",
+          "position": "QB",
+          "points": 17.2277313
+        },
+        {
+          "name": "Devin Leary",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Easton Stick",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Geno Smith",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Drake Maye",
+          "position": "QB",
+          "points": 20.67881283
+        },
+        {
+          "name": "Cade Klubnik",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jarrett Stidham",
+          "position": "QB",
+          "points": 0.70076033
+        },
+        {
+          "name": "Brady Cook",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Brock Purdy",
+          "position": "QB",
+          "points": 17.39807347
+        },
+        {
+          "name": "Ty Simpson",
+          "position": "QB",
+          "points": 0.58147906
+        },
+        {
+          "name": "Stetson Bennett IV",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Deshaun Watson",
+          "position": "QB",
+          "points": 0.49047706
+        },
+        {
+          "name": "Desmond Ridder",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Andy Dalton",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Caleb Williams",
+          "position": "QB",
+          "points": 17.33195273
+        },
+        {
+          "name": "Sean Clifford",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Riley Leonard",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Joe Burrow",
+          "position": "QB",
+          "points": 16.78522575
+        },
+        {
+          "name": "Jake Browning",
+          "position": "QB",
+          "points": 0.61006796
+        },
+        {
+          "name": "Ryan Griffin",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Skylar Thompson",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tim Boyle",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jake Haener",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jordan Love",
+          "position": "QB",
+          "points": 14.93646501
+        },
+        {
+          "name": "Fernando Mendoza",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Mike White",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tyrod Taylor",
+          "position": "QB",
+          "points": 0.53332626
+        },
+        {
+          "name": "Gardner Minshew II",
+          "position": "QB",
+          "points": 0.46089632
+        },
+        {
+          "name": "Taylor Heinicke",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Patrick Mahomes",
+          "position": "QB",
+          "points": 14.95792481
+        },
+        {
+          "name": "Clayton Tune",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Bryce Young",
+          "position": "QB",
+          "points": 14.11514522
+        },
+        {
+          "name": "Daniel Jones",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Trevor Lawrence",
+          "position": "QB",
+          "points": 17.04631011
+        },
+        {
+          "name": "Will Howard",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jalen Hurts",
+          "position": "QB",
+          "points": 20.00080921
+        },
+        {
+          "name": "Jacoby Brissett",
+          "position": "QB",
+          "points": 12.78437463
+        },
+        {
+          "name": "J.J. McCarthy",
+          "position": "QB",
+          "points": 0.61353587
+        },
+        {
+          "name": "Kyle McCord",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Mac Jones",
+          "position": "QB",
+          "points": 0.51512182
+        },
+        {
+          "name": "Tua Tagovailoa",
+          "position": "QB",
+          "points": 0.5020319
+        },
+        {
+          "name": "Brandon Allen",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Max Brosmer",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tyson Bagent",
+          "position": "QB",
+          "points": 0.62127071
+        },
+        {
+          "name": "Michael Penix Jr.",
+          "position": "QB",
+          "points": 13.33820473
+        },
+        {
+          "name": "Matthew Stafford",
+          "position": "QB",
+          "points": 17.01990555
+        },
+        {
+          "name": "Trevor Siemian",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Aaron Rodgers",
+          "position": "QB",
+          "points": 11.55969742
+        },
+        {
+          "name": "Nick Mullens",
+          "position": "QB",
+          "points": 0.60935165
+        },
+        {
+          "name": "Justin Herbert",
+          "position": "QB",
+          "points": 16.25801577
+        },
+        {
+          "name": "Jeff Driskel",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Kyle Allen",
+          "position": "QB",
+          "points": 0.44813228
+        },
+        {
+          "name": "Kyle Trask",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Teddy Bridgewater",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Drew Allar",
+          "position": "QB",
+          "points": 0.50104848
+        },
+        {
+          "name": "Shane Buechele",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jameis Winston",
+          "position": "QB",
+          "points": 0.54177915
+        },
+        {
+          "name": "Drew Lock",
+          "position": "QB",
+          "points": 0.4894061
+        },
+        {
+          "name": "Derek Carr",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jimmy Garoppolo",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Shough",
+          "position": "QB",
+          "points": 15.61940024
+        },
+        {
+          "name": "Joe Milton III",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Cam Ward",
+          "position": "QB",
+          "points": 15.17042991
+        },
+        {
+          "name": "Sam Ehlinger",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Allen",
+          "position": "QB",
+          "points": 20.77665456
+        },
+        {
+          "name": "Mitchell Trubisky",
+          "position": "QB",
+          "points": 0.54540893
+        },
+        {
+          "name": "Bo Nix",
+          "position": "QB",
+          "points": 20.01451242
+        },
+        {
+          "name": "Kirk Cousins",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Russell Wilson",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jordan Travis",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Graham Mertz",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Kurtis Rourke",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Spencer Rattler",
+          "position": "QB",
+          "points": 0.52608948
+        },
+        {
+          "name": "Jayden Daniels",
+          "position": "QB",
+          "points": 19.24848234
+        },
+        {
+          "name": "Trey Lance",
+          "position": "QB",
+          "points": 0.53949824
+        },
+        {
+          "name": "Justin Fields",
+          "position": "QB",
+          "points": 0.54757976
+        },
+        {
+          "name": "Aidan O'Connell",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Lamar Jackson",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Marcus Mariota",
+          "position": "QB",
+          "points": 0.61526211
+        },
+        {
+          "name": "Bailey Zappe",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Anthony Brown Jr.",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "C.J. Stroud",
+          "position": "QB",
+          "points": 12.3393311
+        },
+        {
+          "name": "Jalen Milroe",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Carson Wentz",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Shedeur Sanders",
+          "position": "QB",
+          "points": 13.91623415
+        },
+        {
+          "name": "Case Keenum",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "John Wolford",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Sam Darnold",
+          "position": "QB",
+          "points": 14.82332576
+        },
+        {
+          "name": "Cooper Rush",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Dorian Thompson-Robinson",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Carson Beck",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tommy DeVito",
+          "position": "QB",
+          "points": 0.67343518
+        },
+        {
+          "name": "Dak Prescott",
+          "position": "QB",
+          "points": 14.65296257
+        },
+        {
+          "name": "Joe Flacco",
+          "position": "QB",
+          "points": 0.57724771
+        },
+        {
+          "name": "Malik Willis",
+          "position": "QB",
+          "points": 11.47323329
+        },
+        {
+          "name": "Baker Mayfield",
+          "position": "QB",
+          "points": 15.73374095
+        },
+        {
+          "name": "Davis Mills",
+          "position": "QB",
+          "points": 0.41181801
+        },
+        {
+          "name": "Sam Howell",
+          "position": "QB",
+          "points": 0.47970009
+        },
+        {
+          "name": "Jaren Hall",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Brett Rypien",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Zach Wilson",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Huntley",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Johnson",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Nathan Rourke",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jaxson Dart",
+          "position": "QB",
+          "points": 18.57206061
+        },
+        {
+          "name": "Michael Pratt",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Will Levis",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Cam Miller",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Max Duggan",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Mason Rudolph",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Joshua Dobbs",
+          "position": "QB",
+          "points": 0.5233901
+        },
+        {
+          "name": "Anthony Richardson Sr.",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Jared Goff",
+          "position": "QB",
+          "points": 16.15113002
+        },
+        {
+          "name": "Kenny Pickett",
+          "position": "QB",
+          "points": 0.53795931
+        },
+        {
+          "name": "Quinn Ewers",
+          "position": "QB",
+          "points": 0.34238973
+        },
+        {
+          "name": "Chris Oladokun",
+          "position": "QB",
+          "points": 0.0
+        },
+        {
+          "name": "Brittain Brown",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Trey Benson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jaydon Blue",
+          "position": "RB",
+          "points": 2.86990239
+        },
+        {
+          "name": "Raheem Blackshear",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Nick Chubb",
+          "position": "RB",
+          "points": 5.27284842
+        },
+        {
+          "name": "Tahj Brooks",
+          "position": "RB",
+          "points": 1.03895554
+        },
+        {
+          "name": "Cordarrelle Patterson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Israel Abanikanda",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "RJ Harvey",
+          "position": "RB",
+          "points": 9.57464805
+        },
+        {
+          "name": "Mike Boone",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Eric Gray",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Braelon Allen",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kaytron Allen",
+          "position": "RB",
+          "points": 0.96164651
+        },
+        {
+          "name": "Dalvin Cook",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Zavier Scott",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Demond Claiborne",
+          "position": "RB",
+          "points": 1.02012574
+        },
+        {
+          "name": "Jordan James",
+          "position": "RB",
+          "points": 3.63185885
+        },
+        {
+          "name": "Deuce Vaughn",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Breece Hall",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Ben VanSumeren",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Hassan Haskins",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Saquon Barkley",
+          "position": "RB",
+          "points": 17.27924867
+        },
+        {
+          "name": "Kenny McIntosh",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jacob Kibodi",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jermar Jefferson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "John Kelly Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Trevor Etienne",
+          "position": "RB",
+          "points": 0.9849717
+        },
+        {
+          "name": "Zamir White",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Dare Ogunbowale",
+          "position": "RB",
+          "points": 1.0409614
+        },
+        {
+          "name": "Jerome Ford",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Ronnie Rivers",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jordan Mims",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kyle Juszczyk",
+          "position": "RB",
+          "points": 2.67278813
+        },
+        {
+          "name": "Omarion Hampton",
+          "position": "RB",
+          "points": 15.07189794
+        },
+        {
+          "name": "Corey Kiner",
+          "position": "RB",
+          "points": 2.10491402
+        },
+        {
+          "name": "Patrick Ricard",
+          "position": "RB",
+          "points": 0.4421319
+        },
+        {
+          "name": "Rachaad White",
+          "position": "RB",
+          "points": 10.07609252
+        },
+        {
+          "name": "Adam Randall",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "points": 12.98142779
+        },
+        {
+          "name": "Robbie Ouzts",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Brady Russell",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Nicholas Singleton",
+          "position": "RB",
+          "points": 1.31554172
+        },
+        {
+          "name": "Ty Johnson",
+          "position": "RB",
+          "points": 4.8468317
+        },
+        {
+          "name": "Derrick Henry",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Donovan Edwards",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Bhayshul Tuten",
+          "position": "RB",
+          "points": 12.03948135
+        },
+        {
+          "name": "Myles Gaskin",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Will Shipley",
+          "position": "RB",
+          "points": 1.71348345
+        },
+        {
+          "name": "Ray Davis",
+          "position": "RB",
+          "points": 2.16959361
+        },
+        {
+          "name": "Emmett Johnson",
+          "position": "RB",
+          "points": 2.34898426
+        },
+        {
+          "name": "Jadarian Price",
+          "position": "RB",
+          "points": 10.23677023
+        },
+        {
+          "name": "Phil Mafah",
+          "position": "RB",
+          "points": 1.65157631
+        },
+        {
+          "name": "Terrell Jennings",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Adam Prentice",
+          "position": "RB",
+          "points": 0.66371989
+        },
+        {
+          "name": "Ke'Shawn Vaughn",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Keaontay Ingram",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Goodson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Justice Hill",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Salvon Ahmed",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Troy Hairston",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Carson Steele",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jeff Wilson Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Quinshon Judkins",
+          "position": "RB",
+          "points": 14.48994549
+        },
+        {
+          "name": "James Conner",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Andrew Beck",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Ezekiel Elliott",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Chris Brooks",
+          "position": "RB",
+          "points": 2.10644031
+        },
+        {
+          "name": "D'Onta Foreman",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Alec Ingold",
+          "position": "RB",
+          "points": 0.96093245
+        },
+        {
+          "name": "Josh Johnson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Tony Jones Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Craig Reynolds",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Darrynton Evans",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Bam Knight",
+          "position": "RB",
+          "points": 0.04602958
+        },
+        {
+          "name": "Jahmyr Gibbs",
+          "position": "RB",
+          "points": 22.00522272
+        },
+        {
+          "name": "Frank Gore Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kaelon Black",
+          "position": "RB",
+          "points": 1.72148003
+        },
+        {
+          "name": "Trey Sermon",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Chase Brown",
+          "position": "RB",
+          "points": 15.44404381
+        },
+        {
+          "name": "Kenneth Walker III",
+          "position": "RB",
+          "points": 13.87568249
+        },
+        {
+          "name": "Chuba Hubbard",
+          "position": "RB",
+          "points": 10.26148388
+        },
+        {
+          "name": "Nathan Carter",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jacory Croskey-Merritt",
+          "position": "RB",
+          "points": 9.94114399
+        },
+        {
+          "name": "Ameer Abdullah",
+          "position": "RB",
+          "points": 1.64045292
+        },
+        {
+          "name": "SaRodorick Thompson Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kendre Miller",
+          "position": "RB",
+          "points": 0.42577062
+        },
+        {
+          "name": "Jarquez Hunter",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Chris Collier",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Isaac Guerendo",
+          "position": "RB",
+          "points": 0.06167309
+        },
+        {
+          "name": "Rhamondre Stevenson",
+          "position": "RB",
+          "points": 12.69500755
+        },
+        {
+          "name": "Devin Singletary",
+          "position": "RB",
+          "points": 1.19869552
+        },
+        {
+          "name": "Rasheen Ali",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Antonio Gibson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "D'Ernest Johnson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jawhar Jordan",
+          "position": "RB",
+          "points": 0.35484749
+        },
+        {
+          "name": "Raheem Mostert",
+          "position": "RB",
+          "points": 2.44647794
+        },
+        {
+          "name": "Damien Martinez",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "George Holani",
+          "position": "RB",
+          "points": 0.17824513
+        },
+        {
+          "name": "Owen Wright",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Dameon Pierce",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Deneric Prince",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Najee Harris",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Keilan Robinson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Brian Robinson Jr.",
+          "position": "RB",
+          "points": 5.28120945
+        },
+        {
+          "name": "Michael Wiley",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Chase Edmonds",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jaleel McLaughlin",
+          "position": "RB",
+          "points": 4.63685947
+        },
+        {
+          "name": "Jaret Patterson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Christian McCaffrey",
+          "position": "RB",
+          "points": 20.38819592
+        },
+        {
+          "name": "Pierre Strong Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Emari Demercado",
+          "position": "RB",
+          "points": 3.30790546
+        },
+        {
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "points": 10.17384108
+        },
+        {
+          "name": "Gary Brightwell",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Lan Larison",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Elijah Mitchell",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "D.J. Williams",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kareem Hunt",
+          "position": "RB",
+          "points": 8.63455677
+        },
+        {
+          "name": "Lew Nichols",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Max Bredeson",
+          "position": "RB",
+          "points": 0.56756498
+        },
+        {
+          "name": "Jonah Coleman",
+          "position": "RB",
+          "points": 4.97077275
+        },
+        {
+          "name": "Ashton Jeanty",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Michael Burton",
+          "position": "RB",
+          "points": 0.6326108
+        },
+        {
+          "name": "Louis Rees-Zammit",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jonathon Brooks",
+          "position": "RB",
+          "points": 10.13112341
+        },
+        {
+          "name": "Jordan Mason",
+          "position": "RB",
+          "points": 9.40894645
+        },
+        {
+          "name": "Chris Rodriguez Jr.",
+          "position": "RB",
+          "points": 4.15528875
+        },
+        {
+          "name": "Jeremy McNichols",
+          "position": "RB",
+          "points": 5.49203737
+        },
+        {
+          "name": "DJ Giddens",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Austin Ekeler",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Sincere McCormick",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Tony Pollard",
+          "position": "RB",
+          "points": 12.46061601
+        },
+        {
+          "name": "Miles Sanders",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kaleb Johnson",
+          "position": "RB",
+          "points": 0.26204301
+        },
+        {
+          "name": "Jakob Johnson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Dylan Sampson",
+          "position": "RB",
+          "points": 5.61348486
+        },
+        {
+          "name": "Tyrone Tracy Jr.",
+          "position": "RB",
+          "points": 5.67987658
+        },
+        {
+          "name": "Gus Edwards",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Badie",
+          "position": "RB",
+          "points": 0.0159867
+        },
+        {
+          "name": "Aaron Shampklin",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Evan Hull",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Jacobs",
+          "position": "RB",
+          "points": 15.08564631
+        },
+        {
+          "name": "Audric Estime",
+          "position": "RB",
+          "points": 2.00901214
+        },
+        {
+          "name": "Keaton Mitchell",
+          "position": "RB",
+          "points": 5.42551719
+        },
+        {
+          "name": "Dylan Laube",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Travis Etienne Jr.",
+          "position": "RB",
+          "points": 14.10343387
+        },
+        {
+          "name": "C.J. Ham",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Seth McGowan",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Amar Johnson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Connor Heyward",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jonathan Ward",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "DeWayne McBride",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "AJ Dillon",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "J.K. Dobbins",
+          "position": "RB",
+          "points": 12.16589598
+        },
+        {
+          "name": "Jamaal Williams",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Patrick Taylor Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Bucky Irving",
+          "position": "RB",
+          "points": 12.17364581
+        },
+        {
+          "name": "Tyrion Davis-Price",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "LeQuint Allen Jr.",
+          "position": "RB",
+          "points": 2.78307954
+        },
+        {
+          "name": "Trayveon Williams",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Nyheim Hines",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "James Cook III",
+          "position": "RB",
+          "points": 15.66514601
+        },
+        {
+          "name": "Roschon Johnson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Zach Charbonnet",
+          "position": "RB",
+          "points": 12.53028354
+        },
+        {
+          "name": "Jeremiyah Love",
+          "position": "RB",
+          "points": 15.85843152
+        },
+        {
+          "name": "Cam Akers",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Hunter Luepke",
+          "position": "RB",
+          "points": 1.36551669
+        },
+        {
+          "name": "Kyle Monangai",
+          "position": "RB",
+          "points": 10.80131715
+        },
+        {
+          "name": "Jacob Saylors",
+          "position": "RB",
+          "points": 0.01956454
+        },
+        {
+          "name": "Carlos Washington Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Brashard Smith",
+          "position": "RB",
+          "points": 0.06254645
+        },
+        {
+          "name": "Jaylen Warren",
+          "position": "RB",
+          "points": 10.53928688
+        },
+        {
+          "name": "Tyjae Spears",
+          "position": "RB",
+          "points": 9.99890094
+        },
+        {
+          "name": "British Brooks",
+          "position": "RB",
+          "points": 0.12138691
+        },
+        {
+          "name": "Clyde Edwards-Helaire",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "JaMycal Hasty",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Mike Washington Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "TreVeyon Henderson",
+          "position": "RB",
+          "points": 12.34518785
+        },
+        {
+          "name": "Travis Homer",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Reggie Gilliam",
+          "position": "RB",
+          "points": 0.49381203
+        },
+        {
+          "name": "Josh Williams",
+          "position": "RB",
+          "points": 0.00679685
+        },
+        {
+          "name": "Bijan Robinson",
+          "position": "RB",
+          "points": 20.0616838
+        },
+        {
+          "name": "J.J. Taylor",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Xazavian Valladay",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jaylen Wright",
+          "position": "RB",
+          "points": 2.18895591
+        },
+        {
+          "name": "Emanuel Wilson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Ty Chandler",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Joshua Kelley",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jack Westover",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Kyren Williams",
+          "position": "RB",
+          "points": 13.41899471
+        },
+        {
+          "name": "Cam Skattebo",
+          "position": "RB",
+          "points": 14.09868582
+        },
+        {
+          "name": "Jonathan Taylor",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Devin Neal",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Cody Schrader",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Khari Blasingame",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "David Montgomery",
+          "position": "RB",
+          "points": 9.99850379
+        },
+        {
+          "name": "Kene Nwangwu",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Ollie Gordon II",
+          "position": "RB",
+          "points": 1.70759662
+        },
+        {
+          "name": "Tyler Allgeier",
+          "position": "RB",
+          "points": 5.16918592
+        },
+        {
+          "name": "Kimani Vidal",
+          "position": "RB",
+          "points": 2.09892713
+        },
+        {
+          "name": "Sean Tucker",
+          "position": "RB",
+          "points": 2.18595128
+        },
+        {
+          "name": "Velus Jones Jr.",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Zack Moss",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Julius Chestnut",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Tank Bigsby",
+          "position": "RB",
+          "points": 4.12035966
+        },
+        {
+          "name": "Kendall Milton",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Ellis Merriweather",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Malik Davis",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "MarShawn Lloyd",
+          "position": "RB",
+          "points": 5.04030046
+        },
+        {
+          "name": "Zach Evans",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Raheim Sanders",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "DeeJay Dallas",
+          "position": "RB",
+          "points": 0.01131358
+        },
+        {
+          "name": "Woody Marks",
+          "position": "RB",
+          "points": 6.7662787
+        },
+        {
+          "name": "Dante Miller",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Sione Vaki",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Alvin Kamara",
+          "position": "RB",
+          "points": 7.38666854
+        },
+        {
+          "name": "Aaron Jones Sr.",
+          "position": "RB",
+          "points": 10.7333706
+        },
+        {
+          "name": "Scott Matlock",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Jase McClellan",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Elijah Dotson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Khalil Herbert",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "De'Von Achane",
+          "position": "RB",
+          "points": 15.26076377
+        },
+        {
+          "name": "Javonte Williams",
+          "position": "RB",
+          "points": 13.40363578
+        },
+        {
+          "name": "Mohamed Ibrahim",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Isaiah Davis",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Riley Nowakowski",
+          "position": "RB",
+          "points": 0.45155953
+        },
+        {
+          "name": "Blake Watson",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Avery Williams",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Michael Carter",
+          "position": "RB",
+          "points": 8.57250902
+        },
+        {
+          "name": "Kenny Gainwell",
+          "position": "RB",
+          "points": 10.48962736
+        },
+        {
+          "name": "Alexander Mattison",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Blake Corum",
+          "position": "RB",
+          "points": 9.21313519
+        },
+        {
+          "name": "Isiah Pacheco",
+          "position": "RB",
+          "points": 7.47942232
+        },
+        {
+          "name": "Samaje Perine",
+          "position": "RB",
+          "points": 5.69630001
+        },
+        {
+          "name": "Kalel Mullings",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Joe Mixon",
+          "position": "RB",
+          "points": 0.0
+        },
+        {
+          "name": "Germie Bernard",
+          "position": "WR",
+          "points": 5.99506954
+        },
+        {
+          "name": "Quez Watkins",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Chris Blair",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Dez Fitzpatrick",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Luther Burden III",
+          "position": "WR",
+          "points": 12.48968263
+        },
+        {
+          "name": "Bo Melton",
+          "position": "WR",
+          "points": 0.68140769
+        },
+        {
+          "name": "DeAndre Hopkins",
+          "position": "WR",
+          "points": 3.5830324
+        },
+        {
+          "name": "Xavier Restrepo",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Cooper Kupp",
+          "position": "WR",
+          "points": 5.9478088
+        },
+        {
+          "name": "Jalen Royals",
+          "position": "WR",
+          "points": 1.00891719
+        },
+        {
+          "name": "Kevin Coleman Jr.",
+          "position": "WR",
+          "points": 1.57301599
+        },
+        {
+          "name": "Keenan Allen",
+          "position": "WR",
+          "points": 10.50816628
+        },
+        {
+          "name": "Jauan Jennings",
+          "position": "WR",
+          "points": 6.76574537
+        },
+        {
+          "name": "Skyler Bell",
+          "position": "WR",
+          "points": 1.47972739
+        },
+        {
+          "name": "Jordan Addison",
+          "position": "WR",
+          "points": 10.07140384
+        },
+        {
+          "name": "Charlie Jones",
+          "position": "WR",
+          "points": 0.14758724
+        },
+        {
+          "name": "Chimere Dike",
+          "position": "WR",
+          "points": 2.52061529
+        },
+        {
+          "name": "Troy Franklin",
+          "position": "WR",
+          "points": 3.12999888
+        },
+        {
+          "name": "Samori Toure",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Malik Heath",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "D.J. Montgomery",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Rome Odunze",
+          "position": "WR",
+          "points": 12.89891553
+        },
+        {
+          "name": "Robert Woods",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Cedric Tillman",
+          "position": "WR",
+          "points": 0.47548913
+        },
+        {
+          "name": "Isaac TeSlaa",
+          "position": "WR",
+          "points": 4.35832265
+        },
+        {
+          "name": "Mack Hollins",
+          "position": "WR",
+          "points": 1.76757941
+        },
+        {
+          "name": "Ronnie Bell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Travis Hunter",
+          "position": "WR",
+          "points": 6.75120526
+        },
+        {
+          "name": "Jordan Watkins",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jakobie Keeney-James",
+          "position": "WR",
+          "points": 4.4391417
+        },
+        {
+          "name": "Dan Chisena",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Irv Charles",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ke'Shawn Williams",
+          "position": "WR",
+          "points": 0.05980039
+        },
+        {
+          "name": "Dennis Houston",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Zavion Thomas",
+          "position": "WR",
+          "points": 2.18714156
+        },
+        {
+          "name": "Ricky White III",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Savion Williams",
+          "position": "WR",
+          "points": 3.52078022
+        },
+        {
+          "name": "Tejhaun Palmer",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Danny Gray",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Andrei Iosivas",
+          "position": "WR",
+          "points": 3.26408345
+        },
+        {
+          "name": "Roman Wilson",
+          "position": "WR",
+          "points": 1.60578373
+        },
+        {
+          "name": "Xavier Gipson",
+          "position": "WR",
+          "points": 0.10610747
+        },
+        {
+          "name": "Caleb Douglas",
+          "position": "WR",
+          "points": 6.11387974
+        },
+        {
+          "name": "Malik Benson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "DJ Turner",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Denzel Boston",
+          "position": "WR",
+          "points": 9.03742049
+        },
+        {
+          "name": "Kearis Jackson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jaylen Waddle",
+          "position": "WR",
+          "points": 13.16238206
+        },
+        {
+          "name": "Tank Dell",
+          "position": "WR",
+          "points": 5.68818319
+        },
+        {
+          "name": "Laviska Shenault Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Nick Westbrook-Ikhine",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Brenen Thompson",
+          "position": "WR",
+          "points": 1.6019263
+        },
+        {
+          "name": "Matthew Golden",
+          "position": "WR",
+          "points": 10.76076608
+        },
+        {
+          "name": "Xavier Smith",
+          "position": "WR",
+          "points": 0.67064999
+        },
+        {
+          "name": "Alex Bachman",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jalen Nailor",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "DJ Moore",
+          "position": "WR",
+          "points": 12.18334811
+        },
+        {
+          "name": "Adonai Mitchell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tim Jones",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ja'Corey Brooks",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Kaden Prather",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "DeAndre Carter",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tay Martin",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Malik Nabers",
+          "position": "WR",
+          "points": 14.82560414
+        },
+        {
+          "name": "Tetairoa McMillan",
+          "position": "WR",
+          "points": 13.96098454
+        },
+        {
+          "name": "Cedrick Wilson Jr.",
+          "position": "WR",
+          "points": 1.7341957
+        },
+        {
+          "name": "Deven Thompkins",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tom Kennedy",
+          "position": "WR",
+          "points": 3.1831237
+        },
+        {
+          "name": "Tyreik McAllister",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Andre Baccellia",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Kalif Raymond",
+          "position": "WR",
+          "points": 2.90913542
+        },
+        {
+          "name": "Jalen Coker",
+          "position": "WR",
+          "points": 8.69469637
+        },
+        {
+          "name": "Justin Watson",
+          "position": "WR",
+          "points": 0.45949701
+        },
+        {
+          "name": "Demarcus Robinson",
+          "position": "WR",
+          "points": 0.56399959
+        },
+        {
+          "name": "Tyler Boyd",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Mike Williams",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Anthony Gould",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Terrell Bynum",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Trishton Jackson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jamal Agnew",
+          "position": "WR",
+          "points": 0.16333156
+        },
+        {
+          "name": "Amon-Ra St. Brown",
+          "position": "WR",
+          "points": 19.36162782
+        },
+        {
+          "name": "Braxton Berrios",
+          "position": "WR",
+          "points": 0.14630536
+        },
+        {
+          "name": "A.T. Perry",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Hunter Renfrow",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Zay Flowers",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jalen Virgil",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Deonte Harty",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jha'Quan Jackson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Chris Bell",
+          "position": "WR",
+          "points": 4.3143584
+        },
+        {
+          "name": "Jalen Tolbert",
+          "position": "WR",
+          "points": 4.36897516
+        },
+        {
+          "name": "Hollywood Brown",
+          "position": "WR",
+          "points": 2.03060947
+        },
+        {
+          "name": "Michael Woods II",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "CeeDee Lamb",
+          "position": "WR",
+          "points": 16.30958794
+        },
+        {
+          "name": "Bryce Ford-Wheaton",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "CJ Daniels",
+          "position": "WR",
+          "points": 0.55676862
+        },
+        {
+          "name": "Jayden Reed",
+          "position": "WR",
+          "points": 9.90427118
+        },
+        {
+          "name": "Alec Pierce",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jordyn Tyson",
+          "position": "WR",
+          "points": 9.89962682
+        },
+        {
+          "name": "Alex Erickson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Dante Pettis",
+          "position": "WR",
+          "points": 1.06882387
+        },
+        {
+          "name": "Zay Jones",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Mason Kinsey",
+          "position": "WR",
+          "points": 0.00377301
+        },
+        {
+          "name": "Elijah Moore",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Calvin Austin III",
+          "position": "WR",
+          "points": 0.96619554
+        },
+        {
+          "name": "Rashid Shaheed",
+          "position": "WR",
+          "points": 8.71873713
+        },
+        {
+          "name": "Darnell Mooney",
+          "position": "WR",
+          "points": 3.85170849
+        },
+        {
+          "name": "Nelson Agholor",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tory Horton",
+          "position": "WR",
+          "points": 3.95542557
+        },
+        {
+          "name": "Van Jefferson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Erik Ezukanma",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Gabe Davis",
+          "position": "WR",
+          "points": 6.36807986
+        },
+        {
+          "name": "Kameron Johnson",
+          "position": "WR",
+          "points": 0.20017564
+        },
+        {
+          "name": "Tony Brown",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Justyn Ross",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Treylon Burks",
+          "position": "WR",
+          "points": 2.67096064
+        },
+        {
+          "name": "Isaiah Bond",
+          "position": "WR",
+          "points": 1.95403139
+        },
+        {
+          "name": "Jimmy Horn Jr.",
+          "position": "WR",
+          "points": 1.25165759
+        },
+        {
+          "name": "Adam Thielen",
+          "position": "WR",
+          "points": 0.94974681
+        },
+        {
+          "name": "Tylan Wallace",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Steven Sims",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "John Metchie III",
+          "position": "WR",
+          "points": 10.5204131
+        },
+        {
+          "name": "Jerry Jeudy",
+          "position": "WR",
+          "points": 8.92947981
+        },
+        {
+          "name": "Javon Baker",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Olamide Zaccheaus",
+          "position": "WR",
+          "points": 1.85163498
+        },
+        {
+          "name": "Chandler Brayboy",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tyrell Shavers",
+          "position": "WR",
+          "points": 0.97954611
+        },
+        {
+          "name": "DeVonta Smith",
+          "position": "WR",
+          "points": 14.45112291
+        },
+        {
+          "name": "Chris Conley",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jason Brownlee",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Xavier Legette",
+          "position": "WR",
+          "points": 5.56463826
+        },
+        {
+          "name": "Bub Means",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jake Bobo",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Johnson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "LaJohntay Wester",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Chris Moore",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Derius Davis",
+          "position": "WR",
+          "points": 0.6767318
+        },
+        {
+          "name": "Kaden Wetjen",
+          "position": "WR",
+          "points": 0.24432366
+        },
+        {
+          "name": "Nikko Remigio",
+          "position": "WR",
+          "points": 0.07756805
+        },
+        {
+          "name": "Kendrick Bourne",
+          "position": "WR",
+          "points": 2.88049532
+        },
+        {
+          "name": "Brandon Aiyuk",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Michael Bandy",
+          "position": "WR",
+          "points": 0.01334905
+        },
+        {
+          "name": "Dee Eskridge",
+          "position": "WR",
+          "points": 0.02035212
+        },
+        {
+          "name": "Brandon Powell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Mitchell Tinsley",
+          "position": "WR",
+          "points": 0.54926168
+        },
+        {
+          "name": "Parris Campbell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Noah Brown",
+          "position": "WR",
+          "points": 1.27555582
+        },
+        {
+          "name": "Marquez Valdes-Scantling",
+          "position": "WR",
+          "points": 2.39738885
+        },
+        {
+          "name": "David Moore",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Elijah Cooks",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tai Felton",
+          "position": "WR",
+          "points": 0.52951961
+        },
+        {
+          "name": "Jermaine Jackson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Britain Covey",
+          "position": "WR",
+          "points": 0.10752465
+        },
+        {
+          "name": "Antonio Williams",
+          "position": "WR",
+          "points": 4.63357756
+        },
+        {
+          "name": "Isaiah Neyor",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Zach Pascal",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Curtis Samuel",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Skyy Moore",
+          "position": "WR",
+          "points": 0.02631481
+        },
+        {
+          "name": "Jaelon Darden",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Terry McLaurin",
+          "position": "WR",
+          "points": 12.9492272
+        },
+        {
+          "name": "Bryce Oliver",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Reynolds",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Nico Collins",
+          "position": "WR",
+          "points": 13.53700165
+        },
+        {
+          "name": "Equanimeous St. Brown",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Keon Coleman",
+          "position": "WR",
+          "points": 4.38385297
+        },
+        {
+          "name": "Terrace Marshall Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ja'Marr Chase",
+          "position": "WR",
+          "points": 19.04836935
+        },
+        {
+          "name": "Jalen Reagor",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Devin Duvernay",
+          "position": "WR",
+          "points": 0.0451514
+        },
+        {
+          "name": "Collin Johnson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Laquon Treadwell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "David Sills V",
+          "position": "WR",
+          "points": 6.22220798
+        },
+        {
+          "name": "Kevin Austin Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Johnny Wilson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Brandin Cooks",
+          "position": "WR",
+          "points": 4.64655651
+        },
+        {
+          "name": "Odell Beckham Jr.",
+          "position": "WR",
+          "points": 1.45456136
+        },
+        {
+          "name": "Isaiah Williams",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Mike Evans",
+          "position": "WR",
+          "points": 10.69050397
+        },
+        {
+          "name": "DJ Chark",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jordan Whittington",
+          "position": "WR",
+          "points": 1.84413235
+        },
+        {
+          "name": "Jamison Crowder",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "De'Zhaun Stribling",
+          "position": "WR",
+          "points": 7.65573097
+        },
+        {
+          "name": "Ted Hurst III",
+          "position": "WR",
+          "points": 3.85654741
+        },
+        {
+          "name": "Tahj Washington",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Zachariah Branch",
+          "position": "WR",
+          "points": 4.72587062
+        },
+        {
+          "name": "Devaughn Vele",
+          "position": "WR",
+          "points": 5.65535543
+        },
+        {
+          "name": "Mecole Hardman Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Allen Robinson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Davante Adams",
+          "position": "WR",
+          "points": 13.49174124
+        },
+        {
+          "name": "KhaDarel Hodge",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "James Proche II",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Barion Brown",
+          "position": "WR",
+          "points": 0.56166451
+        },
+        {
+          "name": "Wan'Dale Robinson",
+          "position": "WR",
+          "points": 11.10136846
+        },
+        {
+          "name": "Mason Tipton",
+          "position": "WR",
+          "points": 0.03517937
+        },
+        {
+          "name": "KC Concepcion",
+          "position": "WR",
+          "points": 9.89883141
+        },
+        {
+          "name": "Lil'Jordan Humphrey",
+          "position": "WR",
+          "points": 0.53448003
+        },
+        {
+          "name": "Malik Washington",
+          "position": "WR",
+          "points": 6.08560402
+        },
+        {
+          "name": "Gunner Olszewski",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Chris Brazzell II",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jacob Cowing",
+          "position": "WR",
+          "points": 0.06273943
+        },
+        {
+          "name": "Stefon Diggs",
+          "position": "WR",
+          "points": 9.70930942
+        },
+        {
+          "name": "Ricky Pearsall",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Robbie Chosen",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jeshaun Jones",
+          "position": "WR",
+          "points": 0.00502629
+        },
+        {
+          "name": "Konata Mumpfield",
+          "position": "WR",
+          "points": 1.69568359
+        },
+        {
+          "name": "Maurice Alexander",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Xavier Hutchinson",
+          "position": "WR",
+          "points": 1.7941565
+        },
+        {
+          "name": "Tutu Atwell",
+          "position": "WR",
+          "points": 2.92219638
+        },
+        {
+          "name": "Ryan Flournoy",
+          "position": "WR",
+          "points": 4.92193282
+        },
+        {
+          "name": "Christian Kirk",
+          "position": "WR",
+          "points": 2.13798703
+        },
+        {
+          "name": "River Cracraft",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "George Pickens",
+          "position": "WR",
+          "points": 13.27169958
+        },
+        {
+          "name": "Jalin Hyatt",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Kristian Wilkerson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tee Higgins",
+          "position": "WR",
+          "points": 12.37397532
+        },
+        {
+          "name": "Marvin Mims Jr.",
+          "position": "WR",
+          "points": 4.37978039
+        },
+        {
+          "name": "Garrett Wilson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Brandon Johnson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Greg Dortch",
+          "position": "WR",
+          "points": 0.95399744
+        },
+        {
+          "name": "Simi Fehoko",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Rashee Rice",
+          "position": "WR",
+          "points": 15.05536429
+        },
+        {
+          "name": "Marquez Callaway",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Michael Wilson",
+          "position": "WR",
+          "points": 10.12362296
+        },
+        {
+          "name": "Brycen Tremayne",
+          "position": "WR",
+          "points": 0.47157374
+        },
+        {
+          "name": "Cody White",
+          "position": "WR",
+          "points": 0.54980214
+        },
+        {
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "points": 12.90466398
+        },
+        {
+          "name": "Dominic Lovett",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Rashod Bateman",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Parker Washington",
+          "position": "WR",
+          "points": 11.18192883
+        },
+        {
+          "name": "Cornelius Johnson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "John Ross",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Scotty Miller",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jonathan Mingo",
+          "position": "WR",
+          "points": 0.45479961
+        },
+        {
+          "name": "Ainias Smith",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "KaVontae Turpin",
+          "position": "WR",
+          "points": 3.68751649
+        },
+        {
+          "name": "Drake London",
+          "position": "WR",
+          "points": 15.46637163
+        },
+        {
+          "name": "Jakobi Meyers",
+          "position": "WR",
+          "points": 10.89568226
+        },
+        {
+          "name": "Dareke Young",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ashton Dulin",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Amari Cooper",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jameson Williams",
+          "position": "WR",
+          "points": 12.45026124
+        },
+        {
+          "name": "Makai Lemon",
+          "position": "WR",
+          "points": 9.35810443
+        },
+        {
+          "name": "Ramel Keyton",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tyquan Thornton",
+          "position": "WR",
+          "points": 4.27008552
+        },
+        {
+          "name": "Trey Palmer",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Diontae Johnson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Joseph Ngata",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Malik Cunningham",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Emeka Egbuka",
+          "position": "WR",
+          "points": 13.58658989
+        },
+        {
+          "name": "Ja'Kobi Lane",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Chase Cota",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Cameron",
+          "position": "WR",
+          "points": 0.0178377
+        },
+        {
+          "name": "Jared Wayne",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Darius Cooper",
+          "position": "WR",
+          "points": 0.51712947
+        },
+        {
+          "name": "Jalen Brooks",
+          "position": "WR",
+          "points": 0.01774872
+        },
+        {
+          "name": "DK Metcalf",
+          "position": "WR",
+          "points": 10.85438335
+        },
+        {
+          "name": "A.J. Brown",
+          "position": "WR",
+          "points": 15.60622391
+        },
+        {
+          "name": "Carnell Tate",
+          "position": "WR",
+          "points": 12.74243563
+        },
+        {
+          "name": "K.J. Osborn",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jamari Thrash",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Brian Thomas Jr.",
+          "position": "WR",
+          "points": 10.56408596
+        },
+        {
+          "name": "Dont'e Thornton Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jaylen Johnson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Kaden Davis",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ray-Ray McCloud III",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Antoine Green",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Puka Nacua",
+          "position": "WR",
+          "points": 20.70686632
+        },
+        {
+          "name": "Tre' Harris",
+          "position": "WR",
+          "points": 5.24429889
+        },
+        {
+          "name": "Tez Johnson",
+          "position": "WR",
+          "points": 1.27758064
+        },
+        {
+          "name": "Theo Wease Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Devontez Walker",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ja'Lynn Polk",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jaylin Lane",
+          "position": "WR",
+          "points": 2.22719663
+        },
+        {
+          "name": "Sterling Shepard",
+          "position": "WR",
+          "points": 3.09422273
+        },
+        {
+          "name": "Myles Price",
+          "position": "WR",
+          "points": 0.11288584
+        },
+        {
+          "name": "Cody Thompson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jaylin Noel",
+          "position": "WR",
+          "points": 4.18090762
+        },
+        {
+          "name": "Marvin Harrison Jr.",
+          "position": "WR",
+          "points": 11.10684539
+        },
+        {
+          "name": "Tyler Lockett",
+          "position": "WR",
+          "points": 5.28319508
+        },
+        {
+          "name": "Christian Watson",
+          "position": "WR",
+          "points": 10.77131217
+        },
+        {
+          "name": "Malachi Corley",
+          "position": "WR",
+          "points": 0.60585877
+        },
+        {
+          "name": "Jalen McMillan",
+          "position": "WR",
+          "points": 7.88168813
+        },
+        {
+          "name": "Tim Patrick",
+          "position": "WR",
+          "points": 5.01540084
+        },
+        {
+          "name": "Casey Washington",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Joshua Palmer",
+          "position": "WR",
+          "points": 2.43407121
+        },
+        {
+          "name": "Justin Jefferson",
+          "position": "WR",
+          "points": 17.29424202
+        },
+        {
+          "name": "Anthony Miller",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Trent Sherfield",
+          "position": "WR",
+          "points": 3.93954873
+        },
+        {
+          "name": "Gage Larvadain",
+          "position": "WR",
+          "points": 0.03989986
+        },
+        {
+          "name": "Malachi Fields",
+          "position": "WR",
+          "points": 3.60301165
+        },
+        {
+          "name": "Tyler Scott",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Tre Tucker",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Downs",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Bryce Lance",
+          "position": "WR",
+          "points": 1.48051073
+        },
+        {
+          "name": "Brenden Rice",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Ben Skowronek",
+          "position": "WR",
+          "points": 0.21212176
+        },
+        {
+          "name": "Kyle Williams",
+          "position": "WR",
+          "points": 1.42143757
+        },
+        {
+          "name": "Cyrus Allen",
+          "position": "WR",
+          "points": 2.45210306
+        },
+        {
+          "name": "Elijah Sarratt",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Allen Lazard",
+          "position": "WR",
+          "points": 3.47083073
+        },
+        {
+          "name": "Isaiah Hodgins",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Omar Cooper Jr.",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Shedrick Jackson",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Nick Nash",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Xavier Weaver",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "KeAndre Lambert-Smith",
+          "position": "WR",
+          "points": 1.05882143
+        },
+        {
+          "name": "Reggie Virgil",
+          "position": "WR",
+          "points": 0.46670825
+        },
+        {
+          "name": "Courtland Sutton",
+          "position": "WR",
+          "points": 12.6819092
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "position": "WR",
+          "points": 19.75070324
+        },
+        {
+          "name": "Chris Godwin Jr.",
+          "position": "WR",
+          "points": 9.33508616
+        },
+        {
+          "name": "Michael Pittman Jr.",
+          "position": "WR",
+          "points": 10.84256797
+        },
+        {
+          "name": "Dontayvion Wicks",
+          "position": "WR",
+          "points": 6.57624414
+        },
+        {
+          "name": "Ryan Miller",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Rakim Jarrett",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Justin Shorter",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Kendric Pryor",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Kadarius Toney",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Romeo Doubs",
+          "position": "WR",
+          "points": 9.43394455
+        },
+        {
+          "name": "Kayshon Boutte",
+          "position": "WR",
+          "points": 5.49872209
+        },
+        {
+          "name": "Quentin Johnston",
+          "position": "WR",
+          "points": 9.65028753
+        },
+        {
+          "name": "Jermaine Burton",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jalen Moreno-Cropper",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Montrell Washington",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Phillip Dorsett II",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Darius Slayton",
+          "position": "WR",
+          "points": 5.3455888
+        },
+        {
+          "name": "Joshua Cephus",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Efton Chism III",
+          "position": "WR",
+          "points": 0.03472369
+        },
+        {
+          "name": "Pat Bryant",
+          "position": "WR",
+          "points": 4.53865696
+        },
+        {
+          "name": "Chris Olave",
+          "position": "WR",
+          "points": 14.36224876
+        },
+        {
+          "name": "Trenton Irwin",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Colbie Young",
+          "position": "WR",
+          "points": 2.23679445
+        },
+        {
+          "name": "Khalil Shakir",
+          "position": "WR",
+          "points": 9.97570009
+        },
+        {
+          "name": "Deebo Samuel Sr.",
+          "position": "WR",
+          "points": 9.46893379
+        },
+        {
+          "name": "Dalen Cambre",
+          "position": "WR",
+          "points": 3.05318574
+        },
+        {
+          "name": "Jahdae Walker",
+          "position": "WR",
+          "points": 0.52643881
+        },
+        {
+          "name": "Ihmir Smith-Marsette",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jahan Dotson",
+          "position": "WR",
+          "points": 5.30158747
+        },
+        {
+          "name": "Brandon Smith",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Luke McCaffrey",
+          "position": "WR",
+          "points": 1.09130256
+        },
+        {
+          "name": "JuJu Smith-Schuster",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Elic Ayomanor",
+          "position": "WR",
+          "points": 1.52924542
+        },
+        {
+          "name": "Trent Taylor",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "DeMario Douglas",
+          "position": "WR",
+          "points": 3.83319633
+        },
+        {
+          "name": "Dyami Brown",
+          "position": "WR",
+          "points": 2.76973592
+        },
+        {
+          "name": "Beaux Collins",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Junior Bergen",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Austin Trammell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jayden Higgins",
+          "position": "WR",
+          "points": 7.62111613
+        },
+        {
+          "name": "Tyreek Hill",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Dylan Drummond",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Calvin Ridley",
+          "position": "WR",
+          "points": 8.60800343
+        },
+        {
+          "name": "Tommy Mellott",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "David Bell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Grant DuBose",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jack Bech",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Arian Smith",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Xavier Worthy",
+          "position": "WR",
+          "points": 9.50901985
+        },
+        {
+          "name": "Colton Dowell",
+          "position": "WR",
+          "points": 0.0
+        },
+        {
+          "name": "Jaheim Bell",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Marcedes Lewis",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Mitchell Wilcox",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Mitchell Evans",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Travis Vokolek",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tucker Kraft",
+          "position": "TE",
+          "points": 10.522325
+        },
+        {
+          "name": "Zach Ertz",
+          "position": "TE",
+          "points": 9.21990631
+        },
+        {
+          "name": "Travis Kelce",
+          "position": "TE",
+          "points": 9.91282706
+        },
+        {
+          "name": "Tanner McLachlan",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "MyCole Pruitt",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Juwan Johnson",
+          "position": "TE",
+          "points": 8.36637677
+        },
+        {
+          "name": "Tyler Warren",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Noah Fant",
+          "position": "TE",
+          "points": 2.10367042
+        },
+        {
+          "name": "T.J. Hockenson",
+          "position": "TE",
+          "points": 9.30054351
+        },
+        {
+          "name": "Luke Schoonmaker",
+          "position": "TE",
+          "points": 1.53127409
+        },
+        {
+          "name": "Jody Fortson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Teagan Quitoriano",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Cameron Latu",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Gavin Bartholomew",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Eli Stowers",
+          "position": "TE",
+          "points": 1.76890286
+        },
+        {
+          "name": "Zaire Mitchell-Paden",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Sean McKeon",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Ja'Tavion Sanders",
+          "position": "TE",
+          "points": 2.50274264
+        },
+        {
+          "name": "Pharaoh Brown",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Max Klare",
+          "position": "TE",
+          "points": 0.57713152
+        },
+        {
+          "name": "James Mitchell",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Oronde Gadsden",
+          "position": "TE",
+          "points": 4.518251
+        },
+        {
+          "name": "Marlin Klein",
+          "position": "TE",
+          "points": 0.48360651
+        },
+        {
+          "name": "Stephen Carlson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Conklin",
+          "position": "TE",
+          "points": 0.53599054
+        },
+        {
+          "name": "Sam Roush",
+          "position": "TE",
+          "points": 0.52638176
+        },
+        {
+          "name": "Josh Cuevas",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Charlie Kolar",
+          "position": "TE",
+          "points": 2.11592085
+        },
+        {
+          "name": "Will Kacmarek",
+          "position": "TE",
+          "points": 2.15915723
+        },
+        {
+          "name": "Josh Oliver",
+          "position": "TE",
+          "points": 2.26250917
+        },
+        {
+          "name": "Cade Otton",
+          "position": "TE",
+          "points": 6.04911109
+        },
+        {
+          "name": "Blake Whiteheart",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "David Njoku",
+          "position": "TE",
+          "points": 6.10083401
+        },
+        {
+          "name": "Dallas Goedert",
+          "position": "TE",
+          "points": 10.68801049
+        },
+        {
+          "name": "Foster Moreau",
+          "position": "TE",
+          "points": 1.03862383
+        },
+        {
+          "name": "Robert Tonyan",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Grant Calcaterra",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Luke Farrell",
+          "position": "TE",
+          "points": 0.52818911
+        },
+        {
+          "name": "Jelani Woods",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Josh Whyle",
+          "position": "TE",
+          "points": 0.51177916
+        },
+        {
+          "name": "Will Dissly",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Dawson Knox",
+          "position": "TE",
+          "points": 3.97634851
+        },
+        {
+          "name": "Austin Hooper",
+          "position": "TE",
+          "points": 2.49381764
+        },
+        {
+          "name": "Harold Fannin Jr.",
+          "position": "TE",
+          "points": 11.9337077
+        },
+        {
+          "name": "Harrison Bryant",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Brayden Willis",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Nick Vannett",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Drew Sample",
+          "position": "TE",
+          "points": 2.19002858
+        },
+        {
+          "name": "Chris Manhertz",
+          "position": "TE",
+          "points": 0.24969789
+        },
+        {
+          "name": "Lawrence Cager",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Eric Saubert",
+          "position": "TE",
+          "points": 0.52112775
+        },
+        {
+          "name": "Payne Durham",
+          "position": "TE",
+          "points": 1.07073014
+        },
+        {
+          "name": "Nick Muse",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Lucas Krull",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Ben Yurosek",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Erick All Jr.",
+          "position": "TE",
+          "points": 3.41894157
+        },
+        {
+          "name": "Kyle Pitts Sr.",
+          "position": "TE",
+          "points": 10.64629286
+        },
+        {
+          "name": "Mason Taylor",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Sam LaPorta",
+          "position": "TE",
+          "points": 11.27378569
+        },
+        {
+          "name": "Dalton Schultz",
+          "position": "TE",
+          "points": 7.24596249
+        },
+        {
+          "name": "Adam Trautman",
+          "position": "TE",
+          "points": 1.77498671
+        },
+        {
+          "name": "Drew Ogletree",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "John Stephens Jr.",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Brevin Jordan",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "C.J. Uzomah",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tanner Koziol",
+          "position": "TE",
+          "points": 0.55267247
+        },
+        {
+          "name": "Kenyon Sadiq",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Ko Kieft",
+          "position": "TE",
+          "points": 0.53892441
+        },
+        {
+          "name": "Anthony Firkser",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Caleb Lohner",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Oscar Delp",
+          "position": "TE",
+          "points": 1.05088565
+        },
+        {
+          "name": "Shane Zylstra",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Jack Stoll",
+          "position": "TE",
+          "points": 0.48217134
+        },
+        {
+          "name": "Brenden Bates",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Elijah Arroyo",
+          "position": "TE",
+          "points": 3.66229962
+        },
+        {
+          "name": "Irv Smith Jr.",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Mo Alie-Cox",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Matthew Hibner",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Feleipe Franks",
+          "position": "TE",
+          "points": 0.21179472
+        },
+        {
+          "name": "Will Mallory",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tommy Tremble",
+          "position": "TE",
+          "points": 2.58000194
+        },
+        {
+          "name": "Luke Musgrave",
+          "position": "TE",
+          "points": 0.94378596
+        },
+        {
+          "name": "Jordan Matthews",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Evan Engram",
+          "position": "TE",
+          "points": 6.56845721
+        },
+        {
+          "name": "Luke Lachey",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Nick Kallerup",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Josiah Deguara",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Donald Parham Jr.",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Hayden Hurst",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Jackson Hawes",
+          "position": "TE",
+          "points": 1.59999737
+        },
+        {
+          "name": "Colston Loveland",
+          "position": "TE",
+          "points": 12.44950669
+        },
+        {
+          "name": "Kylen Granson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Ian Thomas",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Nate Boerkircher",
+          "position": "TE",
+          "points": 1.10679969
+        },
+        {
+          "name": "Chig Okonkwo",
+          "position": "TE",
+          "points": 7.18336411
+        },
+        {
+          "name": "Charlie Woerner",
+          "position": "TE",
+          "points": 0.47207546
+        },
+        {
+          "name": "Peyton Hendershot",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Quintin Morris",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Henry Pearson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tanner Conner",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Johnny Mundt",
+          "position": "TE",
+          "points": 0.49913911
+        },
+        {
+          "name": "Albert Okwuegbunam Jr.",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Hayden Rucci",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Baylor Cupp",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Darren Waller",
+          "position": "TE",
+          "points": 6.77228678
+        },
+        {
+          "name": "Tip Reiman",
+          "position": "TE",
+          "points": 0.48155868
+        },
+        {
+          "name": "Jonnu Smith",
+          "position": "TE",
+          "points": 5.03808584
+        },
+        {
+          "name": "Ben Sims",
+          "position": "TE",
+          "points": 0.82884908
+        },
+        {
+          "name": "Cam Grandy",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Hunter Long",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Brenton Strange",
+          "position": "TE",
+          "points": 8.5368043
+        },
+        {
+          "name": "Eli Raridon",
+          "position": "TE",
+          "points": 2.32343372
+        },
+        {
+          "name": "Nate Adkins",
+          "position": "TE",
+          "points": 1.15674942
+        },
+        {
+          "name": "Thomas Fidone II",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Cade Stover",
+          "position": "TE",
+          "points": 1.87106064
+        },
+        {
+          "name": "John FitzPatrick",
+          "position": "TE",
+          "points": 1.63591672
+        },
+        {
+          "name": "Brevyn Spann-Ford",
+          "position": "TE",
+          "points": 0.52485176
+        },
+        {
+          "name": "Taysom Hill",
+          "position": "TE",
+          "points": 3.43163046
+        },
+        {
+          "name": "Keleki Latu",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Isaiah Likely",
+          "position": "TE",
+          "points": 9.3564832
+        },
+        {
+          "name": "Moliki Matavao",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tyler Mabry",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Greg Dulcich",
+          "position": "TE",
+          "points": 6.47405043
+        },
+        {
+          "name": "Zach Davidson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Joe Royer",
+          "position": "TE",
+          "points": 1.03329774
+        },
+        {
+          "name": "Gerald Everett",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tyree Jackson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Colson Yankoff",
+          "position": "TE",
+          "points": 0.45263777
+        },
+        {
+          "name": "Gunnar Helm",
+          "position": "TE",
+          "points": 7.96000166
+        },
+        {
+          "name": "Jared Wiley",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "David Martin-Robinson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Brock Bowers",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Cole Kmet",
+          "position": "TE",
+          "points": 3.24129556
+        },
+        {
+          "name": "Stephen Sullivan",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Davis Allen",
+          "position": "TE",
+          "points": 1.1324068
+        },
+        {
+          "name": "CJ Dippre",
+          "position": "TE",
+          "points": 0.57897348
+        },
+        {
+          "name": "Darnell Washington",
+          "position": "TE",
+          "points": 4.0114563
+        },
+        {
+          "name": "Brock Wright",
+          "position": "TE",
+          "points": 1.11303641
+        },
+        {
+          "name": "George Kittle",
+          "position": "TE",
+          "points": 11.91803302
+        },
+        {
+          "name": "E.J. Jenkins",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Ben Sinnott",
+          "position": "TE",
+          "points": 1.58091222
+        },
+        {
+          "name": "Carter Runyon",
+          "position": "TE",
+          "points": 0.48803635
+        },
+        {
+          "name": "Princeton Fant",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Tanner Hudson",
+          "position": "TE",
+          "points": 1.65946937
+        },
+        {
+          "name": "Dalton Kincaid",
+          "position": "TE",
+          "points": 9.08105798
+        },
+        {
+          "name": "Devin Culp",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Justin Joly",
+          "position": "TE",
+          "points": 0.59017861
+        },
+        {
+          "name": "Jake Ferguson",
+          "position": "TE",
+          "points": 9.26503629
+        },
+        {
+          "name": "Terrance Ferguson",
+          "position": "TE",
+          "points": 7.88771255
+        },
+        {
+          "name": "Giovanni Ricci",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Julian Hill",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Noah Gray",
+          "position": "TE",
+          "points": 3.37516599
+        },
+        {
+          "name": "Trey McBride",
+          "position": "TE",
+          "points": 13.89382622
+        },
+        {
+          "name": "Elijah Higgins",
+          "position": "TE",
+          "points": 2.46353187
+        },
+        {
+          "name": "John Samuel Shenker",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Sal Cannella",
+          "position": "TE",
+          "points": 4.77584413
+        },
+        {
+          "name": "Hunter Henry",
+          "position": "TE",
+          "points": 9.37289431
+        },
+        {
+          "name": "Colby Parkinson",
+          "position": "TE",
+          "points": 4.37775219
+        },
+        {
+          "name": "Tucker Fisk",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Dallin Holker",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Nikola Kalinic",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Mike Gesicki",
+          "position": "TE",
+          "points": 4.85685846
+        },
+        {
+          "name": "Jordan Akins",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "AJ Barner",
+          "position": "TE",
+          "points": 6.85800055
+        },
+        {
+          "name": "Tyler Higbee",
+          "position": "TE",
+          "points": 2.20892882
+        },
+        {
+          "name": "Eric Tomlinson",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Ross Dwelley",
+          "position": "TE",
+          "points": 6.1644042
+        },
+        {
+          "name": "Cole Turner",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Stone Smartt",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Jeremy Ruckert",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Pat Freiermuth",
+          "position": "TE",
+          "points": 7.55502124
+        },
+        {
+          "name": "Zack Kuntz",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Jake Tonges",
+          "position": "TE",
+          "points": 1.08604819
+        },
+        {
+          "name": "Geoff Swaim",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Rodney Williams",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Theo Johnson",
+          "position": "TE",
+          "points": 3.7186213
+        },
+        {
+          "name": "Parker Hesse",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Michael Mayer",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Thomas Odukoya",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Kenny Yeboah",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Daniel Bellinger",
+          "position": "TE",
+          "points": 1.67594076
+        },
+        {
+          "name": "John Bates",
+          "position": "TE",
+          "points": 2.05518519
+        },
+        {
+          "name": "Mark Andrews",
+          "position": "TE",
+          "points": 0.0
+        },
+        {
+          "name": "Durham Smythe",
+          "position": "TE",
+          "points": 0.0
+        }
+      ]
+    },
+    "fantasyfootballnerd": {
+      "source": "fantasyfootballnerd",
+      "status": "VOID",
+      "reason": "requires a paid FantasyFootballNerd API key -- ffanalytics's own scraper uses a TEST placeholder key, not a working one, and we hold no key"
+    }
+  },
+  "validated_sources": [
+    "espn"
+  ],
+  "validated_count": 1,
+  "clears_3_source_bar": false
+}
