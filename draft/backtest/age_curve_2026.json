@@ -1,0 +1,343 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by age_curve_fit.py",
+ "_what": "V7 C1: year-over-year points ratio by (position, age), 2021-25 transitions, >=8 games both seasons, ages from the 2026 board shifted back. SURVIVORSHIP-BIASED toward players still active in 2026 \u2014 correct for pricing the 2026 board, understated for league-wide decline.",
+ "transitions": [
+  "2021->2022",
+  "2022->2023",
+  "2023->2024",
+  "2024->2025"
+ ],
+ "player_season_pairs": 700,
+ "curves": {
+  "QB": {
+   "by_age": {
+    "22": {
+     "median_ratio": 1.55,
+     "n": 3,
+     "status": "unmeasurable"
+    },
+    "23": {
+     "median_ratio": 1.201,
+     "n": 8,
+     "status": "measured"
+    },
+    "24": {
+     "median_ratio": 0.77,
+     "n": 8,
+     "status": "measured"
+    },
+    "25": {
+     "median_ratio": 0.979,
+     "n": 14,
+     "status": "measured"
+    },
+    "26": {
+     "median_ratio": 1.097,
+     "n": 11,
+     "status": "measured"
+    },
+    "27": {
+     "median_ratio": 1.127,
+     "n": 11,
+     "status": "measured"
+    },
+    "28": {
+     "median_ratio": 0.957,
+     "n": 9,
+     "status": "measured"
+    },
+    "29": {
+     "median_ratio": 0.941,
+     "n": 7,
+     "status": "unmeasurable"
+    },
+    "30": {
+     "median_ratio": 0.882,
+     "n": 5,
+     "status": "unmeasurable"
+    },
+    "31": {
+     "median_ratio": 0.698,
+     "n": 2,
+     "status": "unmeasurable"
+    },
+    "32": {
+     "median_ratio": 0.733,
+     "n": 3,
+     "status": "unmeasurable"
+    },
+    "33": {
+     "median_ratio": 1.054,
+     "n": 2,
+     "status": "unmeasurable"
+    },
+    "34": {
+     "median_ratio": 0.606,
+     "n": 4,
+     "status": "unmeasurable"
+    },
+    "35": {
+     "median_ratio": 1.809,
+     "n": 2,
+     "status": "unmeasurable"
+    },
+    "36": {
+     "median_ratio": 0.76,
+     "n": 2,
+     "status": "unmeasurable"
+    },
+    "37": {
+     "median_ratio": 1.728,
+     "n": 1,
+     "status": "unmeasurable"
+    },
+    "38": {
+     "median_ratio": 0.716,
+     "n": 1,
+     "status": "unmeasurable"
+    },
+    "41": {
+     "median_ratio": 0.878,
+     "n": 1,
+     "status": "unmeasurable"
+    }
+   },
+   "fitted_peak_age": 26,
+   "mean_decline_past_peak_per_year": -0.042,
+   "cory_prior_peak": [
+    28,
+    33
+   ]
+  },
+  "RB": {
+   "by_age": {
+    "21": {
+     "median_ratio": 5.165,
+     "n": 1,
+     "status": "unmeasurable"
+    },
+    "22": {
+     "median_ratio": 1.383,
+     "n": 9,
+     "status": "measured"
+    },
+    "23": {
+     "median_ratio": 0.853,
+     "n": 24,
+     "status": "measured"
+    },
+    "24": {
+     "median_ratio": 1.108,
+     "n": 31,
+     "status": "measured"
+    },
+    "25": {
+     "median_ratio": 0.993,
+     "n": 31,
+     "status": "measured"
+    },
+    "26": {
+     "median_ratio": 1.124,
+     "n": 27,
+     "status": "measured"
+    },
+    "27": {
+     "median_ratio": 0.875,
+     "n": 16,
+     "status": "measured"
+    },
+    "28": {
+     "median_ratio": 0.888,
+     "n": 11,
+     "status": "measured"
+    },
+    "29": {
+     "median_ratio": 0.986,
+     "n": 9,
+     "status": "measured"
+    },
+    "30": {
+     "median_ratio": 0.757,
+     "n": 5,
+     "status": "unmeasurable"
+    },
+    "31": {
+     "median_ratio": 0.731,
+     "n": 5,
+     "status": "unmeasurable"
+    },
+    "32": {
+     "median_ratio": 0.381,
+     "n": 3,
+     "status": "unmeasurable"
+    },
+    "33": {
+     "median_ratio": 1.191,
+     "n": 1,
+     "status": "unmeasurable"
+    },
+    "34": {
+     "median_ratio": 1.106,
+     "n": 1,
+     "status": "unmeasurable"
+    }
+   },
+   "fitted_peak_age": 22,
+   "mean_decline_past_peak_per_year": 0.0247,
+   "cory_prior_peak": [
+    23,
+    26
+   ]
+  },
+  "WR": {
+   "by_age": {
+    "22": {
+     "median_ratio": 1.177,
+     "n": 15,
+     "status": "measured"
+    },
+    "23": {
+     "median_ratio": 1.138,
+     "n": 38,
+     "status": "measured"
+    },
+    "24": {
+     "median_ratio": 0.998,
+     "n": 44,
+     "status": "measured"
+    },
+    "25": {
+     "median_ratio": 1.006,
+     "n": 39,
+     "status": "measured"
+    },
+    "26": {
+     "median_ratio": 0.883,
+     "n": 35,
+     "status": "measured"
+    },
+    "27": {
+     "median_ratio": 0.931,
+     "n": 28,
+     "status": "measured"
+    },
+    "28": {
+     "median_ratio": 0.975,
+     "n": 26,
+     "status": "measured"
+    },
+    "29": {
+     "median_ratio": 0.926,
+     "n": 22,
+     "status": "measured"
+    },
+    "30": {
+     "median_ratio": 0.78,
+     "n": 14,
+     "status": "measured"
+    },
+    "31": {
+     "median_ratio": 0.908,
+     "n": 10,
+     "status": "measured"
+    },
+    "32": {
+     "median_ratio": 0.877,
+     "n": 6,
+     "status": "unmeasurable"
+    }
+   },
+   "fitted_peak_age": 22,
+   "mean_decline_past_peak_per_year": 0.0506,
+   "cory_prior_peak": [
+    26,
+    28
+   ]
+  },
+  "TE": {
+   "by_age": {
+    "21": {
+     "median_ratio": 0.432,
+     "n": 1,
+     "status": "unmeasurable"
+    },
+    "22": {
+     "median_ratio": 0.692,
+     "n": 6,
+     "status": "unmeasurable"
+    },
+    "23": {
+     "median_ratio": 1.089,
+     "n": 11,
+     "status": "measured"
+    },
+    "24": {
+     "median_ratio": 1.098,
+     "n": 22,
+     "status": "measured"
+    },
+    "25": {
+     "median_ratio": 1.205,
+     "n": 21,
+     "status": "measured"
+    },
+    "26": {
+     "median_ratio": 0.692,
+     "n": 24,
+     "status": "measured"
+    },
+    "27": {
+     "median_ratio": 1.049,
+     "n": 18,
+     "status": "measured"
+    },
+    "28": {
+     "median_ratio": 1.064,
+     "n": 18,
+     "status": "measured"
+    },
+    "29": {
+     "median_ratio": 0.921,
+     "n": 15,
+     "status": "measured"
+    },
+    "30": {
+     "median_ratio": 1.236,
+     "n": 8,
+     "status": "measured"
+    },
+    "31": {
+     "median_ratio": 0.679,
+     "n": 3,
+     "status": "unmeasurable"
+    },
+    "32": {
+     "median_ratio": 1.047,
+     "n": 2,
+     "status": "unmeasurable"
+    },
+    "33": {
+     "median_ratio": 0.817,
+     "n": 2,
+     "status": "unmeasurable"
+    },
+    "34": {
+     "median_ratio": 0.568,
+     "n": 3,
+     "status": "unmeasurable"
+    },
+    "35": {
+     "median_ratio": 0.866,
+     "n": 1,
+     "status": "unmeasurable"
+    }
+   },
+   "fitted_peak_age": 24,
+   "mean_decline_past_peak_per_year": -0.0278,
+   "cory_prior_peak": [
+    26,
+    29
+   ]
+  }
+ }
+}
