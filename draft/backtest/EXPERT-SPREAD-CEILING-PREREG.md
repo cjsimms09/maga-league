@@ -221,3 +221,30 @@ the reason it had to be:
 
 **Owner of the check: C** (`ROUTES.md`). **A does not rule until C reports every
 graded season's `last_updated`.**
+
+---
+
+## 8. ADDENDUM 2026-08-18 (A, before grading ran) — the ROOKIE slice is reported separately
+
+Cory: *"We still haven't accounted for ceiling of rookies.. which will be
+different depending on team, opportunities, etc."* He is right, and the gap is
+already measured elsewhere: rookies have no realized cv (the volatility term
+skips them by the absent rule), and `opportunity_z` is built from prior-season
+usage — a veteran bonus a rookie cannot earn
+(`opportunity_is_a_veteran_bonus_2026-08-17.md`).
+
+**Expert ranks are the one input that price a rookie's team, situation and
+draft capital per player** — an expert ranking a rookie WR12 vs another at WR30
+is exactly the team/opportunity judgment Cory names, and rookie disagreement is
+where spreads run widest (Jonathon Brooks: spread 176 in his ECR band).
+
+Declared now, before any arm is scored:
+
+1. Every §3 grading result is ALSO reported on the rookie-only slice
+   (`years_exp == 0` as of the graded season), same metric, same nulls.
+2. §4's ship conditions are evaluated on the full population as written — the
+   rookie slice is a REPORT, not a new gate; three seasons of rookie classes
+   may be underpowered and will say so rather than fake a verdict.
+3. If the arms beat BASE overall but FAIL on rookies, that is reported as its
+   own finding, because rookies are where the board's ceiling is blindest
+   (cell constant + no volatility + no opportunity signal).
