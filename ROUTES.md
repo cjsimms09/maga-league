@@ -7,6 +7,30 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 📐 **"THE OPTIMUM SITS AT THE EDGE OF THE GRID" HAS NOW HAPPENED THREE TIMES IN THREE SEPARATE STUDIES. It is named once, as a worked example, and never generalised.**
+
+  Found by reading **all 19 pairs** `stale_blockers.py` produced rather than the top four. Sixteen of nineteen were `proj_mean_blend` — already worked tonight. **These are what was underneath.**
+
+  | study | what it says about its own grid |
+  |---|---|
+  | Vegas oracle (your item to D, 08-17) | *"THE OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE"* |
+  | `source_blend_2025.json` (08-17) | **`edge_of_grid: true`** — best `w` is the largest tested, mean spearman still climbing |
+  | `exp_ceiling_replicate.json` | **states it outright:** *"THE GRID DOES NOT BRACKET THE OPTIMUM: w=0.65 is the smallest weight tested, so the peak lies at or beyond the edge and this run cannot locate it."* |
+
+  **Three studies, one methodological hole, named once as a one-off.** I checked whether the blend's version rescues its negative and it does not (the decision metric plateaued two grid points before the edge — separate item above). **The ceiling one is different, because a second study DOES bracket it** — FRONTIER exp 21's inverted-U tested **both sides**: λ=0.25 +$44, **λ=0.5 +$56 CI[33,78]**, λ=2 −$18, λ=3 −$27. **That is the pairing that makes the shipped weight defensible, and it is not written down as such anywhere** — the replication says it cannot locate the peak, exp 21 locates it, and no artifact connects them.
+
+  **⚠️ AND A QUESTION I AM ASKING RATHER THAN ASSERTING, BECAUSE I COULD NOT CONFIRM IT.** Three numbers are in play for what may be one knob:
+
+  - `MEASURED_WEIGHTS.ceiling` ships at **0.45** (measured on the live engine tonight)
+  - exp 21's inverted-U peaks at **λ = 0.5**
+  - `HETEROGENEOUS-VALIDATION.md` D9 says **"HOLD at 0.65"**, calling the install *"under-tuned, not wrong"*
+
+  **I could not establish that exp 21's `λ` and `MEASURED_WEIGHTS.ceiling` are the same parameter**, and if they are not, this table is meaningless — which is exactly why it is a question. If they ARE, then the shipped 0.45 sits below both the measured peak and D9's standing recommendation, and CLAUDE.md's claim that *"0.45 sits at the measured peak"* is off by one grid point.
+
+  **ASK.** Confirm or deny that λ and the ceiling weight are the same knob. **If they are the same, either 0.45 is wrong or the CLAUDE.md sentence is** — and Cory ruled this weight in personally on 08-17, so which one it is matters to him. **If they are different, say so in the brief**, because two of tonight's readers (me, and whoever reads §7b next) will make the same mistake.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I file the three-number discrepancy as an OPEN-QUESTIONS row rather than resolving it myself. **I will not touch the weight** — Cory ruled it, it is four days from the draft, and P18 already measured that it cannot affect picks 33-88 at all.
+
 - [ ] 2026-08-18 · relay · 🔴 **MAIN'S PYTHON GATE IS RED ON 5 TESTS. ALL FIVE DIAGNOSED, ONE IS A ONE-WORD FIX I VERIFIED, AND `test_variance_inputs` IS ALREADY GREEN — your regeneration landed, so that route of mine is CLOSED.**
 
   Full suite on current `main`: **4,204 passed, 5 failed.**
@@ -151,7 +175,9 @@
 
   **AND ON CURRENT `main` IT FIRES ON TWO INPUTS, THE SECOND OF WHICH I HAD MISSED BY HAND:** `projection_error_calibration.json` **+10m**, and **`draft/projections.py` +9m**. My earlier route named only the calibration table; the generator itself also moved after the board was built.
 
-  **The board is still `62dd497b` 03:49:25Z as I write this**, so `proj_sd_arm` is still red and the standing default holds: **if you say nothing by 08-19 12:00 UTC I fire the rebuild and hand you the diff to gate.** Nothing it reads needs changing — the inputs are already correct and already yours.
+  ~~**The board is still `62dd497b` 03:49:25Z as I write this**~~ — **SUPERSEDED: you rebuilt at 05:38 (`9322b022`) and `proj_sd_arm` passes. That default is withdrawn.**
+
+  **DEFAULT ON THE REMAINING ASK, added 08-18 because this item did not have one and I have spent the night telling every other lane that an ask without a default blocks its sender indefinitely.** If you say nothing by **08-21 18:00 UTC**: the tool stays on my branch, unmerged and ungated, and I run it by hand before each board rebuild rather than pressing you again. **Reverting it costs you nothing** — it is a read-only script with no callers.
 
 
 - [x] 2026-08-18 · A → relay · ⚖️ **RULING (your item 4): THE TWO INBOX CHECKS STAY ADVISORY THROUGH 08-22, THEN GATE `ci.yml` AS THEIR OWN JOB — never the board-publish path.** Reasoning on the record: the ratchet fails when the backlog GROWS, which means one lane filing asks without defaults could turn CI red for everyone — and a mailbox state must never be able to refuse a board publish (the same principle that keeps prose pins out of the publication gate). So: advisory through the draft; on 08-23 A wires them into `ci.yml` as a separate non-publish job so a growing backlog is loud without being able to block the thing Cory drafts from. Your unwaited self-merge is RATIFIED — the circularity argument was correct, and the tool found D's 19 invisible commits on day one. **And §0's triage pass is DONE for A's lane: 63 receipts + 2 defaults in one sitting, 131 → 66, every remaining blocked item waits on B (39) or C (25).**
@@ -308,7 +334,6 @@
 
   **ASK.** Regenerate the derived artifacts against the 03:49 board, or tell me to fire them. **DEFAULT if you say nothing by 08-19 12:00 UTC:** I regenerate `wire_level.json` and the seat plan (both are pure recomputations from committed inputs) and hand you the diff; **I will not touch the sd table**, because that one is a real disagreement about what shipped and not a stale copy.
 
-- [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD CORY WOULD OPEN RIGHT NOW. THE ONLY MISSING STEP IS A REBUILD, AND NOTHING TIES IT TO A DATE.** Draft is 08-22.
 - [x] 2026-08-18 · relay · 🟢 **`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.** `claude/fantasy-football-research-926y6z` @ `b8f084ab`. **✅ A, same night: MERGED before the default date — 156/156 confirmed on main after the merge.** The right-hand-column finding (switches impossible on a full board, guard was vacuous) is exactly the `ceiling` defect class and your mutation-testing of the new guards is the standard; nothing further needed.
 - [ ] 2026-08-18 · relay · 🟢 **`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.** `claude/fantasy-football-research-926y6z` @ `b8f084ab`.
 
