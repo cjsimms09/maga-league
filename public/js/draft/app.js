@@ -5540,6 +5540,21 @@
     // Job 2 \u2014 the rationale preamble (roster legality, plain language).
     const head = renderRecRationale(scored);
 
+    /* REGISTER 4e, THE CHEAP FIX (A/B, 08-18) \u2014 a CAPTION, not a re-sort.
+     * The list IS ordered by the engine's composite score (`.rec-rank` is that
+     * order and nothing else), and each card already prints the number that
+     * drives it (`.rec-score`) \u2014 but its label lives only in a hover title,
+     * which does not exist on a phone and does not exist at 8s/pick either.
+     * A reader scanning bare numbers next to a dollar-heavy tool has no way to
+     * know this one is a composite score rather than a price. One always-
+     * visible line says what it is; the number, the sort and the score column
+     * itself are all unchanged \u2014 sorting BY the displayed number would change
+     * which player the engine recommends first, four days out, which is A's
+     * engine and exactly what this row's own resolution rules out. */
+    const orderNote = '<div class="rec-order-note">Ranked by <b>composite score</b> \u2014 '
+      + 'the number beside each name (' + '<span class="rec-order-eg">17.3</span>'
+      + ') is that score, not a dollar value.</div>';
+
     /* WHICH TERM DECIDED THIS PICK, BEFORE IT IS MADE.
      *
      * decision_contract.js has been ON the war-room page and CALLED BY NOTHING.
@@ -5628,7 +5643,7 @@
       return (lo < hi) ? { min: lo, max: hi } : null;
     })();
     const curPickNo = (function () { try { return currentPick(); } catch (e) { return null; } })();
-    host.innerHTML = explainPanel('recommendations') + head + decisiveLine + scored.map((s, i) => {
+    host.innerHTML = explainPanel('recommendations') + head + orderNote + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       /* FALLING (Cory, cockpit steering): value sliding past its market price —
