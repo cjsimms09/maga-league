@@ -147,7 +147,11 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
     ids_df = nfl.import_ids()
     crosswalk = crosswalk_gsis_to_sleeper([], ids_df)
 
-    depth_all = nfl.import_depth_charts(list(SEASONS))
+    # Per-season import + 2025+ snapshot-schema normalisation — the raw
+    # multi-season concat silently drops every 2025+ season (see
+    # depth_chart_schema.py for the finding; fourth real-dispatch fix).
+    from depth_chart_schema import import_depth_charts_normalized, as_of_note
+    depth_all, dc_snapshots = import_depth_charts_normalized(nfl, list(SEASONS))
     roster_all = nfl.import_seasonal_rosters(list(SEASONS))
     # nfl_data_py 0.3.x seasonal rosters carry the GSIS id as `player_id`
     # (nflverse renamed the column); normalise back so every downstream read
@@ -196,9 +200,8 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
                 {"gsis_id": r.get("gsis_id"), "position": r.get("position")})
 
         prior_totals, prior_games = season_totals(season - 1)
-        as_of = (f"season {season} week {wk} QB depth chart "
-                f"(nfl_data_py import_depth_charts, earliest available "
-                f"week) + season {season} roster (import_rosters) + "
+        as_of = (f"QB {as_of_note(season, wk, dc_snapshots)} + "
+                f"season {season} roster (import_rosters) + "
                 f"{season - 1} committed weekly-points store")
         rows = build_rows(rec_by_team, qb_by_team, prior_totals, prior_games,
                           crosswalk, season, as_of)
