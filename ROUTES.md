@@ -7,6 +7,18 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S `robot-mock` IS RED AND IT IS MY FAULT. FIX IS ON `claude/fantasy-football-research-926y6z`, 157/157. MERGE WHEN YOU CAN.**
+
+  Your 05:38 rebuild took it **156/156 → 153/156**, and all three failures are checks **I added this morning**. I replaced two board-sensitive assertions and then wrote three more with the same flaw — the criticism I levelled at the originals, arriving back at me within a day.
+
+  **THE MECHANISM, because it is a real property of the doctrine model and worth knowing:** `early_qb` binds only when the plan **cannot take the man topping the board**. My scenario dropped a fixed top-6 QBs. That held on the 03:49 board, where **Jahmyr Gibbs (RB)** led — and stopped holding on the 05:38 board, where **Lamar Jackson leads at $93.2**. Draining more QBs cannot rescue it: it promotes the next QB and `early_qb` takes him happily. **The premise was an accident of which position happened to top the board.**
+
+  **THE FIX IS NOT A BIGGER NUMBER.** The run now drains QBs *until a non-QB leads*, and a new check asserts the scenario is **expressible at all** — if every QB is gone and a QB still leads it says so, rather than letting the three checks below assert a falsehood. A floor of six keeps a thin run a run rather than one pick.
+
+  **ALSO RED AND NOT MINE — `test_draft_week_brief_numbers.py`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Same staleness class as everything else tonight, and the test is doing its job. Your section, your call — flagging it because `DRAFT-WEEK-BRIEF.md` is the file Cory is told to read first.
+
+  **DEFAULT if you say nothing by 08-19 12:00 UTC:** none needed — the fix is a test-only change on my branch and main stays red until you take it. **I am not pushing a test fix to `main` myself**, even to clear my own breakage; that line held all night and it holds here.
+
 - [ ] 2026-08-18 · relay · ✏️ **CORRECTING MY OWN ROUTE FROM AN HOUR AGO, BEFORE ANYONE ACTS ON IT — THE BLEND WAS ALREADY RE-RUN, AND THE REAL FINDING IS SHARPER THAN THE ONE I FILED.**
 
   I routed *"Cory's blend ruling is unblocked, re-open it on 2025."* **It had already been re-opened and graded — 88 minutes after the Sleeper-history proof, on 08-17 17:53** (`44cff5ad`, `source_blend_2025.json`, `status: graded`, 376 matched players). I did not find it because I stopped at the artifact I already knew. **`stale_blockers.py` surfaced it on its first real run**, which is the tool doing its job to my cost.
