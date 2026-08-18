@@ -198,6 +198,68 @@ ok('CONTROL — distinct ids do not trip it, so the check is not just "more than
   assert.strictEqual(check(t, '2026-08-19').problems.length, 0);
 });
 
+// ── THREE HOLES FOUND BY A'S VERIFICATION PASS, 2026-08-18 ──────────────────
+// Each demonstrated live against a working control BEFORE the fix (rule 3e),
+// then fixed. The fail arms below are the demonstrations, kept.
+
+ok('FAIL ARM — a pipe in the prose no longer deletes the row', () => {
+  // Pre-fix: this row parsed to ≠8 cells, was skipped, and its overdue date
+  // was never chased — invisible in a real ledger where the zero-rows guard
+  // cannot fire. The register checker had this exact defect (5 of 9 rows).
+  const t = HEAD + '| P90 | the guard reads (a | b) correctly | 07-01 | relay | 08-01 | OPEN | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P90: LOOKS LIKE A PREDICTION ROW BUT DID NOT PARSE/.test(x)),
+    JSON.stringify(p));
+});
+
+ok('CONTROL — an ESCAPED pipe in the prose parses fine and the row is chased', () => {
+  const t = HEAD + '| P90 | the guard reads (a \\| b) correctly | 07-01 | relay | 08-01 | OPEN | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P90: OVERDUE/.test(x)), JSON.stringify(p));
+  assert.ok(!p.some((x) => /DID NOT PARSE/.test(x)), JSON.stringify(p));
+});
+
+ok('FAIL ARM — a missing trailing pipe is reported, not swallowed', () => {
+  const t = HEAD + '| P91 | truncated row | 08-18 | relay | 12-31 | OPEN | — | —\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P91: LOOKS LIKE A PREDICTION ROW BUT DID NOT PARSE/.test(x)),
+    JSON.stringify(p));
+});
+
+ok('a January grade-by on an August prediction is NEXT January, not eight months overdue', () => {
+  // YEAR is pinned 2026; P19 grades fortnightly into January. Pre-fix this row
+  // read as overdue the day it was filed.
+  const t = HEAD + '| P92 | january grade | 08-18 | relay | 01-15 | OPEN | — | — |\n';
+  assert.strictEqual(check(t, '2026-08-20').problems.length, 0);
+});
+
+ok('CONTROL — the rolled date still comes due: the same row IS overdue in 2027', () => {
+  const t = HEAD + '| P92 | january grade | 08-18 | relay | 01-15 | OPEN | — | — |\n';
+  const p = check(t, '2027-01-20').problems;
+  assert.ok(p.some((x) => /P92: OVERDUE/.test(x)), JSON.stringify(p));
+});
+
+ok('CONTROL — a same-year future date is untouched by the rollover', () => {
+  const t = HEAD + '| P92 | x | 08-18 | relay | 09-15 | OPEN | — | — |\n';
+  assert.strictEqual(check(t, '2026-08-20').problems.length, 0);
+});
+
+ok('FAIL ARM — an invented status no longer exits the loop', () => {
+  // Pre-fix: a past-due row marked DEFERRED produced ZERO problems — no rule
+  // chased it. The register's "✅ that did not mean closed", new costume.
+  const t = HEAD + '| P93 | quietly parked | 07-01 | relay | 08-01 | DEFERRED | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P93: UNKNOWN STATUS "DEFERRED"/.test(x)), JSON.stringify(p));
+});
+
+ok('CONTROL — the three vocabulary words all pass the status rule', () => {
+  const t = HEAD
+    + '| P94 | a | 08-18 | relay | 12-31 | OPEN | — | — |\n'
+    + '| P95 | b | 08-18 | relay | 08-18 | GRADED | TRUE | weight moved |\n'
+    + '| P96 | c | 08-18 | relay | 08-18 | ABANDONED | — | superseded by P95 |\n';
+  assert.strictEqual(check(t, '2026-08-20').problems.length, 0);
+});
+
 ok('CONTROL — the LIVE ledger has no duplicate ids (it did, until 2026-08-18)', () => {
   const fs = require('fs');
   const path = require('path');

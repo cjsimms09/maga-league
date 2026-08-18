@@ -47,18 +47,45 @@ const MIN_OPEN = 6;
 const COL = { id: 0, prediction: 1, made: 2, owner: 3, gradeBy: 4, status: 5, result: 6, changed: 7 };
 const WIDTH = 8;
 
+/* Split on UNESCAPED pipes only. The register checker learned this the hard
+ * way: five of its nine `\|`-carrying rows had their status read from a
+ * fragment of prose. Same parser, same discipline. */
+function splitCells(t) {
+  return t.slice(1, -1).split(/(?<!\\)\|/).map((c) => c.trim());
+}
+
 function rows(text) {
   const out = [];
   for (const line of text.split('\n')) {
     const t = line.trim();
     if (!t.startsWith('|') || !t.endsWith('|')) continue;
-    const cells = t.slice(1, -1).split('|').map((c) => c.trim());
+    const cells = splitCells(t);
     if (cells.length !== WIDTH) continue;              // not the ledger table
     if (/^-+:?$/.test(cells[0]) || cells[0] === '') continue;   // separator
     if (/^#$/.test(cells[0])) continue;                          // header
     out.push(cells);
   }
   return out;
+}
+
+/* ── A ROW THAT DOES NOT PARSE MUST NOT SILENTLY VANISH (added 2026-08-18) ──
+ *
+ * `rows()` skips any line that does not split into exactly WIDTH cells. Right
+ * for headers and separators — WRONG as the only handling for a line that
+ * carries a prediction id: one stray pipe in the prose and the row leaves the
+ * ledger without a trace, and the zero-rows guard only fires when EVERYTHING
+ * vanishes. Demonstrated live before fixing (rule 3e): a P-row containing
+ * `(a \| b)` parsed to 0 rows and its overdue date was never chased. */
+function lostRows(text) {
+  const lost = [];
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    if (!t.startsWith('|')) continue;
+    const first = splitCells(t.endsWith('|') ? t : t + '|')[0] || '';
+    if (!/^\**P\d+\**$/.test(first)) continue;         // not a prediction id
+    if (!t.endsWith('|') || splitCells(t).length !== WIDTH) lost.push(first.replace(/\*/g, ''));
+  }
+  return lost;
 }
 
 /* An em-dash or a bare hyphen is how this file writes "nothing here yet". It must
@@ -73,6 +100,21 @@ function parseDate(cell, year) {
   return new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
 }
 
+/* ── MM-DD WRAPS AT NEW YEAR (added 2026-08-18) ─────────────────────────────
+ *
+ * YEAR is pinned 2026, so a January grade-by (P19 grades fortnightly into
+ * January) parsed as ALREADY EIGHT MONTHS OVERDUE the day it was filed. Loud
+ * rather than silent, but wrong — and a checker that cries wolf on the first
+ * 2027 row gets its date "fixed" by deletion. A grade-by can never precede its
+ * own `made` date, so a due date earlier than made rolls into the next year. */
+function dueDate(gradeByCell, madeCell) {
+  const due = parseDate(gradeByCell, YEAR);
+  if (!due) return null;
+  const made = parseDate(madeCell, YEAR);
+  if (made && due < made) return new Date(Date.UTC(YEAR + 1, due.getUTCMonth(), due.getUTCDate()));
+  return due;
+}
+
 function check(text, todayStr, opts) {
   /* `minOpen` is OPT-IN so unit fixtures (which are deliberately tiny) are not
    * judged by a floor meant for the real backlog. main() passes MIN_OPEN. */
@@ -85,11 +127,20 @@ function check(text, todayStr, opts) {
     const status = cells[COL.status].toUpperCase();
     const changed = cells[COL.changed];
     const owner = cells[COL.owner];
-    const due = parseDate(cells[COL.gradeBy], YEAR);
+    const due = dueDate(cells[COL.gradeBy], cells[COL.made]);
     seen.push(id);
 
     if (isEmptyCell(owner)) {
       problems.push(`${id}: NO OWNER. A prediction nobody owns is a wish.`);
+    }
+    /* A status outside the vocabulary dodges EVERY rule here: a past-due row
+     * marked "DEFERRED" produced zero problems (demonstrated before fixing).
+     * That is the register's "✅ that did not mean closed" in a new costume —
+     * a word nobody agreed on, treated as an exit from the loop. */
+    if (!/OPEN|GRADED|ABANDONED/.test(status)) {
+      problems.push(
+        `${id}: UNKNOWN STATUS "${cells[COL.status]}". The vocabulary is OPEN, GRADED, ` +
+        `ABANDONED — anything else is a row that no rule can chase.`);
     }
     if (!due) {
       problems.push(`${id}: NO GRADE-BY DATE. An ungraded date is an ungraded prediction.`);
@@ -155,6 +206,13 @@ function check(text, todayStr, opts) {
       `First allocation wins — renumber the LATER row to the next free id.`);
   }
 
+  for (const id of lostRows(text)) {
+    problems.push(
+      `${id}: LOOKS LIKE A PREDICTION ROW BUT DID NOT PARSE into ${WIDTH} cells — ` +
+      `a stray unescaped pipe in the prose, or a missing trailing pipe. Escape prose ` +
+      `pipes as \\| or the row silently leaves the ledger and is never chased.`);
+  }
+
   if (!seen.length) {
     problems.push('NO PREDICTION ROWS PARSED — the ledger table shape changed, and a ' +
                   'check that silently matches nothing is worse than no check.');
@@ -183,5 +241,5 @@ function main() {
   return 0;
 }
 
-module.exports = { check, rows, isEmptyCell, parseDate, MIN_OPEN };
+module.exports = { check, rows, lostRows, isEmptyCell, parseDate, dueDate, MIN_OPEN };
 if (require.main === module) process.exitCode = main();
