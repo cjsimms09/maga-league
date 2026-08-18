@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 05:36 UTC_
+_Last measured: 2026-08-18 05:51 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  390 items · 249 open · 73 of those carry a DEFAULT (silence resolves them)
+  391 items · 250 open · 74 of those carry a DEFAULT (silence resolves them)
   66 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
 
   waiting on:
@@ -38,7 +38,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-        9 commits     1h old  claude/fantasy-football-research-926y6z
+       11 commits     0h old  claude/fantasy-football-research-926y6z
         9 commits     1h old  claude/red-team-fantasy-football-97otna
         9 commits     1h old  claude/warroom-shell-rebuild-0817
   ⚠️    3 commits    14h old  claude/in-season-surface-fixes-6nyayc
