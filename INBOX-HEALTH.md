@@ -7,16 +7,16 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 14:42 UTC_
+_Last measured: 2026-08-18 15:30 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  344 items · 270 open · 119 of those carry a DEFAULT (silence resolves them)
-  65 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 151 open item(s) with no default: 5 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 146 declare NEITHER, so nobody
+  374 items · 271 open · 119 of those carry a DEFAULT (silence resolves them)
+  64 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 152 open item(s) with no default: 3 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 149 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
@@ -24,7 +24,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
 
   waiting on:
       38     5d oldest   B
-      25     5d oldest   C
+      24     5d oldest   C
        2     4d oldest   A
 
   the five oldest:
@@ -36,28 +36,29 @@ ROUTES RESPONSE CHECK — is anyone answering?
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
-    session E (red team) → A   7 items     0% ticked    6 open with NO default
     relay → B                 10 items     0% ticked    1 open with NO default
-    A → C                     12 items     0% ticked    4 open with NO default
     D → C                      5 items     0% ticked    5 open with NO default
     this session → C           7 items     0% ticked    7 open with NO default
-    C → C                     14 items     0% ticked   14 open with NO default
-    relay → A                 50 items    14% ticked    4 open with NO default
+    C → C                     13 items     0% ticked   13 open with NO default
+    A → C                     15 items     7% ticked    4 open with NO default
     A → D                      6 items    17% ticked    2 open with NO default
-    D → A                     22 items    18% ticked    6 open with NO default
-    B → A                     11 items    18% ticked    7 open with NO default
     C → B                     10 items    20% ticked    8 open with NO default
+    D → A                     22 items    27% ticked    6 open with NO default
+    relay/PM → A              17 items    29% ticked    4 open with NO default
+    session E (red team) → A  10 items    30% ticked    7 open with NO default
     A → B                     49 items    31% ticked   27 open with NO default
-    relay/PM → A              19 items    37% ticked    4 open with NO default
-    A → A                     22 items    50% ticked    2 open with NO default
+    B → A                     12 items    33% ticked    6 open with NO default
+    this session → A           6 items    50% ticked    1 open with NO default
     relay/PM → B              14 items    50% ticked    7 open with NO default
     relay/PM → C              14 items    50% ticked    3 open with NO default
+    relay → A                 50 items    54% ticked    0 open with NO default
+    A → A                     24 items    54% ticked    2 open with NO default
     relay/PM → E              10 items    60% ticked    3 open with NO default
+    C → A                     99 items    70% ticked   14 open with NO default
     relay/PM → D               7 items    71% ticked    1 open with NO default
     E (red team) → A          28 items    75% ticked    0 open with NO default
-    C → A                     84 items    81% ticked   14 open with NO default
 
-  baseline 65  ->  now 65
+  baseline 64  ->  now 64
 
   Holding at the baseline. Not worse.
 ============================================================================
@@ -67,13 +68,13 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-       28 commits     1h old  claude/warroom-shell-rebuild-0817
-       13 commits     1h old  claude/external-ingest-program-1xfinj
-        5 commits     1h old  claude/data-stewardship-setup-bo5h9j
-        4 commits     0h old  claude/fantasy-football-research-926y6z
-        4 commits     1h old  claude/red-team-fantasy-football-97otna
-  ⚠️    3 commits    23h old  claude/in-season-surface-fixes-6nyayc
-        1 commits    40h old  sleeper-hist-proj-dispatch
+       33 commits     0h old  claude/warroom-shell-rebuild-0817
+       18 commits     0h old  claude/external-ingest-program-1xfinj
+       12 commits     0h old  claude/fantasy-football-research-926y6z
+        6 commits     0h old  claude/data-stewardship-setup-bo5h9j
+  ⚠️    3 commits    24h old  claude/in-season-surface-fixes-6nyayc
+        2 commits     0h old  claude/red-team-fantasy-football-97otna
+        1 commits    41h old  sleeper-hist-proj-dispatch
         1 commits    40h old  sleeper-vs-fp-grade-dispatch
 
   ⚠️  1 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
