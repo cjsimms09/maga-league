@@ -54,7 +54,7 @@ jobs:
 
           UA = {"User-Agent": "maga-league-research/1.0"}
 
-          def get(url, headers=None, cap=200000):
+          def get(url, headers=None, cap=8_000_000):
               h = dict(UA); h.update(headers or {})
               req = urllib.request.Request(url, headers=h)
               try:
@@ -100,9 +100,22 @@ jobs:
               rows.append({"id": name, "status": code, "bytes": len(safe)})
               print(f"  {name:24s} -> {code}  {len(safe)}B")
 
+          # A PARSE FAILURE MUST NEVER READ AS AN ABSENCE, and v2 proved why: the
+          # 200KB read cap truncated Kalshi's series payload to 199,744 bytes,
+          # json.loads failed, `doc` was None, the NFL loop never ran, and the
+          # verdict printed "NO OPEN NFL MARKETS FOUND ON KALSHI" — a confident
+          # negative produced by a check that could not have found anything.
+          # Now it is recorded and it changes the verdict.
+          parse_errors = {}
           def as_json(name):
-              try: return json.loads(payload.get(name) or "")
-              except Exception: return None
+              raw = payload.get(name)
+              if raw is None:
+                  return None
+              try:
+                  return json.loads(raw)
+              except Exception as e:
+                  parse_errors[name] = f"{type(e).__name__} at {len(raw)}B"
+                  return None
 
           # ── KALSHI: which SERIES exist, by ticker and title, for the NFL? ────────
           nfl_series, nfl_markets, kalshi_note = [], [], ""
@@ -153,6 +166,10 @@ jobs:
           if not egress_ok:
               verdict = ("THIS RUN'S EGRESS IS BROKEN — the Sleeper control returned "
                          f"{control}, not 200. NOTHING here is evidence. Re-run.")
+          elif parse_errors:
+              verdict = ("A PAYLOAD DID NOT PARSE, so any 'nothing found' below is about THIS "
+                         f"PROBE and not about the world: {json.dumps(parse_errors)}. "
+                         "Fix and re-run before concluding anything.")
           elif kalshi_player:
               verdict = (f"KALSHI CARRIES PLAYER-LEVEL NFL MARKETS — {len(kalshi_player)} of "
                          f"{len(nfl_markets)} open markets across {len(nfl_series)} NFL series, "
@@ -189,6 +206,7 @@ jobs:
                                    "carries ('Current and former players, coaches, and staff...') "
                                    "and the second endpoint had no NFL filter, returning KXELONMARS. "
                                    "v2 reads series tickers and market TITLES instead of raw text."),
+            "parse_errors": parse_errors,
             "rows": rows, "verdict": verdict,
           }
           os.makedirs("draft/backtest", exist_ok=True)
