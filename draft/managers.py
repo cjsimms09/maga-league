@@ -24,6 +24,21 @@ That bias is handled three ways, never hidden:
   2. They are shrunk harder than the ADP-free metrics.
   3. The ADP-free metrics (positional timing, homer, rookie affinity) carry the
      profile when sample size is thin, because they need no market baseline.
+
+⚠ RULED BROKEN, ONE OF THE THREE (A, 2026-08-18, register E13 — E's audit
+`rookie_affinity_cannot_vary_2026-08-17.md`): `rookie_affinity` is pinned at
+0.0 for all ten managers BY CONSTRUCTION — `years_exp` is read from TODAY'S
+Sleeper payload with no contemporaneous fallback, so a 2023 rookie carries
+years_exp 3 and is never counted, and the "chases rookies" clause
+(`rate > league_rate * 1.5 and rate > 0.08`) is unsatisfiable with both
+terms 0.0. Until the fix lands (derive rookie status as draft season minus
+first NFL season — Sleeper metadata carries NO years_exp field, so a meta
+fallback would change nothing), the stool has two legs: positional timing
+and homer. The fix is POST-08-22 by E's own filing (feeds opponent
+summaries, not the board's ranking). Note the tension E named: the drafter
+study's rookie prior cleared its prereg (+25.1) via a different path
+(drafter_skill.py) — that study is the trusted one; this module's zero is
+arithmetic, not measurement.
 """
 from __future__ import annotations
 import json
