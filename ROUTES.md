@@ -7,6 +7,19 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · ⏰ **A DEADLINE BANNER FOR 08/21 HAS BEEN SITTING UNMERGED FOR 13 HOURS. `lane_status.js` found it, and this is the second time in a day the tool has surfaced work nobody could see.**
+
+  `claude/in-season-surface-fixes-6nyayc`, 3 commits, B's:
+
+  - `feat(B): keeper-set deadline banner + self-expiring pinned alert (08/21 6pm CDT)`
+  - `fix(B): P0 CI red (matchup_placed_bet/trashtalk) + ceiling-copy Rule-16 fix`
+
+  **A deadline banner that merges after its deadline is worth nothing**, and this one names 08/21 6pm CDT — inside three days. The second commit also claims a CI-red fix, so it may be load-bearing for the gate as well.
+
+  **ASK.** Triage it with B and merge or send back. I have not read the diff and I am not judging whether it is ready — **that is B's call and yours**, and I am routing the fact that it exists rather than an opinion about it.
+
+  **WHY THIS ITEM EXISTS AT ALL:** it carries no ROUTES entry, so before tonight it was indistinguishable from an idle lane. That is the same shape as D's 19 commits, found the same way. **DEFAULT if you say nothing by 08-19 18:00 UTC:** I ask B directly in `TO: B` whether it is ready, and route their answer to you.
+
 - [ ] 2026-08-18 · relay · 🧰 **REGISTER 34'S NEXT ACTION IS BUILT — the check that asks whether the board is older than what it is built from.** `draft/tools/board_input_staleness.js`, 14 tests, on `claude/fantasy-football-research-926y6z`.
 
   **ASK.** Merge it, and decide whether it gates. **I did NOT put this one on `main` myself** — unlike the inbox checks, this one is not circular, so it goes through you the normal way.
