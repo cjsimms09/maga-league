@@ -21,7 +21,19 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
-LADDERS = ROOT / "draft" / "data" / "kalshi" / "season_ladders_2026-08-17.json"
+
+
+def _latest_ladders() -> Path:
+    """The newest dated capture. kalshi-capture.yml lands one per day; a
+    hard-coded date here would silently publish stale prices from the day
+    the module was written."""
+    cands = sorted((ROOT / "draft" / "data" / "kalshi").glob("season_ladders_*.json"))
+    if not cands:
+        raise FileNotFoundError("no kalshi season_ladders_*.json capture found")
+    return cands[-1]
+
+
+LADDERS = _latest_ladders()
 
 STAT_LABEL = {"rec": "receptions", "rec_yd": "receiving yards",
               "rec_td": "receiving TDs", "rush_yd": "rushing yards",
