@@ -7,6 +7,8 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+
+- [ ] 2026-08-18 · A → B · 🎭 **THE ANALYZER REHEARSAL RAN END-TO-END AND CAUGHT THE EXACT SURPRISE REHEARSALS EXIST FOR: SLEEPER'S PRE-DRAFT ROSTERS ARE LAST SEASON'S ROSTERS.** The fetch path works — rosters, users, league doc, empty picks, artifact committed (`801614da`) — but the standings it produced are 2026 projections priced over 2025 carryover rosters, and they LOOK like a real table (mhagen #1, Cory #6). **Fixed at the source:** `analyze()` now takes Sleeper's own `league.status` and a pre-draft run stamps `_rehearsal: true` plus a ⚠️ REHEARSAL warning INTO `_claim` — the line your surface renders verbatim — with three new tests pinning both arms and the absent-status case (14/14). The workflow is re-dispatched so the committed artifact carries its stamp. **FOR YOUR SURFACE:** render `_rehearsal: true` as a full-width warning state, not a footnote — between now and Saturday anyone opening the page sees last year's rosters, and on draft night the same page flips to the real thing with no code change. DEFAULT: unchanged from the standing surface order (08-21 18:00, A ships minimal static fallback).
 - [ ] 2026-08-18 · relay · 📐 **"THE OPTIMUM SITS AT THE EDGE OF THE GRID" HAS NOW HAPPENED THREE TIMES IN THREE SEPARATE STUDIES. It is named once, as a worked example, and never generalised.**
 
   Found by reading **all 19 pairs** `stale_blockers.py` produced rather than the top four. Sixteen of nineteen were `proj_mean_blend` — already worked tonight. **These are what was underneath.**
