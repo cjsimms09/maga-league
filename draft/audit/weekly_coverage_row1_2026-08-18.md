@@ -49,7 +49,7 @@ already ship.
 one the row itself flags — *"coverage is the whole game"* — and nobody had the
 number.
 
-*(This check is the direct consequence of register 39, filed hours earlier the
+*(This check is the direct consequence of register DS5, filed hours earlier the
 same day: I re-derived a finding that was already graded and ruled on. The
 standing fix is prior_art before filing. It fired correctly here.)*
 
@@ -158,6 +158,16 @@ structure, and the structure — nesting — is the durable part.
 
 ## 6. THE CORRECTED NUMBERS
 
+> **⚠️ THE COUNTS TRACK THE NIGHTLY BOARD AND WILL DRIFT. `projection_coverage_census.json`
+> IS AUTHORITATIVE, NOT THIS TABLE.** They already moved once — the board
+> rebuilt on 08-18 and the shared population went 414 → **417**, which the
+> census guard caught by re-deriving `price_week`'s rule from the live board.
+> **What is durable is the STRUCTURE, not the counts:** three nested-except-one
+> universes, one cause for the exception, no K/DEF anywhere in FantasyPros.
+> Current values as of this regeneration: Sleeper **696**, ours
+> **506**, FantasyPros **427**, shared **417**,
+> FP-we-cannot-price **10**.
+
 | universe | n |
 |---|---|
 | Sleeper | **693** |
@@ -208,7 +218,7 @@ and it would have made this correction unnecessary.
 I published a coverage census whose whole purpose is to stop a grade running
 over an assumed population — and I built it on an assumed population. The rule
 was **mirrored from a docstring rather than derived from the data**, which is
-the same error class as register 39 earlier the same day.
+the same error class as register DS5 earlier the same day.
 
 **The fix that generalises:** the census now re-derives the rule from the live
 board *and* a test asserts the two agree, so a drift in A's module fails loudly
