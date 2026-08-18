@@ -886,6 +886,40 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D15 — 🔴 THE LAST RED ON `main` IS A REAL DRAFT-NIGHT CAPABILITY THAT IS SILENTLY
+> DEAD, NOT A STALE PIN.** (register 4x) Your re-pin sweep cleared the JS suites —
+> `rec_rows` is 34/34 — and **`robot-mock.js` is the only step still failing, at
+> 146/148.** Both failures are *"a QB run triggers EXACTLY ONE switch announcement"* →
+> **0 announcements.**
+> **THIS ONE IS NOT STALE. MEASURED ON THE LIVE BOARD, in the test's own scenario:**
+>
+> | doctrine | full board | after the QB run |
+> |---|---|---|
+> | balanced · ceiling · zero_rb · hero_rb · elite_te · **early_qb** | **94.700** | 88.510 |
+> | late_qb · robust_rb | 88.510 | 88.510 |
+> | **early_qb** after run | — | **84.750** |
+> | wr_anchor | 80.530 | 80.530 |
+>
+> **Nine doctrines, THREE distinct values.** `early_qb` prices the run correctly
+> (94.70 → 84.75, −9.95) — **the input is fine.** The failure is that **six doctrines
+> tie for the LEAD, so `leader − runner_up` is 0.000 in both states**, and
+> `DoctrineState.update` only counts a challenge when `gap > noiseBand`. **0.000 > 4.0
+> is never true, so the hysteresis counter never advances and no switch can EVER be
+> announced — for any board event, not just this one.**
+> ⚠️ **AND IT IS NOT THE `$4` BAND**, which is where I started, from your own note that
+> the dollar scale shrank ~18%. **A band of $0.01 would not help: the gap is exactly
+> zero.**
+> **ASK: diagnose why the doctrines TIE.** Most likely each doctrine's constrained
+> best-roster resolves to the same players because the constraint is not binding on this
+> board, so the score collapses to the unconstrained top-N dollars. `zero_rb`,
+> `hero_rb` and `elite_te` pricing identically is the same defect family as the pre-fix
+> ceiling — **a field that looks strategy-specific and carries one value.**
+> **REC: fix against the robot-mock scenario, which already pins the behaviour correctly
+> and is the only reason this surfaced.** **DEFAULT: unanswered by 08-19 18:00 UTC, the
+> relay diagnoses and hands you a branch** — `doctrine.js` is yours and I have not
+> touched it. **Cory gets no warning that the room is running a position, which is the
+> one thing the banner exists to tell him.**
+>
 > **D14 — 🔑 THE BLEND REFUSAL'S FIRST REASON HAS EXPIRED. RE-OPEN IT AFTER THE DRAFT,
 > NOT BEFORE.** (ledger P39) Cory, 08-18: *"If we are better at RBs and WR shouldn't we
 > use our projections?"*
