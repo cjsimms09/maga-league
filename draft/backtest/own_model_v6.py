@@ -120,8 +120,7 @@ def build_v6_rows(v6_pred: dict, actual: dict, positions: dict) -> list:
     """register P38 -- per-player rows for the D13 three-way grade, same
     shape (player_id/predicted/actual/position/source) A's routed P38 order
     specified. actual.get(pid) is None, not dropped, for a pid the realized
-    store never covered -- a consumer joining on this file sees the gap
-    rather than silently losing the row."""
+    store never covered -- a consumer joining on this file sees the gap."""
     rows = []
     for pid in sorted(v6_pred):
         rows.append({"player_id": pid, "predicted": v6_pred[pid],
