@@ -206,3 +206,113 @@ ok('CONTROL — the LIVE ledger has no duplicate ids (it did, until 2026-08-18)'
   const p = check(live, '2026-08-18').problems.filter((x) => /TWO ROWS SHARE/.test(x));
   assert.deepStrictEqual(p, [], 'an id collision is back in the real ledger');
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * THE SUCCESSOR RULE AND THE CADENCE CHECK — what makes the loop self-feeding.
+ *
+ * Cory, 2026-08-18: "structured, organized, self-feeding ... I don't have to ask
+ * for more predictions."
+ *
+ * Every rule above concerns predictions that ALREADY EXIST. Measured the same
+ * day: 76 predictions, 71 filed on ONE day, every rule green. Grade thirty, file
+ * zero, stay above the floor — green. That is a programme ending politely.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+ok('FAIL ARM — a grade made AFTER the rule with no successor is caught', () => {
+  const t = HEAD + '| P1 | x | 08-20 | relay | 08-20 | GRADED | FALSE | Stopped the search. |\n';
+  const p = check(t, '2026-08-21').problems;
+  assert.strictEqual(p.length, 1, JSON.stringify(p));
+  assert.ok(/NO SUCCESSOR/.test(p[0]), p[0]);
+});
+
+ok('naming the prediction it spawned satisfies the rule', () => {
+  const t = HEAD + '| P1 | x | 08-20 | relay | 08-20 | GRADED | FALSE | Stopped it. -> P77 |\n';
+  assert.strictEqual(check(t, '2026-08-21').problems.length, 0);
+});
+
+ok('the arrow form → P77 works too, since the ledger uses both', () => {
+  const t = HEAD + '| P1 | x | 08-20 | relay | 08-20 | GRADED | FALSE | Stopped it. → P77 |\n';
+  assert.strictEqual(check(t, '2026-08-21').problems.length, 0);
+});
+
+ok('RETIRING a line is a legitimate successor — a dead end DECLARED is fine', () => {
+  const t = HEAD + '| P1 | x | 08-20 | relay | 08-20 | GRADED | FALSE | RETIRES this line: the signal is not there. |\n';
+  assert.strictEqual(check(t, '2026-08-21').problems.length, 0);
+});
+
+ok('CONTROL — the rule is NOT retroactive, so past work is not punished by a '
+  + 'rule invented today', () => {
+  /* This is the bug the rule shipped with and the reason the control exists.
+   * `parseDate` returns a DATE and an unparseable cell returns an INVALID DATE,
+   * which is truthy — so a `!made || made < 'yyyy-mm-dd'` guard compared a Date
+   * to a string, never fired, and flagged all 40 pre-existing grades. Exactly
+   * the retroactive punishment the rule promises not to inflict. */
+  const t = HEAD + '| P1 | x | 08-18 | relay | 08-18 | GRADED | FALSE | Stopped the search. |\n';
+  assert.strictEqual(check(t, '2026-08-21').problems.length, 0,
+    'a grade made before 2026-08-19 must be exempt from the successor rule');
+});
+
+ok('CONTROL — an OPEN row is never asked for a successor', () => {
+  const t = HEAD + '| P1 | x | 08-20 | relay | 09-30 | OPEN |  |  |\n';
+  assert.strictEqual(check(t, '2026-08-21').problems.length, 0);
+});
+
+ok('FAIL ARM — CADENCE: a ledger that stopped growing is caught even when the '
+  + 'backlog is full', () => {
+  const t = HEAD
+    + '| P1 | x | 08-01 | relay | 12-01 | OPEN |  |  |\n'
+    + '| P2 | x | 08-01 | relay | 12-01 | OPEN |  |  |\n';
+  const p = check(t, '2026-09-30', { maxQuietDays: 14, today: '2026-09-30' }).problems;
+  assert.ok(p.some((x) => /NO NEW PREDICTION IN/.test(x)), JSON.stringify(p));
+});
+
+ok('CONTROL — a recently-filed ledger passes the cadence check', () => {
+  const t = HEAD + '| P1 | x | 09-28 | relay | 12-01 | OPEN |  |  |\n';
+  const p = check(t, '2026-09-30', { maxQuietDays: 14, today: '2026-09-30' }).problems;
+  assert.deepStrictEqual(p.filter((x) => /NO NEW PREDICTION/.test(x)), []);
+});
+
+ok('CONTROL — cadence is OPT-IN, so fixtures without it are not judged', () => {
+  const t = HEAD + '| P1 | x | 08-01 | relay | 12-01 | OPEN |  |  |\n';
+  const p = check(t, '2026-09-30').problems;
+  assert.deepStrictEqual(p.filter((x) => /NO NEW PREDICTION/.test(x)), []);
+});
+
+ok('THE LIVE LEDGER passes both new rules today', () => {
+  const fs = require('fs'); const path = require('path');
+  const live = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'PREDICTION-LEDGER.md'), 'utf8');
+  const p = check(live, '2026-08-18',
+    { maxQuietDays: 14, today: '2026-08-18' }).problems;
+  assert.deepStrictEqual(p, [], JSON.stringify(p.slice(0, 3)));
+});
+
+/* ── THE ESCAPE HATCH THAT THE FIRST VERSION LEFT OPEN ──────────────────────
+ *
+ * The successor rule exempts grades made before the rule existed. That
+ * exemption is keyed on a DATE, so "what happens when the date is missing?"
+ * decides whether the rule has a hole in it. The first version answered
+ * "exempt" — and because `parseDate` was called without its `year` argument,
+ * EVERY row returned an unparseable date, so every row was exempt and the
+ * checker reported a clean ledger. One bug, but two lessons: an unparseable
+ * date must not buy an exemption, and a missing date must not either, or
+ * deleting a cell becomes the cheapest way past the rule. */
+ok('FAIL ARM — a grade with NO made-date is NOT exempt; blanking the date must '
+  + 'not be a way out of the successor rule', () => {
+  const t = HEAD + '| P1 | x |  | relay | 08-20 | GRADED | FALSE | Stopped there. |\n';
+  const p = check(t, '2026-08-21').problems;
+  assert.ok(p.some((x) => /NO SUCCESSOR/.test(x)), JSON.stringify(p));
+});
+
+ok('FAIL ARM — a grade with an UNPARSEABLE made-date is not exempt either', () => {
+  const t = HEAD + '| P1 | x | soon | relay | 08-20 | GRADED | FALSE | Stopped there. |\n';
+  const p = check(t, '2026-08-21').problems;
+  assert.ok(p.some((x) => /NO SUCCESSOR/.test(x)), JSON.stringify(p));
+});
+
+ok('CONTROL — parseDate REFUSES a missing year rather than returning an Invalid '
+  + 'Date, which is the exact failure that silently disabled the successor rule', () => {
+  assert.throws(() => parseDate('08-18'), /year is required/);
+  assert.ok(parseDate('08-18', 2026) instanceof Date);
+  assert.strictEqual(parseDate('soon', 2026), null);   // and a bad cell is null, not Invalid Date
+});
