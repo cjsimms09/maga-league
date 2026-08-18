@@ -252,17 +252,34 @@ jobs:
               if code != 200 or not mk:
                   unpriced += 1
                   continue
+              # THE REAL SCHEMA, read off v7's stored envelope rather than guessed.
+              # Kalshi suffixes every price with `_dollars` and every count with `_fp`,
+              # and asking for the unsuffixed names returned None on all 60 markets —
+              # which I nearly recorded as "no liquidity". `floor_strike` is the
+              # threshold itself, which is what turns a set of these into a CDF.
+              def num(v):
+                  try: return float(v)
+                  except (TypeError, ValueError): return None
               priced.append({
                 "ticker": m["ticker"], "title": m["title"],
-                "last_price": mk.get("last_price"), "yes_bid": mk.get("yes_bid"),
-                "yes_ask": mk.get("yes_ask"), "volume": mk.get("volume"),
-                "open_interest": mk.get("open_interest"),
-                "liquidity": mk.get("liquidity"),
+                "player": (mk.get("custom_strike") or {}).get("football_player"),
+                "strike": num(mk.get("floor_strike")),
+                "last_price": num(mk.get("last_price_dollars")),
+                "yes_bid": num(mk.get("yes_bid_dollars")),
+                "yes_ask": num(mk.get("yes_ask_dollars")),
+                "volume": num(mk.get("volume_fp")),
+                "volume_24h": num(mk.get("volume_24h_fp")),
+                "open_interest": num(mk.get("open_interest_fp")),
+                "liquidity": num(mk.get("liquidity_dollars")),
+                "status": mk.get("status"),
               })
-          with_price = [r for r in priced if (r["yes_bid"] or 0) > 0 or (r["yes_ask"] or 0) > 0]
+          quoted = [r for r in priced if (r["yes_bid"] or 0) > 0 and (r["yes_ask"] or 0) > 0]
+          any_price = [r for r in priced if (r["last_price"] or 0) > 0]
           traded = [r for r in priced if (r["volume"] or 0) > 0]
-          price_note = (f"{len(priced)} stat markets read, {len(with_price)} carry a two-sided "
-                        f"quote, {len(traded)} have traded volume, {unpriced} unreadable")
+          oi = [r for r in priced if (r["open_interest"] or 0) > 0]
+          price_note = (f"{len(priced)} stat markets read | {len(quoted)} two-sided quote | "
+                        f"{len(any_price)} carry a last price | {len(traded)} traded | "
+                        f"{len(oi)} open interest | {unpriced} unreadable")
 
           # ── ODDS API: do player props exist on the per-EVENT route, free tier? ───
           odds_props = {"checked": False}
