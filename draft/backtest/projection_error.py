@@ -65,6 +65,22 @@ BAND_EDGES = (3, 8, 16, 32)
 #: row 4q.
 BAND_EDGES_REFIT_V2 = (3, 8, 16, 32, 48, 72, 100, 150)
 
+#: Register 4r, 2026-08-17 (relay, confirmed against the reverted run 1c8bfb90):
+#: NOTHING filtered the fit to positions this league actually rosters. Sleeper's
+#: player pool carries punters, DBs, linebackers, offensive tackles — measured
+#: contamination on the real run: 9 P, 4 DB, 1 LB, 1 T, 20 FB entered the fit
+#: while QB/RB/WR/TE each lost ~30% of their graded population (1,304 -> 910
+#: graded; 15 of 32 cells went unmeasurable). Reverted in 88b58a5d because it
+#: broke 11 tests and moved every ceiling/floor on the board on a contaminated
+#: population; A's NO SHIP ruling on register 4q was measured on this same
+#: contaminated fit and needs re-running clean (54faded3).
+#:
+#: K and DEF are deliberately NOT in this tuple — extending the calibration to
+#: them is a separate, already-tracked question (the K/DEF ceiling P0 in
+#: DEFECT-REGISTER.md), not this fix's scope. This tuple is exactly the four
+#: positions the pre-contamination artifact actually graded.
+CALIBRATION_POSITIONS = ("QB", "RB", "WR", "TE")
+
 #: Below this many graded players a band reports `unmeasurable` rather than a number.
 MIN_N = 8
 
@@ -104,15 +120,43 @@ def _players_of(bundle):
     return list(bundle or [])
 
 
-def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES) -> list:
+def _resolved_pos(pl, positions=None):
+    """A player's position: the board's own field, falling back to a supplied
+    `{pid: position}` lookup. ONE definition, used by `error_rows` and `report`
+    — register 4r's contamination happened because nothing filtered on this at
+    all; a second hand-kept copy of how a position is resolved is exactly the
+    two-places-that-drift shape rule 11 warns about, so this is the only one."""
+    return pl.get("position") or (positions or {}).get(str(pl.get("player_id")))
+
+
+def _filter_positions(players, positions, only_positions):
+    """`players` narrowed to `only_positions`, resolved the same way `error_rows`
+    resolves a row's position — `None` (the default) is NO filter, unchanged
+    behavior for every existing caller."""
+    if only_positions is None:
+        return players
+    allowed = set(only_positions)
+    return [pl for pl in players if _resolved_pos(pl, positions) in allowed]
+
+
+def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
+               only_positions=None) -> list:
     """One row per player carrying BOTH a projection and a realized total.
 
     A player the projection covered but the season did not grade is EXCLUDED here and
     COUNTED in `report()` — see the module docstring; the exclusion is the bias, and
     hiding it is what would make the calibration wrong rather than merely limited.
+
+    `only_positions`, given, REFUSES any player whose resolved position is not in
+    it — register 4r: without this, the fit silently included every position
+    Sleeper's pool carries (punters, DBs, linebackers, offensive tackles...), not
+    just the ones this league rosters. This is a DIFFERENT thing from `positions`
+    above — that is a fallback LOOKUP for a player missing an explicit position —
+    and is left alone rather than repurposed, so a caller relying on its
+    documented behavior is not silently broken by this fix.
     """
     rows = []
-    players = _players_of(bundle)
+    players = _filter_positions(_players_of(bundle), positions, only_positions)
 
     # Rank within position, from the board's own ordering where it has one. A
     # recomputed rank would silently disagree with the one the engine consumed the
@@ -120,8 +164,7 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES) -
     # nothing uses.
     by_pos = {}
     for pl in players:
-        pos = pl.get("position") or (positions or {}).get(str(pl.get("player_id")))
-        by_pos.setdefault(pos, []).append(pl)
+        by_pos.setdefault(_resolved_pos(pl, positions), []).append(pl)
     computed = {}
     for pos, group in by_pos.items():
         ordered = sorted(group, key=lambda x: -(float(x.get("proj_mean") or 0.0)))
@@ -132,7 +175,7 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES) -
         pid = str(pl.get("player_id"))
         if pid not in actual:
             continue
-        pos = pl.get("position") or (positions or {}).get(pid)
+        pos = _resolved_pos(pl, positions)
         mean = float(pl.get("proj_mean") or 0.0)
         act = float(actual[pid])
         rank = pl.get("proj_rank")
@@ -147,10 +190,16 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES) -
     return rows
 
 
-def report(bundle, actual: dict, *, positions=None) -> dict:
-    """Coverage of one season's grade, with the excluded set named rather than lost."""
-    players = _players_of(bundle)
-    rows = error_rows(bundle, actual, positions=positions)
+def report(bundle, actual: dict, *, positions=None, only_positions=None) -> dict:
+    """Coverage of one season's grade, with the excluded set named rather than lost.
+
+    `only_positions` narrows `on_board`/`graded`/`ungraded` to the same population
+    `error_rows` fits on — register 4r: without this, `on_board` would still count
+    every punter and defensive back on the roster as part of the population these
+    counts describe, even though none of them can ever reach a cell.
+    """
+    players = _filter_positions(_players_of(bundle), positions, only_positions)
+    rows = error_rows(bundle, actual, positions=positions, only_positions=only_positions)
     graded = len(rows)
     total = len(players)
     return {"season": bundle.get("season") if isinstance(bundle, dict) else None,
@@ -174,7 +223,7 @@ def _q(sorted_vals, p):
 
 
 def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
-              positions=None, band_edges=BAND_EDGES) -> dict:
+              positions=None, band_edges=BAND_EDGES, only_positions=None) -> dict:
     """Fit the error distribution per (position, band) across seasons.
 
     `exclude_season` REFUSES a bundle from that season. A spread fitted on the season
@@ -184,6 +233,12 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
     `band_edges` defaults to the SHIPPED `BAND_EDGES` — pass `BAND_EDGES_REFIT_V2`
     to fit register 4q's split-33+ refit instead. Never changes what the default
     call ships.
+
+    `only_positions` defaults to `None` — NO FILTER, unchanged behavior for every
+    existing caller — but every caller that fits the SHIPPED/production
+    calibration must pass `CALIBRATION_POSITIONS`. Register 4r: the reverted run
+    1c8bfb90 called this with no filter at all and fit on punters, DBs and
+    linebackers alongside QB/RB/WR/TE.
     """
     bundles = list(bundles or [])
     actuals = list(actuals or [])
@@ -205,9 +260,10 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
         s = b.get("season") if isinstance(b, dict) else None
         if s is not None:
             seasons_used.append(s)
-        rep = report(b, act, positions=positions)
+        rep = report(b, act, positions=positions, only_positions=only_positions)
         ungraded += rep["ungraded"]
-        for r in error_rows(b, act, positions=positions, band_edges=band_edges):
+        for r in error_rows(b, act, positions=positions, band_edges=band_edges,
+                            only_positions=only_positions):
             if r["ratio"] is None:
                 continue
             buckets.setdefault((r["position"], r["band"]), []).append(r["ratio"])
@@ -465,7 +521,8 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
 
-    cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges)
+    cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
+                    only_positions=CALIBRATION_POSITIONS)
     cal["skipped_seasons"] = skipped
     return cal
 

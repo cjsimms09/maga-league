@@ -613,3 +613,136 @@ def test_main_refit_v2_REPORTS_FAILURE_ON_A_VOID_REFIT(monkeypatch, tmp_path):
     assert rc == 1
     assert not side_cal.exists()
     assert not side_cmp.exists()
+
+
+# ── register 4r: the calibration was fitted on positions this league does
+# not roster (punters, DBs, linebackers, offensive tackles) because nothing
+# filtered it — 1c8bfb90 was reverted for exactly this. ──────────────────
+
+def test_CALIBRATION_POSITIONS_IS_EXACTLY_THE_FOUR_GRADED_POSITIONS():
+    """K/DEF are deliberately excluded — extending the calibration to them
+    is a separate, already-tracked question, not this fix's scope. MUTATION:
+    add K/DEF here — every downstream `only_positions=CALIBRATION_POSITIONS`
+    caller would silently start grading positions this fix never measured
+    and never intended to include."""
+    assert PE.CALIBRATION_POSITIONS == ("QB", "RB", "WR", "TE")
+
+
+def test_error_rows_WITH_no_only_positions_IS_UNCHANGED_from_before_4r():
+    """The default must stay a no-op — every existing caller (including any
+    that relies on grading a non-skill position on purpose) is unaffected.
+    MUTATION: default `only_positions` to `CALIBRATION_POSITIONS` instead of
+    `None` — a caller that never asked for filtering gets it anyway, and a
+    test built on a fixture using an unlisted position would start silently
+    dropping rows."""
+    b = board(p("a", "QB", 200.0), p("b", "P", 10.0), p("c", "DB", 5.0))
+    rows = PE.error_rows(b, {"a": 100.0, "b": 8.0, "c": 3.0})
+    assert sorted(r["position"] for r in rows) == ["DB", "P", "QB"]
+
+
+def test_error_rows_WITH_only_positions_DROPS_NON_ROSTERED_POSITIONS():
+    """⚠ THE WHOLE POINT OF 4r. MUTATION: ignore `only_positions` — the fit
+    would keep grading punters and defensive backs no matter what filter is
+    passed, exactly reproducing the contaminated run that got reverted."""
+    b = board(p("a", "QB", 200.0), p("b", "P", 10.0), p("c", "DB", 5.0),
+             p("d", "LB", 8.0), p("e", "T", 6.0), p("f", "FB", 12.0))
+    actual = {"a": 100.0, "b": 8.0, "c": 3.0, "d": 4.0, "e": 5.0, "f": 9.0}
+    rows = PE.error_rows(b, actual, only_positions=PE.CALIBRATION_POSITIONS)
+    assert sorted(r["position"] for r in rows) == ["QB"]
+
+
+def test_error_rows_only_positions_DOES_NOT_CORRUPT_WITHIN_POSITION_RANK():
+    """Filtering must happen BEFORE ranks are computed, not after — a rank
+    computed across the unfiltered pool and then filtered down would leave
+    gaps (QB1, QB4, QB7) instead of a clean within-position order.
+    MUTATION: filter the OUTPUT rows instead of the input `players` — ranks
+    would still be computed as if the punters and DBs were real QB/RB/WR/TE
+    competitors, silently wrong even though the wrong positions are gone."""
+    b = board(p("a", "QB", 300.0), p("b", "QB", 200.0), p("c", "QB", 100.0),
+             p("z", "P", 999.0))   # a punter projected HIGHER than every QB
+    actual = {"a": 1.0, "b": 1.0, "c": 1.0, "z": 1.0}
+    rows = PE.error_rows(b, actual, only_positions=PE.CALIBRATION_POSITIONS)
+    ranks = {r["player_id"]: r["proj_rank"] for r in rows}
+    assert ranks == {"a": 1, "b": 2, "c": 3}, (
+        "the punter's higher proj_mean must not push every QB's rank down "
+        "by one: %r" % ranks)
+
+
+def test_report_only_positions_NARROWS_on_board_TO_THE_SAME_POPULATION():
+    """MUTATION: filter `graded`/`rows` but leave `on_board` counting the
+    whole roster — the coverage report would say '6 on board, 1 graded'
+    for a bundle that only ever had 1 relevant player, misreporting the
+    population these counts are supposed to describe."""
+    b = board(p("a", "QB", 200.0), p("b", "P", 10.0), p("c", "DB", 5.0))
+    rep = PE.report(b, {"a": 100.0}, only_positions=PE.CALIBRATION_POSITIONS)
+    assert rep["on_board"] == 1
+    assert rep["graded"] == 1
+    assert rep["ungraded"] == 0
+
+
+def test_calibrate_only_positions_KEEPS_NON_ROSTERED_POSITIONS_OUT_OF_CELLS():
+    """The end-to-end path register 4r is actually about: a real calibration
+    run must never produce a cell keyed by a position this league doesn't
+    roster. MUTATION: thread `only_positions` through `error_rows` but not
+    into the `report()` call inside `calibrate` — cells would be clean but
+    the calibration's own `ungraded` count would still be wrong."""
+    bundles = [board(*[p("q%d" % i, "QB", 200.0) for i in range(9)],
+                     *[p("p%d" % i, "P", 50.0) for i in range(9)])]
+    actuals = [{**{"q%d" % i: 100.0 + i for i in range(9)},
+               **{"p%d" % i: 40.0 + i for i in range(9)}}]
+    cal = PE.calibrate(bundles, actuals, min_n=5,
+                       only_positions=PE.CALIBRATION_POSITIONS)
+    assert all(pos == "QB" for pos, _band in cal["cells"]), (
+        "a punter reached a calibration cell: %r" % list(cal["cells"]))
+
+
+def test_regenerate_PASSES_CALIBRATION_POSITIONS_when_it_actually_fits(monkeypatch):
+    """Register 4r's actual production fix — `regenerate()` is what the
+    workflows dispatch, and it is the function that fit 1c8bfb90 on a
+    contaminated population. Live egress cannot be exercised in this
+    sandbox, so every dependency up to the `calibrate()` call itself is
+    faked and what `regenerate()` actually passed is inspected directly.
+    MUTATION: drop the `only_positions=CALIBRATION_POSITIONS` argument from
+    `regenerate()`'s own `calibrate()` call — this is invisible to every
+    other test in this file and would only surface on the next real
+    dispatch, four days before the draft."""
+    import sleeper_import as SL
+    import adp as ADP
+    from backtest.asof import AsOfDataStore
+    from backtest import build_bundle as BB
+    from backtest import grade as GR
+
+    import pandas as pd
+
+    fake_players = {"1": {"full_name": "Fake QB", "position": "QB", "team": "AAA"}}
+    monkeypatch.setattr(SL, "fetch_players", lambda: fake_players)
+
+    seen = {}
+    real_calibrate = PE.calibrate
+
+    def spy_calibrate(*args, **kwargs):
+        seen["only_positions"] = kwargs.get("only_positions")
+        return real_calibrate(*args, **kwargs)
+
+    monkeypatch.setattr(PE, "calibrate", spy_calibrate)
+    monkeypatch.setattr("nfl_data_py.import_ids", lambda: None, raising=False)
+    monkeypatch.setattr(GR, "crosswalk_gsis_to_sleeper", lambda *a, **k: {})
+    # A REAL (possibly empty) DataFrame, not a raise — `regenerate()` treats a
+    # raise as "this season's weekly data is unreachable" and returns VOID
+    # before ever reaching `calibrate()`, which would make this test pass
+    # for the wrong reason (never exercising the call under test at all).
+    monkeypatch.setattr("nfl_data_py.import_weekly_data",
+                        lambda years: pd.DataFrame(), raising=False)
+    monkeypatch.setattr(AsOfDataStore, "__init__",
+                        lambda self, *a, **k: setattr(self, "season", (a or (None,))[0]))
+    monkeypatch.setattr(AsOfDataStore, "league_config",
+                        lambda self: {"scoring": {}})
+    monkeypatch.setattr(BB, "build", lambda *a, **k: ({"season": 2023, "players": []}, {}))
+    monkeypatch.setattr(GR, "rest_of_season_points", lambda *a, **k: {"1": 10.0})
+    monkeypatch.setattr(ADP, "build_adp_table",
+                        lambda *a, **k: {"adp": {}})
+
+    PE.regenerate()
+    assert seen.get("only_positions") == PE.CALIBRATION_POSITIONS, (
+        "regenerate() must fit the production calibration with "
+        "only_positions=CALIBRATION_POSITIONS — got %r" % seen.get("only_positions"))

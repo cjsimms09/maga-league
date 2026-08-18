@@ -1,3 +1,4 @@
+# TERRITORY: A
 """Assemble real bundles + grading data. Runs where the network is (CI).
 
 Everything season-specific goes through AsOfDataStore. This file is the only
@@ -41,6 +42,18 @@ def attach_dispersion_loso(bundles, actual):
     the note says why. `attach_dispersion` explains at length why a fallback is
     worse than an absence.
     """
+    # TERRITORY-GRANT: C attach_dispersion_loso only_positions
+    #
+    # Register 4r, 2026-08-17: this call never passed `positions`/`only_positions`
+    # to `PE.calibrate()`, so the fit included every position Sleeper's player
+    # pool carries — punters, DBs, linebackers, offensive tackles — none of
+    # which this league rosters, while QB/RB/WR/TE each lost ~30% of their
+    # graded population. Fitted the real run 1c8bfb90 that A's NO SHIP ruling
+    # on register 4q was measured against; both had to be reverted/re-run.
+    # A invited C to own this fix directly (relayed via Cory: "For C: ...
+    # If you want one thing to own tonight, own 4r"). Scoped to exactly the
+    # `only_positions=PE.CALIBRATION_POSITIONS` argument below — nothing else
+    # in this function or file is touched.
     lines = []
     for b in bundles:
         s = b.get("season")
@@ -52,8 +65,10 @@ def attach_dispersion_loso(bundles, actual):
                 "attached": None, "why": "no out-of-season data to fit on"}
             lines.append(f"{s}: no other graded season to fit on — dispersion left ABSENT")
             continue
+        # attach_dispersion_loso: only_positions filters the fit to this
+        # league's rostered positions — see the grant comment above.
         cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
-                           exclude_season=s)
+                           exclude_season=s, only_positions=PE.CALIBRATION_POSITIONS)
         rep = BB.attach_dispersion(b.get("players") or [], cal)
         b.setdefault("notes", {})["dispersion"] = rep
         b["notes"]["dispersion"]["fitted_without_season"] = s
