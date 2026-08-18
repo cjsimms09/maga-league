@@ -88,7 +88,7 @@ Owner: A. Recheck 08-25.
   0.115 — comes out slightly WORSE (ρ 0.723→0.711); TE marginally better on
   family 1 only; 0 of 4 clear §3. The market and composite arms swamp the
   blend input — P50's "the champion already carries it," measured again by a
-  different route. **P-v7a graded FALSE (ledger P62).**
+  different route. **P-v7a graded FALSE (ledger P65 — renumbered from P62 at merge).**
 
 Standing after this pass: **C1, C2, C3 dead. Live: C4 (C builds, post-P38
 grant), C5 (WR-only NGS restriction), C6, C7.** P-v7b (top-tier precision
@@ -103,3 +103,26 @@ position_predictor's "efficiency helps WR only" was about NGS metrics; our
 xFP-at-league-efficiency construction is a different feature, and this
 measurement says it stays position-general. **Standing: C1, C2, C3, C5 dead.
 Live: C4 (C, post-P38), C6, C7.**
+
+**2026-08-18 (same night) — C7 graded: NO SHIP under §3, and it is NOT like
+the other kills.** The fitted per-player availability gate (own 2023+2024
+games, k=1 shrink to position mean, 625 players; rookies fall back to the
+frozen gate; QB untouched by construction — v6 takes QB from v4) **degrades
+NOTHING** and splits the metric families at three positions: **RB P@12
+0.750→0.833** (one more true top-12 RB — the draftable zone) with ρ down
+0.010 inside the noise bar; **WR MAE −3.5%** and P@24 +0.042 with ρ down
+0.005; **TE improves family 1 outright** (ρ +0.003, MAE −0.2). No position
+improves BOTH families, so §3 refuses — and the bar is not moved after
+seeing the numbers, because a bar that moves when a result is likeable is
+not a bar. **The routed next step:** C7 re-enters post-draft alongside C4,
+graded on the 2024 secondary fold (§2 names it) — if RB's top-tier gain
+replicates out-of-fold, THAT is the §3 conversation, with two folds instead
+of a likeable one. This is also the first live instance of the P-v7b shape
+(top-tier precision disagreeing with full-board Spearman, at RB as
+predicted) — observed inside an arm, not yet at the blend decision, so P63
+stays OPEN with the observation recorded.
+
+**Final standing for draft week: C1, C2, C3, C5 dead; C7 the named
+closest-miss with a two-fold re-test owned (A, post-draft); C4 with C
+post-P38; C6 by 08-28. own_v6 enters Saturday unbeaten by five
+challengers.**

@@ -1,10 +1,10 @@
 {
  "_territory": "TERRITORY: A \u2014 written by market_upside_artifact.py",
  "_what": "market-implied P(at least threshold) per player season stat, from Kalshi real-money ladders captured 2026-08-17. DISPLAY DATA: published prices, not a model claim; thin markets are visible via open_interest, incoherent ladders excluded.",
- "captured_at": "2026-08-17T11:27:22.370458+00:00",
+ "captured_at": "2026-08-18T11:26:45.028658+00:00",
  "season": 2026,
  "players_covered": 125,
- "ladders_dropped_incoherent": 106,
+ "ladders_dropped_incoherent": 105,
  "ladders_unmatched_name": 4,
  "players": [
   {
@@ -58,7 +58,7 @@
      ],
      "p_top_rung": 0.15,
      "top_threshold": 14.0,
-     "open_interest": 1743.9
+     "open_interest": 1962.6
     },
     "rec_yd": {
      "label": "receiving yards",
@@ -360,12 +360,12 @@
       },
       {
        "threshold": 1500.0,
-       "p_at_least": 0.17
+       "p_at_least": 0.27
       }
      ],
-     "p_top_rung": 0.17,
+     "p_top_rung": 0.27,
      "top_threshold": 1500.0,
-     "open_interest": 590.8
+     "open_interest": 685.8
     }
    }
   },
@@ -424,7 +424,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.44
+       "p_at_least": 0.45
       },
       {
        "threshold": 1250.0,
@@ -437,7 +437,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 1500.0,
-     "open_interest": 93.6
+     "open_interest": 575.5
     }
    }
   },
@@ -522,7 +522,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.4
+       "p_at_least": 0.42
       },
       {
        "threshold": 1250.0,
@@ -535,7 +535,7 @@
      ],
      "p_top_rung": 0.14,
      "top_threshold": 1500.0,
-     "open_interest": 2326.7
+     "open_interest": 2360.7
     }
    }
   },
@@ -633,7 +633,7 @@
       },
       {
        "threshold": 3500.0,
-       "p_at_least": 0.64
+       "p_at_least": 0.62
       },
       {
        "threshold": 4000.0,
@@ -646,7 +646,7 @@
      ],
      "p_top_rung": 0.23,
      "top_threshold": 4500.0,
-     "open_interest": 9592.2
+     "open_interest": 9868.8
     }
    }
   },
@@ -755,7 +755,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 14.0,
-     "open_interest": 69.1
+     "open_interest": 245.3
     },
     "rec_yd": {
      "label": "receiving yards",
@@ -775,7 +775,7 @@
      ],
      "p_top_rung": 0.32,
      "top_threshold": 1500.0,
-     "open_interest": 305.5
+     "open_interest": 324.8
     }
    }
   },
@@ -811,7 +811,7 @@
       },
       {
        "threshold": 10.0,
-       "p_at_least": 0.12
+       "p_at_least": 0.25
       },
       {
        "threshold": 12.0,
@@ -828,7 +828,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 16.0,
-     "open_interest": 499.5
+     "open_interest": 507.6
     }
    }
   },
@@ -855,7 +855,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 120.0,
-     "open_interest": 17.0
+     "open_interest": 29.0
     },
     "rec_yd": {
      "label": "receiving yards",
@@ -866,11 +866,11 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.41
+       "p_at_least": 0.58
       },
       {
        "threshold": 1250.0,
-       "p_at_least": 0.34
+       "p_at_least": 0.33
       },
       {
        "threshold": 1500.0,
@@ -879,7 +879,7 @@
      ],
      "p_top_rung": 0.18,
      "top_threshold": 1500.0,
-     "open_interest": 142.8
+     "open_interest": 365.1
     }
    }
   },
@@ -938,14 +938,14 @@
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 19.0
+     "open_interest": 101.7
     },
     "rec_yd": {
      "label": "receiving yards",
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 1019.6
+     "open_interest": 1145.3
     }
    }
   },
@@ -1014,7 +1014,7 @@
      ],
      "p_top_rung": 0.15,
      "top_threshold": 12.0,
-     "open_interest": 2128.8
+     "open_interest": 2231.9
     },
     "rec_yd": {
      "label": "receiving yards",
@@ -1034,7 +1034,7 @@
      ],
      "p_top_rung": 0.2,
      "top_threshold": 1250.0,
-     "open_interest": 3602.6
+     "open_interest": 3637.5
     }
    }
   },
@@ -1092,7 +1092,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.36
+       "p_at_least": 0.43
       },
       {
        "threshold": 1250.0,
@@ -1101,7 +1101,7 @@
      ],
      "p_top_rung": 0.22,
      "top_threshold": 1250.0,
-     "open_interest": 4368.1
+     "open_interest": 4606.9
     }
    }
   },
@@ -1139,7 +1139,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.3
+       "p_at_least": 0.29
       },
       {
        "threshold": 1250.0,
@@ -1148,7 +1148,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 1250.0,
-     "open_interest": 558.2
+     "open_interest": 640.3
     }
    }
   },
@@ -1207,7 +1207,7 @@
       },
       {
        "threshold": 8.0,
-       "p_at_least": 0.5
+       "p_at_least": 0.56
       },
       {
        "threshold": 10.0,
@@ -1224,7 +1224,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 14.0,
-     "open_interest": 840.3
+     "open_interest": 869.2
     },
     "rush_yd": {
      "label": "rushing yards",
@@ -1267,6 +1267,38 @@
      "top_threshold": null,
      "open_interest": 254.2
     },
+    "rush_td": {
+     "label": "rushing TDs",
+     "survival": [
+      {
+       "threshold": 6.0,
+       "p_at_least": 0.54
+      },
+      {
+       "threshold": 8.0,
+       "p_at_least": 0.39
+      },
+      {
+       "threshold": 10.0,
+       "p_at_least": 0.23
+      },
+      {
+       "threshold": 12.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 14.0,
+       "p_at_least": 0.0
+      },
+      {
+       "threshold": 16.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 16.0,
+     "open_interest": 190.3
+    },
     "rush_yd": {
      "label": "rushing yards",
      "survival": [
@@ -1303,14 +1335,14 @@
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 284.7
+     "open_interest": 432.7
     },
     "rec_yd": {
      "label": "receiving yards",
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 1726.3
+     "open_interest": 1750.3
     }
    }
   },
@@ -1352,7 +1384,7 @@
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 864.3
+     "open_interest": 951.3
     }
    }
   },
@@ -1392,12 +1424,12 @@
       },
       {
        "threshold": 1500.0,
-       "p_at_least": 0.19
+       "p_at_least": 0.34
       }
      ],
-     "p_top_rung": 0.19,
+     "p_top_rung": 0.34,
      "top_threshold": 1500.0,
-     "open_interest": 214.2
+     "open_interest": 265.0
     }
    }
   },
@@ -1507,11 +1539,11 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.45
+       "p_at_least": 0.46
       },
       {
        "threshold": 1250.0,
-       "p_at_least": 0.24
+       "p_at_least": 0.25
       },
       {
        "threshold": 1500.0,
@@ -1520,7 +1552,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 1500.0,
-     "open_interest": 4875.1
+     "open_interest": 5094.4
     }
    }
   },
@@ -1633,7 +1665,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 1500.0,
-     "open_interest": 441.4
+     "open_interest": 541.5
     }
    }
   },
@@ -1728,7 +1760,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 120.0,
-     "open_interest": 30.8
+     "open_interest": 76.9
     }
    }
   },
@@ -1850,7 +1882,7 @@
      ],
      "p_top_rung": 0.14,
      "top_threshold": 1250.0,
-     "open_interest": 512.3
+     "open_interest": 514.3
     }
    }
   },
@@ -2000,7 +2032,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 16.0,
-     "open_interest": 34.1
+     "open_interest": 57.3
     },
     "rush_yd": {
      "label": "rushing yards",
@@ -2163,7 +2195,7 @@
       },
       {
        "threshold": 1250.0,
-       "p_at_least": 0.22
+       "p_at_least": 0.24
       },
       {
        "threshold": 1500.0,
@@ -2172,7 +2204,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 1500.0,
-     "open_interest": 2314.4
+     "open_interest": 2907.5
     }
    }
   },
@@ -2263,7 +2295,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 16.0,
-     "open_interest": 787.4
+     "open_interest": 799.7
     }
    }
   },
@@ -2432,6 +2464,26 @@
      "p_top_rung": 0.0,
      "top_threshold": 120.0,
      "open_interest": 0.0
+    },
+    "rec_yd": {
+     "label": "receiving yards",
+     "survival": [
+      {
+       "threshold": 750.0,
+       "p_at_least": 0.07
+      },
+      {
+       "threshold": 1000.0,
+       "p_at_least": 0.04
+      },
+      {
+       "threshold": 1250.0,
+       "p_at_least": 0.0
+      }
+     ],
+     "p_top_rung": 0.0,
+     "top_threshold": 1250.0,
+     "open_interest": 1602.7
     }
    }
   },
@@ -2593,16 +2645,16 @@
       },
       {
        "threshold": 1250.0,
-       "p_at_least": 0.51
+       "p_at_least": 0.5
       },
       {
        "threshold": 1500.0,
-       "p_at_least": 0.27
+       "p_at_least": 0.28
       }
      ],
-     "p_top_rung": 0.27,
+     "p_top_rung": 0.28,
      "top_threshold": 1500.0,
-     "open_interest": 3897.2
+     "open_interest": 4072.0
     }
    }
   },
@@ -2840,34 +2892,6 @@
      "p_top_rung": null,
      "top_threshold": null,
      "open_interest": 0.0
-    },
-    "rush_td": {
-     "label": "rushing TDs",
-     "survival": [
-      {
-       "threshold": 6.0,
-       "p_at_least": 0.73
-      },
-      {
-       "threshold": 8.0,
-       "p_at_least": 0.0
-      },
-      {
-       "threshold": 10.0,
-       "p_at_least": 0.0
-      },
-      {
-       "threshold": 12.0,
-       "p_at_least": 0.0
-      },
-      {
-       "threshold": 14.0,
-       "p_at_least": 0.0
-      }
-     ],
-     "p_top_rung": 0.0,
-     "top_threshold": 14.0,
-     "open_interest": 7.0
     }
    }
   },
@@ -2905,7 +2929,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.53
+       "p_at_least": 0.52
       },
       {
        "threshold": 1250.0,
@@ -2918,7 +2942,7 @@
      ],
      "p_top_rung": 0.13,
      "top_threshold": 1500.0,
-     "open_interest": 6876.6
+     "open_interest": 7019.6
     }
    }
   },
@@ -2979,7 +3003,7 @@
      ],
      "p_top_rung": 0.15,
      "top_threshold": 10.0,
-     "open_interest": 971.0
+     "open_interest": 982.0
     },
     "rec_yd": {
      "label": "receiving yards",
@@ -2990,7 +3014,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.39
+       "p_at_least": 0.38
       },
       {
        "threshold": 1250.0,
@@ -2999,7 +3023,7 @@
      ],
      "p_top_rung": 0.2,
      "top_threshold": 1250.0,
-     "open_interest": 4609.4
+     "open_interest": 4661.9
     }
    }
   },
@@ -3196,7 +3220,7 @@
      ],
      "p_top_rung": 0.21,
      "top_threshold": 1250.0,
-     "open_interest": 795.6
+     "open_interest": 809.8
     }
    }
   },
@@ -3217,7 +3241,7 @@
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 424.1
+     "open_interest": 483.4
     }
    }
   },
@@ -3285,7 +3309,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 1250.0,
-     "open_interest": 5184.0
+     "open_interest": 5280.6
     }
    }
   },
@@ -3469,7 +3493,7 @@
      ],
      "p_top_rung": 0.13,
      "top_threshold": 1500.0,
-     "open_interest": 2437.7
+     "open_interest": 2466.1
     }
    }
   },
@@ -3528,7 +3552,7 @@
       },
       {
        "threshold": 1000.0,
-       "p_at_least": 0.35
+       "p_at_least": 0.29
       },
       {
        "threshold": 1250.0,
@@ -3537,7 +3561,7 @@
      ],
      "p_top_rung": 0.14,
      "top_threshold": 1250.0,
-     "open_interest": 2551.0
+     "open_interest": 2561.0
     }
    }
   },
@@ -3738,7 +3762,7 @@
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 256.0
+     "open_interest": 551.7
     }
    }
   },
@@ -3905,11 +3929,11 @@
       },
       {
        "threshold": 8.0,
-       "p_at_least": 0.58
+       "p_at_least": 0.6
       },
       {
        "threshold": 10.0,
-       "p_at_least": 0.43
+       "p_at_least": 0.44
       },
       {
        "threshold": 12.0,
@@ -3926,7 +3950,7 @@
      ],
      "p_top_rung": 0.0,
      "top_threshold": 16.0,
-     "open_interest": 1117.7
+     "open_interest": 1136.7
     },
     "rush_yd": {
      "label": "rushing yards",
@@ -4259,7 +4283,7 @@
      ],
      "p_top_rung": 0.28,
      "top_threshold": 4500.0,
-     "open_interest": 960.6
+     "open_interest": 975.2
     }
    }
   },
@@ -4359,15 +4383,15 @@
      "survival": [
       {
        "threshold": 3000.0,
-       "p_at_least": 0.73
+       "p_at_least": 0.72
       },
       {
        "threshold": 3500.0,
-       "p_at_least": 0.6
+       "p_at_least": 0.59
       },
       {
        "threshold": 4000.0,
-       "p_at_least": 0.14
+       "p_at_least": 0.35
       },
       {
        "threshold": 4500.0,
@@ -4376,7 +4400,7 @@
      ],
      "p_top_rung": 0.13,
      "top_threshold": 4500.0,
-     "open_interest": 1146.3
+     "open_interest": 1283.5
     }
    }
   },
@@ -4410,7 +4434,7 @@
      "survival": [
       {
        "threshold": 750.0,
-       "p_at_least": 0.45
+       "p_at_least": 0.54
       },
       {
        "threshold": 1000.0,
@@ -4423,7 +4447,7 @@
      ],
      "p_top_rung": 0.23,
      "top_threshold": 1250.0,
-     "open_interest": 1235.2
+     "open_interest": 1279.1
     }
    }
   },
@@ -4437,7 +4461,7 @@
      "survival": null,
      "p_top_rung": null,
      "top_threshold": null,
-     "open_interest": 200.0
+     "open_interest": 851.2
     },
     "rec_yd": {
      "label": "receiving yards",

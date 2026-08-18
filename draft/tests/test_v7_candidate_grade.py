@@ -84,4 +84,10 @@ def test_the_committed_artifact_recorded_no_ship_for_both_arms():
     assert doc["verdicts"]["c1_age_curves"]["ships_under_section_3"] is False
     assert doc["verdicts"]["c3_fitted_recency"]["ships_under_section_3"] is False
     assert doc["verdicts"]["c5_wr_only_efficiency"]["ships_under_section_3"] is False
+    assert doc["verdicts"]["c7_availability_gate"]["ships_under_section_3"] is False
+    # C7's signature is DIFFERENT from the other kills and is pinned as such:
+    # nothing degrades, and the miss is the two metric families splitting at
+    # three positions (RB P@12 +0.083 while rho drips inside noise). If a
+    # regeneration shows C7 degrading somewhere, the input data moved — look.
+    assert doc["verdicts"]["c7_availability_gate"]["positions_degrading"] == []
     assert doc["information_set"]["leak_note"].startswith("the ->2025")
