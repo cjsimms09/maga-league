@@ -397,10 +397,24 @@ radius inside his 160 picks is **one player**. Both easy fixes were refused on
 the file's own doctrine. **Recommendation: leave it, revisit post-season.**
 
 **One action on draft day** — re-take the pre-draft freeze AFTER the final board
-build. `draft/data/pre_draft_freeze_2026.json` is from 08-14 and is missing
-**fourteen** declared fields. It is NOT the draft board (the war room boots from
-live `draft_data.json`), it is the record 2027 grades against — and it is the
-only irreversible item in the plan, because the board is overwritten nightly.
+build. It is NOT the draft board (the war room boots from live `draft_data.json`),
+it is the record 2027 grades against — and it is the only irreversible item in
+the plan, because **the board is overwritten nightly and the freeze is not.**
+
+**⚠️ CORRECTED 2026-08-18 (register E12). THIS STEP'S OLD JUSTIFICATION WAS
+FALSE, AND A FALSE JUSTIFICATION IS WORSE THAN NONE ON A STEP NOBODY CAN UNDO.**
+This paragraph used to read *"`pre_draft_freeze_2026.json` is from 08-14 and is
+missing **fourteen** declared fields"*. It is not, and it is not. The freeze was
+re-taken in `60f3487`: `source_artifact_built_at` is **2026-08-16T14:10:12Z**,
+`_sha256_of_payload` is `98f58026…`, **0 of 44 declared fields are missing**, and
+`test_freeze_not_stale.py` is **3/3 green including its `repo_parity` node**
+(re-verified 08-18).
+
+**The action does not change; only the reason does.** Re-take it because the
+board rebuilds nightly and you want the record to match the board Cory actually
+drafted from — not because the current freeze is broken. **A `rm` whose stated
+reason the reader can falsify in one command is a step someone skips**, and this
+one has no second chance.
 
 **Rehearse it first. This deletes nothing**, and was impossible before 08-17:
 ```
@@ -409,8 +423,10 @@ PRE_DRAFT_FREEZE_PATH=/tmp/rehearsal.json python3 draft/freeze_pre_draft.py --ve
 ```
 Expect a player count and `freeze intact`. **Rehearsed on 08-17 against that
 day's board: 682 players × 12 picks, all 44 declared fields present, 0 missing**
-— so a fresh take does close the fourteen-field gap. **If the rehearsal fails,
-delete nothing**: the stale freeze is still the best record that exists.
+— which is what a healthy take looks like. *(This line used to say a fresh take
+"does close the fourteen-field gap"; there is no gap to close — see the
+correction above.)* **If the rehearsal fails, delete nothing**: the committed
+freeze is a complete, verified record and is not worth trading for a failed run.
 
 Then, and only then:
 ```
@@ -731,6 +747,15 @@ is the thing that falls behind it.
 ---
 
 **Suites at hand-off:** Python publication gate (what CI runs) **3,283 passed,
-10 deselected**; JS **309/309**. The deselected `repo_parity` set includes two
-deliberate red flags — the ADP-sd ratchet and the stale freeze — which are
-evidence awaiting a human, not broken builds.
+10 deselected**; JS **309/309**. The deselected `repo_parity` set includes **one**
+deliberate red flag — the ADP-sd ratchet — which is evidence awaiting a human,
+not a broken build.
+
+**⚠️ CORRECTED 2026-08-18 (register E12): this said TWO, counting "the stale
+freeze". There is no stale freeze.** `test_freeze_not_stale.py` is 3/3 green
+including its `repo_parity` node, the freeze carries `source_artifact_built_at`
+2026-08-16T14:10:12Z and 0 of 44 declared fields missing. **A hand-off note that
+counts a healthy artifact as a red flag teaches the next reader to discount real
+ones.**
+
+**Full suite on the relay branch, 2026-08-18: 4,277 passed, 6 skipped, 0 failed.**
