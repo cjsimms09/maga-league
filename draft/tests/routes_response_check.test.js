@@ -199,5 +199,77 @@ function item(date, done, body) {
     liveB.length < live.length / 10, { broadcasts: liveB.length, items: live.length });
 }
 
+
+// ── THE CLOSURE RATCHET, AND ITS FAIL ARM ───────────────────────────────────
+//
+// Cory, 2026-08-18: "Have you solved communication problem going forward?" The
+// measurement was solved; the behaviour was not. This is the half that bites.
+//
+// THE UNIT IS A COUNT, NOT A RATE, AND THAT IS THE WHOLE DESIGN. `D → A` sits at
+// 5% ticked; the moment D files a legitimate new item that rate falls further, so
+// a rate ratchet would fail the build for doing the right thing — the
+// intervention-rate epitaph verbatim. A TICKED COUNT cannot fall by filing. It
+// can only fall by un-ticking or losing a closed item, which is precisely the
+// union-merge resurrection this baseline's own _history records: seven items
+// closed 08-17, re-opened by a merge on 08-18, deleted by routes_resurrections.py
+// after somebody noticed. The ratchet is the guard that notices.
+{
+  //: this file's header requires only `assert` and the module under test
+  const fs = require('fs');
+  const path = require('path');
+  const bl = JSON.parse(fs.readFileSync(
+    path.join(__dirname, '..', 'baseline', 'routes_backlog_baseline.json'), 'utf8'));
+
+  check('the closure baseline is committed, or the ratchet is not armed',
+    bl.closure_by_pair && Object.keys(bl.closure_by_pair).length >= 10,
+    JSON.stringify(Object.keys(bl.closure_by_pair || {}).length));
+
+  check('it records BOTH n and done per pair — a done with no n cannot be read '
+    + 'as a rate later, and a rate is what this deliberately is not',
+  Object.values(bl.closure_by_pair).every(v =>
+    typeof v.n === 'number' && typeof v.done === 'number' && v.done <= v.n));
+
+  check('KNOWN-POSITIVE — the two pairs Cory asked about are both baselined, so '
+    + 'the answer to his question stays measurable',
+  bl.closure_by_pair['D → A'] && bl.closure_by_pair['E (red team) → A'],
+  JSON.stringify({ D: bl.closure_by_pair['D → A'], E: bl.closure_by_pair['E (red team) → A'] }));
+
+  /* CONTROL — the baseline is not all zeros. A ratchet whose every entry is 0
+   * can never regress and would be a check that cannot fail. */
+  check('CONTROL — the baseline records real closures, so it CAN regress',
+    Object.values(bl.closure_by_pair).filter(v => v.done > 0).length >= 5,
+    Object.values(bl.closure_by_pair).filter(v => v.done > 0).length);
+
+  /* FAIL ARM — the regression the ratchet exists for, simulated. */
+  const live = R.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'ROUTES.md'), 'utf8'));
+  const now = {};
+  live.forEach(i => {
+    if (!i.section) return;
+    const k = i.who.replace(/\s*→.*$/, '').trim() + ' → ' + i.section;
+    (now[k] = now[k] || { n: 0, done: 0 });
+    now[k].n++;
+    if (i.done) now[k].done++;
+  });
+  const regressedAgainst = b => Object.keys(b)
+    .filter(k => (now[k] ? now[k].done : 0) < b[k].done);
+
+  check('against the live file the ratchet is CLEAN — nothing has come untucked',
+    regressedAgainst(bl.closure_by_pair).length === 0,
+    regressedAgainst(bl.closure_by_pair).join(', '));
+
+  const tampered = JSON.parse(JSON.stringify(bl.closure_by_pair));
+  tampered['E (red team) → A'].done += 1;   // pretend one more had been closed
+  check('FAIL ARM — if a closed item came back open the ratchet DETECTS it',
+    regressedAgainst(tampered).indexOf('E (red team) → A') >= 0,
+    regressedAgainst(tampered).join(', '));
+
+  /* AND IT MUST NOT FIRE ON NEW WORK — the wolf-crying case, pinned. */
+  const moreFiled = JSON.parse(JSON.stringify(bl.closure_by_pair));
+  moreFiled['D → A'].n += 20;   // D files twenty new items; ticked count unchanged
+  check('CONTROL — filing twenty NEW items does not trip it, which is why the '
+    + 'unit is a count and not a rate',
+  regressedAgainst(moreFiled).length === 0, regressedAgainst(moreFiled).join(', '));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' routes-response checks passed');
 assert.strictEqual(fail, 0);

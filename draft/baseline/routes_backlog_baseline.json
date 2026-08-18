@@ -44,5 +44,84 @@
    },
    "note": "NOT a lane answering anything — a REPAIR. `routes_resurrections.py` deleted seven items that were closed and then re-opened by a union merge (89a731cc closed them 08-17 21:20; bcdeef0a merged E's branch 08-18 00:19, and E had forked before the closure, so the union took both sides). Six were A's and already closed; one was B's, and that one was inside the blocked set, which is the whole of the 66 -> 65. Recorded as a repair so nobody later reads it as B working its queue."
   }
- ]
+ ],
+ "closure_by_pair": {
+  "A → A": {
+   "n": 18,
+   "done": 11
+  },
+  "A → B": {
+   "n": 49,
+   "done": 15
+  },
+  "A → C": {
+   "n": 12,
+   "done": 0
+  },
+  "A → D": {
+   "n": 6,
+   "done": 1
+  },
+  "B → A": {
+   "n": 11,
+   "done": 2
+  },
+  "C → A": {
+   "n": 84,
+   "done": 68
+  },
+  "C → B": {
+   "n": 10,
+   "done": 2
+  },
+  "C → C": {
+   "n": 14,
+   "done": 0
+  },
+  "D → A": {
+   "n": 19,
+   "done": 1
+  },
+  "D → C": {
+   "n": 5,
+   "done": 0
+  },
+  "E (red team) → A": {
+   "n": 26,
+   "done": 19
+  },
+  "relay → A": {
+   "n": 47,
+   "done": 7
+  },
+  "relay → B": {
+   "n": 9,
+   "done": 0
+  },
+  "relay/PM → A": {
+   "n": 19,
+   "done": 3
+  },
+  "relay/PM → B": {
+   "n": 14,
+   "done": 0
+  },
+  "relay/PM → C": {
+   "n": 14,
+   "done": 0
+  },
+  "relay/PM → D": {
+   "n": 7,
+   "done": 3
+  },
+  "relay/PM → E": {
+   "n": 10,
+   "done": 0
+  },
+  "this session → C": {
+   "n": 7,
+   "done": 0
+  }
+ },
+ "_closure_ratchet_why": "Per sender->recipient TICKED COUNT, for pairs with >=5 items. The ratchet is on the COUNT, not the rate: a rate falls when a lane files a legitimate new item, so a rate ratchet would fail the build for doing the right thing (the intervention-rate epitaph). A count can only fall by un-ticking or losing a closed item — which is exactly the union-merge resurrection recorded in _history, where seven closed items came back open and routes_resurrections.py had to delete them. It does NOT fail on a low rate; a genuine backlog is not the defect this catches."
 }

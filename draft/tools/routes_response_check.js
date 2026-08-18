@@ -320,6 +320,49 @@ function main() {
         + ' silencing the check.');
     }
   }
+  /* ── THE CLOSURE RATCHET, AND THE UNIT IS A COUNT RATHER THAN A RATE ──────
+   *
+   * Cory, 2026-08-18: *"Have you solved communication problem going forward?"*
+   * The measurement was solved; the behaviour was not. This is the half that
+   * bites — and it is deliberately the mildest form that still catches
+   * something real.
+   *
+   * ⚠️ A RATE WOULD CRY WOLF ON EVERY NEW FILING. `D → A` at 5% ticked drops
+   * further the moment D files a legitimate new item, so a rate ratchet would
+   * fail the build for doing the right thing. `intervention-rate` already wrote
+   * that epitaph. **So the ratchet is on the ABSOLUTE TICKED COUNT per pair**,
+   * which cannot fall by filing and can only fall by un-ticking or losing a
+   * closed item.
+   *
+   * THAT IS NOT A HYPOTHETICAL FAILURE. This file's own `_history` records it:
+   * seven items were closed on 08-17 and re-opened on 08-18 by a union merge
+   * (E had forked before the closure, so the merge took both sides), and
+   * `routes_resurrections.py` had to delete them. **A closure ratchet is the
+   * guard that would have caught that on the closure side rather than after
+   * somebody noticed.**
+   *
+   * It does NOT fail on a low rate. A lane with a genuine backlog is not the
+   * defect this catches; work being un-done silently is.
+   */
+  if (base.closure_by_pair) {
+    const regressed = [];
+    Object.keys(base.closure_by_pair).forEach(function (k) {
+      const was = base.closure_by_pair[k].done;
+      const now = pairs[k] ? pairs[k].done : 0;
+      if (now < was) regressed.push(k + ': ' + was + ' -> ' + now);
+    });
+    if (regressed.length) {
+      console.log('\n  ❌ CLOSED WORK CAME BACK OPEN: ' + regressed.join(' · '));
+      console.log('     A ticked item going untucked is either a union merge taking both');
+      console.log('     sides of a closure (see this baseline\'s _history) or somebody');
+      console.log('     reopening without saying so. Repair it, or record why in the');
+      console.log('     baseline. Do NOT lower the number to make this pass.');
+      console.log('='.repeat(76));
+      process.exitCode = 1;
+      return 1;
+    }
+  }
+
   if (stuck.length > base.blocked) {
     console.log('\n  ❌ THE BACKLOG GREW BY ' + (stuck.length - base.blocked)
       + '. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.');
