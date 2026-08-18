@@ -393,6 +393,12 @@ def document(cal: dict) -> dict:
         "positions_not_measured": POSITIONS_NOT_MEASURED,
         "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
                   for k, v in (cal.get("cells") or {}).items()},
+        # A position the board PRICES but this instrument cannot measure is
+        # DECLARED, never left as an absence — `cells_unmeasurable` counts only
+        # cells that were attempted, so an absent position reads identically to
+        # one that had no problem. Emitted from document() rather than save()
+        # because document() is the single definition of the on-disk shape.
+        "positions_not_measured": POSITIONS_NOT_MEASURED,
         "population": FP.of_records(rows, fields=CELL_FIELDS),
     }
 

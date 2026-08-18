@@ -1,6 +1,33 @@
 # THE OPPORTUNITY ADJUSTER IS THE BOARD'S ONLY EDIT TO SLEEPER, AND IT IS ZERO-INFORMATION
 
-_TERRITORY: D. Register 33's inventory (placebo exposure), and it answers
+> # ⚠️ RETRACTED IN ITS HEADLINE CLAIM, SAME DAY. READ THIS FIRST.
+>
+> **This document's framing — "nobody saw it" — is FALSE, and I routed it to A
+> as a red open row four days before the draft.**
+>
+> `draft/audit/opportunity_adjustment_2026-08-16.md` graded exactly this on
+> **08-16**: NEUTRAL on ordering in **17 of 18** cells, WORSE on level in **18
+> of 18** with every CI clear, and **a shuffled control performing identically
+> — so it was carrying scale, not player information.** Cory ruled on it
+> **08-17** (*"Remove 1"*) and `league_config.json` has shipped
+> `opportunity_cap: 0.0` ever since. Its `_opportunity_cap_why` note records all
+> of it, including that **CENTRING the layer — the "obvious next arm" §7 below
+> proposes — had already been measured and moved QB1 by one rank.**
+>
+> **What survives:** the 27-cell numbers are correct and independently
+> corroborate that grade **from a second artifact**. That is worth something as
+> replication. It is not a discovery, and §§1–4 should be read as corroboration
+> throughout. **§5's inventory and §6's placebo on my own 18b claim are
+> unaffected**, and §9's freeze finding is new (register 38).
+>
+> **Cause:** I read the artifact and not its audit doc, and
+> `draft/tools/prior_art.py --grep` — which exists on `main` and finds this in
+> one command — was not in this branch and I did not check for one. **That is
+> the failure this lane exists to catch, committed by this lane.** Standing
+> change to my process: prior_art before filing. Register 39.
+
+
+_TERRITORY: D. Register 37's inventory (placebo exposure), and it answers
 **Q1** — D's own open question, *"does the opportunity adjuster help at all?"_
 Written 2026-08-18. **Nothing was recomputed. Every number below was already in
 `opportunity_adj_grade.json`.**
@@ -63,12 +90,12 @@ market-curve baselines already over-predict. **The adjuster then adds +9.10
 more.** It is a net-inflation rule applied to an over-predicting baseline, and
 the MAE damage is very nearly all of it.
 
-**This is the mirror image of register 32's finding**, and worth stating
+**This is the mirror image of register 36's finding**, and worth stating
 together because they are one mechanism seen from two sides:
 
 | | direction | effect on MAE |
 |---|---|---|
-| register 32 (`game_total` arm) | a fitted rule that **shrinks** a subset | **free improvement**, ~+0.046, no information needed |
+| register 36 (`game_total` arm) | a fitted rule that **shrinks** a subset | **free improvement**, ~+0.046, no information needed |
 | this (the opportunity adjuster) | a shipped rule that **inflates** | **systematic harm**, +9.1 bias, no information present |
 
 **A biased-high baseline pays you for shrinking and charges you for inflating,
@@ -105,18 +132,18 @@ prediction's mean**, which is the actual criterion.
 | `vegas_team_arm` | same, λ swept symmetrically | ❌ no | safe |
 | `oracle_lambda_sweep` (main curve) | same | ❌ no | safe |
 | `oracle_lambda_sweep` (§3 asymmetry) | per-side λ | ✅ **yes** | **placebo run today — SURVIVES**, §6 |
-| `asymmetric_env_arm` | per-side λ | ✅ yes | placebo run; one arm killed (register 32) |
+| `asymmetric_env_arm` | per-side λ | ✅ yes | placebo run; one arm killed (register 36) |
 | **`opportunity_adj_grade`** | `1 + adj`, **adj not mean-centred** | ✅ **yes, inverted** | **this document** |
 
 **Six of eight are safe by construction and the reason is the same in each: the
 multiplier is normalised or centred, so it cannot move the mean.** That is the
 design rule worth extracting — **centre the multiplier and the artifact
-disappears.** Register 32's arm and the adjuster both skip it.
+disappears.** Register 36's arm and the adjuster both skip it.
 
 ## 6. AND THE SAME CONTROL, RUN ON MY OWN CLAIM FROM YESTERDAY
 
 Register 18b's headline — *"a dud game is worth 5–10× a shootout"* — is measured
-on exactly the shape register 32 just exposed, so it was re-tested first, before
+on exactly the shape register 36 just exposed, so it was re-tested first, before
 anyone else's work.
 
 | season | side | real | placebo mean | p | **net** |
@@ -133,7 +160,7 @@ my stated range was inflated by the artifact, and 18b is amended.
 
 **The placebo is exactly 0.0000 on the shootout side, in both seasons.** A
 shuffled multiplier buys literally nothing when it points up, and buys +0.09
-when it points down. **That is register 33's premise proved outright: the free
+when it points down. **That is register 37's premise proved outright: the free
 lunch exists only in the shrink direction.**
 
 ## 7. WHAT THIS DOES AND DOES NOT SAY
@@ -153,6 +180,29 @@ lunch exists only in the shrink direction.**
   construction: uncentred, applied multiplicatively, on top of a biased-high
   baseline. **Centre it and the +9.1 bias goes away by construction** — that is
   the obvious next arm and it needs no new data.
+
+## 9. WHAT IS ACTUALLY NEW HERE — the freeze carries a reverted policy
+
+Measured on committed artifacts, and this one has no prior art:
+
+| | `opportunity_adj` nonzero | `proj_mean != proj_baseline` |
+|---|---|---|
+| **live board**, built 08-17T16:35Z | **0 of 693** (all exactly `-0.0`) | 0 |
+| **`pre_draft_freeze_2026.json`**, 08-14 | **375 of 682** | **374 rows** |
+
+`-0.0` across the board is the arithmetic fingerprint of `cap = 0.0`, and
+`opportunity_z` is still nonzero for 377 players — **so the ruling is verifiably
+in force on the board Cory drafts from.**
+
+**The freeze is not.** Gibbs 299.9 → 344.9, Bijan 292.9 → 336.8, Nacua 259.0 →
+297.9. **It is not merely stale in the way `test_freeze_not_stale.py` already
+flags (14 missing fields) — it encodes a projection policy Cory has since
+reversed**, and the grade behind that reversal measured the layer as worse on
+level in 18 of 18 cells. Anything reading the freeze reads the pre-ruling board.
+
+**Register 38, routed to A.** The ask is narrow: confirm nothing Cory sees on
+draft night reads the freeze. If nothing does, it closes as a documentation
+note; if anything does, it is draft-critical with four days left.
 
 ## 8. TRIGGERS
 
