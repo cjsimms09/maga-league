@@ -160,7 +160,7 @@ def c3_weights_leakfree():
     return out
 
 
-def build_stack(blend, positions, ages):
+def build_stack(blend, positions, ages, eg_map=None):
     """The v6 pipeline from own_model_v6.run(), parametrized on the blend."""
     feat_fit = features_for(2024, (2023,), positions, ages)
     fits = fit_transition(feat_fit, season_totals(2024)[0])
@@ -179,7 +179,8 @@ def build_stack(blend, positions, ages):
     v4 = build_v4(v3, blend, corr, positions)
 
     vegas_imp = FCS.implied_team_totals(GRADED_SEASON, 1, 1)
-    comp = V5.comp_opinion(GRADED_SEASON, PRIOR_SEASONS, positions, ages, vegas_imp)
+    comp = V5.comp_opinion(GRADED_SEASON, PRIOR_SEASONS, positions, ages,
+                           vegas_imp, eg_map=eg_map)
     v5 = V5.build_v5(v3, comp, blend, corr, mrank, curve, positions)
     assert sorted(v4) == sorted(v5)
     return build_v6(v4, v5, positions)
@@ -203,6 +204,42 @@ def build_c5(hand_blend, positions, ages):
     finally:
         for p, b in saved.items():
             V5.V5_CONFIG[p]["beta"] = b
+
+
+C7_SHRINK_K = 1.0   # one prior season's worth of position-mean belief
+
+
+def c7_eg_map(positions):
+    """C7 — the availability gate as a fitted PER-PLAYER prior, leak-free.
+
+    The frozen gate regresses Y-1 games toward the position mean with one
+    hand-set glam per position and never looks past one season. This arm
+    replaces it with the player's OWN multi-season availability record:
+    E[G] = (sum of observed games over 2023+2024 + k*mu_pos) / (n_obs + k),
+    k = 1 season, mu_pos = the 2024 position mean over players with >= 1
+    game. A player with no prior seasons is ABSENT from the map and falls
+    back to the frozen gate inside comp_opinion — a fitted gate must never
+    zero a rookie it cannot see. Both input seasons predate the graded one.
+    """
+    obs = {}
+    for y in PRIOR_SEASONS:
+        _tot, games = season_totals(y)
+        for pid, g in games.items():
+            if positions.get(pid) in POSITIONS and g > 0:
+                obs.setdefault(pid, []).append(float(g))
+    mu = {}
+    y1 = max(PRIOR_SEASONS)
+    _t, g1 = season_totals(y1)
+    for pos in POSITIONS:
+        vals = [float(g) for pid, g in g1.items()
+                if positions.get(pid) == pos and g > 0]
+        mu[pos] = sum(vals) / len(vals) if vals else 12.0
+    out = {}
+    for pid, vals in obs.items():
+        pos = positions.get(pid)
+        out[pid] = min(17.0, (sum(vals) + C7_SHRINK_K * mu[pos])
+                       / (len(vals) + C7_SHRINK_K))
+    return out
 
 
 def make_blend(w_by_pos, positions):
@@ -288,6 +325,9 @@ def run() -> dict:
     c3_map = build_stack(make_blend(w_fit, positions), positions, ages)
 
     c5_map = build_c5(hand_blend, positions, ages)
+
+    eg = c7_eg_map(positions)
+    c7_map = build_stack(hand_blend, positions, ages, eg_map=eg)
     assert V5.V5_CONFIG["RB"]["beta"] == 0.50 and V5.V5_CONFIG["TE"]["beta"] == 0.25, \
         "V5_CONFIG must be restored after the C5 build"
 
@@ -295,6 +335,7 @@ def run() -> dict:
     g_c1 = grade(c1_map, actual, positions)
     g_c3 = grade(c3_map, actual, positions)
     g_c5 = grade(c5_map, actual, positions)
+    g_c7 = grade(c7_map, actual, positions)
 
     return {
         "_territory": "TERRITORY: A — produced by draft/backtest/v7_candidate_grade.py",
@@ -307,15 +348,19 @@ def run() -> dict:
             "c1_position_means_normalized_out": {k: round(v, 4) for k, v in c1_means.items()},
             "c3_w_by_pos_leakfree": w_fit,
             "c3_incumbent_w": RECENCY_WEIGHTS[0],
+            "c7_shrink_k": C7_SHRINK_K,
+            "c7_map_size": len(eg),
             "leak_note": "the ->2025 age transition and recency triple are excluded from both fits",
         },
         "bars": {"spearman": NOISE_SPEARMAN, "mae_frac": NOISE_MAE_FRAC,
                  "p_at_k": NOISE_P_AT_K},
         "grades": {"base_v6": g_base, "c1_age_curves": g_c1,
-                   "c3_fitted_recency": g_c3, "c5_wr_only_efficiency": g_c5},
+                   "c3_fitted_recency": g_c3, "c5_wr_only_efficiency": g_c5,
+                   "c7_availability_gate": g_c7},
         "verdicts": {"c1_age_curves": verdict(g_base, g_c1),
                      "c3_fitted_recency": verdict(g_base, g_c3),
-                     "c5_wr_only_efficiency": verdict(g_base, g_c5)},
+                     "c5_wr_only_efficiency": verdict(g_base, g_c5),
+                     "c7_availability_gate": verdict(g_base, g_c7)},
     }
 
 
@@ -323,7 +368,7 @@ def main() -> None:
     doc = run()
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.name}")
-    for arm in ("c1_age_curves", "c3_fitted_recency", "c5_wr_only_efficiency"):
+    for arm in ("c1_age_curves", "c3_fitted_recency", "c5_wr_only_efficiency", "c7_availability_gate"):
         v = doc["verdicts"][arm]
         print(f"{arm}: ships={v['ships_under_section_3']} "
               f"improving={v['positions_improving_both']} "
