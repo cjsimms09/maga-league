@@ -34,10 +34,38 @@ def rows():
     for line in open(REGISTER, encoding="utf8").read().split("\n"):
         if not line.startswith("|") or line.startswith("|---"):
             continue
-        cells = [c.strip() for c in line.strip("|").split("|")]
+        #: SPLIT ON UNESCAPED PIPES ONLY. A cell may legitimately contain
+        #: `\\|` — this file's own hard gate below REQUIRES the escape, because
+        #: a bare pipe is a column separator. Splitting on every pipe re-creates
+        #: that bug inside the guard meant to catch it, and it did: on 08-18 the
+        #: owner check below was passing on rows E6 and E15 only because the
+        #: scrambled split produced a short fragment that satisfied its length
+        #: heuristic. Un-scrambling the rows made a real gap visible.
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip("|"))]
         if any(any(s in c.upper() for s in STATUSES) for c in cells):
             out.append(cells)
     return out
+
+
+def _owner_cell(cells):
+    """The owner is the cell immediately BEFORE the status cell.
+
+    This used to be "the first cell under 40 characters that contains a lane
+    letter", and that heuristic is wrong in both directions: it matches any
+    short prose fragment, and it MISSES a legitimate owner cell that says more
+    than a letter — `**B** (fixed by E on Cory's instruction — **B please
+    review**)` is 58 characters and is the clearest owner cell in the register.
+
+    Position is not a heuristic. The register's shape is fixed, and the
+    column-count gate in this same file holds it at zero broken rows, so the
+    cell before the status cell IS the owner cell.
+    """
+    #: Rows are `| # | what | owner | status | next action |`, so status is the
+    #: second-from-last cell and owner the third-from-last. Do NOT search for a
+    #: cell CONTAINING a status word — "OPEN" and "CLOSED" appear constantly in
+    #: the prose cells, and searching finds the first one, which is usually the
+    #: `what` column. Same narrowness, same reason, as register_recheck_check.
+    return cells[-3] if len(cells) >= 3 else None
 
 
 def test_the_register_exists_and_has_rows():
@@ -51,10 +79,9 @@ def test_every_tracked_row_names_an_owner():
     failure this register was created to stop."""
     bad = []
     for cells in rows():
-        # owner column is the one before status in every table here
-        owner = next((c for c in cells if re.search(
-            r"\b(A|B|C|D|E|Cory|relay)\b", c) and len(c) < 40), None)
-        if not owner or PLACEHOLDERS.search(owner):
+        owner = _owner_cell(cells)
+        if not owner or not re.search(r"\b(A|B|C|D|E|Cory|relay)\b", owner) \
+                or PLACEHOLDERS.search(owner):
             bad.append(" | ".join(c[:40] for c in cells))
     assert not bad, "rows with no owner:\n" + "\n".join(bad)
 
@@ -261,3 +288,20 @@ def test_FAIL_ARM_an_unescaped_pipe_IS_detected(tmp_path, monkeypatch):
         "| 9b | cells WR\\|33+ and RB\\|33+ | A | OPEN | do the thing |\n",
         encoding="utf8")
     assert _malformed_rows() == []
+
+
+def test_CONTROL_the_owner_check_can_still_fail():
+    """Rule 3e. The owner assertion returns a clean "no rows without an owner".
+    A check that cannot say yes has not been tested, only run — and this one
+    was, for weeks, passing on two rows by accident."""
+    assert _owner_cell(["7", "a thing", "**A**", "OPEN", "do it"]) == "**A**"
+    assert _owner_cell(["7", "a thing", "TBD", "OPEN", "do it"]) == "TBD"
+    #: ⚠️ prose containing a status word must NOT be mistaken for the status
+    #: cell — this is what broke the first attempt at this fix
+    assert _owner_cell(["7", "row is still OPEN per A", "**C**", "OPEN", "go"]) == "**C**"
+    #: the long descriptive owner cell the old length heuristic silently missed
+    long_owner = "**B** (fixed by E on Cory's instruction — **B please review**)"
+    assert len(long_owner) > 40
+    assert _owner_cell(["E6", "a thing", long_owner, "OPEN", "do it"]) == long_owner
+    #: a degenerate row yields None rather than a confidently wrong owner
+    assert _owner_cell(["7", "a thing"]) is None

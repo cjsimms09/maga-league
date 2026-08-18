@@ -100,7 +100,14 @@ jobs:
             exit 0
           fi
           git config user.name "lab-bot"; git config user.email "actions@github.com"
+          # BOTH FILES. The verdict, and the per-player rows under it —
+          # proj_mean_blend §9.2 asked a future egress run to retain them and the
+          # two runs before this one did not, so register rows 20b and 21 are
+          # still waiting on a population that was fetched twice and thrown away
+          # twice. The sandbox cannot re-fetch (403/000): a row not committed
+          # here costs another dispatch to recover.
           git add draft/backtest/sleeper_vs_fp_grade.json || true
+          git add draft/backtest/sleeper_vs_fp_rows_2025.json || true
           if ! git diff --cached --quiet; then
             git commit -m "SLEEPER-VS-FP-GRADE: three-way 2025 verdict [skip deploy]"
             pushed=0

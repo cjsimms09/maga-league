@@ -109,11 +109,16 @@ def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     would force the sheet to keep naming settled rows. The control now pins
     the ids that remain the sheet's live argument: 35 (the §0 rebuild
     trigger), 5 (C2's ceiling weight), 6 (the ADP-sd ratchet note) and 4p /
-    4i (§3's real-but-cannot-move-a-pick and display-owned lists). When one
-    of THESE is decided, move this list in that commit too."""
+    4v (§3's real-but-cannot-move-a-pick and display-owned lists; 4v
+    took 4i's slot when the relay closed 4i later the same day). When one
+    of THESE is decided, move this list in that commit too — replace it with
+    one the sheet is still built around, never just delete it, or the control
+    erodes to nothing one row at a time (relay's phrasing, kept at merge)."""
     named = _ids_named()
-    for core in ("35", "5", "6", "4p", "4i"):
+    for core in ("35", "5", "6", "4p", "4v"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
+    #: and the list must stay big enough to be a real control
+    assert len(named) >= 8, f"only {len(named)} ids extracted — the pattern drifted"
 
 
 def test_every_named_row_is_still_OPEN():
