@@ -844,6 +844,40 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D10 — 📬 D AND E'S OPEN ITEMS, MEASURED FOR YOU SO YOU CAN RULE WITHOUT READING
+> THEIR INBOXES.** Cory, 08-18: *"make sure E and D are being seen by A and their
+> stuff is being acted on."* Their queues are full of 08-17 items still unchecked;
+> here are the three that need **you**, each with the number already taken.
+>
+> **(a) D'S K/DEF P0 — DEADLINE 08-20 (KEEPER LOCK), NOT DONE. Verified today:**
+> `projection_error_calibration.json` holds **20 cells, all QB/WR/RB/TE**; **all 76
+> K/DEF on the board fall back to `gaussian_z`.** So the board really does price two
+> ceiling constructions on one dollar scale. **THE DISTORTION, measured:** median
+> ceiling/projection ratio — **DEF 1.394, K 1.290, RB 1.643, WR 1.478, QB 1.211,
+> TE 1.146.** Pooled it is milder than feared (K/DEF 1.336 vs skill 1.478, **0.90×**),
+> **but the sharp case is real: a DEF gets a 1.394 relative ceiling and a TIGHT END
+> gets 1.146** — a ~22% edge to the defense purely by which formula priced it, with
+> `w.ceiling` live at 0.45. **REC: your stated default is right — exclude K/DEF from
+> cross-position dollar comparisons for 08-22** rather than guess a haircut. **The
+> real fix (measure K/DEF cells) is post-draft.**
+>
+> **(b) E'S Q12 — SIX TEs 65–126 SPOTS ABOVE MARKET, AND IT IS AT THE TOP OF CORY'S
+> BOARD.** Either a replacement-level error or the edge; staring cannot separate them.
+> **The separating test is runnable today** against `replay_league_table.json`. **The
+> relay is running it now** rather than routing it a third time — result will land as
+> a ledger row with a null attached.
+>
+> **(c) E'S YOUNG-RB GAP — its stated default fires TOMORROW (08-19 EOD) and the
+> default is that the RELAY takes it.** Five players below market with no stated model
+> reason (Tuten −94, DJ Moore −86, Price −84, Tate −74, Sutton −53). **Filed as a
+> ledger row so it cannot lapse quietly.**
+>
+> ⚠️ **AND E'S UPSTREAM POINT DESERVES YOUR ATTENTION MORE THAN ANY OF THE THREE:**
+> register 2c's baseline **moved on its own** — Harvey −62/Tuten −60 recorded, then
+> −131/−94 re-measured with nothing shipped between. **A reference point that drifts
+> silently makes every before/after test in this project unfalsifiable**, including
+> the ones you are being asked to rule on above.
+>
 > **D9 — 🔴 STOP AND READ THIS ONE FIRST. THE PICK-1 ROW ON CORY'S BOARD STATES A
 > CEILING THAT IS PHYSICALLY IMPOSSIBLE, AND THE DRAFT IS SATURDAY.** (register 4w)
 > **ASK:** rule TODAY between (1) fall back to the cohort p90 for the `-x-player-cv`
