@@ -1,0 +1,1615 @@
+{
+ "_territory": "TERRITORY: relay \u2014 written by .github/workflows/free-market-census.yml",
+ "_question": "P53. Cory 08-18: 'Do deep search for 2026 days for free.' The Odds API credits expire ~08-31 and its historical endpoint cannot serve 2026 in-season prices (week 1 opens 09-10), so every in-season market arm needs a free live source or it should not be proposed.",
+ "_scope": "REACHABILITY AND GRANULARITY ONLY. Whether any of this predicts points is an arm: it goes through BLEND-SEARCH-DESIGN and gets a preregistered grade.",
+ "_control": "sleeper_control is an endpoint this repo has fetched many times. If it fails, a fully-blocked run would otherwise read as 'no source exists'.",
+ "captured_at": "2026-08-18T05:22:25.490188+00:00",
+ "egress_ok": true,
+ "control_status": 200,
+ "reachable": [
+  "kalshi_series_sports",
+  "oddsapi_nfl_events",
+  "oddsapi_event_player_props"
+ ],
+ "kalshi": {
+  "nfl_series": [
+   {
+    "ticker": "KXNCAAFSPREAD",
+    "title": "College Football Spread"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNE",
+    "title": "Pro football exact wins New England"
+   },
+   {
+    "ticker": "KXNFLDSTTD",
+    "title": "Pro Football D/ST Touchdown"
+   },
+   {
+    "ticker": "KXNFLDROY",
+    "title": "NFL Defensive Rookie of the Year"
+   },
+   {
+    "ticker": "KXCZEFNLGAME",
+    "title": "Czech National Football League Game"
+   },
+   {
+    "ticker": "KXNFLAWARDFIN",
+    "title": "Pro Football Award Finalists"
+   },
+   {
+    "ticker": "KXLEADERNFLPTDS",
+    "title": "NFL leader passing TDs"
+   },
+   {
+    "ticker": "KXNFLPREPACK1Q1H",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFLDRAFTTEAMPOS",
+    "title": "Which team will draft a quarterback in specific round?"
+   },
+   {
+    "ticker": "KXNCAAFSECWINS",
+    "title": "College Football SEC Teams to Win"
+   },
+   {
+    "ticker": "KXNFLWINS-MIA",
+    "title": "Pro football wins Miami"
+   },
+   {
+    "ticker": "KXNFLWINS-CHI",
+    "title": "Pro football wins Chicago"
+   },
+   {
+    "ticker": "KXNFLOROTY",
+    "title": "AP Pro Football Offensive Rookie of the Year"
+   },
+   {
+    "ticker": "KXNFL4DCONV",
+    "title": "Pro Football 4th Down Conversions"
+   },
+   {
+    "ticker": "KXNFLPASSTDS",
+    "title": "Pro Football player Passing Touchdowns"
+   },
+   {
+    "ticker": "KXNFLGAME",
+    "title": "Professional Football Game"
+   },
+   {
+    "ticker": "KXNFLLEASTPENALIZED",
+    "title": "Pro Football Least Penalized Team"
+   },
+   {
+    "ticker": "KXNFL2QTOTAL",
+    "title": "Pro Football 2nd Quarter Total"
+   },
+   {
+    "ticker": "KXNCAAFCONFLEAVE",
+    "title": "College Football Conference Leave"
+   },
+   {
+    "ticker": "KXNFL1HTOTAL",
+    "title": "Pro Football 1st  Half Total Points"
+   },
+   {
+    "ticker": "KXRANKLISTFFWR",
+    "title": "TOP FANTASY FOOTBALL WR"
+   },
+   {
+    "ticker": "KXNCAAFACCWINS",
+    "title": "College Football ACC Teams to Win"
+   },
+   {
+    "ticker": "KXNFLDRAFTTE",
+    "title": "Pro Football Tight End Drafted"
+   },
+   {
+    "ticker": "KXNCAAF2HTOTAL",
+    "title": "College Football 2nd Half Total"
+   },
+   {
+    "ticker": "KXNFLWINS-CLE",
+    "title": "Pro football wins Cleveland"
+   },
+   {
+    "ticker": "KXNCAAF1HSPREAD",
+    "title": "College Football 1st Half Spread"
+   },
+   {
+    "ticker": "KXRECORDNFLWORST",
+    "title": "worst football record"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRSHTD",
+    "title": "College Football Team Rushing Touchdowns"
+   },
+   {
+    "ticker": "KXNFLCOMEBACK",
+    "title": "Pro Football Comeback"
+   },
+   {
+    "ticker": "KXNFLCELEBRITYGAME",
+    "title": "Pro Football Celebrity Flag Football Game"
+   },
+   {
+    "ticker": "KXLEADERNFLPYDS",
+    "title": "NFL leader passing yards"
+   },
+   {
+    "ticker": "KXNFLLARGESTLEAD",
+    "title": "Pro Football Largest Lead"
+   },
+   {
+    "ticker": "KXNFLPREPACK2ML",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXCFBUNRANKEDUPSET",
+    "title": "College Football Unranked Upsets"
+   },
+   {
+    "ticker": "KXNFLNFCCHAMP",
+    "title": "National Football Conference Champion"
+   },
+   {
+    "ticker": "KXNFLSACKRECORD",
+    "title": "NFL Regular Season Sack Record"
+   },
+   {
+    "ticker": "KXNFLFFPTS",
+    "title": "Pro Football Player Fantasy Points"
+   },
+   {
+    "ticker": "KXNFLWINS-LA",
+    "title": "Pro football wins Los Angeles R"
+   },
+   {
+    "ticker": "KXNFL2Q",
+    "title": "Pro Football 2nd Quarter Winner"
+   },
+   {
+    "ticker": "KXNCAAFSEED",
+    "title": "College Football Playoff Seed"
+   },
+   {
+    "ticker": "KXLEADERNFLSACKS",
+    "title": "NFL Sacks Leader"
+   },
+   {
+    "ticker": "KXNCAAFTOTALFG",
+    "title": "College Football Total Field Goals"
+   },
+   {
+    "ticker": "KXNFLPREPACKSGPSPREAD",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXCOACHOUTNFL",
+    "title": "NFL Coach Out"
+   },
+   {
+    "ticker": "KXNCAAFFTTS",
+    "title": "College Football First Team to Score"
+   },
+   {
+    "ticker": "KXNFLGPICKENSCONTRACT",
+    "title": "Pro Football George Picken's Next Contract Size"
+   },
+   {
+    "ticker": "KXNCAAFACCQUAL",
+    "title": "College Football ACC Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLDROTY",
+    "title": "AP Pro Football Defensive Rookie of the Year"
+   },
+   {
+    "ticker": "KXNCAAFTEAMFG",
+    "title": "College Football Team Total Field Goals"
+   },
+   {
+    "ticker": "KXNFLSFPRACFIELD",
+    "title": "Practice Field Relocation"
+   },
+   {
+    "ticker": "KXNFLCOMBINE40",
+    "title": "Pro Football Combine Fastest 40 Time"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSKC",
+    "title": "Pro football exact wins Kansas City"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSARI",
+    "title": "Pro football exact wins Arizona"
+   },
+   {
+    "ticker": "KXNFLAFCWEST",
+    "title": "American Football Conference West Winner"
+   },
+   {
+    "ticker": "KXNFLDRAFTQB",
+    "title": "Pro Football Quarterback Drafted"
+   },
+   {
+    "ticker": "KXLEADERNFLRUSHTDS",
+    "title": "NFL leader rushing TDs"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRSHYDS",
+    "title": "College Football Team Rushing Yards"
+   },
+   {
+    "ticker": "KXNFLSEASONRECYDS",
+    "title": "Pro Football Season Receiving Yards"
+   },
+   {
+    "ticker": "KXNFLMOSTRECYDS",
+    "title": "Pro Football Most Receiving Yards"
+   },
+   {
+    "ticker": "KXNCAAFBIG12WINS",
+    "title": "College Football Big 12 Teams to Win"
+   },
+   {
+    "ticker": "KXNFLREDZONEADS",
+    "title": "NFL Redzone ads"
+   },
+   {
+    "ticker": "KXNFLINT",
+    "title": "Pro Football Interceptions"
+   },
+   {
+    "ticker": "KXNFLDIVMOSTWINS",
+    "title": "Pro Football Division with the Least Wins"
+   },
+   {
+    "ticker": "KXNCAAFCOTW",
+    "title": "College Football Coach of the Week"
+   },
+   {
+    "ticker": "KXNFLDRAFTMATCHUP",
+    "title": "Pro Football Draft Matchup"
+   },
+   {
+    "ticker": "KXNFLWINS-KC",
+    "title": "Pro football wins Kansas City"
+   },
+   {
+    "ticker": "KXNFLANYTD",
+    "title": "Pro Football Anytime Touchdown"
+   },
+   {
+    "ticker": "KXNFLLASTTOLOSE",
+    "title": "Pro Football Last Undefeated Team"
+   },
+   {
+    "ticker": "KXNCAAF3QBTTS",
+    "title": "College Football Both Teams to Score in 3rd Quarter"
+   },
+   {
+    "ticker": "KXNCAAF1H",
+    "title": "College Football 1st Half Winner"
+   },
+   {
+    "ticker": "KXNFLMATCHUP",
+    "title": "Pro Football Matchups"
+   },
+   {
+    "ticker": "KXNFL3QTOTAL",
+    "title": "Pro Football 3rd Quarter Total"
+   },
+   {
+    "ticker": "KXNFLREDZONEBRANDADS",
+    "title": "Redzone week 1 brand ads"
+   },
+   {
+    "ticker": "KXNFLSUPDRAFTPICK",
+    "title": "Will Player declare for supplemental draft"
+   },
+   {
+    "ticker": "KXNFLGAMETO",
+    "title": "Pro Football Turnovers"
+   },
+   {
+    "ticker": "KXNFLSEASONRUSHYDS",
+    "title": "Pro Football Season Rushing Yards"
+   },
+   {
+    "ticker": "KXNFLCOMPETE",
+    "title": "Will an NFL Player Compete in game"
+   },
+   {
+    "ticker": "KXNFLSACK",
+    "title": "Pro Football Sacks"
+   },
+   {
+    "ticker": "KXNFLWINS-CIN",
+    "title": "Pro football wins Cincinnati"
+   },
+   {
+    "ticker": "KXNFL1QWINNER",
+    "title": "Pro Football 1st Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLWINS-CAR",
+    "title": "Pro football wins Carolina"
+   },
+   {
+    "ticker": "KXNFL2TD",
+    "title": "Pro Football Multiple Touchdowns"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSLV",
+    "title": "Pro football exact wins Las Vegas"
+   },
+   {
+    "ticker": "KXNFLAFCSOUTH",
+    "title": "American Football Conference South Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCHI",
+    "title": "Pro football exact wins Chicago"
+   },
+   {
+    "ticker": "KXNFLWINS-NE",
+    "title": "Pro football wins New England"
+   },
+   {
+    "ticker": "KXNFLOWNERSTAKE",
+    "title": "Next Pro Football Team to Sell Ownership Stake"
+   },
+   {
+    "ticker": "KXNCAAFTEAMSACK",
+    "title": "College Football Team Total Sacks"
+   },
+   {
+    "ticker": "KXNFLCONTRACTSIZE",
+    "title": "Pro Football Next Contract Size"
+   },
+   {
+    "ticker": "KXNFLDRAFTDT",
+    "title": "Pro Football Defensive Tackle Drafted"
+   },
+   {
+    "ticker": "KXNFLSEASONPASSYDS",
+    "title": "Pro Football Season Passing Yards"
+   },
+   {
+    "ticker": "KXNCAAF4QSPREAD",
+    "title": "College Football 4th Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLLEADCHANGE",
+    "title": "Pro Football Lead Changes"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSSF",
+    "title": "Pro football exact wins San Francisco"
+   },
+   {
+    "ticker": "KXNCAAFEQBTTS",
+    "title": "College Football Both Teams to Score in Every Quarter"
+   },
+   {
+    "ticker": "KXNCAAFTEAMINT",
+    "title": "College Football Team Total Defensive Interceptions"
+   },
+   {
+    "ticker": "KXNFLWINS-WAS",
+    "title": "Pro football wins Washington"
+   },
+   {
+    "ticker": "KXNFLWINS-NO",
+    "title": "Pro football wins New Orleans"
+   },
+   {
+    "ticker": "KXNFLTEAM1POS",
+    "title": "What position will Team select with first pick"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSTEN",
+    "title": "Pro football exact wins Tennessee"
+   },
+   {
+    "ticker": "KXNFLRSHATT",
+    "title": "Pro Football Rushing Attempts"
+   },
+   {
+    "ticker": "KXNFLEVERYWEEKCOMPETE",
+    "title": "Pro Football Players to Play in Every Week of the Season"
+   },
+   {
+    "ticker": "KXNCAAF2QTOTAL",
+    "title": "College Football 2nd Quarter Total"
+   },
+   {
+    "ticker": "KXNCAAF1QSPREAD",
+    "title": "College Football 1st Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLPROBOWLWIN",
+    "title": "Pro Football Pro Bowl Game"
+   },
+   {
+    "ticker": "KXNFLWINS-LAC",
+    "title": "Pro football wins Los Angeles C"
+   },
+   {
+    "ticker": "KXNCAAFAACQUAL",
+    "title": "College Football American Athletic Conference Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAF1QTOTAL",
+    "title": "College Football 1st Quarter Total"
+   },
+   {
+    "ticker": "KXNFLT100",
+    "title": "Will player be ranked on Pro Football T100 List"
+   },
+   {
+    "ticker": "KXNFL1QTOTAL",
+    "title": "Pro Football 1st Quarter Total"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSPHI",
+    "title": "Pro football exact wins Philadephia"
+   },
+   {
+    "ticker": "KXNFLSBMVP",
+    "title": "Pro Football Championship MVP"
+   },
+   {
+    "ticker": "KXRANKLISTFFTE",
+    "title": "TOP FANTASY FOOTBALL TE"
+   },
+   {
+    "ticker": "KXNFLRETURN",
+    "title": "Pro Football Injury Return"
+   },
+   {
+    "ticker": "KXNFLFIRSTPICK",
+    "title": "First Pick in NFL Draft"
+   },
+   {
+    "ticker": "KXNFLDEPTHPOSITIONCLEQB2",
+    "title": "QB2 CLE"
+   },
+   {
+    "ticker": "KXNCAAF1QBTTS",
+    "title": "College Football Both Teams to Score in 1st Quarter"
+   },
+   {
+    "ticker": "KXNFLHIGHSCORE",
+    "title": "Pro Football Highest Scoring Game"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRSHATT",
+    "title": "College Football Team Total Rushing Attempts"
+   },
+   {
+    "ticker": "KXNFL3Q",
+    "title": "Pro Football 3rd Quarter Winner"
+   },
+   {
+    "ticker": "KXNCAAFTEAMREC",
+    "title": "College Football Team Total Receptions"
+   },
+   {
+    "ticker": "KXNFLTEAMTOTAL",
+    "title": "Pro Football Team Total Points"
+   },
+   {
+    "ticker": "KXNCAAFAPRANK",
+    "title": "College Football AP Rank"
+   },
+   {
+    "ticker": "KXNFLNEXTTD",
+    "title": "Pro Football Next TD scorer"
+   },
+   {
+    "ticker": "KXNFLRECYDS",
+    "title": "Pro Football Receiving Yards"
+   },
+   {
+    "ticker": "KXNFLDIVLEASTWINS",
+    "title": "Pro Football Division with the Most Wins"
+   },
+   {
+    "ticker": "KXNFLOT",
+    "title": "Pro Football Overtime"
+   },
+   {
+    "ticker": "KXNFLWINS-TB",
+    "title": "Pro football wins Tampa Bay"
+   },
+   {
+    "ticker": "KXLEADERNFLRTDS",
+    "title": "NFL leader receiving TDs"
+   },
+   {
+    "ticker": "KXNFL4QTOTAL",
+    "title": "Pro Football 4th Quarter Total"
+   },
+   {
+    "ticker": "KXNCAAFD3",
+    "title": "D3 College Football Champion"
+   },
+   {
+    "ticker": "KXNFLCOACH",
+    "title": "NFL Coach of the Year"
+   },
+   {
+    "ticker": "KXNFLREC",
+    "title": "Pro Football Player Receptions"
+   },
+   {
+    "ticker": "KXNFL2HWINNER",
+    "title": "NFL 2nd Half Winner"
+   },
+   {
+    "ticker": "KXNFLWINS",
+    "title": "Pro Football Wins"
+   },
+   {
+    "ticker": "KXNCAAF3Q",
+    "title": "College Football 3rd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSBAL",
+    "title": "Pro football exact wins Baltimore"
+   },
+   {
+    "ticker": "KXNFLLARGELEAD",
+    "title": "Pro Football Largest Lead"
+   },
+   {
+    "ticker": "KXNFL1Q",
+    "title": "Pro Football 1st Quarter Winner"
+   },
+   {
+    "ticker": "KXNCAAFTOTALTD",
+    "title": "College Football Total Touchdowns"
+   },
+   {
+    "ticker": "KXNCAAFTEAMTOTAL",
+    "title": "College Football Team Total Points"
+   },
+   {
+    "ticker": "KXRANKLISTFFK",
+    "title": "TOP FANTASY FOOTBALL K"
+   },
+   {
+    "ticker": "KXNFLFANTASYMOST",
+    "title": "Pro Football Most Fantasy Points"
+   },
+   {
+    "ticker": "KXLEADERNFLAPYDS",
+    "title": "Pro Football All-Purpose Yards Leader"
+   },
+   {
+    "ticker": "KXNCAAF3QTOTAL",
+    "title": "College Football 3rd Quarter Total"
+   },
+   {
+    "ticker": "KXNFLDIVISIONWINS",
+    "title": "Pro Football Division Total Wins"
+   },
+   {
+    "ticker": "KXNEXTNFLCOACH",
+    "title": "Next Pro Football Coach"
+   },
+   {
+    "ticker": "KXNFLPRIMETIME",
+    "title": "Pro Football Primetime Games"
+   },
+   {
+    "ticker": "KXNFL4QSPREAD",
+    "title": "Pro Football 4th Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLPASSCOMP",
+    "title": "Pro Football Passing Completions"
+   },
+   {
+    "ticker": "KXNFL3QSPREAD",
+    "title": "Pro Football 3rd Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLNOSCOREQ",
+    "title": "Pro Football Scoreless Quarter"
+   },
+   {
+    "ticker": "KXNFLDPOY",
+    "title": "NFL Defensive Player of the Year"
+   },
+   {
+    "ticker": "KXNFLCOMBO",
+    "title": "NFL COMBO"
+   },
+   {
+    "ticker": "KXNFLRETIRE",
+    "title": "Pro Football Retirement"
+   },
+   {
+    "ticker": "KXNCAAFCS",
+    "title": "FCS Football Champion"
+   },
+   {
+    "ticker": "KXNFLSEASONREC",
+    "title": "Pro Football Season Receptions"
+   },
+   {
+    "ticker": "KXNFLGAMEFG",
+    "title": "Pro Football Field Goals"
+   },
+   {
+    "ticker": "KXNFLHALLOFFAME",
+    "title": "Pro Football Hall of Fame"
+   },
+   {
+    "ticker": "KXNCAAFWINS",
+    "title": "College Football Win Total"
+   },
+   {
+    "ticker": "KXNFLTEAMDPTS",
+    "title": "Who will allow the least/most points this season"
+   },
+   {
+    "ticker": "KXNFLMVP",
+    "title": "AP Pro Football Regular Season MVP"
+   },
+   {
+    "ticker": "KXLEADERNFLPINT",
+    "title": "Pro Football Pass INT "
+   },
+   {
+    "ticker": "KXNFLDRAFTDB",
+    "title": "Pro Football Defensive Back Drafted"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCLE",
+    "title": "Pro football exact wins Cleveland"
+   },
+   {
+    "ticker": "KXNCAAFBIGTENREGTOP",
+    "title": "College Football Big Ten Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXNCAAF4QTOTAL",
+    "title": "College Football 4th Quarter Total"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNYG",
+    "title": "Pro football exact wins New York G"
+   },
+   {
+    "ticker": "KXNFLSTAGEOFELIM",
+    "title": "Pro Football Stage of Elimination"
+   },
+   {
+    "ticker": "KXNCAAF4Q",
+    "title": "College Football 4th Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLTOTAL",
+    "title": "Pro Football Total Points"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRECTD",
+    "title": "College Football Team Receiving Touchdowns"
+   },
+   {
+    "ticker": "KXRANKLISTFFQB",
+    "title": "TOP FANTASY FOOTBALL QB"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSTB",
+    "title": "Pro football exact wins Tampa Bay"
+   },
+   {
+    "ticker": "KXNFLWINS-ARI",
+    "title": "Pro football wins Arizona"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCIN",
+    "title": "Pro football exact wins Cincinnati"
+   },
+   {
+    "ticker": "KXNFLWINS-LV",
+    "title": "Pro football wins Las Vegas"
+   },
+   {
+    "ticker": "KXNCAAFSF",
+    "title": "College Football Playoff Semifinals Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAF1HWINNER",
+    "title": "College Football 1st Half Winner"
+   },
+   {
+    "ticker": "KXCOACHOUTNFLFIRST",
+    "title": "First NFL Coach Out"
+   },
+   {
+    "ticker": "KXNCAAF3QSPREAD",
+    "title": "College Football 3rd Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLOROY",
+    "title": "NFL Offensive Rookie of the Y ear"
+   },
+   {
+    "ticker": "KXNFLTRADE",
+    "title": "Pro Football Players Traded"
+   },
+   {
+    "ticker": "KXNFLWINS-ANY",
+    "title": "Pro football wins any team"
+   },
+   {
+    "ticker": "KXNFLWINS-NYG",
+    "title": "Pro football wins New York G"
+   },
+   {
+    "ticker": "KXNCAAF2Q",
+    "title": "College Football 2nd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLDRAFTWR",
+    "title": "Pro Football Wide Receiver Drafted "
+   },
+   {
+    "ticker": "KXNFLPASSYDS",
+    "title": "Pro Football Passing Yards"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSBUF",
+    "title": "Pro football exact wins Buffalo"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNYJ",
+    "title": "Pro football exact wins New York J"
+   },
+   {
+    "ticker": "KXNFLSPREAD",
+    "title": "Pro Football Spread"
+   },
+   {
+    "ticker": "KXNFLWINS-IND",
+    "title": "Pro football wins Indianapolis"
+   },
+   {
+    "ticker": "KXNFLWINS-DAL",
+    "title": "Pro football wins Dallas"
+   },
+   {
+    "ticker": "KXNFLGAMESACK",
+    "title": "Pro Football Sacks"
+   },
+   {
+    "ticker": "KXSORONDO",
+    "title": "Rajon Rando Summer Olympics Flag Football"
+   },
+   {
+    "ticker": "KXNFLWORSTTOFIRST",
+    "title": "Pro Football Worst in Division to First"
+   },
+   {
+    "ticker": "KXNFLAFCNORTH",
+    "title": "American Football Conference North Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSJAC",
+    "title": "Pro football exact wins Jacksonville"
+   },
+   {
+    "ticker": "KXNFLFIRSTTDTIME",
+    "title": "Pro Football First Touchdown Time"
+   },
+   {
+    "ticker": "KXNCAAFDSTTD",
+    "title": "College Football Defense Special Teams Touchdown"
+   },
+   {
+    "ticker": "KXNFLDRAFTTOP",
+    "title": "Pro Football Top Draft"
+   },
+   {
+    "ticker": "KXNFL4DOWNCONV",
+    "title": "Pro Football 4th Down Conversions"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSSEA",
+    "title": "Pro football exact wins Seattle"
+   },
+   {
+    "ticker": "KXNCAAFTEAMTO",
+    "title": "College Football Team Total Forced Turnovers"
+   },
+   {
+    "ticker": "KXNCAAFFINALIST",
+    "title": "College Football Finalist"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSATL",
+    "title": "Pro football exact wins Atlanta"
+   },
+   {
+    "ticker": "KXNFLWINS-NYJ",
+    "title": "Pro football wins New York J"
+   },
+   {
+    "ticker": "KXNFLGAMETD",
+    "title": "Pro Football Touchdowns"
+   },
+   {
+    "ticker": "KXNFLWINS-BUF",
+    "title": "Pro football wins Buffalo"
+   },
+   {
+    "ticker": "KXNFL1YDPASS",
+    "title": "Seattle 1 Yard Pass"
+   },
+   {
+    "ticker": "KXNCAAFCOTY",
+    "title": "College Football Coach of the Year"
+   },
+   {
+    "ticker": "KXNCAAPLAYOFF",
+    "title": "College Football Playoff Qualifiers"
+   },
+   {
+    "ticker": "KXNFLSEASONRECTD",
+    "title": "Pro Football Season Receiving Touchdowns"
+   },
+   {
+    "ticker": "KXNFL2QWINNER",
+    "title": "Pro Football 2nd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLDRAFTEDGE",
+    "title": "Pro Football Edge Drafted"
+   },
+   {
+    "ticker": "KXSBHOST",
+    "title": "Pro Football Championship Host"
+   },
+   {
+    "ticker": "KXNCAAFB12QUAL",
+    "title": "College Football Big 12 Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAFD3GAME",
+    "title": "DIII College Football Game"
+   },
+   {
+    "ticker": "KXTRADEOFFNFL",
+    "title": "Pro football trades offseason"
+   },
+   {
+    "ticker": "KXNFLSEASONRSHTD",
+    "title": "Pro Football Season Rush Touchdowns"
+   },
+   {
+    "ticker": "KXNFLPASSINT",
+    "title": "Pro Football Passing Interceptions"
+   },
+   {
+    "ticker": "KXNCAAF2HSPREAD",
+    "title": "College Football 2nd Half Spread"
+   },
+   {
+    "ticker": "KXNFLWINS-PIT",
+    "title": "Pro football wins Pittsburgh"
+   },
+   {
+    "ticker": "KXNFL2H",
+    "title": "Pro Football 2nd Half"
+   },
+   {
+    "ticker": "KXNCAAFB10QUAL",
+    "title": "College Football Big Ten Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLNEXTTEAM",
+    "title": "Pro Football Next Team"
+   },
+   {
+    "ticker": "KXNCAAFTOPAPRANK",
+    "title": "College Football AP Poll Top Rank"
+   },
+   {
+    "ticker": "KXNFLBLOWOUT",
+    "title": "Pro Football Biggest Blowout"
+   },
+   {
+    "ticker": "KXNCAAFGAME",
+    "title": "College Football Game"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSDEN",
+    "title": "Pro football exact wins Denver"
+   },
+   {
+    "ticker": "KXNFLPROBOWL",
+    "title": "Pro Football Pro Bowl"
+   },
+   {
+    "ticker": "KXNCAAF1Q",
+    "title": "College Football 1st Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLWINS-GB",
+    "title": "Pro football wins Green Bay"
+   },
+   {
+    "ticker": "KXRECORDNFLBEST",
+    "title": "best football record"
+   },
+   {
+    "ticker": "KXNCAAFCSGAME",
+    "title": "College Football FCS Game"
+   },
+   {
+    "ticker": "KXNFLTSPEC",
+    "title": "NFL Team Specials"
+   },
+   {
+    "ticker": "KXNCAAFJOINCONF",
+    "title": "College Football Join Conference"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNO",
+    "title": "Pro football exact wins New Orleans"
+   },
+   {
+    "ticker": "KXNFLWINS-HOU",
+    "title": "Pro football wins Houston"
+   },
+   {
+    "ticker": "KXNFLRECYDSRECORD",
+    "title": "NFL Regular Season Receiving Yards Record"
+   },
+   {
+    "ticker": "KXSTARTINGQBWEEK1",
+    "title": "NFL Starting QB Week 1"
+   },
+   {
+    "ticker": "KXNFLPREPACKSGP",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFL1HWINNER",
+    "title": "NFL 1st Half Winner"
+   },
+   {
+    "ticker": "KXCFBCOTY",
+    "title": "College Football Coach of the Year"
+   },
+   {
+    "ticker": "KXSWIFTATTEND",
+    "title": "NFL Attendance Swift"
+   },
+   {
+    "ticker": "KXNFLSDRAFTTOP",
+    "title": "Will player be drafted Top X in Supplemental Draft"
+   },
+   {
+    "ticker": "KXNCAAFB12REGTOP",
+    "title": "College Football Big 12 Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXNFLDRAFTTEAM",
+    "title": "Pro Football Team Draft"
+   },
+   {
+    "ticker": "KXNCAAFACCREGTOP",
+    "title": "College Football ACC Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXUFLGAME",
+    "title": "UFL Football Game"
+   },
+   {
+    "ticker": "KXNFLWPMOTY",
+    "title": "Walter Payton Man of the Year"
+   },
+   {
+    "ticker": "KXPHILIPRIVERSNFL",
+    "title": "Philips Rivers Play This Year"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSPIT",
+    "title": "Pro football exact wins Pittsburgh"
+   },
+   {
+    "ticker": "KXTENNCOACH",
+    "title": "Tennessee Pro Football Team Next Coach"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCAR",
+    "title": "Pro football exact wins Carolina"
+   },
+   {
+    "ticker": "KXNCAAFTOPSEED",
+    "title": "College Football Playoff Top Seed"
+   },
+   {
+    "ticker": "KXNFLDRAFTPICK",
+    "title": "NFL Draft Pick"
+   },
+   {
+    "ticker": "KXNFLDRAFTCOMPARE",
+    "title": "NFL Draft Comparison"
+   },
+   {
+    "ticker": "KXNCAAFTEAMTD",
+    "title": "College Football Team Total Touchdowns"
+   },
+   {
+    "ticker": "KXNFLOPOY",
+    "title": "NFL Offensive Player of the Year"
+   },
+   {
+    "ticker": "KXNFLDRAFTOL",
+    "title": "Pro Football Offensive Line Drafted "
+   },
+   {
+    "ticker": "KXNFLTEAMPTS",
+    "title": "Who will most/least points in Regular Season"
+   },
+   {
+    "ticker": "KXCFPSEED",
+    "title": "College Football Playoff Seed"
+   },
+   {
+    "ticker": "KXNFLGAMESPECIALS",
+    "title": "Pro Football Game Specials"
+   },
+   {
+    "ticker": "KXNFLOPOTY",
+    "title": "AP Pro Football Offensive Player Of The Year"
+   },
+   {
+    "ticker": "KXNCAAFBIGTENWINS",
+    "title": "College Football Big Ten Teams to Win"
+   },
+   {
+    "ticker": "KXNFLWEEKCOMPETE",
+    "title": "NFL Player to Play in Week"
+   },
+   {
+    "ticker": "KXNCAAFQF",
+    "title": "College Football Playoff Quarterfinals Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAFSBELTQUAL",
+    "title": "College Football Sun Belt Championship Qualifiers"
+   },
+   {
+    "ticker": "KXRELOCATIONCHI",
+    "title": "Chicago Football Relocation"
+   },
+   {
+    "ticker": "KXNFLWINS-ATL",
+    "title": "Pro football wins Atlanta"
+   },
+   {
+    "ticker": "KXNFLNFCWEST",
+    "title": "National Football Conference West Winner"
+   },
+   {
+    "ticker": "KXNFLNFCEAST",
+    "title": "National Football Conference East Winner"
+   },
+   {
+    "ticker": "KXNFL4QWINNER",
+    "title": "Pro Football 4th Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSLAC",
+    "title": "Pro football exact wins Los Angeles C"
+   },
+   {
+    "ticker": "KXNFLWINS-SF",
+    "title": "Pro football wins San Francisco"
+   },
+   {
+    "ticker": "KXNFLTIES",
+    "title": "Pro Football Ties"
+   },
+   {
+    "ticker": "KXNFL2PTCONV",
+    "title": "Pro Football 2-Point Conversions"
+   },
+   {
+    "ticker": "KXNFL4Q",
+    "title": "Pro Football 4th Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLNEXTINT",
+    "title": "Pro Football Next Interception"
+   },
+   {
+    "ticker": "KXNCAAF2QSPREAD",
+    "title": "College Football 2nd Quarter Spread"
+   },
+   {
+    "ticker": "KXNCAAFSECREGTOP",
+    "title": "College Football SEC Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXNFLSEASONRSHYDS",
+    "title": "Pro Football Season Rushing Yards"
+   },
+   {
+    "ticker": "KXLEADERNFLRYDS",
+    "title": "NFL leader receiving yards"
+   },
+   {
+    "ticker": "KXNFLWINSTREAK",
+    "title": "Pro Football Win Streak"
+   },
+   {
+    "ticker": "KXNFLDRAFTEAMPOS",
+    "title": "Will team draft a position across round"
+   },
+   {
+    "ticker": "KXNFLWINS-DET",
+    "title": "Pro football wins Detroit"
+   },
+   {
+    "ticker": "KXNFLWINMARGIN",
+    "title": "Pro Football Win Margin"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSGB",
+    "title": "Pro football exact wins Green Bay"
+   },
+   {
+    "ticker": "KXNFLSBMVPPOS",
+    "title": "Pro Football Championship MVP Position"
+   },
+   {
+    "ticker": "KXNCAAFMWCQUAL",
+    "title": "College Football Mountain West Conference Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAF4QBTTS",
+    "title": "College Football Both Teams to Score in 4th Quarter"
+   },
+   {
+    "ticker": "KXNFLT100TOP",
+    "title": "Will player be ranked Top X on NFL 100"
+   },
+   {
+    "ticker": "KXNEXTCOACHOUTNFL",
+    "title": "Next Coach Out Pro Football"
+   },
+   {
+    "ticker": "KXNFLSEASONPASSTDS",
+    "title": "Pro Football Season Passing TDs"
+   },
+   {
+    "ticker": "KXNFLCOMBINE",
+    "title": "NFL Combine"
+   },
+   {
+    "ticker": "KXNFLHIGHSCOREQ",
+    "title": "Pro Football Highest Scoring Quarter"
+   },
+   {
+    "ticker": "KXNFLLONGESTTD",
+    "title": "Pro Football Longest Touchdown"
+   },
+   {
+    "ticker": "KXNCAAFPAC12QUAL",
+    "title": "College Football Pac-12 Championship Qualifiers"
+   },
+   {
+    "ticker": "KXLEADERNFLRUSHYDS",
+    "title": "NFL leader rushing yards"
+   },
+   {
+    "ticker": "KXNFLEXECOTY",
+    "title": "Pro Football Executive of the Year"
+   },
+   {
+    "ticker": "KXNCAAFPLAYOFF",
+    "title": "College Football Playoff Qualifiers"
+   },
+   {
+    "ticker": "KXNFL2HSPREAD",
+    "title": "Pro Football 2nd Half Spread"
+   },
+   {
+    "ticker": "KXNFLDRAFT1",
+    "title": "NFL Draft First Pick"
+   },
+   {
+    "ticker": "KXNFLDRAFT1ST",
+    "title": "Make the 1st pick in NFL Draft"
+   },
+   {
+    "ticker": "KXNFLFFLEADERTOP",
+    "title": "Top Fantasy"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRECYDS",
+    "title": "College Football Team Receiving Yards"
+   },
+   {
+    "ticker": "KXNFL1HSPREAD",
+    "title": "Pro Football 1st Half Spread"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSIND",
+    "title": "Pro football exact wins Indianapolis"
+   },
+   {
+    "ticker": "KXNFLWINS-SEA",
+    "title": "Pro football wins Seattle"
+   },
+   {
+    "ticker": "KXNFLH2HWINS",
+    "title": "Pro Football Head-to-Head Win Totals"
+   },
+   {
+    "ticker": "KXNFLALLPRO",
+    "title": "Pro Football All-Pro Teams"
+   },
+   {
+    "ticker": "KXNFLPREPACK3ML",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFLHIRECOACH",
+    "title": "NFL hire coach"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSDET",
+    "title": "Pro football exact wins Detroit"
+   },
+   {
+    "ticker": "KXNFLNFCSOUTH",
+    "title": "National Football Conference South Winner"
+   },
+   {
+    "ticker": "KXNFLPROOTY",
+    "title": "Pro Football Protector of the Year"
+   },
+   {
+    "ticker": "KXNFLLASTPICKPOS",
+    "title": "NFL Last Pick of the Draft Position"
+   },
+   {
+    "ticker": "KXNFLSAFETY",
+    "title": "Pro Football Safeties"
+   },
+   {
+    "ticker": "KXNFLMOSTRSHYDS",
+    "title": "Pro Football Most Rushing Yards"
+   },
+   {
+    "ticker": "KXNCAAFTOTAL",
+    "title": "College Football Total Points"
+   },
+   {
+    "ticker": "KXNFLENDSTREAK",
+    "title": "When will team end streak"
+   },
+   {
+    "ticker": "KXNFLHOFINDUCTEES",
+    "title": "Pro Football Hall of Fame Inductees"
+   },
+   {
+    "ticker": "KXNFLWINS-PHI",
+    "title": "Pro football wins Philadelphia"
+   },
+   {
+    "ticker": "KXNCAAFH2HWINS",
+    "title": "College Football Head-to-Head Regular Season Wins"
+   },
+   {
+    "ticker": "KXNFLNFCNORTH",
+    "title": "National Football Conference North Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSMIA",
+    "title": "Pro football exact wins Miami"
+   },
+   {
+    "ticker": "KXNFLRSHYDS",
+    "title": "Pro Football Rushing Yards"
+   },
+   {
+    "ticker": "KXNFL1SEED",
+    "title": "Will team win conference in regular season"
+   },
+   {
+    "ticker": "KXFOOTBALL1001",
+    "title": "Football rankings"
+   },
+   {
+    "ticker": "KXNCAAFUNDEFEATED",
+    "title": "Undefeated in College Football Regular Season"
+   },
+   {
+    "ticker": "KXNCAAFCONFMATCHUP",
+    "title": "College Football Conference Championship Matchup"
+   },
+   {
+    "ticker": "KXNCAAFAPANY",
+    "title": "College Football AP Rank Anytime in Season"
+   },
+   {
+    "ticker": "KXNFL2QSPREAD",
+    "title": "Pro Football 2nd Quarter Spread"
+   },
+   {
+    "ticker": "KXNCAAF1HTOTAL",
+    "title": "College Football 1st Half Total"
+   },
+   {
+    "ticker": "KXNFLAFCCHAMP",
+    "title": "American Football Conference Champion"
+   },
+   {
+    "ticker": "KXNFLPREPACK1HFT",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXRANKLISTFFRB",
+    "title": "TOP FANTASY FOOTBALL RB"
+   },
+   {
+    "ticker": "KXNFL1QSPREAD",
+    "title": "Pro Football 1st Quarter Spread"
+   },
+   {
+    "ticker": "KXLEADERPINT",
+    "title": "Pro Football Passing Interceptions Leader"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSLA",
+    "title": "Pro football exact wins Los Angeles R"
+   },
+   {
+    "ticker": "KXNFLREBOOT",
+    "title": "Reboot Rules"
+   },
+   {
+    "ticker": "KXNFLFFTOP",
+    "title": "Top Fantasy Rank"
+   },
+   {
+    "ticker": "KXNFLASSCOACH",
+    "title": "NFL Assistant Coach of the Year"
+   },
+   {
+    "ticker": "KXNFLPASSATT",
+    "title": "Pro Football Passing Attempts"
+   },
+   {
+    "ticker": "KXNFLSBMVPQB",
+    "title": "Non QB Championship MVP"
+   },
+   {
+    "ticker": "KXNFLCOTY",
+    "title": "AP Pro Football Coach Of The Year"
+   },
+   {
+    "ticker": "KXNFLFFLEADER",
+    "title": "Best in Fantasy By Position"
+   },
+   {
+    "ticker": "KXNFLDRAFTRB",
+    "title": "Pro Football Running Back Drafted"
+   },
+   {
+    "ticker": "KXNFLPLAYOFF",
+    "title": "Pro Football Playoff Qualifiers"
+   },
+   {
+    "ticker": "KXNEXTTEAMNFL",
+    "title": "Pro Football Player Next Team"
+   },
+   {
+    "ticker": "KXNFLDRAFTLB",
+    "title": "Pro Football Linebacker Drafted"
+   },
+   {
+    "ticker": "KXCFBUNDEFEATEDHOME",
+    "title": "College Football Teams to go Undefeated at Home"
+   },
+   {
+    "ticker": "KXNFLAFCEAST",
+    "title": "American Football Conference East Winner"
+   },
+   {
+    "ticker": "KXNFLCPOTY",
+    "title": "AP Pro Football Comeback Player of the Year"
+   },
+   {
+    "ticker": "KXNFLLEADERPINT",
+    "title": "Pro Football P INT Leader"
+   },
+   {
+    "ticker": "KXNFLDRAFTOU",
+    "title": "Will Player be drafted before or after pick?"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSHOU",
+    "title": "Pro football exact wins Houston"
+   },
+   {
+    "ticker": "KXNFLPREPACK",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFL2HTOTAL",
+    "title": "Pro Football 2nd Half Total"
+   },
+   {
+    "ticker": "KXNFLPLAYOFFHOST",
+    "title": "Team to host a playoff game"
+   },
+   {
+    "ticker": "KXNFLFIRSTTD",
+    "title": "Pro Football First Touchdown"
+   },
+   {
+    "ticker": "KXNFLWINS-BAL",
+    "title": "Pro football wins Baltimore"
+   },
+   {
+    "ticker": "KXNFLWINS-JAC",
+    "title": "Pro football wins Jacksonville"
+   },
+   {
+    "ticker": "KXNFLSHORTESTTD",
+    "title": "Pro Football Shortest Touchdown"
+   },
+   {
+    "ticker": "KXNFLDPOTY",
+    "title": "AP Pro Football Defensive Player Of The Year"
+   },
+   {
+    "ticker": "KXNFLTEAMFIRSTTD",
+    "title": "Pro Football First Touchdown"
+   },
+   {
+    "ticker": "KXNFLDRAFTCAT",
+    "title": "Pro Football Draft Category"
+   },
+   {
+    "ticker": "KXLEADERNFLINT",
+    "title": "NFL leader interceptions"
+   },
+   {
+    "ticker": "KXNFLSBMVPDEF",
+    "title": "Defensive Player Championship MVP"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSWAS",
+    "title": "Pro football exact wins Washington"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSMIN",
+    "title": "Pro football exact wins Minnesota"
+   },
+   {
+    "ticker": "KXNCAAFSECQ",
+    "title": "College Football SEC Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLWINS-MIN",
+    "title": "Pro football wins Minnesota"
+   },
+   {
+    "ticker": "KXNFLSEED",
+    "title": "NFL Playoff Seed"
+   },
+   {
+    "ticker": "KXNFL1H",
+    "title": "Pro Football 1st Half Winner"
+   },
+   {
+    "ticker": "KXNCAAF2H",
+    "title": "College Football 2nd Half Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSDAL",
+    "title": "Pro football exact wins Dallas"
+   },
+   {
+    "ticker": "KXNFLWINS-DEN",
+    "title": "Pro football wins Denver"
+   },
+   {
+    "ticker": "KXNFLDIVISIONORDER",
+    "title": "Pro Football Division Exact Order"
+   },
+   {
+    "ticker": "KXNFL3QWINNER",
+    "title": "Pro Football 3rd Quarter Winner"
+   },
+   {
+    "ticker": "KXRANKLISTFFDST",
+    "title": "TOP FANTASY FOOTBALL D ST"
+   },
+   {
+    "ticker": "KXNCAAFUNDEFEATEDHOME",
+    "title": "College Football Teams to go Undefeated at Home"
+   },
+   {
+    "ticker": "KXNFLWINSWEEK",
+    "title": "NFL wins by week"
+   },
+   {
+    "ticker": "KXNFLTD",
+    "title": "Pro Football Touchdowns"
+   },
+   {
+    "ticker": "KXNFLNONQBPASS",
+    "title": "Pro Football Non-QB Passes"
+   },
+   {
+    "ticker": "KXNCAAFMACQUAL",
+    "title": "College Football Mid-American Conference Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLWINS-TEN",
+    "title": "Pro football wins Tennessee"
+   },
+   {
+    "ticker": "KXNCAAF2QBTTS",
+    "title": "College Football Both Teams to Score in 2nd Quarter"
+   },
+   {
+    "ticker": "KXNCAAFCUSAQUAL",
+    "title": "College Football Conference USA Championship Qualifiers"
+   }
+  ],
+  "note": "390 NFL series, 0 open markets across 30 pages",
+  "open_markets": 0,
+  "player_level_markets": [],
+  "player_level_count": 0,
+  "sample_titles": []
+ },
+ "oddsapi_event_player_props": {
+  "checked": true,
+  "event_id": "8c94552d022acec4a0458d70c19d3da9",
+  "status": 200,
+  "bytes": 3134,
+  "head": "{\"id\":\"8c94552d022acec4a0458d70c19d3da9\",\"sport_key\":\"americanfootball_nfl\",\"sport_title\":\"NFL\",\"commence_time\":\"2026-09-10T00:15:00Z\",\"home_team\":\"Seattle Seahawks\",\"away_team\":\"New England Patriots\",\"bookmakers\":[{\"key\":\"draftkings\",\"title\":\"DraftKings\",\"markets\":[{\"key\":\"player_anytime_td\",\"last_update\":\"2026-08-18T05:20:32Z\",\"outcomes\":[{\"name\":\"Yes\",\"description\":\"Jaxon Smith-Njigba\",\"price\":"
+ },
+ "_v1_false_positive": "v1 reported player-level content in two Kalshi endpoints. Both were wrong: the match was the legal boilerplate every series carries ('Current and former players, coaches, and staff...') and the second endpoint had no NFL filter, returning KXELONMARS. v2 reads series tickers and market TITLES instead of raw text.",
+ "parse_errors": {},
+ "rows": [
+  {
+   "id": "sleeper_control",
+   "status": 200,
+   "bytes": 207
+  },
+  {
+   "id": "kalshi_series_sports",
+   "status": 200,
+   "bytes": 5376784
+  },
+  {
+   "id": "oddsapi_nfl_events",
+   "status": 200,
+   "bytes": 54215
+  },
+  {
+   "id": "oddsapi_event_player_props",
+   "status": 200,
+   "bytes": 3134
+  }
+ ],
+ "verdict": "NO OPEN NFL MARKETS FOUND ON KALSHI (390 NFL series, 0 open markets across 30 pages). Control passed, so this is a real answer for TODAY \u2014 08-18 is the offseason and listings may appear nearer week 1. Re-probe after 09-10 before concluding."
+}
