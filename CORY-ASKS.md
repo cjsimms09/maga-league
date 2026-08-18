@@ -131,7 +131,7 @@ priced skill category ever goes unparsed again.
 
 | # | what | why it is Cory's |
 |---|---|---|
-| — | **Nothing.** All five open decisions were ruled on 2026-08-17, and the two D raised on 08-18 were delegated to A the same day (A9). | Kept as a live section: when it is empty, no lane is idling on Cory. |
+| — | **Nothing.** War room ruled 2026-08-18 (see V5 below); resources question still open. | Kept as a live section: when it is empty, no lane is idling on Cory. |
 | — | ⚠️ **One thing is still with Cory but is not a decision — the uploaded resources.** D reported 08-18 that **nothing was uploaded to its session**; anything living only in a chat window is invisible to A and every other lane. `RESOURCES.md` is the committed home for it. Not blocking any lane. | Only Cory has the material. |
 
 ## DELIVERED AND VERIFIED
@@ -142,6 +142,7 @@ priced skill category ever goes unparsed again.
 | V2 | **Nothing gets left behind** | `DEFECT-REGISTER.md` + `test_defect_register.py`, which fails on any row with no owner. It caught lane D's own rows on the first run after the re-route. |
 | V3 | **The eight-question data chain** | `DATA-LIFECYCLE.md`, all ten stores measured rather than recalled: two complete the chain, four stop with no recorded reason. |
 | V4 | **Everyone in their own lane, A decides and merges** | `OPERATING-MODEL.md` — one screen, Rules 1–5, ASK/EVIDENCE/REC/DEFAULT so silence is consent and nobody idles. |
+| V5 | **War room satisfies the rejection.** Cory, 2026-08-18, verbatim: *"mark complete, I like current war room."* Answers B-A9 — the taste call only he could make. `DEFECT-REGISTER.md` row 4b is B's to route closed (not editable directly); routed in `ROUTES.md`. | Cory's own words, this session. |
 
 ---
 

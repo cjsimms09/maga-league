@@ -135,14 +135,52 @@ const base = f => JSON.parse(fs.readFileSync(
     + 'implying it is current',
   /the immutable reference, not the live policy/.test(APP));
 
-  /* THE GAP, ASSERTED AS A GAP. If someone later makes the button name the
-   * weights it will change, this flips and the test should be updated to
-   * demand it — that is the fix landing, not this check breaking. */
-  ck('DEFECT: nothing in the restore panel names WHICH weights it will '
-    + 'change — a date is not a diff',
-  !/will change|reverts|ceiling 0\.45/.test(
+  /* FIXED, 2026-08-18 (register 5g, option (3), B's half). The panel now
+   * diffs the frozen weights against live and names what will change — so
+   * even if the pin drifts stale again the way v1 did, the button itself
+   * says so before the tap rather than relying on a date nobody
+   * reconstructs on the clock. */
+  ck('FIXED: the restore panel names WHICH weights it will change — '
+    + 'not just a date',
+  /will change/.test(
     APP.slice(APP.indexOf('function renderBaselineControl'),
-      APP.indexOf('function renderBaselineControl') + 2000)));
+      APP.indexOf('function renderBaselineControl') + 2500)));
+
+  ck('...and the diff is recomputed whenever weights change (saveWeights '
+    + 're-renders the panel), so a slider moved after page load cannot '
+    + 'leave a stale diff on screen',
+  /function saveWeights\(\) \{[\s\S]{0,600}renderBaselineControl/.test(APP));
+}
+
+// ── 5. weightsDiff() ITSELF, EXTRACTED AND UNIT-TESTED ─────────────────────
+// A regex proves the call exists; this proves the function is CORRECT.
+{
+  const src = APP.slice(APP.indexOf('function weightsDiff'),
+    APP.indexOf('function renderBaselineControl'));
+  const weightsDiff = new Function(src + '\nreturn weightsDiff;')();
+
+  ck('weightsDiff: identical weights -> empty diff',
+    weightsDiff({ value: 1, ceiling: 0.45 }, { value: 1, ceiling: 0.45 }).length === 0);
+
+  const d1 = weightsDiff({ value: 1, ceiling: 0 }, { value: 1, ceiling: 0.45 });
+  ck('weightsDiff: one differing term -> exactly one entry, correctly shaped',
+    d1.length === 1 && d1[0].term === 'ceiling' && d1[0].from === 0.45 && d1[0].to === 0);
+
+  const d2 = weightsDiff({ ceiling: 0, stack: 0.5, value: 1 }, { ceiling: 0.45, stack: 1.0, value: 1 });
+  ck('weightsDiff: two differing terms (the actual 5g case) -> both named, '
+    + 'unchanged term excluded',
+    d2.length === 2 && d2.some(d => d.term === 'ceiling') && d2.some(d => d.term === 'stack'));
+
+  ck('FAIL ARM: floating-point noise (0.1+0.2 style) does not manufacture '
+    + 'a phantom diff',
+    weightsDiff({ ceiling: 0.1 + 0.2 }, { ceiling: 0.3 }).length === 0);
+
+  ck('weightsDiff: null/missing frozen or live -> empty, not a throw',
+    weightsDiff(null, { value: 1 }).length === 0 && weightsDiff({ value: 1 }, null).length === 0);
+
+  ck('weightsDiff: a non-numeric field on either side is skipped, not '
+    + 'coerced into a false diff',
+    weightsDiff({ note: 'measured' }, { note: 'live' }).length === 0);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
