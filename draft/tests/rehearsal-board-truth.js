@@ -72,8 +72,27 @@ const check = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
       if (projCell !== want) { badProj++; mismatches.push(`PROJ ${name}: screen ${projCell} vs artifact ${want}`); }
     }
   }
-  check('every rendered overall_rank matches the artifact', badRank === 0, `${checkedRank} checked, ${badRank} wrong`);
-  check('every rendered projection matches the artifact (rounded)', badProj === 0, `${checkedProj} checked, ${badProj} wrong`);
+  // ZERO IS NOT A PASS. Found 2026-08-18 (relay) by running this against a server
+  // whose dev credentials did not exist: login 401'd, /admin/warroom bounced, the
+  // page rendered NO rows — and this file reported **4 of 6 PASSING**. Three checks
+  // were satisfied by an empty population: "0 checked, 0 wrong", "0 of 0 rows still
+  // unmarked", "0 rows carry ², 0 of them wrongly".
+  //
+  // Only the rows-at-all check above caught it. Remove or reorder that one line and
+  // this suite reports SIX OF SIX GREEN against a blank war room — the exact defect
+  // class this project spent 08-18 finding elsewhere, sitting in the rehearsal that
+  // guards the screen Cory drafts on.
+  //
+  // So every population-dependent check now requires its population. A comparison
+  // with nothing to compare is a check that could not have failed.
+  check('CONTROL: there is a population to compare at all',
+    checkedRank > 0 && checkedProj > 0,
+    `${checkedRank} ranks / ${checkedProj} projections available — zero means the page `
+    + 'did not render (auth? board missing?) and every check below is vacuous');
+  check('every rendered overall_rank matches the artifact',
+    checkedRank > 0 && badRank === 0, `${checkedRank} checked, ${badRank} wrong`);
+  check('every rendered projection matches the artifact (rounded)',
+    checkedProj > 0 && badProj === 0, `${checkedProj} checked, ${badProj} wrong`);
 
   // The single-source caveat — E's sweep-4 finding, checked on the live screen.
   const marks = await page.$$eval('#board-body tr', trs => trs.map(tr => {
@@ -82,6 +101,8 @@ const check = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
   }).filter(Boolean));
   const withMean = marks.filter(m => byName[m.name] && byName[m.name].proj_mean != null);
   const unmarked = withMean.filter(m => !/[¹²]/.test(m.proj));
+  check('CONTROL: there are marked rows to judge at all', withMean.length > 0,
+    `${withMean.length} rows carry a proj_mean — zero makes all three E6 checks vacuous`);
   check('E6 FIX: NO row claims a second opinion it does not have (every row marked)',
     unmarked.length === 0, `${unmarked.length} of ${withMean.length} rows still unmarked`);
   const fpMark = withMean.filter(m => /¹/.test(m.proj));
