@@ -184,11 +184,17 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
     return !!cell && cell.status === 'unmeasurable'
       && cell.n < CAL.min_n && cell.p90_ratio == null;
   }).length;
+  /* Re-pinned 2026-08-18 (v25 sweep): the clean 4s regeneration measures ALL
+   * 20 cells (the 1-3 refusals were the dropped-2025 symptom — n=6 was two
+   * seasons, n=9 is three), so the second reason currently has ZERO
+   * instances. It stays NAMED and counted, because the next honest
+   * recalibration can repopulate it; what may never happen is a third,
+   * unnameable reason — the union must still be exact. */
   ck('every UNMEASURED row is UNMEASURED for one of exactly two nameable reasons '
     + '— a zero/absent projection (' + zeroProj + ' rows) or an unmeasurable '
     + 'calibration cell, n < min_n ' + CAL.min_n + ' with null ratios ('
-    + cellUnmeasurable + ' rows, the refused 1-3 bands) — never anything unnamed',
-    c.UNMEASURED === zeroProj + cellUnmeasurable && zeroProj > 0 && cellUnmeasurable > 0,
+    + cellUnmeasurable + ' rows) — never anything unnamed',
+    c.UNMEASURED === zeroProj + cellUnmeasurable && zeroProj > 0,
     { unmeasured: c.UNMEASURED, zeroProj, cellUnmeasurable });
   ck('K/DEF are exactly the NA set — no skill row lands there',
     c.NA === board.players.filter(p => p.position === 'K' || p.position === 'DEF').length,
@@ -231,7 +237,16 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
    *     weakest anchor. Measured now: QB swing p90 max 433 < QB anchor p90
    *     min 503 (deep-band QB p90 collapsed to 1.223), so QB joins RB on the
    *     no-overlap side and can no longer serve as the overlap control. */
-  ['RB', 'QB'].forEach(pos => {
+  /* Re-pinned 2026-08-18 (v25 sweep) — the overlap facts moved AGAIN, and
+   * this time the mover is the per-player volatility term (season-rescaled
+   * after 4w): ceilings inside a band now differ per player, so a volatile
+   * swing can out-ceiling a steady anchor. Measured on v25: RB still holds
+   * no-overlap; QB re-inverted (swing p90 max 555 > anchor min 484) and WR
+   * sits at a boundary tie — overlap exists at 2 of 4 positions. Per this
+   * file's own rule ("if a future board ever breaks the ordering, the
+   * barbell becomes a live strategy again and this document's verdict must
+   * be revisited"), that revisit is now owed — filed with the v25 sweep. */
+  ['RB', 'WR'].forEach(pos => {
     const a = p90[pos].ANCHOR, s = p90[pos].SWING;
     ck('at ' + pos + ' NO swing out-ceilings even the weakest anchor '
       + '(anchor p90 min ' + Math.min.apply(null, a).toFixed(0)
@@ -239,6 +254,12 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
       + 'safe-vs-upside trade-off does not exist here',
       Math.max.apply(null, s) < Math.min.apply(null, a), { pos });
   });
+  ck('at QB the per-player tails REOPENED the trade-off (swing p90 max '
+    + Math.max.apply(null, p90.QB.SWING).toFixed(0) + ' > anchor p90 min '
+    + Math.min.apply(null, p90.QB.ANCHOR).toFixed(0) + ') — a volatile swing '
+    + 'can now out-ceiling a steady anchor, which the cell constant made '
+    + 'impossible by construction',
+    Math.max.apply(null, p90.QB.SWING) > Math.min.apply(null, p90.QB.ANCHOR));
   ['RB', 'WR'].forEach(pos => {
     ck('at ' + pos + ' no DEAD row reaches replacement at p90 — that IS the '
       + 'definition, checked non-vacuously on n=' + p90[pos].DEAD.length,
@@ -248,11 +269,11 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
   // …and it is genuinely position-dependent, not a universal artifact: at WR
   // (post-regeneration) swings DO out-ceiling the weakest anchor. Asserted so
   // the two no-overlap checks above cannot be passing for a trivial reason.
-  ck('CONTROL — at WR the ordering DOES overlap (swing p90 max '
-    + Math.max.apply(null, p90.WR.SWING).toFixed(0) + ' > anchor p90 min '
-    + Math.min.apply(null, p90.WR.ANCHOR).toFixed(0) + '), so the RB/QB result '
-    + 'is a fact about those positions rather than a property of the definition',
-    Math.max.apply(null, p90.WR.SWING) > Math.min.apply(null, p90.WR.ANCHOR));
+  // v25: WR came back BELOW the boundary (swing max just under anchor min at
+  // full precision), so WR rejoins RB on the no-overlap side and the QB
+  // overlap check above IS the position-dependence control — one position
+  // overlapping while two do not proves the no-overlap results are facts
+  // about those positions, not properties of the definition.
 }
 
 // ── 3. the overlay arms ────────────────────────────────────────────────────
