@@ -150,7 +150,12 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
     positioned = [r for r in real_rows if r["position"] != "?"]
     league_first_round = _first_round_by_position(positioned)
     league_reach = _reach_stats(real_rows)
-    league_rookie = _rate(real_rows, lambda r: r.get("years_exp") == 0)
+    # Only rows whose rookie status is DERIVABLE count toward the rate; the rest
+    # are absent rather than silently false. The coverage rides in the output so
+    # a reader can tell a low rate from a thin one.
+    rookie_known = [r for r in real_rows if _was_rookie(r, season_now) is not None]
+    rookie_coverage = (len(rookie_known) / len(real_rows)) if real_rows else 0.0
+    league_rookie = _rate(rookie_known, lambda r: _was_rookie(r, season_now))
     league_bpa = _bpa_rate(real_rows)
     league_runs = _run_following(positioned, positioned)
 
@@ -201,7 +206,8 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
 
         reach = _reach_stats(mine)
         homer_team, homer_rate = _homer(mine)
-        rookie = _rate(mine, lambda r: r.get("years_exp") == 0)
+        mine_rookie_known = [r for r in mine if _was_rookie(r, season_now) is not None]
+        rookie = _rate(mine_rookie_known, lambda r: _was_rookie(r, season_now))
         bpa = _bpa_rate(mine, real_rows)
 
         profile = {
@@ -240,6 +246,11 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
             "rookie_affinity": {
                 "rate": round(_shrink(rookie, league_rookie, n), 3),
                 "league_rate": round(league_rookie, 3),
+                # A rate over 4 derivable picks and a rate over 45 are different
+                # claims. Absent rows are excluded rather than counted false, so
+                # the denominator has to travel with the number.
+                "derivable_picks": len(mine_rookie_known),
+                "picks": len(mine),
             },
             "bpa_vs_need": {
                 "bpa_rate": round(_shrink(bpa, league_bpa, n, market_strength), 3),
@@ -305,6 +316,13 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
             "first_round_by_position": {k: round(v, 2) for k, v in league_first_round.items()},
             "reach_delta_mean": round(league_reach["mean"], 2),
             "rookie_rate": round(league_rookie, 3),
+            # Derived from (season_now - draft season) against years_exp, so it
+            # answers "was he a rookie THEN". Coverage rides beside it because a
+            # 0.0 from "nobody drafted a rookie" and a 0.0 from "we could not
+            # tell" are different facts and used to be indistinguishable.
+            "rookie_rate_coverage": round(rookie_coverage, 3),
+            "rookie_rate_basis": ("years_exp == season_now - draft_season"
+                                  if season_now else "UNDERIVABLE — season_now not supplied"),
             "bpa_rate": round(league_bpa, 3),
         },
         "drafts_analysed": len(drafts),
@@ -356,6 +374,43 @@ def _rate(rows: list[dict], pred) -> float:
     if not rows:
         return 0.0
     return sum(1 for r in rows if pred(r)) / len(rows)
+
+
+def _was_rookie(r: dict, season_now: int | None):
+    """Was this player a rookie AT THE DRAFT — not "is he a rookie today".
+
+    THE DEFECT THIS REPLACES (session E, 2026-08-17, register E13). This used to
+    be `r.get("years_exp") == 0`, and `years_exp` comes from TODAY'S Sleeper
+    payload while the row describes a draft from 2023-25. A player taken as a
+    rookie in 2023 carries `years_exp` 3 now, so he was never counted; the only
+    rows that could qualify were players who are rookies TODAY, and none of them
+    appear in a past draft. **The rate was pinned at 0.0 by construction** —
+    0.0 for the league and 0.0 for all ten managers across ~450 picks — and the
+    `"chases rookies"` line it feeds was unsatisfiable and had never once fired.
+
+    THE DERIVATION NEEDS NOTHING NEW. `years_exp` counts seasons since debut, so
+    a player who debuted in the draft's own season satisfies
+    `years_exp == season_now - draft_season`. Both terms were already here:
+    the row has carried `season` since it was written, and `season_now` has been
+    a `build_profiles` parameter all along — declared, never read, and never
+    passed. The fix that was missing was sitting in the signature.
+
+    RETURNS None, NOT False, WHEN IT CANNOT BE DERIVED, and that distinction is
+    the point. `position` already gets this treatment via its `"?"` sentinel so
+    a caller *"must be able to tell 'he has no tendency' from 'we could not see
+    his picks'"*. A missing `years_exp` counted as False is exactly how the old
+    behaviour laundered "unknown" into "no rookies drafted".
+    """
+    ye, ds = r.get("years_exp"), r.get("season")
+    if ye is None or not ds or not season_now:
+        return None
+    try:
+        gap = int(season_now) - int(ds)
+    except (TypeError, ValueError):
+        return None
+    if gap < 0:
+        return None          # a draft from the future is not a rookie question
+    return int(ye) == gap
 
 
 def _homer(rows: list[dict]) -> tuple[str | None, float]:

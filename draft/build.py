@@ -1505,7 +1505,13 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
         except Exception as exc:  # noqa: BLE001 — profiles still build, on the proxy path
             print(f"  ! historical ADP unavailable ({exc}); manager market metrics stay proxied")
 
-    profiles = managers_mod.build_profiles(drafts, players_db, historical_adp=hist)
+    # `season_now` has been a build_profiles parameter since it was written and
+    # was never passed, so the rookie metric had no way to ask "was he a rookie
+    # AT THAT DRAFT" and fell back to today's years_exp — which pinned it at 0.0
+    # for every manager (register E13). Supplying it is the whole fix.
+    profiles = managers_mod.build_profiles(
+        drafts, players_db, historical_adp=hist,
+        season_now=int(cfg.get("season") or time.gmtime().tm_year))
     proxied = [p["name"] for p in profiles.get("managers", {}).values()
                if (p.get("reach_delta") or {}).get("proxy")]
     if proxied:
