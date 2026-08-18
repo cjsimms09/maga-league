@@ -130,7 +130,9 @@ def test_the_driver_still_passes_the_filter():
     # projection_error.py` directly, so regenerate() is the path that produced
     # the contaminated artifact.
     pe = (ROOT / "draft" / "backtest" / "projection_error.py").read_text()
-    assert "positions=ROSTERED_POSITIONS" in pe, (
+    # RE-AIMED 2026-08-18 like the cli.py pin above: `positions=` was the INERT
+    # fallback parameter; regenerate() now passes C's real `only_positions`.
+    assert "only_positions=CALIBRATION_POSITIONS" in pe, (
         "projection_error.regenerate() no longer passes `positions`. THIS is the "
         "entry point projection-error-calibration.yml runs — fixing cli.py alone "
         "leaves the contaminating path wide open.")
