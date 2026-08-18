@@ -80,6 +80,17 @@
 .wrv-chip.pinned { background: transparent; color: var(--wr-accent); border-color: var(--wr-accent); }
 .wrv-name { font-size: var(--wr-fs-hero); font-weight: 800; color: var(--wr-ink); line-height: 1.1; }
 .wrv-name .rec-pos { vertical-align: .35em; }
+/* Expert-split badge (ordered by A 2026-08-18, expert_spread.js) — one
+ * glanceable token, never a number in the visible text (the spread/ratio
+ * live only in the title, one tap deeper). Same visual register as the
+ * SPLIT verdict chip (--wr-warn): attention, not alarm — a published fact
+ * about disagreement, not a model score. */
+.expert-split-badge {
+  display: inline-block; vertical-align: .35em; font-size: .62rem; font-weight: 800;
+  letter-spacing: .03em; text-transform: uppercase; color: var(--wr-warn);
+  border: 1px solid var(--wr-warn); border-radius: 4px; padding: .05rem .3rem;
+  white-space: nowrap; cursor: default;
+}
 .wrv-why { font-size: var(--wr-fs-body); color: var(--wr-ink); margin: var(--wr-s1) 0 0; max-width: 62ch; }
 .wrv-conf { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin: var(--wr-s1) 0 0; }
 .btn.gold.wrv-take { display: block; width: 100%; margin: var(--wr-s2) 0 0; padding: .6rem;
@@ -901,6 +912,22 @@ body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
 /* ── ALARM STRIPS above the tabs stay thin ──────────────────────────────── */
 body.warroom-page #keeper-lock-note > * { margin: 0 0 .4rem; }
 body.warroom-page .roast-banner { margin: 0 0 .4rem; }
+/* Cory, live: "alerts are blocking things I need to see i.e the run on kicker
+   is blocking things up top." Reproduced at a realistic laptop viewport
+   height (1050x750): keeper-lock + unrecorded + reconciled + run, stacked,
+   pushed THE PICK's take button to the very bottom edge — on a real window
+   with browser chrome eating more of that height, it goes fully out of view.
+   These CAN genuinely co-occur (an unrecorded pick, a reconcile note and a
+   run are independent conditions), so the fix is per-strip compactness, not
+   hoping they rarely stack. `.roast-banner` (the run alert) was the largest —
+   still built for a single full-width hero banner, not a stack member. */
+body.warroom-page .roast-banner {
+  padding: .5rem .7rem; font-size: .82rem; box-shadow: none;
+}
+body.warroom-page #unrecorded-note.prov-note,
+body.warroom-page #reconciled-note.prov-note {
+  padding: .45rem .7rem; margin: 0 0 .35rem; font-size: .78rem; line-height: 1.35;
+}
 
 /* ── THE COCKPIT GRID — rails | center | charts, stacked ONLY under 900px ──
    Layout is decided by these media queries ALONE: the wrappers are server-

@@ -120,6 +120,18 @@
     (test_conditional_value.py keeps that gate). Guarded consumers: a missing
     module or artifact costs the chips, never the board, never a fake zero. %>
 <script src="/js/draft/conditional_value.js"></script>
+<%# expert_spread.js — the expert-DISAGREEMENT display layer, ordered by A
+    2026-08-18 on Cory's "Yes! Best way to implement this data into our
+    model??" (the skill grading proved the flat consensus is already the
+    optimal ranking, so the experts' remaining value is WHERE THEY SPLIT).
+    Pure derivation over the committed artifact (/expert_spread_2026.json,
+    fetched by app.js beside the board) — a badge fires when a player's
+    observed expert-rank spread is extreme for his ADP neighborhood. DISPLAY
+    ONLY: never read by engine.js/composite.js/valuation.js/survival.js, and
+    the badge itself never prints the spread number, only the fact of it
+    (expert_spread_display.test.js pins both halves). Guarded consumer: a
+    missing module or artifact costs the badge, never the board. %>
+<script src="/js/draft/expert_spread.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with

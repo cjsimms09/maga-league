@@ -99,6 +99,19 @@ const PRODUCTION_INPUTS = {
     + 'artifact_registry.json (id: opponent_need_2026). Degrades honestly: a '
     + 'missing artifact means the blend runs WITHOUT the tilt, never a '
     + 'guessed one.',
+  'expert_spread_2026.json': 'Observed 2026 preseason expert-rank disagreement '
+    + '(FantasyPros, ~200 experts) — DISPLAY BADGE ordered by A 2026-08-18 on '
+    + 'Cory\'s ruling ("Yes! Best way to implement this data into our model??") '
+    + 'after the skill grading proved the flat consensus is already the '
+    + 'optimal ranking, so the experts\' remaining value is WHERE THEY SPLIT. '
+    + 'Read by app.js (loadExpertSpread) and rendered via '
+    + 'public/js/draft/expert_spread.js — DISPLAY ONLY, same contract as '
+    + 'conditional_value_2026.json above: engine.js/composite.js/valuation.js/'
+    + 'survival.js never read it (nothing in expert_spread.js touches a rank, '
+    + 'a score or a dollar), pinned by expert_spread_display.test.js\'s own '
+    + 'ratio-not-raw-spread and reliability-floor checks. The badge prints a '
+    + 'FACT ("experts split"), never the spread number itself, in THE PICK\'s '
+    + 'name and alternatives.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not

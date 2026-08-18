@@ -1298,6 +1298,7 @@
     loadSeatPlan();
     loadConditionalValue();
     loadOpponentNeed();
+    loadExpertSpread();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -2726,7 +2727,8 @@
     const altHtml = alts.length
       ? '<div class="wrv-alts">other options: ' + alts.map(a =>
           escapeHtml(shortName(a.player.name)) + ' <span class="rec-pos ' + a.player.position + '">'
-          + a.player.position + '</span> <span class="wr-num">'
+          + a.player.position + '</span>' + expertSpreadBadge(a.player.player_id)
+          + ' <span class="wr-num">'
           + (a.delta_pts > 0 ? '+' : '') + a.delta_pts.toFixed(1) + '</span>').join(' \u00b7 ')
         + ' <span class="muted">' + escapeHtml(v.gap_units) + ' vs the pick '
         + '(+ = scores higher)</span></div>'
@@ -2767,7 +2769,8 @@
         + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
       + '</div>'
       + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
-        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span></div>'
+        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span>'
+        + expertSpreadBadge(v.pick.player_id) + '</div>'
       + '<div class="wrv-why">' + escapeHtml(v.why) + '</div>'
       + tbHtml
       + '<button class="btn gold wrv-take" data-draft-me="' + escapeHtml(String(v.pick.player_id))
@@ -6604,6 +6607,37 @@
           + ' — survival runs without the need tilt (not a guessed one)');
         state.opponentNeed = null;
       });
+  }
+
+  /* EXPERT SPREAD — display-only artifact (ordered by A 2026-08-18, see
+   * expert_spread.js's header). Same degrade-honestly pattern as opponent-need
+   * and conditional-value: a missing artifact costs the badge, never blocks
+   * or fakes anything. */
+  function loadExpertSpread() {
+    fetch('/expert_spread_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.expertSpread = a || null; })
+      .catch(function (e) {
+        console.warn('[expert-spread] artifact not loaded: ' + (e && e.message)
+          + ' — split badges absent (not a guessed one)');
+        state.expertSpread = null;
+      });
+  }
+  function expertSpreadIndex() {
+    if (typeof ExpertSpread === 'undefined' || !state.expertSpread) return null;
+    if (!state._esIdx || state._esIdx.src !== state.expertSpread) {
+      try { state._esIdx = { src: state.expertSpread, idx: ExpertSpread.index(state.expertSpread) }; }
+      catch (e) { console.error('[expert-spread]', e && e.message); return null; }
+    }
+    return state._esIdx.idx;
+  }
+  function expertSpreadBadge(playerId) {
+    if (typeof ExpertSpread === 'undefined') return '';
+    try { return ExpertSpread.badgeHtml(playerId, expertSpreadIndex(), escapeHtml); }
+    catch (e) { return ''; }
   }
 
   function loadConditionalValue() {

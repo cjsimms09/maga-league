@@ -47,12 +47,22 @@ def test_the_refusal_compares_TABLES_not_fingerprints():
     pace its registered second fold. So the guard now asks whether the TABLES
     agree, and this test pins both halves of that.
     """
-    # the fingerprints really do differ — otherwise the rest proves nothing
+    # Re-pinned 2026-08-18 (register 5d): the guard fired exactly as its own
+    # message asked. The float32-vs-float64 rendering split existed because two
+    # WRITERS serialised the table; build_weekly_points_from_components rebuilt
+    # every season through the ONE frozen table, so the fingerprints now agree
+    # — the artifact this guard existed for is gone BY THE FIX, not by drift.
+    # AMENDMENT 1's reasoning was re-read as instructed: its conclusion (the
+    # fold is legitimate because the TABLES agree) is unchanged and now holds
+    # trivially; what died is only the need to argue past the fingerprint.
+    # The healed state is the pin — a REAPPEARING split means a second writer
+    # is back, the exact drift test_component_stats also watches for.
     _, fp2022 = S.season_points(2022)
     _, fp2023 = S.season_points(2023)
-    assert fp2022 != fp2023, (
-        "the stores now share a fingerprint; the artifact this guard exists for "
-        "is gone and AMENDMENT 1's reasoning should be re-read")
+    assert fp2022 == fp2023, (
+        "the 2022/2023 fingerprints split again — a second scoring-table "
+        "writer is back (the pre-5d state). Find the writer; do not re-flip "
+        "this pin")
 
     # ...and yet the tables are the same, so the fold is legitimate
     assert S._same_table_at_6dp(2022, 2023), (
