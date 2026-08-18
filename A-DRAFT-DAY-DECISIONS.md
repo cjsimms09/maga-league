@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **67 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
+up."* The register has **64 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
 before 08-22 and most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
@@ -39,7 +39,7 @@ still on a partial slate.
 
 | | what he decides | why it cannot wait / can | register |
 |---|---|---|---|
-| ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** The banner's date was right; the fifteen files were wrong. **Root cause fixed, not just the date:** `league_config.json` now carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B is unblocked to ship. | *nothing further* | **42** ruled, P71 graded FALSE |
+| ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** Root cause fixed, not just the date: `league_config.json` carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B unblocked. | *nothing further* | **42** ruled, P71 graded FALSE |
 | **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
 
 *(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
@@ -67,23 +67,34 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   ratio is backwards by band; its own row says *do not patch by hand before
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 28.
-- **✅ CLOSED 08-18 — fourteen rows, against live state rather than against the
-  date on the line.** Earlier: 1 (board publishes, 696 players), 2 + E10, 3, 4, 4c. Then, after Cory's *"we work through, we don't
-  park things for tomorrow"*: 2c (the RB gap halved back; 4k's regeneration
-  explains it, and a permutation test with a planted-effect control rules out
-  ceiling provenance, p = 0.20 against a detected p < 0.0001), 4k (all three
-  findings already fixed by other lanes — closed rather than handed back so C
-  does not lose Friday to it), 4f, 4v, 4x, 4u and 4i (below), plus 27 whose
-  counts I corrected in place rather than asking E to. Full reasoning lives on each row.
-- **⚠️ Row 4i — I GOT IT WRONG THREE TIMES BEFORE GETTING IT RIGHT.** Told A the
-  premise was false, WITHDREW that and re-scoped the row as real, then
-  "re-verified" it — the last two both wrong, from one mistake: I kept reading
-  `pre_draft_freeze_2026.json`, **which is not what feeds the button.**
-  `state.frozenBaseline` comes from `/admin/api/baseline?version=v1`, served
-  from `draft/baseline/v1.json`, which **does** carry
-  `engine_policy.MEASURED_WEIGHTS`. The restore works. `restore_measured_core_works.test.js`
-  names BOTH files so the substitution cannot recur.
+  `CEILING_LATE_FROM` changes nothing), 2b, 28.
+- **✅ E3 / E4 / E5 CLOSED 08-18 AS DORMANT, NOT FIXED.** All three describe
+  `opportunity_adj`, and Cory's own `opportunity_cap = 0.0` ruling makes all
+  three unobservable: one distinct value across all 696 players, every position
+  shifting +0.00000, `proj_mean == proj_sleeper` for 696 of 696. **The formula
+  was never repaired — only its amplitude is zero, and `opportunity_z` is still
+  computed**, so one config edit restores all three at full strength. They
+  therefore became a guard: `opportunity_adj_stays_off.test.js` reds the build
+  if the cap is ever non-zero and names the three rows to reopen.
+- **✅ SEVENTEEN ROWS CLOSED 08-18**, against live state rather than the date on
+  the line: 1, 2, 3, 4, 4c, E10, then — after Cory's *"we work through, we don't
+  park things for tomorrow"* — 2c, 4k, 4f, 4v, 4x, 4u, 4i, 27, and E3/E4/E5.
+  Reasoning lives on each row; three things are worth carrying off this page:
+  - **4i I got wrong three times** before getting it right. I kept reading
+    `pre_draft_freeze_2026.json`, **which is not what feeds the restore button** —
+    `state.frozenBaseline` comes from `/admin/api/baseline?version=v1`, served
+    from `draft/baseline/v1.json`, which **does** carry
+    `engine_policy.MEASURED_WEIGHTS`. It works. `restore_measured_core_works.test.js`
+    now names BOTH files so the substitution cannot recur.
+  - **E3 / E4 / E5 are DORMANT, not fixed.** All three describe
+    `opportunity_adj`; Cory's `opportunity_cap = 0.0` makes them unobservable
+    (one distinct value across 696 players, every position +0.00000,
+    `proj_mean == proj_sleeper` 696/696). **The formula is untouched and
+    `opportunity_z` is still computed**, so one config edit restores all three at
+    full strength — hence `opportunity_adj_stays_off.test.js`, which reds the
+    build if the cap moves and names the rows to reopen.
+  - **4x cannot be fixed by tuning.** The doctrine leader gap is exactly 0.000 at
+    all twelve of Cory's picks, so no `DG_NOISE_BAND` makes the banner speak.
 - **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
   We have **never measured our model against Sleeper on any season**; the
   promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
@@ -114,16 +125,12 @@ none of the above:
 
 1. **The dollar figure is not comparable across positions.** Use it within one.
 2. ~~**Fifteen ceilings in his range are cohort averages**~~ ✅ **SHIPPED 08-18 —
-   HE NO LONGER HAS TO BE TOLD.** Re-measured on the live board: **34 of the 173
-   skill players in ADP 25-220 (19.7%)**, down from the 32% this page was
-   written against, because the per-player volatility work landed on 08-18. The
-   range bar now marks them with **`~`** and says *"cohort average, not this
-   player"* in the tooltip and the aria-label. **A provenance mark, not a
-   warning** — for several the model is deliberately refusing to guess, which is
-   a strength. Register **4v** closed; `cohort_ceiling_is_marked.test.js`, 16
-   checks. **B owns the styling; the information is on screen either way.**
-3. **The strategy banner will stay quiet.** That is structural, not a fault to
-   wait out.
+   the board marks them now, so he does not have to be told.** 34 of 173 in ADP
+   25-220; the range bar carries `~` and *"cohort average, not this player"*.
+   A provenance mark, not a warning. Register 4v.
+3. **The strategy banner will stay quiet** — measured, not expected: the leader
+   gap is exactly 0.000 at all twelve of his picks. Structural, and unfixable by
+   tuning. Register 4x, closed.
 
 ---
 
