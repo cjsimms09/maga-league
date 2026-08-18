@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **73 open rows**. Twenty of them carry a recheck date on or
+up."* The register has **74 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
 before 08-22 and most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
@@ -47,7 +47,7 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 
 ---
 
-## 2 · A'S FOUR, EACH WITH A DEFAULT SO SILENCE IS AN ANSWER
+## 2 · A'S FIVE, EACH WITH A DEFAULT SO SILENCE IS AN ANSWER
 
 | | decision | recommendation | **default if you say nothing** |
 |---|---|---|---|
@@ -55,6 +55,7 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 | **A2** | **5e — the compare tray's dollar figure is not comparable across positions.** It would tell him *"Jaxson Dart +$23"* over Saquon Barkley. **22 of the top 25 by E[$] are QBs; by the board's own rank, one is.** | **Refuse the comparison, do not re-price it.** Extend your own D10a K/DEF refusal to QB — ~4 lines, no model change. **Re-pricing was built and measured and is WORSE on the pairs he actually weighs** (`draft/audit/dollar_replacement_baseline_2026-08-18.md`). | **Nothing ships.** The briefing already carries the sentence he needs: *use the dollar figure within a position.* This default is genuinely acceptable. |
 | **A3** | **4x — the strategy banner will stay silent all night.** The leader gap is **0.000 at all fifteen of his picks**, so no rescale of the `$4` band can help. The row's implied fix does not follow. | **Do not rescale.** Tell Cory in one sentence which doctrines can produce a banner at all. It is also a symptom of A2 — the top of the price list is a QB at every pick, so only QB-forbidding constraints can ever bite. | **Nothing ships**, and the banner is quiet. Acceptable **only if he is told**, or he will read silence as agreement. |
 | **A4** | **4d — Cory drafts on DESKTOP; your live order to B says phone-first.** `7ee6f993`, 16:06 08-17, specifies *phone-first* and *the 390px column*; the assumption dates to 08-13 and was reasonable until he said otherwise. | Invert the device priority, keep the rest of the order. Already relayed to B. | Desktop is the surface that must be right on 08-22, and the order still points elsewhere. **This default is the one I would not accept.** |
+| **A5** | 🆕 **E15 — the QB over-recommendation Cory hit LIVE is fixed, unreviewed, and was marked closed.** At pick 88 the engine promoted Bo Nix over Brock Purdy — **14.5 projected points worse** — and called it *"on upside"*, when the only thing making Nix's ceiling bigger was `QB` band 9-16 carrying a **1.426** multiplier against band 4-8's **1.316**. A calibration constant, not a player. **It was invisible to `register_recheck_check.js` until today** — its status wore a ✅ that meant *"fixed, verify"*, and the check read any tick as closed (`register_check_was_hiding_rows_2026-08-18.md`). | **Review and accept, or say what else you want measured.** E's fix is verified as far as E can verify it: score inversions **16 → 0**, JS **315/315**, war-room rehearsal 19/19, board-truth 6/6, and two existing controls that legitimately inverted were **re-aimed rather than deleted**. Both guards **self-release** — the tiebreak resumes the day `proj_ceiling` carries per-player information — so neither is a permanent suppression. | **The fix stays in, unreviewed.** That is probably fine and it is not nothing: it changes which player the engine recommends at a real pick, it was written by the lane that found it, and no owner has read it. **Cory drafts on this engine on Saturday.** |
 
 ---
 
@@ -85,7 +86,15 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   *no route*. The first comparison that can settle it is the January 2027 grade.
   **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
 - **Display work owned by B** — 4i, 4v (mark the fifteen cohort-constant
-  ceilings), 4e, 4f.
+  ceilings), 4e, 4f, and now **E6** — a caveat that marks the wrong players,
+  fixed by E and unreviewed by B. A label change; no number moved.
+- **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
+  finished with a ✅ that meant *"fixed, verify"*, and the register's own check
+  read any tick as closed, so none of the three was ever chased. E15 is now
+  **A5** above; E6 is B's; **31** is yours but genuinely post-draft — D corrected
+  the headline edge number in four TERRITORY: A files and offered you a SEND
+  BACK, and the ±41.8-point detection floor means a decision is owed on what
+  instrument can grade E1 at all. `register_check_was_hiding_rows_2026-08-18.md`.
 - **Post-draft by construction** — everything with a recheck after 08-22.
 
 ---
