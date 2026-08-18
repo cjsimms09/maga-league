@@ -15,9 +15,12 @@ test on two blockers, and step 2 removed both:
      retained; re-fetching unreachable"      this runs. That document's §9.2
                                              asked for exactly this fetch.
 
-ONE SEASON, DECLARED NOT WORKED AROUND. own_v6 exists for 2025 alone — it needs
-two prior weekly-points stores and 2021/2022 do not exist — and Sleeper's
-2023/2024 are refused by step 2. N = 1 season is the ceiling of this evidence.
+ONE SEASON, DECLARED NOT WORKED AROUND. N = 1 season is the ceiling of this
+evidence because Sleeper's 2023/2024 are refused by step 2's leak gates
+("1/3 season(s) passed every leak gate: [2025]"). CORRECTED 2026-08-18 (A):
+this used to also say "2021/2022 weekly-points stores do not exist" — they
+were built 08-17 00:20 (199103e4), so own_v6's coverage is no longer the
+binding limit; the leak gates are. own_v6-vs-FP alone now has 2023-25.
 
 PURE core (`grade`, `blend_arms`, `cross_fit_weights`, `precision_at`,
 `error_correlation`): fixtures in, verdict out, both arms unit-tested in
@@ -357,12 +360,15 @@ def egress_main() -> int:   # pragma: no cover
         "_licensed_by": ("draft/audit/sleeper_vs_fp_grade_2026-08-16.md — Sleeper's "
                          "2025 projection passed every preregistered leak gate; "
                          "2023 and 2024 did not and are NOT graded here"),
-        "_limitation": ("ONE SEASON. own_v6 exists only for 2025 (it needs two prior "
-                        "weekly-points stores; 2021/2022 do not exist) and Sleeper's "
-                        "2023/2024 are refused upstream. N=1 season is the ceiling of "
-                        "this evidence. Sleeper's 2025 file is also 7.1% hollow, so "
-                        "the shared population is easier than the true one by an "
-                        "unbounded amount — identically for every arm."),
+        "_limitation": ("ONE SEASON. Sleeper's 2023/2024 are refused upstream by the "
+                        "leak gates (1/3 seasons clean: [2025]) — that is the binding "
+                        "limit. [Corrected 2026-08-18: this used to blame missing "
+                        "2021/2022 weekly-points stores; they were built 08-17 "
+                        "(199103e4), so own_v6 covers 2023-25 and a Sleeper-free "
+                        "study is no longer season-capped.] N=1 season is the "
+                        "ceiling of this evidence. Sleeper's 2025 file is also 7.1% "
+                        "hollow, so the shared population is easier than the true "
+                        "one by an unbounded amount — identically for every arm."),
         "result": res,
     }
     OUT.write_text(json.dumps(out, indent=1))

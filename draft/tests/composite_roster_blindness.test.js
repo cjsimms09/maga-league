@@ -182,10 +182,33 @@ const FILLED = state(ROSTER_FULL);
   ck('CONTROL: there were quarterbacks in the top 70 to be dropped',
     (EMPTY.top70.QB || 0) > 5, EMPTY.top70.QB);
 
-  ck('  and the RENDERED top 70 differs by at most the one boundary player a '
-    + 'marked promotion can swap',
-    EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0).length <= 1,
-    EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0));
+  /* RE-PINNED 2026-08-18 (v27 board). The v25 bound — "at most the one
+   * boundary player a marked promotion can swap" — was a BOARD measurement
+   * wearing a structural claim's clothes, and the v27 rebuild exceeded it:
+   * two rendered movers (Stefon Diggs, Cade Otton), displaced at the 68-69
+   * boundary by Sam Darnold and Tyler Shough coming IN. Measured cause: the
+   * CEILING term's bench branch. With the QB slot FILLED a second QB is a
+   * bench stash — the onesie machinery marks him "QB2 — priced as a backup"
+   * and the upside bonus fires (ceiling 0 -> ~6), lifting both QBs across
+   * the line. That channel is DECLARED roster-aware (engine.js D3b/onesie
+   * block, measured 08-13) — it is not the blindness this file pins, which
+   * is positional fill through `need`. So the pin is ATTRIBUTION plus a
+   * loose growth bound, not a count: every leaver must keep an IDENTICAL
+   * score across arms (pure displacement, not repricing), and every entrant
+   * must wear a declared mark — the onesie backup discount or a promotion. */
+  const outR = EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0);
+  const inR = FILLED.names.filter(n => EMPTY.names.indexOf(n) < 0);
+  const rec = (S, n) => S.recs.find(x => x.player.name === n);
+  ck('  and every RENDERED mover is attributed: leavers keep an identical '
+    + 'score across arms (boundary displacement, not repricing) and every '
+    + 'entrant wears a declared mark (onesie backup / marked promotion), '
+    + 'few enough that growth stays loud',
+  outR.length <= 4 && inR.length <= 4
+    && outR.every(n => { const a = rec(EMPTY, n), b = rec(FILLED, n);
+      return a && b && Math.abs(a.score - b.score) < 1e-9; })
+    && inR.every(n => { const b = rec(FILLED, n);
+      return b && ((b.onesie && b.onesie.discounted) || b.ceiling_tiebreak); }),
+  { out: outR, in: inR });
 }
 
 // ── BREAKING THE NULL. A "does not change" that cannot be made to change is

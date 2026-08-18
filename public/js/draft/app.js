@@ -10698,7 +10698,8 @@
    *     QB16  Jaxson Dart    proj 328.5   floor 87.29
    *     QB17  Jordan Love    proj 322.5   floor  2.45   <- 35.6x, on a 6.0 gap
    *
-   * Both are in their CORRECT cell — this is not the E1 misread. A 2.45-point
+   * Both are in their CORRECT cell — this is not the E1 population case (ruled
+   * EXPECTED 2026-08-18, see below). A 2.45-point
    * season floor is simply not a statement about Jordan Love; it is the p10 of a
    * cohort (QB17-32) that runs down to quarterbacks who never take a snap. The
    * same edge produces WR31 Marvin Harrison 68.43 against WR32 Alec Pierce 8.23,
@@ -10729,14 +10730,19 @@
    * The first version of this helper named the band from `pos_rank`, and its own
    * test caught that as a lie: `proj_floor` is written against the rank the
    * BUILD ranked him at, which for nine players on the live board is not the
-   * rank the board publishes (register E1). Jordan Mason is published RB31 and
-   * priced off the RB|33+ cohort — a caveat reading "RB 17-32" would have been a
-   * second false label pinned by a passing test.
+   * rank the board publishes. That gap was filed as register E1 and RULED
+   * EXPECTED on 2026-08-18 (A, projections.py:306): the build ranks over the
+   * FULL universe — available players plus keepers — because the calibration
+   * was fit on full historical seasons, while the published pos_rank counts
+   * only available players. Jordan Mason published RB31 and priced off RB|33+
+   * is the ruling working, not a defect — but a caveat reading "RB 17-32"
+   * would still be a false label, so the cohort must be recovered either way.
    *
-   * So the cohort is recovered from the ratio the player actually carries,
-   * matched against the modal ratio of each band ON THIS BOARD. No calibration
-   * file is needed in the browser, and a mismatch between the cohort he was
-   * priced off and the band his rank puts him in is E1 showing itself on screen.
+   * It is recovered from the ratio the player actually carries, matched against
+   * the modal ratio of each band ON THIS BOARD. No calibration file is needed
+   * in the browser, and a mismatch between the cohort he was priced off and
+   * the band his rank puts him in is the full-universe repricing showing
+   * itself on screen.
    */
   function cohortRatios(board) {
     /* Keyed on the board REFERENCE, not a bare "have I computed this" flag. A
@@ -10780,8 +10786,15 @@
     if (!best) return null;
     // Decisive match only. A ratio sitting between two cohorts names neither —
     // guessing here is how a caveat starts asserting more than it measured.
-    if (best.d > 0.01 && best.d > 0.05 * Math.abs(r)) return null;
-    if (second && best.d > 0.25 * second.d) return null;
+    // RE-SIZED 2026-08-18: with player_volatility_in_tails ON the ratios inside
+    // a cell carry a per-player CV multiplier and are no longer constant, so an
+    // ABSOLUTE tolerance mis-sizes (it dropped RB16 Javonte Williams, a ruled
+    // full-universe repricing, into the generic fallback). With two or more
+    // cells present, decisiveness is RELATIVE — at least 4x closer to the
+    // named cohort than to any other. Measured on the v27 board this recovers
+    // exactly the nine ruled repricings; at 0.5 it starts inventing two more.
+    if (second) { if (best.d > 0.25 * second.d) return null; }
+    else if (best.d > 0.01 && best.d > 0.05 * Math.abs(r)) return null;
     return best;
   }
 
@@ -10809,11 +10822,17 @@
       + '    Every ' + pos + ' in that band carries the same multiple.\n';
     const rankBand = dispersionBand(p.pos_rank);
     if (rankBand && rankBand.label !== applied.label) {
-      /* E1, visible at the point of use rather than in an audit file. */
-      out += '    !! He is published ' + pos + p.pos_rank + ', which is the ' + rankBand.label
-        + ' band — so his\n'
-        + '       floor and ceiling were priced off a DIFFERENT cohort than his rank.\n'
-        + '       Known defect (register E1); affects the spread, not his ranking.\n';
+      /* The full-universe repricing, visible at the point of use rather than
+       * in an audit file. WORDING RULED 2026-08-18: this was shipped saying
+       * "Known defect (register E1)" — then A ruled the population question
+       * (projections.py:306): pricing off the full-universe rank is CORRECT,
+       * matching how the calibration was fit. The mismatch is expected, and a
+       * caveat calling it a defect was itself the false statement. */
+      out += '    !! He is published ' + pos + p.pos_rank + ' among AVAILABLE players, but his\n'
+        + '       floor and ceiling are priced off his FULL-UNIVERSE rank (keepers\n'
+        + '       counted), which lands in the ' + applied.label + ' band. Expected, not a defect\n'
+        + '       (register E1, ruled 2026-08-18): the calibration was fit on full\n'
+        + '       historical seasons, so the cell is chosen the same way.\n';
     } else if (applied.lo > 1 && Number(p.pos_rank) - applied.lo <= 2) {
       /* The edge is where the cohort figure misleads hardest, so say it on the
        * rows where it bites rather than in a legend nobody opens mid-pick. */

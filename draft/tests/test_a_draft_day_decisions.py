@@ -101,9 +101,18 @@ def test_every_register_id_the_sheet_names_actually_exists():
 
 def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     """Without this, an extractor that silently matched nothing would make the
-    test above pass forever. These five are the sheet's whole argument."""
+    test above pass forever.
+
+    RE-AIMED 2026-08-18 in the deciding commit: the original five (42, 5e,
+    4x, 4d, E1) were the sheet's whole argument, and ALL FIVE were decided
+    that day — struck from the sheet per the rule below, so pinning them here
+    would force the sheet to keep naming settled rows. The control now pins
+    the ids that remain the sheet's live argument: 35 (the §0 rebuild
+    trigger), 5 (C2's ceiling weight), 6 (the ADP-sd ratchet note) and 4p /
+    4i (§3's real-but-cannot-move-a-pick and display-owned lists). When one
+    of THESE is decided, move this list in that commit too."""
     named = _ids_named()
-    for core in ("42", "5e", "4x", "4d", "E1"):
+    for core in ("35", "5", "6", "4p", "4i"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
 
 
