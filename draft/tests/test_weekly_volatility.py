@@ -145,5 +145,13 @@ def test_the_artifact_records_which_seasons_it_refused():
     existed. The artifact must say which seasons were dropped and why, or a
     2027 reader sees three seasons and assumes that is all there ever was."""
     doc = WV.build()
-    assert doc["seasons_refused_different_scoring_table"] == [2021, 2022]
+    # Re-pinned 2026-08-18 (register 5d): the 2021-22 refusals were an artifact
+    # of the FETCHER-written stores carrying a different scoring fingerprint.
+    # The components-derived rebuild scores every season through the ONE frozen
+    # table, so nothing is refused and the fit gains two seasons. The claim
+    # this test protects is unchanged: a refused season must be NAMED, never
+    # silently absent — an empty refusal list with five seasons used is the
+    # healthy state, and any future refusal must reappear in this list.
+    assert doc["seasons_refused_different_scoring_table"] == []
+    assert doc["seasons_used"] == [2021, 2022, 2023, 2024, 2025]
     assert doc["scoring_fingerprint_by_season"]

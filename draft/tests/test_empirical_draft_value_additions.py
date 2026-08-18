@@ -73,7 +73,11 @@ def test_2025_points_store_drops_zero_point_rows():
                             if positions.get(pid) in EDV.POSITIONS
                             for v in rows.values() if v == 0.0)
     assert zeros[2023] > 200 and zeros[2024] > 200
-    assert zeros[2025] < 50, zeros
+    # Re-pinned 2026-08-18 (register 5d): the old 2025 store was partly
+    # pbp-rebuilt and DROPPED zero-point rows — the anomaly this pinned.
+    # The components-derived rebuild records 0.0 appearances like every
+    # other season; consumers must keep handling zeros (the real concern).
+    assert zeros[2025] > 200, zeros
     # and the presence divergence that follows from it
     comp = EDV.component_weeks(2025)
     pres = sum(1 for w, players in comp.items() if 1 <= w <= 17
@@ -81,7 +85,9 @@ def test_2025_points_store_drops_zero_point_rows():
     wk = EDV.weekly_points(2025)
     pts = sum(len(r) for pid, r in wk.items()
               if positions.get(pid) in EDV.POSITIONS)
-    assert pres - pts > 500, (pres, pts)
+    # 5d healed state: the two stores now agree EXACTLY (5,481 == 5,481) —
+    # the divergence this pinned is gone by construction; equality is the pin.
+    assert pres == pts, (pres, pts)
 
 
 def test_the_2025_gap_does_not_reach_any_starter_set():

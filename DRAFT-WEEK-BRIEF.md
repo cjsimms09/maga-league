@@ -217,13 +217,13 @@ Realized weekly volatility (`cv = sd/mean`, our scoring), 2023-25:
 
 - within a fixed mean band, cv spreads **1.57x-1.88x** (a `mean x constant`
   field has none)
-- year-over-year persistence **rho +0.482 and +0.605**, both clearing a 400-draw
-  permutation null; control (mean carryover) +0.740 / +0.781
+- year-over-year persistence **rho +0.469 and +0.635**, both clearing a 400-draw
+  permutation null; control (mean carryover) +0.736 / +0.779
 
 **Volatility persists at ~two thirds the strength of scoring LEVEL.** Compare
 snap-share volatility at +0.19, pulled the same day.
 
-**Its boundary is sharp and non-random.** 129 of 155 draftable players have it.
+**Its boundary is sharp and non-random.** 130 of 155 draftable players have it (re-derived 08-18 on the 5d playoff-free stores; the tail restoration widened coverage), and of the 25 missing, only 8 are rookies — the rest are injury-returns.
 Of the 26 without, only 8 are rookies — **the rest are veterans who missed 2025**
 (Nabers ADP 32, Garrett Wilson 45, Daniels 59, Evans 62). Any wiring that fills
 a gap with a positional mean hands the steadiest reading to the injury-return

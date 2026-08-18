@@ -14,7 +14,7 @@
    "summary": "proj_sd now comes from MEASURED 2023-25 projection error (projection_error.proj_sd_for) per position \u00d7 projection-rank band, with the POSITION_VARIANCE path as fallback for unmeasured cells (K/DEF/unranked). Wired in draft/projections.py blend(); each board row declares its path in proj_sd_source.",
    "applied_values": {
     "QB|1-3": {
-     "sd_ratio": 0.498964,
+     "sd_ratio": 0.486641,
      "n": 9
     },
     "WR|1-3": {
@@ -22,76 +22,76 @@
      "n": 9
     },
     "RB|1-3": {
-     "sd_ratio": 0.572628,
+     "sd_ratio": 0.568069,
      "n": 9
     },
     "TE|1-3": {
-     "sd_ratio": 0.392103,
+     "sd_ratio": 0.391693,
      "n": 8
     },
     "QB|4-8": {
-     "sd_ratio": 0.394573,
+     "sd_ratio": 0.391412,
      "n": 15
     },
     "WR|4-8": {
-     "sd_ratio": 0.545615,
+     "sd_ratio": 0.513565,
      "n": 15
     },
     "RB|4-8": {
-     "sd_ratio": 0.47342,
+     "sd_ratio": 0.477649,
      "n": 15
     },
     "RB|9-16": {
-     "sd_ratio": 0.5558,
+     "sd_ratio": 0.559376,
      "n": 23
     },
     "TE|4-8": {
-     "sd_ratio": 0.404356,
+     "sd_ratio": 0.404845,
      "n": 15
     },
     "WR|9-16": {
-     "sd_ratio": 0.395418,
+     "sd_ratio": 0.396803,
      "n": 24
     },
     "RB|17-32": {
-     "sd_ratio": 0.688242,
+     "sd_ratio": 0.664886,
      "n": 46
     },
     "WR|17-32": {
-     "sd_ratio": 0.442834,
+     "sd_ratio": 0.415911,
      "n": 47
     },
     "QB|9-16": {
-     "sd_ratio": 0.460106,
+     "sd_ratio": 0.458728,
      "n": 24
     },
     "TE|9-16": {
-     "sd_ratio": 0.468614,
+     "sd_ratio": 0.463726,
      "n": 23
     },
     "WR|33+": {
-     "sd_ratio": 0.565708,
-     "n": 418
+     "sd_ratio": 0.560054,
+     "n": 428
     },
     "RB|33+": {
-     "sd_ratio": 0.697409,
-     "n": 222
+     "sd_ratio": 0.690065,
+     "n": 229
     },
     "TE|17-32": {
-     "sd_ratio": 0.558327,
+     "sd_ratio": 0.547545,
      "n": 44
     },
     "QB|17-32": {
-     "sd_ratio": 0.666018,
+     "sd_ratio": 0.617789,
      "n": 43
     },
     "TE|33+": {
-     "sd_ratio": 0.500848,
-     "n": 203
+     "sd_ratio": 0.489805,
+     "n": 208
     },
     "QB|33+": {
-     "sd_ratio": 0.661723,
-     "n": 108
+     "sd_ratio": 0.66098,
+     "n": 109
     }
    },
    "evidence": [
