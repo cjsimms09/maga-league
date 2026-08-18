@@ -35,7 +35,7 @@ failure we have not looked for · does it invalidate something we already trust 
 is this routed to the lane that can actually act. **The relay owns that question
 for every finding in the project, its own included.** Enforced, not promised:
 `register_recheck_check.js` fails the build on any row still OPEN past its own
-recheck date, and **every open row now carries one.**
+recheck date, and **every open row now carries one — 79 of 79, verified 2026-08-18 and TRUE AGAIN rather than still.** This claim had decayed: the E-lane merge added **eleven undated rows** on 08-18, and three more carried dates the checker could not parse (`recheck **08-19**` — bold breaks `recheck\s+MM-DD`; `recheck post-08-22` — so does a prefix). **Sixteen open rows were invisible to the mechanism built to chase them, including E12, *"the draft-day runbook's one irreversible step rests on a false premise"*.** Dates assigned or normalised by the relay; owners may move them with a reason.
 
 **Cory owns:** what "edge" means · whether a capture job stops · any call he wants.
 

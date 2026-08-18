@@ -4,7 +4,7 @@
  "provenance": {
   "method": "For each 2025 player-week in the component store, fantasy points under the league's own scoring table (public/draft_data.json league.scoring) are credited AGAINST that week's opponent defense, derived from the vegas store's complete 2025 pairings (272 games; the component store carries team but not opponent). Per-game = total / games the defense actually played. A team's playoff softness at a position = mean of its 2026 week-15/16/17 opponents' per-game allowed; rank 1 = softest, ties broken by team code A-Z. Team codes normalized through adp.TEAM_ALIASES (board vocabulary, LA->LAR).",
   "sources": {
-   "board": "public/draft_data.json (built_at 2026-08-17T16:35:09Z)",
+   "board": "public/draft_data.json (built_at 2026-08-18T05:33:24Z)",
    "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-16)",
    "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-16)",
    "schedule": "draft/data/playoff_sched_2026.json (fetched 2026-08-16)"
@@ -28,8 +28,8 @@
     17
    ]
   },
-  "players_ranked": 566,
-  "players_absent": 51
+  "players_ranked": 569,
+  "players_absent": 50
  },
  "defense_allowed_2025": {
   "ARI": {
@@ -11994,6 +11994,23 @@
    "avg_allowed_per_game": 21.26,
    "softness_rank": 6
   },
+  "13909": {
+   "name": "Elijah Tau-Tolliver",
+   "position": "RB",
+   "team": "BAL",
+   "opponents": {
+    "15": "PIT",
+    "16": "CLE",
+    "17": "CIN"
+   },
+   "opp_allowed_per_game": {
+    "15": 16.93,
+    "16": 20.44,
+    "17": 26.42
+   },
+   "avg_allowed_per_game": 21.26,
+   "softness_rank": 6
+  },
   "13423": {
    "name": "Eli Heidenreich",
    "position": "RB",
@@ -12045,6 +12062,23 @@
    "avg_allowed_per_game": 20.08,
    "softness_rank": 15
   },
+  "14080": {
+   "name": "Barika Kpeenu",
+   "position": "RB",
+   "team": "TB",
+   "opponents": {
+    "15": "NO",
+    "16": "ATL",
+    "17": "LAR"
+   },
+   "opp_allowed_per_game": {
+    "15": 19.13,
+    "16": 19.65,
+    "17": 18.18
+   },
+   "avg_allowed_per_game": 18.99,
+   "softness_rank": 27
+  },
   "13277": {
    "name": "CJ Donaldson",
    "position": "RB",
@@ -12061,6 +12095,23 @@
    },
    "avg_allowed_per_game": 21.39,
    "softness_rank": 5
+  },
+  "13328": {
+   "name": "Anthony Hankerson",
+   "position": "RB",
+   "team": "SEA",
+   "opponents": {
+    "15": "PHI",
+    "16": "LAR",
+    "17": "CAR"
+   },
+   "opp_allowed_per_game": {
+    "15": 21.04,
+    "16": 18.18,
+    "17": 21.94
+   },
+   "avg_allowed_per_game": 20.39,
+   "softness_rank": 12
   },
   "13595": {
    "name": "Cash Jones",
@@ -12878,6 +12929,23 @@
    "avg_allowed_per_game": 18.76,
    "softness_rank": 20
   },
+  "13425": {
+   "name": "Jalon Daniels",
+   "position": "QB",
+   "team": "TB",
+   "opponents": {
+    "15": "NO",
+    "16": "ATL",
+    "17": "LAR"
+   },
+   "opp_allowed_per_game": {
+    "15": 16.94,
+    "16": 19.5,
+    "17": 18.22
+   },
+   "avg_allowed_per_game": 18.22,
+   "softness_rank": 23
+  },
   "13295": {
    "name": "Behren Morton",
    "position": "QB",
@@ -12996,23 +13064,6 @@
    },
    "avg_allowed_per_game": 22.25,
    "softness_rank": 2
-  },
-  "13425": {
-   "name": "Jalon Daniels",
-   "position": "QB",
-   "team": "TB",
-   "opponents": {
-    "15": "NO",
-    "16": "ATL",
-    "17": "LAR"
-   },
-   "opp_allowed_per_game": {
-    "15": 16.94,
-    "16": 19.5,
-    "17": 18.22
-   },
-   "avg_allowed_per_game": 18.22,
-   "softness_rank": 23
   },
   "13404": {
    "name": "Garrett Nussmeier",
@@ -13326,12 +13377,6 @@
   },
   "13937": {
    "name": "Jackson Acker",
-   "position": "RB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "13328": {
-   "name": "Anthony Hankerson",
    "position": "RB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"

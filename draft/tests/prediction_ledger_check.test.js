@@ -156,3 +156,53 @@ ok('CONTROL — the REAL ledger is held to the backlog floor, not just fixtures'
   assert.ok(/minOpen:\s*MIN_OPEN/.test(src),
     'main() must pass MIN_OPEN, or the empty-backlog tripwire never fires in CI');
 });
+
+// ── TWO ROWS, ONE ID ────────────────────────────────────────────────────────
+// Added 2026-08-18 after the real thing: A filed P62/P63/P64 at 04:43:53 and the
+// relay filed three DIFFERENT predictions under the same ids nine minutes later.
+// This checker printed "67 predictions, none overdue" the whole time, because
+// `seen` was an array nobody looked at twice.
+
+ok('FAIL ARM — two rows sharing an id is a hard failure, not a note', () => {
+  const t = HEAD
+    + '| P62 | first claim | 08-18 | A | 09-05 | OPEN | — | — |\n'
+    + '| P62 | a totally different claim | 08-18 | relay | 08-18 | GRADED | FALSE | shipped nothing |\n';
+  const p = check(t, '2026-08-19').problems;
+  assert.ok(p.some((x) => /P62: TWO ROWS SHARE THIS ID/.test(x)), JSON.stringify(p));
+});
+
+ok('THE REASON IT MATTERS — the same id can be GRADED and OPEN at once', () => {
+  // Not cosmetic: every other rule here is keyed by id, so the ledger says the
+  // loop is closed and not closed simultaneously, and "grade P62" is ambiguous.
+  const t = HEAD
+    + '| P62 | claim one | 08-18 | A | 09-05 | OPEN | — | — |\n'
+    + '| P62 | claim two | 08-18 | relay | 08-18 | GRADED | TRUE | weight moved |\n';
+  const rows = check(t, '2026-08-19');
+  assert.strictEqual(rows.count, 2, 'both rows are still counted — the count hides it');
+  assert.ok(rows.problems.some((x) => /TWO ROWS SHARE/.test(x)));
+});
+
+ok('a duplicate is reported ONCE however many copies exist', () => {
+  const t = HEAD
+    + '| P9 | a | 08-18 | A | 12-31 | OPEN | — | — |\n'
+    + '| P9 | b | 08-18 | A | 12-31 | OPEN | — | — |\n'
+    + '| P9 | c | 08-18 | A | 12-31 | OPEN | — | — |\n';
+  const hits = check(t, '2026-08-19').problems.filter((x) => /TWO ROWS SHARE/.test(x));
+  assert.strictEqual(hits.length, 1, JSON.stringify(hits));
+});
+
+ok('CONTROL — distinct ids do not trip it, so the check is not just "more than one row"', () => {
+  const t = HEAD
+    + '| P1 | a | 08-18 | A | 12-31 | OPEN | — | — |\n'
+    + '| P2 | b | 08-18 | A | 12-31 | OPEN | — | — |\n';
+  assert.strictEqual(check(t, '2026-08-19').problems.length, 0);
+});
+
+ok('CONTROL — the LIVE ledger has no duplicate ids (it did, until 2026-08-18)', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const live = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'PREDICTION-LEDGER.md'), 'utf8');
+  const p = check(live, '2026-08-18').problems.filter((x) => /TWO ROWS SHARE/.test(x));
+  assert.deepStrictEqual(p, [], 'an id collision is back in the real ledger');
+});

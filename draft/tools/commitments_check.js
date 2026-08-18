@@ -39,11 +39,29 @@ const arg = n => {
 const TODAY = arg('today') || new Date().toISOString().slice(0, 10);
 const QUIET = process.argv.indexOf('--quiet') >= 0;
 
+/* THE REGISTRY PATH IS OVERRIDABLE FOR THE SAME REASON `--today` IS.
+ *
+ * Added 2026-08-18. The header above already argues that a firing condition you
+ * cannot exercise is a condition nobody has seen fire, and built `--today` to fix
+ * exactly that — and then NOBODY EVER WROTE THE TEST. This gate ran in CI for days
+ * with no test file at all, which is the same shape one level up: the affordance
+ * existed, was correct, and was never used.
+ *
+ * The two arms that matter most here — an UNREADABLE registry and an EMPTY one,
+ * both of which must exit 2 — cannot be reached at all without pointing this
+ * somewhere else, because the real file is readable and non-empty. So:
+ * `COMMITMENTS_PATH` overrides it, default completely unchanged. Same pattern as
+ * `DRAFT_PICK_LOG_PATH` on the pick logger, and for the same reason: testing the
+ * refusal paths for real beats asserting them from a copy of the logic.
+ */
+const REGISTRY = process.env.COMMITMENTS_PATH
+  || path.join(ROOT, 'draft', 'data', 'commitments.json');
+
 let reg;
 try {
-  reg = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'commitments.json'), 'utf8'));
+  reg = JSON.parse(fs.readFileSync(REGISTRY, 'utf8'));
 } catch (e) {
-  console.log('CANNOT READ draft/data/commitments.json: ' + e.message);
+  console.log('CANNOT READ ' + REGISTRY + ': ' + e.message);
   console.log('An unreadable registry is not an empty one. Failing.');
   process.exit(2);
 }
