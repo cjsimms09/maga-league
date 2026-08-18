@@ -1,4 +1,5 @@
 # TERRITORY: A
+# TERRITORY-GRANT: C ROWS_OUT rows player_id predicted actual position source pid positions v6_2025 actual_2025 append sorted json dumps write_text territory note graded_season GRADED_SEASON indent P38 register own_v6 build_v6_rows v6_pred consumer joining loses
 """OWN MODEL v6 — v5's cleared component arms + v4's cleared QB arm, composed.
 Built 2026-08-16, beside v2-v5 (never replacing them); promotion stays a
 written decision for Cory either way.
@@ -100,6 +101,7 @@ GRADED_SEASON = 2025
 PRIOR_SEASONS = (2023, 2024)
 
 OUT = HERE / "model_accuracy_v6.json"
+ROWS_OUT = HERE / "model_accuracy_v6_rows.json"
 
 
 def build_v6(v4_pred: dict, v5_pred: dict, positions: dict) -> dict:
@@ -112,6 +114,20 @@ def build_v6(v4_pred: dict, v5_pred: dict, positions: dict) -> dict:
             continue
         out[pid] = v4_pred[pid] if pos == "QB" else v5_pred[pid]
     return out
+
+
+def build_v6_rows(v6_pred: dict, actual: dict, positions: dict) -> list:
+    """register P38 -- per-player rows for the D13 three-way grade, same
+    shape (player_id/predicted/actual/position/source) A's routed P38 order
+    specified. actual.get(pid) is None, not dropped, for a pid the realized
+    store never covered -- a consumer joining on this file sees the gap
+    rather than silently losing the row."""
+    rows = []
+    for pid in sorted(v6_pred):
+        rows.append({"player_id": pid, "predicted": v6_pred[pid],
+                     "actual": actual.get(pid), "position": positions.get(pid),
+                     "source": "own_v6"})
+    return rows
 
 
 def run() -> dict:
@@ -184,6 +200,14 @@ def run() -> dict:
                                           - row["own_v4"]["spearman"], 4),
         }
 
+    rows = build_v6_rows(v6_2025, actual_2025, positions)
+    ROWS_OUT.write_text(json.dumps({
+        "_territory": "TERRITORY: A -- own_model_v6.py, C TERRITORY-GRANT, register P38",
+        "_note": "PER-PLAYER own_v6 rows for the D13 three-way grade -- see build_v6_rows for the derivation, one row per graded player.",
+        "graded_season": GRADED_SEASON,
+        "rows": rows,
+    }, indent=1))
+
     return {
         "_territory": "TERRITORY: A — produced by draft/backtest/own_model_v6.py",
         "_note": ("Own-model v6 — v4's QB arm + v5's RB/WR/TE arms, composed "
@@ -227,6 +251,7 @@ def main() -> None:
     if doc.get("status") != "graded":
         print(f"status: {doc.get('status')} — refused, nothing graded")
         return
+    print(f"wrote {ROWS_OUT.name}")
     h = doc["arm_2025"]["head_to_head_shared_population"]
     print("2025 arm, shared population (MAE / Spearman):")
     for pos in POSITIONS:
