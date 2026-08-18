@@ -3,7 +3,7 @@
  "_question": "P53. Cory 08-18: 'Do deep search for 2026 days for free.' The Odds API credits expire ~08-31 and its historical endpoint cannot serve 2026 in-season prices (week 1 opens 09-10), so every in-season market arm needs a free live source or it should not be proposed.",
  "_scope": "REACHABILITY AND GRANULARITY ONLY. Whether any of this predicts points is an arm: it goes through BLEND-SEARCH-DESIGN and gets a preregistered grade.",
  "_control": "sleeper_control is an endpoint this repo has fetched many times. If it fails, a fully-blocked run would otherwise read as 'no source exists'.",
- "captured_at": "2026-08-18T05:22:25.490188+00:00",
+ "captured_at": "2026-08-18T05:29:55.084814+00:00",
  "egress_ok": true,
  "control_status": 200,
  "reachable": [
@@ -14,1578 +14,3995 @@
  "kalshi": {
   "nfl_series": [
    {
-    "ticker": "KXNCAAFSPREAD",
-    "title": "College Football Spread"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSNE",
-    "title": "Pro football exact wins New England"
-   },
-   {
-    "ticker": "KXNFLDSTTD",
-    "title": "Pro Football D/ST Touchdown"
-   },
-   {
-    "ticker": "KXNFLDROY",
-    "title": "NFL Defensive Rookie of the Year"
-   },
-   {
-    "ticker": "KXCZEFNLGAME",
-    "title": "Czech National Football League Game"
-   },
-   {
-    "ticker": "KXNFLAWARDFIN",
-    "title": "Pro Football Award Finalists"
-   },
-   {
-    "ticker": "KXLEADERNFLPTDS",
-    "title": "NFL leader passing TDs"
-   },
-   {
-    "ticker": "KXNFLPREPACK1Q1H",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXNFLDRAFTTEAMPOS",
-    "title": "Which team will draft a quarterback in specific round?"
-   },
-   {
-    "ticker": "KXNCAAFSECWINS",
-    "title": "College Football SEC Teams to Win"
-   },
-   {
-    "ticker": "KXNFLWINS-MIA",
-    "title": "Pro football wins Miami"
-   },
-   {
-    "ticker": "KXNFLWINS-CHI",
-    "title": "Pro football wins Chicago"
-   },
-   {
-    "ticker": "KXNFLOROTY",
-    "title": "AP Pro Football Offensive Rookie of the Year"
-   },
-   {
-    "ticker": "KXNFL4DCONV",
-    "title": "Pro Football 4th Down Conversions"
-   },
-   {
-    "ticker": "KXNFLPASSTDS",
-    "title": "Pro Football player Passing Touchdowns"
-   },
-   {
-    "ticker": "KXNFLGAME",
-    "title": "Professional Football Game"
-   },
-   {
-    "ticker": "KXNFLLEASTPENALIZED",
-    "title": "Pro Football Least Penalized Team"
-   },
-   {
-    "ticker": "KXNFL2QTOTAL",
-    "title": "Pro Football 2nd Quarter Total"
-   },
-   {
-    "ticker": "KXNCAAFCONFLEAVE",
-    "title": "College Football Conference Leave"
-   },
-   {
-    "ticker": "KXNFL1HTOTAL",
-    "title": "Pro Football 1st  Half Total Points"
-   },
-   {
-    "ticker": "KXRANKLISTFFWR",
-    "title": "TOP FANTASY FOOTBALL WR"
-   },
-   {
-    "ticker": "KXNCAAFACCWINS",
-    "title": "College Football ACC Teams to Win"
-   },
-   {
-    "ticker": "KXNFLDRAFTTE",
-    "title": "Pro Football Tight End Drafted"
-   },
-   {
-    "ticker": "KXNCAAF2HTOTAL",
-    "title": "College Football 2nd Half Total"
-   },
-   {
-    "ticker": "KXNFLWINS-CLE",
-    "title": "Pro football wins Cleveland"
-   },
-   {
-    "ticker": "KXNCAAF1HSPREAD",
-    "title": "College Football 1st Half Spread"
-   },
-   {
-    "ticker": "KXRECORDNFLWORST",
-    "title": "worst football record"
-   },
-   {
-    "ticker": "KXNCAAFTEAMRSHTD",
-    "title": "College Football Team Rushing Touchdowns"
-   },
-   {
-    "ticker": "KXNFLCOMEBACK",
-    "title": "Pro Football Comeback"
-   },
-   {
-    "ticker": "KXNFLCELEBRITYGAME",
-    "title": "Pro Football Celebrity Flag Football Game"
-   },
-   {
-    "ticker": "KXLEADERNFLPYDS",
-    "title": "NFL leader passing yards"
-   },
-   {
-    "ticker": "KXNFLLARGESTLEAD",
-    "title": "Pro Football Largest Lead"
-   },
-   {
-    "ticker": "KXNFLPREPACK2ML",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXCFBUNRANKEDUPSET",
-    "title": "College Football Unranked Upsets"
-   },
-   {
-    "ticker": "KXNFLNFCCHAMP",
-    "title": "National Football Conference Champion"
-   },
-   {
-    "ticker": "KXNFLSACKRECORD",
-    "title": "NFL Regular Season Sack Record"
-   },
-   {
-    "ticker": "KXNFLFFPTS",
-    "title": "Pro Football Player Fantasy Points"
-   },
-   {
-    "ticker": "KXNFLWINS-LA",
-    "title": "Pro football wins Los Angeles R"
-   },
-   {
-    "ticker": "KXNFL2Q",
-    "title": "Pro Football 2nd Quarter Winner"
-   },
-   {
-    "ticker": "KXNCAAFSEED",
-    "title": "College Football Playoff Seed"
-   },
-   {
-    "ticker": "KXLEADERNFLSACKS",
-    "title": "NFL Sacks Leader"
-   },
-   {
-    "ticker": "KXNCAAFTOTALFG",
-    "title": "College Football Total Field Goals"
-   },
-   {
-    "ticker": "KXNFLPREPACKSGPSPREAD",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXCOACHOUTNFL",
-    "title": "NFL Coach Out"
-   },
-   {
-    "ticker": "KXNCAAFFTTS",
-    "title": "College Football First Team to Score"
-   },
-   {
-    "ticker": "KXNFLGPICKENSCONTRACT",
-    "title": "Pro Football George Picken's Next Contract Size"
-   },
-   {
-    "ticker": "KXNCAAFACCQUAL",
-    "title": "College Football ACC Championship Qualifiers"
-   },
-   {
-    "ticker": "KXNFLDROTY",
-    "title": "AP Pro Football Defensive Rookie of the Year"
-   },
-   {
-    "ticker": "KXNCAAFTEAMFG",
-    "title": "College Football Team Total Field Goals"
-   },
-   {
-    "ticker": "KXNFLSFPRACFIELD",
-    "title": "Practice Field Relocation"
-   },
-   {
-    "ticker": "KXNFLCOMBINE40",
-    "title": "Pro Football Combine Fastest 40 Time"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSKC",
-    "title": "Pro football exact wins Kansas City"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSARI",
-    "title": "Pro football exact wins Arizona"
-   },
-   {
-    "ticker": "KXNFLAFCWEST",
-    "title": "American Football Conference West Winner"
+    "ticker": "KXNCAAFMACQUAL",
+    "title": "College Football Mid-American Conference Championship Qualifiers"
    },
    {
     "ticker": "KXNFLDRAFTQB",
     "title": "Pro Football Quarterback Drafted"
    },
    {
-    "ticker": "KXLEADERNFLRUSHTDS",
-    "title": "NFL leader rushing TDs"
+    "ticker": "KXNFLDRAFTLB",
+    "title": "Pro Football Linebacker Drafted"
    },
    {
-    "ticker": "KXNCAAFTEAMRSHYDS",
-    "title": "College Football Team Rushing Yards"
-   },
-   {
-    "ticker": "KXNFLSEASONRECYDS",
-    "title": "Pro Football Season Receiving Yards"
-   },
-   {
-    "ticker": "KXNFLMOSTRECYDS",
-    "title": "Pro Football Most Receiving Yards"
-   },
-   {
-    "ticker": "KXNCAAFBIG12WINS",
-    "title": "College Football Big 12 Teams to Win"
-   },
-   {
-    "ticker": "KXNFLREDZONEADS",
-    "title": "NFL Redzone ads"
-   },
-   {
-    "ticker": "KXNFLINT",
-    "title": "Pro Football Interceptions"
-   },
-   {
-    "ticker": "KXNFLDIVMOSTWINS",
-    "title": "Pro Football Division with the Least Wins"
-   },
-   {
-    "ticker": "KXNCAAFCOTW",
-    "title": "College Football Coach of the Week"
-   },
-   {
-    "ticker": "KXNFLDRAFTMATCHUP",
-    "title": "Pro Football Draft Matchup"
-   },
-   {
-    "ticker": "KXNFLWINS-KC",
-    "title": "Pro football wins Kansas City"
-   },
-   {
-    "ticker": "KXNFLANYTD",
-    "title": "Pro Football Anytime Touchdown"
-   },
-   {
-    "ticker": "KXNFLLASTTOLOSE",
-    "title": "Pro Football Last Undefeated Team"
-   },
-   {
-    "ticker": "KXNCAAF3QBTTS",
-    "title": "College Football Both Teams to Score in 3rd Quarter"
-   },
-   {
-    "ticker": "KXNCAAF1H",
-    "title": "College Football 1st Half Winner"
-   },
-   {
-    "ticker": "KXNFLMATCHUP",
-    "title": "Pro Football Matchups"
-   },
-   {
-    "ticker": "KXNFL3QTOTAL",
-    "title": "Pro Football 3rd Quarter Total"
-   },
-   {
-    "ticker": "KXNFLREDZONEBRANDADS",
-    "title": "Redzone week 1 brand ads"
-   },
-   {
-    "ticker": "KXNFLSUPDRAFTPICK",
-    "title": "Will Player declare for supplemental draft"
-   },
-   {
-    "ticker": "KXNFLGAMETO",
-    "title": "Pro Football Turnovers"
-   },
-   {
-    "ticker": "KXNFLSEASONRUSHYDS",
-    "title": "Pro Football Season Rushing Yards"
-   },
-   {
-    "ticker": "KXNFLCOMPETE",
-    "title": "Will an NFL Player Compete in game"
-   },
-   {
-    "ticker": "KXNFLSACK",
-    "title": "Pro Football Sacks"
-   },
-   {
-    "ticker": "KXNFLWINS-CIN",
-    "title": "Pro football wins Cincinnati"
-   },
-   {
-    "ticker": "KXNFL1QWINNER",
-    "title": "Pro Football 1st Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLWINS-CAR",
-    "title": "Pro football wins Carolina"
-   },
-   {
-    "ticker": "KXNFL2TD",
-    "title": "Pro Football Multiple Touchdowns"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSLV",
-    "title": "Pro football exact wins Las Vegas"
-   },
-   {
-    "ticker": "KXNFLAFCSOUTH",
-    "title": "American Football Conference South Winner"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSCHI",
-    "title": "Pro football exact wins Chicago"
-   },
-   {
-    "ticker": "KXNFLWINS-NE",
-    "title": "Pro football wins New England"
-   },
-   {
-    "ticker": "KXNFLOWNERSTAKE",
-    "title": "Next Pro Football Team to Sell Ownership Stake"
-   },
-   {
-    "ticker": "KXNCAAFTEAMSACK",
-    "title": "College Football Team Total Sacks"
-   },
-   {
-    "ticker": "KXNFLCONTRACTSIZE",
-    "title": "Pro Football Next Contract Size"
-   },
-   {
-    "ticker": "KXNFLDRAFTDT",
-    "title": "Pro Football Defensive Tackle Drafted"
-   },
-   {
-    "ticker": "KXNFLSEASONPASSYDS",
-    "title": "Pro Football Season Passing Yards"
-   },
-   {
-    "ticker": "KXNCAAF4QSPREAD",
-    "title": "College Football 4th Quarter Spread"
-   },
-   {
-    "ticker": "KXNFLLEADCHANGE",
-    "title": "Pro Football Lead Changes"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSSF",
-    "title": "Pro football exact wins San Francisco"
-   },
-   {
-    "ticker": "KXNCAAFEQBTTS",
-    "title": "College Football Both Teams to Score in Every Quarter"
-   },
-   {
-    "ticker": "KXNCAAFTEAMINT",
-    "title": "College Football Team Total Defensive Interceptions"
-   },
-   {
-    "ticker": "KXNFLWINS-WAS",
-    "title": "Pro football wins Washington"
-   },
-   {
-    "ticker": "KXNFLWINS-NO",
-    "title": "Pro football wins New Orleans"
-   },
-   {
-    "ticker": "KXNFLTEAM1POS",
-    "title": "What position will Team select with first pick"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSTEN",
-    "title": "Pro football exact wins Tennessee"
-   },
-   {
-    "ticker": "KXNFLRSHATT",
-    "title": "Pro Football Rushing Attempts"
-   },
-   {
-    "ticker": "KXNFLEVERYWEEKCOMPETE",
-    "title": "Pro Football Players to Play in Every Week of the Season"
-   },
-   {
-    "ticker": "KXNCAAF2QTOTAL",
-    "title": "College Football 2nd Quarter Total"
-   },
-   {
-    "ticker": "KXNCAAF1QSPREAD",
-    "title": "College Football 1st Quarter Spread"
-   },
-   {
-    "ticker": "KXNFLPROBOWLWIN",
-    "title": "Pro Football Pro Bowl Game"
-   },
-   {
-    "ticker": "KXNFLWINS-LAC",
-    "title": "Pro football wins Los Angeles C"
-   },
-   {
-    "ticker": "KXNCAAFAACQUAL",
-    "title": "College Football American Athletic Conference Championship Qualifiers"
-   },
-   {
-    "ticker": "KXNCAAF1QTOTAL",
-    "title": "College Football 1st Quarter Total"
-   },
-   {
-    "ticker": "KXNFLT100",
-    "title": "Will player be ranked on Pro Football T100 List"
-   },
-   {
-    "ticker": "KXNFL1QTOTAL",
-    "title": "Pro Football 1st Quarter Total"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSPHI",
-    "title": "Pro football exact wins Philadephia"
-   },
-   {
-    "ticker": "KXNFLSBMVP",
-    "title": "Pro Football Championship MVP"
-   },
-   {
-    "ticker": "KXRANKLISTFFTE",
-    "title": "TOP FANTASY FOOTBALL TE"
-   },
-   {
-    "ticker": "KXNFLRETURN",
-    "title": "Pro Football Injury Return"
-   },
-   {
-    "ticker": "KXNFLFIRSTPICK",
-    "title": "First Pick in NFL Draft"
-   },
-   {
-    "ticker": "KXNFLDEPTHPOSITIONCLEQB2",
-    "title": "QB2 CLE"
-   },
-   {
-    "ticker": "KXNCAAF1QBTTS",
-    "title": "College Football Both Teams to Score in 1st Quarter"
-   },
-   {
-    "ticker": "KXNFLHIGHSCORE",
-    "title": "Pro Football Highest Scoring Game"
-   },
-   {
-    "ticker": "KXNCAAFTEAMRSHATT",
-    "title": "College Football Team Total Rushing Attempts"
-   },
-   {
-    "ticker": "KXNFL3Q",
-    "title": "Pro Football 3rd Quarter Winner"
-   },
-   {
-    "ticker": "KXNCAAFTEAMREC",
-    "title": "College Football Team Total Receptions"
-   },
-   {
-    "ticker": "KXNFLTEAMTOTAL",
-    "title": "Pro Football Team Total Points"
-   },
-   {
-    "ticker": "KXNCAAFAPRANK",
-    "title": "College Football AP Rank"
-   },
-   {
-    "ticker": "KXNFLNEXTTD",
-    "title": "Pro Football Next TD scorer"
-   },
-   {
-    "ticker": "KXNFLRECYDS",
-    "title": "Pro Football Receiving Yards"
-   },
-   {
-    "ticker": "KXNFLDIVLEASTWINS",
-    "title": "Pro Football Division with the Most Wins"
-   },
-   {
-    "ticker": "KXNFLOT",
-    "title": "Pro Football Overtime"
-   },
-   {
-    "ticker": "KXNFLWINS-TB",
-    "title": "Pro football wins Tampa Bay"
-   },
-   {
-    "ticker": "KXLEADERNFLRTDS",
-    "title": "NFL leader receiving TDs"
-   },
-   {
-    "ticker": "KXNFL4QTOTAL",
-    "title": "Pro Football 4th Quarter Total"
-   },
-   {
-    "ticker": "KXNCAAFD3",
-    "title": "D3 College Football Champion"
-   },
-   {
-    "ticker": "KXNFLCOACH",
-    "title": "NFL Coach of the Year"
-   },
-   {
-    "ticker": "KXNFLREC",
-    "title": "Pro Football Player Receptions"
-   },
-   {
-    "ticker": "KXNFL2HWINNER",
-    "title": "NFL 2nd Half Winner"
-   },
-   {
-    "ticker": "KXNFLWINS",
-    "title": "Pro Football Wins"
-   },
-   {
-    "ticker": "KXNCAAF3Q",
-    "title": "College Football 3rd Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSBAL",
-    "title": "Pro football exact wins Baltimore"
-   },
-   {
-    "ticker": "KXNFLLARGELEAD",
-    "title": "Pro Football Largest Lead"
-   },
-   {
-    "ticker": "KXNFL1Q",
-    "title": "Pro Football 1st Quarter Winner"
-   },
-   {
-    "ticker": "KXNCAAFTOTALTD",
-    "title": "College Football Total Touchdowns"
-   },
-   {
-    "ticker": "KXNCAAFTEAMTOTAL",
-    "title": "College Football Team Total Points"
-   },
-   {
-    "ticker": "KXRANKLISTFFK",
-    "title": "TOP FANTASY FOOTBALL K"
-   },
-   {
-    "ticker": "KXNFLFANTASYMOST",
-    "title": "Pro Football Most Fantasy Points"
-   },
-   {
-    "ticker": "KXLEADERNFLAPYDS",
-    "title": "Pro Football All-Purpose Yards Leader"
-   },
-   {
-    "ticker": "KXNCAAF3QTOTAL",
-    "title": "College Football 3rd Quarter Total"
+    "ticker": "KXNFLLEASTPENALIZED",
+    "title": "Pro Football Least Penalized Team"
    },
    {
     "ticker": "KXNFLDIVISIONWINS",
     "title": "Pro Football Division Total Wins"
    },
    {
-    "ticker": "KXNEXTNFLCOACH",
-    "title": "Next Pro Football Coach"
-   },
-   {
-    "ticker": "KXNFLPRIMETIME",
-    "title": "Pro Football Primetime Games"
-   },
-   {
-    "ticker": "KXNFL4QSPREAD",
-    "title": "Pro Football 4th Quarter Spread"
-   },
-   {
-    "ticker": "KXNFLPASSCOMP",
-    "title": "Pro Football Passing Completions"
-   },
-   {
-    "ticker": "KXNFL3QSPREAD",
-    "title": "Pro Football 3rd Quarter Spread"
-   },
-   {
-    "ticker": "KXNFLNOSCOREQ",
-    "title": "Pro Football Scoreless Quarter"
-   },
-   {
-    "ticker": "KXNFLDPOY",
-    "title": "NFL Defensive Player of the Year"
-   },
-   {
-    "ticker": "KXNFLCOMBO",
-    "title": "NFL COMBO"
-   },
-   {
-    "ticker": "KXNFLRETIRE",
-    "title": "Pro Football Retirement"
-   },
-   {
-    "ticker": "KXNCAAFCS",
-    "title": "FCS Football Champion"
-   },
-   {
-    "ticker": "KXNFLSEASONREC",
-    "title": "Pro Football Season Receptions"
-   },
-   {
-    "ticker": "KXNFLGAMEFG",
-    "title": "Pro Football Field Goals"
-   },
-   {
-    "ticker": "KXNFLHALLOFFAME",
-    "title": "Pro Football Hall of Fame"
-   },
-   {
-    "ticker": "KXNCAAFWINS",
-    "title": "College Football Win Total"
-   },
-   {
-    "ticker": "KXNFLTEAMDPTS",
-    "title": "Who will allow the least/most points this season"
-   },
-   {
-    "ticker": "KXNFLMVP",
-    "title": "AP Pro Football Regular Season MVP"
-   },
-   {
-    "ticker": "KXLEADERNFLPINT",
-    "title": "Pro Football Pass INT "
-   },
-   {
-    "ticker": "KXNFLDRAFTDB",
-    "title": "Pro Football Defensive Back Drafted"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSCLE",
-    "title": "Pro football exact wins Cleveland"
-   },
-   {
-    "ticker": "KXNCAAFBIGTENREGTOP",
-    "title": "College Football Big Ten Regular Season Top Finishers"
-   },
-   {
-    "ticker": "KXNCAAF4QTOTAL",
-    "title": "College Football 4th Quarter Total"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSNYG",
-    "title": "Pro football exact wins New York G"
-   },
-   {
-    "ticker": "KXNFLSTAGEOFELIM",
-    "title": "Pro Football Stage of Elimination"
-   },
-   {
-    "ticker": "KXNCAAF4Q",
-    "title": "College Football 4th Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLTOTAL",
-    "title": "Pro Football Total Points"
-   },
-   {
-    "ticker": "KXNCAAFTEAMRECTD",
-    "title": "College Football Team Receiving Touchdowns"
-   },
-   {
-    "ticker": "KXRANKLISTFFQB",
-    "title": "TOP FANTASY FOOTBALL QB"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSTB",
-    "title": "Pro football exact wins Tampa Bay"
-   },
-   {
-    "ticker": "KXNFLWINS-ARI",
-    "title": "Pro football wins Arizona"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSCIN",
-    "title": "Pro football exact wins Cincinnati"
-   },
-   {
-    "ticker": "KXNFLWINS-LV",
-    "title": "Pro football wins Las Vegas"
-   },
-   {
-    "ticker": "KXNCAAFSF",
-    "title": "College Football Playoff Semifinals Qualifiers"
-   },
-   {
-    "ticker": "KXNCAAF1HWINNER",
-    "title": "College Football 1st Half Winner"
-   },
-   {
-    "ticker": "KXCOACHOUTNFLFIRST",
-    "title": "First NFL Coach Out"
-   },
-   {
-    "ticker": "KXNCAAF3QSPREAD",
-    "title": "College Football 3rd Quarter Spread"
-   },
-   {
-    "ticker": "KXNFLOROY",
-    "title": "NFL Offensive Rookie of the Y ear"
-   },
-   {
-    "ticker": "KXNFLTRADE",
-    "title": "Pro Football Players Traded"
-   },
-   {
-    "ticker": "KXNFLWINS-ANY",
-    "title": "Pro football wins any team"
-   },
-   {
-    "ticker": "KXNFLWINS-NYG",
-    "title": "Pro football wins New York G"
-   },
-   {
-    "ticker": "KXNCAAF2Q",
-    "title": "College Football 2nd Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLDRAFTWR",
-    "title": "Pro Football Wide Receiver Drafted "
-   },
-   {
-    "ticker": "KXNFLPASSYDS",
-    "title": "Pro Football Passing Yards"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSBUF",
-    "title": "Pro football exact wins Buffalo"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSNYJ",
-    "title": "Pro football exact wins New York J"
-   },
-   {
-    "ticker": "KXNFLSPREAD",
-    "title": "Pro Football Spread"
-   },
-   {
-    "ticker": "KXNFLWINS-IND",
-    "title": "Pro football wins Indianapolis"
-   },
-   {
-    "ticker": "KXNFLWINS-DAL",
-    "title": "Pro football wins Dallas"
-   },
-   {
-    "ticker": "KXNFLGAMESACK",
-    "title": "Pro Football Sacks"
-   },
-   {
-    "ticker": "KXSORONDO",
-    "title": "Rajon Rando Summer Olympics Flag Football"
-   },
-   {
-    "ticker": "KXNFLWORSTTOFIRST",
-    "title": "Pro Football Worst in Division to First"
-   },
-   {
-    "ticker": "KXNFLAFCNORTH",
-    "title": "American Football Conference North Winner"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSJAC",
-    "title": "Pro football exact wins Jacksonville"
-   },
-   {
-    "ticker": "KXNFLFIRSTTDTIME",
-    "title": "Pro Football First Touchdown Time"
-   },
-   {
-    "ticker": "KXNCAAFDSTTD",
-    "title": "College Football Defense Special Teams Touchdown"
-   },
-   {
-    "ticker": "KXNFLDRAFTTOP",
-    "title": "Pro Football Top Draft"
-   },
-   {
-    "ticker": "KXNFL4DOWNCONV",
-    "title": "Pro Football 4th Down Conversions"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSSEA",
-    "title": "Pro football exact wins Seattle"
-   },
-   {
-    "ticker": "KXNCAAFTEAMTO",
-    "title": "College Football Team Total Forced Turnovers"
-   },
-   {
-    "ticker": "KXNCAAFFINALIST",
-    "title": "College Football Finalist"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSATL",
-    "title": "Pro football exact wins Atlanta"
-   },
-   {
-    "ticker": "KXNFLWINS-NYJ",
-    "title": "Pro football wins New York J"
-   },
-   {
-    "ticker": "KXNFLGAMETD",
-    "title": "Pro Football Touchdowns"
-   },
-   {
-    "ticker": "KXNFLWINS-BUF",
-    "title": "Pro football wins Buffalo"
-   },
-   {
-    "ticker": "KXNFL1YDPASS",
-    "title": "Seattle 1 Yard Pass"
-   },
-   {
-    "ticker": "KXNCAAFCOTY",
-    "title": "College Football Coach of the Year"
-   },
-   {
-    "ticker": "KXNCAAPLAYOFF",
-    "title": "College Football Playoff Qualifiers"
-   },
-   {
-    "ticker": "KXNFLSEASONRECTD",
-    "title": "Pro Football Season Receiving Touchdowns"
-   },
-   {
-    "ticker": "KXNFL2QWINNER",
-    "title": "Pro Football 2nd Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLDRAFTEDGE",
-    "title": "Pro Football Edge Drafted"
-   },
-   {
-    "ticker": "KXSBHOST",
-    "title": "Pro Football Championship Host"
-   },
-   {
-    "ticker": "KXNCAAFB12QUAL",
-    "title": "College Football Big 12 Championship Qualifiers"
-   },
-   {
-    "ticker": "KXNCAAFD3GAME",
-    "title": "DIII College Football Game"
-   },
-   {
-    "ticker": "KXTRADEOFFNFL",
-    "title": "Pro football trades offseason"
-   },
-   {
-    "ticker": "KXNFLSEASONRSHTD",
-    "title": "Pro Football Season Rush Touchdowns"
-   },
-   {
-    "ticker": "KXNFLPASSINT",
-    "title": "Pro Football Passing Interceptions"
-   },
-   {
-    "ticker": "KXNCAAF2HSPREAD",
-    "title": "College Football 2nd Half Spread"
-   },
-   {
-    "ticker": "KXNFLWINS-PIT",
-    "title": "Pro football wins Pittsburgh"
-   },
-   {
-    "ticker": "KXNFL2H",
-    "title": "Pro Football 2nd Half"
-   },
-   {
-    "ticker": "KXNCAAFB10QUAL",
-    "title": "College Football Big Ten Championship Qualifiers"
-   },
-   {
-    "ticker": "KXNFLNEXTTEAM",
-    "title": "Pro Football Next Team"
-   },
-   {
-    "ticker": "KXNCAAFTOPAPRANK",
-    "title": "College Football AP Poll Top Rank"
-   },
-   {
-    "ticker": "KXNFLBLOWOUT",
-    "title": "Pro Football Biggest Blowout"
-   },
-   {
-    "ticker": "KXNCAAFGAME",
-    "title": "College Football Game"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSDEN",
-    "title": "Pro football exact wins Denver"
-   },
-   {
-    "ticker": "KXNFLPROBOWL",
-    "title": "Pro Football Pro Bowl"
-   },
-   {
-    "ticker": "KXNCAAF1Q",
-    "title": "College Football 1st Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLWINS-GB",
-    "title": "Pro football wins Green Bay"
-   },
-   {
-    "ticker": "KXRECORDNFLBEST",
-    "title": "best football record"
-   },
-   {
-    "ticker": "KXNCAAFCSGAME",
-    "title": "College Football FCS Game"
-   },
-   {
-    "ticker": "KXNFLTSPEC",
-    "title": "NFL Team Specials"
-   },
-   {
-    "ticker": "KXNCAAFJOINCONF",
-    "title": "College Football Join Conference"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSNO",
-    "title": "Pro football exact wins New Orleans"
-   },
-   {
-    "ticker": "KXNFLWINS-HOU",
-    "title": "Pro football wins Houston"
-   },
-   {
-    "ticker": "KXNFLRECYDSRECORD",
-    "title": "NFL Regular Season Receiving Yards Record"
-   },
-   {
-    "ticker": "KXSTARTINGQBWEEK1",
-    "title": "NFL Starting QB Week 1"
-   },
-   {
-    "ticker": "KXNFLPREPACKSGP",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXNFL1HWINNER",
-    "title": "NFL 1st Half Winner"
-   },
-   {
-    "ticker": "KXCFBCOTY",
-    "title": "College Football Coach of the Year"
-   },
-   {
-    "ticker": "KXSWIFTATTEND",
-    "title": "NFL Attendance Swift"
-   },
-   {
-    "ticker": "KXNFLSDRAFTTOP",
-    "title": "Will player be drafted Top X in Supplemental Draft"
-   },
-   {
-    "ticker": "KXNCAAFB12REGTOP",
-    "title": "College Football Big 12 Regular Season Top Finishers"
-   },
-   {
-    "ticker": "KXNFLDRAFTTEAM",
-    "title": "Pro Football Team Draft"
-   },
-   {
-    "ticker": "KXNCAAFACCREGTOP",
-    "title": "College Football ACC Regular Season Top Finishers"
-   },
-   {
-    "ticker": "KXUFLGAME",
-    "title": "UFL Football Game"
-   },
-   {
-    "ticker": "KXNFLWPMOTY",
-    "title": "Walter Payton Man of the Year"
-   },
-   {
-    "ticker": "KXPHILIPRIVERSNFL",
-    "title": "Philips Rivers Play This Year"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSPIT",
-    "title": "Pro football exact wins Pittsburgh"
-   },
-   {
-    "ticker": "KXTENNCOACH",
-    "title": "Tennessee Pro Football Team Next Coach"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSCAR",
-    "title": "Pro football exact wins Carolina"
-   },
-   {
-    "ticker": "KXNCAAFTOPSEED",
-    "title": "College Football Playoff Top Seed"
-   },
-   {
-    "ticker": "KXNFLDRAFTPICK",
-    "title": "NFL Draft Pick"
-   },
-   {
-    "ticker": "KXNFLDRAFTCOMPARE",
-    "title": "NFL Draft Comparison"
-   },
-   {
-    "ticker": "KXNCAAFTEAMTD",
-    "title": "College Football Team Total Touchdowns"
-   },
-   {
-    "ticker": "KXNFLOPOY",
-    "title": "NFL Offensive Player of the Year"
-   },
-   {
-    "ticker": "KXNFLDRAFTOL",
-    "title": "Pro Football Offensive Line Drafted "
-   },
-   {
-    "ticker": "KXNFLTEAMPTS",
-    "title": "Who will most/least points in Regular Season"
-   },
-   {
-    "ticker": "KXCFPSEED",
-    "title": "College Football Playoff Seed"
-   },
-   {
-    "ticker": "KXNFLGAMESPECIALS",
-    "title": "Pro Football Game Specials"
-   },
-   {
-    "ticker": "KXNFLOPOTY",
-    "title": "AP Pro Football Offensive Player Of The Year"
-   },
-   {
-    "ticker": "KXNCAAFBIGTENWINS",
-    "title": "College Football Big Ten Teams to Win"
-   },
-   {
-    "ticker": "KXNFLWEEKCOMPETE",
-    "title": "NFL Player to Play in Week"
-   },
-   {
-    "ticker": "KXNCAAFQF",
-    "title": "College Football Playoff Quarterfinals Qualifiers"
-   },
-   {
-    "ticker": "KXNCAAFSBELTQUAL",
-    "title": "College Football Sun Belt Championship Qualifiers"
-   },
-   {
-    "ticker": "KXRELOCATIONCHI",
-    "title": "Chicago Football Relocation"
-   },
-   {
-    "ticker": "KXNFLWINS-ATL",
-    "title": "Pro football wins Atlanta"
-   },
-   {
-    "ticker": "KXNFLNFCWEST",
-    "title": "National Football Conference West Winner"
-   },
-   {
-    "ticker": "KXNFLNFCEAST",
-    "title": "National Football Conference East Winner"
-   },
-   {
-    "ticker": "KXNFL4QWINNER",
-    "title": "Pro Football 4th Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSLAC",
-    "title": "Pro football exact wins Los Angeles C"
-   },
-   {
-    "ticker": "KXNFLWINS-SF",
-    "title": "Pro football wins San Francisco"
-   },
-   {
-    "ticker": "KXNFLTIES",
-    "title": "Pro Football Ties"
-   },
-   {
-    "ticker": "KXNFL2PTCONV",
-    "title": "Pro Football 2-Point Conversions"
-   },
-   {
-    "ticker": "KXNFL4Q",
-    "title": "Pro Football 4th Quarter Winner"
-   },
-   {
-    "ticker": "KXNFLNEXTINT",
-    "title": "Pro Football Next Interception"
-   },
-   {
-    "ticker": "KXNCAAF2QSPREAD",
-    "title": "College Football 2nd Quarter Spread"
-   },
-   {
-    "ticker": "KXNCAAFSECREGTOP",
-    "title": "College Football SEC Regular Season Top Finishers"
-   },
-   {
-    "ticker": "KXNFLSEASONRSHYDS",
-    "title": "Pro Football Season Rushing Yards"
-   },
-   {
-    "ticker": "KXLEADERNFLRYDS",
-    "title": "NFL leader receiving yards"
-   },
-   {
-    "ticker": "KXNFLWINSTREAK",
-    "title": "Pro Football Win Streak"
-   },
-   {
-    "ticker": "KXNFLDRAFTEAMPOS",
-    "title": "Will team draft a position across round"
-   },
-   {
-    "ticker": "KXNFLWINS-DET",
-    "title": "Pro football wins Detroit"
-   },
-   {
-    "ticker": "KXNFLWINMARGIN",
-    "title": "Pro Football Win Margin"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSGB",
-    "title": "Pro football exact wins Green Bay"
-   },
-   {
-    "ticker": "KXNFLSBMVPPOS",
-    "title": "Pro Football Championship MVP Position"
-   },
-   {
-    "ticker": "KXNCAAFMWCQUAL",
-    "title": "College Football Mountain West Conference Championship Qualifiers"
-   },
-   {
-    "ticker": "KXNCAAF4QBTTS",
-    "title": "College Football Both Teams to Score in 4th Quarter"
-   },
-   {
-    "ticker": "KXNFLT100TOP",
-    "title": "Will player be ranked Top X on NFL 100"
-   },
-   {
-    "ticker": "KXNEXTCOACHOUTNFL",
-    "title": "Next Coach Out Pro Football"
-   },
-   {
-    "ticker": "KXNFLSEASONPASSTDS",
-    "title": "Pro Football Season Passing TDs"
-   },
-   {
-    "ticker": "KXNFLCOMBINE",
-    "title": "NFL Combine"
-   },
-   {
-    "ticker": "KXNFLHIGHSCOREQ",
-    "title": "Pro Football Highest Scoring Quarter"
-   },
-   {
-    "ticker": "KXNFLLONGESTTD",
-    "title": "Pro Football Longest Touchdown"
-   },
-   {
-    "ticker": "KXNCAAFPAC12QUAL",
-    "title": "College Football Pac-12 Championship Qualifiers"
-   },
-   {
-    "ticker": "KXLEADERNFLRUSHYDS",
-    "title": "NFL leader rushing yards"
-   },
-   {
-    "ticker": "KXNFLEXECOTY",
-    "title": "Pro Football Executive of the Year"
-   },
-   {
-    "ticker": "KXNCAAFPLAYOFF",
-    "title": "College Football Playoff Qualifiers"
-   },
-   {
-    "ticker": "KXNFL2HSPREAD",
-    "title": "Pro Football 2nd Half Spread"
-   },
-   {
-    "ticker": "KXNFLDRAFT1",
-    "title": "NFL Draft First Pick"
-   },
-   {
-    "ticker": "KXNFLDRAFT1ST",
-    "title": "Make the 1st pick in NFL Draft"
-   },
-   {
-    "ticker": "KXNFLFFLEADERTOP",
-    "title": "Top Fantasy"
-   },
-   {
-    "ticker": "KXNCAAFTEAMRECYDS",
-    "title": "College Football Team Receiving Yards"
-   },
-   {
-    "ticker": "KXNFL1HSPREAD",
-    "title": "Pro Football 1st Half Spread"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSIND",
-    "title": "Pro football exact wins Indianapolis"
-   },
-   {
-    "ticker": "KXNFLWINS-SEA",
-    "title": "Pro football wins Seattle"
-   },
-   {
-    "ticker": "KXNFLH2HWINS",
-    "title": "Pro Football Head-to-Head Win Totals"
-   },
-   {
-    "ticker": "KXNFLALLPRO",
-    "title": "Pro Football All-Pro Teams"
-   },
-   {
-    "ticker": "KXNFLPREPACK3ML",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXNFLHIRECOACH",
-    "title": "NFL hire coach"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSDET",
-    "title": "Pro football exact wins Detroit"
-   },
-   {
-    "ticker": "KXNFLNFCSOUTH",
-    "title": "National Football Conference South Winner"
-   },
-   {
-    "ticker": "KXNFLPROOTY",
-    "title": "Pro Football Protector of the Year"
-   },
-   {
-    "ticker": "KXNFLLASTPICKPOS",
-    "title": "NFL Last Pick of the Draft Position"
-   },
-   {
-    "ticker": "KXNFLSAFETY",
-    "title": "Pro Football Safeties"
-   },
-   {
-    "ticker": "KXNFLMOSTRSHYDS",
-    "title": "Pro Football Most Rushing Yards"
-   },
-   {
-    "ticker": "KXNCAAFTOTAL",
-    "title": "College Football Total Points"
-   },
-   {
-    "ticker": "KXNFLENDSTREAK",
-    "title": "When will team end streak"
-   },
-   {
-    "ticker": "KXNFLHOFINDUCTEES",
-    "title": "Pro Football Hall of Fame Inductees"
-   },
-   {
-    "ticker": "KXNFLWINS-PHI",
-    "title": "Pro football wins Philadelphia"
-   },
-   {
-    "ticker": "KXNCAAFH2HWINS",
-    "title": "College Football Head-to-Head Regular Season Wins"
-   },
-   {
-    "ticker": "KXNFLNFCNORTH",
-    "title": "National Football Conference North Winner"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSMIA",
-    "title": "Pro football exact wins Miami"
-   },
-   {
-    "ticker": "KXNFLRSHYDS",
-    "title": "Pro Football Rushing Yards"
-   },
-   {
-    "ticker": "KXNFL1SEED",
-    "title": "Will team win conference in regular season"
-   },
-   {
-    "ticker": "KXFOOTBALL1001",
-    "title": "Football rankings"
-   },
-   {
-    "ticker": "KXNCAAFUNDEFEATED",
-    "title": "Undefeated in College Football Regular Season"
-   },
-   {
-    "ticker": "KXNCAAFCONFMATCHUP",
-    "title": "College Football Conference Championship Matchup"
-   },
-   {
-    "ticker": "KXNCAAFAPANY",
-    "title": "College Football AP Rank Anytime in Season"
-   },
-   {
-    "ticker": "KXNFL2QSPREAD",
-    "title": "Pro Football 2nd Quarter Spread"
-   },
-   {
-    "ticker": "KXNCAAF1HTOTAL",
-    "title": "College Football 1st Half Total"
-   },
-   {
-    "ticker": "KXNFLAFCCHAMP",
-    "title": "American Football Conference Champion"
-   },
-   {
-    "ticker": "KXNFLPREPACK1HFT",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXRANKLISTFFRB",
-    "title": "TOP FANTASY FOOTBALL RB"
-   },
-   {
-    "ticker": "KXNFL1QSPREAD",
-    "title": "Pro Football 1st Quarter Spread"
-   },
-   {
-    "ticker": "KXLEADERPINT",
-    "title": "Pro Football Passing Interceptions Leader"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSLA",
-    "title": "Pro football exact wins Los Angeles R"
-   },
-   {
-    "ticker": "KXNFLREBOOT",
-    "title": "Reboot Rules"
-   },
-   {
-    "ticker": "KXNFLFFTOP",
-    "title": "Top Fantasy Rank"
-   },
-   {
-    "ticker": "KXNFLASSCOACH",
-    "title": "NFL Assistant Coach of the Year"
-   },
-   {
-    "ticker": "KXNFLPASSATT",
-    "title": "Pro Football Passing Attempts"
-   },
-   {
-    "ticker": "KXNFLSBMVPQB",
-    "title": "Non QB Championship MVP"
-   },
-   {
-    "ticker": "KXNFLCOTY",
-    "title": "AP Pro Football Coach Of The Year"
-   },
-   {
-    "ticker": "KXNFLFFLEADER",
-    "title": "Best in Fantasy By Position"
-   },
-   {
-    "ticker": "KXNFLDRAFTRB",
-    "title": "Pro Football Running Back Drafted"
-   },
-   {
-    "ticker": "KXNFLPLAYOFF",
-    "title": "Pro Football Playoff Qualifiers"
-   },
-   {
-    "ticker": "KXNEXTTEAMNFL",
-    "title": "Pro Football Player Next Team"
-   },
-   {
-    "ticker": "KXNFLDRAFTLB",
-    "title": "Pro Football Linebacker Drafted"
-   },
-   {
-    "ticker": "KXCFBUNDEFEATEDHOME",
-    "title": "College Football Teams to go Undefeated at Home"
-   },
-   {
-    "ticker": "KXNFLAFCEAST",
-    "title": "American Football Conference East Winner"
-   },
-   {
-    "ticker": "KXNFLCPOTY",
-    "title": "AP Pro Football Comeback Player of the Year"
-   },
-   {
-    "ticker": "KXNFLLEADERPINT",
-    "title": "Pro Football P INT Leader"
-   },
-   {
-    "ticker": "KXNFLDRAFTOU",
-    "title": "Will Player be drafted before or after pick?"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSHOU",
-    "title": "Pro football exact wins Houston"
-   },
-   {
-    "ticker": "KXNFLPREPACK",
-    "title": "MVE NFL Pre Pack"
-   },
-   {
-    "ticker": "KXNFL2HTOTAL",
-    "title": "Pro Football 2nd Half Total"
-   },
-   {
-    "ticker": "KXNFLPLAYOFFHOST",
-    "title": "Team to host a playoff game"
-   },
-   {
-    "ticker": "KXNFLFIRSTTD",
-    "title": "Pro Football First Touchdown"
-   },
-   {
-    "ticker": "KXNFLWINS-BAL",
-    "title": "Pro football wins Baltimore"
-   },
-   {
-    "ticker": "KXNFLWINS-JAC",
-    "title": "Pro football wins Jacksonville"
-   },
-   {
-    "ticker": "KXNFLSHORTESTTD",
-    "title": "Pro Football Shortest Touchdown"
-   },
-   {
-    "ticker": "KXNFLDPOTY",
-    "title": "AP Pro Football Defensive Player Of The Year"
-   },
-   {
-    "ticker": "KXNFLTEAMFIRSTTD",
-    "title": "Pro Football First Touchdown"
-   },
-   {
-    "ticker": "KXNFLDRAFTCAT",
-    "title": "Pro Football Draft Category"
-   },
-   {
-    "ticker": "KXLEADERNFLINT",
-    "title": "NFL leader interceptions"
-   },
-   {
-    "ticker": "KXNFLSBMVPDEF",
-    "title": "Defensive Player Championship MVP"
+    "ticker": "KXNFLSFPRACFIELD",
+    "title": "Practice Field Relocation"
    },
    {
     "ticker": "KXNFLEXACTWINSWAS",
     "title": "Pro football exact wins Washington"
    },
    {
-    "ticker": "KXNFLEXACTWINSMIN",
-    "title": "Pro football exact wins Minnesota"
+    "ticker": "KXNFLMVP",
+    "title": "AP Pro Football Regular Season MVP"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSJAC",
+    "title": "Pro football exact wins Jacksonville"
+   },
+   {
+    "ticker": "KXNFLWINS-LAC",
+    "title": "Pro football wins Los Angeles C"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSDEN",
+    "title": "Pro football exact wins Denver"
    },
    {
     "ticker": "KXNCAAFSECQ",
     "title": "College Football SEC Championship Qualifiers"
    },
    {
-    "ticker": "KXNFLWINS-MIN",
-    "title": "Pro football wins Minnesota"
+    "ticker": "KXLEADERNFLPINT",
+    "title": "Pro Football Pass INT "
    },
    {
-    "ticker": "KXNFLSEED",
-    "title": "NFL Playoff Seed"
-   },
-   {
-    "ticker": "KXNFL1H",
-    "title": "Pro Football 1st Half Winner"
-   },
-   {
-    "ticker": "KXNCAAF2H",
-    "title": "College Football 2nd Half Winner"
-   },
-   {
-    "ticker": "KXNFLEXACTWINSDAL",
-    "title": "Pro football exact wins Dallas"
-   },
-   {
-    "ticker": "KXNFLWINS-DEN",
-    "title": "Pro football wins Denver"
-   },
-   {
-    "ticker": "KXNFLDIVISIONORDER",
-    "title": "Pro Football Division Exact Order"
-   },
-   {
-    "ticker": "KXNFL3QWINNER",
-    "title": "Pro Football 3rd Quarter Winner"
-   },
-   {
-    "ticker": "KXRANKLISTFFDST",
-    "title": "TOP FANTASY FOOTBALL D ST"
-   },
-   {
-    "ticker": "KXNCAAFUNDEFEATEDHOME",
-    "title": "College Football Teams to go Undefeated at Home"
-   },
-   {
-    "ticker": "KXNFLWINSWEEK",
-    "title": "NFL wins by week"
-   },
-   {
-    "ticker": "KXNFLTD",
-    "title": "Pro Football Touchdowns"
+    "ticker": "KXTENNCOACH",
+    "title": "Tennessee Pro Football Team Next Coach"
    },
    {
     "ticker": "KXNFLNONQBPASS",
     "title": "Pro Football Non-QB Passes"
    },
    {
-    "ticker": "KXNCAAFMACQUAL",
-    "title": "College Football Mid-American Conference Championship Qualifiers"
+    "ticker": "KXNCAAFB10QUAL",
+    "title": "College Football Big Ten Championship Qualifiers"
    },
    {
-    "ticker": "KXNFLWINS-TEN",
-    "title": "Pro football wins Tennessee"
+    "ticker": "KXNCAAF2Q",
+    "title": "College Football 2nd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSKC",
+    "title": "Pro football exact wins Kansas City"
+   },
+   {
+    "ticker": "KXNCAAFPAC12QUAL",
+    "title": "College Football Pac-12 Championship Qualifiers"
+   },
+   {
+    "ticker": "KXUFLGAME",
+    "title": "UFL Football Game"
+   },
+   {
+    "ticker": "KXNFLMATCHUP",
+    "title": "Pro Football Matchups"
+   },
+   {
+    "ticker": "KXNFLSEED",
+    "title": "NFL Playoff Seed"
+   },
+   {
+    "ticker": "KXCFPSEED",
+    "title": "College Football Playoff Seed"
+   },
+   {
+    "ticker": "KXLEADERPINT",
+    "title": "Pro Football Passing Interceptions Leader"
+   },
+   {
+    "ticker": "KXNFLDROTY",
+    "title": "AP Pro Football Defensive Rookie of the Year"
+   },
+   {
+    "ticker": "KXNFLLEADERPINT",
+    "title": "Pro Football P INT Leader"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSPIT",
+    "title": "Pro football exact wins Pittsburgh"
+   },
+   {
+    "ticker": "KXNFLCOMBINE40",
+    "title": "Pro Football Combine Fastest 40 Time"
+   },
+   {
+    "ticker": "KXNFLWINSTREAK",
+    "title": "Pro Football Win Streak"
+   },
+   {
+    "ticker": "KXNFLWINS-MIA",
+    "title": "Pro football wins Miami"
+   },
+   {
+    "ticker": "KXNCAAFAPANY",
+    "title": "College Football AP Rank Anytime in Season"
+   },
+   {
+    "ticker": "KXNFLHIGHSCOREQ",
+    "title": "Pro Football Highest Scoring Quarter"
+   },
+   {
+    "ticker": "KXNFLWINS-ATL",
+    "title": "Pro football wins Atlanta"
+   },
+   {
+    "ticker": "KXNCAAFUNDEFEATED",
+    "title": "Undefeated in College Football Regular Season"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRECTD",
+    "title": "College Football Team Receiving Touchdowns"
+   },
+   {
+    "ticker": "KXNFLFFLEADER",
+    "title": "Best in Fantasy By Position"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRSHATT",
+    "title": "College Football Team Total Rushing Attempts"
+   },
+   {
+    "ticker": "KXNFLDIVMOSTWINS",
+    "title": "Pro Football Division with the Least Wins"
+   },
+   {
+    "ticker": "KXRANKLISTFFWR",
+    "title": "TOP FANTASY FOOTBALL WR"
+   },
+   {
+    "ticker": "KXNFLWINS-NO",
+    "title": "Pro football wins New Orleans"
+   },
+   {
+    "ticker": "KXNFL1HSPREAD",
+    "title": "Pro Football 1st Half Spread"
+   },
+   {
+    "ticker": "KXRANKLISTFFDST",
+    "title": "TOP FANTASY FOOTBALL D ST"
+   },
+   {
+    "ticker": "KXNCAAFACCQUAL",
+    "title": "College Football ACC Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLSPREAD",
+    "title": "Pro Football Spread"
+   },
+   {
+    "ticker": "KXNFLHIRECOACH",
+    "title": "NFL hire coach"
+   },
+   {
+    "ticker": "KXCOACHOUTNFLFIRST",
+    "title": "First NFL Coach Out"
+   },
+   {
+    "ticker": "KXNFLPRIMETIME",
+    "title": "Pro Football Primetime Games"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNYG",
+    "title": "Pro football exact wins New York G"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSLV",
+    "title": "Pro football exact wins Las Vegas"
+   },
+   {
+    "ticker": "KXNFLLONGESTTD",
+    "title": "Pro Football Longest Touchdown"
+   },
+   {
+    "ticker": "KXNCAAFD3",
+    "title": "D3 College Football Champion"
+   },
+   {
+    "ticker": "KXNFLDRAFTCOMPARE",
+    "title": "NFL Draft Comparison"
+   },
+   {
+    "ticker": "KXNCAAFSBELTQUAL",
+    "title": "College Football Sun Belt Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAF2H",
+    "title": "College Football 2nd Half Winner"
+   },
+   {
+    "ticker": "KXNFLSEASONRECYDS",
+    "title": "Pro Football Season Receiving Yards"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCLE",
+    "title": "Pro football exact wins Cleveland"
+   },
+   {
+    "ticker": "KXNFLDRAFTTOP",
+    "title": "Pro Football Top Draft"
+   },
+   {
+    "ticker": "KXNFLCOACH",
+    "title": "NFL Coach of the Year"
+   },
+   {
+    "ticker": "KXNFLSEASONRUSHYDS",
+    "title": "Pro Football Season Rushing Yards"
+   },
+   {
+    "ticker": "KXNCAAFFINALIST",
+    "title": "College Football Finalist"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSBAL",
+    "title": "Pro football exact wins Baltimore"
+   },
+   {
+    "ticker": "KXNFLDRAFTTE",
+    "title": "Pro Football Tight End Drafted"
+   },
+   {
+    "ticker": "KXNCAAFDSTTD",
+    "title": "College Football Defense Special Teams Touchdown"
+   },
+   {
+    "ticker": "KXNFLLARGESTLEAD",
+    "title": "Pro Football Largest Lead"
+   },
+   {
+    "ticker": "KXNCAAFTOTALTD",
+    "title": "College Football Total Touchdowns"
+   },
+   {
+    "ticker": "KXSWIFTATTEND",
+    "title": "NFL Attendance Swift"
+   },
+   {
+    "ticker": "KXNCAAFCS",
+    "title": "FCS Football Champion"
+   },
+   {
+    "ticker": "KXNFLPREPACKSGP",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFLOPOY",
+    "title": "NFL Offensive Player of the Year"
+   },
+   {
+    "ticker": "KXNCAAFH2HWINS",
+    "title": "College Football Head-to-Head Regular Season Wins"
+   },
+   {
+    "ticker": "KXNCAAFEQBTTS",
+    "title": "College Football Both Teams to Score in Every Quarter"
+   },
+   {
+    "ticker": "KXNFLSHORTESTTD",
+    "title": "Pro Football Shortest Touchdown"
+   },
+   {
+    "ticker": "KXNFLDRAFTMATCHUP",
+    "title": "Pro Football Draft Matchup"
+   },
+   {
+    "ticker": "KXPHILIPRIVERSNFL",
+    "title": "Philips Rivers Play This Year"
+   },
+   {
+    "ticker": "KXNFLOPOTY",
+    "title": "AP Pro Football Offensive Player Of The Year"
+   },
+   {
+    "ticker": "KXNFLWINS-SEA",
+    "title": "Pro football wins Seattle"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRSHYDS",
+    "title": "College Football Team Rushing Yards"
+   },
+   {
+    "ticker": "KXNFLEXECOTY",
+    "title": "Pro Football Executive of the Year"
+   },
+   {
+    "ticker": "KXNCAAF2HTOTAL",
+    "title": "College Football 2nd Half Total"
+   },
+   {
+    "ticker": "KXNFLEVERYWEEKCOMPETE",
+    "title": "Pro Football Players to Play in Every Week of the Season"
+   },
+   {
+    "ticker": "KXNFLAFCSOUTH",
+    "title": "American Football Conference South Winner"
+   },
+   {
+    "ticker": "KXNFLDRAFT1ST",
+    "title": "Make the 1st pick in NFL Draft"
+   },
+   {
+    "ticker": "KXNFLSACK",
+    "title": "Pro Football Sacks"
+   },
+   {
+    "ticker": "KXNFLWINS-ARI",
+    "title": "Pro football wins Arizona"
+   },
+   {
+    "ticker": "KXNCAAFTOPAPRANK",
+    "title": "College Football AP Poll Top Rank"
+   },
+   {
+    "ticker": "KXNFLWINS-BAL",
+    "title": "Pro football wins Baltimore"
+   },
+   {
+    "ticker": "KXNFLCOMBO",
+    "title": "NFL COMBO"
+   },
+   {
+    "ticker": "KXNFLWINS-PIT",
+    "title": "Pro football wins Pittsburgh"
+   },
+   {
+    "ticker": "KXNFL2HTOTAL",
+    "title": "Pro Football 2nd Half Total"
+   },
+   {
+    "ticker": "KXLEADERNFLAPYDS",
+    "title": "Pro Football All-Purpose Yards Leader"
+   },
+   {
+    "ticker": "KXNCAAF1HTOTAL",
+    "title": "College Football 1st Half Total"
+   },
+   {
+    "ticker": "KXNFL1HTOTAL",
+    "title": "Pro Football 1st  Half Total Points"
+   },
+   {
+    "ticker": "KXNFLWINS-NE",
+    "title": "Pro football wins New England"
+   },
+   {
+    "ticker": "KXNFLHIGHSCORE",
+    "title": "Pro Football Highest Scoring Game"
+   },
+   {
+    "ticker": "KXNFLASSCOACH",
+    "title": "NFL Assistant Coach of the Year"
+   },
+   {
+    "ticker": "KXNFLPREPACKSGPSPREAD",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNCAAFSEED",
+    "title": "College Football Playoff Seed"
+   },
+   {
+    "ticker": "KXNFLNFCNORTH",
+    "title": "National Football Conference North Winner"
+   },
+   {
+    "ticker": "KXNFLWINS-DEN",
+    "title": "Pro football wins Denver"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSLAC",
+    "title": "Pro football exact wins Los Angeles C"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSDET",
+    "title": "Pro football exact wins Detroit"
+   },
+   {
+    "ticker": "KXLEADERNFLPTDS",
+    "title": "NFL leader passing TDs"
+   },
+   {
+    "ticker": "KXNFLDRAFTTEAM",
+    "title": "Pro Football Team Draft"
+   },
+   {
+    "ticker": "KXNCAAFTOTAL",
+    "title": "College Football Total Points"
+   },
+   {
+    "ticker": "KXNFL4QSPREAD",
+    "title": "Pro Football 4th Quarter Spread"
+   },
+   {
+    "ticker": "KXNFL4DCONV",
+    "title": "Pro Football 4th Down Conversions"
+   },
+   {
+    "ticker": "KXNCAAFACCWINS",
+    "title": "College Football ACC Teams to Win"
+   },
+   {
+    "ticker": "KXNFLFIRSTTD",
+    "title": "Pro Football First Touchdown"
+   },
+   {
+    "ticker": "KXNFLWINSWEEK",
+    "title": "NFL wins by week"
+   },
+   {
+    "ticker": "KXNFLHALLOFFAME",
+    "title": "Pro Football Hall of Fame"
+   },
+   {
+    "ticker": "KXNFLWINS-CHI",
+    "title": "Pro football wins Chicago"
+   },
+   {
+    "ticker": "KXNCAAFJOINCONF",
+    "title": "College Football Join Conference"
+   },
+   {
+    "ticker": "KXNFLWEEKCOMPETE",
+    "title": "NFL Player to Play in Week"
+   },
+   {
+    "ticker": "KXNFLPASSATT",
+    "title": "Pro Football Passing Attempts"
+   },
+   {
+    "ticker": "KXNFLTSPEC",
+    "title": "NFL Team Specials"
+   },
+   {
+    "ticker": "KXNFLGAME",
+    "title": "Professional Football Game"
+   },
+   {
+    "ticker": "KXNFLOROY",
+    "title": "NFL Offensive Rookie of the Y ear"
+   },
+   {
+    "ticker": "KXNFL4QWINNER",
+    "title": "Pro Football 4th Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSTEN",
+    "title": "Pro football exact wins Tennessee"
+   },
+   {
+    "ticker": "KXNFL3QSPREAD",
+    "title": "Pro Football 3rd Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSPHI",
+    "title": "Pro football exact wins Philadephia"
+   },
+   {
+    "ticker": "KXNFLCOTY",
+    "title": "AP Pro Football Coach Of The Year"
+   },
+   {
+    "ticker": "KXNCAAF1Q",
+    "title": "College Football 1st Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLPREPACK2ML",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNCAAFSF",
+    "title": "College Football Playoff Semifinals Qualifiers"
+   },
+   {
+    "ticker": "KXRANKLISTFFK",
+    "title": "TOP FANTASY FOOTBALL K"
+   },
+   {
+    "ticker": "KXNFLFFPTS",
+    "title": "Pro Football Player Fantasy Points"
+   },
+   {
+    "ticker": "KXNFL2QWINNER",
+    "title": "Pro Football 2nd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLWINS-NYJ",
+    "title": "Pro football wins New York J"
+   },
+   {
+    "ticker": "KXNCAAF2HSPREAD",
+    "title": "College Football 2nd Half Spread"
+   },
+   {
+    "ticker": "KXNFLWINS-GB",
+    "title": "Pro football wins Green Bay"
+   },
+   {
+    "ticker": "KXNFLPASSCOMP",
+    "title": "Pro Football Passing Completions"
+   },
+   {
+    "ticker": "KXNFLWINS-CAR",
+    "title": "Pro football wins Carolina"
+   },
+   {
+    "ticker": "KXNCAAFB12QUAL",
+    "title": "College Football Big 12 Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLNFCCHAMP",
+    "title": "National Football Conference Champion"
+   },
+   {
+    "ticker": "KXNFLT100",
+    "title": "Will player be ranked on Pro Football T100 List"
+   },
+   {
+    "ticker": "KXNFLDIVLEASTWINS",
+    "title": "Pro Football Division with the Most Wins"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNYJ",
+    "title": "Pro football exact wins New York J"
+   },
+   {
+    "ticker": "KXNFLWINS-JAC",
+    "title": "Pro football wins Jacksonville"
+   },
+   {
+    "ticker": "KXNFLSDRAFTTOP",
+    "title": "Will player be drafted Top X in Supplemental Draft"
+   },
+   {
+    "ticker": "KXLEADERNFLSACKS",
+    "title": "NFL Sacks Leader"
+   },
+   {
+    "ticker": "KXNCAAFCOTW",
+    "title": "College Football Coach of the Week"
+   },
+   {
+    "ticker": "KXNCAAFTOPSEED",
+    "title": "College Football Playoff Top Seed"
+   },
+   {
+    "ticker": "KXNCAAFSECREGTOP",
+    "title": "College Football SEC Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXNFLLEADCHANGE",
+    "title": "Pro Football Lead Changes"
+   },
+   {
+    "ticker": "KXNCAAF2QTOTAL",
+    "title": "College Football 2nd Quarter Total"
+   },
+   {
+    "ticker": "KXNFLSEASONREC",
+    "title": "Pro Football Season Receptions"
+   },
+   {
+    "ticker": "KXNFLTEAM1POS",
+    "title": "What position will Team select with first pick"
+   },
+   {
+    "ticker": "KXNFLGAMETO",
+    "title": "Pro Football Turnovers"
+   },
+   {
+    "ticker": "KXNFLWINS-KC",
+    "title": "Pro football wins Kansas City"
+   },
+   {
+    "ticker": "KXNFLDRAFTRB",
+    "title": "Pro Football Running Back Drafted"
+   },
+   {
+    "ticker": "KXNFLSBMVPDEF",
+    "title": "Defensive Player Championship MVP"
+   },
+   {
+    "ticker": "KXNFLPREPACK1HFT",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXRECORDNFLBEST",
+    "title": "best football record"
+   },
+   {
+    "ticker": "KXNFLDRAFTPICK",
+    "title": "NFL Draft Pick"
+   },
+   {
+    "ticker": "KXNFLWINS-SF",
+    "title": "Pro football wins San Francisco"
+   },
+   {
+    "ticker": "KXNCAAF4QTOTAL",
+    "title": "College Football 4th Quarter Total"
+   },
+   {
+    "ticker": "KXNFLAWARDFIN",
+    "title": "Pro Football Award Finalists"
    },
    {
     "ticker": "KXNCAAF2QBTTS",
     "title": "College Football Both Teams to Score in 2nd Quarter"
    },
    {
+    "ticker": "KXNFLCOMPETE",
+    "title": "Will an NFL Player Compete in game"
+   },
+   {
+    "ticker": "KXNFL2TD",
+    "title": "Pro Football Multiple Touchdowns"
+   },
+   {
+    "ticker": "KXNFLWINS-IND",
+    "title": "Pro football wins Indianapolis"
+   },
+   {
+    "ticker": "KXRANKLISTFFQB",
+    "title": "TOP FANTASY FOOTBALL QB"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSSEA",
+    "title": "Pro football exact wins Seattle"
+   },
+   {
+    "ticker": "KXNFLDRAFT1",
+    "title": "NFL Draft First Pick"
+   },
+   {
+    "ticker": "KXNCAAFTOTALFG",
+    "title": "College Football Total Field Goals"
+   },
+   {
+    "ticker": "KXNFLMOSTRECYDS",
+    "title": "Pro Football Most Receiving Yards"
+   },
+   {
+    "ticker": "KXNFLDSTTD",
+    "title": "Pro Football D/ST Touchdown"
+   },
+   {
+    "ticker": "KXNFLSBMVPQB",
+    "title": "Non QB Championship MVP"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSATL",
+    "title": "Pro football exact wins Atlanta"
+   },
+   {
+    "ticker": "KXNFLCONTRACTSIZE",
+    "title": "Pro Football Next Contract Size"
+   },
+   {
+    "ticker": "KXNCAAFTEAMREC",
+    "title": "College Football Team Total Receptions"
+   },
+   {
+    "ticker": "KXNCAAFCONFLEAVE",
+    "title": "College Football Conference Leave"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRECYDS",
+    "title": "College Football Team Receiving Yards"
+   },
+   {
+    "ticker": "KXNFLDRAFTDB",
+    "title": "Pro Football Defensive Back Drafted"
+   },
+   {
+    "ticker": "KXCZEFNLGAME",
+    "title": "Czech National Football League Game"
+   },
+   {
+    "ticker": "KXNCAAFTEAMINT",
+    "title": "College Football Team Total Defensive Interceptions"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCHI",
+    "title": "Pro football exact wins Chicago"
+   },
+   {
+    "ticker": "KXNFLGAMESACK",
+    "title": "Pro Football Sacks"
+   },
+   {
+    "ticker": "KXNFLNEXTTEAM",
+    "title": "Pro Football Next Team"
+   },
+   {
+    "ticker": "KXNFLRECYDS",
+    "title": "Pro Football Receiving Yards"
+   },
+   {
+    "ticker": "KXNFLPROBOWLWIN",
+    "title": "Pro Football Pro Bowl Game"
+   },
+   {
+    "ticker": "KXNCAAFTEAMTO",
+    "title": "College Football Team Total Forced Turnovers"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSARI",
+    "title": "Pro football exact wins Arizona"
+   },
+   {
+    "ticker": "KXNCAAF4QSPREAD",
+    "title": "College Football 4th Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLALLPRO",
+    "title": "Pro Football All-Pro Teams"
+   },
+   {
+    "ticker": "KXNFLREDZONEADS",
+    "title": "NFL Redzone ads"
+   },
+   {
+    "ticker": "KXCFBCOTY",
+    "title": "College Football Coach of the Year"
+   },
+   {
+    "ticker": "KXNFLLARGELEAD",
+    "title": "Pro Football Largest Lead"
+   },
+   {
+    "ticker": "KXNCAAFTEAMSACK",
+    "title": "College Football Team Total Sacks"
+   },
+   {
+    "ticker": "KXNFLNEXTINT",
+    "title": "Pro Football Next Interception"
+   },
+   {
+    "ticker": "KXNFLINT",
+    "title": "Pro Football Interceptions"
+   },
+   {
+    "ticker": "KXNFLCOMBINE",
+    "title": "NFL Combine"
+   },
+   {
+    "ticker": "KXNFLTEAMPTS",
+    "title": "Who will most/least points in Regular Season"
+   },
+   {
+    "ticker": "KXLEADERNFLRUSHYDS",
+    "title": "NFL leader rushing yards"
+   },
+   {
+    "ticker": "KXNFLENDSTREAK",
+    "title": "When will team end streak"
+   },
+   {
+    "ticker": "KXNFLGAMESPECIALS",
+    "title": "Pro Football Game Specials"
+   },
+   {
+    "ticker": "KXNFLDRAFTCAT",
+    "title": "Pro Football Draft Category"
+   },
+   {
+    "ticker": "KXNCAAF1QSPREAD",
+    "title": "College Football 1st Quarter Spread"
+   },
+   {
+    "ticker": "KXNFL1YDPASS",
+    "title": "Seattle 1 Yard Pass"
+   },
+   {
+    "ticker": "KXNFLDRAFTEDGE",
+    "title": "Pro Football Edge Drafted"
+   },
+   {
+    "ticker": "KXNFLSUPDRAFTPICK",
+    "title": "Will Player declare for supplemental draft"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSMIN",
+    "title": "Pro football exact wins Minnesota"
+   },
+   {
+    "ticker": "KXNFLDEPTHPOSITIONCLEQB2",
+    "title": "QB2 CLE"
+   },
+   {
+    "ticker": "KXNFL4Q",
+    "title": "Pro Football 4th Quarter Winner"
+   },
+   {
+    "ticker": "KXNCAAFQF",
+    "title": "College Football Playoff Quarterfinals Qualifiers"
+   },
+   {
+    "ticker": "KXNFLAFCWEST",
+    "title": "American Football Conference West Winner"
+   },
+   {
+    "ticker": "KXNFLAFCEAST",
+    "title": "American Football Conference East Winner"
+   },
+   {
+    "ticker": "KXNFLPREPACK",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFLDRAFTEAMPOS",
+    "title": "Will team draft a position across round"
+   },
+   {
+    "ticker": "KXCOACHOUTNFL",
+    "title": "NFL Coach Out"
+   },
+   {
+    "ticker": "KXNCAAFUNDEFEATEDHOME",
+    "title": "College Football Teams to go Undefeated at Home"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSHOU",
+    "title": "Pro football exact wins Houston"
+   },
+   {
+    "ticker": "KXNCAAF1H",
+    "title": "College Football 1st Half Winner"
+   },
+   {
+    "ticker": "KXNFL2Q",
+    "title": "Pro Football 2nd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLDRAFTDT",
+    "title": "Pro Football Defensive Tackle Drafted"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSTB",
+    "title": "Pro football exact wins Tampa Bay"
+   },
+   {
+    "ticker": "KXNFLRETIRE",
+    "title": "Pro Football Retirement"
+   },
+   {
+    "ticker": "KXNFL1HWINNER",
+    "title": "NFL 1st Half Winner"
+   },
+   {
+    "ticker": "KXNFLDPOY",
+    "title": "NFL Defensive Player of the Year"
+   },
+   {
+    "ticker": "KXNFLSBMVP",
+    "title": "Pro Football Championship MVP"
+   },
+   {
+    "ticker": "KXNCAAFB12REGTOP",
+    "title": "College Football Big 12 Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXRELOCATIONCHI",
+    "title": "Chicago Football Relocation"
+   },
+   {
+    "ticker": "KXLEADERNFLRYDS",
+    "title": "NFL leader receiving yards"
+   },
+   {
+    "ticker": "KXNFL3QWINNER",
+    "title": "Pro Football 3rd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLRSHATT",
+    "title": "Pro Football Rushing Attempts"
+   },
+   {
+    "ticker": "KXNFLWINS-NYG",
+    "title": "Pro football wins New York G"
+   },
+   {
+    "ticker": "KXNFL2HSPREAD",
+    "title": "Pro Football 2nd Half Spread"
+   },
+   {
+    "ticker": "KXSORONDO",
+    "title": "Rajon Rando Summer Olympics Flag Football"
+   },
+   {
+    "ticker": "KXNEXTCOACHOUTNFL",
+    "title": "Next Coach Out Pro Football"
+   },
+   {
+    "ticker": "KXNFLSAFETY",
+    "title": "Pro Football Safeties"
+   },
+   {
+    "ticker": "KXNFLGPICKENSCONTRACT",
+    "title": "Pro Football George Picken's Next Contract Size"
+   },
+   {
+    "ticker": "KXNFL2QTOTAL",
+    "title": "Pro Football 2nd Quarter Total"
+   },
+   {
+    "ticker": "KXNFLH2HWINS",
+    "title": "Pro Football Head-to-Head Win Totals"
+   },
+   {
+    "ticker": "KXNFLSEASONRECTD",
+    "title": "Pro Football Season Receiving Touchdowns"
+   },
+   {
+    "ticker": "KXNCAAFPLAYOFF",
+    "title": "College Football Playoff Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAFCOTY",
+    "title": "College Football Coach of the Year"
+   },
+   {
+    "ticker": "KXNFL1H",
+    "title": "Pro Football 1st Half Winner"
+   },
+   {
+    "ticker": "KXNFL1QTOTAL",
+    "title": "Pro Football 1st Quarter Total"
+   },
+   {
+    "ticker": "KXNFLPROOTY",
+    "title": "Pro Football Protector of the Year"
+   },
+   {
+    "ticker": "KXNFL3QTOTAL",
+    "title": "Pro Football 3rd Quarter Total"
+   },
+   {
+    "ticker": "KXNFLWORSTTOFIRST",
+    "title": "Pro Football Worst in Division to First"
+   },
+   {
+    "ticker": "KXNCAAF2QSPREAD",
+    "title": "College Football 2nd Quarter Spread"
+   },
+   {
+    "ticker": "KXNCAAF3QBTTS",
+    "title": "College Football Both Teams to Score in 3rd Quarter"
+   },
+   {
+    "ticker": "KXNFLDIVISIONORDER",
+    "title": "Pro Football Division Exact Order"
+   },
+   {
+    "ticker": "KXLEADERNFLRUSHTDS",
+    "title": "NFL leader rushing TDs"
+   },
+   {
+    "ticker": "KXNFLWINS-HOU",
+    "title": "Pro football wins Houston"
+   },
+   {
+    "ticker": "KXNFLOT",
+    "title": "Pro Football Overtime"
+   },
+   {
+    "ticker": "KXNFLFIRSTTDTIME",
+    "title": "Pro Football First Touchdown Time"
+   },
+   {
+    "ticker": "KXNEXTNFLCOACH",
+    "title": "Next Pro Football Coach"
+   },
+   {
+    "ticker": "KXNFL2PTCONV",
+    "title": "Pro Football 2-Point Conversions"
+   },
+   {
+    "ticker": "KXNFLCOMEBACK",
+    "title": "Pro Football Comeback"
+   },
+   {
+    "ticker": "KXNFLBLOWOUT",
+    "title": "Pro Football Biggest Blowout"
+   },
+   {
+    "ticker": "KXNFLLASTPICKPOS",
+    "title": "NFL Last Pick of the Draft Position"
+   },
+   {
+    "ticker": "KXNFLWINS-WAS",
+    "title": "Pro football wins Washington"
+   },
+   {
+    "ticker": "KXNCAAF4Q",
+    "title": "College Football 4th Quarter Winner"
+   },
+   {
+    "ticker": "KXCFBUNDEFEATEDHOME",
+    "title": "College Football Teams to go Undefeated at Home"
+   },
+   {
+    "ticker": "KXNFLFFTOP",
+    "title": "Top Fantasy Rank"
+   },
+   {
+    "ticker": "KXNCAAFSECWINS",
+    "title": "College Football SEC Teams to Win"
+   },
+   {
+    "ticker": "KXNCAAFTEAMTOTAL",
+    "title": "College Football Team Total Points"
+   },
+   {
+    "ticker": "KXRANKLISTFFRB",
+    "title": "TOP FANTASY FOOTBALL RB"
+   },
+   {
+    "ticker": "KXNFLPROBOWL",
+    "title": "Pro Football Pro Bowl"
+   },
+   {
+    "ticker": "KXNFLFIRSTPICK",
+    "title": "First Pick in NFL Draft"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNO",
+    "title": "Pro football exact wins New Orleans"
+   },
+   {
+    "ticker": "KXNFLWINS-DET",
+    "title": "Pro football wins Detroit"
+   },
+   {
+    "ticker": "KXNFLWINS-DAL",
+    "title": "Pro football wins Dallas"
+   },
+   {
+    "ticker": "KXNFLSEASONPASSYDS",
+    "title": "Pro Football Season Passing Yards"
+   },
+   {
+    "ticker": "KXNFLTIES",
+    "title": "Pro Football Ties"
+   },
+   {
+    "ticker": "KXNFLNFCWEST",
+    "title": "National Football Conference West Winner"
+   },
+   {
+    "ticker": "KXLEADERNFLINT",
+    "title": "NFL leader interceptions"
+   },
+   {
+    "ticker": "KXNFLRETURN",
+    "title": "Pro Football Injury Return"
+   },
+   {
+    "ticker": "KXNFLWINS-BUF",
+    "title": "Pro football wins Buffalo"
+   },
+   {
+    "ticker": "KXNFLDRAFTOU",
+    "title": "Will Player be drafted before or after pick?"
+   },
+   {
+    "ticker": "KXNFLWINMARGIN",
+    "title": "Pro Football Win Margin"
+   },
+   {
+    "ticker": "KXNFLGAMEFG",
+    "title": "Pro Football Field Goals"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSNE",
+    "title": "Pro football exact wins New England"
+   },
+   {
+    "ticker": "KXNCAAFTEAMRSHTD",
+    "title": "College Football Team Rushing Touchdowns"
+   },
+   {
+    "ticker": "KXNFLLASTTOLOSE",
+    "title": "Pro Football Last Undefeated Team"
+   },
+   {
+    "ticker": "KXNFLHOFINDUCTEES",
+    "title": "Pro Football Hall of Fame Inductees"
+   },
+   {
+    "ticker": "KXNFLWINS-TEN",
+    "title": "Pro football wins Tennessee"
+   },
+   {
+    "ticker": "KXNCAAF1QTOTAL",
+    "title": "College Football 1st Quarter Total"
+   },
+   {
+    "ticker": "KXNFLCPOTY",
+    "title": "AP Pro Football Comeback Player of the Year"
+   },
+   {
+    "ticker": "KXNCAAFWINS",
+    "title": "College Football Win Total"
+   },
+   {
+    "ticker": "KXNFL2HWINNER",
+    "title": "NFL 2nd Half Winner"
+   },
+   {
+    "ticker": "KXSBHOST",
+    "title": "Pro Football Championship Host"
+   },
+   {
+    "ticker": "KXNFLREBOOT",
+    "title": "Reboot Rules"
+   },
+   {
+    "ticker": "KXNFLPREPACK1Q1H",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFLWINS",
+    "title": "Pro Football Wins"
+   },
+   {
+    "ticker": "KXNFLPREPACK3ML",
+    "title": "MVE NFL Pre Pack"
+   },
+   {
+    "ticker": "KXNFLWINS-ANY",
+    "title": "Pro football wins any team"
+   },
+   {
+    "ticker": "KXNFLT100TOP",
+    "title": "Will player be ranked Top X on NFL 100"
+   },
+   {
+    "ticker": "KXNCAAFCONFMATCHUP",
+    "title": "College Football Conference Championship Matchup"
+   },
+   {
+    "ticker": "KXNFLDPOTY",
+    "title": "AP Pro Football Defensive Player Of The Year"
+   },
+   {
+    "ticker": "KXNFL1QSPREAD",
+    "title": "Pro Football 1st Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLNOSCOREQ",
+    "title": "Pro Football Scoreless Quarter"
+   },
+   {
+    "ticker": "KXNCAAFBIGTENREGTOP",
+    "title": "College Football Big Ten Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXNCAAFBIGTENWINS",
+    "title": "College Football Big Ten Teams to Win"
+   },
+   {
+    "ticker": "KXNCAAFAACQUAL",
+    "title": "College Football American Athletic Conference Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLMOSTRSHYDS",
+    "title": "Pro Football Most Rushing Yards"
+   },
+   {
+    "ticker": "KXNEXTTEAMNFL",
+    "title": "Pro Football Player Next Team"
+   },
+   {
+    "ticker": "KXNCAAFMWCQUAL",
+    "title": "College Football Mountain West Conference Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAFSPREAD",
+    "title": "College Football Spread"
+   },
+   {
+    "ticker": "KXNFLFFLEADERTOP",
+    "title": "Top Fantasy"
+   },
+   {
+    "ticker": "KXLEADERNFLRTDS",
+    "title": "NFL leader receiving TDs"
+   },
+   {
+    "ticker": "KXNFLNEXTTD",
+    "title": "Pro Football Next TD scorer"
+   },
+   {
+    "ticker": "KXNCAAF1HWINNER",
+    "title": "College Football 1st Half Winner"
+   },
+   {
+    "ticker": "KXNCAAF1HSPREAD",
+    "title": "College Football 1st Half Spread"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCIN",
+    "title": "Pro football exact wins Cincinnati"
+   },
+   {
+    "ticker": "KXNFL1SEED",
+    "title": "Will team win conference in regular season"
+   },
+   {
+    "ticker": "KXNFLWINS-CIN",
+    "title": "Pro football wins Cincinnati"
+   },
+   {
+    "ticker": "KXCFBUNRANKEDUPSET",
+    "title": "College Football Unranked Upsets"
+   },
+   {
+    "ticker": "KXNFL2H",
+    "title": "Pro Football 2nd Half"
+   },
+   {
+    "ticker": "KXNCAAF4QBTTS",
+    "title": "College Football Both Teams to Score in 4th Quarter"
+   },
+   {
+    "ticker": "KXRECORDNFLWORST",
+    "title": "worst football record"
+   },
+   {
+    "ticker": "KXFOOTBALL1001",
+    "title": "Football rankings"
+   },
+   {
+    "ticker": "KXNFLOROTY",
+    "title": "AP Pro Football Offensive Rookie of the Year"
+   },
+   {
+    "ticker": "KXNCAAPLAYOFF",
+    "title": "College Football Playoff Qualifiers"
+   },
+   {
+    "ticker": "KXNFLTEAMTOTAL",
+    "title": "Pro Football Team Total Points"
+   },
+   {
+    "ticker": "KXNFL4DOWNCONV",
+    "title": "Pro Football 4th Down Conversions"
+   },
+   {
+    "ticker": "KXLEADERNFLPYDS",
+    "title": "NFL leader passing yards"
+   },
+   {
+    "ticker": "KXNFLWINS-TB",
+    "title": "Pro football wins Tampa Bay"
+   },
+   {
+    "ticker": "KXRANKLISTFFTE",
+    "title": "TOP FANTASY FOOTBALL TE"
+   },
+   {
+    "ticker": "KXNFLREC",
+    "title": "Pro Football Player Receptions"
+   },
+   {
+    "ticker": "KXNFLPASSYDS",
+    "title": "Pro Football Passing Yards"
+   },
+   {
+    "ticker": "KXNFL3Q",
+    "title": "Pro Football 3rd Quarter Winner"
+   },
+   {
+    "ticker": "KXNCAAF3QTOTAL",
+    "title": "College Football 3rd Quarter Total"
+   },
+   {
+    "ticker": "KXNFLWINS-LA",
+    "title": "Pro football wins Los Angeles R"
+   },
+   {
+    "ticker": "KXNCAAFTEAMFG",
+    "title": "College Football Team Total Field Goals"
+   },
+   {
+    "ticker": "KXNFL2QSPREAD",
+    "title": "Pro Football 2nd Quarter Spread"
+   },
+   {
+    "ticker": "KXNFL1Q",
+    "title": "Pro Football 1st Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLTOTAL",
+    "title": "Pro Football Total Points"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSIND",
+    "title": "Pro football exact wins Indianapolis"
+   },
+   {
+    "ticker": "KXNFLPASSTDS",
+    "title": "Pro Football player Passing Touchdowns"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSGB",
+    "title": "Pro football exact wins Green Bay"
+   },
+   {
+    "ticker": "KXNFLRSHYDS",
+    "title": "Pro Football Rushing Yards"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSLA",
+    "title": "Pro football exact wins Los Angeles R"
+   },
+   {
+    "ticker": "KXNFLAFCNORTH",
+    "title": "American Football Conference North Winner"
+   },
+   {
+    "ticker": "KXNFLTRADE",
+    "title": "Pro Football Players Traded"
+   },
+   {
+    "ticker": "KXNCAAFCSGAME",
+    "title": "College Football FCS Game"
+   },
+   {
+    "ticker": "KXNFLSBMVPPOS",
+    "title": "Pro Football Championship MVP Position"
+   },
+   {
+    "ticker": "KXNFLSEASONRSHYDS",
+    "title": "Pro Football Season Rushing Yards"
+   },
+   {
+    "ticker": "KXNCAAFAPRANK",
+    "title": "College Football AP Rank"
+   },
+   {
+    "ticker": "KXNFLWINS-PHI",
+    "title": "Pro football wins Philadelphia"
+   },
+   {
+    "ticker": "KXNFLSEASONPASSTDS",
+    "title": "Pro Football Season Passing TDs"
+   },
+   {
+    "ticker": "KXNFLTEAMDPTS",
+    "title": "Who will allow the least/most points this season"
+   },
+   {
+    "ticker": "KXNFLTD",
+    "title": "Pro Football Touchdowns"
+   },
+   {
+    "ticker": "KXNFLGAMETD",
+    "title": "Pro Football Touchdowns"
+   },
+   {
+    "ticker": "KXNFLNFCSOUTH",
+    "title": "National Football Conference South Winner"
+   },
+   {
+    "ticker": "KXSTARTINGQBWEEK1",
+    "title": "NFL Starting QB Week 1"
+   },
+   {
+    "ticker": "KXNCAAFTEAMTD",
+    "title": "College Football Team Total Touchdowns"
+   },
+   {
+    "ticker": "KXNFLDROY",
+    "title": "NFL Defensive Rookie of the Year"
+   },
+   {
+    "ticker": "KXNFLPLAYOFF",
+    "title": "Pro Football Playoff Qualifiers"
+   },
+   {
+    "ticker": "KXNCAAFGAME",
+    "title": "College Football Game"
+   },
+   {
+    "ticker": "KXNCAAF3QSPREAD",
+    "title": "College Football 3rd Quarter Spread"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSBUF",
+    "title": "Pro football exact wins Buffalo"
+   },
+   {
+    "ticker": "KXNCAAFACCREGTOP",
+    "title": "College Football ACC Regular Season Top Finishers"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSMIA",
+    "title": "Pro football exact wins Miami"
+   },
+   {
+    "ticker": "KXNFLFANTASYMOST",
+    "title": "Pro Football Most Fantasy Points"
+   },
+   {
+    "ticker": "KXNFLRECYDSRECORD",
+    "title": "NFL Regular Season Receiving Yards Record"
+   },
+   {
+    "ticker": "KXNCAAFD3GAME",
+    "title": "DIII College Football Game"
+   },
+   {
+    "ticker": "KXNFLSEASONRSHTD",
+    "title": "Pro Football Season Rush Touchdowns"
+   },
+   {
+    "ticker": "KXNFLCELEBRITYGAME",
+    "title": "Pro Football Celebrity Flag Football Game"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSDAL",
+    "title": "Pro football exact wins Dallas"
+   },
+   {
+    "ticker": "KXNCAAFBIG12WINS",
+    "title": "College Football Big 12 Teams to Win"
+   },
+   {
+    "ticker": "KXNFLSACKRECORD",
+    "title": "NFL Regular Season Sack Record"
+   },
+   {
+    "ticker": "KXNFLANYTD",
+    "title": "Pro Football Anytime Touchdown"
+   },
+   {
     "ticker": "KXNCAAFCUSAQUAL",
     "title": "College Football Conference USA Championship Qualifiers"
+   },
+   {
+    "ticker": "KXNFLOWNERSTAKE",
+    "title": "Next Pro Football Team to Sell Ownership Stake"
+   },
+   {
+    "ticker": "KXNCAAF1QBTTS",
+    "title": "College Football Both Teams to Score in 1st Quarter"
+   },
+   {
+    "ticker": "KXNFLNFCEAST",
+    "title": "National Football Conference East Winner"
+   },
+   {
+    "ticker": "KXNFLDRAFTTEAMPOS",
+    "title": "Which team will draft a quarterback in specific round?"
+   },
+   {
+    "ticker": "KXNFLDRAFTWR",
+    "title": "Pro Football Wide Receiver Drafted "
+   },
+   {
+    "ticker": "KXNFLWINS-CLE",
+    "title": "Pro football wins Cleveland"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSSF",
+    "title": "Pro football exact wins San Francisco"
+   },
+   {
+    "ticker": "KXNFLAFCCHAMP",
+    "title": "American Football Conference Champion"
+   },
+   {
+    "ticker": "KXNFLWINS-MIN",
+    "title": "Pro football wins Minnesota"
+   },
+   {
+    "ticker": "KXNFL4QTOTAL",
+    "title": "Pro Football 4th Quarter Total"
+   },
+   {
+    "ticker": "KXNFLREDZONEBRANDADS",
+    "title": "Redzone week 1 brand ads"
+   },
+   {
+    "ticker": "KXNFLPASSINT",
+    "title": "Pro Football Passing Interceptions"
+   },
+   {
+    "ticker": "KXNFLTEAMFIRSTTD",
+    "title": "Pro Football First Touchdown"
+   },
+   {
+    "ticker": "KXNFLWPMOTY",
+    "title": "Walter Payton Man of the Year"
+   },
+   {
+    "ticker": "KXNCAAFFTTS",
+    "title": "College Football First Team to Score"
+   },
+   {
+    "ticker": "KXNCAAF3Q",
+    "title": "College Football 3rd Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLWINS-LV",
+    "title": "Pro football wins Las Vegas"
+   },
+   {
+    "ticker": "KXNFLDRAFTOL",
+    "title": "Pro Football Offensive Line Drafted "
+   },
+   {
+    "ticker": "KXNFLPLAYOFFHOST",
+    "title": "Team to host a playoff game"
+   },
+   {
+    "ticker": "KXNFLEXACTWINSCAR",
+    "title": "Pro football exact wins Carolina"
+   },
+   {
+    "ticker": "KXTRADEOFFNFL",
+    "title": "Pro football trades offseason"
+   },
+   {
+    "ticker": "KXNFL1QWINNER",
+    "title": "Pro Football 1st Quarter Winner"
+   },
+   {
+    "ticker": "KXNFLSTAGEOFELIM",
+    "title": "Pro Football Stage of Elimination"
    }
   ],
-  "note": "390 NFL series, 0 open markets across 30 pages",
-  "open_markets": 0,
-  "player_level_markets": [],
-  "player_level_count": 0,
-  "sample_titles": []
+  "note": "390 NFL series; per-series path found 3194, ticker-prefix path found 0 across 0 pages, 3194 distinct.  \u26a0\ufe0f ONE PATH FOUND NOTHING \u2014 treat any 'no markets' below as a probe result, not a market result.",
+  "open_markets": 3194,
+  "player_level_markets": [
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-TTAG",
+    "title": "Will Tua Tagovailoa win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-TSHO",
+    "title": "Will Tyler Shough win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-TLAR",
+    "title": "Will Trevor Lawrence win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-SDAR",
+    "title": "Will Sam Darnold win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-SBAR",
+    "title": "Will Saquon Barkley win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-PNAC",
+    "title": "Will Puka Nacua win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-PMAH",
+    "title": "Will Patrick Mahomes win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-MSTA",
+    "title": "Will Matthew Stafford win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-MPEJ",
+    "title": "Will Michael Penix Jr win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-LJAC",
+    "title": "Will Lamar Jackson win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-KMUR",
+    "title": "Will Kyler Murray win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JTAY",
+    "title": "Will Jonathan Taylor win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JSMI",
+    "title": "Will Jaxon Smith-Njigba win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JLOV",
+    "title": "Will Jordan Love win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JJEF",
+    "title": "Will Justin Jefferson win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JJAC",
+    "title": "Will Josh Jacobs win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JHUR",
+    "title": "Will Jalen Hurts win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JHER",
+    "title": "Will Justin Herbert win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JGOF",
+    "title": "Will Jared Goff win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JGIB",
+    "title": "Will Jahmyr Gibbs win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JDAR",
+    "title": "Will Jaxson Dart win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JDAN",
+    "title": "Will Jayden Daniels win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JCHA",
+    "title": "Will Ja'Marr Chase win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JBUR",
+    "title": "Will Joe Burrow win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-JALL",
+    "title": "Will Josh Allen win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-DPRE",
+    "title": "Will Dak Prescott win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-DMAY",
+    "title": "Will Drake Maye win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-DJON",
+    "title": "Will Daniel Jones win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-CWIL",
+    "title": "Will Caleb Williams win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-CWAR",
+    "title": "Will Cam Ward win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-CMCC",
+    "title": "Will Christian McCaffrey win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-CLAM",
+    "title": "Will CeeDee Lamb win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-BYOU",
+    "title": "Will Bryce Young win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-BROB",
+    "title": "Will Bijan Robinson win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-BPUR",
+    "title": "Will Brock Purdy win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-BMAY",
+    "title": "Will Baker Mayfield win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-AROD",
+    "title": "Will Aaron Rodgers win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-AJEA",
+    "title": "Will Ashton Jeanty win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLMVP",
+    "ticker": "KXNFLMVP-27-ABRO",
+    "title": "Will A.J. Brown win the MVP?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-TTAGOVAILOA1",
+    "title": "Will Tua Tagovailoa lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-TSHOUGH6",
+    "title": "Will Tyler Shough lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-TLAWRENCE16",
+    "title": "Will Trevor Lawrence lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-SSANDERS12",
+    "title": "Will Shedeur Sanders lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-SDARNOLD14",
+    "title": "Will Sam Darnold lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-PMAHOMES15",
+    "title": "Will Patrick Mahomes lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-MWILLIS2",
+    "title": "Will Malik Willis lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-MSTAFFORD9",
+    "title": "Will Matthew Stafford lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-LJACKSON8",
+    "title": "Will Lamar Jackson lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-KCOUSINS18",
+    "title": "Will Kirk Cousins lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JLOVE10",
+    "title": "Will Jordan Love lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JHURTS1",
+    "title": "Will Jalen Hurts lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JHERBERT10",
+    "title": "Will Justin Herbert lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JGOFF16",
+    "title": "Will Jared Goff lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JDANIELS5",
+    "title": "Will Jayden Daniels lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JBURROW9",
+    "title": "Will Joe Burrow lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JBRISSETT7",
+    "title": "Will Jacoby Brissett lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-JALLEN17",
+    "title": "Will Josh Allen lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-GSMITH7",
+    "title": "Will Geno Smith lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-DPRESCOTT4",
+    "title": "Will Dak Prescott lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-DMAYE10",
+    "title": "Will Drake Maye lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-DJONES17",
+    "title": "Will Daniel Jones lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-CWILLIAMS18",
+    "title": "Will Caleb Williams lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-CWARD1",
+    "title": "Will Cam Ward lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-CSTROUD7",
+    "title": "Will C.J. Stroud lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-BYOUNG9",
+    "title": "Will Bryce Young lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-BPURDY13",
+    "title": "Will Brock Purdy lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-BMAYFIELD6",
+    "title": "Will Baker Mayfield lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXLEADERNFLPINT",
+    "ticker": "KXLEADERNFLPINT-27-ARODGERS8",
+    "title": "Will Aaron Rodgers lead Pro Football in Passing Interceptions for the 2026-2027 Regular Season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-ZBRANCH17",
+    "title": "Will Zachariah Branch be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-TSIMPSON15",
+    "title": "Will Ty Simpson be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-THURST17",
+    "title": "Will Ted Hurst III be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-SMCGOWAN20",
+    "title": "Will Seth McGowan be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-SBELL13",
+    "title": "Will Skyler Bell be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-ODELP88",
+    "title": "Will Oscar Delp be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-OCOOPER83",
+    "title": "Will Omar Cooper Jr. be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-NSINGLETON32",
+    "title": "Will Nicholas Singleton be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-MWASHINGTON30",
+    "title": "Will Mike Washington Jr. be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-MLEMON9",
+    "title": "Will Makai Lemon be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-MKLEIN83",
+    "title": "Will Marlin Klein be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-MFIELDS0",
+    "title": "Will Malachi Fields be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-KSADIQ16",
+    "title": "Will Kenyon Sadiq be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-KCONCEPCION1",
+    "title": "Will KC Concepcion be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-KCOLEMAN83",
+    "title": "Will Kevin Coleman Jr. be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-KBLACK26",
+    "title": "Will Kaelon Black be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-KALLEN31",
+    "title": "Will Kaytron Allen be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JTYSON0",
+    "title": "Will Jordyn Tyson be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JPRICE8",
+    "title": "Will Jadarian Price be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JMILLER30",
+    "title": "Will Jam Miller be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JLOVE4",
+    "title": "Will Jeremiyah Love be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JLANE6",
+    "title": "Will Ja'Kobi Lane be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JJOLY80",
+    "title": "Will Justin Joly be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-JCOLEMAN20",
+    "title": "Will Jonah Coleman be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-GBERNARD17",
+    "title": "Will Germie Bernard be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-FMENDOZA15",
+    "title": "Will Fernando Mendoza be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-ESTOWERS87",
+    "title": "Will Eli Stowers be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-ESARRATT13",
+    "title": "Will Elijah Sarratt be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-ERARIDON82",
+    "title": "Will Eli Raridon be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-EJOHNSON10",
+    "title": "Will Emmett Johnson be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-EHEIDENREICH29",
+    "title": "Will Eli Heidenreich be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-DSTRIBLING15",
+    "title": "Will De'Zhaun Stribling be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-DCLAIBORNE21",
+    "title": "Will Demond Claiborne be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-DBOSTON12",
+    "title": "Will Denzel Boston be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-DALLAR16",
+    "title": "Will Drew Allar be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-CTATE14",
+    "title": "Will Carnell Tate be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-CPAYTON10",
+    "title": "Will Cole Payton be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-CKLUBNIK10",
+    "title": "Will Cade Klubnik be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-CDOUGLAS7",
+    "title": "Will Caleb Douglas be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-CBECK19",
+    "title": "Will Carson Beck be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-CALLEN13",
+    "title": "Will Cyrus Allen be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-BTHOMPSON89",
+    "title": "Will Brenen Thompson be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-BLANCE18",
+    "title": "Will Bryce Lance be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-AWILLIAMS14",
+    "title": "Will Antonio Williams be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27ROOK-ARANDALL23",
+    "title": "Will Adam Randall be the #1 ranked fantasy rookie in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-WREICHARD16",
+    "title": "Will Will Reichard be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-WLUTZ3",
+    "title": "Will Wil Lutz be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-TLOOP33",
+    "title": "Will Tyler Loop be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-TBASS16",
+    "title": "Will Tyler Bass be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-KFAIRBAIRN15",
+    "title": "Will Ka'imi Fairbairn be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-JMYERS5",
+    "title": "Will Jason Myers be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-JELLIOTT4",
+    "title": "Will Jake Elliott be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-JBATES39",
+    "title": "Will Jake Bates be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-HMEVIS92",
+    "title": "Will Harrison Mevis be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-HBUTKER7",
+    "title": "Will Harrison Butker be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-EPINEIRO18",
+    "title": "Will Eddy Pineiro be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-EMCPHERSON2",
+    "title": "Will Evan McPherson be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-CSMYTH39",
+    "title": "Will Charlie Smyth be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-CSANTOS8",
+    "title": "Will Cairo Santos be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-CMCLAUGHLIN4",
+    "title": "Will Chase McLaughlin be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-CLITTLE39",
+    "title": "Will Cam Little be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-CDICKER11",
+    "title": "Will Cameron Dicker be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-CBOSWELL9",
+    "title": "Will Chris Boswell be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-BAUBREY17",
+    "title": "Will Brandon Aubrey be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27K-ABORREGALES36",
+    "title": "Will Andy Borregales be the #1 ranked fantasy K in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-TWARREN84",
+    "title": "Will Tyler Warren be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-TMCBRIDE85",
+    "title": "Will Trey McBride be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-TKRAFT85",
+    "title": "Will Tucker Kraft be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-TKELCE87",
+    "title": "Will Travis Kelce be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-SLAPORTA87",
+    "title": "Will Sam LaPorta be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-OGADSDEN86",
+    "title": "Will Oronde Gadsden be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-MANDREWS89",
+    "title": "Will Mark Andrews be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-KPITTS8",
+    "title": "Will Kyle Pitts Sr. be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-JJOHNSON83",
+    "title": "Will Juwan Johnson be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-JFERGUSON87",
+    "title": "Will Jake Ferguson be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-ILIKELY9",
+    "title": "Will Isaiah Likely be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-HHENRY85",
+    "title": "Will Hunter Henry be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-HFANNIN44",
+    "title": "Will Harold Fannin Jr. be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-GKITTLE85",
+    "title": "Will George Kittle be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-DKINCAID86",
+    "title": "Will Dalton Kincaid be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-DGOEDERT88",
+    "title": "Will Dallas Goedert be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-COKONKWO85",
+    "title": "Will Chig Okonkwo be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-CLOVELAND84",
+    "title": "Will Colston Loveland be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-BSTRANGE85",
+    "title": "Will Brenton Strange be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27TE-BBOWERS89",
+    "title": "Will Brock Bowers be the #1 ranked fantasy TE in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-ZFLOWERS4",
+    "title": "Will Zay Flowers be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-TMCMILLAN4",
+    "title": "Will Tetairoa McMillan be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-TMCLAURIN17",
+    "title": "Will Terry McLaurin be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-THIGGINS5",
+    "title": "Will Tee Higgins be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-RRICE4",
+    "title": "Will Rashee Rice be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-RODUNZE15",
+    "title": "Will Rome Odunze be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-PWASHINGTON11",
+    "title": "Will Parker Washington be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-PNACUA12",
+    "title": "Will Puka Nacua be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-NCOLLINS12",
+    "title": "Will Nico Collins be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-MNABERS1",
+    "title": "Will Malik Nabers be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-MHARRISON18",
+    "title": "Will Marvin Harrison Jr. be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-MEVANS5",
+    "title": "Will Mike Evans be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-LMCCONKEY15",
+    "title": "Will Ladd McConkey be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-LBURDEN10",
+    "title": "Will Luther Burden III be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-JWILLIAMS1",
+    "title": "Will Jameson Williams be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-JWADDLE17",
+    "title": "Will Jaylen Waddle be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-JSMITHNJIGBA11",
+    "title": "Will Jaxon Smith-Njigba be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-JJEFFERSON18",
+    "title": "Will Justin Jefferson be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-JCHASE1",
+    "title": "Will Ja'Marr Chase be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-GWILSON5",
+    "title": "Will Garrett Wilson be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-GPICKENS3",
+    "title": "Will George Pickens be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-EEGBUKA2",
+    "title": "Will Emeka Egbuka be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-DSMITH6",
+    "title": "Will DeVonta Smith be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-DMOORE2",
+    "title": "Will DJ Moore be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-DMETCALF4",
+    "title": "Will DK Metcalf be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-DLONDON5",
+    "title": "Will Drake London be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-DADAMS17",
+    "title": "Will Davante Adams be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-CWATSON9",
+    "title": "Will Christian Watson be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-CTATE14",
+    "title": "Will Carnell Tate be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-COLAVE12",
+    "title": "Will Chris Olave be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-CLAMB88",
+    "title": "Will CeeDee Lamb be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-CGODWIN14",
+    "title": "Will Chris Godwin Jr. be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-BTHOMAS7",
+    "title": "Will Brian Thomas Jr. be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-ASTBROWN14",
+    "title": "Will Amon-Ra St. Brown be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27WR-ABROWN1",
+    "title": "Will A.J. Brown be the #1 ranked fantasy WR in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-TPOLLARD20",
+    "title": "Will Tony Pollard be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-THENDERSON32",
+    "title": "Will TreVeyon Henderson be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-TETIENNE3",
+    "title": "Will Travis Etienne Jr. be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-SBARKLEY26",
+    "title": "Will Saquon Barkley be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-RSTEVENSON38",
+    "title": "Will Rhamondre Stevenson be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-RHARVEY12",
+    "title": "Will RJ Harvey be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-RDOWDLE13",
+    "title": "Will Rico Dowdle be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-QJUDKINS10",
+    "title": "Will Quinshon Judkins be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-OHAMPTON8",
+    "title": "Will Omarion Hampton be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-KWILLIAMS23",
+    "title": "Will Kyren Williams be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-KWALKER9",
+    "title": "Will Kenneth Walker III be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-KMONANGAI25",
+    "title": "Will Kyle Monangai be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-KGAINWELL1",
+    "title": "Will Kenny Gainwell be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JWILLIAMS33",
+    "title": "Will Javonte Williams be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JWARREN30",
+    "title": "Will Jaylen Warren be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JTAYLOR28",
+    "title": "Will Jonathan Taylor be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JPRICE8",
+    "title": "Will Jadarian Price be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JLOVE4",
+    "title": "Will Jeremiyah Love be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JJACOBS8",
+    "title": "Will Josh Jacobs be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JGIBBS0",
+    "title": "Will Jahmyr Gibbs be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JDOBBINS27",
+    "title": "Will J.K. Dobbins be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-JCOOK4",
+    "title": "Will James Cook III be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-DSWIFT4",
+    "title": "Will D'Andre Swift be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-DMONTGOMERY32",
+    "title": "Will David Montgomery be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-DHENRY22",
+    "title": "Will Derrick Henry be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-DACHANE28",
+    "title": "Will De'Von Achane be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-CSKATTEBO44",
+    "title": "Will Cam Skattebo be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-CMCCAFFREY23",
+    "title": "Will Christian McCaffrey be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-CHUBBARD30",
+    "title": "Will Chuba Hubbard be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-CBROWN30",
+    "title": "Will Chase Brown be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-BTUTEN33",
+    "title": "Will Bhayshul Tuten be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-BROBINSON7",
+    "title": "Will Bijan Robinson be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-BIRVING7",
+    "title": "Will Bucky Irving be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-BHALL20",
+    "title": "Will Breece Hall be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27RB-AJEANTY2",
+    "title": "Will Ashton Jeanty be the #1 ranked fantasy RB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-TSHOUGH6",
+    "title": "Will Tyler Shough be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-TLAWRENCE16",
+    "title": "Will Trevor Lawrence be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-SDARNOLD14",
+    "title": "Will Sam Darnold be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-PMAHOMES15",
+    "title": "Will Patrick Mahomes be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-MWILLIS2",
+    "title": "Will Malik Willis be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-MSTAFFORD9",
+    "title": "Will Matthew Stafford be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-LJACKSON8",
+    "title": "Will Lamar Jackson be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-KMURRAY1",
+    "title": "Will Kyler Murray be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-JLOVE10",
+    "title": "Will Jordan Love be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-JHURTS1",
+    "title": "Will Jalen Hurts be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-JHERBERT10",
+    "title": "Will Justin Herbert be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-JGOFF16",
+    "title": "Will Jared Goff be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLFFLEADER",
+    "ticker": "KXNFLFFLEADER-27QB-JDART6",
+    "title": "Will Jaxson Dart be the #1 ranked fantasy QB in the 2026-27 Pro Football regular season?",
+    "player_kind": "named_player"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-ZFLOWERS4",
+    "title": "Will Zay Flowers record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-XWORTHY1",
+    "title": "Will Xavier Worthy record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-WROBINSON4",
+    "title": "Will Wan'Dale Robinson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-TWARREN84",
+    "title": "Will Tyler Warren record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-TMCMILLAN4",
+    "title": "Will Tetairoa McMillan record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-TMCLAURIN17",
+    "title": "Will Terry McLaurin record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-TMCBRIDE85",
+    "title": "Will Trey McBride record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-TKRAFT85",
+    "title": "Will Tucker Kraft record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-TKELCE87",
+    "title": "Will Travis Kelce record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-THIGGINS5",
+    "title": "Will Tee Higgins record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-THENDERSON32",
+    "title": "Will TreVeyon Henderson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-SLAPORTA87",
+    "title": "Will Sam LaPorta record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-SBARKLEY26",
+    "title": "Will Saquon Barkley record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-RPEARSALL1",
+    "title": "Will Ricky Pearsall record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-RODUNZE15",
+    "title": "Will Rome Odunze record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-RDOUBS87",
+    "title": "Will Romeo Doubs record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-QJOHNSTON1",
+    "title": "Will Quentin Johnston record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-PWASHINGTON11",
+    "title": "Will Parker Washington record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-PFREIERMUTH88",
+    "title": "Will Pat Freiermuth record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-OGADSDEN86",
+    "title": "Will Oronde Gadsden record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-OCOOPERWR",
+    "title": "Will Omar Cooper Jr. record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-NCOLLINS12",
+    "title": "Will Nico Collins record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MWILSON14",
+    "title": "Will Michael Wilson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MPITTMAN11",
+    "title": "Will Michael Pittman Jr. record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MNABERS1",
+    "title": "Will Malik Nabers record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MLEMONWR",
+    "title": "Will Makai Lemon record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MHARRISON18",
+    "title": "Will Marvin Harrison Jr. record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MGOLDEN0",
+    "title": "Will Matthew Golden record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MEVANS5",
+    "title": "Will Mike Evans record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-MANDREWS89",
+    "title": "Will Mark Andrews record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-LMCCONKEY15",
+    "title": "Will Ladd McConkey record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-LBURDEN10",
+    "title": "Will Luther Burden III record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-KWILLIAMS23",
+    "title": "Will Kyren Williams record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-KWALKER9",
+    "title": "Will Kenneth Walker III record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-KSADIQ18",
+    "title": "Will Kenyon Sadiq record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-KPITTS8",
+    "title": "Will Kyle Pitts Sr. record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-KCONCEPCION17",
+    "title": "Will KC Concepcion record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-KBOUTTE9",
+    "title": "Will Kayshon Boutte record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JWILLIAMS1",
+    "title": "Will Jameson Williams record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JWADDLE17",
+    "title": "Will Jaylen Waddle record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JTYSON0",
+    "title": "Will Jordyn Tyson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JTAYLOR28",
+    "title": "Will Jonathan Taylor record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JLOVE4",
+    "title": "Will Jeremiyah Love record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JJEUDY3",
+    "title": "Will Jerry Jeudy record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JJACOBS8",
+    "title": "Will Josh Jacobs record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JGIBBS0",
+    "title": "Will Jahmyr Gibbs record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JCOOK4",
+    "title": "Will James Cook III record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-JCOKER18",
+    "title": "Will Jalen Coker record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-ILIKELY9",
+    "title": "Will Isaiah Likely record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-HHENRY85",
+    "title": "Will Hunter Henry record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-HFANNIN44",
+    "title": "Will Harold Fannin Jr. record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-GWILSON5",
+    "title": "Will Garrett Wilson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-GPICKENS3",
+    "title": "Will George Pickens record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-GKITTLE85",
+    "title": "Will George Kittle record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-EEGBUKA2",
+    "title": "Will Emeka Egbuka record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DSTRIBLINGWR",
+    "title": "Will De'Zhaun Stribling record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DSMITH6",
+    "title": "Will DeVonta Smith record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DMOORE2",
+    "title": "Will DJ Moore record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DMETCALF4",
+    "title": "Will DK Metcalf record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DHENRY22",
+    "title": "Will Derrick Henry record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DDOUGLAS3",
+    "title": "Will Demario Douglas record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DBOSTONWR",
+    "title": "Will Denzel Boston record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DADAMS17",
+    "title": "Will Davante Adams record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-DACHANE28",
+    "title": "Will De'Von Achane record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-CWATSON9",
+    "title": "Will Christian Watson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-CTATE17",
+    "title": "Will Carnell Tate record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-COLAVE12",
+    "title": "Will Chris Olave record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-CMCCAFFREY23",
+    "title": "Will Christian McCaffrey record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-CLOVELAND84",
+    "title": "Will Colston Loveland record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-CBROWN30",
+    "title": "Will Chase Brown record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-BTHOMAS7",
+    "title": "Will Brian Thomas Jr. record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-BROBINSON7",
+    "title": "Will Bijan Robinson record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-BIRVING7",
+    "title": "Will Bucky Irving record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-BHALL20",
+    "title": "Will Breece Hall record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-BBOWERS89",
+    "title": "Will Brock Bowers record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-APIERCE14",
+    "title": "Will Alec Pierce record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-AMITCHELL15",
+    "title": "Will Adonai Mitchell record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-AJEANTY2",
+    "title": "Will Ashton Jeanty record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C750-ABROWN11",
+    "title": "Will A.J. Brown record 750+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-ZFLOWERS4",
+    "title": "Will Zay Flowers record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-TMCMILLAN4",
+    "title": "Will Tetairoa McMillan record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-TMCLAURIN17",
+    "title": "Will Terry McLaurin record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-TMCBRIDE85",
+    "title": "Will Trey McBride record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-THIGGINS5",
+    "title": "Will Tee Higgins record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-RRICE4",
+    "title": "Will Rashee Rice record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-PNACUA12",
+    "title": "Will Puka Nacua record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-NCOLLINS12",
+    "title": "Will Nico Collins record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-MNABERS1",
+    "title": "Will Malik Nabers record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-LMCCONKEY15",
+    "title": "Will Ladd McConkey record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-JWADDLE17",
+    "title": "Will Jaylen Waddle record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-JSMITHNJIGBA11",
+    "title": "Will Jaxon Smith-Njigba record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-JJEFFERSON18",
+    "title": "Will Justin Jefferson record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-JCHASE1",
+    "title": "Will Ja'Marr Chase record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-GWILSON5",
+    "title": "Will Garrett Wilson record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-GPICKENS3",
+    "title": "Will George Pickens record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-EEGBUKA2",
+    "title": "Will Emeka Egbuka record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-DSMITH6",
+    "title": "Will DeVonta Smith record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-DLONDON5",
+    "title": "Will Drake London record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-DADAMS17",
+    "title": "Will Davante Adams record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-CTATE17",
+    "title": "Will Carnell Tate record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-COLAVE12",
+    "title": "Will Chris Olave record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-CLAMB88",
+    "title": "Will CeeDee Lamb record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-BBOWERS89",
+    "title": "Will Brock Bowers record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-ASTBROWN14",
+    "title": "Will Amon-Ra St. Brown record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1500-ABROWN11",
+    "title": "Will A.J. Brown record 1500+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-ZFLOWERS4",
+    "title": "Will Zay Flowers record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-TWARREN84",
+    "title": "Will Tyler Warren record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-TMCMILLAN4",
+    "title": "Will Tetairoa McMillan record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-TMCLAURIN17",
+    "title": "Will Terry McLaurin record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-TMCBRIDE85",
+    "title": "Will Trey McBride record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-TKELCE87",
+    "title": "Will Travis Kelce record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-THIGGINS5",
+    "title": "Will Tee Higgins record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-SLAPORTA87",
+    "title": "Will Sam LaPorta record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-RRICE4",
+    "title": "Will Rashee Rice record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-RODUNZE15",
+    "title": "Will Rome Odunze record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-PWASHINGTON11",
+    "title": "Will Parker Washington record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-PNACUA12",
+    "title": "Will Puka Nacua record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-NCOLLINS12",
+    "title": "Will Nico Collins record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-MWILSON14",
+    "title": "Will Michael Wilson record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-MNABERS1",
+    "title": "Will Malik Nabers record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-MLEMONWR",
+    "title": "Will Makai Lemon record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-MHARRISON18",
+    "title": "Will Marvin Harrison Jr. record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-MEVANS5",
+    "title": "Will Mike Evans record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-LMCCONKEY15",
+    "title": "Will Ladd McConkey record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-LBURDEN10",
+    "title": "Will Luther Burden III record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-KSADIQ18",
+    "title": "Will Kenyon Sadiq record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-JWILLIAMS1",
+    "title": "Will Jameson Williams record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-JWADDLE17",
+    "title": "Will Jaylen Waddle record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-JTYSON0",
+    "title": "Will Jordyn Tyson record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-JSMITHNJIGBA11",
+    "title": "Will Jaxon Smith-Njigba record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-JJEFFERSON18",
+    "title": "Will Justin Jefferson record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-JCHASE1",
+    "title": "Will Ja'Marr Chase record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-ILIKELY9",
+    "title": "Will Isaiah Likely record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-HFANNIN44",
+    "title": "Will Harold Fannin Jr. record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-GWILSON5",
+    "title": "Will Garrett Wilson record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-GPICKENS3",
+    "title": "Will George Pickens record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-EEGBUKA2",
+    "title": "Will Emeka Egbuka record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-DSMITH6",
+    "title": "Will DeVonta Smith record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-DMOORE2",
+    "title": "Will DJ Moore record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-DMETCALF4",
+    "title": "Will DK Metcalf record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-DLONDON5",
+    "title": "Will Drake London record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-DADAMS17",
+    "title": "Will Davante Adams record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-CTATE17",
+    "title": "Will Carnell Tate record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-COLAVE12",
+    "title": "Will Chris Olave record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-CLOVELAND84",
+    "title": "Will Colston Loveland record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-CLAMB88",
+    "title": "Will CeeDee Lamb record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-BTHOMAS7",
+    "title": "Will Brian Thomas Jr. record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-BBOWERS89",
+    "title": "Will Brock Bowers record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-ASTBROWN14",
+    "title": "Will Amon-Ra St. Brown record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1250-ABROWN11",
+    "title": "Will A.J. Brown record 1250+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-ZFLOWERS4",
+    "title": "Will Zay Flowers record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-TWARREN84",
+    "title": "Will Tyler Warren record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-TMCMILLAN4",
+    "title": "Will Tetairoa McMillan record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-TMCLAURIN17",
+    "title": "Will Terry McLaurin record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-TMCBRIDE85",
+    "title": "Will Trey McBride record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-TKELCE87",
+    "title": "Will Travis Kelce record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-THIGGINS5",
+    "title": "Will Tee Higgins record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-SLAPORTA87",
+    "title": "Will Sam LaPorta record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-RRICE4",
+    "title": "Will Rashee Rice record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-RODUNZE15",
+    "title": "Will Rome Odunze record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-PWASHINGTON11",
+    "title": "Will Parker Washington record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-PNACUA12",
+    "title": "Will Puka Nacua record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-NCOLLINS12",
+    "title": "Will Nico Collins record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   },
+   {
+    "series": "KXNFLSEASONRECYDS",
+    "ticker": "KXNFLSEASONRECYDS-27C1000-MWILSON14",
+    "title": "Will Michael Wilson record 1000+ receiving yards during 2026-27 Pro Football regular season?",
+    "player_kind": "stat"
+   }
+  ],
+  "player_level_count": 890,
+  "sample_titles": [
+   "Will Western Michigan qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Toledo qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Sacramento St. qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Ohio qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Miami (OH) qualify for the College Football Mid-American Conference Championship Game?",
+   "Will UMass qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Kent St. qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Eastern Michigan qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Central Michigan qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Buffalo qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Bowling Green qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Ball St. qualify for the College Football Mid-American Conference Championship Game?",
+   "Will Akron qualify for the College Football Mid-American Conference Championship Game?",
+   "Will the teams in the NFC West record at least 42 total wins in the 2026-27 Pro Football regular season?",
+   "Will the teams in the NFC West record at least 40 total wins in the 2026-27 Pro Football regular season?"
+  ]
  },
  "oddsapi_event_player_props": {
   "checked": true,
   "event_id": "8c94552d022acec4a0458d70c19d3da9",
   "status": 200,
   "bytes": 3134,
-  "head": "{\"id\":\"8c94552d022acec4a0458d70c19d3da9\",\"sport_key\":\"americanfootball_nfl\",\"sport_title\":\"NFL\",\"commence_time\":\"2026-09-10T00:15:00Z\",\"home_team\":\"Seattle Seahawks\",\"away_team\":\"New England Patriots\",\"bookmakers\":[{\"key\":\"draftkings\",\"title\":\"DraftKings\",\"markets\":[{\"key\":\"player_anytime_td\",\"last_update\":\"2026-08-18T05:20:32Z\",\"outcomes\":[{\"name\":\"Yes\",\"description\":\"Jaxon Smith-Njigba\",\"price\":"
+  "head": "{\"id\":\"8c94552d022acec4a0458d70c19d3da9\",\"sport_key\":\"americanfootball_nfl\",\"sport_title\":\"NFL\",\"commence_time\":\"2026-09-10T00:15:00Z\",\"home_team\":\"Seattle Seahawks\",\"away_team\":\"New England Patriots\",\"bookmakers\":[{\"key\":\"draftkings\",\"title\":\"DraftKings\",\"markets\":[{\"key\":\"player_anytime_td\",\"last_update\":\"2026-08-18T05:29:21Z\",\"outcomes\":[{\"name\":\"Yes\",\"description\":\"Jaxon Smith-Njigba\",\"price\":"
  },
  "_v1_false_positive": "v1 reported player-level content in two Kalshi endpoints. Both were wrong: the match was the legal boilerplate every series carries ('Current and former players, coaches, and staff...') and the second endpoint had no NFL filter, returning KXELONMARS. v2 reads series tickers and market TITLES instead of raw text.",
  "parse_errors": {},
@@ -1611,5 +4028,5 @@
    "bytes": 3134
   }
  ],
- "verdict": "NO OPEN NFL MARKETS FOUND ON KALSHI (390 NFL series, 0 open markets across 30 pages). Control passed, so this is a real answer for TODAY \u2014 08-18 is the offseason and listings may appear nearer week 1. Re-probe after 09-10 before concluding."
+ "verdict": "KALSHI CARRIES PLAYER-LEVEL NFL MARKETS \u2014 890 of 3194 open markets across 390 NFL series, free and unauthenticated. By kind: {\"named_player\": 473, \"stat\": 417}. `named_player` markets are per-player availability/props matched against our own board's names; `stat` are stat-line props."
 }
