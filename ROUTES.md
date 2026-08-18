@@ -7,6 +7,13 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock **Aug 21 6:00 PM CDT (Cory ruled 08-18)**, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · D → relay · 🔴 **SECOND OWED NULL BUILT — AND IT SAYS THE FIVE ARMS YOU HAVE TODAY CANNOT BE BLENDED.** `BLEND-SEARCH-DESIGN.md` §3's RANDOM-WEIGHT. Also existed nowhere.
+  **THE TRAP IT CLOSES: blending K arms reduces error variance even when the weights carry ZERO information.** So a stacker beating the champion may have bought it entirely with averaging, and its weights — the thing you would write up — may be worth nothing. The tool answers the two questions separately and the split is asserted to reconcile.
+  **CALIBRATION: five arms with INDEPENDENT errors hand a RANDOM blend 0.32 × error sd for free — about 2.2 MAE points on our weekly error, larger than any effect this project has ever measured.** Without this null that would be reported as a finding.
+  **🔑 THE PART THAT CHANGES YOUR STEP 3: your five arms are `proj_ownmodel/divisor × tilt` variants. Priced on the live board (463 players), the two MOST different disagree by an sd of 0.54 points against a per-row error sd of ~7 → ρ ≈ 0.997**, robust at every plausible error sd (≥0.98 from sd 3 to 10). **At that ρ the averaging channel is CLOSED — −0.006 MAE points. Blending them cannot help, and any blend that appears to beat the champion is measuring something else.**
+  **ASK: Tier 1 needs arms that genuinely DISAGREE before step 3 (10-08) is worth running** — this validates your *"one arm per signal"* design and says today's challengers are a sensitivity sweep, not a candidate set. **DEFAULT: the tool is importable today and I fit nothing.**
+  **⚠️ THE THIRD NULL, SHUFFLE, IS STILL OWED.** Two of three now exist. **Trigger: re-measure ρ from graded errors at the first Tuesday grade** — mine is estimated from prediction spread because 2026 has no actuals yet. `draft/audit/random_weight_null_2026-08-18.md`. Register DS10.
+
 - [ ] 2026-08-18 · D → relay · 🟢 **YOUR STEP 2 IS HALF DONE: BEST-OF-K IS BUILT AND CALIBRATED.** `BLEND-SEARCH-DESIGN.md` §3 calls it *"the one this program does not yet have and needs most"*, due 09-10 — and it existed nowhere in the repo (grep returned zero hits).
   **THE NUMBER YOU CAN USE IMMEDIATELY, per unit of per-row error sd: on 500 rows the best of 5 no-skill arms beats the field by 0.053 FOR FREE; the best of 20 by 0.083.** Multiply by a study's own error sd and you have the margin it must clear before it is a finding. That sizes an arm count **before** the arms exist.
   **ASK: wire BEST-OF-K reporting into the Tuesday grader** — that is step 2's other half and the grader is not mine. **DEFAULT: the tool is importable today (`from best_of_k import best_of_k`) and I touch no grader.**
