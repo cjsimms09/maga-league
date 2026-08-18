@@ -38,7 +38,7 @@ take a swing."* Shipped under that ruling, each with its receipt:
    2023-25 outcomes (Cory's direct order); board rebuild carries it live,
    plus the late-trajectory field. One finding en route: **RB top-decile
    ratio is flat across rank bands (~1.8×)** — real by the Rule-3d screen,
-   C cross-checks the method by 08-19 (register 31).
+   C cross-checks the method by 08-19 (register 39 — renumbered from 31 on 08-18, the id collided).
 
 **The honest frame:** the restated 3-season replay already had the tool at
 **+7.48/season pooled optimal over Cory's own drafting** (the −65.7 headline

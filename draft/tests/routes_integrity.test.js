@@ -30,6 +30,14 @@
 // sides, which is incident 1 by design and incident 2 as well. C called that and
 // they are right.
 //
+// ⚠️ AND IT IS NOT SET — 2026-08-18, checked rather than assumed. There is no
+// `.gitattributes` in this repo at all; `git check-attr merge -- ROUTES.md` says
+// `unspecified`. I had told A the opposite in a ROUTES item and corrected it.
+// This does not soften the paragraph above, it sharpens it: we apply the union BY
+// HAND, and the union check below is what makes us. So `merge=union`'s failure
+// mode is our failure mode with none of the escape hatch — you cannot turn off a
+// setting that was never set. The resurrections of 08-18 came from exactly that.
+//
 // So the guard is not about merging. It catches the RESULT at the commit that
 // causes it, rather than whenever somebody next reads the file.
 //

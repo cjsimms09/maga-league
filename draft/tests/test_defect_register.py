@@ -97,3 +97,77 @@ def test_the_ceiling_ruling_and_its_hold_are_both_recorded():
     assert re.search(r"ceiling.{0,80}contradicted|contradicted.{0,80}ceiling",
                      src, re.I | re.S)
     assert "08-22" in src, "the hold must carry the date it expires"
+
+
+# ── TWO ROWS, ONE ID ────────────────────────────────────────────────────────────
+# Added 2026-08-18, on FIVE live collisions. Register rows are addressed by number
+# in eight other files — `ROUTES.md`, `DRAFT-WEEK-BRIEF.md`, `CORY-ASKS.md`,
+# `OPEN-QUESTIONS.md`, `SESSION-D.md`, `DATA-LIFECYCLE.md`, two audit artifacts and
+# `projection_error.py` — so an id is a public address, not a label.
+#
+# `29`, `30`, `31`, `32` and `4x` each named TWO DIFFERENT DEFECTS. "Register 31"
+# had already gone ambiguous in the wild: nine references meant the headline-edge
+# misread, three meant the RB-flatness calibration finding. Nothing detected it,
+# because every check in this file iterates rows and none of them compares ids.
+#
+# CAUSE: no shared allocator. Two sessions read the file, both saw the max id, both
+# took the next one, and neither could see the other's uncommitted work. Care does
+# not fix that; a check at the commit does.
+#
+# RESOLVED BY FEWEST-REFERENCES-BROKEN, NOT BY FIRST-ALLOCATION. First allocation
+# is the tidier rule and it was the wrong one here — for row 30 the FIRST-filed row
+# had zero external references and the second had two, so first-wins would have
+# broken both. The copy with fewer live references moves, and its references move
+# with it in the same commit.
+
+
+def _numbered_rows():
+    """`(id, first-80-chars)` for every row whose first cell is an id."""
+    out = []
+    for line in open(REGISTER, encoding="utf8").read().split("\n"):
+        if not line.startswith("|") or line.startswith("|---"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        rid = cells[0].replace("*", "").replace("`", "").strip()
+        if not rid or not re.match(r"^\d+[a-z]?$", rid):
+            continue
+        out.append((rid, cells[1][:80] if len(cells) > 1 else ""))
+    return out
+
+
+def test_no_two_rows_share_an_id():
+    """A row id is an ADDRESS — eight other files dereference it."""
+    seen = {}
+    clashes = []
+    for rid, text in _numbered_rows():
+        if rid in seen:
+            clashes.append(f"{rid}: {seen[rid]!r}  vs  {text!r}")
+        seen[rid] = text
+    assert not clashes, (
+        "two rows share an id, so every cross-file reference to it is ambiguous:\n  "
+        + "\n  ".join(clashes))
+
+
+def test_CONTROL_the_id_check_actually_parses_ids():
+    """Guards the way this check would silently die: matching nothing and passing."""
+    ids = [rid for rid, _ in _numbered_rows()]
+    assert len(ids) >= 40, f"only {len(ids)} ids parsed — the row shape changed"
+    assert "1" in ids and "34" in ids, ids[:10]
+
+
+def test_FAIL_ARM_the_id_check_can_actually_fail(tmp_path, monkeypatch):
+    """A check that has never been seen to fail is not known to work — rule 3e."""
+    fake = tmp_path / "DEFECT-REGISTER.md"
+    fake.write_text(
+        "| id | what | owner | status |\n|---|---|---|---|\n"
+        "| 7 | one defect | A | OPEN |\n"
+        "| 7 | a completely different defect | B | CLOSED |\n",
+        encoding="utf8")
+    import sys as _sys
+    monkeypatch.setattr(_sys.modules[__name__], "REGISTER", str(fake))
+    seen, clashes = {}, []
+    for rid, text in _numbered_rows():
+        if rid in seen:
+            clashes.append(rid)
+        seen[rid] = text
+    assert clashes == ["7"], clashes
