@@ -39,6 +39,22 @@ def test_probe_one_403_IS_NOT_REACHABLE():
     assert r["reachable"] is False
 
 
+def test_probe_one_A_LARGE_403_BLOCK_PAGE_IS_NOT_PLAUSIBLE():
+    """REGRESSION — the real first run of this census got this wrong: three
+    of ten candidates (fantasysharks, rtsports, fantasydata) came back 403/
+    404 with a styled error page big enough to clear the size floor on its
+    own (5-132KB), and `plausible_content` read True for all three despite
+    `reachable` being False. Caught by reading the actual output. MUTATION:
+    drop the `reachable and` guard and a blocked source with a large error
+    page reads as usable again -- stage 2 would burn effort building a
+    parser against a page that was never real content."""
+    with patch("requests.get", return_value=_FakeResp(403, b"z" * 50000)):
+        r = D._probe_one("x", "https://x.example/")
+    assert r["reachable"] is False
+    assert r["plausible_content"] is False, (
+        "a large body behind a 403/404 is a block page, not real content")
+
+
 def test_probe_one_NEVER_RAISES_on_a_network_exception():
     """MUTATION: let the exception propagate and one dead host would crash
     the whole census instead of just recording that one result -- a probe
