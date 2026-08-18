@@ -844,6 +844,31 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D8 — THE CEILING IS NOT A CEILING, AND THERE IS NO SOURCE TO BUY ONE FROM.
+> RULE AFTER 08-22. NOTHING IS ASKED OF YOU BEFORE THE DRAFT.** (register 4t)
+> **ASK:** after 08-22, rule whether an expert-disagreement ceiling replaces the
+> cohort-p90 one, against `EXPERT-SPREAD-CEILING-PREREG.md` §4's four conditions.
+> **EVIDENCE:** Cory ruled the ceiling must come from an outside source. Probe
+> `32087333128` reached all six candidates and **not one publishes a per-player point
+> ceiling** — FP season + weekly projections and Sleeper projections all NULL, FP
+> ECR/ADP carry rank dispersion only; and we had already captured FP's projections on
+> 08-16 (596 rows, no ceiling field). **But `experts=show` returns each of ~91 experts'
+> individual rank per player and we were discarding it.** Captured: 2026 (788 players,
+> 100% coverage, **365 distinct spreads** against 4j's *0 of 535 differ*), 2025 (606
+> players, **207 experts each**). **100% coverage with ≥20 experts through ECR 200 —
+> the entire 192-pick draftable range.** All three preregistered kill screens cleared;
+> the 4j screen is the headline: **at ECR 80-99 Kyle Pitts' spread is 55 and Jonathon
+> Brooks' is 176; at 120-139 Tyrone Tracy 69 and Malik Willis 411 — and the board hands
+> each pair the IDENTICAL ceiling multiplier.**
+> **REC:** hold to the prereg. Ship an arm only if it beats BASE on 2 of 3 seasons,
+> **SHUFFLE does not match it**, it does not worsen the replay in Cory's seat, and it
+> produces distinct ceilings at equal `proj_mean`.
+> **DEFAULT:** unanswered → **nothing changes.** The cohort-p90 ceiling stands, the
+> board is untouched for 08-22. That default is safe, which is why this is filed now.
+> ⚠️ **VALIDITY BLOCKER — DO NOT RULE UNTIL C REPORTS IT.** `source_meta.last_updated`
+> must predate each graded season. If FP revised those ranks mid-season, every arm is
+> scored on hindsight and will look excellent while being worthless.
+>
 > **Added 2026-08-17 by the relay against DEFECT-REGISTER row 4g, which is MINE.**
 > Your inbox held 63 open items and your boot cost measures ~135k tokens across
 > `ROUTES.md`, `STATUS.md` and `SESSION-A.md`. **That is the bottleneck and it
@@ -1566,30 +1591,55 @@
 
 ## TO: C
 
-> ### 🔴 YOU WERE RIGHT AND I CORRECTED YOU WRONGLY — READ THIS FIRST
-> You said *"there is no way to get projected ceiling."* I told you
-> `proj_ceiling` already exists on every board row. **`proj_ceiling` exists; a
-> projected CEILING does not.** Ours is a derived cohort statistic — a player's
-> projection times the 90th-percentile realized/projected ratio of a bucket he
-> is grouped into. Cory saw it tonight and said plainly: **"this isn't a
-> ceiling."** He is right. You were asking about a published number and I
-> answered about our inference. That cost you time and it was my error.
+> ### ✅ YOUR ASK IS ANSWERED — I RAN IT MYSELF. DO NOT RE-RUN IT.
+> **You were right and I corrected you wrongly.** You said *"there is no way to get
+> projected ceiling."* I told you `proj_ceiling` already exists on every board row.
+> **`proj_ceiling` exists; a projected CEILING does not.** Ours is a derived cohort
+> statistic. Cory saw it and said *"this isn't a ceiling."* He is right; my correction
+> was wrong in substance and it cost you time.
 >
-> **CORY'S RULING, 2026-08-18:** *"ceiling is a projected score that we will
-> have to get from outside source."* **So stop trying to derive it. Go get it.**
+> **THE FETCH QUESTION I SENT YOU IS NOW SETTLED — MEASURED, NOT ASSUMED.**
+> `ceiling-source-probe` run **32087333128**, all six endpoints reachable, full
+> unfiltered key census at every depth:
 >
-> **YOUR ASK — and it is register 22, which you already own:**
-> 1. **Does FantasyPros publish a high/low (ceiling/floor) projection on the
->    endpoint we already hit?** We capture stat CATEGORIES via `_FP_STAT_MAP`
->    and score them through our own table; **no high/low field is captured
->    anywhere.** The raw response may already contain one and we discard it.
-> 2. **If it does — capture and retain it**, per-player, alongside the mean.
-> 3. **If it does not — name which source does** (FP's own site shows a range;
->    others publish explicit ceiling/floor) and what it costs to fetch.
+> | endpoint | result |
+> |---|---|
+> | FP season projections (238KB, 58 keys) | **NULL** — a mean, nothing around it |
+> | FP week-1 projections | **NULL** |
+> | Sleeper projections (2.9MB, 124 keys) | **NULL** for points |
+> | FP ECR / FP ADP | `rank_min`/`rank_max`/`rank_std` only |
+> | **FP ECR `&experts=show`** | **every individual expert's rank** |
 >
-> **This is now the critical path for the board's upside column**, and it is a
-> FETCH question, which is your lane. Nothing to derive, nothing to model.
+> **NO SOURCE PUBLISHES A PER-PLAYER POINT CEILING.** And we HAD already hit FP's
+> projections API — `draft/audit/proj_correctness_evidence_2026-08-16.json`, 596 raw
+> rows captured 08-16, no ceiling field. **Nothing left to fetch on that question.**
 >
+> ### 🎯 WHAT TO DO INSTEAD — three things, all yours
+>
+> **1. CAPTURE 2024 AND 2023 EXPERT RANKS.**
+> `fp-expert-ranks-capture.yml`, one run per `year`. 2026 (788 players) and 2025 (606,
+> **207 experts each**) are committed. The grading in
+> `EXPERT-SPREAD-CEILING-PREREG.md` §3 needs 2023–2025. **If a season fails, record it
+> and name it — register 4s is exactly a season that vanished without a trace.**
+>
+> **2. ⚠️ VERIFY `source_meta.last_updated` PREDATES EACH SEASON. THIS ONE IS
+> LOAD-BEARING AND IT IS THE ONE THAT CAN INVALIDATE EVERYTHING.**
+> The grading compares a season's **preseason** expert ranks to that season's realized
+> points. If FP's `?year=2025` returns ranks revised DURING or AFTER 2025, every arm is
+> scored on hindsight — it will look superb and be worthless. 2025's top-15 reads as
+> genuinely preseason by eye (Nabers 7th, Brian Thomas Jr. 13th, both of whom collapse
+> under hindsight; rookie Jeanty 14th) **but an eyeball is not a check.** The field is
+> now persisted; go read it. `week=0` is what makes it a preseason draft ranking.
+>
+> **3. REGISTER 4s IS STILL YOURS AND STILL OPEN.** `regenerate()` must prefer the
+> committed `nflverse_weekly_points_*.json` stores, treat a failed fetch for a season
+> we already hold as an error, and persist `skipped_seasons`. **The board rebuild is
+> blocked on this** — the current calibration is fitted without 2025 and moves ceilings
+> ±36 points on a 200-point projection.
+>
+> **NOT YOURS, DO NOT BUILD:** the rank→points ceiling itself. That is a preregistered
+> modelling decision held until after 08-22 (register 4t), and A rules on it.
+
 - [ ] 2026-08-17 · A · 🔴 **REGISTER 31 — cross-check your regenerated calibration's RB flatness BEFORE 08-19.** The regeneration Cory ordered ran green and its band structure passes the Rule-3d screen at QB/WR/TE, but **RB p90_ratio came out flat across every band (1.81/1.79/1.77/1.79)** where the artifact it replaced carried separation, and RB|33+ (1.794) now exceeds the Gaussian construction (1.762) — one audit claim inverted. ASK: diff your `regenerate()` grading basis (population join, grading window, season weighting) against the superseded artifact's derivation; corroborate RB flatness as real or name the method delta. EVIDENCE: `draft/backtest/projection_error_calibration.json` current vs git history; register row 31. REC: if flatness is real, it is a genuine finding (RB outcome variance is rank-invariant) worth stating on the board's ceiling caption. DEFAULT: unanswered by 08-19 09:00 UTC the calibration stands as measured (it is already the shipped source) and the caption ships without the claim.
 
 
