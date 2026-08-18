@@ -83,12 +83,20 @@ def _probe_one(name, url, timeout=20):
         resp = requests.get(url, timeout=timeout, headers={
             "User-Agent": "Mozilla/5.0 (compatible; maga-league-source-census/1.0)"})
         body = resp.content or b""
+        reachable = resp.status_code < 400
+        # ⚠️ `plausible_content` REQUIRES `reachable` — a 403/404 block page
+        # can easily clear the size floor on its own (a styled Cloudflare
+        # or vendor error page ran 5-132KB in the FIRST real run of this
+        # census, three of ten candidates), which made an unreachable source
+        # read as usable. Caught by reading the actual output rather than
+        # trusting the flag, same "no silent nulls" discipline this file's
+        # own docstring cites.
         result.update({
             "status_code": resp.status_code,
             "content_type": resp.headers.get("content-type"),
             "size_bytes": len(body),
-            "reachable": resp.status_code < 400,
-            "plausible_content": len(body) >= MIN_PLAUSIBLE_BYTES,
+            "reachable": reachable,
+            "plausible_content": reachable and len(body) >= MIN_PLAUSIBLE_BYTES,
         })
     except Exception as exc:                                    # noqa: BLE001
         result.update({"status_code": None, "content_type": None,
