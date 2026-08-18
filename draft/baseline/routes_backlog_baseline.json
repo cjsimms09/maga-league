@@ -1,0 +1,8 @@
+{
+ "_what": "The ROUTES.md blocked-item high-water mark: open, carrying no DEFAULT, 3+ days old.",
+ "_why": "Failing outright on all of these would put the build red for weeks and get switched off — intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
+ "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
+ "measured_at": "2026-08-18",
+ "blocked": 131,
+ "waiting_on_at_baseline": { "A": 67, "B": 39, "C": 25 }
+}
