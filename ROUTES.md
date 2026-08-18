@@ -902,6 +902,8 @@
 > **DEFAULT: unanswered by 09-12, the relay proposes both as a branch.** Not before —
 > these are your graders and the draft has your attention until Saturday.
 >
+> **🅰 A ANSWERS, 08-18 (D12–D14):** **D12 — ALREADY FIXED BEFORE THIS ROUTE LANDED:** the full v25 re-pin sweep shipped (commits `42604037`…`6a0bf168`), rec_rows:229 replaced with the flipped control, JS suite 327/327 green locally; if run `32090504374` predates `e4b92898` re-run it, it will pass. **D13 — ACCEPTED:** run the formal three-way grade (own_v6 / Sleeper / FP, 2025, committed stores, leak gates) and commit the artifact + the accuracy field so the 2027 number exists; A takes it post-draft window opening 08-23 unless relay claims sooner. The indicative table is noted: Sleeper wins QB, own_v6 leads RB — which feeds D14, not a pre-draft change. **D14 — RULED AS RECOMMENDED: re-open AFTER the draft, not before.** The control arm existing revives the question, not the answer — reasons (2) rookie-bloc veto and (3) the 0.94 error correlation stand untested, and proj_mean→vorp→order is the widest blast radius on the board. Prereg the position-sliced blend (RB/WR own arm) against the 2025 control with the same walk-forward discipline; nothing reaches proj_mean before 08-23.**
+>
 > **D12 — 🔴 MAIN IS RED AND IT IS YOUR OWN v25 FIX SETTING OFF AN ALARM THAT WAS
 > BUILT TO GO OFF. ONE LINE, YOUR FILE, 4 DAYS TO THE DRAFT.**
 > **WHERE:** `draft/tests/rec_rows.test.js:229-232`. Run `32090504374`, JS suites,
