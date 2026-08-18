@@ -162,12 +162,31 @@ function main(argv) {
      * only run. `DRAFT-WEEK-BRIEF.md` carried two stale ceiling claims until
      * 2026-08-18. This replays the committed pre-fix file and asserts they are
      * found — a real defect, in a real file, that really cost something. */
+    /* ⚠️ PINNED TO A FIXED COMMIT, AND THE FIRST VERSION WAS NOT — WHICH IS THE
+     * BUG THIS COMMENT EXISTS TO STOP SOMEONE REPEATING.
+     *
+     * It read `git show HEAD:DRAFT-WEEK-BRIEF.md`. That passed the moment I
+     * wrote it, because HEAD still carried the stale file — and FAILED FOREVER
+     * AFTER, because committing the fix moved HEAD to the corrected version and
+     * the control then found nothing to find. A known-positive anchored to a
+     * MOVING reference stops being a known positive the instant you fix the
+     * thing it points at.
+     *
+     * CI caught it on the very next run; locally it had passed minutes earlier,
+     * because I ran it before committing. That gap is the whole argument for
+     * running CI on lane branches.
+     *
+     * 5056efbc is the last commit where DRAFT-WEEK-BRIEF.md carried BOTH stale
+     * ceiling claims UNSTRUCK. It is history and cannot change. */
+    const PRE_FIX_BRIEF = '5056efbc';
     let before;
     try {
-      before = execSync('git show HEAD:DRAFT-WEEK-BRIEF.md',
+      before = execSync('git show ' + PRE_FIX_BRIEF + ':DRAFT-WEEK-BRIEF.md',
         { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
     } catch (e) {
-      console.log('CONTROL COULD NOT RUN — HEAD:DRAFT-WEEK-BRIEF.md unreadable.');
+      console.log('CONTROL COULD NOT RUN — ' + PRE_FIX_BRIEF
+        + ':DRAFT-WEEK-BRIEF.md unreadable. A SHALLOW CLONE will do this: the '
+        + 'control needs history, so CI must checkout with fetch-depth 0 (it does).');
       return 1;
     }
     const stale = claimsIn(before).filter((c) => {
@@ -177,7 +196,7 @@ function main(argv) {
     const now = sweep(['DRAFT-WEEK-BRIEF.md'], weights).flagged;
     const ok = stale.length >= 1 && now.length === 0;
     console.log('KNOWN-POSITIVE CONTROL (register 5h, instances 7-8)');
-    console.log(`  committed DRAFT-WEEK-BRIEF.md: ${stale.length} stale claim(s) `
+    console.log(`  ${PRE_FIX_BRIEF}:DRAFT-WEEK-BRIEF.md: ${stale.length} stale claim(s) `
       + `-> ${stale.length ? 'FOUND' : 'MISSED'}`);
     console.log(`  working tree                 : ${now.length} flagged`);
     console.log('  ' + (ok
