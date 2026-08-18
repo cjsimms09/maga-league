@@ -218,3 +218,28 @@ The ships-if bar (A11) now reads on BOTH: a challenger must not win the
 skill grade by sacrificing the total-points grade or vice versa — a real
 improvement shows up in each, and a split verdict is reported as a split,
 not averaged away.
+
+---
+
+# AMENDMENT 3 — A, 2026-08-18, COMMITTED BEFORE THE PRECISION RE-RUN
+
+Cory asked what else the resource review taught about grading. Two things,
+both adopted here:
+
+1. **TOP-TIER PRECISION (P@12 / P@24 per position)** — position_predictor's
+   headline: a model can lose the full board and win the draftable zone, and
+   the draftable zone is the only zone Cory picks in. Already the V7
+   candidate harness's second metric family; the residual lab now reports it
+   too, computed on the cross-validated held-out predictions over the full
+   position pool (champion = Sleeper's ranking of the same players).
+   **One-fold P@N is NOISY and says so**: the candidate prereg's own 2024
+   fold reversed a P@12 verdict, so a precision flip counts toward ships-if
+   only when it replicates across folds.
+2. **ABLATION DISCIPLINE** — arms enter one at a time (already run one's
+   shape), and when the arm count grows, the best-k composite is checked
+   against the sum of its parts before anything composes.
+
+The full grading stack for every residual fold is now: total-points MAE +
+per-game-when-active MAE (Amendment 2) + within-position Spearman + P@12/P@24
+— with the ships-if bar reading across all of it: improve without degrading,
+split verdicts reported as splits.
