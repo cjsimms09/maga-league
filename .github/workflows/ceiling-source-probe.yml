@@ -51,7 +51,13 @@ jobs:
       # the live probe reports is worthless and the job should stop here rather
       # than commit a confident null.
       - name: Prove the probe can find a ceiling before trusting it not to
-        run: python3 -m pytest draft/tests/test_discovery_ceiling_sources.py -q
+        # NOT `continue-on-error`. If the census cannot find a PLANTED ceiling, every
+        # null it goes on to report is worthless, and the job must stop rather than
+        # commit a confident one. Run 1 (32087272173) failed here on a missing pytest
+        # and correctly refused to probe or commit — the gate working, not a bug.
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check pytest
+          python3 -m pytest draft/tests/test_discovery_ceiling_sources.py -q
 
       - name: Probe every candidate source
         continue-on-error: true
