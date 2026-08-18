@@ -1,0 +1,238 @@
+{
+ "arms": {
+  "arm_fp": {
+   "n_players": 441,
+   "lambda": {
+    "QB": {
+     "mean": 0.0626,
+     "ci95": [
+      0.0,
+      0.493
+     ],
+     "n_splits": 200
+    },
+    "RB": {
+     "mean": 0.1192,
+     "ci95": [
+      0.0,
+      0.4961
+     ],
+     "n_splits": 200
+    },
+    "WR": {
+     "mean": 0.3082,
+     "ci95": [
+      0.077,
+      0.5386
+     ],
+     "n_splits": 200
+    },
+    "TE": {
+     "mean": 0.0013,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "n_splits": 200
+    }
+   },
+   "delta_mae_full": {
+    "QB": {
+     "mean": 0.0339,
+     "ci95": [
+      0.0,
+      0.3315
+     ],
+     "n_splits": 200
+    },
+    "RB": {
+     "mean": 0.0179,
+     "ci95": [
+      0.0,
+      0.0986
+     ],
+     "n_splits": 200
+    },
+    "WR": {
+     "mean": -0.0551,
+     "ci95": [
+      -0.1037,
+      0.0411
+     ],
+     "n_splits": 200
+    },
+    "TE": {
+     "mean": 0.0006,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "n_splits": 200
+    }
+   },
+   "delta_mae_startable": {
+    "QB": {
+     "mean": 0.0168,
+     "ci95": [
+      0.0,
+      0.1741
+     ],
+     "n_splits": 200
+    },
+    "RB": {
+     "mean": 0.0201,
+     "ci95": [
+      -0.006,
+      0.1425
+     ],
+     "n_splits": 200
+    },
+    "WR": {
+     "mean": -0.099,
+     "ci95": [
+      -0.2256,
+      0.1784
+     ],
+     "n_splits": 200
+    },
+    "TE": {
+     "mean": 0.0016,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "n_splits": 200
+    }
+   }
+  },
+  "arm_own": {
+   "n_players": 355,
+   "lambda": {
+    "QB": {
+     "mean": 0.2177,
+     "ci95": [
+      0.0,
+      0.6078
+     ],
+     "n_splits": 200
+    },
+    "RB": {
+     "mean": 0.3115,
+     "ci95": [
+      0.0,
+      0.7994
+     ],
+     "n_splits": 200
+    },
+    "WR": {
+     "mean": 0.5612,
+     "ci95": [
+      0.2897,
+      0.9026
+     ],
+     "n_splits": 200
+    },
+    "TE": {
+     "mean": 0.2278,
+     "ci95": [
+      0.0,
+      0.6111
+     ],
+     "n_splits": 200
+    }
+   },
+   "delta_mae_full": {
+    "QB": {
+     "mean": 0.2341,
+     "ci95": [
+      -0.0653,
+      1.4522
+     ],
+     "n_splits": 200
+    },
+    "RB": {
+     "mean": 0.0162,
+     "ci95": [
+      -0.0971,
+      0.3381
+     ],
+     "n_splits": 200
+    },
+    "WR": {
+     "mean": -0.1794,
+     "ci95": [
+      -0.2878,
+      0.0745
+     ],
+     "n_splits": 200
+    },
+    "TE": {
+     "mean": 0.0099,
+     "ci95": [
+      -0.0424,
+      0.2061
+     ],
+     "n_splits": 200
+    }
+   },
+   "delta_mae_startable": {
+    "QB": {
+     "mean": 0.2405,
+     "ci95": [
+      -0.1729,
+      1.6895
+     ],
+     "n_splits": 200
+    },
+    "RB": {
+     "mean": 0.1084,
+     "ci95": [
+      -0.0442,
+      0.6107
+     ],
+     "n_splits": 200
+    },
+    "WR": {
+     "mean": 0.0117,
+     "ci95": [
+      -0.265,
+      0.4872
+     ],
+     "n_splits": 200
+    },
+    "TE": {
+     "mean": 0.0979,
+     "ci95": [
+      -0.0045,
+      0.4676
+     ],
+     "n_splits": 200
+    }
+   }
+  }
+ },
+ "best_of_k": {
+  "k": 3,
+  "n_rows": 346,
+  "winner": "arm_own",
+  "runner_up": "arm_fp",
+  "mae": {
+   "arm_fp": 2.2184,
+   "arm_own": 2.1741,
+   "champion": 2.2245
+  },
+  "field_margin": 0.0316,
+  "null_field_margin_mean": 0.0191,
+  "null_field_margin_p95": 0.0389,
+  "field_p_value": 0.1304,
+  "survives": false,
+  "field_margin_net_of_null": 0.0125,
+  "runner_up_margin": 0.0443,
+  "null_runner_up_margin_mean": 0.0188,
+  "runner_up_p_value": 0.074,
+  "rows_are": "346 players priced by all arms, cross-validated errors"
+ },
+ "_protocol": "AMENDMENT 1, RESIDUAL-ARM-PROPOSAL.md \u2014 committed before this ran",
+ "_ships": "NOTHING from run one, by prereg. Cory's pre-authorization (A11) applies to the full graded bar: lambda CI>0 at >=2 positions AND startable-pool gain AND outside the best-of-K null band, on the graded folds.",
+ "_grade": "PER-GAME-WHEN-ACTIVE (Amendment 2: the no-injury skill lens, >=4 games floor)"
+}

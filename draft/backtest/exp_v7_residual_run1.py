@@ -58,7 +58,22 @@ STARTABLE = {"QB": 24, "TE": 24, "RB": 48, "WR": 48}
 SPLITS = 200
 
 
-def load():
+GAMES_FLOOR = 4          # Amendment 2: a one-game cameo rate is noise
+ASSUMED_GAMES = 17.0     # projections are full-season; both sides divide alike
+WEEKLY = HERE / "nflverse_weekly_points_2025.json"
+
+
+def games_active():
+    """weeks with a row = 'was on a field' (the store's own definition)."""
+    d = json.loads(WEEKLY.read_text())
+    g = {}
+    for wk in d["weeks"]:
+        for pid in (wk.get("points") or {}):
+            g[pid] = g.get(pid, 0) + 1
+    return g
+
+
+def load(per_game=False):
     d = json.loads(ROWS.read_text())
     board = json.loads(BOARD.read_text())
     team = {str(p.get("player_id")): p.get("team") for p in board.get("players", [])}
@@ -69,6 +84,11 @@ def load():
     }
     actual = {k: float(v) for k, v in d["actual"].items()}
     pos = d["positions"]
+    if per_game:
+        g = games_active()
+        actual = {p: v / g[p] for p, v in actual.items() if g.get(p, 0) >= GAMES_FLOOR}
+        sleeper = {p: v / ASSUMED_GAMES for p, v in sleeper.items()}
+        arms = {a: {p: v / ASSUMED_GAMES for p, v in m.items()} for a, m in arms.items()}
     return sleeper, arms, actual, pos, team
 
 
@@ -103,8 +123,8 @@ def fit_lambda(rows):
     return max(0.0, sxy / sxx) if sxx > 0 else 0.0
 
 
-def run():
-    sleeper, arms, actual, pos, team = load()
+def run(per_game=False):
+    sleeper, arms, actual, pos, team = load(per_game=per_game)
     rng = random.Random(SEED)
     out = {"arms": {}}
 
@@ -193,8 +213,15 @@ def run():
 
 
 def main():
-    doc = run()
-    (HERE / "exp_v7_residual_run1.json").write_text(json.dumps(doc, indent=1))
+    import sys
+    per_game = "--per-game" in sys.argv
+    doc = run(per_game=per_game)
+    doc["_grade"] = ("PER-GAME-WHEN-ACTIVE (Amendment 2: the no-injury skill lens, "
+                     f">={GAMES_FLOOR} games floor)" if per_game
+                     else "TOTAL POINTS (availability skill included)")
+    name = "exp_v7_residual_run1_pergame.json" if per_game else "exp_v7_residual_run1.json"
+    (HERE / name).write_text(json.dumps(doc, indent=1))
+    print(doc["_grade"])
     for a, r in doc["arms"].items():
         print(f"== {a} (n={r['n_players']})")
         for q in POSITIONS:
@@ -206,7 +233,7 @@ def main():
     if "best_of_k" in doc:
         b = doc["best_of_k"]
         print("best_of_k winner:", b["winner"], "field_p:", b["field_p_value"], "survives:", b["survives"])
-    print("wrote exp_v7_residual_run1.json")
+    print("wrote " + name)
 
 
 if __name__ == "__main__":

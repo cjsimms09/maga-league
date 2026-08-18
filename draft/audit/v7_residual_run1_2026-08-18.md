@@ -59,3 +59,29 @@ selection null with K=3 on one season. The standing null earning its keep.
   predictions P64/P81 are already on file); (c) the weekly lab inherits
   this harness at week 1 with live Sleeper capture.
 - **The draft board is untouched** — pre-draft freeze holds.
+
+---
+
+## ADDENDUM — THE PER-GAME SKILL GRADE (Amendment 2, Cory's resource point)
+
+Cory: *"assuming no injuries as that is the skill part."* Re-graded per-game-
+when-active (games = weeks with a row, ≥4 floor; both sides ÷17 vs ÷games):
+
+| arm | pos | λ per-game [CI] | ΔMAE/game [CI] | vs λ total-points |
+|---|---|---|---|---|
+| fp | WR | 0.31 [0.08, 0.54] | −0.055 [−0.104, +0.041] | **1.00 → 0.31** |
+| own | WR | 0.56 [0.29, 0.90] | −0.179 [−0.288, +0.075] | 0.81 → 0.56 |
+| fp | QB/RB/TE | ≈0 / 0.12 / 0.00 | ≈0 | — |
+| own | QB/RB/TE | 0.22 / 0.31 / 0.23 | ≈0 or worse | — |
+
+BEST-OF-K: winner arm_own, p = 0.13 — still inside the null band.
+
+**THE DECOMPOSITION IS THE FINDING.** FP's WR λ collapses from 1.00 (total
+points) to 0.31 (per-game): **most of FantasyPros' WR edge over Sleeper is
+AVAILABILITY knowledge — who misses games — not per-game production.** Our
+own model's WR correction survives the skill lens better (0.56, CI well off
+zero): own_v6's WR information is more production-shaped. Both remain real;
+they are different skills, and Amendment 2's dual grade now keeps them
+separate on every future fold, exactly as the resource lesson prescribes:
+production skill and availability skill graded apart, in-season injury luck
+excluded from both.
