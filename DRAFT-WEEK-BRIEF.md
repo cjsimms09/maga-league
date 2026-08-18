@@ -89,7 +89,7 @@ re-test extends the grid past 0.75 (best_w sat on the edge).
 **AND WITH THE BLEND NULL, THE KEEPER SLATE IS FINAL (chain steps 1–2 closed):
 keep all three — Chase R1 (+43), Henry R2 (+10), Walker R3 (+32), surplus
 +86.3** on the survival-fixed, rulings-live board; every keep-fewer option is
-strictly worse. Cory confirms at the 08-20 lock; the board re-derives then.
+strictly worse. Cory confirms at the lock — **08-21 6:00 PM CDT, his 08-18 ruling** — and the board re-derives then.
 
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
 
@@ -146,7 +146,7 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 PUBLISHED (05:33Z), deploy-verified, and frozen as **v27** — the first build
 where every input is playoff-free. All suites green on it: Python 4,174+, JS
 326/326 (the first fully green night). Keepers carry vorp 94.0/59.1/46.2 on
-the badge screens for the 08-20 lock. The v7 candidate hunt has now killed
+the badge screens for the lock (**08-21 6:00 PM CDT — Cory ruled 08-18**; earlier copies of this brief said 08-20). The v7 candidate hunt has now killed
 FIVE ideas the honest way — C1 age curves, C2 ridge, C3 fitted recency, C5
 WR-only efficiency, C7 availability gate — each graded leak-free on TWO
 walk-forward folds (`v7_candidate_grade.json`), and the night's best

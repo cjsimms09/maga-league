@@ -87,10 +87,16 @@ ck('composite.js filters the incumbent list on a finite vorp rather than '
 const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
 {
   const before = badgesAt(33, keepers.slice(0, 2).concat([stubAsZero(1)]));
-  ck('KNOWN-POSITIVE: scoring a valueless row as zero really does fire KEEPER '
-    + 'TARGET badges at pick 33', before.length > 0, before);
-  ck('and the claim names the valueless row as the man being beaten',
-    before.length > 0 && before.every(b => /Off-board Guy/.test(String(b.beats))), before);
+  /* RE-READ 2026-08-18, per this block's own instruction ("if this stops
+   * producing badges the scenario has gone stale and must be re-read"). It
+   * stopped the night composite.js floored the bar at 0: a zero-vorp stub's
+   * raw kov is negative, the OLD code let that negative set the bar and
+   * subsidize every candidate past the badge line, and the floor removes the
+   * subsidy — so the reconstructed old input now buys NOTHING. The class is
+   * closed one level deeper than E18's filter; both are pinned. */
+  ck('the reconstructed old input (valueless row scored as zero) now fires ZERO '
+    + 'badges — the floored bar closed the class beneath E18\'s filter',
+  before.length === 0, before);
 
   const after = badgesAt(33, keepers.slice(0, 2).concat([stub(1)]));
   ck('with the row excluded, no badge claims to beat it', after.length === 0, after);
@@ -101,9 +107,19 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
  * Mason really is the weakest of three candidates. Only the unknown row goes. */
 {
   const mason = board.find(p => p.name === 'Jordan Mason');
-  const out = badgesAt(33, keepers.slice(0, 2).concat([Object.assign({}, mason)]));
-  ck('a genuinely weak but VALUED third candidate still sets the bar and still '
-    + 'earns a truthful badge', out.length > 0 && out.every(b => b.beats === 'Jordan Mason'), out);
+  const cm = mk(33, keepers.slice(0, 2).concat([Object.assign({}, mason)]));
+  const probe = cm.board.find(p => p.vorp > 0);
+  const km = C.keeperOptionValue(probe, cm);
+  /* RE-AIMED 2026-08-18: with the bar floored, today's board prices no
+   * candidate above the badge line at pick 33 (honest max ~2 vs the badge's
+   * 8), so "still earns a badge" stopped being reachable here — but the
+   * NARROWNESS claim survives and is what this pins: a genuinely weak but
+   * VALUED incumbent still holds a slot and is still the one NAMED as
+   * displaced. Only the unknowable row is excluded. */
+  ck('a genuinely weak but VALUED third candidate still holds the slot and is '
+    + 'still the one NAMED as displaced — the E18 exclusion stays narrow',
+  km.slots_free === 0 && km.displaced === 'Jordan Mason',
+  { slots_free: km.slots_free, displaced: km.displaced });
 }
 
 // ─────────── 5. INERT FOR CORY'S ACTUAL SLATE — measured, not hoped
@@ -126,7 +142,13 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
  * keepers are excluded as unvaluable and the screen offers keeper slots Cory
  * does not have. Both fixes are load-bearing. */
 {
-  const unseeded = art.kept_players.map(k => Object.assign({}, k, { is_keeper: true }));
+  /* kept_players CARRY vorp on the live board now (E17 shipped at the
+   * source, 05:33Z rebuild) — so simulating "E18 without E17" requires
+   * stripping it explicitly, which is exactly what makes this a fixture of
+   * the counterfactual rather than a description of the artifact. */
+  const unseeded = art.kept_players.map(k => {
+    const o = Object.assign({}, k, { is_keeper: true }); delete o.vorp; return o;
+  });
   const c = mk(33, unseeded);
   const cand = c.board.find(p => p.vorp > 0);
   const k = C.keeperOptionValue(cand, c);

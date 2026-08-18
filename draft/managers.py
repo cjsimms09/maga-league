@@ -25,20 +25,22 @@ That bias is handled three ways, never hidden:
   3. The ADP-free metrics (positional timing, homer, rookie affinity) carry the
      profile when sample size is thin, because they need no market baseline.
 
-⚠ RULED BROKEN, ONE OF THE THREE (A, 2026-08-18, register E13 — E's audit
-`rookie_affinity_cannot_vary_2026-08-17.md`): `rookie_affinity` is pinned at
-0.0 for all ten managers BY CONSTRUCTION — `years_exp` is read from TODAY'S
-Sleeper payload with no contemporaneous fallback, so a 2023 rookie carries
-years_exp 3 and is never counted, and the "chases rookies" clause
-(`rate > league_rate * 1.5 and rate > 0.08`) is unsatisfiable with both
-terms 0.0. Until the fix lands (derive rookie status as draft season minus
-first NFL season — Sleeper metadata carries NO years_exp field, so a meta
-fallback would change nothing), the stool has two legs: positional timing
-and homer. The fix is POST-08-22 by E's own filing (feeds opponent
-summaries, not the board's ranking). Note the tension E named: the drafter
-study's rookie prior cleared its prereg (+25.1) via a different path
-(drafter_skill.py) — that study is the trusted one; this module's zero is
-arithmetic, not measurement.
+⚠ RULED BROKEN 2026-08-18, THEN FIXED THE SAME DAY (register E13, FIXED —
+verify; E's audit `rookie_affinity_cannot_vary_2026-08-17.md`): the old
+construction pinned `rookie_affinity` at 0.0 for all ten managers — it read
+`years_exp` from TODAY'S Sleeper payload, so a 2023 rookie carried
+years_exp 3 and the "chases rookies" clause was unsatisfiable with both
+terms 0.0. The fix E landed is the exact derivation the ruling named:
+`years_exp == season_now - draft_season` answers "was he a rookie THEN",
+with `rookie_rate_coverage` published beside it so a 0.0 from "nobody
+drafted a rookie" and a 0.0 from "we could not tell" stay distinguishable.
+WHAT REMAINS (the row's "verify"): the committed
+`draft/config/manager_profiles.json` was built by the OLD code (basis and
+coverage absent, all rates 0.0) — regenerate via `analyse-drafts.yml` and
+check the rates actually vary before trusting the "chases rookies" line.
+Note the tension E named: the drafter study's rookie prior cleared its
+prereg (+25.1) via a different path (drafter_skill.py) — that study is the
+trusted one either way.
 """
 from __future__ import annotations
 import json
