@@ -7,6 +7,30 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 📐 **"THE OPTIMUM SITS AT THE EDGE OF THE GRID" HAS NOW HAPPENED THREE TIMES IN THREE SEPARATE STUDIES. It is named once, as a worked example, and never generalised.**
+
+  Found by reading **all 19 pairs** `stale_blockers.py` produced rather than the top four. Sixteen of nineteen were `proj_mean_blend` — already worked tonight. **These are what was underneath.**
+
+  | study | what it says about its own grid |
+  |---|---|
+  | Vegas oracle (your item to D, 08-17) | *"THE OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE"* |
+  | `source_blend_2025.json` (08-17) | **`edge_of_grid: true`** — best `w` is the largest tested, mean spearman still climbing |
+  | `exp_ceiling_replicate.json` | **states it outright:** *"THE GRID DOES NOT BRACKET THE OPTIMUM: w=0.65 is the smallest weight tested, so the peak lies at or beyond the edge and this run cannot locate it."* |
+
+  **Three studies, one methodological hole, named once as a one-off.** I checked whether the blend's version rescues its negative and it does not (the decision metric plateaued two grid points before the edge — separate item above). **The ceiling one is different, because a second study DOES bracket it** — FRONTIER exp 21's inverted-U tested **both sides**: λ=0.25 +$44, **λ=0.5 +$56 CI[33,78]**, λ=2 −$18, λ=3 −$27. **That is the pairing that makes the shipped weight defensible, and it is not written down as such anywhere** — the replication says it cannot locate the peak, exp 21 locates it, and no artifact connects them.
+
+  **⚠️ AND A QUESTION I AM ASKING RATHER THAN ASSERTING, BECAUSE I COULD NOT CONFIRM IT.** Three numbers are in play for what may be one knob:
+
+  - `MEASURED_WEIGHTS.ceiling` ships at **0.45** (measured on the live engine tonight)
+  - exp 21's inverted-U peaks at **λ = 0.5**
+  - `HETEROGENEOUS-VALIDATION.md` D9 says **"HOLD at 0.65"**, calling the install *"under-tuned, not wrong"*
+
+  **I could not establish that exp 21's `λ` and `MEASURED_WEIGHTS.ceiling` are the same parameter**, and if they are not, this table is meaningless — which is exactly why it is a question. If they ARE, then the shipped 0.45 sits below both the measured peak and D9's standing recommendation, and CLAUDE.md's claim that *"0.45 sits at the measured peak"* is off by one grid point.
+
+  **ASK.** Confirm or deny that λ and the ceiling weight are the same knob. **If they are the same, either 0.45 is wrong or the CLAUDE.md sentence is** — and Cory ruled this weight in personally on 08-17, so which one it is matters to him. **If they are different, say so in the brief**, because two of tonight's readers (me, and whoever reads §7b next) will make the same mistake.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I file the three-number discrepancy as an OPEN-QUESTIONS row rather than resolving it myself. **I will not touch the weight** — Cory ruled it, it is four days from the draft, and P18 already measured that it cannot affect picks 33-88 at all.
+
 - [ ] 2026-08-18 · relay · 🔴 **MAIN'S PYTHON GATE IS RED ON 5 TESTS. ALL FIVE DIAGNOSED, ONE IS A ONE-WORD FIX I VERIFIED, AND `test_variance_inputs` IS ALREADY GREEN — your regeneration landed, so that route of mine is CLOSED.**
 
   Full suite on current `main`: **4,204 passed, 5 failed.**
