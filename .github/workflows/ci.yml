@@ -1,8 +1,39 @@
 name: CI — tests and robot mock
 on:
   push:
-    branches: [main]
+    # ⚠️ LANE BRANCHES WERE ADDED 2026-08-18, ON A REAL INCIDENT, AND THE
+    # INCIDENT IS THE ARGUMENT.
+    #
+    # This read `branches: [main]` only. Every lane works on a branch, so NO
+    # LANE'S WORK SAW CI UNTIL IT LANDED ON MAIN — which is exactly when it is
+    # most expensive to find out. The relay ran 25 commits on
+    # claude/fantasy-football-research-926y6z, all green locally, dispatched CI
+    # by hand out of curiosity, and it was RED: a union merge had left SIX
+    # near-duplicate items in ROUTES.md, the file three lanes read from, and
+    # `routes_integrity`'s ratchet caught it. Nothing else would have, until A
+    # merged it into main during draft week.
+    #
+    # "Green locally" is not the same claim as "green in CI": the local sweep
+    # that missed it used a 60s per-file timeout that manufactured two FALSE
+    # failures at the same time, so the signal was buried in noise of my own
+    # making.
+    #
+    # COST, MEASURED RATHER THAN FEARED: this repo is PUBLIC, so Actions minutes
+    # are free — the only real cost is runner contention across 14 live lane
+    # branches, which the concurrency block below bounds by cancelling a
+    # branch's own superseded runs. main is never cancelled.
+    #
+    # To revert: delete the `claude/**` line. Nothing else depends on it.
+    branches: [main, 'claude/**']
   workflow_dispatch: {}
+
+# One in-flight run per branch. A lane that pushes five times in a minute gets
+# ONE run of the newest commit instead of five; main is excluded so a merge is
+# never cancelled by a later push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   tests:
     runs-on: ubuntu-latest

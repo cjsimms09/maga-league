@@ -173,6 +173,68 @@ trend is readable, and **opens an issue only when something is red.**
 
 ---
 
+## 4b · WHERE THE SAFETY ACTUALLY CAME FROM TODAY — NOT THE LOOP
+
+**Added 2026-08-18 evening, after the loop had been running all day.** The
+sections above describe mechanisms I built. This one records what actually
+caught things, because they are not the same, and the difference matters more
+than anything else in this document.
+
+**SIX OF MY OWN PROBES RETURNED A CONFIDENT WRONG ANSWER TODAY:**
+
+| probe | what it said | why it was wrong |
+|---|---|---|
+| ledger successor rule | "every grade exempt, all clean" | `parseDate(cell)` missing its `year` argument |
+| unpassed-parameter sweep | "the known defect is not there" | name collision on `build_profiles` across two modules |
+| onesie cap probe | "`capped` never fires" | read `ctx.starters`; the code reads `ctx.league.starters` |
+| local JS suite sweep | "3 failures" | a 60s per-file timeout — 2 were slow, not broken |
+| weight-drift control | "PASS" (then failed forever) | anchored to `HEAD`, which moved when I committed the fix |
+| merge resolver | silent success | preferred *theirs* on any unticked item I had edited |
+| first merge length-diff | "44 items lost" | did not ask whether main had deliberately removed them |
+| control-coverage sweep | "`merge_completeness.py` has no fail arm" | it has four; my detector grepped for `FAIL ARM\|planted\|CONTROL` and that file names its arms `test_dropped_modification_is_caught` |
+
+**Every one produced a clean, plausible, confidently-worded output.** Not one
+crashed. That is the same shape as the defects this project keeps finding in the
+board — `rookie_affinity` 0 for 10 of 10, `adp_sd` 617/617 coverage on a default,
+dispersion as `proj_mean × a constant`. **Full coverage, no information.**
+
+**WHAT CAUGHT THEM:**
+
+  · **the known-positive control** — 3 of 7, and in two cases the control failed
+    on its FIRST run, which is the only reason the finding exists at all
+  · **CI, once it could see the branch** — 3 of 7, and it found them within
+    minutes of being pointed at work that had looked green for 25 commits
+  · **luck** — 1 of 7. I went to edit an item and my anchor string was missing.
+    Nothing would have told me that 9,400 characters of routing had been deleted.
+
+**⚠️ THE EIGHTH ARRIVED WITHIN MINUTES OF FILING P90 ABOUT THE OTHER SEVEN**, which is the
+most honest thing in this table: I swept for tools lacking a known-positive control, and the
+sweep itself lacked one. It matched on vocabulary rather than on behaviour, so a file whose
+fail arms are named `test_dropped_modification_is_caught` read as having none.
+
+**AND CHASING THAT FALSE GAP FOUND A REAL ONE.** `merge_completeness.py` is a genuine gate with
+four real fail arms, wired into CI, built for *"a half-landed merge must fail loudly"* — the
+exact failure I hit today. **It would still not have caught mine, and its own docstring says
+why:** for a file MODIFIED BY BOTH SIDES it cannot assert equality, so it only flags when
+`merged == base` exactly. A union-resolved mailbox is modified by both sides by definition and
+lands on neither side's content. **The three files this project routes all its work through —
+`ROUTES.md`, `DEFECT-REGISTER.md`, `PREDICTION-LEDGER.md` — are precisely the ones its merge
+guard is blind to.** That is not a defect in the guard; it is the shape of the problem, and it
+is why the length-diff-against-both-parents procedure in P89 is the thing that has to be a
+habit rather than a tool.
+
+**WHAT CAUGHT NONE OF THEM: the register, the ledger, the breadth check, the
+cadence rule — every mechanism in sections 1-4 above.** Those enforce that work
+is TRACKED, DATED and CONSEQUENTIAL. They say nothing about whether it is RIGHT.
+
+**So the honest reading of this whole document: the loop makes sure nothing is
+lost. It does not make sure anything is true.** Truth came from controls that can
+fail, and from a build that runs on code nobody has vouched for. **The single
+highest-value change today was not any of the loop machinery — it was two lines
+in `ci.yml` letting CI see lane branches at all.**
+
+---
+
 ## 5 · RULE 3g
 
 **Does this imply another failure we have not looked for?** Yes, and it is
