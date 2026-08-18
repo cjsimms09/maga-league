@@ -108,17 +108,16 @@ def test_the_gaussian_inflates_deep_bands_which_is_why_this_matters():
     exactly the late-round players a 'draft for upside late' strategy would
     target.
 
-    2026-08-17, calibration regenerated on Cory's ruling ("floors and ceilings
-    need to be corrected") — pin moved to the new measured values. Old claim:
-    the Gaussian overstates the deep-band ceiling in ALL FOUR 33+ cells. The
-    regeneration inverted exactly one: RB|33+ now measures p90_ratio 1.794
-    against a Gaussian 1 + 1.036 * 0.7355 = 1.762, so at deep RB the Gaussian
-    UNDERSTATES the measured top decile by ~0.032 of the projection. The claim
-    is re-asserted on the three cells where it still holds (QB 1.223 vs 1.758,
-    TE 1.161 vs 1.536, WR 1.491 vs 1.607) and the RB|33+ inversion is pinned
-    explicitly as the recorded exception rather than dropped."""
+    Pin moved 2026-08-18, clean 4s regeneration (all three seasons fitted).
+    The 08-17 "RB|33+ exception" — the one cell where the Gaussian understated
+    the measured ceiling — was an artifact of the silently dropped 2025
+    season; with 2025 recovered (n 222), RB|33+ rejoins the original claim:
+    the Gaussian overstates the ceiling in ALL FOUR 33+ cells (RB 1.643
+    measured vs 1.723 Gaussian). The exception's rise and fall is left in the
+    history as a working example of why pins name the artifact they were
+    measured on."""
     cal = PE.load()
-    for pos, band in (("QB", "33+"), ("TE", "33+"), ("WR", "33+")):
+    for pos, band in (("QB", "33+"), ("TE", "33+"), ("WR", "33+"), ("RB", "33+")):
         c = cal["cells"][(pos, band)]
         gaussian_ratio = 1 + projections.CEILING_Z * c["sd_ratio"]
         assert c["p90_ratio"] < gaussian_ratio, (
@@ -127,20 +126,6 @@ def test_the_gaussian_inflates_deep_bands_which_is_why_this_matters():
         assert c["p50_ratio"] < 0.5, (
             f"{pos}|{band}: median realized return is no longer far below "
             "projection, which is what made the symmetric assumption wrong")
-    # THE RECORDED EXCEPTION — RB|33+, post-regeneration. The Gaussian now
-    # slightly UNDERstates the measured deep-RB ceiling (1.794 vs 1.762). The
-    # median claim still holds there (p50 0.426 < 0.5): a late RB's median
-    # season is still far below projection, but his measured top decile now
-    # exceeds what the symmetric construction would print. Pinned with margins
-    # so a further shift in either direction is loud.
-    rb = cal["cells"][("RB", "33+")]
-    rb_gaussian = 1 + projections.CEILING_Z * rb["sd_ratio"]
-    assert rb["p90_ratio"] > rb_gaussian, (
-        "RB|33+ stopped being the inversion — if the Gaussian overstates it "
-        "again, fold it back into the loop above")
-    assert abs(rb["p90_ratio"] - 1.794243) < 0.001, rb["p90_ratio"]
-    assert abs(rb_gaussian - 1.762) < 0.005, rb_gaussian
-    assert rb["p50_ratio"] < 0.5
 
 
 def test_the_measured_ceiling_does_NOT_break_collinearity_with_the_mean():
@@ -186,13 +171,11 @@ def test_the_gaussian_floor_is_wrong_in_most_measured_cells():
     calibration measures as violently asymmetric. Pinned as arithmetic so the
     claim cannot rot into a comment.
 
-    2026-08-17, calibration regenerated on Cory's ruling — pin moved to the new
-    measured value. Old pin: bad >= 15 (16 of 20 measured cells missed by
-    >0.15). The regeneration leaves 17 measured cells (the 1-3 bands are now
-    honestly unmeasurable) and 14 of them miss by >0.15 — the three that don't
-    are RB|4-8 (0.043), WR|9-16 (0.047) and TE|9-16 (0.126). The claim (the
-    Gaussian floor is wrong in most measured cells) is unchanged; the counts
-    are re-pinned exactly."""
+    Pin moved 2026-08-18, clean 4s regeneration: all 20 cells measured again
+    (the "17 measured" state was the dropped-2025 symptom) and 14 of 20 miss
+    by >0.15. The claim — the Gaussian floor is wrong in most measured cells —
+    has now survived three different artifacts; the counts are re-pinned
+    exactly."""
     cal = PE.load()
     bad = 0
     measured = 0
@@ -203,10 +186,10 @@ def test_the_gaussian_floor_is_wrong_in_most_measured_cells():
         gaussian = 1 - 0.674 * c["sd_ratio"]
         if abs(c["p10_ratio"] - gaussian) > 0.15:
             bad += 1
-    assert measured == 17, measured
+    assert measured == 20, measured
     assert bad == 14, (
-        "the gaussian floor moved — the regenerated calibration measured "
-        f"{bad} of {measured} cells missing by >0.15, not the pinned 14 of 17")
+        "the gaussian floor moved — the clean calibration measured "
+        f"{bad} of {measured} cells missing by >0.15, not the pinned 14 of 20")
 
 
 def test_the_deep_bands_were_told_they_had_a_floor_they_do_not_have():
@@ -231,10 +214,13 @@ def test_the_floor_rides_the_same_flag_as_the_ceiling():
     assert "measured-2023-25-p10" in {p["proj_floor_source"] for p in on}
 
 
-def test_the_floor_is_never_negative_but_the_clamp_is_doing_real_work():
-    """QB|33+'s measured p10 is itself below zero, so max(0, ...) is not
-    decoration — without it the board would print a negative floor."""
+def test_the_floor_is_never_negative_and_the_deep_QB_p10_is_effectively_zero():
+    """Pin moved 2026-08-18: on the clean 3-season fit QB|33+'s p10 is
+    +0.000272 — a fraction of a point on any real projection — where the
+    2-season fit measured it slightly NEGATIVE. The clamp stays: it is one
+    artifact refresh away from being load-bearing again, and a negative floor
+    must never print either way."""
     on = projections.blend(_players(), {}, {}, _cfg(use_measured_ceiling=True))
     assert all(p["proj_floor"] >= 0 for p in on)
     cal = PE.load()
-    assert cal["cells"][("QB", "33+")]["p10_ratio"] < 0
+    assert abs(cal["cells"][("QB", "33+")]["p10_ratio"]) < 0.001

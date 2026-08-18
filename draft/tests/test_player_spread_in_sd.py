@@ -64,12 +64,12 @@ def test_the_gate_ships_off():
 
 
 def _split_by_band(rows):
-    """2026-08-17, calibration regenerated on Cory's ruling: WR|1-3 is now
-    honestly `unmeasurable` (n=6 < min_n 8, all ratios null), so this synthetic
-    pool's top-3 rows fall back to position_variance BY DESIGN — None must stay
-    None, a fallback constant is how 0.25*proj_mean reached the board. The
-    band-interchangeability claims below apply to the MEASURED rows (rank 4+);
-    the 1-3 fallback is pinned separately and exactly."""
+    """Pin moved 2026-08-18, clean 4s regeneration: the "WR|1-3 unmeasurable"
+    state the 08-17 pin encoded was itself the 4s SYMPTOM — the silently
+    dropped 2025 season cost every 1-3 cell a third of its rows (n=6 < min_n
+    8). With all three seasons fitted, WR|1-3 is measured (n=9) and EVERY row
+    in this pool is on the measured path; the split is kept so each claim
+    still names which rows it is about."""
     ranked = sorted(rows, key=lambda p: -p["proj_mean"])
     return ranked[:3], ranked[3:]
 
@@ -79,14 +79,12 @@ def test_off_every_player_in_a_band_has_identical_relative_upside():
     something else started varying the sd and the comparison below is no longer
     measuring what it claims.
 
-    Pin moved 2026-08-17: old pin had ALL rows on measured-2023-25-error; the
-    regenerated calibration nulls WR|1-3, so exactly the 3 top-ranked rows now
-    carry position_variance and the per-band-constant claim is asserted on the
-    measured remainder."""
+    Pin moved 2026-08-18 (clean 4s regeneration): all three seasons fitted,
+    WR|1-3 measured again (n=9), so every row is back on the measured path —
+    the 08-17 "top-3 fall back" pin encoded the 4s symptom."""
     rows = PJ.blend(_players(), {}, {}, _cfg())
     top3, measured = _split_by_band(rows)
-    assert {p["proj_sd_source"] for p in top3} == {"position_variance"}, (
-        "the unmeasurable WR|1-3 cell must fall back honestly, not be filled in")
+    assert {p["proj_sd_source"] for p in top3} == {"measured-2023-25-error"}
     assert {p["proj_sd_source"] for p in measured} == {"measured-2023-25-error"}
     # Within one band, the ratio sd/mean must be a single constant.
     ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in measured}
@@ -96,11 +94,11 @@ def test_off_every_player_in_a_band_has_identical_relative_upside():
 
 
 def test_on_players_in_the_same_band_stop_being_interchangeable():
-    # 2026-08-17: same 3-row WR|1-3 fallback as the off-arm — the flag composes
-    # with MEASURED cells only, an unmeasurable cell has no level to spread.
+    # 2026-08-18: WR|1-3 measured again on the clean 3-season artifact, so the
+    # compose path applies to every row incl. the top 3.
     on = PJ.blend(_players(), {}, {}, _cfg(player_spread_in_sd=True))
     top3, measured = _split_by_band(on)
-    assert {p["proj_sd_source"] for p in top3} == {"position_variance"}
+    assert {p["proj_sd_source"] for p in top3} == {"measured-band-x-player-spread"}
     assert {p["proj_sd_source"] for p in measured} == {"measured-band-x-player-spread"}
     ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in measured}
     assert len(ratios) > 5, "the flag flipped but the sd is still a band constant"
@@ -205,12 +203,11 @@ def test_restoring_the_reasons_moved_no_number():
     """The information fix must be provably free of any numeric consequence —
     that is what let it ship ungated five days before the draft.
 
-    2026-08-17: re-pinned on the measured rows only — the regenerated
-    calibration's unmeasurable WR|1-3 cell leaves the top-3 rows on
-    position_variance (old pin: every row measured-2023-25-error)."""
+    2026-08-18: re-pinned to the clean 4s artifact — every row measured again
+    (the 08-17 top-3 fallback pin encoded the dropped-2025 symptom)."""
     off = PJ.blend(_players(), {}, {}, _cfg())
     top3, measured = _split_by_band(off)
-    assert {p["proj_sd_source"] for p in top3} == {"position_variance"}
+    assert {p["proj_sd_source"] for p in top3} == {"measured-2023-25-error"}
     for p in measured:
         assert p["proj_sd_source"] == "measured-2023-25-error"
         # sd is still the band constant: ratio identical across the band
