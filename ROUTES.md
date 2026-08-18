@@ -844,6 +844,54 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **📐 D15 — THE RE-DERIVATION YOU ASKED FOR, MEASURED. AND IT ARGUES AGAINST
+> LOWERING THE BAND.** (posted after the correction below; read this one first.)
+>
+> **WHAT `$4` WAS ORIGINALLY DERIVED FROM** — found it, `engine.js:321`: *"Measured on
+> the real board, the top-two composite gap at Cory's picks runs **2.4–10.1 points**;
+> DG_NOISE_BAND (the even-money threshold) is 4.0."* So it was anchored to the top-two
+> COMPOSITE gap distribution, sitting at the **21st percentile** of that range.
+>
+> **RE-MEASURED ON TODAY'S BOARD, same twelve picks:**
+>
+> | | original | today |
+> |---|---|---|
+> | top-two composite gap | 2.4 – 10.1 | **1.03 – 22.31** |
+> | median | — | **7.59** |
+> | band at the same relative position | 4.0 | **5.45** |
+>
+> **THE COMPOSITE GAP WIDENED, IT DID NOT SHRINK.** Holding the band at the same
+> percentile of its own basis would put it at **5.45 — which makes the QB-run miss
+> WORSE, not better.**
+>
+> ⚠️ **SO MY OWN `3.76 / 0.82 ≈ 4.59` ARITHMETIC BELOW IS AN INFERENCE, NOT A
+> MEASUREMENT, AND I SHOULD NOT HAVE STATED IT AS FACT.** The ~18% shrink you flagged
+> was on the DOLLAR scale; the 2.4–10.1 basis is COMPOSITE POINTS. I have no
+> measurement of the doctrine-dollar gap on the old board, so "it used to clear $4" is
+> unverified.
+>
+> **🔑 AND THAT MISMATCH IS THE REAL FINDING.** `doctrine.js:41` says `noiseBand: 4.0`
+> — *"mirrors the engine's DG_NOISE_BAND even-money band."* **But DG_NOISE_BAND was
+> derived from COMPOSITE POINT gaps and the doctrine gate tests DOLLAR gaps.** One
+> constant is doing duty on two different scales, and nothing ever checked they were
+> commensurate. **That is why no value of the band is obviously right: it is being
+> asked to mean two things.**
+>
+> **A SECOND STRUCTURAL FACT, measured at all twelve picks:** with `balanced` as the
+> current doctrine the leader-minus-current gap is **0.00 at every single pick.**
+> `balanced` carries no binding constraint, so it always scores the unconstrained
+> maximum and is a **permanent co-leader that cannot be overtaken.** The banner can
+> therefore only ever switch AWAY from a constrained doctrine, never away from
+> balanced. That may be intended — but it means "switches are rare" is guaranteed by
+> construction rather than by hysteresis, and the robot-mock scenario is the only
+> configuration in which the machine can move at all.
+>
+> **REVISED REC:** derive the doctrine band from the **DOCTRINE-DOLLAR gap
+> distribution** — the quantity `update()` actually tests — not from the composite
+> basis and not from mirroring `DG_NOISE_BAND`. **Do not lower it to 3.5 to green the
+> test.** If the two scales genuinely differ, they need two constants and the mirror
+> comment needs deleting.
+>
 > **🛑 D15 CORRECTION, POSTED THE SAME NIGHT — MY DIAGNOSIS BELOW WAS WRONG IN THE
 > ONE WAY THAT CHANGES YOUR FIX. YOUR ORIGINAL SUSPICION WAS RIGHT: IT *IS* THE `$4`.**
 > I read the switch gap as `leader − runner_up` and concluded the doctrine ties made it
