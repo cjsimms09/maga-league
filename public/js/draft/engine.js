@@ -1424,22 +1424,17 @@
     const left = Number(ctx.myPicksLeft);
     if (Number.isFinite(left) && left <= CFG.ONESIE_ENDGAME_PICKS) return none;
 
-    /* THE HARD CAP — A CEILING ON HABITUAL BEHAVIOUR, NOT A PROHIBITION.
-     *
-     * ⚠️ TEMPORARY. This is a constraint standing in for a valuation that does
-     * not work. The bench branch ranks on `proj_ceiling − proj_mean` in RAW
-     * SEASON POINTS, and a quarterback scores 350–400 a season, so his spread is
-     * the largest absolute number on the board almost by construction (measured
-     * p90: QB 66.5, RB 44.9, WR 34.7, TE 30.8, K 28.1). THAT MEASURES SCALE, NOT
-     * UPSIDE — and scale is something the model already knows and should not
-     * count twice. A second quarterback should be PRICED LOW BECAUSE HE CANNOT
-     * START, not forbidden because somebody counted.
-     * ITS REPLACEMENT IS NAMED: position-normalised ceiling. See the retirement
-     * check in draft/tests/onesie_cap.test.js and the trigger in PARKED.md.
-     *
-     * `spare` counts bodies beyond the STRICT slots — FLEX excluded, because the
-     * flex is contested by RB/WR/TE and must not be pre-reserved for whichever
-     * position happens to be scoring well. */
+    /* HISTORY, KEPT SHORT BECAUSE THE STALE LONG VERSION DID DAMAGE: the hard
+     * cap that lived here was a splint over the raw-spread units defect. The
+     * defect was FIXED AT SOURCE on 08-13 (upsideBonus normalises each spread
+     * by its position's replacement level — see computeCeilingScales), and the
+     * cap was deleted on Cory's 08-14 ruling, executed 08-18 (register 5n).
+     * The paragraph that used to sit here still described the bench branch as
+     * ranking raw spreads, which had been false for five days — and that stale
+     * claim propagated into an audit and a register row before it was caught.
+     * Measured 08-18, live board through recommend(): a third QB/TE surfaces
+     * only via the elite-faller value exception, at a one-tenth score, with
+     * "YOU CANNOT START HIM" printed beside it — priced, labelled, not capped. */
     /* ONESIE_MAX_SPARE AND wouldCap ARE DELETED (Cory, 2026-08-14: "delete them,
      * do not fix them"). They read as "one spare allowed at QB and at TE" and
      * behaved as "one at QB, ZERO at TE", because the cap counted a tight end

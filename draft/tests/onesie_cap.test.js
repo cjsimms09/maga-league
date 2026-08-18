@@ -52,24 +52,25 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
 
 // ── WHAT THE CAP WAS COVERING, NOW UNGUARDED ──────────────────────────────
 /* THIS BLOCK USED TO ASSERT THAT A CAPPED THIRD QB/TE SANK TO THE BOTTOM.
- * The cap is deleted (Cory, 2026-08-14: "delete them, do not fix them"), so
- * nothing sinks and this measures what is left instead.
+ * The cap is deleted (Cory, 2026-08-14: "delete them, do not fix them",
+ * executed in the engine 08-18 — register 5n), so nothing sinks by count and
+ * this measures what is left instead.
  *
- * THE CAP WAS A STAND-IN FOR A VALUATION THAT DOES NOT WORK -- the bench branch
- * ranks on proj_ceiling - proj_mean in RAW SEASON POINTS, and a quarterback
- * scores 350-400, so his spread is the largest absolute number on the board by
- * construction. This file's own retirement trigger was "the units defect is
- * gone". IT IS NOT GONE. The cap was removed by instruction, not because the
- * thing it covered was fixed, and the difference matters: measured immediately
- * after deletion, with 2 QB and 2 TE carried, a third of each surfaces at
- * BOARD RANK 5 AND 4 -- discounted to a spare, and still near the top, because
- * the value exception fires once the better ones are gone and they have fallen
- * past ADP.
+ * CORRECTED 08-18, AND THE CORRECTION IS THE POINT: the paragraph that lived
+ * here said the units defect ("bench ranks raw spreads, QB biggest by
+ * construction") was NOT fixed. IT WAS -- upsideBonus has normalised every
+ * spread by its position's replacement level since 08-13
+ * (computeCeilingScales), and the "rank 5 and 4" this block treated as the
+ * defect showing was measured WITHOUT score context: on the live board those
+ * are fallen elites carried at ONE-TENTH scores (2.4 / 1.4 vs 16.9 at #1)
+ * through the value exception, each printing "YOU CANNOT START HIM". That is
+ * pricing plus honesty, not the defect. A stale alarm is how the stale
+ * deletion comment survived four days over live code -- same class.
  *
- * PINNED AS A FACT, NOT AS A DESIRED STATE. If these ranks move in EITHER
- * direction this fires: worse means the exposure grew, better means something
- * fixed the units defect and this file can finally retire. Read it as the alarm
- * going off and re-derive; do not adjust the numbers to make it quiet. */
+ * SO THE ALARM NOW MEASURES THE RIGHT INVARIANT: a third QB/TE may surface
+ * near the top ONLY as a fallen elite -- value exception set, score a small
+ * fraction of the leader's, cannot-start sentence printed. Any of those three
+ * failing is the real regression. */
 {
   const roster = build(['QB', 'QB', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR']);
   const res = rec(roster);
@@ -95,6 +96,20 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
   ck('  and each SAYS he cannot start, in a sentence a human can overrule',
     /CANNOT START HIM|cannot start him/.test((res[qb - 1].onesie || {}).why || ''),
     (res[qb - 1].onesie || {}).why);
+  // THE REAL ALARM (08-18): near the top only as a labelled fallen elite at a
+  // fraction of the leader's score. If a third QB/TE ever ranks top-10 WITHOUT
+  // the value exception, or carrying more than a third of the leader's score,
+  // something upstream regressed (the discount, the normalisation, or the
+  // exception's gate) -- that is the condition worth waking a human for.
+  const topScore = res[0].score || 1;
+  [qb, te].forEach((rank, i) => {
+    const r = res[rank - 1];
+    if (rank <= 10) {
+      ck('  ' + (i ? 'TE' : 'QB') + '3 in the top 10 is a LABELLED fallen elite at a fraction of the leader',
+        r.onesie && r.onesie.exception === 'value' && (r.score || 0) < topScore / 3,
+        { rank: rank, score: r.score, top: topScore, exception: (r.onesie || {}).exception });
+    }
+  });
 }
 
 // ── THE FIRST SPARE IS STILL ALLOWED ───────────────────────────────────────
