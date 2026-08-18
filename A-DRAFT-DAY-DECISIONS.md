@@ -14,27 +14,29 @@ follows is what survived.
 
 ---
 
-## 0 · THE ONE THING THAT MUST HAPPEN, AND IT IS NOT A DECISION
+## 0 · THE TWO THINGS THAT MUST HAPPEN, AND NEITHER IS A DECISION
 
-**Rebuild the board after the keeper slate confirms.** The live board stands on a
-**"predicted"** slate: 4 of 10 teams designated, **8 keepers across 3 teams
-deliberately withheld** (`_keeper_map_for_board`, Cory's own 08-11 ruling).
-Until the rebuild, **every replacement level, VORP and ADP adjustment is computed
-over a pool containing players nobody can draft.**
+**1. Rebuild the board after the keeper slate confirms.** The live board stands
+on a **predicted** slate: 4 of 10 teams designated, **8 keepers across 3 teams
+withheld** (Cory's own 08-11 ruling). Until the rebuild, every replacement level,
+VORP and ADP adjustment is computed over a pool containing players nobody can
+draft. Tracked by commitment `slate-exposure-rechecked`, **OVERDUE 08-21**.
 
-Tracked mechanically, not left to memory: commitment `slate-exposure-rechecked`
-reads the live board and reports NOT MET while the slate is partial, going
-**OVERDUE on 08-21**.
+**2. 🔴 Freeze the board SATURDAY, after 03:00 CDT — not Friday night.**
+Register **5i**, new today. `draft-data.yml` rebuilds and commits
+`public/draft_data.json` on `cron: '0 8 * * *'` **every night, including draft
+morning**, and `freeze_pre_draft.py` reads that exact file. A Friday freeze is
+stale by breakfast — step 1's own rule (*"freeze THAT board, nothing older"*)
+broken by a scheduled job rather than by anyone's mistake. **Runbook corrected.**
+What remains is a judgement: leave the 08-22 nightly rebuild on (recommended —
+a fresh board beats a convenient freeze, same reasoning as 35) or disable it for
+the day. **The draft START TIME is recorded nowhere**, so "no scheduled job
+overlaps the draft" is an assumption; six of them push that morning.
 
-✅ **Register 35 CLOSED 08-18 — the missing trigger is wired.** It asked to *"fail
-a parity check that names the stale artifact"*. The check already existed and was
-already tested (14 checks, with a control proving it discriminates) — **nothing
-ever ran it against the live board.** A CI step now does, and `ci.yml` fires on
-push to `main`, which is where the nightly rebuild pushes. Exit 0 today: the
-board (05:33:24Z) is newer than every declared input, so the ordering 35
-complained about has already inverted. It does **not** auto-rebuild — that half
-is the commitment above.
----
+✅ **Register 35 closed 08-18** — it asked to *"fail a parity check that names the
+stale artifact"*. The check existed and was tested; **nothing ran it against the
+live board.** A CI step now does, and `ci.yml` fires on push to `main`, where the
+rebuild lands. Exit 0 today. It does not auto-rebuild — that is item 1 above.
 
 ## 1 · CORY'S RULINGS — ONE DOWN, ONE POST-DRAFT
 
@@ -108,19 +110,21 @@ Everything else open. Named so nobody has to re-derive that it was considered:
 
 ---
 
-## 4 · THE THREE THINGS CORY SHOULD KNOW ON THE NIGHT
+## 4 · WHAT CORY SHOULD KNOW ON THE NIGHT
 
-Already written into `DRAFT-WEEK-BRIEF.md` §4, so they cost nothing if A rules
-none of the above:
+All in `DRAFT-WEEK-BRIEF.md` §4, so they cost nothing if A rules none of the above:
 
 1. **The dollar figure is not comparable across positions.** Use it within one.
-2. ~~**Fifteen ceilings in his range are cohort averages**~~ ✅ **SHIPPED 08-18 —
-   the board marks them now, so he does not have to be told.** 34 of 173 in ADP
-   25-220; the range bar carries `~` and *"cohort average, not this player"*.
-   A provenance mark, not a warning. Register 4v.
-3. **The strategy banner will stay quiet** — measured, not expected: the leader
-   gap is exactly 0.000 at all twelve of his picks. Structural, and unfixable by
-   tuning. Register 4x, closed.
+2. ~~Cohort ceilings~~ ✅ **shipped 08-18 — the board marks them with `~`.** 34 of
+   173 in ADP 25-220. A provenance mark, not a warning. Register 4v.
+3. **The strategy banner will stay quiet** — measured, not expected: leader gap
+   exactly 0.000 at all twelve picks, unfixable by tuning. Register 4x, closed.
+4. 🆕 **The board rates RBs ~50 slots below the market** (p = 0.0024), **and the
+   keeper lock closes part of that by itself** — RB replacement falls 33.2 vs
+   WR 15.1 / TE 5.8 / QB 4.2. **Do not hand-correct it before Saturday.**
+   Registers 2d and 5f.
+5. 🆕 **Freeze the board SATURDAY, after 03:00 CDT** — it rebuilds itself
+   overnight. Register 5i; runbook corrected.
 
 ---
 
