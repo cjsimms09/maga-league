@@ -83,8 +83,22 @@ function rows(text) {
  *
  * So: an explicit terminal WORD, in the status cell, or the row is open.
  * ANSWERED / MITIGATED / IN HAND / WAITING are deliberately NOT terminal — they
- * are progress reports, and the safe direction to err is toward being chased. */
-const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded)\b/i;
+ * are progress reports, and the safe direction to err is toward being chased.
+ *
+ * ⚠️ RETRACTED ADDED 2026-08-18, ON A THIRD FAILURE MODE OF THE SAME CELL.
+ * The merge of `main` brought in two rows — DS5 and 44 — whose status reads
+ * "⚠️ RETRACTED, kept for the record", both being the SAME retraction under two
+ * ids after a renumber. A retracted finding is withdrawn by definition: the
+ * author looked again and said it was not real. Counting it OPEN forever
+ * inflates the backlog with rows nobody can ever close, and an open count that
+ * includes uncloseable rows is one people learn to ignore — the same decay that
+ * killed the intervention-rate check.
+ *
+ * Note the direction of both bugs found in this cell so far: the ✅ rule closed
+ * rows that were still live, and this one held open rows that were already dead.
+ * **The status cell is the single most misread field in the register**, which is
+ * why every rule about it is a WORD LIST rather than a symbol or a substring. */
+const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded|retracted)\b/i;
 
 function isClosed(r) {
   return TERMINAL.test(r.status);

@@ -340,6 +340,17 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft')\nimport variance_portfolio as V\nprint(json.dumps(V.run()))"
    ]
+  },
+  {
+   "id": "v7_candidate_grade",
+   "description": "V7 candidates C1 (leak-free age curves) and C3 (leak-free fitted recency) graded one-at-a-time on the reproduced own_v6 stack, both metric families, section-3 decision rule. 2026-08-18: both NO SHIP.",
+   "owner_module": "draft/backtest/v7_candidate_grade.py",
+   "artifact_path": "draft/backtest/v7_candidate_grade.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport v7_candidate_grade as V\nprint(json.dumps(V.run()))"
+   ]
   }
  ],
  "_not_yet_migrated": [

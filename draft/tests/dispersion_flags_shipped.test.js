@@ -153,7 +153,14 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
       //: strip line comments so the one prose mention in engine.js does not
       //: read as a consumer — the same distinction unread_artifacts.py draws.
       const code = t.split('\n').filter(l => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
-      if (/\bproj_sd\b/.test(code) && !/proj_sd_source/.test(code.match(/.*proj_sd.*/)[0])) hits.push(rel);
+      //: a CONSUMER is a property READ (`p.proj_sd` / `p["proj_sd"]`), not any
+      //: mention. RE-READ 2026-08-18: the first version matched the bare word
+      //: and went red on app.js's dispersionCaveat, whose Gaussian caveat TEXT
+      //: says "a SYMMETRIC GAUSSIAN off proj_sd" inside a string literal —
+      //: prose ABOUT the field, on screen, is exactly what the 08-18 truth
+      //: fixes added; it is not code reading the number. (`proj_sd_source`
+      //: never matches: `_` is a word char, so \b does not split it.)
+      if (/\.proj_sd\b|\[['"]proj_sd['"]\]/.test(code)) hits.push(rel);
     });
   };
   dirs.forEach(walk);
@@ -171,7 +178,10 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
       const rel = d + '/' + e.name;
       if (e.isDirectory()) return walk2(rel);
       if (!/\.(js|ejs)$/.test(e.name)) return;
-      if (/\bproj_mean\b/.test(fs.readFileSync(path.join(ROOT, rel), 'utf8'))) sawProjMean = true;
+      //: SAME pattern as the probe above — the control must validate the read
+      //: detector itself, not a looser bare-word match that would pass while
+      //: the probe rotted.
+      if (/\.proj_mean\b|\[['"]proj_mean['"]\]/.test(fs.readFileSync(path.join(ROOT, rel), 'utf8'))) sawProjMean = true;
     });
   };
   dirs.forEach(walk2);

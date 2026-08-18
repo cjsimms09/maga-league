@@ -1038,7 +1038,34 @@
     return rate * (player.vorp || 0) - forgone;
   }
 
-  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15, OFF BY DEFAULT.
+  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15.
+   *
+   * ⚠️ "OFF BY DEFAULT" WAS TRUE WHEN WRITTEN AND IS NOT NOW (session E,
+   * 2026-08-17; register E22). `CFG.VONA_WIRE_BENCH` was ruled ON 2026-08-16.
+   * The flag reads as enabled and the branch still cannot do its job, for TWO
+   * independent reasons, and only the first is already on the record:
+   *
+   *   1. FILED ALREADY (ROUTES, 2026-08-16): the branch is unreachable while
+   *      `VONA_SLOT_AWARE` is false, because `vona()` returns `straight` at the
+   *      top. Ruling pending; not this lane's to re-file.
+   *
+   *   2. NOT PREVIOUSLY FILED, AND IT CHANGES THE REMEDY: even reachable, the
+   *      DATA never arrives. `app.js:2079` reads `state.data.wire_level`, and
+   *      **`build.py` never writes `wire_level` onto the board** — the artifact
+   *      `draft/data/wire_level.json` is committed and real (422 scored
+   *      acquisitions, 2023-25) but is not joined into `public/draft_data.json`.
+   *      So `ctx.wireWeekly` is null in production.
+   *
+   * MEASURED with `VONA_SLOT_AWARE` forced true: supplying the committed
+   * artifact changes **65 player scores** at pick 93 (e.g. Joe Flacco −198.55 →
+   * −155.29). So the remedy on file — "finish slot-aware so the branch is
+   * reachable" — is NOT SUFFICIENT on its own: the branch would run and take its
+   * fallback for every player.
+   *
+   * AND THE FALLBACK IS THE WRONG ONE TO BE TAKING WHOLESALE. The `wb == null`
+   * path below is documented as the K/DEF case ("nflverse is offense-only"), i.e.
+   * a per-POSITION gap. With the map absent entirely, every position takes the
+   * two-position path.
    *
    * Cory's design, stated directly: "once you're drafting for bench (not a
    * starter slot), a duplicate shouldn't be compared to the best available in
@@ -1492,9 +1519,39 @@
      * instead of silently promoting every duplicate. */
     const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|sus|susp|suspended|na|dnr|cov)$/i;
     if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
+      /* ⚠️ THE LINE SAID "insurance, not a starter" WHILE PRICING HIM AS A
+       * STARTER (session E, 2026-08-18; register E20).
+       *
+       * `discount: 1` means NO discount is applied — the application below is
+       * gated on `onesie.discount < 1` — so this branch prices a duplicate at
+       * FULL standalone value, exactly as if the position were empty. That is
+       * defensible on the football: if your starter is on PUP, this man plays.
+       * It is the opposite of what the old sentence told the reader.
+       *
+       * MEASURED on the live board with George Kittle (TE, PUP, proj 152.8)
+       * rostered and the FLEX closed: Travis Kelce ranks **4th at pick 73,
+       * score 6.1**. With the same roster and a HEALTHY TE1 he is 8th at 0.6 —
+       * a tenfold difference in score, under a line that said he was not being
+       * treated as a starter.
+       *
+       * The value exception fifty lines above was corrected away from
+       * `discount: 1` for precisely this reason ("it used to return discount 1
+       * … which is how a second quarterback reached FULL VALUE and board rank
+       * 1"). This branch is the one place that correction should NOT apply —
+       * the principle there is "priced low because he cannot start", and here he
+       * can. So the PRICE stays and the SENTENCE changes.
+       *
+       * AND IT NAMES WHAT THE MODEL DOES NOT KNOW. Every status in SERIOUS is
+       * treated identically: measured, PUP and IR produce the same rank and the
+       * same score, so "out roughly four games and then back" is priced exactly
+       * like "out for the season". Whether duration should enter is a model
+       * question, filed for A — but a reader deciding in the seconds a pick
+       * allows should not have to infer it. */
       return { duplicate: true, discount: 1, exception: 'injury',
-        why: pos + '2 — your starter is flagged ' + starter.injury_status
-          + '; this is insurance, not a starter' };
+        why: pos + (have + 1) + ' — your ' + pos + '1 is flagged '
+          + starter.injury_status + ', so he is priced as a STARTER at full value, '
+          + 'NOT discounted as a backup. The model does not weigh how long that '
+          + 'status lasts.' };
     }
 
     /* THE CAP LANDS HERE, AFTER EVERY EXCEPTION HAS HAD ITS SAY.
@@ -3250,6 +3307,28 @@
                  'formula than skill positions; compare within position instead',
         terms: { note: 'refused: K/DEF have no measured calibration cells, so a ' +
                        'cross-position dollar gap would compare two constructions (D10a).' },
+      };
+    }
+    // 5e ruling (A, 08-18, extending D10a to QB): playerDollars prices RAW
+    // projected points — p.position never enters the formula — while every
+    // other value surface here is denominated over replacement. In a 10-team
+    // 1-QB league, QB replacement is 341.7 against 136-180 elsewhere, so raw
+    // points hand every QB a ~342-point head start: 22 of the top 25 by E[$]
+    // are QBs on the 08-18 board, versus ONE by the board's own rank. The
+    // obvious fix (subtract replacement inside the dollar formula) was BUILT
+    // AND MEASURED WORSE on the pairs Cory actually weighs
+    // (draft/audit/dollar_replacement_baseline_2026-08-18.md) — so the honest
+    // answer is the same refusal K/DEF already gets, not a re-price.
+    if (a.position !== b.position && (a.position === 'QB' || b.position === 'QB')) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — the dollar figure prices raw points and QB ' +
+                 'replacement (~342) dwarfs every other position\'s, so a ' +
+                 'QB-vs-other gap is a formula artifact; compare within position',
+        terms: { note: 'refused: cross-position dollars have no replacement level ' +
+                       'in them, and QB is where that bites (5e). Re-pricing was ' +
+                       'measured worse than refusing.' },
       };
     }
     const da = playerDollars(a), db = playerDollars(b);

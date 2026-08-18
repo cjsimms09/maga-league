@@ -60,42 +60,51 @@ const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
 const base = f => JSON.parse(fs.readFileSync(
   path.join(ROOT, 'draft', 'baseline', f), 'utf8'));
 
-// ── 1. THE PIN, AND WHAT IT POINTS AT ──────────────────────────────────────
+// ── 1. THE PIN — RULED AND RE-AIMED (A, 2026-08-18, register 5g). ─────────
+// This suite was written to PIN THE DEFECT and go red when somebody fixed it —
+// "read it as the alarm going off". It went off: A ruled option (2), the pin
+// moved v1 -> v27 (today's verified freeze, playoff-free inputs, deploy-probe
+// green, BOTH rulings carried), the localStorage key rotates with the pin, and
+// these checks now hold the ruled state instead of the trap.
 {
-  ck('the client asks for a HARDCODED baseline version',
-    /api\/baseline\?version=v1/.test(APP));
+  const m = APP.match(/const BASELINE_VERSION = '(v\d+)'/);
+  ck('the client pins a NAMED baseline version by ruling (not v1, not "newest")',
+    !!m && m[1] === 'v27' && !/api\/baseline\?version=v1/.test(APP),
+    m && m[1]);
+
+  ck('...and the localStorage key rotates with the pin, so a cached v1 cannot '
+    + 'shadow the ruled reference',
+  /const BASELINE_KEY = 'mfga\.draft\.baseline\.' \+ BASELINE_VERSION/.test(APP));
 
   const v1 = base('v1.json');
-  ck('CONTROL: v1 is real and carries the weights the button assigns',
-    !!(v1.engine_policy || {}).MEASURED_WEIGHTS, Object.keys(v1));
-
-  ck('...and it is the OLD freeze — eight days before the draft',
-    /^2026-08-10/.test(v1.frozen_at || ''), v1.frozen_at);
+  ck('HISTORY CONTROL: v1 still exists and still carries the pre-ruling '
+    + 'weights — the defect this suite pinned was real, not hypothetical',
+  (v1.engine_policy || {}).MEASURED_WEIGHTS
+    && v1.engine_policy.MEASURED_WEIGHTS.ceiling === 0
+    && v1.engine_policy.MEASURED_WEIGHTS.stack === 0.5
+    && /^2026-08-10/.test(v1.frozen_at || ''), v1.frozen_at);
 }
 
-// ── 2. THE DIFF. THIS IS THE FINDING. ──────────────────────────────────────
+// ── 2. THE DIFF IS CLOSED. RESTORING IS NOW A NO-OP AGAINST THE RULINGS. ───
 {
-  const restored = base('v1.json').engine_policy.MEASURED_WEIGHTS;
+  const restored = base('v27.json').engine_policy.MEASURED_WEIGHTS;
   const live = E.MEASURED_WEIGHTS;
-  const changed = Object.keys(Object.assign({}, live, restored))
-    .filter(k => live[k] !== restored[k]);
 
-  ck('DEFECT: restoring changes live weights — it is not a no-op against '
-    + 'today\'s policy', changed.length > 0, changed);
-
-  ck('DEFECT: it reverts CORY\'S CEILING RULING (shipped 09f94f99), 0.45 -> 0',
-    live.ceiling === 0.45 && restored.ceiling === 0,
+  ck('the ruled pin carries CORY\'S CEILING RULING — restore no longer reverts it',
+    live.ceiling === 0.45 && restored.ceiling === 0.45,
     { live: live.ceiling, restored: restored.ceiling });
 
-  ck('DEFECT: and the D10 STACK ruling, 1.0 -> 0.5',
-    live.stack === 1 && restored.stack === 0.5,
+  ck('and the D10 STACK ruling',
+    live.stack === 1 && restored.stack === 1,
     { live: live.stack, restored: restored.stack });
 
-  /* CONTROL — it is not simply a different object. Everything else agrees,
-   * which is what makes these two a REVERSION rather than a stale artifact. */
-  ck('CONTROL: every OTHER weight is identical, so this is two specific '
-    + 'rulings being undone and not a wholesale drift',
-  changed.sort().join(',') === 'ceiling,stack', changed);
+  /* FAIL ARM, inverted from the original DEFECT check: if live policy ever
+   * moves ahead of the pin on these two ruled weights again, this goes red —
+   * which is the next A ruling asking to be made, not a test to relax. */
+  const changed = Object.keys(Object.assign({}, live, restored))
+    .filter(k => live[k] !== restored[k]);
+  ck('no live weight differs from the ruled pin — one tap is one no-op today',
+    changed.length === 0, changed);
 }
 
 // ── 3. FRESHER BASELINES EXIST AND ARE NOT USED ────────────────────────────
@@ -126,14 +135,52 @@ const base = f => JSON.parse(fs.readFileSync(
     + 'implying it is current',
   /the immutable reference, not the live policy/.test(APP));
 
-  /* THE GAP, ASSERTED AS A GAP. If someone later makes the button name the
-   * weights it will change, this flips and the test should be updated to
-   * demand it — that is the fix landing, not this check breaking. */
-  ck('DEFECT: nothing in the restore panel names WHICH weights it will '
-    + 'change — a date is not a diff',
-  !/will change|reverts|ceiling 0\.45/.test(
+  /* FIXED, 2026-08-18 (register 5g, option (3), B's half). The panel now
+   * diffs the frozen weights against live and names what will change — so
+   * even if the pin drifts stale again the way v1 did, the button itself
+   * says so before the tap rather than relying on a date nobody
+   * reconstructs on the clock. */
+  ck('FIXED: the restore panel names WHICH weights it will change — '
+    + 'not just a date',
+  /will change/.test(
     APP.slice(APP.indexOf('function renderBaselineControl'),
-      APP.indexOf('function renderBaselineControl') + 2000)));
+      APP.indexOf('function renderBaselineControl') + 2500)));
+
+  ck('...and the diff is recomputed whenever weights change (saveWeights '
+    + 're-renders the panel), so a slider moved after page load cannot '
+    + 'leave a stale diff on screen',
+  /function saveWeights\(\) \{[\s\S]{0,600}renderBaselineControl/.test(APP));
+}
+
+// ── 5. weightsDiff() ITSELF, EXTRACTED AND UNIT-TESTED ─────────────────────
+// A regex proves the call exists; this proves the function is CORRECT.
+{
+  const src = APP.slice(APP.indexOf('function weightsDiff'),
+    APP.indexOf('function renderBaselineControl'));
+  const weightsDiff = new Function(src + '\nreturn weightsDiff;')();
+
+  ck('weightsDiff: identical weights -> empty diff',
+    weightsDiff({ value: 1, ceiling: 0.45 }, { value: 1, ceiling: 0.45 }).length === 0);
+
+  const d1 = weightsDiff({ value: 1, ceiling: 0 }, { value: 1, ceiling: 0.45 });
+  ck('weightsDiff: one differing term -> exactly one entry, correctly shaped',
+    d1.length === 1 && d1[0].term === 'ceiling' && d1[0].from === 0.45 && d1[0].to === 0);
+
+  const d2 = weightsDiff({ ceiling: 0, stack: 0.5, value: 1 }, { ceiling: 0.45, stack: 1.0, value: 1 });
+  ck('weightsDiff: two differing terms (the actual 5g case) -> both named, '
+    + 'unchanged term excluded',
+    d2.length === 2 && d2.some(d => d.term === 'ceiling') && d2.some(d => d.term === 'stack'));
+
+  ck('FAIL ARM: floating-point noise (0.1+0.2 style) does not manufacture '
+    + 'a phantom diff',
+    weightsDiff({ ceiling: 0.1 + 0.2 }, { ceiling: 0.3 }).length === 0);
+
+  ck('weightsDiff: null/missing frozen or live -> empty, not a throw',
+    weightsDiff(null, { value: 1 }).length === 0 && weightsDiff({ value: 1 }, null).length === 0);
+
+  ck('weightsDiff: a non-numeric field on either side is skipped, not '
+    + 'coerced into a false diff',
+    weightsDiff({ note: 'measured' }, { note: 'live' }).length === 0);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

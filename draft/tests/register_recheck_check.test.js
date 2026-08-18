@@ -239,4 +239,56 @@ ok('the LIVE register enforces one unambiguous date per open row', () => {
     + '"recheck WAS MM-DD": ' + ambiguous.map(r => r.id.trim()).join(', '));
 });
 
-console.log(`\n${pass}/18 checks passed`);
+/* ── RETRACTED IS TERMINAL (added 2026-08-18, on a live false-open) ─────────
+ *
+ * Merging `main` brought in DS5 and 44 — the SAME retraction under two ids
+ * after a renumber — whose status reads "⚠️ RETRACTED, kept for the record".
+ * Both counted OPEN and UNDATED, so they sat in the backlog as rows nobody
+ * could ever close. An open count that includes uncloseable rows is one people
+ * learn to ignore, which is exactly how the intervention-rate check died.
+ *
+ * Note the DIRECTION of the two bugs this cell has now produced: the old ✅
+ * rule closed rows that were still live, and this one held open rows that were
+ * already dead. The status cell is the most misread field in the register. */
+ok('a RETRACTED row is terminal — a finding the author withdrew cannot be '
+  + 'chased forever', () => {
+  const a = R.audit(md('| DS5 | I re-derived something already shipped | D | '
+    + '⚠️ RETRACTED, kept for the record | nothing, recheck 08-01 |\n'), '2026-08-17');
+  assert.strictEqual(a.overdue.length, 0, JSON.stringify(a.overdue));
+  assert.strictEqual(a.undated.length, 0, JSON.stringify(a.undated));
+});
+
+ok('FAIL ARM — the retraction must be in the STATUS cell, not the prose. A row '
+  + 'that merely MENTIONS retracting something is still open.', () => {
+  const a = R.audit(md('| 9a | the last fix was retracted, so this is back | C | '
+    + '🔴 OPEN | redo it, recheck 08-01 |\n'), '2026-08-17');
+  assert.strictEqual(a.overdue.length, 1,
+    'prose must not close a row — that is how a refusal check once tripped on '
+    + 'the word "refused" inside a summary and reddened main');
+});
+
+ok('CONTROL — adding RETRACTED did not make the other terminal words stop '
+  + 'working, nor make a plain OPEN row terminal', () => {
+  ['✅ CLOSED', 'RESOLVED', '✅ RULED', 'WITHDRAWN', 'SUPERSEDED'].forEach((st) => {
+    const a = R.audit(md(`| 9a | x | C | ${st} | done, recheck 08-01 |\n`), '2026-08-17');
+    assert.strictEqual(a.overdue.length, 0, st + ' should be terminal');
+  });
+  ['🔴 OPEN', '⚠️ ANSWERED', 'MITIGATED', 'IN HAND', 'WAITING'].forEach((st) => {
+    const a = R.audit(md(`| 9a | x | C | ${st} | do it, recheck 08-01 |\n`), '2026-08-17');
+    assert.strictEqual(a.overdue.length, 1, st + ' must NOT be terminal');
+  });
+});
+
+ok('THE LIVE REGISTER — every open row carries a recheck date, so the check can '
+  + 'fire for all of them. 0 undated is the claim CLAUDE.md makes; this is what '
+  + 'makes it true rather than asserted.', () => {
+  const fs = require('fs'); const path = require('path');
+  const live = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'DEFECT-REGISTER.md'), 'utf8');
+  const a = R.audit(live, '2026-08-18');
+  assert.deepStrictEqual(a.undated.map((r) => r.id.trim()), [],
+    'undated open rows are INVISIBLE to this check — date them or close them');
+  assert.deepStrictEqual(a.overdue.map((r) => r.id.trim()), []);
+});
+
+console.log(`\n${pass} checks passed`);

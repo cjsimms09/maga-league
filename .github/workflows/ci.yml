@@ -74,7 +74,14 @@ jobs:
         # test_pbp_two_point import them at collection time, so without them
         # pytest aborts the WHOLE Python step at collection (exit 2, run
         # 32038354284) and every other Python suite silently goes unrun.
-        run: pip install pytest numpy pandas
+        #
+        # 2026-08-18: install from draft/requirements.txt instead of a
+        # hardcoded trio. The hardcoded list WAS the venv-gap class — the
+        # fourth instance (run 32146131568: requests + lxml missing for the
+        # census suites) was only reachable because this line and the
+        # requirements file could drift apart. One source of truth now;
+        # pytest is in the file.
+        run: pip install -r draft/requirements.txt
       # ┌─────────────────────────────────────────────────────────────────────┐
       # │ SESSION A: READ BEFORE EDITING THIS BLOCK (B, 2026-08-10)            │
       # │ The npm-install-ordering bug is ALREADY FIXED here — deps install in │
@@ -368,6 +375,18 @@ jobs:
         # protected. CANNOT DETERMINE counts as unmet, always.
         if: always()
         run: node draft/tools/commitments_check.js
+
+      - name: Lane status — work that exists but main cannot see (REPORT ONLY)
+        # E built this after b26e1713 sat stranded 16h with a league-facing
+        # banner on it, and asked A to wire it (ROUTES 08-17; wired 08-18).
+        # REPORTS ONLY, by design: never merges, never deletes, never fails
+        # the build — `|| true` keeps even a tool crash from failing CI,
+        # because a visibility aid that can redden main becomes a thing
+        # people delete. It prints one line per unmerged branch and a ⚠️
+        # when one looks stranded (3+ commits, 12h+ old). fetch-depth: 0 is
+        # already set for the checkout, so remote branches are visible.
+        if: always()
+        run: git fetch --all --quiet && node draft/tools/lane_status.js || true
 
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()

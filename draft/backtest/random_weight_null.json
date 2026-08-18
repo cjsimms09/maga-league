@@ -1,0 +1,43 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/random_weight_null.py",
+ "_what": "BLEND-SEARCH-DESIGN.md \u00a73's second owed null. How much MAE a RANDOM-weight blend takes off the best single arm, purely from averaging, per unit of per-row error sd.",
+ "_read": "a fitted stacker must beat this before its WEIGHTS mean anything. Beating the champion is not the same claim.",
+ "draws": 2000,
+ "calibration_sd1": {
+  "k=2": {
+   "rho=0.0": 0.1444,
+   "rho=0.3": 0.0931,
+   "rho=0.6": 0.048,
+   "rho=0.9": 0.0086,
+   "rho=0.99": -0.0004
+  },
+  "k=3": {
+   "rho=0.0": 0.2208,
+   "rho=0.3": 0.141,
+   "rho=0.6": 0.0721,
+   "rho=0.9": 0.0131,
+   "rho=0.99": -0.0004
+  },
+  "k=5": {
+   "rho=0.0": 0.3195,
+   "rho=0.3": 0.1956,
+   "rho=0.6": 0.097,
+   "rho=0.9": 0.0166,
+   "rho=0.99": -0.0009
+  },
+  "k=8": {
+   "rho=0.0": 0.3962,
+   "rho=0.3": 0.2327,
+   "rho=0.6": 0.1125,
+   "rho=0.9": 0.0185,
+   "rho=0.99": -0.0013
+  },
+  "k=15": {
+   "rho=0.0": 0.4835,
+   "rho=0.3": 0.2682,
+   "rho=0.6": 0.1266,
+   "rho=0.9": 0.0198,
+   "rho=0.99": -0.0019
+  }
+ }
+}
