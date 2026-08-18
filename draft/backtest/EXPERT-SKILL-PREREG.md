@@ -66,3 +66,28 @@ or before it only if he explicitly moves the date.
 
 Owner: relay builds (same harness as the spread grading — build once, answer
 both). A rules. Recheck 08-24.
+
+---
+
+## 6. ADDENDUM 2026-08-18 (A, before any expert was scored) — Cory's top-10 arm
+
+Cory: *"Should we pick top 10 experts and weight their rankings across all
+picks as well?"* Declared as a THIRD weighting arm so the answer is measured,
+not argued:
+
+- **FLAT** — all experts, equal weight (the incumbent consensus).
+- **CONTINUOUS** — all experts, weighted by prior-seasons skill (§1 Q2).
+- **TOP-10** — Cory's arm: only the 10 best experts by prior-seasons skill,
+  equally weighted; everyone else dropped.
+
+All three graded walk-forward (2025 weighted only by 2023-24 skill). The
+honest risk stated in advance: TOP-10 only beats FLAT if skill persistence
+(Q1) is strong — selecting 10 of ~90 on a noisy score keeps the luckiest,
+not the best, and throws away the variance-averaging of the other 80. If Q1
+is weak, TOP-10 is predicted to LOSE to FLAT, and that prediction is on the
+record before the run.
+
+"Across all picks" means the mean-anchor too, not just ceilings: if a
+weighted consensus beats FLAT at predicting realized points, wiring it into
+the board's RANKING anchor is a separate Cory decision — it moves proj_mean
+and therefore everything — taken with the graded number in front of him.

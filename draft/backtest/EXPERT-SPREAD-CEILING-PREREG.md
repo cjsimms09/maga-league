@@ -248,3 +248,141 @@ Declared now, before any arm is scored:
 3. If the arms beat BASE overall but FAIL on rookies, that is reported as its
    own finding, because rookies are where the board's ceiling is blindest
    (cell constant + no volatility + no opportunity signal).
+
+---
+
+## 9. CORY'S ARM, ADDED 2026-08-18 BEFORE ANY EXPERT WAS SCORED
+
+> **Cory:** *"Should we see which experts drafted better in 2025 then use those
+> experts to apply to model for 2026"*
+
+**Named here before a single expert has been graded**, because the whole hazard in
+this idea is that it is trivially easy to run it backwards and get a beautiful
+number.
+
+**FEASIBILITY — CHECKED FIRST, AND IT PASSES.** Expert IDs persist across seasons:
+
+| | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|
+| distinct experts | 239 | 219 | 207 | 91 (still filling) |
+| carried over from prior season | — | 197 (82%) | 171 (78%) | 76 (36%) |
+
+**62 experts appear in all four seasons** — a three-season track record *and* a 2026
+submission. The idea is buildable.
+
+### Arm **EXPERT-SKILL** (Cory's)
+
+Score each expert on 2023–2025 by how well their published ranks ordered realized
+points; keep the ones that score well; build the 2026 consensus (and its spread) from
+**those experts only**, or weight by skill.
+
+### ⚠️ THE HAZARD, STATED IN ADVANCE
+
+**With 62–239 experts and three seasons, the best-scoring expert is almost certainly
+lucky.** Selecting the 2025 leaders and applying them to 2026 is textbook
+overfitting, and it will *always* produce a flattering backtest because the selection
+and the evaluation share a season. So:
+
+**GATE — EXPERT SKILL MUST PERSIST, AND THAT IS TESTED BEFORE ANY WEIGHTING IS BUILT.**
+Score every expert separately in 2023, 2024 and 2025, then measure the rank
+correlation of expert skill **across** seasons (2023→2024, 2024→2025).
+
+* **If skill does not persist across seasons, this arm is DEAD** and no amount of
+  in-sample separation revives it. "Use the good experts" would then mean "use last
+  year's lucky experts", which is a coin already flipped.
+* **If it does persist,** experts are selected on seasons **strictly earlier** than
+  the season they are evaluated on — select on 2023–2024, evaluate on 2025. Never the
+  same season for both.
+
+**NULL CONTROL — EXPERT-SHUFFLE.** Assign each expert a random skill score and rebuild
+the consensus the same way. If a randomly-selected subset of ~60 experts consensuses
+about as well as the "skilled" subset, the arm is measuring *ensemble size*, not
+expertise — 60 opinions averaged beat 200 averaged for reasons that have nothing to
+do with who is good.
+
+**SECOND NULL — MOST-RANKED-PLAYERS.** An expert who ranks 300 players and one who
+ranks 100 are not comparable on any raw correlation. Skill is scored only on each
+expert's overlap with the common player set, and expert coverage counts are reported
+beside the skill scores.
+
+### What it would take to ship
+
+Same four conditions as §4, plus persistence, plus **it must beat the plain
+all-experts consensus** — not merely beat BASE. Today's board already uses a
+consensus; an arm that reproduces it with extra machinery is not an edge.
+
+**Blocked on the same join as §3** (`sleeper_name_index.yml`). **Owner: relay builds,
+A rules after 08-22. Recheck 08-24.**
+
+---
+
+## 9b. RESULT — CORY'S ARM WAS RUN AND IT **FAILS ITS OWN NULL**. IT DOES NOT SHIP.
+
+Run 2026-08-18 against the four committed expert-rank stores joined through
+`sleeper_name_index.json` (97% name coverage every season). **Both preregistered
+nulls were reported, and the arm lost to one of them.**
+
+### Step 1 — the persistence gate: MARGINAL, not dead
+
+Every expert scored separately per season on the common player set (≥80% coverage
+both ways), skill = Spearman(their rank, realized fantasy points weeks 1–17), signed
+so higher is better.
+
+| transition | shared experts | skill correlation |
+|---|---|---|
+| 2023 → 2024 | 183 | **0.121** |
+| 2024 → 2025 | 160 | **0.257** |
+
+Mean **0.189 — weak persistence.** Real, not zero: last year's better experts are
+somewhat more likely to be better again. **The gate passed as MARGINAL, so the arm
+was allowed to be built with both nulls attached.** It was.
+
+### Step 2 — ⚠️ AND HERE IS WHY THE SKILL SPREAD MATTERS MORE THAN THE PERSISTENCE
+
+| season | worst | p25 | median | p75 | best |
+|---|---|---|---|---|---|
+| 2023 | 0.381 | 0.452 | 0.475 | 0.490 | 0.626 |
+| 2024 | 0.338 | 0.493 | 0.525 | 0.543 | 0.570 |
+| 2025 | 0.359 | 0.485 | 0.507 | 0.522 | 0.579 |
+
+**The interquartile range is about 0.04 on a median of ~0.51.** There is no genius in
+this room and no fool. Roughly 200 experts are all about equally good, which is the
+mechanism behind everything below: **a consensus is dominated by what the experts
+agree on, not by which ones are best.**
+
+### Step 3 — the direct test, selecting on 2023+2024 and evaluating on 2025
+
+145 experts have a 2023+2024 record and a 2025 submission. Consensus = mean rank
+across the selected experts, scored against 2025 realized points. **The null is 200
+random subsets of the identical size.**
+
+| selection | 2025 consensus quality | vs ALL 198 experts | **percentile among random subsets of the same size** |
+|---|---|---|---|
+| **all experts** | 0.5240 | — | — |
+| top quartile (k=36) | 0.5249 | +0.0009 | **36th** |
+| top decile (k=14) | 0.5289 | +0.0049 | **70th** |
+| top half (k=72) | 0.5282 | +0.0042 | **72nd** |
+
+**THE TOP QUARTILE — the most natural reading of "use the experts who drafted
+better" — LANDED AT THE 36th PERCENTILE, i.e. WORSE THAN A COIN-FLIP SUBSET OF THE
+SAME SIZE.** The other two land at 70th and 72nd, inside the random p05–p95 band
+(0.5203–0.5321), and the ordering is not monotone in selectivity. **Every margin over
+the all-expert consensus is under 1% of the baseline and smaller than the noise.**
+
+### Verdict, against §9's own rule
+
+§9 required the arm to beat **the plain all-experts consensus** and **the
+random-subset null**. It does neither. **CORY'S ARM DOES NOT SHIP.**
+
+**This is a real saving, not a dead end.** A skill-weighted expert model would have
+been entirely plausible to build, would have shown a positive-looking `+0.005`
+against the all-expert consensus, and would have delivered nothing — because the
+persistence that justified it (0.19) is swamped by the fact that the experts barely
+differ. **The null is the only thing that separated those two stories, and it was
+written down before the number existed.**
+
+**What survives from this line:** the *disagreement* between experts (§6) is still
+the live signal, and it is untouched by this result. **How much the room disagrees
+about one player is informative; which members of the room they are is not.**
+
+**Owner: relay (run). Recorded for A. Recheck 08-24.**
