@@ -1,6 +1,6 @@
 # OPENING SCRIPT — generated, never typed
 
-_board `2026-08-18T05:33:24Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Balanced Value (the control)** (19b race ran; no archetype cleared the paired CI + even-money band)_
+_board `2026-08-18T08:49:54Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Balanced Value (the control)** (19b race ran; no archetype cleared the paired CI + even-money band)_
 
 My live picks: **33, 48, 53, 68, 73, 88…**
 
