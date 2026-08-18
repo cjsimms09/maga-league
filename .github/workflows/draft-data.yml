@@ -416,7 +416,15 @@ jobs:
           for attempt in 1 2 3; do
             git push && break
             [ "$attempt" = 3 ] && { echo "push still racing after 3 rebases"; exit 1; }
-            git pull --rebase --autostash origin main
+            if ! git pull --rebase --autostash origin main; then
+              # A concurrent push edited one of the REBUILD'S OWN generated
+              # files (attempt 4 hit this on opening_script.json). For files
+              # this workflow regenerates, the fresh rebuild IS the truth —
+              # during a rebase the incoming rebuild commit is "theirs".
+              git checkout --theirs -- $EXISTING || true
+              git add $EXISTING
+              GIT_EDITOR=true git rebase --continue
+            fi
           done
           # Tell the verify step below whether a SERVED file actually moved —
           # a push that only refreshed draft/ data (Lab lane) triggers no
