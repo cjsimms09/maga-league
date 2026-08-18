@@ -265,7 +265,13 @@ function item(date, done, body) {
     regressedAgainst(bl.closure_by_pair).join(', '));
 
   const tampered = JSON.parse(JSON.stringify(bl.closure_by_pair));
-  tampered['E (red team) → A'].done += 1;   // pretend one more had been closed
+  // Tamper relative to the LIVE count, not the stored baseline: the first
+  // version added 1 to the baseline, which stops being a regression the moment
+  // real progress lifts the live count past it — the fail arm went red on
+  // 08-18 precisely because A ticked a batch of E→A items. A fail arm that
+  // breaks on genuine progress punishes the behaviour the ratchet exists to
+  // encourage.
+  tampered['E (red team) → A'].done = (now['E (red team) → A'] || { done: 0 }).done + 1;
   check('FAIL ARM — if a closed item came back open the ratchet DETECTS it',
     regressedAgainst(tampered).indexOf('E (red team) → A') >= 0,
     regressedAgainst(tampered).join(', '));
