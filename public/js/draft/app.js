@@ -5883,9 +5883,59 @@
     const have = new Set(state.myRoster.map(p => String(p.player_id)));
     mine.forEach(k => {
       if (have.has(String(k.player_id))) return;
-      state.myRoster.push(Object.assign({}, k, { is_keeper: true }));
+      state.myRoster.push(withKeeperValuation(k, data));
       state.drafted.add(String(k.player_id));   // keepers are off the board
     });
+  }
+
+  /* A KEEPER SEEDED WITHOUT `vorp` IS SCORED AS WORTH ZERO, AND THE WAR ROOM
+   * THEN TELLS CORY HE BEATS HIM (session E, 2026-08-17; register E17).
+   *
+   * `kept_players` is a DIFFERENT population from `players` and carries a
+   * different field set: it has `cost_round`, `original_round`, `team_slot` and
+   * `is_keeper`, and it LACKS `vorp`, `replacement`, `pos_rank`, `overall_rank`,
+   * `tier`, `tier_drop` and `adjusted_adp`. This function used to push the row
+   * through verbatim, so `state.myRoster` — and therefore `ctx.currentKeepers` —
+   * held three players with `vorp === undefined`.
+   *
+   * `composite.js:nextYearVorp` reads `(player.vorp || 0) * factor`, so absent
+   * became a confident ZERO. That is the same shape this repo has already
+   * removed twice (the `|| echo` in the keeper workflow, the `|| undefined`
+   * weights in two suites): a missing input reading as a successful one.
+   *
+   * WHAT IT PRODUCED, measured on the live board at Cory's own picks. The
+   * keeper bar is `max(0, raw − bar)` where the bar is the weakest incumbent.
+   * With all three incumbents scored at vorp 0 the bar went NEGATIVE (−31.86 in
+   * round 1, −11.42 in rounds 5-6), so it ADDED to every candidate instead of
+   * subtracting. At pick 33 — HIS FIRST — the screen read:
+   *
+   *     Zay Flowers — KEEPER TARGET … he beats Ja'Marr Chase for the last
+   *     slot by 17 pts
+   *
+   * Ja'Marr Chase is his best keeper, projected 295.09, WR2 on the board.
+   * Four KEEPER TARGET badges fire across his twelve picks; with the keepers
+   * correctly valued, ZERO do.
+   *
+   * ORDERING IS UNAFFECTED AND I MEASURED IT RATHER THAN ASSUMING: the bar is
+   * constant across candidates at a given pick, so it shifts every keeper term
+   * equally and can only reorder through the `max(0, …)` clamp. On a
+   * market-follow board at all twelve of his picks, 0 of 120 name slots move.
+   * So this corrects a FALSE ON-SCREEN CLAIM, not a ranking.
+   *
+   * NOT AN INVENTED NUMBER. `vorp === round(proj_mean − replacement_points[pos], 2)`
+   * holds for 682 of 682 board rows, so this applies the artifact's own
+   * published formula with its own published constants. Absent inputs stay
+   * absent — no fallback constant, because a fallback is what caused this.
+   */
+  function withKeeperValuation(k, data) {
+    const seeded = Object.assign({}, k, { is_keeper: true });
+    if (seeded.vorp != null || seeded.proj_mean == null) return seeded;
+    const rp = ((data || {}).replacement || {}).replacement_points || {};
+    const repl = rp[seeded.position];
+    if (repl == null) return seeded;   // unknown position -> stay absent, do not guess
+    seeded.replacement = repl;
+    seeded.vorp = Math.round((seeded.proj_mean - repl) * 100) / 100;
+    return seeded;
   }
 
   function renderRoster() {
