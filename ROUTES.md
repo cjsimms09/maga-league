@@ -883,6 +883,34 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D11 — 🟠 THE WEEKLY LOOP IS SOUND AND ITS SEARCH SPACE IS ONE-DIMENSIONAL. FIVE
+> ARMS, ONE IDEA.** (ledger P25–P30) Cory, 08-18: *"Every week making predictions on
+> players using different strategies and then tweaking or changing until we find the
+> right blend that beats them. Vegas, Kalshi, pace of play, any other metrics we can
+> get should be tried and tried in different weighted blends!!!"*
+> **FIRST, THE GOOD NEWS, VERIFIED NOT ASSUMED:** both halves of the loop now execute.
+> They had **0 runs ever** despite being cron-scheduled since 08-16, and the Tuesday
+> grade was ~4 hours from being its own first execution. I dry-ran both: the pricer
+> wrote **500 players for week 1** (champion + 4 challengers, Vegas from `sgo_latest`,
+> 32 teams, 25 tilt-1.0 no-line, 0 byes) and the grader ran clean and correctly
+> skipped its commit and issue with nothing to grade.
+> **THE ASK:** `DEFAULT_ARMS` varies **two knobs only** — tilt scale (1.5/1.0/0.5/0.0)
+> and divisor (17/16). **Every challenger is the same Vegas signal at a different
+> volume.** Your own docstring names the consequence: *"the mechanical loop only
+> selects among the arms it is given."* **Add arms along NEW AXES before week 1.**
+> **EVIDENCE — four axes whose data is ALREADY COMMITTED and reaches nothing:**
+> `component_stats_2021-2025.json` → `tgt`, `tgt_share` · `advanced_stats_2021-2025.json`
+> → `ay_share`, `racr`, `rec_air_yd`, `rec_epa`, `wopr` · `draft/data/kalshi/`
+> (`season_ladders_*`, `weekly_markets_*`, captured daily, wired to nothing) · pace,
+> whose input is the one still to capture.
+> **REC:** one arm per axis at a single sensible weight, not a grid — the Tuesday
+> grader arbitrates, so the cheap move is breadth of AXIS, not depth of TUNING. That
+> is the opposite of the current set.
+> **DEFAULT: unanswered by 09-03 the relay proposes the arm definitions as a branch
+> for your review** — `weekly_own_projection.py` is your territory and I will not
+> reach into it. **The deadline is real: week 1 is ~09-10 and an arm that misses it
+> loses a season of grading it cannot get back.**
+>
 > **D10 — 📬 D AND E'S OPEN ITEMS, MEASURED FOR YOU SO YOU CAN RULE WITHOUT READING
 > THEIR INBOXES.** Cory, 08-18: *"make sure E and D are being seen by A and their
 > stuff is being acted on."* Their queues are full of 08-17 items still unchecked;
