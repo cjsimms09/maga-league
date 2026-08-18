@@ -1091,10 +1091,42 @@ if (!IS_FIXTURE) {
   {
     const st = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
     const full = ALL.slice(0, 120).map(p => ({ player: p }));
-    const topQBs = new Set(full.filter(e => e.player.position === 'QB')
-      .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player))
-      .slice(0, 6).map(e => String(e.player.player_id)));
-    const afterRun = full.filter(e => !topQBs.has(String(e.player.player_id)));
+
+    // THE SCENARIO MUST GUARANTEE ITS OWN PREMISE, AND MY FIRST VERSION DID NOT.
+    //
+    // I replaced two board-sensitive checks here and then wrote three more with the
+    // same flaw. `early_qb` binds only when the plan CANNOT take the man topping the
+    // board — so the run has to leave a NON-QB on top. A fixed "drop the top 6 QBs"
+    // held on the 03:49 board, where Jahmyr Gibbs (RB) led, and stopped holding on the
+    // 05:38 rebuild, where Lamar Jackson leads at $93.2. Draining six more QBs cannot
+    // help: it just promotes the next QB, and `early_qb` takes him quite happily.
+    //
+    // So the run now drains QBs UNTIL the premise is true, and if the board cannot
+    // express the scenario at all it says so instead of asserting something false.
+    const qbsByValue = full.filter(e => e.player.position === 'QB')
+      .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player));
+    const leaderIsQB = list => {
+      const top = list.slice().sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player))[0];
+      return !top || top.player.position === 'QB';
+    };
+    let drained = 0;
+    let afterRun = full;
+    while (drained < qbsByValue.length && leaderIsQB(afterRun)) {
+      drained += 1;
+      const gone = new Set(qbsByValue.slice(0, drained).map(e => String(e.player.player_id)));
+      afterRun = full.filter(e => !gone.has(String(e.player.player_id)));
+    }
+    // At least the top 6 go, so a thin run is still a RUN rather than one pick.
+    if (drained < 6) {
+      drained = 6;
+      const gone = new Set(qbsByValue.slice(0, 6).map(e => String(e.player.player_id)));
+      afterRun = full.filter(e => !gone.has(String(e.player.player_id)));
+    }
+    check('R-doctrine: the QB-run scenario is EXPRESSIBLE on this board — a non-QB '
+      + 'leads after the run (' + drained + ' QBs drained of ' + qbsByValue.length + ')',
+      !leaderIsQB(afterRun),
+      'every QB drained and a QB still leads; early_qb cannot bind and the three '
+      + 'checks below would be asserting a falsehood rather than testing one');
     const scoresFull = DD.scoreBoard(full, { liveIndex: 3, roster: [], dollarsOf });
     const scoresRun = DD.scoreBoard(afterRun, { liveIndex: 3, roster: [], dollarsOf });
     check('R-doctrine: a partial QB run prices Early-QB Strike down',

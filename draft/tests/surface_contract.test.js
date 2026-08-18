@@ -135,7 +135,31 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * kind of claim that goes stale silently — this one already did, at 62%. */
   const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const MY = D.pick_order.my_picks;
-  const keepers = (D.kept_players || []).slice();
+  /* SEEDED THE WAY THE APP SEEDS THEM, NOT VERBATIM (session E, 2026-08-17).
+   *
+   * This read `(D.kept_players || []).slice()` — the raw artifact rows, which
+   * carry no `vorp`. That is exactly the shape register E17 fixed in the app:
+   * `populateKeepers` now derives `vorp` before the keeper reaches
+   * `state.myRoster`, because `kept_players` is a different population from
+   * `players` and omits it.
+   *
+   * Left verbatim, this fixture scored Cory's three keepers as worth zero and
+   * so measured a keeper term no surface produces — the same defect
+   * `rec_rows.test.js` records for `|| undefined` weights: a suite grading a
+   * system nobody runs. It surfaced when E18 stopped the keeper bar ranking
+   * rows it cannot value: the keeper share fell from ~14% to 1.1% and the
+   * table-order check went red. The ASSERTION was right; the fixture was stale.
+   *
+   * `vorp === round(proj_mean − replacement_points[pos], 2)` holds for every
+   * board row, so this is the artifact's own formula, not an invented number. */
+  const RP = ((D.replacement || {}).replacement_points) || {};
+  const keepers = (D.kept_players || []).map(k => {
+    if (k.vorp != null || k.proj_mean == null || RP[k.position] == null) return k;
+    return Object.assign({}, k, {
+      replacement: RP[k.position],
+      vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100,
+    });
+  });
   const priced = D.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
   const roster = keepers.slice(), taken = keepers.slice(), tot = {};
   MY.forEach(p => {
@@ -147,6 +171,17 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
       totalPicks: 150, myPicksLeft: MY.filter(q => q >= p).length, roster: roster.slice(),
       doctrine: null, myPickIndex: Math.max(0, MY.indexOf(p)), totalMyPicks: MY.length,
       currentKeepers: keepers.slice(), league: D.league, weights: E.MEASURED_WEIGHTS,
+      /* THE PICK BOARD, WITHOUT WHICH SURVIVAL IS ON THE WRONG SCALE (session E,
+       * 2026-08-17, correcting my own re-derivation from earlier the same day).
+       * app.js:2066 threads `pick_order.picks` into every context it builds;
+       * survival.js converts board-slot to live-selection through it and keeps a
+       * SCALE counter precisely so "did the conversion run" is readable rather
+       * than assumed. Survival feeds VONA, so omitting it moves the very table
+       * this block re-derives: value 63.1/onesie 25.2/stack 11.6 unconverted
+       * against value 55.7/onesie 27.5/stack 16.6 on the app's scale. The ORDER
+       * is unchanged, which is why the checks below held either way — but the
+       * numbers published in the document were wrong and are now corrected. */
+      pickBoard: (D.pick_order || {}).picks || null,
       runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: p,
       intervening: next ? next - p : 0,
       roundsLeft: Math.max(0, Math.ceil((150 - p) / (D.league.teams || 10))),
@@ -191,29 +226,45 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '
     + 'of 0.0% was an artifact and not a measurement', pct('stack') > 0,
   pct('stack').toFixed(1));
-  /* RE-DERIVED 2026-08-15, AND AGAIN 2026-08-17: this asserted the full order
-   * value > keeper > onesie > stack — the 2026-08-14 board's order — and the
-   * first fresh nightly rebuild swapped the middle pair (keeper 14.3 vs
-   * onesie 16.8), which retired the middle ranks to "board-dependent". Then
-   * the 08-17 rebuild — executing Cory's same-day rulings (opportunity layer
-   * removed, K/DEF demoted, measured p90 ceilings) — re-spread the top-fives
-   * and dropped keeper's share from 14.3% to 6.7%, BELOW stack: "stack
-   * smallest" turned out to be a board-dependent claim too, it had just not
-   * moved yet. The document's table now records the 08-17 shares and retires
-   * the smallest-term rank alongside the middle ones. What a reader can
-   * still act on, pinned here: value is the largest term against EVERY other
-   * term, and each of keeper/onesie/stack is a real nonzero participant once
-   * a roster exists — any of them going above value, or to zero, fails. */
-  ck('the document\'s table order holds where it is stable — value largest '
-    + 'against every other term, the rest nonzero but unranked — which is the '
-    + 'part a reader acts on',
-  pct('value') > pct('keeper') && pct('value') > pct('onesie')
-    && pct('value') > pct('stack')
-    && pct('keeper') > 0 && pct('onesie') > 0 && pct('stack') > 0,
-  ['value', 'keeper', 'onesie', 'stack'].map(k => k + ':' + pct(k).toFixed(1)));
-  ck('and the document SAYS the middle ranks are board-dependent, so the '
-    + 'relaxation above is the document\'s claim rather than a quiet test edit',
-  /MIDDLE RANKS are board-dependent/.test(doc));
+  /* RE-DERIVED TWICE, AND THE SECOND TIME THE ORDER GOT STRONGER RATHER THAN
+   * WEAKER.
+   *
+   * 2026-08-15: this asserted value > keeper > onesie > stack — the 2026-08-14
+   * board's order — and the first fresh nightly rebuild swapped the middle pair
+   * (keeper 14.3 vs onesie 16.8). The document was relaxed to say the middle
+   * ranks are board-dependent, and this check dropped to value-first/stack-last.
+   *
+   * 2026-08-17 (registers E17/E18): that closeness WAS A DEFECT. Cory's keepers
+   * reached the roster with no `vorp`, `nextYearVorp` read `(vorp || 0)`, and
+   * three incumbents scored at zero drove the keeper bar negative — so
+   * `max(0, raw − bar)` ADDED to every candidate. With the keepers valued, the
+   * keeper term falls from 14.3% to 0.2% and stops running anywhere near
+   * `onesie`. Measured across every roster condition on this board (3, 2, 1 and
+   * 0 keepers) the order does not move: value > onesie > stack > keeper.
+   *
+   * So the full order is pinned again. The outer two carry the widest margins
+   * and are what a reader acts on; they are asserted separately below so a
+   * rebuild that nudges the middle cannot mask a break in the part that
+   * matters. */
+  ck('the document\'s table order holds in full — value > onesie > stack > keeper',
+    pct('value') > pct('onesie') && pct('onesie') > pct('stack')
+    && pct('stack') > pct('keeper'),
+    ['value', 'onesie', 'stack', 'keeper'].map(k => k + ':' + pct(k).toFixed(1)));
+  ck('and the two claims with the widest margins hold on their own — value is '
+    + 'the largest term and keeper is now the SMALLEST',
+  Object.keys(tot).every(k => k === 'value' || tot[k] <= tot.value)
+    && Object.keys(tot).filter(k => pct(k) >= 0.05)
+      .every(k => k === 'keeper' || tot[k] >= tot.keeper),
+  ['value', 'onesie', 'stack', 'keeper'].map(k => k + ':' + pct(k).toFixed(1)));
+  ck('and the document SAYS keeper is smallest and says WHY it moved, so the '
+    + 're-derivation above is the document\'s claim rather than a quiet test edit',
+  /`keeper` SMALLEST/.test(doc) && /keeper` MOVED FROM 14\.3% TO 0\.2%/.test(doc));
+  /* THE FIX THAT MOVED IT MUST STILL BE IN PLACE. Without this the table could
+   * silently drift back to measuring the defect and every check above would
+   * still pass on the old numbers. */
+  ck('the keeper bar still refuses to rank rows it cannot value (E18)',
+    /Number\.isFinite\(Number\(p && p\.vorp\)\)/.test(
+      fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'composite.js'), 'utf8')));
 }
 
 // ── 3. A ZERO-WEIGHT TERM REPORTS ZERO, NOT A NUMBER ────────────────────

@@ -94,6 +94,63 @@ function hasDefault(item) {
   return /DEFAULT\s*(IF|:)|\*\*DEFAULT/i.test(item.body.join('\n'));
 }
 
+/* AN ITEM THAT ASKS FOR NOTHING CANNOT BLOCK ITS SENDER, and counting it as
+ * blocked overstates the backlog in a way that eventually gets the number
+ * ignored.
+ *
+ * FOUND BY TURNING THIS TOOL ON MYSELF. Having just told D that six of their
+ * items into A carry no default, I checked the relay's own: **twelve.** Twice
+ * D's. Three of the four I filed today were explicitly *"NO ASK, NO DEFAULT
+ * NEEDED"* or *"No ask. Reporting a mechanism"* — informational, and the
+ * detector could not tell them from a request nobody can answer.
+ *
+ * ⚠️ REPORTED, NOT SUBTRACTED FROM THE RATCHET. This is a loophole by
+ * construction — anyone can silence the check by typing "no ask" — so it does
+ * NOT change what counts as BLOCKED, and the committed baseline stays
+ * comparable. It prints the split beside it so the two are visible at once and
+ * a lane inflating the informational half is obvious rather than hidden.
+ */
+function noAsk(item) {
+  //: only the header line, so a "no ask" buried in a later paragraph about
+  //: somebody else's item does not reclassify this one
+  return /\b(NO ASK|No ask|NO DECISION|ASK:\s*none)\b/.test(item.body[0]);
+}
+
+/* A BROADCAST IS STRUCTURALLY NOT A REQUEST, AND THIS IS THE HALF THAT CANNOT
+ * BE TYPED INTO EXISTENCE.
+ *
+ * Having warned that `noAsk` is a loophole anyone can write, the next honest
+ * step was to find a classification nobody can write. An item whose header
+ * appears verbatim in THREE OR MORE different inboxes is a rule announcement —
+ * "you do not stop a capture job", "'we can't get it' is not a finished
+ * answer", rule 3d — and a rule sent to four lanes is not four decisions
+ * pending. You cannot fake this by rewording: rewording is exactly what stops
+ * it matching.
+ *
+ * IT IS SMALL AND IS REPORTED AS SMALL: 3 broadcasts, 9 open instances out of
+ * 169. The honest conclusion is the remainder — **no mechanical rule can
+ * classify the other 160.** Only the sender knows whether a decision is owed,
+ * which is why the fix routed to D and to my own lane is "say so", not "build
+ * a better detector".
+ */
+function broadcastKeys(items) {
+  const seen = {};
+  items.forEach(function (i) {
+    const k = i.body[0].replace(/^- \[[ x]\] \S+ · [^·]+ · /, '')
+      .replace(/[*`_~]/g, '').replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 110);
+    (seen[k] = seen[k] || new Set()).add(i.section);
+  });
+  const out = new Set();
+  Object.keys(seen).forEach(k => { if (seen[k].size >= 3) out.add(k); });
+  return out;
+}
+
+function isBroadcast(item, keys) {
+  const k = item.body[0].replace(/^- \[[ x]\] \S+ · [^·]+ · /, '')
+    .replace(/[*`_~]/g, '').replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 110);
+  return keys.has(k);
+}
+
 function ageDays(item, nowMs) {
   return Math.floor((nowMs - Date.parse(item.date + 'T00:00:00Z')) / 864e5);
 }
@@ -145,6 +202,25 @@ function main() {
   console.log('  ' + stuck.length + ' BLOCKED — open, no default, ' + RESPOND_BY_DAYS
     + '+ days old. Silence answers nothing here.');
 
+  /* The split, printed beside the ratchet rather than folded into it. */
+  const openNoDefault = open.filter(i => !hasDefault(i));
+  const bkeys = broadcastKeys(items);
+  const informational = openNoDefault.filter(noAsk);
+  const bcast = openNoDefault.filter(i => isBroadcast(i, bkeys) && !noAsk(i));
+  const unknown = openNoDefault.length - informational.length - bcast.length;
+  console.log('  of ' + openNoDefault.length + ' open item(s) with no default: '
+    + informational.length + ' SAY they ask for nothing · ' + bcast.length
+    + ' are BROADCASTS (same');
+  console.log('  header in 3+ inboxes — a rule, not four decisions) · ' + unknown
+    + ' declare NEITHER, so nobody');
+  console.log('  can tell whether a decision is owed. That last number is the '
+    + 'real state of the inbox.');
+  console.log('  NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, '
+    + 'so the baseline stays');
+  console.log('  comparable and the split prints beside it. Only the broadcast '
+    + 'half is unfakeable —');
+  console.log('  rewording is precisely what stops it matching.');
+
   if (stuck.length) {
     console.log('\n  waiting on:');
     byLane(stuck, now).slice(0, 8).forEach(function (l) {
@@ -157,6 +233,55 @@ function main() {
         const head = i.body[0].replace(/^- \[ \] /, '').replace(/\s+/g, ' ');
         console.log('    ' + ageDays(i, now) + 'd  ' + head.slice(0, 96));
       });
+  }
+
+  /* ── DOES THE LOOP VISIBLY CLOSE? ─────────────────────────────────────────
+   *
+   * Cory, 2026-08-18: *"Is A now seeing and responding to D and E requests?"*
+   * The blocked count above could not answer that, and answering it by hand
+   * turned up the reason it matters:
+   *
+   *     E (red team) → A    26 items    19 ticked (73%)    0 with no default
+   *     D            → A    19 items     1 ticked ( 5%)   17 with no default
+   *
+   * A HAD answered both — `A → D` carries *"YOUR LATEST REPORT, ANSWERED POINT
+   * BY POINT"* the same day. **Nothing ticked D's originals**, so from D's side
+   * the inbox reads as nineteen unanswered asks. A's own reply names the cause:
+   * *"two of your three questions were already answered there AND YOU HAD NOT
+   * SEEN IT."* That is not A failing to respond; it is the loop not closing
+   * where the asker looks.
+   *
+   * The blocked ratchet cannot see this: an item answered-but-unticked is
+   * indistinguishable from one nobody read, and D's are all under the 3-day
+   * threshold today — **all seventeen trip on 08-20, keeper-lock day.**
+   *
+   * So the closure rate is reported per sender. It is a NUMBER, not a gate:
+   * a low rate can be a genuine backlog or pure bookkeeping, and no static rule
+   * tells those apart. The asymmetry is the thing to look at.
+   */
+  const pairs = {};
+  items.forEach(function (i) {
+    if (!i.section) return;
+    //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
+    //: keying on it raw prints "relay → A → A" and splits one pair into two.
+    const from = i.who.replace(/\s*→.*$/, '').trim();
+    const k = from + ' → ' + i.section;
+    (pairs[k] = pairs[k] || { n: 0, done: 0, noDefault: 0 });
+    pairs[k].n++;
+    if (i.done) pairs[k].done++;
+    else if (!hasDefault(i)) pairs[k].noDefault++;
+  });
+  const big = Object.keys(pairs).filter(k => pairs[k].n >= 5)
+    .sort((a, b) => (pairs[a].done / pairs[a].n) - (pairs[b].done / pairs[b].n));
+  if (big.length) {
+    console.log('\n  DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient');
+    console.log('  (a low rate is a QUESTION: real backlog, or answered and never ticked?)');
+    big.forEach(function (k) {
+      const p = pairs[k];
+      console.log('    ' + k.padEnd(24) + String(p.n).padStart(4) + ' items  '
+        + String(Math.round(100 * p.done / p.n) + '%').padStart(5) + ' ticked  '
+        + String(p.noDefault).padStart(3) + ' open with NO default');
+    });
   }
 
   if (base.blocked == null) {
@@ -213,6 +338,7 @@ function main() {
   return 0;
 }
 
-module.exports = { parse, hasDefault, ageDays, blocked, byLane, RESPOND_BY_DAYS, main };
+module.exports = { parse, hasDefault, noAsk, broadcastKeys, isBroadcast, ageDays,
+  blocked, byLane, RESPOND_BY_DAYS, main };
 
 if (require.main === module) process.exit(main());

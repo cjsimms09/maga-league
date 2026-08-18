@@ -393,6 +393,12 @@ def document(cal: dict) -> dict:
         "positions_not_measured": POSITIONS_NOT_MEASURED,
         "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
                   for k, v in (cal.get("cells") or {}).items()},
+        # A position the board PRICES but this instrument cannot measure is
+        # DECLARED, never left as an absence — `cells_unmeasurable` counts only
+        # cells that were attempted, so an absent position reads identically to
+        # one that had no problem. Emitted from document() rather than save()
+        # because document() is the single definition of the on-disk shape.
+        "positions_not_measured": POSITIONS_NOT_MEASURED,
         "population": FP.of_records(rows, fields=CELL_FIELDS),
     }
 
@@ -452,7 +458,7 @@ def _assemble_asof_bundles(seasons=CALIBRATION_SEASONS) -> dict:  # pragma: no c
     separately re-derived one — calls this instead. Two functions independently
     rebuilding "how do you get a leak-free historical bundle" is exactly the
     two-places-that-drift shape rule 11 warns about, and this file already
-    carries one cautionary tale about that (the RB-flatness/register-31 class
+    carries one cautionary tale about that (the RB-flatness/register-39 class
     of question becomes unanswerable if there are two candidate derivations).
 
     ⚠ REUSES `cli.py`'s SEASON-ASSEMBLY MACHINERY RATHER THAN RE-DERIVING IT.

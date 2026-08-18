@@ -114,8 +114,16 @@
   <span class="info" tabindex="0">&#9432;<span class="tip">WHAT: a real switch —
   it writes the <code>model_controls</code> doc, and
   <code>src/proj_feed.js</code> (the one shared feed) reads it; nothing else
-  does. READ: <b>blend</b> = proj_mean, the Sleeper+FP blend the tools have
-  always used (default = current behavior). <b>sleeper</b> / <b>fantasypros</b>
+  does. READ: <b>blend</b> = proj_mean, the board's own number and what the
+  tools have always used (default = current behavior). <b>&#9888; The option is
+  NAMED &ldquo;blend&rdquo; and proj_mean is NOT a blend</b> &mdash; measured on
+  the live board, <code>proj_mean == proj_sleeper</code> for <b>609 of 609</b>
+  players carrying both, so FantasyPros enters it for nobody (register 21; the
+  option key stays <code>blend</code> because <code>model_controls</code> and
+  <code>proj_feed.js</code> persist that string &mdash; renaming it would
+  invalidate the stored setting). If you want Sleeper and FantasyPros actually
+  averaged, that is the <b>sleeper_fp_average</b> arm below, not this one.
+  <b>sleeper</b> / <b>fantasypros</b>
   = that provider's season total alone. <b>sleeper_fp_average</b> = their
   simple mean (when one side is missing a player, the feed uses the other and
   says so in its basis string — never a silent zero). DO: read the cumulative

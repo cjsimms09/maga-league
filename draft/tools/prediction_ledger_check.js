@@ -124,6 +124,37 @@ function check(text, todayStr, opts) {
     }
   }
 
+  /* ── TWO ROWS, ONE ID (added 2026-08-18, on a live collision) ──────────────
+   *
+   * `seen` was an ARRAY and nothing ever looked at it twice, so the ledger could
+   * carry the same id on two different predictions and this checker would print
+   * "67 predictions, none overdue" — a check that cannot fail, reported as a check
+   * that passed, which is this session's recurring defect in its purest form.
+   *
+   * IT HAD ALREADY HAPPENED. A filed the three V7-candidate preregs as P62/P63/P64
+   * at 04:43:53 (a195f440e); the relay filed three unrelated predictions under the
+   * SAME three ids at 04:52, 05:34 and 05:38. Nine minutes apart, two authors, no
+   * shared allocator — which is the whole mechanism, and no amount of care fixes
+   * it because neither author could see the other's uncommitted work.
+   *
+   * WHY THIS IS WORSE THAN A COSMETIC CLASH: every other rule in this file is
+   * keyed by id. "Grade P63" addresses two rows with different owners, different
+   * grade-by dates (08-18 vs 09-05) and opposite statuses. One of them was already
+   * GRADED FALSE while the other sits OPEN, so the ledger simultaneously said the
+   * loop was closed and that it was not. Resolved by FIRST ALLOCATION WINS — A
+   * kept P62-64, the relay's three graded rows became P65-67 (nothing referenced
+   * them outside this file; checked before renumbering).
+   *
+   * A hard failure, not a ratchet: unlike the ROUTES backlog there is no legacy
+   * pile to work off, and the fix is always a rename that costs nothing. */
+  const dupes = [...new Set(seen.filter((id, i) => seen.indexOf(id) !== i))];
+  for (const id of dupes) {
+    problems.push(
+      `${id}: TWO ROWS SHARE THIS ID. Every rule here is keyed by id, so "grade ${id}" ` +
+      `is ambiguous and one row can be GRADED while the other is OPEN. ` +
+      `First allocation wins — renumber the LATER row to the next free id.`);
+  }
+
   if (!seen.length) {
     problems.push('NO PREDICTION ROWS PARSED — the ledger table shape changed, and a ' +
                   'check that silently matches nothing is worse than no check.');
