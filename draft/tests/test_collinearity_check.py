@@ -112,3 +112,41 @@ def test_the_calibration_table_matches_the_registers_it_cites():
     assert C.CALIBRATION["snap_share_vs_prior_points"]["survives"] is False
     assert C.CALIBRATION["weekly_sd_vs_mean"]["survives"] is False
     assert C.CALIBRATION["weekly_cv_vs_mean"]["survives"] is True
+
+
+def test_the_noise_floor_is_n_aware_and_monotone():
+    """DEFECT GUARDED: reading every study against one sample size.
+
+    The first version of this calibration was stated at n=300 only, and three
+    studies running at n=136-362 were read against it. The floor at n=150 is
+    nearly double the floor at n=400, so a single figure mischaracterised folds
+    in both directions — it called snap share's +0.140 (n=354, floor +0.086) a
+    noise draw when it clears comfortably.
+    """
+    floors = [C.noise_floor(n) for n in (100, 150, 200, 300, 400)]
+    assert floors == sorted(floors, reverse=True), floors
+    assert C.noise_floor(100) > C.noise_floor(400) * 1.8, floors
+
+    # interpolates between measured sizes rather than snapping to one
+    mid = C.noise_floor(250)
+    assert C.noise_floor(300) < mid < C.noise_floor(200), mid
+
+    # and is defined outside the measured range rather than raising
+    assert C.noise_floor(50) == C.noise_floor(100)
+    assert C.noise_floor(5000) == C.noise_floor(400)
+
+
+def test_the_published_folds_are_read_against_their_own_n():
+    """The three graded studies re-read: each fold's partial against the floor
+    for ITS sample size. Pins the corrected reading so it cannot drift back to a
+    single-n comparison."""
+    snap = json.loads((ROOT / "draft" / "backtest" / "snap_share_arm.json").read_text())
+    for fold, v in snap["folds"].items():
+        n = v["population"]["also_in_points_y1"]
+        assert 300 < n < 400, (fold, n)
+        assert C.noise_floor(n) < 0.10, (fold, n)   # not the n=300 figure
+
+    routes = json.loads((ROOT / "draft" / "backtest" / "routes_tprr_study.json").read_text())
+    for fold, v in routes["e2_increment"].items():
+        n = v["population"]["also_present_in_points_store"]
+        assert C.noise_floor(n) > 0.12, (fold, n)   # a much higher bar at n~150

@@ -31,13 +31,13 @@ TPRR and snap share both *persisted* — and both persistences were inherited.
 
 **`cv` survives 2 of 2. Raw `sd` survives 0 of 2.**
 
-> **CALIBRATION ADDED AFTER THE FACT, AND IT WEAKENS ONE OF THESE.** Measured on
-> synthetic data with zero true trait (n=300, 40 seeds): the partial statistic is
-> **unbiased** (mean −0.001) but **spreads about ±0.13**. So **the 2023→24 cell
-> at +0.133 sits on the noise floor and is weak on its own** — it is the 2024→25
-> cell at **+0.264** that carries this result, plus the fact that both point the
-> same way while `sd` points at nothing in either. **Read replication over size.**
-> `collinearity_check.NOISE_SPREAD_AT_N300`.
+> **CALIBRATION ADDED AFTER THE FACT.** The zero-trait p95 for this statistic is
+> **+0.126 at n≈197** (`collinearity_check.noise_floor`; it scales from +0.157 at
+> n=100 to +0.074 at n=400). So **the 2023→24 cell at +0.133 clears its floor by
+> almost nothing and is weak on its own** — it is the 2024→25 cell at **+0.264**,
+> more than double the floor, that carries this result, together with both folds
+> pointing the same way while `sd` points at nothing in either. **Read replication
+> over size.**
 
 ## What that means, and it is actionable before anything ships
 

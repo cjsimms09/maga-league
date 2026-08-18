@@ -40,12 +40,31 @@ REDUNDANT_ABOVE = 0.75
 PERMUTATIONS = 400
 SEED = 20260817
 
-#: HOW BIG A PARTIAL HAS TO BE. Measured 2026-08-17 on synthetic data with ZERO
-#: true trait, n=300, 40 seeds: the partial is UNBIASED (mean -0.001) but
-#: spreads about +/-0.13. So a single fold returning +0.13 is a coin-flip draw,
-#: not evidence, and the permutation null sits at ~+0.095 for that shape.
-#: Read single-fold partials near the null as weak; weight replication over size.
-NOISE_SPREAD_AT_N300 = 0.13
+#: HOW BIG A PARTIAL HAS TO BE, AND IT DEPENDS ON n. Measured 2026-08-17 on
+#: synthetic data with ZERO true trait, 60 seeds per size: the partial is
+#: UNBIASED at every n (means -0.009..+0.009) but its spread scales sharply.
+#: A partial at or below the p95 for its own n is a coin flip, not evidence.
+#:
+#: THE FIRST VERSION OF THIS CONSTANT WAS STATED AT n=300 ONLY, and I read three
+#: studies against it that ran at n=136-362 — the floor at n=150 is nearly
+#: DOUBLE the floor at n=400, so a single figure was the wrong shape for the job.
+NOISE_FLOOR_P95 = {100: 0.157, 150: 0.128, 200: 0.126, 300: 0.100, 400: 0.074}
+
+
+def noise_floor(n: int) -> float:
+    """The zero-trait p95 for a sample of size `n`, interpolated between the
+    measured sizes. Read any partial against THIS, not against a fixed number."""
+    sizes = sorted(NOISE_FLOOR_P95)
+    if n <= sizes[0]:
+        return NOISE_FLOOR_P95[sizes[0]]
+    if n >= sizes[-1]:
+        return NOISE_FLOOR_P95[sizes[-1]]
+    lo = max(x for x in sizes if x <= n)
+    hi = min(x for x in sizes if x >= n)
+    if lo == hi:
+        return NOISE_FLOOR_P95[lo]
+    w = (n - lo) / (hi - lo)
+    return round(NOISE_FLOOR_P95[lo] + w * (NOISE_FLOOR_P95[hi] - NOISE_FLOOR_P95[lo]), 4)
 
 #: Measured 2026-08-17. Comparables so the next candidate is read against
 #: something rather than against intuition. `verdict` is what the graded study

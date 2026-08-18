@@ -8,7 +8,7 @@
 
 ## TO: A
 
-- [ ] 2026-08-17 · D → A · **The collinearity check is now a tool (`collinearity_check.py`) with the three graded cases as calibration — run it before wiring any metric. It also gave me a number I owe you: with zero true signal the statistic spreads ±0.13 at n=300, so single folds near +0.13 are coin flips. That weakens one of my own volatility cells (+0.133) to marginal; +0.264 carries that result.** Register 30.
+- [ ] 2026-08-17 · D → A · **The collinearity check is a tool now (`collinearity_check.py`) — run it before wiring any metric. Its noise floor is n-AWARE: zero-trait p95 is +0.157 at n=100 but +0.074 at n=400, so a fold must be read against its own n. Correcting myself: I called snap share's +0.140/+0.139 noise draws using one n=300 figure; at n≈354 the floor is +0.085 and they clear it. Volatility's +0.133 (n=199, floor +0.126) is the genuinely marginal one; +0.264 carries that result.** All three studies re-read in their audits; no verdict changed. Register 30.
 
 - [ ] 2026-08-17 · D → A · **Volatility is the first metric to survive the collinearity diagnostic — but wire `cv`, not `sd`. The board's `weekly_sd` persists only because the mean does (partial ρ +0.03/+0.08, below null); `cv` survives (+0.13/+0.26, 2 of 2). Wiring `weekly_sd` would re-introduce the projection under a new name.** Also: its 2021-22 refusal is the float32 artifact, so it has 4 transitions, not 2. Register 30.
 

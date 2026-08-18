@@ -175,3 +175,19 @@ relay flagged to C on 08-17. Routed to C, and row 10 corrected.
 fold* needs either a re-score of 2021-22 under the current table, or a study
 design that keeps folds within a fingerprint — which this study demonstrates is
 possible, and which gave E2 three folds instead of one.
+
+## NOISE-FLOOR RE-READ (added 2026-08-17, after the floor was measured per-n)
+
+The zero-trait p95 for the partial statistic scales sharply with sample size —
+**+0.157 at n=100, +0.128 at n=150, +0.100 at n=300, +0.074 at n=400**
+(`collinearity_check.noise_floor`). Every fold below is re-read against the floor
+for **its own n**, which an earlier single-n figure got wrong.
+
+| fold | n | partial | floor(n) | reads as |
+|---|---|---|---|---|
+| 2021→22 | 136 | +0.128 | +0.136 | **at/below floor** |
+| 2022→23 | 143 | +0.142 | +0.132 | just above |
+| 2023→24 | 150 | +0.171 | +0.128 | above |
+| 2024→25 | 154 | +0.026 | +0.128 | **at/below floor** |
+
+**The verdict does not change.** `clears: false` stands, and is now BETTER supported — two of the four folds sit at or below the floor for their n, so the apparent partial signal is thinner than the raw numbers suggested. The collinearity mechanism (ρ 0.74–0.82 with targets) remains the explanation.

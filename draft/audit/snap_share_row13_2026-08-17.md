@@ -54,3 +54,19 @@ advance.
 > RB committee splits should matter most.
 
 **The weekly job keeps running.** Rule 3c. **Nothing installs.**
+
+## NOISE-FLOOR RE-READ (added 2026-08-17, after the floor was measured per-n)
+
+The zero-trait p95 for the partial statistic scales sharply with sample size —
+**+0.157 at n=100, +0.128 at n=150, +0.100 at n=300, +0.074 at n=400**
+(`collinearity_check.noise_floor`). Every fold below is re-read against the floor
+for **its own n**, which an earlier single-n figure got wrong.
+
+| fold | n | partial | floor(n) | reads as |
+|---|---|---|---|---|
+| 2021→22 | 354 | +0.140 | +0.086 | **above** |
+| 2022→23 | 344 | +0.060 | +0.089 | at/below floor |
+| 2023→24 | 362 | −0.020 | +0.084 | at/below floor |
+| 2024→25 | 358 | +0.139 | +0.085 | **above** |
+
+**The verdict does not change.** `clears: false` stands (2 of 4, one negative). **But a correction to how I first characterised these:** I called the two positive folds noise-floor draws using a single n=300 figure. At n≈354 the floor is **+0.085**, so +0.140 and +0.139 clear it by a real margin. They are genuine positive folds that failed to replicate in the other two — which is a weaker claim than 'signal' and a stronger one than 'noise'.
