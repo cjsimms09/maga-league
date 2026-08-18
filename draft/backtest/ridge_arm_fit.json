@@ -1,0 +1,78 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by ridge_arm_fit.py",
+ "_what": "V7 C2: Ridge vs OLS on v2's own 4-parameter fit, alpha chosen nested-walk-forward (never on the scored season). Prior stated in the module docstring: a null is likely at 4 parameters and would CLOSE C2 honestly.",
+ "alphas_swept": [
+  0.0,
+  0.1,
+  1.0,
+  10.0,
+  100.0,
+  1000.0
+ ],
+ "results": {
+  "QB": [
+   {
+    "scored_on": 2024,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.6052,
+    "rho_ols": 0.5909,
+    "gap": 0.0143
+   },
+   {
+    "scored_on": 2025,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.6652,
+    "rho_ols": 0.6625,
+    "gap": 0.0027
+   }
+  ],
+  "RB": [
+   {
+    "scored_on": 2024,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.7159,
+    "rho_ols": 0.7074,
+    "gap": 0.0085
+   },
+   {
+    "scored_on": 2025,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.7623,
+    "rho_ols": 0.7623,
+    "gap": 0.0
+   }
+  ],
+  "WR": [
+   {
+    "scored_on": 2024,
+    "alpha_chosen_on_prior": 10.0,
+    "rho_ridge": 0.6983,
+    "rho_ols": 0.6979,
+    "gap": 0.0004
+   },
+   {
+    "scored_on": 2025,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.773,
+    "rho_ols": 0.7731,
+    "gap": -0.0001
+   }
+  ],
+  "TE": [
+   {
+    "scored_on": 2024,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.6835,
+    "rho_ols": 0.6786,
+    "gap": 0.0049
+   },
+   {
+    "scored_on": 2025,
+    "alpha_chosen_on_prior": 1000.0,
+    "rho_ridge": 0.7511,
+    "rho_ols": 0.7512,
+    "gap": -0.0001
+   }
+  ]
+ }
+}

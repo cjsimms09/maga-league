@@ -319,6 +319,16 @@
     "python3",
     "draft/backtest/recency_weight_fit.py"
    ]
+  },
+  {
+   "id": "ridge_arm_fit",
+   "description": "V7 C2: Ridge vs OLS on v2's 4-parameter fit, nested walk-forward alpha. Verdict: null-to-marginal (gaps 0.000-0.014, second transitions ~0) \u2014 exactly the stated prior; C2 closes unless the harness contradicts.",
+   "owner_module": "draft/backtest/ridge_arm_fit.py",
+   "artifact_path": "draft/backtest/ridge_arm_fit.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/ridge_arm_fit.py"
+   ]
   }
  ],
  "_not_yet_migrated": [
