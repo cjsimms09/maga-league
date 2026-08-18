@@ -23,8 +23,17 @@ STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code
 condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
 when someone finally checked the disk.**
 
-**Where the edge stands, measured:** the draft tool **ties Cory (−6.5) and loses
-to the league's best drafter (−163)**. That is the number to beat.
+**Where the edge stands, measured — CORRECTED 08-18:** this line used to read
+*"ties Cory (−6.5) and loses to the league's best drafter (−163)"*. **The −163
+seat belongs to ds7mmet, whom the replay's own drafter study ranks FOURTH of ten.
+The rank-1 drafter is Schmelley and the tool is −29.0 there — better than the
+league median seat.** The label was assigned from the delta it was offered to
+explain. What the table actually supports: **across 30 seat-years the tool is
+−32.8 on average with an sd of 116.9 — 3.6× the effect — and wins 15 of 30.**
+It does not track drafter skill (ρ −0.25, p=0.50, control fires at p=0.013).
+**So the honest headline is "roughly a wash, measured too noisily to rank
+anyone".** `draft/audit/replay_best_drafter_claim_2026-08-18.md`; guarded by
+`test_best_drafter_claim.py`.
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field

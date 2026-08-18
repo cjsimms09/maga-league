@@ -163,3 +163,26 @@ with a known-positive control that proves it can fail.** If you cannot make a
 check fail on purpose, it is not evidence. That is the standard the whole project
 now runs on, and it exists because a weight sat at zero for weeks on a
 measurement that could not have come out any other way.
+
+## AND THE SAME STANDARD APPLIES TO PROSE — added 2026-08-18
+
+**A sentence that summarises an artifact is a claim, and it is checkable.**
+
+`CLAUDE.md`, `OWNERS.md` and two `ROUTES.md` entries carried the project's
+headline edge number — *"loses to the league's best drafter (−163)"* — for two
+days. The artifact they cite ranks that owner **4th of ten**, thirty lines from
+the delta being quoted, and its own `honesty` list forbids the read in advance.
+
+**Nobody had to measure anything to find it. The two numbers were in one file.**
+
+This lane already made a lifecycle step number testable
+(`test_data_lifecycle_predicts_column.py`) and a register owner testable
+(`test_defect_register.py`). The third is now
+`test_best_drafter_claim.py`: **no prose file may crown a drafter the artifact
+does not crown, or attribute a seat delta to an owner it does not belong to.**
+
+**The reason to keep doing this:** the numbers in `CLAUDE.md` are trusted without
+re-derivation, by every session, on boot. A wrong one there is the cheapest
+possible error to make and the most expensive to hold.
+
+`draft/audit/replay_best_drafter_claim_2026-08-18.md`. Register 31.

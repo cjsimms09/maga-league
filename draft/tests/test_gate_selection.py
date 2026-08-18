@@ -125,6 +125,34 @@ REPO_PARITY_NODES = {
     # them in here was refused by this very test, in the right words:
     # "soundness tests the gate would silently skip".
     "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+    # Added 2026-08-18 by SESSION D. ⚠️ TERRITORY: A file, edited by D — third
+    # such trespass, same offer: SEND BACK and I re-prep it as a diff.
+    #
+    # A SIXTH shape, and the first that checks PROSE against an artifact:
+    # CLAUDE.md / OWNERS.md / ROUTES.md summarise replay_league_table.json for
+    # readers who will not open it, and all three crowned ds7mmet "the league's
+    # best drafter" — whom that artifact's own drafter study ranks 4th of 10.
+    # Both files forbade the read in advance. The claim is now derived from the
+    # artifact instead of remembered (same move as
+    # test_data_lifecycle_predicts_column.py).
+    #
+    # MARKED because a re-run of replay_all_seats.py can reorder the drafter
+    # ranking and turn these red on a day the board is fine — a stale sentence
+    # must never refuse a board rebuild. Green today.
+    #
+    # ONLY these four nodes. The other five in that file are pure logic — the
+    # detector's known-positive controls and the ranking's shape — and must
+    # stay in the gate, since without them the four below are vacuous.
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[CLAUDE.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[OWNERS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[ROUTES.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[STATUS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[DRAFT-WEEK-BRIEF.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[CLAUDE.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[OWNERS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[ROUTES.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[STATUS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[DRAFT-WEEK-BRIEF.md]",
     # Added 2026-08-17. DRAFT-WEEK-BRIEF.md is what CLAUDE.md points every
     # session at, so its numbers are trusted without re-derivation — which makes
     # a drifted number there costlier than one anywhere else. These three check
