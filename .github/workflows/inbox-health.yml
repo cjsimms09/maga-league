@@ -108,7 +108,18 @@ jobs:
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
 
-          strip() { grep -v '^_Last measured:' "$1" 2>/dev/null || true; }
+          # COMPARE ONLY THE NUMBERS THAT DECIDE SOMETHING.
+          #
+          # v1 committed on any diff, and the timestamp guaranteed one — nine commits
+          # in an hour. v2 ignored the timestamp and still wrote EIGHT more, because
+          # the report also prints the total item count and the five oldest items, and
+          # every route filed changes those. The commits were honest and still noise:
+          # a health report that commits whenever anyone writes a sentence is a health
+          # report nobody will read.
+          #
+          # So the comparison is now the ratchet line and the per-lane block — the
+          # numbers a human would act on. Everything else can churn silently.
+          strip() { grep -E '^  [0-9]+ BLOCKED|^      [0-9]+ +[0-9]+d oldest|^  baseline ' "$1" 2>/dev/null || true; }
           git show HEAD:INBOX-HEALTH.md > /tmp/prev.md 2>/dev/null || : > /tmp/prev.md
 
           if diff -q <(strip /tmp/prev.md) <(strip INBOX-HEALTH.md) >/dev/null 2>&1; then
