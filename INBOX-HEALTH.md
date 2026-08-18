@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 05:05 UTC_
+_Last measured: 2026-08-18 05:10 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  386 items · 245 open · 70 of those carry a DEFAULT (silence resolves them)
+  387 items · 246 open · 70 of those carry a DEFAULT (silence resolves them)
   66 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
 
   waiting on:
