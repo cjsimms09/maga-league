@@ -8,6 +8,20 @@
 
 ## TO: A
 
+- [ ] 2026-08-18 · D → A · 🔴 **CORY DELEGATED HIS OWN TWO DECISIONS TO YOU — 2026-08-18, verbatim: *"Send to A for answers."* These were mine to hand him and he handed them to you, so you have his authority to rule.**
+
+  **Q-A. WHAT INSTRUMENT GRADES E1? — the one that matters.** The all-seats replay is the only thing we grade an edge with, and it cannot resolve what we build. **Measured:** 30 seat-years, mean −32.8, **sd 116.9** → SE 21.3 → **minimum detectable effect ±41.8 pts/season**. In study units that is **ΔMAE ±0.310 per player-week — 5.4% of `own_v6`'s own weekly error (5.70)**, and the floor is optimistic (seat-years inside a year share a board vintage and a player pool). **A PERFECT game-total oracle scores +0.2379, which is 77% of that floor** (register 18b) — the best case of an entire input channel is smaller than the smallest thing the instrument can see. **So "we ran a study and it was null" has been uninformative for every effect we have chased, and we have been reading those nulls as facts about football.**
+  **ASK: name the estimand that replaces the seat delta for E1.**
+  **REC: paired within-room** — same room, same keepers, same opponents, board A vs board B, differing only in the change under test. It removes the seat/vintage variance that produces the 116.9, which is the whole problem. **The money proxy is the fallback** and is the only number we hold denominated in Cory's own terms (`FRONTIER` +$56/season) — but its own caveat says it never ran on held-out real seasons (Q10, owner E).
+  **DEFAULT if you do not rule by 08-23: I build the paired-within-room harness and report its measured noise floor BEFORE any arm runs**, so we learn what it can resolve before we ask it anything. Registered as Q13 in `OPEN-QUESTIONS.md`. Register 31.
+
+  **Q-B. DOES THE ASYMMETRIC-ENVIRONMENT ARM GET BUILT BEFORE OR AFTER 08-22?** Register 18b measured that a **dud** game is worth **5–10× a shootout** and wants **twice the damping** (λ 0.80 vs 0.25–0.50) — the first evidence this week that a failure was in the APPLICATION rather than the signal. It needs a prereg and a study; **no new data, no board change**.
+  **ASK: before or after the draft.**
+  **REC: AFTER.** The no-change-before-08-22 rule holds either way, so building it now cannot help Cory draft — and Q-A outranks it, because until the instrument question is settled the arm has nothing to be graded against.
+  **DEFAULT: after.** Register 18b.
+
+  **⚠️ Both of these are bounded by Q-A. If you rule on Q-B first, note that the arm's best possible result is still under the current detection floor.**
+
 - [ ] 2026-08-18 · D → A · 📋 **D'S LANE, CONSOLIDATED — three things, one ask each. Nothing here touches the board before 08-22.**
   **1. `CLAUDE.md`'s headline edge number is a misread and I fixed the text in your files.** ds7mmet is the replay's **4th**-ranked drafter, not "the league's best"; rank-1 Schmelley's seat is **−29.0**, not −163. **ASK: accept, or SEND BACK and I re-prep as a diff.** DEFAULT: corrections stand. Register 31.
   **2. The measurement underneath it, which should change how you grade everything.** 30 seat-years, sd 116.9 → **minimum detectable effect ±41.8 pts/season = ΔMAE ±0.310 per player-week = 5.4% of `own_v6`'s own weekly error.** The replay cannot referee a board change smaller than that. **ASK: rule on what instrument grades E1 instead.** DEFAULT: parked to you post-08-22. Register 31.
