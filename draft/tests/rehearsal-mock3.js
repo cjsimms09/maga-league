@@ -104,8 +104,15 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
    * and help view are deliberately not .card so this census stays meaningful.
    * 18 → 19 (2026-08-16): the ADP-movers card (Cory: "a small screen on war
    * room showing the top 10 ADP movers up and top 10 down") joined the Zone-2
-   * rail — one real card added by warroom.ejs, counted the day it landed. */
-  check('nothing was deleted — 19 cards survive the restructure', layout.cards === 19, 'cards=' + layout.cards);
+   * rail — one real card added by warroom.ejs, counted the day it landed.
+   * 19 → 18 (2026-08-17, B): NOT a deletion. Cory's "easily see the last 5-8
+   * picks" ask moved the Recent Picks card from ROSTERS (a plain .card) to
+   * the top of the DRAFT tab's right rail — restyled as a .wr-railcard to
+   * match the other rail cards it now sits beside (Running Out, Tier Cliffs,
+   * Survival), so it no longer matches this census's own selector. The
+   * content and the element both still exist; only the class changed, on
+   * purpose, per the design language already governing that rail. */
+  check('nothing was deleted — 18 .card elements survive the restructure (+1 .wr-railcard the census does not count, see above)', layout.cards === 18, 'cards=' + layout.cards);
 
   // ---- SEAT IDENTITY (mock #1 severity-1) ---------------------------------
   const seat = await page.evaluate(() => window.__wrDiag());
