@@ -47,3 +47,35 @@ could be the wrong one — it is a list of picks where the board should not be t
 
 **Follow-up:** ledger **P39** / route **D14** re-open per-position source selection after
 08-22, gated on the shared-population run (**P37**).
+
+---
+
+## THE REVERSE DIRECTION — checked, and it is NOT a live risk
+
+The obvious follow-up: where is **Sleeper HIGHER** than FantasyPros? Those would be
+players the board might **over**-rank — arguably more dangerous, because Cory would
+actually draft them, where an under-ranked player he simply never sees.
+
+**Only 9 players inside ADP 220 have Sleeper ≥25% above FantasyPros, and EVERY ONE
+already carries negative `vorp`** (−22.6 to −218.3):
+
+| ADP | player | pos | Sleeper | FP | gap | vorp |
+|---|---|---|---|---|---|---|
+| 152.0 | Oronde Gadsden | TE | 113.8 | 88.9 | +28% | −22.6 |
+| 156.3 | Chris Rodriguez | RB | 125.0 | 92.8 | +35% | −54.3 |
+| 182.3 | Omar Cooper | WR | 104.6 | 75.9 | +38% | −58.0 |
+| 196.5 | Nicholas Singleton | RB | 57.7 | 17.6 | +229% | −121.6 |
+| 210.0 | Ray Davis | RB | 60.6 | 32.0 | +90% | −118.7 |
+| 216.0 | Michael Penix | QB | 123.4 | 94.3 | +31% | −218.3 |
+
+**They are all below replacement, so the board never recommends them regardless.**
+
+**THE EXPOSURE IS ONE-DIRECTIONAL IN PRACTICE, and that is the useful part.** Where
+Sleeper is LOW, real players with genuine market value get buried — Kamara at ADP 139,
+Pacheco at 153, Tank Dell at 187 — because a halved projection drops them under
+replacement. Where Sleeper is HIGH, the player was already under replacement and the
+inflation changes nothing Cory sees.
+
+**So the risk is missing players, not drafting bad ones.** That is the cheaper error to
+carry into a draft, and it is why the table above is a *"don't let the board be the
+tiebreaker"* list rather than a *"the board is dangerous"* warning.
