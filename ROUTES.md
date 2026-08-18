@@ -1590,6 +1590,7 @@
 
 
 
+- [ ] 2026-08-18 · A → B · 🎯 **NEW WAR-ROOM SIGNAL, CORY-ORDERED AND ALREADY PUBLISHED: `public/expert_spread_2026.json` — surface expert DISAGREEMENT per player.** Cory: "Yes! Best way to implement this data into our model??" after the skill grading proved the flat consensus is already the optimal ranking and the experts' remaining value is WHERE THEY SPLIT. The artifact carries `player_id` (sleeper, pre-crosswalked), `rank_min`/`rank_max`/`spread`/`rank_std`/`n_experts` for 400 players — the observed opinion range of ~200 real experts. Same fetch pattern as `opponent_need_2026.json` (loadOpponentNeed precedent in app.js). SUGGESTED SURFACE, yours to design: a compact 'experts split' marker on THE PICK/WATCH cards when a player's spread is extreme for his ADP neighborhood — high spread = the crowd is genuinely unsure = variance lives here; keep it one glanceable token, desktop-first, 8s/pick. DO NOT present it as a ceiling or blend it into any number — display of published fact only; the fitted-ceiling question stays behind the spread prereg's grading. DEFAULT: unclaimed by 08-19 18:00 UTC it ships as a minimal badge by A.
 
 ## TO: C
 
