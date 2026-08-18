@@ -46,8 +46,16 @@ const byName = n => board.players.find(p => p.name === n);
     !!nix && !!purdy && nix.pos_rank > 8 && purdy.pos_rank <= 8,
     nix && purdy ? `Purdy QB${purdy.pos_rank} (4-8), Nix QB${nix.pos_rank} (9-16)` : 'missing');
 
-  ck('CONTROL: and the WORSE projection still carries the BIGGER raw ceiling',
-    nix.proj_mean < purdy.proj_mean && nix.proj_ceiling > purdy.proj_ceiling,
+  /* Re-pinned 2026-08-18 (v25 sweep): this control DOCUMENTED the pathology —
+   * Nix's deeper band carried a bigger p90 ratio than Purdy's, so the worse
+   * projection printed the bigger ceiling. The per-player volatility term
+   * healed the live pair (Purdy's own 2025 volatility now prices his tail),
+   * so the control flips to pin the HEALED state; if it inverts again, a
+   * cross-band ratio artifact is back on the board and the guard below is
+   * load-bearing again. */
+  ck('CONTROL: the band-edge pathology is healed on the live pair — the better '
+    + 'projection carries the bigger ceiling again',
+    nix.proj_mean < purdy.proj_mean && nix.proj_ceiling < purdy.proj_ceiling,
     `Nix proj ${nix.proj_mean} ceil ${nix.proj_ceiling} vs Purdy proj ${purdy.proj_mean} ceil ${purdy.proj_ceiling}`);
 
   const rosterIds = new Set(board.kept_players.map(p => String(p.player_id)));
@@ -75,15 +83,26 @@ const byName = n => board.players.find(p => p.name === n);
     'a cross-cell promotion is a promotion on the calibration constant, not on upside');
 
   /* THE PROPERTY CORY ACTUALLY COMPLAINED ABOUT: the order he reads must agree
-   * with the number he reads. This is the whole-list version. */
-  let inversions = 0;
+   * with the number he reads — OR carry its reason on screen. Re-pinned
+   * 2026-08-18 (v25 sweep): with per-player ceilings live, the SAME-cell
+   * tiebreak fires on the real board for the first time (identical cell
+   * constants made it a no-op before), so a promoted row can sit above a
+   * higher raw score. That is the feature working — PROVIDED the promotion
+   * mark is on the row, which is what makes the deviation explainable at
+   * 8s/pick. Unmarked inversions remain the defect and must be zero. */
+  let unmarked = 0, marked = 0;
   for (let i = 0; i < list.length - 1; i++) {
     const a = list[i], b = list[i + 1];
     if (E.scoreable(a) && E.scoreable(b) && typeof a.score === 'number'
-        && typeof b.score === 'number' && b.score > a.score + 1e-9) inversions++;
+        && typeof b.score === 'number' && b.score > a.score + 1e-9) {
+      if (a.ceiling_tiebreak) marked++; else unmarked++;
+    }
   }
-  ck('the rendered ORDER matches the rendered SCORE for the whole list',
-    inversions === 0, inversions + ' score inversions (was 16 before the guard)');
+  ck('every rendered ORDER deviation from SCORE carries its reason on the row '
+    + '(marked ' + marked + ', unmarked ' + unmarked + ')', unmarked === 0,
+    unmarked + ' UNMARKED score inversions — order the reader cannot explain');
+  ck('CONTROL — the tiebreak is genuinely live on the real board (marked '
+    + 'promotions exist), so the zero-unmarked check is not vacuous', marked > 0);
 }
 
 // ── 2. THE MECHANISM STILL WORKS WHERE THE CEILING IS REAL ─────────────────

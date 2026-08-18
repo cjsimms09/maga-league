@@ -61,6 +61,27 @@ Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so
 silence is consent to the default and nobody idles waiting. A can reply
 `SEND BACK: <reason>` and that is a complete answer.
 
+**🔮 EVERY PREDICTION, ITS GRADE DATE, AND WHAT IT CHANGED — `PREDICTION-LEDGER.md`.**
+Cory, 2026-08-18: *"Still don't think we are making predictions, grading and closing the
+loop. No one is in charge of it."* **The relay owns this file** — not the lane that made
+the prediction, which is how a prediction goes quiet when its author moves on.
+`draft/tools/prediction_ledger_check.js` runs in CI and **fails the build on three
+things**: a row past its grade-by date still OPEN · a row marked GRADED whose *what
+changed* cell is empty (*"a grade that moved nothing"* — `NOTHING — <reason>` passes,
+silence does not) · **and the OPEN backlog dropping below 6, because a ledger you satisfy
+by grading everything and filing nothing new is the program quietly ending.**
+**40 predictions today; 12 graded, 11 of them FALSE — and nothing shipped from any of
+them, which is the point.**
+
+**🎯 WHERE THE MODEL IS GOING — `PROJECTION-PROGRAM-2027.md` and `BLEND-SEARCH-DESIGN.md`.**
+Cory's goal, as a gradeable number: *our published weekly projection beats BOTH Sleeper
+and FantasyPros, on THIS league's scoring, same players and weeks, at 3 of 4 positions,
+on start/sit accuracy.* First grade **09-15**, then fortnightly. The blend doc is the
+"infinite options" problem: **Tier 1 is one arm per signal, Tier 2 allows only
+preregistered blends plus ONE walk-forward stacker, and BEST-OF-K is the null we still
+owe.** Read it before proposing an arm — P3 and P4 both died of exactly the trap it
+describes.
+
 **🧾 NOTHING GETS LEFT BEHIND — `DEFECT-REGISTER.md`.** Every open data or
 logic concern that could change a number Cory drafts or starts on, each with an
 owner and a next action. Four blocking rows today. A row with no owner is itself
