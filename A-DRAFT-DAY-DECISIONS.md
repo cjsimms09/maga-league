@@ -16,23 +16,24 @@ follows is what survived.
 
 ## 0 · THE ONE THING THAT MUST HAPPEN, AND IT IS NOT A DECISION
 
-**Rebuild the board after the keeper slate confirms.** Register **35**: the
-board publishes without its upstream inputs and *nothing triggers the rebuild* —
-it happened twice on 08-18 alone. Separately, the live board is standing on a
-**"predicted"** slate today: 4 of 10 teams designated, **8 keepers across 3 teams
+**Rebuild the board after the keeper slate confirms.** The live board stands on a
+**"predicted"** slate: 4 of 10 teams designated, **8 keepers across 3 teams
 deliberately withheld** (`_keeper_map_for_board`, Cory's own 08-11 ruling).
+Until the rebuild, **every replacement level, VORP and ADP adjustment is computed
+over a pool containing players nobody can draft.**
 
-Until that rebuild happens, **every replacement level, VORP and ADP adjustment on
-the war-room board is computed over a pool containing players nobody can draft.**
+Tracked mechanically, not left to memory: commitment `slate-exposure-rechecked`
+reads the live board and reports NOT MET while the slate is partial, going
+**OVERDUE on 08-21**.
 
-Tracked mechanically, so it is not left to memory: commitment
-`slate-exposure-rechecked` (due 08-20) reads the live board and reports NOT MET
-while the slate is partial. It will show **OVERDUE on 08-21** if the board is
-still on a partial slate.
-
-> ⚠️ It may shout one day early — the lock date is itself open (below). If Cory
-> rules 08-21, **move the date with that reason; do not silence the check.**
-
+✅ **Register 35 CLOSED 08-18 — the missing trigger is wired.** It asked to *"fail
+a parity check that names the stale artifact"*. The check already existed and was
+already tested (14 checks, with a control proving it discriminates) — **nothing
+ever ran it against the live board.** A CI step now does, and `ci.yml` fires on
+push to `main`, which is where the nightly rebuild pushes. Exit 0 today: the
+board (05:33:24Z) is newer than every declared input, so the ordering 35
+complained about has already inverted. It does **not** auto-rebuild — that half
+is the commitment above.
 ---
 
 ## 1 · CORY'S RULINGS — ONE DOWN, ONE POST-DRAFT
@@ -74,25 +75,15 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   computed**, so one config edit restores all three at full strength. They
   therefore became a guard: `opportunity_adj_stays_off.test.js` reds the build
   if the cap is ever non-zero and names the three rows to reopen.
-- **✅ SEVENTEEN ROWS CLOSED 08-18**, against live state rather than the date on
-  the line: 1, 2, 3, 4, 4c, E10, then — after Cory's *"we work through, we don't
-  park things for tomorrow"* — 2c, 4k, 4f, 4v, 4x, 4u, 4i, 27, and E3/E4/E5.
-  Reasoning lives on each row; three things are worth carrying off this page:
-  - **4i I got wrong three times** before getting it right. I kept reading
-    `pre_draft_freeze_2026.json`, **which is not what feeds the restore button** —
-    `state.frozenBaseline` comes from `/admin/api/baseline?version=v1`, served
-    from `draft/baseline/v1.json`, which **does** carry
-    `engine_policy.MEASURED_WEIGHTS`. It works. `restore_measured_core_works.test.js`
-    now names BOTH files so the substitution cannot recur.
-  - **E3 / E4 / E5 are DORMANT, not fixed.** All three describe
-    `opportunity_adj`; Cory's `opportunity_cap = 0.0` makes them unobservable
-    (one distinct value across 696 players, every position +0.00000,
-    `proj_mean == proj_sleeper` 696/696). **The formula is untouched and
-    `opportunity_z` is still computed**, so one config edit restores all three at
-    full strength — hence `opportunity_adj_stays_off.test.js`, which reds the
-    build if the cap moves and names the rows to reopen.
-  - **4x cannot be fixed by tuning.** The doctrine leader gap is exactly 0.000 at
-    all twelve of Cory's picks, so no `DG_NOISE_BAND` makes the banner speak.
+- **✅ TWENTY-ONE ROWS CLOSED 08-18**, against live state rather than the date on
+  the line: 1, 2, 3, 4, 4c, E10, 2c, 4k, 4f, 4v, 4x, 4u, 4i, 27, 28, 4m, 5a, 35,
+  E3, E4, E5. Reasoning is on each row. Two things worth carrying off this page:
+  **4i I got wrong three times** (I kept reading the freeze, which is not what
+  feeds the restore button — `draft/baseline/v1.json` is, and it does carry the
+  weights); and **E3/E4/E5 are DORMANT, not fixed** — `opportunity_cap = 0.0`
+  makes them unobservable but the formula is untouched, so
+  `opportunity_adj_stays_off.test.js` reds the build if the cap ever moves and
+  names the rows to reopen.
 - **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
   We have **never measured our model against Sleeper on any season**; the
   promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
