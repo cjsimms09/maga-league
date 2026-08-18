@@ -17,21 +17,57 @@
  * Findability is deliberately NOT tested here — layout is Cory's call and B
  * owns the redesign. This is truth only.
  *
- * Run:
- *   node draft/tests/rehearsal-serve.js &
- *   WR_USER=cory WR_PASS=pw node draft/tests/rehearsal-board-truth.js
+ * Run:  node draft/tests/rehearsal-board-truth.js
+ *   (self-contained; set WR_BASE to point at an already-running server instead)
+ */
+/* SELF-CONTAINED AS OF 2026-08-18, AND THAT IS THE FIX FOR THE FALSE GREEN.
+ *
+ * This file used to require a manually-started `rehearsal-serve.js` on port 8925
+ * plus matching WR_USER/WR_PASS. That coupling is what produced the incident
+ * recorded below: run it against a server whose credentials did not match and
+ * login 401s, `/admin/warroom` bounces, the page renders NO rows, and the suite
+ * reported FOUR OF SIX PASSING against a blank war room.
+ *
+ * The CONTROL checks added the same day stop it reporting green. They do not stop
+ * it happening — it still went 2/8 today for exactly that reason, on a stale
+ * server left over from another session, and a suite that fails for environmental
+ * reasons is a suite people learn to skip.
+ *
+ * So it now boots its OWN server in-process on port 0 and seeds its own
+ * commissioner, which is the pattern `rehearsal-keepers.js` already established
+ * here. No setup, no port collision, no credential drift — and it can run in CI,
+ * which the manual version never could. `WR_BASE` still overrides, so pointing it
+ * at a real deployment is still one env var.
  */
 const { launchChromium } = require('./rehearsal-browser');
 const fs = require('fs');
-const BASE = process.env.WR_BASE || 'http://localhost:8925';
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..');
+const store = require(path.join(ROOT, 'src', 'store')); store.initFiles();
+const data = require(path.join(ROOT, 'src', 'data'));
+const { hashPassword } = require(path.join(ROOT, 'src', 'auth'));
+const { createApp } = require(path.join(ROOT, 'server-app'));
 const board = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 const R = [];
 const check = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
 
+let srv = null;
+
 (async () => {
+  let BASE = process.env.WR_BASE;
+  if (!BASE) {
+    await data.ensureSeeded();
+    const owners = await store.get('owners');
+    const cory = owners.find(o => o.username === 'cory');
+    cory.password_hash = hashPassword(process.env.WR_PASS || 'pw');
+    cory.must_change_password = false;
+    cory.is_commissioner = true;
+    await store.set('owners', owners);
+    srv = createApp().listen(0);
+    await new Promise(r => srv.once('listening', r));
+    BASE = `http://127.0.0.1:${srv.address().port}`;
+  }
   const b = await launchChromium();
   const ctx = await b.newContext({ viewport: { width: 1600, height: 1000 } });
   const page = await ctx.newPage();
@@ -122,5 +158,6 @@ const check = (name, ok, detail) => R.push({ name, ok: !!ok, detail });
   console.log('='.repeat(72));
   console.log(`${R.filter(r => r.ok).length}/${R.length} truth checks passed`);
   await b.close();
+  if (srv) srv.close();
   process.exit(R.every(r => r.ok) ? 0 : 1);
 })().catch(e => { console.error('ERROR', e.message); process.exit(2); });
