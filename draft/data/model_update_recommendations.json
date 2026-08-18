@@ -13,73 +13,85 @@
    "status": "applied-2026-08-15",
    "summary": "proj_sd now comes from MEASURED 2023-25 projection error (projection_error.proj_sd_for) per position \u00d7 projection-rank band, with the POSITION_VARIANCE path as fallback for unmeasured cells (K/DEF/unranked). Wired in draft/projections.py blend(); each board row declares its path in proj_sd_source.",
    "applied_values": {
-    "QB|4-8": {
-     "sd_ratio": 0.439782,
-     "n": 10
+    "QB|1-3": {
+     "sd_ratio": 0.498964,
+     "n": 9
     },
-    "WR|4-8": {
-     "sd_ratio": 0.446036,
-     "n": 10
+    "WR|1-3": {
+     "sd_ratio": 0.229562,
+     "n": 9
     },
-    "RB|4-8": {
-     "sd_ratio": 0.539718,
-     "n": 10
+    "RB|1-3": {
+     "sd_ratio": 0.572628,
+     "n": 9
     },
-    "RB|9-16": {
-     "sd_ratio": 0.633691,
-     "n": 16
-    },
-    "TE|4-8": {
-     "sd_ratio": 0.383157,
-     "n": 10
-    },
-    "WR|9-16": {
-     "sd_ratio": 0.390758,
-     "n": 16
-    },
-    "RB|17-32": {
-     "sd_ratio": 0.63441,
-     "n": 32
-    },
-    "WR|17-32": {
-     "sd_ratio": 0.397099,
-     "n": 31
-    },
-    "QB|9-16": {
-     "sd_ratio": 0.452609,
-     "n": 16
-    },
-    "TE|9-16": {
-     "sd_ratio": 0.526638,
-     "n": 15
-    },
-    "WR|33+": {
-     "sd_ratio": 0.585635,
-     "n": 273
-    },
-    "RB|33+": {
-     "sd_ratio": 0.735454,
-     "n": 151
-    },
-    "TE|17-32": {
-     "sd_ratio": 0.568486,
-     "n": 29
-    },
-    "FB|9-16": {
-     "sd_ratio": 0.541681,
+    "TE|1-3": {
+     "sd_ratio": 0.392103,
      "n": 8
     },
+    "QB|4-8": {
+     "sd_ratio": 0.394573,
+     "n": 15
+    },
+    "WR|4-8": {
+     "sd_ratio": 0.545615,
+     "n": 15
+    },
+    "RB|4-8": {
+     "sd_ratio": 0.47342,
+     "n": 15
+    },
+    "RB|9-16": {
+     "sd_ratio": 0.5558,
+     "n": 23
+    },
+    "TE|4-8": {
+     "sd_ratio": 0.404356,
+     "n": 15
+    },
+    "WR|9-16": {
+     "sd_ratio": 0.395418,
+     "n": 24
+    },
+    "RB|17-32": {
+     "sd_ratio": 0.688242,
+     "n": 46
+    },
+    "WR|17-32": {
+     "sd_ratio": 0.442834,
+     "n": 47
+    },
+    "QB|9-16": {
+     "sd_ratio": 0.460106,
+     "n": 24
+    },
+    "TE|9-16": {
+     "sd_ratio": 0.468614,
+     "n": 23
+    },
+    "WR|33+": {
+     "sd_ratio": 0.565708,
+     "n": 418
+    },
+    "RB|33+": {
+     "sd_ratio": 0.697409,
+     "n": 222
+    },
+    "TE|17-32": {
+     "sd_ratio": 0.558327,
+     "n": 44
+    },
     "QB|17-32": {
-     "sd_ratio": 0.581089,
-     "n": 28
+     "sd_ratio": 0.666018,
+     "n": 43
     },
     "TE|33+": {
-     "sd_ratio": 0.517492,
-     "n": 131
+     "sd_ratio": 0.500848,
+     "n": 203
     },
     "QB|33+": {
-     "sd_ratio": 0.73207,
-     "n": 74
+     "sd_ratio": 0.661723,
+     "n": 108
     }
    },
    "evidence": [
