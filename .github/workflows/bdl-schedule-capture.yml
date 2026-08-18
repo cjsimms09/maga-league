@@ -1,0 +1,151 @@
+name: BDL SCHEDULE — free 2026 game dates, the missing key to the paid props fetch
+
+# Cory, 2026-08-18: "use our credits until they run out but they expire at the end of
+# this month... Use while you can." and "We can get for free from ball don't lie key."
+#
+# HE IS RIGHT ABOUT BDL, JUST NOT ABOUT ODDS — and the piece it does give us is the
+# one currently blocking the spend.
+#
+# bdl_key_matrix.json (08-18) measured our BDL key: player-prop routes 404 (no such
+# product), odds 401 (paid tier). BUT `games` returns 200 on the FREE key, carrying
+# `date`, `week`, `home_team`, `visitor_team`, `season`.
+#
+# AND THAT IS EXACTLY WHAT IS MISSING. weekly-props-fetch.yml's first-ever run
+# (32095466048) refused, correctly and by its own design:
+#
+#     ! --date is required for a real historical fetch
+#       (see module docstring — the vegas store has no game dates)
+#
+# the-odds-api's historical endpoint is addressed by an ISO timestamp, and nothing in
+# this repo carries 2026 game datetimes. So the paid credits — which expire ~08-31 —
+# cannot be spent at all until a free schedule exists. This is that schedule.
+#
+# WORTH KEEPING BEYOND THE PROPS FETCH: bye weeks, opponent, and game datetime per
+# team-week are inputs several open rows want (opponent-adjustment, playoff-schedule
+# weighting, the weekly loop's own week resolution). Captured once, free, committed.
+#
+# COSTS NOTHING. Free tier, read-only. The key is never printed.
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to capture'
+        required: false
+        default: '2026'
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Capture the schedule
+        env:
+          K_BDL: ${{ secrets.BALL_DONT_LIE_API }}
+          SEASON: ${{ github.event.inputs.season }}
+        run: |
+          set -uo pipefail
+          python3 - <<'PY'
+          import json, os, time, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          season = int(os.environ.get("SEASON") or 2026)
+          key = os.environ.get("K_BDL") or ""
+          if not key:
+              raise SystemExit("no BDL key in secrets.BALL_DONT_LIE_API")
+
+          def get(url):
+              req = urllib.request.Request(url, headers={"Authorization": key})
+              for attempt in range(5):
+                  try:
+                      with urllib.request.urlopen(req, timeout=30) as r:
+                          return r.status, json.loads(r.read().decode("utf-8", "ignore"))
+                  except urllib.error.HTTPError as e:
+                      # 429 is the free tier's rate limit, not a refusal — back off.
+                      if e.code == 429:
+                          time.sleep(2 * (attempt + 1)); continue
+                      return e.code, {"error": e.read(200).decode("utf-8", "ignore")}
+                  except Exception as e:
+                      return 0, {"error": type(e).__name__}
+              return 429, {"error": "rate limited after 5 attempts"}
+
+          games, cursor, pages, err = [], None, 0, None
+          while pages < 40:
+              url = (f"https://api.balldontlie.io/nfl/v1/games?seasons[]={season}"
+                     f"&per_page=100" + (f"&cursor={cursor}" if cursor else ""))
+              code, doc = get(url)
+              if code != 200:
+                  err = f"HTTP {code}: {json.dumps(doc)[:200]}"
+                  break
+              batch = doc.get("data") or []
+              games.extend(batch)
+              cursor = (doc.get("meta") or {}).get("next_cursor")
+              pages += 1
+              print(f"  page {pages}: +{len(batch)} games (total {len(games)})")
+              if not cursor or not batch:
+                  break
+              time.sleep(0.4)
+
+          def team(t):
+              return (t or {}).get("abbreviation") or (t or {}).get("full_name")
+
+          rows = []
+          for g in games:
+              rows.append({
+                  "game_id": g.get("id"), "season": g.get("season"), "week": g.get("week"),
+                  "date": g.get("date"), "status": g.get("status"),
+                  "home": team(g.get("home_team")), "away": team(g.get("visitor_team")),
+                  "postseason": g.get("postseason"),
+              })
+          rows.sort(key=lambda r: (r["week"] if r["week"] is not None else 99, str(r["date"])))
+
+          by_week = {}
+          for r in rows:
+              by_week.setdefault(str(r["week"]), []).append(r["date"])
+          weeks = {w: {"games": len(v), "first": min(v) if v else None,
+                       "last": max(v) if v else None} for w, v in sorted(by_week.items(), key=lambda kv: int(kv[0]) if kv[0].isdigit() else 99)}
+
+          art = {
+            "_territory": "TERRITORY: C — written by .github/workflows/bdl-schedule-capture.yml",
+            "_what": "2026 NFL schedule from Ball Don't Lie's FREE tier: date, week, teams.",
+            "_why": ("weekly-props-fetch.yml refuses without --date ('the vegas store has no "
+                     "game dates'), so the paid Odds API credits — expiring ~08-31 — cannot be "
+                     "spent at all until a free schedule exists. This is that schedule."),
+            "_bdl_scope": ("BDL's free key serves games/teams/players (200) but NOT odds (401) "
+                           "or player props (404) — see bdl_key_matrix.json."),
+            "captured_at": datetime.now(timezone.utc).isoformat(),
+            "season": season, "games": len(rows), "fetch_error": err,
+            "weeks": weeks, "rows": rows,
+          }
+          os.makedirs("draft/data", exist_ok=True)
+          with open(f"draft/data/nfl_schedule_{season}.json", "w") as f:
+              json.dump(art, f, indent=1)
+          print(f"\n  {len(rows)} games, {len(weeks)} weeks, error={err}")
+          w1 = weeks.get("1")
+          if w1:
+              print(f"  WEEK 1: {w1['games']} games, {w1['first']} .. {w1['last']}")
+              print("  -> use that timestamp as --date for weekly-props-fetch.yml")
+          if not rows:
+              raise SystemExit("no games captured — refusing to call this a schedule")
+          PY
+
+      - name: Commit the schedule
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          if [ -n "$(git status --porcelain draft/data/nfl_schedule_*.json)" ]; then
+            git add draft/data/nfl_schedule_*.json
+            git commit -m "Capture the NFL schedule from Ball Don't Lie's free tier [skip deploy]"
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push origin HEAD:main && break
+              sleep $((2**i))
+            done
+          else
+            echo "No change."
+          fi
