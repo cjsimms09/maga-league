@@ -1063,13 +1063,25 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-tile.dead { opacity: .55; }
 
 /* ── COCKPIT CHART MARKS (new SVG, token-inked) ─────────────────────────── */
-.wr-cliffchart svg { display: block; width: 100%; height: auto; }
+.wr-cliffchart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .wr-grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
 .wr-axis { fill: var(--muted); font-size: 8px; font-family: var(--font-mono); }
 .wr-cliff-line { stroke: var(--wr-chart-main); stroke-width: 1.6; }
 .wr-cliff-dot { fill: var(--wr-chart-main); }
 .wr-cliff-mark { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 3 2; }
-.wr-cliff-lbl { fill: var(--ink); font-size: 8px; font-weight: 600; }
+/* Tier-cliff labels are placed by warroom_charts.js at each cliff's own x,
+   text-anchor="middle", with no collision check between adjacent labels —
+   at the right rail's chart width (~230px) with 3+ cliffs close together
+   this reads as one word ("Robinsdaylojeanty"), reproduced live at 900/1050/
+   1200px. That's a label-placement fix (JS, A's file, held for tonight along
+   with app.js/warroom.ejs) — this is the CSS mitigation: rotate + right-
+   anchor so each label fans out below its own tick instead of stacking
+   horizontally into its neighbor, the standard slanted-axis-label pattern. */
+.wr-cliff-lbl {
+  fill: var(--ink); font-size: 7px; font-weight: 600;
+  text-anchor: end; transform-box: fill-box; transform-origin: center;
+  transform: rotate(-40deg) translate(-2px, 0);
+}
 .wr-cliff-shade { fill: rgba(255, 90, 102, .10); }
 .wr-cliff-key { color: var(--red); }
 .wr-chips { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0 0 .3rem; }
