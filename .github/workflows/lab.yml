@@ -70,6 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
 
@@ -123,6 +125,10 @@ jobs:
       - name: Commit the report
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          # MANIFEST GATE (task 18): the declared HEADLINE outputs must exist and
+          # be written by THIS run — a swallowed write fails here, loudly, instead
+          # of committing nothing (or last week's file) with a green check.
+          python3 draft/tools/lab_output_manifest.py --check draft/backtest/LAB-REPORT.md draft/backtest/lab-results.json --since-stamp .lab-run-stamp
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/LAB-REPORT.md draft/backtest/lab-results.json \
                   draft/backtest/CORY-CONDITIONAL.md draft/backtest/cory-conditional.json \
@@ -160,6 +166,8 @@ jobs:
     needs: lab            # certification first — the bridge grades with the same grader
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - uses: actions/setup-python@v5
@@ -192,6 +200,10 @@ jobs:
       - name: Commit the tournament report
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          # MANIFEST GATE (task 18): the declared HEADLINE outputs must exist and
+          # be written by THIS run — a swallowed write fails here, loudly, instead
+          # of committing nothing (or last week's file) with a green check.
+          python3 draft/tools/lab_output_manifest.py --check draft/backtest/LAB-TOURNAMENT.md --since-stamp .lab-run-stamp
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/LAB-TOURNAMENT.md
           git commit -m "Lab tournament report $stamp" || { echo "no change"; exit 0; }
@@ -217,6 +229,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: GATE — the pure measuring-stick tests (no egress)
@@ -269,6 +283,10 @@ jobs:
       - name: Commit the exp 34 reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          # MANIFEST GATE (task 18): the declared HEADLINE outputs must exist and
+          # be written by THIS run — a swallowed write fails here, loudly, instead
+          # of committing nothing (or last week's file) with a green check.
+          python3 draft/tools/lab_output_manifest.py --check draft/backtest/EXP34.md draft/backtest/exp34.json --since-stamp .lab-run-stamp
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/EXP34.md draft/backtest/exp34.json \
                   draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json \
@@ -305,6 +323,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: GATE — the pure surface tests (no egress)
@@ -332,6 +352,10 @@ jobs:
       - name: Commit the exp 36 + exp 43 + source-grade reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          # MANIFEST GATE (task 18): the declared HEADLINE outputs must exist and
+          # be written by THIS run — a swallowed write fails here, loudly, instead
+          # of committing nothing (or last week's file) with a green check.
+          python3 draft/tools/lab_output_manifest.py --check draft/backtest/EXP36.md draft/backtest/exp36.json draft/backtest/exp43.json draft/backtest/exp_source_grade.json --since-stamp .lab-run-stamp
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           for f in draft/backtest/EXP36.md draft/backtest/exp36.json draft/backtest/exp43.json \
                    draft/backtest/exp_source_grade.json \
@@ -364,6 +388,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: GATE — the pure bake-off tests (no egress)
@@ -381,6 +407,10 @@ jobs:
       - name: Commit the exp 33 report
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          # MANIFEST GATE (task 18): the declared HEADLINE outputs must exist and
+          # be written by THIS run — a swallowed write fails here, loudly, instead
+          # of committing nothing (or last week's file) with a green check.
+          python3 draft/tools/lab_output_manifest.py --check draft/backtest/EXP33.md draft/backtest/exp33.json --since-stamp .lab-run-stamp
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/EXP33.md draft/backtest/exp33.json
           git commit -m "Exp 33 report $stamp" || { echo "no change"; exit 0; }
@@ -403,6 +433,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: GATE — the pure sweep tests (no egress)
@@ -416,6 +448,10 @@ jobs:
       - name: Commit the exp 35 report
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          # MANIFEST GATE (task 18): the declared HEADLINE outputs must exist and
+          # be written by THIS run — a swallowed write fails here, loudly, instead
+          # of committing nothing (or last week's file) with a green check.
+          python3 draft/tools/lab_output_manifest.py --check draft/backtest/EXP35.md draft/backtest/exp35.json --since-stamp .lab-run-stamp
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/EXP35.md draft/backtest/exp35.json
           git commit -m "Exp 35 report $stamp" || { echo "no change"; exit 0; }
@@ -437,6 +473,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Output-manifest stamp (a run that writes nothing must not read as a run)
+        run: python3 draft/tools/lab_output_manifest.py --stamp .lab-run-stamp
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: GATE — the pure comparison tests (no egress)
