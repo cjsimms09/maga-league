@@ -217,7 +217,7 @@
      *
      * ⚠️ A ROSTER ENTRY WHOSE VALUE WE NEVER KNEW IS NOT A CANDIDATE, AND
      * COUNTING ONE AS THE WEAKEST INCUMBENT MAKES THE SCREEN ASSERT SOMETHING
-     * IT CANNOT KNOW (session E, 2026-08-17; register E18).
+     * IT CANNOT KNOW (session E, 2026-08-18; register E18).
      *
      * `nextYearVorp` reads `(player.vorp || 0)`, so an entry with no `vorp`
      * scores as worth exactly zero rather than unknown — and since the bar is

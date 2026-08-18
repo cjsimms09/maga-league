@@ -39,7 +39,7 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 
 /* `E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS` WAS A LATENT INSTANCE OF A DEFECT
- * THIS REPO HAS ALREADY REMOVED THREE TIMES (session E, 2026-08-17; E19).
+ * THIS REPO HAS ALREADY REMOVED THREE TIMES (session E, 2026-08-18; E19).
  *
  * It is inert today because MEASURED_WEIGHTS exists. The shape is the problem:
  * if the export were ever renamed or removed, this suite would silently score

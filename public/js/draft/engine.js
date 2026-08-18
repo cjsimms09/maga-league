@@ -1461,7 +1461,7 @@
     const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|sus|susp|suspended|na|dnr|cov)$/i;
     if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
       /* ⚠️ THE LINE SAID "insurance, not a starter" WHILE PRICING HIM AS A
-       * STARTER (session E, 2026-08-17; register E20).
+       * STARTER (session E, 2026-08-18; register E20).
        *
        * `discount: 1` means NO discount is applied — the application below is
        * gated on `onesie.discount < 1` — so this branch prices a duplicate at

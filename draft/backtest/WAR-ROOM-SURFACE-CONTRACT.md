@@ -17,7 +17,7 @@ survival scale after I caught my own first re-derivation running without
 `ctx.pickBoard`. I raised this as `NO DEFAULT — BLOCKED` first and
 held the fix rather than touch this file; Cory overrode the hold. **A: if you
 would have re-derived it differently, change it — the measurement is in
-`draft/audit/keeper_bar_ranks_what_it_cannot_value_2026-08-17.md` and the numbers
+`draft/audit/keeper_bar_ranks_what_it_cannot_value_2026-08-18.md` and the numbers
 are reproducible from `surface_contract.test.js` itself.** Nothing else in this
 document was touched.
 

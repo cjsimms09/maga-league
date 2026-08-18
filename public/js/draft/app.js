@@ -640,7 +640,7 @@
   }
 
   /* THE CONDITION HERE WAS INVERTED, AND ITS ABSENCE ASSERTED A SECOND OPINION
-   * THAT DOES NOT EXIST (session E, 2026-08-17; register E6).
+   * THAT DOES NOT EXIST (session E, 2026-08-18; register E6).
    *
    * It used to read `if (p.proj_fantasypros != null) return '';` — i.e. carrying
    * a FantasyPros number was treated as evidence that `proj_mean` had more than
@@ -1248,7 +1248,7 @@
 
     /* ── THE PLAN IS ROSTER-BLIND, AND UNTIL NOW THE PANEL WAS TOO ───────────
      *
-     * Cory, live 2026-08-17: *"model still overrecommending QBs. I have joe
+     * Cory, live 2026-08-18: *"model still overrecommending QBs. I have joe
      * burrow and it recommends Bo nix in the 9th.. thats rediculous"*.
      *
      * `seat_plan.json` asserts `slot: "QB", is_starter_seat: true` at pick 73
@@ -5744,7 +5744,7 @@
    * which is what every survival and VONA number is computed against.
    *
    * ⚠️ "CANNOT MOVE A RECOMMENDATION" IS TOO STRONG — OPEN DEFECT, register E18
-   * (session E, 2026-08-17). A stub is never scored as a candidate itself, but
+   * (session E, 2026-08-18). A stub is never scored as a candidate itself, but
    * it lands on `state.myRoster`, and the keeper bar ranks EVERY roster entry,
    * reading an absent `vorp` as zero via `composite.js`'s `(player.vorp || 0)`.
    * A valueless row sitting at `ranked[slots-1]` drags the bar NEGATIVE, and
@@ -5760,7 +5760,7 @@
    * FEWER THAN `slots` roster entries carry a real value — e.g. if he locks two
    * keepers on 08-20 and an off-board pick lands on his roster.
    *
-   * FIXED 2026-08-17: `composite.js` now filters the incumbent ranking on a
+   * FIXED 2026-08-18: `composite.js` now filters the incumbent ranking on a
    * finite `vorp` instead of substituting zero, which is what its own docstring
    * always said should happen ("with fewer incumbents than slots there is a free
    * slot, so the bar is zero"). I held this fix and routed it as
@@ -5915,7 +5915,7 @@
   }
 
   /* A KEEPER SEEDED WITHOUT `vorp` IS SCORED AS WORTH ZERO, AND THE WAR ROOM
-   * THEN TELLS CORY HE BEATS HIM (session E, 2026-08-17; register E17).
+   * THEN TELLS CORY HE BEATS HIM (session E, 2026-08-18; register E17).
    *
    * `kept_players` is a DIFFERENT population from `players` and carries a
    * different field set: it has `cost_round`, `original_round`, `team_slot` and
@@ -10200,7 +10200,7 @@
     if (btn && s.state === 'error') { btn.disabled = false; btn.textContent = 'Connect'; }
   }
 
-  /* WHAT THE FLOOR AND THE CEILING ACTUALLY ARE (session E, 2026-08-17; register E16).
+  /* WHAT THE FLOOR AND THE CEILING ACTUALLY ARE (session E, 2026-08-18; register E16).
    *
    * The line above used to end at "(floor 2, ceiling 479)", which presents both
    * numbers as a forecast for THIS player. They are not, and have not been since

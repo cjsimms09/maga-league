@@ -123,7 +123,7 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * kind of claim that goes stale silently — this one already did, at 62%. */
   const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const MY = D.pick_order.my_picks;
-  /* SEEDED THE WAY THE APP SEEDS THEM, NOT VERBATIM (session E, 2026-08-17).
+  /* SEEDED THE WAY THE APP SEEDS THEM, NOT VERBATIM (session E, 2026-08-18).
    *
    * This read `(D.kept_players || []).slice()` — the raw artifact rows, which
    * carry no `vorp`. That is exactly the shape register E17 fixed in the app:

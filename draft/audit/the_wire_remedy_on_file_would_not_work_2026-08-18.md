@@ -1,6 +1,6 @@
 # E's twenty-first sweep — every context key, and the one that changes an existing ruling
 
-**Session E (red team), 2026-08-17.** I have now found two context dimensions the
+**Session E (red team), 2026-08-18.** I have now found two context dimensions the
 hard way — the weight vector (E19) and the pick board (E21, which corrected two
 of my own published numbers). Rather than keep finding them one at a time, this
 sweep enumerates **every key `app.js`'s `context()` supplies** and diffs it

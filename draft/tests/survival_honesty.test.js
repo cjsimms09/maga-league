@@ -287,7 +287,7 @@ if (block) {
   const expectedIv = ((art.pick_order || {}).picks || [])
     .filter(p => p.overall >= CUR && p.overall < NEXT).length - 1;   // minus my own
   /* THE PICK BOARD IS THREADED, and its absence was a real gap in a file about
-   * SURVIVAL (session E, 2026-08-17; register E21). `survival.js:liveIndexOf`
+   * SURVIVAL (session E, 2026-08-18; register E21). `survival.js:liveIndexOf`
    * converts a board slot to a live selection index through `ctx.pickBoard`,
    * and when it is missing it converts by IDENTITY and increments
    * `SCALE.unconverted` — a counter that exists, in its own words, so a surface

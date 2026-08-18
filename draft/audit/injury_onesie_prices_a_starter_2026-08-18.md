@@ -1,6 +1,6 @@
 # E's nineteenth sweep — the line said "insurance, not a starter" while pricing him as a starter
 
-**Session E (red team), 2026-08-17.** Target chosen from my own re-derived term
+**Session E (red team), 2026-08-18.** Target chosen from my own re-derived term
 table: **`onesie` is 25.2% of what separates the top five — the second-largest
 driver — and it is applied POST-assembly, outside the weight vector entirely.**
 No weight controls it, so nothing in `MEASURED_WEIGHTS` can turn it down.
