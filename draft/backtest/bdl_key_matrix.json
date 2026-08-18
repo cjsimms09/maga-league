@@ -1,0 +1,121 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by .github/workflows/bdl-key-matrix.yml",
+ "_question": "Cory 2026-08-18: 'We can get for free from ball don't lie key.' The recorded no came from a probe that tested 1 of 4 BDL keys.",
+ "captured_at": "2026-08-18T03:24:58.221597+00:00",
+ "keys_present": [
+  "BALL_DONT_LIE_API"
+ ],
+ "keys_absent": [
+  "BALLDONTLIE_API_KEY",
+  "BALL_DONT_LIE_API_KEY",
+  "BALLDONTLIE"
+ ],
+ "rows": [
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "odds_season_week",
+   "status": 401,
+   "body_head": "Unauthorized"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "odds_by_date",
+   "status": 401,
+   "body_head": "Unauthorized"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "player_props",
+   "status": 404,
+   "body_head": "{\"error\":\"Route not found\"}"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "player_odds",
+   "status": 404,
+   "body_head": "{\"error\":\"Route not found\"}"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "props",
+   "status": 404,
+   "body_head": "{\"error\":\"Route not found\"}"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "betting_odds",
+   "status": 404,
+   "body_head": "{\"error\":\"Route not found\"}"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "game_odds",
+   "status": 404,
+   "body_head": "{\"error\":\"Route not found\"}"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "teams",
+   "status": 429,
+   "body_head": "Too many requests, please try again later."
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "stats",
+   "status": 401,
+   "body_head": "Unauthorized"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "season_stats",
+   "status": 401,
+   "body_head": "Unauthorized"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "injuries",
+   "status": 401,
+   "body_head": "Unauthorized"
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API",
+   "key_len": 36,
+   "endpoint": "advanced_stats",
+   "status": 401,
+   "body_head": "Unauthorized"
+  },
+  {
+   "key_name": "BALLDONTLIE_API_KEY",
+   "present": false
+  },
+  {
+   "key_name": "BALL_DONT_LIE_API_KEY",
+   "present": false
+  },
+  {
+   "key_name": "BALLDONTLIE",
+   "present": false
+  }
+ ],
+ "betting_endpoint_authorized_by": {
+  "odds_season_week": null,
+  "odds_by_date": null,
+  "player_props": null,
+  "player_odds": null,
+  "props": null,
+  "betting_odds": null,
+  "game_odds": null
+ },
+ "verdict": "NO BDL KEY IN THIS REPO AUTHORIZES ANY BETTING ENDPOINT. 401 means the endpoint exists and no key is entitled (a paid tier), 404 means the route does not exist under that spelling. Read `rows` before concluding which."
+}
