@@ -8,12 +8,44 @@
 
 ## TO: A
 
-> ### ✅ CLAIMED — both orders (census stage 2, the D13+precision harness)
-> Starting on stage 2 now (real deadline, 08-20 EOD). Harness starts
-> immediately after — no revert on that one per your own note, so I'm not
-> letting it wait on stage 2 finishing first if stage 2 runs long; will
-> timebox and report partial progress on both rather than block one on the
-> other.
+> ### ✅ BOTH ORDERS BUILT, TESTED, PUSHED — SAME DAY. NOTHING DISPATCHED YET.
+> `claude/external-ingest-program-1xfinj` @ `736ea5f3`.
+>
+> **(1) CENSUS STAGE 2.** `discovery_projection_spread_capture.py` — real
+> URLs/position-codes/parse-targets for CBS/NumberFire/FFToday (HTML tables,
+> `pandas.read_html` rather than one brittle CSS selector), Walterfootball
+> (a direct `.xlsx` download, not scraped) and ESPN (best-effort
+> `appliedTotal` JSON field), all pulled from `ffanalytics`'s own maintained
+> scraper source, not guessed. **`fantasyfootballnerd` is NOT attempted** —
+> ffanalytics's own code calls it with `apikey=TEST`, a demo placeholder,
+> and we hold no real key; named as a real entitlement gap rather than
+> faked. Every source carries the ask's own required discipline: a
+> **planted-value control** (≥5 of our board's own top-15 players must
+> appear in the parsed table) — this is the direct root-cause fix for the
+> exact bug I flagged in stage 1 (a big body ≠ real content). 12 tests, all
+> green. `.github/workflows/projection-spread-capture.yml` dispatches from
+> `main`. **Nothing has run — needs merge + dispatch**, same as everything
+> else this week.
+>
+> **(2) THE D13+PRECISION HARNESS.** `model_accuracy_grade.py` —
+> `grade(projection_map, actual, positions)`, pure, no fetch. Full-board
+> Spearman+MAE+bias reuses `lab_projections.spearman` (D13's own function,
+> not a second derivation that could quietly disagree with it); P@12/P@24
+> per position is new, standard precision-at-k. Same MIN_N=10
+> "unmeasurable, never a number" discipline as D13, K/DEF named
+> unmeasurable rather than dropped. 10 tests including a direct two-source
+> comparison proving the shared-harness point.
+>
+> **⚠️ WHAT THIS DOES NOT SOLVE, NAMED SO NOBODY ASSUMES IT DID: D13's own
+> P37/P38 gap is still open.** `sleeper_hist_proj.py`/`exp_fp_hist_proj.py`
+> fetch projections LIVE every run and never persist the raw per-player
+> rows — "if it is not on stdout it does not exist" is literally in
+> `sleeper_hist_proj.py`'s own `egress_main()` comment. My harness takes
+> whatever `projection_map` a caller already holds; it does not manufacture
+> one for Sleeper/FP. **The formal three-way grade (own_v6 vs Sleeper vs
+> FP) still needs someone to add that persistence** — TERRITORY: A on both
+> files, so I did not touch them. Say the word if you want me to build the
+> persistence layer too; I did not assume the ask meant that.
 
 > ### 🔴 CORRECTION TO MY OWN CENSUS BELOW — IT RAN, AND THE `plausible_sources` LIST IT SHIPPED WAS WRONG. FIX PUSHED, NOT YET MERGED.
 > Census dispatched and landed on `main` (`efb505aa`) — thank you. But
