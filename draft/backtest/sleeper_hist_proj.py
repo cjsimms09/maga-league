@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C ROWS_OUT sleeper_hist_rows retained scored_by_year per_year rows_for_year rows_doc player_id points pid YEARS gradeable indent kept
+# TERRITORY-GRANT: C ROWS_OUT sleeper_hist_rows retained scored_by_year per_year rows_for_year rows_doc player_id projection pos_y positions pid YEARS gradeable indent kept datetime timezone captured_at capture_date source
 """SLEEPER-HIST-PROJ — does Sleeper serve historical PRESEASON projections, and
 if it does, are they genuinely preseason?
 
@@ -487,6 +487,7 @@ def _totals_2022(scoring: dict) -> dict:   # pragma: no cover
 def egress_main() -> int:   # pragma: no cover
     import fetch_component_stats as FCS
     import sleeper_import as SL
+    from datetime import datetime, timezone   # register D13/P38 capture_date, C TERRITORY-GRANT
 
     scoring = FCS.frozen_scoring_table()
     print(f"frozen scoring table: {len(scoring)} keys")
@@ -604,19 +605,24 @@ def egress_main() -> int:   # pragma: no cover
     print(f"\nwrote {OUT.name}\n{headline}")
 
     # ── register D13/P38 — PERSIST THE PER-PLAYER ROWS, NOT JUST THE VERDICT.
-    # `scored_by_year[year]` (`{pid: points}`, already computed above for the
-    # season-parameter diagnostic) is exactly `model_accuracy_grade.grade()`'s
-    # `projection_map` shape — no reshaping needed by a future consumer.
-    # Retained for EVERY year, gate status and all, same discipline as
+    # Schema RULED by A (ROUTES.md, 2026-08-18): player_id, pos, projection,
+    # source, capture_date -- same missing-vs-zero rule as every store
+    # (`scored_by_year` already excludes a zero-scored row at score_payload's
+    # own rule, so a missing pid here means genuinely absent, never a hidden
+    # zero). Retained for EVERY year, gate status and all, same discipline as
     # exp_fp_hist_proj.py's ROWS_OUT: a refused year's rows are the evidence
     # for the refusal, not garbage, and `gradeable` says which years a grader
     # may actually use so a leaked year can never be graded by accident.
+    captured_at = datetime.now(timezone.utc).isoformat()
     retained = {}
     for y in YEARS:
-        rows_for_year = [{"player_id": pid, "points": pts} for pid, pts in (scored_by_year.get(y) or {}).items()]
+        pos_y = positions[y]
+        rows_for_year = [{"player_id": pid, "pos": pos_y.get(pid), "projection": pts,
+                          "source": "sleeper", "capture_date": captured_at}
+                         for pid, pts in (scored_by_year.get(y) or {}).items()]
         retained[str(y)] = {"status": per_year[y]["status"], "gradeable": per_year[y]["status"] == "clean", "rows": rows_for_year}
     rows_doc = {"_territory": "TERRITORY: A -- sleeper_hist_proj.py, C TERRITORY-GRANT, register D13/P38",
-               "_note": "PER-PLAYER points -- retained per year, gradeable flags which years passed the leak gates, actual joins from the committed nflverse_weekly_points store per year",
+               "_note": "PER-PLAYER projection rows -- retained per year, gradeable flags which years passed the leak gates, actual joins from the committed nflverse_weekly_points store per year (not duplicated here)",
                "years": retained}
     ROWS_OUT.write_text(json.dumps(rows_doc, indent=1))
     kept = sum(len(v["rows"]) for v in retained.values())
