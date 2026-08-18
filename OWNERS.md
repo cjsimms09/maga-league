@@ -71,20 +71,54 @@ disagreements carry a stated reason — and the distribution, not just the count
 every owner's real seat 2023-25) and it answers Cory's older question — *"does
 the model lose to everyone's drafting or just mine?"*
 
-**Realistic-arm mean delta vs the owner's actual draft:**
+> **⚠️ CORRECTED 2026-08-18.** This section used to print a three-row table
+> labelling ds7mmet *"best drafter"* and reading *"the tool LOSES BADLY to the
+> league's best drafter (−163.43)"*. **That label is wrong on the artifact's own
+> data** — the replay's tool-independent drafter study ranks ds7mmet **4th of
+> 10**. Worse, the artifact forbids the read in advance (`honesty`: *"only the
+> top3-vs-bottom-half group contrast is quotable"*), as does the audit doc's
+> preregistered small-n rule. The seat was crowned because it held the tool's
+> worst delta — the number the crown was offered to explain.
+> `draft/audit/replay_best_drafter_claim_2026-08-18.md`.
 
-| seat | mean delta |
-|---|---|
-| **coryjsimms** | **−6.53** — essentially a tie |
-| ds7mmet (best drafter) | **−163.43** — the tool is far worse than him |
-| cashworth | **+12.56** — the tool beats him |
+**Realistic-arm mean delta vs the owner's actual draft — all ten seats, with
+each owner's tool-independent drafter rank:**
 
-**The draft tool currently TIES Cory and LOSES BADLY to the league's best
-drafter.** Against `EDGE-DEFINITION.md` that is **E1 unmet** — measured, not
-guessed. Read `draft/audit/league_benchmark_2026-08-16.md` before quoting any
-number from it; each seat-year is one alternative history.
+| seat | tool Δ | drafter rank |
+|---|---|---|
+| ds7mmet | **−163.4** | 4 |
+| mhagen | −118.7 | 5 |
+| Sadbru | −79.9 | 6 |
+| cashworth | −35.2 | 10 |
+| MarianSaar | −33.8 | **2** |
+| Schmelley | −29.0 | **1** |
+| B8T3S | −13.9 | 7 |
+| **coryjsimms** | **−6.5** | 3 |
+| Richard2121 | +26.9 | 8 |
+| Jreis | **+125.4** | 9 |
 
-**This is the most important number in the project** and it should set every
-owner's priority above, because it says the draft board is not currently the
-edge. Whether that is the board, the roster policy, or the replay's own
-assumptions is exactly what owners 1-3 are for.
+**Read the whole column and the story changes.** The tool's delta does **not**
+track how good the opposing drafter is — Spearman **−0.25, permutation p=0.50**
+on ten seats, with a known-positive control firing at p=0.013, so the test could
+have found a relationship and did not. Against the two drafters the study
+actually ranks 1st and 2nd, the tool is −29.0 and −33.8 — both at the league
+median seat (−31.4).
+
+**And the spread swamps the effect.** Across 30 seat-years: mean **−32.8**, sd
+**116.9** (3.6× the mean), **15 of 30 positive**, range −285 to +218. Each cell
+is one alternative history.
+
+**What survives:** the tool is modestly behind, roughly a wash, and the
+measurement is too noisy to rank the tool against any individual owner. Against
+`EDGE-DEFINITION.md` that is still **E1 unmet** — a wash is not an edge — but
+"loses badly to the best drafter" was never in the data. Read
+`draft/audit/league_benchmark_2026-08-16.md` before quoting any number from it.
+
+**This is still the most important measurement in the project**, and the first
+thing owners 1-3 should notice is that its noise floor is the binding
+constraint: at sd 116.9 per seat-year, **an improvement worth less than ~42
+points/season cannot be detected in 30 samples at all** — and that floor is
+optimistic, since seat-years inside a year share a board vintage and a player
+pool. **In projection units: ΔMAE ±0.310 points per player-week, which is 5.4%
+of `own_v6`'s own weekly error.** Not unreachable — but nothing measured this
+week was within a factor of 39 of it. `draft/backtest/replay_seat_read.json`.
