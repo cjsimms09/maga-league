@@ -1,5 +1,34 @@
 # DRAFT NIGHT RUNBOOK — Saturday 2026-08-22 (one page, print it)
 
+## FRIDAY EVENING, AFTER THE 6:00 PM KEEPER LOCK — TWO ITEMS, BOTH A's
+
+**Added 2026-08-18. These were dated, owned and tracked in
+`draft/data/commitments.json`, and this file — the one Cory executes — did not
+mention either. Found by asking whether every CI guard's failure path is
+reachable; `commitments_check --today=2026-08-22` goes RED with both of these
+OVERDUE.**
+
+Both are blocked until the slate confirms, so they CANNOT be done earlier, and
+both are on the critical path to a board that reflects the real draft:
+
+- **`schedule-rerun-on-slate`** — *"every roster-construction result produced
+  this week is re-run against the REAL pick schedule once the slate confirms."*
+  There is no `draft/data/pick_schedule.json`; **two mutually exclusive schedule
+  assumptions are in use** and this is what reconciles them.
+- **`slate-exposure-rechecked`** — the withheld-slate exposure re-checked against
+  the REAL slate rather than the predicted one. Today the board stands on
+  **4/10 teams designated, with 8 keepers across 3 teams deliberately withheld**,
+  so every exposure number is a prediction until this runs.
+
+**⚠️ IF NEITHER IS DONE, CI IS RED ON DRAFT MORNING AND THE REASON IS THESE TWO
+— not a broken build.** That is worth knowing before you see it at 08:00 on
+Saturday and start diagnosing. `node draft/tools/commitments_check.js` names them
+in one line.
+
+**Neither blocks the draft itself.** The war room boots from the live board
+either way; what they change is whether this week's roster-construction work and
+the exposure numbers describe the real slate or the predicted one.
+
 ## Before the draft — ⚠️ SATURDAY MORNING, **AFTER 03:00 CDT**, NOT FRIDAY NIGHT
 
 > **THE BOARD REBUILDS ITSELF OVERNIGHT AND WILL SUPERSEDE A FRIDAY FREEZE.**
