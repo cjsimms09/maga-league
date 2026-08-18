@@ -115,3 +115,15 @@ def test_the_driver_still_passes_the_filter():
     assert "positions=SKILL_FOR_CALIBRATION" in src, (
         "cli.py no longer passes `positions` to PE.calibrate(). The default is "
         "NO FILTER, which is exactly how punters entered the calibration in 4r.")
+
+    # ⚠️ AND THE ONE THE WORKFLOW ACTUALLY RUNS. The relay fixed cli.py first and
+    # missed this, which is worse than not fixing it: a filter on the wrong call
+    # site is a fix that feels done and changes nothing.
+    # `projection-error-calibration.yml` runs `python3 draft/backtest/
+    # projection_error.py` directly, so regenerate() is the path that produced
+    # the contaminated artifact.
+    pe = (ROOT / "draft" / "backtest" / "projection_error.py").read_text()
+    assert "positions=ROSTERED_POSITIONS" in pe, (
+        "projection_error.regenerate() no longer passes `positions`. THIS is the "
+        "entry point projection-error-calibration.yml runs — fixing cli.py alone "
+        "leaves the contaminating path wide open.")

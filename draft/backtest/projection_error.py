@@ -93,6 +93,11 @@ if _edges_env:
 #: Below this many graded players a band reports `unmeasurable` rather than a number.
 MIN_N = 8
 
+#: The only positions this league rosters and scores. The calibration is a claim
+#: about how OUR projections miss for OUR players; a punter in the population is
+#: not a small impurity, it is a different question being answered.
+ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
+
 CALIBRATION_VERSION = "projection-error/v1"
 
 SURVIVOR_CAVEAT = (
@@ -475,7 +480,22 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
 
-    cal = calibrate(bundles, actual, exclude_season=None)
+    # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT.
+    #
+    # `calibrate()` -> `error_rows(..., positions=None)` means NO FILTER, and
+    # `projection-error-calibration.yml` runs THIS module directly (not cli.py).
+    # The 2026-08-17 22:11 regeneration therefore fitted the artifact behind
+    # every proj_ceiling / proj_floor / proj_sd on P (punters) 9, DB 4, LB 1,
+    # T 1 and FB 20 — none of which this league rosters — while the skill
+    # positions lost ~30% of their graded players (QB 186->134, RB 335->215,
+    # WR 497->336, TE 286->190; graded 1,304->910) and 15 of 32 cells stopped
+    # being measurable.
+    #
+    # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
+    # workflow actually takes — a filter on the wrong call site is a fix that
+    # feels done and changes nothing. Register 4r.
+    cal = calibrate(bundles, actual, exclude_season=None,
+                    positions=ROSTERED_POSITIONS)
     cal["skipped_seasons"] = skipped
     return cal
 
