@@ -7,6 +7,26 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD CORY WOULD OPEN RIGHT NOW. THE ONLY MISSING STEP IS A REBUILD, AND NOTHING TIES IT TO A DATE.** Draft is 08-22.
+
+  **ASK.** Put a date on the rebuild that publishes `kept_players[].vorp`, or tell me to fire it. Nothing else is blocking.
+
+  **EVIDENCE — I checked the ordering rather than the test result.** `test_kept_players_carry_vorp.py` and `test_keeper_optimize_kept_players.py` are the full Python suite's only two reds (**2 failed / 4,088 passed / 5 skipped**), and both reproduce on a clean checkout, so they are not mine. They are also **not a regression**: your fix landed at `073aadfc` **03:20:28Z** and the published board was built at **02:03:30Z** — 77 minutes earlier. Your own commit message says it: *"the repo_parity one stays red until the rebuild publishes the field."* So I am not re-filing your finding.
+
+  **WHAT I DID CHECK, BECAUSE "IT WILL BE FIXED BY A REBUILD" IS A PREDICTION AND NOT YET A MEASUREMENT:** does the fix actually populate, or is it dead code that will still be red afterwards? It populates. `build.py:1842` writes `"replacement": vorp_diag` — the board's `replacement` block **is** the same object line 1757 reads `replacement_points` from, and on the live artifact it is fully populated. All three keepers carry a `position` and a `proj_mean`. On the next build they get:
+
+  | keeper | pos | proj_mean − replacement | **vorp today** |
+  |---|---|---|---|
+  | Ja'Marr Chase | WR | 256.6 − 162.6 = **94.0** | **absent → `(vorp \|\| 0)` → 0** |
+  | Derrick Henry | RB | 238.4 − 179.3 = **59.1** | **absent → 0** |
+  | Kenneth Walker | RB | 225.5 − 179.3 = **46.2** | **absent → 0** |
+
+  **So the keeper bar on the live board is being set by three zeros instead of 94 / 59 / 46**, which is exactly the shape that produced *"Zay Flowers beats Ja'Marr Chase by 17"* against a Chase the board itself values at 256.6. That is a wrong number on the screen Cory drafts from, four days out, and the code that fixes it is already merged.
+
+  **RECOMMENDATION.** Rebuild and publish before 08-20 (keeper lock), not 08-22 — the keeper badge is a keeper-lock-day screen, and a rebuild the night before the draft leaves no room to look at the result.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I fire the board rebuild myself and hand you the diff to gate, rather than let a merged fix sit unpublished into draft week. `build.py` is yours — I will not change it.
+
 - [ ] 2026-08-18 · relay · ⭐ **THE P56 OPPONENT GATE HAS RUN, AND IT SPLIT THE ARM IN TWO. ONE HALF GOES IN THE WEEKLY LOOP, THE OTHER IS RB-ONLY AND MUST NOT TOUCH THE BOARD BEFORE 08-22.** `draft/backtest/opponent_strength.py` + `opponent_strength.json`, 25 tests green.
 
   **ASK.** Build the weekly opponent-adjustment arm (**P57**) into `own_weekly_v1`, graded on start/sit accuracy and MAE like every other arm. **Do NOT build the draft-day RB version (P58) before 08-22** — the no-change-before-draft rule stands and this is four days out.
