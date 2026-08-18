@@ -35,11 +35,11 @@ still on a partial slate.
 
 ---
 
-## 1 · CORY'S TWO RULINGS
+## 1 · CORY'S RULINGS — ONE DOWN, ONE POST-DRAFT
 
 | | what he decides | why it cannot wait / can | register |
 |---|---|---|---|
-| **C1** | ✅ **RULED (Cory, 08-18): 08-21 6:00 PM CDT — B's banner was right, the fifteen files were wrong and are corrected.** ~~The keeper deadline: 08-20, or 08-21 6:00 PM CDT?~~ | **P0, league-facing.** B's banner would pin *"Friday August 21 at 6:00 PM CDT"* to all ten managers while **fifteen files in this repo say 08-20.** One of the two is wrong and both are about to be stated as fact. | 42 (closed 08-18), Q17 (answered), ledger P71 (graded FALSE — the good outcome) |
+| ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** The banner's date was right; the fifteen files were wrong. **Root cause fixed, not just the date:** `league_config.json` now carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B is unblocked to ship. | *nothing further* | 42 ruled and closed, Q17 answered, ledger P71 graded FALSE — the good outcome |
 | **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
 
 *(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
@@ -70,10 +70,10 @@ Everything else open. Named so nobody has to re-derive that it was considered:
 - **CLOSED 08-18 with the C1 ruling and the same-day rulings above** — 42 (the
   keeper date, ruled), E1 (fix rejected on the population ruling), 5e (QB
   refusal shipped), 4x (no rescale, Cory told), 4d (desktop-first, superseded
-  on the record), E10 (the fresh-board sweep ran: no field joined the
-  c×pool_rank family).
+  on the record).
 - **CLOSED 08-18 against live state, not against the date on the line** — rows
-  1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
+  E10 (its check run on the fresh board; its parent row 2 resolved on the same
+  run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
   named test passes on the fresh board), 4 (`matchup_placed_bet` 6/6,
   `trashtalk` 27/27) and 4c (board-truth 11/11, including the control that
   keepers really do consume picks) — plus row 2 **RESOLVED**: the

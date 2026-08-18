@@ -72,14 +72,21 @@ function parse(text) {
     if (m) {
       if (cur) out.push(cur);
       cur = { done: m[1] === 'x', date: m[2], who: m[3].trim(), section: section, body: [line] };
-    } else if (/^## /.test(line)) {
+    } else if (/^##/.test(line)) {
+      //: `/^##/` NOT `/^## ` — the archive's headings are `### (was ...)` and a
+      //: third hash sits where the space would be, so the old pattern skipped
+      //: them entirely and every archived item inherited the wrong section.
       if (cur) { out.push(cur); cur = null; }
       // THE SECTION IS THE RECIPIENT, and without it this report names the wrong
       // lane. Most items carry no explicit "→ X", so falling back to the header
       // line attributes them to whoever WROTE them — printing "waiting on C" for
       // 83 items C is waiting on someone else for. A latency dashboard that
       // reverses the direction of the wait is worse than no dashboard.
-      const s = /^##\s*TO:\s*(.+?)\s*$/.exec(line);
+      // `## TO: X` in the inbox, and the archive's `### (was `## TO: X`)` form —
+      // added 08-18 when 101 closed items moved out and the closure census read
+      // them as section-less, which reported `A → B 15 -> 0` as a regression.
+      const s = /^##\s*TO:\s*(.+?)\s*$/.exec(line)
+        || /^###\s*\(was\s*`##\s*TO:\s*(.+?)`\)\s*$/.exec(line);
       section = s ? s[1] : null;
     } else if (cur) {
       cur.body.push(line);
@@ -177,6 +184,37 @@ function byLane(items, nowMs) {
   return Object.keys(lanes).map(k => lanes[k]).sort((a, b) => b.count - a.count);
 }
 
+/** The closure census, ACROSS ROUTES.md and ROUTES-ARCHIVE.md.
+ *
+ * Extracted from main() 2026-08-18 so the test suite measures the SAME census
+ * the tool reports — its ratchet block had kept a private ROUTES.md-only copy
+ * and went red the moment the archive both-files fix landed here, which is
+ * exactly the drift a private copy guarantees. Pass the already-parsed
+ * ROUTES.md items; the archive is read (and section-attributed via its
+ * `### (was …)` headings, handled in parse()) here.
+ */
+function closureCensus(items) {
+  let censusItems = items;
+  try {
+    censusItems = items.concat(parse(fs.readFileSync(
+      path.join(ROOT, 'ROUTES-ARCHIVE.md'), 'utf8')));
+  } catch (e) { /* no archive yet — the census is simply ROUTES.md */ }
+
+  const pairs = {};
+  censusItems.forEach(function (i) {
+    if (!i.section) return;
+    //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
+    //: keying on it raw prints "relay → A → A" and splits one pair into two.
+    const from = i.who.replace(/\s*→.*$/, '').trim();
+    const k = from + ' → ' + i.section;
+    (pairs[k] = pairs[k] || { n: 0, done: 0, noDefault: 0 });
+    pairs[k].n++;
+    if (i.done) pairs[k].done++;
+    else if (!hasDefault(i)) pairs[k].noDefault++;
+  });
+  return pairs;
+}
+
 function main() {
   const items = parse(fs.readFileSync(ROUTES, 'utf8'));
   if (!items.length) {
@@ -259,18 +297,23 @@ function main() {
    * a low rate can be a genuine backlog or pure bookkeeping, and no static rule
    * tells those apart. The asymmetry is the thing to look at.
    */
-  const pairs = {};
-  items.forEach(function (i) {
-    if (!i.section) return;
-    //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
-    //: keying on it raw prints "relay → A → A" and splits one pair into two.
-    const from = i.who.replace(/\s*→.*$/, '').trim();
-    const k = from + ' → ' + i.section;
-    (pairs[k] = pairs[k] || { n: 0, done: 0, noDefault: 0 });
-    pairs[k].n++;
-    if (i.done) pairs[k].done++;
-    else if (!hasDefault(i)) pairs[k].noDefault++;
-  });
+  /* ⚠️ CLOSURE IS COUNTED ACROSS ROUTES.md **AND** ROUTES-ARCHIVE.md, AND THE
+   * RATCHET'S FIRST REAL EVENT IS WHY.
+   *
+   * 2026-08-18: Cory asked for the moot items to go, so 101 closed pre-08-17
+   * items moved to the archive. The ratchet fired immediately — `C → A: 68 -> 3`,
+   * `A → B: 15 -> 0` — because it was reading one file and the closures had
+   * moved to the other.
+   *
+   * **The right fix is not a baseline edit.** An archived item is still CLOSED;
+   * it has not come un-done, and letting "I archived it" silence the ratchet
+   * would be the loophole this whole check exists to avoid. So the closure
+   * census reads both files, which makes it immune to archiving while still
+   * catching the thing it was built for: a ticked item going untucked.
+   *
+   * The BLOCKED count deliberately still reads only `ROUTES.md` — an archived
+   * item is not in anybody's inbox, so it cannot be blocking anybody. */
+  const pairs = closureCensus(items);
   const big = Object.keys(pairs).filter(k => pairs[k].n >= 5)
     .sort((a, b) => (pairs[a].done / pairs[a].n) - (pairs[b].done / pairs[b].n));
   if (big.length) {
@@ -320,6 +363,49 @@ function main() {
         + ' silencing the check.');
     }
   }
+  /* ── THE CLOSURE RATCHET, AND THE UNIT IS A COUNT RATHER THAN A RATE ──────
+   *
+   * Cory, 2026-08-18: *"Have you solved communication problem going forward?"*
+   * The measurement was solved; the behaviour was not. This is the half that
+   * bites — and it is deliberately the mildest form that still catches
+   * something real.
+   *
+   * ⚠️ A RATE WOULD CRY WOLF ON EVERY NEW FILING. `D → A` at 5% ticked drops
+   * further the moment D files a legitimate new item, so a rate ratchet would
+   * fail the build for doing the right thing. `intervention-rate` already wrote
+   * that epitaph. **So the ratchet is on the ABSOLUTE TICKED COUNT per pair**,
+   * which cannot fall by filing and can only fall by un-ticking or losing a
+   * closed item.
+   *
+   * THAT IS NOT A HYPOTHETICAL FAILURE. This file's own `_history` records it:
+   * seven items were closed on 08-17 and re-opened on 08-18 by a union merge
+   * (E had forked before the closure, so the merge took both sides), and
+   * `routes_resurrections.py` had to delete them. **A closure ratchet is the
+   * guard that would have caught that on the closure side rather than after
+   * somebody noticed.**
+   *
+   * It does NOT fail on a low rate. A lane with a genuine backlog is not the
+   * defect this catches; work being un-done silently is.
+   */
+  if (base.closure_by_pair) {
+    const regressed = [];
+    Object.keys(base.closure_by_pair).forEach(function (k) {
+      const was = base.closure_by_pair[k].done;
+      const now = pairs[k] ? pairs[k].done : 0;
+      if (now < was) regressed.push(k + ': ' + was + ' -> ' + now);
+    });
+    if (regressed.length) {
+      console.log('\n  ❌ CLOSED WORK CAME BACK OPEN: ' + regressed.join(' · '));
+      console.log('     A ticked item going untucked is either a union merge taking both');
+      console.log('     sides of a closure (see this baseline\'s _history) or somebody');
+      console.log('     reopening without saying so. Repair it, or record why in the');
+      console.log('     baseline. Do NOT lower the number to make this pass.');
+      console.log('='.repeat(76));
+      process.exitCode = 1;
+      return 1;
+    }
+  }
+
   if (stuck.length > base.blocked) {
     console.log('\n  ❌ THE BACKLOG GREW BY ' + (stuck.length - base.blocked)
       + '. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.');
@@ -339,6 +425,6 @@ function main() {
 }
 
 module.exports = { parse, hasDefault, noAsk, broadcastKeys, isBroadcast, ageDays,
-  blocked, byLane, RESPOND_BY_DAYS, main };
+  blocked, byLane, closureCensus, RESPOND_BY_DAYS, main };
 
 if (require.main === module) process.exit(main());
