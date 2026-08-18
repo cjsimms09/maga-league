@@ -22,6 +22,13 @@ CEILING_Z = 1.036  # 85th percentile
 # Expected games. Positional durability priors from historical games-missed.
 EXPECTED_GAMES = {"QB": 15.5, "RB": 14.2, "WR": 15.0, "TE": 14.8, "K": 16.5, "DEF": 17.0}
 
+# 4w plausibility rail: best realized season total per position in OUR stores
+# (nflverse_weekly_points 2023-25, league scoring) × 1.20 record headroom.
+# MEASURED base (QB 561.5 / RB 437.3 / WR 376.1 / TE 252.9); the 20% headroom
+# is the one hand-set number and is declared as such. Regenerate the bases
+# with the one-liner in test_player_volatility_tails.py if a season is added.
+PLAUSIBILITY_CEILING = {"QB": 674.0, "RB": 525.0, "WR": 451.0, "TE": 303.0}
+
 # --- per-player variance (audit P1.7) ---------------------------------------
 #
 # POSITION_VARIANCE alone is a FLAT constant within a position, which made
@@ -509,15 +516,36 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
                     # 2025 cv keeps the CELL constant (absent stays absent),
                     # and the _source stamp names which construction he got —
                     # one field name must never hold two quantities silently.
+                    #
+                    # 4w (D9 ruling, 08-18): the raw f is a WEEKLY ratio and a
+                    # season is the sum of ~G weeks, so applying f unscaled
+                    # put 31 physically impossible ceilings on the board
+                    # (Gibbs 679 vs a best-ever RB season ≈437). Rescaled:
+                    # season spread shrinks by at most √G under independence,
+                    # so 1+(f−1)/√G is the conservative per-player form —
+                    # keeps the 4j repair, kills the impossible numbers.
                     f_ = _f_of.get(id(p))
                     if f_:
-                        ceiling_m = cm * f_
+                        f_season = 1.0 + (f_ - 1.0) / (games ** 0.5)
+                        ceiling_m = cm * f_season
                         ceiling_source = "measured-2023-25-p90-x-player-cv"
                         var_why = var_why + [
-                            "tails: realized 2025 weekly cv, x%.3f vs cell "
-                            "(VOLATILITY-WIRING-PREREG §2)" % f_]
+                            "tails: realized 2025 weekly cv x%.3f vs cell, "
+                            "season-rescaled /sqrt(%d) to x%.3f (prereg §2 + 4w)"
+                            % (f_, int(games), f_season)]
                     else:
                         ceiling_m, ceiling_source = cm, "measured-2023-25-p90"
+                    # 4w sanity rail, measured not assumed: no stated ceiling
+                    # may exceed the best season actually recorded at the
+                    # position in our own 2023-25 stores (league scoring)
+                    # plus 20% record-breaking headroom. Nothing asserted
+                    # this before, which is exactly why 679 shipped.
+                    cap = PLAUSIBILITY_CEILING.get((p.get("position") or "").upper())
+                    if ceiling_m is not None and cap and ceiling_m > cap:
+                        var_why = var_why + [
+                            "ceiling capped at %.0f: best realized %s season "
+                            "2023-25 + 20%% (4w rail)" % (cap, p.get("position"))]
+                        ceiling_m = cap
                 # THE FLOOR HAS THE SAME DEFECT AND IT IS WORSE. `mean - 0.674*sd`
                 # is a symmetric Gaussian over an asymmetric distribution, wrong by
                 # more than 0.15 of the projection in 16 of 20 measured cells. The
@@ -537,7 +565,9 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
                     # itself, verified where f is BUILT, not here.
                     f_ = _f_of.get(id(p))
                     if f_:
-                        floor_m = fm / f_
+                        # Same 4w season-rescale as the ceiling: one f, one
+                        # scale correction, divided instead of multiplied.
+                        floor_m = fm / (1.0 + (f_ - 1.0) / (games ** 0.5))
                         floor_source = "measured-2023-25-p10-x-player-cv"
                     else:
                         floor_m, floor_source = fm, "measured-2023-25-p10"

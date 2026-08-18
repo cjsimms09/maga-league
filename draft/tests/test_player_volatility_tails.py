@@ -119,3 +119,52 @@ def test_the_config_actually_carries_the_flag():
     assert cfg.get("use_measured_ceiling") is True, (
         "player_volatility_in_tails composes ON TOP of the measured cell "
         "p90/p10 — without it the f never applies")
+
+
+def test_4w_the_weekly_ratio_is_season_rescaled_and_nothing_impossible_prints():
+    """Register 4w: the unscaled weekly f put 31 physically impossible ceilings
+    on the board (Gibbs 679 vs best-ever RB season 437). Two pins:
+    (1) the applied multiplier is 1+(f-1)/sqrt(G), not f, so a wildly volatile
+    player moves his ceiling by percents, not by a factor;
+    (2) no ceiling exceeds the measured best-season-plus-headroom rail."""
+    rows = _run(CVS)
+    volatile = rows["rb9"]  # cv 0.80 vs cell median ~0.525 → raw f ≈ 1.4+
+    r_vol = volatile["proj_ceiling"] / volatile["proj_mean"]
+    cell = _run({}, flag=True)["rb9"]["proj_ceiling"] / rows["rb9"]["proj_mean"]
+    assert r_vol < cell * 1.20, (
+        f"ceiling ratio {r_vol:.3f} vs cell {cell:.3f}: a weekly cv ratio "
+        "applied unscaled to a season — the exact 4w failure")
+    for p in rows.values():
+        cap = PJ.PLAUSIBILITY_CEILING.get(p["position"])
+        if cap:
+            assert p["proj_ceiling"] <= cap + 0.01, (
+                f"{p['player_id']} ceiling {p['proj_ceiling']} exceeds the "
+                f"{p['position']} plausibility rail {cap}")
+
+
+def test_4w_the_rail_bases_match_the_committed_stores():
+    """The rail is MEASURED (best realized season per position, our scoring,
+    2023-25) x 1.20 declared headroom. This regenerates the bases from the
+    stores so the constant cannot rot when a season is added."""
+    import json
+    idx = json.loads((ROOT / "draft" / "backtest" /
+                      "sleeper_name_index.json").read_text())["index"]
+    pos_of = {str(v["player_id"]): (v.get("position") or "").upper()
+              for v in idx.values()}
+    best = {}
+    for season in (2023, 2024, 2025):
+        d = json.loads((ROOT / "draft" / "backtest" /
+                        f"nflverse_weekly_points_{season}.json").read_text())
+        tot = {}
+        for wk in d["weeks"]:
+            for pid, pts in (wk.get("points") or {}).items():
+                tot[pid] = tot.get(pid, 0) + pts
+        for pid, t in tot.items():
+            po = pos_of.get(pid)
+            if po and t > best.get(po, 0):
+                best[po] = t
+    for pos in ("QB", "RB", "WR", "TE"):
+        expect = round(best[pos] * 1.20)
+        assert abs(PJ.PLAUSIBILITY_CEILING[pos] - expect) <= 1.5, (
+            f"{pos} rail {PJ.PLAUSIBILITY_CEILING[pos]} vs stores-derived "
+            f"{expect} — regenerate the constant, a season moved the base")
