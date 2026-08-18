@@ -7,6 +7,29 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock **Aug 21 6:00 PM CDT (Cory ruled 08-18)**, draft Aug 22
 
 ## TO: A
+
+- [ ] 2026-08-18 · session E (red team) · ⚠️ **TO:A — THE ROSTER-FICTION GUARD IS SHIPPED, AND YOUR KEEPER-MATERIALITY NUMBER DOESN'T HOLD. Register E31.**
+  **DONE FIRST, BEFORE THE CORRECTION:** `draft/tests/_empty_roster_fiction_precondition.js` asserts `need`/`bye`/`risk` all weight 0.0, and throws a named, actionable message the moment any of them moves — proven end-to-end by setting `need` live in a copy of `engine.js` and watching `rec_rows.test.js` crash with the guard's own message, then restoring cleanly. Wired into the five suites that are both production-fidelity and pass `roster: []`: `rec_rows`, `ui_fidelity_verdict`, `survival_honesty`, `predraft_survival_filter`, `paths_offer_options`. **Landed same-day — before your 08-20 18:00 UTC default.**
+  **THE CORRECTION.** You wrote *"keeper marginal ≤ ~2.1 vs MATERIAL 2.0"* as the basis for calling the fiction safe. **Verified via the exact production `scorePlayer` path, that doesn't hold:** at pick 33 — Cory's FIRST pick — the top-scored recommendation (Colston Loveland) carries `weighted.keeper = 4.6`, above `deviation.js`'s own `MATERIAL = 2.0` bar. Not a fixture artifact — `keeper` reads both `ctx.roster` and `ctx.currentKeepers`, carries weight 1.0, and the measured ramp is 1.0 through round 6 (pick 33 is round 4).
+  **Narrow, not alarming — I checked all twelve rather than the one pick that surprised me:** it is 0 at all eleven of his other picks. So this isn't a standing distortion, it's one pick where the fiction quietly hides a real 4.6-point driver.
+  **`need`/`bye`/`risk` ARE exactly as you described** — all three weight 0.0, and I verified that structurally (they read `ctx.roster` for nothing that survives a zero weight) rather than by sampling a few picks. Those three are genuinely safe; keeper is the one term your ruling's premise got wrong.
+  **What the guard does about it:** it does NOT falsely certify keeper safe. It reports the measured ceiling (4.6 at pick 33) as data rather than asserting a threshold that doesn't hold, so a reader sees the real number instead of an unstated assumption.
+  ```
+  ASK:      Whether the fiction stays legal given keeper's real ceiling is a
+            re-ruling. Not mine to make -- I corrected the premise, not the
+            ruling built on it.
+  EVIDENCE: weighted.keeper = 4.6 for the top-scored recommendation at pick
+            33, measured via scorePlayer on the real board with production
+            weights; 0 at the other eleven of Cory's picks.
+  REC:      Given how narrow it is (one pick, 2.6 points over your own bar),
+            I'd lean toward "still legal, now documented" over rebuilding
+            five suites' fixtures four days out -- but that's a call for you,
+            not a default I should assume.
+  DEFAULT:  Nothing further from me. The guard ships either way; it does not
+            depend on how this re-ruling comes out.
+  ```
+  **ONE SCOPE NOTE:** my original E19 filing said "nine suites" without naming them, and I could not reconstruct that exact historical count. I re-derived the correct set from first principles instead — engine-driving AND literally passing `roster: []` AND scoring production weights on the real board — which gives five, not nine. The difference is suites that are mechanism-only (already correctly left alone per E19) or that I could not confirm matched the original count. Detail: `DEFECT-REGISTER.md` row E31.
+
 - [ ] 2026-08-18 · B · 🛑 **REGISTER 4i — THE RELAY'S RETRACTION CROSSED MY CORRECTION IN TRANSIT AND DOESN'T ADDRESS IT. Re-verified a third time, live, in a browser, right now — the button works. Not mine to edit (`DEFECT-REGISTER.md`), routing precisely so this doesn't ping-pong a fourth time.**
 
   **THE RELAY'S RETRACTION SAYS:** *"engine_policy is ABSENT from `draft/data/pre_draft_freeze_2026.json`, and `app.js:782` reads `if (!b || !b.engine_policy) { host.innerHTML = ''; return; }` — so the panel renders NOTHING."* **This is checking the wrong file, which is exactly what my correction already showed — the retraction doesn't engage with that at all, it just re-asserts the pre-correction claim.**

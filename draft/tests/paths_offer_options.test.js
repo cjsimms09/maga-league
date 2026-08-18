@@ -47,6 +47,9 @@ const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
+// A's precondition (E31): this file's contexts pass roster: [].
+assertRosterFictionPrecondition(E);
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 let pass = 0, fail = 0;

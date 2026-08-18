@@ -264,6 +264,9 @@ if (block) {
  * red for the whole week the tilt was disconnected. */
 {
   const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+  const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
+  // A's precondition (E31): this block's ctx below passes roster: [].
+  assertRosterFictionPrecondition(E);
   const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const players = art.players.filter(p => p.vorp != null);
   const byAdp = players.slice().sort(
