@@ -68,7 +68,18 @@ Split the same rows by whether the team's oracle multiplier is above or below 1:
 | 2024 | m > 1 (shootout) | 1,065 | 6.3746 | 0.50 | +0.1295 | **2.0%** |
 | 2024 | m ≤ 1 (dud) | 1,194 | 5.1682 | **0.80** | **+0.3293** | **6.4%** |
 
-**Knowing a game will be a dud is worth 5–10× more than knowing it will be a
+> **⚠️ AMENDED SAME DAY — the RATIO below is corrected, the finding is not.**
+> These gains were measured on exactly the shape register 32 later exposed: a
+> biased-high baseline pays for shrinking. **A 40-draw placebo (shuffle the
+> multiplier among that week's teams) was run on this table first, before any
+> other lane's work, and it SURVIVES — every side beats every draw, p=0.024.**
+> But part of the dud-side gain was the free shrink: net of placebo it is
+> **+0.4514 / +0.2967**, not +0.5462 / +0.3293. **The shootout side's placebo
+> is EXACTLY 0.0000 in both seasons** — a shuffled multiplier buys nothing when
+> it points up. **So the honest ratio is 2.3–7.2×, not 5–10×.** Direction and
+> mechanism stand. `draft/audit/opportunity_adjuster_row33_2026-08-18.md` §6.
+
+**Knowing a game will be a dud is worth 2.3–7.2× more than knowing it will be a
 shootout, and it wants nearly twice the damping factor.**
 
 That is the prereg's candidate 1, measured: **the multiplicative form

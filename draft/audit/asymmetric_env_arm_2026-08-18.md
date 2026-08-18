@@ -18,8 +18,8 @@ with the longest reach, and §3 is about it.
 
 ## 1. WHAT WAS RUN
 
-Register 18b measured, on a perfect oracle, that a **dud** game is worth 5–10×
-a **shootout** and wants twice the damping. This tests the same two-sided form
+Register 18b measured, on a perfect oracle, that a **dud** game is worth
+2.3–7.2× (**corrected 08-18 net of a 40-draw placebo; raw was 5–10×** — register 33) a **shootout** and wants twice the damping. This tests the same two-sided form
 on a signal that could actually ship — the committed Vegas lines, 2021-25.
 
 `proj = baseline × (1 + λ(m − 1))`, with **λ_low when m ≤ 1, λ_high when m > 1**.
