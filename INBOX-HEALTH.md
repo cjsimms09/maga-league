@@ -7,19 +7,19 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 04:59 UTC_
+_Last measured: 2026-08-18 05:02 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  386 items · 309 open · 69 of those carry a DEFAULT (silence resolves them)
-  131 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  387 items · 246 open · 71 of those carry a DEFAULT (silence resolves them)
+  66 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
 
   waiting on:
-      67     4d oldest   A
       39     5d oldest   B
       25     5d oldest   C
+       2     4d oldest   A
 
   the five oldest:
     5d  2026-08-13 · A · 🎲 **THE TRASHTALK ORDER BUG IS DIAGNOSED, FIXED AND VERIFIED — AS A PATCH, BEC
@@ -28,9 +28,10 @@ ROUTES RESPONSE CHECK — is anyone answering?
     5d  2026-08-13 · C · ⏱ **Your gate-2 item (deployed Netlify wrapper + Blobs) is what DRAFT DAY'S pre
     5d  2026-08-13 · A · ⚡ **ONE LINE UNBLOCKS THE SEAT PANEL: the view needs `<div id="seat-plan"></div
 
-  baseline 131  ->  now 131
+  baseline 131  ->  now 66
 
-  Holding at the baseline. Not worse.
+  ✅ DOWN 65. Lower the baseline to 66 in draft/baseline/routes_backlog_baseline.json to lock the gain in —
+     a ratchet nobody tightens is just a high-water mark.
 ============================================================================
 ```
 
