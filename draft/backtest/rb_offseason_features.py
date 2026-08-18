@@ -227,8 +227,13 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
     roster_all = roster_all[roster_all["position"] == POSITION]
 
     def _offseason_week(season: int) -> int | None:
-        weeks = sorted(set(int(w) for w in
-                           depth_all[depth_all["season"] == season]["week"]))
+        # some depth-chart rows carry a NaN week (e.g. a player listed with
+        # no game tie -- not an offseason snapshot); dropped here rather
+        # than crashing int(), matching _int_or_last's "unparsable is not
+        # a real value" stance for the same column elsewhere in this file
+        weeks = sorted({int(w) for w in
+                        depth_all[depth_all["season"] == season]["week"]
+                        if w == w})
         return weeks[0] if weeks else None
 
     by_season_depth, by_season_roster, as_of_by_season = {}, {}, {}

@@ -170,8 +170,12 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
     receiver_roster = roster_all[roster_all["position"].isin(RECEIVER_POSITIONS)]
 
     def _offseason_week(season: int) -> int | None:
-        weeks = sorted(set(int(w) for w in
-                           qb_depth[qb_depth["season"] == season]["week"]))
+        # some depth-chart rows carry a NaN week; dropped here rather than
+        # crashing int() (same class as rb_offseason_features.py's own fix
+        # for this column)
+        weeks = sorted({int(w) for w in
+                        qb_depth[qb_depth["season"] == season]["week"]
+                        if w == w})
         return weeks[0] if weeks else None
 
     all_rows = []
