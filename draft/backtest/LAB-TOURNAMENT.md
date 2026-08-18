@@ -30,7 +30,7 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$25.00** (200 outc
 | B3 | +0.00 | 0th | no | — | — |
 | arch:early_qb | +0.00 | 0th | no | 2023:RB×2,WR×1 · 2024:QB×1 · 2025:QB×5,RB×2,T×1 | — |
 | arch:elite_te | +0.00 | 0th | no | 2024:TE×2,RB×1 · 2025:TE×4,QB×2,RB×2 | — |
-| arch:hero_rb | +0.00 | 0th | no | 2023:FB×9,WR×9,DT×2 · 2024:RB×4,WR×4,DB×4 · 2025:QB×6,WR×5,RB×5 | — |
+| arch:hero_rb | +0.00 | 0th | no | 2023:FB×9,WR×9,DT×2 · 2024:RB×4,DB×4,WR×4 · 2025:QB×6,RB×5,WR×5 | — |
 | arch:late_qb | +0.00 | 0th | no | 2023:QB×3,RB×2,DT×1 · 2024:RB×3,WR×1 · 2025:QB×5,WR×3,DE×1 | — |
 | arch:robust_rb | +0.00 | 0th | no | 2024:RB×2 | — |
 | arch:wr_anchor | +0.00 | 0th | no | 2023:WR×5 · 2024:WR×1 · 2025:QB×1,WR×1 | — |
@@ -38,7 +38,7 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$25.00** (200 outc
 | profile:default | +0.00 | 0th | no | — | — |
 | profile:keeper_builder | +0.00 | 0th | no | — | — |
 | profile:need_filler | +0.00 | 0th | no | 2023:QB×2,WR×2,RB×1 · 2024:RB×2 | — |
-| profile:scarcity | +0.00 | 0th | no | 2023:QB×1,RB×1,WR×1 · 2024:WR×1,RB×1 · 2025:RB×1 | — |
+| profile:scarcity | +0.00 | 0th | no | 2023:WR×1,RB×1,QB×1 · 2024:WR×1,RB×1 · 2025:RB×1 | — |
 | profile:tier_hunter | +0.00 | 0th | no | 2023:WR×1 · 2024:RB×1 · 2025:QB×4,RB×3,TE×2 | — |
 | profile:upside_late | +0.00 | 0th | no | 2023:RB×27,WR×1 · 2024:RB×14 · 2025:RB×25 | — |
 
