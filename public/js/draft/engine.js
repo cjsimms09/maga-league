@@ -3234,6 +3234,24 @@
    * the branch forecast's position loss when a ctx is supplied.
    */
   function dollarGap(a, b, ctx) {
+    // D10a ruling (A, 08-18, pre-draft): a cross-position dollar comparison
+    // involving K/DEF prices two DIFFERENT ceiling constructions on one scale
+    // — all 76 K/DEF fall back to gaussian_z while skill positions carry the
+    // measured (and per-player) tails, handing e.g. a DEF a 1.394 relative
+    // ceiling against a TE's 1.146 purely by formula. Until K/DEF cells are
+    // measured (post-draft), the honest answer is a refusal with the reason
+    // on screen, not a fake number.
+    const onesie = pos => pos === 'K' || pos === 'DEF';
+    if (a.position !== b.position && (onesie(a.position) || onesie(b.position))) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — K/DEF ceilings are priced by a different ' +
+                 'formula than skill positions; compare within position instead',
+        terms: { note: 'refused: K/DEF have no measured calibration cells, so a ' +
+                       'cross-position dollar gap would compare two constructions (D10a).' },
+      };
+    }
     const da = playerDollars(a), db = playerDollars(b);
     // Next-pick echo: what taking A costs in best-available-at-B's-position by my
     // next pick, minus the symmetric cost of taking B. Positive favors A.
