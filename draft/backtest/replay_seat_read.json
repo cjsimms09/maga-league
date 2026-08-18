@@ -146,7 +146,12 @@
   "seat_means_sd": 75.03,
   "seats_tool_wins": 2,
   "se_of_mean": 21.34,
-  "min_detectable_effect_95pct": 41.8
+  "min_detectable_effect_95pct": 41.8,
+  "starter_weeks_per_season": 135,
+  "min_detectable_delta_mae_per_player_week": 0.3099,
+  "model_baseline_weekly_mae": 5.7049,
+  "baseline_source": "vegas_team_arm.json (own_v6, 2023/24 joined rows)",
+  "min_detectable_effect_as_pct_of_model_error": 5.4
  },
  "skill_tracking": {
   "spearman_delta_vs_drafter_skill": -0.248,

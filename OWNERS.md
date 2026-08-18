@@ -119,4 +119,6 @@ thing owners 1-3 should notice is that its noise floor is the binding
 constraint: at sd 116.9 per seat-year, **an improvement worth less than ~42
 points/season cannot be detected in 30 samples at all** — and that floor is
 optimistic, since seat-years inside a year share a board vintage and a player
-pool. `draft/backtest/replay_seat_read.json`.
+pool. **In projection units: ΔMAE ±0.310 points per player-week, which is 5.4%
+of `own_v6`'s own weekly error.** Not unreachable — but nothing measured this
+week was within a factor of 39 of it. `draft/backtest/replay_seat_read.json`.

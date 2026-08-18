@@ -86,10 +86,53 @@ and a player pool, so they are not 30 independent samples.
 
 **This is the finding underneath the finding.** The replay is the only
 instrument this project has for measuring an edge, and it cannot resolve any
-board improvement worth less than roughly 42 points a season. Every projection
-study run this week — routes/TPRR, snap share, week-1 props, the team-level
-Vegas line — was chasing effects one to two orders of magnitude below that.
-**They could not have registered here even if all four had worked.**
+board improvement worth less than roughly 42 points a season.
+
+### 4a. THE FLOOR IN THE UNITS A PROJECTION STUDY REPORTS
+
+> **⚠️ CORRECTED, same day, before this doc was quoted anywhere.** This section
+> first read *"every projection study run this week was chasing effects one to
+> two orders of magnitude below that."* **That compared ΔMAE in points per
+> player-week against a seat delta in points per season — two different units,
+> asserted rather than converted.** The claim is now computed, and it is
+> narrower than what it replaced.
+
+A seat delta is **points per season, per roster**. A projection study reports
+**ΔMAE, points per player-week**. Converting needs a stated assumption, so here
+it is, and it is deliberately **generous to the projection side**:
+
+> **9 starters × 15 scored regular-season weeks = 135 starter-weeks/season**
+> (`sleeper_league_settings.json`; `playoff_week_start` 16), and **every point
+> of projection error removed is assumed to become a point of starter
+> production.** That is an upper bound, not a claim — better projections only
+> help through better *ranking*, and the replay's policy does not convert
+> accuracy into picks one-for-one.
+
+**±41.8 points/season ÷ 135 = ±0.310 ΔMAE points per player-week.**
+
+**And that is 5.4% of own_v6's own weekly error** (baseline MAE **5.70** over
+the 2023/24 joined population, `vegas_team_arm.json`).
+
+| study | effect, in its own units | vs the floor |
+|---|---|---|
+| team-level Vegas line, best λ | ΔMAE **+0.008** | **39× below** |
+| team-level Vegas line, as measured at λ=0.15 | ΔMAE **+0.002** | **155× below** |
+| routes / TPRR | null — partial ρ, no points-denominated effect | not convertible |
+| snap share | null — same | not convertible |
+| week-1 props | null vs house baselines | not convertible |
+
+**Only one of the four had a points-denominated effect at all**, so "orders of
+magnitude below the floor" is a statement about that one study, not about all
+four. For the other three the honest sentence is different and no weaker: their
+effects were not distinguishable from zero, so there is nothing to convert.
+
+**What the 5.4% figure is actually saying** is the part worth keeping, and it is
+not "hopeless": **the projection model's weekly error would have to fall by more
+than a twentieth before this instrument could see it.** That is a large gain but
+not an absurd one — the FantasyPros bar beats carry-forward by roughly 10–15% at
+season grain. **The problem is not that the target is unreachable. It is that
+nothing measured this week was within a factor of 39 of it, and the instrument
+would have reported "no edge" either way.**
 
 ## 5. WHAT REPLACES THE HEADLINE
 

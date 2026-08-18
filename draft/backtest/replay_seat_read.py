@@ -36,10 +36,25 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TABLE = ROOT / "draft" / "data" / "replay_league_table.json"
+#: Read (never written) only to express the floor as a share of the model's own
+#: error. Its `baseline_mae` is own_v6's weekly MAE over the 2023/24 joined
+#: population -- the same units a projection study reports.
+WEEKLY_ARM = ROOT / "draft" / "backtest" / "vegas_team_arm.json"
 OUT = Path(__file__).with_suffix(".json")
 
 PERMUTATIONS = 5000
 SEED = 20260818
+
+#: To compare a projection study's DeltaMAE (points per player-week) against a
+#: seat delta (points per season) they must share units. This is the GENEROUS
+#: conversion: it assumes every point of projection error removed becomes a
+#: point of starter production, which is an upper bound and not a claim -- a
+#: better projection only helps through better RANKING, and the replay's own
+#: policy does not convert accuracy into picks one-for-one.
+#:
+#: 9 starters (sleeper_league_settings.json roster_positions, BN excluded) x
+#: 15 scored regular-season weeks (playoff_week_start 16).
+STARTER_WEEKS_PER_SEASON = 9 * 15
 
 
 def _rank(values: list[float]) -> list[float]:
@@ -133,6 +148,9 @@ def main() -> dict:
     n = len(seat_years)
     sd = st.pstdev(seat_years)
     mean = st.mean(seat_years)
+    mde_weekly = 1.96 * sd / n**0.5 / STARTER_WEEKS_PER_SEASON
+    arm = json.loads(WEEKLY_ARM.read_text())
+    baseline_mae = st.mean(s["baseline_mae"] for s in arm["seasons"].values())
 
     result = {
         "_territory": "TERRITORY: D — reads draft/data/replay_league_table.json, never writes it",
@@ -156,6 +174,17 @@ def main() -> dict:
             # vintage and a player pool, so the true floor is higher.
             "se_of_mean": round(sd / n**0.5, 2),
             "min_detectable_effect_95pct": round(1.96 * sd / n**0.5, 1),
+            "starter_weeks_per_season": STARTER_WEEKS_PER_SEASON,
+            # The same floor expressed in the units a projection study reports,
+            # so the two can be compared without hand-waving.
+            "min_detectable_delta_mae_per_player_week": round(mde_weekly, 4),
+            "model_baseline_weekly_mae": round(baseline_mae, 4),
+            "baseline_source": "vegas_team_arm.json (own_v6, 2023/24 joined rows)",
+            # THE READABLE FORM. Not "orders of magnitude" -- a share of the
+            # error the projection model actually makes.
+            "min_detectable_effect_as_pct_of_model_error": round(
+                100 * mde_weekly / baseline_mae, 1
+            ),
         },
         "skill_tracking": {
             "spearman_delta_vs_drafter_skill": round(rho, 3),
@@ -208,6 +237,11 @@ if __name__ == "__main__":
     print(
         f"spread: {s['seat_years']} seat-years, mean {s['mean']:+.1f}, sd {s['sd']:.1f} "
         f"({s['sd_over_abs_mean']}x the mean), {s['positive']}/{s['seat_years']} positive"
+    )
+    print(
+        f"floor in study units: {s['min_detectable_delta_mae_per_player_week']:.3f} "
+        f"MAE pts/player-week = {s['min_detectable_effect_as_pct_of_model_error']}% "
+        f"of own_v6's own weekly error ({s['model_baseline_weekly_mae']:.2f})"
     )
     print(
         f"skill tracking: rho {k['spearman_delta_vs_drafter_skill']:+.3f}, "

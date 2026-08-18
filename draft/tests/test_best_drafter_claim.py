@@ -196,6 +196,52 @@ def test_the_exemption_does_not_swallow_a_fresh_claim():
     assert 163 in _deltas_near_crown(live[0])
 
 
+AUDIT = ROOT / "draft" / "audit" / "replay_best_drafter_claim_2026-08-18.md"
+READ = ROOT / "draft" / "backtest" / "replay_seat_read.json"
+
+#: Every figure the audit doc quotes for the detection floor, and the key it
+#: must equal in the artifact. The doc's whole argument rests on these four, so
+#: none of them may be a number typed once and never re-derived -- which is the
+#: exact defect the rest of this file exists to catch, applied to my own write-up.
+FLOOR_FIGURES = {
+    "41.8": "min_detectable_effect_95pct",
+    "0.310": "min_detectable_delta_mae_per_player_week",
+    "5.4": "min_detectable_effect_as_pct_of_model_error",
+    "5.70": "model_baseline_weekly_mae",
+}
+
+
+def _spread() -> dict:
+    return json.loads(READ.read_text())["spread"]
+
+
+def test_the_audit_docs_floor_figures_are_the_artifacts():
+    """D's own doc held to the standard it applies to CLAUDE.md."""
+    doc = AUDIT.read_text()
+    spread = _spread()
+    for quoted, key in FLOOR_FIGURES.items():
+        assert quoted in doc, f"the doc no longer quotes {quoted} ({key})"
+        assert f"{spread[key]:g}".rstrip("0").rstrip(".") in (
+            quoted,
+            quoted.rstrip("0").rstrip("."),
+        ) or abs(float(quoted) - spread[key]) < 0.051, (
+            f"the doc quotes {quoted} for {key}, the artifact says {spread[key]}"
+        )
+
+
+def test_the_conversion_is_the_stated_one():
+    """CONTROL — the season->weekly conversion must be the divisor the doc names.
+
+    A floor converted by an undisclosed factor is the same defect as a delta
+    attributed to the wrong owner: arithmetic nobody can check.
+    """
+    spread = _spread()
+    assert spread["starter_weeks_per_season"] == 135, spread
+    assert AUDIT.read_text().count("135") >= 1
+    derived = spread["min_detectable_effect_95pct"] / 135
+    assert abs(derived - spread["min_detectable_delta_mae_per_player_week"]) < 0.002
+
+
 def test_the_worst_seat_is_not_the_best_drafter():
     """The measured fact behind the correction, pinned so it cannot drift back."""
     table = json.loads(TABLE.read_text())
