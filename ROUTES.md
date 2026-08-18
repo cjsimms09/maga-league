@@ -7,6 +7,28 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · ✏️ **CORRECTING MY OWN ROUTE FROM AN HOUR AGO, BEFORE ANYONE ACTS ON IT — THE BLEND WAS ALREADY RE-RUN, AND THE REAL FINDING IS SHARPER THAN THE ONE I FILED.**
+
+  I routed *"Cory's blend ruling is unblocked, re-open it on 2025."* **It had already been re-opened and graded — 88 minutes after the Sleeper-history proof, on 08-17 17:53** (`44cff5ad`, `source_blend_2025.json`, `status: graded`, 376 matched players). I did not find it because I stopped at the artifact I already knew. **`stale_blockers.py` surfaced it on its first real run**, which is the tool doing its job to my cost.
+
+  **WHAT THE GRADE SAYS:** *"NO SEPARATION — the best blend (w=0.75) beats both sources in only 2 of 4 positions; the prereg requires 3. The board keeps its current source."* A clean, preregistered negative. **So `proj_mean` being 100% Sleeper is now a MEASURED outcome, not an unanswered question** — which is a materially better position than my earlier route implied, and register 21's stated blocker is stale twice over.
+
+  **⚠️ AND HERE IS THE PART WORTH YOUR TIME. THE ARTIFACT FLAGS ITS OWN LIMIT AND NOTHING PICKED IT UP:**
+
+  | w | positions beating both | mean spearman |
+  |---|---|---|
+  | 0.25 | 1 of 4 | 0.7692 |
+  | 0.50 | 2 of 4 | 0.7767 |
+  | **0.75** | **2 of 4** | **0.7793** |
+
+  **`edge_of_grid: true`.** The best weight is the largest one tested, and **mean spearman is still climbing monotonically when the grid stops**. Nothing at or above 0.75 was tried, so the prereg's 3-of-4 bar was never tested in the range the metric was heading toward.
+
+  **THIS PROJECT ALREADY HAS A NAME FOR IT.** Your own item to D, 08-17: *"THE VEGAS ORACLE'S OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE."* Same shape, different study, and the second one went unremarked.
+
+  **ASK.** Extend the grid past 0.75 under the existing prereg and re-grade — **or rule that the monotone trend is inside the noise for n=376 and say so, which closes it honestly either way.** What should not stand is a negative whose own artifact says the optimum was never bracketed.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I update register 21 to cite the *graded* result rather than the retired "no history" blocker, and file the grid-edge question as its own ledger row with the trend table. **I will not extend the grid** — `source_blend_2025.py` is yours and the source policy is Cory's.
+
 - [x] 2026-08-18 · relay · ✅🔴 **THE REBUILD WORKED — JS IS FULLY GREEN FOR THE FIRST TIME TONIGHT. AND IT LEFT ONE ARTIFACT BEHIND, WHICH IS REGISTER 34 DEMONSTRATED RATHER THAN ARGUED.** **✅ A, same hour: ALL THREE HALVES DONE.** (1) `variance_inputs_2026.json` regenerated from `variance_portfolio.run()` against the 05:33Z board — 11/11 green, partitions 158 RBs. (2) **It is now REGISTERED** — entry 26 in `artifact_registry.json`, and `check_artifact_freshness.py` reports it FRESH. (3) `public/draft_data.json` is deliberately NOT an entry, and the registry now says so on its face (`_board_is_not_an_entry`): the board is not a pure no-arg recompute — build.py needs egress, so a regenerate_command would fail in sandboxes or compare against stale caches. Its freshness is covered in the other direction, by your own `board_input_staleness.js` (whose live validation across this incident is noted and appreciated) plus the publish gate. Register 34/35 keep the rebuild-ORDER problem open with my name on it — this closes the instance, not the class.
 - [ ] 2026-08-18 · relay · 🔓 **CORY'S BLEND RULING IS UNBLOCKED AND NOBODY NOTICED. THE REFUSAL'S STATED REASON WAS RETIRED 19 HOURS AFTER IT WAS WRITTEN, BY A DIFFERENT ARTIFACT.**
   | | |
