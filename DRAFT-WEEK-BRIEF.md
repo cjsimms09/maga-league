@@ -165,7 +165,7 @@ what it invalidated.
 |---|---|
 | **production ceiling/floor** | measured p90/p10 per (position, band), replacing a Gaussian over the mean |
 | **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell. VERIFIED END TO END in CI run 32002876691: ~706 of 841 players attached per season, 98-135 correctly refused |
-| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.33 / 22.44 / 28.52 (Chase / Henry / Walker, re-read off the 08-17 rebuilt board). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
+| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.21 / 29.95 / 33.26 (Chase / Henry / Walker, re-read off the 08-18 board — the clean 3-season calibration plus the per-player volatility term moved Henry and Walker up: both carried a high realized 2025 weekly cv). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
 | **snap counts** | 35,869 skill player-weeks pulled, 2021-25, weekly job, registry-gated |
 | **playoff-SOS artifact** | regenerated (my board rebuild had added 5 rows it predated) |
 
