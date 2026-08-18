@@ -1,0 +1,2954 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by .github/workflows/bdl-schedule-capture.yml",
+ "_what": "2026 NFL schedule from Ball Don't Lie's FREE tier: date, week, teams.",
+ "_why": "weekly-props-fetch.yml refuses without --date ('the vegas store has no game dates'), so the paid Odds API credits \u2014 expiring ~08-31 \u2014 cannot be spent at all until a free schedule exists. This is that schedule.",
+ "_bdl_scope": "BDL's free key serves games/teams/players (200) but NOT odds (401) or player props (404) \u2014 see bdl_key_matrix.json.",
+ "captured_at": "2026-08-18T03:43:34.873529+00:00",
+ "season": 2021,
+ "games": 285,
+ "fetch_error": null,
+ "weeks": {
+  "1": {
+   "games": 22,
+   "first": "2021-09-10T00:20:00.000Z",
+   "last": "2022-01-18T01:15:00.000Z"
+  },
+  "2": {
+   "games": 20,
+   "first": "2021-09-17T00:20:00.000Z",
+   "last": "2022-01-23T23:30:00.000Z"
+  },
+  "3": {
+   "games": 18,
+   "first": "2021-09-24T00:20:00.000Z",
+   "last": "2022-01-30T23:30:00.000Z"
+  },
+  "4": {
+   "games": 16,
+   "first": "2021-10-01T00:20:00.000Z",
+   "last": "2021-10-05T00:50:00.000Z"
+  },
+  "5": {
+   "games": 17,
+   "first": "2021-10-08T00:20:00.000Z",
+   "last": "2022-02-13T23:30:00.000Z"
+  },
+  "6": {
+   "games": 14,
+   "first": "2021-10-15T00:20:00.000Z",
+   "last": "2021-10-19T00:15:00.000Z"
+  },
+  "7": {
+   "games": 13,
+   "first": "2021-10-22T00:20:00.000Z",
+   "last": "2021-10-26T00:15:00.000Z"
+  },
+  "8": {
+   "games": 15,
+   "first": "2021-10-29T00:20:00.000Z",
+   "last": "2021-11-02T00:15:00.000Z"
+  },
+  "9": {
+   "games": 14,
+   "first": "2021-11-05T00:20:00.000Z",
+   "last": "2021-11-09T01:15:00.000Z"
+  },
+  "10": {
+   "games": 14,
+   "first": "2021-11-12T01:20:00.000Z",
+   "last": "2021-11-16T01:15:00.000Z"
+  },
+  "11": {
+   "games": 15,
+   "first": "2021-11-19T01:20:00.000Z",
+   "last": "2021-11-23T01:15:00.000Z"
+  },
+  "12": {
+   "games": 15,
+   "first": "2021-11-25T17:30:00.000Z",
+   "last": "2021-11-30T01:15:00.000Z"
+  },
+  "13": {
+   "games": 14,
+   "first": "2021-12-03T01:20:00.000Z",
+   "last": "2021-12-07T01:15:00.000Z"
+  },
+  "14": {
+   "games": 14,
+   "first": "2021-12-10T01:20:00.000Z",
+   "last": "2021-12-14T01:15:00.000Z"
+  },
+  "15": {
+   "games": 16,
+   "first": "2021-12-17T01:20:00.000Z",
+   "last": "2021-12-22T00:00:00.000Z"
+  },
+  "16": {
+   "games": 16,
+   "first": "2021-12-24T01:20:00.000Z",
+   "last": "2021-12-28T01:15:00.000Z"
+  },
+  "17": {
+   "games": 16,
+   "first": "2022-01-02T18:00:00.000Z",
+   "last": "2022-01-04T01:15:00.000Z"
+  },
+  "18": {
+   "games": 16,
+   "first": "2022-01-08T21:30:00.000Z",
+   "last": "2022-01-10T01:20:00.000Z"
+  }
+ },
+ "rows": [
+  {
+   "game_id": 6146,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-10T00:20:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6147,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6148,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6149,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CIN",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6150,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6151,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6152,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6153,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6154,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6155,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6156,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T20:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6157,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T20:25:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6158,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T20:25:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6159,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-12T20:25:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6160,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-13T00:20:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6161,
+   "season": 2021,
+   "week": 1,
+   "date": "2021-09-14T00:15:00.000Z",
+   "status": "Final/OT",
+   "home": "LV",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6418,
+   "season": 2021,
+   "week": 1,
+   "date": "2022-01-15T21:30:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "LV",
+   "postseason": true
+  },
+  {
+   "game_id": 6419,
+   "season": 2021,
+   "week": 1,
+   "date": "2022-01-16T01:15:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NE",
+   "postseason": true
+  },
+  {
+   "game_id": 6420,
+   "season": 2021,
+   "week": 1,
+   "date": "2022-01-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "PHI",
+   "postseason": true
+  },
+  {
+   "game_id": 6421,
+   "season": 2021,
+   "week": 1,
+   "date": "2022-01-16T21:30:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "SF",
+   "postseason": true
+  },
+  {
+   "game_id": 6422,
+   "season": 2021,
+   "week": 1,
+   "date": "2022-01-17T01:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "PIT",
+   "postseason": true
+  },
+  {
+   "game_id": 6423,
+   "season": 2021,
+   "week": 1,
+   "date": "2022-01-18T01:15:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "ARI",
+   "postseason": true
+  },
+  {
+   "game_id": 6162,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-17T00:20:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6163,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6164,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6165,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6166,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6167,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6168,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6169,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6170,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6171,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6172,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T20:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6173,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T20:05:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6174,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6175,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-19T20:25:00.000Z",
+   "status": "Final/OT",
+   "home": "SEA",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6176,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-20T00:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6177,
+   "season": 2021,
+   "week": 2,
+   "date": "2021-09-21T00:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6424,
+   "season": 2021,
+   "week": 2,
+   "date": "2022-01-22T21:30:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "CIN",
+   "postseason": true
+  },
+  {
+   "game_id": 6425,
+   "season": 2021,
+   "week": 2,
+   "date": "2022-01-23T01:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "SF",
+   "postseason": true
+  },
+  {
+   "game_id": 6426,
+   "season": 2021,
+   "week": 2,
+   "date": "2022-01-23T20:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "LAR",
+   "postseason": true
+  },
+  {
+   "game_id": 6427,
+   "season": 2021,
+   "week": 2,
+   "date": "2022-01-23T23:30:00.000Z",
+   "status": "Final/OT",
+   "home": "KC",
+   "away": "BUF",
+   "postseason": true
+  },
+  {
+   "game_id": 6178,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-24T00:20:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6179,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6180,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6181,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6182,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6183,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6184,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6185,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6186,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6187,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6188,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T20:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6189,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T20:05:00.000Z",
+   "status": "Final/OT",
+   "home": "LV",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6190,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6191,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-26T20:25:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6192,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-27T00:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6193,
+   "season": 2021,
+   "week": 3,
+   "date": "2021-09-28T00:15:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6428,
+   "season": 2021,
+   "week": 3,
+   "date": "2022-01-30T20:00:00.000Z",
+   "status": "Final/OT",
+   "home": "KC",
+   "away": "CIN",
+   "postseason": true
+  },
+  {
+   "game_id": 6429,
+   "season": 2021,
+   "week": 3,
+   "date": "2022-01-30T23:30:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SF",
+   "postseason": true
+  },
+  {
+   "game_id": 6194,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-01T00:20:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6195,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6196,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6197,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6198,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6199,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6200,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6201,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "NO",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6202,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "NYJ",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6203,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6204,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6205,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T20:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6206,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6207,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-03T20:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6208,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-04T00:20:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6209,
+   "season": 2021,
+   "week": 4,
+   "date": "2021-10-05T00:50:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6210,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-08T00:20:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6211,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T13:30:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6212,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CIN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6213,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6214,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6215,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6216,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6217,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6218,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6219,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6220,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T20:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6221,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6222,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T20:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6223,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-10T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6224,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-11T00:20:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6225,
+   "season": 2021,
+   "week": 5,
+   "date": "2021-10-12T00:15:00.000Z",
+   "status": "Final/OT",
+   "home": "BAL",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6430,
+   "season": 2021,
+   "week": 5,
+   "date": "2022-02-13T23:30:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "LAR",
+   "postseason": true
+  },
+  {
+   "game_id": 6226,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-15T00:20:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6227,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T13:30:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6228,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6229,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6230,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6231,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6232,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6233,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CAR",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6234,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6235,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T20:05:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6236,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6237,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-17T20:25:00.000Z",
+   "status": "Final/OT",
+   "home": "NE",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6238,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-18T00:20:00.000Z",
+   "status": "Final/OT",
+   "home": "PIT",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6239,
+   "season": 2021,
+   "week": 6,
+   "date": "2021-10-19T00:15:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6240,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-22T00:20:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6241,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T17:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6242,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6243,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6244,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6245,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6246,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6247,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T20:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6248,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6249,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6250,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-24T20:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6251,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-25T00:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6252,
+   "season": 2021,
+   "week": 7,
+   "date": "2021-10-26T00:15:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6253,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-29T00:20:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6254,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6255,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6256,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6257,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6258,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6259,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "IND",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6260,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6261,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6262,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6263,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6264,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6265,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-10-31T20:25:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6266,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-11-01T00:20:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6267,
+   "season": 2021,
+   "week": 8,
+   "date": "2021-11-02T00:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6268,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-05T00:20:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6269,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6270,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6271,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6272,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6273,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6274,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6275,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6276,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "BAL",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6277,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T21:05:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6278,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T21:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6279,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-07T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6280,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-08T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6281,
+   "season": 2021,
+   "week": 9,
+   "date": "2021-11-09T01:15:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6282,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-12T01:20:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6283,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6284,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6285,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6286,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6287,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6288,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "PIT",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6289,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6290,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6291,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6292,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6293,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6294,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-15T01:20:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6295,
+   "season": 2021,
+   "week": 10,
+   "date": "2021-11-16T01:15:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6296,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-19T01:20:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6297,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6298,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6299,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6300,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6301,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6302,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6303,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6304,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6305,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6306,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6307,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T21:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6308,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-21T21:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6309,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-22T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6310,
+   "season": 2021,
+   "week": 11,
+   "date": "2021-11-23T01:15:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6311,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-25T17:30:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6312,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-25T21:30:00.000Z",
+   "status": "Final/OT",
+   "home": "DAL",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6313,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-26T01:20:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6314,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6315,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6316,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6317,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6318,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6319,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6320,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6321,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6322,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T21:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6323,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-28T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6324,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-29T01:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6325,
+   "season": 2021,
+   "week": 12,
+   "date": "2021-11-30T01:15:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6326,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-03T01:20:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6327,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6328,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6329,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6330,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6331,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6332,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6333,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6334,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6335,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6336,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T21:25:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6337,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-05T21:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6338,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-06T01:20:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6339,
+   "season": 2021,
+   "week": 13,
+   "date": "2021-12-07T01:15:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6340,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-10T01:20:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6341,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6342,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6343,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6344,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6345,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6346,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6347,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6348,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6349,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6350,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T21:25:00.000Z",
+   "status": "Final/OT",
+   "home": "CIN",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6351,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-12T21:25:00.000Z",
+   "status": "Final/OT",
+   "home": "TB",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6352,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-13T01:20:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6353,
+   "season": 2021,
+   "week": 14,
+   "date": "2021-12-14T01:15:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6354,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-17T01:20:00.000Z",
+   "status": "Final/OT",
+   "home": "LAC",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6355,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T01:15:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6356,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6357,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6358,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6359,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6360,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6361,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6362,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6363,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T21:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6364,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-19T21:25:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6365,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-20T01:20:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6366,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-20T22:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6367,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-21T01:15:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6368,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-22T00:00:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6369,
+   "season": 2021,
+   "week": 15,
+   "date": "2021-12-22T00:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6370,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-24T01:20:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6371,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-25T21:30:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6372,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T01:15:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6373,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6374,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6375,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6376,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6377,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6378,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6379,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6380,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6381,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T21:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6382,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T21:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6383,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-26T21:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6384,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-27T01:20:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6385,
+   "season": 2021,
+   "week": 16,
+   "date": "2021-12-28T01:15:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6386,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6387,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6388,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6389,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6390,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6391,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6392,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6393,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6394,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6395,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6396,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T21:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6397,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T21:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6398,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T21:25:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6399,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-02T21:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6400,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-03T01:20:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6401,
+   "season": 2021,
+   "week": 17,
+   "date": "2022-01-04T01:15:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6402,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-08T21:30:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6403,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T01:15:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6404,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6405,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6406,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6407,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6408,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6409,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "BAL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6410,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6411,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6412,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6413,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T21:25:00.000Z",
+   "status": "Final/OT",
+   "home": "LAR",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6414,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6415,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6416,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6417,
+   "season": 2021,
+   "week": 18,
+   "date": "2022-01-10T01:20:00.000Z",
+   "status": "Final/OT",
+   "home": "LV",
+   "away": "LAC",
+   "postseason": false
+  }
+ ]
+}

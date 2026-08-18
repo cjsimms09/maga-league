@@ -1,0 +1,2954 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by .github/workflows/bdl-schedule-capture.yml",
+ "_what": "2026 NFL schedule from Ball Don't Lie's FREE tier: date, week, teams.",
+ "_why": "weekly-props-fetch.yml refuses without --date ('the vegas store has no game dates'), so the paid Odds API credits \u2014 expiring ~08-31 \u2014 cannot be spent at all until a free schedule exists. This is that schedule.",
+ "_bdl_scope": "BDL's free key serves games/teams/players (200) but NOT odds (401) or player props (404) \u2014 see bdl_key_matrix.json.",
+ "captured_at": "2026-08-18T03:39:42.640032+00:00",
+ "season": 2022,
+ "games": 285,
+ "fetch_error": null,
+ "weeks": {
+  "1": {
+   "games": 22,
+   "first": "2022-09-09T00:20:00.000Z",
+   "last": "2023-01-17T01:15:00.000Z"
+  },
+  "2": {
+   "games": 20,
+   "first": "2022-09-16T00:15:00.000Z",
+   "last": "2023-01-22T23:30:00.000Z"
+  },
+  "3": {
+   "games": 18,
+   "first": "2022-09-23T00:15:00.000Z",
+   "last": "2023-01-29T23:30:00.000Z"
+  },
+  "4": {
+   "games": 16,
+   "first": "2022-09-30T00:15:00.000Z",
+   "last": "2022-10-04T00:15:00.000Z"
+  },
+  "5": {
+   "games": 17,
+   "first": "2022-10-07T00:15:00.000Z",
+   "last": "2023-02-12T23:30:00.000Z"
+  },
+  "6": {
+   "games": 14,
+   "first": "2022-10-14T00:15:00.000Z",
+   "last": "2022-10-18T00:15:00.000Z"
+  },
+  "7": {
+   "games": 14,
+   "first": "2022-10-21T00:15:00.000Z",
+   "last": "2022-10-25T00:15:00.000Z"
+  },
+  "8": {
+   "games": 15,
+   "first": "2022-10-28T00:15:00.000Z",
+   "last": "2022-11-01T00:15:00.000Z"
+  },
+  "9": {
+   "games": 13,
+   "first": "2022-11-04T00:15:00.000Z",
+   "last": "2022-11-08T01:15:00.000Z"
+  },
+  "10": {
+   "games": 14,
+   "first": "2022-11-11T01:15:00.000Z",
+   "last": "2022-11-15T01:15:00.000Z"
+  },
+  "11": {
+   "games": 14,
+   "first": "2022-11-18T01:15:00.000Z",
+   "last": "2022-11-22T01:15:00.000Z"
+  },
+  "12": {
+   "games": 16,
+   "first": "2022-11-24T17:30:00.000Z",
+   "last": "2022-11-29T01:15:00.000Z"
+  },
+  "13": {
+   "games": 15,
+   "first": "2022-12-02T01:15:00.000Z",
+   "last": "2022-12-06T01:15:00.000Z"
+  },
+  "14": {
+   "games": 13,
+   "first": "2022-12-09T01:15:00.000Z",
+   "last": "2022-12-13T01:15:00.000Z"
+  },
+  "15": {
+   "games": 16,
+   "first": "2022-12-16T01:15:00.000Z",
+   "last": "2022-12-20T01:15:00.000Z"
+  },
+  "16": {
+   "games": 16,
+   "first": "2022-12-23T01:15:00.000Z",
+   "last": "2022-12-27T01:15:00.000Z"
+  },
+  "17": {
+   "games": 16,
+   "first": "2022-12-30T01:15:00.000Z",
+   "last": "2023-01-03T01:30:00.000Z"
+  },
+  "18": {
+   "games": 16,
+   "first": "2023-01-07T21:30:00.000Z",
+   "last": "2023-01-09T01:20:00.000Z"
+  }
+ },
+ "rows": [
+  {
+   "game_id": 6431,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-09T00:20:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6432,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6433,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6434,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CIN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6435,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6436,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6437,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6438,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6439,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6440,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "HOU",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6441,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T20:25:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6442,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T20:25:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6443,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6444,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-11T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6445,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-12T00:20:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6446,
+   "season": 2022,
+   "week": 1,
+   "date": "2022-09-13T00:15:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6703,
+   "season": 2022,
+   "week": 1,
+   "date": "2023-01-14T21:30:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "SEA",
+   "postseason": true
+  },
+  {
+   "game_id": 6704,
+   "season": 2022,
+   "week": 1,
+   "date": "2023-01-15T01:15:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "LAC",
+   "postseason": true
+  },
+  {
+   "game_id": 6705,
+   "season": 2022,
+   "week": 1,
+   "date": "2023-01-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "MIA",
+   "postseason": true
+  },
+  {
+   "game_id": 6706,
+   "season": 2022,
+   "week": 1,
+   "date": "2023-01-15T21:50:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "NYG",
+   "postseason": true
+  },
+  {
+   "game_id": 6707,
+   "season": 2022,
+   "week": 1,
+   "date": "2023-01-16T01:15:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "BAL",
+   "postseason": true
+  },
+  {
+   "game_id": 6708,
+   "season": 2022,
+   "week": 1,
+   "date": "2023-01-17T01:15:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "DAL",
+   "postseason": true
+  },
+  {
+   "game_id": 6447,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-16T00:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6448,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6449,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6450,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6451,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6452,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6453,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6454,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6455,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6456,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T20:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6457,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T20:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6458,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6459,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-18T20:25:00.000Z",
+   "status": "Final/OT",
+   "home": "LV",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6460,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-19T00:20:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6461,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-19T23:15:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6462,
+   "season": 2022,
+   "week": 2,
+   "date": "2022-09-20T00:30:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6709,
+   "season": 2022,
+   "week": 2,
+   "date": "2023-01-21T21:30:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "JAX",
+   "postseason": true
+  },
+  {
+   "game_id": 6710,
+   "season": 2022,
+   "week": 2,
+   "date": "2023-01-22T01:15:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NYG",
+   "postseason": true
+  },
+  {
+   "game_id": 6711,
+   "season": 2022,
+   "week": 2,
+   "date": "2023-01-22T20:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "CIN",
+   "postseason": true
+  },
+  {
+   "game_id": 6712,
+   "season": 2022,
+   "week": 2,
+   "date": "2023-01-22T23:30:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "DAL",
+   "postseason": true
+  },
+  {
+   "game_id": 6463,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-23T00:15:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6464,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6465,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6466,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6467,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6468,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6469,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6470,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6471,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6472,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6473,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6474,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6475,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T20:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6476,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-25T20:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6477,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-26T00:20:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6478,
+   "season": 2022,
+   "week": 3,
+   "date": "2022-09-27T00:15:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6713,
+   "season": 2022,
+   "week": 3,
+   "date": "2023-01-29T20:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "SF",
+   "postseason": true
+  },
+  {
+   "game_id": 6714,
+   "season": 2022,
+   "week": 3,
+   "date": "2023-01-29T23:30:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "CIN",
+   "postseason": true
+  },
+  {
+   "game_id": 6479,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-09-30T00:15:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6480,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T13:30:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6481,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6482,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6483,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6484,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6485,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6486,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6487,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6488,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6489,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6490,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T20:05:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6491,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T20:25:00.000Z",
+   "status": "Final/OT",
+   "home": "GB",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6492,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-02T20:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6493,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-03T00:20:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6494,
+   "season": 2022,
+   "week": 4,
+   "date": "2022-10-04T00:15:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6495,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-07T00:15:00.000Z",
+   "status": "Final/OT",
+   "home": "DEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6496,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T13:30:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6497,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6498,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6499,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6500,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6501,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6502,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6503,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6504,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6505,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6506,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T20:05:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6507,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6508,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-09T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6509,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-10T00:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6510,
+   "season": 2022,
+   "week": 5,
+   "date": "2022-10-11T00:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6715,
+   "season": 2022,
+   "week": 5,
+   "date": "2023-02-12T23:30:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "KC",
+   "postseason": true
+  },
+  {
+   "game_id": 6511,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-14T00:15:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6512,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6513,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6514,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6515,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6516,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6517,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6518,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6519,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6520,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6521,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6522,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-16T20:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6523,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-17T00:20:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6524,
+   "season": 2022,
+   "week": 6,
+   "date": "2022-10-18T00:15:00.000Z",
+   "status": "Final/OT",
+   "home": "LAC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6525,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-21T00:15:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6526,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6527,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6528,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6529,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6530,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6531,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6532,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6533,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T20:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6534,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T20:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6535,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6536,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-23T20:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6537,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-24T00:20:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6538,
+   "season": 2022,
+   "week": 7,
+   "date": "2022-10-25T00:15:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6539,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-28T00:15:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6540,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T13:30:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6541,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "ATL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6542,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6543,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6544,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6545,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6546,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6547,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6548,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T20:05:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6549,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T20:25:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6550,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6551,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-30T20:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6552,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-10-31T00:20:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6553,
+   "season": 2022,
+   "week": 8,
+   "date": "2022-11-01T00:15:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6554,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-04T00:15:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6555,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6556,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6557,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6558,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6559,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6560,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6561,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6562,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6563,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6564,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-06T21:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6565,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-07T01:20:00.000Z",
+   "status": "Final/OT",
+   "home": "KC",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6566,
+   "season": 2022,
+   "week": 9,
+   "date": "2022-11-08T01:15:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6567,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-11T01:15:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6568,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T14:30:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6569,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "BUF",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6570,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6571,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6572,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6573,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6574,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6575,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6576,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6577,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T21:25:00.000Z",
+   "status": "Final/OT",
+   "home": "GB",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6578,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-13T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6579,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-14T01:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6580,
+   "season": 2022,
+   "week": 10,
+   "date": "2022-11-15T01:15:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6581,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-18T01:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6582,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6583,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6584,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6585,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6586,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6587,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6588,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6589,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6590,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T21:05:00.000Z",
+   "status": "Final/OT",
+   "home": "DEN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6591,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T21:25:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6592,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-20T21:25:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6593,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-21T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6594,
+   "season": 2022,
+   "week": 11,
+   "date": "2022-11-22T01:15:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6595,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-24T17:30:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6596,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-24T21:30:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6597,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-25T01:20:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6598,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CLE",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6599,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6600,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6601,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6602,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6603,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6604,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6605,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6606,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T21:05:00.000Z",
+   "status": "Final/OT",
+   "home": "SEA",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6607,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T21:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6608,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-27T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6609,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-28T01:20:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6610,
+   "season": 2022,
+   "week": 12,
+   "date": "2022-11-29T01:15:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6611,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-02T01:15:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6612,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6613,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6614,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6615,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6616,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "NYG",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6617,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6618,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6619,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6620,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6621,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T21:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6622,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6623,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6624,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-05T01:20:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6625,
+   "season": 2022,
+   "week": 13,
+   "date": "2022-12-06T01:15:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6626,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-09T01:15:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6627,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6628,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6629,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6630,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6631,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6632,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6633,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6634,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6635,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6636,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-11T21:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6637,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-12T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6638,
+   "season": 2022,
+   "week": 14,
+   "date": "2022-12-13T01:15:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6639,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-16T01:15:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6640,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-17T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "MIN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6641,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-17T21:40:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6642,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T01:15:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6643,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6644,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6645,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6646,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6647,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "JAX",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6648,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "HOU",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6649,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6650,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6651,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6652,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-18T21:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6653,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-19T01:20:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6654,
+   "season": 2022,
+   "week": 15,
+   "date": "2022-12-20T01:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6655,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-23T01:15:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6656,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6657,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6658,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 6659,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6660,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6661,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 6662,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 6663,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T19:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6664,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T21:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 6665,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-24T21:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6666,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-25T01:15:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 6667,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-25T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 6668,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-25T21:30:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6669,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-26T01:20:00.000Z",
+   "status": "Final/OT",
+   "home": "ARI",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6670,
+   "season": 2022,
+   "week": 16,
+   "date": "2022-12-27T01:15:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6671,
+   "season": 2022,
+   "week": 17,
+   "date": "2022-12-30T01:15:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6672,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6673,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 6674,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6675,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 6676,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 6677,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 6678,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6679,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6680,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 6681,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T21:05:00.000Z",
+   "status": "Final/OT",
+   "home": "LV",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 6682,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T21:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6683,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T21:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6684,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-01T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6685,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-02T01:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 6686,
+   "season": 2022,
+   "week": 17,
+   "date": "2023-01-03T01:30:00.000Z",
+   "status": "Canceled",
+   "home": "CIN",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 6687,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-07T21:30:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 6688,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T01:15:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 6689,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 6690,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 6691,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 6692,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6693,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 6694,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 6695,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6696,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 6697,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T21:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 6698,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T21:25:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 6699,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 6700,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T21:25:00.000Z",
+   "status": "Final/OT",
+   "home": "SEA",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 6701,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-08T21:25:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 6702,
+   "season": 2022,
+   "week": 18,
+   "date": "2023-01-09T01:20:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "DET",
+   "postseason": false
+  }
+ ]
+}

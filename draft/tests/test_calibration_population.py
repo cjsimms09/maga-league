@@ -170,28 +170,6 @@ def test_the_driver_still_passes_the_filter():
         "leaves the contaminating path wide open.")
 
 
-def test_calibrate_survives_an_explicit_None_band_edges():
-    """Calibration run #4 died in CI on `TypeError: 'NoneType' object is not
-    iterable`: regenerate(band_edges=None) threads the None EXPLICITLY through
-    calibrate -> error_rows -> band_of, which BYPASSES every parameter default
-    on the way down. A default only protects the caller who omits the argument;
-    the caller who passes None gets whatever the loop does with it. This feeds
-    the real functions a real None and requires a fitted answer."""
-    import sys
-    sys.path.insert(0, str(ROOT / "draft" / "backtest"))
-    import projection_error as PE
-
-    bundle = {"season": 2025, "players": [
-        {"player_id": str(i), "position": p, "proj_mean": 300 - i}
-        for i, p in enumerate(["QB", "RB", "WR", "TE"] * 10)]}
-    act = {str(i): 250 - i for i in range(40)}
-    cal = PE.calibrate([bundle], [act], band_edges=None,
-                       only_positions=PE.CALIBRATION_POSITIONS)
-    assert cal["cells"], "band_edges=None fitted nothing — the run-#4 crash path"
-    assert PE.band_of(5, None) == "4-8", (
-        "band_of(rank, None) must fall back to BAND_EDGES, not iterate None")
-
-
 def test_the_artifact_names_every_season_it_fitted_or_dropped():
     """4s: the regeneration silently lost 2025 — the most relevant season —
     because a swallowed live-fetch error skipped it, the skip list was never
@@ -217,3 +195,24 @@ def test_the_artifact_names_every_season_it_fitted_or_dropped():
         "a season lost without a trace, the exact 4s failure. If the artifact "
         "predates the 4s fix, regenerate it (projection-error-calibration.yml).")
 
+
+def test_calibrate_survives_an_explicit_None_band_edges():
+    """Calibration run #4 died in CI on `TypeError: 'NoneType' object is not
+    iterable`: regenerate(band_edges=None) threads the None EXPLICITLY through
+    calibrate -> error_rows -> band_of, which BYPASSES every parameter default
+    on the way down. This feeds the real functions a real None and requires a
+    fitted answer. (Re-grafted 2026-08-18 after the ingest-branch merge took
+    C's file, which predated the pin.)"""
+    import sys
+    sys.path.insert(0, str(ROOT / "draft" / "backtest"))
+    import projection_error as PE
+
+    bundle = {"season": 2025, "players": [
+        {"player_id": str(i), "position": p, "proj_mean": 300 - i}
+        for i, p in enumerate(["QB", "RB", "WR", "TE"] * 10)]}
+    act = {str(i): 250 - i for i in range(40)}
+    cal = PE.calibrate([bundle], [act], band_edges=None,
+                       only_positions=PE.CALIBRATION_POSITIONS)
+    assert cal["cells"], "band_edges=None fitted nothing — the run-#4 crash path"
+    assert PE.band_of(5, None) == "4-8", (
+        "band_of(rank, None) must fall back to BAND_EDGES, not iterate None")

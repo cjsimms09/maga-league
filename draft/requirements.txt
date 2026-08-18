@@ -5,3 +5,4 @@ pytest>=7.4
 # Play-by-play for the opportunity metrics (Module 2). The build degrades to
 # consensus-only if this is unavailable, so it is intentionally not pinned hard.
 nfl_data_py>=0.3.2
+requests

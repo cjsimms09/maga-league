@@ -78,7 +78,7 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **UNEXAMINED** — captured weekly, reaches nothing |
 | `weekly_volatility` | ✅ | ❌ | ❌ | ❌ | **4** | prereg'd (`VOLATILITY-WIRING-PREREG.md`), post-draft — **justified, dated** |
 | `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — the study returned a published NULL |
-| `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — perfect-foresight ceiling measured at +0.23 weekly MAE |
+| `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED, refined 08-18 (D, register 18b)** — perfect-foresight ceiling +0.238 weekly MAE at the true λ*=0.60 (the original grid's 0.5 was its own minimum; anyone holding +0.23 was approximately right). D's asymmetry finding: DUD games carry 5-10× the value of shootouts and want λ≈0.80 — the open question is asymmetric APPLICATION, preregistered post-draft |
 | `advanced_stats_*` (air yards / EPA / CPOE) | ✅ 2021-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — study ran, wiring never decided |
 | `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — season-total arm was graded, then stopped |
 | `own_projections_2026` | ✅ | ✅ Thu | ✅ | ✅ | **8** | complete |
