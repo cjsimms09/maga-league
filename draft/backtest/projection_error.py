@@ -98,6 +98,22 @@ MIN_N = 8
 #: not a small impurity, it is a different question being answered.
 ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
 
+#: C's name for the same tuple (their only_positions API, merged 2026-08-18) —
+#: one definition, two names, both fixes kept as defense in depth.
+CALIBRATION_POSITIONS = ROSTERED_POSITIONS
+
+#: Register 4q, 2026-08-17: `BAND_EDGES` puts 935 of 1,304 graded players — 72%,
+#: every player Cory drafts from round 4 on — into ONE band per position, "33+".
+#: Inside that cell `proj_ceiling` is a constant multiple of `proj_mean` by
+#: construction, which is the mechanism behind both register 4j and 4p. This is
+#: the relay's specified split of that one band, for a SIDE refit only —
+#: `BAND_EDGES` itself is UNCHANGED and stays what `regenerate()`/`main()` fit and
+#: ship by default. Whether the refit ships is Cory's call: it moves ceiling,
+#: floor, the bench branch, `champodds` and the money proxy four days before his
+#: draft. See `regenerate_refit_v2()`, `slope_comparison()`, DEFECT-REGISTER.md
+#: row 4q.
+BAND_EDGES_REFIT_V2 = (3, 8, 16, 32, 48, 72, 100, 150)
+
 CALIBRATION_VERSION = "projection-error/v1"
 
 SURVIVOR_CAVEAT = (
@@ -108,13 +124,13 @@ SURVIVOR_CAVEAT = (
     "tighter than reality. `ungraded` is the size of the excluded set.")
 
 
-def band_of(rank) -> str:
+def band_of(rank, band_edges=BAND_EDGES) -> str:
     """The band label for a within-position projection rank."""
     if rank is None:
         return "unranked"
     r = int(rank)
     lo = 1
-    for hi in BAND_EDGES:
+    for hi in band_edges:
         if r <= hi:
             return "%d-%d" % (lo, hi)
         lo = hi + 1
@@ -127,7 +143,7 @@ def _players_of(bundle):
     return list(bundle or [])
 
 
-def error_rows(bundle, actual: dict, *, positions=None) -> list:
+def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES, only_positions=None) -> list:
     """One row per player carrying BOTH a projection and a realized total.
 
     A player the projection covered but the season did not grade is EXCLUDED here and
@@ -136,6 +152,16 @@ def error_rows(bundle, actual: dict, *, positions=None) -> list:
     """
     rows = []
     players = _players_of(bundle)
+    # C's INPUT-population filter (only_positions), kept beside the parallel
+    # session's _rostered_only bundle wrapper: either alone stops the punter
+    # contamination; together a forgetful caller on either path is still safe.
+    # `positions=` remains what it always was — a fallback MAP for rows missing
+    # a position — and is deliberately NOT overloaded (that misread shipped two
+    # inert fixes; see _rostered_only's docstring).
+    if only_positions:
+        allowed = {str(x).upper() for x in only_positions}
+        players = [p for p in players
+                   if (p.get("position") or (positions or {}).get(str(p.get("player_id")), "")).upper() in allowed]
 
     # Rank within position, from the board's own ordering where it has one. A
     # recomputed rank would silently disagree with the one the engine consumed the
@@ -166,14 +192,18 @@ def error_rows(bundle, actual: dict, *, positions=None) -> list:
         ratio = round(act / mean, 6) if mean else None
         rows.append({"player_id": pid, "position": pos, "proj_mean": mean,
                      "actual": act, "error": round(act - mean, 4), "ratio": ratio,
-                     "proj_rank": rank, "band": band_of(rank)})
+                     "proj_rank": rank, "band": band_of(rank, band_edges)})
     return rows
 
 
-def report(bundle, actual: dict, *, positions=None) -> dict:
+def report(bundle, actual: dict, *, positions=None, only_positions=None) -> dict:
     """Coverage of one season's grade, with the excluded set named rather than lost."""
     players = _players_of(bundle)
-    rows = error_rows(bundle, actual, positions=positions)
+    if only_positions:
+        allowed = {str(x).upper() for x in only_positions}
+        players = [pl for pl in players
+                   if (pl.get("position") or (positions or {}).get(str(pl.get("player_id")), "")).upper() in allowed]
+    rows = error_rows(bundle, actual, positions=positions, only_positions=only_positions)
     graded = len(rows)
     total = len(players)
     return {"season": bundle.get("season") if isinstance(bundle, dict) else None,
@@ -196,8 +226,8 @@ def _q(sorted_vals, p):
     return sorted_vals[lo] * (1 - frac) + sorted_vals[hi] * frac
 
 
-def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
-              positions=None) -> dict:
+def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None, band_edges=BAND_EDGES,
+              positions=None, only_positions=None) -> dict:
     """Fit the error distribution per (position, band) across seasons.
 
     `exclude_season` REFUSES a bundle from that season. A spread fitted on the season
@@ -224,9 +254,9 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
         s = b.get("season") if isinstance(b, dict) else None
         if s is not None:
             seasons_used.append(s)
-        rep = report(b, act, positions=positions)
+        rep = report(b, act, positions=positions, only_positions=only_positions)
         ungraded += rep["ungraded"]
-        for r in error_rows(b, act, positions=positions):
+        for r in error_rows(b, act, only_positions=only_positions, positions=positions, band_edges=band_edges):
             if r["ratio"] is None:
                 continue
             buckets.setdefault((r["position"], r["band"]), []).append(r["ratio"])
@@ -365,7 +395,7 @@ def _rostered_only(bundle):
     return out
 
 
-def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
+def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
     """The no-args entry point `artifact_registry.json` calls. Assembles real
     bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
     of them, `exclude_season=None` — this is the PRODUCTION calibration
@@ -520,7 +550,8 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
     # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
     # workflow actually takes — a filter on the wrong call site is a fix that
     # feels done and changes nothing. Register 4r.
-    cal = calibrate(bundles, actual, exclude_season=None)
+    cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
+                    only_positions=CALIBRATION_POSITIONS)
     cal["skipped_seasons"] = skipped
     return cal
 
@@ -605,6 +636,108 @@ def proj_ceiling_for(cal, position, rank, proj_mean):
     if not c or c["status"] != "measured" or c["p90_ratio"] is None:
         return None, "unmeasurable"
     return round(float(proj_mean or 0.0) * c["p90_ratio"], 3), "measured"
+
+
+
+
+#: Side artifacts only — NEVER the production `CALIBRATION` path `save()`
+#: defaults to. Register 4q.
+REFIT_V2_CALIBRATION = Path(__file__).resolve().parent / "projection_error_calibration_refit_v2.json"
+REFIT_V2_COMPARISON = Path(__file__).resolve().parent / "projection_error_refit_v2_comparison.json"
+
+
+def regenerate_refit_v2() -> dict:  # pragma: no cover  (egress; CI only)
+    """Register 4q's refit. Calls `regenerate()` wholesale with the split-band
+    edges rather than a second season-assembly path — the same
+    two-places-that-drift shape this file already warns about (rule 11)."""
+    return regenerate(band_edges=BAND_EDGES_REFIT_V2)
+
+def slope_comparison(current_cal: dict, refit_cal: dict) -> dict:
+    """PURE. Places the SHIPPED ceiling/floor ratio for each `BAND_EDGES` band
+    beside the REFIT's finer bands that split it, so register 4q's question —
+    is the ratio actually flat inside `33+`, or does the one cell hide a real
+    slope — has a number instead of an argument.
+
+    Both `current_cal` and `refit_cal` are the tuple-keyed shape `calibrate()`
+    /`load()` return, not `document()`'s on-disk envelope. A band absent from
+    either calibration reports as `unmeasurable, n=0` rather than being
+    dropped, so a thin new band cannot silently disappear from the
+    comparison — the same rule `calibrate()` itself applies to a thin cell.
+    """
+    def _band_labels(edges):
+        labels, lo = [], 1
+        for hi in edges:
+            labels.append("%d-%d" % (lo, hi))
+            lo = hi + 1
+        labels.append("%d+" % lo)
+        return labels
+
+    def _rows(cal, edges):
+        cells = cal.get("cells") or {}
+        positions = sorted({k[0] for k in cells})
+        out = []
+        for pos in positions:
+            for band in _band_labels(edges):
+                c = cells.get((pos, band)) or {
+                    "n": 0, "status": "unmeasurable", "sd_ratio": None,
+                    "mean_ratio": None, "p10_ratio": None, "p90_ratio": None,
+                    "basis": "band absent from this calibration"}
+                out.append(dict(c, position=pos, band=band))
+        return out
+
+    return {
+        "_note": "Register 4q. `current` bands are the SHIPPED BAND_EDGES; "
+                 "`refit_v2` bands are BAND_EDGES_REFIT_V2 (the shipped `33+` "
+                 "split into 33-48/49-72/73-100/101-150/151+). Neither "
+                 "calibration is changed by producing this — it is the "
+                 "comparison the relay asked for before anyone ships the "
+                 "refit. THE POPULATION QUESTION IS DELIBERATELY UNRESOLVED "
+                 "HERE: both calibrations' p90/p10 are unconditional over "
+                 "every graded player, survivorship-biased per SURVIVOR_"
+                 "CAVEAT, and neither conditions on the player having "
+                 "actually held a role. That is a design call for Cory/A, "
+                 "not a constant this refit changes.",
+        "current_band_edges": list(BAND_EDGES),
+        "refit_band_edges": list(BAND_EDGES_REFIT_V2),
+        "current": _rows(current_cal, BAND_EDGES),
+        "refit_v2": _rows(refit_cal, BAND_EDGES_REFIT_V2),
+    }
+
+
+def main_refit_v2() -> int:  # pragma: no cover  (egress; CI only)
+    """Register 4q's dispatch entry point — separate from `main()` on
+    purpose. Writes ONLY the two side artifacts above; the production
+    `CALIBRATION` file (`projection_error_calibration.json`, what the board
+    build actually reads) is never opened for writing by this function.
+    Whether the refit ships is Cory's call, made from the comparison this
+    writes, not by this script.
+    """
+    import json as _json
+
+    current = load()
+    refit = regenerate_refit_v2()
+    if refit.get("status") == "VOID":
+        print("VOID — %s" % refit.get("reason"))
+        return 1
+
+    doc = document(refit)
+    doc["_side_artifact"] = True
+    doc["_defect"] = ("register 4q — BAND_EDGES_REFIT_V2 splits the shipped "
+                      "33+ band. NOT applied to the board. Compare against "
+                      "projection_error_calibration.json (BAND_EDGES) via "
+                      "projection_error_refit_v2_comparison.json.")
+    REFIT_V2_CALIBRATION.parent.mkdir(parents=True, exist_ok=True)
+    REFIT_V2_CALIBRATION.write_text(_json.dumps(doc, indent=2) + "\n")
+
+    comparison = slope_comparison(current, refit)
+    REFIT_V2_COMPARISON.write_text(_json.dumps(comparison, indent=2) + "\n")
+
+    print("register 4q refit: measured %d/%d cells; wrote %s and %s"
+         % (refit.get("cells_measured", 0),
+            refit.get("cells_measured", 0) + refit.get("cells_unmeasurable", 0),
+            REFIT_V2_CALIBRATION.name, REFIT_V2_COMPARISON.name))
+    return 0
+
 
 
 if __name__ == "__main__":
