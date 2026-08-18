@@ -76,8 +76,11 @@ const ADMIN = fs.readFileSync(path.join(ROOT, 'src', 'routes', 'admin.js'), 'utf
 
 // ── 2. THE CHAIN, END TO END, SO THE SUBSTITUTION CANNOT RECUR ──────────────
 {
+  //: v1 -> BASELINE_VERSION (A, 08-18, register 5g ruling): the pin moved to
+  //: v27 so restore no longer reverts the ceiling/stack rulings. The chain
+  //: check is about the ROUTE, not the version — match the pinned constant.
   ck('the client loads the baseline from the ADMIN API...',
-    /fetch\('\/admin\/api\/baseline\?version=v1'/.test(APP));
+    /fetch\('\/admin\/api\/baseline\?version=' \+ BASELINE_VERSION/.test(APP));
 
   ck('...and assigns the response to `state.frozenBaseline`, which is the object '
     + 'register 4i assumed was the freeze',

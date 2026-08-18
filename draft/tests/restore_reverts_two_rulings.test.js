@@ -60,42 +60,51 @@ const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
 const base = f => JSON.parse(fs.readFileSync(
   path.join(ROOT, 'draft', 'baseline', f), 'utf8'));
 
-// ── 1. THE PIN, AND WHAT IT POINTS AT ──────────────────────────────────────
+// ── 1. THE PIN — RULED AND RE-AIMED (A, 2026-08-18, register 5g). ─────────
+// This suite was written to PIN THE DEFECT and go red when somebody fixed it —
+// "read it as the alarm going off". It went off: A ruled option (2), the pin
+// moved v1 -> v27 (today's verified freeze, playoff-free inputs, deploy-probe
+// green, BOTH rulings carried), the localStorage key rotates with the pin, and
+// these checks now hold the ruled state instead of the trap.
 {
-  ck('the client asks for a HARDCODED baseline version',
-    /api\/baseline\?version=v1/.test(APP));
+  const m = APP.match(/const BASELINE_VERSION = '(v\d+)'/);
+  ck('the client pins a NAMED baseline version by ruling (not v1, not "newest")',
+    !!m && m[1] === 'v27' && !/api\/baseline\?version=v1/.test(APP),
+    m && m[1]);
+
+  ck('...and the localStorage key rotates with the pin, so a cached v1 cannot '
+    + 'shadow the ruled reference',
+  /const BASELINE_KEY = 'mfga\.draft\.baseline\.' \+ BASELINE_VERSION/.test(APP));
 
   const v1 = base('v1.json');
-  ck('CONTROL: v1 is real and carries the weights the button assigns',
-    !!(v1.engine_policy || {}).MEASURED_WEIGHTS, Object.keys(v1));
-
-  ck('...and it is the OLD freeze — eight days before the draft',
-    /^2026-08-10/.test(v1.frozen_at || ''), v1.frozen_at);
+  ck('HISTORY CONTROL: v1 still exists and still carries the pre-ruling '
+    + 'weights — the defect this suite pinned was real, not hypothetical',
+  (v1.engine_policy || {}).MEASURED_WEIGHTS
+    && v1.engine_policy.MEASURED_WEIGHTS.ceiling === 0
+    && v1.engine_policy.MEASURED_WEIGHTS.stack === 0.5
+    && /^2026-08-10/.test(v1.frozen_at || ''), v1.frozen_at);
 }
 
-// ── 2. THE DIFF. THIS IS THE FINDING. ──────────────────────────────────────
+// ── 2. THE DIFF IS CLOSED. RESTORING IS NOW A NO-OP AGAINST THE RULINGS. ───
 {
-  const restored = base('v1.json').engine_policy.MEASURED_WEIGHTS;
+  const restored = base('v27.json').engine_policy.MEASURED_WEIGHTS;
   const live = E.MEASURED_WEIGHTS;
-  const changed = Object.keys(Object.assign({}, live, restored))
-    .filter(k => live[k] !== restored[k]);
 
-  ck('DEFECT: restoring changes live weights — it is not a no-op against '
-    + 'today\'s policy', changed.length > 0, changed);
-
-  ck('DEFECT: it reverts CORY\'S CEILING RULING (shipped 09f94f99), 0.45 -> 0',
-    live.ceiling === 0.45 && restored.ceiling === 0,
+  ck('the ruled pin carries CORY\'S CEILING RULING — restore no longer reverts it',
+    live.ceiling === 0.45 && restored.ceiling === 0.45,
     { live: live.ceiling, restored: restored.ceiling });
 
-  ck('DEFECT: and the D10 STACK ruling, 1.0 -> 0.5',
-    live.stack === 1 && restored.stack === 0.5,
+  ck('and the D10 STACK ruling',
+    live.stack === 1 && restored.stack === 1,
     { live: live.stack, restored: restored.stack });
 
-  /* CONTROL — it is not simply a different object. Everything else agrees,
-   * which is what makes these two a REVERSION rather than a stale artifact. */
-  ck('CONTROL: every OTHER weight is identical, so this is two specific '
-    + 'rulings being undone and not a wholesale drift',
-  changed.sort().join(',') === 'ceiling,stack', changed);
+  /* FAIL ARM, inverted from the original DEFECT check: if live policy ever
+   * moves ahead of the pin on these two ruled weights again, this goes red —
+   * which is the next A ruling asking to be made, not a test to relax. */
+  const changed = Object.keys(Object.assign({}, live, restored))
+    .filter(k => live[k] !== restored[k]);
+  ck('no live weight differs from the ruled pin — one tap is one no-op today',
+    changed.length === 0, changed);
 }
 
 // ── 3. FRESHER BASELINES EXIST AND ARE NOT USED ────────────────────────────
