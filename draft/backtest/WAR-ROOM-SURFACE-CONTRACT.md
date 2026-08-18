@@ -14,7 +14,12 @@ EXPLICIT INSTRUCTION ("Fix and continue"), AND IT NEEDS A's REVIEW.** §1's term
 table was re-derived because registers E17/E18 fixed the defect it was measuring:
 `keeper` moves 14.3% → 0.2%, and the whole table is re-stated on the app's
 survival scale after I caught my own first re-derivation running without
-`ctx.pickBoard`. I raised this as `NO DEFAULT — BLOCKED` first and
+`ctx.pickBoard`. **THIRD CORRECTION, 2026-08-18: the table is re-derived again on
+the CURRENT 696-player board and now lists `ceiling` at 16.4%, which the ruled
+0.45 weight had made a top-three driver while this table still showed four
+terms.** My earlier figures were measured on a stale 682-player board — the same
+class of error this lane files against others. I raised this as
+`NO DEFAULT — BLOCKED` first and
 held the fix rather than touch this file; Cory overrode the hold. **A: if you
 would have re-derived it differently, change it — the measurement is in
 `draft/audit/keeper_bar_ranks_what_it_cannot_value_2026-08-18.md` and the numbers
@@ -63,12 +68,28 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-17 board) |
+| term | share of movement (2026-08-18 board, 696 players) |
 |---|---|
-| `value` (VONA) | **55.7%** |
-| **`onesie`** | **27.5%** |
-| `stack` | 16.6% |
-| `keeper` | 0.2% |
+| `value` (VONA) | **50.2%** |
+| **`onesie`** | **24.0%** |
+| **`ceiling`** | **16.4%** |
+| `stack` | 8.0% |
+| `keeper` | 1.3% |
+
+**⚠️ `ceiling` WAS MISSING FROM THIS TABLE AND IS THE THIRD-LARGEST DRIVER
+(session E, 2026-08-18).** The ruling put `MEASURED_WEIGHTS.ceiling` at **0.45**
+on 2026-08-17; §1's weight sentence and the provenance entry were both updated
+for it, and this SHARE table was not. So the document listed four terms while
+the composite moved on five — **which is the exact failure this section opens
+with**: *"`onesie` is a top-three driver of the recommendation and a reader of
+the old sentence would not have known it exists."* A second top-three driver had
+become invisible the same way.
+
+**The check did not catch it because the check I wrote did not look.**
+`surface_contract.test.js` asserted `value > onesie > stack > keeper` — a fixed
+list, so a NEW term could appear at 16.4% without failing anything. It now
+asserts that **every term above 5% of movement is listed in this table**, which
+fails on an unlisted term rather than on a re-ordering of the ones already named.
 
 **⚠️ CORRECTED LATER THE SAME DAY, AND THE FIRST CORRECTION WAS ITSELF WRONG.**
 My re-derivation published `value 63.1 / onesie 25.2 / stack 11.6`. That run

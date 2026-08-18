@@ -246,16 +246,44 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * and are what a reader acts on; they are asserted separately below so a
    * rebuild that nudges the middle cannot mask a break in the part that
    * matters. */
-  ck('the document\'s table order holds in full — value > onesie > stack > keeper',
-    pct('value') > pct('onesie') && pct('onesie') > pct('stack')
-    && pct('stack') > pct('keeper'),
-    ['value', 'onesie', 'stack', 'keeper'].map(k => k + ':' + pct(k).toFixed(1)));
-  ck('and the two claims with the widest margins hold on their own — value is '
-    + 'the largest term and keeper is now the SMALLEST',
+  /* ⚠️ THIS CHECK USED A FIXED LIST AND A NEW 16.4% TERM WALKED PAST IT
+   * (session E, 2026-08-18).
+   *
+   * It asserted `value > onesie > stack > keeper` — four names, hardcoded. When
+   * the 2026-08-17 ruling put `MEASURED_WEIGHTS.ceiling` at 0.45, `ceiling`
+   * became the THIRD-largest driver of the recommendation at 16.4% of movement
+   * and this check passed anyway, because it never asked about a term it had
+   * not been told to expect. The document's §1 table went on listing four terms
+   * while the composite moved on five.
+   *
+   * That is the failure §1 OPENS with, repeated: "`onesie` is a top-three driver
+   * and a reader of the old sentence would not have known it exists."
+   *
+   * So the check now asks the question that generalises — IS EVERY MATERIAL TERM
+   * LISTED — rather than re-asserting an order among names chosen in advance. A
+   * new term appearing above the bar fails this; a rebuild nudging the middle
+   * ranks does not. */
+  const MATERIAL = 5.0;   // % of movement above which a term must be documented
+  {
+    const material = Object.keys(tot).filter(k => pct(k) >= MATERIAL)
+      .sort((a, b) => tot[b] - tot[a]);
+    const undocumented = material.filter(k => !new RegExp('`' + k + '`').test(doc));
+    ck('EVERY term above ' + MATERIAL + '% of movement is named in the document — '
+      + 'this is what a fixed list of four names could not catch',
+    undocumented.length === 0,
+    { material: material.map(k => k + ':' + pct(k).toFixed(1)), undocumented: undocumented });
+    ck('and the document\'s §1 table lists each of them as a ROW, not merely '
+      + 'mentions the word somewhere in the prose',
+    material.every(k => new RegExp('\\|\\s*\\*{0,2}`' + k + '`').test(doc)),
+    material.filter(k => !new RegExp('\\|\\s*\\*{0,2}`' + k + '`').test(doc)));
+  }
+  ck('the two claims with the widest margins hold on their own — value is the '
+    + 'largest term and keeper is the SMALLEST',
   Object.keys(tot).every(k => k === 'value' || tot[k] <= tot.value)
     && Object.keys(tot).filter(k => pct(k) >= 0.05)
       .every(k => k === 'keeper' || tot[k] >= tot.keeper),
-  ['value', 'onesie', 'stack', 'keeper'].map(k => k + ':' + pct(k).toFixed(1)));
+  Object.keys(tot).filter(k => pct(k) >= 0.05).sort((a, b) => tot[b] - tot[a])
+    .map(k => k + ':' + pct(k).toFixed(1)));
   ck('and the document SAYS keeper is smallest and says WHY it moved, so the '
     + 're-derivation above is the document\'s claim rather than a quiet test edit',
   /`keeper` SMALLEST/.test(doc) && /keeper` MOVED FROM 14\.3% TO 0\.2%/.test(doc));
