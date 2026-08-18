@@ -19,9 +19,15 @@ from backtest import build_bundle as BB
 from backtest import grade as GR
 from backtest import projection_error as PE
 
-#: The only positions this league rosters and scores. The calibration is a
-#: statement about how OUR projections miss for OUR players; a punter in the
-#: population is not a small impurity, it is a different question.
+#: The only positions this league rosters and scores.
+#:
+#: ⚠️ NOT passed to `PE.calibrate()` as `positions=` — that parameter is a
+#: player_id -> position MAP (a fallback for rows with no position), NOT an
+#: allow-list, and passing a tuple there is inert. The relay made exactly that
+#: mistake on 2026-08-18 and shipped a source-string guard that stayed green
+#: while nothing was filtered. The real filter lives in
+#: `projection_error._rostered_only()`, applied to the POPULATION before the
+#: fit, and is tested behaviourally.
 SKILL_FOR_CALIBRATION = ("QB", "RB", "WR", "TE")
 
 
@@ -75,7 +81,7 @@ def attach_dispersion_loso(bundles, actual):
         # NOTHING ASSERTED THE POPULATION, which is why it was invisible. The
         # parameter existed the whole time and was simply never used.
         cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
-                           exclude_season=s, positions=SKILL_FOR_CALIBRATION)
+                           exclude_season=s)
         rep = BB.attach_dispersion(b.get("players") or [], cal)
         b.setdefault("notes", {})["dispersion"] = rep
         b["notes"]["dispersion"]["fitted_without_season"] = s

@@ -339,6 +339,32 @@ def save(cal: dict, path=None) -> None:
 CALIBRATION_SEASONS = (2023, 2024, 2025)
 
 
+def _rostered_only(bundle):
+    """Drop every player at a position this league does not roster.
+
+    ⚠️ THIS IS THE REAL FIX, AND MY FIRST TWO WERE NOT FIXES AT ALL.
+    I passed `positions=("QB","RB","WR","TE")` to `calibrate()` twice — once
+    here and once in cli.py — and shipped a guard asserting that string appeared
+    in the source. Both were inert. **`positions` is a player_id -> position
+    MAP**, a fallback for rows that carry no `position` field
+    (`pl.get("position") or (positions or {}).get(pid)`), so for real rows the
+    `or` short-circuits and the argument is never read. The regeneration
+    dispatched at 00:37Z came back byte-identical: 910 graded, punters intact.
+
+    A test that asserts a string exists in a file is not a test of behaviour.
+    That is the defect class this repo is full of, committed by the person
+    cataloguing it.
+
+    So the filter is applied to the POPULATION, where it cannot be misread: a
+    row whose position is not rostered never reaches the fit.
+    """
+    players = [p for p in (bundle.get("players") or [])
+               if (p.get("position") or "").upper() in ROSTERED_POSITIONS]
+    out = dict(bundle)
+    out["players"] = players
+    return out
+
+
 def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
     """The no-args entry point `artifact_registry.json` calls. Assembles real
     bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
@@ -472,7 +498,7 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
         if not act:
             skipped.append({"season": season, "reason": "nothing gradeable"})
             continue
-        bundles.append(bundle)
+        bundles.append(_rostered_only(bundle))
         actual.append(act)
 
     if not bundles:
@@ -494,8 +520,7 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
     # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
     # workflow actually takes — a filter on the wrong call site is a fix that
     # feels done and changes nothing. Register 4r.
-    cal = calibrate(bundles, actual, exclude_season=None,
-                    positions=ROSTERED_POSITIONS)
+    cal = calibrate(bundles, actual, exclude_season=None)
     cal["skipped_seasons"] = skipped
     return cal
 
