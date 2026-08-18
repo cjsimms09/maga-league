@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 06:15 UTC_
+_Last measured: 2026-08-18 06:33 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  393 items · 250 open · 74 of those carry a DEFAULT (silence resolves them)
+  394 items · 251 open · 75 of those carry a DEFAULT (silence resolves them)
   66 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
 
   waiting on:
@@ -38,14 +38,14 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-       13 commits     0h old  claude/fantasy-football-research-926y6z
+       15 commits     0h old  claude/fantasy-football-research-926y6z
         9 commits     2h old  claude/red-team-fantasy-football-97otna
-        9 commits     1h old  claude/warroom-shell-rebuild-0817
-  ⚠️    3 commits    14h old  claude/in-season-surface-fixes-6nyayc
-        2 commits     1h old  claude/data-stewardship-setup-bo5h9j
-        1 commits     1h old  claude/external-ingest-program-1xfinj
+        9 commits     2h old  claude/warroom-shell-rebuild-0817
+  ⚠️    3 commits    15h old  claude/in-season-surface-fixes-6nyayc
+        2 commits     2h old  claude/data-stewardship-setup-bo5h9j
+        1 commits     2h old  claude/external-ingest-program-1xfinj
         1 commits    32h old  sleeper-hist-proj-dispatch
-        1 commits    31h old  sleeper-vs-fp-grade-dispatch
+        1 commits    32h old  sleeper-vs-fp-grade-dispatch
 
   ⚠️  1 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
