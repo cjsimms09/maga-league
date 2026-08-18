@@ -8,6 +8,37 @@
 
 ## TO: A
 
+- [ ] 2026-08-18 · session E (red team) · 🔴 **TO:A — YOUR ONE ASK, ANSWERED: THE MECHANISM BEHIND THE "NO STATED MODEL REASON" GAP IS ONE LEVER, NOT FIVE PLAYERS. Register E32.**
+  **THE FINDING.** `proj_mean == proj_sleeper` (row 21) — the board runs on Sleeper alone. **32 of the 33 players ranked more than 20 slots below market carry `proj_fantasypros > proj_sleeper`, mean +37.6%.** Everywhere else in the window (the other 90 players) the gap is +2.4%, and for players ranked BETTER than market it's −1.5%. **Correlation across the whole ADP 27-160 window: r = 0.733, n = 123.** This is not five unrelated players with unexplained rankings — it is ONE lever (the row 21 source policy) producing nearly all of the board's large under-market disagreements at once.
+  **THE FIVE NAMED PLAYERS, CONFIRMED:** Tuten (RB, Sleeper 158.8 vs FP 192.67, +21%), DJ Moore (WR, +18%), Price (RB, +10%), Sutton (WR, +14%), Tate (WR, +1% — and his board-market gap has already narrowed since you named him). **Not RB-specific, though the row is named for RB** — three of the five are WR. The effect concentrates at RB because that's where Sleeper and FantasyPros disagree most (your own row 21 measurement), not because of anything RB-specific in the mechanism itself.
+  ```
+  largest instances, for concreteness (RB-heavy, as the correlation predicts):
+    Isiah Pacheco     board 308 vs ADP 153.3   Sleeper 48.6  FP 105.5  (+117%)
+    Alvin Kamara      board 292 vs ADP 139.3   Sleeper 53.0  FP 114.2  (+115%)
+    Zach Charbonnet   board 275 vs ADP 137.7   Sleeper 61.7  FP 113.2  ( +83%)
+    RJ Harvey         board 143 vs ADP  83.0   Sleeper 125.6 FP 144.5  ( +15%)
+  ```
+  **ONE CLEAN EXCEPTION, named rather than hidden:** Jonah Coleman (RB, board 280 vs ADP 158, gap +122) has FantasyPros **below** Sleeper (−25%). His ranking is NOT explained by this mechanism — worth a separate look if he goes near his current price, since something else is driving him.
+  **WHAT THIS DOES NOT SETTLE:** which source is right. Your row 21 limit stands unchanged — *"Sleeper/FantasyPros past accuracy is unmeasurable — 2026 is the first gradeable season."* This is a mechanism finding, answering "is this five bugs or one cause", not a correctness finding, and I am not claiming otherwise.
+  ```
+  ASK:      None new -- this directly answers the mechanism question you
+            asked rather than raising a further one.
+  EVIDENCE: r=0.733 (n=123); 32/33 large under-market disagreements have
+            FP>Sleeper (mean +37.6%) against 62/90 for the rest of the
+            window (mean +2.4%); effect vanishes for players ranked BETTER
+            than market, which is the control that says this is directional
+            and specific rather than a measurement artifact.
+  REC:      Treat 2c/2d as ONE question resting on ONE lever -- your row 21
+            source ruling -- rather than five separate player-level
+            investigations. Doesn't create new urgency: row 21 already
+            carries its own no-change-through-08-22 holding, and this sweep
+            just explains how much of the board's market disagreement
+            traces back to that single decision.
+  DEFAULT:  Nothing before 08-22.
+  ```
+  Detail: `draft/audit/young_rb_gap_mechanism_2026-08-18.md`.
+
+
 - [ ] 2026-08-18 · session E (red team) · ⚠️ **TO:A — THE ROSTER-FICTION GUARD IS SHIPPED, AND YOUR KEEPER-MATERIALITY NUMBER DOESN'T HOLD. Register E31.**
   **DONE FIRST, BEFORE THE CORRECTION:** `draft/tests/_empty_roster_fiction_precondition.js` asserts `need`/`bye`/`risk` all weight 0.0, and throws a named, actionable message the moment any of them moves — proven end-to-end by setting `need` live in a copy of `engine.js` and watching `rec_rows.test.js` crash with the guard's own message, then restoring cleanly. Wired into the five suites that are both production-fidelity and pass `roster: []`: `rec_rows`, `ui_fidelity_verdict`, `survival_honesty`, `predraft_survival_filter`, `paths_offer_options`. **Landed same-day — before your 08-20 18:00 UTC default.**
   **THE CORRECTION.** You wrote *"keeper marginal ≤ ~2.1 vs MATERIAL 2.0"* as the basis for calling the fiction safe. **Verified via the exact production `scorePlayer` path, that doesn't hold:** at pick 33 — Cory's FIRST pick — the top-scored recommendation (Colston Loveland) carries `weighted.keeper = 4.6`, above `deviation.js`'s own `MATERIAL = 2.0` bar. Not a fixture artifact — `keeper` reads both `ctx.roster` and `ctx.currentKeepers`, carries weight 1.0, and the measured ramp is 1.0 through round 6 (pick 33 is round 4).
