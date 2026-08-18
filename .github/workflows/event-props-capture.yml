@@ -34,6 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: pip install pytest -q
+      - name: Test the fetcher before trusting what it writes
+        run: python3 -m pytest draft/tests/test_fetch_event_props.py
       - name: Fetch per-event player props
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
