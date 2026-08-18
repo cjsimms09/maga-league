@@ -67,66 +67,105 @@ jobs:
 
           # (id, url, needs_key) — Kalshi's public read endpoints need no auth.
           KALSHI = "https://api.elections.kalshi.com/trade-api/v2"
+          ODDS = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
+
+          # ── V2, AFTER V1 PRODUCED A FALSE POSITIVE I ALMOST REPORTED ──────────
+          #
+          # V1 flagged "player-level content" in two Kalshi endpoints. Both were wrong:
+          # the match was the LEGAL BOILERPLATE every Kalshi series carries — "Current
+          # and former players, coaches, and staff of the league..." — and the second
+          # endpoint had no NFL filter at all, so it returned KXELONMARS. A regex over
+          # 200KB of raw JSON cannot tell a market from a prohibitions clause.
+          #
+          # So v2 stops reading prose and reads the PRODUCT: series tickers and market
+          # titles, parsed out of the JSON, which is what actually names what is
+          # tradeable. And it fixes the Odds API call, whose 422 said "Markets not
+          # supported by this endpoint" — player props live on the per-EVENT odds
+          # route, not the league route, so v1 asked the wrong URL and would have
+          # recorded a capability we have as an absence.
           TARGETS = [
             ("sleeper_control", "https://api.sleeper.app/v1/state/nfl", False),
-
-            ("kalshi_series",       f"{KALSHI}/series?category=Sports", False),
-            ("kalshi_events_nfl",   f"{KALSHI}/events?status=open&limit=200", False),
-            ("kalshi_markets_open", f"{KALSHI}/markets?status=open&limit=200", False),
-            ("kalshi_markets_nfl",  f"{KALSHI}/markets?status=open&limit=200&series_ticker=KXNFLGAME", False),
-
-            # ESPN's public site API is unauthenticated and often carries an odds block.
-            ("espn_scoreboard", "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard", False),
-            ("espn_odds_core",  "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events?limit=5", False),
-
-            # The Odds API's FREE tier: does it serve CURRENT (not historical) NFL prices?
-            ("oddsapi_sports",  "https://api.the-odds-api.com/v4/sports/?apiKey=KEY", True),
-            ("oddsapi_nfl_h2h", "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?regions=us&markets=h2h&apiKey=KEY", True),
-            ("oddsapi_player_props", "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?regions=us&markets=player_pass_yds&apiKey=KEY", True),
+            ("kalshi_series_sports", f"{KALSHI}/series?category=Sports", False),
+            ("oddsapi_nfl_events",   f"{ODDS}/events?apiKey=KEY", True),
           ]
-
           key = os.environ.get("K_ODDS") or ""
-          rows = []
+          rows, payload = [], {}
           for name, url, needs in TARGETS:
               if needs and not key:
                   rows.append({"id": name, "status": None, "note": "no ODDS_API_KEY in secrets"})
                   continue
               code, body = get(url.replace("KEY", key) if needs else url)
-              # Never let a key reach the artifact through an echoed URL or error body.
               safe = body.replace(key, "<KEY>") if key else body
-              low = safe.lower()
-              rows.append({
-                "id": name, "status": code, "bytes": len(safe),
-                "mentions_nfl": ("nfl" in low or "football" in low),
-                # Player-level granularity is the thing that decides whether this can
-                # ever be a per-player arm rather than a team-context one.
-                "mentions_player": bool(re.search(r"player|passing yards|rushing yards|receptions|anytime td", low)),
-                "head": " ".join(safe[:400].split()),
-              })
+              payload[name] = safe
+              rows.append({"id": name, "status": code, "bytes": len(safe)})
               print(f"  {name:24s} -> {code}  {len(safe)}B")
 
-          def row(i):
-              return next((r for r in rows if r["id"] == i), {})
+          def as_json(name):
+              try: return json.loads(payload.get(name) or "")
+              except Exception: return None
 
-          control = row("sleeper_control").get("status")
+          # ── KALSHI: which SERIES exist, by ticker and title, for the NFL? ────────
+          nfl_series, nfl_markets, kalshi_note = [], [], ""
+          doc = as_json("kalshi_series_sports")
+          if doc:
+              for s in (doc.get("series") or []):
+                  tick, title = s.get("ticker") or "", s.get("title") or ""
+                  if re.search(r"nfl|football", (tick + " " + title), re.I):
+                      nfl_series.append({"ticker": tick, "title": title})
+              # For each NFL series, read the actual market TITLES — the product names.
+              for s in nfl_series[:12]:
+                  code, b = get(f"{KALSHI}/markets?status=open&limit=100&series_ticker={s['ticker']}")
+                  d2 = None
+                  try: d2 = json.loads(b)
+                  except Exception: pass
+                  for m in ((d2 or {}).get("markets") or []):
+                      nfl_markets.append({"series": s["ticker"], "ticker": m.get("ticker"),
+                                          "title": m.get("title") or m.get("subtitle") or ""})
+              kalshi_note = (f"{len(nfl_series)} NFL series, {len(nfl_markets)} open markets read"
+                             if nfl_series else "no NFL/football series in category=Sports")
+
+          # A player market names a PERSON or a per-player stat line. Judged on titles
+          # only, never on the whole payload — that is the v1 mistake.
+          PLAYER_RE = re.compile(r"passing yards|rushing yards|receiving yards|receptions|"
+                                 r"anytime touchdown|anytime td|to score a (touchdown|td)|"
+                                 r"\bplayer\b.*(yards|touchdown)", re.I)
+          kalshi_player = [m for m in nfl_markets if PLAYER_RE.search(m["title"] or "")]
+
+          # ── ODDS API: do player props exist on the per-EVENT route, free tier? ───
+          odds_props = {"checked": False}
+          ev = as_json("oddsapi_nfl_events")
+          if isinstance(ev, list) and ev and key:
+              eid = ev[0].get("id")
+              code, b = get(f"{ODDS}/events/{eid}/odds?regions=us"
+                            f"&markets=player_pass_yds,player_rush_yds,player_anytime_td&apiKey={key}")
+              safe = b.replace(key, "<KEY>")
+              odds_props = {"checked": True, "event_id": eid, "status": code,
+                            "bytes": len(safe), "head": " ".join(safe[:400].split())}
+              rows.append({"id": "oddsapi_event_player_props", "status": code, "bytes": len(safe)})
+              print(f"  oddsapi_event_player_props -> {code}  {len(safe)}B")
+          elif isinstance(ev, list):
+              odds_props = {"checked": False, "note": f"{len(ev)} NFL events listed — none to query"}
+
+          control = next((r["status"] for r in rows if r["id"] == "sleeper_control"), None)
           egress_ok = control == 200
-
           reachable = [r["id"] for r in rows if r.get("status") == 200 and r["id"] != "sleeper_control"]
-          player_level = [r["id"] for r in rows if r.get("status") == 200 and r.get("mentions_player")]
 
           if not egress_ok:
-              verdict = ("THIS RUN'S EGRESS IS BROKEN — the Sleeper control did not return 200, "
-                         f"it returned {control}. NOTHING here is evidence about what exists. Re-run.")
-          elif not reachable:
-              verdict = ("NO FREE MARKET SOURCE RESPONDED, and the control passed, so that is a "
-                         "real answer rather than a blocked run.")
+              verdict = ("THIS RUN'S EGRESS IS BROKEN — the Sleeper control returned "
+                         f"{control}, not 200. NOTHING here is evidence. Re-run.")
+          elif kalshi_player:
+              verdict = (f"KALSHI CARRIES PLAYER-LEVEL NFL MARKETS — {len(kalshi_player)} of "
+                         f"{len(nfl_markets)} open markets across {len(nfl_series)} NFL series, "
+                         "free and unauthenticated. This is a per-player in-season arm.")
+          elif nfl_markets:
+              verdict = (f"KALSHI IS FREE AND CARRIES NFL MARKETS ({len(nfl_markets)} open across "
+                         f"{len(nfl_series)} series) BUT NONE ARE PLAYER-LEVEL by title. "
+                         "A market arm built on Kalshi is a TEAM/GAME-CONTEXT prior, not a "
+                         "per-player one — which is what P57's opponent term already is.")
           else:
-              verdict = ("FREE AND REACHABLE: " + ", ".join(reachable)
-                         + (" | PLAYER-LEVEL CONTENT SEEN IN: " + ", ".join(player_level)
-                            if player_level else
-                            " | NONE carried player-level content — team/game granularity only, "
-                            "so a market arm built on these is a TEAM-CONTEXT prior, not a per-player one."))
-
+              verdict = (f"NO OPEN NFL MARKETS FOUND ON KALSHI ({kalshi_note}). Control passed, so "
+                         "this is a real answer for TODAY — 08-18 is the offseason and listings "
+                         "may appear nearer week 1. Re-probe after 09-10 before concluding.")
           art = {
             "_territory": "TERRITORY: relay — written by .github/workflows/free-market-census.yml",
             "_question": ("P53. Cory 08-18: 'Do deep search for 2026 days for free.' The Odds API "
@@ -139,7 +178,17 @@ jobs:
                          "fails, a fully-blocked run would otherwise read as 'no source exists'."),
             "captured_at": datetime.now(timezone.utc).isoformat(),
             "egress_ok": egress_ok, "control_status": control,
-            "reachable": reachable, "player_level": player_level,
+            "reachable": reachable,
+            "kalshi": {"nfl_series": nfl_series, "note": kalshi_note,
+                       "open_markets": len(nfl_markets),
+                       "player_level_markets": kalshi_player,
+                       "sample_titles": [m["title"] for m in nfl_markets[:15]]},
+            "oddsapi_event_player_props": odds_props,
+            "_v1_false_positive": ("v1 reported player-level content in two Kalshi endpoints. Both "
+                                   "were wrong: the match was the legal boilerplate every series "
+                                   "carries ('Current and former players, coaches, and staff...') "
+                                   "and the second endpoint had no NFL filter, returning KXELONMARS. "
+                                   "v2 reads series tickers and market TITLES instead of raw text."),
             "rows": rows, "verdict": verdict,
           }
           os.makedirs("draft/backtest", exist_ok=True)
