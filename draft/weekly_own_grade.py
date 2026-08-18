@@ -261,6 +261,42 @@ def grade_week(snapshot: dict, actuals: dict, provider_proj: dict | None = None,
     }
 
 
+def cory_bar_startsit(weeks: dict) -> dict:
+    """The 2027 goal's bar, season-to-date, per WEEKLY-LAB-FREEZE-2026.
+
+    Pools every graded week's rows where the CHAMPION and BOTH providers
+    price the player (the shared-population clause); the metric and the
+    3-of-4 computation live in start_sit_metric.py, imported not copied.
+    NOT RUN until a graded week carries both provider columns — which is
+    what C's weekly projection archive dispatch exists to make true."""
+    from start_sit_metric import meets_cory_bar, pairwise_accuracy
+    wk_inputs = []
+    for wk in sorted(weeks, key=int):
+        e = weeks[wk]
+        champ = e.get("champion_arm")
+        rows = e.get("rows") or {}
+        wr = {}
+        for pid, r in rows.items():
+            proj = {"ours": (r.get("proj") or {}).get(champ),
+                    "sleeper": r.get("sleeper"),
+                    "fantasypros": r.get("fantasypros")}
+            if any(v is None for v in proj.values()):
+                continue
+            wr[pid] = {"pos": r.get("pos"), "actual": r.get("actual"),
+                       "proj": proj}
+        if wr:
+            wk_inputs.append(wr)
+    if not wk_inputs:
+        return {"status": ("NOT RUN — no graded week carries the champion "
+                           "AND both provider columns yet; the FP half "
+                           "starts the day C's weekly archive carries it"),
+                "_freeze": "WEEKLY-LAB-FREEZE-2026.md"}
+    acc = pairwise_accuracy(wk_inputs, ["ours", "sleeper", "fantasypros"])
+    bar = meets_cory_bar(acc, "ours", ["sleeper", "fantasypros"])
+    return {"_freeze": "WEEKLY-LAB-FREEZE-2026.md; metric start_sit_metric.py",
+            "weeks_pooled": len(wk_inputs), "accuracy": acc, "bar": bar}
+
+
 # ── the mechanical promotion rule (pure) ─────────────────────────────────────
 
 def _arm_series(weeks: dict, arm: str) -> dict:
@@ -670,6 +706,10 @@ def main(argv: list | None = None) -> int:
     changed = bool(n_graded or promo
                    or (alert and ov))
     if changed:
+        # Season-to-date pairwise start/sit grade — Cory's bar, recomputed
+        # whole every Tuesday (WEEKLY-LAB-FREEZE-2026 §1-2; the metric lives
+        # in start_sit_metric.py and the freeze outranks both).
+        ledger["cory_bar_startsit"] = cory_bar_startsit(ledger["weeks"])
         ledger_out.parent.mkdir(parents=True, exist_ok=True)
         ledger_out.write_text(json.dumps(ledger, indent=1))
         print(f"wrote {ledger_out}: {len(ledger['weeks'])} week(s) graded, "
