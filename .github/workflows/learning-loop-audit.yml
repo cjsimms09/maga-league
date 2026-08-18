@@ -36,6 +36,33 @@
 # off" — written about the intervention-rate check, which nagged daily until
 # everyone stopped reading it. A weekly report that is green opens nothing and
 # says nothing. The commit is the record; the issue is the alarm.
+# ── VERIFIED END-TO-END 2026-08-18, BOTH ARMS, BEFORE IT EVER RAN ─────────
+#
+# This project has already paid for shipping a workflow nobody fired:
+# `draft-night-sync.yml` looked correct in review and its retry loop was dead
+# code, because GitHub runs `run:` under `bash -e` and a bare `OUT="$(cmd)"`
+# assignment is not a context `-e` exempts. That was found by RUNNING it.
+#
+# So the audit step was executed locally, both arms, driving the clock with a
+# stub `date` rather than waiting for a Monday:
+#
+#   GREEN (today)      red=0, step exits 0, report written, no issue opened
+#   RED   (2026-09-30) red=1, step STILL exits 0, and the report captured 35
+#                      failure lines — 4 axis deadlines and 28 overdue
+#                      predictions — so the issue step fires with real content
+#
+# The red arm exiting 0 is the point, not a bug: this job COLLECTS a report
+# from tools that exit non-zero to signal a problem. If it ran under `set -e`
+# it would die on the first finding and the issue would never be opened —
+# the same trap, one workflow later.
+#
+# ⚠️ AND ONE THING THIS CANNOT DO UNTIL IT IS MERGED. GitHub only registers
+# `workflow_dispatch` and `schedule` for workflows present on the DEFAULT
+# branch. Dispatching this from a feature branch returns 404 — measured, not
+# assumed. **So the Monday heartbeat does not exist as far as GitHub is
+# concerned until `main` has this file**, and the loop it is meant to keep
+# alive stays push-triggered until then. That is a merge dependency, not a
+# defect, and it is written here so nobody reads a green branch as a live cron.
 name: Learning loop — weekly self-audit
 
 on:
