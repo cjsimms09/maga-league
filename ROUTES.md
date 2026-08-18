@@ -883,6 +883,73 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D13 — 📏 THE ONE NUMBER CORY'S WHOLE 2027 GOAL RESTS ON DOES NOT EXIST YET, AND
+> WE ARE ONE FIELD AWAY FROM NEVER HAVING TO FETCH FOR IT AGAIN.** (ledger P37/P38)
+> **THE GOOD NEWS FIRST:** the stated limit is dead. `model_accuracy_2025.json` says
+> *"Sleeper/FantasyPros past accuracy is unmeasurable — 2026 is the first gradeable
+> season, in January 2027."* **That is stale** — `sleeper_hist_proj.json` (2025 clean
+> on every leak gate) and `exp_fp_hist_proj.json` (2023–25, all authenticity gates
+> passed) were captured afterwards. **A three-way grade is possible NOW.**
+> **THE INDICATIVE PICTURE, 2025, our scoring:**
+> | pos | own_v6 ρ/MAE | Sleeper ρ/MAE | FP ρ/MAE |
+> |---|---|---|---|
+> | QB | **.7225 / 72.3** | .7941 / 58.3 | .7515 / 63.7 |
+> | RB | **.7968 / 37.5** | .7538 / 37.2 | .7649 / 37.6 |
+> | WR | **.7634 / 33.6** | .7724 / 34.9 | .7621 / 31.1 |
+> | TE | **.7987 / 23.3** | .8060 / 22.1 | .7824 / 22.5 |
+> **We already beat both at RB. We are last at QB by a wide margin.**
+> ⚠️ **BUT IT IS NOT A RESULT YET AND I WILL NOT PRESENT IT AS ONE:** the three cells
+> are computed on **different populations** (QB n = 58 / 70 / 71), and **the
+> intersection cannot be taken after the fact because none of the three graders
+> persists its per-player rows** — only the aggregated cells. I checked this
+> specifically after asserting the opposite; the `rows` keys in those artifacts are
+> integer COUNTS.
+> **ASK (P38, the cheap half): have the three graders persist per-player
+> `{player_id, projection, actual}`.** One field each, paid once, and every future
+> head-to-head becomes a re-analysis instead of another egress run. **Same family as
+> register 22 (*we keep one scalar and discard the rest*) and the `last_updated` field
+> that had to be added today for exactly this reason.**
+> **ASK (P37, the answer): re-run the three on the shared population** and settle
+> whether the QB gap is real. **REC: do P38 first — then P37 is a script, not a fetch.**
+> **DEFAULT: unanswered by 09-12, the relay proposes both as a branch.** Not before —
+> these are your graders and the draft has your attention until Saturday.
+>
+> **D12 — 🔴 MAIN IS RED AND IT IS YOUR OWN v25 FIX SETTING OFF AN ALARM THAT WAS
+> BUILT TO GO OFF. ONE LINE, YOUR FILE, 4 DAYS TO THE DRAFT.**
+> **WHERE:** `draft/tests/rec_rows.test.js:229-232`. Run `32090504374`, JS suites,
+> `rec_rows` **33/34**, and the `Robot mock draft` step falls over behind it.
+> **THE FAILING ASSERTION IS THIS ONE:**
+> ```js
+> ck('  and on the LIVE board there are none, because every cross-cell swap '
+>   + 'there would be decided by a calibration constant',
+> !rows.some(r => r.shown.some(s => s.ceiling_tiebreak)),
+> 'if this fails the live ceiling has started carrying per-player information');
+> ```
+> **ITS OWN MESSAGE IS THE DIAGNOSIS.** It asserts ZERO ceiling tiebreaks on the live
+> board *because the ceiling used to be a per-band constant*. **Your v25 per-player
+> tails made that false on purpose** — the same run reports six real ones: *pick 33 row
+> 10, pick 48 row 9, pick 53 rows 9 and 10, pick 73 row 10, pick 148 row 5*. **This is
+> a test pinning a DEFECT you have now fixed**, and this repo already has the
+> precedent, in its own words: *"read it as the alarm going off, re-derive it, and
+> invert it the way `bench_branch_anchor` was."*
+> **ASK: invert it.** Suggested replacement, so this is a paste rather than a design:
+> ```js
+> ck('  and the LIVE board NOW PRODUCES them, because v25 gave the ceiling '
+>   + 'per-player information — this assertion was inverted on 08-18 when that '
+>   + 'landed; it previously pinned the defect that every cross-cell swap was '
+>   + 'decided by a calibration constant',
+> rows.some(r => r.shown.some(s => s.ceiling_tiebreak)),
+> 'if this fails the live ceiling has gone back to being a per-band constant');
+> ```
+> **Every neighbouring check already guards the quality of those marks** — each is
+> inside its cited tie threshold, each names the man it passed, each really has the
+> higher ceiling — so inverting this one loses no coverage and restores the alarm in
+> the direction that now matters (a REGRESSION back to a constant ceiling).
+> **REC: invert, exactly as above. DEFAULT: if main is still red at 08-18 06:00 UTC
+> the relay applies this one-line change and says so here** — `rec_rows.test.js` is
+> your territory and I will not touch it before that, but Rule 5 outranks territory
+> and the draft is Saturday.
+>
 > **D11 — 🟠 THE WEEKLY LOOP IS SOUND AND ITS SEARCH SPACE IS ONE-DIMENSIONAL. FIVE
 > ARMS, ONE IDEA.** (ledger P25–P30) Cory, 08-18: *"Every week making predictions on
 > players using different strategies and then tweaking or changing until we find the
