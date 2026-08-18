@@ -10927,6 +10927,47 @@
     return best;
   }
 
+  function sourceGapCaveat(p, board) {
+    /* THE ONE-SOURCE SENTENCE, AT THE POINT OF DECISION (Cory's order, 08-18).
+     *
+     * E32 (register, CLOSED with A's ruling): on this board, 32 of the 33
+     * players ranked >20 slots BELOW market carry proj_fantasypros above
+     * proj_sleeper (mean +37.6%; r = 0.733 across the ADP 27-160 window), and
+     * proj_mean == proj_sleeper — so a violent board-under-market gap is
+     * usually the model reading ONE source, not a model insight. The three-way
+     * grade points the same way (WR/TE blend beats either parent). The ruled
+     * policy holds through 08-22; this caveat is the policy's honest label:
+     * when the gap is the one-source artifact, SAY SO and lean market.
+     *
+     * The exception is load-bearing: a big gap NOT explained by FP>Sleeper
+     * (Jonah Coleman was the one such name at ruling time) is UNEXPLAINED and
+     * earns extra doubt, not a lean-market pass. Absence of an FP number says
+     * nothing either way, so it says nothing. */
+    if (!p || p.adjusted_adp == null && p.raw_adp == null) return '';
+    const list = (board || []).filter(x => x && x.proj_mean != null);
+    if (list.length < 50) return '';
+    const byBoard = list.slice().sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+    const adpOf = x => (x.adjusted_adp != null ? x.adjusted_adp : x.raw_adp);
+    const boardRank = byBoard.indexOf(p) + 1;
+    const adp = adpOf(p);
+    if (!boardRank || adp == null) return '';
+    const gap = boardRank - adp;                 // positive = board likes him LESS than market
+    if (gap <= 20) return '';                    // E32's own window edge
+    const fp = p.proj_fantasypros, sl = p.proj_sleeper != null ? p.proj_sleeper : p.proj_mean;
+    if (fp != null && sl > 0 && fp > sl * 1.08) {
+      const pct = Math.round((fp / sl - 1) * 100);
+      return 'SOURCE GAP: board sits ~' + Math.round(gap) + ' slots below market here, and gaps '
+        + 'this size are almost always one-source — FP projects him +' + pct + '% over Sleeper and '
+        + 'the board reads only Sleeper (32 of 33 such gaps, r=0.73). Lean market on this disagreement.\n';
+    }
+    if (fp != null && sl > 0 && fp <= sl * 1.08) {
+      return 'SOURCE GAP, UNEXPLAINED: board sits ~' + Math.round(gap) + ' slots below market and the '
+        + 'usual one-source cause does NOT apply (FP is not above Sleeper here). Nothing vouches for '
+        + 'either number — extra doubt, both directions.\n';
+    }
+    return '';
+  }
+
   function dispersionCaveat(p, board) {
     if (!p || p.proj_mean == null) return '';
     const fs = String(p.proj_floor_source || ''), cs = String(p.proj_ceiling_source || '');
@@ -11037,6 +11078,7 @@
       'Projection ' + Math.round(p.proj_mean) + ' (floor ' + Math.round(p.proj_floor) +
       ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' + dispersionCaveat(p, state.board) +
       'Adjusted ADP ' + Math.round(p.adjusted_adp) + ' vs raw ' + Math.round(p.raw_adp || 0) + '\n' +
+      sourceGapCaveat(p, state.board) +
       'Survives to your next pick: ' + survivalText(s.survival_to_next) + ' (interim model — see the caveat)\n\n' +
       s.reasons.map(r => '• ' + r).join('\n')
     );
