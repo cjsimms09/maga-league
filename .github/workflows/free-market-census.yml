@@ -125,24 +125,65 @@ jobs:
                   tick, title = s.get("ticker") or "", s.get("title") or ""
                   if re.search(r"nfl|football", (tick + " " + title), re.I):
                       nfl_series.append({"ticker": tick, "title": title})
-              # For each NFL series, read the actual market TITLES — the product names.
-              for s in nfl_series[:12]:
-                  code, b = get(f"{KALSHI}/markets?status=open&limit=100&series_ticker={s['ticker']}")
-                  d2 = None
+              # V3 READ 12 OF 390 SERIES AND CALLED IT A CENSUS. Paginating all open
+              # markets once and filtering to the NFL set costs a handful of requests
+              # instead of 390, and it cannot silently sample.
+              nfl_tickers = {s["ticker"] for s in nfl_series}
+              cursor, pages = None, 0
+              while pages < 30:
+                  u = f"{KALSHI}/markets?status=open&limit=1000" + (f"&cursor={cursor}" if cursor else "")
+                  code, b = get(u)
+                  if code != 200:
+                      kalshi_note = f"market pagination stopped: HTTP {code} on page {pages}"
+                      break
                   try: d2 = json.loads(b)
-                  except Exception: pass
-                  for m in ((d2 or {}).get("markets") or []):
-                      nfl_markets.append({"series": s["ticker"], "ticker": m.get("ticker"),
-                                          "title": m.get("title") or m.get("subtitle") or ""})
-              kalshi_note = (f"{len(nfl_series)} NFL series, {len(nfl_markets)} open markets read"
-                             if nfl_series else "no NFL/football series in category=Sports")
+                  except Exception as e:
+                      parse_errors["kalshi_markets_page"] = f"{type(e).__name__} at {len(b)}B"
+                      break
+                  batch = d2.get("markets") or []
+                  for m in batch:
+                      if (m.get("series_ticker") or m.get("event_ticker", "")[:20]) in nfl_tickers \
+                         or any(m.get("ticker", "").startswith(x) for x in nfl_tickers):
+                          nfl_markets.append({"series": m.get("series_ticker") or m.get("event_ticker"),
+                                              "ticker": m.get("ticker"),
+                                              "title": m.get("title") or m.get("subtitle") or ""})
+                  cursor = (d2.get("cursor") or "")
+                  pages += 1
+                  if not cursor or not batch:
+                      break
+              kalshi_note = kalshi_note or (f"{len(nfl_series)} NFL series, {len(nfl_markets)} open "
+                                            f"markets across {pages} pages")
 
-          # A player market names a PERSON or a per-player stat line. Judged on titles
-          # only, never on the whole payload — that is the v1 mistake.
-          PLAYER_RE = re.compile(r"passing yards|rushing yards|receiving yards|receptions|"
-                                 r"anytime touchdown|anytime td|to score a (touchdown|td)|"
-                                 r"\bplayer\b.*(yards|touchdown)", re.I)
-          kalshi_player = [m for m in nfl_markets if PLAYER_RE.search(m["title"] or "")]
+          # A MARKET IS PLAYER-LEVEL IF IT NAMES A REAL NFL PLAYER, and the way to
+          # know that is to ask our own board rather than to guess at phrasings.
+          #
+          # v3 matched only stat lines — "passing yards", "anytime td" — and therefore
+          # reported ZERO player-level markets while its own sample titles read "Will
+          # Patrick Mahomes play in a game in every week of the 2026 season." Those are
+          # per-player markets, and per-player AVAILABILITY is arguably the more useful
+          # kind for us: it is a direct read on games_expected, which own_v6 currently
+          # estimates rather than observes.
+          names = set()
+          try:
+              board = json.load(open("public/draft_data.json"))
+              for pl in (board.get("players") or []) + (board.get("kept_players") or []):
+                  n = (pl.get("name") or "").strip()
+                  if len(n) > 6 and " " in n:
+                      names.add(n.lower())
+          except Exception as e:
+              parse_errors["board_names"] = type(e).__name__
+
+          STAT_RE = re.compile(r"passing yards|rushing yards|receiving yards|receptions|"
+                               r"anytime touchdown|anytime td|to score a (touchdown|td)", re.I)
+          def player_kind(title):
+              low = (title or "").lower()
+              if any(n in low for n in names):
+                  return "stat" if STAT_RE.search(low) else "named_player"
+              return "stat" if STAT_RE.search(low) else None
+
+          for m in nfl_markets:
+              m["player_kind"] = player_kind(m["title"])
+          kalshi_player = [m for m in nfl_markets if m["player_kind"]]
 
           # ── ODDS API: do player props exist on the per-EVENT route, free tier? ───
           odds_props = {"checked": False}
@@ -171,9 +212,14 @@ jobs:
                          f"PROBE and not about the world: {json.dumps(parse_errors)}. "
                          "Fix and re-run before concluding anything.")
           elif kalshi_player:
+              kinds = {}
+              for m in kalshi_player:
+                  kinds[m["player_kind"]] = kinds.get(m["player_kind"], 0) + 1
               verdict = (f"KALSHI CARRIES PLAYER-LEVEL NFL MARKETS — {len(kalshi_player)} of "
                          f"{len(nfl_markets)} open markets across {len(nfl_series)} NFL series, "
-                         "free and unauthenticated. This is a per-player in-season arm.")
+                         f"free and unauthenticated. By kind: {json.dumps(kinds)}. "
+                         "`named_player` markets are per-player availability/props matched against "
+                         "our own board's names; `stat` are stat-line props.")
           elif nfl_markets:
               verdict = (f"KALSHI IS FREE AND CARRIES NFL MARKETS ({len(nfl_markets)} open across "
                          f"{len(nfl_series)} series) BUT NONE ARE PLAYER-LEVEL by title. "
@@ -198,7 +244,8 @@ jobs:
             "reachable": reachable,
             "kalshi": {"nfl_series": nfl_series, "note": kalshi_note,
                        "open_markets": len(nfl_markets),
-                       "player_level_markets": kalshi_player,
+                       "player_level_markets": kalshi_player[:400],
+                       "player_level_count": len(kalshi_player),
                        "sample_titles": [m["title"] for m in nfl_markets[:15]]},
             "oddsapi_event_player_props": odds_props,
             "_v1_false_positive": ("v1 reported player-level content in two Kalshi endpoints. Both "
