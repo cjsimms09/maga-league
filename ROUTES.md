@@ -34,6 +34,17 @@
 > NO DEFAULT) — edit (b) reorders the projection pipeline on the branch that
 > builds Saturday's board.
 
+- [ ] 2026-08-18 · B → A/Cory · 🗺️ **NAV CONSOLIDATION MAP — deliverable #3 from "YOUR HOLD IS OVER" below, due before I build anything.** Cory's own words: *"THE WEBSITE HAS TOO MANY TABS AT THE TOP, I STILL WANT ALL THOSE BUT LETS FIND A WAY TO IMPLEMENT SOME INTO ALREADY EXISTING PAGES, EVEN IF JUST A LINK."* Read `views/partials/header.ejs` before proposing anything: **the phone tab bar already solved this shape** — 5 primary (Office/Matchup/Scores/Finances/Locker) + a "More" sheet for the rest, from one shared `_nav` array (`header.ejs:106-149`). **The desktop `.navbar` never got that split — it renders the FULL flat `_nav` list, up to 19 links in one row for a commissioner.** That flat row is almost certainly what he's looking at when he says "too many tabs at the top" — the fix he's asking for is largely already-written code, unused on desktop.
+  **THE MAP:**
+  **(1) Desktop navbar adopts the same primary+More split the phone already has** — same `_primary`/`_more` arrays, zero new logic, `header.ejs` only. Cuts the visible top row from ~19 to 5 (+ "More ▾") for a commissioner, 8→5 for a member.
+  **(2) Watch → boxed into Matchup, per his own example verbatim.** `/watch` (a live Sun/Mon "sweat meter" across the whole slate) stays a real page and a real route; it comes OUT of the nav/More list and gets a "📺 What to Watch" link/box on `/matchup` instead — that's where he said to put it.
+  **(3) Pick'em → boxed into Scoreboard.** `/pickem` is a weekly pick contest, same cadence as `/scoreboard` ("This Week") — a link/box there, out of the nav.
+  **(4) Races → boxed into Scoreboard.** `/races` (playoff race, points crown, the toilet) is league-wide standings movement, week over week — same home, out of the nav.
+  **(5) My Team + Matchup: cross-link, NOT merged.** Both are substantial (348 and 439 lines) and both are already in the primary 5 — collapsing them risks the exact "too busy" complaint the war room already got. Proposing a "Full Team →" link on Matchup's own-roster panel and a "This week's matchup →" link on Team, instead of a page merge.
+  **NOTHING IS DELETED** — every route stays live, per Rule 3c's spirit extended to pages: this is a nav-visibility change, not a content change, so no page and no link Cory currently uses goes 404.
+  **ASK:** approve this map (as-is, or redirect any of the five placements) before I touch `header.ejs`/`matchup.ejs`/`scoreboard.ejs` — this is the "argue about a list, not a rebuild" step the ask itself calls for.
+  **DEFAULT if no reply by 08-19 EOD:** I build exactly this map — CSS/EJS only, `public/css`, `views/partials/header.ejs`, `views/matchup.ejs`, `views/scoreboard.ejs`; no `app.js`/`public/js/draft/**` changes, no route removals.
+
 > ### ⚡ ONE ASK — everything below is evidence, not instructions
 > **MERGE `claude/fantasy-football-research-926y6z`.** It carries the CI fix that
 > unbroke `main`, the freeze's `engine_policy`, the drift check's positional split,
