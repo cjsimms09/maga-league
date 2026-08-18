@@ -1803,9 +1803,25 @@
      * pick lands anywhere, `pickEvents` is non-zero and the room's clock takes
      * over exactly as before. Live-draft behaviour is unchanged. */
     const ps = pickState();
+    const mine = ((state.data || {}).pick_order || {}).my_picks || [];
     if (ps.pickEvents === 0) {
-      const mine = ((state.data || {}).pick_order || {}).my_picks || [];
       if (mine.length) return mine[0];
+      return ps.currentPick;
+    }
+    /* MANUAL MODE AFTER THE FIRST PICK (B's rehearsal find, 2026-08-17: the
+     * draft-night fallback clock broke ON THE VERY FIRST TAKE). pickEvents
+     * counts MARKS, and in the fallback Cory marks mostly his own picks — so
+     * one mark read "pick 2" while his pick landed at overall 33, and every
+     * consumer (legality's picksLeft, LRM windows, mustDraftNow) inherited a
+     * clock stuck near the top of the draft. My recorded picks sit on KNOWN
+     * slots by construction, so once k of my picks exist the room has
+     * necessarily passed mine[k-1]: the clock is bounded below by
+     * mine[k-1]+1. max() keeps the diligent path exact — marking every
+     * opponent still advances the clock past the bound — and sync mode never
+     * reaches this line. */
+    const myTaken = (state.myRoster || []).filter(function (p) { return !p.is_keeper; }).length;
+    if (myTaken > 0 && mine.length >= myTaken) {
+      return Math.max(ps.currentPick, (mine[myTaken - 1] || 0) + 1);
     }
     return ps.currentPick;
   }
@@ -10002,6 +10018,13 @@
     }
     state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
+    /* KEEPERS ARE PLACEMENTS, NOT PICKS (found by the fallback-clock rehearsal
+     * scenario, 2026-08-18): ending a draft clears the roster but Cory's
+     * keepers pre-exist any draft — leaving them off tripped the keepers-vs-
+     * my_picks alarm ("your 0 keepers mean you own 15 picks... the board is
+     * giving you 12") on a freshly cleared board. Re-seed exactly as boot
+     * does. */
+    populateKeepers(state.data);
 
     ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
       const el = $(sel); if (el) el.style.display = 'none';
@@ -10598,6 +10621,10 @@
       seat: seat,
       describe: seat && typeof DraftSeat !== 'undefined' ? DraftSeat.describe(seat) : null,
       audit: audit,
+      // The manual-fallback clock, for the rehearsal harness (B's 2026-08-17
+      // first-take find) — the number every pick-dependent surface consumes.
+      clock: currentPick(),
+      myPicks: ((state.data || {}).pick_order || {}).my_picks || [],
       myRoster: (state.myRoster || []).map(p => p.position + ' ' + p.name),
       rosterSlotsSeen: rosterSlotsSeen,
       mock: state.mockMode || null,

@@ -605,8 +605,17 @@
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
       ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)],
-      ['VONA', s && s.components && s.components.vona != null ? s.components.vona.toFixed(1) : '—'],
-      ['Composite score', s ? s.score.toFixed(1) : '—'],
+      /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
+       * most of the board — the engine scores only the shortlist-depth slice
+       * each pick, so a rail/board click outside it has no s. A blank the
+       * reader cannot distinguish from "zero" or "broken" fails the honesty
+       * bar; the caption names the mechanism. On-demand scoring for any
+       * clicked player is the real fix, registered for post-08-22 (it re-runs
+       * the engine per click mid-draft — not a change to rush at draft-4). */
+      ['VONA', s && s.components && s.components.vona != null ? s.components.vona.toFixed(1)
+        : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
+      ['Composite score', s ? s.score.toFixed(1)
+        : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
       ['VORP', num(p.vorp, 1)],
       ['ADP vs our rank', num(p.adjusted_adp) + ' <span class="muted">adp</span> · #' + num(p.overall_rank) + ' <span class="muted">ours</span>'
         + (p.adjusted_adp != null && p.overall_rank != null
