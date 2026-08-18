@@ -412,6 +412,31 @@ What that looks like on Saturday, measured on today's board:
 **22 of the top 25 by that dollar figure are quarterbacks. On the board's own
 ranking, one is.**
 
+### ⚠️ AND FIFTEEN CEILINGS IN YOUR RANGE ARE COHORT AVERAGES, NOT CLAIMS ABOUT THAT PLAYER (register 4v)
+
+**If you are about to take somebody because the ceiling is big, check this list
+first.** These fifteen carry `proj_ceiling_source: measured-2023-25-p90` — a real
+measurement, but of their **rank band**, not of them:
+
+**Malik Nabers (WR, ADP 28)** · **Garrett Wilson (WR, 41)** · **Jayden Daniels
+(QB, 57)** · Jadarian Price (RB, 58) · Carnell Tate (WR, 67) · Jordyn Tyson (WR,
+83) · Jonathon Brooks (RB, 90) · Makai Lemon (WR, 96) · **Jayden Reed (WR, 110)**
+· Kyler Murray (QB, 123) · Theo Wease (WR, 124) · De'Zhaun Stribling (WR, 136) ·
+KC Concepcion (WR, 138) · Malik Willis (QB, 153) · Jonah Coleman (RB, 154)
+
+The tell is that the numbers repeat: Nabers, Garrett Wilson and Jayden Reed all
+carry a ceiling/mean ratio of **1.4388**; Kyler Murray and Malik Willis both
+**1.6081**. Every other skill player in your range carries a ratio measured from
+his own week-to-week volatility, and those spread by 5–15% inside the same band.
+
+**It also moves the money number**, because the largest coefficient in the dollar
+model (0.22) multiplies `ceiling − mean` — so for these fifteen, the dominant
+term of the E[$] figure above is the cohort constant. **4v and the dollar problem
+are the same screen.**
+
+**Nothing is wrong with their projections** — only with reading their ceiling as
+a statement about them. B's default is to grey or asterisk these on screen.
+
 **Two other places the same number leaks, so you know them when you see them:**
 
 - **The paths panel's "◆ the &lt;plan&gt; branch" badge.** It marks the path
