@@ -981,7 +981,34 @@
     return rate * (player.vorp || 0) - forgone;
   }
 
-  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15, OFF BY DEFAULT.
+  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15.
+   *
+   * ⚠️ "OFF BY DEFAULT" WAS TRUE WHEN WRITTEN AND IS NOT NOW (session E,
+   * 2026-08-17; register E22). `CFG.VONA_WIRE_BENCH` was ruled ON 2026-08-16.
+   * The flag reads as enabled and the branch still cannot do its job, for TWO
+   * independent reasons, and only the first is already on the record:
+   *
+   *   1. FILED ALREADY (ROUTES, 2026-08-16): the branch is unreachable while
+   *      `VONA_SLOT_AWARE` is false, because `vona()` returns `straight` at the
+   *      top. Ruling pending; not this lane's to re-file.
+   *
+   *   2. NOT PREVIOUSLY FILED, AND IT CHANGES THE REMEDY: even reachable, the
+   *      DATA never arrives. `app.js:2079` reads `state.data.wire_level`, and
+   *      **`build.py` never writes `wire_level` onto the board** — the artifact
+   *      `draft/data/wire_level.json` is committed and real (422 scored
+   *      acquisitions, 2023-25) but is not joined into `public/draft_data.json`.
+   *      So `ctx.wireWeekly` is null in production.
+   *
+   * MEASURED with `VONA_SLOT_AWARE` forced true: supplying the committed
+   * artifact changes **65 player scores** at pick 93 (e.g. Joe Flacco −198.55 →
+   * −155.29). So the remedy on file — "finish slot-aware so the branch is
+   * reachable" — is NOT SUFFICIENT on its own: the branch would run and take its
+   * fallback for every player.
+   *
+   * AND THE FALLBACK IS THE WRONG ONE TO BE TAKING WHOLESALE. The `wb == null`
+   * path below is documented as the K/DEF case ("nflverse is offense-only"), i.e.
+   * a per-POSITION gap. With the map absent entirely, every position takes the
+   * two-position path.
    *
    * Cory's design, stated directly: "once you're drafting for bench (not a
    * starter slot), a duplicate shouldn't be compared to the best available in
