@@ -1,0 +1,14 @@
+{
+ "next_numeric_id": 51,
+ "history": [
+  {
+   "id": 47,
+   "claimed_at": "2026-08-18"
+  },
+  {
+   "id": "47-50 reconciled",
+   "claimed_at": "2026-08-18",
+   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
+  }
+ ]
+}
