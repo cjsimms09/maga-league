@@ -72,14 +72,21 @@ function parse(text) {
     if (m) {
       if (cur) out.push(cur);
       cur = { done: m[1] === 'x', date: m[2], who: m[3].trim(), section: section, body: [line] };
-    } else if (/^## /.test(line)) {
+    } else if (/^##/.test(line)) {
+      //: `/^##/` NOT `/^## ` — the archive's headings are `### (was ...)` and a
+      //: third hash sits where the space would be, so the old pattern skipped
+      //: them entirely and every archived item inherited the wrong section.
       if (cur) { out.push(cur); cur = null; }
       // THE SECTION IS THE RECIPIENT, and without it this report names the wrong
       // lane. Most items carry no explicit "→ X", so falling back to the header
       // line attributes them to whoever WROTE them — printing "waiting on C" for
       // 83 items C is waiting on someone else for. A latency dashboard that
       // reverses the direction of the wait is worse than no dashboard.
-      const s = /^##\s*TO:\s*(.+?)\s*$/.exec(line);
+      // `## TO: X` in the inbox, and the archive's `### (was `## TO: X`)` form —
+      // added 08-18 when 101 closed items moved out and the closure census read
+      // them as section-less, which reported `A → B 15 -> 0` as a regression.
+      const s = /^##\s*TO:\s*(.+?)\s*$/.exec(line)
+        || /^###\s*\(was\s*`##\s*TO:\s*(.+?)`\)\s*$/.exec(line);
       section = s ? s[1] : null;
     } else if (cur) {
       cur.body.push(line);
@@ -259,8 +266,30 @@ function main() {
    * a low rate can be a genuine backlog or pure bookkeeping, and no static rule
    * tells those apart. The asymmetry is the thing to look at.
    */
+  /* ⚠️ CLOSURE IS COUNTED ACROSS ROUTES.md **AND** ROUTES-ARCHIVE.md, AND THE
+   * RATCHET'S FIRST REAL EVENT IS WHY.
+   *
+   * 2026-08-18: Cory asked for the moot items to go, so 101 closed pre-08-17
+   * items moved to the archive. The ratchet fired immediately — `C → A: 68 -> 3`,
+   * `A → B: 15 -> 0` — because it was reading one file and the closures had
+   * moved to the other.
+   *
+   * **The right fix is not a baseline edit.** An archived item is still CLOSED;
+   * it has not come un-done, and letting "I archived it" silence the ratchet
+   * would be the loophole this whole check exists to avoid. So the closure
+   * census reads both files, which makes it immune to archiving while still
+   * catching the thing it was built for: a ticked item going untucked.
+   *
+   * The BLOCKED count deliberately still reads only `ROUTES.md` — an archived
+   * item is not in anybody's inbox, so it cannot be blocking anybody. */
+  let censusItems = items;
+  try {
+    censusItems = items.concat(parse(fs.readFileSync(
+      path.join(ROOT, 'ROUTES-ARCHIVE.md'), 'utf8')));
+  } catch (e) { /* no archive yet — the census is simply ROUTES.md */ }
+
   const pairs = {};
-  items.forEach(function (i) {
+  censusItems.forEach(function (i) {
     if (!i.section) return;
     //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
     //: keying on it raw prints "relay → A → A" and splits one pair into two.

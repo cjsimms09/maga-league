@@ -362,6 +362,32 @@ const CHECKS = {
           + '. Each frees one player at the boundary versus the ADP-window model.'
         : ', so the ADP window and the real removals coincide, as the study predicted.') };
   },
+  /* THE SWEEP CORY ASKED FOR, WITH A DATE AND A MECHANICAL TEST.
+   *
+   * "can we get rid of the moot tasks now then?" (2026-08-18). The 101 already
+   * TICKED pre-08-17 items moved to the archive that day. These are the other
+   * half — OPEN and old — and they were NOT swept on the relay's judgement,
+   * because burying live work is worse than a long file. Each lane got the list
+   * and a stated default: archived 08-25 unless they say otherwise.
+   *
+   * MET is a property of the file, not a claim that the sweep happened. */
+  'routes-old-open-swept': () => {
+    const txt = readText('ROUTES.md');
+    if (txt === null) return { code: 2, why: 'cannot read ROUTES.md' };
+    const ITEM = /^- \[( |x)\] (\d{4}-\d{2}-\d{2}) ·/;
+    let old = 0, total = 0;
+    txt.split('\n').forEach(l => {
+      const m = ITEM.exec(l);
+      if (!m) return;
+      total++;
+      if (m[1] === ' ' && m[2] < '2026-08-17') old++;
+    });
+    if (!total) return { code: 2, why: 'no ROUTES items parsed — the row shape changed' };
+    return old
+      ? { code: 1, why: old + ' item(s) of ' + total + ' are still OPEN and older than '
+          + '2026-08-17. Tick them, annotate them as live, or archive them.' }
+      : { code: 0, why: 'no open item older than 2026-08-17 remains, across ' + total + ' items' };
+  },
 };
 
 if (require.main === module) {
