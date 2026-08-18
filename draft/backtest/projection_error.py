@@ -526,6 +526,33 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
         cfg = store.league_config()
         act = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
         if not act:
+            # ── 4s: WE HOLD THIS SEASON — DO NOT THROW IT AWAY ──────────────
+            # The live nfl.import_weekly_data fetch failed silently for a
+            # season whose graded points ALREADY SIT COMMITTED in
+            # nflverse_weekly_points_<season>.json (the store every other
+            # study grades against). 2025 was dropped exactly this way and
+            # the artifact reported success with the most relevant season
+            # missing. The store carries {week -> {points: {pid: pts}}} under
+            # OUR scoring; summing weeks IS the season-total actual this loop
+            # wants. The store's known zero-point-row drop (884 player-weeks
+            # in 2025) is harmless HERE: a dropped zero contributes zero to a
+            # sum. A season with neither a live fetch NOR a committed store
+            # still skips — loudly, and persisted (part 2 below).
+            store_path = _Path(__file__).resolve().parent / (
+                "nflverse_weekly_points_%d.json" % season)
+            if store_path.exists():
+                doc = __import__("json").loads(store_path.read_text())
+                totals = {}
+                for wk in doc.get("weeks") or []:
+                    for pid, pts in (wk.get("points") or {}).items():
+                        totals[str(pid)] = totals.get(str(pid), 0.0) + float(pts)
+                if totals:
+                    act = totals
+                    skipped.append({"season": season, "reason":
+                                   "live weekly fetch empty — graded from the "
+                                   "COMMITTED points store instead (4s)",
+                                   "recovered": True})
+        if not act:
             skipped.append({"season": season, "reason": "nothing gradeable"})
             continue
         bundles.append(_rostered_only(bundle))
@@ -552,6 +579,11 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
     # feels done and changes nothing. Register 4r.
     cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
                     only_positions=CALIBRATION_POSITIONS)
+    # ── 4s: A DROPPED SEASON MUST LEAVE A TRACE. calibrate()'s dict is what
+    # gets serialised, so the skip record is attached HERE, before save() —
+    # the previous code assigned it to a variable the artifact never saw. An
+    # entry with "recovered": True documents a live-fetch failure that the
+    # committed store absorbed; one without it is a season genuinely absent.
     cal["skipped_seasons"] = skipped
     return cal
 

@@ -168,3 +168,30 @@ def test_the_driver_still_passes_the_filter():
         "projection_error.regenerate() no longer passes `positions`. THIS is the "
         "entry point projection-error-calibration.yml runs — fixing cli.py alone "
         "leaves the contaminating path wide open.")
+
+
+def test_the_artifact_names_every_season_it_fitted_or_dropped():
+    """4s: the regeneration silently lost 2025 — the most relevant season —
+    because a swallowed live-fetch error skipped it, the skip list was never
+    serialised, and the artifact reported success looking complete. The pin:
+    every CALIBRATION_SEASON is either IN `seasons` or NAMED in
+    `skipped_seasons` with a reason. A dropped season that leaves no trace is
+    worse than a crash. (The committed-store recovery in regenerate() means a
+    transient fetch blip on a season we hold now grades from the store and
+    records itself with `recovered: True` instead of vanishing.)"""
+    import json
+    art = json.loads((ROOT / "draft" / "backtest" /
+                      "projection_error_calibration.json").read_text())
+    fitted = {int(s) for s in (art.get("seasons") or [])}
+    skipped = {int(e.get("season")) for e in (art.get("skipped_seasons") or [])
+               if e.get("season") is not None}
+    import sys
+    sys.path.insert(0, str(ROOT / "draft" / "backtest"))
+    import projection_error as PE
+    missing = [y for y in PE.CALIBRATION_SEASONS
+               if y not in fitted and y not in skipped]
+    assert not missing, (
+        f"seasons {missing} are neither fitted nor named in skipped_seasons — "
+        "a season lost without a trace, the exact 4s failure. If the artifact "
+        "predates the 4s fix, regenerate it (projection-error-calibration.yml).")
+
