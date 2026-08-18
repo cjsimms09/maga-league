@@ -201,6 +201,29 @@ check('survival is dead DESPITE being active — the finding worth pinning',
 // And nothing UNEXPECTED is dead: anything dead that is neither zero-weighted nor
 // survival is a term that stopped firing without anyone deciding it should.
 const unexpected = deadSet.filter(t => t !== 'survival' && ZERO_WEIGHTED.indexOf(t) === -1);
+
+// WHY THIS IS RED, MEASURED 2026-08-18 — the answer is `keeper`, and it is NOT
+// the keeper-vorp bug (that was the obvious guess; the rebuild landed vorp
+// 94.0/59.1/46.2 on the three keepers and this stayed red, so it is graded FALSE
+// in PREDICTION-LEDGER P61).
+//
+// Cory's keepers cost rounds 1, 2 and 3, so his FIRST PICK IS 33. Keeper option
+// value lives in the players taken in exactly those rounds — on the live board it
+// reaches 36.1 (Gibbs), 33.3 (Bijan), 26.5 (Nacua), 21.8 (Bowers). At pick 33 the
+// entire remaining board tops out at 2.15 and at every later pick it is 0.00. He
+// is paying for the keepers with the picks that could have bought new keeper value.
+//
+// So `intervention_rate.js` now reports reachability, and it splits this cleanly:
+//   deadUnreachable  tier, bye, need, risk, survival   board max 0.00 — no player
+//                                                      could have triggered them
+//   deadDefect       keeper                            board max 2.15
+//
+// AND THAT 2.15 IS THE WHOLE RULING, because MATERIAL is 2.00. The term is
+// "reachable" by $0.15, on ONE of 120 simulated picks, by a player the engine
+// correctly did not rank first. Whether that counts as reachable is a judgement
+// about where the materiality bar sits, and it is A's to make — the same reason
+// DG_NOISE_BAND was NOT moved to green the doctrine checks the same night. Tuning
+// a second constant to a second test would be the same mistake twice.
 check('no term is dead unexpectedly', unexpected.length === 0,
   'unexpectedly dead: ' + JSON.stringify(unexpected));
 
