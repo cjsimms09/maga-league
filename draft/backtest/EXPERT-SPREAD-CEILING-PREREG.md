@@ -172,3 +172,52 @@ runs **0.7 → 85.4, median 25.8.** They genuinely disagree. Does not fire.
 **None of the three kill conditions fired.** The line is worth grading — which is
 §3's job, against 2023–2025, and **§4's ship date does not move.** The board's
 ceiling column is unchanged for 08-22.
+
+---
+
+## 7. ⚠️ VALIDITY CONSTRAINT FOUND 2026-08-18 — THE HISTORICAL RANKS ARE NOT PURELY PRESEASON
+
+**This was found by a check, not by luck, and it is recorded before any arm was
+graded.** §3 grades a season's *preseason* expert ranks against that season's realized
+points. If FantasyPros revised those ranks during the season, an arm reads hindsight
+and **scores beautifully while being worthless.**
+
+The first version of `fp_expert_ranks.py` dropped FP's `last_updated` — register 22's
+defect (*"we keep one scalar and discard the rest"*) reappearing in the fetcher
+written to fix the ceiling. It is now persisted, and the first value it returned is
+the reason it had to be:
+
+> **2025 store: `last_updated_ts` = 1757083656 → 2025-09-05 14:47 UTC.**
+> The 2025 season opened **2025-09-04**. **The ranking was last revised AFTER kickoff.**
+
+**What this does and does not mean.**
+
+* It is **not** end-of-season hindsight. It is a *draft* ranking (`week=0`,
+  `type="Draft Half PPR"`), revised to roughly the end of the real draft window.
+* It **is** later than a real drafter's information set. A rank stamped 09-05 carries
+  final injury and holdout resolution, cut-day news, and at least the Thursday-night
+  week-1 result — none of which Cory has on **08-22**.
+* **The endpoint overwrites.** There is no retrospective pre-draft snapshot to fetch
+  instead. This contamination cannot be fixed by fetching differently; it can only be
+  measured and bounded.
+
+**Consequences, fixed now rather than argued later:**
+
+1. **Every graded season must report its own `last_updated`** beside its result. A
+   season whose ranking postdates that season's **week 3** is **EXCLUDED**, not
+   caveated — by then the ranking is reacting to outcomes it is being graded on.
+2. **The SHUFFLE null does most of the work here.** Hindsight inflates a live arm and
+   its shuffled twin alike only if it is generic; if `experts=show` were leaking
+   outcomes, ECR-MIN would beat SHUFFLE by a margin that also shows up as an
+   implausibly strong result on the *shallow* players nobody's opinion moved. Both are
+   reported.
+3. **The 2026 store is uncontaminated by construction** — the season has not happened.
+   It cannot be graded, but it is the honest input for any board that ships after
+   08-22, and its screens (§6) stand.
+4. **This constraint is stated as a discount on the result, in advance.** If an arm
+   beats BASE by a small margin on 2023–2025, that margin is **not** clean evidence,
+   because roughly one game plus final camp news sits inside the ranks. A small win
+   does not ship.
+
+**Owner of the check: C** (`ROUTES.md`). **A does not rule until C reports every
+graded season's `last_updated`.**

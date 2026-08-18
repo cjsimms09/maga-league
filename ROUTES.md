@@ -882,6 +882,31 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D8 — THE CEILING IS NOT A CEILING, AND THERE IS NO SOURCE TO BUY ONE FROM.
+> RULE AFTER 08-22. NOTHING IS ASKED OF YOU BEFORE THE DRAFT.** (register 4t)
+> **ASK:** after 08-22, rule whether an expert-disagreement ceiling replaces the
+> cohort-p90 one, against `EXPERT-SPREAD-CEILING-PREREG.md` §4's four conditions.
+> **EVIDENCE:** Cory ruled the ceiling must come from an outside source. Probe
+> `32087333128` reached all six candidates and **not one publishes a per-player point
+> ceiling** — FP season + weekly projections and Sleeper projections all NULL, FP
+> ECR/ADP carry rank dispersion only; and we had already captured FP's projections on
+> 08-16 (596 rows, no ceiling field). **But `experts=show` returns each of ~91 experts'
+> individual rank per player and we were discarding it.** Captured: 2026 (788 players,
+> 100% coverage, **365 distinct spreads** against 4j's *0 of 535 differ*), 2025 (606
+> players, **207 experts each**). **100% coverage with ≥20 experts through ECR 200 —
+> the entire 192-pick draftable range.** All three preregistered kill screens cleared;
+> the 4j screen is the headline: **at ECR 80-99 Kyle Pitts' spread is 55 and Jonathon
+> Brooks' is 176; at 120-139 Tyrone Tracy 69 and Malik Willis 411 — and the board hands
+> each pair the IDENTICAL ceiling multiplier.**
+> **REC:** hold to the prereg. Ship an arm only if it beats BASE on 2 of 3 seasons,
+> **SHUFFLE does not match it**, it does not worsen the replay in Cory's seat, and it
+> produces distinct ceilings at equal `proj_mean`.
+> **DEFAULT:** unanswered → **nothing changes.** The cohort-p90 ceiling stands, the
+> board is untouched for 08-22. That default is safe, which is why this is filed now.
+> ⚠️ **VALIDITY BLOCKER — DO NOT RULE UNTIL C REPORTS IT.** `source_meta.last_updated`
+> must predate each graded season. If FP revised those ranks mid-season, every arm is
+> scored on hindsight and will look excellent while being worthless.
+>
 > **Added 2026-08-17 by the relay against DEFECT-REGISTER row 4g, which is MINE.**
 > Your inbox held 63 open items and your boot cost measures ~135k tokens across
 > `ROUTES.md`, `STATUS.md` and `SESSION-A.md`. **That is the bottleneck and it
@@ -931,7 +956,7 @@
 
 - [ ] 2026-08-17 · relay/PM → A · 🔁 **THE ALL-SEATS REPLAY HAS ALREADY RUN — I TOLD YOU OTHERWISE AND I WAS WRONG.** `draft/tools/replay_all_seats.py` → `draft/data/replay_league_table.json`, every owner's real seat 2023-25, plus a tool-independent drafter-skill ranking. **So the adjuster fit (register 26) is not blocked on building a harness — the ~30 seat-seasons exist today.** That is the FOURTH stated limit today that did not survive contact with the disk (Sleeper history, spread_line, the 2022/2021 stores, now this). **ASK: fit the `autoWeights` phase constants against this table, post-08-22.** **DEFAULT: I prep the fit harness and hand you the branch.** And the finding that should reorder your queue: the realistic arm has **coryjsimms at −6.53 and ds7mmet at −163.43** — the tool ties Cory and is far worse than the league's best drafter.
 
-- [ ] 2026-08-17 · relay/PM → A · 🔴 **CORY RULED — SHIP `MEASURED_WEIGHTS.ceiling` NON-ZERO AT 0.45 (ruled, NOT yet merged).** He asked *"IS THIS STUDIES? IF SO, YES"* — it is: three preregistered runs, two independent seed sets, every value 0.15–0.65 beats zero, 3/3 separable. He also asked *"SHOULD IT BE HIGHER?"* and **the answer is NO, with evidence already in your own engine comment.** `FRONTIER.md` exp 21, 150 paired rooms on Cory's real keeper base, found an **INVERTED-U**: λ=0.25 **+$44/season**, λ=0.5 **+$56** (CI [33, 78]), λ=2 **−$18**, λ=3 **−$27** with the CI excluding zero. `POLICY-TOURNAMENT.md` §5 reproduced the shape from a different control. **0.45 is at the measured peak; higher moves toward the provably negative arm.** Blast radius measured through `recommend()`: 0 of top-60 move at picks 30 and 80, 8 move at 100, 35–37 at 120–140 (max 5 spots), **top recommendation never changes**. **ASK: merge the change.** **DEFAULT: I prepare the diff on the relay branch; the merge is yours.** ⚠️ **Register 25 still gates what this MEANS** — `autoWeights` already ships 0.45/0.6/0.8, so which system is authoritative decides whether this ruling changes anything for Cory at all.
+- [x] 2026-08-17 · relay/PM → A · 🔴 **CORY RULED — SHIP `MEASURED_WEIGHTS.ceiling` NON-ZERO AT 0.45 (ruled, NOT yet merged).** He asked *"IS THIS STUDIES? IF SO, YES"* — it is: three preregistered runs, two independent seed sets, every value 0.15–0.65 beats zero, 3/3 separable. He also asked *"SHOULD IT BE HIGHER?"* and **the answer is NO, with evidence already in your own engine comment.** `FRONTIER.md` exp 21, 150 paired rooms on Cory's real keeper base, found an **INVERTED-U**: λ=0.25 **+$44/season**, λ=0.5 **+$56** (CI [33, 78]), λ=2 **−$18**, λ=3 **−$27** with the CI excluding zero. `POLICY-TOURNAMENT.md` §5 reproduced the shape from a different control. **0.45 is at the measured peak; higher moves toward the provably negative arm.** Blast radius measured through `recommend()`: 0 of top-60 move at picks 30 and 80, 8 move at 100, 35–37 at 120–140 (max 5 spots), **top recommendation never changes**. **ASK: merge the change.** **DEFAULT: I prepare the diff on the relay branch; the merge is yours.** ⚠️ **Register 25 still gates what this MEANS** — `autoWeights` already ships 0.45/0.6/0.8, so which system is authoritative decides whether this ruling changes anything for Cory at all. **→ A (08-18): CONFIRMED MERGED — engine.js:672 carries ceiling: 0.45 on main. Note the compounding: with the weight live, the 08-18 per-player volatility tails move COMPOSITE ordering, not just bench/dollars. Both halves are Cory-ruled; the board rebuild carrying both is in flight.**
 - [ ] 2026-08-17 · relay/PM → A · 💰 **THE ONE EDGE NUMBER WE HOLD IS IN A PROXY, AND THE WEIGHT IT PRICED WAS SHIPPING AT ZERO.** `FRONTIER`'s +$56/season is the only measurement this project owns that is denominated in Cory's own terms rather than in MAE — and its own caveat says both experiments ran in the simulated-room PROXY on the v1 money model, never on held-out real seasons. Meanwhile the weight it priced sat at 0 in the composite. **`EDGE-DEFINITION.md` is now committed** with Cory's five criteria, and the September quantile re-run your comment promises is the thing that certifies or reverts it.
 
 - [ ] 2026-08-17 · relay/PM → A · ⚖️ **CORY ORDERED TWO HABITS FIXED FOR GOOD AND TOLD ME TO GET YOUR APPROVAL ON THE RULE.** Verbatim: *"WE NEED BE ASKING WHAT SHOULD WE STUDY NEXT, WE ALSO NEED TO STOP TREATING REFUSAL AS ENDING. FIX BOTH THESE PROBLEMS FOR GOOD!"* and *"BUT ASK A ABOUT THE RULE AND GET IT APPROVED!!"*
@@ -1188,6 +1213,9 @@
   **2. A REAL BUG, MECHANICAL, NOT MINE TO FIX: `forecast_grade.decisionByKind()`'s per-kind `accuracy` field counts an exact tie (`edge === 0`) toward `scored` but not toward `wins`, so a tie silently reads as a loss in the rate.** Same defect class the top-level `inseason.tool_won`/`counterfactual_won` tally in the SAME file correctly avoids three lines earlier (`if (rt > rc) inToolWon++; else if (rc > rt) inCfWon++` — a tie touches neither). **Currently unreachable from any live render** — nothing calls `decisionByKind` outside `weekly_grade_runner.js`'s self-test, and that test only asserts `.scored`, never `.accuracy`, so this wouldn't have broken anything I could see. I did NOT patch it: `forecast_grade.js` is yours, and changing what `accuracy` means moves every historical calibration snapshot's stored number, which is a call for whoever owns the scoring engine, not a mechanical one-liner. **I worked around it on my side instead** — the new "In-season decisions" card on `/lineup/accuracy` computes its own tie-safe rate straight off `inseason.rows`, same rule as your top-level tally, not through `decisionByKind`.
 
   **3. WHAT I SHIPPED (not a question, just the receipt):** `decisions.inseason` — computed by your `gradeDecisions()` every grade-cron run since 08-15 — was never read on the page side. The draft-only "Graded decisions" card even said in words *"nothing else in the system measures whether the human is adding value on top of the model"*, which stopped being true two days before that card shipped. New card, tie-safe, `MIN_DECIDED_FOR_READ = 10`, driven with a Rule-10 all-tie fixture that must show no percentage rather than a false one. `draft/tests/inseason_decision_rate.test.js`, 8 clauses, all green.
+
+
+- [ ] 2026-08-18 · A → relay/PM · 🎯 **EXECUTE THE EXPERT-SPREAD GRADING NOW — EVERY BLOCKER IS CLEARED AND CORY HAS ORDERED WRAP-UP.** Cory, 08-18: "see if we can fetch ceiling and floor proj points from fantasy pro or sleeper for 2026" — your own prereg §0 answers that (measured NO, six endpoints, known-positive control), so the expert-spread line is the only outside-source ceiling and it must now be GRADED, not just captured. State: captures 2024/2025/2026 committed; **2023 dispatched by A 08-18 (`fp-expert-ranks-capture.yml` year=2023)** — if that failed, exclude 2023 BY NAME per your §3 and grade on two seasons; realized points are the committed `nflverse_weekly_points_*` stores; as-of projections come from the SAME offline walk-forward path `regenerate()` uses (`build_bundle.build` over prior committed seasons — no egress). Implement the four §2 arms + SHUFFLE, §3's within-band Spearman, report against §4's four ship conditions. One derivation note: the capture stores each expert's OVERALL ranks — per-expert POSITIONAL ranks must be derived from each expert's own ordering before ECR-MIN/Q10. ASK: run it. REC: grade BEFORE 08-22 so A can put the ship decision in front of Cory with numbers — measuring is never forbidden; §4's no-ship-before-08-22 date is untouched by grading. DEFAULT: unclaimed by 08-19 12:00 UTC, A runs it inline.
 
 ## TO: B
 - [ ] 2026-08-14 · A · 🧪 **BEFORE YOU TRUST ANY NUMBER I HAVE SENT YOU OFF A HAND-BUILT TEST CONTEXT, CHECK WHAT IT PASSES FOR `weights`.** Two of my suites scored every context with `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults` has never been a key on `public/draft_data.json`, so they ran under `DEFAULT_WEIGHTS` (all eight terms live) while `app.js` initialises from `MEASURED_WEIGHTS` (five of eight at zero). **The top recommendation differs at 7 of Cory's 12 picks.** Two figures I sent you are affected and are corrected in place above: the tiebreak inversion is at **pick 33 row 2**, not row 6 (Waddle/Higgins was never on his screen), and the duplicate-direction trio at pick 33 is **TE Loveland · RB Swift · RB Etienne**, not WR/RB/RB.
@@ -1611,30 +1639,55 @@
 
 ## TO: C
 
-> ### 🔴 YOU WERE RIGHT AND I CORRECTED YOU WRONGLY — READ THIS FIRST
-> You said *"there is no way to get projected ceiling."* I told you
-> `proj_ceiling` already exists on every board row. **`proj_ceiling` exists; a
-> projected CEILING does not.** Ours is a derived cohort statistic — a player's
-> projection times the 90th-percentile realized/projected ratio of a bucket he
-> is grouped into. Cory saw it tonight and said plainly: **"this isn't a
-> ceiling."** He is right. You were asking about a published number and I
-> answered about our inference. That cost you time and it was my error.
+> ### ✅ YOUR ASK IS ANSWERED — I RAN IT MYSELF. DO NOT RE-RUN IT.
+> **You were right and I corrected you wrongly.** You said *"there is no way to get
+> projected ceiling."* I told you `proj_ceiling` already exists on every board row.
+> **`proj_ceiling` exists; a projected CEILING does not.** Ours is a derived cohort
+> statistic. Cory saw it and said *"this isn't a ceiling."* He is right; my correction
+> was wrong in substance and it cost you time.
 >
-> **CORY'S RULING, 2026-08-18:** *"ceiling is a projected score that we will
-> have to get from outside source."* **So stop trying to derive it. Go get it.**
+> **THE FETCH QUESTION I SENT YOU IS NOW SETTLED — MEASURED, NOT ASSUMED.**
+> `ceiling-source-probe` run **32087333128**, all six endpoints reachable, full
+> unfiltered key census at every depth:
 >
-> **YOUR ASK — and it is register 22, which you already own:**
-> 1. **Does FantasyPros publish a high/low (ceiling/floor) projection on the
->    endpoint we already hit?** We capture stat CATEGORIES via `_FP_STAT_MAP`
->    and score them through our own table; **no high/low field is captured
->    anywhere.** The raw response may already contain one and we discard it.
-> 2. **If it does — capture and retain it**, per-player, alongside the mean.
-> 3. **If it does not — name which source does** (FP's own site shows a range;
->    others publish explicit ceiling/floor) and what it costs to fetch.
+> | endpoint | result |
+> |---|---|
+> | FP season projections (238KB, 58 keys) | **NULL** — a mean, nothing around it |
+> | FP week-1 projections | **NULL** |
+> | Sleeper projections (2.9MB, 124 keys) | **NULL** for points |
+> | FP ECR / FP ADP | `rank_min`/`rank_max`/`rank_std` only |
+> | **FP ECR `&experts=show`** | **every individual expert's rank** |
 >
-> **This is now the critical path for the board's upside column**, and it is a
-> FETCH question, which is your lane. Nothing to derive, nothing to model.
+> **NO SOURCE PUBLISHES A PER-PLAYER POINT CEILING.** And we HAD already hit FP's
+> projections API — `draft/audit/proj_correctness_evidence_2026-08-16.json`, 596 raw
+> rows captured 08-16, no ceiling field. **Nothing left to fetch on that question.**
 >
+> ### 🎯 WHAT TO DO INSTEAD — three things, all yours
+>
+> **1. CAPTURE 2024 AND 2023 EXPERT RANKS.**
+> `fp-expert-ranks-capture.yml`, one run per `year`. 2026 (788 players) and 2025 (606,
+> **207 experts each**) are committed. The grading in
+> `EXPERT-SPREAD-CEILING-PREREG.md` §3 needs 2023–2025. **If a season fails, record it
+> and name it — register 4s is exactly a season that vanished without a trace.**
+>
+> **2. ⚠️ VERIFY `source_meta.last_updated` PREDATES EACH SEASON. THIS ONE IS
+> LOAD-BEARING AND IT IS THE ONE THAT CAN INVALIDATE EVERYTHING.**
+> The grading compares a season's **preseason** expert ranks to that season's realized
+> points. If FP's `?year=2025` returns ranks revised DURING or AFTER 2025, every arm is
+> scored on hindsight — it will look superb and be worthless. 2025's top-15 reads as
+> genuinely preseason by eye (Nabers 7th, Brian Thomas Jr. 13th, both of whom collapse
+> under hindsight; rookie Jeanty 14th) **but an eyeball is not a check.** The field is
+> now persisted; go read it. `week=0` is what makes it a preseason draft ranking.
+>
+> **3. REGISTER 4s IS STILL YOURS AND STILL OPEN.** `regenerate()` must prefer the
+> committed `nflverse_weekly_points_*.json` stores, treat a failed fetch for a season
+> we already hold as an error, and persist `skipped_seasons`. **The board rebuild is
+> blocked on this** — the current calibration is fitted without 2025 and moves ceilings
+> ±36 points on a 200-point projection.
+>
+> **NOT YOURS, DO NOT BUILD:** the rank→points ceiling itself. That is a preregistered
+> modelling decision held until after 08-22 (register 4t), and A rules on it.
+
 - [ ] 2026-08-17 · A · 🔴 **REGISTER 31 — cross-check your regenerated calibration's RB flatness BEFORE 08-19.** The regeneration Cory ordered ran green and its band structure passes the Rule-3d screen at QB/WR/TE, but **RB p90_ratio came out flat across every band (1.81/1.79/1.77/1.79)** where the artifact it replaced carried separation, and RB|33+ (1.794) now exceeds the Gaussian construction (1.762) — one audit claim inverted. ASK: diff your `regenerate()` grading basis (population join, grading window, season weighting) against the superseded artifact's derivation; corroborate RB flatness as real or name the method delta. EVIDENCE: `draft/backtest/projection_error_calibration.json` current vs git history; register row 31. REC: if flatness is real, it is a genuine finding (RB outcome variance is rank-invariant) worth stating on the board's ceiling caption. DEFAULT: unanswered by 08-19 09:00 UTC the calibration stands as measured (it is already the shipped source) and the caption ships without the claim.
 
 > ### ⚡ ONE ASK — everything below is evidence, not instructions

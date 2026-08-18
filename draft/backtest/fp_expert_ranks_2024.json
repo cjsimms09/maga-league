@@ -73118,6 +73118,18 @@
   "2559": "Ben Wasley",
   "5610": "Justin Jaksa"
  },
+ "source_meta": {
+  "last_updated": "9/06",
+  "last_updated_ts": 1725581975,
+  "year": "2024",
+  "week": "0",
+  "type": "Draft Half PPR",
+  "scoring": "HALF",
+  "ranking_type_name": "draft",
+  "total_experts": 220,
+  "count": 769
+ },
+ "hindsight_warning": "GRADING VALIDITY: `source_meta.last_updated` must predate the season this store is for. If FP revised these ranks DURING or AFTER the season, any arm scored on them is reading hindsight and will look excellent while being worthless. Check it before grading, do not assume it.",
  "coverage": {
   "players": 699,
   "with_experts": 699,
