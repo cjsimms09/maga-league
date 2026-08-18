@@ -157,7 +157,39 @@ def hindcast(n_worlds=N_WORLDS):
     return doc
 
 
+def write_live(season=2026, n_worlds=N_WORLDS):
+    """The week-1+ entry: publish public/season_forward_live.json for B's
+    widget. Refuses (stated, not silent) until the season has realized
+    weeks — running this preseason is a caller error, not an empty file."""
+    history = MG.load_history()
+    payouts = MG.load_payouts()
+    s = MG.season_of(history, season)
+    if s is None:
+        raise SystemExit(f"season {season} not in league history yet")
+    weeks = sorted(MG.field_weekly_scores(s))
+    rs = MG.regular_season_weeks(s)
+    done = [w for w in rs if w in weeks]
+    if not done:
+        raise SystemExit(f"season {season} has no realized regular-season "
+                         "weeks — the live feed starts after week 1, not before")
+    w = max(done)
+    odds = forward_odds(history, payouts, season, w, n_worlds=n_worlds)
+    out = {"_territory": "TERRITORY: A — season_forward_inseason.write_live",
+           "_validated_by": "season_forward_hindcast.json (P103 TRUE: week-8 "
+                            "Brier 0.072-0.131 vs 0.24 baseline, all seasons)",
+           "season": season, "as_of_week": w, "n_worlds": n_worlds,
+           "per_seat": odds,
+           "_shape_note": "provisional until B states render preferences "
+                          "(A -> B dispatch 08-18)"}
+    dest = HERE.parents[1] / "public" / "season_forward_live.json"
+    dest.write_text(json.dumps(out, indent=1))
+    print(f"wrote {dest.name}: season {season} through week {w}")
+    return out
+
+
 def main():
+    if "--live" in sys.argv:
+        return write_live()
     n = N_WORLDS
     if "--worlds" in sys.argv:
         n = int(sys.argv[sys.argv.index("--worlds") + 1])
