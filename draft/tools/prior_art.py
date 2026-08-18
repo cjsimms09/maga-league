@@ -43,6 +43,30 @@ ROOT = Path(__file__).resolve().parents[2]
 
 SEARCH_DIRS = ("draft/backtest", "draft/data", "draft/audit")
 
+#: THE MAILBOXES, ADDED 2026-08-18 AFTER THIS TOOL ALMOST FAILED AT ITS ONE JOB.
+#:
+#: P9 proposes a rookie ceiling from "draft capital + landing spot + team pace".
+#: `--grep capital` returned NOTHING MATCHED — while `ROUTES.md` carried A's
+#: measurement in plain sight: *"The capital-only rookie prior measurably failed
+#: (pooled optimal +1.6, realistic 6.9 points worse)."*
+#:
+#: The tool scanned only committed JSON, so **a result that was measured and
+#: written down, but recorded in prose rather than in an artifact, was invisible to
+#: the one tool whose entire purpose is finding prior work.** That is the same
+#: failure it was built to prevent, one level up. Prose hits are printed separately
+#: and labelled, because a sentence in a mailbox is weaker evidence than a graded
+#: artifact — but it is not NO evidence, and it was being treated as none.
+PROSE_FILES = ("ROUTES.md", "DEFECT-REGISTER.md", "PREDICTION-LEDGER.md",
+               "OPEN-QUESTIONS.md", "CORY-ASKS.md")
+
+#: Prose lines only count when they read like a MEASUREMENT, not a plan. Without
+#: this every mention of a topic would match and the signal would drown.
+MEASURED_RE = re.compile(
+    r"measur|graded|clears|verdict|failed|rho\b|ρ|p-?value|percentile|null|"
+    r"beats|does not (beat|predict|persist)|no (effect|signal|persistence)",
+    re.I,
+)
+
 #: Field names that carry a graded answer. Broad on purpose — a missed artifact costs a
 #: duplicated study, a spurious one costs a line of reading.
 VERDICT_KEYS = re.compile(
@@ -87,6 +111,23 @@ def scan(root: Path = ROOT, dirs=SEARCH_DIRS) -> list:
     return rows
 
 
+def prose_hits(root: Path, q: str, files=PROSE_FILES, cap: int = 12) -> list:
+    """Lines in the mailboxes that mention `q` AND read like a measurement."""
+    out = []
+    if not q:
+        return out
+    for name in files:
+        f = root / name
+        if not f.exists():
+            continue
+        for i, line in enumerate(f.read_text().splitlines(), 1):
+            if q in line.lower() and MEASURED_RE.search(line):
+                out.append((name, i, " ".join(line.split())))
+                if len(out) >= cap:
+                    return out
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--grep", default="", help="filter by substring (path or verdict text)")
@@ -95,6 +136,7 @@ def main() -> int:
 
     rows = scan()
     q = a.grep.lower()
+    prose = prose_hits(ROOT, q)
     if q:
         rows = [(p, v) for p, v in rows
                 if q in p.lower() or any(q in (k + s).lower() for k, s in v)]
@@ -103,15 +145,27 @@ def main() -> int:
     print("PRIOR ART — what this repo has ALREADY graded"
           + (f"   (filter: {a.grep!r})" if q else ""))
     print("=" * 78)
-    if not rows:
+    if not rows and not prose:
         print("\n  Nothing matched. That is a REAL answer — but check a second spelling")
         print("  before filing: 'pace' and 'plays_per_game' are the same question.")
         return 0
+    if not rows:
+        print("\n  No graded ARTIFACT matched — but see the prose hits below before")
+        print("  concluding this is unexplored.")
     for path, vs in rows:
         print(f"\n  {path}")
         for k, s in vs:
             print(f"    [{k}] {s[:a.width]}")
-    print(f"\n  {len(rows)} artifact(s) carry a graded answer.")
+    if prose:
+        print("\n  " + "-" * 74)
+        print("  ALSO MEASURED, BUT RECORDED IN PROSE RATHER THAN AN ARTIFACT")
+        print("  (weaker evidence than a graded file — and not NO evidence, which is")
+        print("   how this tool missed A's dead capital-only rookie prior on 08-18):")
+        for name, i, line in prose:
+            print(f"    {name}:{i}  {line[:a.width]}")
+
+    print(f"\n  {len(rows)} artifact(s) carry a graded answer"
+          + (f", {len(prose)} prose line(s) report a measurement." if prose else "."))
     print("  Read before filing. Two of the relay's own 08-18 rows duplicated work")
     print("  that was already sitting in these files.")
     return 0
