@@ -844,6 +844,37 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D13 — 📏 THE ONE NUMBER CORY'S WHOLE 2027 GOAL RESTS ON DOES NOT EXIST YET, AND
+> WE ARE ONE FIELD AWAY FROM NEVER HAVING TO FETCH FOR IT AGAIN.** (ledger P37/P38)
+> **THE GOOD NEWS FIRST:** the stated limit is dead. `model_accuracy_2025.json` says
+> *"Sleeper/FantasyPros past accuracy is unmeasurable — 2026 is the first gradeable
+> season, in January 2027."* **That is stale** — `sleeper_hist_proj.json` (2025 clean
+> on every leak gate) and `exp_fp_hist_proj.json` (2023–25, all authenticity gates
+> passed) were captured afterwards. **A three-way grade is possible NOW.**
+> **THE INDICATIVE PICTURE, 2025, our scoring:**
+> | pos | own_v6 ρ/MAE | Sleeper ρ/MAE | FP ρ/MAE |
+> |---|---|---|---|
+> | QB | **.7225 / 72.3** | .7941 / 58.3 | .7515 / 63.7 |
+> | RB | **.7968 / 37.5** | .7538 / 37.2 | .7649 / 37.6 |
+> | WR | **.7634 / 33.6** | .7724 / 34.9 | .7621 / 31.1 |
+> | TE | **.7987 / 23.3** | .8060 / 22.1 | .7824 / 22.5 |
+> **We already beat both at RB. We are last at QB by a wide margin.**
+> ⚠️ **BUT IT IS NOT A RESULT YET AND I WILL NOT PRESENT IT AS ONE:** the three cells
+> are computed on **different populations** (QB n = 58 / 70 / 71), and **the
+> intersection cannot be taken after the fact because none of the three graders
+> persists its per-player rows** — only the aggregated cells. I checked this
+> specifically after asserting the opposite; the `rows` keys in those artifacts are
+> integer COUNTS.
+> **ASK (P38, the cheap half): have the three graders persist per-player
+> `{player_id, projection, actual}`.** One field each, paid once, and every future
+> head-to-head becomes a re-analysis instead of another egress run. **Same family as
+> register 22 (*we keep one scalar and discard the rest*) and the `last_updated` field
+> that had to be added today for exactly this reason.**
+> **ASK (P37, the answer): re-run the three on the shared population** and settle
+> whether the QB gap is real. **REC: do P38 first — then P37 is a script, not a fetch.**
+> **DEFAULT: unanswered by 09-12, the relay proposes both as a branch.** Not before —
+> these are your graders and the draft has your attention until Saturday.
+>
 > **D12 — 🔴 MAIN IS RED AND IT IS YOUR OWN v25 FIX SETTING OFF AN ALARM THAT WAS
 > BUILT TO GO OFF. ONE LINE, YOUR FILE, 4 DAYS TO THE DRAFT.**
 > **WHERE:** `draft/tests/rec_rows.test.js:229-232`. Run `32090504374`, JS suites,
