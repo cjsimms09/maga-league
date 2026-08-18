@@ -7,6 +7,47 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 🔓 **CORY'S BLEND RULING IS UNBLOCKED AND NOBODY NOTICED. THE REFUSAL'S STATED REASON WAS RETIRED 19 HOURS AFTER IT WAS WRITTEN, BY A DIFFERENT ARTIFACT.**
+
+  | | |
+  |---|---|
+  | `proj_mean_blend.json` refuses | `42ed32eb` **08-16 21:31** — `ship: REFUSE`, because *"the CONTROL arm — Sleeper alone — has no per-player history for ANY graded season"* |
+  | `sleeper_hist_proj.json` lands | `0f9ecbe2` **08-17 16:25** — *"**1/3 season(s) passed every leak gate: [2025]**. A three-way grade becomes licensable under its own separate preregistration."* |
+
+  **`clean_years: [2025]`.** The refusal said *any*. There is now one. **Neither artifact references the other, and register 21 still carries the retired blocker verbatim as its reason for being 🔴 OPEN.**
+
+  That row is **Cory's own question** — he ruled on 08-16: *"not replace Sleeper with own_v6 … but blend. A blended `proj_mean` is a smaller, safer change than a swap … Let's do it."* It has been blocked since on a sentence that stopped being true the next afternoon.
+
+  **AND THE SAME WORK ALREADY HAS A LEDGER ROW:** P37/P38 (persist per-player rows in the three graders, then the shared-population three-way grade, owner **A**, 09-12). **Register 21, P37/P38 and `sleeper_hist_proj`'s "licensable" verdict are three descriptions of one job**, filed separately and never joined.
+
+  **ASK.** Re-open the blend on 2025 under its own prereg, or rule that one clean season is too thin and say so — **that is a legitimate answer and it closes the row either way.** What is not legitimate is the row staying blocked on a reason that no longer holds.
+
+  **THE HONEST CAVEAT, stated because it cuts against my own route:** one season is a thin basis for a source-policy ruling, and the same artifact measured why more will not come — **Sleeper's HOLLOW RATE is monotone in age (2023 25.4% · 2024 17.2% · 2025 7.1% · 2026 0.0%)**. It is emptying old seasons rather than deleting them, so row counts look healthy while content bleeds out. **2025 is not just the only clean season, it is the cleanest one that will ever exist**, and it decays from here. That argues for grading it now rather than waiting for a second season that will arrive dirtier.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I add the cross-reference to register 21 and P37/P38 so the three rows point at each other, and leave the ruling to you. **I will not run the blend** — `proj_mean` is the number Cory drafts on and the source policy is your call and his.
+
+- [ ] 2026-08-18 · relay · ✅🔴 **THE REBUILD WORKED — JS IS FULLY GREEN FOR THE FIRST TIME TONIGHT. AND IT LEFT ONE ARTIFACT BEHIND, WHICH IS REGISTER 34 DEMONSTRATED RATHER THAN ARGUED.**
+
+  **WHAT THE 05:38 REBUILD (`9322b022`) FIXED:** `proj_sd_arm` is **PASS**, and the whole JS gate is **0 failures across 326 suites** — it opened tonight at 5 red. `test_own_projections_v6_live` cleared with it. **My standing 08-19 12:00 UTC rebuild default is withdrawn; you got there first.**
+
+  **A LIVE VALIDATION WORTH ONE LINE:** `board_input_staleness.js` read ⚠️ *"2 inputs are NEWER than the board"* before the rebuild and ✅ *"every declared input predates the board"* after it — across the real event, not a fixture. That is register 34's requested check working on the incident it was built from.
+
+  **WHAT IT LEFT BEHIND — 2 Python failures, same shape, and both are the ORDERING problem:**
+
+  ```
+  FAILED test_variance_inputs.py::test_artifact_coverage_matches_board
+         assert (105 + 51) == 158    # artifact partitions 156 RBs; the new board has 158
+  FAILED test_variance_inputs.py::test_committed_artifact_matches_regeneration
+  ```
+
+  `draft/data/variance_inputs_2026.json` was built against the **previous** board. **So tonight the repo held staleness in BOTH directions at once** — the board older than its calibration table, and this artifact older than the board — and fixing one direction exposed the other. **There is no rebuild ORDER. That is register 34's claim, and this is it happening.**
+
+  **ASK.** Regenerate and commit `variance_inputs_2026.json` from `draft/variance_portfolio.py` (`V.run()` reads the live board — a pure recompute from committed inputs, no fetch).
+
+  **THE PERMANENT HALF IS ALREADY NAMED BY THE FAILING TEST ITSELF:** *"The permanent home for this species is `draft/data/artifact_registry.json` … until it migrates there it is marked, stays red in normal pytest when stale."* **It is still not registered — and neither is `public/draft_data.json`.** Two artifacts that belong in the freshness registry and are absent from it is a pattern, not two oversights, and `check_artifact_freshness.py` can see neither.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I regenerate `variance_inputs_2026.json` and hand you the diff, and file the two registry gaps as a register row. **I will not add registry entries myself** — `check_artifact_freshness.py` is `TERRITORY: A`.
+
 - [ ] 2026-08-18 · relay · 📏 **PROPOSING RULE 3e, AND THE EVIDENCE IS SIX OF MY OWN FALSE NEGATIVES IN ONE EVENING.**
 
   > **3e — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS DEMONSTRATED IT CAN RETURN A POSITIVE.**
