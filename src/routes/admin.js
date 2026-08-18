@@ -1000,6 +1000,19 @@ router.get('/warroom', aw(async (req, res) => {
     // A missing draft order is normal preseason; fall back to the override.
   }
 
+  // DURABILITY, READ-ONLY (Cory, 2026-08-18: "dont gatekeep things for after
+  // draft if nothing critical") — C's `where_the_constant_is_furthest_from_
+  // the_player`, un-deferred from post-draft. Static reference: no board
+  // field reads it, so a missing or malformed file loses the section, never
+  // the page.
+  let durability = null;
+  try {
+    const fs = require('fs'), path = require('path');
+    const raw = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', '..', 'draft', 'backtest', 'nflverse_durability.json'), 'utf8'));
+    durability = raw.where_the_constant_is_furthest_from_the_player || null;
+  } catch (e) { durability = null; }
+
   res.render('admin/warroom', {
     season,
     config: req.world.config,
@@ -1013,6 +1026,7 @@ router.get('/warroom', aw(async (req, res) => {
     // backend — better than a manual guess — but not yet the Sleeper-verified
     // state the A2 machinery flips to when the draft object's order lands.
     slotProvenance: claimedSlot ? 'site-claimed' : null,
+    durability,
   });
 }));
 

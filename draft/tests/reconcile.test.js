@@ -131,5 +131,62 @@ const opts = { playersById: players, currentRound: 6 };
     (noTeams.misplaced || []).length === 0, JSON.stringify(noTeams.misplaced));
 }
 
+// --- TOP_PICKS_FLAT: same-team keepers' round labels are fungible ----------
+// Found red-teaming E's board sweep, 08-18: every fixture above is one
+// keeper per team, where "matches its own designated round" and "is within
+// its team's rounds 1..N" cannot diverge. A real team keeping 3 players
+// (Cory's actual 08-18 slate: Chase/Henry/Walker, all original_round 1) hits
+// exactly the case those fixtures never build. Without `topPicksFlat`, this
+// reproduces the bug live: Cory manually places his keepers on Sleeper in
+// ANY legal order and the reconcile check that ran on every sync tick would
+// falsely halt recommendations the moment his order didn't match our
+// artifact's arbitrary internal tie-break.
+{
+  const flatAssumed = [
+    { player_id: 'x', team_slot: 8, cost_round: 1, name: 'Henry' },
+    { player_id: 'y', team_slot: 8, cost_round: 2, name: 'Chase' },
+    { player_id: 'z', team_slot: 8, cost_round: 3, name: 'Walker' },
+  ];
+  const flatPlayers = { x: { name: 'Henry' }, y: { name: 'Chase' }, z: { name: 'Walker' } };
+  // Cory legally places Chase (our "round 2") at his OWN round 1, and Henry
+  // (our "round 1") at his OWN round 2 — a swap that costs the same total
+  // (rounds 1-3 forfeited either way) and violates nothing in the real law.
+  const swapped = [
+    { player_id: 'y', is_keeper: true, draft_slot: 8, pick_no: 8 },    // round 1
+    { player_id: 'x', is_keeper: true, draft_slot: 8, pick_no: 18 },   // round 2
+    { player_id: 'z', is_keeper: true, draft_slot: 8, pick_no: 28 },   // round 3
+  ];
+  const flatOpts = { playersById: flatPlayers, currentRound: 4, teams: 10 };
+
+  const withoutFix = R.reconcile(swapped, flatAssumed, flatOpts);
+  check('WITHOUT topPicksFlat, a legal same-team round swap falsely halts (documents the bug)',
+    withoutFix.halt === true && withoutFix.misplaced.length === 2, JSON.stringify(withoutFix.misplaced));
+
+  const withFix = R.reconcile(swapped, flatAssumed,
+    Object.assign({}, flatOpts, { topPicksFlat: true }));
+  check('WITH topPicksFlat, the same legal swap reconciles clean',
+    withFix.ok && withFix.halt === false, JSON.stringify(withFix.misplaced));
+
+  // A genuine error must still be caught: a 4th round for a 3-keeper team.
+  const realError = [
+    { player_id: 'y', is_keeper: true, draft_slot: 8, pick_no: 8 },    // round 1 — fine
+    { player_id: 'x', is_keeper: true, draft_slot: 8, pick_no: 38 },   // round 4 — outside 1..3
+    { player_id: 'z', is_keeper: true, draft_slot: 8, pick_no: 28 },   // round 3 — fine
+  ];
+  const stillCaught = R.reconcile(realError, flatAssumed,
+    Object.assign({}, flatOpts, { topPicksFlat: true }));
+  check('a keeper placed OUTSIDE its team\'s legal round range is still caught',
+    stillCaught.halt === true && stillCaught.misplaced.length === 1
+    && stillCaught.misplaced[0].player_id === 'x', JSON.stringify(stillCaught.misplaced));
+
+  // A different team, single keeper, is unaffected by the flag either way.
+  const rg2 = R.reconcile(
+    [{ player_id: 'a', is_keeper: true, draft_slot: 1, pick_no: 1 }],
+    assumed.slice(0, 1),
+    Object.assign({}, opts, { teams: 10, topPicksFlat: true }));
+  check('a single-keeper team still reconciles clean with topPicksFlat on',
+    rg2.ok, JSON.stringify(rg2.misplaced));
+}
+
 console.log(`\n${pass}/${pass + fail} reconciliation checks passed`);
 process.exit(fail ? 1 : 0);
