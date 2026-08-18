@@ -5609,7 +5609,8 @@
           '</div>' +
           ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
             ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
-                { min: rbScale.min, max: rbScale.max, lead: i === 0 })
+                { min: rbScale.min, max: rbScale.max, lead: i === 0,
+                  cohortCeiling: cohortCeiling(p) })
             : '') +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
@@ -6666,6 +6667,31 @@
         + '</details>'
       : '';
     host.innerHTML = head + more;
+  }
+
+  /* ── REGISTER 4v — IS THIS PLAYER'S CEILING ABOUT THIS PLAYER? ────────────
+   *
+   * `proj_ceiling_source` carries the provenance. The per-player construction
+   * stamps `-x-player-cv` (the volatility work that landed 08-18); anything
+   * without it is the BAND average — `proj_mean x a per-cohort constant`, which
+   * contains no information about the individual. On the live board that is
+   * **34 of the 173 skill players in Cory's ADP 25-220 range (19.7%)**, and the
+   * ratios prove it: 1.4388 shared by four WRs, 1.4452/1.4453 by five more,
+   * 1.6081 by three QBs.
+   *
+   * ⚠️ CONSERVATIVE BY DESIGN — IT MARKS ONLY WHAT IT CAN SEE.
+   * A missing or unrecognised stamp returns FALSE, not true. A mark that fired
+   * on absence would light up K/DEF (whose ceiling is a different construction
+   * entirely, the gaussian path) and every player from a future build whose
+   * stamp we have not met yet — and a marker that cries wolf gets ignored, which
+   * is this project's own `intervention-rate` epitaph. Under-marking leaves the
+   * status quo; over-marking destroys the mark's meaning.
+   */
+  function cohortCeiling(player) {
+    var src = player && player.proj_ceiling_source;
+    if (typeof src !== 'string' || !src) return false;
+    if (/-x-player-cv$/.test(src)) return false;          //: measured per player
+    return /^measured-/.test(src);                        //: measured per BAND
   }
 
   /* A subtle badge on any recommendation that completes/extends a live route.

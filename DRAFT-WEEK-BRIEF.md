@@ -511,6 +511,21 @@ players per cell), so read those as directions, not corrections.
 B's default is to grey or asterisk these on screen; the mark should say **"no
 2025 weeks — cohort average"**, not "unmeasured".
 
+> ✅ **SHIPPED 2026-08-18 — YOU NO LONGER HAVE TO CARRY THIS ONE.** The range bar
+> on any such player now renders a **`~`** mark, and both its tooltip and its
+> screen-reader label read *"cohort average, not this player"*. It fires on
+> **34 of the 173 skill players in your ADP 25-220 range (19.7%)** — the share
+> is lower than the 32% this brief was written against, because the per-player
+> volatility work landed on 08-18 and fixed most of them.
+>
+> **It is a provenance mark, not a warning.** For several of these the model is
+> refusing to guess from data it does not hold, which is the behaviour you want.
+> It tells you where the number came from, not that the number is wrong. And it
+> is deliberately conservative — an unrecognised or missing stamp does **not**
+> get marked, so the mark stays rare enough to mean something.
+>
+> Register 4v, `draft/tests/cohort_ceiling_is_marked.test.js` (16 checks).
+
 **Two other places the same number leaks, so you know them when you see them:**
 
 - **The paths panel's "◆ the &lt;plan&gt; branch" badge.** It marks the path
@@ -523,6 +538,21 @@ B's default is to grey or asterisk these on screen; the mark should say **"no
   that can ever differ are the ones forbidding QB. **If you enrol in Balanced,
   the banner will stay quiet all night, and that is structural, not a bug you
   can wait out** (register 4x).
+
+  > ✅ **MEASURED 2026-08-18, and it is stronger than "will probably stay
+  > quiet".** Run through the banner's own scoring function at your twelve real
+  > picks: **the leader gap is EXACTLY 0.000 at all twelve**, and from pick 88
+  > onward all nine doctrines return a single identical score. At every pick at
+  > least six of the nine allow the same top player, so they score the same and
+  > **there is no leader to change.**
+  >
+  > **It cannot be fixed by tuning.** The banner switches when a challenger
+  > leads by *more than* a threshold; the gap is zero, so that is false for
+  > every threshold — including zero, because the test is strict. Register 4x
+  > asked for the `$4` band to be re-derived; **no value of it changes
+  > anything**, and moving it would change how *decided* vs *even money* renders
+  > on every pick you see, for nothing. Closed on that basis.
+  > `draft/audit/doctrine_banner_cannot_fire_2026-08-18.md`.
 
 **WHAT IS NOT AFFECTED, AND IT IS THE bigger half: THE RECOMMENDATIONS.** The
 ranked board, the top-of-board pick, the tiers and the VORP ordering never touch

@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **73 open rows**. Twenty of them carry a recheck date on or
+up."* The register has **64 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
 before 08-22 and most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
@@ -48,7 +48,7 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 
 ---
 
-## 2 · A'S FOUR, EACH WITH A DEFAULT SO SILENCE IS AN ANSWER
+## 2 · A'S FOUR LIVE DECISIONS, EACH WITH A DEFAULT SO SILENCE IS AN ANSWER
 
 | | decision | recommendation | **default if you say nothing** |
 |---|---|---|---|
@@ -67,11 +67,14 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   ratio is backwards by band; its own row says *do not patch by hand before
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 2c, 28.
+  `CEILING_LATE_FROM` changes nothing), 2b, 28.
 - **CLOSED 08-18 with the C1 ruling and the same-day rulings above** — 42 (the
   keeper date, ruled), E1 (fix rejected on the population ruling), 5e (QB
   refusal shipped), 4x (no rescale, Cory told), 4d (desktop-first, superseded
-  on the record).
+  on the record). **And closed later the same day by the relay's verify batch**
+  — 2c, E3, E4, E5 (the centered-adjuster consolidation resolved), 4i (the
+  restore panel question settled) and 4f (the "left" wording), so the live
+  bullets above no longer name them.
 - **CLOSED 08-18 against live state, not against the date on the line** — rows
   E10 (its check run on the fresh board; its parent row 2 resolved on the same
   run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
@@ -80,18 +83,14 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   keepers really do consume picks) — plus row 2 **RESOLVED**: the
   constant-multiple sweep was run on the fresh board and no field has joined,
   while finding 13 real pairs, so it is not vacuously green.
-- **⚠️ ONE I GOT WRONG AND WITHDREW** — 4i. I had told A its premise was false
-  and offered to close it. It is not: `engine_policy` is absent from the freeze,
-  so `app.js:782` renders the restore panel not at all. Re-scoped, still B's,
-  still open.
 - **~~Blocked on evidence that does not exist yet~~ — the evidence LANDED
   08-18** — 21 / 24 / A2 source ruling. "Never measured against Sleeper" was
   true when written; the three-way grade then ran on the leak-clean 2025
   shared population and the ruling moved to §1's C3 above. Still held through
   08-22 — now by the prereg's fixed "Nothing ships" rather than by absence of
   evidence. The January 2027 grade remains the first untouched evaluation.
-- **Display work owned by B** — 4i, 4v (mark the fifteen cohort-constant
-  ceilings), 4e, 4f.
+- **Display work owned by B** — 4v (mark the fifteen cohort-constant
+  ceilings) 4e.
 - **Post-draft by construction** — everything with a recheck after 08-22.
 
 ---
@@ -102,12 +101,13 @@ Already written into `DRAFT-WEEK-BRIEF.md` §4, so they cost nothing if A rules
 none of the above:
 
 1. **The dollar figure is not comparable across positions.** Use it within one.
-2. **Fifteen ceilings in his range are cohort averages** — Nabers (ADP 28),
-   Garrett Wilson (41), Jayden Daniels (57), Jayden Reed (110) among them. For
-   five of those the model is **deliberately refusing to guess**, which is a
-   strength; the mark should read *"no 2025 weeks — cohort average"*.
-3. **The strategy banner will stay quiet.** That is structural, not a fault to
-   wait out.
+2. ~~**Fifteen ceilings in his range are cohort averages**~~ ✅ **SHIPPED 08-18 —
+   the board marks them now, so he does not have to be told.** 34 of 173 in ADP
+   25-220; the range bar carries `~` and *"cohort average, not this player"*.
+   A provenance mark, not a warning. Register 4v.
+3. **The strategy banner will stay quiet** — measured, not expected: the leader
+   gap is exactly 0.000 at all twelve of his picks. Structural, and unfixable by
+   tuning. Register 4x, closed.
 
 ---
 

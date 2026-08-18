@@ -65,18 +65,42 @@
       return Math.max(0, Math.min(1, t)) * w;
     };
     var bx = x(floor), bw = Math.max(1, x(ceiling) - bx), mx = x(mean);
-    return '<span class="wr-range' + (opts.lead ? ' lead' : '') + '" title="floor '
-      + Math.round(floor) + ' · proj ' + Math.round(mean) + ' · ceiling ' + Math.round(ceiling) + '">'
+    /* ── REGISTER 4v: SAY WHEN THE CEILING IS NOT ABOUT THIS PLAYER ──────────
+     * `opts.cohortCeiling` marks a bar whose ceiling came from the band average
+     * rather than the player's own measured tail. 34 of the 173 skill players
+     * in Cory's ADP 25-220 range are like this, and their ratios give it away:
+     * 1.4388 for four WRs, 1.4452/1.4453 for five more, 1.6081 for three QBs —
+     * a per-band constant wearing a measured-looking stamp.
+     *
+     * A TOOLTIP WAS NOT ENOUGH. The row's complaint is that "nothing on screen
+     * says so", and at eight seconds a pick nobody hovers. So it renders a
+     * visible mark AND says it in the title and the aria-label.
+     *
+     * DELIBERATELY NOT A WARNING. For several of these the model is refusing to
+     * guess from data it does not have, which is a strength — the mark says
+     * where the number came from, it does not say the number is wrong. */
+    var cohort = !!opts.cohortCeiling;
+    var ceilNote = cohort ? ' (cohort average, not this player)' : '';
+    return '<span class="wr-range' + (opts.lead ? ' lead' : '')
+      + (cohort ? ' cohort-ceiling' : '') + '" title="floor '
+      + Math.round(floor) + ' · proj ' + Math.round(mean) + ' · ceiling '
+      + Math.round(ceiling) + ceilNote + '">'
       + '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h
       + '" role="img" aria-label="outcome range ' + Math.round(floor) + ' to ' + Math.round(ceiling)
-      + ', projection ' + Math.round(mean) + '" data-f="' + r1(floor) + '" data-m="' + r1(mean)
-      + '" data-c="' + r1(ceiling) + '">'
+      + ceilNote + ', projection ' + Math.round(mean) + '" data-f="' + r1(floor) + '" data-m="' + r1(mean)
+      + '" data-c="' + r1(ceiling) + '" data-cohort-ceiling="' + (cohort ? '1' : '0') + '">'
       + '<line class="wr-range-rail" x1="0" y1="' + (h / 2) + '" x2="' + w + '" y2="' + (h / 2) + '"/>'
       + '<rect class="wr-range-band" x="' + bx.toFixed(1) + '" y="2" width="' + bw.toFixed(1)
         + '" height="' + (h - 4) + '" rx="2"/>'
       + '<line class="wr-range-tick" x1="' + mx.toFixed(1) + '" y1="0" x2="' + mx.toFixed(1)
         + '" y2="' + h + '"/>'
-      + '</svg></span>';
+      + '</svg>'
+      /* One character, after the bar, styled by B. Cory called the card "too
+       * busy and wordy" (register 4b), so this is a mark and not a sentence —
+       * the sentence lives in the title for anyone who stops to read it. */
+      + (cohort ? '<sup class="wr-ceil-cohort" title="This ceiling is the band '
+          + 'average, not a measurement of this player">~</sup>' : '')
+      + '</span>';
   }
 
   /* ── LEFT RAIL — top N at each position ──────────────────────────────────
@@ -334,9 +358,16 @@
           + (p.cliffAfter ? '<li class="wr-cliffline" aria-label="tier cliff"></li>' : '');
       }).join('');
       return '<div class="wr-col" data-pos="' + esc(c.pos) + '">'
-        + '<div class="wr-col-head"><b>' + esc(c.pos) + '</b><span>' + esc(c.total) + ' left</span></div>'
+        /* "undrafted", NOT "left" — register 4f. The ⏳ Running out rail says
+         * "WR 2" meaning two STARTABLE bodies before the tier empties; this head
+         * says "WR 206" meaning the whole undrafted pool at the position. Both
+         * said "left", one glance apart, and at 8s/pick that reads as a
+         * contradiction rather than two scales. The number here was always
+         * correct — `total` is `at.length` off the live undrafted board — so
+         * this changes a word and no arithmetic. */
+        + '<div class="wr-col-head"><b>' + esc(c.pos) + '</b><span>' + esc(c.total) + ' undrafted</span></div>'
         + (rows ? '<ol class="wr-col-list">' + rows + '</ol>'
-                : '<p class="wr-chart-empty">none left</p>')
+                : '<p class="wr-chart-empty">none undrafted</p>')
         + '</div>';
     }).join('') + '</div>';
   }
