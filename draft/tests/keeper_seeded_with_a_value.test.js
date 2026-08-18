@@ -84,7 +84,28 @@ ck('an already-valued row is not overwritten',
   withKeeperValuation({ name: 'X', position: 'RB', proj_mean: 200, vorp: 42 }, art).vorp === 42);
 
 // ─────────────────────── 5. THE BAR STOPS BEING NEGATIVE
-const rawSeed = art.kept_players.map(k => Object.assign({}, k, { is_keeper: true }));
+/* THE HISTORICAL BEHAVIOUR, RECONSTRUCTED FAITHFULLY — and it had to be rewritten
+ * once E18 landed, which is the part worth keeping.
+ *
+ * This was originally the verbatim kept_players row (no `vorp` at all). That
+ * reproduced the defect only because `nextYearVorp` read `(player.vorp || 0)`
+ * and turned absent into zero. E18 stopped the keeper bar ranking rows it cannot
+ * value, so a vorp-less keeper is now EXCLUDED rather than scored at zero — and
+ * these known-positives went green-by-absence, which is a test passing for the
+ * wrong reason.
+ *
+ * So the old state is now written the way the old CODE actually behaved: an
+ * explicit `vorp: 0`. The two fixes are independent and neither subsumes the
+ * other — measured at pick 33 with E18 in place:
+ *
+ *   keepers with no vorp  -> excluded -> "3 keeper slots still open"  (FALSE:
+ *                                        he holds three keepers)
+ *   keepers seeded (E17)  -> counted  -> "beats Derrick Henry", bar 1.63
+ *
+ * E18 stops the bar asserting things about rows it cannot value; E17 is what
+ * makes Cory's keepers valued enough to be counted at all. Without E17, E18
+ * alone would have produced a different false statement. */
+const rawSeed = art.kept_players.map(k => Object.assign({}, k, { is_keeper: true, vorp: 0 }));
 function ctxAt(pick, ks) {
   return { league: league, board: board, roster: ks.slice(),
     currentKeepers: ks.filter(p => p.is_keeper), currentPick: pick };

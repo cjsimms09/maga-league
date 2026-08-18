@@ -1,7 +1,13 @@
 # E's seventeenth sweep — the keeper bar ranks rows it cannot value, and fixing it moves A's published term table
 
-**Session E (red team), 2026-08-17.** Sibling of E17, and the reason this one is
-**FILED RATHER THAN FIXED.**
+**Session E (red team), 2026-08-17.** Sibling of E17.
+
+**⚠️ STATUS CHANGED THE SAME DAY. This was written as FILED-NOT-FIXED, because
+applying it moves a published claim in a document marked `TERRITORY: A`. I routed
+it `NO DEFAULT — BLOCKED` and held. Cory overrode the hold — *"Fix and continue"*
+— so the fix and the document moved together, and the document edit is stamped as
+an override for A's review. The reasoning below is left as written; the closing
+section records what changed.**
 
 ---
 
@@ -157,3 +163,82 @@ Rule 3d, answered:
    nearly inert at Cory's picks once valued correctly is a fact about this board
    and this roster; whether the term should be doing more is A's question.
 3. **One roster.** Cory's, three keepers, twelve picks.
+
+
+---
+
+# APPLIED — 2026-08-17, on Cory's override
+
+*"Fix and continue."* The hold above was mine, not his, and he overrode it. What
+landed:
+
+1. **`composite.js`** — the incumbent ranking filters on a finite `vorp` instead
+   of substituting zero. One line, exactly the patch in
+   `draft/audit/proposed/`.
+2. **`WAR-ROOM-SURFACE-CONTRACT.md`** (`TERRITORY: A`) — §1's term table
+   re-derived, with a dated note saying what moved and why, and an **override
+   stamp at the head of the file** telling A to change it if they would have
+   derived it differently. VONA's share corrected 59% → 63% in the two other
+   places it appears.
+3. **`surface_contract.test.js`** — the stale fixture fixed (it built its roster
+   from raw `kept_players`, which the app stopped doing when E17 landed), and the
+   order assertion **re-aimed to the full order rather than relaxed**.
+
+## THE ORDER GOT STRONGER, NOT WEAKER — which I did not expect
+
+The old document said the **middle ranks are board-dependent** because `keeper`
+(14.3%) and `onesie` (16.8%) ran within a few points and a nightly rebuild
+swapped them. **That closeness was the defect.** With the keepers valued, the
+order does not move across any roster condition measurable on this board:
+
+| roster | value | onesie | stack | keeper |
+|---|---|---|---|---|
+| 3 keepers (his slate today) | 63.1% | 25.2% | 11.6% | 0.2% |
+| 2 keepers | 71.8% | 18.0% | 9.2% | 1.1% |
+| 1 keeper | 71.8% | 18.0% | 9.2% | 1.1% |
+| 0 keepers | 73.4% | 18.4% | 7.1% | 1.1% |
+
+So the caveat is retired and the **full** order is pinned again — with the outer
+two (`value` first, `keeper` last) asserted separately, since they carry the
+widest margins and are what a reader acts on.
+
+**Still one board.** The document's caution about nightly rebuilds is about board
+variation, which I cannot test here. What I can say is that the *reason* the
+middle pair used to swap is gone.
+
+## E17 AND E18 ARE INDEPENDENT — neither subsumes the other
+
+Found by running E17's suite after applying E18 and watching its known-positives
+go **green by absence**, which is a test passing for the wrong reason. Measured at
+pick 33:
+
+| state | what the screen says |
+|---|---|
+| keepers with no `vorp`, E18 applied | *"3 keeper slots still open"* — **FALSE**, he holds three |
+| keepers seeded (E17) + E18 | *"beats Derrick Henry"*, bar 1.63 — correct |
+
+**E18 stops the bar asserting things about rows it cannot value; E17 is what
+makes Cory's keepers valued enough to be counted at all.** Both are load-bearing,
+and that pair is now a check in the E18 suite. E17's own known-positive was
+rewritten to reconstruct the historical behaviour faithfully — an explicit
+`vorp: 0`, which is what `(vorp || 0)` actually did — rather than relying on an
+absence the fix now handles.
+
+## THE HONEST CONSEQUENCE, STATED IN THE DOCUMENT RATHER THAN BURIED
+
+**The `keeper` term is very nearly inert at Cory's picks: 0.2% of what separates
+the top five, at weight 1.0.** It is not broken. It is correctly reporting that
+with three strong keepers already held, the marginal keeper slot is worth almost
+nothing to a mid-draft candidate — which is exactly what `KOV_marginal` was
+designed to say. **Whether the term should be doing more than that is a live
+question for A, and neither this audit nor the document settles it.**
+
+## SUITES
+
+`keeper_bar_ignores_what_it_cannot_value.test.js` — 13 checks, including the
+known-positive that the defect is reachable, the negative control that a *valued*
+weak candidate still earns a truthful badge, the E17/E18 independence pair, and
+the inertness measurement at all twelve of Cory's picks.
+
+**61 of 61** JS suites touching the keeper, composite or surface-contract paths
+pass, plus `engine_ablation` and `bench_wire_room_sim` (both slow, run separately).

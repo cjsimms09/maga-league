@@ -5760,11 +5760,14 @@
    * FEWER THAN `slots` roster entries carry a real value — e.g. if he locks two
    * keepers on 08-20 and an off-board pick lands on his roster.
    *
-   * NOT FIXED HERE. The fix is a one-line filter in `composite.js`'s incumbent
-   * ranking and it is written and measured — `draft/audit/proposed/
-   * E18_keeper_bar_ignores_unvalued_rows.patch` — but it is A's call: applying
-   * it moves the published term table in `WAR-ROOM-SURFACE-CONTRACT.md`
-   * (TERRITORY: A), and nothing changes scoring before 08-22.
+   * FIXED 2026-08-17: `composite.js` now filters the incumbent ranking on a
+   * finite `vorp` instead of substituting zero, which is what its own docstring
+   * always said should happen ("with fewer incumbents than slots there is a free
+   * slot, so the bar is zero"). I held this fix and routed it as
+   * `NO DEFAULT — BLOCKED`, because applying it moves the published term table
+   * in `WAR-ROOM-SURFACE-CONTRACT.md` (TERRITORY: A) — `keeper` 14.3% → 0.2%.
+   * Cory overrode the hold ("Fix and continue"), so both moved together and the
+   * document edit is stamped as an override for A's review.
    */
   function recordManualPick(name, position, slot) {
     const clean = String(name || '').trim();
@@ -9483,9 +9486,10 @@
         team: meta.team || '',
         bye: null,
         /* Rendered differently, and never scored as a candidate. NOT the same
-         * as "reaches nothing": this row joins `state.myRoster`, and the keeper
-         * bar still ranks it as an incumbent worth zero — OPEN, register E18,
-         * see recordManualPick above for the measurement and the proposed fix. */
+         * as "reaches nothing": this row joins `state.myRoster`, and until
+         * 2026-08-17 the keeper bar ranked it as an incumbent worth zero
+         * (register E18). `composite.js` now drops rows it cannot value; see
+         * recordManualPick above for the measurement. */
         off_board: true,
       };
 
