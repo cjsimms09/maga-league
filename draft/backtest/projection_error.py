@@ -121,6 +121,11 @@ CALIBRATION_POSITIONS = ("QB", "RB", "WR", "TE")
 #: Below this many graded players a band reports `unmeasurable` rather than a number.
 MIN_N = 8
 
+#: The only positions this league rosters and scores. The calibration is a claim
+#: about how OUR projections miss for OUR players; a punter in the population is
+#: not a small impurity, it is a different question being answered.
+ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
+
 CALIBRATION_VERSION = "projection-error/v1"
 
 SURVIVOR_CAVEAT = (
@@ -558,6 +563,16 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
 
+    # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT — the
+    # workflow runs THIS module directly (not cli.py), so a filter on cli.py's
+    # call site alone 'feels done and changes nothing' (register 4r). Two
+    # parallel fixes then landed: one passed `positions=` here, which C
+    # REPRODUCED AS INERT (it is a fallback lookup for rows MISSING a
+    # position; every real row carries one, so the tuple is never read and a
+    # punter still lands in a live cell). The call below is C's REAL filter:
+    # `only_positions` drops non-rostered rows from the INPUT population
+    # before ranks are computed, with a fail-arm test proving P/DB/LB/T/FB
+    # are gone (test_error_rows_WITH_only_positions_DROPS_NON_ROSTERED...).
     cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
                     only_positions=CALIBRATION_POSITIONS)
     cal["skipped_seasons"] = skipped
