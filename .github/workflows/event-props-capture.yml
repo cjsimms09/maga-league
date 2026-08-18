@@ -1,0 +1,62 @@
+name: Event player-props capture (The Odds API, per-event route)
+
+# LIVE 2026 PLAYER PROPS -> committed snapshots, for D's weekly lab.
+# The per-EVENT route is the only door to player props (league route 422s);
+# proven 200 with DraftKings props by free-market-census v2 on 2026-08-18.
+# Built by A because the credential lives here, not in D's sandbox.
+#
+# BUDGET: events list is free; each event costs (4 markets x 1 region) = 4
+# credits. Full slate ~64/run, Thursday cron ~256/month against the
+# 500/month tier shared with odds-capture.yml (~26). MAX_EVENTS in the tool
+# caps a runaway listing. Preseason: no events in the 8-day window -> the
+# tool exits 0 having spent nothing.
+#
+# DRY RUN FIRST (the draft-night-sync.yml lesson): dry_run fetches for real
+# but writes to a throwaway path and commits nothing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Fetch for real but commit nothing'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Thursday mornings UTC — pre-kickoff for the week's slate.
+    - cron: '0 11 * * 4'
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch per-event player props
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -uo pipefail
+          if [ "$DRY_RUN" = "true" ]; then
+            export ODDS_OUT_DIR="$RUNNER_TEMP/props-dry"
+            echo "DRY RUN: writing to $ODDS_OUT_DIR, committing nothing."
+          fi
+          python3 draft/tools/fetch_event_props.py
+      - name: Commit the snapshot
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/odds/
+          if git diff --cached --quiet; then
+            echo "no change (no snapshot written this run) — nothing to commit"
+            exit 0
+          fi
+          # Two -m flags, not a block scalar — odds-capture.yml's YAML lesson.
+          git commit -m "Event props snapshot $(date -u +%F) [skip deploy]" \
+            -m "Automated capture via event-props-capture.yml (per-event route; credits in the snapshot's provenance)."
+          git push

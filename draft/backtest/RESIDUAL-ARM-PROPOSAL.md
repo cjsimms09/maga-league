@@ -131,3 +131,115 @@ is not true of most of the arms we have run.
 
 *Not filed into `## TO: A` before 08-22 — the relay committed to adding nothing to
 that inbox before the draft. Cory has the pointer; A can pick this up after.*
+
+---
+
+# AMENDMENT 1 — A, 2026-08-18, COMMITTED BEFORE ANY FIT
+
+**Cory's ruling, verbatim: "okay! lets get V7 rolling and if its better, lets
+use it."** Two consequences, recorded here so the grade IS the decision:
+
+1. **Promotion is PRE-AUTHORIZED.** If the residual challenger clears §5's
+   ships-if bar on the graded folds, it ships as the published projection —
+   no second ask to Cory at grade time. The bar itself does not move.
+2. **The lab starts tonight**, not post-draft (Cory lifted the gate). Nothing
+   reaches the live draft board before 08-22 regardless.
+
+**MEASURED CONSTRAINT THAT RESHAPES RUN ONE (found before fitting, recorded
+before fitting):** no historical WEEKLY baseline store exists. Measured, not
+remembered — `exp_fp_hist_proj.json` is preseason season-totals with only
+metrics retained; `proj_series.json` starts 2026; Sleeper weekly is
+unarchived anywhere. Therefore:
+
+- **The WEEKLY λ fit (this doc's §5 as written) begins at week 1 with the
+  live capture the loop already performs.** P94/P95 remain its blind
+  predictions, untouched.
+- **What runs tonight is the SEASON-LEVEL residual lab on the same nested
+  frame:** target = `actual_season − sleeper_season_proj`, 2025 fold — the
+  one season whose Sleeper baseline passed every leak gate — using the
+  per-player rows the sleeper-vs-fp workflow retains
+  (`sleeper_vs_fp_rows_2025.json`, dispatch queued 08-18).
+- **Features:** C4 (`rb_offseason_features`) and C6
+  (`qb_context_receiver_features`) — both leak-free by construction
+  (prior-season inputs only). **Their blind predictions are already filed:
+  P64 (C4 helps RB mid-board more than top-12) and P81 (C6 helps TE more
+  than WR), both filed before either feature store produced a graded
+  number.**
+- **Fit protocol for a single-season fold (one row per player, no time
+  axis):** non-negative per-position λ, **player-split cross-validation
+  clustered by NFL TEAM** (all of a team's players stay on the same side of
+  every split — the season-grain analogue of §4a's team-week rule), 200
+  splits, λ chosen on the fit half, error reported on the held half only.
+- **Report:** per-position λ with team-cluster bootstrap CI · within-position
+  MAE/Spearman vs the λ=0 champion on the held halves · the startable pool
+  (top-24 QB/TE, top-48 RB/WR by baseline) reported beside the full
+  population · BEST-OF-K over {λ=0, +C4, +C6}.
+- **Ships-if for THIS run: nothing ships from run one** (§5's own rule —
+  Cory's pre-authorization applies to the graded bar, and one
+  cross-validated season is not it). What run one buys: the first honest
+  per-position λ, the first grades feeding P64/P81, and the harness the
+  weekly lab inherits at week 1.
+- **Fold 2 (2024) is BLOCKED on data, stated rather than implied:** Sleeper
+  2024 failed its leak gates and FP 2024 rows were not retained. The
+  unblock is a re-run of the FP historical fetch with row retention — filed
+  as a follow-up, not assumed.
+
+---
+
+# AMENDMENT 2 — A, 2026-08-18, COMMITTED BEFORE THE PER-GAME RE-RUN
+
+**Cory, verbatim: "are we grading based on what we learned from resource with
+assumin no injuries as that is the skill part" / "do it based on the resource
+we found that you liked."** He is right that run one's grade included injury
+luck: `actual` was the realized season total, so a projection lost credit for
+a week-3 ACL it could never have predicted. The resource-review lesson (the
+same review that produced the durability table's "argument for a PER-PLAYER
+prior, not for fading these names") splits the season into:
+
+  * **production skill** — points per game WHEN ACTIVE: the no-injury lens;
+  * **availability** — partly PREDICTABLE (age, usage, per-player history —
+    the durability table shows realized availability deviates persistently
+    from positional constants), partly luck;
+  * **in-season injury luck** — the only part a grade should exclude.
+
+So the protocol from this amendment on: **every fold reports TWO grades**:
+
+1. **Total points** (run one's grade) — the number that wins leagues; kept
+   because availability skill is real and a grade that deletes it entirely
+   would stop crediting a projection for knowing who misses time.
+2. **Per-game-when-active** (the skill grade): `actual_pg = season points /
+   games active` (games active = weeks with a row in the weekly points
+   store, whose own note defines row-presence as "was on a field"),
+   `proj_pg = proj / 17` for champion and every arm alike. **Games floor:
+   ≥ 4 active games** — a one-game cameo rate is noise, and the floor is
+   stated rather than silent. Same CV protocol, same λ machinery.
+
+The ships-if bar (A11) now reads on BOTH: a challenger must not win the
+skill grade by sacrificing the total-points grade or vice versa — a real
+improvement shows up in each, and a split verdict is reported as a split,
+not averaged away.
+
+---
+
+# AMENDMENT 3 — A, 2026-08-18, COMMITTED BEFORE THE PRECISION RE-RUN
+
+Cory asked what else the resource review taught about grading. Two things,
+both adopted here:
+
+1. **TOP-TIER PRECISION (P@12 / P@24 per position)** — position_predictor's
+   headline: a model can lose the full board and win the draftable zone, and
+   the draftable zone is the only zone Cory picks in. Already the V7
+   candidate harness's second metric family; the residual lab now reports it
+   too, computed on the cross-validated held-out predictions over the full
+   position pool (champion = Sleeper's ranking of the same players).
+   **One-fold P@N is NOISY and says so**: the candidate prereg's own 2024
+   fold reversed a P@12 verdict, so a precision flip counts toward ships-if
+   only when it replicates across folds.
+2. **ABLATION DISCIPLINE** — arms enter one at a time (already run one's
+   shape), and when the arm count grows, the best-k composite is checked
+   against the sum of its parts before anything composes.
+
+The full grading stack for every residual fold is now: total-points MAE +
+per-game-when-active MAE (Amendment 2) + within-position Spearman + P@12/P@24
+— with the ships-if bar reading across all of it: improve without degrading,
+split verdicts reported as splits.

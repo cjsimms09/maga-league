@@ -86,6 +86,26 @@ check('daysUntil: after the draft goes negative', D.daysUntil('2026-08-22', '202
   // No config date AND no season year → unconfigured (banner hides, no throw).
   const none = D.draftAnnouncement({}, '2026-08-10T00:00:00Z');
   check('draftAnnouncement: no date + no season year → configured:false, no message', none.configured === false && none.message === null && none.date === null);
+
+  // ── REGISTER 5m (B, 2026-08-18): `configured` used to return `true`
+  // unconditionally — a bare, unruled placeholder announcing itself with the
+  // authority of a decision, the same defect keeperDeadlineAnnouncement below
+  // was already fixed for. The committed ruling in league_config.json (`draft`,
+  // "Yes it's 6pm", A10 08-18) is a REAL decision even with the runtime store
+  // empty, so it earns configured:true; a season the ruling does not name gets
+  // a genuinely-guessed placeholder and must NOT claim the ruling's authority.
+  check('draftAnnouncement: the committed 2026 ruling backs configured:true even '
+    + 'with an empty runtime config (this is the middle tier, not a guess)',
+    di.configured === true);
+  const offYear = D.draftAnnouncement({}, '2027-08-01T00:00:00Z', 2027);
+  check('draftAnnouncement: FAIL ARM — a season the committed ruling does not '
+    + 'name gets an unconfigured placeholder, not the ruling\'s authority '
+    + '(2027-08-22 is a guess, not a decision)',
+    offYear.date === '2027-08-22' && offYear.configured === false);
+  const runtimeOnly = D.draftAnnouncement({ draft_date: '2027-09-04', draft_time: '5:00 PM' }, '2027-08-01T00:00:00Z', 2027);
+  check('draftAnnouncement: a real runtime value earns configured:true on its '
+    + 'own, independent of the committed ruling',
+    runtimeOnly.configured === true && runtimeOnly.date === '2027-09-04');
 }
 
 // ── keeperDeadlineAnnouncement — register row 42's fix: `configured` and

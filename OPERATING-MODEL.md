@@ -191,6 +191,55 @@ more suspicious than a modest honest effect: perfect foresight of something that
 obviously matters should be worth a lot, so a near-zero oracle result usually
 means the oracle never got through. Register row 18 is exactly this, reopened.
 
+## RULE 3f — THE CONTROL IS FOR THE PROBE YOU THREW AWAY, NOT JUST THE TOOL YOU SHIPPED
+
+**Added 2026-08-18 by the relay, from a count rather than an argument.**
+
+`CLAUDE.md`'s Rule 3e already says a probe ships with a known-positive control.
+**It is being followed for tools and ignored for questions**, and the gap is
+where the damage is.
+
+**NINE PROBES RETURNED A CONFIDENT WRONG ANSWER IN ONE SESSION.** Not one
+crashed; every one produced clean, plausible, well-formatted output:
+
+  · `parseDate(cell)` missing its `year` — exempted every row, printed OK
+  · a name collision across two modules — "the known defect is not there"
+  · `ctx.starters` where the code reads `ctx.league.starters` — "never fires"
+  · a 60s per-file timeout — reported two slow tests as failures
+  · a control anchored to `HEAD` — passed once, then failed forever
+  · a union resolver preferring *theirs* — deleted 9,400 characters silently
+  · a length-diff that never asked whether the other side deleted deliberately
+    — "44 items lost" when the answer was zero
+  · a sweep for missing controls that matched on VOCABULARY, so a file whose
+    fail arms are named `test_..._is_caught` read as having none
+  · `--today DATE` where the tool takes `--today=DATE` — silently used the real
+    clock, and looked exactly like a dead guard
+
+**EVERY ONE WAS AN AD-HOC PROBE WRITTEN TO ANSWER A QUESTION IN THE MOMENT.**
+None was a shipped tool. Shipped tools in this repo mostly do carry controls —
+that is why the rule reads as followed. **The throwaway probe is the one nobody
+controls, and it is also the one whose output goes straight into a register row,
+a routed item, or a sentence to Cory.**
+
+**THE RULE:** before a probe's answer is written down anywhere, run it once
+against a case where you already know the answer. If it cannot produce the
+positive you know is there, its negative means nothing.
+
+**WHAT THIS COSTS AND WHAT IT BUYS.** It costs one extra run. Measured on the
+same session: of the nine, **three were caught by exactly this** — and in two of
+those the control failed on its FIRST attempt, which is the only reason the
+finding exists at all. Three more were caught by CI once it could see the branch.
+**One was caught by luck**, and it had already deleted a 🔴🔴 draft-blocking item
+and Cory's own Priority 1 from a mailbox.
+
+**AND THE OBVIOUS OBJECTION IS THE POINT.** A control does not make a probe
+correct — the sweep that flagged `merge_completeness.py` had a control in the
+sense that it ran and produced output. It had no case where the answer was known
+in advance. **"It ran" and "it was tested" are different claims, and this rule is
+about the second one.**
+
+---
+
 ## RULE 3e — WHERE E SITS: BESIDE THE PIPELINE, NEVER INSIDE IT
 
 **E does not gate anything and nothing waits on E.** A is the bottleneck; a

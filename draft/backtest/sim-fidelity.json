@@ -41,9 +41,9 @@
   }
  },
  "sim_independent": {
-  "run_share": 0.393,
-  "runs_per_draft": 18.96,
-  "mean_run_len": 3.11,
+  "run_share": 0.394,
+  "runs_per_draft": 19.04,
+  "mean_run_len": 3.1,
   "timing": {
    "q1": {
     "QB": 0.151,
@@ -84,14 +84,14 @@
   "timing": {
    "q1": {
     "QB": 0.151,
-    "RB": 0.289,
-    "WR": 0.367,
+    "RB": 0.293,
+    "WR": 0.364,
     "TE": 0.124
    },
    "q2": {
     "QB": 0.144,
-    "RB": 0.297,
-    "WR": 0.361,
+    "RB": 0.293,
+    "WR": 0.364,
     "TE": 0.129
    },
    "q3": {
@@ -118,21 +118,21 @@
  "fit_grid": [
   {
    "cascade": 0.0,
-   "run_share": 0.393,
-   "runs_per_draft": 18.96,
-   "err": 0.07
+   "run_share": 0.394,
+   "runs_per_draft": 19.04,
+   "err": 0.069
   },
   {
    "cascade": 1.0,
-   "run_share": 0.41,
-   "runs_per_draft": 19.54,
-   "err": 0.053
+   "run_share": 0.413,
+   "runs_per_draft": 19.67,
+   "err": 0.05
   },
   {
    "cascade": 2.0,
-   "run_share": 0.428,
-   "runs_per_draft": 20.21,
-   "err": 0.035
+   "run_share": 0.426,
+   "runs_per_draft": 20.08,
+   "err": 0.037
   },
   {
    "cascade": 4.0,
@@ -142,15 +142,15 @@
   },
   {
    "cascade": 8.0,
-   "run_share": 0.487,
-   "runs_per_draft": 22.08,
-   "err": 0.024
+   "run_share": 0.486,
+   "runs_per_draft": 22.04,
+   "err": 0.023
   },
   {
    "cascade": 16.0,
-   "run_share": 0.549,
-   "runs_per_draft": 24.08,
-   "err": 0.086
+   "run_share": 0.554,
+   "runs_per_draft": 24.25,
+   "err": 0.091
   }
  ],
  "checks": [
@@ -178,14 +178,14 @@
   {
    "stat": "timing_q1_RB",
    "real": 0.316,
-   "sim": 0.289,
+   "sim": 0.293,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_WR",
    "real": 0.468,
-   "sim": 0.367,
+   "sim": 0.364,
    "tolerance": 0.15,
    "reproduces": true
   },

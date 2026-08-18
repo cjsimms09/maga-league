@@ -2,7 +2,7 @@
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/sleeper_vs_fp_grade.py",
  "_prereg": "draft/backtest/SLEEPER-VS-FP-PREREG.md (committed before any number)",
  "_licensed_by": "draft/audit/sleeper_vs_fp_grade_2026-08-16.md \u2014 Sleeper's 2025 projection passed every preregistered leak gate; 2023 and 2024 did not and are NOT graded here",
- "_limitation": "ONE SEASON. own_v6 exists only for 2025 (it needs two prior weekly-points stores; 2021/2022 do not exist) and Sleeper's 2023/2024 are refused upstream. N=1 season is the ceiling of this evidence. Sleeper's 2025 file is also 7.1% hollow, so the shared population is easier than the true one by an unbounded amount \u2014 identically for every arm.",
+ "_limitation": "ONE SEASON. Sleeper's 2023/2024 are refused upstream by the leak gates (1/3 seasons clean: [2025]) \u2014 that is the binding limit. [Corrected 2026-08-18: this used to blame missing 2021/2022 weekly-points stores; they were built 08-17 (199103e4), so own_v6 covers 2023-25 and a Sleeper-free study is no longer season-capped.] N=1 season is the ceiling of this evidence. Sleeper's 2025 file is also 7.1% hollow, so the shared population is easier than the true one by an unbounded amount \u2014 identically for every arm.",
  "result": {
   "season": 2025,
   "population": {
