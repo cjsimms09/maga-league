@@ -206,10 +206,11 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
 
     depth_all = nfl.import_depth_charts(list(SEASONS))
     roster_all = nfl.import_seasonal_rosters(list(SEASONS))
+    # nfl_data_py 0.3.x seasonal rosters carry the GSIS id as `player_id`
+    # (nflverse renamed the column); normalise back so every downstream read
+    # and the guard below keep one name. Only when gsis_id is truly absent —
+    # a frame carrying BOTH is left alone.
     if "gsis_id" not in roster_all.columns and "player_id" in roster_all.columns:
-        # import_seasonal_rosters renames gsis_id -> player_id internally
-        # (nfl_data_py's own __import_rosters source); same id, restored to
-        # the name this module and its crosswalk join use throughout.
         roster_all = roster_all.rename(columns={"player_id": "gsis_id"})
 
     need_depth = {"season", "week", "club_code", "depth_team", "gsis_id", "position"}
@@ -227,13 +228,11 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
     roster_all = roster_all[roster_all["position"] == POSITION]
 
     def _offseason_week(season: int) -> int | None:
-        # some depth-chart rows carry a NaN week (e.g. a player listed with
-        # no game tie -- not an offseason snapshot); dropped here rather
-        # than crashing int(), matching _int_or_last's "unparsable is not
-        # a real value" stance for the same column elsewhere in this file
-        weeks = sorted({int(w) for w in
-                        depth_all[depth_all["season"] == season]["week"]
-                        if w == w})
+        # 0.3.x depth charts carry NaN weeks on some rows — a NaN is a row
+        # with no week, not week zero; drop it before int() or the whole
+        # season dies on one blank cell (third real-dispatch fix, A 08-18).
+        raw = depth_all[depth_all["season"] == season]["week"]
+        weeks = sorted(set(int(w) for w in raw if w == w))
         return weeks[0] if weeks else None
 
     by_season_depth, by_season_roster, as_of_by_season = {}, {}, {}
