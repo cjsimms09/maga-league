@@ -1,0 +1,3818 @@
+{
+ "status": "built",
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/external_adp_source_study.py",
+ "_prereg": "draft/backtest/ADP-SOURCE-2026-PREREG.md",
+ "_note": "The matched population per season, every arm's rank attached where available. No MAE, Spearman, survival accuracy, or decision rule computed here \u2014 that is the study's grading half. This module gets the rows.",
+ "as_of": "2026-08-18T02:37:40Z",
+ "arm_source_status": {
+  "ffc": "captured",
+  "fp": "captured",
+  "sleeper": "UNAVAILABLE for every historical season by construction"
+ },
+ "seasons": {
+  "2023": {
+   "status": "built",
+   "draft_selection": {
+    "status": "selected",
+    "drafts_seen": 2,
+    "chosen_draft_id": "1001232801791856640",
+    "chosen_picks": 150,
+    "other_draft_ids": [
+     {
+      "draft_id": "990840142107619329",
+      "picks": 30
+     }
+    ]
+   },
+   "season": 2023,
+   "graded_population": 150,
+   "keeper_picks_dropped": 0,
+   "total_picks_on_record": 150,
+   "coverage": {
+    "ffc": {
+     "status": "OK",
+     "covered": 144,
+     "of": 150,
+     "fraction": 0.96
+    },
+    "fp": {
+     "status": "OK",
+     "covered": 149,
+     "of": 150,
+     "fraction": 0.9933
+    },
+    "sleeper": {
+     "status": "UNAVAILABLE",
+     "reason": "search_rank has no history; never fetched for a historical season"
+    },
+    "blend50": {
+     "status": "OK",
+     "covered": 150,
+     "of": 150,
+     "fraction": 1.0
+    },
+    "last_year": {
+     "status": "UNAVAILABLE",
+     "reason": "no prior season on record"
+    }
+   },
+   "players": {
+    "4039": {
+     "actual_pick": 1,
+     "round": 1,
+     "ffc": 8.9,
+     "fp": 15.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 12.115
+    },
+    "6813": {
+     "actual_pick": 2,
+     "round": 1,
+     "ffc": 24.8,
+     "fp": 47.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 36.065
+    },
+    "4034": {
+     "actual_pick": 3,
+     "round": 1,
+     "ffc": 2.3,
+     "fp": 2.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 2.15
+    },
+    "4663": {
+     "actual_pick": 4,
+     "round": 1,
+     "ffc": 2.5,
+     "fp": 4.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 3.25
+    },
+    "7564": {
+     "actual_pick": 5,
+     "round": 1,
+     "ffc": 5.6,
+     "fp": 3.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 4.3
+    },
+    "2449": {
+     "actual_pick": 6,
+     "round": 1,
+     "ffc": 11.1,
+     "fp": 10.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 10.55
+    },
+    "4866": {
+     "actual_pick": 7,
+     "round": 1,
+     "ffc": 9.7,
+     "fp": 8.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 9.185
+    },
+    "1466": {
+     "actual_pick": 8,
+     "round": 1,
+     "ffc": 5.3,
+     "fp": 5.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 5.485
+    },
+    "3321": {
+     "actual_pick": 9,
+     "round": 1,
+     "ffc": 4.6,
+     "fp": 5.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 4.965
+    },
+    "6794": {
+     "actual_pick": 10,
+     "round": 1,
+     "ffc": 1.4,
+     "fp": 1.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 1.2
+    },
+    "3198": {
+     "actual_pick": 11,
+     "round": 2,
+     "ffc": 12.6,
+     "fp": 15.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 14.135
+    },
+    "6786": {
+     "actual_pick": 12,
+     "round": 2,
+     "ffc": 15.4,
+     "fp": 12.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 13.7
+    },
+    "5859": {
+     "actual_pick": 13,
+     "round": 2,
+     "ffc": 13.6,
+     "fp": 13.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 13.465
+    },
+    "5012": {
+     "actual_pick": 14,
+     "round": 2,
+     "ffc": 32.3,
+     "fp": 29.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 30.985
+    },
+    "4046": {
+     "actual_pick": 15,
+     "round": 2,
+     "ffc": 18.4,
+     "fp": 15.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 16.7
+    },
+    "7526": {
+     "actual_pick": 16,
+     "round": 2,
+     "ffc": 22.8,
+     "fp": 23.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 23.065
+    },
+    "5850": {
+     "actual_pick": 17,
+     "round": 2,
+     "ffc": 19.1,
+     "fp": 16.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 17.715
+    },
+    "7547": {
+     "actual_pick": 18,
+     "round": 2,
+     "ffc": 17.1,
+     "fp": 18.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 17.55
+    },
+    "6801": {
+     "actual_pick": 19,
+     "round": 2,
+     "ffc": 28.5,
+     "fp": 30.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 29.585
+    },
+    "6904": {
+     "actual_pick": 20,
+     "round": 2,
+     "ffc": 25.7,
+     "fp": 22.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 23.85
+    },
+    "8144": {
+     "actual_pick": 21,
+     "round": 3,
+     "ffc": 23.2,
+     "fp": 25.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 24.1
+    },
+    "6770": {
+     "actual_pick": 22,
+     "round": 3,
+     "ffc": 40.9,
+     "fp": 37.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 38.95
+    },
+    "5967": {
+     "actual_pick": 23,
+     "round": 3,
+     "ffc": 13.5,
+     "fp": 14.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 14.085
+    },
+    "7611": {
+     "actual_pick": 24,
+     "round": 3,
+     "ffc": 25.5,
+     "fp": 29.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 27.585
+    },
+    "4988": {
+     "actual_pick": 25,
+     "round": 3,
+     "ffc": 6.0,
+     "fp": 8.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 7.165
+    },
+    "2133": {
+     "actual_pick": 26,
+     "round": 3,
+     "ffc": 17.3,
+     "fp": 17.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 17.15
+    },
+    "7525": {
+     "actual_pick": 27,
+     "round": 3,
+     "ffc": 30.1,
+     "fp": 26.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 28.05
+    },
+    "5872": {
+     "actual_pick": 28,
+     "round": 3,
+     "ffc": 33.5,
+     "fp": 38.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 35.75
+    },
+    "8146": {
+     "actual_pick": 29,
+     "round": 3,
+     "ffc": 17.3,
+     "fp": 18.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 17.65
+    },
+    "8155": {
+     "actual_pick": 30,
+     "round": 3,
+     "ffc": 31.1,
+     "fp": 43.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 37.215
+    },
+    "9509": {
+     "actual_pick": 31,
+     "round": 4,
+     "ffc": 7.4,
+     "fp": 7.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 7.535
+    },
+    "7528": {
+     "actual_pick": 32,
+     "round": 4,
+     "ffc": 27.1,
+     "fp": 25.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 26.385
+    },
+    "4984": {
+     "actual_pick": 33,
+     "round": 4,
+     "ffc": 25.1,
+     "fp": 20.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 22.715
+    },
+    "9221": {
+     "actual_pick": 34,
+     "round": 4,
+     "ffc": 36.1,
+     "fp": 32.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 34.05
+    },
+    "7591": {
+     "actual_pick": 35,
+     "round": 4,
+     "ffc": 47.7,
+     "fp": 46.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 46.85
+    },
+    "4018": {
+     "actual_pick": 36,
+     "round": 4,
+     "ffc": 31.0,
+     "fp": 30.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 30.835
+    },
+    "7543": {
+     "actual_pick": 37,
+     "round": 4,
+     "ffc": 28.4,
+     "fp": 26.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 27.365
+    },
+    "4199": {
+     "actual_pick": 38,
+     "round": 4,
+     "ffc": 35.8,
+     "fp": 37.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 36.735
+    },
+    "8129": {
+     "actual_pick": 39,
+     "round": 4,
+     "ffc": 50.7,
+     "fp": 41.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 45.85
+    },
+    "4881": {
+     "actual_pick": 40,
+     "round": 4,
+     "ffc": 35.9,
+     "fp": 34.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 35.285
+    },
+    "8151": {
+     "actual_pick": 41,
+     "round": 5,
+     "ffc": 39.5,
+     "fp": 41.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 40.25
+    },
+    "6151": {
+     "actual_pick": 42,
+     "round": 5,
+     "ffc": 45.9,
+     "fp": 50.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 47.95
+    },
+    "5846": {
+     "actual_pick": 43,
+     "round": 5,
+     "ffc": 35.1,
+     "fp": 35.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 35.215
+    },
+    "1479": {
+     "actual_pick": 44,
+     "round": 5,
+     "ffc": 42.7,
+     "fp": 43.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 43.015
+    },
+    "5844": {
+     "actual_pick": 45,
+     "round": 5,
+     "ffc": 52.6,
+     "fp": 45.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 48.8
+    },
+    "4217": {
+     "actual_pick": 46,
+     "round": 5,
+     "ffc": 59.0,
+     "fp": 50.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 54.665
+    },
+    "4981": {
+     "actual_pick": 47,
+     "round": 5,
+     "ffc": 36.1,
+     "fp": 34.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 35.385
+    },
+    "6806": {
+     "actual_pick": 48,
+     "round": 5,
+     "ffc": 46.0,
+     "fp": null,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 46.0
+    },
+    "4983": {
+     "actual_pick": 49,
+     "round": 5,
+     "ffc": 41.7,
+     "fp": 50.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 46.185
+    },
+    "1426": {
+     "actual_pick": 50,
+     "round": 5,
+     "ffc": 52.7,
+     "fp": 56.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 54.35
+    },
+    "5987": {
+     "actual_pick": 51,
+     "round": 6,
+     "ffc": 50.2,
+     "fp": 52.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 51.435
+    },
+    "7553": {
+     "actual_pick": 52,
+     "round": 6,
+     "ffc": 73.5,
+     "fp": 64.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 69.085
+    },
+    "2309": {
+     "actual_pick": 53,
+     "round": 6,
+     "ffc": 31.2,
+     "fp": 40.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 35.935
+    },
+    "2505": {
+     "actual_pick": 54,
+     "round": 6,
+     "ffc": 70.3,
+     "fp": 54.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 62.485
+    },
+    "6797": {
+     "actual_pick": 55,
+     "round": 6,
+     "ffc": 44.9,
+     "fp": 44.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 44.615
+    },
+    "6783": {
+     "actual_pick": 56,
+     "round": 6,
+     "ffc": 45.4,
+     "fp": 78.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 62.035
+    },
+    "7523": {
+     "actual_pick": 57,
+     "round": 6,
+     "ffc": 56.1,
+     "fp": 55.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 55.715
+    },
+    "6938": {
+     "actual_pick": 58,
+     "round": 6,
+     "ffc": 48.6,
+     "fp": 57.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 52.965
+    },
+    "8112": {
+     "actual_pick": 59,
+     "round": 6,
+     "ffc": 56.2,
+     "fp": 60.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 58.265
+    },
+    "4017": {
+     "actual_pick": 60,
+     "round": 6,
+     "ffc": 71.3,
+     "fp": 87.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 79.485
+    },
+    "4035": {
+     "actual_pick": 61,
+     "round": 7,
+     "ffc": 66.1,
+     "fp": 71.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 68.715
+    },
+    "5022": {
+     "actual_pick": 62,
+     "round": 7,
+     "ffc": 82.4,
+     "fp": 64.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 73.2
+    },
+    "5927": {
+     "actual_pick": 63,
+     "round": 7,
+     "ffc": 51.6,
+     "fp": 57.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 54.3
+    },
+    "8167": {
+     "actual_pick": 64,
+     "round": 7,
+     "ffc": 49.1,
+     "fp": 61.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 55.385
+    },
+    "4068": {
+     "actual_pick": 65,
+     "round": 7,
+     "ffc": 60.3,
+     "fp": 67.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 63.985
+    },
+    "8138": {
+     "actual_pick": 66,
+     "round": 7,
+     "ffc": 71.6,
+     "fp": 63.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 67.465
+    },
+    "6803": {
+     "actual_pick": 67,
+     "round": 7,
+     "ffc": 58.9,
+     "fp": 64.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 61.615
+    },
+    "4137": {
+     "actual_pick": 68,
+     "round": 7,
+     "ffc": 57.2,
+     "fp": 60.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 58.935
+    },
+    "8205": {
+     "actual_pick": 69,
+     "round": 7,
+     "ffc": 59.6,
+     "fp": 72.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 65.8
+    },
+    "7600": {
+     "actual_pick": 70,
+     "round": 7,
+     "ffc": 98.5,
+     "fp": 82.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 90.585
+    },
+    "4037": {
+     "actual_pick": 71,
+     "round": 8,
+     "ffc": 68.1,
+     "fp": 65.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 66.885
+    },
+    "6790": {
+     "actual_pick": 72,
+     "round": 8,
+     "ffc": 69.3,
+     "fp": 73.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 71.315
+    },
+    "4066": {
+     "actual_pick": 73,
+     "round": 8,
+     "ffc": 108.9,
+     "fp": 82.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 95.785
+    },
+    "4029": {
+     "actual_pick": 74,
+     "round": 8,
+     "ffc": null,
+     "fp": 66.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 66.0
+    },
+    "7588": {
+     "actual_pick": 75,
+     "round": 8,
+     "ffc": 65.7,
+     "fp": 64.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 65.015
+    },
+    "2216": {
+     "actual_pick": 76,
+     "round": 8,
+     "ffc": 66.2,
+     "fp": 80.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 73.265
+    },
+    "2374": {
+     "actual_pick": 77,
+     "round": 8,
+     "ffc": 62.7,
+     "fp": 63.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 62.85
+    },
+    "9756": {
+     "actual_pick": 78,
+     "round": 8,
+     "ffc": 85.4,
+     "fp": 91.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 88.535
+    },
+    "6828": {
+     "actual_pick": 79,
+     "round": 8,
+     "ffc": 85.2,
+     "fp": 91.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 88.1
+    },
+    "6819": {
+     "actual_pick": 80,
+     "round": 8,
+     "ffc": 75.7,
+     "fp": 80.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 78.015
+    },
+    "8119": {
+     "actual_pick": 81,
+     "round": 9,
+     "ffc": 78.8,
+     "fp": 88.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 83.4
+    },
+    "4950": {
+     "actual_pick": 82,
+     "round": 9,
+     "ffc": 64.0,
+     "fp": 75.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 69.5
+    },
+    "8136": {
+     "actual_pick": 83,
+     "round": 9,
+     "ffc": 63.2,
+     "fp": 69.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 66.1
+    },
+    "5848": {
+     "actual_pick": 84,
+     "round": 9,
+     "ffc": 70.8,
+     "fp": 89.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 80.065
+    },
+    "7606": {
+     "actual_pick": 85,
+     "round": 9,
+     "ffc": 98.1,
+     "fp": 119.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 108.715
+    },
+    "5892": {
+     "actual_pick": 86,
+     "round": 9,
+     "ffc": 62.4,
+     "fp": 76.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 69.535
+    },
+    "9488": {
+     "actual_pick": 87,
+     "round": 9,
+     "ffc": 89.5,
+     "fp": 96.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 92.915
+    },
+    "5937": {
+     "actual_pick": 88,
+     "round": 9,
+     "ffc": 71.4,
+     "fp": 75.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 73.535
+    },
+    "2197": {
+     "actual_pick": 89,
+     "round": 9,
+     "ffc": 91.5,
+     "fp": 98.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 95.085
+    },
+    "5086": {
+     "actual_pick": 90,
+     "round": 9,
+     "ffc": 162.8,
+     "fp": 215.5,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 189.15
+    },
+    "5185": {
+     "actual_pick": 91,
+     "round": 10,
+     "ffc": 120.6,
+     "fp": 140.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 130.635
+    },
+    "9997": {
+     "actual_pick": 92,
+     "round": 10,
+     "ffc": 104.8,
+     "fp": 110.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 107.735
+    },
+    "10236": {
+     "actual_pick": 93,
+     "round": 10,
+     "ffc": 149.9,
+     "fp": 121.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 135.785
+    },
+    "SF": {
+     "actual_pick": 94,
+     "round": 10,
+     "ffc": 123.3,
+     "fp": 94.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 108.65
+    },
+    "8137": {
+     "actual_pick": 95,
+     "round": 10,
+     "ffc": 76.5,
+     "fp": 78.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 77.585
+    },
+    "6945": {
+     "actual_pick": 96,
+     "round": 10,
+     "ffc": 87.6,
+     "fp": 93.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 90.3
+    },
+    "7608": {
+     "actual_pick": 97,
+     "round": 10,
+     "ffc": 98.1,
+     "fp": 89.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 93.885
+    },
+    "8154": {
+     "actual_pick": 98,
+     "round": 10,
+     "ffc": 79.5,
+     "fp": 96.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 87.915
+    },
+    "3294": {
+     "actual_pick": 99,
+     "round": 10,
+     "ffc": 76.6,
+     "fp": 85.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 80.965
+    },
+    "9226": {
+     "actual_pick": 100,
+     "round": 10,
+     "ffc": 113.7,
+     "fp": 131.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 122.685
+    },
+    "5045": {
+     "actual_pick": 101,
+     "round": 11,
+     "ffc": 92.9,
+     "fp": 108.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 100.45
+    },
+    "4227": {
+     "actual_pick": 102,
+     "round": 11,
+     "ffc": 140.1,
+     "fp": 141.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 140.715
+    },
+    "DAL": {
+     "actual_pick": 103,
+     "round": 11,
+     "ffc": 132.3,
+     "fp": 110.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 121.485
+    },
+    "2749": {
+     "actual_pick": 104,
+     "round": 11,
+     "ffc": 110.2,
+     "fp": 118.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 114.435
+    },
+    "4040": {
+     "actual_pick": 105,
+     "round": 11,
+     "ffc": 110.7,
+     "fp": 124.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 117.685
+    },
+    "9754": {
+     "actual_pick": 106,
+     "round": 11,
+     "ffc": 95.8,
+     "fp": 139.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 117.4
+    },
+    "4033": {
+     "actual_pick": 107,
+     "round": 11,
+     "ffc": 114.5,
+     "fp": 95.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 105.085
+    },
+    "4149": {
+     "actual_pick": 108,
+     "round": 11,
+     "ffc": 88.6,
+     "fp": 101.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 94.965
+    },
+    "1264": {
+     "actual_pick": 109,
+     "round": 11,
+     "ffc": 135.5,
+     "fp": 111.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 123.415
+    },
+    "2161": {
+     "actual_pick": 110,
+     "round": 11,
+     "ffc": 120.6,
+     "fp": 127.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 123.965
+    },
+    "2078": {
+     "actual_pick": 111,
+     "round": 12,
+     "ffc": 114.5,
+     "fp": 114.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 114.585
+    },
+    "96": {
+     "actual_pick": 112,
+     "round": 12,
+     "ffc": 100.9,
+     "fp": 105.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 103.285
+    },
+    "6943": {
+     "actual_pick": 113,
+     "round": 12,
+     "ffc": 83.0,
+     "fp": 98.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 90.5
+    },
+    "3199": {
+     "actual_pick": 114,
+     "round": 12,
+     "ffc": 107.0,
+     "fp": 106.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 106.835
+    },
+    "4147": {
+     "actual_pick": 115,
+     "round": 12,
+     "ffc": 93.9,
+     "fp": 111.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 102.615
+    },
+    "9753": {
+     "actual_pick": 116,
+     "round": 12,
+     "ffc": 97.2,
+     "fp": 106.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 101.935
+    },
+    "9229": {
+     "actual_pick": 117,
+     "round": 12,
+     "ffc": 133.2,
+     "fp": 114.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 123.765
+    },
+    "1373": {
+     "actual_pick": 118,
+     "round": 12,
+     "ffc": 104.1,
+     "fp": 121.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 112.715
+    },
+    "PHI": {
+     "actual_pick": 119,
+     "round": 12,
+     "ffc": 139.3,
+     "fp": 105.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 122.485
+    },
+    "BUF": {
+     "actual_pick": 120,
+     "round": 12,
+     "ffc": 135.6,
+     "fp": 123.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 129.635
+    },
+    "7839": {
+     "actual_pick": 121,
+     "round": 13,
+     "ffc": 149.7,
+     "fp": 138.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 144.015
+    },
+    "4985": {
+     "actual_pick": 122,
+     "round": 13,
+     "ffc": 83.1,
+     "fp": 110.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 96.885
+    },
+    "9225": {
+     "actual_pick": 123,
+     "round": 13,
+     "ffc": 137.0,
+     "fp": 141.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 139.335
+    },
+    "8132": {
+     "actual_pick": 124,
+     "round": 13,
+     "ffc": 109.2,
+     "fp": 149.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 129.435
+    },
+    "5890": {
+     "actual_pick": 125,
+     "round": 13,
+     "ffc": 96.2,
+     "fp": 123.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 109.765
+    },
+    "7042": {
+     "actual_pick": 126,
+     "round": 13,
+     "ffc": 141.6,
+     "fp": 134.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 138.135
+    },
+    "5095": {
+     "actual_pick": 127,
+     "round": 13,
+     "ffc": 139.9,
+     "fp": 129.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 134.45
+    },
+    "NYJ": {
+     "actual_pick": 128,
+     "round": 13,
+     "ffc": null,
+     "fp": 133.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 133.67
+    },
+    "BAL": {
+     "actual_pick": 129,
+     "round": 13,
+     "ffc": 150.2,
+     "fp": 151.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 150.765
+    },
+    "NO": {
+     "actual_pick": 130,
+     "round": 13,
+     "ffc": 145.8,
+     "fp": 188.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 167.235
+    },
+    "4195": {
+     "actual_pick": 131,
+     "round": 14,
+     "ffc": 145.9,
+     "fp": 187.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 166.45
+    },
+    "6826": {
+     "actual_pick": 132,
+     "round": 14,
+     "ffc": 132.7,
+     "fp": 145.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 139.015
+    },
+    "4666": {
+     "actual_pick": 133,
+     "round": 14,
+     "ffc": 146.3,
+     "fp": 155.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 150.815
+    },
+    "7561": {
+     "actual_pick": 134,
+     "round": 14,
+     "ffc": 100.6,
+     "fp": 131.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 115.965
+    },
+    "8168": {
+     "actual_pick": 135,
+     "round": 14,
+     "ffc": 121.7,
+     "fp": 120.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 121.185
+    },
+    "NE": {
+     "actual_pick": 136,
+     "round": 14,
+     "ffc": 152.4,
+     "fp": 143.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 147.7
+    },
+    "GB": {
+     "actual_pick": 137,
+     "round": 14,
+     "ffc": null,
+     "fp": 231.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 231.67
+    },
+    "2747": {
+     "actual_pick": 138,
+     "round": 14,
+     "ffc": 170.9,
+     "fp": 189.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 180.115
+    },
+    "3164": {
+     "actual_pick": 139,
+     "round": 14,
+     "ffc": null,
+     "fp": 125.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 125.33
+    },
+    "6768": {
+     "actual_pick": 140,
+     "round": 14,
+     "ffc": 81.2,
+     "fp": 96.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 88.6
+    },
+    "7567": {
+     "actual_pick": 141,
+     "round": 15,
+     "ffc": 114.1,
+     "fp": 147.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 130.55
+    },
+    "5001": {
+     "actual_pick": 142,
+     "round": 15,
+     "ffc": 110.4,
+     "fp": 139.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 124.865
+    },
+    "8148": {
+     "actual_pick": 143,
+     "round": 15,
+     "ffc": 112.2,
+     "fp": 157.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 134.935
+    },
+    "5119": {
+     "actual_pick": 144,
+     "round": 15,
+     "ffc": 167.2,
+     "fp": 206.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 186.6
+    },
+    "10937": {
+     "actual_pick": 145,
+     "round": 15,
+     "ffc": null,
+     "fp": 210.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 210.0
+    },
+    "KC": {
+     "actual_pick": 146,
+     "round": 15,
+     "ffc": 167.9,
+     "fp": 216.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 192.285
+    },
+    "1166": {
+     "actual_pick": 147,
+     "round": 15,
+     "ffc": 90.6,
+     "fp": 112.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 101.635
+    },
+    "3163": {
+     "actual_pick": 148,
+     "round": 15,
+     "ffc": 120.7,
+     "fp": 142.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 131.515
+    },
+    "7596": {
+     "actual_pick": 149,
+     "round": 15,
+     "ffc": 101.4,
+     "fp": 117.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 109.365
+    },
+    "9228": {
+     "actual_pick": 150,
+     "round": 15,
+     "ffc": null,
+     "fp": 163.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 163.0
+    }
+   }
+  },
+  "2024": {
+   "status": "built",
+   "draft_selection": {
+    "status": "selected",
+    "drafts_seen": 1,
+    "chosen_draft_id": "1117672595379277825",
+    "chosen_picks": 150,
+    "other_draft_ids": []
+   },
+   "season": 2024,
+   "graded_population": 127,
+   "keeper_picks_dropped": 23,
+   "total_picks_on_record": 150,
+   "coverage": {
+    "ffc": {
+     "status": "OK",
+     "covered": 121,
+     "of": 127,
+     "fraction": 0.9528
+    },
+    "fp": {
+     "status": "OK",
+     "covered": 127,
+     "of": 127,
+     "fraction": 1.0
+    },
+    "sleeper": {
+     "status": "UNAVAILABLE",
+     "reason": "search_rank has no history; never fetched for a historical season"
+    },
+    "blend50": {
+     "status": "OK",
+     "covered": 127,
+     "of": 127,
+     "fraction": 1.0
+    },
+    "last_year": {
+     "status": "PARTIAL",
+     "covered": 81,
+     "of": 127,
+     "fraction": 0.6378
+    }
+   },
+   "players": {
+    "5850": {
+     "actual_pick": 1,
+     "round": 1,
+     "ffc": 19.9,
+     "fp": 23.33,
+     "sleeper": null,
+     "last_year": 17,
+     "blend50": 21.615
+    },
+    "11628": {
+     "actual_pick": 15,
+     "round": 2,
+     "ffc": 16.1,
+     "fp": 15.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 15.885
+    },
+    "8205": {
+     "actual_pick": 20,
+     "round": 2,
+     "ffc": 21.0,
+     "fp": 22.0,
+     "sleeper": null,
+     "last_year": 69,
+     "blend50": 21.5
+    },
+    "5872": {
+     "actual_pick": 21,
+     "round": 3,
+     "ffc": 18.2,
+     "fp": 27.33,
+     "sleeper": null,
+     "last_year": 28,
+     "blend50": 22.765
+    },
+    "7569": {
+     "actual_pick": 22,
+     "round": 3,
+     "ffc": 31.3,
+     "fp": 30.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 30.985
+    },
+    "8136": {
+     "actual_pick": 23,
+     "round": 3,
+     "ffc": 29.1,
+     "fp": 35.67,
+     "sleeper": null,
+     "last_year": 83,
+     "blend50": 32.385
+    },
+    "3198": {
+     "actual_pick": 26,
+     "round": 3,
+     "ffc": 13.1,
+     "fp": 17.0,
+     "sleeper": null,
+     "last_year": 11,
+     "blend50": 15.05
+    },
+    "10859": {
+     "actual_pick": 31,
+     "round": 4,
+     "ffc": 33.4,
+     "fp": 30.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 32.035
+    },
+    "7526": {
+     "actual_pick": 32,
+     "round": 4,
+     "ffc": 30.9,
+     "fp": 39.0,
+     "sleeper": null,
+     "last_year": 16,
+     "blend50": 34.95
+    },
+    "8138": {
+     "actual_pick": 33,
+     "round": 4,
+     "ffc": 32.0,
+     "fp": 36.0,
+     "sleeper": null,
+     "last_year": 66,
+     "blend50": 34.0
+    },
+    "8151": {
+     "actual_pick": 34,
+     "round": 4,
+     "ffc": 27.1,
+     "fp": 41.0,
+     "sleeper": null,
+     "last_year": 41,
+     "blend50": 34.05
+    },
+    "8112": {
+     "actual_pick": 35,
+     "round": 4,
+     "ffc": 25.1,
+     "fp": 22.33,
+     "sleeper": null,
+     "last_year": 59,
+     "blend50": 23.715
+    },
+    "2133": {
+     "actual_pick": 36,
+     "round": 4,
+     "ffc": 21.0,
+     "fp": 21.0,
+     "sleeper": null,
+     "last_year": 26,
+     "blend50": 21.0
+    },
+    "6803": {
+     "actual_pick": 37,
+     "round": 4,
+     "ffc": 40.5,
+     "fp": 33.33,
+     "sleeper": null,
+     "last_year": 67,
+     "blend50": 36.915
+    },
+    "5892": {
+     "actual_pick": 38,
+     "round": 4,
+     "ffc": 51.1,
+     "fp": 60.67,
+     "sleeper": null,
+     "last_year": 86,
+     "blend50": 55.885
+    },
+    "4983": {
+     "actual_pick": 39,
+     "round": 4,
+     "ffc": 37.9,
+     "fp": 38.33,
+     "sleeper": null,
+     "last_year": 49,
+     "blend50": 38.115
+    },
+    "4035": {
+     "actual_pick": 40,
+     "round": 4,
+     "ffc": 47.4,
+     "fp": 45.67,
+     "sleeper": null,
+     "last_year": 61,
+     "blend50": 46.535
+    },
+    "4039": {
+     "actual_pick": 41,
+     "round": 5,
+     "ffc": 22.6,
+     "fp": 34.67,
+     "sleeper": null,
+     "last_year": 1,
+     "blend50": 28.635
+    },
+    "8130": {
+     "actual_pick": 42,
+     "round": 5,
+     "ffc": 58.9,
+     "fp": 48.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 53.45
+    },
+    "2449": {
+     "actual_pick": 43,
+     "round": 5,
+     "ffc": 44.2,
+     "fp": 42.33,
+     "sleeper": null,
+     "last_year": 6,
+     "blend50": 43.265
+    },
+    "10236": {
+     "actual_pick": 44,
+     "round": 5,
+     "ffc": 67.0,
+     "fp": 52.0,
+     "sleeper": null,
+     "last_year": 93,
+     "blend50": 59.5
+    },
+    "5012": {
+     "actual_pick": 45,
+     "round": 5,
+     "ffc": 49.7,
+     "fp": 49.0,
+     "sleeper": null,
+     "last_year": 14,
+     "blend50": 49.35
+    },
+    "11632": {
+     "actual_pick": 46,
+     "round": 5,
+     "ffc": 52.5,
+     "fp": 48.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 50.415
+    },
+    "6904": {
+     "actual_pick": 47,
+     "round": 5,
+     "ffc": 33.9,
+     "fp": 31.33,
+     "sleeper": null,
+     "last_year": 20,
+     "blend50": 32.615
+    },
+    "4881": {
+     "actual_pick": 48,
+     "round": 5,
+     "ffc": 40.6,
+     "fp": 37.0,
+     "sleeper": null,
+     "last_year": 40,
+     "blend50": 38.8
+    },
+    "6801": {
+     "actual_pick": 49,
+     "round": 5,
+     "ffc": 48.5,
+     "fp": 62.0,
+     "sleeper": null,
+     "last_year": 19,
+     "blend50": 55.25
+    },
+    "9758": {
+     "actual_pick": 50,
+     "round": 5,
+     "ffc": 44.2,
+     "fp": 47.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 45.935
+    },
+    "2309": {
+     "actual_pick": 51,
+     "round": 6,
+     "ffc": 49.5,
+     "fp": 55.67,
+     "sleeper": null,
+     "last_year": 53,
+     "blend50": 52.585
+    },
+    "4137": {
+     "actual_pick": 52,
+     "round": 6,
+     "ffc": 45.0,
+     "fp": 58.33,
+     "sleeper": null,
+     "last_year": 68,
+     "blend50": 51.665
+    },
+    "9997": {
+     "actual_pick": 53,
+     "round": 6,
+     "ffc": 56.9,
+     "fp": 63.33,
+     "sleeper": null,
+     "last_year": 92,
+     "blend50": 60.115
+    },
+    "6819": {
+     "actual_pick": 54,
+     "round": 6,
+     "ffc": 46.2,
+     "fp": 38.67,
+     "sleeper": null,
+     "last_year": 80,
+     "blend50": 42.435
+    },
+    "7611": {
+     "actual_pick": 55,
+     "round": 6,
+     "ffc": 61.9,
+     "fp": 60.67,
+     "sleeper": null,
+     "last_year": 24,
+     "blend50": 61.285
+    },
+    "5846": {
+     "actual_pick": 56,
+     "round": 6,
+     "ffc": 35.5,
+     "fp": 38.67,
+     "sleeper": null,
+     "last_year": 43,
+     "blend50": 37.085
+    },
+    "6790": {
+     "actual_pick": 57,
+     "round": 6,
+     "ffc": 57.9,
+     "fp": 63.0,
+     "sleeper": null,
+     "last_year": 72,
+     "blend50": 60.45
+    },
+    "4199": {
+     "actual_pick": 58,
+     "round": 6,
+     "ffc": 42.7,
+     "fp": 55.33,
+     "sleeper": null,
+     "last_year": 38,
+     "blend50": 49.015
+    },
+    "9229": {
+     "actual_pick": 59,
+     "round": 6,
+     "ffc": 64.4,
+     "fp": 50.67,
+     "sleeper": null,
+     "last_year": 117,
+     "blend50": 57.535
+    },
+    "4217": {
+     "actual_pick": 60,
+     "round": 6,
+     "ffc": 72.4,
+     "fp": 60.0,
+     "sleeper": null,
+     "last_year": 46,
+     "blend50": 66.2
+    },
+    "6770": {
+     "actual_pick": 61,
+     "round": 7,
+     "ffc": 81.0,
+     "fp": 64.67,
+     "sleeper": null,
+     "last_year": 22,
+     "blend50": 72.835
+    },
+    "7525": {
+     "actual_pick": 62,
+     "round": 7,
+     "ffc": 40.2,
+     "fp": 45.67,
+     "sleeper": null,
+     "last_year": 27,
+     "blend50": 42.935
+    },
+    "3294": {
+     "actual_pick": 63,
+     "round": 7,
+     "ffc": 56.7,
+     "fp": 72.67,
+     "sleeper": null,
+     "last_year": 99,
+     "blend50": 64.685
+    },
+    "9502": {
+     "actual_pick": 64,
+     "round": 7,
+     "ffc": 48.5,
+     "fp": 63.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 55.915
+    },
+    "7528": {
+     "actual_pick": 65,
+     "round": 7,
+     "ffc": 55.9,
+     "fp": 67.67,
+     "sleeper": null,
+     "last_year": 32,
+     "blend50": 61.785
+    },
+    "7553": {
+     "actual_pick": 66,
+     "round": 7,
+     "ffc": 83.3,
+     "fp": 63.33,
+     "sleeper": null,
+     "last_year": 52,
+     "blend50": 73.315
+    },
+    "5927": {
+     "actual_pick": 67,
+     "round": 7,
+     "ffc": 70.6,
+     "fp": 67.0,
+     "sleeper": null,
+     "last_year": 63,
+     "blend50": 68.8
+    },
+    "10229": {
+     "actual_pick": 68,
+     "round": 7,
+     "ffc": 64.1,
+     "fp": 70.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 67.215
+    },
+    "4066": {
+     "actual_pick": 69,
+     "round": 7,
+     "ffc": 89.3,
+     "fp": 70.67,
+     "sleeper": null,
+     "last_year": 73,
+     "blend50": 79.985
+    },
+    "1479": {
+     "actual_pick": 70,
+     "round": 7,
+     "ffc": 61.9,
+     "fp": 75.33,
+     "sleeper": null,
+     "last_year": 44,
+     "blend50": 68.615
+    },
+    "11624": {
+     "actual_pick": 71,
+     "round": 8,
+     "ffc": 78.8,
+     "fp": 91.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 85.065
+    },
+    "5967": {
+     "actual_pick": 72,
+     "round": 8,
+     "ffc": 75.9,
+     "fp": 82.0,
+     "sleeper": null,
+     "last_year": 23,
+     "blend50": 78.95
+    },
+    "11604": {
+     "actual_pick": 73,
+     "round": 8,
+     "ffc": 108.1,
+     "fp": 97.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 102.885
+    },
+    "4981": {
+     "actual_pick": 74,
+     "round": 8,
+     "ffc": 74.2,
+     "fp": 81.33,
+     "sleeper": null,
+     "last_year": 47,
+     "blend50": 77.765
+    },
+    "11583": {
+     "actual_pick": 75,
+     "round": 8,
+     "ffc": 82.7,
+     "fp": 101.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 92.015
+    },
+    "8137": {
+     "actual_pick": 76,
+     "round": 8,
+     "ffc": 54.7,
+     "fp": 61.67,
+     "sleeper": null,
+     "last_year": 95,
+     "blend50": 58.185
+    },
+    "2749": {
+     "actual_pick": 77,
+     "round": 8,
+     "ffc": 68.0,
+     "fp": 72.0,
+     "sleeper": null,
+     "last_year": 104,
+     "blend50": 70.0
+    },
+    "4033": {
+     "actual_pick": 78,
+     "round": 8,
+     "ffc": 102.9,
+     "fp": 90.0,
+     "sleeper": null,
+     "last_year": 107,
+     "blend50": 96.45
+    },
+    "4950": {
+     "actual_pick": 79,
+     "round": 8,
+     "ffc": 54.2,
+     "fp": 72.33,
+     "sleeper": null,
+     "last_year": 82,
+     "blend50": 63.265
+    },
+    "11620": {
+     "actual_pick": 80,
+     "round": 8,
+     "ffc": 133.8,
+     "fp": 93.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 113.4
+    },
+    "SF": {
+     "actual_pick": 81,
+     "round": 9,
+     "ffc": 136.3,
+     "fp": 127.33,
+     "sleeper": null,
+     "last_year": 94,
+     "blend50": 131.815
+    },
+    "8228": {
+     "actual_pick": 82,
+     "round": 9,
+     "ffc": 82.5,
+     "fp": 91.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 87.085
+    },
+    "8139": {
+     "actual_pick": 83,
+     "round": 9,
+     "ffc": 64.8,
+     "fp": 68.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 66.735
+    },
+    "10222": {
+     "actual_pick": 84,
+     "round": 9,
+     "ffc": 63.1,
+     "fp": 85.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 74.385
+    },
+    "5849": {
+     "actual_pick": 85,
+     "round": 9,
+     "ffc": 68.4,
+     "fp": 62.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 65.365
+    },
+    "7588": {
+     "actual_pick": 86,
+     "round": 9,
+     "ffc": 117.7,
+     "fp": 82.0,
+     "sleeper": null,
+     "last_year": 75,
+     "blend50": 99.85
+    },
+    "4988": {
+     "actual_pick": 87,
+     "round": 9,
+     "ffc": 57.8,
+     "fp": 96.33,
+     "sleeper": null,
+     "last_year": 25,
+     "blend50": 77.065
+    },
+    "4037": {
+     "actual_pick": 88,
+     "round": 9,
+     "ffc": 71.5,
+     "fp": 79.67,
+     "sleeper": null,
+     "last_year": 71,
+     "blend50": 75.585
+    },
+    "6845": {
+     "actual_pick": 89,
+     "round": 9,
+     "ffc": 75.3,
+     "fp": 91.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 83.15
+    },
+    "4663": {
+     "actual_pick": 90,
+     "round": 9,
+     "ffc": 88.7,
+     "fp": 98.33,
+     "sleeper": null,
+     "last_year": 4,
+     "blend50": 93.515
+    },
+    "6130": {
+     "actual_pick": 91,
+     "round": 10,
+     "ffc": 109.7,
+     "fp": 89.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 99.515
+    },
+    "5848": {
+     "actual_pick": 92,
+     "round": 10,
+     "ffc": 78.2,
+     "fp": 106.67,
+     "sleeper": null,
+     "last_year": 84,
+     "blend50": 92.435
+    },
+    "8154": {
+     "actual_pick": 93,
+     "round": 10,
+     "ffc": 90.2,
+     "fp": 93.33,
+     "sleeper": null,
+     "last_year": 98,
+     "blend50": 91.765
+    },
+    "11589": {
+     "actual_pick": 94,
+     "round": 10,
+     "ffc": 102.2,
+     "fp": 117.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 109.765
+    },
+    "9224": {
+     "actual_pick": 95,
+     "round": 10,
+     "ffc": 93.3,
+     "fp": 107.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 100.315
+    },
+    "8167": {
+     "actual_pick": 96,
+     "round": 10,
+     "ffc": 82.8,
+     "fp": 103.33,
+     "sleeper": null,
+     "last_year": 64,
+     "blend50": 93.065
+    },
+    "11635": {
+     "actual_pick": 97,
+     "round": 10,
+     "ffc": 88.5,
+     "fp": 110.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 99.585
+    },
+    "9756": {
+     "actual_pick": 98,
+     "round": 10,
+     "ffc": 127.3,
+     "fp": 107.0,
+     "sleeper": null,
+     "last_year": 78,
+     "blend50": 117.15
+    },
+    "8143": {
+     "actual_pick": 99,
+     "round": 10,
+     "ffc": 95.9,
+     "fp": 108.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 102.115
+    },
+    "11637": {
+     "actual_pick": 100,
+     "round": 10,
+     "ffc": 81.5,
+     "fp": 118.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 99.915
+    },
+    "5248": {
+     "actual_pick": 101,
+     "round": 11,
+     "ffc": 86.9,
+     "fp": 114.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 100.615
+    },
+    "6804": {
+     "actual_pick": 102,
+     "round": 11,
+     "ffc": 78.7,
+     "fp": 72.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 75.35
+    },
+    "NYJ": {
+     "actual_pick": 103,
+     "round": 11,
+     "ffc": 141.9,
+     "fp": 132.0,
+     "sleeper": null,
+     "last_year": 128,
+     "blend50": 136.95
+    },
+    "9753": {
+     "actual_pick": 104,
+     "round": 11,
+     "ffc": 114.6,
+     "fp": 149.0,
+     "sleeper": null,
+     "last_year": 116,
+     "blend50": 131.8
+    },
+    "6806": {
+     "actual_pick": 105,
+     "round": 11,
+     "ffc": 120.3,
+     "fp": 138.0,
+     "sleeper": null,
+     "last_year": 48,
+     "blend50": 129.15
+    },
+    "11560": {
+     "actual_pick": 106,
+     "round": 11,
+     "ffc": 112.9,
+     "fp": 100.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 106.615
+    },
+    "11631": {
+     "actual_pick": 107,
+     "round": 11,
+     "ffc": 142.9,
+     "fp": 111.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 127.115
+    },
+    "4227": {
+     "actual_pick": 108,
+     "round": 11,
+     "ffc": 141.1,
+     "fp": 125.33,
+     "sleeper": null,
+     "last_year": 102,
+     "blend50": 133.215
+    },
+    "8110": {
+     "actual_pick": 109,
+     "round": 11,
+     "ffc": 94.3,
+     "fp": 82.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 88.315
+    },
+    "11586": {
+     "actual_pick": 110,
+     "round": 11,
+     "ffc": 105.2,
+     "fp": 122.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 113.6
+    },
+    "1264": {
+     "actual_pick": 111,
+     "round": 12,
+     "ffc": 137.5,
+     "fp": 117.33,
+     "sleeper": null,
+     "last_year": 109,
+     "blend50": 127.415
+    },
+    "1426": {
+     "actual_pick": 112,
+     "round": 12,
+     "ffc": 91.7,
+     "fp": 108.67,
+     "sleeper": null,
+     "last_year": 50,
+     "blend50": 100.185
+    },
+    "9508": {
+     "actual_pick": 113,
+     "round": 12,
+     "ffc": 89.9,
+     "fp": 102.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 95.95
+    },
+    "7594": {
+     "actual_pick": 114,
+     "round": 12,
+     "ffc": 121.3,
+     "fp": 136.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 128.815
+    },
+    "11566": {
+     "actual_pick": 115,
+     "round": 12,
+     "ffc": 116.7,
+     "fp": 98.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 107.685
+    },
+    "6768": {
+     "actual_pick": 116,
+     "round": 12,
+     "ffc": 89.6,
+     "fp": 104.67,
+     "sleeper": null,
+     "last_year": 140,
+     "blend50": 97.135
+    },
+    "3163": {
+     "actual_pick": 117,
+     "round": 12,
+     "ffc": 92.3,
+     "fp": 107.33,
+     "sleeper": null,
+     "last_year": 148,
+     "blend50": 99.815
+    },
+    "8183": {
+     "actual_pick": 118,
+     "round": 12,
+     "ffc": 61.7,
+     "fp": 94.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 77.85
+    },
+    "5001": {
+     "actual_pick": 119,
+     "round": 12,
+     "ffc": 143.7,
+     "fp": 127.67,
+     "sleeper": null,
+     "last_year": 142,
+     "blend50": 135.685
+    },
+    "3164": {
+     "actual_pick": 120,
+     "round": 12,
+     "ffc": 131.2,
+     "fp": 114.33,
+     "sleeper": null,
+     "last_year": 139,
+     "blend50": 122.765
+    },
+    "11533": {
+     "actual_pick": 121,
+     "round": 13,
+     "ffc": 136.5,
+     "fp": 116.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 126.25
+    },
+    "7042": {
+     "actual_pick": 122,
+     "round": 13,
+     "ffc": null,
+     "fp": 184.0,
+     "sleeper": null,
+     "last_year": 126,
+     "blend50": 184.0
+    },
+    "7839": {
+     "actual_pick": 123,
+     "round": 13,
+     "ffc": 153.7,
+     "fp": 165.33,
+     "sleeper": null,
+     "last_year": 121,
+     "blend50": 159.515
+    },
+    "4195": {
+     "actual_pick": 124,
+     "round": 13,
+     "ffc": 161.5,
+     "fp": 148.33,
+     "sleeper": null,
+     "last_year": 131,
+     "blend50": 154.915
+    },
+    "BAL": {
+     "actual_pick": 125,
+     "round": 13,
+     "ffc": 134.0,
+     "fp": 139.67,
+     "sleeper": null,
+     "last_year": 129,
+     "blend50": 136.835
+    },
+    "9488": {
+     "actual_pick": 126,
+     "round": 13,
+     "ffc": 94.7,
+     "fp": 103.0,
+     "sleeper": null,
+     "last_year": 87,
+     "blend50": 98.85
+    },
+    "KC": {
+     "actual_pick": 127,
+     "round": 13,
+     "ffc": 161.3,
+     "fp": 167.33,
+     "sleeper": null,
+     "last_year": 146,
+     "blend50": 164.315
+    },
+    "7021": {
+     "actual_pick": 128,
+     "round": 13,
+     "ffc": 114.0,
+     "fp": 138.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 126.335
+    },
+    "4666": {
+     "actual_pick": 129,
+     "round": 13,
+     "ffc": 155.2,
+     "fp": 165.33,
+     "sleeper": null,
+     "last_year": 133,
+     "blend50": 160.265
+    },
+    "5937": {
+     "actual_pick": 130,
+     "round": 13,
+     "ffc": 105.7,
+     "fp": 88.67,
+     "sleeper": null,
+     "last_year": 88,
+     "blend50": 97.185
+    },
+    "5045": {
+     "actual_pick": 131,
+     "round": 14,
+     "ffc": 100.9,
+     "fp": 113.0,
+     "sleeper": null,
+     "last_year": 101,
+     "blend50": 106.95
+    },
+    "8134": {
+     "actual_pick": 132,
+     "round": 14,
+     "ffc": 104.7,
+     "fp": 133.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 118.85
+    },
+    "11627": {
+     "actual_pick": 133,
+     "round": 14,
+     "ffc": null,
+     "fp": 211.5,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 211.5
+    },
+    "3451": {
+     "actual_pick": 134,
+     "round": 14,
+     "ffc": 139.2,
+     "fp": 151.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 145.265
+    },
+    "5119": {
+     "actual_pick": 135,
+     "round": 14,
+     "ffc": 160.2,
+     "fp": 165.33,
+     "sleeper": null,
+     "last_year": 144,
+     "blend50": 162.765
+    },
+    "10937": {
+     "actual_pick": 136,
+     "round": 14,
+     "ffc": 153.8,
+     "fp": 156.67,
+     "sleeper": null,
+     "last_year": 145,
+     "blend50": 155.235
+    },
+    "CLE": {
+     "actual_pick": 137,
+     "round": 14,
+     "ffc": 152.2,
+     "fp": 156.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 154.1
+    },
+    "8148": {
+     "actual_pick": 138,
+     "round": 14,
+     "ffc": 99.9,
+     "fp": 118.33,
+     "sleeper": null,
+     "last_year": 143,
+     "blend50": 109.115
+    },
+    "DAL": {
+     "actual_pick": 139,
+     "round": 14,
+     "ffc": 145.7,
+     "fp": 141.0,
+     "sleeper": null,
+     "last_year": 103,
+     "blend50": 143.35
+    },
+    "5022": {
+     "actual_pick": 140,
+     "round": 14,
+     "ffc": 133.8,
+     "fp": 113.67,
+     "sleeper": null,
+     "last_year": 62,
+     "blend50": 123.735
+    },
+    "96": {
+     "actual_pick": 141,
+     "round": 15,
+     "ffc": 116.4,
+     "fp": 140.33,
+     "sleeper": null,
+     "last_year": 112,
+     "blend50": 128.365
+    },
+    "1689": {
+     "actual_pick": 142,
+     "round": 15,
+     "ffc": 138.1,
+     "fp": 163.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 150.55
+    },
+    "8121": {
+     "actual_pick": 143,
+     "round": 15,
+     "ffc": 100.0,
+     "fp": 141.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 120.665
+    },
+    "11625": {
+     "actual_pick": 144,
+     "round": 15,
+     "ffc": 158.2,
+     "fp": 165.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 161.6
+    },
+    "7608": {
+     "actual_pick": 145,
+     "round": 15,
+     "ffc": null,
+     "fp": 179.33,
+     "sleeper": null,
+     "last_year": 97,
+     "blend50": 179.33
+    },
+    "PHI": {
+     "actual_pick": 146,
+     "round": 15,
+     "ffc": null,
+     "fp": 211.67,
+     "sleeper": null,
+     "last_year": 119,
+     "blend50": 211.67
+    },
+    "11582": {
+     "actual_pick": 147,
+     "round": 15,
+     "ffc": null,
+     "fp": 225.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 225.0
+    },
+    "4381": {
+     "actual_pick": 148,
+     "round": 15,
+     "ffc": 129.9,
+     "fp": 163.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 146.45
+    },
+    "SEA": {
+     "actual_pick": 149,
+     "round": 15,
+     "ffc": null,
+     "fp": 231.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 231.0
+    },
+    "PIT": {
+     "actual_pick": 150,
+     "round": 15,
+     "ffc": 161.8,
+     "fp": 167.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 164.4
+    }
+   }
+  },
+  "2025": {
+   "status": "built",
+   "draft_selection": {
+    "status": "selected",
+    "drafts_seen": 1,
+    "chosen_draft_id": "1248121522766217216",
+    "chosen_picks": 150,
+    "other_draft_ids": []
+   },
+   "season": 2025,
+   "graded_population": 130,
+   "keeper_picks_dropped": 20,
+   "total_picks_on_record": 150,
+   "coverage": {
+    "ffc": {
+     "status": "PARTIAL",
+     "covered": 111,
+     "of": 130,
+     "fraction": 0.8538
+    },
+    "fp": {
+     "status": "OK",
+     "covered": 129,
+     "of": 130,
+     "fraction": 0.9923
+    },
+    "sleeper": {
+     "status": "UNAVAILABLE",
+     "reason": "search_rank has no history; never fetched for a historical season"
+    },
+    "blend50": {
+     "status": "OK",
+     "covered": 130,
+     "of": 130,
+     "fraction": 1.0
+    },
+    "last_year": {
+     "status": "PARTIAL",
+     "covered": 84,
+     "of": 130,
+     "fraction": 0.6462
+    }
+   },
+   "players": {
+    "12527": {
+     "actual_pick": 8,
+     "round": 1,
+     "ffc": 9.2,
+     "fp": 10.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 9.6
+    },
+    "8150": {
+     "actual_pick": 11,
+     "round": 2,
+     "ffc": 16.4,
+     "fp": 24.0,
+     "sleeper": null,
+     "last_year": 27,
+     "blend50": 20.2
+    },
+    "9224": {
+     "actual_pick": 13,
+     "round": 2,
+     "ffc": 20.8,
+     "fp": 21.33,
+     "sleeper": null,
+     "last_year": 95,
+     "blend50": 21.065
+    },
+    "8138": {
+     "actual_pick": 16,
+     "round": 2,
+     "ffc": 29.2,
+     "fp": 28.67,
+     "sleeper": null,
+     "last_year": 33,
+     "blend50": 28.935
+    },
+    "8112": {
+     "actual_pick": 21,
+     "round": 3,
+     "ffc": 18.3,
+     "fp": 17.33,
+     "sleeper": null,
+     "last_year": 35,
+     "blend50": 17.815
+    },
+    "4881": {
+     "actual_pick": 23,
+     "round": 3,
+     "ffc": 20.7,
+     "fp": 21.67,
+     "sleeper": null,
+     "last_year": 48,
+     "blend50": 21.185
+    },
+    "5859": {
+     "actual_pick": 25,
+     "round": 3,
+     "ffc": 21.7,
+     "fp": 21.0,
+     "sleeper": null,
+     "last_year": 14,
+     "blend50": 21.35
+    },
+    "11635": {
+     "actual_pick": 28,
+     "round": 3,
+     "ffc": 26.4,
+     "fp": 27.0,
+     "sleeper": null,
+     "last_year": 97,
+     "blend50": 26.7
+    },
+    "12507": {
+     "actual_pick": 29,
+     "round": 3,
+     "ffc": 31.8,
+     "fp": 30.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 31.065
+    },
+    "3321": {
+     "actual_pick": 30,
+     "round": 3,
+     "ffc": 29.5,
+     "fp": 31.67,
+     "sleeper": null,
+     "last_year": 3,
+     "blend50": 30.585
+    },
+    "4035": {
+     "actual_pick": 31,
+     "round": 4,
+     "ffc": 39.4,
+     "fp": 38.0,
+     "sleeper": null,
+     "last_year": 40,
+     "blend50": 38.7
+    },
+    "8155": {
+     "actual_pick": 32,
+     "round": 4,
+     "ffc": 46.3,
+     "fp": 38.0,
+     "sleeper": null,
+     "last_year": 2,
+     "blend50": 42.15
+    },
+    "2216": {
+     "actual_pick": 33,
+     "round": 4,
+     "ffc": 30.5,
+     "fp": 39.67,
+     "sleeper": null,
+     "last_year": 12,
+     "blend50": 35.085
+    },
+    "11628": {
+     "actual_pick": 34,
+     "round": 4,
+     "ffc": 34.5,
+     "fp": 39.33,
+     "sleeper": null,
+     "last_year": 15,
+     "blend50": 36.915
+    },
+    "6801": {
+     "actual_pick": 35,
+     "round": 4,
+     "ffc": 25.1,
+     "fp": 32.67,
+     "sleeper": null,
+     "last_year": 49,
+     "blend50": 28.885
+    },
+    "7594": {
+     "actual_pick": 36,
+     "round": 4,
+     "ffc": 37.8,
+     "fp": 42.33,
+     "sleeper": null,
+     "last_year": 114,
+     "blend50": 40.065
+    },
+    "4217": {
+     "actual_pick": 37,
+     "round": 4,
+     "ffc": 45.8,
+     "fp": 35.33,
+     "sleeper": null,
+     "last_year": 60,
+     "blend50": 40.565
+    },
+    "5846": {
+     "actual_pick": 38,
+     "round": 4,
+     "ffc": 33.6,
+     "fp": 49.33,
+     "sleeper": null,
+     "last_year": 56,
+     "blend50": 41.465
+    },
+    "5927": {
+     "actual_pick": 39,
+     "round": 4,
+     "ffc": 35.3,
+     "fp": 40.0,
+     "sleeper": null,
+     "last_year": 67,
+     "blend50": 37.65
+    },
+    "8146": {
+     "actual_pick": 40,
+     "round": 4,
+     "ffc": 44.0,
+     "fp": 41.67,
+     "sleeper": null,
+     "last_year": 11,
+     "blend50": 42.835
+    },
+    "2133": {
+     "actual_pick": 41,
+     "round": 5,
+     "ffc": 29.0,
+     "fp": 44.0,
+     "sleeper": null,
+     "last_year": 36,
+     "blend50": 36.5
+    },
+    "4983": {
+     "actual_pick": 42,
+     "round": 5,
+     "ffc": 46.6,
+     "fp": 54.33,
+     "sleeper": null,
+     "last_year": 39,
+     "blend50": 50.465
+    },
+    "12489": {
+     "actual_pick": 43,
+     "round": 5,
+     "ffc": 60.8,
+     "fp": 53.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 56.9
+    },
+    "6770": {
+     "actual_pick": 44,
+     "round": 5,
+     "ffc": 28.0,
+     "fp": 38.0,
+     "sleeper": null,
+     "last_year": 61,
+     "blend50": 33.0
+    },
+    "11566": {
+     "actual_pick": 45,
+     "round": 5,
+     "ffc": 27.4,
+     "fp": 30.67,
+     "sleeper": null,
+     "last_year": 115,
+     "blend50": 29.035
+    },
+    "10859": {
+     "actual_pick": 46,
+     "round": 5,
+     "ffc": 67.0,
+     "fp": 53.67,
+     "sleeper": null,
+     "last_year": 31,
+     "blend50": 60.335
+    },
+    "9488": {
+     "actual_pick": 47,
+     "round": 5,
+     "ffc": 39.5,
+     "fp": 33.0,
+     "sleeper": null,
+     "last_year": 126,
+     "blend50": 36.25
+    },
+    "4137": {
+     "actual_pick": 48,
+     "round": 5,
+     "ffc": 39.4,
+     "fp": 47.0,
+     "sleeper": null,
+     "last_year": 52,
+     "blend50": 43.2
+    },
+    "5045": {
+     "actual_pick": 49,
+     "round": 5,
+     "ffc": 47.5,
+     "fp": 54.0,
+     "sleeper": null,
+     "last_year": 131,
+     "blend50": 50.75
+    },
+    "4046": {
+     "actual_pick": 50,
+     "round": 5,
+     "ffc": 57.9,
+     "fp": 52.33,
+     "sleeper": null,
+     "last_year": 29,
+     "blend50": 55.115
+    },
+    "9997": {
+     "actual_pick": 51,
+     "round": 6,
+     "ffc": 62.0,
+     "fp": 62.67,
+     "sleeper": null,
+     "last_year": 53,
+     "blend50": 62.335
+    },
+    "6904": {
+     "actual_pick": 52,
+     "round": 6,
+     "ffc": 33.7,
+     "fp": 35.33,
+     "sleeper": null,
+     "last_year": 47,
+     "blend50": 34.515
+    },
+    "4892": {
+     "actual_pick": 53,
+     "round": 6,
+     "ffc": 50.8,
+     "fp": 68.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 59.565
+    },
+    "12529": {
+     "actual_pick": 54,
+     "round": 6,
+     "ffc": 47.6,
+     "fp": 45.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 46.635
+    },
+    "5892": {
+     "actual_pick": 55,
+     "round": 6,
+     "ffc": 58.9,
+     "fp": 55.0,
+     "sleeper": null,
+     "last_year": 38,
+     "blend50": 56.95
+    },
+    "10229": {
+     "actual_pick": 56,
+     "round": 6,
+     "ffc": 94.6,
+     "fp": 72.67,
+     "sleeper": null,
+     "last_year": 68,
+     "blend50": 83.635
+    },
+    "8151": {
+     "actual_pick": 57,
+     "round": 6,
+     "ffc": 43.4,
+     "fp": 39.67,
+     "sleeper": null,
+     "last_year": 34,
+     "blend50": 41.535
+    },
+    "1466": {
+     "actual_pick": 58,
+     "round": 6,
+     "ffc": 70.5,
+     "fp": 62.0,
+     "sleeper": null,
+     "last_year": 7,
+     "blend50": 66.25
+    },
+    "6790": {
+     "actual_pick": 59,
+     "round": 6,
+     "ffc": 59.3,
+     "fp": 59.0,
+     "sleeper": null,
+     "last_year": 57,
+     "blend50": 59.15
+    },
+    "11624": {
+     "actual_pick": 60,
+     "round": 6,
+     "ffc": 45.6,
+     "fp": 57.33,
+     "sleeper": null,
+     "last_year": 71,
+     "blend50": 51.465
+    },
+    "8205": {
+     "actual_pick": 61,
+     "round": 7,
+     "ffc": 63.4,
+     "fp": 58.33,
+     "sleeper": null,
+     "last_year": 20,
+     "blend50": 60.865
+    },
+    "7525": {
+     "actual_pick": 62,
+     "round": 7,
+     "ffc": 49.9,
+     "fp": 55.33,
+     "sleeper": null,
+     "last_year": 62,
+     "blend50": 52.615
+    },
+    "12504": {
+     "actual_pick": 63,
+     "round": 7,
+     "ffc": 73.1,
+     "fp": 75.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 74.215
+    },
+    "12530": {
+     "actual_pick": 64,
+     "round": 7,
+     "ffc": 70.8,
+     "fp": 71.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 71.235
+    },
+    "5012": {
+     "actual_pick": 65,
+     "round": 7,
+     "ffc": 82.8,
+     "fp": 75.0,
+     "sleeper": null,
+     "last_year": 45,
+     "blend50": 78.9
+    },
+    "8137": {
+     "actual_pick": 66,
+     "round": 7,
+     "ffc": 62.0,
+     "fp": 58.67,
+     "sleeper": null,
+     "last_year": 76,
+     "blend50": 60.335
+    },
+    "12526": {
+     "actual_pick": 67,
+     "round": 7,
+     "ffc": 49.7,
+     "fp": 58.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 54.015
+    },
+    "4018": {
+     "actual_pick": 68,
+     "round": 7,
+     "ffc": 135.5,
+     "fp": 95.33,
+     "sleeper": null,
+     "last_year": 9,
+     "blend50": 115.415
+    },
+    "8148": {
+     "actual_pick": 69,
+     "round": 7,
+     "ffc": 53.1,
+     "fp": 62.0,
+     "sleeper": null,
+     "last_year": 138,
+     "blend50": 57.55
+    },
+    "5967": {
+     "actual_pick": 70,
+     "round": 7,
+     "ffc": 55.4,
+     "fp": 57.67,
+     "sleeper": null,
+     "last_year": 72,
+     "blend50": 56.535
+    },
+    "5844": {
+     "actual_pick": 71,
+     "round": 8,
+     "ffc": 80.9,
+     "fp": 66.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 73.615
+    },
+    "7526": {
+     "actual_pick": 72,
+     "round": 8,
+     "ffc": 66.5,
+     "fp": 69.33,
+     "sleeper": null,
+     "last_year": 32,
+     "blend50": 67.915
+    },
+    "4066": {
+     "actual_pick": 73,
+     "round": 8,
+     "ffc": 115.1,
+     "fp": 83.0,
+     "sleeper": null,
+     "last_year": 69,
+     "blend50": 99.05
+    },
+    "4199": {
+     "actual_pick": 74,
+     "round": 8,
+     "ffc": 63.3,
+     "fp": 66.67,
+     "sleeper": null,
+     "last_year": 58,
+     "blend50": 64.985
+    },
+    "6783": {
+     "actual_pick": 75,
+     "round": 8,
+     "ffc": 60.1,
+     "fp": 76.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 68.215
+    },
+    "11620": {
+     "actual_pick": 76,
+     "round": 8,
+     "ffc": 78.9,
+     "fp": 78.33,
+     "sleeper": null,
+     "last_year": 80,
+     "blend50": 78.615
+    },
+    "5872": {
+     "actual_pick": 77,
+     "round": 8,
+     "ffc": 67.0,
+     "fp": 86.67,
+     "sleeper": null,
+     "last_year": 21,
+     "blend50": 76.835
+    },
+    "11655": {
+     "actual_pick": 78,
+     "round": 8,
+     "ffc": 73.4,
+     "fp": 75.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 74.2
+    },
+    "12512": {
+     "actual_pick": 79,
+     "round": 8,
+     "ffc": 127.4,
+     "fp": 107.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 117.365
+    },
+    "4981": {
+     "actual_pick": 80,
+     "round": 8,
+     "ffc": 58.3,
+     "fp": 66.33,
+     "sleeper": null,
+     "last_year": 74,
+     "blend50": 62.315
+    },
+    "11563": {
+     "actual_pick": 81,
+     "round": 9,
+     "ffc": 64.3,
+     "fp": 70.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 67.315
+    },
+    "5947": {
+     "actual_pick": 82,
+     "round": 9,
+     "ffc": 79.0,
+     "fp": 93.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 86.0
+    },
+    "12514": {
+     "actual_pick": 83,
+     "round": 9,
+     "ffc": 81.9,
+     "fp": 80.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 81.285
+    },
+    "8144": {
+     "actual_pick": 84,
+     "round": 9,
+     "ffc": 74.6,
+     "fp": 76.0,
+     "sleeper": null,
+     "last_year": 13,
+     "blend50": 75.3
+    },
+    "9756": {
+     "actual_pick": 85,
+     "round": 9,
+     "ffc": 100.7,
+     "fp": 96.33,
+     "sleeper": null,
+     "last_year": 98,
+     "blend50": 98.515
+    },
+    "8228": {
+     "actual_pick": 86,
+     "round": 9,
+     "ffc": 78.9,
+     "fp": 82.0,
+     "sleeper": null,
+     "last_year": 82,
+     "blend50": 80.45
+    },
+    "7543": {
+     "actual_pick": 87,
+     "round": 9,
+     "ffc": 111.2,
+     "fp": 92.33,
+     "sleeper": null,
+     "last_year": 25,
+     "blend50": 101.765
+    },
+    "11638": {
+     "actual_pick": 88,
+     "round": 9,
+     "ffc": 70.6,
+     "fp": 79.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 74.965
+    },
+    "12501": {
+     "actual_pick": 89,
+     "round": 9,
+     "ffc": 74.1,
+     "fp": 90.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 82.215
+    },
+    "6819": {
+     "actual_pick": 90,
+     "round": 9,
+     "ffc": 87.0,
+     "fp": 122.67,
+     "sleeper": null,
+     "last_year": 54,
+     "blend50": 104.835
+    },
+    "PHI": {
+     "actual_pick": 91,
+     "round": 10,
+     "ffc": 118.4,
+     "fp": 131.67,
+     "sleeper": null,
+     "last_year": 146,
+     "blend50": 125.035
+    },
+    "4033": {
+     "actual_pick": 92,
+     "round": 10,
+     "ffc": null,
+     "fp": 90.67,
+     "sleeper": null,
+     "last_year": 78,
+     "blend50": 90.67
+    },
+    "2449": {
+     "actual_pick": 93,
+     "round": 10,
+     "ffc": 81.0,
+     "fp": 90.0,
+     "sleeper": null,
+     "last_year": 43,
+     "blend50": 85.5
+    },
+    "12518": {
+     "actual_pick": 94,
+     "round": 10,
+     "ffc": 102.3,
+     "fp": 93.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 97.985
+    },
+    "8134": {
+     "actual_pick": 95,
+     "round": 10,
+     "ffc": 85.8,
+     "fp": 110.0,
+     "sleeper": null,
+     "last_year": 132,
+     "blend50": 97.9
+    },
+    "4037": {
+     "actual_pick": 96,
+     "round": 10,
+     "ffc": 104.2,
+     "fp": 110.0,
+     "sleeper": null,
+     "last_year": 88,
+     "blend50": 107.1
+    },
+    "8154": {
+     "actual_pick": 97,
+     "round": 10,
+     "ffc": 159.4,
+     "fp": 100.0,
+     "sleeper": null,
+     "last_year": 93,
+     "blend50": 129.7
+    },
+    "4039": {
+     "actual_pick": 98,
+     "round": 10,
+     "ffc": 93.6,
+     "fp": 100.0,
+     "sleeper": null,
+     "last_year": 41,
+     "blend50": 96.8
+    },
+    "9753": {
+     "actual_pick": 99,
+     "round": 10,
+     "ffc": 100.1,
+     "fp": 94.67,
+     "sleeper": null,
+     "last_year": 104,
+     "blend50": 97.385
+    },
+    "9484": {
+     "actual_pick": 100,
+     "round": 10,
+     "ffc": 99.1,
+     "fp": 96.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 97.55
+    },
+    "6806": {
+     "actual_pick": 101,
+     "round": 11,
+     "ffc": 90.6,
+     "fp": 97.33,
+     "sleeper": null,
+     "last_year": 105,
+     "blend50": 93.965
+    },
+    "11560": {
+     "actual_pick": 102,
+     "round": 11,
+     "ffc": 100.0,
+     "fp": 115.0,
+     "sleeper": null,
+     "last_year": 106,
+     "blend50": 107.5
+    },
+    "11533": {
+     "actual_pick": 103,
+     "round": 11,
+     "ffc": 136.0,
+     "fp": 123.67,
+     "sleeper": null,
+     "last_year": 121,
+     "blend50": 129.835
+    },
+    "12533": {
+     "actual_pick": 104,
+     "round": 11,
+     "ffc": 101.6,
+     "fp": 97.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 99.635
+    },
+    "12481": {
+     "actual_pick": 105,
+     "round": 11,
+     "ffc": 130.5,
+     "fp": 110.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 120.25
+    },
+    "12517": {
+     "actual_pick": 106,
+     "round": 11,
+     "ffc": 147.2,
+     "fp": 115.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 131.265
+    },
+    "4663": {
+     "actual_pick": 107,
+     "round": 11,
+     "ffc": 89.2,
+     "fp": null,
+     "sleeper": null,
+     "last_year": 90,
+     "blend50": 89.2
+    },
+    "7588": {
+     "actual_pick": 108,
+     "round": 11,
+     "ffc": 117.0,
+     "fp": 112.67,
+     "sleeper": null,
+     "last_year": 86,
+     "blend50": 114.835
+    },
+    "8408": {
+     "actual_pick": 109,
+     "round": 11,
+     "ffc": 93.3,
+     "fp": 86.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 89.985
+    },
+    "7528": {
+     "actual_pick": 110,
+     "round": 11,
+     "ffc": 153.1,
+     "fp": 124.33,
+     "sleeper": null,
+     "last_year": 65,
+     "blend50": 138.715
+    },
+    "7049": {
+     "actual_pick": 111,
+     "round": 12,
+     "ffc": null,
+     "fp": 104.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 104.0
+    },
+    "3294": {
+     "actual_pick": 112,
+     "round": 12,
+     "ffc": 83.9,
+     "fp": 91.67,
+     "sleeper": null,
+     "last_year": 63,
+     "blend50": 87.785
+    },
+    "1945": {
+     "actual_pick": 113,
+     "round": 12,
+     "ffc": null,
+     "fp": 186.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 186.0
+    },
+    "5849": {
+     "actual_pick": 114,
+     "round": 12,
+     "ffc": 82.5,
+     "fp": 93.33,
+     "sleeper": null,
+     "last_year": 85,
+     "blend50": 87.915
+    },
+    "7090": {
+     "actual_pick": 115,
+     "round": 12,
+     "ffc": null,
+     "fp": 153.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 153.67
+    },
+    "9225": {
+     "actual_pick": 116,
+     "round": 12,
+     "ffc": 127.3,
+     "fp": 111.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 119.315
+    },
+    "8259": {
+     "actual_pick": 117,
+     "round": 12,
+     "ffc": 142.7,
+     "fp": 139.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 141.015
+    },
+    "DEN": {
+     "actual_pick": 118,
+     "round": 12,
+     "ffc": 107.1,
+     "fp": 127.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 117.385
+    },
+    "9758": {
+     "actual_pick": 119,
+     "round": 12,
+     "ffc": 136.9,
+     "fp": 129.33,
+     "sleeper": null,
+     "last_year": 50,
+     "blend50": 133.115
+    },
+    "11539": {
+     "actual_pick": 120,
+     "round": 12,
+     "ffc": null,
+     "fp": 150.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 150.33
+    },
+    "7553": {
+     "actual_pick": 121,
+     "round": 13,
+     "ffc": 154.0,
+     "fp": 135.33,
+     "sleeper": null,
+     "last_year": 66,
+     "blend50": 144.665
+    },
+    "4666": {
+     "actual_pick": 122,
+     "round": 13,
+     "ffc": null,
+     "fp": 225.0,
+     "sleeper": null,
+     "last_year": 129,
+     "blend50": 225.0
+    },
+    "12484": {
+     "actual_pick": 123,
+     "round": 13,
+     "ffc": 124.4,
+     "fp": 147.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 135.865
+    },
+    "11576": {
+     "actual_pick": 124,
+     "round": 13,
+     "ffc": 154.0,
+     "fp": 112.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 133.335
+    },
+    "5022": {
+     "actual_pick": 125,
+     "round": 13,
+     "ffc": 123.5,
+     "fp": 141.0,
+     "sleeper": null,
+     "last_year": 140,
+     "blend50": 132.25
+    },
+    "BAL": {
+     "actual_pick": 126,
+     "round": 13,
+     "ffc": 120.0,
+     "fp": 158.67,
+     "sleeper": null,
+     "last_year": 125,
+     "blend50": 139.335
+    },
+    "4227": {
+     "actual_pick": 127,
+     "round": 13,
+     "ffc": null,
+     "fp": 187.33,
+     "sleeper": null,
+     "last_year": 108,
+     "blend50": 187.33
+    },
+    "3163": {
+     "actual_pick": 128,
+     "round": 13,
+     "ffc": 97.6,
+     "fp": 104.0,
+     "sleeper": null,
+     "last_year": 117,
+     "blend50": 100.8
+    },
+    "PIT": {
+     "actual_pick": 129,
+     "round": 13,
+     "ffc": 117.3,
+     "fp": 146.33,
+     "sleeper": null,
+     "last_year": 150,
+     "blend50": 131.815
+    },
+    "3451": {
+     "actual_pick": 130,
+     "round": 13,
+     "ffc": null,
+     "fp": 187.67,
+     "sleeper": null,
+     "last_year": 134,
+     "blend50": 187.67
+    },
+    "6797": {
+     "actual_pick": 131,
+     "round": 14,
+     "ffc": 111.1,
+     "fp": 112.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 111.715
+    },
+    "7611": {
+     "actual_pick": 132,
+     "round": 14,
+     "ffc": 117.2,
+     "fp": 118.0,
+     "sleeper": null,
+     "last_year": 55,
+     "blend50": 117.6
+    },
+    "WAS": {
+     "actual_pick": 133,
+     "round": 14,
+     "ffc": null,
+     "fp": 210.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 210.67
+    },
+    "KC": {
+     "actual_pick": 134,
+     "round": 14,
+     "ffc": null,
+     "fp": 184.67,
+     "sleeper": null,
+     "last_year": 127,
+     "blend50": 184.67
+    },
+    "12490": {
+     "actual_pick": 135,
+     "round": 14,
+     "ffc": null,
+     "fp": 148.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 148.67
+    },
+    "11786": {
+     "actual_pick": 136,
+     "round": 14,
+     "ffc": null,
+     "fp": 190.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 190.67
+    },
+    "11637": {
+     "actual_pick": 137,
+     "round": 14,
+     "ffc": 92.3,
+     "fp": 130.67,
+     "sleeper": null,
+     "last_year": 100,
+     "blend50": 111.485
+    },
+    "12495": {
+     "actual_pick": 138,
+     "round": 14,
+     "ffc": 150.8,
+     "fp": 141.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 145.9
+    },
+    "3678": {
+     "actual_pick": 139,
+     "round": 14,
+     "ffc": null,
+     "fp": 197.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 197.33
+    },
+    "7591": {
+     "actual_pick": 140,
+     "round": 14,
+     "ffc": 114.8,
+     "fp": 115.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 115.235
+    },
+    "MIN": {
+     "actual_pick": 141,
+     "round": 15,
+     "ffc": 150.0,
+     "fp": 162.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 156.335
+    },
+    "BUF": {
+     "actual_pick": 142,
+     "round": 15,
+     "ffc": null,
+     "fp": 197.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 197.33
+    },
+    "3214": {
+     "actual_pick": 143,
+     "round": 15,
+     "ffc": null,
+     "fp": 159.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 159.67
+    },
+    "DET": {
+     "actual_pick": 144,
+     "round": 15,
+     "ffc": null,
+     "fp": 196.33,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 196.33
+    },
+    "SF": {
+     "actual_pick": 145,
+     "round": 15,
+     "ffc": 166.6,
+     "fp": 193.67,
+     "sleeper": null,
+     "last_year": 81,
+     "blend50": 180.135
+    },
+    "6650": {
+     "actual_pick": 146,
+     "round": 15,
+     "ffc": null,
+     "fp": 188.67,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 188.67
+    },
+    "10222": {
+     "actual_pick": 147,
+     "round": 15,
+     "ffc": 104.3,
+     "fp": 118.67,
+     "sleeper": null,
+     "last_year": 84,
+     "blend50": 111.485
+    },
+    "12457": {
+     "actual_pick": 148,
+     "round": 15,
+     "ffc": null,
+     "fp": 137.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 137.0
+    },
+    "7839": {
+     "actual_pick": 149,
+     "round": 15,
+     "ffc": 142.1,
+     "fp": 212.0,
+     "sleeper": null,
+     "last_year": 123,
+     "blend50": 177.05
+    },
+    "8676": {
+     "actual_pick": 150,
+     "round": 15,
+     "ffc": null,
+     "fp": 144.0,
+     "sleeper": null,
+     "last_year": null,
+     "blend50": 144.0
+    }
+   }
+  }
+ }
+}
