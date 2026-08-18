@@ -112,7 +112,14 @@ def test_the_driver_still_passes_the_filter():
     that regenerates it — otherwise the next dispatch re-contaminates and we
     find out from the artifact again, one board rebuild too late."""
     src = (ROOT / "draft" / "backtest" / "cli.py").read_text()
-    assert "positions=SKILL_FOR_CALIBRATION" in src, (
+    # RE-AIMED 2026-08-18: this pinned `positions=SKILL_FOR_CALIBRATION`, and C
+    # reproduced that call as INERT — `positions` is a fallback lookup for rows
+    # MISSING a position, never a filter, so this substring check was green
+    # over code that changed nothing (the vacuous-pin shape C named when they
+    # filed the fix). The driver now passes C's real `only_positions` filter;
+    # the BEHAVIORAL arm (a planted punter board must lose its punters) lives
+    # in test_projection_error.py's DROPS_NON_ROSTERED test.
+    assert "only_positions=PE.CALIBRATION_POSITIONS" in src, (
         "cli.py no longer passes `positions` to PE.calibrate(). The default is "
         "NO FILTER, which is exactly how punters entered the calibration in 4r.")
 
