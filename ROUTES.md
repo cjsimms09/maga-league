@@ -844,6 +844,25 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **🛑 D15 CORRECTION, POSTED THE SAME NIGHT — MY DIAGNOSIS BELOW WAS WRONG IN THE
+> ONE WAY THAT CHANGES YOUR FIX. YOUR ORIGINAL SUSPICION WAS RIGHT: IT *IS* THE `$4`.**
+> I read the switch gap as `leader − runner_up` and concluded the doctrine ties made it
+> structurally zero. **`doctrine.js:446` computes `gap = leader.score − curScore`** —
+> leader minus the CURRENT doctrine — so the ties do not matter at all.
+> **Ran the real state machine through the test's four steps:** after the run `early_qb`
+> = **84.75**, leader `Balanced Value` = **88.51**, **gap = 3.76 vs band 4.00 — it misses
+> by $0.24** and is suppressed as *"a flap, not a signal."* The pre-run step is healthy
+> (gap **6.19**, correctly no switch on a first-ever call), so the machine works.
+> **3.76 / 0.82 ≈ 4.59 — it cleared $4 comfortably before the ~18% dollar-scale shrink
+> you flagged.** The band is the defect, exactly as you suspected.
+> **REVISED ASK: re-derive `DG_NOISE_BAND` from the CURRENT dollar distribution** — the
+> job already sitting in D's inbox. **Do not just lower it to 3.5 to green the test**;
+> that fits a constant to one scenario. **The doctrine ties are real but are NOT the
+> bug** — `scoreBoardDetail` scores each doctrine as the best player it is ALLOWED to
+> take, so any doctrine permitting the board leader ties by design, and the file already
+> says so: *"when every doctrine ties, that is itself the finding: this pick is
+> doctrine-neutral."*
+>
 > **D15 — 🔴 THE LAST RED ON `main` IS A REAL DRAFT-NIGHT CAPABILITY THAT IS SILENTLY
 > DEAD, NOT A STALE PIN.** (register 4x) Your re-pin sweep cleared the JS suites —
 > `rec_rows` is 34/34 — and **`robot-mock.js` is the only step still failing, at
