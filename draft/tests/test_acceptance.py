@@ -373,13 +373,12 @@ def test_upside_ordering_now_differs_from_projection_ordering():
       still differentiate a committee rookie from a bell-cow, exactly as the
       audit's original fix built.
 
-    Pin moved 2026-08-17, calibration regenerated on Cory's ruling: RB|1-3 is
-    now honestly unmeasurable (n=6 < min_n 8, ratios null), so the top-3 rows
-    of this synthetic pool fall back to position_variance by design and the
-    measured-path assertion moves to the first row in a MEASURED band (rank 4,
-    RB|4-8). Old pin: players[0] carried measured-2023-25-error. The divergence
-    claim itself is unchanged — RB sd_ratio still varies by band (4-8 0.540,
-    9-16 0.634, 17-32 0.634, 33+ 0.735).
+    Pin moved 2026-08-18, clean 4s regeneration: the "RB|1-3 unmeasurable"
+    state this test previously pinned was itself a SYMPTOM of the 4s defect —
+    the silently dropped 2025 season cost every 1-3 cell a third of its rows
+    (n=6 < min_n 8). With all three seasons fitted, n=9 and RB|1-3 is measured
+    (20/20 cells), so EVERY row in this pool is on the measured path. The
+    divergence claim is unchanged — RB sd_ratio still varies by band.
     """
     cfg = {"opportunity_cap": 0.15}
 
@@ -403,14 +402,12 @@ def test_upside_ordering_now_differs_from_projection_ordering():
     # ── measured path: band structure breaks the global tie ─────────────────
     players, baseline, metrics = mkset()
     PJ.blend(players, baseline, metrics, cfg)
-    # Ranks are taken on the POST-opportunity-adjustment mean, so the 1-3 band
-    # is the top three ADJUSTED rows (bell, mid, deep0 — comm's low share drops
-    # him to rank 5). Those three sit in the unmeasurable RB|1-3 cell — honest
-    # fallback, never a filled-in number (2026-08-17); every deeper row is on
-    # the measured path.
+    # With the clean 3-season artifact every RB cell is measured (RB|1-3 n=9
+    # >= min_n 8 — it was only unmeasurable while 4s silently dropped 2025),
+    # so every row must be on the measured path; a position_variance source
+    # appearing here again means the calibration lost a season or a cell.
     ranked = sorted(players, key=lambda p: -p["proj_mean"])
-    assert {p["proj_sd_source"] for p in ranked[:3]} == {"position_variance"}
-    assert {p["proj_sd_source"] for p in ranked[3:]} == {"measured-2023-25-error"}
+    assert {p["proj_sd_source"] for p in ranked} == {"measured-2023-25-error"}
     ratios = {p["player_id"]: (p["proj_ceiling"] - p["proj_mean"]) / p["proj_mean"]
               for p in players}
     assert len({round(v, 4) for v in ratios.values()}) > 1, (

@@ -52,9 +52,10 @@ def _cal_cells():
 
 
 def test_measured_cell_prices_the_row_and_declares_itself():
-    # 2026-08-17: pin moved from QB|1-3 (sd_ratio 0.492, now refused as
-    # unmeasurable by the regenerated calibration) to QB|4-8 (sd_ratio 0.440),
-    # driven by q4 at rank 4. q1's honest fallback is pinned alongside.
+    # 2026-08-18, clean 4s regeneration: QB|1-3 is measured again (n=9 — its
+    # 08-17 refusal was the dropped-2025 symptom, not a fact about top QBs),
+    # so q1 is back on the measured path and pinned to HIS OWN cell's ratio —
+    # the two-cell pin now also proves adjacent ranks price different cells.
     cells = _cal_cells()
     assert "QB|4-8" in cells, "the calibration lost the cell this test drives"
     ratio = cells["QB|4-8"]["sd_ratio"]
@@ -64,10 +65,11 @@ def test_measured_cell_prices_the_row_and_declares_itself():
     assert q4["proj_sd"] == pytest.approx(q4["proj_mean"] * ratio, abs=0.5)
     # the why names the band, so the board can say where the number came from
     assert any("QB|4-8" in w for w in q4["variance_why"])
-    # rank 1 sits in the unmeasurable QB|1-3 cell: fallback to the old
-    # pipeline, never a filled-in ratio — None must stay None.
     q1 = next(p for p in out if p["player_id"] == "q1")
-    assert q1["proj_sd_source"] == "position_variance"
+    assert q1["proj_sd_source"] == "measured-2023-25-error"
+    assert q1["proj_sd"] == pytest.approx(
+        q1["proj_mean"] * cells["QB|1-3"]["sd_ratio"], abs=0.5)
+    assert any("QB|1-3" in w for w in q1["variance_why"])
 
 
 def test_unmeasured_position_falls_back_to_position_variance():
@@ -100,18 +102,19 @@ def test_in_blend_rank_matches_the_calibrations_band_basis():
     proj_mean desc within position, the exact definition vorp.assign_tiers
     writes as pos_rank and projection_error fitted its bands on.
 
-    2026-08-17: re-derived on the regenerated calibration, where QB|1-3 is
-    unmeasurable. The band boundary itself now carries the ordering check:
-    rank 3 (q3) falls in the refused 1-3 cell and must take the fallback path,
-    rank 4 (q4) is the first measured row and must price QB|4-8. A reversed
-    in-blend ordering would put q4 in the refused cell (source flips to
-    position_variance) and q3 in the measured one — both pins would fire."""
+    2026-08-18, clean 4s regeneration: every QB cell is measured, so the
+    ordering check rides the RATIOS rather than the measured/fallback seam —
+    q3 must price QB|1-3 and q4 QB|4-8, two cells whose sd_ratios differ. A
+    reversed in-blend ordering swaps the cells and both approx pins fire."""
     cells = _cal_cells()
+    assert cells["QB|1-3"]["sd_ratio"] != cells["QB|4-8"]["sd_ratio"], (
+        "the two QB cells this test tells apart have merged — pick a pair "
+        "of cells with distinct ratios or the ordering check is blind")
     out = PJ.blend(_mkplayers(), dict(BASELINE), {}, {})
     q3 = next(p for p in out if p["player_id"] == "q3")
     q4 = next(p for p in out if p["player_id"] == "q4")
-    assert q3["proj_sd_source"] == "position_variance"
-    assert q4["proj_sd_source"] == "measured-2023-25-error"
+    assert q3["proj_sd"] == pytest.approx(
+        q3["proj_mean"] * cells["QB|1-3"]["sd_ratio"], abs=0.5)
     assert q4["proj_sd"] == pytest.approx(
         q4["proj_mean"] * cells["QB|4-8"]["sd_ratio"], abs=0.5)
 
