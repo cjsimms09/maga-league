@@ -1,0 +1,184 @@
+{
+ "_territory": "TERRITORY: D \u2014 reads draft/data/replay_league_table.json, never writes it",
+ "_question": "does the tool's per-seat delta track how good the opposing drafter is?",
+ "source": "draft/data/replay_league_table.json",
+ "seats": [
+  {
+   "seat": 2,
+   "owner": "ds7mmet",
+   "tool_delta_realistic": -163.43,
+   "tool_delta_optimal": -182.37,
+   "per_year": {
+    "2025": -55.52,
+    "2024": -149.74,
+    "2023": -285.02
+   },
+   "drafter_surplus_per_pick": 2.55,
+   "drafter_rank": 4
+  },
+  {
+   "seat": 7,
+   "owner": "mhagen",
+   "tool_delta_realistic": -118.65,
+   "tool_delta_optimal": -131.22,
+   "per_year": {
+    "2025": -217.06,
+    "2024": -39.12,
+    "2023": -99.76
+   },
+   "drafter_surplus_per_pick": -0.46,
+   "drafter_rank": 5
+  },
+  {
+   "seat": 10,
+   "owner": "Sadbru",
+   "tool_delta_realistic": -79.91,
+   "tool_delta_optimal": -120.24,
+   "per_year": {
+    "2025": -150.36,
+    "2024": 65.88,
+    "2023": -155.24
+   },
+   "drafter_surplus_per_pick": -0.69,
+   "drafter_rank": 6
+  },
+  {
+   "seat": 3,
+   "owner": "cashworth",
+   "tool_delta_realistic": -35.2,
+   "tool_delta_optimal": 12.56,
+   "per_year": {
+    "2025": -48.38,
+    "2024": -76.56,
+    "2023": 19.34
+   },
+   "drafter_surplus_per_pick": -19.17,
+   "drafter_rank": 10
+  },
+  {
+   "seat": 6,
+   "owner": "MarianSaar",
+   "tool_delta_realistic": -33.75,
+   "tool_delta_optimal": -117.77,
+   "per_year": {
+    "2025": 16.82,
+    "2024": 4.18,
+    "2023": -122.24
+   },
+   "drafter_surplus_per_pick": 17.7,
+   "drafter_rank": 2
+  },
+  {
+   "seat": 9,
+   "owner": "Schmelley",
+   "tool_delta_realistic": -28.98,
+   "tool_delta_optimal": -161.67,
+   "per_year": {
+    "2025": 18.08,
+    "2024": 86.22,
+    "2023": -191.24
+   },
+   "drafter_surplus_per_pick": 22.74,
+   "drafter_rank": 1
+  },
+  {
+   "seat": 5,
+   "owner": "B8T3S",
+   "tool_delta_realistic": -13.91,
+   "tool_delta_optimal": -59.21,
+   "per_year": {
+    "2025": -183.6,
+    "2024": 126.22,
+    "2023": 15.66
+   },
+   "drafter_surplus_per_pick": -6.89,
+   "drafter_rank": 7
+  },
+  {
+   "seat": 1,
+   "owner": "coryjsimms",
+   "tool_delta_realistic": -6.53,
+   "tool_delta_optimal": -65.65,
+   "per_year": {
+    "2025": 77.92,
+    "2024": 2.26,
+    "2023": -99.78
+   },
+   "drafter_surplus_per_pick": 9.38,
+   "drafter_rank": 3
+  },
+  {
+   "seat": 8,
+   "owner": "Richard2121",
+   "tool_delta_realistic": 26.86,
+   "tool_delta_optimal": 19.46,
+   "per_year": {
+    "2025": -96.42,
+    "2024": 39.32,
+    "2023": 137.68
+   },
+   "drafter_surplus_per_pick": -7.78,
+   "drafter_rank": 8
+  },
+  {
+   "seat": 4,
+   "owner": "Jreis",
+   "tool_delta_realistic": 125.37,
+   "tool_delta_optimal": 129.11,
+   "per_year": {
+    "2025": 47.44,
+    "2024": 110.94,
+    "2023": 217.74
+   },
+   "drafter_surplus_per_pick": -14.5,
+   "drafter_rank": 9
+  }
+ ],
+ "spread": {
+  "seat_years": 30,
+  "mean": -32.81,
+  "sd": 116.89,
+  "sd_over_abs_mean": 3.56,
+  "positive": 15,
+  "min": -285.02,
+  "max": 217.74,
+  "seat_means_mean": -32.81,
+  "seat_means_sd": 75.03,
+  "seats_tool_wins": 2,
+  "se_of_mean": 21.34,
+  "min_detectable_effect_95pct": 41.8,
+  "starter_weeks_per_season": 135,
+  "min_detectable_delta_mae_per_player_week": 0.3099,
+  "model_baseline_weekly_mae": 5.7049,
+  "baseline_source": "vegas_team_arm.json (own_v6, 2023/24 joined rows)",
+  "min_detectable_effect_as_pct_of_model_error": 5.4
+ },
+ "skill_tracking": {
+  "spearman_delta_vs_drafter_skill": -0.248,
+  "permutation_p": 0.4993,
+  "null_p95_abs_rho": 0.636,
+  "n_seats": 10,
+  "fires": false
+ },
+ "known_positive_control": {
+  "what": "same statistic, realistic vs optimal arm in the same seats",
+  "spearman": 0.77,
+  "permutation_p": 0.0128,
+  "fires": true
+ },
+ "the_claim_under_test": {
+  "quoted_in": [
+   "CLAUDE.md",
+   "OWNERS.md",
+   "ROUTES.md (two entries)"
+  ],
+  "quoted_as": "the tool ties Cory (-6.5) and loses to the league's best drafter (-163)",
+  "worst_seat_owner": "ds7mmet",
+  "worst_seat_delta": -163.43,
+  "worst_seat_owner_drafter_rank": 4,
+  "actual_best_drafter": "Schmelley",
+  "actual_best_drafter_rank": 1,
+  "tool_delta_vs_actual_best_drafter": -28.98,
+  "claim_holds": false
+ }
+}

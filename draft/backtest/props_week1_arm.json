@@ -1,0 +1,546 @@
+{
+ "_territory": "TERRITORY: D \u2014 research artifact, produced by draft/backtest/props_week1_arm.py",
+ "preregistration": "draft/backtest/PROPS-WEEK1-PREREG.md",
+ "status": "graded",
+ "graded_season": 2025,
+ "excluded_markets": {
+  "markets": [
+   "any_td"
+  ],
+  "why": "the committed week-1 stores predate fetch_historical_props' AMERICAN_IMPOSSIBLE_BAND guard and carry any_td as DECIMAL ODDS (0.80-4.21, median 2.69), which line_to_points prices at 6.0 each. Documented in empirical_draft_value.props_ordering(), which excludes it for the same reason.",
+  "cost": "no rushing or receiving touchdowns are represented, so this arm UNDERSTATES goal-line backs and red-zone receivers and is a LOWER BOUND, not a fair estimate of a week-1 props board."
+ },
+ "construction": "proj = week1_implied_points x GAMES(17), point-quoted markets only; declared constant, identical for every player, nothing tuned; availability deliberately not modelled, which is the same handicap own_v6 carries",
+ "controls": {
+  "store_is_week_one_only": {
+   "weeks_in_store": 1,
+   "week_numbers": [
+    1
+   ],
+   "is_week_one_only": true
+  },
+  "overlap_with_full_season_week1": {
+   "week1_store_players": 230,
+   "full_season_week1_players": 199,
+   "overlap": 199,
+   "overlap_rate_vs_week1_store": 0.8652
+  }
+ },
+ "coverage": {
+  "week1_props_forecasts": 228,
+  "unmatched_names": [
+   "Cameron Ward",
+   "Hollywood Brown"
+  ],
+  "unmatched_count": 2,
+  "crosswalk_loss_rate": 0.0087
+ },
+ "arm": {
+  "models": {
+   "props_season": {
+    "cells": {
+     "QB": {
+      "n": 31,
+      "status": "measured",
+      "mae": 97.98,
+      "bias": 79.48,
+      "spearman": 0.2302
+     },
+     "RB": {
+      "n": 55,
+      "status": "measured",
+      "mae": 60.7,
+      "bias": -32.15,
+      "spearman": 0.639
+     },
+     "WR": {
+      "n": 98,
+      "status": "measured",
+      "mae": 39.43,
+      "bias": -8.47,
+      "spearman": 0.6266
+     },
+     "TE": {
+      "n": 40,
+      "status": "measured",
+      "mae": 29.46,
+      "bias": -12.74,
+      "spearman": 0.7098
+     }
+    },
+    "forecasts": 228,
+    "excluded_no_weekly_row": 0
+   },
+   "own_v6": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 72.29,
+      "bias": 10.87,
+      "spearman": 0.7225
+     },
+     "RB": {
+      "n": 100,
+      "status": "measured",
+      "mae": 37.19,
+      "bias": 2.3,
+      "spearman": 0.7991
+     },
+     "WR": {
+      "n": 152,
+      "status": "measured",
+      "mae": 33.28,
+      "bias": 8.57,
+      "spearman": 0.7695
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 23.33,
+      "bias": 2.12,
+      "spearman": 0.7987
+     }
+    },
+    "forecasts": 510,
+    "excluded_no_weekly_row": 116
+   },
+   "naive_prev": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 78.89,
+      "bias": 11.64,
+      "spearman": 0.708
+     },
+     "RB": {
+      "n": 100,
+      "status": "measured",
+      "mae": 42.01,
+      "bias": 9.01,
+      "spearman": 0.7648
+     },
+     "WR": {
+      "n": 152,
+      "status": "measured",
+      "mae": 37.28,
+      "bias": 12.05,
+      "spearman": 0.7401
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 26.73,
+      "bias": 2.69,
+      "spearman": 0.744
+     }
+    },
+    "forecasts": 582,
+    "excluded_no_weekly_row": 116
+   },
+   "recency_blend": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 74.09,
+      "bias": 9.77,
+      "spearman": 0.7213
+     },
+     "RB": {
+      "n": 100,
+      "status": "measured",
+      "mae": 41.5,
+      "bias": 7.63,
+      "spearman": 0.7711
+     },
+     "WR": {
+      "n": 152,
+      "status": "measured",
+      "mae": 36.44,
+      "bias": 12.56,
+      "spearman": 0.7406
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 24.04,
+      "bias": 2.36,
+      "spearman": 0.7871
+     }
+    },
+    "forecasts": 582,
+    "excluded_no_weekly_row": 116
+   }
+  },
+  "head_to_head_shared_population": {
+   "QB": {
+    "n": 29,
+    "status": "measured",
+    "props_season": {
+     "mae": 97.89,
+     "spearman": 0.2172
+    },
+    "own_v6": {
+     "mae": 82.58,
+     "spearman": 0.3251
+    },
+    "naive_prev": {
+     "mae": 94.44,
+     "spearman": 0.2325
+    },
+    "recency_blend": {
+     "mae": 87.74,
+     "spearman": 0.3384
+    }
+   },
+   "RB": {
+    "n": 46,
+    "status": "measured",
+    "props_season": {
+     "mae": 64.66,
+     "spearman": 0.6273
+    },
+    "own_v6": {
+     "mae": 52.2,
+     "spearman": 0.7094
+    },
+    "naive_prev": {
+     "mae": 62.24,
+     "spearman": 0.5428
+    },
+    "recency_blend": {
+     "mae": 58.74,
+     "spearman": 0.613
+    }
+   },
+   "WR": {
+    "n": 86,
+    "status": "measured",
+    "props_season": {
+     "mae": 40.3,
+     "spearman": 0.6319
+    },
+    "own_v6": {
+     "mae": 41.45,
+     "spearman": 0.5909
+    },
+    "naive_prev": {
+     "mae": 46.78,
+     "spearman": 0.5186
+    },
+    "recency_blend": {
+     "mae": 45.52,
+     "spearman": 0.5383
+    }
+   },
+   "TE": {
+    "n": 37,
+    "status": "measured",
+    "props_season": {
+     "mae": 28.91,
+     "spearman": 0.7055
+    },
+    "own_v6": {
+     "mae": 35.13,
+     "spearman": 0.5405
+    },
+    "naive_prev": {
+     "mae": 40.53,
+     "spearman": 0.4256
+    },
+    "recency_blend": {
+     "mae": 36.13,
+     "spearman": 0.5211
+    }
+   }
+  }
+ },
+ "promotion_bar_vs_v6": {
+  "bar": "props_season beats own_v6 on BOTH metrics (lower MAE, higher Spearman) at ALL FOUR positions, shared population with own_v6/naive_prev/recency_blend \u2014 preregistered in props_season_projection.py before any real grade existed",
+  "per_position": {
+   "QB": {
+    "mae_beats_v6": false,
+    "spearman_beats_v6": false,
+    "props_mae": 97.89,
+    "own_v6_mae": 82.58,
+    "mae_delta": 15.31,
+    "props_spearman": 0.2172,
+    "own_v6_spearman": 0.3251,
+    "spearman_delta": -0.1079
+   },
+   "RB": {
+    "mae_beats_v6": false,
+    "spearman_beats_v6": false,
+    "props_mae": 64.66,
+    "own_v6_mae": 52.2,
+    "mae_delta": 12.46,
+    "props_spearman": 0.6273,
+    "own_v6_spearman": 0.7094,
+    "spearman_delta": -0.0821
+   },
+   "WR": {
+    "mae_beats_v6": true,
+    "spearman_beats_v6": true,
+    "props_mae": 40.3,
+    "own_v6_mae": 41.45,
+    "mae_delta": -1.15,
+    "props_spearman": 0.6319,
+    "own_v6_spearman": 0.5909,
+    "spearman_delta": 0.041
+   },
+   "TE": {
+    "mae_beats_v6": true,
+    "spearman_beats_v6": true,
+    "props_mae": 28.91,
+    "own_v6_mae": 35.13,
+    "mae_delta": -6.22,
+    "props_spearman": 0.7055,
+    "own_v6_spearman": 0.5405,
+    "spearman_delta": 0.165
+   }
+  },
+  "clears": false
+ },
+ "leak_free_basis": "Week-1 lines close BEFORE any game of the season, the house rule for a season-total feature (vegas_lines_2021_2026.json's _note). This arm therefore does NOT carry the in-season information asymmetry that makes the full-season arm's 0.93-0.97 Spearman unusable as evidence about a preseason board.",
+ "seasons_not_graded": {
+  "seasons": [
+   2023,
+   2024
+  ],
+  "why": "grade_props_vs_v6 reproduces own_v6 for GRADED_SEASON only; extending it means touching A's model code. The stores are on disk \u2014 two more folds, named rather than dropped."
+ },
+ "replication_vs_house_baselines": {
+  "_amendment": "AMENDMENT 2 of PROPS-WEEK1-PREREG.md",
+  "bar": "props_week1 beats BOTH naive_prev and recency_blend on BOTH metrics \u2014 a LOWER bar than own_v6, which cannot be reproduced off 2025 without editing A's file. No win here is a win against own_v6; the read is CONSISTENCY across seasons.",
+  "seasons": {
+   "2023": {
+    "status": "measured",
+    "priors": [
+     2021,
+     2022
+    ],
+    "week_one_only": true,
+    "forecasts": 220,
+    "crosswalk_loss_rate": 0.0536,
+    "cell_valid": false,
+    "per_position": {
+     "QB": {
+      "props": {
+       "mae": 117.09,
+       "spearman": 0.1364
+      },
+      "naive_prev": {
+       "mae": 92.98,
+       "spearman": 0.539
+      },
+      "recency_blend": {
+       "mae": 88.16,
+       "spearman": 0.5363
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "RB": {
+      "props": {
+       "mae": 57.7,
+       "spearman": 0.3821
+      },
+      "naive_prev": {
+       "mae": 49.73,
+       "spearman": 0.6164
+      },
+      "recency_blend": {
+       "mae": 48.89,
+       "spearman": 0.6258
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "WR": {
+      "props": {
+       "mae": 42.73,
+       "spearman": 0.6948
+      },
+      "naive_prev": {
+       "mae": 35.37,
+       "spearman": 0.7319
+      },
+      "recency_blend": {
+       "mae": 34.31,
+       "spearman": 0.7486
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "TE": {
+      "props": {
+       "mae": 32.76,
+       "spearman": 0.5544
+      },
+      "naive_prev": {
+       "mae": 26.01,
+       "spearman": 0.7189
+      },
+      "recency_blend": {
+       "mae": 26.17,
+       "spearman": 0.7344
+      },
+      "beats_both_baselines_on_both_metrics": false
+     }
+    }
+   },
+   "2024": {
+    "status": "measured",
+    "priors": [
+     2022,
+     2023
+    ],
+    "week_one_only": true,
+    "forecasts": 239,
+    "crosswalk_loss_rate": 0.0042,
+    "cell_valid": true,
+    "per_position": {
+     "QB": {
+      "props": {
+       "mae": 98.49,
+       "spearman": 0.2752
+      },
+      "naive_prev": {
+       "mae": 81.36,
+       "spearman": 0.6014
+      },
+      "recency_blend": {
+       "mae": 72.6,
+       "spearman": 0.6528
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "RB": {
+      "props": {
+       "mae": 61.95,
+       "spearman": 0.5944
+      },
+      "naive_prev": {
+       "mae": 44.62,
+       "spearman": 0.7422
+      },
+      "recency_blend": {
+       "mae": 44.58,
+       "spearman": 0.7475
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "WR": {
+      "props": {
+       "mae": 39.83,
+       "spearman": 0.672
+      },
+      "naive_prev": {
+       "mae": 41.2,
+       "spearman": 0.7215
+      },
+      "recency_blend": {
+       "mae": 40.25,
+       "spearman": 0.7213
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "TE": {
+      "props": {
+       "mae": 33.8,
+       "spearman": 0.6196
+      },
+      "naive_prev": {
+       "mae": 27.63,
+       "spearman": 0.7134
+      },
+      "recency_blend": {
+       "mae": 26.73,
+       "spearman": 0.7215
+      },
+      "beats_both_baselines_on_both_metrics": false
+     }
+    }
+   },
+   "2025": {
+    "status": "measured",
+    "priors": [
+     2023,
+     2024
+    ],
+    "week_one_only": true,
+    "forecasts": 228,
+    "crosswalk_loss_rate": 0.0087,
+    "cell_valid": true,
+    "per_position": {
+     "QB": {
+      "props": {
+       "mae": 97.98,
+       "spearman": 0.2302
+      },
+      "naive_prev": {
+       "mae": 78.89,
+       "spearman": 0.708
+      },
+      "recency_blend": {
+       "mae": 74.09,
+       "spearman": 0.7213
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "RB": {
+      "props": {
+       "mae": 60.7,
+       "spearman": 0.639
+      },
+      "naive_prev": {
+       "mae": 42.01,
+       "spearman": 0.7648
+      },
+      "recency_blend": {
+       "mae": 41.5,
+       "spearman": 0.7711
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "WR": {
+      "props": {
+       "mae": 39.43,
+       "spearman": 0.6266
+      },
+      "naive_prev": {
+       "mae": 37.28,
+       "spearman": 0.7401
+      },
+      "recency_blend": {
+       "mae": 36.44,
+       "spearman": 0.7406
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "TE": {
+      "props": {
+       "mae": 29.46,
+       "spearman": 0.7098
+      },
+      "naive_prev": {
+       "mae": 26.73,
+       "spearman": 0.744
+      },
+      "recency_blend": {
+       "mae": 24.04,
+       "spearman": 0.7871
+      },
+      "beats_both_baselines_on_both_metrics": false
+     }
+    }
+   }
+  },
+  "consistency": {
+   "QB": 0,
+   "RB": 0,
+   "WR": 0,
+   "TE": 0
+  },
+  "valid_cells": 2
+ }
+}

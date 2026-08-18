@@ -7,10 +7,10 @@
  "leaderboard": [
   {
    "archetype": "late_qb",
-   "mean_edge": 5.25,
+   "mean_edge": 6.88,
    "ci95": [
-    -23.0,
-    33.88
+    -22.88,
+    37.0
    ],
    "mean_divergence": 5.5,
    "verdict": "parked: CI includes $0"
@@ -67,10 +67,10 @@
   },
   {
    "archetype": "elite_te",
-   "mean_edge": -6.38,
+   "mean_edge": -5.38,
    "ci95": [
-    -28.75,
-    14.5
+    -27.88,
+    16.62
    ],
    "mean_divergence": 2.3,
    "verdict": "parked: CI includes $0"

@@ -1,0 +1,459 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/asymmetric_env_arm.py",
+ "preregistration": "draft/backtest/ASYMMETRIC-ENV-PREREG.md",
+ "register": "18b (design instruction), 18 (the store)",
+ "status": "graded",
+ "gate_control": {
+  "what": "identical machinery on the oracle signal; must fit low>high AND beat symmetric out of sample",
+  "seasons": {
+   "2023": {
+    "fitted_on": [
+     2024
+    ],
+    "asymmetric_lambda": {
+     "low": 0.8,
+     "high": 0.5
+    },
+    "symmetric_lambda": 0.65,
+    "delta_mae_asymmetric": 0.2961,
+    "delta_mae_symmetric": 0.2566,
+    "gain": 0.0395
+   },
+   "2024": {
+    "fitted_on": [
+     2023
+    ],
+    "asymmetric_lambda": {
+     "low": 0.8,
+     "high": 0.25
+    },
+    "symmetric_lambda": 0.65,
+    "delta_mae_asymmetric": 0.2209,
+    "delta_mae_symmetric": 0.219,
+    "gain": 0.0018
+   }
+  },
+  "fits_low_above_high": true,
+  "beats_symmetric_out_of_sample": true,
+  "passed": true
+ },
+ "arms": {
+  "game_total": {
+   "population": {
+    "2021": {
+     "eligible_rows": 2322,
+     "joined": 2322,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2022": {
+     "eligible_rows": 2251,
+     "joined": 2251,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2023": {
+     "eligible_rows": 2179,
+     "joined": 2179,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2024": {
+     "eligible_rows": 2259,
+     "joined": 2259,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2025": {
+     "eligible_rows": 2198,
+     "joined": 2197,
+     "dropped_no_team": 1,
+     "dropped_no_line": 0,
+     "join_survival": 0.9995,
+     "fold_valid": true
+    }
+   },
+   "placebo": {
+    "draws": 60,
+    "mean": 0.0457,
+    "sd": 0.0075,
+    "p95": 0.0572,
+    "max": 0.0659,
+    "real_gain": 0.0491,
+    "p_value": 0.377,
+    "beats_p95": false,
+    "gain_net_of_placebo": 0.0034
+   },
+   "primary_2023_25": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0746,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0746
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0187,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0187
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0522,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0522
+     }
+    },
+    "verdict": {
+     "pooled_gain": 0.0485,
+     "seasons_positive": 3,
+     "seasons_judged": 3,
+     "bar_pooled_gain": 0.01,
+     "bar_min_positive": 4,
+     "clears": false
+    }
+   },
+   "all_five_seasons": {
+    "leave_one_out": {
+     "2021": {
+      "fitted_on": [
+       2022,
+       2023,
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0436,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0436
+     },
+     "2022": {
+      "fitted_on": [
+       2021,
+       2023,
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0565,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0565
+     },
+     "2023": {
+      "fitted_on": [
+       2021,
+       2022,
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0746,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0746
+     },
+     "2024": {
+      "fitted_on": [
+       2021,
+       2022,
+       2023,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0187,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0187
+     },
+     "2025": {
+      "fitted_on": [
+       2021,
+       2022,
+       2023,
+       2024
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0522,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0522
+     }
+    },
+    "verdict": {
+     "pooled_gain": 0.0491,
+     "seasons_positive": 5,
+     "seasons_judged": 5,
+     "bar_pooled_gain": 0.01,
+     "bar_min_positive": 4,
+     "clears": true
+    }
+   },
+   "in_sample": {
+    "fitted_on_everything": [
+     1.0,
+     0.0
+    ],
+    "note": "in_sample: true \u2014 NOT quotable, see ASYMMETRIC-ENV-PREREG.md"
+   }
+  },
+  "team_implied": {
+   "population": {
+    "2021": {
+     "eligible_rows": 2322,
+     "joined": 2322,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2022": {
+     "eligible_rows": 2251,
+     "joined": 2251,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2023": {
+     "eligible_rows": 2179,
+     "joined": 2179,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2024": {
+     "eligible_rows": 2259,
+     "joined": 2259,
+     "dropped_no_team": 0,
+     "dropped_no_line": 0,
+     "join_survival": 1.0,
+     "fold_valid": true
+    },
+    "2025": {
+     "eligible_rows": 2198,
+     "joined": 2197,
+     "dropped_no_team": 1,
+     "dropped_no_line": 0,
+     "join_survival": 0.9995,
+     "fold_valid": true
+    }
+   },
+   "placebo": {
+    "draws": 60,
+    "mean": 0.0489,
+    "sd": 0.0088,
+    "p95": 0.0644,
+    "max": 0.0719,
+    "real_gain": 0.0832,
+    "p_value": 0.0164,
+    "beats_p95": true,
+    "gain_net_of_placebo": 0.0343
+   },
+   "primary_2023_25": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.15,
+      "delta_mae_asymmetric": 0.0838,
+      "delta_mae_symmetric": -0.004,
+      "gain": 0.0878
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0325,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0325
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.15,
+      "delta_mae_asymmetric": 0.094,
+      "delta_mae_symmetric": 0.0006,
+      "gain": 0.0934
+     }
+    },
+    "verdict": {
+     "pooled_gain": 0.0712,
+     "seasons_positive": 3,
+     "seasons_judged": 3,
+     "bar_pooled_gain": 0.01,
+     "bar_min_positive": 4,
+     "clears": false
+    }
+   },
+   "all_five_seasons": {
+    "leave_one_out": {
+     "2021": {
+      "fitted_on": [
+       2022,
+       2023,
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.1216,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.1216
+     },
+     "2022": {
+      "fitted_on": [
+       2021,
+       2023,
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.084,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.084
+     },
+     "2023": {
+      "fitted_on": [
+       2021,
+       2022,
+       2024,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0838,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0838
+     },
+     "2024": {
+      "fitted_on": [
+       2021,
+       2022,
+       2023,
+       2025
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.0325,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.0325
+     },
+     "2025": {
+      "fitted_on": [
+       2021,
+       2022,
+       2023,
+       2024
+      ],
+      "asymmetric_lambda": {
+       "low": 1.0,
+       "high": 0.0
+      },
+      "symmetric_lambda": 0.0,
+      "delta_mae_asymmetric": 0.094,
+      "delta_mae_symmetric": 0.0,
+      "gain": 0.094
+     }
+    },
+    "verdict": {
+     "pooled_gain": 0.0832,
+     "seasons_positive": 5,
+     "seasons_judged": 5,
+     "bar_pooled_gain": 0.01,
+     "bar_min_positive": 4,
+     "clears": true
+    }
+   },
+   "in_sample": {
+    "fitted_on_everything": [
+     1.0,
+     0.0
+    ],
+    "note": "in_sample: true \u2014 NOT quotable, see ASYMMETRIC-ENV-PREREG.md"
+   }
+  }
+ },
+ "prior_stated_before_the_run": "I expect a null (ASYMMETRIC-ENV-PREREG.md)"
+}
