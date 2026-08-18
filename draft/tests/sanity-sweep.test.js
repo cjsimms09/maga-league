@@ -47,9 +47,10 @@ const TEAMS = 10;
 const ROUNDS = 15;
 const TOTAL = TEAMS * ROUNDS;
 
-const board = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')
-).players.filter(p => p.position && p.proj_mean != null);
+const ART = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+const board = ART.players.filter(p => p.position && p.proj_mean != null);
+const PICK_BOARD = ((ART.pick_order || {}).picks) || null;
 
 // --------------------------------------------------------- roster arithmetic
 function slotState(roster) {
@@ -222,6 +223,14 @@ function ctxFor(roster, round) {
     roster: roster,
     league: { starters: STARTERS, teams: TEAMS },
     weights: WEIGHTS,
+    /* AND THE PICK BOARD — the FOURTH fixture dimension in this file (session E,
+     * 2026-08-17; register E21). Roster quality, board depletion and the weight
+     * vector are the three already recorded above. `survival.js` converts board
+     * slot to live selection through `ctx.pickBoard` and counts every
+     * unconverted call in `SCALE`; without it, survival runs on the wrong scale
+     * and survival feeds VONA. `art` is the same artifact this file already
+     * reads its board from. */
+    pickBoard: PICK_BOARD,
     currentPick: currentPick,
     nextPick: currentPick + TEAMS,
     totalPicks: TOTAL,

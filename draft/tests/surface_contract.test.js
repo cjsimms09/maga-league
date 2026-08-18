@@ -159,6 +159,17 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
       totalPicks: 150, myPicksLeft: MY.filter(q => q >= p).length, roster: roster.slice(),
       doctrine: null, myPickIndex: Math.max(0, MY.indexOf(p)), totalMyPicks: MY.length,
       currentKeepers: keepers.slice(), league: D.league, weights: E.MEASURED_WEIGHTS,
+      /* THE PICK BOARD, WITHOUT WHICH SURVIVAL IS ON THE WRONG SCALE (session E,
+       * 2026-08-17, correcting my own re-derivation from earlier the same day).
+       * app.js:2066 threads `pick_order.picks` into every context it builds;
+       * survival.js converts board-slot to live-selection through it and keeps a
+       * SCALE counter precisely so "did the conversion run" is readable rather
+       * than assumed. Survival feeds VONA, so omitting it moves the very table
+       * this block re-derives: value 63.1/onesie 25.2/stack 11.6 unconverted
+       * against value 55.7/onesie 27.5/stack 16.6 on the app's scale. The ORDER
+       * is unchanged, which is why the checks below held either way — but the
+       * numbers published in the document were wrong and are now corrected. */
+      pickBoard: (D.pick_order || {}).picks || null,
       runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: p,
       intervening: next ? next - p : 0,
       roundsLeft: Math.max(0, Math.ceil((150 - p) / (D.league.teams || 10))),

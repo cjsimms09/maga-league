@@ -12,7 +12,9 @@ defect — regardless of whether the code is correct.
 **⚠️ EDITED BY SESSION E ON 2026-08-17 — AN OVERRIDE ON A's FILE, ON CORY'S
 EXPLICIT INSTRUCTION ("Fix and continue"), AND IT NEEDS A's REVIEW.** §1's term
 table was re-derived because registers E17/E18 fixed the defect it was measuring:
-`keeper` moves 14.3% → 0.2%. I raised this as `NO DEFAULT — BLOCKED` first and
+`keeper` moves 14.3% → 0.2%, and the whole table is re-stated on the app's
+survival scale after I caught my own first re-derivation running without
+`ctx.pickBoard`. I raised this as `NO DEFAULT — BLOCKED` first and
 held the fix rather than touch this file; Cory overrode the hold. **A: if you
 would have re-derived it differently, change it — the measurement is in
 `draft/audit/keeper_bar_ranks_what_it_cannot_value_2026-08-17.md` and the numbers
@@ -62,10 +64,19 @@ roster accumulating as the model picks:
 
 | term | share of movement (2026-08-17 board) |
 |---|---|
-| `value` (VONA) | **63.1%** |
-| **`onesie`** | **25.2%** |
-| `stack` | 11.6% |
+| `value` (VONA) | **55.7%** |
+| **`onesie`** | **27.5%** |
+| `stack` | 16.6% |
 | `keeper` | 0.2% |
+
+**⚠️ CORRECTED LATER THE SAME DAY, AND THE FIRST CORRECTION WAS ITSELF WRONG.**
+My re-derivation published `value 63.1 / onesie 25.2 / stack 11.6`. That run
+omitted `ctx.pickBoard`, which `app.js:2066` threads into every context the app
+builds and which `survival.js` uses to convert board-slot to live-selection —
+its `SCALE` counter exists precisely so "did the conversion run" is a readable
+fact rather than an assumption. Survival feeds VONA, so the omission moved the
+table. **The ORDER was unaffected, which is why every check still passed; the
+NUMBERS were not.** The figures above are on the app's scale.
 
 **`onesie` is a top-three driver of the recommendation and a reader of the
 old sentence would not have known it exists.**
@@ -90,10 +101,10 @@ this board:
 
 | roster | value | onesie | stack | keeper |
 |---|---|---|---|---|
-| 3 keepers (his slate today) | 63.1% | 25.2% | 11.6% | 0.2% |
-| 2 keepers | 71.8% | 18.0% | 9.2% | 1.1% |
-| 1 keeper | 71.8% | 18.0% | 9.2% | 1.1% |
-| 0 keepers | 73.4% | 18.4% | 7.1% | 1.1% |
+| 3 keepers (his slate today) | 55.7% | 27.5% | 16.6% | 0.2% |
+| 2 keepers | 71.2% | 17.3% | 10.5% | 1.0% |
+| 1 keeper | 71.2% | 17.3% | 10.5% | 1.1% |
+| 0 keepers | 72.8% | 17.7% | 8.5% | 1.1% |
 
 **So the claims now pinned are stronger than before: `value` largest, `onesie`
 second and material, `stack` third, `keeper` SMALLEST.** The margins that carry
@@ -159,13 +170,15 @@ term reports 0 rather than a number — **that is correct and must stay correct.
 ### 2. VONA
 
 **IS:** `proj_mean(p) − E[best available at p's position at MY next pick]`, in
-projection points. **63% of what moves the composite** — the largest single term
-by a factor of two and a half, re-measured over the top five at each of his
-twelve picks with the roster accumulating from his real keepers.
+projection points. **56% of what moves the composite** — the largest single term
+by a factor of two, re-measured over the top five at each of his twelve picks
+with the roster accumulating from his real keepers.
 
-> **Was 59.3% before 2026-08-17.** It rose to 63.1% when registers E17/E18 stopped
-> the keeper term from carrying a defect's inflation; VONA did not grow, the
-> denominator shrank. See §1's table note.
+> **Was 59.3% before 2026-08-17.** Registers E17/E18 stopped the keeper term
+> carrying a defect's inflation, which raised every other share; measuring on the
+> app's survival scale (`ctx.pickBoard` threaded — see §1's table note) then
+> lowered VONA's. The net is 55.7%. **A figure of 63.1% was published in between
+> and was wrong on the second count.**
 
 > This figure read **62%** and was carried in prose with no computation behind it
 > anywhere in the repo. Re-derived, it is 59.3% — so the number was approximately
@@ -441,7 +454,7 @@ reaching.** It also contradicts this document's own standard in §2 — *"three
 drafts give a direction, not a magnitude"* — quoted here to one decimal place.
 
 **⚠ THIS IS NOT DISPLAY-ONLY.** `reach_delta.mean` feeds `withinPrecision` in
-`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → 63% of
+`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → 56% of
 the composite. The two least-supported estimates get the largest adjustment
 (`−0.02 × mean`).
 

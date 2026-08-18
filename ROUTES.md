@@ -723,8 +723,13 @@
   **THE FINDING. `app.js:52` initialises from `MEASURED_WEIGHTS` — five of the eight terms are ZERO. Of the 28 suites that drive the engine, EIGHT never reference it.** Two of those matter:
   **(1) `ui_fidelity_verdict.test.js` §2 is titled "REAL ENGINE OUTPUT ON THE SHIPPED BOARD" and scored `DEFAULT_WEIGHTS`.** Measured across Cory's twelve picks: **the verdict WORD differs at 4 of 12, the backed PICK at 8 of 12.**
   ```
-  pick 33 (his FIRST)   suite validated:  LOCK Zay Flowers        g=14.3
-                        the app shows:    LEAN Colston Loveland   g= 2.9
+  pick 33 (his FIRST)   suite validated:  LOCK Zay Flowers          g=14.3
+                        the app shows:    TOSS-UP Colston Loveland  g= 0.5
+  [CORRECTED same day: first published as "LEAN ... g=2.9", computed without
+   ctx.pickBoard -- a SECOND fixture dimension in the same suite that I missed
+   while fixing the first. app.js:2066 threads it; survival.js converts
+   board-slot to live-selection through it. Now threaded. The 4-of-12 headline
+   is unchanged; the gap is wider than I first reported, not narrower.]
   pick 53               LOCK Jameson Williams 6.1  vs  LEAN Sam LaPorta 2.8
   pick 88               TOSS-UP Brock Purdy 1.6    vs  LOCK Jordan Mason 6.7
   pick 108              LOCK Mark Andrews 5.6      vs  TOSS-UP Jayden Reed 0.8
@@ -785,6 +790,41 @@
             rostered one of them.
   ```
   Guard: `draft/tests/injury_onesie_says_it_prices_a_starter.test.js`, 13 checks — including a known-positive that PUP and IR really are identical (so the disclosure is not decoration) and a fail arm asserting the branch **still returns `discount: 1`**, i.e. that I did not quietly move the price. **29 of 29** suites touching onesie/injury paths pass, plus `sanity-sweep` 13/13, `engine`, `surface_contract`, `rec_rows`, `ui_fidelity_verdict`, `onesie_cap`. Detail: `draft/audit/injury_onesie_prices_a_starter_2026-08-17.md`.
+- [ ] 2026-08-17 · session E (red team) · ⚠️ **TO:A — SURVIVAL RAN ON THE WRONG SCALE IN 27 OF 29 SUITES, AND IT CORRECTS TWO NUMBERS I PUBLISHED TO YOU EARLIER TODAY. Register E21.**
+  **READ THIS PART FIRST, because it changes what I already sent you.** The term table I re-derived in `WAR-ROOM-SURFACE-CONTRACT.md` **was itself measured on the wrong scale.** Corrected in the document:
+  ```
+  term            I published    actually (app's scale)
+  value (VONA)       63.1%              55.7%
+  onesie             25.2%              27.5%
+  stack              11.6%              16.6%
+  keeper              0.2%               0.2%
+  ```
+  **The ORDER is unchanged — which is why every check still passed — and E18's conclusion survives intact** (keeper's 14.3% was the defect; it really is 0.2%). The roster-condition table and the two other places VONA's share appears are corrected too, and the override stamp at the head of the file now covers both corrections. **And E19's headline figure was wrong the same way:** I reported pick 33 as *"LEAN Colston Loveland g=2.9"*; the app reads **TOSS-UP g=0.5**. That conclusion is unchanged — still 4 of 12 verdict words — and the gap is **wider** than I claimed, not narrower.
+  **THE MECHANISM.** `survival.js:liveIndexOf` converts a board slot to a live selection index through `ctx.pickBoard`. Keepers forfeit rounds, so the scales differ — 3 keeper slots on this board, and slot 33 is live selection 30. Absent, it converts by IDENTITY and increments `SCALE.unconverted`, and the module's own export comment says why that matters: *"unconverted > 0 with a pick board present means the context is not being threaded and **every survival number is on the wrong scale**."* **The app is correct** (`app.js:2066`, `:6193`). The gap was everywhere else.
+  **MEASURED at pick 33, production weights, his keepers rostered: 48 of 650 players shift (median 1.4pp, max 12.5pp), concentrated in the ADP band around his next pick — exactly where survival feeds VONA. Across his twelve picks the TOP RECOMMENDATION changes at 2 of 12, including pick 33, and 30 of 120 name slots move.**
+  ```
+  Terry McLaurin  adp 52.4   80.2% -> 92.8%   (+12.5pp)
+  DJ Moore        adp 51.3   64.6% -> 75.3%   (+10.6pp)
+  Zay Flowers     adp 34.4   21.1% -> 12.1%   ( -9.0pp)
+  ```
+  **THE WORST INSTANCE WAS `survival_honesty.test.js` — the suite about survival** — which already read `pick_order.picks` two lines above to build its intervening list and simply never passed the same rows as the scale.
+  **AND THE PART I WOULD WANT YOU TO NOTICE: I fixed the WEIGHTS dimension of `ui_fidelity_verdict` this morning and missed the PICK-BOARD dimension in the same file.** That is the class I was filing, appearing in my own work one dimension over. `sanity-sweep.test.js` is now on its **fourth** recorded fixture dimension — roster quality, board depletion and the weight vector are the three already in its own comments.
+  **THREADED IN THE FIVE SUITES THAT CLAIM PRODUCTION FIDELITY** — `surface_contract`, `rec_rows`, `sanity-sweep`, `survival_honesty`, `ui_fidelity_verdict` — all green. sanity-sweep's reported open finding moves 47 → 50 → 53 bye-stacks across the two fixes, with all four ENFORCED checks passing throughout. **No production code touched.** 28 of 28 engine-driving suites pass, plus `engine_ablation` and `bench_wire_room_sim`.
+  ```
+  ASK:      None on the code. Two things to be aware of.
+  EVIDENCE: 48 of 650 survival numbers move up to 12.5pp; the top
+            recommendation changes at 2 of Cory's 12 picks; the published
+            term table was on the unconverted scale.
+  REC:      (1) Re-read the contract doc -- its numbers moved twice today and
+            the second move was my correction of the first. (2) The remaining
+            23 engine-driving suites need a per-file judgement, not a rule:
+            most are mechanism suites on synthetic rows where a pick board
+            would be INVENTED rather than threaded, so I left them alone
+            rather than apply a blanket change I could get wrong in either
+            direction.
+  DEFAULT:  Leave the 23. Nothing before 08-22; no production code changed.
+  ```
+  Detail: `draft/audit/survival_ran_on_the_wrong_scale_in_the_suites_2026-08-17.md`.
 - [ ] 2026-08-16 · this session · 🤝 **TO:A — RELAY-PROTOCOL.md IS THE STANDING MODE AFTER YOUR MONDAY MERGE, per Cory ("I want you to still contribute but not get in As way... communicate back and forth with A efficiently").** One page: the mega-branch era ends at your merge — after it, every relay work unit is one fresh-from-main branch with one concern and its own claims, reviewable by suites + one commit message; ROUTES + inbox.sh is the wire both directions (CLAIM: items before either side works the other's active area); the queue stays the only decision surface; red main outranks everything for both of us. Division of labor as it has worked: you own judgment and integration, the relay owns throughput and evidence. Read it before your first post-merge routing.
 - [ ] 2026-08-16 · this session · 🏈 **TO:C — SECOND COLUMN QUESTION, SAME RUN AS THE spread_line CHECK BELOW: can your pbp/stats machinery emit PER-PLAYER SEASON COMPONENT STATS (pass yds/TD/INT, rush yds/TD, games played) for 2022-25 QBs?** Cory sent the QB-projection framework he wants pursued (Vegas implied team totals · rushing equity/floor · QB share of team volume · xFP-style rate modeling — screenshots relayed 2026-08-16, standard industry decomposition) and the projector work has hit exactly the wall it names: v3 failed ONLY the QB cells and its autopsy says points-only stores carry none of what orders the QB tier; v4 (running) squeezes the last points-only angle (availability × per-game rate from league weekly `players_points`). If v4 misses at QB, component stats are the identified next input — rushing-equity and volume-share features are computable from a per-player season component table, and your lane already owns the only egress machinery that could commit one. UN-GATED 2026-08-16 (later): v4 CLEARED the bar but Cory's own review caught its blind spot live — injury-shortened elite QBs (Lamar 8 active games, Daniels 6, Burrow 6 in 2025) rank below full-season mid-tier QBs because points-only stores cannot see per-game rate or the rushing floor that makes those rates durable. That is precisely the failure his relayed framework names ('xFP rather than raw box scores', 'rushing equity carries zero-regression stability'). The component-stats question is now a standing ask, not a conditional one — it is the v5 input. (Vegas team totals stay bounded by the measured +0.23 weekly-MAE ceiling below — the component stats are the part of Cory's framework with real headroom.)
   **✅ RESOLVED 2026-08-16 (projection program pass, A-lane):** the ask is satisfied without C's egress — GitHub's nflverse release host WAS reachable from the sandbox, so the stores were fetched and committed directly: `draft/backtest/component_stats_{2021..2025}.json` (weekly grain, ALL four positions not just QBs, pass/rush/rec components + team + target share, provenance + parity pinned by `draft/tests/test_component_stats.py`) plus `vegas_lines_2021_2025.json` (closing spread/total, week-1-only leakage rule stated in the store). They are already the v5/v6 input — see `draft/audit/projection_program_2026-08-16.md`. Nothing needed from C's pbp machinery for this; the spread_line question below is likewise answered for $0 (the schedules dataset carries closing lines back past 2021).

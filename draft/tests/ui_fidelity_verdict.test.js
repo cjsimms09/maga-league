@@ -135,8 +135,8 @@ ck('and at every gap the chip equals the engine-derived ladder (contested→TOSS
  *
  *     the VERDICT WORD differs at 4 of 12
  *     the BACKED PICK differs at 8 of 12
- *     pick 33, his FIRST:  LOCK Zay Flowers  g=14.3   (what this suite validated)
- *                          LEAN Colston Loveland g=2.9 (what the app shows)
+ *     pick 33, his FIRST:  LOCK Zay Flowers         g=14.3  (this suite)
+ *                          TOSS-UP Colston Loveland g= 0.5  (the app)
  *
  * That is the SAME PAIR rec_rows.test.js records for the same defect — the fix
  * landed there and not in its siblings. It matters here specifically because
@@ -163,6 +163,17 @@ const ALL = ART.players.filter(p => p.proj_mean > 0)
 {
   const ctx = { board: ALL.slice(28), currentPick: 33, nextPick: 48, totalPicks: 120,
     myPicksLeft: 12, roster: [], league: ART.league, weights: PROD_WEIGHTS,
+    /* THE PICK BOARD IS A SECOND FIXTURE DIMENSION AND I MISSED IT ON THE FIRST
+     * PASS (session E, same day, correcting my own published number).
+     * `app.js:2066` threads `pick_order.picks` into every context it builds, and
+     * `survival.js` converts board-slot to live-selection through it — its SCALE
+     * counter exists precisely so "did the conversion run" is a readable fact
+     * rather than an assumption, and its own comment says unconverted numbers
+     * are "on the wrong scale". Omitting it does not blow up: it silently scores
+     * survival on the unconverted scale, and survival feeds VONA, which is 63%
+     * of the composite. Measured at pick 33 under production weights: without
+     * the pick board the verdict reads LEAN g=2.9, with it TOSS-UP g=0.5. */
+    pickBoard: (ART.pick_order || {}).picks || null,
     runMultipliers: {}, intervening: [], roundsLeft: 12 };
   const out = E.onTheClock(ctx, { targets: [], avoid: [] });
   const v = V.derive({ cfg: CFG, scored: out.scored, confidence: out.confidence });

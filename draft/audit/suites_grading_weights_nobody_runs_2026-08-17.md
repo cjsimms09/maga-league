@@ -53,7 +53,7 @@ Its §2 is titled **"REAL ENGINE OUTPUT ON THE SHIPPED BOARD"** and scored
 
 | pick | what the suite validated | what the app shows |
 |---|---|---|
-| **33 — his first** | **LOCK Zay Flowers, gap 14.3** | **LEAN Colston Loveland, gap 2.9** |
+| **33 — his first** | **LOCK Zay Flowers, gap 14.3** | **TOSS-UP Colston Loveland, gap 0.5** |
 | 53 | LOCK Jameson Williams 6.1 | LEAN Sam LaPorta 2.8 |
 | 88 | TOSS-UP Brock Purdy 1.6 | LOCK Jordan Mason 6.7 |
 | 108 | LOCK Mark Andrews 5.6 | TOSS-UP Jayden Reed 0.8 |
@@ -61,6 +61,16 @@ Its §2 is titled **"REAL ENGINE OUTPUT ON THE SHIPPED BOARD"** and scored
 **That pick-33 pair — Zay Flowers against Colston Loveland — is the SAME pair
 `rec_rows.test.js` records for the same defect.** The fix landed there and not in
 its siblings.
+
+**⚠️ CORRECTION, same day, to a number I published above.** I first reported pick
+33's production verdict as *"LEAN Colston Loveland, gap 2.9"*. That was computed
+**without `ctx.pickBoard`**, which `app.js:2066` threads into every context it
+builds and which `survival.js` uses to convert board-slot to live-selection.
+With it threaded the app reads **TOSS-UP Colston Loveland, gap 0.5**. The
+headline is unchanged — still 4 of 12 verdict words — and the gap is in fact
+wider than I claimed, but the figure was wrong and is corrected here and in the
+suite. **The pick board was a second fixture dimension in the same suite, and I
+missed it while fixing the first**; it is now threaded too.
 
 **Its assertions were never WRONG**, and I want that stated plainly rather than
 inflated: they are self-referential (chip vs engine, both from the same `out`),
