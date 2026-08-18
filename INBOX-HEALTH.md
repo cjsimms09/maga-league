@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 05:02 UTC_
+_Last measured: 2026-08-18 06:53 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  387 items · 246 open · 71 of those carry a DEFAULT (silence resolves them)
+  396 items · 253 open · 77 of those carry a DEFAULT (silence resolves them)
   66 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
 
   waiting on:
@@ -28,10 +28,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     5d  2026-08-13 · C · ⏱ **Your gate-2 item (deployed Netlify wrapper + Blobs) is what DRAFT DAY'S pre
     5d  2026-08-13 · A · ⚡ **ONE LINE UNBLOCKS THE SEAT PANEL: the view needs `<div id="seat-plan"></div
 
-  baseline 131  ->  now 66
+  baseline 66  ->  now 66
 
-  ✅ DOWN 65. Lower the baseline to 66 in draft/baseline/routes_backlog_baseline.json to lock the gain in —
-     a ratchet nobody tightens is just a high-water mark.
+  Holding at the baseline. Not worse.
 ============================================================================
 ```
 
@@ -39,14 +38,14 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-        9 commits     0h old  claude/fantasy-football-research-926y6z
-        9 commits     0h old  claude/red-team-fantasy-football-97otna
-        5 commits     0h old  claude/warroom-shell-rebuild-0817
-  ⚠️    3 commits    13h old  claude/in-season-surface-fixes-6nyayc
-        2 commits     0h old  claude/data-stewardship-setup-bo5h9j
-        1 commits     0h old  claude/external-ingest-program-1xfinj
-        1 commits    30h old  sleeper-hist-proj-dispatch
-        1 commits    30h old  sleeper-vs-fp-grade-dispatch
+       17 commits     0h old  claude/fantasy-football-research-926y6z
+        9 commits     2h old  claude/red-team-fantasy-football-97otna
+        9 commits     2h old  claude/warroom-shell-rebuild-0817
+  ⚠️    3 commits    15h old  claude/in-season-surface-fixes-6nyayc
+        2 commits     2h old  claude/data-stewardship-setup-bo5h9j
+        1 commits     2h old  claude/external-ingest-program-1xfinj
+        1 commits    32h old  sleeper-hist-proj-dispatch
+        1 commits    32h old  sleeper-vs-fp-grade-dispatch
 
   ⚠️  1 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,

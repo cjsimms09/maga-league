@@ -4,7 +4,7 @@
   "round_cost_vorp": [
     75.0,
     48.9,
-    32.3
+    30.28
   ],
   "predictions": {
     "coryjsimms": {
@@ -34,7 +34,7 @@
           "position": "RB",
           "vorp": 75.5,
           "cost_round": 3,
-          "surplus": 43.2,
+          "surplus": 45.2,
           "confidence": "high"
         }
       ],
@@ -86,7 +86,7 @@
           "position": "WR",
           "vorp": 42.6,
           "cost_round": 3,
-          "surplus": 10.3,
+          "surplus": 12.3,
           "confidence": "medium"
         }
       ],
@@ -121,7 +121,7 @@
           "position": "RB",
           "vorp": 50.6,
           "cost_round": 3,
-          "surplus": 18.3,
+          "surplus": 20.3,
           "confidence": "medium"
         }
       ],
@@ -155,7 +155,7 @@
           "position": "QB",
           "vorp": 63.8,
           "cost_round": 3,
-          "surplus": 31.5,
+          "surplus": 33.5,
           "confidence": "high"
         }
       ],
@@ -191,7 +191,7 @@
           "position": "WR",
           "vorp": 47.9,
           "cost_round": 3,
-          "surplus": 15.6,
+          "surplus": 17.6,
           "confidence": "certain",
           "override": "Cory intel (confirms model)"
         }
@@ -226,8 +226,8 @@
           "position": "RB",
           "vorp": 39.6,
           "cost_round": 3,
-          "surplus": 7.3,
-          "confidence": "low"
+          "surplus": 9.3,
+          "confidence": "medium"
         }
       ],
       "next_best": "Jaylen Waddle",

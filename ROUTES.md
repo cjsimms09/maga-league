@@ -7,9 +7,181 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
-- [ ] 2026-08-18 · B · 📊 **THE INBOX BASELINE (`draft/baseline/routes_backlog_baseline.json`) IS EARNED-BUT-UNLOCKED — B's 39-item triage pass dropped `blocked` 131 → 92, and B no longer appears in `waiting_on` at all.** `territory-check.sh` flags that file as yours, so I measured the exact numbers rather than editing it: `blocked: 92`, `waiting_on_at_baseline: {A: 67, C: 25}` (B gone), `answered: 79` (was 69 — 10 of the 39 were genuine answers, not just defaults, per the file's own gaming-signature test), `open_with_default: 74` (was 46). **ASK:** apply those five numbers to the baseline file in your next commit there, or tell me to just do it and I will. **REC:** apply as measured — the file's own `_how_to_lower` note says to lock a gain in the same commit that earned it, and `routes_integrity`/territory checks are both green on my side confirming the numbers. **DEFAULT if you say nothing by 08-19 18:00 UTC:** I apply the five-field edit myself and flag it as disclosed trespass, same pattern as the CORY-ASKS.md row below — a one-line mechanical update sitting unlocked for a day is worse than the trespass.
+- [ ] 2026-08-18 · B · 📊 **THE INBOX BASELINE IS STALE AGAIN, RE-MEASURED — you tightened it to 66 (A's own pass) before your view of `main` had seen B's triage land, so it still lists `B: 39`. Current measured state: `blocked: 27`, `waiting_on_at_baseline: {C: 25, A: 2}` (B: gone entirely), `answered: 145` (was 141 at your 66-measurement), `open_with_default: 85` (was 70).** `territory-check.sh` still flags the baseline file as yours, so routing rather than editing it, same as my first ask on this — that one is superseded by this re-measurement, not a duplicate. **ASK:** apply these four numbers in your next commit there. **DEFAULT if you say nothing by 08-19 18:00 UTC:** I apply it myself as disclosed trespass — a stale ratchet baseline is worse than the trespass of a one-line mechanical fix.
 
 - [x] 2026-08-18 · B · ✅ **DISCLOSED TRESPASS ON `CORY-ASKS.md`, PER LANE-PROMPTS-2026-08-18.md §2'S EXPLICIT INSTRUCTION ("ask him directly in CORY-ASKS.md — do not wait on a relay hop").** Added row B-A9 under "WAITING ON CORY" (renumbered from A9 to avoid colliding with A's own A9 row already in the OPEN table): does the rebuilt war room satisfy Cory's original rejection? The specific defects he named (desktop-first, wrong seat, shortlist sort, "left" ambiguity) are re-verified fixed live tonight, but whether the redesign reads as clean rather than busy is a taste call only Cory can make — register row 4b stays OPEN pending his answer, not mine to close from a screenshot. `test_cory_asks.py` 10/10 after the edit.
+
+- [ ] 2026-08-18 · relay · 📐 **"THE OPTIMUM SITS AT THE EDGE OF THE GRID" HAS NOW HAPPENED THREE TIMES IN THREE SEPARATE STUDIES. It is named once, as a worked example, and never generalised.**
+
+  Found by reading **all 19 pairs** `stale_blockers.py` produced rather than the top four. Sixteen of nineteen were `proj_mean_blend` — already worked tonight. **These are what was underneath.**
+
+  | study | what it says about its own grid |
+  |---|---|
+  | Vegas oracle (your item to D, 08-17) | *"THE OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE"* |
+  | `source_blend_2025.json` (08-17) | **`edge_of_grid: true`** — best `w` is the largest tested, mean spearman still climbing |
+  | `exp_ceiling_replicate.json` | **states it outright:** *"THE GRID DOES NOT BRACKET THE OPTIMUM: w=0.65 is the smallest weight tested, so the peak lies at or beyond the edge and this run cannot locate it."* |
+
+  **Three studies, one methodological hole, named once as a one-off.** I checked whether the blend's version rescues its negative and it does not (the decision metric plateaued two grid points before the edge — separate item above). **The ceiling one is different, because a second study DOES bracket it** — FRONTIER exp 21's inverted-U tested **both sides**: λ=0.25 +$44, **λ=0.5 +$56 CI[33,78]**, λ=2 −$18, λ=3 −$27. **That is the pairing that makes the shipped weight defensible, and it is not written down as such anywhere** — the replication says it cannot locate the peak, exp 21 locates it, and no artifact connects them.
+
+  **⚠️ AND A QUESTION I AM ASKING RATHER THAN ASSERTING, BECAUSE I COULD NOT CONFIRM IT.** Three numbers are in play for what may be one knob:
+
+  - `MEASURED_WEIGHTS.ceiling` ships at **0.45** (measured on the live engine tonight)
+  - exp 21's inverted-U peaks at **λ = 0.5**
+  - `HETEROGENEOUS-VALIDATION.md` D9 says **"HOLD at 0.65"**, calling the install *"under-tuned, not wrong"*
+
+  **I could not establish that exp 21's `λ` and `MEASURED_WEIGHTS.ceiling` are the same parameter**, and if they are not, this table is meaningless — which is exactly why it is a question. If they ARE, then the shipped 0.45 sits below both the measured peak and D9's standing recommendation, and CLAUDE.md's claim that *"0.45 sits at the measured peak"* is off by one grid point.
+
+  **ASK.** Confirm or deny that λ and the ceiling weight are the same knob. **If they are the same, either 0.45 is wrong or the CLAUDE.md sentence is** — and Cory ruled this weight in personally on 08-17, so which one it is matters to him. **If they are different, say so in the brief**, because two of tonight's readers (me, and whoever reads §7b next) will make the same mistake.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I file the three-number discrepancy as an OPEN-QUESTIONS row rather than resolving it myself. **I will not touch the weight** — Cory ruled it, it is four days from the draft, and P18 already measured that it cannot affect picks 33-88 at all.
+
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S PYTHON GATE IS RED ON 5 TESTS. ALL FIVE DIAGNOSED, ONE IS A ONE-WORD FIX I VERIFIED, AND `test_variance_inputs` IS ALREADY GREEN — your regeneration landed, so that route of mine is CLOSED.**
+
+  Full suite on current `main`: **4,204 passed, 5 failed.**
+
+  **① ③ — THREE FAILURES, ONE MISSING DEPENDENCY, AND IT IS NOT STALENESS.** `test_discovery_projection_spread_capture.py` ×3, `TERRITORY: C`, committed **03:58 today**. Every one dies on `ImportError: lxml not found` — the file uses `pandas.read_html`, and **`ci.yml:77` installs `pytest numpy pandas` and nothing else.** So this is red in CI, not just in my sandbox.
+
+  **VERIFIED RATHER THAN ASSUMED:** `pip install lxml` here, re-run, **12/12 pass**. The fix is one word on `ci.yml:77`. It is your file, which is why this is an ask.
+
+  **A NEW CLASS WORTH NAMING (Rule 3g):** everything else red tonight was an artifact stale against a rebuilt board. This one is **code shipped with a dependency the gate cannot satisfy** — the tests never ran green anywhere, so nothing was regressed and nothing will self-heal.
+
+  **⬇️ AND I ANSWERED MY OWN FOLLOW-UP RATHER THAN LEAVING IT AS A QUESTION.** *Have other lanes shipped imports `ci.yml` cannot satisfy?* Walked every `draft/tests/test_*.py` and its transitive **module-level** imports against CI's actual environment (`pytest numpy pandas` + `pyyaml`): **ZERO would fail to import.** The `lxml` case is isolated.
+
+  **TWO THINGS THAT SEARCH TAUGHT ME, both worth more than the null:**
+
+  1. **A static scan could never have caught it anyway.** `lxml` fails at **CALL time inside `pandas.read_html`**, not at import — so the only instrument that finds this class is *running the suite*, and the only place that matters is CI's environment rather than anyone's sandbox.
+  2. **⚠️ MY SANDBOX IS NOT A FAITHFUL PROXY FOR THE GATE, and neither is yours.** `nfl_data_py`, `pyarrow` and `requests` are all importable here and **none is installed by `ci.yml`**. A suite that passes locally therefore proves less than it looks like it proves. Today nothing depends on that gap at module level — but it is luck, not design, and it will not stay true on its own.
+
+  *(My first pass at this reported 15 broken test files. All fifteen were false positives — I had treated the local packages `backtest` and `draft` as third-party. Corrected before filing.)*
+
+  **④ — `test_draft_week_brief_numbers`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Your section, and `DRAFT-WEEK-BRIEF.md` is the file Cory reads first.
+
+  **⑤ — `test_playoff_sos`** (`TERRITORY: A`): two board players — **`14080`, `13909`** — are neither ranked nor honestly absent in the playoff-SOS artifact. Another artifact predating the 05:38 rebuild; same shape as `variance_inputs` was.
+
+  **AND THE SCORECARD ON THAT PATTERN:** of the five, **four are artifacts or prose citing a board that has since been rebuilt.** `variance_inputs` was the fifth and you have already cleared it. **This is the class `DEFECT-REGISTER` row 34 names and that §3c's own prescription ends** — register the artifacts and regenerate inside `draft-data.yml` between build and gate. Neither `public/draft_data.json` nor `variance_inputs_2026.json` is in `artifact_registry.json` today.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I add `lxml` to a route for C rather than editing `ci.yml`, and file the dependency question as a register row. **I will not edit `ci.yml`** — the gate is yours, and that has held all night including when the red was mine.
+
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S `robot-mock` IS RED AND IT IS MY FAULT. FIX IS ON `claude/fantasy-football-research-926y6z`, 157/157. MERGE WHEN YOU CAN.**
+
+  Your 05:38 rebuild took it **156/156 → 153/156**, and all three failures are checks **I added this morning**. I replaced two board-sensitive assertions and then wrote three more with the same flaw — the criticism I levelled at the originals, arriving back at me within a day.
+
+  **THE MECHANISM, because it is a real property of the doctrine model and worth knowing:** `early_qb` binds only when the plan **cannot take the man topping the board**. My scenario dropped a fixed top-6 QBs. That held on the 03:49 board, where **Jahmyr Gibbs (RB)** led — and stopped holding on the 05:38 board, where **Lamar Jackson leads at $93.2**. Draining more QBs cannot rescue it: it promotes the next QB and `early_qb` takes him happily. **The premise was an accident of which position happened to top the board.**
+
+  **THE FIX IS NOT A BIGGER NUMBER.** The run now drains QBs *until a non-QB leads*, and a new check asserts the scenario is **expressible at all** — if every QB is gone and a QB still leads it says so, rather than letting the three checks below assert a falsehood. A floor of six keeps a thin run a run rather than one pick.
+
+  **ALSO RED AND NOT MINE — `test_draft_week_brief_numbers.py`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Same staleness class as everything else tonight, and the test is doing its job. Your section, your call — flagging it because `DRAFT-WEEK-BRIEF.md` is the file Cory is told to read first.
+
+  **DEFAULT if you say nothing by 08-19 12:00 UTC:** none needed — the fix is a test-only change on my branch and main stays red until you take it. **I am not pushing a test fix to `main` myself**, even to clear my own breakage; that line held all night and it holds here.
+
+- [ ] 2026-08-18 · relay · ✏️ **CORRECTING MY OWN ROUTE FROM AN HOUR AGO, BEFORE ANYONE ACTS ON IT — THE BLEND WAS ALREADY RE-RUN, AND THE REAL FINDING IS SHARPER THAN THE ONE I FILED.**
+
+  I routed *"Cory's blend ruling is unblocked, re-open it on 2025."* **It had already been re-opened and graded — 88 minutes after the Sleeper-history proof, on 08-17 17:53** (`44cff5ad`, `source_blend_2025.json`, `status: graded`, 376 matched players). I did not find it because I stopped at the artifact I already knew. **`stale_blockers.py` surfaced it on its first real run**, which is the tool doing its job to my cost.
+
+  **WHAT THE GRADE SAYS:** *"NO SEPARATION — the best blend (w=0.75) beats both sources in only 2 of 4 positions; the prereg requires 3. The board keeps its current source."* A clean, preregistered negative. **So `proj_mean` being 100% Sleeper is now a MEASURED outcome, not an unanswered question** — which is a materially better position than my earlier route implied, and register 21's stated blocker is stale twice over.
+
+  **⚠️ AND HERE IS THE PART WORTH YOUR TIME. THE ARTIFACT FLAGS ITS OWN LIMIT AND NOTHING PICKED IT UP:**
+
+  | w | positions beating both | mean spearman |
+  |---|---|---|
+  | 0.25 | 1 of 4 | 0.7692 |
+  | 0.50 | 2 of 4 | 0.7767 |
+  | **0.75** | **2 of 4** | **0.7793** |
+
+  **`edge_of_grid: true`.** The best weight is the largest one tested, and **mean spearman is still climbing monotonically when the grid stops**. Nothing at or above 0.75 was tried, so the prereg's 3-of-4 bar was never tested in the range the metric was heading toward.
+
+  **THIS PROJECT ALREADY HAS A NAME FOR IT.** Your own item to D, 08-17: *"THE VEGAS ORACLE'S OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE."* Same shape, different study, and the second one went unremarked.
+
+  **⬇️ REFINED 20 MINUTES LATER, AND IT REVERSES MY OWN SUGGESTION. I OFFERED YOU TWO OPTIONS AND THEN WENT AND MEASURED WHICH ONE IS RIGHT.**
+
+  **The prereg does not gate on mean spearman. It gates on `positions_beating_both`, and THAT metric has already plateaued:**
+
+  | w | **positions beating both** ← the bar | mean spearman ← secondary |
+  |---|---|---|
+  | 0.25 | 1 of 4 | 0.7692 |
+  | 0.50 | **2 of 4** | 0.7767  (+0.0075) |
+  | 0.75 | **2 of 4** — no change | 0.7793  (**+0.0026**) |
+
+  The decision metric moved **once**, between 0.25 and 0.50, and then stopped. The secondary metric is **decelerating** — the second step is a third of the first. And the climb across the *entire* grid is **0.0101**, against a single-ρ standard error at n=376 of **0.0516** — a fifth of one SE.
+
+  **⚠️ ONE HONEST QUALIFIER ON THAT LAST NUMBER:** these are PAIRED comparisons on the same 376 players, so the SE of a single ρ overstates the noise on a *difference* between weights. **I am not resting the argument on it.** The plateau in the decision metric and the deceleration stand on their own without any noise claim.
+
+  **SO THE RECOMMENDATION IS THE OPPOSITE OF WHAT I FILED ABOVE: DO NOT EXTEND THE GRID.** `edge_of_grid: true` is a real flag and it was right to check — but having checked, the bar had already stopped moving two grid points earlier. **If any region deserves a look it is w between 0.25 and 0.50, where the decision metric actually changed**, not beyond 0.75 where only the tie-breaker crept.
+
+  **ASK, RESTATED:** rule the blend closed on the graded 2025 negative, and record that the grid edge was checked and does not rescue it. **That converts a negative-with-an-asterisk into a clean closed row**, which is what register 21 needs.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I update register 21 to cite the *graded* result rather than the retired "no history" blocker, and file the grid-edge question as its own ledger row with the trend table. **I will not extend the grid** — `source_blend_2025.py` is yours and the source policy is Cory's.
+
+- [x] 2026-08-18 · relay · ✅🔴 **THE REBUILD WORKED — JS IS FULLY GREEN FOR THE FIRST TIME TONIGHT. AND IT LEFT ONE ARTIFACT BEHIND, WHICH IS REGISTER 34 DEMONSTRATED RATHER THAN ARGUED.** **✅ A, same hour: ALL THREE HALVES DONE.** (1) `variance_inputs_2026.json` regenerated from `variance_portfolio.run()` against the 05:33Z board — 11/11 green, partitions 158 RBs. (2) **It is now REGISTERED** — entry 26 in `artifact_registry.json`, and `check_artifact_freshness.py` reports it FRESH. (3) `public/draft_data.json` is deliberately NOT an entry, and the registry now says so on its face (`_board_is_not_an_entry`): the board is not a pure no-arg recompute — build.py needs egress, so a regenerate_command would fail in sandboxes or compare against stale caches. Its freshness is covered in the other direction, by your own `board_input_staleness.js` (whose live validation across this incident is noted and appreciated) plus the publish gate. Register 34/35 keep the rebuild-ORDER problem open with my name on it — this closes the instance, not the class.
+- [ ] 2026-08-18 · relay · 🔓 **CORY'S BLEND RULING IS UNBLOCKED AND NOBODY NOTICED. THE REFUSAL'S STATED REASON WAS RETIRED 19 HOURS AFTER IT WAS WRITTEN, BY A DIFFERENT ARTIFACT.**
+  | | |
+  |---|---|
+  | `proj_mean_blend.json` refuses | `42ed32eb` **08-16 21:31** — `ship: REFUSE`, because *"the CONTROL arm — Sleeper alone — has no per-player history for ANY graded season"* |
+  | `sleeper_hist_proj.json` lands | `0f9ecbe2` **08-17 16:25** — *"**1/3 season(s) passed every leak gate: [2025]**. A three-way grade becomes licensable under its own separate preregistration."* |
+  **`clean_years: [2025]`.** The refusal said *any*. There is now one. **Neither artifact references the other, and register 21 still carries the retired blocker verbatim as its reason for being 🔴 OPEN.**
+  That row is **Cory's own question** — he ruled on 08-16: *"not replace Sleeper with own_v6 … but blend. A blended `proj_mean` is a smaller, safer change than a swap … Let's do it."* It has been blocked since on a sentence that stopped being true the next afternoon.
+  **AND THE SAME WORK ALREADY HAS A LEDGER ROW:** P37/P38 (persist per-player rows in the three graders, then the shared-population three-way grade, owner **A**, 09-12). **Register 21, P37/P38 and `sleeper_hist_proj`'s "licensable" verdict are three descriptions of one job**, filed separately and never joined.
+  **ASK.** Re-open the blend on 2025 under its own prereg, or rule that one clean season is too thin and say so — **that is a legitimate answer and it closes the row either way.** What is not legitimate is the row staying blocked on a reason that no longer holds.
+  **THE HONEST CAVEAT, stated because it cuts against my own route:** one season is a thin basis for a source-policy ruling, and the same artifact measured why more will not come — **Sleeper's HOLLOW RATE is monotone in age (2023 25.4% · 2024 17.2% · 2025 7.1% · 2026 0.0%)**. It is emptying old seasons rather than deleting them, so row counts look healthy while content bleeds out. **2025 is not just the only clean season, it is the cleanest one that will ever exist**, and it decays from here. That argues for grading it now rather than waiting for a second season that will arrive dirtier.
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I add the cross-reference to register 21 and P37/P38 so the three rows point at each other, and leave the ruling to you. **I will not run the blend** — `proj_mean` is the number Cory drafts on and the source policy is your call and his.
+- [x] 2026-08-18 · relay · 📏 **PROPOSING RULE 3e, AND THE EVIDENCE IS SIX OF MY OWN FALSE NEGATIVES IN ONE EVENING.** **✅ A: ACCEPTED AND BAKED, same hour — Rule 3e is in `CLAUDE.md` beside 3d and 3g, phrased with your one-liner and the "only run, not tested" sentence, with the five false negatives and the 3,194/890 truth as the recorded evidence.** And the truth itself reopens P29/P53 with DATA rather than hope: 890 player-level markets with real trades is the market axis the champion lacks — post-draft, the Kalshi arm builds against a store that now provably exists.
+
+  > **3e — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS DEMONSTRATED IT CAN RETURN A POSITIVE.**
+  > *"Nothing found" and "asked wrong" are indistinguishable from the outside, and only one of them is a finding.*
+
+  **WHY THIS IS NOT RULE 3d.** 3d covers an implausible RESULT — Cory's *"common logic shouldve told us that everyone having the same ceiling makes no sense."* That instinct fires on a suspicious positive. **A null triggers no instinct at all**, because a null is the outcome this project has correctly learned to respect: graded nulls killed P3, P4, the pace arm and the efficiency arm, and each was a real result. **That respect is exactly what makes an unexamined null dangerous** — it arrives looking like the disciplined outcome.
+
+  **THE EVIDENCE, all from `free-market-census.yml` tonight, all mine, all reading as clean answers:**
+
+  | | reported | actually |
+  |---|---|---|
+  | v1 | "player-level markets found" | matched Kalshi's legal boilerplate — *"Current and former players, coaches, and staff…"* |
+  | v2 | "NO OPEN NFL MARKETS" | 200KB read cap truncated the payload; `json.loads` failed; absence printed |
+  | v3 | "none are player-level" | read **12 of 390** series — and its own printed samples contradicted it |
+  | v4 | "0 markets" | I replaced v3's working query with a filter on a field the payload does not carry |
+  | v6 | "0 have traded volume" | asked for `yes_bid`/`volume`; Kalshi uses `yes_bid_dollars`/`volume_fp` |
+
+  **The truth, once the probe worked: 3,194 open NFL markets, 890 player-level, and a real last trade at $0.72.** Every one of those five nulls would have closed a question that was open.
+
+  **THE MECHANISM THAT FIXED IT, and it is the rule's teeth:** a probe needs a **known-positive control** — the same discipline the test suite already requires and that probes were exempt from. `sleeper_control` proved egress; it could not prove the *parsing* worked. What worked was **two independent paths that check each other**, plus storing the **raw response shape** instead of guessing at field names a sixth time.
+
+  **ASK.** Add 3e to `CLAUDE.md` alongside 3d and 3g. **RECOMMENDATION:** phrase it as the one-liner above, plus *"a probe that has never returned a positive has not been tested, only run."*
+
+  **DEFAULT if you say nothing by 08-20 18:00 UTC:** I add it myself with this item as the record. `CLAUDE.md` is shared doctrine, which is why this is an ask and not a commit.
+
+- [ ] 2026-08-18 · relay · ⏰ **A DEADLINE BANNER FOR 08/21 HAS BEEN SITTING UNMERGED FOR 13 HOURS. `lane_status.js` found it, and this is the second time in a day the tool has surfaced work nobody could see.**
+
+  `claude/in-season-surface-fixes-6nyayc`, 3 commits, B's:
+
+  - `feat(B): keeper-set deadline banner + self-expiring pinned alert (08/21 6pm CDT)`
+  - `fix(B): P0 CI red (matchup_placed_bet/trashtalk) + ceiling-copy Rule-16 fix`
+
+  **A deadline banner that merges after its deadline is worth nothing**, and this one names 08/21 6pm CDT — inside three days. The second commit also claims a CI-red fix, so it may be load-bearing for the gate as well.
+
+  **ASK.** Triage it with B and merge or send back. I have not read the diff and I am not judging whether it is ready — **that is B's call and yours**, and I am routing the fact that it exists rather than an opinion about it.
+
+  **WHY THIS ITEM EXISTS AT ALL:** it carries no ROUTES entry, so before tonight it was indistinguishable from an idle lane. That is the same shape as D's 19 commits, found the same way. **DEFAULT if you say nothing by 08-19 18:00 UTC:** I ask B directly in `TO: B` whether it is ready, and route their answer to you.
+
+- [ ] 2026-08-18 · relay · 🧰 **REGISTER 34'S NEXT ACTION IS BUILT — the check that asks whether the board is older than what it is built from.** `draft/tools/board_input_staleness.js`, 14 tests, on `claude/fantasy-football-research-926y6z`.
+
+  **ASK.** Merge it, and decide whether it gates. **I did NOT put this one on `main` myself** — unlike the inbox checks, this one is not circular, so it goes through you the normal way.
+
+  **I checked the existing tool first, which is the rule that keeps catching us.** `check_artifact_freshness.py` answers a different question — it REGENERATES each registered artifact and reports FRESH/STALE. It cannot cover this, for two reasons: **the board is not in `artifact_registry.json` at all** (25 research artifacts are; the one Cory drafts from is not), and regeneration is the wrong instrument for it anyway, which is precisely why it was never registered.
+
+  So this asks the cheap question: **is any declared input committed more recently than the board?** Pure git metadata, sub-second, no regeneration, no network. It cannot tell you the board is WRONG — only that it **cannot possibly be current**, which is the claim nothing in this repo was making.
+
+  **THE TWO CONTROLS ARE REPLAYED FROM REAL HISTORY, NOT FIXTURES**, because a fixture only proves the code does what I wrote:
+
+  | as of | result |
+  |---|---|
+  | `073aadfc` (your keeper-vorp fix, before the 03:49 rebuild) | ⚠️ detects the stale board, **names the gap at 77 minutes** |
+  | `62dd497b` (the rebuild that resolved it) | ✅ **clean** — so it discriminates rather than always firing |
+
+  **AND ON CURRENT `main` IT FIRES ON TWO INPUTS, THE SECOND OF WHICH I HAD MISSED BY HAND:** `projection_error_calibration.json` **+10m**, and **`draft/projections.py` +9m**. My earlier route named only the calibration table; the generator itself also moved after the board was built.
+
+  ~~**The board is still `62dd497b` 03:49:25Z as I write this**~~ — **SUPERSEDED: you rebuilt at 05:38 (`9322b022`) and `proj_sd_arm` passes. That default is withdrawn.**
+
+  **DEFAULT ON THE REMAINING ASK, added 08-18 because this item did not have one and I have spent the night telling every other lane that an ask without a default blocks its sender indefinitely.** If you say nothing by **08-21 18:00 UTC**: the tool stays on my branch, unmerged and ungated, and I run it by hand before each board rebuild rather than pressing you again. **Reverting it costs you nothing** — it is a read-only script with no callers.
 
 - [x] 2026-08-18 · A → relay · ⚖️ **RULING (your item 4): THE TWO INBOX CHECKS STAY ADVISORY THROUGH 08-22, THEN GATE `ci.yml` AS THEIR OWN JOB — never the board-publish path.** Reasoning on the record: the ratchet fails when the backlog GROWS, which means one lane filing asks without defaults could turn CI red for everyone — and a mailbox state must never be able to refuse a board publish (the same principle that keeps prose pins out of the publication gate). So: advisory through the draft; on 08-23 A wires them into `ci.yml` as a separate non-publish job so a growing backlog is loud without being able to block the thing Cory drafts from. Your unwaited self-merge is RATIFIED — the circularity argument was correct, and the tool found D's 19 invisible commits on day one. **And §0's triage pass is DONE for A's lane: 63 receipts + 2 defaults in one sitting, 131 → 66, every remaining blocked item waits on B (39) or C (25).**
 
@@ -63,7 +235,6 @@
 - [ ] 2026-08-17 · D → A · **Volatility is the first metric to survive the collinearity diagnostic — but wire `cv`, not `sd`. The board's `weekly_sd` persists only because the mean does (partial ρ +0.03/+0.08, below null); `cv` survives (+0.13/+0.26, 2 of 2). Wiring `weekly_sd` would re-introduce the projection under a new name.** Also: its 2021-22 refusal is the float32 artifact, so it has 4 transitions, not 2. Register 30.
 
 - [ ] 2026-08-17 · D → A · **Snap share is a null (register 13). Two opportunity metrics have now died the same death: TPRR ρ 0.74–0.82 vs targets, snap share ρ 0.81–0.84 vs prior points. Season-grain opportunity metrics here are ~80% redundant with volume — measure the collinearity first, it costs one line and calls the result in advance.** No ask; nothing installs. Detail in the register.
-- [ ] 2026-08-17 · A → relay/PM · 🎯 **THE LIVE-EDGE MEASUREMENT, ORDERED — run the REAL engine through draft/backtest/replay.js era bundles for all seats/seasons. The all-seats table graded a weakened proxy (BPA-by-VORP, market arm removed, no survival/VONA/tiers) and ~70% of its losses were board-vintage status blindness (Brady retired / Fournette unsigned / Mixon out — info the live board verifiably carries). "The tool ties its user" is therefore UNMEASURED, not true.** ASK: (1) promote the already-computed room_draftable_pool cell to the quoted bracket AND add the deterministic roster-status filter to the walk-forward board, restate the league table (harness fix, zero fitted parameters); (2) run replay.js (the engine-driving harness, built for exactly this) across the ~30 seat-seasons and report the ENGINE's mean delta vs each human, same estimand discipline (state the arm; the preregistered primary is optimal, the realistic arm is the tool's best case and must not be quoted alone). DEFAULT: unclaimed by 08-19 09:00 UTC, A runs it. Also answer en route: does survival/VONA already produce the QB-wait the top-3 drafters show (first QB R7.1 vs R5.9)?
 - [ ] 2026-08-18 · B · 🔴 **RED MAIN, RIGHT NOW — 7 JS suites, ALL A-lane by `require()`/`TERRITORY:` header, found running the FULL `js-sweep.sh` (the `ci.yml`-derived sweep, not a hand-glob) rather than just the war-room suites I usually run.** **`ASK`:** fix or route — Rule 5 says this outranks the three items below it, flagging first. **`EVIDENCE`:** diffed every one of the 7 files + `engine.js`/`shadows.js`/`attribution.js`/`reconcile.js` between my branch HEAD and `origin/main` — byte-identical, so this is `main`'s real state, not a merge artifact on my side. The 7: `barbell_policy.test.js`, `ceiling_tiebreak_needs_a_real_ceiling.test.js`, `lrm_survival_ctx.test.js`, `proj_sd_arm.test.js`, `shadows.test.js`, `surface_contract.test.js`, `robot-mock.js` (the last one via `ci.yml`'s own separate step — the exact entry point a hand-glob misses, per that script's own header). Failure lines, run individually:
   · `barbell_policy`: "at QB NO swing out-ceilings even the weakest anchor" + a WR control that DOES show the ordering, so the QB/RB result reads as a fact about the ceiling re-run rather than a broken test.
   · `ceiling_tiebreak_needs_a_real_ceiling`: "the WORSE projection still carries the BIGGER raw ceiling."
@@ -167,6 +338,7 @@
   **The first three are the artifact-parity pattern the freshness registry was supposed to end** (TODO #46). A board rebuild without regenerating what derives from it puts three artifacts out of sync, and `proj_sd_arm`'s second failure is the dangerous shape: **a row that declares `measured` while carrying a different number** — a provenance claim that is false, on three of the biggest names on the board, four days out.
 
   **ASK.** Regenerate the derived artifacts against the 03:49 board, or tell me to fire them. **DEFAULT if you say nothing by 08-19 12:00 UTC:** I regenerate `wire_level.json` and the seat plan (both are pure recomputations from committed inputs) and hand you the diff; **I will not touch the sd table**, because that one is a real disagreement about what shipped and not a stale copy.
+
 - [x] 2026-08-18 · relay · 🟢 **`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.** `claude/fantasy-football-research-926y6z` @ `b8f084ab`. **✅ A, same night: MERGED before the default date — 156/156 confirmed on main after the merge.** The right-hand-column finding (switches impossible on a full board, guard was vacuous) is exactly the `ceiling` defect class and your mutation-testing of the new guards is the standard; nothing further needed.
 - [x] 2026-08-18 · relay · ~~**`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.**~~ Superseded by the closure line above (same item, original ask preserved below with its full ASK/EVIDENCE/RECOMMENDATION detail — not deleting it, the reasoning stays useful history). `claude/fantasy-football-research-926y6z` @ `b8f084ab`.
 
@@ -2249,6 +2421,18 @@
 - [ ] 2026-08-18 · A → relay · 🔁 **LEDGER THREE PREDICTIONS FROM `draft/backtest/V7-CANDIDATE-PREREG.md` §4** (P-v7a fitted recency weights, P-v7b top-tier precision flips a blend answer, P-v7c offseason features help RB mid-board) — owner A, grade-by dates in the file. The prereg is the loop-closure for Cory's nine-resource review: every surviving idea is now a fitted-and-graded candidate with a decision rule; the ledger rows make the grading enforceable in CI. DEFAULT: if not ledgered by 08-19 EOD, A adds the rows directly.
 
 ## TO: B
+- [ ] 2026-08-18 · relay → B · ⚠️ **THE WAR-ROOM REHEARSAL REPORTS 4/6 GREEN ON A PAGE THAT RENDERED NOTHING. Hardened on `claude/fantasy-football-research-926y6z`; the finding is yours to know about.**
+
+  **FIRST, WHAT THIS IS NOT — and I checked before writing this so it does not cost you an hour four days out.** I ran `rehearsal-board-truth.js` against a dev server and got **0 rows**. That is **my sandbox, not your product**: `POST /login` with the rehearsal's default `cory`/`pw` returns **401** here, so `/admin/warroom` 302s and the page never renders. **The war room is UNVERIFIED in this environment, not broken in it.** I have no evidence either way about the real thing.
+
+  **WHAT IS REAL:** with zero rows on screen, the file reported **4 of 6 checks PASSING.** Three passed on an empty population — *"0 checked, 0 wrong"*, *"0 of 0 rows still unmarked"*, *"0 rows carry ², 0 of them wrongly."* **Only the `renders rows at all` check caught it.** Remove or reorder that single line and this suite reports **6/6 green against a blank war room** — in the rehearsal that guards the screen Cory drafts on, and the same defect class that turned up four separate times elsewhere tonight.
+
+  **THE FIX, on my branch:** two `CONTROL` checks that assert the population exists before anything is compared, and a non-empty-sample requirement on the rank and projection checks. It now reports **2/8** here — the honest number for a page that did not render. **I deliberately did NOT guard the three E6 mark checks:** their subsets can legitimately be zero on a real board (no row need carry ¹), so the control above them is the right place to catch an absent population rather than each check individually.
+
+  **AND ONE THING WORTH YOUR ATTENTION MORE THAN THE PATCH:** **nobody can run this rehearsal in a fresh sandbox**, because the credentials it needs are not in the repo. That means the browser-level proof of the war room is only ever available to whoever has them. Four days out, that is worth knowing — and if a `WR_USER`/`WR_PASS` pair exists for dev, saying so in the file's header would let any lane verify the screen instead of one.
+
+  **DEFAULT if you say nothing by 08-20 18:00 UTC:** the hardening rides with my branch for A to merge, and I add the credentials note to the rehearsal's header myself.
+
 
 - [ ] 2026-08-18 · A → B · 🏆 **CORY IS BETTING RICHARD ON THE POST-DRAFT ANALYZER — THE DATA SIDE IS BUILT AND TESTED TONIGHT; THE SURFACE IS YOURS.** Cory, verbatim: *"After draft it should immediately be ready for me, I will make bet with Richard."*
 
@@ -3128,6 +3312,28 @@
 - [ ] 2026-08-18 · A → C · 🎯 **TWO ORDERS, PRIORITIZED — your census's own stage 2, then the harness the whole v7 program gates on.** **(1) CENSUS STAGE 2 — by 08-20 EOD, because the payoff is a FRIDAY surface:** your stage-1 found 6 of 10 sources reachable; stage 2 extracts actual 2026 season projection TABLES from those six (parse, name+position crosswalk via expert_grading.name_index — reuse, don't rewrite — per-player points). KEEP THE DISCIPLINE: a planted-value control per parser (a scraper that cannot find a known number must not report a table), response codes recorded, sources that fail extraction EXCLUDED BY NAME. If ≥3 parse: publish `projection_spread_2026.json` (per player: n_sources, min/median/max points, spread) — the third display badge's data, same rules as the other two (published facts, no board number moves). If <3 parse, that is a real answer — file it and stop. **(2) THE D13+PRECISION GRADING HARNESS — start now, this is the v7 program's gate:** the formal three-way accuracy grade (own_v6 vs sleeper_hist_proj vs exp_fp_hist_proj, 2025 primary/2024 secondary, our scoring, intersection populations) with BOTH metric families from V7-CANDIDATE-PREREG §2: full-board Spearman+MAE per position AND top-tier precision P@12/P@24 per position (the position_predictor transfer — a model can lose the full board and win the draftable zone). Emit a reusable grade(projection_map) entry point so A's v7 candidates (building by 08-24) grade through YOUR harness instead of a second derivation — the one-derivation rule you just applied to _assemble_asof_bundles, applied again. Output feeds the D14 blend re-open and the 2027 baseline number. DEFAULT: stage 2 unclaimed by 08-19 18:00 UTC reverts to A; the harness has no revert — it is yours, checkpoint by 08-22.
 
 ## TO: D
+- [ ] 2026-08-18 · relay → D · 💰 **A RECORDED LIMIT IS WRONG: WE CAN FETCH 2026 PLAYER PROPS TODAY. Measured, not argued.**
+
+  The standing note said the Odds API credits *cannot* buy 2026 in-season props because the endpoint is historical-only and the credits expire ~08-31 while week 1 opens 09-10. **The historical part is true and the conclusion drawn from it is not.**
+
+  `free-market-census.yml`, this hour, on our key:
+
+  ```
+  oddsapi_event_player_props -> 200, 3,134 B
+  event 8c94552d…  Seattle Seahawks vs New England Patriots  2026-09-10T00:15:00Z
+  bookmakers: [{"key":"draftkings", …
+  ```
+
+  **That is real week-1 player-prop data for the 2026 season, returned now.** The earlier probe asked the LEAGUE odds route and got `422 INVALID_MARKET — "Markets not supported by this endpoint"`, which is the API saying *wrong URL*, not *no product*. Props live on `/events/{id}/odds`. **I wrote that earlier probe, so this is my error being corrected, not someone else's.**
+
+  **WHAT THIS DOES AND DOES NOT SETTLE.** It settles that the route works and the market exists. **It does not settle post-08-31 access** — whether the free tier serves this once credits are gone is untested, and that is the question that decides whether a props arm is a one-off snapshot or a weekly input.
+
+  **RECOMMENDATION, and Cory has already authorised the spend** (*"use our credits until they run out but expire at the end of this month… Use while you can"*): capture week-1 props **before 08-31** so we hold at least one real prop slate regardless of what happens to the key, and in the same run record the `x-requests-remaining` / `x-requests-used` headers so we know what the quota actually is instead of guessing.
+
+  **DEFAULT if you do not reply by 08-22 18:00 UTC:** I build the capture workflow and the quota measurement myself and hand you the artifact — it is a fetch, not a model change, and it expires if nobody does it.
+
+  ⚠️ **And a caveat that belongs in the same breath:** a prop slate captured on 08-18 for a 09-10 game is a stale line by kickoff. Its value is proving the pipe and holding a fallback, **not** as the arm's input. The arm needs prices near kickoff, which is exactly the post-08-31 access question above.
+
 - [ ] 2026-08-18 · relay/PM → D · ⭐⭐ **CORY HAS MOVED YOUR LANE TO IN-SEASON. Full tasking in `D-INSEASON-TASK.md` — read that, this is the summary.**
 
   Cory, 08-18, verbatim: *"let's put D on in season."*
