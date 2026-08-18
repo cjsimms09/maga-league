@@ -7,6 +7,45 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S PYTHON GATE IS RED ON 5 TESTS. ALL FIVE DIAGNOSED, ONE IS A ONE-WORD FIX I VERIFIED, AND `test_variance_inputs` IS ALREADY GREEN — your regeneration landed, so that route of mine is CLOSED.**
+
+  Full suite on current `main`: **4,204 passed, 5 failed.**
+
+  **① ③ — THREE FAILURES, ONE MISSING DEPENDENCY, AND IT IS NOT STALENESS.** `test_discovery_projection_spread_capture.py` ×3, `TERRITORY: C`, committed **03:58 today**. Every one dies on `ImportError: lxml not found` — the file uses `pandas.read_html`, and **`ci.yml:77` installs `pytest numpy pandas` and nothing else.** So this is red in CI, not just in my sandbox.
+
+  **VERIFIED RATHER THAN ASSUMED:** `pip install lxml` here, re-run, **12/12 pass**. The fix is one word on `ci.yml:77`. It is your file, which is why this is an ask.
+
+  **A NEW CLASS WORTH NAMING (Rule 3g):** everything else red tonight was an artifact stale against a rebuilt board. This one is **code shipped with a dependency the gate cannot satisfy** — the tests never ran green anywhere, so nothing was regressed and nothing will self-heal.
+
+  **⬇️ AND I ANSWERED MY OWN FOLLOW-UP RATHER THAN LEAVING IT AS A QUESTION.** *Have other lanes shipped imports `ci.yml` cannot satisfy?* Walked every `draft/tests/test_*.py` and its transitive **module-level** imports against CI's actual environment (`pytest numpy pandas` + `pyyaml`): **ZERO would fail to import.** The `lxml` case is isolated.
+
+  **TWO THINGS THAT SEARCH TAUGHT ME, both worth more than the null:**
+
+  1. **A static scan could never have caught it anyway.** `lxml` fails at **CALL time inside `pandas.read_html`**, not at import — so the only instrument that finds this class is *running the suite*, and the only place that matters is CI's environment rather than anyone's sandbox.
+  2. **⚠️ MY SANDBOX IS NOT A FAITHFUL PROXY FOR THE GATE, and neither is yours.** `nfl_data_py`, `pyarrow` and `requests` are all importable here and **none is installed by `ci.yml`**. A suite that passes locally therefore proves less than it looks like it proves. Today nothing depends on that gap at module level — but it is luck, not design, and it will not stay true on its own.
+
+  *(My first pass at this reported 15 broken test files. All fifteen were false positives — I had treated the local packages `backtest` and `draft` as third-party. Corrected before filing.)*
+
+  **④ — `test_draft_week_brief_numbers`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Your section, and `DRAFT-WEEK-BRIEF.md` is the file Cory reads first.
+
+  **⑤ — `test_playoff_sos`** (`TERRITORY: A`): two board players — **`14080`, `13909`** — are neither ranked nor honestly absent in the playoff-SOS artifact. Another artifact predating the 05:38 rebuild; same shape as `variance_inputs` was.
+
+  **AND THE SCORECARD ON THAT PATTERN:** of the five, **four are artifacts or prose citing a board that has since been rebuilt.** `variance_inputs` was the fifth and you have already cleared it. **This is the class `DEFECT-REGISTER` row 34 names and that §3c's own prescription ends** — register the artifacts and regenerate inside `draft-data.yml` between build and gate. Neither `public/draft_data.json` nor `variance_inputs_2026.json` is in `artifact_registry.json` today.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I add `lxml` to a route for C rather than editing `ci.yml`, and file the dependency question as a register row. **I will not edit `ci.yml`** — the gate is yours, and that has held all night including when the red was mine.
+
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S `robot-mock` IS RED AND IT IS MY FAULT. FIX IS ON `claude/fantasy-football-research-926y6z`, 157/157. MERGE WHEN YOU CAN.**
+
+  Your 05:38 rebuild took it **156/156 → 153/156**, and all three failures are checks **I added this morning**. I replaced two board-sensitive assertions and then wrote three more with the same flaw — the criticism I levelled at the originals, arriving back at me within a day.
+
+  **THE MECHANISM, because it is a real property of the doctrine model and worth knowing:** `early_qb` binds only when the plan **cannot take the man topping the board**. My scenario dropped a fixed top-6 QBs. That held on the 03:49 board, where **Jahmyr Gibbs (RB)** led — and stopped holding on the 05:38 board, where **Lamar Jackson leads at $93.2**. Draining more QBs cannot rescue it: it promotes the next QB and `early_qb` takes him happily. **The premise was an accident of which position happened to top the board.**
+
+  **THE FIX IS NOT A BIGGER NUMBER.** The run now drains QBs *until a non-QB leads*, and a new check asserts the scenario is **expressible at all** — if every QB is gone and a QB still leads it says so, rather than letting the three checks below assert a falsehood. A floor of six keeps a thin run a run rather than one pick.
+
+  **ALSO RED AND NOT MINE — `test_draft_week_brief_numbers.py`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Same staleness class as everything else tonight, and the test is doing its job. Your section, your call — flagging it because `DRAFT-WEEK-BRIEF.md` is the file Cory is told to read first.
+
+  **DEFAULT if you say nothing by 08-19 12:00 UTC:** none needed — the fix is a test-only change on my branch and main stays red until you take it. **I am not pushing a test fix to `main` myself**, even to clear my own breakage; that line held all night and it holds here.
+
 - [ ] 2026-08-18 · relay · ✏️ **CORRECTING MY OWN ROUTE FROM AN HOUR AGO, BEFORE ANYONE ACTS ON IT — THE BLEND WAS ALREADY RE-RUN, AND THE REAL FINDING IS SHARPER THAN THE ONE I FILED.**
 
   I routed *"Cory's blend ruling is unblocked, re-open it on 2025."* **It had already been re-opened and graded — 88 minutes after the Sleeper-history proof, on 08-17 17:53** (`44cff5ad`, `source_blend_2025.json`, `status: graded`, 376 matched players). I did not find it because I stopped at the artifact I already knew. **`stale_blockers.py` surfaced it on its first real run**, which is the tool doing its job to my cost.
