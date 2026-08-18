@@ -174,8 +174,11 @@ check('daysUntil: after the draft goes negative', D.daysUntil('2026-08-22', '202
   check('keeperDeadlineAnnouncement: passed → no countdown text (the banner/alert both hide on passed)',
     after.countdownText === null);
   // Config overrides date + time + timezone (CST, the non-DST Central offset).
+  // Shape converted at the 6nyayc merge: the branch's flat keeper_deadline_*
+  // keys predate main's `keepers.deadline` block (register 42's fix). Same
+  // three behaviors under test, current contract.
   const over = D.keeperDeadlineAnnouncement(
-    { keeper_deadline_date: '2026-08-21', keeper_deadline_time: '5:30 PM', keeper_deadline_tz: 'CST' },
+    { keepers: { deadline: { date: '2026-08-21', time: '5:30 PM', tz: 'CST' } } },
     '2026-08-20T12:00:00Z', 2026);
   check('keeperDeadlineAnnouncement: config overrides date + time + tz',
     over.message === 'KEEPER DEADLINE: Friday August 21 at 5:30 PM CST — set your keeper before it locks.');
@@ -185,7 +188,7 @@ check('daysUntil: after the draft goes negative', D.daysUntil('2026-08-22', '202
   check('keeperDeadlineAnnouncement: no date + no season year → configured:false, no message',
     noneK.configured === false && noneK.message === null && noneK.date === null);
   // A bad configured date does not throw and falls back to the raw string.
-  const bad = D.keeperDeadlineAnnouncement({ keeper_deadline_date: 'nonsense' }, '2026-08-10T00:00:00Z', 2026);
+  const bad = D.keeperDeadlineAnnouncement({ keepers: { deadline: { date: 'nonsense' } } }, '2026-08-10T00:00:00Z', 2026);
   check('keeperDeadlineAnnouncement: a bad configured date does not throw',
     bad.longDate === 'nonsense' && bad.passed === false);
 }

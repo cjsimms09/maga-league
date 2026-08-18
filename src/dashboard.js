@@ -255,64 +255,12 @@ function keeperDeadlineAnnouncement(config, nowISO, seasonYear) {
     countdownText, message, configured, derived: !configured };
 }
 
-/**
- * THE KEEPER-DEADLINE ANNOUNCEMENT — same self-deriving shape as
- * `draftAnnouncement` above (config overrides a season-derived default, no
- * literal date ships), but `passed` is computed against the DEADLINE INSTANT,
- * not the calendar day: keepers lock at a specific hour, not midnight, so an
- * alert that only checked the date would still be up at 11pm the day of and
- * gone a day early depending on which side of midnight `now` fell.
- *
- * @param {object} config      world.config (keeper_deadline_date 'YYYY-MM-DD',
- *                              keeper_deadline_time e.g. '6:00 PM', keeper_deadline_tz
- *                              'CDT'|'CST' — both US Central, only the DST offset differs)
- * @param {string} nowISO      the clock (route passes real; tests fix it)
- * @param {number} [seasonYear] fallback deadline's year DERIVES from it — never a
- *                              hardcoded year literal, per the no-season-literals guard.
- */
-function keeperDeadlineAnnouncement(config, nowISO, seasonYear) {
-  const cfg = config || {};
-  const fallbackDate = seasonYear ? (seasonYear + '-08-21') : null;
-  const date = cfg.keeper_deadline_date || fallbackDate;
-  const time = cfg.keeper_deadline_time || '6:00 PM';
-  const tz = cfg.keeper_deadline_tz || 'CDT';
-  const empty = { date: null, time, tz, weekday: '', longDate: '', when: '', deadlineISO: null,
-    hoursLeft: null, daysLeft: null, passed: false, countdownText: null, message: null, configured: false };
-  if (!date) return empty;
-  const d = new Date(date + 'T12:00:00Z');
-  const ok = !isNaN(d.getTime());
-  if (!ok) return { ...empty, date, weekday: '', longDate: date, when: date + ' at ' + time + ' ' + tz, configured: true };
-  const weekday = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
-  const longDate = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' });
-  const when = weekday + ' ' + longDate + ' at ' + time + ' ' + tz;
-  // Parse "6:00 PM" and convert to UTC. CDT/CST are both US Central; CDT (the
-  // daylight-time abbreviation, in effect March-November, which covers every
-  // real draft/keeper date this league has ever set) is UTC-5, CST is UTC-6.
-  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(time).trim());
-  let hour = 18, minute = 0;
-  if (m) {
-    hour = parseInt(m[1], 10) % 12;
-    minute = parseInt(m[2], 10);
-    if (/PM/i.test(m[3])) hour += 12;
-  }
-  const offset = /CST/i.test(tz) ? 6 : 5;
-  const deadline = new Date(date + 'T00:00:00Z');
-  deadline.setUTCHours(hour + offset, minute, 0, 0);
-  const deadlineISO = deadline.toISOString();
-  const now = nowISO ? new Date(nowISO).getTime() : null;
-  const passed = now != null && now >= deadline.getTime();
-  const msLeft = now != null ? deadline.getTime() - now : null;
-  const hoursLeft = msLeft != null ? Math.max(0, Math.ceil(msLeft / 3600000)) : null;
-  const daysLeft = hoursLeft != null ? Math.floor(hoursLeft / 24) : null;
-  let countdownText = null;
-  if (!passed && hoursLeft != null) {
-    countdownText = hoursLeft <= 1 ? 'less than an hour left'
-      : hoursLeft < 24 ? hoursLeft + ' hour' + (hoursLeft === 1 ? '' : 's') + ' left'
-      : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left';
-  }
-  const message = 'KEEPER DEADLINE: ' + when + ' — set your keeper before it locks.';
-  return { date, time, tz, weekday, longDate, when, deadlineISO, hoursLeft, daysLeft, passed, countdownText, message, configured: true };
-}
+/* The branch's own (older) keeperDeadlineAnnouncement landed here as a
+ * duplicate in the 6nyayc merge and SHADOWED the register-42 version
+ * above — configured:true off any date, the exact pre-fix contract,
+ * caught by the suite's own fail-arm ('a derived-only date never
+ * reports configured:true'). Deleted at merge time (A, 08-18); the
+ * version above is a strict superset. */
 
 /**
  * Assemble the full dashboard model. `inputs`:
