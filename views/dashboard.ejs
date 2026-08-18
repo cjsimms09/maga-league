@@ -211,9 +211,6 @@
 
 <div class="grid cols-2">
 
-  <%# THE MONEY — the real scoreboard, in dollars, beside the wins standings. %>
-  <%- include('partials/money-line') %>
-
   <% if (sleeperStandings.length) { %>
   <%
     // STATE AWARENESS: a ranked table with a crown, a playoff line and a toilet
@@ -322,6 +319,11 @@
     </div>
   </div>
   <% } %>
+
+  <%# THE MONEY — the real scoreboard, in dollars. Cory, 2026-08-18: keep it,
+      just move it below the actual matchups rather than beside the wins
+      standings — the games are what you look at first. %>
+  <%- include('partials/money-line') %>
 
   <% if (review) { %>
   <div class="card">
