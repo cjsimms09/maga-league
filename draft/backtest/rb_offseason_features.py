@@ -228,8 +228,11 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
     roster_all = roster_all[roster_all["position"] == POSITION]
 
     def _offseason_week(season: int) -> int | None:
-        weeks = sorted(set(int(w) for w in
-                           depth_all[depth_all["season"] == season]["week"]))
+        # 0.3.x depth charts carry NaN weeks on some rows — a NaN is a row
+        # with no week, not week zero; drop it before int() or the whole
+        # season dies on one blank cell (third real-dispatch fix, A 08-18).
+        raw = depth_all[depth_all["season"] == season]["week"]
+        weeks = sorted(set(int(w) for w in raw if w == w))
         return weeks[0] if weeks else None
 
     by_season_depth, by_season_roster, as_of_by_season = {}, {}, {}
