@@ -79,3 +79,43 @@ inflation changes nothing Cory sees.
 **So the risk is missing players, not drafting bad ones.** That is the cheaper error to
 carry into a draft, and it is why the table above is a *"don't let the board be the
 tiebreaker"* list rather than a *"the board is dangerous"* warning.
+
+
+---
+
+## ⭐ THE SHARPEST CUT — buried by the board AND rising in the market
+
+Two independent signals, and where they overlap is where you are most likely to miss a
+player entirely: **the board under-rates him because it hears only Sleeper, AND the room
+is moving toward him so he will not last to his listed ADP.**
+
+`adp_stale` is not "our data is old" — it flags a player whose ADP is **moving fast
+enough that the listed number is already behind the market** (positive velocity = rising
+= going earlier).
+
+| ADP (listed) | player | pos | FP over Sleeper | ADP velocity |
+|---|---|---|---|---|
+| 201.0 | **Cooper Kupp** | WR | +44% | **rising +60.0** |
+| 208.5 | **Dontayvion Wicks** | WR | +54% | **rising +23.5** |
+| 186.5 | **Tank Dell** | WR | +102% | **rising +22.5** |
+| 139.3 | **Alvin Kamara** | RB | +115% | **rising +10.0** |
+| 153.3 | **Isiah Pacheco** | RB | +117% | **rising +8.7** |
+
+**Take the listed ADP as a ceiling on where these go, not an estimate.** Both signals say
+the board is late on them for different reasons, which is why the overlap is worth more
+than either list alone.
+
+### The other direction, for completeness — falling fast, may last longer than listed
+
+| ADP | player | pos | velocity |
+|---|---|---|---|
+| 181.0 | Aaron Rodgers | QB | -34.5 |
+| 210.5 | Justice Hill | RB | -33.5 |
+| 208.0 | Emmett Johnson | RB | -30.3 |
+| 201.0 | Pat Freiermuth | TE | -28.0 |
+| 191.7 | James Conner | RB | -16.7 |
+| 199.0 | Kayshon Boutte | WR | -16.5 |
+| 157.3 | Malik Willis | QB | -15.7 |
+| 186.7 | Dalton Schultz | TE | -15.0 |
+
+**44 skill players inside ADP 220 are moving at all — 17 rising, 27 falling.**
