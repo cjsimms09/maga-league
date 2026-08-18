@@ -334,9 +334,16 @@
           + (p.cliffAfter ? '<li class="wr-cliffline" aria-label="tier cliff"></li>' : '');
       }).join('');
       return '<div class="wr-col" data-pos="' + esc(c.pos) + '">'
-        + '<div class="wr-col-head"><b>' + esc(c.pos) + '</b><span>' + esc(c.total) + ' left</span></div>'
+        /* "undrafted", NOT "left" — register 4f. The ⏳ Running out rail says
+         * "WR 2" meaning two STARTABLE bodies before the tier empties; this head
+         * says "WR 206" meaning the whole undrafted pool at the position. Both
+         * said "left", one glance apart, and at 8s/pick that reads as a
+         * contradiction rather than two scales. The number here was always
+         * correct — `total` is `at.length` off the live undrafted board — so
+         * this changes a word and no arithmetic. */
+        + '<div class="wr-col-head"><b>' + esc(c.pos) + '</b><span>' + esc(c.total) + ' undrafted</span></div>'
         + (rows ? '<ol class="wr-col-list">' + rows + '</ol>'
-                : '<p class="wr-chart-empty">none left</p>')
+                : '<p class="wr-chart-empty">none undrafted</p>')
         + '</div>';
     }).join('') + '</div>';
   }
