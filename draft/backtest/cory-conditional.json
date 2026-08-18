@@ -6,23 +6,13 @@
  "enrolled": "balanced",
  "leaderboard": [
   {
-   "archetype": "elite_te",
-   "mean_edge": 22.25,
-   "ci95": [
-    -3.5,
-    46.25
-   ],
-   "mean_divergence": 2.1,
-   "verdict": "parked: CI includes $0"
-  },
-  {
    "archetype": "late_qb",
-   "mean_edge": 11.75,
+   "mean_edge": 15.5,
    "ci95": [
-    -18.12,
-    41.0
+    -14.75,
+    47.62
    ],
-   "mean_divergence": 5.7,
+   "mean_divergence": 5.5,
    "verdict": "parked: CI includes $0"
   },
   {
@@ -73,6 +63,16 @@
     0.0
    ],
    "mean_divergence": 0.0,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "elite_te",
+   "mean_edge": -4.0,
+   "ci95": [
+    -23.12,
+    16.38
+   ],
+   "mean_divergence": 2.3,
    "verdict": "parked: CI includes $0"
   }
  ],
