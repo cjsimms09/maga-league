@@ -10,7 +10,7 @@
   "A": 2
  },
  "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed — a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
- "open": 241,
+ "open": 253,
  "answered": 141,
  "open_with_default": 78,
  "_history": [
@@ -43,6 +43,11 @@
     "A": 2
    },
    "note": "NOT a lane answering anything — a REPAIR. `routes_resurrections.py` deleted seven items that were closed and then re-opened by a union merge (89a731cc closed them 08-17 21:20; bcdeef0a merged E's branch 08-18 00:19, and E had forked before the closure, so the union took both sides). Six were A's and already closed; one was B's, and that one was inside the blocked set, which is the whole of the 66 -> 65. Recorded as a repair so nobody later reads it as B working its queue."
+  },
+  {
+   "at": "2026-08-18",
+   "blocked": 65,
+   "note": "Relay ticked 26 of its OWN items that deliver a rule, a lane definition, an FYI or a report of finished work and ask for nothing. Items carrying a live ASK were left open on purpose — ticking one hides it. Open 279 -> 253; the BROADCAST count fell 9 -> 0 because those three rules were among the ticked, which is the right outcome: a delivered rule is done, not pending. blocked is unchanged at 65 because every one of these was under the 3-day threshold or already outside the blocked set."
   }
  ],
  "closure_by_pair": {
@@ -100,23 +105,23 @@
   },
   "relay/PM → A": {
    "n": 19,
-   "done": 3
+   "done": 7
   },
   "relay/PM → B": {
    "n": 14,
-   "done": 0
+   "done": 7
   },
   "relay/PM → C": {
    "n": 14,
-   "done": 0
+   "done": 7
   },
   "relay/PM → D": {
    "n": 7,
-   "done": 3
+   "done": 5
   },
   "relay/PM → E": {
    "n": 10,
-   "done": 0
+   "done": 6
   },
   "this session → C": {
    "n": 7,
