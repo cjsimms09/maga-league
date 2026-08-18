@@ -27,7 +27,7 @@
       "season": "2023"
     }
   ],
-  "imported_at": "2026-08-17T16:34:57Z",
+  "imported_at": "2026-08-18T00:20:16Z",
   "keepers": {
     "cost_model": "top_picks_flat",
     "count": 3,
@@ -47,6 +47,12 @@
     0.3
   ],
   "reversal_round": 0,
+  "rookie_capital_prior": {
+    "cory_approval_verbatim": "I need you to fix this model, even if we need to lower our standards for this year only. give me a draft tool that gives me a chance at edge... lets at least take a swing. take ownership and give me something.",
+    "enabled": true,
+    "evidence": "league_benchmark_2026-08-16.md \u00a74: preregistered, cleared its 25% bar on the 3-season all-seats replay (+25.1 pooled optimal = 38% of the Cory gap; realistic-arm league position 2/10 -> 4/10; 2025 +86, 2024 -10.6 \u2014 concentration named). Fit classes 2021-2025, all strictly prior to 2026.",
+    "ruled": "2026-08-17"
+  },
   "roster_size": 15,
   "roster_slots": {
     "BN": 6,

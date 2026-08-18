@@ -157,10 +157,16 @@ def test_every_lane_inbox_carries_the_standing_rule(lane):
     heading = f"## TO: {lane}"
     assert heading in text, f"{heading} is missing from ROUTES.md"
     start = text.index(heading)
+    # LINE-ANCHORED headings (2026-08-18): an item's PROSE quoted the literal
+    # text "ROUTES.md `## TO: B`" and plain .index() cut lane A's section 3.5k
+    # chars in, failing this test on a citation rather than a missing rule.
+    # routes_integrity.test.js anchors headings at line start; this now does
+    # the same. Same property, honest parser.
     later = [
-        text.index(f"## TO: {other}")
+        text.index(f"\n## TO: {other}")
         for other in LANES
-        if other != lane and f"## TO: {other}" in text and text.index(f"## TO: {other}") > start
+        if other != lane and f"\n## TO: {other}" in text
+        and text.index(f"\n## TO: {other}") > start
     ]
     section = text[start : min(later)] if later else text[start:]
     assert "YOU DO NOT STOP A CAPTURE JOB" in section, (

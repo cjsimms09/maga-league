@@ -192,9 +192,45 @@ const WEIGHTS = (function () {
     + 'ceiling tiebreak — a lower score above a higher one with no reason on it '
     + 'is indistinguishable from a broken sort', unexplained.length === 0,
   unexplained.slice(0, 3));
-  ck('CONTROL — inversions really do occur on this board, so the clause above is '
-    + 'not vacuous', rows.some(r => r.shown.some(s => s.ceiling_tiebreak)),
-  rows.filter(r => r.shown.some(s => s.ceiling_tiebreak)).map(r => r.pick));
+  /* ── THE CONTROL INVERTED, 2026-08-17, AND THAT IS THE POINT ──────────────
+   *
+   * This used to demand that inversions DO occur on the live board, so the
+   * clause above could not pass vacuously. It was a good control and it is now
+   * measuring the opposite fact, because the thing it was guarding got fixed.
+   *
+   * `moreUpsideThanTheCellExplains()` now refuses any swap whose only
+   * justification is the two players' calibration constants — and while
+   * `proj_ceiling` is `proj_mean × a per-cell constant`, that is EVERY
+   * cross-cell swap. So zero marked inversions on the live board is the correct
+   * state, not a vacuous one. (It fired live before the guard: Bo Nix, 14.5
+   * points worse than Brock Purdy, promoted over him and labelled "on upside".
+   * Cory caught it on the screen; there were 16 inversions in that one list.)
+   *
+   * SO THE CONTROL MOVES TO WHERE IT CAN STILL FAIL. The clause above says
+   * "every inversion carries a mark". Its vacuity risk is that the ENGINE stops
+   * producing inversions for a bad reason — a broken comparator, a sort that
+   * silently drops entries — rather than for this deliberate one. That is what
+   * gets checked now: the mechanism still marks an inversion when the ceiling
+   * genuinely varies, so the clause above is exercised on data where inversions
+   * are real, and any live inversion is still required to carry its reason. */
+  {
+    const wr = (name, mean, ceil, rank) => ({ name, position: 'WR', tier: 1,
+      pos_rank: rank, proj_mean: mean, proj_ceiling: ceil, vorp: 50,
+      proj_floor: mean * 0.5, adp: 40, player_id: name });
+    const out = E.recommend({ board: [wr('steady', 150, 175, 1), wr('boom', 150, 230, 2)],
+      roster: [], league: { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } },
+      currentPick: 40, nextPick: 53, totalPicks: 150, myPicksLeft: 11,
+      roundsLeft: 11, runMultipliers: {}, weights: E.DEFAULT_WEIGHTS });
+    const list = Array.isArray(out) ? out : Object.values(out);
+    ck('CONTROL — a marked inversion is still PRODUCED where the ceiling carries '
+      + 'real information, so the clause above is exercised rather than vacuous',
+    list.some(s => s && s.ceiling_tiebreak && s.ceiling_tiebreak.over),
+    list.map(s => (s.player || {}).name + (s.ceiling_tiebreak ? '*' : '')).join(','));
+    ck('  and on the LIVE board there are none, because every cross-cell swap '
+      + 'there would be decided by a calibration constant',
+    !rows.some(r => r.shown.some(s => s.ceiling_tiebreak)),
+    'if this fails the live ceiling has started carrying per-player information');
+  }
   const marks = [].concat(...rows.map(r => r.shown.filter(s => s.ceiling_tiebreak)));
   ck('every mark NAMES the man it passed — a reason the reader cannot check '
     + 'against the row below it is not a reason', marks.every(s => !!s.ceiling_tiebreak.over),

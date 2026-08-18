@@ -919,6 +919,41 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
         print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
 
+    # ── ROOKIE CAPITAL PRIOR — Cory's take-a-swing ruling, 2026-08-17 ──────
+    # The own-model column above is walk-forward and carries NO rookie (0 of
+    # 153). The preregistered Prior(pos, capital-bucket) CLEARED its 25% bar
+    # on the 3-season all-seats replay (+25.1 pooled optimal = 38% of the
+    # Cory gap, realistic-arm league position 2/10 -> 4/10 —
+    # league_benchmark_2026-08-16.md §4), and sat gated on Cory's recorded
+    # approval. He gave it, verbatim in league_config's rookie_capital_prior
+    # key (preserved across rebuilds by preserve_local_rulings), so the fill
+    # runs IN THE BUILD — the one-shot applier's patch died at every nightly
+    # rebuild, which is exactly the erasure class preserve_local_rulings
+    # exists for, applied one level down. Same additive discipline as the
+    # own-model attach: proj_mean/VORP/ranks untouched; only null
+    # proj_ownmodel on years_exp==0 skill players gains a value.
+    _rcp = (cfg.get("rookie_capital_prior") or {})
+    if _rcp.get("enabled"):
+        try:
+            sys.path.insert(0, str(HERE / "tools"))
+            from apply_rookie_prior_own_model_2026 import fill_players
+            # `board` HERE is the players LIST (load_players scope), not the
+            # artifact dict — board["players"] threw TypeError on the first CI
+            # build, the by-design except swallowed it into a skip line, and
+            # the ruled layer silently vanished from the candidate (refused by
+            # the gate's vanished-stamp assertion, run 32079172201 — the gate
+            # caught in CI what this comment now prevents at the source).
+            _n = fill_players(board)
+            PROJECTION_PROVENANCE["rookie_capital_prior"] = {
+                "applied": _n, "ruled": _rcp.get("ruled"),
+                "cory_approval_verbatim": _rcp.get("cory_approval_verbatim")}
+            print(f"  projections: rookie capital prior filled {_n} rookies "
+                  f"(Cory's ruling {_rcp.get('ruled')})")
+        except Exception as rpx:  # noqa: BLE001 — an upgrade, never a dependency
+            PROJECTION_PROVENANCE["rookie_capital_prior"] = {
+                "error": f"{type(rpx).__name__}: {rpx}"}
+            print(f"  ! rookie capital prior skipped ({type(rpx).__name__}: {rpx})")
+
     # ── NFL DRAFT CAPITAL — AN INFORMATIONAL COLUMN, NOT A PROJECTION ──────
     #
     # Cory 2026-08-17: "I'd want to give these players a boost due to upside

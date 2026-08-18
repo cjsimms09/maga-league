@@ -639,12 +639,40 @@
       + '>' + marker + '</span>';
   }
 
+  /* THE CONDITION HERE WAS INVERTED, AND ITS ABSENCE ASSERTED A SECOND OPINION
+   * THAT DOES NOT EXIST (session E, 2026-08-17; register E6).
+   *
+   * It used to read `if (p.proj_fantasypros != null) return '';` — i.e. carrying
+   * a FantasyPros number was treated as evidence that `proj_mean` had more than
+   * one source behind it. It is not. `proj_baseline == proj_sleeper` for 427 of
+   * 427 rows carrying both, and build.py:1003 declares the formula outright:
+   * "sleeper_baseline * (1 + opportunity_adj)". FantasyPros is carried and
+   * DISPLAYED and never enters `proj_mean` (register 21).
+   *
+   * So the old mark divided the board exactly backwards. Measured on the live
+   * screen: 127 rows rendered with NO caveat and all 127 were Sleeper-only,
+   * while the 65 that carried it were the rows where FP simply does not exist.
+   * Every one of the 682 is single-source. The absence of a mark was the lie.
+   *
+   * EVERY ROW IS MARKED NOW, because every row earns it. What stays per-player
+   * is the thing that genuinely varies and is the more useful fact anyway:
+   * whether a second source EXISTS and is being ignored (427 rows) or is simply
+   * absent (255). Cory asked for a sanity check on our own valuation; "we hold a
+   * second opinion and did not use it" is exactly that check. */
   function projSourceMark(p) {
     if (!p || p.proj_mean == null) return '';
-    if (p.proj_fantasypros != null) return '';
-    return caveatOnce('single_source', '¹',
-      'single-source projection (Sleeper only) — FantasyPros does not cover this '
-      + 'position, so there is no second opinion behind this number');
+    const prov = (state.data || {}).provenance || {};
+    const src = (prov.projections && prov.projections.source) || 'sleeper';
+    const name = /fantasypros/i.test(src) ? 'FantasyPros'
+      : /sleeper/i.test(src) ? 'Sleeper' : String(src);
+    if (p.proj_fantasypros != null) {
+      return caveatOnce('unused_second_source', '¹',
+        name + ' only — a FantasyPros projection exists for this player ('
+        + Math.round(p.proj_fantasypros) + ') and does NOT enter this number');
+    }
+    return caveatOnce('no_second_source', '²',
+      name + ' only — no second source covers this player, so there is no '
+      + 'second opinion available behind this number');
   }
 
   const OV_FIELDS = ['proj_mean', 'proj_ceiling', 'proj_floor', 'vorp'];
@@ -1208,10 +1236,51 @@
         + '<table class="spa-table"><tbody>' + rows + '</tbody></table></details>';
     })();
 
+    /* ── THE PLAN IS ROSTER-BLIND, AND UNTIL NOW THE PANEL WAS TOO ───────────
+     *
+     * Cory, live 2026-08-17: *"model still overrecommending QBs. I have joe
+     * burrow and it recommends Bo nix in the 9th.. thats rediculous"*.
+     *
+     * `seat_plan.json` asserts `slot: "QB", is_starter_seat: true` at pick 73
+     * and names another QB at 93. It is solved ONCE before the draft from the
+     * KEEPERS ALONE — its own header says *"It does NOT re-solve live"* — so it
+     * cannot know Burrow was taken at an intervening pick. Worse, the seat's own
+     * `fallback_rule` reads *"Take the best remaining player ELIGIBLE FOR QB,
+     * not the best player on the board"*, so the panel was actively steering
+     * toward a second QB at a seat that no longer exists.
+     *
+     * The plan is not wrong — it answered the pre-draft question correctly. What
+     * was wrong is rendering a pre-draft answer as a live instruction. So the
+     * panel now asks the roster, using the ENGINE'S OWN `mandatoryGaps()` rather
+     * than a second copy of the slot arithmetic: if this seat's slot is no
+     * longer an unfilled starter slot, the seat is spent and says so.
+     *
+     * The shortlist is still shown underneath rather than hidden — "the plan
+     * named nobody" and "the plan named men you no longer need" are different
+     * facts, and suppressing the second would make the artifact look cleaner
+     * than the evidence is (the same reasoning `supLine` above already uses). */
+    const seatSpent = (function () {
+      if (!seat.is_starter_seat || !seat.slot) return null;
+      let gaps;
+      try { gaps = E.mandatoryGaps(context()); } catch (e) { return null; }
+      if (!Array.isArray(gaps) || gaps.indexOf(seat.slot) !== -1) return null;
+      const held = (state.myRoster || []).filter(p => p && p.position === seat.slot);
+      return { by: held.map(p => p.name).filter(Boolean) };
+    })();
+    const spentLine = !seatSpent ? ''
+      : '<div class="sp-spent"><b>SEAT ALREADY FILLED</b> — you have '
+        + (seatSpent.by.length
+          ? escapeHtml(seatSpent.by.join(', ')) + ' at ' + escapeHtml(seat.slot)
+          : 'no open ' + escapeHtml(seat.slot) + ' starter slot')
+        + '. This plan was solved before the draft and does not re-solve, so the '
+        + 'names below answer a question you have already answered — treat them as '
+        + 'history, not as the pick.</div>';
+
     host.innerHTML =
-      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
+      '<div class="sp-head">THE PLAN ' + (seatSpent ? 'WANTED' : 'WANTS') + ' <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
-      + '<ol class="sp-list">' + rows + '</ol>'
+      + spentLine
+      + '<ol class="sp-list' + (seatSpent ? ' sp-list-spent' : '') + '">' + rows + '</ol>'
       + staleLine
       + gapLine
       + supLine
@@ -1228,6 +1297,7 @@
     loadFrozenBaseline();
     loadSeatPlan();
     loadConditionalValue();
+    loadOpponentNeed();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -1733,9 +1803,25 @@
      * pick lands anywhere, `pickEvents` is non-zero and the room's clock takes
      * over exactly as before. Live-draft behaviour is unchanged. */
     const ps = pickState();
+    const mine = ((state.data || {}).pick_order || {}).my_picks || [];
     if (ps.pickEvents === 0) {
-      const mine = ((state.data || {}).pick_order || {}).my_picks || [];
       if (mine.length) return mine[0];
+      return ps.currentPick;
+    }
+    /* MANUAL MODE AFTER THE FIRST PICK (B's rehearsal find, 2026-08-17: the
+     * draft-night fallback clock broke ON THE VERY FIRST TAKE). pickEvents
+     * counts MARKS, and in the fallback Cory marks mostly his own picks — so
+     * one mark read "pick 2" while his pick landed at overall 33, and every
+     * consumer (legality's picksLeft, LRM windows, mustDraftNow) inherited a
+     * clock stuck near the top of the draft. My recorded picks sit on KNOWN
+     * slots by construction, so once k of my picks exist the room has
+     * necessarily passed mine[k-1]: the clock is bounded below by
+     * mine[k-1]+1. max() keeps the diligent path exact — marking every
+     * opponent still advances the clock past the bound — and sync mode never
+     * reaches this line. */
+    const myTaken = (state.myRoster || []).filter(function (p) { return !p.is_keeper; }).length;
+    if (myTaken > 0 && mine.length >= myTaken) {
+      return Math.max(ps.currentPick, (mine[myTaken - 1] || 0) + 1);
     }
     return ps.currentPick;
   }
@@ -2061,6 +2147,11 @@
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
+      /* OPPONENT-NEED LAYER input (Cory's take-a-swing ruling, 2026-08-17).
+       * survival.js's gated blend reads ctx.opponentNeed; the artifact loads
+       * beside the board (loadOpponentNeed) and null degrades to no tilt —
+       * absent is never a guessed distribution. */
+      opponentNeed: state.opponentNeed || null,
     };
   }
 
@@ -2647,12 +2738,16 @@
     // even" rather than silence pretending the check never ran.
     const tbHtml = v.tiebreak
       ? '<div class="wrv-tiebreak"><b>tie-break facts</b>'
-        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged)</span>'
+        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged. '
+        + 'On this league’s 2023–25 record 50/50s are true coin flips: 8 of 9 '
+        + 'printed facts predicted nothing in 259 near-ties; trajectory is the one '
+        + 'measured lean, 58% of 176)</span>'
         + (v.tiebreak.facts.length
           ? '<ul>' + v.tiebreak.facts.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>'
           : '<div class="tb-even">nothing on the board separates '
             + escapeHtml(v.tiebreak.a) + ' and ' + escapeHtml(v.tiebreak.b)
-            + ' — genuinely even; your read decides.</div>')
+            + ' — genuinely even; your read decides. A true coin flip on this '
+            + 'league’s own record (259 near-ties, 2023–25) — stop sweating it.</div>')
         + '</div>'
       : '';
     const lensHtml = v.lenses.length
@@ -4937,7 +5032,24 @@
     // pre-draft snapshot. QB/TE surfaced explicitly since they're the timing calls.
     if (typeof DraftGrabBy !== 'undefined') {
       try {
-        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {});
+        /* LRM startable boundaries feed the wire-covered-onesie cap (Cory,
+         * 2026-08-17: QB urgency was contradicting the LRM strip on the same
+         * screen). One derivation: computeLRM's startable_by IS the boundary
+         * the strip prints, so the two surfaces cannot disagree again. */
+        let lrmBounds = null;
+        try {
+          const picks = myNextPicks();
+          (computeLRM(picks) || []).forEach(function (r) {
+            /* no_deadline = startable options outlast the DRAFT (K/DEF men who
+             * go undrafted) — the strongest wire coverage, boundary infinite. */
+            if (r.no_deadline) { (lrmBounds = lrmBounds || {})[r.position] = Infinity; }
+            else if (r.startable_by != null) {
+              (lrmBounds = lrmBounds || {})[r.position] = r.startable_by;
+            }
+          });
+        } catch (e) { lrmBounds = null; }
+        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {},
+          null, lrmBounds);
         if (gb && gb.headline) {
           const pill = v => v === 'TAKE-NOW' ? '#ff8a8a' : (v === 'GRAB-SOON' ? '#f5c445' : '#8ac6ff');
           const line = pos => {
@@ -6476,6 +6588,24 @@
    *
    * DEGRADES HONESTLY: a missing artifact means NO chips and one provenance
    * note — absent is never rendered as zero. */
+  /* OPPONENT-NEED artifact — same degrade-honestly pattern as the conditional
+   * value fetch below: a missing artifact means the survival blend runs
+   * without the need tilt (survival.js treats null ctx.opponentNeed as OFF),
+   * never a guessed one. */
+  function loadOpponentNeed() {
+    fetch('/opponent_need_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.opponentNeed = a || null; })
+      .catch(function (e) {
+        console.warn('[opponent-need] artifact not loaded: ' + (e && e.message)
+          + ' — survival runs without the need tilt (not a guessed one)');
+        state.opponentNeed = null;
+      });
+  }
+
   function loadConditionalValue() {
     fetch('/conditional_value_2026.json', { cache: 'no-cache' })
       .then(function (r) {
@@ -9888,6 +10018,13 @@
     }
     state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
+    /* KEEPERS ARE PLACEMENTS, NOT PICKS (found by the fallback-clock rehearsal
+     * scenario, 2026-08-18): ending a draft clears the roster but Cory's
+     * keepers pre-exist any draft — leaving them off tripped the keepers-vs-
+     * my_picks alarm ("your 0 keepers mean you own 15 picks... the board is
+     * giving you 12") on a freshly cleared board. Re-seed exactly as boot
+     * does. */
+    populateKeepers(state.data);
 
     ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
       const el = $(sel); if (el) el.style.display = 'none';
@@ -10484,6 +10621,10 @@
       seat: seat,
       describe: seat && typeof DraftSeat !== 'undefined' ? DraftSeat.describe(seat) : null,
       audit: audit,
+      // The manual-fallback clock, for the rehearsal harness (B's 2026-08-17
+      // first-take find) — the number every pick-dependent surface consumes.
+      clock: currentPick(),
+      myPicks: ((state.data || {}).pick_order || {}).my_picks || [],
       myRoster: (state.myRoster || []).map(p => p.position + ' ' + p.name),
       rosterSlotsSeen: rosterSlotsSeen,
       mock: state.mockMode || null,

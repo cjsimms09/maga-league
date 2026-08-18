@@ -407,7 +407,25 @@ jobs:
           git config user.email "actions@github.com"
           git add $EXISTING
           git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
-          git push
+          # PUSH-RACE RETRY (added 2026-08-17): run 32080224084 passed the whole
+          # gate, committed the board on the runner, and DIED here — a lane
+          # session pushed main between checkout and push, and the fresh board
+          # was lost with the workspace. The board commit touches only the
+          # rebuild's own data files, so a rebase over doc/lane commits is
+          # safe; three attempts, then fail loudly as before.
+          for attempt in 1 2 3; do
+            git push && break
+            [ "$attempt" = 3 ] && { echo "push still racing after 3 rebases"; exit 1; }
+            if ! git pull --rebase --autostash origin main; then
+              # A concurrent push edited one of the REBUILD'S OWN generated
+              # files (attempt 4 hit this on opening_script.json). For files
+              # this workflow regenerates, the fresh rebuild IS the truth —
+              # during a rebase the incoming rebuild commit is "theirs".
+              git checkout --theirs -- $EXISTING || true
+              git add $EXISTING
+              GIT_EDITOR=true git rebase --continue
+            fi
+          done
           # Tell the verify step below whether a SERVED file actually moved —
           # a push that only refreshed draft/ data (Lab lane) triggers no
           # Netlify build by the gate's own rules, so polling for one would

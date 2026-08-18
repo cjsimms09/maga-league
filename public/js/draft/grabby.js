@@ -105,9 +105,47 @@
     return 'WAIT';
   }
 
+  /* ── WIRE-COVERED ONESIES: THE QB DENOMINATOR FIX (Cory, 2026-08-17:
+   * "Model still recommended QB too often") ─────────────────────────────────
+   *
+   * EVLW prices a wait by the drop to the NEXT-BEST at the position — honest
+   * for RB/WR/TE, wrong in effect for QB in THIS league: the empirical study
+   * measured the QB wire AT replacement (330.8 vs 330.1 season pts, 10
+   * teams), the engine's own DP plan takes QB at pick 73, the top-3 drafters
+   * average round 7.1 — and yet a −8pt one-pick drop printed GRAB-SOON at
+   * pick 32 while the LRM strip on the SAME SCREEN said "startable until
+   * pick 93". Two surfaces, one number, disagreeing: the exact defect class
+   * this project keeps paying for.
+   *
+   * The rule: for a position with ONE starting slot whose STARTABLE tier
+   * outlasts the room (QB/K/DEF — the LRM already computes the boundary),
+   * the wait verdict is capped at WAIT while any of my remaining picks lands
+   * before the startable boundary, and grab_by becomes the LAST such pick.
+   * The EVLW fact still prints (it is true); the VERDICT stops treating a
+   * fungible position like a cliff. TE is deliberately NOT included: its
+   * elite cliff is real (LRM: elite gone by ~53) and measured.
+   *
+   * `lrmBounds` = {pos: startable_until_pick} passed by the caller from
+   * computeLRM — null/absent keeps the old behavior (degrade honest). */
+  var WIRE_COVERED = { QB: true, K: true, DEF: true };
+  function onesieCap(pos, remaining, lrmBounds, row) {
+    if (!WIRE_COVERED[pos] || !lrmBounds || lrmBounds[pos] == null) return row;
+    var boundary = Number(lrmBounds[pos]);
+    var safe = (remaining || []).filter(function (pk) { return pk <= boundary; });
+    if (!safe.length) return row;               // boundary inside this window: urgency is real
+    if (row.verdict === 'TAKE-NOW' || row.verdict === 'GRAB-SOON') {
+      row.verdict = 'WAIT';
+      row.wire_covered = 'startable ' + pos + 's outlast the room until pick '
+        + boundary + ' (measured: the ' + pos + ' wire is replacement-level in a '
+        + '10-team league) — the drop to the next name is real but the SLOT is safe';
+    }
+    row.grab_by_pick = safe[safe.length - 1];
+    return row;
+  }
+
   /* board: live draftable players (already minus drafted); roster: MY players so far;
    * myRemaining: my remaining overall pick numbers (ascending). */
-  function report(board, roster, myRemaining, league, positions) {
+  function report(board, roster, myRemaining, league, positions, lrmBounds) {
     positions = positions || ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
     var need = positionalNeed(roster, league);
     var remaining = (myRemaining || []).slice().sort(function (a, b) { return a - b; });
@@ -123,7 +161,7 @@
       var evlw = Math.round((bestNow - bestNext) * 100) / 100;
       var survivor = secondPick != null ? bestSurvivor(avail, secondPick) : best;   // who you'd get if you wait
       var gone = secondPick != null ? likelyGone(avail, secondPick) : [];           // who's off the board by then
-      return {
+      return onesieCap(pos, remaining, lrmBounds, {
         position: pos, need: live,
         best_now: { name: best.name, player_id: best.player_id, proj_mean: bestNow,
           tier: best.tier, tier_drop: best.tier_drop },
@@ -133,7 +171,7 @@
         evlw: evlw, evlw_per_week: Math.round(evlw / WEEK_DIVISOR * 1000) / 1000,
         grab_by_pick: grabByPick(avail, remaining, bestNow),
         verdict: verdict(evlw, live),
-      };
+      });
     });
     var live = rows.filter(function (r) { return r.need && r.evlw != null; })
       .sort(function (a, b) { return b.evlw - a.evlw; });
@@ -157,7 +195,8 @@
    * of the eight that was still silent.) */
   global.DraftGrabBy = { report: report, positionalNeed: positionalNeed, isLiveNeed: isLiveNeed,
     grabByPick: grabByPick, expectedBestAt: expectedBestAt, likelyGone: likelyGone,
-    bestSurvivor: bestSurvivor, verdict: verdict,
+    bestSurvivor: bestSurvivor, verdict: verdict, onesieCap: onesieCap,
+    WIRE_COVERED: WIRE_COVERED,
     BANDS: { NEGLIGIBLE: BAND_NEGLIGIBLE, URGENT: BAND_URGENT, WEEK_DIVISOR: WEEK_DIVISOR } };
 })(typeof window !== 'undefined' ? window : globalThis);
 

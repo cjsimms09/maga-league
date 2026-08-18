@@ -1,0 +1,60 @@
+name: Band-split refit — measure the upside fix (register 4q)
+
+# Cory, 2026-08-17: "I dont want to ignore it, I want to fix it."
+#
+# WHY THIS IS A WORKFLOW AND NOT A COMMAND. The refit needs the real pipeline,
+# and draft/backtest/cli.py line 85 calls Sleeper. The sandbox gets
+# "Tunnel connection failed: 403 Forbidden"; a runner does not. Same wall C
+# already hit on FantasyPros and MFL.
+#
+# IT MEASURES, IT DOES NOT SHIP. Both runs write to the workspace only. Nothing
+# is committed, and the live projection_error_calibration.json is never touched.
+# Whether the split ships before the draft is CORY'S call — it moves ceiling,
+# floor, the bench branch, champodds and the money proxy.
+#
+# DISPATCH FROM `main`. A feature-branch dispatch had its verdict discarded by
+# the push guard on 08-16 and cost a day.
+on:
+  workflow_dispatch:
+    inputs:
+      band_edges:
+        description: 'Split edges to test (the 33+ cell holds 935 of 1304 graded players)'
+        required: false
+        default: '3,8,16,32,48,72,100,150'
+
+jobs:
+  refit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Python deps
+        # cli.py imports nfl_data_py — the same deps file backtest.yml uses,
+        # not a hand-typed subset (first dispatch failed on exactly that).
+        run: pip install --quiet -r draft/requirements.txt
+
+      - name: Baseline — current declared bands
+        # No env var: BAND_EDGES stays (3, 8, 16, 32) exactly as it ships.
+        run: python3 draft/backtest/cli.py --out /tmp/bundles_current.json
+
+      - name: Candidate — split bands
+        env:
+          PROJECTION_BAND_EDGES: ${{ github.event.inputs.band_edges }}
+        run: python3 draft/backtest/cli.py --out /tmp/bundles_split.json
+
+      - name: The deliverable — two slopes, side by side
+        # The verdict is whether the SLOPE stops being inverted, never whether
+        # the numbers moved. A finer split moves numbers by arithmetic.
+        run: python3 draft/tools/compare_band_slopes.py /tmp/bundles_current.json /tmp/bundles_split.json
+
+      - name: Keep both bundle sets so the run can be re-read, never re-guessed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: band-split-refit
+          path: |
+            /tmp/bundles_current.json
+            /tmp/bundles_split.json
