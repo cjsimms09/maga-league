@@ -1,0 +1,126 @@
+{
+  "_territory": "TERRITORY: C \u2014 produced by discovery_projection_source_census.py",
+  "_prereg": "N/A \u2014 a reachability census, not a graded study. Register 4t / ROUTES.md A->C 2026-08-18 (ffanalytics resource review).",
+  "_note": "'reachable' = HTTP status < 400. 'plausible_content' = body >= 2000 bytes -- neither means the page actually contains a real projection table; that needs a per-source parser, built only for sources that clear both here.",
+  "control": {
+    "source": "fantasypros_adp_control",
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2026",
+    "status_code": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "size_bytes": 315816,
+    "reachable": true,
+    "plausible_content": true
+  },
+  "candidates": {
+    "cbs": {
+      "source": "cbs",
+      "url": "https://www.cbssports.com/fantasy/football/stats/",
+      "status_code": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 787375,
+      "reachable": true,
+      "plausible_content": true
+    },
+    "espn": {
+      "source": "espn",
+      "url": "http://games.espn.com/ffl/tools/projections",
+      "status_code": 202,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 0,
+      "reachable": true,
+      "plausible_content": false
+    },
+    "numberfire": {
+      "source": "numberfire",
+      "url": "https://www.numberfire.com/nfl/fantasy/",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "size_bytes": 436429,
+      "reachable": true,
+      "plausible_content": true
+    },
+    "fftoday": {
+      "source": "fftoday",
+      "url": "http://www.fftoday.com/rankings/",
+      "status_code": 200,
+      "content_type": "text/html",
+      "size_bytes": 44905,
+      "reachable": true,
+      "plausible_content": true
+    },
+    "fantasysharks": {
+      "source": "fantasysharks",
+      "url": "https://www.fantasysharks.com/apps/bert/forecasts/projections.php",
+      "status_code": 403,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 5644,
+      "reachable": false,
+      "plausible_content": true
+    },
+    "fantasyfootballnerd": {
+      "source": "fantasyfootballnerd",
+      "url": "http://www.fantasyfootballnerd.com/service/",
+      "status_code": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 99062,
+      "reachable": true,
+      "plausible_content": true
+    },
+    "nfl": {
+      "source": "nfl",
+      "url": "http://api.fantasy.nfl.com/v1/players/stats",
+      "status_code": 404,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 20,
+      "reachable": false,
+      "plausible_content": false
+    },
+    "rtsports": {
+      "source": "rtsports",
+      "url": "https://www.freedraftguide.com/football/draft-guide-rankings-provider.php",
+      "status_code": 403,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 5624,
+      "reachable": false,
+      "plausible_content": true
+    },
+    "walterfootball": {
+      "source": "walterfootball",
+      "url": "http://walterfootball.com/",
+      "status_code": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "size_bytes": 186290,
+      "reachable": true,
+      "plausible_content": true
+    },
+    "fantasydata": {
+      "source": "fantasydata",
+      "url": "https://fantasydata.com/nfl-stats/fantasy-football-weekly-projections.aspx",
+      "status_code": 404,
+      "content_type": "text/html; charset=utf-8",
+      "size_bytes": 132038,
+      "reachable": false,
+      "plausible_content": true
+    }
+  },
+  "reachable_count": 6,
+  "reachable_sources": [
+    "cbs",
+    "espn",
+    "numberfire",
+    "fftoday",
+    "fantasyfootballnerd",
+    "walterfootball"
+  ],
+  "plausible_sources": [
+    "cbs",
+    "numberfire",
+    "fftoday",
+    "fantasysharks",
+    "fantasyfootballnerd",
+    "rtsports",
+    "walterfootball",
+    "fantasydata"
+  ],
+  "clears_3_source_bar": true
+}
