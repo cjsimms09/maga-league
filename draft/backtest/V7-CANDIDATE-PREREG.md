@@ -67,3 +67,30 @@ Build C1-C5 by **08-24**; C6-C7 by **08-28**; grading as candidates land;
 composite ruling by **09-05**; blend re-open (D14) reads the results. 2020 is
 excluded from any extended historical window on sight (COVID-corrupt ECR).
 Owner: A. Recheck 08-25.
+
+## 6. Grades as they land (added after each run — never edited above this line)
+
+**2026-08-18 — C1 and C3 graded (`v7_candidate_grade.py`), both NO SHIP:**
+
+- **C2** closed earlier the same day: Ridge gaps 0.000–0.014 across the alpha
+  grid, a null on 4 parameters (`ridge_arm_fit.json`).
+- **C1 (fitted age curves): NO SHIP — the leak-free curve shape DEGRADES v6.**
+  Refit on transitions ending ≤2024 (the committed `age_curve_2026.json`
+  includes 2024→25 and would leak), mean-normalized per position, applied to
+  QB/RB/WR (207 players). RB loses on everything (ρ −0.012, MAE +2.2,
+  P@12 −0.083) and MAE rises at all three featured positions. v2's linear age
+  term already owns whatever signal the curve shape carries. The curves stand
+  as DESCRIPTION (the QB-decline correction, WR peak 22); as a FEATURE they
+  are dead.
+- **C3 (fitted recency): NO SHIP — the component-level gap vanishes at the
+  system level.** Leak-free w (QB .475 / RB .8 / WR .6 / TE .6), the whole
+  stack rebuilt per-position. QB — the position whose blend-level gap was
+  0.115 — comes out slightly WORSE (ρ 0.723→0.711); TE marginally better on
+  family 1 only; 0 of 4 clear §3. The market and composite arms swamp the
+  blend input — P50's "the champion already carries it," measured again by a
+  different route. **P-v7a graded FALSE (ledger P62).**
+
+Standing after this pass: **C1, C2, C3 dead. Live: C4 (C builds, post-P38
+grant), C5 (WR-only NGS restriction), C6, C7.** P-v7b (top-tier precision
+flips a blend answer) stays OPEN — its subject is the source-blend decision,
+not these arms; observed so far P@12 moved at exactly one cell in two arms.
