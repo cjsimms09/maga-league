@@ -708,8 +708,18 @@
       const pre = overrideSnapshot(p);
       // Scale the value chain together: a haircut that moves proj_mean but not
       // the rest would leave the composite reading a number that no longer
-      // exists. floor and ceiling are `mean × (1 + z·variance)`, so they scale
-      // with the mean exactly; VORP does not, and is re-derived instead.
+      // exists. floor and ceiling are still exactly linear in the mean, so they
+      // scale with it; VORP does not, and is re-derived instead.
+      //
+      // THE REASON CHANGED ON 2026-08-17 EVEN THOUGH THE CONCLUSION DID NOT
+      // (session E). This used to say they are `mean × (1 + z·variance)`. They
+      // are not, and have not been since the dispersion fields became the
+      // MEASURED p10/p90: they are now `mean × the (position, rank-band) cohort
+      // ratio` (projections.py:423-437). Still linear in the mean, so scaling
+      // stays correct — but a reader who trusted the stated reason would have
+      // concluded a haircut also moves the player between bands. It does not:
+      // pos_rank is not recomputed here, so the cohort ratio is held fixed and
+      // only the mean moves.
       p.proj_mean = (pre.proj_mean || 0) * f;
       p.proj_ceiling = (pre.proj_ceiling || 0) * f;
       p.proj_floor = (pre.proj_floor || 0) * f;
@@ -10109,6 +10119,147 @@
     if (btn && s.state === 'error') { btn.disabled = false; btn.textContent = 'Connect'; }
   }
 
+  /* WHAT THE FLOOR AND THE CEILING ACTUALLY ARE (session E, 2026-08-17; register E16).
+   *
+   * The line above used to end at "(floor 2, ceiling 479)", which presents both
+   * numbers as a forecast for THIS player. They are not, and have not been since
+   * 2026-08-17. Both are `proj_mean x the measured p10/p90 ratio of the player's
+   * (position, projection-rank band) COHORT` — projections.py:423-437, applied by
+   * projection_error.proj_floor_for / proj_ceiling_for. Every player in a cell
+   * carries the SAME multiple, so the printed figure is a band statistic wearing
+   * one player's name.
+   *
+   * MEASURED ON THE LIVE BOARD, this is not a pedantic distinction. The QB band
+   * edge sits between 16 and 17:
+   *
+   *     QB16  Jaxson Dart    proj 328.5   floor 87.29
+   *     QB17  Jordan Love    proj 322.5   floor  2.45   <- 35.6x, on a 6.0 gap
+   *
+   * Both are in their CORRECT cell — this is not the E1 misread. A 2.45-point
+   * season floor is simply not a statement about Jordan Love; it is the p10 of a
+   * cohort (QB17-32) that runs down to quarterbacks who never take a snap. The
+   * same edge produces WR31 Marvin Harrison 68.43 against WR32 Alec Pierce 8.23,
+   * and RB30 J.K. Dobbins 37.03 against RB31 Jordan Mason 3.25.
+   *
+   * TRUTH FIX ONLY. No number changes, nothing reorders, no scoring path is
+   * touched — naming the cohort is what lets a reader discount the figure
+   * correctly. The underlying question (a step function of band applied to a
+   * continuous rank) is register E16, owner A: changing the calibration is not
+   * red-team territory and is not a five-days-before-the-draft change.
+   */
+  var DISP_BANDS = [[1, 3, '1-3'], [4, 8, '4-8'], [9, 16, '9-16'],
+    [17, 32, '17-32'], [33, Infinity, '33+']];
+
+  function dispersionBand(rank) {
+    var r = Number(rank);
+    if (!isFinite(r) || r <= 0) return null;
+    for (var i = 0; i < DISP_BANDS.length; i++) {
+      if (r >= DISP_BANDS[i][0] && r <= DISP_BANDS[i][1]) {
+        return { lo: DISP_BANDS[i][0], hi: DISP_BANDS[i][1], label: DISP_BANDS[i][2] };
+      }
+    }
+    return null;
+  }
+
+  /* WHICH COHORT WAS HE ACTUALLY PRICED OFF — read from the number, not the rank.
+   *
+   * The first version of this helper named the band from `pos_rank`, and its own
+   * test caught that as a lie: `proj_floor` is written against the rank the
+   * BUILD ranked him at, which for nine players on the live board is not the
+   * rank the board publishes (register E1). Jordan Mason is published RB31 and
+   * priced off the RB|33+ cohort — a caveat reading "RB 17-32" would have been a
+   * second false label pinned by a passing test.
+   *
+   * So the cohort is recovered from the ratio the player actually carries,
+   * matched against the modal ratio of each band ON THIS BOARD. No calibration
+   * file is needed in the browser, and a mismatch between the cohort he was
+   * priced off and the band his rank puts him in is E1 showing itself on screen.
+   */
+  function cohortRatios(board) {
+    /* Keyed on the board REFERENCE, not a bare "have I computed this" flag. A
+     * bare flag survived a re-sync replacing state.board and would have gone on
+     * answering with the previous board's ratios — the test caught it by passing
+     * two different boards in one process. */
+    if (state._cohortRatiosFor === board && state._cohortRatios) return state._cohortRatios;
+    const byCell = {};
+    (board || []).forEach(p => {
+      if (!p || !p.proj_mean || !p.proj_floor || !p.pos_rank) return;
+      if (!/^measured-/.test(String(p.proj_floor_source || ''))) return;
+      const b = dispersionBand(p.pos_rank);
+      if (!b) return;
+      const k = p.position + '|' + b.label;
+      (byCell[k] = byCell[k] || []).push(p.proj_floor / p.proj_mean);
+    });
+    const out = {};
+    Object.keys(byCell).forEach(k => {
+      // MEDIAN, not mean: the nine E1 misreads sit inside these same cells, and
+      // a mean would let them drag the reference ratio toward the wrong band.
+      const v = byCell[k].slice().sort((a, b) => a - b);
+      out[k] = v[Math.floor(v.length / 2)];
+    });
+    state._cohortRatiosFor = board;
+    state._cohortRatios = out;
+    return out;
+  }
+
+  function appliedCohort(p, board) {
+    if (!p || !p.proj_mean || p.proj_floor == null) return null;
+    const r = p.proj_floor / p.proj_mean;
+    const ratios = cohortRatios(board);
+    let best = null, second = null;
+    DISP_BANDS.forEach(b => {
+      const m = ratios[p.position + '|' + b[2]];
+      if (m == null) return;
+      const d = Math.abs(r - m);
+      if (!best || d < best.d) { second = best; best = { d: d, label: b[2], lo: b[0], hi: b[1] }; }
+      else if (!second || d < second.d) second = { d: d, label: b[2] };
+    });
+    if (!best) return null;
+    // Decisive match only. A ratio sitting between two cohorts names neither —
+    // guessing here is how a caveat starts asserting more than it measured.
+    if (best.d > 0.01 && best.d > 0.05 * Math.abs(r)) return null;
+    if (second && best.d > 0.25 * second.d) return null;
+    return best;
+  }
+
+  function dispersionCaveat(p, board) {
+    if (!p || p.proj_mean == null) return '';
+    const fs = p.proj_floor_source, cs = p.proj_ceiling_source;
+    const measured = /^measured-/.test(String(fs || '')) || /^measured-/.test(String(cs || ''));
+    /* An unmeasured band keeps the old Gaussian, and a reader must be able to
+     * tell the two apart — that distinction is the whole reason the _source
+     * fields were frozen (freeze_pre_draft.py). Calling a Gaussian a "cohort
+     * p10/p90" would just be a second false label. */
+    if (!measured) {
+      return '  ^ floor/ceiling here are a SYMMETRIC GAUSSIAN off proj_sd, not a\n'
+        + '    measured outcome range: this band was never measured, so the older\n'
+        + '    construction still applies.\n';
+    }
+    const pos = p.position || '?';
+    const applied = appliedCohort(p, board);
+    if (!applied) {
+      return '  ^ floor/ceiling are a COHORT p10/p90 x this projection, not a\n'
+        + '    forecast for this player.\n';
+    }
+    let out = '  ^ floor/ceiling are the ' + pos + ' ' + applied.label + ' COHORT\'s measured\n'
+      + '    p10/p90 (2023-25) x this projection — NOT a forecast for this player.\n'
+      + '    Every ' + pos + ' in that band carries the same multiple.\n';
+    const rankBand = dispersionBand(p.pos_rank);
+    if (rankBand && rankBand.label !== applied.label) {
+      /* E1, visible at the point of use rather than in an audit file. */
+      out += '    !! He is published ' + pos + p.pos_rank + ', which is the ' + rankBand.label
+        + ' band — so his\n'
+        + '       floor and ceiling were priced off a DIFFERENT cohort than his rank.\n'
+        + '       Known defect (register E1); affects the spread, not his ranking.\n';
+    } else if (applied.lo > 1 && Number(p.pos_rank) - applied.lo <= 2) {
+      /* The edge is where the cohort figure misleads hardest, so say it on the
+       * rows where it bites rather than in a legend nobody opens mid-pick. */
+      out += '    He sits at the TOP of that band, where it is harshest — the ' + pos + '\n'
+        + '    one slot above him is priced off a different, much kinder cohort.\n';
+    }
+    return out;
+  }
+
   function showWhy(playerId) {
     const p = playerById(playerId);
     if (!p) return;
@@ -10126,7 +10277,7 @@
       'Bye collision:                    ' + c.weighted.bye.toFixed(1) + '  (' + c.bye_detail.detail + ')\n' +
       'Correlation / stacking:           ' + c.weighted.stack.toFixed(1) + '\n\n' +
       'Projection ' + Math.round(p.proj_mean) + ' (floor ' + Math.round(p.proj_floor) +
-      ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' +
+      ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' + dispersionCaveat(p, state.board) +
       'Adjusted ADP ' + Math.round(p.adjusted_adp) + ' vs raw ' + Math.round(p.raw_adp || 0) + '\n' +
       'Survives to your next pick: ' + survivalText(s.survival_to_next) + ' (interim model — see the caveat)\n\n' +
       s.reasons.map(r => '• ' + r).join('\n')
