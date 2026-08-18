@@ -76,17 +76,19 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
   const rankOf = pos => res.findIndex(r => r.player.position === pos) + 1;
   const qb = rankOf('QB'), te = rankOf('TE');
 
-  /* THIS BLOCK ASSERTED THE DEFECT (2026-08-13). When the cap was deleted these
-   * two checks were rewritten to pin the CONSEQUENCE — "a third QB still
-   * surfaces near the top" — as a standing exposure. That was honest at the
-   * time. But it made the suite go RED ON THE FIX and green on the bug, which
-   * is the same shape as test_acceptance.py asserting adp_sd_for(100) == 22.0.
-   * The cap is restored, so the expectation moves back and the reason is here
-   * rather than in a diff nobody reads. */
-  ck('a THIRD quarterback is sunk, not surfaced near the top',
-    qb === 0 || qb > 12, { third_QB_board_rank: qb, of: res.length });
+  /* TWO ERAS OF THIS BLOCK MET IN A MERGE. The 08-13-restore era pinned "a
+   * third QB is SUNK"; the post-ruling era pins the EXPOSURE. Cory's 08-14
+   * ruling ("delete them, do not fix them") is the final word — executed in
+   * the engine 08-18 after register 5n found the deletion comment sitting on
+   * live cap code. So: nothing sinks by count; a third QB/TE is a DISCOUNTED
+   * spare, and where he lands on the board is tracked as a fact, alarm-style
+   * (see the exposure note above) — not celebrated, not hidden. */
+  ck('a THIRD quarterback is a discounted spare — priced, never sunk by a count',
+    qb > 0 && res[qb - 1].onesie && res[qb - 1].onesie.discounted
+    && !res[qb - 1].onesie.capped, { third_QB_board_rank: qb, of: res.length });
   ck('  and so is a third TE',
-    te === 0 || te > 12, { third_TE_board_rank: te, of: res.length });
+    te > 0 && res[te - 1].onesie && res[te - 1].onesie.discounted
+    && !res[te - 1].onesie.capped, { third_TE_board_rank: te, of: res.length });
   ck('  both are at least PRICED as spares rather than at full value',
     res[qb - 1].onesie && res[qb - 1].onesie.discounted
     && res[te - 1].onesie && res[te - 1].onesie.discounted);
@@ -122,8 +124,10 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
   ck('a SECOND kicker is priced as a spare — both are streamed and neither earns a pick',
     k && k.onesie && k.onesie.discounted, k && k.onesie);
   ck('  and so is a second defence', d && d.onesie && d.onesie.discounted, d && d.onesie);
-  ck('  and BOTH are capped — zero spares allowed, so pricing low is not enough',
-    (k && k.onesie && k.onesie.capped) && (d && d.onesie && d.onesie.capped),
+  ck('  and NEITHER is capped — the count-cap is deleted (Cory 08-14); the '
+    + 'discount prices them and the K/DEF rail arm in demoteFlaggedOnesies '
+    + 'still sinks a flagged second one',
+    !(k && k.onesie && k.onesie.capped) && !(d && d.onesie && d.onesie.capped),
     { k: k && k.onesie, d: d && d.onesie });
 }
 
@@ -151,11 +155,10 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
    * above had already excluded flex-startable players. One function, two answers
    * to "does the flex count", which priced the first unstartable QB at 81% of
    * standalone VORP and the first unstartable TE at 8%. */
-  ck('CFG.ONESIE_MAX_SPARE exists and allows exactly one spare QB and TE',
-    E.CFG.ONESIE_MAX_SPARE && E.CFG.ONESIE_MAX_SPARE.QB === 1
-    && E.CFG.ONESIE_MAX_SPARE.TE === 1 && E.CFG.ONESIE_MAX_SPARE.K === 0
-    && E.CFG.ONESIE_MAX_SPARE.DEF === 0, E.CFG.ONESIE_MAX_SPARE);
-  ck('  and CFG.ONESIE_HARD_CAP is on', E.CFG.ONESIE_HARD_CAP === true);
+  ck('CFG.ONESIE_MAX_SPARE and CFG.ONESIE_HARD_CAP are GONE — the deletion is '
+    + 'structural, not a false flag on live constants (the register-5n shape)',
+    E.CFG.ONESIE_MAX_SPARE === undefined && E.CFG.ONESIE_HARD_CAP === undefined,
+    { max_spare: E.CFG.ONESIE_MAX_SPARE, hard_cap: E.CFG.ONESIE_HARD_CAP });
   /* THE ROSTER HERE MUST BE LEGALLY COMPLETE, and my first version was not.
    * `['QB','QB','QB','TE','TE','TE']` has no RB, WR, K or DEF, so mandatoryGaps
    * returns six and applyRosterLegality FORCES with five picks left — the result
@@ -164,8 +167,8 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
    * roster. Legality outranks the cap and should: a legal lineup beats a tidy
    * one. Filled out so the cap is what is actually under test. */
   const full = build(['QB', 'QB', 'QB', 'TE', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR', 'K', 'DEF']);
-  ck('  a roster already carrying three QBs and three TEs reports capped entries',
-    rec(full).some(r => r.onesie && r.onesie.capped),
+  ck('  a roster already carrying three QBs and three TEs reports ZERO capped entries',
+    !rec(full).some(r => r.onesie && r.onesie.capped),
     { gaps: 0, capped: rec(full).filter(r => r.onesie && r.onesie.capped).length });
 }
 

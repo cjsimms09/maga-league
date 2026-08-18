@@ -209,8 +209,11 @@ function causes(winner, alternative, contribs) {
     detail: 'a plausibility rail fired on the alternative', rails: alt.rails.length });
   if ((winner || {}).legality) out.push({ code: 'structural:legality_forced',
     kind: 'structural', detail: 'roster legality forced this pick' });
-  if (((alt.onesie || {}).capped)) out.push({ code: 'structural:onesie_cap',
-    kind: 'structural', detail: 'the alternative hit the onesie duplicate cap' });
+  // structural:onesie_cap is RETIRED with its mechanism (Cory 08-14, executed
+  // 08-18, register 5n): `capped` is now a constant false in the engine, so
+  // this emission could never fire again — kept out rather than left as a
+  // reader of a dead flag, which is how the false-deletion comment survived
+  // four days in the engine itself.
   return out;
 }
 

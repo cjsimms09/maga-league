@@ -276,8 +276,11 @@
      * WHAT IT DOES NOT FIX, stated so the next measurement is not a surprise:
      * Josh Allen at pick 8. There `have (0) < slots (1)`, so no onesie rule
      * applies at all — that is pure cross-position VONA and a separate defect. */
-    ONESIE_HARD_CAP: true,
-    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
+    // ONESIE_HARD_CAP / ONESIE_MAX_SPARE: DELETED 2026-08-18, executing Cory's
+    // 2026-08-14 ruling verbatim ("delete them, do not fix them"). A comment
+    // below claimed this deletion had happened for four days while the cap ran
+    // live (register 5n). A duplicate who cannot start is priced as a backup
+    // (ONESIE_KEEP), never sunk by a count.
     ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
     ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
     /* THE STRUCTURAL CAP, added 2026-08-12 after the roster-construction run.
@@ -1400,11 +1403,12 @@
     const have = roster.filter(p => p.position === pos).length;
     if (have < slots) return none;                       // still filling the slot
 
-    /* PAST THIS MANY SPARES HE IS NOT PRICED LOW, HE IS SUNK. `capped` is read by
-     * demoteFlaggedOnesies, which is intact and still carries the reasoning —
-     * only the line that SET the flag was removed. */
-    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
-    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
+    /* The hard cap is DELETED (Cory 08-14, executed 08-18 — register 5n: the
+     * comment that used to sit here said "only the line that SET the flag was
+     * removed" while the line right below it still set the flag). `capped` is
+     * kept in the return shape as a constant false so no reader breaks; the
+     * demotion and the structural:onesie_cap emission it fed are dead by
+     * design, not by accident. */
 
     // TE is a onesie only once the FLEX cannot take him either.
     if (pos === 'TE' || pos === 'RB' || pos === 'WR') {
@@ -1476,12 +1480,11 @@
        * principle -- "priced low because he cannot start" -- and the code applied
        * it only when a cap happened to bind. It applies always now; the exception
        * still SURFACES him (insurance, trade value, bye cover) and says why. */
-      /* THE EXCEPTION SURFACES A SPARE; IT DOES NOT SURFACE A THIRD ONE. An elite
-       * faller is worth seeing as QB2 (insurance, bye cover, trade value) and is
-       * not worth seeing as QB3 — at that point "you cannot start him" has been
-       * true twice over. So the cap still binds through the exception. */
+      /* The cap no longer binds through the exception — deleted with the rest of
+       * it (Cory 08-14, executed 08-18). A third spare is still priced at
+       * ONESIE_KEEP like any unstartable duplicate; pricing, not prohibition. */
       return { duplicate: true, discount: CFG.ONESIE_KEEP,
-        capped: wouldCap, exception: 'value',
+        capped: false, exception: 'value',
         why: pos + (have + 1) + ' — ' + (player.name || 'he') + ' at +' + Math.round(fell)
           + ' vs ADP, top-' + CFG.ONESIE_ELITE_RANK + ' at the position; insurance and '
           + 'trade value. YOU CANNOT START HIM, so he is priced as a spare.' };
@@ -1562,9 +1565,9 @@
      * flagged OUT. That is the difference between a ceiling on habitual
      * behaviour and a prohibition, and getting the order wrong is what made the
      * first version refuse the pick it should most want. */
-    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: wouldCap, exception: null,
+    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: false, exception: null,
       why: pos + (have + 1) + ' — you cannot start him; priced as a backup'
-        + (wouldCap ? ', and you already carry ' + have + ' — SUNK, not merely discounted' : '') };
+        };
   }
 
   /** Where he ranks at his own position on the CURRENT board. */
@@ -2361,11 +2364,9 @@
     const isFlaggedOnesie = s =>
       ((s.player.position === 'K' || s.player.position === 'DEF')
         && !s.forced && s.rails && s.rails.length > 0)
-      // A CAPPED ONESIE SINKS TOO, and for a stronger reason than a rail: the
-      // rail says "this looks wrong", the cap says "he cannot start". Sinking
-      // rather than scoring is the point — a multiplicative discount could not
-      // express never, which is why the cap exists at all.
-      || (s.onesie && s.onesie.capped && !s.forced);
+      // The capped-onesie arm is GONE (Cory 08-14, executed 08-18, register 5n):
+      // a spare who cannot start is priced as a backup, never sunk by a count.
+      ;
     /* THREE BUCKETS, NOT TWO. `keep.concat(sink)` put demoted-but-SCOREABLE
      * players after REFUSED ones, so the bottom of the list read
      * [scoreable, refused, sunk] — measured, the refused block began at index
