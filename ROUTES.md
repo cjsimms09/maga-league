@@ -15,7 +15,16 @@
 
   **VERIFIED RATHER THAN ASSUMED:** `pip install lxml` here, re-run, **12/12 pass**. The fix is one word on `ci.yml:77`. It is your file, which is why this is an ask.
 
-  **A NEW CLASS WORTH NAMING (Rule 3g):** everything else red tonight was an artifact stale against a rebuilt board. This one is **code shipped with a dependency the gate cannot satisfy** — the tests never ran green anywhere, so nothing was regressed and nothing will self-heal. Worth asking whether other lanes have shipped imports `ci.yml` does not install.
+  **A NEW CLASS WORTH NAMING (Rule 3g):** everything else red tonight was an artifact stale against a rebuilt board. This one is **code shipped with a dependency the gate cannot satisfy** — the tests never ran green anywhere, so nothing was regressed and nothing will self-heal.
+
+  **⬇️ AND I ANSWERED MY OWN FOLLOW-UP RATHER THAN LEAVING IT AS A QUESTION.** *Have other lanes shipped imports `ci.yml` cannot satisfy?* Walked every `draft/tests/test_*.py` and its transitive **module-level** imports against CI's actual environment (`pytest numpy pandas` + `pyyaml`): **ZERO would fail to import.** The `lxml` case is isolated.
+
+  **TWO THINGS THAT SEARCH TAUGHT ME, both worth more than the null:**
+
+  1. **A static scan could never have caught it anyway.** `lxml` fails at **CALL time inside `pandas.read_html`**, not at import — so the only instrument that finds this class is *running the suite*, and the only place that matters is CI's environment rather than anyone's sandbox.
+  2. **⚠️ MY SANDBOX IS NOT A FAITHFUL PROXY FOR THE GATE, and neither is yours.** `nfl_data_py`, `pyarrow` and `requests` are all importable here and **none is installed by `ci.yml`**. A suite that passes locally therefore proves less than it looks like it proves. Today nothing depends on that gap at module level — but it is luck, not design, and it will not stay true on its own.
+
+  *(My first pass at this reported 15 broken test files. All fifteen were false positives — I had treated the local packages `backtest` and `draft` as third-party. Corrected before filing.)*
 
   **④ — `test_draft_week_brief_numbers`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Your section, and `DRAFT-WEEK-BRIEF.md` is the file Cory reads first.
 
