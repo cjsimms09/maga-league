@@ -101,3 +101,43 @@ def test_the_shipped_config_actually_carries_the_ruling_this_protects():
         "the shipped config no longer carries the measured-ceiling ruling — "
         "either it was reverted, or a rebuild wiped it again")
     assert cfg.get("_use_measured_ceiling_why"), "the ruling must carry its reason"
+
+
+def test_the_draft_start_ruling_survives_a_rebuild():
+    """CORY, 2026-08-18, verbatim: "Yes it's 6pm" — CORY-ASKS A10.
+
+    Same class as the keeper deadline and the measured ceiling. Sleeper has
+    never heard of `draft`, so without preserve_local_rulings the first nightly
+    rebuild after this commit would silently delete the ruling and the repo
+    would go back to having no recorded draft time at all — which is the state
+    that made the ask necessary.
+
+    ⚠️ THE RULING AND THE SURFACE ARE TWO DIFFERENT THINGS, and this test only
+    guards the first. `src/dashboard.js` reads `world.config.draft_time` from
+    the RUNTIME store, not this file, so a green test here does NOT mean the
+    league is being shown 6:00 PM — it means the decision cannot be lost.
+    """
+    existing = {"teams": 10, "draft": {"start_date": "2026-08-22",
+                                       "start_time": "6:00 PM", "tz": "CDT",
+                                       "cory_ruling_verbatim": "Yes it's 6pm"}}
+    fetched = {"teams": 10, "roster_slots": {"QB": 1}}
+    out = merge(existing, fetched)
+    assert out["draft"]["start_time"] == "6:00 PM"
+    assert out["draft"]["start_date"] == "2026-08-22"
+    assert out["draft"]["cory_ruling_verbatim"] == "Yes it's 6pm"
+
+
+def test_the_LIVE_committed_config_carries_the_draft_ruling():
+    """A test on a fixture proves the merge; this proves the file.
+
+    The keeper deadline needed both for the same reason: preserve_local_rulings
+    can be correct while nobody has actually written the ruling down.
+    """
+    import json
+    import pathlib
+    cfg = json.loads((pathlib.Path(HERE).parent / "config"
+                      / "league_config.json").read_text())
+    assert cfg["draft"]["start_time"] == "6:00 PM", cfg.get("draft")
+    assert cfg["draft"]["start_date"] == "2026-08-22"
+    assert cfg["draft"]["tz"] == "CDT"
+    assert "6pm" in cfg["draft"]["cory_ruling_verbatim"]

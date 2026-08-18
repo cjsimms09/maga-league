@@ -383,5 +383,15 @@
     "is_faab": false,
     "type_code": 1
   },
-  "_keepers_deadline_why": "THE SINGLE SOURCE OF TRUTH FOR THE KEEPER DEADLINE, ruled by Cory 2026-08-18: \"Keepers will be set by 08/21 at 6pm\". It lives here because register row 42 was a P0 for exactly one reason - there was no such place. B's banner would have announced 'Friday August 21 at 6:00 PM CDT' to all ten managers from a HARDCODED FALLBACK while fifteen files in this repo said 08-20, and nothing could adjudicate. Cory's ruling says the banner's date was right and the fifteen files were wrong. Any surface stating the deadline reads THIS key; a second hardcoded date anywhere is the defect recurring. Guarded against the nightly rebuild by test_config_local_rulings_survive.py - Sleeper has never heard of this key, so an unguarded rebuild would destroy it, which is exactly what happened to use_measured_ceiling on 08-17."
+  "_keepers_deadline_why": "THE SINGLE SOURCE OF TRUTH FOR THE KEEPER DEADLINE, ruled by Cory 2026-08-18: \"Keepers will be set by 08/21 at 6pm\". It lives here because register row 42 was a P0 for exactly one reason - there was no such place. B's banner would have announced 'Friday August 21 at 6:00 PM CDT' to all ten managers from a HARDCODED FALLBACK while fifteen files in this repo said 08-20, and nothing could adjudicate. Cory's ruling says the banner's date was right and the fifteen files were wrong. Any surface stating the deadline reads THIS key; a second hardcoded date anywhere is the defect recurring. Guarded against the nightly rebuild by test_config_local_rulings_survive.py - Sleeper has never heard of this key, so an unguarded rebuild would destroy it, which is exactly what happened to use_measured_ceiling on 08-17.",
+  "draft": {
+    "start_date": "2026-08-22",
+    "start_time": "6:00 PM",
+    "tz": "CDT",
+    "cory_ruling_verbatim": "Yes it's 6pm",
+    "ruled_on": "2026-08-18",
+    "_why": "Recorded as a RULING rather than left as a fallback. Before this, `src/dashboard.js` read `world.config.draft_time` and fell back to a hardcoded 6:00 PM with a <season>-08-22 date, and NO committed config set either — so the league was being shown a default nobody had confirmed. Cory confirmed the default is correct (CORY-ASKS A10). The keeper deadline went the same way on 08-18 and for the same reason: a hardcoded default doing load-bearing work is one unchecked sentence away from being wrong, and P71 is the case where fifteen internal files disagreed with a default and the DEFAULT was right.",
+    "_reaches": "⚠️ THIS KEY DOES NOT REACH THE MEMBER DASHBOARD ON ITS OWN. That surface reads `world.config.draft_time` from the runtime store, which is set at /admin and is not in git. This file is the durable record and what the draft tooling reads. Setting the runtime value is a separate action, routed to A.",
+    "_survives_rebuild": "`preserve_local_rulings` in build.py keeps any key the committed file has and Sleeper does not supply, so the nightly rebuild cannot erase this. Guarded by test_config_local_rulings_survive.py::test_the_draft_start_ruling_survives_a_rebuild."
+  }
 }
