@@ -43,6 +43,27 @@ OUT = Path(__file__).with_suffix(".json")
 PRICED_POSITIONS = ("QB", "RB", "WR", "TE")
 
 
+def priceable(player: dict) -> bool:
+    """EXACTLY draft/weekly_own_projection.price_week's population rule.
+
+    ⚠️ CORRECTED 2026-08-18, hours after the first version of this file, and the
+    error was mine: I equated "what own_weekly_v1 prices" with "QB/RB/WR/TE on
+    the board" (617). It is not. price_week skips any player whose
+    `proj_ownmodel` is None -- correctly, absent stays absent -- and 117 board
+    players are in that state. The real figure is 500, and the three-way shared
+    population is 414, not the 429 I first reported.
+
+    The rule is mirrored here rather than imported because
+    weekly_own_projection.py imports pandas-heavy siblings at module scope;
+    test_projection_coverage_census asserts the two agree on the live board, so
+    a drift in A's module fails loudly instead of silently re-inflating this
+    number.
+    """
+    return (player.get("position") in PRICED_POSITIONS
+            and player.get("proj_ownmodel") is not None
+            and str(player.get("player_id") or ""))
+
+
 def latest_by_source(series: list) -> dict:
     """The most recent entry per source. The series is date-ordered."""
     out = {}
@@ -60,17 +81,19 @@ def measure() -> dict:
     universes = {
         src: set(entry["proj"]) for src, entry in latest.items() if "proj" in entry
     }
-    ours = {
+    on_board_skill = {
         str(p["player_id"]) for p in board if p.get("position") in PRICED_POSITIONS
     }
+    ours = {str(p["player_id"]) for p in board if priceable(p)}
+    dropped = on_board_skill - ours
     universes["own_weekly_v1"] = ours
-
     sleeper = universes.get("sleeper", set())
     fp = universes.get("fantasypros", set())
     shared = sleeper & fp & ours
 
     def by_pos(ids):
         return dict(Counter(position.get(p) for p in ids).most_common())
+
 
     return {
         "_territory": "TERRITORY: D — produced by draft/backtest/projection_coverage_census.py",
@@ -79,6 +102,28 @@ def measure() -> dict:
                   "universes. Re-test at week 1 from real weekly snapshots.",
         "measured_from": {src: latest[src].get("date") for src in latest},
         "universes": {src: len(ids) for src, ids in sorted(universes.items())},
+        # THE DEFECT THIS FILE FOUND ON ITS SECOND PASS. price_week drops these
+        # players correctly (absent stays absent) but SILENTLY: it names byes
+        # and it names no-line players, and it says nothing about these. A
+        # reader of the snapshot cannot tell "everyone was priced" from "117
+        # were dropped". Same shape as `cells_unmeasurable: 0` counting only
+        # cells that were attempted.
+        "silently_dropped_by_price_week": {
+            "n": len(dropped),
+            "why": "no proj_ownmodel on the board row; price_week skips them and "
+                   "does not count or name them anywhere in the snapshot",
+            "on_board_skill": len(on_board_skill),
+            "by_position": by_pos(dropped),
+            "in_fantasypros": sorted(dropped & fp, key=lambda x: (len(x), x)),
+            "named_top": [
+                {"player_id": str(p["player_id"]), "name": p.get("name"),
+                 "position": p.get("position"), "proj_mean": p.get("proj_mean"),
+                 "adp": p.get("adp")}
+                for p in sorted(
+                    (p for p in board if str(p["player_id"]) in (dropped & fp)),
+                    key=lambda p: -(p.get("proj_mean") or 0))[:10]
+            ],
+        },
         "shared_population": {
             "n": len(shared),
             "by_position": by_pos(shared),

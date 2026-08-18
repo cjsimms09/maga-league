@@ -8,37 +8,142 @@
  },
  "universes": {
   "fantasypros": 429,
-  "own_weekly_v1": 617,
+  "own_weekly_v1": 500,
   "sleeper": 693
  },
- "shared_population": {
-  "n": 429,
+ "silently_dropped_by_price_week": {
+  "n": 117,
+  "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
+  "on_board_skill": 617,
   "by_position": {
-   "WR": 158,
-   "RB": 103,
-   "TE": 97,
-   "QB": 71
+   "WR": 45,
+   "RB": 35,
+   "TE": 22,
+   "QB": 15
   },
-  "share_of_sleeper": 0.619,
-  "share_of_fantasypros": 1.0,
-  "share_of_ours": 0.6953
+  "in_fantasypros": [
+   "2078",
+   "4017",
+   "7561",
+   "8484",
+   "9502",
+   "9999",
+   "11292",
+   "11581",
+   "11583",
+   "11651",
+   "12467",
+   "12505",
+   "12511",
+   "12515",
+   "12738"
+  ],
+  "named_top": [
+   {
+    "player_id": "11583",
+    "name": "Jonathon Brooks",
+    "position": "RB",
+    "proj_mean": 137.9,
+    "adp": 92.67
+   },
+   {
+    "player_id": "4017",
+    "name": "Deshaun Watson",
+    "position": "QB",
+    "proj_mean": 112.06,
+    "adp": 228.0
+   },
+   {
+    "player_id": "9502",
+    "name": "Tank Dell",
+    "position": "WR",
+    "proj_mean": 57.4,
+    "adp": 186.5
+   },
+   {
+    "player_id": "12467",
+    "name": "Jordan James",
+    "position": "RB",
+    "proj_mean": 54.2,
+    "adp": 238.0
+   },
+   {
+    "player_id": "11581",
+    "name": "MarShawn Lloyd",
+    "position": "RB",
+    "proj_mean": 48.3,
+    "adp": 180.0
+   },
+   {
+    "player_id": "12505",
+    "name": "Jalen Royals",
+    "position": "WR",
+    "proj_mean": 27.4,
+    "adp": 395.0
+   },
+   {
+    "player_id": "12511",
+    "name": "Will Howard",
+    "position": "QB",
+    "proj_mean": 24.5,
+    "adp": 423.0
+   },
+   {
+    "player_id": "2078",
+    "name": "Odell Beckham",
+    "position": "WR",
+    "proj_mean": 23.0,
+    "adp": 433.0
+   },
+   {
+    "player_id": "11651",
+    "name": "Isaac Guerendo",
+    "position": "RB",
+    "proj_mean": 20.2,
+    "adp": 455.0
+   },
+   {
+    "player_id": "9999",
+    "name": "Will Levis",
+    "position": "QB",
+    "proj_mean": 13.7,
+    "adp": 470.0
+   }
+  ]
+ },
+ "shared_population": {
+  "n": 414,
+  "by_position": {
+   "WR": 155,
+   "TE": 96,
+   "RB": 96,
+   "QB": 67
+  },
+  "share_of_sleeper": 0.5974,
+  "share_of_fantasypros": 0.965,
+  "share_of_ours": 0.828
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": true,
-  "fantasypros_subset_of_ours": true,
+  "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": true,
   "in_ours_not_fantasypros": {
-   "n": 188,
+   "n": 86,
    "by_position": {
-    "WR": 82,
-    "RB": 53,
-    "TE": 34,
-    "QB": 19
+    "WR": 40,
+    "RB": 25,
+    "TE": 13,
+    "QB": 8
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 0,
-   "by_position": {}
+   "n": 15,
+   "by_position": {
+    "RB": 7,
+    "QB": 4,
+    "WR": 3,
+    "TE": 1
+   }
   }
  },
  "k_def": {
@@ -50,11 +155,11 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 429,
+   "n": 414,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
-   "n": 617,
+   "n": 500,
    "why": "what the wider universe does, where FantasyPros cannot follow. Reported beside the primary, never instead of it."
   }
  }

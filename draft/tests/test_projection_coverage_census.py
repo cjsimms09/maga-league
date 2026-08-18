@@ -47,19 +47,69 @@ def test_all_three_universes_were_measured():
         assert u.get(src, 0) > 0, (src, u)
 
 
-def test_the_universes_are_nested_so_the_shared_population_is_unambiguous():
-    """The load-bearing structural fact. If this breaks, the grading design
-    needs a partial-overlap rule that does not currently exist -- which is a
-    design decision for A, not something to paper over."""
-    n = _doc()["nesting"]
+def test_the_only_reason_we_cannot_price_a_fantasypros_player_is_a_missing_projection():
+    """⚠️ REWRITTEN 2026-08-18. The first version asserted FP is a strict subset
+    of what we price, and it CAUGHT ITS AUTHOR: that claim was false and this
+    test failed on the corrected census. The fix is to the claim, not the guard.
+
+    What is actually true, and is the stronger statement: every FantasyPros
+    player we cannot price is explained by ONE cause -- no `proj_ownmodel` on
+    the board row, so price_week skips them. If a second cause ever appears,
+    that is a new defect and this fails.
+    """
+    d = _doc()
+    n = d["nesting"]
     assert n["fantasypros_subset_of_sleeper"], n
-    assert n["fantasypros_subset_of_ours"], n
     assert n["ours_subset_of_sleeper"], n
-    assert n["in_fantasypros_not_ours"]["n"] == 0, (
-        "FantasyPros now prices players own_weekly_v1 cannot. The shared "
-        "population is no longer simply FP's set — read "
-        "draft/audit/weekly_coverage_row1_2026-08-18.md before grading."
+
+    unpriceable = set(d["silently_dropped_by_price_week"]["in_fantasypros"])
+    assert n["in_fantasypros_not_ours"]["n"] == len(unpriceable), (
+        "some FantasyPros players are unpriceable for a reason OTHER than a "
+        "missing proj_ownmodel. That is a new cause and needs its own row — "
+        "see draft/audit/weekly_coverage_row1_2026-08-18.md."
     )
+
+
+def test_the_silent_drop_is_counted_and_named():
+    """The defect the second pass found: price_week names byes and names
+    no-line players, and says NOTHING about players it drops for a missing
+    proj_ownmodel. A snapshot reader cannot tell "everyone was priced" from
+    "117 were dropped". Same shape as `cells_unmeasurable: 0` counting only
+    cells that were attempted."""
+    s = _doc()["silently_dropped_by_price_week"]
+    assert s["n"] > 0, (
+        "no board player is missing proj_ownmodel any more. Good — but the "
+        "audit doc and the ROUTES entry to A both rest on this being nonzero, "
+        "so re-read them before deleting this test."
+    )
+    assert s["why"], "the reason must travel with the count"
+    assert s["by_position"], s
+    # The ones that matter are the ones inside a gradeable population.
+    assert isinstance(s["in_fantasypros"], list), s
+    assert s["named_top"], "the costly ones must be NAMED, not just counted"
+    assert all(r.get("name") for r in s["named_top"]), s["named_top"]
+
+
+def test_ours_matches_price_weeks_actual_population_rule_on_the_live_board():
+    """KNOWN-POSITIVE CONTROL on the mirrored rule. The census restates
+    price_week's population rule rather than importing it, so it must be
+    re-derived from the board here — otherwise a drift in A's module silently
+    re-inflates this number, which is exactly the error being corrected."""
+    import json as _json
+    board = _json.loads((ROOT / "public" / "draft_data.json").read_text())["players"]
+    rule = {
+        str(p["player_id"]) for p in board
+        if p.get("position") in ("QB", "RB", "WR", "TE")
+        and p.get("proj_ownmodel") is not None
+    }
+    d = _doc()
+    assert d["universes"]["own_weekly_v1"] == len(rule), (
+        d["universes"]["own_weekly_v1"], len(rule))
+    # ...and the board's raw skill count must be BIGGER, or the drop is fiction
+    skill = {str(p["player_id"]) for p in board
+             if p.get("position") in ("QB", "RB", "WR", "TE")}
+    assert len(skill) > len(rule), (len(skill), len(rule))
+    assert d["silently_dropped_by_price_week"]["on_board_skill"] == len(skill)
 
 
 def test_the_shared_population_is_big_enough_to_grade_and_covers_four_positions():
