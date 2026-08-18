@@ -255,6 +255,13 @@ function keeperDeadlineAnnouncement(config, nowISO, seasonYear) {
     countdownText, message, configured, derived: !configured };
 }
 
+/* The branch's own (older) keeperDeadlineAnnouncement landed here as a
+ * duplicate in the 6nyayc merge and SHADOWED the register-42 version
+ * above — configured:true off any date, the exact pre-fix contract,
+ * caught by the suite's own fail-arm ('a derived-only date never
+ * reports configured:true'). Deleted at merge time (A, 08-18); the
+ * version above is a strict superset. */
+
 /**
  * Assemble the full dashboard model. `inputs`:
  *   statusText, decText  — the two source files
