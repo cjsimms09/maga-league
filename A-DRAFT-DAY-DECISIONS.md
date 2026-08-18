@@ -30,8 +30,11 @@ stale by breakfast — step 1's own rule (*"freeze THAT board, nothing older"*)
 broken by a scheduled job rather than by anyone's mistake. **Runbook corrected.**
 What remains is a judgement: leave the 08-22 nightly rebuild on (recommended —
 a fresh board beats a convenient freeze, same reasoning as 35) or disable it for
-the day. **The draft START TIME is recorded nowhere**, so "no scheduled job
-overlaps the draft" is an assumption; six of them push that morning.
+the day. **START TIME ANSWERED 08-18 — Cory: *"Yes it's 6pm"***, now in
+`league_config.json` (2026-08-22 18:00 CDT, verbatim, rebuild-proof, 2 tests).
+**Last of the six jobs fires 08:17 CDT — ten hours of clearance, so "leave them
+on" is measured, not assumed.** One of this item's two questions is gone; the
+other is unchanged and yours: leave the 08-22 nightly rebuild on, or disable it.
 
 ✅ **Register 35 closed 08-18** — it asked to *"fail a parity check that names the
 stale artifact"*. The check existed and was tested; **nothing ran it against the
@@ -46,8 +49,7 @@ rebuild lands. Exit 0 today. It does not auto-rebuild — that is item 1 above.
 | ~~**C2**~~ | ✅ **RULED 08-17 — Cory, verbatim: "IS THIS STUDIES? IF SO, YES." `ceiling` ships at 0.45**, the measured inverted-U peak (FRONTIER exp 21: λ=0.5 +$56/season, CI [33,78]; higher arms provably negative). ~~Held at zero through the draft.~~ This row was stale a day — the ruling landed before the sheet did. **And the trap it left behind is closed (5g, ruled 08-18):** the restore button's pin moved v1→v27 so one tap no longer reverts this ruling or D10's stack. | *nothing further pre-draft* | 5 ruled, 5g closed, engine.js:630 carries the paperwork |
 | **C3** | **The projection SOURCE, post-draft — his own 08-16 question, now with its first measurement.** The three-way grade ran 08-18 (2025, 360 shared players, leak-gated): QB — pure Sleeper wins and the blend loses; WR/TE — the blend beats the best single source (+0.016/+0.012, mechanism-consistent: own_v6 is the decorrelated arm); RB — a wash. | **Held through 08-22 by the prereg's own "Nothing ships" rule.** After Saturday: position-scoped — QB Sleeper, WR/TE blend, RB no change. N=1 season; caveats in `draft/audit/sleeper_vs_fp_grade_run_2026-08-18.md`. | 21 (annotated), CORY-ASKS A2 (ruled) |
 
-*(The ADP-sd ratchet, row 6, is now Cory's ONLY open decision. Blast radius one
-player; recommendation unchanged: leave it, revisit post-season.)*
+*(**CORY HAS NO OPEN DECISIONS.** The ADP-sd ratchet — row 6, once listed here as his only one — he ruled on 08-17: *"leave it"*, `CORY-ASKS.md` ③ ✅ CLOSED. Blast radius was one player inside pick 160.)*
 
 ---
 

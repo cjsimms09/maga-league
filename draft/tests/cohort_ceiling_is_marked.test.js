@@ -162,5 +162,61 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
     .map(([r, v]) => r + ' x' + v.length));
 }
 
+// ── THE MARKER'S SCOPE, MEASURED 2026-08-18 — IT UNDER-MARKS, AND BY HOW MUCH
+//
+// `cohortCeiling()` marks a ceiling whose source starts `measured-` and does NOT
+// end `-x-player-cv`. That catches the band-derived p90s. It does NOT catch
+// `gaussian_z`, and gaussian_z ceilings carry no player information either:
+// measured on the live board, ALL 161 of them have `proj_sd_source:
+// position_variance`, i.e. one constant per position. DEF shows a single
+// ceiling/mean ratio to four decimal places across all 32 rows.
+//
+// So the honest statement is: **428 of 696 board rows (61%) have a ceiling with
+// no player-specific information, and the `~` marks 267 of them.**
+//
+// ⚠️ I AM NOT WIDENING THE MARKER, AND THE REASON IS THE MEASUREMENT, NOT THE
+// CALENDAR. Of the 161 gaussian_z rows, **7 sit inside ADP 150** — Cory's real
+// draft range — and all seven are K or DEF (Rams/Texans/Seahawks/Broncos
+// defences, Aubrey, Fairbairn, Dicker). The remaining 154 are deep rows he will
+// never reach. Marking a kicker's ceiling as cohort-derived is true and useless:
+// nobody drafts a kicker on upside, and the board's own doctrine says the wire
+// covers the slot. Adding a second glyph to a card Cory has already called "too
+// busy and wordy" to serve seven K/DEF rows is a worse board, not a better one.
+//
+// The test below PINS that decision so it cannot drift silently: if a gaussian_z
+// row ever appears at a position that is not K or DEF inside ADP 150, this goes
+// red and the trade-off is worth revisiting.
+{
+  /* Same load and the same ADP fallback chain block 4 uses — reading a
+   * different field would measure a different population and the two numbers
+   * would drift without either being wrong. */
+  const bd = JSON.parse(fs.readFileSync(
+    path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const adpOf = (p) => {
+    for (const k of ['adjusted_adp', 'raw_adp', 'adp']) {
+      const v = p[k];
+      if (v != null && isFinite(Number(v))) return Number(v);
+    }
+    return null;
+  };
+  const gauss = bd.players.filter(p => p.proj_ceiling_source === 'gaussian_z');
+  const inRange = gauss.filter(p => adpOf(p) != null && adpOf(p) <= 150);
+  ck('CONTROL: gaussian_z ceilings DO exist on the board, so the scope note '
+    + 'above describes something real rather than an empty set',
+  gauss.length > 0, { gaussian_z: gauss.length });
+
+  ck('the UNMARKED cohort-derived ceilings inside Cory\'s draft range are K/DEF '
+    + 'only — the measured reason the `~` is not widened. If this fails, a real '
+    + 'skill player is showing an unmarked cohort ceiling and the trade-off '
+    + 'changes.',
+  inRange.every(p => p.position === 'K' || p.position === 'DEF'),
+  inRange.filter(p => p.position !== 'K' && p.position !== 'DEF')
+    .map(p => p.position + ' ' + p.name + ' adp' + Math.round(p.adp)));
+
+  ck('...and there are few enough of them to name — a count that grows is a '
+    + 'signal the fallback is spreading',
+  inRange.length <= 12, { in_range: inRange.length });
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

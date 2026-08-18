@@ -77,8 +77,7 @@ with the full paperwork".** Verified in the live engine:
 Cory ruled, it shipped, and four documents went on describing the pre-ruling
 state — including this one, which is the file every session reads first.
 
-**So ONE decision waits on Cory, not two:** the ADP-sd ratchet. The ceiling
-weight is decided. Brief §7b.
+~~**So ONE decision waits on Cory, not two:** the ADP-sd ratchet.~~ **⚠️ CORRECTED 2026-08-18: ZERO decisions wait on Cory. He ruled the ADP-sd ratchet on 08-17 — *"leave it"* — and `CORY-ASKS.md` ③ has carried it as ✅ CLOSED ever since.** The ceiling weight is decided too. **This sentence, in the file every session reads first, would have sent the next reader to ask Cory for a decision he had already made** — and it nearly sent me. Brief §7b.
 
 **And the correction has a live consequence — register 5g:** `draft/baseline/v1.json`
 is frozen at 2026-08-10 and still carries `ceiling: 0` and `stack: 0.5`, and the
