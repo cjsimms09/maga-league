@@ -708,8 +708,18 @@
       const pre = overrideSnapshot(p);
       // Scale the value chain together: a haircut that moves proj_mean but not
       // the rest would leave the composite reading a number that no longer
-      // exists. floor and ceiling are `mean × (1 + z·variance)`, so they scale
-      // with the mean exactly; VORP does not, and is re-derived instead.
+      // exists. floor and ceiling are still exactly linear in the mean, so they
+      // scale with it; VORP does not, and is re-derived instead.
+      //
+      // THE REASON CHANGED ON 2026-08-17 EVEN THOUGH THE CONCLUSION DID NOT
+      // (session E). This used to say they are `mean × (1 + z·variance)`. They
+      // are not, and have not been since the dispersion fields became the
+      // MEASURED p10/p90: they are now `mean × the (position, rank-band) cohort
+      // ratio` (projections.py:423-437). Still linear in the mean, so scaling
+      // stays correct — but a reader who trusted the stated reason would have
+      // concluded a haircut also moves the player between bands. It does not:
+      // pos_rank is not recomputed here, so the cohort ratio is held fixed and
+      // only the mean moves.
       p.proj_mean = (pre.proj_mean || 0) * f;
       p.proj_ceiling = (pre.proj_ceiling || 0) * f;
       p.proj_floor = (pre.proj_floor || 0) * f;
@@ -1298,6 +1308,7 @@
     loadSeatPlan();
     loadConditionalValue();
     loadOpponentNeed();
+    loadExpertSpread();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -2726,7 +2737,8 @@
     const altHtml = alts.length
       ? '<div class="wrv-alts">other options: ' + alts.map(a =>
           escapeHtml(shortName(a.player.name)) + ' <span class="rec-pos ' + a.player.position + '">'
-          + a.player.position + '</span> <span class="wr-num">'
+          + a.player.position + '</span>' + expertSpreadBadge(a.player.player_id)
+          + ' <span class="wr-num">'
           + (a.delta_pts > 0 ? '+' : '') + a.delta_pts.toFixed(1) + '</span>').join(' \u00b7 ')
         + ' <span class="muted">' + escapeHtml(v.gap_units) + ' vs the pick '
         + '(+ = scores higher)</span></div>'
@@ -2767,7 +2779,8 @@
         + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
       + '</div>'
       + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
-        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span></div>'
+        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span>'
+        + expertSpreadBadge(v.pick.player_id) + '</div>'
       + '<div class="wrv-why">' + escapeHtml(v.why) + '</div>'
       + tbHtml
       + '<button class="btn gold wrv-take" data-draft-me="' + escapeHtml(String(v.pick.player_id))
@@ -5925,9 +5938,35 @@
   /**
    * Record a pick for somebody the board has never heard of.
    *
-   * The stub carries no projection, so it can never move a recommendation. It
-   * exists so the pick count, the seat rosters and your own roster stay true —
+   * The stub carries no projection, so it cannot be SCORED as a recommendation.
+   * It exists so the pick count, the seat rosters and your own roster stay true —
    * which is what every survival and VONA number is computed against.
+   *
+   * ⚠️ "CANNOT MOVE A RECOMMENDATION" IS TOO STRONG — OPEN DEFECT, register E18
+   * (session E, 2026-08-17). A stub is never scored as a candidate itself, but
+   * it lands on `state.myRoster`, and the keeper bar ranks EVERY roster entry,
+   * reading an absent `vorp` as zero via `composite.js`'s `(player.vorp || 0)`.
+   * A valueless row sitting at `ranked[slots-1]` drags the bar NEGATIVE, and
+   * `max(0, raw − bar)` then ADDS to every candidate.
+   *
+   * MEASURED at pick 33 on a roster of two keepers plus one stub: three KEEPER
+   * TARGET badges reading "beats <stub> by 12 pts" — a comparison against a
+   * player carrying no projection at all, and on screen the stub wears its real
+   * Sleeper name.
+   *
+   * INERT FOR CORY'S SLATE TODAY: with three valued keepers the bar is
+   * `ranked[2]` and all three outrank any valueless row, so it binds only when
+   * FEWER THAN `slots` roster entries carry a real value — e.g. if he locks two
+   * keepers on 08-20 and an off-board pick lands on his roster.
+   *
+   * FIXED 2026-08-17: `composite.js` now filters the incumbent ranking on a
+   * finite `vorp` instead of substituting zero, which is what its own docstring
+   * always said should happen ("with fewer incumbents than slots there is a free
+   * slot, so the bar is zero"). I held this fix and routed it as
+   * `NO DEFAULT — BLOCKED`, because applying it moves the published term table
+   * in `WAR-ROOM-SURFACE-CONTRACT.md` (TERRITORY: A) — `keeper` 14.3% → 0.2%.
+   * Cory overrode the hold ("Fix and continue"), so both moved together and the
+   * document edit is stamped as an override for A's review.
    */
   function recordManualPick(name, position, slot) {
     const clean = String(name || '').trim();
@@ -6069,9 +6108,59 @@
     const have = new Set(state.myRoster.map(p => String(p.player_id)));
     mine.forEach(k => {
       if (have.has(String(k.player_id))) return;
-      state.myRoster.push(Object.assign({}, k, { is_keeper: true }));
+      state.myRoster.push(withKeeperValuation(k, data));
       state.drafted.add(String(k.player_id));   // keepers are off the board
     });
+  }
+
+  /* A KEEPER SEEDED WITHOUT `vorp` IS SCORED AS WORTH ZERO, AND THE WAR ROOM
+   * THEN TELLS CORY HE BEATS HIM (session E, 2026-08-17; register E17).
+   *
+   * `kept_players` is a DIFFERENT population from `players` and carries a
+   * different field set: it has `cost_round`, `original_round`, `team_slot` and
+   * `is_keeper`, and it LACKS `vorp`, `replacement`, `pos_rank`, `overall_rank`,
+   * `tier`, `tier_drop` and `adjusted_adp`. This function used to push the row
+   * through verbatim, so `state.myRoster` — and therefore `ctx.currentKeepers` —
+   * held three players with `vorp === undefined`.
+   *
+   * `composite.js:nextYearVorp` reads `(player.vorp || 0) * factor`, so absent
+   * became a confident ZERO. That is the same shape this repo has already
+   * removed twice (the `|| echo` in the keeper workflow, the `|| undefined`
+   * weights in two suites): a missing input reading as a successful one.
+   *
+   * WHAT IT PRODUCED, measured on the live board at Cory's own picks. The
+   * keeper bar is `max(0, raw − bar)` where the bar is the weakest incumbent.
+   * With all three incumbents scored at vorp 0 the bar went NEGATIVE (−31.86 in
+   * round 1, −11.42 in rounds 5-6), so it ADDED to every candidate instead of
+   * subtracting. At pick 33 — HIS FIRST — the screen read:
+   *
+   *     Zay Flowers — KEEPER TARGET … he beats Ja'Marr Chase for the last
+   *     slot by 17 pts
+   *
+   * Ja'Marr Chase is his best keeper, projected 295.09, WR2 on the board.
+   * Four KEEPER TARGET badges fire across his twelve picks; with the keepers
+   * correctly valued, ZERO do.
+   *
+   * ORDERING IS UNAFFECTED AND I MEASURED IT RATHER THAN ASSUMING: the bar is
+   * constant across candidates at a given pick, so it shifts every keeper term
+   * equally and can only reorder through the `max(0, …)` clamp. On a
+   * market-follow board at all twelve of his picks, 0 of 120 name slots move.
+   * So this corrects a FALSE ON-SCREEN CLAIM, not a ranking.
+   *
+   * NOT AN INVENTED NUMBER. `vorp === round(proj_mean − replacement_points[pos], 2)`
+   * holds for 682 of 682 board rows, so this applies the artifact's own
+   * published formula with its own published constants. Absent inputs stay
+   * absent — no fallback constant, because a fallback is what caused this.
+   */
+  function withKeeperValuation(k, data) {
+    const seeded = Object.assign({}, k, { is_keeper: true });
+    if (seeded.vorp != null || seeded.proj_mean == null) return seeded;
+    const rp = ((data || {}).replacement || {}).replacement_points || {};
+    const repl = rp[seeded.position];
+    if (repl == null) return seeded;   // unknown position -> stay absent, do not guess
+    seeded.replacement = repl;
+    seeded.vorp = Math.round((seeded.proj_mean - repl) * 100) / 100;
+    return seeded;
   }
 
   function renderRoster() {
@@ -6604,6 +6693,37 @@
           + ' — survival runs without the need tilt (not a guessed one)');
         state.opponentNeed = null;
       });
+  }
+
+  /* EXPERT SPREAD — display-only artifact (ordered by A 2026-08-18, see
+   * expert_spread.js's header). Same degrade-honestly pattern as opponent-need
+   * and conditional-value: a missing artifact costs the badge, never blocks
+   * or fakes anything. */
+  function loadExpertSpread() {
+    fetch('/expert_spread_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.expertSpread = a || null; })
+      .catch(function (e) {
+        console.warn('[expert-spread] artifact not loaded: ' + (e && e.message)
+          + ' — split badges absent (not a guessed one)');
+        state.expertSpread = null;
+      });
+  }
+  function expertSpreadIndex() {
+    if (typeof ExpertSpread === 'undefined' || !state.expertSpread) return null;
+    if (!state._esIdx || state._esIdx.src !== state.expertSpread) {
+      try { state._esIdx = { src: state.expertSpread, idx: ExpertSpread.index(state.expertSpread) }; }
+      catch (e) { console.error('[expert-spread]', e && e.message); return null; }
+    }
+    return state._esIdx.idx;
+  }
+  function expertSpreadBadge(playerId) {
+    if (typeof ExpertSpread === 'undefined') return '';
+    try { return ExpertSpread.badgeHtml(playerId, expertSpreadIndex(), escapeHtml); }
+    catch (e) { return ''; }
   }
 
   function loadConditionalValue() {
@@ -9703,7 +9823,12 @@
         position: meta.position || '?',
         team: meta.team || '',
         bye: null,
-        off_board: true,          // rendered differently; never scored
+        /* Rendered differently, and never scored as a candidate. NOT the same
+         * as "reaches nothing": this row joins `state.myRoster`, and until
+         * 2026-08-17 the keeper bar ranked it as an incumbent worth zero
+         * (register E18). `composite.js` now drops rows it cannot value; see
+         * recordManualPick above for the measurement. */
+        off_board: true,
       };
 
       // REHEARSAL SKIP MODE — THE DEFAULT IN A MOCK.
@@ -10557,6 +10682,147 @@
     if (btn && s.state === 'error') { btn.disabled = false; btn.textContent = 'Connect'; }
   }
 
+  /* WHAT THE FLOOR AND THE CEILING ACTUALLY ARE (session E, 2026-08-17; register E16).
+   *
+   * The line above used to end at "(floor 2, ceiling 479)", which presents both
+   * numbers as a forecast for THIS player. They are not, and have not been since
+   * 2026-08-17. Both are `proj_mean x the measured p10/p90 ratio of the player's
+   * (position, projection-rank band) COHORT` — projections.py:423-437, applied by
+   * projection_error.proj_floor_for / proj_ceiling_for. Every player in a cell
+   * carries the SAME multiple, so the printed figure is a band statistic wearing
+   * one player's name.
+   *
+   * MEASURED ON THE LIVE BOARD, this is not a pedantic distinction. The QB band
+   * edge sits between 16 and 17:
+   *
+   *     QB16  Jaxson Dart    proj 328.5   floor 87.29
+   *     QB17  Jordan Love    proj 322.5   floor  2.45   <- 35.6x, on a 6.0 gap
+   *
+   * Both are in their CORRECT cell — this is not the E1 misread. A 2.45-point
+   * season floor is simply not a statement about Jordan Love; it is the p10 of a
+   * cohort (QB17-32) that runs down to quarterbacks who never take a snap. The
+   * same edge produces WR31 Marvin Harrison 68.43 against WR32 Alec Pierce 8.23,
+   * and RB30 J.K. Dobbins 37.03 against RB31 Jordan Mason 3.25.
+   *
+   * TRUTH FIX ONLY. No number changes, nothing reorders, no scoring path is
+   * touched — naming the cohort is what lets a reader discount the figure
+   * correctly. The underlying question (a step function of band applied to a
+   * continuous rank) is register E16, owner A: changing the calibration is not
+   * red-team territory and is not a five-days-before-the-draft change.
+   */
+  var DISP_BANDS = [[1, 3, '1-3'], [4, 8, '4-8'], [9, 16, '9-16'],
+    [17, 32, '17-32'], [33, Infinity, '33+']];
+
+  function dispersionBand(rank) {
+    var r = Number(rank);
+    if (!isFinite(r) || r <= 0) return null;
+    for (var i = 0; i < DISP_BANDS.length; i++) {
+      if (r >= DISP_BANDS[i][0] && r <= DISP_BANDS[i][1]) {
+        return { lo: DISP_BANDS[i][0], hi: DISP_BANDS[i][1], label: DISP_BANDS[i][2] };
+      }
+    }
+    return null;
+  }
+
+  /* WHICH COHORT WAS HE ACTUALLY PRICED OFF — read from the number, not the rank.
+   *
+   * The first version of this helper named the band from `pos_rank`, and its own
+   * test caught that as a lie: `proj_floor` is written against the rank the
+   * BUILD ranked him at, which for nine players on the live board is not the
+   * rank the board publishes (register E1). Jordan Mason is published RB31 and
+   * priced off the RB|33+ cohort — a caveat reading "RB 17-32" would have been a
+   * second false label pinned by a passing test.
+   *
+   * So the cohort is recovered from the ratio the player actually carries,
+   * matched against the modal ratio of each band ON THIS BOARD. No calibration
+   * file is needed in the browser, and a mismatch between the cohort he was
+   * priced off and the band his rank puts him in is E1 showing itself on screen.
+   */
+  function cohortRatios(board) {
+    /* Keyed on the board REFERENCE, not a bare "have I computed this" flag. A
+     * bare flag survived a re-sync replacing state.board and would have gone on
+     * answering with the previous board's ratios — the test caught it by passing
+     * two different boards in one process. */
+    if (state._cohortRatiosFor === board && state._cohortRatios) return state._cohortRatios;
+    const byCell = {};
+    (board || []).forEach(p => {
+      if (!p || !p.proj_mean || !p.proj_floor || !p.pos_rank) return;
+      if (!/^measured-/.test(String(p.proj_floor_source || ''))) return;
+      const b = dispersionBand(p.pos_rank);
+      if (!b) return;
+      const k = p.position + '|' + b.label;
+      (byCell[k] = byCell[k] || []).push(p.proj_floor / p.proj_mean);
+    });
+    const out = {};
+    Object.keys(byCell).forEach(k => {
+      // MEDIAN, not mean: the nine E1 misreads sit inside these same cells, and
+      // a mean would let them drag the reference ratio toward the wrong band.
+      const v = byCell[k].slice().sort((a, b) => a - b);
+      out[k] = v[Math.floor(v.length / 2)];
+    });
+    state._cohortRatiosFor = board;
+    state._cohortRatios = out;
+    return out;
+  }
+
+  function appliedCohort(p, board) {
+    if (!p || !p.proj_mean || p.proj_floor == null) return null;
+    const r = p.proj_floor / p.proj_mean;
+    const ratios = cohortRatios(board);
+    let best = null, second = null;
+    DISP_BANDS.forEach(b => {
+      const m = ratios[p.position + '|' + b[2]];
+      if (m == null) return;
+      const d = Math.abs(r - m);
+      if (!best || d < best.d) { second = best; best = { d: d, label: b[2], lo: b[0], hi: b[1] }; }
+      else if (!second || d < second.d) second = { d: d, label: b[2] };
+    });
+    if (!best) return null;
+    // Decisive match only. A ratio sitting between two cohorts names neither —
+    // guessing here is how a caveat starts asserting more than it measured.
+    if (best.d > 0.01 && best.d > 0.05 * Math.abs(r)) return null;
+    if (second && best.d > 0.25 * second.d) return null;
+    return best;
+  }
+
+  function dispersionCaveat(p, board) {
+    if (!p || p.proj_mean == null) return '';
+    const fs = p.proj_floor_source, cs = p.proj_ceiling_source;
+    const measured = /^measured-/.test(String(fs || '')) || /^measured-/.test(String(cs || ''));
+    /* An unmeasured band keeps the old Gaussian, and a reader must be able to
+     * tell the two apart — that distinction is the whole reason the _source
+     * fields were frozen (freeze_pre_draft.py). Calling a Gaussian a "cohort
+     * p10/p90" would just be a second false label. */
+    if (!measured) {
+      return '  ^ floor/ceiling here are a SYMMETRIC GAUSSIAN off proj_sd, not a\n'
+        + '    measured outcome range: this band was never measured, so the older\n'
+        + '    construction still applies.\n';
+    }
+    const pos = p.position || '?';
+    const applied = appliedCohort(p, board);
+    if (!applied) {
+      return '  ^ floor/ceiling are a COHORT p10/p90 x this projection, not a\n'
+        + '    forecast for this player.\n';
+    }
+    let out = '  ^ floor/ceiling are the ' + pos + ' ' + applied.label + ' COHORT\'s measured\n'
+      + '    p10/p90 (2023-25) x this projection — NOT a forecast for this player.\n'
+      + '    Every ' + pos + ' in that band carries the same multiple.\n';
+    const rankBand = dispersionBand(p.pos_rank);
+    if (rankBand && rankBand.label !== applied.label) {
+      /* E1, visible at the point of use rather than in an audit file. */
+      out += '    !! He is published ' + pos + p.pos_rank + ', which is the ' + rankBand.label
+        + ' band — so his\n'
+        + '       floor and ceiling were priced off a DIFFERENT cohort than his rank.\n'
+        + '       Known defect (register E1); affects the spread, not his ranking.\n';
+    } else if (applied.lo > 1 && Number(p.pos_rank) - applied.lo <= 2) {
+      /* The edge is where the cohort figure misleads hardest, so say it on the
+       * rows where it bites rather than in a legend nobody opens mid-pick. */
+      out += '    He sits at the TOP of that band, where it is harshest — the ' + pos + '\n'
+        + '    one slot above him is priced off a different, much kinder cohort.\n';
+    }
+    return out;
+  }
+
   function showWhy(playerId) {
     const p = playerById(playerId);
     if (!p) return;
@@ -10574,7 +10840,7 @@
       'Bye collision:                    ' + c.weighted.bye.toFixed(1) + '  (' + c.bye_detail.detail + ')\n' +
       'Correlation / stacking:           ' + c.weighted.stack.toFixed(1) + '\n\n' +
       'Projection ' + Math.round(p.proj_mean) + ' (floor ' + Math.round(p.proj_floor) +
-      ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' +
+      ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' + dispersionCaveat(p, state.board) +
       'Adjusted ADP ' + Math.round(p.adjusted_adp) + ' vs raw ' + Math.round(p.raw_adp || 0) + '\n' +
       'Survives to your next pick: ' + survivalText(s.survival_to_next) + ' (interim model — see the caveat)\n\n' +
       s.reasons.map(r => '• ' + r).join('\n')

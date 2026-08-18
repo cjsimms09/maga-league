@@ -75,6 +75,16 @@ WORKFLOW = ROOT / ".github" / "workflows" / "draft-data.yml"
 #: Adding a marker to any other test WILL fail this file until the addition
 #: is recorded here — that is the point, not an inconvenience.
 REPO_PARITY_NODES = {
+    # Added 2026-08-18 (E's sweep 16 / A's source fix). Both check the
+    # PUBLISHED board: keeper rows must carry vorp (the || 0 badge lie), and
+    # the vorp identity must hold boardwide. Red on a board that predates the
+    # build.py emit is repository state, never a candidate refusal — the
+    # fresh candidate carries the field, which is exactly what these verify
+    # after the rebuild lands. Forgetting this registration refused rebuild
+    # 32095127740 — the gate-selection pin working as designed.
+    "draft/tests/test_kept_players_carry_vorp.py::test_every_kept_player_on_the_published_board_carries_vorp",
+    "draft/tests/test_keeper_optimize_kept_players.py::test_kept_players_carry_proj_mean_AND_stamped_vorp",
+    "draft/tests/test_kept_players_carry_vorp.py::test_the_identity_the_fix_relies_on_still_holds_boardwide",
     # Added 2026-08-17 by SESSION D (A's P0, keeper lock 08-20). ⚠️ TERRITORY: A
     # file, edited by D — same stated trespass as the stale-refusal node below:
     # unmarked, this sits RED inside the publication gate, and a calibration gap
@@ -100,6 +110,7 @@ REPO_PARITY_NODES = {
     # is bad — this set's defining property. ONLY this node: the control in that
     # file is pure logic and must stay in the gate.
     "draft/tests/test_calibration_covers_every_board_position.py::test_every_priced_board_position_is_calibrated_or_declared",
+
     # Added 2026-08-18 (E's sweep 16 / A's source fix). Both check the
     # PUBLISHED board: keeper rows must carry vorp (the || 0 badge lie), and
     # the vorp identity must hold boardwide. Red on a board that predates the
@@ -135,6 +146,34 @@ REPO_PARITY_NODES = {
     # them in here was refused by this very test, in the right words:
     # "soundness tests the gate would silently skip".
     "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+    # TERRITORY-GRANT: C test_calibration_population
+    #
+    # This block is VERBATIM what A's own session already authored and
+    # shipped to `main` (79a51073) — restored here after C's branch synced
+    # `test_calibration_population.py` (C's file, register 4r/4s) from main
+    # without its sibling registration in this file, which left the two
+    # mismatched and red. Not new logic; the same three node IDs A already
+    # approved, re-added so the pin stays correct.
+    #
+    # Added 2026-08-17 (register 4r). THE COMMITTED CALIBRATION IS CONTAMINATED:
+    # cli.py called PE.calibrate() with no `positions`, so the artifact behind
+    # every proj_ceiling/proj_floor/proj_sd was fitted on punters, DBs, a
+    # linebacker and a tackle, losing ~30% of the skill population
+    # (1,304 -> 910 graded, 15 of 32 cells unmeasurable).
+    #
+    # These three assert facts about that ARTIFACT, so their red says the repo
+    # STATE is wrong — never that a candidate board is bad, which is this set's
+    # defining property. They cannot be fixed by reverting: f774ff21 rebuilt the
+    # board and rewrote two test files to match the contaminated fit, so
+    # calibration + board + tests are a matched trio and un-matching one turns
+    # main red without improving a number Cory drafts on. The fix is a clean
+    # regeneration plus a board rebuild, which needs egress.
+    #
+    # test_the_driver_still_passes_the_filter is deliberately NOT here. It
+    # guards the CAUSE and must block, or the next dispatch re-contaminates.
+    "draft/tests/test_calibration_population.py::test_NO_POSITION_THIS_LEAGUE_DOES_NOT_ROSTER_IS_IN_THE_CALIBRATION",
+    "draft/tests/test_calibration_population.py::test_the_graded_population_has_not_quietly_collapsed",
+    "draft/tests/test_calibration_population.py::test_most_cells_are_actually_measured",
     # Added 2026-08-18 by SESSION D. ⚠️ TERRITORY: A file, edited by D — third
     # such trespass, same offer: SEND BACK and I re-prep it as a diff.
     #
@@ -175,6 +214,7 @@ REPO_PARITY_NODES = {
     "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[ROUTES.md]",
     "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[STATUS.md]",
     "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[DRAFT-WEEK-BRIEF.md]",
+
     # TERRITORY-GRANT: C test_calibration_population
     #
     # This block is VERBATIM what A's own session already authored and

@@ -131,5 +131,73 @@ function item(date, done, body) {
     'if these two ever agree at zero the check has gone blind');
 }
 
+
+// ── CLASSIFYING AN ITEM THAT ASKS FOR NOTHING ───────────────────────────────
+//
+// Added 2026-08-18 after turning this tool on the relay's own lane. It counted
+// 12 default-less relay items into A against D's 6 — and three of the four I had
+// filed that day said outright "NO ASK, NO DEFAULT NEEDED". The checker could not
+// tell a REQUEST from a REPORT, so it was overstating the backlog, and an
+// overstated backlog is one people stop reading.
+//
+// TWO CLASSIFIERS, DELIBERATELY DIFFERENT IN KIND:
+//
+//   noAsk()      — the sender SAYS so. A loophole anyone can type, which is
+//                  exactly why it is reported beside the blocked count and never
+//                  subtracted from it.
+//   isBroadcast() — STRUCTURAL and unfakeable: the same header in 3+ inboxes is a
+//                  rule announcement, not four pending decisions. You cannot fake
+//                  it by rewording, because rewording stops it matching.
+{
+  //: local builder — the file's own `item()` has a different signature
+  const mk = (head, body) => ({ body: [head].concat(body || []), section: 'A' });
+
+  check('an item whose HEADER says NO ASK is classified as asking nothing',
+    R.noAsk(mk('- [ ] 2026-08-18 · relay → A · **NO ASK — reporting a number.**')));
+  check('CONTROL — an ordinary item is NOT',
+    !R.noAsk(mk('- [ ] 2026-08-18 · relay → A · **RULE ON THE DOLLAR FIGURE.**')));
+
+  /* THE HEADER-ONLY RULE, AND IT IS LOAD-BEARING. Items routinely quote another
+   * item's wording several paragraphs down; reading the whole body would let a
+   * quoted "no ask" silence a live request. */
+  check('a "no ask" buried in the BODY does not reclassify a real request',
+    !R.noAsk(mk('- [ ] 2026-08-18 · relay → A · **RULE ON THIS.**',
+      ['  earlier I filed one with NO ASK and this is not that one'])));
+
+  const four = ['A', 'B', 'C', 'D'].map(s => ({
+    section: s,
+    body: ['- [ ] 2026-08-17 · relay → ' + s + ' · 🚨 **STANDING RULE — you do not stop a capture job.**'],
+  }));
+  const one = { section: 'E',
+    body: ['- [ ] 2026-08-17 · relay → E · 📐 **A one-off ask that exists in a single inbox only.**'] };
+  const keys = R.broadcastKeys(four.concat([one]));
+  check('the same header in 3+ inboxes is detected as a BROADCAST',
+    four.every(i => R.isBroadcast(i, keys)));
+  check('CONTROL — an item in ONE inbox is not a broadcast', !R.isBroadcast(one, keys));
+
+  /* THE THRESHOLD DISCRIMINATES. Two lanes is a pair of requests, not a rule. */
+  const two = ['A', 'B'].map(s => ({ section: s,
+    body: ['- [ ] 2026-08-17 · relay → ' + s + ' · 📌 **Sent to exactly two lanes and no more.**'] }));
+  check('CONTROL — the same header in only TWO inboxes is NOT a broadcast',
+    !R.isBroadcast(two[0], R.broadcastKeys(two)));
+
+  /* REWORDING IS WHAT MAKES IT UNFAKEABLE — and that cuts both ways, so it is
+   * pinned rather than assumed: a lane cannot opt IN by paraphrasing either. */
+  const reworded = four.slice(0, 3).map((i, n) => ({ section: i.section,
+    body: ['- [ ] 2026-08-17 · relay → ' + i.section + ' · 🚨 **Standing rule number ' + n + ' about capture jobs.**'] }));
+  check('paraphrased copies do NOT count as one broadcast — the match is on text',
+    !R.isBroadcast(reworded[0], R.broadcastKeys(reworded)));
+
+  /* AGAINST THE REAL FILE, both directions. All-zero would mean the classifier
+   * is blind; everything-classified would mean it is useless. */
+  const live = R.parse(require('fs').readFileSync(
+    require('path').join(__dirname, '..', '..', 'ROUTES.md'), 'utf8'));
+  const liveKeys = R.broadcastKeys(live);
+  const liveB = live.filter(i => R.isBroadcast(i, liveKeys));
+  check('KNOWN-POSITIVE — the live file really does contain broadcasts', liveB.length >= 6, liveB.length);
+  check('CONTROL — and they are a small minority, not the whole file',
+    liveB.length < live.length / 10, { broadcasts: liveB.length, items: live.length });
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' routes-response checks passed');
 assert.strictEqual(fail, 0);

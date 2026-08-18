@@ -100,6 +100,11 @@ def test_the_fingerprint_split_is_where_it_is_believed_to_be():
         "routes_tprr_study._same_table_at_6dp is the check, and refusing on a "
         "representation difference is the defect this file exists for")
 
+    # (A, at merge: my parallel flip of this same pin asserted old == current
+    # over the two groups — D's union assert above subsumes it, and D also
+    # restored the known-positive control my version had dropped. Theirs is
+    # the keeper.)
+
     # KNOWN-POSITIVE CONTROL — the assertion above passes trivially on a reader
     # that returns one constant for everything, which is precisely the failure
     # the old group-difference control used to rule out. It has to be replaced,

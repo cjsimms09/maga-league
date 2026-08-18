@@ -78,20 +78,20 @@
   "proxy_original_pooled_baseline": {
    "optimal": {
     "beats_n_of_10_pooled": 3,
-    "median_owner_mean_delta": -91.71,
+    "median_owner_mean_delta": -91.05,
     "cory_mean_delta": -65.65
    },
    "realistic": {
-    "beats_n_of_10_pooled": 2,
-    "median_owner_mean_delta": -31.37,
-    "cory_mean_delta": -6.53
+    "beats_n_of_10_pooled": 3,
+    "median_owner_mean_delta": -26.78,
+    "cory_mean_delta": -9.39
    }
   },
   "proxy_restated_bracket": {
    "optimal": {
     "cory_mean_delta": {
      "original_unfiltered": -65.65,
-     "restated_status_filtered": 7.48,
+     "restated_status_filtered": 8.15,
      "room_draftable_pool": -19.81
     },
     "beats_n_of_10_pooled": {
@@ -100,23 +100,23 @@
      "room_draftable_pool": 3
     },
     "median_owner_mean_delta": {
-     "original_unfiltered": -91.71,
-     "restated_status_filtered": -24.23,
-     "room_draftable_pool": -28.64
+     "original_unfiltered": -91.05,
+     "restated_status_filtered": -24.9,
+     "room_draftable_pool": -28.12
     }
    },
    "realistic": {
     "cory_mean_delta": {
-     "original_unfiltered": -6.53,
-     "restated_status_filtered": 41.24
+     "original_unfiltered": -9.39,
+     "restated_status_filtered": 39.05
     },
     "beats_n_of_10_pooled": {
-     "original_unfiltered": 2,
+     "original_unfiltered": 3,
      "restated_status_filtered": 6
     },
     "median_owner_mean_delta": {
-     "original_unfiltered": -31.37,
-     "restated_status_filtered": 9.02
+     "original_unfiltered": -26.78,
+     "restated_status_filtered": 19.18
     }
    }
   }
@@ -141,9 +141,9 @@
      "owner": "coryjsimms",
      "arms": {
       "optimal": {
-       "tool_total": 1463.52,
+       "tool_total": 1469.52,
        "owner_total": 1440.72,
-       "delta_tool_minus_owner": 22.8,
+       "delta_tool_minus_owner": 28.8,
        "head_to_head": {
         "tool_weeks_won": 10,
         "cory_weeks_won": 7,
@@ -151,9 +151,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1366.74,
+       "tool_total": 1368.84,
        "owner_total": 1257.72,
-       "delta_tool_minus_owner": 109.02,
+       "delta_tool_minus_owner": 111.12,
        "head_to_head": {
         "tool_weeks_won": 13,
         "cory_weeks_won": 4,
@@ -166,7 +166,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "11632",
@@ -190,7 +190,7 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4217",
@@ -232,7 +232,7 @@
        "player_id": "8183",
        "name": "Brock Purdy",
        "pos": "QB",
-       "actual": 210.2
+       "actual": 212.2
       },
       {
        "player_id": "9756",
@@ -249,9 +249,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1463.52,
+        "tool_total": 1469.52,
         "owner_total": 1440.72,
-        "delta_tool_minus_owner": 22.8,
+        "delta_tool_minus_owner": 28.8,
         "head_to_head": {
          "tool_weeks_won": 10,
          "cory_weeks_won": 7,
@@ -259,9 +259,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1366.74,
+        "tool_total": 1368.84,
         "owner_total": 1257.72,
-        "delta_tool_minus_owner": 109.02,
+        "delta_tool_minus_owner": 111.12,
         "head_to_head": {
          "tool_weeks_won": 13,
          "cory_weeks_won": 4,
@@ -274,7 +274,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "11632",
@@ -298,7 +298,7 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4217",
@@ -340,7 +340,7 @@
         "player_id": "8183",
         "name": "Brock Purdy",
         "pos": "QB",
-        "actual": 210.2
+        "actual": 212.2
        },
        {
         "player_id": "9756",
@@ -356,9 +356,9 @@
      "owner": "ds7mmet",
      "arms": {
       "optimal": {
-       "tool_total": 1213.66,
-       "owner_total": 1379.14,
-       "delta_tool_minus_owner": -165.48,
+       "tool_total": 1221.66,
+       "owner_total": 1386.04,
+       "delta_tool_minus_owner": -164.38,
        "head_to_head": {
         "tool_weeks_won": 5,
         "cory_weeks_won": 12,
@@ -366,9 +366,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1098.52,
-       "owner_total": 1171.54,
-       "delta_tool_minus_owner": -73.02,
+       "tool_total": 1102.52,
+       "owner_total": 1177.54,
+       "delta_tool_minus_owner": -75.02,
        "head_to_head": {
         "tool_weeks_won": 5,
         "cory_weeks_won": 12,
@@ -381,7 +381,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "11584",
@@ -411,13 +411,13 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4881",
        "name": "Lamar Jackson",
        "pos": "QB",
-       "actual": 228.44
+       "actual": 230.44
       },
       {
        "player_id": "8136",
@@ -435,7 +435,7 @@
        "player_id": "8183",
        "name": "Brock Purdy",
        "pos": "QB",
-       "actual": 210.2
+       "actual": 212.2
       },
       {
        "player_id": "9756",
@@ -452,9 +452,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1213.66,
-        "owner_total": 1379.14,
-        "delta_tool_minus_owner": -165.48,
+        "tool_total": 1221.66,
+        "owner_total": 1386.04,
+        "delta_tool_minus_owner": -164.38,
         "head_to_head": {
          "tool_weeks_won": 5,
          "cory_weeks_won": 12,
@@ -462,9 +462,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1098.52,
-        "owner_total": 1171.54,
-        "delta_tool_minus_owner": -73.02,
+        "tool_total": 1102.52,
+        "owner_total": 1177.54,
+        "delta_tool_minus_owner": -75.02,
         "head_to_head": {
          "tool_weeks_won": 5,
          "cory_weeks_won": 12,
@@ -477,7 +477,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "11584",
@@ -507,13 +507,13 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4881",
         "name": "Lamar Jackson",
         "pos": "QB",
-        "actual": 228.44
+        "actual": 230.44
        },
        {
         "player_id": "8136",
@@ -531,7 +531,7 @@
         "player_id": "8183",
         "name": "Brock Purdy",
         "pos": "QB",
-        "actual": 210.2
+        "actual": 212.2
        },
        {
         "player_id": "9756",
@@ -547,9 +547,9 @@
      "owner": "cashworth",
      "arms": {
       "optimal": {
-       "tool_total": 1214.4,
-       "owner_total": 1528.88,
-       "delta_tool_minus_owner": -314.48,
+       "tool_total": 1224.1,
+       "owner_total": 1534.58,
+       "delta_tool_minus_owner": -310.48,
        "head_to_head": {
         "tool_weeks_won": 2,
         "cory_weeks_won": 15,
@@ -557,9 +557,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1155.38,
-       "owner_total": 1388.3,
-       "delta_tool_minus_owner": -232.92,
+       "tool_total": 1163.78,
+       "owner_total": 1398.2,
+       "delta_tool_minus_owner": -234.42,
        "head_to_head": {
         "tool_weeks_won": 4,
         "cory_weeks_won": 13,
@@ -572,7 +572,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "11635",
@@ -608,13 +608,13 @@
        "player_id": "4881",
        "name": "Lamar Jackson",
        "pos": "QB",
-       "actual": 228.44
+       "actual": 230.44
       },
       {
        "player_id": "4892",
        "name": "Baker Mayfield",
        "pos": "QB",
-       "actual": 304.7
+       "actual": 308.7
       },
       {
        "player_id": "8151",
@@ -626,7 +626,7 @@
        "player_id": "9224",
        "name": "Chase Brown",
        "pos": "RB",
-       "actual": 227.4
+       "actual": 231.1
       }
      ],
      "shadowed_picks": 4,
@@ -637,9 +637,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1214.4,
-        "owner_total": 1528.88,
-        "delta_tool_minus_owner": -314.48,
+        "tool_total": 1224.1,
+        "owner_total": 1534.58,
+        "delta_tool_minus_owner": -310.48,
         "head_to_head": {
          "tool_weeks_won": 2,
          "cory_weeks_won": 15,
@@ -647,9 +647,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1155.38,
-        "owner_total": 1388.3,
-        "delta_tool_minus_owner": -232.92,
+        "tool_total": 1163.78,
+        "owner_total": 1398.2,
+        "delta_tool_minus_owner": -234.42,
         "head_to_head": {
          "tool_weeks_won": 4,
          "cory_weeks_won": 13,
@@ -662,7 +662,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "11635",
@@ -692,13 +692,13 @@
         "player_id": "4881",
         "name": "Lamar Jackson",
         "pos": "QB",
-        "actual": 228.44
+        "actual": 230.44
        },
        {
         "player_id": "4892",
         "name": "Baker Mayfield",
         "pos": "QB",
-        "actual": 304.7
+        "actual": 308.7
        },
        {
         "player_id": "8151",
@@ -710,7 +710,7 @@
         "player_id": "9224",
         "name": "Chase Brown",
         "pos": "RB",
-        "actual": 227.4
+        "actual": 231.1
        }
       ],
       "first_QB_round_engine": 1
@@ -720,9 +720,9 @@
      "owner": "Jreis",
      "arms": {
       "optimal": {
-       "tool_total": 1505.34,
-       "owner_total": 1550.28,
-       "delta_tool_minus_owner": -44.94,
+       "tool_total": 1511.34,
+       "owner_total": 1558.28,
+       "delta_tool_minus_owner": -46.94,
        "head_to_head": {
         "tool_weeks_won": 9,
         "cory_weeks_won": 8,
@@ -730,9 +730,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1360.74,
-       "owner_total": 1363.68,
-       "delta_tool_minus_owner": -2.94,
+       "tool_total": 1378.94,
+       "owner_total": 1365.78,
+       "delta_tool_minus_owner": 13.16,
        "head_to_head": {
         "tool_weeks_won": 9,
         "cory_weeks_won": 8,
@@ -745,7 +745,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "1379",
@@ -757,13 +757,13 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4881",
        "name": "Lamar Jackson",
        "pos": "QB",
-       "actual": 228.44
+       "actual": 230.44
       },
       {
        "player_id": "5012",
@@ -822,9 +822,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1505.34,
-        "owner_total": 1550.28,
-        "delta_tool_minus_owner": -44.94,
+        "tool_total": 1511.34,
+        "owner_total": 1558.28,
+        "delta_tool_minus_owner": -46.94,
         "head_to_head": {
          "tool_weeks_won": 9,
          "cory_weeks_won": 8,
@@ -832,9 +832,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1360.74,
-        "owner_total": 1363.68,
-        "delta_tool_minus_owner": -2.94,
+        "tool_total": 1378.94,
+        "owner_total": 1365.78,
+        "delta_tool_minus_owner": 13.16,
         "head_to_head": {
          "tool_weeks_won": 9,
          "cory_weeks_won": 8,
@@ -847,7 +847,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "1379",
@@ -859,13 +859,13 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4881",
         "name": "Lamar Jackson",
         "pos": "QB",
-        "actual": 228.44
+        "actual": 230.44
        },
        {
         "player_id": "5012",
@@ -923,9 +923,9 @@
      "owner": "B8T3S",
      "arms": {
       "optimal": {
-       "tool_total": 1703.16,
-       "owner_total": 1820.02,
-       "delta_tool_minus_owner": -116.86,
+       "tool_total": 1719.46,
+       "owner_total": 1834.32,
+       "delta_tool_minus_owner": -114.86,
        "head_to_head": {
         "tool_weeks_won": 5,
         "cory_weeks_won": 12,
@@ -933,12 +933,12 @@
        }
       },
       "realistic": {
-       "tool_total": 1595.06,
-       "owner_total": 1650.32,
-       "delta_tool_minus_owner": -55.26,
+       "tool_total": 1611.36,
+       "owner_total": 1613.9,
+       "delta_tool_minus_owner": -2.54,
        "head_to_head": {
-        "tool_weeks_won": 6,
-        "cory_weeks_won": 11,
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
         "ties": 0
        }
       }
@@ -948,13 +948,13 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "11563",
        "name": "Bo Nix",
        "pos": "QB",
-       "actual": 336.3
+       "actual": 344.3
       },
       {
        "player_id": "1379",
@@ -978,13 +978,13 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4881",
        "name": "Lamar Jackson",
        "pos": "QB",
-       "actual": 228.44
+       "actual": 230.44
       },
       {
        "player_id": "6806",
@@ -996,13 +996,13 @@
        "player_id": "6813",
        "name": "Jonathan Taylor",
        "pos": "RB",
-       "actual": 332.4
+       "actual": 334.4
       },
       {
        "player_id": "8112",
        "name": "Drake London",
        "pos": "WR",
-       "actual": 150.1
+       "actual": 152.1
       },
       {
        "player_id": "8136",
@@ -1020,7 +1020,7 @@
        "player_id": "9221",
        "name": "Jahmyr Gibbs",
        "pos": "RB",
-       "actual": 309.3
+       "actual": 309.6
       }
      ],
      "shadowed_picks": 6,
@@ -1031,9 +1031,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1508.94,
-        "owner_total": 1820.02,
-        "delta_tool_minus_owner": -311.08,
+        "tool_total": 1519.24,
+        "owner_total": 1834.32,
+        "delta_tool_minus_owner": -315.08,
         "head_to_head": {
          "tool_weeks_won": 5,
          "cory_weeks_won": 12,
@@ -1041,12 +1041,12 @@
         }
        },
        "realistic": {
-        "tool_total": 1463.24,
-        "owner_total": 1650.32,
-        "delta_tool_minus_owner": -187.08,
+        "tool_total": 1473.54,
+        "owner_total": 1613.9,
+        "delta_tool_minus_owner": -140.36,
         "head_to_head": {
-         "tool_weeks_won": 6,
-         "cory_weeks_won": 11,
+         "tool_weeks_won": 8,
+         "cory_weeks_won": 9,
          "ties": 0
         }
        }
@@ -1056,7 +1056,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "1379",
@@ -1074,13 +1074,13 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4881",
         "name": "Lamar Jackson",
         "pos": "QB",
-        "actual": 228.44
+        "actual": 230.44
        },
        {
         "player_id": "6806",
@@ -1092,13 +1092,13 @@
         "player_id": "6813",
         "name": "Jonathan Taylor",
         "pos": "RB",
-        "actual": 332.4
+        "actual": 334.4
        },
        {
         "player_id": "8112",
         "name": "Drake London",
         "pos": "WR",
-        "actual": 150.1
+        "actual": 152.1
        },
        {
         "player_id": "8136",
@@ -1116,7 +1116,7 @@
         "player_id": "9221",
         "name": "Jahmyr Gibbs",
         "pos": "RB",
-        "actual": 309.3
+        "actual": 309.6
        }
       ],
       "first_QB_round_engine": 3
@@ -1126,9 +1126,9 @@
      "owner": "MarianSaar",
      "arms": {
       "optimal": {
-       "tool_total": 1466.7,
-       "owner_total": 1612.08,
-       "delta_tool_minus_owner": -145.38,
+       "tool_total": 1475.4,
+       "owner_total": 1616.78,
+       "delta_tool_minus_owner": -141.38,
        "head_to_head": {
         "tool_weeks_won": 4,
         "cory_weeks_won": 13,
@@ -1136,9 +1136,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1377.22,
-       "owner_total": 1433.98,
-       "delta_tool_minus_owner": -56.76,
+       "tool_total": 1381.92,
+       "owner_total": 1425.98,
+       "delta_tool_minus_owner": -44.06,
        "head_to_head": {
         "tool_weeks_won": 5,
         "cory_weeks_won": 12,
@@ -1151,13 +1151,13 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "11604",
        "name": "Brock Bowers",
        "pos": "TE",
-       "actual": 142.2
+       "actual": 144.2
       },
       {
        "player_id": "1379",
@@ -1175,7 +1175,7 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "6794",
@@ -1199,13 +1199,13 @@
        "player_id": "8183",
        "name": "Brock Purdy",
        "pos": "QB",
-       "actual": 210.2
+       "actual": 212.2
       },
       {
        "player_id": "9226",
        "name": "De'Von Achane",
        "pos": "RB",
-       "actual": 288.6
+       "actual": 289.3
       }
      ],
      "shadowed_picks": 4,
@@ -1216,9 +1216,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1525.3,
-        "owner_total": 1612.08,
-        "delta_tool_minus_owner": -86.78,
+        "tool_total": 1538.0,
+        "owner_total": 1616.78,
+        "delta_tool_minus_owner": -78.78,
         "head_to_head": {
          "tool_weeks_won": 6,
          "cory_weeks_won": 11,
@@ -1226,9 +1226,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1395.12,
-        "owner_total": 1433.98,
-        "delta_tool_minus_owner": -38.86,
+        "tool_total": 1409.62,
+        "owner_total": 1425.98,
+        "delta_tool_minus_owner": -16.36,
         "head_to_head": {
          "tool_weeks_won": 6,
          "cory_weeks_won": 11,
@@ -1241,13 +1241,13 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "11604",
         "name": "Brock Bowers",
         "pos": "TE",
-        "actual": 142.2
+        "actual": 144.2
        },
        {
         "player_id": "1379",
@@ -1265,7 +1265,7 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "6794",
@@ -1277,7 +1277,7 @@
         "player_id": "7611",
         "name": "Rhamondre Stevenson",
         "pos": "RB",
-        "actual": 124.5
+        "actual": 128.5
        },
        {
         "player_id": "8136",
@@ -1295,13 +1295,13 @@
         "player_id": "8183",
         "name": "Brock Purdy",
         "pos": "QB",
-        "actual": 210.2
+        "actual": 212.2
        },
        {
         "player_id": "9226",
         "name": "De'Von Achane",
         "pos": "RB",
-        "actual": 288.6
+        "actual": 289.3
        }
       ],
       "first_QB_round_engine": 10
@@ -1311,9 +1311,9 @@
      "owner": "mhagen",
      "arms": {
       "optimal": {
-       "tool_total": 1682.44,
-       "owner_total": 1966.64,
-       "delta_tool_minus_owner": -284.2,
+       "tool_total": 1692.44,
+       "owner_total": 1974.94,
+       "delta_tool_minus_owner": -282.5,
        "head_to_head": {
         "tool_weeks_won": 3,
         "cory_weeks_won": 14,
@@ -1321,9 +1321,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1619.92,
-       "owner_total": 1784.14,
-       "delta_tool_minus_owner": -164.22,
+       "tool_total": 1626.22,
+       "owner_total": 1791.14,
+       "delta_tool_minus_owner": -164.92,
        "head_to_head": {
         "tool_weeks_won": 4,
         "cory_weeks_won": 13,
@@ -1336,7 +1336,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "10859",
@@ -1360,25 +1360,25 @@
        "player_id": "4034",
        "name": "Christian McCaffrey",
        "pos": "RB",
-       "actual": 354.9
+       "actual": 356.9
       },
       {
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4984",
        "name": "Josh Allen",
        "pos": "QB",
-       "actual": 412.62
+       "actual": 414.62
       },
       {
        "player_id": "6801",
        "name": "Tee Higgins",
        "pos": "WR",
-       "actual": 164.4
+       "actual": 166.4
       },
       {
        "player_id": "7547",
@@ -1396,7 +1396,7 @@
        "player_id": "8183",
        "name": "Brock Purdy",
        "pos": "QB",
-       "actual": 210.2
+       "actual": 212.2
       }
      ],
      "shadowed_picks": 4,
@@ -1407,9 +1407,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1760.94,
-        "owner_total": 1966.64,
-        "delta_tool_minus_owner": -205.7,
+        "tool_total": 1772.94,
+        "owner_total": 1974.94,
+        "delta_tool_minus_owner": -202.0,
         "head_to_head": {
          "tool_weeks_won": 2,
          "cory_weeks_won": 15,
@@ -1417,9 +1417,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1608.84,
-        "owner_total": 1784.14,
-        "delta_tool_minus_owner": -175.3,
+        "tool_total": 1601.14,
+        "owner_total": 1791.14,
+        "delta_tool_minus_owner": -190.0,
         "head_to_head": {
          "tool_weeks_won": 2,
          "cory_weeks_won": 15,
@@ -1432,7 +1432,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "10859",
@@ -1450,31 +1450,31 @@
         "player_id": "4034",
         "name": "Christian McCaffrey",
         "pos": "RB",
-        "actual": 354.9
+        "actual": 356.9
        },
        {
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4984",
         "name": "Josh Allen",
         "pos": "QB",
-        "actual": 412.62
+        "actual": 414.62
        },
        {
         "player_id": "5892",
         "name": "David Montgomery",
         "pos": "RB",
-        "actual": 148.92
+        "actual": 150.92
        },
        {
         "player_id": "6801",
         "name": "Tee Higgins",
         "pos": "WR",
-        "actual": 164.4
+        "actual": 166.4
        },
        {
         "player_id": "7547",
@@ -1502,9 +1502,9 @@
      "owner": "Richard2121",
      "arms": {
       "optimal": {
-       "tool_total": 1690.52,
-       "owner_total": 1944.1,
-       "delta_tool_minus_owner": -253.58,
+       "tool_total": 1699.42,
+       "owner_total": 1955.0,
+       "delta_tool_minus_owner": -255.58,
        "head_to_head": {
         "tool_weeks_won": 3,
         "cory_weeks_won": 14,
@@ -1512,9 +1512,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1639.32,
-       "owner_total": 1667.0,
-       "delta_tool_minus_owner": -27.68,
+       "tool_total": 1646.22,
+       "owner_total": 1685.1,
+       "delta_tool_minus_owner": -38.88,
        "head_to_head": {
         "tool_weeks_won": 6,
         "cory_weeks_won": 11,
@@ -1527,7 +1527,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "1379",
@@ -1545,19 +1545,19 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "6790",
        "name": "D'Andre Swift",
        "pos": "RB",
-       "actual": 205.4
+       "actual": 206.3
       },
       {
        "player_id": "7569",
        "name": "Nico Collins",
        "pos": "WR",
-       "actual": 188.7
+       "actual": 190.7
       },
       {
        "player_id": "8130",
@@ -1581,7 +1581,7 @@
        "player_id": "9509",
        "name": "Bijan Robinson",
        "pos": "RB",
-       "actual": 323.5
+       "actual": 325.5
       }
      ],
      "shadowed_picks": 4,
@@ -1592,9 +1592,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1690.52,
-        "owner_total": 1944.1,
-        "delta_tool_minus_owner": -253.58,
+        "tool_total": 1699.42,
+        "owner_total": 1955.0,
+        "delta_tool_minus_owner": -255.58,
         "head_to_head": {
          "tool_weeks_won": 3,
          "cory_weeks_won": 14,
@@ -1602,9 +1602,9 @@
         }
        },
        "realistic": {
-        "tool_total": 1639.32,
-        "owner_total": 1667.0,
-        "delta_tool_minus_owner": -27.68,
+        "tool_total": 1646.22,
+        "owner_total": 1685.1,
+        "delta_tool_minus_owner": -38.88,
         "head_to_head": {
          "tool_weeks_won": 6,
          "cory_weeks_won": 11,
@@ -1617,7 +1617,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "1379",
@@ -1635,19 +1635,19 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "6790",
         "name": "D'Andre Swift",
         "pos": "RB",
-        "actual": 205.4
+        "actual": 206.3
        },
        {
         "player_id": "7569",
         "name": "Nico Collins",
         "pos": "WR",
-        "actual": 188.7
+        "actual": 190.7
        },
        {
         "player_id": "8130",
@@ -1671,7 +1671,7 @@
         "player_id": "9509",
         "name": "Bijan Robinson",
         "pos": "RB",
-        "actual": 323.5
+        "actual": 325.5
        }
       ],
       "first_QB_round_engine": 10
@@ -1681,9 +1681,9 @@
      "owner": "Schmelley",
      "arms": {
       "optimal": {
-       "tool_total": 1480.3,
-       "owner_total": 1856.34,
-       "delta_tool_minus_owner": -376.04,
+       "tool_total": 1488.3,
+       "owner_total": 1869.14,
+       "delta_tool_minus_owner": -380.84,
        "head_to_head": {
         "tool_weeks_won": 1,
         "cory_weeks_won": 16,
@@ -1691,12 +1691,12 @@
        }
       },
       "realistic": {
-       "tool_total": 1366.48,
-       "owner_total": 1458.78,
-       "delta_tool_minus_owner": -92.3,
+       "tool_total": 1372.48,
+       "owner_total": 1433.88,
+       "delta_tool_minus_owner": -61.4,
        "head_to_head": {
-        "tool_weeks_won": 6,
-        "cory_weeks_won": 11,
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
         "ties": 0
        }
       }
@@ -1706,7 +1706,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "1379",
@@ -1724,19 +1724,19 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4866",
        "name": "Saquon Barkley",
        "pos": "RB",
-       "actual": 211.8
+       "actual": 213.8
       },
       {
        "player_id": "4892",
        "name": "Baker Mayfield",
        "pos": "QB",
-       "actual": 304.7
+       "actual": 308.7
       },
       {
        "player_id": "6904",
@@ -1771,9 +1771,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1557.1,
-        "owner_total": 1856.34,
-        "delta_tool_minus_owner": -299.24,
+        "tool_total": 1565.1,
+        "owner_total": 1869.14,
+        "delta_tool_minus_owner": -304.04,
         "head_to_head": {
          "tool_weeks_won": 1,
          "cory_weeks_won": 16,
@@ -1781,12 +1781,12 @@
         }
        },
        "realistic": {
-        "tool_total": 1410.28,
-        "owner_total": 1458.78,
-        "delta_tool_minus_owner": -48.5,
+        "tool_total": 1416.28,
+        "owner_total": 1433.88,
+        "delta_tool_minus_owner": -17.6,
         "head_to_head": {
-         "tool_weeks_won": 7,
-         "cory_weeks_won": 10,
+         "tool_weeks_won": 9,
+         "cory_weeks_won": 8,
          "ties": 0
         }
        }
@@ -1796,7 +1796,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "1379",
@@ -1814,19 +1814,19 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4866",
         "name": "Saquon Barkley",
         "pos": "RB",
-        "actual": 211.8
+        "actual": 213.8
        },
        {
         "player_id": "4892",
         "name": "Baker Mayfield",
         "pos": "QB",
-        "actual": 304.7
+        "actual": 308.7
        },
        {
         "player_id": "6904",
@@ -1866,9 +1866,9 @@
      "owner": "Sadbru",
      "arms": {
       "optimal": {
-       "tool_total": 1624.88,
-       "owner_total": 1592.6,
-       "delta_tool_minus_owner": 32.28,
+       "tool_total": 1632.88,
+       "owner_total": 1596.6,
+       "delta_tool_minus_owner": 36.28,
        "head_to_head": {
         "tool_weeks_won": 9,
         "cory_weeks_won": 8,
@@ -1876,8 +1876,8 @@
        }
       },
       "realistic": {
-       "tool_total": 1452.22,
-       "owner_total": 1404.58,
+       "tool_total": 1460.22,
+       "owner_total": 1412.58,
        "delta_tool_minus_owner": 47.64,
        "head_to_head": {
         "tool_weeks_won": 11,
@@ -1891,7 +1891,7 @@
        "player_id": "10229",
        "name": "Rashee Rice",
        "pos": "WR",
-       "actual": 121.6
+       "actual": 123.6
       },
       {
        "player_id": "1379",
@@ -1915,19 +1915,19 @@
        "player_id": "4037",
        "name": "Chris Godwin",
        "pos": "WR",
-       "actual": 63.2
+       "actual": 65.2
       },
       {
        "player_id": "4046",
        "name": "Patrick Mahomes",
        "pos": "QB",
-       "actual": 325.18
+       "actual": 329.18
       },
       {
        "player_id": "4881",
        "name": "Lamar Jackson",
        "pos": "QB",
-       "actual": 228.44
+       "actual": 230.44
       },
       {
        "player_id": "6786",
@@ -1957,7 +1957,7 @@
        "player_id": "8183",
        "name": "Brock Purdy",
        "pos": "QB",
-       "actual": 210.2
+       "actual": 212.2
       },
       {
        "player_id": "9997",
@@ -1974,9 +1974,9 @@
      "status_filtered": {
       "arms": {
        "optimal": {
-        "tool_total": 1624.88,
-        "owner_total": 1592.6,
-        "delta_tool_minus_owner": 32.28,
+        "tool_total": 1632.88,
+        "owner_total": 1596.6,
+        "delta_tool_minus_owner": 36.28,
         "head_to_head": {
          "tool_weeks_won": 9,
          "cory_weeks_won": 8,
@@ -1984,8 +1984,8 @@
         }
        },
        "realistic": {
-        "tool_total": 1452.22,
-        "owner_total": 1404.58,
+        "tool_total": 1460.22,
+        "owner_total": 1412.58,
         "delta_tool_minus_owner": 47.64,
         "head_to_head": {
          "tool_weeks_won": 11,
@@ -1999,7 +1999,7 @@
         "player_id": "10229",
         "name": "Rashee Rice",
         "pos": "WR",
-        "actual": 121.6
+        "actual": 123.6
        },
        {
         "player_id": "1379",
@@ -2023,19 +2023,19 @@
         "player_id": "4037",
         "name": "Chris Godwin",
         "pos": "WR",
-        "actual": 63.2
+        "actual": 65.2
        },
        {
         "player_id": "4046",
         "name": "Patrick Mahomes",
         "pos": "QB",
-        "actual": 325.18
+        "actual": 329.18
        },
        {
         "player_id": "4881",
         "name": "Lamar Jackson",
         "pos": "QB",
-        "actual": 228.44
+        "actual": 230.44
        },
        {
         "player_id": "6786",
@@ -2065,7 +2065,7 @@
         "player_id": "8183",
         "name": "Brock Purdy",
         "pos": "QB",
-        "actual": 210.2
+        "actual": 212.2
        },
        {
         "player_id": "9997",
@@ -2095,17 +2095,17 @@
       "mhagen"
      ],
      "beats_n_of_10": 2,
-     "median_owner_delta": -155.43,
-     "cory_delta": 22.8
+     "median_owner_delta": -152.88,
+     "cory_delta": 28.8
     },
     "realistic": {
      "owners_tool_beats": [
+      "Jreis",
       "Sadbru",
       "coryjsimms"
      ],
      "owners_beating_tool": [
       "B8T3S",
-      "Jreis",
       "MarianSaar",
       "Richard2121",
       "Schmelley",
@@ -2113,9 +2113,9 @@
       "ds7mmet",
       "mhagen"
      ],
-     "beats_n_of_10": 2,
-     "median_owner_delta": -56.01,
-     "cory_delta": 109.02
+     "beats_n_of_10": 3,
+     "median_owner_delta": -41.47,
+     "cory_delta": 111.12
     }
    },
    "league_summary_status_filtered": {
@@ -2135,17 +2135,17 @@
       "mhagen"
      ],
      "beats_n_of_10": 2,
-     "median_owner_delta": -185.59,
-     "cory_delta": 22.8
+     "median_owner_delta": -183.19,
+     "cory_delta": 28.8
     },
     "realistic": {
      "owners_tool_beats": [
+      "Jreis",
       "Sadbru",
       "coryjsimms"
      ],
      "owners_beating_tool": [
       "B8T3S",
-      "Jreis",
       "MarianSaar",
       "Richard2121",
       "Schmelley",
@@ -2153,9 +2153,9 @@
       "ds7mmet",
       "mhagen"
      ],
-     "beats_n_of_10": 2,
-     "median_owner_delta": -43.68,
-     "cory_delta": 109.02
+     "beats_n_of_10": 3,
+     "median_owner_delta": -28.24,
+     "cory_delta": 111.12
     }
    }
   },
@@ -6299,182 +6299,182 @@
    "owner": "coryjsimms",
    "optimal": {
     "per_year": {
-     "2025": 22.8,
+     "2025": 28.8,
      "2024": -639.78,
      "2023": -465.26
     },
-    "mean_delta": -360.75
+    "mean_delta": -358.75
    },
    "realistic": {
     "per_year": {
-     "2025": 109.02,
+     "2025": 111.12,
      "2024": -537.82,
      "2023": -356.46
     },
-    "mean_delta": -261.75
+    "mean_delta": -261.05
    }
   },
   "2": {
    "owner": "ds7mmet",
    "optimal": {
     "per_year": {
-     "2025": -165.48,
+     "2025": -164.38,
      "2024": -231.7,
      "2023": -170.04
     },
-    "mean_delta": -189.07
+    "mean_delta": -188.71
    },
    "realistic": {
     "per_year": {
-     "2025": -73.02,
+     "2025": -75.02,
      "2024": -179.7,
      "2023": -47.88
     },
-    "mean_delta": -100.2
+    "mean_delta": -100.87
    }
   },
   "3": {
    "owner": "cashworth",
    "optimal": {
     "per_year": {
-     "2025": -314.48,
+     "2025": -310.48,
      "2024": -159.2,
      "2023": -356.1
     },
-    "mean_delta": -276.59
+    "mean_delta": -275.26
    },
    "realistic": {
     "per_year": {
-     "2025": -232.92,
+     "2025": -234.42,
      "2024": -188.9,
      "2023": -285.4
     },
-    "mean_delta": -235.74
+    "mean_delta": -236.24
    }
   },
   "4": {
    "owner": "Jreis",
    "optimal": {
     "per_year": {
-     "2025": -44.94,
+     "2025": -46.94,
      "2024": -526.98,
      "2023": -250.36
     },
-    "mean_delta": -274.09
+    "mean_delta": -274.76
    },
    "realistic": {
     "per_year": {
-     "2025": -2.94,
+     "2025": 13.16,
      "2024": -499.44,
      "2023": -159.76
     },
-    "mean_delta": -220.71
+    "mean_delta": -215.35
    }
   },
   "5": {
    "owner": "B8T3S",
    "optimal": {
     "per_year": {
-     "2025": -116.86,
+     "2025": -114.86,
      "2024": -399.18,
      "2023": -336.98
     },
-    "mean_delta": -284.34
+    "mean_delta": -283.67
    },
    "realistic": {
     "per_year": {
-     "2025": -55.26,
+     "2025": -2.54,
      "2024": -274.96,
      "2023": -33.58
     },
-    "mean_delta": -121.27
+    "mean_delta": -103.69
    }
   },
   "6": {
    "owner": "MarianSaar",
    "optimal": {
     "per_year": {
-     "2025": -145.38,
+     "2025": -141.38,
      "2024": -301.12,
      "2023": -481.52
     },
-    "mean_delta": -309.34
+    "mean_delta": -308.01
    },
    "realistic": {
     "per_year": {
-     "2025": -56.76,
+     "2025": -44.06,
      "2024": -191.3,
      "2023": -171.3
     },
-    "mean_delta": -139.79
+    "mean_delta": -135.55
    }
   },
   "7": {
    "owner": "mhagen",
    "optimal": {
     "per_year": {
-     "2025": -284.2,
+     "2025": -282.5,
      "2024": -261.9,
      "2023": -287.04
     },
-    "mean_delta": -277.71
+    "mean_delta": -277.15
    },
    "realistic": {
     "per_year": {
-     "2025": -164.22,
+     "2025": -164.92,
      "2024": -172.56,
      "2023": -72.48
     },
-    "mean_delta": -136.42
+    "mean_delta": -136.65
    }
   },
   "8": {
    "owner": "Richard2121",
    "optimal": {
     "per_year": {
-     "2025": -253.58,
+     "2025": -255.58,
      "2024": -338.58,
      "2023": -224.2
     },
-    "mean_delta": -272.12
+    "mean_delta": -272.79
    },
    "realistic": {
     "per_year": {
-     "2025": -27.68,
+     "2025": -38.88,
      "2024": -326.14,
      "2023": -88.9
     },
-    "mean_delta": -147.57
+    "mean_delta": -151.31
    }
   },
   "9": {
    "owner": "Schmelley",
    "optimal": {
     "per_year": {
-     "2025": -376.04,
+     "2025": -380.84,
      "2024": -523.86,
      "2023": -359.92
     },
-    "mean_delta": -419.94
+    "mean_delta": -421.54
    },
    "realistic": {
     "per_year": {
-     "2025": -92.3,
+     "2025": -61.4,
      "2024": -417.86,
      "2023": -140.76
     },
-    "mean_delta": -216.97
+    "mean_delta": -206.67
    }
   },
   "10": {
    "owner": "Sadbru",
    "optimal": {
     "per_year": {
-     "2025": 32.28,
+     "2025": 36.28,
      "2024": -449.1,
      "2023": -442.34
     },
-    "mean_delta": -286.39
+    "mean_delta": -285.05
    },
    "realistic": {
     "per_year": {
@@ -6488,13 +6488,13 @@
   "_summary": {
    "optimal": {
     "beats_n_of_10_pooled": 0,
-    "median_owner_mean_delta": -281.02,
-    "cory_mean_delta": -360.75
+    "median_owner_mean_delta": -280.41,
+    "cory_mean_delta": -358.75
    },
    "realistic": {
     "beats_n_of_10_pooled": 0,
-    "median_owner_mean_delta": -163.68,
-    "cory_mean_delta": -261.75
+    "median_owner_mean_delta": -165.55,
+    "cory_mean_delta": -261.05
    }
   }
  },
@@ -6503,182 +6503,182 @@
    "owner": "coryjsimms",
    "optimal": {
     "per_year": {
-     "2025": 22.8,
+     "2025": 28.8,
      "2024": -675.38,
      "2023": -216.26
     },
-    "mean_delta": -289.61
+    "mean_delta": -287.61
    },
    "realistic": {
     "per_year": {
-     "2025": 109.02,
+     "2025": 111.12,
      "2024": -538.12,
      "2023": -229.96
     },
-    "mean_delta": -219.69
+    "mean_delta": -218.99
    }
   },
   "2": {
    "owner": "ds7mmet",
    "optimal": {
     "per_year": {
-     "2025": -165.48,
+     "2025": -164.38,
      "2024": -231.7,
      "2023": -96.3
     },
-    "mean_delta": -164.49
+    "mean_delta": -164.13
    },
    "realistic": {
     "per_year": {
-     "2025": -73.02,
+     "2025": -75.02,
      "2024": -179.7,
      "2023": -56.58
     },
-    "mean_delta": -103.1
+    "mean_delta": -103.77
    }
   },
   "3": {
    "owner": "cashworth",
    "optimal": {
     "per_year": {
-     "2025": -314.48,
+     "2025": -310.48,
      "2024": -159.2,
      "2023": 33.28
     },
-    "mean_delta": -146.8
+    "mean_delta": -145.47
    },
    "realistic": {
     "per_year": {
-     "2025": -232.92,
+     "2025": -234.42,
      "2024": -188.9,
      "2023": 0.7
     },
-    "mean_delta": -140.37
+    "mean_delta": -140.87
    }
   },
   "4": {
    "owner": "Jreis",
    "optimal": {
     "per_year": {
-     "2025": -44.94,
+     "2025": -46.94,
      "2024": -526.98,
      "2023": -14.86
     },
-    "mean_delta": -195.59
+    "mean_delta": -196.26
    },
    "realistic": {
     "per_year": {
-     "2025": -2.94,
+     "2025": 13.16,
      "2024": -499.44,
      "2023": 76.6
     },
-    "mean_delta": -141.93
+    "mean_delta": -136.56
    }
   },
   "5": {
    "owner": "B8T3S",
    "optimal": {
     "per_year": {
-     "2025": -311.08,
+     "2025": -315.08,
      "2024": -399.18,
      "2023": -90.68
     },
-    "mean_delta": -266.98
+    "mean_delta": -268.31
    },
    "realistic": {
     "per_year": {
-     "2025": -187.08,
+     "2025": -140.36,
      "2024": -274.96,
      "2023": 26.58
     },
-    "mean_delta": -145.15
+    "mean_delta": -129.58
    }
   },
   "6": {
    "owner": "MarianSaar",
    "optimal": {
     "per_year": {
-     "2025": -86.78,
+     "2025": -78.78,
      "2024": -301.12,
      "2023": -167.82
     },
-    "mean_delta": -185.24
+    "mean_delta": -182.57
    },
    "realistic": {
     "per_year": {
-     "2025": -38.86,
+     "2025": -16.36,
      "2024": -191.3,
      "2023": 41.3
     },
-    "mean_delta": -62.95
+    "mean_delta": -55.45
    }
   },
   "7": {
    "owner": "mhagen",
    "optimal": {
     "per_year": {
-     "2025": -205.7,
+     "2025": -202.0,
      "2024": -261.9,
      "2023": -249.84
     },
-    "mean_delta": -239.15
+    "mean_delta": -237.91
    },
    "realistic": {
     "per_year": {
-     "2025": -175.3,
+     "2025": -190.0,
      "2024": -172.56,
      "2023": -57.38
     },
-    "mean_delta": -135.08
+    "mean_delta": -139.98
    }
   },
   "8": {
    "owner": "Richard2121",
    "optimal": {
     "per_year": {
-     "2025": -253.58,
+     "2025": -255.58,
      "2024": -338.58,
      "2023": 181.32
     },
-    "mean_delta": -136.95
+    "mean_delta": -137.61
    },
    "realistic": {
     "per_year": {
-     "2025": -27.68,
+     "2025": -38.88,
      "2024": -326.14,
      "2023": 247.56
     },
-    "mean_delta": -35.42
+    "mean_delta": -39.15
    }
   },
   "9": {
    "owner": "Schmelley",
    "optimal": {
     "per_year": {
-     "2025": -299.24,
+     "2025": -304.04,
      "2024": -523.86,
      "2023": -131.52
     },
-    "mean_delta": -318.21
+    "mean_delta": -319.81
    },
    "realistic": {
     "per_year": {
-     "2025": -48.5,
+     "2025": -17.6,
      "2024": -417.86,
      "2023": 58.84
     },
-    "mean_delta": -135.84
+    "mean_delta": -125.54
    }
   },
   "10": {
    "owner": "Sadbru",
    "optimal": {
     "per_year": {
-     "2025": 32.28,
+     "2025": 36.28,
      "2024": -449.1,
      "2023": -117.6
     },
-    "mean_delta": -178.14
+    "mean_delta": -176.81
    },
    "realistic": {
     "per_year": {
@@ -6692,13 +6692,13 @@
   "_summary": {
    "optimal": {
     "beats_n_of_10_pooled": 0,
-    "median_owner_mean_delta": -190.42,
-    "cory_mean_delta": -289.61
+    "median_owner_mean_delta": -189.41,
+    "cory_mean_delta": -287.61
    },
    "realistic": {
     "beats_n_of_10_pooled": 0,
-    "median_owner_mean_delta": -135.46,
-    "cory_mean_delta": -219.69
+    "median_owner_mean_delta": -127.56,
+    "cory_mean_delta": -218.99
    }
   }
  },

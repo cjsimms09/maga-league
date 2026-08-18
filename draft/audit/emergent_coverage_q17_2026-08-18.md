@@ -99,7 +99,7 @@ absorbed.
 ## MY STATED EXPECTATION, GRADED
 
 The prereg says: *"I expect the production-weighted number to be much smaller
-than 19%"* (register 42's board-construction figure).
+than 19%"* (register DS6's board-construction figure).
 
 **It is 12.9% — smaller, but "much" was wrong.** Directionally right, magnitude
 overstated. Recorded because a prior that is only ever graded when it is
@@ -112,7 +112,7 @@ flattering is not a prior.
   **That flatters them and is the safe direction** — the real gap is smaller
   than 12.9% by however much they also miss.
 - **`own_v6` was not re-run.** "Has prior-season production" is a proxy for
-  "own_v6 would price him", not the same thing. Register 42 shows the real rule
+  "own_v6 would price him", not the same thing. Register DS6 shows the real rule
   is stricter (117 board players have no `proj_ownmodel` despite the board
   carrying them), so **the true blind spot is likely worse than measured here.**
 - **No K/DEF** — absent from these stores and from `own_weekly_v1`'s formula.
@@ -122,7 +122,7 @@ flattering is not a prior.
 
 - **Re-measure with `own_v6`'s actual coverage rule** rather than the
   prior-production proxy — that is the number that decides between "material"
-  and "structural", and register 42 suggests it is worse.
+  and "structural", and register DS6 suggests it is worse.
 - **Re-run after week 6 of 2026** on live data, which is the first point an
   in-season universe refresh could be evaluated against.
 - **If the `prior_20` arm is the right model of our universe, this is already

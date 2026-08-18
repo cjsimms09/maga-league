@@ -7,35 +7,30 @@
   "sleeper": "2026-08-18"
  },
  "universes": {
-  "fantasypros": 429,
-  "own_weekly_v1": 500,
-  "sleeper": 693
+  "fantasypros": 427,
+  "own_weekly_v1": 506,
+  "sleeper": 696
  },
  "silently_dropped_by_price_week": {
-  "n": 117,
+  "n": 113,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 617,
+  "on_board_skill": 619,
   "by_position": {
-   "WR": 45,
+   "WR": 43,
    "RB": 35,
-   "TE": 22,
+   "TE": 20,
    "QB": 15
   },
   "in_fantasypros": [
    "2078",
    "4017",
-   "7561",
-   "8484",
    "9502",
    "9999",
    "11292",
    "11581",
    "11583",
-   "11651",
    "12467",
-   "12505",
    "12511",
-   "12515",
    "12738"
   ],
   "named_top": [
@@ -75,91 +70,90 @@
     "adp": 180.0
    },
    {
-    "player_id": "12505",
-    "name": "Jalen Royals",
-    "position": "WR",
-    "proj_mean": 27.4,
-    "adp": 395.0
-   },
-   {
     "player_id": "12511",
     "name": "Will Howard",
     "position": "QB",
     "proj_mean": 24.5,
-    "adp": 423.0
+    "adp": 424.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
     "proj_mean": 23.0,
-    "adp": 433.0
-   },
-   {
-    "player_id": "11651",
-    "name": "Isaac Guerendo",
-    "position": "RB",
-    "proj_mean": 20.2,
-    "adp": 455.0
+    "adp": 434.0
    },
    {
     "player_id": "9999",
     "name": "Will Levis",
     "position": "QB",
     "proj_mean": 13.7,
-    "adp": 470.0
+    "adp": 471.0
+   },
+   {
+    "player_id": "11292",
+    "name": "Tommy DeVito",
+    "position": "QB",
+    "proj_mean": 13.38,
+    "adp": 482.0
+   },
+   {
+    "player_id": "12738",
+    "name": "Phil Mafah",
+    "position": "RB",
+    "proj_mean": 5.7,
+    "adp": 525.0
    }
   ]
  },
  "shared_population": {
-  "n": 414,
+  "n": 417,
   "by_position": {
-   "WR": 155,
-   "TE": 96,
-   "RB": 96,
+   "WR": 156,
+   "RB": 97,
+   "TE": 97,
    "QB": 67
   },
-  "share_of_sleeper": 0.5974,
-  "share_of_fantasypros": 0.965,
-  "share_of_ours": 0.828
+  "share_of_sleeper": 0.5991,
+  "share_of_fantasypros": 0.9766,
+  "share_of_ours": 0.8241
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": true,
   "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": true,
   "in_ours_not_fantasypros": {
-   "n": 86,
+   "n": 89,
    "by_position": {
-    "WR": 40,
-    "RB": 25,
-    "TE": 13,
+    "WR": 41,
+    "RB": 26,
+    "TE": 14,
     "QB": 8
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 15,
+   "n": 10,
    "by_position": {
-    "RB": 7,
     "QB": 4,
-    "WR": 3,
-    "TE": 1
+    "RB": 4,
+    "WR": 2
    }
   }
  },
  "k_def": {
-  "on_board": 76,
-  "sleeper_covers": 76,
+  "on_board": 77,
+  "sleeper_covers": 77,
   "fantasypros_covers": 0,
   "own_weekly_v1_prices": 0,
   "note": "FantasyPros publishes no K/DEF here, so a THREE-way grade structurally cannot include them. This is not our gap to close; a two-way grade against Sleeper could."
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 414,
+   "n": 417,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
-   "n": 500,
+   "n": 506,
    "why": "what the wider universe does, where FantasyPros cannot follow. Reported beside the primary, never instead of it."
   }
  }

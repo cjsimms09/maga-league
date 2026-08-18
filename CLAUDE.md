@@ -14,6 +14,20 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
 | **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
 
+**⚡ RULE 3e, added 08-18 — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE
+HAS DEMONSTRATED IT CAN RETURN A POSITIVE.** A probe that has never returned a
+positive has not been tested, only run. "Nothing found" and "asked wrong" are
+indistinguishable from the outside, and only one of them is a finding — 3d's
+instinct fires on a suspicious positive, but a null triggers no instinct at
+all, because graded nulls (P3, P4, pace, efficiency) taught us to respect
+exactly the shape a broken probe produces. Evidence: five false-negative
+market-census probes in ONE evening (relay, 08-18), each reading as a clean
+"no" — legal boilerplate matched as a market, a truncated payload printed as
+absence, 12 of 390 series read, a filter on a field the payload does not
+carry, wrong field names — while the truth was **3,194 open NFL markets, 890
+player-level**. A probe ships with a known-positive control or two
+independent paths that check each other, and stores the raw response shape.
+
 **⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
 Cory: *"too much finding and not enough fixing and following up and correcting."*
 Every finding now carries three follow-up QUESTIONS — does this imply another
@@ -21,7 +35,7 @@ failure we have not looked for · does it invalidate something we already trust 
 is this routed to the lane that can actually act. **The relay owns that question
 for every finding in the project, its own included.** Enforced, not promised:
 `register_recheck_check.js` fails the build on any row still OPEN past its own
-recheck date, and **every open row now carries one.**
+recheck date, and **every open row now carries one — 79 of 79, verified 2026-08-18 and TRUE AGAIN rather than still.** This claim had decayed: the E-lane merge added **eleven undated rows** on 08-18, and three more carried dates the checker could not parse (`recheck **08-19**` — bold breaks `recheck\s+MM-DD`; `recheck post-08-22` — so does a prefix). **Sixteen open rows were invisible to the mechanism built to chase them, including E12, *"the draft-day runbook's one irreversible step rests on a false premise"*.** Dates assigned or normalised by the relay; owners may move them with a reason.
 
 **Cory owns:** what "edge" means · whether a capture job stops · any call he wants.
 
@@ -32,17 +46,17 @@ STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code
 condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
 when someone finally checked the disk.**
 
-**Where the edge stands, measured — CORRECTED 08-18:** this line used to read
-*"ties Cory (−6.5) and loses to the league's best drafter (−163)"*. **The −163
-seat belongs to ds7mmet, whom the replay's own drafter study ranks FOURTH of ten.
-The rank-1 drafter is Schmelley and the tool is −29.0 there — better than the
-league median seat.** The label was assigned from the delta it was offered to
-explain. What the table actually supports: **across 30 seat-years the tool is
-−32.8 on average with an sd of 116.9 — 3.6× the effect — and wins 15 of 30.**
-It does not track drafter skill (ρ −0.25, p=0.50, control fires at p=0.013).
-**So the honest headline is "roughly a wash, measured too noisily to rank
-anyone".** `draft/audit/replay_best_drafter_claim_2026-08-18.md`; guarded by
-`test_best_drafter_claim.py`.
+**Where the edge stands, measured — CORRECTED TWICE 08-18, and the second
+correction is D's:** this line used to read *"ties Cory (−6.5) and loses to the
+league's best drafter (−163)"*. **The −163 seat belongs to ds7mmet, whom the
+replay's own drafter study ranks FOURTH of ten** — the label was assigned from
+the delta it was offered to explain (D's catch, guarded by
+`test_best_drafter_claim.py`). Re-measured on the playoff-free stores: the
+rank-1 drafter is Schmelley and the tool is **−24.0** in that seat — better
+than the league median. Across 30 seat-years the tool is **−31.1 on average
+with an sd of 117.7 — nearly 4× the effect — and wins 15 of 30.** **So the
+honest headline is "roughly a wash with Cory (−9.4), measured too noisily to
+rank anyone."** `draft/audit/replay_best_drafter_claim_2026-08-18.md`.
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field

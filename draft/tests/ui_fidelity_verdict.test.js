@@ -121,13 +121,59 @@ ck('and at every gap the chip equals the engine-derived ladder (contested→TOSS
   ck('  and the why is the engine\'s own pinned sentence', v.why === conf.message);
 }
 
+/* THE "REAL BOARD" ARM WAS SCORED WITH THE WRONG WEIGHTS (session E,
+ * 2026-08-17; register E19).
+ *
+ * This section carried `weights: E.DEFAULT_WEIGHTS` while the app initialises
+ * from `MEASURED_WEIGHTS` (app.js:52, pinned by surface_contract.test.js) —
+ * five of the eight terms are ZERO in production. The assertions below are
+ * self-referential (chip vs engine, both from the same `out`), so they held
+ * either way and this suite was never WRONG. What it was, is aimed at a verdict
+ * distribution Cory never sees.
+ *
+ * MEASURED across his twelve picks, DEFAULT against MEASURED:
+ *
+ *     the VERDICT WORD differs at 4 of 12
+ *     the BACKED PICK differs at 8 of 12
+ *     pick 33, his FIRST:  LOCK Zay Flowers         g=14.3  (this suite)
+ *                          TOSS-UP Colston Loveland g= 0.5  (the app)
+ *
+ * That is the SAME PAIR rec_rows.test.js records for the same defect — the fix
+ * landed there and not in its siblings. It matters here specifically because
+ * the verdict word is a function of the GAP, and the production weight vector
+ * compresses gaps: this arm produced LOCK at 10 of 12 picks and never once
+ * produced a LEAN, so the threshold interactions that decide LEAN vs LOCK on
+ * the board Cory reads were exercised only synthetically in section 1.
+ *
+ * REFUSES RATHER THAN FALLS BACK, following rec_rows.test.js. */
+const PROD_WEIGHTS = (function () {
+  const w = E.MEASURED_WEIGHTS;
+  if (!w || typeof w.value !== 'number') {
+    throw new Error('REFUSING to score: engine.js no longer exports MEASURED_WEIGHTS, '
+      + 'which is what app.js initialises state.weights from. Scoring the "real board" '
+      + 'arm with anything else validates a verdict no surface shows.');
+  }
+  return w;
+})();
+
 // ── 2. REAL ENGINE OUTPUT ON THE SHIPPED BOARD ───────────────────────────
 const ART = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const ALL = ART.players.filter(p => p.proj_mean > 0)
   .sort((a, b) => (a.overall_rank || 1e9) - (b.overall_rank || 1e9));
 {
   const ctx = { board: ALL.slice(28), currentPick: 33, nextPick: 48, totalPicks: 120,
-    myPicksLeft: 12, roster: [], league: ART.league, weights: E.DEFAULT_WEIGHTS,
+    myPicksLeft: 12, roster: [], league: ART.league, weights: PROD_WEIGHTS,
+    /* THE PICK BOARD IS A SECOND FIXTURE DIMENSION AND I MISSED IT ON THE FIRST
+     * PASS (session E, same day, correcting my own published number).
+     * `app.js:2066` threads `pick_order.picks` into every context it builds, and
+     * `survival.js` converts board-slot to live-selection through it — its SCALE
+     * counter exists precisely so "did the conversion run" is a readable fact
+     * rather than an assumption, and its own comment says unconverted numbers
+     * are "on the wrong scale". Omitting it does not blow up: it silently scores
+     * survival on the unconverted scale, and survival feeds VONA, which is 63%
+     * of the composite. Measured at pick 33 under production weights: without
+     * the pick board the verdict reads LEAN g=2.9, with it TOSS-UP g=0.5. */
+    pickBoard: (ART.pick_order || {}).picks || null,
     runMultipliers: {}, intervening: [], roundsLeft: 12 };
   const out = E.onTheClock(ctx, { targets: [], avoid: [] });
   const v = V.derive({ cfg: CFG, scored: out.scored, confidence: out.confidence });
@@ -183,6 +229,9 @@ ck('the chip-word table exists and names every verdict',
     currentPick: () => 33,
     seatForCurrentPick: () => null,
     context: () => ({}),
+    // expert_spread.js's badge (2026-08-18) — absent here on purpose, same as
+    // a missing artifact in the real page: '' for every player, never a guess.
+    expertSpreadBadge: () => '',
     E: E,
     DraftVerdict: V,
     console: console,
@@ -191,10 +240,10 @@ ck('the chip-word table exists and names every verdict',
   const out = { scored, confidence: E.confidence(scored) };
   // eslint-disable-next-line no-new-func
   const run = new Function('$', 'state', 'escapeHtml', 'shortName', 'currentPick',
-    'seatForCurrentPick', 'context', 'E', 'DraftVerdict', 'console', 'explainPanel',
+    'seatForCurrentPick', 'context', 'expertSpreadBadge', 'E', 'DraftVerdict', 'console', 'explainPanel',
     chipWords + ';\n' + fnSrc + ';\nreturn renderVerdict;');
   const render = run(stubs.$, stubs.state, stubs.escapeHtml, stubs.shortName,
-    stubs.currentPick, stubs.seatForCurrentPick, stubs.context, stubs.E,
+    stubs.currentPick, stubs.seatForCurrentPick, stubs.context, stubs.expertSpreadBadge, stubs.E,
     stubs.DraftVerdict, stubs.console, () => '');
   render(out);
   const v = V.derive({ cfg: CFG, scored, confidence: out.confidence });

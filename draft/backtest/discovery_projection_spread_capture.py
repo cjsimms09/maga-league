@@ -112,9 +112,16 @@ def _best_table(html, name_hints=("player", "name"), points_hints=("fpts", "pts"
     columns look like a player/points table. Returns (name_col, points_col,
     DataFrame) or None -- robust to markup drift a single CSS selector isn't,
     per the module docstring."""
+    import io as _io
     import pandas as pd
     try:
-        tables = pd.read_html(html)
+        # StringIO, not the raw string: pandas ≥2.1 deprecated (and the CI
+        # runner's build now REJECTS) literal HTML passed to read_html — it
+        # treats the markup as a file path and raises FileNotFoundError.
+        # Found by the board gate on 2026-08-18: 12/12 green on the older
+        # local pandas, 3 red on the runner's. Same code, two behaviours —
+        # the wrap is correct on both.
+        tables = pd.read_html(_io.StringIO(html))
     except ValueError:
         return None
     for df in tables:

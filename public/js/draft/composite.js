@@ -213,7 +213,47 @@
     const slots = keeperSlots(ctx);
     if (slots <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: Infinity, displaced: null });
 
-    // Everyone already competing for those slots.
+    /* Everyone already competing for those slots.
+     *
+     * ⚠️ A ROSTER ENTRY WHOSE VALUE WE NEVER KNEW IS NOT A CANDIDATE, AND
+     * COUNTING ONE AS THE WEAKEST INCUMBENT MAKES THE SCREEN ASSERT SOMETHING
+     * IT CANNOT KNOW (session E, 2026-08-17; register E18).
+     *
+     * `nextYearVorp` reads `(player.vorp || 0)`, so an entry with no `vorp`
+     * scores as worth exactly zero rather than unknown — and since the bar is
+     * `ranked[slots-1]`, a valueless entry occupying that index drags the bar
+     * NEGATIVE and `max(0, raw - bar)` then ADDS to every candidate. That is
+     * how the board came to say "Zay Flowers ... he beats Ja'Marr Chase for the
+     * last slot by 17 pts" (E17, fixed at the seam by seeding keeper vorp).
+     *
+     * THIS IS THE SAME DEFECT ARRIVING BY A DIFFERENT ROUTE. Two live paths put
+     * valueless rows on the roster by design: `recordManualPick` builds a stub
+     * for a name typed at the table, and the Sleeper poll builds one for a pick
+     * whose player is not on our board (measured 3.3% expected, 14% upper
+     * bound). Both are CORRECT to exist — the pick count, seat rosters, need
+     * and legality all have to see them. They are simply not keeper candidates,
+     * because nothing here knows what they are worth.
+     *
+     * WHAT IT PRODUCED, measured on the live board at pick 33 with a roster of
+     * two keepers plus one off-board stub: three KEEPER TARGET badges reading
+     * "beats <stub> by 12 pts" — a comparison against a player carrying no
+     * projection at all. On screen the stub wears its real Sleeper name, so it
+     * reads as a genuine judgement about a genuine player.
+     *
+     * THE DOCSTRING ABOVE ALREADY STATES THE RIGHT ANSWER: "With fewer
+     * incumbents than slots there is a free slot, so the bar is zero." A row we
+     * cannot value is not an incumbent, so dropping it lands exactly there.
+     * Fixed as a CONTRACT VIOLATION rather than an improvement — the same
+     * grounds as the negative-KOV floor above, and true independent of any
+     * measurement.
+     *
+     * INERT FOR CORY'S CURRENT SLATE, and that was measured rather than hoped:
+     * with three valued keepers the bar is `ranked[2]`, all three outrank any
+     * valueless row, and the bar is identical before and after this change at
+     * every one of his twelve picks. It can only bind when FEWER THAN `slots`
+     * roster entries carry a real value — e.g. if he locks two keepers on 08-20
+     * and an off-board pick lands on his roster.
+     */
     const incumbents = [];
     for (const p of (ctx.roster || [])) {
       if (p && p.player_id !== player.player_id) incumbents.push(p);
@@ -222,13 +262,30 @@
       if (p && p.keeper_eligible_again !== false
           && !incumbents.some(q => q.player_id === p.player_id)) incumbents.push(p);
     }
+    /* ABSENT STAYS ABSENT. Not `|| 0` — that substitution is the whole defect. */
+    const valued = incumbents.filter(p => Number.isFinite(Number(p && p.vorp)));
 
     // The bar is the weakest candidate who would still hold a slot. With fewer
     // incumbents than slots there is a free slot, so the bar is zero.
-    const ranked = incumbents
+    /* AND THE BAR IS FLOORED AT ZERO — the same "an option is never negative"
+     * contract as the clamp above, applied to the incumbent side. An incumbent
+     * whose own raw KOV is negative is a player you would DECLINE to keep, so
+     * the slot he nominally holds is a free slot, and a free slot's bar is
+     * zero (the sentence directly above this block already says so).
+     *
+     * An unfloored negative bar SUBSIDIZES every candidate: marginal =
+     * raw − bar > raw. Measured 2026-08-18, pick 33 on the frozen intervention
+     * pool: while the keepers carried no vorp (the badge-lie bug), all three
+     * incumbent KOVs were deeply negative, the bar sat at −14.88, and the
+     * keeper term printed 15-17 points on candidates whose honest raw option
+     * value was ~2 — the term's entire apparent liveliness was this artifact.
+     * The keeper-vorp fix collapsed the bar to −0.02 and the term went quiet;
+     * the floor removes the artifact class rather than leaving it one bad
+     * incumbent projection away from coming back. */
+    const ranked = valued
       .map(p => ({ p, kov: keeperOptionValueRaw(p, ctx).value }))
       .sort((a, b) => b.kov - a.kov);
-    const bar = ranked.length >= slots ? ranked[slots - 1].kov : 0;
+    const bar = Math.max(0, ranked.length >= slots ? ranked[slots - 1].kov : 0);
 
     return Object.assign({}, raw, {
       value: Math.max(0, raw.value - bar),

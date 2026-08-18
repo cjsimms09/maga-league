@@ -241,6 +241,16 @@
     <%# RIGHT RAIL — CHARTS (inline SVG, warroom_charts.js; pure functions,
         unit-tested in draft/tests/warroom_charts.test.js). %>
     <aside class="wr-rail wr-rail-right" id="wr-rail-right" aria-label="Charts">
+      <%# Cory, live: "it might be nice to be able to easily see the last 5-8
+          picks." This card already existed (app.js's renderPicksFeed writes
+          #picks-feed, 12 most recent, league-wide) but lived on the ROSTERS
+          tab — a tab switch away from the decide surface. Moved here, first
+          in the right rail, so it's visible without leaving the DRAFT tab
+          mid-decision. Same element id; app.js needs no change. %>
+      <div class="wr-railcard" id="wr-picks-card">
+        <h3 class="wr-railhead">🕓 Recent picks <span class="sub" style="font-weight:400;text-transform:none;letter-spacing:normal">league-wide</span></h3>
+        <ul id="picks-feed" style="margin:0; padding-left:1.1rem; max-height:11rem; overflow-y:auto"></ul>
+      </div>
       <div class="wr-railcard" id="wr-tiles-card">
         <h3 class="wr-railhead">⏳ Running out <button type="button" class="wr-info" data-railinfo="tiles" title="What this shows">ⓘ</button></h3>
         <p class="wr-railexp" data-railexp="tiles" hidden>One tile per position: ■ startable players left before the tier cliff, □ startable after it. The word is the timing verdict — TAKE NOW means waiting to your next pick costs the most points you can still collect; "can wait" means the seat refills cheaply.</p>
@@ -389,11 +399,6 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>Recent Picks <span class="sub">league-wide</span></h2>
-      <div class="body"><ul id="picks-feed" style="margin:0; padding-left:1.1rem"></ul></div>
-    </div>
-
     <div id="shadow-strip" class="card" style="display:none">
       <h2>👥 Shadow standings <span class="sub">every strategy drafts silently at your slots — the 2026 season grades them in dollars</span></h2>
       <div class="body" id="shadow-strip-body"></div>
@@ -416,7 +421,16 @@
           anything anyway.
         </p>
         <div class="preset-row" id="presets"></div>
-        <p class="preset-why" id="preset-why"></p>
+        <%# The "Live policy" why (app.js's renderPresets(), engine.js's
+            WEIGHT_PRESETS) runs ~300 words of provenance essay — the same
+            "doctrine essay, one tap away, never inline" rule already applied
+            to the slider hints below, not yet applied here. app.js only sets
+            #preset-why's textContent; it does not care what wraps it, so this
+            is CSS/markup-only. %>
+        <details class="wr-when" id="preset-why-wrap">
+          <summary>why this preset</summary>
+          <p class="preset-why" id="preset-why" style="margin:.3rem 0 0"></p>
+        </details>
         <div id="auto-note" hidden></div>
         <%
            /* MEASURED DEFAULTS (3rd tuple field), not a flat 1.0. These mirror
@@ -439,7 +453,7 @@
               'OFF by default — measured as a DRAG, like tier. Raise it only if your keepers already carry the team and you want the draft merely not to blow up, knowing it costs expected points.'],
              ['ceiling', 'Upside bonus', 0.0,
               'Rewards the wide range of outcomes over the safe median.',
-              'OFF by default — ceiling COULD NOT BE SIGNED: the measurement was −4.8 with a [−26, +17] interval straddling zero, so it no longer decides late picks. Raise it if you are deliberately chasing rather than protecting a lead, but know it is unmeasured.'],
+              'OFF by default, and held there through the draft ON PURPOSE — not because it is unmeasured. The old −4.8 [−26, +17] reading came from a board where ceiling was arithmetically a second copy of value; re-measured on real per-player ceilings, three preregistered runs beat zero, 3/3 separable, at every weight from 0.15 to 0.65. It ships at 0 anyway because the no-change-before-08-22 rule was fixed before any of those numbers existed. Don’t raise it tonight — this is Cory’s call after the 22nd.'],
              ['keeper', 'Keeper option value', 1.0,
               'A late pick who becomes next year\'s cheap keeper is worth more than his projection.',
               'Raise it once you are out of the running for this year, or in the last four rounds when the marginal starter is worthless anyway.'],

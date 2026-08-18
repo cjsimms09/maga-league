@@ -85,7 +85,7 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * MOVES a surface: the late-onesies-open state re-orders (bench ordering is
  * where the term lives), early/mid stay put. v21 remains the pre-ruling
  * reference. */
-const ACTIVE_VERSION = 'v26';
+const ACTIVE_VERSION = 'v27';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.

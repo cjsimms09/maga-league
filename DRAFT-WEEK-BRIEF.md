@@ -38,7 +38,7 @@ take a swing."* Shipped under that ruling, each with its receipt:
    2023-25 outcomes (Cory's direct order); board rebuild carries it live,
    plus the late-trajectory field. One finding en route: **RB top-decile
    ratio is flat across rank bands (~1.8×)** — real by the Rule-3d screen,
-   C cross-checks the method by 08-19 (register 31).
+   C cross-checks the method by 08-19 (register 39 — renumbered from 31 on 08-18, the id collided).
 
 **The honest frame:** the restated 3-season replay already had the tool at
 **+7.48/season pooled optimal over Cory's own drafting** (the −65.7 headline
@@ -142,6 +142,31 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 
 ## 🟣 08-18 NIGHT — THE THREE THINGS THAT CHANGED FOR SATURDAY (A)
 
+**STATE AS OF 08-18 ~06:00 UTC, so nobody re-derives it:** the board is
+PUBLISHED (05:33Z), deploy-verified, and frozen as **v27** — the first build
+where every input is playoff-free. All suites green on it: Python 4,174+, JS
+326/326 (the first fully green night). Keepers carry vorp 94.0/59.1/46.2 on
+the badge screens for the 08-20 lock. The v7 candidate hunt has now killed
+FIVE ideas the honest way — C1 age curves, C2 ridge, C3 fitted recency, C5
+WR-only efficiency, C7 availability gate — each graded leak-free on TWO
+walk-forward folds (`v7_candidate_grade.json`), and the night's best
+finding is methodological: two of them looked shippable on exactly one
+fold each and died on the other. own_v6 is a hard baseline: nothing
+changes before Saturday, and nothing measured this week says it should.
+
+**0. THE LEAGUE ANALYZER FOR THE RICHARD BET: YES — IT IS BUILT, TESTED, AND
+ONE BUTTON AWAY.** Cory asked whether it will be ready right after the draft.
+It is ready NOW except for data that will not exist until the last pick:
+`league_analyzer.py` (11 tests, decision logic exercised offline like
+source_blend) + a `league-analyzer.yml` dispatch that fetches the final
+rosters and picks from Sleeper and commits `public/league_analysis_2026.json`
+— projected all-play standings (best legal lineup per team through our own
+projections, no schedule luck) and per-team draft grades (surplus vs this
+draft's own round means, keepers excluded, best/worst pick named). Dispatch it
+minutes after the draft ends; B is routed the display surface with a default.
+One honesty line, which the artifact itself carries: these are PROJECTIONS —
+bet on them as our model's opinion, not as results.
+
 **1. THE BOARD IS MAKING ONE DELIBERATE BET, AND NOW IT IS NAMED: TE.**
 Measured on the live board: TEs sit **+50 spots ahead of market** on average in
 the top 150 (LaPorta board 37 vs market 67) while RBs sit −23 behind. It is NOT
@@ -195,7 +220,7 @@ what it invalidated.
 |---|---|
 | **production ceiling/floor** | measured p90/p10 per (position, band), replacing a Gaussian over the mean |
 | **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell. VERIFIED END TO END in CI run 32002876691: ~706 of 841 players attached per season, 98-135 correctly refused |
-| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.21 / 29.95 / 33.26 (Chase / Henry / Walker, re-read off the 08-18 board — the clean 3-season calibration plus the per-player volatility term moved Henry and Walker up: both carried a high realized 2025 weekly cv). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
+| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.21 / 30.22 / 33.47 (Chase / Henry / Walker, re-read off the 08-18 **05:33** board — they were 29.95 / 33.26 on the 03:44 build and the routine daily rebuild moved Henry and Walker by ~0.2 each while Chase did not move at all — the clean 3-season calibration plus the per-player volatility term moved Henry and Walker up: both carried a high realized 2025 weekly cv). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
 | **snap counts** | 35,869 skill player-weeks pulled, 2021-25, weekly job, registry-gated |
 | **playoff-SOS artifact** | regenerated (my board rebuild had added 5 rows it predated) |
 
@@ -278,7 +303,42 @@ Routes run matters because it is the DENOMINATOR for target-per-route-run: 60
 targets on 300 routes is a different player from 60 on 600, and target share
 alone cannot separate them. Nothing consumes it yet.
 
-## 3c. 🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15. READ THIS FIRST.
+## 3c. ~~🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15~~ — ✅ **THE FREEZE IS OVER. THE CLASS BEHIND IT IS NOT.**
+
+> **⬆️ CORRECTION IN PLACE, 2026-08-18 05:38+ (relay), because this is the file Cory
+> is told to read FIRST and its headline had stopped being true.**
+>
+> **THE BOARD PUBLISHED TWICE TONIGHT** — `62dd497b` at 03:49:25Z and `9322b022` at
+> **05:38:11Z**, the live one, 696 players. The 08-15 freeze this section describes is
+> finished, and everything below is history rather than status.
+>
+> **BUT THE SECTION'S DIAGNOSIS IS EXACTLY RIGHT AND STILL LIVE.** It names the blocker
+> as six artifact-parity tests *"(the two `test_variance_inputs` …)"* — and **those two
+> are red on `main` right now**, tonight, after the rebuild:
+>
+> ```
+> FAILED test_variance_inputs.py::test_artifact_coverage_matches_board
+>        assert (105 + 51) == 158   # artifact partitions 156 RBs; the board has 158
+> FAILED test_variance_inputs.py::test_committed_artifact_matches_regeneration
+> ```
+>
+> **The failure MOVED DIRECTION rather than going away.** Before tonight the board was
+> older than its calibration table; now `variance_inputs_2026.json` is older than the
+> board. **Tonight the repo held staleness in both directions at once, and fixing one
+> exposed the other** — which is `DEFECT-REGISTER` row 34's claim, demonstrated.
+>
+> **AND THE FIX THIS SECTION ALREADY PRESCRIBES IS THE RIGHT ONE, ASSIGNED BY CORY ON
+> 08-17, AND STILL NOT DONE:** *"register them in `artifact_registry.json` … and
+> regenerate inside `draft-data.yml` between the build and the gate, which ends the
+> class."* The relay reached the same conclusion independently tonight without knowing
+> this paragraph existed — which is itself the session's headline defect: **correct
+> measurements that never get connected.** `draft/tools/stale_blockers.py` now looks for
+> that shape automatically.
+>
+> **Neither `variance_inputs_2026.json` NOR `public/draft_data.json` is registered**, so
+> `check_artifact_freshness.py` can see neither. Two artifacts that belong in the
+> registry and are absent from it is a pattern, not two oversights.
+
 
 `draft/audit/board_publish_stall_2026-08-17.md`. Found 08-17 by checking whether
 the nightly pipeline was healthy, not by anything prompting it.
@@ -342,6 +402,108 @@ thing it warns about.
 
 ## 4. FOR CORY, BEFORE AND ON DRAFT DAY
 
+### ⚠️ ONE THING ON THE SCREEN NOT TO TRUST ACROSS POSITIONS (new 08-18, register 5e)
+
+**The dollar figure — *"which of these two makes me more money?"* — is not
+comparable between a quarterback and anybody else. Use it WITHIN a position.**
+
+Why, in one line: that number prices RAW projected points, and everything else
+in the tool is denominated in points **over replacement**. In a 10-team, 1-QB
+league the tenth-best quarterback projects **341.7** and the tenth-best tight end
+projects 136.4, so pricing raw points hands every QB a ~342-point head start
+nobody else gets. `p.position` never appears in the formula.
+
+What that looks like on Saturday, measured on today's board:
+
+| the tray would say | the board's own rank | the truth |
+|---|---|---|
+| **"Jaxson Dart +$23"** over Saquon Barkley | Dart **86**, Barkley **15** | Dart projects **13.2 points BELOW** a QB you could have for free |
+| **"Jordan Love +$36"** over Brock Bowers | Love **93**, Bowers **7** | Love is **19.2 below** that same line |
+| **"Bo Nix +$10"** over Bijan Robinson | Nix **75**, Bijan **2** | Nix is **6.0 below** it |
+
+**22 of the top 25 by that dollar figure are quarterbacks. On the board's own
+ranking, one is.**
+
+### ⚠️ AND FIFTEEN CEILINGS IN YOUR RANGE ARE COHORT AVERAGES, NOT CLAIMS ABOUT THAT PLAYER (register 4v)
+
+**If you are about to take somebody because the ceiling is big, check this list
+first.** These fifteen carry `proj_ceiling_source: measured-2023-25-p90` — a real
+measurement, but of their **rank band**, not of them:
+
+**Malik Nabers (WR, ADP 28)** · **Garrett Wilson (WR, 41)** · **Jayden Daniels
+(QB, 57)** · Jadarian Price (RB, 58) · Carnell Tate (WR, 67) · Jordyn Tyson (WR,
+83) · Jonathon Brooks (RB, 90) · Makai Lemon (WR, 96) · **Jayden Reed (WR, 110)**
+· Kyler Murray (QB, 123) · Theo Wease (WR, 124) · De'Zhaun Stribling (WR, 136) ·
+KC Concepcion (WR, 138) · Malik Willis (QB, 153) · Jonah Coleman (RB, 154)
+
+The tell is that the numbers repeat: Nabers, Garrett Wilson and Jayden Reed all
+carry a ceiling/mean ratio of **1.4388**; Kyler Murray and Malik Willis both
+**1.6081**. Every other skill player in your range carries a ratio measured from
+his own week-to-week volatility, and those spread by 5–15% inside the same band.
+
+**It also moves the money number**, because the largest coefficient in the dollar
+model (0.22) multiplies `ceiling − mean` — so for these fifteen, the dominant
+term of the E[$] figure above is the cohort constant. **4v and the dollar problem
+are the same screen.**
+
+**Nothing is wrong with their projections, and nothing is broken here** — I
+traced why each one lacks a per-player number and for five of them **the model
+is deliberately refusing to guess**, which is a strength.
+
+The per-player volatility term keys on **2025** weeks. Five of the fifteen —
+**Nabers, Garrett Wilson, Jayden Daniels, Jayden Reed, Kyler Murray** — missed
+2025 and *do* have a 2024 reading, and A ruled on 08-18 that a 2024 number on a
+2026 board is outside the measured support (the persistence that licenses it was
+measured on one-year transitions only). So they keep the cohort constant rather
+than being handed a reading from the last year they happened to play. The other
+ten have no reading in any season. **That call is right and I am not asking to
+revisit it.**
+
+**The one thing worth knowing when you look at those five:** the constant is the
+band's *median*, so it is not a neutral placeholder. Against each man's own last
+reading it lands at Nabers **0.82**, Garrett Wilson **0.87**, Kyler Murray
+**0.84**, Daniels **1.07**, Jayden Reed **1.34**. In plain terms: **four of the
+five are shown a wider ceiling than their own last season supports — Nabers by
+about 23% — and Jayden Reed a roughly 25% narrower one.** Small samples (7–14
+players per cell), so read those as directions, not corrections.
+
+B's default is to grey or asterisk these on screen; the mark should say **"no
+2025 weeks — cohort average"**, not "unmeasured".
+
+**Two other places the same number leaks, so you know them when you see them:**
+
+- **The paths panel's "◆ the &lt;plan&gt; branch" badge.** It marks the path
+  holding the highest-dollar player, so it lands on the **QB row at seven of
+  your first eight picks** — including at 88 and 108, where the quarterback in
+  question (Purdy, Love) is below replacement. **Read the badge as "the most
+  raw points on offer", not as "the plan says take this".**
+- **The strategy banner's silence.** It scores each doctrine by the best-dollar
+  player it allows; a QB tops that list at every pick, so the only doctrines
+  that can ever differ are the ones forbidding QB. **If you enrol in Balanced,
+  the banner will stay quiet all night, and that is structural, not a bug you
+  can wait out** (register 4x).
+
+**WHAT IS NOT AFFECTED, AND IT IS THE bigger half: THE RECOMMENDATIONS.** The
+ranked board, the top-of-board pick, the tiers and the VORP ordering never touch
+this number. This is a comparison surface, not the engine.
+
+**Ruling pending with A before 08-22** — the proposal is to make the tray refuse
+a QB-vs-other comparison the same way it already refuses K/DEF, and say why on
+screen. **If it does not land, this paragraph is the fix.**
+
+**And no, the number is not being quietly left broken because it was easier.**
+The obvious repair — price points over replacement instead of raw points — was
+built and measured, and it is **worse than the defect on the pairs you would
+actually weigh against each other**: against the board's own VORP ordering it
+improves QB pairs in aggregate (51.6% → 42.0% disagreement) but degrades pairs
+within 20 ADP of each other (40.1% → **41.8%**) and pairs with no quarterback at
+all (22.8% → **26.1%**). It would repair the comparison nobody makes and damage
+the RB-vs-WR one you will make all night, because the boom half of the formula
+is replacement-invariant and a level subtraction cannot touch it. **Refusing the
+comparison is the honest move; re-pricing it properly is a post-season job.**
+`draft/audit/dollar_replacement_baseline_2026-08-18.md`.
+
+
 **One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
 The shipped ADP-sd rule is 1.39x FFC's published dispersion in the 50-100 band.
 **Our constant did not drift** (reproduces to 0.1%); the market tightened. Blast
@@ -349,10 +511,24 @@ radius inside his 160 picks is **one player**. Both easy fixes were refused on
 the file's own doctrine. **Recommendation: leave it, revisit post-season.**
 
 **One action on draft day** — re-take the pre-draft freeze AFTER the final board
-build. `draft/data/pre_draft_freeze_2026.json` is from 08-14 and is missing
-**fourteen** declared fields. It is NOT the draft board (the war room boots from
-live `draft_data.json`), it is the record 2027 grades against — and it is the
-only irreversible item in the plan, because the board is overwritten nightly.
+build. It is NOT the draft board (the war room boots from live `draft_data.json`),
+it is the record 2027 grades against — and it is the only irreversible item in
+the plan, because **the board is overwritten nightly and the freeze is not.**
+
+**⚠️ CORRECTED 2026-08-18 (register E12). THIS STEP'S OLD JUSTIFICATION WAS
+FALSE, AND A FALSE JUSTIFICATION IS WORSE THAN NONE ON A STEP NOBODY CAN UNDO.**
+This paragraph used to read *"`pre_draft_freeze_2026.json` is from 08-14 and is
+missing **fourteen** declared fields"*. It is not, and it is not. The freeze was
+re-taken in `60f3487`: `source_artifact_built_at` is **2026-08-16T14:10:12Z**,
+`_sha256_of_payload` is `98f58026…`, **0 of 44 declared fields are missing**, and
+`test_freeze_not_stale.py` is **3/3 green including its `repo_parity` node**
+(re-verified 08-18).
+
+**The action does not change; only the reason does.** Re-take it because the
+board rebuilds nightly and you want the record to match the board Cory actually
+drafted from — not because the current freeze is broken. **A `rm` whose stated
+reason the reader can falsify in one command is a step someone skips**, and this
+one has no second chance.
 
 **Rehearse it first. This deletes nothing**, and was impossible before 08-17:
 ```
@@ -361,8 +537,10 @@ PRE_DRAFT_FREEZE_PATH=/tmp/rehearsal.json python3 draft/freeze_pre_draft.py --ve
 ```
 Expect a player count and `freeze intact`. **Rehearsed on 08-17 against that
 day's board: 682 players × 12 picks, all 44 declared fields present, 0 missing**
-— so a fresh take does close the fourteen-field gap. **If the rehearsal fails,
-delete nothing**: the stale freeze is still the best record that exists.
+— which is what a healthy take looks like. *(This line used to say a fresh take
+"does close the fourteen-field gap"; there is no gap to close — see the
+correction above.)* **If the rehearsal fails, delete nothing**: the committed
+freeze is a complete, verified record and is not worth trading for a failed run.
 
 Then, and only then:
 ```
@@ -683,6 +861,15 @@ is the thing that falls behind it.
 ---
 
 **Suites at hand-off:** Python publication gate (what CI runs) **3,283 passed,
-10 deselected**; JS **309/309**. The deselected `repo_parity` set includes two
-deliberate red flags — the ADP-sd ratchet and the stale freeze — which are
-evidence awaiting a human, not broken builds.
+10 deselected**; JS **309/309**. The deselected `repo_parity` set includes **one**
+deliberate red flag — the ADP-sd ratchet — which is evidence awaiting a human,
+not a broken build.
+
+**⚠️ CORRECTED 2026-08-18 (register E12): this said TWO, counting "the stale
+freeze". There is no stale freeze.** `test_freeze_not_stale.py` is 3/3 green
+including its `repo_parity` node, the freeze carries `source_artifact_built_at`
+2026-08-16T14:10:12Z and 0 of 44 declared fields missing. **A hand-off note that
+counts a healthy artifact as a red flag teaches the next reader to discount real
+ones.**
+
+**Full suite on the relay branch, 2026-08-18: 4,277 passed, 6 skipped, 0 failed.**

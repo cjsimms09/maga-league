@@ -198,9 +198,32 @@ check('survival is dead DESPITE being active — the finding worth pinning',
     + 'that is a REAL change (the conservation fix and the room mixture both touch it) '
     + 'and it needs a look, not a re-pin');
 
-// And nothing UNEXPECTED is dead: anything dead that is neither zero-weighted nor
-// survival is a term that stopped firing without anyone deciding it should.
-const unexpected = deadSet.filter(t => t !== 'survival' && ZERO_WEIGHTED.indexOf(t) === -1);
+// KEEPER joined the explained-dead list on 2026-08-18, and the explanation is
+// a MEASUREMENT, not a shrug. This check went red when the keepers gained
+// their vorp (build.py badge-lie fix, 08-18). The relay tested the obvious
+// link — board players' vorp — and correctly rejected it; the real link was
+// the INCUMBENT BAR in composite.keeperOptionValue: while the keepers carried
+// no vorp, their own raw KOVs were deeply negative, the bar sat at −14.88,
+// and marginal = raw − bar SUBSIDIZED every candidate by ~15 points. The
+// term's entire apparent liveliness was that artifact. With honest keeper
+// vorp the bar is ~0 and the honest marginal option value at this seat's
+// FIRST live pick (33 — rounds 1-3 are forfeited to the keepers, which is
+// where the measured ramp concentrates the term's weight) tops out at ~2.1,
+// right at deviation.js's MATERIAL=2.0, so it never registers as a driver.
+// So: keeper at weight 1.0 buys no intervention in Cory's actual seat. That
+// is a finding about the term, pinned exactly like survival above — if it
+// starts firing, the roster construction or the ramp changed, and it needs a
+// look, not a re-pin. (The bar is now floored at 0 in composite.js, so the
+// subsidy artifact cannot return through one bad incumbent projection.)
+check('keeper is dead DESPITE weight 1.0 — the bar artifact is gone, and this seat forfeits its keeper rounds',
+  deadSet.indexOf('keeper') !== -1,
+  'dead=' + JSON.stringify(deadSet) + ' — keeper started differentiating picks: '
+    + 'either the incumbent bar moved or the seat/ramp changed. Measure before re-pinning.');
+
+// And nothing UNEXPECTED is dead: anything dead that is neither zero-weighted,
+// survival, nor keeper is a term that stopped firing without anyone deciding it should.
+const EXPLAINED_DEAD = ['survival', 'keeper'];
+const unexpected = deadSet.filter(t => EXPLAINED_DEAD.indexOf(t) === -1 && ZERO_WEIGHTED.indexOf(t) === -1);
 check('no term is dead unexpectedly', unexpected.length === 0,
   'unexpectedly dead: ' + JSON.stringify(unexpected));
 
