@@ -5739,9 +5739,32 @@
   /**
    * Record a pick for somebody the board has never heard of.
    *
-   * The stub carries no projection, so it can never move a recommendation. It
-   * exists so the pick count, the seat rosters and your own roster stay true —
+   * The stub carries no projection, so it cannot be SCORED as a recommendation.
+   * It exists so the pick count, the seat rosters and your own roster stay true —
    * which is what every survival and VONA number is computed against.
+   *
+   * ⚠️ "CANNOT MOVE A RECOMMENDATION" IS TOO STRONG — OPEN DEFECT, register E18
+   * (session E, 2026-08-17). A stub is never scored as a candidate itself, but
+   * it lands on `state.myRoster`, and the keeper bar ranks EVERY roster entry,
+   * reading an absent `vorp` as zero via `composite.js`'s `(player.vorp || 0)`.
+   * A valueless row sitting at `ranked[slots-1]` drags the bar NEGATIVE, and
+   * `max(0, raw − bar)` then ADDS to every candidate.
+   *
+   * MEASURED at pick 33 on a roster of two keepers plus one stub: three KEEPER
+   * TARGET badges reading "beats <stub> by 12 pts" — a comparison against a
+   * player carrying no projection at all, and on screen the stub wears its real
+   * Sleeper name.
+   *
+   * INERT FOR CORY'S SLATE TODAY: with three valued keepers the bar is
+   * `ranked[2]` and all three outrank any valueless row, so it binds only when
+   * FEWER THAN `slots` roster entries carry a real value — e.g. if he locks two
+   * keepers on 08-20 and an off-board pick lands on his roster.
+   *
+   * NOT FIXED HERE. The fix is a one-line filter in `composite.js`'s incumbent
+   * ranking and it is written and measured — `draft/audit/proposed/
+   * E18_keeper_bar_ignores_unvalued_rows.patch` — but it is A's call: applying
+   * it moves the published term table in `WAR-ROOM-SURFACE-CONTRACT.md`
+   * (TERRITORY: A), and nothing changes scoring before 08-22.
    */
   function recordManualPick(name, position, slot) {
     const clean = String(name || '').trim();
@@ -9459,7 +9482,11 @@
         position: meta.position || '?',
         team: meta.team || '',
         bye: null,
-        off_board: true,          // rendered differently; never scored
+        /* Rendered differently, and never scored as a candidate. NOT the same
+         * as "reaches nothing": this row joins `state.myRoster`, and the keeper
+         * bar still ranks it as an incumbent worth zero — OPEN, register E18,
+         * see recordManualPick above for the measurement and the proposed fix. */
+        off_board: true,
       };
 
       // REHEARSAL SKIP MODE — THE DEFAULT IN A MOCK.
