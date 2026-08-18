@@ -147,3 +147,53 @@ priced skill category ever goes unparsed again.
 here the same turn — even when the answer is "already covered by X." Especially
 then, because "already covered" is what A6 looked like right up until someone
 checked, and nothing was covering it.
+
+---
+
+## 🔴 2026-08-18 — THE MARKET AXIS WILL PRODUCE NOTHING ALL SEASON UNLESS YOU SAY GO. ONE DECISION, WITH THE PRICE.
+
+**Context, measured tonight:** the champion (`own_v6`) already contains usage share,
+pace, xFP efficiency and a Vegas week-1 tilt. Two arms I proposed as "new axes" turned
+out to be **already graded and failed** because they re-added what the model has
+(`pace_arm.json` and `advanced_efficiency_study.json`, both `clears: false`).
+**The one family the model does NOT contain is MARKET INFORMATION** — lines set by
+people with money at stake. That is now the priority for beating Sleeper and
+FantasyPros next year.
+
+**AND ITS PIPELINE IS NOT SCHEDULED.**
+
+`draft/weekly_props_arm.py` (`props_weekly_v1`) is **built and already wired into the
+Tuesday grader** — `weekly_own_grade.py` imports it and grades it as a study arm. But
+its input folder is *"empty pending a human-dispatched real fetch"*, and
+**`weekly-props-fetch.yml` is `workflow_dispatch` only — it has NO cron.**
+
+**So on Thursday of week 1 the projection job runs, on Tuesday the grader runs, and the
+props arm is silently absent from every grade, all season, because nobody pressed a
+button.** That is the exact shape of failure you have been calling out all week.
+
+**THE PRICE, computed from the fetcher's own `estimate_credits()`:**
+
+| scope | per week (16 games) | full 18-week season |
+|---|---|---|
+| **all 8 player-prop markets** | 1,280 credits | **23,040** |
+| confirmed market only (`player_pass_yds`) | 160 credits | 2,880 |
+
+**Budget last seen: 75,681 credits remaining**, on what the fetcher's header reads as a
+~100,000/month plan. **The full-fat option is ~31% of the current balance spread across
+four months.**
+
+**THE ASK — one word:**
+1. **GO, all 8 markets** (23,040/season) — the complete market picture, and the version
+   that can answer P12 (alternate lines imply the per-player *distribution* no source
+   will publish — the thing we went looking for all week and could not buy).
+2. **GO, narrow** (2,880/season) — passing yards only; cheap, but QB-only signal.
+3. **HOLD** — and the market axis produces nothing in 2026, which pushes the
+   "beat Sleeper and FP" verdict to 2028.
+
+**RELAY'S REC: option 1.** It is the only untapped family, the arm is already built and
+graded-ready, and the cost is a fraction of a budget that otherwise expires monthly
+unused. **A capture not taken cannot be backfilled** — that is your own standing rule,
+and week 1 is ~09-10.
+
+**DEFAULT IF YOU SAY NOTHING: nothing happens.** This one cannot have a relay default —
+it spends your money.
