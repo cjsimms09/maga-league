@@ -90,4 +90,28 @@ def test_the_committed_artifact_recorded_no_ship_for_both_arms():
     # three positions (RB P@12 +0.083 while rho drips inside noise). If a
     # regeneration shows C7 degrading somewhere, the input data moved — look.
     assert doc["verdicts"]["c7_availability_gate"]["positions_degrading"] == []
-    assert doc["information_set"]["leak_note"].startswith("the ->2025")
+    assert doc["information_set"]["leak_note"] == (
+        "every fit excludes transitions/triples touching 2025")
+
+
+def test_the_secondary_fold_killed_both_likeable_single_fold_results():
+    """§2's 2024 fold, run the same night rather than argued about later.
+
+    Two single-fold results looked shippable and BOTH failed to replicate,
+    in opposite directions: C7's 2025 RB P@12 gain (+0.083) INVERTS on 2024
+    (−0.083), and C5 — which degraded TE on 2025 — 'ships' on 2024 alone.
+    The cross-fold reading is the §3 verdict: neither is adopted, and the
+    pin here is the CONCLUSION, so a regeneration that flips a fold makes
+    someone look rather than quietly re-decide."""
+    doc = json.loads((BT / "v7_candidate_grade.json").read_text())
+    sec = doc["secondary_fold_2024"]
+    assert sec["graded_season"] == 2024
+    for arm in ("c1_age_curves", "c3_fitted_recency",
+                "c5_wr_only_efficiency", "c7_availability_gate"):
+        assert arm in sec["verdicts"], arm
+    # C7's 2025 near-miss does not replicate: nothing improves on 2024
+    assert sec["verdicts"]["c7_availability_gate"]["positions_improving_both"] == []
+    # C5's single-fold ship on 2024 is recorded as a FACT of that fold —
+    # the cross-fold §3 answer stays NO because the 2025 fold degrades TE
+    assert sec["verdicts"]["c5_wr_only_efficiency"]["ships_under_section_3"] is True
+    assert doc["verdicts"]["c5_wr_only_efficiency"]["positions_degrading"] == ["TE"]

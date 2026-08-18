@@ -1,6 +1,11 @@
 {
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/v7_candidate_grade.py",
  "_prereg": "V7-CANDIDATE-PREREG.md \u00a72/\u00a73; bars declared in this module's docstring before any number",
+ "bars": {
+  "spearman": 0.02,
+  "mae_frac": 0.02,
+  "p_at_k": 0.084
+ },
  "graded_season": 2025,
  "information_set": {
   "c1_age_transitions": [
@@ -28,12 +33,7 @@
   "c3_incumbent_w": 0.7,
   "c7_shrink_k": 1.0,
   "c7_map_size": 625,
-  "leak_note": "the ->2025 age transition and recency triple are excluded from both fits"
- },
- "bars": {
-  "spearman": 0.02,
-  "mae_frac": 0.02,
-  "p_at_k": 0.084
+  "leak_note": "every fit excludes transitions/triples touching 2025"
  },
  "grades": {
   "base_v6": {
@@ -693,6 +693,696 @@
    "positions_improving_both": [],
    "positions_degrading": [],
    "ships_under_section_3": false
+  }
+ },
+ "secondary_fold_2024": {
+  "graded_season": 2024,
+  "prior_seasons": [
+   2022,
+   2023
+  ],
+  "information_set": {
+   "c1_age_transitions": [
+    "2021->2022",
+    "2022->2023"
+   ],
+   "c1_positions": [
+    "QB",
+    "RB",
+    "WR"
+   ],
+   "c1_players_adjusted": 102,
+   "c1_position_means_normalized_out": {
+    "QB": 1.0,
+    "RB": 1.101,
+    "WR": 0.9855
+   },
+   "c3_w_by_pos_leakfree": {
+    "QB": 0.65,
+    "RB": 0.7,
+    "WR": 0.6,
+    "TE": 0.7
+   },
+   "c3_incumbent_w": 0.7,
+   "c7_shrink_k": 1.0,
+   "c7_map_size": 608,
+   "leak_note": "every fit excludes transitions/triples touching 2024"
+  },
+  "grades": {
+   "base_v6": {
+    "_territory": "TERRITORY: C \u2014 produced by draft/backtest/model_accuracy_grade.py",
+    "_note": "Full-board (Spearman/MAE/bias) is the D13 metric, unchanged. precision.{12,24} is the top-tier metric the 2026-08-18 resource review added (position_predictor transfer) -- a model can lose the full board and win the draftable zone.",
+    "min_n": 10,
+    "graded": 386,
+    "exclusions": {
+     "excluded_no_position": 0,
+     "excluded_no_actual": 115
+    },
+    "unmeasurable_positions": {
+     "K": "no kicking/team-defense stats in the weekly stores this harness grades against",
+     "DEF": "no kicking/team-defense stats in the weekly stores this harness grades against"
+    },
+    "cells": {
+     "QB": {
+      "n": 59,
+      "status": "measured",
+      "spearman": 0.6524,
+      "mae": 75.98,
+      "bias": 12.01,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 20,
+        "precision": 0.8333
+       }
+      }
+     },
+     "RB": {
+      "n": 102,
+      "status": "measured",
+      "spearman": 0.7538,
+      "mae": 41.85,
+      "bias": -1.59,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 19,
+        "precision": 0.7917
+       }
+      }
+     },
+     "WR": {
+      "n": 147,
+      "status": "measured",
+      "spearman": 0.7224,
+      "mae": 37.45,
+      "bias": 6.11,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 13,
+        "precision": 0.5417
+       }
+      }
+     },
+     "TE": {
+      "n": 78,
+      "status": "measured",
+      "spearman": 0.7219,
+      "mae": 25.76,
+      "bias": 1.12,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 17,
+        "precision": 0.7083
+       }
+      }
+     }
+    }
+   },
+   "c1_age_curves": {
+    "_territory": "TERRITORY: C \u2014 produced by draft/backtest/model_accuracy_grade.py",
+    "_note": "Full-board (Spearman/MAE/bias) is the D13 metric, unchanged. precision.{12,24} is the top-tier metric the 2026-08-18 resource review added (position_predictor transfer) -- a model can lose the full board and win the draftable zone.",
+    "min_n": 10,
+    "graded": 386,
+    "exclusions": {
+     "excluded_no_position": 0,
+     "excluded_no_actual": 115
+    },
+    "unmeasurable_positions": {
+     "K": "no kicking/team-defense stats in the weekly stores this harness grades against",
+     "DEF": "no kicking/team-defense stats in the weekly stores this harness grades against"
+    },
+    "cells": {
+     "QB": {
+      "n": 59,
+      "status": "measured",
+      "spearman": 0.6524,
+      "mae": 75.98,
+      "bias": 12.01,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 20,
+        "precision": 0.8333
+       }
+      }
+     },
+     "RB": {
+      "n": 102,
+      "status": "measured",
+      "spearman": 0.7292,
+      "mae": 44.98,
+      "bias": -2.4,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 17,
+        "precision": 0.7083
+       }
+      }
+     },
+     "WR": {
+      "n": 147,
+      "status": "measured",
+      "spearman": 0.7273,
+      "mae": 37.96,
+      "bias": 6.29,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 5,
+        "precision": 0.4167
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 15,
+        "precision": 0.625
+       }
+      }
+     },
+     "TE": {
+      "n": 78,
+      "status": "measured",
+      "spearman": 0.7219,
+      "mae": 25.76,
+      "bias": 1.12,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 17,
+        "precision": 0.7083
+       }
+      }
+     }
+    }
+   },
+   "c3_fitted_recency": {
+    "_territory": "TERRITORY: C \u2014 produced by draft/backtest/model_accuracy_grade.py",
+    "_note": "Full-board (Spearman/MAE/bias) is the D13 metric, unchanged. precision.{12,24} is the top-tier metric the 2026-08-18 resource review added (position_predictor transfer) -- a model can lose the full board and win the draftable zone.",
+    "min_n": 10,
+    "graded": 386,
+    "exclusions": {
+     "excluded_no_position": 0,
+     "excluded_no_actual": 115
+    },
+    "unmeasurable_positions": {
+     "K": "no kicking/team-defense stats in the weekly stores this harness grades against",
+     "DEF": "no kicking/team-defense stats in the weekly stores this harness grades against"
+    },
+    "cells": {
+     "QB": {
+      "n": 59,
+      "status": "measured",
+      "spearman": 0.6541,
+      "mae": 76.69,
+      "bias": 12.78,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 7,
+        "precision": 0.5833
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 20,
+        "precision": 0.8333
+       }
+      }
+     },
+     "RB": {
+      "n": 102,
+      "status": "measured",
+      "spearman": 0.7538,
+      "mae": 41.85,
+      "bias": -1.59,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 19,
+        "precision": 0.7917
+       }
+      }
+     },
+     "WR": {
+      "n": 147,
+      "status": "measured",
+      "spearman": 0.7224,
+      "mae": 37.45,
+      "bias": 6.11,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 13,
+        "precision": 0.5417
+       }
+      }
+     },
+     "TE": {
+      "n": 78,
+      "status": "measured",
+      "spearman": 0.7219,
+      "mae": 25.76,
+      "bias": 1.12,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 17,
+        "precision": 0.7083
+       }
+      }
+     }
+    }
+   },
+   "c5_wr_only_efficiency": {
+    "_territory": "TERRITORY: C \u2014 produced by draft/backtest/model_accuracy_grade.py",
+    "_note": "Full-board (Spearman/MAE/bias) is the D13 metric, unchanged. precision.{12,24} is the top-tier metric the 2026-08-18 resource review added (position_predictor transfer) -- a model can lose the full board and win the draftable zone.",
+    "min_n": 10,
+    "graded": 386,
+    "exclusions": {
+     "excluded_no_position": 0,
+     "excluded_no_actual": 115
+    },
+    "unmeasurable_positions": {
+     "K": "no kicking/team-defense stats in the weekly stores this harness grades against",
+     "DEF": "no kicking/team-defense stats in the weekly stores this harness grades against"
+    },
+    "cells": {
+     "QB": {
+      "n": 59,
+      "status": "measured",
+      "spearman": 0.6524,
+      "mae": 75.98,
+      "bias": 12.01,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 20,
+        "precision": 0.8333
+       }
+      }
+     },
+     "RB": {
+      "n": 102,
+      "status": "measured",
+      "spearman": 0.754,
+      "mae": 41.25,
+      "bias": -2.01,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 7,
+        "precision": 0.5833
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 19,
+        "precision": 0.7917
+       }
+      }
+     },
+     "WR": {
+      "n": 147,
+      "status": "measured",
+      "spearman": 0.7224,
+      "mae": 37.45,
+      "bias": 6.11,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 13,
+        "precision": 0.5417
+       }
+      }
+     },
+     "TE": {
+      "n": 78,
+      "status": "measured",
+      "spearman": 0.7236,
+      "mae": 25.75,
+      "bias": 1.05,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 17,
+        "precision": 0.7083
+       }
+      }
+     }
+    }
+   },
+   "c7_availability_gate": {
+    "_territory": "TERRITORY: C \u2014 produced by draft/backtest/model_accuracy_grade.py",
+    "_note": "Full-board (Spearman/MAE/bias) is the D13 metric, unchanged. precision.{12,24} is the top-tier metric the 2026-08-18 resource review added (position_predictor transfer) -- a model can lose the full board and win the draftable zone.",
+    "min_n": 10,
+    "graded": 386,
+    "exclusions": {
+     "excluded_no_position": 0,
+     "excluded_no_actual": 115
+    },
+    "unmeasurable_positions": {
+     "K": "no kicking/team-defense stats in the weekly stores this harness grades against",
+     "DEF": "no kicking/team-defense stats in the weekly stores this harness grades against"
+    },
+    "cells": {
+     "QB": {
+      "n": 59,
+      "status": "measured",
+      "spearman": 0.6524,
+      "mae": 75.98,
+      "bias": 12.01,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 59,
+        "hits": 20,
+        "precision": 0.8333
+       }
+      }
+     },
+     "RB": {
+      "n": 102,
+      "status": "measured",
+      "spearman": 0.7543,
+      "mae": 41.58,
+      "bias": -4.44,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 5,
+        "precision": 0.4167
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 102,
+        "hits": 19,
+        "precision": 0.7917
+       }
+      }
+     },
+     "WR": {
+      "n": 147,
+      "status": "measured",
+      "spearman": 0.7103,
+      "mae": 37.68,
+      "bias": 2.86,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 7,
+        "precision": 0.5833
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 147,
+        "hits": 14,
+        "precision": 0.5833
+       }
+      }
+     },
+     "TE": {
+      "n": 78,
+      "status": "measured",
+      "spearman": 0.7192,
+      "mae": 25.31,
+      "bias": 0.24,
+      "precision": {
+       "12": {
+        "k": 12,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 6,
+        "precision": 0.5
+       },
+       "24": {
+        "k": 24,
+        "status": "measured",
+        "n_population": 78,
+        "hits": 17,
+        "precision": 0.7083
+       }
+      }
+     }
+    }
+   }
+  },
+  "verdicts": {
+   "c1_age_curves": {
+    "per_position": {
+     "QB": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "RB": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": true
+     },
+     "WR": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "TE": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     }
+    },
+    "positions_improving_both": [],
+    "positions_degrading": [
+     "RB"
+    ],
+    "ships_under_section_3": false
+   },
+   "c3_fitted_recency": {
+    "per_position": {
+     "QB": {
+      "family1_improves": false,
+      "family2_improves": true,
+      "degrades_beyond_noise": false
+     },
+     "RB": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "WR": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "TE": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     }
+    },
+    "positions_improving_both": [],
+    "positions_degrading": [],
+    "ships_under_section_3": false
+   },
+   "c5_wr_only_efficiency": {
+    "per_position": {
+     "QB": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "RB": {
+      "family1_improves": true,
+      "family2_improves": true,
+      "degrades_beyond_noise": false
+     },
+     "WR": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "TE": {
+      "family1_improves": true,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     }
+    },
+    "positions_improving_both": [
+     "RB"
+    ],
+    "positions_degrading": [],
+    "ships_under_section_3": true
+   },
+   "c7_availability_gate": {
+    "per_position": {
+     "QB": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "RB": {
+      "family1_improves": true,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     },
+     "WR": {
+      "family1_improves": false,
+      "family2_improves": true,
+      "degrades_beyond_noise": false
+     },
+     "TE": {
+      "family1_improves": false,
+      "family2_improves": false,
+      "degrades_beyond_noise": false
+     }
+    },
+    "positions_improving_both": [],
+    "positions_degrading": [],
+    "ships_under_section_3": false
+   }
   }
  }
 }
