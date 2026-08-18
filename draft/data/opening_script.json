@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-18T03:44:46Z",
-   "board_content_hash": "cf9589932eb2",
+   "board_built_at": "2026-08-18T05:33:24Z",
+   "board_content_hash": "bb295750c92c",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
