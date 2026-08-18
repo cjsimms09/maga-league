@@ -171,3 +171,81 @@ def test_FAIL_ARM_the_id_check_can_actually_fail(tmp_path, monkeypatch):
             clashes.append(rid)
         seen[rid] = text
     assert clashes == ["7"], clashes
+
+
+# ── COLUMN INTEGRITY, AND THE RELAY BROKE THIS ROW ITSELF ────────────────────
+#
+# 2026-08-18. Annotating row 4v I appended prose containing the calibration-cell
+# notation `WR|33+`. A markdown table cell cannot hold a bare pipe: every one is
+# a COLUMN SEPARATOR. So the append landed mid-sentence — the helper split the
+# line on all pipes and treated the fragment ending at `WR|` as the claim cell —
+# and the row rendered with `33+ n=91 → 7.79e-4 · TE` in its OWNER column.
+#
+# NOTHING CAUGHT IT, and the reason is worth stating because it is not a hole:
+# the owner check above SEARCHES every cell for an owner pattern and the action
+# check reads `cells[-1]`, both deliberately position-independent. That design
+# is why this file kept passing on a scrambled row — robustness bought at the
+# price of blindness to the scrambling itself.
+#
+# Six rows already carried this before today (4i, 4q, 4s, 4t, E15, 39), so it
+# ships as a RATCHET rather than a hard gate: an existing mess is not a reason
+# to block the build, and it is every reason to stop the mess growing.
+KNOWN_BROKEN_COLUMNS = 6
+
+
+def _unescaped_columns(line: str) -> list:
+    """Cells, splitting only on pipes a cell did not escape.
+
+    `\\|` renders as a literal pipe in GitHub markdown and is the correct way to
+    write `WR\\|33+` inside a cell.
+    """
+    return re.split(r"(?<!\\)\|", line.rstrip("\n"))
+
+
+def _malformed_rows() -> list:
+    out = []
+    for line in open(REGISTER, encoding="utf8").read().split("\n"):
+        m = re.match(r"^\| ([0-9A-Za-z]+) \|", line)
+        if not m or m.group(1) == "what":     # prose lines beginning "| what"
+            continue
+        cols = _unescaped_columns(line)
+        if len(cols) != 7:
+            out.append((m.group(1), len(cols)))
+    return out
+
+
+def test_no_NEW_row_smuggles_an_unescaped_pipe_into_a_cell():
+    """RATCHET. If this fails you added a bare `|` inside a cell — escape it as
+    `\\|`. Do not raise the number; the whole point is that it only falls."""
+    bad = _malformed_rows()
+    assert len(bad) <= KNOWN_BROKEN_COLUMNS, (
+        f"{len(bad)} rows have a broken column count (was {KNOWN_BROKEN_COLUMNS}): "
+        f"{bad}. A bare pipe inside a cell is a column separator — escape it.")
+
+
+def test_CONTROL_the_column_check_sees_healthy_rows_too():
+    """Without this, a parser that matched nothing would satisfy the ratchet
+    forever — the vacuous-green shape (`vacuous_check_scan.py`)."""
+    total = sum(1 for line in open(REGISTER, encoding="utf8").read().split("\n")
+                if re.match(r"^\| [0-9A-Za-z]+ \|", line))
+    assert total > 80, f"only {total} rows parsed — the row shape changed"
+    assert len(_malformed_rows()) < total / 4, "most rows should be well formed"
+
+
+def test_FAIL_ARM_an_unescaped_pipe_IS_detected(tmp_path, monkeypatch):
+    """The exact 4v shape, on a fixture."""
+    fake = tmp_path / "DEFECT-REGISTER.md"
+    fake.write_text(
+        "| 9a | a clean claim | A | OPEN | do the thing |\n"
+        "| 9b | cells WR|33+ and RB|33+ | A | OPEN | do the thing |\n",
+        encoding="utf8")
+    import sys as _sys
+    monkeypatch.setattr(_sys.modules[__name__], "REGISTER", str(fake))
+    bad = _malformed_rows()
+    assert [r for r, _ in bad] == ["9b"], bad
+    #: and the escaped form is accepted, or the fix would have nowhere to go
+    fake.write_text(
+        "| 9a | a clean claim | A | OPEN | do the thing |\n"
+        "| 9b | cells WR\\|33+ and RB\\|33+ | A | OPEN | do the thing |\n",
+        encoding="utf8")
+    assert _malformed_rows() == []
