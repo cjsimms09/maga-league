@@ -18,6 +18,32 @@
    shows no stale-board warning. Freeze THAT board (step 2), nothing older.
 2. **Freeze**: confirm `draft/freeze_pre_draft.py` has run against THAT board
    and note the freeze SHA (it prints; also in the freeze artifact).
+
+   > ⚠️ **EXPECT IT TO SAY `PROVISIONAL`, AND EXPECT ITS REASON TO BE WRONG —
+   > register 5l, found 2026-08-18.** The freeze stamps `CONFIRMED` only when
+   > `keeper_lock_passed` is true, and **that flag is `false` forever**:
+   > `assess_slate()` takes it as a parameter defaulting to `false` and all
+   > three `build.py` call sites omit it. So on Saturday morning — with keepers
+   > locked since 6:00 PM Friday — the freeze will print **`PROVISIONAL … the
+   > keeper lock has not passed`**. That sentence is FALSE and it is the tool's
+   > fault, not the league's.
+   >
+   > **WHAT TO DO: take the freeze anyway and note the SHA. It is a complete,
+   > correct capture of the board** — the status word is the only thing wrong,
+   > and the freeze IS the season's grading baseline whatever it calls itself.
+   > Do NOT go looking for an unlocked keeper slate; do NOT re-run it hoping
+   > for a different word.
+   >
+   > **AND THE ALARM THAT WOULD NORMALLY CATCH THIS IS THE SAME DEAD FLAG.**
+   > `standing_check.py` escalates on *"THE KEEPER LOCK HAS PASSED AND THE
+   > FREEZE IS STILL {status} … unrecoverable once the draft starts"* — gated
+   > on `keeper_lock_passed` alone, so it can never fire. **Nothing will tell
+   > you to re-take the freeze after the lock. This paragraph is the
+   > replacement for that alarm until A ships the fix** (prepared:
+   > `draft/backtest/5l_proposed_fix_for_approval_2026-08-18.md`; ROUTES
+   > `TO: A` item 00). **If A ships it before Saturday, the freeze can stamp
+   > `CONFIRMED` and this note stops applying — check which world you are in
+   > by reading the printed status, not by assuming.**
 3. **Netlify check**: dashboard → Usage → build minutes comfortably under cap.
    NO deploys Aug 20–22 except draft-critical fixes.
 4. **Ledger check (5 min, Cory's browser)**: logged in as commissioner, visit
