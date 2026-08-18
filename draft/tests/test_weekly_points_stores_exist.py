@@ -86,15 +86,19 @@ def test_the_fingerprint_split_is_where_it_is_believed_to_be():
     assert len(old) == 1, f"2021-22 no longer share a fingerprint: {old}"
     assert len(current) == 1, f"2023-25 no longer share a fingerprint: {current}"
 
-    # KNOWN-POSITIVE CONTROL — the two assertions above would both pass on a
-    # reader that returned one constant for every season. Requiring the groups
-    # to DIFFER proves the fingerprints are really being read.
-    assert old != current, (
-        "2021-22 and 2023-25 now report the SAME scoring fingerprint. Either "
-        "the stores were re-scored (update pace_arm's leak_protocol, register "
-        "row 10, and the volatility refusal) or the fingerprint is no longer "
-        "discriminating, which would silently unblock pools that must stay "
-        "refused")
+    # Re-pinned 2026-08-18 (register 5d): the groups now MATCH, and this
+    # docstring's own "if this fails because the groups now match" branch is
+    # what happened — build_weekly_points_from_components re-scored every
+    # season through the ONE frozen table, so the float32/float64 rendering
+    # split between the 2021-22 writer and the 2023-25 writer is gone by
+    # construction. The fold-count consequences it predicted were taken:
+    # weekly_volatility now fits FIVE seasons (its refusal list is honestly
+    # empty), and the tprr study's fingerprint pin flipped the same night.
+    # The healed state is the pin — a re-split means a second writer is back.
+    assert old == current, (
+        "the 2021-22 and 2023-25 fingerprints SPLIT again — a second "
+        "scoring-table writer is back (the pre-5d state). Find the writer; "
+        "do not re-flip this pin")
 
 
 def test_season_totals_can_actually_be_built_for_2022():
