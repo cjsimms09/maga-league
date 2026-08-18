@@ -1232,6 +1232,45 @@ router.get('/projections', requireCory, aw(async (req, res) => {
   });
 }));
 
+// THE POST-DRAFT ANALYZER SURFACE (Cory, 2026-08-18, verbatim: "After draft
+// it should immediately be ready for me, I will make bet with Richard.").
+// Reads public/league_analysis_2026.json, produced by
+// draft/tools/league_analyzer.py off Sleeper + our board — this route does no
+// computation of its own, it only lays the artifact out. The `_claim` line is
+// rendered VERBATIM near the top by design: Cory must never quote a
+// projection to Richard as a result, and the artifact itself carries that
+// caveat (rehearsal warning pre-draft, "projections not results" after).
+router.get('/league-analysis', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = null;
+  try {
+    artifact = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', '..', 'public', 'league_analysis_2026.json'), 'utf8'));
+  } catch (e) { artifact = null; }
+  if (!artifact) {
+    return res.render('admin/league-analysis', {
+      artifact: null, standings: [], roundMeans: {}, rehearsal: false, claim: '', honesty: {},
+    });
+  }
+  const grades = (artifact.draft_grades || {}).teams || {};
+  const roundMeans = (artifact.draft_grades || {}).round_means || {};
+  // Join the grade (keyed by roster_id, from draft_grades.teams) onto each
+  // standings row (which already carries the owner name) — one row per team,
+  // never two derivations of who's who.
+  const standings = (artifact.projected_standings || []).map(r => ({
+    ...r,
+    grade: grades[String(r.roster_id)] || null,
+  }));
+  res.render('admin/league-analysis', {
+    artifact,
+    standings,
+    roundMeans,
+    rehearsal: !!artifact._rehearsal,
+    claim: artifact._claim || '',
+    honesty: artifact.honesty || {},
+  });
+}));
+
 // ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----
 // The fat-finger fix: reassign or void any owner's slot claim mid-process.
 // Atomic at the document level (one read-modify-write of the ONE claim doc),
