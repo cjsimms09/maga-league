@@ -35,11 +35,11 @@ still on a partial slate.
 
 ---
 
-## 1 · CORY'S TWO RULINGS
+## 1 · CORY'S RULINGS — ONE DOWN, ONE POST-DRAFT
 
 | | what he decides | why it cannot wait / can | register |
 |---|---|---|---|
-| **C1** | **The keeper deadline: 08-20, or 08-21 6:00 PM CDT?** | **P0, league-facing.** B's banner would pin *"Friday August 21 at 6:00 PM CDT"* to all ten managers while **fifteen files in this repo say 08-20.** One of the two is wrong and both are about to be stated as fact. | **42**, Q17, ledger P71 |
+| ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** The banner's date was right; the fifteen files were wrong. **Root cause fixed, not just the date:** `league_config.json` now carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B is unblocked to ship. | *nothing further* | **42** ruled, P71 graded FALSE |
 | **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
 
 *(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
