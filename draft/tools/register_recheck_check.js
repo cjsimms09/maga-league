@@ -117,7 +117,49 @@ function audit(text, today) {
   const dated = open.map(r => ({ r, due: recheckOf(r) })).filter(x => x.due);
   const overdue = dated.filter(x => x.due < today);
   const undated = open.filter(r => !recheckOf(r));
-  return { all, open, dated, overdue, undated };
+  return { all, open, dated, overdue, undated, dupes: nearDuplicates(open) };
+}
+
+/* ── TWO OPEN ROWS, ONE FINDING (added 2026-08-18, on three at once) ────────
+ *
+ * Merging `main` produced THREE duplicate pairs — DS1/31, DS4/45, DS5/44 —
+ * each the same measurement word for word under two ids. The mechanism will
+ * recur: the D lane renumbered its `DS`-prefixed rows to numeric ids at its own
+ * merge (row 45 still says "renumbered from 38 at merge — id taken"), and a
+ * later merge brings BOTH the original and the renumbered copy back.
+ *
+ * That costs more than tidiness. A duplicated row inflates the open count, and
+ * two lanes can independently work the same defect and each believe the other
+ * row is something else. It is the register's version of the ledger's duplicate
+ * id — which was also found live, and also only after it had already happened.
+ *
+ * ⚠️ COMPARED ON A NORMALISED PREFIX, NOT THE WHOLE CELL. Rows accrete
+ * annotations, so two copies diverge in their tails within a day of being
+ * filed — comparing full text would stop matching exactly when it matters. The
+ * headline is what identifies a finding, so that is what is compared.
+ */
+function normalise(r) {
+  return String(r.all || '')
+    .replace(/\*|`|_|~/g, '')          // markdown emphasis
+    .replace(/^\s*[A-Za-z0-9]+\s*/, '')  // the id itself
+    .replace(/\(renumbered[^)]*\)/i, '') // the renumber note, which differs BY DESIGN
+    .replace(/[^\w ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .slice(0, 160);
+}
+
+function nearDuplicates(open) {
+  const seen = new Map();
+  const out = [];
+  for (const r of open) {
+    const k = normalise(r);
+    if (k.length < 40) continue;        // too short to be a confident match
+    if (seen.has(k)) out.push({ a: seen.get(k).id.trim(), b: r.id.trim(), head: k.slice(0, 70) });
+    else seen.set(k, r);
+  }
+  return out;
 }
 
 function main() {
@@ -129,6 +171,17 @@ function main() {
   console.log(`  today: ${today}`);
   console.log(`  ${a.all.length} rows, ${a.open.length} open, `
     + `${a.dated.length} carrying a recheck date, ${a.undated.length} without one\n`);
+
+  /* A DUPLICATE IS A HARD FAILURE, not a note. Two open rows for one finding
+   * means two lanes can work it independently, each believing the other row is
+   * something else — and the open count that everyone reads is wrong. */
+  if (a.dupes.length) {
+    console.log(`  ✗ ${a.dupes.length} DUPLICATE ROW PAIR(S) — one finding, two open ids:\n`);
+    a.dupes.forEach(d => console.log(`      ${d.a} and ${d.b}: "${d.head}…"`));
+    console.log('\n  Keep one, mark the other SUPERSEDED with a pointer. Do NOT delete it —\n'
+      + '  an id that vanishes breaks every reference to it.');
+    process.exitCode = 1;
+  }
 
   if (a.overdue.length) {
     console.log('  🔴 PAST ITS OWN RECHECK DATE AND STILL OPEN:\n');
@@ -155,4 +208,4 @@ function main() {
 }
 
 if (require.main === module) process.exitCode = main();
-module.exports = { audit, rows, isClosed, recheckOf };
+module.exports = { audit, rows, isClosed, recheckOf, nearDuplicates, normalise };
