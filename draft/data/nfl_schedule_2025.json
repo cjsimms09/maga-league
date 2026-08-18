@@ -1,0 +1,2954 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by .github/workflows/bdl-schedule-capture.yml",
+ "_what": "2026 NFL schedule from Ball Don't Lie's FREE tier: date, week, teams.",
+ "_why": "weekly-props-fetch.yml refuses without --date ('the vegas store has no game dates'), so the paid Odds API credits \u2014 expiring ~08-31 \u2014 cannot be spent at all until a free schedule exists. This is that schedule.",
+ "_bdl_scope": "BDL's free key serves games/teams/players (200) but NOT odds (401) or player props (404) \u2014 see bdl_key_matrix.json.",
+ "captured_at": "2026-08-18T03:35:07.938089+00:00",
+ "season": 2025,
+ "games": 285,
+ "fetch_error": null,
+ "weeks": {
+  "1": {
+   "games": 22,
+   "first": "2025-09-05T00:20:00.000Z",
+   "last": "2026-01-13T01:15:00.000Z"
+  },
+  "2": {
+   "games": 20,
+   "first": "2025-09-12T00:15:00.000Z",
+   "last": "2026-01-18T23:30:00.000Z"
+  },
+  "3": {
+   "games": 18,
+   "first": "2025-09-19T00:15:00.000Z",
+   "last": "2026-01-25T23:30:00.000Z"
+  },
+  "4": {
+   "games": 16,
+   "first": "2025-09-26T00:15:00.000Z",
+   "last": "2025-09-30T00:15:00.000Z"
+  },
+  "5": {
+   "games": 15,
+   "first": "2025-10-03T00:15:00.000Z",
+   "last": "2026-02-08T23:30:00.000Z"
+  },
+  "6": {
+   "games": 15,
+   "first": "2025-10-10T00:15:00.000Z",
+   "last": "2025-10-14T00:15:00.000Z"
+  },
+  "7": {
+   "games": 15,
+   "first": "2025-10-17T00:15:00.000Z",
+   "last": "2025-10-21T02:00:00.000Z"
+  },
+  "8": {
+   "games": 13,
+   "first": "2025-10-24T00:15:00.000Z",
+   "last": "2025-10-28T00:15:00.000Z"
+  },
+  "9": {
+   "games": 14,
+   "first": "2025-10-31T00:15:00.000Z",
+   "last": "2025-11-04T01:15:00.000Z"
+  },
+  "10": {
+   "games": 14,
+   "first": "2025-11-07T01:15:00.000Z",
+   "last": "2025-11-11T01:15:00.000Z"
+  },
+  "11": {
+   "games": 15,
+   "first": "2025-11-14T01:15:00.000Z",
+   "last": "2025-11-18T01:15:00.000Z"
+  },
+  "12": {
+   "games": 14,
+   "first": "2025-11-21T01:15:00.000Z",
+   "last": "2025-11-25T01:15:00.000Z"
+  },
+  "13": {
+   "games": 16,
+   "first": "2025-11-27T18:00:00.000Z",
+   "last": "2025-12-02T01:15:00.000Z"
+  },
+  "14": {
+   "games": 14,
+   "first": "2025-12-05T01:15:00.000Z",
+   "last": "2025-12-09T01:15:00.000Z"
+  },
+  "15": {
+   "games": 16,
+   "first": "2025-12-12T01:15:00.000Z",
+   "last": "2025-12-16T01:15:00.000Z"
+  },
+  "16": {
+   "games": 16,
+   "first": "2025-12-19T01:15:00.000Z",
+   "last": "2025-12-23T01:15:00.000Z"
+  },
+  "17": {
+   "games": 16,
+   "first": "2025-12-25T18:00:00.000Z",
+   "last": "2025-12-30T01:15:00.000Z"
+  },
+  "18": {
+   "games": 16,
+   "first": "2026-01-03T21:30:00.000Z",
+   "last": "2026-01-05T01:20:00.000Z"
+  }
+ },
+ "rows": [
+  {
+   "game_id": 423945,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-05T00:20:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 423946,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-06T00:00:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 423947,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 423948,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 423949,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 423950,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 423951,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 423952,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 423953,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 423954,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 423955,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T20:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 423956,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 423957,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T20:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 423958,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-07T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 423959,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-08T00:20:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 423960,
+   "season": 2025,
+   "week": 1,
+   "date": "2025-09-09T00:15:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 1256288,
+   "season": 2025,
+   "week": 1,
+   "date": "2026-01-10T21:30:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "LAR",
+   "postseason": true
+  },
+  {
+   "game_id": 1256289,
+   "season": 2025,
+   "week": 1,
+   "date": "2026-01-11T01:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "GB",
+   "postseason": true
+  },
+  {
+   "game_id": 1256290,
+   "season": 2025,
+   "week": 1,
+   "date": "2026-01-11T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "BUF",
+   "postseason": true
+  },
+  {
+   "game_id": 1254495,
+   "season": 2025,
+   "week": 1,
+   "date": "2026-01-11T21:30:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "SF",
+   "postseason": true
+  },
+  {
+   "game_id": 1254494,
+   "season": 2025,
+   "week": 1,
+   "date": "2026-01-12T01:15:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "LAC",
+   "postseason": true
+  },
+  {
+   "game_id": 1256293,
+   "season": 2025,
+   "week": 1,
+   "date": "2026-01-13T01:15:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "HOU",
+   "postseason": true
+  },
+  {
+   "game_id": 423961,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-12T00:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 423962,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 423963,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "DAL",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 423964,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 423965,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 423966,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 423967,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 423968,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 423969,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 423970,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 423971,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T20:05:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 423972,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T20:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 423973,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-14T20:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 423974,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-15T00:20:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 423975,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-15T23:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 423976,
+   "season": 2025,
+   "week": 2,
+   "date": "2025-09-16T02:00:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 1286916,
+   "season": 2025,
+   "week": 2,
+   "date": "2026-01-17T21:30:00.000Z",
+   "status": "Final/OT",
+   "home": "DEN",
+   "away": "BUF",
+   "postseason": true
+  },
+  {
+   "game_id": 1286917,
+   "season": 2025,
+   "week": 2,
+   "date": "2026-01-18T01:00:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "SF",
+   "postseason": true
+  },
+  {
+   "game_id": 1292787,
+   "season": 2025,
+   "week": 2,
+   "date": "2026-01-18T20:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "HOU",
+   "postseason": true
+  },
+  {
+   "game_id": 1286918,
+   "season": 2025,
+   "week": 2,
+   "date": "2026-01-18T23:30:00.000Z",
+   "status": "Final/OT",
+   "home": "CHI",
+   "away": "LAR",
+   "postseason": true
+  },
+  {
+   "game_id": 423977,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-19T00:15:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 423978,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 423979,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 423980,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 423981,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 423982,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 423983,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 423984,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 423985,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 423986,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 423987,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 423988,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 423989,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T20:25:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 423990,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-21T20:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 423991,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-22T00:20:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 423992,
+   "season": 2025,
+   "week": 3,
+   "date": "2025-09-23T00:15:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 1315611,
+   "season": 2025,
+   "week": 3,
+   "date": "2026-01-25T20:00:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "NE",
+   "postseason": true
+  },
+  {
+   "game_id": 1316670,
+   "season": 2025,
+   "week": 3,
+   "date": "2026-01-25T23:30:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "LAR",
+   "postseason": true
+  },
+  {
+   "game_id": 423993,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-26T00:15:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 423994,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T13:30:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 423995,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 423996,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 423997,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 423998,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 423999,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424000,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424001,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424002,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424003,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T20:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424004,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T20:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424005,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-28T20:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424006,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-29T00:20:00.000Z",
+   "status": "Final/OT",
+   "home": "DAL",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424007,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-29T23:15:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424008,
+   "season": 2025,
+   "week": 4,
+   "date": "2025-09-30T00:15:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424009,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-03T00:15:00.000Z",
+   "status": "Final/OT",
+   "home": "LAR",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424010,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T13:30:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424011,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 424012,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424013,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424014,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424015,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 424016,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 424017,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T20:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424018,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424019,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T20:25:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424020,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-05T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424021,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-06T00:20:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424022,
+   "season": 2025,
+   "week": 5,
+   "date": "2025-10-07T00:15:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 1341307,
+   "season": 2025,
+   "week": 5,
+   "date": "2026-02-08T23:30:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "SEA",
+   "postseason": true
+  },
+  {
+   "game_id": 424023,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-10T00:15:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424024,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T13:30:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424025,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424026,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424027,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 424029,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424030,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424031,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424034,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424032,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T20:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424028,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T20:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424033,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-12T20:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424035,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-13T00:20:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424036,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-13T23:15:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424037,
+   "season": 2025,
+   "week": 6,
+   "date": "2025-10-14T00:15:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424038,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-17T00:15:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 424039,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T13:30:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424040,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424041,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 424042,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424043,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 424044,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424045,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424046,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T20:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424047,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424048,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T20:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424049,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-19T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424050,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-20T00:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424051,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-20T23:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424052,
+   "season": 2025,
+   "week": 7,
+   "date": "2025-10-21T02:00:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 424053,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-24T00:15:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424054,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 424055,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424056,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 424057,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424058,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424059,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424060,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424061,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T20:05:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424062,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424063,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-26T20:25:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424064,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-27T00:20:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424065,
+   "season": 2025,
+   "week": 8,
+   "date": "2025-10-28T00:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424066,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-10-31T00:15:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424067,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424068,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424069,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424070,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424071,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424072,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424073,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424074,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424075,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T21:05:00.000Z",
+   "status": "Final/OT",
+   "home": "LV",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424076,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424077,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-02T21:25:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 424078,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-03T01:20:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424079,
+   "season": 2025,
+   "week": 9,
+   "date": "2025-11-04T01:15:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424080,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-07T01:15:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 424081,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T14:30:00.000Z",
+   "status": "Final/OT",
+   "home": "IND",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424082,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424083,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424084,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424085,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 424086,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424087,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424088,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424089,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T21:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424090,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424091,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-09T21:25:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424092,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-10T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 424093,
+   "season": 2025,
+   "week": 10,
+   "date": "2025-11-11T01:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424094,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-14T01:15:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424095,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T14:30:00.000Z",
+   "status": "Final/OT",
+   "home": "MIA",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424096,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "ATL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424097,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424098,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 424099,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424100,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424101,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424102,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424103,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424104,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424105,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T21:25:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424106,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-16T21:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 424107,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-17T01:20:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424108,
+   "season": 2025,
+   "week": 11,
+   "date": "2025-11-18T01:15:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424109,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-21T01:15:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424110,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 424111,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424112,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "DET",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424113,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424114,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424115,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "KC",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424116,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424117,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 424118,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T21:05:00.000Z",
+   "status": "Final/OT",
+   "home": "ARI",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424119,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T21:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424120,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-23T21:25:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424121,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-24T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424122,
+   "season": 2025,
+   "week": 12,
+   "date": "2025-11-25T01:15:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424123,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-27T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424124,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-27T21:30:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 424125,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-28T01:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424126,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-28T20:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424127,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424128,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424129,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 424130,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424131,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424132,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424133,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424134,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T21:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424135,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T21:25:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424136,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-11-30T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 424137,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-12-01T01:20:00.000Z",
+   "status": "Final/OT",
+   "home": "WSH",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424138,
+   "season": 2025,
+   "week": 13,
+   "date": "2025-12-02T01:15:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424139,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-05T01:15:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424140,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424141,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424143,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424144,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 424145,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424146,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424147,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 424149,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424148,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424142,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T21:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424150,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-07T21:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424151,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-08T01:20:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 424152,
+   "season": 2025,
+   "week": 14,
+   "date": "2025-12-09T01:15:00.000Z",
+   "status": "Final/OT",
+   "home": "LAC",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424153,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-12T01:15:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424154,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 424155,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424156,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424157,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424158,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424159,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 424160,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424161,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424162,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424163,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424164,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424165,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424166,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-14T21:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424167,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-15T01:20:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424168,
+   "season": 2025,
+   "week": 15,
+   "date": "2025-12-16T01:15:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 424169,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-19T01:15:00.000Z",
+   "status": "Final/OT",
+   "home": "SEA",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424171,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-20T22:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424170,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T01:20:00.000Z",
+   "status": "Final/OT",
+   "home": "CHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424172,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 424173,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424174,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 424175,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424176,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424177,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424183,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 424179,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424180,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 424181,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T21:25:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 424182,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-21T21:25:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 424178,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-22T01:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424184,
+   "season": 2025,
+   "week": 16,
+   "date": "2025-12-23T01:15:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 424185,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-25T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424186,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-25T21:30:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424187,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-26T01:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424191,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-27T21:30:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 424189,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T01:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424188,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424192,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424193,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 424194,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424195,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 424196,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 424197,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 424190,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 424198,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-28T21:25:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424199,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-29T01:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 424200,
+   "season": 2025,
+   "week": 17,
+   "date": "2025-12-30T01:15:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424214,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-03T21:30:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 424213,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T01:00:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 424201,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 424204,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 424208,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 424210,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 424215,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 424216,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 424202,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 424203,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 424205,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 424206,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 424207,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 424209,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 424211,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-04T21:25:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 424212,
+   "season": 2025,
+   "week": 18,
+   "date": "2026-01-05T01:20:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "BAL",
+   "postseason": false
+  }
+ ]
+}
