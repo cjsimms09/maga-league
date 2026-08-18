@@ -527,6 +527,21 @@ B's default is to grey or asterisk these on screen; the mark should say **"no
   the banner will stay quiet all night, and that is structural, not a bug you
   can wait out** (register 4x).
 
+  > ✅ **MEASURED 2026-08-18, and it is stronger than "will probably stay
+  > quiet".** Run through the banner's own scoring function at your twelve real
+  > picks: **the leader gap is EXACTLY 0.000 at all twelve**, and from pick 88
+  > onward all nine doctrines return a single identical score. At every pick at
+  > least six of the nine allow the same top player, so they score the same and
+  > **there is no leader to change.**
+  >
+  > **It cannot be fixed by tuning.** The banner switches when a challenger
+  > leads by *more than* a threshold; the gap is zero, so that is false for
+  > every threshold — including zero, because the test is strict. Register 4x
+  > asked for the `$4` band to be re-derived; **no value of it changes
+  > anything**, and moving it would change how *decided* vs *even money* renders
+  > on every pick you see, for nothing. Closed on that basis.
+  > `draft/audit/doctrine_banner_cannot_fire_2026-08-18.md`.
+
 **WHAT IS NOT AFFECTED, AND IT IS THE bigger half: THE RECOMMENDATIONS.** The
 ranked board, the top-of-board pick, the tiers and the VORP ordering never touch
 this number. This is a comparison surface, not the engine.

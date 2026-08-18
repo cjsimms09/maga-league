@@ -101,10 +101,22 @@ def test_every_register_id_the_sheet_names_actually_exists():
 
 def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     """Without this, an extractor that silently matched nothing would make the
-    test above pass forever. These five are the sheet's whole argument."""
+    test above pass forever. These are the sheet's whole argument.
+
+    ⚠️ THIS LIST TRACKS THE SHEET AND MUST BE UPDATED WHEN A ROW RESOLVES — it
+    is a control on the EXTRACTOR, not a claim that these rows stay open
+    forever. `4x` was here until 2026-08-18, when it was measured to be
+    unfixable-by-tuning and closed; keeping it would have turned a working
+    control into a demand that a resolved row stay on the page. The rule is:
+    when you strike a row from the sheet, if it is named here, replace it with
+    one the sheet is still built around — never just delete it, or the control
+    erodes to nothing one row at a time.
+    """
     named = _ids_named()
-    for core in ("42", "5e", "4x", "4d", "E1"):
+    for core in ("42", "5e", "4d", "E1", "E15"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
+    #: and the list must stay big enough to be a real control
+    assert len(named) >= 8, f"only {len(named)} ids extracted — the pattern drifted"
 
 
 def test_every_named_row_is_still_OPEN():

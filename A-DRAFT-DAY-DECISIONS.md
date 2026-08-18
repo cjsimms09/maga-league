@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **69 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
+up."* The register has **67 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
 before 08-22 and most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
@@ -47,13 +47,13 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 
 ---
 
-## 2 · A'S FIVE, EACH WITH A DEFAULT SO SILENCE IS AN ANSWER
+## 2 · A'S FOUR LIVE DECISIONS, EACH WITH A DEFAULT SO SILENCE IS AN ANSWER
 
 | | decision | recommendation | **default if you say nothing** |
 |---|---|---|---|
 | **A1** | **E1 — nine top-50 players read the wrong dispersion cell.** Band assignment uses a rank that disagrees with the band the calibration was fitted on. Worth **$47.6** of spread between St. Brown and Jefferson. Re-measured today on the live board: it reproduces, **9 misreads, 4 in the top 50**, and the direction is named. | **The fix is already written and deliberately not applied** — `E1_proposed_fix_for_approval_2026-08-17.md`, two edits, the first inert until passed. Approve or reject; it is the only prepared fix on this page. | **Not applied.** Cory drafts on the misread cells. |
 | **A2** | **5e — the compare tray's dollar figure is not comparable across positions.** It would tell him *"Jaxson Dart +$23"* over Saquon Barkley. **22 of the top 25 by E[$] are QBs; by the board's own rank, one is.** | **Refuse the comparison, do not re-price it.** Extend your own D10a K/DEF refusal to QB — ~4 lines, no model change. **Re-pricing was built and measured and is WORSE on the pairs he actually weighs** (`draft/audit/dollar_replacement_baseline_2026-08-18.md`). | **Nothing ships.** The briefing already carries the sentence he needs: *use the dollar figure within a position.* This default is genuinely acceptable. |
-| **A3** | **4x — the strategy banner will stay silent all night.** The leader gap is **0.000 at all fifteen of his picks**, so no rescale of the `$4` band can help. The row's implied fix does not follow. | **Do not rescale.** Tell Cory in one sentence which doctrines can produce a banner at all. It is also a symptom of A2 — the top of the price list is a QB at every pick, so only QB-forbidding constraints can ever bite. | **Nothing ships**, and the banner is quiet. Acceptable **only if he is told**, or he will read silence as agreement. |
+| ~~**A3**~~ | ✅ **RESOLVED 08-18 — NO DECISION NEEDED.** 4x asked you to re-derive `DG_NOISE_BAND` so the banner could fire. **Measured through the banner's own scoring function at Cory's twelve real picks: the leader gap is EXACTLY 0.000 at all twelve**, and from pick 88 all nine doctrines return one score. **No value of the band changes that** — the switch test is strictly greater-than, so it fails even at zero. | **Nothing to rule.** Row closed. The band is deliberately untouched: it also sets `recommend()`'s even-money confidence class, so moving it for a banner that stays silent anyway would change what Cory reads at every pick, for nothing. | *n/a — the sentence you were asked to tell him is now in `DRAFT-WEEK-BRIEF.md` §4, with the measurement, so the "acceptable only if he is told" condition is already met.* |
 | **A4** | **4d — Cory drafts on DESKTOP; your live order to B says phone-first.** `7ee6f993`, 16:06 08-17, specifies *phone-first* and *the 390px column*; the assumption dates to 08-13 and was reasonable until he said otherwise. | Invert the device priority, keep the rest of the order. Already relayed to B. | Desktop is the surface that must be right on 08-22, and the order still points elsewhere. **This default is the one I would not accept.** |
 | **A5** | 🆕 **E15 — the QB over-recommendation Cory hit LIVE is fixed, unreviewed, and was marked closed.** At pick 88 the engine promoted Bo Nix over Brock Purdy — **14.5 projected points worse** — and called it *"on upside"*, when the only thing making Nix's ceiling bigger was `QB` band 9-16 carrying a **1.426** multiplier against band 4-8's **1.316**. A calibration constant, not a player. **It was invisible to `register_recheck_check.js` until today** — its status wore a ✅ that meant *"fixed, verify"*, and the check read any tick as closed (`register_check_was_hiding_rows_2026-08-18.md`). | **Review and accept, or say what else you want measured.** E's fix is verified as far as E can verify it: score inversions **16 → 0**, JS **315/315**, war-room rehearsal 19/19, board-truth 6/6, and two existing controls that legitimately inverted were **re-aimed rather than deleted**. Both guards **self-release** — the tiebreak resumes the day `proj_ceiling` carries per-player information — so neither is a permanent suppression. | **The fix stays in, unreviewed.** That is probably fine and it is not nothing: it changes which player the engine recommends at a real pick, it was written by the lane that found it, and no owner has read it. **Cory drafts on this engine on Saturday.** |
 
@@ -68,32 +68,22 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
   `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 28.
-- **CLOSED 08-18 against live state, not against the date on the line** — rows
-  E10 (its check run on the fresh board; its parent row 2 resolved on the same
-  run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
-  named test passes on the fresh board), 4 (`matchup_placed_bet` 6/6,
-  `trashtalk` 27/27) and 4c (board-truth 11/11, including the control that
-  keepers really do consume picks) — plus row 2 **RESOLVED**: the
-  constant-multiple sweep was run on the fresh board and no field has joined,
-  while finding 13 real pairs, so it is not vacuously green.
-- **CLOSED 08-18 BY CLEARING THEM RATHER THAN DATING THEM** (Cory: *"we work
-  through, we don't park things for tomorrow"*) — ~~2c~~ (the RB gap did not keep
-  widening; it halved back, 4k's regeneration explains it, and a permutation test
-  with a planted-effect control eliminates ceiling provenance as a cause,
-  p = 0.20 against a detected p < 0.0001), ~~4k~~ (all three findings already
-  fixed by other lanes' work — closed rather than handed back, so C does not lose
-  the day before the draft to it), and 27 whose counts I corrected in place
-  rather than asking E to.
-- **⚠️ ONE I GOT WRONG THREE TIMES, NOW RESOLVED** — ~~4i~~ **CLOSED 08-18.**
-  I told A the premise was false, then WITHDREW that and re-scoped the row as
-  real, then "re-verified" it — and the withdrawal and the re-verification were
-  both wrong, from the same mistake: I kept reading
-  `pre_draft_freeze_2026.json`. **That is not what feeds the button.**
+- **✅ CLOSED 08-18 — fourteen rows, against live state rather than against the
+  date on the line.** Earlier: 1 (board publishes, 696 players), 2 + E10, 3, 4, 4c. Then, after Cory's *"we work through, we don't
+  park things for tomorrow"*: 2c (the RB gap halved back; 4k's regeneration
+  explains it, and a permutation test with a planted-effect control rules out
+  ceiling provenance, p = 0.20 against a detected p < 0.0001), 4k (all three
+  findings already fixed by other lanes — closed rather than handed back so C
+  does not lose Friday to it), 4f, 4v, 4x, 4u and 4i (below), plus 27 whose
+  counts I corrected in place rather than asking E to. Full reasoning lives on each row.
+- **⚠️ Row 4i — I GOT IT WRONG THREE TIMES BEFORE GETTING IT RIGHT.** Told A the
+  premise was false, WITHDREW that and re-scoped the row as real, then
+  "re-verified" it — the last two both wrong, from one mistake: I kept reading
+  `pre_draft_freeze_2026.json`, **which is not what feeds the button.**
   `state.frozenBaseline` comes from `/admin/api/baseline?version=v1`, served
   from `draft/baseline/v1.json`, which **does** carry
-  `engine_policy.MEASURED_WEIGHTS`. The restore works. Pinned by
-  `restore_measured_core_works.test.js` (13 checks), which names BOTH files so
-  the substitution cannot recur.
+  `engine_policy.MEASURED_WEIGHTS`. The restore works. `restore_measured_core_works.test.js`
+  names BOTH files so the substitution cannot recur.
 - **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
   We have **never measured our model against Sleeper on any season**; the
   promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
