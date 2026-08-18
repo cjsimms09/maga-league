@@ -83,6 +83,7 @@ REPO_PARITY_NODES = {
     # after the rebuild lands. Forgetting this registration refused rebuild
     # 32095127740 — the gate-selection pin working as designed.
     "draft/tests/test_kept_players_carry_vorp.py::test_every_kept_player_on_the_published_board_carries_vorp",
+    "draft/tests/test_keeper_optimize_kept_players.py::test_kept_players_carry_proj_mean_AND_stamped_vorp",
     "draft/tests/test_kept_players_carry_vorp.py::test_the_identity_the_fix_relies_on_still_holds_boardwide",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
