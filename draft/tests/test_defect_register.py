@@ -187,10 +187,22 @@ def test_FAIL_ARM_the_id_check_can_actually_fail(tmp_path, monkeypatch):
 # is why this file kept passing on a scrambled row — robustness bought at the
 # price of blindness to the scrambling itself.
 #
-# Six rows already carried this before today (4i, 4q, 4s, 4t, E15, 39), so it
-# ships as a RATCHET rather than a hard gate: an existing mess is not a reason
-# to block the build, and it is every reason to stop the mess growing.
-KNOWN_BROKEN_COLUMNS = 6
+# Six rows already carried this before today (4i, 4q, 4s, 4t, E15, 39) — all the
+# same cause, calibration-cell notation like `RB|33+` plus one JS `||` inside a
+# code span. It was going to ship as a ratchet at 6, and then the hazard argued
+# itself out of that: **4i is a live blocking row with a recheck TOMORROW.** The
+# next lane to annotate it would have appended into the wrong fragment exactly as
+# I did on 4v, because the helper everyone uses splits on every pipe. A ratchet
+# would have left six loaded guns lying around.
+#
+# So all six were repaired instead — every internal pipe escaped as `\|`, which
+# GFM renders as a literal pipe even inside a code span. Verified contiguous
+# before touching them: unlike 4v these were merely SPLIT, not reordered, so
+# escaping is a pure repair and no prose moved. Owner and status cells now read
+# `**B**` / `🔴 OPEN`, `**C** builds · **A** rules`, and so on, where they belong.
+#
+# Hence ZERO, and a hard gate. Do not raise this number.
+KNOWN_BROKEN_COLUMNS = 0
 
 
 def _unescaped_columns(line: str) -> list:

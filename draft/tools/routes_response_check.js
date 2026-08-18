@@ -159,6 +159,55 @@ function main() {
       });
   }
 
+  /* ── DOES THE LOOP VISIBLY CLOSE? ─────────────────────────────────────────
+   *
+   * Cory, 2026-08-18: *"Is A now seeing and responding to D and E requests?"*
+   * The blocked count above could not answer that, and answering it by hand
+   * turned up the reason it matters:
+   *
+   *     E (red team) → A    26 items    19 ticked (73%)    0 with no default
+   *     D            → A    19 items     1 ticked ( 5%)   17 with no default
+   *
+   * A HAD answered both — `A → D` carries *"YOUR LATEST REPORT, ANSWERED POINT
+   * BY POINT"* the same day. **Nothing ticked D's originals**, so from D's side
+   * the inbox reads as nineteen unanswered asks. A's own reply names the cause:
+   * *"two of your three questions were already answered there AND YOU HAD NOT
+   * SEEN IT."* That is not A failing to respond; it is the loop not closing
+   * where the asker looks.
+   *
+   * The blocked ratchet cannot see this: an item answered-but-unticked is
+   * indistinguishable from one nobody read, and D's are all under the 3-day
+   * threshold today — **all seventeen trip on 08-20, keeper-lock day.**
+   *
+   * So the closure rate is reported per sender. It is a NUMBER, not a gate:
+   * a low rate can be a genuine backlog or pure bookkeeping, and no static rule
+   * tells those apart. The asymmetry is the thing to look at.
+   */
+  const pairs = {};
+  items.forEach(function (i) {
+    if (!i.section) return;
+    //: `who` sometimes already carries the "→ recipient" half ("relay → A"), so
+    //: keying on it raw prints "relay → A → A" and splits one pair into two.
+    const from = i.who.replace(/\s*→.*$/, '').trim();
+    const k = from + ' → ' + i.section;
+    (pairs[k] = pairs[k] || { n: 0, done: 0, noDefault: 0 });
+    pairs[k].n++;
+    if (i.done) pairs[k].done++;
+    else if (!hasDefault(i)) pairs[k].noDefault++;
+  });
+  const big = Object.keys(pairs).filter(k => pairs[k].n >= 5)
+    .sort((a, b) => (pairs[a].done / pairs[a].n) - (pairs[b].done / pairs[b].n));
+  if (big.length) {
+    console.log('\n  DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient');
+    console.log('  (a low rate is a QUESTION: real backlog, or answered and never ticked?)');
+    big.forEach(function (k) {
+      const p = pairs[k];
+      console.log('    ' + k.padEnd(24) + String(p.n).padStart(4) + ' items  '
+        + String(Math.round(100 * p.done / p.n) + '%').padStart(5) + ' ticked  '
+        + String(p.noDefault).padStart(3) + ' open with NO default');
+    });
+  }
+
   if (base.blocked == null) {
     console.log('\n  No baseline committed yet. Record this shape in '
       + path.relative(ROOT, BASELINE) + ' to arm the ratchet:');
