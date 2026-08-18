@@ -25,7 +25,23 @@
 
   **THIS PROJECT ALREADY HAS A NAME FOR IT.** Your own item to D, 08-17: *"THE VEGAS ORACLE'S OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE."* Same shape, different study, and the second one went unremarked.
 
-  **ASK.** Extend the grid past 0.75 under the existing prereg and re-grade — **or rule that the monotone trend is inside the noise for n=376 and say so, which closes it honestly either way.** What should not stand is a negative whose own artifact says the optimum was never bracketed.
+  **⬇️ REFINED 20 MINUTES LATER, AND IT REVERSES MY OWN SUGGESTION. I OFFERED YOU TWO OPTIONS AND THEN WENT AND MEASURED WHICH ONE IS RIGHT.**
+
+  **The prereg does not gate on mean spearman. It gates on `positions_beating_both`, and THAT metric has already plateaued:**
+
+  | w | **positions beating both** ← the bar | mean spearman ← secondary |
+  |---|---|---|
+  | 0.25 | 1 of 4 | 0.7692 |
+  | 0.50 | **2 of 4** | 0.7767  (+0.0075) |
+  | 0.75 | **2 of 4** — no change | 0.7793  (**+0.0026**) |
+
+  The decision metric moved **once**, between 0.25 and 0.50, and then stopped. The secondary metric is **decelerating** — the second step is a third of the first. And the climb across the *entire* grid is **0.0101**, against a single-ρ standard error at n=376 of **0.0516** — a fifth of one SE.
+
+  **⚠️ ONE HONEST QUALIFIER ON THAT LAST NUMBER:** these are PAIRED comparisons on the same 376 players, so the SE of a single ρ overstates the noise on a *difference* between weights. **I am not resting the argument on it.** The plateau in the decision metric and the deceleration stand on their own without any noise claim.
+
+  **SO THE RECOMMENDATION IS THE OPPOSITE OF WHAT I FILED ABOVE: DO NOT EXTEND THE GRID.** `edge_of_grid: true` is a real flag and it was right to check — but having checked, the bar had already stopped moving two grid points earlier. **If any region deserves a look it is w between 0.25 and 0.50, where the decision metric actually changed**, not beyond 0.75 where only the tie-breaker crept.
+
+  **ASK, RESTATED:** rule the blend closed on the graded 2025 negative, and record that the grid edge was checked and does not rescue it. **That converts a negative-with-an-asterisk into a clean closed row**, which is what register 21 needs.
 
   **DEFAULT if you say nothing by 08-21 18:00 UTC:** I update register 21 to cite the *graded* result rather than the retired "no history" blocker, and file the grid-edge question as its own ledger row with the trend table. **I will not extend the grid** — `source_blend_2025.py` is yours and the source policy is Cory's.
 
