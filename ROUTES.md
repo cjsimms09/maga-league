@@ -7,6 +7,41 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+
+> ### ✅ DONE FOR YOU OVERNIGHT — do not redo these
+> · **The red-team lane's three fixes are MERGED and on `main`** (E6 caveat
+>   mis-marking 255 players · E15a ceiling tiebreak deciding on a calibration
+>   constant · E15b roster-blind seat plan). You had not merged them and they
+>   could not reach Cory's board; I merged under Rule 5. **Reverse any of it in
+>   one word.**
+> · **Register + ROUTES were UNION-merged, not chosen.** Main had 27 rows the
+>   branch lacked, the branch had 15 (E1–E15) main lacked. Verified 15/15 and
+>   59/59 present — taking either side would have dropped the other's findings.
+> · **Two tests that were red on `main` before this and not caused by it:**
+>   `engine_ablation` died on `undefined.proj_baseline` (it searched the board
+>   for a non-zero `opportunity_adj`, and Cory's ruling zeroed all of them — the
+>   row is now synthesised, because the subject is the transform, not the
+>   policy); and its `minus_conserve` control was FLAKY, not broken — 2 rooms
+>   diverges 0, **6 diverges 1, 16 diverges 3**, so the sample was raised, never
+>   the bar.
+> · **`cli.py` now passes the position filter**, so your next dispatch is clean,
+>   and `compare_band_slopes.py` **REFUSES** a contaminated population instead of
+>   printing a slope from it.
+>
+> ### ⚡ WHAT IS STILL YOURS
+> 1. **Re-run the band-split ruling.** Your NO SHIP used deep 1.3378 vs shallow
+>    1.7197 — measured on the punter-contaminated fit. Order: **board rebuild →
+>    `band-split-refit` → re-rule.** Your role-conditioned hypothesis is likely
+>    still right; only the number is void. Register **4r**.
+> 2. **E1 is NOT landed and needs your ruling** —
+>    `draft/audit/E1_proposed_fix_for_approval_2026-08-17.md`, marked NO DEFAULT.
+>    Edit (a) is inert until called; **edit (b) reorders the projection pipeline
+>    and moves a network read earlier on the branch that builds Saturday's
+>    board.** Blast radius is the dispersion fields alone — `proj_mean`, `vorp`
+>    and `overall_rank` do not move.
+> 3. **Eleven D/E findings you had never seen** — listed below. Rule 3h now makes
+>    carrying them to you the relay's job, not yours to go looking for.
+>
 - [ ] 2026-08-17 · B · 🔴 **RED MAIN, RIGHT NOW — 8 JS suites + 9 Python tests, ALL A-lane by `territory-check.sh`, bisected to two commits.** `ASK:` fix or route. `EVIDENCE:` full `js-sweep.sh` on current `origin/main` (`e3769dab`'s parent) is RED on `component_grade`, `doctrine_lookahead`, `engine_ablation`, `position_timing`, `proj_source_authority`, `shadows`, `slot_schedule`, `surface_contract` — every one green (30/30, 26/26, 53/53, 25/0, 10/0, 45/45 etc.) at `236b4dd8`, red immediately after `e7a5db38 Draft board: rebuild 2026-08-17` + `09e4dde2 Board-tracking artifacts brought level with the first published ruled board` land. Sample failure: `surface_contract` — "the document's table order holds where it is stable" now reads `value:55.3, keeper:6.7, onesie:23.6, stack:14.4`, order changed from what the doc pins. Looks like the board rebuild moved numbers several tests pinned against the PREVIOUS board. Separately, `python3 -m pytest draft/tests -q -m "not repo_parity"` is ALSO red on current `origin/main` (not caused by this merge — checked on a clean worktree of `origin/main` directly): `test_empirical_draft_value.py::test_piecewise_break_recovers_a_planted_hinge`, both `test_gate_selection.py` tests, all five `test_pbp_two_point.py` tests, `test_rookie_wr_capital.py::test_the_tail_threshold_is_a_tail_not_a_mean` — 9 failed, 3317 passed. `territory-check.sh` says every one of these files is A's (`# TERRITORY: A` header on the sources). `REC:` the JS eight look like one root cause (stale pins vs. a rebuilt board); the Python nine look unrelated to the rebuild and to each other (two-point conversion crediting, gate selection, rookie-capital tail threshold) and worth a separate look. `DEFAULT:` not fixing these myself — wrong lane on every file, and RULE 5 says whoever's lane broke it fixes it first. Flagging and continuing my own branch, which is unaffected (verified: the 8+9 are identical whether or not my branch is merged in).
 
 - [x] 2026-08-17 · B · 🔴 ✅ (resolved earlier today — `matchup_placed_bet`/`trashtalk` are 6/6 and 27/27 green on current `main`; this line survived a merge stale, closing it now) **P0 HANDOFF — main CI red since 08-16 23:01 (matchup_placed_bet + trashtalk), fix on `claude/in-season-b-lane-0817`, ready to merge.**
