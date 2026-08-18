@@ -116,6 +116,41 @@ function noAsk(item) {
   return /\b(NO ASK|No ask|NO DECISION|ASK:\s*none)\b/.test(item.body[0]);
 }
 
+/* A BROADCAST IS STRUCTURALLY NOT A REQUEST, AND THIS IS THE HALF THAT CANNOT
+ * BE TYPED INTO EXISTENCE.
+ *
+ * Having warned that `noAsk` is a loophole anyone can write, the next honest
+ * step was to find a classification nobody can write. An item whose header
+ * appears verbatim in THREE OR MORE different inboxes is a rule announcement —
+ * "you do not stop a capture job", "'we can't get it' is not a finished
+ * answer", rule 3d — and a rule sent to four lanes is not four decisions
+ * pending. You cannot fake this by rewording: rewording is exactly what stops
+ * it matching.
+ *
+ * IT IS SMALL AND IS REPORTED AS SMALL: 3 broadcasts, 9 open instances out of
+ * 169. The honest conclusion is the remainder — **no mechanical rule can
+ * classify the other 160.** Only the sender knows whether a decision is owed,
+ * which is why the fix routed to D and to my own lane is "say so", not "build
+ * a better detector".
+ */
+function broadcastKeys(items) {
+  const seen = {};
+  items.forEach(function (i) {
+    const k = i.body[0].replace(/^- \[[ x]\] \S+ · [^·]+ · /, '')
+      .replace(/[*`_~]/g, '').replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 110);
+    (seen[k] = seen[k] || new Set()).add(i.section);
+  });
+  const out = new Set();
+  Object.keys(seen).forEach(k => { if (seen[k].size >= 3) out.add(k); });
+  return out;
+}
+
+function isBroadcast(item, keys) {
+  const k = item.body[0].replace(/^- \[[ x]\] \S+ · [^·]+ · /, '')
+    .replace(/[*`_~]/g, '').replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 110);
+  return keys.has(k);
+}
+
 function ageDays(item, nowMs) {
   return Math.floor((nowMs - Date.parse(item.date + 'T00:00:00Z')) / 864e5);
 }
@@ -169,14 +204,22 @@ function main() {
 
   /* The split, printed beside the ratchet rather than folded into it. */
   const openNoDefault = open.filter(i => !hasDefault(i));
+  const bkeys = broadcastKeys(items);
   const informational = openNoDefault.filter(noAsk);
-  console.log('  of ' + openNoDefault.length + ' open item(s) carrying no default, '
-    + informational.length + ' say they ASK FOR NOTHING — those cannot block a '
-    + 'sender.');
-  console.log('  NOT subtracted from the count above: "no ask" is a loophole '
-    + 'anyone can type, so it is');
-  console.log('  shown next to the number instead of inside it, and the baseline '
-    + 'stays comparable.');
+  const bcast = openNoDefault.filter(i => isBroadcast(i, bkeys) && !noAsk(i));
+  const unknown = openNoDefault.length - informational.length - bcast.length;
+  console.log('  of ' + openNoDefault.length + ' open item(s) with no default: '
+    + informational.length + ' SAY they ask for nothing · ' + bcast.length
+    + ' are BROADCASTS (same');
+  console.log('  header in 3+ inboxes — a rule, not four decisions) · ' + unknown
+    + ' declare NEITHER, so nobody');
+  console.log('  can tell whether a decision is owed. That last number is the '
+    + 'real state of the inbox.');
+  console.log('  NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, '
+    + 'so the baseline stays');
+  console.log('  comparable and the split prints beside it. Only the broadcast '
+    + 'half is unfakeable —');
+  console.log('  rewording is precisely what stops it matching.');
 
   if (stuck.length) {
     console.log('\n  waiting on:');
@@ -295,6 +338,7 @@ function main() {
   return 0;
 }
 
-module.exports = { parse, hasDefault, ageDays, blocked, byLane, RESPOND_BY_DAYS, main };
+module.exports = { parse, hasDefault, noAsk, broadcastKeys, isBroadcast, ageDays,
+  blocked, byLane, RESPOND_BY_DAYS, main };
 
 if (require.main === module) process.exit(main());
