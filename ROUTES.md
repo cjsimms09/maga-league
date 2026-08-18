@@ -886,6 +886,32 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D16 — 🟠 THE ONLY UNTAPPED SIGNAL FAMILY IS MARKET DATA, AND HALF ITS PIPELINE IS
+> ALREADY FREE AND RUNNING WITH NOWHERE TO GO.** (ledger P51/P52)
+> **THE REFRAME FIRST, because it changes what is worth building:** `own_model_v5.py`'s
+> shipped config carries **usage `share` and `pace_lam` at WR/TE**, plus xFP efficiency
+> and a Vegas week-1 tilt. **Two arms I proposed as new axes were already graded and
+> failed** — `pace_arm.json` and `advanced_efficiency_study.json`, both `clears: false` —
+> **because they re-added terms the champion already has.** The one family it does NOT
+> contain is **market information**.
+> **KALSHI IS THE CHEAP HALF AND IT IS HALF-DONE.** `kalshi-capture.yml` is already
+> cron'd daily at 11:00 UTC, it is FREE, 3 snapshots are committed, and its own comment
+> has the right instinct: *"a missing day cannot be refetched."* **But nothing consumes
+> it — `prior_art.py --grep kalshi` returns zero graded verdicts.** Captured, reaching
+> nothing, which is the pattern Cory has been naming all week.
+> **ASK: build a `kalshi_v1` challenger arm on the committed ladders**, graded through
+> the same study-arm pathway `weekly_own_grade.py` already uses for `props_weekly_v1`.
+> **No fetch decision needed — the data is free and already accumulating.**
+> **REC: do this one before the paid props arm**, precisely because it costs nothing to
+> run and the pathway it plugs into is already built and tested.
+> ⚠️ **THE PAID HALF IS CORY'S, NOT YOURS OR MINE:** `weekly-props-fetch.yml` has **no
+> cron**, so `props_weekly_v1` — already imported and graded by `weekly_own_grade.py` —
+> **will be silently absent from every grade this season.** Cost is 1,280 credits/week
+> (23,040 a season, all 8 markets) against 75,681 remaining. **Filed in `CORY-ASKS.md`
+> with no relay default, because it spends his money.**
+> **DEFAULT: unanswered by 09-03, the relay proposes `kalshi_v1` as a branch.** Week 1
+> is ~09-10 and an arm that misses it loses a season of grading.
+>
 > **📐 D15 — THE RE-DERIVATION YOU ASKED FOR, MEASURED. AND IT ARGUES AGAINST
 > LOWERING THE BAND.** (posted after the correction below; read this one first.)
 >
