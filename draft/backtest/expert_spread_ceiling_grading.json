@@ -1007,10 +1007,10 @@
     "2025": {
       "status": "MEASURED",
       "crosswalk_misses": 17,
-      "on_board_skill_position_rows": 463,
+      "on_board_skill_position_rows": 485,
       "arms": {
         "BASE": {
-          "graded_players": 445,
+          "graded_players": 468,
           "band_rho": {
             "RB|1-3": {
               "rho": null,
@@ -1084,7 +1084,7 @@
             },
             "WR|33+": {
               "rho": 0.0,
-              "n": 145,
+              "n": 155,
               "status": "measured"
             },
             "TE|17-32": {
@@ -1094,12 +1094,12 @@
             },
             "RB|33+": {
               "rho": 0.0,
-              "n": 71,
+              "n": 78,
               "status": "measured"
             },
             "TE|33+": {
               "rho": 0.0,
-              "n": 72,
+              "n": 77,
               "status": "measured"
             },
             "QB|17-32": {
@@ -1109,7 +1109,7 @@
             },
             "QB|33+": {
               "rho": 0.0,
-              "n": 34,
+              "n": 35,
               "status": "measured"
             }
           },
@@ -1118,7 +1118,7 @@
           "clears_shuffle": false
         },
         "ECR-MIN": {
-          "graded_players": 401,
+          "graded_players": 415,
           "band_rho": {
             "RB|1-3": {
               "rho": null,
@@ -1151,17 +1151,17 @@
               "status": "too few to measure"
             },
             "WR|9-16": {
-              "rho": 0.3571,
+              "rho": 0.5,
               "n": 8,
               "status": "measured"
             },
             "RB|9-16": {
-              "rho": 0.4643,
+              "rho": 0.5714,
               "n": 7,
               "status": "measured"
             },
             "QB|4-8": {
-              "rho": -0.2,
+              "rho": -0.1,
               "n": 5,
               "status": "measured"
             },
@@ -1171,43 +1171,43 @@
               "status": "measured"
             },
             "WR|17-32": {
-              "rho": 0.0265,
+              "rho": 0.0118,
               "n": 16,
               "status": "measured"
             },
             "RB|17-32": {
-              "rho": 0.4418,
+              "rho": 0.4901,
               "n": 14,
               "status": "measured"
             },
             "QB|9-16": {
-              "rho": 0.4048,
+              "rho": 0.4286,
               "n": 8,
               "status": "measured"
             },
             "TE|9-16": {
-              "rho": 0.0476,
+              "rho": 0.0,
               "n": 8,
               "status": "measured"
             },
             "WR|33+": {
-              "rho": 0.032,
-              "n": 120,
+              "rho": 0.0484,
+              "n": 124,
               "status": "measured"
             },
             "TE|17-32": {
-              "rho": 0.2643,
+              "rho": 0.2857,
               "n": 15,
               "status": "measured"
             },
             "RB|33+": {
-              "rho": 0.1364,
-              "n": 65,
+              "rho": 0.0903,
+              "n": 71,
               "status": "measured"
             },
             "TE|33+": {
-              "rho": 0.2367,
-              "n": 64,
+              "rho": 0.3219,
+              "n": 67,
               "status": "measured"
             },
             "QB|17-32": {
@@ -1216,17 +1216,17 @@
               "status": "measured"
             },
             "QB|33+": {
-              "rho": 0.2022,
-              "n": 30,
+              "rho": 0.2585,
+              "n": 31,
               "status": "measured"
             }
           },
-          "pooled_rho": 0.1722,
-          "shuffle_p95_pooled_rho": 0.0756,
+          "pooled_rho": 0.1939,
+          "shuffle_p95_pooled_rho": 0.0852,
           "clears_shuffle": true
         },
         "ECR-Q10": {
-          "graded_players": 401,
+          "graded_players": 415,
           "band_rho": {
             "RB|1-3": {
               "rho": null,
@@ -1259,7 +1259,7 @@
               "status": "too few to measure"
             },
             "WR|9-16": {
-              "rho": 0.4286,
+              "rho": 0.5714,
               "n": 8,
               "status": "measured"
             },
@@ -1269,7 +1269,7 @@
               "status": "measured"
             },
             "QB|4-8": {
-              "rho": 0.3,
+              "rho": -0.1,
               "n": 5,
               "status": "measured"
             },
@@ -1279,43 +1279,43 @@
               "status": "measured"
             },
             "WR|17-32": {
-              "rho": 0.1382,
+              "rho": 0.1441,
               "n": 16,
               "status": "measured"
             },
             "RB|17-32": {
-              "rho": 0.5121,
+              "rho": 0.5604,
               "n": 14,
               "status": "measured"
             },
             "QB|9-16": {
-              "rho": 0.5952,
+              "rho": 0.6905,
               "n": 8,
               "status": "measured"
             },
             "TE|9-16": {
-              "rho": 0.1429,
+              "rho": 0.1905,
               "n": 8,
               "status": "measured"
             },
             "WR|33+": {
-              "rho": -0.0903,
-              "n": 120,
+              "rho": -0.0779,
+              "n": 124,
               "status": "measured"
             },
             "TE|17-32": {
-              "rho": 0.4301,
+              "rho": 0.4444,
               "n": 15,
               "status": "measured"
             },
             "RB|33+": {
-              "rho": 0.0507,
-              "n": 65,
+              "rho": -0.0017,
+              "n": 71,
               "status": "measured"
             },
             "TE|33+": {
-              "rho": 0.1064,
-              "n": 64,
+              "rho": 0.2018,
+              "n": 67,
               "status": "measured"
             },
             "QB|17-32": {
@@ -1324,17 +1324,17 @@
               "status": "measured"
             },
             "QB|33+": {
-              "rho": 0.1484,
-              "n": 30,
+              "rho": 0.2044,
+              "n": 31,
               "status": "measured"
             }
           },
-          "pooled_rho": 0.1274,
-          "shuffle_p95_pooled_rho": 0.093,
+          "pooled_rho": 0.1421,
+          "shuffle_p95_pooled_rho": 0.0877,
           "clears_shuffle": true
         },
         "ECR-SPREAD": {
-          "graded_players": 401,
+          "graded_players": 415,
           "band_rho": {
             "RB|1-3": {
               "rho": null,
@@ -1367,17 +1367,17 @@
               "status": "too few to measure"
             },
             "WR|9-16": {
-              "rho": -0.381,
+              "rho": -0.2143,
               "n": 8,
               "status": "measured"
             },
             "RB|9-16": {
-              "rho": 0.1429,
+              "rho": 0.3571,
               "n": 7,
               "status": "measured"
             },
             "QB|4-8": {
-              "rho": 0.7,
+              "rho": 0.5,
               "n": 5,
               "status": "measured"
             },
@@ -1387,43 +1387,43 @@
               "status": "measured"
             },
             "WR|17-32": {
-              "rho": -0.1794,
+              "rho": -0.1882,
               "n": 16,
               "status": "measured"
             },
             "RB|17-32": {
-              "rho": -0.1604,
+              "rho": -0.1341,
               "n": 14,
               "status": "measured"
             },
             "QB|9-16": {
-              "rho": 0.5,
+              "rho": 0.4762,
               "n": 8,
               "status": "measured"
             },
             "TE|9-16": {
-              "rho": -0.2381,
+              "rho": -0.1667,
               "n": 8,
               "status": "measured"
             },
             "WR|33+": {
-              "rho": -0.0183,
-              "n": 120,
+              "rho": -0.0313,
+              "n": 124,
               "status": "measured"
             },
             "TE|17-32": {
-              "rho": -0.5,
+              "rho": -0.4036,
               "n": 15,
               "status": "measured"
             },
             "RB|33+": {
-              "rho": -0.1559,
-              "n": 65,
+              "rho": -0.086,
+              "n": 71,
               "status": "measured"
             },
             "TE|33+": {
-              "rho": -0.0023,
-              "n": 64,
+              "rho": 0.0471,
+              "n": 67,
               "status": "measured"
             },
             "QB|17-32": {
@@ -1432,13 +1432,13 @@
               "status": "measured"
             },
             "QB|33+": {
-              "rho": -0.0919,
-              "n": 30,
+              "rho": -0.0125,
+              "n": 31,
               "status": "measured"
             }
           },
-          "pooled_rho": -0.0541,
-          "shuffle_p95_pooled_rho": 0.08,
+          "pooled_rho": -0.0224,
+          "shuffle_p95_pooled_rho": 0.0861,
           "clears_shuffle": false
         }
       },
@@ -1462,23 +1462,23 @@
       },
       "condition_4_distinct_ceilings": {
         "BASE": {
-          "proj_mean_groups_with_2plus_players": 104,
+          "proj_mean_groups_with_2plus_players": 107,
           "of_those_with_distinct_ceilings": 4,
           "status": "PARTIAL"
         },
         "ECR-MIN": {
-          "proj_mean_groups_with_2plus_players": 96,
-          "of_those_with_distinct_ceilings": 96,
+          "proj_mean_groups_with_2plus_players": 98,
+          "of_those_with_distinct_ceilings": 98,
           "status": "REPAIRS 4j"
         },
         "ECR-Q10": {
-          "proj_mean_groups_with_2plus_players": 96,
-          "of_those_with_distinct_ceilings": 96,
+          "proj_mean_groups_with_2plus_players": 98,
+          "of_those_with_distinct_ceilings": 98,
           "status": "REPAIRS 4j"
         },
         "ECR-SPREAD": {
-          "proj_mean_groups_with_2plus_players": 96,
-          "of_those_with_distinct_ceilings": 96,
+          "proj_mean_groups_with_2plus_players": 98,
+          "of_those_with_distinct_ceilings": 98,
           "status": "REPAIRS 4j"
         }
       }
