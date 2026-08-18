@@ -7,6 +7,31 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 📏 **PROPOSING RULE 3e, AND THE EVIDENCE IS SIX OF MY OWN FALSE NEGATIVES IN ONE EVENING.**
+
+  > **3e — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS DEMONSTRATED IT CAN RETURN A POSITIVE.**
+  > *"Nothing found" and "asked wrong" are indistinguishable from the outside, and only one of them is a finding.*
+
+  **WHY THIS IS NOT RULE 3d.** 3d covers an implausible RESULT — Cory's *"common logic shouldve told us that everyone having the same ceiling makes no sense."* That instinct fires on a suspicious positive. **A null triggers no instinct at all**, because a null is the outcome this project has correctly learned to respect: graded nulls killed P3, P4, the pace arm and the efficiency arm, and each was a real result. **That respect is exactly what makes an unexamined null dangerous** — it arrives looking like the disciplined outcome.
+
+  **THE EVIDENCE, all from `free-market-census.yml` tonight, all mine, all reading as clean answers:**
+
+  | | reported | actually |
+  |---|---|---|
+  | v1 | "player-level markets found" | matched Kalshi's legal boilerplate — *"Current and former players, coaches, and staff…"* |
+  | v2 | "NO OPEN NFL MARKETS" | 200KB read cap truncated the payload; `json.loads` failed; absence printed |
+  | v3 | "none are player-level" | read **12 of 390** series — and its own printed samples contradicted it |
+  | v4 | "0 markets" | I replaced v3's working query with a filter on a field the payload does not carry |
+  | v6 | "0 have traded volume" | asked for `yes_bid`/`volume`; Kalshi uses `yes_bid_dollars`/`volume_fp` |
+
+  **The truth, once the probe worked: 3,194 open NFL markets, 890 player-level, and a real last trade at $0.72.** Every one of those five nulls would have closed a question that was open.
+
+  **THE MECHANISM THAT FIXED IT, and it is the rule's teeth:** a probe needs a **known-positive control** — the same discipline the test suite already requires and that probes were exempt from. `sleeper_control` proved egress; it could not prove the *parsing* worked. What worked was **two independent paths that check each other**, plus storing the **raw response shape** instead of guessing at field names a sixth time.
+
+  **ASK.** Add 3e to `CLAUDE.md` alongside 3d and 3g. **RECOMMENDATION:** phrase it as the one-liner above, plus *"a probe that has never returned a positive has not been tested, only run."*
+
+  **DEFAULT if you say nothing by 08-20 18:00 UTC:** I add it myself with this item as the record. `CLAUDE.md` is shared doctrine, which is why this is an ask and not a commit.
+
 - [ ] 2026-08-18 · relay · ⏰ **A DEADLINE BANNER FOR 08/21 HAS BEEN SITTING UNMERGED FOR 13 HOURS. `lane_status.js` found it, and this is the second time in a day the tool has surfaced work nobody could see.**
 
   `claude/in-season-surface-fixes-6nyayc`, 3 commits, B's:
