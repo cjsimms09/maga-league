@@ -19,21 +19,21 @@
       "pos": "RB",
       "proj_mean": 238.4,
       "vorp": 59.1,
-      "adp": 19.3,
+      "adp": 19.0,
       "years_exp": 10
     },
     "Walker": {
       "pos": "RB",
       "proj_mean": 225.5,
       "vorp": 46.2,
-      "adp": 16.7,
+      "adp": 17.0,
       "years_exp": 4
     },
     "Nabers": {
       "pos": "WR",
       "proj_mean": 186.3,
       "vorp": 23.7,
-      "adp": 28.1,
+      "adp": 28.0,
       "years_exp": 2
     }
   },
@@ -251,7 +251,7 @@
           "Henry",
           "Walker"
         ],
-        "mean_dollars": 616.75,
+        "mean_dollars": 636.62,
         "vs_current": {
           "mean": 0.0,
           "ci95": [
@@ -261,14 +261,14 @@
           "beats": false
         },
         "rb_kept": 2,
-        "rb_drafted_mean": 2.12,
-        "rb_drafted_mean_vorp": -55.7,
+        "rb_drafted_mean": 2.1,
+        "rb_drafted_mean_vorp": -55.1,
         "avg_roster_comp": {
           "DEF": 1.5,
-          "K": 1.3,
-          "QB": 1.4,
+          "K": 1.5,
+          "QB": 1.5,
           "RB": 4.1,
-          "TE": 2.7,
+          "TE": 2.6,
           "WR": 3.9
         }
       },
@@ -278,25 +278,25 @@
           "Henry",
           "Nabers"
         ],
-        "mean_dollars": 537.38,
+        "mean_dollars": 552.75,
         "vs_current": {
-          "mean": -79.38,
+          "mean": -83.88,
           "ci95": [
-            -103.25,
-            -56.88
+            -109.25,
+            -60.12
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 3.12,
-        "rb_drafted_mean_vorp": -52.0,
+        "rb_drafted_mean": 3.1,
+        "rb_drafted_mean_vorp": -51.0,
         "avg_roster_comp": {
           "DEF": 1.5,
-          "K": 1.3,
-          "QB": 1.4,
+          "K": 1.5,
+          "QB": 1.5,
           "RB": 4.1,
-          "TE": 2.7,
-          "WR": 4.0
+          "TE": 2.6,
+          "WR": 3.9
         }
       },
       {
@@ -305,25 +305,25 @@
           "Nabers",
           "Walker"
         ],
-        "mean_dollars": 526.75,
+        "mean_dollars": 542.12,
         "vs_current": {
-          "mean": -90.0,
+          "mean": -94.5,
           "ci95": [
-            -116.75,
-            -65.0
+            -123.62,
+            -67.75
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 3.12,
-        "rb_drafted_mean_vorp": -51.7,
+        "rb_drafted_mean": 3.1,
+        "rb_drafted_mean_vorp": -50.9,
         "avg_roster_comp": {
           "DEF": 1.5,
-          "K": 1.3,
-          "QB": 1.4,
+          "K": 1.5,
+          "QB": 1.5,
           "RB": 4.1,
-          "TE": 2.7,
-          "WR": 4.0
+          "TE": 2.6,
+          "WR": 3.9
         }
       },
       {
@@ -331,21 +331,21 @@
           "Chase",
           "Henry"
         ],
-        "mean_dollars": 508.5,
+        "mean_dollars": 499.88,
         "vs_current": {
-          "mean": -108.25,
+          "mean": -136.75,
           "ci95": [
-            -146.5,
-            -70.62
+            -172.12,
+            -103.62
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.83,
+        "rb_drafted_mean": 2.77,
         "rb_drafted_mean_vorp": -46.9,
         "avg_roster_comp": {
-          "DEF": 1.4,
-          "K": 1.3,
+          "DEF": 1.3,
+          "K": 1.4,
           "QB": 1.4,
           "RB": 3.8,
           "TE": 2.5,
@@ -362,30 +362,30 @@
     },
     "Chase|Henry|Nabers": {
       "vs_current_no_oppkeepers": {
-        "mean": -30.5,
+        "mean": -66.0,
         "ci95": [
-          -52.0,
-          -6.75
+          -101.0,
+          -30.75
         ],
         "beats": false
       }
     },
     "Chase|Nabers|Walker": {
       "vs_current_no_oppkeepers": {
-        "mean": -53.0,
+        "mean": -102.5,
         "ci95": [
-          -82.0,
-          -26.0
+          -139.75,
+          -70.0
         ],
         "beats": false
       }
     },
     "Chase|Henry": {
       "vs_current_no_oppkeepers": {
-        "mean": -171.5,
+        "mean": -85.0,
         "ci95": [
-          -222.5,
-          -124.0
+          -136.0,
+          -37.25
         ],
         "beats": false
       }
@@ -394,19 +394,19 @@
   "experience_bias_probe": {
     "rookie(0)": {
       "n": 82,
-      "mean_rank_gap_vorp_minus_adp": 6.7
+      "mean_rank_gap_vorp_minus_adp": 5.3
     },
     "2nd-yr(1)": {
       "n": 88,
-      "mean_rank_gap_vorp_minus_adp": 12.0
+      "mean_rank_gap_vorp_minus_adp": 13.5
     },
     "3rd-yr(2)": {
       "n": 63,
-      "mean_rank_gap_vorp_minus_adp": 17.3
+      "mean_rank_gap_vorp_minus_adp": 16.5
     },
     "vet(3+)": {
       "n": 343,
-      "mean_rank_gap_vorp_minus_adp": -7.8
+      "mean_rank_gap_vorp_minus_adp": -7.7
     }
   },
   "caveats": [
