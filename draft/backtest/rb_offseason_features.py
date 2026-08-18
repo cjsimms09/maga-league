@@ -190,7 +190,7 @@ def build_rows(depth_by_team: dict, prior_depth_by_team: dict,
                 "position": POSITION,
                 **feats,
                 "team_change": tc.get(gid),
-                "source": "nfl_data_py import_depth_charts + import_rosters",
+                "source": "nfl_data_py import_depth_charts + import_seasonal_rosters",
                 "as_of": as_of,
             })
     return rows
@@ -205,7 +205,7 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
     crosswalk = crosswalk_gsis_to_sleeper([], ids_df)
 
     depth_all = nfl.import_depth_charts(list(SEASONS))
-    roster_all = nfl.import_rosters(list(SEASONS))
+    roster_all = nfl.import_seasonal_rosters(list(SEASONS))
 
     need_depth = {"season", "week", "club_code", "depth_team", "gsis_id", "position"}
     need_roster = {"season", "team", "position", "gsis_id"}

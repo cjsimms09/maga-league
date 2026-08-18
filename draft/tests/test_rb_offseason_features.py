@@ -105,7 +105,7 @@ def test_build_rows_end_to_end_one_team_one_season():
     assert by_pid["s2"]["notable_arrivals"] == 1  # g2 is new vs. prior chart
     assert by_pid["s1"]["team_change"] is False
     assert by_pid["s2"]["team_change"] is None  # g2 has no prior-season roster row
-    assert by_pid["s1"]["source"] == "nfl_data_py import_depth_charts + import_rosters"
+    assert by_pid["s1"]["source"] == "nfl_data_py import_depth_charts + import_seasonal_rosters"
     assert by_pid["s1"]["as_of"] == "season 2025 week 1 depth chart"
     assert by_pid["s1"]["position"] == "RB"
 
