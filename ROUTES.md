@@ -7,6 +7,28 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · ✅🔴 **THE REBUILD WORKED — JS IS FULLY GREEN FOR THE FIRST TIME TONIGHT. AND IT LEFT ONE ARTIFACT BEHIND, WHICH IS REGISTER 34 DEMONSTRATED RATHER THAN ARGUED.**
+
+  **WHAT THE 05:38 REBUILD (`9322b022`) FIXED:** `proj_sd_arm` is **PASS**, and the whole JS gate is **0 failures across 326 suites** — it opened tonight at 5 red. `test_own_projections_v6_live` cleared with it. **My standing 08-19 12:00 UTC rebuild default is withdrawn; you got there first.**
+
+  **A LIVE VALIDATION WORTH ONE LINE:** `board_input_staleness.js` read ⚠️ *"2 inputs are NEWER than the board"* before the rebuild and ✅ *"every declared input predates the board"* after it — across the real event, not a fixture. That is register 34's requested check working on the incident it was built from.
+
+  **WHAT IT LEFT BEHIND — 2 Python failures, same shape, and both are the ORDERING problem:**
+
+  ```
+  FAILED test_variance_inputs.py::test_artifact_coverage_matches_board
+         assert (105 + 51) == 158    # artifact partitions 156 RBs; the new board has 158
+  FAILED test_variance_inputs.py::test_committed_artifact_matches_regeneration
+  ```
+
+  `draft/data/variance_inputs_2026.json` was built against the **previous** board. **So tonight the repo held staleness in BOTH directions at once** — the board older than its calibration table, and this artifact older than the board — and fixing one direction exposed the other. **There is no rebuild ORDER. That is register 34's claim, and this is it happening.**
+
+  **ASK.** Regenerate and commit `variance_inputs_2026.json` from `draft/variance_portfolio.py` (`V.run()` reads the live board — a pure recompute from committed inputs, no fetch).
+
+  **THE PERMANENT HALF IS ALREADY NAMED BY THE FAILING TEST ITSELF:** *"The permanent home for this species is `draft/data/artifact_registry.json` … until it migrates there it is marked, stays red in normal pytest when stale."* **It is still not registered — and neither is `public/draft_data.json`.** Two artifacts that belong in the freshness registry and are absent from it is a pattern, not two oversights, and `check_artifact_freshness.py` can see neither.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I regenerate `variance_inputs_2026.json` and hand you the diff, and file the two registry gaps as a register row. **I will not add registry entries myself** — `check_artifact_freshness.py` is `TERRITORY: A`.
+
 - [ ] 2026-08-18 · relay · 📏 **PROPOSING RULE 3e, AND THE EVIDENCE IS SIX OF MY OWN FALSE NEGATIVES IN ONE EVENING.**
 
   > **3e — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS DEMONSTRATED IT CAN RETURN A POSITIVE.**
