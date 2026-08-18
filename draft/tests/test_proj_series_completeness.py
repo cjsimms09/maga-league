@@ -188,3 +188,68 @@ def test_FAIL_ARM_the_gap_and_freshness_checks_can_fail_too():
     today = _dt.date.today()
     assert (today - (today - _dt.timedelta(days=30))).days > 7
     assert (today - (today - _dt.timedelta(days=2))).days <= 7
+
+
+# ── THE SAME THREE QUESTIONS, ASKED OF THE MARKET ANCHOR ──────────────────────
+# `adp_series.json` is what the board's ADP movers panel and drift checks read,
+# and it is the market Cory drafts against. It had NO live-artifact guard:
+# `test_adp_series.py` unit-tests the module on fixtures and never opens the real
+# file, and `test_capture_registry.py` checks retention METADATA, not contiguity.
+#
+# It has no `source` dimension — one row per date — so the source-completeness
+# ratchet does not apply. Contiguity, freshness and payload size do.
+
+ADP_SERIES = ROOT / "draft" / "data" / "adp_series.json"
+
+#: A floor, deliberately far below any legitimate value, rather than a fraction
+#: of the median. `proj_series` payloads legitimately moved 400 → ~700 when C
+#: raised the cap on 2026-08-13, so a median-relative rule would have called that
+#: real fix a defect. A floor catches the failure that matters — a run that
+#: succeeded and captured almost nothing — without firing on growth.
+MIN_PLAYERS = 100
+
+
+def _series_rows(path, payload_key):
+    doc = json.loads(path.read_text(encoding="utf8"))
+    return [(r["date"], len(r.get(payload_key) or {}))
+            for r in doc.get("series", []) if r.get("date")]
+
+
+def test_CONTROL_the_adp_series_is_real():
+    assert ADP_SERIES.exists(), "the market anchor series is missing"
+    rows = _series_rows(ADP_SERIES, "adp")
+    assert len(rows) >= 5, f"only {len(rows)} ADP snapshots"
+
+
+def test_the_adp_series_has_no_missing_days_and_is_still_being_written():
+    import datetime as _dt
+    dates = sorted({d for d, _ in _series_rows(ADP_SERIES, "adp")})
+    lo, hi = _dt.date.fromisoformat(dates[0]), _dt.date.fromisoformat(dates[-1])
+    span = {(lo + _dt.timedelta(days=i)).isoformat() for i in range((hi - lo).days + 1)}
+    missing = sorted(span - set(dates))
+    assert not missing, f"ADP series never captured: {missing}"
+    age = (_dt.date.today() - hi).days
+    assert age <= 7, f"newest ADP snapshot is {dates[-1]}, {age} days old — capture has stopped"
+
+
+def test_no_snapshot_in_either_series_is_near_EMPTY():
+    """A run that succeeded and captured almost nothing is the failure a
+    date-level check cannot see: the row is there, the day looks covered, and
+    the payload is a handful of players.
+
+    Measured 2026-08-18: adp_series is exactly 300 every day (its own top-N cap);
+    proj_series runs 400-700. Both are far above the floor.
+    """
+    thin = [(str(p.name), d, n)
+            for p, k in ((ADP_SERIES, "adp"), (SERIES, "proj"))
+            for d, n in _series_rows(p, k) if n < MIN_PLAYERS]
+    assert not thin, f"near-empty snapshots (floor {MIN_PLAYERS}): {thin}"
+
+
+def test_FAIL_ARM_the_thin_and_gap_detectors_fire_on_the_adp_shape():
+    import datetime as _dt
+    assert [n for n in (300, 5, 300) if n < MIN_PLAYERS] == [5]
+    ds = ["2026-08-09", "2026-08-11"]
+    lo, hi = _dt.date.fromisoformat(ds[0]), _dt.date.fromisoformat(ds[-1])
+    span = {(lo + _dt.timedelta(days=i)).isoformat() for i in range((hi - lo).days + 1)}
+    assert sorted(span - set(ds)) == ["2026-08-10"]
