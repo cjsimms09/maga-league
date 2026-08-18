@@ -1,0 +1,167 @@
+name: FREE MARKET CENSUS — is there a 2026 in-season market source we can read for nothing?
+
+# Cory, 2026-08-18: "Do deep search for 2026 days for free" and, on the arms he wants
+# tried, "Vegas, Kalshi, pace of play, any other metrics we can get should be tried."
+#
+# THE QUESTION IS NARROW AND IT HAS A DEADLINE. The Odds API credits expire ~08-31 and
+# its historical endpoint cannot serve 2026 in-season prices — week 1 opens 09-10, after
+# the credits are gone. So every market arm D is being asked to build in-season needs a
+# source that is free and LIVE, or it needs to not be proposed.
+#
+# `prior_art.py --grep kalshi` returns nothing, so this is not a re-run. The two "market"
+# hits in the repo are draft-strategy studies, not data sources.
+#
+# ── WHAT THIS ANSWERS, AND WHAT IT DELIBERATELY DOES NOT ──────────────────────
+#
+# It answers: which free endpoints RESPOND, and do their payloads contain anything at
+# player or team granularity that could become an implied number. It does NOT decide
+# whether that signal predicts anything — that is an arm, it goes through
+# BLEND-SEARCH-DESIGN, and it gets a preregistered grade. Reachability first; the
+# ceiling-source probe on 08-18 spent its whole budget proving six endpoints exist and
+# carry no ceiling, which is exactly the right order.
+#
+# ── THE CONTROL IS THE LOAD-BEARING PART ─────────────────────────────────────
+#
+# A run where every host is blocked looks identical to a run where no source exists.
+# `sleeper_control` is an endpoint this repo has fetched successfully many times, so if
+# it fails the verdict is "THIS RUN'S EGRESS IS BROKEN" and not "there is nothing out
+# there." Without it a network hiccup would be recorded as a finding.
+#
+# COSTS NOTHING. Public read-only GETs. No key is sent to any host except the two that
+# already hold ours, and no key is ever printed.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Probe every free market surface
+        env:
+          K_ODDS: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          set -uo pipefail
+          python3 - <<'PY'
+          import json, os, re, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          UA = {"User-Agent": "maga-league-research/1.0"}
+
+          def get(url, headers=None, cap=200000):
+              h = dict(UA); h.update(headers or {})
+              req = urllib.request.Request(url, headers=h)
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      return r.status, r.read(cap).decode("utf-8", "ignore")
+              except urllib.error.HTTPError as e:
+                  return e.code, e.read(2000).decode("utf-8", "ignore")
+              except Exception as e:
+                  return 0, f"{type(e).__name__}"
+
+          # (id, url, needs_key) — Kalshi's public read endpoints need no auth.
+          KALSHI = "https://api.elections.kalshi.com/trade-api/v2"
+          TARGETS = [
+            ("sleeper_control", "https://api.sleeper.app/v1/state/nfl", False),
+
+            ("kalshi_series",       f"{KALSHI}/series?category=Sports", False),
+            ("kalshi_events_nfl",   f"{KALSHI}/events?status=open&limit=200", False),
+            ("kalshi_markets_open", f"{KALSHI}/markets?status=open&limit=200", False),
+            ("kalshi_markets_nfl",  f"{KALSHI}/markets?status=open&limit=200&series_ticker=KXNFLGAME", False),
+
+            # ESPN's public site API is unauthenticated and often carries an odds block.
+            ("espn_scoreboard", "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard", False),
+            ("espn_odds_core",  "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events?limit=5", False),
+
+            # The Odds API's FREE tier: does it serve CURRENT (not historical) NFL prices?
+            ("oddsapi_sports",  "https://api.the-odds-api.com/v4/sports/?apiKey=KEY", True),
+            ("oddsapi_nfl_h2h", "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?regions=us&markets=h2h&apiKey=KEY", True),
+            ("oddsapi_player_props", "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?regions=us&markets=player_pass_yds&apiKey=KEY", True),
+          ]
+
+          key = os.environ.get("K_ODDS") or ""
+          rows = []
+          for name, url, needs in TARGETS:
+              if needs and not key:
+                  rows.append({"id": name, "status": None, "note": "no ODDS_API_KEY in secrets"})
+                  continue
+              code, body = get(url.replace("KEY", key) if needs else url)
+              # Never let a key reach the artifact through an echoed URL or error body.
+              safe = body.replace(key, "<KEY>") if key else body
+              low = safe.lower()
+              rows.append({
+                "id": name, "status": code, "bytes": len(safe),
+                "mentions_nfl": ("nfl" in low or "football" in low),
+                # Player-level granularity is the thing that decides whether this can
+                # ever be a per-player arm rather than a team-context one.
+                "mentions_player": bool(re.search(r"player|passing yards|rushing yards|receptions|anytime td", low)),
+                "head": " ".join(safe[:400].split()),
+              })
+              print(f"  {name:24s} -> {code}  {len(safe)}B")
+
+          def row(i):
+              return next((r for r in rows if r["id"] == i), {})
+
+          control = row("sleeper_control").get("status")
+          egress_ok = control == 200
+
+          reachable = [r["id"] for r in rows if r.get("status") == 200 and r["id"] != "sleeper_control"]
+          player_level = [r["id"] for r in rows if r.get("status") == 200 and r.get("mentions_player")]
+
+          if not egress_ok:
+              verdict = ("THIS RUN'S EGRESS IS BROKEN — the Sleeper control did not return 200, "
+                         f"it returned {control}. NOTHING here is evidence about what exists. Re-run.")
+          elif not reachable:
+              verdict = ("NO FREE MARKET SOURCE RESPONDED, and the control passed, so that is a "
+                         "real answer rather than a blocked run.")
+          else:
+              verdict = ("FREE AND REACHABLE: " + ", ".join(reachable)
+                         + (" | PLAYER-LEVEL CONTENT SEEN IN: " + ", ".join(player_level)
+                            if player_level else
+                            " | NONE carried player-level content — team/game granularity only, "
+                            "so a market arm built on these is a TEAM-CONTEXT prior, not a per-player one."))
+
+          art = {
+            "_territory": "TERRITORY: relay — written by .github/workflows/free-market-census.yml",
+            "_question": ("P53. Cory 08-18: 'Do deep search for 2026 days for free.' The Odds API "
+                          "credits expire ~08-31 and its historical endpoint cannot serve 2026 "
+                          "in-season prices (week 1 opens 09-10), so every in-season market arm "
+                          "needs a free live source or it should not be proposed."),
+            "_scope": ("REACHABILITY AND GRANULARITY ONLY. Whether any of this predicts points is "
+                       "an arm: it goes through BLEND-SEARCH-DESIGN and gets a preregistered grade."),
+            "_control": ("sleeper_control is an endpoint this repo has fetched many times. If it "
+                         "fails, a fully-blocked run would otherwise read as 'no source exists'."),
+            "captured_at": datetime.now(timezone.utc).isoformat(),
+            "egress_ok": egress_ok, "control_status": control,
+            "reachable": reachable, "player_level": player_level,
+            "rows": rows, "verdict": verdict,
+          }
+          os.makedirs("draft/backtest", exist_ok=True)
+          with open("draft/backtest/free_market_census.json", "w") as f:
+              json.dump(art, f, indent=1)
+          print("\n" + "=" * 70)
+          print(verdict)
+          print("=" * 70)
+          PY
+
+      - name: Commit the census
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          if [ -n "$(git status --porcelain draft/backtest/free_market_census.json)" ]; then
+            git add draft/backtest/free_market_census.json
+            git commit -m "Free market census: which 2026 in-season source costs nothing [skip deploy]"
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push origin HEAD:main && break
+              sleep $((2**i))
+            done
+          else
+            echo "No change."
+          fi
