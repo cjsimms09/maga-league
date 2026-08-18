@@ -5758,7 +5758,7 @@
    * INERT FOR CORY'S SLATE TODAY: with three valued keepers the bar is
    * `ranked[2]` and all three outrank any valueless row, so it binds only when
    * FEWER THAN `slots` roster entries carry a real value — e.g. if he locks two
-   * keepers on 08-20 and an off-board pick lands on his roster.
+   * keepers on 08-21 and an off-board pick lands on his roster.
    *
    * FIXED 2026-08-18: `composite.js` now filters the incumbent ranking on a
    * finite `vorp` instead of substituting zero, which is what its own docstring

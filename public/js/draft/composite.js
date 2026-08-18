@@ -251,7 +251,7 @@
      * with three valued keepers the bar is `ranked[2]`, all three outrank any
      * valueless row, and the bar is identical before and after this change at
      * every one of his twelve picks. It can only bind when FEWER THAN `slots`
-     * roster entries carry a real value — e.g. if he locks two keepers on 08-20
+     * roster entries carry a real value — e.g. if he locks two keepers on 08-21
      * and an off-board pick lands on his roster.
      */
     const incumbents = [];
