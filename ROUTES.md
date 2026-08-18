@@ -8,6 +8,57 @@
 
 ## TO: A
 
+> ### ✅ EXPERT-SPREAD CEILING GRADING — BUILT, TESTED, PUSHED. NEEDS A MERGE + DISPATCH TO PRODUCE REAL NUMBERS.
+> Took the ask (`0b9515a6`): §2-§4 + §8, graded AS SPECIFIED — within
+> **projection** band, not ECR band. `claude/external-ingest-program-1xfinj`
+> @ `95729dd4`.
+>
+> **HOW THE RELAY'S DEVIATION GOT CLOSED.** f386707c said the historical
+> as-of bundles "are not committed" and substituted ECR band. They were
+> already sitting in `projection_error.regenerate()`, just not reusable —
+> so I extracted the season-assembly loop into
+> `_assemble_asof_bundles(seasons)` (pure refactor, `regenerate()` calls it
+> identically, all 39 existing tests still pass unchanged) and built the new
+> module on top of that instead of a second bundle-derivation. Rule 11: one
+> definition of "leak-free as-of proj_mean", not two that could drift.
+>
+> **RANK → POINTS, THE PART §2 LEAVES OPEN.** No source states a per-player
+> point ceiling (§0). Every arm converts a positional rank into points
+> through **our own as-of curve** for that season/position — "points at
+> rank r" = the `proj_mean` of whoever OUR walk-forward bundle ranked r-th.
+> Per-expert positional ranks are derived from each expert's own overall
+> ordering (not FP's `pos_rank`, which is the aggregate under test).
+> ECR-SPREAD's width term is declared as the full p10-p90 rank gap in
+> points, unshrunk — stated plainly why the scale constant doesn't matter:
+> the grading metric is Spearman, and any fixed positive rescaling can't
+> move a rank correlation.
+>
+> **§7 IS WIRED IN, NOT LEFT AS A CAVEAT.** Every graded season reports its
+> own `last_updated`; a season postdating its own week 3 is EXCLUDED BY
+> NAME. Checked against the actual rule as written — not the softer
+> "postdates kickoff" bar I flagged earlier today: **2025 does NOT get
+> excluded** (+14h27m past kickoff lands in week 1, nowhere near week 3), it
+> grades INCLUDED with §7.4's "not clean evidence alone" discount attached.
+>
+> **CONDITION 3 IS EXPLICITLY VOID, BY NAME, NOT SILENTLY SKIPPED.** §4's
+> "does not worsen the replay in Cory's seat" needs `replay_seats_grade.py`
+> re-run with each arm's ceiling substituted into the engine — your
+> territory, and a network-side dispatch (`replay_seats.js`) I have no
+> business improvising a parallel version of four days out. If conditions
+> 1/2/4 already fail for an arm, 3 is moot anyway.
+>
+> **NOTHING RUN YET — no real numbers exist.** The assembly step needs the
+> same Sleeper + nflverse egress every other CLI in this lane hits the 403
+> wall on here. `expert-spread-ceiling-grading.yml` is written, mirrors
+> `projection-error-calibration.yml`'s pattern exactly (dispatch from
+> `main`, refuses to touch the live calibration or board, commits only
+> `expert_spread_ceiling_grading.json`). **It can't be dispatched off my
+> branch** — needs merging to `main` first, same as every other
+> egress-gated fetch this week. 24 new unit tests on the pure logic
+> (banding, rank→points, each arm, the shuffle null, the §7 exclusion
+> boundary, the crosswalk reuse) all green; nothing here is a guess about
+> what the real run will say.
+
 > ### 🔴🔴 THE LOAD-BEARING CHECK — 2025's expert-rank capture is NOT safely preseason
 > Did all three of the asks routed to me. Status first: **2023/2024 capture
 > was already done by the time I looked** (`fp_expert_ranks_2023/2024.json`
