@@ -82,3 +82,34 @@
   mid-draft", both shas named). If the sync log starts printing that, someone
   rebuilt/re-froze the board mid-draft: restore the frozen file from git and
   the capture resumes by itself on the next poll.
+
+---
+
+## ✅ VERIFIED END-TO-END, 2026-08-18 (relay)
+
+Every file, CLI flag, route, timing and contingency claim on this page was
+checked against the code. **One defect found — the freeze timing above, register
+5i — and everything else holds.**
+
+- **Files/flags/routes:** `draft-data.yml`, `draft-night-sync.yml`,
+  `freeze_pre_draft.py`, `ledger_corruption_check.js`, `log_draft_picks.py`
+  (`--sync`, `--status`), `playoff_sos_2026.md`, the freeze, and both admin
+  routes — all present. `draft_pick_log_2026.jsonl` does **not** exist yet and
+  that is correct: `LOG.open("a")` creates it on the first pick.
+- **Step 8 / addendum — the completion string is real and STRONGER than stated.**
+  `draft complete — every pick logged, stopping.` prints only *after* the
+  durability gate: if `git rev-list --count origin/…..HEAD` is non-zero the step
+  re-pushes, and a failed final push `exit 1`s. **So that line cannot appear
+  while the pick log is unpushed.**
+- **Addendum — "a green run does not mean captured" is accurate.** The
+  `max_minutes` path prints `::warning::` and falls through to a green step.
+  Judge by the last log line, exactly as written.
+- **Addendum — the freeze-swap guard is real.** `log_draft_picks.py` refuses at
+  the moment of append, naming both shas: *"the freeze on disk (sha X…) is NOT
+  the freeze this log's N existing rows are joined to (Y…)."*
+- **Contingency — the staleness warning exists** with a real age and thresholds
+  (amber ~6h, blocked ~18h).
+
+*Two of these read as MISSING on a first grep — the freeze message is split
+across source lines, and the durability gate says "NOT pushed" rather than
+"unpushed". Both were present. Grep the behaviour, not the sentence.*
