@@ -197,3 +197,57 @@ and week 1 is ~09-10.
 
 **DEFAULT IF YOU SAY NOTHING: nothing happens.** This one cannot have a relay default —
 it spends your money.
+
+---
+
+### ✅ RULED 2026-08-18 — AND MY ASK ABOVE WAS PARTLY MOOT. CORRECTING IT.
+
+**Cory:** *"I guess use our credits until this run out but expire at the end of this
+month I believe. Use while you can. Do deep search for 2026 days for free."*
+
+**THE ASK ABOVE WAS WRONG IN ITS CENTRAL ASSUMPTION AND I SHOULD SAY SO PLAINLY.** I
+priced a **season-long weekly fetch** at 23,040 credits. **That is not purchasable:
+the credits expire ~08-31 and week 1 is ~09-10.** The plan's own framing, recorded in
+`free-betting-probe.yml`'s header on 08-16, already said so — *"the Odds API plan is a
+ONE-MONTH purchase for HISTORICAL data; 2026 live betting must come from free sources
+or not at all"* — and I asked Cory to approve a recurring spend anyway. **He answered
+the question I should have asked.**
+
+**WHAT THE CREDITS CAN ACTUALLY BUY BEFORE 08-31, in priority order:**
+
+1. **2026 week-1 (and week-2) player props, if books have posted them yet.** The only
+   in-season data this plan can ever produce, and it feeds `props_weekly_v1` — already
+   built and already wired into the Tuesday grader. **Verifying availability now with a
+   dry run** (costs ~nothing, shows the live credit balance).
+2. **Nothing from `historical-props-fetch.yml`** — it offers 2023/2024/2025 only, and
+   **we already hold all three in full.** There is no unbought season there.
+
+**THE HONEST CEILING ON THIS: at most a week or two of in-season market data, not a
+season.** That is worth having — it is the only market data 2026 will get unless a free
+source is found — but it will not settle P11/P12 on its own.
+
+### 🔴 AND THE FREE PATH IS MEASURED SHUT — BALL DON'T LIE CANNOT DO IT
+
+Cory: *"We can get for free from ball don't lie key."* **Tested properly rather than
+argued** (`bdl-key-matrix.yml`, artifact `bdl_key_matrix.json`), because the repo's
+existing "no" had probed **1 of 4** BDL secret names and I would not report a limit on
+that basis.
+
+| BDL endpoint | status | what it means |
+|---|---|---|
+| `odds` (season/week, by date) | **401** | exists, **needs a paid tier** |
+| `player_props` + 5 other spellings | **404** | **route does not exist — BDL has no player-props product** |
+| stats · season_stats · injuries · advanced_stats | 401 | paid tier |
+| teams | 429 | free-tier rate limit |
+
+**And only ONE of the four secrets is actually set** — the other three are empty, so the
+"wrong key" theory is dead too. **A BDL paid tier could unlock game-level ODDS, but the
+404s say no tier unlocks player props.** BDL is not a substitute for the market axis.
+
+**⭐ SO THE REAL ASK IS THE ONE CORY ALREADY GAVE ME: find a free 2026 source.** That is
+now a tracked row (**P53**) rather than a good intention, and Kalshi is the live
+candidate — free, already captured daily, and its catalog carries season player totals
+and fantasy-points markets. Its known problem is thinness, not access: every ticker
+sampled in mid-August returned **zero open markets**. **Re-probing after the season
+opens is the test.**
+
