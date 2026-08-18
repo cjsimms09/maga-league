@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **74 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
+up."* The register has **69 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
 before 08-22 and most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
@@ -67,7 +67,7 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   ratio is backwards by band; its own row says *do not patch by hand before
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 2c, 28.
+  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 28.
 - **CLOSED 08-18 against live state, not against the date on the line** — rows
   E10 (its check run on the fresh board; its parent row 2 resolved on the same
   run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
@@ -76,18 +76,36 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   keepers really do consume picks) — plus row 2 **RESOLVED**: the
   constant-multiple sweep was run on the fresh board and no field has joined,
   while finding 13 real pairs, so it is not vacuously green.
-- **⚠️ ONE I GOT WRONG AND WITHDREW** — 4i. I had told A its premise was false
-  and offered to close it. It is not: `engine_policy` is absent from the freeze,
-  so `app.js:782` renders the restore panel not at all. Re-scoped, still B's,
-  still open.
+- **CLOSED 08-18 BY CLEARING THEM RATHER THAN DATING THEM** (Cory: *"we work
+  through, we don't park things for tomorrow"*) — ~~2c~~ (the RB gap did not keep
+  widening; it halved back, 4k's regeneration explains it, and a permutation test
+  with a planted-effect control eliminates ceiling provenance as a cause,
+  p = 0.20 against a detected p < 0.0001), ~~4k~~ (all three findings already
+  fixed by other lanes' work — closed rather than handed back, so C does not lose
+  the day before the draft to it), and 27 whose counts I corrected in place
+  rather than asking E to.
+- **⚠️ ONE I GOT WRONG THREE TIMES, NOW RESOLVED** — ~~4i~~ **CLOSED 08-18.**
+  I told A the premise was false, then WITHDREW that and re-scoped the row as
+  real, then "re-verified" it — and the withdrawal and the re-verification were
+  both wrong, from the same mistake: I kept reading
+  `pre_draft_freeze_2026.json`. **That is not what feeds the button.**
+  `state.frozenBaseline` comes from `/admin/api/baseline?version=v1`, served
+  from `draft/baseline/v1.json`, which **does** carry
+  `engine_policy.MEASURED_WEIGHTS`. The restore works. Pinned by
+  `restore_measured_core_works.test.js` (13 checks), which names BOTH files so
+  the substitution cannot recur.
 - **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
   We have **never measured our model against Sleeper on any season**; the
   promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
   *no route*. The first comparison that can settle it is the January 2027 grade.
   **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
-- **Display work owned by B** — 4i, 4v (mark the fifteen cohort-constant
-  ceilings), 4e, 4f, and now **E6** — a caveat that marks the wrong players,
-  fixed by E and unreviewed by B. A label change; no number moved.
+- **Display work owned by B** — **4e** (the shortlist is ordered by the engine's
+  composite, not by the number printed beside it; the only safe fix left is a
+  caption, and it is B's card) and **E6** (a caveat that marks the wrong
+  players, fixed by E, unreviewed by B — a label change, no number moved).
+  ~~4i~~, ~~4v~~ and ~~4f~~ **all CLOSED 08-18**: the restore button works, the
+  cohort ceilings are marked on the board, and BIG BOARD now says *"undrafted"*
+  where it collided with the scarcity rail's *"left"*.
 - **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
   finished with a ✅ that meant *"fixed, verify"*, and the register's own check
   read any tick as closed, so none of the three was ever chased. E15 is now
@@ -105,10 +123,15 @@ Already written into `DRAFT-WEEK-BRIEF.md` §4, so they cost nothing if A rules
 none of the above:
 
 1. **The dollar figure is not comparable across positions.** Use it within one.
-2. **Fifteen ceilings in his range are cohort averages** — Nabers (ADP 28),
-   Garrett Wilson (41), Jayden Daniels (57), Jayden Reed (110) among them. For
-   five of those the model is **deliberately refusing to guess**, which is a
-   strength; the mark should read *"no 2025 weeks — cohort average"*.
+2. ~~**Fifteen ceilings in his range are cohort averages**~~ ✅ **SHIPPED 08-18 —
+   HE NO LONGER HAS TO BE TOLD.** Re-measured on the live board: **34 of the 173
+   skill players in ADP 25-220 (19.7%)**, down from the 32% this page was
+   written against, because the per-player volatility work landed on 08-18. The
+   range bar now marks them with **`~`** and says *"cohort average, not this
+   player"* in the tooltip and the aria-label. **A provenance mark, not a
+   warning** — for several the model is deliberately refusing to guess, which is
+   a strength. Register **4v** closed; `cohort_ceiling_is_marked.test.js`, 16
+   checks. **B owns the styling; the information is on screen either way.**
 3. **The strategy banner will stay quiet.** That is structural, not a fault to
    wait out.
 

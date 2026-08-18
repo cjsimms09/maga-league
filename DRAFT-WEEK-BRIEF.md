@@ -499,6 +499,21 @@ players per cell), so read those as directions, not corrections.
 B's default is to grey or asterisk these on screen; the mark should say **"no
 2025 weeks — cohort average"**, not "unmeasured".
 
+> ✅ **SHIPPED 2026-08-18 — YOU NO LONGER HAVE TO CARRY THIS ONE.** The range bar
+> on any such player now renders a **`~`** mark, and both its tooltip and its
+> screen-reader label read *"cohort average, not this player"*. It fires on
+> **34 of the 173 skill players in your ADP 25-220 range (19.7%)** — the share
+> is lower than the 32% this brief was written against, because the per-player
+> volatility work landed on 08-18 and fixed most of them.
+>
+> **It is a provenance mark, not a warning.** For several of these the model is
+> refusing to guess from data it does not hold, which is the behaviour you want.
+> It tells you where the number came from, not that the number is wrong. And it
+> is deliberately conservative — an unrecognised or missing stamp does **not**
+> get marked, so the mark stays rare enough to mean something.
+>
+> Register 4v, `draft/tests/cohort_ceiling_is_marked.test.js` (16 checks).
+
 **Two other places the same number leaks, so you know them when you see them:**
 
 - **The paths panel's "◆ the &lt;plan&gt; branch" badge.** It marks the path
