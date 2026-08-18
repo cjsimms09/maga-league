@@ -180,7 +180,19 @@ def test_committed_board_carries_the_promoted_numbers():
     population and the column is auditable from the artifact alone. This
     test deliberately did NOT grow a third population: a pool the artifact
     cannot reconstruct is not an honest population, it is unauditability
-    with a name."""
+    with a name.
+
+    THE FOURTH POPULATION FACT IS A RULING, NOT A TRAP (2026-08-17): Cory's
+    take-a-swing ruling (league_config.rookie_capital_prior, his words
+    verbatim in that key) added a RULED live layer — the preregistered,
+    graded rookie draft-capital prior — that fills proj_ownmodel on exactly
+    the rookie rows own_v6's walk-forward fit cannot price, stamping each
+    with proj_ownmodel_source == "rookie_capital_prior_2026". The old pin
+    (every proj_ownmodel value equals a fresh v6 run) therefore split into
+    two exact populations separated by the stamp: UNSTAMPED rows must still
+    match a fresh own_v6 run (same 0.011 tolerance as before), and STAMPED
+    rows must match a fresh fit of the ruled layer itself and be rookies —
+    not a wildcard exemption, a second producer with its own recompute."""
     proj, diag = _run()
     prov_root = BOARD.get("provenance") or {}
     homes = {
@@ -194,9 +206,12 @@ def test_committed_board_carries_the_promoted_numbers():
         "board provenance does not say own_v6 (declared: %r) — the column may "
         "still be an older model's numbers" % (declared,))
 
+    STAMP = "rookie_capital_prior_2026"
+
     def _mismatches(run):
         return [str(p["player_id"]) for p in BOARD["players"]
                 if p.get("proj_ownmodel") is not None
+                and p.get("proj_ownmodel_source") != STAMP
                 and abs(p["proj_ownmodel"] - run.get(str(p["player_id"]), -1)) > 0.011]
 
     chosen = proj
@@ -216,8 +231,43 @@ def test_committed_board_carries_the_promoted_numbers():
             % (len(mismatch_players_only), len(mismatch_build_pop),
                mismatch_build_pop[:5]))
     stale = [str(p["player_id"]) for p in BOARD["players"]
-             if p.get("proj_ownmodel") is not None and str(p["player_id"]) not in chosen]
+             if p.get("proj_ownmodel") is not None
+             and p.get("proj_ownmodel_source") != STAMP
+             and str(p["player_id"]) not in chosen]
     assert not stale, f"{len(stale)} rows carry proj_ownmodel outside own_v6's scope (stale)"
+
+    # ── the stamped population: the RULED layer, recomputed, not exempted ──
+    stamped = [p for p in BOARD["players"]
+               if p.get("proj_ownmodel_source") == STAMP]
+    assert stamped, ("no row carries the rookie_capital_prior_2026 stamp — "
+                     "the ruled layer vanished from the committed board")
+    assert all(p.get("years_exp") == 0 for p in stamped), (
+        "a non-rookie row carries the rookie-capital stamp")
+    assert all(p.get("proj_ownmodel") is not None for p in stamped)
+    # The ruling record must exist where the layer's gate reads it.
+    cfg = json.loads((DRAFT / "config" / "league_config.json").read_text())
+    ruling = cfg.get("rookie_capital_prior") or {}
+    assert ruling.get("enabled") is True and ruling.get("cory_approval_verbatim"), (
+        "stamped rows on the board but no enabled ruling in "
+        "league_config.rookie_capital_prior — a layer without its ruling is drift")
+    # Values match a fresh fit of the layer itself (pure read, committed
+    # stores): null the stamped rows on a copy so targets() re-prices them.
+    sys.path.insert(0, str(DRAFT / "tools"))
+    import apply_rookie_prior_own_model_2026 as RP
+    scrub = [dict(p, proj_ownmodel=None) if p.get("proj_ownmodel_source") == STAMP
+             else p for p in BOARD["players"]]
+    rows, _fit, _unmatched = RP.targets(scrub)
+    fresh = {r["player_id"]: r["own_model_value"] for r in rows}
+    by_pid = {str(p["player_id"]): p for p in stamped}
+    assert set(fresh) == set(by_pid), (
+        "the stamped rows are not exactly the rows the ruled layer would fill "
+        f"(stamped-not-refit: {sorted(set(by_pid) - set(fresh))[:5]}, "
+        f"refit-not-stamped: {sorted(set(fresh) - set(by_pid))[:5]})")
+    bad = [pid for pid, v in fresh.items()
+           if abs(by_pid[pid]["proj_ownmodel"] - v) > 0.011]
+    assert not bad, (
+        "stamped rookie values disagree with a fresh fit of the ruled "
+        f"capital prior: {bad[:5]}")
 
 
 def test_rollback_path_survives():

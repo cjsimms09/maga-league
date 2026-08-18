@@ -1,0 +1,906 @@
+{
+ "seasons_loaded": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "coverage": {
+  "2021": {
+   "season": 2021,
+   "player_games": 5085,
+   "rated_cells": 128,
+   "lost": {
+    "no_opponent": 0,
+    "no_points": 0,
+    "teams_unmatched": {}
+   }
+  },
+  "2022": {
+   "season": 2022,
+   "player_games": 5025,
+   "rated_cells": 128,
+   "lost": {
+    "no_opponent": 0,
+    "no_points": 0,
+    "teams_unmatched": {}
+   }
+  },
+  "2023": {
+   "season": 2023,
+   "player_games": 5055,
+   "rated_cells": 128,
+   "lost": {
+    "no_opponent": 0,
+    "no_points": 1,
+    "teams_unmatched": {}
+   }
+  },
+  "2024": {
+   "season": 2024,
+   "player_games": 4984,
+   "rated_cells": 128,
+   "lost": {
+    "no_opponent": 0,
+    "no_points": 0,
+    "teams_unmatched": {}
+   }
+  },
+  "2025": {
+   "season": 2025,
+   "player_games": 4685,
+   "rated_cells": 128,
+   "lost": {
+    "no_opponent": 0,
+    "no_points": 1067,
+    "teams_unmatched": {}
+   }
+  }
+ },
+ "draft_day": {
+  "pairs": {
+   "2021->2022": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.2023,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.2944,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "WR": {
+      "n": 32,
+      "rho": 0.2863,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "TE": {
+      "n": 32,
+      "rho": 0.0319,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2023,
+      "null_p95": 0.2841,
+      "p_value": 0.1297,
+      "beats_null": false
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2944,
+      "null_p95": 0.2826,
+      "p_value": 0.0399,
+      "beats_null": true
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2863,
+      "null_p95": 0.301,
+      "p_value": 0.0623,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0319,
+      "null_p95": 0.2914,
+      "p_value": 0.4239,
+      "beats_null": false
+     }
+    }
+   },
+   "2022->2023": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.1015,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.3629,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "WR": {
+      "n": 32,
+      "rho": 0.1268,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "TE": {
+      "n": 32,
+      "rho": -0.1551,
+      "reading": "NEGATIVE \u2014 mean reversion, not skill"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.1015,
+      "null_p95": 0.2969,
+      "p_value": 0.2768,
+      "beats_null": false
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.3629,
+      "null_p95": 0.2962,
+      "p_value": 0.0249,
+      "beats_null": true
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.1268,
+      "null_p95": 0.2892,
+      "p_value": 0.2793,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.1551,
+      "null_p95": 0.316,
+      "p_value": 0.813,
+      "beats_null": false
+     }
+    }
+   },
+   "2023->2024": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": -0.04,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.2247,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "WR": {
+      "n": 32,
+      "rho": 0.0638,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "TE": {
+      "n": 32,
+      "rho": -0.0444,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.04,
+      "null_p95": 0.2654,
+      "p_value": 0.591,
+      "beats_null": false
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2247,
+      "null_p95": 0.2914,
+      "p_value": 0.1022,
+      "beats_null": false
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0638,
+      "null_p95": 0.2947,
+      "p_value": 0.3516,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.0444,
+      "null_p95": 0.3083,
+      "p_value": 0.601,
+      "beats_null": false
+     }
+    }
+   },
+   "2024->2025": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.0246,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.4084,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "WR": {
+      "n": 32,
+      "rho": -0.0759,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "TE": {
+      "n": 32,
+      "rho": 0.3215,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0246,
+      "null_p95": 0.3098,
+      "p_value": 0.4414,
+      "beats_null": false
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.4084,
+      "null_p95": 0.3284,
+      "p_value": 0.02,
+      "beats_null": true
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.0759,
+      "null_p95": 0.2966,
+      "p_value": 0.6334,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.3215,
+      "null_p95": 0.2808,
+      "p_value": 0.0249,
+      "beats_null": true
+     }
+    }
+   }
+  },
+  "pooled": {
+   "QB": {
+    "pairs": 4,
+    "rhos": [
+     0.2023,
+     0.1015,
+     -0.04,
+     0.0246
+    ],
+    "median": 0.0631,
+    "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+   },
+   "RB": {
+    "pairs": 4,
+    "rhos": [
+     0.2944,
+     0.3629,
+     0.2247,
+     0.4084
+    ],
+    "median": 0.3286,
+    "reading": "PERSISTS \u2014 clears the draft-day bar"
+   },
+   "WR": {
+    "pairs": 4,
+    "rhos": [
+     0.2863,
+     0.1268,
+     0.0638,
+     -0.0759
+    ],
+    "median": 0.0953,
+    "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+   },
+   "TE": {
+    "pairs": 4,
+    "rhos": [
+     0.0319,
+     -0.1551,
+     -0.0444,
+     0.3215
+    ],
+    "median": -0.0063,
+    "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+   }
+  }
+ },
+ "in_season": {
+  "seasons": {
+   "2021": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.0561,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.0418,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "WR": {
+      "n": 32,
+      "rho": -0.0532,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "TE": {
+      "n": 32,
+      "rho": 0.2911,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0561,
+      "null_p95": 0.287,
+      "p_value": 0.3616,
+      "beats_null": false
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0418,
+      "null_p95": 0.2988,
+      "p_value": 0.4289,
+      "beats_null": false
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.0532,
+      "null_p95": 0.2812,
+      "p_value": 0.606,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2911,
+      "null_p95": 0.2793,
+      "p_value": 0.0449,
+      "beats_null": true
+     }
+    },
+    "coverage": {
+     "first_half": {
+      "season": 2021,
+      "player_games": 2719,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     },
+     "second_half": {
+      "season": 2021,
+      "player_games": 2366,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     }
+    }
+   },
+   "2022": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.3204,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.3076,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "WR": {
+      "n": 32,
+      "rho": -0.0429,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "TE": {
+      "n": 32,
+      "rho": 0.2584,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.3204,
+      "null_p95": 0.3123,
+      "p_value": 0.0449,
+      "beats_null": true
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.3076,
+      "null_p95": 0.2889,
+      "p_value": 0.0349,
+      "beats_null": true
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.0429,
+      "null_p95": 0.2896,
+      "p_value": 0.6509,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2584,
+      "null_p95": 0.2999,
+      "p_value": 0.0898,
+      "beats_null": false
+     }
+    },
+    "coverage": {
+     "first_half": {
+      "season": 2022,
+      "player_games": 2670,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     },
+     "second_half": {
+      "season": 2022,
+      "player_games": 2355,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     }
+    }
+   },
+   "2023": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.3743,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.3068,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "WR": {
+      "n": 32,
+      "rho": 0.1738,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "TE": {
+      "n": 32,
+      "rho": -0.3944,
+      "reading": "NEGATIVE \u2014 mean reversion, not skill"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.3743,
+      "null_p95": 0.2966,
+      "p_value": 0.0249,
+      "beats_null": true
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.3068,
+      "null_p95": 0.2845,
+      "p_value": 0.0324,
+      "beats_null": true
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.1738,
+      "null_p95": 0.305,
+      "p_value": 0.1696,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.3944,
+      "null_p95": 0.338,
+      "p_value": 0.9825,
+      "beats_null": false
+     }
+    },
+    "coverage": {
+     "first_half": {
+      "season": 2023,
+      "player_games": 2680,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 1,
+       "teams_unmatched": {}
+      }
+     },
+     "second_half": {
+      "season": 2023,
+      "player_games": 2375,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     }
+    }
+   },
+   "2024": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.0579,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     },
+     "RB": {
+      "n": 32,
+      "rho": 0.2764,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "WR": {
+      "n": 32,
+      "rho": 0.2456,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "TE": {
+      "n": 32,
+      "rho": 0.0942,
+      "reading": "NO PERSISTENCE \u2014 the earlier window does not describe the later one, the same finding that ruled pace out as a draft-day input"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0579,
+      "null_p95": 0.3061,
+      "p_value": 0.3691,
+      "beats_null": false
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2764,
+      "null_p95": 0.3043,
+      "p_value": 0.0599,
+      "beats_null": false
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2456,
+      "null_p95": 0.298,
+      "p_value": 0.0998,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.0942,
+      "null_p95": 0.3057,
+      "p_value": 0.3067,
+      "beats_null": false
+     }
+    },
+    "coverage": {
+     "first_half": {
+      "season": 2024,
+      "player_games": 2677,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     },
+     "second_half": {
+      "season": 2024,
+      "player_games": 2307,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 0,
+       "teams_unmatched": {}
+      }
+     }
+    }
+   },
+   "2025": {
+    "persistence": {
+     "QB": {
+      "n": 32,
+      "rho": 0.393,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     },
+     "RB": {
+      "n": 32,
+      "rho": -0.2309,
+      "reading": "NEGATIVE \u2014 mean reversion, not skill"
+     },
+     "WR": {
+      "n": 32,
+      "rho": 0.2889,
+      "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+     },
+     "TE": {
+      "n": 32,
+      "rho": 0.342,
+      "reading": "PERSISTS \u2014 clears the draft-day bar"
+     }
+    },
+    "null": {
+     "QB": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.393,
+      "null_p95": 0.294,
+      "p_value": 0.0075,
+      "beats_null": true
+     },
+     "RB": {
+      "n": 32,
+      "runs": 400,
+      "observed": -0.2309,
+      "null_p95": 0.3054,
+      "p_value": 0.8903,
+      "beats_null": false
+     },
+     "WR": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.2889,
+      "null_p95": 0.3112,
+      "p_value": 0.0748,
+      "beats_null": false
+     },
+     "TE": {
+      "n": 32,
+      "runs": 400,
+      "observed": 0.342,
+      "null_p95": 0.3156,
+      "p_value": 0.0349,
+      "beats_null": true
+     }
+    },
+    "coverage": {
+     "first_half": {
+      "season": 2025,
+      "player_games": 2466,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 563,
+       "teams_unmatched": {}
+      }
+     },
+     "second_half": {
+      "season": 2025,
+      "player_games": 2219,
+      "rated_cells": 128,
+      "lost": {
+       "no_opponent": 0,
+       "no_points": 504,
+       "teams_unmatched": {}
+      }
+     }
+    }
+   }
+  },
+  "pooled": {
+   "QB": {
+    "pairs": 5,
+    "rhos": [
+     0.0561,
+     0.3204,
+     0.3743,
+     0.0579,
+     0.393
+    ],
+    "median": 0.3204,
+    "reading": "PERSISTS \u2014 clears the draft-day bar"
+   },
+   "RB": {
+    "pairs": 5,
+    "rhos": [
+     0.0418,
+     0.3076,
+     0.3068,
+     0.2764,
+     -0.2309
+    ],
+    "median": 0.2764,
+    "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+   },
+   "WR": {
+    "pairs": 5,
+    "rhos": [
+     -0.0532,
+     -0.0429,
+     0.1738,
+     0.2456,
+     0.2889
+    ],
+    "median": 0.1738,
+    "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+   },
+   "TE": {
+    "pairs": 5,
+    "rhos": [
+     0.2911,
+     0.2584,
+     -0.3944,
+     0.0942,
+     0.342
+    ],
+    "median": 0.2584,
+    "reading": "WEAK \u2014 in-season only, where no offseason has to be survived"
+   }
+  }
+ },
+ "_territory": "TERRITORY: relay \u2014 the P56 gate, run before anyone builds the arm.",
+ "_question": "Does a defence's positional strength persist? Draft-day bar rho>=0.30 year-over-year; in-season bar rho>=0.10 first half -> second half.",
+ "by_position": {
+  "QB": {
+   "draft_day": {
+    "median": 0.0631,
+    "pairs": 4,
+    "positive_pairs": 3,
+    "rhos": [
+     0.2023,
+     0.1015,
+     -0.04,
+     0.0246
+    ]
+   },
+   "in_season": {
+    "median": 0.3204,
+    "pairs": 5,
+    "positive_pairs": 5,
+    "rhos": [
+     0.0561,
+     0.3204,
+     0.3743,
+     0.0579,
+     0.393
+    ]
+   },
+   "ruling": "IN-SEASON ONLY \u2014 usable in the weekly projection, not on the board."
+  },
+  "RB": {
+   "draft_day": {
+    "median": 0.3286,
+    "pairs": 4,
+    "positive_pairs": 4,
+    "rhos": [
+     0.2944,
+     0.3629,
+     0.2247,
+     0.4084
+    ]
+   },
+   "in_season": {
+    "median": 0.2764,
+    "pairs": 5,
+    "positive_pairs": 4,
+    "rhos": [
+     0.0418,
+     0.3076,
+     0.3068,
+     0.2764,
+     -0.2309
+    ]
+   },
+   "ruling": "DRAFT-DAY ADMISSIBLE \u2014 persists year over year at every pair measured. Still needs an arm graded against the champion before it ships."
+  },
+  "WR": {
+   "draft_day": {
+    "median": 0.0953,
+    "pairs": 4,
+    "positive_pairs": 3,
+    "rhos": [
+     0.2863,
+     0.1268,
+     0.0638,
+     -0.0759
+    ]
+   },
+   "in_season": {
+    "median": 0.1738,
+    "pairs": 5,
+    "positive_pairs": 3,
+    "rhos": [
+     -0.0532,
+     -0.0429,
+     0.1738,
+     0.2456,
+     0.2889
+    ]
+   },
+   "ruling": "IN-SEASON ONLY \u2014 usable in the weekly projection, not on the board."
+  },
+  "TE": {
+   "draft_day": {
+    "median": -0.0063,
+    "pairs": 4,
+    "positive_pairs": 2,
+    "rhos": [
+     0.0319,
+     -0.1551,
+     -0.0444,
+     0.3215
+    ]
+   },
+   "in_season": {
+    "median": 0.2584,
+    "pairs": 5,
+    "positive_pairs": 4,
+    "rhos": [
+     0.2911,
+     0.2584,
+     -0.3944,
+     0.0942,
+     0.342
+    ]
+   },
+   "ruling": "IN-SEASON ONLY \u2014 usable in the weekly projection, not on the board."
+  }
+ },
+ "verdict": "IN-SEASON ONLY. Year-over-year persistence does not clear the draft-day bar (the pace finding again), but the first-half rating DOES describe the second half \u2014 so the opponent term belongs in the WEEKLY projection, which never has to survive an offseason. Do not wire it into the board."
+}

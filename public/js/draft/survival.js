@@ -38,9 +38,11 @@
     // published stdev, or a fit against this league's own prior drafts, and
     // both need the networked build. Until then this is a less-wrong constant,
     // and it is labelled as such rather than presented as calibrated.
-    ADP_SD_FLOOR: 3.0,          // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,          // was 0.22 — see above. GRADED against 219
-                                // published dispersions 2026-08-14: measures 0.11. HELD, see keepers.py.
+    ADP_SD_FLOOR: 2.0,          // was 3.0 — moved WITH the rate (they bind together
+                                // below pick ~27); band 1-25 reads 0.95x market at this pair
+    ADP_SD_RATE: 0.11,          // was 0.15 — SHIPPED 2026-08-17 on Cory's ruling
+                                // ("SHIP, ORDER BACKTEST AND RESERVE RIGHT TO CHANGE").
+                                // Derivation + band measurements: keepers.py, same block.
     ADP_SD_CAP: 15.0,           // beyond this the curve is flat regardless
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
     BLEND_DECAY: 12,            // picks over which Layer 2's weight decays past the horizon
@@ -100,6 +102,30 @@
     // above (0.25) — the existing "his observed mix is a rate, not a law"
     // weight — rather than a new tuned constant.
     ROOM_MIX_W: 0.25,
+    /* ── OPPONENT-NEED LAYER — measured, ships OFF (Cory's call) ───────────
+     * draft/backtest/opponent_need_model.py graded need-conditioned opponent
+     * tendencies on 213 real pick gaps, 15,650 (gap x player) observations,
+     * walk-forward on this room's 2024-25 drafts with the as-of rule (a
+     * tendency for season Y counts only seasons < Y). Pooled Brier delta
+     * -0.0039 [95% CI -0.0067, -0.0015] vs the engine-form baseline; the
+     * 2025 calibrated-dispersion arm held at -0.0012 [-0.0022, -0.0003];
+     * the 2025 engine-sd slice alone was null (+0.00001 [-0.0033, +0.0030])
+     * — both directions in draft/audit/opponent_need_2026-08-17.md.
+     * Tendencies are measured frequencies (n on every cell, conditional
+     * refused below n=5); artifact: draft/data/opponent_need_2026.json.
+     * Gate stays FALSE until Cory rules; flipping it needs no other change.
+     *
+     * CORY RULED — ON, 2026-08-17 (the take-a-swing ruling, verbatim in
+     * league_config.rookie_capital_prior alongside the other layer it
+     * enabled): "fix this model, even if we need to lower our standards for
+     * this year only... lets at least take a swing." The measured basis for
+     * ON: pooled ΔBrier improved with the CI strictly below zero, never
+     * significantly worse in any slice; the 2025 engine-sd null is stated
+     * above, not hidden. January re-grades with 2026 outcomes. */
+    OPPONENT_NEED_LAYER: true,
+    // Blend weight when ON. Deliberately BUCKET_BLEND / ROOM_MIX_W's existing
+    // 0.25 magnitude — an existing constant reused, not a new tuned one.
+    OPPONENT_NEED_W: 0.25,
     RUN_WINDOW: 10,
     /* THE "SAFE" THRESHOLD THE LRM STRIP COMMITS TO. Lived as a bare 0.85 inside
      * `lrmLastSafe` in app.js, which meant the grader had to carry its own copy
@@ -312,9 +338,36 @@
    * produces. Bayes:  P(taken by n | survived to c) = (F(n) - F(c)) / (1 - F(c))
    */
   function layer1TakenGivenAvailable(player, pick, currentPick, ctx) {
+    /* ⚠ AN EMPTY WINDOW CONTAINS NO PICKS, AND THIS CHECK MUST COME BEFORE THE
+     * FAR-TAIL GUARD BELOW — the ordering was THE 41% WALL (Cory's capture,
+     * 2026-08-17: every fallen elite at every position printing one identical
+     * "gone by your next pick" number).
+     *
+     * The chain: survivalProbability's remainder leg asks for P(taken between
+     * windowEnd and targetPick | alive at windowEnd), and whenever Layer 2
+     * covers the whole window those two picks are EQUAL — the window is
+     * [48, 48), zero picks, so the true conditional is
+     * (F(48) − F(48)) / (1 − F(48)) = 0. But every player 25+ picks past his
+     * ADP has F ≥ 0.999 at ANY current pick, so the guard fired first and
+     * returned 1: "certainly taken inside a window in which nobody picks".
+     * That single impossibility multiplied survival by zero —
+     * 1 − survivesWindow × (1 − 1) = 1 — so the ROOM model's differentiated
+     * answer (Layer 2, which genuinely splits these players) was computed and
+     * then discarded for exactly the players the shortlist leads with. Every
+     * fallen player's raw survival became EXACTLY 0, the conservation tilt got
+     * identical weights w_i = 1, and exp(−λ·1) handed them all one number.
+     * Pinned by survival_fallen_uniform.test.js, which reproduces the board
+     * state from the capture. */
+    if (currentPick != null && currentPick > 0 && pick <= currentPick) return 0;
     const fN = layer1Taken(player, pick, ctx);
     if (currentPick == null || currentPick <= 0) return fN;
     const fC = layer1Taken(player, currentPick, ctx);
+    /* Far past his ADP over a REAL (non-empty) window, the guard is the honest
+     * limit of this model, not a shortcut: P(alive at n | alive at c) for a
+     * normal is Q(z_n)/Q(z_c) ≈ exp(−(z_n²−z_c²)/2)·(z_c/z_n), which is ~0 for
+     * any n > c once z_c ≥ 3 — the market model genuinely converges to "gone",
+     * and the float arithmetic underflows (0/0) before the formula can say so.
+     * The same test proves the convergence with this closed form. */
     if (fC >= 0.999) return 1;           // he should already be gone; treat as gone
     return Math.max(0, Math.min(1, (fN - fC) / (1 - fC)));
   }
@@ -431,6 +484,46 @@
     return out;
   }
 
+  /* ── OPPONENT-NEED LAYER helper (GATED — dead code while the flag is off) ─
+   * Consumes draft/data/opponent_need_2026.json (ctx.opponentNeed, loaded by
+   * app.js alongside the other artifacts). The artifact ships RAW COUNTS, not
+   * baked rates, because need states change with every pick: the n>=cond_floor
+   * conditional and the fallback chain (owner-conditional -> owner
+   * unconditioned -> league bucket) are evaluated HERE against the seat's
+   * LIVE roster — the same chain the backtest measured. Returns a normalised
+   * {pos: p} or null when the seat cannot be resolved to an owner (seats are
+   * unassigned until Sleeper locks the order — the War Room's own stated
+   * truth; an unresolved seat gets NO tilt rather than a guessed one). */
+  function opponentNeedDist(artifact, ownerKey, round, roster, keys) {
+    var owners = artifact && artifact.owner_tendency_counts_2026;
+    var league = artifact && artifact.league_tendencies_2026;
+    if (!owners || !league || !ownerKey || !round) return null;
+    var floor = artifact.cond_floor || 5;
+    var bucket = round <= 3 ? 'early' : (round <= 9 ? 'mid' : 'late');
+    var ob = owners[ownerKey] && owners[ownerKey][bucket];
+    var lb = league[bucket];
+    var starters = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
+    var out = {}, tot = 0;
+    keys.forEach(function (pos) {
+      var filled = (roster || []).filter(function (r) { return r.position === pos; }).length;
+      var bit = filled < (starters[pos] || 0) ? 'open' : 'filled';
+      var rate = 0;
+      var cell = ob && ob[pos];
+      if (cell && cell[bit] && cell[bit].n >= floor) {
+        rate = cell[bit].take / cell[bit].n;
+      } else if (cell && cell.uncond && cell.uncond.n >= floor) {
+        rate = cell.uncond.take / cell.uncond.n;
+      } else if (lb && lb[pos] && lb[pos].n > 0) {
+        rate = lb[pos].take / lb[pos].n;
+      }
+      out[pos] = rate;
+      tot += rate;
+    });
+    if (!(tot > 0)) return null;
+    keys.forEach(function (pos) { out[pos] /= tot; });
+    return out;
+  }
+
   function positionProbabilities(team, board, ctx) {
     const league = ctx.league || {};
     const starters = league.starters || {};
@@ -517,6 +610,23 @@
         let total = 0;
         keys.forEach(k => { out[k] = (1 - w) * out[k] + w * (prior[k] || 0); total += out[k]; });
         if (total > 0) keys.forEach(k => { out[k] /= total; });
+      }
+    }
+
+    // ---- the measured opponent-need tendency (GATED — ships off) ----------
+    // Blended exactly where ROOM_MIX_PRIOR blends, and with the same 0.25
+    // magnitude, AFTER the room prior and BEFORE the per-owner tilts. The
+    // seat's owner key comes from the live draft object's seat mapping
+    // (team.owner_first, set by app.js once Sleeper assigns the order);
+    // unmapped seats get no tilt.
+    if (CFG.OPPONENT_NEED_LAYER && round && ctx.opponentNeed) {
+      const needT = opponentNeedDist(ctx.opponentNeed, team.owner_first, round,
+                                     roster, keys);
+      if (needT) {
+        const wN = CFG.OPPONENT_NEED_W;
+        let totN = 0;
+        keys.forEach(k => { out[k] = (1 - wN) * out[k] + wN * (needT[k] || 0); totN += out[k]; });
+        if (totN > 0) keys.forEach(k => { out[k] /= totN; });
       }
     }
 

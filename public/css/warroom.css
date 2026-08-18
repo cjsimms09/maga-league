@@ -16,6 +16,11 @@
    Naming: every token is --wr-*; every component class is .wr* or an existing
    renderer hook (.rec-*, .ba-*, .threat-*) restyled here. Numeric columns use
    .wr-num (tabular figures); hero figures deliberately do not.
+
+   TERRITORY-GRANT: war-room redesign sections to A, Cory's direct order 2026-08-17
+   ("work with B, make warroom how I want it and deploy") — the DRAFT-DAY BOOK
+   PASS section at the end of this file is A's under that order; everything
+   above it stays B's.
    ════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -75,6 +80,17 @@
 .wrv-chip.pinned { background: transparent; color: var(--wr-accent); border-color: var(--wr-accent); }
 .wrv-name { font-size: var(--wr-fs-hero); font-weight: 800; color: var(--wr-ink); line-height: 1.1; }
 .wrv-name .rec-pos { vertical-align: .35em; }
+/* Expert-split badge (ordered by A 2026-08-18, expert_spread.js) — one
+ * glanceable token, never a number in the visible text (the spread/ratio
+ * live only in the title, one tap deeper). Same visual register as the
+ * SPLIT verdict chip (--wr-warn): attention, not alarm — a published fact
+ * about disagreement, not a model score. */
+.expert-split-badge {
+  display: inline-block; vertical-align: .35em; font-size: .62rem; font-weight: 800;
+  letter-spacing: .03em; text-transform: uppercase; color: var(--wr-warn);
+  border: 1px solid var(--wr-warn); border-radius: 4px; padding: .05rem .3rem;
+  white-space: nowrap; cursor: default;
+}
 .wrv-why { font-size: var(--wr-fs-body); color: var(--wr-ink); margin: var(--wr-s1) 0 0; max-width: 62ch; }
 .wrv-conf { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin: var(--wr-s1) 0 0; }
 .btn.gold.wrv-take { display: block; width: 100%; margin: var(--wr-s2) 0 0; padding: .6rem;
@@ -545,4 +561,903 @@ body.inseason-tools .wrap { max-width: 1280px; }
 /* Motion: state changes only. Respect the doctrine — no ambient animation. */
 @media (prefers-reduced-motion: reduce) {
   .wr-chart * , .wrv * { transition: none !important; animation: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE DRAFT-DAY BOOK PASS (2026-08-17)
+   TERRITORY-GRANT: war-room redesign sections to A, Cory's direct order 2026-08-17
+
+   Cory, on the day: "war room still looks like shit." The reference surface is
+   the SIDE-BET CARD GRAMMAR above — the one screen he called professional — so
+   this pass applies that grammar to the draft tool. Same tokens, same doctrine
+   (gold is money-only, red is alarm-only, navy is authority):
+
+     · ONE HERO. The clock card wears the dark board (the site's own week-hero
+       navy gradient); nothing else on the page is dark.
+     · ONE CARD SHAPE. Hairline border, 12px radius, whisper elevation — the
+       .bcard surface, everywhere.
+     · TIGHT RHYTHM at 390px. The fold belongs to the one answer; everything
+       secondary sits behind a summary pill (the .wr-exp grammar).
+     · MONO FOR MACHINE VOICE. Status/system strips read as the book's ticker.
+
+   Scoped to body.warroom-page so the other pages that load this sheet are
+   untouched. NO fixed/sticky anywhere here — the mobile-furniture rule
+   (warroom_mobile.test.js) stands. `!important` appears only where the shell's
+   legacy inline styles (margin-bottom on zone-1 cards) would otherwise win.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── one card shape ─────────────────────────────────────────────────────── */
+body.warroom-page .card {
+  background: var(--wr-panel);
+  border: 1px solid var(--wr-line);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(12, 26, 43, .06);
+}
+body.warroom-page .card > h2 {
+  font-size: .72rem;
+  letter-spacing: .12em;
+  padding: .5rem .8rem;
+  background: var(--wr-panel-soft);
+  color: var(--wr-structure);
+}
+body.warroom-page .card > h2::before { background: var(--wr-structure); top: 26%; bottom: 26%; }
+body.warroom-page .card .body { padding: .75rem .8rem; }
+
+/* ── vertical rhythm: one spacing voice on the decide surface ───────────── */
+body.warroom-page .wr-zone1 > .card,
+body.warroom-page .wr-zone1 > #branch-card { margin-bottom: .6rem !important; }
+body.warroom-page .wr-zone1 > #lrm-card { margin-bottom: .45rem !important; }
+body.warroom-page .wr-search { margin-bottom: .45rem; }
+body.warroom-page .wr-statusbar { margin-bottom: .45rem; }
+body.warroom-page #doctrine-banner,
+body.warroom-page #legality-strip { margin-bottom: .45rem; }
+
+/* ── THE HERO — the clock card wears the board ──────────────────────────── */
+body.warroom-page .clock-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--navy-deep);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--navy), #1c3a63);
+  box-shadow: 0 10px 28px rgba(12, 26, 43, .30);
+}
+/* The gold tape: one thin line of money-light across the top of the board. */
+body.warroom-page .clock-card::before {
+  content: '';
+  position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: linear-gradient(90deg, transparent 4%, var(--gold) 50%, transparent 96%);
+}
+body.warroom-page .clock-card .body { padding: 1rem .9rem 1.05rem; }
+body.warroom-page .clock-eyebrow {
+  font-family: var(--font-mono);
+  font-size: .66rem; letter-spacing: .2em;
+  color: #cdd9ea;
+}
+body.warroom-page .clock-name {
+  color: #fff;
+  font-size: clamp(2.1rem, 10.5vw, 3.2rem);
+  letter-spacing: -.015em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+}
+body.warroom-page .clock-meta { color: #cdd9ea; font-family: var(--font-mono); font-size: .74rem; }
+/* A-injected riders on the card (#clock-proj, #clock-context) carry no color of
+   their own — on the navy board they must read light, and the disagreement
+   line's amber must be the bright ramp, not the paper one. */
+body.warroom-page .clock-card #clock-proj { color: #cdd9ea; }
+body.warroom-page .clock-card #clock-proj b { color: #fff; }
+body.warroom-page .clock-card #clock-proj div[style] { color: #ffd873 !important; }
+body.warroom-page .clock-card .clock-context { color: #cdd9ea; font-size: .8rem; margin-top: .3rem; }
+body.warroom-page .clock-name .rec-pos {
+  background: rgba(255, 255, 255, .16); color: #fff; font-size: .8rem;
+}
+body.warroom-page .clock-why { color: #eef1f6; }
+body.warroom-page .clock-confidence { color: #cdd9ea; }
+body.warroom-page .clock-confidence .clear { color: #7fe0ab; }
+body.warroom-page .clock-confidence .close,
+body.warroom-page .clock-confidence .coin-flip { color: #ffd873; }
+/* The take control is the board's one bright thing: full-width, unmissable. */
+body.warroom-page #clock-take.btn {
+  flex: 1 1 100%;
+  padding: .8rem;
+  font-size: 1.05rem; font-weight: 800;
+  border-radius: 10px;
+  background: #fff; color: var(--navy-deep);
+  border: none; box-shadow: 0 2px 10px rgba(0, 0, 0, .25);
+}
+body.warroom-page #clock-take.btn:hover { filter: none; background: #f2f1ec; transform: none; }
+body.warroom-page .clock-actions { margin-top: 1rem; gap: .45rem; }
+body.warroom-page .clock-actions .btn.small {
+  background: rgba(255, 255, 255, .08); color: #cdd9ea;
+  border: 1px solid rgba(255, 255, 255, .22); box-shadow: none;
+}
+
+/* ── THE RECOMMENDATION CARD — navy authority, not gold ─────────────────── */
+body.warroom-page .wr-reccard { border-color: var(--wr-structure); border-top: 3px solid var(--wr-structure); }
+body.warroom-page .wr-reccard > h2 { color: var(--wr-structure); }
+
+/* ── the book's ticker: status + system strips in mono ──────────────────── */
+body.warroom-page .system-strip,
+body.warroom-page .wr-statusbar {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  border-radius: 8px;
+  background: var(--wr-panel);
+}
+body.warroom-page .wr-statusbar { border-left: 3px solid var(--wr-structure); padding: .35rem .7rem; }
+body.warroom-page .wr-statusbar.on-clock { border-color: var(--wr-good); border-left-color: var(--wr-good); }
+body.warroom-page .system-strip { padding: .3rem .7rem; }
+
+/* ── the search line: a proper tap target with an inset field look ──────── */
+body.warroom-page .wr-search {
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgba(12, 26, 43, .05);
+}
+body.warroom-page .wr-search input { padding: .68rem 0; font-size: .95rem; }
+
+/* ── SHORTLIST CARDS — dense book rows, one dominant number ─────────────── */
+body.warroom-page .rec-card {
+  border: 1px solid var(--wr-line);
+  border-radius: 10px;
+  background: var(--wr-panel);
+  padding: .5rem .6rem;
+  margin-bottom: .4rem;
+}
+body.warroom-page .rec-card.top {
+  border-color: var(--wr-structure);
+  background: var(--navy-soft);
+  box-shadow: inset 3px 0 0 var(--wr-structure);
+}
+body.warroom-page .rec-card.top .rec-rank {
+  background: var(--wr-structure); color: #fff; border-color: transparent;
+}
+body.warroom-page .rec-name { font-size: 1rem; }
+body.warroom-page .rec-card.top .rec-name { font-size: 1.08rem; }
+body.warroom-page .rec-why { font-size: .78rem; }
+body.warroom-page .rec-score { color: var(--wr-structure); font-size: 1.25rem; }
+body.warroom-page .rec-card.top .rec-score { color: var(--wr-structure); }
+body.warroom-page .rec-context { font-size: .72rem; color: var(--wr-muted); margin-top: .12rem; }
+body.warroom-page .rec-decisive { font-size: .76rem; }
+
+/* ── the disclosure grammar: every summary is the same quiet pill ───────── */
+body.warroom-page .rec-chips > summary,
+body.warroom-page .rec-against > summary,
+body.warroom-page .recs-details > summary,
+body.warroom-page .tier-cliff-wrap > summary,
+body.warroom-page .wr-help-wrap > summary {
+  list-style: none;
+  display: inline-flex; align-items: center; gap: .3rem;
+  cursor: pointer; user-select: none;
+  font-size: var(--wr-fs-micro); font-weight: 700;
+  color: var(--wr-muted);
+  border: 1px solid var(--wr-line); border-radius: 999px;
+  background: var(--wr-panel);
+  padding: .16rem .6rem;
+  margin: .3rem 0 0;
+}
+body.warroom-page .rec-chips > summary::-webkit-details-marker,
+body.warroom-page .rec-against > summary::-webkit-details-marker,
+body.warroom-page .recs-details > summary::-webkit-details-marker,
+body.warroom-page .tier-cliff-wrap > summary::-webkit-details-marker,
+body.warroom-page .wr-help-wrap > summary::-webkit-details-marker { display: none; }
+body.warroom-page .rec-chips[open] > summary,
+body.warroom-page .rec-against[open] > summary,
+body.warroom-page .recs-details[open] > summary,
+body.warroom-page .tier-cliff-wrap[open] > summary {
+  background: var(--wr-structure); color: #fff; border-color: var(--wr-structure);
+}
+body.warroom-page .recs-details > summary { font-size: .74rem; padding: .28rem .75rem; }
+body.warroom-page .rec-chips .rec-stats { margin-top: .35rem; }
+body.warroom-page .rec-against .ra-body {
+  margin-top: .4rem; padding: .45rem .6rem;
+  border-left: 2px solid var(--wr-line);
+  background: var(--wr-panel-soft); border-radius: 0 6px 6px 0;
+  font-size: var(--wr-fs-sub); color: var(--wr-ink);
+}
+
+/* ── context strips beneath the rec: quieter than the answer ────────────── */
+body.warroom-page #doctrine-banner.doctrine-banner,
+body.warroom-page #legality-strip.legality-strip { border-radius: 8px; font-size: .74rem; }
+body.warroom-page .queue-slip { border-radius: 10px; }
+
+/* ── zone-2/3 cards keep the shape, lose the air ────────────────────────── */
+body.warroom-page .wr-zone2 { gap: .6rem; }
+body.warroom-page .wr-zone3 .card .body { padding: .5rem .65rem; }
+
+/* ── phone rhythm (390 is the design width) ─────────────────────────────── */
+@media (max-width: 640px) {
+  body.warroom-page .wrap { padding: .5rem .55rem 2rem; }
+  body.warroom-page .card .body { padding: .6rem .65rem; }
+  body.warroom-page .clock-card .body { padding: .9rem .8rem 1rem; }
+  body.warroom-page .rec-actions .btn.small { min-height: 38px; }
+  body.warroom-page .wr-zone1 > .card { margin-bottom: .5rem !important; }
+}
+
+/* Motion doctrine holds for the new surfaces too. */
+@media (prefers-reduced-motion: reduce) {
+  body.warroom-page .clock-card, body.warroom-page .rec-card {
+    transition: none !important; animation: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE COCKPIT PASS (2026-08-17) — Cory's rejection, verbatim: "no charts, not
+   organized, not clear, doesnt give me lots of info in small space, not
+   built/look like a professional draft buddy. no places to click for more
+   info, not easy to quickly navigate between tools, big board, top 10 players
+   at each position left, its unacceptable."
+
+   The war room becomes a SINGLE-SCREEN DRAFT COCKPIT behind a sticky tool
+   bar: DRAFT · BIG BOARD · ROSTERS · ADJUSTERS · INTEL. The clock-card's dark
+   navy board (the one surface he called professional) is extended to the
+   WHOLE page — scoped under body.warroom-page by re-mapping the site tokens,
+   so every token-driven component flips at once. Doctrine holds: gold is
+   money/decision only, red is alarm only, mono numerals in columns, hairline
+   separators, 12–13px table type. Shell: views/admin/warroom.ejs; renderers:
+   app.js + warroom_charts.js (inline SVG, zero libraries).
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE DARK BOOK — site tokens re-mapped for this page only ───────────── */
+body.warroom-page {
+  --bg: #0a1422;
+  --panel: #101f33;
+  --panel-soft: #182a42;
+  --line: #24384f;
+  --ink: #e9eef6;
+  --navy: #dce6f4;            /* heading ink token on the dark board */
+  --navy-deep: #0a1322;
+  --navy-soft: rgba(122, 162, 247, .14);
+  --muted: #93a5bc;
+  --gold: #f0c052;
+  --gold-bright: #ffd873;
+  --red: #ff5a66;
+  --red-bright: #ff707a;
+  --green: #3ecf8e;
+  --blue: #6ea8fe;
+  --paper: #101f33;
+  --cream: #0a1422;
+  --wr-warn: #e8a23d;
+  --wr-chart-main: #6ea8fe;
+  --wr-chart-room: #ff9d6b;
+  --wr-chart-dim: #3c516e;
+  --wr-chart-grid: #22344c;
+  /* The --wr-* role aliases at the top of this file are DECLARED ON :root, so
+     their var() references resolved against the LIGHT site tokens at :root —
+     re-mapping --panel on body cannot reach them (custom properties substitute
+     at the declaring element, then inherit as resolved values). Re-declared
+     here so the roles resolve against the board's own palette. */
+  --wr-money: var(--gold);
+  --wr-structure: #7aa2f7;
+  --wr-accent: var(--blue);
+  --wr-good: var(--green);
+  --wr-bad: var(--red);
+  --wr-ink: var(--ink);
+  --wr-muted: var(--muted);
+  --wr-line: var(--line);
+  --wr-panel: var(--panel);
+  --wr-panel-soft: var(--panel-soft);
+  background: #0a1422;
+  background-image:
+    radial-gradient(1000px 500px at 85% -10%, rgba(110, 168, 254, .07), transparent 60%),
+    radial-gradient(900px 480px at 10% 0%, rgba(240, 192, 82, .05), transparent 60%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-size: 14px;
+}
+body.warroom-page .wrap { max-width: 1440px; }
+/* The cockpit owns the screen: the site nav joins the masthead/tabbar the war
+   room already hides (warroom_mobile.test.js pins the tabbar one). The way
+   out is the 🏛 Office link on the sticky tool bar. */
+body.warroom-page .navbar { display: none; }
+body.warroom-page .page-sub { display: none; }
+body.warroom-page .card { box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+body.warroom-page a { color: var(--gold); }
+/* hardcoded light-theme inks that would vanish on the board */
+body.warroom-page .btn.navy { color: var(--ink); }
+body.warroom-page .layer-sum:hover { color: var(--ink); }
+body.warroom-page .conf-note.close { color: var(--muted); }
+body.warroom-page .branch-head { color: var(--muted); }
+body.warroom-page .branch-rows li { color: var(--ink); }
+body.warroom-page .clock-why { color: #eef1f6; }
+body.warroom-page input::placeholder, body.warroom-page textarea::placeholder { color: #6b7d95; }
+/* legacy charts (DraftCharts emits light-surface fills as attributes; CSS
+   properties beat presentation attributes, so the board re-inks them) */
+body.warroom-page .wr-chart text { fill: var(--muted); }
+body.warroom-page .wr-chart text[font-weight="700"],
+body.warroom-page .wr-chart text[font-weight="600"] { fill: var(--ink); }
+body.warroom-page .wr-chart line[stroke="#e8e6df"] { stroke: var(--wr-chart-grid); }
+body.warroom-page .wr-chart path[fill="#2a5f9e"],
+body.warroom-page .wr-chart rect[fill="#2a5f9e"] { fill: var(--wr-chart-main); }
+body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
+
+/* ── THE TOOL BAR — sticky tab navigation ───────────────────────────────── */
+.wr-tabbar {
+  position: sticky; top: 0; z-index: 70;
+  display: flex; align-items: center; gap: .25rem;
+  padding: .35rem .35rem;
+  margin: 0 0 .5rem;
+  background: rgba(10, 20, 34, .94);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.wr-tabbar::-webkit-scrollbar { display: none; }
+.wr-tab {
+  flex: 0 0 auto; font-family: var(--font-mono);
+  font-size: .68rem; font-weight: 800; letter-spacing: .08em;
+  color: var(--muted); background: transparent;
+  border: 1px solid transparent; border-radius: 7px;
+  padding: .42rem .6rem; cursor: pointer; white-space: nowrap;
+}
+.wr-tab:hover { color: var(--ink); background: var(--panel-soft); }
+.wr-tab.active { color: #0a1422; background: var(--gold); border-color: var(--gold); }
+.wr-tab-links {
+  margin-left: auto; display: inline-flex; gap: .15rem; align-items: center;
+  flex: 0 0 auto;
+}
+.wr-tab-links a {
+  font-size: .66rem; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: .35rem .45rem; border-radius: 6px; white-space: nowrap;
+}
+.wr-tab-links a:hover { color: var(--ink); background: var(--panel-soft); }
+.wr-tab-links a.wr-exit { border-left: 1px solid var(--line); border-radius: 0 6px 6px 0; }
+
+/* ── TAB PANELS — pure show/hide; every host stays in the DOM ───────────── */
+.wr-tabpanel { display: none; }
+#warroom[data-wrtab="draft"]   #wr-tab-draft,
+#warroom[data-wrtab="board"]   #wr-tab-board,
+#warroom[data-wrtab="rosters"] #wr-tab-rosters,
+#warroom[data-wrtab="adjust"]  #wr-tab-adjust,
+#warroom[data-wrtab="intel"]   #wr-tab-intel { display: block; }
+
+/* ── ALARM STRIPS above the tabs stay thin ──────────────────────────────── */
+body.warroom-page #keeper-lock-note > * { margin: 0 0 .4rem; }
+body.warroom-page .roast-banner { margin: 0 0 .4rem; }
+/* Cory, live: "alerts are blocking things I need to see i.e the run on kicker
+   is blocking things up top." Reproduced at a realistic laptop viewport
+   height (1050x750): keeper-lock + unrecorded + reconciled + run, stacked,
+   pushed THE PICK's take button to the very bottom edge — on a real window
+   with browser chrome eating more of that height, it goes fully out of view.
+   These CAN genuinely co-occur (an unrecorded pick, a reconcile note and a
+   run are independent conditions), so the fix is per-strip compactness, not
+   hoping they rarely stack. `.roast-banner` (the run alert) was the largest —
+   still built for a single full-width hero banner, not a stack member. */
+body.warroom-page .roast-banner {
+  padding: .5rem .7rem; font-size: .82rem; box-shadow: none;
+}
+body.warroom-page #unrecorded-note.prov-note,
+body.warroom-page #reconciled-note.prov-note {
+  padding: .45rem .7rem; margin: 0 0 .35rem; font-size: .78rem; line-height: 1.35;
+}
+
+/* ── THE COCKPIT GRID — rails | center | charts, stacked ONLY under 900px ──
+   Layout is decided by these media queries ALONE: the wrappers are server-
+   rendered in warroom.ejs and no JS class gates the columns. The gate was
+   min-width:1000px, and the owner's desktop rendered the stacked fallback
+   because his EFFECTIVE CSS viewport (window chrome + OS/browser zoom
+   shrinking CSS pixels) sat just under it — the harness at exactly 1280/1440
+   passed while his real window did not. So the grid now engages from 900px
+   with compressed columns (200 | 1fr | 260) and relaxes to the full
+   240 | 1fr | 300 from 1200px; the phone stack is only for genuinely
+   narrow screens. */
+.wr-cockpit { display: block; }
+@media (min-width: 900px) {
+  .wr-cockpit {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) 260px;
+    gap: .6rem; align-items: start;
+  }
+  /* SINGLE SCREEN: each cockpit column is its own scroll region, so the PAGE
+     holds still at one viewport on the DRAFT tab — the cockpit contract. */
+  .wr-rail { position: sticky; top: 48px; max-height: calc(100vh - 134px); overflow-y: auto;
+    scrollbar-width: thin; }
+  body.warroom-page .wr-cockpit > .wr-zone1 {
+    max-height: calc(100vh - 134px); overflow-y: auto; scrollbar-width: thin;
+    padding-right: .2rem;
+  }
+  /* ⚠️ THE CRUSH (captured live 2026-08-17, Cory mid-mock: "no players are
+     showing up under THE PICK or WATCH"). `.wr-zone1` is a FLEX COLUMN
+     (style.css — kept for the card-order rules), and a flex column inside a
+     max-height box SHRINKS its children to fit: every center card was crushed
+     to share one viewport — THE PICK rendered 34px tall with ~3,400px of
+     content clipped under `.card { overflow:hidden }`, which reads as an empty
+     card, not a squeezed one. Cards keep their natural height; the COLUMN is
+     what scrolls. Print never showed it (no viewport max-height on paper),
+     which is why the defect hid behind healthy-looking PDFs. */
+  body.warroom-page .wr-cockpit > .wr-zone1 > * { flex-shrink: 0; }
+}
+@media (min-width: 1200px) {
+  .wr-cockpit { grid-template-columns: 240px minmax(0, 1fr) 300px; }
+}
+/* OVERFLOW GUARD: a grid child's min-width defaults to auto, so ONE wide
+   chart/table could force the whole grid to wrap. Children clamp to their
+   track, and everything wide inside a rail scrolls within its own card. */
+.wr-cockpit > .wr-rail, .wr-cockpit > .wr-zone1 { min-width: 0; }
+.wr-railcard { min-width: 0; }
+.wr-railcard > div, #wr-posrails, #timing-panel { max-width: 100%; overflow-x: auto; }
+.wr-rail table { max-width: 100%; }
+@media (max-width: 899.98px) {
+  /* phone: the decision surface first, then the rails */
+  .wr-cockpit { display: flex; flex-direction: column; }
+  .wr-cockpit > .wr-zone1 { order: 1; }
+  .wr-cockpit > .wr-rail-right { order: 2; }
+  .wr-cockpit > .wr-rail-left { order: 3; }
+  /* the position rails turn sideways on a phone: four side-scrolling columns
+     instead of four stacked cards — same ten names, one block tall. */
+  #wr-posrails { display: flex; gap: .4rem; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; padding-bottom: .3rem; }
+  #wr-posrails .wr-posrail { flex: 0 0 172px; margin-bottom: 0; }
+}
+
+/* ── DENSITY: the decide column tightens ────────────────────────────────── */
+body.warroom-page .wr-zone1 > .card { margin-bottom: .45rem !important; }
+body.warroom-page .wr-zone1 > #lrm-card { margin-bottom: .35rem !important; }
+body.warroom-page .wr-zone1 > #lrm-card .body { padding: .35rem .6rem; }
+body.warroom-page #clock-card { order: 0; }
+body.warroom-page .wr-statusbar { margin-bottom: .35rem; font-size: .68rem; padding: .3rem .6rem; }
+body.warroom-page .wr-search { margin-bottom: .35rem; }
+body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
+
+/* ── LEFT RAIL — top 10 per position ────────────────────────────────────── */
+.wr-rail { min-width: 0; }
+.wr-railwait { color: var(--muted); font-size: .74rem; font-style: italic; margin: .3rem; }
+.wr-posrail {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .4rem .5rem .3rem; margin-bottom: .45rem;
+}
+.wr-posrail.collapsed { padding: 0; }
+.wr-posrail.collapsed > summary {
+  list-style: none; cursor: pointer; padding: .4rem .55rem;
+  font-size: .7rem; font-weight: 800; letter-spacing: .06em; color: var(--muted);
+}
+.wr-posrail.collapsed > summary::-webkit-details-marker { display: none; }
+.wr-posrail.collapsed > summary::before { content: '▸ '; }
+.wr-posrail.collapsed[open] > summary::before { content: '▾ '; }
+.wr-posrail.collapsed .wr-pr-list { padding: 0 .5rem .3rem; }
+.wr-pr-head {
+  display: flex; align-items: baseline; gap: .4rem;
+  font-size: .72rem; letter-spacing: .06em; color: var(--ink);
+  border-bottom: 1px solid var(--line); padding-bottom: .25rem; margin-bottom: .15rem;
+}
+.wr-pr-head b { font-size: .78rem; font-weight: 900; }
+.wr-pr-left { color: var(--muted); font-size: .62rem; font-family: var(--font-mono); }
+.wr-pr-cap { margin-left: auto; color: var(--muted); font-size: .58rem; letter-spacing: .04em; }
+.wr-pr-list { list-style: none; margin: 0; padding: 0; }
+.wr-pr-row {
+  display: flex; align-items: baseline; gap: .35rem;
+  padding: .16rem 0; border-top: 1px solid rgba(36, 56, 79, .5);
+  font-size: .74rem; line-height: 1.25; cursor: pointer; min-width: 0;
+}
+.wr-pr-row:first-child { border-top: none; }
+.wr-pr-row:hover { background: var(--panel-soft); }
+.wr-pr-rank { flex: 0 0 1.1rem; text-align: right; color: var(--muted);
+  font-family: var(--font-mono); font-size: .64rem; }
+.wr-pr-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: var(--ink); font-weight: 600; }
+.wr-pr-tier { flex: 0 0 .95rem; text-align: center; font-size: .58rem; font-weight: 800;
+  color: var(--muted); border: 1px solid var(--line); border-radius: 3px; line-height: 1.4; }
+.wr-pr-gone { flex: 0 0 2.3rem; text-align: right; font-family: var(--font-mono);
+  font-size: .66rem; color: var(--muted); }
+.wr-pr-gone.hot { color: var(--red); font-weight: 800; }
+.wr-pr-gone.warm { color: var(--wr-warn); font-weight: 700; }
+.wr-pr-gone.cool { color: var(--green); }
+
+/* ── RIGHT RAIL — chart cards ───────────────────────────────────────────── */
+.wr-railcard {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .45rem .55rem .4rem; margin-bottom: .45rem;
+}
+.wr-railhead {
+  display: flex; align-items: center; gap: .35rem; margin: 0 0 .3rem;
+  font-size: .66rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.wr-railhead .wr-info { margin-left: auto; }
+.wr-railexp {
+  font-size: .7rem; color: var(--muted); line-height: 1.4; margin: 0 0 .35rem;
+  border-left: 2px solid var(--line); padding: .25rem .45rem;
+  background: var(--panel-soft); border-radius: 0 5px 5px 0;
+}
+.wr-railmore { margin: .1rem 0 .45rem; }
+.wr-railmore > summary {
+  cursor: pointer; font-size: .66rem; color: var(--muted); font-weight: 700;
+  padding: .3rem .2rem; list-style: none;
+}
+.wr-railmore > summary::-webkit-details-marker { display: none; }
+.wr-railmore > summary::before { content: '▸ '; }
+.wr-railmore[open] > summary::before { content: '▾ '; }
+
+/* honest empty state for every chart */
+.wr-chart-empty { margin: .2rem 0; font-size: .7rem; color: var(--muted); font-style: italic; }
+
+/* ── RUNNING-OUT TILES ──────────────────────────────────────────────────── */
+.wr-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; }
+.wr-tile {
+  border: 1px solid var(--line); border-radius: 7px; background: var(--panel-soft);
+  padding: .3rem .35rem; min-width: 0; cursor: default;
+}
+.wr-tile-pos { font-size: .66rem; font-weight: 900; letter-spacing: .06em; color: var(--ink); }
+.wr-tile-sq { display: flex; flex-wrap: wrap; gap: 2px; margin: .2rem 0; min-height: 8px; }
+.wr-tile-sq i { width: 7px; height: 7px; border-radius: 1.5px; background: var(--wr-chart-main); }
+.wr-tile-sq i.hollow { background: transparent; border: 1px solid var(--wr-chart-dim); }
+.wr-sq-more { font-size: .56rem; color: var(--muted); font-style: normal; }
+.wr-tile-verdict { font-size: .6rem; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); }
+.wr-tile-cost { font-size: .58rem; font-family: var(--font-mono); color: var(--muted); }
+.wr-tile.urgent { border-color: var(--red); background: rgba(255, 90, 102, .12); }
+.wr-tile.urgent .wr-tile-verdict { color: var(--red); }
+.wr-tile.urgent .wr-tile-cost { color: var(--ink); }
+.wr-tile.calm .wr-tile-verdict { color: var(--green); }
+.wr-tile.dead { opacity: .55; }
+
+/* ── COCKPIT CHART MARKS (new SVG, token-inked) ─────────────────────────── */
+.wr-cliffchart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.wr-grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.wr-axis { fill: var(--muted); font-size: 8px; font-family: var(--font-mono); }
+.wr-cliff-line { stroke: var(--wr-chart-main); stroke-width: 1.6; }
+.wr-cliff-dot { fill: var(--wr-chart-main); }
+.wr-cliff-mark { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 3 2; }
+/* Tier-cliff labels are placed by warroom_charts.js at each cliff's own x,
+   text-anchor="middle", with no collision check between adjacent labels —
+   at the right rail's chart width (~230px) with 3+ cliffs close together
+   this reads as one word ("Robinsdaylojeanty"), reproduced live at 900/1050/
+   1200px. That's a label-placement fix (JS, A's file, held for tonight along
+   with app.js/warroom.ejs) — this is the CSS mitigation: rotate + right-
+   anchor so each label fans out below its own tick instead of stacking
+   horizontally into its neighbor, the standard slanted-axis-label pattern. */
+.wr-cliff-lbl {
+  fill: var(--ink); font-size: 7px; font-weight: 600;
+  text-anchor: end; transform-box: fill-box; transform-origin: center;
+  transform: rotate(-40deg) translate(-2px, 0);
+}
+.wr-cliff-shade { fill: rgba(255, 90, 102, .10); }
+.wr-cliff-key { color: var(--red); }
+.wr-chips { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0 0 .3rem; }
+.wr-chip {
+  font-family: var(--font-mono); font-size: .62rem; font-weight: 800;
+  color: var(--muted); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: .2rem .55rem; cursor: pointer;
+}
+.wr-chip:hover { color: var(--ink); }
+.wr-chip.active { background: var(--wr-chart-main); border-color: var(--wr-chart-main); color: #0a1422; }
+
+/* survival sparklines */
+#wr-chart-survival svg { display: block; width: 100%; height: auto; }
+.wr-spark-name { fill: var(--ink); font-size: 9px; }
+.wr-spark-line { stroke: var(--wr-chart-main); stroke-width: 1.5; }
+.wr-spark-line.dying { stroke: var(--red); }
+.wr-spark-pct { fill: var(--muted); font-size: 9px; font-family: var(--font-mono); }
+.wr-spark-pct.dying { fill: var(--red); font-weight: 700; }
+
+/* roster shape */
+.wr-shape { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem; }
+.wr-slot {
+  border: 1px dashed var(--line); border-radius: 6px; padding: .22rem .3rem; min-width: 0;
+}
+.wr-slot.filled { border-style: solid; border-color: var(--wr-chart-main); background: var(--navy-soft); }
+.wr-slot-lbl { display: block; font-size: .56rem; font-weight: 800; letter-spacing: .06em;
+  color: var(--muted); }
+.wr-slot-name { display: block; font-size: .64rem; color: var(--ink); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.wr-shape-cap { margin: .3rem 0 0; font-size: .64rem; color: var(--muted); }
+
+/* ── THE RANGE BAR on shortlist rows ────────────────────────────────────── */
+.wr-range { display: block; margin: .1rem 0 .15rem; line-height: 0; }
+.wr-range svg { display: block; }
+.wr-range-rail { stroke: var(--line); stroke-width: 1; }
+.wr-range-band { fill: rgba(110, 168, 254, .28); }
+.wr-range.lead .wr-range-band { fill: rgba(240, 192, 82, .38); }
+.wr-range-tick { stroke: var(--ink); stroke-width: 1.6; }
+.wr-range.lead .wr-range-tick { stroke: var(--gold-bright); }
+
+/* FALLING chip — value sliding past its price */
+.wr-falling {
+  display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
+  color: #0a1422; background: var(--green); border-radius: 3px;
+  padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
+}
+
+/* clickable names everywhere */
+.rec-nm { cursor: pointer; text-decoration: underline dotted rgba(147, 165, 188, .5); text-underline-offset: 2px; }
+.rec-nm:hover { color: var(--gold-bright); }
+
+/* ── THE ONE VOICE — verdict dominates, alternatives are rows ───────────── */
+body.warroom-page .wrv-name { font-size: 1.65rem; letter-spacing: -.01em; }
+body.warroom-page .wrv-why { font-size: .8rem; }
+body.warroom-page .btn.gold.wrv-take { background: var(--gold); border-color: var(--gold);
+  color: #0a1422; font-weight: 900; }
+body.warroom-page .btn.gold.wrv-take:hover { background: var(--gold-bright); }
+body.warroom-page .wrv-lens { background: var(--panel-soft); }
+body.warroom-page .wrv-chip.lock { background: var(--gold); color: #0a1422; }
+body.warroom-page .wrv-chip.lean { background: var(--navy-soft); color: var(--ink); border-color: var(--wr-chart-main); }
+
+/* path cards → ONE DENSE ROW EACH; the essays live behind the ⓘ */
+body.warroom-page .paths-panel { display: block; margin: .35rem 0 0; }
+body.warroom-page .path-card {
+  /* style.css builds this as a COLUMN card; the cockpit flattens it to ONE
+     dense row (name · price · score · take), essays behind the ⓘ. */
+  display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;
+  gap: .2rem .5rem;
+  padding: .3rem .55rem; margin: 0 0 .3rem; border-radius: 8px;
+  background: var(--panel-soft); border: 1px solid var(--line);
+}
+body.warroom-page .path-card.top { border-color: var(--gold); background: rgba(240, 192, 82, .08); box-shadow: none; }
+body.warroom-page .path-head { display: inline-flex; align-items: baseline; gap: .4rem; flex: 1 1 12rem; min-width: 0; }
+body.warroom-page .path-name { font-size: .68rem; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+body.warroom-page .path-price { font-family: var(--font-mono); font-size: .66rem; color: var(--wr-warn); white-space: nowrap; }
+body.warroom-page .path-price.top { color: var(--gold-bright); }
+body.warroom-page .path-pick { display: inline-flex; align-items: baseline; gap: .45rem; flex: 1 1 11rem; min-width: 0; margin: 0; }
+body.warroom-page .path-player { font-size: .86rem; font-weight: 700; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+body.warroom-page .path-score { font-family: var(--font-mono); font-size: .8rem; font-weight: 800; color: var(--ink); }
+body.warroom-page .path-actions { display: inline-flex; gap: .3rem; margin: 0; flex: 0 0 auto; }
+body.warroom-page .path-info { flex: 1 1 100%; order: 9; margin: 0; }
+body.warroom-page .path-info > summary {
+  list-style: none; display: inline-block; cursor: pointer;
+  font-size: .62rem; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: .08rem .5rem;
+}
+body.warroom-page .path-info > summary::-webkit-details-marker { display: none; }
+body.warroom-page .path-info[open] > summary { background: var(--panel); color: var(--ink); }
+.wr-procon { display: grid; grid-template-columns: 1fr; gap: .3rem; margin: .35rem 0 0; }
+@media (min-width: 640px) { .wr-procon { grid-template-columns: 1fr 1fr; } }
+.wr-procon .path-when, .wr-procon .path-against {
+  margin: 0; padding: .3rem .45rem; font-size: .7rem; line-height: 1.4;
+  border-left: 2px solid var(--green); background: rgba(62, 207, 142, .06); border-radius: 0 5px 5px 0;
+}
+.wr-procon .path-against { border-left-color: var(--red); background: rgba(255, 90, 102, .06); }
+.wr-pc-list { margin: .15rem 0 0; padding-left: 1rem; }
+.wr-pc-list li { margin: .1rem 0; color: var(--ink); }
+body.warroom-page .path-plan { font-size: .66rem; color: var(--muted); margin: .3rem 0 0; }
+body.warroom-page .path-distinction { margin: .25rem 0 0; }
+
+/* shortlist rows tighten further (table-density type) */
+body.warroom-page .rec-card { padding: .35rem .5rem; margin-bottom: .3rem; }
+body.warroom-page .rec-name { font-size: .9rem; line-height: 1.25; }
+body.warroom-page .rec-why {
+  font-size: .72rem; line-height: 1.35;
+  /* the full sentence survives in the dossier + Why?; the ROW is a table row */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.warroom-page .rec-context {
+  font-size: .66rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+body.warroom-page .rec-score { font-size: 1.1rem; font-family: var(--font-mono); }
+body.warroom-page .recs-details > summary { margin-bottom: .25rem; }
+body.warroom-page #recs-card .body { padding: .55rem .65rem .65rem; }
+
+/* the rule-headline detail line (app-mounted, inline gold wash) tightens */
+body.warroom-page #rule-headline { font-size: .74rem; padding: .4rem .55rem !important; }
+body.warroom-page #rule-headline .rh-why { font-size: .74rem !important; }
+
+/* the keeper-slate alarm is a THIN SINGLE-LINE RED STRIP: the warning + the
+   review link only — the full explanation and the designated-count live one
+   tap behind that existing link (/admin/keepers). */
+body.warroom-page #keeper-lock-note .stale-block {
+  display: flex; align-items: center; flex-wrap: nowrap; gap: .3rem .7rem;
+  padding: .3rem .7rem; margin: 0 0 .4rem;
+  border: 1px solid var(--red); border-left: 4px solid var(--red);
+  border-radius: 8px; background: rgba(255, 90, 102, .10);
+}
+body.warroom-page #keeper-lock-note .stale-block h3 {
+  margin: 0; font-size: .74rem; color: var(--red); letter-spacing: .03em;
+  flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* the two prose paragraphs (the essay + the N-of-10 count) fold behind the link */
+body.warroom-page #keeper-lock-note .stale-block p { display: none; }
+body.warroom-page #keeper-lock-note .stale-block p:last-of-type {
+  display: block; margin: 0; flex: 0 0 auto;
+}
+body.warroom-page #keeper-lock-note .stale-block .btn {
+  white-space: nowrap; margin: 0; padding: .2rem .55rem; font-size: .66rem;
+}
+@media (max-width: 640px) {
+  body.warroom-page #keeper-lock-note .stale-block { flex-wrap: wrap; }
+  body.warroom-page #keeper-lock-note .stale-block h3 { white-space: normal; }
+}
+
+/* the resumed-draft line (app.js injects #resume-banner at the top of .wrap)
+   joins the ticker grammar: one compact mono strip, not an unstyled block. */
+body.warroom-page .resume-note {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .55rem;
+  font-family: var(--font-mono); font-size: .68rem; line-height: 1.3;
+  color: var(--muted); background: var(--panel);
+  border: 1px solid var(--line); border-left: 3px solid var(--wr-structure);
+  border-radius: 8px; padding: .28rem .6rem; margin: 0 0 .35rem;
+}
+body.warroom-page .resume-note b { color: var(--ink); }
+body.warroom-page .resume-note .resume-warn { color: var(--wr-warn); }
+body.warroom-page .resume-note .btn { margin-left: auto; padding: .15rem .5rem; font-size: .64rem; }
+
+/* the seat plan compresses to its lead rows; the full look-ahead scrolls */
+body.warroom-page #seat-plan { font-size: .74rem; max-height: 170px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 8px; padding: .35rem .55rem;
+  background: var(--panel); margin-bottom: .45rem; scrollbar-width: thin; }
+
+/* app-mounted context strips shrink to strip size */
+body.warroom-page #doctrine-picker { font-size: .72rem; }
+body.warroom-page .legality-strip { font-size: .7rem; }
+body.warroom-page .lrm-strip { font-size: .72rem; }
+body.warroom-page .best-avail-strip { font-size: .72rem; }
+
+/* ── BIG BOARD tab ──────────────────────────────────────────────────────── */
+.wr-boardbar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 0 0 .5rem; }
+.wr-boardbar .wr-search { flex: 1 1 240px; margin: 0; }
+.wr-cols {
+  display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .4rem;
+  -webkit-overflow-scrolling: touch;
+}
+.wr-col {
+  flex: 0 0 170px; min-width: 0;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .4rem .45rem;
+}
+.wr-col-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: .74rem; color: var(--ink); border-bottom: 1px solid var(--line);
+  padding-bottom: .25rem; margin-bottom: .15rem;
+}
+.wr-col-head b { font-weight: 900; letter-spacing: .05em; }
+.wr-col-head span { color: var(--muted); font-size: .62rem; font-family: var(--font-mono); }
+.wr-col-list { list-style: none; margin: 0; padding: 0; }
+.wr-col-row {
+  display: flex; align-items: baseline; gap: .3rem; padding: .13rem 0;
+  font-size: .72rem; line-height: 1.25; cursor: pointer; min-width: 0;
+}
+.wr-col-row:hover { background: var(--panel-soft); }
+.wr-col-rank { flex: 0 0 1.2rem; text-align: right; color: var(--muted);
+  font-family: var(--font-mono); font-size: .62rem; }
+.wr-col-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: var(--ink); font-weight: 600; }
+.wr-col-proj { flex: 0 0 auto; font-family: var(--font-mono); font-size: .66rem; color: var(--muted); }
+.wr-cliffline { height: 0; border-top: 2px solid var(--red); margin: .12rem 0; list-style: none; }
+.wr-fulltable > summary { margin-top: .3rem; }
+body.warroom-page .roll { font-size: .76rem; }
+body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; }
+
+/* ── THE DRILL-DOWN — one reusable slide-over ───────────────────────────── */
+.wr-drill { position: fixed; inset: 0; z-index: 200; background: rgba(4, 10, 18, .55); }
+.wr-drill-panel {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(400px, 92vw); overflow-y: auto;
+  background: var(--panel); border-left: 1px solid var(--line);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, .5);
+  padding: .9rem .9rem 1.2rem;
+}
+.wr-drill-close {
+  position: absolute; top: .5rem; right: .6rem;
+  background: none; border: 1px solid var(--line); border-radius: 6px;
+  color: var(--muted); font-size: .8rem; padding: .2rem .5rem; cursor: pointer;
+}
+.wr-drill-close:hover { color: var(--ink); }
+.wr-drill-name { font-size: 1.15rem; font-weight: 800; color: var(--ink); margin: 0 1.8rem .4rem 0; }
+.wr-drill-gone { font-size: .6rem; font-weight: 900; color: #fff; background: var(--red);
+  border-radius: 3px; padding: .1rem .35rem; vertical-align: middle; }
+.wr-drill-range { margin: .2rem 0 .5rem; }
+.wr-drill-facts { border-collapse: collapse; width: 100%; font-size: .76rem; }
+.wr-drill-facts td { padding: .22rem 0; border-top: 1px solid rgba(36, 56, 79, .5); color: var(--muted); }
+.wr-drill-facts td.wr-num { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.wr-pos-delta { color: var(--green); font-size: .66rem; }
+.wr-neg-delta { color: var(--wr-warn); font-size: .66rem; }
+.wr-drill-h { font-size: .6rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 .2rem; }
+.wr-drill-surv { margin: .6rem 0 0; }
+.wr-drill-surv-row { display: flex; align-items: center; gap: .45rem; font-size: .72rem;
+  color: var(--muted); padding: .12rem 0; }
+.wr-drill-surv-row > span { flex: 0 0 4.2rem; }
+.wr-drill-surv-bar { flex: 1 1 auto; height: 6px; border-radius: 3px; background: var(--panel-soft);
+  border: 1px solid var(--line); overflow: hidden; }
+.wr-drill-surv-bar i { display: block; height: 100%; background: var(--wr-chart-main); }
+.wr-drill-surv-row b { flex: 0 0 2.6rem; text-align: right; color: var(--ink);
+  font-family: var(--font-mono); font-size: .7rem; }
+.wr-drill-surv-row b.dying { color: var(--red); }
+.wr-drill-why { margin: .6rem 0 0; font-size: .74rem; color: var(--ink); line-height: 1.45; }
+.wr-drill-ctx { margin: .4rem 0 0; font-size: .66rem; color: var(--muted); }
+.wr-drill-actions { display: flex; gap: .35rem; flex-wrap: wrap; margin: .7rem 0 0; }
+
+/* ── ADJUSTERS tab: the doctrine essays fold ────────────────────────────── */
+.wr-when { margin: 0 0 .5rem; }
+.wr-when > summary {
+  list-style: none; display: inline-block; cursor: pointer;
+  font-size: .62rem; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: .05rem .5rem;
+}
+.wr-when > summary::-webkit-details-marker { display: none; }
+.wr-when[open] > summary { background: var(--panel-soft); color: var(--ink); }
+.wr-when .slider-when { padding: .3rem 0 0; }
+
+/* ── phone rhythm for the cockpit ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .wr-tabbar { margin-left: -.2rem; margin-right: -.2rem; }
+  .wr-tab { font-size: .62rem; padding: .38rem .45rem; }
+  .wr-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wr-drill-panel { width: 94vw; }
+  body.warroom-page .path-actions .btn.small { min-height: 36px; }
+  /* ≤3 phone screens: the row prose tightens to one line each — the full
+     sentence is one tap away (dossier / drill-down / Why?). */
+  body.warroom-page .rec-why { -webkit-line-clamp: 1; }
+  body.warroom-page .rec-card { padding: .3rem .45rem; }
+  body.warroom-page #rule-headline { font-size: .7rem; }
+  body.warroom-page #seat-plan { max-height: 130px; }
+  /* Long lists become THEIR OWN scroll regions on a phone — everything stays
+     reachable, the page stays inside the screen budget. */
+  body.warroom-page #recs { max-height: 420px; overflow-y: auto; }
+  body.warroom-page #wr-posrails .wr-pr-list { max-height: 132px; overflow-y: auto; }
+  body.warroom-page #queue-card .body > #queue { max-height: 180px; overflow-y: auto; }
+  body.warroom-page #branches { max-height: 170px; overflow-y: auto; }
+  body.warroom-page #doctrine-picker { max-height: 110px; overflow-y: auto; }
+  body.warroom-page .lrm-strip { max-height: 120px; overflow-y: auto; display: block; }
+  /* Redundant WITH THE COCKPIT on a phone (the left rail carries the same
+     per-position answer, the tiles carry the wait cost): the strip and the
+     select-detail hide at this width only — same precedent as #mvs. */
+  body.warroom-page .best-avail-strip { display: none; }
+  body.warroom-page #pos-recs-wrap { display: none; }
+  body.warroom-page .path-doctrine { display: none; }
+  body.warroom-page .path-name { font-size: .6rem; }
+  body.warroom-page .wrv-name { font-size: 1.35rem; }
+  body.warroom-page #recs { max-height: 340px; }
+  body.warroom-page #rule-headline { max-height: 150px; overflow-y: auto; }
+  body.warroom-page .wrv-tiebreak { max-height: 100px; overflow-y: auto; }
+  body.warroom-page .path-card { padding: .25rem .45rem; gap: .15rem .4rem; }
+  /* roster shape is redundant on a phone — the ROSTERS tab carries the full
+     slot grid; hiding the CARD (id stays in the DOM) buys back a block. */
+  body.warroom-page #wr-shape-card { display: none; }
+}
+
+/* Motion doctrine: state changes only. */
+@media (prefers-reduced-motion: reduce) {
+  .wr-drill-panel, .wr-tab, .wr-tile { transition: none !important; animation: none !important; }
+}
+
+/* ══ CONDITIONAL-VALUE LAYER — stack + handcuff premium chips + drill readout
+   Wired by Cory's ruling 2026-08-17 ("Yes!") on the evidence doc
+   draft/audit/conditional_value_2026-08-16.md. TERRITORY: A (same grant as the
+   draft-day book pass — A-owned section, additive only).
+
+   DESIGN CONTRACT: the chip is an ANNOTATION beside board value, never a
+   second verdict — quieter than .rec-why, no button affordance, and the money
+   glyphs follow the doctrine (gold IS money; a negative premium wears the
+   semantic red). Every chip carries its own provenance ("to your roster",
+   "not in the score"). ═══════════════════════════════════════════════════ */
+.cv-chip {
+  font-size: .72rem; line-height: 1.4; color: var(--wr-ink);
+  margin: .22rem 0 0; padding: .18rem .45rem;
+  border-left: 2px solid var(--wr-money);
+  background: color-mix(in srgb, var(--wr-money) 6%, transparent);
+  border-radius: 0 4px 4px 0;
+}
+.cv-tag {
+  font-size: .58rem; font-weight: 800; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--wr-muted);
+  border: 1px solid var(--wr-line); border-radius: 999px;
+  padding: .02rem .38rem; margin-right: .25rem; white-space: nowrap;
+}
+.cv-kind { font-weight: 700; letter-spacing: .02em; }
+.cv-money { color: var(--wr-money); font-variant-numeric: tabular-nums; }
+.cv-money.neg { color: var(--wr-bad); }
+.cv-pts { color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+.cv-verdict { color: var(--wr-ink); }
+.cv-cond { color: var(--wr-muted); font-style: italic; }
+.cv-flag { color: var(--wr-warn); }
+.cv-note { color: var(--wr-muted); font-size: .62rem; letter-spacing: .03em; }
+
+/* the drill-down readout — same table grammar as .wr-drill-facts */
+.cv-drill { margin: .6rem 0 0; border-top: 1px solid var(--wr-line); padding-top: .5rem; }
+.cv-drill-block { margin: .35rem 0 0; }
+.cv-drill-head { font-size: .72rem; font-weight: 700; margin: 0 0 .2rem; }
+.cv-drill-line {
+  display: flex; gap: .5rem; align-items: baseline;
+  font-size: .7rem; line-height: 1.45; margin: .12rem 0 0;
+}
+.cv-drill-line > span:first-child {
+  flex: 0 0 7.2rem; color: var(--wr-muted); font-size: .62rem;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.cv-drill-line .cv-sub { color: var(--wr-muted); margin-left: .3rem; }
+.cv-caveat { margin: .45rem 0 0; font-size: .64rem; color: var(--wr-muted); font-style: italic; }
+@media (max-width: 640px) {
+  .cv-drill-line { flex-direction: column; gap: .05rem; }
+  .cv-drill-line > span:first-child { flex: none; }
 }

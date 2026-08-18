@@ -203,3 +203,425 @@ def coverage(series: list, year) -> dict:
             # A DAY MISSING ONE SOURCE IS NOT A DAY. It is a day on which no
             # comparison can be made, and it must not be counted as covered.
             "days_missing_a_source": thin}
+
+
+# ── IS TODAY'S PER-SOURCE WRITE TRUSTWORTHY ─────────────────────────────────
+#
+# Cory, 2026-08-14: "the daily data capture process needs to be correct and fixed
+# so we don't keep having problems and the data itself needs to be accurate."
+# The MFL archive got `integrity` and `snapshot_audit`. THIS ONE LANDED ITS FIRST
+# WRITE THIS MORNING WITH NOTHING CHECKING IT AT ALL, which is the same gap one
+# file over: a writer shipped without the consumer that judges it (rule 14).
+#
+# THE SAME TWO-CATEGORY SPLIT, and getting it wrong in either direction is worse
+# than not checking. FATAL is arithmetically impossible — the day is corrupt
+# whatever anyone does with it. OBSERVED is the provider or the fetch behaving
+# differently from yesterday, which may be real and must not refuse a write.
+
+#: Losing this share of a source's board overnight is a partial fetch, not a
+#: provider trimming. DECLARED, not fitted, and the direction is the argument:
+#: in mid-August boards GROW as more players get priced, so a quarter of one
+#: vanishing between two mornings is the fetch, not the market.
+ROW_COUNT_COLLAPSE = 0.25
+
+#: And the share a source must KEEP to be written at all. Below this the day is
+#: refused, not merely noted.
+#:
+#: ⚠ TWO THRESHOLDS, TWO JOBS, AND THEY ARE ORDERED ON PURPOSE. The one above
+#: REPORTS at a 25% loss; this one REFUSES at a 50% loss, so everything refused is
+#: also reported and the reporting bar can never rise above the refusing one. A
+#: test pins that ordering, because the failure mode of two related constants is
+#: that one drifts past the other and the quieter check silently becomes the
+#: louder one's gate.
+#:
+#: DELIBERATELY THE SAME 0.5 AS THE MFL ARCHIVE'S `COLLAPSE_KEEP_FRACTION`, and
+#: for a reason worth stating rather than assuming: that floor was calibrated
+#: against a REAL feed's observed day-over-day drift (worst 36 of 708, 5.1%).
+#: THIS archive is one day old and has NO drift observation of its own, so
+#: inventing a tighter number here would be a threshold fitted to nothing. When
+#: these sources have a fortnight of days, re-derive it from them.
+COLLAPSE_KEEP_FRACTION = 0.5
+
+#: The parameters that define WHAT WAS PRICED. If any of these changes between
+#: two days, the two days are not the same measurement and every cross-day
+#: comparison silently spans a format change — which is precisely the defect this
+#: whole archive exists to prevent, arriving through the back door.
+FORMAT_KEYS = ("scoring", "format", "teams", "year")
+
+
+#: A source that published dispersion yesterday must still publish it on at least
+#: this share of its own rows today.
+#:
+#: ⚠ CHOSEN, NOT DERIVED, AND SAYING SO IS THE POINT. The archive holds ONE day,
+#: on which FFC published an sd for 223 of 223 rows — a share of 1.00 — so there
+#: is no observed day-over-day drift to derive a bar from and I will not dress a
+#: pick up as a measurement. The reasoning is that the only observed value is
+#: 100%: a fall past half is not drift in what a provider happens to cover, it is
+#: a change in what the provider PUBLISHES. Refine it once the archive holds
+#: enough days to show the real spread — and if that spread turns out to be wide,
+#: this bar is wrong and the number that says so will be in the file.
+SD_COVERAGE_KEEP_FRACTION = 0.5
+
+
+def sd_coverage_break(earlier: dict, later: dict) -> dict:
+    """Did a source that published a spread yesterday stop publishing one today?
+
+    ⚠ THIS IS THE ONE COLLAPSE NOTHING WAS WATCHING. `source_audit` checks
+    `sd_count_mismatch` — that the DECLARED count equals the actual dict — which
+    is internal consistency and is satisfied perfectly by a source that serves
+    every row and publishes dispersion on none of them. `sd_count: 0` beside
+    `sd: {}` is self-consistent, raises nothing, and is exactly what the failure
+    looks like. `row_count_collapsed` does not see it either: the ROWS all
+    arrived.
+
+    WHY IT MATTERS MORE THAN ITS SIZE SUGGESTS. The shipped board's `adp_sd` is
+    `ffc-published` for 142 of the 146 players priced inside pick 150 — I had to
+    correct two docstrings that called it a clamp. If FFC stops publishing, those
+    142 silently switch from a MEASURED spread to a FITTED one, with no event
+    anywhere, and every survival curve that reads `adp_sd` changes width.
+
+    PER-SOURCE AND RELATIVE TO ITS OWN HISTORY, so this can never be
+    red-by-design: FantasyPros publishes expert consensus and no dispersion at
+    all, sits at 0 -> 0 forever, and correctly returns `not_applicable`.
+    """
+    def _share(s):
+        rc = int((s or {}).get("row_count") or 0)
+        sc = int((s or {}).get("sd_count") or 0)
+        return (sc / float(rc)) if rc else None, sc, rc
+
+    was_share, was_n, was_rows = _share(earlier)
+    now_share, now_n, now_rows = _share(later)
+    if not was_n:
+        return {"verdict": "not_applicable", "was": was_n, "now": now_n,
+                "note": "this source published no dispersion yesterday either, so "
+                        "there is nothing to have lost."}
+    if was_share is None or now_share is None:
+        return {"verdict": "unknown", "was": was_n, "now": now_n,
+                "note": "a day carries no row_count, so the share of rows "
+                        "carrying a spread cannot be compared."}
+    kept = now_share / was_share if was_share else None
+    if kept is not None and kept < SD_COVERAGE_KEEP_FRACTION:
+        return {"verdict": "collapsed", "was": was_n, "now": now_n,
+                "was_share": round(was_share, 4), "now_share": round(now_share, 4),
+                "kept": round(kept, 4),
+                "note": "published a spread on %d of %d rows yesterday (%.1f%%) "
+                        "and %d of %d today (%.1f%%). The rows still arrived, so "
+                        "no row-count check sees this — but the board takes its "
+                        "adp_sd from this source for most of the draftable range, "
+                        "and those players have just moved from a MEASURED spread "
+                        "to a fitted one."
+                        % (was_n, was_rows, 100 * was_share,
+                           now_n, now_rows, 100 * now_share)}
+    return {"verdict": "held", "was": was_n, "now": now_n,
+            "was_share": round(was_share, 4), "now_share": round(now_share, 4),
+            "kept": None if kept is None else round(kept, 4),
+            "note": "dispersion coverage held (%.1f%% -> %.1f%% of rows)."
+                    % (100 * was_share, 100 * now_share)}
+
+
+def source_audit(series: list, year, observed_at: str) -> dict:
+    """One day's per-source write, judged. FATAL and OBSERVED kept apart.
+
+    ⚠ CROSS-DAY CHECKS SAY "FIRST DAY" RATHER THAN "CLEAN" (rule 13f). A check
+    whose only possible answer is "nothing yet" has not looked, and this archive
+    is one day old — so every comparison against yesterday reports the absence of
+    a yesterday by name instead of passing by default. That state was worth
+    building on the morning it is guaranteed to fire.
+
+    NOT AN `integrity`-STYLE WRITE GATE, and that is deliberate rather than an
+    omission. The MFL archive refuses a corrupt write because its days are
+    perishable and unrefetchable — there is no provider to re-ask. These sources
+    serve TODAY's board on request, so a bad day here can be re-fetched by
+    re-running the job, and refusing the write would trade a recoverable bad day
+    for a permanent missing one.
+    """
+    ser = [s for s in (series or []) if str(s.get("year")) == str(year)]
+    today = [s for s in ser if str(s.get("observed_at")) == str(observed_at)]
+    fatal, observed = [], []
+    if not today:
+        return {"status": "unmeasured", "observed_at": str(observed_at),
+                "sources": [], "fatal": [], "observed": [],
+                "note": "no source wrote on this day at all — that is the capture "
+                        "failing, not the sources disagreeing"}
+
+    seen = {}
+    for s in today:
+        name = str(s.get("source"))
+        # TWO BOARDS FOR ONE SOURCE ON ONE DAY. `append_day` dedupes by
+        # (source, year, date), so this can only be corruption or a hand edit —
+        # and downstream `disagreement` would pick whichever sorted first.
+        if name in seen:
+            fatal.append({"check": "duplicate_source_day", "source": name,
+                          "note": "two entries for one source on one day; every "
+                                  "reader takes whichever sorts first"})
+        seen[name] = s
+
+        rows, sd = s.get("rows") or {}, s.get("sd") or {}
+        # THE DECLARED COUNT IS WHAT EVERY INSTRUMENT READS, and `coverage`
+        # judges a source's depth entirely on `row_count`. A count that disagrees
+        # with its own rows describes a board nobody captured.
+        if s.get("row_count") != len(rows):
+            fatal.append({"check": "row_count_mismatch", "source": name,
+                          "declared": s.get("row_count"), "actual": len(rows)})
+        if s.get("sd_count") != len(sd):
+            fatal.append({"check": "sd_count_mismatch", "source": name,
+                          "declared": s.get("sd_count"), "actual": len(sd)})
+        # AN sd FOR A PLAYER WITH NO PRICE. The dispersion and the mean come from
+        # one response; a spread without its own mean means the two halves were
+        # keyed differently, and any consumer joining them gets a width around
+        # somebody else's centre.
+        orphans = [k for k in sd if k not in rows]
+        if orphans:
+            fatal.append({"check": "sd_orphan", "source": name, "n": len(orphans),
+                          "sample": sorted(orphans)[:5]})
+        bad = [k for k, v in rows.items() if not (v > 0)]
+        if bad:
+            fatal.append({"check": "adp_not_a_pick_number", "source": name,
+                          "n": len(bad), "sample": sorted(bad)[:5]})
+        neg = [k for k, v in sd.items() if v < 0]
+        if neg:
+            fatal.append({"check": "negative_sd", "source": name, "n": len(neg)})
+        missing = [f for f in SOURCE_FIELDS if f not in s]
+        if missing:
+            fatal.append({"check": "field_missing", "source": name,
+                          "fields": missing,
+                          "note": "a field that stops being written must show up "
+                                  "as EMPTY, not cease to exist"})
+        # A PRICE WITHOUT ITS FORMAT IS NOT EVIDENCE — this file's own opening
+        # claim, unenforced until now.
+        if not (s.get("params") or {}):
+            observed.append({"check": "no_params", "source": name,
+                             "note": "priced with no record of the format that "
+                                     "produced it; a year from now this row is "
+                                     "a number with no meaning"})
+
+    # ── AGAINST YESTERDAY ───────────────────────────────────────────────
+    prior_days = sorted({str(s.get("observed_at")) for s in ser
+                         if str(s.get("observed_at")) < str(observed_at)})
+    if not prior_days:
+        cross = {"status": "first_day",
+                 "note": "no earlier day in this archive, so nothing cross-day "
+                         "has been checked — that is the archive's age, not a "
+                         "clean bill of health"}
+    else:
+        prev = {str(s.get("source")): s for s in ser
+                if str(s.get("observed_at")) == prior_days[-1]}
+        cross = {"status": "measured", "against": prior_days[-1]}
+        for name, y in prev.items():
+            t = seen.get(name)
+            if t is None:
+                # A SOURCE THAT SILENTLY STOPS ARRIVING. The others keep landing,
+                # the file keeps growing, and the comparison quietly becomes a
+                # comparison of fewer things.
+                observed.append({"check": "source_vanished", "source": name,
+                                 "was": y.get("row_count"),
+                                 "note": "captured yesterday, absent today"})
+                continue
+            was, now = y.get("row_count") or 0, t.get("row_count") or 0
+            if was and now < was * (1.0 - ROW_COUNT_COLLAPSE):
+                observed.append({"check": "row_count_collapsed", "source": name,
+                                 "was": was, "now": now,
+                                 "lost_share": round(1.0 - now / float(was), 3),
+                                 "note": "a partial fetch returns 200 and writes "
+                                         "a truncated board that becomes the "
+                                         "day's price"})
+            # FATAL, NOT observed — and the tier is the whole point. `observed`
+            # prints a row in the summary and sets nothing; only `fatal` makes
+            # the step fail. A source silently ceasing to publish dispersion
+            # reprices most of our draftable range from a measured spread to a
+            # fitted one, which is not something to notice in a table later.
+            sdb = sd_coverage_break(y, t)
+            if sdb["verdict"] == "collapsed":
+                fatal.append(dict(sdb, check="sd_coverage_collapsed", source=name))
+            elif sdb["verdict"] == "unknown":
+                observed.append(dict(sdb, check="sd_coverage_unmeasurable",
+                                     source=name))
+            drifted = {k: [(y.get("params") or {}).get(k), (t.get("params") or {}).get(k)]
+                       for k in FORMAT_KEYS
+                       if (y.get("params") or {}).get(k) != (t.get("params") or {}).get(k)}
+            if drifted:
+                observed.append({"check": "format_drifted", "source": name,
+                                 "changed": drifted,
+                                 "note": "the two days are not the same "
+                                         "measurement; any cross-day comparison "
+                                         "spans a format change"})
+    return {"status": "measured", "observed_at": str(observed_at),
+            "sources": sorted(seen), "cross_day": cross,
+            "fatal": fatal, "observed": observed,
+            "note": ("%d FATAL, %d observed" % (len(fatal), len(observed))
+                     if fatal else
+                     ("today's write is internally consistent; %d observed"
+                      % len(observed)))}
+
+
+# ── DOES A PLAYER'S PUBLISHED SPREAD HOLD STILL ACROSS DAYS? ────────────────
+#
+# A closed the dispersion fit on a stability falsifier: refitting the sd rule on
+# half-samples of PLAYERS moved the floor 119% against a 25% bar. Their revisit
+# condition was "when FFC's published-sd population makes the 1-25 band survive a
+# half-sample refit" — and that band is bounded by construction. It IS the top 25
+# picks of FFC's board: 25 rows today, about 25 on draft day. More days add DAYS,
+# NOT PLAYERS, so the trigger as written can never fire.
+#
+# WHAT MORE DAYS DO BUY is the axis this archive was built for: the same players
+# re-measured every morning. That supports the falsifier the passage of time CAN
+# answer, and it discriminates between two very different worlds:
+#
+#   steady across days, unstable across players -> the instability is
+#       CROSS-SECTIONAL. Those 25 players genuinely disagree with each other and
+#       no amount of patience fixes it; the floor is unidentifiable, full stop.
+#   unstable across days too -> the FEED is noisy at the top of its own board,
+#       which is a second and independent reason not to fit a constant to it.
+
+#: A player's own published sd moving more than this share of its median, across
+#: days, is the feed moving rather than the market.
+#:
+#: ⚠ DECLARED, AND IT IS A PLACEHOLDER UNTIL THERE ARE DAYS TO DERIVE IT FROM —
+#: exactly like `COLLAPSE_KEEP_FRACTION` in this file and for the same reason.
+#: It is set to A's own bar (25%) so the two stability questions are judged on one
+#: number rather than two that drift, and `sd_stability` reports the OBSERVED
+#: spread every day so it can be re-derived the moment it is derivable.
+SD_STABILITY_TOLERANCE = 0.25
+
+#: ⚠ PREDECLARED, BEFORE THE FIRST COMPARABLE DAY EXISTS, so it cannot be fitted
+#: to whatever the data turns out to say. The archive holds ONE day; the second
+#: arrives tomorrow. This is the number of days below which `sd_stability` states
+#: a verdict of `insufficient_days` and nothing else.
+#:
+#: FIVE, AND THE REASONING IS MY OWN STANDARD APPLIED TO MYSELF. I downgraded a
+#: "structural" claim this afternoon for resting on four days — three intervals —
+#: on the grounds that consecutive mid-August days cannot separate "has not moved"
+#: from "moving slowly". Two days is ONE interval. Five days is four, which is the
+#: first count at which a single anomalous morning is not the whole finding.
+#:
+#: IT IS A FLOOR ON EVIDENCE, NOT A PROMISE OF AN ANSWER. Reaching five days
+#: entitles the instrument to state which failure mode it sees. It entitles
+#: nobody to change a constant — see `AUTHORIZES`.
+SD_STABILITY_MIN_DAYS = 5
+
+#: ⚠ WHAT THIS INSTRUMENT AUTHORIZES, AS A LITERAL FIELD ON EVERY RESULT.
+#:
+#: Cory, 2026-08-14: "Keep it explicitly observational. Do not allow it to alter
+#: `adp_sd`, recommendation scoring, or any production constant until its
+#: predeclared evidence threshold is met... Neither result by itself authorizes a
+#: production change. It determines what question remains answerable."
+#:
+#: A dict that reports a number and stays silent about its standing is how a
+#: measurement becomes a mandate three weeks later, read by somebody who was not
+#: in this conversation. So the standing rides on the result.
+AUTHORIZES = ("nothing. This is an OBSERVATION of the feed's own stability. It "
+              "does not license a change to adp_sd, to recommendation scoring, "
+              "or to any production constant. What it determines is WHICH "
+              "QUESTION REMAINS ANSWERABLE about A's floor, not what to do "
+              "about it.")
+
+
+def sd_stability(series: list, source: str, year, bands=((0, 25), (25, 50),
+                                                         (50, 100), (100, 10 ** 6))):
+    """Per-player published-sd movement across days, by the SOURCE'S OWN band.
+
+    ⚠ BANDED ON THE SOURCE'S OWN PICK SCALE, never on our board's. The bands
+    exist to line up with A's per-band objective, and A's bands are FFC's — a
+    player FFC prices at 20 and our board prices at 40 belongs to FFC's 1-25 band
+    for this question, because the constant being judged is fitted against FFC's
+    own dispersion. Using the board's scale here would answer a different
+    question while looking like this one.
+
+    ONE DAY IS `first_day`, NOT `stable`. A spread that has been observed once has
+    not been observed to hold still (rule 13f).
+    """
+    days = sorted({str(s.get("observed_at")) for s in (series or [])
+                   if str(s.get("source")) == str(source)
+                   and str(s.get("year")) == str(year) and s.get("observed_at")})
+    base = {"status": "first_day", "source": str(source), "days": len(days),
+            "tolerance": SD_STABILITY_TOLERANCE,
+            "min_days": SD_STABILITY_MIN_DAYS,
+            # THE STANDING RIDES ON THE RESULT, on every path including the
+            # unmeasured ones — a reader who gets the dict gets the constraint.
+            "authorizes": AUTHORIZES,
+            "verdict": None, "remaining_question": None,
+            "players": 0, "by_band": {}, "moved": 0, "note": None}
+    if len(days) < 2:
+        return dict(base, note="only %d day of %s in the archive — a spread "
+                               "observed once has not been observed to HOLD, and "
+                               "this is the archive's age rather than a verdict "
+                               "on the feed" % (len(days), source))
+    per, adp0 = {}, {}
+    for d in days:
+        snap = next((s for s in series
+                     if str(s.get("source")) == str(source)
+                     and str(s.get("year")) == str(year)
+                     and str(s.get("observed_at")) == d), None)
+        if snap is None:
+            continue
+        rows, sd = snap.get("rows") or {}, snap.get("sd") or {}
+        for pid, v in sd.items():
+            if v is None or pid not in rows:
+                continue
+            per.setdefault(pid, []).append(float(v))
+            adp0.setdefault(pid, float(rows[pid]))     # first day's own adp
+    from statistics import median
+    out, moved, n = {}, 0, 0
+    for pid, vals in per.items():
+        if len(vals) < 2:
+            continue
+        n += 1
+        med = median(vals)
+        # RANGE OVER MEDIAN, not sd-of-sd: with two or three days a standard
+        # deviation is barely defined, and the question is how far the value
+        # travelled rather than how it was distributed.
+        spread = (max(vals) - min(vals)) / med if med else None
+        if spread is not None and spread > SD_STABILITY_TOLERANCE:
+            moved += 1
+        a = adp0.get(pid)
+        for lo, hi in bands:
+            if a is not None and lo < a <= hi:
+                key = "%d-%d" % (lo, hi) if hi < 10 ** 6 else "%d+" % lo
+                b = out.setdefault(key, {"n": 0, "moved": 0, "spreads": []})
+                b["n"] += 1
+                if spread is not None:
+                    b["spreads"].append(spread)
+                    if spread > SD_STABILITY_TOLERANCE:
+                        b["moved"] += 1
+                break
+    for k, b in out.items():
+        b["median_spread"] = round(median(b["spreads"]), 4) if b["spreads"] else None
+        b["worst_spread"] = round(max(b["spreads"]), 4) if b["spreads"] else None
+        del b["spreads"]
+    # ── THE TWO FAILURE MODES, KEPT APART BY CONSTRUCTION ───────────────
+    # Cory: "evaluate the two failure modes separately... Neither result by
+    # itself authorizes a production change. It determines what question remains
+    # answerable." So the verdict names the SURVIVING QUESTION and never an
+    # action, and it is withheld entirely below the predeclared day floor.
+    share_moved = (moved / float(n)) if n else None
+    if len(days) < SD_STABILITY_MIN_DAYS:
+        verdict, question = "insufficient_days", (
+            "none yet. %d of the %d predeclared days are in the archive, so the "
+            "movement below is reported but no failure mode is being claimed."
+            % (len(days), SD_STABILITY_MIN_DAYS))
+    elif share_moved is not None and share_moved <= SD_STABILITY_TOLERANCE:
+        verdict, question = "stable_within_player", (
+            "a player's own published sd HOLDS across days while A's refit across "
+            "PLAYERS does not. That points at the instability being "
+            "CROSS-SECTIONAL — those ~25 players genuinely disagree — and no "
+            "quantity of further days can fix it. THE QUESTION THAT REMAINS is "
+            "whether any published-sd source has a materially larger band inside "
+            "its own top 25, because waiting on this one will not produce it.")
+    else:
+        verdict, question = "unstable_within_player", (
+            "a player's own published sd does NOT hold across days, which is a "
+            "second and independent reason not to fit a constant to this feed's "
+            "top of board. THE QUESTION THAT REMAINS is whether the top-of-board "
+            "sd is usable at all, which is prior to how it should be fitted.")
+
+    return dict(base, status="measured", players=n, moved=moved,
+                verdict=verdict, remaining_question=question,
+                share_moved=None if share_moved is None else round(share_moved, 4),
+                by_band={k: out[k] for k in sorted(out, key=lambda x: float(x.split("-")[0].rstrip("+")))},
+                note="%d of %d players carrying a published sd on 2+ days moved "
+                     "their own sd by more than %.0f%% of its median across %d "
+                     "day(s). Steady across days with A's cross-player refit still "
+                     "unstable means the instability is CROSS-SECTIONAL and no "
+                     "amount of waiting fixes it; unsteady here means the feed "
+                     "itself is noisy at the top of its own board."
+                     % (moved, n, 100.0 * SD_STABILITY_TOLERANCE, len(days)))

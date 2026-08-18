@@ -2,11 +2,11 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-16T14:10:12Z",
-   "board_content_hash": "96f62760e04e",
+   "board_built_at": "2026-08-18T11:20:33Z",
+   "board_content_hash": "afe9ef260c94",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
-   "predicted_slates_hash": "2c3c05638a32",
+   "predicted_slates_hash": "2679fc681370",
    "designated_slates_hash": "0d0c68bf2ac1"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
@@ -32,7 +32,7 @@
       "Brock Bowers"
      ],
      "kept_unpredicted": [
-      "De'Von Achane"
+      "Justin Jefferson"
      ]
     }
    ]
@@ -58,51 +58,18 @@
     "pick": 33,
     "candidates": [
      {
-      "player_id": "9997",
-      "name": "Zay Flowers",
-      "position": "WR",
-      "vorp": 42.6,
-      "survival": 0.71
-     },
-     {
-      "player_id": "11635",
-      "name": "Ladd McConkey",
-      "position": "WR",
-      "vorp": 38.0,
-      "survival": 0.93
-     },
-     {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
-      "vorp": 38.0,
-      "survival": 0.79
+      "vorp": 37.0,
+      "survival": 0.78
      },
      {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 35.8,
-      "survival": 0.97
-     },
-     {
-      "player_id": "6801",
-      "name": "Tee Higgins",
-      "position": "WR",
-      "vorp": 33.6,
-      "survival": 0.75
-     }
-    ]
-   },
-   {
-    "pick": 48,
-    "candidates": [
-     {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 35.8,
-      "survival": 0.27
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 30.3,
+      "survival": 0.52
      },
      {
       "player_id": "LAR",
@@ -112,25 +79,58 @@
       "survival": 1.0
      },
      {
-      "player_id": "2216",
-      "name": "Mike Evans",
-      "position": "WR",
-      "vorp": 28.9,
-      "survival": 0.95
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 26.0,
+      "survival": 0.98
      },
      {
-      "player_id": "8148",
-      "name": "Jameson Williams",
+      "player_id": "11635",
+      "name": "Ladd McConkey",
       "position": "WR",
-      "vorp": 26.5,
-      "survival": 0.97
+      "vorp": 25.1,
+      "survival": 0.95
+     }
+    ]
+   },
+   {
+    "pick": 48,
+    "candidates": [
+     {
+      "player_id": "LAR",
+      "name": "Los Angeles Rams",
+      "position": "DEF",
+      "vorp": 29.0,
+      "survival": 1.0
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.58
+      "survival": 0.5
+     },
+     {
+      "player_id": "2216",
+      "name": "Mike Evans",
+      "position": "WR",
+      "vorp": 24.6,
+      "survival": 0.97
+     },
+     {
+      "player_id": "12518",
+      "name": "Tyler Warren",
+      "position": "TE",
+      "vorp": 23.2,
+      "survival": 0.43
+     },
+     {
+      "player_id": "10859",
+      "name": "Sam LaPorta",
+      "position": "TE",
+      "vorp": 22.1,
+      "survival": 0.9
      }
     ]
    },
@@ -148,29 +148,29 @@
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
-      "vorp": 28.9,
-      "survival": 0.81
+      "vorp": 24.6,
+      "survival": 0.86
      },
      {
-      "player_id": "8148",
-      "name": "Jameson Williams",
-      "position": "WR",
-      "vorp": 26.5,
-      "survival": 0.77
-     },
-     {
-      "player_id": "11564",
-      "name": "Drake Maye",
-      "position": "QB",
-      "vorp": 26.0,
-      "survival": 0.34
-     },
-     {
-      "player_id": "12518",
-      "name": "Tyler Warren",
+      "player_id": "10859",
+      "name": "Sam LaPorta",
       "position": "TE",
-      "vorp": 24.3,
-      "survival": 0.27
+      "vorp": 22.1,
+      "survival": 0.83
+     },
+     {
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "vorp": 20.4,
+      "survival": 0.4
+     },
+     {
+      "player_id": "HOU",
+      "name": "Houston Texans",
+      "position": "DEF",
+      "vorp": 15.0,
+      "survival": 1.0
      }
     ]
    }
@@ -180,51 +180,18 @@
     "pick": 33,
     "candidates": [
      {
-      "player_id": "9997",
-      "name": "Zay Flowers",
-      "position": "WR",
-      "vorp": 42.6,
-      "survival": 0.71
-     },
-     {
-      "player_id": "11635",
-      "name": "Ladd McConkey",
-      "position": "WR",
-      "vorp": 38.0,
-      "survival": 0.93
-     },
-     {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
-      "vorp": 38.0,
-      "survival": 0.79
+      "vorp": 37.0,
+      "survival": 0.78
      },
      {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 35.8,
-      "survival": 0.97
-     },
-     {
-      "player_id": "6801",
-      "name": "Tee Higgins",
-      "position": "WR",
-      "vorp": 33.6,
-      "survival": 0.75
-     }
-    ]
-   },
-   {
-    "pick": 48,
-    "candidates": [
-     {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 35.8,
-      "survival": 0.27
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 30.3,
+      "survival": 0.52
      },
      {
       "player_id": "LAR",
@@ -234,25 +201,58 @@
       "survival": 1.0
      },
      {
-      "player_id": "2216",
-      "name": "Mike Evans",
-      "position": "WR",
-      "vorp": 28.9,
-      "survival": 0.95
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 26.0,
+      "survival": 0.98
      },
      {
-      "player_id": "8148",
-      "name": "Jameson Williams",
+      "player_id": "11635",
+      "name": "Ladd McConkey",
       "position": "WR",
-      "vorp": 26.5,
-      "survival": 0.97
+      "vorp": 25.1,
+      "survival": 0.95
+     }
+    ]
+   },
+   {
+    "pick": 48,
+    "candidates": [
+     {
+      "player_id": "LAR",
+      "name": "Los Angeles Rams",
+      "position": "DEF",
+      "vorp": 29.0,
+      "survival": 1.0
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.58
+      "survival": 0.5
+     },
+     {
+      "player_id": "2216",
+      "name": "Mike Evans",
+      "position": "WR",
+      "vorp": 24.6,
+      "survival": 0.97
+     },
+     {
+      "player_id": "12518",
+      "name": "Tyler Warren",
+      "position": "TE",
+      "vorp": 23.2,
+      "survival": 0.43
+     },
+     {
+      "player_id": "10859",
+      "name": "Sam LaPorta",
+      "position": "TE",
+      "vorp": 22.1,
+      "survival": 0.9
      }
     ]
    },
@@ -270,29 +270,29 @@
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
-      "vorp": 28.9,
-      "survival": 0.81
+      "vorp": 24.6,
+      "survival": 0.86
      },
      {
-      "player_id": "8148",
-      "name": "Jameson Williams",
-      "position": "WR",
-      "vorp": 26.5,
-      "survival": 0.77
-     },
-     {
-      "player_id": "11564",
-      "name": "Drake Maye",
-      "position": "QB",
-      "vorp": 26.0,
-      "survival": 0.34
-     },
-     {
-      "player_id": "12518",
-      "name": "Tyler Warren",
+      "player_id": "10859",
+      "name": "Sam LaPorta",
       "position": "TE",
-      "vorp": 24.3,
-      "survival": 0.27
+      "vorp": 22.1,
+      "survival": 0.83
+     },
+     {
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "vorp": 20.4,
+      "survival": 0.4
+     },
+     {
+      "player_id": "HOU",
+      "name": "Houston Texans",
+      "position": "DEF",
+      "vorp": 15.0,
+      "survival": 1.0
      }
     ]
    }

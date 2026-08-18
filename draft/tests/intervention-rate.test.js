@@ -129,13 +129,15 @@ check('mean deviation magnitude is pinned (frozen pool)',
   Math.abs(r.meanMagnitude - 15.9) < 3,
   'magnitude=' + r.meanMagnitude.toFixed(1));
 
-// A SCOPE NOTE ADDED 2026-08-12, so "ceiling: dead" is not read as a global
-// truth: ceiling is dead in the STARTER branch by arithmetic (its weight is 0),
-// and it is NOT dead in the bench branch any more — CFG.BENCH_CEILING_FLOOR
-// gives it 0.25 there regardless of the slider. This metric still reports it
-// dead because on THIS frozen pool the perturbation does not reach a
-// bench-branch decision. The label is accurate for the pool and narrower than
-// it sounds, which is the same caveat the seat-freeze note makes.
+// A SCOPE NOTE ADDED 2026-08-12 (and OVERTAKEN TWICE since — kept as history):
+// it said ceiling was dead in the STARTER branch by arithmetic (weight 0) and
+// alive in the bench branch via CFG.BENCH_CEILING_FLOOR (then 0.25). The floor
+// was retired to 0 on 2026-08-14, and on 2026-08-17 Cory ruled the weight
+// itself to 0.45 — so ceiling is now LIVE by arithmetic and correctly absent
+// from the measured dead list below. Nothing here pins ceiling either way:
+// ZERO_WEIGHTED is derived from MEASURED_WEIGHTS and the dead set is
+// re-measured on the frozen pool every run, which is why this suite survived
+// the ruling without a re-pin.
 //
 // THE DEAD-WEIGHT FINDING, split into the two things it was conflating.
 //
@@ -196,9 +198,32 @@ check('survival is dead DESPITE being active — the finding worth pinning',
     + 'that is a REAL change (the conservation fix and the room mixture both touch it) '
     + 'and it needs a look, not a re-pin');
 
-// And nothing UNEXPECTED is dead: anything dead that is neither zero-weighted nor
-// survival is a term that stopped firing without anyone deciding it should.
-const unexpected = deadSet.filter(t => t !== 'survival' && ZERO_WEIGHTED.indexOf(t) === -1);
+// KEEPER joined the explained-dead list on 2026-08-18, and the explanation is
+// a MEASUREMENT, not a shrug. This check went red when the keepers gained
+// their vorp (build.py badge-lie fix, 08-18). The relay tested the obvious
+// link — board players' vorp — and correctly rejected it; the real link was
+// the INCUMBENT BAR in composite.keeperOptionValue: while the keepers carried
+// no vorp, their own raw KOVs were deeply negative, the bar sat at −14.88,
+// and marginal = raw − bar SUBSIDIZED every candidate by ~15 points. The
+// term's entire apparent liveliness was that artifact. With honest keeper
+// vorp the bar is ~0 and the honest marginal option value at this seat's
+// FIRST live pick (33 — rounds 1-3 are forfeited to the keepers, which is
+// where the measured ramp concentrates the term's weight) tops out at ~2.1,
+// right at deviation.js's MATERIAL=2.0, so it never registers as a driver.
+// So: keeper at weight 1.0 buys no intervention in Cory's actual seat. That
+// is a finding about the term, pinned exactly like survival above — if it
+// starts firing, the roster construction or the ramp changed, and it needs a
+// look, not a re-pin. (The bar is now floored at 0 in composite.js, so the
+// subsidy artifact cannot return through one bad incumbent projection.)
+check('keeper is dead DESPITE weight 1.0 — the bar artifact is gone, and this seat forfeits its keeper rounds',
+  deadSet.indexOf('keeper') !== -1,
+  'dead=' + JSON.stringify(deadSet) + ' — keeper started differentiating picks: '
+    + 'either the incumbent bar moved or the seat/ramp changed. Measure before re-pinning.');
+
+// And nothing UNEXPECTED is dead: anything dead that is neither zero-weighted,
+// survival, nor keeper is a term that stopped firing without anyone deciding it should.
+const EXPLAINED_DEAD = ['survival', 'keeper'];
+const unexpected = deadSet.filter(t => EXPLAINED_DEAD.indexOf(t) === -1 && ZERO_WEIGHTED.indexOf(t) === -1);
 check('no term is dead unexpectedly', unexpected.length === 0,
   'unexpectedly dead: ' + JSON.stringify(unexpected));
 

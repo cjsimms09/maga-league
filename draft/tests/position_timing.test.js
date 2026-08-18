@@ -222,7 +222,17 @@ ck('and the flag names the 59.6 rather than hand-waving at "the plan"',
   const skill = [];
   ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB'].forEach(p =>
     skill.push({ position: p, proj_mean: 200, player_id: 'x' + skill.length }));
-  const board = pool.slice(0, 400);
+  /* BOARD SLICED BY ADP, NOT ARRAY ORDER — RE-PINNED 2026-08-17. This was
+   * `pool.slice(0, 400)`, which contained K and DEF only by the ACCIDENT of
+   * the artifact interleaving them by VORP. Cory's same-day K/DEF demotion
+   * ruling (vorp.py: onesies sort AFTER every skill player, because their
+   * cross-position VORP was never purchasable) moved every K and DEF past
+   * index ~530, so a 400-row prefix of the artifact stopped containing the
+   * two positions this scenario exists to force — `t.rows.find('K')` came
+   * back undefined and the suite crashed. Slicing the ADP ordering keeps the
+   * same "real 400-player board" and cannot lose a position to a re-sort:
+   * K/DEF ADPs live around 110-160, well inside any plausible slice. */
+  const board = byAdp.slice(0, 400);
   CURRENT_PICK = 133;
   // TWO picks left, K and DEF both unfilled: every remaining pick is spoken for.
   const t = positionTiming({ board: board, roster: skill, nextPick: 148, currentPick: 133,

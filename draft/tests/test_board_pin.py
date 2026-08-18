@@ -323,7 +323,10 @@ def test_A_REBUILD_IS_RECOGNISED_BY_built_at_ADVANCING():
     # only asserted the first. Mutating the walk to `!=` left the state correct
     # while the reported rebuild DATE jumped forward on a clock that went
     # backwards — a survived mutation is a missing assertion, not a spare one.
-    assert back["last_rebuild"] == "2026-08-12", back
+    # DATED BY THE BUILD, so the newest build we have SEEN is 08-13T09:20 — the
+    # stamp the 08-12 pin happens to carry. The 08-13 pin's older stamp is the
+    # backwards clock and is not progress.
+    assert back["last_rebuild"] == "2026-08-13", back
 
 
 def test_A_FROZEN_BOARD_REPORTS_ITS_TRUE_AGE():
@@ -331,12 +334,20 @@ def test_A_FROZEN_BOARD_REPORTS_ITS_TRUE_AGE():
     the pin runs daily, so `days_since` is always 0 and a board frozen for a week
     reads as captured this morning. The instrument would then be reporting that
     itself ran."""
-    ser = [_pin("2026-08-08", "aaa"), _pin("2026-08-09", "aaa"),
-           _pin("2026-08-13", "aaa")]
+    # ⚠ FIXTURE CORRECTED: it used the default built_at of 08-13 on pins taken on
+    # 08-08 and 08-09 — a pin carrying a stamp from its own future, which cannot
+    # happen. It also asserted "6 days since rebuild" for a board built the day
+    # before, which was the pin-dating defect enshrined in a test. A board built
+    # on 08-07 and unchanged since we started pinning on 08-08:
+    ser = [_pin("2026-08-08", "aaa", "2026-08-07T09:00:00Z"),
+           _pin("2026-08-09", "aaa", "2026-08-07T09:00:00Z"),
+           _pin("2026-08-13", "aaa", "2026-08-07T09:00:00Z")]
     r = B.staleness(ser, today="2026-08-14")
     assert r["state"] == "frozen"
+    # CONTENT age is dated by OBSERVATION — a change can only be placed at the pin
+    # that first saw it — while REBUILD age is dated by the build's own stamp.
     assert r["days_since_content_change"] == 6      # last CHANGE was before 08-08
-    assert r["days_since_rebuild"] == 6
+    assert r["days_since_rebuild"] == 7             # built 08-07
 
 
 def test_ONE_PIN_IS_UNMEASURED_not_zero_days_stale():
@@ -365,3 +376,35 @@ def test_A_MISSING_built_at_IS_UNKNOWN_not_unrebuilt():
     assert r["rebuild_measurable"] is False
     assert r["days_since_rebuild"] is None
     assert "built_at" in r["note"]
+
+
+def test_A_REBUILD_IS_DATED_BY_WHEN_IT_HAPPENED_not_when_we_noticed():
+    """MY OWN DEFECT, CAUGHT BY SIMULATING TOMORROW'S REPORT ON TODAY'S DATA — and
+    it is the exact class this file's other findings are about: a measurement
+    about the past computed through the present.
+
+    The real numbers. Pins: 08-12 carrying built_at 08-12T09:19, 08-13 carrying
+    08-13T09:20. The nightly rebuild then ran at 08-13T23:13, AFTER that day's pin
+    was taken. So if the 08-14 rebuild never fires, the 08-14 pin STILL carries a
+    built_at that advanced — to 08-13T23:13 — and `last_rebuild` dated by the pin
+    reports **2026-08-14, zero days ago.**
+
+    On the exact morning a rebuild fails, the instrument built to catch a stalled
+    rebuild would report perfect freshness. `observed_at` dates the OBSERVATION;
+    `built_at` dates the BUILD, and the age has to come from the build.
+
+    MUTATION: date the rebuild by the pin's `observed_at` — a stalled nightly
+    reads as zero days old for as long as any earlier rebuild remains the newest
+    one anybody has pinned."""
+    ser = [_pin("2026-08-12", "aaa", "2026-08-12T09:19:29Z"),
+           _pin("2026-08-13", "bbb", "2026-08-13T09:20:18Z"),
+           _pin("2026-08-14", "ccc", "2026-08-13T23:13:18Z")]
+    r = B.staleness(ser, today="2026-08-14")
+    assert r["state"] == "rebuilt"          # a rebuild DID happen between pins
+    assert r["last_rebuild"] == "2026-08-13", r      # ...on the 13th, not the 14th
+    assert r["days_since_rebuild"] == 1, r
+    # AND THE NEXT MORNING IT KEEPS AGEING rather than resetting.
+    ser2 = ser + [_pin("2026-08-15", "ccc", "2026-08-13T23:13:18Z")]
+    r2 = B.staleness(ser2, today="2026-08-15")
+    assert r2["state"] == "frozen"
+    assert r2["days_since_rebuild"] == 2, r2

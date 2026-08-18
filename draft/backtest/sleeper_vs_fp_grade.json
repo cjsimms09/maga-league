@@ -1,0 +1,529 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/sleeper_vs_fp_grade.py",
+ "_prereg": "draft/backtest/SLEEPER-VS-FP-PREREG.md (committed before any number)",
+ "_licensed_by": "draft/audit/sleeper_vs_fp_grade_2026-08-16.md \u2014 Sleeper's 2025 projection passed every preregistered leak gate; 2023 and 2024 did not and are NOT graded here",
+ "_limitation": "ONE SEASON. own_v6 exists only for 2025 (it needs two prior weekly-points stores; 2021/2022 do not exist) and Sleeper's 2023/2024 are refused upstream. N=1 season is the ceiling of this evidence. Sleeper's 2025 file is also 7.1% hollow, so the shared population is easier than the true one by an unbounded amount \u2014 identically for every arm.",
+ "result": {
+  "season": 2025,
+  "population": {
+   "excluded_no_position": 134,
+   "excluded_no_weekly_row": 189,
+   "excluded_not_in_all_arms": 199,
+   "shared_total": 360,
+   "by_position": {
+    "QB": 54,
+    "RB": 90,
+    "WR": 138,
+    "TE": 78
+   }
+  },
+  "cells": {
+   "sleeper": {
+    "QB": {
+     "n": 54,
+     "status": "measured",
+     "spearman": 0.7793,
+     "mae": 62.49,
+     "bias": 24.95,
+     "top12": 0.5833,
+     "top24": 0.8333,
+     "top48": 0.9167
+    },
+    "RB": {
+     "n": 90,
+     "status": "measured",
+     "spearman": 0.8032,
+     "mae": 38.49,
+     "bias": 3.38,
+     "top12": 0.8333,
+     "top24": 0.7083,
+     "top48": 0.7708
+    },
+    "WR": {
+     "n": 138,
+     "status": "measured",
+     "spearman": 0.742,
+     "mae": 39.79,
+     "bias": 13.01,
+     "top12": 0.4167,
+     "top24": 0.625,
+     "top48": 0.7292
+    },
+    "TE": {
+     "n": 78,
+     "status": "measured",
+     "spearman": 0.7987,
+     "mae": 23.31,
+     "bias": 1.03,
+     "top12": 0.5,
+     "top24": 0.7917,
+     "top48": 0.7917
+    }
+   },
+   "fantasypros": {
+    "QB": {
+     "n": 54,
+     "status": "measured",
+     "spearman": 0.75,
+     "mae": 68.06,
+     "bias": 21.13,
+     "top12": 0.5833,
+     "top24": 0.7917,
+     "top48": 0.9167
+    },
+    "RB": {
+     "n": 90,
+     "status": "measured",
+     "spearman": 0.7844,
+     "mae": 39.58,
+     "bias": -2.4,
+     "top12": 0.8333,
+     "top24": 0.75,
+     "top48": 0.7708
+    },
+    "WR": {
+     "n": 138,
+     "status": "measured",
+     "spearman": 0.7382,
+     "mae": 35.06,
+     "bias": -3.52,
+     "top12": 0.4167,
+     "top24": 0.625,
+     "top48": 0.6875
+    },
+    "TE": {
+     "n": 78,
+     "status": "measured",
+     "spearman": 0.774,
+     "mae": 22.35,
+     "bias": -10.9,
+     "top12": 0.5,
+     "top24": 0.7917,
+     "top48": 0.8333
+    }
+   },
+   "own_v6": {
+    "QB": {
+     "n": 54,
+     "status": "measured",
+     "spearman": 0.6933,
+     "mae": 76.43,
+     "bias": 11.75,
+     "top12": 0.5833,
+     "top24": 0.7917,
+     "top48": 0.8958
+    },
+    "RB": {
+     "n": 90,
+     "status": "measured",
+     "spearman": 0.781,
+     "mae": 40.56,
+     "bias": 2.29,
+     "top12": 0.75,
+     "top24": 0.6667,
+     "top48": 0.7708
+    },
+    "WR": {
+     "n": 138,
+     "status": "measured",
+     "spearman": 0.7364,
+     "mae": 35.2,
+     "bias": 7.84,
+     "top12": 0.3333,
+     "top24": 0.5417,
+     "top48": 0.7292
+    },
+    "TE": {
+     "n": 78,
+     "status": "measured",
+     "spearman": 0.777,
+     "mae": 24.89,
+     "bias": 1.75,
+     "top12": 0.4167,
+     "top24": 0.75,
+     "top48": 0.8333
+    }
+   },
+   "blend_equal": {
+    "QB": {
+     "n": 54,
+     "status": "measured",
+     "spearman": 0.7641,
+     "mae": 63.19,
+     "bias": 19.28,
+     "top12": 0.5833,
+     "top24": 0.8333,
+     "top48": 0.9167
+    },
+    "RB": {
+     "n": 90,
+     "status": "measured",
+     "spearman": 0.8035,
+     "mae": 38.32,
+     "bias": 1.09,
+     "top12": 0.8333,
+     "top24": 0.7083,
+     "top48": 0.7708
+    },
+    "WR": {
+     "n": 138,
+     "status": "measured",
+     "spearman": 0.7583,
+     "mae": 34.69,
+     "bias": 5.78,
+     "top12": 0.4167,
+     "top24": 0.5833,
+     "top48": 0.7292
+    },
+    "TE": {
+     "n": 78,
+     "status": "measured",
+     "spearman": 0.8107,
+     "mae": 21.5,
+     "bias": -2.7,
+     "top12": 0.4167,
+     "top24": 0.7917,
+     "top48": 0.8333
+    }
+   },
+   "blend_weighted": {
+    "QB": {
+     "n": 54,
+     "status": "measured",
+     "spearman": 0.7657,
+     "mae": 63.34,
+     "bias": 19.49,
+     "top12": 0.5833,
+     "top24": 0.8333,
+     "top48": 0.9167
+    },
+    "RB": {
+     "n": 90,
+     "status": "measured",
+     "spearman": 0.8033,
+     "mae": 38.53,
+     "bias": 1.09,
+     "top12": 0.8333,
+     "top24": 0.7083,
+     "top48": 0.7708
+    },
+    "WR": {
+     "n": 138,
+     "status": "measured",
+     "spearman": 0.758,
+     "mae": 34.63,
+     "bias": 5.24,
+     "top12": 0.4167,
+     "top24": 0.5833,
+     "top48": 0.7292
+    },
+    "TE": {
+     "n": 78,
+     "status": "measured",
+     "spearman": 0.8101,
+     "mae": 21.48,
+     "bias": -2.83,
+     "top12": 0.4167,
+     "top24": 0.7917,
+     "top48": 0.8333
+    }
+   }
+  },
+  "error_correlation": {
+   "QB": {
+    "sleeper|fantasypros": 0.9292,
+    "sleeper|own_v6": 0.6436,
+    "fantasypros|own_v6": 0.6476
+   },
+   "RB": {
+    "sleeper|fantasypros": 0.9745,
+    "sleeper|own_v6": 0.8581,
+    "fantasypros|own_v6": 0.8999
+   },
+   "WR": {
+    "sleeper|fantasypros": 0.9376,
+    "sleeper|own_v6": 0.8019,
+    "fantasypros|own_v6": 0.8912
+   },
+   "TE": {
+    "sleeper|fantasypros": 0.8706,
+    "sleeper|own_v6": 0.7716,
+    "fantasypros|own_v6": 0.8259
+   }
+  },
+  "weights": {
+   "QB": {
+    "status": "fitted",
+    "folds": [
+     {
+      "sleeper": 0.3705,
+      "fantasypros": 0.3442,
+      "own_v6": 0.2853
+     },
+     {
+      "sleeper": 0.3798,
+      "fantasypros": 0.2793,
+      "own_v6": 0.3409
+     }
+    ]
+   },
+   "RB": {
+    "status": "fitted",
+    "folds": [
+     {
+      "sleeper": 0.3846,
+      "fantasypros": 0.3576,
+      "own_v6": 0.2578
+     },
+     {
+      "sleeper": 0.3122,
+      "fantasypros": 0.3172,
+      "own_v6": 0.3706
+     }
+    ]
+   },
+   "WR": {
+    "status": "fitted",
+    "folds": [
+     {
+      "sleeper": 0.2807,
+      "fantasypros": 0.3908,
+      "own_v6": 0.3285
+     },
+     {
+      "sleeper": 0.2764,
+      "fantasypros": 0.3323,
+      "own_v6": 0.3913
+     }
+    ]
+   },
+   "TE": {
+    "status": "fitted",
+    "folds": [
+     {
+      "sleeper": 0.3819,
+      "fantasypros": 0.3062,
+      "own_v6": 0.3119
+     },
+     {
+      "sleeper": 0.3365,
+      "fantasypros": 0.3616,
+      "own_v6": 0.3018
+     }
+    ]
+   }
+  },
+  "winners": {
+   "QB": {
+    "winner": "sleeper",
+    "status": "clear",
+    "tied": [
+     "sleeper"
+    ],
+    "spearman": 0.7793,
+    "margin_over_runner_up": 0.0136,
+    "ranked": [
+     [
+      "sleeper",
+      0.7793
+     ],
+     [
+      "blend_weighted",
+      0.7657
+     ],
+     [
+      "blend_equal",
+      0.7641
+     ],
+     [
+      "fantasypros",
+      0.75
+     ],
+     [
+      "own_v6",
+      0.6933
+     ]
+    ]
+   },
+   "RB": {
+    "winner": null,
+    "status": "TIED",
+    "tied": [
+     "blend_equal",
+     "blend_weighted",
+     "sleeper"
+    ],
+    "spearman": 0.8035,
+    "margin_over_runner_up": 0.0002,
+    "ranked": [
+     [
+      "blend_equal",
+      0.8035
+     ],
+     [
+      "blend_weighted",
+      0.8033
+     ],
+     [
+      "sleeper",
+      0.8032
+     ],
+     [
+      "fantasypros",
+      0.7844
+     ],
+     [
+      "own_v6",
+      0.781
+     ]
+    ]
+   },
+   "WR": {
+    "winner": null,
+    "status": "TIED",
+    "tied": [
+     "blend_equal",
+     "blend_weighted"
+    ],
+    "spearman": 0.7583,
+    "margin_over_runner_up": 0.0003,
+    "ranked": [
+     [
+      "blend_equal",
+      0.7583
+     ],
+     [
+      "blend_weighted",
+      0.758
+     ],
+     [
+      "sleeper",
+      0.742
+     ],
+     [
+      "fantasypros",
+      0.7382
+     ],
+     [
+      "own_v6",
+      0.7364
+     ]
+    ]
+   },
+   "TE": {
+    "winner": null,
+    "status": "TIED",
+    "tied": [
+     "blend_equal",
+     "blend_weighted"
+    ],
+    "spearman": 0.8107,
+    "margin_over_runner_up": 0.0006,
+    "ranked": [
+     [
+      "blend_equal",
+      0.8107
+     ],
+     [
+      "blend_weighted",
+      0.8101
+     ],
+     [
+      "sleeper",
+      0.7987
+     ],
+     [
+      "own_v6",
+      0.777
+     ],
+     [
+      "fantasypros",
+      0.774
+     ]
+    ]
+   }
+  },
+  "blend_vs_better_parent": {
+   "QB": {
+    "better_parent": 0.7793,
+    "blend_equal": {
+     "spearman": 0.7641,
+     "beats_better_parent": false,
+     "delta": -0.0152
+    },
+    "blend_weighted": {
+     "spearman": 0.7657,
+     "beats_better_parent": false,
+     "delta": -0.0136
+    }
+   },
+   "RB": {
+    "better_parent": 0.8032,
+    "blend_equal": {
+     "spearman": 0.8035,
+     "beats_better_parent": true,
+     "delta": 0.0003
+    },
+    "blend_weighted": {
+     "spearman": 0.8033,
+     "beats_better_parent": true,
+     "delta": 0.0001
+    }
+   },
+   "WR": {
+    "better_parent": 0.742,
+    "blend_equal": {
+     "spearman": 0.7583,
+     "beats_better_parent": true,
+     "delta": 0.0163
+    },
+    "blend_weighted": {
+     "spearman": 0.758,
+     "beats_better_parent": true,
+     "delta": 0.016
+    }
+   },
+   "TE": {
+    "better_parent": 0.7987,
+    "blend_equal": {
+     "spearman": 0.8107,
+     "beats_better_parent": true,
+     "delta": 0.012
+    },
+    "blend_weighted": {
+     "spearman": 0.8101,
+     "beats_better_parent": true,
+     "delta": 0.0114
+    }
+   }
+  },
+  "arms_present": [
+   "fantasypros",
+   "own_v6",
+   "sleeper"
+  ],
+  "arms_absent": [],
+  "fetch_diagnostics": {
+   "sleeper": {
+    "rows": 9291,
+    "rows_with_stats": 8625,
+    "rows_scored_nonzero": 638,
+    "rows_scored_zero": 7987
+   },
+   "fantasypros": {
+    "status": "fetched",
+    "rows": 729,
+    "matched": 716,
+    "unmatched_excluded": 13,
+    "rows_without_stats": 0,
+    "url": "https://api.fantasypros.com/v2/json/nfl/2025/projections?position=ALL&scoring=HALF&week=draft"
+   },
+   "own_v6": {
+    "status": "rebuilt",
+    "n": 510,
+    "positions_from_probe": 1888,
+    "actual_from_probe": 607
+   }
+  }
+ }
+}

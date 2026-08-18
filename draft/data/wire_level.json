@@ -2,30 +2,30 @@
   "per_week": {
     "QB": 23.38,
     "RB": 7.8,
-    "WR": 11.1,
+    "WR": 10.85,
     "TE": 11.6
   },
   "n": {
     "QB": 83,
     "RB": 143,
-    "WR": 113,
+    "WR": 114,
     "TE": 83
   },
   "statistic": "pooled_sample_median",
-  "scored": 422,
+  "scored": 423,
   "acquisitions": 764,
   "ongoing": {
     "per_week": {
-      "QB": 19.46,
+      "QB": 19.34,
       "RB": 5.9,
-      "WR": 7.3,
-      "TE": 6.8
+      "WR": 7.1,
+      "TE": 6.75
     },
     "n": {
-      "QB": 225,
-      "RB": 381,
-      "WR": 298,
-      "TE": 215
+      "QB": 222,
+      "RB": 380,
+      "WR": 300,
+      "TE": 214
     },
     "window_weeks": 3,
     "statistic": "median_of_the_three_weeks_AFTER_acquisition",
@@ -36,6 +36,6 @@
     "2024",
     "2025"
   ],
-  "generated_at": "2026-08-15T17:07:04.080Z",
+  "generated_at": "2026-08-18T04:41:15.582Z",
   "note": "Real acquisition-week medians from draft/tools/wire_level.js, 2023-2025. K/DEF absent: nflverse is offense-only, unmeasurable from this source, not zero. Regenerate: node draft/tools/emit_wire_level.js"
 }

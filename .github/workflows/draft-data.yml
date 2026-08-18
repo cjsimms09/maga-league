@@ -106,6 +106,25 @@ jobs:
       # The JS suites are not optional extras: keepers.test.js is the only thing
       # that catches the Python and browser keeper implementations diverging,
       # and a divergence there corrupts every pick number invisibly.
+      - name: ADP drift — does the board still make football sense?
+        # ADVISORY, NEVER BLOCKING. Cory, 2026-08-17: "BIG BOARD MAKE FOOTBALL
+        # SENSE (SHOULDNT STRAY TOO MUCH FROM ADP OR SOMETHING PROBABLY WRONG,
+        # IF WRONG SOMEONE NEEDS TO FIND AND FIX)."
+        #
+        # It runs on every build so a regression surfaces without anyone
+        # remembering to look — the check existed and fired once, by hand, which
+        # is how a check becomes a thing nobody runs.
+        #
+        # It does NOT gate the board. The two failures it reports are opposite:
+        # straying too far means we are probably wrong, straying too LITTLE means
+        # we are reproducing the consensus and have no edge at all. Neither is a
+        # reason to refuse a publish; both are reasons to look. Gating on it would
+        # make somebody widen the threshold at 2am on draft night.
+        continue-on-error: true
+        run: |
+          node draft/tests/adp_drift_check.test.js
+          node draft/tools/adp_drift_check.js | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Run engine and parity tests
         run: |
           node draft/tests/engine.test.js
@@ -192,6 +211,51 @@ jobs:
             echo "building for the slot in league_config.json: $(python -c "import json;print(json.load(open('config/league_config.json')).get('my_draft_slot'))" 2>/dev/null || echo unknown)"
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
+
+      - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
+        # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
+        # EXPERIMENT. Tracing PREDICTION-LEDGER P39 on 2026-08-18 established
+        # that we have never once measured our own model against Sleeper on any
+        # season: the promotion bar in model_accuracy_v5/v6 is "beat BOTH NAIVE
+        # baselines", api.sleeper.app reads "no route", and v5 states the
+        # comparison "first becomes measurable at the January 2027 grade of the
+        # frozen 2026 proj_series, which prices Sleeper, FP and own_v5 on the
+        # same season". That series is built here.
+        #
+        # AND IT HAS ALREADY LOST A DAY SILENTLY. 2026-08-10 carries a `sleeper`
+        # row and no `fantasypros` row — FP capture rate 9/10 — and nothing
+        # reported it. The fetch half-failed and the run committed a partial day
+        # exactly as if nothing were wrong. Retroactive fetches leak (exp33), so
+        # that day can never be recovered.
+        #
+        # WARNS, DOES NOT FAIL, AND THAT IS DELIBERATE. Refusing to publish a
+        # whole draft board because one projection provider was unreachable
+        # would trade a real, immediate cost for a speculative one, and a gate
+        # that blocks the board on a third party's uptime gets switched off in a
+        # week. What was actually missing here was not enforcement — it was
+        # ANYONE KNOWING. So this makes a partial day loud and leaves the ruling
+        # on whether it should block to A (register row 41).
+        if: github.event.inputs.snapshot != 'true'
+        continue-on-error: true
+        run: |
+          python3 - <<'PYEOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          import datetime, json, os, pathlib
+          f = pathlib.Path("draft/data/proj_series.json")
+          if not f.exists():
+              print("::warning::proj_series.json is missing entirely"); raise SystemExit(0)
+          rows = json.loads(f.read_text()).get("series", [])
+          today = datetime.date.today().isoformat()
+          got = {r.get("source") for r in rows if r.get("date") == today}
+          want = {"sleeper", "fantasypros"}
+          missing = sorted(want - got)
+          if not got:
+              print(f"::warning::proj_series has NO row for {today} — the daily capture wrote nothing")
+          elif missing:
+              print(f"::warning::proj_series for {today} is PARTIAL: captured {sorted(got)}, MISSING {missing}. "
+                    "This day cannot be backfilled (exp33) and it is an input to the January 2027 source grade.")
+          else:
+              print(f"proj_series {today}: complete ({sorted(got)})")
+          PYEOF
 
       - name: Regenerate the opening script + predicted slates from the fresh board
         # The regeneration hook made mechanical: every artifact rebuild (which
@@ -388,7 +452,25 @@ jobs:
           git config user.email "actions@github.com"
           git add $EXISTING
           git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
-          git push
+          # PUSH-RACE RETRY (added 2026-08-17): run 32080224084 passed the whole
+          # gate, committed the board on the runner, and DIED here — a lane
+          # session pushed main between checkout and push, and the fresh board
+          # was lost with the workspace. The board commit touches only the
+          # rebuild's own data files, so a rebase over doc/lane commits is
+          # safe; three attempts, then fail loudly as before.
+          for attempt in 1 2 3; do
+            git push && break
+            [ "$attempt" = 3 ] && { echo "push still racing after 3 rebases"; exit 1; }
+            if ! git pull --rebase --autostash origin main; then
+              # A concurrent push edited one of the REBUILD'S OWN generated
+              # files (attempt 4 hit this on opening_script.json). For files
+              # this workflow regenerates, the fresh rebuild IS the truth —
+              # during a rebase the incoming rebuild commit is "theirs".
+              git checkout --theirs -- $EXISTING || true
+              git add $EXISTING
+              GIT_EDITOR=true git rebase --continue
+            fi
+          done
           # Tell the verify step below whether a SERVED file actually moved —
           # a push that only refreshed draft/ data (Lab lane) triggers no
           # Netlify build by the gate's own rules, so polling for one would

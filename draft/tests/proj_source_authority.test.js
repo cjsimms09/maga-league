@@ -11,11 +11,14 @@
  * draft/audit/rule12_statline_check_2026-08-11.md. The Rams' 114.00 likewise.
  * Nothing about K or DEF is synthesised.
  *
- * WHAT MISLED IT IS OURS. build.py assigns `proj_sleeper` only INSIDE the
- * FantasyPros attachment block, so the field named after one source is gated on
- * a second. "Does this player have a Sleeper projection" cannot be answered by
- * the field called proj_sleeper — which is why this file checks
- * `proj_fantasypros`, the field that actually means what it says.
+ * WHAT MISLED IT WAS OURS. build.py used to assign `proj_sleeper` only INSIDE
+ * the FantasyPros attachment block, so the field named after one source was
+ * gated on a second, and "does this player have a Sleeper projection" could
+ * not be answered by the field called proj_sleeper. FIXED 2026-08-17
+ * (build.py attach_sleeper_column, out of the blend study's 77-row
+ * measurement): proj_sleeper is now stamped wherever Sleeper actually
+ * projected the player, and the trap section below pins the fix instead of
+ * the trap. `proj_fantasypros` remains the two-source discriminator.
  *
  * THE REAL DIFFERENCE IS STILL WORTH SHOWING: skill positions carry a two-source
  * consensus, K and DEF carry Sleeper alone. Single-source is not synthesised and
@@ -61,14 +64,36 @@ const twoSource = p => p.proj_fantasypros != null;
 }
 
 // ── THE MARK IS PRECISE WHERE IT IS READ, WHICH IS WHY IT IS NOT NOISE ─────
+/* RE-PINNED 2026-08-17. "In the top 200 the mark fires only on K and DEF" was
+ * true of a board where (a) K/DEF interleaved into the top 200 by VORP and
+ * (b) FantasyPros covered every top-200 skill player. Both halves moved on
+ * the 08-17 rebuild: Cory's K/DEF demotion ruling (vorp.py — their
+ * cross-position VORP was never purchasable) sorts every K and DEF after
+ * every skill player, pushing them all past rank 600; and pulling ~70 deeper
+ * skill rows INTO the top 200 surfaced a handful FantasyPros does not carry
+ * (Tyreek Hill, Keenan Allen on the 08-17 feed). The mark is doing its job
+ * on them — those numbers really are single-source — so the pin moves to the
+ * properties that survive a re-sort: the mark stays a small minority of the
+ * page, and the demotion itself is held here since it is what evacuated
+ * K/DEF from the page the mark was calibrated on. (app.js's tooltip still
+ * says "FantasyPros does not cover this POSITION" — true when written,
+ * now narrower than the mark's real firing set; app.js is out of scope in
+ * this pass, so the drift is recorded here.) */
 {
   const ranked = uni.filter(p => p.overall_rank).sort((a, b) => a.overall_rank - b.overall_rank);
   const top200 = ranked.slice(0, 200);
   const single = top200.filter(p => !twoSource(p));
-  ck('in the top 200 the mark fires only on K and DEF',
-    single.every(p => p.position === 'K' || p.position === 'DEF'),
-    single.filter(p => p.position !== 'K' && p.position !== 'DEF')
-      .map(p => p.name + ' (' + p.position + ')'));
+  ck('every K and DEF ranks BELOW the top 200 — the demotion ruling in force, '
+    + 'which is why the mark\'s old "only K and DEF" reading went with them',
+  uni.filter(p => p.position === 'K' || p.position === 'DEF')
+    .every(p => (p.overall_rank || 0) > 200),
+  uni.filter(p => (p.position === 'K' || p.position === 'DEF')
+      && (p.overall_rank || 0) <= 200).map(p => p.name).slice(0, 5));
+  ck('in the top 200 the mark fires on a HANDFUL of skill players FantasyPros '
+    + 'really does not carry — not on a class, and not on nobody',
+  single.length > 0 && single.length <= 10
+      && single.every(p => p.proj_fantasypros == null && p.proj_sleeper != null),
+  single.map(p => p.name + ' (' + p.position + ')'));
   ck('  and it fires on a real minority there, not most of the page',
     single.length > 0 && single.length < 100, single.length);
   // NON-VACUITY, the other direction: if EVERY player were two-source the first
@@ -76,16 +101,28 @@ const twoSource = p => p.proj_fantasypros != null;
   ck('  the two-source population is non-empty', top200.some(twoSource));
 }
 
-// ── proj_sleeper IS THE TRAP, PINNED SO IT IS NOT MISREAD AGAIN ────────────
+// ── proj_sleeper WAS THE TRAP; THE TRAP IS NOW CLOSED, AND THAT IS PINNED ──
+/* HISTORY: build.py stamped `proj_sleeper` only inside the FantasyPros
+ * attachment block, so the field named after one source was gated on a
+ * second — 77 rows carried a real Sleeper projection with proj_sleeper
+ * absent, and this suite pinned the trap so nobody misread the field. The
+ * 2026-08-16 blend study measured the damage (Kenneth Walker rendered 54
+ * points under his Sleeper number, labelled "Our model proj") and build.py's
+ * attach_sleeper_column now stamps every row Sleeper actually projected,
+ * independent of FP — and REFUSES rank-fallback rows, so absence still
+ * means "Sleeper has no number", never "FP missed him". The old assertion
+ * ("set ONLY where FantasyPros also covers") now pins the DEFECT, so it is
+ * inverted: the field finally answers the question its name asks. */
 {
   const withSleeper = uni.filter(p => p.proj_sleeper != null);
-  ck('proj_sleeper is set ONLY where FantasyPros also covers the player',
-    withSleeper.every(twoSource),
-    'if this ever stops holding, the field has changed meaning and the comment '
-    + 'in app.js projSourceMark needs revisiting');
-  ck('  so proj_sleeper CANNOT answer "does Sleeper project this player"',
-    uni.some(p => p.proj_sleeper == null && p.proj_baseline != null),
-    'K and DEF are exactly this case: a real Sleeper projection, no proj_sleeper');
+  ck('proj_sleeper is NO LONGER gated on FantasyPros — single-source rows carry '
+    + 'it too, which is the build.py fix holding',
+  withSleeper.some(p => !twoSource(p)),
+  'if this fails, attach_sleeper_column has been lost and the 77-row trap is back');
+  ck('  so proj_sleeper CAN now answer "does Sleeper project this player" — '
+    + 'every K and DEF (real Sleeper projections, never FP-covered) carries it',
+  uni.filter(p => p.position === 'K' || p.position === 'DEF')
+    .every(p => p.proj_sleeper != null));
 }
 
 // ── THE RENDERER ACTUALLY CALLS IT ─────────────────────────────────────────

@@ -267,10 +267,25 @@
 
     // The bar is the weakest candidate who would still hold a slot. With fewer
     // incumbents than slots there is a free slot, so the bar is zero.
+    /* AND THE BAR IS FLOORED AT ZERO — the same "an option is never negative"
+     * contract as the clamp above, applied to the incumbent side. An incumbent
+     * whose own raw KOV is negative is a player you would DECLINE to keep, so
+     * the slot he nominally holds is a free slot, and a free slot's bar is
+     * zero (the sentence directly above this block already says so).
+     *
+     * An unfloored negative bar SUBSIDIZES every candidate: marginal =
+     * raw − bar > raw. Measured 2026-08-18, pick 33 on the frozen intervention
+     * pool: while the keepers carried no vorp (the badge-lie bug), all three
+     * incumbent KOVs were deeply negative, the bar sat at −14.88, and the
+     * keeper term printed 15-17 points on candidates whose honest raw option
+     * value was ~2 — the term's entire apparent liveliness was this artifact.
+     * The keeper-vorp fix collapsed the bar to −0.02 and the term went quiet;
+     * the floor removes the artifact class rather than leaving it one bad
+     * incumbent projection away from coming back. */
     const ranked = valued
       .map(p => ({ p, kov: keeperOptionValueRaw(p, ctx).value }))
       .sort((a, b) => b.kov - a.kov);
-    const bar = ranked.length >= slots ? ranked[slots - 1].kov : 0;
+    const bar = Math.max(0, ranked.length >= slots ? ranked[slots - 1].kov : 0);
 
     return Object.assign({}, raw, {
       value: Math.max(0, raw.value - bar),

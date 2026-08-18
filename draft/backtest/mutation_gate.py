@@ -11,7 +11,7 @@ reported a collection ERROR instead of a test failure, the grep for
 `^FAILED|passed|failed` matched nothing, and the harness printed nothing at all.
 Silence is indistinguishable from survival, and I nearly recorded it as one.
 
-SEVEN WAYS A MUTATION RUN LIES, each refused here by name:
+EIGHT WAYS A MUTATION RUN LIES, each refused here by name:
 
   INVALID_BASELINE    the suite was already red; its own failure is credited to
                       the mutation and every kill in the batch is unearned — OR
@@ -25,6 +25,9 @@ SEVEN WAYS A MUTATION RUN LIES, each refused here by name:
   INVALID_COLLECTION  tests disappeared, so fewer failures means fewer TESTS
   SURVIVED (wrong)    something unrelated broke and the kill is credited to an
                       assertion that never fired
+  MUST_FAIL_NOT_COLLECTED  the named test does not exist under these paths, so it
+                      can never be among the failures and the verdict could only
+                      ever be SURVIVED — a stale name reported as a coverage hole
 
 KILLED requires ALL of: green baseline, target present AND UNIQUE, mutant
 compiles, collection count unchanged, and THE NAMED TEST among the failures.
@@ -52,7 +55,7 @@ from pathlib import Path
 
 #: Verdicts that mean "this run proved nothing" — never a kill, never a survival.
 INVALID = ("INVALID_BASELINE", "TARGET_NOT_FOUND", "AMBIGUOUS_TARGET",
-           "INVALID_SYNTAX", "INVALID_COLLECTION")
+           "INVALID_SYNTAX", "INVALID_COLLECTION", "MUST_FAIL_NOT_COLLECTED")
 
 #: WHERE AN IN-FLIGHT MUTATION IS DECLARED, so that a run which is KILLED rather
 #: than finished cannot leave a mutant behind in a working tree.
@@ -341,6 +344,26 @@ def _compiles(path: str):
         return False, "the mutant does not compile: %s at line %s" % (e.msg, e.lineno)
 
 
+def _missing_tests(names, test_paths):
+    """Which of `names` pytest does NOT collect from `test_paths`.
+
+    ⚠ RETURNS [] WHEN THE COLLECTION ITSELF FAILED, deliberately, because an
+    unreadable collection is already refused by INVALID_BASELINE with a message
+    that names the real cause. Reporting every test as "missing" here would
+    replace an accurate diagnosis with a misleading one.
+    """
+    # ⚠ `--collect-only` WITHOUT `-q`. Adding `-q` collapses the whole listing to
+    # "path: 22" — a COUNT, not the names — so every name read as missing and the
+    # guard would have refused every run. Caught by pointing it at a name that
+    # provably exists. The plain form prints one `path::name` per line, which is
+    # what this needs.
+    r = _pytest([*test_paths, "--collect-only"])
+    if r.returncode not in (0, 1) or "::" not in r.stdout:
+        return []
+    body = r.stdout
+    return [n for n in names if n and ("::%s" % n) not in body]
+
+
 def check(target_file: str, old: str, new: str, test_paths, must_fail,
           *, baseline=None) -> dict:
     """Apply one mutation, run the tests, restore, and return a verdict.
@@ -432,6 +455,28 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
                            "suite. Nothing can fail here, so nothing can be "
                            "proved; run the path the way CI runs it."
                            % baseline.get("rc"))
+
+    # ⚠ A must_fail THAT DOES NOT COLLECT CAN NEVER BE THE THING THAT FAILS.
+    # THE EIGHTH LIE, and it cost me two SURVIVED verdicts in one day — which
+    # makes it a structural gap rather than carelessness. Both times a test was
+    # renamed (once by a blanket helper rename that also rewrote a test's own
+    # name) and the manifest kept pointing at the old name. KILLED requires THE
+    # NAMED TEST among the failures; a name nothing collects is never among them,
+    # so the verdict is SURVIVED no matter how thoroughly the mutation is caught.
+    # SURVIVED is the actionable verdict — it sends you to write a test for a hole
+    # that does not exist — and the mirror case is worse still: a real hole hidden
+    # behind a typo looks identical.
+    #
+    # ASKED BEFORE THE FILE IS TOUCHED, so a run that cannot prove anything costs
+    # nothing and leaves no mutant.
+    missing = _missing_tests(must, test_paths)
+    if missing:
+        return dict(res, verdict="MUST_FAIL_NOT_COLLECTED",
+                    detail="must_fail names %s, which pytest does not collect from "
+                           "%s. KILLED requires the NAMED test among the failures, "
+                           "so this run could only ever report SURVIVED — a "
+                           "coverage hole that is really a stale name."
+                           % (", ".join(missing), " ".join(map(str, test_paths))))
 
     mutated = src.replace(old, new, 1)
     prev = _declare(p, src, mutated)     # journal + signal handlers FIRST

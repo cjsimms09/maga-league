@@ -101,6 +101,24 @@
       "why_that_date": "After the draft and before the in-season cadence hardens. Cory ruled it explicitly out of the pre-draft window on 2026-08-13: a data-quality diagnostic moves no recommendation, and the nine days before the draft belong to what the board does wrong.",
       "verify": "node draft/tools/commit_verify.js constant-spike-detector",
       "owner": "A"
+    },
+    {
+      "id": "slate-exposure-rechecked",
+      "item": null,
+      "what": "The withheld-slate exposure is re-checked against the REAL slate, not the predicted one. draft/tests/withheld_slate_exposure.test.js proves the exposure is bounded and exact -- divergence at pick P is the number of keepers ranked outside the top (P-1), each freeing exactly one player at the boundary -- and then closes with 'the real one locks 20 August, and the one number to re-check then is whether any keeper ranks deeper than pick 33'. Nobody was named and no date was carried. That suite is 23/23 green and stays 23/23 green whether or not the re-check ever happens, because it measures the PREDICTED slate, which is the right thing for it to measure and exactly why it cannot be its own trigger. MET requires the live board to be standing on a CONFIRMED slate with nothing withheld; the check then counts the deep keepers itself and names them.",
+      "due": "2026-08-21",
+      "why_that_date": "Keeper lock, and it is the last date on which a board built on a partial slate is still correctable -- after it, every replacement level, VORP and ADP adjustment on the war-room board is computed over a pool containing players nobody can draft. ✅ DATE MOVED 2026-08-18 08-20 -> 08-21 ON CORY'S RULING, verbatim: \"Keepers will be set by 08/21 at 6pm\". This row's previous wording predicted exactly this case and said the correct response was to move the date WITH the reason rather than silence the check. That is what this is. The lock is now a config key (league_config.json keepers.deadline), so the next mover has one place to check instead of fifteen.",
+      "verify": "node draft/tools/commit_verify.js slate-exposure-rechecked",
+      "owner": "A"
+    },
+    {
+      "id": "routes-old-open-swept",
+      "item": null,
+      "what": "The 90 ROUTES.md items that are OPEN and older than 08-17 are either ticked by their owner, annotated as live, or archived. Cory, 2026-08-18: 'can we get rid of the moot tasks now then?' The 101 already-TICKED pre-08-17 items went to ROUTES-ARCHIVE.md the same day (1,039 KB -> 783 KB). These 90 are open, so they were NOT swept on the relay's judgement -- burying live work is worse than a long file. Each lane was sent the list with a stated default: archived on 08-25 unless they say otherwise. MET when no OPEN item older than 08-17 remains in ROUTES.md.",
+      "due": "2026-08-25",
+      "why_that_date": "Deliberately AFTER the 08-22 draft so a housekeeping sweep cannot compete with it, and a week after the lists were posted, which is long enough for three lanes to scan a list they were handed in full.",
+      "verify": "node draft/tools/commit_verify.js routes-old-open-swept",
+      "owner": "relay"
     }
   ]
 }

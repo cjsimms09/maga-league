@@ -995,6 +995,7 @@ if (!IS_FIXTURE) {
     const rand = rng(4242);
     const myRoster = [];
     let myPicks = 0, switches = 0, everyPickPriced = true;
+    const reads = [];
 
     for (const step of sched) {
       const board = ALL.filter(p => !taken.has(String(p.player_id)));
@@ -1012,8 +1013,13 @@ if (!IS_FIXTURE) {
         // real board — a $0 or NaN here means the banner would render a number
         // it did not compute.
         if (!Object.keys(scores).every(k => Number.isFinite(scores[k]) && scores[k] > 0)) everyPickPriced = false;
-        const out = st.update(scores, step.pick_no);
+        // `detail` is what the war room passes (app.js:7867). Without it this loop
+        // exercised the back-compat path, and the rare-switch check below passed
+        // for the wrong reason — see the note on that check.
+        const detail = DD.scoreBoardDetail(scored, { liveIndex: myPicks, roster: myRoster, dollarsOf });
+        const out = st.update(scores, step.pick_no, { detail });
         if (out.switched) switches++;
+        reads.push({ pick: step.pick_no, out, detail });
         chosen = scored.length ? scored[0].player : board[0];
         myRoster.push(chosen);
       } else {
@@ -1031,8 +1037,44 @@ if (!IS_FIXTURE) {
     // HYSTERESIS IS THE POINT. A banner that reconsiders the plan every pick is
     // a mood ring; over a whole draft the doctrine should change a handful of
     // times at most.
+    //
+    // ⚠️ AND ON ITS OWN THIS CHECK CANNOT FAIL, WHICH IS WHY IT NO LONGER STANDS
+    // ALONE. Swept 2026-08-18: this full draft produces ZERO switches at every
+    // noise band from 4.00 down to 0.50, so "switches <= ceil(myPicks/3)" was
+    // being satisfied by switches being IMPOSSIBLE rather than by hysteresis
+    // working. The cause is not a bug — on a full board almost no doctrine's
+    // constraint binds, so they price identically and there is nothing to switch
+    // TO. That is a real and reportable property, but a green tick that would
+    // stay green if the state machine were deleted is not evidence for it.
+    // The board-independent landslide pair further down is what actually proves
+    // the hysteresis algebra; these three assert the honest reporting instead.
     check('R-doctrine: switches are RARE across a full draft (' + switches + ' in ' + myPicks + ')',
       switches <= Math.ceil(myPicks / 3), switches + '/' + myPicks);
+
+    // THE RETRACTION, ON THE REAL PATH AND AT EVERY PICK CORY OWNS. A doctrine
+    // whose constraint binds may be reported as a priced deferral and must never
+    // be the "alternative" the banner says the plan leads or trails — that
+    // sentence prices one half of a two-sided trade (doctrine.js §scoreBoard).
+    const bindingAsAlt = reads.filter(r =>
+      r.out.alternative_key && (r.detail[r.out.alternative_key] || {}).binds);
+    check('R-doctrine: a binding doctrine is never presented as the live alternative',
+      bindingAsAlt.length === 0,
+      bindingAsAlt.map(r => r.pick + ':' + r.out.alternative_key).join(',') || 'none');
+
+    // Every pick must land in exactly one honest state rather than a fourth,
+    // unlabelled one: doctrine-free, a real contest, or a set of priced deferrals.
+    const unclassified = reads.filter(r =>
+      !r.out.neutral && r.out.deferrals.length === 0 && !(Math.abs(r.out.gap || 0) > 0.01));
+    check('R-doctrine: every pick is neutral, a priced deferral, or a real contest',
+      unclassified.length === 0, unclassified.map(r => r.pick).join(',') || 'none');
+
+    // And the deferral figures the banner would render are real money with a real
+    // name behind them — the $0/NaN guard above, applied to the other number the
+    // banner puts on screen.
+    const badDeferral = reads.flatMap(r => r.out.deferrals)
+      .filter(f => !(f.forgone > 0) || !(f.declined || {}).name);
+    check('R-doctrine: every deferral rendered across the draft is priced and named',
+      badDeferral.length === 0, JSON.stringify(badDeferral.slice(0, 3)));
   }
 
   // --- the QB run: exactly ONE switch announcement, framed in dollars -------
@@ -1049,10 +1091,42 @@ if (!IS_FIXTURE) {
   {
     const st = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
     const full = ALL.slice(0, 120).map(p => ({ player: p }));
-    const topQBs = new Set(full.filter(e => e.player.position === 'QB')
-      .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player))
-      .slice(0, 6).map(e => String(e.player.player_id)));
-    const afterRun = full.filter(e => !topQBs.has(String(e.player.player_id)));
+
+    // THE SCENARIO MUST GUARANTEE ITS OWN PREMISE, AND MY FIRST VERSION DID NOT.
+    //
+    // I replaced two board-sensitive checks here and then wrote three more with the
+    // same flaw. `early_qb` binds only when the plan CANNOT take the man topping the
+    // board — so the run has to leave a NON-QB on top. A fixed "drop the top 6 QBs"
+    // held on the 03:49 board, where Jahmyr Gibbs (RB) led, and stopped holding on the
+    // 05:38 rebuild, where Lamar Jackson leads at $93.2. Draining six more QBs cannot
+    // help: it just promotes the next QB, and `early_qb` takes him quite happily.
+    //
+    // So the run now drains QBs UNTIL the premise is true, and if the board cannot
+    // express the scenario at all it says so instead of asserting something false.
+    const qbsByValue = full.filter(e => e.player.position === 'QB')
+      .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player));
+    const leaderIsQB = list => {
+      const top = list.slice().sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player))[0];
+      return !top || top.player.position === 'QB';
+    };
+    let drained = 0;
+    let afterRun = full;
+    while (drained < qbsByValue.length && leaderIsQB(afterRun)) {
+      drained += 1;
+      const gone = new Set(qbsByValue.slice(0, drained).map(e => String(e.player.player_id)));
+      afterRun = full.filter(e => !gone.has(String(e.player.player_id)));
+    }
+    // At least the top 6 go, so a thin run is still a RUN rather than one pick.
+    if (drained < 6) {
+      drained = 6;
+      const gone = new Set(qbsByValue.slice(0, 6).map(e => String(e.player.player_id)));
+      afterRun = full.filter(e => !gone.has(String(e.player.player_id)));
+    }
+    check('R-doctrine: the QB-run scenario is EXPRESSIBLE on this board — a non-QB '
+      + 'leads after the run (' + drained + ' QBs drained of ' + qbsByValue.length + ')',
+      !leaderIsQB(afterRun),
+      'every QB drained and a QB still leads; early_qb cannot bind and the three '
+      + 'checks below would be asserting a falsehood rather than testing one');
     const scoresFull = DD.scoreBoard(full, { liveIndex: 3, roster: [], dollarsOf });
     const scoresRun = DD.scoreBoard(afterRun, { liveIndex: 3, roster: [], dollarsOf });
     check('R-doctrine: a partial QB run prices Early-QB Strike down',
@@ -1062,16 +1136,65 @@ if (!IS_FIXTURE) {
     check('R-doctrine: a TOTAL QB wipeout releases the constraint instead of penalising it',
       Math.abs(wipeout.early_qb - wipeout.balanced) < 1e-6, JSON.stringify(wipeout.early_qb));
 
-    const a = st.update(scoresFull, 31);
-    const b = st.update(scoresRun, 41, { cause: 'the QB run emptied the tier', projected: 14 });
-    const c = st.update(scoresRun, 51, { cause: 'the QB run emptied the tier', projected: 14 });
-    const d = st.update(scoresRun, 61, { cause: 'the QB run emptied the tier', projected: 14 });
-    const announcements = [a, b, c, d].filter(x => x.switched);
-    check('R-doctrine: a QB run triggers EXACTLY ONE switch announcement',
-      announcements.length === 1, announcements.length + ' announcements');
-    check('R-doctrine: the announcement is framed in dollars and names the cause',
-      announcements.length === 1 && /\+\$\d/.test(announcements[0].sentence)
-      && /QB run/.test(announcements[0].sentence), (announcements[0] || {}).sentence);
+    // THESE TWO CHECKS USED TO ASSERT A SWITCH ANNOUNCEMENT, AND THAT BEHAVIOUR
+    // WAS DELIBERATELY RETRACTED — the tests outlived it. doctrine.js §scoreBoard
+    // records the retraction and the reason: a doctrine whose constraint binds
+    // "differs from the plan only by the man it declines HERE", so announcing a
+    // switch on it prices one half of a two-sided trade. `slot_schedule.js` finds
+    // the comparison INVERTS past the next pick. The war room passes `detail` for
+    // exactly this reason (app.js:7867 — "which is what the war room showed Cory
+    // at every pick he owns"); `update()` keeps the old detail-less semantics only
+    // for back-compat, and that is the path these checks were still on.
+    //
+    // Two symptoms of testing the retracted path, both of which this fixes:
+    //   1. it went red on $0.24 of board drift — gap 3.760 against a 4.00 band —
+    //      which tells you nothing about whether the banner is correct;
+    //   2. it could not have caught the retraction regressing, because it was
+    //      asserting the pre-retraction behaviour as the desired one.
+    //
+    // So they now assert what the run is actually FOR: the run makes Early-QB
+    // Strike start costing something, and the banner says so by name instead of
+    // pricing it as a plan ranking.
+    const upd = (scores, detail, pick) => st.update(scores, pick,
+      { cause: 'the QB run emptied the tier', projected: 14, detail });
+    const detailFull = DD.scoreBoardDetail(full, { liveIndex: 3, roster: [], dollarsOf });
+    const detailRun = DD.scoreBoardDetail(afterRun, { liveIndex: 3, roster: [], dollarsOf });
+
+    check('R-doctrine: before the run Early-QB Strike costs nothing — its constraint does not bind',
+      detailFull.early_qb.binds === false && detailFull.early_qb.forgone === 0,
+      JSON.stringify(detailFull.early_qb));
+    check('R-doctrine: a partial QB run makes the enrolled plan START to bind',
+      detailRun.early_qb.binds === true, JSON.stringify(detailRun.early_qb));
+    check('R-doctrine: the deferral is priced and NAMES the man the plan declines',
+      detailRun.early_qb.forgone > 0 && !!(detailRun.early_qb.declined || {}).name,
+      JSON.stringify(detailRun.early_qb.declined) + ' @ $' + detailRun.early_qb.forgone);
+
+    const a = upd(scoresFull, detailFull, 31);
+    const b = upd(scoresRun, detailRun, 41);
+    const c = upd(scoresRun, detailRun, 51);
+    const d = upd(scoresRun, detailRun, 61);
+
+    // Before the run every comparable doctrine takes the same man, so the pick is
+    // doctrine-free and the banner must SAY so rather than invent a contest.
+    check('R-doctrine: the pre-run pick reads as doctrine-neutral, not as a contest',
+      a.neutral === true && a.gap === 0, 'neutral=' + a.neutral + ' gap=' + a.gap);
+    // THE RETRACTION, PINNED. A binding deferral must never be announced as a
+    // switch — that is the sentence the war room was showing Cory, and nothing
+    // was guarding its removal until now.
+    check('R-doctrine: a binding deferral is NEVER announced as a plan switch',
+      [a, b, c, d].every(x => x.switched === false),
+      [a, b, c, d].map(x => x.switched).join(','));
+    // `deferrals` reports the OTHER doctrines — the enrolled plan is excluded by
+    // construction, so the plan's own binding is read from `detail`, above. What
+    // the post-run banner owes is that the pick has stopped being doctrine-free
+    // and that every deferral it does name carries a real price.
+    check('R-doctrine: the run ends the doctrine-neutral state it began in',
+      a.neutral === true && [b, c, d].every(x => x.neutral === false),
+      'pre=' + a.neutral + ' post=' + [b, c, d].map(x => x.neutral).join(','));
+    check('R-doctrine: every deferral the banner names is priced, on every post-run read',
+      [b, c, d].every(x => x.deferrals.length > 0
+        && x.deferrals.every(f => f.forgone > 0 && !!(f.declined || {}).name)),
+      JSON.stringify(b.deferrals.map(f => f.key + ':' + f.forgone)));
     // BOARD-VALUE DRIFT, NOT A HYSTERESIS BUG (diagnosed 2026-08-16, see
     // draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern): this
     // assertion used to also require b.switched === false, i.e. that the

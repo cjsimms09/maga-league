@@ -171,9 +171,30 @@ const { baseline, doctrines } = DL.scoreAll();
   ck('deferring the quarterback to live pick 8 costs MORE than being made to '
     + 'take him by live pick 3 — waiting is right, waiting forever is not',
   c('late_qb') > c('early_qb'), { late_qb: c('late_qb'), early_qb: c('early_qb') });
-  ck('and BOTH cost something, so the value plan sits BETWEEN them rather than '
-    + 'at either extreme', c('late_qb') > 0 && c('early_qb') > 0,
-  { late_qb: c('late_qb'), early_qb: c('early_qb') });
+  /* RE-PINNED 2026-08-17: early_qb's cost fell to EXACTLY zero, and the zero
+   * is the board's doing, not a bug in the pricer. The 08-17 rebuild
+   * (Cory's same-day rulings — opportunity layer removed, measured p90
+   * ceilings, refreshed projections) lifted the QB shelf and the
+   * unconstrained plan now takes the quarterback at pick 48, Cory's second
+   * pick — INSIDE early_qb's live-pick-3 deadline — so the constraint no
+   * longer binds and its price is honestly nothing. "BOTH cost something"
+   * was a claim about the 08-14 board (QB at 73, both extremes priced), not
+   * about the tool. The pin that survives a board move is the RELATIONSHIP:
+   * a doctrine costs zero exactly when the unconstrained plan already
+   * satisfies it — asserted both ways below, so a pricer that returned zero
+   * for a binding constraint (or a cost for a satisfied one) still fails.
+   * late_qb still costs real points: waiting forever remains wrong. */
+  const eqDeadlinePick = SS.SCHED[DL.shapeOf('early_qb').deadlines[0].byPickIdx];
+  const qbPlanPick = (baseline.plan.find(p => p.slot === 'QB') || {}).pick;
+  ck('early_qb now costs ZERO because the value plan already satisfies it — the '
+    + 'QB comes by the deadline unconstrained, so the doctrine prices as '
+    + 'non-binding, not as an endorsement',
+  c('early_qb') === 0 && qbPlanPick <= eqDeadlinePick,
+  { early_qb: c('early_qb'), qb_pick: qbPlanPick, deadline_pick: eqDeadlinePick });
+  ck('FAIL ARM — zero-iff-satisfied holds in BOTH directions: late_qb, which the '
+    + 'plan does NOT satisfy, still costs real points — waiting is right, '
+    + 'waiting forever still is not', c('late_qb') > 0,
+  { late_qb: c('late_qb') });
 
   const qbPick = (baseline.plan.find(p => p.slot === 'QB') || {}).pick;
   const tePick = (baseline.plan.find(p => p.slot === 'TE') || {}).pick;

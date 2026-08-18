@@ -320,3 +320,43 @@ its fail arm is a test). No shipped file, engine CFG, or v2/v3/v4 file
 modified; REC-3's record untouched. Both suites green before every commit
 (pytest 2356→2371 passed as the pass grew; js-sweep 282 all green
 throughout).
+
+## 10. ADDENDUM (2026-08-17) — the v7 feature queue, with evidence attached
+
+§8 named v7 only by its held-out season (2026 components → a third leak-free
+transition). This addendum is where v7's CANDIDATE FEATURES queue with their
+measured evidence, so "remember this for the next model" stops being a memory.
+Nothing here is built; each entry is an ordered feature for the v7 prereg.
+
+**v7-1 · EFFICIENCY-REGRESSION-TO-DECLINE (ordered from
+`empirical_draft_value_2026-08-16.md` §8.1–8.2, n = 1,152 player-seasons
+2023–25, FDR-surviving, three seasons same sign).** Prior-season efficiency
+(points per opportunity) predicts the residual DECLINE above naive
+carry-forward: WR **−0.284 [−0.368, −0.189]**, TE **−0.294 [−0.463, −0.094]**,
+RB **−0.213 [−0.323, −0.061]**; while volume predicts the LEVEL about as well
+as prior points and ~2× efficiency (opportunity/game ρ: WR 0.704 [0.629,
+0.766], TE 0.712 [0.622, 0.782] vs efficiency 0.322 / 0.126-noise). **This is
+NOT v5's xFP move** — v5 regresses a player's efficiency toward the league
+mean inside the level estimate; v7-1 is a *signed negative term on prior
+efficiency in the residual*: an efficient-on-modest-volume receiver is a worse
+bet than his points say, an inefficient-on-heavy-volume one a better bet.
+Independently corroborated by the all-seats replay diagnosis ("own_v6
+overprices declining veterans" — DRAFT-WEEK-BRIEF.md, the note that first
+named a v7 decline term).
+
+**v7-2 · AVAILABILITY, AS A LEVEL INPUT ONLY (ordered from the same study's
+Addition A, §15).** The ingredient exists — availability persists for
+established players at RB 0.274 [0.132, 0.413], WR 0.243 [0.088, 0.385], TE
+0.310 [0.122, 0.481], 3/3 seasons, and NOT at QB (0.215 [−0.050, 0.441]) —
+and its ceiling is known in advance: a full-health counterfactual lifts
+starter rates **+10.8 to +15.6pp in every round band**, a level effect, not a
+late-round fix. So v7-2 is a weak per-player games-expected input at RB/WR/TE
+only, replacing the hand-set positional `EXPECTED_GAMES` constants, and its
+prereg must grade against exactly that measured level effect. Store
+discipline: computed from the COMPONENT stores (the 2025 weekly-points store
+drops zero-point rows — A's 2026-08-17 ruling routes all games/rate consumers
+to components; `late_trajectory.py` already follows it).
+
+Both entries wait on the v7 prereg and the January 2027 grade like everything
+else in §8 — queued here so the evidence travels with the feature instead of
+with whoever read the study.

@@ -24,6 +24,16 @@ measurably blind to it — `composite_roster_blindness.test.js`, passing today:
 > quarterbacks from **215 to ZERO** and does not move the composite top 70 by
 > one player (QB 14, TE 18 both ways).
 
+**⚠️ THIS PREMISE IS CEILING-DEPENDENT — added 2026-08-17.** The blindness above
+holds only while `MEASURED_WEIGHTS.ceiling = 0`. The bench branch
+(`engine.js:1682`) fires on `need.fills === 'bench'`, which IS roster-dependent,
+and anchors on the ceiling term — so with ceiling at zero its awareness has
+nothing to express, and with ceiling on the composite becomes roster-sensitive
+for free. **If the ceiling weight ships, re-take the 215→0 measurement before
+running this study**, or it answers a question that no longer exists.
+`draft/audit/roster_blindness_is_a_ceiling_artifact_2026-08-17.md`
+
+
 So this is a real mechanism with a real gap to fill, not a rescaled copy. **A
 null here would be informative rather than structural**, which is exactly the
 property the ceiling study lacked.

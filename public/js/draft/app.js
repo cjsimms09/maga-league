@@ -935,14 +935,14 @@
       src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
-      what: 'The chance each player is still on the board at your next pick, from '
-        + 'the market (ADP) model: ADP, its dispersion, and a conservation tilt so '
-        + 'only as many players can go as there are picks.',
-      read: 'Under ~50% treat him as gone and plan the seat without him. Identical '
-        + 'percentages on several elites are the tilt\'s redistribution floor — the '
-        + 'market cannot split players already past their ADP; the room model in '
-        + 'Most-likely-to-be-gone can, and it names the seat.',
-      do: 'Plan with the market number (it is what the score uses), but when you '
+      what: 'The chance each player is still on the board at your next pick: the '
+        + 'market (ADP) model blended with the room model for the picks in between, '
+        + 'through a conservation tilt so only as many players can go as there are picks.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. For players '
+        + 'already past their ADP the market alone has nothing left to say — the room '
+        + 'model is what splits them, so identical percentages on several elites only '
+        + 'appear before the draft order is known; Most-likely-to-be-gone names the seat.',
+      do: 'Plan with this number (it is what the score uses), but when you '
         + 'need WHO goes first among the elites, read the room model instead. A run '
         + 'at a position breaks both — re-read after any run banner.',
       src: 'survival.js survivalProbability()/conservedSurvival(); engine.js survival() accessor',
@@ -1306,6 +1306,9 @@
     loadWeights();
     loadFrozenBaseline();
     loadSeatPlan();
+    loadConditionalValue();
+    loadOpponentNeed();
+    loadExpertSpread();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -1556,11 +1559,31 @@
    *              so the rule exists ONCE on this side; the Python keeper-
    *              placement verification asserts the same law on the artifact.
    */
-  function pickState() {
-    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
-    const pickEvents = state.sync
+  /* THE ONE DERIVATION OF "how many picks have we observed".
+   *
+   * Added 2026-08-17 (relay) because `main` went red on
+   * test_shared_state_audit's `current_pick` budget: the room-switch
+   * confirm-first feature (2fe8e0e2) needed this count and re-derived the
+   * expression inline, making three copies of a canonical fact whose budget is
+   * two. The guard is right — every severity-1 in this project came from a
+   * shared fact derived in more than one place — so the fix is to give the
+   * derivation an owner rather than to widen the budget.
+   *
+   * NOT COSMETIC: the two copies were already drifting in meaning. One asks
+   * "how far along is the draft" for the clock; the other asks "have we
+   * recorded anything worth protecting before switching rooms". They agree
+   * today only because they were written the same way, which is precisely the
+   * condition that stops being true later.
+   */
+  function observedPickCount() {
+    return state.sync
       ? Math.max(0, state.sync.currentPickNumber() - 1)
       : (state.recentPicks || []).length;
+  }
+
+  function pickState() {
+    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
+    const pickEvents = observedPickCount();
     // COORDINATE SYSTEM [placements]: kept, never drafted. Not an event.
     const keeperPlacements = (state.myRoster || []).filter(p => p.is_keeper).length;
     const rehearsalRemovals = (state.rehearsalKeepers || {}).removed || 0;
@@ -1791,9 +1814,25 @@
      * pick lands anywhere, `pickEvents` is non-zero and the room's clock takes
      * over exactly as before. Live-draft behaviour is unchanged. */
     const ps = pickState();
+    const mine = ((state.data || {}).pick_order || {}).my_picks || [];
     if (ps.pickEvents === 0) {
-      const mine = ((state.data || {}).pick_order || {}).my_picks || [];
       if (mine.length) return mine[0];
+      return ps.currentPick;
+    }
+    /* MANUAL MODE AFTER THE FIRST PICK (B's rehearsal find, 2026-08-17: the
+     * draft-night fallback clock broke ON THE VERY FIRST TAKE). pickEvents
+     * counts MARKS, and in the fallback Cory marks mostly his own picks — so
+     * one mark read "pick 2" while his pick landed at overall 33, and every
+     * consumer (legality's picksLeft, LRM windows, mustDraftNow) inherited a
+     * clock stuck near the top of the draft. My recorded picks sit on KNOWN
+     * slots by construction, so once k of my picks exist the room has
+     * necessarily passed mine[k-1]: the clock is bounded below by
+     * mine[k-1]+1. max() keeps the diligent path exact — marking every
+     * opponent still advances the clock past the bound — and sync mode never
+     * reaches this line. */
+    const myTaken = (state.myRoster || []).filter(function (p) { return !p.is_keeper; }).length;
+    if (myTaken > 0 && mine.length >= myTaken) {
+      return Math.max(ps.currentPick, (mine[myTaken - 1] || 0) + 1);
     }
     return ps.currentPick;
   }
@@ -2119,6 +2158,11 @@
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
+      /* OPPONENT-NEED LAYER input (Cory's take-a-swing ruling, 2026-08-17).
+       * survival.js's gated blend reads ctx.opponentNeed; the artifact loads
+       * beside the board (loadOpponentNeed) and null degrades to no tilt —
+       * absent is never a guessed distribution. */
+      opponentNeed: state.opponentNeed || null,
     };
   }
 
@@ -2328,6 +2372,13 @@
     safeRender('unrecordedPicks', renderUnrecordedPicks);
     safeRender('pickControls', renderPickControls);
     safeRender('legality', renderLegality);
+    /* THE COCKPIT LAYER (rebuild 2026-08-17, Cory's order): tabs, position
+     * rails, right-rail charts and the drill-down live in warroom_charts.js,
+     * loaded AFTER this file. It reads the narrow WarRoomData accessor below
+     * and re-renders on every board update. Guarded — a missing or throwing
+     * cockpit never blocks the clock. */
+    try { if (typeof WarRoomCockpit !== 'undefined') WarRoomCockpit.refresh(); }
+    catch (e) { console.error('[cockpit]', (e && e.message) || e); }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
     // and disappear with rehearsal/slot state). Measured again on the next
@@ -2587,6 +2638,19 @@
           + 'Treat it as stale: rebuild before drafting off it.' });
     }
 
+    /* CONDITIONAL-VALUE LAYER, absent case (ruling 2026-08-17): one honest
+     * line, never a zero presented as a measurement. Silence while the fetch
+     * is still in flight; silence when loaded (the chips carry their own
+     * provenance label). */
+    if (state.condValueLoaded && !state.condValue) {
+      notes.push({ level: 'warn',
+        text: (typeof CondValue !== 'undefined' && CondValue.absentNote)
+          ? CondValue.absentNote()
+          : 'Conditional-value artifact (stack/handcuff premiums) did not load — '
+            + 'premium chips are ABSENT, not zero. Board value is unaffected: '
+            + 'the composite never reads this layer.' });
+    }
+
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
     host.style.display = '';
     const icon = lvl => lvl === 'bad' ? '⛔' : (lvl === 'ok' ? 'ℹ️' : '⚠️');
@@ -2697,7 +2761,8 @@
     const altHtml = alts.length
       ? '<div class="wrv-alts">other options: ' + alts.map(a =>
           escapeHtml(shortName(a.player.name)) + ' <span class="rec-pos ' + a.player.position + '">'
-          + a.player.position + '</span> <span class="wr-num">'
+          + a.player.position + '</span>' + expertSpreadBadge(a.player.player_id)
+          + ' <span class="wr-num">'
           + (a.delta_pts > 0 ? '+' : '') + a.delta_pts.toFixed(1) + '</span>').join(' \u00b7 ')
         + ' <span class="muted">' + escapeHtml(v.gap_units) + ' vs the pick '
         + '(+ = scores higher)</span></div>'
@@ -2709,12 +2774,16 @@
     // even" rather than silence pretending the check never ran.
     const tbHtml = v.tiebreak
       ? '<div class="wrv-tiebreak"><b>tie-break facts</b>'
-        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged)</span>'
+        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged. '
+        + 'On this league’s 2023–25 record 50/50s are true coin flips: 8 of 9 '
+        + 'printed facts predicted nothing in 259 near-ties; trajectory is the one '
+        + 'measured lean, 58% of 176)</span>'
         + (v.tiebreak.facts.length
           ? '<ul>' + v.tiebreak.facts.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>'
           : '<div class="tb-even">nothing on the board separates '
             + escapeHtml(v.tiebreak.a) + ' and ' + escapeHtml(v.tiebreak.b)
-            + ' — genuinely even; your read decides.</div>')
+            + ' — genuinely even; your read decides. A true coin flip on this '
+            + 'league’s own record (259 near-ties, 2023–25) — stop sweating it.</div>')
         + '</div>'
       : '';
     const lensHtml = v.lenses.length
@@ -2734,7 +2803,8 @@
         + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
       + '</div>'
       + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
-        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span></div>'
+        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span>'
+        + expertSpreadBadge(v.pick.player_id) + '</div>'
       + '<div class="wrv-why">' + escapeHtml(v.why) + '</div>'
       + tbHtml
       + '<button class="btn gold wrv-take" data-draft-me="' + escapeHtml(String(v.pick.player_id))
@@ -2958,13 +3028,14 @@
     const clockNameEl = $('#clock-name');
     clockNameEl.innerHTML = escapeHtml(p.name)
       + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>';
-    // LEGIBILITY HOTFIX (phone, 2026-08-10): style.css sets .clock-name to #fff
-    // (white) — a dark-theme leftover — but the clock-card renders on a light,
-    // gold-tinted PAPER background, so the player's name was white-on-white and
-    // unreadable (the "text I could not read"). Force the theme ink inline so it
-    // is legible now; this overrides the bug without touching B's stylesheet.
-    // B: the real fix is `.clock-name { color: var(--ink); }` in style.css.
-    clockNameEl.style.color = 'var(--ink, #17263a)';
+    // The 2026-08-10 legibility hotfix (`style.color = var(--ink)` inline) is
+    // GONE, deliberately: it existed because style.css once painted .clock-name
+    // white on the light card, and inline color would now defeat the stylesheet
+    // permanently. The redesign (2026-08-17) gave the clock card the dark navy
+    // board and warroom.css owns .clock-name's color there — an inline ink
+    // color on that surface is exactly the dark-on-dark bug in reverse. The
+    // stylesheet is the single owner of this color now; do not re-add inline.
+    clockNameEl.style.color = '';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
       + ' · ADP ' + Math.round(p.adjusted_adp);
     // C3 — the RAW projection as a sanity check, next to our valuation, labelled
@@ -4166,23 +4237,22 @@
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
-    /* THE 42% WALL, DIAGNOSED (Cory's capture: eight chips all reading 42%,
-     * while MOST LIKELY TO BE GONE said 73% for the same player on the same
-     * screen). Both numbers are engine outputs answering different questions:
-     *   · THIS strip prints survival_to_next — the ADP-market model through
-     *     the conservation tilt, the number the SCORE uses. Every elite
-     *     already past his ADP has raw survival ~0 and the tilt lifts them all
-     *     to the SAME redistributed value — the uniformity is the tilt's
-     *     documented artifact ("fixes the total, not the ordering within it").
-     *   · The threats panel prints the ROOM model — seat-by-seat behavior,
-     *     which genuinely differentiates players and names the likely seat.
-     * One page, two numbers, one caption was the defect. Each now wears its
-     * model's name, and the strip points at the room model for WHO. Pinned by
-     * ui_fidelity_numbers.test.js. */
+    /* THE 42%/41% WALL — DIAGNOSED TWICE, THE SECOND TIME TO THE ROOT
+     * (survival.js layer1TakenGivenAvailable, 2026-08-17). The first diagnosis
+     * blamed the conservation tilt's redistribution and captioned the
+     * uniformity as a market property ("the market can't split them"). The
+     * root was upstream: a zero-width remainder window returned P(taken)=1 for
+     * every player past his ADP, which zeroed raw survival and ERASED the room
+     * model's differentiated answer before the tilt ever saw it — the tilt
+     * then handed every fallen elite the identical exp(−λ). With that fixed,
+     * survival_to_next carries market + room THROUGH the tilt (the number the
+     * score uses), and identical %s on fallen elites only appear when the room
+     * model has no seat data to add (no intervening picks known — pre-import).
+     * Pinned by ui_fidelity_numbers.test.js and survival_fallen_uniform.test.js. */
     host.innerHTML = rows
       ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your '
-        + 'next pick, market (ADP) model — the number the score uses. Identical %s mean the '
-        + 'market can’t split them; the room model under Survival Odds can. · tap to compare</span></div>' + rows
+        + 'next pick (market+room blend) — the number the score uses. Identical %s only mean no '
+        + 'seat data yet — the room model under Survival Odds still names WHO. · tap to compare</span></div>' + rows
       : '';
   }
 
@@ -4252,6 +4322,9 @@
               + (gone >= 60 ? ' — <b>take him now or lose him</b>' : ' — he can probably wait')
               + '</span>')
         + (why ? '<br><span class="muted" style="font-size:.75rem">' + escapeHtml(why) + '</span>' : '')
+        /* conditional-value chip (ruling 2026-08-17) — same separate line the
+         * shortlist prints; annotation only, absent when there is no premium. */
+        + condValueChip(p)
         + '</li>';
     }).join('') + '</ol>';
   }
@@ -4669,23 +4742,36 @@
           '<span class="path-name">' + escapeHtml(p.name) + '</span>' + doctrineBadge + priceBadge +
         '</div>' +
         '<div class="path-pick">' +
-          '<span class="path-player">' + escapeHtml(pl.name) +
+          '<span class="path-player"><span class="rec-nm" data-drill="' + pl.player_id + '" title="Full dossier">' + escapeHtml(pl.name) + '</span>' +
             '<span class="rec-pos ' + pl.position + '">' + pl.position + '</span></span>' +
           '<span class="path-score">' + p.pick.score.toFixed(1) + '</span>' +
         '</div>' +
-        (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
         devHtml +
-        (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
-        '<div class="path-when"><span class="path-lbl">FOR</span> '
-          + escapeHtml(p.when_right) + '</div>' +
+        /* DENSITY (cockpit rebuild 2026-08-17, Cory's order): the card-essays
+         * live ONE TAP AWAY behind the ⓘ, as STRUCTURED pro/con lists — the
+         * same machine-derived content (when_right, pathAgainst, the branch
+         * plan), itemised instead of freetexted. The visible row is name ·
+         * price-vs-top · score · take. */
         (function () {
           var ag = pathAgainst(p);
-          return ag.length
-            ? '<div class="path-against"><span class="path-lbl">AGAINST</span> '
-              + escapeHtml(ag.join('; ')) + '</div>'
-            : '';
+          var forItems = [p.when_right].concat(
+            p.pick.why ? [p.pick.why] : [],
+            (p.pick.context || []).slice(0, 2));
+          var chip = function (t) { return '<li>' + escapeHtml(t) + '</li>'; };
+          return '<details class="path-info"><summary>ⓘ for / against'
+            + (ag.length ? ' (' + ag.length + ')' : '') + '</summary>'
+            + (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '')
+            + '<div class="wr-procon">'
+            + '<div class="path-when"><span class="path-lbl">FOR</span><ul class="wr-pc-list">'
+              + forItems.map(chip).join('') + '</ul></div>'
+            + (ag.length
+                ? '<div class="path-against"><span class="path-lbl">AGAINST</span><ul class="wr-pc-list">'
+                  + ag.map(chip).join('') + '</ul></div>'
+                : '')
+            + '</div>'
+            + (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '')
+            + '</details>';
         })() +
-        (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
         '<div class="path-actions">' +
           '<button class="btn small gold" data-draft-me="' + pl.player_id
             + '" data-path-key="' + escapeHtml(p.key) + '">I took ' + escapeHtml(pl.name.split(' ').slice(-1)[0]) + '</button>' +
@@ -4983,7 +5069,24 @@
     // pre-draft snapshot. QB/TE surfaced explicitly since they're the timing calls.
     if (typeof DraftGrabBy !== 'undefined') {
       try {
-        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {});
+        /* LRM startable boundaries feed the wire-covered-onesie cap (Cory,
+         * 2026-08-17: QB urgency was contradicting the LRM strip on the same
+         * screen). One derivation: computeLRM's startable_by IS the boundary
+         * the strip prints, so the two surfaces cannot disagree again. */
+        let lrmBounds = null;
+        try {
+          const picks = myNextPicks();
+          (computeLRM(picks) || []).forEach(function (r) {
+            /* no_deadline = startable options outlast the DRAFT (K/DEF men who
+             * go undrafted) — the strongest wire coverage, boundary infinite. */
+            if (r.no_deadline) { (lrmBounds = lrmBounds || {})[r.position] = Infinity; }
+            else if (r.startable_by != null) {
+              (lrmBounds = lrmBounds || {})[r.position] = r.startable_by;
+            }
+          });
+        } catch (e) { lrmBounds = null; }
+        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {},
+          null, lrmBounds);
         if (gb && gb.headline) {
           const pill = v => v === 'TAKE-NOW' ? '#ff8a8a' : (v === 'GRAB-SOON' ? '#f5c445' : '#8ac6ff');
           const line = pos => {
@@ -5048,16 +5151,169 @@
       + '. Both shown so you can judge the machinery.</div>';
   }
 
+  /* ── THE SIX JOBS, SPLIT (war-room redesign, 2026-08-17) ─────────────────
+   *
+   * panel_spec.js carried the audit for days: the recommendations renderer was
+   * one 436-line function "emitting a headline, a rationale, a timing block, a
+   * tier-cliff card, an against-case and a chip grid", and Cory read the same
+   * player surfacing from three of those jobs at once as a bug ("Gibbs listed
+   * twice"). Each job is now one small function; the composer below sequences
+   * them.
+   *
+   * WHAT DELIBERATELY STAYS IN THE COMPOSER: the ledger capture (its guard
+   * text is pinned by capture_cannot_blank_board.test.js), the REC_ROWS slice,
+   * the reconcile-halt short-circuit, the decisive-term readout and the ranked
+   * card emission — rec_rows.test.js and decisive_readout.test.js pin those as
+   * behaviour contracts INSIDE the composer (the halt fires before any row
+   * draws; the readout is read-only; the promotion mark sits beside the score).
+   * Conforming to a pinned contract outranks a tidier extraction.
+   *
+   * THE NAME RENDERS ONCE ABOVE THE FOLD. The headline (verdict block) owns
+   * the player's name. Everything else the composer paints either says "him",
+   * says nothing, or sits behind a tap: the against-case is a <details>
+   * disclosure, the per-row stat chips are a <details> whose open state is one
+   * shared persisted preference, and the ranked list keeps its own summary. */
+
+  /* Job 1 — THE HEADLINE. The one surface that owns the answer AND the name.
+   * VERDICT BEFORE THE RULE HEADLINE: the headline demotes its duplicate take
+   * button and Two-Reads block only when the verdict actually rendered this
+   * cycle, so it must know — state.verdictShown is set here, read there. */
+  function renderRecHeadline(out) {
+    try { renderVerdict(out); } catch (e) { console.error('[verdict-render]', e && e.message); }
+    try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
+  }
+
+  /* Job 2 — THE RATIONALE PREAMBLE for the ranked list. Roster legality comes
+   * first and in plain language: on the clock, a red bar saying "you have no
+   * kicker" beats a re-sorted list every time. Returns html for the composer.
+   * It never names the recommended player — the headline owns the name. */
+  function renderRecRationale(scored) {
+    const lg = scored[0].legality, lw = scored[0].legality_warning;
+    if (lg) {
+      return '<div class="forced-banner">⛔ ' + escapeHtml(lg.message)
+        + ' Only players who can legally start are shown.</div>';
+    }
+    if (lw) return '<div class="forced-banner warn">⚠️ ' + escapeHtml(lw) + '</div>';
+    return '';
+  }
+
+  /* Job 3 — THE TIMING + CONTEXT SATELLITES. Every call reads the SAME scored
+   * board as the ranked list — never a second computation, so no surface can
+   * disagree with the panel beneath it — and none may block the clock. */
+  function renderRecTiming(out) {
+    renderConfidence(out.confidence);
+    renderBranches(out.branches);
+    renderClock(out);
+    // The doctrine banner runs FIRST so the path cards can tag themselves with
+    // the doctrine as of THIS pick rather than the previous one (§4:
+    // everything speaks the same vocabulary).
+    try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
+    renderPaths(out.scored);
+    try { renderTiming(out.scored); } catch (e) { console.error('[timing]', e && e.message); }
+    // THE MVS RIDES THE SAME RENDER — a surface that recomputes its own
+    // numbers is a surface that can disagree with the panel beneath it.
+    try { renderMVS(out.scored, out.paths); } catch (e) { console.error('[mvs]', e && e.message); }
+    // The strategy-split panel — projected from the live board, never blank.
+    try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
+    renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
+    renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
+  }
+
+  /* Job 4 — THE TIER-CLIFF CARD (collapsed small multiples, design pass
+   * 2026-08-15). Same scored board, never a second computation. */
+  function renderRecTierCliff(scored) {
+    try {
+      const tcHost = document.getElementById('tier-cliff-chart');
+      if (tcHost && typeof DraftCharts !== 'undefined') {
+        tcHost.innerHTML = DraftCharts.tierCliffChart(scored);
+      }
+    } catch (e) { console.error('[tier-cliff]', e && e.message); }
+  }
+
+  /* Job 5 — THE CHIP GRID: one row's stat chips (VONA, the raw projection, the
+   * tier, the price, the market's gone-by-next, the dossier). Collapsed behind
+   * one tap by default — Cory asked for ten candidates "compacted … I can
+   * click for more info", and ten open chip rows were the wall. ONE shared
+   * preference, not per-card state: opening the numbers on any row opens them
+   * on every row, and the choice persists on this device (wr-disclosures-v1).
+   * The chips never carry the player's name — the row's name cell owns it. */
+  function renderRecChips(s, pct) {
+    const p = s.player;
+    const rp = recRawProj(p);
+    return '<details class="rec-chips"' + (state.chipsOpen ? ' open' : '') + '>'
+      + '<summary data-chips-toggle="1" title="The numbers behind this row — opens on every row and stays put">'
+        + (state.chipsOpen ? '▾ numbers' : '▸ numbers') + '</summary>'
+      + '<div class="rec-stats">'
+      + '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>'
+      // C3 — the raw projection, labelled by its true source count (the
+      // consensus.js contract: source names when single, "Consensus (N)" when
+      // ≥2), sat next to our VONA so a disagreement is visible on the card.
+      + '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
+        + escapeHtml(rp.label.replace(/ proj$/, '')) + ' <b>'
+        + (rp.value == null ? '—' : Math.round(rp.value)) + '</b></span>'
+      + '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>'
+      + '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>'
+      + (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="market+room estimate — the number the score uses">~' + pct + '% gone by next</span>' : '')
+      // One tap deeper: the full dossier of engine fields for this row.
+      + '<button class="rec-expand" data-dossier="' + p.player_id + '">'
+        + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>'
+      + '</div></details>';
+  }
+  function toggleRecChips() {
+    state.chipsOpen = !state.chipsOpen;
+    saveDisclosure('rec-chips', state.chipsOpen);
+    renderRecommendations();
+  }
+
+  /* Job 6 — THE AGAINST-CASE: the coin-flip / override disclosure under the
+   * ranked list. A distance is never negative: a negative gap_to_second means
+   * a pinned personal-list pick sits below the board's own top — an override,
+   * not a coin flip (2026-08-10 critique: "within -1.9 pts").
+   *
+   * ⚠️ THE ALTERNATIVE IS A CONTROL, NOT A SENTENCE. Naming the coin flip with
+   * no way to act on it made taking the OTHER player cost more taps than
+   * taking the recommendation — highest friction exactly where the tool is
+   * least sure, and coin-flip overrides are the most informative class in the
+   * ledger. It reuses `data-draft-me`, the ONE take mechanism the whole app is
+   * bound to at the document level — never a second take path.
+   *
+   * NAME-ONCE (redesign 2026-08-17): the summary line names nobody; the
+   * alternative's name and its one-tap take control sit behind the disclosure,
+   * so the headline stays the only name above the fold. */
+  function renderRecAgainstCase(scored) {
+    const top = scored[0];
+    const tb = $('#tiebreak');
+    tb.style.display = top && top.contested ? '' : 'none';
+    if (!(top && top.contested)) return;
+    const g = top.gap_to_second;
+    const alt = scored[1] && scored[1].player;
+    let body;
+    if (g < 0) {
+      body = 'Your pinned pick scores ' + Math.abs(g).toFixed(1)
+        + ' pts below the board top — a deliberate override, not a coin flip.';
+    } else {
+      body = 'Top two are within <b>' + g.toFixed(1)
+        + '</b> pts — effectively a coin flip.'
+        + (alt
+            ? ' <button class="btn small gold tb-alt" data-draft-me="'
+              + escapeHtml(String(alt.player_id)) + '">Take '
+              + escapeHtml(alt.name || 'the other') + ' instead</button>'
+            : '');
+    }
+    tb.innerHTML = '<details class="rec-against">'
+      + '<summary>' + (g < 0 ? '⚖ Your override — the board disagrees'
+                             : '⚖ Coin flip — the case against') + '</summary>'
+      + '<div class="ra-body">' + body + '</div></details>';
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
-    // VERDICT BEFORE THE RULE HEADLINE: the headline demotes its duplicate take
-    // button and Two-Reads block only when the verdict actually rendered this
-    // cycle, so it must know — state.verdictShown is set here, read there.
-    try { renderVerdict(out); } catch (e) { console.error('[verdict-render]', e && e.message); }
-    try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
+    // Job 1 — the headline (verdict + demoted rule detail) owns the NAME.
+    renderRecHeadline(out);
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
     // capture. Deduped in PredLedger so re-renders don't flood.
@@ -5205,45 +5461,17 @@
       } catch (e) { console.error('[forecast]', e && e.message); }
     }
 
-    renderConfidence(out.confidence);
-    renderBranches(out.branches);
-    renderClock(out);
-    // The doctrine banner reads the SAME scored board — the plan and the paths
-    // must never be arguing from two different boards. It runs FIRST so the
-    // path cards can tag themselves with the doctrine as of THIS pick rather
-    // than the previous one (§4: everything speaks the same vocabulary).
-    try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
-    // Paths panel derives from the same scored board the list uses.
-    renderPaths(out.scored);
-    /* Same scored board as the paths panel, so the thinking and the routes can
-     * never be computed from two different boards. */
-    try { renderTiming(out.scored); } catch (e) { console.error('[timing]', e && e.message); }
-    // THE MVS RIDES THE SAME RENDER, never a second computation — a surface
-    // that recomputes its own numbers is a surface that can disagree with the
-    // panel beneath it.
-    try { renderMVS(out.scored, out.paths); }
-    catch (e) { console.error('[mvs]', e && e.message); }
-    // The strategy-split panel rides the same render — projected from the live
-    // board, so it is populated at every pick and never blank.
-    try { renderShadowProjection(); }
-    catch (e) { console.error('[shadow-proj]', e && e.message); }
-    renderBestAvailStrip(out.scored, (context() || {}).nextPick);
-    // Tier-cliff small multiples — same scored board, never a second computation.
-    try {
-      const tcHost = document.getElementById('tier-cliff-chart');
-      if (tcHost && typeof DraftCharts !== 'undefined') {
-        tcHost.innerHTML = DraftCharts.tierCliffChart(out.scored);
-      }
-    } catch (e) { console.error('[tier-cliff]', e && e.message); }
-    renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
+    // Jobs 3 + 4 — the timing/context satellites and the tier-cliff card, all
+    // off the SAME scored board (never a second computation).
+    renderRecTiming(out);
+    renderRecTierCliff(out.scored);
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
-    // route map. Same scored board — never a second computation.
+    // route map; the movement line diffs this pick's top against the last
+    // pick's. Both stay HERE in the composer — app-wiring.test.js pins this
+    // seam (the render loop itself must invoke them). Same scored board.
     try { renderStackLine(out.scored); } catch (e) { console.error('[stack]', e && e.message); }
-    // The movement line diffs this pick's top against the last pick's. Same
-    // scored board; never blocks the clock.
     try { updateMovement(currentPick(), out.scored); }
     catch (e) { console.error('[movement]', e && e.message); }
-    renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
     /* TEN, NOT FIVE — asked for twice, in these words (Cory, 2026-08-13):
      *   "Need top 5 recommended players so I can compare options."
@@ -5271,16 +5499,8 @@
     }
     if (!scored.length) { host.innerHTML = '<p class="muted">Board is empty.</p>'; return; }
 
-    // Roster legality comes first and in plain language: on the clock, a red bar
-    // saying "you have no kicker" beats a re-sorted list every time.
-    let head = '';
-    const lg = scored[0].legality, lw = scored[0].legality_warning;
-    if (lg) {
-      head = '<div class="forced-banner">\u26d4 ' + escapeHtml(lg.message)
-        + ' Only players who can legally start are shown.</div>';
-    } else if (lw) {
-      head = '<div class="forced-banner warn">\u26a0\ufe0f ' + escapeHtml(lw) + '</div>';
-    }
+    // Job 2 \u2014 the rationale preamble (roster legality, plain language).
+    const head = renderRecRationale(scored);
 
     /* WHICH TERM DECIDED THIS PICK, BEFORE IT IS MADE.
      *
@@ -5356,16 +5576,41 @@
         + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
     }
 
+    /* Range-bar scale (cockpit rebuild 2026-08-17): floor→ceiling bands share
+     * ONE scale across the shortlist, or the bars are not comparable. Pure
+     * builder lives in warroom_charts.js (loaded after this file — guarded, so
+     * a missing module costs the bar, never the row). */
+    const rbScale = (function () {
+      let lo = Infinity, hi = -Infinity;
+      scored.forEach(x => {
+        const q = x.player;
+        if (q.proj_floor != null && q.proj_floor < lo) lo = q.proj_floor;
+        if (q.proj_ceiling != null && q.proj_ceiling > hi) hi = q.proj_ceiling;
+      });
+      return (lo < hi) ? { min: lo, max: hi } : null;
+    })();
+    const curPickNo = (function () { try { return currentPick(); } catch (e) { return null; } })();
     host.innerHTML = explainPanel('recommendations') + head + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
+      /* FALLING (Cory, cockpit steering): value sliding past its market price —
+       * he is on the board 10+ picks after the market expected him gone. */
+      const falling = (curPickNo != null && p.adjusted_adp != null
+        && p.adp_source !== 'search_rank' && (curPickNo - p.adjusted_adp) >= 10);
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
         '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
-          '<div class="rec-name">' + escapeHtml(p.name) +
+          '<div class="rec-name"><span class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</span>' +
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +
             '<span class="muted">' + escapeHtml(p.team || '') + (p.bye ? ' · bye ' + p.bye : '') + '</span>' +
+            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adjusted_adp)
+              + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
+              + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
           '</div>' +
+          ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
+            ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
+                { min: rbScale.min, max: rbScale.max, lead: i === 0 })
+            : '') +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
           /* ⚠️ CONTEXT IS RENDERED SEPARATELY, AND IT HAD TO BE.
@@ -5386,26 +5631,17 @@
             ? '<div class="rec-context">' + s.context.map(escapeHtml).join(' · ') + '</div>'
             : '') +
           stackBadge(p) +
+          /* CONDITIONAL-VALUE CHIP (Cory's ruling 2026-08-17): the stack/
+           * handcuff premium TO CORY'S ROSTER, printed as its own labelled
+           * line beside the board value — annotation, never a second
+           * recommendation, never a term of the score to its right. */
+          condValueChip(p) +
           ((s.rails && s.rails.length)
             ? '<div class="rail-strip">' + s.rails.map(f =>
                 '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
             : '') +
-          '<div class="rec-stats">' +
-            '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
-            // C3 — the raw projection, labelled by its true source count (the
-            // consensus.js contract: source names when single, "Consensus (N)"
-            // when ≥2 — 2–3 sources on today's board), sat next to our VONA so a
-            // disagreement is visible on the card, not buried.
-            '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
-              + escapeHtml(recRawProj(p).label.replace(/ proj$/, '')) + ' <b>'
-              + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
-            '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
-            '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
-            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="ADP-model estimate — the number the score uses">~' + pct + '% gone by next (mkt)</span>' : '') +
-            // One tap deeper: the full dossier of engine fields for this row.
-            '<button class="rec-expand" data-dossier="' + p.player_id + '">'
-              + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>' +
-          '</div>' +
+          // Job 5 — the chip grid, one tap away (shared, persisted open state).
+          renderRecChips(s, pct) +
           // The disagreement line on the TOP card: if a same-position candidate
           // projects higher than the one we're recommending, say so — that is the
           // moment both numbers matter (machinery found something, or it's broken).
@@ -5460,46 +5696,9 @@
       '</div>';
     }).join('');
 
-    const top = scored[0];
-    $('#tiebreak').style.display = top && top.contested ? '' : 'none';
-    if (top && top.contested) {
-      // A distance is never negative: a negative gap_to_second means a pinned
-      // personal-list pick sits below the board's own top — an override, not a
-      // coin flip (2026-08-10 critique: "within -1.9 pts").
-      const g = top.gap_to_second;
-      /* ⚠️ THE ALTERNATIVE IS NOW A CONTROL, NOT A SENTENCE.
-       *
-       * This line named the coin flip and gave no way to act on it, so taking
-       * the OTHER player cost more taps than taking the recommendation —
-       * highest friction exactly where the tool is least sure. That biases the
-       * sample in the worst possible direction: coin-flip overrides are the most
-       * informative class in the ledger (the tool has no opinion, so the record
-       * is pure human signal), and they would have been recorded LESS often than
-       * they were made.
-       *
-       * It reuses `data-draft-me`, the ONE take mechanism the whole app is bound
-       * to at the document level — not a second take path, which is how two
-       * surfaces come to disagree about what "taking a player" means.
-       *
-       * ROUTED TO B: the affordance is here and the RUNG is not mine to pick. B
-       * has the four take-affordance treatments mapped; this ships as a plain
-       * button so it is tappable today, and B decides where on the ladder it
-       * belongs. */
-      const alt = scored[1] && scored[1].player;
-      const tb = $('#tiebreak');
-      if (g < 0) {
-        tb.textContent = 'Your pinned pick scores ' + Math.abs(g).toFixed(1)
-          + ' pts below the board top — a deliberate override, not a coin flip.';
-      } else {
-        tb.innerHTML = 'Top two are within <b>' + g.toFixed(1)
-          + '</b> pts — effectively a coin flip.'
-          + (alt
-              ? ' <button class="btn small gold tb-alt" data-draft-me="'
-                + escapeHtml(String(alt.player_id)) + '">Take '
-                + escapeHtml(alt.name || 'the other') + ' instead</button>'
-              : '');
-      }
-    }
+    // Job 6 — the against-case, one tap away and never a second name above
+    // the fold.
+    renderRecAgainstCase(scored);
   }
 
   /* ⚠️ THE SEARCH DEMANDED A CONTIGUOUS SUBSTRING OF THE FULL NAME, which is
@@ -5639,7 +5838,7 @@
         + ((tierBreak ? ' class="tier-cliff"' : '')
           || (onesieRow ? ' class="onesie-demoted"' : '')) + '>' +
         '<td class="num">' + p.overall_rank + '</td>' +
-        '<td><b>' + escapeHtml(p.name) + '</b>'
+        '<td><b class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</b>'
           + (lastOfTier[p.player_id]
             ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '') + '</td>' +
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
@@ -6485,6 +6684,113 @@
       + verb + ' ' + escapeHtml(r.anchor) + ' stack' + tag + '</div>';
   }
 
+  /* ══ THE CONDITIONAL-VALUE LAYER (stack + handcuff premiums) ══════════════
+   *
+   * WIRED BY CORY'S RULING, 2026-08-17 (verbatim: "Yes!"), on the evidence in
+   * draft/audit/conditional_value_2026-08-16.md. The layer was measured,
+   * priced, tested and GATED OFF by construction awaiting exactly that ruling.
+   *
+   * DISPLAY ONLY — the contract from docs/queued/conditional-value-program.md:
+   * "board value + stack premium + handcuff premium, EACH PRINTED SEPARATELY."
+   * The artifact is fetched here the same way the board is; the join, the chip
+   * and the drill readout are CondValue's (conditional_value.js, pure,
+   * node-tested). NOTHING here feeds context(), the engine, or any score —
+   * test_conditional_value.py keeps the scoring side gated, and the chip
+   * itself says "not in the score" so a reader never mistakes the annotation
+   * for a term of the composite.
+   *
+   * DEGRADES HONESTLY: a missing artifact means NO chips and one provenance
+   * note — absent is never rendered as zero. */
+  /* OPPONENT-NEED artifact — same degrade-honestly pattern as the conditional
+   * value fetch below: a missing artifact means the survival blend runs
+   * without the need tilt (survival.js treats null ctx.opponentNeed as OFF),
+   * never a guessed one. */
+  function loadOpponentNeed() {
+    fetch('/opponent_need_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.opponentNeed = a || null; })
+      .catch(function (e) {
+        console.warn('[opponent-need] artifact not loaded: ' + (e && e.message)
+          + ' — survival runs without the need tilt (not a guessed one)');
+        state.opponentNeed = null;
+      });
+  }
+
+  /* EXPERT SPREAD — display-only artifact (ordered by A 2026-08-18, see
+   * expert_spread.js's header). Same degrade-honestly pattern as opponent-need
+   * and conditional-value: a missing artifact costs the badge, never blocks
+   * or fakes anything. */
+  function loadExpertSpread() {
+    fetch('/expert_spread_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.expertSpread = a || null; })
+      .catch(function (e) {
+        console.warn('[expert-spread] artifact not loaded: ' + (e && e.message)
+          + ' — split badges absent (not a guessed one)');
+        state.expertSpread = null;
+      });
+  }
+  function expertSpreadIndex() {
+    if (typeof ExpertSpread === 'undefined' || !state.expertSpread) return null;
+    if (!state._esIdx || state._esIdx.src !== state.expertSpread) {
+      try { state._esIdx = { src: state.expertSpread, idx: ExpertSpread.index(state.expertSpread) }; }
+      catch (e) { console.error('[expert-spread]', e && e.message); return null; }
+    }
+    return state._esIdx.idx;
+  }
+  function expertSpreadBadge(playerId) {
+    if (typeof ExpertSpread === 'undefined') return '';
+    try { return ExpertSpread.badgeHtml(playerId, expertSpreadIndex(), escapeHtml); }
+    catch (e) { return ''; }
+  }
+
+  function loadConditionalValue() {
+    fetch('/conditional_value_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.condValue = a || null; })
+      .catch(function (e) {
+        console.warn('[conditional-value] artifact not loaded: ' + (e && e.message)
+          + ' — premium chips absent (not zero)');
+        state.condValue = null;
+      })
+      .then(function () {
+        state.condValueLoaded = true;
+        // The board usually wins the race; when it doesn't, repaint so the
+        // chips (or the honest absence note) appear without a pick event.
+        if (state.data) { try { renderAll(); } catch (e) { /* never blocks */ } }
+      });
+  }
+  function condValueIndex() {
+    if (typeof CondValue === 'undefined' || !state.condValue) return null;
+    if (!state._cvIdx || state._cvIdx.src !== state.condValue) {
+      try { state._cvIdx = { src: state.condValue, idx: CondValue.index(state.condValue) }; }
+      catch (e) { console.error('[conditional-value]', e && e.message); return null; }
+    }
+    return state._cvIdx.idx;
+  }
+  function condRosterPids() {
+    return (state.myRoster || []).map(function (p) { return String(p.player_id); });
+  }
+  /* The chip beside board value — one labelled line per live premium, '' for
+   * everyone else. Guarded: a missing module or artifact costs the chip, never
+   * the row, and never prints a zero. */
+  function condValueChip(p) {
+    try {
+      var idx = condValueIndex();
+      if (!idx) return '';
+      return CondValue.chipHtml(String(p.player_id), idx, condRosterPids());
+    } catch (e) { return ''; }
+  }
+
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
    *
    * This one call removes a whole class of manual-entry error: it fixes my own
@@ -7126,7 +7432,39 @@
     el.dataset.userOpened = '1';
   }
 
+  /* ── DISCLOSURE MEMORY (war-room redesign, 2026-08-17) ───────────────────
+   * The ranked list, the tier-cliff card and the per-row chip grids ship
+   * COLLAPSED — the fold belongs to the one answer. A deliberate tap is a
+   * preference, so it persists on this device. Same localStorage pattern as
+   * LISTS_KEY / AUTO_KEY: try/catch, because private mode must never throw
+   * inside the render path. */
+  const DISCLOSE_KEY = 'wr-disclosures-v1';
+  function loadDisclosures() {
+    try { return JSON.parse(localStorage.getItem(DISCLOSE_KEY) || '{}') || {}; }
+    catch (e) { return {}; }
+  }
+  function saveDisclosure(id, open) {
+    try {
+      const d = loadDisclosures(); d[id] = open ? 1 : 0;
+      localStorage.setItem(DISCLOSE_KEY, JSON.stringify(d));
+    } catch (e) { /* private mode */ }
+  }
+  function initDisclosures() {
+    const saved = loadDisclosures();
+    // The chip-grid preference is read at render time (renderRecChips).
+    state.chipsOpen = !!saved['rec-chips'];
+    ['recs-details', 'tier-cliff-wrap'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.discWired) return;
+      el.dataset.discWired = '1';
+      // Default stays the shell's (collapsed); only a recorded choice differs.
+      if (saved[id] != null) el.open = !!saved[id];
+      el.addEventListener('toggle', () => saveDisclosure(id, el.open));
+    });
+  }
+
   function initLayers() {
+    initDisclosures();
     const l2 = document.getElementById('layer-2');
     if (!l2 || l2.dataset.wired) return;
     l2.dataset.wired = '1';
@@ -9748,6 +10086,35 @@
     }, 1500); }
   }
 
+  /* THE DEAD-ROOM BANNER — one tap from a poisoned board back to a working one.
+   *
+   * Fired by sync.onDeadRoom after 3 consecutive 404s on a draft that HAD been
+   * answering: Sleeper deletes mock rooms when they end, so this is the normal
+   * end-of-mock state, and the failure it prevents was captured live
+   * (2026-08-17): the dead room's picks kept pricing the board, every list
+   * showed the leftovers of a finished draft, and the recovery lived behind
+   * two taps in a different tab. The banner is idempotent and the button runs
+   * endDraft() — the tested clear; keepers, targets and weights survive. */
+  function showDeadRoomBanner() {
+    if (document.getElementById('dead-room-banner')) return;
+    var d = document.createElement('div');
+    d.id = 'dead-room-banner';
+    d.setAttribute('style', 'background:#7f1d1d;color:#fff;padding:12px 16px;'
+      + 'border-radius:8px;margin:8px 0;display:flex;gap:12px;align-items:center;'
+      + 'flex-wrap:wrap;font-weight:600;');
+    var s = document.createElement('span');
+    s.textContent = '🪦 This mock room no longer exists at Sleeper — mock lobbies '
+      + 'are deleted when they end. Its picks are still pricing your board.';
+    d.appendChild(s);
+    var b = document.createElement('button');
+    b.className = 'btn small gold';
+    b.textContent = 'CLEAR IT — fresh board';
+    b.addEventListener('click', function () { d.remove(); endDraft(); });
+    d.appendChild(b);
+    var anchor = document.querySelector('.wrap') || document.body;
+    anchor.insertBefore(d, anchor.firstChild);
+  }
+
   function endDraft() {
     // Phase H req 3: freeze means freeze. Stamp every shadow roster (strategy,
     // weight hash, built_at, rehearsal) and ledger the final rosters BEFORE the
@@ -9800,6 +10167,13 @@
     }
     state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
+    /* KEEPERS ARE PLACEMENTS, NOT PICKS (found by the fallback-clock rehearsal
+     * scenario, 2026-08-18): ending a draft clears the roster but Cory's
+     * keepers pre-exist any draft — leaving them off tripped the keepers-vs-
+     * my_picks alarm ("your 0 keepers mean you own 15 picks... the board is
+     * giving you 12") on a freshly cleared board. Re-seed exactly as boot
+     * does. */
+    populateKeepers(state.data);
 
     ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
       const el = $(sel); if (el) el.style.display = 'none';
@@ -9842,6 +10216,53 @@
       state: state,
     };
   }
+
+  /* ── THE COCKPIT ACCESSOR (rebuild 2026-08-17) ──────────────────────────
+   * ONE narrow, read-only window onto app state for warroom_charts.js (the
+   * tab/rail/chart layer, loaded after this file). It exposes DERIVED reads,
+   * never the state object itself, so the cockpit cannot become a second
+   * writer — every mutation still goes through the delegated controls
+   * (data-draft-me / data-queue / data-compare) this file already owns.
+   * Every function is guarded: an early call (before the board loads) answers
+   * with an honest empty rather than a throw. */
+  window.WarRoomData = {
+    scored: function () { return (state.lastClock && state.lastClock.scored) || []; },
+    board: function () { return state.board || []; },
+    players: function () { return (state.data && state.data.players) || []; },
+    roster: function () { return state.myRoster || []; },
+    starters: function () { return (((state.data || {}).league) || {}).starters || {}; },
+    timing: function () { return state.lastTiming || null; },
+    verdict: function () { return state.lastVerdict || null; },
+    paths: function () { return state.lastPaths || []; },
+    queue: function () { return (state.lists && state.lists.queue) || []; },
+    drafted: function () { return state.drafted || new Set(); },
+    currentPick: function () { try { return currentPick(); } catch (e) { return null; } },
+    myNextPicks: function () { try { return myNextPicks(); } catch (e) { return []; } },
+    onTheClock: function () { try { return onTheClock(); } catch (e) { return false; } },
+    playerById: function (id) { try { return playerById(id); } catch (e) { return null; } },
+    /* Survival to an arbitrary future pick — the SAME engine call the LRM strip
+     * makes (full ctx shape: runMultipliers keeps normalizeCtx reading this as
+     * a context, pickBoard keeps ADP on the board's own scale). */
+    survivalTo: function (p, pick) {
+      try {
+        return E.survival(p, pick, {
+          currentPick: currentPick(), runMultipliers: state.runMults,
+          pickBoard: ((state.data || {}).pick_order || {}).picks || null,
+        });
+      } catch (e) { return null; }
+    },
+    /* Conditional-value drill readout (ruling 2026-08-17) — a finished HTML
+     * string so the cockpit layer stays a pure presenter: the artifact, the
+     * join and the roster all resolve HERE, off the same state the chips use.
+     * '' when the player carries no premium or the artifact is absent. */
+    conditionalDrillHtml: function (pid) {
+      try {
+        var idx = condValueIndex();
+        if (!idx) return '';
+        return CondValue.drillHtml(String(pid), idx, condRosterPids());
+      } catch (e) { return ''; }
+    },
+  };
 
   // ----------------------------------------------------------------- wiring
   function wireControls() {
@@ -9967,6 +10388,11 @@
       if (lens) { ev.preventDefault(); return revealLens(lens.getAttribute('data-lens')); }
       const doss = ev.target.closest('[data-dossier]');
       if (doss) { ev.preventDefault(); return toggleDossier(doss.getAttribute('data-dossier')); }
+      /* Chip-grid disclosure (job 5 of the split): ONE shared preference across
+       * every rec card. Native toggle is prevented; the re-render paints every
+       * card with the new state, and it persists (wr-disclosures-v1). */
+      const chips = ev.target.closest('[data-chips-toggle]');
+      if (chips) { ev.preventDefault(); return toggleRecChips(); }
       const flg = ev.target.closest('[data-flag-legend]');
       if (flg) { ev.preventDefault(); return toggleFlagLegend(flg); }
       const info = ev.target.closest('[data-explain-toggle]');
@@ -10075,6 +10501,57 @@
         state.sync.poll();
         return;
       }
+      /* ── A DIFFERENT ROOM IS A NEW DRAFT, NOT A RECONNECT ──────────────────
+       *
+       * CAPTURED LIVE (Cory, 2026-08-17, second mock of the day): mock #1
+       * ended, Sleeper garbage-collected it, the page auto-resumed its 150
+       * picks, and connecting mock #2's id did NOTHING about either — the old
+       * poller kept running (only the SAME-id kick above was handled) and the
+       * old room's 150 drafted ids kept pricing the new room's board. Every
+       * top-of-board surface showed the leftovers of a finished draft: to a
+       * drafter, "it's not showing any players."
+       *
+       * Two rules, split by what they cost:
+       *   1. The ORPHANED POLLER dies unconditionally. Two pollers interleave
+       *      onPicks and fight over the status line (reproduced: the dead
+       *      room's 404 retry banner overwrote the live room's status).
+       *   2. The PICK RESET asks for one confirming click first, because it is
+       *      destructive on a typo: pasting a wrong id mid-real-draft must not
+       *      wipe a live board. Second click within 15s = endDraft() (the
+       *      existing, tested clear — keepers/targets/weights survive, and the
+       *      mock re-seeds keepers + rehearsal removals through the same
+       *      applyDraftShape path a fresh page uses), then connect fresh.
+       * No picks recorded = nothing to protect = connect straight through. */
+      const prevRoomId = (state.sync && state.sync.draftId)
+        || (state.session && state.session.draftId) || null;
+      const recordedPicks = observedPickCount();
+      if (recordedPicks > 0 && prevRoomId !== parsed.id) {
+        const pending = state._pendingRoomSwitch;
+        const confirmed = pending && pending.id === parsed.id
+          && (Date.now() - pending.at) < 15000;
+        if (!confirmed) {
+          /* The OLD poller keeps running until the switch is confirmed — a
+           * typo must not freeze a live board's updates. */
+          state._pendingRoomSwitch = { id: parsed.id, at: Date.now() };
+          setStatus({ state: 'warn', message: 'This is a DIFFERENT room than the one on '
+            + 'the board (' + recordedPicks + ' picks recorded'
+            + (prevRoomId ? ' from draft ' + prevRoomId : '') + '). Connecting fresh '
+            + 'CLEARS those picks — your keepers, targets and weights stay. '
+            + 'Tap Connect again to confirm.' });
+          const cbtn = $('#start-sync');
+          if (cbtn) { cbtn.disabled = false; cbtn.textContent = 'Connect NEW room'; }
+          return;
+        }
+        state._pendingRoomSwitch = null;
+        endDraft();                          // stops the old poller too
+        $('#draft-id').value = parsed.id;   // endDraft blanks the box; keep the target
+      } else if (state.sync && state.sync.stop && state.sync.draftId !== parsed.id) {
+        /* No picks to protect: just make sure the orphaned poller dies before
+         * the new one starts, or the two interleave onPicks and fight over the
+         * status line (reproduced: a dead room's 404-retry banner overwriting
+         * the live room's status). */
+        try { state.sync.stop(); } catch (e) {}
+      }
       // Show them what we actually understood, so a URL paste is visibly fixed
       // rather than silently repaired.
       $('#draft-id').value = parsed.id;
@@ -10096,6 +10573,11 @@
           return onSyncPicks(picks);
         },
         onStatus: setStatus,
+        onDeadRoom: showDeadRoomBanner,
+        /* A reload's resumed sync has never succeeded, so lastOkAt cannot
+         * witness that the id used to work — the resumed picks can. Routed
+         * through the pick-count owner (shared-state audit, current_pick). */
+        resumedWithPicks: observedPickCount() > 0,
       });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.
@@ -10253,7 +10735,8 @@
    *     QB16  Jaxson Dart    proj 328.5   floor 87.29
    *     QB17  Jordan Love    proj 322.5   floor  2.45   <- 35.6x, on a 6.0 gap
    *
-   * Both are in their CORRECT cell — this is not the E1 misread. A 2.45-point
+   * Both are in their CORRECT cell — this is not the E1 population case (ruled
+   * EXPECTED 2026-08-18, see below). A 2.45-point
    * season floor is simply not a statement about Jordan Love; it is the p10 of a
    * cohort (QB17-32) that runs down to quarterbacks who never take a snap. The
    * same edge produces WR31 Marvin Harrison 68.43 against WR32 Alec Pierce 8.23,
@@ -10284,14 +10767,19 @@
    * The first version of this helper named the band from `pos_rank`, and its own
    * test caught that as a lie: `proj_floor` is written against the rank the
    * BUILD ranked him at, which for nine players on the live board is not the
-   * rank the board publishes (register E1). Jordan Mason is published RB31 and
-   * priced off the RB|33+ cohort — a caveat reading "RB 17-32" would have been a
-   * second false label pinned by a passing test.
+   * rank the board publishes. That gap was filed as register E1 and RULED
+   * EXPECTED on 2026-08-18 (A, projections.py:306): the build ranks over the
+   * FULL universe — available players plus keepers — because the calibration
+   * was fit on full historical seasons, while the published pos_rank counts
+   * only available players. Jordan Mason published RB31 and priced off RB|33+
+   * is the ruling working, not a defect — but a caveat reading "RB 17-32"
+   * would still be a false label, so the cohort must be recovered either way.
    *
-   * So the cohort is recovered from the ratio the player actually carries,
-   * matched against the modal ratio of each band ON THIS BOARD. No calibration
-   * file is needed in the browser, and a mismatch between the cohort he was
-   * priced off and the band his rank puts him in is E1 showing itself on screen.
+   * It is recovered from the ratio the player actually carries, matched against
+   * the modal ratio of each band ON THIS BOARD. No calibration file is needed
+   * in the browser, and a mismatch between the cohort he was priced off and
+   * the band his rank puts him in is the full-universe repricing showing
+   * itself on screen.
    */
   function cohortRatios(board) {
     /* Keyed on the board REFERENCE, not a bare "have I computed this" flag. A
@@ -10335,8 +10823,15 @@
     if (!best) return null;
     // Decisive match only. A ratio sitting between two cohorts names neither —
     // guessing here is how a caveat starts asserting more than it measured.
-    if (best.d > 0.01 && best.d > 0.05 * Math.abs(r)) return null;
-    if (second && best.d > 0.25 * second.d) return null;
+    // RE-SIZED 2026-08-18: with player_volatility_in_tails ON the ratios inside
+    // a cell carry a per-player CV multiplier and are no longer constant, so an
+    // ABSOLUTE tolerance mis-sizes (it dropped RB16 Javonte Williams, a ruled
+    // full-universe repricing, into the generic fallback). With two or more
+    // cells present, decisiveness is RELATIVE — at least 4x closer to the
+    // named cohort than to any other. Measured on the v27 board this recovers
+    // exactly the nine ruled repricings; at 0.5 it starts inventing two more.
+    if (second) { if (best.d > 0.25 * second.d) return null; }
+    else if (best.d > 0.01 && best.d > 0.05 * Math.abs(r)) return null;
     return best;
   }
 
@@ -10364,11 +10859,17 @@
       + '    Every ' + pos + ' in that band carries the same multiple.\n';
     const rankBand = dispersionBand(p.pos_rank);
     if (rankBand && rankBand.label !== applied.label) {
-      /* E1, visible at the point of use rather than in an audit file. */
-      out += '    !! He is published ' + pos + p.pos_rank + ', which is the ' + rankBand.label
-        + ' band — so his\n'
-        + '       floor and ceiling were priced off a DIFFERENT cohort than his rank.\n'
-        + '       Known defect (register E1); affects the spread, not his ranking.\n';
+      /* The full-universe repricing, visible at the point of use rather than
+       * in an audit file. WORDING RULED 2026-08-18: this was shipped saying
+       * "Known defect (register E1)" — then A ruled the population question
+       * (projections.py:306): pricing off the full-universe rank is CORRECT,
+       * matching how the calibration was fit. The mismatch is expected, and a
+       * caveat calling it a defect was itself the false statement. */
+      out += '    !! He is published ' + pos + p.pos_rank + ' among AVAILABLE players, but his\n'
+        + '       floor and ceiling are priced off his FULL-UNIVERSE rank (keepers\n'
+        + '       counted), which lands in the ' + applied.label + ' band. Expected, not a defect\n'
+        + '       (register E1, ruled 2026-08-18): the calibration was fit on full\n'
+        + '       historical seasons, so the cell is chosen the same way.\n';
     } else if (applied.lo > 1 && Number(p.pos_rank) - applied.lo <= 2) {
       /* The edge is where the cohort figure misleads hardest, so say it on the
        * rows where it bites rather than in a legend nobody opens mid-pick. */
@@ -10442,6 +10943,10 @@
       seat: seat,
       describe: seat && typeof DraftSeat !== 'undefined' ? DraftSeat.describe(seat) : null,
       audit: audit,
+      // The manual-fallback clock, for the rehearsal harness (B's 2026-08-17
+      // first-take find) — the number every pick-dependent surface consumes.
+      clock: currentPick(),
+      myPicks: ((state.data || {}).pick_order || {}).my_picks || [],
       myRoster: (state.myRoster || []).map(p => p.position + ' ' + p.name),
       rosterSlotsSeen: rosterSlotsSeen,
       mock: state.mockMode || null,

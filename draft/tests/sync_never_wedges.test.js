@@ -123,7 +123,15 @@ ck('FAIL ARM — the detector FIRES on the teardown that shipped, so the three '
 {
   const click = (function () {
     const i = SRC.indexOf("$('#start-sync').addEventListener('click'");
-    return i < 0 ? '' : SRC.slice(i, i + 2600);
+    if (i < 0) return '';
+    /* Slice to a SEMANTIC end, not a byte count. This was `i + 2600`, and the
+     * 2026-08-17 room-switch guard (different draft id -> confirm -> reset)
+     * grew the handler past that window, so `new window.DraftSync` fell off
+     * the end and the ordering check below failed on a slice artifact while
+     * the real ordering it protects was intact. Anchor the end just past the
+     * construction the checks reason about instead. */
+    const j = SRC.indexOf('new window.DraftSync', i);
+    return j < 0 ? SRC.slice(i, i + 2600) : SRC.slice(i, j + 200);
   })();
   ck('the click handler is locatable', click.length > 500);
   ck('it detects an already-running sync on the SAME draft and does not build a '
@@ -238,7 +246,11 @@ ck('sync.poll re-arms itself on the FAILURE path too, or "keeps retrying" is '
   // 900 -> 2200 (2026-08-16): the chaos drill widened the catch-branch's status
   // message (mid-draft 4xx vs bad-id, non-JSON bodies), which pushed the re-arm
   // farther from `.catch(` without changing the property this pins.
-  /\.catch\(err => \{[\s\S]{0,2200}?self\.timer = setTimeout\(function \(\) \{ self\.poll\(\); \}, wait\);/
+  // 2200 -> 3600 (2026-08-17): the dead-room classification (404-after-working
+  // = a garbage-collected mock, with its counter and onDeadRoom hook) grew the
+  // same branch again. The property is unchanged: the failure path ends by
+  // re-arming the poll.
+  /\.catch\(err => \{[\s\S]{0,3600}?self\.timer = setTimeout\(function \(\) \{ self\.poll\(\); \}, wait\);/
     .test(SYNC_SRC));
 ck('CONTROL — and it distinguishes a 4xx, which retrying cannot fix, so this is '
   + 'not blind hammering', /will not fix itself by retrying/.test(SYNC_SRC));

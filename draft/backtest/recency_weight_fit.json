@@ -1,0 +1,115 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by recency_weight_fit.py",
+ "_what": "V7 C3: per-position recency weight w for the two-season blend, fitted walk-forward on the 5d-corrected stores. The incumbent 0.7 was hand-set and never measured; a small gap means it was fine and we finally know it.",
+ "incumbent": 0.7,
+ "curves": {
+  "QB": {
+   "per_triple": {
+    "2021-2022->2023": {
+     "n": 20,
+     "best_w": 0.65,
+     "rho_at_best": 0.4586,
+     "rho_at_incumbent_0.7": 0.4421,
+     "gap_incumbent_to_best": 0.0165
+    },
+    "2022-2023->2024": {
+     "n": 20,
+     "best_w": 0.3,
+     "rho_at_best": 0.409,
+     "rho_at_incumbent_0.7": 0.2586,
+     "gap_incumbent_to_best": 0.1504
+    },
+    "2023-2024->2025": {
+     "n": 21,
+     "best_w": 0.05,
+     "rho_at_best": 0.5195,
+     "rho_at_incumbent_0.7": 0.3403,
+     "gap_incumbent_to_best": 0.1792
+    }
+   },
+   "mean_best_w": 0.333,
+   "mean_gap_0.7_to_best": 0.1154
+  },
+  "RB": {
+   "per_triple": {
+    "2021-2022->2023": {
+     "n": 38,
+     "best_w": 0.7,
+     "rho_at_best": 0.6483,
+     "rho_at_incumbent_0.7": 0.6483,
+     "gap_incumbent_to_best": 0.0
+    },
+    "2022-2023->2024": {
+     "n": 41,
+     "best_w": 0.9,
+     "rho_at_best": 0.6591,
+     "rho_at_incumbent_0.7": 0.6427,
+     "gap_incumbent_to_best": 0.0164
+    },
+    "2023-2024->2025": {
+     "n": 38,
+     "best_w": 0.9,
+     "rho_at_best": 0.707,
+     "rho_at_incumbent_0.7": 0.6897,
+     "gap_incumbent_to_best": 0.0173
+    }
+   },
+   "mean_best_w": 0.833,
+   "mean_gap_0.7_to_best": 0.0112
+  },
+  "WR": {
+   "per_triple": {
+    "2021-2022->2023": {
+     "n": 65,
+     "best_w": 0.6,
+     "rho_at_best": 0.7827,
+     "rho_at_incumbent_0.7": 0.7792,
+     "gap_incumbent_to_best": 0.0035
+    },
+    "2022-2023->2024": {
+     "n": 62,
+     "best_w": 0.6,
+     "rho_at_best": 0.6115,
+     "rho_at_incumbent_0.7": 0.6092,
+     "gap_incumbent_to_best": 0.0023
+    },
+    "2023-2024->2025": {
+     "n": 70,
+     "best_w": 0.65,
+     "rho_at_best": 0.7191,
+     "rho_at_incumbent_0.7": 0.7101,
+     "gap_incumbent_to_best": 0.009
+    }
+   },
+   "mean_best_w": 0.617,
+   "mean_gap_0.7_to_best": 0.0049
+  },
+  "TE": {
+   "per_triple": {
+    "2021-2022->2023": {
+     "n": 35,
+     "best_w": 0.7,
+     "rho_at_best": 0.7165,
+     "rho_at_incumbent_0.7": 0.7165,
+     "gap_incumbent_to_best": 0.0
+    },
+    "2022-2023->2024": {
+     "n": 37,
+     "best_w": 0.5,
+     "rho_at_best": 0.602,
+     "rho_at_incumbent_0.7": 0.587,
+     "gap_incumbent_to_best": 0.015
+    },
+    "2023-2024->2025": {
+     "n": 39,
+     "best_w": 0.65,
+     "rho_at_best": 0.6648,
+     "rho_at_incumbent_0.7": 0.6577,
+     "gap_incumbent_to_best": 0.0071
+    }
+   },
+   "mean_best_w": 0.617,
+   "mean_gap_0.7_to_best": 0.0074
+  }
+ }
+}

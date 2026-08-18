@@ -155,6 +155,30 @@
    "timeout_s": 300
   },
   {
+   "id": "replay_league_restated",
+   "description": "Restated league table: the all-seats proxy with the deterministic roster-status filter on the walk-forward board, plus the room_draftable_pool cell promoted to the quoted bracket and computed for every seat. Quotes the original beside itself; never overwrites it.",
+   "owner_module": "draft/tools/replay_league_restated.py",
+   "artifact_path": "draft/data/replay_league_table_restated.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport replay_league_restated as RR\nprint(json.dumps(RR.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
+   "id": "roster_status_exclusions",
+   "description": "Deterministic roster-status exclusions per replay season over the board-agnostic population (any player with a committed game before Y). One list for every replay harness; rule and error directions live in draft_replay_2025.roster_status_exclusions.",
+   "owner_module": "draft/tools/roster_status_exclusions_store.py",
+   "artifact_path": "draft/data/roster_status_exclusions.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport roster_status_exclusions_store as RS\nprint(json.dumps(RS.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
    "id": "props_season_projection_v6_reproduction",
    "description": "props_season_projection's read-only reproduction of own_model_v6's construction (_v6_predictions + _grade_models), checked against own_model_v6's OWN committed artifact rather than props_season_projection's own (which is still pending real historical-props data).",
    "owner_module": "draft/tools/props_season_projection.py",
@@ -191,6 +215,142 @@
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport pace_arm as A\nprint(json.dumps(A.run()))"
    ],
    "timeout_s": 1800
+  },
+  {
+   "id": "lineup_capture",
+   "description": "EXP-35 lineup capture-rate instrument (LAB-REGISTRY row 35): TOOL (the LIVE src/routes/lineup.js optimize(), driven via node) and NAIVE (season-to-date PPG) against the certified per-week hindsight CEILING, dollar-graded through grade_substituted. Inputs are the frozen league_history.json, so drift here means the live lineup module's decision logic changed, not that the board moved. Regeneration needs node on PATH (the runner drives the real JS module, never a port).",
+   "owner_module": "draft/backtest/lineup_capture.py",
+   "artifact_path": "draft/data/lineup_capture_2023_25.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport lineup_capture as LC\nprint(json.dumps(LC.run()))"
+   ],
+   "compare_keys": [
+    "rows",
+    "per_season",
+    "invariants",
+    "headline",
+    "arms_why",
+    "limits"
+   ],
+   "timeout_s": 900
+  },
+  {
+   "id": "opponent_need_2026",
+   "description": "Opponent-need survival layer: need-conditioned tendency tables and the walk-forward calibration delta vs the engine-form baseline (2024-25 real pick gaps). Legitimately drifts when keeper slates (keepers.json / predicted_keepers.json) or the board's position map move \u2014 regenerate after the 08-20 keeper lock.",
+   "owner_module": "draft/backtest/opponent_need_model.py",
+   "artifact_path": "draft/data/opponent_need_2026.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport opponent_need_model as O\nprint(json.dumps(O.build_artifact()))"
+   ]
+  },
+  {
+   "id": "replay_waiver_2023_25",
+   "description": "The WAIVER ARM of the pre-registered three-season replay: ACTUAL / LINEUP_ONLY / NAIVE_WAIVER / TOOL_WAIVER per seat-season 2023-25, graded through money_grade.grade_substituted, with the waiver slice isolated, the season-pool leak detector, and the planted fail-arm. Drives the REAL src/routes/waivers.js via waiver_tool_runner.js (needs node).",
+   "owner_module": "draft/backtest/replay_waiver.py",
+   "artifact_path": "draft/data/replay_waiver_2023_25.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport replay_waiver as RW\nprint(json.dumps(RW.run_all(verbose=False)))"
+   ]
+  },
+  {
+   "id": "projection_error_calibration",
+   "description": "Empirical proj_sd/proj_ceiling/proj_floor by (position, projection-rank band), fitted on realized 2023/2024/2025 outcomes. Register row 4k: built 2026-08-14 and never since, and was not in this registry at all until now \u2014 check_artifact_freshness.py had never looked at it. Pulls real historical bundles + nflverse weekly data (with a play-by-play rebuild fallback for seasons import_weekly_data 404s on) each run, same as draft_replay_2025/replay_all_seats \u2014 STALE is expected between board-affecting inputs changing, not a defect by itself. REGISTERED, NOT REGENERATED: regenerating moves every proj_ceiling and proj_floor on the board, held until after 2026-08-22 per the no-change-before-draft rule.",
+   "owner_module": "draft/backtest/projection_error.py",
+   "artifact_path": "draft/backtest/projection_error_calibration.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport projection_error as PE\ncal = PE.regenerate()\nif cal.get('status') == 'VOID':\n    print(cal.get('reason', 'VOID'), file=sys.stderr)\n    sys.exit(1)\nprint(json.dumps(PE.document(cal)))"
+   ],
+   "timeout_s": 1800
+  },
+  {
+   "id": "expert_spread_2026",
+   "description": "Observed per-player disagreement of individual FantasyPros expert ranks (min/max/spread/std over ~200 experts), 2026 preseason. Display data for the war room \u2014 not a fitted ceiling; the fitted question is EXPERT-SPREAD-CEILING-PREREG's.",
+   "owner_module": "draft/backtest/expert_spread_artifact.py",
+   "artifact_path": "public/expert_spread_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/expert_spread_artifact.py"
+   ]
+  },
+  {
+   "id": "market_upside_2026",
+   "description": "Market-implied P(at-least-threshold) per player season stat from Kalshi real-money ladders (125 players, coherent ladders only, open interest visible). Display data for the war room \u2014 published prices, never a board input.",
+   "owner_module": "draft/backtest/market_upside_artifact.py",
+   "artifact_path": "public/market_upside_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/market_upside_artifact.py"
+   ]
+  },
+  {
+   "id": "own_attribution_2026",
+   "description": "EXACT per-player layer attribution for own_v6 (pipeline deltas: OLS base / market / QB availability / components). Read-only over the model; exists so the post-08-22 blend ruling argues with named layers. Cory's order 08-18.",
+   "owner_module": "draft/backtest/own_attribution.py",
+   "artifact_path": "draft/backtest/own_attribution_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/own_attribution.py"
+   ]
+  },
+  {
+   "id": "age_curve_2026",
+   "description": "V7 C1: fitted age curves (year-over-year points ratio by position x age, 2021-25, survivorship-declared). Measurement artifact \u2014 feeds the v7 candidate, wired nowhere yet.",
+   "owner_module": "draft/backtest/age_curve_fit.py",
+   "artifact_path": "draft/backtest/age_curve_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/age_curve_fit.py"
+   ]
+  },
+  {
+   "id": "recency_weight_fit",
+   "description": "V7 C3: per-position recency blend weights fitted walk-forward on 5d-corrected stores. Headline: QB best w=0.33 vs the hand-set 0.7 (rho gap 0.115) \u2014 one global constant hid a position-specific error at exactly the position own_v6 loses.",
+   "owner_module": "draft/backtest/recency_weight_fit.py",
+   "artifact_path": "draft/backtest/recency_weight_fit.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/recency_weight_fit.py"
+   ]
+  },
+  {
+   "id": "ridge_arm_fit",
+   "description": "V7 C2: Ridge vs OLS on v2's 4-parameter fit, nested walk-forward alpha. Verdict: null-to-marginal (gaps 0.000-0.014, second transitions ~0) \u2014 exactly the stated prior; C2 closes unless the harness contradicts.",
+   "owner_module": "draft/backtest/ridge_arm_fit.py",
+   "artifact_path": "draft/backtest/ridge_arm_fit.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/ridge_arm_fit.py"
+   ]
+  },
+  {
+   "id": "variance_inputs_2026",
+   "description": "Per-player weekly cv + class means the war room's variance portfolio reads. Registered 2026-08-18 after the 05:33Z rebuild caught it stale in the OPPOSITE direction from register 34's board case \u2014 the artifact partitioned 156 RBs against a board carrying 158. Reads the LIVE board, so it must regenerate with every publish.",
+   "owner_module": "draft/tools/variance_portfolio.py",
+   "artifact_path": "draft/data/variance_inputs_2026.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft')\nimport variance_portfolio as V\nprint(json.dumps(V.run()))"
+   ]
+  },
+  {
+   "id": "v7_candidate_grade",
+   "description": "V7 candidates C1 (leak-free age curves) and C3 (leak-free fitted recency) graded one-at-a-time on the reproduced own_v6 stack, both metric families, section-3 decision rule. 2026-08-18: both NO SHIP.",
+   "owner_module": "draft/backtest/v7_candidate_grade.py",
+   "artifact_path": "draft/backtest/v7_candidate_grade.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport v7_candidate_grade as V\nprint(json.dumps(V.run()))"
+   ]
   }
  ],
  "_not_yet_migrated": [
@@ -225,5 +385,6 @@
   "ROUTES.md) \u2014 none of its tests currently carry repo_parity, so there is",
   "nothing to migrate yet, but a future pass should check again once that",
   "study lands before assuming it is clear."
- ]
+ ],
+ "_board_is_not_an_entry": "public/draft_data.json is deliberately NOT registered here, and the absence is named rather than silent (2026-08-18): the board is not a pure no-arg recompute \u2014 build.py needs egress fetches, so a regenerate_command would either fail in sandboxes or silently compare against stale fetch caches. Its freshness is covered in the other direction: board_input_staleness.js checks every declared input predates the board, and the draft-data.yml gate refuses any publish whose fresh board fails the suite."
 }

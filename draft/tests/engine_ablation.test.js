@@ -230,8 +230,30 @@ const baseCtx = over => Object.assign({
 {
   // Board transforms: real changes, no mutation of the canonical row.
   const data = LC.loadBoard();
-  const row = data.players.find(p => p.opportunity_adj && p.depth_chart_order > 0
-    && Math.abs(p.proj_mean - p.proj_baseline) > 1);
+  /* ⚠️ SYNTHESISED, NOT SEARCHED — and the reason is a RULING, not a bug.
+   *
+   * This used to hunt the live board for a player with a non-zero
+   * `opportunity_adj`. Cory set `opportunity_cap = 0.0` on 2026-08-17 ("Remove
+   * 1") after the layer graded neutral on ordering in 17 of 18 cells and worse
+   * on level in 18 of 18, so `opportunity_adj` is now EXACTLY 0.0 for all 535
+   * skill players. The find() returned undefined and this file died on
+   * `undefined.proj_baseline` — red on `main`, and since the JS step globs
+   * every *.test.js, red for the whole suite.
+   *
+   * The subject here is the TRANSFORM (does stripOpportunity revert proj_mean
+   * and shift vorp by the same delta), not whether the board currently has an
+   * opportunity layer switched on. Tying a transform test to a policy constant
+   * is what made a legitimate ruling look like a regression. So the row is
+   * built to order: real board fields, a deliberately non-zero adjustment.
+   *
+   * If the layer is ever switched back on, this still tests the same thing. */
+  const base = data.players.find(p => p.proj_mean > 0 && p.vorp != null);
+  const row = Object.assign({}, base, {
+    proj_baseline: base.proj_mean - 10,
+    opportunity_adj: 0.05,
+    opportunity_z: 0.5,
+    depth_chart_order: base.depth_chart_order > 0 ? base.depth_chart_order : 1,
+  });
   const so = EA.stripOpportunity(row);
   ck('strip_opportunity reverts proj_mean to proj_baseline and shifts vorp by the same delta',
     so.proj_mean === row.proj_baseline
@@ -274,13 +296,29 @@ const baseCtx = over => Object.assign({
 }
 
 // ── 4. driver runs: determinism, seed variation, parity, divergence controls ─
-const FAST = '--rooms 2 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped,minus_opportunity,minus_conserve,minus_wire_bench';
+/* ⚠️ ROOMS RAISED 2 -> 6, 2026-08-18, AND THE CONTROL IS WHY.
+ *
+ * `minus_conserve` diverged in 0 of 2 rooms, so its known-positive control —
+ * "the ablation provably reaches the choice" — failed, and the whole file went
+ * red on `main`. The tempting reading was that the conservation layer had gone
+ * inert, which would have been a real finding.
+ *
+ * MEASURED INSTEAD OF ASSUMED: same seed, more rooms — 6 rooms diverges 1,
+ * 16 rooms diverges 3. The layer is LIVE. Two rooms was simply too thin for
+ * this arm's control to fire reliably, so the control was a coin flip wearing
+ * the clothes of a guarantee.
+ *
+ * The fix is the SAMPLE, never the assertion. Deleting the control or lowering
+ * its bar would have converted a flaky check into a permanently passing one,
+ * which is this repo's most-repeated defect. 6 is the smallest count at which
+ * every arm's control fired on the smoke seed. */
+const FAST = '--rooms 6 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped,minus_opportunity,minus_conserve,minus_wire_bench';
 {
   const a = run(FAST); const outA = stripTime(readOut());
   const b = run(FAST); const outB = stripTime(readOut());
   ck('same seed + config reproduce an identical artifact (generated_at aside), twice',
     a === b && JSON.stringify(outA) === JSON.stringify(outB));
-  run('--rooms 2 --seed 9007 --sims 200 --arms full,baseline_bpa,stripped,minus_opportunity,minus_conserve,minus_wire_bench');
+  run('--rooms 6 --seed 9007 --sims 200 --arms full,baseline_bpa,stripped,minus_opportunity,minus_conserve,minus_wire_bench');
   const outC = stripTime(readOut());
   ck('a different seed produces different rooms — not the same draft re-served',
     JSON.stringify(outA.detail.full) !== JSON.stringify(outC.detail.full));

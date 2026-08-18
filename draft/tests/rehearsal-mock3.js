@@ -104,8 +104,15 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
    * and help view are deliberately not .card so this census stays meaningful.
    * 18 → 19 (2026-08-16): the ADP-movers card (Cory: "a small screen on war
    * room showing the top 10 ADP movers up and top 10 down") joined the Zone-2
-   * rail — one real card added by warroom.ejs, counted the day it landed. */
-  check('nothing was deleted — 19 cards survive the restructure', layout.cards === 19, 'cards=' + layout.cards);
+   * rail — one real card added by warroom.ejs, counted the day it landed.
+   * 19 → 18 (2026-08-17, B): NOT a deletion. Cory's "easily see the last 5-8
+   * picks" ask moved the Recent Picks card from ROSTERS (a plain .card) to
+   * the top of the DRAFT tab's right rail — restyled as a .wr-railcard to
+   * match the other rail cards it now sits beside (Running Out, Tier Cliffs,
+   * Survival), so it no longer matches this census's own selector. The
+   * content and the element both still exist; only the class changed, on
+   * purpose, per the design language already governing that rail. */
+  check('nothing was deleted — 18 .card elements survive the restructure (+1 .wr-railcard the census does not count, see above)', layout.cards === 18, 'cards=' + layout.cards);
 
   // ---- SEAT IDENTITY (mock #1 severity-1) ---------------------------------
   const seat = await page.evaluate(() => window.__wrDiag());
@@ -150,6 +157,38 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
    * at the merge baseline too, so this was a stale expectation, not a
    * redesign regression. What must hold: the clock MOVES off the anchor and
    * counts the marks. */
+  // B's 2026-08-17 rehearsal find: the fallback clock broke on the FIRST take
+  // when ONLY my own pick is marked (no opponent marks) — pickEvents=1 read
+  // "pick 2" while the pick landed at overall 33. The fix bounds the manual
+  // clock below by my last recorded slot + 1. Reproduced here in the real UI:
+  // hard-reset, take mine with zero opponent marks, read the clock.
+  await page.evaluate(() => { const b = document.getElementById('end-draft'); if (b) b.click(); });
+  await page.waitForTimeout(500);
+  await page.evaluate(() => {
+    const i = document.getElementById('ec-input');
+    if (i) { i.value = 'END'; i.dispatchEvent(new Event('input', { bubbles: true })); }
+  });
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const g = document.getElementById('ec-go');
+    if (g && !g.disabled) g.click();
+  });
+  await page.waitForTimeout(1200);
+  const firstTakeClock = await page.evaluate(() => {
+    const before = (window.__wrDiag && window.__wrDiag().clock) || null;
+    const take = document.querySelector('#verdict-block .btn.gold')
+      || document.querySelector('.wrv-take, #clock-take');
+    if (take) take.click();
+    return new Promise(r => setTimeout(() => {
+      const d = window.__wrDiag ? window.__wrDiag() : {};
+      r({ before: before, after: d.clock || null, myFirst: (d.myPicks || [])[0] || null });
+    }, 600));
+  });
+  check('FALLBACK CLOCK: first solo take moves the clock PAST my slot, not to pick 2',
+    firstTakeClock.after == null || firstTakeClock.myFirst == null
+      || firstTakeClock.after > firstTakeClock.myFirst,
+    JSON.stringify(firstTakeClock));
+
   check('THE CLOCK ADVANCES in manual mode (mock #2 froze at 34)',
         before != null && after != null && after !== before && after === marked + 1,
         `before=${before} after=${after} marked=${marked}`);

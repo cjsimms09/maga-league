@@ -1,0 +1,65 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/snap_share_arm.py",
+ "preregistration": "draft/backtest/SNAP-SHARE-PREREG.md",
+ "status": "graded",
+ "min_weeks": 8,
+ "permutations": 400,
+ "seed": 20260817,
+ "folds": {
+  "2021->2022": {
+   "population": {
+    "snap_and_points_y0": 436,
+    "also_in_points_y1": 354,
+    "lost_at_join": 82
+   },
+   "collinearity_snapshare_vs_prior_points": 0.8397,
+   "partial_rho_snapshare_given_prior_points": 0.1397,
+   "control_rho_next_points_vs_prior_points": 0.7741,
+   "raw_rho_next_points_vs_snapshare": 0.698,
+   "null_p95": 0.079,
+   "beats_null_p95": true
+  },
+  "2022->2023": {
+   "population": {
+    "snap_and_points_y0": 428,
+    "also_in_points_y1": 344,
+    "lost_at_join": 84
+   },
+   "collinearity_snapshare_vs_prior_points": 0.8105,
+   "partial_rho_snapshare_given_prior_points": 0.0604,
+   "control_rho_next_points_vs_prior_points": 0.7071,
+   "raw_rho_next_points_vs_snapshare": 0.5981,
+   "null_p95": 0.079,
+   "beats_null_p95": false
+  },
+  "2023->2024": {
+   "population": {
+    "snap_and_points_y0": 430,
+    "also_in_points_y1": 362,
+    "lost_at_join": 68
+   },
+   "collinearity_snapshare_vs_prior_points": 0.8292,
+   "partial_rho_snapshare_given_prior_points": -0.02,
+   "control_rho_next_points_vs_prior_points": 0.7366,
+   "raw_rho_next_points_vs_snapshare": 0.6032,
+   "null_p95": 0.0857,
+   "beats_null_p95": false
+  },
+  "2024->2025": {
+   "population": {
+    "snap_and_points_y0": 434,
+    "also_in_points_y1": 358,
+    "lost_at_join": 76
+   },
+   "collinearity_snapshare_vs_prior_points": 0.8194,
+   "partial_rho_snapshare_given_prior_points": 0.1387,
+   "control_rho_next_points_vs_prior_points": 0.7599,
+   "raw_rho_next_points_vs_snapshare": 0.6743,
+   "null_p95": 0.0903,
+   "beats_null_p95": true
+  }
+ },
+ "ship_rule": "partial rho > 0 AND beats null p95 in ALL FOUR folds",
+ "clears": false,
+ "note": "control_rho_next_points_vs_prior_points IS naive_prev's ranking performance on the same population \u2014 the bar the prereg says a signal must clear, not just the permutation null."
+}

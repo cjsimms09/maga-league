@@ -1,0 +1,89 @@
+name: Projection spread capture — census stage 2
+
+# TERRITORY: C — dispatches draft/backtest/discovery_projection_spread_capture.py.
+
+# Routed 2026-08-18 (ROUTES.md, A -> C): stage 2 of the ffanalytics ask.
+# Stage 1 found cbs/espn/numberfire/fftoday/fantasyfootballnerd/
+# walterfootball reachable; this parses real 2026 season projection tables
+# from those six and publishes public/projection_spread_2026.json (display
+# only, per-player n_sources/min/median/max/spread) IF at least 3 sources
+# clear a PLANTED-VALUE CONTROL (a real, current top-15 player from our own
+# board found in the parsed table) — not a mere HTTP 200.
+#
+# fantasyfootballnerd is not attempted (needs a paid API key we don't hold,
+# named rather than guessed at). ESPN is best-effort (a documented but
+# unverified JSON field). Neither result blocks the other four.
+#
+# WHAT THIS DOES NOT DO: touch the board, proj_ceiling, proj_mean, or any
+# ceiling/floor. Display-only, per the ask -- the graded use stays
+# post-draft per prereg discipline.
+#
+# DISPATCH THIS FROM `main`, NOT A WORKTREE BRANCH — same push-guard reason
+# named in every other fetch workflow this week.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: projection-spread-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install requests pandas lxml html5lib beautifulsoup4 openpyxl pytest
+
+      - name: The capture logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_discovery_projection_spread_capture.py -q
+
+      - name: Capture and validate all six sources
+        run: python3 draft/backtest/discovery_projection_spread_capture.py
+
+      - name: Confirm the live board and calibration were not touched
+        run: |
+          if ! git diff --quiet -- draft/backtest/projection_error_calibration.json public/draft_data.json; then
+            echo "::error::capture touched the live board or calibration. This must never happen -- aborting without committing anything."
+            git diff --stat -- draft/backtest/projection_error_calibration.json public/draft_data.json
+            exit 1
+          fi
+          echo "confirmed: live board and calibration are untouched"
+
+      - name: Commit the capture result
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::capture result is in this run's log and is"
+            echo "::warning::deliberately NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          # The public artifact is only written when >=3 sources clear the
+          # planted-value control — a refusal is a REAL ANSWER and must still
+          # commit the discovery record. Adding the missing path unconditionally
+          # made `git add` exit 128 on exactly that outcome (run 32101016651:
+          # 1/6 validated, refusal correct, verdict stranded in the log —
+          # register row 23's defect class, reproduced by the fix's own guard).
+          git add draft/backtest/discovery_projection_spread_capture.json
+          [ -f public/projection_spread_2026.json ] && git add public/projection_spread_2026.json
+          if ! git diff --cached --quiet; then
+            git commit -m "discovery_projection_spread_capture: census stage 2 -- real 2026 projection tables, planted-value validated, display-only [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — the capture already matches what was on disk"

@@ -1,0 +1,136 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by discovery_fp_adp_field_census.py",
+ "url": "https://api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+ "diag": {
+  "page_url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2026",
+  "api_tried": [
+   {
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2026&csv=1",
+    "rows": 5,
+    "keyed": true
+   },
+   {
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2026&json=1",
+    "rows": 5,
+    "keyed": true
+   },
+   {
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2026&export=csv",
+    "rows": 5,
+    "keyed": true
+   },
+   {
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2026&scoring=HALF&json=1",
+    "rows": 5,
+    "keyed": true
+   },
+   {
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.json?year=2026",
+    "err": "HTTPError",
+    "keyed": true
+   },
+   {
+    "url": "https://api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+    "rows": 353,
+    "keyed": true
+   }
+  ],
+  "bundle_key_found": false,
+  "bundle_api_urls": [
+   "//cdn.fantasypros.com/assets/js/min/player-videos-c38605339d53913c4ce9.js",
+   "//cdn.fantasypros.com/assets/js/min/static/player-cards-634cb58567c25514ed2d.js",
+   "//images.fantasypros.com/images/players/",
+   "/ajax/gmlnav.php",
+   "/ajax/myplaybook.php",
+   "/api/c1/user-get-favorite-links.php",
+   "/api/c1/user-update-favorite-links.php",
+   "/experts/rtsports-adp.php",
+   "/experts/sleeper-adp.php",
+   "/experts/yahoo-adp.php",
+   "/fantasy-football-rankings",
+   "/nfl/adp/best-ball-overall.php",
+   "/nfl/adp/dst.php",
+   "/nfl/adp/half-point-ppr-overall.php",
+   "/nfl/adp/half-point-ppr-overall.php?year=2015",
+   "/nfl/adp/half-point-ppr-overall.php?year=2016",
+   "/nfl/adp/half-point-ppr-overall.php?year=2017",
+   "/nfl/adp/half-point-ppr-overall.php?year=2018",
+   "/nfl/adp/half-point-ppr-overall.php?year=2019",
+   "/nfl/adp/half-point-ppr-overall.php?year=2020",
+   "/nfl/adp/half-point-ppr-overall.php?year=2021",
+   "/nfl/adp/half-point-ppr-overall.php?year=2022",
+   "/nfl/adp/half-point-ppr-overall.php?year=2023",
+   "/nfl/adp/half-point-ppr-overall.php?year=2024",
+   "/nfl/adp/half-point-ppr-overall.php?year=2025",
+   "/nfl/adp/half-point-ppr-overall.php?year=2026",
+   "/nfl/adp/half-point-ppr-rb.php",
+   "/nfl/adp/half-point-ppr-superflex.php",
+   "/nfl/adp/half-point-ppr-te.php",
+   "/nfl/adp/half-point-ppr-wr.php",
+   "/nfl/adp/k.php",
+   "/nfl/adp/overall.php",
+   "/nfl/adp/ppr-overall.php",
+   "/nfl/adp/qb.php",
+   "/nfl/adp/rookies.php",
+   "/nfl/players/bijan-robinson.php",
+   "/nfl/players/christian-mccaffrey.php",
+   "/nfl/players/jahmyr-gibbs.php",
+   "/nfl/players/jamarr-chase.php",
+   "/nfl/players/puka-nacua.php"
+  ],
+  "key_found_in": "/icon-nav/bundle-fe4236049f4b13608214.js",
+  "bundle_len": 1607403,
+  "api_ok": "https://api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0"
+ },
+ "observed_fields": {
+  "ceiling": [],
+  "floor": [],
+  "range": [],
+  "adp": [
+   "rank_ave"
+  ]
+ },
+ "unclassified": [
+  "cbs_player_id",
+  "count",
+  "filters",
+  "last_updated",
+  "last_updated_ts",
+  "player_bye_week",
+  "player_ecr_delta",
+  "player_eligibility",
+  "player_filename",
+  "player_id",
+  "player_image_url",
+  "player_name",
+  "player_owned_avg",
+  "player_owned_espn",
+  "player_owned_yahoo",
+  "player_page_url",
+  "player_position_id",
+  "player_positions",
+  "player_short_name",
+  "player_square_image_url",
+  "player_team_id",
+  "player_yahoo_id",
+  "player_yahoo_positions",
+  "players",
+  "pos_rank",
+  "position_id",
+  "rank_ecr",
+  "rank_max",
+  "rank_min",
+  "rank_std",
+  "ranking_type_name",
+  "scoring",
+  "sport",
+  "sportsdata_id",
+  "tier",
+  "total_experts",
+  "type",
+  "week",
+  "year"
+ ],
+ "range_field_found": false,
+ "verdict": "NULL \u2014 no Best/Worst/std-dev-shaped field in this response either. See `unclassified` before concluding absence \u2014 FantasyPros may still gate this behind a different endpoint or a paid tier this fetch cannot see."
+}

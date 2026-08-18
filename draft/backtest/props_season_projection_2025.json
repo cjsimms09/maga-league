@@ -1,19 +1,287 @@
 {
  "_territory": "TERRITORY: A \u2014 produced by draft/tools/props_season_projection.py",
- "status": "pending_real_data",
- "why": "historical_props_2025.json does not exist \u2014 no real historical props have been fetched yet. Dispatching historical-props-fetch.yml (real ODDS_API_KEY credits) is a human decision (ROUTES.md TO:A); this refusal is the honest artifact until that store is committed.",
- "tested_on_fixtures": [
-  "line_to_points",
-  "week_implied_points",
-  "season_implied_totals",
-  "normalize_name",
-  "match_player_name",
-  "crosswalk_props_to_pid",
-  "grade_props_vs_v6 (parity of the v6 reproduction against the committed model_accuracy_v6.json)"
- ],
- "pending_real_data": [
-  "draft/backtest/historical_props_2023.json",
-  "draft/backtest/historical_props_2024.json",
-  "draft/backtest/historical_props_2025.json"
- ]
+ "_note": "Props-implied season-total projection (weekly consensus prop lines, summed under the frozen scoring table) vs own_v6, leak-free per-week (no line reads a result), with the in-season-information asymmetry named in the module docstring. Preregistered in props_season_projection.py before this artifact existed.",
+ "preregistration": "props_season_projection.py module docstring (committed first)",
+ "status": "graded",
+ "graded_season": 2025,
+ "coverage": {
+  "props_forecasts": 424,
+  "unmatched_names": [
+   "Cameron Ward",
+   "Gabe Davis",
+   "Hollywood Brown",
+   "Zonovan Knight"
+  ],
+  "unmatched_count": 4,
+  "weeks_in_store": 18
+ },
+ "arm_2025": {
+  "models": {
+   "props_season": {
+    "cells": {
+     "QB": {
+      "n": 57,
+      "status": "measured",
+      "mae": 40.26,
+      "bias": -33.96,
+      "spearman": 0.9675
+     },
+     "RB": {
+      "n": 104,
+      "status": "measured",
+      "mae": 50.17,
+      "bias": -50.05,
+      "spearman": 0.9581
+     },
+     "WR": {
+      "n": 161,
+      "status": "measured",
+      "mae": 34.57,
+      "bias": -34.45,
+      "spearman": 0.9413
+     },
+     "TE": {
+      "n": 82,
+      "status": "measured",
+      "mae": 31.47,
+      "bias": -31.45,
+      "spearman": 0.918
+     }
+    },
+    "forecasts": 424,
+    "excluded_no_weekly_row": 2
+   },
+   "own_v6": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 72.29,
+      "bias": 10.87,
+      "spearman": 0.7225
+     },
+     "RB": {
+      "n": 100,
+      "status": "measured",
+      "mae": 37.19,
+      "bias": 2.3,
+      "spearman": 0.7991
+     },
+     "WR": {
+      "n": 152,
+      "status": "measured",
+      "mae": 33.28,
+      "bias": 8.57,
+      "spearman": 0.7695
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 23.33,
+      "bias": 2.12,
+      "spearman": 0.7987
+     }
+    },
+    "forecasts": 510,
+    "excluded_no_weekly_row": 116
+   },
+   "naive_prev": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 78.89,
+      "bias": 11.64,
+      "spearman": 0.708
+     },
+     "RB": {
+      "n": 100,
+      "status": "measured",
+      "mae": 42.01,
+      "bias": 9.01,
+      "spearman": 0.7648
+     },
+     "WR": {
+      "n": 152,
+      "status": "measured",
+      "mae": 37.28,
+      "bias": 12.05,
+      "spearman": 0.7401
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 26.73,
+      "bias": 2.69,
+      "spearman": 0.744
+     }
+    },
+    "forecasts": 582,
+    "excluded_no_weekly_row": 116
+   },
+   "recency_blend": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 74.09,
+      "bias": 9.77,
+      "spearman": 0.7213
+     },
+     "RB": {
+      "n": 100,
+      "status": "measured",
+      "mae": 41.5,
+      "bias": 7.63,
+      "spearman": 0.7711
+     },
+     "WR": {
+      "n": 152,
+      "status": "measured",
+      "mae": 36.44,
+      "bias": 12.56,
+      "spearman": 0.7406
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 24.04,
+      "bias": 2.36,
+      "spearman": 0.7871
+     }
+    },
+    "forecasts": 582,
+    "excluded_no_weekly_row": 116
+   }
+  },
+  "head_to_head_shared_population": {
+   "QB": {
+    "n": 45,
+    "status": "measured",
+    "props_season": {
+     "mae": 45.38,
+     "spearman": 0.9631
+    },
+    "own_v6": {
+     "mae": 78.38,
+     "spearman": 0.6555
+    },
+    "naive_prev": {
+     "mae": 87.51,
+     "spearman": 0.6148
+    },
+    "recency_blend": {
+     "mae": 80.61,
+     "spearman": 0.6559
+    }
+   },
+   "RB": {
+    "n": 78,
+    "status": "measured",
+    "props_season": {
+     "mae": 54.03,
+     "spearman": 0.9671
+    },
+    "own_v6": {
+     "mae": 41.84,
+     "spearman": 0.7443
+    },
+    "naive_prev": {
+     "mae": 49.52,
+     "spearman": 0.6675
+    },
+    "recency_blend": {
+     "mae": 48.26,
+     "spearman": 0.6964
+    }
+   },
+   "WR": {
+    "n": 129,
+    "status": "measured",
+    "props_season": {
+     "mae": 36.81,
+     "spearman": 0.9448
+    },
+    "own_v6": {
+     "mae": 35.88,
+     "spearman": 0.7019
+    },
+    "naive_prev": {
+     "mae": 40.95,
+     "spearman": 0.6532
+    },
+    "recency_blend": {
+     "mae": 39.94,
+     "spearman": 0.6581
+    }
+   },
+   "TE": {
+    "n": 68,
+    "status": "measured",
+    "props_season": {
+     "mae": 30.02,
+     "spearman": 0.9348
+    },
+    "own_v6": {
+     "mae": 26.73,
+     "spearman": 0.7437
+    },
+    "naive_prev": {
+     "mae": 31.19,
+     "spearman": 0.6719
+    },
+    "recency_blend": {
+     "mae": 27.89,
+     "spearman": 0.7312
+    }
+   }
+  }
+ },
+ "promotion_bar_vs_v6": {
+  "bar": "props_season beats own_v6 on BOTH metrics (lower MAE, higher Spearman) at ALL FOUR positions, shared population with own_v6/naive_prev/recency_blend \u2014 preregistered in props_season_projection.py before any real grade existed",
+  "per_position": {
+   "QB": {
+    "mae_beats_v6": true,
+    "spearman_beats_v6": true,
+    "props_mae": 45.38,
+    "own_v6_mae": 78.38,
+    "mae_delta": -33.0,
+    "props_spearman": 0.9631,
+    "own_v6_spearman": 0.6555,
+    "spearman_delta": 0.3076
+   },
+   "RB": {
+    "mae_beats_v6": false,
+    "spearman_beats_v6": true,
+    "props_mae": 54.03,
+    "own_v6_mae": 41.84,
+    "mae_delta": 12.19,
+    "props_spearman": 0.9671,
+    "own_v6_spearman": 0.7443,
+    "spearman_delta": 0.2228
+   },
+   "WR": {
+    "mae_beats_v6": false,
+    "spearman_beats_v6": true,
+    "props_mae": 36.81,
+    "own_v6_mae": 35.88,
+    "mae_delta": 0.93,
+    "props_spearman": 0.9448,
+    "own_v6_spearman": 0.7019,
+    "spearman_delta": 0.2429
+   },
+   "TE": {
+    "mae_beats_v6": false,
+    "spearman_beats_v6": true,
+    "props_mae": 30.02,
+    "own_v6_mae": 26.73,
+    "mae_delta": 3.29,
+    "props_spearman": 0.9348,
+    "own_v6_spearman": 0.7437,
+    "spearman_delta": 0.1911
+   }
+  },
+  "clears": false
+ },
+ "in_season_information_asymmetry": "props-implied totals absorb in-season role/injury information own_v6 (a preseason forecast) cannot see by construction \u2014 a props win here answers 'how much is on the table given in-season market access', not 'should the preseason board switch to this' \u2014 see the module docstring for the full statement, preregistered before this grade ran"
 }

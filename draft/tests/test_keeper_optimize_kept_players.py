@@ -16,6 +16,8 @@ After the fix it recommends keep 3 at +108.7 surplus, which independently
 matches the +108.6 a separate analysis reached by working around the bug.
 """
 import json
+
+import pytest
 import subprocess
 import sys
 from pathlib import Path
@@ -36,13 +38,21 @@ def test_designated_keepers_live_outside_the_players_list():
         assert str(k.get("player_id")) not in ids
 
 
-def test_kept_players_carry_proj_mean_but_not_vorp():
-    # Why the fix recomputes VORP instead of reading it: the keeper prune runs
-    # BEFORE vorp.apply_vorp, so these rows never receive one.
+@pytest.mark.repo_parity
+def test_kept_players_carry_proj_mean_AND_stamped_vorp():
+    # CONTRACT FLIPPED 2026-08-18 (E's sweep 16, A's source ruling): the old
+    # pin asserted vorp is None here BECAUSE the keeper prune runs before
+    # apply_vorp — and that None is exactly what engine.js's (vorp || 0)
+    # turned into a confident zero, making the keeper badge name the wrong
+    # man at pick 33. build.py now stamps keeper vorp from the board's own
+    # identity (proj_mean − replacement[pos]); this module's recompute keeps
+    # working either way. A None here is the badge lie coming back.
     art = json.loads(BOARD.read_text())
     for k in (art.get("kept_players") or []):
         assert k.get("proj_mean") is not None, k.get("name")
-        assert k.get("vorp") is None, k.get("name")
+        assert k.get("vorp") is not None, (
+            f"{k.get('name')}: kept without vorp — the (vorp || 0) badge-lie "
+            "input is back on the board (sweep 16)")
 
 
 def test_optimizer_recommends_the_real_keepers_not_a_kicker():

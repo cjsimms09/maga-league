@@ -111,15 +111,32 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
   // The asymmetry that makes this definition worth having: the SAME projection
   // classifies differently at different ranks, because the measured spread
   // differs by band. A rank-blind rule could not do this.
-  const cell1 = CAL.cells['RB|1-3'], cell2 = CAL.cells['RB|33+'];
-  ck('CONTROL — the measured p90 ratio really does differ across RB bands '
-    + '(1-3: ' + cell1.p90_ratio.toFixed(3) + ', 33+: ' + cell2.p90_ratio.toFixed(3) + ')',
+  /* 'RB|1-3' until 2026-08-17: the Cory-ruled calibration regeneration on
+   * real 2023-25 outcomes REFUSES that band (n=6 < min_n 8, status
+   * unmeasurable, every ratio null) — which is the honest answer, and
+   * upside_class.classify() returns null for it by design (line ~164). The
+   * control moves to the shallowest MEASURED band; the property (spread
+   * differs by band) is unchanged.
+   *
+   * RB again 2026-08-17 (same regeneration, second consequence — a FINDING,
+   * recorded here on purpose): RB p90_ratio is now nearly FLAT across every
+   * measured band (4-8: 1.812, 9-16: 1.785, 17-32: 1.768, 33+: 1.794 — max
+   * spread 0.044), so RB can no longer carry a "bands genuinely differ"
+   * control at the 0.2 threshold. Verified before moving the pin: RB's cells
+   * have distinct n (10/16/32/151) and the other ratios (p10, p50, sd) DO
+   * differ by band, so this is a measurement result about RB top-decile
+   * seasons, not a recurrence of the constant-multiple defect. The control
+   * moves to QB, where bands differ monotonically (4-8: 1.586, 33+: 1.223);
+   * the rank-aware property is re-asserted on QB rows for the same reason. */
+  const cell1 = CAL.cells['QB|4-8'], cell2 = CAL.cells['QB|33+'];
+  ck('CONTROL — the measured p90 ratio really does differ across QB bands '
+    + '(4-8: ' + cell1.p90_ratio.toFixed(3) + ', 33+: ' + cell2.p90_ratio.toFixed(3) + ')',
     Math.abs(cell1.p90_ratio - cell2.p90_ratio) > 0.2);
-  const m = REPL.RB / cell2.p90_ratio + 1;   // clears p90 at 33+
+  const m = REPL.QB / cell2.p90_ratio + 1;   // clears p90 at 33+
   ck('the same projection can be SWING deep and ANCHOR early — the class is '
     + 'rank-aware, not a projection threshold in disguise',
-    UC.classify(row('RB', 40, m)) === 'SWING'
-    && UC.classify(row('RB', 2, m * 3)) === 'ANCHOR');
+    UC.classify(row('QB', 40, m)) === 'SWING'
+    && UC.classify(row('QB', 5, m * 3)) === 'ANCHOR');
 }
 {
   ck('a K or DEF row is NA — the calibration is offence-only and onesie timing '
@@ -151,9 +168,34 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
   // clothes. Kept as the exact count so a change in board coverage is visible.
   const zeroProj = board.players.filter(p => ['QB', 'RB', 'WR', 'TE']
     .indexOf(p.position) >= 0 && !(Number(p.proj_mean) > 0)).length;
-  ck('every UNMEASURED row is UNMEASURED for one nameable reason — a zero/absent '
-    + 'projection (' + c.UNMEASURED + ' rows), never a missing calibration cell',
-    c.UNMEASURED === zeroProj && c.UNMEASURED > 0, { unmeasured: c.UNMEASURED, zeroProj });
+  /* 2026-08-17, calibration regenerated on Cory's ruling: there is now a
+   * SECOND nameable reason. The regenerated artifact honestly refuses every
+   * 1-3 band (QB/RB/WR/TE|1-3 all carry status "unmeasurable", n=6 or 5
+   * against min_n 8, all ratios null), so the 12 top-3 skill rows are
+   * UNMEASURED because their CELL is unmeasurable, not because their
+   * projection is missing. The pin below names both reasons and requires the
+   * union to be EXACT — a row unmeasured for any third, unnameable reason
+   * still fails. Old pin: c.UNMEASURED === zeroProj (82 === 82); the 12-row
+   * delta appeared when the regeneration nulled the 1-3 cells. */
+  const cellUnmeasurable = board.players.filter(p => {
+    if (['QB', 'RB', 'WR', 'TE'].indexOf(p.position) < 0) return false;
+    if (!(Number(p.proj_mean) > 0)) return false;          // counted above
+    const cell = CAL.cells[p.position + '|' + UC.bandOf(UC.rankOf(p))];
+    return !!cell && cell.status === 'unmeasurable'
+      && cell.n < CAL.min_n && cell.p90_ratio == null;
+  }).length;
+  /* Re-pinned 2026-08-18 (v25 sweep): the clean 4s regeneration measures ALL
+   * 20 cells (the 1-3 refusals were the dropped-2025 symptom — n=6 was two
+   * seasons, n=9 is three), so the second reason currently has ZERO
+   * instances. It stays NAMED and counted, because the next honest
+   * recalibration can repopulate it; what may never happen is a third,
+   * unnameable reason — the union must still be exact. */
+  ck('every UNMEASURED row is UNMEASURED for one of exactly two nameable reasons '
+    + '— a zero/absent projection (' + zeroProj + ' rows) or an unmeasurable '
+    + 'calibration cell, n < min_n ' + CAL.min_n + ' with null ratios ('
+    + cellUnmeasurable + ' rows) — never anything unnamed',
+    c.UNMEASURED === zeroProj + cellUnmeasurable && zeroProj > 0,
+    { unmeasured: c.UNMEASURED, zeroProj, cellUnmeasurable });
   ck('K/DEF are exactly the NA set — no skill row lands there',
     c.NA === board.players.filter(p => p.position === 'K' || p.position === 'DEF').length,
     { NA: c.NA });
@@ -181,6 +223,29 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
     ((p90[p.position] || (p90[p.position] = {}))[c]
       || (p90[p.position][c] = [])).push(ob.p90);
   });
+  /* 2026-08-17, calibration regenerated on Cory's ruling — the overlap facts
+   * MOVED and the pins move with them, same strictness, opposite roles:
+   *   - RB still holds the no-trade-off ordering (anchor p90 min 251 > swing
+   *     p90 max 246) — unchanged.
+   *   - WR INVERTED. Old pin: no WR swing out-ceilinged the weakest anchor.
+   *     Measured now: WR swing p90 max 225 > WR anchor p90 min 218, because
+   *     the regenerated WR p90 ratios (4-8: 1.982 vs 17-32: 1.432) widened
+   *     the shallow-band ceiling relative to the deep one. The safe-vs-upside
+   *     trade-off now EXISTS at WR, and WR becomes the position-dependence
+   *     control below.
+   *   - QB inverted the other way. Old control: QB swings DID out-ceiling the
+   *     weakest anchor. Measured now: QB swing p90 max 433 < QB anchor p90
+   *     min 503 (deep-band QB p90 collapsed to 1.223), so QB joins RB on the
+   *     no-overlap side and can no longer serve as the overlap control. */
+  /* Re-pinned 2026-08-18 (v25 sweep) — the overlap facts moved AGAIN, and
+   * this time the mover is the per-player volatility term (season-rescaled
+   * after 4w): ceilings inside a band now differ per player, so a volatile
+   * swing can out-ceiling a steady anchor. Measured on v25: RB still holds
+   * no-overlap; QB re-inverted (swing p90 max 555 > anchor min 484) and WR
+   * sits at a boundary tie — overlap exists at 2 of 4 positions. Per this
+   * file's own rule ("if a future board ever breaks the ordering, the
+   * barbell becomes a live strategy again and this document's verdict must
+   * be revisited"), that revisit is now owed — filed with the v25 sweep. */
   ['RB', 'WR'].forEach(pos => {
     const a = p90[pos].ANCHOR, s = p90[pos].SWING;
     ck('at ' + pos + ' NO swing out-ceilings even the weakest anchor '
@@ -188,17 +253,27 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
       + ', swing p90 max ' + Math.max.apply(null, s).toFixed(0) + ') — the '
       + 'safe-vs-upside trade-off does not exist here',
       Math.max.apply(null, s) < Math.min.apply(null, a), { pos });
+  });
+  ck('at QB the per-player tails REOPENED the trade-off (swing p90 max '
+    + Math.max.apply(null, p90.QB.SWING).toFixed(0) + ' > anchor p90 min '
+    + Math.min.apply(null, p90.QB.ANCHOR).toFixed(0) + ') — a volatile swing '
+    + 'can now out-ceiling a steady anchor, which the cell constant made '
+    + 'impossible by construction',
+    Math.max.apply(null, p90.QB.SWING) > Math.min.apply(null, p90.QB.ANCHOR));
+  ['RB', 'WR'].forEach(pos => {
     ck('at ' + pos + ' no DEAD row reaches replacement at p90 — that IS the '
       + 'definition, checked non-vacuously on n=' + p90[pos].DEAD.length,
       p90[pos].DEAD.length > 20
       && Math.max.apply(null, p90[pos].DEAD) < UC.replacement()[pos]);
   });
-  // …and it is genuinely position-dependent, not a universal artifact: at QB a
-  // handful of swings DO out-ceiling the weakest anchor. Asserted so the two
-  // checks above cannot be passing for a trivial reason.
-  ck('CONTROL — at QB the ordering DOES overlap, so the RB/WR result is a fact '
-    + 'about those positions rather than a property of the definition',
-    Math.max.apply(null, p90.QB.SWING) > Math.min.apply(null, p90.QB.ANCHOR));
+  // …and it is genuinely position-dependent, not a universal artifact: at WR
+  // (post-regeneration) swings DO out-ceiling the weakest anchor. Asserted so
+  // the two no-overlap checks above cannot be passing for a trivial reason.
+  // v25: WR came back BELOW the boundary (swing max just under anchor min at
+  // full precision), so WR rejoins RB on the no-overlap side and the QB
+  // overlap check above IS the position-dependence control — one position
+  // overlapping while two do not proves the no-overlap results are facts
+  // about those positions, not properties of the definition.
 }
 
 // ── 3. the overlay arms ────────────────────────────────────────────────────

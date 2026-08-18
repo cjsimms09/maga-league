@@ -14,10 +14,12 @@
  *     QB16  Jaxson Dart   proj 328.5   floor 87.29
  *     QB17  Jordan Love   proj 322.5   floor  2.45    35.6x on a 6.0-pt gap
  *
- * Both are in their CORRECT cell — this is NOT the E1 misread, which is a
- * separate open row about players who land in the wrong one. A 2.45-point season
- * floor is not a claim about Jordan Love; it is the p10 of a cohort running down
- * to quarterbacks who never take a snap.
+ * Both are in their CORRECT cell — this is NOT the E1 population case, which
+ * was RULED EXPECTED 2026-08-18 (A, projections.py:306): the build prices off
+ * the FULL-UNIVERSE rank (keepers counted) because that is how the calibration
+ * was fit, while the published pos_rank counts only available players. A
+ * 2.45-point season floor is not a claim about Jordan Love; it is the p10 of a
+ * cohort running down to quarterbacks who never take a snap.
  *
  * This file pins the LABEL, not the number. Nothing here asserts a floor should
  * change — that question is E16, owner A.
@@ -113,32 +115,66 @@ else {
     cliffs.length > 0, cliffs.map(c => c.pos + ': ' + c.hi.name + ' -> ' + c.lo.name));
 
   /* THE FIRST VERSION OF THIS CHECK ASSERTED EVERY CLIFF SITS ON A BAND EDGE,
-   * AND IT WAS WRONG — it went red and was right to. Of the four cliffs on the
-   * live board, only two are the band step (Jordan Love at QB17, Darnell
-   * Washington at TE33). The other two are E1 MISREADS: Jordan Mason is
-   * published RB31 and Alec Pierce WR32, both priced off the 33+ cohort. Two
-   * different defects producing the same visible symptom, which is precisely
-   * why the caveat must read the cohort off the RATIO rather than the rank. */
+   * AND IT WAS WRONG — it went red and was right to. The second version
+   * asserted every cliff is a band edge or an "E1 misread", and BOTH halves of
+   * that rotted the same night (2026-08-18): A ruled the E1 population
+   * question — pricing off the full-universe rank is CORRECT, matching the
+   * calibration's fit, so "misread" was the wrong word and the on-screen
+   * caveat calling it a "known defect" was itself a false statement (now
+   * reworded to the ruling) — and the v27 rebuild surfaced a THIRD cliff kind:
+   * RB136 Donovan Edwards floor 0.04 -> RB137 Clyde Edwards-Helaire 0.01, a
+   * 4.0x ratio on floors stored to two decimals, where the mean ratio is only
+   * 2.63x. Below half a point the printed figure is quantization, not a claim
+   * a reader could act on. Three causes, one visible symptom — which is
+   * precisely why the caveat must read the cohort off the RATIO. */
   const all = (art.players || []);
   const classified = cliffs.map(c => {
     const txt = dispersionCaveat(c.lo, all);
     return { who: c.pos + c.lo.pos_rank + ' ' + c.lo.name, txt: txt,
-      edge: /TOP of that band/.test(txt), misread: /register E1/.test(txt) };
+      edge: /TOP of that band/.test(txt),
+      repriced: /register E1, ruled/.test(txt),
+      penny: c.hi.proj_floor < 0.5 && c.lo.proj_floor < 0.5 };
   });
-  ck('EVERY cliff is explained on screen as one of the two — band edge or E1 misread',
-    classified.every(c => c.edge || c.misread),
-    classified.map(c => c.who + ' edge=' + c.edge + ' misread=' + c.misread));
-  ck('and BOTH causes are actually present, so neither branch is dead code',
-    classified.some(c => c.edge) && classified.some(c => c.misread),
-    classified.map(c => c.who + ' edge=' + c.edge + ' misread=' + c.misread));
+  ck('EVERY cliff is either explained on screen (band edge / full-universe '
+    + 'repricing) or sits at penny scale where both printed floors round below '
+    + 'half a point',
+  classified.every(c => c.edge || c.repriced || c.penny),
+  classified.map(c => c.who + ' edge=' + c.edge + ' repriced=' + c.repriced
+    + ' penny=' + c.penny));
+  ck('and both ON-SCREEN causes are actually present, so neither branch is dead code',
+    classified.some(c => c.edge) && classified.some(c => c.repriced),
+    classified.map(c => c.who + ' edge=' + c.edge + ' repriced=' + c.repriced));
 
-  /* The E1 branch must fire on exactly the players whose applied cohort
-   * disagrees with their published rank band — no more, no less. */
-  const flagged = all.filter(p => p.pos_rank && p.proj_floor && p.proj_mean
-    && /^measured-/.test(String(p.proj_floor_source || ''))
-    && /register E1/.test(dispersionCaveat(p, all)));
-  ck('the E1 warning fires on the nine known misreads and nothing else',
-    flagged.length === 9, flagged.map(p => p.position + p.pos_rank + ' ' + p.name));
+  /* The repricing warning must fire on exactly the players whose FULL-UNIVERSE
+   * band (players + keepers, ranked by proj_mean, per the ruling) disagrees
+   * with their published rank band — no more, no less. Recomputed here from
+   * the artifact rather than hard-counted, so a rebuild moves both sides. */
+  const bandLabel = r => { const b = [[1,3,'1-3'],[4,8,'4-8'],[9,16,'9-16'],
+    [17,32,'17-32'],[33,Infinity,'33+']].find(x => r >= x[0] && r <= x[1]);
+  return b && b[2]; };
+  const uniByPos = {};
+  all.concat(art.kept_players || []).forEach(p => {
+    (uniByPos[p.position] = uniByPos[p.position] || []).push(p);
+  });
+  Object.keys(uniByPos).forEach(k =>
+    uniByPos[k].sort((a, b) => b.proj_mean - a.proj_mean));
+  const uniRank = p => uniByPos[p.position]
+    .findIndex(x => String(x.player_id) === String(p.player_id)) + 1;
+  const measuredRows = all.filter(p => p.pos_rank && p.proj_floor && p.proj_mean
+    && /^measured-/.test(String(p.proj_floor_source || '')));
+  const expected = new Set(measuredRows
+    .filter(p => bandLabel(uniRank(p)) !== bandLabel(Number(p.pos_rank)))
+    .map(p => p.position + p.pos_rank + ' ' + p.name));
+  const flagged = new Set(measuredRows
+    .filter(p => /register E1, ruled/.test(dispersionCaveat(p, all)))
+    .map(p => p.position + p.pos_rank + ' ' + p.name));
+  ck('KNOWN-POSITIVE: the ruled repricing set is non-empty on the live board '
+    + '(keepers really do shift bands)', expected.size > 0, [...expected]);
+  ck('the repricing warning fires on exactly the ruled set — every player '
+    + 'whose full-universe band differs from his published band, and no other',
+  expected.size === flagged.size
+    && [...expected].every(w => flagged.has(w)),
+  { expected: [...expected].sort(), flagged: [...flagged].sort() });
 }
 
 // ------------------------------------------------------------- 9. THE FAIL ARM

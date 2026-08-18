@@ -67,13 +67,29 @@ def test_the_fp_scoring_gap_is_COMPUTED_against_the_live_config():
 
 
 def test_the_two_point_conversions_are_flagged_as_biting_skill_positions():
-    """K and DEF being unreachable is an EXPECTED absence — FP's feed does not
-    cover them and the board records that. The 2-point conversions are the ones
-    that silently understate a real skill-position FP column against Sleeper's
-    full stat line, so they are surfaced separately."""
+    """AMENDED 2026-08-17, later the same day — and this is the tripwire working.
+
+    K and DEF being unreachable is an EXPECTED absence: FP's feed does not cover
+    them and the board records that. The 2-point conversions were different —
+    they silently understated a real skill-position FP column against Sleeper's
+    full stat line, which biased a Sleeper-vs-FP head-to-head that had FP losing.
+
+    Cory asked whether FP was scored under our league table before the
+    comparison. It was, but through a whitelist covering 9 of 32 priced
+    categories. `_FP_STAT_MAP` was extended to all 14 priced SKILL categories and
+    the blend re-run: every number came back identical to four decimals, because
+    FantasyPros does not publish these fields at all. The concern was real in
+    principle and zero in fact — and the verdict now rests on a map PROVEN
+    complete rather than assumed complete.
+
+    So the assertion moves to the new truth rather than being deleted, exactly as
+    test_the_still_open_holes_are_named_so_none_can_be_forgotten did below: the
+    biting gap is CLOSED, and this test now fails if it ever reopens."""
     a = CR.audit()
-    assert set(a["unreachable_biting_skill_positions"]) == {
-        "pass_2pt", "rush_2pt", "rec_2pt"}
+    assert set(a["unreachable_biting_skill_positions"]) == set(), (
+        "a priced skill category is unreachable from FP again — FP players will "
+        "score light against Sleeper and any head-to-head is biased:\n  "
+        + "\n  ".join(sorted(a["unreachable_biting_skill_positions"])))
 
 
 def test_sleeper_and_fp_are_both_scored_through_OUR_table_not_the_providers():

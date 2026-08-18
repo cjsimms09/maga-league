@@ -191,10 +191,18 @@ def expected_games(out: dict, position_prior: dict = None, min_seasons=1,
 
     ── A HISTORY IS NOT A FORECAST, AND THE RAW MEAN IS NOT A DROP-IN ─────────
 
-    MEASURED on real 2023-24 weekly data against the live board, cut to the
-    DRAFTABLE range (adp <= 150, 112 players matched): median |player - position
-    constant| is 1.00 games, 43% differ by more than one and 18% by more than
-    three. The variation A asked about is real and it is inside the draft.
+    MEASURED on real weekly data against the live board, cut to the DRAFTABLE
+    range (adp <= 150): median |player - position constant| is 1.00 games, 46%
+    differ by more than one and 10% by more than three. The variation A asked
+    about is real and it is inside the draft.
+
+    ⚠ RE-MEASURED 2026-08-14 ON THREE SEASONS, 135 players — this paragraph used
+    to say 2023-24 / 112 players / 18% beyond three games, and the note below used
+    to say 2025 was unavailable. It was available the whole time: nflverse names
+    the release `stats_player` and `import_weekly_data` asks for `player_stats`.
+    The third season HALVED the tail (18% -> 10% differing by more than three),
+    which is what a third point does to a two-point mean, and it is why the stale
+    caveat was worth chasing rather than working around.
 
     But this function averaged the seasons observed and did nothing else, and that
     is a history. Jonathon Brooks — one rookie season, three games, torn ACL —
@@ -202,8 +210,10 @@ def expected_games(out: dict, position_prior: dict = None, min_seasons=1,
     10.0. Swapping those into the board as 2026 EXPECTATIONS systematically
     under-prices exactly the players coming off an injury year, which is the
     population where injury is least persistent and where the market has already
-    applied its own discount. Only two seasons exist to average at all
-    (`import_weekly_data` 404s for 2025), so these are two-point means.
+    applied its own discount. THREE seasons are now available (see above), so
+    these are three-point means for anyone who played through them — but a rookie
+    still has exactly one, and shrinkage is the only thing between his single
+    season and the board.
 
     `shrink_k` weights the prior in SEASON UNITS: k=1 says one observed season is
     worth as much as the prior. DECLARED, NOT TUNED — I have not fitted it to make

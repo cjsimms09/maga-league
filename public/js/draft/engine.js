@@ -17,10 +17,17 @@
 
   // ---- config knobs (every magic number lives here, with its reasoning) ----
   const CFG = {
-    // Mirrors survival.js — a source-provided sd always wins over both.
-    ADP_SD_FLOOR: 3.0,        // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,        // was 0.22; see survival.js for why, and for why
-    ADP_SD_CAP: 15.0,         // this is an interim, not a calibration
+    /* Mirrors survival.js — a source-provided sd always wins over both.
+     * READ FROM survival.js RATHER THAN RETYPED (2026-08-17): this used to be
+     * a hand-copied 0.15/3.0/15.0, and when Cory's adp_sd ruling moved the
+     * real constants to 0.11/2.0 (SHIPPED block in keepers.py; parity held by
+     * test_survival_parity.py) the copy silently kept the OLD pair — a mirror
+     * that can drift is a second source of truth wearing the first one's name.
+     * adpSd itself is S.adpSd, so these keys were documentation; now they are
+     * documentation that cannot lie. */
+    ADP_SD_FLOOR: S.CFG.ADP_SD_FLOOR,
+    ADP_SD_RATE: S.CFG.ADP_SD_RATE,
+    ADP_SD_CAP: S.CFG.ADP_SD_CAP,
     RUN_WINDOW: 10,           // picks of history the Bayesian update looks at
     RUN_DAMPING: 0.5,         // how hard observed rates move the hazard
     RUN_MIN: 0.6,             // clamp: a cold position can't go below this
@@ -132,8 +139,9 @@
      *
      * The bench branch does not contain `value` at all — deliberately, VONA is
      * meaningless for a man you cannot start — so VALUE_WEIGHT_FLOOR does not
-     * reach it. Its intended anchor is CEILING, and MEASURED_WEIGHTS sets
-     * ceiling to 0, which left `0.5*stack + 1*keeper` deciding 120 of 240
+     * reach it. Its intended anchor is CEILING, and MEASURED_WEIGHTS then set
+     * ceiling to 0 (ruled to 0.45 on 2026-08-17 — see the record at the
+     * constant), which left `0.5*stack + 1*keeper` deciding 120 of 240
      * simulated picks. A flat same-NFL-team bonus was choosing my round-8
      * through round-13 picks.
      *
@@ -513,6 +521,10 @@
    *                   deviate without backing" demands. The weekly-payout ceiling LEAN is NOT
    *                   lost: it lives in the same-tier CEILING TIEBREAK (acts only on genuine
    *                   ties, where value is silent) and in the opt-in "Ceiling Chase" doctrine.
+   *                   ── SUPERSEDED 2026-08-17: the -4.8 was measured on a degenerate board
+   *                   (see the 08-14 block below) and the re-derivation on real ceilings
+   *                   reversed it. Cory ruled the weight non-zero; the full record is at
+   *                   MEASURED_WEIGHTS itself. This entry stays as the history of the zero.
    *   - tier 0, risk 0 : measured DRAG — they pull picks off the value anchor toward a
    *                   mechanism no payout rewards (tier −$235, risk −$143 pooled), worst
    *                   in the early rounds where the anchor is strongest.
@@ -580,10 +592,14 @@
    *               It is not evidence that ceiling is worthless. It is not
    *               evidence of anything.
    *
-   * THE VALUES ARE UNCHANGED AND THAT IS DELIBERATE. A null measurement is not a
+   * THE VALUES WERE UNCHANGED AND THAT WAS DELIBERATE. A null measurement is not a
    * licence to move a weight in the other direction — discovering that we do not
    * know what risk is worth is not discovering that it is worth something. Zero
    * stays until an experiment on a board carrying the real fields says otherwise.
+   * (For ceiling, that experiment now EXISTS and REVERSED the zero — measured-p90
+   * ceilings landed 2026-08-17, three preregistered runs beat zero 3/3, and Cory
+   * ruled 0.45 the same day. The record is at MEASURED_WEIGHTS. risk remains at
+   * zero exactly as this block argues.)
    * What changes is the LABEL: these are UNMEASURED settings sitting at a
    * default, not measured ones, and the panel copy below no longer claims they
    * "did nothing".
@@ -611,7 +627,49 @@
    * never existed on the artifact — so they silently took the mechanism weights
    * while claiming to test the surface. Both suites now THROW if this export
    * disappears rather than falling back to anything. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
+  /* ── ceiling 0 → 0.45, RULED 2026-08-17. Cory, verbatim: "IS THIS STUDIES?
+   * IF SO, YES." It is studies: three preregistered runs across two independent
+   * seed sets; EVERY value tested from 0.15 to 0.65 beats the shipped zero,
+   * 3/3 seeds, separably in 3/3 (the §7b record, DRAFT-WEEK-BRIEF.md; prereg
+   * draft/backtest/CEILING-REDERIVATION-PREREG.md, result
+   * draft/backtest/EXP-CEILING-REDERIVATION.md). The old zero was measured on
+   * a board where proj_ceiling was proj_mean x a constant — rank-identical to
+   * value (Spearman 1.0000) — and could not have come out any other way.
+   *
+   * WHY 0.45 AND NOT HIGHER — Cory asked "SHOULD IT BE HIGHER?" and the answer
+   * is NO: FRONTIER.md exp 21 (150 paired rooms on Cory's real keeper base)
+   * measured an INVERTED-U on ceiling tilt — λ=0.25 +$44/season, λ=0.5 +$56
+   * (CI [33, 78]), λ=2 −$18, λ=3 −$27 (CI excludes zero). 0.45 sits at the
+   * measured peak; higher moves toward the provably negative arm.
+   * POLICY-TOURNAMENT.md §5 reproduced the same shape from a different control.
+   *
+   * PREREG DEVIATION, RECORDED EXPLICITLY: all four preregs fixed a
+   * no-change-before-08-22 rule BEFORE any of them produced a number. Cory, as
+   * owner, explicitly overrode that hold on 2026-08-17. This is a RULED
+   * deviation, dated — not silent drift.
+   *
+   * CAVEAT THAT TRAVELS WITH THIS WEIGHT (attached, not resolved): under the
+   * measured-p90 ceilings (same-day ruling), upsideBonus's per-position
+   * normalization medians collapsed (QB 20.8→3.0, TE 13.1→2.5), so the term
+   * saturates at CEILING_MAX_BONUS for ~79 players (67 on the evening rebuild
+   * of the same day — the count moves with the daily board) and is near-binary
+   * at QB/TE. The 3/3-seed evidence EMBEDS this saturation; the September
+   * quantile re-run certifies or reverts.
+   *
+   * AUTHORITY (register 25): autoWeights() already ships phase ceilings 0.45
+   * (anchor) / 0.6 (build) / 0.8 (fill) / 0.5 (endgame), so when AUTO drives
+   * the weights IT is authoritative and this constant is the fallback / manual
+   * base. (Auto is a persisted browser toggle — app.js AUTO_KEY — and defaults
+   * OFF in a fresh browser; register 25's audit of which system is live at the
+   * table stands open.) 0.45 aligns this fallback with the low end of AUTO's
+   * own phase ramp, at the measured peak — so the toggle stops being a model
+   * change about upside.
+   *
+   * Blast radius, measured through recommend() on the live board at Cory's
+   * picks, ceiling 0 vs 0.45: 0 of the top-60 move at picks 33, 48 and 68;
+   * 19 move at 108 (max 4 spots); 32 at 128 (max 10); the TOP RECOMMENDATION
+   * NEVER CHANGES. A late-round bench-ordering change, not a board-wide one. */
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.45,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
   /* Which zeros are measured and which are merely defaults, as data rather than
@@ -624,29 +682,27 @@
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
-    ceiling: 'MEASURED 2026-08-17 AND IT CONTRADICTS THIS ZERO — held at 0 '
-      + 'through the 2026 draft on purpose, not on evidence. The old zero came '
-      + 'from a -4.8 [-26,+17] result taken on a board where proj_ceiling was '
-      + 'proj_mean x a constant, making the ceiling term rank-identical to the '
-      + 'value term (Spearman 1.0000); it could not have come out any other way. '
-      + 'Re-derived on the first real-ceiling board (505 distinct ceiling/mean '
-      + 'ratios where there was 1): a ceiling weight of 0.65 beat the shipped '
-      + 'zero by +$35.5, positive in 3/3 seeds and separable in 3/3. A second '
-      + 'preregistered run bracketed it over w in {0.15, 0.3, 0.45, 0.65} and '
-      + 'ALL TWELVE seed x weight cells came back positive and separable, with '
-      + '0.3/0.45/0.65 indistinguishable (means within $0.6) — so this is a '
-      + 'zero-versus-non-zero result and does NOT depend on picking a value. '
-      + 'A THIRD run replicated it on three seeds sharing nothing with the '
-      + 'first two (w=0.45, +$35.9, 3/3 positive and 3/3 separable), so the '
-      + 'finding no longer rests on one seed set, one weight or one run. '
-      + 'WHY IT IS STILL ZERO: the promotion bar is cleared, and a cleared bar '
-      + 'makes the change AVAILABLE after 2026-08-22 rather than making it — '
-      + 'all four preregs fixed that date before any of them produced a '
-      + 'number, and a result landing the way we hoped is the worst reason to '
-      + 'relax it. NOTE the collinearity is REDUCED, NOT '
-      + 'REMOVED: the measured ceiling is still proj_mean x a per-CELL constant, '
-      + 'varying between bands and not within them, so this prices cross-band '
-      + 'dispersion only and says nothing about whether THIS player has upside. '
+    ceiling: 'MEASURED, AND RULED NON-ZERO 2026-08-17 (Cory: "IS THIS STUDIES? '
+      + 'IF SO, YES"). The old zero came from a -4.8 [-26,+17] result taken on '
+      + 'a board where proj_ceiling was proj_mean x a constant, making the '
+      + 'ceiling term rank-identical to the value term (Spearman 1.0000); it '
+      + 'could not have come out any other way. Re-derived on the first '
+      + 'real-ceiling board (505 distinct ceiling/mean ratios where there was '
+      + '1): three preregistered runs, two independent seed sets, every value '
+      + 'from 0.15 to 0.65 beat the zero, 3/3 seeds positive and 3/3 separable '
+      + '— a zero-versus-non-zero result that does NOT depend on picking a '
+      + 'value. THE MAGNITUDE is set by FRONTIER.md exp 21\'s inverted-U '
+      + '(λ=0.25 +$44, λ=0.5 +$56 CI [33,78], λ=2 -$18, λ=3 -$27): 0.45 is '
+      + 'the measured peak, and Cory\'s "SHOULD IT BE HIGHER?" is answered NO '
+      + 'by the negative arm. PREREG DEVIATION, DATED: all four preregs fixed '
+      + 'a no-change-before-08-22 rule before producing numbers; Cory as owner '
+      + 'explicitly overrode that hold on 2026-08-17. CAVEATS THAT TRAVEL: the '
+      + 'collinearity is REDUCED, NOT REMOVED — the measured ceiling is still '
+      + 'proj_mean x a per-CELL constant, varying between bands and not within '
+      + 'them, so this prices cross-band dispersion only; and under the '
+      + 'measured-p90 ceilings the term saturates at CEILING_MAX_BONUS for '
+      + '~79 players, near-binary at QB/TE — the 3/3-seed evidence embeds that '
+      + 'saturation. The September quantile re-run certifies or reverts. '
       + 'Prereg: draft/backtest/CEILING-REDERIVATION-PREREG.md. Result: '
       + 'draft/backtest/EXP-CEILING-REDERIVATION.md',
   };
@@ -683,17 +739,18 @@
         + 'RISK IS OFF AND WAS NEVER MEASURED: the backtest board carries none of its '
         + 'five inputs, so that experiment was incapable of returning anything but zero. '
         + 'It stays at zero as a default, not as a finding. '
-        + 'CEILING IS THE ONE SLIDER ON THIS PANEL KNOWN TO BE SET WRONG. Its zero came '
-        + 'from the same kind of broken experiment — the board\'s ceiling used to be a '
-        + 'fixed 1.35x of the projection, so raising the ceiling slider was arithmetically '
-        + 'the same as raising value. Re-run 2026-08-17 on a board with real per-player '
-        + 'ceilings, EVERY setting tested from 0.15 to 0.65 beat this zero in all three '
-        + 'seeds — so the model is ignoring upside it should be paying for, and the exact '
-        + 'amount barely matters — and a third run on independent seeds replicated it. '
-        + 'IT IS HELD AT ZERO THROUGH THIS DRAFT DELIBERATELY: the measurement is a '
-        + 'simulation rather than a graded season, and the no-change-before-8/22 rule was '
-        + 'fixed before any of these runs produced a number — a result landing the way we '
-        + 'hoped is the worst reason to relax it. First thing to revisit after 8/22.',
+        + 'CEILING IS ON AT 0.45, RULED BY CORY 2026-08-17. Its old zero came '
+        + 'from a broken experiment — the board\'s ceiling used to be a fixed 1.35x of '
+        + 'the projection, so raising the ceiling slider was arithmetically the same as '
+        + 'raising value. Re-run 2026-08-17 on a board with real per-player ceilings, '
+        + 'EVERY setting tested from 0.15 to 0.65 beat zero in all three seeds, and a '
+        + 'third run on independent seeds replicated it. 0.45 is the measured peak of '
+        + 'the exp-21 inverted-U (heavier tilt measured NEGATIVE), so higher is not '
+        + 'better. This SHIPS BEFORE 8/22 on Cory\'s explicit override of the prereg '
+        + 'hold — a ruled, dated deviation, recorded at the weight. What it moves is '
+        + 'small and late: top-60 unchanged at picks 33-68, bench ordering shifts from '
+        + '~pick 100, the top recommendation never changes. September\'s quantile '
+        + 're-run certifies or reverts.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares
@@ -1273,8 +1330,10 @@
      *
      * WHY THE ONESIE CAP DID NOT FIX IT, and this is the part that matters: the
      * cap treats the OUTPUT while this drives the INPUT. And the term was
-     * supposed to be OFF — MEASURED_WEIGHTS.ceiling is 0, because the ceiling
-     * effect measured -4.8 with a [-26,+17] interval and could not be signed.
+     * supposed to be OFF — MEASURED_WEIGHTS.ceiling was 0 at the time (ruled
+     * to 0.45 on 2026-08-17; see the record at the constant), because the
+     * ceiling effect measured -4.8 with a [-26,+17] interval and could not be
+     * signed.
      * But the bench branch floors it: `Math.max(BENCH_CEILING_FLOOR, w.ceiling)`
      * with BENCH_CEILING_FLOOR = 0.25 SILENTLY RE-ENABLES A WEIGHT THE
      * MEASUREMENT SET TO ZERO, for every bench pick. So the deliberately-
@@ -2105,7 +2164,8 @@
           /* PUBLISH THE TERM THAT WAS USED, NOT THE ONE THE WEIGHT VECTOR NAMES.
            * The bench branch scores on `max(BENCH_CEILING_FLOOR, w.ceiling)` times
            * a separately recomputed ceiling, while this published
-           * `w.ceiling * ceiling` — which is 0 under MEASURED_WEIGHTS. So on every
+           * `w.ceiling * ceiling` — which was 0 under MEASURED_WEIGHTS when this
+           * was found (0.45 since the 2026-08-17 ruling). So on every
            * bench pick the components disagreed with the score by up to 25 points,
            * and `share_of_gap` in the decision contract was computed against a gap
            * the components had not produced. Rule 16 broken by ARITHMETIC rather
@@ -2593,7 +2653,21 @@
    */
   function preDraftPool(board, ctx) {
     if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
-    const kept = board.filter(p => survival(p, ctx.currentPick, ctx) >= CFG.SURVIVOR_CUTOFF);
+    /* UNCONDITIONAL, EXPLICITLY — the anchored ctx would ask the wrong question.
+     * `ctx.currentPick` here is the pre-draft ANCHOR (my first selection), not a
+     * pick anyone has reached: zero picks have landed, so "will he be there at
+     * 33" is measured FROM THE START of the draft, exactly the 0.000% figure in
+     * the header. Passing the anchored ctx through would evaluate
+     * P(taken by 33 | alive at 33) — a zero-width window, correctly 0 since the
+     * survival.js empty-window fix (2026-08-17) — and the filter would keep
+     * everyone. Before that fix this call only APPEARED to work: the far-tail
+     * guard returned "gone" for players with F ≥ 0.999 and the conditional
+     * returned "certain to survive" for everyone else, so a 91%-taken player at
+     * ADP 25 sailed through the same filter that cut Nacua. The unconditional
+     * form is the one the filter's own definition wants, for every player. */
+    const uncond = { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
+      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
+    const kept = board.filter(p => survival(p, ctx.currentPick, uncond) >= CFG.SURVIVOR_CUTOFF);
     return kept.length ? kept : board;   // never recommend from an empty pool
   }
 
@@ -3217,6 +3291,46 @@
    * the branch forecast's position loss when a ctx is supplied.
    */
   function dollarGap(a, b, ctx) {
+    // D10a ruling (A, 08-18, pre-draft): a cross-position dollar comparison
+    // involving K/DEF prices two DIFFERENT ceiling constructions on one scale
+    // — all 76 K/DEF fall back to gaussian_z while skill positions carry the
+    // measured (and per-player) tails, handing e.g. a DEF a 1.394 relative
+    // ceiling against a TE's 1.146 purely by formula. Until K/DEF cells are
+    // measured (post-draft), the honest answer is a refusal with the reason
+    // on screen, not a fake number.
+    const onesie = pos => pos === 'K' || pos === 'DEF';
+    if (a.position !== b.position && (onesie(a.position) || onesie(b.position))) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — K/DEF ceilings are priced by a different ' +
+                 'formula than skill positions; compare within position instead',
+        terms: { note: 'refused: K/DEF have no measured calibration cells, so a ' +
+                       'cross-position dollar gap would compare two constructions (D10a).' },
+      };
+    }
+    // 5e ruling (A, 08-18, extending D10a to QB): playerDollars prices RAW
+    // projected points — p.position never enters the formula — while every
+    // other value surface here is denominated over replacement. In a 10-team
+    // 1-QB league, QB replacement is 341.7 against 136-180 elsewhere, so raw
+    // points hand every QB a ~342-point head start: 22 of the top 25 by E[$]
+    // are QBs on the 08-18 board, versus ONE by the board's own rank. The
+    // obvious fix (subtract replacement inside the dollar formula) was BUILT
+    // AND MEASURED WORSE on the pairs Cory actually weighs
+    // (draft/audit/dollar_replacement_baseline_2026-08-18.md) — so the honest
+    // answer is the same refusal K/DEF already gets, not a re-price.
+    if (a.position !== b.position && (a.position === 'QB' || b.position === 'QB')) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — the dollar figure prices raw points and QB ' +
+                 'replacement (~342) dwarfs every other position\'s, so a ' +
+                 'QB-vs-other gap is a formula artifact; compare within position',
+        terms: { note: 'refused: cross-position dollars have no replacement level ' +
+                       'in them, and QB is where that bites (5e). Re-pricing was ' +
+                       'measured worse than refusing.' },
+      };
+    }
     const da = playerDollars(a), db = playerDollars(b);
     // Next-pick echo: what taking A costs in best-available-at-B's-position by my
     // next pick, minus the symmetric cost of taking B. Positive favors A.

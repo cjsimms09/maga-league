@@ -1,0 +1,5712 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/roster_robustness.py",
+ "question_verbatim": "are we extracting as much value as possible while also still drafting a legal team that seems reasonable",
+ "what_this_grades": "the untested half: whether the roster the engine plans to leave Cory with survives a real season structurally \u2014 byes, injuries, flex depth, wire dependence",
+ "preregistration": "metrics M1-M7 in roster_robustness.py's docstring, written before any number was computed",
+ "settings": {
+  "n_single": 10000,
+  "n_room": 250,
+  "seed": 20260817,
+  "weeks": 17,
+  "stress_weeks": [
+   5,
+   6,
+   7,
+   8
+  ],
+  "lineup_slots": "QB/2RB/2WR/TE/FLEX/K/DEF + 6 bench (public/draft_data.json roster_slots)"
+ },
+ "measured_inputs": {
+  "availability": {
+   "pool": "players drafted in THIS league, seasons (2023, 2024, 2025) (league_history.json drafts, keepers included)",
+   "games_source": "row-presence weeks 1-17 via empirical_draft_value.season_totals \u2014 nflverse weekly stores 2023-25; component_stats_2021/2022 route exists for parity",
+   "zero_row_rule": "drafted player with no weekly row counts as 0 games (Arm-Z: a pick that returned nothing returned nothing)",
+   "n": {
+    "QB": 48,
+    "RB": 142,
+    "WR": 157,
+    "TE": 42
+   },
+   "mean_games": {
+    "QB": 13.31,
+    "RB": 12.95,
+    "WR": 13.47,
+    "TE": 13.6
+   },
+   "p10_games": {
+    "QB": 7,
+    "RB": 7,
+    "WR": 8,
+    "TE": 9
+   },
+   "unpositioned_picks_excluded": [
+    "12530"
+   ]
+  },
+  "wire": {
+   "skill": {
+    "source": "draft/data/wire_level.json \u2014 RB/WR/TE per_week (realized acquisition-week medians, 422 scored adds, seasons 2023/2024/2025); QB ongoing.per_week (held-add 3-week-after median, 19.46/wk = 330.8/season)",
+    "per_week": {
+     "QB": 19.46,
+     "RB": 7.8,
+     "WR": 11.1,
+     "TE": 11.6
+    },
+    "n": {
+     "QB": 83,
+     "RB": 143,
+     "WR": 113,
+     "TE": 83
+    }
+   },
+   "k_def": {
+    "source": "ASSUMPTION A4 \u2014 board replacement_points / 17 (realized-wire store is offense-only and cannot score K/DEF)",
+    "per_week": {
+     "K": 5.71,
+     "DEF": 6.06
+    }
+   }
+  },
+  "byes": "public/draft_data.json per-player bye"
+ },
+ "assumptions": [
+  "A1 proj_mean/17 active-week mean (double-counts availability at the mean; identical for every roster)",
+  "A2 IID weekly draws, no cross-player/week correlation",
+  "A3 K/DEF available every non-bye week (stores offense-only)",
+  "A4 K/DEF wire = board replacement/17",
+  "A5 one contiguous missed spell per player-season",
+  "A6 position-level (not round-conditioned) availability",
+  "A7 2025 control mapped to 2026 board rows; pid 12530 graded as an empty bench spot"
+ ],
+ "seat_plan": {
+  "n_seasons": 10000,
+  "value": 2681.0,
+  "value_se": 2.92,
+  "value_no_wire": 2617.2,
+  "p_unfieldable_skill_week": 1.0,
+  "wire_points_per_season": 63.8,
+  "wire_slot_weeks_per_season": 5.78,
+  "wire_skill_slot_weeks_per_season": 3.78,
+  "weekly_floor_p10": 79.9,
+  "weekly_floor_p10_se": 0.26,
+  "weekly_mean": 157.7,
+  "bye_worst_case": {
+   "max_concurrent_byes": 4,
+   "max_empty_skill_slots_bye_only": 1,
+   "worst_bye_week": 6,
+   "worst_bye_week_mu_score": 104.1
+  },
+  "shape": "QB2/RB4/WR5/TE2/K1/DEF1",
+  "stress_4wk_loss": {
+   "RB1": {
+    "player": "Derrick Henry",
+    "expected_season_loss": 55.2
+   },
+   "RB2": {
+    "player": "Kenneth Walker",
+    "expected_season_loss": 41.5
+   },
+   "WR1": {
+    "player": "Ja'Marr Chase",
+    "expected_season_loss": 36.8
+   },
+   "WR2": {
+    "player": "Mike Evans",
+    "expected_season_loss": 30.7
+   }
+  },
+  "provenance": {
+   "source": "public/seat_plan.json (emit_seat_plan output): keepers + plan_player, falling back to superseded_plan_player at the three demoted bench seats",
+   "superseded_bench_seats": [
+    {
+     "pick": 88,
+     "name": "Jayden Reed"
+    },
+    {
+     "pick": 93,
+     "name": "Jordan Love"
+    },
+    {
+     "pick": 128,
+     "name": "Brenton Strange"
+    }
+   ]
+  },
+  "players": [
+   "WR Ja'Marr Chase",
+   "RB Derrick Henry",
+   "RB Kenneth Walker",
+   "TE Colston Loveland",
+   "QB Drake Maye",
+   "WR Mike Evans",
+   "WR Parker Washington",
+   "RB J.K. Dobbins",
+   "WR Jayden Reed",
+   "QB Jordan Love",
+   "DEF Los Angeles Rams",
+   "K Brandon Aubrey",
+   "TE Brenton Strange",
+   "WR Jayden Higgins",
+   "RB Chris Rodriguez"
+  ]
+ },
+ "singles": {
+  "seat_plan_planned": {
+   "n_seasons": 10000,
+   "value": 2681.0,
+   "value_se": 2.92,
+   "value_no_wire": 2617.2,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 63.8,
+   "wire_slot_weeks_per_season": 5.78,
+   "wire_skill_slot_weeks_per_season": 3.78,
+   "weekly_floor_p10": 79.9,
+   "weekly_floor_p10_se": 0.26,
+   "weekly_mean": 157.7,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 104.1
+   },
+   "shape": "QB2/RB4/WR5/TE2/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 55.2
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 41.5
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 36.8
+    },
+    "WR2": {
+     "player": "Mike Evans",
+     "expected_season_loss": 30.7
+    }
+   },
+   "provenance": {
+    "source": "public/seat_plan.json (emit_seat_plan output): keepers + plan_player, falling back to superseded_plan_player at the three demoted bench seats",
+    "superseded_bench_seats": [
+     {
+      "pick": 88,
+      "name": "Jayden Reed"
+     },
+     {
+      "pick": 93,
+      "name": "Jordan Love"
+     },
+     {
+      "pick": 128,
+      "name": "Brenton Strange"
+     }
+    ]
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Colston Loveland",
+    "QB Drake Maye",
+    "WR Mike Evans",
+    "WR Parker Washington",
+    "RB J.K. Dobbins",
+    "WR Jayden Reed",
+    "QB Jordan Love",
+    "DEF Los Angeles Rams",
+    "K Brandon Aubrey",
+    "TE Brenton Strange",
+    "WR Jayden Higgins",
+    "RB Chris Rodriguez"
+   ]
+  },
+  "seat_plan_shortlist_literal": {
+   "n_seasons": 10000,
+   "value": 2666.3,
+   "value_se": 2.72,
+   "value_no_wire": 2553.9,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 112.4,
+   "wire_slot_weeks_per_season": 11.07,
+   "wire_skill_slot_weeks_per_season": 9.07,
+   "weekly_floor_p10": 80.6,
+   "weekly_floor_p10_se": 0.22,
+   "weekly_mean": 156.8,
+   "bye_worst_case": {
+    "max_concurrent_byes": 3,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 103.7
+   },
+   "shape": "QB5/RB4/WR3/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 35.1
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 23.6
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 15.9
+    },
+    "WR2": {
+     "player": "Mike Evans",
+     "expected_season_loss": 6.0
+    }
+   },
+   "provenance": {
+    "source": "public/seat_plan.json shortlists, followed literally top-down with already-taken skipped"
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Colston Loveland",
+    "QB Drake Maye",
+    "WR Mike Evans",
+    "WR Parker Washington",
+    "RB Rhamondre Stevenson",
+    "QB Bo Nix",
+    "QB Jared Goff",
+    "DEF Los Angeles Rams",
+    "K Brandon Aubrey",
+    "QB Baker Mayfield",
+    "RB Chris Rodriguez",
+    "QB Tyler Shough"
+   ]
+  },
+  "cory_actual_2025": {
+   "n_seasons": 10000,
+   "value": 2192.7,
+   "value_se": 2.51,
+   "value_no_wire": 2057.5,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 135.2,
+   "wire_slot_weeks_per_season": 10.26,
+   "wire_skill_slot_weeks_per_season": 8.26,
+   "weekly_floor_p10": 61.5,
+   "weekly_floor_p10_se": 0.27,
+   "weekly_mean": 129.0,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 96.6
+   },
+   "shape": "QB1/RB5/WR5/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 54.9
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 42.2
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 29.6
+    },
+    "WR2": {
+     "player": "Chris Olave",
+     "expected_season_loss": 33.4
+    }
+   },
+   "provenance": {
+    "source": "league_history.json 2025 draft, roster_id 1, mapped to 2026 board rows (A7)",
+    "graded_players": 14,
+    "excluded_as_empty_bench": [
+     "12530"
+    ]
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "WR Malik Nabers",
+    "RB Derrick Henry",
+    "TE George Kittle",
+    "QB Joe Burrow",
+    "RB Kenneth Walker",
+    "WR Deebo Samuel",
+    "WR Chris Olave",
+    "RB Brian Robinson",
+    "RB Jacory Croskey-Merritt",
+    "K Cameron Dicker",
+    "RB Braelon Allen",
+    "WR Keon Coleman",
+    "DEF Detroit Lions"
+   ]
+  },
+  "fragile_bye_stack": {
+   "n_seasons": 10000,
+   "value": 2622.0,
+   "value_se": 2.66,
+   "value_no_wire": 2479.5,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 142.5,
+   "wire_slot_weeks_per_season": 11.47,
+   "wire_skill_slot_weeks_per_season": 9.47,
+   "weekly_floor_p10": 82.4,
+   "weekly_floor_p10_se": 0.26,
+   "weekly_mean": 154.2,
+   "bye_worst_case": {
+    "max_concurrent_byes": 6,
+    "max_empty_skill_slots_bye_only": 2,
+    "worst_bye_week": 10,
+    "worst_bye_week_mu_score": 90.1
+   },
+   "shape": "QB1/RB5/WR6/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "D'Andre Swift",
+     "expected_season_loss": 55.3
+    },
+    "RB2": {
+     "player": "Bucky Irving",
+     "expected_season_loss": 53.6
+    },
+    "WR1": {
+     "player": "Mike Evans",
+     "expected_season_loss": 29.6
+    },
+    "WR2": {
+     "player": "Terry McLaurin",
+     "expected_season_loss": 28.5
+    }
+   },
+   "provenance": {
+    "rule": "synthetic fail arm: price-feasible (adp >= 30) and exactly 5 RBs, ALL on bye 10 (both RB slots are empty that week by construction), lone TE at adp >= 110, deterministic from the board",
+    "modal_bye": 10
+   },
+   "players": [
+    "QB Drake Maye",
+    "RB D'Andre Swift",
+    "RB Bucky Irving",
+    "RB J.K. Dobbins",
+    "RB Kyle Monangai",
+    "RB Kenny Gainwell",
+    "WR Mike Evans",
+    "WR Terry McLaurin",
+    "WR Parker Washington",
+    "WR Jameson Williams",
+    "WR Christian Watson",
+    "WR Rome Odunze",
+    "TE Mark Andrews",
+    "K Brandon Aubrey",
+    "DEF Houston Texans"
+   ]
+  }
+ },
+ "doctrines": {
+  "shipped": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2743.57,
+   "value_se": 5.12,
+   "value_no_wire": 2618.01,
+   "p_unfieldable_skill_week": 0.9985,
+   "wire_points_per_season": 125.56,
+   "wire_skill_slot_weeks_per_season": 7.56,
+   "weekly_floor_p10": 87.2,
+   "weekly_floor_p10_se": 0.35,
+   "bye_max_empty_skill_slots": 1.09,
+   "bye_max_concurrent": 3.74,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 49.7,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 39.4,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 34.5,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 31.1,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2701.2,
+     "floor": 86.2
+    },
+    "2": {
+     "value": 2808.2,
+     "floor": 95.8
+    },
+    "3": {
+     "value": 2694.6,
+     "floor": 88.1
+    },
+    "4": {
+     "value": 2794.3,
+     "floor": 91.2
+    },
+    "5": {
+     "value": 2742.6,
+     "floor": 88.3
+    },
+    "6": {
+     "value": 2714.0,
+     "floor": 85.3
+    },
+    "7": {
+     "value": 2792.5,
+     "floor": 91.2
+    },
+    "8": {
+     "value": 2765.2,
+     "floor": 86.6
+    },
+    "9": {
+     "value": 2796.6,
+     "floor": 86.8
+    },
+    "10": {
+     "value": 2692.0,
+     "floor": 82.4
+    },
+    "11": {
+     "value": 2767.8,
+     "floor": 91.1
+    },
+    "12": {
+     "value": 2732.7,
+     "floor": 81.8
+    },
+    "13": {
+     "value": 2696.1,
+     "floor": 85.6
+    },
+    "14": {
+     "value": 2678.3,
+     "floor": 86.5
+    },
+    "15": {
+     "value": 2670.2,
+     "floor": 86.9
+    },
+    "16": {
+     "value": 2712.7,
+     "floor": 83.5
+    },
+    "17": {
+     "value": 2722.7,
+     "floor": 86.7
+    },
+    "18": {
+     "value": 2679.1,
+     "floor": 83.0
+    },
+    "19": {
+     "value": 2756.1,
+     "floor": 75.4
+    },
+    "20": {
+     "value": 2703.8,
+     "floor": 84.1
+    },
+    "21": {
+     "value": 2788.2,
+     "floor": 89.0
+    },
+    "22": {
+     "value": 2821.1,
+     "floor": 89.8
+    },
+    "23": {
+     "value": 2669.5,
+     "floor": 88.4
+    },
+    "24": {
+     "value": 2760.7,
+     "floor": 86.2
+    },
+    "25": {
+     "value": 2714.8,
+     "floor": 84.9
+    },
+    "26": {
+     "value": 2719.9,
+     "floor": 90.6
+    },
+    "27": {
+     "value": 2722.2,
+     "floor": 88.8
+    },
+    "28": {
+     "value": 2644.4,
+     "floor": 86.6
+    },
+    "29": {
+     "value": 2761.0,
+     "floor": 88.3
+    },
+    "30": {
+     "value": 2765.9,
+     "floor": 87.3
+    },
+    "31": {
+     "value": 2706.4,
+     "floor": 79.8
+    },
+    "32": {
+     "value": 2743.2,
+     "floor": 87.5
+    },
+    "33": {
+     "value": 2651.4,
+     "floor": 78.7
+    },
+    "34": {
+     "value": 2687.2,
+     "floor": 85.2
+    },
+    "35": {
+     "value": 2709.5,
+     "floor": 87.9
+    },
+    "36": {
+     "value": 2828.9,
+     "floor": 89.1
+    },
+    "37": {
+     "value": 2771.9,
+     "floor": 81.4
+    },
+    "38": {
+     "value": 2704.8,
+     "floor": 82.9
+    },
+    "39": {
+     "value": 2645.6,
+     "floor": 85.6
+    },
+    "40": {
+     "value": 2754.7,
+     "floor": 87.6
+    },
+    "41": {
+     "value": 2767.1,
+     "floor": 87.0
+    },
+    "42": {
+     "value": 2774.3,
+     "floor": 84.4
+    },
+    "43": {
+     "value": 2757.2,
+     "floor": 89.9
+    },
+    "44": {
+     "value": 2721.6,
+     "floor": 87.3
+    },
+    "45": {
+     "value": 2748.0,
+     "floor": 87.5
+    },
+    "46": {
+     "value": 2705.1,
+     "floor": 77.2
+    },
+    "47": {
+     "value": 2809.0,
+     "floor": 91.5
+    },
+    "48": {
+     "value": 2678.4,
+     "floor": 87.0
+    },
+    "49": {
+     "value": 2740.7,
+     "floor": 88.4
+    },
+    "50": {
+     "value": 2771.8,
+     "floor": 90.8
+    },
+    "51": {
+     "value": 2678.2,
+     "floor": 81.3
+    },
+    "52": {
+     "value": 2714.8,
+     "floor": 80.8
+    },
+    "53": {
+     "value": 2801.7,
+     "floor": 90.0
+    },
+    "54": {
+     "value": 2790.3,
+     "floor": 91.9
+    },
+    "55": {
+     "value": 2737.4,
+     "floor": 90.8
+    },
+    "56": {
+     "value": 2747.6,
+     "floor": 86.4
+    },
+    "57": {
+     "value": 2564.6,
+     "floor": 81.2
+    },
+    "58": {
+     "value": 2718.6,
+     "floor": 89.4
+    },
+    "59": {
+     "value": 2820.1,
+     "floor": 92.0
+    },
+    "60": {
+     "value": 2774.2,
+     "floor": 88.6
+    },
+    "61": {
+     "value": 2750.3,
+     "floor": 84.8
+    },
+    "62": {
+     "value": 2626.8,
+     "floor": 80.3
+    },
+    "63": {
+     "value": 2695.7,
+     "floor": 84.4
+    },
+    "64": {
+     "value": 2788.7,
+     "floor": 93.2
+    },
+    "65": {
+     "value": 2791.6,
+     "floor": 88.2
+    },
+    "66": {
+     "value": 2760.2,
+     "floor": 86.0
+    },
+    "67": {
+     "value": 2674.6,
+     "floor": 85.6
+    },
+    "68": {
+     "value": 2695.0,
+     "floor": 87.7
+    },
+    "69": {
+     "value": 2697.4,
+     "floor": 87.2
+    },
+    "70": {
+     "value": 2723.8,
+     "floor": 88.7
+    },
+    "71": {
+     "value": 2736.7,
+     "floor": 84.6
+    },
+    "72": {
+     "value": 2769.7,
+     "floor": 89.2
+    },
+    "73": {
+     "value": 2809.8,
+     "floor": 86.8
+    },
+    "74": {
+     "value": 2791.8,
+     "floor": 89.8
+    },
+    "75": {
+     "value": 2746.8,
+     "floor": 85.0
+    },
+    "76": {
+     "value": 2750.2,
+     "floor": 90.3
+    },
+    "77": {
+     "value": 2775.7,
+     "floor": 87.5
+    },
+    "78": {
+     "value": 2617.0,
+     "floor": 79.7
+    },
+    "79": {
+     "value": 2708.2,
+     "floor": 88.5
+    },
+    "80": {
+     "value": 2846.3,
+     "floor": 93.8
+    },
+    "81": {
+     "value": 2764.9,
+     "floor": 89.2
+    },
+    "82": {
+     "value": 2693.6,
+     "floor": 82.2
+    },
+    "83": {
+     "value": 2851.7,
+     "floor": 96.6
+    },
+    "84": {
+     "value": 2782.5,
+     "floor": 88.4
+    },
+    "85": {
+     "value": 2754.1,
+     "floor": 84.8
+    },
+    "86": {
+     "value": 2756.7,
+     "floor": 87.4
+    },
+    "87": {
+     "value": 2846.4,
+     "floor": 96.3
+    },
+    "88": {
+     "value": 2759.9,
+     "floor": 89.9
+    },
+    "89": {
+     "value": 2672.5,
+     "floor": 82.5
+    },
+    "90": {
+     "value": 2832.5,
+     "floor": 92.6
+    },
+    "91": {
+     "value": 2799.0,
+     "floor": 86.3
+    },
+    "92": {
+     "value": 2786.7,
+     "floor": 90.5
+    },
+    "93": {
+     "value": 2683.9,
+     "floor": 82.9
+    },
+    "94": {
+     "value": 2839.2,
+     "floor": 88.2
+    },
+    "95": {
+     "value": 2788.3,
+     "floor": 86.9
+    },
+    "96": {
+     "value": 2770.2,
+     "floor": 86.4
+    },
+    "97": {
+     "value": 2721.5,
+     "floor": 81.9
+    },
+    "98": {
+     "value": 2749.7,
+     "floor": 89.9
+    },
+    "99": {
+     "value": 2750.6,
+     "floor": 86.6
+    },
+    "100": {
+     "value": 2818.3,
+     "floor": 91.2
+    },
+    "101": {
+     "value": 2832.7,
+     "floor": 93.0
+    },
+    "102": {
+     "value": 2724.0,
+     "floor": 88.8
+    },
+    "103": {
+     "value": 2717.6,
+     "floor": 84.7
+    },
+    "104": {
+     "value": 2685.0,
+     "floor": 85.0
+    },
+    "105": {
+     "value": 2725.0,
+     "floor": 86.5
+    },
+    "106": {
+     "value": 2840.7,
+     "floor": 94.6
+    },
+    "107": {
+     "value": 2745.4,
+     "floor": 86.7
+    },
+    "108": {
+     "value": 2726.1,
+     "floor": 86.4
+    },
+    "109": {
+     "value": 2800.1,
+     "floor": 90.1
+    },
+    "110": {
+     "value": 2645.4,
+     "floor": 85.5
+    },
+    "111": {
+     "value": 2664.3,
+     "floor": 81.0
+    },
+    "112": {
+     "value": 2758.3,
+     "floor": 87.8
+    },
+    "113": {
+     "value": 2833.0,
+     "floor": 92.1
+    },
+    "114": {
+     "value": 2798.3,
+     "floor": 88.3
+    },
+    "115": {
+     "value": 2666.1,
+     "floor": 85.3
+    },
+    "116": {
+     "value": 2775.9,
+     "floor": 90.4
+    },
+    "117": {
+     "value": 2680.3,
+     "floor": 84.8
+    },
+    "118": {
+     "value": 2844.1,
+     "floor": 93.3
+    },
+    "119": {
+     "value": 2772.5,
+     "floor": 91.9
+    },
+    "120": {
+     "value": 2802.1,
+     "floor": 90.0
+    }
+   }
+  },
+  "zero_rb": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2653.91,
+   "value_se": 5.88,
+   "value_no_wire": 2540.86,
+   "p_unfieldable_skill_week": 0.9927,
+   "wire_points_per_season": 113.04,
+   "wire_skill_slot_weeks_per_season": 6.82,
+   "weekly_floor_p10": 83.81,
+   "weekly_floor_p10_se": 0.31,
+   "bye_max_empty_skill_slots": 1.05,
+   "bye_max_concurrent": 3.71,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 51.9,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 41.7,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 33.3,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 31.8,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2690.8,
+     "floor": 83.2
+    },
+    "2": {
+     "value": 2648.9,
+     "floor": 84.9
+    },
+    "3": {
+     "value": 2597.0,
+     "floor": 84.1
+    },
+    "4": {
+     "value": 2755.3,
+     "floor": 92.2
+    },
+    "5": {
+     "value": 2624.6,
+     "floor": 82.2
+    },
+    "6": {
+     "value": 2702.6,
+     "floor": 83.5
+    },
+    "7": {
+     "value": 2554.6,
+     "floor": 76.9
+    },
+    "8": {
+     "value": 2648.5,
+     "floor": 80.9
+    },
+    "9": {
+     "value": 2709.4,
+     "floor": 88.9
+    },
+    "10": {
+     "value": 2483.0,
+     "floor": 74.9
+    },
+    "11": {
+     "value": 2730.4,
+     "floor": 83.3
+    },
+    "12": {
+     "value": 2706.3,
+     "floor": 82.4
+    },
+    "13": {
+     "value": 2685.9,
+     "floor": 85.7
+    },
+    "14": {
+     "value": 2664.4,
+     "floor": 85.0
+    },
+    "15": {
+     "value": 2707.8,
+     "floor": 88.1
+    },
+    "16": {
+     "value": 2578.1,
+     "floor": 81.3
+    },
+    "17": {
+     "value": 2679.9,
+     "floor": 86.2
+    },
+    "18": {
+     "value": 2679.1,
+     "floor": 83.0
+    },
+    "19": {
+     "value": 2612.0,
+     "floor": 82.0
+    },
+    "20": {
+     "value": 2688.6,
+     "floor": 87.2
+    },
+    "21": {
+     "value": 2508.0,
+     "floor": 81.6
+    },
+    "22": {
+     "value": 2624.0,
+     "floor": 81.5
+    },
+    "23": {
+     "value": 2529.4,
+     "floor": 81.4
+    },
+    "24": {
+     "value": 2701.3,
+     "floor": 81.0
+    },
+    "25": {
+     "value": 2479.9,
+     "floor": 75.1
+    },
+    "26": {
+     "value": 2753.2,
+     "floor": 88.9
+    },
+    "27": {
+     "value": 2644.9,
+     "floor": 85.1
+    },
+    "28": {
+     "value": 2644.4,
+     "floor": 86.6
+    },
+    "29": {
+     "value": 2682.1,
+     "floor": 82.7
+    },
+    "30": {
+     "value": 2671.1,
+     "floor": 86.1
+    },
+    "31": {
+     "value": 2531.7,
+     "floor": 75.8
+    },
+    "32": {
+     "value": 2634.9,
+     "floor": 84.9
+    },
+    "33": {
+     "value": 2685.6,
+     "floor": 81.7
+    },
+    "34": {
+     "value": 2598.2,
+     "floor": 81.5
+    },
+    "35": {
+     "value": 2531.1,
+     "floor": 79.4
+    },
+    "36": {
+     "value": 2774.7,
+     "floor": 90.2
+    },
+    "37": {
+     "value": 2626.8,
+     "floor": 81.8
+    },
+    "38": {
+     "value": 2678.4,
+     "floor": 81.4
+    },
+    "39": {
+     "value": 2543.5,
+     "floor": 80.6
+    },
+    "40": {
+     "value": 2695.3,
+     "floor": 83.9
+    },
+    "41": {
+     "value": 2665.2,
+     "floor": 82.2
+    },
+    "42": {
+     "value": 2687.6,
+     "floor": 85.7
+    },
+    "43": {
+     "value": 2622.2,
+     "floor": 84.6
+    },
+    "44": {
+     "value": 2607.1,
+     "floor": 83.3
+    },
+    "45": {
+     "value": 2749.8,
+     "floor": 86.1
+    },
+    "46": {
+     "value": 2649.5,
+     "floor": 79.5
+    },
+    "47": {
+     "value": 2714.5,
+     "floor": 86.1
+    },
+    "48": {
+     "value": 2629.4,
+     "floor": 83.4
+    },
+    "49": {
+     "value": 2639.1,
+     "floor": 83.7
+    },
+    "50": {
+     "value": 2755.4,
+     "floor": 88.6
+    },
+    "51": {
+     "value": 2641.8,
+     "floor": 82.0
+    },
+    "52": {
+     "value": 2635.5,
+     "floor": 82.7
+    },
+    "53": {
+     "value": 2783.3,
+     "floor": 91.2
+    },
+    "54": {
+     "value": 2618.8,
+     "floor": 83.0
+    },
+    "55": {
+     "value": 2635.0,
+     "floor": 81.5
+    },
+    "56": {
+     "value": 2674.1,
+     "floor": 84.6
+    },
+    "57": {
+     "value": 2592.8,
+     "floor": 82.1
+    },
+    "58": {
+     "value": 2698.9,
+     "floor": 87.1
+    },
+    "59": {
+     "value": 2694.2,
+     "floor": 84.4
+    },
+    "60": {
+     "value": 2645.7,
+     "floor": 85.1
+    },
+    "61": {
+     "value": 2699.3,
+     "floor": 85.8
+    },
+    "62": {
+     "value": 2543.6,
+     "floor": 80.0
+    },
+    "63": {
+     "value": 2642.9,
+     "floor": 80.9
+    },
+    "64": {
+     "value": 2709.5,
+     "floor": 90.2
+    },
+    "65": {
+     "value": 2689.1,
+     "floor": 85.6
+    },
+    "66": {
+     "value": 2679.1,
+     "floor": 84.5
+    },
+    "67": {
+     "value": 2674.6,
+     "floor": 85.6
+    },
+    "68": {
+     "value": 2650.8,
+     "floor": 85.3
+    },
+    "69": {
+     "value": 2664.0,
+     "floor": 86.4
+    },
+    "70": {
+     "value": 2723.8,
+     "floor": 88.7
+    },
+    "71": {
+     "value": 2682.3,
+     "floor": 82.4
+    },
+    "72": {
+     "value": 2717.5,
+     "floor": 85.8
+    },
+    "73": {
+     "value": 2630.3,
+     "floor": 82.3
+    },
+    "74": {
+     "value": 2654.5,
+     "floor": 84.0
+    },
+    "75": {
+     "value": 2440.5,
+     "floor": 79.5
+    },
+    "76": {
+     "value": 2616.5,
+     "floor": 81.9
+    },
+    "77": {
+     "value": 2697.5,
+     "floor": 85.2
+    },
+    "78": {
+     "value": 2617.0,
+     "floor": 79.7
+    },
+    "79": {
+     "value": 2603.1,
+     "floor": 80.6
+    },
+    "80": {
+     "value": 2570.7,
+     "floor": 82.7
+    },
+    "81": {
+     "value": 2683.5,
+     "floor": 84.2
+    },
+    "82": {
+     "value": 2595.8,
+     "floor": 85.5
+    },
+    "83": {
+     "value": 2725.1,
+     "floor": 89.5
+    },
+    "84": {
+     "value": 2587.1,
+     "floor": 82.8
+    },
+    "85": {
+     "value": 2607.1,
+     "floor": 78.0
+    },
+    "86": {
+     "value": 2717.2,
+     "floor": 86.4
+    },
+    "87": {
+     "value": 2795.1,
+     "floor": 85.8
+    },
+    "88": {
+     "value": 2600.0,
+     "floor": 76.8
+    },
+    "89": {
+     "value": 2620.3,
+     "floor": 82.3
+    },
+    "90": {
+     "value": 2725.6,
+     "floor": 88.6
+    },
+    "91": {
+     "value": 2602.6,
+     "floor": 82.7
+    },
+    "92": {
+     "value": 2686.6,
+     "floor": 87.6
+    },
+    "93": {
+     "value": 2686.8,
+     "floor": 85.1
+    },
+    "94": {
+     "value": 2714.7,
+     "floor": 88.5
+    },
+    "95": {
+     "value": 2579.2,
+     "floor": 77.3
+    },
+    "96": {
+     "value": 2647.5,
+     "floor": 80.2
+    },
+    "97": {
+     "value": 2614.4,
+     "floor": 82.1
+    },
+    "98": {
+     "value": 2639.6,
+     "floor": 84.7
+    },
+    "99": {
+     "value": 2736.0,
+     "floor": 88.2
+    },
+    "100": {
+     "value": 2761.0,
+     "floor": 87.7
+    },
+    "101": {
+     "value": 2635.7,
+     "floor": 84.1
+    },
+    "102": {
+     "value": 2656.1,
+     "floor": 84.0
+    },
+    "103": {
+     "value": 2626.5,
+     "floor": 78.0
+    },
+    "104": {
+     "value": 2627.5,
+     "floor": 82.3
+    },
+    "105": {
+     "value": 2624.9,
+     "floor": 81.6
+    },
+    "106": {
+     "value": 2725.9,
+     "floor": 89.6
+    },
+    "107": {
+     "value": 2623.2,
+     "floor": 81.4
+    },
+    "108": {
+     "value": 2625.0,
+     "floor": 85.8
+    },
+    "109": {
+     "value": 2645.9,
+     "floor": 80.4
+    },
+    "110": {
+     "value": 2646.1,
+     "floor": 84.1
+    },
+    "111": {
+     "value": 2704.1,
+     "floor": 87.9
+    },
+    "112": {
+     "value": 2691.2,
+     "floor": 81.4
+    },
+    "113": {
+     "value": 2711.5,
+     "floor": 86.3
+    },
+    "114": {
+     "value": 2677.5,
+     "floor": 83.0
+    },
+    "115": {
+     "value": 2666.1,
+     "floor": 85.3
+    },
+    "116": {
+     "value": 2706.2,
+     "floor": 87.7
+    },
+    "117": {
+     "value": 2555.5,
+     "floor": 79.3
+    },
+    "118": {
+     "value": 2696.9,
+     "floor": 87.3
+    },
+    "119": {
+     "value": 2719.5,
+     "floor": 87.8
+    },
+    "120": {
+     "value": 2646.0,
+     "floor": 84.8
+    }
+   }
+  },
+  "robust_rb": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2746.48,
+   "value_se": 3.84,
+   "value_no_wire": 2605.6,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 140.89,
+   "wire_skill_slot_weeks_per_season": 8.77,
+   "weekly_floor_p10": 86.5,
+   "weekly_floor_p10_se": 0.35,
+   "bye_max_empty_skill_slots": 1.27,
+   "bye_max_concurrent": 3.83,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 45.2,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 36.9,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 32.7,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 24.4,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2661.5,
+     "floor": 79.3
+    },
+    "2": {
+     "value": 2801.7,
+     "floor": 88.4
+    },
+    "3": {
+     "value": 2612.6,
+     "floor": 89.5
+    },
+    "4": {
+     "value": 2779.5,
+     "floor": 92.1
+    },
+    "5": {
+     "value": 2750.5,
+     "floor": 82.1
+    },
+    "6": {
+     "value": 2677.8,
+     "floor": 87.5
+    },
+    "7": {
+     "value": 2794.0,
+     "floor": 92.3
+    },
+    "8": {
+     "value": 2703.7,
+     "floor": 82.7
+    },
+    "9": {
+     "value": 2745.4,
+     "floor": 90.3
+    },
+    "10": {
+     "value": 2754.6,
+     "floor": 88.7
+    },
+    "11": {
+     "value": 2744.0,
+     "floor": 92.0
+    },
+    "12": {
+     "value": 2762.7,
+     "floor": 88.8
+    },
+    "13": {
+     "value": 2712.8,
+     "floor": 84.7
+    },
+    "14": {
+     "value": 2702.5,
+     "floor": 85.5
+    },
+    "15": {
+     "value": 2766.4,
+     "floor": 92.2
+    },
+    "16": {
+     "value": 2712.0,
+     "floor": 89.5
+    },
+    "17": {
+     "value": 2775.8,
+     "floor": 89.3
+    },
+    "18": {
+     "value": 2683.1,
+     "floor": 75.0
+    },
+    "19": {
+     "value": 2767.3,
+     "floor": 89.2
+    },
+    "20": {
+     "value": 2655.9,
+     "floor": 86.9
+    },
+    "21": {
+     "value": 2854.6,
+     "floor": 97.0
+    },
+    "22": {
+     "value": 2810.5,
+     "floor": 88.1
+    },
+    "23": {
+     "value": 2772.4,
+     "floor": 91.6
+    },
+    "24": {
+     "value": 2745.7,
+     "floor": 85.9
+    },
+    "25": {
+     "value": 2697.1,
+     "floor": 86.9
+    },
+    "26": {
+     "value": 2734.1,
+     "floor": 82.8
+    },
+    "27": {
+     "value": 2760.1,
+     "floor": 77.7
+    },
+    "28": {
+     "value": 2728.7,
+     "floor": 89.5
+    },
+    "29": {
+     "value": 2685.6,
+     "floor": 81.3
+    },
+    "30": {
+     "value": 2735.7,
+     "floor": 85.9
+    },
+    "31": {
+     "value": 2770.3,
+     "floor": 78.9
+    },
+    "32": {
+     "value": 2799.7,
+     "floor": 83.4
+    },
+    "33": {
+     "value": 2772.4,
+     "floor": 92.5
+    },
+    "34": {
+     "value": 2751.0,
+     "floor": 88.1
+    },
+    "35": {
+     "value": 2761.6,
+     "floor": 88.6
+    },
+    "36": {
+     "value": 2749.7,
+     "floor": 81.0
+    },
+    "37": {
+     "value": 2755.9,
+     "floor": 83.2
+    },
+    "38": {
+     "value": 2762.4,
+     "floor": 88.4
+    },
+    "39": {
+     "value": 2727.3,
+     "floor": 82.5
+    },
+    "40": {
+     "value": 2724.1,
+     "floor": 86.1
+    },
+    "41": {
+     "value": 2750.1,
+     "floor": 83.6
+    },
+    "42": {
+     "value": 2790.3,
+     "floor": 88.2
+    },
+    "43": {
+     "value": 2771.3,
+     "floor": 79.1
+    },
+    "44": {
+     "value": 2727.9,
+     "floor": 89.3
+    },
+    "45": {
+     "value": 2803.2,
+     "floor": 85.9
+    },
+    "46": {
+     "value": 2717.9,
+     "floor": 80.0
+    },
+    "47": {
+     "value": 2753.3,
+     "floor": 90.0
+    },
+    "48": {
+     "value": 2731.9,
+     "floor": 83.5
+    },
+    "49": {
+     "value": 2786.5,
+     "floor": 86.2
+    },
+    "50": {
+     "value": 2781.1,
+     "floor": 87.2
+    },
+    "51": {
+     "value": 2737.2,
+     "floor": 82.3
+    },
+    "52": {
+     "value": 2671.0,
+     "floor": 83.0
+    },
+    "53": {
+     "value": 2736.0,
+     "floor": 85.4
+    },
+    "54": {
+     "value": 2759.4,
+     "floor": 91.7
+    },
+    "55": {
+     "value": 2705.9,
+     "floor": 77.1
+    },
+    "56": {
+     "value": 2707.8,
+     "floor": 86.7
+    },
+    "57": {
+     "value": 2801.0,
+     "floor": 93.0
+    },
+    "58": {
+     "value": 2851.3,
+     "floor": 88.9
+    },
+    "59": {
+     "value": 2802.8,
+     "floor": 89.1
+    },
+    "60": {
+     "value": 2691.3,
+     "floor": 87.9
+    },
+    "61": {
+     "value": 2639.4,
+     "floor": 83.0
+    },
+    "62": {
+     "value": 2746.5,
+     "floor": 83.2
+    },
+    "63": {
+     "value": 2748.3,
+     "floor": 90.4
+    },
+    "64": {
+     "value": 2788.1,
+     "floor": 90.6
+    },
+    "65": {
+     "value": 2730.2,
+     "floor": 87.4
+    },
+    "66": {
+     "value": 2716.7,
+     "floor": 84.1
+    },
+    "67": {
+     "value": 2721.0,
+     "floor": 86.7
+    },
+    "68": {
+     "value": 2622.4,
+     "floor": 85.7
+    },
+    "69": {
+     "value": 2769.6,
+     "floor": 83.2
+    },
+    "70": {
+     "value": 2785.7,
+     "floor": 90.4
+    },
+    "71": {
+     "value": 2725.5,
+     "floor": 88.3
+    },
+    "72": {
+     "value": 2782.0,
+     "floor": 90.2
+    },
+    "73": {
+     "value": 2753.7,
+     "floor": 81.9
+    },
+    "74": {
+     "value": 2771.3,
+     "floor": 86.5
+    },
+    "75": {
+     "value": 2705.0,
+     "floor": 87.9
+    },
+    "76": {
+     "value": 2748.2,
+     "floor": 83.0
+    },
+    "77": {
+     "value": 2763.5,
+     "floor": 88.4
+    },
+    "78": {
+     "value": 2725.7,
+     "floor": 89.5
+    },
+    "79": {
+     "value": 2711.5,
+     "floor": 86.2
+    },
+    "80": {
+     "value": 2801.6,
+     "floor": 92.7
+    },
+    "81": {
+     "value": 2747.5,
+     "floor": 80.9
+    },
+    "82": {
+     "value": 2753.5,
+     "floor": 88.2
+    },
+    "83": {
+     "value": 2830.6,
+     "floor": 89.5
+    },
+    "84": {
+     "value": 2745.8,
+     "floor": 87.7
+    },
+    "85": {
+     "value": 2764.8,
+     "floor": 88.7
+    },
+    "86": {
+     "value": 2764.0,
+     "floor": 86.3
+    },
+    "87": {
+     "value": 2741.8,
+     "floor": 84.4
+    },
+    "88": {
+     "value": 2755.8,
+     "floor": 83.0
+    },
+    "89": {
+     "value": 2796.2,
+     "floor": 85.7
+    },
+    "90": {
+     "value": 2759.5,
+     "floor": 91.1
+    },
+    "91": {
+     "value": 2803.3,
+     "floor": 85.9
+    },
+    "92": {
+     "value": 2769.7,
+     "floor": 83.9
+    },
+    "93": {
+     "value": 2758.8,
+     "floor": 80.2
+    },
+    "94": {
+     "value": 2755.7,
+     "floor": 91.9
+    },
+    "95": {
+     "value": 2734.9,
+     "floor": 84.2
+    },
+    "96": {
+     "value": 2740.0,
+     "floor": 85.9
+    },
+    "97": {
+     "value": 2790.8,
+     "floor": 88.6
+    },
+    "98": {
+     "value": 2721.1,
+     "floor": 84.9
+    },
+    "99": {
+     "value": 2708.9,
+     "floor": 89.0
+    },
+    "100": {
+     "value": 2791.1,
+     "floor": 87.8
+    },
+    "101": {
+     "value": 2826.0,
+     "floor": 84.7
+    },
+    "102": {
+     "value": 2733.3,
+     "floor": 88.1
+    },
+    "103": {
+     "value": 2768.0,
+     "floor": 90.8
+    },
+    "104": {
+     "value": 2732.9,
+     "floor": 81.4
+    },
+    "105": {
+     "value": 2691.0,
+     "floor": 82.7
+    },
+    "106": {
+     "value": 2778.4,
+     "floor": 87.0
+    },
+    "107": {
+     "value": 2703.6,
+     "floor": 87.7
+    },
+    "108": {
+     "value": 2717.8,
+     "floor": 81.5
+    },
+    "109": {
+     "value": 2728.6,
+     "floor": 87.2
+    },
+    "110": {
+     "value": 2722.7,
+     "floor": 83.6
+    },
+    "111": {
+     "value": 2733.0,
+     "floor": 87.6
+    },
+    "112": {
+     "value": 2761.1,
+     "floor": 88.5
+    },
+    "113": {
+     "value": 2698.2,
+     "floor": 85.2
+    },
+    "114": {
+     "value": 2756.3,
+     "floor": 84.9
+    },
+    "115": {
+     "value": 2742.4,
+     "floor": 88.1
+    },
+    "116": {
+     "value": 2681.9,
+     "floor": 89.2
+    },
+    "117": {
+     "value": 2770.2,
+     "floor": 86.7
+    },
+    "118": {
+     "value": 2764.1,
+     "floor": 90.2
+    },
+    "119": {
+     "value": 2769.5,
+     "floor": 91.3
+    },
+    "120": {
+     "value": 2769.3,
+     "floor": 83.4
+    }
+   }
+  },
+  "early_qb": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2734.41,
+   "value_se": 5.62,
+   "value_no_wire": 2606.84,
+   "p_unfieldable_skill_week": 0.9991,
+   "wire_points_per_season": 127.57,
+   "wire_skill_slot_weeks_per_season": 7.73,
+   "weekly_floor_p10": 88.44,
+   "weekly_floor_p10_se": 0.3,
+   "bye_max_empty_skill_slots": 1.12,
+   "bye_max_concurrent": 3.67,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 50.6,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 40.2,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 34.8,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 31.0,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2728.6,
+     "floor": 87.7
+    },
+    "2": {
+     "value": 2770.7,
+     "floor": 90.5
+    },
+    "3": {
+     "value": 2680.4,
+     "floor": 89.8
+    },
+    "4": {
+     "value": 2794.3,
+     "floor": 91.2
+    },
+    "5": {
+     "value": 2729.6,
+     "floor": 87.3
+    },
+    "6": {
+     "value": 2724.2,
+     "floor": 89.8
+    },
+    "7": {
+     "value": 2818.6,
+     "floor": 91.7
+    },
+    "8": {
+     "value": 2773.0,
+     "floor": 89.1
+    },
+    "9": {
+     "value": 2710.2,
+     "floor": 89.6
+    },
+    "10": {
+     "value": 2685.6,
+     "floor": 86.1
+    },
+    "11": {
+     "value": 2767.8,
+     "floor": 91.1
+    },
+    "12": {
+     "value": 2798.8,
+     "floor": 87.4
+    },
+    "13": {
+     "value": 2740.8,
+     "floor": 88.2
+    },
+    "14": {
+     "value": 2678.3,
+     "floor": 87.5
+    },
+    "15": {
+     "value": 2670.2,
+     "floor": 86.9
+    },
+    "16": {
+     "value": 2726.6,
+     "floor": 88.6
+    },
+    "17": {
+     "value": 2722.7,
+     "floor": 86.7
+    },
+    "18": {
+     "value": 2564.7,
+     "floor": 78.0
+    },
+    "19": {
+     "value": 2674.8,
+     "floor": 84.5
+    },
+    "20": {
+     "value": 2712.7,
+     "floor": 90.1
+    },
+    "21": {
+     "value": 2779.1,
+     "floor": 93.4
+    },
+    "22": {
+     "value": 2757.3,
+     "floor": 95.5
+    },
+    "23": {
+     "value": 2669.5,
+     "floor": 88.4
+    },
+    "24": {
+     "value": 2873.6,
+     "floor": 85.7
+    },
+    "25": {
+     "value": 2714.8,
+     "floor": 84.9
+    },
+    "26": {
+     "value": 2719.9,
+     "floor": 90.6
+    },
+    "27": {
+     "value": 2707.4,
+     "floor": 88.4
+    },
+    "28": {
+     "value": 2645.8,
+     "floor": 83.3
+    },
+    "29": {
+     "value": 2727.9,
+     "floor": 88.2
+    },
+    "30": {
+     "value": 2609.2,
+     "floor": 84.4
+    },
+    "31": {
+     "value": 2773.6,
+     "floor": 90.9
+    },
+    "32": {
+     "value": 2743.2,
+     "floor": 87.5
+    },
+    "33": {
+     "value": 2605.8,
+     "floor": 84.5
+    },
+    "34": {
+     "value": 2704.3,
+     "floor": 88.1
+    },
+    "35": {
+     "value": 2690.4,
+     "floor": 85.0
+    },
+    "36": {
+     "value": 2750.9,
+     "floor": 91.0
+    },
+    "37": {
+     "value": 2756.5,
+     "floor": 85.5
+    },
+    "38": {
+     "value": 2656.3,
+     "floor": 84.4
+    },
+    "39": {
+     "value": 2740.9,
+     "floor": 88.6
+    },
+    "40": {
+     "value": 2779.3,
+     "floor": 92.2
+    },
+    "41": {
+     "value": 2767.1,
+     "floor": 87.0
+    },
+    "42": {
+     "value": 2742.1,
+     "floor": 85.3
+    },
+    "43": {
+     "value": 2818.2,
+     "floor": 92.7
+    },
+    "44": {
+     "value": 2663.0,
+     "floor": 81.8
+    },
+    "45": {
+     "value": 2606.5,
+     "floor": 84.2
+    },
+    "46": {
+     "value": 2727.0,
+     "floor": 85.5
+    },
+    "47": {
+     "value": 2809.0,
+     "floor": 91.5
+    },
+    "48": {
+     "value": 2641.2,
+     "floor": 85.4
+    },
+    "49": {
+     "value": 2635.2,
+     "floor": 84.3
+    },
+    "50": {
+     "value": 2692.3,
+     "floor": 89.4
+    },
+    "51": {
+     "value": 2710.1,
+     "floor": 89.3
+    },
+    "52": {
+     "value": 2614.1,
+     "floor": 82.5
+    },
+    "53": {
+     "value": 2801.7,
+     "floor": 90.0
+    },
+    "54": {
+     "value": 2758.6,
+     "floor": 90.8
+    },
+    "55": {
+     "value": 2737.4,
+     "floor": 90.8
+    },
+    "56": {
+     "value": 2747.6,
+     "floor": 86.4
+    },
+    "57": {
+     "value": 2564.6,
+     "floor": 81.2
+    },
+    "58": {
+     "value": 2718.6,
+     "floor": 89.4
+    },
+    "59": {
+     "value": 2820.1,
+     "floor": 92.0
+    },
+    "60": {
+     "value": 2720.6,
+     "floor": 85.8
+    },
+    "61": {
+     "value": 2744.0,
+     "floor": 89.9
+    },
+    "62": {
+     "value": 2585.4,
+     "floor": 82.8
+    },
+    "63": {
+     "value": 2778.4,
+     "floor": 91.1
+    },
+    "64": {
+     "value": 2741.5,
+     "floor": 91.3
+    },
+    "65": {
+     "value": 2726.5,
+     "floor": 89.2
+    },
+    "66": {
+     "value": 2760.2,
+     "floor": 86.0
+    },
+    "67": {
+     "value": 2691.1,
+     "floor": 80.3
+    },
+    "68": {
+     "value": 2695.0,
+     "floor": 87.7
+    },
+    "69": {
+     "value": 2735.8,
+     "floor": 85.6
+    },
+    "70": {
+     "value": 2758.2,
+     "floor": 88.9
+    },
+    "71": {
+     "value": 2743.3,
+     "floor": 90.1
+    },
+    "72": {
+     "value": 2769.7,
+     "floor": 89.2
+    },
+    "73": {
+     "value": 2809.8,
+     "floor": 86.8
+    },
+    "74": {
+     "value": 2685.8,
+     "floor": 88.7
+    },
+    "75": {
+     "value": 2722.3,
+     "floor": 88.1
+    },
+    "76": {
+     "value": 2696.6,
+     "floor": 88.4
+    },
+    "77": {
+     "value": 2750.7,
+     "floor": 92.6
+    },
+    "78": {
+     "value": 2759.3,
+     "floor": 89.8
+    },
+    "79": {
+     "value": 2744.2,
+     "floor": 91.6
+    },
+    "80": {
+     "value": 2846.3,
+     "floor": 93.8
+    },
+    "81": {
+     "value": 2775.6,
+     "floor": 89.6
+    },
+    "82": {
+     "value": 2711.8,
+     "floor": 88.6
+    },
+    "83": {
+     "value": 2851.7,
+     "floor": 96.6
+    },
+    "84": {
+     "value": 2782.5,
+     "floor": 88.4
+    },
+    "85": {
+     "value": 2771.8,
+     "floor": 85.8
+    },
+    "86": {
+     "value": 2756.7,
+     "floor": 87.4
+    },
+    "87": {
+     "value": 2846.4,
+     "floor": 96.3
+    },
+    "88": {
+     "value": 2723.6,
+     "floor": 87.7
+    },
+    "89": {
+     "value": 2780.7,
+     "floor": 91.5
+    },
+    "90": {
+     "value": 2740.5,
+     "floor": 87.3
+    },
+    "91": {
+     "value": 2746.8,
+     "floor": 87.9
+    },
+    "92": {
+     "value": 2718.7,
+     "floor": 86.8
+    },
+    "93": {
+     "value": 2677.4,
+     "floor": 85.0
+    },
+    "94": {
+     "value": 2821.7,
+     "floor": 95.2
+    },
+    "95": {
+     "value": 2737.5,
+     "floor": 88.8
+    },
+    "96": {
+     "value": 2769.0,
+     "floor": 90.3
+    },
+    "97": {
+     "value": 2742.4,
+     "floor": 90.4
+    },
+    "98": {
+     "value": 2749.7,
+     "floor": 89.9
+    },
+    "99": {
+     "value": 2724.3,
+     "floor": 90.2
+    },
+    "100": {
+     "value": 2831.2,
+     "floor": 92.7
+    },
+    "101": {
+     "value": 2832.7,
+     "floor": 93.0
+    },
+    "102": {
+     "value": 2724.0,
+     "floor": 88.8
+    },
+    "103": {
+     "value": 2734.1,
+     "floor": 87.7
+    },
+    "104": {
+     "value": 2685.0,
+     "floor": 85.0
+    },
+    "105": {
+     "value": 2753.7,
+     "floor": 86.8
+    },
+    "106": {
+     "value": 2840.7,
+     "floor": 94.6
+    },
+    "107": {
+     "value": 2743.5,
+     "floor": 88.5
+    },
+    "108": {
+     "value": 2726.1,
+     "floor": 86.4
+    },
+    "109": {
+     "value": 2778.5,
+     "floor": 93.5
+    },
+    "110": {
+     "value": 2723.7,
+     "floor": 87.4
+    },
+    "111": {
+     "value": 2607.8,
+     "floor": 82.1
+    },
+    "112": {
+     "value": 2645.6,
+     "floor": 85.5
+    },
+    "113": {
+     "value": 2833.0,
+     "floor": 92.1
+    },
+    "114": {
+     "value": 2721.9,
+     "floor": 88.7
+    },
+    "115": {
+     "value": 2757.5,
+     "floor": 89.3
+    },
+    "116": {
+     "value": 2775.9,
+     "floor": 90.4
+    },
+    "117": {
+     "value": 2680.3,
+     "floor": 84.8
+    },
+    "118": {
+     "value": 2844.1,
+     "floor": 93.3
+    },
+    "119": {
+     "value": 2741.2,
+     "floor": 88.6
+    },
+    "120": {
+     "value": 2802.1,
+     "floor": 90.0
+    }
+   }
+  },
+  "late_qb": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2726.46,
+   "value_se": 4.67,
+   "value_no_wire": 2603.0,
+   "p_unfieldable_skill_week": 0.9985,
+   "wire_points_per_season": 123.46,
+   "wire_skill_slot_weeks_per_season": 7.26,
+   "weekly_floor_p10": 82.27,
+   "weekly_floor_p10_se": 0.39,
+   "bye_max_empty_skill_slots": 1.09,
+   "bye_max_concurrent": 3.77,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 50.5,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 39.8,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 34.1,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 31.1,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2732.3,
+     "floor": 74.7
+    },
+    "2": {
+     "value": 2752.6,
+     "floor": 84.0
+    },
+    "3": {
+     "value": 2656.7,
+     "floor": 79.6
+    },
+    "4": {
+     "value": 2791.1,
+     "floor": 86.9
+    },
+    "5": {
+     "value": 2726.8,
+     "floor": 84.1
+    },
+    "6": {
+     "value": 2723.3,
+     "floor": 86.0
+    },
+    "7": {
+     "value": 2792.5,
+     "floor": 91.2
+    },
+    "8": {
+     "value": 2758.7,
+     "floor": 85.0
+    },
+    "9": {
+     "value": 2808.9,
+     "floor": 84.1
+    },
+    "10": {
+     "value": 2692.1,
+     "floor": 79.2
+    },
+    "11": {
+     "value": 2702.8,
+     "floor": 81.6
+    },
+    "12": {
+     "value": 2762.0,
+     "floor": 81.6
+    },
+    "13": {
+     "value": 2705.5,
+     "floor": 81.9
+    },
+    "14": {
+     "value": 2769.7,
+     "floor": 85.4
+    },
+    "15": {
+     "value": 2698.6,
+     "floor": 85.3
+    },
+    "16": {
+     "value": 2633.1,
+     "floor": 79.1
+    },
+    "17": {
+     "value": 2739.9,
+     "floor": 82.6
+    },
+    "18": {
+     "value": 2609.7,
+     "floor": 77.2
+    },
+    "19": {
+     "value": 2756.1,
+     "floor": 75.4
+    },
+    "20": {
+     "value": 2711.0,
+     "floor": 80.3
+    },
+    "21": {
+     "value": 2741.8,
+     "floor": 86.2
+    },
+    "22": {
+     "value": 2821.1,
+     "floor": 89.8
+    },
+    "23": {
+     "value": 2685.1,
+     "floor": 80.6
+    },
+    "24": {
+     "value": 2773.5,
+     "floor": 81.8
+    },
+    "25": {
+     "value": 2698.8,
+     "floor": 80.2
+    },
+    "26": {
+     "value": 2736.8,
+     "floor": 85.1
+    },
+    "27": {
+     "value": 2740.5,
+     "floor": 82.8
+    },
+    "28": {
+     "value": 2660.8,
+     "floor": 82.0
+    },
+    "29": {
+     "value": 2774.4,
+     "floor": 83.7
+    },
+    "30": {
+     "value": 2761.2,
+     "floor": 85.0
+    },
+    "31": {
+     "value": 2706.4,
+     "floor": 79.8
+    },
+    "32": {
+     "value": 2731.0,
+     "floor": 83.7
+    },
+    "33": {
+     "value": 2651.4,
+     "floor": 78.7
+    },
+    "34": {
+     "value": 2698.5,
+     "floor": 85.7
+    },
+    "35": {
+     "value": 2644.2,
+     "floor": 78.3
+    },
+    "36": {
+     "value": 2828.9,
+     "floor": 89.1
+    },
+    "37": {
+     "value": 2773.3,
+     "floor": 76.3
+    },
+    "38": {
+     "value": 2740.8,
+     "floor": 87.3
+    },
+    "39": {
+     "value": 2670.1,
+     "floor": 80.5
+    },
+    "40": {
+     "value": 2754.7,
+     "floor": 87.6
+    },
+    "41": {
+     "value": 2725.9,
+     "floor": 80.5
+    },
+    "42": {
+     "value": 2761.2,
+     "floor": 80.1
+    },
+    "43": {
+     "value": 2761.1,
+     "floor": 86.0
+    },
+    "44": {
+     "value": 2617.3,
+     "floor": 75.0
+    },
+    "45": {
+     "value": 2659.2,
+     "floor": 81.7
+    },
+    "46": {
+     "value": 2673.1,
+     "floor": 77.6
+    },
+    "47": {
+     "value": 2798.4,
+     "floor": 85.2
+    },
+    "48": {
+     "value": 2664.2,
+     "floor": 81.8
+    },
+    "49": {
+     "value": 2764.7,
+     "floor": 84.6
+    },
+    "50": {
+     "value": 2760.6,
+     "floor": 89.5
+    },
+    "51": {
+     "value": 2717.1,
+     "floor": 80.9
+    },
+    "52": {
+     "value": 2688.9,
+     "floor": 76.9
+    },
+    "53": {
+     "value": 2739.1,
+     "floor": 86.7
+    },
+    "54": {
+     "value": 2765.9,
+     "floor": 83.3
+    },
+    "55": {
+     "value": 2743.8,
+     "floor": 83.6
+    },
+    "56": {
+     "value": 2678.2,
+     "floor": 79.2
+    },
+    "57": {
+     "value": 2681.7,
+     "floor": 79.2
+    },
+    "58": {
+     "value": 2740.6,
+     "floor": 88.9
+    },
+    "59": {
+     "value": 2792.4,
+     "floor": 89.8
+    },
+    "60": {
+     "value": 2746.0,
+     "floor": 81.5
+    },
+    "61": {
+     "value": 2720.3,
+     "floor": 81.4
+    },
+    "62": {
+     "value": 2682.8,
+     "floor": 79.9
+    },
+    "63": {
+     "value": 2652.1,
+     "floor": 71.7
+    },
+    "64": {
+     "value": 2714.1,
+     "floor": 86.5
+    },
+    "65": {
+     "value": 2769.0,
+     "floor": 85.8
+    },
+    "66": {
+     "value": 2653.0,
+     "floor": 78.4
+    },
+    "67": {
+     "value": 2681.8,
+     "floor": 81.1
+    },
+    "68": {
+     "value": 2753.3,
+     "floor": 87.0
+    },
+    "69": {
+     "value": 2595.7,
+     "floor": 77.0
+    },
+    "70": {
+     "value": 2657.8,
+     "floor": 87.4
+    },
+    "71": {
+     "value": 2763.5,
+     "floor": 86.1
+    },
+    "72": {
+     "value": 2734.2,
+     "floor": 79.1
+    },
+    "73": {
+     "value": 2687.9,
+     "floor": 74.8
+    },
+    "74": {
+     "value": 2666.0,
+     "floor": 84.0
+    },
+    "75": {
+     "value": 2747.2,
+     "floor": 83.6
+    },
+    "76": {
+     "value": 2754.7,
+     "floor": 83.2
+    },
+    "77": {
+     "value": 2729.9,
+     "floor": 79.7
+    },
+    "78": {
+     "value": 2723.1,
+     "floor": 82.4
+    },
+    "79": {
+     "value": 2692.7,
+     "floor": 74.3
+    },
+    "80": {
+     "value": 2807.0,
+     "floor": 88.6
+    },
+    "81": {
+     "value": 2647.7,
+     "floor": 76.7
+    },
+    "82": {
+     "value": 2693.6,
+     "floor": 82.2
+    },
+    "83": {
+     "value": 2831.9,
+     "floor": 89.2
+    },
+    "84": {
+     "value": 2767.3,
+     "floor": 79.4
+    },
+    "85": {
+     "value": 2729.3,
+     "floor": 79.6
+    },
+    "86": {
+     "value": 2725.4,
+     "floor": 80.5
+    },
+    "87": {
+     "value": 2781.2,
+     "floor": 82.6
+    },
+    "88": {
+     "value": 2716.8,
+     "floor": 80.0
+    },
+    "89": {
+     "value": 2685.7,
+     "floor": 79.9
+    },
+    "90": {
+     "value": 2733.9,
+     "floor": 86.6
+    },
+    "91": {
+     "value": 2776.4,
+     "floor": 82.1
+    },
+    "92": {
+     "value": 2789.7,
+     "floor": 83.4
+    },
+    "93": {
+     "value": 2665.0,
+     "floor": 76.0
+    },
+    "94": {
+     "value": 2839.2,
+     "floor": 88.2
+    },
+    "95": {
+     "value": 2738.2,
+     "floor": 85.7
+    },
+    "96": {
+     "value": 2770.2,
+     "floor": 86.4
+    },
+    "97": {
+     "value": 2724.9,
+     "floor": 82.0
+    },
+    "98": {
+     "value": 2718.7,
+     "floor": 86.1
+    },
+    "99": {
+     "value": 2692.9,
+     "floor": 78.5
+    },
+    "100": {
+     "value": 2781.4,
+     "floor": 87.8
+    },
+    "101": {
+     "value": 2675.0,
+     "floor": 78.5
+    },
+    "102": {
+     "value": 2689.6,
+     "floor": 85.0
+    },
+    "103": {
+     "value": 2710.3,
+     "floor": 72.8
+    },
+    "104": {
+     "value": 2689.0,
+     "floor": 81.3
+    },
+    "105": {
+     "value": 2718.2,
+     "floor": 78.1
+    },
+    "106": {
+     "value": 2813.0,
+     "floor": 87.4
+    },
+    "107": {
+     "value": 2804.6,
+     "floor": 80.5
+    },
+    "108": {
+     "value": 2730.0,
+     "floor": 83.7
+    },
+    "109": {
+     "value": 2808.3,
+     "floor": 85.1
+    },
+    "110": {
+     "value": 2665.7,
+     "floor": 80.3
+    },
+    "111": {
+     "value": 2682.3,
+     "floor": 72.9
+    },
+    "112": {
+     "value": 2715.5,
+     "floor": 81.2
+    },
+    "113": {
+     "value": 2761.8,
+     "floor": 86.8
+    },
+    "114": {
+     "value": 2743.7,
+     "floor": 84.5
+    },
+    "115": {
+     "value": 2688.9,
+     "floor": 87.4
+    },
+    "116": {
+     "value": 2749.4,
+     "floor": 79.0
+    },
+    "117": {
+     "value": 2632.7,
+     "floor": 71.5
+    },
+    "118": {
+     "value": 2814.9,
+     "floor": 86.7
+    },
+    "119": {
+     "value": 2743.6,
+     "floor": 80.7
+    },
+    "120": {
+     "value": 2747.4,
+     "floor": 82.8
+    }
+   }
+  },
+  "te_early": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2742.6,
+   "value_se": 4.78,
+   "value_no_wire": 2617.54,
+   "p_unfieldable_skill_week": 0.9985,
+   "wire_points_per_season": 125.06,
+   "wire_skill_slot_weeks_per_season": 7.46,
+   "weekly_floor_p10": 86.71,
+   "weekly_floor_p10_se": 0.35,
+   "bye_max_empty_skill_slots": 1.08,
+   "bye_max_concurrent": 3.78,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 49.8,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 39.3,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 34.6,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 30.4,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2701.2,
+     "floor": 86.2
+    },
+    "2": {
+     "value": 2808.2,
+     "floor": 95.8
+    },
+    "3": {
+     "value": 2694.6,
+     "floor": 88.1
+    },
+    "4": {
+     "value": 2801.5,
+     "floor": 92.3
+    },
+    "5": {
+     "value": 2742.6,
+     "floor": 88.3
+    },
+    "6": {
+     "value": 2714.0,
+     "floor": 85.3
+    },
+    "7": {
+     "value": 2792.5,
+     "floor": 91.2
+    },
+    "8": {
+     "value": 2765.2,
+     "floor": 86.6
+    },
+    "9": {
+     "value": 2796.6,
+     "floor": 86.8
+    },
+    "10": {
+     "value": 2692.0,
+     "floor": 82.4
+    },
+    "11": {
+     "value": 2795.8,
+     "floor": 90.7
+    },
+    "12": {
+     "value": 2732.7,
+     "floor": 81.8
+    },
+    "13": {
+     "value": 2696.1,
+     "floor": 85.6
+    },
+    "14": {
+     "value": 2678.3,
+     "floor": 86.5
+    },
+    "15": {
+     "value": 2696.7,
+     "floor": 88.6
+    },
+    "16": {
+     "value": 2712.7,
+     "floor": 83.5
+    },
+    "17": {
+     "value": 2722.4,
+     "floor": 83.5
+    },
+    "18": {
+     "value": 2679.1,
+     "floor": 83.0
+    },
+    "19": {
+     "value": 2756.1,
+     "floor": 75.4
+    },
+    "20": {
+     "value": 2703.8,
+     "floor": 84.1
+    },
+    "21": {
+     "value": 2788.2,
+     "floor": 89.0
+    },
+    "22": {
+     "value": 2821.1,
+     "floor": 89.8
+    },
+    "23": {
+     "value": 2743.9,
+     "floor": 88.1
+    },
+    "24": {
+     "value": 2760.7,
+     "floor": 86.2
+    },
+    "25": {
+     "value": 2726.1,
+     "floor": 83.5
+    },
+    "26": {
+     "value": 2736.8,
+     "floor": 85.1
+    },
+    "27": {
+     "value": 2722.2,
+     "floor": 88.8
+    },
+    "28": {
+     "value": 2644.4,
+     "floor": 86.6
+    },
+    "29": {
+     "value": 2761.0,
+     "floor": 88.3
+    },
+    "30": {
+     "value": 2765.9,
+     "floor": 87.3
+    },
+    "31": {
+     "value": 2706.4,
+     "floor": 79.8
+    },
+    "32": {
+     "value": 2760.0,
+     "floor": 88.1
+    },
+    "33": {
+     "value": 2651.4,
+     "floor": 78.7
+    },
+    "34": {
+     "value": 2687.2,
+     "floor": 85.2
+    },
+    "35": {
+     "value": 2709.5,
+     "floor": 87.9
+    },
+    "36": {
+     "value": 2828.9,
+     "floor": 89.1
+    },
+    "37": {
+     "value": 2771.9,
+     "floor": 81.4
+    },
+    "38": {
+     "value": 2802.5,
+     "floor": 91.3
+    },
+    "39": {
+     "value": 2736.8,
+     "floor": 85.6
+    },
+    "40": {
+     "value": 2754.7,
+     "floor": 87.6
+    },
+    "41": {
+     "value": 2701.1,
+     "floor": 87.5
+    },
+    "42": {
+     "value": 2774.3,
+     "floor": 84.4
+    },
+    "43": {
+     "value": 2757.2,
+     "floor": 89.9
+    },
+    "44": {
+     "value": 2721.6,
+     "floor": 87.3
+    },
+    "45": {
+     "value": 2749.1,
+     "floor": 87.9
+    },
+    "46": {
+     "value": 2705.1,
+     "floor": 77.2
+    },
+    "47": {
+     "value": 2738.6,
+     "floor": 85.9
+    },
+    "48": {
+     "value": 2652.6,
+     "floor": 87.1
+    },
+    "49": {
+     "value": 2740.7,
+     "floor": 88.4
+    },
+    "50": {
+     "value": 2771.8,
+     "floor": 90.8
+    },
+    "51": {
+     "value": 2678.2,
+     "floor": 81.3
+    },
+    "52": {
+     "value": 2714.8,
+     "floor": 80.8
+    },
+    "53": {
+     "value": 2793.2,
+     "floor": 88.4
+    },
+    "54": {
+     "value": 2790.3,
+     "floor": 91.9
+    },
+    "55": {
+     "value": 2691.1,
+     "floor": 89.2
+    },
+    "56": {
+     "value": 2723.8,
+     "floor": 85.9
+    },
+    "57": {
+     "value": 2794.1,
+     "floor": 91.0
+    },
+    "58": {
+     "value": 2826.3,
+     "floor": 93.4
+    },
+    "59": {
+     "value": 2788.6,
+     "floor": 87.1
+    },
+    "60": {
+     "value": 2740.7,
+     "floor": 79.0
+    },
+    "61": {
+     "value": 2750.3,
+     "floor": 84.8
+    },
+    "62": {
+     "value": 2626.8,
+     "floor": 80.3
+    },
+    "63": {
+     "value": 2695.7,
+     "floor": 84.4
+    },
+    "64": {
+     "value": 2748.4,
+     "floor": 90.9
+    },
+    "65": {
+     "value": 2791.6,
+     "floor": 88.2
+    },
+    "66": {
+     "value": 2726.9,
+     "floor": 85.2
+    },
+    "67": {
+     "value": 2674.6,
+     "floor": 85.6
+    },
+    "68": {
+     "value": 2736.4,
+     "floor": 86.3
+    },
+    "69": {
+     "value": 2666.3,
+     "floor": 80.5
+    },
+    "70": {
+     "value": 2723.8,
+     "floor": 88.7
+    },
+    "71": {
+     "value": 2736.7,
+     "floor": 84.6
+    },
+    "72": {
+     "value": 2729.4,
+     "floor": 85.3
+    },
+    "73": {
+     "value": 2701.9,
+     "floor": 86.2
+    },
+    "74": {
+     "value": 2791.8,
+     "floor": 89.8
+    },
+    "75": {
+     "value": 2746.8,
+     "floor": 85.0
+    },
+    "76": {
+     "value": 2750.2,
+     "floor": 90.3
+    },
+    "77": {
+     "value": 2775.7,
+     "floor": 87.5
+    },
+    "78": {
+     "value": 2617.0,
+     "floor": 79.7
+    },
+    "79": {
+     "value": 2708.2,
+     "floor": 88.5
+    },
+    "80": {
+     "value": 2817.6,
+     "floor": 91.9
+    },
+    "81": {
+     "value": 2764.9,
+     "floor": 89.2
+    },
+    "82": {
+     "value": 2693.6,
+     "floor": 82.2
+    },
+    "83": {
+     "value": 2891.5,
+     "floor": 95.2
+    },
+    "84": {
+     "value": 2783.7,
+     "floor": 87.8
+    },
+    "85": {
+     "value": 2754.1,
+     "floor": 84.8
+    },
+    "86": {
+     "value": 2776.4,
+     "floor": 91.2
+    },
+    "87": {
+     "value": 2762.7,
+     "floor": 84.8
+    },
+    "88": {
+     "value": 2759.9,
+     "floor": 89.9
+    },
+    "89": {
+     "value": 2672.5,
+     "floor": 82.5
+    },
+    "90": {
+     "value": 2832.5,
+     "floor": 92.6
+    },
+    "91": {
+     "value": 2839.1,
+     "floor": 86.0
+    },
+    "92": {
+     "value": 2739.2,
+     "floor": 87.3
+    },
+    "93": {
+     "value": 2688.8,
+     "floor": 86.1
+    },
+    "94": {
+     "value": 2839.2,
+     "floor": 88.2
+    },
+    "95": {
+     "value": 2788.3,
+     "floor": 86.9
+    },
+    "96": {
+     "value": 2770.2,
+     "floor": 86.4
+    },
+    "97": {
+     "value": 2721.5,
+     "floor": 81.9
+    },
+    "98": {
+     "value": 2767.3,
+     "floor": 91.2
+    },
+    "99": {
+     "value": 2750.6,
+     "floor": 86.6
+    },
+    "100": {
+     "value": 2818.3,
+     "floor": 91.2
+    },
+    "101": {
+     "value": 2808.5,
+     "floor": 93.0
+    },
+    "102": {
+     "value": 2636.2,
+     "floor": 84.4
+    },
+    "103": {
+     "value": 2717.6,
+     "floor": 84.7
+    },
+    "104": {
+     "value": 2723.8,
+     "floor": 84.6
+    },
+    "105": {
+     "value": 2725.0,
+     "floor": 86.5
+    },
+    "106": {
+     "value": 2859.3,
+     "floor": 94.5
+    },
+    "107": {
+     "value": 2745.4,
+     "floor": 86.7
+    },
+    "108": {
+     "value": 2768.5,
+     "floor": 85.3
+    },
+    "109": {
+     "value": 2800.1,
+     "floor": 90.1
+    },
+    "110": {
+     "value": 2720.5,
+     "floor": 83.5
+    },
+    "111": {
+     "value": 2664.3,
+     "floor": 81.0
+    },
+    "112": {
+     "value": 2758.3,
+     "floor": 87.8
+    },
+    "113": {
+     "value": 2746.1,
+     "floor": 86.8
+    },
+    "114": {
+     "value": 2798.3,
+     "floor": 88.3
+    },
+    "115": {
+     "value": 2666.1,
+     "floor": 85.3
+    },
+    "116": {
+     "value": 2730.8,
+     "floor": 92.1
+    },
+    "117": {
+     "value": 2616.0,
+     "floor": 80.5
+    },
+    "118": {
+     "value": 2799.9,
+     "floor": 90.7
+    },
+    "119": {
+     "value": 2772.5,
+     "floor": 91.9
+    },
+    "120": {
+     "value": 2709.2,
+     "floor": 83.9
+    }
+   }
+  },
+  "seat_plan": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2718.83,
+   "value_se": 4.69,
+   "value_no_wire": 2608.08,
+   "p_unfieldable_skill_week": 0.9876,
+   "wire_points_per_season": 110.75,
+   "wire_skill_slot_weeks_per_season": 6.71,
+   "weekly_floor_p10": 85.09,
+   "weekly_floor_p10_se": 0.32,
+   "bye_max_empty_skill_slots": 0.97,
+   "bye_max_concurrent": 3.67,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 51.9,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 40.9,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 35.3,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 32.1,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2782.0,
+     "floor": 87.5
+    },
+    "2": {
+     "value": 2641.1,
+     "floor": 84.8
+    },
+    "3": {
+     "value": 2714.7,
+     "floor": 85.6
+    },
+    "4": {
+     "value": 2832.2,
+     "floor": 93.9
+    },
+    "5": {
+     "value": 2725.1,
+     "floor": 81.6
+    },
+    "6": {
+     "value": 2531.6,
+     "floor": 75.6
+    },
+    "7": {
+     "value": 2783.2,
+     "floor": 87.2
+    },
+    "8": {
+     "value": 2690.7,
+     "floor": 83.4
+    },
+    "9": {
+     "value": 2786.6,
+     "floor": 89.6
+    },
+    "10": {
+     "value": 2582.9,
+     "floor": 76.0
+    },
+    "11": {
+     "value": 2743.6,
+     "floor": 86.0
+    },
+    "12": {
+     "value": 2713.3,
+     "floor": 82.9
+    },
+    "13": {
+     "value": 2713.5,
+     "floor": 87.6
+    },
+    "14": {
+     "value": 2671.9,
+     "floor": 87.2
+    },
+    "15": {
+     "value": 2773.1,
+     "floor": 89.5
+    },
+    "16": {
+     "value": 2660.4,
+     "floor": 86.1
+    },
+    "17": {
+     "value": 2625.3,
+     "floor": 82.2
+    },
+    "18": {
+     "value": 2689.7,
+     "floor": 79.9
+    },
+    "19": {
+     "value": 2705.5,
+     "floor": 84.6
+    },
+    "20": {
+     "value": 2711.6,
+     "floor": 85.8
+    },
+    "21": {
+     "value": 2760.7,
+     "floor": 88.0
+    },
+    "22": {
+     "value": 2681.6,
+     "floor": 85.2
+    },
+    "23": {
+     "value": 2761.0,
+     "floor": 90.3
+    },
+    "24": {
+     "value": 2760.4,
+     "floor": 84.0
+    },
+    "25": {
+     "value": 2722.6,
+     "floor": 81.4
+    },
+    "26": {
+     "value": 2696.5,
+     "floor": 86.2
+    },
+    "27": {
+     "value": 2785.5,
+     "floor": 84.4
+    },
+    "28": {
+     "value": 2756.8,
+     "floor": 88.9
+    },
+    "29": {
+     "value": 2690.3,
+     "floor": 82.1
+    },
+    "30": {
+     "value": 2717.5,
+     "floor": 85.6
+    },
+    "31": {
+     "value": 2739.4,
+     "floor": 83.9
+    },
+    "32": {
+     "value": 2631.6,
+     "floor": 82.2
+    },
+    "33": {
+     "value": 2713.4,
+     "floor": 84.1
+    },
+    "34": {
+     "value": 2736.0,
+     "floor": 88.1
+    },
+    "35": {
+     "value": 2673.0,
+     "floor": 81.6
+    },
+    "36": {
+     "value": 2786.2,
+     "floor": 89.2
+    },
+    "37": {
+     "value": 2684.8,
+     "floor": 77.9
+    },
+    "38": {
+     "value": 2758.6,
+     "floor": 84.8
+    },
+    "39": {
+     "value": 2703.8,
+     "floor": 83.6
+    },
+    "40": {
+     "value": 2691.3,
+     "floor": 79.5
+    },
+    "41": {
+     "value": 2766.9,
+     "floor": 83.5
+    },
+    "42": {
+     "value": 2785.8,
+     "floor": 85.3
+    },
+    "43": {
+     "value": 2757.2,
+     "floor": 89.9
+    },
+    "44": {
+     "value": 2615.7,
+     "floor": 78.5
+    },
+    "45": {
+     "value": 2739.7,
+     "floor": 89.0
+    },
+    "46": {
+     "value": 2695.9,
+     "floor": 80.4
+    },
+    "47": {
+     "value": 2701.8,
+     "floor": 84.1
+    },
+    "48": {
+     "value": 2666.2,
+     "floor": 85.1
+    },
+    "49": {
+     "value": 2706.6,
+     "floor": 86.8
+    },
+    "50": {
+     "value": 2794.2,
+     "floor": 88.6
+    },
+    "51": {
+     "value": 2722.0,
+     "floor": 83.4
+    },
+    "52": {
+     "value": 2672.6,
+     "floor": 85.0
+    },
+    "53": {
+     "value": 2632.3,
+     "floor": 80.3
+    },
+    "54": {
+     "value": 2773.8,
+     "floor": 94.7
+    },
+    "55": {
+     "value": 2681.7,
+     "floor": 84.5
+    },
+    "56": {
+     "value": 2693.5,
+     "floor": 85.0
+    },
+    "57": {
+     "value": 2725.9,
+     "floor": 88.9
+    },
+    "58": {
+     "value": 2811.5,
+     "floor": 92.8
+    },
+    "59": {
+     "value": 2723.4,
+     "floor": 84.5
+    },
+    "60": {
+     "value": 2746.7,
+     "floor": 81.9
+    },
+    "61": {
+     "value": 2680.1,
+     "floor": 81.1
+    },
+    "62": {
+     "value": 2716.1,
+     "floor": 87.7
+    },
+    "63": {
+     "value": 2671.5,
+     "floor": 82.2
+    },
+    "64": {
+     "value": 2742.0,
+     "floor": 83.9
+    },
+    "65": {
+     "value": 2761.3,
+     "floor": 90.0
+    },
+    "66": {
+     "value": 2704.9,
+     "floor": 85.9
+    },
+    "67": {
+     "value": 2716.0,
+     "floor": 81.3
+    },
+    "68": {
+     "value": 2679.4,
+     "floor": 86.6
+    },
+    "69": {
+     "value": 2743.7,
+     "floor": 84.7
+    },
+    "70": {
+     "value": 2776.0,
+     "floor": 89.2
+    },
+    "71": {
+     "value": 2743.3,
+     "floor": 88.0
+    },
+    "72": {
+     "value": 2661.5,
+     "floor": 82.9
+    },
+    "73": {
+     "value": 2730.5,
+     "floor": 85.1
+    },
+    "74": {
+     "value": 2643.2,
+     "floor": 81.8
+    },
+    "75": {
+     "value": 2737.0,
+     "floor": 87.3
+    },
+    "76": {
+     "value": 2663.3,
+     "floor": 81.8
+    },
+    "77": {
+     "value": 2722.3,
+     "floor": 82.1
+    },
+    "78": {
+     "value": 2690.6,
+     "floor": 80.3
+    },
+    "79": {
+     "value": 2689.0,
+     "floor": 84.1
+    },
+    "80": {
+     "value": 2757.1,
+     "floor": 89.1
+    },
+    "81": {
+     "value": 2715.5,
+     "floor": 84.1
+    },
+    "82": {
+     "value": 2745.0,
+     "floor": 88.5
+    },
+    "83": {
+     "value": 2785.5,
+     "floor": 86.9
+    },
+    "84": {
+     "value": 2683.4,
+     "floor": 88.0
+    },
+    "85": {
+     "value": 2759.1,
+     "floor": 86.0
+    },
+    "86": {
+     "value": 2763.7,
+     "floor": 91.3
+    },
+    "87": {
+     "value": 2667.2,
+     "floor": 78.8
+    },
+    "88": {
+     "value": 2772.9,
+     "floor": 89.0
+    },
+    "89": {
+     "value": 2701.1,
+     "floor": 82.5
+    },
+    "90": {
+     "value": 2719.8,
+     "floor": 85.2
+    },
+    "91": {
+     "value": 2698.8,
+     "floor": 84.0
+    },
+    "92": {
+     "value": 2716.4,
+     "floor": 82.1
+    },
+    "93": {
+     "value": 2702.2,
+     "floor": 79.7
+    },
+    "94": {
+     "value": 2749.7,
+     "floor": 87.8
+    },
+    "95": {
+     "value": 2780.8,
+     "floor": 86.8
+    },
+    "96": {
+     "value": 2751.1,
+     "floor": 84.8
+    },
+    "97": {
+     "value": 2777.9,
+     "floor": 84.3
+    },
+    "98": {
+     "value": 2768.8,
+     "floor": 86.9
+    },
+    "99": {
+     "value": 2709.1,
+     "floor": 87.1
+    },
+    "100": {
+     "value": 2742.5,
+     "floor": 86.3
+    },
+    "101": {
+     "value": 2702.1,
+     "floor": 86.2
+    },
+    "102": {
+     "value": 2784.2,
+     "floor": 83.8
+    },
+    "103": {
+     "value": 2732.2,
+     "floor": 85.8
+    },
+    "104": {
+     "value": 2774.1,
+     "floor": 86.6
+    },
+    "105": {
+     "value": 2639.1,
+     "floor": 81.9
+    },
+    "106": {
+     "value": 2774.0,
+     "floor": 91.2
+    },
+    "107": {
+     "value": 2783.0,
+     "floor": 85.8
+    },
+    "108": {
+     "value": 2678.2,
+     "floor": 82.8
+    },
+    "109": {
+     "value": 2778.5,
+     "floor": 88.1
+    },
+    "110": {
+     "value": 2729.0,
+     "floor": 88.2
+    },
+    "111": {
+     "value": 2672.4,
+     "floor": 83.8
+    },
+    "112": {
+     "value": 2736.4,
+     "floor": 83.2
+    },
+    "113": {
+     "value": 2689.9,
+     "floor": 82.9
+    },
+    "114": {
+     "value": 2778.1,
+     "floor": 86.6
+    },
+    "115": {
+     "value": 2716.8,
+     "floor": 86.0
+    },
+    "116": {
+     "value": 2732.0,
+     "floor": 88.4
+    },
+    "117": {
+     "value": 2649.9,
+     "floor": 82.0
+    },
+    "118": {
+     "value": 2797.7,
+     "floor": 88.7
+    },
+    "119": {
+     "value": 2602.1,
+     "floor": 80.0
+    },
+    "120": {
+     "value": 2628.2,
+     "floor": 82.9
+    }
+   }
+  },
+  "bpa_vorp": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2637.58,
+   "value_se": 7.42,
+   "value_no_wire": 2550.04,
+   "p_unfieldable_skill_week": 0.9646,
+   "wire_points_per_season": 87.54,
+   "wire_skill_slot_weeks_per_season": 6.58,
+   "weekly_floor_p10": 80.87,
+   "weekly_floor_p10_se": 0.32,
+   "bye_max_empty_skill_slots": 0.7,
+   "bye_max_concurrent": 3.83,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 42.7,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 34.6,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 32.5,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 32.2,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2598.1,
+     "floor": 78.4
+    },
+    "2": {
+     "value": 2702.5,
+     "floor": 82.5
+    },
+    "3": {
+     "value": 2612.8,
+     "floor": 83.2
+    },
+    "4": {
+     "value": 2697.7,
+     "floor": 86.6
+    },
+    "5": {
+     "value": 2734.4,
+     "floor": 80.6
+    },
+    "6": {
+     "value": 2592.2,
+     "floor": 78.4
+    },
+    "7": {
+     "value": 2870.2,
+     "floor": 91.8
+    },
+    "8": {
+     "value": 2482.7,
+     "floor": 78.0
+    },
+    "9": {
+     "value": 2693.7,
+     "floor": 82.6
+    },
+    "10": {
+     "value": 2516.6,
+     "floor": 77.6
+    },
+    "11": {
+     "value": 2747.8,
+     "floor": 87.0
+    },
+    "12": {
+     "value": 2747.6,
+     "floor": 80.2
+    },
+    "13": {
+     "value": 2668.1,
+     "floor": 82.7
+    },
+    "14": {
+     "value": 2593.2,
+     "floor": 78.4
+    },
+    "15": {
+     "value": 2578.0,
+     "floor": 81.4
+    },
+    "16": {
+     "value": 2636.7,
+     "floor": 81.9
+    },
+    "17": {
+     "value": 2654.3,
+     "floor": 83.2
+    },
+    "18": {
+     "value": 2576.6,
+     "floor": 78.6
+    },
+    "19": {
+     "value": 2562.2,
+     "floor": 81.0
+    },
+    "20": {
+     "value": 2682.3,
+     "floor": 81.9
+    },
+    "21": {
+     "value": 2618.4,
+     "floor": 82.6
+    },
+    "22": {
+     "value": 2656.4,
+     "floor": 83.2
+    },
+    "23": {
+     "value": 2530.4,
+     "floor": 83.4
+    },
+    "24": {
+     "value": 2664.4,
+     "floor": 78.8
+    },
+    "25": {
+     "value": 2584.0,
+     "floor": 78.1
+    },
+    "26": {
+     "value": 2596.9,
+     "floor": 82.1
+    },
+    "27": {
+     "value": 2607.0,
+     "floor": 80.7
+    },
+    "28": {
+     "value": 2474.3,
+     "floor": 73.1
+    },
+    "29": {
+     "value": 2681.4,
+     "floor": 75.6
+    },
+    "30": {
+     "value": 2691.9,
+     "floor": 82.2
+    },
+    "31": {
+     "value": 2624.4,
+     "floor": 79.7
+    },
+    "32": {
+     "value": 2737.6,
+     "floor": 84.5
+    },
+    "33": {
+     "value": 2628.1,
+     "floor": 81.2
+    },
+    "34": {
+     "value": 2708.5,
+     "floor": 78.5
+    },
+    "35": {
+     "value": 2489.2,
+     "floor": 79.2
+    },
+    "36": {
+     "value": 2783.0,
+     "floor": 82.1
+    },
+    "37": {
+     "value": 2673.0,
+     "floor": 78.5
+    },
+    "38": {
+     "value": 2633.9,
+     "floor": 76.6
+    },
+    "39": {
+     "value": 2559.1,
+     "floor": 80.7
+    },
+    "40": {
+     "value": 2789.3,
+     "floor": 83.9
+    },
+    "41": {
+     "value": 2612.3,
+     "floor": 82.0
+    },
+    "42": {
+     "value": 2643.8,
+     "floor": 79.4
+    },
+    "43": {
+     "value": 2539.1,
+     "floor": 80.6
+    },
+    "44": {
+     "value": 2612.9,
+     "floor": 79.9
+    },
+    "45": {
+     "value": 2643.5,
+     "floor": 83.4
+    },
+    "46": {
+     "value": 2558.4,
+     "floor": 76.0
+    },
+    "47": {
+     "value": 2798.2,
+     "floor": 86.0
+    },
+    "48": {
+     "value": 2594.6,
+     "floor": 76.2
+    },
+    "49": {
+     "value": 2627.6,
+     "floor": 81.1
+    },
+    "50": {
+     "value": 2697.9,
+     "floor": 81.9
+    },
+    "51": {
+     "value": 2511.6,
+     "floor": 66.5
+    },
+    "52": {
+     "value": 2697.6,
+     "floor": 80.7
+    },
+    "53": {
+     "value": 2741.6,
+     "floor": 86.3
+    },
+    "54": {
+     "value": 2574.4,
+     "floor": 83.8
+    },
+    "55": {
+     "value": 2631.9,
+     "floor": 80.0
+    },
+    "56": {
+     "value": 2582.1,
+     "floor": 79.4
+    },
+    "57": {
+     "value": 2593.1,
+     "floor": 80.0
+    },
+    "58": {
+     "value": 2696.6,
+     "floor": 83.3
+    },
+    "59": {
+     "value": 2540.5,
+     "floor": 80.0
+    },
+    "60": {
+     "value": 2730.6,
+     "floor": 78.2
+    },
+    "61": {
+     "value": 2658.0,
+     "floor": 80.1
+    },
+    "62": {
+     "value": 2601.9,
+     "floor": 80.4
+    },
+    "63": {
+     "value": 2518.7,
+     "floor": 82.2
+    },
+    "64": {
+     "value": 2730.4,
+     "floor": 82.9
+    },
+    "65": {
+     "value": 2590.0,
+     "floor": 82.5
+    },
+    "66": {
+     "value": 2523.0,
+     "floor": 78.8
+    },
+    "67": {
+     "value": 2578.0,
+     "floor": 79.6
+    },
+    "68": {
+     "value": 2706.9,
+     "floor": 82.1
+    },
+    "69": {
+     "value": 2627.7,
+     "floor": 76.3
+    },
+    "70": {
+     "value": 2660.3,
+     "floor": 82.3
+    },
+    "71": {
+     "value": 2545.3,
+     "floor": 75.2
+    },
+    "72": {
+     "value": 2637.6,
+     "floor": 77.6
+    },
+    "73": {
+     "value": 2750.1,
+     "floor": 81.0
+    },
+    "74": {
+     "value": 2601.0,
+     "floor": 78.5
+    },
+    "75": {
+     "value": 2705.7,
+     "floor": 84.3
+    },
+    "76": {
+     "value": 2645.8,
+     "floor": 78.9
+    },
+    "77": {
+     "value": 2630.9,
+     "floor": 80.2
+    },
+    "78": {
+     "value": 2597.0,
+     "floor": 78.9
+    },
+    "79": {
+     "value": 2600.7,
+     "floor": 78.7
+    },
+    "80": {
+     "value": 2537.8,
+     "floor": 82.3
+    },
+    "81": {
+     "value": 2540.5,
+     "floor": 75.8
+    },
+    "82": {
+     "value": 2718.6,
+     "floor": 86.6
+    },
+    "83": {
+     "value": 2696.5,
+     "floor": 84.8
+    },
+    "84": {
+     "value": 2554.3,
+     "floor": 82.7
+    },
+    "85": {
+     "value": 2676.8,
+     "floor": 77.3
+    },
+    "86": {
+     "value": 2534.9,
+     "floor": 79.8
+    },
+    "87": {
+     "value": 2790.0,
+     "floor": 85.4
+    },
+    "88": {
+     "value": 2558.6,
+     "floor": 81.0
+    },
+    "89": {
+     "value": 2690.8,
+     "floor": 84.6
+    },
+    "90": {
+     "value": 2592.0,
+     "floor": 86.0
+    },
+    "91": {
+     "value": 2786.0,
+     "floor": 90.3
+    },
+    "92": {
+     "value": 2722.3,
+     "floor": 83.3
+    },
+    "93": {
+     "value": 2716.1,
+     "floor": 82.3
+    },
+    "94": {
+     "value": 2770.3,
+     "floor": 86.5
+    },
+    "95": {
+     "value": 2688.6,
+     "floor": 77.8
+    },
+    "96": {
+     "value": 2666.5,
+     "floor": 81.1
+    },
+    "97": {
+     "value": 2622.3,
+     "floor": 80.1
+    },
+    "98": {
+     "value": 2570.2,
+     "floor": 78.2
+    },
+    "99": {
+     "value": 2717.0,
+     "floor": 86.5
+    },
+    "100": {
+     "value": 2474.6,
+     "floor": 72.2
+    },
+    "101": {
+     "value": 2647.3,
+     "floor": 82.0
+    },
+    "102": {
+     "value": 2576.5,
+     "floor": 80.3
+    },
+    "103": {
+     "value": 2651.5,
+     "floor": 79.0
+    },
+    "104": {
+     "value": 2685.7,
+     "floor": 81.5
+    },
+    "105": {
+     "value": 2608.5,
+     "floor": 79.6
+    },
+    "106": {
+     "value": 2741.1,
+     "floor": 87.9
+    },
+    "107": {
+     "value": 2752.8,
+     "floor": 84.9
+    },
+    "108": {
+     "value": 2526.6,
+     "floor": 80.8
+    },
+    "109": {
+     "value": 2736.1,
+     "floor": 83.5
+    },
+    "110": {
+     "value": 2492.0,
+     "floor": 78.5
+    },
+    "111": {
+     "value": 2568.7,
+     "floor": 80.3
+    },
+    "112": {
+     "value": 2749.1,
+     "floor": 80.8
+    },
+    "113": {
+     "value": 2635.4,
+     "floor": 79.5
+    },
+    "114": {
+     "value": 2489.0,
+     "floor": 71.9
+    },
+    "115": {
+     "value": 2652.7,
+     "floor": 82.1
+    },
+    "116": {
+     "value": 2593.1,
+     "floor": 80.4
+    },
+    "117": {
+     "value": 2638.8,
+     "floor": 81.7
+    },
+    "118": {
+     "value": 2585.2,
+     "floor": 79.4
+    },
+    "119": {
+     "value": 2688.5,
+     "floor": 79.0
+    },
+    "120": {
+     "value": 2649.7,
+     "floor": 81.0
+    }
+   }
+  },
+  "market_adp": {
+   "rooms": 120,
+   "n_seasons_per_room": 250,
+   "n_seasons_total": 30000,
+   "value": 2746.13,
+   "value_se": 5.64,
+   "value_no_wire": 2628.77,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 117.35,
+   "wire_skill_slot_weeks_per_season": 7.19,
+   "weekly_floor_p10": 85.74,
+   "weekly_floor_p10_se": 0.39,
+   "bye_max_empty_skill_slots": 1.1,
+   "bye_max_concurrent": 3.56,
+   "stress_4wk_loss": {
+    "RB1": {
+     "expected_season_loss": 52.2,
+     "rooms": 120
+    },
+    "RB2": {
+     "expected_season_loss": 41.1,
+     "rooms": 120
+    },
+    "WR1": {
+     "expected_season_loss": 36.9,
+     "rooms": 120
+    },
+    "WR2": {
+     "expected_season_loss": 31.5,
+     "rooms": 120
+    }
+   },
+   "_per_room": {
+    "1": {
+     "value": 2721.7,
+     "floor": 89.3
+    },
+    "2": {
+     "value": 2805.1,
+     "floor": 87.6
+    },
+    "3": {
+     "value": 2554.2,
+     "floor": 81.0
+    },
+    "4": {
+     "value": 2796.5,
+     "floor": 92.3
+    },
+    "5": {
+     "value": 2762.0,
+     "floor": 85.4
+    },
+    "6": {
+     "value": 2691.7,
+     "floor": 80.1
+    },
+    "7": {
+     "value": 2743.4,
+     "floor": 87.9
+    },
+    "8": {
+     "value": 2713.6,
+     "floor": 78.9
+    },
+    "9": {
+     "value": 2773.8,
+     "floor": 85.9
+    },
+    "10": {
+     "value": 2707.9,
+     "floor": 82.0
+    },
+    "11": {
+     "value": 2815.1,
+     "floor": 90.2
+    },
+    "12": {
+     "value": 2767.3,
+     "floor": 87.1
+    },
+    "13": {
+     "value": 2761.0,
+     "floor": 81.7
+    },
+    "14": {
+     "value": 2731.0,
+     "floor": 83.6
+    },
+    "15": {
+     "value": 2776.3,
+     "floor": 91.5
+    },
+    "16": {
+     "value": 2783.3,
+     "floor": 85.6
+    },
+    "17": {
+     "value": 2668.9,
+     "floor": 84.6
+    },
+    "18": {
+     "value": 2727.2,
+     "floor": 86.2
+    },
+    "19": {
+     "value": 2701.3,
+     "floor": 81.9
+    },
+    "20": {
+     "value": 2667.4,
+     "floor": 85.4
+    },
+    "21": {
+     "value": 2809.9,
+     "floor": 92.6
+    },
+    "22": {
+     "value": 2784.4,
+     "floor": 88.1
+    },
+    "23": {
+     "value": 2776.5,
+     "floor": 90.0
+    },
+    "24": {
+     "value": 2721.2,
+     "floor": 80.0
+    },
+    "25": {
+     "value": 2605.4,
+     "floor": 80.8
+    },
+    "26": {
+     "value": 2736.1,
+     "floor": 89.2
+    },
+    "27": {
+     "value": 2698.7,
+     "floor": 85.6
+    },
+    "28": {
+     "value": 2711.0,
+     "floor": 87.8
+    },
+    "29": {
+     "value": 2739.0,
+     "floor": 81.2
+    },
+    "30": {
+     "value": 2758.2,
+     "floor": 83.0
+    },
+    "31": {
+     "value": 2794.7,
+     "floor": 91.2
+    },
+    "32": {
+     "value": 2779.3,
+     "floor": 88.1
+    },
+    "33": {
+     "value": 2767.1,
+     "floor": 82.5
+    },
+    "34": {
+     "value": 2730.9,
+     "floor": 84.1
+    },
+    "35": {
+     "value": 2714.7,
+     "floor": 85.4
+    },
+    "36": {
+     "value": 2579.2,
+     "floor": 81.4
+    },
+    "37": {
+     "value": 2764.0,
+     "floor": 74.1
+    },
+    "38": {
+     "value": 2739.4,
+     "floor": 84.3
+    },
+    "39": {
+     "value": 2748.2,
+     "floor": 83.3
+    },
+    "40": {
+     "value": 2746.3,
+     "floor": 82.7
+    },
+    "41": {
+     "value": 2829.5,
+     "floor": 90.4
+    },
+    "42": {
+     "value": 2750.1,
+     "floor": 85.5
+    },
+    "43": {
+     "value": 2744.0,
+     "floor": 83.5
+    },
+    "44": {
+     "value": 2694.6,
+     "floor": 86.2
+    },
+    "45": {
+     "value": 2783.4,
+     "floor": 86.6
+    },
+    "46": {
+     "value": 2716.7,
+     "floor": 81.5
+    },
+    "47": {
+     "value": 2776.8,
+     "floor": 86.7
+    },
+    "48": {
+     "value": 2745.3,
+     "floor": 83.4
+    },
+    "49": {
+     "value": 2755.1,
+     "floor": 89.4
+    },
+    "50": {
+     "value": 2738.6,
+     "floor": 90.9
+    },
+    "51": {
+     "value": 2803.3,
+     "floor": 86.0
+    },
+    "52": {
+     "value": 2711.5,
+     "floor": 83.4
+    },
+    "53": {
+     "value": 2822.7,
+     "floor": 95.3
+    },
+    "54": {
+     "value": 2724.2,
+     "floor": 87.1
+    },
+    "55": {
+     "value": 2772.2,
+     "floor": 84.4
+    },
+    "56": {
+     "value": 2662.5,
+     "floor": 79.0
+    },
+    "57": {
+     "value": 2851.6,
+     "floor": 90.6
+    },
+    "58": {
+     "value": 2815.4,
+     "floor": 90.0
+    },
+    "59": {
+     "value": 2823.7,
+     "floor": 92.1
+    },
+    "60": {
+     "value": 2716.7,
+     "floor": 84.6
+    },
+    "61": {
+     "value": 2636.3,
+     "floor": 77.1
+    },
+    "62": {
+     "value": 2687.1,
+     "floor": 87.7
+    },
+    "63": {
+     "value": 2720.7,
+     "floor": 84.6
+    },
+    "64": {
+     "value": 2850.0,
+     "floor": 94.0
+    },
+    "65": {
+     "value": 2809.2,
+     "floor": 90.6
+    },
+    "66": {
+     "value": 2773.1,
+     "floor": 86.2
+    },
+    "67": {
+     "value": 2696.5,
+     "floor": 83.6
+    },
+    "68": {
+     "value": 2533.8,
+     "floor": 81.1
+    },
+    "69": {
+     "value": 2796.6,
+     "floor": 87.2
+    },
+    "70": {
+     "value": 2606.6,
+     "floor": 83.4
+    },
+    "71": {
+     "value": 2757.1,
+     "floor": 91.1
+    },
+    "72": {
+     "value": 2710.6,
+     "floor": 89.3
+    },
+    "73": {
+     "value": 2840.1,
+     "floor": 86.0
+    },
+    "74": {
+     "value": 2755.2,
+     "floor": 83.9
+    },
+    "75": {
+     "value": 2665.2,
+     "floor": 85.6
+    },
+    "76": {
+     "value": 2686.5,
+     "floor": 81.6
+    },
+    "77": {
+     "value": 2772.2,
+     "floor": 87.1
+    },
+    "78": {
+     "value": 2631.7,
+     "floor": 75.2
+    },
+    "79": {
+     "value": 2774.8,
+     "floor": 87.7
+    },
+    "80": {
+     "value": 2908.6,
+     "floor": 92.2
+    },
+    "81": {
+     "value": 2733.6,
+     "floor": 80.7
+    },
+    "82": {
+     "value": 2694.9,
+     "floor": 83.0
+    },
+    "83": {
+     "value": 2865.8,
+     "floor": 94.5
+    },
+    "84": {
+     "value": 2808.9,
+     "floor": 92.9
+    },
+    "85": {
+     "value": 2828.7,
+     "floor": 88.9
+    },
+    "86": {
+     "value": 2803.7,
+     "floor": 88.6
+    },
+    "87": {
+     "value": 2865.4,
+     "floor": 87.4
+    },
+    "88": {
+     "value": 2797.3,
+     "floor": 85.1
+    },
+    "89": {
+     "value": 2754.0,
+     "floor": 82.0
+    },
+    "90": {
+     "value": 2733.9,
+     "floor": 88.4
+    },
+    "91": {
+     "value": 2722.4,
+     "floor": 77.8
+    },
+    "92": {
+     "value": 2710.7,
+     "floor": 81.0
+    },
+    "93": {
+     "value": 2759.1,
+     "floor": 81.1
+    },
+    "94": {
+     "value": 2808.7,
+     "floor": 92.3
+    },
+    "95": {
+     "value": 2743.4,
+     "floor": 83.4
+    },
+    "96": {
+     "value": 2713.4,
+     "floor": 80.1
+    },
+    "97": {
+     "value": 2686.2,
+     "floor": 86.5
+    },
+    "98": {
+     "value": 2767.8,
+     "floor": 86.4
+    },
+    "99": {
+     "value": 2681.9,
+     "floor": 87.7
+    },
+    "100": {
+     "value": 2826.1,
+     "floor": 92.7
+    },
+    "101": {
+     "value": 2762.9,
+     "floor": 89.0
+    },
+    "102": {
+     "value": 2719.1,
+     "floor": 79.1
+    },
+    "103": {
+     "value": 2772.0,
+     "floor": 85.5
+    },
+    "104": {
+     "value": 2678.7,
+     "floor": 78.8
+    },
+    "105": {
+     "value": 2793.3,
+     "floor": 85.6
+    },
+    "106": {
+     "value": 2836.1,
+     "floor": 95.1
+    },
+    "107": {
+     "value": 2759.4,
+     "floor": 81.9
+    },
+    "108": {
+     "value": 2801.2,
+     "floor": 83.8
+    },
+    "109": {
+     "value": 2729.7,
+     "floor": 81.3
+    },
+    "110": {
+     "value": 2690.3,
+     "floor": 84.8
+    },
+    "111": {
+     "value": 2756.6,
+     "floor": 85.1
+    },
+    "112": {
+     "value": 2735.3,
+     "floor": 83.9
+    },
+    "113": {
+     "value": 2774.5,
+     "floor": 89.4
+    },
+    "114": {
+     "value": 2746.9,
+     "floor": 84.5
+    },
+    "115": {
+     "value": 2690.2,
+     "floor": 85.5
+    },
+    "116": {
+     "value": 2731.8,
+     "floor": 88.7
+    },
+    "117": {
+     "value": 2721.8,
+     "floor": 89.7
+    },
+    "118": {
+     "value": 2767.0,
+     "floor": 84.2
+    },
+    "119": {
+     "value": 2739.5,
+     "floor": 88.2
+    },
+    "120": {
+     "value": 2801.2,
+     "floor": 88.9
+    }
+   }
+  }
+ },
+ "doctrine_medoids_illustration_only": {
+  "shipped": {
+   "n_seasons": 10000,
+   "value": 2852.9,
+   "value_se": 2.58,
+   "value_no_wire": 2682.2,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 170.6,
+   "wire_slot_weeks_per_season": 13.52,
+   "wire_skill_slot_weeks_per_season": 11.52,
+   "weekly_floor_p10": 95.4,
+   "weekly_floor_p10_se": 0.25,
+   "weekly_mean": 167.8,
+   "bye_worst_case": {
+    "max_concurrent_byes": 3,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 7,
+    "worst_bye_week_mu_score": 108.5
+   },
+   "shape": "QB1/RB8/WR2/TE2/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 37.8
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 31.0
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 9.4
+    },
+    "WR2": {
+     "player": "Luther Burden",
+     "expected_season_loss": -3.6
+    }
+   },
+   "medoid": {
+    "index": 86,
+    "seed": 87,
+    "mean_jaccard": 0.151
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "QB Josh Allen",
+    "TE Trey McBride",
+    "TE Colston Loveland",
+    "RB Jeremiyah Love",
+    "RB Bucky Irving",
+    "RB Quinshon Judkins",
+    "RB Cam Skattebo",
+    "RB Tony Pollard",
+    "WR Luther Burden",
+    "RB Rico Dowdle",
+    "DEF Houston Texans",
+    "K Ka'imi Fairbairn"
+   ]
+  },
+  "zero_rb": {
+   "n_seasons": 10000,
+   "value": 2699.0,
+   "value_se": 2.7,
+   "value_no_wire": 2590.0,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 109.0,
+   "wire_slot_weeks_per_season": 8.2,
+   "wire_skill_slot_weeks_per_season": 6.2,
+   "weekly_floor_p10": 85.8,
+   "weekly_floor_p10_se": 0.26,
+   "weekly_mean": 158.8,
+   "bye_worst_case": {
+    "max_concurrent_byes": 3,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 13,
+    "worst_bye_week_mu_score": 107.1
+   },
+   "shape": "QB1/RB4/WR6/TE2/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 56.1
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 41.8
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 33.6
+    },
+    "WR2": {
+     "player": "Emeka Egbuka",
+     "expected_season_loss": 38.6
+    }
+   },
+   "medoid": {
+    "index": 17,
+    "seed": 18,
+    "mean_jaccard": 0.141
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Brock Bowers",
+    "QB Josh Allen",
+    "TE Tyler Warren",
+    "WR Emeka Egbuka",
+    "WR Terry McLaurin",
+    "WR Rashee Rice",
+    "WR Christian Watson",
+    "RB Rico Dowdle",
+    "RB Bhayshul Tuten",
+    "WR Marvin Harrison",
+    "DEF Denver Broncos",
+    "K Ka'imi Fairbairn"
+   ]
+  },
+  "robust_rb": {
+   "n_seasons": 10000,
+   "value": 2759.0,
+   "value_se": 2.59,
+   "value_no_wire": 2557.4,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 201.6,
+   "wire_slot_weeks_per_season": 16.21,
+   "wire_skill_slot_weeks_per_season": 14.21,
+   "weekly_floor_p10": 89.5,
+   "weekly_floor_p10_se": 0.29,
+   "weekly_mean": 162.3,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 2,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 101.6
+   },
+   "shape": "QB1/RB9/WR2/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 34.2
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 28.8
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 9.6
+    },
+    "WR2": {
+     "player": "Rashee Rice",
+     "expected_season_loss": -0.6
+    }
+   },
+   "medoid": {
+    "index": 84,
+    "seed": 85,
+    "mean_jaccard": 0.125
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "RB Breece Hall",
+    "RB D'Andre Swift",
+    "RB Josh Jacobs",
+    "RB Bucky Irving",
+    "QB Joe Burrow",
+    "TE Tyler Warren",
+    "WR Rashee Rice",
+    "RB TreVeyon Henderson",
+    "RB Jordan Mason",
+    "RB J.K. Dobbins",
+    "DEF Denver Broncos",
+    "K Chris Boswell"
+   ]
+  },
+  "early_qb": {
+   "n_seasons": 10000,
+   "value": 2782.6,
+   "value_se": 2.71,
+   "value_no_wire": 2651.1,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 131.5,
+   "wire_slot_weeks_per_season": 9.86,
+   "wire_skill_slot_weeks_per_season": 7.86,
+   "weekly_floor_p10": 90.9,
+   "weekly_floor_p10_se": 0.29,
+   "weekly_mean": 163.7,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 104.6
+   },
+   "shape": "QB1/RB7/WR4/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 48.3
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 38.0
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 37.7
+    },
+    "WR2": {
+     "player": "Rashee Rice",
+     "expected_season_loss": 30.5
+    }
+   },
+   "medoid": {
+    "index": 115,
+    "seed": 116,
+    "mean_jaccard": 0.143
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "QB Josh Allen",
+    "TE Colston Loveland",
+    "RB Travis Etienne",
+    "RB Bucky Irving",
+    "RB Quinshon Judkins",
+    "WR Rashee Rice",
+    "WR Davante Adams",
+    "RB Jaylen Warren",
+    "WR Marvin Harrison",
+    "RB Jordan Mason",
+    "DEF Detroit Lions",
+    "K Will Reichard"
+   ]
+  },
+  "late_qb": {
+   "n_seasons": 10000,
+   "value": 2748.9,
+   "value_se": 2.94,
+   "value_no_wire": 2647.8,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 101.1,
+   "wire_slot_weeks_per_season": 7.3,
+   "wire_skill_slot_weeks_per_season": 5.3,
+   "weekly_floor_p10": 82.4,
+   "weekly_floor_p10_se": 0.26,
+   "weekly_mean": 161.7,
+   "bye_worst_case": {
+    "max_concurrent_byes": 5,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 103.6
+   },
+   "shape": "QB1/RB6/WR4/TE2/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 47.3
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 37.8
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 36.8
+    },
+    "WR2": {
+     "player": "Luther Burden",
+     "expected_season_loss": 35.0
+    }
+   },
+   "medoid": {
+    "index": 11,
+    "seed": 12,
+    "mean_jaccard": 0.139
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Brock Bowers",
+    "TE Colston Loveland",
+    "RB Jeremiyah Love",
+    "RB Quinshon Judkins",
+    "WR Brian Thomas",
+    "WR Davante Adams",
+    "RB Jaylen Warren",
+    "QB Jared Goff",
+    "WR Luther Burden",
+    "RB TreVeyon Henderson",
+    "K Jason Myers",
+    "DEF New England Patriots"
+   ]
+  },
+  "te_early": {
+   "n_seasons": 10000,
+   "value": 2754.6,
+   "value_se": 2.68,
+   "value_no_wire": 2626.4,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 128.2,
+   "wire_slot_weeks_per_season": 9.54,
+   "wire_skill_slot_weeks_per_season": 7.54,
+   "weekly_floor_p10": 90.6,
+   "weekly_floor_p10_se": 0.27,
+   "weekly_mean": 162.0,
+   "bye_worst_case": {
+    "max_concurrent_byes": 3,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 13,
+    "worst_bye_week_mu_score": 104.1
+   },
+   "shape": "QB1/RB6/WR5/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 49.2
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 37.8
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 38.4
+    },
+    "WR2": {
+     "player": "Rashee Rice",
+     "expected_season_loss": 31.0
+    }
+   },
+   "medoid": {
+    "index": 53,
+    "seed": 54,
+    "mean_jaccard": 0.136
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Colston Loveland",
+    "QB Lamar Jackson",
+    "RB Jeremiyah Love",
+    "RB Bucky Irving",
+    "WR Terry McLaurin",
+    "WR Rashee Rice",
+    "WR Davante Adams",
+    "WR Marvin Harrison",
+    "RB TreVeyon Henderson",
+    "RB Tony Pollard",
+    "K Ka'imi Fairbairn",
+    "DEF Baltimore Ravens"
+   ]
+  },
+  "seat_plan": {
+   "n_seasons": 10000,
+   "value": 2687.0,
+   "value_se": 2.77,
+   "value_no_wire": 2589.5,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 97.5,
+   "wire_slot_weeks_per_season": 7.02,
+   "wire_skill_slot_weeks_per_season": 5.02,
+   "weekly_floor_p10": 82.7,
+   "weekly_floor_p10_se": 0.33,
+   "weekly_mean": 158.1,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 13,
+    "worst_bye_week_mu_score": 102.9
+   },
+   "shape": "QB1/RB5/WR5/TE2/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 55.4
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 42.2
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 38.0
+    },
+    "WR2": {
+     "player": "Malik Nabers",
+     "expected_season_loss": 32.5
+    }
+   },
+   "medoid": {
+    "index": 71,
+    "seed": 72,
+    "mean_jaccard": 0.134
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Trey McBride",
+    "TE Colston Loveland",
+    "WR Tetairoa McMillan",
+    "WR Emeka Egbuka",
+    "QB Dak Prescott",
+    "WR Malik Nabers",
+    "RB Tony Pollard",
+    "WR Jayden Reed",
+    "RB Jordan Mason",
+    "RB J.K. Dobbins",
+    "K Cam Little",
+    "DEF Denver Broncos"
+   ]
+  },
+  "bpa_vorp": {
+   "n_seasons": 10000,
+   "value": 2602.3,
+   "value_se": 2.51,
+   "value_no_wire": 2457.0,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 145.3,
+   "wire_slot_weeks_per_season": 15.16,
+   "wire_skill_slot_weeks_per_season": 13.16,
+   "weekly_floor_p10": 82.5,
+   "weekly_floor_p10_se": 0.26,
+   "weekly_mean": 153.1,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 2,
+    "worst_bye_week": 13,
+    "worst_bye_week_mu_score": 105.6
+   },
+   "shape": "QB2/RB2/WR8/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 18.9
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 12.6
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 28.5
+    },
+    "WR2": {
+     "player": "Mike Evans",
+     "expected_season_loss": 24.5
+    }
+   },
+   "medoid": {
+    "index": 17,
+    "seed": 18,
+    "mean_jaccard": 0.125
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "TE Brock Bowers",
+    "QB Josh Allen",
+    "WR Tee Higgins",
+    "WR Mike Evans",
+    "WR Rome Odunze",
+    "WR Rashee Rice",
+    "WR Brian Thomas",
+    "QB Trevor Lawrence",
+    "WR Luther Burden",
+    "WR DJ Moore",
+    "DEF Denver Broncos",
+    "K Chris Boswell"
+   ]
+  },
+  "market_adp": {
+   "n_seasons": 10000,
+   "value": 2808.2,
+   "value_se": 2.8,
+   "value_no_wire": 2681.2,
+   "p_unfieldable_skill_week": 1.0,
+   "wire_points_per_season": 127.0,
+   "wire_slot_weeks_per_season": 9.49,
+   "wire_skill_slot_weeks_per_season": 7.49,
+   "weekly_floor_p10": 90.4,
+   "weekly_floor_p10_se": 0.29,
+   "weekly_mean": 165.2,
+   "bye_worst_case": {
+    "max_concurrent_byes": 4,
+    "max_empty_skill_slots_bye_only": 1,
+    "worst_bye_week": 6,
+    "worst_bye_week_mu_score": 107.0
+   },
+   "shape": "QB1/RB6/WR5/TE1/K1/DEF1",
+   "stress_4wk_loss": {
+    "RB1": {
+     "player": "Derrick Henry",
+     "expected_season_loss": 55.5
+    },
+    "RB2": {
+     "player": "Kenneth Walker",
+     "expected_season_loss": 41.4
+    },
+    "WR1": {
+     "player": "Ja'Marr Chase",
+     "expected_season_loss": 41.6
+    },
+    "WR2": {
+     "player": "Rashee Rice",
+     "expected_season_loss": 33.4
+    }
+   },
+   "medoid": {
+    "index": 52,
+    "seed": 53,
+    "mean_jaccard": 0.24
+   },
+   "players": [
+    "WR Ja'Marr Chase",
+    "RB Derrick Henry",
+    "RB Kenneth Walker",
+    "QB Josh Allen",
+    "TE Trey McBride",
+    "WR Rashee Rice",
+    "RB Cam Skattebo",
+    "WR Garrett Wilson",
+    "WR Luther Burden",
+    "RB TreVeyon Henderson",
+    "WR DJ Moore",
+    "RB Bhayshul Tuten",
+    "RB Chuba Hubbard",
+    "K Cam Little",
+    "DEF Minnesota Vikings"
+   ]
+  }
+ },
+ "dominance_arms_paired": {
+  "shipped": {
+   "paired_rooms": 120,
+   "delta_value_mean": 24.7,
+   "delta_value_se": 6.34,
+   "delta_floor_mean": 2.11,
+   "delta_floor_se": 0.41,
+   "dominates_seat_plan_arm": true,
+   "seat_plan_arm_dominates_it": false
+  },
+  "zero_rb": {
+   "paired_rooms": 120,
+   "delta_value_mean": -64.9,
+   "delta_value_se": 7.14,
+   "delta_floor_mean": -1.28,
+   "delta_floor_se": 0.38,
+   "dominates_seat_plan_arm": false,
+   "seat_plan_arm_dominates_it": true
+  },
+  "robust_rb": {
+   "paired_rooms": 120,
+   "delta_value_mean": 27.7,
+   "delta_value_se": 5.31,
+   "delta_floor_mean": 1.42,
+   "delta_floor_se": 0.4,
+   "dominates_seat_plan_arm": true,
+   "seat_plan_arm_dominates_it": false
+  },
+  "early_qb": {
+   "paired_rooms": 120,
+   "delta_value_mean": 15.6,
+   "delta_value_se": 6.76,
+   "delta_floor_mean": 3.35,
+   "delta_floor_se": 0.39,
+   "dominates_seat_plan_arm": true,
+   "seat_plan_arm_dominates_it": false
+  },
+  "late_qb": {
+   "paired_rooms": 120,
+   "delta_value_mean": 7.6,
+   "delta_value_se": 5.62,
+   "delta_floor_mean": -2.81,
+   "delta_floor_se": 0.41,
+   "dominates_seat_plan_arm": false,
+   "seat_plan_arm_dominates_it": false
+  },
+  "te_early": {
+   "paired_rooms": 120,
+   "delta_value_mean": 23.8,
+   "delta_value_se": 5.67,
+   "delta_floor_mean": 1.62,
+   "delta_floor_se": 0.36,
+   "dominates_seat_plan_arm": true,
+   "seat_plan_arm_dominates_it": false
+  },
+  "bpa_vorp": {
+   "paired_rooms": 120,
+   "delta_value_mean": -81.3,
+   "delta_value_se": 8.45,
+   "delta_floor_mean": -4.21,
+   "delta_floor_se": 0.4,
+   "dominates_seat_plan_arm": false,
+   "seat_plan_arm_dominates_it": true
+  },
+  "market_adp": {
+   "paired_rooms": 120,
+   "delta_value_mean": 27.3,
+   "delta_value_se": 6.86,
+   "delta_floor_mean": 0.66,
+   "delta_floor_se": 0.39,
+   "dominates_seat_plan_arm": false,
+   "seat_plan_arm_dominates_it": false
+  }
+ },
+ "dominance_vs_planned_roster": {
+  "cory_actual_2025": {
+   "delta_value": -488.3,
+   "delta_floor_p10": -18.4,
+   "dominates_planned_roster": false,
+   "planned_roster_dominates_it": true,
+   "strictly_better_all_metrics": false
+  },
+  "seat_plan_shortlist_literal": {
+   "delta_value": -14.7,
+   "delta_floor_p10": 0.7,
+   "dominates_planned_roster": false,
+   "planned_roster_dominates_it": false,
+   "strictly_better_all_metrics": false
+  },
+  "fragile_bye_stack": {
+   "delta_value": -59.0,
+   "delta_floor_p10": 2.5,
+   "dominates_planned_roster": false,
+   "planned_roster_dominates_it": false,
+   "strictly_better_all_metrics": false
+  }
+ },
+ "headline": "DOMINATED ON THIS YARDSTICK (17-week totals under measured availability): doctrine(s) shipped, robust_rb, early_qb, te_early dominate the seat-plan arm in the paired room test \u2014 the seat-plan overlay is giving up availability structure it did not have to give up. The tournament's own $-metric disagrees for the RB-heavy arms (it is injury-blind; this yardstick is H2H-blind) \u2014 the two verdicts are BOTH in the artifact and the doctrine call stays with the enrolled doctrine.",
+ "no_fit_guard": {
+  "label": "roster_robustness_2026",
+  "arm": "measurement",
+  "seasons": [
+   2023,
+   2024,
+   2025
+  ],
+  "value": {
+   "headline": "DOMINATED ON THIS YARDSTICK (17-week totals under measured availability): doctrine(s) shipped, robust_rb, early_qb, te_early dominate the seat-plan arm in the paired room test \u2014 the seat-plan overlay is giving up availability structure it did not have to give up. The tournament's own $-metric disagrees for the RB-heavy arms (it is injury-blind; this yardstick is H2H-blind) \u2014 the two verdicts are BOTH in the artifact and the doctrine call stays with the enrolled doctrine."
+  },
+  "configs_tried": 1,
+  "selected_from_search": false,
+  "mechanism": null,
+  "promotable": false,
+  "notes": {
+   "routes_to": "A/Cory",
+   "no_plan_promoted": true
+  },
+  "evidence_class": "PRE-DECLARED \u2014 a single stated comparison",
+  "may_change_production": false
+ },
+ "_mechanisms": [
+  "The seat plan's low wire dependence comes from its shape (QB2/RB4/WR5/TE2/K1/DEF1): two QBs and two TEs mean the two most expensive holes (QB wire 19.46, TE 11.6 pts/wk, both measured) have a rostered backup, so an absence costs bench points, not wire points.",
+  "The shortlist-literal probe (QB5/RB4/WR3/TE1/K1/DEF1) exists because the realized-wire MV ranking at the demoted bench seats puts backup QBs on top \u2014 followed literally it drafts that shape, whose surplus QBs can never start together while its lone TE is backed only by an 11.6-pt wire slot; the guard against it is shape reasonableness, which the MV number alone does not encode.",
+  "The fail arm (QB1/RB5/WR6/TE1/K1/DEF1, five RBs ALL on bye 10) grades worse because both RB slots are empty that week by construction: 2 empty skill slots in its worst bye week versus 1 for the seat plan, and the worst deterministic week drops to 90.1 versus 104.1 \u2014 the grader distinguishes structure, not just totals.",
+  "Why depth-heavy arms can clear the seat-plan arm on both axes HERE while the tournament's own paired $-table runs the other way (robust_rb -16.1pp playoff prob vs shipped there): this yardstick draws measured availability (league draftees played 13.0-13.6 of 16 non-bye weeks on average), so a bench body at a thin position keeps paying when a starter sits \u2014 insurance the injury-blind $ sim admits it cannot see \u2014 while the $ sim prices H2H schedule variance this yardstick cannot see. The seat plan also spends picks 108/113 on DEF/K (rounds 11-12) where shipped's rooms average K/DEF near pick 140 \u2014 two rounds of skill depth the overlay gives away by construction.",
+  "QB holes are priced at the ongoing-hold wire line (19.46/wk = 330.8/season) because a streamed QB is a held add and the acquisition-week median (23.38) exceeds most startable QBs' weekly mean \u2014 pricing an empty slot above a healthy starter would make QB holes profitable, an artifact, not a finding.",
+  "P(unfieldable skill week) is ~1.0 for EVERY graded roster \u2014 corroborated by the league itself completing 1.498 adds per team per week (measured, seat_plan.json bench_basis): nobody survives a season without the wire, so the discriminating quantity is how MANY wire points a roster consumes, not whether it ever needs one."
+ ]
+}

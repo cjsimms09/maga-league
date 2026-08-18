@@ -237,10 +237,17 @@ const PICK_BOARD = ((D.pick_order || {}).picks) || null;
       + 'real information, so the clause above is exercised rather than vacuous',
     list.some(s => s && s.ceiling_tiebreak && s.ceiling_tiebreak.over),
     list.map(s => (s.player || {}).name + (s.ceiling_tiebreak ? '*' : '')).join(','));
-    ck('  and on the LIVE board there are none, because every cross-cell swap '
-      + 'there would be decided by a calibration constant',
-    !rows.some(r => r.shown.some(s => s.ceiling_tiebreak)),
-    'if this fails the live ceiling has started carrying per-player information');
+    /* Re-pinned 2026-08-18 (v25 sweep): this control's own failure message
+     * came true — the live ceiling DOES carry per-player information now
+     * (per-player 2025 volatility, season-rescaled). Live marks are therefore
+     * expected; what stays required is that every one carries its reason,
+     * asserted on the whole list just below. The control flips to pin that
+     * the live board actually exercises the mechanism. */
+    ck('  and the LIVE board now produces marked promotions too — the ceiling '
+      + 'carries per-player information, so the every-mark-names-its-reason '
+      + 'check below runs on real data, not only the synthetic pair',
+    rows.some(r => r.shown.some(s => s.ceiling_tiebreak)),
+    'zero live marks would mean the per-player ceiling stopped varying');
   }
   const marks = [].concat(...rows.map(r => r.shown.filter(s => s.ceiling_tiebreak)));
   ck('every mark NAMES the man it passed — a reason the reader cannot check '

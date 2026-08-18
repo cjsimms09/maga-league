@@ -238,7 +238,9 @@ function ctxAt(pick, board) {
  * READS them — and nothing did. Rule 14 on the one field whose job is to stop
  * the misread the strip invites.
  *
- * MEASURED ON THE LIVE BOARD AT PICK 33, CORY'S FIRST PICK:
+ * MEASURED ON THE 2026-08-14 LIVE BOARD AT PICK 33, CORY'S FIRST PICK
+ * (HISTORY — the 08-17 rebuild flipped this case to a live-driven consensus;
+ * see the re-pin at the bottom of this block):
  *
  *     rec list #1     Colston Loveland (TE) 17.3
  *     shadow strip    "7 of 7 -> Zay Flowers"   (no contested flag)
@@ -290,31 +292,68 @@ function ctxAt(pick, board) {
   /r\.driver/.test(APP) && /sp-rowdriver/.test(APP));
 
   // -- the measured case, re-derived rather than quoted
+  /* RE-PINNED 2026-08-18, THE THIRD TIME THIS CASE HAS MOVED, and the pin
+   * moves WITH the reason on the record each time. 08-14: pick 33 was 7/7
+   * Zay Flowers via `need` — hollow, flagged (block comment above, history).
+   * 08-17: the rebuild re-spread the board; 6/7 Colston Loveland via
+   * `keeper`, a live-weighted term — real agreement, unflagged. 08-18: the
+   * keeper-vorp badge fix collapsed the incumbent-bar subsidy that was
+   * inflating the keeper term (~15 phantom points; intervention-rate.test.js
+   * carries the measurement), and pick 33 stopped being a consensus at all:
+   * 5/7 via `value`, contested. A control pinned to a pick that no longer
+   * shows the phenomenon pins nothing — so the case moved to where the live
+   * board actually exhibits BOTH sides today, which is a STRONGER pin than
+   * either predecessor:
+   *
+   *   pick 68: 7/7 Parker Washington via `need`  — zero-weighted, FLAGGED
+   *            (the firing side, now measured live, not only synthetic)
+   *   pick 73: 7/7 Jayden Reed via `value`       — live-weighted, quiet
+   *
+   * Both are uncontested, which retires the old "contested might catch it"
+   * question by measurement: `contested` reads false on the hollow case and
+   * the real one alike — it cannot tell them apart, and that is exactly why
+   * the separate artifact signal exists. */
   const B2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const keepers = (B2.kept_players || []).slice();
   const priced = B2.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
-  const gone = new Set(priced.slice(0, 32).map(x => String(x.player_id)));
-  keepers.forEach(t => gone.add(String(t.player_id)));
-  const board33 = B2.players.filter(x => !gone.has(String(x.player_id)));
-  const ctx33 = { board: board33, nextPick: 48, totalPicks: 150, myPicksLeft: 12,
-    roster: keepers.slice(), doctrine: null, myPickIndex: 0, totalMyPicks: 12,
-    currentKeepers: keepers.slice(), league: B2.league, weights: E2.MEASURED_WEIGHTS,
-    runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: 33,
-    intervening: 15, roundsLeft: 12 };
-  const c33 = SH.consensus(SH.project(board33, ctx33, 4, keepers.slice()));
-  console.log('      pick 33: ' + c33.agree + '/' + c33.n + ' -> ' + c33.lead
-    + ' · driver ' + c33.lead_driver + ' · zero-weighted ' + c33.driver_zero_weighted
-    + ' · contested ' + c33.contested);
-  check('CONTROL — pick 33 really is a high-agreement consensus, or there is '
-    + 'nothing here to mislabel', c33.agree >= Math.ceil(c33.n * 0.75),
-  c33.agree + '/' + c33.n);
-  check('and it IS flagged — the strongest agreement the strip can express is '
-    + 'the one that needed qualifying',
-  c33.driver_zero_weighted === true || c33.driver_is_artifact === true,
-  'driver ' + c33.lead_driver);
-  check('CONTROL — `contested` does NOT catch it, which is why a separate signal '
-    + 'was needed rather than reusing that flag', c33.contested === false,
-  String(c33.contested));
+  const liveCase = (pick) => {
+    const gone = new Set(priced.slice(0, pick - 1).map(x => String(x.player_id)));
+    keepers.forEach(t => gone.add(String(t.player_id)));
+    const board = B2.players.filter(x => !gone.has(String(x.player_id)));
+    const ctx = { board: board, nextPick: pick + 15, totalPicks: 150, myPicksLeft: 12,
+      roster: keepers.slice(), doctrine: null, myPickIndex: 0, totalMyPicks: 12,
+      currentKeepers: keepers.slice(), league: B2.league, weights: E2.MEASURED_WEIGHTS,
+      runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: pick,
+      intervening: 15, roundsLeft: 12 };
+    return SH.consensus(SH.project(board, ctx, 4, keepers.slice()));
+  };
+  const cHollow = liveCase(68);
+  const cReal = liveCase(73);
+  [['68', cHollow], ['73', cReal]].forEach(([p, c]) => console.log(
+    '      pick ' + p + ': ' + c.agree + '/' + c.n + ' -> ' + c.lead
+    + ' · driver ' + c.lead_driver + ' · zero-weighted ' + c.driver_zero_weighted
+    + ' · contested ' + c.contested));
+  check('CONTROL — the live board still carries a unanimous HOLLOW consensus, '
+    + 'and the flag fires on it (the firing side, measured live)',
+  cHollow.agree === cHollow.n && cHollow.driver_zero_weighted === true
+    && cHollow.driver_is_artifact === true,
+  cHollow.agree + '/' + cHollow.n + ' driver ' + cHollow.lead_driver);
+  check('CONTROL — the live board also carries a unanimous REAL consensus, or '
+    + 'there is nothing here to mislabel', cReal.agree >= Math.ceil(cReal.n * 0.75),
+  cReal.agree + '/' + cReal.n);
+  check('and it is NOT flagged — the strip stays quiet on agreement driven by '
+    + 'a term the board really uses',
+  cReal.driver_zero_weighted === false && cReal.driver_is_artifact === false,
+  'driver ' + cReal.lead_driver);
+  check('FAIL ARM — the real case\'s lead driver is genuinely nonzero in '
+    + 'MEASURED_WEIGHTS, or the quiet strip above would be the exact mislabel '
+    + 'this section exists to catch', (E2.MEASURED_WEIGHTS[cReal.lead_driver] || 0) !== 0,
+  cReal.lead_driver + '=' + E2.MEASURED_WEIGHTS[cReal.lead_driver]);
+  check('CONTROL — `contested` cannot tell the hollow case from the real one '
+    + '(false on BOTH), which is why the separate signal exists rather than '
+    + 'reusing that flag',
+  cHollow.contested === false && cReal.contested === false,
+  'hollow=' + cHollow.contested + ' real=' + cReal.contested);
 }
 
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);

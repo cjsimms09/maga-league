@@ -116,9 +116,27 @@ def fetch_2026() -> dict:
     }
 
 
-def targets() -> tuple[list, dict, list]:
+def fill_players(players: list) -> int:
+    """BUILD-TIME ENTRY (Cory's take-a-swing ruling, 2026-08-17): fill null
+    rookie `proj_ownmodel` in-memory during the board build, so the nightly
+    rebuild cannot erase the layer the one-shot applier wrote. Same match,
+    same fit, same targets; idempotent (already-set rows are skipped).
+    Called by build.py gated on league_config's `rookie_capital_prior` key —
+    the ruling record lives THERE, preserved across rebuilds by
+    preserve_local_rulings."""
+    rows, _fit, _un = targets(players)
+    by_pid = {str(p.get("player_id")): p for p in players}
+    for r in rows:
+        by_pid[r["player_id"]]["proj_ownmodel"] = r["own_model_value"]
+        by_pid[r["player_id"]]["proj_ownmodel_source"] = (
+            "rookie_capital_prior_2026")
+    return len(rows)
+
+
+def targets(players: list | None = None) -> tuple[list, dict, list]:
     """(rows to patch, the fit, unmatched board rookies). Pure read."""
-    board = json.loads(BOARD.read_text())
+    if players is None:
+        players = json.loads(BOARD.read_text())["players"]
     if not STORE_2026.exists():
         raise SystemExit("run `fetch-2026` first — the 2026 class store "
                          "is not committed")
@@ -130,7 +148,7 @@ def targets() -> tuple[list, dict, list]:
         by_name.setdefault((_norm(r["name"]), r["position"]), r)
 
     rows, unmatched = [], []
-    for p in board["players"]:
+    for p in players:
         if p.get("years_exp") != 0 or p.get("proj_ownmodel") is not None:
             continue
         if p.get("position") not in SKILL:
@@ -190,7 +208,11 @@ def main(argv: list) -> int:
         by_pid[r["player_id"]]["proj_ownmodel"] = r["own_model_value"]
         by_pid[r["player_id"]]["proj_ownmodel_source"] = (
             "rookie_capital_prior_2026")
-    board.setdefault("notes", []).append(
+    # `notes` on the live board is a DICT of config notes (this crashed mid-
+    # apply on 2026-08-17 assuming a list — after the row writes, BEFORE the
+    # file write, so nothing landed). The approval record gets its own
+    # top-level list instead of squatting on a config surface.
+    board.setdefault("applied_layers", []).append(
         {"applied": "rookie_capital_prior_own_model",
          "cory_approval_verbatim": approval,
          "players_patched": len(rows)})

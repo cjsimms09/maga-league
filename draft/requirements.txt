@@ -5,3 +5,11 @@ pytest>=7.4
 # Play-by-play for the opportunity metrics (Module 2). The build degrades to
 # consensus-only if this is unavailable, so it is intentionally not pinned hard.
 nfl_data_py>=0.3.2
+requests
+# Census stage 2 (discovery_projection_spread_capture) parses HTML projection
+# tables via pandas.read_html — these are its engine, and its tests run in the
+# board gate, so a missing one here is the `requests` venv gap all over again.
+lxml
+html5lib
+beautifulsoup4
+openpyxl
