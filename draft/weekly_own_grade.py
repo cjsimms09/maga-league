@@ -327,7 +327,41 @@ def decide_promotion(champion: dict, weeks: dict, active_arms: list) -> dict | N
         "from": {"version": champion["version"], "arm": champ_arm},
         "to": {"version": nxt, "arm": best["arm"]},
         "evidence": best,
+        # THE STANDING NULL (BLEND-SEARCH-DESIGN §3, D's condition 4, wired
+        # 08-18): picking the best of K arms buys a margin for free, and that
+        # free margin GROWS as arms are added. ATTACHED, NOT GATING — the
+        # promotion rule above is Cory-ruled verbatim and this does not change
+        # it; it makes every promotion carry the question "would K skill-free
+        # arms have produced this margin?" so the human reading the promotion
+        # issue sees the answer beside the win instead of nobody asking.
+        "best_of_k": _best_of_k_null(weeks, [a["name"] for a in active_arms]),
     }
+
+
+def _best_of_k_null(weeks: dict, arm_names: list) -> dict:
+    """best_of_k over the arms' common graded weeks (rows = weeks, error =
+    weekly MAE — exchangeable under 'arm identity carries no information').
+    Never raises: a promotion must not fail because its null could not run —
+    an unrunnable null is REPORTED as unrunnable, not silently absent."""
+    try:
+        from best_of_k import best_of_k
+        series = {a: _arm_series(weeks, a) for a in arm_names}
+        series = {a: s for a, s in series.items() if s}
+        common = None
+        for s in series.values():
+            common = set(s) if common is None else common & set(s)
+        common = sorted(common or [])
+        if len(series) < 2 or len(common) < 3:
+            return {"status": "NOT RUN — needs >=2 arms with >=3 common graded weeks",
+                    "arms": len(series), "common_weeks": len(common)}
+        errors_by_arm = {a: [series[a][w][0] for w in common] for a in series}
+        out = best_of_k(errors_by_arm)
+        out["status"] = "ran"
+        out["rows_are"] = "weekly MAEs over common weeks " + str(common)
+        return out
+    except Exception as exc:                              # noqa: BLE001
+        return {"status": f"FAILED to run ({type(exc).__name__}: {exc}) — "
+                          "the null is missing, not passed"}
 
 
 def seed_challenger(promoted_def: dict, active_arms: list) -> dict | None:

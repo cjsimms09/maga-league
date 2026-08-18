@@ -388,3 +388,57 @@ def test_empty_ledger_carries_formula_per_arm():
 def test_week_games_complete_boundary():
     assert not WG.week_games_complete(1, dt.date(2026, 9, 14))   # Monday
     assert WG.week_games_complete(1, dt.date(2026, 9, 15))       # Tuesday
+
+
+# ── BEST-OF-K: THE STANDING NULL RIDES EVERY PROMOTION (wired 08-18) ─────────
+# BLEND-SEARCH-DESIGN §3 / D's residual-frame condition 4. Attached, never
+# gating — the promotion rule is Cory-ruled verbatim; the null makes each
+# promotion carry "would K skill-free arms have produced this margin?".
+
+def _promo_fixture(n_weeks=5):
+    weeks = {}
+    for w in range(1, n_weeks + 1):
+        weeks[str(w)] = {"own_arms": {
+            "v1":         {"mae": 6.0 + 0.01 * w, "spearman": 0.60},
+            "v1_tilt150": {"mae": 5.0 + 0.01 * w, "spearman": 0.61},
+            "v1_notilt":  {"mae": 6.5 + 0.01 * w, "spearman": 0.58},
+        }}
+    champion = {"arm": "v1", "version": "own_weekly_v1"}
+    arms = [{"name": a} for a in ("v1", "v1_tilt150", "v1_notilt")]
+    return weeks, champion, arms
+
+
+def test_promotion_record_carries_the_best_of_k_null():
+    weeks, champion, arms = _promo_fixture()
+    rec = WG.decide_promotion(champion, weeks, arms)
+    assert rec is not None
+    bok = rec["best_of_k"]
+    assert bok["status"] == "ran"
+    assert bok["winner"] == "v1_tilt150"
+    assert "field_p_value" in bok and "survives" in bok
+    # A dominant challenger over 5 weeks against 3 arms should survive the null.
+    assert bok["survives"] is True
+
+
+def test_unrunnable_null_reports_itself_instead_of_vanishing():
+    # Rule 3e: an absent null and a passed null must be distinguishable. With
+    # only one arm carrying history, best-of-K cannot run — the record must SAY
+    # so, and the promotion must not crash on its null's account.
+    weeks = {str(w): {"own_arms": {
+        "v1":         {"mae": 6.0, "spearman": 0.6},
+        "v1_tilt150": {"mae": 5.0, "spearman": 0.6},
+    }} for w in range(1, 6)}
+    out = WG._best_of_k_null(weeks, ["v1_tilt150"])       # one arm only
+    assert out["status"].startswith("NOT RUN")
+
+
+def test_null_failure_is_named_not_swallowed(monkeypatch):
+    weeks, champion, arms = _promo_fixture()
+    import best_of_k as BOK
+
+    def boom(*a, **k):
+        raise RuntimeError("synthetic")
+    monkeypatch.setattr(BOK, "best_of_k", boom)
+    rec = WG.decide_promotion(champion, weeks, arms)
+    assert rec is not None                                # promotion unharmed
+    assert rec["best_of_k"]["status"].startswith("FAILED to run")
