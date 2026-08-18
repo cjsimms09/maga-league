@@ -75,6 +75,15 @@ WORKFLOW = ROOT / ".github" / "workflows" / "draft-data.yml"
 #: Adding a marker to any other test WILL fail this file until the addition
 #: is recorded here — that is the point, not an inconvenience.
 REPO_PARITY_NODES = {
+    # Added 2026-08-18 (E's sweep 16 / A's source fix). Both check the
+    # PUBLISHED board: keeper rows must carry vorp (the || 0 badge lie), and
+    # the vorp identity must hold boardwide. Red on a board that predates the
+    # build.py emit is repository state, never a candidate refusal — the
+    # fresh candidate carries the field, which is exactly what these verify
+    # after the rebuild lands. Forgetting this registration refused rebuild
+    # 32095127740 — the gate-selection pin working as designed.
+    "draft/tests/test_kept_players_carry_vorp.py::test_every_kept_player_on_the_published_board_carries_vorp",
+    "draft/tests/test_kept_players_carry_vorp.py::test_the_identity_the_fix_relies_on_still_holds_boardwide",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[50-100]",
@@ -100,6 +109,15 @@ REPO_PARITY_NODES = {
     # them in here was refused by this very test, in the right words:
     # "soundness tests the gate would silently skip".
     "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+    # TERRITORY-GRANT: C test_calibration_population
+    #
+    # This block is VERBATIM what A's own session already authored and
+    # shipped to `main` (79a51073) — restored here after C's branch synced
+    # `test_calibration_population.py` (C's file, register 4r/4s) from main
+    # without its sibling registration in this file, which left the two
+    # mismatched and red. Not new logic; the same three node IDs A already
+    # approved, re-added so the pin stays correct.
+    #
     # Added 2026-08-17 (register 4r). THE COMMITTED CALIBRATION IS CONTAMINATED:
     # cli.py called PE.calibrate() with no `positions`, so the artifact behind
     # every proj_ceiling/proj_floor/proj_sd was fitted on punters, DBs, a

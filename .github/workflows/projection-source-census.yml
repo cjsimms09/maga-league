@@ -1,0 +1,67 @@
+name: Projection source census — fetchability of ffanalytics' 10-source list
+
+# TERRITORY: C — dispatches draft/backtest/discovery_projection_source_census.py.
+
+# Routed 2026-08-18 (ROUTES.md, A -> C), accelerated by Cory: "are we now
+# pulling in more sources... anyway to use those this year" (asked twice —
+# a date-move to before the draft). ffanalytics aggregates ~10 independent
+# public projection sources; we hold two (Sleeper, FantasyPros). This is
+# STAGE 1 ONLY — does the host even answer from where we run. It scrapes
+# nothing, parses no player row, computes no ceiling. Stage 2 (capture +
+# publish projection_spread_2026.json, display-only, same class as the
+# expert-split/Kalshi badges) is a follow-up gated on this census clearing
+# >=3 sources with PLAUSIBLE content, not just a 200.
+#
+# DISPATCH THIS FROM `main`, NOT A WORKTREE BRANCH — same push-guard reason
+# named in every other fetch workflow this week.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: projection-source-census
+  cancel-in-progress: false
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install requests pytest
+
+      - name: The census logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_discovery_projection_source_census.py -q
+
+      - name: Run the fetchability census
+        run: python3 draft/backtest/discovery_projection_source_census.py
+
+      - name: Commit the census result
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::census result is in this run's log and is"
+            echo "::warning::deliberately NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/discovery_projection_source_census.json
+          if ! git diff --cached --quiet; then
+            git commit -m "discovery_projection_source_census: fetchability census of ffanalytics' 10-source list — stage 1 only, no parsing, no ceiling [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — the census already matches what was on disk"

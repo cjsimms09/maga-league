@@ -400,11 +400,16 @@ def _rostered_only(bundle):
     return out
 
 
-def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
-    """The no-args entry point `artifact_registry.json` calls. Assembles real
-    bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
-    of them, `exclude_season=None` — this is the PRODUCTION calibration
-    applied to 2026, not a leave-one-out skill test, so nothing is held out.
+def _assemble_asof_bundles(seasons=CALIBRATION_SEASONS) -> dict:  # pragma: no cover  (egress; CI only)
+    """Leak-free as-of bundle + realized actuals for each season in `seasons`,
+    built with the SAME machinery `regenerate()` fits its production
+    calibration on. Extracted OUT of `regenerate()` (2026-08-18, register 4t)
+    so a second study needing the identical as-of `proj_mean` curve — not a
+    separately re-derived one — calls this instead. Two functions independently
+    rebuilding "how do you get a leak-free historical bundle" is exactly the
+    two-places-that-drift shape rule 11 warns about, and this file already
+    carries one cautionary tale about that (the RB-flatness/register-31 class
+    of question becomes unanswerable if there are two candidate derivations).
 
     ⚠ REUSES `cli.py`'s SEASON-ASSEMBLY MACHINERY RATHER THAN RE-DERIVING IT.
     `cli.py` already builds exactly this shape of bundle+actual pair, per
@@ -419,11 +424,11 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
     .py`, `adp.py`, `sleeper_import.py` or `grade.py` is edited to make this
     work — all of them are TERRITORY: A or shared/core, called read-only.
 
-    ⚠ NOT RUN AS PART OF THIS COMMIT, DELIBERATELY. Registering the artifact
-    is what makes its staleness visible; regenerating it moves every
-    `proj_ceiling` and `proj_floor` on the board, and the no-change-before-
-    08-22 rule holds regardless of what unblocks it. `main()` below is the
-    entry point CI (or a human, after the 22nd) invokes.
+    Returns `{"status": "VOID", "reason": ...}` on total failure (no season
+    produced anything), else `{"bundles": [...], "actual": [...],
+    "skipped": [...], "crosswalk": ..., "players_meta": [...]}` — one
+    `bundles[i]`/`actual[i]` pair per season that produced both, already
+    `_rostered_only`-filtered, in the same order as `seasons`.
     """
     import sys as _sys
     from pathlib import Path as _Path
@@ -471,7 +476,7 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
         ids_df = None
     crosswalk = GR.crosswalk_gsis_to_sleeper(players_meta, ids_df)
 
-    need = sorted({y for s in CALIBRATION_SEASONS for y in (s - 2, s - 1, s)}
+    need = sorted({y for s in seasons for y in (s - 2, s - 1, s)}
                  & set(range(2018, 2027)))
     frames, missing = [], []
     for y in need:
@@ -512,7 +517,7 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
                             for pid, r in table["adp"].items()]}
 
     bundles, actual, skipped = [], [], []
-    for season in CALIBRATION_SEASONS:
+    for season in seasons:
         store = AsOfDataStore(season, history, adp_loader=_adp)
         try:
             bundle, _notes = BB.build(store, players_meta=players_meta,
@@ -567,6 +572,28 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
         return {"status": "VOID", "reason": "no season produced both a "
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
+
+    return {"bundles": bundles, "actual": actual, "skipped": skipped,
+            "crosswalk": crosswalk, "players_meta": players_meta}
+
+
+def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
+    """The no-args entry point `artifact_registry.json` calls. Assembles real
+    bundles + actuals for `CALIBRATION_SEASONS` (via `_assemble_asof_bundles`)
+    and fits `calibrate()` on all of them, `exclude_season=None` — this is the
+    PRODUCTION calibration applied to 2026, not a leave-one-out skill test, so
+    nothing is held out.
+
+    ⚠ NOT RUN AS PART OF THIS COMMIT, DELIBERATELY. Registering the artifact
+    is what makes its staleness visible; regenerating it moves every
+    `proj_ceiling` and `proj_floor` on the board, and the no-change-before-
+    08-22 rule holds regardless of what unblocks it. `main()` below is the
+    entry point CI (or a human, after the 22nd) invokes.
+    """
+    asm = _assemble_asof_bundles(CALIBRATION_SEASONS)
+    if asm.get("status") == "VOID":
+        return asm
+    bundles, actual, skipped = asm["bundles"], asm["actual"], asm["skipped"]
 
     # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT.
     #

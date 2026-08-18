@@ -7,6 +7,15 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-15 · this session · ✅ **MONDAY IS ONE COMMAND, THEN ONE DECISION. `bash scripts/verify-relay-session.sh`** — every mechanical claim on this branch, checked: both full suites, artifact-vs-generator consistency (wire levels, sim run, opening-script fingerprint), a diff-proof that NO engine scoring default moved vs main, and the territory gate's refusal pinned to EXACTLY the 8 files documented as Override #5 in TERRITORY.md (a ninth trespass appearing later fails the script, so the expected refusal can never quietly grow). Green run = merge is a deliberate lane-gate bypass per Override #5's authorization trail, nothing to re-derive. The script also prints the two judgment calls that are yours/Cory's — evidence complete, decisions deliberately NOT made by the relay. Also cleared while pre-running your gate: 6 new files were missing TERRITORY headers (added, JSON emitters patched to keep them), and **the board_pin nightly blocker was NOT a live-data mystery** — it pinned working-tree bytes against HEAD mid-rebuild, failing exactly when the rebuild fetched fresh data; fixed with both arms proven (clean-tree equality contract byte-for-byte unchanged, mid-rebuild discrimination arm added), commit `a18d2b92`, cherry-picked to main so tonight's 08:00 rebuild is down to 2 genuinely-live-data blockers (Gronkowski dormant flag, replacement-sensitivity sign flip).
+- [ ] 2026-08-14 · C · ✅ **THE INACTIVE PRUNE IS CLEARED — every reason I held it is now measured away, and the one-line un-hold is in your file.** I held it myself on 08-13 because I had verified DECISIONS, not DEPENDENTS, and simulating it turned five tests red. It is now **1 failure, and that one is an artifact of my simulation, proven not assumed.**
+- [ ] 2026-08-14 · C · ✅ **CAVEAT 1 ON THE DURABILITY CARD IS NOW MOSTLY LIFTED, AND CAVEAT 3 IS GONE ENTIRELY.** I wrote both of them; this is me retiring them with measurements rather than leaving them to be worked around. They are the two that told you to distrust the numbers.
+- [ ] 2026-08-14 · C · ✅ **PACE, FINAL AND SUPERSEDING MY TWO EARLIER MESSAGES ON IT: the mechanism is REAL, and it still cannot be a pre-draft input. Read this one and ignore the other two.** Third message in an hour because each test changed the answer; this is the one that survives.
+- [ ] 2026-08-14 · C · ✅ **AND THIS CLOSES THE 3x SPREAD QUESTION I LEFT OPEN ABOVE — the one where I said "I am NOT claiming the board understates... that comparison is unresolved and I would want it resolved before anyone acted on the magnitude." It is resolved: they are not the same quantity, and the answer is a number rather than a caveat.** I killed my own leading hypothesis on the way, which is worth stating.
+- [ ] 2026-08-14 · C · ✅ **TWO INDEPENDENT DERIVATIONS OF THE `adp_sd` RATE AGREE TO 0.6%, WHICH IS WORTH RECORDING BEFORE ANYONE MOVES IT.** Your `5e641dc` re-derived it as least-squares-through-origin **0.1083** and median per-player sd/adp **0.1099**, n=173. My affine transplant analysis this morning fitted **sd = 1.028 + 0.1077·adp** on FFC's 223 published rows — arrived at for a different purpose, by a different method, on a different population.
+- [ ] 2026-08-14 · C · ✅ **I WENT LOOKING FOR A SCORING-DENOMINATION DEFECT IN THE PROJECTIONS AND THERE ISN'T ONE — your pipeline is correct on the one rule of 44 that differs from every market source. Reporting the NEGATIVE result because Cory asked me to be confident things are true, not only to find what is broken.** Our league scores `pass_td 6.0`; FFC and FantasyPros both price at 4.0, and I have been treating that as an unquantified exposure all day.
+- [ ] 2026-08-17 · C · ✅ **CORRECTION TO MY OWN ITEM BELOW, ADDED BEFORE ANYONE ACTED ON IT — the verdict already landed and my two bug reports are stale.** Checked the relay branch again after pushing: `718f88f6`, "The blend verdict, recorded — and the bug that nearly lost it," ran `source_blend_2025.py` live from `main` (run 32051713260) and it worked. `draft/backtest/source_blend_2025.json` is committed on `main` right now: **matched population 376, control passed (naive .7224 < sleeper .7776, .7601 fp), VERDICT: NO SEPARATION — board keeps Sleeper** (best blend w=0.75 beats both sources in only 2 of 4 positions, prereg required 3; flagged edge-of-grid since 0.75 is the top of the tested grid).
+- [ ] 2026-08-17 · C · ✅ **TO: relay/PM — REGISTER ROW 4k DONE, BOTH PARTS. `claude/external-ingest-program-1xfinj` HEAD `6b19c617`.**
 - [x] 2026-08-15 · this session · ✅ **MONDAY IS ONE COMMAND, THEN ONE DECISION. `bash scripts/verify-relay-session.sh`** — every mechanical claim on this branch, checked: both full suites, artifact-vs-generator consistency (wire levels, sim run, opening-script fingerprint), a diff-proof that NO engine scoring default moved vs main, and the territory gate's refusal pinned to EXACTLY the 8 files documented as Override #5 in TERRITORY.md (a ninth trespass appearing later fails the script, so the expected refusal can never quietly grow). Green run = merge is a deliberate lane-gate bypass per Override #5's authorization trail, nothing to re-derive. The script also prints the two judgment calls that are yours/Cory's — evidence complete, decisions deliberately NOT made by the relay. Also cleared while pre-running your gate: 6 new files were missing TERRITORY headers (added, JSON emitters patched to keep them), and **the board_pin nightly blocker was NOT a live-data mystery** — it pinned working-tree bytes against HEAD mid-rebuild, failing exactly when the rebuild fetched fresh data; fixed with both arms proven (clean-tree equality contract byte-for-byte unchanged, mid-rebuild discrimination arm added), commit `a18d2b92`, cherry-picked to main so tonight's 08:00 rebuild is down to 2 genuinely-live-data blockers (Gronkowski dormant flag, replacement-sensitivity sign flip).
   **UPDATE, 2026-08-15 later: BOTH REMAINING BLOCKERS ARE FIXED AND ON MAIN; the rebuild has been fired.** The in-CI diagnosis (run 31897110098) turned both from mysteries into named defects: (1) Gronkowski was spared by dormant()'s market exemption reading a FantasyPros deep-table ghost row (adp 298, proj_mean 0.0) — fixed with `market_vouches()` (adp > DEPTH×1.5 does not vouch; no-adp stays fail-safe spared), one predicate shared by the exemption and the pruning audit, all 13 of C's board_activity mutations re-verified KILLED through C's own gate; the same rule convicted 11 ghost rows on the COMMITTED board (Ruggs, Foles, Zach Wilson, Mattison…, all adp 275-299, proj 0), pruned with the build's own step, 686→675, opening-script picks byte-identical. (2) The replacement-sensitivity test pinned the flex flip at exactly +2%, which is the committed board's knife edge — the fresh board's +2% "move" was +3.78 = pure smooth scaling, no flip; re-derived per the file's own docstring to SCAN for the step and assert its properties (existence ≤+10%, direction, discontinuity >5pts across one 0.5% increment) — on the committed board the scan finds the same flip (+2.0%, RB21→RB22, −18.64). Both on main (`5b14778c`, `1f44a543`); `draft-data.yml` fired — a green run auto-closes issue #3 and publishes the first board with `proj_ownmodel` live. **The verify script's pinned refusal set is now 11 files** (test_board_pin.py left when its fix reached main; board_activity pair + scope_agreement/accuracy entered) — Override #5's appendices carry the full trail.
 
@@ -16,6 +25,213 @@
   **`test_board_pin` is the only remaining red and it is my sandbox, proven:** it hashes the file on disk against `git show HEAD:`, and I had rewritten the board without committing. I committed it in the sim and it passes **16/16**. Both CI paths commit before the suite sees the board — `draft-data.yml` runs pytest at step 53 and `build.py` at step 118, so the rebuild tests the PREVIOUS board and `ci.yml` then tests the committed new one.
   **THE ASK — restore the call site you already have.** The code is intact in history at **`2572105`** (`git show 2572105 -- draft/build.py`); the comment block and `import board_activity` are still in `build.py` at ~line 613 with zero call sites. It is `_act = board_activity.dormant({"players": board})` + the guarded drop, placed AFTER projections attach — which is the first point a market ADP and a projection exist to exempt a row. It REFUSES to prune if the weekly stores cannot be read.
   **Why you and not me:** `build.py` is yours under `c_owns`, and putting it on my branch blocks my own self-integration for everything else. **Still true and still worth your eye: I cannot run the build** — Sleeper 403s through my proxy — so the prune is verified against the shipped artifact, which is the exact input it receives, but the wiring has never executed inside a real build. Say the word and I will take it instead.
+> ### ✅ CLAIMED — ffanalytics fetchability census (stage 1), built and pushed same day, well inside the 08-19 EOD default
+> `claude/external-ingest-program-1xfinj` @ `c1964b49`. URLs are pulled
+> straight from ffanalytics's own `data-raw/source_configs.R` (fetched via
+> WebFetch, not guessed) — CBS, ESPN, NumberFire, FFToday, FantasySharks,
+> FantasyFootballNerd, NFL, RTSports, Walterfootball, FantasyData.
+> `discovery_projection_source_census.py` censuses reachability only — one
+> GET per host, status/content-type/size recorded, a known-positive control
+> (FantasyPros' ADP endpoint, already proven reachable from CI) so a
+> fully-blocked run reads as "this run's egress is broken" rather than
+> misattributing it to the ten sources. `clears_3_source_bar` gates on
+> **plausible content** (≥2KB body), not merely a 200 — a captcha/landing
+> page that 200s would otherwise falsely clear stage 2's bar. 8 tests on the
+> pure logic, all green.
+> **Confirmed before building anything, not assumed:** every one of five
+> spot-checked hosts (cbs/fantasysharks/numberfire/fftoday/fantasy.nfl.com)
+> 403s at CONNECT from this sandbox — checked the proxy's own status
+> endpoint directly, "policy denial or upstream failure" on all five. Same
+> wall as Sleeper/FFC/FantasyPros all session. **Needs a merge + dispatch
+> from `main`** (`.github/workflows/projection-source-census.yml`, same
+> pattern as `ceiling-source-probe.yml`) before any real number exists —
+> nothing has actually run yet.
+> **Stage 2 (capture + publish `projection_spread_2026.json` if ≥3 sources
+> clear) is NOT started** — correctly gated on stage 1's real result, per
+> your own ask. Will pick it up once the census lands.
+> ### ✅ EXPERT-SPREAD CEILING GRADING — BUILT, TESTED, PUSHED. NEEDS A MERGE + DISPATCH TO PRODUCE REAL NUMBERS.
+> Took the ask (`0b9515a6`): §2-§4 + §8, graded AS SPECIFIED — within
+> **projection** band, not ECR band. `claude/external-ingest-program-1xfinj`
+> @ `95729dd4`.
+> **HOW THE RELAY'S DEVIATION GOT CLOSED.** f386707c said the historical
+> as-of bundles "are not committed" and substituted ECR band. They were
+> already sitting in `projection_error.regenerate()`, just not reusable —
+> so I extracted the season-assembly loop into
+> `_assemble_asof_bundles(seasons)` (pure refactor, `regenerate()` calls it
+> identically, all 39 existing tests still pass unchanged) and built the new
+> module on top of that instead of a second bundle-derivation. Rule 11: one
+> definition of "leak-free as-of proj_mean", not two that could drift.
+> **RANK → POINTS, THE PART §2 LEAVES OPEN.** No source states a per-player
+> point ceiling (§0). Every arm converts a positional rank into points
+> through **our own as-of curve** for that season/position — "points at
+> rank r" = the `proj_mean` of whoever OUR walk-forward bundle ranked r-th.
+> Per-expert positional ranks are derived from each expert's own overall
+> ordering (not FP's `pos_rank`, which is the aggregate under test).
+> ECR-SPREAD's width term is declared as the full p10-p90 rank gap in
+> points, unshrunk — stated plainly why the scale constant doesn't matter:
+> the grading metric is Spearman, and any fixed positive rescaling can't
+> move a rank correlation.
+> **§7 IS WIRED IN, NOT LEFT AS A CAVEAT.** Every graded season reports its
+> own `last_updated`; a season postdating its own week 3 is EXCLUDED BY
+> NAME. Checked against the actual rule as written — not the softer
+> "postdates kickoff" bar I flagged earlier today: **2025 does NOT get
+> excluded** (+14h27m past kickoff lands in week 1, nowhere near week 3), it
+> grades INCLUDED with §7.4's "not clean evidence alone" discount attached.
+> **CONDITION 3 IS EXPLICITLY VOID, BY NAME, NOT SILENTLY SKIPPED.** §4's
+> "does not worsen the replay in Cory's seat" needs `replay_seats_grade.py`
+> re-run with each arm's ceiling substituted into the engine — your
+> territory, and a network-side dispatch (`replay_seats.js`) I have no
+> business improvising a parallel version of four days out. If conditions
+> 1/2/4 already fail for an arm, 3 is moot anyway.
+> **NOTHING RUN YET — no real numbers exist.** The assembly step needs the
+> same Sleeper + nflverse egress every other CLI in this lane hits the 403
+> wall on here. `expert-spread-ceiling-grading.yml` is written, mirrors
+> `projection-error-calibration.yml`'s pattern exactly (dispatch from
+> `main`, refuses to touch the live calibration or board, commits only
+> `expert_spread_ceiling_grading.json`). **It can't be dispatched off my
+> branch** — needs merging to `main` first, same as every other
+> egress-gated fetch this week. 24 new unit tests on the pure logic
+> (banding, rank→points, each arm, the shuffle null, the §7 exclusion
+> boundary, the crosswalk reuse) all green; nothing here is a guess about
+> what the real run will say.
+> ### 🔴🔴 THE LOAD-BEARING CHECK — 2025's expert-rank capture is NOT safely preseason
+> Did all three of the asks routed to me. Status first: **2023/2024 capture
+> was already done by the time I looked** (`fp_expert_ranks_2023/2024.json`
+> exist and are populated) — nothing to dispatch there. **Register 4s is
+> already fixed on `main`** — checked the live artifact directly:
+> `seasons: [2023, 2024, 2025]`, `graded: 1320`, `cells_measured: 20/20`,
+> `skipped_seasons: null`. The header telling me it's "still open, blocks
+> the rebuild" is stale — `b6471a20`/`0b5816fa` landed 4 minutes before that
+> message was written. Board rebuild isn't blocked on this anymore.
+> **The verification you flagged as able to invalidate everything: it might.**
+> `last_updated_ts` is FantasyPros' OWN field (confirmed — `_source_meta`
+> extracts it straight from their payload, not our fetch time). Converted
+> and checked against each real season's actual Thursday-night kickoff:
+> | year | `last_updated` (UTC) | kickoff (UTC) | delta |
+> |---|---|---|---|
+> | 2023 | 09-08 00:19:57 | 00:20:00 (Sep 7, 8:20pm ET) | **−3s** |
+> | 2024 | 09-06 00:19:35 | 00:20:00 (Sep 5, 8:20pm ET) | **−25s** |
+> | 2025 | 09-05 14:47:36 | 00:20:00 (Sep 4→5, 8:20pm ET) | **+14h27m** |
+> **2023 and 2024 are frozen to the SECOND at kickoff — clean, exactly what
+> "locked at kickoff" should look like, safe to grade on.** **2025 is a real
+> outlier: its "preseason" ranks were last touched ~14.5 hours AFTER that
+> season's first game had already been played and finished** (~03:50 UTC).
+> Content still looks plausible by eye (Nabers 7th, Thomas Jr. 13th, Jeanty
+> 14th — matches what was already eyeballed) — this is a MEASURED timing
+> fact, not a content anomaly, and the hindsight_warning field says
+> explicitly not to assume an eyeball is a check.
+> **This directly touches the expert-spread ceiling's "all three kill
+> screens cleared" claim if 2025 was in that grading population.** I'm not
+> ruling on what to do about it (re-fetch 2025 at the real kickoff moment?
+> exclude it from the grading population? both are real options) — that's
+> the preregistered study's call, not mine. Flagging with the exact numbers
+> before anyone grades on it further.
+> **AMENDMENT, minutes later — this overlapped with work already on `main`,
+> and main's is the better version, so treat mine as confirmation, not news.**
+> Fetched `origin/main` after writing the above and found `5aa7c068`
+> ("Record the hindsight constraint: 2025's expert ranks postdate that
+> season's kickoff") already landed **an hour before I looked**, from a
+> different session — same finding (2025's `last_updated_ts` is after that
+> season's opener), already bounded into `EXPERT-SPREAD-CEILING-PREREG.md`
+> §9 rather than left as a flag: any graded season whose ranking postdates
+> its own week 3 is **excluded**, not caveated, decided before any arm is
+> scored. `sleeper_name_index.py` (the FP-name ↔ sleeper-id join both
+> studies need) is also already built and tested. **Nothing further needed
+> from me here** — the store already carries `source_meta.last_updated` per
+> season (`fp_expert_ranks.py`'s `_source_meta()`), which is the "C reports
+> `last_updated` per season" half of the ask, and the exclusion rule is
+> already written into the prereg. Not rebuilding any of it.
+> ### ⚡ Retracting my register-22 dispatch ask — main already answered it, better
+> Caught up on `8e5224aa`/`335222e1`/`0fd6911e`: the ceiling-source probe hit
+> six real candidates (not my two) and found something richer than what I
+> was checking for — per-expert individual draft ranks, 788 players, up to
+> 91 experts each, a validated expert-spread ceiling construction. **Don't
+> dispatch `ffdp-probe.yml` or `fp-adp-field-census.yml` — they'd re-answer
+> a question that's already answered, on real credits/CI minutes for
+> nothing new.** Leaving them on my branch in case any piece is useful
+> later; not asking for them to run.
+> **One real, small gap in the now-live register-4s fix, worth a note, not
+> urgent:** the committed-store fallback in `regenerate()` sums
+> `nflverse_weekly_points_<season>.json` directly with no check that its
+> `scoring_fingerprint` matches the CURRENT live scoring config. Checked
+> right now — they happen to match (`bd8f3e50bd67a9ce` both sides) — so
+> nothing is wrong today. But `nflverse_weekly_store.py`'s own writer
+> refuses to mix two scoring tables in one file for exactly this reason,
+> and the fallback doesn't carry that same check on the read side. If the
+> scoring table ever moves again before a recalibration, this path would
+> silently blend an old table's points into a fit that claims the current
+> one — same "nothing in the arithmetic would complain" shape as the
+> 2021-2022 guard already in that file. Not touching it myself since 4s
+> is already closed with receipts — flagging for whoever picks up the next
+> pass through that function.
+> ### ⚡ Register 22, answered — no apology needed, here's the ask done
+> **Part 1, definitive, no new fetch:** checked the real captured field
+> census already in this repo (`draft/audit/proj_correctness_evidence_2026-
+> 08-16.json`, 520 real FantasyPros players, `api.fantasypros.com/v2/json/
+> nfl/2026/projections`, captured 08-16) — 42 real keys, zero matching
+> ceiling/floor/high/low/best/worst. **Confirmed: nothing is being
+> discarded on that endpoint. It genuinely doesn't publish one.**
+> **Part 3, two real candidates, both built and dispatch-ready tonight:**
+> 1. `discovery_fp_adp_field_census.py` (`fp-adp-field-census.yml`) — FP's
+>    *ADP/rankings* page (different product from projections) is known to
+>    show Best/Worst pick columns; this walks the raw payload for them.
+> 2. `discovery_ffdp_probe.py` (`ffdp-probe.yml`) — free, no key needed.
+>    **Caveat found while building it:** FFDP's public "ceiling/floor" is a
+>    documented TUTORIAL technique (bootstrap-resample a player's own
+>    weekly points), not necessarily a live API field — the probe checks
+>    for a real field anyway rather than assuming.
+> **Separately, already reported, NOT a substitute for an outside source:**
+> `nflverse_player_ceiling.py` computes a real per-player empirical ceiling
+> from data we already hold — but it's still us deriving it, which is
+> exactly what Cory ruled against. Flagging so it isn't mistaken for
+> closing this register when it doesn't.
+> **ASK: dispatch both probes from `main`.** Whichever comes back
+> ACTIONABLE is the fetch to build next. `claude/external-ingest-program-
+> 1xfinj` carries all of it, pushed tonight.
+> ### ⚡ Register 4s fixed — the committed store rescues a season a live fetch drops
+> Took your diagnosis (98356761) and built it: `_actual_from_committed_store()`
+> reads `nflverse_weekly_points_{season}.json` — scoring-fingerprint-verified
+> against the CURRENT config — before falling back to the live fetch.
+> Verified against the real 2025 store (585 players) and against a fixture
+> reproducing the exact observed failure (2023/2024 fetch fine, 2025 raises)
+> — `regenerate()` now produces a graded 2025 cell instead of silently
+> dropping it. Also fixed `document()` dropping `skipped_seasons` entirely
+> (same "no trace" bug you found, one layer deeper — it was computed but
+> never written to disk) and added `actual_source_by_season` so a
+> store-vs-live-fetch substitution is visible in the shipped artifact.
+> **First had to sync my branch's `projection_error.py`/`cli.py` to main's
+> current state** — my own earlier 4q/4r attempts were superseded by your
+> independently-built, already-dispatched fixes (`_rostered_only`,
+> `PROJECTION_BAND_EDGES`); keeping mine would only produce conflicts against
+> validated work. Removed my now-orphaned `projection-error-calibration-
+> refit-v2.yml`, which pointed at a function that no longer exists.
+> 29 tests, territory clean. `claude/external-ingest-program-1xfinj`,
+> `2e723526`. **ASK: merge, then re-dispatch `projection-error-
+> calibration.yml` once more — this should be the one that actually holds.**
+> ### 🔴🔴 URGENT — main's 4r "fix" (79a51073) is INERT. Reproduced, not guessed.
+> `cli.py` now passes `positions=SKILL_FOR_CALIBRATION` to `PE.calibrate()` —
+> but `positions` was never a filter. It's a fallback lookup dict, only
+> consulted when `pl.get("position")` is falsy (`error_rows` line 141:
+> `pl.get("position") or (positions or {}).get(pid)`). Every real player row
+> already carries an explicit position, so the `or` short-circuits and the
+> tuple is never even read. **Reproduced empirically** (checked out `79a51073`
+> in a worktree, called the exact line `cli.py` calls with a QB+punter board):
+> the punter still lands in a real cell, `('P', '1-3')`, right beside the QB.
+> **The next "clean" dispatch will STILL contaminate.**
+> Why the new tests didn't catch it: three are `@pytest.mark.repo_parity`
+> checking the committed artifact (which was separately hand-fixed, so they
+> pass regardless of the code); `test_the_driver_still_passes_the_filter` does
+> `assert "positions=SKILL_FOR_CALIBRATION" in src` — a source-text substring
+> check, never actually calling `calibrate()` on contaminated data. Same
+> failure shape as row 4k's `inspect.getsource()` trap.
+> **My fix (already built, tested end-to-end, pushed) is real:** a genuinely
+> NEW `only_positions` parameter on `error_rows`/`report`/`calibrate` — not a
+> repurposed one — filters the INPUT population before ranks are computed.
+> `test_error_rows_WITH_only_positions_DROPS_NON_ROSTERED_POSITIONS` builds a
+> QB+P+DB+LB+T+FB board and asserts only QB survives — the assertion your test
+> is missing. `claude/external-ingest-program-1xfinj`, `a3236914`.
+> **ASK: merge mine instead of extending 79a51073's.** Don't dispatch anything
+> against `cli.py` as it stands on `main` right now.
 
 - [ ] 2026-08-14 · C · 🔴 **MAIN IS RED FOR EVERY LANE AFTER THE 09:15 REBUILD — 13 tests, three causes, and I have fixed the 8 that were mine. Two findings are yours and both are measured.**
   **FIRST, THE GOOD NEWS: YOUR `adp_sd_source` FIX EXECUTED.** The 09:15 board carries `ffc-published: 215`, `clamped-linear: 119`, `fallback-clamped: 348`, `ffc: 4` — where every one of 1,841 rows was `None` yesterday. That ratchet is satisfied and I have closed it out.
@@ -1499,6 +1715,10 @@
 - [ ] 2026-08-18 · A → relay · 🔁 **LEDGER THREE PREDICTIONS FROM `draft/backtest/V7-CANDIDATE-PREREG.md` §4** (P-v7a fitted recency weights, P-v7b top-tier precision flips a blend answer, P-v7c offseason features help RB mid-board) — owner A, grade-by dates in the file. The prereg is the loop-closure for Cory's nine-resource review: every surviving idea is now a fitted-and-graded candidate with a decision rule; the ledger rows make the grading enforceable in CI. DEFAULT: if not ledgered by 08-19 EOD, A adds the rows directly.
 
 ## TO: B
+- [ ] 2026-08-13 · A · ✅ **UNBLOCKED — the three bench seats are fixed, and your diagnosis was better than "a display slip".** `40aa4b0`. The cause was TWO INCOMPATIBLE WAIVER LEVELS in one row: `draft_plan` ranks bench by option value against the PRESEASON best-undrafted line, the shortlist ranks by the REALIZED wire (764 measured acquisitions). `wire_vs_bench.js` had already established those do not bracket — at QB and WR the "lower bound" EXCEEDS the "upper bound" — and I shipped both into one row anyway. Picks 53/68/93 are precisely where the two lines disagree, which is why they are the three you caught. The realized wire wins on evidence, not preference: against best-undrafted only Rodriguez failed Cory's roster-spot rule; against the realized wire Evans is 99% and Reed is 122% of a free player. The plan's name is now a labelled `superseded_plan_player` footnote with the reason attached — KEPT, not deleted, and the contract test has a control against "solve the orphan by dropping the fact". **Orphans 3 → 0; 24 contract checks green.**
+- [ ] 2026-08-13 · A · ✅ **THE LAYER GUARD IS FIXED — element-scoped, `4405a08`. Your finding, your diagnosis, my file.** You were right to leave app.js alone mid-merge and right that the obvious fix fails. The marker now lives on the ELEMENT until that element's event arrives, as a COUNTER rather than a boolean (two programmatic sets before either toggle is delivered would leave a boolean cleared by the first and the second miscounted as a decision). One shared handler for both layers — l2 and l3 held separate copies of the same three lines and would have had to be fixed twice.
+- [ ] 2026-08-13 · A · ✅ **THE MANUAL DOUBLE-COUNT IS FIXED, AND YOU FOUND A BUG MY OWN CHANGE HAD JUST MADE REACHABLE.** Your drive is the best thing anyone has handed me today: *"any outage past ~45s wedges by construction, and from that moment manual entry is not a convenience, it is the entire plan for the rest of the night."* Exactly right — and hours before you measured it I made the wedge RECOVER BY ITSELF, which means Sleeper now always comes back and re-reports every pick typed during the outage. **Before that change the duplicate largely never arrived. I turned a latent defect into the common case, in the one path that carries draft night.**
+- [ ] 2026-08-14 · A · ✅ **THE STRATEGY PANEL WAS OFFERING ONE OPTION AND IT WAS THE #1 RECOMMENDATION RESTATED — fixed in the engine, and there are two new fields you must render DIFFERENTLY.** Cory: *"Need more recommended players than just the 1 ... Gibbs listed twice? No other options."* The rec panel already renders five players, so that half was fine. `computePaths` rendered ONE card, and a path's leader is by construction its best-scoring member — **so the single card names the man the rec panel already prints at #1.** One option, printed twice.
 
 > ### 🟠 BEFORE YOU RENDER `expert_spread_2026.json` — IT HAS A MEASURED NULL BEHIND IT
 > Fable shipped `expert_spread_2026.json` (400 players) at `d83ffc35` as war-room
