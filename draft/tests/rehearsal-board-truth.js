@@ -151,6 +151,42 @@ let srv = null;
   check('E6 FIX: the ² mark means "no second source exists"',
     noFpWrong === 0, `${noFpMark.length} rows carry ², ${noFpWrong} of them wrongly (FP present)`);
 
+  /* ── THE SEAT AND THE PICK NUMBERS (added 2026-08-18) ────────────────────
+   *
+   * Register row 4c: "the war room is computing every pick number for the WRONG
+   * SEAT, and it shipped to Cory as a demo — 3 keepers, he owns 12 picks in a
+   * 15-round draft, the board gives him 15, the seat is set to someone with 0
+   * keepers." It is false today. NOTHING GUARDED IT, which is why it could be
+   * true once and why nobody could tell whether it still was without opening a
+   * browser by hand.
+   *
+   * The trap this catches is specific: `pick_order` carries BOTH `my_picks` (12,
+   * after keepers) and `my_picks_before_keepers` (15). Rendering the wrong one
+   * looks entirely plausible on screen — fifteen picks in a fifteen-round draft —
+   * and every timing call, survival % and wait-cost on the page is computed from
+   * it. At 8 seconds a pick that is not a number Cory can sanity-check.
+   */
+  const po = board.pick_order || {};
+  const mine = Array.isArray(po.my_picks) ? po.my_picks.map(x => (x && x.overall) || x) : [];
+  const preKeeper = Array.isArray(po.my_picks_before_keepers)
+    ? po.my_picks_before_keepers.map(x => (x && x.overall) || x) : [];
+  const consumed = preKeeper.filter(n => !mine.includes(n));
+  const bodyText = await page.evaluate(() => document.body.innerText);
+
+  check('CONTROL: keepers actually remove picks, or the two checks below are vacuous',
+    mine.length > 0 && consumed.length > 0,
+    `${mine.length} picks after keepers, ${consumed.length} consumed by them`);
+
+  const upMatch = /YOU ARE UP[^0-9]*([0-9]+)/i.exec(bodyText);
+  check('the page\'s current pick is the first pick Cory actually OWNS',
+    upMatch != null && mine.length > 0 && Number(upMatch[1]) === mine[0],
+    upMatch ? `page says pick ${upMatch[1]}, my_picks[0] is ${mine[0]}` : 'no "YOU ARE UP" line found');
+
+  const ghosts = consumed.filter(n => new RegExp(`(pick|overall)\\s*#?${n}\\b`, 'i').test(bodyText));
+  check('NO keeper-consumed pick is presented as one of his',
+    ghosts.length === 0,
+    ghosts.length ? `shown as his: ${ghosts.join(', ')}` : `none of ${consumed.join(', ')} shown as his`);
+
   console.log('\nBOARD TRUTH — rendered numbers and labels vs public/draft_data.json');
   console.log('='.repeat(72));
   for (const r of R) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.detail ? '  — ' + r.detail : ''}`);
