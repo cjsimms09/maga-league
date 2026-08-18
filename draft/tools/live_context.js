@@ -153,6 +153,13 @@ function liveContext(opts) {
     // again by survival-to-currentPick would be double-counting a discount
     // the simulation already applied by actually removing players.
     preDraftPrep: o.preDraftPrep != null ? o.preDraftPrep : false,
+    /* OPPONENT-NEED LAYER input (ON in production since Cory's take-a-swing
+     * ruling, 2026-08-17). Harness default NULL = no tilt, which is exact:
+     * the layer only fires for seats mapped to a live owner
+     * (team.owner_first), and a simulated room has no Sleeper seat mapping
+     * unless the caller supplies one — pass o.opponentNeed to measure the
+     * tilted system. Null is the honest un-tilted engine, not a stub. */
+    opponentNeed: o.opponentNeed !== undefined ? o.opponentNeed : null,
   };
 
   // ── BOTH DIRECTIONS, BECAUSE BOTH WERE LIVE DEFECTS ─────────────────────

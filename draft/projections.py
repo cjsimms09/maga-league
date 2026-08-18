@@ -22,6 +22,16 @@ CEILING_Z = 1.036  # 85th percentile
 # Expected games. Positional durability priors from historical games-missed.
 EXPECTED_GAMES = {"QB": 15.5, "RB": 14.2, "WR": 15.0, "TE": 14.8, "K": 16.5, "DEF": 17.0}
 
+# 4w plausibility rail: best realized REGULAR-SEASON total per position in
+# OUR stores (nflverse_weekly_points 2023-25, league scoring) × 1.20 record
+# headroom. RE-BASED 08-18 late (register 5d): the original bases were
+# computed on stores carrying PLAYOFF weeks as season data — the "best RB
+# season" was 72 points of playoffs. Corrected bases QB 512.4 / RB 365.6 /
+# WR 339.5 / TE 252.9; the 20% headroom is the one hand-set number and is
+# declared as such. The pin in test_player_volatility_tails.py regenerates
+# these from the stores, so a future phantom week fails loudly.
+PLAUSIBILITY_CEILING = {"QB": 615.0, "RB": 439.0, "WR": 407.0, "TE": 303.0}
+
 # --- per-player variance (audit P1.7) ---------------------------------------
 #
 # POSITION_VARIANCE alone is a FLAT constant within a position, which made
@@ -251,6 +261,33 @@ def _sd_calibration():
     return (PE, cal) if (cal.get("cells")) else None
 
 
+def _weekly_cv_2025() -> dict[str, float]:
+    """Realized 2025 weekly cv per player, from weekly_volatility.json.
+
+    2025-ONLY, RULED (A, 2026-08-18, deciding the fork E flagged in
+    ceiling_fix_blast_radius §3): the persistence that licenses prospective use
+    is measured on ONE-year transitions (rho +0.482/+0.605), so a 2024 cv on a
+    2026 board is outside the measured support. A player without a 2025 cv is
+    ABSENT and keeps his cell constant — never a stale season, never the
+    positional mean. This is exactly the prereg §3 protection: the injury-return
+    group (Evans, G. Wilson, Nabers, Daniels) stays on cell constants rather
+    than being handed a reading from the last year they happened to play.
+
+    The artifact pre-filters min_weeks/min_mean, so every cv here already
+    cleared the stability floor. Missing file or season → {} → the layer is
+    inert, never a crash five days before the draft.
+    """
+    import json
+    from pathlib import Path
+    f = Path(__file__).resolve().parent / "backtest" / "weekly_volatility.json"
+    try:
+        per = json.loads(f.read_text()).get("per_player", {}).get("2025", {})
+        return {pid: row["cv"] for pid, row in per.items()
+                if isinstance(row, dict) and row.get("cv")}
+    except Exception:
+        return {}
+
+
 def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, dict],
           cfg: dict) -> list[dict]:
     """Apply the capped opportunity adjustment and derive floor/ceiling.
@@ -264,10 +301,25 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
     z = composite_z(metrics, players) if metrics else {}
     pe = _sd_calibration()
 
-    # First pass: the mean, so the second pass can rank within position. The
-    # rank MUST be the same ordering vorp.assign_tiers later writes as pos_rank
-    # (proj_mean desc within position) — the calibration was fitted on that
-    # band definition and a different rank here would read the wrong cell.
+    # First pass: the mean, so the second pass can rank within position.
+    #
+    # WHICH POPULATION PICKS THE CELL — RULED (A, 2026-08-18, on E's band-edge
+    # finding, band_edge_misread_2026-08-17.md). This function ranks over the
+    # players it is GIVEN, which build.py makes players + kept_players — the
+    # FULL universe, keepers included. That is correct and deliberate, and the
+    # old comment here claiming the rank "MUST" match the published pos_rank
+    # was wrong on both counts:
+    #   1. The calibration was fitted on historical seasons where NOBODY is
+    #      withheld — its "WR 4-8" cell measures the world's WR4-8, so the
+    #      world's rank (Chase kept ahead of the field still counts) is the
+    #      one that reads the right cell. The published pos_rank answers a
+    #      different question — availability — and may legitimately differ at
+    #      band boundaries for exactly as many slots as keepers sit above.
+    #   2. Full-universe ranking is INVARIANT to keeper withholding: at the
+    #      08-20 lock, keepers move between `players` and `kept_players` but
+    #      this function sees their union either way. Under a published-rank
+    #      cell key, 46 players would re-band at lock for a reason that is
+    #      not football (E1's measured number); under this one, zero do.
     means: dict[int, float] = {}
     for p in players:
         pid = str(p["player_id"])
@@ -324,6 +376,46 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
             _cell_mults.setdefault(
                 (p.get("position"), PE.band_of(rank_of.get(id(p)))), []).append(m_)
     _cell_mean = {k: (sum(v) / len(v)) for k, v in _cell_mults.items() if v}
+
+    # ── PER-PLAYER TAILS FROM REALIZED VOLATILITY — prereg §2, wired 08-18 ──
+    #
+    # Cory: "fix!!!! floors and ceilings need to be corrected like I have
+    # agreed to." The construction is VOLATILITY-WIRING-PREREG.md §2 verbatim:
+    #     ceiling = proj_mean × p90_ratio[cell] × f(player_ratio)
+    #     floor   = proj_mean × p10_ratio[cell] / f(player_ratio)
+    #     player_ratio = cv_player / cv_cell_median   (realized 2025 weekly cv)
+    # f normalizes player_ratio by its cell mean — same discipline as the sd
+    # compose path above: the measured cell LEVEL is preserved (gate, tested),
+    # only redistributed among the players inside it. Within-cell p90/p10
+    # ceiling spread goes from exactly 1.0× to the measured 1.4–2.0×
+    # (ceiling_fix_blast_radius §2) — the field stops being a rescaled
+    # projection and starts carrying player-specific information, which is
+    # the single property every 08-17 finding said was missing.
+    _f_of: dict[int, float] = {}
+    if pe is not None and cfg.get("player_volatility_in_tails"):
+        PE, _cal = pe
+        cv_map = _weekly_cv_2025()
+        _cells_cv: dict[tuple, list[tuple[int, float]]] = {}
+        for p in players:
+            cv = cv_map.get(str(p["player_id"]))
+            if cv:
+                _cells_cv.setdefault(
+                    (p.get("position"), PE.band_of(rank_of.get(id(p)))),
+                    []).append((id(p), cv))
+        for _key, members in _cells_cv.items():
+            if len(members) < 2:
+                continue  # a 1-player median is the player himself: f ≡ 1
+            cvs = sorted(c for _, c in members)
+            n = len(cvs)
+            med = cvs[n // 2] if n % 2 else 0.5 * (cvs[n // 2 - 1] + cvs[n // 2])
+            if not med:
+                continue
+            raw = {i_: c / med for i_, c in members}
+            m = sum(raw.values()) / len(raw)
+            if not m:
+                continue
+            for i_, r in raw.items():
+                _f_of[i_] = r / m
 
     for p in players:
         pid = str(p["player_id"])
@@ -422,7 +514,41 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
             if cfg.get("use_measured_ceiling"):
                 cm, cstatus = PE.proj_ceiling_for(cal, p.get("position"), rank, mean_proj)
                 if cstatus == "measured" and cm is not None and mean_proj > 0:
-                    ceiling_m, ceiling_source = cm, "measured-2023-25-p90"
+                    # Prereg §2: modulate the measured cell p90 by this
+                    # player's own realized-volatility ratio. A player with no
+                    # 2025 cv keeps the CELL constant (absent stays absent),
+                    # and the _source stamp names which construction he got —
+                    # one field name must never hold two quantities silently.
+                    #
+                    # 4w (D9 ruling, 08-18): the raw f is a WEEKLY ratio and a
+                    # season is the sum of ~G weeks, so applying f unscaled
+                    # put 31 physically impossible ceilings on the board
+                    # (Gibbs 679 vs a best-ever RB season ≈437). Rescaled:
+                    # season spread shrinks by at most √G under independence,
+                    # so 1+(f−1)/√G is the conservative per-player form —
+                    # keeps the 4j repair, kills the impossible numbers.
+                    f_ = _f_of.get(id(p))
+                    if f_:
+                        f_season = 1.0 + (f_ - 1.0) / (games ** 0.5)
+                        ceiling_m = cm * f_season
+                        ceiling_source = "measured-2023-25-p90-x-player-cv"
+                        var_why = var_why + [
+                            "tails: realized 2025 weekly cv x%.3f vs cell, "
+                            "season-rescaled /sqrt(%d) to x%.3f (prereg §2 + 4w)"
+                            % (f_, int(games), f_season)]
+                    else:
+                        ceiling_m, ceiling_source = cm, "measured-2023-25-p90"
+                    # 4w sanity rail, measured not assumed: no stated ceiling
+                    # may exceed the best season actually recorded at the
+                    # position in our own 2023-25 stores (league scoring)
+                    # plus 20% record-breaking headroom. Nothing asserted
+                    # this before, which is exactly why 679 shipped.
+                    cap = PLAUSIBILITY_CEILING.get((p.get("position") or "").upper())
+                    if ceiling_m is not None and cap and ceiling_m > cap:
+                        var_why = var_why + [
+                            "ceiling capped at %.0f: best realized %s season "
+                            "2023-25 + 20%% (4w rail)" % (cap, p.get("position"))]
+                        ceiling_m = cap
                 # THE FLOOR HAS THE SAME DEFECT AND IT IS WORSE. `mean - 0.674*sd`
                 # is a symmetric Gaussian over an asymmetric distribution, wrong by
                 # more than 0.15 of the projection in 16 of 20 measured cells. The
@@ -434,7 +560,20 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
                 # Rides the same flag: one construction, one defect, one switch.
                 fm, fstatus = PE.proj_floor_for(cal, p.get("position"), rank, mean_proj)
                 if fstatus == "measured" and fm is not None and mean_proj > 0:
-                    floor_m, floor_source = fm, "measured-2023-25-p10"
+                    # Same f, divided: a volatile player's floor drops as his
+                    # ceiling rises. Note the deliberate asymmetry with the
+                    # ceiling: dividing preserves the cell's floor level only
+                    # approximately (E[1/f] ≥ 1), which the prereg accepts by
+                    # construction — the exact-preservation gate is on f
+                    # itself, verified where f is BUILT, not here.
+                    f_ = _f_of.get(id(p))
+                    if f_:
+                        # Same 4w season-rescale as the ceiling: one f, one
+                        # scale correction, divided instead of multiplied.
+                        floor_m = fm / (1.0 + (f_ - 1.0) / (games ** 0.5))
+                        floor_source = "measured-2023-25-p10-x-player-cv"
+                    else:
+                        floor_m, floor_source = fm, "measured-2023-25-p10"
 
         p["proj_baseline"] = round(base, 2)
         p["opportunity_z"] = round(z.get(pid, 0.0), 2)

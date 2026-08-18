@@ -12,6 +12,85 @@ make sure we don't have other mistakes in our info!!"*
 
 ---
 
+## 🎯 08-17 NIGHT — THE TAKE-A-SWING PACKAGE (Cory's ruling, verbatim in
+## league_config.rookie_capital_prior; every layer MEASURED before it shipped)
+
+Cory: *"fix this model, even if we need to lower our standards for this year
+only... give me a draft tool that gives me a chance at edge... lets at least
+take a swing."* Shipped under that ruling, each with its receipt:
+
+1. **Rookie capital prior — ON, in the build** (`build.py`, gated on the
+   preserved config ruling so no rebuild erases it). Preregistered, cleared
+   its 25% bar on the 3-season all-seats replay: **+25.1 pooled optimal (38%
+   of the Cory gap), realistic-arm league position 2/10 → 4/10**; 2025 +86,
+   2024 −10.6 (concentration stated). 74 board rookies gain an own-model
+   value from Prior(pos, NFL-capital bucket), classes 2021-25.
+2. **Opponent-need survival layer — ON** (`survival.js OPPONENT_NEED_LAYER`,
+   artifact published + app loader wired). Pooled ΔBrier **−0.0039
+   [−0.0067, −0.0015]** vs the engine baseline, never significantly worse in
+   any slice; 2025 engine-sd slice null, stated. Sharpens the grab-by /
+   gone-by numbers with per-owner need-conditioned tendencies.
+3. **Study facts baked into the tie-break voice** (patch applied): trajectory
+   lean first (58% of 176, CI 51-65, "a lean not a law"), volume-over-
+   efficiency (WR share ρ .704 vs efficiency .322), RB draft capital
+   (ρ −0.427, 3/3 seasons), and the coin-flip truth on the other 8 facts.
+4. **Floors/ceilings corrected** — the calibration regenerated on real
+   2023-25 outcomes (Cory's direct order); board rebuild carries it live,
+   plus the late-trajectory field. One finding en route: **RB top-decile
+   ratio is flat across rank bands (~1.8×)** — real by the Rule-3d screen,
+   C cross-checks the method by 08-19 (register 31).
+
+**The honest frame:** the restated 3-season replay already had the tool at
+**+7.48/season pooled optimal over Cory's own drafting** (the −65.7 headline
+was status-blindness in the harness, not the tool); the rookie prior's
++25.1 stacks on the same yardstick. That is the swing: every gated layer
+with a measured win is now live, none of it invented tonight.
+
+## ⚡ 08-17 LATE NIGHT — what landed after the evening section (A, gatekeeper)
+
+**All three of Cory's rulings are IN THE LIVE ENGINE:** adp_sd 0.11/2.0 (every
+band 0.95-1.02x market; backtest ordered, reversion armed), ceiling weight
+0.45 (measured inverted-U peak; top rec verified unchanged at Cory's picks),
+the ruled board itself published (first since 08-15; issue #8 auto-closed).
+
+**The war room is the tabbed COCKPIT, desktop-first, deployed and probe-verified**
+— one adjudicated TAKE, position rails, range bars, running-out tiles, tier-cliff
+chart, drill-downs. Evening item 2 (desktop-first): **RESOLVED** — executed in the
+cockpit spec. Evening item 4 (two weight systems): **RESOLVED in substance** —
+MEASURED.ceiling now 0.45, aligned with autoWeights' build phase at the measured
+peak, so the toggle no longer changes the model; which mode Cory drafts under is
+his rehearsal decision (AUTO defaults OFF — the routed "on by default" claim was
+false, corrected in the 0.45 commit).
+
+**Cory personally caught a live model defect from a screenshot** — every fallen
+elite showing "41% gone." Verdict: guard-order bug (empty-window survival asked
+after the far-tail guard answered "certainly taken"), which erased the room
+model's differentiated survivals and had silently CUT NACUA from the pre-draft
+pool. Fixed same-day with the algebra pinned (`survival_fallen_uniform.test.js`);
+deployed.
+
+**The "tool ties its user" headline was mis-attributed:** the all-seats table
+graded a weakened PROXY (BPA-by-VORP, market arm removed, no engine terms) and
+~70% of its losses were board-vintage status blindness the live board verifiably
+does not have. The live tool's edge is UNMEASURED; the real-engine replay via
+`draft/backtest/replay.js` is running now (queue: TO: A, live-edge item).
+Surviving findings: own_v6 overprices declining veterans (evidence FOR the REC-2
+composition hold; names the v7 decline term), and the human rookie edge is
+August news, not draft capital (inventory routed to D).
+
+Evening items 1 (wrong-seat computation) and 3 (proj_mean is Sleeper-only, and
+the blend question) — 1 remains OPEN; **3 is ANSWERED (20:40): the blend run
+graded NO SEPARATION** (`source_blend_2025.json`, `44cff5ad`). Best blend
+w=0.75 beats both sources in only 2/4 positions against a prereg bar of 3;
+Cory's exact 50/50 also 2/4; NAIVE control correctly lost, so the run could
+have detected a winner. **Sleeper stays — measured, not assumed.** January
+re-test extends the grid past 0.75 (best_w sat on the edge).
+
+**AND WITH THE BLEND NULL, THE KEEPER SLATE IS FINAL (chain steps 1–2 closed):
+keep all three — Chase R1 (+43), Henry R2 (+10), Walker R3 (+32), surplus
++86.3** on the survival-fixed, rulings-live board; every keep-fewer option is
+strictly worse. Cory confirms at the 08-20 lock; the board re-derives then.
+
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
 
 *Added by the relay so these reach lanes without waiting on a merge. Cory today:
@@ -61,6 +140,36 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 
 ---
 
+## 🟣 08-18 NIGHT — THE THREE THINGS THAT CHANGED FOR SATURDAY (A)
+
+**1. THE BOARD IS MAKING ONE DELIBERATE BET, AND NOW IT IS NAMED: TE.**
+Measured on the live board: TEs sit **+50 spots ahead of market** on average in
+the top 150 (LaPorta board 37 vs market 67) while RBs sit −23 behind. It is NOT
+a formula error — the replacement theory died to the decimal (our TE bar 136.4
+== the market's own TE10, Kelce, 136.4). The drivers are the SOURCE (Sleeper
+prices these TEs above what the ADP herd pays) and YOUR 0.45 ceiling weight on
+the position with the board's largest measured upside multipliers. On the
+clock: a TE falling toward you is the board's bet paying off; if you would
+rather not be 50 spots ahead of the room on a streamable position, take the
+market's side on that pick knowingly. Register 5c has the full working.
+
+**2. THE OUTSIDE-SOURCE CEILING HUNT IS OVER — GRADED, TWICE, NO.** Expert
+disagreement (all three preregistered arms, three seasons, nothing excluded)
+beats the incumbent ceiling on **0 of 3 seasons**; an independent grading on
+top-12 hits agreed earlier the same day. The signal is real information about
+the ROOM (where rankings-followers get unpredictable), not about the player's
+season — so the war-room badge says "experts split," never "upside." The
+ceiling column stays the v25 construction: measured cell level × the player's
+own 2025 volatility, capped at physical plausibility. Re-test: 2027 captures.
+
+**3. THE KEEPER BADGE LIE IS DEAD AT THE SOURCE.** E caught the war room
+claiming "Zay Flowers beats Ja'Marr Chase by 17" at your first pick — keepers
+shipped without a value field and `(vorp || 0)` turned absent into zero.
+Ranking never moved (measured, 0 of 120 slots); the sentence was false. Keeper
+vorp is now stamped at build time from the board's own identity, the UI
+derivation is the fallback, and two pins make a keeper without a value refuse
+the build. If a keeper-comparison badge fires Saturday, it is arithmetic now.
+
 ## 1. THE ONE THING TO UNDERSTAND
 
 Every dispersion field on the board — `proj_ceiling`, `proj_floor`, `proj_sd`,
@@ -86,7 +195,7 @@ what it invalidated.
 |---|---|
 | **production ceiling/floor** | measured p90/p10 per (position, band), replacing a Gaussian over the mean |
 | **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell. VERIFIED END TO END in CI run 32002876691: ~706 of 841 players attached per season, 98-135 correctly refused |
-| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.33 / 22.44 / 28.52 (Chase / Henry / Walker, re-read off the 08-17 rebuilt board). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
+| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.21 / 29.95 / 33.26 (Chase / Henry / Walker, re-read off the 08-18 board — the clean 3-season calibration plus the per-player volatility term moved Henry and Walker up: both carried a high realized 2025 weekly cv). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
 | **snap counts** | 35,869 skill player-weeks pulled, 2021-25, weekly job, registry-gated |
 | **playoff-SOS artifact** | regenerated (my board rebuild had added 5 rows it predated) |
 
@@ -108,13 +217,13 @@ Realized weekly volatility (`cv = sd/mean`, our scoring), 2023-25:
 
 - within a fixed mean band, cv spreads **1.57x-1.88x** (a `mean x constant`
   field has none)
-- year-over-year persistence **rho +0.482 and +0.605**, both clearing a 400-draw
-  permutation null; control (mean carryover) +0.740 / +0.781
+- year-over-year persistence **rho +0.469 and +0.635**, both clearing a 400-draw
+  permutation null; control (mean carryover) +0.736 / +0.779
 
 **Volatility persists at ~two thirds the strength of scoring LEVEL.** Compare
 snap-share volatility at +0.19, pulled the same day.
 
-**Its boundary is sharp and non-random.** 129 of 155 draftable players have it.
+**Its boundary is sharp and non-random.** 130 of 155 draftable players have it (re-derived 08-18 on the 5d playoff-free stores; the tail restoration widened coverage), and of the 25 missing, only 8 are rookies — the rest are injury-returns.
 Of the 26 without, only 8 are rookies — **the rest are veterans who missed 2025**
 (Nabers ADP 32, Garrett Wilson 45, Daniels 59, Evans 62). Any wiring that fills
 a gap with a positional mean hands the steadiest reading to the injury-return

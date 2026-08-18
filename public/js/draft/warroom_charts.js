@@ -605,8 +605,17 @@
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
       ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)],
-      ['VONA', s && s.components && s.components.vona != null ? s.components.vona.toFixed(1) : '—'],
-      ['Composite score', s ? s.score.toFixed(1) : '—'],
+      /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
+       * most of the board — the engine scores only the shortlist-depth slice
+       * each pick, so a rail/board click outside it has no s. A blank the
+       * reader cannot distinguish from "zero" or "broken" fails the honesty
+       * bar; the caption names the mechanism. On-demand scoring for any
+       * clicked player is the real fix, registered for post-08-22 (it re-runs
+       * the engine per click mid-draft — not a change to rush at draft-4). */
+      ['VONA', s && s.components && s.components.vona != null ? s.components.vona.toFixed(1)
+        : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
+      ['Composite score', s ? s.score.toFixed(1)
+        : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
       ['VORP', num(p.vorp, 1)],
       ['ADP vs our rank', num(p.adjusted_adp) + ' <span class="muted">adp</span> · #' + num(p.overall_rank) + ' <span class="muted">ours</span>'
         + (p.adjusted_adp != null && p.overall_rank != null
@@ -628,6 +637,12 @@
         ? { min: p.proj_floor - (p.proj_ceiling - p.proj_floor) * 0.1,
             max: p.proj_ceiling + (p.proj_ceiling - p.proj_floor) * 0.1, w: 220, h: 14 }
         : {});
+    /* Conditional-value readout (Cory's ruling 2026-08-17): app.js resolves
+     * artifact + roster and hands back a finished string — this layer stays a
+     * presenter. '' (absent, not zero) for everyone without a premium. */
+    var condHtml = '';
+    try { condHtml = (d.conditionalDrillHtml && d.conditionalDrillHtml(ui.drillId)) || ''; }
+    catch (e) { condHtml = ''; }
 
     host.innerHTML = '<div class="wr-drill-panel" role="dialog" aria-label="Player detail">'
       + '<button type="button" class="wr-drill-close" data-drill-close="1" title="Close">✕</button>'
@@ -640,6 +655,7 @@
           return '<tr><td>' + r[0] + '</td><td class="wr-num">' + r[1] + '</td></tr>';
         }).join('') + '</table>'
       + (survRows ? '<div class="wr-drill-surv"><div class="wr-drill-h">survives to my picks</div>' + survRows + '</div>' : '')
+      + condHtml
       + (s && s.reasons && s.reasons.length
         ? '<div class="wr-drill-why"><div class="wr-drill-h">the engine\'s why</div>'
           + s.reasons.slice(0, 3).map(function (r) { return '<div>· ' + esc(r) + '</div>'; }).join('') + '</div>'

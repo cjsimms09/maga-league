@@ -29,14 +29,20 @@ import projections as PJ  # noqa: E402
 
 
 def _mkplayers():
+    # 2026-08-17, calibration regenerated on Cory's ruling: QB|1-3 is now
+    # honestly unmeasurable (n=6 < min_n 8, ratios null), so the fixture grew
+    # q3/q4 to put a row (q4, rank 4) inside the shallowest MEASURED band,
+    # QB|4-8. Old fixture drove QB|1-3 through q1/q2.
     return [
         {"player_id": "q1", "position": "QB", "years_exp": 5},
         {"player_id": "q2", "position": "QB", "years_exp": 5},
+        {"player_id": "q3", "position": "QB", "years_exp": 5},
+        {"player_id": "q4", "position": "QB", "years_exp": 5},
         {"player_id": "k1", "position": "K", "years_exp": 5},
     ]
 
 
-BASELINE = {"q1": 400.0, "q2": 300.0, "k1": 140.0}
+BASELINE = {"q1": 400.0, "q2": 300.0, "q3": 290.0, "q4": 280.0, "k1": 140.0}
 
 
 def _cal_cells():
@@ -46,14 +52,23 @@ def _cal_cells():
 
 
 def test_measured_cell_prices_the_row_and_declares_itself():
+    # 2026-08-18, clean 4s regeneration: QB|1-3 is measured again (n=9 — its
+    # 08-17 refusal was the dropped-2025 symptom, not a fact about top QBs),
+    # so q1 is back on the measured path and pinned to HIS OWN cell's ratio —
+    # the two-cell pin now also proves adjacent ranks price different cells.
     cells = _cal_cells()
-    assert "QB|1-3" in cells, "the calibration lost the cell this test drives"
-    ratio = cells["QB|1-3"]["sd_ratio"]
+    assert "QB|4-8" in cells, "the calibration lost the cell this test drives"
+    ratio = cells["QB|4-8"]["sd_ratio"]
     out = PJ.blend(_mkplayers(), dict(BASELINE), {}, {})
+    q4 = next(p for p in out if p["player_id"] == "q4")
+    assert q4["proj_sd_source"] == "measured-2023-25-error"
+    assert q4["proj_sd"] == pytest.approx(q4["proj_mean"] * ratio, abs=0.5)
+    # the why names the band, so the board can say where the number came from
+    assert any("QB|4-8" in w for w in q4["variance_why"])
     q1 = next(p for p in out if p["player_id"] == "q1")
     assert q1["proj_sd_source"] == "measured-2023-25-error"
-    assert q1["proj_sd"] == pytest.approx(q1["proj_mean"] * ratio, abs=0.5)
-    # the why names the band, so the board can say where the number came from
+    assert q1["proj_sd"] == pytest.approx(
+        q1["proj_mean"] * cells["QB|1-3"]["sd_ratio"], abs=0.5)
     assert any("QB|1-3" in w for w in q1["variance_why"])
 
 
@@ -83,16 +98,25 @@ def test_fail_arm_no_calibration_means_pre_rec1_behaviour(monkeypatch):
 
 
 def test_in_blend_rank_matches_the_calibrations_band_basis():
-    """q1 (400) must read QB band 1-3 as rank 1, q2 as rank 2 — proj_mean desc
-    within position, the exact definition vorp.assign_tiers writes as pos_rank
-    and projection_error fitted its bands on."""
+    """q1 (400) must read QB band 1-3 as rank 1 and q4 (280) as rank 4 —
+    proj_mean desc within position, the exact definition vorp.assign_tiers
+    writes as pos_rank and projection_error fitted its bands on.
+
+    2026-08-18, clean 4s regeneration: every QB cell is measured, so the
+    ordering check rides the RATIOS rather than the measured/fallback seam —
+    q3 must price QB|1-3 and q4 QB|4-8, two cells whose sd_ratios differ. A
+    reversed in-blend ordering swaps the cells and both approx pins fire."""
     cells = _cal_cells()
+    assert cells["QB|1-3"]["sd_ratio"] != cells["QB|4-8"]["sd_ratio"], (
+        "the two QB cells this test tells apart have merged — pick a pair "
+        "of cells with distinct ratios or the ordering check is blind")
     out = PJ.blend(_mkplayers(), dict(BASELINE), {}, {})
-    q2 = next(p for p in out if p["player_id"] == "q2")
-    # rank 2 is still band 1-3; a wrong ordering large enough to cross into
-    # 4-8 would price a different ratio
-    assert q2["proj_sd"] == pytest.approx(
-        q2["proj_mean"] * cells["QB|1-3"]["sd_ratio"], abs=0.5)
+    q3 = next(p for p in out if p["player_id"] == "q3")
+    q4 = next(p for p in out if p["player_id"] == "q4")
+    assert q3["proj_sd"] == pytest.approx(
+        q3["proj_mean"] * cells["QB|1-3"]["sd_ratio"], abs=0.5)
+    assert q4["proj_sd"] == pytest.approx(
+        q4["proj_mean"] * cells["QB|4-8"]["sd_ratio"], abs=0.5)
 
 
 def test_scratch_keys_do_not_leak_onto_the_board():

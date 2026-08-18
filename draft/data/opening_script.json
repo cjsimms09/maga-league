@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-17T16:35:09Z",
-   "board_content_hash": "34e5f9d80316",
+   "board_built_at": "2026-08-18T03:44:46Z",
+   "board_content_hash": "cf9589932eb2",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
@@ -79,18 +79,18 @@
       "survival": 1.0
      },
      {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 26.6,
+      "survival": 0.26
+     },
+     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.98
-     },
-     {
-      "player_id": "11635",
-      "name": "Ladd McConkey",
-      "position": "WR",
-      "vorp": 25.1,
-      "survival": 0.95
      }
     ]
    },
@@ -109,14 +109,14 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.51
+      "survival": 0.5
      },
      {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.96
+      "survival": 0.97
      },
      {
       "player_id": "12518",
@@ -149,7 +149,7 @@
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.83
+      "survival": 0.86
      },
      {
       "player_id": "10859",
@@ -163,7 +163,7 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 20.4,
-      "survival": 0.44
+      "survival": 0.4
      },
      {
       "player_id": "HOU",
@@ -201,18 +201,18 @@
       "survival": 1.0
      },
      {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 26.6,
+      "survival": 0.26
+     },
+     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.98
-     },
-     {
-      "player_id": "11635",
-      "name": "Ladd McConkey",
-      "position": "WR",
-      "vorp": 25.1,
-      "survival": 0.95
      }
     ]
    },
@@ -231,14 +231,14 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.51
+      "survival": 0.5
      },
      {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.96
+      "survival": 0.97
      },
      {
       "player_id": "12518",
@@ -271,7 +271,7 @@
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.83
+      "survival": 0.86
      },
      {
       "player_id": "10859",
@@ -285,7 +285,7 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 20.4,
-      "survival": 0.44
+      "survival": 0.4
      },
      {
       "player_id": "HOU",

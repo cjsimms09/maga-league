@@ -639,12 +639,40 @@
       + '>' + marker + '</span>';
   }
 
+  /* THE CONDITION HERE WAS INVERTED, AND ITS ABSENCE ASSERTED A SECOND OPINION
+   * THAT DOES NOT EXIST (session E, 2026-08-17; register E6).
+   *
+   * It used to read `if (p.proj_fantasypros != null) return '';` — i.e. carrying
+   * a FantasyPros number was treated as evidence that `proj_mean` had more than
+   * one source behind it. It is not. `proj_baseline == proj_sleeper` for 427 of
+   * 427 rows carrying both, and build.py:1003 declares the formula outright:
+   * "sleeper_baseline * (1 + opportunity_adj)". FantasyPros is carried and
+   * DISPLAYED and never enters `proj_mean` (register 21).
+   *
+   * So the old mark divided the board exactly backwards. Measured on the live
+   * screen: 127 rows rendered with NO caveat and all 127 were Sleeper-only,
+   * while the 65 that carried it were the rows where FP simply does not exist.
+   * Every one of the 682 is single-source. The absence of a mark was the lie.
+   *
+   * EVERY ROW IS MARKED NOW, because every row earns it. What stays per-player
+   * is the thing that genuinely varies and is the more useful fact anyway:
+   * whether a second source EXISTS and is being ignored (427 rows) or is simply
+   * absent (255). Cory asked for a sanity check on our own valuation; "we hold a
+   * second opinion and did not use it" is exactly that check. */
   function projSourceMark(p) {
     if (!p || p.proj_mean == null) return '';
-    if (p.proj_fantasypros != null) return '';
-    return caveatOnce('single_source', '¹',
-      'single-source projection (Sleeper only) — FantasyPros does not cover this '
-      + 'position, so there is no second opinion behind this number');
+    const prov = (state.data || {}).provenance || {};
+    const src = (prov.projections && prov.projections.source) || 'sleeper';
+    const name = /fantasypros/i.test(src) ? 'FantasyPros'
+      : /sleeper/i.test(src) ? 'Sleeper' : String(src);
+    if (p.proj_fantasypros != null) {
+      return caveatOnce('unused_second_source', '¹',
+        name + ' only — a FantasyPros projection exists for this player ('
+        + Math.round(p.proj_fantasypros) + ') and does NOT enter this number');
+    }
+    return caveatOnce('no_second_source', '²',
+      name + ' only — no second source covers this player, so there is no '
+      + 'second opinion available behind this number');
   }
 
   const OV_FIELDS = ['proj_mean', 'proj_ceiling', 'proj_floor', 'vorp'];
@@ -1208,10 +1236,51 @@
         + '<table class="spa-table"><tbody>' + rows + '</tbody></table></details>';
     })();
 
+    /* ── THE PLAN IS ROSTER-BLIND, AND UNTIL NOW THE PANEL WAS TOO ───────────
+     *
+     * Cory, live 2026-08-17: *"model still overrecommending QBs. I have joe
+     * burrow and it recommends Bo nix in the 9th.. thats rediculous"*.
+     *
+     * `seat_plan.json` asserts `slot: "QB", is_starter_seat: true` at pick 73
+     * and names another QB at 93. It is solved ONCE before the draft from the
+     * KEEPERS ALONE — its own header says *"It does NOT re-solve live"* — so it
+     * cannot know Burrow was taken at an intervening pick. Worse, the seat's own
+     * `fallback_rule` reads *"Take the best remaining player ELIGIBLE FOR QB,
+     * not the best player on the board"*, so the panel was actively steering
+     * toward a second QB at a seat that no longer exists.
+     *
+     * The plan is not wrong — it answered the pre-draft question correctly. What
+     * was wrong is rendering a pre-draft answer as a live instruction. So the
+     * panel now asks the roster, using the ENGINE'S OWN `mandatoryGaps()` rather
+     * than a second copy of the slot arithmetic: if this seat's slot is no
+     * longer an unfilled starter slot, the seat is spent and says so.
+     *
+     * The shortlist is still shown underneath rather than hidden — "the plan
+     * named nobody" and "the plan named men you no longer need" are different
+     * facts, and suppressing the second would make the artifact look cleaner
+     * than the evidence is (the same reasoning `supLine` above already uses). */
+    const seatSpent = (function () {
+      if (!seat.is_starter_seat || !seat.slot) return null;
+      let gaps;
+      try { gaps = E.mandatoryGaps(context()); } catch (e) { return null; }
+      if (!Array.isArray(gaps) || gaps.indexOf(seat.slot) !== -1) return null;
+      const held = (state.myRoster || []).filter(p => p && p.position === seat.slot);
+      return { by: held.map(p => p.name).filter(Boolean) };
+    })();
+    const spentLine = !seatSpent ? ''
+      : '<div class="sp-spent"><b>SEAT ALREADY FILLED</b> — you have '
+        + (seatSpent.by.length
+          ? escapeHtml(seatSpent.by.join(', ')) + ' at ' + escapeHtml(seat.slot)
+          : 'no open ' + escapeHtml(seat.slot) + ' starter slot')
+        + '. This plan was solved before the draft and does not re-solve, so the '
+        + 'names below answer a question you have already answered — treat them as '
+        + 'history, not as the pick.</div>';
+
     host.innerHTML =
-      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
+      '<div class="sp-head">THE PLAN ' + (seatSpent ? 'WANTED' : 'WANTS') + ' <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
-      + '<ol class="sp-list">' + rows + '</ol>'
+      + spentLine
+      + '<ol class="sp-list' + (seatSpent ? ' sp-list-spent' : '') + '">' + rows + '</ol>'
       + staleLine
       + gapLine
       + supLine
@@ -1227,6 +1296,8 @@
     loadWeights();
     loadFrozenBaseline();
     loadSeatPlan();
+    loadConditionalValue();
+    loadOpponentNeed();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -1477,11 +1548,31 @@
    *              so the rule exists ONCE on this side; the Python keeper-
    *              placement verification asserts the same law on the artifact.
    */
-  function pickState() {
-    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
-    const pickEvents = state.sync
+  /* THE ONE DERIVATION OF "how many picks have we observed".
+   *
+   * Added 2026-08-17 (relay) because `main` went red on
+   * test_shared_state_audit's `current_pick` budget: the room-switch
+   * confirm-first feature (2fe8e0e2) needed this count and re-derived the
+   * expression inline, making three copies of a canonical fact whose budget is
+   * two. The guard is right — every severity-1 in this project came from a
+   * shared fact derived in more than one place — so the fix is to give the
+   * derivation an owner rather than to widen the budget.
+   *
+   * NOT COSMETIC: the two copies were already drifting in meaning. One asks
+   * "how far along is the draft" for the clock; the other asks "have we
+   * recorded anything worth protecting before switching rooms". They agree
+   * today only because they were written the same way, which is precisely the
+   * condition that stops being true later.
+   */
+  function observedPickCount() {
+    return state.sync
       ? Math.max(0, state.sync.currentPickNumber() - 1)
       : (state.recentPicks || []).length;
+  }
+
+  function pickState() {
+    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
+    const pickEvents = observedPickCount();
     // COORDINATE SYSTEM [placements]: kept, never drafted. Not an event.
     const keeperPlacements = (state.myRoster || []).filter(p => p.is_keeper).length;
     const rehearsalRemovals = (state.rehearsalKeepers || {}).removed || 0;
@@ -1712,9 +1803,25 @@
      * pick lands anywhere, `pickEvents` is non-zero and the room's clock takes
      * over exactly as before. Live-draft behaviour is unchanged. */
     const ps = pickState();
+    const mine = ((state.data || {}).pick_order || {}).my_picks || [];
     if (ps.pickEvents === 0) {
-      const mine = ((state.data || {}).pick_order || {}).my_picks || [];
       if (mine.length) return mine[0];
+      return ps.currentPick;
+    }
+    /* MANUAL MODE AFTER THE FIRST PICK (B's rehearsal find, 2026-08-17: the
+     * draft-night fallback clock broke ON THE VERY FIRST TAKE). pickEvents
+     * counts MARKS, and in the fallback Cory marks mostly his own picks — so
+     * one mark read "pick 2" while his pick landed at overall 33, and every
+     * consumer (legality's picksLeft, LRM windows, mustDraftNow) inherited a
+     * clock stuck near the top of the draft. My recorded picks sit on KNOWN
+     * slots by construction, so once k of my picks exist the room has
+     * necessarily passed mine[k-1]: the clock is bounded below by
+     * mine[k-1]+1. max() keeps the diligent path exact — marking every
+     * opponent still advances the clock past the bound — and sync mode never
+     * reaches this line. */
+    const myTaken = (state.myRoster || []).filter(function (p) { return !p.is_keeper; }).length;
+    if (myTaken > 0 && mine.length >= myTaken) {
+      return Math.max(ps.currentPick, (mine[myTaken - 1] || 0) + 1);
     }
     return ps.currentPick;
   }
@@ -2040,6 +2147,11 @@
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
+      /* OPPONENT-NEED LAYER input (Cory's take-a-swing ruling, 2026-08-17).
+       * survival.js's gated blend reads ctx.opponentNeed; the artifact loads
+       * beside the board (loadOpponentNeed) and null degrades to no tilt —
+       * absent is never a guessed distribution. */
+      opponentNeed: state.opponentNeed || null,
     };
   }
 
@@ -2491,6 +2603,19 @@
           + 'Treat it as stale: rebuild before drafting off it.' });
     }
 
+    /* CONDITIONAL-VALUE LAYER, absent case (ruling 2026-08-17): one honest
+     * line, never a zero presented as a measurement. Silence while the fetch
+     * is still in flight; silence when loaded (the chips carry their own
+     * provenance label). */
+    if (state.condValueLoaded && !state.condValue) {
+      notes.push({ level: 'warn',
+        text: (typeof CondValue !== 'undefined' && CondValue.absentNote)
+          ? CondValue.absentNote()
+          : 'Conditional-value artifact (stack/handcuff premiums) did not load — '
+            + 'premium chips are ABSENT, not zero. Board value is unaffected: '
+            + 'the composite never reads this layer.' });
+    }
+
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
     host.style.display = '';
     const icon = lvl => lvl === 'bad' ? '⛔' : (lvl === 'ok' ? 'ℹ️' : '⚠️');
@@ -2613,12 +2738,16 @@
     // even" rather than silence pretending the check never ran.
     const tbHtml = v.tiebreak
       ? '<div class="wrv-tiebreak"><b>tie-break facts</b>'
-        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged)</span>'
+        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged. '
+        + 'On this league’s 2023–25 record 50/50s are true coin flips: 8 of 9 '
+        + 'printed facts predicted nothing in 259 near-ties; trajectory is the one '
+        + 'measured lean, 58% of 176)</span>'
         + (v.tiebreak.facts.length
           ? '<ul>' + v.tiebreak.facts.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>'
           : '<div class="tb-even">nothing on the board separates '
             + escapeHtml(v.tiebreak.a) + ' and ' + escapeHtml(v.tiebreak.b)
-            + ' — genuinely even; your read decides.</div>')
+            + ' — genuinely even; your read decides. A true coin flip on this '
+            + 'league’s own record (259 near-ties, 2023–25) — stop sweating it.</div>')
         + '</div>'
       : '';
     const lensHtml = v.lenses.length
@@ -4156,6 +4285,9 @@
               + (gone >= 60 ? ' — <b>take him now or lose him</b>' : ' — he can probably wait')
               + '</span>')
         + (why ? '<br><span class="muted" style="font-size:.75rem">' + escapeHtml(why) + '</span>' : '')
+        /* conditional-value chip (ruling 2026-08-17) — same separate line the
+         * shortlist prints; annotation only, absent when there is no premium. */
+        + condValueChip(p)
         + '</li>';
     }).join('') + '</ol>';
   }
@@ -4900,7 +5032,24 @@
     // pre-draft snapshot. QB/TE surfaced explicitly since they're the timing calls.
     if (typeof DraftGrabBy !== 'undefined') {
       try {
-        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {});
+        /* LRM startable boundaries feed the wire-covered-onesie cap (Cory,
+         * 2026-08-17: QB urgency was contradicting the LRM strip on the same
+         * screen). One derivation: computeLRM's startable_by IS the boundary
+         * the strip prints, so the two surfaces cannot disagree again. */
+        let lrmBounds = null;
+        try {
+          const picks = myNextPicks();
+          (computeLRM(picks) || []).forEach(function (r) {
+            /* no_deadline = startable options outlast the DRAFT (K/DEF men who
+             * go undrafted) — the strongest wire coverage, boundary infinite. */
+            if (r.no_deadline) { (lrmBounds = lrmBounds || {})[r.position] = Infinity; }
+            else if (r.startable_by != null) {
+              (lrmBounds = lrmBounds || {})[r.position] = r.startable_by;
+            }
+          });
+        } catch (e) { lrmBounds = null; }
+        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {},
+          null, lrmBounds);
         if (gb && gb.headline) {
           const pill = v => v === 'TAKE-NOW' ? '#ff8a8a' : (v === 'GRAB-SOON' ? '#f5c445' : '#8ac6ff');
           const line = pos => {
@@ -5445,6 +5594,11 @@
             ? '<div class="rec-context">' + s.context.map(escapeHtml).join(' · ') + '</div>'
             : '') +
           stackBadge(p) +
+          /* CONDITIONAL-VALUE CHIP (Cory's ruling 2026-08-17): the stack/
+           * handcuff premium TO CORY'S ROSTER, printed as its own labelled
+           * line beside the board value — annotation, never a second
+           * recommendation, never a term of the score to its right. */
+          condValueChip(p) +
           ((s.rails && s.rails.length)
             ? '<div class="rail-strip">' + s.rails.map(f =>
                 '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
@@ -6415,6 +6569,82 @@
     // the class name is the real hook B will style.
     return '<div class="rec-stack-badge" style="font-size:.78rem;color:#f5c445;margin-top:.2rem">⚡ '
       + verb + ' ' + escapeHtml(r.anchor) + ' stack' + tag + '</div>';
+  }
+
+  /* ══ THE CONDITIONAL-VALUE LAYER (stack + handcuff premiums) ══════════════
+   *
+   * WIRED BY CORY'S RULING, 2026-08-17 (verbatim: "Yes!"), on the evidence in
+   * draft/audit/conditional_value_2026-08-16.md. The layer was measured,
+   * priced, tested and GATED OFF by construction awaiting exactly that ruling.
+   *
+   * DISPLAY ONLY — the contract from docs/queued/conditional-value-program.md:
+   * "board value + stack premium + handcuff premium, EACH PRINTED SEPARATELY."
+   * The artifact is fetched here the same way the board is; the join, the chip
+   * and the drill readout are CondValue's (conditional_value.js, pure,
+   * node-tested). NOTHING here feeds context(), the engine, or any score —
+   * test_conditional_value.py keeps the scoring side gated, and the chip
+   * itself says "not in the score" so a reader never mistakes the annotation
+   * for a term of the composite.
+   *
+   * DEGRADES HONESTLY: a missing artifact means NO chips and one provenance
+   * note — absent is never rendered as zero. */
+  /* OPPONENT-NEED artifact — same degrade-honestly pattern as the conditional
+   * value fetch below: a missing artifact means the survival blend runs
+   * without the need tilt (survival.js treats null ctx.opponentNeed as OFF),
+   * never a guessed one. */
+  function loadOpponentNeed() {
+    fetch('/opponent_need_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.opponentNeed = a || null; })
+      .catch(function (e) {
+        console.warn('[opponent-need] artifact not loaded: ' + (e && e.message)
+          + ' — survival runs without the need tilt (not a guessed one)');
+        state.opponentNeed = null;
+      });
+  }
+
+  function loadConditionalValue() {
+    fetch('/conditional_value_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.condValue = a || null; })
+      .catch(function (e) {
+        console.warn('[conditional-value] artifact not loaded: ' + (e && e.message)
+          + ' — premium chips absent (not zero)');
+        state.condValue = null;
+      })
+      .then(function () {
+        state.condValueLoaded = true;
+        // The board usually wins the race; when it doesn't, repaint so the
+        // chips (or the honest absence note) appear without a pick event.
+        if (state.data) { try { renderAll(); } catch (e) { /* never blocks */ } }
+      });
+  }
+  function condValueIndex() {
+    if (typeof CondValue === 'undefined' || !state.condValue) return null;
+    if (!state._cvIdx || state._cvIdx.src !== state.condValue) {
+      try { state._cvIdx = { src: state.condValue, idx: CondValue.index(state.condValue) }; }
+      catch (e) { console.error('[conditional-value]', e && e.message); return null; }
+    }
+    return state._cvIdx.idx;
+  }
+  function condRosterPids() {
+    return (state.myRoster || []).map(function (p) { return String(p.player_id); });
+  }
+  /* The chip beside board value — one labelled line per live premium, '' for
+   * everyone else. Guarded: a missing module or artifact costs the chip, never
+   * the row, and never prints a zero. */
+  function condValueChip(p) {
+    try {
+      var idx = condValueIndex();
+      if (!idx) return '';
+      return CondValue.chipHtml(String(p.player_id), idx, condRosterPids());
+    } catch (e) { return ''; }
   }
 
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
@@ -9707,6 +9937,35 @@
     }, 1500); }
   }
 
+  /* THE DEAD-ROOM BANNER — one tap from a poisoned board back to a working one.
+   *
+   * Fired by sync.onDeadRoom after 3 consecutive 404s on a draft that HAD been
+   * answering: Sleeper deletes mock rooms when they end, so this is the normal
+   * end-of-mock state, and the failure it prevents was captured live
+   * (2026-08-17): the dead room's picks kept pricing the board, every list
+   * showed the leftovers of a finished draft, and the recovery lived behind
+   * two taps in a different tab. The banner is idempotent and the button runs
+   * endDraft() — the tested clear; keepers, targets and weights survive. */
+  function showDeadRoomBanner() {
+    if (document.getElementById('dead-room-banner')) return;
+    var d = document.createElement('div');
+    d.id = 'dead-room-banner';
+    d.setAttribute('style', 'background:#7f1d1d;color:#fff;padding:12px 16px;'
+      + 'border-radius:8px;margin:8px 0;display:flex;gap:12px;align-items:center;'
+      + 'flex-wrap:wrap;font-weight:600;');
+    var s = document.createElement('span');
+    s.textContent = '🪦 This mock room no longer exists at Sleeper — mock lobbies '
+      + 'are deleted when they end. Its picks are still pricing your board.';
+    d.appendChild(s);
+    var b = document.createElement('button');
+    b.className = 'btn small gold';
+    b.textContent = 'CLEAR IT — fresh board';
+    b.addEventListener('click', function () { d.remove(); endDraft(); });
+    d.appendChild(b);
+    var anchor = document.querySelector('.wrap') || document.body;
+    anchor.insertBefore(d, anchor.firstChild);
+  }
+
   function endDraft() {
     // Phase H req 3: freeze means freeze. Stamp every shadow roster (strategy,
     // weight hash, built_at, rehearsal) and ledger the final rosters BEFORE the
@@ -9759,6 +10018,13 @@
     }
     state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
+    /* KEEPERS ARE PLACEMENTS, NOT PICKS (found by the fallback-clock rehearsal
+     * scenario, 2026-08-18): ending a draft clears the roster but Cory's
+     * keepers pre-exist any draft — leaving them off tripped the keepers-vs-
+     * my_picks alarm ("your 0 keepers mean you own 15 picks... the board is
+     * giving you 12") on a freshly cleared board. Re-seed exactly as boot
+     * does. */
+    populateKeepers(state.data);
 
     ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
       const el = $(sel); if (el) el.style.display = 'none';
@@ -9835,6 +10101,17 @@
           pickBoard: ((state.data || {}).pick_order || {}).picks || null,
         });
       } catch (e) { return null; }
+    },
+    /* Conditional-value drill readout (ruling 2026-08-17) — a finished HTML
+     * string so the cockpit layer stays a pure presenter: the artifact, the
+     * join and the roster all resolve HERE, off the same state the chips use.
+     * '' when the player carries no premium or the artifact is absent. */
+    conditionalDrillHtml: function (pid) {
+      try {
+        var idx = condValueIndex();
+        if (!idx) return '';
+        return CondValue.drillHtml(String(pid), idx, condRosterPids());
+      } catch (e) { return ''; }
     },
   };
 
@@ -10075,6 +10352,57 @@
         state.sync.poll();
         return;
       }
+      /* ── A DIFFERENT ROOM IS A NEW DRAFT, NOT A RECONNECT ──────────────────
+       *
+       * CAPTURED LIVE (Cory, 2026-08-17, second mock of the day): mock #1
+       * ended, Sleeper garbage-collected it, the page auto-resumed its 150
+       * picks, and connecting mock #2's id did NOTHING about either — the old
+       * poller kept running (only the SAME-id kick above was handled) and the
+       * old room's 150 drafted ids kept pricing the new room's board. Every
+       * top-of-board surface showed the leftovers of a finished draft: to a
+       * drafter, "it's not showing any players."
+       *
+       * Two rules, split by what they cost:
+       *   1. The ORPHANED POLLER dies unconditionally. Two pollers interleave
+       *      onPicks and fight over the status line (reproduced: the dead
+       *      room's 404 retry banner overwrote the live room's status).
+       *   2. The PICK RESET asks for one confirming click first, because it is
+       *      destructive on a typo: pasting a wrong id mid-real-draft must not
+       *      wipe a live board. Second click within 15s = endDraft() (the
+       *      existing, tested clear — keepers/targets/weights survive, and the
+       *      mock re-seeds keepers + rehearsal removals through the same
+       *      applyDraftShape path a fresh page uses), then connect fresh.
+       * No picks recorded = nothing to protect = connect straight through. */
+      const prevRoomId = (state.sync && state.sync.draftId)
+        || (state.session && state.session.draftId) || null;
+      const recordedPicks = observedPickCount();
+      if (recordedPicks > 0 && prevRoomId !== parsed.id) {
+        const pending = state._pendingRoomSwitch;
+        const confirmed = pending && pending.id === parsed.id
+          && (Date.now() - pending.at) < 15000;
+        if (!confirmed) {
+          /* The OLD poller keeps running until the switch is confirmed — a
+           * typo must not freeze a live board's updates. */
+          state._pendingRoomSwitch = { id: parsed.id, at: Date.now() };
+          setStatus({ state: 'warn', message: 'This is a DIFFERENT room than the one on '
+            + 'the board (' + recordedPicks + ' picks recorded'
+            + (prevRoomId ? ' from draft ' + prevRoomId : '') + '). Connecting fresh '
+            + 'CLEARS those picks — your keepers, targets and weights stay. '
+            + 'Tap Connect again to confirm.' });
+          const cbtn = $('#start-sync');
+          if (cbtn) { cbtn.disabled = false; cbtn.textContent = 'Connect NEW room'; }
+          return;
+        }
+        state._pendingRoomSwitch = null;
+        endDraft();                          // stops the old poller too
+        $('#draft-id').value = parsed.id;   // endDraft blanks the box; keep the target
+      } else if (state.sync && state.sync.stop && state.sync.draftId !== parsed.id) {
+        /* No picks to protect: just make sure the orphaned poller dies before
+         * the new one starts, or the two interleave onPicks and fight over the
+         * status line (reproduced: a dead room's 404-retry banner overwriting
+         * the live room's status). */
+        try { state.sync.stop(); } catch (e) {}
+      }
       // Show them what we actually understood, so a URL paste is visibly fixed
       // rather than silently repaired.
       $('#draft-id').value = parsed.id;
@@ -10096,6 +10424,11 @@
           return onSyncPicks(picks);
         },
         onStatus: setStatus,
+        onDeadRoom: showDeadRoomBanner,
+        /* A reload's resumed sync has never succeeded, so lastOkAt cannot
+         * witness that the id used to work — the resumed picks can. Routed
+         * through the pick-count owner (shared-state audit, current_pick). */
+        resumedWithPicks: observedPickCount() > 0,
       });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.
@@ -10288,6 +10621,10 @@
       seat: seat,
       describe: seat && typeof DraftSeat !== 'undefined' ? DraftSeat.describe(seat) : null,
       audit: audit,
+      // The manual-fallback clock, for the rehearsal harness (B's 2026-08-17
+      // first-take find) — the number every pick-dependent surface consumes.
+      clock: currentPick(),
+      myPicks: ((state.data || {}).pick_order || {}).my_picks || [],
       myRoster: (state.myRoster || []).map(p => p.position + ' ' + p.name),
       rosterSlotsSeen: rosterSlotsSeen,
       mock: state.mockMode || null,

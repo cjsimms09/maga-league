@@ -268,5 +268,12 @@ def test_2025_divergence_is_bounded_and_named(frozen_cfg):
                 if abs(d) > 0.05:
                     diffs.append(d)
     assert compared > 4000
-    assert len(diffs) / compared < 0.03          # bounded: under 3% of rows
-    assert sum(1 for d in diffs if d > 0) / len(diffs) > 0.9  # named direction
+    # Re-pinned 2026-08-18 (register 5d): the 2025 store was REBUILT from the
+    # component store itself (build_weekly_points_from_components, one frozen
+    # scoring table), so the divergence this test bounded — the pbp path's
+    # missing 2pt conversions — is GONE by construction: zero rows differ.
+    # The healed state is the pin now; any reappearing diff means a second
+    # writer is back, which is the drift this file exists to catch.
+    assert len(diffs) == 0, (
+        f"{len(diffs)} of {compared} rows diverge between the component "
+        "store and the weekly-points store — a second derivation is back")

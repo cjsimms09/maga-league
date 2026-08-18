@@ -748,6 +748,27 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .recs-details { margin-top: .3rem; }
 .recs-details > summary { cursor: pointer; color: var(--muted); font-size: .8rem; margin-bottom: .5rem; }
 
+/* Other directions — same collapsed-disclosure grammar as .recs-details /
+   .tier-cliff-wrap (war-room shell rebuild, 2026-08-17). Distinct summary
+   styling (bordered, not bare text) since this one gates 2-4 full cards
+   rather than a flat list, and deserves a slightly louder invitation to open. */
+.paths-wrap { margin: var(--wr-s2, .5rem) 0 .7rem; }
+.paths-wrap > summary {
+  list-style: none; cursor: pointer; font-size: var(--wr-fs-sub, .78rem);
+  font-weight: 700; color: var(--wr-muted, var(--muted));
+  border: 1px solid var(--wr-line, var(--line)); border-radius: 999px;
+  padding: .3rem .7rem; display: inline-flex; align-items: center; gap: .3rem;
+  background: var(--wr-panel, var(--panel));
+}
+.paths-wrap > summary::-webkit-details-marker { display: none; }
+.paths-wrap > summary::before { content: '▸'; font-size: .7rem; }
+.paths-wrap[open] > summary::before { content: '▾'; }
+.paths-wrap[open] > summary {
+  background: var(--wr-structure, var(--navy)); color: #fff; border-color: var(--wr-structure, var(--navy));
+}
+.paths-wrap > .paths-coinflip,
+.paths-wrap > .paths-panel { margin-top: .6rem; }
+
 .rec-card {
   display: flex; gap: .8rem; align-items: center;
   padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 12px;
@@ -771,6 +792,14 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .rec-stats { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: .3rem; font-size: .74rem; color: var(--muted); }
 .rec-stats b { color: var(--ink); font-variant-numeric: tabular-nums; }  /* was #fff — invisible stat numbers */
 .rec-actions { display: flex; flex-direction: column; gap: .25rem; align-items: flex-end; }
+/* The per-row compare toggle ("data-compare") has shipped as a bare ⚖️ with
+   only a title= for years (ROUTES 08-14: "a bare emoji fourth in a row of
+   four buttons, with nothing saying what comparing gets you" — titles never
+   show on a touch draft table). The card-level "⚖️ Compare" button already
+   fixed the ENTRY point; this is the remaining per-row toggle. CSS-only
+   label via ::after, because the button text itself is app.js's (A's) to
+   emit — this adds a caption without touching a byte of markup or content. */
+.rec-actions [data-compare]::after { content: " compare"; font-size: .68rem; }
 .rec-score { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
 .rec-pos {
   font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .08em;
@@ -2411,6 +2440,11 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
 }
 .preset-why { font-size: .74rem; color: var(--muted); margin: 0 0 .8rem; line-height: 1.4; }
+/* This block runs to 1500+ characters of unbroken prose (app.js builds it as
+   one string, not ours to break up tonight) — at the card's full width that
+   reads as exactly the "wall of words" Cory flagged. Capping the measure to a
+   readable line length is a typography fix that needs no markup change. */
+body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .slider-when { font-size: .71rem; color: var(--muted); line-height: 1.35; }
 .slider-when b { color: var(--ink); font-weight: 600; }
 .weights-effect.changed { color: var(--gold-bright, #f5c445); }
@@ -2679,9 +2713,22 @@ body.warroom-page #mvs { display: none; }
 body.warroom-page #doctrine-banner { flex-wrap: wrap; align-items: baseline; }
 body.warroom-page #doctrine-banner .db-main { flex: 1 1 100%; min-width: 0; }
 body.warroom-page #doctrine-banner .db-side { flex: 1 1 100%; margin-left: 0; text-align: left; }
-body.warroom-page #doctrine-banner .db-creed,
-body.warroom-page #doctrine-banner .db-alt { display: none; }
+body.warroom-page #doctrine-banner .db-creed { display: none; }
+/* .db-alt used to be hidden here too (08-09: its alt-PRICE line duplicated the
+   recs card's "next turn cost"). 08-14 added a nested .db-defer span inside
+   #db-alt's own innerHTML — the deferral explanation that is the actual fix
+   for "the war room told Cory to take early QB" (a doctrine that declines a
+   position reads as trailing, not as buying a later pick). Hiding the WHOLE
+   parent to save the redundant price line was silently hiding that too, so
+   the fix for the early-QB defect has never been visible on this page since
+   the day it was written — caught 2026-08-17 by driving the real page, not
+   assumed from the code. Un-hidden; the small alt-price overlap with "next
+   turn cost" is a fair trade for a defect this page exists to prevent. */
 body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflow-wrap: anywhere; }
+/* THE DEFERRAL LINE — its own row, secondary weight, never competing with the
+   alt line above it (A's spec: "Ten-ish words at ~0.8em. Do not let it
+   compete with the alt line for weight"). */
+.db-defer { display: block; margin-top: .2rem; font-size: .7rem; line-height: 1.4; }
 #legality-strip.legality-strip { padding: .28rem .7rem; }
 .wr-zone2 { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 .wr-zone2 .card { margin: 0; }
@@ -3471,19 +3518,35 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
   .pk-opt-name { font-size: .86rem; }
 }
 
-/* War-room "arm my-turn alert" button. Fixed bottom-right on desktop; on phones
-   it must clear the bottom tab bar (fixed, ~56px + safe-area, z-index 90) — at
-   bottom:16px it covered the LOCKER and MORE tabs and swallowed their taps. */
-.wr-arm { position: fixed; right: 14px; bottom: 16px; z-index: 80; }
+/* War-room "arm my-turn alert" button. Was position:fixed to the viewport's
+   bottom-right corner on desktop — but the cockpit's right rail scrolls its
+   own content into that exact corner, so the button landed on top of it
+   (roster names at ~1000px viewport height, the ROSTER SHAPE header itself at
+   900px, both confirmed). Phones had the same collision with the bottom tab
+   bar. Both are fixed the same way now: NORMAL DOCUMENT FLOW, living in the
+   sticky tool bar's link row so it can never overlap page content. (It
+   removes itself 1.5s after arming, so an in-flow chip is unobtrusive.) */
+.wr-arm { display: inline-flex; width: auto; align-items: center;
+  font-size: .66rem; padding: .35rem .5rem; }
 @media (max-width: 700px) {
-  /* On a phone the fixed bottom tab bar owns the bottom-right corner, and a
-     floating action button there has covered the nav three times running.
-     Lifting it a few pixels was never enough — a floating control still layers
-     over content. Put it in NORMAL DOCUMENT FLOW instead: it reserves its own
-     space and cannot collide with the tab bar or any card. (It removes itself
-     1.5s after arming, so an in-flow button at the top is unobtrusive.) */
-  .wr-arm { position: static; display: inline-flex; width: auto; align-items: center;
-    right: auto; bottom: auto; margin: .2rem 0 .8rem; }
+  /* Explicit, not just the browser default: this line is the guard
+     draft/tests/warroom_mobile.test.js checks for at the source, since a
+     regression back to position:fixed is exactly the bug this fix removes. */
+  .wr-arm { position: static; }
+}
+/* At the 900px floor (the compressed-grid range, before the toolbar's own
+   overflow-x:auto scroll is needed) the full "Arm my-turn alert" label pushes
+   Lineup/Accuracy/Analyzer/Office past the visible edge — reproduced live at
+   900px, clean by 1050px. Icon-only in that one range: font-size:0 collapses
+   the real text node (no markup edit — warroom.ejs is on hold tonight for the
+   stack/handcuff merge), ::before restores just the bell glyph at readable
+   size. The title= attribute still carries the full label for a hover/AT. */
+@media (min-width: 900px) and (max-width: 1049px) {
+  /* .wr-arm.btn (not bare .wr-arm) to out-specificity .btn.small's own
+     font-size — a bare-class version of this rule left the label visible
+     underneath the icon, confirmed via a live screenshot before shipping. */
+  .wr-arm.btn { font-size: 0; padding: .35rem .45rem; }
+  .wr-arm.btn::before { content: "🔔"; font-size: .85rem; }
 }
 /* It is SETUP, not an alert — arm audio once and it removes itself. A full-width
    red bar made it read as the most urgent thing on screen, above the actual pick.

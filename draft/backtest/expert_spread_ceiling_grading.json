@@ -1,0 +1,1558 @@
+{
+  "_territory": "TERRITORY: C \u2014 produced by expert_spread_ceiling_grading.py",
+  "_prereg": "EXPERT-SPREAD-CEILING-PREREG.md \u00a72-\u00a74, \u00a77, \u00a78",
+  "_note": "NOTHING SHIPS TO THE BOARD BEFORE 2026-08-22 (\u00a74). This is a measurement, not a change \u2014 proj_ceiling and the board are untouched by running this.",
+  "seasons_requested": [
+    2023,
+    2024,
+    2025
+  ],
+  "season_ranking_status_\u00a77": {
+    "2023": {
+      "season": 2023,
+      "last_updated": "9/08",
+      "last_updated_ts": 1694132397,
+      "kickoff_utc": "2023-09-08T00:20:00+00:00",
+      "week3_cutoff_utc": "2023-09-29T00:20:00+00:00",
+      "hours_after_kickoff": -0.0,
+      "status": "CLEAN",
+      "reason": "frozen at or before kickoff"
+    },
+    "2024": {
+      "season": 2024,
+      "last_updated": "9/06",
+      "last_updated_ts": 1725581975,
+      "kickoff_utc": "2024-09-06T00:20:00+00:00",
+      "week3_cutoff_utc": "2024-09-27T00:20:00+00:00",
+      "hours_after_kickoff": -0.01,
+      "status": "CLEAN",
+      "reason": "frozen at or before kickoff"
+    },
+    "2025": {
+      "season": 2025,
+      "last_updated": "9/05",
+      "last_updated_ts": 1757083656,
+      "kickoff_utc": "2025-09-05T00:20:00+00:00",
+      "week3_cutoff_utc": "2025-09-26T00:20:00+00:00",
+      "hours_after_kickoff": 14.46,
+      "status": "LATE",
+      "reason": "postdates kickoff but not week 3 \u2014 included, not clean evidence alone (\u00a77.4)"
+    }
+  },
+  "seasons_excluded_by_name": [],
+  "seasons_graded": [
+    2023,
+    2024,
+    2025
+  ],
+  "per_season": {
+    "2023": {
+      "status": "MEASURED",
+      "crosswalk_misses": 18,
+      "on_board_skill_position_rows": 445,
+      "arms": {
+        "BASE": {
+          "graded_players": 433,
+          "band_rho": {
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 2,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.0,
+              "n": 16,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.0,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.0,
+              "n": 133,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.0,
+              "n": 79,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.0,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.0,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.0,
+              "n": 62,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.0,
+              "n": 36,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.0,
+          "shuffle_p95_pooled_rho": null,
+          "clears_shuffle": false
+        },
+        "ECR-MIN": {
+          "graded_players": 387,
+          "band_rho": {
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 2,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|4-8": {
+              "rho": 0.3,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": -0.8,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.4286,
+              "n": 7,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.3,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": 0.5749,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.65,
+              "n": 15,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.2692,
+              "n": 13,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.1905,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.5,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.0849,
+              "n": 119,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.246,
+              "n": 67,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": -0.0607,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.4462,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.228,
+              "n": 54,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.0334,
+              "n": 28,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.1889,
+          "shuffle_p95_pooled_rho": 0.0798,
+          "clears_shuffle": true
+        },
+        "ECR-Q10": {
+          "graded_players": 387,
+          "band_rho": {
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 2,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.2,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|4-8": {
+              "rho": 0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": -0.4,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.4286,
+              "n": 7,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.3,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": -0.0238,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.4607,
+              "n": 15,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.0989,
+              "n": 13,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.1905,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.1429,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": -0.0026,
+              "n": 119,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.1694,
+              "n": 67,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": -0.025,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.4593,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.1556,
+              "n": 54,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.0274,
+              "n": 28,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.1089,
+          "shuffle_p95_pooled_rho": 0.0933,
+          "clears_shuffle": true
+        },
+        "ECR-SPREAD": {
+          "graded_players": 387,
+          "band_rho": {
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 2,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": -0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|4-8": {
+              "rho": -0.3,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": -0.5,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.0714,
+              "n": 7,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": -0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": 0.4048,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": -0.3214,
+              "n": 15,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": -0.2527,
+              "n": 13,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": -0.3095,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.1698,
+              "n": 119,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.2331,
+              "n": 67,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": -0.0857,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": -0.2,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.2468,
+              "n": 54,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": -0.243,
+              "n": 28,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.0703,
+          "shuffle_p95_pooled_rho": 0.0855,
+          "clears_shuffle": false
+        }
+      },
+      "rookie_slice_\u00a78": {
+        "BASE": {
+          "graded_rookie_players": 7,
+          "pooled_rho": null
+        },
+        "ECR-MIN": {
+          "graded_rookie_players": 7,
+          "pooled_rho": null
+        },
+        "ECR-Q10": {
+          "graded_rookie_players": 7,
+          "pooled_rho": null
+        },
+        "ECR-SPREAD": {
+          "graded_rookie_players": 7,
+          "pooled_rho": null
+        }
+      },
+      "condition_4_distinct_ceilings": {
+        "BASE": {
+          "proj_mean_groups_with_2plus_players": 111,
+          "of_those_with_distinct_ceilings": 2,
+          "status": "PARTIAL"
+        },
+        "ECR-MIN": {
+          "proj_mean_groups_with_2plus_players": 99,
+          "of_those_with_distinct_ceilings": 99,
+          "status": "REPAIRS 4j"
+        },
+        "ECR-Q10": {
+          "proj_mean_groups_with_2plus_players": 99,
+          "of_those_with_distinct_ceilings": 99,
+          "status": "REPAIRS 4j"
+        },
+        "ECR-SPREAD": {
+          "proj_mean_groups_with_2plus_players": 99,
+          "of_those_with_distinct_ceilings": 98,
+          "status": "PARTIAL"
+        }
+      }
+    },
+    "2024": {
+      "status": "MEASURED",
+      "crosswalk_misses": 28,
+      "on_board_skill_position_rows": 458,
+      "arms": {
+        "BASE": {
+          "graded_players": 442,
+          "band_rho": {
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.0,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.0,
+              "n": 16,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.0,
+              "n": 7,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.0,
+              "n": 140,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.0,
+              "n": 14,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.0,
+              "n": 72,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.0,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.0,
+              "n": 69,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.0,
+              "n": 38,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.0,
+          "shuffle_p95_pooled_rho": null,
+          "clears_shuffle": false
+        },
+        "ECR-MIN": {
+          "graded_players": 414,
+          "band_rho": {
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": 1.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": 0.9,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": -0.6786,
+              "n": 7,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": -0.1786,
+              "n": 7,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": -0.0382,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.7,
+              "n": 16,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.1667,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.0357,
+              "n": 7,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.2274,
+              "n": 131,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.3143,
+              "n": 14,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.3111,
+              "n": 69,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.5077,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.2902,
+              "n": 62,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.4206,
+              "n": 31,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.2735,
+          "shuffle_p95_pooled_rho": 0.0713,
+          "clears_shuffle": true
+        },
+        "ECR-Q10": {
+          "graded_players": 414,
+          "band_rho": {
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": 0.9,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": -0.5643,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.4,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": 0.0,
+              "n": 7,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.1786,
+              "n": 7,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.2,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": -0.0088,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.6647,
+              "n": 16,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.5238,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.2143,
+              "n": 7,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.096,
+              "n": 131,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.2464,
+              "n": 14,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.2137,
+              "n": 69,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.6879,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.2589,
+              "n": 62,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.3081,
+              "n": 31,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.2192,
+          "shuffle_p95_pooled_rho": 0.0861,
+          "clears_shuffle": true
+        },
+        "ECR-SPREAD": {
+          "graded_players": 414,
+          "band_rho": {
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": 0.6,
+              "n": 5,
+              "status": "measured"
+            },
+            "RB|4-8": {
+              "rho": 0.2,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|9-16": {
+              "rho": -0.4286,
+              "n": 7,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": -0.8214,
+              "n": 7,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": -0.4,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.2441,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": -0.1794,
+              "n": 16,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": -0.0238,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.0357,
+              "n": 7,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": -0.0269,
+              "n": 131,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.5429,
+              "n": 14,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": -0.1317,
+              "n": 69,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.5385,
+              "n": 14,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.0003,
+              "n": 62,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.4185,
+              "n": 31,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.0245,
+          "shuffle_p95_pooled_rho": 0.094,
+          "clears_shuffle": false
+        }
+      },
+      "rookie_slice_\u00a78": {
+        "BASE": {
+          "graded_rookie_players": 2,
+          "pooled_rho": null
+        },
+        "ECR-MIN": {
+          "graded_rookie_players": 2,
+          "pooled_rho": null
+        },
+        "ECR-Q10": {
+          "graded_rookie_players": 2,
+          "pooled_rho": null
+        },
+        "ECR-SPREAD": {
+          "graded_rookie_players": 2,
+          "pooled_rho": null
+        }
+      },
+      "condition_4_distinct_ceilings": {
+        "BASE": {
+          "proj_mean_groups_with_2plus_players": 101,
+          "of_those_with_distinct_ceilings": 3,
+          "status": "PARTIAL"
+        },
+        "ECR-MIN": {
+          "proj_mean_groups_with_2plus_players": 93,
+          "of_those_with_distinct_ceilings": 93,
+          "status": "REPAIRS 4j"
+        },
+        "ECR-Q10": {
+          "proj_mean_groups_with_2plus_players": 93,
+          "of_those_with_distinct_ceilings": 93,
+          "status": "REPAIRS 4j"
+        },
+        "ECR-SPREAD": {
+          "proj_mean_groups_with_2plus_players": 93,
+          "of_those_with_distinct_ceilings": 93,
+          "status": "REPAIRS 4j"
+        }
+      }
+    },
+    "2025": {
+      "status": "MEASURED",
+      "crosswalk_misses": 17,
+      "on_board_skill_position_rows": 485,
+      "arms": {
+        "BASE": {
+          "graded_players": 468,
+          "band_rho": {
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.0,
+              "n": 7,
+              "status": "measured"
+            },
+            "QB|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.0,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.0,
+              "n": 14,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.0,
+              "n": 155,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.0,
+              "n": 15,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.0,
+              "n": 78,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.0,
+              "n": 77,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.0,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.0,
+              "n": 35,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.0,
+          "shuffle_p95_pooled_rho": null,
+          "clears_shuffle": false
+        },
+        "ECR-MIN": {
+          "graded_players": 415,
+          "band_rho": {
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|4-8": {
+              "rho": null,
+              "n": 4,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": -0.3,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|9-16": {
+              "rho": 0.5,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.5714,
+              "n": 7,
+              "status": "measured"
+            },
+            "QB|4-8": {
+              "rho": -0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.7,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.0118,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.4901,
+              "n": 14,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.4286,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.0,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": 0.0484,
+              "n": 124,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.2857,
+              "n": 15,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": 0.0903,
+              "n": 71,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.3219,
+              "n": 67,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.7393,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.2585,
+              "n": 31,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.1939,
+          "shuffle_p95_pooled_rho": 0.0852,
+          "clears_shuffle": true
+        },
+        "ECR-Q10": {
+          "graded_players": 415,
+          "band_rho": {
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|4-8": {
+              "rho": null,
+              "n": 4,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": 0.0,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|9-16": {
+              "rho": 0.5714,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.5357,
+              "n": 7,
+              "status": "measured"
+            },
+            "QB|4-8": {
+              "rho": -0.1,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": 0.8208,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": 0.1441,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": 0.5604,
+              "n": 14,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.6905,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": 0.1905,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": -0.0779,
+              "n": 124,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": 0.4444,
+              "n": 15,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": -0.0017,
+              "n": 71,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.2018,
+              "n": 67,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.7214,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": 0.2044,
+              "n": 31,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": 0.1421,
+          "shuffle_p95_pooled_rho": 0.0877,
+          "clears_shuffle": true
+        },
+        "ECR-SPREAD": {
+          "graded_players": 415,
+          "band_rho": {
+            "RB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "QB|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "RB|4-8": {
+              "rho": null,
+              "n": 4,
+              "status": "too few to measure"
+            },
+            "WR|4-8": {
+              "rho": 0.5,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|1-3": {
+              "rho": null,
+              "n": 3,
+              "status": "too few to measure"
+            },
+            "WR|9-16": {
+              "rho": -0.2143,
+              "n": 8,
+              "status": "measured"
+            },
+            "RB|9-16": {
+              "rho": 0.3571,
+              "n": 7,
+              "status": "measured"
+            },
+            "QB|4-8": {
+              "rho": 0.5,
+              "n": 5,
+              "status": "measured"
+            },
+            "TE|4-8": {
+              "rho": -0.2,
+              "n": 5,
+              "status": "measured"
+            },
+            "WR|17-32": {
+              "rho": -0.1882,
+              "n": 16,
+              "status": "measured"
+            },
+            "RB|17-32": {
+              "rho": -0.1341,
+              "n": 14,
+              "status": "measured"
+            },
+            "QB|9-16": {
+              "rho": 0.4762,
+              "n": 8,
+              "status": "measured"
+            },
+            "TE|9-16": {
+              "rho": -0.1667,
+              "n": 8,
+              "status": "measured"
+            },
+            "WR|33+": {
+              "rho": -0.0313,
+              "n": 124,
+              "status": "measured"
+            },
+            "TE|17-32": {
+              "rho": -0.4036,
+              "n": 15,
+              "status": "measured"
+            },
+            "RB|33+": {
+              "rho": -0.086,
+              "n": 71,
+              "status": "measured"
+            },
+            "TE|33+": {
+              "rho": 0.0471,
+              "n": 67,
+              "status": "measured"
+            },
+            "QB|17-32": {
+              "rho": 0.1321,
+              "n": 15,
+              "status": "measured"
+            },
+            "QB|33+": {
+              "rho": -0.0125,
+              "n": 31,
+              "status": "measured"
+            }
+          },
+          "pooled_rho": -0.0224,
+          "shuffle_p95_pooled_rho": 0.0861,
+          "clears_shuffle": false
+        }
+      },
+      "rookie_slice_\u00a78": {
+        "BASE": {
+          "graded_rookie_players": 0,
+          "pooled_rho": null
+        },
+        "ECR-MIN": {
+          "graded_rookie_players": 0,
+          "pooled_rho": null
+        },
+        "ECR-Q10": {
+          "graded_rookie_players": 0,
+          "pooled_rho": null
+        },
+        "ECR-SPREAD": {
+          "graded_rookie_players": 0,
+          "pooled_rho": null
+        }
+      },
+      "condition_4_distinct_ceilings": {
+        "BASE": {
+          "proj_mean_groups_with_2plus_players": 107,
+          "of_those_with_distinct_ceilings": 4,
+          "status": "PARTIAL"
+        },
+        "ECR-MIN": {
+          "proj_mean_groups_with_2plus_players": 98,
+          "of_those_with_distinct_ceilings": 98,
+          "status": "REPAIRS 4j"
+        },
+        "ECR-Q10": {
+          "proj_mean_groups_with_2plus_players": 98,
+          "of_those_with_distinct_ceilings": 98,
+          "status": "REPAIRS 4j"
+        },
+        "ECR-SPREAD": {
+          "proj_mean_groups_with_2plus_players": 98,
+          "of_those_with_distinct_ceilings": 98,
+          "status": "REPAIRS 4j"
+        }
+      }
+    }
+  },
+  "ship_conditions_\u00a74": {
+    "ECR-MIN": {
+      "condition_1_beats_base_on_2_of_3_seasons": {
+        "seasons_beating_base": 0,
+        "of": 3,
+        "clears": false
+      },
+      "condition_2_shuffle_does_not_match": {
+        "seasons_clearing_shuffle": 3,
+        "of": 3,
+        "clears": true
+      },
+      "condition_3_worsens_replay": {
+        "status": "VOID \u2014 not evaluated by this module; requires A's replay_seats_grade.py with this arm's ceiling substituted in"
+      },
+      "condition_4_repairs_4j": {
+        "per_season": [
+          "REPAIRS 4j",
+          "REPAIRS 4j",
+          "REPAIRS 4j"
+        ]
+      },
+      "ships": null
+    },
+    "ECR-Q10": {
+      "condition_1_beats_base_on_2_of_3_seasons": {
+        "seasons_beating_base": 0,
+        "of": 3,
+        "clears": false
+      },
+      "condition_2_shuffle_does_not_match": {
+        "seasons_clearing_shuffle": 3,
+        "of": 3,
+        "clears": true
+      },
+      "condition_3_worsens_replay": {
+        "status": "VOID \u2014 not evaluated by this module; requires A's replay_seats_grade.py with this arm's ceiling substituted in"
+      },
+      "condition_4_repairs_4j": {
+        "per_season": [
+          "REPAIRS 4j",
+          "REPAIRS 4j",
+          "REPAIRS 4j"
+        ]
+      },
+      "ships": null
+    },
+    "ECR-SPREAD": {
+      "condition_1_beats_base_on_2_of_3_seasons": {
+        "seasons_beating_base": 0,
+        "of": 3,
+        "clears": false
+      },
+      "condition_2_shuffle_does_not_match": {
+        "seasons_clearing_shuffle": 0,
+        "of": 3,
+        "clears": false
+      },
+      "condition_3_worsens_replay": {
+        "status": "VOID \u2014 not evaluated by this module; requires A's replay_seats_grade.py with this arm's ceiling substituted in"
+      },
+      "condition_4_repairs_4j": {
+        "per_season": [
+          "PARTIAL",
+          "REPAIRS 4j",
+          "REPAIRS 4j"
+        ]
+      },
+      "ships": null
+    }
+  }
+}

@@ -1,0 +1,99 @@
+# TERRITORY: C
+name: FantasyPros ADP field census — does the raw payload carry a Best/Worst range?
+
+# Cory, pushing back on the FFDP finding: "We already have ceilings and
+# floors!!! ... No we literally already have it from fantasy pros and
+# sleeper I believe."
+#
+# CHECKED FIRST AGAINST REAL CAPTURED DATA, not re-argued. Two existing real
+# field censuses (draft/audit/rule12_statlines.json — 13 real Sleeper
+# players, every position; draft/audit/proj_correctness_evidence_2026-08-16.
+# json — 520 real FantasyPros PROJECTIONS players, captured the day before
+# this) show no ceiling/floor/upside/downside field in either provider's
+# PROJECTIONS data.
+#
+# BUT FantasyPros' live ADP page is well known to show Best/Worst pick
+# columns, a DIFFERENT product from projections, and fantasypros_adp.py's
+# own docstring already admits "the probe only captured FP's experts-modal,
+# not the ADP data table, so the exact column layout is UNCONFIRMED."
+# fantasypros_adp.parse() extracts only `avg` from each row and drops
+# everything else — if the raw payload does carry `best`/`worst`/`std_dev`,
+# it has been silently discarded since the file was written.
+#
+# THIS WORKFLOW SETTLES IT DIRECTLY. Reuses fantasypros_adp.fetch()
+# (read-only import, not edited), walks the FULL raw response for every key
+# name, reports ACTIONABLE / NULL / UNMEASURED. Writes one diagnostic file,
+# changes nothing else.
+#
+# DISPATCH FROM `main`. Same push-guard reason as every other fetch workflow
+# this week.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fp-adp-field-census
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install
+        run: pip install pytest -q
+
+      - name: The decisions are tested before anything is asked
+        run: python3 -m pytest draft/tests/test_discovery_fp_adp_field_census.py -q
+
+      - name: Probe
+        run: |
+          {
+            echo "## FantasyPros ADP field census"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          cd draft/backtest && python3 discovery_fp_adp_field_census.py 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          cd ../..
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f draft/backtest/discovery_fp_adp_field_census.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("draft/backtest/discovery_fp_adp_field_census.json"))
+          print("**%s**" % r.get("verdict"))
+          un = r.get("unclassified") or []
+          if un:
+              print("Unclassified field names: `%s`" % "`, `".join(un[:40]))
+          PY
+          fi
+
+      - name: Commit the answer, including a null
+        if: always()
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the answer is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — answer not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/discovery_fp_adp_field_census.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "FP ADP field census: does the raw payload carry Best/Worst? [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::error::PROBE ANSWER NOT PUSHED."
+              exit 1
+            fi
+          fi

@@ -2,7 +2,7 @@ name: Browser rehearsals
 
 # THE DRAFT-NIGHT SURFACE, CHECKED BY A MACHINE INSTEAD OF BY MEMORY.
 #
-# Three rehearsals drive the real screens in a real browser, and until
+# Four rehearsals drive the real screens in a real browser, and until
 # 2026-08-17 NONE of them had ever run in CI: playwright is a devDependency and
 # no workflow invoked it. They were manual, which means they ran when someone
 # thought to run them — and on 08-17 nobody had, through a day that rewrote the
@@ -17,6 +17,15 @@ name: Browser rehearsals
 #                              it. This is the screen Cory reads on draft night.
 #   rehearsal-keepers.js       the keeper slate — 6 checks, incl. that a FIXTURE
 #                              board is refused rather than silently rendered.
+#   rehearsal-board-truth.js   BOARD TRUTH — 6 checks. mock3 asks whether the
+#                              screen WORKS; this asks whether what it says is
+#                              TRUE: every rendered rank and projection against
+#                              the artifact, plus what the source caveat MEANS.
+#                              Added 08-17 after an inverted condition in
+#                              projSourceMark shipped with every suite green —
+#                              proj_source_authority.test.js asserted the
+#                              function EXISTS and is CALLED, never what it
+#                              RETURNS. Register E6.
 #   rehearsal-config-screen.js scoring config — 13 checks, incl. that the
 #                              CRITICAL highlight discriminates rather than
 #                              starring everything.
@@ -85,3 +94,9 @@ jobs:
           curl -sf -o /dev/null http://localhost:8925/login \
             || { echo "rehearsal server never came up"; exit 1; }
           WR_USER=cory WR_PASS=pw node draft/tests/rehearsal-mock3.js
+          # BOARD TRUTH — added 2026-08-17 (register E6). mock3 checks that the
+          # screen WORKS; this checks that what it says is TRUE, comparing every
+          # rendered rank and projection to the artifact and pinning what the
+          # source caveat MEANS. Shares the server already up, so it costs one
+          # browser launch and no extra setup.
+          WR_USER=cory WR_PASS=pw node draft/tests/rehearsal-board-truth.js

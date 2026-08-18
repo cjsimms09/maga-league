@@ -1,6 +1,6 @@
 # THE OPPORTUNITY ADJUSTER IS THE BOARD'S ONLY EDIT TO SLEEPER, AND IT IS ZERO-INFORMATION
 
-_TERRITORY: D. Register 33's inventory (placebo exposure), and it answers
+_TERRITORY: D. Register 37's inventory (placebo exposure), and it answers
 **Q1** — D's own open question, *"does the opportunity adjuster help at all?"_
 Written 2026-08-18. **Nothing was recomputed. Every number below was already in
 `opportunity_adj_grade.json`.**
@@ -63,12 +63,12 @@ market-curve baselines already over-predict. **The adjuster then adds +9.10
 more.** It is a net-inflation rule applied to an over-predicting baseline, and
 the MAE damage is very nearly all of it.
 
-**This is the mirror image of register 32's finding**, and worth stating
+**This is the mirror image of register 36's finding**, and worth stating
 together because they are one mechanism seen from two sides:
 
 | | direction | effect on MAE |
 |---|---|---|
-| register 32 (`game_total` arm) | a fitted rule that **shrinks** a subset | **free improvement**, ~+0.046, no information needed |
+| register 36 (`game_total` arm) | a fitted rule that **shrinks** a subset | **free improvement**, ~+0.046, no information needed |
 | this (the opportunity adjuster) | a shipped rule that **inflates** | **systematic harm**, +9.1 bias, no information present |
 
 **A biased-high baseline pays you for shrinking and charges you for inflating,
@@ -105,18 +105,18 @@ prediction's mean**, which is the actual criterion.
 | `vegas_team_arm` | same, λ swept symmetrically | ❌ no | safe |
 | `oracle_lambda_sweep` (main curve) | same | ❌ no | safe |
 | `oracle_lambda_sweep` (§3 asymmetry) | per-side λ | ✅ **yes** | **placebo run today — SURVIVES**, §6 |
-| `asymmetric_env_arm` | per-side λ | ✅ yes | placebo run; one arm killed (register 32) |
+| `asymmetric_env_arm` | per-side λ | ✅ yes | placebo run; one arm killed (register 36) |
 | **`opportunity_adj_grade`** | `1 + adj`, **adj not mean-centred** | ✅ **yes, inverted** | **this document** |
 
 **Six of eight are safe by construction and the reason is the same in each: the
 multiplier is normalised or centred, so it cannot move the mean.** That is the
 design rule worth extracting — **centre the multiplier and the artifact
-disappears.** Register 32's arm and the adjuster both skip it.
+disappears.** Register 36's arm and the adjuster both skip it.
 
 ## 6. AND THE SAME CONTROL, RUN ON MY OWN CLAIM FROM YESTERDAY
 
 Register 18b's headline — *"a dud game is worth 5–10× a shootout"* — is measured
-on exactly the shape register 32 just exposed, so it was re-tested first, before
+on exactly the shape register 36 just exposed, so it was re-tested first, before
 anyone else's work.
 
 | season | side | real | placebo mean | p | **net** |
@@ -133,7 +133,7 @@ my stated range was inflated by the artifact, and 18b is amended.
 
 **The placebo is exactly 0.0000 on the shootout side, in both seasons.** A
 shuffled multiplier buys literally nothing when it points up, and buys +0.09
-when it points down. **That is register 33's premise proved outright: the free
+when it points down. **That is register 37's premise proved outright: the free
 lunch exists only in the shrink direction.**
 
 ## 7. WHAT THIS DOES AND DOES NOT SAY

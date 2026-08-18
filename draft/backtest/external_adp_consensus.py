@@ -335,6 +335,35 @@ def to_pick_scale(order: dict, anchor: dict, positions: dict) -> dict:
     `status: "unanchored"`. Inventing a pick scale from a contaminated source is
     the failure this whole module exists to avoid, and doing it silently on one
     position would be worse than doing it openly on all four.
+
+    ⚠ AND THE OUTPUT MAY ONLY BE COMPARED AGAINST THE ANCHOR'S OWN SCALE. This is
+    not a caveat about contamination — it bites a perfectly format-matched anchor,
+    and it caught me on the first real run.
+
+    The pick numbers here ARE the anchor's, re-assigned. Compare them to a board
+    built on a DIFFERENT source and the whole position shifts by however far the
+    two providers' scales differ, and that shift wears the appearance of a
+    finding. Measured on 2026-08-14, consensus against the shipped board:
+
+        TE  median delta +21.5, median |delta| 21.5   <- every tight end, one way
+        WR  median delta  -9.3, median |delta|  9.3   <- every receiver, one way
+        QB  median delta  +1.5, median |delta|  5.7   <- player-level
+        RB  median delta  +0.8, median |delta|  3.0   <- player-level
+
+    A median delta equal to the median ABSOLUTE delta means the position moved as
+    a block: FFC prices 21 tight ends where the board holds 17 inside pick 150, so
+    the consensus TE order inherits a deeper, later scale. Nothing about any
+    individual tight end is being said there.
+
+    AGAINST THE ANCHOR ITSELF the shift cancels — median delta 0.0 at all four
+    positions — and what remains is purely the re-ordering the aggregate did. That
+    is the only comparison this function's output supports.
+
+    ⚠ AND EVEN THEN, DO NOT COMPARE THE POSITIONS TO EACH OTHER. Median |delta|
+    against the anchor is QB 6.5, WR 3.2, TE 2.4, RB 2.0 — but a position whose
+    picks are spread thinly across the draft converts one rank step into a larger
+    pick move by construction, and QB is the thinnest. The per-player moves are in
+    pick units and mean what they say; the positional ORDERING of them does not.
     """
     out = {}
     for pos, rows in (order or {}).items():
@@ -369,13 +398,41 @@ def disagreements(order: dict, top_n: int = 40) -> list:
     """
     out = []
     for pos, rows in (order or {}).items():
+        # ⚠ THE FRACTION IS COMPARABLE ACROSS SOURCES AND NOT ACROSS POSITIONS.
+        #
+        # `consensus_order` fixed a real defect by making the scale the SHARED
+        # players every source prices, which is what lets two sources of different
+        # depth be compared for ONE player. It does not make two POSITIONS
+        # comparable: on the live 2026-08-14 archive the intersection is 25
+        # quarterbacks and 76 receivers, so one rank step is 0.040 at QB and 0.013
+        # at WR, and a fraction sorted across positions is ordered partly by how
+        # many players each position has.
+        #
+        # MEASURED, NOT SUSPECTED: by fraction that table reads QB 0.083 against WR
+        # 0.040 and looks like the sources argue about quarterbacks. In rank steps
+        # it is WR 3.0, QB 2.1, RB 2.0, TE 0.0 — and the loudest single row moves
+        # from Dallas Goedert to Alec Pierce, ten receivers apart. I nearly routed
+        # the first reading; it was the denominator.
+        #
+        # BOTH TRAVEL. The fraction answers "how far apart as a share of this
+        # position's board"; `rank_steps` answers "how many players apart", and the
+        # second is the one a cross-position table may be sorted on.
+        shared = sum(1 for r in rows if r.get("ranking_sources", 0) > 1)
         for r in rows[:int(top_n)]:
             if r.get("disagreement") is not None and r["ranking_sources"] > 1:
                 out.append({"position": pos, "player_id": r["player_id"],
                             "consensus_rank": r["rank"],
                             "disagreement": r["disagreement"],
+                            # (shared - 1), NOT `shared`: the fraction spans the
+                            # GAPS between the shared players, so n of them give
+                            # n-1 steps. My first version multiplied by n and the
+                            # fixture caught it — a two-place swap came out 2.67
+                            # steps at a four-deep position and 2.11 at a
+                            # twenty-deep one, when both are exactly 2.
+                            "rank_steps": r["disagreement"] * max(shared - 1, 1),
+                            "shared_at_position": shared,
                             "ranks": r["ranks"]})
-    out.sort(key=lambda r: -r["disagreement"])
+    out.sort(key=lambda r: -r["rank_steps"])
     return out
 
 
@@ -398,3 +455,178 @@ def coverage(order: dict) -> dict:
                         round(median([r["disagreement"] for r in multi]), 4)
                         if multi else None)}
     return out
+
+
+#: Below this many sources on one day there is no consensus to compute. Not a
+#: tunable: two is the smallest number that can disagree, and one source wearing
+#: the word "consensus" is the failure this module's docstring opens with.
+MIN_SOURCES = 2
+
+
+def latest_consensus(series: list, positions: dict, year, weights: dict = None) -> dict:
+    """The most recent day TWO SOURCES BOTH REACHED, aggregated. -> the report.
+
+    THIS FUNCTION EXISTS BECAUSE THE AGGREGATE HAD NO CALLER. `consensus_order`
+    was built, tested thirteen ways and wired to nothing — found by sweeping this
+    lane for functions with no production consumer, which is the same rule-14 gap
+    that left `marginal_adp` inert this morning. Correct code connected to nothing
+    looks exactly like correct code that is working, and this repo has now paid
+    for that four times.
+
+    ⚠ CHOOSING THE DAY IS NOT A DETAIL, and getting it wrong fails in the
+    reassuring direction. The per-source archive holds one row per (source, day);
+    both sources are captured in one run but `apply_results` records them
+    INDEPENDENTLY, so a morning where FantasyPros 404s leaves an FFC-only day at
+    the end of the archive. `consensus_order` will aggregate that single source
+    quite happily — every row comes back `ranking_sources: 1` and `disagreements`
+    returns an EMPTY LIST. An empty disagreement table reads as "the sources
+    agree". It would actually mean one of them was gone.
+
+    So the day is chosen as the latest with at least MIN_SOURCES, and a run with
+    no such day is UNMEASURED with the lonely days counted rather than silently
+    aggregating whatever was there.
+
+    AND `coverage` TRAVELS WITH IT for the same reason: beside a corroborated
+    count, an empty disagreement list is unambiguous — 4 of 4 corroborated and
+    nothing to report means they agree, 0 of 4 means nothing was compared.
+    """
+    by_day: dict = {}
+    for s in (series or []):
+        if str(s.get("year")) != str(year):
+            continue
+        rows = {k: v for k, v in (s.get("rows") or {}).items() if v is not None}
+        if not rows:
+            continue
+        by_day.setdefault(str(s.get("observed_at")), {})[str(s.get("source"))] = rows
+
+    usable = sorted(d for d, srcs in by_day.items() if len(srcs) >= MIN_SOURCES)
+    if not usable:
+        lonely = len(by_day)
+        return {"status": "unmeasured", "day": None, "sources": [],
+                "single_source_days": lonely, "order": {}, "coverage": {},
+                "disagreements": [],
+                "note": "no day in %s carries %d sources — %d day(s) hold one "
+                        "source only. Aggregating one source would return a full "
+                        "consensus order with an EMPTY disagreement table, which "
+                        "reads as the sources agreeing rather than as one of them "
+                        "being absent." % (year, MIN_SOURCES, lonely)}
+
+    day = usable[-1]
+    srcs = by_day[day]
+    order = consensus_order(srcs, positions, weights=weights)
+    return {"status": "measured", "day": day, "sources": sorted(srcs),
+            "single_source_days": len(by_day) - len(usable),
+            "order": order,
+            "coverage": coverage(order),
+            "disagreements": disagreements(order),
+            "note": None}
+
+
+def in_draft_range(rows: list, board_adp: dict, limit: int = 150):
+    """Keep only the arguments about players our draft can actually reach.
+
+    -> (kept, dropped_count).
+
+    FOUND BY REHEARSING THE REPORT, not by reasoning about it. Against the real
+    board the disagreement table led with TE39 and TE40 — a 10x15 draft takes
+    about a dozen tight ends, so the two players the sources argued about hardest
+    were two nobody can draft. `disagreements` is right to be general: it ranks by
+    how far apart the sources are, and depth is not its business.
+
+    ⚠ THE BOARD PRICE IS USED ONLY TO ASK "CAN HE BE DRAFTED", NEVER TO ORDER
+    ANYTHING, and that distinction is this whole module. Pick numbers are
+    contaminated across formats and within-position order is not — so a price may
+    gate a row's RELEVANCE and must never touch its RANK. Applying it to the
+    REPORT rather than to the aggregate is what keeps that true: the consensus
+    order is unchanged and only the printed table is scoped.
+
+    AN UNPRICED PLAYER IS DROPPED, NOT KEPT. "The board has no price for him" is
+    not evidence that he is reachable, and treating absence as inclusion puts
+    every deep unpriced player back at the top of the table — the same report with
+    an extra step. The count says how many went, so this is a scope, not a
+    silence.
+    """
+    kept, dropped = [], 0
+    for r in rows or []:
+        a = (board_adp or {}).get(str(r.get("player_id")))
+        try:
+            reachable = a is not None and float(a) <= float(limit)
+        except (TypeError, ValueError):
+            reachable = False
+        if reachable:
+            kept.append(r)
+        else:
+            dropped += 1
+    return kept, dropped
+
+
+#: How much of a set's typical movement may be net drift before it is a BLOCK
+#: rather than a disagreement. Declared from the shape rather than tuned: at 0.5
+#: the median push is as large as half the typical player's movement, which no
+#: scatter of independent disagreements produces and every scale difference does.
+BLOCK_SHIFT_TOLERANCE = 0.5
+
+
+def block_shift(deltas, tol: float = BLOCK_SHIFT_TOLERANCE) -> dict:
+    """Did this whole group move ONE WAY? -> {median, median_abs, systematic, note}.
+
+    WRITTEN BECAUSE THE SAME MISTAKE HAPPENED THREE TIMES IN ONE DAY, in this
+    module alone: source depth (fixed before today), position depth in the
+    disagreement sort, and anchor depth in `to_pick_scale`. Every time, a number
+    comparable along one axis was read along another; every time, it was caught by
+    noticing a pattern by eye; and every time it looked like a finding first.
+
+    THE SIGNATURE IS ALWAYS THE SAME AND IT IS CHEAP TO TEST FOR. A scale
+    difference pushes the entire group one way, so its median delta is about as
+    large as its median ABSOLUTE delta. Real disagreement scatters around zero and
+    its median is small against the median absolute. Measured 2026-08-14, consensus
+    against the shipped board: TE +21.5 / 21.5 and WR -9.3 / 9.3 (both blocks),
+    against QB +1.5 / 5.7 and RB +0.8 / 3.0 (both player-level).
+
+    ⚠ THE COMPARISON IS AGAINST THE MEDIAN ABSOLUTE, NOT AGAINST ZERO. Judging
+    "is the median far from 0" flags any set with a small net bias, which is most
+    real ones, and a detector that cries wolf is a detector nobody reads.
+
+    NONE, NOT FALSE, WHEN THERE IS NOTHING TO JUDGE. An empty set and an all-zero
+    set have no typical movement to compare a drift against, and returning False
+    would report a clean bill of health on a comparison that never happened.
+
+    ⚠ AND IT DOES NOT TRAVEL. I tried to add it to `board_vs_market.sleeper_divergence`
+    and had to take it out again, for two reasons that are worth more than the
+    guard would have been:
+
+      1. That function compares RANKS WITHIN ONE POOL, so a uniform offset cancels
+         by construction and the artifact this detects cannot arise there.
+      2. Worse, a block WOULD still occur there and would mean the OPPOSITE. Every
+         quarterback ranking 36 slots earlier in Sleeper's ordering than in the
+         market's is a genuine positional displacement — the one real finding on
+         that board — and labelling it "no per-item conclusion may be drawn" would
+         suppress it.
+
+    THE SAME STATISTIC, OPPOSITE MEANINGS, DECIDED BY WHETHER THE TWO SIDES SHARE
+    A SCALE. Which is the very trap this function exists to catch, one level up:
+    generalising a detector across contexts where its verdict inverts. Use it only
+    where the two sides are measured on DIFFERENT scales and the shift is
+    therefore an artifact.
+    """
+    vals = [float(d) for d in (deltas or []) if d is not None]
+    if not vals:
+        return {"median": None, "median_abs": None, "systematic": None,
+                "n": 0, "note": "no deltas — nothing was compared, which is not "
+                                "the same as nothing having moved"}
+    med = median(vals)
+    mabs = median(abs(v) for v in vals)
+    if mabs == 0:
+        return {"median": med, "median_abs": 0.0, "systematic": None, "n": len(vals),
+                "note": "every delta is zero — there is no typical movement to "
+                        "judge a drift against, so this is UNMEASURED rather than "
+                        "clean"}
+    systematic = abs(med) > float(tol) * mabs
+    return {
+        "median": round(med, 4), "median_abs": round(mabs, 4), "n": len(vals),
+        "systematic": systematic,
+        "note": ("the whole group moved one way (median %.2f against a typical "
+                 "move of %.2f) — that is a SCALE difference between the two "
+                 "sides, and no per-item conclusion may be drawn from it"
+                 % (med, mabs)) if systematic else None,
+    }

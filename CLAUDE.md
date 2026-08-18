@@ -12,7 +12,16 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **C** | **the data we need is here, on time, correct** | a missing store, a stale fetch, a bad crosswalk |
 | **D** | **the learning loop produces CHANGES** | a grade that moved nothing, a store that predicts nothing |
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
-| **relay** | **every lane has what it needs; nothing is lost** | an idle lane, a dropped ask, a finding nobody saw |
+| **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
+
+**⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
+Cory: *"too much finding and not enough fixing and following up and correcting."*
+Every finding now carries three follow-up QUESTIONS — does this imply another
+failure we have not looked for · does it invalidate something we already trust ·
+is this routed to the lane that can actually act. **The relay owns that question
+for every finding in the project, its own included.** Enforced, not promised:
+`register_recheck_check.js` fails the build on any row still OPEN past its own
+recheck date, and **every open row now carries one.**
 
 **Cory owns:** what "edge" means · whether a capture job stops · any call he wants.
 
@@ -60,6 +69,27 @@ gatekeeper and the only one who merges to `main`; B, C and the relay feed A.
 Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so
 silence is consent to the default and nobody idles waiting. A can reply
 `SEND BACK: <reason>` and that is a complete answer.
+
+**🔮 EVERY PREDICTION, ITS GRADE DATE, AND WHAT IT CHANGED — `PREDICTION-LEDGER.md`.**
+Cory, 2026-08-18: *"Still don't think we are making predictions, grading and closing the
+loop. No one is in charge of it."* **The relay owns this file** — not the lane that made
+the prediction, which is how a prediction goes quiet when its author moves on.
+`draft/tools/prediction_ledger_check.js` runs in CI and **fails the build on three
+things**: a row past its grade-by date still OPEN · a row marked GRADED whose *what
+changed* cell is empty (*"a grade that moved nothing"* — `NOTHING — <reason>` passes,
+silence does not) · **and the OPEN backlog dropping below 6, because a ledger you satisfy
+by grading everything and filing nothing new is the program quietly ending.**
+**40 predictions today; 12 graded, 11 of them FALSE — and nothing shipped from any of
+them, which is the point.**
+
+**🎯 WHERE THE MODEL IS GOING — `PROJECTION-PROGRAM-2027.md` and `BLEND-SEARCH-DESIGN.md`.**
+Cory's goal, as a gradeable number: *our published weekly projection beats BOTH Sleeper
+and FantasyPros, on THIS league's scoring, same players and weeks, at 3 of 4 positions,
+on start/sit accuracy.* First grade **09-15**, then fortnightly. The blend doc is the
+"infinite options" problem: **Tier 1 is one arm per signal, Tier 2 allows only
+preregistered blends plus ONE walk-forward stacker, and BEST-OF-K is the null we still
+owe.** Read it before proposing an arm — P3 and P4 both died of exactly the trap it
+describes.
 
 **🧾 NOTHING GETS LEFT BEHIND — `DEFECT-REGISTER.md`.** Every open data or
 logic concern that could change a number Cory drafts or starts on, each with an

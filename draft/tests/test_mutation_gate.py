@@ -807,3 +807,72 @@ def test_a_CHILD_CANNOT_EVEN_SEE_THE_PARENTS_DECLARATION_mid_run(tmp_path):
     assert child_path != str(MG._journal_path()), (
         "child and parent resolved the SAME journal path: %s" % child_path)
     assert src.read_text() == original
+
+
+# ── THE EIGHTH LIE: A must_fail THAT DOES NOT COLLECT ───────────────────────
+
+def test_A_must_fail_THAT_PYTEST_DOES_NOT_COLLECT_IS_INVALID_not_SURVIVED(tmp_path):
+    """KILLED requires THE NAMED TEST among the failures. A name nothing collects
+    can never be among them, so the verdict is SURVIVED however thoroughly the
+    mutation is actually caught — and SURVIVED is the ACTIONABLE verdict. It sends
+    you to write a test for a hole that does not exist, and the mirror case is
+    worse: a real hole hidden behind a typo looks identical.
+
+    ⚠ THIS IS A STRUCTURAL GAP, NOT CARELESSNESS. It cost two SURVIVED verdicts in
+    one day: once when a test was renamed and the manifest kept the old name, and
+    once when a blanket helper rename (`_day(` -> `_cday(`) also rewrote a test's
+    OWN name because it ended in `_day(`.
+
+    MUTATION: report SURVIVED as before — every stale name in the manifest reads
+    as a coverage hole, and the weekly job files them as such for ever."""
+    mod = tmp_path / "m.py"
+    mod.write_text("VALUE = 2\n")
+    tst = tmp_path / "test_m.py"
+    tst.write_text("import sys\n"
+                   "sys.path.insert(0, %r)\n" % str(tmp_path) +
+                   "import m\n\n\n"
+                   "def test_the_value_is_two():\n"
+                   "    assert m.VALUE == 2\n")
+    got = MG.check(str(mod), "VALUE = 2", "VALUE = 3", [str(tst)],
+                  "test_a_name_that_does_not_exist")
+    assert got["verdict"] == "MUST_FAIL_NOT_COLLECTED", got
+    assert got["verdict"] in MG.INVALID
+    assert "test_a_name_that_does_not_exist" in got["detail"]
+    # AND THE FILE IS UNTOUCHED, because the refusal happens before the write.
+    assert mod.read_text() == "VALUE = 2\n"
+
+
+def test_A_must_fail_THAT_DOES_COLLECT_STILL_RUNS_normally(tmp_path):
+    """The other arm, so the guard is a discrimination rather than a blanket
+    refusal that would make every run INVALID.
+
+    MUTATION: return every name as missing — no mutation is ever run again and the
+    gate reports INVALID for ever, which reads as "checked" to `run_all`'s summary
+    while proving nothing."""
+    mod = tmp_path / "m2.py"
+    mod.write_text("VALUE = 2\n")
+    tst = tmp_path / "test_m2.py"
+    tst.write_text("import sys\n"
+                   "sys.path.insert(0, %r)\n" % str(tmp_path) +
+                   "import m2\n\n\n"
+                   "def test_the_value_is_two():\n"
+                   "    assert m2.VALUE == 2\n")
+    got = MG.check(str(mod), "VALUE = 2", "VALUE = 3", [str(tst)],
+                  "test_the_value_is_two")
+    assert got["verdict"] == "KILLED", got
+    assert mod.read_text() == "VALUE = 2\n"
+
+
+def test_THE_COLLECTION_PROBE_LISTS_NAMES_not_a_count():
+    """`--collect-only -q` collapses the whole listing to "path: 22" — a COUNT, not
+    the names — so every name would read as missing and the guard would refuse
+    every run. Caught by pointing the probe at a name that provably exists.
+
+    MUTATION: add `-q` back — `_missing_tests` returns every name it was given,
+    and the guard that was meant to catch stale names blocks all of them."""
+    import pathlib
+    here = pathlib.Path(__file__).resolve()
+    assert MG._missing_tests(["test_THE_COLLECTION_PROBE_LISTS_NAMES_not_a_count"],
+                            [str(here)]) == []
+    assert MG._missing_tests(["test_definitely_not_here_at_all"], [str(here)]) == \
+        ["test_definitely_not_here_at_all"]

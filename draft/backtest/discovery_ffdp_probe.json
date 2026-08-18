@@ -1,0 +1,40 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by discovery_ffdp_probe.py",
+ "docs_url": "https://www.fantasyfootballdatapros.com/our_api",
+ "docs_endpoints_found": [
+  "/api/players/2019/1",
+  "/api/players/2019/all",
+  "/api/projections"
+ ],
+ "tried": [
+  {
+   "url": "/api/players/2019/1",
+   "reason": "scraped from FFDP's own docs page",
+   "status": 0,
+   "error": "ValueError: unknown url type: '/api/players/2019/1'"
+  },
+  {
+   "url": "/api/players/2019/all",
+   "reason": "scraped from FFDP's own docs page",
+   "status": 0,
+   "error": "ValueError: unknown url type: '/api/players/2019/all'"
+  },
+  {
+   "url": "/api/projections",
+   "reason": "scraped from FFDP's own docs page",
+   "status": 0,
+   "error": "ValueError: unknown url type: '/api/projections'"
+  }
+ ],
+ "answered_count": 0,
+ "observed_fields": {
+  "ceiling": [],
+  "floor": [],
+  "projection": [],
+  "identity": []
+ },
+ "unclassified": [],
+ "ceiling_field_found": false,
+ "floor_field_found": false,
+ "verdict": "UNMEASURED \u2014 no candidate endpoint returned a player-shaped payload. Every path tried was either scraped from FFDP's own docs or a declared guess; a failure here is a fact about this run's guesses, not proof FFDP serves nothing. Read the docs page manually before concluding absence."
+}

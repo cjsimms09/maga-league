@@ -270,6 +270,43 @@ same session: see Settled below)*
 
 ---
 
+# A'S RULINGS — 2026-08-17 late night, on the three standing OPEN items
+
+**BARBELL (a+b): RULED.** The verdict stands as measured — Cory's early half
+confirmed and already implemented; "draft upside late" contradicted three ways;
+the middle is flat, not dead. **The round-11 QB rail SHIPS**: one line from
+round 11 — "a second QB costs a roster spot the wire fills for free (measured:
+wire ≈ replacement at QB, −76 pts/season when it fires; n=21, thin)" — no
+weight changes. Sub-item (a) is overtaken by events: proj_ceiling became
+measured p90 on 08-17 and the ceiling weight shipped at 0.45 by Cory's ruling.
+
+**EMPIRICAL DRAFT VALUE (a)–(e): RULED.**
+(a) Corrupted any_td props stores: RE-FETCH ORDERED through the fixed fetcher
+(week-1 scope, three seasons — inside the props budget Cory approved 08-16);
+audit the full-season stores for the same corruption before trusting them.
+(b) The 2025 weekly store: DO NOT rebuild — it is frozen graded truth. Document
+as scored-rows-only and route every availability/games-played consumer to the
+component store. The pinning test stays.
+(c) Historical national ADP fetch in CI: ORDERED — free, one workflow step plus
+a committed store, and it upgrades every slot-shaped number in the study.
+(d) Format-mispricing live exposure: the exposure is exactly the ADP anchor
+(the one external market-format input consumed at draft time). Folded into the
+FP-anchor re-decision as a named criterion: the honest re-run must check
+whether market-format ADP mis-ranks WR/TE for this format beyond the room
+profile adjustments (measured: WR −8.4 / TE −9.2 VOR under our table).
+(e) Player 12530 position entry: fix with the artifact-regeneration sweep.
+
+**50/50 TIE-BREAK LEAN: APPLY the prepared diff (§3.1), with its
+measured-strength wording verbatim.** The trajectory lean is a single CI-clear
+feature that fails Bonferroni — a lean, not a law — but it is ALSO the same
+mechanism the draft replay measured independently (walk-forward boards
+under-rank ascending players; Cory's own reads beat the model exactly there),
+and two independent lines in one direction is more than multiplicity noise.
+Ship both halves: trajectory fact FIRST in tiebreakFacts + the late_trajectory
+board field, AND the coin-flip truth ("50/50s are true coin flips on this
+league's record — stop sweating them"). Free, honest, printed at its
+measured strength.
+
 # OPEN — needs a decision, or is blocked and waiting
 
 ## 🏋️ CORY'S BARBELL — half confirmed, half contradicted, and one draft-night rail worth ruling on (A, 2026-08-17) 🔴 OPEN

@@ -5,8 +5,13 @@ Every pure function against synthetic rows recomputed by hand; the
 missing-vs-zero rule (a player with no history yields None, never 0); the
 store-facing paths against the COMMITTED component stores (no network); and
 the committed artifact's internal consistency — its premiums must reproduce
-from its own inputs, and it must remain GATED (no board/composite/consensus
-path imports it).
+from its own inputs.
+
+THE GATE (re-pinned 2026-08-17): Cory ruled the layer into the war-room
+DISPLAY ("Yes!"), so the display half is now pinned WIRED — while the scoring
+half stays gated permanently: engine/composite/vorp/build never read this
+layer, and the premium is printed beside board value, never added into it.
+See the gate block at the bottom of this file for the full history.
 """
 import json
 import math
@@ -308,18 +313,120 @@ def test_artifact_every_correlation_block_carries_n(artifact):
                 assert "n_weeks" in ps
 
 
-def test_gated_by_construction_nothing_on_the_board_reads_this():
-    """The layer ships OFF: no build/board/composite/consensus/recommendation
-    path may import or read the conditional-value module or artifact."""
+# ── THE GATE, RE-PINNED FOR THE WIRED STATE ──────────────────────────────────
+#
+# HISTORY, so the next reader knows this change was the DESIGN and not a
+# loosening: `test_gated_by_construction_nothing_on_the_board_reads_this`
+# failed the day anything on the board read this layer — deliberately. On
+# 2026-08-17 Cory RULED (verbatim: "Yes!") to wire the layer into the war-room
+# DISPLAY, per the queued doc's read: "board value + stack premium + handcuff
+# premium, each printed separately." That ruling fires exactly half the old
+# gate: the DISPLAY now reads the artifact. The other half is PERMANENT and
+# these tests keep it firing: the layer's numbers NEVER merge INTO board value
+# — no scoring, composite, VORP, or pipeline path may import or read this
+# module or its artifact. Separate print IS the contract.
+
+PUBLIC_ARTIFACT = HERE.parent.parent / "public" / "conditional_value_2026.json"
+JSDIR = HERE.parent.parent / "public" / "js" / "draft"
+# The display allowlist — the ONLY JS that may reference this layer: the fetch
+# + chip host (app.js), the drill-down presenter (warroom_charts.js), and the
+# display module itself. Everything else in public/js/draft is scoring/derivation
+# surface and stays gated.
+DISPLAY_JS = {"app.js", "warroom_charts.js", "conditional_value.js"}
+
+
+def test_scoring_side_stays_gated_engine_composite_vorp_never_read_this():
+    """THE PERMANENT HALF OF THE GATE (unchanged by the ruling): no pipeline,
+    server, engine, composite, or valuation path may import or read the
+    conditional-value module or artifact. If this fires, someone is merging
+    the premium INTO board value — the exact thing the queued doc forbids."""
     roots = [HERE.parent / "build.py", HERE.parent / "adp.py",
              HERE.parent / "vorp.py", HERE.parent / "projections.py",
              HERE.parent / "own_projections.py"]
     src = HERE.parent.parent / "src"
     roots.extend(src.rglob("*.js"))
+    roots.extend(f for f in JSDIR.glob("*.js") if f.name not in DISPLAY_JS)
+    checked = 0
     for f in roots:
         if not f.exists():
             continue
+        checked += 1
         text = f.read_text(errors="replace")
         assert "conditional_value" not in text, (
-            f"{f} references conditional_value — the layer is gated OFF "
-            "until Cory rules on wiring it in")
+            f"{f} references conditional_value — the SCORING side is gated "
+            "permanently; only the display (app.js chip / warroom_charts "
+            "drill / conditional_value.js) may read this layer, and the "
+            "premium must never merge into board value")
+    assert checked > 30      # non-vacuity: the sweep really walked the tree
+
+
+def test_display_side_is_wired_per_cory_ruling_2026_08_17():
+    """THE RULED HALF: the war-room display DOES read the layer now. Pins the
+    wired state so a regression (a lost script tag, a dropped fetch) fails red
+    instead of silently un-executing Cory's ruling."""
+    app = (JSDIR / "app.js").read_text(errors="replace")
+    assert "/conditional_value_2026.json" in app, (
+        "app.js no longer fetches the conditional-value artifact — "
+        "Cory ruled the layer INTO the display on 2026-08-17 ('Yes!')")
+    assert "CondValue" in app                     # the display module is consumed
+    assert (JSDIR / "conditional_value.js").exists()
+    ejs = (HERE.parent.parent / "views" / "admin"
+           / "_warroom_scripts.ejs").read_text(errors="replace")
+    assert 'src="/js/draft/conditional_value.js"' in ejs, (
+        "the display module is not on the war-room page — app.js guards the "
+        "global, so a missing tag degrades SILENTLY; this assertion is the "
+        "loud half (same pattern as override_record.js)")
+
+
+def test_the_premium_is_printed_separately_never_added_into_a_score():
+    """THE FAIL-ARM OF THE CONTRACT: the display module is presentation-pure.
+    It computes rounding and joins — never a score. It must not import or
+    reference any scoring module, and the scoring modules must not know it
+    exists (the reverse direction is the test above)."""
+    import re
+    mod = (JSDIR / "conditional_value.js").read_text(errors="replace")
+    # CODE ONLY — a comment naming vorp to say "never touch vorp" is prose,
+    # not a read (the same comment-vs-code trap every source scan in this
+    # repo has hit once; see app-wiring.test.js's doctrine sweep).
+    mod = re.sub(r"/\*.*?\*/", "", mod, flags=re.S)
+    mod = re.sub(r"//[^\n]*", "", mod)
+    for scoring_name in ("DraftEngine", "DraftComposite", "SharedValuation",
+                         "DraftSurvival", "proj_mean", "vorp", "composite_score"):
+        assert scoring_name not in mod, (
+            f"conditional_value.js references {scoring_name} — the display "
+            "layer must not touch scoring quantities; the premium is printed "
+            "BESIDE board value, never combined with it")
+    # and the chip says so, in so many words, on every emission
+    assert "not in the score" in mod
+
+
+def test_public_artifact_copy_is_byte_identical_to_the_committed_one():
+    """The display fetches /conditional_value_2026.json (public/ is the web
+    root); the measured artifact lives in draft/data. The builder writes both
+    in one pass — this pins them byte-identical so the war room can never show
+    numbers the audit trail does not carry."""
+    assert PUBLIC_ARTIFACT.exists(), (
+        "public/conditional_value_2026.json is missing — the display would "
+        "degrade to its honest absence note, but the wired state requires "
+        "the artifact to ship")
+    assert PUBLIC_ARTIFACT.read_bytes() == ARTIFACT.read_bytes()
+
+
+def test_stacks_carry_display_join_keys(artifact):
+    """The war room joins by player_id (same key as the board). Every stack
+    entry carries pids: board (the draftable leg the chip annotates) and
+    partner (the leg that must be on Cory's roster for the premium to be his).
+    Values cross-checked against the keeper slate the audit priced."""
+    kept = {"3198", "7564", "8151"}     # Henry, Chase, Walker (keepers.json slot 8)
+    stacks = artifact["stacks_for_cory"]
+    assert len(stacks) == 3
+    for st in stacks:
+        pids = st["pids"]
+        assert pids["board"] not in kept        # the chip rides a DRAFTABLE player
+        assert pids["partner"]
+        if pids["partner_kept"]:
+            assert pids["partner"] in kept
+    # the WR-pair case steps aside the moment the double stack goes live
+    wr_pair = next(s for s in stacks if s["cls"] == "WR1-WR2")
+    qb_wr2 = next(s for s in stacks if s["cls"] == "QB-WR2")
+    assert wr_pair["pids"]["superseded_when_on_roster"] == qb_wr2["pids"]["partner"]

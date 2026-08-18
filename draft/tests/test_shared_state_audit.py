@@ -100,6 +100,40 @@ def _hits(text: str, pattern: re.Pattern) -> list[tuple[int, str]]:
     return out
 
 
+def test_HEADROOM_is_reported_BEFORE_a_lane_discovers_it_by_reddening_main():
+    """THE FOLLOW-UP TO THE 08-17 FAILURE, and the reason it is a separate test.
+
+    Cory, 2026-08-17: "did this test failure indicate something else we need to
+    study or fix?"
+
+    It did. B's room-switch feature re-derived `current_pick` inline and reddened
+    `main`. The fix routed it through an owner — but running the numbers
+    afterwards showed the budgets were ALREADY exhausted repo-wide:
+    `current_pick` sits at 2 of 2 and `seat` at 9 of 10. **The next lane that
+    reads either one inline breaks the build the same way**, and the existing
+    check would tell them only after it happened.
+
+    A tripwire that fires after the damage is not the same thing as a warning.
+    This test always passes; it exists so a lane running the suite BEFORE
+    pushing sees the remaining headroom in the output and routes through the
+    owner by choice rather than by red build. Deliberately non-blocking: making
+    zero headroom itself a failure would redden `main` today on a condition
+    nobody has actually violated, which is how a guard gets muted."""
+    lines = []
+    for fact in sorted(FACTS):
+        spec = FACTS[fact]
+        files = _client_files()
+        n = sum(len(list(_hits(files[f], spec["derivation"])))
+                for f in spec["files"] if f in files)
+        head = spec["max"] - n
+        mark = "  <-- ZERO HEADROOM, route the next reader through the owner" if head <= 0 else ""
+        lines.append(f"    {fact:<24} {n:>3} used / {spec['max']:>3} budget"
+                     f"   headroom {head:>3}   owner {spec['owner']}{mark}")
+    print("\n  SHARED-STATE HEADROOM (informational, never fails):\n"
+          + "\n".join(lines))
+    assert True
+
+
 @pytest.mark.parametrize("fact", sorted(FACTS))
 def test_each_canonical_fact_has_one_derivation(fact):
     spec = FACTS[fact]

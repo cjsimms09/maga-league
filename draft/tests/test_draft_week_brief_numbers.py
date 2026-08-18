@@ -65,8 +65,11 @@ def test_the_persistence_numbers_match_the_artifact():
     rows = {(r["from"], r["to"]): r for r in
             _json("draft", "backtest", "weekly_volatility.json")["persistence_cv"]}
     text = _brief()
-    for key, rho, ctrl in (((2023, 2024), "+0.482", "+0.740"),
-                           ((2024, 2025), "+0.605", "+0.781")):
+    # Re-pinned 2026-08-18 (register 5d): persistence re-measured on the
+    # playoff-free stores — 0.482/0.605 became 0.469/0.635, both still
+    # clearing their nulls; the brief cites the clean values.
+    for key, rho, ctrl in (((2023, 2024), "+0.469", "+0.736"),
+                           ((2024, 2025), "+0.635", "+0.779")):
         assert round(rows[key]["rho"], 3) == float(rho), rows[key]["rho"]
         assert rho in text, f"brief lost rho {rho}"
         assert round(rows[key]["control_mean_carryover"], 3) == float(ctrl)
@@ -78,7 +81,14 @@ def test_the_refused_seasons_are_named():
     seasons without saying two were REFUSED would read as "that is all there
     ever was"."""
     doc = _json("draft", "backtest", "weekly_volatility.json")
-    assert doc["seasons_refused_different_scoring_table"] == [2021, 2022]
+    # Re-pinned 2026-08-18 (register 5d): the components-derived store rebuild
+    # scores every season through the one frozen table, so nothing is refused
+    # and the fit spans five seasons. The brief must say the refusal HISTORY
+    # (so a reader of old studies knows why they cite 3 seasons) — the claim
+    # this test protects (a dropped season is named, never silent) holds with
+    # an empty list only while seasons_used covers all five.
+    assert doc["seasons_refused_different_scoring_table"] == []
+    assert doc["seasons_used"] == [2021, 2022, 2023, 2024, 2025]
     assert "2021-22" in _brief() or "2021, 2022" in _brief()
 
 

@@ -66,6 +66,12 @@
    * the two names — so this adds NO new scoring weight and NEVER moves the
    * backed pick. It prints FACTS the board already carries that a human can
    * legitimately break a tie with:
+   *   (0) MEASURED FIRST — late-season trajectory (edge_hunt_2026-08-16 §3;
+   *       A ruled the prepared diff applied 2026-08-17): the ONE feature of
+   *       nine that predicted anything across 259 historical near-ties;
+   *   (0b) volume over efficiency for pass-catcher pairs, and (0c) RB NFL
+   *       draft capital (empirical_draft_value_2026-08-16 §8) — measured on
+   *       outcomes, printed with their n/CI at measured strength;
    *   (a) ADP velocity divergence — one rising, one falling (build.py stamps
    *       adp_velocity from the retained series; positive = rising);
    *   (b) bye-week overlap with the roster already drafted (a tie-breaker,
@@ -81,6 +87,70 @@
     var a = aEntry && aEntry.player, b = bEntry && bEntry.player;
     if (!a || !b) return [];
     var facts = [];
+
+    // (0) MEASURED FIRST (edge_hunt_2026-08-16 §3): late-season trajectory.
+    // In 176 historical near-ties (2023-25) the player finishing the prior
+    // season hotter than his own average won 58% (CI 51-65%; p=.035,
+    // Bonferroni x9 = .31 — a lean, not a law). Requires a board field
+    // `late_trajectory` (prior-season late-window rate minus season rate,
+    // the F7 construction) — absent field, no claim, like every fact here.
+    var la = a.late_trajectory, lb = b.late_trajectory;
+    if (la != null && lb != null && la !== lb) {
+      var hot = la > lb ? a : b;
+      facts.push('trajectory: ' + _name(hot) + ' finished last season hotter '
+        + 'than his own average; in 176 historical toss-ups that side won '
+        + '58% — the one measured tie-breaker (weak signal, n stated)');
+    }
+
+    // (0b) VOLUME OVER EFFICIENCY, when both halves are pass-catchers (WR/TE;
+    // empirical_draft_value_2026-08-16 §8.1-8.2, n=1152 player-seasons
+    // 2023-25). Opportunity per game predicts next season about as well as
+    // last season's points and ~2x efficiency: Spearman ρ vs realized points
+    // WR .704 [.629, .766] / TE .712 [.622, .782] against efficiency WR .322
+    // [.211, .428] / TE .126 (noise); and last season's EFFICIENCY predicts
+    // DECLINE (pts/opportunity vs residual: WR −.284 [−.368, −.189], TE −.294
+    // [−.463, −.094]). The board's volume fields are SHARES — printed as
+    // carried; a share absent on either side (e.g. a rookie) means no claim.
+    if ((a.position === 'WR' || a.position === 'TE')
+        && (b.position === 'WR' || b.position === 'TE')) {
+      var vf = null, vlab = null;
+      if (a.opportunity_share != null && b.opportunity_share != null) {
+        vf = 'opportunity_share'; vlab = 'opportunity share';
+      } else if (a.target_share != null && b.target_share != null) {
+        vf = 'target_share'; vlab = 'target share';
+      } else if (a.wopr != null && b.wopr != null) {
+        vf = 'wopr'; vlab = 'WOPR';
+      }
+      if (vf && a[vf] !== b[vf]) {
+        var hiV = a[vf] > b[vf] ? a : b, loV = a[vf] > b[vf] ? b : a;
+        facts.push('volume: ' + _name(hiV) + ' carries the bigger measured '
+          + vlab + ' (' + hiV[vf] + ' vs ' + loV[vf] + ') — volume predicts '
+          + 'next season ~2x better than efficiency (ρ: WR .70 vs .32, '
+          + 'TE .71 vs .13-noise; n=1152 player-seasons 2023-25), and last '
+          + 'season’s efficiency predicts DECLINE (WR −.28 [−.37, −.19]) '
+          + '— back the volume, not the highlight reel');
+      }
+    }
+
+    // (0c) RB NFL DRAFT CAPITAL (empirical_draft_value_2026-08-16 §8.3): the
+    // ONE feature of ~60 tested that predicted BEATING YOUR DRAFT SLOT — RB
+    // draft round vs slot residual, Spearman ρ −0.427 [−0.669, −0.091], same
+    // sign all three seasons, FDR-surviving (n=56). The capital column exists
+    // only for 2021+ NFL draftees (draft_capital.py), i.e. exactly the young
+    // RBs — rookie-RB 50/50s included — where it was measured; both sides
+    // absent-or-equal means no claim.
+    if (a.position === 'RB' && b.position === 'RB'
+        && a.nfl_draft_round != null && b.nfl_draft_round != null
+        && a.nfl_draft_round !== b.nfl_draft_round) {
+      var hiC = a.nfl_draft_round < b.nfl_draft_round ? a : b;
+      var loC = a.nfl_draft_round < b.nfl_draft_round ? b : a;
+      facts.push('capital: ' + _name(hiC) + ' carries the better NFL draft '
+        + 'capital (round ' + hiC.nfl_draft_round
+        + (hiC.nfl_draft_pick != null ? ', pick ' + hiC.nfl_draft_pick : '')
+        + ' vs round ' + loC.nfl_draft_round + ') — at RB, capital is the one '
+        + 'feature measured to predict beating draft slot (ρ −0.427 '
+        + '[−0.67, −0.09], 3/3 seasons, n=56, 2021-25 draftees)');
+    }
 
     // (a) market divergence — only when the two move in OPPOSITE directions.
     var va = a.adp_velocity, vb = b.adp_velocity;

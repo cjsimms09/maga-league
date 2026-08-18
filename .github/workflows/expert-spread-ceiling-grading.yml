@@ -1,0 +1,85 @@
+name: Expert-spread ceiling grading — EXPERT-SPREAD-CEILING-PREREG.md §2-§4, §8
+
+# TERRITORY: C — dispatches draft/backtest/expert_spread_ceiling_grading.py.
+
+# Routed 2026-08-18 (ROUTES.md, A -> C): "TAKE THE LAST UNGRADED STUDY BEFORE
+# THE DRAFT ... it is yours because the as-of projection path is YOUR
+# module." Supersedes the relay's earlier pass (main, commit f386707c),
+# which declared its own deviation from §3 (graded within ECR band, not
+# projection band, because "historical bundles are not committed"). They
+# are — projection_error.py's `_assemble_asof_bundles` is the same leak-free
+# walk-forward machinery the shipped calibration is fitted on, extracted for
+# exactly this reuse. This workflow grades §3 AS SPECIFIED.
+#
+# WHAT THIS DOES NOT DO: touch the board, proj_ceiling, or proj_floor.
+# EXPERT-SPREAD-CEILING-PREREG.md §4 fixes the date in writing before any
+# number exists — "NOTHING SHIPS TO THE BOARD BEFORE 2026-08-22" — and this
+# workflow only writes one measurement file,
+# draft/backtest/expert_spread_ceiling_grading.json. Whether any arm ships
+# is Cory's call after the 22nd, from these numbers.
+#
+# DISPATCH THIS FROM `main`, NOT A WORKTREE BRANCH — same push-guard reason
+# named in every other fetch workflow this week: a feature-branch dispatch
+# had its answer discarded by the push guard on 08-16 and cost a day.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: expert-spread-ceiling-grading
+  cancel-in-progress: false
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install pandas nfl_data_py pytest
+
+      - name: The grading logic is tested before any real assembly runs
+        run: |
+          python3 -m pytest draft/tests/test_expert_spread_ceiling_grading.py -q
+          python3 -m pytest draft/tests/test_projection_error.py -q
+
+      - name: Grade all four arms against real 2023-2025 outcomes
+        run: python3 draft/backtest/expert_spread_ceiling_grading.py
+
+      - name: Confirm the live calibration and board were not touched
+        run: |
+          if ! git diff --quiet -- draft/backtest/projection_error_calibration.json public/draft_data.json; then
+            echo "::error::grading touched the live calibration or board. This must never happen -- aborting without committing anything."
+            git diff --stat -- draft/backtest/projection_error_calibration.json public/draft_data.json
+            exit 1
+          fi
+          echo "confirmed: live calibration and board are untouched"
+
+      - name: Commit the grading result
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::grading result is in this run's log and is"
+            echo "::warning::deliberately NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/expert_spread_ceiling_grading.json
+          if ! git diff --cached --quiet; then
+            git commit -m "expert_spread_ceiling_grading: grade §2-§4/§8 as specified (within projection band, via the as-of walk-forward curve) — measurement only, board untouched [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — the grading already matches what was on disk"

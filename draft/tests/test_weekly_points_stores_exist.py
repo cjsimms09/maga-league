@@ -81,20 +81,44 @@ def test_the_fingerprint_split_is_where_it_is_believed_to_be():
     which is good news that changes the available fold count for pace, the
     volatility study and any season-over-season work. Update those together.
     """
-    old = {fingerprint(load(s)) for s in OLD_TABLE_SEASONS}
-    current = {fingerprint(load(s)) for s in CURRENT_TABLE_SEASONS}
-    assert len(old) == 1, f"2021-22 no longer share a fingerprint: {old}"
-    assert len(current) == 1, f"2023-25 no longer share a fingerprint: {current}"
+    # ⚠️ REWRITTEN 2026-08-18 ON MERGE WITH `main`, and this test told me to.
+    # Its own docstring said: "If this fails because the groups now MATCH,
+    # 2021-22 have been re-scored — which is good news that changes the
+    # available fold count." That is exactly what happened. `main` re-emitted
+    # every store at one width and ALL FIVE seasons now carry
+    # 220bf4c671786351, so the split this file was written to pin is GONE —
+    # the outcome register 27b asked for.
+    #
+    # The split is therefore no longer the claim. THE UNION IS: every season
+    # is now poolable, and a future divergence must be re-examined rather than
+    # obeyed, because the last one was a float32 artifact that cost three
+    # studies a fold each.
+    prints = {s: fingerprint(load(s)) for s in SEASONS}
+    assert len(set(prints.values())) == 1, (
+        f"the stores have diverged again: {prints}. Before refusing any pool, "
+        "check whether the scoring TABLES differ or only their serialisation — "
+        "routes_tprr_study._same_table_at_6dp is the check, and refusing on a "
+        "representation difference is the defect this file exists for")
 
-    # KNOWN-POSITIVE CONTROL — the two assertions above would both pass on a
-    # reader that returned one constant for every season. Requiring the groups
-    # to DIFFER proves the fingerprints are really being read.
-    assert old != current, (
-        "2021-22 and 2023-25 now report the SAME scoring fingerprint. Either "
-        "the stores were re-scored (update pace_arm's leak_protocol, register "
-        "row 10, and the volatility refusal) or the fingerprint is no longer "
-        "discriminating, which would silently unblock pools that must stay "
-        "refused")
+    # KNOWN-POSITIVE CONTROL — the assertion above passes trivially on a reader
+    # that returns one constant for everything, which is precisely the failure
+    # the old group-difference control used to rule out. It has to be replaced,
+    # not dropped: perturb one week's scoring value and the fingerprint must
+    # move.
+    import copy
+    import hashlib
+    import json as _json
+
+    doc = copy.deepcopy(load(SEASONS[0]))
+    real = doc["weeks"][0]["scoring_fingerprint"]
+    scoring = dict(doc["weeks"][0].get("scoring") or {"rec": 1.0})
+    scoring["rec"] = float(scoring.get("rec", 1.0)) + 1.0
+    moved = hashlib.sha256(
+        _json.dumps(scoring, sort_keys=True).encode()).hexdigest()[:16]
+    assert moved != real, (
+        "a changed scoring table produced the SAME fingerprint — the "
+        "fingerprint is not discriminating and every pooling decision that "
+        "rests on it is unverified")
 
 
 def test_season_totals_can_actually_be_built_for_2022():

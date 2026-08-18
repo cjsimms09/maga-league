@@ -125,7 +125,7 @@ priced skill category ever goes unparsed again.
 | A8 | **Site has too many top tabs — consolidate into existing pages without losing anything.** What to Watch → matchup; Pick'em → an existing page; The Races → not its own tab; My Team + Matchup possibly merged. *"I STILL WANT ALL THOSE."* | **B** | DELEGATED — after the war room | A tab map proposed to Cory BEFORE any rebuild, then hierarchy-and-grouping (never deletion). In-season-facing, so ~week 1 rather than 08-22. |
 | A6 | **Re-test EVERY adjuster now that ceiling and floor changed, and tune the auto function to change DURING the draft** by round, circumstance, position. | **A** | 🔴 DELEGATED — answered in part; the auto function EXISTS and is UNMEASURED | **The round-aware adjuster is already built**: `autoWeights()` runs Anchor/Build/Fill/Endgame phases plus four situational responses. **But its own docstring says it is NOT backtested** — every phase constant is a reasoned judgement, never measured (register 26). **And it disagrees with the composite about upside**: auto ships ceiling 0.45–0.8 while `MEASURED_WEIGHTS` ships 0, with a browser toggle deciding which Cory drafts under (register 25). Tuning needs the all-seats replay, not three drafts — post-08-22. |
 | A7 | **A session that takes the macro view and red-teams the model's output** — *"our current big board has trey mcbride over justin jefferson. that makes no sense."* | relay | **DELIVERED — awaiting Cory's launch** | `SESSION-E.md`, `ROUTES.md → TO: E`, `OPERATING-MODEL.md` Rule 3e (E sits BESIDE the pipeline, gates nothing), and the lane-aware tests taught about E. Scoped as red-team-on-outputs, NOT a second PM: it raises questions with the player and number attached, and never overrides a measurement. |
-| A9 | **Two decisions D put to Cory, which Cory handed to A** — 2026-08-18, verbatim: *"Send to A for answers."* (1) **what instrument grades E1**, now that the all-seats replay is measured at a ±41.8 pts/season detection floor and a PERFECT game-total oracle scores 77% of it; (2) **whether the asymmetric-environment arm is built before or after 08-22.** | **A** | 🔴 DELEGATED — routed 08-18 | A rules on both. **Q-A is the one that matters:** name the estimand that replaces the seat delta, because every null this project has published was measured on an instrument that could not have seen the effect anyway. D's REC is paired-within-room with its noise floor measured BEFORE any arm runs; DEFAULT if unruled by 08-23 is that D builds that harness. Q-B REC and DEFAULT are both *after the draft*. `ROUTES.md → TO: A`, `OPEN-QUESTIONS.md` Q13, register 31 + 18b. |
+| A9 | **Two decisions D put to Cory, which Cory handed to A** — 2026-08-18, verbatim: *"Send to A for answers."* (1) **what instrument grades E1**, now that the all-seats replay is measured at a ±41.8 pts/season detection floor and a PERFECT game-total oracle scores 77% of it; (2) **whether the asymmetric-environment arm is built before or after 08-22.** | **A** | 🔴 DELEGATED — routed 08-18 | A rules on both. **Q-A is the one that matters:** name the estimand that replaces the seat delta, because every null this project has published was measured on an instrument that could not have seen the effect anyway. D's REC is paired-within-room with its noise floor measured BEFORE any arm runs; DEFAULT if unruled by 08-23 is that D builds that harness. Q-B REC and DEFAULT are both *after the draft*. `ROUTES.md → TO: A`, `OPEN-QUESTIONS.md` Q13, register 35 + 18b. |
 
 ## WAITING ON CORY — nobody else can move these
 
@@ -149,3 +149,107 @@ priced skill category ever goes unparsed again.
 here the same turn — even when the answer is "already covered by X." Especially
 then, because "already covered" is what A6 looked like right up until someone
 checked, and nothing was covering it.
+
+---
+
+## 🔴 2026-08-18 — THE MARKET AXIS WILL PRODUCE NOTHING ALL SEASON UNLESS YOU SAY GO. ONE DECISION, WITH THE PRICE.
+
+**Context, measured tonight:** the champion (`own_v6`) already contains usage share,
+pace, xFP efficiency and a Vegas week-1 tilt. Two arms I proposed as "new axes" turned
+out to be **already graded and failed** because they re-added what the model has
+(`pace_arm.json` and `advanced_efficiency_study.json`, both `clears: false`).
+**The one family the model does NOT contain is MARKET INFORMATION** — lines set by
+people with money at stake. That is now the priority for beating Sleeper and
+FantasyPros next year.
+
+**AND ITS PIPELINE IS NOT SCHEDULED.**
+
+`draft/weekly_props_arm.py` (`props_weekly_v1`) is **built and already wired into the
+Tuesday grader** — `weekly_own_grade.py` imports it and grades it as a study arm. But
+its input folder is *"empty pending a human-dispatched real fetch"*, and
+**`weekly-props-fetch.yml` is `workflow_dispatch` only — it has NO cron.**
+
+**So on Thursday of week 1 the projection job runs, on Tuesday the grader runs, and the
+props arm is silently absent from every grade, all season, because nobody pressed a
+button.** That is the exact shape of failure you have been calling out all week.
+
+**THE PRICE, computed from the fetcher's own `estimate_credits()`:**
+
+| scope | per week (16 games) | full 18-week season |
+|---|---|---|
+| **all 8 player-prop markets** | 1,280 credits | **23,040** |
+| confirmed market only (`player_pass_yds`) | 160 credits | 2,880 |
+
+**Budget last seen: 75,681 credits remaining**, on what the fetcher's header reads as a
+~100,000/month plan. **The full-fat option is ~31% of the current balance spread across
+four months.**
+
+**THE ASK — one word:**
+1. **GO, all 8 markets** (23,040/season) — the complete market picture, and the version
+   that can answer P12 (alternate lines imply the per-player *distribution* no source
+   will publish — the thing we went looking for all week and could not buy).
+2. **GO, narrow** (2,880/season) — passing yards only; cheap, but QB-only signal.
+3. **HOLD** — and the market axis produces nothing in 2026, which pushes the
+   "beat Sleeper and FP" verdict to 2028.
+
+**RELAY'S REC: option 1.** It is the only untapped family, the arm is already built and
+graded-ready, and the cost is a fraction of a budget that otherwise expires monthly
+unused. **A capture not taken cannot be backfilled** — that is your own standing rule,
+and week 1 is ~09-10.
+
+**DEFAULT IF YOU SAY NOTHING: nothing happens.** This one cannot have a relay default —
+it spends your money.
+
+---
+
+### ✅ RULED 2026-08-18 — AND MY ASK ABOVE WAS PARTLY MOOT. CORRECTING IT.
+
+**Cory:** *"I guess use our credits until this run out but expire at the end of this
+month I believe. Use while you can. Do deep search for 2026 days for free."*
+
+**THE ASK ABOVE WAS WRONG IN ITS CENTRAL ASSUMPTION AND I SHOULD SAY SO PLAINLY.** I
+priced a **season-long weekly fetch** at 23,040 credits. **That is not purchasable:
+the credits expire ~08-31 and week 1 is ~09-10.** The plan's own framing, recorded in
+`free-betting-probe.yml`'s header on 08-16, already said so — *"the Odds API plan is a
+ONE-MONTH purchase for HISTORICAL data; 2026 live betting must come from free sources
+or not at all"* — and I asked Cory to approve a recurring spend anyway. **He answered
+the question I should have asked.**
+
+**WHAT THE CREDITS CAN ACTUALLY BUY BEFORE 08-31, in priority order:**
+
+1. **2026 week-1 (and week-2) player props, if books have posted them yet.** The only
+   in-season data this plan can ever produce, and it feeds `props_weekly_v1` — already
+   built and already wired into the Tuesday grader. **Verifying availability now with a
+   dry run** (costs ~nothing, shows the live credit balance).
+2. **Nothing from `historical-props-fetch.yml`** — it offers 2023/2024/2025 only, and
+   **we already hold all three in full.** There is no unbought season there.
+
+**THE HONEST CEILING ON THIS: at most a week or two of in-season market data, not a
+season.** That is worth having — it is the only market data 2026 will get unless a free
+source is found — but it will not settle P11/P12 on its own.
+
+### 🔴 AND THE FREE PATH IS MEASURED SHUT — BALL DON'T LIE CANNOT DO IT
+
+Cory: *"We can get for free from ball don't lie key."* **Tested properly rather than
+argued** (`bdl-key-matrix.yml`, artifact `bdl_key_matrix.json`), because the repo's
+existing "no" had probed **1 of 4** BDL secret names and I would not report a limit on
+that basis.
+
+| BDL endpoint | status | what it means |
+|---|---|---|
+| `odds` (season/week, by date) | **401** | exists, **needs a paid tier** |
+| `player_props` + 5 other spellings | **404** | **route does not exist — BDL has no player-props product** |
+| stats · season_stats · injuries · advanced_stats | 401 | paid tier |
+| teams | 429 | free-tier rate limit |
+
+**And only ONE of the four secrets is actually set** — the other three are empty, so the
+"wrong key" theory is dead too. **A BDL paid tier could unlock game-level ODDS, but the
+404s say no tier unlocks player props.** BDL is not a substitute for the market axis.
+
+**⭐ SO THE REAL ASK IS THE ONE CORY ALREADY GAVE ME: find a free 2026 source.** That is
+now a tracked row (**P53**) rather than a good intention, and Kalshi is the live
+candidate — free, already captured daily, and its catalog carries season player totals
+and fantasy-points markets. Its known problem is thinness, not access: every ticker
+sampled in mid-August returned **zero open markets**. **Re-probing after the season
+opens is the test.**
+

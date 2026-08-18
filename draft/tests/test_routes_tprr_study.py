@@ -47,14 +47,25 @@ def test_the_refusal_compares_TABLES_not_fingerprints():
     pace its registered second fold. So the guard now asks whether the TABLES
     agree, and this test pins both halves of that.
     """
-    # the fingerprints really do differ — otherwise the rest proves nothing
+    # ⚠️ UPDATED 2026-08-18 ON MERGE WITH `main`. This used to assert the two
+    # fingerprints DIFFER, because at the time they did and that difference was
+    # the artifact. `main` has since re-emitted every store at one width — all
+    # five seasons now carry 220bf4c671786351 — so the artifact is GONE, which
+    # is the outcome register 27b asked for.
+    #
+    # The assertion is not deleted, it is inverted, because the substantive
+    # guarantee never was "the fingerprints differ". It is "the fold is
+    # legitimate because the TABLES agree", and that is what is checked below
+    # and what would still catch a real rule change.
     _, fp2022 = S.season_points(2022)
     _, fp2023 = S.season_points(2023)
-    assert fp2022 != fp2023, (
-        "the stores now share a fingerprint; the artifact this guard exists for "
-        "is gone and AMENDMENT 1's reasoning should be re-read")
+    assert fp2022 == fp2023, (
+        "the fingerprints have diverged again. Before re-refusing any fold, "
+        "check whether the TABLES differ (below) or only their serialisation — "
+        "refusing on the latter is the defect this file exists for")
 
-    # ...and yet the tables are the same, so the fold is legitimate
+    # the tables agree, so the fold is legitimate — the load-bearing assertion,
+    # unchanged, and it was the load-bearing one before the re-emit too
     assert S._same_table_at_6dp(2022, 2023), (
         "the scoring tables genuinely differ now — a real rule change, not a "
         "representation artifact. Re-refuse the fold and update the amendment")

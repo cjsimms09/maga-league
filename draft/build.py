@@ -919,6 +919,41 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
         print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
 
+    # ── ROOKIE CAPITAL PRIOR — Cory's take-a-swing ruling, 2026-08-17 ──────
+    # The own-model column above is walk-forward and carries NO rookie (0 of
+    # 153). The preregistered Prior(pos, capital-bucket) CLEARED its 25% bar
+    # on the 3-season all-seats replay (+25.1 pooled optimal = 38% of the
+    # Cory gap, realistic-arm league position 2/10 -> 4/10 —
+    # league_benchmark_2026-08-16.md §4), and sat gated on Cory's recorded
+    # approval. He gave it, verbatim in league_config's rookie_capital_prior
+    # key (preserved across rebuilds by preserve_local_rulings), so the fill
+    # runs IN THE BUILD — the one-shot applier's patch died at every nightly
+    # rebuild, which is exactly the erasure class preserve_local_rulings
+    # exists for, applied one level down. Same additive discipline as the
+    # own-model attach: proj_mean/VORP/ranks untouched; only null
+    # proj_ownmodel on years_exp==0 skill players gains a value.
+    _rcp = (cfg.get("rookie_capital_prior") or {})
+    if _rcp.get("enabled"):
+        try:
+            sys.path.insert(0, str(HERE / "tools"))
+            from apply_rookie_prior_own_model_2026 import fill_players
+            # `board` HERE is the players LIST (load_players scope), not the
+            # artifact dict — board["players"] threw TypeError on the first CI
+            # build, the by-design except swallowed it into a skip line, and
+            # the ruled layer silently vanished from the candidate (refused by
+            # the gate's vanished-stamp assertion, run 32079172201 — the gate
+            # caught in CI what this comment now prevents at the source).
+            _n = fill_players(board)
+            PROJECTION_PROVENANCE["rookie_capital_prior"] = {
+                "applied": _n, "ruled": _rcp.get("ruled"),
+                "cory_approval_verbatim": _rcp.get("cory_approval_verbatim")}
+            print(f"  projections: rookie capital prior filled {_n} rookies "
+                  f"(Cory's ruling {_rcp.get('ruled')})")
+        except Exception as rpx:  # noqa: BLE001 — an upgrade, never a dependency
+            PROJECTION_PROVENANCE["rookie_capital_prior"] = {
+                "error": f"{type(rpx).__name__}: {rpx}"}
+            print(f"  ! rookie capital prior skipped ({type(rpx).__name__}: {rpx})")
+
     # ── NFL DRAFT CAPITAL — AN INFORMATIONAL COLUMN, NOT A PROJECTION ──────
     #
     # Cory 2026-08-17: "I'd want to give these players a boost due to upside
@@ -956,6 +991,28 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     except Exception as capx:  # noqa: BLE001
         PROJECTION_PROVENANCE["draft_capital"] = {"error": f"{type(capx).__name__}: {capx}"}
         print(f"  ! draft-capital column skipped ({type(capx).__name__}: {capx})")
+
+    # ── LATE-SEASON TRAJECTORY (F7) — THE ONE MEASURED 50/50 TIE-BREAKER ───
+    #
+    # edge_hunt_2026-08-16 §3: of nine pick-time-knowable features graded over
+    # 259 historical near-ties, eight predicted NOTHING; the hotter-prior-
+    # season-finish side won 58.0% of 176 (Wilson 95% CI [.506, .650]; p=.035,
+    # Bonferroni x9=.31 — a lean, not a law). A ruled 2026-08-17: APPLY the
+    # prepared diff — trajectory fact FIRST in verdict.js tiebreakFacts (that
+    # half is PREPARED at draft/patches/tiebreak_facts_bake.patch; a sibling
+    # worktree owns app.js/verdict.js today) plus this board field, its data
+    # plumbing. Informational column, same contract as draft capital above:
+    # no projection, ranking or weight reads it, absence stays absence, and
+    # test_late_trajectory.py proves the attach is additive.
+    try:
+        from late_trajectory import attach_late_trajectory, compute_late_trajectory
+        lt_diag = attach_late_trajectory(board, compute_late_trajectory(year_n))
+        PROJECTION_PROVENANCE["late_trajectory"] = lt_diag
+        print(f"  late trajectory: attached to {lt_diag['attached']} players "
+              f"(F7 from the {year_n - 1} component store)")
+    except Exception as ltx:  # noqa: BLE001 — an upgrade, never a dependency
+        PROJECTION_PROVENANCE["late_trajectory"] = {"error": f"{type(ltx).__name__}: {ltx}"}
+        print(f"  ! late-trajectory column skipped ({type(ltx).__name__}: {ltx})")
 
     # ── SAY WHAT proj_mean IS, AND SAY IT SEPARATELY FROM WHAT WE DISPLAY ───
     #
@@ -1686,6 +1743,24 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     available = keepers_mod.adjusted_adp(players, order, cfg, kept_ids)
     available, vorp_diag = vorp_mod.apply_vorp(available, cfg)
     available = vorp_mod.assign_tiers(available)
+
+    # E's sweep-16 finding, ruled at the SOURCE (A, 08-18): kept_players are a
+    # different population from `available` and never pass through apply_vorp,
+    # so they shipped with vorp absent — and engine.js's `(player.vorp || 0)`
+    # turned absent into a confident zero, flipping the keeper-target bar
+    # negative and naming the wrong man on screen at pick 33 ("Zay Flowers
+    # beats Ja'Marr Chase by 17"). The board's own identity (vorp ==
+    # proj_mean − replacement[pos], 682/682 rows) is applied here so every
+    # consumer gets the same number; E's UI-side derivation becomes the
+    # designed no-op fallback. Unknown position stays ABSENT — never a
+    # fallback constant (the || 0 lesson, again).
+    _repl = (vorp_diag or {}).get("replacement_points") or {}
+    for rec in kept_players:
+        if rec.get("vorp") is None:
+            rp = _repl.get(rec.get("position"))
+            pm = rec.get("proj_mean")
+            if rp is not None and pm is not None:
+                rec["vorp"] = round(float(pm) - float(rp), 2)
 
     # GRAB-BY — "stick to value, know when to grab". Per-position EVLW (value lost to
     # waiting one pick) + grab-by pick, aware of MY keepers' filled slots. Forecast

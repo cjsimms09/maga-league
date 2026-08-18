@@ -301,6 +301,16 @@ BOARD_FIELD_SOURCES = {
     # would have called it "derived" instead, change it; both pass LIVE_ALLOWED
     # so nothing downstream moves either way, and I matched the sibling rather
     # than invent a rule.
+    #
+    # ⚠️ C, ANSWERING THE QUESTION IN THE LINE ABOVE — "if you would have called
+    # it derived instead, change it". I would, and I did, and the reason is this
+    # table's own stated criterion rather than resemblance to its siblings:
+    # `fitted_sd` RETURNS this string ("ffc" where the provider published a
+    # stdev, "clamped-linear" where we fitted one), so NOTHING FETCHES IT — the
+    # build computes it from the source it already has. `adp_source` and
+    # `bye_source` ride alongside a value that came off the wire; this one is
+    # produced by our own arithmetic about that value. Both pass LIVE_ALLOWED so
+    # nothing downstream moves, exactly as A said.
     "adp_sd_source": "seasonal",
     # TERRITORY-GRANT: A proj_sd_source
     # Same shape, same reasoning, same precedent as adp_sd_source directly
@@ -372,9 +382,27 @@ BOARD_FIELD_SOURCES = {
     # Sibling of proj_sd_source: says whether proj_ceiling is the measured
     # 2023-25 p90 or the Gaussian fallback for an unmeasured band.
     "proj_ceiling_source": "derived", "proj_floor_source": "derived",
+    # PROVENANCE STAMP for the own-model column's algorithm, PER ROW
+    # (2026-08-17). Written by apply_rookie_prior_own_model_2026.fill_players
+    # (build.py calls it gated on league_config.rookie_capital_prior — Cory's
+    # take-a-swing ruling, verbatim in that config key) as
+    # "rookie_capital_prior_2026" on exactly the rookie rows the layer fills;
+    # walk-forward own_v6 rows carry no stamp. "derived" for the same reason
+    # as adp_sd_source/proj_ceiling_source: nothing fetches it, the build
+    # writes it about a value it just computed, and it is never an input to a
+    # number.
+    "proj_ownmodel_source": "derived",
     # Pure functions of the two above (draft_capital.tier_of, and the capital
     # season vs the board season), so they inherit the derived label.
     "capital_tier": "derived", "is_nfl_rookie": "derived",
+    # `late_trajectory` — written by build.py from draft/late_trajectory.py:
+    # prior-season late-window PPG minus season PPG, the F7 construction, off
+    # the COMPONENT stores (A's 2026-08-17 store ruling). Ruled live by Cory
+    # ("they should be baked in the model" — the trajectory-lean bake): the
+    # tie-break voice reads it, nothing ranks on it. Classified like the
+    # other prior-season derivations (adp_sd/proj_ceiling): the build writes
+    # it about numbers it just computed from committed stores.
+    "late_trajectory": "derived",
 
     # Computed from the above; a derived field is only as current as its inputs,
     # which is why A's refusal belongs where the derivation happens.
@@ -477,11 +505,19 @@ BOARD_FIELD_PURPOSE = {
     "sleeper_rank": LIVE_FEED, "bye": LIVE_FEED, "bye_source": LIVE_FEED,
     "adp": LIVE_FEED, "raw_adp": LIVE_FEED, "adjusted_adp": LIVE_FEED,
     "adp_sd": LIVE_FEED, "adp_source": LIVE_FEED, "consensus_rank": LIVE_FEED,
-    # See the note in BOARD_FIELD_SOURCES. LIVE_FEED to match `adp_source` and
-    # `bye_source`, the two fields of exactly this kind already declared here: a
-    # provenance string riding alongside a fetched value. It is provenance ABOUT
-    # a number and never an input to one — no ranking reads it, and none does.
-    "adp_sd_source": LIVE_FEED,
+    # DERIVED, NOT LIVE_FEED, and by this table's own stated criterion rather than
+    # by resemblance: `fitted_sd` RETURNS it ("ffc" where the provider published a
+    # stdev, "clamped-linear" where we fitted one), so nothing fetches it — the
+    # build computes it from the source it already has. It is provenance ABOUT a
+    # number and never an input to one, which is exactly the reasoning written for
+    # the ADP season stamps below. No ranking may read it and none does.
+    "adp_sd_source": DERIVED_PURPOSE,
+    # ⚠ `proj_sd_source` IS A'S, KEPT VERBATIM FROM main AND DELIBERATELY NOT
+    # CHANGED TO MATCH. It is the same SHAPE as `adp_sd_source` above — a
+    # provenance string about a number nothing ranks — so by the reasoning
+    # directly above it would also be DERIVED. It carries A's TERRITORY-GRANT,
+    # so the call is A's and I have left it alone rather than making the table
+    # self-consistent by trespass. Flagged to A instead.
     "proj_sd_source": LIVE_FEED,   # TERRITORY-GRANT: A proj_sd_source (see above)
     # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
     # LIVE_FEED: nothing fetches them, the build computes them from the source it
@@ -513,7 +549,23 @@ BOARD_FIELD_PURPOSE = {
     # classified" gate correctly refused an undeclared field rather than
     # trusting it silently.
     "proj_ownmodel": HISTORICAL_PRIOR,
-    # NFL DRAFT CAPITAL — a RECORDED FACT, not an estimate, which is the one
+    # PROVENANCE STAMP for the own-model column's algorithm, per row
+    # (2026-08-17): "rookie_capital_prior_2026" on the 74 rookie rows the
+    # Cory-ruled rookie_capital_prior layer fills (his verbatim approval lives
+    # in league_config.rookie_capital_prior and in the board's applied_layers
+    # record); absent on walk-forward own_v6 rows. The stamp is how a reader
+    # separates the two populations. NOT an exempt wildcard and NOT
+    # EXPERIMENT: the layer is a RULED live layer — preregistered, graded
+    # (cleared its 25% bar on the 3-season all-seats replay) and applied on
+    # Cory's word — and the stamp itself is DERIVED by the same criterion as
+    # adp_sd_source: the build writes it about a value it just computed, and
+    # nothing ranks on it.
+    "proj_ownmodel_source": DERIVED_PURPOSE,
+    # RULED live field, same ruling chain as the stamp above: Cory's bake
+    # order put the trajectory lean FIRST in the tie-break voice, and
+    # verdict.js reads this field for that fact. Derived (build-computed
+    # from committed component stores), never an input to a ranking.
+    "late_trajectory": DERIVED_PURPOSE,
     # place it sits awkwardly under HISTORICAL_PRIOR ("estimated from prior
     # seasons"). Filed here anyway because the alternative labels are worse:
     # it is not LIVE_FEED (most rows describe a prior year), not

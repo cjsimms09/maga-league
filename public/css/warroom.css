@@ -927,6 +927,16 @@ body.warroom-page .roast-banner { margin: 0 0 .4rem; }
     max-height: calc(100vh - 134px); overflow-y: auto; scrollbar-width: thin;
     padding-right: .2rem;
   }
+  /* ⚠️ THE CRUSH (captured live 2026-08-17, Cory mid-mock: "no players are
+     showing up under THE PICK or WATCH"). `.wr-zone1` is a FLEX COLUMN
+     (style.css — kept for the card-order rules), and a flex column inside a
+     max-height box SHRINKS its children to fit: every center card was crushed
+     to share one viewport — THE PICK rendered 34px tall with ~3,400px of
+     content clipped under `.card { overflow:hidden }`, which reads as an empty
+     card, not a squeezed one. Cards keep their natural height; the COLUMN is
+     what scrolls. Print never showed it (no viewport max-height on paper),
+     which is why the defect hid behind healthy-looking PDFs. */
+  body.warroom-page .wr-cockpit > .wr-zone1 > * { flex-shrink: 0; }
 }
 @media (min-width: 1200px) {
   .wr-cockpit { grid-template-columns: 240px minmax(0, 1fr) 300px; }
@@ -1053,13 +1063,25 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-tile.dead { opacity: .55; }
 
 /* ── COCKPIT CHART MARKS (new SVG, token-inked) ─────────────────────────── */
-.wr-cliffchart svg { display: block; width: 100%; height: auto; }
+.wr-cliffchart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .wr-grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
 .wr-axis { fill: var(--muted); font-size: 8px; font-family: var(--font-mono); }
 .wr-cliff-line { stroke: var(--wr-chart-main); stroke-width: 1.6; }
 .wr-cliff-dot { fill: var(--wr-chart-main); }
 .wr-cliff-mark { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 3 2; }
-.wr-cliff-lbl { fill: var(--ink); font-size: 8px; font-weight: 600; }
+/* Tier-cliff labels are placed by warroom_charts.js at each cliff's own x,
+   text-anchor="middle", with no collision check between adjacent labels —
+   at the right rail's chart width (~230px) with 3+ cliffs close together
+   this reads as one word ("Robinsdaylojeanty"), reproduced live at 900/1050/
+   1200px. That's a label-placement fix (JS, A's file, held for tonight along
+   with app.js/warroom.ejs) — this is the CSS mitigation: rotate + right-
+   anchor so each label fans out below its own tick instead of stacking
+   horizontally into its neighbor, the standard slanted-axis-label pattern. */
+.wr-cliff-lbl {
+  fill: var(--ink); font-size: 7px; font-weight: 600;
+  text-anchor: end; transform-box: fill-box; transform-origin: center;
+  transform: rotate(-40deg) translate(-2px, 0);
+}
 .wr-cliff-shade { fill: rgba(255, 90, 102, .10); }
 .wr-cliff-key { color: var(--red); }
 .wr-chips { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0 0 .3rem; }
@@ -1360,4 +1382,55 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 /* Motion doctrine: state changes only. */
 @media (prefers-reduced-motion: reduce) {
   .wr-drill-panel, .wr-tab, .wr-tile { transition: none !important; animation: none !important; }
+}
+
+/* ══ CONDITIONAL-VALUE LAYER — stack + handcuff premium chips + drill readout
+   Wired by Cory's ruling 2026-08-17 ("Yes!") on the evidence doc
+   draft/audit/conditional_value_2026-08-16.md. TERRITORY: A (same grant as the
+   draft-day book pass — A-owned section, additive only).
+
+   DESIGN CONTRACT: the chip is an ANNOTATION beside board value, never a
+   second verdict — quieter than .rec-why, no button affordance, and the money
+   glyphs follow the doctrine (gold IS money; a negative premium wears the
+   semantic red). Every chip carries its own provenance ("to your roster",
+   "not in the score"). ═══════════════════════════════════════════════════ */
+.cv-chip {
+  font-size: .72rem; line-height: 1.4; color: var(--wr-ink);
+  margin: .22rem 0 0; padding: .18rem .45rem;
+  border-left: 2px solid var(--wr-money);
+  background: color-mix(in srgb, var(--wr-money) 6%, transparent);
+  border-radius: 0 4px 4px 0;
+}
+.cv-tag {
+  font-size: .58rem; font-weight: 800; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--wr-muted);
+  border: 1px solid var(--wr-line); border-radius: 999px;
+  padding: .02rem .38rem; margin-right: .25rem; white-space: nowrap;
+}
+.cv-kind { font-weight: 700; letter-spacing: .02em; }
+.cv-money { color: var(--wr-money); font-variant-numeric: tabular-nums; }
+.cv-money.neg { color: var(--wr-bad); }
+.cv-pts { color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+.cv-verdict { color: var(--wr-ink); }
+.cv-cond { color: var(--wr-muted); font-style: italic; }
+.cv-flag { color: var(--wr-warn); }
+.cv-note { color: var(--wr-muted); font-size: .62rem; letter-spacing: .03em; }
+
+/* the drill-down readout — same table grammar as .wr-drill-facts */
+.cv-drill { margin: .6rem 0 0; border-top: 1px solid var(--wr-line); padding-top: .5rem; }
+.cv-drill-block { margin: .35rem 0 0; }
+.cv-drill-head { font-size: .72rem; font-weight: 700; margin: 0 0 .2rem; }
+.cv-drill-line {
+  display: flex; gap: .5rem; align-items: baseline;
+  font-size: .7rem; line-height: 1.45; margin: .12rem 0 0;
+}
+.cv-drill-line > span:first-child {
+  flex: 0 0 7.2rem; color: var(--wr-muted); font-size: .62rem;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.cv-drill-line .cv-sub { color: var(--wr-muted); margin-left: .3rem; }
+.cv-caveat { margin: .45rem 0 0; font-size: .64rem; color: var(--wr-muted); font-style: italic; }
+@media (max-width: 640px) {
+  .cv-drill-line { flex-direction: column; gap: .05rem; }
+  .cv-drill-line > span:first-child { flex: none; }
 }

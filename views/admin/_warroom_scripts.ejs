@@ -111,6 +111,15 @@
     pick", graded within the session). app.js feeds it during a mock; it persists to
     localStorage and never posts to the real ledger. Loaded before app.js. %>
 <script src="/js/draft/mock_calib.js"></script>
+<%# conditional_value.js — the stack+handcuff premium DISPLAY layer, wired by
+    Cory's ruling 2026-08-17 ("Yes!") on conditional_value_2026-08-16.md's
+    evidence. Pure string builders over the committed artifact
+    (/conditional_value_2026.json, fetched by app.js beside the board). DISPLAY
+    ONLY, per the queued doc's contract: board value + stack premium + handcuff
+    premium each printed separately — the engine/composite never read this
+    (test_conditional_value.py keeps that gate). Guarded consumers: a missing
+    module or artifact costs the chips, never the board, never a fake zero. %>
+<script src="/js/draft/conditional_value.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with

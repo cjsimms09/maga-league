@@ -1,0 +1,69 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by expert_grading.py",
+ "_prereg": "EXPERT-SKILL-PREREG.md",
+ "seed": 42,
+ "min_common": 30,
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "diagnostics": {
+  "2023": {
+   "graded_players": 473,
+   "crosswalk_misses": 18,
+   "experts_scored": 239,
+   "experts_excluded_min_n": 0
+  },
+  "2024": {
+   "graded_players": 505,
+   "crosswalk_misses": 28,
+   "experts_scored": 219,
+   "experts_excluded_min_n": 0
+  },
+  "2025": {
+   "graded_players": 503,
+   "crosswalk_misses": 17,
+   "experts_scored": 207,
+   "experts_excluded_min_n": 0
+  }
+ },
+ "q1_persistence": {
+  "2023_to_2024": {
+   "status": "measured",
+   "common_experts": 197,
+   "observed_rho": 0.2752,
+   "shuffle_p95": 0.1202,
+   "clears_null": true
+  },
+  "2024_to_2025": {
+   "status": "measured",
+   "common_experts": 171,
+   "observed_rho": 0.4,
+   "shuffle_p95": 0.1225,
+   "clears_null": true
+  }
+ },
+ "q2_walk_forward_2025": {
+  "FLAT": {
+   "spearman_vs_realized": 0.7718,
+   "players": 503
+  },
+  "CONTINUOUS": {
+   "spearman_vs_realized": 0.7744,
+   "players": 503
+  },
+  "TOP10": {
+   "spearman_vs_realized": 0.69,
+   "players": 370
+  },
+  "note": "higher is better; weights from 2023-24 skill only"
+ },
+ "q2_same_population_check": {
+  "players": 370,
+  "FLAT": 0.6968,
+  "TOP10": 0.69,
+  "verdict": "TOP10 still loses on identical players after the 5d store correction."
+ },
+ "headline": "RE-RUN 08-18 late on the 5d-corrected stores (playoff weeks removed, tail restored): every verdict SURVIVES \u2014 skill persists (rho .275/.400, both clear the null), CONTINUOUS ties FLAT (.774 vs .772), TOP10 loses (.690, and 0.69 vs 0.6968 on identical players). Q3 position/rookie slices were measured pre-correction; the correction is position-uniform (playoff weeks) so the structural verdict stands, flagged for re-run with the v7 grading."
+}

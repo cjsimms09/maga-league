@@ -212,15 +212,37 @@ def test_p1_blends_no_rookie_yet_the_rookie_bloc_still_moves():
     three — so P1 changes NO rookie's projection. The rookie bloc moves anyway,
     purely because veterans moved around them. Coverage artifact in pure form,
     with the football content held at exactly zero.
+
+    Pin moved 2026-08-17: Cory's ruled rookie_capital_prior layer
+    (league_config.rookie_capital_prior, his approval verbatim) now fills
+    proj_ownmodel on 74 board rookies, each stamped proj_ownmodel_source ==
+    "rookie_capital_prior_2026" — so those rookies GENUINELY carry a third
+    source and P1 blends them (63 on the committed board; the other 11 lack a
+    real Sleeper or FP value). Old pin: zero rookies blended. The original
+    census claim survives exactly on the unstamped population: no rookie
+    carries three sources FROM THE WALK-FORWARD MODEL ITSELF. NOTE FOR THE
+    REGISTER: the study's §2 census and the rookie-bloc veto were measured on
+    a board where P1 touched no rookie — when proj_mean_blend.json is next
+    rebuilt, §2 must be re-read against the ruled layer, not assumed.
     """
     rows = PMB.board_rows()
     by_id = {str(p["player_id"]): p for p in rows}
     blended = PMB.policy_baselines(rows, "P1", PMB.level_offsets(rows),
                                    PMB.measured_biases())
     assert blended, "P1 must blend something or the test proves nothing"
-    assert not [pid for pid in blended if PMB.is_rookie(by_id[pid])], (
-        "a rookie gained three-source coverage — the census claim this whole "
-        "audit rests on has changed and §2 must be re-read")
+    stamped = {str(p["player_id"]) for p in rows
+               if p.get("proj_ownmodel_source") == "rookie_capital_prior_2026"}
+    assert stamped, ("the ruled rookie-capital layer vanished from the board — "
+                     "if that is deliberate, restore the old zero-rookie pin")
+    rookie_blended = [pid for pid in blended if PMB.is_rookie(by_id[pid])]
+    unstamped = [pid for pid in rookie_blended if pid not in stamped]
+    assert not unstamped, (
+        "a rookie gained three-source coverage OUTSIDE the ruled capital-prior "
+        "layer — the census claim this whole audit rests on has changed and §2 "
+        "must be re-read: %r" % unstamped[:5])
+    assert rookie_blended, (
+        "stamped rookies exist but P1 blends none of them — the third source "
+        "stopped counting and the pin above would be vacuous")
 
 
 @pytest.mark.skipif(not ARTIFACT.exists(), reason="artifact not built")
