@@ -1,5 +1,32 @@
 # THE OPPORTUNITY ADJUSTER IS THE BOARD'S ONLY EDIT TO SLEEPER, AND IT IS ZERO-INFORMATION
 
+> # ⚠️ RETRACTED IN ITS HEADLINE CLAIM, SAME DAY. READ THIS FIRST.
+>
+> **This document's framing — "nobody saw it" — is FALSE, and I routed it to A
+> as a red open row four days before the draft.**
+>
+> `draft/audit/opportunity_adjustment_2026-08-16.md` graded exactly this on
+> **08-16**: NEUTRAL on ordering in **17 of 18** cells, WORSE on level in **18
+> of 18** with every CI clear, and **a shuffled control performing identically
+> — so it was carrying scale, not player information.** Cory ruled on it
+> **08-17** (*"Remove 1"*) and `league_config.json` has shipped
+> `opportunity_cap: 0.0` ever since. Its `_opportunity_cap_why` note records all
+> of it, including that **CENTRING the layer — the "obvious next arm" §7 below
+> proposes — had already been measured and moved QB1 by one rank.**
+>
+> **What survives:** the 27-cell numbers are correct and independently
+> corroborate that grade **from a second artifact**. That is worth something as
+> replication. It is not a discovery, and §§1–4 should be read as corroboration
+> throughout. **§5's inventory and §6's placebo on my own 18b claim are
+> unaffected**, and §9's freeze finding is new (register 38).
+>
+> **Cause:** I read the artifact and not its audit doc, and
+> `draft/tools/prior_art.py --grep` — which exists on `main` and finds this in
+> one command — was not in this branch and I did not check for one. **That is
+> the failure this lane exists to catch, committed by this lane.** Standing
+> change to my process: prior_art before filing. Register 39.
+
+
 _TERRITORY: D. Register 37's inventory (placebo exposure), and it answers
 **Q1** — D's own open question, *"does the opportunity adjuster help at all?"_
 Written 2026-08-18. **Nothing was recomputed. Every number below was already in
@@ -153,6 +180,29 @@ lunch exists only in the shrink direction.**
   construction: uncentred, applied multiplicatively, on top of a biased-high
   baseline. **Centre it and the +9.1 bias goes away by construction** — that is
   the obvious next arm and it needs no new data.
+
+## 9. WHAT IS ACTUALLY NEW HERE — the freeze carries a reverted policy
+
+Measured on committed artifacts, and this one has no prior art:
+
+| | `opportunity_adj` nonzero | `proj_mean != proj_baseline` |
+|---|---|---|
+| **live board**, built 08-17T16:35Z | **0 of 693** (all exactly `-0.0`) | 0 |
+| **`pre_draft_freeze_2026.json`**, 08-14 | **375 of 682** | **374 rows** |
+
+`-0.0` across the board is the arithmetic fingerprint of `cap = 0.0`, and
+`opportunity_z` is still nonzero for 377 players — **so the ruling is verifiably
+in force on the board Cory drafts from.**
+
+**The freeze is not.** Gibbs 299.9 → 344.9, Bijan 292.9 → 336.8, Nacua 259.0 →
+297.9. **It is not merely stale in the way `test_freeze_not_stale.py` already
+flags (14 missing fields) — it encodes a projection policy Cory has since
+reversed**, and the grade behind that reversal measured the layer as worse on
+level in 18 of 18 cells. Anything reading the freeze reads the pre-ruling board.
+
+**Register 38, routed to A.** The ask is narrow: confirm nothing Cory sees on
+draft night reads the freeze. If nothing does, it closes as a documentation
+note; if anything does, it is draft-critical with four days left.
 
 ## 8. TRIGGERS
 
