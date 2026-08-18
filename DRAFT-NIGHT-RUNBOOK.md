@@ -110,6 +110,16 @@ checked against the code. **One defect found — the freeze timing above, regist
 - **Contingency — the staleness warning exists** with a real age and thresholds
   (amber ~6h, blocked ~18h).
 
+- **Step 10 — the dead-battery fallback is sound.** `/admin/draft-sheet` reads
+  the SAME `public/draft_data.json` as the war room, so the printed sheet cannot
+  disagree with the screen. Simulated against the live board: **0 of 3 keepers
+  leak into "best available"** (Chase, Henry and Walker are absent from
+  `players[]` entirely, so the route's `kept` filter is redundant belt-and-braces
+  rather than load-bearing), and the **best-available lists are VORP-sorted and
+  monotone** — the documented past bug, where they were ordered by ADP and
+  printed a below-replacement TE as "best available" under a value heading,
+  stays fixed.
+
 *Two of these read as MISSING on a first grep — the freeze message is split
 across source lines, and the durability gate says "NOT pushed" rather than
 "unpushed". Both were present. Grep the behaviour, not the sentence.*
