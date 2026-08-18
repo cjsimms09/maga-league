@@ -765,13 +765,26 @@
    * work at 8pm on the 22nd with a bad connection or a deploy mid-flight. It
    * restores POLICY, which is what a bad change corrupts — reverting the deployed
    * build is a git revert plus a Netlify cycle and can never be one tap. */
-  const BASELINE_KEY = 'mfga.draft.baseline.v1';
+  /* ── THE PIN IS v27, RULED (A, 2026-08-18; register 5g). It was v1, frozen
+   * 08-10 — which PREDATES two of Cory's own rulings: ceiling 0 -> 0.45
+   * (08-17, "IS THIS STUDIES? IF SO, YES") and stack 0.5 -> 1.0 (D10). One
+   * tap of "restore the measured core" was a silent reversion of both, on
+   * the night the button exists for. v27 is today's verified freeze —
+   * playoff-free inputs, deploy-probe green — and carries both rulings, so
+   * "known ground" now means known ground AS OF THE LAST VERIFIED FREEZE
+   * BEFORE THE DRAFT, not as of a date nobody can reconstruct on the clock.
+   * Deliberately NOT "the newest baseline" dynamically: a bad change frozen
+   * five minutes ago must never become the thing restore restores. Re-pin
+   * by ruling only. The localStorage key rotates with the pin so a cached
+   * v1 cannot shadow the ruled reference. */
+  const BASELINE_VERSION = 'v27';
+  const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
     try {
       const cached = JSON.parse(localStorage.getItem(BASELINE_KEY) || 'null');
       if (cached) state.frozenBaseline = cached;
     } catch (e) { /* private mode */ }
-    fetch('/admin/api/baseline?version=v1', { cache: 'no-cache' })
+    fetch('/admin/api/baseline?version=' + BASELINE_VERSION, { cache: 'no-cache' })
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (!d || !d.ok || !d.baseline) return;
