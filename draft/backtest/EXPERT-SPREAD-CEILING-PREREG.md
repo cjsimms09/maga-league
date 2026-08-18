@@ -248,3 +248,68 @@ Declared now, before any arm is scored:
 3. If the arms beat BASE overall but FAIL on rookies, that is reported as its
    own finding, because rookies are where the board's ceiling is blindest
    (cell constant + no volatility + no opportunity signal).
+
+---
+
+## 9. CORY'S ARM, ADDED 2026-08-18 BEFORE ANY EXPERT WAS SCORED
+
+> **Cory:** *"Should we see which experts drafted better in 2025 then use those
+> experts to apply to model for 2026"*
+
+**Named here before a single expert has been graded**, because the whole hazard in
+this idea is that it is trivially easy to run it backwards and get a beautiful
+number.
+
+**FEASIBILITY — CHECKED FIRST, AND IT PASSES.** Expert IDs persist across seasons:
+
+| | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|
+| distinct experts | 239 | 219 | 207 | 91 (still filling) |
+| carried over from prior season | — | 197 (82%) | 171 (78%) | 76 (36%) |
+
+**62 experts appear in all four seasons** — a three-season track record *and* a 2026
+submission. The idea is buildable.
+
+### Arm **EXPERT-SKILL** (Cory's)
+
+Score each expert on 2023–2025 by how well their published ranks ordered realized
+points; keep the ones that score well; build the 2026 consensus (and its spread) from
+**those experts only**, or weight by skill.
+
+### ⚠️ THE HAZARD, STATED IN ADVANCE
+
+**With 62–239 experts and three seasons, the best-scoring expert is almost certainly
+lucky.** Selecting the 2025 leaders and applying them to 2026 is textbook
+overfitting, and it will *always* produce a flattering backtest because the selection
+and the evaluation share a season. So:
+
+**GATE — EXPERT SKILL MUST PERSIST, AND THAT IS TESTED BEFORE ANY WEIGHTING IS BUILT.**
+Score every expert separately in 2023, 2024 and 2025, then measure the rank
+correlation of expert skill **across** seasons (2023→2024, 2024→2025).
+
+* **If skill does not persist across seasons, this arm is DEAD** and no amount of
+  in-sample separation revives it. "Use the good experts" would then mean "use last
+  year's lucky experts", which is a coin already flipped.
+* **If it does persist,** experts are selected on seasons **strictly earlier** than
+  the season they are evaluated on — select on 2023–2024, evaluate on 2025. Never the
+  same season for both.
+
+**NULL CONTROL — EXPERT-SHUFFLE.** Assign each expert a random skill score and rebuild
+the consensus the same way. If a randomly-selected subset of ~60 experts consensuses
+about as well as the "skilled" subset, the arm is measuring *ensemble size*, not
+expertise — 60 opinions averaged beat 200 averaged for reasons that have nothing to
+do with who is good.
+
+**SECOND NULL — MOST-RANKED-PLAYERS.** An expert who ranks 300 players and one who
+ranks 100 are not comparable on any raw correlation. Skill is scored only on each
+expert's overlap with the common player set, and expert coverage counts are reported
+beside the skill scores.
+
+### What it would take to ship
+
+Same four conditions as §4, plus persistence, plus **it must beat the plain
+all-experts consensus** — not merely beat BASE. Today's board already uses a
+consensus; an arm that reproduces it with extra machinery is not an edge.
+
+**Blocked on the same join as §3** (`sleeper_name_index.yml`). **Owner: relay builds,
+A rules after 08-22. Recheck 08-24.**
