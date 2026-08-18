@@ -130,6 +130,9 @@ function main() {
   const now = Date.now();
   const open = items.filter(i => !i.done);
   const stuck = blocked(items, now, RESPOND_BY_DAYS);
+  const shape = { blocked: stuck.length, open: open.length,
+                  answered: items.length - open.length,
+                  open_with_default: open.filter(hasDefault).length };
 
   let base = { blocked: null };
   try { base = JSON.parse(fs.readFileSync(BASELINE, 'utf8')); } catch (e) { /* first run */ }
@@ -157,12 +160,41 @@ function main() {
   }
 
   if (base.blocked == null) {
-    console.log('\n  No baseline committed yet. Write ' + stuck.length + ' to '
-      + path.relative(ROOT, BASELINE) + ' to arm the ratchet.');
+    console.log('\n  No baseline committed yet. Record this shape in '
+      + path.relative(ROOT, BASELINE) + ' to arm the ratchet:');
+    console.log('  ' + JSON.stringify(shape));
     console.log('='.repeat(76));
     return 0;
   }
   console.log('\n  baseline ' + base.blocked + '  ->  now ' + stuck.length);
+
+  /* THE RATCHET HAS ONE HOLE AND THIS IS IT.
+   *
+   * `blocked` falls for two very different reasons: someone ANSWERED an item, or
+   * someone bolted a DEFAULT onto it. A default written when the ask is filed is
+   * the operating model working — silence becomes consent and nobody idles. A
+   * default added later, to a pile of items nobody intends to read, is the check
+   * being satisfied instead of the problem being solved, and it would show up as a
+   * clean green ratchet.
+   *
+   * They are distinguishable: answering moves items from open to done, while
+   * bolting on defaults leaves the open count flat and raises open_with_default.
+   * So the signature is a fall in `blocked` with no rise in `answered`. Reported,
+   * not failed — a lane may legitimately decide a batch of old asks can all
+   * proceed on their defaults, and that is a real decision, not gaming. It just
+   * has to be VISIBLE rather than silent. */
+  if (base.answered != null && stuck.length < base.blocked) {
+    const cleared = base.blocked - stuck.length;
+    const answered = shape.answered - base.answered;
+    if (answered < cleared / 2) {
+      console.log('\n  ⚠️  ' + cleared + ' items left the blocked set but only ' + answered
+        + ' were actually ANSWERED.');
+      console.log('     The rest gained a DEFAULT instead. That can be a real decision —'
+        + ' but say so,');
+      console.log('     because from the ratchet alone it is indistinguishable from'
+        + ' silencing the check.');
+    }
+  }
   if (stuck.length > base.blocked) {
     console.log('\n  ❌ THE BACKLOG GREW BY ' + (stuck.length - base.blocked)
       + '. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.');
@@ -181,6 +213,6 @@ function main() {
   return 0;
 }
 
-module.exports = { parse, hasDefault, ageDays, blocked, byLane, RESPOND_BY_DAYS };
+module.exports = { parse, hasDefault, ageDays, blocked, byLane, RESPOND_BY_DAYS, main };
 
 if (require.main === module) process.exit(main());

@@ -1,8 +1,16 @@
 {
  "_what": "The ROUTES.md blocked-item high-water mark: open, carrying no DEFAULT, 3+ days old.",
- "_why": "Failing outright on all of these would put the build red for weeks and get switched off — intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
+ "_why": "Failing outright on all of these would put the build red for weeks and get switched off \u2014 intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
  "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
  "measured_at": "2026-08-18",
  "blocked": 131,
- "waiting_on_at_baseline": { "A": 67, "B": 39, "C": 25 }
+ "waiting_on_at_baseline": {
+  "A": 67,
+  "B": 39,
+  "C": 25
+ },
+ "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed \u2014 a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
+ "open": 273,
+ "answered": 69,
+ "open_with_default": 46
 }
