@@ -149,6 +149,11 @@ def egress_main() -> dict:  # pragma: no cover  (egress; CI only)
 
     depth_all = nfl.import_depth_charts(list(SEASONS))
     roster_all = nfl.import_seasonal_rosters(list(SEASONS))
+    if "gsis_id" not in roster_all.columns and "player_id" in roster_all.columns:
+        # import_seasonal_rosters renames gsis_id -> player_id internally
+        # (nfl_data_py's own __import_rosters source); same id, restored to
+        # the name this module and its crosswalk join use throughout.
+        roster_all = roster_all.rename(columns={"player_id": "gsis_id"})
 
     need_depth = {"season", "week", "club_code", "depth_team", "gsis_id", "position"}
     need_roster = {"season", "team", "position", "gsis_id"}
