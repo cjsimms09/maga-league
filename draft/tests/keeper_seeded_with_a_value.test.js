@@ -51,9 +51,15 @@ const board = art.players, league = art.league, teams = league.teams || 10;
 const RP = art.replacement.replacement_points;
 
 // ─────────────────────── 1. the artifact really does omit it
-ck('kept_players carry proj_mean but NOT vorp — the premise of this whole file',
+/* PREMISE HEALED 2026-08-18, the same night this file was written: build.py
+ * now stamps vorp on kept_players at the source (proj_mean − replacement)
+ * and the 05:33Z rebuild published it — so the artifact this file was
+ * written against no longer exists. The premise check flips to pin the
+ * HEALED state: a kept player without vorp is the regression this whole
+ * file exists to catch. */
+ck('kept_players NOW carry vorp (E17 shipped at the source) — absence returning is the regression',
   art.kept_players.length > 0
-  && art.kept_players.every(k => k.proj_mean != null && k.vorp === undefined),
+  && art.kept_players.every(k => k.proj_mean != null && Number.isFinite(Number(k.vorp))),
   art.kept_players.map(k => ({ n: k.name, proj: k.proj_mean, vorp: k.vorp })));
 
 // ─────────────────────── 2. the derivation is the board's own, not invented
@@ -117,9 +123,23 @@ function barAt(pick, ks) {
 }
 {
   const rd1 = 1, pick = (rd1 - 1) * teams + 1;
-  ck('KNOWN-POSITIVE: with vorp absent the round-1 bar is NEGATIVE, which is what '
-    + 'made it ADD to every candidate instead of subtracting',
-  barAt(pick, rawSeed) < -10, { bar: barAt(pick, rawSeed) });
+  /* RE-AIMED 2026-08-18: the negative bar this reproduced is now IMPOSSIBLE —
+   * composite.js floors the bar at 0 (an incumbent you would decline to keep
+   * holds a free slot; the same option-is-never-negative contract as the raw
+   * clamp). The known-positive flips to pin the floor doing exactly that on
+   * the vorp-stripped fixture that used to produce −14.88. */
+  // the RAW third-incumbent kov (barAt recomputes it directly) is still
+  // negative on the stripped fixture — that is the world, not a defect —
+  // but the APPLIED bar inside keeperOptionValue floors it to 0:
+  const probeC = ctxAt(pick, rawSeed);
+  const anyCand = board.find(p => C.keeperOptionValue(p, probeC).value > 0
+                                  || C.keeperOptionValue(p, probeC).bar !== undefined);
+  ck('with vorp absent the APPLIED bar is FLOORED AT ZERO while the raw third kov '
+    + 'stays negative — the subsidy mechanism is gone at the composite level',
+  barAt(pick, rawSeed) < 0
+    && !!anyCand && C.keeperOptionValue(anyCand, probeC).bar === 0,
+  { raw_third: barAt(pick, rawSeed),
+    applied: anyCand && C.keeperOptionValue(anyCand, probeC).bar });
   ck('and the seeded keepers raise it', barAt(pick, seeded) > barAt(pick, rawSeed),
     { before: barAt(pick, rawSeed), after: barAt(pick, seeded) });
 }
@@ -144,21 +164,30 @@ function barAt(pick, ks) {
     return n + c.board.filter(p => C.keeperOptionValue(p, c).value >= C.CFG.KOV_BADGE_AT).length;
   }, 0);
   const before = count(rawSeed), after = count(seeded);
-  ck('KNOWN-POSITIVE: the unseeded state really did fire KEEPER TARGET badges at '
-    + 'Cory\'s picks — if this hits 0 the defect is gone and this file must be re-read',
-  before > 0, { badges: before });
-  ck('and with the keepers valued, none of them survive', after === 0,
+  /* RE-READ 2026-08-18, on this check's own instruction ("if this hits 0 the
+   * defect is gone and this file must be re-read"): it hit 0 the night the
+   * bar floor landed in composite.js. The badges the unseeded state used to
+   * fire were purchased ENTIRELY by the negative bar's subsidy; with the bar
+   * floored, even a vorp-stripped roster buys no badge. The defect is closed
+   * at TWO independent levels now (E17 seeds the value; the floor kills the
+   * subsidy), and this pin asserts the deeper one. */
+  ck('the unseeded state fires ZERO badges now — the floored bar closed the class '
+    + 'even where the seeding is absent (defense in depth, both pinned)',
+  before === 0, { badges: before });
+  ck('and with the keepers valued, still none', after === 0,
     { before: before, after: after });
 
   /* THE NAMED CLAIM, because a count is not the thing that was wrong. */
   const c33 = mkCtx(33, rawSeed);
   const flowers = c33.board.find(p => p.name === 'Zay Flowers');
-  ck('the specific false claim reproduces: at pick 33 a candidate was said to beat '
-    + 'a named keeper for the last slot',
-  !!flowers && C.keeperOptionValue(flowers, c33).value >= C.CFG.KOV_BADGE_AT
-    && art.kept_players.some(k => k.name === C.keeperOptionValue(flowers, c33).displaced),
-  flowers && { who: flowers.name, beats: C.keeperOptionValue(flowers, c33).displaced,
-    by: Math.round(C.keeperOptionValue(flowers, c33).value) });
+  /* The famous false sentence ("Zay Flowers beats Ja'Marr Chase by 17") can no
+   * longer be manufactured even by stripping the vorp — the floor holds the
+   * bar at 0 and Flowers' marginal value stays under the badge line. */
+  ck('the specific false claim is UNREPRODUCIBLE: at pick 33 the vorp-stripped '
+    + 'state can no longer say a candidate beats a named keeper',
+  !!flowers && C.keeperOptionValue(flowers, c33).value < C.CFG.KOV_BADGE_AT,
+  flowers && { who: flowers.name,
+    value: Math.round(C.keeperOptionValue(flowers, c33).value * 10) / 10 });
   const c33f = mkCtx(33, seeded);
   const flowersF = c33f.board.find(p => p.name === 'Zay Flowers');
   ck('and it does not survive the fix',

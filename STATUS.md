@@ -326,7 +326,7 @@ _Last update: master-execution-order run, start._
 **DECISION: keep all 3 — Ja'Marr Chase, Derrick Henry, Kenneth Walker.** This
 matches my current Sleeper designation; the optimizer confirms it is optimal.
 Every keeper has positive surplus and surplus rises with each, so keep the max.
-Deadline (optimizer output by Aug 19, lock Aug 20) met on Aug 7.
+Deadline (optimizer output by Aug 19; lock then believed Aug 20 — Cory ruled 08-18 it is Aug 21 6:00 PM CDT) met on Aug 7.
 
 ```
 K0 KEEPER OPTIMIZER — real roster, cost_model=top_picks_flat (PROVISIONAL pending D2 top_picks_flat)
@@ -361,7 +361,7 @@ and `pick_order.my_picks = [34, 41, 54, 61, 74, 81, 94, 101, 114]`
 (my_picks_before_keepers started at slot 4 = pick 4). First real pick is 34.
 The pick-34 board supersedes every earlier pick-7 analysis. K0 is complete
 end to end — decision + implementation + verified artifact — well ahead of the
-Aug 19 output / Aug 20 lock deadline.
+Aug 19 output / lock deadline now ruled Aug 21 6:00 PM CDT (was believed Aug 20).
 
 What's implemented (D2=(b)): top_picks_flat added to the optimizer (positional
 cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV

@@ -89,7 +89,7 @@ re-test extends the grid past 0.75 (best_w sat on the edge).
 **AND WITH THE BLEND NULL, THE KEEPER SLATE IS FINAL (chain steps 1–2 closed):
 keep all three — Chase R1 (+43), Henry R2 (+10), Walker R3 (+32), surplus
 +86.3** on the survival-fixed, rulings-live board; every keep-fewer option is
-strictly worse. Cory confirms at the 08-20 lock; the board re-derives then.
+strictly worse. Cory confirms at the lock — **08-21 6:00 PM CDT, his 08-18 ruling** — and the board re-derives then.
 
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
 
@@ -146,7 +146,7 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 PUBLISHED (05:33Z), deploy-verified, and frozen as **v27** — the first build
 where every input is playoff-free. All suites green on it: Python 4,174+, JS
 326/326 (the first fully green night). Keepers carry vorp 94.0/59.1/46.2 on
-the badge screens for the 08-20 lock. The v7 candidate hunt has now killed
+the badge screens for the lock (**08-21 6:00 PM CDT — Cory ruled 08-18**; earlier copies of this brief said 08-20). The v7 candidate hunt has now killed
 FIVE ideas the honest way — C1 age curves, C2 ridge, C3 fitted recency, C5
 WR-only efficiency, C7 availability gate — each graded leak-free on TWO
 walk-forward folds (`v7_candidate_grade.json`), and the night's best
@@ -423,6 +423,47 @@ What that looks like on Saturday, measured on today's board:
 
 **22 of the top 25 by that dollar figure are quarterbacks. On the board's own
 ranking, one is.**
+
+### 🥅 WHEN TO TAKE THE KICKER AND THE DEFENCE — the board cannot tell you, so here it is
+
+**The board ranks every kicker and every defence at 620+**, so it will never
+recommend one, and you have to fill both. That is not a bug: they are demoted on
+purpose (register 2b, and the demotion really is in the published order —
+verified, Spearman 1.0000 between published rank and vorp rank for every skill
+player, and K/DEF the sole exception). But it does leave you without a timing
+signal for two of your twelve picks, so here is the number.
+
+**KICKER — take one with your LAST pick. Waiting is as close to free as it gets.**
+
+| | |
+|---|---|
+| spread across the top 12 kickers | **10.0 points for the season — 0.59 per week** |
+| best still available at your pick 133+ | Cam Little, proj **104.0** (ADP 160) |
+| cost versus the best kicker on the board | **3.0 points. 0.18 per week.** |
+
+Aubrey (107.0, ADP 116) is the top kicker and he is worth *three points over a
+season* more than one you can have at 160. Spending a pick before 148 on a
+kicker is spending it on nothing.
+
+**DEFENCE — different answer, and the honest version has a caveat attached.**
+
+| | |
+|---|---|
+| spread across the top 12 defences | **36.0 points — 2.12 per week** |
+| the outlier | **LA Rams 132.0**, fourteen clear of Houston at 118 |
+| best still available at 133+ | New England, proj **112.0** (ADP 161) |
+| cost of waiting from the Rams | **20.0 points ≈ 1.2 per week** |
+
+**⚠️ AND THE CAVEAT IS NOT DECORATION.** Register 2e: **K and DEF have ZERO
+calibration cells** — every one carries a `gaussian_z` ceiling because the
+component stores never captured them. So that 20-point gap is a difference
+between two projections we have **never measured the error of**. It is real in
+the projection and unbounded in reality.
+
+**So: kicker last, always. Defence — the Rams are a genuine outlier and if one
+of your late picks is otherwise a coin flip, that is where the 20 points is. Do
+not spend a pick you want for a skill player on it, because we cannot tell you
+how much of the 20 is real.**
 
 ### ⚠️ AND FIFTEEN CEILINGS IN YOUR RANGE ARE COHORT AVERAGES, NOT CLAIMS ABOUT THAT PLAYER (register 4v)
 

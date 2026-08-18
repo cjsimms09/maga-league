@@ -1,48 +1,300 @@
 {
- "_what": "The ROUTES.md blocked-item high-water mark: open, carrying no DEFAULT, 3+ days old.",
- "_why": "Failing outright on all of these would put the build red for weeks and get switched off — intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
- "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
- "measured_at": "2026-08-18",
- "blocked": 65,
- "waiting_on_at_baseline": {
-  "B": 38,
-  "C": 25,
-  "A": 2
- },
- "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed — a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
- "open": 241,
- "answered": 141,
- "open_with_default": 78,
- "_history": [
-  {
-   "at": "2026-08-18",
-   "blocked": 131,
-   "waiting_on": {
-    "A": 67,
-    "B": 39,
-    "C": 25
-   },
-   "note": "first measurement, taken the day the check was built"
-  },
-  {
-   "at": "2026-08-18",
-   "blocked": 66,
-   "waiting_on": {
-    "B": 39,
-    "C": 25,
-    "A": 2
-   },
-   "note": "A worked its inbox from 67 blocked to 2 within hours of being shown the number. Verified as real answering rather than defaults bolted on: 65 left the blocked set while `answered` rose by 72, so items moved to done. B and C have not run their pass yet."
-  },
-  {
-   "at": "2026-08-18",
-   "blocked": 65,
-   "waiting_on": {
+  "_what": "The ROUTES.md blocked-item high-water mark: open, carrying no DEFAULT, 3+ days old.",
+  "_why": "Failing outright on all of these would put the build red for weeks and get switched off — intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
+  "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
+  "measured_at": "2026-08-18",
+  "blocked": 65,
+  "waiting_on_at_baseline": {
     "B": 38,
     "C": 25,
     "A": 2
-   },
-   "note": "NOT a lane answering anything — a REPAIR. `routes_resurrections.py` deleted seven items that were closed and then re-opened by a union merge (89a731cc closed them 08-17 21:20; bcdeef0a merged E's branch 08-18 00:19, and E had forked before the closure, so the union took both sides). Six were A's and already closed; one was B's, and that one was inside the blocked set, which is the whole of the 66 -> 65. Recorded as a repair so nobody later reads it as B working its queue."
-  }
- ]
+  },
+  "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed — a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
+  "open": 253,
+  "answered": 141,
+  "open_with_default": 78,
+  "_history": [
+    {
+      "at": "2026-08-18",
+      "blocked": 131,
+      "waiting_on": {
+        "A": 67,
+        "B": 39,
+        "C": 25
+      },
+      "note": "first measurement, taken the day the check was built"
+    },
+    {
+      "at": "2026-08-18",
+      "blocked": 66,
+      "waiting_on": {
+        "B": 39,
+        "C": 25,
+        "A": 2
+      },
+      "note": "A worked its inbox from 67 blocked to 2 within hours of being shown the number. Verified as real answering rather than defaults bolted on: 65 left the blocked set while `answered` rose by 72, so items moved to done. B and C have not run their pass yet."
+    },
+    {
+      "at": "2026-08-18",
+      "blocked": 65,
+      "waiting_on": {
+        "B": 38,
+        "C": 25,
+        "A": 2
+      },
+      "note": "NOT a lane answering anything — a REPAIR. `routes_resurrections.py` deleted seven items that were closed and then re-opened by a union merge (89a731cc closed them 08-17 21:20; bcdeef0a merged E's branch 08-18 00:19, and E had forked before the closure, so the union took both sides). Six were A's and already closed; one was B's, and that one was inside the blocked set, which is the whole of the 66 -> 65. Recorded as a repair so nobody later reads it as B working its queue."
+    },
+    {
+      "at": "2026-08-18",
+      "blocked": 65,
+      "note": "Relay ticked 26 of its OWN items that deliver a rule, a lane definition, an FYI or a report of finished work and ask for nothing. Items carrying a live ASK were left open on purpose — ticking one hides it. Open 279 -> 253; the BROADCAST count fell 9 -> 0 because those three rules were among the ticked, which is the right outcome: a delivered rule is done, not pending. blocked is unchanged at 65 because every one of these was under the 3-day threshold or already outside the blocked set."
+    },
+    {
+      "at": "2026-08-18",
+      "note": "closure_by_pair re-recorded after the A-side merge re-inserted 16 items the archive pass had not carried (13 open, several ticked) — done counts only ADVANCED (E (red team) → A: 19 -> 21 · D → A: 1 -> 4 · session E (red team) → A: new pair at 0 · this session → A: new pair at 3 · pace-of-play study (A-lane) → A: new pair at 2 · rebuild-refusal fix, ROUND 3 (Fable) → A: new pair at 0 · league benchmark: all-seats replay + layer grades + drafter study (Fable) → A: new pair at 0 · A(ablation-worktree) → A: new pair at 0 · gate-selection fix, ROUND 2 (Fable) → A: new pair at 0 · draft replay vs Cory's actual drafts (Fable) → A: new pair at 0 · chaos drill (Fable) → A: new pair at 0 · shadow ledger + calibration scorecard (Fable, Cory-ruled \"Do 2, 6\") → A: new pair at 0 · persistence hardening (Fable, external-audit mandate) → A: new pair at 0 · gate-selection fix (Fable) → A: new pair at 0 · rebuild-refusal diagnosis (Fable) → A: new pair at 0 · war-room clarity pass (Fable) → A: new pair at 0 · data/assumptions audit (Fable) → A: new pair at 2 · loop review (A-lane) → B: new pair at 0 · this session → B: new pair at 0 · historical-props study — harness built and tested, NO REAL DATA YET (Fable) → B: new pair at 0 · relay → C: new pair at 0 · pace-of-play study (A-lane) → C: new pair at 0 · data/assumptions audit (Fable) → C: new pair at 0 · A(relay-worktree) → C: new pair at 0 · edge hunt (Fable) → C: new pair at 0 · weekly props study (this session) → C: new pair at 0 · relay → D: new pair at 0 · relay → E: new pair at 0 · A → E: new pair at 0 · D → E: new pair at 0 · relay/PM → A — closed: new pair at 4 · C → A — closed: new pair at 2 · B → A — closed: new pair at 1 · A → B — closed: new pair at 4 · pace-of-play study (A-lane) → C — closed: new pair at 1 · this session → C — closed: new pair at 2 · A → C — closed: new pair at 2 · C → C — closed: new pair at 1 · artifact-freshness infra, PERMANENT FIX (this session) → A: new pair at 1 · conditional-value program (Fable) → A: new pair at 1 · projection correctness (Fable, Cory-ruled) → A: new pair at 1 · roster-construction archetypes (Fable) → A: new pair at 1 · projection program (Fable) → A: new pair at 1); nothing was lowered. Recorded by A in the merge commit."
+    }
+  ],
+  "closure_by_pair": {
+    "A → A": {
+      "n": 18,
+      "done": 11
+    },
+    "A → B": {
+      "n": 49,
+      "done": 15
+    },
+    "A → C": {
+      "n": 12,
+      "done": 0
+    },
+    "A → D": {
+      "n": 6,
+      "done": 1
+    },
+    "B → A": {
+      "n": 11,
+      "done": 2
+    },
+    "C → A": {
+      "n": 84,
+      "done": 68
+    },
+    "C → B": {
+      "n": 10,
+      "done": 2
+    },
+    "C → C": {
+      "n": 14,
+      "done": 0
+    },
+    "D → A": {
+      "n": 22,
+      "done": 4
+    },
+    "D → C": {
+      "n": 5,
+      "done": 0
+    },
+    "E (red team) → A": {
+      "n": 28,
+      "done": 21
+    },
+    "relay → A": {
+      "n": 47,
+      "done": 7
+    },
+    "relay → B": {
+      "n": 9,
+      "done": 0
+    },
+    "relay/PM → A": {
+      "n": 19,
+      "done": 7
+    },
+    "relay/PM → B": {
+      "n": 14,
+      "done": 7
+    },
+    "relay/PM → C": {
+      "n": 14,
+      "done": 7
+    },
+    "relay/PM → D": {
+      "n": 7,
+      "done": 5
+    },
+    "relay/PM → E": {
+      "n": 10,
+      "done": 6
+    },
+    "this session → C": {
+      "n": 7,
+      "done": 0
+    },
+    "session E (red team) → A": {
+      "n": 7,
+      "done": 0
+    },
+    "this session → A": {
+      "n": 4,
+      "done": 3
+    },
+    "pace-of-play study (A-lane) → A": {
+      "n": 3,
+      "done": 2
+    },
+    "rebuild-refusal fix, ROUND 3 (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "league benchmark: all-seats replay + layer grades + drafter study (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "A(ablation-worktree) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "gate-selection fix, ROUND 2 (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "draft replay vs Cory's actual drafts (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "chaos drill (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "shadow ledger + calibration scorecard (Fable, Cory-ruled \"Do 2, 6\") → A": {
+      "n": 1,
+      "done": 0
+    },
+    "persistence hardening (Fable, external-audit mandate) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "gate-selection fix (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "rebuild-refusal diagnosis (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "war-room clarity pass (Fable) → A": {
+      "n": 1,
+      "done": 0
+    },
+    "data/assumptions audit (Fable) → A": {
+      "n": 3,
+      "done": 2
+    },
+    "loop review (A-lane) → B": {
+      "n": 1,
+      "done": 0
+    },
+    "this session → B": {
+      "n": 2,
+      "done": 0
+    },
+    "historical-props study — harness built and tested, NO REAL DATA YET (Fable) → B": {
+      "n": 1,
+      "done": 0
+    },
+    "relay → C": {
+      "n": 2,
+      "done": 0
+    },
+    "pace-of-play study (A-lane) → C": {
+      "n": 1,
+      "done": 0
+    },
+    "data/assumptions audit (Fable) → C": {
+      "n": 1,
+      "done": 0
+    },
+    "A(relay-worktree) → C": {
+      "n": 1,
+      "done": 0
+    },
+    "edge hunt (Fable) → C": {
+      "n": 1,
+      "done": 0
+    },
+    "weekly props study (this session) → C": {
+      "n": 1,
+      "done": 0
+    },
+    "relay → D": {
+      "n": 4,
+      "done": 0
+    },
+    "relay → E": {
+      "n": 1,
+      "done": 0
+    },
+    "A → E": {
+      "n": 1,
+      "done": 0
+    },
+    "D → E": {
+      "n": 1,
+      "done": 0
+    },
+    "relay/PM → A — closed": {
+      "n": 4,
+      "done": 4
+    },
+    "C → A — closed": {
+      "n": 2,
+      "done": 2
+    },
+    "B → A — closed": {
+      "n": 1,
+      "done": 1
+    },
+    "A → B — closed": {
+      "n": 4,
+      "done": 4
+    },
+    "pace-of-play study (A-lane) → C — closed": {
+      "n": 1,
+      "done": 1
+    },
+    "this session → C — closed": {
+      "n": 2,
+      "done": 2
+    },
+    "A → C — closed": {
+      "n": 2,
+      "done": 2
+    },
+    "C → C — closed": {
+      "n": 1,
+      "done": 1
+    },
+    "artifact-freshness infra, PERMANENT FIX (this session) → A": {
+      "n": 1,
+      "done": 1
+    },
+    "conditional-value program (Fable) → A": {
+      "n": 1,
+      "done": 1
+    },
+    "projection correctness (Fable, Cory-ruled) → A": {
+      "n": 1,
+      "done": 1
+    },
+    "roster-construction archetypes (Fable) → A": {
+      "n": 1,
+      "done": 1
+    },
+    "projection program (Fable) → A": {
+      "n": 1,
+      "done": 1
+    }
+  },
+  "_closure_ratchet_why": "Per sender->recipient TICKED COUNT, for pairs with >=5 items. The ratchet is on the COUNT, not the rate: a rate falls when a lane files a legitimate new item, so a rate ratchet would fail the build for doing the right thing (the intervention-rate epitaph). A count can only fall by un-ticking or losing a closed item — which is exactly the union-merge resurrection recorded in _history, where seven closed items came back open and routes_resurrections.py had to delete them. It does NOT fail on a low rate; a genuine backlog is not the defect this catches."
 }

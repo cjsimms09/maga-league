@@ -35,11 +35,11 @@ still on a partial slate.
 
 ---
 
-## 1 · CORY'S TWO RULINGS
+## 1 · CORY'S RULINGS — ONE DOWN, ONE POST-DRAFT
 
 | | what he decides | why it cannot wait / can | register |
 |---|---|---|---|
-| **C1** | **The keeper deadline: 08-20, or 08-21 6:00 PM CDT?** | **P0, league-facing.** B's banner would pin *"Friday August 21 at 6:00 PM CDT"* to all ten managers while **fifteen files in this repo say 08-20.** One of the two is wrong and both are about to be stated as fact. | **42**, Q17, ledger P71 |
+| ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** The banner's date was right; the fifteen files were wrong. **Root cause fixed, not just the date:** `league_config.json` now carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B is unblocked to ship. | *nothing further* | 42 ruled and closed, Q17 answered, ledger P71 graded FALSE — the good outcome |
 | **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
 
 *(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
@@ -51,10 +51,10 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 
 | | decision | recommendation | **default if you say nothing** |
 |---|---|---|---|
-| **A1** | **E1 — nine top-50 players read the wrong dispersion cell.** Band assignment uses a rank that disagrees with the band the calibration was fitted on. Worth **$47.6** of spread between St. Brown and Jefferson. Re-measured today on the live board: it reproduces, **9 misreads, 4 in the top 50**, and the direction is named. | **The fix is already written and deliberately not applied** — `E1_proposed_fix_for_approval_2026-08-17.md`, two edits, the first inert until passed. Approve or reject; it is the only prepared fix on this page. | **Not applied.** Cory drafts on the misread cells. |
-| **A2** | **5e — the compare tray's dollar figure is not comparable across positions.** It would tell him *"Jaxson Dart +$23"* over Saquon Barkley. **22 of the top 25 by E[$] are QBs; by the board's own rank, one is.** | **Refuse the comparison, do not re-price it.** Extend your own D10a K/DEF refusal to QB — ~4 lines, no model change. **Re-pricing was built and measured and is WORSE on the pairs he actually weighs** (`draft/audit/dollar_replacement_baseline_2026-08-18.md`). | **Nothing ships.** The briefing already carries the sentence he needs: *use the dollar figure within a position.* This default is genuinely acceptable. |
-| **A3** | **4x — the strategy banner will stay silent all night.** The leader gap is **0.000 at all fifteen of his picks**, so no rescale of the `$4` band can help. The row's implied fix does not follow. | **Do not rescale.** Tell Cory in one sentence which doctrines can produce a banner at all. It is also a symptom of A2 — the top of the price list is a QB at every pick, so only QB-forbidding constraints can ever bite. | **Nothing ships**, and the banner is quiet. Acceptable **only if he is told**, or he will read silence as agreement. |
-| **A4** | **4d — Cory drafts on DESKTOP; your live order to B says phone-first.** `7ee6f993`, 16:06 08-17, specifies *phone-first* and *the 390px column*; the assumption dates to 08-13 and was reasonable until he said otherwise. | Invert the device priority, keep the rest of the order. Already relayed to B. | Desktop is the surface that must be right on 08-22, and the order still points elsewhere. **This default is the one I would not accept.** |
+| **A1** | ✅ **DECIDED 08-18 (A): the E1 fix is REJECTED**, on a ruling already baked in `projections.py:306` — the calibration was fitted on FULL-universe historical ranks, so the full-universe cell read is correct and keeper-lock-invariant; the proposed published-rank key would re-band 46 players at Wednesday's lock for a non-football reason. The nine "misreads" are the ruling working; the on-screen caveat now says so instead of calling them a defect. ~~E1 — nine top-50 players read the wrong dispersion cell.~~ | Ruled, not defaulted — the register row (E1, closed) carries the full reasoning and the caveat rewording. | **Superseded by the ruling** — the fix stays unapplied, now by decision rather than by default, and the sheet's ask is closed. |
+| **A2** | ✅ **DECIDED 08-18 (A): SHIPPED** — `dollarGap` now refuses QB-vs-other with the reason on screen, the exact D10a K/DEF shape extended as this row recommended. Register row (5e) closed; suite green. ~~5e — the compare tray's dollar figure is not comparable across positions.~~ | The recommendation was taken as written: refuse the comparison, do not re-price it — re-pricing measured worse on the pairs he actually weighs. | **Superseded by the ship** — the tray refuses cross-position dollar reads, and the briefing sentence (*use the dollar figure within a position*) still stands for everything else. |
+| **A3** | ✅ **DECIDED 08-18 (A): NO RESCALE** — a constant tuned to a test is the forbidden move, and the leader gap is structurally 0.000 while a QB tops the price list at every pick. Cory is told in the brief (§4.3): the quiet banner is structural, not a fault to wait out. Register row (4x) closed. ~~4x — the strategy banner will stay silent all night.~~ | The recommendation was taken as written, including the one-sentence tell-Cory, which is in `DRAFT-WEEK-BRIEF.md` §4. | **Superseded by the ruling** — nothing ships, the banner stays quiet, and he has been told rather than left to read silence as agreement. |
+| **A4** | ✅ **DECIDED 08-18 (A): CLOSED** — the phone-first order was superseded twice on the record (A's in-flight build spec and relay's desktop-first war-room ruling); the device priority is inverted and B's live order points at the desktop surface. Register row (4d) closed. ~~4d — Cory drafts on DESKTOP; your live order to B says phone-first.~~ | The inversion this row asked for is done and relayed; nothing further hangs on it. | **Superseded by the closure** — desktop is the surface being built for 08-22, which is the outcome the unacceptable default was flagged to force. |
 
 ---
 
@@ -66,9 +66,14 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   ratio is backwards by band; its own row says *do not patch by hand before
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, E10, 2b, 2c, 28.
+  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 2c, 28.
+- **CLOSED 08-18 with the C1 ruling and the same-day rulings above** — 42 (the
+  keeper date, ruled), E1 (fix rejected on the population ruling), 5e (QB
+  refusal shipped), 4x (no rescale, Cory told), 4d (desktop-first, superseded
+  on the record).
 - **CLOSED 08-18 against live state, not against the date on the line** — rows
-  1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
+  E10 (its check run on the fresh board; its parent row 2 resolved on the same
+  run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
   named test passes on the fresh board), 4 (`matchup_placed_bet` 6/6,
   `trashtalk` 27/27) and 4c (board-truth 11/11, including the control that
   keepers really do consume picks) — plus row 2 **RESOLVED**: the
