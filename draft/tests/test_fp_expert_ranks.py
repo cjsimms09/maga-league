@@ -157,3 +157,27 @@ def test_the_artifact_contract_names_the_fields_that_report_gaps(field):
     looking complete when it is not — which is exactly 4s."""
     src = (Path(X.__file__)).read_text()
     assert field in src, field
+
+
+def test_source_meta_is_persisted_because_last_updated_is_load_bearing():
+    """The first version of this fetcher dropped `last_updated` — register 22's defect
+    ("we keep one scalar and discard the rest") reappearing in the file written to fix
+    it. It is not provenance trivia: the whole grading plan compares a season's
+    PRESEASON expert ranks to that season's realized points, and a ranking revised
+    mid-season would score beautifully on hindsight."""
+    payload = json.dumps({
+        "last_updated": "2025-08-20 14:03:11", "last_updated_ts": 1755698591,
+        "year": "2025", "week": "0", "type": "draft", "scoring": "HALF",
+        "total_experts": 207,
+        "players": [{"player_name": "X", "player_position_id": "RB", "rank_ecr": 1,
+                     "experts": {"1": "1"}}],
+    })
+    m = X.parse(payload)["source_meta"]
+    assert m["last_updated"] == "2025-08-20 14:03:11"
+    assert m["last_updated_ts"] == 1755698591
+    assert m["total_experts"] == 207
+    assert m["week"] == "0", "week 0 is what makes it a PRESEASON draft ranking"
+
+
+def test_source_meta_is_empty_rather_than_wrong_when_the_payload_omits_it():
+    assert X.parse(PAYLOAD)["source_meta"] == {}
