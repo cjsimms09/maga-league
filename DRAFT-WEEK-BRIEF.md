@@ -140,6 +140,36 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 
 ---
 
+## 🟣 08-18 NIGHT — THE THREE THINGS THAT CHANGED FOR SATURDAY (A)
+
+**1. THE BOARD IS MAKING ONE DELIBERATE BET, AND NOW IT IS NAMED: TE.**
+Measured on the live board: TEs sit **+50 spots ahead of market** on average in
+the top 150 (LaPorta board 37 vs market 67) while RBs sit −23 behind. It is NOT
+a formula error — the replacement theory died to the decimal (our TE bar 136.4
+== the market's own TE10, Kelce, 136.4). The drivers are the SOURCE (Sleeper
+prices these TEs above what the ADP herd pays) and YOUR 0.45 ceiling weight on
+the position with the board's largest measured upside multipliers. On the
+clock: a TE falling toward you is the board's bet paying off; if you would
+rather not be 50 spots ahead of the room on a streamable position, take the
+market's side on that pick knowingly. Register 5c has the full working.
+
+**2. THE OUTSIDE-SOURCE CEILING HUNT IS OVER — GRADED, TWICE, NO.** Expert
+disagreement (all three preregistered arms, three seasons, nothing excluded)
+beats the incumbent ceiling on **0 of 3 seasons**; an independent grading on
+top-12 hits agreed earlier the same day. The signal is real information about
+the ROOM (where rankings-followers get unpredictable), not about the player's
+season — so the war-room badge says "experts split," never "upside." The
+ceiling column stays the v25 construction: measured cell level × the player's
+own 2025 volatility, capped at physical plausibility. Re-test: 2027 captures.
+
+**3. THE KEEPER BADGE LIE IS DEAD AT THE SOURCE.** E caught the war room
+claiming "Zay Flowers beats Ja'Marr Chase by 17" at your first pick — keepers
+shipped without a value field and `(vorp || 0)` turned absent into zero.
+Ranking never moved (measured, 0 of 120 slots); the sentence was false. Keeper
+vorp is now stamped at build time from the board's own identity, the UI
+derivation is the fallback, and two pins make a keeper without a value refuse
+the build. If a keeper-comparison badge fires Saturday, it is arithmetic now.
+
 ## 1. THE ONE THING TO UNDERSTAND
 
 Every dispersion field on the board — `proj_ceiling`, `proj_floor`, `proj_sd`,

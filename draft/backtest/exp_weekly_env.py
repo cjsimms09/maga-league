@@ -48,6 +48,13 @@ RELEVANCE_FLOOR = 5.0          # prior running mean must reach this
 MIN_TEAM_GAMES = 4             # nflverse_pace.py convention: below this, m = 1
 NEUTRAL_MARGIN = 14            # |score differential| ≤ this counts as neutral
 DAMPENING = (1.0, 0.5)         # both reported, neither tuned
+# ⚠ 18b (D, 2026-08-18): 0.5 was this grid's own MINIMUM, so the published
+# "+0.228 ceiling" was a floor on the ceiling. D's finer preregistered sweep
+# (no egress, six-check reproduction control) found λ*=0.60 both seasons
+# (+0.238, a +4.3% refinement) and the real finding: the optimum is
+# ASYMMETRIC — dud games want λ≈0.80 and carry 5-10× the value of
+# shootouts (λ 0.25-0.50). This tuple stays as-is so the historical run
+# reproduces; the asymmetric arm is preregistered separately, post-draft.
 PERMUTATIONS = 200
 
 ARMS = ("pace_raw", "pace_neutral", "env_points", "oracle_total")
