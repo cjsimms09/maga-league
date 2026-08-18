@@ -128,6 +128,11 @@ def band_of(rank, band_edges=BAND_EDGES) -> str:
     """The band label for a within-position projection rank."""
     if rank is None:
         return "unranked"
+    # Callers thread band_edges as an explicit None (regenerate(band_edges=None)
+    # → calibrate → error_rows), which BYPASSES the parameter default — this
+    # killed calibration run #4 in CI with a NoneType iteration.
+    if not band_edges:
+        band_edges = BAND_EDGES
     r = int(rank)
     lo = 1
     for hi in band_edges:

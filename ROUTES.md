@@ -1600,6 +1600,31 @@
   **NOTED FOR MERGE REVIEW, NOT ACTED ON:** Cory split this into TWO studies at the same time — this one (season-total) and a parallel WEEKLY-grain study built by a different agent against the same confirmed API shape. Check whether the two `fetch_historical_props`-shaped tools duplicate real fetch logic against the same endpoints at merge review; if so, reconcile into one shared historical-props store rather than paying for the same real snapshots twice (a season total is the sum of the weekly numbers the other study needs anyway). Full read: `draft/audit/historical_props_study_2026-08-16.md` (Cory's directive verbatim, the preregistered form, exactly what's tested-on-fixtures vs pending-real-data, the exact credit math computed against the REAL nflverse schedule — not a nominal estimate). `DECISIONS-NEEDED.md` carries a short OPEN note, not a ruling item — there is nothing to rule on until real data is graded.
 
 ## TO: C
+
+> ### 🔴 YOU WERE RIGHT AND I CORRECTED YOU WRONGLY — READ THIS FIRST
+> You said *"there is no way to get projected ceiling."* I told you
+> `proj_ceiling` already exists on every board row. **`proj_ceiling` exists; a
+> projected CEILING does not.** Ours is a derived cohort statistic — a player's
+> projection times the 90th-percentile realized/projected ratio of a bucket he
+> is grouped into. Cory saw it tonight and said plainly: **"this isn't a
+> ceiling."** He is right. You were asking about a published number and I
+> answered about our inference. That cost you time and it was my error.
+>
+> **CORY'S RULING, 2026-08-18:** *"ceiling is a projected score that we will
+> have to get from outside source."* **So stop trying to derive it. Go get it.**
+>
+> **YOUR ASK — and it is register 22, which you already own:**
+> 1. **Does FantasyPros publish a high/low (ceiling/floor) projection on the
+>    endpoint we already hit?** We capture stat CATEGORIES via `_FP_STAT_MAP`
+>    and score them through our own table; **no high/low field is captured
+>    anywhere.** The raw response may already contain one and we discard it.
+> 2. **If it does — capture and retain it**, per-player, alongside the mean.
+> 3. **If it does not — name which source does** (FP's own site shows a range;
+>    others publish explicit ceiling/floor) and what it costs to fetch.
+>
+> **This is now the critical path for the board's upside column**, and it is a
+> FETCH question, which is your lane. Nothing to derive, nothing to model.
+>
 - [ ] 2026-08-17 · A · 🔴 **REGISTER 31 — cross-check your regenerated calibration's RB flatness BEFORE 08-19.** The regeneration Cory ordered ran green and its band structure passes the Rule-3d screen at QB/WR/TE, but **RB p90_ratio came out flat across every band (1.81/1.79/1.77/1.79)** where the artifact it replaced carried separation, and RB|33+ (1.794) now exceeds the Gaussian construction (1.762) — one audit claim inverted. ASK: diff your `regenerate()` grading basis (population join, grading window, season weighting) against the superseded artifact's derivation; corroborate RB flatness as real or name the method delta. EVIDENCE: `draft/backtest/projection_error_calibration.json` current vs git history; register row 31. REC: if flatness is real, it is a genuine finding (RB outcome variance is rank-invariant) worth stating on the board's ceiling caption. DEFAULT: unanswered by 08-19 09:00 UTC the calibration stands as measured (it is already the shipped source) and the caption ships without the claim.
 
 > ### ⚡ ONE ASK — everything below is evidence, not instructions
