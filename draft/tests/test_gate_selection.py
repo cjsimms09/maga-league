@@ -85,6 +85,32 @@ REPO_PARITY_NODES = {
     "draft/tests/test_kept_players_carry_vorp.py::test_every_kept_player_on_the_published_board_carries_vorp",
     "draft/tests/test_keeper_optimize_kept_players.py::test_kept_players_carry_proj_mean_AND_stamped_vorp",
     "draft/tests/test_kept_players_carry_vorp.py::test_the_identity_the_fix_relies_on_still_holds_boardwide",
+
+    # Added 2026-08-17 by SESSION D (A's P0, keeper lock 08-20). ⚠️ TERRITORY: A
+    # file, edited by D — same stated trespass as the stale-refusal node below:
+    # unmarked, this sits RED inside the publication gate, and a calibration gap
+    # must never refuse the board rebuild that would fix it. SEND BACK to re-prep.
+    #
+    # A FIFTH shape. The registry compares an artifact to a regeneration of
+    # itself; this compares an artifact to the BOARD — every position priced with
+    # a proj_ceiling must have a measured calibration cell or a declared refusal.
+    #
+    # It was red on K (44 priced) and DEF (32 priced), all 76 carrying
+    # proj_ceiling_source "gaussian_z" while skill positions carry
+    # "measured-2023-25-p90"; cells_unmeasurable: 0 counted only cells that were
+    # ATTEMPTED, so K/DEF read as "no problem". GREEN since 2026-08-17: the
+    # artifact declares both in positions_not_measured with a reason, an unblock
+    # condition, an owner and a recheck date. Nothing was estimated.
+    #
+    # THE MARK IS NOT ABOUT BEING RED. It is that this check compares an artifact
+    # to the BOARD, so a future board pricing a new position would fail it — and
+    # a calibration gap must never refuse the rebuild that would fix it.
+    # draft/audit/kdef_calibration_p0_2026-08-17.md
+    #
+    # Its failure says the REPO STATE lacks data, never that the candidate board
+    # is bad — this set's defining property. ONLY this node: the control in that
+    # file is pure logic and must stay in the gate.
+    "draft/tests/test_calibration_covers_every_board_position.py::test_every_priced_board_position_is_calibrated_or_declared",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[50-100]",
@@ -138,6 +164,47 @@ REPO_PARITY_NODES = {
     "draft/tests/test_calibration_population.py::test_NO_POSITION_THIS_LEAGUE_DOES_NOT_ROSTER_IS_IN_THE_CALIBRATION",
     "draft/tests/test_calibration_population.py::test_the_graded_population_has_not_quietly_collapsed",
     "draft/tests/test_calibration_population.py::test_most_cells_are_actually_measured",
+
+    # Added 2026-08-18 by SESSION D. ⚠️ TERRITORY: A file, edited by D — third
+    # such trespass, same offer: SEND BACK and I re-prep it as a diff.
+    #
+    # A SIXTH shape, and the first that checks PROSE against an artifact:
+    # CLAUDE.md / OWNERS.md / ROUTES.md summarise replay_league_table.json for
+    # readers who will not open it, and all three crowned ds7mmet "the league's
+    # best drafter" — whom that artifact's own drafter study ranks 4th of 10.
+    # Both files forbade the read in advance. The claim is now derived from the
+    # artifact instead of remembered (same move as
+    # test_data_lifecycle_predicts_column.py).
+    #
+    # MARKED because a re-run of replay_all_seats.py can reorder the drafter
+    # ranking and turn these red on a day the board is fine — a stale sentence
+    # must never refuse a board rebuild. Green today.
+    #
+    # ONLY these four nodes. The other five in that file are pure logic — the
+    # detector's known-positive controls and the ranking's shape — and must
+    # stay in the gate, since without them the four below are vacuous.
+    # Added 2026-08-18 by SESSION D, register 18b. ⚠️ TERRITORY: A file again.
+    #
+    # The oracle lambda sweep re-derives two published cells from A's own
+    # exp_weekly_env.json as its VOIDING reproduction control. If A regenerates
+    # that artifact the check goes red -- correctly, because D's conclusion
+    # would then rest on a superseded reproduction -- but that is A's artifact
+    # being new, never the candidate board being bad.
+    #
+    # ONLY this node. The other six in that file read the committed sweep
+    # artifact alone and are pure logic; all six were verified to go red under
+    # five separate hand-planted corruptions before this was marked.
+    "draft/tests/test_oracle_lambda_sweep.py::test_the_published_lambdas_still_reproduce",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[CLAUDE.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[OWNERS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[ROUTES.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[STATUS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[DRAFT-WEEK-BRIEF.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[CLAUDE.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[OWNERS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[ROUTES.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[STATUS.md]",
+    "draft/tests/test_best_drafter_claim.py::test_no_prose_file_attributes_a_wrong_delta_to_the_best_drafter[DRAFT-WEEK-BRIEF.md]",
     # Added 2026-08-17. DRAFT-WEEK-BRIEF.md is what CLAUDE.md points every
     # session at, so its numbers are trusted without re-derivation — which makes
     # a drifted number there costlier than one anywhere else. These three check
@@ -169,6 +236,36 @@ REPO_PARITY_NODES = {
     # bad — which is this set's defining property, arrived at from a third
     # direction.
     "draft/tests/test_published_board_is_not_stale.py::test_the_published_board_is_not_stale",
+    # Added 2026-08-17 by SESSION D. ⚠️ THIS FILE IS TERRITORY: A AND D EDITED
+    # IT — a deliberate, minimal, stated trespass, because the alternative was
+    # worse in draft week: leaving the node unmarked puts a RED test in the
+    # publication gate, and a study's staleness must never refuse Cory's board.
+    # `SEND BACK` and D will re-prep any other way you want it carried.
+    #
+    # A FOURTH shape, and the registry structurally cannot cover it. The
+    # registry asks "does this artifact still match a regeneration of itself".
+    # This asks something the registry has no concept of: "is the REASON an
+    # artifact recorded for REFUSING still true?" There is nothing to
+    # regenerate and diff — the claim is about the filesystem, not about
+    # content drift.
+    #
+    # It is red today and correctly so: props_season_projection_2025.json says
+    # `pending_real_data` and names three historical_props_*.json stores as not
+    # yet fetched. All three exist, hold three seasons of PAID odds-API data
+    # (12,559 player-weeks, 26,778 quotes), and landed in the SAME COMMIT as
+    # the refusal (b879113) — so no date comparison could have caught it, and
+    # artifact_registry.json deliberately excludes that artifact on the very
+    # premise that expired. The code is fine; only the artifact is stale.
+    # Fix is one command and it is A's, because the output is a graded verdict:
+    #     python3 draft/tools/props_season_projection.py
+    # draft/audit/row15_advanced_and_props_2026-08-17.md §B; register row 15b.
+    #
+    # Its failure says the REPO STATE is new (data arrived, artifact did not
+    # catch up), never that the candidate board is bad — this set's defining
+    # property, arrived at from a fourth direction. ONLY this node: the two
+    # controls in that file are pure logic over synthetic inputs, touch no
+    # board, and must stay in the gate.
+    "draft/tests/test_refusal_artifacts_are_not_stale.py::test_no_committed_artifact_claims_a_present_file_is_missing",
     # Added 2026-08-17, triaging issue #8's six refusals (run 32035071758).
     # Three of the six were this set's species and had simply never struck
     # the gate before:

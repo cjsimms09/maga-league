@@ -4,9 +4,15 @@
 > `DRAFT-WEEK-BRIEF.md` (what is true now) → this file → `DATA-LIFECYCLE.md`
 > (your subject) → `ROUTES.md` → `## TO: D` (your inbox).
 >
-> **You are new as of 2026-08-17.** The lane was created because an audit found
-> that of ten data stores, **two complete their lifecycle and four stop with no
-> recorded reason.** Nobody owned that. Now you do.
+> **The lane was created 2026-08-17** because an audit found that of ten data
+> stores, two complete their lifecycle and **four stop with no recorded reason.**
+>
+> **That count is now ONE** (`component_stats_*`), and the reason is the finding
+> the first session ended on: **five of the six rows handed to this lane had a
+> premise that was wrong.** Not one was a measurement error. They were sentences
+> — in the register, in `DATA-LIFECYCLE.md`, in artifact `_note` fields — that
+> had never been reconciled with the code or the filesystem. **Read §"WHAT THE
+> FIRST SESSION FOUND" before picking anything up.**
 
 _Resume ritual: **"You are session D, read SESSION-D.md and STATUS.md, then continue."**
 Files are truth, not memory. A rule changes HERE, in the commit that changes the
@@ -31,17 +37,56 @@ with a measurement behind it is a finished answer, and two stores are correctly
 closed that way already (pace on a published null, Vegas on a measured +0.23
 weekly-MAE ceiling). **The problem is never a NO. It is a NO nobody wrote down.**
 
-## THE FOUR THINGS WAITING FOR YOU
+## WHAT THE FIRST SESSION FOUND — 2026-08-17, all six rows walked
 
-1. **`snap_counts` feeds `projections.py` and nothing grades its contribution.**
-   We cannot say whether it helps, hurts, or does nothing — the same shape as a
-   weight set by an experiment that could not fail.
-2. **`routes_*` is captured weekly and reaches no prediction.** Prereg a feature
-   and measure it. **The weekly job keeps running either way** — see below.
-3. **`advanced_stats_*` and `historical_props_*`** — studies ran, wiring was
-   never decided either way.
-4. **Every recorded null is missing its re-test trigger**, including the two
-   filed as justified (pace, Vegas +0.23).
+**The four things this file used to list as waiting are done.** What replaced
+them matters more than the results themselves.
+
+| row | what it said | what was true |
+|---|---|---|
+| **18** Vegas +0.23 | a perfect-foresight ceiling on Vegas information | a **game**-total oracle handed to BOTH teams — 208/208 games — so it bounds nothing team-level. Rule 3d: Q1 passes, **Q2 has no answer** (no join counter exists), Q3's control bar was `> 0` |
+| **13/13b** snap_counts | "feeds `projections.py`, nothing grades it" | it feeds **nothing** — 0 board fields of 56 keys. Stops at step 4, not 6. There was no contribution to grade |
+| **16** two Vegas copies | "nobody has checked they agree" | only **one** was ever committed, so nobody could. Reconciler built and proven; the fetch is C's |
+| **15a** advanced_stats | "wiring never decided" | **it was decided** — preregistered, graded, published null. Rule 3d passes *better* than row 18. Not reopened |
+| **15b** historical_props | filed with 15a as undecided | **three seasons of PAID data, never graded**, behind a stale refusal naming three files that exist |
+| **14** routes | prereg a feature and measure it | **done, and the only premise that survived.** Season TPRR is +0.74…+0.82 collinear with target volume — it duplicates rather than complements. A real null |
+
+**The lesson, and it is this lane's whole method:** the defects were not in the
+numbers. They were in **claims nobody had checked against the thing they
+described** — and one false claim (that `nflverse_weekly_points_2022.json` does
+not exist) appeared in **three separate files**, cost the pace study a graded
+fold, and had C assigned to build a store that was already committed.
+
+**So: before working a row, verify its premise.** Every audit in
+`draft/audit/*_2026-08-17.md` written by this lane opens with what was expected
+before looking, because four of six expectations were wrong.
+
+## WHAT IS OPEN NOW
+
+- **Row 19 — `component_stats_*`, owner A.** The last store with no recorded
+  reason, and the only one where that is genuinely true: it *does* predict
+  (own_v6) and *is* graded, but only through weekly points, so its contribution
+  is never isolated. Needs a preregistered **ablation of the live model**. Filed,
+  not started — it is A's territory and would read 2025 a fifth time.
+- **Row 15b — the props re-run, owner A.** One command. Paid data, ungraded.
+- **Row 18 Q2 — still unanswered.** The Vegas oracle's join survival cannot be
+  recovered from committed artifacts; it needs the replacement arm run *with a
+  counter*.
+- **Row 16 — waiting on C** for the second Vegas copy. The check is written and
+  skips until it lands.
+- **Row 13 — post-08-22.** Prereg a snap-share feature.
+- **Row 17 — closed.** Every null now carries a trigger.
+
+**Nothing this lane found changes a number Cory drafts from** — every store
+involved is unwired, which was checked rather than assumed.
+
+## THE STANDARD THAT CAUGHT THE MOST
+
+**Record the surviving population, not just the statistic.** Row 18 is
+unanswerable because `exp_weekly_env.py` counted no joins; `fetch_snap_counts.py`
+and `advanced_efficiency_study.py` both record theirs unprompted, and the routes
+study was written to. **If a study you touch does not count its join, that is the
+first thing to fix.**
 
 ## THE RULE YOU WILL BE MOST TEMPTED TO BREAK
 
@@ -118,3 +163,26 @@ with a known-positive control that proves it can fail.** If you cannot make a
 check fail on purpose, it is not evidence. That is the standard the whole project
 now runs on, and it exists because a weight sat at zero for weeks on a
 measurement that could not have come out any other way.
+
+## AND THE SAME STANDARD APPLIES TO PROSE — added 2026-08-18
+
+**A sentence that summarises an artifact is a claim, and it is checkable.**
+
+`CLAUDE.md`, `OWNERS.md` and two `ROUTES.md` entries carried the project's
+headline edge number — *"loses to the league's best drafter (−163)"* — for two
+days. The artifact they cite ranks that owner **4th of ten**, thirty lines from
+the delta being quoted, and its own `honesty` list forbids the read in advance.
+
+**Nobody had to measure anything to find it. The two numbers were in one file.**
+
+This lane already made a lifecycle step number testable
+(`test_data_lifecycle_predicts_column.py`) and a register owner testable
+(`test_defect_register.py`). The third is now
+`test_best_drafter_claim.py`: **no prose file may crown a drafter the artifact
+does not crown, or attribute a seat delta to an owner it does not belong to.**
+
+**The reason to keep doing this:** the numbers in `CLAUDE.md` are trusted without
+re-derivation, by every session, on boot. A wrong one there is the cheapest
+possible error to make and the most expensive to hold.
+
+`draft/audit/replay_best_drafter_claim_2026-08-18.md`. Register 31.

@@ -97,6 +97,18 @@ DEFAULT:  what I will do if you say nothing by <time>
 consent to the stated default. If a default is genuinely unsafe, say so in the
 ASK and mark it `NO DEFAULT — BLOCKED`, which A treats as top of queue.
 
+**RULE 2b — REC IS THE DEFAULT WHEN NO DEFAULT WAS WRITTEN (A, 2026-08-18).**
+Measured the day this rule was added: **131 open items had sat 3+ days with no
+DEFAULT** — every one a decision parked in someone's inbox, exactly the idling
+Rule 2 exists to prevent. So the missing line is now filled in mechanically:
+an item carrying a REC but no DEFAULT adopts its own REC as the DEFAULT, with
+a 48-hour clock from the moment the rule reaches the item (for the backlog,
+from this rule's commit). An item with NEITHER a REC nor a DEFAULT is not a
+decision anyone can make — it goes back to its author as
+`SEND BACK: no decision offered — re-prep with a REC`, and the relay may do
+that returning mechanically, without asking A per item. `NO DEFAULT — BLOCKED`
+items are exempt, as before: those are top of A's queue, not defaulted.
+
 ## RULE 3 — A CAN SEND WORK BACK IN ONE LINE
 
 `SEND BACK: <reason>` is a complete reply. The sender re-preps and re-asks. A

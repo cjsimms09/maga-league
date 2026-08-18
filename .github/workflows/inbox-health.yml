@@ -89,18 +89,49 @@ jobs:
         continue-on-error: true
         run: node draft/tools/routes_response_check.js
 
-      - name: Publish
+      # COMMIT ONLY WHEN THE MEASUREMENT MOVED, NOT WHEN THE CLOCK DID.
+      #
+      # The first version of this step committed on any file difference, and the
+      # "Last measured" line guarantees a difference on every run — so it wrote
+      # NINE commits to `main` in under an hour, three of them inside eight
+      # minutes, none carrying new information. A daily health report that
+      # doubles the commit rate of the repository is a worse problem than the
+      # one it was built to solve, and it would also start losing races against
+      # real pushes.
+      #
+      # So the comparison ignores the timestamp: only the measured numbers decide
+      # whether anything is published. When they do move, the fresh timestamp
+      # rides along with them.
+      - name: Publish only if the numbers moved
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          if [ -n "$(git status --porcelain INBOX-HEALTH.md)" ]; then
-            git add INBOX-HEALTH.md
-            git commit -m "Inbox health: $(date -u '+%Y-%m-%d %H:%M UTC') [skip deploy]"
-            for i in 1 2 3 4; do
-              git pull --rebase origin main && git push origin HEAD:main && break
-              sleep $((2**i))
-            done
-          else
-            echo "No change."
+
+          # COMPARE ONLY THE NUMBERS THAT DECIDE SOMETHING.
+          #
+          # v1 committed on any diff, and the timestamp guaranteed one — nine commits
+          # in an hour. v2 ignored the timestamp and still wrote EIGHT more, because
+          # the report also prints the total item count and the five oldest items, and
+          # every route filed changes those. The commits were honest and still noise:
+          # a health report that commits whenever anyone writes a sentence is a health
+          # report nobody will read.
+          #
+          # So the comparison is now the ratchet line and the per-lane block — the
+          # numbers a human would act on. Everything else can churn silently.
+          strip() { grep -E '^  [0-9]+ BLOCKED|^      [0-9]+ +[0-9]+d oldest|^  baseline ' "$1" 2>/dev/null || true; }
+          git show HEAD:INBOX-HEALTH.md > /tmp/prev.md 2>/dev/null || : > /tmp/prev.md
+
+          if diff -q <(strip /tmp/prev.md) <(strip INBOX-HEALTH.md) >/dev/null 2>&1; then
+            echo "Numbers unchanged — not committing a timestamp-only diff."
+            git checkout -- INBOX-HEALTH.md 2>/dev/null || true
+            exit 0
           fi
+
+          echo "Measurement moved — publishing."
+          git add INBOX-HEALTH.md
+          git commit -m "Inbox health: the numbers moved [skip deploy]"
+          for i in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && break
+            sleep $((2**i))
+          done

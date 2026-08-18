@@ -14,6 +14,20 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
 | **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
 
+**⚡ RULE 3e, added 08-18 — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE
+HAS DEMONSTRATED IT CAN RETURN A POSITIVE.** A probe that has never returned a
+positive has not been tested, only run. "Nothing found" and "asked wrong" are
+indistinguishable from the outside, and only one of them is a finding — 3d's
+instinct fires on a suspicious positive, but a null triggers no instinct at
+all, because graded nulls (P3, P4, pace, efficiency) taught us to respect
+exactly the shape a broken probe produces. Evidence: five false-negative
+market-census probes in ONE evening (relay, 08-18), each reading as a clean
+"no" — legal boilerplate matched as a market, a truncated payload printed as
+absence, 12 of 390 series read, a filter on a field the payload does not
+carry, wrong field names — while the truth was **3,194 open NFL markets, 890
+player-level**. A probe ships with a known-positive control or two
+independent paths that check each other, and stores the raw response shape.
+
 **⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
 Cory: *"too much finding and not enough fixing and following up and correcting."*
 Every finding now carries three follow-up QUESTIONS — does this imply another
@@ -32,9 +46,17 @@ STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code
 condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
 when someone finally checked the disk.**
 
-**Where the edge stands, measured (re-run 08-18 on the playoff-free stores):**
-the draft tool **roughly ties Cory (−9.4) and loses to the league's best
-drafter (−162)**. That is the number to beat.
+**Where the edge stands, measured — CORRECTED TWICE 08-18, and the second
+correction is D's:** this line used to read *"ties Cory (−6.5) and loses to the
+league's best drafter (−163)"*. **The −163 seat belongs to ds7mmet, whom the
+replay's own drafter study ranks FOURTH of ten** — the label was assigned from
+the delta it was offered to explain (D's catch, guarded by
+`test_best_drafter_claim.py`). Re-measured on the playoff-free stores: the
+rank-1 drafter is Schmelley and the tool is **−24.0** in that seat — better
+than the league median. Across 30 seat-years the tool is **−31.1 on average
+with an sd of 117.7 — nearly 4× the effect — and wins 15 of 30.** **So the
+honest headline is "roughly a wash with Cory (−9.4), measured too noisily to
+rank anyone."** `draft/audit/replay_best_drafter_claim_2026-08-18.md`.
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
@@ -91,8 +113,15 @@ a defect — `test_defect_register.py` fails on it.
 **🔗 "WE DON'T HAVE IT" IS NOT AN ANSWER — `DATA-LIFECYCLE.md`.** Eight
 questions every data gap must walk: why not, can we get it, should we capture it
 consistently, does it predict, should it, is it graded, should it be, does the
-grade move the weights. Measured today: **two of ten stores complete the chain;
-four stop at step 4 or 6 with no recorded reason.**
+grade move the weights. Measured 08-17 morning: two of ten stores complete the
+chain; four stop with no recorded reason. **Session D walked all six of its rows
+that day and the count is now ONE** (`component_stats_*`) — but the headline is
+how it fell: **five of the six premises handed to that lane were wrong, and not
+one was a measurement error.** They were sentences nobody had checked against the
+code or the filesystem, and a single false claim — that
+`nflverse_weekly_points_2022.json` does not exist — appeared in **three separate
+files**, cost the pace study a graded fold, and had C assigned to build a store
+already committed. **Verify a row's premise before working it.** `SESSION-D.md`.
 
 **Then `MONDAY-BRIEF.md`** for 08-15/16 — still accurate, superseded as the
 entry point: the relay executed seven Cory rulings, promoted the projection

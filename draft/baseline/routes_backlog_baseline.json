@@ -3,15 +3,37 @@
  "_why": "Failing outright on all of these would put the build red for weeks and get switched off \u2014 intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
  "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
  "measured_at": "2026-08-18",
- "blocked": 105,
+ "blocked": 66,
  "waiting_on_at_baseline": {
-  "A": 67,
-  "B": 38,
-  "C": 0
+  "B": 39,
+  "C": 25,
+  "A": 2
  },
  "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed \u2014 a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
- "open": 258,
- "answered": 89,
- "open_with_default": 57,
- "_note_2026_08_18": "C's triage pass per Cory's LANE-PROMPTS-2026-08-18.md \u00a73: 25 blocked C items reviewed individually (not bulk-defaulted) -- ~18 checked off as genuinely resolved/FYI (several confirmed by direct code re-verification, not assumed), ~7 given a real DEFAULT because they are still genuinely open. answered rose 20 (69->89), well above the cleared/2 gaming threshold."
+ "open": 246,
+ "answered": 141,
+ "open_with_default": 70,
+ "_note_2026_08_18_C": "C's own triage pass (Cory's LANE-PROMPTS-2026-08-18.md \u00a73) ran concurrently on C's branch before this merge: 25 blocked C items reviewed individually (not bulk-defaulted) -- ~18 checked off as genuinely resolved/FYI (several confirmed by direct code re-verification, not assumed), ~7 given a real DEFAULT because they are still genuinely open. That pass's own local measurement was blocked 131->105, answered 69->89. Merged with A's concurrent inbox pass here; see _history for the combined post-merge number, measured fresh rather than summed.",
+ "_history": [
+  {
+   "at": "2026-08-18",
+   "blocked": 131,
+   "waiting_on": {
+    "A": 67,
+    "B": 39,
+    "C": 25
+   },
+   "note": "first measurement, taken the day the check was built"
+  },
+  {
+   "at": "2026-08-18",
+   "blocked": 66,
+   "waiting_on": {
+    "B": 39,
+    "C": 25,
+    "A": 2
+   },
+   "note": "A worked its inbox from 67 blocked to 2 within hours of being shown the number. Verified as real answering rather than defaults bolted on: 65 left the blocked set while `answered` rose by 72, so items moved to done. B and C have not run their pass yet."
+  }
+ ]
 }

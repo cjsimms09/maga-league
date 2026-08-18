@@ -1,0 +1,121 @@
+{
+ "_territory": "TERRITORY: D \u2014 research artifact, produced by draft/backtest/routes_tprr_study.py",
+ "preregistration": "draft/backtest/ROUTES-TPRR-PREREG.md",
+ "status": "graded",
+ "min_routes": 200,
+ "permutations": 400,
+ "seed": 20260817,
+ "e1_persistence": {
+  "2021->2022": {
+   "population": {
+    "eligible_both_seasons": 136,
+    "with_routes_y0": 561,
+    "with_routes_y1": 539,
+    "cleared_min_routes_y0": 209,
+    "cleared_min_routes_y1": 201
+   },
+   "tprr_persistence_rho": 0.6706,
+   "control_targets_carryover_rho": 0.6729,
+   "null_p95": 0.1444,
+   "beats_null_p95": true
+  },
+  "2022->2023": {
+   "population": {
+    "eligible_both_seasons": 143,
+    "with_routes_y0": 539,
+    "with_routes_y1": 511,
+    "cleared_min_routes_y0": 201,
+    "cleared_min_routes_y1": 214
+   },
+   "tprr_persistence_rho": 0.6696,
+   "control_targets_carryover_rho": 0.7299,
+   "null_p95": 0.1344,
+   "beats_null_p95": true
+  },
+  "2023->2024": {
+   "population": {
+    "eligible_both_seasons": 150,
+    "with_routes_y0": 511,
+    "with_routes_y1": 527,
+    "cleared_min_routes_y0": 214,
+    "cleared_min_routes_y1": 211
+   },
+   "tprr_persistence_rho": 0.6529,
+   "control_targets_carryover_rho": 0.6888,
+   "null_p95": 0.1382,
+   "beats_null_p95": true
+  },
+  "2024->2025": {
+   "population": {
+    "eligible_both_seasons": 154,
+    "with_routes_y0": 527,
+    "with_routes_y1": 513,
+    "cleared_min_routes_y0": 211,
+    "cleared_min_routes_y1": 216
+   },
+   "tprr_persistence_rho": 0.6855,
+   "control_targets_carryover_rho": 0.6936,
+   "null_p95": 0.1167,
+   "beats_null_p95": true
+  }
+ },
+ "e2_increment": {
+  "2021->2022": {
+   "scoring_fingerprint": "220bf4c671786351",
+   "population": {
+    "eligible_both_seasons": 136,
+    "also_present_in_points_store": 136,
+    "lost_at_points_join": 0
+   },
+   "partial_rho_tprr_given_targets": 0.1281,
+   "control_rho_next_points_vs_prior_targets": 0.4231,
+   "raw_rho_next_points_vs_prior_tprr": 0.3965,
+   "null_p95": 0.1272,
+   "beats_null_p95": true
+  },
+  "2022->2023": {
+   "scoring_fingerprint": "bd8f3e50bd67a9ce",
+   "population": {
+    "eligible_both_seasons": 143,
+    "also_present_in_points_store": 143,
+    "lost_at_points_join": 0
+   },
+   "partial_rho_tprr_given_targets": 0.1421,
+   "control_rho_next_points_vs_prior_targets": 0.4581,
+   "raw_rho_next_points_vs_prior_tprr": 0.4342,
+   "null_p95": 0.1281,
+   "beats_null_p95": true
+  },
+  "2023->2024": {
+   "scoring_fingerprint": "bd8f3e50bd67a9ce",
+   "population": {
+    "eligible_both_seasons": 150,
+    "also_present_in_points_store": 150,
+    "lost_at_points_join": 0
+   },
+   "partial_rho_tprr_given_targets": 0.1708,
+   "control_rho_next_points_vs_prior_targets": 0.3666,
+   "raw_rho_next_points_vs_prior_tprr": 0.3924,
+   "null_p95": 0.1236,
+   "beats_null_p95": true
+  },
+  "2024->2025": {
+   "scoring_fingerprint": "bd8f3e50bd67a9ce",
+   "population": {
+    "eligible_both_seasons": 154,
+    "also_present_in_points_store": 154,
+    "lost_at_points_join": 0
+   },
+   "partial_rho_tprr_given_targets": 0.026,
+   "control_rho_next_points_vs_prior_targets": 0.3814,
+   "raw_rho_next_points_vs_prior_tprr": 0.3048,
+   "null_p95": 0.1217,
+   "beats_null_p95": false
+  }
+ },
+ "ship_rule": "E2 partial rho > 0 AND beats null p95 in ALL THREE folds",
+ "clears": false,
+ "refused_transition": {
+  "2022->2023": "scoring fingerprints differ (220bf4c671786351 vs bd8f3e50bd67a9ce) \u2014 refused in the prereg, asserted at runtime in run_e2()"
+ }
+}

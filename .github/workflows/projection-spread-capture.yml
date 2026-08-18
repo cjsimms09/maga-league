@@ -67,7 +67,14 @@ jobs:
           fi
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/backtest/discovery_projection_spread_capture.json public/projection_spread_2026.json
+          # The public artifact is only written when >=3 sources clear the
+          # planted-value control — a refusal is a REAL ANSWER and must still
+          # commit the discovery record. Adding the missing path unconditionally
+          # made `git add` exit 128 on exactly that outcome (run 32101016651:
+          # 1/6 validated, refusal correct, verdict stranded in the log —
+          # register row 23's defect class, reproduced by the fix's own guard).
+          git add draft/backtest/discovery_projection_spread_capture.json
+          [ -f public/projection_spread_2026.json ] && git add public/projection_spread_2026.json
           if ! git diff --cached --quiet; then
             git commit -m "discovery_projection_spread_capture: census stage 2 -- real 2026 projection tables, planted-value validated, display-only [skip deploy]"
             for i in 1 2 3; do

@@ -291,7 +291,42 @@ Routes run matters because it is the DENOMINATOR for target-per-route-run: 60
 targets on 300 routes is a different player from 60 on 600, and target share
 alone cannot separate them. Nothing consumes it yet.
 
-## 3c. 🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15. READ THIS FIRST.
+## 3c. ~~🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15~~ — ✅ **THE FREEZE IS OVER. THE CLASS BEHIND IT IS NOT.**
+
+> **⬆️ CORRECTION IN PLACE, 2026-08-18 05:38+ (relay), because this is the file Cory
+> is told to read FIRST and its headline had stopped being true.**
+>
+> **THE BOARD PUBLISHED TWICE TONIGHT** — `62dd497b` at 03:49:25Z and `9322b022` at
+> **05:38:11Z**, the live one, 696 players. The 08-15 freeze this section describes is
+> finished, and everything below is history rather than status.
+>
+> **BUT THE SECTION'S DIAGNOSIS IS EXACTLY RIGHT AND STILL LIVE.** It names the blocker
+> as six artifact-parity tests *"(the two `test_variance_inputs` …)"* — and **those two
+> are red on `main` right now**, tonight, after the rebuild:
+>
+> ```
+> FAILED test_variance_inputs.py::test_artifact_coverage_matches_board
+>        assert (105 + 51) == 158   # artifact partitions 156 RBs; the board has 158
+> FAILED test_variance_inputs.py::test_committed_artifact_matches_regeneration
+> ```
+>
+> **The failure MOVED DIRECTION rather than going away.** Before tonight the board was
+> older than its calibration table; now `variance_inputs_2026.json` is older than the
+> board. **Tonight the repo held staleness in both directions at once, and fixing one
+> exposed the other** — which is `DEFECT-REGISTER` row 34's claim, demonstrated.
+>
+> **AND THE FIX THIS SECTION ALREADY PRESCRIBES IS THE RIGHT ONE, ASSIGNED BY CORY ON
+> 08-17, AND STILL NOT DONE:** *"register them in `artifact_registry.json` … and
+> regenerate inside `draft-data.yml` between the build and the gate, which ends the
+> class."* The relay reached the same conclusion independently tonight without knowing
+> this paragraph existed — which is itself the session's headline defect: **correct
+> measurements that never get connected.** `draft/tools/stale_blockers.py` now looks for
+> that shape automatically.
+>
+> **Neither `variance_inputs_2026.json` NOR `public/draft_data.json` is registered**, so
+> `check_artifact_freshness.py` can see neither. Two artifacts that belong in the
+> registry and are absent from it is a pattern, not two oversights.
+
 
 `draft/audit/board_publish_stall_2026-08-17.md`. Found 08-17 by checking whether
 the nightly pipeline was healthy, not by anything prompting it.
