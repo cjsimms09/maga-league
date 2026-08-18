@@ -40,10 +40,10 @@ still on a partial slate.
 | | what he decides | why it cannot wait / can | register |
 |---|---|---|---|
 | ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** Root cause fixed, not just the date: `league_config.json` carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B unblocked. | *nothing further* | **42** ruled, P71 graded FALSE |
-| **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
+| ~~**C2**~~ | ✅ **ALREADY RULED AND SHIPPED — this row was stale.** `09f94f99` shipped `MEASURED_WEIGHTS.ceiling 0 → 0.45` as Cory's ruling; the live engine confirms 0.45 and `app.js:52` seeds the board from it. This page (and `CLAUDE.md`) went on saying it was *"held at zero through the draft"*. Corrected 08-18. | **🔴 BUT SEE 5g:** the restore button is pinned to a **2026-08-10** baseline carrying `ceiling: 0` and `stack: 0.5`, so one tap on draft night reverts this ruling AND the D10 stack ruling, disclosing only a date. **That is now the live question, and it is yours.** | **5g** filed, recheck 08-20 |
 
-*(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
-recommendation unchanged: leave it, revisit post-season. No action needed.)*
+*(The ADP-sd ratchet, row 6, is now Cory's ONLY open decision. Blast radius one
+player; recommendation unchanged: leave it, revisit post-season.)*
 
 ---
 
@@ -63,11 +63,9 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 
 Everything else open. Named so nobody has to re-derive that it was considered:
 
-- **Real, measured, and cannot change a pick before Saturday** — 4p (the ceiling
-  ratio is backwards by band; its own row says *do not patch by hand before
-  08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
-  (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), 2b, 28.
+- **Real, measured, cannot change a pick before Saturday** — 4p (its own row
+  says *do not patch by hand before 08-22*; it feeds ceiling, floor, the bench
+  branch and `champodds`) and 2b. **4m and 28 CLOSED 08-18.**
 - **✅ E3 / E4 / E5 CLOSED 08-18 AS DORMANT, NOT FIXED.** All three describe
   `opportunity_adj`, and Cory's own `opportunity_cap = 0.0` ruling makes all
   three unobservable: one distinct value across all 696 players, every position
