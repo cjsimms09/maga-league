@@ -108,6 +108,23 @@ function daysUntil(draftISO, nowISO) {
   return Math.ceil((d - n) / 86400000);
 }
 
+/* Cory's committed draft ruling (league_config.json `draft` block, A10 08-18).
+ * Read lazily and cached; a missing or unparseable file returns empties so the
+ * dashboard can never crash on config trouble — it just falls back a level. */
+let _ruledDraft;
+function committedDraftRuling() {
+  if (_ruledDraft === undefined) {
+    try {
+      const p = require('path').join(__dirname, '..', 'draft', 'config', 'league_config.json');
+      const d = (JSON.parse(require('fs').readFileSync(p, 'utf8')).draft) || {};
+      _ruledDraft = { date: d.start_date || null, time: d.start_time || null };
+    } catch (e) {
+      _ruledDraft = { date: null, time: null };
+    }
+  }
+  return _ruledDraft;
+}
+
 /**
  * THE DRAFT-DAY ANNOUNCEMENT — derived from config so ONE edit (date, time, or
  * place) moves the front-page banner, the countdown, and the pinned alert
@@ -126,11 +143,20 @@ function daysUntil(draftISO, nowISO) {
  */
 function draftAnnouncement(config, nowISO, seasonYear) {
   const cfg = config || {};
-  // Fallback DATE derives its year from the season; the month-day is a placeholder
-  // (late-August draft) that the admin form overrides. No quoted YYYY-MM-DD literal.
-  const fallbackDate = seasonYear ? (seasonYear + '-08-22') : null;
+  // Between the runtime store and the bare placeholder sits Cory's COMMITTED
+  // ruling (league_config.json `draft`, "Yes it's 6pm", A10 08-18) — so the
+  // banner is backed by a decision even when nobody has touched /admin. The
+  // runtime value still wins when set; the placeholder only survives for a
+  // deployment whose checkout somehow lacks the config file.
+  const ruled = committedDraftRuling();
+  // The ruling names ONE draft (its date carries the year) — it must not leak
+  // into a later season, where the season-derived placeholder resumes until
+  // Cory rules again. So it applies only when its year IS the season's year.
+  const ruledDate = (ruled.date && seasonYear && ruled.date.startsWith(String(seasonYear)))
+    ? ruled.date : null;
+  const fallbackDate = ruledDate || (seasonYear ? (seasonYear + '-08-22') : null);
   const date = cfg.draft_date || fallbackDate;
-  const time = cfg.draft_time || '6:00 PM';
+  const time = cfg.draft_time || (ruledDate && ruled.time) || '6:00 PM';
   const place = cfg.draft_location || "Cory's House";
   if (!date) return { date: null, time, place, weekday: '', longDate: '', when: '', days: null, passed: false, today: false, countdownText: null, message: null, configured: false };
   const days = nowISO ? daysUntil(date, nowISO) : null;
