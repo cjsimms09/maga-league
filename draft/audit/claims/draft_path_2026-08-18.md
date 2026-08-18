@@ -58,3 +58,86 @@ draft/tests -q` — and treat YOUR results as the only test evidence.
 Findings triaged by A tonight; real ones become register rows before
 Friday's 6pm keeper lock. A clean verdict retires the self-review concern
 for these files.
+
+---
+
+# RESPONSE TO REVIEW — run 32175940031, verdict ACCEPT_WITH_REQUIREMENT
+
+The reviewer (gpt-5, artifact `independent-review` 9339300783) accepted the
+claim with required actions. Each is answered here; the answers shipped in
+the same commit as this section, so the trail and the fixes cannot drift
+apart.
+
+## Required action 1 — file:line citations for each enumerated change
+
+Line numbers are as of this commit on `main`; each is the anchor line, not
+the full extent.
+
+1. **dispersionCaveat reword + relative appliedCohort guard** —
+   `public/js/draft/app.js:10897`: `if (second) { if (best.d > 0.25 *
+   second.d) return null; }` (the 4x-closer relative guard; the absolute
+   fallback arm is the `else` on the next line).
+2. **Third dispersion-source form** — `public/js/draft/app.js:6713` and
+   `:6731` (the `/-x-player-cv$/` branches that stop describing the 268
+   per-player-tail players as cohort-constant); the three-form census
+   comment with the 268/267/161 counts is at `app.js:10911-10914`.
+3. **Restore pin v1 → v27** — `public/js/draft/app.js:780`: `const
+   BASELINE_VERSION = 'v27';` with `BASELINE_KEY` derived from it on the
+   following line, so the localStorage key rotates with the pin.
+4. **safeRender migration** — `public/js/draft/app.js:2409`:
+   `safeRender('systemStrip', renderSystemStrip);` is the health strip's own
+   guarded render; the other five migrated renders sit in the same block.
+5. **dollarGap QB refusal** — `public/js/draft/engine.js:3306-3328`: the
+   refusal branch ("1-QB league, QB replacement is 341.7 against 136-180
+   elsewhere… QB-vs-other gap is a formula artifact; compare within
+   position").
+6. **Negative-KOV bar floor** — `public/js/draft/composite.js:288`: `const
+   bar = Math.max(0, ranked.length >= slots ? ranked[slots - 1].kov : 0);`.
+
+## Required action 2 — targeted JS tests that go red if each behavior regresses
+
+Run any of these directly with `node <file>`; all are in the default
+`scripts/js-sweep.sh` battery.
+
+| Behavior | Suite that goes red |
+|---|---|
+| Relative guard: near-tie refusal + no false repricing | `draft/tests/floor_is_a_cohort_not_a_forecast.test.js` §6b (added by this commit — see action 3) and §8 (exact ruled-set match) |
+| Player-cv source form not described as cohort-constant | `draft/tests/floor_is_a_cohort_not_a_forecast.test.js` (source-form sections) |
+| v27 pin + key rotation | `draft/tests/restore_reverts_two_rulings.test.js`, `draft/tests/restore_measured_core_works.test.js` |
+| safeRender wiring (health strip reports its own failure) | `draft/tests/floor_is_a_cohort_not_a_forecast.test.js` fail-arm wiring check; the render-order checks in the war-room suites |
+| dollarGap QB refusal | `draft/tests/dollar_gap_kdef.test.js` |
+| Bar floor beneath the incumbent filter | `draft/tests/keeper_bar_ignores_what_it_cannot_value.test.js`, `draft/tests/keeper_seeded_with_a_value.test.js` |
+
+## Required action 3 — near-tie fail arm + calibration note, pinned by a test
+
+Shipped in this commit as §6b of
+`draft/tests/floor_is_a_cohort_not_a_forecast.test.js` (suite 16/16):
+
+- **Fail arm**: two synthetic RB cells with modal ratios 0.30 and 0.34; a
+  player at 0.32 is 4x-decisive for neither, and the check asserts the
+  generic fallback renders with NO cohort named. This is exactly the "two
+  close cell medians" press point from the claim's own where-to-press list.
+- **Control**: the same board shape with the cells separated (0.05 apart)
+  DOES name "17-32 COHORT" — the fail arm's null is demonstrated capable of
+  going positive (rule 3e).
+- **Calibration pin**: at the shipped 0.25 factor the guard recovers exactly
+  the nine ruled full-universe repricings; loosening to 0.5 added two false
+  positives (Ashton Jeanty RB6, Kyle Pitts TE8). The pin asserts those two
+  players are NOT flagged on the live board. The factor is a refusal
+  threshold, not a tuning knob.
+
+## Reviewer's collateral finding, also fixed in this commit
+
+The review run's own Python collection failed (numpy missing) because
+`.github/workflows/independent-review.yml` installed `openai pytest` but not
+`draft/requirements.txt` — the same venv-gap class the main CI probe
+exists to catch. The Deps step now installs `-r draft/requirements.txt` and
+runs `npm ci` so `scripts/js-sweep.sh` works in the review environment too.
+
+## Verdict trail
+
+- Dispatch 1 (run 32174867145): **BLOCK** — correct call; my overlay-branch
+  harness made the claim unverifiable (base-era tree lacked the cited
+  suites). The flaw was the harness, not the reviewer.
+- Dispatch 2 (run 32175940031): **ACCEPT_WITH_REQUIREMENT** on `main`
+  itself — requirements closed by this commit.
