@@ -101,6 +101,15 @@
       "why_that_date": "After the draft and before the in-season cadence hardens. Cory ruled it explicitly out of the pre-draft window on 2026-08-13: a data-quality diagnostic moves no recommendation, and the nine days before the draft belong to what the board does wrong.",
       "verify": "node draft/tools/commit_verify.js constant-spike-detector",
       "owner": "A"
+    },
+    {
+      "id": "slate-exposure-rechecked",
+      "item": null,
+      "what": "The withheld-slate exposure is re-checked against the REAL slate, not the predicted one. draft/tests/withheld_slate_exposure.test.js proves the exposure is bounded and exact -- divergence at pick P is the number of keepers ranked outside the top (P-1), each freeing exactly one player at the boundary -- and then closes with 'the real one locks 20 August, and the one number to re-check then is whether any keeper ranks deeper than pick 33'. Nobody was named and no date was carried. That suite is 23/23 green and stays 23/23 green whether or not the re-check ever happens, because it measures the PREDICTED slate, which is the right thing for it to measure and exactly why it cannot be its own trigger. MET requires the live board to be standing on a CONFIRMED slate with nothing withheld; the check then counts the deep keepers itself and names them.",
+      "due": "2026-08-20",
+      "why_that_date": "Keeper lock, and it is the last date on which a board built on a partial slate is still correctable -- after it, every replacement level, VORP and ADP adjustment on the war-room board is computed over a pool containing players nobody can draft. NOTE THE LOCK DATE IS ITSELF OPEN (register 42, OPEN-QUESTIONS Q17, ledger P71): if Cory rules 08-21 6:00 PM, this row shouts one day early. Shouting one day early that the board is still on a partial slate is a TRUE statement with a benign explanation, so the correct response is to move this date with that reason -- never to silence the check.",
+      "verify": "node draft/tools/commit_verify.js slate-exposure-rechecked",
+      "owner": "A"
     }
   ]
 }

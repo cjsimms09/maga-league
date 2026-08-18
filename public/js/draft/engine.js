@@ -3252,6 +3252,28 @@
                        'cross-position dollar gap would compare two constructions (D10a).' },
       };
     }
+    // 5e ruling (A, 08-18, extending D10a to QB): playerDollars prices RAW
+    // projected points — p.position never enters the formula — while every
+    // other value surface here is denominated over replacement. In a 10-team
+    // 1-QB league, QB replacement is 341.7 against 136-180 elsewhere, so raw
+    // points hand every QB a ~342-point head start: 22 of the top 25 by E[$]
+    // are QBs on the 08-18 board, versus ONE by the board's own rank. The
+    // obvious fix (subtract replacement inside the dollar formula) was BUILT
+    // AND MEASURED WORSE on the pairs Cory actually weighs
+    // (draft/audit/dollar_replacement_baseline_2026-08-18.md) — so the honest
+    // answer is the same refusal K/DEF already gets, not a re-price.
+    if (a.position !== b.position && (a.position === 'QB' || b.position === 'QB')) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — the dollar figure prices raw points and QB ' +
+                 'replacement (~342) dwarfs every other position\'s, so a ' +
+                 'QB-vs-other gap is a formula artifact; compare within position',
+        terms: { note: 'refused: cross-position dollars have no replacement level ' +
+                       'in them, and QB is where that bites (5e). Re-pricing was ' +
+                       'measured worse than refusing.' },
+      };
+    }
     const da = playerDollars(a), db = playerDollars(b);
     // Next-pick echo: what taking A costs in best-available-at-B's-position by my
     // next pick, minus the symmetric cost of taking B. Positive favors A.

@@ -1,17 +1,17 @@
 {
  "_what": "The ROUTES.md blocked-item high-water mark: open, carrying no DEFAULT, 3+ days old.",
- "_why": "Failing outright on all of these would put the build red for weeks and get switched off \u2014 intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
+ "_why": "Failing outright on all of these would put the build red for weeks and get switched off — intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
  "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
  "measured_at": "2026-08-18",
- "blocked": 40,
+ "blocked": 39,
  "waiting_on_at_baseline": {
-  "B": 38,
+  "B": 37,
   "A": 2
  },
- "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed \u2014 a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
- "open": 235,
- "answered": 161,
- "open_with_default": 87,
+ "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed — a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
+ "open": 246,
+ "answered": 177,
+ "open_with_default": 108,
  "_history": [
   {
    "at": "2026-08-18",
@@ -40,7 +40,26 @@
     "B": 38,
     "A": 2
    },
-   "note": "C's triage pass (Cory's LANE-PROMPTS-2026-08-18.md \u00a73, 25 items reviewed individually) merged with A's concurrent inbox pass -- C's waiting-on count is now 0. Only B has not run its pass yet."
+   "note": "C's triage pass (Cory's LANE-PROMPTS-2026-08-18.md §3, 25 items reviewed individually) merged with A's concurrent inbox pass -- C's waiting-on count is now 0. Only B has not run its pass yet."
+  },
+  {
+   "at": "2026-08-18",
+   "blocked": 65,
+   "waiting_on": {
+    "B": 38,
+    "C": 25,
+    "A": 2
+   },
+   "note": "NOT a lane answering anything — a REPAIR, recorded here in merge order rather than a verified intra-day timestamp order against the entry above (both are real, non-conflicting events reconciled from a three-way JSON merge). `routes_resurrections.py` deleted seven items that were closed and then re-opened by a union merge (89a731cc closed them 08-17 21:20; bcdeef0a merged E's branch 08-18 00:19, and E had forked before the closure, so the union took both sides). Six were A's and already closed; one was B's, and that one was inside the blocked set, which is the whole of the 66 -> 65. Recorded as a repair so nobody later reads it as B working its queue."
+  },
+  {
+   "at": "2026-08-18",
+   "blocked": 39,
+   "waiting_on": {
+    "B": 37,
+    "A": 2
+   },
+   "note": "C, re-measured after merging origin/main (which carried both the triage-merge and the resurrection-repair entries above) back into a divergent branch copy of this file. Fresh live run of routes_response_check.js against the reconciled ROUTES.md: 423 items total, 246 open, 108 with a DEFAULT, 39 blocked. Lower than both prior entries -- ratchet holds either way."
   }
  ]
 }

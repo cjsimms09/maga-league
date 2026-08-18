@@ -280,6 +280,88 @@ const CHECKS = {
           + ' but none of them is scheduled — a caller that only runs when somebody '
           + 'pushes is not a weekly caller' };
   },
+
+  /* THE ONE NUMBER A TEST FILE ASKED SOMEBODY TO RE-CHECK, WITH NOBODY NAMED.
+   *
+   * `draft/tests/withheld_slate_exposure.test.js` closes with: *"It also uses
+   * the PREDICTED slate — the real one locks 20 August, and the one number to
+   * re-check then is whether any keeper ranks deeper than pick 33."*
+   *
+   * That is a correct, bounded, exactly-stated follow-up sitting in a comment.
+   * The suite it lives in is 23/23 green and will stay 23/23 green whether or
+   * not anybody ever performs the re-check, because the test measures the
+   * PREDICTED slate — which is the right thing for it to measure and the reason
+   * it cannot be the trigger. A finding whose follow-up depends on a person
+   * remembering a date is the shape this whole file exists to remove.
+   *
+   * WHAT THIS READS, AND WHY IT IS STATE RATHER THAN A CLAIM. The live board
+   * stamps its own slate condition (`keeper_slate`), built from Sleeper
+   * designations plus real draft placements — nothing here can be satisfied by
+   * editing a status. MET requires the board to be standing on the CONFIRMED
+   * slate with nothing withheld, and then reports the exposure number itself.
+   *
+   * WHY IT WILL SHOUT, AND WHY THAT IS NOT CRYING WOLF. Until the lock this
+   * returns NOT MET, which is `pending` and not a failure. It becomes OVERDUE
+   * the day after the due date — once, about the single condition that decides
+   * whether the board Cory drafts from contains players nobody can draft. */
+  'slate-exposure-rechecked': () => {
+    /* THE BOARD PATH IS OVERRIDABLE FOR THE SAME REASON `--today` AND
+     * `COMMITMENTS_PATH` ARE, and this file's own header gives the argument: a
+     * check whose firing condition cannot be exercised is a check nobody has
+     * seen fire. Every interesting branch of this one lives on the far side of
+     * a keeper lock that has not happened, so without a way to point it at a
+     * fixture the MET path would ship unproven and first run for real on draft
+     * morning. Default completely unchanged, and asserted unchanged by the
+     * test. */
+    const rel = process.env.DRAFT_DATA_PATH || 'public/draft_data.json';
+    const b = process.env.DRAFT_DATA_PATH
+      ? (() => { try { return JSON.parse(fs.readFileSync(rel, 'utf8')); }
+        catch (e) { return null; } })()
+      : readJSON(rel);
+    if (!b) return { code: 2, why: 'cannot read ' + rel };
+    const s = b.keeper_slate;
+    if (!s) {
+      return { code: 2, why: 'the board carries no keeper_slate block — the '
+        + 'condition cannot be read at all, which is not the same as unmet' };
+    }
+    const withheld = (s.withheld_from_board || {});
+    if (!s.confirmed || s.status !== 'confirmed') {
+      return { code: 1, why: 'the board is standing on a "' + s.status + '" slate — '
+        + (s.teams_designated == null ? '' : s.teams_designated + '/' + s.teams_expected
+          + ' team(s) designated, ')
+        + (withheld.keepers || 0) + ' keeper(s) across ' + (withheld.teams || 0)
+        + ' team(s) deliberately withheld. Until this confirms, the exposure number '
+        + 'is a prediction and the board carries players other teams may keep' };
+    }
+    if (withheld.withheld) {
+      return { code: 1, why: 'the slate reads confirmed but ' + (withheld.keepers || 0)
+        + ' keeper(s) are still withheld from the board — those two cannot both be '
+        + 'right, and the board is the one Cory drafts from' };
+    }
+    /* CONFIRMED. Now answer the actual question the test file asked: is any real
+     * keeper ranked DEEPER than my first pick? Each one that is frees exactly one
+     * player at the boundary, so the exposure is a count, not an opinion. */
+    const mine = ((b.pick_order || {}).my_picks || []);
+    const firstPick = mine.length ? Number(mine[0]) : null;
+    if (!firstPick) {
+      return { code: 2, why: 'the slate is confirmed but the board carries no '
+        + 'my_picks, so "deeper than my first pick" has no referent' };
+    }
+    const adpOf = p => Number(p.adjusted_adp != null ? p.adjusted_adp
+      : (p.raw_adp != null ? p.raw_adp : p.adp));
+    const keepers = (b.kept_players || []).filter(p => Number.isFinite(adpOf(p)));
+    if (!keepers.length) {
+      return { code: 2, why: 'the slate is confirmed but no kept_players carry an '
+        + 'ADP, so the exposure cannot be counted' };
+    }
+    const deep = keepers.filter(p => adpOf(p) > firstPick - 1);
+    return { code: 0, why: keepers.length + ' confirmed keeper(s) on a full slate; '
+      + deep.length + ' rank deeper than my first pick (' + firstPick + ')'
+      + (deep.length
+        ? ' — ' + deep.map(p => p.name + ' @' + Math.round(adpOf(p))).join(', ')
+          + '. Each frees one player at the boundary versus the ADP-window model.'
+        : ', so the ADP window and the real removals coincide, as the study predicted.') };
+  },
 };
 
 if (require.main === module) {
