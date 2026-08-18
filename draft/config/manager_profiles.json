@@ -17,9 +17,9 @@
       "WR": 3.4
     },
     "reach_delta_mean": 6.4,
-    "rookie_rate": 0.0,
-    "rookie_rate_basis": "UNDERIVABLE \u2014 season_now not supplied",
-    "rookie_rate_coverage": 0.0
+    "rookie_rate": 0.127,
+    "rookie_rate_basis": "years_exp == season_now - draft_season",
+    "rookie_rate_coverage": 0.929
   },
   "managers": {
     "434915673219526656": {
@@ -268,10 +268,10 @@
         "sd": 19.24
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 38,
+        "league_rate": 0.127,
         "picks": 41,
-        "rate": 0.0
+        "rate": 0.177
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -549,10 +549,10 @@
         "sd": 27.9
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 37,
+        "league_rate": 0.127,
         "picks": 40,
-        "rate": 0.0
+        "rate": 0.213
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -560,7 +560,7 @@
         "alpha_need": 0.983,
         "beta_value": 1.017
       },
-      "summary": "Drafts near market value. Takes QB early (round 5 on average, 1.4 rounds before the league). Takes TE early (round 5 on average, 1.8 rounds before the league)."
+      "summary": "Drafts near market value. Takes QB early (round 5 on average, 1.4 rounds before the league). Takes TE early (round 5 on average, 1.8 rounds before the league). Chases rookies."
     },
     "434921916734631936": {
       "bpa_vs_need": {
@@ -859,10 +859,10 @@
         "sd": 32.43
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 39,
+        "league_rate": 0.127,
         "picks": 42,
-        "rate": 0.0
+        "rate": 0.128
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -1153,10 +1153,10 @@
         "sd": 17.23
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 37,
+        "league_rate": 0.127,
         "picks": 40,
-        "rate": 0.0
+        "rate": 0.116
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -1425,10 +1425,10 @@
         "sd": 82.64
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 41,
+        "league_rate": 0.127,
         "picks": 44,
-        "rate": 0.0
+        "rate": 0.109
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -1696,10 +1696,10 @@
         "sd": 28.81
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 36,
+        "league_rate": 0.127,
         "picks": 39,
-        "rate": 0.0
+        "rate": 0.134
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -1990,10 +1990,10 @@
         "sd": 54.05
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 37,
+        "league_rate": 0.127,
         "picks": 40,
-        "rate": 0.0
+        "rate": 0.099
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -2261,10 +2261,10 @@
         "sd": 20.67
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 37,
+        "league_rate": 0.127,
         "picks": 39,
-        "rate": 0.0
+        "rate": 0.148
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -2527,10 +2527,10 @@
         "sd": 140.91
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 37,
+        "league_rate": 0.127,
         "picks": 40,
-        "rate": 0.0
+        "rate": 0.099
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
@@ -2795,10 +2795,10 @@
         "sd": 22.86
       },
       "rookie_affinity": {
-        "derivable_picks": 0,
-        "league_rate": 0.0,
+        "derivable_picks": 39,
+        "league_rate": 0.127,
         "picks": 42,
-        "rate": 0.0
+        "rate": 0.051
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
