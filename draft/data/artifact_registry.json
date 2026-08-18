@@ -279,6 +279,16 @@
     "python3",
     "draft/backtest/expert_spread_artifact.py"
    ]
+  },
+  {
+   "id": "market_upside_2026",
+   "description": "Market-implied P(at-least-threshold) per player season stat from Kalshi real-money ladders (125 players, coherent ladders only, open interest visible). Display data for the war room \u2014 published prices, never a board input.",
+   "owner_module": "draft/backtest/market_upside_artifact.py",
+   "artifact_path": "public/market_upside_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/market_upside_artifact.py"
+   ]
   }
  ],
  "_not_yet_migrated": [

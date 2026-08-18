@@ -39,6 +39,10 @@ const path = require('path');
 const LEDGER = path.join(__dirname, '..', '..', 'PREDICTION-LEDGER.md');
 const YEAR = 2026;
 
+/* The floor on the OPEN backlog. Not a target to game — a tripwire for the
+ * program going quiet. Raise it if the lanes are keeping up. */
+const MIN_OPEN = 6;
+
 /* Columns: | # | prediction | made | owner | grade by | status | result | what changed | */
 const COL = { id: 0, prediction: 1, made: 2, owner: 3, gradeBy: 4, status: 5, result: 6, changed: 7 };
 const WIDTH = 8;
@@ -69,7 +73,10 @@ function parseDate(cell, year) {
   return new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
 }
 
-function check(text, todayStr) {
+function check(text, todayStr, opts) {
+  /* `minOpen` is OPT-IN so unit fixtures (which are deliberately tiny) are not
+   * judged by a floor meant for the real backlog. main() passes MIN_OPEN. */
+  const minOpen = (opts && typeof opts.minOpen === 'number') ? opts.minOpen : 0;
   const today = new Date(todayStr + 'T00:00:00Z');
   const problems = [];
   const seen = [];
@@ -101,6 +108,22 @@ function check(text, todayStr) {
       problems.push(`${id}: ABANDONED with no reason recorded.`);
     }
   }
+  /* CORY, 2026-08-18: "we need to be adding things and trying things and adapting
+   * until we find the right blend ... no stone unturned."
+   *
+   * A ledger can be satisfied by grading everything and then filing nothing new,
+   * which looks like discipline and IS the program quietly ending. So an EMPTY
+   * BACKLOG is itself a failure: below this many OPEN predictions, we have stopped
+   * looking, and the build says so. */
+  if (minOpen > 0) {
+    const open = rows(text).filter((c) => c[COL.status].toUpperCase().includes('OPEN'));
+    if (open.length < minOpen) {
+      problems.push(
+        `ONLY ${open.length} OPEN PREDICTIONS (minimum ${minOpen}). An empty backlog is ` +
+        `not success — it is the program stopping. File new hypotheses.`);
+    }
+  }
+
   if (!seen.length) {
     problems.push('NO PREDICTION ROWS PARSED — the ledger table shape changed, and a ' +
                   'check that silently matches nothing is worse than no check.');
@@ -115,7 +138,8 @@ function main() {
     ? argv[i + 1]
     : new Date().toISOString().slice(0, 10);
 
-  const { problems, count } = check(fs.readFileSync(LEDGER, 'utf8'), today);
+  const { problems, count } = check(fs.readFileSync(LEDGER, 'utf8'), today,
+                                    { minOpen: MIN_OPEN });
   if (problems.length) {
     console.error(`PREDICTION LEDGER — ${problems.length} problem(s) as of ${today}:\n`);
     for (const p of problems) console.error('  ✗ ' + p);
@@ -128,5 +152,5 @@ function main() {
   return 0;
 }
 
-module.exports = { check, rows, isEmptyCell, parseDate };
+module.exports = { check, rows, isEmptyCell, parseDate, MIN_OPEN };
 if (require.main === module) process.exitCode = main();

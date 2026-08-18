@@ -125,3 +125,34 @@ ok('helpers behave', () => {
 });
 
 console.log(`\n${pass}/${pass} checks passed`);
+
+ok('FAIL ARM — an EMPTY BACKLOG fails, so the file cannot be satisfied by stopping', () => {
+  // Cory, 08-18: "we need to be adding things and trying things and adapting ...
+  // no stone unturned." A ledger where everything is graded and nothing is open
+  // looks like discipline and IS the program quietly ending.
+  let t = HEAD;
+  for (let i = 0; i < 3; i++) {
+    t += `| Q${i} | x | 08-18 | relay | 08-18 | GRADED | done | a real consequence |\n`;
+  }
+  const p = check(t, '2026-08-20', { minOpen: 6 }).problems;
+  assert.ok(p.some((x) => /OPEN PREDICTIONS \(minimum/.test(x)), JSON.stringify(p));
+});
+
+ok('a healthy backlog does not trip the floor', () => {
+  let t = HEAD;
+  for (let i = 0; i < 8; i++) {
+    t += `| Q${i} | x | 08-18 | relay | 12-31 | OPEN | — | — |\n`;
+  }
+  assert.strictEqual(check(t, '2026-08-20', { minOpen: 6 }).problems.length, 0);
+});
+
+ok('CONTROL — the REAL ledger is held to the backlog floor, not just fixtures', () => {
+  // The floor is opt-in so tiny fixtures are not judged by it; this asserts the
+  // real run actually opts in, or the tripwire is decorative.
+  const fs = require('fs');
+  const path = require('path');
+  const src = fs.readFileSync(
+    path.join(__dirname, '..', 'tools', 'prediction_ledger_check.js'), 'utf8');
+  assert.ok(/minOpen:\s*MIN_OPEN/.test(src),
+    'main() must pass MIN_OPEN, or the empty-backlog tripwire never fires in CI');
+});

@@ -883,6 +883,65 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D10 — 📬 D AND E'S OPEN ITEMS, MEASURED FOR YOU SO YOU CAN RULE WITHOUT READING
+> THEIR INBOXES.** Cory, 08-18: *"make sure E and D are being seen by A and their
+> stuff is being acted on."* Their queues are full of 08-17 items still unchecked;
+> here are the three that need **you**, each with the number already taken.
+>
+> **(a) D'S K/DEF P0 — DEADLINE 08-20 (KEEPER LOCK), NOT DONE. Verified today:**
+> `projection_error_calibration.json` holds **20 cells, all QB/WR/RB/TE**; **all 76
+> K/DEF on the board fall back to `gaussian_z`.** So the board really does price two
+> ceiling constructions on one dollar scale. **THE DISTORTION, measured:** median
+> ceiling/projection ratio — **DEF 1.394, K 1.290, RB 1.643, WR 1.478, QB 1.211,
+> TE 1.146.** Pooled it is milder than feared (K/DEF 1.336 vs skill 1.478, **0.90×**),
+> **but the sharp case is real: a DEF gets a 1.394 relative ceiling and a TIGHT END
+> gets 1.146** — a ~22% edge to the defense purely by which formula priced it, with
+> `w.ceiling` live at 0.45. **REC: your stated default is right — exclude K/DEF from
+> cross-position dollar comparisons for 08-22** rather than guess a haircut. **The
+> real fix (measure K/DEF cells) is post-draft.**
+>
+> **(b) E'S Q12 — SIX TEs 65–126 SPOTS ABOVE MARKET, AND IT IS AT THE TOP OF CORY'S
+> BOARD.** Either a replacement-level error or the edge; staring cannot separate them.
+> **The separating test is runnable today** against `replay_league_table.json`. **The
+> relay is running it now** rather than routing it a third time — result will land as
+> a ledger row with a null attached.
+>
+> **(c) E'S YOUNG-RB GAP — its stated default fires TOMORROW (08-19 EOD) and the
+> default is that the RELAY takes it.** Five players below market with no stated model
+> reason (Tuten −94, DJ Moore −86, Price −84, Tate −74, Sutton −53). **Filed as a
+> ledger row so it cannot lapse quietly.**
+>
+> ⚠️ **AND E'S UPSTREAM POINT DESERVES YOUR ATTENTION MORE THAN ANY OF THE THREE:**
+> register 2c's baseline **moved on its own** — Harvey −62/Tuten −60 recorded, then
+> −131/−94 re-measured with nothing shipped between. **A reference point that drifts
+> silently makes every before/after test in this project unfalsifiable**, including
+> the ones you are being asked to rule on above.
+>
+> **D9 — 🔴 STOP AND READ THIS ONE FIRST. THE PICK-1 ROW ON CORY'S BOARD STATES A
+> CEILING THAT IS PHYSICALLY IMPOSSIBLE, AND THE DRAFT IS SATURDAY.** (register 4w)
+> **ASK:** rule TODAY between (1) fall back to the cohort p90 for the `-x-player-cv`
+> rows before 08-22, or (2) rescale weekly→season now. **This is not a
+> hold-until-after-the-draft item** — the number is already on the board.
+> **EVIDENCE:** the new per-player ceiling applies each player's **WEEKLY** p90/p50 to
+> a **SEASON** projection. Measured: Gibbs weekly 1.916 → board 2.263; A.J. Brown
+> weekly 2.078 → board 2.738; Lamar 1.621 → 1.940. A season is a sum of ~17 weeks, so
+> its spread is ≈ weekly ÷ √G, not equal to it. Result: **31 players state a ceiling
+> above the best season ever recorded at their position, 30 of them inside ADP 1–220** —
+> **Gibbs ADP 1.0 at 678.7** (best RB season ≈420), **A.J. Brown 568.8**, **Lamar
+> 721.6**, Bijan 505.6, Jeanty 495.0. **36 players over 400 points.**
+> ⚠️ **`MEASURED_WEIGHTS.ceiling` is LIVE at 0.45**, so these reach `recommend()`. The
+> 0-vs-0.45 blast radius you measured was taken on the OLD ceiling and does not bound
+> this one — it needs re-measuring on the current board before Saturday either way.
+> **REC: option (1) for 08-22 — it is one flag and restores a flat-but-possible
+> ceiling — then (2) fitted properly after the draft as ledger P20.** Correct form:
+> `season_ratio ≈ 1 + (weekly_ratio − 1)/√G`, which puts Gibbs at 367 rather than 679
+> and KEEPS the per-player variation that repaired 4j.
+> **AND ADD THE ASSERTION THAT WOULD HAVE CAUGHT THIS: no ceiling may exceed the best
+> season ever recorded at that position.** Nothing checked it, which is why it shipped.
+> **DEFAULT: if nobody rules by 08-19 18:00 UTC the relay applies option (1)**, because
+> shipping a flat ceiling is recoverable and shipping an impossible one on the pick-1
+> row is not.
+>
 > **D8 — THE CEILING IS NOT A CEILING, AND THERE IS NO SOURCE TO BUY ONE FROM.
 > RULE AFTER 08-22. NOTHING IS ASKED OF YOU BEFORE THE DRAFT.** (register 4t)
 > **ASK:** after 08-22, rule whether an expert-disagreement ceiling replaces the
@@ -1250,6 +1309,41 @@
 >
 > **DEFAULT if nobody answers: render it captioned as disagreement only, never as
 > upside. REC: same.**
+
+> ### 🔴 AND THE SAME PROBLEM ALREADY EXISTS ON THE CEILING COLUMN — ONE FIELD FIXES IT
+> **This is the smallest, highest-value pre-draft change left, it is display-only, and
+> the data it needs is already on every board row.**
+>
+> Per-player volatility tails landed today and they are a real improvement — RB now
+> carries **92 distinct ceiling ratios** where v23 had one per band. **But the fix
+> landed where the problem was smallest.** Measured on the live 08-18 board across
+> **ADP 25–220, which is Cory's actual draft range:**
+>
+> | ceiling source | players | share |
+> |---|---|---|
+> | `measured-2023-25-p90-x-player-cv` (**real, per-player**) | 142 | 67% |
+> | `measured-2023-25-p90` (**cohort constant**) | 37 | 17% |
+> | `gaussian_z` (**cohort constant**) | 31 | 14% |
+>
+> **68 of 210 players in the range Cory drafts carry a ceiling that contains ZERO
+> information about that specific player** — and **all 19 rookies in range do**,
+> including **Jeremiyah Love at ADP 26.3 with a stated ceiling of 347.6** that is a
+> band constant times his projection. Rookie coverage is **0 of 66** board-wide,
+> because the volatility term needs realized weeks a rookie does not have.
+>
+> **THE ASK — no model change, no recompute, one field you already have.**
+> `proj_ceiling_source` is on **every** board row today with exactly three values.
+> Render a ceiling differently when it is **not** `…-x-player-cv` — grey it, asterisk
+> it, whatever fits the density budget — so Cory can see at a glance that a number is
+> a cohort constant rather than a claim about the player in front of him.
+>
+> **WHY THIS AND NOT A BETTER CEILING:** a rookie ceiling model is preregistered as
+> **P9, graded 09-05, deliberately after the draft** — a new dispersion model four
+> days out is exactly what the no-change rule exists to stop. **But shipping an
+> unmarked constant as if it were a player-specific ceiling is not neutral**, and
+> marking it costs one conditional.
+>
+> **DEFAULT if nobody answers: mark them. REC: same.** Register 4v, recheck **08-21**.
 - [ ] 2026-08-14 · A · 🧪 **BEFORE YOU TRUST ANY NUMBER I HAVE SENT YOU OFF A HAND-BUILT TEST CONTEXT, CHECK WHAT IT PASSES FOR `weights`.** Two of my suites scored every context with `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults` has never been a key on `public/draft_data.json`, so they ran under `DEFAULT_WEIGHTS` (all eight terms live) while `app.js` initialises from `MEASURED_WEIGHTS` (five of eight at zero). **The top recommendation differs at 7 of Cory's 12 picks.** Two figures I sent you are affected and are corrected in place above: the tiebreak inversion is at **pick 33 row 2**, not row 6 (Waddle/Higgins was never on his screen), and the duplicate-direction trio at pick 33 is **TE Loveland · RB Swift · RB Etienne**, not WR/RB/RB.
 
 - [ ] 2026-08-14 · C · 🚨 **main's CI HAS BEEN RED FOR 30 CONSECUTIVE RUNS — no green run since at least 05:47Z today — on ONE test, and it PASSES LOCALLY. `integrate.sh` refuses to call any merge verified while main is red, so this is blocking every lane's integration, mine included.**
@@ -1676,6 +1770,8 @@
   **WATCH — SCOPED OUT OF TODAY'S SHIP, ASKING RATHER THAN GUESSING TWICE:** I could not find an unambiguous "WATCH card" in the war room (the legality strip is literally labeled WATCH in a comment, but that's roster-legality, not player picks; `/watch` is a different, member-facing page). Shipped THE PICK only, which is unambiguous and is the surface Cory actually reads at 8s/pick. If you meant the left rail (top-10-per-position) or the queue, say which and I'll extend it — same module, one more call site.
   **VERIFIED:** `expert_spread_display.test.js` (new, 28/28 — commits to the 8-player top-150 headline set so a silent drift in the artifact or the derivation fails loudly, plus fixture tests proving ratio-not-raw-spread drives the flag and the reliability floor holds), `script_load_order.test.js` 17/17, `rehearsal-mock3.js` 20/20 (see below), `rehearsal-timed-desktop.js` 16/16 (same 2 pre-existing findability findings, nothing new), `warroom_mobile.test.js` 12/12, `warroom_charts.test.js` 47/47, `chaos_drill_warroom` 37/37. Live-verified in a real browser: Bowers picks up the badge in THE PICK's alternatives with the correct title text; zero console errors.
   **FOUND AND FIXED ALONG THE WAY, UNRELATED TO THE BADGE:** `rehearsal-mock3.js`'s card census was pinned at 19 and reading 18 — confirmed by temporarily stashing all of tonight's badge work and re-measuring: **18 without my change too**, so not caused by this ship. Root cause is MY OWN earlier change (the "Recent Picks" card move, `## TO: A` above) — it went from a `.card` in ROSTERS to a `.wr-railcard` in the DRAFT rail, which is correct by design (matches the rail's own card family) but stopped matching the census's `.card` selector. Updated the assertion 19→18 with a dated note explaining the count, same pattern the file already uses for its own history. Not a defect, a stale test — flagging since it reports FAIL until fixed and I'd rather you know why than wonder.
+  **A, 2026-08-18 — ADDENDUM (same day): a SECOND display artifact is published alongside the expert one** — `public/market_upside_2026.json`, 125 players, Kalshi real-money season ladders: P(at least threshold) per stat with open_interest visible. Same rules as the expert badge (published fact, never a number), one shared surface is fine — e.g. the split marker's detail popover shows both 'experts split 3-6x wider than neighbors' AND 'market: 18% at 1,400+ rec yds (OI 1.2k)'. Thin markets must show their OI — a 60-cent price on 30 contracts is a rumor wearing a percent sign.
+
 
 ## TO: C
 
