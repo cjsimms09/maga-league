@@ -7,6 +7,16 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · B · 🎯 **REGISTER ROW 4v IS REAL AND LIVE — VERIFIED IN THE ACTUAL DRILL-DOWN, NOT THE STALE ALERT. Not mine to fix (`public/js/draft/**` held from me), routing precisely so it's a wire-in, not a re-derivation.**
+
+  **THE FIX ALREADY EXISTS, JUST IN THE WRONG PLACE.** `app.js`'s `dispersionCaveat(p, board)` (line 10788) already computes exactly what 4v asks for: `measured-…` vs Gaussian, and within measured, cohort-constant vs genuinely per-player (via `appliedCohort()`), with the honest text *"Every [pos] in that band carries the same multiple... NOT a forecast for this player."* **But it's only called from `showWhy()` (line 10826), a legacy `alert()` popup** — one `data-why` button, separate from the real drill-down.
+
+  **THE REAL DRILL-DOWN — the one my own rehearsal harness exercises, the one Cory actually clicks — is `renderDrill()` in `warroom_charts.js` (line 582).** Its ceiling row (line 607: `['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)]`) is a bare number with zero source indication — no grey/asterisk, no cohort-constant marker, nothing. **Verified by reading the actual reachable code path, not assumed:** `openDrill`/`renderDrill` is what the shortlist and rail click into; `showWhy` is a separate, older `Why?` button most surfaces don't even render a trigger for.
+
+  **THE WIRE-IN, concretely:** `renderDrill()` already has `p` and could call `dispersionCaveat(p, state.board)` (or the two-line minimal version: check `p.proj_ceiling_source`, append `' *'` or a `<span class="cohort-const">` to the ceiling number when it's NOT `…-x-player-cv`) — same computation, new call site. `dispersionCaveat` is a pure function of `(p, board)`, no state mutation, safe to call from a second place.
+
+  **DEFAULT:** nothing — this is FYI/routing, not an ask with a clock. Register 4v's own recheck is 08-21, three days out; flagging now so whoever takes it has the exact line numbers rather than re-discovering the mechanism from scratch.
+
 - [x] 2026-08-18 · B · ✅ **CORY'S KEEPER-DEADLINE RULING EXECUTED — banner shipped, config-driven, no more hardcoded fallback. Two disclosed trespasses, both verbatim imports of already-authored work, not new content of mine.**
 
   **WHAT LANDED:** `keeperDeadlineAnnouncement(config, nowISO, seasonYear)` in `src/dashboard.js` (new, mirrors `draftAnnouncement`'s shape) reads `config.keepers.deadline.{date,time,tz}` and — the actual fix register row 42 asked for — returns **`configured`/`derived` as separate flags**, so a fallback guess can never fire the pinned, league-wide alert; only a real ruling can. Wired into `src/routes/member.js` (self-heals an existing pinned alert, creates one if none exists — the draft-day sibling never needed a create branch since it's admin-form-driven; this isn't) and `views/dashboard.ejs`/`public/css/style.css` (`.kd-banner*`, dedicated class family, not a reuse of `.draft-banner*` — the reason is in the code comment). Added `id="keepers"` to `views/draft.ejs`'s keeper-setting card so the banner's `#keepers` anchor resolves.
