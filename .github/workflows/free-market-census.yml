@@ -125,16 +125,43 @@ jobs:
                   tick, title = s.get("ticker") or "", s.get("title") or ""
                   if re.search(r"nfl|football", (tick + " " + title), re.I):
                       nfl_series.append({"ticker": tick, "title": title})
-              # V3 READ 12 OF 390 SERIES AND CALLED IT A CENSUS. Paginating all open
-              # markets once and filtering to the NFL set costs a handful of requests
-              # instead of 390, and it cannot silently sample.
+              # TWO INDEPENDENT PATHS, AND THEY CHECK EACH OTHER — because this probe
+              # has now produced FOUR false negatives in a row, each from a different
+              # bug of mine, and each one looked like a clean answer.
+              #
+              #   v1  matched legal boilerplate and reported player markets that were
+              #       a prohibitions clause.
+              #   v2  hit a 200KB read cap, failed to parse, and printed an absence.
+              #   v3  read 12 of 390 series and called a 3% sample a census, while its
+              #       own printed samples contradicted the verdict.
+              #   v4  replaced v3's WORKING per-series query with pagination filtered on
+              #       `series_ticker`, a field the markets list does not carry, so it
+              #       matched nothing — an optimisation that broke a correct query.
+              #
+              # So: path A is v3's per-series query, which demonstrably returned 228
+              # markets, now run over ALL series rather than the first twelve. Path B
+              # derives the series from the market ticker's own prefix, which depends on
+              # no field existing. If the two disagree the artifact SAYS SO instead of
+              # quietly preferring one.
+              seen = {}
+              for s in nfl_series:
+                  code, b = get(f"{KALSHI}/markets?status=open&limit=200&series_ticker={s['ticker']}")
+                  if code != 200:
+                      continue
+                  try: d2 = json.loads(b)
+                  except Exception: continue
+                  for m in (d2.get("markets") or []):
+                      seen[m.get("ticker")] = {"series": s["ticker"], "ticker": m.get("ticker"),
+                                               "title": m.get("title") or m.get("subtitle") or ""}
+              path_a = len(seen)
+
+              # Path B: one paginated sweep, series taken from the ticker prefix.
               nfl_tickers = {s["ticker"] for s in nfl_series}
-              cursor, pages = None, 0
-              while pages < 30:
+              cursor, pages, path_b = None, 0, 0
+              while pages < 20:
                   u = f"{KALSHI}/markets?status=open&limit=1000" + (f"&cursor={cursor}" if cursor else "")
                   code, b = get(u)
                   if code != 200:
-                      kalshi_note = f"market pagination stopped: HTTP {code} on page {pages}"
                       break
                   try: d2 = json.loads(b)
                   except Exception as e:
@@ -142,17 +169,23 @@ jobs:
                       break
                   batch = d2.get("markets") or []
                   for m in batch:
-                      if (m.get("series_ticker") or m.get("event_ticker", "")[:20]) in nfl_tickers \
-                         or any(m.get("ticker", "").startswith(x) for x in nfl_tickers):
-                          nfl_markets.append({"series": m.get("series_ticker") or m.get("event_ticker"),
-                                              "ticker": m.get("ticker"),
-                                              "title": m.get("title") or m.get("subtitle") or ""})
-                  cursor = (d2.get("cursor") or "")
+                      tick = m.get("ticker") or ""
+                      if tick.split("-")[0] in nfl_tickers:
+                          path_b += 1
+                          seen.setdefault(tick, {"series": tick.split("-")[0], "ticker": tick,
+                                                 "title": m.get("title") or m.get("subtitle") or ""})
+                  cursor = d2.get("cursor") or ""
                   pages += 1
                   if not cursor or not batch:
                       break
-              kalshi_note = kalshi_note or (f"{len(nfl_series)} NFL series, {len(nfl_markets)} open "
-                                            f"markets across {pages} pages")
+
+              nfl_markets = list(seen.values())
+              agree = (path_a > 0 and path_b > 0)
+              kalshi_note = (f"{len(nfl_series)} NFL series; per-series path found {path_a}, "
+                             f"ticker-prefix path found {path_b} across {pages} pages, "
+                             f"{len(nfl_markets)} distinct."
+                             + ("" if agree else "  ⚠️ ONE PATH FOUND NOTHING — treat any "
+                                "'no markets' below as a probe result, not a market result."))
 
           # A MARKET IS PLAYER-LEVEL IF IT NAMES A REAL NFL PLAYER, and the way to
           # know that is to ask our own board rather than to guess at phrasings.
