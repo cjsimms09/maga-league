@@ -97,6 +97,25 @@ function isEmptyCell(c) {
   return !c || /^[-—–\s]*$/.test(c);
 }
 
+/* ── THE STATUS IS THE FIRST WORD, EXACTLY (reviewer requirement, 08-18) ────
+ *
+ * The first cut of the vocabulary check was a SUBSTRING regex, so "ABANDONMENT"
+ * and "GRADED-LATER" read as valid — the independent reviewer (gpt-5, run
+ * 32179350309) caught it and named those exact costumes. Bare equality is
+ * wrong in the other direction: live statuses legitimately read "✅ GRADED
+ * 08-18" and "**GRADED — TRUE**". So: strip emphasis, take the FIRST token
+ * containing letters, and require THAT token to equal one of the three words.
+ * "GRADED — TRUE" passes (token "GRADED"); "GRADED-LATER" is one token and
+ * fails; "REOPENED" fails; "ABANDONMENT" fails. */
+const VOCAB = ['OPEN', 'GRADED', 'ABANDONED'];
+function statusWord(cell) {
+  const cleaned = String(cell || '').replace(/[*_~`]/g, ' ');
+  for (const tok of cleaned.split(/\s+/)) {
+    if (/[A-Za-z]/.test(tok)) return tok.toUpperCase();
+  }
+  return '';
+}
+
 /* ⚠️ `year` IS REQUIRED AND HAS NO DEFAULT — ON PURPOSE, AND IT STILL BIT ME.
  * `Date.UTC(undefined, ...)` is an Invalid Date, which is TRUTHY, so a caller
  * that forgets the argument gets a date-shaped object that fails every
@@ -139,7 +158,7 @@ function check(text, todayStr, opts) {
   const seen = [];
   for (const cells of rows(text)) {
     const id = cells[COL.id];
-    const status = cells[COL.status].toUpperCase();
+    const status = statusWord(cells[COL.status]);
     const changed = cells[COL.changed];
     const owner = cells[COL.owner];
     const due = dueDate(cells[COL.gradeBy], cells[COL.made]);
@@ -152,7 +171,7 @@ function check(text, todayStr, opts) {
      * marked "DEFERRED" produced zero problems (demonstrated before fixing).
      * That is the register's "✅ that did not mean closed" in a new costume —
      * a word nobody agreed on, treated as an exit from the loop. */
-    if (!/OPEN|GRADED|ABANDONED/.test(status)) {
+    if (!VOCAB.includes(status)) {
       problems.push(
         `${id}: UNKNOWN STATUS "${cells[COL.status]}". The vocabulary is OPEN, GRADED, ` +
         `ABANDONED — anything else is a row that no rule can chase.`);
@@ -160,17 +179,17 @@ function check(text, todayStr, opts) {
     if (!due) {
       problems.push(`${id}: NO GRADE-BY DATE. An ungraded date is an ungraded prediction.`);
     }
-    if (status.includes('OPEN') && due && due < today) {
+    if (status === 'OPEN' && due && due < today) {
       problems.push(
         `${id}: OVERDUE — grade by ${cells[COL.gradeBy]}, still OPEN. Owner ${owner}. ` +
         `Grade it, or move the date WITH A REASON.`);
     }
-    if (status.includes('GRADED') && isEmptyCell(changed)) {
+    if (status === 'GRADED' && isEmptyCell(changed)) {
       problems.push(
         `${id}: GRADED BUT NOTHING CHANGED. Cory: "a grade that moved nothing." ` +
         `Write the consequence — "NOTHING — <reason>" is a real answer, blank is not.`);
     }
-    if (status.includes('ABANDONED') && isEmptyCell(changed)) {
+    if (status === 'ABANDONED' && isEmptyCell(changed)) {
       problems.push(`${id}: ABANDONED with no reason recorded.`);
     }
   }
@@ -182,7 +201,7 @@ function check(text, todayStr, opts) {
    * BACKLOG is itself a failure: below this many OPEN predictions, we have stopped
    * looking, and the build says so. */
   if (minOpen > 0) {
-    const open = rows(text).filter((c) => c[COL.status].toUpperCase().includes('OPEN'));
+    const open = rows(text).filter((c) => statusWord(c[COL.status]) === 'OPEN');
     if (open.length < minOpen) {
       problems.push(
         `ONLY ${open.length} OPEN PREDICTIONS (minimum ${minOpen}). An empty backlog is ` +
@@ -220,8 +239,7 @@ function check(text, todayStr, opts) {
   const SUCCESSOR_FROM = Date.parse('2026-08-19');
   for (const c of rows(text)) {
     const id = c[COL.id];
-    const status = c[COL.status].toUpperCase();
-    if (!status.includes('GRADED')) continue;
+    if (statusWord(c[COL.status]) !== 'GRADED') continue;
     /* ⚠️ `parseDate` returns a DATE, and an unparseable cell returns an INVALID
      * DATE — which is truthy. The first version of this guard read
      * `if (!made || made < SUCCESSOR_FROM) continue` with a STRING bound, so a
