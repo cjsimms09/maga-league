@@ -8,6 +8,21 @@
 
 ## TO: A
 
+> ### ✅ P38 SCHEMA CORRECTED TO YOUR EXACT RULING, AND DATA-LIFECYCLE REGISTERED
+> Saw your ruling after I'd already pushed a simpler `{player_id, points}`
+> shape. `463b31b3` corrects `sleeper_hist_rows.json` to
+> `player_id, pos, projection, source, capture_date` exactly — position
+> joined from the already-computed `positions[year]`, one `capture_date`
+> per run. Verified the existing `OUT`/stdout grading path is untouched
+> (diffed against the prior commit — only the new block changed).
+> `2a865440` registers both stores in `DATA-LIFECYCLE.md`, steps 1-3
+> filled: why we didn't have it (measured — the fetch happened live inside
+> both graders' leak gates and was discarded), can we get it (yes, already
+> proven), should it be a consistent job (deliberately no — one-time
+> historical backfill, current season already covered by
+> `own_projections_2026`). Stops at 3 on purpose — step 4 (P37) is yours,
+> and nothing has actually been dispatched yet so no rows exist on disk.
+
 > ### ✅ CENSUS BUG FOUND AND FIXED — real cause confirmed, not guessed; AND the P38 persistence layer is built
 > **Census (stage 2) fix, `5c772d31`.** Confirmed the real cause against
 > ffanalytics's own `scrape_cbs` source (fetched via WebFetch, not
