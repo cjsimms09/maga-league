@@ -142,6 +142,19 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 
 ## 🟣 08-18 NIGHT — THE THREE THINGS THAT CHANGED FOR SATURDAY (A)
 
+**0. THE LEAGUE ANALYZER FOR THE RICHARD BET: YES — IT IS BUILT, TESTED, AND
+ONE BUTTON AWAY.** Cory asked whether it will be ready right after the draft.
+It is ready NOW except for data that will not exist until the last pick:
+`league_analyzer.py` (11 tests, decision logic exercised offline like
+source_blend) + a `league-analyzer.yml` dispatch that fetches the final
+rosters and picks from Sleeper and commits `public/league_analysis_2026.json`
+— projected all-play standings (best legal lineup per team through our own
+projections, no schedule luck) and per-team draft grades (surplus vs this
+draft's own round means, keepers excluded, best/worst pick named). Dispatch it
+minutes after the draft ends; B is routed the display surface with a default.
+One honesty line, which the artifact itself carries: these are PROJECTIONS —
+bet on them as our model's opinion, not as results.
+
 **1. THE BOARD IS MAKING ONE DELIBERATE BET, AND NOW IT IS NAMED: TE.**
 Measured on the live board: TEs sit **+50 spots ahead of market** on average in
 the top 150 (LaPorta board 37 vs market 67) while RBs sit −23 behind. It is NOT

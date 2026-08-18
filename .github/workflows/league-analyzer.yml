@@ -1,0 +1,70 @@
+name: League analyzer — post-draft standings and draft grades
+
+# TERRITORY: A — dispatches draft/tools/league_analyzer.py.
+#
+# Cory, 2026-08-18: "Is league analyzer going to be ready right after draft?
+# After draft it should immediately be ready for me, I will make bet with
+# Richard." This is the dispatch that makes "immediately" true: the compute
+# is committed and tested BEFORE the draft (test_league_analyzer.py, 11
+# checks, both arms of every branch); the only thing that runs for the first
+# time on draft night is the fetch below.
+#
+# DRAFT NIGHT (2026-08-22, after the last pick): dispatch this from `main`.
+# It fetches rosters/users/picks from Sleeper, runs the tested analyze(),
+# and commits public/league_analysis_2026.json. The artifact says on its
+# face that it is projections, not results — the realized grade belongs to
+# the weekly grading cron.
+#
+# It can be dispatched BEFORE the draft too, as a rehearsal: pre-draft
+# rosters carry only keepers, so the standings table will be keepers-only
+# and the picks list empty. That is a real end-to-end test of the fetch
+# path, not an error.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: league-analyzer
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: The decision logic is tested before the real fetch runs
+        run: |
+          pip install pytest
+          python3 -m pytest draft/tests/test_league_analyzer.py -q
+
+      - name: Fetch, analyze, write the artifact
+        run: python3 draft/tools/league_analyzer.py
+
+      - name: Commit the analysis
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main — result NOT committed. Re-dispatch from main."
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add public/league_analysis_2026.json
+          if ! git diff --cached --quiet; then
+            git commit -m "league_analyzer: post-draft projected standings + draft grades"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED"
+            exit 1
+          else
+            echo "no change (pre-draft rehearsal against keeper-only rosters, most likely)"
+          fi

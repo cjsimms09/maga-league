@@ -12,13 +12,13 @@
   "pooled_baseline": {
    "optimal": {
     "beats_n_of_10_pooled": 3,
-    "median_owner_mean_delta": -91.71,
+    "median_owner_mean_delta": -91.05,
     "cory_mean_delta": -65.65
    },
    "realistic": {
-    "beats_n_of_10_pooled": 2,
-    "median_owner_mean_delta": -31.37,
-    "cory_mean_delta": -6.53
+    "beats_n_of_10_pooled": 3,
+    "median_owner_mean_delta": -26.78,
+    "cory_mean_delta": -9.39
    }
   },
   "per_year_baseline": {
@@ -38,7 +38,7 @@
       "mhagen"
      ],
      "beats_n_of_10": 0,
-     "median_owner_delta": -187.42,
+     "median_owner_delta": -191.28,
      "cory_delta": -16.86
     },
     "realistic": {
@@ -57,8 +57,8 @@
       "mhagen"
      ],
      "beats_n_of_10": 4,
-     "median_owner_delta": -51.95,
-     "cory_delta": 77.92
+     "median_owner_delta": -54.7,
+     "cory_delta": 69.34
     }
    },
    "2024": {
@@ -147,7 +147,7 @@
   "optimal": {
    "cory_mean_delta": {
     "original_unfiltered": -65.65,
-    "restated_status_filtered": 7.48,
+    "restated_status_filtered": 8.15,
     "room_draftable_pool": -19.81
    },
    "beats_n_of_10_pooled": {
@@ -156,23 +156,23 @@
     "room_draftable_pool": 3
    },
    "median_owner_mean_delta": {
-    "original_unfiltered": -91.71,
-    "restated_status_filtered": -24.23,
-    "room_draftable_pool": -28.64
+    "original_unfiltered": -91.05,
+    "restated_status_filtered": -24.9,
+    "room_draftable_pool": -28.12
    }
   },
   "realistic": {
    "cory_mean_delta": {
-    "original_unfiltered": -6.53,
-    "restated_status_filtered": 41.24
+    "original_unfiltered": -9.39,
+    "restated_status_filtered": 39.05
    },
    "beats_n_of_10_pooled": {
-    "original_unfiltered": 2,
+    "original_unfiltered": 3,
     "restated_status_filtered": 6
    },
    "median_owner_mean_delta": {
-    "original_unfiltered": -31.37,
-    "restated_status_filtered": 9.02
+    "original_unfiltered": -26.78,
+    "restated_status_filtered": 19.18
    }
   }
  },
@@ -193,7 +193,7 @@
    },
    "board": {
     "projection_coverage_unfiltered": 510,
-    "projection_coverage_restated": 406,
+    "projection_coverage_restated": 418,
     "excluded": [
      {
       "player_id": "2028",
@@ -356,16 +356,6 @@
       "team_2026": null
      },
      {
-      "player_id": "7593",
-      "name": "Trey Sermon",
-      "pos": "RB",
-      "proj": 45.42,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "5032",
       "name": "Jordan Akins",
       "pos": "TE",
@@ -460,16 +450,6 @@
       "name": "Carson Steele",
       "pos": "RB",
       "proj": 31.13,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "11378",
-      "name": "Jordan Mims",
-      "pos": "RB",
-      "proj": 30.46,
       "zero_game_seasons": [
        2025
       ],
@@ -586,30 +566,10 @@
       "team_2026": null
      },
      {
-      "player_id": "5880",
-      "name": "Parris Campbell",
-      "pos": "WR",
-      "proj": 22.28,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "6598",
       "name": "Trenton Irwin",
       "pos": "WR",
       "proj": 21.24,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "10223",
-      "name": "Eric Gray",
-      "pos": "RB",
-      "proj": 20.37,
       "zero_game_seasons": [
        2025
       ],
@@ -796,26 +756,6 @@
       "team_2026": null
      },
      {
-      "player_id": "2750",
-      "name": "DeAndre Carter",
-      "pos": "WR",
-      "proj": 14.66,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "8414",
-      "name": "Britain Covey",
-      "pos": "WR",
-      "proj": 14.3,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "7064",
       "name": "Darrynton Evans",
       "pos": "RB",
@@ -840,16 +780,6 @@
       "name": "Tyrion Davis-Price",
       "pos": "RB",
       "proj": 12.48,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "10221",
-      "name": "Ronnie Bell",
-      "pos": "WR",
-      "proj": 11.75,
       "zero_game_seasons": [
        2025
       ],
@@ -1016,16 +946,6 @@
       "team_2026": null
      },
      {
-      "player_id": "7521",
-      "name": "Chris Blair",
-      "pos": "WR",
-      "proj": 6.44,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "8809",
       "name": "Aaron Shampklin",
       "pos": "RB",
@@ -1056,30 +976,10 @@
       "team_2026": null
      },
      {
-      "player_id": "10228",
-      "name": "Charlie Jones",
-      "pos": "WR",
-      "proj": 4.79,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "6970",
       "name": "Stephen Sullivan",
       "pos": "TE",
       "proj": 4.58,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "111",
-      "name": "Marcedes Lewis",
-      "pos": "TE",
-      "proj": 4.44,
       "zero_game_seasons": [
        2025
       ],
@@ -1120,16 +1020,6 @@
       "name": "Dallin Holker",
       "pos": "TE",
       "proj": 3.7,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "6402",
-      "name": "Steven Sims",
-      "pos": "WR",
-      "proj": 3.47,
       "zero_game_seasons": [
        2025
       ],
@@ -1180,16 +1070,6 @@
       "name": "Irv Charles",
       "pos": "WR",
       "proj": 2.36,
-      "zero_game_seasons": [
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "11304",
-      "name": "E.J. Jenkins",
-      "pos": "TE",
-      "proj": 1.06,
       "zero_game_seasons": [
        2025
       ],
@@ -1262,12 +1142,6 @@
       "proj": 14.45
      },
      {
-      "player_id": "11651",
-      "name": "Isaac Guerendo",
-      "pos": "RB",
-      "proj": 78.26
-     },
-     {
       "player_id": "2078",
       "name": "Odell Beckham",
       "pos": "WR",
@@ -1316,9 +1190,9 @@
      "owner": "coryjsimms",
      "arms": {
       "optimal": {
-       "tool_total": 1596.86,
+       "tool_total": 1598.86,
        "owner_total": 1440.72,
-       "delta_tool_minus_owner": 156.14,
+       "delta_tool_minus_owner": 158.14,
        "head_to_head": {
         "tool_weeks_won": 11,
         "cory_weeks_won": 6,
@@ -1326,9 +1200,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1470.54,
+       "tool_total": 1463.96,
        "owner_total": 1257.72,
-       "delta_tool_minus_owner": 212.82,
+       "delta_tool_minus_owner": 206.24,
        "head_to_head": {
         "tool_weeks_won": 13,
         "cory_weeks_won": 4,
@@ -1367,9 +1241,9 @@
      "owner": "ds7mmet",
      "arms": {
       "optimal": {
-       "tool_total": 1408.56,
-       "owner_total": 1379.14,
-       "delta_tool_minus_owner": 29.42,
+       "tool_total": 1414.56,
+       "owner_total": 1386.04,
+       "delta_tool_minus_owner": 28.52,
        "head_to_head": {
         "tool_weeks_won": 6,
         "cory_weeks_won": 11,
@@ -1377,8 +1251,8 @@
        }
       },
       "realistic": {
-       "tool_total": 1236.92,
-       "owner_total": 1171.54,
+       "tool_total": 1242.92,
+       "owner_total": 1177.54,
        "delta_tool_minus_owner": 65.38,
        "head_to_head": {
         "tool_weeks_won": 8,
@@ -1405,8 +1279,8 @@
      "shadowed_picks": 6,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1285.96,
-      "delta_tool_minus_owner": -93.18,
+      "tool_total": 1295.96,
+      "delta_tool_minus_owner": -90.08,
       "head_to_head": {
        "tool_weeks_won": 5,
        "cory_weeks_won": 12,
@@ -1418,8 +1292,8 @@
      "owner": "cashworth",
      "arms": {
       "optimal": {
-       "tool_total": 1568.74,
-       "owner_total": 1528.88,
+       "tool_total": 1574.44,
+       "owner_total": 1534.58,
        "delta_tool_minus_owner": 39.86,
        "head_to_head": {
         "tool_weeks_won": 10,
@@ -1428,9 +1302,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1403.42,
-       "owner_total": 1388.3,
-       "delta_tool_minus_owner": 15.12,
+       "tool_total": 1395.42,
+       "owner_total": 1398.2,
+       "delta_tool_minus_owner": -2.78,
        "head_to_head": {
         "tool_weeks_won": 8,
         "cory_weeks_won": 9,
@@ -1456,8 +1330,8 @@
      "shadowed_picks": 6,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1558.04,
-      "delta_tool_minus_owner": 29.16,
+      "tool_total": 1567.74,
+      "delta_tool_minus_owner": 33.16,
       "head_to_head": {
        "tool_weeks_won": 7,
        "cory_weeks_won": 10,
@@ -1469,9 +1343,9 @@
      "owner": "Jreis",
      "arms": {
       "optimal": {
-       "tool_total": 1631.76,
-       "owner_total": 1550.28,
-       "delta_tool_minus_owner": 81.48,
+       "tool_total": 1637.76,
+       "owner_total": 1558.28,
+       "delta_tool_minus_owner": 79.48,
        "head_to_head": {
         "tool_weeks_won": 8,
         "cory_weeks_won": 9,
@@ -1479,12 +1353,12 @@
        }
       },
       "realistic": {
-       "tool_total": 1491.22,
-       "owner_total": 1363.68,
-       "delta_tool_minus_owner": 127.54,
+       "tool_total": 1497.62,
+       "owner_total": 1365.78,
+       "delta_tool_minus_owner": 131.84,
        "head_to_head": {
-        "tool_weeks_won": 10,
-        "cory_weeks_won": 7,
+        "tool_weeks_won": 12,
+        "cory_weeks_won": 5,
         "ties": 0
        }
       }
@@ -1507,8 +1381,8 @@
      "shadowed_picks": 6,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1511.26,
-      "delta_tool_minus_owner": -39.02,
+      "tool_total": 1517.26,
+      "delta_tool_minus_owner": -41.02,
       "head_to_head": {
        "tool_weeks_won": 9,
        "cory_weeks_won": 8,
@@ -1520,9 +1394,9 @@
      "owner": "B8T3S",
      "arms": {
       "optimal": {
-       "tool_total": 1600.06,
-       "owner_total": 1820.02,
-       "delta_tool_minus_owner": -219.96,
+       "tool_total": 1606.36,
+       "owner_total": 1834.32,
+       "delta_tool_minus_owner": -227.96,
        "head_to_head": {
         "tool_weeks_won": 6,
         "cory_weeks_won": 11,
@@ -1530,12 +1404,12 @@
        }
       },
       "realistic": {
-       "tool_total": 1467.42,
-       "owner_total": 1650.32,
-       "delta_tool_minus_owner": -182.9,
+       "tool_total": 1489.52,
+       "owner_total": 1613.9,
+       "delta_tool_minus_owner": -124.38,
        "head_to_head": {
-        "tool_weeks_won": 6,
-        "cory_weeks_won": 11,
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
         "ties": 0
        }
       }
@@ -1558,11 +1432,11 @@
      "shadowed_picks": 5,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1531.06,
-      "delta_tool_minus_owner": -288.96,
+      "tool_total": 1537.36,
+      "delta_tool_minus_owner": -296.96,
       "head_to_head": {
-       "tool_weeks_won": 6,
-       "cory_weeks_won": 11,
+       "tool_weeks_won": 5,
+       "cory_weeks_won": 12,
        "ties": 0
       }
      }
@@ -1571,9 +1445,9 @@
      "owner": "MarianSaar",
      "arms": {
       "optimal": {
-       "tool_total": 1762.34,
-       "owner_total": 1612.08,
-       "delta_tool_minus_owner": 150.26,
+       "tool_total": 1771.04,
+       "owner_total": 1616.78,
+       "delta_tool_minus_owner": 154.26,
        "head_to_head": {
         "tool_weeks_won": 11,
         "cory_weeks_won": 6,
@@ -1581,9 +1455,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1567.8,
-       "owner_total": 1433.98,
-       "delta_tool_minus_owner": 133.82,
+       "tool_total": 1584.6,
+       "owner_total": 1425.98,
+       "delta_tool_minus_owner": 158.62,
        "head_to_head": {
         "tool_weeks_won": 10,
         "cory_weeks_won": 7,
@@ -1609,8 +1483,8 @@
      "shadowed_picks": 5,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1682.34,
-      "delta_tool_minus_owner": 70.26,
+      "tool_total": 1694.94,
+      "delta_tool_minus_owner": 78.16,
       "head_to_head": {
        "tool_weeks_won": 13,
        "cory_weeks_won": 4,
@@ -1622,9 +1496,9 @@
      "owner": "mhagen",
      "arms": {
       "optimal": {
-       "tool_total": 1811.2,
-       "owner_total": 1966.64,
-       "delta_tool_minus_owner": -155.44,
+       "tool_total": 1823.2,
+       "owner_total": 1974.94,
+       "delta_tool_minus_owner": -151.74,
        "head_to_head": {
         "tool_weeks_won": 5,
         "cory_weeks_won": 12,
@@ -1632,9 +1506,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1627.28,
-       "owner_total": 1784.14,
-       "delta_tool_minus_owner": -156.86,
+       "tool_total": 1633.18,
+       "owner_total": 1791.14,
+       "delta_tool_minus_owner": -157.96,
        "head_to_head": {
         "tool_weeks_won": 4,
         "cory_weeks_won": 13,
@@ -1660,8 +1534,8 @@
      "shadowed_picks": 4,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1787.3,
-      "delta_tool_minus_owner": -179.34,
+      "tool_total": 1799.3,
+      "delta_tool_minus_owner": -175.64,
       "head_to_head": {
        "tool_weeks_won": 4,
        "cory_weeks_won": 13,
@@ -1673,9 +1547,9 @@
      "owner": "Richard2121",
      "arms": {
       "optimal": {
-       "tool_total": 1739.62,
-       "owner_total": 1944.1,
-       "delta_tool_minus_owner": -204.48,
+       "tool_total": 1752.02,
+       "owner_total": 1955.0,
+       "delta_tool_minus_owner": -202.98,
        "head_to_head": {
         "tool_weeks_won": 3,
         "cory_weeks_won": 14,
@@ -1683,12 +1557,12 @@
        }
       },
       "realistic": {
-       "tool_total": 1565.88,
-       "owner_total": 1667.0,
-       "delta_tool_minus_owner": -101.12,
+       "tool_total": 1582.18,
+       "owner_total": 1685.1,
+       "delta_tool_minus_owner": -102.92,
        "head_to_head": {
-        "tool_weeks_won": 6,
-        "cory_weeks_won": 11,
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
         "ties": 0
        }
       }
@@ -1710,8 +1584,8 @@
      "shadowed_picks": 3,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1720.92,
-      "delta_tool_minus_owner": -223.18,
+      "tool_total": 1733.32,
+      "delta_tool_minus_owner": -221.68,
       "head_to_head": {
        "tool_weeks_won": 2,
        "cory_weeks_won": 15,
@@ -1723,22 +1597,22 @@
      "owner": "Schmelley",
      "arms": {
       "optimal": {
-       "tool_total": 1699.7,
-       "owner_total": 1856.34,
-       "delta_tool_minus_owner": -156.64,
+       "tool_total": 1713.7,
+       "owner_total": 1869.14,
+       "delta_tool_minus_owner": -155.44,
        "head_to_head": {
-        "tool_weeks_won": 4,
-        "cory_weeks_won": 13,
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
         "ties": 0
        }
       },
       "realistic": {
-       "tool_total": 1497.36,
-       "owner_total": 1458.78,
-       "delta_tool_minus_owner": 38.58,
+       "tool_total": 1508.66,
+       "owner_total": 1433.88,
+       "delta_tool_minus_owner": 74.78,
        "head_to_head": {
-        "tool_weeks_won": 11,
-        "cory_weeks_won": 6,
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
         "ties": 0
        }
       }
@@ -1761,11 +1635,11 @@
      "shadowed_picks": 6,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1654.6,
+      "tool_total": 1667.4,
       "delta_tool_minus_owner": -201.74,
       "head_to_head": {
-       "tool_weeks_won": 6,
-       "cory_weeks_won": 11,
+       "tool_weeks_won": 5,
+       "cory_weeks_won": 12,
        "ties": 0
       }
      }
@@ -1774,9 +1648,9 @@
      "owner": "Sadbru",
      "arms": {
       "optimal": {
-       "tool_total": 1454.16,
-       "owner_total": 1592.6,
-       "delta_tool_minus_owner": -138.44,
+       "tool_total": 1460.16,
+       "owner_total": 1596.6,
+       "delta_tool_minus_owner": -136.44,
        "head_to_head": {
         "tool_weeks_won": 6,
         "cory_weeks_won": 11,
@@ -1784,9 +1658,9 @@
        }
       },
       "realistic": {
-       "tool_total": 1301.02,
-       "owner_total": 1404.58,
-       "delta_tool_minus_owner": -103.56,
+       "tool_total": 1307.02,
+       "owner_total": 1412.58,
+       "delta_tool_minus_owner": -105.56,
        "head_to_head": {
         "tool_weeks_won": 7,
         "cory_weeks_won": 10,
@@ -1812,7 +1686,7 @@
      "shadowed_picks": 3,
      "forced_picks": 0,
      "room_draftable_pool_optimal": {
-      "tool_total": 1348.16,
+      "tool_total": 1352.16,
       "delta_tool_minus_owner": -244.44,
       "head_to_head": {
        "tool_weeks_won": 4,
@@ -1839,15 +1713,14 @@
       "mhagen"
      ],
      "beats_n_of_10": 5,
-     "median_owner_delta": -54.51,
-     "cory_delta": 156.14
+     "median_owner_delta": -53.96,
+     "cory_delta": 158.14
     },
     "realistic": {
      "owners_tool_beats": [
       "Jreis",
       "MarianSaar",
       "Schmelley",
-      "cashworth",
       "coryjsimms",
       "ds7mmet"
      ],
@@ -1855,16 +1728,17 @@
       "B8T3S",
       "Richard2121",
       "Sadbru",
+      "cashworth",
       "mhagen"
      ],
-     "beats_n_of_10": 6,
-     "median_owner_delta": 26.85,
-     "cory_delta": 212.82
+     "beats_n_of_10": 5,
+     "median_owner_delta": 31.3,
+     "cory_delta": 206.24
     }
    },
    "league_summary_room_pool_optimal": {
     "beats_n_of_10": 3,
-    "median_owner_delta": -136.26,
+    "median_owner_delta": -132.86,
     "cory_delta": 40.84
    }
   },
@@ -1884,7 +1758,7 @@
    },
    "board": {
     "projection_coverage_unfiltered": 501,
-    "projection_coverage_restated": 403,
+    "projection_coverage_restated": 411,
     "excluded": [
      {
       "player_id": "1049",
@@ -2008,17 +1882,6 @@
       "team_2026": null
      },
      {
-      "player_id": "7561",
-      "name": "Elijah Mitchell",
-      "pos": "RB",
-      "proj": 47.05,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "6074",
       "name": "Donald Parham",
       "pos": "TE",
@@ -2034,17 +1897,6 @@
       "name": "Melvin Gordon",
       "pos": "RB",
       "proj": 44.67,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "5000",
-      "name": "Chase Edmonds",
-      "pos": "RB",
-      "proj": 44.12,
       "zero_game_seasons": [
        2024,
        2025
@@ -2371,17 +2223,6 @@
       "team_2026": null
      },
      {
-      "player_id": "7529",
-      "name": "7529",
-      "pos": "RB",
-      "proj": 23.62,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "2460",
       "name": "C.J. Uzomah",
       "pos": "TE",
@@ -2558,17 +2399,6 @@
       "team_2026": null
      },
      {
-      "player_id": "6037",
-      "name": "Brett Rypien",
-      "pos": "QB",
-      "proj": 11.35,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "7009",
       "name": "Trishton Jackson",
       "pos": "WR",
@@ -2584,17 +2414,6 @@
       "name": "Nick Bawden",
       "pos": "RB",
       "proj": 11.26,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "8484",
-      "name": "Ko Kieft",
-      "pos": "TE",
-      "proj": 10.82,
       "zero_game_seasons": [
        2024,
        2025
@@ -2624,32 +2443,10 @@
       "team_2026": null
      },
      {
-      "player_id": "6202",
-      "name": "Jakob Johnson",
-      "pos": "RB",
-      "proj": 9.36,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "6379",
       "name": "Khari Blasingame",
       "pos": "RB",
       "proj": 9.03,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "8227",
-      "name": "Teagan Quitoriano",
-      "pos": "TE",
-      "proj": 8.91,
       "zero_game_seasons": [
        2024,
        2025
@@ -2782,17 +2579,6 @@
       "name": "Alex Armah",
       "pos": "RB",
       "proj": 5.5,
-      "zero_game_seasons": [
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "7216",
-      "name": "Giovanni Ricci",
-      "pos": "TE",
-      "proj": 4.97,
       "zero_game_seasons": [
        2024,
        2025
@@ -3542,7 +3328,7 @@
    },
    "board": {
     "projection_coverage_unfiltered": 481,
-    "projection_coverage_restated": 398,
+    "projection_coverage_restated": 400,
     "excluded": [
      {
       "player_id": "167",
@@ -3869,34 +3655,10 @@
       "team_2026": null
      },
      {
-      "player_id": "7809",
-      "name": "Avery Williams",
-      "pos": "RB",
-      "proj": 25.36,
-      "zero_game_seasons": [
-       2023,
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
       "player_id": "1144",
       "name": "Cole Beasley",
       "pos": "WR",
       "proj": 24.99,
-      "zero_game_seasons": [
-       2023,
-       2024,
-       2025
-      ],
-      "team_2026": null
-     },
-     {
-      "player_id": "3155",
-      "name": "Laquon Treadwell",
-      "pos": "WR",
-      "proj": 23.69,
       "zero_game_seasons": [
        2023,
        2024,
@@ -5107,19 +4869,19 @@
    "owner": "coryjsimms",
    "optimal": {
     "per_year": {
-     "2025": 156.14,
+     "2025": 158.14,
      "2024": -58.0,
      "2023": -75.7
     },
-    "mean_delta": 7.48
+    "mean_delta": 8.15
    },
    "realistic": {
     "per_year": {
-     "2025": 212.82,
+     "2025": 206.24,
      "2024": 2.26,
      "2023": -91.36
     },
-    "mean_delta": 41.24
+    "mean_delta": 39.05
    },
    "room_draftable_pool_optimal": {
     "per_year": {
@@ -5134,11 +4896,11 @@
    "owner": "ds7mmet",
    "optimal": {
     "per_year": {
-     "2025": 29.42,
+     "2025": 28.52,
      "2024": -129.28,
      "2023": -115.36
     },
-    "mean_delta": -71.74
+    "mean_delta": -72.04
    },
    "realistic": {
     "per_year": {
@@ -5150,11 +4912,11 @@
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": -93.18,
+     "2025": -90.08,
      "2024": 100.22,
      "2023": -119.46
     },
-    "mean_delta": -37.47
+    "mean_delta": -36.44
    }
   },
   "3": {
@@ -5169,173 +4931,173 @@
    },
    "realistic": {
     "per_year": {
-     "2025": 15.12,
+     "2025": -2.78,
      "2024": -76.56,
      "2023": 9.68
     },
-    "mean_delta": -17.25
+    "mean_delta": -23.22
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": 29.16,
+     "2025": 33.16,
      "2024": 86.44,
      "2023": 98.34
     },
-    "mean_delta": 71.31
+    "mean_delta": 72.65
    }
   },
   "4": {
    "owner": "Jreis",
    "optimal": {
     "per_year": {
-     "2025": 81.48,
+     "2025": 79.48,
      "2024": 245.1,
      "2023": 284.38
     },
-    "mean_delta": 203.65
+    "mean_delta": 202.99
    },
    "realistic": {
     "per_year": {
-     "2025": 127.54,
+     "2025": 131.84,
      "2024": 110.94,
      "2023": 215.12
     },
-    "mean_delta": 151.2
+    "mean_delta": 152.63
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": -39.02,
+     "2025": -41.02,
      "2024": 254.0,
      "2023": 255.36
     },
-    "mean_delta": 156.78
+    "mean_delta": 156.11
    }
   },
   "5": {
    "owner": "B8T3S",
    "optimal": {
     "per_year": {
-     "2025": -219.96,
+     "2025": -227.96,
      "2024": 130.3,
      "2023": 33.02
     },
-    "mean_delta": -18.88
+    "mean_delta": -21.55
    },
    "realistic": {
     "per_year": {
-     "2025": -182.9,
+     "2025": -124.38,
      "2024": 126.22,
      "2023": 112.0
     },
-    "mean_delta": 18.44
+    "mean_delta": 37.95
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": -288.96,
+     "2025": -296.96,
      "2024": 231.0,
      "2023": 66.6
     },
-    "mean_delta": 2.88
+    "mean_delta": 0.21
    }
   },
   "6": {
    "owner": "MarianSaar",
    "optimal": {
     "per_year": {
-     "2025": 150.26,
+     "2025": 154.26,
      "2024": 10.92,
      "2023": -249.92
     },
-    "mean_delta": -29.58
+    "mean_delta": -28.25
    },
    "realistic": {
     "per_year": {
-     "2025": 133.82,
+     "2025": 158.62,
      "2024": 4.18,
      "2023": -113.82
     },
-    "mean_delta": 8.06
+    "mean_delta": 16.33
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": 70.26,
+     "2025": 78.16,
      "2024": 23.82,
      "2023": -251.54
     },
-    "mean_delta": -52.49
+    "mean_delta": -49.85
    }
   },
   "7": {
    "owner": "mhagen",
    "optimal": {
     "per_year": {
-     "2025": -155.44,
+     "2025": -151.74,
      "2024": 9.14,
      "2023": -128.82
     },
-    "mean_delta": -91.71
+    "mean_delta": -90.47
    },
    "realistic": {
     "per_year": {
-     "2025": -156.86,
+     "2025": -157.96,
      "2024": -39.12,
      "2023": -102.38
     },
-    "mean_delta": -99.45
+    "mean_delta": -99.82
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": -179.34,
+     "2025": -175.64,
      "2024": 66.34,
      "2023": -25.04
     },
-    "mean_delta": -46.01
+    "mean_delta": -44.78
    }
   },
   "8": {
    "owner": "Richard2121",
    "optimal": {
     "per_year": {
-     "2025": -204.48,
+     "2025": -202.98,
      "2024": 97.94,
      "2023": 175.42
     },
-    "mean_delta": 22.96
+    "mean_delta": 23.46
    },
    "realistic": {
     "per_year": {
-     "2025": -101.12,
+     "2025": -102.92,
      "2024": 39.32,
      "2023": 137.68
     },
-    "mean_delta": 25.29
+    "mean_delta": 24.69
    },
    "room_draftable_pool_optimal": {
     "per_year": {
-     "2025": -223.18,
+     "2025": -221.68,
      "2024": 98.78,
      "2023": 75.28
     },
-    "mean_delta": -16.37
+    "mean_delta": -15.87
    }
   },
   "9": {
    "owner": "Schmelley",
    "optimal": {
     "per_year": {
-     "2025": -156.64,
+     "2025": -155.44,
      "2024": 117.52,
      "2023": -177.58
     },
-    "mean_delta": -72.23
+    "mean_delta": -71.83
    },
    "realistic": {
     "per_year": {
-     "2025": 38.58,
+     "2025": 74.78,
      "2024": 86.22,
      "2023": -94.9
     },
-    "mean_delta": 9.97
+    "mean_delta": 22.03
    },
    "room_draftable_pool_optimal": {
     "per_year": {
@@ -5350,19 +5112,19 @@
    "owner": "Sadbru",
    "optimal": {
     "per_year": {
-     "2025": -138.44,
+     "2025": -136.44,
      "2024": 60.8,
      "2023": -14.02
     },
-    "mean_delta": -30.55
+    "mean_delta": -29.89
    },
    "realistic": {
     "per_year": {
-     "2025": -103.56,
+     "2025": -105.56,
      "2024": 65.88,
      "2023": -49.04
     },
-    "mean_delta": -28.91
+    "mean_delta": -29.57
    },
    "room_draftable_pool_optimal": {
     "per_year": {
@@ -5376,17 +5138,17 @@
   "_summary": {
    "optimal": {
     "beats_n_of_10_pooled": 4,
-    "median_owner_mean_delta": -24.23,
-    "cory_mean_delta": 7.48
+    "median_owner_mean_delta": -24.9,
+    "cory_mean_delta": 8.15
    },
    "realistic": {
     "beats_n_of_10_pooled": 6,
-    "median_owner_mean_delta": 9.02,
-    "cory_mean_delta": 41.24
+    "median_owner_mean_delta": 19.18,
+    "cory_mean_delta": 39.05
    },
    "room_draftable_pool_optimal": {
     "beats_n_of_10_pooled": 3,
-    "median_owner_mean_delta": -28.64,
+    "median_owner_mean_delta": -28.12,
     "cory_mean_delta": -19.81
    }
   }
