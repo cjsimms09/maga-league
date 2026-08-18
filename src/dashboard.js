@@ -158,6 +158,18 @@ function draftAnnouncement(config, nowISO, seasonYear) {
   const date = cfg.draft_date || fallbackDate;
   const time = cfg.draft_time || (ruledDate && ruled.time) || '6:00 PM';
   const place = cfg.draft_location || "Cory's House";
+  // REGISTER 5m (B, 2026-08-18): `configured` used to return `true`
+  // unconditionally — a bare, unruled placeholder announcing itself with the
+  // authority of a decision, the exact defect `keeperDeadlineAnnouncement`
+  // below was fixed for. The register's own one-line fix (`cfg.draft_date &&
+  // cfg.draft_time`) predates `committedDraftRuling()` above and would have
+  // UNPINNED this banner today — the runtime store still carries neither key,
+  // but the committed ruling is a real decision (Cory's verbatim words, in
+  // git), not a guess. So `configured` is true when EITHER the runtime store
+  // has a real value OR the committed, same-year ruling backs the date; false
+  // only for the true unbacked placeholder (`seasonYear + '-08-22'`, nobody
+  // having ruled or set anything).
+  const configured = !!((cfg.draft_date && cfg.draft_time) || ruledDate);
   if (!date) return { date: null, time, place, weekday: '', longDate: '', when: '', days: null, passed: false, today: false, countdownText: null, message: null, configured: false };
   const days = nowISO ? daysUntil(date, nowISO) : null;
   // Fixed UTC frame so the label never shifts by the server's timezone.
@@ -175,7 +187,7 @@ function draftAnnouncement(config, nowISO, seasonYear) {
   if (days != null) {
     countdownText = today ? 'TODAY' : days === 1 ? 'Tomorrow' : passed ? 'Draft complete' : days + ' days out';
   }
-  return { date, time, place, weekday, longDate, when, days, passed, today, countdownText, message, configured: true };
+  return { date, time, place, weekday, longDate, when, days, passed, today, countdownText, message, configured };
 }
 
 /**
