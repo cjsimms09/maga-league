@@ -126,3 +126,30 @@ stays OPEN with the observation recorded.
 closest-miss with a two-fold re-test owned (A, post-draft); C4 with C
 post-P38; C6 by 08-28. own_v6 enters Saturday unbeaten by five
 challengers.**
+
+**2026-08-18 (same night, the fold that settles it) — §2's 2024 SECONDARY
+FOLD RUN, and it killed both likeable single-fold results in opposite
+directions:**
+
+- **C7's RB top-tier gain INVERTS:** P@12 +0.083 on 2025 becomes **−0.083 on
+  2024** (one FEWER true top-12 RB), and the fold's improvements wander to
+  different positions (WR precision up where 2025 had WR MAE up) — the
+  signature of noise, not signal. **C7 closes DEAD, not closest-miss**; the
+  "re-test post-draft" next step is already done, tonight, and the answer
+  was no.
+- **C5 "ships" on the 2024 fold alone** (RB improves both families) — after
+  degrading TE on 2025. The mirror image of C7's likeable miss. Cross-fold,
+  §3's no-degradation clause fails on 2025 and the answer stays NO.
+- C1 degrades RB on this fold too (consistent — genuinely harmful); C3 is a
+  wash here (QB degradation was 2025-only, further confirming the system
+  swallows the blend input).
+
+**THE META-FINDING, worth more than any candidate:** in one night, single
+folds produced a likeable near-ship (C7-2025) and an outright §3 ship
+(C5-2024), and each vanished or inverted on the other fold. One fold's
+verdict on this data is one likeable number — every future candidate grades
+on BOTH folds before §3 is read, which this study now does by default.
+
+**FINAL standing: C1, C2, C3, C5, C7 all dead on two-fold evidence. Live:
+C4 (C, post-P38) and C6 (A, by 08-28, needs its information-set design for
+"who is your QB" at draft time). own_v6 enters Saturday unbeaten by six.**

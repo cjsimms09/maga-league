@@ -97,11 +97,11 @@ def _ages_2026():
     return out
 
 
-def fit_age_curves_leakfree():
-    """age_curve_fit.py's method, transitions ending <= 2024 only."""
+def fit_age_curves_leakfree(transitions=None):
+    """age_curve_fit.py's method, transitions ending before the graded fold."""
     ages = _ages_2026()
     cells: dict[tuple, list] = {}
-    for y1, y2 in AGE_FIT_TRANSITIONS:
+    for y1, y2 in (transitions or AGE_FIT_TRANSITIONS):
         t1, g1 = _weekly_totals_games(y1)
         t2, g2 = _weekly_totals_games(y2)
         gap = 2026 - y2
@@ -121,12 +121,12 @@ def fit_age_curves_leakfree():
     return curves
 
 
-def c1_apply(base_map, curves, positions):
+def c1_apply(base_map, curves, positions, graded_season=None):
     """v6 x mean-normalized age ratio at the player's GRADED-season age.
     A player whose (pos, age) cell is unmeasured keeps the position mean
     (factor 1.0 after normalization) — absence stays the cohort, never 0."""
     ages = _ages_2026()
-    gap = 2026 - GRADED_SEASON
+    gap = 2026 - (graded_season or GRADED_SEASON)
     out = {}
     # per-position mean of the applied ratios, for normalization
     means = {}
@@ -149,44 +149,54 @@ def c1_apply(base_map, curves, positions):
     return out, applied, means
 
 
-def c3_weights_leakfree():
-    """Per-position w from recency_weight_fit.json, ->2025 triple excluded."""
+def c3_weights_leakfree(graded_season=None):
+    """Per-position w from recency_weight_fit.json, triples ending at or
+    after the graded season excluded — the fold must not see itself."""
+    gs = graded_season or GRADED_SEASON
     doc = json.loads((HERE / "recency_weight_fit.json").read_text())
     out = {}
     for pos, cell in doc["curves"].items():
         ws = [v["best_w"] for k, v in cell["per_triple"].items()
-              if not k.endswith("->2025")]
+              if int(k.split("->")[1]) < gs]
         out[pos] = round(sum(ws) / len(ws), 3) if ws else RECENCY_WEIGHTS[0]
     return out
 
 
-def build_stack(blend, positions, ages, eg_map=None):
-    """The v6 pipeline from own_model_v6.run(), parametrized on the blend."""
-    feat_fit = features_for(2024, (2023,), positions, ages)
-    fits = fit_transition(feat_fit, season_totals(2024)[0])
-    feat_g = features_for(GRADED_SEASON, PRIOR_SEASONS, positions, ages)
+def build_stack(blend, positions, ages, eg_map=None,
+                graded=None, priors=None):
+    """The v6 pipeline from own_model_v6.run(), parametrized on the blend and
+    (for the prereg's secondary fold) on the graded season. The v2 fit
+    always trains on the LAST PRIOR season from the season before it —
+    fold 2025 fits 2024-from-2023 exactly as own_model_v6.run() does; fold
+    2024 fits 2023-from-2022, the same recipe shifted back one year."""
+    graded = graded or GRADED_SEASON
+    priors = priors or PRIOR_SEASONS
+    fit_y = max(priors)
+    feat_fit = features_for(fit_y, (min(priors),), positions, ages)
+    fits = fit_transition(feat_fit, season_totals(fit_y)[0])
+    feat_g = features_for(graded, priors, positions, ages)
     v2 = predict(feat_g, fits)
 
-    _assert_no_leak(PRIOR_SEASONS, GRADED_SEASON)
-    picks = league_draft_picks(GRADED_SEASON)
-    curve = rank_curve(max(PRIOR_SEASONS), positions)
+    _assert_no_leak(priors, graded)
+    picks = league_draft_picks(graded)
+    curve = rank_curve(max(priors), positions)
     mrank = market_ranks(picks, positions)
 
     v3 = build_v3(v2, blend, mrank, curve, positions)
-    wk_y1 = weekly_points(max(PRIOR_SEASONS))
+    wk_y1 = weekly_points(max(priors))
     acts = qb_active_games(wk_y1, positions)
     corr, _mu = qb_availability_correction(acts)
     v4 = build_v4(v3, blend, corr, positions)
 
-    vegas_imp = FCS.implied_team_totals(GRADED_SEASON, 1, 1)
-    comp = V5.comp_opinion(GRADED_SEASON, PRIOR_SEASONS, positions, ages,
+    vegas_imp = FCS.implied_team_totals(graded, 1, 1)
+    comp = V5.comp_opinion(graded, priors, positions, ages,
                            vegas_imp, eg_map=eg_map)
     v5 = V5.build_v5(v3, comp, blend, corr, mrank, curve, positions)
     assert sorted(v4) == sorted(v5)
     return build_v6(v4, v5, positions)
 
 
-def build_c5(hand_blend, positions, ages):
+def build_c5(hand_blend, positions, ages, graded=None, priors=None):
     """C5 — efficiency (the xFP arm) restricted to WR: beta -> 0 at RB/TE.
 
     In this stack the "NGS/efficiency feature" is v5's xFP construction —
@@ -200,7 +210,8 @@ def build_c5(hand_blend, positions, ages):
     try:
         for p in saved:
             V5.V5_CONFIG[p]["beta"] = 0.0
-        return build_stack(hand_blend, positions, ages)
+        return build_stack(hand_blend, positions, ages,
+                           graded=graded, priors=priors)
     finally:
         for p, b in saved.items():
             V5.V5_CONFIG[p]["beta"] = b
@@ -209,7 +220,7 @@ def build_c5(hand_blend, positions, ages):
 C7_SHRINK_K = 1.0   # one prior season's worth of position-mean belief
 
 
-def c7_eg_map(positions):
+def c7_eg_map(positions, priors=None):
     """C7 — the availability gate as a fitted PER-PLAYER prior, leak-free.
 
     The frozen gate regresses Y-1 games toward the position mean with one
@@ -222,13 +233,13 @@ def c7_eg_map(positions):
     zero a rookie it cannot see. Both input seasons predate the graded one.
     """
     obs = {}
-    for y in PRIOR_SEASONS:
+    for y in (priors or PRIOR_SEASONS):
         _tot, games = season_totals(y)
         for pid, g in games.items():
             if positions.get(pid) in POSITIONS and g > 0:
                 obs.setdefault(pid, []).append(float(g))
     mu = {}
-    y1 = max(PRIOR_SEASONS)
+    y1 = max(priors or PRIOR_SEASONS)
     _t, g1 = season_totals(y1)
     for pos in POSITIONS:
         vals = [float(g) for pid, g in g1.items()
@@ -242,8 +253,8 @@ def c7_eg_map(positions):
     return out
 
 
-def make_blend(w_by_pos, positions):
-    y1, y2 = max(PRIOR_SEASONS), min(PRIOR_SEASONS)
+def make_blend(w_by_pos, positions, priors=None):
+    y1, y2 = max(priors or PRIOR_SEASONS), min(priors or PRIOR_SEASONS)
     tot1, tot2 = season_totals(y1)[0], season_totals(y2)[0]
     out = {}
     for pid, v in tot1.items():
@@ -310,26 +321,31 @@ def verdict(base_g, arm_g):
             "positions_degrading": degraded, "ships_under_section_3": ships}
 
 
-def run() -> dict:
+def run_fold(graded, priors, age_transitions):
+    """One fold: BASE + four candidate arms + grades + verdicts."""
     positions = positions_record()
     ages = board_ages()
-    actual = season_totals(GRADED_SEASON)[0]
+    actual = season_totals(graded)[0]
 
-    hand_blend = make_blend({p: RECENCY_WEIGHTS[0] for p in POSITIONS}, positions)
-    base = build_stack(hand_blend, positions, ages)
+    hand_blend = make_blend({p: RECENCY_WEIGHTS[0] for p in POSITIONS},
+                            positions, priors=priors)
+    base = build_stack(hand_blend, positions, ages, graded=graded, priors=priors)
 
-    curves = fit_age_curves_leakfree()
-    c1_map, c1_applied, c1_means = c1_apply(base, curves, positions)
+    curves = fit_age_curves_leakfree(age_transitions)
+    c1_map, c1_applied, c1_means = c1_apply(base, curves, positions,
+                                            graded_season=graded)
 
-    w_fit = c3_weights_leakfree()
-    c3_map = build_stack(make_blend(w_fit, positions), positions, ages)
+    w_fit = c3_weights_leakfree(graded)
+    c3_map = build_stack(make_blend(w_fit, positions, priors=priors),
+                         positions, ages, graded=graded, priors=priors)
 
-    c5_map = build_c5(hand_blend, positions, ages)
-
-    eg = c7_eg_map(positions)
-    c7_map = build_stack(hand_blend, positions, ages, eg_map=eg)
+    c5_map = build_c5(hand_blend, positions, ages, graded=graded, priors=priors)
     assert V5.V5_CONFIG["RB"]["beta"] == 0.50 and V5.V5_CONFIG["TE"]["beta"] == 0.25, \
         "V5_CONFIG must be restored after the C5 build"
+
+    eg = c7_eg_map(positions, priors=priors)
+    c7_map = build_stack(hand_blend, positions, ages, eg_map=eg,
+                         graded=graded, priors=priors)
 
     g_base = grade(base, actual, positions)
     g_c1 = grade(c1_map, actual, positions)
@@ -338,11 +354,10 @@ def run() -> dict:
     g_c7 = grade(c7_map, actual, positions)
 
     return {
-        "_territory": "TERRITORY: A — produced by draft/backtest/v7_candidate_grade.py",
-        "_prereg": "V7-CANDIDATE-PREREG.md §2/§3; bars declared in this module's docstring before any number",
-        "graded_season": GRADED_SEASON,
+        "graded_season": graded,
+        "prior_seasons": list(priors),
         "information_set": {
-            "c1_age_transitions": [f"{a}->{b}" for a, b in AGE_FIT_TRANSITIONS],
+            "c1_age_transitions": [f"{a}->{b}" for a, b in age_transitions],
             "c1_positions": list(AGE_POSITIONS),
             "c1_players_adjusted": c1_applied,
             "c1_position_means_normalized_out": {k: round(v, 4) for k, v in c1_means.items()},
@@ -350,10 +365,8 @@ def run() -> dict:
             "c3_incumbent_w": RECENCY_WEIGHTS[0],
             "c7_shrink_k": C7_SHRINK_K,
             "c7_map_size": len(eg),
-            "leak_note": "the ->2025 age transition and recency triple are excluded from both fits",
+            "leak_note": f"every fit excludes transitions/triples touching {graded}",
         },
-        "bars": {"spearman": NOISE_SPEARMAN, "mae_frac": NOISE_MAE_FRAC,
-                 "p_at_k": NOISE_P_AT_K},
         "grades": {"base_v6": g_base, "c1_age_curves": g_c1,
                    "c3_fitted_recency": g_c3, "c5_wr_only_efficiency": g_c5,
                    "c7_availability_gate": g_c7},
@@ -361,6 +374,28 @@ def run() -> dict:
                      "c3_fitted_recency": verdict(g_base, g_c3),
                      "c5_wr_only_efficiency": verdict(g_base, g_c5),
                      "c7_availability_gate": verdict(g_base, g_c7)},
+    }
+
+
+def run() -> dict:
+    primary = run_fold(GRADED_SEASON, PRIOR_SEASONS, AGE_FIT_TRANSITIONS)
+    # §2's SECONDARY fold — same recipe shifted one year back. It exists so a
+    # likeable single-fold miss (C7's RB P@12) can be tested rather than
+    # argued: a signal that replicates on 2024 is a two-fold case, a signal
+    # that vanishes was one likeable number.
+    secondary = run_fold(2024, (2022, 2023), ((2021, 2022), (2022, 2023)))
+    return {
+        "_territory": "TERRITORY: A — produced by draft/backtest/v7_candidate_grade.py",
+        "_prereg": "V7-CANDIDATE-PREREG.md §2/§3; bars declared in this module's docstring before any number",
+        "bars": {"spearman": NOISE_SPEARMAN, "mae_frac": NOISE_MAE_FRAC,
+                 "p_at_k": NOISE_P_AT_K},
+        # the primary fold's fields stay at top level so every existing
+        # reader (pin tests, registry diff) keeps its shape
+        "graded_season": primary["graded_season"],
+        "information_set": primary["information_set"],
+        "grades": primary["grades"],
+        "verdicts": primary["verdicts"],
+        "secondary_fold_2024": secondary,
     }
 
 

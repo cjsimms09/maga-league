@@ -147,11 +147,12 @@ PUBLISHED (05:33Z), deploy-verified, and frozen as **v27** — the first build
 where every input is playoff-free. All suites green on it: Python 4,174+, JS
 326/326 (the first fully green night). Keepers carry vorp 94.0/59.1/46.2 on
 the badge screens for the 08-20 lock. The v7 candidate hunt has now killed
-FOUR ideas the honest way (C1 age curves, C2 ridge, C3 fitted recency, C5
-WR-only efficiency — each graded leak-free, each with its mechanism named in
-`v7_candidate_grade.json`), which is the strongest evidence yet that own_v6
-is a hard baseline: nothing changes before Saturday, and nothing measured
-this week says it should.
+FIVE ideas the honest way — C1 age curves, C2 ridge, C3 fitted recency, C5
+WR-only efficiency, C7 availability gate — each graded leak-free on TWO
+walk-forward folds (`v7_candidate_grade.json`), and the night's best
+finding is methodological: two of them looked shippable on exactly one
+fold each and died on the other. own_v6 is a hard baseline: nothing
+changes before Saturday, and nothing measured this week says it should.
 
 **0. THE LEAGUE ANALYZER FOR THE RICHARD BET: YES — IT IS BUILT, TESTED, AND
 ONE BUTTON AWAY.** Cory asked whether it will be ready right after the draft.
