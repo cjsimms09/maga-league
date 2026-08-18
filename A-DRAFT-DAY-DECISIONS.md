@@ -66,9 +66,10 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   ratio is backwards by band; its own row says *do not patch by hand before
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, E10, 2b, 2c, 28.
+  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, 2b, 2c, 28.
 - **CLOSED 08-18 against live state, not against the date on the line** — rows
-  1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
+  E10 (its check run on the fresh board; its parent row 2 resolved on the same
+  run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
   named test passes on the fresh board), 4 (`matchup_placed_bet` 6/6,
   `trashtalk` 27/27) and 4c (board-truth 11/11, including the control that
   keepers really do consume picks) — plus row 2 **RESOLVED**: the
