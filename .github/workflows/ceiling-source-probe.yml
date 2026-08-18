@@ -1,0 +1,96 @@
+name: CEILING SOURCE PROBE — who actually publishes a per-player point ceiling?
+# Register 4t. Cory, 2026-08-18: "ceiling is a projected score that we will have to
+# get from outside source" ... "we need to get them from somewhere!!!"
+#
+# WHAT IS ALREADY ANSWERED AND IS NOT RE-LITIGATED HERE:
+# FantasyPros' SEASON PROJECTIONS endpoint was captured in full on 2026-08-16
+# (draft/audit/proj_correctness_evidence_2026-08-16.json — 596 raw rows, unfiltered
+# key census, 40 stat keys) and carries NO ceiling/floor/high/low field. Cory asked
+# whether we ever hit the FP API; we did, and it publishes a mean and nothing around
+# it. This job re-probes it anyway so ONE artifact holds the whole answer, but the
+# real question it exists to settle is the four endpoints nobody has ever tried:
+# ECR (`type=draft`), ECR with per-expert ranks (`&experts=show`), FP WEEKLY
+# projections, and Sleeper's projections endpoint unfiltered.
+#
+# WHY NOT `fp-projections-probe.yml`, WHICH ALREADY EXISTS AND ALREADY RAN:
+# because it CANNOT find a ceiling. It pipes the payload through
+# `_FP_STAT_MAP` — a 9-key whitelist — before anything inspects it, so a
+# `ceiling: 441.8` field would be dropped on the way in and the probe would still
+# print its green "FantasyPros DOES serve projections" verdict. A check that cannot
+# fail, reported as a check that passed. This job never filters: full recursive key
+# census with counts, plus sample rows retained VERBATIM.
+#
+# Side-effect-free on the model: it reads, censuses, and commits ONE discovery
+# artifact. It does not touch the board, the calibration, or any projection.
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to probe'
+        required: false
+        default: '2026'
+      commit:
+        description: 'Commit the discovery artifact to main (it is a discovery record, not model state)'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # The known-positive control runs BEFORE the egress. If the census cannot
+      # find a ceiling field in a payload that definitely has one, then whatever
+      # the live probe reports is worthless and the job should stop here rather
+      # than commit a confident null.
+      - name: Prove the probe can find a ceiling before trusting it not to
+        run: python3 -m pytest draft/tests/test_discovery_ceiling_sources.py -q
+
+      - name: Probe every candidate source
+        continue-on-error: true
+        timeout-minutes: 15
+        env:
+          YEAR: ${{ github.event.inputs.year }}
+        run: |
+          set -uo pipefail
+          python3 - <<'PY'
+          import os, sys
+          sys.path.insert(0, "draft")
+          sys.path.insert(0, "draft/backtest")
+          import discovery_ceiling_sources as D
+          D.YEAR = int(os.environ.get("YEAR") or 2026)
+          D.main()
+          PY
+
+      - name: Commit the discovery artifact
+        if: ${{ github.event.inputs.commit != 'false' }}
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          if [ -n "$(git status --porcelain draft/backtest/discovery_ceiling_sources.json)" ]; then
+            git add draft/backtest/discovery_ceiling_sources.json
+            git commit -m "Ceiling source probe: which source publishes a per-player point ceiling [skip deploy]"
+            # main moves fast in draft week; rebase rather than fail the run on a race.
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push origin HEAD:main && break
+              sleep $((2**i))
+            done
+          else
+            echo "No change to the discovery artifact."
+          fi
+
+      - name: Upload the artifact regardless of whether the commit landed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceiling-source-probe
+          path: draft/backtest/discovery_ceiling_sources.json
+          if-no-files-found: warn
