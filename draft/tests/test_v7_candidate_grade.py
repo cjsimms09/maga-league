@@ -83,4 +83,5 @@ def test_the_committed_artifact_recorded_no_ship_for_both_arms():
     doc = json.loads((BT / "v7_candidate_grade.json").read_text())
     assert doc["verdicts"]["c1_age_curves"]["ships_under_section_3"] is False
     assert doc["verdicts"]["c3_fitted_recency"]["ships_under_section_3"] is False
+    assert doc["verdicts"]["c5_wr_only_efficiency"]["ships_under_section_3"] is False
     assert doc["information_set"]["leak_note"].startswith("the ->2025")
