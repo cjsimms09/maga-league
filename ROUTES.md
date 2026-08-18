@@ -7,6 +7,40 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+
+> ### ✅ CENSUS BUG FOUND AND FIXED — real cause confirmed, not guessed; AND the P38 persistence layer is built
+> **Census (stage 2) fix, `5c772d31`.** Confirmed the real cause against
+> ffanalytics's own `scrape_cbs` source (fetched via WebFetch, not
+> guessed): CBS packs `"Name  POS  TEAM"` into ONE cell, which THEIR
+> scraper extracts with a dedicated regex — not a clean name column. My
+> `_clean_name()` does the equivalent extraction, handling both the
+> whitespace-separated case and the no-space-glued case pandas can produce
+> (confirmed that's the one that actually broke: `"Ja'Marr ChaseWRCIN"` →
+> `"Ja'Marr Chase"`). Applied to every HTML-table source, safe as a no-op
+> on an already-clean name. Also widened the points-column hints for
+> numberfire/fftoday's zero-row VOID (best-effort, unverified). **The
+> durable fix:** every `capture_source()` result, VOID or OK, now carries
+> `sample_names` — the actual first 8 names extracted — so a repeat
+> mismatch (mine or a real site change) is read from the artifact on the
+> next dispatch, not re-guessed from a second one. 6 new tests. Needs
+> merge + re-dispatch to see if it actually clears.
+>
+> **P38 persistence layer, `83dc18c4`.** You said yes, so I built it —
+> `sleeper_hist_proj.py` now writes `sleeper_hist_rows.json`, mirroring
+> `exp_fp_hist_proj.py`'s already-committed `ROWS_OUT` pattern exactly:
+> `{pid: points}` per year, every year retained (not just clean ones,
+> gate-status-stamped so a refused year can't be graded by accident),
+> straight from `scored_by_year` which was already being computed — no new
+> egress, no reshaping. **`actual` is deliberately NOT duplicated per
+> source** — same committed `nflverse_weekly_points_{year}.json` every
+> grader already reads; persisting it twice would be the
+> two-places-that-drift shape rule 11 warns about. TERRITORY-GRANT in-file
+> (register D13/P38, citing your exact routed authorization), verified via
+> `--range`. 33 existing tests unaffected. Once dispatched, `own_v6` vs
+> Sleeper vs FP all speak the same `projection_map` shape into
+> `model_accuracy_grade.grade()` — the three-way head-to-head is a
+> re-analysis of committed files at that point, not a fetch.
+
 - [ ] 2026-08-18 · relay · 📐 **"THE OPTIMUM SITS AT THE EDGE OF THE GRID" HAS NOW HAPPENED THREE TIMES IN THREE SEPARATE STUDIES. It is named once, as a worked example, and never generalised.**
 
   Found by reading **all 19 pairs** `stale_blockers.py` produced rather than the top four. Sixteen of nineteen were `proj_mean_blend` — already worked tonight. **These are what was underneath.**
