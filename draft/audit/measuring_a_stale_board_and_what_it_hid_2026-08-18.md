@@ -134,3 +134,78 @@ REC:      E1's row needs its blast-radius line updated whoever rules on it --
           mine to do.
 DEFAULT:  The table and the check are fixed. Nothing else changed.
 ```
+
+
+---
+
+# ADDENDUM, same day — TWO OF MY FILINGS WERE WRONG, AND A HAD ALREADY RULED
+
+Re-running the three findings I had flagged as unverified turned up two errors of
+my own. Both are withdrawn here rather than quietly dropped.
+
+## 1. E29 IS WITHDRAWN — A closed E1 hours before I filed against it
+
+**A's ruling (`projections.py:306`, 2026-08-18):** the calibration was fitted on
+historical seasons where **nobody is withheld**, so its `WR 4-8` cell measures the
+world's WR4-8 — and the **full-universe** rank (keepers counted) is the one that
+reads the right cell. The published `pos_rank` answers a different question,
+availability, and may legitimately differ at band boundaries for exactly as many
+slots as keepers sit above. **Full-universe ranking is also invariant to keeper
+withholding.**
+
+**So the "misreads" are the ruled-correct reads.** My count of 14 measures the
+gap between availability rank and full-universe rank — expected, not a defect.
+
+**How I got it wrong:** I re-measured on main's fresh board but did not re-read
+E1's row after merging main, so I filed against a closure I had just pulled in.
+
+**One piece survives with its sign flipped:** my measurement that correcting the
+cells to published rank moves **20 of 120 name slots** is now evidence **for**
+A's rejection — it quantifies what the rejected fix would have disturbed.
+
+## 2. E26'S MECHANISM 1 IS WITHDRAWN — the same ruling kills it
+
+I filed that **46 players change calibration cell at lock**. They do not. The
+cell is read from the full-universe rank, which already counts the withheld
+keepers, so it **does not move at lock**. I inherited that claim from E1's
+pre-ruling audit and repeated it without re-deriving it.
+
+**Mechanism 2 stands and is independent of the ruling:** `liveIndexOf` counts
+non-keeper rows in `pick_order`, which genuinely gains ~8 keeper slots at lock,
+dropping every one of Cory's picks by 8 live selections. **So the board moves
+ONCE at lock, on the survival scale — not twice.**
+
+## 3. E30 — MY OWN CAVEAT WAS LYING ON THE LIVE BOARD
+
+The 08-17 volatility wiring added a **third** dispersion source. Today's board:
+
+| source | rows | what it is |
+|---|---|---|
+| `measured-2023-25-p90-x-player-cv` | **268** | cell ratio × **this player's own** cv |
+| `measured-2023-25-p90` | **267** | cohort constant |
+| `gaussian_z` | 161 | Gaussian |
+
+Both measured forms begin with `measured-`, and my `dispersionCaveat` tested
+exactly that prefix — so it told the reader *"Every &lt;POS&gt; in that band
+carries the same multiple"* for **all 535**. **False for 268 of them, and false
+in the direction that matters:** it tells Cory to discount a figure that IS about
+this player.
+
+**The whole point of that caveat is that a label must say what the number is. It
+stopped doing so the moment the number changed under it** — this lane's own
+failure mode, in my own shipped code, because I shipped it against a board where
+the third source did not exist and then measured on a stale branch for two days.
+
+**And my first fix was wrong too.** It returned early for per-player rows, which
+dropped the **full-universe repricing note A had added after ruling E1** — 268
+rows lost it. Replacing one false label with a missing one. **This file's own
+repricing checks went red and caught it**, and the shipped version keeps both
+facts, because *which construction produced the number* and *which population
+picked the band* are independent.
+
+## WHAT THE THREE UNVERIFIED FINDINGS ACTUALLY DID ON THE FRESH BOARD
+
+- **E16 (floor cliffs): reproduces, slightly worse — 5 cliffs, not 4.** Jordan
+  Love QB17 floor **2.34** against Jaxson Dart QB16 at **81.23**, a 34.7× drop on
+  a 6.0-point gap. New: DK Metcalf WR32 4.70 vs Marvin Harrison 64.85.
+- **E20 / E26 numbers: not re-run.** Still outstanding and still stated as such.
