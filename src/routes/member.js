@@ -900,6 +900,9 @@ router.get('/', aw(async (req, res) => {
 
   res.render('dashboard', {
     pickemNudge,
+    // Sunday night / Monday only (Cory, 2026-08-18) — the home page's cue to
+    // check the scores screen while games are actually live.
+    gameNight: WW.primetimeWindow(),
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
@@ -3017,6 +3020,9 @@ router.get('/scoreboard', aw(async (req, res) => {
   // ET day → the what-to-watch line only lights up Sun/Mon nights
   const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
   const primetime = etDay === 0 || etDay === 1;
+  // The narrower promo window for the What-to-Watch banner on this page —
+  // Sunday night + Monday only, gone the rest of the week (Cory, 2026-08-18).
+  const gameNight = WW.primetimeWindow();
 
   // SIDE-BET MONEY ON THE GAME CARD (member-site review, 2026-08-15). Half the
   // point of a matchup bet is watching the game with it in mind — and this is
@@ -3110,7 +3116,7 @@ router.get('/scoreboard', aw(async (req, res) => {
   const liveStale = await liveFreshness();
   res.render('scoreboard', {
     liveStale,
-    me, owners, weekNo, cards, locked, whRace, whBand, recordChips,
+    me, owners, weekNo, cards, locked, whRace, whBand, recordChips, gameNight,
     regWeeks: nav.regWeeks,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
