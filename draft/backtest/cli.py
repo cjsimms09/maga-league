@@ -1,4 +1,3 @@
-# TERRITORY: A
 """Assemble real bundles + grading data. Runs where the network is (CI).
 
 Everything season-specific goes through AsOfDataStore. This file is the only
@@ -20,9 +19,15 @@ from backtest import build_bundle as BB
 from backtest import grade as GR
 from backtest import projection_error as PE
 
-#: The only positions this league rosters and scores. The calibration is a
-#: statement about how OUR projections miss for OUR players; a punter in the
-#: population is not a small impurity, it is a different question.
+#: The only positions this league rosters and scores.
+#:
+#: ⚠️ NOT passed to `PE.calibrate()` as `positions=` — that parameter is a
+#: player_id -> position MAP (a fallback for rows with no position), NOT an
+#: allow-list, and passing a tuple there is inert. The relay made exactly that
+#: mistake on 2026-08-18 and shipped a source-string guard that stayed green
+#: while nothing was filtered. The real filter lives in
+#: `projection_error._rostered_only()`, applied to the POPULATION before the
+#: fit, and is tested behaviourally.
 SKILL_FOR_CALIBRATION = ("QB", "RB", "WR", "TE")
 
 
@@ -47,18 +52,6 @@ def attach_dispersion_loso(bundles, actual):
     the note says why. `attach_dispersion` explains at length why a fallback is
     worse than an absence.
     """
-    # TERRITORY-GRANT: C attach_dispersion_loso only_positions
-    #
-    # Register 4r, 2026-08-17: this call never passed `positions`/`only_positions`
-    # to `PE.calibrate()`, so the fit included every position Sleeper's player
-    # pool carries — punters, DBs, linebackers, offensive tackles — none of
-    # which this league rosters, while QB/RB/WR/TE each lost ~30% of their
-    # graded population. Fitted the real run 1c8bfb90 that A's NO SHIP ruling
-    # on register 4q was measured against; both had to be reverted/re-run.
-    # A invited C to own this fix directly (relayed via Cory: "For C: ...
-    # If you want one thing to own tonight, own 4r"). Scoped to exactly the
-    # `only_positions=PE.CALIBRATION_POSITIONS` argument below — nothing else
-    # in this function or file is touched.
     lines = []
     for b in bundles:
         s = b.get("season")
@@ -87,16 +80,7 @@ def attach_dispersion_loso(bundles, actual):
         #
         # NOTHING ASSERTED THE POPULATION, which is why it was invisible. The
         # parameter existed the whole time and was simply never used.
-        # THE FIX BELOW IS C's `only_positions` (2026-08-18): main's first fix
-        # passed `positions=SKILL_FOR_CALIBRATION`, which C reproduced as INERT —
-        # `positions` is a fallback lookup for rows MISSING a position, and every
-        # real row carries one, so the tuple was never read and the punter still
-        # landed in a live cell. `only_positions` filters the INPUT population
-        # before ranks are computed, with a fail-arm test proving it drops P/DB/LB.
-        # attach_dispersion_loso: only_positions filters the fit to this
-        # league's rostered positions — see the grant comment above.
         cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
-                           only_positions=PE.CALIBRATION_POSITIONS,
                            exclude_season=s)
         rep = BB.attach_dispersion(b.get("players") or [], cal)
         b.setdefault("notes", {})["dispersion"] = rep

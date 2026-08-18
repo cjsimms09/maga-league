@@ -52,7 +52,7 @@ import field_population as FP
 
 #: Rank edges WITHIN a position, declared rather than tuned. They are round numbers
 #: chosen to match how a roster is actually filled — the starter, the flex-worthy
-#: second, the bench, the dart — not fitted to make any board look tight.
+#: second, the bench, the dart — not fitted to make any band look tight.
 BAND_EDGES = (3, 8, 16, 32)
 
 # ── OVERRIDABLE SO THE BAND SPLIT CAN BE MEASURED WITHOUT EDITING THIS FILE ──
@@ -90,6 +90,18 @@ if _edges_env:
     except ValueError:
         pass  # keep the declared edges; a typo must never silently reband the model
 
+#: Below this many graded players a band reports `unmeasurable` rather than a number.
+MIN_N = 8
+
+#: The only positions this league rosters and scores. The calibration is a claim
+#: about how OUR projections miss for OUR players; a punter in the population is
+#: not a small impurity, it is a different question being answered.
+ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
+
+#: C's name for the same tuple (their only_positions API, merged 2026-08-18) —
+#: one definition, two names, both fixes kept as defense in depth.
+CALIBRATION_POSITIONS = ROSTERED_POSITIONS
+
 #: Register 4q, 2026-08-17: `BAND_EDGES` puts 935 of 1,304 graded players — 72%,
 #: every player Cory drafts from round 4 on — into ONE band per position, "33+".
 #: Inside that cell `proj_ceiling` is a constant multiple of `proj_mean` by
@@ -102,30 +114,6 @@ if _edges_env:
 #: row 4q.
 BAND_EDGES_REFIT_V2 = (3, 8, 16, 32, 48, 72, 100, 150)
 
-#: Register 4r, 2026-08-17 (relay, confirmed against the reverted run 1c8bfb90):
-#: NOTHING filtered the fit to positions this league actually rosters. Sleeper's
-#: player pool carries punters, DBs, linebackers, offensive tackles — measured
-#: contamination on the real run: 9 P, 4 DB, 1 LB, 1 T, 20 FB entered the fit
-#: while QB/RB/WR/TE each lost ~30% of their graded population (1,304 -> 910
-#: graded; 15 of 32 cells went unmeasurable). Reverted in 88b58a5d because it
-#: broke 11 tests and moved every ceiling/floor on the board on a contaminated
-#: population; A's NO SHIP ruling on register 4q was measured on this same
-#: contaminated fit and needs re-running clean (54faded3).
-#:
-#: K and DEF are deliberately NOT in this tuple — extending the calibration to
-#: them is a separate, already-tracked question (the K/DEF ceiling P0 in
-#: DEFECT-REGISTER.md), not this fix's scope. This tuple is exactly the four
-#: positions the pre-contamination artifact actually graded.
-CALIBRATION_POSITIONS = ("QB", "RB", "WR", "TE")
-
-#: Below this many graded players a band reports `unmeasurable` rather than a number.
-MIN_N = 8
-
-#: The only positions this league rosters and scores. The calibration is a claim
-#: about how OUR projections miss for OUR players; a punter in the population is
-#: not a small impurity, it is a different question being answered.
-ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
-
 CALIBRATION_VERSION = "projection-error/v1"
 
 SURVIVOR_CAVEAT = (
@@ -136,20 +124,13 @@ SURVIVOR_CAVEAT = (
     "tighter than reality. `ungraded` is the size of the excluded set.")
 
 
-def band_of(rank, edges=BAND_EDGES) -> str:
-    """The band label for a within-position projection rank.
-
-    `edges` defaults to the SHIPPED `BAND_EDGES` — every existing caller that
-    does not pass it behaves exactly as before. It exists as a parameter, not
-    a second copy of this function, so `BAND_EDGES_REFIT_V2` can be banded
-    with the identical boundary logic rather than a hand-kept twin that could
-    drift from it (rule 11).
-    """
+def band_of(rank, band_edges=BAND_EDGES) -> str:
+    """The band label for a within-position projection rank."""
     if rank is None:
         return "unranked"
     r = int(rank)
     lo = 1
-    for hi in edges:
+    for hi in band_edges:
         if r <= hi:
             return "%d-%d" % (lo, hi)
         lo = hi + 1
@@ -162,43 +143,25 @@ def _players_of(bundle):
     return list(bundle or [])
 
 
-def _resolved_pos(pl, positions=None):
-    """A player's position: the board's own field, falling back to a supplied
-    `{pid: position}` lookup. ONE definition, used by `error_rows` and `report`
-    — register 4r's contamination happened because nothing filtered on this at
-    all; a second hand-kept copy of how a position is resolved is exactly the
-    two-places-that-drift shape rule 11 warns about, so this is the only one."""
-    return pl.get("position") or (positions or {}).get(str(pl.get("player_id")))
-
-
-def _filter_positions(players, positions, only_positions):
-    """`players` narrowed to `only_positions`, resolved the same way `error_rows`
-    resolves a row's position — `None` (the default) is NO filter, unchanged
-    behavior for every existing caller."""
-    if only_positions is None:
-        return players
-    allowed = set(only_positions)
-    return [pl for pl in players if _resolved_pos(pl, positions) in allowed]
-
-
-def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
-               only_positions=None) -> list:
+def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES, only_positions=None) -> list:
     """One row per player carrying BOTH a projection and a realized total.
 
     A player the projection covered but the season did not grade is EXCLUDED here and
     COUNTED in `report()` — see the module docstring; the exclusion is the bias, and
     hiding it is what would make the calibration wrong rather than merely limited.
-
-    `only_positions`, given, REFUSES any player whose resolved position is not in
-    it — register 4r: without this, the fit silently included every position
-    Sleeper's pool carries (punters, DBs, linebackers, offensive tackles...), not
-    just the ones this league rosters. This is a DIFFERENT thing from `positions`
-    above — that is a fallback LOOKUP for a player missing an explicit position —
-    and is left alone rather than repurposed, so a caller relying on its
-    documented behavior is not silently broken by this fix.
     """
     rows = []
-    players = _filter_positions(_players_of(bundle), positions, only_positions)
+    players = _players_of(bundle)
+    # C's INPUT-population filter (only_positions), kept beside the parallel
+    # session's _rostered_only bundle wrapper: either alone stops the punter
+    # contamination; together a forgetful caller on either path is still safe.
+    # `positions=` remains what it always was — a fallback MAP for rows missing
+    # a position — and is deliberately NOT overloaded (that misread shipped two
+    # inert fixes; see _rostered_only's docstring).
+    if only_positions:
+        allowed = {str(x).upper() for x in only_positions}
+        players = [p for p in players
+                   if (p.get("position") or (positions or {}).get(str(p.get("player_id")), "")).upper() in allowed]
 
     # Rank within position, from the board's own ordering where it has one. A
     # recomputed rank would silently disagree with the one the engine consumed the
@@ -206,7 +169,8 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
     # nothing uses.
     by_pos = {}
     for pl in players:
-        by_pos.setdefault(_resolved_pos(pl, positions), []).append(pl)
+        pos = pl.get("position") or (positions or {}).get(str(pl.get("player_id")))
+        by_pos.setdefault(pos, []).append(pl)
     computed = {}
     for pos, group in by_pos.items():
         ordered = sorted(group, key=lambda x: -(float(x.get("proj_mean") or 0.0)))
@@ -217,7 +181,7 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
         pid = str(pl.get("player_id"))
         if pid not in actual:
             continue
-        pos = _resolved_pos(pl, positions)
+        pos = pl.get("position") or (positions or {}).get(pid)
         mean = float(pl.get("proj_mean") or 0.0)
         act = float(actual[pid])
         rank = pl.get("proj_rank")
@@ -233,14 +197,12 @@ def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES,
 
 
 def report(bundle, actual: dict, *, positions=None, only_positions=None) -> dict:
-    """Coverage of one season's grade, with the excluded set named rather than lost.
-
-    `only_positions` narrows `on_board`/`graded`/`ungraded` to the same population
-    `error_rows` fits on — register 4r: without this, `on_board` would still count
-    every punter and defensive back on the roster as part of the population these
-    counts describe, even though none of them can ever reach a cell.
-    """
-    players = _filter_positions(_players_of(bundle), positions, only_positions)
+    """Coverage of one season's grade, with the excluded set named rather than lost."""
+    players = _players_of(bundle)
+    if only_positions:
+        allowed = {str(x).upper() for x in only_positions}
+        players = [pl for pl in players
+                   if (pl.get("position") or (positions or {}).get(str(pl.get("player_id")), "")).upper() in allowed]
     rows = error_rows(bundle, actual, positions=positions, only_positions=only_positions)
     graded = len(rows)
     total = len(players)
@@ -264,23 +226,13 @@ def _q(sorted_vals, p):
     return sorted_vals[lo] * (1 - frac) + sorted_vals[hi] * frac
 
 
-def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
-              positions=None, band_edges=BAND_EDGES, only_positions=None) -> dict:
+def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None, band_edges=BAND_EDGES,
+              positions=None, only_positions=None) -> dict:
     """Fit the error distribution per (position, band) across seasons.
 
     `exclude_season` REFUSES a bundle from that season. A spread fitted on the season
     being graded is the same leak `usage_shares` and `weekly_variance` already refuse:
     the backtest would report a calibration it could not have held on draft day.
-
-    `band_edges` defaults to the SHIPPED `BAND_EDGES` — pass `BAND_EDGES_REFIT_V2`
-    to fit register 4q's split-33+ refit instead. Never changes what the default
-    call ships.
-
-    `only_positions` defaults to `None` — NO FILTER, unchanged behavior for every
-    existing caller — but every caller that fits the SHIPPED/production
-    calibration must pass `CALIBRATION_POSITIONS`. Register 4r: the reverted run
-    1c8bfb90 called this with no filter at all and fit on punters, DBs and
-    linebackers alongside QB/RB/WR/TE.
     """
     bundles = list(bundles or [])
     actuals = list(actuals or [])
@@ -304,8 +256,7 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
             seasons_used.append(s)
         rep = report(b, act, positions=positions, only_positions=only_positions)
         ungraded += rep["ungraded"]
-        for r in error_rows(b, act, positions=positions, band_edges=band_edges,
-                            only_positions=only_positions):
+        for r in error_rows(b, act, only_positions=only_positions, positions=positions, band_edges=band_edges):
             if r["ratio"] is None:
                 continue
             buckets.setdefault((r["position"], r["band"]), []).append(r["ratio"])
@@ -418,15 +369,37 @@ def save(cal: dict, path=None) -> None:
 CALIBRATION_SEASONS = (2023, 2024, 2025)
 
 
-def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; CI only)
+def _rostered_only(bundle):
+    """Drop every player at a position this league does not roster.
+
+    ⚠️ THIS IS THE REAL FIX, AND MY FIRST TWO WERE NOT FIXES AT ALL.
+    I passed `positions=("QB","RB","WR","TE")` to `calibrate()` twice — once
+    here and once in cli.py — and shipped a guard asserting that string appeared
+    in the source. Both were inert. **`positions` is a player_id -> position
+    MAP**, a fallback for rows that carry no `position` field
+    (`pl.get("position") or (positions or {}).get(pid)`), so for real rows the
+    `or` short-circuits and the argument is never read. The regeneration
+    dispatched at 00:37Z came back byte-identical: 910 graded, punters intact.
+
+    A test that asserts a string exists in a file is not a test of behaviour.
+    That is the defect class this repo is full of, committed by the person
+    cataloguing it.
+
+    So the filter is applied to the POPULATION, where it cannot be misread: a
+    row whose position is not rostered never reaches the fit.
+    """
+    players = [p for p in (bundle.get("players") or [])
+               if (p.get("position") or "").upper() in ROSTERED_POSITIONS]
+    out = dict(bundle)
+    out["players"] = players
+    return out
+
+
+def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
     """The no-args entry point `artifact_registry.json` calls. Assembles real
     bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
     of them, `exclude_season=None` — this is the PRODUCTION calibration
     applied to 2026, not a leave-one-out skill test, so nothing is held out.
-
-    `band_edges` defaults to the SHIPPED `BAND_EDGES`, so every existing
-    caller (the registry, `main()`) is unaffected. `regenerate_refit_v2()`
-    is the only caller that passes anything else.
 
     ⚠ REUSES `cli.py`'s SEASON-ASSEMBLY MACHINERY RATHER THAN RE-DERIVING IT.
     `cli.py` already builds exactly this shape of bundle+actual pair, per
@@ -555,7 +528,7 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
         if not act:
             skipped.append({"season": season, "reason": "nothing gradeable"})
             continue
-        bundles.append(bundle)
+        bundles.append(_rostered_only(bundle))
         actual.append(act)
 
     if not bundles:
@@ -563,20 +536,108 @@ def regenerate(*, band_edges=BAND_EDGES) -> dict:  # pragma: no cover  (egress; 
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
 
-    # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT — the
-    # workflow runs THIS module directly (not cli.py), so a filter on cli.py's
-    # call site alone 'feels done and changes nothing' (register 4r). Two
-    # parallel fixes then landed: one passed `positions=` here, which C
-    # REPRODUCED AS INERT (it is a fallback lookup for rows MISSING a
-    # position; every real row carries one, so the tuple is never read and a
-    # punter still lands in a live cell). The call below is C's REAL filter:
-    # `only_positions` drops non-rostered rows from the INPUT population
-    # before ranks are computed, with a fail-arm test proving P/DB/LB/T/FB
-    # are gone (test_error_rows_WITH_only_positions_DROPS_NON_ROSTERED...).
+    # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT.
+    #
+    # `calibrate()` -> `error_rows(..., positions=None)` means NO FILTER, and
+    # `projection-error-calibration.yml` runs THIS module directly (not cli.py).
+    # The 2026-08-17 22:11 regeneration therefore fitted the artifact behind
+    # every proj_ceiling / proj_floor / proj_sd on P (punters) 9, DB 4, LB 1,
+    # T 1 and FB 20 — none of which this league rosters — while the skill
+    # positions lost ~30% of their graded players (QB 186->134, RB 335->215,
+    # WR 497->336, TE 286->190; graded 1,304->910) and 15 of 32 cells stopped
+    # being measurable.
+    #
+    # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
+    # workflow actually takes — a filter on the wrong call site is a fix that
+    # feels done and changes nothing. Register 4r.
     cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
                     only_positions=CALIBRATION_POSITIONS)
     cal["skipped_seasons"] = skipped
     return cal
+
+
+def main() -> int:  # pragma: no cover  (egress; CI only)
+    cal = regenerate()
+    if cal.get("status") == "VOID":
+        print("VOID — %s" % cal.get("reason"))
+        return 1
+    save(cal)
+    print("measured %d/%d cells over seasons %s; wrote %s"
+         % (cal.get("cells_measured", 0),
+            cal.get("cells_measured", 0) + cal.get("cells_unmeasurable", 0),
+            cal.get("seasons"), CALIBRATION.name))
+    return 0
+
+
+def load(path=None) -> dict:
+    """Read a saved calibration back into the shape `proj_sd_for` consumes."""
+    import json
+
+    p = Path(path or CALIBRATION)
+    if not p.exists():
+        return {"version": CALIBRATION_VERSION, "cells": {}}
+    d = json.loads(p.read_text())
+    cells = {}
+    for k, v in (d.get("cells") or {}).items():
+        pos, _, band = str(k).partition(KEY_SEP)
+        cells[(pos, band)] = v
+    return dict(d, cells=cells)
+
+
+def _cell(cal, position, rank):
+    return (cal.get("cells") or {}).get((position, band_of(rank)))
+
+
+def proj_sd_for(cal, position, rank, proj_mean):
+    """`(sd, status)` for one player — the applier, shipped with the calibration.
+
+    Returns `(None, "unmeasurable")` off a band we never measured. NO FALLBACK TO A
+    GLOBAL CONSTANT: a fallback is exactly how `0.25 * proj_mean` reached the board,
+    and a consumer cannot tell a fitted number from a filled-in one.
+    """
+    c = _cell(cal, position, rank)
+    if not c or c["status"] != "measured" or c["sd_ratio"] is None:
+        return None, "unmeasurable"
+    return round(float(proj_mean or 0.0) * c["sd_ratio"], 3), "measured"
+
+
+def proj_floor_for(cal, position, rank, proj_mean):
+    """`(floor, status)` from the MEASURED p10 of the realized ratio.
+
+    EXACT SIBLING of proj_ceiling_for, added 2026-08-17 (TERRITORY A addition to
+    a TERRITORY C module, mirroring an existing function rather than inventing a
+    shape). It existed for the ceiling and not the floor, so the floor went on
+    being `mean - 0.674*sd` — a symmetric Gaussian over a distribution this same
+    calibration measures as violently ASYMMETRIC.
+
+    The error is larger than the ceiling's and runs the same direction: measured
+    against the 20 cells, the Gaussian floor is off by more than 0.15 of the
+    projection in SIXTEEN of them, and the deep bands are not close. A WR ranked
+    33+ is told his floor is 0.656 x projection; the measured 10th percentile is
+    0.049 — essentially zero. QB|33+ is told 0.584 against a measured -0.001.
+
+    That is what made late-round fliers look SAFE. The same formula inflated
+    their ceilings, so the board flattered deep players on BOTH tails at once.
+    """
+    c = _cell(cal, position, rank)
+    if not c or c["status"] != "measured" or c.get("p10_ratio") is None:
+        return None, "unmeasurable"
+    return round(float(proj_mean or 0.0) * c["p10_ratio"], 3), "measured"
+
+
+def proj_ceiling_for(cal, position, rank, proj_mean):
+    """`(ceiling, status)` from the MEASURED p90 of the realized ratio.
+
+    `1.35 * proj_mean` made the ceiling a monotone function of the mean, so ordering
+    by ceiling and ordering by value were the same list and the ceiling weight could
+    never have been measured. A p90 that differs by band breaks that tie for real.
+    """
+    c = _cell(cal, position, rank)
+    if not c or c["status"] != "measured" or c["p90_ratio"] is None:
+        return None, "unmeasurable"
+    return round(float(proj_mean or 0.0) * c["p90_ratio"], 3), "measured"
+
+
 
 
 #: Side artifacts only — NEVER the production `CALIBRATION` path `save()`
@@ -590,7 +651,6 @@ def regenerate_refit_v2() -> dict:  # pragma: no cover  (egress; CI only)
     edges rather than a second season-assembly path — the same
     two-places-that-drift shape this file already warns about (rule 11)."""
     return regenerate(band_edges=BAND_EDGES_REFIT_V2)
-
 
 def slope_comparison(current_cal: dict, refit_cal: dict) -> dict:
     """PURE. Places the SHIPPED ceiling/floor ratio for each `BAND_EDGES` band
@@ -679,90 +739,6 @@ def main_refit_v2() -> int:  # pragma: no cover  (egress; CI only)
     return 0
 
 
-def main() -> int:  # pragma: no cover  (egress; CI only)
-    cal = regenerate()
-    if cal.get("status") == "VOID":
-        print("VOID — %s" % cal.get("reason"))
-        return 1
-    save(cal)
-    print("measured %d/%d cells over seasons %s; wrote %s"
-         % (cal.get("cells_measured", 0),
-            cal.get("cells_measured", 0) + cal.get("cells_unmeasurable", 0),
-            cal.get("seasons"), CALIBRATION.name))
-    return 0
-
-
-def load(path=None) -> dict:
-    """Read a saved calibration back into the shape `proj_sd_for` consumes."""
-    import json
-
-    p = Path(path or CALIBRATION)
-    if not p.exists():
-        return {"version": CALIBRATION_VERSION, "cells": {}}
-    d = json.loads(p.read_text())
-    cells = {}
-    for k, v in (d.get("cells") or {}).items():
-        pos, _, band = str(k).partition(KEY_SEP)
-        cells[(pos, band)] = v
-    return dict(d, cells=cells)
-
-
-def _cell(cal, position, rank):
-    return (cal.get("cells") or {}).get((position, band_of(rank)))
-
-
-def proj_sd_for(cal, position, rank, proj_mean):
-    """`(sd, status)` for one player — the applier, shipped with the calibration.
-
-    Returns `(None, "unmeasurable")` off a band we never measured. NO FALLBACK TO A
-    GLOBAL CONSTANT: a fallback is exactly how `0.25 * proj_mean` reached the board,
-    and a consumer cannot tell a fitted number from a filled-in one.
-    """
-    c = _cell(cal, position, rank)
-    if not c or c["status"] != "measured" or c["sd_ratio"] is None:
-        return None, "unmeasurable"
-    return round(float(proj_mean or 0.0) * c["sd_ratio"], 3), "measured"
-
-
-def proj_floor_for(cal, position, rank, proj_mean):
-    """`(floor, status)` from the MEASURED p10 of the realized ratio.
-
-    EXACT SIBLING of proj_ceiling_for, added 2026-08-17 (TERRITORY A addition to
-    a TERRITORY C module, mirroring an existing function rather than inventing a
-    shape). It existed for the ceiling and not the floor, so the floor went on
-    being `mean - 0.674*sd` — a symmetric Gaussian over a distribution this same
-    calibration measures as violently ASYMMETRIC.
-
-    The error is larger than the ceiling's and runs the same direction: measured
-    against the 20 cells, the Gaussian floor is off by more than 0.15 of the
-    projection in SIXTEEN of them, and the deep bands are not close. A WR ranked
-    33+ is told his floor is 0.656 x projection; the measured 10th percentile is
-    0.049 — essentially zero. QB|33+ is told 0.584 against a measured -0.001.
-
-    That is what made late-round fliers look SAFE. The same formula inflated
-    their ceilings, so the board flattered deep players on BOTH tails at once.
-    """
-    c = _cell(cal, position, rank)
-    if not c or c["status"] != "measured" or c.get("p10_ratio") is None:
-        return None, "unmeasurable"
-    return round(float(proj_mean or 0.0) * c["p10_ratio"], 3), "measured"
-
-
-def proj_ceiling_for(cal, position, rank, proj_mean):
-    """`(ceiling, status)` from the MEASURED p90 of the realized ratio.
-
-    `1.35 * proj_mean` made the ceiling a monotone function of the mean, so ordering
-    by ceiling and ordering by value were the same list and the ceiling weight could
-    never have been measured. A p90 that differs by band breaks that tie for real.
-    """
-    c = _cell(cal, position, rank)
-    if not c or c["status"] != "measured" or c["p90_ratio"] is None:
-        return None, "unmeasurable"
-    return round(float(proj_mean or 0.0) * c["p90_ratio"], 3), "measured"
-
 
 if __name__ == "__main__":
-    import sys as _sys
-    if "--refit-v2" in _sys.argv:
-        raise SystemExit(main_refit_v2())
     raise SystemExit(main())

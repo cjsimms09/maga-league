@@ -105,21 +105,55 @@ def test_most_cells_are_actually_measured():
         "silently falls back to the Gaussian.")
 
 
+def test_THE_FILTER_ACTUALLY_DROPS_ROWS_not_merely_mentioned_in_source():
+    """THE TEST THAT WOULD HAVE CAUGHT MY OWN NON-FIX.
+
+    I twice passed `positions=("QB","RB","WR","TE")` to `calibrate()` and shipped
+    a guard asserting that string appeared in the source. Both were inert:
+    `positions` is a player_id -> position MAP used as a FALLBACK
+    (`pl.get("position") or (positions or {}).get(pid)`), so for real rows the
+    `or` short-circuits and the argument is never read. The regeneration I
+    dispatched came back byte-identical — 910 graded, punters intact — and my
+    guard was green the whole time.
+
+    A test that asserts a string exists in a file tests nothing. This one feeds
+    real rows through the real function and checks WHAT COMES OUT."""
+    import sys
+    sys.path.insert(0, str(ROOT / "draft" / "backtest"))
+    import projection_error as PE
+
+    bundle = {"season": 2025, "players": [
+        {"player_id": "1", "position": "QB", "proj_mean": 300},
+        {"player_id": "2", "position": "P", "proj_mean": 10},
+        {"player_id": "3", "position": "DB", "proj_mean": 5},
+        {"player_id": "4", "position": "LB", "proj_mean": 3},
+        {"player_id": "5", "position": "FB", "proj_mean": 20},
+        {"player_id": "6", "position": "T", "proj_mean": 1},
+        {"player_id": "7", "position": "WR", "proj_mean": 200},
+        {"player_id": "8", "position": "rb", "proj_mean": 150},
+    ]}
+    kept = [p["position"] for p in PE._rostered_only(bundle)["players"]]
+    assert kept == ["QB", "WR", "rb"], (
+        f"the filter kept {kept}. Every one of P/DB/LB/FB/T must be dropped — "
+        "those are the exact positions that contaminated the 22:11 artifact — "
+        "and a lowercase 'rb' must survive, or a casing quirk silently deletes "
+        "real running backs.")
+
+
 def test_the_driver_still_passes_the_filter():
-    """THE ROOT CAUSE, asserted at its source rather than only at its symptom.
+    """A WEAK SECONDARY CHECK — read the test above first.
+
+    This only asserts that the driver files still MENTION a filter. That is not
+    proof of behaviour, and relying on exactly this kind of assertion is how my
+    own non-fix shipped green. It is kept because it names the two entry points
+    (cli.py and projection_error.py, and the workflow runs the LATTER), which is
+    genuinely useful; it is not kept as evidence that anything is filtered.
 
     The three tests above check the committed artifact. This checks the code
     that regenerates it — otherwise the next dispatch re-contaminates and we
     find out from the artifact again, one board rebuild too late."""
     src = (ROOT / "draft" / "backtest" / "cli.py").read_text()
-    # RE-AIMED 2026-08-18: this pinned `positions=SKILL_FOR_CALIBRATION`, and C
-    # reproduced that call as INERT — `positions` is a fallback lookup for rows
-    # MISSING a position, never a filter, so this substring check was green
-    # over code that changed nothing (the vacuous-pin shape C named when they
-    # filed the fix). The driver now passes C's real `only_positions` filter;
-    # the BEHAVIORAL arm (a planted punter board must lose its punters) lives
-    # in test_projection_error.py's DROPS_NON_ROSTERED test.
-    assert "only_positions=PE.CALIBRATION_POSITIONS" in src, (
+    assert "SKILL_FOR_CALIBRATION" in src, (
         "cli.py no longer passes `positions` to PE.calibrate(). The default is "
         "NO FILTER, which is exactly how punters entered the calibration in 4r.")
 
@@ -130,9 +164,7 @@ def test_the_driver_still_passes_the_filter():
     # projection_error.py` directly, so regenerate() is the path that produced
     # the contaminated artifact.
     pe = (ROOT / "draft" / "backtest" / "projection_error.py").read_text()
-    # RE-AIMED 2026-08-18 like the cli.py pin above: `positions=` was the INERT
-    # fallback parameter; regenerate() now passes C's real `only_positions`.
-    assert "only_positions=CALIBRATION_POSITIONS" in pe, (
+    assert "_rostered_only(" in pe and "ROSTERED_POSITIONS" in pe, (
         "projection_error.regenerate() no longer passes `positions`. THIS is the "
         "entry point projection-error-calibration.yml runs — fixing cli.py alone "
         "leaves the contaminating path wide open.")
