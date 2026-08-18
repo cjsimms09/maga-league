@@ -183,3 +183,38 @@ unarchived anywhere. Therefore:
   2024 failed its leak gates and FP 2024 rows were not retained. The
   unblock is a re-run of the FP historical fetch with row retention — filed
   as a follow-up, not assumed.
+
+---
+
+# AMENDMENT 2 — A, 2026-08-18, COMMITTED BEFORE THE PER-GAME RE-RUN
+
+**Cory, verbatim: "are we grading based on what we learned from resource with
+assumin no injuries as that is the skill part" / "do it based on the resource
+we found that you liked."** He is right that run one's grade included injury
+luck: `actual` was the realized season total, so a projection lost credit for
+a week-3 ACL it could never have predicted. The resource-review lesson (the
+same review that produced the durability table's "argument for a PER-PLAYER
+prior, not for fading these names") splits the season into:
+
+  * **production skill** — points per game WHEN ACTIVE: the no-injury lens;
+  * **availability** — partly PREDICTABLE (age, usage, per-player history —
+    the durability table shows realized availability deviates persistently
+    from positional constants), partly luck;
+  * **in-season injury luck** — the only part a grade should exclude.
+
+So the protocol from this amendment on: **every fold reports TWO grades**:
+
+1. **Total points** (run one's grade) — the number that wins leagues; kept
+   because availability skill is real and a grade that deletes it entirely
+   would stop crediting a projection for knowing who misses time.
+2. **Per-game-when-active** (the skill grade): `actual_pg = season points /
+   games active` (games active = weeks with a row in the weekly points
+   store, whose own note defines row-presence as "was on a field"),
+   `proj_pg = proj / 17` for champion and every arm alike. **Games floor:
+   ≥ 4 active games** — a one-game cameo rate is noise, and the floor is
+   stated rather than silent. Same CV protocol, same λ machinery.
+
+The ships-if bar (A11) now reads on BOTH: a challenger must not win the
+skill grade by sacrificing the total-points grade or vice versa — a real
+improvement shows up in each, and a split verdict is reported as a split,
+not averaged away.
