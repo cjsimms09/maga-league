@@ -218,6 +218,37 @@ jobs:
               m["player_kind"] = player_kind(m["title"])
           kalshi_player = [m for m in nfl_markets if m["player_kind"]]
 
+          # PRICES AND LIQUIDITY, BECAUSE A TITLE IS NOT A SIGNAL.
+          #
+          # The stat markets carry MULTIPLE thresholds per player — 750/1000/1250/1500
+          # receiving yards — which is four points on a market-implied distribution of
+          # that player's season. That is the per-player upside number P1 concluded no
+          # source publishes. But a market with no price, or one nobody trades, is a
+          # number with nothing behind it, so the same run has to answer it.
+          #
+          # Re-reads each stat market individually for last_price / yes_bid / yes_ask /
+          # volume / open_interest. Capped, because 417 individual reads is not worth it
+          # to establish whether prices exist at all.
+          priced, unpriced = [], 0
+          for m in [x for x in kalshi_player if x["player_kind"] == "stat"][:60]:
+              code, b = get(f"{KALSHI}/markets/{m['ticker']}")
+              try: mk = (json.loads(b) or {}).get("market") or {}
+              except Exception: mk = {}
+              if code != 200 or not mk:
+                  unpriced += 1
+                  continue
+              priced.append({
+                "ticker": m["ticker"], "title": m["title"],
+                "last_price": mk.get("last_price"), "yes_bid": mk.get("yes_bid"),
+                "yes_ask": mk.get("yes_ask"), "volume": mk.get("volume"),
+                "open_interest": mk.get("open_interest"),
+                "liquidity": mk.get("liquidity"),
+              })
+          with_price = [r for r in priced if (r["yes_bid"] or 0) > 0 or (r["yes_ask"] or 0) > 0]
+          traded = [r for r in priced if (r["volume"] or 0) > 0]
+          price_note = (f"{len(priced)} stat markets read, {len(with_price)} carry a two-sided "
+                        f"quote, {len(traded)} have traded volume, {unpriced} unreadable")
+
           # ── ODDS API: do player props exist on the per-EVENT route, free tier? ───
           odds_props = {"checked": False}
           ev = as_json("oddsapi_nfl_events")
@@ -277,7 +308,8 @@ jobs:
             "reachable": reachable,
             "kalshi": {"nfl_series": nfl_series, "note": kalshi_note,
                        "open_markets": len(nfl_markets),
-                       "player_level_markets": kalshi_player[:400],
+                       "player_level_markets": kalshi_player[:1200],
+                       "priced_sample": priced, "price_note": price_note,
                        "player_level_count": len(kalshi_player),
                        "sample_titles": [m["title"] for m in nfl_markets[:15]]},
             "oddsapi_event_player_props": odds_props,
