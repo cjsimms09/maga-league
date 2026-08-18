@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-18T08:49:54Z",
-   "board_content_hash": "a3ca5f03e2ba",
+   "board_built_at": "2026-08-18T11:20:33Z",
+   "board_content_hash": "afe9ef260c94",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
@@ -79,18 +79,18 @@
       "survival": 1.0
      },
      {
-      "player_id": "7525",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "vorp": 26.6,
-      "survival": 0.26
-     },
-     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.98
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 25.1,
+      "survival": 0.95
      }
     ]
    },
@@ -130,7 +130,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.91
+      "survival": 0.9
      }
     ]
    },
@@ -156,7 +156,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.84
+      "survival": 0.83
      },
      {
       "player_id": "6770",
@@ -201,18 +201,18 @@
       "survival": 1.0
      },
      {
-      "player_id": "7525",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "vorp": 26.6,
-      "survival": 0.26
-     },
-     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.98
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 25.1,
+      "survival": 0.95
      }
     ]
    },
@@ -252,7 +252,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.91
+      "survival": 0.9
      }
     ]
    },
@@ -278,7 +278,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.84
+      "survival": 0.83
      },
      {
       "player_id": "6770",
