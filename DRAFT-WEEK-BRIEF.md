@@ -390,6 +390,50 @@ thing it warns about.
 
 ## 4. FOR CORY, BEFORE AND ON DRAFT DAY
 
+### ⚠️ ONE THING ON THE SCREEN NOT TO TRUST ACROSS POSITIONS (new 08-18, register 5e)
+
+**The dollar figure — *"which of these two makes me more money?"* — is not
+comparable between a quarterback and anybody else. Use it WITHIN a position.**
+
+Why, in one line: that number prices RAW projected points, and everything else
+in the tool is denominated in points **over replacement**. In a 10-team, 1-QB
+league the tenth-best quarterback projects **341.7** and the tenth-best tight end
+projects 136.4, so pricing raw points hands every QB a ~342-point head start
+nobody else gets. `p.position` never appears in the formula.
+
+What that looks like on Saturday, measured on today's board:
+
+| the tray would say | the board's own rank | the truth |
+|---|---|---|
+| **"Jaxson Dart +$23"** over Saquon Barkley | Dart **86**, Barkley **15** | Dart projects **13.2 points BELOW** a QB you could have for free |
+| **"Jordan Love +$36"** over Brock Bowers | Love **93**, Bowers **7** | Love is **19.2 below** that same line |
+| **"Bo Nix +$10"** over Bijan Robinson | Nix **75**, Bijan **2** | Nix is **6.0 below** it |
+
+**22 of the top 25 by that dollar figure are quarterbacks. On the board's own
+ranking, one is.**
+
+**Two other places the same number leaks, so you know them when you see them:**
+
+- **The paths panel's "◆ the &lt;plan&gt; branch" badge.** It marks the path
+  holding the highest-dollar player, so it lands on the **QB row at seven of
+  your first eight picks** — including at 88 and 108, where the quarterback in
+  question (Purdy, Love) is below replacement. **Read the badge as "the most
+  raw points on offer", not as "the plan says take this".**
+- **The strategy banner's silence.** It scores each doctrine by the best-dollar
+  player it allows; a QB tops that list at every pick, so the only doctrines
+  that can ever differ are the ones forbidding QB. **If you enrol in Balanced,
+  the banner will stay quiet all night, and that is structural, not a bug you
+  can wait out** (register 4x).
+
+**WHAT IS NOT AFFECTED, AND IT IS THE bigger half: THE RECOMMENDATIONS.** The
+ranked board, the top-of-board pick, the tiers and the VORP ordering never touch
+this number. This is a comparison surface, not the engine.
+
+**Ruling pending with A before 08-22** — the proposal is to make the tray refuse
+a QB-vs-other comparison the same way it already refuses K/DEF, and say why on
+screen. **If it does not land, this paragraph is the fix.**
+
+
 **One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
 The shipped ADP-sd rule is 1.39x FFC's published dispersion in the 50-100 band.
 **Our constant did not drift** (reproduces to 0.1%); the market tightened. Blast
