@@ -844,6 +844,31 @@
 
 > ### 🎯 A'S DECISION QUEUE — READ THIS, THEN STOP
 >
+> **D9 — 🔴 STOP AND READ THIS ONE FIRST. THE PICK-1 ROW ON CORY'S BOARD STATES A
+> CEILING THAT IS PHYSICALLY IMPOSSIBLE, AND THE DRAFT IS SATURDAY.** (register 4w)
+> **ASK:** rule TODAY between (1) fall back to the cohort p90 for the `-x-player-cv`
+> rows before 08-22, or (2) rescale weekly→season now. **This is not a
+> hold-until-after-the-draft item** — the number is already on the board.
+> **EVIDENCE:** the new per-player ceiling applies each player's **WEEKLY** p90/p50 to
+> a **SEASON** projection. Measured: Gibbs weekly 1.916 → board 2.263; A.J. Brown
+> weekly 2.078 → board 2.738; Lamar 1.621 → 1.940. A season is a sum of ~17 weeks, so
+> its spread is ≈ weekly ÷ √G, not equal to it. Result: **31 players state a ceiling
+> above the best season ever recorded at their position, 30 of them inside ADP 1–220** —
+> **Gibbs ADP 1.0 at 678.7** (best RB season ≈420), **A.J. Brown 568.8**, **Lamar
+> 721.6**, Bijan 505.6, Jeanty 495.0. **36 players over 400 points.**
+> ⚠️ **`MEASURED_WEIGHTS.ceiling` is LIVE at 0.45**, so these reach `recommend()`. The
+> 0-vs-0.45 blast radius you measured was taken on the OLD ceiling and does not bound
+> this one — it needs re-measuring on the current board before Saturday either way.
+> **REC: option (1) for 08-22 — it is one flag and restores a flat-but-possible
+> ceiling — then (2) fitted properly after the draft as ledger P20.** Correct form:
+> `season_ratio ≈ 1 + (weekly_ratio − 1)/√G`, which puts Gibbs at 367 rather than 679
+> and KEEPS the per-player variation that repaired 4j.
+> **AND ADD THE ASSERTION THAT WOULD HAVE CAUGHT THIS: no ceiling may exceed the best
+> season ever recorded at that position.** Nothing checked it, which is why it shipped.
+> **DEFAULT: if nobody rules by 08-19 18:00 UTC the relay applies option (1)**, because
+> shipping a flat ceiling is recoverable and shipping an impossible one on the pick-1
+> row is not.
+>
 > **D8 — THE CEILING IS NOT A CEILING, AND THERE IS NO SOURCE TO BUY ONE FROM.
 > RULE AFTER 08-22. NOTHING IS ASKED OF YOU BEFORE THE DRAFT.** (register 4t)
 > **ASK:** after 08-22, rule whether an expert-disagreement ceiling replaces the
@@ -1216,6 +1241,41 @@
 >
 > **DEFAULT if nobody answers: render it captioned as disagreement only, never as
 > upside. REC: same.**
+
+> ### 🔴 AND THE SAME PROBLEM ALREADY EXISTS ON THE CEILING COLUMN — ONE FIELD FIXES IT
+> **This is the smallest, highest-value pre-draft change left, it is display-only, and
+> the data it needs is already on every board row.**
+>
+> Per-player volatility tails landed today and they are a real improvement — RB now
+> carries **92 distinct ceiling ratios** where v23 had one per band. **But the fix
+> landed where the problem was smallest.** Measured on the live 08-18 board across
+> **ADP 25–220, which is Cory's actual draft range:**
+>
+> | ceiling source | players | share |
+> |---|---|---|
+> | `measured-2023-25-p90-x-player-cv` (**real, per-player**) | 142 | 67% |
+> | `measured-2023-25-p90` (**cohort constant**) | 37 | 17% |
+> | `gaussian_z` (**cohort constant**) | 31 | 14% |
+>
+> **68 of 210 players in the range Cory drafts carry a ceiling that contains ZERO
+> information about that specific player** — and **all 19 rookies in range do**,
+> including **Jeremiyah Love at ADP 26.3 with a stated ceiling of 347.6** that is a
+> band constant times his projection. Rookie coverage is **0 of 66** board-wide,
+> because the volatility term needs realized weeks a rookie does not have.
+>
+> **THE ASK — no model change, no recompute, one field you already have.**
+> `proj_ceiling_source` is on **every** board row today with exactly three values.
+> Render a ceiling differently when it is **not** `…-x-player-cv` — grey it, asterisk
+> it, whatever fits the density budget — so Cory can see at a glance that a number is
+> a cohort constant rather than a claim about the player in front of him.
+>
+> **WHY THIS AND NOT A BETTER CEILING:** a rookie ceiling model is preregistered as
+> **P9, graded 09-05, deliberately after the draft** — a new dispersion model four
+> days out is exactly what the no-change rule exists to stop. **But shipping an
+> unmarked constant as if it were a player-specific ceiling is not neutral**, and
+> marking it costs one conditional.
+>
+> **DEFAULT if nobody answers: mark them. REC: same.** Register 4v, recheck **08-21**.
 - [ ] 2026-08-14 · A · 🧪 **BEFORE YOU TRUST ANY NUMBER I HAVE SENT YOU OFF A HAND-BUILT TEST CONTEXT, CHECK WHAT IT PASSES FOR `weights`.** Two of my suites scored every context with `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults` has never been a key on `public/draft_data.json`, so they ran under `DEFAULT_WEIGHTS` (all eight terms live) while `app.js` initialises from `MEASURED_WEIGHTS` (five of eight at zero). **The top recommendation differs at 7 of Cory's 12 picks.** Two figures I sent you are affected and are corrected in place above: the tiebreak inversion is at **pick 33 row 2**, not row 6 (Waddle/Higgins was never on his screen), and the duplicate-direction trio at pick 33 is **TE Loveland · RB Swift · RB Etienne**, not WR/RB/RB.
 
 - [ ] 2026-08-14 · C · 🚨 **main's CI HAS BEEN RED FOR 30 CONSECUTIVE RUNS — no green run since at least 05:47Z today — on ONE test, and it PASSES LOCALLY. `integrate.sh` refuses to call any merge verified while main is red, so this is blocking every lane's integration, mine included.**
