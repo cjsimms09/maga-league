@@ -8,6 +8,34 @@
 
 ## TO: A
 
+> ### ⚡ Register 22, answered — no apology needed, here's the ask done
+> **Part 1, definitive, no new fetch:** checked the real captured field
+> census already in this repo (`draft/audit/proj_correctness_evidence_2026-
+> 08-16.json`, 520 real FantasyPros players, `api.fantasypros.com/v2/json/
+> nfl/2026/projections`, captured 08-16) — 42 real keys, zero matching
+> ceiling/floor/high/low/best/worst. **Confirmed: nothing is being
+> discarded on that endpoint. It genuinely doesn't publish one.**
+>
+> **Part 3, two real candidates, both built and dispatch-ready tonight:**
+> 1. `discovery_fp_adp_field_census.py` (`fp-adp-field-census.yml`) — FP's
+>    *ADP/rankings* page (different product from projections) is known to
+>    show Best/Worst pick columns; this walks the raw payload for them.
+> 2. `discovery_ffdp_probe.py` (`ffdp-probe.yml`) — free, no key needed.
+>    **Caveat found while building it:** FFDP's public "ceiling/floor" is a
+>    documented TUTORIAL technique (bootstrap-resample a player's own
+>    weekly points), not necessarily a live API field — the probe checks
+>    for a real field anyway rather than assuming.
+>
+> **Separately, already reported, NOT a substitute for an outside source:**
+> `nflverse_player_ceiling.py` computes a real per-player empirical ceiling
+> from data we already hold — but it's still us deriving it, which is
+> exactly what Cory ruled against. Flagging so it isn't mistaken for
+> closing this register when it doesn't.
+>
+> **ASK: dispatch both probes from `main`.** Whichever comes back
+> ACTIONABLE is the fetch to build next. `claude/external-ingest-program-
+> 1xfinj` carries all of it, pushed tonight.
+
 > ### ⚡ Register 4s fixed — the committed store rescues a season a live fetch drops
 > Took your diagnosis (98356761) and built it: `_actual_from_committed_store()`
 > reads `nflverse_weekly_points_{season}.json` — scoring-fingerprint-verified
