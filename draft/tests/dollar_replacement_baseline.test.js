@@ -293,5 +293,96 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
   qbWins >= 3, topPathPos);
 }
 
+// ── 6. ⛔ AND THE OBVIOUS FIX IS WORSE THAN THE DEFECT ON THE PAIRS THAT MATTER.
+//      THIS BLOCK EXISTS TO STOP A GOOD-FAITH IMPROVEMENT, and it is here because
+//      I nearly shipped that improvement myself. A first pass re-priced the same
+//      formula on `max(0, mean - replacement)` and looked decisive: the top-25
+//      median rank delta against the board's own ordering fell 55 slots to 21,
+//      and the top 20 turned from twenty quarterbacks into a plausible board.
+//
+//      That comparison was rigged, though not on purpose: it measured the two
+//      candidate currencies against EACH OTHER, which cannot say which is closer
+//      to the ordering the tool already trusts. **The neutral test is each one
+//      against `vorp`**, and it reverses on every decision-relevant subset:
+//
+//         subset (window ADP<=160, K/DEF excluded)        raw-$   over-repl
+//         all cross-position pairs                        33.5%     32.0%
+//         a QB on one side                                51.6%     42.0%
+//         within 20 ADP of each other                     40.1%     41.8%   worse
+//         a QB on one side AND within 20 ADP              31.9%     33.1%   worse
+//         NO QB either side  (the control)                22.8%     26.1%   worse
+//
+//      Re-pricing wins only on the aggregate QB set, which is dominated by pairs
+//      nobody weighs against each other (an elite QB against a fringe receiver).
+//      Restricted to players Cory could actually be choosing between, it LOSES.
+//      The mechanism is visible in the formula: `boom = ceiling - mean` is
+//      replacement-INVARIANT by construction, so subtracting a level fixes only
+//      the mean half, and near replacement `max(0, mean - R)` collapses toward
+//      zero and hands the whole ranking to a boom term still denominated in raw
+//      points. **A real fix has to re-denominate the boom term too, which is a
+//      value-model change and not a four-line patch.**
+//
+//      So the recommendation on register 5e is a REFUSAL, in the shape of the
+//      K/DEF refusal already ruled — never a re-pricing.
+{
+  const POOL = PRICED.filter(p => (p.adjusted_adp || p.adp || 9999) <= 160
+    && p.position !== 'K' && p.position !== 'DEF');
+  const adp = p => (p.adjusted_adp || p.adp || 9999);
+  const OVR = p => {
+    const m = Math.max(0, (p.proj_mean || 0) - (REP[p.position] || 0));
+    const c = p.proj_ceiling != null ? p.proj_ceiling : p.proj_mean;
+    return E.CFG.DG_HIGH_K * Math.max(0, c - (p.proj_mean || 0))
+      + (E.CFG.DG_ENTRY_K + E.CFG.DG_RS_K) * m;
+  };
+  const vsVorp = (f, keep) => {
+    let n = 0, d = 0;
+    for (let i = 0; i < POOL.length; i++) {
+      for (let j = i + 1; j < POOL.length; j++) {
+        const x = POOL[i], y = POOL[j];
+        if (x.position === y.position) continue;
+        if (keep && !keep(x, y)) continue;
+        n++;
+        const s1 = Math.sign(f(x) - f(y)), s2 = Math.sign((x.vorp || 0) - (y.vorp || 0));
+        if (s1 && s2 && s1 !== s2) d++;
+      }
+    }
+    return { n, pct: n ? d / n : 0 };
+  };
+
+  const near = (x, y) => Math.abs(adp(x) - adp(y)) <= 20;
+  const noQb = (x, y) => x.position !== 'QB' && y.position !== 'QB';
+
+  const rawQb = vsVorp(D, (x, y) => !noQb(x, y));
+  const ovrQb = vsVorp(OVR, (x, y) => !noQb(x, y));
+  ck('CONTROL: the re-pricing DOES help where the defect is loudest — QB pairs '
+    + 'in aggregate improve, so this block is not simply rejecting everything',
+  ovrQb.pct < rawQb.pct - 0.05,
+  { raw: +(rawQb.pct * 100).toFixed(1), over_replacement: +(ovrQb.pct * 100).toFixed(1) });
+
+  const rawNear = vsVorp(D, near), ovrNear = vsVorp(OVR, near);
+  ck('⛔ but on pairs within 20 ADP — the only ones he actually weighs against '
+    + 'each other — re-pricing is WORSE, so it is not the fix',
+  ovrNear.pct > rawNear.pct, { pairs: rawNear.n,
+    raw: +(rawNear.pct * 100).toFixed(1), over_replacement: +(ovrNear.pct * 100).toFixed(1) });
+
+  const rawNo = vsVorp(D, noQb), ovrNo = vsVorp(OVR, noQb);
+  ck('⛔ and on pairs with NO quarterback at all it is worse again — the fix '
+    + 'would damage the RB-vs-WR comparison to repair the QB one',
+  ovrNo.pct > rawNo.pct, { pairs: rawNo.n,
+    raw: +(rawNo.pct * 100).toFixed(1), over_replacement: +(ovrNo.pct * 100).toFixed(1) });
+
+  ck('the sample behind those two refusals is large enough to act on',
+    rawNear.n > 500 && rawNo.n > 1000, { near: rawNear.n, no_qb: rawNo.n });
+
+  /* THE MECHANISM, ASSERTED RATHER THAN NARRATED: boom survives the subtraction
+   * untouched, which is why fixing the mean half alone cannot work. */
+  const p1 = { position: 'QB', proj_mean: 380, proj_ceiling: 470 };
+  const bareBoom = q => E.CFG.DG_HIGH_K * Math.max(0, q.proj_ceiling - q.proj_mean);
+  ck('boom is replacement-INVARIANT by construction — (ceil-R)-(mean-R) is '
+    + 'ceil-mean — so a level subtraction cannot touch it',
+  Math.abs((OVR(p1) - (E.CFG.DG_ENTRY_K + E.CFG.DG_RS_K)
+            * Math.max(0, p1.proj_mean - REP.QB)) - bareBoom(p1)) < 1e-9);
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

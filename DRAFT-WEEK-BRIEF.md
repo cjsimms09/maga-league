@@ -433,6 +433,18 @@ this number. This is a comparison surface, not the engine.
 a QB-vs-other comparison the same way it already refuses K/DEF, and say why on
 screen. **If it does not land, this paragraph is the fix.**
 
+**And no, the number is not being quietly left broken because it was easier.**
+The obvious repair — price points over replacement instead of raw points — was
+built and measured, and it is **worse than the defect on the pairs you would
+actually weigh against each other**: against the board's own VORP ordering it
+improves QB pairs in aggregate (51.6% → 42.0% disagreement) but degrades pairs
+within 20 ADP of each other (40.1% → **41.8%**) and pairs with no quarterback at
+all (22.8% → **26.1%**). It would repair the comparison nobody makes and damage
+the RB-vs-WR one you will make all night, because the boom half of the formula
+is replacement-invariant and a level subtraction cannot touch it. **Refusing the
+comparison is the honest move; re-pricing it properly is a post-season job.**
+`draft/audit/dollar_replacement_baseline_2026-08-18.md`.
+
 
 **One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
 The shipped ADP-sd rule is 1.39x FFC's published dispersion in the 50-100 band.
