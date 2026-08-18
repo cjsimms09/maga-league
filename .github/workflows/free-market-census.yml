@@ -229,9 +229,24 @@ jobs:
           # Re-reads each stat market individually for last_price / yes_bid / yes_ask /
           # volume / open_interest. Capped, because 417 individual reads is not worth it
           # to establish whether prices exist at all.
+          # v6 returned None for EVERY price field on all 60 markets, with zero
+          # unreadable — a combination that says the keys are wrong, not that the
+          # book is empty: a real market object would carry volume 0, not null.
+          # After five false negatives tonight, the next step is not another guess
+          # at field names. It is to store what the endpoint ACTUALLY returns.
+          raw_probe = {}
           priced, unpriced = [], 0
           for m in [x for x in kalshi_player if x["player_kind"] == "stat"][:60]:
               code, b = get(f"{KALSHI}/markets/{m['ticker']}")
+              if not raw_probe:
+                  try: parsed = json.loads(b)
+                  except Exception: parsed = None
+                  raw_probe = {"ticker": m["ticker"], "status": code,
+                               "envelope_keys": sorted(parsed.keys()) if isinstance(parsed, dict) else None,
+                               "market_keys": sorted((parsed or {}).get("market", {}).keys())
+                                              if isinstance(parsed, dict) and isinstance(parsed.get("market"), dict)
+                                              else None,
+                               "head": " ".join((b or "")[:900].split())}
               try: mk = (json.loads(b) or {}).get("market") or {}
               except Exception: mk = {}
               if code != 200 or not mk:
@@ -309,7 +324,7 @@ jobs:
             "kalshi": {"nfl_series": nfl_series, "note": kalshi_note,
                        "open_markets": len(nfl_markets),
                        "player_level_markets": kalshi_player[:1200],
-                       "priced_sample": priced, "price_note": price_note,
+                       "priced_sample": priced, "price_note": price_note, "raw_probe": raw_probe,
                        "player_level_count": len(kalshi_player),
                        "sample_titles": [m["title"] for m in nfl_markets[:15]]},
             "oddsapi_event_player_props": odds_props,
