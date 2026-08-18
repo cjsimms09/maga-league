@@ -200,13 +200,16 @@ function render(scored, roster) {
     currentPick: () => 33,
     seatForCurrentPick: () => null,
     context: () => ({}),
+    // expert_spread.js's badge (2026-08-18) — absent here on purpose, same as
+    // a missing artifact in the real page: '' for every player, never a guess.
+    expertSpreadBadge: () => '',
   };
   // eslint-disable-next-line no-new-func
   const run = new Function('$', 'state', 'escapeHtml', 'shortName', 'currentPick',
-    'seatForCurrentPick', 'context', 'E', 'DraftVerdict', 'console', 'explainPanel',
+    'seatForCurrentPick', 'context', 'expertSpreadBadge', 'E', 'DraftVerdict', 'console', 'explainPanel',
     chipWords + ';\n' + fnSrc + ';\nreturn renderVerdict;');
   run(stubs.$, stubs.state, stubs.escapeHtml, stubs.shortName, stubs.currentPick,
-    stubs.seatForCurrentPick, stubs.context, E, V, console, () => '')(
+    stubs.seatForCurrentPick, stubs.context, stubs.expertSpreadBadge, E, V, console, () => '')(
     { scored: scored, confidence: E.confidence(scored) });
   return captured;
 }
