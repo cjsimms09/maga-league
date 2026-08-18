@@ -1,0 +1,91 @@
+name: Weekly projection archive (Sleeper + FantasyPros, raw + scored)
+
+# TERRITORY: C — dispatches draft/tools/weekly_projection_archive.py.
+#
+# Routed A -> C, ROUTES.md 2026-08-18 ("THE WEEKLY PROJECTION ARCHIVE — the
+# single most valuable capture left in the program... Live before 09-10 or
+# the year's central question stays unanswerable"). Amendment 1 measured the
+# gap directly: NO historical weekly Sleeper or FP projections exist
+# anywhere in this repo, which is why the source ruling (A2: Sleeper stays
+# through the draft) could only be settled at season grain.
+#
+# THURSDAY 15:00 UTC — one hour AFTER own-weekly-proj.yml's 14:00 UTC run,
+# so own_weekly_<season>_w<week>.json already exists on disk when this
+# captures the same week (referenced by path, not re-copied). Still
+# pre-kickoff: the week's earliest game is Thursday night, kicking off no
+# earlier than ~00:15 UTC Friday.
+#
+# Egress: both Sleeper and FantasyPros are proxy-blocked from the dev
+# sandbox (measured 2026-08-17, external_source_projections.py's own
+# docstring), so this runs in CI for the same reason every other real
+# fetch this week does. The FantasyPros weekly endpoint shape is
+# UNCONFIRMED — self-discovering the same way the season-total endpoint
+# was, so the first real dispatch is a discovery run, not a guaranteed win.
+
+on:
+  schedule:
+    - cron: '0 15 * * 4'      # Thursdays 15:00 UTC — after own_weekly, pre-kickoff
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL week (blank = ask Sleeper /state/nfl)'
+        required: false
+      season:
+        description: 'Season (blank = ask Sleeper /state/nfl)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-projection-archive
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure archive-assembly logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_weekly_projection_archive.py -q
+
+      - name: Capture this week's snapshot
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            ARGS="$ARGS --week ${{ github.event.inputs.week }}"
+          fi
+          if [ -n "${{ github.event.inputs.season }}" ]; then
+            ARGS="$ARGS --season ${{ github.event.inputs.season }}"
+          fi
+          python3 draft/tools/weekly_projection_archive.py $ARGS
+
+      - name: Commit the snapshot
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/weekly_projection_archive/
+          if ! git diff --cached --quiet; then
+            git commit -m "weekly_projection_archive: snapshot captured [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit (VOID run, or no new file)"
