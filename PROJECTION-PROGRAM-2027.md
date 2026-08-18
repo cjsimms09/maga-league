@@ -95,6 +95,48 @@ the CI check chases it whether or not anyone remembers.**
 | **P16** | **Weekly own-projection loop** beats the preseason projection by week 4 | in-season information should dominate | `own_weekly_v1` live |
 | **P17** | **Floor** deserves its own construction, not `1 − ceiling` | floor is about missed games; ceiling is about role — different mechanisms | `proj_floor` shares the ceiling's defect today |
 
+## 3b. 🔑 CORRECTION, 2026-08-18 — HALF THE BACKLOG ABOVE WAS ALREADY IN THE CHAMPION
+
+**Written the same night as §3, after actually reading `own_model_v5.py`'s shipped
+config instead of assuming.** The table above lists usage, pace and air-yards/EPA as
+new axes. **Two of them are already inside `own_v6`:**
+
+| position | volume term | pace term |
+|---|---|---|
+| QB | `raw` | — |
+| RB | `raw` | — |
+| **WR** | **`share`** | **`pace_lam` 1.0** |
+| **TE** | **`share`** | **`pace_lam` 0.5** |
+
+plus v5's stated components: usage volume, xFP efficiency regression, share-of-team
+volume, availability regression, Vegas week-1 tilt.
+
+**That is the cleanest explanation for two graded nulls this repo already held and I
+had not read:** `pace_arm.json` (`clears: false`) and `advanced_efficiency_study.json`
+(`clears: false`, 4 of 12 cells). **Both were re-adding a term the champion already
+carries.** An arm cannot beat a model by giving it something it has.
+
+### So the target moves, and this is the useful part
+
+**The champion is built from USAGE AND EFFICIENCY STATISTICS.** Every axis in that
+family is a variation on what it already does, and the two graded nulls are what that
+looks like when measured. **The genuinely untapped axis is MARKET INFORMATION** —
+numbers set by people with money at stake, from outside the statistical family
+entirely:
+
+* **P11** — weekly prop lines, per player, per week
+* **P12** — alternate-line props, which imply the per-player *distribution* no source
+  will state outright (and which is what survived P4 killing the expert route)
+* **P29** — Kalshi, different participants and different pricing from the sportsbooks
+
+**Those three are the priority.** **P27 survives but narrows**: RB and QB still use
+`raw` volume rather than share, so a share-based arm is untested *there* and only there.
+
+**The lesson worth keeping past this week:** the question is never *"what could we
+add?"* — it is *"what does the champion NOT already have?"* Those are different
+questions, and answering the first one cost this project two graded studies before
+anyone asked the second.
+
 ## 4. THE RULES, FIXED NOW SO NO RESULT CAN BEND THEM
 
 Written before any of P9–P17 has a number, for the same reason every prereg this week
