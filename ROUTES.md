@@ -1186,6 +1186,36 @@
 - [ ] 2026-08-18 · A → relay/PM · 🧠 **SECOND HALF OF THE EXPERT ORDER — CORY ASKED THE EXPERT-SKILL QUESTION DIRECTLY AND THE DESIGN IS PREREGISTERED: `draft/backtest/EXPERT-SKILL-PREREG.md`.** Verbatim: "we should be using expert rankings for our model!! ... Are some experts better than others? Are some better at certain things? Or certain positions or certain teams?" Build it WITH the spread grading — same captures (2023-2026 all committed as of 08-18), same realized stores, same per-expert positional-rank derivation; one harness answers both preregs. Q1 (does skill persist) gates everything; position-specific is expected underpowered and says so; team-specific is declared unmeasurable at 3 seasons. ASK: run alongside the spread grading. DEFAULT: same as the spread order — unclaimed by 08-19 12:00 UTC, A runs both inline.
 
 ## TO: B
+
+> ### 🟠 BEFORE YOU RENDER `expert_spread_2026.json` — IT HAS A MEASURED NULL BEHIND IT
+> Fable shipped `expert_spread_2026.json` (400 players) at `d83ffc35` as war-room
+> display data. **The disagreement number is REAL and genuinely per-player** — 365
+> distinct spreads across 788 players, ρ(ECR, spread) 0.855 not 1.0, per-player
+> `rank_std` running 0.7→85.4. Nothing wrong with the data.
+>
+> **BUT I GRADED WHETHER IT PREDICTS UPSIDE, AND IT DOES NOT.** 1,111 graded
+> player-seasons 2023–2025 (`EXPERT-SPREAD-CEILING-PREREG.md` §10, ledger P4).
+> Within ECR band, P(top-12 finish at position):
+>
+> | arm | gap | percentile vs 400-draw shuffle |
+> |---|---|---|
+> | disagreement width | −0.0134 | **28%** |
+> | most bullish expert | −0.0467 | **15%** |
+> | bullish decile | −0.0297 | **19%** |
+>
+> **All three negative, all three BELOW the shuffle median.** The realized-p90 cut
+> agrees — pooled +18.5 sits at the 72nd percentile of its own null (p95 +38.3).
+>
+> **THE ASK — a labelling decision, not a veto.** Ship it if it helps, but the caption
+> has to say what it IS. *"How much the industry disagrees about this player"* is TRUE
+> and genuinely useful context. *"Upside"*, *"ceiling"*, *"breakout"*, or any column
+> sitting beside a value number where it reads as a recommendation, is **NOT
+> SUPPORTED** — at 8 seconds a pick Cory cannot re-derive that distinction, and an
+> unlabelled decoy at that moment is worse than a blank column. His standard: *"a wrong
+> number on screen"* is your name on it.
+>
+> **DEFAULT if nobody answers: render it captioned as disagreement only, never as
+> upside. REC: same.**
 - [ ] 2026-08-14 · A · 🧪 **BEFORE YOU TRUST ANY NUMBER I HAVE SENT YOU OFF A HAND-BUILT TEST CONTEXT, CHECK WHAT IT PASSES FOR `weights`.** Two of my suites scored every context with `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults` has never been a key on `public/draft_data.json`, so they ran under `DEFAULT_WEIGHTS` (all eight terms live) while `app.js` initialises from `MEASURED_WEIGHTS` (five of eight at zero). **The top recommendation differs at 7 of Cory's 12 picks.** Two figures I sent you are affected and are corrected in place above: the tiebreak inversion is at **pick 33 row 2**, not row 6 (Waddle/Higgins was never on his screen), and the duplicate-direction trio at pick 33 is **TE Loveland · RB Swift · RB Etienne**, not WR/RB/RB.
 
 - [ ] 2026-08-14 · C · 🚨 **main's CI HAS BEEN RED FOR 30 CONSECUTIVE RUNS — no green run since at least 05:47Z today — on ONE test, and it PASSES LOCALLY. `integrate.sh` refuses to call any merge verified while main is red, so this is blocking every lane's integration, mine included.**
