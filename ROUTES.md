@@ -7,7 +7,35 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
-- [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD CORY WOULD OPEN RIGHT NOW. THE ONLY MISSING STEP IS A REBUILD, AND NOTHING TIES IT TO A DATE.** Draft is 08-22.
+- [ ] 2026-08-18 · relay · 🟢 **`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.** `claude/fantasy-football-research-926y6z` @ `b8f084ab`.
+
+  **ASK.** Merge it. Main's JS gate has been red on these two checks and the fix is a test change only — no product code touched.
+
+  **EVIDENCE — the red was a stale test, not a bug, and not the noise band.** Both failures were the QB-run switch announcement. `doctrine.js` §scoreBoard records a **retraction**: a doctrine whose constraint binds *"differs from the plan only by the man it declines HERE"*, so announcing a switch on it prices one half of a two-sided trade — `slot_schedule.js` finds the comparison **inverts** past the next pick. The war room passes `detail` into `update()` for precisely this reason (`app.js:7867` — *"which is what the war room showed Cory at every pick he owns"*), and `update()` keeps the detail-less semantics **only for back-compat**. The two checks were still on that path, asserting the behaviour that had been deliberately removed.
+
+  **I DID NOT MOVE `DG_NOISE_BAND`, AND HERE IS THE SWEEP THAT SAYS WHY.** Every value below 3.75 turns the scenario green and nothing distinguishes them:
+
+  | band | QB-run announcements | full-draft switches (cap 5) |
+  |---|---|---|
+  | 4.00 | 0 ❌ | 0 |
+  | 3.75 → 0.50 | 1 ✅ at every value | **0 at every value** |
+
+  **⚠️ THAT RIGHT-HAND COLUMN IS THE REAL FINDING, AND IT IS ABOUT THE CHECK NEXT DOOR.** *"Switches are RARE across a full draft"* was passing because switches are **impossible**, not because hysteresis works — on a full board almost no constraint binds, so the doctrines price identically and there is nothing to switch to. **It would have stayed green with the state machine deleted.** Same defect class as `ceiling` and the FP-vs-FP ADP comparison: a check that cannot fail, reported as a check that passed. It now runs on the product path with three guards that have teeth, and **I mutation-tested them rather than trusting them** — dropping `detail` from the live loop turns the first red and names the picks it would have misreported (**8, 13, 28, 33, 48, 53, 68**, all showing Late-QB Patience as the alternative while its constraint binds: the *"trails by $21"* sentence, reproduced).
+
+  **RECOMMENDATION.** Merge as-is. **DEFAULT if you say nothing by 08-19 18:00 UTC:** it sits on the branch and main's JS gate stays red, which I do not think you want four days out.
+
+- [ ] 2026-08-18 · relay · 🔴 **TWO JS SUITES ARE STILL RED ON MAIN AND NEITHER IS MINE. I checked one hypothesis and it was wrong, so I am handing you the measurement rather than a theory.**
+
+  Full JS sweep tonight: **326 suites, 2 failing** — `intervention-rate.test.js` and `shadows.test.js`. Both reproduce on a clean checkout with my work stashed, and both survive the 03:49 rebuild.
+
+  1. **`intervention-rate`: `no term is dead unexpectedly -> ["keeper"]`.** The check's own words: *"a term that stopped firing without anyone deciding it should."* **MY HYPOTHESIS WAS THAT THIS WAS THE KEEPER-VORP BUG, AND IT IS NOT.** `intervention_rate.js:53` reads `kept_players` directly, so the link was plausible — but the board now carries vorp 94.0/59.1/46.2 on all three keepers and **the term is still dead**. Measured, not assumed; the cause is somewhere else and I have not found it. Dead set is `tier, keeper, bye, need, risk, survival` at a 93.3% intervention rate.
+  2. **`shadows`: 44/46**, both failures on the pick-33 consensus **controls** — *"CONTROL — pick 33 really is a high-agreement consensus, or there is nothing here to mislabel"* (5/7) and the `contested` control. These are the checks that make the section's finding mean anything, so the section is currently unanchored rather than merely noisy.
+
+  **ASK.** Both are yours (`TERRITORY: A`). **No default from me** — I am not guessing at a fix for a term whose deadness I could not explain, and a wrong "fix" to a control is worse than a red.
+
+- [x] 2026-08-18 · relay · ✅ **CLOSED BY A REBUILD THAT LANDED WHILE I WAS WRITING THIS — NO ACTION NEEDED, AND THE PREDICTION IT MADE CAME TRUE TO THE CENT.** `62dd497b` rebuilt the board at **03:49:25Z**, 29 minutes after your fix. The three keepers now carry **vorp 94.0 / 59.1 / 46.2** — the exact figures this item predicted from `build.py`'s identity before any rebuild existed — and both `test_kept_players_carry_vorp.py` and `test_keeper_optimize_kept_players.py` are green. Leaving the original below rather than deleting it, because the useful part is that the arithmetic was checkable in advance. Original follows.
+
+- [x] 2026-08-18 · relay · ~~**YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD CORY WOULD OPEN RIGHT NOW.**~~ THE ONLY MISSING STEP IS A REBUILD, AND NOTHING TIES IT TO A DATE.** Draft is 08-22.
 
   **ASK.** Put a date on the rebuild that publishes `kept_players[].vorp`, or tell me to fire it. Nothing else is blocking.
 

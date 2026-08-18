@@ -7,7 +7,7 @@
   "2023->2024",
   "2024->2025"
  ],
- "player_season_pairs": 700,
+ "player_season_pairs": 687,
  "curves": {
   "QB": {
    "by_age": {
@@ -22,32 +22,32 @@
      "status": "measured"
     },
     "24": {
-     "median_ratio": 0.77,
+     "median_ratio": 0.826,
      "n": 8,
      "status": "measured"
     },
     "25": {
-     "median_ratio": 0.979,
+     "median_ratio": 0.951,
      "n": 14,
      "status": "measured"
     },
     "26": {
-     "median_ratio": 1.097,
+     "median_ratio": 0.99,
      "n": 11,
      "status": "measured"
     },
     "27": {
-     "median_ratio": 1.127,
+     "median_ratio": 1.023,
      "n": 11,
      "status": "measured"
     },
     "28": {
-     "median_ratio": 0.957,
+     "median_ratio": 0.946,
      "n": 9,
      "status": "measured"
     },
     "29": {
-     "median_ratio": 0.941,
+     "median_ratio": 0.984,
      "n": 7,
      "status": "unmeasurable"
     },
@@ -57,7 +57,7 @@
      "status": "unmeasurable"
     },
     "31": {
-     "median_ratio": 0.698,
+     "median_ratio": 0.712,
      "n": 2,
      "status": "unmeasurable"
     },
@@ -72,22 +72,22 @@
      "status": "unmeasurable"
     },
     "34": {
-     "median_ratio": 0.606,
+     "median_ratio": 0.61,
      "n": 4,
      "status": "unmeasurable"
     },
     "35": {
-     "median_ratio": 1.809,
+     "median_ratio": 1.705,
      "n": 2,
      "status": "unmeasurable"
     },
     "36": {
-     "median_ratio": 0.76,
+     "median_ratio": 0.728,
      "n": 2,
      "status": "unmeasurable"
     },
     "37": {
-     "median_ratio": 1.728,
+     "median_ratio": 1.738,
      "n": 1,
      "status": "unmeasurable"
     },
@@ -102,8 +102,8 @@
      "status": "unmeasurable"
     }
    },
-   "fitted_peak_age": 26,
-   "mean_decline_past_peak_per_year": -0.042,
+   "fitted_peak_age": 23,
+   "mean_decline_past_peak_per_year": 0.0528,
    "cory_prior_peak": [
     28,
     33
@@ -117,7 +117,7 @@
      "status": "unmeasurable"
     },
     "22": {
-     "median_ratio": 1.383,
+     "median_ratio": 1.432,
      "n": 9,
      "status": "measured"
     },
@@ -127,22 +127,22 @@
      "status": "measured"
     },
     "24": {
-     "median_ratio": 1.108,
-     "n": 31,
+     "median_ratio": 1.077,
+     "n": 30,
      "status": "measured"
     },
     "25": {
-     "median_ratio": 0.993,
-     "n": 31,
+     "median_ratio": 0.924,
+     "n": 29,
      "status": "measured"
     },
     "26": {
-     "median_ratio": 1.124,
-     "n": 27,
+     "median_ratio": 1.109,
+     "n": 25,
      "status": "measured"
     },
     "27": {
-     "median_ratio": 0.875,
+     "median_ratio": 1.018,
      "n": 16,
      "status": "measured"
     },
@@ -152,7 +152,7 @@
      "status": "measured"
     },
     "29": {
-     "median_ratio": 0.986,
+     "median_ratio": 1.03,
      "n": 9,
      "status": "measured"
     },
@@ -162,7 +162,7 @@
      "status": "unmeasurable"
     },
     "31": {
-     "median_ratio": 0.731,
+     "median_ratio": 0.75,
      "n": 5,
      "status": "unmeasurable"
     },
@@ -172,18 +172,18 @@
      "status": "unmeasurable"
     },
     "33": {
-     "median_ratio": 1.191,
+     "median_ratio": 1.527,
      "n": 1,
      "status": "unmeasurable"
     },
     "34": {
-     "median_ratio": 1.106,
+     "median_ratio": 0.936,
      "n": 1,
      "status": "unmeasurable"
     }
    },
    "fitted_peak_age": 22,
-   "mean_decline_past_peak_per_year": 0.0247,
+   "mean_decline_past_peak_per_year": 0.0144,
    "cory_prior_peak": [
     23,
     26
@@ -197,58 +197,58 @@
      "status": "measured"
     },
     "23": {
-     "median_ratio": 1.138,
+     "median_ratio": 1.071,
      "n": 38,
      "status": "measured"
     },
     "24": {
-     "median_ratio": 0.998,
-     "n": 44,
+     "median_ratio": 1.002,
+     "n": 43,
      "status": "measured"
     },
     "25": {
-     "median_ratio": 1.006,
-     "n": 39,
+     "median_ratio": 1.041,
+     "n": 38,
      "status": "measured"
     },
     "26": {
-     "median_ratio": 0.883,
-     "n": 35,
+     "median_ratio": 0.909,
+     "n": 34,
      "status": "measured"
     },
     "27": {
-     "median_ratio": 0.931,
-     "n": 28,
+     "median_ratio": 0.943,
+     "n": 27,
      "status": "measured"
     },
     "28": {
-     "median_ratio": 0.975,
-     "n": 26,
+     "median_ratio": 0.932,
+     "n": 25,
      "status": "measured"
     },
     "29": {
-     "median_ratio": 0.926,
+     "median_ratio": 0.927,
      "n": 22,
      "status": "measured"
     },
     "30": {
-     "median_ratio": 0.78,
-     "n": 14,
+     "median_ratio": 0.823,
+     "n": 13,
      "status": "measured"
     },
     "31": {
-     "median_ratio": 0.908,
+     "median_ratio": 0.817,
      "n": 10,
      "status": "measured"
     },
     "32": {
-     "median_ratio": 0.877,
+     "median_ratio": 0.804,
      "n": 6,
      "status": "unmeasurable"
     }
    },
    "fitted_peak_age": 22,
-   "mean_decline_past_peak_per_year": 0.0506,
+   "mean_decline_past_peak_per_year": 0.0594,
    "cory_prior_peak": [
     26,
     28
@@ -262,7 +262,7 @@
      "status": "unmeasurable"
     },
     "22": {
-     "median_ratio": 0.692,
+     "median_ratio": 0.697,
      "n": 6,
      "status": "unmeasurable"
     },
@@ -272,42 +272,42 @@
      "status": "measured"
     },
     "24": {
-     "median_ratio": 1.098,
+     "median_ratio": 1.012,
      "n": 22,
      "status": "measured"
     },
     "25": {
-     "median_ratio": 1.205,
-     "n": 21,
+     "median_ratio": 1.159,
+     "n": 20,
      "status": "measured"
     },
     "26": {
-     "median_ratio": 0.692,
-     "n": 24,
+     "median_ratio": 0.686,
+     "n": 23,
      "status": "measured"
     },
     "27": {
-     "median_ratio": 1.049,
+     "median_ratio": 1.053,
      "n": 18,
      "status": "measured"
     },
     "28": {
-     "median_ratio": 1.064,
+     "median_ratio": 1.118,
      "n": 18,
      "status": "measured"
     },
     "29": {
-     "median_ratio": 0.921,
+     "median_ratio": 0.773,
      "n": 15,
      "status": "measured"
     },
     "30": {
-     "median_ratio": 1.236,
+     "median_ratio": 1.205,
      "n": 8,
      "status": "measured"
     },
     "31": {
-     "median_ratio": 0.679,
+     "median_ratio": 0.673,
      "n": 3,
      "status": "unmeasurable"
     },
@@ -317,23 +317,23 @@
      "status": "unmeasurable"
     },
     "33": {
-     "median_ratio": 0.817,
+     "median_ratio": 0.683,
      "n": 2,
      "status": "unmeasurable"
     },
     "34": {
-     "median_ratio": 0.568,
+     "median_ratio": 0.702,
      "n": 3,
      "status": "unmeasurable"
     },
     "35": {
-     "median_ratio": 0.866,
+     "median_ratio": 1.057,
      "n": 1,
      "status": "unmeasurable"
     }
    },
    "fitted_peak_age": 24,
-   "mean_decline_past_peak_per_year": -0.0278,
+   "mean_decline_past_peak_per_year": 0.001,
    "cory_prior_peak": [
     26,
     29
