@@ -46,20 +46,36 @@ jobs:
           python3 -m pip install --quiet --disable-pip-version-check pytest
           python3 -m pytest draft/tests/test_fp_expert_ranks.py -q
 
+      # The year is passed as an ARGUMENT, never by mutating a module global. Run
+      # 32087677173 did the latter (`X.YEAR = 2025`); Python binds default arguments
+      # at definition time, so it re-captured 2026, found the file byte-identical,
+      # printed "No change to the store" and exited 0 — success reported for a
+      # capture of the wrong season. `main()` now also refuses if the season it wrote
+      # is not the one asked for.
       - name: Capture
         timeout-minutes: 15
         env:
           YEAR: ${{ github.event.inputs.year }}
         run: |
-          set -uo pipefail
-          python3 - <<'PY'
-          import os, sys
+          set -euo pipefail
+          python3 - --year "${YEAR:-2026}" <<'PY'
+          import sys
           sys.path.insert(0, "draft")
           sys.path.insert(0, "draft/backtest")
           import fp_expert_ranks as X
-          X.YEAR = int(os.environ.get("YEAR") or 2026)
-          raise SystemExit(X.main())
+          raise SystemExit(X.main(sys.argv[1:]))
           PY
+
+      # A capture that produced no file for the requested season is a failure, not a
+      # "no change". This is the check the previous run did not have.
+      - name: The store for THIS season must exist
+        env:
+          YEAR: ${{ github.event.inputs.year }}
+        run: |
+          set -euo pipefail
+          f="draft/backtest/fp_expert_ranks_${YEAR:-2026}.json"
+          test -s "$f" || { echo "MISSING: $f — the capture did not write the season it was asked for."; exit 1; }
+          python3 -c "import json,sys; d=json.load(open('$f')); assert int(d['season'])==int('${YEAR:-2026}'), d['season']; assert d['coverage']['with_experts']>0, 'zero players carry expert ranks'; print('store OK:', d['season'], d['coverage']['with_experts'], 'players with experts')"
 
       - name: Commit the store
         run: |

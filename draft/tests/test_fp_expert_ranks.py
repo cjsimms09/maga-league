@@ -119,6 +119,38 @@ def test_store_path_is_season_scoped():
     assert X.store_path(2025) != X.store_path(2026)
 
 
+def test_the_year_cannot_be_set_by_mutating_a_module_global():
+    """REGRESSION — run 32087677173.
+
+    The workflow did `X.YEAR = 2025` then called `X.main()`, expecting the capture to
+    switch seasons. Python binds default arguments at DEFINITION time, so the
+    assignment did nothing: the job re-captured 2026, found the committed file
+    byte-identical, printed "No change to the store", and EXITED 0. A job that
+    reported success while capturing the wrong season and committing nothing.
+
+    The fix is structural — `year` is required, not defaulted — so this test asserts
+    the parameter has no default rather than testing the old symptom.
+    """
+    import inspect
+    for fn in (X.run, X.store_path):
+        d = inspect.signature(fn).parameters["year"].default
+        assert d is inspect.Parameter.empty, (
+            f"{fn.__name__}(year=...) has default {d!r}. A module-global year that is "
+            f"read at def time is how run 32087677173 silently captured 2026 when it "
+            f"was asked for 2025.")
+
+
+def test_store_path_is_driven_by_its_argument_not_by_module_state():
+    X.DEFAULT_YEAR = 1999          # whatever a caller does to module state...
+    assert X.store_path(2024).name == "fp_expert_ranks_2024.json"   # ...this is unmoved
+    X.DEFAULT_YEAR = 2026
+
+
+def test_store_path_accepts_a_string_year_without_writing_a_junk_filename():
+    """The workflow passes YEAR through the environment, where everything is a string."""
+    assert X.store_path("2024").name == "fp_expert_ranks_2024.json"
+
+
 @pytest.mark.parametrize("field", ["fetch_error", "coverage", "players_without_experts"])
 def test_the_artifact_contract_names_the_fields_that_report_gaps(field):
     """Pinning the shape: if a refactor drops one of these, the store goes back to

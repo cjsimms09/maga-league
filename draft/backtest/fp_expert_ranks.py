@@ -61,11 +61,29 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-YEAR = 2026
+DEFAULT_YEAR = 2026
+
+# ⚠️ `year` IS A REQUIRED ARGUMENT EVERYWHERE BELOW, AND THAT IS DELIBERATE.
+#
+# The first version of this file had `def run(year=YEAR)` with a module-level
+# `YEAR = 2026`, and the workflow did `X.YEAR = 2025` before calling `X.main()`.
+# **Python binds default arguments at DEFINITION time, so the assignment did
+# nothing.** Run 32087677173 re-captured 2026, found the committed file byte-identical,
+# printed "No change to the store", and **exited 0 — a job that reported success while
+# capturing the wrong season and committing nothing.**
+#
+# That is the exact defect class this whole week has been about: a check that cannot
+# fail, reported as a check that passed. Register 4s is the same shape — a season
+# vanished and the artifact still looked complete.
+#
+# So the fix is not "remember to pass the year at the call site". The parameter is
+# required, the captured season is asserted against the requested one, and
+# `test_the_year_cannot_be_set_by_mutating_a_module_global` fails if a default
+# ever comes back.
 
 
-def store_path(year=YEAR) -> Path:
-    return HERE / f"fp_expert_ranks_{year}.json"
+def store_path(year: int) -> Path:
+    return HERE / f"fp_expert_ranks_{int(year)}.json"
 
 
 URL = ("https://api.fantasypros.com/v2/json/nfl/{y}/consensus-rankings"
@@ -177,9 +195,11 @@ def coverage(store: dict) -> dict:
     }
 
 
-def run(year=YEAR, timeout=60):   # pragma: no cover  (egress, CI only)
+def run(year: int, timeout=60):   # pragma: no cover  (egress, CI only)
     import re
     import fantasypros_adp as FP
+
+    year = int(year)
 
     key = None
     try:
@@ -224,12 +244,23 @@ def run(year=YEAR, timeout=60):   # pragma: no cover  (egress, CI only)
     return art
 
 
-def main() -> int:   # pragma: no cover
-    art = run()
+def main(argv=None) -> int:   # pragma: no cover
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--year", type=int, default=DEFAULT_YEAR)
+    a = ap.parse_args(argv)
+
+    art = run(a.year)
     c = art["coverage"]
     print("=" * 70)
     print(f"FP EXPERT RANK CAPTURE — {art['season']}")
     print("=" * 70)
+    # The store must be for the season that was ASKED for. Run 32087677173 asked for
+    # 2025, silently captured 2026, and reported success.
+    if int(art["season"]) != int(a.year):
+        print(f"  REFUSING: asked for {a.year}, captured {art['season']}.")
+        return 1
+    print(f"  wrote {store_path(a.year).name}")
     if art["fetch_error"]:
         print("FETCH ERROR:", art["fetch_error"])
         return 1
