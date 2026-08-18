@@ -1,5 +1,5 @@
 K0 KEEPER OPTIMIZER — real roster, cost_model=top_picks_flat (PROVISIONAL pending D2 top_picks_flat)
-artifact built_at 2026-08-18T01:58:58Z · adp_source fantasypros
+artifact built_at 2026-08-18T03:44:46Z · adp_source fantasypros
 
 RECOMMENDED: keep 3 — Derrick Henry, Ja'Marr Chase, Kenneth Walker  (total surplus 84.8)
 
