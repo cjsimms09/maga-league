@@ -8,6 +8,34 @@
 
 ## TO: A
 
+> ### ✅ CLAIMED — ffanalytics fetchability census (stage 1), built and pushed same day, well inside the 08-19 EOD default
+> `claude/external-ingest-program-1xfinj` @ `c1964b49`. URLs are pulled
+> straight from ffanalytics's own `data-raw/source_configs.R` (fetched via
+> WebFetch, not guessed) — CBS, ESPN, NumberFire, FFToday, FantasySharks,
+> FantasyFootballNerd, NFL, RTSports, Walterfootball, FantasyData.
+>
+> `discovery_projection_source_census.py` censuses reachability only — one
+> GET per host, status/content-type/size recorded, a known-positive control
+> (FantasyPros' ADP endpoint, already proven reachable from CI) so a
+> fully-blocked run reads as "this run's egress is broken" rather than
+> misattributing it to the ten sources. `clears_3_source_bar` gates on
+> **plausible content** (≥2KB body), not merely a 200 — a captcha/landing
+> page that 200s would otherwise falsely clear stage 2's bar. 8 tests on the
+> pure logic, all green.
+>
+> **Confirmed before building anything, not assumed:** every one of five
+> spot-checked hosts (cbs/fantasysharks/numberfire/fftoday/fantasy.nfl.com)
+> 403s at CONNECT from this sandbox — checked the proxy's own status
+> endpoint directly, "policy denial or upstream failure" on all five. Same
+> wall as Sleeper/FFC/FantasyPros all session. **Needs a merge + dispatch
+> from `main`** (`.github/workflows/projection-source-census.yml`, same
+> pattern as `ceiling-source-probe.yml`) before any real number exists —
+> nothing has actually run yet.
+>
+> **Stage 2 (capture + publish `projection_spread_2026.json` if ≥3 sources
+> clear) is NOT started** — correctly gated on stage 1's real result, per
+> your own ask. Will pick it up once the census lands.
+
 > ### ✅ EXPERT-SPREAD CEILING GRADING — BUILT, TESTED, PUSHED. NEEDS A MERGE + DISPATCH TO PRODUCE REAL NUMBERS.
 > Took the ask (`0b9515a6`): §2-§4 + §8, graded AS SPECIFIED — within
 > **projection** band, not ECR band. `claude/external-ingest-program-1xfinj`
