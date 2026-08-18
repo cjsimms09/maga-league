@@ -112,12 +112,32 @@ const isHeading = l => /^## TO: /.test(l);
     .trim()
     .toLowerCase()
     .slice(0, 110);
-  const items = LINES.filter(isItem);
+  // WITHIN A SECTION, NOT ACROSS THE FILE.
+  //
+  // The same item legitimately appears in several inboxes: the 08-17 standing
+  // rules ("you do not stop a capture job", "we can't get it is not a finished
+  // answer", "new rule 3d") were BROADCAST to TO: A, B, C, D and E on purpose.
+  // The file is organised by addressee, so the same text in two different
+  // inboxes is design, and the same text TWICE IN ONE inbox is the corruption.
+  //
+  // ⚠️ AND THE MEASUREMENT SAYS THIS IS A LATENT FIX, NOT A LIVE ONE — I claimed
+  // it was already miscounting the broadcasts and it was not. Both keyings return
+  // 12 today, and the global-only set is EMPTY: every broadcast copy survives a
+  // global key only because each one names its own addressee in the item text
+  // ("relay/pm → A" vs "relay/pm → D"), which the normaliser keeps. That is luck
+  // in the wording, not a property of broadcasting. One rule posted five times in
+  // identical words — the obvious way to write one — would have handed A five
+  // "corruptions" that were all deliberate. Section keying is what makes the
+  // check's meaning independent of how the copies happen to be phrased.
   const seen = new Map();
-  items.forEach(l => {
+  let section = null;
+  LINES.forEach(l => {
+    if (isHeading(l)) { section = l.trim(); return; }
+    if (!isItem(l)) return;
     const k = norm(l);
     if (k.length < 40) return;              // too short to be a safe key
-    seen.set(k, (seen.get(k) || 0) + 1);
+    const key = (section || '(no section)') + ' :: ' + k;
+    seen.set(key, (seen.get(key) || 0) + 1);
   });
   const near = [...seen.entries()].filter(([, n]) => n > 1);
   // A RATCHET, NOT A NEW WALL. Two pre-existing pairs are in the file from
@@ -134,6 +154,24 @@ const isHeading = l => /^## TO: /.test(l);
   // line prints two examples and I took that for the total. The real count is
   // TWELVE pairs spanning 08-14 to 08-17 — including three of the relay's own
   // `relay/pm → D` items from 08-17. Byte-equality sees none of them.
+  //
+  // Re-measured after section keying and still 12, now attributable:
+  //   ## TO: A  8   (08-14 to 08-16 — pace-of-play, artifact-freshness,
+  //                  conditional-value, projection-correctness, archetypes,
+  //                  projection-program, the pick-33 data audit, the C answer)
+  //   ## TO: B  1   (08-14, the h2h defect)
+  //   ## TO: D  3   (08-17, the relay's own standing rules — mine to repair)
+  // Ten of the twelve are one OPEN copy and one CLOSED copy — a resurrection.
+  // The other two (## TO: A, L1370+L2282 and L1373+L2338) are CLOSED on BOTH
+  // sides, so they are not resurrections at all, just a block pasted twice.
+  //
+  // WHICH COPY IS SAFE TO DELETE IS NOT THE OBVIOUS ONE, and the lengths say so:
+  // in seven of the eight A pairs the CLOSED copy is the LONGER one (L1364 1774
+  // chars open vs L2242 2349 closed), so deleting "the stale closed one" throws
+  // away the copy carrying the evidence. That is the exact 16-line loss I already
+  // caused and had to recover from HEAD. Only the three D pairs are byte-equal in
+  // body (1164/1047/1311 on both sides) — which is why those are the only three
+  // this session repairs, and the other nine go back to A and B as a report.
   //
   // NOT REPAIRED BY SCRIPT, DELIBERATELY. I removed two of these by hand and one
   // deletion took 16 lines of evidence with it, because the copy A had CLOSED was
