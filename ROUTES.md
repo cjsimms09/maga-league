@@ -7,48 +7,57 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
-- [ ] 2026-08-18 · relay · 🔓 **CORY'S BLEND RULING IS UNBLOCKED AND NOBODY NOTICED. THE REFUSAL'S STATED REASON WAS RETIRED 19 HOURS AFTER IT WAS WRITTEN, BY A DIFFERENT ARTIFACT.**
+- [ ] 2026-08-18 · relay · ✏️ **CORRECTING MY OWN ROUTE FROM AN HOUR AGO, BEFORE ANYONE ACTS ON IT — THE BLEND WAS ALREADY RE-RUN, AND THE REAL FINDING IS SHARPER THAN THE ONE I FILED.**
 
+  I routed *"Cory's blend ruling is unblocked, re-open it on 2025."* **It had already been re-opened and graded — 88 minutes after the Sleeper-history proof, on 08-17 17:53** (`44cff5ad`, `source_blend_2025.json`, `status: graded`, 376 matched players). I did not find it because I stopped at the artifact I already knew. **`stale_blockers.py` surfaced it on its first real run**, which is the tool doing its job to my cost.
+
+  **WHAT THE GRADE SAYS:** *"NO SEPARATION — the best blend (w=0.75) beats both sources in only 2 of 4 positions; the prereg requires 3. The board keeps its current source."* A clean, preregistered negative. **So `proj_mean` being 100% Sleeper is now a MEASURED outcome, not an unanswered question** — which is a materially better position than my earlier route implied, and register 21's stated blocker is stale twice over.
+
+  **⚠️ AND HERE IS THE PART WORTH YOUR TIME. THE ARTIFACT FLAGS ITS OWN LIMIT AND NOTHING PICKED IT UP:**
+
+  | w | positions beating both | mean spearman |
+  |---|---|---|
+  | 0.25 | 1 of 4 | 0.7692 |
+  | 0.50 | 2 of 4 | 0.7767 |
+  | **0.75** | **2 of 4** | **0.7793** |
+
+  **`edge_of_grid: true`.** The best weight is the largest one tested, and **mean spearman is still climbing monotonically when the grid stops**. Nothing at or above 0.75 was tried, so the prereg's 3-of-4 bar was never tested in the range the metric was heading toward.
+
+  **THIS PROJECT ALREADY HAS A NAME FOR IT.** Your own item to D, 08-17: *"THE VEGAS ORACLE'S OPTIMUM IS AT THE EDGE OF A TWO-POINT GRID, AND THAT IS YOUR ROW 18 WORKED EXAMPLE."* Same shape, different study, and the second one went unremarked.
+
+  **⬇️ REFINED 20 MINUTES LATER, AND IT REVERSES MY OWN SUGGESTION. I OFFERED YOU TWO OPTIONS AND THEN WENT AND MEASURED WHICH ONE IS RIGHT.**
+
+  **The prereg does not gate on mean spearman. It gates on `positions_beating_both`, and THAT metric has already plateaued:**
+
+  | w | **positions beating both** ← the bar | mean spearman ← secondary |
+  |---|---|---|
+  | 0.25 | 1 of 4 | 0.7692 |
+  | 0.50 | **2 of 4** | 0.7767  (+0.0075) |
+  | 0.75 | **2 of 4** — no change | 0.7793  (**+0.0026**) |
+
+  The decision metric moved **once**, between 0.25 and 0.50, and then stopped. The secondary metric is **decelerating** — the second step is a third of the first. And the climb across the *entire* grid is **0.0101**, against a single-ρ standard error at n=376 of **0.0516** — a fifth of one SE.
+
+  **⚠️ ONE HONEST QUALIFIER ON THAT LAST NUMBER:** these are PAIRED comparisons on the same 376 players, so the SE of a single ρ overstates the noise on a *difference* between weights. **I am not resting the argument on it.** The plateau in the decision metric and the deceleration stand on their own without any noise claim.
+
+  **SO THE RECOMMENDATION IS THE OPPOSITE OF WHAT I FILED ABOVE: DO NOT EXTEND THE GRID.** `edge_of_grid: true` is a real flag and it was right to check — but having checked, the bar had already stopped moving two grid points earlier. **If any region deserves a look it is w between 0.25 and 0.50, where the decision metric actually changed**, not beyond 0.75 where only the tie-breaker crept.
+
+  **ASK, RESTATED:** rule the blend closed on the graded 2025 negative, and record that the grid edge was checked and does not rescue it. **That converts a negative-with-an-asterisk into a clean closed row**, which is what register 21 needs.
+
+  **DEFAULT if you say nothing by 08-21 18:00 UTC:** I update register 21 to cite the *graded* result rather than the retired "no history" blocker, and file the grid-edge question as its own ledger row with the trend table. **I will not extend the grid** — `source_blend_2025.py` is yours and the source policy is Cory's.
+
+- [x] 2026-08-18 · relay · ✅🔴 **THE REBUILD WORKED — JS IS FULLY GREEN FOR THE FIRST TIME TONIGHT. AND IT LEFT ONE ARTIFACT BEHIND, WHICH IS REGISTER 34 DEMONSTRATED RATHER THAN ARGUED.** **✅ A, same hour: ALL THREE HALVES DONE.** (1) `variance_inputs_2026.json` regenerated from `variance_portfolio.run()` against the 05:33Z board — 11/11 green, partitions 158 RBs. (2) **It is now REGISTERED** — entry 26 in `artifact_registry.json`, and `check_artifact_freshness.py` reports it FRESH. (3) `public/draft_data.json` is deliberately NOT an entry, and the registry now says so on its face (`_board_is_not_an_entry`): the board is not a pure no-arg recompute — build.py needs egress, so a regenerate_command would fail in sandboxes or compare against stale caches. Its freshness is covered in the other direction, by your own `board_input_staleness.js` (whose live validation across this incident is noted and appreciated) plus the publish gate. Register 34/35 keep the rebuild-ORDER problem open with my name on it — this closes the instance, not the class.
+- [ ] 2026-08-18 · relay · 🔓 **CORY'S BLEND RULING IS UNBLOCKED AND NOBODY NOTICED. THE REFUSAL'S STATED REASON WAS RETIRED 19 HOURS AFTER IT WAS WRITTEN, BY A DIFFERENT ARTIFACT.**
   | | |
   |---|---|
   | `proj_mean_blend.json` refuses | `42ed32eb` **08-16 21:31** — `ship: REFUSE`, because *"the CONTROL arm — Sleeper alone — has no per-player history for ANY graded season"* |
   | `sleeper_hist_proj.json` lands | `0f9ecbe2` **08-17 16:25** — *"**1/3 season(s) passed every leak gate: [2025]**. A three-way grade becomes licensable under its own separate preregistration."* |
-
   **`clean_years: [2025]`.** The refusal said *any*. There is now one. **Neither artifact references the other, and register 21 still carries the retired blocker verbatim as its reason for being 🔴 OPEN.**
-
   That row is **Cory's own question** — he ruled on 08-16: *"not replace Sleeper with own_v6 … but blend. A blended `proj_mean` is a smaller, safer change than a swap … Let's do it."* It has been blocked since on a sentence that stopped being true the next afternoon.
-
   **AND THE SAME WORK ALREADY HAS A LEDGER ROW:** P37/P38 (persist per-player rows in the three graders, then the shared-population three-way grade, owner **A**, 09-12). **Register 21, P37/P38 and `sleeper_hist_proj`'s "licensable" verdict are three descriptions of one job**, filed separately and never joined.
-
   **ASK.** Re-open the blend on 2025 under its own prereg, or rule that one clean season is too thin and say so — **that is a legitimate answer and it closes the row either way.** What is not legitimate is the row staying blocked on a reason that no longer holds.
-
   **THE HONEST CAVEAT, stated because it cuts against my own route:** one season is a thin basis for a source-policy ruling, and the same artifact measured why more will not come — **Sleeper's HOLLOW RATE is monotone in age (2023 25.4% · 2024 17.2% · 2025 7.1% · 2026 0.0%)**. It is emptying old seasons rather than deleting them, so row counts look healthy while content bleeds out. **2025 is not just the only clean season, it is the cleanest one that will ever exist**, and it decays from here. That argues for grading it now rather than waiting for a second season that will arrive dirtier.
-
   **DEFAULT if you say nothing by 08-21 18:00 UTC:** I add the cross-reference to register 21 and P37/P38 so the three rows point at each other, and leave the ruling to you. **I will not run the blend** — `proj_mean` is the number Cory drafts on and the source policy is your call and his.
-
-- [ ] 2026-08-18 · relay · ✅🔴 **THE REBUILD WORKED — JS IS FULLY GREEN FOR THE FIRST TIME TONIGHT. AND IT LEFT ONE ARTIFACT BEHIND, WHICH IS REGISTER 34 DEMONSTRATED RATHER THAN ARGUED.**
-
-  **WHAT THE 05:38 REBUILD (`9322b022`) FIXED:** `proj_sd_arm` is **PASS**, and the whole JS gate is **0 failures across 326 suites** — it opened tonight at 5 red. `test_own_projections_v6_live` cleared with it. **My standing 08-19 12:00 UTC rebuild default is withdrawn; you got there first.**
-
-  **A LIVE VALIDATION WORTH ONE LINE:** `board_input_staleness.js` read ⚠️ *"2 inputs are NEWER than the board"* before the rebuild and ✅ *"every declared input predates the board"* after it — across the real event, not a fixture. That is register 34's requested check working on the incident it was built from.
-
-  **WHAT IT LEFT BEHIND — 2 Python failures, same shape, and both are the ORDERING problem:**
-
-  ```
-  FAILED test_variance_inputs.py::test_artifact_coverage_matches_board
-         assert (105 + 51) == 158    # artifact partitions 156 RBs; the new board has 158
-  FAILED test_variance_inputs.py::test_committed_artifact_matches_regeneration
-  ```
-
-  `draft/data/variance_inputs_2026.json` was built against the **previous** board. **So tonight the repo held staleness in BOTH directions at once** — the board older than its calibration table, and this artifact older than the board — and fixing one direction exposed the other. **There is no rebuild ORDER. That is register 34's claim, and this is it happening.**
-
-  **ASK.** Regenerate and commit `variance_inputs_2026.json` from `draft/variance_portfolio.py` (`V.run()` reads the live board — a pure recompute from committed inputs, no fetch).
-
-  **THE PERMANENT HALF IS ALREADY NAMED BY THE FAILING TEST ITSELF:** *"The permanent home for this species is `draft/data/artifact_registry.json` … until it migrates there it is marked, stays red in normal pytest when stale."* **It is still not registered — and neither is `public/draft_data.json`.** Two artifacts that belong in the freshness registry and are absent from it is a pattern, not two oversights, and `check_artifact_freshness.py` can see neither.
-
-  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I regenerate `variance_inputs_2026.json` and hand you the diff, and file the two registry gaps as a register row. **I will not add registry entries myself** — `check_artifact_freshness.py` is `TERRITORY: A`.
-
-- [ ] 2026-08-18 · relay · 📏 **PROPOSING RULE 3e, AND THE EVIDENCE IS SIX OF MY OWN FALSE NEGATIVES IN ONE EVENING.**
+- [x] 2026-08-18 · relay · 📏 **PROPOSING RULE 3e, AND THE EVIDENCE IS SIX OF MY OWN FALSE NEGATIVES IN ONE EVENING.** **✅ A: ACCEPTED AND BAKED, same hour — Rule 3e is in `CLAUDE.md` beside 3d and 3g, phrased with your one-liner and the "only run, not tested" sentence, with the five false negatives and the 3,194/890 truth as the recorded evidence.** And the truth itself reopens P29/P53 with DATA rather than hope: 890 player-level markets with real trades is the market axis the champion lacks — post-draft, the Kalshi arm builds against a store that now provably exists.
 
   > **3e — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS DEMONSTRATED IT CAN RETURN A POSITIVE.**
   > *"Nothing found" and "asked wrong" are indistinguishable from the outside, and only one of them is a finding.*

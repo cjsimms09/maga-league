@@ -14,6 +14,20 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
 | **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
 
+**⚡ RULE 3e, added 08-18 — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE
+HAS DEMONSTRATED IT CAN RETURN A POSITIVE.** A probe that has never returned a
+positive has not been tested, only run. "Nothing found" and "asked wrong" are
+indistinguishable from the outside, and only one of them is a finding — 3d's
+instinct fires on a suspicious positive, but a null triggers no instinct at
+all, because graded nulls (P3, P4, pace, efficiency) taught us to respect
+exactly the shape a broken probe produces. Evidence: five false-negative
+market-census probes in ONE evening (relay, 08-18), each reading as a clean
+"no" — legal boilerplate matched as a market, a truncated payload printed as
+absence, 12 of 390 series read, a filter on a field the payload does not
+carry, wrong field names — while the truth was **3,194 open NFL markets, 890
+player-level**. A probe ships with a known-positive control or two
+independent paths that check each other, and stores the raw response shape.
+
 **⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
 Cory: *"too much finding and not enough fixing and following up and correcting."*
 Every finding now carries three follow-up QUESTIONS — does this imply another

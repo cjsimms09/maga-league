@@ -329,6 +329,17 @@
     "python3",
     "draft/backtest/ridge_arm_fit.py"
    ]
+  },
+  {
+   "id": "variance_inputs_2026",
+   "description": "Per-player weekly cv + class means the war room's variance portfolio reads. Registered 2026-08-18 after the 05:33Z rebuild caught it stale in the OPPOSITE direction from register 34's board case \u2014 the artifact partitioned 156 RBs against a board carrying 158. Reads the LIVE board, so it must regenerate with every publish.",
+   "owner_module": "draft/tools/variance_portfolio.py",
+   "artifact_path": "draft/data/variance_inputs_2026.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft')\nimport variance_portfolio as V\nprint(json.dumps(V.run()))"
+   ]
   }
  ],
  "_not_yet_migrated": [
@@ -363,5 +374,6 @@
   "ROUTES.md) \u2014 none of its tests currently carry repo_parity, so there is",
   "nothing to migrate yet, but a future pass should check again once that",
   "study lands before assuming it is clear."
- ]
+ ],
+ "_board_is_not_an_entry": "public/draft_data.json is deliberately NOT registered here, and the absence is named rather than silent (2026-08-18): the board is not a pure no-arg recompute \u2014 build.py needs egress fetches, so a regenerate_command would either fail in sandboxes or silently compare against stale fetch caches. Its freshness is covered in the other direction: board_input_staleness.js checks every declared input predates the board, and the draft-data.yml gate refuses any publish whose fresh board fails the suite."
 }
