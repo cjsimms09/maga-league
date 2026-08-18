@@ -107,7 +107,30 @@ def _get(url, timeout=25, headers=None):
     return resp
 
 
-def _best_table(html, name_hints=("player", "name"), points_hints=("fpts", "pts", "points", "proj")):
+#: A CBS-style combined cell packs "Name  POS  TEAM" (or "NamePOSTEAM" with no
+#: separating space, when pandas.read_html merges adjacent text nodes) into
+#: ONE cell rather than separate columns. ffanalytics's own scraper needs the
+#: identical extraction from raw HTML text (`tidyr::extract` with a regex
+#: matching this exact shape) — confirmed via its actual scrape_cbs source,
+#: not guessed. Applied to EVERY HTML/table source, not just CBS: a table
+#: that already carries a clean name column is unaffected (the regex simply
+#: fails to match and the raw string is kept), so this is safe as a default
+#: rather than a per-source special case.
+_POS_CODES = ("QB", "RB", "WR", "TE", "K", "DST", "DEF", "PK", "FB")
+_TRAILING_POS_TEAM = re.compile(
+    r"^(?P<name>.+?)\s*(?:%s)\s*[A-Z]{2,4}\s*$" % "|".join(_POS_CODES))
+
+
+def _clean_name(raw):
+    s = re.sub(r"\s+", " ", str(raw)).strip()
+    m = _TRAILING_POS_TEAM.match(s)
+    if m and m.group("name"):
+        return m.group("name").strip()
+    return s
+
+
+def _best_table(html, name_hints=("player", "name"),
+                points_hints=("fpts", "pts", "points", "proj", "fp", "total")):
     """Every table on the page via pandas.read_html; pick the one whose
     columns look like a player/points table. Returns (name_col, points_col,
     DataFrame) or None -- robust to markup drift a single CSS selector isn't,
@@ -138,7 +161,7 @@ def _best_table(html, name_hints=("player", "name"), points_hints=("fpts", "pts"
 def _rows_from_table(name_col, pts_col, df, position):
     out = []
     for _, row in df.iterrows():
-        name = str(row[name_col])
+        name = _clean_name(row[name_col])
         pts = row[pts_col]
         try:
             pts = float(re.sub(r"[^0-9.\-]", "", str(pts)))
@@ -265,16 +288,25 @@ def capture_source(name, controls):  # pragma: no cover  (egress; CI only)
 
     found_names = {_norm(r["name"]) for r in all_rows}
     hits = len(controls & found_names)
+    # ⚠️ SAMPLE NAMES ARE CARRIED ON VOID TOO, not only on success. The first
+    # dispatch found CBS/Walterfootball parsing REAL row counts (377/247)
+    # with 0/15 control hits and gave the next reader nothing to diagnose
+    # from but a guess — this is that fix: whatever the parser actually
+    # extracted is now in the artifact, so a repeat mismatch is read, not
+    # re-guessed.
+    sample = [r["name"] for r in all_rows[:8]]
     if hits < MIN_CONTROL_HITS:
         return {"source": name, "status": "VOID",
                "reason": "planted-value control failed: only %d/%d known top "
                          "players found in %d parsed rows -- the parser is "
                          "not trusted to have found a real table"
                          % (hits, len(controls), len(all_rows)),
-               "control_hits": hits, "rows_parsed": len(all_rows), "urls": urls}
+               "control_hits": hits, "rows_parsed": len(all_rows), "urls": urls,
+               "sample_names": sample}
 
     return {"source": name, "status": "OK", "control_hits": hits,
-           "rows_parsed": len(all_rows), "urls": urls, "rows": all_rows}
+           "rows_parsed": len(all_rows), "urls": urls, "sample_names": sample,
+           "rows": all_rows}
 
 
 def capture_all() -> dict:  # pragma: no cover  (egress; CI only)
