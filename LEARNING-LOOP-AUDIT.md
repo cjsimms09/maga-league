@@ -192,6 +192,7 @@ than anything else in this document.
 | merge resolver | silent success | preferred *theirs* on any unticked item I had edited |
 | first merge length-diff | "44 items lost" | did not ask whether main had deliberately removed them |
 | control-coverage sweep | "`merge_completeness.py` has no fail arm" | it has four; my detector grepped for `FAIL ARM\|planted\|CONTROL` and that file names its arms `test_dropped_modification_is_caught` |
+| lane response rate | "`relay → D` 0% ticked — D is not closing loops" | I sign items as BOTH `relay` and `relay/PM`; the metric keys on the sender STRING. `relay/PM → D` is **71%**, and every unticked item was filed that same day |
 
 **Every one produced a clean, plausible, confidently-worded output.** Not one
 crashed. That is the same shape as the defects this project keeps finding in the
@@ -206,6 +207,8 @@ dispersion as `proj_mean × a constant`. **Full coverage, no information.**
     minutes of being pointed at work that had looked green for 25 commits
   · **luck** — 1 of 7. I went to edit an item and my anchor string was missing.
     Nothing would have told me that 9,400 characters of routing had been deleted.
+
+**⚠️ THE TENTH IS THE ONE THAT REACHED CORY.** I told him a lane was not closing loops, on a 0% that measured **my own inconsistent signature**. The known-positive was sitting in the same output — the same lane at 71% under my other label — and I did not look at it before quoting the number. **Every other entry in this table cost me time; this one cost him a wrong belief about a teammate**, which is the failure mode Rule 3f exists to stop and the reason the rule says *before it is written down anywhere*.
 
 **⚠️ THE EIGHTH ARRIVED WITHIN MINUTES OF FILING P90 ABOUT THE OTHER SEVEN**, which is the
 most honest thing in this table: I swept for tools lacking a known-positive control, and the
