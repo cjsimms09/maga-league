@@ -2,6 +2,52 @@
  "arms": {
   "arm_fp": {
    "n_players": 441,
+   "top_tier_precision": {
+    "QB": {
+     "P@12": {
+      "champion": 0.5,
+      "challenger": 0.5
+     },
+     "P@24": {
+      "champion": 0.792,
+      "challenger": 0.792
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "RB": {
+     "P@12": {
+      "champion": 0.667,
+      "challenger": 0.667
+     },
+     "P@24": {
+      "champion": 0.708,
+      "challenger": 0.708
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "WR": {
+     "P@12": {
+      "champion": 0.583,
+      "challenger": 0.583
+     },
+     "P@24": {
+      "champion": 0.708,
+      "challenger": 0.667
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "TE": {
+     "P@12": {
+      "champion": 0.667,
+      "challenger": 0.667
+     },
+     "P@24": {
+      "champion": 0.667,
+      "challenger": 0.667
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    }
+   },
    "lambda": {
     "QB": {
      "mean": 0.0626,
@@ -107,6 +153,52 @@
   },
   "arm_own": {
    "n_players": 355,
+   "top_tier_precision": {
+    "QB": {
+     "P@12": {
+      "champion": 0.5,
+      "challenger": 0.5
+     },
+     "P@24": {
+      "champion": 0.833,
+      "challenger": 0.875
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "RB": {
+     "P@12": {
+      "champion": 0.833,
+      "challenger": 0.833
+     },
+     "P@24": {
+      "champion": 0.75,
+      "challenger": 0.75
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "WR": {
+     "P@12": {
+      "champion": 0.583,
+      "challenger": 0.583
+     },
+     "P@24": {
+      "champion": 0.708,
+      "challenger": 0.667
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "TE": {
+     "P@12": {
+      "champion": 0.667,
+      "challenger": 0.667
+     },
+     "P@24": {
+      "champion": 0.792,
+      "challenger": 0.75
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    }
+   },
    "lambda": {
     "QB": {
      "mean": 0.2177,

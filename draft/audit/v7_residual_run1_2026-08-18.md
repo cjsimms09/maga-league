@@ -85,3 +85,32 @@ they are different skills, and Amendment 2's dual grade now keeps them
 separate on every future fold, exactly as the resource lesson prescribes:
 production skill and availability skill graded apart, in-season injury luck
 excluded from both.
+
+---
+
+## ADDENDUM 2 — TOP-TIER PRECISION (Amendment 3, the draftable-zone lesson)
+
+P@12/P@24 on the CV predictions, champion (Sleeper) → challenger:
+
+| grade | arm | pos | P@12 | P@24 |
+|---|---|---|---|---|
+| total | fp | WR | 0.417 → 0.417 | 0.625 → **0.583** |
+| total | own | QB | 0.583 → 0.500 | 0.833 → 0.875 |
+| total | own | WR | 0.417 → **0.333** | 0.625 → **0.542** |
+| total | own | TE | 0.500 → 0.417 | 0.792 → 0.750 |
+| per-game | fp | WR | 0.583 → 0.583 | 0.708 → 0.667 |
+| per-game | own | WR | 0.583 → 0.583 | 0.708 → 0.667 |
+
+(cells not shown are exact ties; one fold — noisy by the harness's own 2024
+reversal, so nothing here counts alone.)
+
+**The second metric family says NOT YET, and that is the resource lesson
+working:** the WR MAE gains do NOT come from re-ordering the top of the
+board — the challengers tie or slightly lose the draftable zone. The
+residual corrections are repricing the middle (and, in totals, availability),
+which helps start/sit-style error but not yet who-to-draft-at-12. Ships-if
+requires both families; run one now fails it on three independent
+instruments (best-of-K, precision, single fold). **Nothing ships — and the
+harness that will decide when something does is now the full stack: total
+MAE + per-game skill MAE + Spearman + P@12/P@24, dual-graded, cluster-CV'd,
+with BEST-OF-K standing over all of it.**

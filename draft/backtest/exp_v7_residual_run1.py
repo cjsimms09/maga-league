@@ -180,12 +180,32 @@ def run(per_game=False):
 
         # cross-validated per-player errors for best-of-K
         cv_err = {}
+        cv_pred = {}
         for x, y, p, q, t in rows:
             preds = held_pred.get(p)
             if preds:
                 cv_err[p] = abs(y - sum(preds) / len(preds))
+                cv_pred[p] = sum(preds) / len(preds)
+
+        # TOP-TIER PRECISION (Amendment 3): P@N over the full position pool on
+        # the CV predictions. Model score = sleeper + cv residual prediction;
+        # champion = sleeper alone; truth = actual. One fold -> noisy, flagged.
+        def p_at(n, q, use_challenger):
+            pool = [p for p in pids if pos[p] == q and p in cv_pred]
+            if len(pool) < n + 4:
+                return None
+            truth = set(sorted(pool, key=lambda p: -actual[p])[:n])
+            key = (lambda p: -(sleeper[p] + cv_pred[p])) if use_challenger else (lambda p: -sleeper[p])
+            picked = set(sorted(pool, key=key)[:n])
+            return round(len(truth & picked) / n, 3)
+        precision = {}
+        for q in POSITIONS:
+            precision[q] = {"P@12": {"champion": p_at(12, q, False), "challenger": p_at(12, q, True)},
+                            "P@24": {"champion": p_at(24, q, False), "challenger": p_at(24, q, True)},
+                            "_note": "one fold — counts toward ships-if only if it replicates"}
         out["arms"][arm_name] = {
             "n_players": len(pids),
+            "top_tier_precision": precision,
             "lambda": {q: ci(lam[q]) for q in POSITIONS},
             "delta_mae_full": {q: ci(dmae[q]) for q in POSITIONS},
             "delta_mae_startable": {q: ci(dmae_start[q]) for q in POSITIONS},

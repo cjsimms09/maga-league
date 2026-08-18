@@ -2,6 +2,52 @@
  "arms": {
   "arm_fp": {
    "n_players": 474,
+   "top_tier_precision": {
+    "QB": {
+     "P@12": {
+      "champion": 0.583,
+      "challenger": 0.583
+     },
+     "P@24": {
+      "champion": 0.792,
+      "challenger": 0.792
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "RB": {
+     "P@12": {
+      "champion": 0.75,
+      "challenger": 0.75
+     },
+     "P@24": {
+      "champion": 0.708,
+      "challenger": 0.708
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "WR": {
+     "P@12": {
+      "champion": 0.417,
+      "challenger": 0.417
+     },
+     "P@24": {
+      "champion": 0.625,
+      "challenger": 0.583
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "TE": {
+     "P@12": {
+      "champion": 0.5,
+      "challenger": 0.5
+     },
+     "P@24": {
+      "champion": 0.708,
+      "challenger": 0.708
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    }
+   },
    "lambda": {
     "QB": {
      "mean": 0.0839,
@@ -107,6 +153,52 @@
   },
   "arm_own": {
    "n_players": 371,
+   "top_tier_precision": {
+    "QB": {
+     "P@12": {
+      "champion": 0.583,
+      "challenger": 0.5
+     },
+     "P@24": {
+      "champion": 0.833,
+      "challenger": 0.875
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "RB": {
+     "P@12": {
+      "champion": 0.833,
+      "challenger": 0.833
+     },
+     "P@24": {
+      "champion": 0.708,
+      "challenger": 0.708
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "WR": {
+     "P@12": {
+      "champion": 0.417,
+      "challenger": 0.333
+     },
+     "P@24": {
+      "champion": 0.625,
+      "challenger": 0.542
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    },
+    "TE": {
+     "P@12": {
+      "champion": 0.5,
+      "challenger": 0.417
+     },
+     "P@24": {
+      "champion": 0.792,
+      "challenger": 0.75
+     },
+     "_note": "one fold \u2014 counts toward ships-if only if it replicates"
+    }
+   },
    "lambda": {
     "QB": {
      "mean": 0.3752,
@@ -233,5 +325,6 @@
   "rows_are": "360 players priced by all arms, cross-validated errors"
  },
  "_protocol": "AMENDMENT 1, RESIDUAL-ARM-PROPOSAL.md \u2014 committed before this ran",
- "_ships": "NOTHING from run one, by prereg. Cory's pre-authorization (A11) applies to the full graded bar: lambda CI>0 at >=2 positions AND startable-pool gain AND outside the best-of-K null band, on the graded folds."
+ "_ships": "NOTHING from run one, by prereg. Cory's pre-authorization (A11) applies to the full graded bar: lambda CI>0 at >=2 positions AND startable-pool gain AND outside the best-of-K null band, on the graded folds.",
+ "_grade": "TOTAL POINTS (availability skill included)"
 }
