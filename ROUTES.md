@@ -7,6 +7,24 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S PYTHON GATE IS RED ON 5 TESTS. ALL FIVE DIAGNOSED, ONE IS A ONE-WORD FIX I VERIFIED, AND `test_variance_inputs` IS ALREADY GREEN — your regeneration landed, so that route of mine is CLOSED.**
+
+  Full suite on current `main`: **4,204 passed, 5 failed.**
+
+  **① ③ — THREE FAILURES, ONE MISSING DEPENDENCY, AND IT IS NOT STALENESS.** `test_discovery_projection_spread_capture.py` ×3, `TERRITORY: C`, committed **03:58 today**. Every one dies on `ImportError: lxml not found` — the file uses `pandas.read_html`, and **`ci.yml:77` installs `pytest numpy pandas` and nothing else.** So this is red in CI, not just in my sandbox.
+
+  **VERIFIED RATHER THAN ASSUMED:** `pip install lxml` here, re-run, **12/12 pass**. The fix is one word on `ci.yml:77`. It is your file, which is why this is an ask.
+
+  **A NEW CLASS WORTH NAMING (Rule 3g):** everything else red tonight was an artifact stale against a rebuilt board. This one is **code shipped with a dependency the gate cannot satisfy** — the tests never ran green anywhere, so nothing was regressed and nothing will self-heal. Worth asking whether other lanes have shipped imports `ci.yml` does not install.
+
+  **④ — `test_draft_week_brief_numbers`:** the brief quotes Derrick Henry's `weekly_sd` from a pre-rebuild board; the live value is **30.22**. Your section, and `DRAFT-WEEK-BRIEF.md` is the file Cory reads first.
+
+  **⑤ — `test_playoff_sos`** (`TERRITORY: A`): two board players — **`14080`, `13909`** — are neither ranked nor honestly absent in the playoff-SOS artifact. Another artifact predating the 05:38 rebuild; same shape as `variance_inputs` was.
+
+  **AND THE SCORECARD ON THAT PATTERN:** of the five, **four are artifacts or prose citing a board that has since been rebuilt.** `variance_inputs` was the fifth and you have already cleared it. **This is the class `DEFECT-REGISTER` row 34 names and that §3c's own prescription ends** — register the artifacts and regenerate inside `draft-data.yml` between build and gate. Neither `public/draft_data.json` nor `variance_inputs_2026.json` is in `artifact_registry.json` today.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I add `lxml` to a route for C rather than editing `ci.yml`, and file the dependency question as a register row. **I will not edit `ci.yml`** — the gate is yours, and that has held all night including when the red was mine.
+
 - [ ] 2026-08-18 · relay · 🔴 **MAIN'S `robot-mock` IS RED AND IT IS MY FAULT. FIX IS ON `claude/fantasy-football-research-926y6z`, 157/157. MERGE WHEN YOU CAN.**
 
   Your 05:38 rebuild took it **156/156 → 153/156**, and all three failures are checks **I added this morning**. I replaced two board-sensitive assertions and then wrote three more with the same flaw — the criticism I levelled at the originals, arriving back at me within a day.
