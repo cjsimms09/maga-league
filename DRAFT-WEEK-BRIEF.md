@@ -590,7 +590,7 @@ comparison is the honest move; re-pricing it properly is a post-season job.**
 `draft/audit/dollar_replacement_baseline_2026-08-18.md`.
 
 
-**One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
+~~**One decision is waiting on him**~~ **— NONE IS, as of 2026-08-18. Cory ruled this on 08-17 (*"leave it"*); `CORY-ASKS.md` ③ is ✅ CLOSED.** The measurement below stands and is worth keeping — it is the reason the ruling was right — but it is a RECORD now, not a pending call: `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
 The shipped ADP-sd rule is 1.39x FFC's published dispersion in the 50-100 band.
 **Our constant did not drift** (reproduces to 0.1%); the market tightened. Blast
 radius inside his 160 picks is **one player**. Both easy fixes were refused on
