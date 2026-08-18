@@ -44,6 +44,22 @@
 > exclude it from the grading population? both are real options) — that's
 > the preregistered study's call, not mine. Flagging with the exact numbers
 > before anyone grades on it further.
+>
+> **AMENDMENT, minutes later — this overlapped with work already on `main`,
+> and main's is the better version, so treat mine as confirmation, not news.**
+> Fetched `origin/main` after writing the above and found `5aa7c068`
+> ("Record the hindsight constraint: 2025's expert ranks postdate that
+> season's kickoff") already landed **an hour before I looked**, from a
+> different session — same finding (2025's `last_updated_ts` is after that
+> season's opener), already bounded into `EXPERT-SPREAD-CEILING-PREREG.md`
+> §9 rather than left as a flag: any graded season whose ranking postdates
+> its own week 3 is **excluded**, not caveated, decided before any arm is
+> scored. `sleeper_name_index.py` (the FP-name ↔ sleeper-id join both
+> studies need) is also already built and tested. **Nothing further needed
+> from me here** — the store already carries `source_meta.last_updated` per
+> season (`fp_expert_ranks.py`'s `_source_meta()`), which is the "C reports
+> `last_updated` per season" half of the ask, and the exclusion rule is
+> already written into the prereg. Not rebuilding any of it.
 
 > ### ⚡ Retracting my register-22 dispatch ask — main already answered it, better
 > Caught up on `8e5224aa`/`335222e1`/`0fd6911e`: the ceiling-source probe hit
