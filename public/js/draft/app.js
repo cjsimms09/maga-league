@@ -3655,8 +3655,10 @@
           // classes as the recs rows so B's styling picks them up.
           + (isGone ? '' : '<button class="btn small gold" data-draft-me="' + escapeHtml(String(id))
             + '" title="I took him">✓</button>')
+          // ⚖️ alone read as decoration at 8s/pick (B, 08-18 — same rule as the
+          // .ss-issues fix: meaning must be visible, not hover-only).
           + '<button class="btn small ghost" data-compare="' + escapeHtml(String(id))
-            + '" title="Compare — dollar gap">⚖️</button>'
+            + '" title="Compare — dollar gap">⚖️ Compare</button>'
           + '<button class="btn small ghost" data-qmove="-1" data-id="' + escapeHtml(String(id))
             + '"' + (i === 0 ? ' disabled' : '') + ' title="Up">▲</button>'
           + '<button class="btn small ghost" data-qmove="1" data-id="' + escapeHtml(String(id))
@@ -7875,6 +7877,17 @@
     else if (seat.source === 'assumed') amber.push('seat assumed');
     else if (!state.mockMode && !state.slotVerified) amber.push('slot unverified');
     if (state.keeperLock && !state.keeperLock.locked && !state.mockMode) amber.push('slate unconfirmed');
+    // PredLedger.pending() exposed a queue count nothing rendered — "a number
+    // nothing renders is a number nobody sees" (its own header; routed to this
+    // strip 08-18). Unflushed predictions are capture at risk: if the browser
+    // closes before the queue drains, the draft-night rows the grading loop
+    // needs are gone. Amber, not red — the recommendation itself is unaffected.
+    if (typeof PredLedger !== 'undefined' && typeof PredLedger.pending === 'function') {
+      try {
+        const qn = PredLedger.pending();
+        if (qn > 0) amber.push(qn + ' prediction' + (qn === 1 ? '' : 's') + ' unflushed');
+      } catch (e) { /* the strip must never die on the ledger's account */ }
+    }
     // A STALE SYNC INVALIDATES EVERY RECOMMENDATION, so it belongs in the strip's
     // red channel and not only in the fold-away. If the picks feed stalls, the
     // board still confidently recommends players who are already gone — and the
