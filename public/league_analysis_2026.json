@@ -1,6 +1,8 @@
 {
  "_territory": "TERRITORY: A \u2014 produced by draft/tools/league_analyzer.py",
- "_claim": "PROJECTIONS, not results: standings are our proj_mean through each team's best legal lineup, all-play framing (2026-08-18 grading ruling); draft grades are surplus vs THIS draft's own round means, keepers excluded. The realized grade belongs to the weekly grading cron.",
+ "_rehearsal": true,
+ "league_status": "pre_draft",
+ "_claim": "\u26a0\ufe0f REHEARSAL \u2014 the league is still pre-draft, and Sleeper carries LAST SEASON'S rosters until the draft clears them: this table is 2026 projections priced over 2025 rosters, NOT the draft result. Ignore the standings; the run exists to prove the fetch path. PROJECTIONS, not results: standings are our proj_mean through each team's best legal lineup, all-play framing (2026-08-18 grading ruling); draft grades are surplus vs THIS draft's own round means, keepers excluded. The realized grade belongs to the weekly grading cron.",
  "projected_standings": [
   {
    "roster_id": 7,
