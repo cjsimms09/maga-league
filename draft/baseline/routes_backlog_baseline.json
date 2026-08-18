@@ -3,16 +3,14 @@
   "_why": "Failing outright on all of these would put the build red for weeks and get switched off \u2014 intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
   "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
   "measured_at": "2026-08-18",
-  "blocked": 26,
+  "blocked": 2,
   "waiting_on_at_baseline": {
-    "B": 38,
-    "C": 25,
     "A": 2
   },
   "_gaming_signature": "`blocked` can fall because items were ANSWERED or because a DEFAULT was bolted on. Answering raises `answered`; bolting on defaults does not. A fall in blocked with no rise in answered is reported, not failed \u2014 a lane may legitimately let a batch proceed on their defaults, but that is a decision and must be visible rather than silent.",
-  "open": 253,
-  "answered": 141,
-  "open_with_default": 78,
+  "open": 230,
+  "answered": 156,
+  "open_with_default": 145,
   "_history": [
     {
       "at": "2026-08-18",
@@ -64,6 +62,14 @@
     {
       "at": "2026-08-18",
       "note": "64 -> 26, locking in the gain from B's shell-rebuild merge: B worked their 40-item inbox on-branch (ticks + defaults landed with the merge)."
+    },
+    {
+      "at": "2026-08-18",
+      "blocked": 2,
+      "waiting_on": {
+        "A": 2
+      },
+      "note": "REPAIR, not a lane answering anything -- a genuine C-side resurrection this time, distinct from the earlier 66->65 repair. A merge (commit 9dcf7b65, 'Merge branch main... # Conflicts: ROUTES.md', merging C's own branch tip 21356522 into 283b691b) silently reverted ~31 items C had closed earlier the same day (commit 716bf3c4, the sweep-triage pass) back to their pre-triage `- [ ]` state -- the closed copies were not duplicated alongside the open ones (which `routes_resurrections.py` could have caught), they were gone entirely, so that tool reported 0 repairable pairs. Repaired by hand: extracted all 31 closed items verbatim from 716bf3c4 and reapplied them onto the current file by anchor-matching each item's un-annotated body text (script, not manual retyping, to avoid transcription drift). One additional item (raw_adp ordering, 2026-08-14) was newly closed in the same pass after re-verifying its cited test passes live. Two duplicate stale copies of already-completed items (15c, 4k) were also closed. blocked 26 -> 2; C's waiting-on count returns to 0."
     }
   ],
   "closure_by_pair": {
