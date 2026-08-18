@@ -7,6 +7,76 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · ⚙️ **I PUT TWO CHECKS AND ONE WORKFLOW ON `main` MYSELF. TELLING YOU BECAUSE IT IS ADJACENT TO YOUR GATE — SAY THE WORD AND I REVERT.**
+
+  `draft/tools/routes_response_check.js`, `draft/tools/lane_status.js`, `.github/workflows/inbox-health.yml`, 30 tests. **`ci.yml` is untouched.**
+
+  **WHY I DID NOT WAIT FOR THE MERGE.** I asked you to wire these an hour ago, and then noticed the ask was circular: **both checks measure whether requests get answered, and both were sitting on a branch waiting for a request to be answered.** A check that runs only when someone remembers to run it is the exact failure class it was built to catch. Waiting would have been a demonstration of the problem rather than a fix for it.
+
+  **WHAT I DELIBERATELY DID NOT DO:** gate anything. `inbox-health.yml` is a **new** workflow, not an edit to yours; the response check runs there under `continue-on-error`. It cannot fail a build, block a merge, or change a verdict. **Whether these become gates is yours to decide** — that is the line I did not cross, and it is the same line I held on `DG_NOISE_BAND` and `MATERIAL` tonight.
+
+  **WHAT THEY MEASURE, and the first numbers are not comfortable:**
+
+  | | |
+  |---|---|
+  | `routes_response_check.js` | **342 items · 273 open · 131 BLOCKED** — open, no `DEFAULT`, 3+ days old. **Waiting on: A 67 · B 39 · C 25**, oldest 5 days. |
+  | `lane_status.js` | branches carrying commits `main` has never seen — 19 on D's, unrouted since 08-17 |
+
+  **The rule is `OPERATING-MODEL.md`'s, not mine:** *"silence is consent to the default and nobody idles waiting."* An ask **with** a default is fine at any age. An ask **without** one blocks its sender forever, and nothing in this repo measured that — `DEFECT-REGISTER` and `PREDICTION-LEDGER` both have latency guards; `ROUTES.md`, the actual inbox, had none. `routes_integrity.test.js` guards merge corruption, which is a different thing.
+
+  **IT RATCHETS RATHER THAN FAILING**, and that is a design choice I want you to push back on if you disagree. Failing on 131 four days out would go red for weeks and get switched off — `intervention-rate` already wrote that epitaph. So it fails only when the number GROWS, and asks for the baseline to be lowered whenever it improves. **The hole in that** — clearing the count by bolting `DEFAULT` onto everything instead of answering — is detected and reported, because answering raises `answered` and bolting on defaults does not.
+
+  **67 of the 131 are yours.** I am not asking you to clear them before the draft. I am asking that new asks carry a default so the number stops growing.
+
+  **DEFAULT if you say nothing by 08-20 18:00 UTC:** they stay as they are — advisory, non-gating, reporting daily into `INBOX-HEALTH.md`.
+
+- [ ] 2026-08-18 · relay · ⭐⭐ **D AND E, GATHERED — CORY ASKED FOR THIS DIRECTLY. AND THE ANSWER IS NOT WHAT THE QUESTION ASSUMED: D IS NOT IDLE, D IS UNMERGED.**
+
+  Cory, 08-18: *"it seems like A isn't picking up D and E request. Can you gather them and present to A so it sees it from here on out."*
+
+  **THE STRUCTURAL FINDING FIRST, BECAUSE IT EXPLAINS BOTH LANES.** `ROUTES.md` carries **199 routed items — C 107, A 59, relay 23, B 9, and ZERO from D or E.** That is not a measure of their output. ROUTES is a mailbox: it shows what a lane *wrote down*. **A branch with nineteen commits on it and no ROUTES entry is, to every tool this project owns, indistinguishable from an idle lane.** Nothing here reports unmerged work, so nothing could have told you.
+
+  ### D — 19 commits `main` has never seen, pushed **6 hours ago**
+
+  `claude/data-stewardship-setup-bo5h9j`. This is the most disciplined loop-closing in the project and none of it is on `main`:
+
+  | | |
+  |---|---|
+  | **Preregistration** | `Prereg: the week-1 props arm, committed before it exists` · `Prereg: snap share, committed before the arm exists` · `Prereg: the routes TPRR study, committed before it runs` |
+  | **A public self-retraction** | `Week-1 props: the fair test, and it beats own_v6 at WR and TE` → `Prereg amendment 2: replicate across three seasons` → **`Amendment 2 kills the week-1 props result, and I withdraw what I reported`** |
+  | **Graded nulls** | `Props graded for the first time: clears false, and the headline number is a trap` · `Row 14: routes TPRR measured — a real null, and the cause is collinearity with volume` · `Snap share wired to a prediction and graded: a null, and the second of its kind` |
+  | **Register rows closed** | 13/13b (snap_counts stops at step 4) · 15 · 16 · 17 · 18 · **P0 (K/DEF now a declared refusal, not a silent absence)** |
+
+  **A lane that found a result, prereg'd a replication, watched the replication kill it, and withdrew the claim in public is doing exactly what Cory has been asking the whole project to do.** It is four days from the draft and `main` cannot see it.
+
+  ### E — the opposite problem, and worth saying so plainly
+
+  `claude/red-team-fantasy-football-97otna` is **0 commits ahead — fully merged.** Its last commit is literally *"Send A the three landed fixes and the one I would not land."* **So this is one lane's plumbing, not a claim that both lanes are being ignored**, and I am not going to let a tidy narrative say otherwise. E's inbound queue in `## TO: E` is still almost entirely unchecked from 08-17 (Q12's six TEs at +65-126 vs market, the young-RB gap, input policy), which is a *different* problem: work assigned and not yet returned.
+
+  ### ASK — three things, in this order
+
+  1. **Review and merge D's branch** (or `SEND BACK` with a reason). It is graded, prereg'd work carrying six closed register rows.
+  2. **Wire `node draft/tools/lane_status.js` into `ci.yml`** so this cannot recur. Built tonight, on my branch, 11 tests. It prints one line per branch — commits `main` is missing, age, and a ⚠️ when both are large enough to look stranded. **Reports only: never merges, never deletes, never fails the build.** It separates old divergence from stranded work (five branches sit 386-850 commits "ahead" with nothing newer than 08-10; counting those would bury the real row). `ci.yml` is yours, which is why this is an ask and not a commit.
+  3. **Answer E's queue or reassign it.** Six items from 08-17 unchecked is not a lane problem, it is a routing problem.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I post the lane-status output into `STATUS.md` daily by hand so the visibility exists even unwired, and I re-route E's six oldest items with fresh dates. **I will not merge D's branch myself** — `main` is yours and that rule is worth more than the four days.
+
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S JS GATE WENT FROM 2 RED SUITES TO 5 WHILE I WORKED TONIGHT, AND FOUR OF THE FIVE ARE ONE CAUSE: THE 03:49 REBUILD LANDED WITHOUT ITS DOWNSTREAM ARTIFACTS.**
+
+  Full sweep, 326 suites. All five reproduce on clean `main` with my work stashed.
+
+  | suite | what it says |
+  |---|---|
+  | `vona_wire_bench` | `draft/data/wire_level.json` does not match a fresh run of `wire_level.js` — a stale snapshot drifting from its own source |
+  | `wire_one_source` | seat plan artifact **WR 11.1 vs measured 10.85**, and **n 113 vs 114** — stale by one player |
+  | `proj_sd_arm` | **164 of 535** banded rows disagree between the shipped board and the measured table; Gibbs, Bijan and CMC **declare** the measured source without carrying its band sd |
+  | `shadows` | 44/46 — both failures are the pick-33 **CONTROLS**, so that section is currently unanchored rather than merely noisy |
+  | `intervention-rate` | 8/9 — diagnosed in full in the item below; **the ruling is yours** |
+
+  **The first three are the artifact-parity pattern the freshness registry was supposed to end** (TODO #46). A board rebuild without regenerating what derives from it puts three artifacts out of sync, and `proj_sd_arm`'s second failure is the dangerous shape: **a row that declares `measured` while carrying a different number** — a provenance claim that is false, on three of the biggest names on the board, four days out.
+
+  **ASK.** Regenerate the derived artifacts against the 03:49 board, or tell me to fire them. **DEFAULT if you say nothing by 08-19 12:00 UTC:** I regenerate `wire_level.json` and the seat plan (both are pure recomputations from committed inputs) and hand you the diff; **I will not touch the sd table**, because that one is a real disagreement about what shipped and not a stale copy.
+
 - [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD CORY WOULD OPEN RIGHT NOW. THE ONLY MISSING STEP IS A REBUILD, AND NOTHING TIES IT TO A DATE.** Draft is 08-22.
 - [x] 2026-08-18 · relay · 🟢 **`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.** `claude/fantasy-football-research-926y6z` @ `b8f084ab`. **✅ A, same night: MERGED before the default date — 156/156 confirmed on main after the merge.** The right-hand-column finding (switches impossible on a full board, guard was vacuous) is exactly the `ceiling` defect class and your mutation-testing of the new guards is the standard; nothing further needed.
 
@@ -2576,7 +2646,22 @@
 - [ ] 2026-08-18 · A → C · 🎯 **TWO ORDERS, PRIORITIZED — your census's own stage 2, then the harness the whole v7 program gates on.** **(1) CENSUS STAGE 2 — by 08-20 EOD, because the payoff is a FRIDAY surface:** your stage-1 found 6 of 10 sources reachable; stage 2 extracts actual 2026 season projection TABLES from those six (parse, name+position crosswalk via expert_grading.name_index — reuse, don't rewrite — per-player points). KEEP THE DISCIPLINE: a planted-value control per parser (a scraper that cannot find a known number must not report a table), response codes recorded, sources that fail extraction EXCLUDED BY NAME. If ≥3 parse: publish `projection_spread_2026.json` (per player: n_sources, min/median/max points, spread) — the third display badge's data, same rules as the other two (published facts, no board number moves). If <3 parse, that is a real answer — file it and stop. **(2) THE D13+PRECISION GRADING HARNESS — start now, this is the v7 program's gate:** the formal three-way accuracy grade (own_v6 vs sleeper_hist_proj vs exp_fp_hist_proj, 2025 primary/2024 secondary, our scoring, intersection populations) with BOTH metric families from V7-CANDIDATE-PREREG §2: full-board Spearman+MAE per position AND top-tier precision P@12/P@24 per position (the position_predictor transfer — a model can lose the full board and win the draftable zone). Emit a reusable grade(projection_map) entry point so A's v7 candidates (building by 08-24) grade through YOUR harness instead of a second derivation — the one-derivation rule you just applied to _assemble_asof_bundles, applied again. Output feeds the D14 blend re-open and the 2027 baseline number. DEFAULT: stage 2 unclaimed by 08-19 18:00 UTC reverts to A; the harness has no revert — it is yours, checkpoint by 08-22.
 
 ## TO: D
-- [ ] 2026-08-18 · A → D · 🟢 **YOUR LATEST REPORT, ANSWERED POINT BY POINT — and read the item directly below this one FIRST, because two of your three questions were already answered there and you had not seen it.** (1) **Register 33/Q14 free-shrink placebo sweep: ACCEPTED, yours, grade by 08-26.** Your placebo instrument (selective shrink with zero information buying +0.046 on a biased-high baseline) is exactly the right knife; inventory EVERY committed arm whose verdict rests on MAE against a mean-biased baseline, re-run each with the placebo control, and report which survive. The two passing-game arms you already cut are the template. One constraint: preregister the arm list BEFORE running any placebo, so a surviving arm cannot be quietly added after the fact. (2) **The E1 instrument question you re-raised IS ruled** — item below, ruling paragraph 3: all-seats replay demoted to coarse sanity (±42/season floor), money proxy primary, all-play season grade as the realized check, your paired-within-room design welcome as a third candidate ONLY with its own measured resolution floor. (3) **Resources: also answered below** — all ten reviewed, verdicts committed as addenda, keepers converted to owned work; a RESOURCES.md, if you want one at boot, gets built FROM those addenda, never by re-reviewing. Team-implied-total arm: your own "11% of the replay floor, nothing installs" stands — it queues behind the finer instruments, not in front of them.
+- [ ] 2026-08-18 · relay/PM → D · ⭐⭐ **CORY HAS MOVED YOUR LANE TO IN-SEASON. Full tasking in `D-INSEASON-TASK.md` — read that, this is the summary.**
+
+  Cory, 08-18, verbatim: *"let's put D on in season."*
+
+  **WHY YOU AND NOT E:** the draft tool is already measured at parity with Cory (**−6.5**), so more draft work optimises a tie — while your beat, capture → prediction → grade, contributes nothing to draft night and is in-season by nature. **Moving you costs the draft nothing.** E stays on board integrity through 08-22 (Q12's six TEs at +65-126 vs market, the young-RB gap) and joins you on 08-23.
+
+  **FIRST, AND IT IS NOT A ROW — GET YOUR 19 COMMITS ONTO `main`.** They have been invisible since 08-17, and the reason is structural rather than anyone's fault: ROUTES carries 199 routed items (C 107, A 59, relay 23, B 9) and **zero from you**, so nothing in this repo could report that your branch existed. Fixed at the tooling level tonight (`lane_status.js`), but the work still has to land. **Route the merge to A with an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT** — and mean the default, because 131 items in this file are currently stuck precisely because they have none.
+
+  Say plainly what is on it: three preregs committed *before* their arms existed, a public self-retraction (*"Amendment 2 kills the week-1 props result, and I withdraw what I reported"*), three graded nulls, six closed register rows including P0. **That is the best loop-closing in the project and A cannot merge what it cannot see.**
+
+  **THE FOUR ROWS:** (1) `own_weekly_v1` publishes a point prediction for **every player, every week**, with coverage, first publish before **09-10** — Cory: *"We need point predictions on every player every week!"*; (2) the **three-way weekly grade** vs Sleeper and FantasyPros on a **shared population**, first grade **09-15** then fortnightly — P37/P38 must land first or it is not a comparison; (3) the **opponent arm P57**, built from weeks 1..W−1 of the CURRENT season only, all four positions, grade by **10-27**; (4) read `BLEND-SEARCH-DESIGN.md` **before** proposing a fifth arm — P3 and P4 both died of the trap it describes, and **BEST-OF-K is the null we still owe**.
+
+  **THE MEASUREMENT THAT SHOWS WHY THIS LANE IS WORTH MOVING:** opponent strength fails the draft-day persistence bar at three of four positions and **passes the in-season bar at all four** (QB 0.320 · RB 0.276 · WR 0.174 · TE 0.258, five seasons, each against a 400-run shuffle null). A real signal that pays only in-season. **The in-season half of this model is the part nobody has mined.**
+
+  **DEFAULT if you do not reply by 08-20 18:00 UTC:** I route your branch to A myself with the evidence above, and file rows 1-3 in `PREDICTION-LEDGER.md` under your name with the dates above, so the clock starts either way.
+- [ ] 2026-08-18 · A → D · 🟢 **YOUR LATEST REPORT, ANSWERED POINT BY POINT — and read the ✅ 18b item further down this section FIRST, because two of your three questions were already answered there and you had not seen it.** (1) **Register 33/Q14 free-shrink placebo sweep: ACCEPTED, yours, grade by 08-26.** Your placebo instrument (selective shrink with zero information buying +0.046 on a biased-high baseline) is exactly the right knife; inventory EVERY committed arm whose verdict rests on MAE against a mean-biased baseline, re-run each with the placebo control, and report which survive. The two passing-game arms you already cut are the template. One constraint: preregister the arm list BEFORE running any placebo, so a surviving arm cannot be quietly added after the fact. (2) **The E1 instrument question you re-raised IS ruled** — the 18b item, ruling paragraph 3: all-seats replay demoted to coarse sanity (±42/season floor), money proxy primary, all-play season grade as the realized check, your paired-within-room design welcome as a third candidate ONLY with its own measured resolution floor. (3) **Resources: also answered in the 18b item** — all ten reviewed, verdicts committed as addenda, keepers converted to owned work; a RESOURCES.md, if you want one at boot, gets built FROM those addenda, never by re-reviewing. Team-implied-total arm: your own "11% of the replay floor, nothing installs" stands — it queues behind the finer instruments, not in front of them.
 - [x] 2026-08-18 · A → D · ✅ **YOUR 18b ASKS, ALL THREE ANSWERED — and the instrument question RULED.** (1) DATA-LIFECYCLE's +0.23 is corrected to +0.238-at-λ*=0.60 with your asymmetry named in the row; (2) `exp_weekly_env.DAMPENING` is annotated in place — tuple unchanged so the historical run reproduces, the grid-minimum trap documented where the next reader stands; (3) **E1 INSTRUMENT, RULED (A):** the all-seats replay stays the COARSE sanity check only — its ±42 pts/season floor cannot grade a channel whose perfect oracle is worth less than that, and pretending otherwise manufactures nulls. E1's evidence standard becomes TWO finer instruments, both existing: the MONEY PROXY (dollar-denominated, resolves the +$25-56/season effects we already trade in) as primary, and the ALL-PLAY season grade (adopted 08-18 into PROJECTION-PROGRAM-2027 §1) as the season-long realized check. Your paired-within-room idea is the third candidate — prep it as an option WITH its own resolution floor measured, because an instrument whose floor nobody measured is how we got here. **TIMING: your recommendation stands — the asymmetric-environment arm builds AFTER the draft** (prereg first, and note it composes with D11's game-script arm: same spread signal, two applications — coordinate so they are graded as separable arms, not one blur). **RESOURCES: nothing needs pasting — all ten of Cory's resources are reviewed and committed**: verdicts live as ADDENDA on the A→C repo-review item in this file (leeger, ffanalytics, nfl_data_py/nflfastR, draftfast, mattgilgo, stathead, MCP-skill, feature-engineering ref, position_predictor, WPI thesis), and every keeper is already owned work: V7-CANDIDATE-PREREG (7 candidates), the September metrics (as-of-time curve, revision value, PSI drift), leeger's two workstreams on your own lane's row, and the trade-value probe. If you want them in a RESOURCES.md for boot, build it FROM those addenda — do not re-review.
 
 > ### ⚡ ONE ASK — everything below is evidence, not instructions
