@@ -627,6 +627,26 @@
     return /^measured-/.test(src);
   }
 
+  /* REGISTER 5c-adjacent ASK, ROUTES.md 08-19 — "the board's numbers change
+   * on the next rebuild and the war room cannot say which ones." From the
+   * multi-source-mean ship (`draft/multisource_blend.py`), a player's
+   * `proj_mean` silently becomes the mean of Sleeper+CBS+ESPN+FFToday
+   * instead of Sleeper alone, stamped `proj_mean_source:
+   * "multisource-mean-2026"` with the ORIGINAL Sleeper-only number kept
+   * alongside as `proj_mean_sleeper_only`. A's own REC: "a one-character
+   * badge next to the projection plus the old number in the tooltip" — this
+   * is that badge, glyph distinct from the `~` cohort-ceiling mark so the
+   * two provenance questions (is the MEAN blended vs is the CEILING a band
+   * constant) never look like the same fact. Absence of the source field
+   * means Sleeper-only, per A's own stated convention — nothing to mark. */
+  function projMeanBadge(p) {
+    if (!p || p.proj_mean_source !== 'multisource-mean-2026') return '';
+    var oldVal = p.proj_mean_sleeper_only;
+    var title = 'Multi-source mean (Sleeper + CBS + ESPN + FFToday). '
+      + (oldVal != null ? 'Sleeper alone had ' + (Math.round(oldVal * 10) / 10) + '.' : '');
+    return '<sup class="wr-proj-blend" title="' + esc(title) + '">✱</sup>';
+  }
+
   function teamPassRateRow(p) {
     var pace = typeof window !== 'undefined' && window.WR_TEAM_PACE;
     var t = pace && p && p.team && pace.teams && pace.teams[p.team];
@@ -672,7 +692,8 @@
 
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
-      ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)
+      ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b>'
+        + projMeanBadge(p) + ' / ' + num(p.proj_ceiling)
         + (isCohortCeiling(p) ? '<sup class="wr-ceil-cohort" title="This ceiling is the band '
           + 'average, not a measurement of this player">~</sup>' : '')],
       depthChartRow(p),

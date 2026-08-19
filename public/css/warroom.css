@@ -1163,6 +1163,13 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-range.cohort-ceiling svg { display: inline-block; vertical-align: middle; }
 .wr-ceil-cohort { font-size: .62rem; font-weight: 900; color: var(--muted); margin-left: .1rem; cursor: help; vertical-align: middle; }
 
+/* PROJECTION-SOURCE badge (ROUTES.md 08-19) — the mean silently became a
+   cross-source blend on some players; this says so. Deliberately a
+   different glyph/color from .wr-ceil-cohort above: that mark means
+   "no per-player information", this one means "more sources than usual",
+   and the two provenance questions must never look like the same fact. */
+.wr-proj-blend { font-size: .62rem; font-weight: 900; color: var(--gold-bright); margin-left: .1rem; cursor: help; vertical-align: middle; }
+
 /* FALLING chip — value sliding past its price */
 .wr-falling {
   display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
