@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 129,
+ "next_numeric_id": 130,
  "history": [
   {
    "id": 47,
@@ -86,6 +86,11 @@
    "id": 128,
    "claimed_at": "2026-08-19",
    "note": "renumbered from a second colliding 126 (proj_mean blend refusal-override correction) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 129,
+   "claimed_at": "2026-08-19",
+   "note": "renumbered from a third colliding 127 (K/DEF ~30 picks too early under ROSTER_SHAPE) -- another session's row, first-allocation-wins per timestamp"
   }
  ]
 }
