@@ -153,6 +153,28 @@ the pick at which waiting one more turn costs you the most points at that positi
 threshold and not a recommendation: it is where that position's cliff actually falls.
 Positions peak at very different times, which is the whole point.</p>
 
+<h3>⚠ RB regime note — Cory's call, measured</h3>
+<p class=note>
+Cory, 2026-08-19: <i>"RBs became more valuable last year… we should assume it will be
+same this year."</i> <b>Measured and monotone across three seasons:</b> RB top-12 went
+230 → 260 → <b>275</b> while WR top-12 went 236 → 219 → 217; the RB−WR gap swung
+<b>−7 → +41 → +58</b> and the RB12→RB24 cliff deepened <b>56 → 72 → 96</b> (the WR cliff
+stayed flat).
+<br><b>The 2026 board prices the top six correctly and is too optimistic about the tail</b>
+— and the error grows with depth: RB12 flatter by 5 points of RB1-value, RB24 by 9,
+RB30 by 15, RB36 by 18.
+<br><b>What that means for your picks:</b> the best back available at 33 is overvalued by
+about <b>9</b>; by pick 88 it is <b>15</b>, and by 108 it is <b>18</b>. You hold two RB
+keepers and pick first at 33, so every back you can actually draft is already past the
+range the board gets right. <b>If you want a back, take him early (33–53); do not chase RB
+depth after ~88.</b>
+<br>⚠️ This rests on Cory's judgement that 2026 resembles 2025. The regime shift is
+measured; whether the board's flatness is genuine mispricing or ordinary
+projection-vs-realized compression <b>cannot be determined</b> — that needs stored past
+projections, which is the gap <code>projection_snapshot_2026.json</code> closes for next
+year. Register 131.
+</p>
+
 <h3>Where the cliffs are, round by round</h3>
 <p class=note>Points of VONA lost by waiting one more pick, per position. Red is a cliff
 you do not want to be on the wrong side of.</p>
