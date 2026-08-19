@@ -4,7 +4,7 @@
  "_why": "This project holds three seasons of actual weekly points and ZERO past-season forecasts, so 'which source is most accurate' and 'should we blend' are unanswerable today. Preseason projections are overwritten when the season starts; there is no archive to go back for. This is the one-way door.",
  "_captured": "2026-08-19, before the 2026 season",
  "_board_built_at": "2026-08-19T08:52:22Z",
- "_how_to_grade": "join on player_id to actual season points, then per source: MAE and Spearman against outcomes, by position, on the players that source actually covered. Compare each source to `adp` -- a projection that cannot beat the market's draft order is not worth blending.",
+ "_how_to_grade": "CORY'S RULING 2026-08-19: GRADE THE TOP 150 BY ADP ONLY. A source's error on player 400 is noise about a man nobody drafts, and including him lets a source win on players that never mattered. Join on player_id to actual season points, restrict to the top 150 by the `adp` field stored here, then per source: MAE and Spearman against outcomes, by position, on the players that source actually covered. Compare each source to `adp` itself -- a projection that cannot beat the market's own draft order is not worth blending.",
  "sources": {
   "board_proj_mean": "the blended number the 2026 board actually drafted on (public/draft_data.json proj_mean)",
   "sleeper": "Sleeper's own 2026 projection (board field proj_sleeper)",
