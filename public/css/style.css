@@ -2707,24 +2707,33 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .wr-zone1 > #queue-slip        { order: 3; }   /* urgent slip — stays above */
 .wr-zone1 > #wr-statusbar      { order: 4; }   /* one-line pick bar — is it my turn */
 .wr-zone1 > #recs-card         { order: 5; }   /* THE recommendation + Take button — up top now */
-.wr-zone1 > #doctrine-banner   { order: 6; }   /* THE PLAN — reference, beneath the rec */
-.wr-zone1 > #legality-strip    { order: 7; }   /* WATCH — reference, beneath the rec */
+/* #position-boards had the identical bug the comment below already names for
+ * #seat-plan — unlisted here, defaulted to order 0, rendered before the
+ * search bar. Cory's own redefinition of the war room (ROUTES.md 08-19,
+ * A→B `48c915f1`): "not one recommendation... the view I need is different
+ * now" — six position columns are the surface he actually reads per pick.
+ * Placed directly beneath the one-answer card rather than above it: A's
+ * "recommendation above the fold" decision (2026-08-10, cited above) stays
+ * intact, and THE PLAN / WATCH still follow immediately after, unchanged. */
+.wr-zone1 > #position-boards   { order: 6; }   /* six-column view — beneath the one answer, above THE PLAN/WATCH */
+.wr-zone1 > #doctrine-banner   { order: 7; }   /* THE PLAN — reference, beneath the rec */
+.wr-zone1 > #legality-strip    { order: 8; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
  * .wr-search (order 1) — and rendered first regardless of where app.js's
  * seatPlanHost() anchored it in the DOM (CSS flex `order` overrides DOM
  * position for visual layout). That pushed #recs-card, the actual
  * recommendation, past the fold on a phone screen. Tied to legality-strip's
- * order (7) so app.js's existing DOM insertion (immediately after
+ * order (8) so app.js's existing DOM insertion (immediately after
  * #legality-strip) breaks the tie and lands it exactly where its own comment
  * already specified: seat plan below the recommendation, not above it. */
-.wr-zone1 > #seat-plan         { order: 7; }   /* which chair — beneath the rec, per app.js's own anchor */
-.wr-zone1 > #doctrine-switch   { order: 8; }
-.wr-zone1 > #doctrine-picker   { order: 8; }   /* A's compact plan table — reference, beneath the rec */
-.wr-zone1 > #mvs               { order: 9; }   /* redundant summary — hidden on warroom, ordered anyway */
-.wr-zone1 > #shadow-projection { order: 10; }
-.wr-zone1 > #lrm-card          { order: 11; }
-.wr-zone1 > #branch-card       { order: 12; }
-.wr-zone1 > #queue-card        { order: 13; }
+.wr-zone1 > #seat-plan         { order: 8; }   /* which chair — beneath the rec, per app.js's own anchor */
+.wr-zone1 > #doctrine-switch   { order: 9; }
+.wr-zone1 > #doctrine-picker   { order: 9; }   /* A's compact plan table — reference, beneath the rec */
+.wr-zone1 > #mvs               { order: 10; }  /* redundant summary — hidden on warroom, ordered anyway */
+.wr-zone1 > #shadow-projection { order: 11; }
+.wr-zone1 > #lrm-card          { order: 12; }
+.wr-zone1 > #branch-card       { order: 13; }
+.wr-zone1 > #queue-card        { order: 14; }
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
    ~172px of masthead + a draft-day notice already read + a redundant title).
