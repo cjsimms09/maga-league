@@ -42,6 +42,7 @@ const PP = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'player_p
 const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamability.json'), 'utf8'));
 if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
 const STREAM = ST.streamability;
+const KDEF_TAX = process.argv.includes('--kdef-tax');
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 /* one position crosswalk, two sources, board first (rule 11) */
@@ -83,7 +84,15 @@ function startProb(pos, held, rosterOn) {
   const row = W[pos];
   if (!row) return 0;
   const base = held < row.length ? row[held] : 0;
-  if (held < (S_EFF[pos] || 0)) return base;   // flex counted — see above      // filling an empty slot
+  /* ── REGISTER 127 ARM: does the FIRST K/DEF pay the tax too? ───────────────
+   * Prereg: draft/KDEF-STREAM-TAX-PREREG-2026-08-19.md. The empty-slot
+   * exemption assumes a starting slot must be filled at any price. True for a
+   * running back (streamability 0.311); FALSE for a kicker (0.966), who is
+   * abundant and interchangeable whether or not the slot is empty. */
+  if (KDEF_TAX && (pos === 'K' || pos === 'DEF')) {
+    return base * (1 - (STREAM[pos] || 0));
+  }
+  if (held < (S_EFF[pos] || 0)) return base;         // filling a real starting slot
   return base * (1 - (STREAM[pos] || 0));            // a fill-in competes with the wire
 }
 
@@ -246,6 +255,7 @@ Object.values(H.seasons).forEach(season => {
     const cnt = {};
     on.forEach(id => { const q = posOf(id); if (q) cnt[q] = (cnt[q] || 0) + 1; });
     const short = POS.filter(q => (cnt[q] || 0) < (STARTERS[q] || 0));
+    const firstAt = (list, q) => { const g = list.find(x => posOf(x) === q); return g ? 1 : null; };
     seats.push({ season: season.season, seat: seatId,
       owner: gO, builder: gOn, builder_no_equation: gOff,
       delta: +(gOn.points - gO.points).toFixed(2),

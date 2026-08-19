@@ -21,6 +21,12 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 ---
 
+## CORY RULED 2026-08-19 — own_v6's role, settling register 126
+
+| # | ruling | status |
+|---|---|---|
+| ④ | **own_v6 keeps predicting and getting studied, just stays out of the war-room board this year — verbatim: "V6 should still be used to predict and study just not part of warroom this year."** | ✅ **DONE, and it already matches what shipped hours earlier the same evening.** own_v6 was pulled from `blended_projection.js`'s `proj_mean` blend after Cory's separate ruling ("lets remove V6 from the blended") — `public/sources.html` showed it disagreeing with the whole industry on contested rows (Matthew Golden 119 vs the other six's 38-62, Jalen McMillan 130 vs 55-72, Jeremiyah Love 53 vs 10-17) and it had never actually been graded. **That removal already preserved exactly what this ruling asks for:** own_v6 keeps predicting on its own schedule (`own-weekly-proj.yml`, Thursdays 14:00 UTC) and keeps getting graded against realized results (`own-weekly-grade.yml`, Tuesdays 06:00 UTC after MNF) — neither job touches or depends on the board blend. Its projections still land in `projection_snapshot_2026.json` every week for the season-end study `PREDICTION-LEDGER.md` already commits to. **Nothing was deprecated or stopped — only its vote in the number Cory drafts from.** **Closes register 126's open ASK** ("Cory to re-rule now that he has the evidence he did not have") — he has, verbally, and the ruling matches the default that already shipped. |
+
 ## CORY RULED 2026-08-17 — executing
 
 | # | ruling | status |
