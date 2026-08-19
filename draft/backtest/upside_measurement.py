@@ -236,6 +236,46 @@ def main() -> None:
             "CONTROL_rho_cv": None if rho_cv is None else round(rho_cv, 4),
         })
 
+    # ---- Q-C: does knowing a player's OWN cv beat the band constant? ------
+    # THE PREREG ASKED THIS AGAINST THE LIVE BOARD AND THAT IS NOT RUNNABLE:
+    # the 2026 board has no realised season to score against. This is the same
+    # question in the form the data can answer, and the substitution is stated
+    # rather than quietly made — predict season-t p90 from season t-1, three
+    # ways, and see whether the player's own carried-forward cv beats the
+    # per-(position,band) constant it replaced on 2026-08-17.
+    #
+    #   level_only    p90_hat = mean_t
+    #   band_const    p90_hat = mean_t * (median tail ratio for his position band)
+    #   player_cv     p90_hat = mean_t * (1 + tail_z_median * cv_{t-1})
+    #
+    # Scored by mean absolute error against realised p90_t, on the players who
+    # appear in BOTH seasons — the only population where a carried-forward cv
+    # exists at all, which is also the population the board's fix applies to.
+    tailmed = st.median(allz) if allz else 1.28
+    qc = []
+    for a, b in zip(SEASONS, SEASONS[1:]):
+        ra, rb = per_season.get(a, {}), per_season.get(b, {})
+        shared = sorted(set(ra) & set(rb))
+        if len(shared) < 20:
+            continue
+        # the band constant, fitted on season a ONLY — fitting it on b would
+        # hand it the answer.
+        bands = defaultdict(list)
+        for pid in ra:
+            bands[ra[pid]["pos"]].append(ra[pid]["p90"] / ra[pid]["mean"])
+        bandratio = {p: st.median(v) for p, v in bands.items() if v}
+        errs = {"level_only": [], "band_const": [], "player_cv": []}
+        for pid in shared:
+            actual = rb[pid]["p90"]
+            m = rb[pid]["mean"]
+            errs["level_only"].append(abs(m - actual))
+            errs["band_const"].append(abs(m * bandratio.get(rb[pid]["pos"], 1.3) - actual))
+            errs["player_cv"].append(abs(m * (1 + tailmed * ra[pid]["cv"]) - actual))
+        qc.append({"from": a, "to": b, "n": len(shared),
+                   "mae": {k: round(st.mean(v), 3) for k, v in errs.items()},
+                   "player_cv_beats_band_const":
+                       round(st.mean(errs["band_const"]) - st.mean(errs["player_cv"]), 3)})
+
     doc = {
         "_territory": "TERRITORY: A — draft/backtest/upside_measurement.py",
         "_note": "P112. Realised upside only. Says nothing about whether a "
@@ -246,6 +286,14 @@ def main() -> None:
         "players_by_season": {str(s): len(per_season.get(s, {})) for s in SEASONS},
         "Q_A_tail_shape": qa,
         "Q_B_residual_persistence": qb,
+        "Q_C_ceiling_construct": {
+            "_substitution": "The prereg asked this against the live board, "
+                             "which has no realised season to score against. "
+                             "Same question, form the data can answer: predict "
+                             "season-t p90 from season t-1, three ways.",
+            "tail_z_median_used": round(tailmed, 4),
+            "folds": qc,
+        },
     }
     out = HERE / "upside_measurement.json"
     out.write_text(json.dumps(doc, indent=1))
@@ -260,6 +308,12 @@ def main() -> None:
         print(f"       {r['from']}->{r['to']}  n={r['n']:4}  rho={r['rho_residual_tail']}"
               f"  null95={r['null_95']}  {r['status'].upper()}"
               f"   | CONTROL cv-rho {r['CONTROL_rho_cv']}")
+    print("\n  Q-C  predicting next season's p90 (MAE, lower is better)")
+    for r in qc:
+        m = r["mae"]
+        print(f"       {r['from']}->{r['to']}  n={r['n']:4}  level_only {m['level_only']:6.2f}"
+              f"   band_const {m['band_const']:6.2f}   player_cv {m['player_cv']:6.2f}"
+              f"   | player_cv beats band by {r['player_cv_beats_band_const']:+.2f}")
     print(f"\n  wrote {out.relative_to(ROOT)}")
 
 
