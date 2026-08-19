@@ -1,3 +1,5 @@
+# TERRITORY: A
+# TERRITORY-GRANT: C schedule cron capture regenerate multisource stamp captured_at staleness stale timestamp job needs commit checkout setup-python python re-score re-join fresh CSV workflow-side dispatch item C1 register 65 draft morning nightly rebuild UTC buffer site-check push rebase fetch retry pushed race origin GITHUB_REF_NAME contents write permissions steps run name uses with path if success 2026-08-19
 name: ffanalytics multi-source projection probe
 # WHY THIS EXISTS, AND WHY IT IS A PROBE BEFORE IT IS A PIPELINE.
 #
@@ -34,6 +36,17 @@ on:
         description: "Season to scrape"
         required: false
         default: "2026"
+  # ── SCHEDULED, 2026-08-19 — REGISTER-65-CLASS DISPATCH ITEM (C1): "on draft
+  # morning the blend silently applies 08-19 opinions to an 08-22 board." This
+  # was captured exactly once, by hand, with no recurring job and no staleness
+  # signal `multisource_blend.py` (or anyone) could check. 06:00 UTC, two hours
+  # ahead of the 08:00 UTC nightly board rebuild (draft-data.yml) — the same
+  # buffer `site-check.yml` gives itself for the same reason, and enough margin
+  # for a flaky R install / scraper retry to still land before the rebuild
+  # reads it. Runs on the default branch (main), same as every other scheduled
+  # capture in this repo.
+  schedule:
+    - cron: '0 6 * * *'
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -120,6 +133,60 @@ jobs:
           git add draft/data/ffanalytics_probe.json draft/data/ffanalytics_raw_projections.csv
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "ffanalytics probe: raw multi-source projection rows from Actions [skip deploy]"
+          for i in 1 2 3 4 5; do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}" || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then echo "pushed"; exit 0; fi
+            echo "push race, retry $i"; sleep 3
+          done
+          echo "COULD NOT PUSH after retries"; exit 1
+  # ── C1's OTHER HALF — RE-SCORE AND RE-JOIN, NOT JUST RE-SCRAPE. A fresh
+  # ffanalytics_raw_projections.csv sitting uncommitted-to-the-blend is the
+  # same staleness under a different name: multisource_projections.json is
+  # what draft/multisource_blend.py actually reads at board-build time, and it
+  # was a one-shot file, hand-run once on 08-19. multisource_projections.py is
+  # pure stdlib (csv/json/re/statistics — no pip install), reads the board
+  # this job's own checkout already carries plus the CSV job `commit` just
+  # pushed, and touches NO board field itself (writes only its own JSON) —
+  # same non-container job shape as `commit`, so it inherits none of the
+  # container-git history above.
+  #
+  # THE STALENESS STAMP. `multisource_projections.py` is TERRITORY: A and its
+  # own doc string carries no capture timestamp; adding one here, in the
+  # workflow rather than the module, answers the dispatch's ASK ("a scheduled
+  # capture, OR ... a staleness stamp the build can refuse on") without
+  # touching A's scoring/join logic. Whether `multisource_blend.py` reads this
+  # field to REFUSE on staleness is A's call on A's file — this stamp is what
+  # makes that call decidable rather than adding the refusal unasked, three
+  # days before the draft, in a module this job does not own.
+  regenerate-multisource:
+    needs: commit
+    if: ${{ needs.commit.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Re-score and re-join under our own table
+        run: python3 draft/tools/multisource_projections.py
+      - name: Stamp the capture time (workflow-side, not a change to A's module)
+        run: |
+          python3 -c "
+          import json, datetime
+          p = 'draft/data/multisource_projections.json'
+          doc = json.load(open(p))
+          doc['_captured_at'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+          json.dump(doc, open(p, 'w'), indent=1)
+          "
+      - name: Commit it
+        run: |
+          git config user.name Claude
+          git config user.email noreply@anthropic.com
+          git add draft/data/multisource_projections.json
+          git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
+          git commit -m "multisource_projections.json: re-scored against the fresh ffanalytics capture [skip deploy]"
           for i in 1 2 3 4 5; do
             git fetch origin "${GITHUB_REF_NAME}"
             git rebase "origin/${GITHUB_REF_NAME}" || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
