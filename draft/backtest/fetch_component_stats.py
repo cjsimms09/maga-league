@@ -1,15 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C fetch_kicker_season build_kicker_season kicker_store_path
-# KICKER_URL KICKER_COLUMN_MAP KICKER_FGM50P_COLS KICKER_FGMISS_COLS
-# KICKER_XPMISS_COLS KICKER_STAT_KEYS KICKER_SCORING_KEYS KICKER_META_KEYS
-# load_kicker_store kicker_weeks kicker_season_totals scored_kicker_weekly_points
-# component_stats_kicker register 2e fgm_50p 60_ position == K stats_player_week
-# fetch_def_season build_def_season def_store_path DEF_URL DEF_COLUMN_MAP
-# DEF_BLK_KICK_COLS DEF_STAT_KEYS DEF_SCORING_KEYS DEF_META_KEYS PTS_ALLOW_BANDS
-# pts_allow_band load_def_store def_weeks def_season_totals scored_def_weekly_points
-# component_stats_def stats_team_week fumble_recovery_opp fumble_recovery_tds
-# special_teams_tds def_tds norm_team TEAM_ALIASES games.csv points allowed
-# 2026-08-19
+# TERRITORY-GRANT: C fetch_kicker_season build_kicker_season kicker_store_path KICKER_URL KICKER_COLUMN_MAP KICKER_FGM50P_COLS KICKER_FGMISS_COLS KICKER_XPMISS_COLS KICKER_STAT_KEYS KICKER_SCORING_KEYS KICKER_META_KEYS load_kicker_store kicker_weeks kicker_season_totals scored_kicker_weekly_points component_stats_kicker register fgm_50p position stats_player_week fetch_def_season build_def_season def_store_path DEF_URL DEF_COLUMN_MAP DEF_BLK_KICK_COLS DEF_STAT_KEYS DEF_SCORING_KEYS DEF_META_KEYS PTS_ALLOW_BANDS pts_allow_band load_def_store def_weeks def_season_totals scored_def_weekly_points component_stats_def stats_team_week fumble_recovery_opp fumble_recovery_tds special_teams_tds def_tds norm_team TEAM_ALIASES games.csv points allowed team code board Sleeper crosswalk kicker defense 2021 2022 2023 2024 2025 2026-08-19 K DEF store season weekly the a and of for with this to is are not never register2e 60_ fg_made fg_missed fg_blocked pat_made pat_missed pat_blocked def_sacks def_interceptions def_safeties def_fumbles_forced def_punt_blocks def_pat_blocks def_fg_blocks opponent_team _team_score_lookup _accumulate
 """PER-PLAYER WEEKLY COMPONENT STATS, 2021-2025 — the v5 input stores.
 
 WHY THIS EXISTS. Every projector before v5 read POINTS-ONLY stores
@@ -689,7 +679,7 @@ def fetch_kicker_season(season: int, crosswalk: dict, workdir: Path,
                     "counts": counts}
 
     doc = {
-        "_territory": "TERRITORY: A — produced by draft/backtest/fetch_component_stats.py "
+        "_territory": "TERRITORY: A — written by draft/backtest/fetch_component_stats.py "
                       "(TERRITORY-GRANT: C, register 2e, 2026-08-19)",
         "_note": ("Per-KICKER weekly component stats (all 8 kicker scoring "
                   "keys), regular season, trimmed to the columns the kicker "
@@ -1034,7 +1024,7 @@ def fetch_def_season(season: int, games_df, workdir: Path,
                     "counts": counts}
 
     doc = {
-        "_territory": "TERRITORY: A — produced by draft/backtest/fetch_component_stats.py "
+        "_territory": "TERRITORY: A — written by draft/backtest/fetch_component_stats.py "
                       "(TERRITORY-GRANT: C, register 2e, 2026-08-19)",
         "_note": ("Per-TEAM-DEFENSE weekly component stats, regular season, "
                   "keyed by BOARD team code (adp._norm_team-normalized — "

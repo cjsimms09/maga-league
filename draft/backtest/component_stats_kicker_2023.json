@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: A \u2014 produced by draft/backtest/fetch_component_stats.py (TERRITORY-GRANT: C, register 2e, 2026-08-19)",
+ "_territory": "TERRITORY: A \u2014 written by draft/backtest/fetch_component_stats.py (TERRITORY-GRANT: C, register 2e, 2026-08-19)",
  "_note": "Per-KICKER weekly component stats (all 8 kicker scoring keys), regular season, trimmed to the columns the kicker scoring table consumes. SEPARATE from component_stats_<season>.json on purpose \u2014 POSITION_GROUPS above is untouched and this store is read by nothing that assumes an offense-only population. Missing-vs-zero rule: a player-week ABSENT from a week's players map is MISSING DATA (no offensive stat row that week), never a zero; inside a present row an absent stat key is a zero of that stat (zero-valued keys are stripped at build time); row-presence means 'was on a field', exactly as the weekly points stores encode it",
  "season": 2023,
  "provenance": {

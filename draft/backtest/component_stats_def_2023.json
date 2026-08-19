@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: A \u2014 produced by draft/backtest/fetch_component_stats.py (TERRITORY-GRANT: C, register 2e, 2026-08-19)",
+ "_territory": "TERRITORY: A \u2014 written by draft/backtest/fetch_component_stats.py (TERRITORY-GRANT: C, register 2e, 2026-08-19)",
  "_note": "Per-TEAM-DEFENSE weekly component stats, regular season, keyed by BOARD team code (adp._norm_team-normalized \u2014 nflverse's 'LA' becomes the board's 'LAR', etc). SEPARATE from component_stats_<season>.json on purpose \u2014 POSITION_GROUPS above is untouched and this store is read by nothing that assumes an offense-only, player-keyed population. Points-allowed bands are ONE-HOT (the applicable pts_allow_* key is present with value 1; every other band is absent, never a stored 0). Missing-vs-zero rule: a player-week ABSENT from a week's players map is MISSING DATA (no offensive stat row that week), never a zero; inside a present row an absent stat key is a zero of that stat (zero-valued keys are stripped at build time); row-presence means 'was on a field', exactly as the weekly points stores encode it",
  "season": 2023,
  "provenance": {
