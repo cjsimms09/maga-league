@@ -115,6 +115,59 @@ function bestLineup(roster, pts) {
   return { total, all };
 }
 
+/* ── CORY'S GRADING RULING, 2026-08-19 ───────────────────────────────────────
+ * "everything we grade should be graded like we learned btw.. assuming not
+ *  injuries, etc.. grade skill not luck"
+ *
+ * A draft pick is a DECISION. Whether the man then tore an ACL in week 3 is not
+ * a property of the decision, and grading the decision on it measures luck.
+ * So every grade gets a SKILL arm beside the actual one:
+ *
+ *   actual : the raw weekly points, absences scored as zero — what really happened
+ *   skill  : every player at his OWN per-active-game rate, every week — what the
+ *            roster was worth if availability had been equal
+ *
+ * The skill arm removes availability entirely: a back who averaged 14 a game
+ * across four games before getting hurt is graded as a 14-a-game back, because
+ * that is what the pick was worth. It does NOT reward picking fragile players --
+ * it declines to punish it, which is the point of separating skill from luck.
+ *
+ * ⚠️ IT IS REPORTED BESIDE THE ACTUAL ARM, NEVER INSTEAD OF IT. Availability is
+ * partly a real skill (avoiding known-fragile players is a decision) and the
+ * honest read needs both numbers. A player with NO active weeks is excluded
+ * from the skill arm rather than scored zero, and the count is reported. */
+function perGameRates(season, roster) {
+  const tot = {}, games = {};
+  Object.entries(season.weeks || {}).forEach(([wn, arr]) => {
+    const w = +wn;
+    if (w < 1 || w > 17 || !Array.isArray(arr)) return;
+    const seen = new Set();
+    arr.forEach(m => Object.entries(m.players_points || {}).forEach(([id, v]) => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      tot[id] = (tot[id] || 0) + v;
+      games[id] = (games[id] || 0) + 1;
+    }));
+  });
+  const rate = {};
+  roster.forEach(id => {
+    const k = String(id);
+    if (games[k]) rate[k] = tot[k] / games[k];
+  });
+  return rate;
+}
+
+function gradeSkill(season, roster) {
+  const rate = perGameRates(season, roster);
+  const missing = roster.filter(id => rate[String(id)] == null).length;
+  /* same lineup rule, but every man at his own per-active-game rate every week */
+  const r = bestLineup(roster, rate);
+  return { points: +(r.total * 17).toFixed(2),
+    roster_points: +(r.all * 17).toFixed(2),
+    conversion: r.all > 0 ? +(r.total / r.all).toFixed(4) : null,
+    players_with_no_active_week: missing };
+}
+
 function gradeSeason(season, roster) {
   let starters = 0, held = 0;
   Object.entries(season.weeks || {}).forEach(([wn, arr]) => {
@@ -186,6 +239,9 @@ Object.values(H.seasons).forEach(season => {
     const gO = gradeSeason(season, owner);
     const gOn = gradeSeason(season, on);
     const gOff = gradeSeason(season, off);
+    const sO = gradeSkill(season, owner);
+    const sOn = gradeSkill(season, on);
+    const sOff = gradeSkill(season, off);
     /* C3 — legality of the built roster, reported not assumed */
     const cnt = {};
     on.forEach(id => { const q = posOf(id); if (q) cnt[q] = (cnt[q] || 0) + 1; });
@@ -194,11 +250,17 @@ Object.values(H.seasons).forEach(season => {
       owner: gO, builder: gOn, builder_no_equation: gOff,
       delta: +(gOn.points - gO.points).toFixed(2),
       delta_no_equation: +(gOff.points - gO.points).toFixed(2),
+      skill: { owner: sO, builder: sOn, builder_no_equation: sOff },
+      skill_delta: +(sOn.points - sO.points).toFixed(2),
+      skill_delta_no_equation: +(sOff.points - sO.points).toFixed(2),
       builder_counts: cnt, unfillable: short });
   });
 });
 
 const mean = v => v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+const sd = seats.map(s => s.skill_delta);
+const sdOff = seats.map(s => s.skill_delta_no_equation);
+const sWins = seats.filter(s => s.skill_delta > 0).length;
 const deltas = seats.map(s => s.delta);
 const deltasOff = seats.map(s => s.delta_no_equation);
 const wins = seats.filter(s => s.delta > 0).length;
@@ -261,6 +323,12 @@ const doc = {
          + 'Sharks beats CBS.',
   controls: ctl, controls_all_passed: allOk,
   seat_years: seats.length,
+  _grading_ruling: 'Cory 2026-08-19: "everything we grade should be graded like '
+    + 'we learned.. assuming not injuries, etc.. grade skill not luck". Every '
+    + 'seat carries BOTH an actual and a skill grade; skill puts every player at '
+    + 'his own per-active-game rate so availability is removed.',
+  skill_summary: { mean_delta: +mean(sd).toFixed(2), wins: sWins,
+    mean_delta_no_equation: +mean(sdOff).toFixed(2) },
   predictions: {
     P215_builder_beats_the_humans: { pass: P215, mean_delta: +mean(deltas).toFixed(2),
       wins: wins, of: seats.length, bar: 'mean > 0 and >= 18 of 30' },
@@ -286,6 +354,12 @@ console.log(`        conversion  builder ${mean(seats.map(s => s.builder.convers
 console.log(`\n  P217  the equation is what does it  ${P217 ? 'TRUE ' : 'FALSE'}`);
 console.log(`        equation ON beats OFF in ${equationBeatsOff}/${seats.length}   bar 20/30`);
 console.log(`        (no-equation arm vs owners: ${mean(deltasOff).toFixed(1)} pts/season)`);
+console.log(`\n  ── CORY'S RULING: GRADE SKILL, NOT LUCK ──`);
+console.log(`     every player at his own per-active-game rate, availability removed\n`);
+console.log(`     builder vs owners   ACTUAL ${mean(deltas).toFixed(1).padStart(7)} pts  (${wins}/${seats.length})`
+  + `     SKILL ${mean(sd).toFixed(1).padStart(7)} pts  (${sWins}/${seats.length})`);
+console.log(`     no-equation arm     ACTUAL ${mean(deltasOff).toFixed(1).padStart(7)} pts`
+  + `                SKILL ${mean(sdOff).toFixed(1).padStart(7)} pts`);
 console.log('\n  by season:');
 [...new Set(seats.map(s => s.season))].forEach(y => {
   const g = seats.filter(s => s.season === y);
