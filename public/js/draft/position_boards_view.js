@@ -293,8 +293,9 @@
       + (block.note ? '<div class="pb-note">' + esc(block.note) + '</div>' : '')
       + (players.length ? '<div class="pb-table">'
         + '<div class="pb-table-row pb-table-head">'
-          + '<div>Player</div><div>Proj</div>'
-          + '<div title="floor to ceiling, hover any row for exact numbers">Fl–Ce</div><div>Surv</div></div>'
+          + '<div title="Player">Player</div><div title="Projection">Proj</div>'
+          + '<div title="Floor to ceiling — hover any row for the exact numbers">Fl–Ce</div>'
+          + '<div title="Survival — chance he is still there at your next pick">Surv</div></div>'
         + rows + '</div>' : '<div class="pb-empty">none available</div>')
       + roundDropoffChart(pos, roundDropoffs, esc)
       + '</div>';

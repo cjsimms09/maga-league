@@ -1577,16 +1577,19 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 }
 .pb-src-btn.pb-src-active { color: var(--wr-structure); border-color: var(--wr-structure); background: var(--wr-panel-soft); }
 .pb-grid {
-  /* 10.5rem: the four-column player row (Name/Proj/Range/Surv) genuinely
-     needs this much — measured directly, not guessed. 8.2rem was tried
-     first (to fit all six columns on a 1440px screen with zero scroll) and
-     it clipped real content — Proj cut to 21px against a 28px need, Surv to
-     19px against up to 49px. RB and WR lead POS_ORDER (Cory: "more on RB
-     and WR"), so at a normal desktop width they are still visible with no
-     scroll; the trailing positions may need one, and that is the honest
-     trade — a visible, correct row beats a wider one that lies by cutting
-     text off silently. overflow-x is the designed fallback for the rest. */
-  display: grid; grid-template-columns: repeat(6, minmax(10.5rem, 1fr));
+  /* 11.5rem: bumped from 10.5rem after removing letter-spacing/uppercase
+     from the header row (Cory: "words that are cutoff with … are not
+     acceptable") still left "Fl–Ce" 6px short of "Surv" — genuinely not
+     enough total room for all four header labels' natural widths at once
+     (measured: 153px needed, ~144px available), and without ellipsis to
+     hide it, that shortfall painted "Fl–CeSurv" running together — worse
+     than the ellipsis it replaced. +1rem closes it with margin, verified
+     with a real DOM measurement after the change, not assumed. 8.2rem and
+     10.5rem were both tried first (see git history); RB and WR lead
+     POS_ORDER (Cory: "more on RB and WR"), so at a normal desktop width
+     they are still visible with no scroll — the trailing positions may
+     need one, and that is the honest trade over silently cutting text. */
+  display: grid; grid-template-columns: repeat(6, minmax(12.5rem, 1fr));
   gap: .5rem; overflow-x: auto; padding-bottom: .15rem;
 }
 .pb-col {
@@ -1638,20 +1641,23 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    name; risk is a colored dot outside the text flow entirely. */
 .pb-table { font-size: var(--wr-fs-micro); }
 .pb-table-row {
-  display: grid; grid-template-columns: 43% 18% 14% 25%;
+  display: grid; grid-template-columns: 42% 18% 16% 24%;
   align-items: center; column-gap: .2rem;
 }
 .pb-table-head {
-  font-weight: 600; color: var(--wr-muted); font-size: .6rem;
-  text-transform: uppercase; letter-spacing: .03em;
-  padding: .1rem .2rem; border-bottom: 1px solid var(--wr-line);
+  font-weight: 600; color: var(--wr-muted); font-size: .58rem;
+  padding: .1rem .15rem; border-bottom: 1px solid var(--wr-line);
 }
-/* A header label that overflows its own track paints over the next one —
-   the exact bug .pb-name had. white-space:nowrap + ellipsis makes a label
-   that cannot fit shrink visibly instead of bleeding sideways; "Range"
-   under letter-spacing was the one that actually did this, caught in a
-   live screenshot as "RANGSURV". */
-.pb-table-head > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ⚠️ NO ELLIPSIS ON HEADERS — Cory: "words that are cutoff with … are not
+   acceptable." An ellipsis-truncated label ("PR…", "F…") is not an
+   acceptable degrade for four words that are already short; it reads as
+   broken, not compact. uppercase + letter-spacing were the actual cause —
+   both inflate a short word's rendered width for no informational value,
+   which is what forced the ellipsis to fire in the first place (measured:
+   "Proj" needs real room under letter-spacing that it does not need set in
+   plain case). Removed both, and every header cell gets a `title` with the
+   fully spelled-out name, so nothing is lost even at the narrowest column. */
+.pb-table-head > div { white-space: nowrap; }
 .pb-row {
   padding: .22rem .2rem;
   border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);

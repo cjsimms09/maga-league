@@ -166,7 +166,10 @@ function mkData() {
   const d = mkData();
   const html = V.renderPositionBoards(d, 33, null, esc);
   ck('the table header is down to four scannable columns, floor-ceiling as a Fl–Ce range bar',
-    /<div>Player<\/div><div>Proj<\/div><div[^>]*>Fl–Ce<\/div><div>Surv<\/div>/.test(html));
+    /<div[^>]*>Player<\/div><div[^>]*>Proj<\/div><div[^>]*>Fl–Ce<\/div><div[^>]*>Surv<\/div>/.test(html));
+  ck('every header label carries a title with its full name — never a bare ellipsis if it were ever tight',
+    /title="Player">Player</.test(html) && /title="Projection">Proj</.test(html)
+    && /title="Survival — chance he is still there at your next pick">Surv</.test(html));
   ck('team sits inline beside the name (one line, not a wrapped subline)',
     (function () {
       const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
