@@ -602,3 +602,81 @@ recommend a number I have not seen** (`evsharps`, RotoWire player futures and
 from a *narrative* — "the FP scraper is broken, therefore we lack FantasyPros" —
 without running the one query that checks it. **The query took nine seconds.**
 `CORY-ASKS.md` A17 is updated to WITHDRAWN.
+
+---
+
+# 15. "SO WHAT SHOULD I PAY FOR THAT MAYBE GETS US LOTS OF DIFFERENT PROJECTIONS"
+
+**The structure of the market is the answer, and it is not what I expected:
+almost every paid product sells exactly ONE projection.** Sharp, Fantasy Points,
+FTN, 4for4, Footballguys, PFF, SportsDataIO, FantasyData — each is one more
+opinion. Buying five of them is five subscriptions for five numbers that already
+agree with ours at Spearman 0.93–0.97. **The only products that sell MANY are
+aggregators, and there are two: FantasyPros and Fantasy Football Analytics —
+whose web app is free.**
+
+## FIRST, THE COUNT YOU ALREADY HAVE, WHICH IS HIGHER THAN I KNEW
+
+**`expert_spread_2026.json`, scraped 08:29 this morning, from
+`api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?...&experts=show` — a
+public endpoint, no key, free:**
+
+| | |
+|---|---|
+| players covered | **420** |
+| individual expert opinions per player | **median 86, up to 97** |
+| plus point projections from | CBS · ESPN · FFToday · Sleeper · FantasyPros |
+
+**Ninety-seven experts and five projection sets. Nobody is going to sell you more
+opinions than that.** The bottleneck is not the count.
+
+## THE ONE REAL GAP IN THE "MORE PROJECTIONS" DIRECTION
+
+**We have per-expert RANKS. We do not have per-expert POINT PROJECTIONS.** The
+textbook is blunt about why that matters:
+
+> *"you can calculate rankings from projections, but you cannot reverse engineer
+> projections from rankings."* — Petersen, §Benefits of Using Projections Rather
+> than Rankings
+
+FantasyPros premium advertises customising your expert list and comparing any
+expert against ECR. ⚠️ **I have NOT verified that it exposes per-expert POINTS
+rather than only per-expert RANKS, and that distinction is the whole value of the
+purchase. That is exactly the unchecked premise that cost me §6 and three other
+claims today, so I am not recommending it until someone looks.** It is a
+30-second check in a browser.
+
+## WHAT I ACTUALLY RECOMMEND, WITH PRICES
+
+**If you want to spend money this week — 4for4 Pro, $59/season** (Classic $29).
+
+- It is **not** one of the five we blend and **not** in ffanalytics' source list,
+  so it is a genuinely new opinion rather than a sixth copy.
+- It publishes an accuracy record and integrates with MyFantasyLeague.
+- **It is cheaper than the FantasyPros HOF I withdrew, and unlike FantasyPros we
+  have none of it.**
+
+**If you want to spend money that actually CHANGES the model, two things, and
+neither is a projection:**
+
+| | what | price |
+|---|---|---|
+| **market signal** | **The Odds API**, Professional tier | **$29/month** — the free tier is useless for us (h2h only, NBA/MLB) |
+| **expected fantasy points** | **Sharp Football's 2026 xFP Leaderboard** — the open-source-football method, productised | package pricing; ⚠️ **egress-blocked from here, unverified** |
+
+**And the xFP one has a $0 option: build it ourselves from the 98,263
+play-by-play rows the board already ingests** (§10). That is the same signal,
+free, and we own the code.
+
+## THE ONE-LINE ANSWER
+
+**Nothing you buy will give you "lots of different projections" — you already
+have 97 experts and 5 sources, free. If you want one more real opinion, 4for4
+Pro at $59 is the cheapest honest one. If you want the model to get better, the
+money should go to a betting feed ($29/mo) or to nobody at all, because the
+expected-points signal is buildable from data already on our disk.**
+
+⚠️ **Every price above came from search results, not from a pricing page —
+`4for4.com`, `theoddsapi.com`, `sharpfootballanalysis.com` and
+`fantasypros.com` are all egress-blocked from this container. Check any of them
+before paying.**
