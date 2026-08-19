@@ -82,6 +82,13 @@ STAT_MAP = {
     # this — it is a real capability the component pipeline does not have.
     "fg_0019": "fgm_0_19", "fg_2029": "fgm_20_29", "fg_3039": "fgm_30_39",
     "fg_4049": "fgm_40_49", "fg_50": "fgm_50p", "xp": "xpm",
+    # ⚠️ ESPN PUBLISHES A COMBINED 0-39 BUCKET, and omitting it undercounted
+    # every ESPN kicker by roughly half his field goals (19 of 35 for Aubrey).
+    # Mapping it to `fgm_30_39` is EXACT, not an approximation: this league pays
+    # 3.0 for each of fgm_0_19, fgm_20_29 and fgm_30_39, so which sub-bucket a
+    # 0-39 kick lands in cannot change the score. If those rates ever diverge,
+    # this mapping becomes an approximation and must be revisited.
+    "fg_0039": "fgm_30_39",
     # TEAM DEFENCES — the `dst_` prefix, also missed on the first pass, which is
     # why DEF joined ZERO players and 32-44 rows per source scored a flat 0.
     "dst_sacks": "sack", "dst_int": "int", "dst_fum_rec": "fum_rec",
@@ -142,6 +149,16 @@ def main() -> None:
         pos = (r.get("pos") or r.get("position_asked") or "").upper()
         if pos == "DST":
             pos = "DEF"
+        # ⚠️ FFToday PUBLISHES NO FIELD-GOAL DISTANCE SPLIT — only a total `fg`
+        # — and this league pays 3/3/3/3 by distance up to 49 and 5 beyond it.
+        # Pricing a bare total would mean inventing a distance mix, so FFToday
+        # KICKERS ARE EXCLUDED rather than approximated. Absent stays absent.
+        # This is why FFToday's kicker median came out at 40 against CBS's 139:
+        # its kickers were scoring on extra points alone, and a mean taken over
+        # that would have quietly dragged every kicker down by a third.
+        if pos == "K" and src == "FFToday":
+            d["excluded_no_fg_split"] = d.get("excluded_no_fg_split", 0) + 1
+            continue
         stats = {}
         for col, key in STAT_MAP.items():
             if key is None:
