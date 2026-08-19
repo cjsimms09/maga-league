@@ -95,3 +95,49 @@ def test_same_initial_same_team_same_position_collision_resolves_correctly():
     assert players[2]["name"] == "B Robinson"
     assert players[153]["name"] == "B Robinson Jr."
     assert players[2]["sleeper_id"] != players[153]["sleeper_id"]
+
+
+def test_no_row_has_a_category_split_impossible_for_its_position():
+    # Caught on a second, closer look after the first pass shipped: the
+    # page-break reflow that corrupts floor/cons/ds/ceil order also
+    # corrupts this file's pass/rush/rec/kick/def order, but with no
+    # ADP-decimal anchor to key off — a QB with zero passing points and
+    # an RB or WR with nonzero kicking points both slipped through the
+    # first version of this check, which only forbade impossible
+    # categories and never required a position's OWN category to be
+    # present.
+    for r in _players().values():
+        pos, p, ru, rec_, k, dd = (r["position"], r["pts_pass"], r["pts_rush"],
+                                    r["pts_rec"], r["pts_kick"], r["pts_def"])
+        assert pos == "K" or k == 0, r
+        assert pos == "QB" or p == 0, r
+        if pos == "QB":
+            assert p > 0, r
+        if pos == "K":
+            assert k > 0, r
+        if pos == "DEF":
+            assert dd > 0 and p == 0 and ru == 0 and rec_ == 0 and k == 0, r
+
+
+def test_cross_file_identity_join_survives_the_two_captures_disagreeing_on_order():
+    # The two source PDFs were exported minutes apart, and Draft Sharks'
+    # live ranking reordered 8 marginal players (RB58/TE19/DEF11-13/QB30/
+    # K13/RB59) in between — verified against both raw files directly:
+    # the same 8 identities appear in both, just at different rank
+    # numbers. Joining by raw rank number silently pairs one player's
+    # floor/ceiling with a DIFFERENT player's category split here; joining
+    # on (team, position, position_rank) does not.
+    doc = D.main()
+    assert doc["n_join_mismatches"] == 8
+    players = _players()
+    checks = {
+        214: ("G Smith", "NYJ", "QB", 214, 16, 0, 0, 0),
+        215: ("C Smyth", "NO", "K", 0, 0, 0, 147, 0),
+        217: ("N Giants", "NYG", "DEF", 0, 0, 0, 0, 107),
+        221: ("E Johnson", "KC", "RB", 0, 38, 32, 0, 0),
+    }
+    for rank, (name, team, pos, p, ru, rec_, k, dd) in checks.items():
+        r = players[rank]
+        assert (r["name"], r["team"], r["position"]) == (name, team, pos), r
+        assert (r["pts_pass"], r["pts_rush"], r["pts_rec"], r["pts_kick"], r["pts_def"]) == (
+            p, ru, rec_, k, dd), r

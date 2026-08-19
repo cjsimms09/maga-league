@@ -229,6 +229,30 @@ def parse(tokens: list[str], numeric_pattern: str, n_numbers: int) -> list[dict]
     return records
 
 
+def _pts_plausible(position: str, p: int, ru: int, rec_: int, k: int, d: int) -> bool:
+    """A ranked player's own category is never entirely absent, and no other
+    position carries pass/kick/def points at all. The first version of this
+    check only forbade impossible categories and let a QB through with
+    ZERO passing points, which is how rank 217 (a real QB, 214 pass points)
+    stayed silently mismapped after that column also reflowed -- verified
+    against the raw text, not assumed: this is the same page-break cause as
+    the ceiling file, corrupting this file's category split too. No
+    format-distinguishable anchor exists here (all six columns are plain
+    integers, unlike ADP's decimal shape), so football structure is the
+    fallback signal."""
+    if position == "QB":
+        return p > 0 and k == 0
+    if position == "RB":
+        return p == 0 and k == 0 and (ru > 0 or rec_ > 0)
+    if position in ("WR", "TE"):
+        return p == 0 and k == 0
+    if position == "K":
+        return k > 0 and p == 0 and ru == 0 and rec_ == 0 and d == 0
+    if position == "DEF":
+        return d > 0 and p == 0 and ru == 0 and rec_ == 0 and k == 0
+    return True
+
+
 def parse_pts() -> dict[int, dict]:
     tokens = load_tokens(DATA / "draftsharks_pts_raw.txt")
     recs = parse(tokens, r"^-?\d+$", 6)
@@ -240,7 +264,20 @@ def parse_pts() -> dict[int, dict]:
             r.pop("_parse_error", None)
             r.update(PTS_OVERRIDES[rank])
         elif "_nums" in r:
-            p, ru, rec_, k, d, v = (int(x) for x in r.pop("_nums"))
+            vals = [int(x) for x in r.pop("_nums")]
+            p, ru, rec_, k, d, v = vals
+            if not _pts_plausible(r["position"], p, ru, rec_, k, d):
+                # The value column reflowed to print FIRST (same page-break
+                # cause as the ceiling file): vals[0] is really the value,
+                # and the true pass/rush/rec/kick/def are vals[1:6]. Accept
+                # only if that specific move fixes it -- never guess past
+                # what's demonstrably true of this one row.
+                new_v, new_p, new_ru, new_rec, new_k, new_d = vals[0], *vals[1:6]
+                if _pts_plausible(r["position"], new_p, new_ru, new_rec, new_k, new_d):
+                    p, ru, rec_, k, d, v = new_p, new_ru, new_rec, new_k, new_d, new_v
+                else:
+                    r["_parse_error"] = f"implausible either order: {vals} pos={r['position']}"
+                    p, ru, rec_, k, d, v = (int(x) for x in vals)
             r.update(pts_pass=p, pts_rush=ru, pts_rec=rec_, pts_kick=k, pts_def=d, value_3d_pts=v)
         out[rank] = r
     return out
@@ -264,12 +301,16 @@ def parse_ceil() -> dict[int, dict]:
             if adp_tok and risk_tok and len(rest) == 5:
                 # At some page breaks the LAST column (3D Value) reflows onto
                 # the name's own line, printing BEFORE adp/risk/floor/etc in
-                # the token stream instead of after. ADP is always the first
-                # collected number in a normal (unwrapped) row -- if it is
-                # NOT, the true first element of `rest` is that reflowed
-                # value, not the floor projection. Caught by a monotonicity
-                # sweep (3D Value must not jump up as rank gets worse) that
-                # flagged exactly 13 rows, all this same shape.
+                # the token stream instead of after. This checks the NUMBERS'
+                # OWN relative order (is ADP the first of the 7 collected, as
+                # header order says it always is when unwrapped?) rather than
+                # where the numbers-block sits relative to team/pos, which
+                # varies normally either way and is not the signal (an
+                # earlier version of this check used that and would have
+                # corrupted every row using the equally-common
+                # numbers-then-team/pos layout -- caught before shipping by
+                # re-deriving from the header's own stated column order
+                # rather than trusting the first fix that ran clean).
                 if n[0] != adp_tok:
                     rest = rest[1:] + rest[:1]
                 r["adp"] = float(adp_tok)
@@ -417,25 +458,49 @@ def main() -> dict:
     pts_errs = {k: v["_parse_error"] for k, v in pts.items() if "_parse_error" in v}
     ceil_errs = {k: v["_parse_error"] for k, v in ceil.items() if "_parse_error" in v}
 
+    # The two exports were captured minutes apart (Cory sent them separately)
+    # and Draft Sharks' "3D" ranking is live -- for 8 marginal players
+    # (RB58/TE19/DEF11-13/QB30/K13/RB59) the ORDER genuinely differs between
+    # the two captures, verified against both raw files directly, not
+    # assumed: the same 8 identities appear in both, just reshuffled.
+    # Joining by raw rank number therefore silently pairs one player's
+    # floor/ceiling with a DIFFERENT player's category split in that range.
+    # (team, position, position_rank) is the reliable join key -- already
+    # verified collision-free across all 250 players, unlike name (ligature
+    # corruption differs per export) or rank number (this bug).
+    pts_by_identity = {}
+    for r in pts.values():
+        if r.get("team") and r.get("position") and r.get("position_rank"):
+            pts_by_identity[(r["team"], r["position"], r["position_rank"])] = r
+
+    join_mismatches = []
     players = []
-    for rank in range(1, 251):
-        p, c = pts.get(rank), ceil.get(rank)
-        if not p or not c:
+    for rank in sorted(ceil):
+        c = ceil[rank]
+        if not c.get("team") or not c.get("position") or c.get("position_rank") is None:
             continue
+        ident = (c["team"], c["position"], c["position_rank"])
+        p = pts_by_identity.get(ident)
+        if p is None:
+            join_mismatches.append({"ceil_rank": rank, "identity": ident,
+                                     "ceil_name": c.get("name")})
+            p = {}
+        elif p.get("rank") != rank:
+            join_mismatches.append({"ceil_rank": rank, "pts_rank": p.get("rank"),
+                                     "identity": ident, "note": "matched by identity, "
+                                     "not rank -- the two captures disagree on order here"})
+
+        name_c, name_p = clean_name(c.get("name") or ""), clean_name(p.get("name") or "")
+        raw_name = name_c or name_p or (c.get("name") or p.get("name") or "")
         row = {
             "rank": rank,
-            "name": NAME_FIXES.get(
-                clean_name(c.get("name") or "") or clean_name(p.get("name") or "") or (c.get("name") or p.get("name")),
-                clean_name(c.get("name") or "") or clean_name(p.get("name") or "") or (c.get("name") or p.get("name"))),
-            "team": c.get("team") or p.get("team"),
-            "position": c.get("position") or p.get("position"),
-            "position_rank": c.get("position_rank") or p.get("position_rank"),
+            "name": NAME_FIXES.get(raw_name, raw_name),
+            "team": c.get("team"), "position": c.get("position"),
+            "position_rank": c.get("position_rank"),
             "adp": c.get("adp"), "injury_risk_pct": c.get("injury_risk_pct"),
             "floor_proj": c.get("floor_proj"), "cons_proj": c.get("cons_proj"),
             "ds_proj": c.get("ds_proj"), "ceil_proj": c.get("ceil_proj"),
             "value_3d": c.get("value_3d"),
-            # category splits: NOTE not verified against page-boundary reflow
-            # the way floor/ceiling was -- see the module docstring, point 3.
             "pts_pass": p.get("pts_pass"), "pts_rush": p.get("pts_rush"),
             "pts_rec": p.get("pts_rec"), "pts_kick": p.get("pts_kick"),
             "pts_def": p.get("pts_def"),
@@ -471,10 +536,21 @@ def main() -> dict:
         "_captured_via": "user-provided PDF export (site blocked at CONNECT from both "
                           "the agent sandbox and, unverified, GitHub Actions)",
         "_captured_at": "2026-08-19",
+        "_join_note": "The two source exports were captured minutes apart and the "
+                       "live ranking shifted for a handful of marginal players in "
+                       "between (verified, not assumed: the same identities appear "
+                       "in both files, reordered) -- rows are joined on "
+                       "(team, position, position_rank), not on matching rank number "
+                       "across files. `rank` is the ceiling/floor export's own order "
+                       "(the file with the data Cory actually asked for); the pts-"
+                       "category export's rank for the same player can differ where "
+                       "they disagree. See join_mismatches for every row affected.",
         "n_players": len(players),
         "n_parse_errors_pts_file": len(pts_errs),
         "n_parse_errors_ceil_file": len(ceil_errs),
         "n_floor_ceil_order_violations": order_violations,
+        "n_join_mismatches": len(join_mismatches),
+        "join_mismatches": join_mismatches,
         "n_matched": sum(match_methods.values()),
         "n_unmatched": len(unmatched),
         "match_methods": dict(match_methods),

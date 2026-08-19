@@ -4,10 +4,94 @@
  "_source": "https://www.draftsharks.com/rankings/half-ppr",
  "_captured_via": "user-provided PDF export (site blocked at CONNECT from both the agent sandbox and, unverified, GitHub Actions)",
  "_captured_at": "2026-08-19",
+ "_join_note": "The two source exports were captured minutes apart and the live ranking shifted for a handful of marginal players in between (verified, not assumed: the same identities appear in both files, reordered) -- rows are joined on (team, position, position_rank), not on matching rank number across files. `rank` is the ceiling/floor export's own order (the file with the data Cory actually asked for); the pts-category export's rank for the same player can differ where they disagree. See join_mismatches for every row affected.",
  "n_players": 250,
  "n_parse_errors_pts_file": 0,
  "n_parse_errors_ceil_file": 0,
  "n_floor_ceil_order_violations": 0,
+ "n_join_mismatches": 8,
+ "join_mismatches": [
+  {
+   "ceil_rank": 214,
+   "pts_rank": 217,
+   "identity": [
+    "NYJ",
+    "QB",
+    30
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 215,
+   "pts_rank": 218,
+   "identity": [
+    "NO",
+    "K",
+    13
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 216,
+   "pts_rank": 215,
+   "identity": [
+    "WAS",
+    "TE",
+    19
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 217,
+   "pts_rank": 219,
+   "identity": [
+    "NYG",
+    "DEF",
+    12
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 218,
+   "pts_rank": 216,
+   "identity": [
+    "DET",
+    "DEF",
+    11
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 219,
+   "pts_rank": 220,
+   "identity": [
+    "LAC",
+    "DEF",
+    13
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 220,
+   "pts_rank": 221,
+   "identity": [
+    "BAL",
+    "RB",
+    59
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  },
+  {
+   "ceil_rank": 221,
+   "pts_rank": 214,
+   "identity": [
+    "KC",
+    "RB",
+    58
+   ],
+   "note": "matched by identity, not rank -- the two captures disagree on order here"
+  }
+ ],
  "n_matched": 250,
  "n_unmatched": 0,
  "match_methods": {
@@ -517,10 +601,10 @@
    "ds_proj": 237,
    "ceil_proj": 315,
    "value_3d": 54,
-   "pts_pass": 54,
-   "pts_rush": 0,
-   "pts_rec": 145,
-   "pts_kick": 92,
+   "pts_pass": 0,
+   "pts_rush": 145,
+   "pts_rec": 92,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "9224",
    "match_method": "first-initial+pos"
@@ -1021,10 +1105,10 @@
    "ds_proj": 183,
    "ceil_proj": 248,
    "value_3d": 36,
-   "pts_pass": 36,
-   "pts_rush": 0,
-   "pts_rec": 8,
-   "pts_kick": 176,
+   "pts_pass": 0,
+   "pts_rush": 8,
+   "pts_rec": 176,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "12519",
    "match_method": "first-initial+pos"
@@ -2029,10 +2113,10 @@
    "ds_proj": 155,
    "ceil_proj": 255,
    "value_3d": 21,
-   "pts_pass": 21,
-   "pts_rush": 0,
-   "pts_rec": 133,
-   "pts_kick": 21,
+   "pts_pass": 0,
+   "pts_rush": 133,
+   "pts_rec": 21,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "8408",
    "match_method": "first-initial+pos"
@@ -2533,10 +2617,10 @@
    "ds_proj": 131,
    "ceil_proj": 218,
    "value_3d": 14,
-   "pts_pass": 14,
-   "pts_rush": 0,
-   "pts_rec": 65,
-   "pts_kick": 66,
+   "pts_pass": 0,
+   "pts_rush": 65,
+   "pts_rec": 66,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "9508",
    "match_method": "first-initial+pos"
@@ -3037,10 +3121,10 @@
    "ds_proj": 127,
    "ceil_proj": 168,
    "value_3d": 8,
-   "pts_pass": 8,
+   "pts_pass": 0,
    "pts_rush": 0,
-   "pts_rec": 0,
-   "pts_kick": 127,
+   "pts_rec": 127,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "8131",
    "match_method": "first-initial+pos"
@@ -3541,10 +3625,10 @@
    "ds_proj": 77,
    "ceil_proj": 214,
    "value_3d": 4,
-   "pts_pass": 4,
-   "pts_rush": 0,
-   "pts_rec": 44,
-   "pts_kick": 34,
+   "pts_pass": 0,
+   "pts_rush": 44,
+   "pts_rec": 34,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "12457",
    "match_method": "first-initial+pos"
@@ -4045,10 +4129,10 @@
    "ds_proj": 64,
    "ceil_proj": 183,
    "value_3d": -1,
-   "pts_pass": -1,
-   "pts_rush": 0,
-   "pts_rec": 52,
-   "pts_kick": 13,
+   "pts_pass": 0,
+   "pts_rush": 52,
+   "pts_rec": 13,
+   "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "9506",
    "match_method": "first-initial+pos"
@@ -4507,9 +4591,9 @@
    "ds_proj": 241,
    "ceil_proj": 391,
    "value_3d": 0,
-   "pts_pass": 0,
-   "pts_rush": 38,
-   "pts_rec": 32,
+   "pts_pass": 214,
+   "pts_rush": 16,
+   "pts_rec": 0,
    "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "1373",
@@ -4530,8 +4614,8 @@
    "value_3d": 0,
    "pts_pass": 0,
    "pts_rush": 0,
-   "pts_rec": 114,
-   "pts_kick": 0,
+   "pts_rec": 0,
+   "pts_kick": 147,
    "pts_def": 0,
    "sleeper_id": "11653",
    "match_method": "first-initial+pos"
@@ -4551,9 +4635,9 @@
    "value_3d": 0,
    "pts_pass": 0,
    "pts_rush": 0,
-   "pts_rec": 0,
+   "pts_rec": 114,
    "pts_kick": 0,
-   "pts_def": 106,
+   "pts_def": 0,
    "sleeper_id": "8210",
    "match_method": "first-initial+pos"
   },
@@ -4571,10 +4655,10 @@
    "ceil_proj": 131,
    "value_3d": 0,
    "pts_pass": 0,
-   "pts_rush": 214,
-   "pts_rec": 16,
+   "pts_rush": 0,
+   "pts_rec": 0,
    "pts_kick": 0,
-   "pts_def": 0,
+   "pts_def": 107,
    "sleeper_id": "NYG",
    "match_method": "def-team"
   },
@@ -4594,8 +4678,8 @@
    "pts_pass": 0,
    "pts_rush": 0,
    "pts_rec": 0,
-   "pts_kick": 147,
-   "pts_def": 0,
+   "pts_kick": 0,
+   "pts_def": 106,
    "sleeper_id": "DET",
    "match_method": "def-team"
   },
@@ -4616,7 +4700,7 @@
    "pts_rush": 0,
    "pts_rec": 0,
    "pts_kick": 0,
-   "pts_def": 107,
+   "pts_def": 106,
    "sleeper_id": "LAC",
    "match_method": "def-team"
   },
@@ -4634,10 +4718,10 @@
    "ceil_proj": 156,
    "value_3d": 0,
    "pts_pass": 0,
-   "pts_rush": 0,
-   "pts_rec": 0,
+   "pts_rush": 22,
+   "pts_rec": 55,
    "pts_kick": 0,
-   "pts_def": 106,
+   "pts_def": 0,
    "sleeper_id": "5995",
    "match_method": "first-initial+pos"
   },
@@ -4655,8 +4739,8 @@
    "ceil_proj": 188,
    "value_3d": 0,
    "pts_pass": 0,
-   "pts_rush": 22,
-   "pts_rec": 55,
+   "pts_rush": 38,
+   "pts_rec": 32,
    "pts_kick": 0,
    "pts_def": 0,
    "sleeper_id": "13337",
@@ -5074,11 +5158,11 @@
    "ds_proj": 99,
    "ceil_proj": 128,
    "value_3d": -6,
-   "pts_pass": -6,
+   "pts_pass": 0,
    "pts_rush": 0,
    "pts_rec": 0,
    "pts_kick": 0,
-   "pts_def": 0,
+   "pts_def": 99,
    "sleeper_id": "IND",
    "match_method": "def-team"
   },
