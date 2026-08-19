@@ -8,21 +8,32 @@
  * in STRICT ADP ORDER between Cory's picks — flagged in that file's own
  * header as the gap: "the real room will not be [strict ADP order]". This
  * script closes that gap without reusing A's driver, so a bug in one can't
- * hide a bug in the other: Cory's real schedule
- * ([8,13,28,33,48,53,68,73,88,93,108,113,128,133,148]), his real 3 keepers
- * (`keepers_of.js`), the SAME `E.onTheClock()` the war room calls at every
- * pick, and opponents drawn from `robot-mock.js`'s own tested softmax-over-
- * ADP model (reused, not reinvented) instead of strict draining.
+ * hide a bug in the other: Cory's real schedule (see SCHED below), his real
+ * 3 keepers (`keepers_of.js`), the SAME `E.onTheClock()` the war room calls
+ * at every pick, and opponents drawn from `robot-mock.js`'s own tested
+ * softmax-over-ADP model (reused, not reinvented) instead of strict draining.
  *
- * RESULT (B, 08-19): reproduces, robustly, across every seed run — RB6-9 /
- * WR2-3, A's RB10/WR1 headless number sitting inside the real range, not
- * outside it. AND a sharper, more concrete version of A's own bye-week
- * example: 10 of 10 seeds leave at least one week where Cory cannot field a
- * legal lineup (`bye_fieldability.js`'s check, reused here rather than
- * re-derived, so the investigation and the shipped fix agree by
- * construction). Week 6 in all ten — Ja'Marr Chase (Cory's own keeper,
- * week-6 bye) colliding with the engine's single rostered QB, itself a
- * week-6-bye QB in 9 of 10 seeds.
+ * ⚠️ CORRECTED 08-19 (register 95, found by A on the SAME bug in eight of A's
+ * own tools; this file carried the identical bug independently and was not
+ * in A's sweep since it's TERRITORY: B): this file's original SCHED was the
+ * hardcoded `[8,13,28,33,...]` fifteen-pick literal. Cory keeps THREE players
+ * (`league.keeper_rules.count: 3`, `top_picks_flat`), which forfeits rounds
+ * 1-3 — his real schedule is TWELVE picks starting at 33, not fifteen
+ * starting at 8. Fixed the same way A fixed `fieldability_probe.js`: reuse
+ * `draft_plan.js`'s derived-and-cross-checked SCHED (rule 11 — one
+ * derivation) rather than a second hardcoded literal. The original RB6-9
+ * result below is SUPERSEDED; see the register-67 correction in
+ * DEFECT-REGISTER.md for the re-run on the correct twelve picks.
+ *
+ * ORIGINAL RESULT (B, 08-19, on the WRONG fifteen-pick schedule — kept for
+ * the record, not as a current finding): reproduced RB6-9 / WR2-3 across
+ * every seed. AND a version of A's own bye-week example: 10 of 10 seeds left
+ * at least one week where Cory cannot field a legal lineup
+ * (`bye_fieldability.js`'s check, reused here rather than re-derived).
+ * Week 6 in all ten — Ja'Marr Chase (Cory's own keeper, week-6 bye)
+ * colliding with the engine's single rostered QB, itself a week-6-bye QB in
+ * 9 of 10 seeds. Whether this bye-collision finding survives the corrected
+ * schedule is unverified — re-run and check before citing it again.
  *
  * IT REPORTS. IT DOES NOT TUNE (no_fit_guard) — same discipline as A's own
  * tools in this class.
@@ -40,7 +51,7 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const LEAGUE = DATA.league;
 const TEAMS = LEAGUE.teams || 10;
 const STARTERS = LEAGUE.starters || { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
-const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
+const SCHED = require(path.join(ROOT, 'draft', 'tools', 'draft_plan.js')).SCHED;
 const keep = KEEP.keepersFrom(DATA);
 const ALL = DATA.players.filter(p => p.proj_mean > 0);
 const N_SEEDS = (() => {
