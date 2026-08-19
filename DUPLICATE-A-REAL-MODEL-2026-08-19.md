@@ -680,3 +680,88 @@ expected-points signal is buildable from data already on our disk.**
 `4for4.com`, `theoddsapi.com`, `sharpfootballanalysis.com` and
 `fantasypros.com` are all egress-blocked from this container. Check any of them
 before paying.**
+
+---
+
+# 16. ⭐ WE HAVE NOW ACTUALLY TESTED IT. Both predictions TRUE, and one of them settles your ceiling question.
+
+**Cory: *"what about the model from the repos??? have we tested them"*. We had
+not — I had described it. Now it is built and run.** Prereg
+`draft/FFANALYTICS-DUPLICATION-PREREG-2026-08-19.md` (P135, P136), module
+`draft/backtest/ffanalytics_duplicate.py`, both committed before it executed.
+R is not installed and was not needed: `wilcox.loc`, `whdquantile` and
+`weighted.sd` are re-implemented from the source, with a hand-rolled regularised
+incomplete beta because scipy is absent. **All five controls pass, including the
+one that matters — the harness reproduces the committed artifact's own numbers.**
+
+Both models eat **identical input**: the same 481 players, the same per-source
+points already scored under our league's table. Any difference is the estimator.
+
+## RESULT 1 — THE SOPHISTICATED PART CHANGES NOTHING. THE REPLACEMENT LEVEL CHANGES HALF THE BOARD.
+
+**Top-50 players moving ≥3 ranks against our board:**
+
+| swap | players moved |
+|---|---|
+| **estimators only** — Hodges–Lehmann centre + weighted Harrell–Davis bands, replacing our mean + `mean ± 1.28σ` | **0 of 50** |
+| **VOR baseline only** — QB13 · RB35 · WR36 · TE13 · K8 · DST3, replacing ours | **25 of 50** |
+| both (full ffanalytics) | 23 of 50 |
+
+**P135 TRUE.** And the zero is real, not two identical arms: the estimator swap
+genuinely moves **279 of 481** players' centres (max 6.6 points) and **394**
+players' band widths (max 32.8) — **it just never moves anyone far enough to
+change who you take.**
+
+**What that means for two things I filed this afternoon:** register 100 (we
+weight all sources equally) and register 103 (`proj_ceiling_source` says `p90`
+and computes `mean + 1.28σ`) are both **real and both cosmetic for ranking.**
+Downgraded in the register on this measurement rather than left at the severity
+I assigned them from theory. **The estimator sophistication in the published
+model is not where its value is.**
+
+**Where the value IS:** our replacement levels against theirs —
+
+| | RB | WR | QB | TE | K | DEF |
+|---|---|---|---|---|---|---|
+| **ours** | **170.5** | **171.9** | 350.3 | 141.5 | 129.3 | 103.0 |
+| **ffanalytics** | **139.3** | **147.2** | 344.1 | 132.5 | 130.5 | 117.0 |
+
+**We price every back against a replacement 31 points richer than theirs, and
+every receiver 25 points richer.** That single choice reorders half the top 50,
+and **nobody in this repo has ever compared the two.**
+
+## RESULT 2 — ⭐ THE THREE RANKINGS REALLY DO DISAGREE. YOU WERE RIGHT.
+
+Inside ffanalytics' **own** output, `ceiling_rank` against `rank`, top 100:
+
+- **47 of 100 move by 5 or more places**
+- median move **4**, maximum move **24**
+
+**P136 TRUE.** This was the prediction that could have undercut what I told you
+this morning — if their ceiling ranking had collapsed onto their value ranking,
+then blending ceiling into value would be harmless and my §2 would have been
+noise. **It does not collapse. Nearly half the top 100 are genuinely different
+players.**
+
+**So `VONA + 0.45 × ceiling` is not a harmless tweak. It is a blend of two
+rankings that really do disagree, mixed in a fixed ratio, applied to every player
+at every pick — where the reference implementation keeps them apart and makes you
+choose.** That is your objection, measured.
+
+## RESULT 3 — AND OUR CEILINGS ARE MORE EXTREME THAN THEIRS
+
+Median band width (ceiling − floor): **ours 19.3, ffanalytics 15.9.**
+
+`mean ± 1.28σ` **extrapolates outside** the three numbers the sources actually
+gave; a Harrell–Davis quantile is a weighted average of them and **stays inside**.
+So on top of pointing the wrong way (§2), our upside term is **~20% wider** than
+the published construction would make it.
+
+## WHAT THIS DOES NOT SETTLE
+
+**It compares CONSTRUCTIONS on today's board. Neither is graded against
+outcomes** — that needs the seat replay and a season. A board that differs is a
+finding about the model, not a verdict on who is right. **The replacement-level
+question (result 1) is now the single highest-value post-draft experiment in this
+project, and it is one number per position.** `no_fit_guard` holds: nothing is
+selected from this, and nothing ships before Saturday.
