@@ -554,3 +554,51 @@ been studying for a week. Rows 8, 10, 11 change what the engine picks. **The
 whole list is post-draft, and row 8 — take ceiling out of the score and emit it
 as its own ranking — is the one worth doing first, because it is the one Cory
 identified unprompted and the reference implementation agrees with him.**
+
+---
+
+# 14. ⛔ §6 IS WITHDRAWN. "Why pay for FantasyPros when we already have that info" — you are right.
+
+**Cory, 2026-08-19, one question, and it killed a recommendation I had already
+committed and pushed.** I had not measured our existing FantasyPros coverage
+before telling you to buy more of it. Measured now, on the live board:
+
+| | |
+|---|---|
+| board players carrying `proj_fantasypros` | **429 of 700** |
+| **inside your actual draft range (ADP ≤ 200)** | **181 of 199 = 91.0%** |
+| players whose ADP already comes from FantasyPros | **324** |
+| players carrying `consensus_rank` (their ECR) | **700 — all of them** |
+
+**$108/yr buys the last 9% of your draft range — eighteen players between ADP 180
+and 200 — plus a deep pool you will not draft from.**
+
+## AND THE ARGUMENT WAS WORSE THAN SMALL. IT WAS CIRCULAR.
+
+The defect I offered as the reason to buy was ffanalytics' FantasyPros scraper
+returning **10 rows per position**. But that scraper only feeds the **ffanalytics
+blend arm** — and **ffanalytics weights FantasyPros at `0.000` on purpose**
+(`default_weights`, L106-110), because **FantasyPros is itself an aggregate of
+the other sources and blending it double-counts them** (register 100).
+
+**So I was proposing you pay to repair a source the reference implementation then
+tells us not to use — in the same document where I wrote that reference
+implementation down.**
+
+## WHAT I SHOULD HAVE SAID
+
+**Buy nothing on the projection side.** We are not short of projections; §5's own
+numbers say your first nine rounds are priced by five opinions, and this section
+says one of those five is already at 91% where it counts.
+
+**The only input worth money is the one we have ZERO copies of: a betting-market
+feed.** Every source on the board is a projector copying other projectors —
+pairwise Spearman **0.93 to 0.97**, which is five people saying one thing. A line
+has money behind it. **I still have not priced one, and I am not going to
+recommend a number I have not seen** (`evsharps`, RotoWire player futures and
+`the-odds-api`'s free tier are all egress-blocked from this container).
+
+**The general lesson, and it is the fourth time today:** I recommended a purchase
+from a *narrative* — "the FP scraper is broken, therefore we lack FantasyPros" —
+without running the one query that checks it. **The query took nine seconds.**
+`CORY-ASKS.md` A17 is updated to WITHDRAWN.
