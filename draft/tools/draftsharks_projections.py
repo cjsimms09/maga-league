@@ -103,6 +103,58 @@ class Tables(HTMLParser):
             self._c.append(data)
 
 
+# ⛔ DO NOT ANCHOR ON THE <script> TAG. The previous version matched
+# `<script type="application/ld+json">` and found ZERO names on the live page,
+# while its control passed -- because I had CAPTURED the inner JSON fragment
+# and then INVENTED the script tag I wrapped it in for the fixture. That is
+# register 121 repeating one level up: the captured part was real, the part I
+# assumed was the part that broke.
+#
+# So this matches the Person objects themselves, wherever they sit. The field
+# ORDER below is verbatim from the bytes the live page served.
+PERSON_RE = re.compile(
+    r'"name"\s*:\s*"((?:[^"\\]|\\.)+?)"\s*,\s*'
+    r'"url"\s*:\s*"([^"]*?/(\d+))"\s*,\s*'
+    r'"jobTitle"\s*:\s*"([^"]*?)"'
+    r'(?:(?!"@type"\s*:\s*"Person").){0,400}?'
+    r'"description"\s*:\s*"([^"]*?)"',
+    re.DOTALL)
+
+JOB_POS = [("quarterback", "QB"), ("running back", "RB"), ("wide receiver", "WR"),
+           ("tight end", "TE"), ("kicker", "K"), ("defense", "DEF")]
+
+
+def names_from_jsonld(html):
+    """{overall_rank: {player, position, ds_player_id, team}}.
+
+    The player names are NOT in the table -- it is a Vue component whose rows
+    bind client-side (register 121). They ARE in the page's schema.org Person
+    entries, which carry name, position, a STABLE Draft Sharks id in the url,
+    and "ranked #N overall" in the description.
+
+    Keyed by OVERALL RANK because both this and the numeric table carry it, so
+    a mismatch is detectable -- unlike a join on array position, which shifts
+    every player silently if one row is dropped.
+    """
+    out = {}
+    for m in PERSON_RE.finditer(html):
+        name, url, pid, job, desc = m.groups()
+        mo = re.search(r"ranked #(\d+) overall", desc)
+        if not mo:
+            continue
+        mp = re.search(r"\((QB|RB|WR|TE|K|DEF|DST)\s*\d+\)", desc)
+        jl = (job or "").lower()
+        pos = (mp.group(1) if mp else
+               next((v for k, v in JOB_POS if k in jl), None))
+        out[int(mo.group(1))] = {
+            "player": name.replace('\\"', '"').replace("\\/", "/"),
+            "position": "DEF" if pos == "DST" else pos,
+            "ds_player_id": pid,
+            "team": None,
+        }
+    return out
+
+
 def num(s):
     if s is None:
         return None
@@ -125,7 +177,7 @@ def map_columns(header):
     return col, [h for i, h in enumerate(norm) if i not in used and h]
 
 
-def parse_rows(table, col):
+def parse_rows(table, col, byrank=None):
     """Rows whose width matches the header. Tier separators are 1 cell wide and
     are skipped, counted, never silently merged into a player row."""
     width = len(table[0])
@@ -144,26 +196,16 @@ def parse_rows(table, col):
             # null it silently and we would ship a column of Nones that looks
             # like missing data rather than like a type error.
             rec[f] = v if f in ("player", "injury_risk") else num(v)
-        # the player cell carries name + team + pos in one blob on this site
         raw = r[col["player"]] if "player" in col else ""
         rec["player_raw"] = (raw or "").replace("\x00", " | ")
-        m = re.search(r"\b(QB|RB|WR|TE|K|DEF|DST)\b", raw or "")
-        rec["position"] = ("DEF" if m and m.group(1) in ("DEF", "DST") else
-                           (m.group(1) if m else None))
-        # the cell is a soup of team, bye and (from attributes) the name. Take
-        # the longest run that looks like a person's name rather than the first
-        # fragment -- the first fragment is what produced 'DET 1'.
-        cands = []
-        for chunk in re.split(r"\x00", raw or ""):
-            for c in re.findall(r"[A-Z][A-Za-z'`.-]+(?:\s+[A-Z][A-Za-z'`.-]+)+", chunk):
-                # drop a trailing position or team token: "Jahmyr Gibbs RB" -> name
-                c = re.sub(r"\s+(QB|RB|WR|TE|K|DEF|DST)\b.*$", "", c).strip()
-                if c and not re.fullmatch(r"[A-Z]{2,4}(\s+\d+)?", c) and c not in cands:
-                    cands.append(c)
-        # SHORTEST multi-word candidate: the name itself, not a name plus suffixes
-        multi = [c for c in cands if len(c.split()) >= 2]
-        rec["player"] = (min(multi, key=len)[:60] if multi
-                         else (cands[0][:60] if cands else ""))
+        # JOIN ON OVERALL RANK, which both sides carry. The name is not in the
+        # table at all (register 121) -- it comes from the page's schema.org
+        # ItemList, keyed by the same rank the RK column holds.
+        meta = (byrank or {}).get(int(rec["rank"])) if rec.get("rank") is not None else None
+        rec["player"] = (meta or {}).get("player", "")
+        rec["position"] = (meta or {}).get("position")
+        rec["ds_player_id"] = (meta or {}).get("ds_player_id")
+        rec["team"] = (meta or {}).get("team")
         if rec.get("ceiling") is not None or rec.get("ds_proj") is not None:
             out.append(rec)
     return out, tiers, odd
@@ -185,7 +227,8 @@ def main() -> int:
     m_row = re.search(r"<tr[^>]*>(?:(?!</tr>).){200,}?</tr>", html, re.DOTALL)
     sample_row_html = (m_row.group(0)[:3000] if m_row else None)
     col, unmapped = (map_columns(best[0]) if best else ({}, []))
-    rows, tiers, odd = (parse_rows(best, col) if col.get("player") is not None
+    byrank = names_from_jsonld(html)
+    rows, tiers, odd = (parse_rows(best, col, byrank) if col.get("player") is not None
                         else ([], 0, 0))
 
     ctl = {}
@@ -204,6 +247,17 @@ def main() -> int:
         r["player"] for r in rows
         if None not in (r.get("floor"), r.get("ds_proj"), r.get("ceiling"))
         and not (r["floor"] <= r["ds_proj"] <= r["ceiling"])])
+    ctl["C3a_jsonld_names_found"] = {
+        "ok": len(byrank) >= 20, "names_in_jsonld": len(byrank),
+        "why": "the names live in the page's schema.org ItemList, not the table "
+               "(register 121). A null here means the ItemList moved, which is a "
+               "different failure from the table being empty."}
+    ctl["C3b_every_row_joined_by_rank"] = {
+        "ok": all(r.get("player") for r in rows) if rows else False,
+        "unjoined": [r.get("rank") for r in rows if not r.get("player")][:8],
+        "why": "join is on OVERALL RANK, carried on BOTH sides, so a mismatch is "
+               "detectable -- unlike a join on array position, which silently "
+               "shifts every player by one if a row is dropped"}
     ctl["C3_positions_resolved"] = {
         "ok": sum(1 for r in rows if r.get("position")) >= 0.8 * max(1, len(rows)),
         "resolved": sum(1 for r in rows if r.get("position")), "rows": len(rows)}
@@ -224,6 +278,8 @@ def main() -> int:
                          "rankings; the remainder is behind pagination/XHR "
                          "(register 120, routed to C)",
         "sample_row_html": sample_row_html,
+        "jsonld_names_found": len(byrank),
+        "jsonld_sample": [byrank[k] for k in sorted(byrank)[:5]],
         "players": rows,
     }
     OUT.write_text(json.dumps(doc, indent=1))
