@@ -156,3 +156,13 @@ there is no next pick; `wait_cost = marginal`.
 **Falsifiable signature:** the gain, if any, concentrates in EARLY picks
 (rounds 3–7, where cliffs differ most); a gain concentrated late means the
 mechanism is not the claimed one.
+
+**§8 GRADED, SAME DAY: FALSE.** Actual **+50.1** (>+45.8 ✓, all three seasons
+positive) but skill **+14.5** against the required >+29.3 — the primary
+grading under Cory's ruling, and the bar demanded BOTH. Head-to-head on skill:
+lookahead beats plain MLV in **13/30** against the declared ≥16. 30/30 legal.
+**The lookahead buys raw-points efficiency by spending picks on cliffy
+positions whose per-game rates matter less; the myopic displacement rule keeps
+the better STARTERS.** `--objective-normal` remains the recommendation, and
+this axis is closed: two arms measured, a clear winner, and the improvement
+hypothesis is FALSE on the grading that counts.

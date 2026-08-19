@@ -49,13 +49,19 @@ const KDEF_TAX = process.argv.includes('--kdef-tax');
  * in the harness's own market-rank units, via the harness's own lineup shape.
  * A curve taxes the POSITION COUNT; this taxes the DISPLACEMENT. No constants.
  * Flag-guarded: every shipped arm is byte-identical with the flag off. */
-const OBJECTIVE = process.argv.includes('--objective') || process.argv.includes('--objective-normal');
+const OBJECTIVE = process.argv.includes('--objective') || process.argv.includes('--objective-normal')
+  || process.argv.includes('--objective-look');
+/* MLV-LOOKAHEAD (prereg S8): charge each pick its COST OF WAITING —
+ * marginal(c) minus the marginal of the best same-position man still on the
+ * board at my NEXT pick, availability read from the fixed-opponent draft
+ * (the harness's own C3 information rule). No constants. */
+const OBJ_LOOK = process.argv.includes('--objective-look');
 /* Cory, 2026-08-19: "goal is to draft best team while fielding a normal
  * roster!!!" — the normal-roster variant adds K<=1, DEF<=1 as a SHAPE
  * CONSTRAINT from his words (a second onesie is an upgrade the no-injury
  * objective buys because bench is worth zero; a normal roster does not carry
  * one). Constraint from the brief, not a constant fitted to a grade. */
-const OBJ_NORMAL = process.argv.includes('--objective-normal');
+const OBJ_NORMAL = process.argv.includes('--objective-normal') || OBJ_LOOK;
 const KDEF_MODE = process.argv.includes('--kdef-supply');
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
@@ -286,7 +292,27 @@ function buildSeat(season, draft, seatId, rosterOn) {
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
      * what I have already taken */
-    let best = null, bestV = -Infinity;
+    /* lookahead pass 1: my next pick's index, and the best same-position
+     * marginal available THEN — from the fixed draft, no outcome data */
+    let nextIdx = -1;
+    const nextBestMarg = {};
+    if (OBJ_LOOK) {
+      for (let j = idx + 1; j < N; j++) {
+        if (picks[j].roster_id === seatId && !picks[j].is_keeper) { nextIdx = j; break; }
+      }
+      if (nextIdx >= 0) {
+        const base = lineupRankValue(mine, MV);
+        for (let j = nextIdx; j < N; j++) {
+          const c = picks[j];
+          if (c.is_keeper || takenByMe.has(c.player_id)) continue;
+          const q = posOf(c.player_id);
+          if (!q) continue;
+          const m = lineupRankValue(mine.concat(c.player_id), MV) - base;
+          if (nextBestMarg[q] == null || m > nextBestMarg[q]) nextBestMarg[q] = m;
+        }
+      }
+    }
+    let best = null, bestV = -Infinity, bestTie = -Infinity;
     for (let j = idx; j < N; j++) {
       const c = picks[j];
       if (c.is_keeper) continue;
@@ -321,8 +347,15 @@ function buildSeat(season, draft, seatId, rosterOn) {
           if (!reduces) continue;
         }
         const base = lineupRankValue(mine, MV);
-        v = lineupRankValue(mine.concat(c.player_id), MV) - base
-          + valueOf(c) * 1e-6;            /* deterministic tiebreak only */
+        const marg = lineupRankValue(mine.concat(c.player_id), MV) - base;
+        if (OBJ_LOOK && nextIdx >= 0) {
+          /* cost of waiting; tiebreak by the marginal itself, then market value */
+          v = marg - (nextBestMarg[q] || 0);
+          const tie = marg + valueOf(c) * 1e-6;
+          if (v > bestV || (v === bestV && tie > bestTie)) { bestV = v; bestTie = tie; best = c; }
+          continue;
+        }
+        v = marg + valueOf(c) * 1e-6;     /* deterministic tiebreak only */
       } else {
         const w = startProb(q, held[q] || 0, rosterOn, short);
         v = valueOf(c) * w;
