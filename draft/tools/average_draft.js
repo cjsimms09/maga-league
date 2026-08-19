@@ -89,7 +89,13 @@ function runRoom() {
   SCHED.forEach((pk, i) => {
     const gone = new Set(order.slice(0, pk - 1));
     const fo = flexOwner();
-    const lam = Math.min(1, unfilled() / Math.max(1, SCHED.length - i));
+    /* P160: RAMP=off drives lambda = 1 at every pick -- need at full strength,
+     * no ramp at all. This is the decisive comparison for Cory's question,
+     * because the margin table says a 2nd QB out-margins a 3rd RB in the 101-150
+     * band, and only full need weighting reverses that (0.175 x 35 = 6.1 against
+     * 0.49 x 29 = 14.2). Declared here before running. */
+    const lam = (process.env.RAMP === 'off') ? 1
+      : Math.min(1, unfilled() / Math.max(1, SCHED.length - i));
     let best = null, bestV = -Infinity;
     pool.forEach(p => {
       const id = String(p.player_id);
