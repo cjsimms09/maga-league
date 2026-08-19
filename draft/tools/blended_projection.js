@@ -39,7 +39,27 @@ if (!SNAP.controls_all_passed) throw new Error('the snapshot failed its controls
 const EXCLUDE_FP = process.argv.includes('--exclude-fp');
 /* board_proj_mean is a BLEND of the others and would count them a second time;
  * draftsharks_consensus is Draft Sharks' own blend of everyone, same problem. */
-const SOURCES = ['sleeper', 'own_v6', 'cbs', 'espn', 'fftoday', 'draftsharks']
+/* ⛔ own_v6 REMOVED — CORY'S RULING, 2026-08-19: "lets remove V6 from the blended".
+ *
+ * The evidence he acted on is public/sources.html, generated tonight: own_v6 is
+ * the outlier in nearly every contested row on the board. Matthew Golden 119
+ * where the other six say 38-62. Jalen McMillan 130 against 55-72. Jeremiyah
+ * Love 53 against 10-17. OUR OWN MODEL DISAGREES WITH THE ENTIRE INDUSTRY MORE
+ * THAN ANY COMMERCIAL SOURCE DISAGREES WITH ANOTHER, and it was carrying one
+ * vote in seven on every number Cory drafts.
+ *
+ * ⚠️ AND IT HAS NEVER BEEN GRADED. Register 107 records that it sits a median
+ * 15.3 points below the board mean on 80% of players — a level offset the blend
+ * already corrects per position — but nobody has ever measured whether its
+ * ORDERING is any good, because this project stored no past-season forecasts
+ * until today's snapshot. So it was in the blend on the strength of being ours,
+ * which is not evidence.
+ *
+ * It stays in projection_snapshot_2026.json and will be graded with everyone
+ * else after this season. Cory can put it back with --with-own-v6. */
+const KEEP_OWN_V6 = process.argv.includes('--with-own-v6');
+const SOURCES = ['sleeper', 'cbs', 'espn', 'fftoday', 'draftsharks']
+  .concat(KEEP_OWN_V6 ? ['own_v6'] : [])
   .concat(EXCLUDE_FP ? [] : ['fantasypros']);
 
 /* ── CENTRING, PER POSITION ───────────────────────────────────────────────────
