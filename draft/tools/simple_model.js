@@ -176,7 +176,11 @@ const CORY = {
   RB:  [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR:  [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
-const CURVE_ARM = process.env.CURVE || 'cory';   // 'cory' | 'fixed' | 'measured'
+const CURVE_ARM = process.env.CURVE || 'cory';
+/* P197/P198 — every need FORM that has been graded, re-run on identical inputs
+ * (Draft Sharks projections, surplus valuation, corrected wire, same rooms).
+ * Prereg: draft/REGRADE-PREREG-2026-08-19.md. A sweep, and no arm may become
+ * "the model" by winning it. */
 
 /* ── P196: VALUE IS SURPLUS OVER THE WIRE, NOT THE TIMING CLIFF ──────────────
  * P194 failed with need at 0.05 -- a twentyfold hole -- because VONA is not
@@ -202,6 +206,24 @@ function needOf(pos, held, flexOwner, cand) {
     const row = CORY[pos] || [];
     const v = row[held];
     return v == null ? (row.length ? row[row.length - 1] : 0) : v;
+  }
+  if (CURVE_ARM === 'derived') return needFixed(pos, held, cand);
+  if (CURVE_ARM === 'measured') {           // the counted curve, as committed
+    const v = (CURVE[pos] || [])[held];
+    return v == null ? 0 : v;
+  }
+  if (CURVE_ARM === 'p144' || CURVE_ARM === 'p146') {
+    /* B/C: the two forms from the one-equation family. P144 weighted a body by
+     * P(EVER needed across the season); P146 by E[weeks he actually starts] --
+     * the single substitution that fixed QB and broke TE, K and RB. Both are
+     * rebuilt from the SAME measured start rates so the only difference between
+     * them is the substitution itself. */
+    const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
+    if (held < S) return 1;
+    const r = (CURVE[pos] || [])[held];
+    if (r == null) return 0;
+    if (CURVE_ARM === 'p146') return r;                  // expected weeks started
+    return 1 - Math.pow(1 - r, 17);                      // P(ever needed) over a season
   }
   if (RULES && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
   if (NEEDFIX) return needFixed(pos, held, cand);
