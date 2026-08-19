@@ -67,3 +67,49 @@ matching *"very low, almost 0… but not so much where you miss extreme value."*
 
 **REPORT ONLY.** No board field, nothing ships, and there is no constant here to
 choose — the multiplier is counted.
+
+---
+
+# ADDENDUM — P155, the full equation, stated before it is driven
+
+**P153 TRUE** (gap 0.278). **P154 FALSE by 0.025** — I predicted the 2nd-QB need
+below 0.15 and it measured **0.175**. **The threshold was mine and arbitrary; the
+substantive result is the shape**, and it is Cory's:
+
+| | measured 2nd-body | streamable | **⇒ need** |
+|---|---|---|---|
+| WR | .696 | **.252** | **.521** |
+| RB | .713 | **.311** | **.491** |
+| QB | .427 | **.590** | **.175** |
+| TE | .414 | **.624** | **.156** |
+| DEF | .484 | **.925** | **.036** |
+| K | .828 | **.966** | **.029** |
+
+**Every one of Cory's rules is now derived rather than asserted:** RB/WR stay
+high · QB/TE go low but **not** zero, so extreme value can still win · K/DEF are
+effectively zero without being hardcoded to it.
+
+## THE FULL EQUATION — every term counted from this league's own history
+
+```
+value(p) = need(pos, held) × ( proj_mean(p) − waiver_level(pos) )
+
+need(pos, held) = 1.0                                     if held < starting slots
+                = measured_start_rate(pos, held+1)
+                  × ( 1 − streamability(pos) )            otherwise
+```
+
+**No weights. No caps. No constants I chose.**
+
+## P155
+
+**Driven down Cory's real twelve picks, this arm's total projected points are
+within 5% of `draft_plan.js`, and no position exceeds the depth the measured
+curve supports** (nothing past RB6 / WR6 / QB2 / TE2 / K1 / DEF1).
+
+**FALSE if value drops more than 5%, or if it drafts past the measured range.**
+
+⚠️ **I am NOT predicting the roster shape, and that is deliberate.** Cory:
+*"i dont want 6 rb 5wr.. it may end that way but thats not a set roster."*
+**Shape is an outcome. Whatever it draws, it draws** — the test is whether each
+pick is defensible at its price, not whether the counts match a target.

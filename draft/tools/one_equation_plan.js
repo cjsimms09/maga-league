@@ -100,7 +100,17 @@ const ZERO_BEYOND_SLOT = ['K', 'DEF'];
 /* ── P152: THE MEASURED CURVE. Counted from 540 real team-weeks, not modelled.
  * ARM=measured. Loaded from the artifact rather than retyped, and refused if
  * that artifact's own controls did not all pass. */
-let MEASURED = null;
+let MEASURED = null, STREAM = null;
+if (ARM === 'full') {
+  const m = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
+    'measured_need_curve.json'), 'utf8'));
+  const t = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
+    'streamability.json'), 'utf8'));
+  if (!m.controls_all_passed || !t.controls_all_passed) {
+    throw new Error('a source artifact failed its own controls — REFUSING to drive on it');
+  }
+  MEASURED = m.curve; STREAM = t.streamability;
+}
 if (ARM === 'measured') {
   const m = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
     'measured_need_curve.json'), 'utf8'));
@@ -114,6 +124,15 @@ function weightOf(pos, held, flexOwner) {
   if (S <= 0) return 0;
   if (held < S) return 1.0;
   if (ARM === 'cory' && ZERO_BEYOND_SLOT.includes(pos)) return 0;   // P149
+  if (ARM === 'full') {
+    /* P155: measured start rate x (1 - streamability). Every term counted from
+     * this league's own history; no constant chosen here. */
+    const row = (MEASURED || {})[pos] || [];
+    const v = row[held];
+    if (v == null) return 0;                 // beyond the measured range: no evidence
+    const sr = (STREAM || {})[pos];
+    return (sr == null) ? v : v * (1 - sr);
+  }
   if (ARM === 'measured') {
     if (ZERO_BEYOND_SLOT.includes(pos)) return 0;        // Cory's K/DEF ruling
     const row = (MEASURED || {})[pos] || [];
