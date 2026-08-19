@@ -156,6 +156,41 @@ function needFixed(pos, held, x) {
   return sr == null ? raw : raw * (1 - sr);
 }
 
+/* ── CORY'S CURVE, TRANSCRIBED. Prereg: draft/CORYS-CURVE-PREREG-2026-08-19.md
+ *
+ * "must draft 1 k and 1 def!! ... once have 1 QB and TE, equation should
+ *  severely restrict QB and TE recommendation, it should put in such a hole
+ *  that value should have to be incredible! WR should hold importance until you
+ *  have 4 then be cut, RB should hold until you have 3 then cut, and cut to
+ *  almost 0 when you have 4."
+ *
+ * Indexed by HOW MANY I ALREADY HOLD. The values are MY RENDERING of his words
+ * and are declared, not fitted: "severely restrict" is 0.05, a twentyfold hole,
+ * so a second quarterback must out-value a receiver by 20x to be taken. If the
+ * roster misses, the response is NOT to nudge these. */
+const CORY = {
+  K:   [1.00, 0],
+  DEF: [1.00, 0],
+  QB:  [1.00, 0.05, 0],
+  TE:  [1.00, 0.05, 0],
+  RB:  [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
+  WR:  [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
+};
+const CURVE_ARM = process.env.CURVE || 'cory';   // 'cory' | 'fixed' | 'measured'
+
+/* ── P196: VALUE IS SURPLUS OVER THE WIRE, NOT THE TIMING CLIFF ──────────────
+ * P194 failed with need at 0.05 -- a twentyfold hole -- because VONA is not
+ * comparable across positions. QB's best-to-2nd cliff is 39.0, the largest on
+ * the board, while its 2nd man is worth 17 over a 322.9 wire; RB's cliff is
+ * 11.0 sitting on 233 points of surplus. Late, when RB/WR need has collapsed
+ * and their cliffs are 3-5 points, the quarterback's raw 39 wins anyway.
+ *
+ * I wrote this diagnosis myself in model_diagnostics.js -- "VONA is a TIMING
+ * signal and does not belong in the value term" -- and then built the model on
+ * VONA alone. */
+const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+const VALUE_ARM = process.env.VALUE || 'surplus';   // 'surplus' | 'vona'
+
 const RULES = process.env.RULES !== 'off';   // Cory's two rulings, on by default
 function needOf(pos, held, flexOwner, cand) {
   /* CORY'S RULING, 2026-08-19: "same problem with K and def, once you draft 1
@@ -163,6 +198,11 @@ function needOf(pos, held, flexOwner, cand) {
    * where it put K and DEF on exactly 1.00 with sd 0.00 in all 300 rooms. NOT
    * a term I invented, and dropping it in the rewrite is what let DEF fall to
    * 0.76 with a minimum of ZERO -- rosters with no defence at all. */
+  if (CURVE_ARM === 'cory') {
+    const row = CORY[pos] || [];
+    const v = row[held];
+    return v == null ? (row.length ? row[row.length - 1] : 0) : v;
+  }
   if (RULES && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
   if (NEEDFIX) return needFixed(pos, held, cand);
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
@@ -223,6 +263,7 @@ function runRoom(a) {
     const forcing = RULES && (SCHED.length - i) <= mustFill;
     const needsSlot = q => {
       if ((q === 'K' || q === 'DEF') && (held[q] || 0) >= (base[q] || 0)) return false;
+      if (CURVE_ARM === 'cory' && needOf(q, held[q] || 0, fo, null) <= 0) return false;
       const S = (base[q] || 0) + (fo === q ? (STARTERS.FLEX || 0) : 0);
       return (held[q] || 0) < S;
     };
@@ -235,7 +276,11 @@ function runRoom(a) {
        * remaining value is on the table. */
       const later = nextPick ? bestAt(availLater, x.position, a) : null;
       const vona = later == null ? here : Math.max(0, here - later);
-      const v = vona * needOf(x.position, held[x.position] || 0, fo, x);
+      /* surplus = what he is worth AT ALL, against a body I could have free.
+       * VONA answers "when", not "how much" (P196). */
+      const surplus = Math.max(0, here - (WAIVER[x.position] || 0));
+      const valueTerm = VALUE_ARM === 'vona' ? vona : surplus;
+      const v = valueTerm * needOf(x.position, held[x.position] || 0, fo, x);
       if (v > bestV) { bestV = v; best = x; }
     }
     if (!best) return;
@@ -307,7 +352,13 @@ const out = {
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', `simple_model_a${String(A).replace('.', '')}.json`),
   JSON.stringify(out, null, 1));
 
-console.log(`THE SIMPLE MODEL — Draft Sharks × VONA × need   (adjuster a = ${A})\n`);
+console.log(`THE SIMPLE MODEL — Draft Sharks × VONA × need   (adjuster a = ${A}, curve = ${CURVE_ARM})\n`);
+if (CURVE_ARM === 'cory') {
+  console.log('  CORY\'S CURVE, as it ran — need by how many I already hold');
+  POS.forEach(q => console.log('    ' + q.padEnd(5)
+    + (CORY[q] || []).map(v => v.toFixed(2).padStart(7)).join('')));
+  console.log('');
+}
 Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK  ' : '  FAIL') + k));
 console.log(`\n  pool (players with a Draft Sharks line) : ${pool.length}`);
 console.log(`  excluded inside ADP 200                : ${excluded.length}  ${excluded.slice(0, 4).join(', ')}`);
