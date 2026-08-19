@@ -3000,6 +3000,16 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .legality-strip.ILLEGAL .ls-tag { background: #fff; color: var(--red); }
 .legality-strip.legal .ls-tag { background: rgba(15,138,77,.15); color: var(--green); }
 
+/* BYE-WEEK FIELDABILITY warning (register 59 item (4), 08-19) — a sibling
+   of the legality strip, same "amber, not red" grammar as .at-risk above:
+   this is a heads-up for a future week, not an illegal roster right now. */
+.wr-bye-warn {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  padding: .35rem .9rem; margin-bottom: .35rem; border-radius: 10px;
+  font-size: .8rem; font-weight: 700; cursor: help;
+  background-color: var(--panel); border: 1px solid rgba(185,130,42,.7); color: var(--gold-bright);
+}
+
 /* ── THE DOCTRINE BANNER ──────────────────────────────────────────────────
    Top of screen, above the status bar: the plan being executed, its
    confidence, and the live alternative's price. Sticks WITH the status bar

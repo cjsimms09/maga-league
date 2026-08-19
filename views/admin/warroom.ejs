@@ -191,6 +191,13 @@
         <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
       </div>
       <div id="legality-strip" class="legality-strip" style="display:none"></div>
+      <%# Bye-week fieldability warning (register 59 item (4), ROUTES.md 08-19)
+          — a sibling of the legality strip, not merged into it: legality is
+          hard rules (can this roster be legal at all), this is a softer,
+          roster-shape check (can it be STARTED on a given week). Populated
+          by the same renderLegality() call, from public/js/draft/bye_
+          fieldability.js. Empty/hidden on a healthy roster. %>
+      <div id="bye-fieldability-warn"></div>
 
       <%# Minimum-viable summary — retained host (hidden on warroom by CSS). %>
       <div id="mvs" class="mvs" style="display:none">

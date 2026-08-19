@@ -8295,6 +8295,16 @@
         : a.status === 'at-risk' ? 'WATCH' : 'ILLEGAL';
     host.innerHTML = '<span class="ls-tag">' + tag + '</span>'
       + '<span>' + escapeHtml(a.line) + '</span>';
+
+    // BYE-WEEK FIELDABILITY (register 59 item (4), ROUTES.md 08-19): a
+    // softer, roster-shape check riding the same starters/roster this
+    // function already has — legality asks "can this roster BE legal",
+    // this asks "once byes land, can it be STARTED on a given week".
+    const byeHost = document.getElementById('bye-fieldability-warn');
+    if (byeHost) {
+      byeHost.innerHTML = (typeof ByeFieldability !== 'undefined')
+        ? ByeFieldability.warningHtml(state.myRoster, starters, escapeHtml) : '';
+    }
     return a;
   }
 
