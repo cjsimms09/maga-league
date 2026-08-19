@@ -1556,12 +1556,32 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 }
 .pb-src-btn.pb-src-active { color: var(--wr-structure); border-color: var(--wr-structure); background: var(--wr-panel-soft); }
 .pb-grid {
-  display: grid; grid-template-columns: repeat(6, minmax(9.5rem, 1fr));
+  /* 10.5rem: the four-column player row (Name/Proj/Range/Surv) genuinely
+     needs this much — measured directly, not guessed. 8.2rem was tried
+     first (to fit all six columns on a 1440px screen with zero scroll) and
+     it clipped real content — Proj cut to 21px against a 28px need, Surv to
+     19px against up to 49px. RB and WR lead POS_ORDER (Cory: "more on RB
+     and WR"), so at a normal desktop width they are still visible with no
+     scroll; the trailing positions may need one, and that is the honest
+     trade — a visible, correct row beats a wider one that lies by cutting
+     text off silently. overflow-x is the designed fallback for the rest. */
+  display: grid; grid-template-columns: repeat(6, minmax(10.5rem, 1fr));
   gap: .5rem; overflow-x: auto; padding-bottom: .15rem;
 }
 .pb-col {
+  /* min-width: 0, NOT a rem value — a grid item's default minimum size is
+     `auto`, which resolves to its CONTENT's min-content width and silently
+     overrides the track's own minmax() floor. That is why narrowing
+     .pb-grid's minmax() alone did nothing: the six nowrap numeric table
+     cells inside (.pb-proj/.pb-fc/.pb-adp/.pb-surv) have a combined
+     min-content width wider than either 9.5rem or 8.2rem, and the grid was
+     honoring THAT, not the track minimum. Verified with a real DOM
+     measurement (grid.scrollWidth vs .clientWidth), not a screenshot guess —
+     the previous "narrow the minmax()" edit measured byte-identical before
+     and after until this line was added. */
   border: 1px solid var(--wr-line); border-radius: 6px;
-  background: var(--wr-panel); padding: .4rem .45rem; min-width: 9.5rem;
+  background: var(--wr-panel); padding: .4rem .45rem; min-width: 0;
+  max-width: 15rem;
 }
 .pb-col-head {
   display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap;
@@ -1578,31 +1598,101 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   font-size: var(--wr-fs-micro); color: var(--wr-warn); font-style: italic;
   margin: 0 0 .35rem; line-height: 1.35;
 }
-.pb-table { width: 100%; border-collapse: collapse; font-size: var(--wr-fs-micro); }
-.pb-table th {
-  text-align: left; font-weight: 600; color: var(--wr-muted);
-  font-size: .6rem; text-transform: uppercase; letter-spacing: .03em;
+/* FOUR COLUMNS, A CSS GRID, NOT A <table> — see position_boards_view.js's
+   own playerRow/riskDot/rangeBarMini comments for the full, measured
+   history. FOUR attempts at this cell were each verified wrong by looking
+   at the actual rendered page, not the code: a bare 6-column table forced a
+   horizontal scroll to reach the last position; a "Player+subline" version
+   wrapped every row to 3-4 lines and broke long names mid-word; "173–290"
+   as its own TEXT column needed 55px against a 26px budget; and a <table>
+   with these same four columns let its OWN header and body cells drift
+   apart under table-layout: fixed — a live screenshot caught "PROJ RANGE
+   SURV" overlapping in the header and a Proj number bleeding into a
+   wrapped name's third line. A <table>'s per-row auto-layout cannot
+   guarantee that. A single grid-template-columns definition, applied to
+   the header row and every body row alike, can — there is only one column
+   geometry in the whole panel, not table auto-layout's independent guess
+   per row. The settled shape: Player / Proj / a floor-ceiling RANGE BAR
+   (fixed pixel width, not character width) / Surv. ADP is a title on the
+   name; risk is a colored dot outside the text flow entirely. */
+.pb-table { font-size: var(--wr-fs-micro); }
+.pb-table-row {
+  display: grid; grid-template-columns: 43% 18% 14% 25%;
+  align-items: center; column-gap: .2rem;
+}
+.pb-table-head {
+  font-weight: 600; color: var(--wr-muted); font-size: .6rem;
+  text-transform: uppercase; letter-spacing: .03em;
   padding: .1rem .2rem; border-bottom: 1px solid var(--wr-line);
 }
-.pb-row > td { padding: .18rem .2rem; border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent); }
-.pb-row.pb-cliff-line > td { border-bottom-color: var(--wr-line); }
-.pb-name { font-weight: 600; color: var(--wr-ink); }
-.pb-team { color: var(--wr-muted); font-size: .58rem; text-transform: uppercase; }
-.pb-proj, .pb-fc, .pb-adp, .pb-surv { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.pb-fc { color: var(--wr-muted); }
+/* A header label that overflows its own track paints over the next one —
+   the exact bug .pb-name had. white-space:nowrap + ellipsis makes a label
+   that cannot fit shrink visibly instead of bleeding sideways; "Range"
+   under letter-spacing was the one that actually did this, caught in a
+   live screenshot as "RANGSURV". */
+.pb-table-head > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pb-row {
+  padding: .22rem .2rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+}
+.pb-row.pb-cliff-line { border-bottom-color: var(--wr-line); }
+/* overflow-wrap: break-word IS needed, and hyphens: auto softens it. A
+   version without either was tried on the theory that "a word overflowing
+   its column reads better than a word cut in half" — wrong in practice: a
+   grid track does not grow for an unbreakable word, so "Montgomery" simply
+   painted OVER the Proj column beside it in a live screenshot, which is
+   worse than any hyphenation. hyphens: auto adds a visible "-" at the
+   break, so it reads as intentional wrapping, not a random cut. */
+.pb-name {
+  position: relative; font-weight: 600; color: var(--wr-ink); line-height: 1.25;
+  align-self: start; overflow-wrap: break-word; hyphens: auto;
+}
+.pb-team { color: var(--wr-muted); font-size: .58rem; text-transform: uppercase; font-weight: 400; }
+.pb-proj, .pb-surv {
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.pb-range { text-align: center; }
+.pb-range-wrap { display: inline-block; line-height: 0; }
+.pb-range-rail { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.pb-range-band { fill: var(--wr-chart-main); }
+.pb-range-tick { stroke: var(--wr-ink); stroke-width: 1; }
 .pb-surv-safe { color: var(--wr-good); }
 .pb-surv-mid { color: var(--wr-warn); }
 .pb-surv-hot { color: var(--wr-bad); font-weight: 700; }
 .pb-est { color: var(--wr-muted); font-size: .55rem; margin-left: .05rem; }
-.pb-risk { font-size: .58rem; color: var(--wr-muted); white-space: nowrap; }
-.pb-risk-mid { color: var(--wr-warn); }
-.pb-risk-hi { color: var(--wr-bad); font-weight: 700; }
-.pb-cliff-row td {
+/* the risk DOT (a colored bullet with its exact % on hover), not a badge —
+   see riskDot()'s own comment for why this replaced "⚕67%" as its own
+   column. Absolutely positioned in .pb-name's own corner — costs the text
+   flow nothing, which is the whole point (see playerRow's own comment). */
+.pb-risk-dot { position: absolute; top: .05rem; right: 0; color: var(--wr-muted); font-size: .5rem; }
+.pb-risk-dot.pb-risk-mid { color: var(--wr-warn); }
+.pb-risk-dot.pb-risk-hi { color: var(--wr-bad); }
+/* A plain full-width block, not a grid row — it sits BETWEEN rows, not
+   inside one, so it needs none of .pb-table-row's column geometry. */
+.pb-cliff-row {
   font-size: .6rem; color: var(--wr-bad); text-align: center;
   padding: .2rem 0; border-bottom: 1px dashed var(--wr-line);
   background: color-mix(in srgb, var(--wr-bad) 6%, transparent);
 }
 .pb-empty { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; padding: .2rem 0; }
+
+/* THE VONA FALL-OFF CHART, BY ROUND — Cory: "really liked the vona fall off
+   charts by round.. improve them." One compact bar chart per column, own
+   y-scale per position (see position_boards_view.js's roundDropoffChart for
+   why a shared scale is the wrong call), the steepest transition marked with
+   the SAME status color the exact-numbers table already uses for "hot". */
+.pb-do-mini { margin: .5rem 0 0; padding-top: .35rem; border-top: 1px solid var(--wr-line); }
+.pb-do-mini svg { display: block; }
+.pb-do-baseline { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.pb-do-bar { fill: var(--wr-chart-main); }
+.pb-do-bar-hot { fill: var(--wr-bad); }
+.pb-do-mini-cap {
+  font-size: .58rem; color: var(--wr-muted); margin-top: .15rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pb-do-mini-cap.pb-do-hot { color: var(--wr-bad); font-weight: 700; }
+.pb-do-summary-note { font-weight: 400; color: var(--wr-muted); font-size: .58rem; text-transform: none; letter-spacing: normal; }
 
 /* the three side panels — collapsed by default, same <details> grammar as
    .rec-chips / .rec-against so the disclosure affordance is consistent */
@@ -1631,7 +1721,6 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 }
 .pb-do-range { color: var(--wr-muted); white-space: nowrap; }
 .pb-do-hot { color: var(--wr-bad); font-weight: 700; }
-
-@media (max-width: 640px) {
-  .pb-grid { grid-template-columns: repeat(6, minmax(8.2rem, 1fr)); }
-}
+/* No mobile override left here: the desktop rule above already matches what
+   this used to set at <640px. A phone this narrow still relies on
+   .pb-grid's overflow-x scroll, same as before. */

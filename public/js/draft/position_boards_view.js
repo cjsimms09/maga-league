@@ -66,10 +66,67 @@
     return { pct: p.pct_still_there_next_pick, live: false };
   }
 
-  function riskBadge(pct, esc) {
+  /* A DOT, NOT A NUMBER. First cut of this row spelled out "⚕67%" as its own
+   * column and, separately, folded it into a wrapping subline with three
+   * other figures — both measured as too wide (six nowrap columns forced a
+   * horizontal scroll at a real 1440px viewport; the subline then wrapped
+   * player rows to 3-4 lines each and, on long names, broke words mid-
+   * syllable — "Quinsho-n-Judkins" — while ALSO silently truncating the
+   * survival cell to "1...", a real bug my own width check had missed
+   * because it never queried .pb-surv). Caught by looking at the actual
+   * rendered page, not by eyeballing the code.
+   *
+   * A colored dot costs the row nothing horizontally and the exact number
+   * is still one hover away (title), same as VONA/surplus above it. */
+  function riskDot(pct, esc) {
     if (pct == null) return '';
     var cls = pct >= 50 ? ' pb-risk-hi' : pct >= 25 ? ' pb-risk-mid' : '';
-    return '<span class="pb-risk' + cls + '" title="' + esc(pct + '% injury risk (Draft Sharks)') + '">⚕' + pct + '%</span>';
+    return '<span class="pb-risk-dot' + cls + '" title="' + esc(pct + '% injury risk (Draft Sharks)') + '">●</span>';
+  }
+
+  /* ── WHY THIS ROW IS 4 COLUMNS, NOT 6 ─────────────────────────────────────
+   * Measured, not eyeballed, at a real 1440px viewport: six nowrap numeric
+   * columns (Proj/Fl-Ce/ADP/Surv/Risk) needed a forced horizontal scroll to
+   * reach the last position at all. Player/Proj/Fl-Ce/Surv are the four a
+   * glance down the list is actually comparing; ADP is one hover away on
+   * the name (still the SAME number, never dropped), and risk is a dot, not
+   * a column (see riskDot above). Team sits beside the name, not under it —
+   * a second LINE per row is exactly what turned 10 players into a wall of
+   * text the first time through this fix. */
+  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource, scale) {
+    var surv = survivalFor(p, liveSurvivalById);
+    var survClass = surv.pct == null ? '' : surv.pct >= 70 ? 'pb-surv-safe' : surv.pct >= 30 ? 'pb-surv-mid' : 'pb-surv-hot';
+    var survTitle = surv.live
+      ? 'live, opponent-need aware'
+      : 'pre-draft estimate (ADP-drain only) — live number not available yet';
+    var pf = projFieldsFor(p, projSource);
+    var nameTitle = p.adp != null ? 'ADP ' + fmtNum(p.adp) : '';
+    /* THE DOT LIVES ON THE NAME CELL, NOT THE SURVIVAL CELL — measured, not
+     * guessed. "100%●" inline with the survival percentage needed 49px of
+     * real width; no allocation split among four columns in a ~150px table
+     * ever gave it that much without starving something else. Absolutely
+     * positioned in the name cell's own corner, it costs the TEXT FLOW
+     * nothing — same trick riskBadge's predecessor never had, because it
+     * was never asked to share a cell with three other things. */
+    var risk = riskDot(p.injury_risk_pct, esc);
+    /* A CSS-GRID ROW, NOT A <table> ROW. The <table> version's headers and
+     * cells drifted apart under table-layout: fixed — a live screenshot
+     * caught "PROJ"/"RANGE"/"SURV" overlapping in the header, and Proj's
+     * number bleeding into a wrapped name's third line ("Montgom" / "197" /
+     * "ery"), because auto table layout does not guarantee the header row
+     * and a body row agree on column edges once content wraps unevenly.
+     * A CSS grid template defined ONCE (.pb-table-row in warroom.css) and
+     * reused by every row — header included — cannot drift, by construction:
+     * there is only one column-width definition, not table auto-layout's
+     * independent guess per row. */
+    return '<div class="pb-table-row pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '">'
+      + '<div class="pb-name"' + (nameTitle ? ' title="' + esc(nameTitle) + '"' : '') + '>'
+        + esc(p.name || '') + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + risk + '</div>'
+      + '<div class="pb-proj">' + esc(fmtNum(pf.proj)) + '</div>'
+      + '<div class="pb-range">' + rangeBarMini(pf.floor, pf.proj, pf.ceiling, scale, esc) + '</div>'
+      + '<div class="pb-surv ' + survClass + '" title="' + esc(survTitle) + '">' + esc(fmtPct(surv.pct))
+        + (surv.live ? '' : '<sup class="pb-est">~</sup>') + '</div>'
+      + '</div>';
   }
 
   /* Which of the two already-present numbers a row prints. 'blend' falls
@@ -82,34 +139,121 @@
     return { proj: p.proj, floor: p.floor, ceiling: p.ceiling };
   }
 
-  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource) {
-    var surv = survivalFor(p, liveSurvivalById);
-    var survClass = surv.pct == null ? '' : surv.pct >= 70 ? 'pb-surv-safe' : surv.pct >= 30 ? 'pb-surv-mid' : 'pb-surv-hot';
-    var survTitle = surv.live
-      ? 'live, opponent-need aware'
-      : 'pre-draft estimate (ADP-drain only) — live number not available yet';
-    var pf = projFieldsFor(p, projSource);
-    return '<tr class="pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '">'
-      + '<td class="pb-name">' + esc(p.name || '')
-        + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + '</td>'
-      + '<td class="pb-proj">' + esc(fmtNum(pf.proj)) + '</td>'
-      + '<td class="pb-fc" title="' + esc('floor ' + fmtNum(pf.floor) + ' / ceiling ' + fmtNum(pf.ceiling)) + '">'
-        + esc(fmtNum(pf.floor) + '/' + fmtNum(pf.ceiling)) + '</td>'
-      + '<td class="pb-adp">' + esc(fmtNum(p.adp)) + '</td>'
-      + '<td class="pb-surv ' + survClass + '" title="' + esc(survTitle) + '">' + esc(fmtPct(surv.pct))
-        + (surv.live ? '' : '<sup class="pb-est">~</sup>') + '</td>'
-      + '<td class="pb-risk-cell">' + riskBadge(p.injury_risk_pct, esc) + '</td>'
-      + '</tr>';
+  /* THE FLOOR–PROJ–CEILING RANGE, AS A BAR, NOT TEXT. Third shape for this
+   * cell: "173/290" (its own column) measured 55px against a 26px budget;
+   * folding it into a subline under the name wrapped every row to 3-4 lines
+   * and broke names mid-word. A range visual does not have that problem —
+   * its width is a fixed pixel count, not a character count, so it fits the
+   * same ~26px this text never did, and it is the shape the dataviz method
+   * actually calls for here: floor/ceiling is a MAGNITUDE WITH A RANGE, and
+   * a bar reads that at a glance where three digits and a slash do not.
+   * `scale` ({min,max}) is the position COLUMN's own floor-to-ceiling span
+   * (positionColumn computes it once) — never the whole board's, for the
+   * same reason the round-drop-off chart never shares a y-axis across
+   * positions: a shared cross-position scale flattens whichever position
+   * has the smaller spread. Exact numbers stay one hover away (title). */
+  function rangeBarMini(floor, proj, ceiling, scale, esc) {
+    if (floor == null || proj == null || ceiling == null || !scale || !(scale.max > scale.min)) {
+      return fmtNum(proj);
+    }
+    var w = 24, h = 10;
+    var x = function (v) {
+      var t = (v - scale.min) / (scale.max - scale.min);
+      return Math.max(0, Math.min(1, t)) * w;
+    };
+    var bx = x(floor), bw = Math.max(1, x(ceiling) - bx), mx = x(proj);
+    var title = 'floor ' + fmtNum(floor) + ' · proj ' + fmtNum(proj) + ' · ceiling ' + fmtNum(ceiling);
+    return '<span class="pb-range-wrap" title="' + esc(title) + '">'
+      + '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + esc(title) + '">'
+      + '<line class="pb-range-rail" x1="0" y1="' + (h / 2) + '" x2="' + w + '" y2="' + (h / 2) + '"/>'
+      + '<rect class="pb-range-band" x="' + bx.toFixed(1) + '" y="1" width="' + bw.toFixed(1) + '" height="' + (h - 2) + '" rx="1.5"/>'
+      + '<line class="pb-range-tick" x1="' + mx.toFixed(1) + '" y1="0" x2="' + mx.toFixed(1) + '" y2="' + h + '"/>'
+      + '</svg></span>';
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById, projSource) {
+  /* ── THE VONA FALL-OFF CHART, BY ROUND — Cory, 2026-08-19: "really liked
+   * the vona fall off charts by round.. improve them." "info about when
+   * position drop offs are high or low between rounds."
+   *
+   * One small chart PER POSITION, inside that position's own column — where
+   * he is already looking, not a separate section he has to correlate back
+   * against the players above it. `round_dropoffs` is global (the whole
+   * draft's round-to-round schedule), the same 11 transitions for every
+   * column; each column reads only its OWN position's values.
+   *
+   * ⚠️ EACH BAR CHART GETS ITS OWN Y-SCALE, DELIBERATELY. This is the exact
+   * defect this project corrected four times in one day (register discussion,
+   * 2026-08-19 CLAUDE.md): a statistic compared ACROSS positions on one scale
+   * makes the small ones invisible and the big ones dominate for no football
+   * reason — QB/K/DEF drop-offs are real signal at 5-15 pts; RB/WR run
+   * 20-40. A shared 0-40 axis would flatten every QB/K/DEF bar to a hairline.
+   * Scaled to its own max, a position's OWN cliff always reads as a real bar.
+   *
+   * The steepest transition for THIS position gets the same status color the
+   * existing exact-numbers table already uses (`.pb-do-hot`, `--wr-bad`) —
+   * one color meaning "the cliff", never a decorative rainbow across bars.
+   * Direct-labelled ONLY on that one bar (the caption line), never every bar. */
+  function roundDropoffChart(pos, dropoffs, esc) {
+    if (!dropoffs || !dropoffs.length) return '';
+    var vals = dropoffs.map(function (d) {
+      var v = (d.pos || {})[pos];
+      return v == null ? 0 : v;
+    });
+    var max = Math.max.apply(null, vals.concat([1]));
+    var w = 132, h = 30, gap = 2, n = vals.length;
+    var bw = (w - gap * (n - 1)) / n;
+    var maxV = Math.max.apply(null, vals);
+    var maxIdx = vals.indexOf(maxV);
+    var bars = vals.map(function (v, i) {
+      var bh = v > 0 ? Math.max(2, (v / max) * (h - 3)) : 0.5;
+      var x = i * (bw + gap);
+      var y = h - bh;
+      var d = dropoffs[i];
+      var hot = i === maxIdx && v > 0;
+      var lbl = 'R' + d.from_round + '→' + d.to_round + ': −' + fmtNum(v) + ' pts (' + pos + ')';
+      return '<rect class="pb-do-bar' + (hot ? ' pb-do-bar-hot' : '') + '" x="' + x.toFixed(1)
+        + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="1">'
+        + '<title>' + esc(lbl) + '</title></rect>';
+    }).join('');
+    var hotD = dropoffs[maxIdx];
+    var cap = maxV > 0
+      ? '▽ R' + hotD.from_round + '→' + hotD.to_round + ', −' + fmtNum(maxV) + ' pts'
+      : 'flat across rounds';
+    return '<div class="pb-do-mini" title="' + esc('Point drop-off by round transition — ' + pos) + '">'
+      + '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '" role="img"'
+        + ' aria-label="' + esc(pos + ' round-to-round drop-off, biggest gap ' + cap.replace(/^▽ /, '')) + '"'
+        + ' preserveAspectRatio="none">'
+        + '<line class="pb-do-baseline" x1="0" y1="' + (h - 0.5) + '" x2="' + w + '" y2="' + (h - 0.5) + '"/>'
+        + bars
+      + '</svg>'
+      + '<div class="pb-do-mini-cap' + (maxV > 0 ? ' pb-do-hot' : '') + '">' + esc(cap) + '</div>'
+      + '</div>';
+  }
+
+  /* The range bar's shared scale for this position's own list — own-scaled
+   * to THIS column, same principle as roundDropoffChart's per-position
+   * y-axis: pooling floor-to-ceiling span across positions would flatten
+   * whichever one has the smaller spread for no football reason. */
+  function rangeScaleFor(players, projSource) {
+    var floors = [], ceils = [];
+    players.forEach(function (p) {
+      var pf = projFieldsFor(p, projSource);
+      if (pf.floor != null) floors.push(pf.floor);
+      if (pf.ceiling != null) ceils.push(pf.ceiling);
+    });
+    if (!floors.length || !ceils.length) return null;
+    return { min: Math.min.apply(null, floors), max: Math.max.apply(null, ceils) };
+  }
+
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs) {
     if (!block) return '';
     var players = block.players || [];
+    var scale = rangeScaleFor(players, projSource);
     var rows = players.map(function (p, i) {
-      var row = playerRow(p, esc, liveSurvivalById, false, projSource);
+      var row = playerRow(p, esc, liveSurvivalById, false, projSource, scale);
       if (block.cliff_after_rank != null && i === block.cliff_after_rank - 1 && i < players.length - 1) {
-        row += '<tr class="pb-cliff-row"><td colspan="6">▽ cliff — next tier drops '
-          + esc(fmtNum(block.cliff_size)) + ' pts ▽</td></tr>';
+        row += '<div class="pb-cliff-row">▽ cliff — next tier drops '
+          + esc(fmtNum(block.cliff_size)) + ' pts ▽</div>';
       }
       return row;
     }).join('');
@@ -122,9 +266,12 @@
           + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire</span>'
       + '</div>'
       + (block.note ? '<div class="pb-note">' + esc(block.note) + '</div>' : '')
-      + (players.length ? '<table class="pb-table"><thead><tr>'
-        + '<th>Player</th><th>Proj</th><th>Fl/Ce</th><th>ADP</th><th>Surv</th><th></th></tr></thead>'
-        + '<tbody>' + rows + '</tbody></table>' : '<div class="pb-empty">none available</div>')
+      + (players.length ? '<div class="pb-table">'
+        + '<div class="pb-table-row pb-table-head">'
+          + '<div>Player</div><div>Proj</div>'
+          + '<div title="floor to ceiling, hover any row for exact numbers">Fl–Ce</div><div>Surv</div></div>'
+        + rows + '</div>' : '<div class="pb-empty">none available</div>')
+      + roundDropoffChart(pos, roundDropoffs, esc)
       + '</div>';
   }
 
@@ -165,7 +312,8 @@
       }).join('');
       return '<tr><td class="pb-do-range">' + esc(d.from_pick + '→' + d.to_pick) + '</td>' + cells + '</tr>';
     }).join('');
-    return '<details class="pb-dropoffs"><summary>Round-to-round drop-offs</summary>'
+    return '<details class="pb-dropoffs"><summary>Round-to-round drop-offs — exact numbers'
+      + ' <span class="pb-do-summary-note">(the chart in each column above is the same data)</span></summary>'
       + '<table class="pb-do-table"><thead><tr><th></th>'
       + POS_ORDER.map(function (p) { return '<th>' + esc(p) + '</th>'; }).join('')
       + '</tr></thead><tbody>' + rows + '</tbody></table></details>';
@@ -196,7 +344,7 @@
     if (!pick) return '';
     var src = projSource === 'blend' ? 'blend' : 'ds';
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
@@ -211,7 +359,9 @@
   }
 
   var API = { renderPositionBoards: renderPositionBoards, findPick: findPick,
-    positionColumn: positionColumn, projFieldsFor: projFieldsFor, POS_ORDER: POS_ORDER };
+    positionColumn: positionColumn, projFieldsFor: projFieldsFor,
+    roundDropoffChart: roundDropoffChart, rangeBarMini: rangeBarMini,
+    rangeScaleFor: rangeScaleFor, POS_ORDER: POS_ORDER };
   global.PositionBoardsView = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

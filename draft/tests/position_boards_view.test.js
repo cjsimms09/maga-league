@@ -46,7 +46,14 @@ function mkData() {
         RB: mkBlock(), WR: mkBlock(), QB: mkBlock(), TE: mkBlock(), K: mkBlock(), DEF: mkBlock() } },
     ],
     opponents_compact: [{ owner: 'Cory', keeps: '2RB WR', needs: 'QB WR TE K DEF', early_lean: 'league avg only' }],
-    round_dropoffs: [{ from_pick: 33, to_pick: 48, pos: { RB: 17, WR: 11, QB: 0, TE: 0, K: 0, DEF: 0 }, steepest: 'RB', flattest: 'QB' }],
+    round_dropoffs: [
+      { from_pick: 33, to_pick: 48, from_round: 4, to_round: 5,
+        pos: { RB: 17, WR: 11, QB: 0, TE: 0, K: 0, DEF: 0 }, steepest: 'RB', flattest: 'QB' },
+      { from_pick: 48, to_pick: 53, from_round: 5, to_round: 6,
+        pos: { RB: 4, WR: 27, QB: 6, TE: 0, K: 0, DEF: 0 }, steepest: 'WR', flattest: 'TE' },
+      { from_pick: 53, to_pick: 68, from_round: 6, to_round: 7,
+        pos: { RB: 9, WR: 3, QB: 2, TE: 0, K: 0, DEF: 0 }, steepest: 'RB', flattest: 'TE' },
+    ],
     ceiling_steals: [{ name: 'Steal Guy', position: 'WR', adp: 133, proj: 136, ceiling: 228, steal_gap: 15 }],
     _steals_caveat: 'an IF, not a forecast',
   };
@@ -148,6 +155,114 @@ function mkData() {
   ck('...and flips when "ds" is active',
     /class="pb-src-btn pb-src-active" data-pb-source="ds"/.test(htmlDs)
     && !/class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlDs));
+}
+
+// ── the row restructure: 4 columns, not 6 (measured width fix — six nowrap
+// numeric columns did not fit an ~120px table cell budget at any readable
+// size; a 3-column subline attempt after that wrapped every row to 3-4 lines
+// and broke long names mid-word, verified by actually looking at the
+// rendered page, not by eyeballing the code) ────────────────────────────────
+{
+  const d = mkData();
+  const html = V.renderPositionBoards(d, 33, null, esc);
+  ck('the table header is down to four scannable columns, floor-ceiling as a Fl–Ce range bar',
+    /<div>Player<\/div><div>Proj<\/div><div[^>]*>Fl–Ce<\/div><div>Surv<\/div>/.test(html));
+  ck('team sits inline beside the name (one line, not a wrapped subline)',
+    (function () {
+      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      return /Alpha Back <span class="pb-team">AAA<\/span>/.test(rbSection);
+    })());
+  ck('floor–ceiling renders as a range bar (SVG), not bare/absent text — never dropped',
+    (function () {
+      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      return /class="pb-range">/.test(rbSection) && /pb-range-band/.test(rbSection)
+        && /floor 170 · proj 200 · ceiling 250/.test(rbSection);
+    })());
+  ck('ADP moves to a title on the name (one hover away), not a visible cell — still the same number',
+    (function () {
+      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      return /class="pb-name" title="ADP 20"/.test(rbSection);
+    })());
+  ck('the injury risk indicator is a DOT with the exact percentage on hover (Beta Back, 60%) — not a text column',
+    /pb-risk-dot pb-risk-hi" title="60% injury risk/.test(html));
+  ck('...and the dot renders as a single character, not "⚕67%" text (the earlier badge shape)',
+    !/⚕/.test(html));
+  ck('a cliff divider renders as its own full-width row, not a table cell (the table is a CSS grid now)',
+    /<div class="pb-cliff-row">▽ cliff/.test(html));
+}
+
+// ── rangeBarMini / rangeScaleFor — the floor-proj-ceiling range visual ────
+{
+  const scale = { min: 100, max: 300 };
+  ck('a player at the scale minimum renders a band starting at x=0',
+    /x="0\.0"/.test(V.rangeBarMini(100, 150, 200, scale, esc)));
+  ck('a player at the scale maximum renders a band reaching the svg\'s own full width',
+    (function () {
+      const svg = V.rangeBarMini(250, 275, 300, scale, esc);
+      const svgW = +svg.match(/<svg viewBox="0 0 ([\d.]+)/)[1];
+      const rect = svg.match(/<rect[^>]*>/)[0];
+      const x = rect.match(/x="([\d.]+)"/);
+      const w = rect.match(/width="([\d.]+)"/);
+      return x && w && Math.round(+x[1] + +w[1]) === svgW;
+    })());
+  ck('missing floor/proj/ceiling falls back to the bare number, not a broken bar',
+    V.rangeBarMini(null, 150, null, scale, esc) === '150');
+  ck('a degenerate scale (min === max) falls back to the bare number rather than dividing by zero',
+    V.rangeBarMini(150, 150, 150, { min: 200, max: 200 }, esc) === '150');
+  ck('the exact numbers are one hover away, never dropped',
+    /title="floor 100 · proj 150 · ceiling 200"/.test(V.rangeBarMini(100, 150, 200, scale, esc)));
+  ck('rangeScaleFor is scoped to the position it is given — RB\'s min/max ignores WR-sized numbers',
+    (function () {
+      const rbPlayers = [{ proj: 200, floor: 170, ceiling: 250 }];
+      const s = V.rangeScaleFor(rbPlayers, 'ds');
+      return s.min === 170 && s.max === 250;
+    })());
+  ck('rangeScaleFor returns null for an empty list, not a crash',
+    V.rangeScaleFor([], 'ds') === null);
+}
+
+// ── the VONA fall-off-by-round mini chart, per column ─────────────────────
+{
+  const d = mkData();
+  const html = V.renderPositionBoards(d, 33, null, esc);
+  ck('one round-drop-off chart renders per column (6 total)',
+    (html.match(/class="pb-do-mini"/g) || []).length === 6);
+  ck('the RB column names its own steepest transition, R4→5 (17 pts), not a cross-position pick',
+    (function () {
+      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      return /R4→5.*17 pts/.test(rbSection.replace(/<[^>]+>/g, ' ')) || /R4→5/.test(rbSection) && /17/.test(rbSection);
+    })());
+  ck('the WR column names ITS OWN steepest transition, R5→6 (27 pts) — a different round than RB\'s',
+    (function () {
+      const wrSection = html.slice(html.indexOf('>WR<'), html.indexOf('>QB<'));
+      return /R5→6/.test(wrSection) && /27/.test(wrSection);
+    })());
+  ck('a position flat across every round (TE, all zero) says so rather than drawing a fake bar',
+    (function () {
+      const teSection = html.slice(html.indexOf('>TE<'), html.indexOf('>K<'));
+      return /flat across rounds/.test(teSection);
+    })());
+  ck('each chart is own-scaled: RB\'s bars are NOT scaled against WR\'s larger max (own-scale, not shared)',
+    (function () {
+      // With a shared 0-27 scale, RB's own max (17) would render at height
+      // proportional to 17/27 = 63%. Own-scaled, RB's own max (17) always
+      // renders near full height (>= 90% of the chart's own max height).
+      const rbChart = V.roundDropoffChart('RB', d.round_dropoffs, esc);
+      const heights = [...rbChart.matchAll(/height="([\d.]+)"/g)].map(m => +m[1]).filter(h => h > 1);
+      const maxH = Math.max(...heights);
+      return maxH >= 27 * 0.85; // chart height 30, minus padding — near-full-height bar for the position's own max
+    })());
+  ck('the steepest bar for a position is marked hot (pb-do-bar-hot), and only one bar is',
+    (function () {
+      const rbChart = V.roundDropoffChart('RB', d.round_dropoffs, esc);
+      return (rbChart.match(/pb-do-bar-hot/g) || []).length === 1;
+    })());
+  ck('a missing round_dropoffs argument renders nothing, not a broken chart',
+    V.roundDropoffChart('RB', null, esc) === '' && V.roundDropoffChart('RB', [], esc) === '');
+  ck('each bar carries an exact-value tooltip via <title>, not a bare shape',
+    /<title>/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
+  ck('the chart carries an aria-label naming the position and its biggest gap (accessibility)',
+    /aria-label="RB round-to-round drop-off, biggest gap R4→5/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
 }
 
 // ── six columns, RB/WR first (Cory: "more on RB and WR") ─────────────────
