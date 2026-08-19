@@ -1,0 +1,62 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by draftsharks_shape.py",
+ "_what": "discovery only: table headers, row counts, sample rows. No board field, no crosswalk, no points.",
+ "url": "https://www.draftsharks.com/rankings/half-ppr",
+ "status": 200,
+ "bytes": 418011,
+ "table_count": 2,
+ "largest_table_rows": 39,
+ "verdict_data_is_present": false,
+ "why_verdict": "the first probe's login_wall flag was a keyword match on 'sign in|subscribe' anywhere in 418KB of page, which nearly every site's nav contains -- it is not evidence of a paywall. Real rankings rows are. 50 is well below a full board and well above a teaser.",
+ "tables": [
+  {
+   "index": 0,
+   "rows": 0,
+   "header": [],
+   "widths_seen": [],
+   "fields_found": [],
+   "first_data_rows": []
+  },
+  {
+   "index": 1,
+   "rows": 39,
+   "header": [
+    "RK",
+    "Player",
+    "Games",
+    "ADP",
+    "Bye",
+    "SOS",
+    "InjuryRisk",
+    "Floor Proj",
+    "Consensus ProjCons Proj",
+    "DS Proj",
+    "CeilingProjCeil Proj",
+    "3D Value"
+   ],
+   "widths_seen": [
+    1,
+    12
+   ],
+   "fields_found": [
+    "adp",
+    "bye",
+    "floor",
+    "player",
+    "projection",
+    "risk"
+   ],
+   "first_data_rows": [
+    [
+     "Tier"
+    ],
+    [
+     "Tier 1"
+    ],
+    [
+     "Tier 1"
+    ]
+   ]
+  }
+ ]
+}
