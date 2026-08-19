@@ -1,3 +1,5 @@
+# TERRITORY: A
+# TERRITORY-GRANT: C register 79 scraped_at re-derive expert_spread_2026 fresh capture path staged cached artifact commit store name run uses with steps if porcelain set pipefail python3 import sys build add fp_expert_ranks rebase abort 2026-08-19
 name: FP EXPERT RANKS — capture every expert's rank for every player
 # Register 4t. Cory, 2026-08-18: "we need to get them from somewhere!!!"
 #
@@ -77,15 +79,34 @@ jobs:
           test -s "$f" || { echo "MISSING: $f — the capture did not write the season it was asked for."; exit 1; }
           python3 -c "import json,sys; d=json.load(open('$f')); assert int(d['season'])==int('${YEAR:-2026}'), d['season']; assert d['coverage']['with_experts']>0, 'zero players carry expert ranks'; print('store OK:', d['season'], d['coverage']['with_experts'], 'players with experts')"
 
+      # Register 79 — a fresh RAW capture with no fresh DERIVED artifact is the
+      # same staleness one file downstream: expert_spread_2026.json is what
+      # surface_parity.js checks and what Cory reads at the table, and until
+      # now nothing re-derived it after a capture. Network-free — reads only
+      # the file the previous step just wrote.
+      - name: Re-derive expert_spread_2026.json from the fresh capture
+        run: python3 draft/tools/rederive_expert_spread.py
+
       - name: Commit the store
+        # ⚠️ `git status --porcelain --cached` IS NOT VALID — `--cached` is a
+        # `git diff` flag, not a `git status` one. Found by dispatching for
+        # real: the fetch succeeded (fetch_error null, 788 experts, a live
+        # scraped_at), `git status --porcelain --cached` errored to stderr
+        # printing nothing to stdout, `[ -n "" ]` read false, and the run
+        # logged "No change to the store" and discarded a real, fresh
+        # capture — the exact silent-false-negative shape rule 3e exists
+        # for. `git diff --cached --quiet` is the correct check (nonzero
+        # exit means there IS a staged diff) and is what this repo's other
+        # capture workflows already use for the same purpose.
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          if [ -n "$(git status --porcelain draft/backtest/)" ]; then
-            git add draft/backtest/fp_expert_ranks_*.json
-            git commit -m "Capture FantasyPros per-expert draft ranks [skip deploy]"
+          git add draft/backtest/fp_expert_ranks_*.json draft/data/expert_spread_2026.json public/expert_spread_2026.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Capture FantasyPros per-expert draft ranks + re-derive expert_spread_2026 [skip deploy]"
             for i in 1 2 3 4; do
+              git rebase --abort 2>/dev/null || true
               git pull --rebase origin main && git push origin HEAD:main && break
               sleep $((2**i))
             done

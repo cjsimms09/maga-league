@@ -1,0 +1,131 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/auto_phase_cost_lab.py",
+ "_prereg": "P128 (PREDICTION-LEDGER.md), amended pre-run",
+ "_note": "REPORT ONLY. Two arms, metric fixed in advance, nothing selected. Engine-on-bundles.",
+ "need_by_phase": {
+  "Anchor": 0.35,
+  "Build": 0.9,
+  "Fill": 1.45,
+  "Tight": null
+ },
+ "controls": {
+  "identical_pick_counts_per_round": {
+   "ok": true,
+   "why": "a per-round points gap is only interpretable if both arms made the same number of picks in that round"
+  },
+  "reconciles_with_P127_pooled_delta": {
+   "got_mean_per_seat_season": -156.7,
+   "ok": true,
+   "why": "P127 measured auto shedding ~157 roster pts/seat-season; the per-round parts must add back to roughly that whole"
+  }
+ },
+ "controls_all_passed": true,
+ "by_round": [
+  {
+   "round": 1,
+   "phase": "Anchor",
+   "auto_minus_shipped_per_seat_season": 0.0
+  },
+  {
+   "round": 2,
+   "phase": "Anchor",
+   "auto_minus_shipped_per_seat_season": -1.5
+  },
+  {
+   "round": 3,
+   "phase": "Build",
+   "auto_minus_shipped_per_seat_season": 1.1
+  },
+  {
+   "round": 4,
+   "phase": "Build",
+   "auto_minus_shipped_per_seat_season": -58.5
+  },
+  {
+   "round": 5,
+   "phase": "Build",
+   "auto_minus_shipped_per_seat_season": -45.2
+  },
+  {
+   "round": 6,
+   "phase": "Build",
+   "auto_minus_shipped_per_seat_season": -73.0
+  },
+  {
+   "round": 7,
+   "phase": "Fill",
+   "auto_minus_shipped_per_seat_season": -33.9
+  },
+  {
+   "round": 8,
+   "phase": "Fill",
+   "auto_minus_shipped_per_seat_season": 0.0
+  },
+  {
+   "round": 9,
+   "phase": "Fill",
+   "auto_minus_shipped_per_seat_season": -22.2
+  },
+  {
+   "round": 10,
+   "phase": "Fill",
+   "auto_minus_shipped_per_seat_season": -8.3
+  },
+  {
+   "round": 11,
+   "phase": "Tight",
+   "auto_minus_shipped_per_seat_season": 9.2
+  },
+  {
+   "round": 12,
+   "phase": "Tight",
+   "auto_minus_shipped_per_seat_season": -2.0
+  },
+  {
+   "round": 13,
+   "phase": "Tight",
+   "auto_minus_shipped_per_seat_season": 1.0
+  },
+  {
+   "round": 14,
+   "phase": "Tight",
+   "auto_minus_shipped_per_seat_season": 49.2
+  },
+  {
+   "round": 15,
+   "phase": "Tight",
+   "auto_minus_shipped_per_seat_season": 27.3
+  }
+ ],
+ "by_phase": {
+  "Anchor": -1.5,
+  "Build": -175.7,
+  "Fill": -64.3,
+  "Tight": 84.8
+ },
+ "early_rounds_1_6": -177.2,
+ "late_rounds_7_plus": 20.5,
+ "p130_by_arm": {
+  "auto": {
+   "Anchor": -1.5,
+   "Build": -175.7,
+   "Fill": -64.3,
+   "Tight": 84.8,
+   "TOTAL": -156.7
+  },
+  "need1": {
+   "Anchor": -0.8,
+   "Build": -161.6,
+   "Fill": -48.0,
+   "Tight": 111.4,
+   "TOTAL": -99.0
+  },
+  "slot_s1": {
+   "Anchor": 0.0,
+   "Build": -162.8,
+   "Fill": -44.8,
+   "Tight": 123.9,
+   "TOTAL": -83.7
+  }
+ }
+}

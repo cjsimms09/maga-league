@@ -4,7 +4,14 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **69 open rows** (updated 2026-08-19 — was 51 the day this sheet was written; a day's worth of real findings, not drift, and the count grows as fast as it gets worked). **The "Thirty carry a recheck date on or before 08-22" figure below is from 08-18 and has not been re-derived against the current row set** — flagged rather than left implying a precision the number no longer has. Most open rows are owned by A. That is not a decision list, it is a
+up."* The register has **70 open rows** (re-counted 08-19). **The number it replaces,
+51, is the point:** nineteen rows were filed after that sentence was written and
+it went on asserting 51, until `test_the_backlog_claim_is_still_roughly_true`
+refused the build. **Do not quote this without re-running
+`register_recheck_check.js`** — a stated count decays daily. **The "Thirty carry
+a recheck date on or before 08-22" figure below is from 08-18 and has not been
+re-derived against the current row set** — flagged rather than left implying a
+precision the number no longer has. Most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
 So every open row was put to a single question — **can this change a number on

@@ -115,6 +115,16 @@ KNOWN_PARTICIPANTS = {
     # the dispersion family — all still proj_mean x a per-cell constant
     "proj_mean", "proj_ceiling", "proj_floor", "proj_sd", "weekly_sd",
     "proj_baseline",
+    # INVESTIGATED 2026-08-19 before adding, as this list's own message demands.
+    # `proj_mean_sleeper_only` is the PRE-BLEND value the multi-source mean
+    # replaced, kept on the row so the change is reversible and auditable. It
+    # tracks `proj_mean` closely BY CONSTRUCTION -- it is the same quantity
+    # from one of the four sources being averaged -- and the coherence gate
+    # tightens the coupling further, since the blend only touches players
+    # whose sources agree within 2x. So the detector is RIGHT and the finding
+    # is real: this field must never be weighted independently of proj_mean.
+    # It exists to be DISPLAYED and to be reverted to, never to be modelled.
+    "proj_mean_sleeper_only",
     # adjusted_adp is ADP with small adjustments applied, so it tracks ADP
     # closely by design; the aliases of ADP come along with it
     "adjusted_adp", "adp", "consensus_rank", "raw_adp", "pool_rank",

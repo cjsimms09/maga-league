@@ -2,6 +2,73 @@
 
 ---
 
+## ⚡ 08-19 DAY — appended by A. **The headline edge number in this repo was the wrong artifact, and the tool finishes 8th.**
+
+**1. WHERE THE TOOL WOULD HAVE FINISHED: 8th of 10.** Mean rank **7.80**, top-3
+in **3 of 30** seat-years (10%) against a 30% chance rate, **dead last in all ten
+2024 seats**. Prereg `SEAT-RANK-PREREG-2026-08-19.md`, eleven controls.
+
+**2. AND THE NUMBER FOUR FILES QUOTED WAS THE PROXY, NOT THE TOOL.** *"Roughly a
+wash with Cory (−9.4)"* is `replay_league_table.json` — `own_v6_nomarket`
+projections with the proxy's own selection rule, on the **realistic** arm that
+its own honesty note calls *"the tool's best case and not the headline."*
+**`engine_seat_replay.json` runs the real `engine.js` at `MEASURED_WEIGHTS` and
+says `beats_n_of_10_pooled` = 0 on BOTH arms, Cory −188.35 on the preregistered
+primary.** It had sat committed and unquoted for days. Corrected in `CLAUDE.md`
+and `OWNERS.md`; register 88.
+
+**3. THE DECOMPOSITION IS THE FINDING, AND IT IS CORY'S *"ROSTER STILL NOT
+NORMAL"* IN POINTS.** A season total is points ACQUIRED × share of them STARTED:
+
+| season | engine roster pts | vs owners | conversion | owners' |
+|---|---|---|---|---|
+| 2023 | 20,650 | **+2.1%** | **0.740** | 0.828 |
+| 2025 | 21,127 | **+5.1%** | **0.771** | 0.834 |
+| 2024 | 17,990 | −17.3% | 0.815 | 0.826 |
+
+**In 2023 and 2025 the engine acquires MORE points than the owners and loses
+entirely on what it can start.** 2024 alone is a selection loss. Register 87.
+
+**4. AND IT IS CAPTURABLE — P127 graded 17 days early because Cory rules A13 on
+Friday.** `need: 1.0` takes conversion to 0.876/0.849/0.829 — it **overshoots**
+the owners — and **both A13 arms ACQUIRE LESS RAW VALUE than shipped and win
+anyway** (`need1` holds 99 fewer roster points and starts +68.6 more). Neither
+buys points by drafting better players. **`bye1` is bit-identical to shipped,
+independently reproducing register 69.**
+
+**5. BUT CONVERSION AND "NORMAL ROSTER" ARE NOT THE SAME OBJECTIVE, AND THAT
+DECIDES A13.** `need: 1.0` fixes conversion **by drafting a full extra running
+back** (4.77 → 5.83 against the winners' 3.83) — flex-eligible backs start well
+and look nothing like a winning roster, so it makes Cory's own complaint worse.
+**Slot-aware is the only arm moving RB down and TE up together, and the only
+thing that breaks the degenerate one-TE constant** (exactly 1 TE in 30 of 30
+shipped rosters). **The 10.4 pts/seat-season between them is the price of a
+winner-shaped roster — and it is inside the ±41.8 detection floor, so the arms
+are not separable on points at all.** A's rec is unchanged: ship slot-aware,
+hold `need` at 0. **Cory's default stands: nothing ships if he says nothing by
+08-21 6pm.**
+
+**6. THE MECHANISM IS REGISTER 60, WHICH NOW HAS A COST.** `need` is the only
+roster-aware term and it ships at **0**, so nothing penalises a pileup and
+whatever prices best gets taken repeatedly — **one 2023 seat drafted SEVEN
+quarterbacks** in a 1-QB league; the live 2026 board takes **RB10** instead.
+Different position, same absence.
+
+**7. SMALLER, BUT IT WAS ON CORY'S SURFACE:** the war room's expert-split badge
+was blank for **Kenneth Walker III (ECR 23, one of his three keepers)** and the
+artifact declared it as the bare number `9`. Root cause was not a name rule —
+`sleeper_name_index` drops any name held by two rostered players, and *"kenneth
+walker"* collides with an inactive WR, so the exclusion discarded exactly the
+information the position-aware caller would have used. Fixed, 9 → 6, register 91.
+
+**8. WHAT A FRESH SESSION SHOULD NOT REDO:** the `sleeper_name_index` collision
+sweep (16 consumers, only 4 of 36 collision names hold a draftable player), and
+the experts-vs-market study — **`external_adp_historical.json` is FFC ADP vs
+FantasyPros ADP, two prices; the repo holds no historical expert consensus, and
+the control I had planned would have PASSED anyway** (register 5b).
+
+---
+
 ## ⚡ 08-18/19 NIGHT — appended by A so the first-read file does not repeat its own famous failure (four files describing a pre-ruling state). Everything below this block describes 08-17; this block is what changed since.
 
 **THE PROJECTION QUESTION IS SETTLED FOR THIS DRAFT AND MOVED TO ITS REAL VENUE.**
@@ -920,7 +987,21 @@ instrument than a known one.
 
 ---
 
-## 7b. THE CEILING WEIGHT IS SET WRONG, AND IT STAYS WRONG THROUGH THE DRAFT
+## 7b. ~~THE CEILING WEIGHT IS SET WRONG, AND IT STAYS WRONG THROUGH THE DRAFT~~
+## 7b. ✅ THE CEILING WEIGHT WAS RULED AND SHIPPED AT 0.45 — the heading below was the last copy of the false claim
+
+> **⚠️ HEADING CORRECTED 2026-08-19 (A). THE BODY OF THIS SECTION WAS FIXED ON 08-18 AND THE HEADING WAS NOT** — so a
+> reader scanning this 1,000-line file, which its own §0 tells you to do
+> (*"STOP and grep for what you need"*), got the pre-ruling answer while the
+> paragraph underneath said the opposite. **`MEASURED_WEIGHTS.ceiling === 0.45`,
+> verified in the live engine; Cory ruled it and `09f94f99` shipped it.**
+>
+> **This is the third instance today of one specific shape: a correction lands
+> in the BODY and not in the LABEL.** Register 73's status cell asserted a
+> sentence register 74 had retracted the same day; register 45 carried a ✅ in
+> its action cell and a 🔴 in its status cell; this heading outlived its own
+> paragraph. **Labels are what get read and what guards parse — bodies are what
+> get corrected. Anyone fixing a claim should ask what the LABEL still says.**
 
 Prereg `CEILING-REDERIVATION-PREREG.md`, result
 `draft/backtest/EXP-CEILING-REDERIVATION.md`.

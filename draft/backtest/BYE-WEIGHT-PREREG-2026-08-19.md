@@ -1,6 +1,35 @@
 <!-- TERRITORY: A -->
 # PREREGISTRATION — should `bye` be on? (register 59, P114)
 
+> ## ⛔ NOT GRADEABLE — RESOLVED 2026-08-19, BEFORE ANY GRADE WAS WRITTEN DOWN
+>
+> **The arm ran and changed nothing.** `--bye 1.0` produced a `seasons` block
+> **bit-identical to the shipped arm across all 30 seats** — same rosters, same
+> records. It graded at **+0.0 points in 30 of 30**.
+>
+> Everything about it looked correct, which is the point: the choice file
+> differed by 176KB (key ordering only), the read-back weights stamp read
+> *"MEASURED_WEIGHTS with bye=1"*, and `weights_values` carried `"bye": 1`.
+> **The weight really was applied. The quantity it multiplies is zero.**
+>
+> `byeCollisionPenalty` (`composite.js:333`) returns 0 unless the roster ALREADY
+> holds a same-position player on that same bye week, and bundle boards may
+> carry no `bye` at all. **`engine.js:1875` had already recorded the symptom in
+> a comment — *"three of the seven sliders (keeper, bye, stack) could not change
+> the top five at ANY setting"* — and nobody connected it to this prereg.**
+>
+> **So every prediction below is unanswerable as written**, and a `+0.0` here
+> means "the term never participated", never "the bye weight does not pay".
+> Register 69; `draft/tools/arm_participation_check.py` now guards the class in
+> CI, because the weights stamp — built after the `--need` incident, where the
+> weight was never applied — structurally cannot catch a weight that WAS applied
+> to a zero.
+>
+> **Reopen this prereg only after the input gap is closed** (does the bundle
+> carry historical bye weeks at all?). Nothing below is retracted; it is simply
+> not yet askable.
+
+
 **Filed 2026-08-19 by A, BEFORE any arm ran.** Grade-by **2026-08-26** —
 deliberately AFTER the draft, unlike P110. See §5.
 

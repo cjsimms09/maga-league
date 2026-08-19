@@ -56,9 +56,37 @@ the delta it was offered to explain (D's catch, guarded by
 `test_best_drafter_claim.py`). Re-measured on the playoff-free stores: the
 rank-1 drafter is Schmelley and the tool is **−24.0** in that seat — better
 than the league median. Across 30 seat-years the tool is **−31.1 on average
-with an sd of 117.7 — nearly 4× the effect — and wins 15 of 30.** **So the
+with an sd of 117.7 — nearly 4× the effect — and wins 15 of 30.** ~~**So the
 honest headline is "roughly a wash with Cory (−9.4), measured too noisily to
-rank anyone."** `draft/audit/replay_best_drafter_claim_2026-08-18.md`.
+rank anyone."**~~ `draft/audit/replay_best_drafter_claim_2026-08-18.md`.
+
+**⚠️ CORRECTED A THIRD TIME, 2026-08-19 — EVERY NUMBER ABOVE IS THE *PROXY*, AND
+THE SHIPPED ENGINE HAS ITS OWN REPLAY THAT NOBODY HAS QUOTED.** −9.4 is
+`replay_league_table.json`: `own_v6_nomarket` projections with the proxy's own
+selection rule, on the **realistic** arm — the arm that artifact's honesty note
+calls *"the tool's best case and not the headline."* `engine_seat_replay.json`
+runs the real `engine.js` at `MEASURED_WEIGHTS` through the same counterfactual
+and says **beats 0 of 10 owners pooled, −188.35 against Cory on the
+preregistered primary.** Re-graded against the current choices file rather than
+read: every pooled figure reproduced to the decimal.
+
+**Where the tool would have FINISHED, which is what Cory actually asked: 8th of
+10** (mean rank 7.80, top-3 in 3 of 30 = 10% against a 30% chance rate; dead
+last in all ten 2024 seats). **But that pools two different failures.** In 2023
+and 2025 the engine's roster holds MORE points than the owners' (+2.1%, +5.1%)
+and loses entirely on **conversion** — 0.740/0.771 against 0.828/0.834 — value
+acquired that never reaches a starting slot. **That is Cory's "roster still not
+normal", in points, and it is worth more than the whole acquisition edge.**
+
+**The mechanism is register 60, which has been open without a cost:** `need` is
+the only roster-aware term and it ships at weight **0**, so nothing penalises a
+pileup and whatever prices best gets taken repeatedly — **one 2023 seat drafted
+SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes **RB10**
+instead. **Both boards draw exactly ONE tight end in 30 of 30 rosters** — a
+degenerate constant of the `rookie_affinity`/`adp_sd`/dispersion family, and an
+independent corroboration of the roster-shape lab's TE gap.
+**Nothing ships from this before Saturday** (`no_fit_guard`).
+`draft/audit/seat_rank_and_the_conversion_gap_2026-08-19.md`.
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field

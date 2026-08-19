@@ -215,8 +215,22 @@ def test_seat_plan_roster_is_the_planned_fifteen(dists):
     assert counts.get("QB", 0) >= 1 and counts.get("RB", 0) >= 2
     assert counts.get("WR", 0) >= 2 and counts.get("TE", 0) >= 1
     assert counts.get("K", 0) >= 1 and counts.get("DEF", 0) >= 1
-    # the three demoted bench seats ride along, labelled
-    assert len(prov["superseded_bench_seats"]) == 3
+    # THE DEMOTED BENCH SEATS RIDE ALONG, LABELLED — and the assertion is about
+    # the PROPERTY, not the count. This pinned `== 3` and broke on 2026-08-19
+    # when a board rebuild made it 4, which is a legitimate board-dependent
+    # number: emit_seat_plan demotes a seat when two waiver lines disagree
+    # there, and how many disagree depends on the board. A hardcoded count of a
+    # quantity the inputs control is a constant that decays, and it fails on
+    # the day the inputs change rather than on the day something breaks.
+    sup = prov["superseded_bench_seats"]
+    assert sup, "no seat was demoted at all — the labelling path never ran"
+    assert len(sup) <= 6, (
+        "more than half the seats are demoted; that is not a plan with "
+        "footnotes, it is a plan that disagrees with itself: %r" % (sup,))
+    for s in sup:
+        # the whole point of a demotion is that it still NAMES somebody
+        assert s.get("name"), s
+        assert s.get("pick"), s
 
 
 def test_cory_2025_control_contract():

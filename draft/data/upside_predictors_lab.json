@@ -1,0 +1,95 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/upside_predictors_lab.py",
+ "_prereg": "P122",
+ "_estimand": "out-of-sample realized weekly p90 with the player's own next-season VOLUME projected out, within position \u2014 so a level effect cannot masquerade as an upside effect",
+ "seed": 20260819,
+ "shuffles": 4000,
+ "min_weeks": 8,
+ "folds": {
+  "2021->2022": {
+   "n": 197,
+   "test_season": 2022,
+   "age": {
+    "n": 104,
+    "rho": 0.0072,
+    "p": 0.9383
+   },
+   "opportunity_level": {
+    "n": 197,
+    "rho": 0.0502,
+    "p": 0.487
+   },
+   "opportunity_trend": {
+    "n": 197,
+    "rho": -0.0989,
+    "p": 0.16
+   }
+  },
+  "2022->2023": {
+   "n": 204,
+   "test_season": 2023,
+   "age": {
+    "n": 136,
+    "rho": 0.0337,
+    "p": 0.693
+   },
+   "opportunity_level": {
+    "n": 204,
+    "rho": 0.0549,
+    "p": 0.4485
+   },
+   "opportunity_trend": {
+    "n": 204,
+    "rho": -0.017,
+    "p": 0.8105
+   }
+  },
+  "2023->2024": {
+   "n": 208,
+   "test_season": 2024,
+   "age": {
+    "n": 175,
+    "rho": 0.0915,
+    "p": 0.2225
+   },
+   "opportunity_level": {
+    "n": 208,
+    "rho": 0.1,
+    "p": 0.152
+   },
+   "opportunity_trend": {
+    "n": 208,
+    "rho": -0.0762,
+    "p": 0.2652
+   }
+  },
+  "2024->2025": {
+   "n": 206,
+   "test_season": 2025,
+   "age": {
+    "n": 193,
+    "rho": -0.1029,
+    "p": 0.156
+   },
+   "opportunity_level": {
+    "n": 206,
+    "rho": 0.1784,
+    "p": 0.0105
+   },
+   "opportunity_trend": {
+    "n": 206,
+    "rho": 0.1382,
+    "p": 0.0465
+   }
+  }
+ },
+ "skipped": {},
+ "known_positive_control": {
+  "n": 197,
+  "rho": 0.8997,
+  "p": 0.0,
+  "note": "known-positive: outcome vs itself plus noise. If this does not clear, every null above means the instrument is blind, not that the effect is absent."
+ },
+ "clears_every_fold_same_sign": [],
+ "verdict": "NO PREDICTOR CLEARS EVERY FOLD WITH A CONSISTENT SIGN"
+}

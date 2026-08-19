@@ -408,6 +408,18 @@ const out = {
   /* PROVENANCE FIRST. A plan with no statement of what it assumed is a plan
    * that will be trusted after it stops being true. */
   generated_from: 'draft/tools/emit_seat_plan.js',
+  /* STAMP THE BOARD, NOT JUST ITS SIZE (register 62/78, A 2026-08-19).
+   *
+   * `source_board_players` was the ONLY provenance this artifact carried, and
+   * on 08-19 it failed exactly as register 62 predicted: the plan was generated
+   * at 03:05 from the 00:54Z board, the 05:11Z multi-source board replaced it,
+   * and BOTH boards have 697 players — so the one field meant to identify the
+   * source could not distinguish them. `surface_parity.js` then found the plan
+   * disagreeing with the live engine on 6 of 9 named seats and nothing on disk
+   * said why.
+   *
+   * A count is not an identity. The board's own `built_at` is. */
+  source_board_built_at: DATA.built_at || null,
   source_board_players: (DATA.players || []).length,
   keepers: keep.map(k => ({ player_id: String(k.player_id), name: k.name, position: k.position })),
   my_picks: SCHED,
