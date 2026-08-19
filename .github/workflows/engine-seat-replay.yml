@@ -62,6 +62,14 @@ jobs:
           node draft/backtest/replay_seats.js --arm a1 --bye 1.0 \
             --in draft/backtest/bundles.json \
             --out draft/backtest/engine_seat_choices_bye1.json
+      # P115 — the AUTO ADJUSTER as a graded arm. Measured on the live board,
+      # Auto produces the same roster shape as need=1.0, so P110's +68.6 may be
+      # reachable as a UI checkbox rather than a weight edit on draft week.
+      - name: auto-adjuster arm (phase weights per pick, shipped VONA)
+        run: |
+          node draft/backtest/replay_seats.js --arm a1 --auto \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_auto.json
       - name: VONA comparison arms A0 (pre-fix) and A2 (rescale diagnostic)
         run: |
           node draft/backtest/replay_seats.js --arm a0 \
@@ -80,7 +88,8 @@ jobs:
                   draft/backtest/engine_seat_choices_a0.json \
                   draft/backtest/engine_seat_choices_a2.json \
                   draft/backtest/engine_seat_choices_need1.json \
-                  draft/backtest/engine_seat_choices_bye1.json
+                  draft/backtest/engine_seat_choices_bye1.json \
+                  draft/backtest/engine_seat_choices_auto.json
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "Engine seat replay: choice file from CI bundle assembly [skip deploy]"
           for i in 1 2 3 4 5; do
