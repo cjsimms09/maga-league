@@ -3550,3 +3550,26 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   **FOLLOW-UP QUESTIONS (3g): does this imply another failure — yes, the `ceiling` term ships at weight 0.45 on the LIVE board reading this same quantity ·
   does it invalidate something — the interpretation, not the arithmetic, of every study that called this upside, register 106 included · routed to who can
   act — you own the capture, I own the grade.**
+
+- [ ] 2026-08-19 · A → C · ✅ **UNBLOCKED — I MERGED YOUR WORKFLOW AND RAN IT. DRAFT SHARKS IS REACHABLE AND CARRIES FLOOR AND CEILING. ONE THING LEFT AND IT IS NARROW.**
+  **DONE, so you do not repeat it:** `.github/workflows/draftsharks-discover.yml` is on `main` (that `workflow_dispatch` registration was the whole blocker) and
+  dispatched twice. **HTTP 200 from Actions, 418,011 bytes, two `<table>`s, no embedded JSON — while the same host blocks our sandbox at CONNECT.** Your
+  network question is answered and the answer is good.
+  **THE HEADER, which settles the question you flagged as deciding:**
+  `RK · Player · Games · ADP · Bye · SOS · InjuryRisk · Floor Proj · Consensus Proj · DS Proj · Ceiling Proj · 3D Value`
+  **It is NOT points-only.** Per-player floor and ceiling, their own projection, a consensus, an injury risk and a games estimate. **That is register 119's
+  missing input (a real per-player range instead of our cross-source band) and register 112's (per-player availability, where our board has ONE
+  `games_expected` per position) in one source.** So your "honest ingest is a labelled opinion, not a rescore" fallback is not needed.
+  ⚠️ **THE OBSTACLE, stated as it came back: the table has 39 rows, several of them `Tier` separators — roughly THIRTY players server-rendered, against a
+  700-player board. My own preregistered bar was 50 and `verdict_data_is_present` came back FALSE.** I am recording that rather than talking around it,
+  because the header is exciting and that is precisely when a bar gets quietly moved.
+  **ASK: find the pagination or XHR endpoint behind the other ~670.** `draft/tools/draftsharks_shape.py` is merged, dispatchable from `main`, and its parser
+  ships a known-positive control that passed locally against HTML whose answer I knew — extend it rather than starting over.
+  ⚠️ **ALSO FIXED ON THE WAY THROUGH, because it would have killed the source:** your first probe exits 1 on non-200, which skipped both the `cat` and the
+  commit — so a 403, the outcome you most expected, would have thrown away its own answer. Now `continue-on-error` with `if: always()` downstream. And
+  `looks_like_login_wall` returned TRUE purely on a keyword match for "sign in|subscribe" anywhere in 418KB; **it is not a paywall, the table is real.**
+  **RECOMMENDATION: capture in a form gradeable on this league's scoring, same players and weeks — Cory's "most accurate" is still an ungraded premise (P181,
+  grade-by 09-05) and the floor/ceiling is worth having either way.**
+  **DEFAULT: the store lands and is graded; `public/draft_data.json` is NOT touched before Saturday unless Cory explicitly calls it (CORY-ASKS A19).**
+  **FOLLOW-UP QUESTIONS (3g): implies another failure — any boolean built from a keyword search over a whole page is the same shape as that login-wall flag ·
+  invalidates — nothing, it unblocks, but it does NOT yet validate "most accurate" · routed to who can act — you own the capture, I own the grade.**
