@@ -39,7 +39,53 @@ if (!SNAP.controls_all_passed) throw new Error('the snapshot failed its controls
 const EXCLUDE_FP = process.argv.includes('--exclude-fp');
 /* board_proj_mean is a BLEND of the others and would count them a second time;
  * draftsharks_consensus is Draft Sharks' own blend of everyone, same problem. */
-const SOURCES = ['sleeper', 'own_v6', 'cbs', 'espn', 'fftoday', 'draftsharks']
+/* ⛔ own_v6 REMOVED — CORY'S RULING, 2026-08-19: "lets remove V6 from the blended".
+ *
+ * The evidence he acted on is public/sources.html, generated tonight: own_v6 is
+ * the outlier in nearly every contested row on the board. Matthew Golden 119
+ * where the other six say 38-62. Jalen McMillan 130 against 55-72. Jeremiyah
+ * Love 53 against 10-17. OUR OWN MODEL DISAGREES WITH THE ENTIRE INDUSTRY MORE
+ * THAN ANY COMMERCIAL SOURCE DISAGREES WITH ANOTHER, and it was carrying one
+ * vote in seven on every number Cory drafts.
+ *
+ * ⚠️ CORRECTION, SAME EVENING: I WROTE "IT HAS NEVER BEEN GRADED" HERE AND THAT
+ * WAS FALSE. `consensus.js` records the grade: own_v6 LOSES TO SLEEPER AT ALL
+ * FOUR POSITIONS on the leak-free walk-forward grade, measured bias QB -14.86,
+ * RB -9.78, WR -18.90, TE -2.51, and it was withdrawn from DISPLAY on 08-17 for
+ * exactly that reason (DISPLAY_OWNMODEL = false). Cory's ruling to drop it is
+ * the SECOND time this project reached that conclusion, not the first.
+ *
+ * ⛔ AND THE LARGER THING I MISSED: A CORY-ORDERED, PREREGISTERED STUDY HAD
+ * ALREADY REFUSED THIS ENTIRE BLEND. `draft/audit/proj_mean_blend_2026-08-16.md`
+ * -- "NOTHING SHIPPED. proj_mean is still Sleeper-only. The blend was refused."
+ * I built this file on 08-19 and shipped it to the live board without checking
+ * whether the question had been ruled on. Cory instructed the blend that day, so
+ * the reversal is HIS and it stands -- but he made it without being told he was
+ * overriding a refusal, and surfacing that was my job.
+ *
+ * ITS THIRD REASON IS THE ONE THAT STILL BITES: averaging helps when forecasts
+ * are INDEPENDENT, and the study measured ~0.94 error correlation with the blend
+ * beating the better parent in only 31 of 112 cells. Re-measured tonight on the
+ * six sources actually shipping, pairwise Spearman within position: MEDIAN
+ * 0.9715, ZERO of fifteen pairs below 0.90, and Draft Sharks -- the source I
+ * assumed would bring independence -- among the MOST agreeing (0.9835 with
+ * Sleeper). The premise is weaker now, not stronger.
+ * ⚠️ That is rank AGREEMENT, not ERROR correlation. Different quantity; the
+ * latter needs stored past forecasts, which is what the snapshot fixes. It is
+ * evidence against the independence premise, not proof.
+ *
+ * Register 107 records that it sits a median
+ * 15.3 points below the board mean on 80% of players — a level offset the blend
+ * already corrects per position — but nobody has ever measured whether its
+ * ORDERING is any good, because this project stored no past-season forecasts
+ * until today's snapshot. So it was in the blend on the strength of being ours,
+ * which is not evidence.
+ *
+ * It stays in projection_snapshot_2026.json and will be graded with everyone
+ * else after this season. Cory can put it back with --with-own-v6. */
+const KEEP_OWN_V6 = process.argv.includes('--with-own-v6');
+const SOURCES = ['sleeper', 'cbs', 'espn', 'fftoday', 'draftsharks']
+  .concat(KEEP_OWN_V6 ? ['own_v6'] : [])
   .concat(EXCLUDE_FP ? [] : ['fantasypros']);
 
 /* ── CENTRING, PER POSITION ───────────────────────────────────────────────────
