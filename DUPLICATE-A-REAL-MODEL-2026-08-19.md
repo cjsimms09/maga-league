@@ -765,3 +765,80 @@ finding about the model, not a verdict on who is right. **The replacement-level
 question (result 1) is now the single highest-value post-draft experiment in this
 project, and it is one number per position.** `no_fit_guard` holds: nothing is
 selected from this, and nothing ships before Saturday.
+
+---
+
+# 17. "DO THEY BUILD MORE NORMAL ROSTERS?" — no, and it is a category difference, not a defect
+
+**Short answer: the published model is a VALUATION, not a draft policy.** It ranks
+players. It never decides when to fill a slot. **That is why the textbook has a
+separate Draft Strategy chapter, and it is why your two requests today — *"a
+simpler strategy that builds a normal roster"* and *"duplicate the published
+model"* — are answers to different questions. We now have both, and they do not
+compete.**
+
+**Already measured, in a committed artifact nobody had to build for this:**
+`roster_robustness_2026.json` grades **`bpa_vorp` — pure best-available on VORP,
+which is exactly "draft off ffanalytics' `rank`" — as the WORST of nine arms**,
+2637.6 lineup points against shipped's 2743.6. Naive BPA on a valuation is the
+bottom of the field.
+
+⚠️ **AND I THREW AWAY MY OWN PROBE OF THIS RATHER THAN REPORT IT.** I drove BPA
+on the ffanalytics ranking down your twelve picks; it drafted **six kickers**. I
+checked why before writing it down: **three players in the multisource set have
+no board match, so they get ADP 9999, never drain out of the pool, and stay
+"available" all draft** — one of them at 126.7 VOR. The roster shapes it produced
+are contaminated and are not in this document. **The committed artifact above
+answers the question properly and I should have looked there first.**
+
+## AND THE CLEAN PART OF THE MOVER ANALYSIS — it is QB and TE, not RB and WR
+
+Restricted to skill positions (K/DEF excluded, because my reconstruction has no
+onesie demotion and the live board correctly ranks the best kicker **625th**):
+
+**Of your top 60 skill players, 31 move ≥3 ranks under the published baseline —
+and 26 of the 52 inside ADP ≤ 60 do**, which is the range you actually draft in.
+
+| position | net shift | avg |
+|---|---|---|
+| **QB** (8 players) | **+138** | **+17.2 — falls hardest** |
+| **TE** (6) | +53 | +8.8 |
+| WR (22) | −29 | −1.3 |
+| RB (24) | −41 | −1.7 |
+
+**Under the published replacement level, quarterbacks and tight ends are worth
+much less than our board says.** Concretely: **Drake Maye #42 → #56. Kyle Pitts
+#53 → #65.** `draft_plan.js` takes exactly those two, at picks 48 and 68 — **so
+the published model says our own simpler plan is reaching on both of its
+middle-round picks.** That is a genuine disagreement between the two things I
+have recommended today, and it is unresolved.
+
+# 18. THE OTHER REPO — `kt474/fantasy-football-wrapped`
+
+You asked about its model. **It has one, it is `calculateDraftRank()` in
+`src/api/helper.ts`, and it is a retrospective DRAFT GRADE, not a projection or a
+draft model.** It scores a pick after the season against the player's realised
+positional rank and points per game:
+
+```ts
+rankScore = ((pickNumber + firstRoundAdjust + earlyPicksAdjust - positionRank)
+             / pickNumber) * baseMultiplier
+ppgScore  = (ppg / 25) * baseMultiplier
+final     = rankScore * 0.7 + ppgScore * 0.3          // clamped at -3
+```
+
+**Every constant is hand-set and none is fitted or graded**: `firstRoundAdjust =
+2`, `earlyPicksAdjust = 1.5`, the `0.7 / 0.3` blend, `ppg / 25` (*"25 is
+generally around the max ppg"*), and a tier table of 2.0 / 1.7 / 1.4 / 1.2 / 1.1
+/ 1.0 / 0.8. **This is the thing you have been objecting to all day — complexity
+without measurement — and it is in a production app used by thousands. It is
+less principled than what we already have. I would not copy any of it.**
+
+**One thing in it is worth noting anyway, as convention rather than evidence.**
+Its position weights are `RB 1.0 · WR 0.9 · TE 0.9 · QB 0.7 · K 0.4 · DEF 0.4`,
+and **its TE tier curve is the steepest of any position** — elite TE 2.0 falling
+to 0.8 by rank 18, steeper than WR. **So a widely-used app encodes both "backs
+first" and "the top few TEs are scarce" as stated beliefs.** That is two
+independent conventions agreeing with things this project has argued about — and
+**a convention is not a measurement. I am recording it as what people believe,
+not as support for either claim.**
