@@ -30,6 +30,26 @@ independent paths that check each other, and stores the raw response shape.
 
 **⚡ RULE 3f, added 08-18 — THE CONTROL IS FOR THE PROBE YOU THREW AWAY, NOT JUST THE TOOL YOU SHIPPED.** Rule 3e is being followed for TOOLS and ignored for QUESTIONS, and the gap is where the damage is. **Nine ad-hoc probes returned a confident wrong answer in a single session (relay, 08-18) — not one crashed, every one printed clean plausible output:** a missing `year` argument that exempted every row and printed OK · a name collision that reported a known defect absent · `ctx.starters` where the code reads `ctx.league.starters` · a 60s timeout reported as two test failures · a control anchored to `HEAD` that passed once then failed forever · a merge resolver that **silently deleted 9,400 characters including a 🔴🔴 draft-blocking item** · a length-diff that cried "44 items lost" when the answer was zero · a sweep for missing controls that matched on vocabulary · `--today DATE` where the tool takes `--today=DATE`. **Every one was written to answer a question in the moment, and every one's output was headed for a register row, a routed item or a sentence to Cory.** **Before a probe's answer is written down anywhere, run it once against a case where you already know the answer.** Of those nine, three were caught by exactly that — twice the control failed on its FIRST attempt, which is the only reason the finding exists — three by CI once it could see the branch, and **one by luck.** `OPERATING-MODEL.md` Rule 3f.
 
+**⚡ RULE 3i, added 08-19 — A NUMBER IS NOT A FINDING UNTIL YOU HAVE SEEN THE
+DISTRIBUTION IT CAME FROM.** Rule 3f covers the probe you wrote; **this covers
+the number you quoted without writing a probe at all**, which is the failure it
+does not catch. **Evidence: four corrections in ONE evening (A, 08-19), every one
+a single value that fit a story, none of them a code defect.** *"The live board
+takes RB10"* — a stale **eighteen**-pick artifact, quoted for hours in three
+documents and this file, when his real twelve give RB7 (register 98). *"The blend
+is thinnest at tight end, 28 TEs one source short"* — **85 of those 86 players
+have ADP > 200**; inside his draft range TE coverage is 96%. *"`draft_plan.js`
+has never been graded"* — **an absence asserted without a grep**; it has two
+grades and one is in a file the war room reads (register 102). *"`own_v6` hates
+the upside picks, Golden by −119"* — **`own_v6` is 15-20 points under the board
+mean on 80% of ALL players**; position-relative the claim survives at a quarter
+its stated size (register 107). **Three of the four are the same operation:
+quoting one value without looking at the population behind it. Before a single
+number is written down as evidence — a difference, a count, an extreme, an
+absence — look at its distribution, or grep for the thing you are about to say
+does not exist. Every one of these checks took under ten seconds.**
+`OPERATING-MODEL.md` Rule 3i. **⚠️ AND THE FIFTH INSTANCE HAPPENED WHILE WRITING THIS RULE: I numbered it 3h without checking, and `OPERATING-MODEL.md` already has a RULE 3h (*"D and E find; someone else acts"*) — and a DUPLICATED RULE 3f, at lines 224 and 376, which nobody had noticed. Caught in under a minute by grepping the headings instead of assuming. Register 108.**
+
 **⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
 Cory: *"too much finding and not enough fixing and following up and correcting."*
 Every finding now carries three follow-up QUESTIONS — does this imply another
@@ -81,12 +101,35 @@ normal", in points, and it is worth more than the whole acquisition edge.**
 **The mechanism is register 60, which has been open without a cost:** `need` is
 the only roster-aware term and it ships at weight **0**, so nothing penalises a
 pileup and whatever prices best gets taken repeatedly — **one 2023 seat drafted
-SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes **RB10**
-instead. **Both boards draw exactly ONE tight end in 30 of 30 rosters** — a
+SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes ~~**RB10**~~
+**RB7** instead. **⚠️ CORRECTED 2026-08-19 — RB10 CAME OFF AN EIGHTEEN-PICK
+ARTIFACT, WHICH IS THE PICK-8 ERROR CORY ALREADY CAUGHT ONCE (register 95),
+SURVIVING IN A SECOND PLACE.** `fieldability_probe.json` at 05:11 predates the
+repoint at his real schedule; re-run on his twelve picks the shipped engine
+takes **RB7 / TE1**, slot-aware RB8, `need:1.0` RB6, auto QB3. The shape defect
+is real — **TE1 is the sharp version of it** — but the number in this file was
+inflated by three picks he does not own. Register 98.
+**Both boards draw exactly ONE tight end in 30 of 30 rosters** — a
 degenerate constant of the `rookie_affinity`/`adp_sd`/dispersion family, and an
 independent corroboration of the roster-shape lab's TE gap.
 **Nothing ships from this before Saturday** (`no_fit_guard`).
 `draft/audit/seat_rank_and_the_conversion_gap_2026-08-19.md`.
+
+**⭐ AND THE MODEL WE HAVE BEEN REINVENTING IS PUBLISHED — READ
+`DUPLICATE-A-REAL-MODEL-2026-08-19.md`.** Cory, 08-19: *"we obviously can't do
+it ourselves, we need to look at other models and duplicate."* Read out of
+`ffanalytics/R/calc_projections.R`: centre = **weighted Wilcox robust location**,
+floor/ceiling = **weighted 5th/95th percentile (Harrell–Davis)**, replacement =
+**QB13 · RB35 · WR36 · TE13 · K8 · DST3**, five sources weighted **zero**. **And
+it emits `rank`, `floor_rank` and `ceiling_rank` as THREE SEPARATE RANKINGS — it
+never adds ceiling into value.** Ours ships `VONA + 0.45 × ceiling` on every
+player at every pick; the textbook says upside is a **bench** instrument and
+starters want the *low*-uncertainty side. **Cory's "why are we adding ceiling to
+everyone" is the reference implementation's position, not a preference.**
+Register 99. **The simple VONA model he asked for is also already ours:
+`draft/tools/draft_plan.js` — two equations, exact seat assignment, and on his
+real twelve picks it is the ONLY arm of five that draws a second TE and a
+backup QB (QB2/RB5/WR4/TE2). It has never been graded.**
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
@@ -167,8 +210,12 @@ owner and a next action. A row with no owner is itself a defect —
 tally in a prose file that no test reads is a claim that decays silently, and
 this one had. Open the register — it is the authority, and it is guarded.**
 **The 08-19 additions are 55-61 plus a REOPENED 2e**, and the two that reach
-Saturday are **59** (driven down Cory's own schedule the tool takes RB10/WR1,
-leaving an empty WR2 slot in week 11) and **60** (the flex rule, the empty-slot
+Saturday are **59** (~~driven down Cory's own schedule the tool takes RB10/WR1,
+leaving an empty WR2 slot in week 11~~ — **⚠️ 08-19: 59'S EVIDENCE CAME OFF THE
+SAME EIGHTEEN-PICK ARTIFACT AND DOES NOT REPRODUCE.** On his real twelve picks
+the shipped arm is **WR4/RB7** and the un-fieldable weeks are **8 (QB) and 10
+(TE)** — no week-11 WR2 gap. The row may still be real; its stated failure mode
+is not. Re-derive before acting on it. Register 98) and **60** (the flex rule, the empty-slot
 insurance, the slot-aware VONA and the wire bench rule are all built and all
 disconnected — `need` is the only roster-aware term and it ships at weight 0).
 **2e was carrying a ✅ with its own named root cause still in the code**, which

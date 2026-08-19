@@ -1,0 +1,168 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/need_curve.js",
+ "_prereg": "draft/NEED-CURVE-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. draft_plan.js is NOT touched; it feeds seat_plan.json which the war room reads.",
+ "controls": {
+  "C1_reproduces_the_shipped_curve": {
+   "ok": true,
+   "worst_abs_diff": 0,
+   "why": "the same binomial at WEEKS=1 with the shipped rate IS pNeedNth"
+  },
+  "C2_monotone_non_increasing": {
+   "ok": true
+  },
+  "C3_bounded_0_1": {
+   "ok": true
+  },
+  "C4_q_from_the_board": {
+   "ok": true,
+   "games_expected_median": {
+    "QB": 15.5,
+    "RB": 14.2,
+    "WR": 15,
+    "TE": 14.8
+   },
+   "why": "read from the board; gamesExpected() throws rather than substituting"
+  },
+  "C5_flex_credited_once": {
+   "ok": true,
+   "why": "crediting the flex to RB, WR and TE at once once drafted three tight ends"
+  }
+ },
+ "controls_all_passed": true,
+ "weeks": 17,
+ "waiver_levels": {
+  "QB": 319,
+  "RB": 112,
+  "WR": 124,
+  "TE": 124
+ },
+ "curves": {
+  "QB": {
+   "slots": 1,
+   "one_week": [
+    1,
+    0.14,
+    0,
+    0,
+    0,
+    0
+   ],
+   "season": [
+    1,
+    0.933,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "RB": {
+   "slots": 3,
+   "one_week": [
+    1,
+    1,
+    1,
+    0.627,
+    0.191,
+    0.022
+   ],
+   "season": [
+    1,
+    1,
+    1,
+    1,
+    0.902,
+    0.174
+   ]
+  },
+  "WR": {
+   "slots": 2,
+   "one_week": [
+    1,
+    1,
+    0.36,
+    0.04,
+    0,
+    0
+   ],
+   "season": [
+    1,
+    1,
+    0.999,
+    0.416,
+    0,
+    0
+   ]
+  },
+  "TE": {
+   "slots": 1,
+   "one_week": [
+    1,
+    0.22,
+    0,
+    0,
+    0,
+    0
+   ],
+   "season": [
+    1,
+    0.971,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "priced_against_wire": {
+  "QB": [
+   31.3,
+   29.2,
+   0,
+   0,
+   0,
+   0
+  ],
+  "RB": [
+   41.6,
+   41.6,
+   41.6,
+   41.5,
+   37.5,
+   7.2
+  ],
+  "WR": [
+   58.4,
+   58.4,
+   58.4,
+   24.3,
+   0,
+   0
+  ],
+  "TE": [
+   17.4,
+   16.9,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "P142": {
+  "RB_held3": 1,
+  "RB_held4": 0.902,
+  "WR_held3": 0.416,
+  "WR_held4": 0,
+  "shipped_RB_held3": 0.627,
+  "shipped_RB_held4": 0.191,
+  "TRUE": false
+ },
+ "P143": {
+  "second_QB": 29.2,
+  "second_TE": 16.9,
+  "third_RB": 41.6,
+  "third_WR": 58.4,
+  "TRUE": true
+ }
+}
