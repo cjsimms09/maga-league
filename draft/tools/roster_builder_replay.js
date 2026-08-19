@@ -101,6 +101,13 @@ if (TE_MEASURED) {
    * the contrast that shows the artifact contributes ~nothing. */
   W.TE = (MNC.curve.TE || []).filter(v => v != null);
 }
+if (process.argv.includes('--rb-measured')) {
+  /* Register 130. The only cross-season loss on the board: RB is negative in
+   * all three seasons (-159 / -107 / -122). Substitute the measured row --
+   * RB is also the position whose measured curve is safest to trust, with a
+   * stable r (0.49/0.67/0.57, n~40). Cory's row is kept everywhere else. */
+  W.RB = (MNC.curve.RB || []).filter(v => v != null);
+}
 if (process.argv.includes('--te2-only')) {
   /* E's arm, reproduced: ONE cell, Cory's row otherwise intact. */
   W.TE = [1.00, (MNC.curve.TE || [])[1], 0];
@@ -467,6 +474,17 @@ console.log(`     builder vs owners   ACTUAL ${mean(deltas).toFixed(1).padStart(
   + `     SKILL ${mean(sd).toFixed(1).padStart(7)} pts  (${sWins}/${seats.length})`);
 console.log(`     no-equation arm     ACTUAL ${mean(deltasOff).toFixed(1).padStart(7)} pts`
   + `                SKILL ${mean(sdOff).toFixed(1).padStart(7)} pts`);
+console.log('\n  ⚠ C4 — EVERY SEASON SEPARATELY, never a pooled mean alone:');
+['2023', '2024', '2025'].forEach(y => {
+  const g = seats.filter(s => s.season === y);
+  if (!g.length) return;
+  const ms = mean(g.map(s => s.skill_delta)), ma = mean(g.map(s => s.delta));
+  console.log('     ' + y + '   SKILL ' + ms.toFixed(0).padStart(6)
+    + '  (' + g.filter(s => s.skill_delta > 0).length + '/' + g.length + ')'
+    + '     ACTUAL ' + ma.toFixed(0).padStart(6)
+    + '  (' + g.filter(s => s.delta > 0).length + '/' + g.length + ')'
+    + (ms > 0 && ma > 0 ? '' : '   <-- NEGATIVE'));
+});
 console.log('\n  by season:');
 [...new Set(seats.map(s => s.season))].forEach(y => {
   const g = seats.filter(s => s.season === y);
