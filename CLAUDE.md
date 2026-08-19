@@ -30,6 +30,26 @@ independent paths that check each other, and stores the raw response shape.
 
 **⚡ RULE 3f, added 08-18 — THE CONTROL IS FOR THE PROBE YOU THREW AWAY, NOT JUST THE TOOL YOU SHIPPED.** Rule 3e is being followed for TOOLS and ignored for QUESTIONS, and the gap is where the damage is. **Nine ad-hoc probes returned a confident wrong answer in a single session (relay, 08-18) — not one crashed, every one printed clean plausible output:** a missing `year` argument that exempted every row and printed OK · a name collision that reported a known defect absent · `ctx.starters` where the code reads `ctx.league.starters` · a 60s timeout reported as two test failures · a control anchored to `HEAD` that passed once then failed forever · a merge resolver that **silently deleted 9,400 characters including a 🔴🔴 draft-blocking item** · a length-diff that cried "44 items lost" when the answer was zero · a sweep for missing controls that matched on vocabulary · `--today DATE` where the tool takes `--today=DATE`. **Every one was written to answer a question in the moment, and every one's output was headed for a register row, a routed item or a sentence to Cory.** **Before a probe's answer is written down anywhere, run it once against a case where you already know the answer.** Of those nine, three were caught by exactly that — twice the control failed on its FIRST attempt, which is the only reason the finding exists — three by CI once it could see the branch, and **one by luck.** `OPERATING-MODEL.md` Rule 3f.
 
+**⚡ RULE 3i, added 08-19 — A NUMBER IS NOT A FINDING UNTIL YOU HAVE SEEN THE
+DISTRIBUTION IT CAME FROM.** Rule 3f covers the probe you wrote; **this covers
+the number you quoted without writing a probe at all**, which is the failure it
+does not catch. **Evidence: four corrections in ONE evening (A, 08-19), every one
+a single value that fit a story, none of them a code defect.** *"The live board
+takes RB10"* — a stale **eighteen**-pick artifact, quoted for hours in three
+documents and this file, when his real twelve give RB7 (register 98). *"The blend
+is thinnest at tight end, 28 TEs one source short"* — **85 of those 86 players
+have ADP > 200**; inside his draft range TE coverage is 96%. *"`draft_plan.js`
+has never been graded"* — **an absence asserted without a grep**; it has two
+grades and one is in a file the war room reads (register 102). *"`own_v6` hates
+the upside picks, Golden by −119"* — **`own_v6` is 15-20 points under the board
+mean on 80% of ALL players**; position-relative the claim survives at a quarter
+its stated size (register 107). **Three of the four are the same operation:
+quoting one value without looking at the population behind it. Before a single
+number is written down as evidence — a difference, a count, an extreme, an
+absence — look at its distribution, or grep for the thing you are about to say
+does not exist. Every one of these checks took under ten seconds.**
+`OPERATING-MODEL.md` Rule 3i. **⚠️ AND THE FIFTH INSTANCE HAPPENED WHILE WRITING THIS RULE: I numbered it 3h without checking, and `OPERATING-MODEL.md` already has a RULE 3h (*"D and E find; someone else acts"*) — and a DUPLICATED RULE 3f, at lines 224 and 376, which nobody had noticed. Caught in under a minute by grepping the headings instead of assuming. Register 108.**
+
 **⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
 Cory: *"too much finding and not enough fixing and following up and correcting."*
 Every finding now carries three follow-up QUESTIONS — does this imply another
