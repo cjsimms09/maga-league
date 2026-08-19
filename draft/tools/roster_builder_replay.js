@@ -44,6 +44,16 @@ if (!ST.controls_all_passed) throw new Error('streamability failed its controls 
 const STREAM = ST.streamability;
 const KDEF_TAX = process.argv.includes('--kdef-tax');
 const KDEF_MODE = process.argv.includes('--kdef-supply');
+/* ── E's ARM, PREREGISTERED IN `ROSTER-CONSTRUCTION-CALL.md`'s REPLY: does
+ * relaxing TE's cap to an ALREADY-MEASURED number (not fitted to this study)
+ * recover the conversion the shape term buys without paying more acquisition?
+ * §1 of the open call found TE the widest separator between winners (1.67)
+ * and losers (1.11) and flagged the cap as "the single most promising thing
+ * to challenge." `MEASURED-NEED-RESULT-2026-08-19.md` (P150/P151, filed
+ * hours earlier, independent of this problem) measured a 2nd TE actually
+ * starts 0.414 of the weeks he is rostered -- that is the number this arm
+ * substitutes for Cory's hand-transcribed 0.05, nothing else changes. */
+const TE_RELAX = process.argv.includes('--te-relax');
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
@@ -56,7 +66,8 @@ const posOf = id => POSOF[String(id)] || (/^[A-Z]{2,3}$/.test(String(id)) ? 'DEF
 /* Cory's transcribed curve, and the streaming tax on bench bodies — the two
  * pieces of the roster equation, unchanged from draft_model.js */
 const W = {
-  K: [1.00, 0], DEF: [1.00, 0], QB: [1.00, 0.05, 0], TE: [1.00, 0.05, 0],
+  K: [1.00, 0], DEF: [1.00, 0], QB: [1.00, 0.05, 0],
+  TE: TE_RELAX ? [1.00, 0.414, 0] : [1.00, 0.05, 0],
   RB: [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
