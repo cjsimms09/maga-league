@@ -1,0 +1,262 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/vona_upside_plan.js",
+ "_prereg": "draft/VONA-UPSIDE-LATE-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. Writes no board field. no_fit_guard.",
+ "board_built_at": "2026-08-19T08:52:22Z",
+ "controls": {
+  "C1_seats_match_draft_plan": {
+   "ok": true,
+   "why": "the seat assignment is REUSED; a mismatch means it was reimplemented"
+  },
+  "C2_upside_is_orthogonal": {
+   "ok": true,
+   "rho": 0.008,
+   "n": 302,
+   "why": "measured on THIS board, not quoted. if upside is a second copy of value, refuse"
+  },
+  "C3_bench_picks_come_from_the_value_shortlist": {
+   "ok": true,
+   "why": "enforced by construction — the chooser only sees list.slice(0, N)"
+  },
+  "C4_absence_reported": {
+   "ok": true,
+   "picks_with_no_upside_score": 0,
+   "why": "absent, not zero (register 101)"
+  },
+  "C5_fifteen_players": {
+   "ok": true,
+   "got": 15
+  },
+  "C6_no_position_exceeds_its_cap": {
+   "ok": true,
+   "arm": "capped",
+   "cap": {
+    "QB": 2,
+    "RB": 6,
+    "WR": 6,
+    "TE": 2,
+    "K": 1,
+    "DEF": 1
+   },
+   "held": {
+    "WR": 4,
+    "RB": 5,
+    "QB": 2,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "why": "enforced in code, so a violation means the enforcement is broken, not the policy"
+  }
+ },
+ "controls_all_passed": true,
+ "shortlist_n": 10,
+ "rank_window": 7,
+ "keepers": [
+  {
+   "name": "Ja'Marr Chase",
+   "pos": "WR"
+  },
+  {
+   "name": "Derrick Henry",
+   "pos": "RB"
+  },
+  {
+   "name": "Kenneth Walker",
+   "pos": "RB"
+  }
+ ],
+ "picks": [
+  {
+   "pick": 33,
+   "role": "FLEX",
+   "name": "Travis Etienne",
+   "pos": "RB",
+   "adp": 41,
+   "proj": 205.68,
+   "value": 205.68,
+   "upside": -5.1,
+   "why": "VONA, tie broken to the lower-uncertainty player",
+   "shortlist_n": null,
+   "value_pick": "Travis Etienne"
+  },
+  {
+   "pick": 48,
+   "role": "QB",
+   "name": "Joe Burrow",
+   "pos": "QB",
+   "adp": 52.33,
+   "proj": 367.18,
+   "value": 367.18,
+   "upside": -8.7,
+   "why": "VONA, tie broken to the lower-uncertainty player",
+   "shortlist_n": null,
+   "value_pick": "Drake Maye"
+  },
+  {
+   "pick": 53,
+   "role": "WR",
+   "name": "Jameson Williams",
+   "pos": "WR",
+   "adp": 59.67,
+   "proj": 184.25,
+   "value": 184.25,
+   "upside": -3.2,
+   "why": "VONA, tie broken to the lower-uncertainty player",
+   "shortlist_n": null,
+   "value_pick": "Jameson Williams"
+  },
+  {
+   "pick": 68,
+   "role": "TE",
+   "name": "Kyle Pitts",
+   "pos": "TE",
+   "adp": 75.33,
+   "proj": 151.47,
+   "value": 151.47,
+   "upside": 4.7,
+   "why": "VONA",
+   "shortlist_n": null,
+   "value_pick": "Kyle Pitts"
+  },
+  {
+   "pick": 73,
+   "role": "bench",
+   "name": "Jonathon Brooks",
+   "pos": "RB",
+   "adp": 92.67,
+   "proj": 142.6,
+   "value": 19.376641888463602,
+   "upside": 6.3,
+   "why": "upside within the value shortlist",
+   "shortlist_n": 10,
+   "value_pick": "Tony Pollard"
+  },
+  {
+   "pick": 88,
+   "role": "bench",
+   "name": "Alec Pierce",
+   "pos": "WR",
+   "adp": 92.67,
+   "proj": 164.03,
+   "value": 14.322529464227188,
+   "upside": 6.2,
+   "why": "upside within the value shortlist",
+   "shortlist_n": 10,
+   "value_pick": "Alec Pierce"
+  },
+  {
+   "pick": 93,
+   "role": "bench",
+   "name": "Dallas Goedert",
+   "pos": "TE",
+   "adp": 121.67,
+   "proj": 138.18,
+   "value": 3.944349441641697,
+   "upside": 15,
+   "why": "upside within the value shortlist",
+   "shortlist_n": 10,
+   "value_pick": "Kenny Gainwell"
+  },
+  {
+   "pick": 108,
+   "role": "DEF",
+   "name": "Los Angeles Rams",
+   "pos": "DEF",
+   "adp": 128.33,
+   "proj": 132,
+   "value": 132,
+   "upside": -0.3,
+   "why": "VONA",
+   "shortlist_n": null,
+   "value_pick": "Los Angeles Rams"
+  },
+  {
+   "pick": 113,
+   "role": "K",
+   "name": "Brandon Aubrey",
+   "pos": "K",
+   "adp": 120.33,
+   "proj": 145.65,
+   "value": 145.65,
+   "upside": 1.9,
+   "why": "VONA, tie broken to the lower-uncertainty player",
+   "shortlist_n": null,
+   "value_pick": "Brandon Aubrey"
+  },
+  {
+   "pick": 128,
+   "role": "bench",
+   "name": "Daniel Jones",
+   "pos": "QB",
+   "adp": 178.67,
+   "proj": 300.27,
+   "value": 0.8154639135352468,
+   "upside": 24.2,
+   "why": "upside within the value shortlist",
+   "shortlist_n": 10,
+   "value_pick": "Baker Mayfield"
+  },
+  {
+   "pick": 133,
+   "role": "bench",
+   "name": "Jalen Coker",
+   "pos": "WR",
+   "adp": 164.33,
+   "proj": 124.25,
+   "value": 0.21925867730862744,
+   "upside": 6.7,
+   "why": "upside within the value shortlist",
+   "shortlist_n": 10,
+   "value_pick": "Khalil Shakir"
+  },
+  {
+   "pick": 148,
+   "role": "bench",
+   "name": "Chris Rodriguez",
+   "pos": "RB",
+   "adp": 156.33,
+   "proj": 100.5,
+   "value": 0.10307404758926304,
+   "upside": 13.6,
+   "why": "upside within the value shortlist",
+   "shortlist_n": 10,
+   "value_pick": "Khalil Shakir"
+  }
+ ],
+ "roster_counts": {
+  "WR": 4,
+  "RB": 5,
+  "QB": 2,
+  "TE": 2,
+  "DEF": 1,
+  "K": 1
+ },
+ "bench_changed_by_upside": [
+  {
+   "pick": 73,
+   "took": "Jonathon Brooks",
+   "value_would_take": "Tony Pollard"
+  },
+  {
+   "pick": 93,
+   "took": "Dallas Goedert",
+   "value_would_take": "Kenny Gainwell"
+  },
+  {
+   "pick": 128,
+   "took": "Daniel Jones",
+   "value_would_take": "Baker Mayfield"
+  },
+  {
+   "pick": 133,
+   "took": "Jalen Coker",
+   "value_would_take": "Khalil Shakir"
+  },
+  {
+   "pick": 148,
+   "took": "Chris Rodriguez",
+   "value_would_take": "Khalil Shakir"
+  }
+ ]
+}
