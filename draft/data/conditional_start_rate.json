@@ -1,0 +1,152 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/conditional_start_rate.py",
+ "_prereg": "draft/CONDITIONAL-START-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. Counted; nothing tuned.",
+ "invested_rounds": 6,
+ "controls": {
+  "C3_draft_join": {
+   "ok": true,
+   "per_season": {
+    "2025": {
+     "on_roster_wk1": 143,
+     "not_on_roster_wk1": 7,
+     "ok": true
+    },
+    "2024": {
+     "on_roster_wk1": 147,
+     "not_on_roster_wk1": 3,
+     "ok": true
+    },
+    "2023": {
+     "on_roster_wk1": 144,
+     "not_on_roster_wk1": 6,
+     "ok": true
+    }
+   }
+  },
+  "C1_known_positive_rank1_high_in_both": {
+   "ok": true,
+   "got": {
+    "QB": {
+     "invested": 0.798,
+     "not_invested": 0.632
+    },
+    "RB": {
+     "invested": 0.906,
+     "not_invested": 0.625
+    },
+    "WR": {
+     "invested": 0.857,
+     "not_invested": 0.738
+    },
+    "TE": {
+     "invested": 0.773,
+     "not_invested": 0.682
+    }
+   },
+   "why": "investment must not change whether your BEST body plays; if it does, the split is picking up something else"
+  },
+  "C2_both_groups_non_trivial": {
+   "ok": false,
+   "invested_share": {
+    "QB": 0.367,
+    "RB": 0.867,
+    "WR": 0.767,
+    "TE": 0.4
+   },
+   "why": "a split with 5% on one side is not measuring a contrast"
+  },
+  "C4_denominator_weeks_rostered": {
+   "ok": true
+  },
+  "C5_three_seasons": {
+   "ok": true,
+   "seasons": [
+    "2023",
+    "2024",
+    "2025"
+   ]
+  }
+ },
+ "controls_all_passed": false,
+ "invested_share": {
+  "QB": 0.367,
+  "RB": 0.867,
+  "WR": 0.767,
+  "TE": 0.4
+ },
+ "rates": {
+  "QB": {
+   "1": {
+    "invested": 0.797979797979798,
+    "not_invested": 0.631578947368421
+   },
+   "2": {
+    "invested": 0.3695652173913043,
+    "not_invested": 0.44649446494464945
+   },
+   "3": {
+    "invested": 0.6,
+    "not_invested": 0.29411764705882354
+   }
+  },
+  "RB": {
+   "1": {
+    "invested": 0.905982905982906,
+    "not_invested": 0.625
+   },
+   "2": {
+    "invested": 0.7243589743589743,
+    "not_invested": 0.6388888888888888
+   },
+   "3": {
+    "invested": 0.4689507494646681,
+    "not_invested": 0.625
+   }
+  },
+  "WR": {
+   "1": {
+    "invested": 0.857487922705314,
+    "not_invested": 0.7380952380952381
+   },
+   "2": {
+    "invested": 0.6835748792270532,
+    "not_invested": 0.7380952380952381
+   },
+   "3": {
+    "invested": 0.5193236714975845,
+    "not_invested": 0.5634920634920635
+   }
+  },
+  "TE": {
+   "1": {
+    "invested": 0.7731481481481481,
+    "not_invested": 0.6820987654320988
+   },
+   "2": {
+    "invested": 0.34074074074074073,
+    "not_invested": 0.4590909090909091
+   },
+   "3": {
+    "invested": 0.5294117647058824,
+    "not_invested": 0.26666666666666666
+   }
+  }
+ },
+ "rank2_gap": {
+  "QB": 0.0769,
+  "RB": -0.0855,
+  "WR": 0.0545,
+  "TE": 0.1184
+ },
+ "P163": {
+  "QB": false,
+  "TE": true,
+  "TRUE": false
+ },
+ "P164": {
+  "RB": true,
+  "WR": true,
+  "TRUE": true
+ }
+}
