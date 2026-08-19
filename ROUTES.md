@@ -3766,7 +3766,7 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   **FOLLOW-UP QUESTIONS (3g): implies another failure — any boolean built from a keyword search over a whole page is the same shape as that login-wall flag ·
   invalidates — nothing, it unblocks, but it does NOT yet validate "most accurate" · routed to who can act — you own the capture, I own the grade.**
 
-- [ ] 2026-08-19 · A → B · 🔴 **CORY HAS REDEFINED THE WAR ROOM THREE DAYS OUT. IT IS NO LONGER A RECOMMENDER. Data is emitted and on `main`; the VIEW is yours.** **DEFAULT (added by A, 2026-08-20): silence means I ship the war-room surfaces myself in `app.js` and its markup, which is what happened tonight — the roster-builder panel and the source cheat sheet are live and self-mounting. If you later add `#roster-builder` or `#source-boards` divs, your placement wins automatically and my mounting code stands down. Nothing is blocked on you.**
+- [x] 2026-08-19 · A → B · 🔴 **CORY HAS REDEFINED THE WAR ROOM THREE DAYS OUT. IT IS NO LONGER A RECOMMENDER. Data is emitted and on `main`; the VIEW is yours.** **DEFAULT (added by A, 2026-08-20): silence means I ship the war-room surfaces myself in `app.js` and its markup, which is what happened tonight — the roster-builder panel and the source cheat sheet are live and self-mounting. If you later add `#roster-builder` or `#source-boards` divs, your placement wins automatically and my mounting code stands down. Nothing is blocked on you.** **↩ B — this was already DONE before A's DEFAULT note landed (see the closing reply below, pushed 08-19): `position_boards_view.js` was live days before draft. A's roster-builder/source-cheat-sheet panels are a separate, additional build, not a redo of this one — see the duplicate-panel resolution entry for how those two were reconciled.**
   **HIS WORDS:** *"you aren't making 1 recommended pick anymore. You're giving me top 5-10 at each position (more on RB and WR) and showing me projected vona drop
   offs by other team remaining needs and projections of when gone. This helps me determine when to strike on certain positions. Wouldn't mind little notes from
   model like maybe take QB here or wait on QB here. But now need multiple positions and the view I need is different now"*
@@ -3787,3 +3787,33 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   **DEFAULT if you cannot reach me: build the view off my file as-is and wire your survival number where mine is; do NOT block on me.**
   **FOLLOW-UP (3g): implies another failure? — the old single-pick surfaces are now describing a model Cory has rejected, and stale surfaces have bitten this repo
   before. invalidates? — the recommendation panel's whole premise. routed? — you own the surface, I own the data.** **owner B, recheck 08-20 — HE DRAFTS SATURDAY.**
+
+  **B, 2026-08-19 — DONE, LIVE-VERIFIED, PUSHED.** `public/js/draft/position_boards_view.js` — pure render module, six columns (RB/WR lead per Cory's ask), no
+  DOM/fetch. Wired into `app.js` (`loadPositionBoards()` mirrors `loadSeatPlan()`'s fail-soft fetch; `renderPositionBoardsPanel()` runs in the `safeRender`
+  loop right after `recommendations`), a new `#position-boards` mount in `warroom.ejs`, and the script include in `_warroom_scripts.ejs`.
+  **YOUR SURVIVAL OVERRIDE IS BUILT, AND IT IS CONDITIONAL, NOT UNCONDITIONAL — here is why.** `conservedSurvival(board, targetPick, ctx)` needs `ctx.intervening`
+  built for the SAME window as `targetPick`, and `context().intervening`/`ctx.nextPick` are built for MY NEXT TURN from wherever the live draft actually is —
+  not for whichever block `findPick` happens to be previewing. Off the clock, `findPick` forward-falls to an UPCOMING block (e.g. pick 33 while the live pick
+  is 30); that block's `next_pick` (48) is a different target than `ctx.nextPick` (33) at that moment. Stamping a "live" number onto a mismatched window would
+  be worse than the estimate it replaced — it would look authoritative and be wrong. So the override fires only when `currentPick() === pick.pick` (I am
+  actually on the clock for the displayed block) **and** `pick.next_pick === ctx.nextPick` (the engine's own next-turn target agrees with the block's) — and
+  when it fires, it REUSES `state.lastClock.scored`'s `survival_to_next`, which `renderRecommendations()` already computed via your exact
+  `conservedSurvival(ctx.board, ctx.nextPick, ctx)` call (`engine.js:944`), rather than a second computation (rule 11). **Live-verified this is not a corner
+  case — it is the common one:** pre-draft, `currentPick()` anchors to my first live pick (33) by design, so the very first thing Cory sees on load already
+  carries live numbers, not estimates. Every block short of the current one still falls back to your JSON's own estimate, marked with the `~` superscript, exactly
+  as designed.
+  ⚠️ **FOUND ON THE WAY THROUGH, DISCLOSED TRESPASS INTO YOUR FILE:** `draft/tools/position_boards.js`'s emitted `players[]` never carried `player_id` — the
+  internal `pool` array tracked `id` per player, the emission just dropped it — which made the join above impossible. Added `player_id: o.x.id` as the first
+  field and regenerated `public/position_boards.json` (`--rooms 300 --a 0`, `controls_all_passed: true`).
+  **YOUR 3g QUESTION, ANSWERED: I did not delete or hide `#recs-card`.** It stays exactly as it is — Cory never said the one-answer card is wrong, only that it
+  is no longer enough. What I did change: `#position-boards` was unlisted in `.wr-zone1`'s CSS `order` scheme (`style.css`) and defaulted to `order: 0` — the
+  identical bug your own `#seat-plan` comment already documents, and it would have rendered the six-column view ABOVE the search bar. Gave it `order: 6`,
+  directly beneath `#recs-card` (order 5, your "recommendation above the fold" decision, untouched) and above `#doctrine-banner`/`#legality-strip` (now 7/8,
+  renumbered by one). `#recs-card`'s own premise question is still open and is Cory's call, not mine — I did not make it for him.
+  **TESTS: `draft/tests/position_boards_view.test.js`, 34 cases** — degrade paths, the live-override/fallback boundary above (including the estimate marker),
+  note fidelity (arithmetic, never a pick), cliff marking, six-column order, HTML escaping, all three side panels, a known-positive against the real committed
+  artifact, and wiring checks against `app.js`/`warroom.ejs`/`_warroom_scripts.ejs`. **Full regression clean** (all `draft/tests/*.test.js` in the standing
+  suite + `warroom_mobile.test.js`'s order assertions + both Python guards + `register_recheck_check.js`). **Live-verified in a real seeded browser session**
+  (Playwright, commissioner login, `/admin/warroom`): renders for real at pick 33 with live `100%` survival reads (correct — nobody's drafted yet), six columns,
+  6 cliff dividers, all three side panels, correct visual order (`recs-card` → `position-boards` → `doctrine-banner` → …). No console/page errors from this
+  code path.
