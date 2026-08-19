@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 127,
+ "next_numeric_id": 128,
  "history": [
   {
    "id": 47,
@@ -76,6 +76,11 @@
    "id": 126,
    "claimed_at": "2026-08-19",
    "note": "E: main has had 0 successful CI runs in ~30, and wire_level/wire_one_source are real reproducing failures inside that churn"
+  },
+  {
+   "id": 127,
+   "claimed_at": "2026-08-19",
+   "note": "renumbered from a colliding 125 (dollar_replacement_baseline.test.js went red) -- another session's row, first-allocation-wins per timestamp"
   }
  ]
 }
