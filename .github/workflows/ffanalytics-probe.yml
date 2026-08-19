@@ -1,5 +1,3 @@
-# TERRITORY: A
-# TERRITORY-GRANT: C git checkout container commit directory rocker deps System scraper stack fix root workspace step order install before after openssl GITHUB_WORKSPACE 2026-08-19
 name: ffanalytics multi-source projection probe
 # WHY THIS EXISTS, AND WHY IT IS A PROBE BEFORE IT IS A PIPELINE.
 #
@@ -49,23 +47,12 @@ jobs:
       contents: write
     timeout-minutes: 45
     steps:
-      # GIT, BEFORE CHECKOUT, IN THAT ORDER. `container:` at the job level means
-      # EVERY step — `uses: actions/checkout@v4` included — runs inside
-      # rocker/r-ver, which ships no git. Checkout without git does not fail: it
-      # falls back to a git-less REST-API tarball download, so the workspace has
-      # real files but no `.git` directory — invisible until something later
-      # runs a real git command. That something was the commit step, three runs
-      # in a row: `fatal: not in a git directory`, after real data (1358 rows,
-      # 5 of 12 sources) had already been scraped successfully every time. The
-      # data was never the problem; checkout silently degrading was.
-      - name: git (must exist before checkout runs inside this container)
-        run: apt-get update -qq && apt-get install -y --no-install-recommends git
       - uses: actions/checkout@v4
       - name: System deps for the scraper stack (curl/xml2/openssl)
         run: |
           apt-get update -qq
           apt-get install -y --no-install-recommends \
-            libcurl4-openssl-dev libssl-dev libxml2-dev
+            libcurl4-openssl-dev libssl-dev libxml2-dev git
       - name: Install ffanalytics and deps
         # THE INSTALL IS A STEP THAT CAN FAIL LOUDLY. A half-installed package
         # that later returns zero rows is indistinguishable from twelve dead
@@ -104,21 +91,30 @@ jobs:
             draft/data/ffanalytics_probe.json
             draft/data/ffanalytics_raw_projections.csv
           if-no-files-found: warn
-      - name: Commit the raw rows and the probe report
-        if: success()
-        # ⚠️ THE GIT-BEFORE-CHECKOUT FIX WAS NECESSARY, NOT SUFFICIENT. With it,
-        # checkout DOES create a real `.git` (confirmed: the POST checkout
-        # cleanup step later runs real git-config commands against it) — but
-        # THIS step still hit `fatal: not in a git directory`, same message,
-        # even though `draft/data/...` relative paths resolved fine in the
-        # steps before and after it. That is the signature of a workspace git
-        # considers untrusted in a containerized job (a known actions/checkout
-        # gap: it does not always register `safe.directory` for the CONTAINER's
-        # git before later `docker exec` steps run), not a missing repo. `cd`
-        # and `safe.directory` are both explicit here rather than assumed.
+  # ── THE COMMIT MOVED TO ITS OWN NON-CONTAINER JOB ───────────────────────
+  # FOUR RUNS IN A ROW SCRAPED SUCCESSFULLY AND FAILED AT THE COMMIT
+  # (32211747087, 32212505971, 32213102948 …). The container runs as a
+  # different uid than the checkout, and `safe.directory` did not settle it.
+  # Patching the same step a fifth time is the definition of not learning:
+  # the rows are already safe in an ARTIFACT by then, so the fix is to stop
+  # asking the container to touch git at all. Job 2 is a plain runner that
+  # downloads what job 1 produced and commits it.
+  commit:
+    needs: probe
+    if: ${{ needs.probe.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffanalytics-probe
+          path: draft/data
+      - name: Show what arrived, then commit it
         run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          ls -la draft/data/ffanalytics_* || { echo "NOTHING ARRIVED — refusing"; exit 1; }
+          head -3 draft/data/ffanalytics_probe.json || true
           git config user.name Claude
           git config user.email noreply@anthropic.com
           git add draft/data/ffanalytics_probe.json draft/data/ffanalytics_raw_projections.csv

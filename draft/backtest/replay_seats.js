@@ -90,6 +90,39 @@ const ARMS = {
  * sweep whose result nobody can attribute, which is what no_fit_guard exists
  * to prevent. */
 const NEED = arg('need', null);
+/* ---- P114 — THE `bye` WEIGHT ARM. `bye` also ships at 0 and it prices the
+ * ACTUAL failure register 59 found: a starting slot that cannot be filled once
+ * byes are applied. The seat replay CAN see this one — its `optimal` estimand
+ * builds a LEGAL lineup every week, so a collision costs real points. */
+const BYE = arg('bye', null);
+/* ---- P115 — THE AUTO ADJUSTER AS A GRADED ARM. `--auto` asks the engine for
+ * `autoWeights(ctx)` at every pick, exactly as the war room does when the
+ * toggle is on. Measured on the live board (`auto_adjuster_probe.json`), Auto
+ * produces the SAME roster shape as `need: 1.0` — WR3/TE2/RB7 against the
+ * shipped WR1/TE1/RB10 — so P110's graded +68.6 may be reachable as a UI
+ * CHECKBOX rather than a weight edit on draft week. Auto is NOT need=1.0: it
+ * ramps tier, risk, ceiling and bye by phase too, so it is a different
+ * configuration that lands in the same place, ungraded under the fixed VONA. */
+const AUTO = process.argv.indexOf('--auto') >= 0;
+
+/* ⚠️ AN UNKNOWN FLAG IS A HARD ERROR — THIS HAS COST ONE FALSE RESULT ALREADY.
+ * node ignores arguments it does not recognise. Twice tonight an edit adding a
+ * flag was lost before it was committed while CI kept passing that flag: the
+ * `--need` run produced a choice file BYTE-IDENTICAL to the arm it was meant to
+ * differ from, and `--bye` was queued to do the same. Only the read-back
+ * `weights` stamp stood between that and a published null. A stamp catches it
+ * afterwards; this refuses up front. */
+const KNOWN_FLAGS = ['in', 'out', 'arm', 'need', 'bye', 'auto'];
+process.argv.slice(2).forEach(a => {
+  if (a.slice(0, 2) !== '--') return;
+  const name = a.slice(2).split('=')[0];
+  if (KNOWN_FLAGS.indexOf(name) < 0) {
+    console.error('unknown flag --' + name + '; known: ' + KNOWN_FLAGS.join(', ')
+      + '. Refusing rather than ignoring it — an ignored flag produces a valid '
+      + 'artifact for an arm that never ran.');
+    process.exit(2);
+  }
+});
 const ARM = arg('arm', 'a0');
 if (!Object.prototype.hasOwnProperty.call(ARMS, ARM)) {
   console.error('unknown --arm ' + ARM + '; known: ' + Object.keys(ARMS).join(','));
@@ -106,11 +139,22 @@ Object.keys(ARMS[ARM]).forEach(k => {
 /* The weight vector every seat is driven with. MEASURED_WEIGHTS unless --need
  * names an override, so the default invocation is byte-identical to every
  * earlier run of this file. */
-const WEIGHTS = (NEED == null)
-  ? E.MEASURED_WEIGHTS
-  : Object.assign({}, E.MEASURED_WEIGHTS, { need: parseFloat(NEED) });
-if (NEED != null && !isFinite(WEIGHTS.need)) {
-  console.error('--need must be a number, got ' + NEED);
+const WEIGHTS = Object.assign({}, E.MEASURED_WEIGHTS);
+const OVERRIDES = [];
+[['need', NEED], ['bye', BYE]].forEach(([k, v]) => {
+  if (v == null) return;
+  const n = parseFloat(v);
+  if (!isFinite(n)) { console.error('--' + k + ' must be a number, got ' + v); process.exit(2); }
+  WEIGHTS[k] = n;
+  OVERRIDES.push(k + '=' + n);
+});
+if (AUTO) OVERRIDES.push('AUTO_PHASE_WEIGHTS');
+/* ONE ARM AT A TIME. Two overrides at once is a THIRD configuration nobody
+ * preregistered, attributable to neither — the same reason the VONA arms refuse
+ * to run together. */
+if (OVERRIDES.length > 1) {
+  console.error('one arm at a time; got ' + OVERRIDES.join(' and ')
+    + ' — a combined arm is a configuration nobody preregistered');
   process.exit(2);
 }
 
@@ -244,6 +288,12 @@ function replaySeat(bundle, seatId, excludedIds) {
       league: league, weights: WEIGHTS, runMultipliers: {}, intervening: [],
       roundsLeft: Math.max(1, (bundle.rounds || 15) - (pick.round || 1) + 1),
     };
+    /* Auto is asked PER PICK — that is the point of a phase table, and hoisting
+     * it out of the loop would grade one frozen phase. */
+    if (AUTO) {
+      const a = E.autoWeights(ctx);
+      ctx.weights = (a && a.weights) ? a.weights : a;
+    }
     const scored = E.recommend(ctx);
     // The engine ranks the whole board, K/DEF included. At a slot where the
     // human took a skill player, a K/DEF top entry would break the mirrored
@@ -337,8 +387,8 @@ function main() {
       vona_arm: ARM,
       vona_flags: { VONA_INCLUDE_SELF: E.CFG.VONA_INCLUDE_SELF,
                     VONA_SURVIVAL_RESCALE: E.CFG.VONA_SURVIVAL_RESCALE },
-      weights: (NEED == null) ? 'MEASURED_WEIGHTS'
-                              : 'MEASURED_WEIGHTS with need=' + WEIGHTS.need,
+      weights: OVERRIDES.length ? 'MEASURED_WEIGHTS with ' + OVERRIDES.join(',')
+                                : 'MEASURED_WEIGHTS',
       weights_values: WEIGHTS,
       qb_detail_seat: QB_DETAIL_SEAT,
       qb_detail_through_round: QB_DETAIL_THROUGH_ROUND,
