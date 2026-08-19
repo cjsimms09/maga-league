@@ -107,3 +107,46 @@ Run them yourself:
 `node draft/tools/draft_plan.js` ·
 `ARM=capped node draft/tools/vona_upside_plan.js` ·
 `node draft/tools/fieldability_probe.js`
+
+---
+
+# ADDENDUM — I ran rule 3i on my own headline, and it changed the story
+
+**"They agree on 3 of 12" sounded alarming. Before leaving it as a finding I
+looked at the distribution it came from** — every pairwise overlap among all six
+arms on this board, 15 pairs.
+
+| comparison | overlap of 12 picks |
+|---|---|
+| **within the ENGINE family** (shipped · slot_aware · need1 · auto — **same skeleton, only WEIGHTS differ**) | **median 7**, range 5–8 |
+| `plan` vs `upside` (**same skeleton**, different bench rule) | **6** |
+| **ENGINE vs PLAN family** (**different skeletons**) | **median 2**, range 2–4 |
+
+**So 3 of 12 is not anomalous. It is exactly what a cross-skeleton comparison
+costs, every time — the eight such pairs run 2 to 4.** My headline was accurate
+and its implied alarm was not. Corrected here rather than left to stand.
+
+## ⭐ AND THE NUMBER UNDERNEATH IT IS THE BIGGEST RESULT OF THE WEEK
+
+> **Changing the WEIGHTS moves about 5 of your 12 picks.
+> Changing the SKELETON moves about 10.**
+
+Every argument this project has had — the `ceiling` weight at 0.45, `need` at 0
+against 1.0, slot-aware on or off, the ADP-sd ratchet — **is a move inside the
+engine family, and the engine family agrees with itself 7 times in 12.** The one
+structural choice nobody has ever ruled on — *fill the best seat* against *take
+the best player* — **moves twice as many picks as all of those weights put
+together.**
+
+**That is measured on 15 pairs on one board, and it is the cleanest statement of
+where this model's decisions actually live.**
+
+⚠️ **WHAT IT DOES NOT SAY.** Overlap is not quality. **Two arms agreeing tells
+you nothing about which is right**, and the skeleton question has still never
+been graded head to head on outcomes — `draft_plan.js`'s +40 is one board, and
+the engine's 8th-of-10 is a different harness. **This says where the leverage is,
+not which way to pull it.**
+
+**And it is one board.** The 03:00 rebuild could move these overlaps; the ranking
+of within-skeleton against cross-skeleton is what I would expect to hold, not the
+exact counts.
