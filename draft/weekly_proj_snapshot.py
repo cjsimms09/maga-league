@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # TERRITORY: A
-# TERRITORY-GRANT: C raw_by_id raw stats stat_line pid append_snapshot proj_series score_stat_line scoring vendor fields beside points scores archiver register grant header 2026-08-19
+# TERRITORY-GRANT: C raw_by_id raw stats stat_line pid append_snapshot proj_series score_stat_line scoring vendor fields beside points scores archiver register grant header week sleeper_weekly proj 2026-08-19
 """THE WEEKLY PROJECTION SNAPSHOT — the one input with a real deadline.
 
 WHY THIS AND NOT THE SHADOW LAYER. Cory asked whether a thin shadow-strategy

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# TERRITORY: A
+# TERRITORY-GRANT: C raw_by_id raw week proj sleeper_weekly append_snapshot stats stat_line pid score_stat_line scoring vendor archiver 2026-08-19
 """PRESEASON PROJECTION SNAPSHOTS — the frozen record that makes a CLEAN projection grade possible.
 
 The exp33 lesson (Cory, 2026-08-10): a projection source graded retroactively is LEAKED if its
