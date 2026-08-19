@@ -201,6 +201,28 @@ const ck = (n, c, d) => {
     && (cols.match(/wr-cliffline/g) || []).length === 1);
   ck('column rows are drill-down triggers', /data-drill="22"/.test(cols));
   ck('EMPTY → honest empty state', /wr-chart-empty/.test(C.posColumns([])));
+
+  /* DEF "players" are full team names ("Los Angeles Rams"); the row's own
+   * `name` can already be a shortened display form (app.js's renderColumns
+   * swaps in p.team for DEF, so shortName()'s person-name transform never
+   * turns it into "L. Angeles Rams" and hits this column's ellipsis — the
+   * exact cut-off-text pattern Cory called out hard on the position
+   * boards). `full` carries the untruncated original as a hover title, so
+   * nothing is silently lost. */
+  const defCols = C.posColumns([
+    { pos: 'DEF', total: 32, rows: [
+      { id: '9001', rank: 1, name: 'LAR', full: 'Los Angeles Rams', proj: 120, cliffAfter: false },
+    ] },
+  ]);
+  ck('a shortened row name renders as-is — shortName() leaves a single word alone',
+    /wr-col-name[^>]*>LAR</.test(defCols));
+  ck('...and the untruncated original is preserved as a hover title',
+    /title="Los Angeles Rams"/.test(defCols));
+  const noFullCols = C.posColumns([
+    { pos: 'WR', total: 1, rows: [{ id: '1', rank: 1, name: 'Ja\'Marr Chase', proj: 310, cliffAfter: false }] },
+  ]);
+  ck('a row with no `full` gets no title attribute at all — not title=""',
+    !/wr-col-name[^>]*title=/.test(noFullCols));
 }
 
 // ── 6. ROSTER SHAPE ───────────────────────────────────────────────────────

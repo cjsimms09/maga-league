@@ -344,7 +344,10 @@
   }
 
   /* ── BIG BOARD COLUMNS — per-position dense lists, cliffs as red lines ───
-   * cols: [{ pos, total, rows: [{ id, rank, name, proj, cliffAfter }] }].    */
+   * cols: [{ pos, total, rows: [{ id, rank, name, full, proj, cliffAfter }] }].
+   * `full`, when present, is the untruncated name shown on hover — the row's
+   * own `name` may already be a shortened display form (see renderColumns'
+   * DEF handling: p.team instead of the full team name). */
   function posColumns(cols) {
     cols = (cols || []).filter(function (c) { return c && c.pos; });
     if (!cols.length) return '<p class="wr-chart-empty">no board yet</p>';
@@ -352,7 +355,8 @@
       var rows = (c.rows || []).map(function (p) {
         return '<li class="wr-col-row" data-drill="' + esc(p.id) + '">'
           + '<span class="wr-col-rank">' + esc(p.rank) + '</span>'
-          + '<span class="wr-col-name">' + esc(shortName(p.name)) + '</span>'
+          + '<span class="wr-col-name"' + (p.full ? ' title="' + esc(p.full) + '"' : '') + '>'
+            + esc(shortName(p.name)) + '</span>'
           + '<span class="wr-col-proj">' + (p.proj != null ? Math.round(p.proj) : '—') + '</span>'
           + '</li>'
           + (p.cliffAfter ? '<li class="wr-cliffline" aria-label="tier cliff"></li>' : '');
@@ -592,7 +596,17 @@
         pos: pos, total: at.length,
         rows: at.slice(0, 30).map(function (p, i) {
           var nxt = at[i + 1];
-          return { id: p.player_id, rank: i + 1, name: p.name, proj: p.proj_mean,
+          /* DEF "players" ARE full team names ("Los Angeles Rams"), and
+           * shortName()'s person-name transform (first initial + rest)
+           * turns that into "L. Angeles Rams" — long enough to still hit
+           * this column's ellipsis and print "L. Angeles Ra…", the exact
+           * cut-off-text pattern Cory called out hard on the position
+           * boards' headers. p.team already carries the short code (LAR)
+           * every other DEF display in the app uses; shortName() leaves a
+           * single word alone, so this is a no-op for every other position. */
+          var nm = (pos === 'DEF' && p.team) ? p.team : p.name;
+          return { id: p.player_id, rank: i + 1, name: nm,
+            full: nm !== p.name ? p.name : null, proj: p.proj_mean,
             cliffAfter: !!(nxt && i < 29 && nxt.tier !== p.tier) };
         }),
       };
