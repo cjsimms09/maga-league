@@ -61,20 +61,70 @@ jobs:
       - name: Locate the real payload
         continue-on-error: true
         run: python3 draft/tools/draftsharks_payload.py
+      # ⭐ RENDER THE PAGE. Cory: "25 players??" -- every static probe returned 25
+      # because that is all the server sends; the table is a Vue component and
+      # the rest is drawn client-side. Parsing harder cannot fix that, so run a
+      # real browser. Also records every JSON XHR, because if a clean endpoint
+      # exists we should call it directly instead of driving a browser -- and we
+      # cannot see it without executing the page once.
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install Playwright
+        # ⛔ INSTALL OUTSIDE THE REPO. `npm i -D playwright` writes package.json
+        # and package-lock.json into the working tree, which made every
+        # `git pull --rebase` in the commit step below fail with "you have
+        # unstaged changes" -- four identical retries, nothing pushed, and the
+        # job still reported SUCCESS.
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.47.0
+          npx playwright install --with-deps chromium
+          echo "NODE_PATH=/tmp/pw/node_modules" >> "$GITHUB_ENV"
+      - name: Render the rankings
+        continue-on-error: true
+        run: node draft/tools/draftsharks_render.js
+      - name: Show what rendering got
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import json
+          try:
+              d = json.load(open('draft/data/draftsharks_rendered.json'))
+          except Exception as e:
+              print('no rendered artifact:', e); raise SystemExit(0)
+          print('rows', d['n_rows'], 'jsonld', d['n_jsonld_names'], 'controls', d['controls_all_passed'])
+          for k, v in d['controls'].items():
+              print(('  OK  ' if v['ok'] else '  FAIL') + k)
+          print('header:', ' | '.join(d['header'][:14]))
+          for x in d['json_endpoints_seen'][:12]:
+              print('  xhr', x['status'], x['url'][:150])
+          EOF
       - name: Commit the discovery artifact
         if: always()
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json draft/data/draftsharks_rendered.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
+            pushed=0
             for i in 1 2 3 4; do
               git rebase --abort 2>/dev/null || true
-              git pull --rebase origin main && git push origin HEAD:main && break
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
               sleep $((2**i))
             done
+            # ⛔ WITHOUT THIS THE JOB GOES GREEN HAVING PUSHED NOTHING. The loop
+            # was `... && break` under `set -uo pipefail` (no -e), so four failed
+            # attempts fell through to exit 0. A capture job that silently stores
+            # nothing is worse than one that fails, because nobody looks.
+            if [ "$pushed" != "1" ]; then
+              echo "::error::all four push attempts failed — the artifact was NOT stored"
+              exit 1
+            fi
           else
             echo "No change to the store."
           fi
@@ -87,4 +137,5 @@ jobs:
             draft/data/draftsharks_shape.json
             draft/data/draftsharks_projections.json
             draft/data/draftsharks_payload.json
+            draft/data/draftsharks_rendered.json
           if-no-files-found: warn
