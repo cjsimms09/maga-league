@@ -36,18 +36,25 @@
   ],
   "named_top": [
    {
-    "player_id": "11583",
-    "name": "Jonathon Brooks",
-    "position": "RB",
-    "proj_mean": 137.9,
-    "adp": 92.67
-   },
-   {
     "player_id": "4017",
     "name": "Deshaun Watson",
     "position": "QB",
-    "proj_mean": 112.06,
+    "proj_mean": 155.28,
     "adp": 229.0
+   },
+   {
+    "player_id": "11583",
+    "name": "Jonathon Brooks",
+    "position": "RB",
+    "proj_mean": 142.6,
+    "adp": 92.67
+   },
+   {
+    "player_id": "11581",
+    "name": "MarShawn Lloyd",
+    "position": "RB",
+    "proj_mean": 66.1,
+    "adp": 178.0
    },
    {
     "player_id": "9502",
@@ -62,13 +69,6 @@
     "position": "RB",
     "proj_mean": 54.2,
     "adp": 239.0
-   },
-   {
-    "player_id": "11581",
-    "name": "MarShawn Lloyd",
-    "position": "RB",
-    "proj_mean": 48.3,
-    "adp": 178.0
    },
    {
     "player_id": "12511",
