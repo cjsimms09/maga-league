@@ -113,17 +113,35 @@ function spearman(xs, ys) {
 const dsSpread = both.map(m => m.ds_ceiling - m.ds_proj);
 const ourSpread = both.map(m => m.our_ceiling - m.our_mean);
 
+const sd = a => { if (a.length < 2) return null; const m = mean(a);
+  return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
+/* ⭐ THE MEASUREMENT THAT SETTLES REGISTER 119. Not "is their ceiling higher"
+ * -- that is a level and it cancels -- but "does their ceiling carry
+ * PLAYER-SPECIFIC information where ours does not". A spread that is nearly
+ * constant across players is a positional constant wearing a percentile's
+ * name, which is exactly what the 08-17 dispersion audit found. */
+const dispersion = {
+  ours: { mean: mean(ourSpread), sd: sd(ourSpread),
+          cv: sd(ourSpread) && mean(ourSpread) ? sd(ourSpread) / mean(ourSpread) : null },
+  theirs: { mean: mean(dsSpread), sd: sd(dsSpread),
+            cv: sd(dsSpread) && mean(dsSpread) ? sd(dsSpread) / mean(dsSpread) : null },
+};
 const coverage = BOARD.players.length ? matched.length / BOARD.players.length : 0;
 const rhoSpread = spearman(dsSpread, ourSpread);
 const rhoCeil = spearman(both.map(m => m.ds_ceiling), both.map(m => m.our_ceiling));
 
 const ctl = {};
 ctl.C1_known_positive_join = (() => {
-  /* Cory's own keeper is on both sides by construction if the join works. */
-  const want = 'jamarr chase';
+  /* ⛔ MY FIRST ANCHOR WAS "Ja'Marr Chase" ON THE PREMISE THAT CORY'S KEEPER MUST
+   * BE ON BOTH SIDES. HE IS NOT ON OUR BOARD AT ALL -- keepers are removed from
+   * the draftable pool, which is correct and which I did not check. The control
+   * reported on_board:false rather than passing silently, so it worked and the
+   * PREMISE was wrong. Re-anchored on a top-5 player who is NOT a keeper. */
+  const want = 'jahmyr gibbs';
   const onBoard = boardByName.has(want);
   const inStore = (STORE.players || []).some(r => norm(r.player) === want);
   const joined = matched.some(m => norm(m.player) === want);
+  const keeperNames = new Set(['jamarr chase', 'derrick henry', 'kenneth walker']);
   return { ok: !inStore || (onBoard && joined), on_board: onBoard,
     in_store: inStore, joined,
     why: 'if Draft Sharks lists a top-1 player our board also carries and the '
@@ -160,7 +178,7 @@ const doc = {
   _note: 'REPORT ONLY. Touches no board field.',
   store_captured_players: (STORE.players || []).length,
   controls: ctl, controls_all_passed: Object.values(ctl).every(c => c.ok),
-  verdict, sample_matched: matched.slice(0, 8),
+  verdict, dispersion, sample_matched: matched.slice(0, 8),
   unmatched_sample: unmatched.slice(0, 15),
 };
 fs.writeFileSync(OUT, JSON.stringify(doc, null, 1));
@@ -170,7 +188,10 @@ Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK  ' : '  FAIL')
 console.log(`\n  store players      ${(STORE.players || []).length}`);
 console.log(`  joined to board    ${matched.length}  (unmatched ${unmatched.length})`);
 console.log(`  board coverage     ${(coverage * 100).toFixed(1)}%`);
-console.log(`  rho(spread)        ${verdict.rho_spread}`);
+console.log(`  rho(spread)        ${verdict.rho_spread}   (n=${both.length})`);
+console.log('\n  DOES THE CEILING CARRY PLAYER-SPECIFIC INFORMATION?');
+console.log(`    ours    spread mean ${dispersion.ours.mean?.toFixed(1)}  sd ${dispersion.ours.sd?.toFixed(1)}  cv ${dispersion.ours.cv?.toFixed(3)}`);
+console.log(`    theirs  spread mean ${dispersion.theirs.mean?.toFixed(1)}  sd ${dispersion.theirs.sd?.toFixed(1)}  cv ${dispersion.theirs.cv?.toFixed(3)}`);
 console.log(`  their spread − ours (median)  ${verdict.level_ds_minus_ours_spread_median}`);
 console.log(`\n  SAFE TO SWAP: ${verdict.SAFE_TO_SWAP ? 'YES' : 'NO'}`);
 if (verdict.why_not) console.log('  ' + verdict.why_not);
