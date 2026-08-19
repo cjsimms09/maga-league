@@ -70,6 +70,42 @@ jobs:
           node draft/backtest/replay_seats.js --arm a1 --auto \
             --in draft/backtest/bundles.json \
             --out draft/backtest/engine_seat_choices_auto.json
+      # REGISTER 60 (2) / P119 — THE SLOT-AWARE RE-TAKE. `VONA_SLOT_AWARE` is
+      # off because flooring the flex marginal at 0 tied 1331 of 1686 players at
+      # exactly 0 — measured on a VONA computing the wrong quantity, before
+      # register 56 / P107. `SLOT-AWARE-VONA-REPREG-2026-08-19.md`. The collapse
+      # half already PASSED (modal share 0.9%, 458 distinct of 562, control
+      # clean); this is condition (2) of four, and the prereg states in advance
+      # that a NULL here leaves the flag OFF.
+      #
+      # s0 IS RUN EVEN THOUGH IT IS IDENTICAL TO a1 ABOVE. Not redundant:
+      # reading the delta against a1's file would compare two runs against two
+      # separately-reassembled bundles, and that drift would sit inside the
+      # delta. Same bundle, same job, both arms.
+      - name: slot-aware control arm s0 (== shipped, same bundle)
+        run: |
+          node draft/backtest/replay_seats.js --arm s0 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_slot_s0.json
+      - name: slot-aware arm s1 (VONA_SLOT_AWARE on)
+        run: |
+          node draft/backtest/replay_seats.js --arm s1 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_slot_s1.json
+      # THE ARMS MUST DIFFER, OR THE ARM NEVER RAN. `vona()` returns `straight`
+      # at its first line when the flag is off, so a wiring failure produces a
+      # valid artifact identical to the control — the exact shape that made the
+      # `--need` run gradeable as a clean null. Fail the job rather than commit
+      # two identical files and grade the difference between them.
+      - name: refuse identical slot arms
+        run: |
+          if cmp -s draft/backtest/engine_seat_choices_slot_s0.json \
+                    draft/backtest/engine_seat_choices_slot_s1.json; then
+            echo "s0 and s1 are byte-identical — the slot-aware branch never ran."
+            echo "This is NOT a null result. Refusing to commit a gradeable artifact."
+            exit 1
+          fi
+          echo "arms differ — the slot-aware branch executed"
       - name: VONA comparison arms A0 (pre-fix) and A2 (rescale diagnostic)
         run: |
           node draft/backtest/replay_seats.js --arm a0 \
@@ -89,7 +125,9 @@ jobs:
                   draft/backtest/engine_seat_choices_a2.json \
                   draft/backtest/engine_seat_choices_need1.json \
                   draft/backtest/engine_seat_choices_bye1.json \
-                  draft/backtest/engine_seat_choices_auto.json
+                  draft/backtest/engine_seat_choices_auto.json \
+                  draft/backtest/engine_seat_choices_slot_s0.json \
+                  draft/backtest/engine_seat_choices_slot_s1.json
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "Engine seat replay: choice file from CI bundle assembly [skip deploy]"
           for i in 1 2 3 4 5; do

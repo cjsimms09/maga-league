@@ -4,9 +4,9 @@
  "provenance": {
   "method": "For each 2025 player-week in the component store, fantasy points under the league's own scoring table (public/draft_data.json league.scoring) are credited AGAINST that week's opponent defense, derived from the vegas store's complete 2025 pairings (272 games; the component store carries team but not opponent). Per-game = total / games the defense actually played. A team's playoff softness at a position = mean of its 2026 week-15/16/17 opponents' per-game allowed; rank 1 = softest, ties broken by team code A-Z. Team codes normalized through adp.TEAM_ALIASES (board vocabulary, LA->LAR).",
   "sources": {
-   "board": "public/draft_data.json (built_at 2026-08-18T05:33:24Z)",
-   "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-16)",
-   "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-16)",
+   "board": "public/draft_data.json (built_at 2026-08-19T00:54:18Z)",
+   "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-18)",
+   "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-18)",
    "schedule": "draft/data/playoff_sched_2026.json (fetched 2026-08-16)"
   },
   "allowed_season": 2025,
@@ -28,8 +28,8 @@
     17
    ]
   },
-  "players_ranked": 569,
-  "players_absent": 50
+  "players_ranked": 571,
+  "players_absent": 49
  },
  "defense_allowed_2025": {
   "ARI": {
@@ -3851,23 +3851,6 @@
    "avg_allowed_per_game": 8.88,
    "softness_rank": 29
   },
-  "13287": {
-   "name": "Jeremiyah Love",
-   "position": "RB",
-   "team": "ARI",
-   "opponents": {
-    "15": "NYJ",
-    "16": "NO",
-    "17": "LV"
-   },
-   "opp_allowed_per_game": {
-    "15": 26.18,
-    "16": 19.13,
-    "17": 21.1
-   },
-   "avg_allowed_per_game": 22.14,
-   "softness_rank": 3
-  },
   "8144": {
    "name": "Chris Olave",
    "position": "WR",
@@ -4157,23 +4140,6 @@
    "avg_allowed_per_game": 24.05,
    "softness_rank": 21
   },
-  "8155": {
-   "name": "Breece Hall",
-   "position": "RB",
-   "team": "NYJ",
-   "opponents": {
-    "15": "ARI",
-    "16": "NE",
-    "17": "MIN"
-   },
-   "opp_allowed_per_game": {
-    "15": 24.68,
-    "16": 16.56,
-    "17": 17.97
-   },
-   "avg_allowed_per_game": 19.74,
-   "softness_rank": 20
-  },
   "5927": {
    "name": "Terry McLaurin",
    "position": "WR",
@@ -4242,6 +4208,23 @@
    "avg_allowed_per_game": 25.17,
    "softness_rank": 16
   },
+  "8155": {
+   "name": "Breece Hall",
+   "position": "RB",
+   "team": "NYJ",
+   "opponents": {
+    "15": "ARI",
+    "16": "NE",
+    "17": "MIN"
+   },
+   "opp_allowed_per_game": {
+    "15": 24.68,
+    "16": 16.56,
+    "17": 17.97
+   },
+   "avg_allowed_per_game": 19.74,
+   "softness_rank": 20
+  },
   "8150": {
    "name": "Kyren Williams",
    "position": "RB",
@@ -4292,6 +4275,23 @@
    },
    "avg_allowed_per_game": 19.39,
    "softness_rank": 18
+  },
+  "5892": {
+   "name": "David Montgomery",
+   "position": "RB",
+   "team": "HOU",
+   "opponents": {
+    "15": "JAX",
+    "16": "PHI",
+    "17": "GB"
+   },
+   "opp_allowed_per_game": {
+    "15": 16.31,
+    "16": 21.04,
+    "17": 19.62
+   },
+   "avg_allowed_per_game": 18.99,
+   "softness_rank": 26
   },
   "7543": {
    "name": "Travis Etienne",
@@ -4361,6 +4361,23 @@
    "avg_allowed_per_game": 19.36,
    "softness_rank": 24
   },
+  "13287": {
+   "name": "Jeremiyah Love",
+   "position": "RB",
+   "team": "ARI",
+   "opponents": {
+    "15": "NYJ",
+    "16": "NO",
+    "17": "LV"
+   },
+   "opp_allowed_per_game": {
+    "15": 26.18,
+    "16": 19.13,
+    "17": 21.1
+   },
+   "avg_allowed_per_game": 22.14,
+   "softness_rank": 3
+  },
   "8183": {
    "name": "Brock Purdy",
    "position": "QB",
@@ -4377,23 +4394,6 @@
    },
    "avg_allowed_per_game": 15.94,
    "softness_rank": 31
-  },
-  "12481": {
-   "name": "Cam Skattebo",
-   "position": "RB",
-   "team": "NYG",
-   "opponents": {
-    "15": "CLE",
-    "16": "DET",
-    "17": "DAL"
-   },
-   "opp_allowed_per_game": {
-    "15": 20.44,
-    "16": 17.61,
-    "17": 23.17
-   },
-   "avg_allowed_per_game": 20.41,
-   "softness_rank": 11
   },
   "12506": {
    "name": "Harold Fannin",
@@ -4428,23 +4428,6 @@
    },
    "avg_allowed_per_game": 19.96,
    "softness_rank": 17
-  },
-  "5892": {
-   "name": "David Montgomery",
-   "position": "RB",
-   "team": "HOU",
-   "opponents": {
-    "15": "JAX",
-    "16": "PHI",
-    "17": "GB"
-   },
-   "opp_allowed_per_game": {
-    "15": 16.31,
-    "16": 21.04,
-    "17": 19.62
-   },
-   "avg_allowed_per_game": 18.99,
-   "softness_rank": 26
   },
   "9484": {
    "name": "Tucker Kraft",
@@ -4564,6 +4547,23 @@
    },
    "avg_allowed_per_game": 22.01,
    "softness_rank": 3
+  },
+  "12481": {
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "team": "NYG",
+   "opponents": {
+    "15": "CLE",
+    "16": "DET",
+    "17": "DAL"
+   },
+   "opp_allowed_per_game": {
+    "15": 20.44,
+    "16": 17.61,
+    "17": 23.17
+   },
+   "avg_allowed_per_game": 20.41,
+   "softness_rank": 11
   },
   "12512": {
    "name": "Quinshon Judkins",
@@ -5007,23 +5007,6 @@
    "avg_allowed_per_game": 20.39,
    "softness_rank": 12
   },
-  "9500": {
-   "name": "Josh Downs",
-   "position": "WR",
-   "team": "IND",
-   "opponents": {
-    "15": "TEN",
-    "16": "CIN",
-    "17": "CLE"
-   },
-   "opp_allowed_per_game": {
-    "15": 29.55,
-    "16": 21.11,
-    "17": 21.74
-   },
-   "avg_allowed_per_game": 24.13,
-   "softness_rank": 19
-  },
   "6804": {
    "name": "Jordan Love",
    "position": "QB",
@@ -5160,6 +5143,23 @@
    "avg_allowed_per_game": 9.31,
    "softness_rank": 26
   },
+  "7002": {
+   "name": "Juwan Johnson",
+   "position": "TE",
+   "team": "NO",
+   "opponents": {
+    "15": "TB",
+    "16": "ARI",
+    "17": "ATL"
+   },
+   "opp_allowed_per_game": {
+    "15": 12.86,
+    "16": 13.79,
+    "17": 8.08
+   },
+   "avg_allowed_per_game": 11.58,
+   "softness_rank": 7
+  },
   "13294": {
    "name": "Makai Lemon",
    "position": "WR",
@@ -5193,6 +5193,23 @@
    },
    "avg_allowed_per_game": 19.72,
    "softness_rank": 21
+  },
+  "9500": {
+   "name": "Josh Downs",
+   "position": "WR",
+   "team": "IND",
+   "opponents": {
+    "15": "TEN",
+    "16": "CIN",
+    "17": "CLE"
+   },
+   "opp_allowed_per_game": {
+    "15": 29.55,
+    "16": 21.11,
+    "17": 21.74
+   },
+   "avg_allowed_per_game": 24.13,
+   "softness_rank": 19
   },
   "5947": {
    "name": "Jakobi Meyers",
@@ -5330,23 +5347,6 @@
    "avg_allowed_per_game": 23.67,
    "softness_rank": 26
   },
-  "7002": {
-   "name": "Juwan Johnson",
-   "position": "TE",
-   "team": "NO",
-   "opponents": {
-    "15": "TB",
-    "16": "ARI",
-    "17": "ATL"
-   },
-   "opp_allowed_per_game": {
-    "15": 12.86,
-    "16": 13.79,
-    "17": 8.08
-   },
-   "avg_allowed_per_game": 11.58,
-   "softness_rank": 7
-  },
   "5022": {
    "name": "Dallas Goedert",
    "position": "TE",
@@ -5448,23 +5448,6 @@
    },
    "avg_allowed_per_game": 23.87,
    "softness_rank": 25
-  },
-  "13281": {
-   "name": "Jordyn Tyson",
-   "position": "WR",
-   "team": "NO",
-   "opponents": {
-    "15": "TB",
-    "16": "ARI",
-    "17": "ATL"
-   },
-   "opp_allowed_per_game": {
-    "15": 25.61,
-    "16": 24.58,
-    "17": 27.72
-   },
-   "avg_allowed_per_game": 25.97,
-   "softness_rank": 10
   },
   "8121": {
    "name": "Romeo Doubs",
@@ -6214,6 +6197,23 @@
    "avg_allowed_per_game": 11.08,
    "softness_rank": 12
   },
+  "13281": {
+   "name": "Jordyn Tyson",
+   "position": "WR",
+   "team": "NO",
+   "opponents": {
+    "15": "TB",
+    "16": "ARI",
+    "17": "ATL"
+   },
+   "opp_allowed_per_game": {
+    "15": 25.61,
+    "16": 24.58,
+    "17": 27.72
+   },
+   "avg_allowed_per_game": 25.97,
+   "softness_rank": 10
+  },
   "9482": {
    "name": "Michael Mayer",
    "position": "TE",
@@ -6230,6 +6230,23 @@
    },
    "avg_allowed_per_game": 12.03,
    "softness_rank": 6
+  },
+  "11834": {
+   "name": "Devaughn Vele",
+   "position": "WR",
+   "team": "NO",
+   "opponents": {
+    "15": "TB",
+    "16": "ARI",
+    "17": "ATL"
+   },
+   "opp_allowed_per_game": {
+    "15": 25.61,
+    "16": 24.58,
+    "17": 27.72
+   },
+   "avg_allowed_per_game": 25.97,
+   "softness_rank": 10
   },
   "9758": {
    "name": "C.J. Stroud",
@@ -6367,6 +6384,23 @@
    "avg_allowed_per_game": 20.19,
    "softness_rank": 10
   },
+  "1479": {
+   "name": "Keenan Allen",
+   "position": "WR",
+   "team": "IND",
+   "opponents": {
+    "15": "TEN",
+    "16": "CIN",
+    "17": "CLE"
+   },
+   "opp_allowed_per_game": {
+    "15": 29.55,
+    "16": 21.11,
+    "17": 21.74
+   },
+   "avg_allowed_per_game": 24.13,
+   "softness_rank": 19
+  },
   "7571": {
    "name": "Rashod Bateman",
    "position": "WR",
@@ -6417,23 +6451,6 @@
    },
    "avg_allowed_per_game": 9.31,
    "softness_rank": 26
-  },
-  "11834": {
-   "name": "Devaughn Vele",
-   "position": "WR",
-   "team": "NO",
-   "opponents": {
-    "15": "TB",
-    "16": "ARI",
-    "17": "ATL"
-   },
-   "opp_allowed_per_game": {
-    "15": 25.61,
-    "16": 24.58,
-    "17": 27.72
-   },
-   "avg_allowed_per_game": 25.97,
-   "softness_rank": 10
   },
   "8698": {
    "name": "Jake Tonges",
@@ -9393,6 +9410,23 @@
    "avg_allowed_per_game": 11.39,
    "softness_rank": 8
   },
+  "14062": {
+   "name": "Tyler Moore",
+   "position": "TE",
+   "team": "IND",
+   "opponents": {
+    "15": "TEN",
+    "16": "CIN",
+    "17": "CLE"
+   },
+   "opp_allowed_per_game": {
+    "15": 11.45,
+    "16": 17.45,
+    "17": 9.61
+   },
+   "avg_allowed_per_game": 12.84,
+   "softness_rank": 3
+  },
   "14029": {
    "name": "Johnny Pascuzzi",
    "position": "TE",
@@ -9563,6 +9597,23 @@
    "avg_allowed_per_game": 23.94,
    "softness_rank": 24
   },
+  "7496": {
+   "name": "Nick Westbrook-Ikhine",
+   "position": "WR",
+   "team": "IND",
+   "opponents": {
+    "15": "TEN",
+    "16": "CIN",
+    "17": "CLE"
+   },
+   "opp_allowed_per_game": {
+    "15": 29.55,
+    "16": 21.11,
+    "17": 21.74
+   },
+   "avg_allowed_per_game": 24.13,
+   "softness_rank": 19
+  },
   "11643": {
    "name": "Jaylen Wright",
    "position": "RB",
@@ -9682,23 +9733,6 @@
    "avg_allowed_per_game": 18.47,
    "softness_rank": 29
   },
-  "13333": {
-   "name": "Deion Burks",
-   "position": "WR",
-   "team": "IND",
-   "opponents": {
-    "15": "TEN",
-    "16": "CIN",
-    "17": "CLE"
-   },
-   "opp_allowed_per_game": {
-    "15": 29.55,
-    "16": 21.11,
-    "17": 21.74
-   },
-   "avg_allowed_per_game": 24.13,
-   "softness_rank": 19
-  },
   "6154": {
    "name": "David Sills",
    "position": "WR",
@@ -9732,23 +9766,6 @@
    },
    "avg_allowed_per_game": 26.88,
    "softness_rank": 6
-  },
-  "7496": {
-   "name": "Nick Westbrook-Ikhine",
-   "position": "WR",
-   "team": "IND",
-   "opponents": {
-    "15": "TEN",
-    "16": "CIN",
-    "17": "CLE"
-   },
-   "opp_allowed_per_game": {
-    "15": 29.55,
-    "16": 21.11,
-    "17": 21.74
-   },
-   "avg_allowed_per_game": 24.13,
-   "softness_rank": 19
   },
   "13297": {
    "name": "Reggie Virgil",
@@ -9834,6 +9851,23 @@
    },
    "avg_allowed_per_game": 26.6,
    "softness_rank": 8
+  },
+  "13333": {
+   "name": "Deion Burks",
+   "position": "WR",
+   "team": "IND",
+   "opponents": {
+    "15": "TEN",
+    "16": "CIN",
+    "17": "CLE"
+   },
+   "opp_allowed_per_game": {
+    "15": 29.55,
+    "16": 21.11,
+    "17": 21.74
+   },
+   "avg_allowed_per_game": 24.13,
+   "softness_rank": 19
   },
   "13424": {
    "name": "Seth McGowan",
@@ -10140,6 +10174,23 @@
    },
    "avg_allowed_per_game": 25.1,
    "softness_rank": 17
+  },
+  "7528": {
+   "name": "Najee Harris",
+   "position": "RB",
+   "team": "NYG",
+   "opponents": {
+    "15": "CLE",
+    "16": "DET",
+    "17": "DAL"
+   },
+   "opp_allowed_per_game": {
+    "15": 20.44,
+    "16": 17.61,
+    "17": 23.17
+   },
+   "avg_allowed_per_game": 20.41,
+   "softness_rank": 11
   },
   "12860": {
    "name": "Theo Wease",
@@ -12147,23 +12198,6 @@
    "avg_allowed_per_game": 22.27,
    "softness_rank": 2
   },
-  "13844": {
-   "name": "Coleman Bennett",
-   "position": "RB",
-   "team": "CHI",
-   "opponents": {
-    "15": "BUF",
-    "16": "GB",
-    "17": "DET"
-   },
-   "opp_allowed_per_game": {
-    "15": 22.41,
-    "16": 19.62,
-    "17": 17.61
-   },
-   "avg_allowed_per_game": 19.88,
-   "softness_rank": 18
-  },
   "13436": {
    "name": "Kentrel Bullock",
    "position": "RB",
@@ -12929,23 +12963,6 @@
    "avg_allowed_per_game": 18.76,
    "softness_rank": 20
   },
-  "13425": {
-   "name": "Jalon Daniels",
-   "position": "QB",
-   "team": "TB",
-   "opponents": {
-    "15": "NO",
-    "16": "ATL",
-    "17": "LAR"
-   },
-   "opp_allowed_per_game": {
-    "15": 16.94,
-    "16": 19.5,
-    "17": 18.22
-   },
-   "avg_allowed_per_game": 18.22,
-   "softness_rank": 23
-  },
   "13295": {
    "name": "Behren Morton",
    "position": "QB",
@@ -13065,6 +13082,23 @@
    "avg_allowed_per_game": 22.25,
    "softness_rank": 2
   },
+  "13425": {
+   "name": "Jalon Daniels",
+   "position": "QB",
+   "team": "TB",
+   "opponents": {
+    "15": "NO",
+    "16": "ATL",
+    "17": "LAR"
+   },
+   "opp_allowed_per_game": {
+    "15": 16.94,
+    "16": 19.5,
+    "17": 18.22
+   },
+   "avg_allowed_per_game": 18.22,
+   "softness_rank": 23
+  },
   "13404": {
    "name": "Garrett Nussmeier",
    "position": "QB",
@@ -13137,12 +13171,6 @@
  "players_absent": {
   "3321": {
    "name": "Tyreek Hill",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "1479": {
-   "name": "Keenan Allen",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -13239,12 +13267,6 @@
   },
   "4988": {
    "name": "Nick Chubb",
-   "position": "RB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "7528": {
-   "name": "Najee Harris",
    "position": "RB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -13377,6 +13399,12 @@
   },
   "13937": {
    "name": "Jackson Acker",
+   "position": "RB",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
+  "13844": {
+   "name": "Coleman Bennett",
    "position": "RB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"

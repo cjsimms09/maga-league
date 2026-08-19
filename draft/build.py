@@ -1848,6 +1848,20 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         print(f"  ! grab-by unavailable ({type(exc).__name__}: {exc})")
         grab_by_block = None
 
+    # The wire level (register 60 (3)) — see the note at its artifact key below
+    # for why the FLAT map and the full artifact both travel. Absent file is not
+    # fatal and is not faked: `wire_level` becomes null, and `wireBenchValue`
+    # already treats null as "fall back to the vorp rule".
+    _wire_path = HERE / "data" / "wire_level.json"
+    try:
+        wire_level_block = json.loads(_wire_path.read_text())
+        _wl = (wire_level_block or {}).get("per_week") or {}
+        print(f"  wire level: {', '.join(f'{k} {v}' for k, v in sorted(_wl.items()))} "
+              f"(pooled median, {wire_level_block.get('scored')} scored acquisitions)")
+    except Exception as exc:  # noqa: BLE001 — the board ships without it
+        print(f"  ! wire level unavailable ({type(exc).__name__}: {exc})")
+        wire_level_block = None
+
     artifact = {
         "version": ARTIFACT_VERSION,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -1912,6 +1926,44 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         },
         "replacement": vorp_diag,
         "grab_by": grab_by_block,
+        # REGISTER 60 (3) — THE WIRE LEVEL, AND A FOURTH DISCONNECTION NOBODY
+        # HAD RECORDED (A, 08-19).
+        #
+        # Register 60 says `build.py` never joins `draft/data/wire_level.json`
+        # onto the board, and that `app.js:2156` already reads
+        # `state.data.wire_level`, so the feature is "a build.py change plus a
+        # config flip". IT IS NOT, and the missing join was hiding it.
+        #
+        # `engine.js`'s `wireBenchValue` reads `ctx.wireWeekly[player.position]`
+        # — its documented contract is `{POS: weekly points}`. The artifact's
+        # top level is `{per_week, n, statistic, scored, ongoing, ...}`. Joining
+        # it verbatim would have given the engine a wrapper whose keys are not
+        # positions, `wire` would be `undefined` for every player, and
+        # `wireBenchValue` returns null on exactly that — falling back to the
+        # vorp rule **silently, indistinguishably from the flag being off.**
+        # A feature that ships, runs, and does nothing, with nothing to catch it.
+        #
+        # So the board carries the FLAT map the engine's contract names, and the
+        # full artifact beside it so the provenance travels too (register 62 is
+        # about artifacts that carry no stamp — this one should not become
+        # another). No app.js change is needed, which also keeps this inside A's
+        # territory.
+        #
+        # WHICH ESTIMATE: `per_week` — the pooled median over SCORED
+        # acquisitions. The artifact also carries `ongoing.per_week` (QB 19.34 /
+        # RB 5.90 vs 23.38 / 7.80), and its own note says that one "slightly
+        # OVERSTATES what a held wire add delivers; the gap to per_week is a
+        # floor". Both are on the board; the choice between them prices every
+        # bench player and is NOT settled by this commit — it is an open
+        # decision, recorded as such, not a default someone has to reverse-
+        # engineer from a build script.
+        #
+        # THIS CHANGES NOTHING LIVE TODAY. `VONA_WIRE_BENCH` sits below the
+        # `VONA_SLOT_AWARE` early return in `vona()`, and that flag is off
+        # pending P119. The join exists so the s2 replay arm can be defined at
+        # all — without it, s2 would run and come out byte-identical to s1.
+        "wire_level": (wire_level_block or {}).get("per_week"),
+        "wire_level_source": wire_level_block,
         "manager_profiles": profiles,
         "players": available,
         "kept_player_ids": sorted(kept_ids),
