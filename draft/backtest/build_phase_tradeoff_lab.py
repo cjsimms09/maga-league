@@ -143,8 +143,15 @@ def main() -> int:
               % (n, r["position_trade"]["picks"], r["position_trade"]["pts_per_seat_season"],
                  r["same_position"]["picks"], r["same_position"]["pts_per_seat_season"],
                  r["build_total_pts_per_seat_season"]))
-    print("\n  (same-player picks: %s — must be zero)"
+    # ⚠️ THIS LABEL WAS WRONG IN THE FIRST RUN AND I FIXED IT RATHER THAN
+    # LEAVING IT: it printed a COUNT of same-player picks next to the words
+    # "must be zero", which is not what must be zero — the count is expected to
+    # be large (the arms agree with shipped on most picks). What must be zero is
+    # the POINTS those picks contribute, which is what the control asserts.
+    print("\n  same-player picks (arms AGREE with shipped here): %s"
           % {n: result[n]["same_player"]["picks"] for n in result})
+    print("  their points contribution: %s  — THIS is what must be zero"
+          % {n: result[n]["same_player"]["pts_per_seat_season"] for n in result})
 
     report = {"_territory": "TERRITORY: A — draft/backtest/build_phase_tradeoff_lab.py",
               "_prereg": "P131", "_note": "REPORT ONLY. Engine-on-bundles.",

@@ -1,0 +1,85 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/build_phase_tradeoff_lab.py",
+ "_prereg": "P131",
+ "_note": "REPORT ONLY. Engine-on-bundles.",
+ "controls": {
+  "pick_slots_identical_across_arms": {
+   "ok": true,
+   "why": "a same-slot comparison is only valid if both arms picked at the same pick numbers"
+  },
+  "reconciles_with_P130_build_totals": {
+   "got": {
+    "auto": [
+     -175.7,
+     -175.7
+    ],
+    "need1": [
+     -161.6,
+     -161.6
+    ],
+    "slot_s1": [
+     -162.8,
+     -162.8
+    ]
+   },
+   "ok": true,
+   "why": "the classified parts must add back to the Build total P130 reported from a different aggregation"
+  },
+  "same_player_picks_contribute_zero": {
+   "got": {
+    "auto": 0.0,
+    "need1": 0.0,
+    "slot_s1": 0.0
+   },
+   "ok": true
+  }
+ },
+ "controls_all_passed": true,
+ "arms": {
+  "auto": {
+   "same_player": {
+    "picks": 23,
+    "pts_per_seat_season": 0.0
+   },
+   "position_trade": {
+    "picks": 70,
+    "pts_per_seat_season": -191.5
+   },
+   "same_position": {
+    "picks": 7,
+    "pts_per_seat_season": 15.8
+   },
+   "build_total_pts_per_seat_season": -175.7
+  },
+  "need1": {
+   "same_player": {
+    "picks": 25,
+    "pts_per_seat_season": 0.0
+   },
+   "position_trade": {
+    "picks": 62,
+    "pts_per_seat_season": -179.3
+   },
+   "same_position": {
+    "picks": 13,
+    "pts_per_seat_season": 17.7
+   },
+   "build_total_pts_per_seat_season": -161.6
+  },
+  "slot_s1": {
+   "same_player": {
+    "picks": 39,
+    "pts_per_seat_season": 0.0
+   },
+   "position_trade": {
+    "picks": 53,
+    "pts_per_seat_season": -180.9
+   },
+   "same_position": {
+    "picks": 8,
+    "pts_per_seat_season": 18.1
+   },
+   "build_total_pts_per_seat_season": -162.8
+  }
+ }
+}
