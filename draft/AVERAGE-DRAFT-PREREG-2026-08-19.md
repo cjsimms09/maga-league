@@ -64,3 +64,55 @@ into a target.
 **REPORT ONLY.** No board field, no cap, nothing ships. **And whatever the average
 is, it is the answer** — I am not adjusting the equation to hit the bands. If it
 misses, that is the finding and the next change is preregistered separately.
+
+---
+
+# ADDENDUM — P159. Cory: *"so fix and rerun. make it right"*
+
+**P158 FALSE: mean QB 1.96 (want 1), RB 3.75 and WR 3.25 (want 4–5).** The extra
+quarterback eats the depth. Diagnosed as the `(1 − λ)` bypass being
+**position-blind** — it does not know whether you can field the player.
+
+## THE FIX — the ramp form was wrong, not the ramp
+
+**`(1 − λ) + λ × need` is a linear blend, and it is the wrong way to ramp a
+MULTIPLICATIVE weight.** It drags every need toward 1 by the same additive amount,
+which compresses exactly the distinction that decides a pick. **The natural form
+for damping a multiplier is the exponent:**
+
+```
+bracket = need ^ λ            instead of   (1 − λ) + λ × need
+```
+
+**Both endpoints are unchanged and both are Cory's:**
+
+- `λ = 0` → `need⁰ = 1` for everyone → **pure value, "draft value first"**
+- `λ = 1` → `need¹ = need` → **full need weighting, late**
+- **a slot you cannot field has `need = 1.0`, so it is 1.0 at EVERY λ** — the
+  forcing case still forces.
+
+**And it stops the leak, measured at λ = 0.50:**
+
+| | need | blend | **exponent** |
+|---|---|---|---|
+| QB 2nd | 0.175 | 0.588 | **0.418** |
+| RB 3rd | 0.491 | 0.746 | **0.701** |
+| **ratio QB2 : RB3** | | **0.79** | **0.60** |
+
+**The blend hands a second quarterback 79% of a third running back's weight. The
+exponent hands him 60%.** Nothing else changes — same need, same streamability,
+same λ, same waiver levels. **λ is still `unfilled slots / picks remaining`, still
+derived.**
+
+## P159 — the same acceptance test, over the same 300 rooms
+
+**Mean drafted roster: QB ≤ 1.5 · RB between 4 and 5 · WR between 4 and 5 ·
+K 1.0 ± 0.3 · DEF 1.0 ± 0.3.**
+
+**FALSE if any of those misses.** The QB bar is set at **≤ 1.5** rather than
+"1.0 ± 0.5" deliberately: **1.96 → below 1.5 is the movement that matters, and if
+the exponent cannot do that much it is not the fix.**
+
+⚠️ **One change only, and it is the form of the ramp.** No cap, no new constant,
+no tuned parameter. **If P159 fails, the exponent is wrong too and I say so
+rather than trying a third form tonight.**

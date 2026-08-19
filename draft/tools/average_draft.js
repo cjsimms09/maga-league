@@ -96,7 +96,13 @@ function runRoom() {
       if (taken.has(id) || gone.has(id)) return;
       const nd = needOf(p.position, held[p.position] || 0, fo);
       const margin = Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
-      const v = margin * ((1 - lam) + lam * nd);
+      /* P159: need^lambda, not (1-lambda)+lambda*need. The linear blend drags
+       * every need toward 1 by the same ADDITIVE amount, which compresses the
+       * distinction that decides a pick and is why a second QB leaked through.
+       * The exponent is the natural damping for a MULTIPLICATIVE weight and has
+       * identical endpoints: lambda 0 -> 1 for everyone (pure value), lambda 1
+       * -> need, and a slot you cannot field is need 1.0 at every lambda. */
+      const v = margin * Math.pow(nd, lam);
       if (v > bestV) { bestV = v; best = p; }
     });
     if (!best) return;
