@@ -11217,6 +11217,42 @@
     return best;
   }
 
+  /* PER-POSITION MEDIAN (board rank − ADP), memoized per board (same pattern
+   * as cohortRatios above). E32's caveat compares one cross-position VORP
+   * rank against ADP, and that comparison carries a STRUCTURAL offset that
+   * varies hugely by position and has nothing to do with any player's own
+   * data — QB's median sits at +178 on the published board, K/DEF near
+   * −120, purely from how VORP crosses positions against where real drafters
+   * actually take them. sourceGapCaveat used to test the RAW gap against one
+   * fixed threshold (20) for every position, so on today's board it flags
+   * 60% of QBs and effectively no K/DEF regardless of any individual
+   * player's projections — a scale artifact wearing a source-disagreement
+   * label. Register 83/84: the register 79/80 blend moved RB/WR medians by a
+   * further ~35-70 ranks on top of that, which is what surfaced this. Netting
+   * out each position's own median restores the ORIGINAL intent (a player
+   * who is unusual relative to his own position peers) and is immune to
+   * both the pre-existing structural offset and the blend's shift. */
+  function positionGapMedians(board) {
+    if (state._gapMedFor === board && state._gapMedians) return state._gapMedians;
+    const list = (board || []).filter(x => x && x.proj_mean != null);
+    const byBoard = list.slice().sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+    const adpOf = x => (x.adjusted_adp != null ? x.adjusted_adp : x.raw_adp);
+    const byPos = {};
+    byBoard.forEach((p, i) => {
+      const adp = adpOf(p);
+      if (adp == null) return;
+      (byPos[p.position] = byPos[p.position] || []).push((i + 1) - adp);
+    });
+    const out = {};
+    Object.keys(byPos).forEach(pos => {
+      const arr = byPos[pos].slice().sort((a, b) => a - b);
+      out[pos] = arr[Math.floor(arr.length / 2)];
+    });
+    state._gapMedFor = board;
+    state._gapMedians = out;
+    return out;
+  }
+
   function sourceGapCaveat(p, board) {
     /* THE ONE-SOURCE SENTENCE, AT THE POINT OF DECISION (Cory's order, 08-18).
      *
@@ -11242,16 +11278,28 @@
     const adp = adpOf(p);
     if (!boardRank || adp == null) return '';
     const gap = boardRank - adp;                 // positive = board likes him LESS than market
-    if (gap <= 20) return '';                    // E32's own window edge
+    // Register 83/84: threshold applies to the gap NET of this position's own
+    // median gap — a player's own anomaly, not his whole position's offset.
+    const posMedian = (positionGapMedians(board) || {})[p.position] || 0;
+    const relGap = gap - posMedian;
+    if (relGap <= 20) return '';                  // E32's own window edge
+    /* ⚠️ THE RAW gap CAN BE SMALL OR NEGATIVE HERE — caught live (register
+     * 83/84): a TE with posMedian -93 and gap -5 still clears relGap > 20,
+     * and "board sits ~-5 slots below market" is self-contradictory (a
+     * negative gap means ABOVE market). The sentence now names what actually
+     * fired: how far this player sits from what's typical for HIS position,
+     * not his raw distance from ADP. */
     const fp = p.proj_fantasypros, sl = p.proj_sleeper != null ? p.proj_sleeper : p.proj_mean;
     if (fp != null && sl > 0 && fp > sl * 1.08) {
       const pct = Math.round((fp / sl - 1) * 100);
-      return 'SOURCE GAP: board sits ~' + Math.round(gap) + ' slots below market here, and gaps '
-        + 'this size are almost always one-source — FP projects him +' + pct + '% over Sleeper and '
-        + 'the board reads only Sleeper (32 of 33 such gaps, r=0.73). Lean market on this disagreement.\n';
+      return 'SOURCE GAP: board ranks him ~' + Math.round(relGap) + ' slots worse than a typical '
+        + p.position + ' at his spot on the board, and gaps this size are almost always one-source — '
+        + 'FP projects him +' + pct + '% over Sleeper and the board reads only Sleeper '
+        + '(32 of 33 such gaps, r=0.73). Lean market on this disagreement.\n';
     }
     if (fp != null && sl > 0 && fp <= sl * 1.08) {
-      return 'SOURCE GAP, UNEXPLAINED: board sits ~' + Math.round(gap) + ' slots below market and the '
+      return 'SOURCE GAP, UNEXPLAINED: board ranks him ~' + Math.round(relGap) + ' slots worse than a '
+        + 'typical ' + p.position + ' at his spot on the board, and the '
         + 'usual one-source cause does NOT apply (FP is not above Sleeper here). Nothing vouches for '
         + 'either number — extra doubt, both directions.\n';
     }
