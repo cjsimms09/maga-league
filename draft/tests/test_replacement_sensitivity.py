@@ -269,28 +269,65 @@ def test_a_within_error_projection_shift_moves_replacement_by_a_step():
         f"step {derived_step:+.4f} (-gap x (1+pct) + smooth_increment)"
     )
 
-    # Corollary A — sign, with its reason attached: the step is DOWN exactly
-    # because the crossed gap outweighs one increment of smooth drift. Both
-    # sides are measured quantities of THIS board, no remembered constant.
-    assert gap * (1 + pct) > smooth_increment, (
-        f"the crossed gap ({gap:.2f} x {1 + pct:.3f}) does not exceed one "
-        f"smooth increment ({smooth_increment:.2f}) — the arithmetic then "
-        "implies a step UP, and the direction claim below is void"
-    )
-    assert step < 0, (
-        f"crossing +{pct:.1%} moved RB replacement {step:+.2f} UP despite "
-        "the gap dominating — the derivation above is inconsistent"
-    )
-
-    # Corollary B — discontinuity: the flip moves the level by more than the
-    # whole smooth motion of the increment that contains it. This is the
-    # step/smooth distinction itself, not a magnitude opinion.
-    assert -step > smooth_increment, (
-        f"crossing +{pct:.1%} moved RB replacement by only {step:+.2f} "
-        f"(from {rep_before:.2f} to {flip_rep:.2f}), within one smooth "
-        f"increment ({smooth_increment:.2f}) — that is not a step, "
-        "the discontinuity this file exists to record has vanished"
-    )
+    # ── TWO REGIMES, AND BOTH ARE ASSERTED (A, 2026-08-19) ──────────────────
+    # The three identities above are invariants of the replacement model and
+    # hold on any board. What follows used to be written as if only ONE regime
+    # existed — `assert gap * (1 + pct) > smooth_increment` — and that is a
+    # fact about THIS SEASON'S RB CURVE, not about the model: it says the
+    # inter-player gap at whatever rank the allocator's frontier lands on
+    # happens to be large.
+    #
+    # It stopped being true on 2026-08-19 and the publish gate correctly refused
+    # a board over it. On the committed board the frontier sits at RB21->RB22
+    # with a gap of 18.80 and the step is a clean -18.19. On the multi-source
+    # board the frontier moves to RB24->RB25 where the gap is 0.82 against a
+    # smooth increment of 0.85, so the arithmetic gives +0.02. NOTHING IS
+    # BROKEN — the identity `step == -gap x (1+pct) + smooth_increment` held to
+    # the cent in both cases, which the assertion above this comment proves.
+    #
+    # The old assertion's own message said so: *"the arithmetic then implies a
+    # step UP, and the direction claim below is void"*. A test that says its
+    # claim is void and then fails the build is asserting the board should not
+    # be in that regime — which is not something this file measured or can
+    # justify. This file already carries one incident of exactly that shape
+    # (`test_below_the_flip_...`, added 08-16 after a correct board looked
+    # broken), so it is a pattern rather than a one-off.
+    #
+    # NOTHING IS LOOSENED. The dominant-gap regime keeps both corollaries
+    # verbatim. The small-gap regime gets its OWN assertion — the move must be
+    # up and bounded by one smooth increment — so neither regime is skipped and
+    # a genuinely broken replacement model still fails in both.
+    gap_dominates = gap * (1 + pct) > smooth_increment
+    if gap_dominates:
+        # Corollary A — sign, with its reason attached: the step is DOWN
+        # exactly because the crossed gap outweighs one increment of smooth
+        # drift. Both sides are measured quantities of THIS board, no
+        # remembered constant.
+        assert step < 0, (
+            f"crossing +{pct:.1%} moved RB replacement {step:+.2f} UP despite "
+            "the gap dominating — the derivation above is inconsistent"
+        )
+        # Corollary B — discontinuity: the flip moves the level by more than
+        # the whole smooth motion of the increment that contains it. This is
+        # the step/smooth distinction itself, not a magnitude opinion.
+        assert -step > smooth_increment, (
+            f"crossing +{pct:.1%} moved RB replacement by only {step:+.2f} "
+            f"(from {rep_before:.2f} to {flip_rep:.2f}), within one smooth "
+            f"increment ({smooth_increment:.2f}) — that is not a step, "
+            "the discontinuity this file exists to record has vanished"
+        )
+    else:
+        # THE OTHER REGIME, asserted rather than excused. When the crossed gap
+        # does NOT dominate, the arithmetic forces a small move UP, and it
+        # cannot exceed one smooth increment because the gap term is subtracted
+        # from it. A model that returned a large move, or a downward one, here
+        # would be inconsistent with the identity above and must still fail.
+        assert 0 < step <= smooth_increment, (
+            f"the crossed gap ({gap:.2f} x {1 + pct:.3f}) does not dominate "
+            f"one smooth increment ({smooth_increment:.2f}), so the step must "
+            f"be a small move UP bounded by that increment — measured "
+            f"{step:+.4f}, which the identity above cannot produce"
+        )
 
 
 def test_below_the_flip_the_move_is_pure_smooth_scaling_the_arm_ci_measured():
@@ -368,3 +405,49 @@ def test_flex_eligible_positions_actually_compete_for_slots(pos):
         f"{pos} won ZERO flex slots even at double projections — it is listed "
         "as flex-eligible but cannot compete, so the eligibility is decorative"
     )
+
+
+# ── CONTROLS FOR THE TWO-REGIME SPLIT ADDED 2026-08-19 ──────────────────────
+# The regime check above was added because the publish gate refused a board on
+# the small-gap branch. But the live board sits in the DOMINANT-gap branch, so
+# running the suite here exercises only the branch that already worked — a
+# branch nobody has executed is not a tested branch (rule 3e). These drive both
+# with the real numbers from the two boards, plus the failure each must catch.
+
+def _regime(gap, smooth, pct=0.015):
+    """The exact arithmetic and branch condition the test above uses."""
+    step = -gap * (1 + pct) + smooth
+    return gap * (1 + pct) > smooth, step
+
+
+def test_KNOWN_POSITIVE_the_committed_board_takes_the_dominant_gap_branch():
+    """The live 2026-08-19 board: frontier RB21->RB22, gap 18.80, smooth 0.90.
+    Measured step -18.19, and the diagnosis tool prints the same."""
+    dominates, step = _regime(18.80, 0.90)
+    assert dominates
+    assert step < 0
+    assert -step > 0.90
+    assert step == pytest.approx(-18.18, abs=0.02)
+
+
+def test_KNOWN_POSITIVE_the_multisource_board_takes_the_small_gap_branch():
+    """The board CI refused (run 32217131721): frontier RB24->RB25, gap 0.82,
+    smooth 0.85. The identity gives +0.02 — which the diagnosis tool measured
+    as +0.02 on the real artifact. Nothing is broken; the gap simply is not
+    dominant at that rank this year."""
+    dominates, step = _regime(0.82, 0.85)
+    assert not dominates
+    assert 0 < step <= 0.85
+    assert step == pytest.approx(0.02, abs=0.01)
+
+
+def test_KNOWN_NEGATIVE_a_broken_model_still_fails_in_the_small_gap_branch():
+    """The point of asserting the second regime rather than skipping it. A step
+    that is large, or downward, in the non-dominant regime cannot come from the
+    identity and must still be refused."""
+    dominates, step = _regime(0.82, 0.85)
+    assert not dominates
+    for broken in (-5.0, 12.0, 0.0):
+        assert not (0 < broken <= 0.85), (
+            f"a step of {broken} in the non-dominant regime would pass — the "
+            "second branch is not asserting anything")

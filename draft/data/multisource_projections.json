@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: A \u2014 draft/tools/multisource_projections.py",
+ "_territory": "TERRITORY: A \u2014 written by draft/tools/multisource_projections.py",
  "_note": "Scored under THIS LEAGUE'S table from raw stat lines. The providers' own site_pts is deliberately ignored \u2014 it encodes their league's rules, not ours. Writes NO board field.",
  "sources_used": [
   "CBS",
@@ -960,6 +960,20 @@
    "min": 268.5,
    "max": 311.3
   },
+  "3198": {
+   "name": "Derrick Henry",
+   "position": "RB",
+   "by_source": {
+    "CBS": 282.7,
+    "ESPN": 263.9,
+    "FFToday": 251.6
+   },
+   "n_sources": 3,
+   "mean": 266.07,
+   "sd": 12.79,
+   "min": 251.6,
+   "max": 282.7
+  },
   "4034": {
    "name": "Christian McCaffrey",
    "position": "RB",
@@ -1099,6 +1113,20 @@
    "sd": 6.95,
    "min": 208.1,
    "max": 224.4
+  },
+  "8151": {
+   "name": "Kenneth Walker",
+   "position": "RB",
+   "by_source": {
+    "CBS": 221.4,
+    "ESPN": 251.5,
+    "FFToday": 236.9
+   },
+   "n_sources": 3,
+   "mean": 236.6,
+   "sd": 12.29,
+   "min": 221.4,
+   "max": 251.5
   },
   "11584": {
    "name": "Bucky Irving",
@@ -1407,6 +1435,20 @@
    "sd": 12.82,
    "min": 127.7,
    "max": 159.0
+  },
+  "7567": {
+   "name": "Kenny Gainwell",
+   "position": "RB",
+   "by_source": {
+    "CBS": 161.3,
+    "ESPN": 154.3,
+    "FFToday": 119.9
+   },
+   "n_sources": 3,
+   "mean": 145.17,
+   "sd": 18.09,
+   "min": 119.9,
+   "max": 161.3
   },
   "8136": {
    "name": "Rachaad White",
@@ -2138,6 +2180,20 @@
    "sd": 23.53,
    "min": 218.0,
    "max": 270.1
+  },
+  "7564": {
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "by_source": {
+    "CBS": 279.1,
+    "ESPN": 279.0,
+    "FFToday": 272.5
+   },
+   "n_sources": 3,
+   "mean": 276.87,
+   "sd": 3.09,
+   "min": 272.5,
+   "max": 279.1
   },
   "7547": {
    "name": "Amon-Ra St. Brown",
@@ -3108,12 +3164,13 @@
    "position": "WR",
    "by_source": {
     "CBS": 106.5,
+    "ESPN": 27.4,
     "FFToday": 31.2
    },
-   "n_sources": 2,
-   "mean": 68.85,
-   "sd": 37.65,
-   "min": 31.2,
+   "n_sources": 3,
+   "mean": 55.03,
+   "sd": 36.43,
+   "min": 27.4,
    "max": 106.5
   },
   "13301": {
@@ -3442,6 +3499,20 @@
    "sd": 6.17,
    "min": 77.9,
    "max": 93.0
+  },
+  "7670": {
+   "name": "Joshua Palmer",
+   "position": "WR",
+   "by_source": {
+    "CBS": 77.4,
+    "ESPN": 35.0,
+    "FFToday": 34.4
+   },
+   "n_sources": 3,
+   "mean": 48.93,
+   "sd": 20.13,
+   "min": 34.4,
+   "max": 77.4
   },
   "8130": {
    "name": "Trey McBride",
@@ -3820,6 +3891,20 @@
    "sd": 3.68,
    "min": 104.1,
    "max": 113.1
+  },
+  "8210": {
+   "name": "Chig Okonkwo",
+   "position": "TE",
+   "by_source": {
+    "CBS": 107.5,
+    "ESPN": 93.5,
+    "FFToday": 96.9
+   },
+   "n_sources": 3,
+   "mean": 99.3,
+   "sd": 5.96,
+   "min": 93.5,
+   "max": 107.5
   },
   "6865": {
    "name": "Colby Parkinson",
@@ -4789,6 +4874,19 @@
    "min": 120.0,
    "max": 131.57
   },
+  "12713": {
+   "name": "Andy Borregales",
+   "position": "K",
+   "by_source": {
+    "CBS": 126.42,
+    "ESPN": 127.0
+   },
+   "n_sources": 2,
+   "mean": 126.71,
+   "sd": 0.29,
+   "min": 126.42,
+   "max": 127.0
+  },
   "13968": {
    "name": "Drew Stevens",
    "position": "K",
@@ -5351,18 +5449,6 @@
    "min": 69.0,
    "max": 101.0
   },
-  "7567": {
-   "name": "Kenny Gainwell",
-   "position": "RB",
-   "by_source": {
-    "ESPN": 154.3
-   },
-   "n_sources": 1,
-   "mean": 154.3,
-   "sd": null,
-   "min": 154.3,
-   "max": 154.3
-  },
   "11575": {
    "name": "Ray Davis",
    "position": "RB",
@@ -5904,18 +5990,6 @@
    "min": 29.4,
    "max": 35.3
   },
-  "7670": {
-   "name": "Joshua Palmer",
-   "position": "WR",
-   "by_source": {
-    "ESPN": 35.0
-   },
-   "n_sources": 1,
-   "mean": 35.0,
-   "sd": null,
-   "min": 35.0,
-   "max": 35.0
-  },
   "13413": {
    "name": "Cyrus Allen",
    "position": "WR",
@@ -6252,18 +6326,6 @@
    "min": 6.4,
    "max": 6.4
   },
-  "8210": {
-   "name": "Chig Okonkwo",
-   "position": "TE",
-   "by_source": {
-    "ESPN": 93.5
-   },
-   "n_sources": 1,
-   "mean": 93.5,
-   "sd": null,
-   "min": 93.5,
-   "max": 93.5
-  },
   "8698": {
    "name": "Jake Tonges",
    "position": "TE",
@@ -6313,18 +6375,6 @@
    "sd": null,
    "min": 23.5,
    "max": 23.5
-  },
-  "12713": {
-   "name": "Andy Borregales",
-   "position": "K",
-   "by_source": {
-    "ESPN": 127.0
-   },
-   "n_sources": 1,
-   "mean": 127.0,
-   "sd": null,
-   "min": 127.0,
-   "max": 127.0
   },
   "827": {
    "name": "Tyrod Taylor",
@@ -6412,13 +6462,13 @@
   }
  },
  "coverage": {
-  "players_with_at_least_one_source": 478,
-  "players_with_2plus": 388,
-  "players_with_all_3": 274,
+  "players_with_at_least_one_source": 481,
+  "players_with_2plus": 395,
+  "players_with_all_3": 281,
   "by_position": {
    "QB": 69,
-   "RB": 108,
-   "WR": 151,
+   "RB": 110,
+   "WR": 152,
    "TE": 85,
    "K": 33,
    "DEF": 32
@@ -6429,7 +6479,7 @@
    "rows": 442,
    "scored": 442,
    "zero_points": 0,
-   "joined": 394,
+   "joined": 401,
    "unmatched": [
     "Desmond Ridder (QB)",
     "Shane Buechele (QB)",
@@ -6440,9 +6490,6 @@
     "Drew Lock (QB)",
     "Jake Browning (QB)",
     "Brady Cook (QB)",
-    "Derrick Henry (RB)",
-    "Kenneth Walker III (RB)",
-    "Kenneth Gainwell (RB)",
     "AJ Dillon (RB)",
     "Christopher Brooks (RB)",
     "Kyle Juszczyk (FB)",
@@ -6454,26 +6501,26 @@
     "Carlos Washington Jr. (RB)",
     "Deuce Vaughn (RB)",
     "Salvon Ahmed (RB)",
-    "Ja'Marr Chase (WR)",
-    "Bub Means (WR)"
-   ]
+    "Bub Means (WR)",
+    "Ben Sims (TE)",
+    "Erick All (TE)",
+    "Connor Heyward (FB)",
+    "Elijah Higgins (TE)"
+   ],
+   "unmatched_total": 41
   },
   "ESPN": {
    "rows": 416,
    "scored": 416,
    "zero_points": 12,
-   "joined": 399,
+   "joined": 403,
    "unmatched": [
-    "Derrick Henry (RB)",
-    "Kenneth Walker III (RB)",
     "Kene Nwangwu (RB)",
     "Bam Knight (RB)",
     "Jacob Saylors (RB)",
     "DeeJay Dallas (RB)",
     "Josh Williams (RB)",
-    "Ja'Marr Chase (WR)",
     "Travis Hunter (WR)",
-    "Hollywood Brown (WR)",
     "Mason Tipton (WR)",
     "Laquon Treadwell (WR)",
     "Derius Davis (WR)",
@@ -6481,53 +6528,49 @@
     "Elijah Higgins (TE)",
     "Chiefs D/ST (DEF)",
     "Jaguars D/ST (DEF)"
-   ]
+   ],
+   "unmatched_total": 13
   },
   "FFToday": {
    "rows": 390,
    "scored": 358,
    "zero_points": 2,
-   "joined": 347,
+   "joined": 353,
    "unmatched": [
     "Kenny Pickett (QB)",
-    "Derrick Henry (RB)",
-    "Kenneth Walker (RB)",
-    "Kenneth Gainwell (RB)",
-    "Ja'Marr Chase (WR)",
     "Travis Hunter (WR)",
-    "Josh Palmer (WR)",
     "Mitchell Tinsley (WR)",
     "Mason Tipton (WR)",
-    "Devin Duvernay (WR)",
-    "Chigoziem Okonkwo (TE)"
+    "Devin Duvernay (WR)"
    ],
+   "unmatched_total": 5,
    "excluded_no_fg_split": 32
   }
  },
  "agreement_spearman": {
   "CBS vs ESPN": {
-   "n": 322,
-   "spearman": 0.932
+   "n": 330,
+   "spearman": 0.9329
   },
   "CBS vs FFToday": {
-   "n": 289,
-   "spearman": 0.9407
+   "n": 295,
+   "spearman": 0.9421
   },
   "ESPN vs FFToday": {
-   "n": 325,
-   "spearman": 0.9694
+   "n": 332,
+   "spearman": 0.97
   },
   "CBS vs Sleeper": {
-   "n": 394,
-   "spearman": 0.9261
+   "n": 401,
+   "spearman": 0.9473
   },
   "ESPN vs Sleeper": {
-   "n": 399,
-   "spearman": 0.9294
+   "n": 403,
+   "spearman": 0.9562
   },
   "FFToday vs Sleeper": {
-   "n": 347,
-   "spearman": 0.9569
+   "n": 353,
+   "spearman": 0.9704
   }
  }
 }

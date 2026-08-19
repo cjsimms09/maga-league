@@ -71,6 +71,51 @@ distinct-value count, the position mix of the top 40, and whether QBs win ties.
 3. **The roster shape moves toward legality, not away.** Register 59's symptom is
    RB10/WR1 with an un-fieldable week-11 lineup. s1 must not increase the count
    of un-fieldable weeks.
+
+   > **⚠️ MEASURED 2026-08-19 — AND MY FIRST ANSWER WAS THAT I COULD NOT.**
+   > I marked this NOT MEASURABLE because the seat replay's `optimal` estimand
+   > CONSTRUCTS a legal lineup every week by definition, so it can never report
+   > one. **That was a condition written against an instrument that cannot
+   > answer it — the same error as publishing a null on an instrument that
+   > could not have seen the effect.** `draft/tools/fieldability_probe.js`
+   > measures it directly on the live board, where byes are known, with a
+   > bipartite matcher (greedy strands dedicated slots) and five controls
+   > including two greedy traps.
+   >
+   > **Un-fieldable SKILL weeks — K/DEF excluded, because a one-kicker roster
+   > is un-fieldable in its own kicker's bye by construction and you stream
+   > that:**
+   >
+   > | arm | un-fieldable skill weeks |
+   > |---|---|
+   > | shipped | **3** — wk6 (QB+WR), wk11 (WR), wk13 (TE) |
+   > | **s1 slot-aware** | **0** — the only arm at zero |
+   > | need=1.0 | 1 (wk14 QB) |
+   > | auto | 1 (wk6 QB) |
+   >
+   > **Register 59's week-11 empty WR slot reproduces exactly on the shipped
+   > arm, and there are two more weeks nobody had found.** CONDITION 3 PASSES.
+   >
+   > **⚠️ RE-MEASURED ON THE PUBLISHED BOARD (05:11Z, multi-source mean) —
+   > THE CONDITION STILL PASSES, THE TABLE ABOVE DOES NOT.** Shipped 2
+   > (wk7 QB, wk10 TE) · slot-aware 1 (wk7 QB) · need=1.0 2 · Auto 1.
+   > **NO arm is at zero on the published board.** What survives is exactly
+   > what this condition asked — *s1 must not increase the count* — and s1
+   > is BELOW shipped on both boards (3→0 and 2→1). What does not survive
+   > is the sentence "the only arm at zero", which was a fact about one
+   > board that I wrote as though it were a property of the arm.
+   >
+   > **And the swing is register 74:** slot-aware's roster went WR6/RB3/TE3
+   > to WR3/RB10/TE2 on a single rebuild. A projection change worth a few
+   > points should not move a simulated roster by seven running backs. This
+   > probe detects the defect CLASS; it must not be used to RANK arms — the
+   > seat replay is the instrument for that.
+   >
+   > **What this does NOT establish:** the probe drains the room in strict ADP
+   > order, so its roster counts are the same untrustworthy kind register 67
+   > names — shipped shows RB12/WR2 here against RB4.77 on the seat replay, and
+   > s1 shows QB4/TE3 here against QB2.00/TE1.47 there. **The COMPARISON between
+   > arms on one shared room is what is meaningful; neither absolute count is.**
 4. **No one-start pileup** — s1 must not raise the QB+TE count on the simulated
    roster above s0's.
 

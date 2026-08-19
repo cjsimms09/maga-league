@@ -114,6 +114,23 @@ measurement is too noisy to rank the tool against any individual owner. Against
 "loses badly to the best drafter" was never in the data. Read
 `draft/audit/league_benchmark_2026-08-16.md` before quoting any number from it.
 
+> **⚠️ EVERY NUMBER ABOVE IS THE *PROXY*, AND IT IS NOT THE SHIPPED TOOL —
+> corrected 2026-08-19, register 88.** These are `replay_league_table.json`:
+> `own_v6_nomarket` projections with the proxy's own selection rule. **The real
+> `engine.js` at `MEASURED_WEIGHTS` has its own replay through the same
+> fixed-opponents counterfactual, and it says something much worse:
+> `beats_n_of_10_pooled` = 0 on both arms, median owner delta −174.43, Cory
+> −188.35 on the preregistered primary.** Where it would have FINISHED: **8th of
+> 10** (mean rank 7.80, top-3 in 3 of 30 against a 30% chance rate).
+>
+> **"Roughly a wash" is a statement about the projection model. It is not a
+> statement about the tool, and the two were being read as one.** The gap is
+> where the tool SELECTS: in 2023 and 2025 the engine's roster holds MORE points
+> than the owners' (+2.1%, +5.1%) and loses entirely on **conversion** — 6 to 9
+> points of every 100 that never reach a starting slot, because `need` ships at
+> weight 0 and nothing penalises a positional pileup.
+> `draft/audit/seat_rank_and_the_conversion_gap_2026-08-19.md`.
+
 **This is still the most important measurement in the project**, and the first
 thing owners 1-3 should notice is that its noise floor is the binding
 constraint: at sd 116.9 per seat-year, **an improvement worth less than ~42

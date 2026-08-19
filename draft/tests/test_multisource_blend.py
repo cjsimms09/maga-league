@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE.parent))
 
 import multisource_blend as MS  # noqa: E402
@@ -143,3 +144,90 @@ def test_too_few_opinions_is_left_alone(tmp_path):
     diag = MS.apply_multisource(players, store_path=_store(tmp_path, src))
     assert diag["applied"] is False       # coverage 0 -> refuses
     assert all(p["proj_mean"] == 100.0 for p in players)
+
+
+def test_DEF_keeps_our_exact_mean_and_still_gains_the_dispersion(tmp_path):
+    """THE PUBLISH GATE FOUND THIS, and it is the reason the rule exists.
+
+    For DEF the board's `proj_mean` is not an estimate — it is our own component
+    line scored exactly under this league's table, and
+    `test_all_32_sweep_correction_is_exactly_the_td_components` pins that
+    identity. The first blended board overwrote it (ARI 80.0 -> 87.2, DEF
+    replacement 103.0 -> 108.05) and CI refused to publish, correctly.
+
+    Both halves are asserted, because keeping only the first would let someone
+    "fix" this by dropping DEF from the blend entirely — which would throw away
+    the dispersion that our own pipeline structurally cannot produce.
+    """
+    players = [{"player_id": str(i), "name": f"D{i}", "position": "DEF",
+                "proj_mean": 100.0, "years_exp": 5} for i in range(40)]
+    src = {str(i): {"by_source": {"CBS": 120.0 + i, "ESPN": 110.0}} for i in range(40)}
+    MS.apply_multisource(players, store_path=_store(tmp_path, src))
+    for p in players:
+        assert p["proj_mean"] == 100.0, "DEF mean must stay first-party"
+        assert "proj_mean_sleeper_only" not in p
+        assert "proj_mean_source" not in p
+        # ...and the band is still real, and still centred on OUR mean
+        assert p["proj_sd_source"] == "cross-source-disagreement"
+        assert p["proj_floor"] < 100.0 < p["proj_ceiling"]
+    ratios = {round(p["proj_sd"] / p["proj_mean"], 4) for p in players}
+    assert len(ratios) > 20, (
+        "DEF dispersion collapsed to a constant — that is the defect this "
+        "replaces (all 32 defences once shared one ratio, 0.380)")
+
+
+def test_a_skill_position_still_takes_the_blended_mean(tmp_path):
+    """The known-negative control for the rule above: if the DEF carve-out ever
+    widens to everything, the blend is inert and this test says so."""
+    players = [{"player_id": str(i), "name": f"W{i}", "position": "WR",
+                "proj_mean": 100.0, "years_exp": 5} for i in range(40)]
+    src = {str(i): {"by_source": {"CBS": 120.0, "ESPN": 110.0}} for i in range(40)}
+    MS.apply_multisource(players, store_path=_store(tmp_path, src))
+    assert all(p["proj_mean_source"] == "multisource-mean-2026" for p in players)
+    assert all(p["proj_mean_sleeper_only"] == 100.0 for p in players)
+    assert all(p["proj_mean"] == 110.0 for p in players)
+
+
+def test_KEEPERS_ARE_IN_THE_JOIN_UNIVERSE():
+    """Register 80. `build.py` moves kept players OUT of `players` and into
+    `kept_players`, so a capture that joins over `board["players"]` alone can
+    never match a keeper — and on 2026-08-19 that silently left Cory's entire
+    keeper slate (Derrick Henry, Ja'Marr Chase, Kenneth Walker) on Sleeper-only
+    projections while the rest of the board was blended, with their VORP
+    computed against a replacement level that HAD moved.
+
+    The capture's own `unmatched` diagnostic named two of them the whole time.
+    Nobody read it, so this asserts it instead.
+    """
+    src = (ROOT / "draft" / "tools" / "multisource_projections.py").read_text()
+    assert 'board.get("kept_players")' in src, (
+        "the multisource join no longer reads kept_players — keepers are "
+        "excluded from board['players'] by construction, so this drops every "
+        "kept player out of the store without erroring")
+    # both join paths, not just the first: the name index AND the Sleeper
+    # comparison universe both walk the board and both were wrong.
+    assert src.count('board.get("kept_players")') >= 2, (
+        "only one of the two board walks includes kept_players — the other "
+        "will report a coverage or agreement figure computed over a different "
+        "population than the one it blended")
+
+
+def test_a_board_with_kept_players_blends_them(tmp_path):
+    """The behavioural half: a keeper present in the store must be blended like
+    anyone else. Guards against a 'fix' that reads kept_players and then drops
+    them somewhere downstream."""
+    players = _board(40)
+    keeper = {"player_id": "999", "name": "Kept Man", "position": "WR",
+              "proj_mean": 100.0, "years_exp": 5, "is_keeper": True}
+    src = {str(i): {"by_source": {"CBS": 110.0, "ESPN": 110.0}} for i in range(40)}
+    src["999"] = {"by_source": {"CBS": 110.0, "ESPN": 110.0}}
+    MS.apply_multisource(players + [keeper], store_path=_store(tmp_path, src))
+    # mean(CBS 110, ESPN 110, Sleeper 100) = 106.67 — Sleeper is an OPINION in
+    # the average, not a thing the blend replaces, so the expected value is not
+    # the scrapers' own mean. (My first version of this test asserted 110.0 and
+    # failed on correct code.)
+    assert keeper["proj_mean"] == pytest.approx(106.67, abs=0.01), (
+        "a kept player in the store was not blended — keepers must be priced "
+        "on the same basis as the pool their VORP is measured against")
+    assert keeper["proj_mean_source"] == "multisource-mean-2026"
+    assert keeper["proj_mean_sleeper_only"] == 100.0

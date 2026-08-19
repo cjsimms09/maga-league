@@ -1,0 +1,138 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/bye_term_participation.js",
+ "_note": "REPORT ONLY. Room drained in strict ADP order — the engine's own tendency, not a forecast of the 22nd (register 67/74).",
+ "board_built_at": "2026-08-19T05:11:30Z",
+ "bye_weight_shipped": 0,
+ "known_positive_control": {
+  "ok": true,
+  "value": 2.7008999999999994,
+  "detail": "1 other WR on bye week 11",
+  "bye": 11,
+  "with_player": "Puka Nacua",
+  "candidate": "Jaxon Smith-Njigba"
+ },
+ "picks": [
+  {
+   "pick": 8,
+   "top20_with_a_bye_penalty": 2,
+   "largest_penalty": 2.63,
+   "largest_on": "Ashton Jeanty",
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "QB Josh Allen"
+  },
+  {
+   "pick": 13,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB De'Von Achane"
+  },
+  {
+   "pick": 28,
+   "top20_with_a_bye_penalty": 1,
+   "largest_penalty": 0.37,
+   "largest_on": "Jameson Williams",
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Breece Hall"
+  },
+  {
+   "pick": 33,
+   "top20_with_a_bye_penalty": 2,
+   "largest_penalty": 0.43,
+   "largest_on": "Tee Higgins",
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "TE Colston Loveland"
+  },
+  {
+   "pick": 48,
+   "top20_with_a_bye_penalty": 1,
+   "largest_penalty": 0.37,
+   "largest_on": "Jameson Williams",
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Bhayshul Tuten"
+  },
+  {
+   "pick": 53,
+   "top20_with_a_bye_penalty": 2,
+   "largest_penalty": 0.64,
+   "largest_on": "Jayden Daniels",
+   "pick_changes_if_bye_turned_ON": true,
+   "picked": "WR Jameson Williams"
+  },
+  {
+   "pick": 68,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Rhamondre Stevenson"
+  },
+  {
+   "pick": 73,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Tony Pollard"
+  },
+  {
+   "pick": 88,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "WR Alec Pierce"
+  },
+  {
+   "pick": 93,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Jordan Mason"
+  },
+  {
+   "pick": 108,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Rachaad White"
+  },
+  {
+   "pick": 113,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "RB Aaron Jones"
+  },
+  {
+   "pick": 128,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "WR Xavier Worthy"
+  },
+  {
+   "pick": 133,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "K Jason Myers"
+  },
+  {
+   "pick": 148,
+   "top20_with_a_bye_penalty": 0,
+   "largest_penalty": 0,
+   "largest_on": null,
+   "pick_changes_if_bye_turned_ON": false,
+   "picked": "DEF Jacksonville Jaguars"
+  }
+ ],
+ "picks_where_any_candidate_carried_a_penalty": "5/15",
+ "picks_the_bye_term_actually_changed": "1/15"
+}

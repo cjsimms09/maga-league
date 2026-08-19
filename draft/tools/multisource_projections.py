@@ -1,4 +1,5 @@
 # TERRITORY: A
+# TERRITORY-GRANT: C register 80 norm_name nickname NICKNAMES adp rule 11 unmatched Joshua Palmer Chig Okonkwo Chigoziem Marquise Hollywood Brown sys path root import ADP get sub strip written by TERRITORY multisource_projections 2026-08-19
 """SCORE THE ffanalytics ROWS UNDER *OUR* RULES, JOIN THEM TO THE BOARD, AND
 CHECK THEM BEFORE ANY OF IT REACHES A NUMBER CORY DRAFTS ON.
 
@@ -18,9 +19,15 @@ comparable to each other at all.
 The rows carry an `id` column of 4-5 digit integers that LOOKS like a Sleeper
 id. It is not: exactly 14 of 531 distinct ids collide with a board sleeper_id,
 which is coincidence. The join is by normalised name + position, with team as a
-disambiguator, and every unmatched row is COUNTED AND NAMED rather than dropped
-silently (register 46 is exactly the defect where a correct drop was invisible
-because nothing reported it).
+disambiguator. Every unmatched row is COUNTED (`unmatched_total`) and the first
+25 are NAMED (`unmatched`) rather than dropped silently — register 46 is exactly
+the defect where a correct drop was invisible because nothing reported it.
+
+⚠️ THAT SENTENCE USED TO SAY EVERY ROW WAS "COUNTED AND NAMED" AND IT WAS FALSE:
+the list was capped at 25 with no count beside it, so its length was the only
+number available and "25 unmatched" could not be told from "at least 25". It hid
+that CBS had more. Fixed 2026-08-19 (register 84) the day register 80 showed
+what an under-reporting diagnostic costs.
 
 ── WHAT THIS DOES NOT DO ─────────────────────────────────────────────────────
 It does not write `proj_mean`, touch the board, or ship anything. It produces a
@@ -100,7 +107,27 @@ def norm_name(s: str) -> str:
     s = (s or "").lower()
     s = re.sub(r"[.'`]", "", s)
     s = re.sub(r"\b(jr|sr|ii|iii|iv|v)\b", "", s)
-    return re.sub(r"[^a-z ]", " ", s).strip()
+    s = re.sub(r"[^a-z ]", " ", s).strip()
+    # register 80's own "read the unmatched list" ask, followed: real starting
+    # players were silently absent from the blend for a NAME reason, not a
+    # data reason -- Josh Palmer (board: "Joshua Palmer"), Chig Okonkwo
+    # (board: "Chigoziem Okonkwo"), Hollywood Brown (board: "Marquise Brown"),
+    # each confirmed against the live board before concluding it was the
+    # nickname table's job, not a genuine absence. `adp.NICKNAMES` already
+    # solves exactly this for every other source that joins to the board
+    # (rule 11 -- imported, not re-declared, so a future addition to that
+    # table reaches this join too rather than drifting from it). Applied
+    # AFTER normalisation since its keys are already lowercased/depunctuated,
+    # and to every name on both sides (board index and source rows alike,
+    # since both paths call this same function) -- a table entry can only
+    # ever relabel a key, never break a pair that already matched.
+    import sys as _sys
+    from pathlib import Path as _Path
+    _root = _Path(__file__).resolve().parent.parent
+    if str(_root) not in _sys.path:
+        _sys.path.insert(0, str(_root))
+    import adp as _ADP
+    return _ADP.NICKNAMES.get(s, s)
 
 
 def num(v):
@@ -127,7 +154,21 @@ def main() -> None:
     board = json.loads(BOARD.read_text())
     by_name = defaultdict(list)
     by_team_def = defaultdict(list)
-    for p in board["players"]:
+    # KEEPERS ARE NOT IN `players` AND THAT SILENTLY EXCLUDED CORY'S WHOLE
+    # KEEPER SLATE (register 80, A 2026-08-19).
+    #
+    # `build.py` moves kept players OUT of `players` and into `kept_players`,
+    # so a join over `board["players"]` alone can never match one. The result:
+    # Derrick Henry, Ja'Marr Chase and Kenneth Walker — the only three keepers
+    # on the board, all Cory's — were absent from the store, kept Sleeper-only
+    # projections while the rest of the board was blended, and had their VORP
+    # computed against a replacement level that HAD moved. The capture's own
+    # `unmatched` diagnostic named "Derrick Henry (RB)" and "Kenneth Walker III
+    # (RB)" the whole time and nobody read it.
+    #
+    # The join universe is now BOTH lists. Kept players are still excluded from
+    # the draftable board by build.py; that is a separate and correct thing.
+    for p in list(board["players"]) + list(board.get("kept_players") or []):
         if p.get("position"):
             by_name[(norm_name(p.get("name")), p["position"])].append(p)
         if p.get("position") == "DEF":
@@ -200,6 +241,15 @@ def main() -> None:
             key = (norm_name(r.get("player")), pos)
             cands = by_name.get(key) or []
         if not cands:
+            # COUNT ALWAYS, NAME UP TO 25 (A, 2026-08-19, register 84).
+            # The cap was here without a count beside it, so the LIST LENGTH
+            # was the only number anyone could read — and "25 unmatched" was
+            # indistinguishable from "at least 25". That is how this file's own
+            # docstring came to claim every unmatched row is "COUNTED AND
+            # NAMED" while silently dropping the 26th onward, and it is the
+            # same shape as register 80: a diagnostic that under-reports is
+            # worse than one that is absent, because its number gets believed.
+            d["unmatched_total"] = d.get("unmatched_total", 0) + 1
             if len(d["unmatched"]) < 25:
                 d["unmatched"].append(f"{r.get('player')} ({pos})")
             continue
@@ -249,14 +299,15 @@ def main() -> None:
                      if s1 in p["by_source"] and s2 in p["by_source"]]
             agree[f"{s1} vs {s2}"] = {"n": len(pairs), "spearman": spearman(pairs)}
     # And against the board's incumbent Sleeper number — the champion.
-    sleeper = {str(p["player_id"]): p.get("proj_mean") for p in board["players"]}
+    sleeper = {str(p["player_id"]): p.get("proj_mean")
+               for p in list(board["players"]) + list(board.get("kept_players") or [])}
     for s in srcs:
         pairs = [(p["by_source"][s], sleeper[pid]) for pid, p in players.items()
                  if s in p["by_source"] and sleeper.get(pid) is not None]
         agree[f"{s} vs Sleeper"] = {"n": len(pairs), "spearman": spearman(pairs)}
 
     doc = {
-        "_territory": "TERRITORY: A — draft/tools/multisource_projections.py",
+        "_territory": "TERRITORY: A — written by draft/tools/multisource_projections.py",
         "_note": "Scored under THIS LEAGUE'S table from raw stat lines. The "
                  "providers' own site_pts is deliberately ignored — it encodes "
                  "their league's rules, not ours. Writes NO board field.",

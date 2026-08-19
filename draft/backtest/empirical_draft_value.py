@@ -57,14 +57,44 @@ POSITIONS = ("QB", "RB", "WR", "TE")
 TEAMS = 10
 ROUNDS = 15
 # the shipped board's own starter counts (public/draft_data.json:replacement)
-STARTER_RANK = {"RB": 21, "WR": 29, "QB": 10, "TE": 10}
-BOARD_REPLACEMENT_2026 = {"RB": 179.30, "WR": 162.60, "QB": 341.72, "TE": 136.40}
-# ^ RE-DERIVED 2026-08-17 from the first board published under the rulings
-#   (opportunity layer off, K/DEF demoted). RB/WR/TE all fell — the +15%
-#   cap that was inflating elite skill projections also propped up the
-#   replacement levels beneath them. QB unchanged: the killed layer never
-#   touched QBs (composite_z is WR/TE/RB-only), which was half the reason
-#   Cory killed it.
+STARTER_RANK = {"RB": 24, "WR": 26, "QB": 10, "TE": 10}
+# ^ RE-DERIVED 2026-08-19 with BOARD_REPLACEMENT_2026 below, from the same
+#   published board. Was {RB 21, WR 29}. The flex allocator moved THREE
+#   seats from receivers to running backs, which is the same event the
+#   replacement levels record — and the pair must move together, because
+#   replacement IS the STARTER_RANK-th man's projection. Updating one
+#   without the other would leave this study comparing a level taken at
+#   rank 24 against a cliff measured at rank 21.
+BOARD_REPLACEMENT_2026 = {"RB": 170.47, "WR": 171.85, "QB": 350.26, "TE": 141.45}
+# ^ RE-DERIVED 2026-08-19 from the first board published with the MULTI-SOURCE
+#   MEAN (built_at 2026-08-19T05:11:30Z). The previous values were
+#   {RB 179.30, WR 162.60, QB 341.72, TE 136.40}, re-derived 2026-08-17.
+#
+#   RB AND WR MOVED IN OPPOSITE DIRECTIONS, AND THE EFFECT IS ON RB'S SIDE.
+#   RB replacement fell 8.83; WR replacement rose 9.25. Since every VORP is
+#   `proj_mean - replacement[pos]`, that means **every RB's VORP went UP by
+#   ~8.8 and every WR's went DOWN by ~9.3 — an ~18-point swing TOWARD running
+#   backs.** The allocator agrees: RB starter slots went 21 -> 24 and WR 29 ->
+#   26, three flex seats moving from receivers to backs.
+#
+#   ⚠️ I FIRST WROTE THE OPPOSITE HERE, and the mistake is worth leaving on the
+#   record because it is easy to repeat: I compared the two replacement LEVELS
+#   to each other (171.85 > 170.47) and called it an inversion that removed
+#   RB's head start. **Comparing replacement levels ACROSS positions is
+#   meaningless** — QB replacement is 350 and that does not make quarterbacks
+#   cheap. Only the change WITHIN a position tells you which way value moved.
+#
+#   WHAT THIS DOES NOT SETTLE: whether it helps or hurts the roster-shape
+#   complaint. The ADP-order probe that would answer it is unstable to a board
+#   rebuild (register 74), and the seat replay is the instrument for that.
+#   The blend was shipped to improve projections and ceilings; it moved
+#   replacement levels as a consequence nobody had predicted, in the direction
+#   nobody had asked for.
+#
+#   SCALE, so this is not read as ordinary drift: this test's own docstring
+#   records the historic case as RB 189.10 -> 189.17, i.e. 0.07. Today is 8.83,
+#   two orders of magnitude larger, because the inputs changed structurally
+#   rather than overnight.
 CLIFF_WINDOW = {"RB": 48, "WR": 48, "QB": 30, "TE": 30}
 CLIFF_DROP_MULT = 2.0          # prereg §3.2 detector 1
 HIT_MULT = 1.25                # prereg §3.3 definition A

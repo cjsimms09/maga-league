@@ -1,3 +1,5 @@
+# TERRITORY: A
+# TERRITORY-GRANT: C FFToday DST full team name Houston Texans code join defense HOUSTON TEXANS ARIZONA CARDINALS ATLANTA FALCONS BALTIMORE RAVENS BUFFALO BILLS CAROLINA PANTHERS CHICAGO BEARS CINCINNATI BENGALS CLEVELAND BROWNS DALLAS COWBOYS DENVER BRONCOS DETROIT LIONS GREEN BAY PACKERS INDIANAPOLIS COLTS JACKSONVILLE JAGUARS KANSAS CITY CHIEFS LAS VEGAS RAIDERS LOS ANGELES CHARGERS LOS ANGELES RAMS MIAMI DOLPHINS MINNESOTA VIKINGS NEW ENGLAND PATRIOTS NEW ORLEANS SAINTS NEW YORK GIANTS NEW YORK JETS PHILADELPHIA EAGLES PITTSBURGH STEELERS SAN FRANCISCO 49ERS SEATTLE SEAHAWKS TAMPA BAY BUCCANEERS TENNESSEE TITANS WASHINGTON COMMANDERS 2026-08-19
 """Real ADP from Fantasy Football Calculator, plus the name matcher that binds
 it to Sleeper player ids.
 
@@ -99,6 +101,30 @@ TEAM_ALIASES = {
     "CLV": "CLE", "HST": "HOU", "SL": "LAR",
     # MFL
     "NEP": "NE", "GBP": "GB", "SFO": "SF", "KCC": "KC", "TBB": "TB", "NOS": "NO",
+    # FFToday writes DST rows with the FULL TEAM NAME in the team column,
+    # never a code — found 2026-08-19: all 32 FFToday defense rows joined 0/32
+    # via the existing `def-team` fallback (`match_player`) because "Houston
+    # Texans" never equals "HOU". `_norm_team` upper-cases before this lookup,
+    # so the keys below are the upper-cased form of exactly what FFToday
+    # prints — verified against every distinct value the real committed
+    # `ffanalytics_raw_projections.csv` carries for source=FFToday, pos=DST,
+    # not guessed from a generic team-name list.
+    "ARIZONA CARDINALS": "ARI", "ATLANTA FALCONS": "ATL",
+    "BALTIMORE RAVENS": "BAL", "BUFFALO BILLS": "BUF",
+    "CAROLINA PANTHERS": "CAR", "CHICAGO BEARS": "CHI",
+    "CINCINNATI BENGALS": "CIN", "CLEVELAND BROWNS": "CLE",
+    "DALLAS COWBOYS": "DAL", "DENVER BRONCOS": "DEN",
+    "DETROIT LIONS": "DET", "GREEN BAY PACKERS": "GB",
+    "HOUSTON TEXANS": "HOU", "INDIANAPOLIS COLTS": "IND",
+    "JACKSONVILLE JAGUARS": "JAX", "KANSAS CITY CHIEFS": "KC",
+    "LAS VEGAS RAIDERS": "LV", "LOS ANGELES CHARGERS": "LAC",
+    "LOS ANGELES RAMS": "LAR", "MIAMI DOLPHINS": "MIA",
+    "MINNESOTA VIKINGS": "MIN", "NEW ENGLAND PATRIOTS": "NE",
+    "NEW ORLEANS SAINTS": "NO", "NEW YORK GIANTS": "NYG",
+    "NEW YORK JETS": "NYJ", "PHILADELPHIA EAGLES": "PHI",
+    "PITTSBURGH STEELERS": "PIT", "SAN FRANCISCO 49ERS": "SF",
+    "SEATTLE SEAHAWKS": "SEA", "TAMPA BAY BUCCANEERS": "TB",
+    "TENNESSEE TITANS": "TEN", "WASHINGTON COMMANDERS": "WAS",
 }
 
 # The 32 codes Sleeper actually emits, as literals. Not derived from the player
