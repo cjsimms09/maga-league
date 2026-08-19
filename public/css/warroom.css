@@ -1149,6 +1149,20 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-range-tick { stroke: var(--ink); stroke-width: 1.6; }
 .wr-range.lead .wr-range-tick { stroke: var(--gold-bright); }
 
+/* REGISTER 4v — cohort-constant ceiling: a provenance mark, not a warning
+   (for several of these players the model is correctly refusing to guess
+   from data it does not hold). Dashed outline rather than a color swap, so
+   it stays visible without competing with .lead's gold highlight on the
+   top recommendation when both apply to the same bar. */
+.wr-range.cohort-ceiling .wr-range-band { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 1.5; }
+/* `.wr-range svg` is `display: block` above, and `.wr-range` itself stretches
+   to the card's full width — an inline `<sup>` after a block-level svg would
+   otherwise wrap onto its own line, far from the 150px bar it annotates.
+   Make the svg inline-block ONLY on the cohort case, so the mark sits right
+   next to it instead. */
+.wr-range.cohort-ceiling svg { display: inline-block; vertical-align: middle; }
+.wr-ceil-cohort { font-size: .62rem; font-weight: 900; color: var(--muted); margin-left: .1rem; cursor: help; vertical-align: middle; }
+
 /* FALLING chip — value sliding past its price */
 .wr-falling {
   display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;

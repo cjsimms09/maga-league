@@ -626,6 +626,10 @@
   // Sleeper pending' instead of 'manually set, UNVERIFIED'.
   window.CLAIMED_SLOT = <%= claimedSlot ? Number(claimedSlot) : 'null' %>;
   window.SLOT_PROVENANCE = <%- JSON.stringify(typeof slotProvenance !== 'undefined' ? slotProvenance : null) %>;
+  // Team pass rate (Cory's ask, ROUTES.md 08-17), server-read from A's
+  // draft/backtest/team_pace_2021_2025.json — see src/routes/admin.js for
+  // why this travels as bootstrap state rather than a client fetch.
+  window.WR_TEAM_PACE = <%- JSON.stringify(typeof teamPace !== 'undefined' ? teamPace : null) %>;
 </script>
 <%# The draft ENGINE MODULE INCLUDES are A's (the logic lane) — extracted to
     _warroom_scripts.ejs so A loads its modules without editing B's shell. See

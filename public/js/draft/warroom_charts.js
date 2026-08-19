@@ -600,6 +600,26 @@
     host.innerHTML = Charts.posColumns(cols);
   }
 
+  /* ── two drill-down facts, Cory's ask (ROUTES.md 08-17): "is this player
+   * listed as starting RB, and maybe also how often that team passed or
+   * threw last year." Both read data that already exists — no new fetch,
+   * no new artifact. ── */
+  function depthChartRow(p) {
+    var ord = p && p.depth_chart_order;
+    if (ord == null) return null;
+    var label = ord === 1 ? 'starter' : ord === 2 ? '2nd string' : ord + ' on the depth chart';
+    return ['Depth chart', label + ' <span class="muted">(' + esc(p.position || '') + ', ' + esc(p.team || '') + ')</span>'];
+  }
+  function teamPassRateRow(p) {
+    var pace = typeof window !== 'undefined' && window.WR_TEAM_PACE;
+    var t = pace && p && p.team && pace.teams && pace.teams[p.team];
+    if (!t || t.pass_rate == null) return null;
+    var pct = Math.round(t.pass_rate * 1000) / 10;
+    return ['Team pass rate (' + esc(pace.season || '') + ')', pct + '%'
+      + (t.neutral_pass_rate != null
+        ? ' <span class="muted">(' + Math.round(t.neutral_pass_rate * 1000) / 10 + '% score-neutral)</span>' : '')];
+  }
+
   /* ── the drill-down — his "places to click for more info" ── */
   function openDrill(id) {
     ui.drillId = String(id);
@@ -636,6 +656,8 @@
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
       ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)],
+      depthChartRow(p),
+      teamPassRateRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
        * most of the board — the engine scores only the shortlist-depth slice
        * each pick, so a rail/board click outside it has no s. A blank the
@@ -682,7 +704,7 @@
         + ' <span class="muted">' + esc(p.team || '') + '</span>'
         + (taken ? ' <span class="wr-drill-gone">GONE</span>' : '') + '</div>'
       + (range ? '<div class="wr-drill-range">' + range + '</div>' : '')
-      + '<table class="wr-drill-facts">' + rows.map(function (r) {
+      + '<table class="wr-drill-facts">' + rows.filter(Boolean).map(function (r) {
           return '<tr><td>' + r[0] + '</td><td class="wr-num">' + r[1] + '</td></tr>';
         }).join('') + '</table>'
       + (survRows ? '<div class="wr-drill-surv"><div class="wr-drill-h">survives to my picks</div>' + survRows + '</div>' : '')

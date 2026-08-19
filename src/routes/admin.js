@@ -1013,6 +1013,32 @@ router.get('/warroom', aw(async (req, res) => {
     durability = raw.where_the_constant_is_furthest_from_the_player || null;
   } catch (e) { durability = null; }
 
+  // TEAM PASS RATE, drill-down only (Cory's ask: "how often that team passed
+  // or threw last year" — this session's ROUTES.md, 08-17). A's
+  // team_pace_2021_2025.json is real, measured (nflverse play-by-play), and
+  // lives under draft/backtest/, not public/, so it is read here and handed
+  // to the view rather than fetched client-side — same pattern as durability
+  // above. Only the most recent completed season (2025 — "last year" as of
+  // today) and only the season-level summary fields travel to the browser;
+  // the file's own per-week detail stays server-side, unneeded for a
+  // one-line drill-down fact. DISPLAY OF PUBLISHED FACT ONLY: the file's own
+  // leakage note says a projection consumer must read season Y-1 only — that
+  // constraint is about feeding this into a model, which nothing here does.
+  let teamPace = null;
+  try {
+    const fs = require('fs'), path = require('path');
+    const raw = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', '..', 'draft', 'backtest', 'team_pace_2021_2025.json'), 'utf8'));
+    const seasons = Object.keys(raw.seasons || {}).sort();
+    const latest = raw.seasons[seasons[seasons.length - 1]];
+    teamPace = latest ? {
+      season: seasons[seasons.length - 1],
+      teams: Object.fromEntries(Object.entries(latest).map(([team, t]) => [team, {
+        pass_rate: t.pass_rate, neutral_pass_rate: t.neutral_pass_rate, proe: t.proe,
+      }])),
+    } : null;
+  } catch (e) { teamPace = null; }
+
   res.render('admin/warroom', {
     season,
     config: req.world.config,
@@ -1027,6 +1053,7 @@ router.get('/warroom', aw(async (req, res) => {
     // state the A2 machinery flips to when the draft object's order lands.
     slotProvenance: claimedSlot ? 'site-claimed' : null,
     durability,
+    teamPace,
   });
 }));
 
