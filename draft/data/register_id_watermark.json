@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 130,
+ "next_numeric_id": 131,
  "history": [
   {
    "id": 47,
@@ -91,6 +91,11 @@
    "id": 129,
    "claimed_at": "2026-08-19",
    "note": "renumbered from a third colliding 127 (K/DEF ~30 picks too early under ROSTER_SHAPE) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 130,
+   "claimed_at": "2026-08-19",
+   "note": "E: CFG.ROSTER_SHAPE described as shipped in register 129/commit 0df2047a does not exist anywhere in engine.js, verified three independent ways"
   }
  ]
 }
