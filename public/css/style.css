@@ -2706,16 +2706,20 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .wr-zone1 > #search-tail       { order: 2; }
 .wr-zone1 > #queue-slip        { order: 3; }   /* urgent slip — stays above */
 .wr-zone1 > #wr-statusbar      { order: 4; }   /* one-line pick bar — is it my turn */
-.wr-zone1 > #recs-card         { order: 5; }   /* THE recommendation + Take button — up top now */
-/* #position-boards had the identical bug the comment below already names for
- * #seat-plan — unlisted here, defaulted to order 0, rendered before the
- * search bar. Cory's own redefinition of the war room (ROUTES.md 08-19,
- * A→B `48c915f1`): "not one recommendation... the view I need is different
- * now" — six position columns are the surface he actually reads per pick.
- * Placed directly beneath the one-answer card rather than above it: A's
- * "recommendation above the fold" decision (2026-08-10, cited above) stays
- * intact, and THE PLAN / WATCH still follow immediately after, unchanged. */
-.wr-zone1 > #position-boards   { order: 6; }   /* six-column view — beneath the one answer, above THE PLAN/WATCH */
+/* ⚠️ SWAPPED AHEAD OF #recs-card, 2026-08-19 — Cory, live, in this exact
+ * session: "Where can I toggle between different sources of data and a
+ * blend?" He could not find it because #recs-card measured 3,067px tall
+ * (2.4 screens) and position-boards — which carries that toggle — rendered
+ * AFTER it. Both WAR-ROOM-SPEC.md's own "WHAT NOT TO BUILD" ("No single
+ * recommended pick card. Retired by Cory, 08-19") and Cory's own words
+ * ("you aren't making 1 recommended pick anymore... the view I need is
+ * different now") already called this card retired; it was still sitting
+ * on top of the thing that replaced it. #recs-card is NOT hidden or
+ * deleted — still fully there, one scroll down, Take buttons and all —
+ * this is a visual reorder only, and it is reversible in one line if
+ * Cory wants the old card back on top. */
+.wr-zone1 > #position-boards   { order: 5; }   /* six columns + strike bar + the toggle — now the FIRST thing on screen */
+.wr-zone1 > #recs-card         { order: 6; }   /* the retired one-answer card — still fully present, now second */
 .wr-zone1 > #doctrine-banner   { order: 7; }   /* THE PLAN — reference, beneath the rec */
 .wr-zone1 > #legality-strip    { order: 8; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
