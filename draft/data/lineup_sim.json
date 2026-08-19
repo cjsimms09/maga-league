@@ -1,0 +1,161 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/lineup_sim.js",
+ "_prereg": "draft/HOW-I-WOULD-DRAFT-2026-08-19.md (P203-P205)",
+ "_note": "REPORT ONLY. Scores STARTING LINEUPS over 17 weeks, not rosters.",
+ "seasons": 1500,
+ "weeks": 17,
+ "players_without_a_bye": 1,
+ "controls": {
+  "C1_zero_variance_makes_rho_irrelevant": {
+   "ok": true,
+   "flat_rho0": 1437.9,
+   "flat_rho1": 1437.9,
+   "why": "if foresight changes the score when nothing is random, the signal is leaking realised points into the total instead of only into the choice"
+  },
+  "C2_same_seed_across_arms": {
+   "ok": true,
+   "why": "identical injury and score draws per arm"
+  },
+  "C3_every_arm_can_field_a_lineup": {
+   "ok": false,
+   "missing": [
+    "ceiling: DEF 0/1"
+   ],
+   "why": "the first run compared arms that could not fill nine slots -- the mean arm had no TE and no DEF, so the comparison was about roster legality and not about the key"
+  },
+  "C4_weekly_sd_is_football_shaped": {
+   "ok": true,
+   "median_sd_over_mean": 0.35,
+   "why": "the first run gave an RB a weekly sd of 18.0 on a mean of 14.1 by putting the whole SEASON band into weekly noise"
+  }
+ },
+ "hybrid_switch_pick": 1332,
+ "rosters": {
+  "mean": [
+   "Lamar Jackson (QB)",
+   "Jayden Daniels (QB)",
+   "Garrett Wilson (WR)",
+   "Mike Evans (WR)",
+   "Brandon Aubrey (K)",
+   "Rico Dowdle (RB)",
+   "Jayden Reed (WR)",
+   "Jonathon Brooks (RB)",
+   "Jakobi Meyers (WR)",
+   "KC Concepcion (WR)",
+   "Brenton Strange (TE)",
+   "Baltimore Ravens (DEF)"
+  ],
+  "ceiling": [
+   "Lamar Jackson (QB)",
+   "Jayden Daniels (QB)",
+   "Bhayshul Tuten (RB)",
+   "Jonathon Brooks (RB)",
+   "Blake Corum (RB)",
+   "Jordan Mason (RB)",
+   "Jacory Croskey-Merritt (RB)",
+   "Zach Charbonnet (RB)",
+   "Matthew Golden (WR)",
+   "Deebo Samuel (WR)",
+   "Dominic Zvada (K)",
+   "Terrance Ferguson (TE)"
+  ],
+  "floor": [
+   "Lamar Jackson (QB)",
+   "Jayden Daniels (QB)",
+   "Garrett Wilson (WR)",
+   "Brandon Aubrey (K)",
+   "Mike Evans (WR)",
+   "Rico Dowdle (RB)",
+   "Jayden Reed (WR)",
+   "Jakobi Meyers (WR)",
+   "Xavier Worthy (WR)",
+   "Houston Texans (DEF)",
+   "Brenton Strange (TE)",
+   "Tyjae Spears (RB)"
+  ],
+  "hybrid": [
+   "Lamar Jackson (QB)",
+   "Garrett Wilson (WR)",
+   "Jaylen Waddle (WR)",
+   "Brandon Aubrey (K)",
+   "Bhayshul Tuten (RB)",
+   "Rico Dowdle (RB)",
+   "Mark Andrews (TE)",
+   "Houston Texans (DEF)",
+   "Kyler Murray (QB)",
+   "Zach Charbonnet (RB)",
+   "Chris Rodriguez (RB)",
+   "MarShawn Lloyd (RB)"
+  ]
+ },
+ "results": [
+  {
+   "rho": 0,
+   "mean": 1444.1,
+   "ceiling": 1217.3,
+   "floor": 1433.8,
+   "hybrid": 1410.1,
+   "ceiling_vs_mean_pct": -15.71,
+   "hybrid_vs_mean_pct": -2.35
+  },
+  {
+   "rho": 0.1,
+   "mean": 1514.7,
+   "ceiling": 1289.5,
+   "floor": 1509.5,
+   "hybrid": 1449.1,
+   "ceiling_vs_mean_pct": -14.87,
+   "hybrid_vs_mean_pct": -4.33
+  },
+  {
+   "rho": 0.2,
+   "mean": 1531.6,
+   "ceiling": 1310.9,
+   "floor": 1525.2,
+   "hybrid": 1459.6,
+   "ceiling_vs_mean_pct": -14.41,
+   "hybrid_vs_mean_pct": -4.7
+  },
+  {
+   "rho": 0.3,
+   "mean": 1539.4,
+   "ceiling": 1321.2,
+   "floor": 1532.2,
+   "hybrid": 1464.2,
+   "ceiling_vs_mean_pct": -14.17,
+   "hybrid_vs_mean_pct": -4.88
+  },
+  {
+   "rho": 0.5,
+   "mean": 1544.6,
+   "ceiling": 1329,
+   "floor": 1536.9,
+   "hybrid": 1470.1,
+   "ceiling_vs_mean_pct": -13.96,
+   "hybrid_vs_mean_pct": -4.82
+  },
+  {
+   "rho": 0.75,
+   "mean": 1545.9,
+   "ceiling": 1331.2,
+   "floor": 1538.2,
+   "hybrid": 1473.3,
+   "ceiling_vs_mean_pct": -13.89,
+   "hybrid_vs_mean_pct": -4.7
+  },
+  {
+   "rho": 1,
+   "mean": 1546.1,
+   "ceiling": 1331.6,
+   "floor": 1538.3,
+   "hybrid": 1474,
+   "ceiling_vs_mean_pct": -13.88,
+   "hybrid_vs_mean_pct": -4.67
+  }
+ ],
+ "grades": {
+  "P203_ceiling_worthless_at_zero_foresight": false,
+  "P204_flips_below_perfect_foresight": false,
+  "P204_flip_rho": null
+ }
+}

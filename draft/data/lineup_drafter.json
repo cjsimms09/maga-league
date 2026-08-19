@@ -1,0 +1,92 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/lineup_drafter.js",
+ "_prereg": "draft/LINEUP-DRAFTER-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. No need curve, no caps, no forced slots.",
+ "eval_seasons": 3000,
+ "marginal_seasons": 120,
+ "shortlist": 45,
+ "marginal_evaluations": 559,
+ "controls": {
+  "C1_deterministic": {
+   "ok": true,
+   "values": [
+    1474.0504534077527,
+    1474.0504534077527
+   ],
+   "why": "common random numbers -- the same roster must score bit-identically"
+  },
+  "C2_a_man_who_can_never_start_is_worth_zero": {
+   "ok": true,
+   "delta": 0.4464,
+   "why": "a THIRD kicker behind two is worth ~0: he starts only in the rare week both others are out or on bye, so the bar is \"near zero\", not \"exactly zero\" -- my first wording said he could NEVER start, which is wrong. What it really tests is that the with/without draws are ALIGNED: unaligned streams would put this in the tens of points."
+  }
+ },
+ "controls_all_passed": true,
+ "score": {
+  "draft_by_mean": 1492.8,
+  "marginal_lineup_value": 1511.7,
+  "diff_pct": 1.27
+ },
+ "roster_counts": {
+  "mean": {
+   "QB": 2,
+   "RB": 2,
+   "WR": 5,
+   "K": 1,
+   "TE": 1,
+   "DEF": 1
+  },
+  "marginal": {
+   "QB": 2,
+   "K": 1,
+   "WR": 4,
+   "RB": 3,
+   "DEF": 1,
+   "TE": 1
+  }
+ },
+ "legal": {
+  "mean": true,
+  "marginal": true,
+  "marginal_missing": []
+ },
+ "max_starters_on_one_bye": {
+  "mean": 3,
+  "marginal": 3
+ },
+ "rosters": {
+  "mean": [
+   "Drake Maye (QB, bye 11)",
+   "Jalen Hurts (QB, bye 10)",
+   "Javonte Williams (RB, bye 14)",
+   "Tee Higgins (WR, bye 6)",
+   "Rhamondre Stevenson (RB, bye 11)",
+   "Brandon Aubrey (K, bye 14)",
+   "DK Metcalf (WR, bye 9)",
+   "Jordan Addison (WR, bye 6)",
+   "Quentin Johnston (WR, bye 7)",
+   "Jakobi Meyers (WR, bye 7)",
+   "Brenton Strange (TE, bye 7)",
+   "New England Patriots (DEF, bye 11)"
+  ],
+  "marginal": [
+   "Jalen Hurts (QB, bye 10)",
+   "Brandon Aubrey (K, bye 14)",
+   "Christian Watson (WR, bye 11)",
+   "Jameson Williams (WR, bye 6)",
+   "Rico Dowdle (RB, bye 9)",
+   "DK Metcalf (WR, bye 9)",
+   "Houston Texans (DEF, bye 8)",
+   "Mark Andrews (TE, bye 13)",
+   "Tyjae Spears (RB, bye 9)",
+   "Jakobi Meyers (WR, bye 7)",
+   "Malik Willis (QB, bye 6)",
+   "Dylan Sampson (RB, bye 11)"
+  ]
+ },
+ "grades": {
+  "P206_beats_draft_by_mean": true,
+  "P207_legal_without_rules": true,
+  "P208_spreads_byes": false
+ }
+}

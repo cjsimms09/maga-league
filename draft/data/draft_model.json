@@ -1,0 +1,337 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/draft_model.js",
+ "_ruling": "Cory 2026-08-19: \"build me a model that drafts value early, builds a normal roster, and drafts for upside at the end\"",
+ "_rule": "a starter's floor can lose you a week; a bench body's floor costs you nothing because you drop him. So w = P(he starts) decides which END of his band we read, and value-early/upside-late is an OUTPUT.",
+ "_bands_are_per_player": "no cohort statistic touches a band. Enforced by C1.",
+ "_prereg": "draft/DRAFT-MODEL-PREREG-2026-08-19.md",
+ "lean": 0.45,
+ "ramp": 0,
+ "source": "blend",
+ "rooms": 300,
+ "players_excluded_for_having_no_draftsharks_line": 0,
+ "controls": {
+  "C1_no_cohort_statistic_touches_a_band": {
+   "ok": true,
+   "banned_cohort_tables_found": [],
+   "per_position_tables_present": [
+    "WAIVER",
+    "W"
+   ],
+   "permitted": [
+    "WAIVER",
+    "W"
+   ],
+   "why": "Cory: 'Each player has their own projected ceiling and it could be irrelevant to another player at same age and position.' WAIVER is a property of the league leftovers and W of the roster; neither is a property of a player. Anything else touching a band is the defect."
+  },
+  "C2_known_positive_ceiling_can_move_a_pick": {
+   "ok": true,
+   "w_at_a_bench_slot": 0.1122,
+   "gap_at_lean_0": 0,
+   "gap_at_lean_1": 86.7,
+   "why": "a planted +150 ceiling must be worth NOTHING at LEAN=0 and a lot at LEAN=1 in a bench slot. If it cannot move here, a null result on ceilings anywhere else means nothing (rule 3e)."
+  },
+  "C5_known_positive_injury_can_move_a_pick": {
+   "ok": true,
+   "miss_max": 0.349,
+   "pool_mean_risk": 31.6,
+   "measured_weeks_lost_beyond_bye": 0.11,
+   "value_lost_by_a_max_risk_starter": 0.297,
+   "value_lost_by_a_max_risk_bench_body": 0.015,
+   "why": "injury must bite the starter and barely touch the bench body — that asymmetry IS the term. A uniform discount would be a knob for nothing."
+  },
+  "C7_ds_arm_uses_draftsharks_published_band_exactly": {
+   "ok": true,
+   "skipped": "only meaningful on --source ds"
+  },
+  "C3_players_without_a_band_are_named_not_invented": {
+   "ok": true,
+   "pool": 700,
+   "without_a_draftsharks_band": 453,
+   "treatment": "floor = proj = ceiling, so LEAN cannot move them either way",
+   "why": "an invented band is the exact thing Cory has been correcting"
+  },
+  "C4_comparator_keeps_the_hard_K_DEF_fill": {
+   "ok": true,
+   "roster_equation": "ON",
+   "rooms_with_an_empty_starting_slot": 0,
+   "why": "a comparator allowed to skip the fill drafts twelve quarterbacks and returns a fake improvement — happened twice on this project"
+  }
+ },
+ "controls_all_passed": true,
+ "predictions": {
+  "P209_normal_roster": {
+   "pass": false,
+   "mean_roster_with_keepers": {
+    "QB": 1.12,
+    "RB": 5.01,
+    "WR": 5.87,
+    "TE": 1,
+    "K": 1,
+    "DEF": 1
+   },
+   "onesies_all_1": false,
+   "share_of_rooms_WR_over_RB": 0.873
+  },
+  "P210_upside_at_the_end": {
+   "pass": true,
+   "mean_band_width_first_4_picks": 0.481,
+   "mean_band_width_last_4_picks": 0.8,
+   "ratio": 1.662,
+   "bar": 1.4
+  },
+  "P211_the_knob_does_what_he_said": {
+   "pass": true,
+   "identities": {
+    "a0_is_the_blended_mean": true,
+    "a1_is_pure_ceiling_FOR_EVERYONE": true,
+    "a_half_is_half_the_added_ceiling": true,
+    "corys_500_550_vs_450_550_tie_at_full_crank": true,
+    "corys_case_bigger_ceiling_wins_at_full_crank": true
+   }
+  },
+  "P212_durability_moves_the_right_picks": {
+   "pass": true,
+   "mean_injury_risk_starting_core": {
+    "on": 41.593333333333334,
+    "off": 45.403888888888886
+   },
+   "mean_injury_risk_bench": {
+    "on": 26.993333333333332,
+    "off": 27.25
+   },
+   "starter_drop": 3.81,
+   "bench_drop": 0.26,
+   "bar": "starters fall >= 3 points AND bench falls less than starters"
+  },
+  "P214_a_second_QB_only_when_the_first_is_weak": {
+   "pass": false,
+   "_ruling": "Cory: \"1.22 on QB is not bad, I do see carryng 2 qbs sometimes if you didnt draft a good one\"",
+   "rooms_taking_two_QBs": 35,
+   "rooms_taking_one": 265,
+   "mean_QB1_when_only_one_taken": 362.5,
+   "mean_QB1_when_a_second_is_taken": 362.5,
+   "gap": 0,
+   "bar": "QB1 at least 10 points worse in the rooms that hedge"
+  },
+  "P213_baseline_kills_the_second_QB": {
+   "pass": false,
+   "mean_QB": 1.12,
+   "mean_TE": 1,
+   "bar": "QB <= 1.1 and TE >= 0.9"
+  }
+ },
+ "mean_drafted_by_position": {
+  "QB": 1.12,
+  "RB": 3.01,
+  "WR": 4.87,
+  "TE": 1,
+  "K": 1,
+  "DEF": 1
+ },
+ "example_room": [
+  {
+   "pick": 33,
+   "round": 1,
+   "name": "Travis Etienne",
+   "position": "RB",
+   "proj": 199.6,
+   "floor": 181.3,
+   "ceiling": 277.3,
+   "band_width": 0.4809619238476954,
+   "banded": true,
+   "injury_risk_pct": 45,
+   "w": 0.62,
+   "band_used": 234.6,
+   "durability": 0.903,
+   "baseline": 78.4,
+   "value": 87.4
+  },
+  {
+   "pick": 48,
+   "round": 2,
+   "name": "Jameson Williams",
+   "position": "WR",
+   "proj": 181.9,
+   "floor": 159.5,
+   "ceiling": 241.80000000000004,
+   "band_width": 0.452446399120396,
+   "banded": true,
+   "injury_risk_pct": 36,
+   "w": 1,
+   "band_used": 208.9,
+   "durability": 0.874,
+   "baseline": 124.8,
+   "value": 73.5
+  },
+  {
+   "pick": 53,
+   "round": 3,
+   "name": "Matthew Stafford",
+   "position": "QB",
+   "proj": 348.8,
+   "floor": 324.3,
+   "ceiling": 470.1,
+   "band_width": 0.41800458715596334,
+   "banded": true,
+   "injury_risk_pct": 39,
+   "w": 1,
+   "band_used": 403.4,
+   "durability": 0.864,
+   "baseline": 322.9,
+   "value": 69.5
+  },
+  {
+   "pick": 68,
+   "round": 4,
+   "name": "Alec Pierce",
+   "position": "WR",
+   "proj": 155.1,
+   "floor": 125.1,
+   "ceiling": 238.5,
+   "band_width": 0.7311411992263057,
+   "banded": true,
+   "injury_risk_pct": 67,
+   "w": 0.748,
+   "band_used": 192.6,
+   "durability": 0.825,
+   "baseline": 124.8,
+   "value": 41.9
+  },
+  {
+   "pick": 73,
+   "round": 5,
+   "name": "Mike Evans",
+   "position": "WR",
+   "proj": 163.2,
+   "floor": 137.3,
+   "ceiling": 222,
+   "band_width": 0.5189950980392156,
+   "banded": true,
+   "injury_risk_pct": 65,
+   "w": 0.673,
+   "band_used": 189.7,
+   "durability": 0.847,
+   "baseline": 124.8,
+   "value": 37
+  },
+  {
+   "pick": 88,
+   "round": 6,
+   "name": "George Kittle",
+   "position": "TE",
+   "proj": 140.2,
+   "floor": 99.3,
+   "ceiling": 198.6,
+   "band_width": 0.7082738944365193,
+   "banded": true,
+   "injury_risk_pct": 44,
+   "w": 1,
+   "band_used": 166.5,
+   "durability": 0.846,
+   "baseline": 130.4,
+   "value": 30.5
+  },
+  {
+   "pick": 93,
+   "round": 7,
+   "name": "Houston Texans",
+   "position": "DEF",
+   "proj": 122.7,
+   "floor": 110,
+   "ceiling": 137.4,
+   "band_width": 0.22330888345558275,
+   "banded": true,
+   "injury_risk_pct": 0,
+   "w": 1,
+   "band_used": 129.3,
+   "durability": 1,
+   "baseline": 100,
+   "value": 29.3
+  },
+  {
+   "pick": 108,
+   "round": 8,
+   "name": "Brandon Aubrey",
+   "position": "K",
+   "proj": 145.5,
+   "floor": 129.1,
+   "ceiling": 157,
+   "band_width": 0.19175257731958767,
+   "banded": true,
+   "injury_risk_pct": 8,
+   "w": 1,
+   "band_used": 150.7,
+   "durability": 0.972,
+   "baseline": 128.6,
+   "value": 21.5
+  },
+  {
+   "pick": 113,
+   "round": 9,
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "proj": 141.3,
+   "floor": 113.8,
+   "ceiling": 243.5,
+   "band_width": 0.9179051663128095,
+   "banded": true,
+   "injury_risk_pct": 35,
+   "w": 0.172,
+   "band_used": 187.3,
+   "durability": 0.979,
+   "baseline": 78.4,
+   "value": 18.4
+  },
+  {
+   "pick": 128,
+   "round": 10,
+   "name": "Deebo Samuel",
+   "position": "WR",
+   "proj": 133.1,
+   "floor": 110.1,
+   "ceiling": 207.40000000000003,
+   "band_width": 0.7310293012772355,
+   "banded": true,
+   "injury_risk_pct": 51,
+   "w": 0.112,
+   "band_used": 166.5,
+   "durability": 0.98,
+   "baseline": 124.8,
+   "value": 4.6
+  },
+  {
+   "pick": 133,
+   "round": 11,
+   "name": "Tyrone Tracy",
+   "position": "RB",
+   "proj": 107.6,
+   "floor": 97.3,
+   "ceiling": 229.7,
+   "band_width": 1.2304832713754645,
+   "banded": true,
+   "injury_risk_pct": 34,
+   "w": 0.034,
+   "band_used": 162.5,
+   "durability": 0.996,
+   "baseline": 78.4,
+   "value": 2.9
+  },
+  {
+   "pick": 148,
+   "round": 12,
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "proj": 131.3,
+   "floor": 110,
+   "ceiling": 193.5,
+   "band_width": 0.6359482102056359,
+   "banded": true,
+   "injury_risk_pct": 37,
+   "w": 0.037,
+   "band_used": 159.3,
+   "durability": 0.995,
+   "baseline": 124.8,
+   "value": 1.3
+  }
+ ]
+}
