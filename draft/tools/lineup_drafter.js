@@ -148,7 +148,25 @@ function draft(pick) {
   return roster;
 }
 
-const armMean = draft(avail => avail.reduce((b, x) => (!b || x.ds.proj > b.ds.proj) ? x : b, null));
+/* ⛔ THE FIRST COMPARATOR DRAFTED TWELVE QUARTERBACKS. Removing the positional
+ * caps for the marginal arm removed them for this one too, and quarterbacks
+ * project highest in absolute points (340+ against a top back's 322). It scored
+ * 424.9 and made the marginal arm look +256% better, which is not a result, it
+ * is a straw man. The fair comparator is the strategy actually recommended:
+ * BEST PROJECTED POINTS AVAILABLE, SUBJECT TO FILLING THE LINEUP -- which is
+ * how a person would read "draft the best player available". */
+const NEED1 = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
+const CAP = { QB: 2, RB: 6, WR: 6, TE: 2, K: 1, DEF: 1 };
+const armMean = draft((avail, roster, i) => {
+  const held = {}; roster.forEach(x => { held[x.position] = (held[x.position] || 0) + 1; });
+  const missing = POS.filter(q => (held[q] || 0) < NEED1[q]);
+  const forcing = (PLAN.SCHED.length - i) <= missing.length;
+  return avail.reduce((b, x) => {
+    if (forcing && !missing.includes(x.position)) return b;
+    if ((held[x.position] || 0) >= CAP[x.position]) return b;
+    return (!b || x.ds.proj > b.ds.proj) ? x : b;
+  }, null);
+});
 
 let marginalCalls = 0;
 const armMarginal = draft((avail, roster) => {
@@ -203,9 +221,11 @@ const ctl = {
     why: 'common random numbers -- the same roster must score bit-identically' },
   C2_a_man_who_can_never_start_is_worth_zero: { ok: Math.abs(thirdK) < 0.5,
     delta: +thirdK.toFixed(4),
-    why: 'a THIRD kicker behind two cannot reach the lineup. If his marginal '
-       + 'value is not zero, the with/without draws are not aligned and every '
-       + 'number here is noise' },
+    why: 'a THIRD kicker behind two is worth ~0: he starts only in the rare '
+       + 'week both others are out or on bye, so the bar is "near zero", not '
+       + '"exactly zero" -- my first wording said he could NEVER start, which '
+       + 'is wrong. What it really tests is that the with/without draws are '
+       + 'ALIGNED: unaligned streams would put this in the tens of points.' },
 };
 const out = {
   _territory: 'TERRITORY: A — draft/tools/lineup_drafter.js',
