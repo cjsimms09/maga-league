@@ -103,53 +103,55 @@ class Tables(HTMLParser):
             self._c.append(data)
 
 
-JSONLD_RE = re.compile(
-    r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', re.DOTALL)
+# ⛔ DO NOT ANCHOR ON THE <script> TAG. The previous version matched
+# `<script type="application/ld+json">` and found ZERO names on the live page,
+# while its control passed -- because I had CAPTURED the inner JSON fragment
+# and then INVENTED the script tag I wrapped it in for the fixture. That is
+# register 121 repeating one level up: the captured part was real, the part I
+# assumed was the part that broke.
+#
+# So this matches the Person objects themselves, wherever they sit. The field
+# ORDER below is verbatim from the bytes the live page served.
+PERSON_RE = re.compile(
+    r'"name"\s*:\s*"((?:[^"\\]|\\.)+?)"\s*,\s*'
+    r'"url"\s*:\s*"([^"]*?/(\d+))"\s*,\s*'
+    r'"jobTitle"\s*:\s*"([^"]*?)"'
+    r'(?:(?!"@type"\s*:\s*"Person").){0,400}?'
+    r'"description"\s*:\s*"([^"]*?)"',
+    re.DOTALL)
+
+JOB_POS = [("quarterback", "QB"), ("running back", "RB"), ("wide receiver", "WR"),
+           ("tight end", "TE"), ("kicker", "K"), ("defense", "DEF")]
 
 
 def names_from_jsonld(html):
-    """The player names are NOT in the table -- it is a Vue component whose rows
-    bind client-side. They ARE in the page's schema.org ItemList, which carries
-    name, position, team, a stable Draft Sharks id and the OVERALL RANK.
+    """{overall_rank: {player, position, ds_player_id, team}}.
 
-    Found by anchoring a probe on player surnames after two rounds of guessing
-    at markup (register 121). Returns {overall_rank: {...}} so the join to the
-    numeric table is on RANK -- a value present on both sides and therefore
-    self-validating -- rather than on array position, which is a guess.
+    The player names are NOT in the table -- it is a Vue component whose rows
+    bind client-side (register 121). They ARE in the page's schema.org Person
+    entries, which carry name, position, a STABLE Draft Sharks id in the url,
+    and "ranked #N overall" in the description.
+
+    Keyed by OVERALL RANK because both this and the numeric table carry it, so
+    a mismatch is detectable -- unlike a join on array position, which shifts
+    every player silently if one row is dropped.
     """
     out = {}
-    for m in JSONLD_RE.finditer(html):
-        try:
-            blob = json.loads(m.group(1))
-        except json.JSONDecodeError:
+    for m in PERSON_RE.finditer(html):
+        name, url, pid, job, desc = m.groups()
+        mo = re.search(r"ranked #(\d+) overall", desc)
+        if not mo:
             continue
-        for node in (blob if isinstance(blob, list) else [blob]):
-            if not isinstance(node, dict):
-                continue
-            for li in (node.get("itemListElement") or []):
-                item = (li or {}).get("item") or {}
-                name = item.get("name")
-                if not name:
-                    continue
-                desc = item.get("description") or ""
-                mo = re.search(r"ranked #(\d+) overall", desc)
-                mp = re.search(r"\((QB|RB|WR|TE|K|DEF|DST)\s*\d+\)", desc)
-                url = item.get("url") or ""
-                mid = re.search(r"/(\d+)/?$", url)
-                rank = int(mo.group(1)) if mo else li.get("position")
-                if rank is None:
-                    continue
-                job = (item.get("jobTitle") or "").lower()
-                pos = (mp.group(1) if mp else
-                       ("QB" if "quarter" in job else "RB" if "running" in job else
-                        "WR" if "wide" in job else "TE" if "tight" in job else
-                        "K" if "kicker" in job else None))
-                out[int(rank)] = {
-                    "player": name,
-                    "position": "DEF" if pos == "DST" else pos,
-                    "ds_player_id": mid.group(1) if mid else None,
-                    "team": ((item.get("affiliation") or {}).get("name")),
-                }
+        mp = re.search(r"\((QB|RB|WR|TE|K|DEF|DST)\s*\d+\)", desc)
+        jl = (job or "").lower()
+        pos = (mp.group(1) if mp else
+               next((v for k, v in JOB_POS if k in jl), None))
+        out[int(mo.group(1))] = {
+            "player": name.replace('\\"', '"').replace("\\/", "/"),
+            "position": "DEF" if pos == "DST" else pos,
+            "ds_player_id": pid,
+            "team": None,
+        }
     return out
 
 
@@ -276,6 +278,8 @@ def main() -> int:
                          "rankings; the remainder is behind pagination/XHR "
                          "(register 120, routed to C)",
         "sample_row_html": sample_row_html,
+        "jsonld_names_found": len(byrank),
+        "jsonld_sample": [byrank[k] for k in sorted(byrank)[:5]],
         "players": rows,
     }
     OUT.write_text(json.dumps(doc, indent=1))
