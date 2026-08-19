@@ -75,35 +75,35 @@
     "name": "Will Howard",
     "position": "QB",
     "proj_mean": 24.5,
-    "adp": 426.0
+    "adp": 425.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
     "proj_mean": 23.0,
-    "adp": 436.0
+    "adp": 435.0
    },
    {
     "player_id": "9999",
     "name": "Will Levis",
     "position": "QB",
     "proj_mean": 13.7,
-    "adp": 472.0
+    "adp": 471.0
    },
    {
     "player_id": "11292",
     "name": "Tommy DeVito",
     "position": "QB",
     "proj_mean": 13.38,
-    "adp": 483.0
+    "adp": 482.0
    },
    {
     "player_id": "11569",
     "name": "Jarquez Hunter",
     "position": "RB",
     "proj_mean": 8.6,
-    "adp": 503.0
+    "adp": 502.0
    }
   ]
  },
@@ -111,8 +111,8 @@
   "n": 418,
   "by_position": {
    "WR": 157,
-   "RB": 97,
    "TE": 97,
+   "RB": 97,
    "QB": 67
   },
   "share_of_sleeper": 0.5971,
