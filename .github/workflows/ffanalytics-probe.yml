@@ -94,6 +94,14 @@ jobs:
       - name: Commit the raw rows and the probe report
         if: success()
         run: |
+          # `fatal: not in a git directory` on run 32212505971: the rocker
+          # container runs as a different uid than the checkout's owner, so git
+          # refuses the repo. The scrape had already SUCCEEDED and the artifact
+          # uploaded — only the commit died — which is why the rows were not
+          # lost, but they were also not on `main`.
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory '*'
+          cd "$GITHUB_WORKSPACE"
           git config user.name Claude
           git config user.email noreply@anthropic.com
           git add draft/data/ffanalytics_probe.json draft/data/ffanalytics_raw_projections.csv
