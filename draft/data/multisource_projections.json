@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: A \u2014 draft/tools/multisource_projections.py",
+ "_territory": "TERRITORY: A \u2014 written by draft/tools/multisource_projections.py",
  "_note": "Scored under THIS LEAGUE'S table from raw stat lines. The providers' own site_pts is deliberately ignored \u2014 it encodes their league's rules, not ours. Writes NO board field.",
  "sources_used": [
   "CBS",

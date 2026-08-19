@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C register 80 norm_name nickname NICKNAMES adp rule 11 unmatched Joshua Palmer Chig Okonkwo Chigoziem Marquise Hollywood Brown sys path root import ADP get 2026-08-19
+# TERRITORY-GRANT: C register 80 norm_name nickname NICKNAMES adp rule 11 unmatched Joshua Palmer Chig Okonkwo Chigoziem Marquise Hollywood Brown sys path root import ADP get sub strip written by 2026-08-19
 """SCORE THE ffanalytics ROWS UNDER *OUR* RULES, JOIN THEM TO THE BOARD, AND
 CHECK THEM BEFORE ANY OF IT REACHES A NUMBER CORY DRAFTS ON.
 
@@ -292,7 +292,7 @@ def main() -> None:
         agree[f"{s} vs Sleeper"] = {"n": len(pairs), "spearman": spearman(pairs)}
 
     doc = {
-        "_territory": "TERRITORY: A — draft/tools/multisource_projections.py",
+        "_territory": "TERRITORY: A — written by draft/tools/multisource_projections.py",
         "_note": "Scored under THIS LEAGUE'S table from raw stat lines. The "
                  "providers' own site_pts is deliberately ignored — it encodes "
                  "their league's rules, not ours. Writes NO board field.",
