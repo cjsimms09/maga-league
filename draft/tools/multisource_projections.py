@@ -1,4 +1,5 @@
 # TERRITORY: A
+# TERRITORY-GRANT: C register 80 norm_name nickname NICKNAMES adp rule 11 unmatched Joshua Palmer Chig Okonkwo Chigoziem Marquise Hollywood Brown sys path root import ADP get 2026-08-19
 """SCORE THE ffanalytics ROWS UNDER *OUR* RULES, JOIN THEM TO THE BOARD, AND
 CHECK THEM BEFORE ANY OF IT REACHES A NUMBER CORY DRAFTS ON.
 
@@ -100,7 +101,27 @@ def norm_name(s: str) -> str:
     s = (s or "").lower()
     s = re.sub(r"[.'`]", "", s)
     s = re.sub(r"\b(jr|sr|ii|iii|iv|v)\b", "", s)
-    return re.sub(r"[^a-z ]", " ", s).strip()
+    s = re.sub(r"[^a-z ]", " ", s).strip()
+    # register 80's own "read the unmatched list" ask, followed: real starting
+    # players were silently absent from the blend for a NAME reason, not a
+    # data reason -- Josh Palmer (board: "Joshua Palmer"), Chig Okonkwo
+    # (board: "Chigoziem Okonkwo"), Hollywood Brown (board: "Marquise Brown"),
+    # each confirmed against the live board before concluding it was the
+    # nickname table's job, not a genuine absence. `adp.NICKNAMES` already
+    # solves exactly this for every other source that joins to the board
+    # (rule 11 -- imported, not re-declared, so a future addition to that
+    # table reaches this join too rather than drifting from it). Applied
+    # AFTER normalisation since its keys are already lowercased/depunctuated,
+    # and to every name on both sides (board index and source rows alike,
+    # since both paths call this same function) -- a table entry can only
+    # ever relabel a key, never break a pair that already matched.
+    import sys as _sys
+    from pathlib import Path as _Path
+    _root = _Path(__file__).resolve().parent.parent
+    if str(_root) not in _sys.path:
+        _sys.path.insert(0, str(_root))
+    import adp as _ADP
+    return _ADP.NICKNAMES.get(s, s)
 
 
 def num(v):
