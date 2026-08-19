@@ -104,5 +104,28 @@
   "Tight": 84.8
  },
  "early_rounds_1_6": -177.2,
- "late_rounds_7_plus": 20.5
+ "late_rounds_7_plus": 20.5,
+ "p130_by_arm": {
+  "auto": {
+   "Anchor": -1.5,
+   "Build": -175.7,
+   "Fill": -64.3,
+   "Tight": 84.8,
+   "TOTAL": -156.7
+  },
+  "need1": {
+   "Anchor": -0.8,
+   "Build": -161.6,
+   "Fill": -48.0,
+   "Tight": 111.4,
+   "TOTAL": -99.0
+  },
+  "slot_s1": {
+   "Anchor": 0.0,
+   "Build": -162.8,
+   "Fill": -44.8,
+   "Tight": 123.9,
+   "TOTAL": -83.7
+  }
+ }
 }
