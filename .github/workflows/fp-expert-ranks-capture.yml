@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C register 79 scraped_at re-derive expert_spread_2026 fresh capture path staged cached artifact commit store name run uses with steps if porcelain 2026-08-19
+# TERRITORY-GRANT: C register 79 scraped_at re-derive expert_spread_2026 fresh capture path staged cached artifact commit store name run uses with steps if porcelain set pipefail python3 import sys build add fp_expert_ranks 2026-08-19
 name: FP EXPERT RANKS — capture every expert's rank for every player
 # Register 4t. Cory, 2026-08-18: "we need to get them from somewhere!!!"
 #
