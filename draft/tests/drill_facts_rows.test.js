@@ -77,6 +77,28 @@ ck('no player / no team -> null', teamPassRateRow({}) === null && teamPassRateRo
     teamPassRateRow({ team: 'DET' }) === null);
 }
 
+// ── register 4v's drill-down half (routed 08-18): the ceiling row must mark
+// a cohort-constant ceiling the same way the shortlist's rangeBar() already
+// does, since renderDrill() is the drill-down Cory's own rehearsal harness
+// reaches — a bare number here is exactly the gap the routing item named,
+// down to its line numbers. ─────────────────────────────────────────────────
+// eslint-disable-next-line no-eval
+const isCohortCeiling = eval('(' + lift('isCohortCeiling') + ')');
+ck('a measured-band-constant ceiling source IS flagged',
+  isCohortCeiling({ proj_ceiling_source: 'measured-2023-25-p90' }) === true);
+ck('a genuinely per-player source is NOT flagged',
+  isCohortCeiling({ proj_ceiling_source: 'measured-2023-25-p90-x-player-cv' }) === false);
+ck('CONTROL: an unrecognised/gaussian_z stamp is NOT flagged — conservative on '
+  + 'purpose, same as app.js\'s cohortCeiling() (K/DEF must not light up here)',
+  isCohortCeiling({ proj_ceiling_source: 'gaussian_z' }) === false);
+ck('missing/absent stamp -> not flagged, no throw',
+  isCohortCeiling({}) === false && isCohortCeiling(null) === false);
+ck('the ceiling row actually calls it and renders the same .wr-ceil-cohort mark '
+  + 'the shortlist already ships (no new CSS needed)',
+  /isCohortCeiling\(p\)[\s\S]{0,80}wr-ceil-cohort/.test(SRC));
+ck('the mark carries the identical explanatory title text as the shortlist\'s own mark',
+  /This ceiling is the band [\s\S]{0,20}average, not a measurement of this player/.test(SRC));
+
 // ── wiring: rows.filter(Boolean) actually strips a null row before render ──
 {
   ck('renderDrill\'s rows array is filtered before the <tr> map, so a null row renders nothing rather than a broken row',

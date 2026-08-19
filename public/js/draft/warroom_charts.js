@@ -610,6 +610,23 @@
     var label = ord === 1 ? 'starter' : ord === 2 ? '2nd string' : ord + ' on the depth chart';
     return ['Depth chart', label + ' <span class="muted">(' + esc(p.position || '') + ', ' + esc(p.team || '') + ')</span>'];
   }
+  /* REGISTER 4v'S DRILL-DOWN HALF (routed 08-18, exact line numbers given):
+   * the shortlist's rangeBar() already marks a cohort-constant ceiling with
+   * the `~` sup (app.js's cohortCeiling(), wired 08-18), but `renderDrill()`
+   * — the REAL drill-down Cory's own rehearsal harness exercises, reached
+   * from the shortlist/rail click — never called it, so the ceiling number
+   * here was a bare, unmarked figure. Same predicate as app.js's
+   * cohortCeiling(), inlined rather than cross-called (warroom_charts.js and
+   * app.js are separate modules; duplicating four lines beats coupling them
+   * for this). Reuses the SAME `.wr-ceil-cohort` class/CSS the shortlist
+   * mark already ships, so no new styling. */
+  function isCohortCeiling(p) {
+    var src = p && p.proj_ceiling_source;
+    if (typeof src !== 'string' || !src) return false;
+    if (/-x-player-cv$/.test(src)) return false;
+    return /^measured-/.test(src);
+  }
+
   function teamPassRateRow(p) {
     var pace = typeof window !== 'undefined' && window.WR_TEAM_PACE;
     var t = pace && p && p.team && pace.teams && pace.teams[p.team];
@@ -655,7 +672,9 @@
 
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
-      ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)],
+      ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)
+        + (isCohortCeiling(p) ? '<sup class="wr-ceil-cohort" title="This ceiling is the band '
+          + 'average, not a measurement of this player">~</sup>' : '')],
       depthChartRow(p),
       teamPassRateRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
