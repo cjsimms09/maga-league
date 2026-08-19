@@ -142,6 +142,20 @@
     own labelled panel beneath the recommendations. Guarded consumer: a missing
     module costs the panel, never the board. %>
 <script src="/js/draft/mlv.js"></script>
+<%# rbm_view.js — pure render layer for the roster-builder panel above
+    (TERRITORY: B), same split as position_boards_view.js: turns
+    RosterBuilderMLV's output into HTML and touches no DOM/state itself. %>
+<script src="/js/draft/rbm_view.js"></script>
+<%# market_delta.js — the board-vs-market DISAGREEMENT chip, third in A's
+    08-18 surface set (after the expert badge and the nav-consolidation
+    map). Pure derivation over overall_rank/adjusted_adp — both already on
+    every player object, zero new artifact, zero grading. DISPLAY ONLY:
+    never read by engine.js/composite.js/valuation.js/survival.js. Caption
+    discipline: states disagreement with the room, never "value" or "steal"
+    (market_delta.test.js pins both the chip and the drawer). ⚠️ B-owned
+    file, this include line is a disclosed trespass into A's territory —
+    same pattern as expert_spread.js's own include just above. %>
+<script src="/js/draft/market_delta.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with

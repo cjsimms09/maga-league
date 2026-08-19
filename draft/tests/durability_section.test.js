@@ -28,7 +28,7 @@ ck('...specifically the where_the_constant_is_furthest_from_the_player slice',
 ck('a read failure degrades to null, not a thrown error (the page must never break)',
   /durability = null;\s*\}\s*catch/.test(ADMIN) || /catch \(e\) \{ durability = null; \}/.test(ADMIN));
 ck('durability is actually passed to the render (built and dropped is not shipped)',
-  /durability,\s*\}\);/.test(ADMIN));
+  /durability,\s*(teamPace,\s*)?\}\);/.test(ADMIN));
 
 ck('the view guards on durability existing before rendering (no throw on a missing file)',
   /durability && durability\.most_optimistic/.test(VIEW));

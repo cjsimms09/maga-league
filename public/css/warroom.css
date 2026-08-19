@@ -1181,6 +1181,45 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 }
 .wr-source-gap.unexplained { color: #fff; background: var(--red); }
 
+/* MARKET-DELTA chip (A dispatch, 08-18) — same chip grammar again. Two
+   distinct hues (not red on either side — neither direction is a warning,
+   caption discipline: disagreement with the room, not a value claim). */
+.wr-market-delta {
+  display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
+  color: #0a1422; border-radius: 3px;
+  padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
+}
+.wr-market-delta.up { background: var(--gold); }
+.wr-market-delta.down { background: var(--blue); color: #06111f; }
+
+/* CONTRARIAN PICKS drawer — one tap, closed by default (register 4b: dense
+   by default is the complaint this project already fixed once). */
+.wr-contrarian { margin: .3rem 0 .6rem; }
+.wr-contrarian > summary {
+  cursor: pointer; font-family: var(--font-display); font-weight: 800;
+  font-size: .74rem; letter-spacing: .04em; color: var(--ink);
+  padding: .35rem 0; list-style: none;
+}
+.wr-contrarian > summary::-webkit-details-marker { display: none; }
+.wr-contrarian > summary .muted { font-weight: 600; font-size: .68rem; margin-left: .3rem; }
+.wr-contrarian-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .6rem;
+  padding: .5rem 0 .2rem;
+}
+.wr-contrarian-h {
+  font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: .3rem;
+}
+.wr-contrarian-col ul { list-style: none; margin: 0; padding: 0; }
+.wr-contrarian-col li {
+  display: flex; align-items: center; gap: .4rem; padding: .22rem 0;
+  font-size: .72rem; border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+.cd-nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-delta { font-weight: 900; }
+.cd-delta.up { color: var(--gold-bright); }
+.cd-delta.down { color: var(--blue); }
+
 /* clickable names everywhere */
 .rec-nm { cursor: pointer; text-decoration: underline dotted rgba(147, 165, 188, .5); text-underline-offset: 2px; }
 .rec-nm:hover { color: var(--gold-bright); }

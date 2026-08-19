@@ -5827,6 +5827,13 @@
       + 'the number beside each name (' + '<span class="rec-order-eg">17.3</span>'
       + ') is that score, not a dollar value.</div>';
 
+    /* CONTRARIAN PICKS DRAWER (market-delta chip, part 2 \u2014 A dispatch,
+     * ROUTES.md 08-18). One tap, closed by default, over the currently
+     * AVAILABLE pool (state.board is already undrafted-only) so it stays
+     * live as picks happen rather than a snapshot of who used to be open. */
+    const contrarianHtml = (typeof MarketDelta !== 'undefined')
+      ? MarketDelta.drawerHtml(state.board, escapeHtml) : '';
+
     /* WHICH TERM DECIDED THIS PICK, BEFORE IT IS MADE.
      *
      * decision_contract.js has been ON the war-room page and CALLED BY NOTHING.
@@ -5915,7 +5922,7 @@
       return (lo < hi) ? { min: lo, max: hi } : null;
     })();
     const curPickNo = (function () { try { return currentPick(); } catch (e) { return null; } })();
-    host.innerHTML = explainPanel('recommendations') + head + orderNote + decisiveLine + scored.map((s, i) => {
+    host.innerHTML = explainPanel('recommendations') + head + orderNote + contrarianHtml + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       /* FALLING (Cory, cockpit steering): value sliding past its market price —
@@ -5932,6 +5939,7 @@
               + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
               + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
             sourceGapBadge(p, state.board) +
+            (typeof MarketDelta !== 'undefined' ? MarketDelta.chipHtml(p, escapeHtml) : '') +
           '</div>' +
           ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
             ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
