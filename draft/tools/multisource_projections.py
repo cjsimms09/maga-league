@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C register 80 norm_name nickname NICKNAMES adp rule 11 unmatched Joshua Palmer Chig Okonkwo Chigoziem Marquise Hollywood Brown sys path root import ADP get sub strip written by 2026-08-19
+# TERRITORY-GRANT: C register 80 norm_name nickname NICKNAMES adp rule 11 unmatched Joshua Palmer Chig Okonkwo Chigoziem Marquise Hollywood Brown sys path root import ADP get sub strip written by TERRITORY multisource_projections 2026-08-19
 """SCORE THE ffanalytics ROWS UNDER *OUR* RULES, JOIN THEM TO THE BOARD, AND
 CHECK THEM BEFORE ANY OF IT REACHES A NUMBER CORY DRAFTS ON.
 
