@@ -88,14 +88,54 @@ if (today <= DRAFT_DAY) {
 
     const at = inSec.findIndex(i => MARK.test(text(i)));
     ck('the pre-draft triage EXISTS in `## TO: ' + sec + '`', at >= 0);
+
+    /* ⚠️ A TICKED TRIAGE IS DISCHARGED, AND THE POSITION STOPS BEING ASSERTED.
+     *
+     * Added 2026-08-18, after this check went RED on `main` for A — whose triage
+     * sat at position 3 under two items A had already ticked, having itself been
+     * ticked. **The whole stated purpose of the position is that the lane SEES
+     * the head item.** A tick is proof it did. Demanding position 1 from an item
+     * the lane has already actioned protects nothing and reddens the build for
+     * a mailbox in its correct state — which is this project's own epitaph for
+     * the intervention-rate check, one guard later.
+     *
+     * THE COROLLARY IS THE PART THAT MATTERS, so it is written here rather than
+     * assumed: **if you add new work to a discharged triage, UNTICK it.** That
+     * re-arms this assertion in the same edit, which is the only thing standing
+     * between "discharged" and "a head item that can quietly sink out of sight".
+     * Both arms are proven below rather than described. */
+    const discharged = at >= 0 && inSec[at].done;
     ck('...and is still the FIRST item, so a lane opening a 783 KB mailbox sees '
-      + 'it. If this fails, someone filed above the triage — UPDATE the triage '
+      + 'it — unless the lane has already TICKED it, which is proof it was seen. '
+      + 'If this fails, someone filed above an unread triage: UPDATE the triage '
       + 'rather than moving it back.',
-    at === 0, { position: at + 1, of: inSec.length });
+    at === 0 || discharged, { position: at + 1, of: inSec.length, discharged: discharged });
   });
 } else {
   ck('EXPIRED: the draft has passed, so the pre-draft triage is moot and this '
     + 'check asserts nothing. Delete this file.', true);
+}
+
+// ── 1b. THE DISCHARGE EXEMPTION, BOTH ARMS ────────────────────────────────
+{
+  /* An exemption nobody can show FIRING is a mute button with a comment on it.
+   * These drive the exact condition on synthetic items, so the arm that lets a
+   * ticked triage sink is proven to still catch an UNticked one at the same
+   * position — the only difference between this and switching the guard off. */
+  const at3 = (done) => {
+    const inSec = [
+      { section: 'Z', done: true, body: ['some other item'] },
+      { section: 'Z', done: true, body: ['another other item'] },
+      { section: 'Z', done: done, body: ['relay -> Z · READ ONLY THIS ONE. your inbox...'] },
+    ];
+    const i = inSec.findIndex(x => MARK.test(text(x)));
+    return i === 0 || (i >= 0 && inSec[i].done);
+  };
+  ck('FAIL ARM — an UNTICKED triage buried at position 3 still fails, so the '
+    + 'exemption did not switch the guard off', at3(false) === false);
+  ck('...and a TICKED one at the same position passes, because a tick is the '
+    + 'lane proving it read the thing the position exists to make it read',
+  at3(true) === true);
 }
 
 // ── 2. THE EXPIRY ACTUALLY WORKS ───────────────────────────────────────────

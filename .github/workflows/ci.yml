@@ -28,8 +28,28 @@ on:
   workflow_dispatch: {}
 
 # One in-flight run per branch. A lane that pushes five times in a minute gets
-# ONE run of the newest commit instead of five; main is excluded so a merge is
-# never cancelled by a later push.
+# ONE run of the newest commit instead of five.
+#
+# ⚠️ THIS BLOCK USED TO CLAIM "main is excluded so a merge is never cancelled by
+# a later push". THAT IS FALSE, IT WAS MINE, AND IT IS CORRECTED HERE RATHER THAN
+# QUIETLY DROPPED. Measured 2026-08-18 over the 30 most recent `main` runs:
+# **20 cancelled, 9 failed, 0 succeeded.**
+#
+# `cancel-in-progress: false` does NOT protect a run. It means a newer run
+# QUEUES instead of killing the in-flight one — and GitHub keeps only ONE
+# pending run per concurrency group, so the older PENDING run is cancelled when
+# the next push arrives. At a push-per-minute cadence against a ~10-minute CI,
+# that cancels nearly everything between the first push and the last.
+#
+# THE CONSEQUENCE IS THE PART THAT MATTERS: **`main` mostly does not get tested
+# at all** under rapid merging, which is how three separate guards sat red on
+# `main` unnoticed on 08-18 (the triage guard, the decisions sheet, and the
+# unverified-workflow ratchet). A "green" inferred from having pushed is not a
+# measurement; a full local run is.
+#
+# NOT CHANGED IN DRAFT WEEK, DELIBERATELY. The fix is a merge cadence — or a
+# scheduled run of `main` — not a YAML edit three days out, and a wrong comment
+# in the file every lane reads is worse than the behaviour it describes.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
