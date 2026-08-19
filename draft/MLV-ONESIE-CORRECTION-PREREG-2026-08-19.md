@@ -111,3 +111,100 @@ value, not imposed.
   corrected here. It does **not** touch register 132 — that arm runs.
 - **Is it routed to the lane that can act?** B is holding the panel design that
   carries the false sentence; §5 is corrected in the same commit as this file.
+
+---
+
+# RESULTS — run after the above was committed (`3a6a242a`)
+
+## CONTROLS
+
+**C1 — KNOWN POSITIVE, PASSED.** The fixed flag changes the output: K count
+**1.00 → 0.00**. The two arms are no longer identical, which is the whole
+point — the previous "identity" was a flag that did nothing.
+
+**C2 — PASSED, exactly.** The cap arm is bit-identical to what was committed:
+**actual +45.84, skill +29.33**. The fix touched only the dead branch.
+
+**C3 — legality reported**, and it is the payload.
+
+## THE THREE PREDICTIONS
+
+| | | |
+|---|---|---|
+| **P237** exclusion is illegal, not identical | **TRUE** | K **0.00**, DEF **0.00**, **30/30** seats with an unfillable slot |
+| **P238** and therefore scores worse | **TRUE** | actual **−83.68** (4/30), skill **−211.34** (1/30) |
+| **P239** first K lands after pick 100 | **FALSE** | **85.5** — *earlier* than the shipped arm's 95.5 |
+
+```
+                    mean first-K pick     actual delta
+  humans                    126.1              0.0  (reference)
+  MLV (cap at 1)             85.5            +45.8
+  shipped shape arm          95.5            −20.4
+  --kdef-tax                132.0            −18.7   (8 seats with NO kicker)
+  --kdef-supply              95.3            −29.0
+  MLV (exclude entirely)      none           −83.7   ← the row that never ran
+```
+
+**So Cory's question has a real answer, and it is the opposite of the one I
+sent him: a hard cap of 1 and excluding them entirely are NOT the same thing.
+Excluding them costs 130 points a season on actual and 240 on skill**, because
+two starting slots score zero every week for seventeen weeks.
+
+## P239 IS FALSE AND THE DISTRIBUTION SAYS SOMETHING SHARPER THAN THE MEAN
+
+**Rule 3i, applied before this was written down, and it changed the claim.** The
+30 first-K picks are not scattered around 85.5. Sorted, they are:
+
+```
+  81 81 81 82 82 82 83 83 83 84 84 84 85 85 85 86 86 86 87 87 87 88 88 88 89 89 89 90 90 90
+```
+
+**Exactly three copies of 81–90 — the ten seats' round-9 slot, in all three
+seasons.** MLV takes its kicker at its **round-9 pick in 30 of 30 seat-years**,
+and its defence at round 8 (65–80, same shape). Zero variance across seat,
+season or opponent. The within-arm correlation between first-K pick and delta is
+**r = −0.18** (n=30, 3 clusters) — nothing. **The mean was hiding a constant.**
+
+**And the constant has a mechanism, which is the actual finding.** Under
+skill-not-luck grading a bench body's marginal lineup value is **exactly zero**.
+So MLV fills all nine starting slots and then stops caring. A kicker who fills an
+empty dedicated slot is worth his full surplus over the wire (+16.9); the best
+skill player left is worth **0** because he would sit. **Round 9 is simply where
+the starting lineup fills up.**
+
+**⚠️ THIS ALSO MEANS MLV CANNOT VALUE A BENCH AT ALL.** Six of fifteen roster
+spots have marginal value zero and are taken best-available by tie-break. That is
+a real limitation of the mechanism and it is not in the panel design.
+
+## WHAT THIS DOES TO THE "K/DEF GO TOO EARLY" PREMISE
+
+`ROSTER-CONSTRUCTION-CALL.md` §4 flagged the premise as the suspect after two
+mechanisms that moved onesies later both scored worse. **This is a fourth data
+point and it comes from the arm that WINS:** MLV takes K and DEF *earlier than
+any other arm on the board* — 40 picks earlier than the humans — and beats the
+humans in all three seasons on both gradings.
+
+**⚠️ Stated at the strength the evidence supports and no further.** These arms
+differ in more than onesie timing, so this is not a controlled comparison and I
+am not claiming early onesies *cause* the gain. What it does do is remove the
+last reason to keep looking for a third way to delay them. **Three attempts,
+zero successes, and the winner does the opposite. Stop.**
+
+## THE RELAY'S NUMBER DOES NOT REPRODUCE
+
+The relay reported *"First K lands at mean pick 104 with no kicker term at all."*
+On this harness it is **85.5**. Their arm may differ from mine; recorded as a
+discrepancy to resolve, not asserted as their error.
+
+## FOLLOW-UP QUESTIONS (rule 3g)
+
+- **Does it imply another failure?** Yes, and it is live: the shipped
+  `public/js/draft/mlv.js` does the same thing, verified against the real board.
+  Once Cory's starting lineup is full the panel's entire top four is defences and
+  kickers (HOU DEF +22.7, DEN DEF +18.3, Aubrey K +16.9). **The panel design told
+  B to render "K and DEF excluded — take them at the end", which is the opposite
+  of what the module does.** §5 corrected.
+- **Does it invalidate something we trust?** Register 132's numbers survive
+  untouched (C2). What falls is one table row, one mechanism sentence, and one
+  line of UI copy.
+- **Is it routed?** B holds the panel design; corrected in this commit.

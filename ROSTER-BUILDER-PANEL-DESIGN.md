@@ -89,16 +89,46 @@ exactly the disagreement Cory wants to be able to see.
 
 ## 5. TWO THINGS TO SHOW, NOT HIDE
 
-**① K and DEF are excluded, and the reason is worth one line of UI.**
-Measured: a kicker is worth **+16.9** and a defence **+22.7** in marginal
-lineup value — *permanently*, whatever the roster state, because they fill a
-dedicated slot with no competition. Every skill player worth taking beats that.
-**So the model never wants one**, and capping them at 1 versus excluding them
-entirely produce byte-identical results (+45.8 / +29.3 either way).
+**① ⚠️ CORRECTED 2026-08-19 — K AND DEF ARE ***NOT*** EXCLUDED, AND THIS
+SECTION PREVIOUSLY TOLD YOU TO RENDER THE OPPOSITE OF WHAT THE MODULE DOES.**
+Register 134. **Do not ship the old footer line.**
 
-Cory: *"I won't draft 2 kickers and 2 def."* One line under the list —
-*"K and DEF excluded — worth +17 and +23 all draft; take them at the end"* — is
-enough.
+What the module actually does: **`K ≤ 1` and `DEF ≤ 1`, a cap, never an
+exclusion.** It will recommend a kicker and a defence — and once Cory's starting
+lineup is full it recommends them **at the top of the panel**. Verified against
+the live board at a round-9-ish board state:
+
+```
+  1  Houston Texans     DEF   +22.7   fills your open DEF slot
+  2  Denver Broncos     DEF   +18.3   fills your open DEF slot
+  3  Brandon Aubrey     K     +16.9   fills your open K slot
+```
+
+**That is the model's honest position, not a bug.** Under Cory's skill-not-luck
+grading a bench body's marginal lineup value is **exactly zero**, so once nine
+starting slots are filled a kicker who fills the tenth beats the best skill
+player left. On the harness the arm that does exactly this takes K at its
+**round-9 pick in 30 of 30 seat-years** and still beats the humans in all three
+seasons (+45.8 / +29.3).
+
+**And the two options Cory asked about are NOT the same.** The earlier claim that
+they were came from an arm that crashed on every invocation; the real numbers:
+
+| | actual | skill | K | DEF | legal |
+|---|---|---|---|---|---|
+| **hard cap at 1** (what ships) | **+45.8** | **+29.3** | 1.00 | 1.00 | 30/30 |
+| exclude entirely | −83.7 | −211.3 | 0.00 | 0.00 | **0/30** |
+
+Excluding them costs two starting slots every week for seventeen weeks.
+
+**The footer line to render instead:**
+*"K and DEF capped at one. Once your lineup is full they top this list — a bench
+player is worth zero to this model, a kicker in an empty slot is worth +17."*
+
+**And one honest limitation, worth a second line if there is room:** this model
+**cannot value a bench at all**. Six of fifteen roster spots score zero marginal
+value and fall through to best-available. It is a starting-lineup optimiser, and
+Cory should read it as one.
 
 **② The evidence, honestly, in a tooltip or a footer.**
 `RosterBuilderMLV.EVIDENCE` carries it. The short version:

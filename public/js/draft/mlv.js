@@ -36,6 +36,22 @@
  * mechanism drafts 1.93 kickers and 1.90 defences and its edge falls from
  * +45.8/+29.3 to +19.2/+10.8. No-injury grading rewards a second kicker; a real
  * roster does not. Cory: "I won't draft 2 kickers and 2 def."
+ *
+ * ⚠️ AND IT IS A CAP, NOT AN EXCLUSION — register 134. Once the starting lineup
+ * is full this module recommends a DEFENCE and a KICKER AT THE TOP OF THE LIST
+ * (HOU DEF +22.7, Aubrey K +16.9 on the live board). That is correct behaviour
+ * and not a bug: a bench body's marginal lineup value is exactly zero, so a
+ * kicker filling an empty dedicated slot beats the best skill player left. On
+ * the harness the same rule takes K at its ROUND-9 PICK IN 30 OF 30 SEAT-YEARS
+ * and still beats the humans in all three seasons.
+ *
+ * Excluding them instead is NOT equivalent — an earlier claim that it was came
+ * from a harness arm that crashed on every invocation. Measured properly:
+ * exclusion scores −83.7 actual / −211.3 skill with 0 of 30 rosters legal.
+ *
+ * ⚠️ LIMITATION, state it rather than hide it: this CANNOT VALUE A BENCH. Six of
+ * fifteen roster spots have marginal value zero and fall through to
+ * best-available. It is a starting-lineup optimiser; read it as one.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -175,5 +191,11 @@
             + 'OWN shipped curve only weakly (t 1.02, upper bound). The K<=1 / '
             + 'DEF<=1 cap is IMPOSED from Cory\'s words, not emergent: without it '
             + 'the mechanism drafts 1.93 K and 1.90 DEF and its edge halves.',
+      onesies_are_capped_not_excluded: 'Register 134. Once your lineup is full '
+            + 'this model puts a DEF and a K at the top of the list, because a '
+            + 'bench body is worth exactly zero to it. Excluding them instead '
+            + 'costs -83.7 actual / -211.3 skill and leaves 0 of 30 rosters legal.',
+      cannot_value_a_bench: '6 of 15 roster spots score zero marginal value and '
+            + 'fall through to best-available. Starting-lineup optimiser.',
     } };
 }));

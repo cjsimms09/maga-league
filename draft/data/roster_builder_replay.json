@@ -117,7 +117,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 84,
+    "builder_DEF": 77,
+    "owner_K": 117,
+    "owner_DEF": 144
+   }
   },
   {
    "season": "2025",
@@ -169,7 +175,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 83,
+    "builder_DEF": 78,
+    "owner_K": 103,
+    "owner_DEF": 118
+   }
   },
   {
    "season": "2025",
@@ -221,7 +233,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 88,
+    "builder_DEF": 73,
+    "owner_K": 113,
+    "owner_DEF": 133
+   }
   },
   {
    "season": "2025",
@@ -273,7 +291,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 85,
+    "builder_DEF": 76,
+    "owner_K": 136,
+    "owner_DEF": 145
+   }
   },
   {
    "season": "2025",
@@ -325,7 +349,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 81,
+    "builder_DEF": 80,
+    "owner_K": 120,
+    "owner_DEF": 141
+   }
   },
   {
    "season": "2025",
@@ -377,7 +407,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 87,
+    "builder_DEF": 74,
+    "owner_K": 127,
+    "owner_DEF": 134
+   }
   },
   {
    "season": "2025",
@@ -429,7 +465,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 86,
+    "builder_DEF": 75,
+    "owner_K": 146,
+    "owner_DEF": 126
+   }
   },
   {
    "season": "2025",
@@ -481,7 +523,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 82,
+    "builder_DEF": 79,
+    "owner_K": 122,
+    "owner_DEF": 142
+   }
   },
   {
    "season": "2025",
@@ -533,7 +581,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 89,
+    "builder_DEF": 72,
+    "owner_K": 149,
+    "owner_DEF": 129
+   }
   },
   {
    "season": "2025",
@@ -585,7 +639,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 90,
+    "builder_DEF": 71,
+    "owner_K": 130,
+    "owner_DEF": 91
+   }
   },
   {
    "season": "2024",
@@ -637,7 +697,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 86,
+    "builder_DEF": 75,
+    "owner_K": 135,
+    "owner_DEF": 146
+   }
   },
   {
    "season": "2024",
@@ -689,7 +755,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 87,
+    "builder_DEF": 74,
+    "owner_K": 134,
+    "owner_DEF": 127
+   }
   },
   {
    "season": "2024",
@@ -741,7 +813,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 89,
+    "builder_DEF": 72,
+    "owner_K": 129,
+    "owner_DEF": 149
+   }
   },
   {
    "season": "2024",
@@ -793,7 +871,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 81,
+    "builder_DEF": 80,
+    "owner_K": 121,
+    "owner_DEF": 81
+   }
   },
   {
    "season": "2024",
@@ -845,7 +929,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 90,
+    "builder_DEF": 71,
+    "owner_K": 111,
+    "owner_DEF": 150
+   }
   },
   {
    "season": "2024",
@@ -897,7 +987,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 88,
+    "builder_DEF": 73,
+    "owner_K": 108,
+    "owner_DEF": null
+   }
   },
   {
    "season": "2024",
@@ -949,7 +1045,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 84,
+    "builder_DEF": 77,
+    "owner_K": 124,
+    "owner_DEF": 137
+   }
   },
   {
    "season": "2024",
@@ -1001,7 +1103,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 82,
+    "builder_DEF": 79,
+    "owner_K": 122,
+    "owner_DEF": 139
+   }
   },
   {
    "season": "2024",
@@ -1053,7 +1161,13 @@
     "QB": 2,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 85,
+    "builder_DEF": 65,
+    "owner_K": 136,
+    "owner_DEF": 125
+   }
   },
   {
    "season": "2024",
@@ -1105,7 +1219,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 83,
+    "builder_DEF": 78,
+    "owner_K": 123,
+    "owner_DEF": 103
+   }
   },
   {
    "season": "2023",
@@ -1157,7 +1277,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 86,
+    "builder_DEF": 75,
+    "owner_K": 126,
+    "owner_DEF": 146
+   }
   },
   {
    "season": "2023",
@@ -1209,7 +1335,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 83,
+    "builder_DEF": 78,
+    "owner_K": 138,
+    "owner_DEF": 103
+   }
   },
   {
    "season": "2023",
@@ -1261,7 +1393,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 85,
+    "builder_DEF": 76,
+    "owner_K": 145,
+    "owner_DEF": 136
+   }
   },
   {
    "season": "2023",
@@ -1313,7 +1451,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 87,
+    "builder_DEF": 74,
+    "owner_K": 127,
+    "owner_DEF": 94
+   }
   },
   {
    "season": "2023",
@@ -1365,7 +1509,13 @@
     "QB": 2,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 89,
+    "builder_DEF": 69,
+    "owner_K": 109,
+    "owner_DEF": 129
+   }
   },
   {
    "season": "2023",
@@ -1417,7 +1567,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 81,
+    "builder_DEF": 80,
+    "owner_K": 121,
+    "owner_DEF": 120
+   }
   },
   {
    "season": "2023",
@@ -1469,7 +1625,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 88,
+    "builder_DEF": 73,
+    "owner_K": 133,
+    "owner_DEF": 128
+   }
   },
   {
    "season": "2023",
@@ -1521,7 +1683,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 90,
+    "builder_DEF": 71,
+    "owner_K": 131,
+    "owner_DEF": 130
+   }
   },
   {
    "season": "2023",
@@ -1573,7 +1741,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 84,
+    "builder_DEF": 77,
+    "owner_K": 144,
+    "owner_DEF": 137
+   }
   },
   {
    "season": "2023",
@@ -1625,7 +1799,13 @@
     "DEF": 1,
     "K": 1
    },
-   "unfillable": []
+   "unfillable": [],
+   "first_pick": {
+    "builder_K": 82,
+    "builder_DEF": 79,
+    "owner_K": 102,
+    "owner_DEF": 119
+   }
   }
  ]
 }
