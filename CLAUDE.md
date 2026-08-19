@@ -81,12 +81,35 @@ normal", in points, and it is worth more than the whole acquisition edge.**
 **The mechanism is register 60, which has been open without a cost:** `need` is
 the only roster-aware term and it ships at weight **0**, so nothing penalises a
 pileup and whatever prices best gets taken repeatedly — **one 2023 seat drafted
-SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes **RB10**
-instead. **Both boards draw exactly ONE tight end in 30 of 30 rosters** — a
+SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes ~~**RB10**~~
+**RB7** instead. **⚠️ CORRECTED 2026-08-19 — RB10 CAME OFF AN EIGHTEEN-PICK
+ARTIFACT, WHICH IS THE PICK-8 ERROR CORY ALREADY CAUGHT ONCE (register 95),
+SURVIVING IN A SECOND PLACE.** `fieldability_probe.json` at 05:11 predates the
+repoint at his real schedule; re-run on his twelve picks the shipped engine
+takes **RB7 / TE1**, slot-aware RB8, `need:1.0` RB6, auto QB3. The shape defect
+is real — **TE1 is the sharp version of it** — but the number in this file was
+inflated by three picks he does not own. Register 98.
+**Both boards draw exactly ONE tight end in 30 of 30 rosters** — a
 degenerate constant of the `rookie_affinity`/`adp_sd`/dispersion family, and an
 independent corroboration of the roster-shape lab's TE gap.
 **Nothing ships from this before Saturday** (`no_fit_guard`).
 `draft/audit/seat_rank_and_the_conversion_gap_2026-08-19.md`.
+
+**⭐ AND THE MODEL WE HAVE BEEN REINVENTING IS PUBLISHED — READ
+`DUPLICATE-A-REAL-MODEL-2026-08-19.md`.** Cory, 08-19: *"we obviously can't do
+it ourselves, we need to look at other models and duplicate."* Read out of
+`ffanalytics/R/calc_projections.R`: centre = **weighted Wilcox robust location**,
+floor/ceiling = **weighted 5th/95th percentile (Harrell–Davis)**, replacement =
+**QB13 · RB35 · WR36 · TE13 · K8 · DST3**, five sources weighted **zero**. **And
+it emits `rank`, `floor_rank` and `ceiling_rank` as THREE SEPARATE RANKINGS — it
+never adds ceiling into value.** Ours ships `VONA + 0.45 × ceiling` on every
+player at every pick; the textbook says upside is a **bench** instrument and
+starters want the *low*-uncertainty side. **Cory's "why are we adding ceiling to
+everyone" is the reference implementation's position, not a preference.**
+Register 99. **The simple VONA model he asked for is also already ours:
+`draft/tools/draft_plan.js` — two equations, exact seat assignment, and on his
+real twelve picks it is the ONLY arm of five that draws a second TE and a
+backup QB (QB2/RB5/WR4/TE2). It has never been graded.**
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
@@ -167,8 +190,12 @@ owner and a next action. A row with no owner is itself a defect —
 tally in a prose file that no test reads is a claim that decays silently, and
 this one had. Open the register — it is the authority, and it is guarded.**
 **The 08-19 additions are 55-61 plus a REOPENED 2e**, and the two that reach
-Saturday are **59** (driven down Cory's own schedule the tool takes RB10/WR1,
-leaving an empty WR2 slot in week 11) and **60** (the flex rule, the empty-slot
+Saturday are **59** (~~driven down Cory's own schedule the tool takes RB10/WR1,
+leaving an empty WR2 slot in week 11~~ — **⚠️ 08-19: 59'S EVIDENCE CAME OFF THE
+SAME EIGHTEEN-PICK ARTIFACT AND DOES NOT REPRODUCE.** On his real twelve picks
+the shipped arm is **WR4/RB7** and the un-fieldable weeks are **8 (QB) and 10
+(TE)** — no week-11 WR2 gap. The row may still be real; its stated failure mode
+is not. Re-derive before acting on it. Register 98) and **60** (the flex rule, the empty-slot
 insurance, the slot-aware VONA and the wire bench rule are all built and all
 disconnected — `need` is the only roster-aware term and it ships at weight 0).
 **2e was carrying a ✅ with its own named root cause still in the code**, which
