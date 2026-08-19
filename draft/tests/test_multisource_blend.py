@@ -143,3 +143,45 @@ def test_too_few_opinions_is_left_alone(tmp_path):
     diag = MS.apply_multisource(players, store_path=_store(tmp_path, src))
     assert diag["applied"] is False       # coverage 0 -> refuses
     assert all(p["proj_mean"] == 100.0 for p in players)
+
+
+def test_DEF_keeps_our_exact_mean_and_still_gains_the_dispersion(tmp_path):
+    """THE PUBLISH GATE FOUND THIS, and it is the reason the rule exists.
+
+    For DEF the board's `proj_mean` is not an estimate — it is our own component
+    line scored exactly under this league's table, and
+    `test_all_32_sweep_correction_is_exactly_the_td_components` pins that
+    identity. The first blended board overwrote it (ARI 80.0 -> 87.2, DEF
+    replacement 103.0 -> 108.05) and CI refused to publish, correctly.
+
+    Both halves are asserted, because keeping only the first would let someone
+    "fix" this by dropping DEF from the blend entirely — which would throw away
+    the dispersion that our own pipeline structurally cannot produce.
+    """
+    players = [{"player_id": str(i), "name": f"D{i}", "position": "DEF",
+                "proj_mean": 100.0, "years_exp": 5} for i in range(40)]
+    src = {str(i): {"by_source": {"CBS": 120.0 + i, "ESPN": 110.0}} for i in range(40)}
+    MS.apply_multisource(players, store_path=_store(tmp_path, src))
+    for p in players:
+        assert p["proj_mean"] == 100.0, "DEF mean must stay first-party"
+        assert "proj_mean_sleeper_only" not in p
+        assert "proj_mean_source" not in p
+        # ...and the band is still real, and still centred on OUR mean
+        assert p["proj_sd_source"] == "cross-source-disagreement"
+        assert p["proj_floor"] < 100.0 < p["proj_ceiling"]
+    ratios = {round(p["proj_sd"] / p["proj_mean"], 4) for p in players}
+    assert len(ratios) > 20, (
+        "DEF dispersion collapsed to a constant — that is the defect this "
+        "replaces (all 32 defences once shared one ratio, 0.380)")
+
+
+def test_a_skill_position_still_takes_the_blended_mean(tmp_path):
+    """The known-negative control for the rule above: if the DEF carve-out ever
+    widens to everything, the blend is inert and this test says so."""
+    players = [{"player_id": str(i), "name": f"W{i}", "position": "WR",
+                "proj_mean": 100.0, "years_exp": 5} for i in range(40)]
+    src = {str(i): {"by_source": {"CBS": 120.0, "ESPN": 110.0}} for i in range(40)}
+    MS.apply_multisource(players, store_path=_store(tmp_path, src))
+    assert all(p["proj_mean_source"] == "multisource-mean-2026" for p in players)
+    assert all(p["proj_mean_sleeper_only"] == 100.0 for p in players)
+    assert all(p["proj_mean"] == 110.0 for p in players)
