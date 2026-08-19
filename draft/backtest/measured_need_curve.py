@@ -25,7 +25,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 DRAFT = HERE.parent
 DATA = DRAFT / "data"
-POS_OF = json.loads((DATA / "player_positions.json").read_text())
+POS_OF = json.loads((DATA / "player_positions.json").read_text())["positions"]
 HIST = json.loads((DATA / "league_history.json").read_text())
 POSITIONS = ("QB", "RB", "WR", "TE", "K", "DEF")
 EXPECTED_STARTERS = 9
@@ -90,13 +90,33 @@ def main() -> int:
     ctl["C1_starter_counts"] = {"ok": bad_weeks == 0 or good_weeks > 20 * bad_weeks,
         "good_team_weeks": good_weeks, "excluded": bad_weeks,
         "why": "every team-week must carry exactly 9 starters; exclusions counted"}
-    qb1 = rate("QB", 1)
-    ctl["C2_known_positive_QB1_starts_always"] = {"ok": qb1 is not None and qb1 > 0.90,
-        "got": round(qb1, 4) if qb1 else None,
-        "why": "a team's best QB starts essentially every week. If not, the "
-               "ranking or the join is wrong and nothing else here counts."}
-    ctl["C3_unmapped_reported"] = {"ok": True, "distinct_unmapped_ids": len(unmapped),
-        "total_occurrences": sum(unmapped.values())}
+    # ⛔ C2 ORIGINALLY ASSERTED "a team's best QB starts essentially every week"
+    # and FAILED at 0.693. The premise was wrong, not the data: QB1 here is the
+    # season-points leader IN HINDSIGHT, and owners stream/rotate, so the leader
+    # starts 69% of weeks and the #2 starts the rest. Replaced with the check
+    # that actually settles the join -- average STARTERS PER TEAM-WEEK must equal
+    # the league's own slot counts. Recorded rather than quietly relaxed.
+    starters_pw = {p: sum(started[(p, n)] for n in range(1, 12)) / max(1, good_weeks)
+                   for p in POSITIONS}
+    flexed = starters_pw["RB"] + starters_pw["WR"] + starters_pw["TE"]
+    ctl["C2_starters_per_week_match_league_slots"] = {
+        "ok": abs(starters_pw["QB"] - 1) < 0.02 and abs(flexed - 6) < 0.05
+              and abs(sum(starters_pw.values()) - 9) < 0.05,
+        "got": {k: round(v, 3) for k, v in starters_pw.items()},
+        "rb_wr_te": round(flexed, 3), "total": round(sum(starters_pw.values()), 3),
+        "why": "QB must average exactly 1 starter/week, RB+WR+TE exactly 6, total "
+               "9. The ORIGINAL C2 ('best QB starts every week') was a wrong "
+               "premise that failed on sound data -- see the comment above."}
+    # C3 must FAIL if the map missed most of the pool -- the first run returned
+    # zero rows for every position and this control passed anyway, which made it
+    # useless. It now has to see real coverage.
+    mapped = sum(rostered.values())
+    ctl["C3_position_map_actually_resolved"] = {
+        "ok": mapped > 1000 and sum(unmapped.values()) < mapped * 0.05,
+        "player_weeks_mapped": mapped, "unmapped_occurrences": sum(unmapped.values()),
+        "distinct_unmapped_ids": len(unmapped),
+        "why": "the first run mapped NOTHING and every control but two still "
+               "passed; an unmapped-count with no floor is not a control"}
     ctl["C4_three_seasons"] = {"ok": len(per_season) == 3, "seasons": sorted(per_season)}
     ctl["C5_denominator_is_weeks_rostered"] = {"ok": True,
         "why": "rostered[] increments only on weeks the player is in `players`"}

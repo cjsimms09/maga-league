@@ -1,0 +1,309 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/measured_need_curve.py",
+ "_prereg": "draft/MEASURED-NEED-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. Counted, not modelled. Selects nothing.",
+ "controls": {
+  "C1_starter_counts": {
+   "ok": true,
+   "good_team_weeks": 540,
+   "excluded": 0,
+   "why": "every team-week must carry exactly 9 starters; exclusions counted"
+  },
+  "C2_known_positive_QB1_starts_always": {
+   "ok": false,
+   "got": 0.6926,
+   "why": "a team's best QB starts essentially every week. If not, the ranking or the join is wrong and nothing else here counts."
+  },
+  "C3_position_map_actually_resolved": {
+   "ok": true,
+   "player_weeks_mapped": 8356,
+   "unmapped_occurrences": 28,
+   "distinct_unmapped_ids": 6,
+   "why": "the first run mapped NOTHING and every control but two still passed; an unmapped-count with no floor is not a control"
+  },
+  "C4_three_seasons": {
+   "ok": true,
+   "seasons": [
+    "2023",
+    "2024",
+    "2025"
+   ]
+  },
+  "C5_denominator_is_weeks_rostered": {
+   "ok": true,
+   "why": "rostered[] increments only on weeks the player is in `players`"
+  }
+ },
+ "controls_all_passed": false,
+ "team_weeks": 540,
+ "curve": {
+  "QB": [
+   0.693,
+   0.427,
+   0.407,
+   null,
+   null,
+   null
+  ],
+  "RB": [
+   0.869,
+   0.713,
+   0.49,
+   0.273,
+   0.155,
+   0.074
+  ],
+  "WR": [
+   0.83,
+   0.696,
+   0.53,
+   0.331,
+   0.179,
+   0.168
+  ],
+  "TE": [
+   0.719,
+   0.414,
+   0.406,
+   1.0,
+   null,
+   null
+  ],
+  "K": [
+   0.952,
+   0.828,
+   null,
+   null,
+   null,
+   null
+  ],
+  "DEF": [
+   0.823,
+   0.484,
+   0.364,
+   0.0,
+   null,
+   null
+  ]
+ },
+ "n_rostered": {
+  "QB": [
+   540,
+   363,
+   27,
+   0,
+   0,
+   0
+  ],
+  "RB": [
+   540,
+   540,
+   539,
+   499,
+   284,
+   81
+  ],
+  "WR": [
+   540,
+   540,
+   540,
+   532,
+   385,
+   137
+  ],
+  "TE": [
+   540,
+   355,
+   32,
+   1,
+   0,
+   0
+  ],
+  "K": [
+   540,
+   29,
+   0,
+   0,
+   0,
+   0
+  ],
+  "DEF": [
+   538,
+   188,
+   11,
+   1,
+   0,
+   0
+  ]
+ },
+ "per_season": {
+  "2025": {
+   "QB": [
+    0.55,
+    0.612,
+    0.286,
+    null,
+    null,
+    null
+   ],
+   "RB": [
+    0.872,
+    0.811,
+    0.467,
+    0.236,
+    0.187,
+    0.133
+   ],
+   "WR": [
+    0.828,
+    0.644,
+    0.483,
+    0.395,
+    0.137,
+    0.31
+   ],
+   "TE": [
+    0.633,
+    0.485,
+    0.308,
+    null,
+    null,
+    null
+   ],
+   "K": [
+    0.967,
+    0.857,
+    null,
+    null,
+    null,
+    null
+   ],
+   "DEF": [
+    0.82,
+    0.457,
+    0.0,
+    0.0,
+    null,
+    null
+   ]
+  },
+  "2024": {
+   "QB": [
+    0.778,
+    0.31,
+    0.125,
+    null,
+    null,
+    null
+   ],
+   "RB": [
+    0.933,
+    0.656,
+    0.425,
+    0.272,
+    0.155,
+    0.038
+   ],
+   "WR": [
+    0.806,
+    0.689,
+    0.594,
+    0.35,
+    0.229,
+    0.106
+   ],
+   "TE": [
+    0.767,
+    0.339,
+    0.4,
+    null,
+    null,
+    null
+   ],
+   "K": [
+    0.922,
+    0.875,
+    null,
+    null,
+    null,
+    null
+   ],
+   "DEF": [
+    0.789,
+    0.493,
+    0.75,
+    null,
+    null,
+    null
+   ]
+  },
+  "2023": {
+   "QB": [
+    0.75,
+    0.343,
+    0.667,
+    null,
+    null,
+    null
+   ],
+   "RB": [
+    0.8,
+    0.672,
+    0.578,
+    0.31,
+    0.136,
+    0.075
+   ],
+   "WR": [
+    0.856,
+    0.756,
+    0.511,
+    0.246,
+    0.155,
+    0.104
+   ],
+   "TE": [
+    0.756,
+    0.412,
+    0.556,
+    1.0,
+    null,
+    null
+   ],
+   "K": [
+    0.967,
+    0.667,
+    null,
+    null,
+    null,
+    null
+   ],
+   "DEF": [
+    0.861,
+    0.511,
+    1.0,
+    null,
+    null,
+    null
+   ]
+  }
+ },
+ "my_model_said": {
+  "RB4": 0.128,
+  "WR4": 0.031,
+  "QB2": 0.147,
+  "TE2": 0.188
+ },
+ "P150": {
+  "measured_RB4": 0.273,
+  "measured_WR4": 0.331,
+  "model_RB4": 0.128,
+  "model_WR4": 0.031,
+  "TRUE": true
+ },
+ "P151": {
+  "measured_QB2": 0.427,
+  "measured_TE2": 0.414,
+  "TRUE": false
+ }
+}
