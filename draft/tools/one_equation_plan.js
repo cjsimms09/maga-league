@@ -85,13 +85,22 @@ const ARM = process.env.ARM || '';
  * instead of by whether he is EVER needed. 0.933 -> 0.147 for a second QB. No
  * constant chosen, no cap, starter weight still 1.0, flex rule unchanged from
  * P144 -- which is the arm that hit 5 of 6 cells and +4% value. */
-const ARM_WEEKS = ARM.startsWith('weeks') || ARM === 'qbfix';
+const ARM_WEEKS = ARM.startsWith('weeks') || ARM === 'qbfix' || ARM === 'cory';
 const UNPRICED_FLOOR = ARM === 'weeks2' ? 1.0 : -Infinity;
 const P144_FLEX = ARM === 'qbfix' || ARM === '';
+/* ⚖️ CORY'S RULING 2026-08-19: "same problem with K and def, once you draft 1 the
+ * need should be 0." Exactly zero, not small -- a backup exists to cover an
+ * absence, and at K/DEF you cover it off waivers THE SAME WEEK at no cost. This
+ * league's measured churn is DEF 100% and K 83% of the pool cycling across 802
+ * completed adds (waiver_supply.js), and draft_plan.js already prices a bench
+ * K/DEF NEGATIVE for this reason -- this driver never inherited it. Structural,
+ * not a dial. */
+const ZERO_BEYOND_SLOT = ['K', 'DEF'];
 function weightOf(pos, held, flexOwner) {
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
   if (held < S) return 1.0;
+  if (ARM === 'cory' && ZERO_BEYOND_SLOT.includes(pos)) return 0;   // P149
   if (!ARM_WEEKS) return need(pos, held, flexOwner);
   return binomAtLeast(held - S + 1, S, Q[pos]);   // = E[weeks started]/17
 }

@@ -235,3 +235,50 @@ what I should have done first instead of stacking three edits.
 **FALSE if any cell misses or value drops more than 5%.** ⚠️ **This is the fourth
 arm. If it fails, the report to Cory is that the one-equation form gets five of
 six and the sixth needs structure — stated as a limit, not tuned around.**
+
+---
+
+# ADDENDUM 4 — Cory: *"same problem with K and def, once you draft 1 the need should be 0"*
+
+**P149. His ruling, recorded as that — and it is the one thing that lets me run
+the combination I declined to run for myself.**
+
+## WHY THIS IS A STRUCTURAL FACT AND NOT A TUNED CONSTANT
+
+**`need(K, held ≥ 1) = 0` and `need(DEF, held ≥ 1) = 0`, exactly zero.**
+
+A backup exists to cover a starter's absence. **At kicker and defence you cover
+it off waivers THE SAME WEEK at no cost** — this league's measured churn is **DEF
+100% and K 83% of the pool cycling through waivers** across 802 completed adds,
+2023-25 (`waiver_supply.js`). There is never a reason to roster two.
+**`draft_plan.js` already prices a bench K or DEF NEGATIVE for this reason** and
+its header calls it out — the one-equation driver simply never inherited it.
+
+**Not a dial: `0` is the only value consistent with "you can replace him for free
+that week", and it is derived from measured churn, not chosen to fix an output.**
+
+## AND IT LETS ME RUN THE COMBINATION I DECLINED TO CHOOSE
+
+Addendum 3 ended with the untried arm — `E[weeks]` + roster-based flex + no
+arbitrary floor — and I refused to run it, because a fifth arm **I** picked after
+seeing four results is the search `no_fit_guard` stops. **Cory asking for the
+K/DEF rule changes who is choosing.** P149 is that combination plus his rule, run
+once, reported whatever it says.
+
+## P149
+
+```
+weight(pos, held) = 1.0                          held < S
+                  = 0                            held >= S and pos in {K, DEF}
+                  = E[weeks started]/17          otherwise
+flex owner        = the position actually holding a surplus body (roster-based)
+no arbitrary floor
+```
+
+**P149: the drafted twelve are 3–4 WR, 3–4 RB, exactly 1 QB, 1 TE, 1 K, 1 DEF —
+all six cells — with total projected points within 5% of `draft_plan.js`.**
+
+**FALSE if any cell misses or value drops more than 5%.**
+
+⚠️ **Fifth arm, and the last. If P149 fails, the report is P144's five-of-six
+with the open cell named, and no further arms before the draft.**
