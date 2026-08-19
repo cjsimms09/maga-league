@@ -7,7 +7,7 @@
   "sleeper": "2026-08-19"
  },
  "universes": {
-  "fantasypros": 431,
+  "fantasypros": 429,
   "own_weekly_v1": 507,
   "sleeper": 700
  },
@@ -27,11 +27,11 @@
    "9502",
    "9999",
    "11292",
+   "11569",
    "11581",
    "11583",
    "12467",
    "12511",
-   "12515",
    "12738"
   ],
   "named_top": [
@@ -99,36 +99,36 @@
     "adp": 483.0
    },
    {
-    "player_id": "12738",
-    "name": "Phil Mafah",
+    "player_id": "11569",
+    "name": "Jarquez Hunter",
     "position": "RB",
-    "proj_mean": 5.7,
-    "adp": 527.0
+    "proj_mean": 8.6,
+    "adp": 503.0
    }
   ]
  },
  "shared_population": {
-  "n": 420,
+  "n": 418,
   "by_position": {
    "WR": 157,
-   "TE": 99,
    "RB": 97,
+   "TE": 97,
    "QB": 67
   },
-  "share_of_sleeper": 0.6,
-  "share_of_fantasypros": 0.9745,
-  "share_of_ours": 0.8284
+  "share_of_sleeper": 0.5971,
+  "share_of_fantasypros": 0.9744,
+  "share_of_ours": 0.8245
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": true,
   "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": true,
   "in_ours_not_fantasypros": {
-   "n": 87,
+   "n": 89,
    "by_position": {
     "WR": 40,
     "RB": 26,
-    "TE": 13,
+    "TE": 15,
     "QB": 8
    }
   },
@@ -150,7 +150,7 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 420,
+   "n": 418,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
