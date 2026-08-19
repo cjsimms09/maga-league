@@ -1,0 +1,298 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/archetype_need_curve.py",
+ "_prereg": "draft/FLEX-AND-SCARCITY-PREREG-2026-08-19.md (P170)",
+ "_note": "REPORT ONLY.",
+ "controls": {
+  "C1_both_groups_have_ten": {
+   "ok": true,
+   "sizes": {
+    "WR_FLEX": 18,
+    "RB_FLEX": 12
+   },
+   "why": "a 27/3 split is not two archetypes; the result would be unusable"
+  },
+  "C2_known_positive_recombines_to_pooled": {
+   "ok": true,
+   "detail": {
+    "QB1": {
+     "recombined": 0.692,
+     "pooled": 0.693,
+     "ok": true
+    },
+    "QB2": {
+     "recombined": 0.428,
+     "pooled": 0.427,
+     "ok": true
+    },
+    "RB1": {
+     "recombined": 0.869,
+     "pooled": 0.869,
+     "ok": true
+    },
+    "RB2": {
+     "recombined": 0.716,
+     "pooled": 0.713,
+     "ok": true
+    },
+    "RB3": {
+     "recombined": 0.487,
+     "pooled": 0.49,
+     "ok": true
+    },
+    "RB4": {
+     "recombined": 0.275,
+     "pooled": 0.273,
+     "ok": true
+    },
+    "WR1": {
+     "recombined": 0.834,
+     "pooled": 0.83,
+     "ok": true
+    },
+    "WR2": {
+     "recombined": 0.695,
+     "pooled": 0.696,
+     "ok": true
+    },
+    "WR3": {
+     "recombined": 0.529,
+     "pooled": 0.53,
+     "ok": true
+    },
+    "WR4": {
+     "recombined": 0.334,
+     "pooled": 0.331,
+     "ok": true
+    },
+    "TE1": {
+     "recombined": 0.716,
+     "pooled": 0.719,
+     "ok": true
+    },
+    "TE2": {
+     "recombined": 0.416,
+     "pooled": 0.414,
+     "ok": true
+    },
+    "TE3": {
+     "recombined": 0.406,
+     "pooled": 0.406,
+     "ok": true
+    },
+    "K1": {
+     "recombined": 0.951,
+     "pooled": 0.952,
+     "ok": true
+    },
+    "DEF1": {
+     "recombined": 0.822,
+     "pooled": 0.823,
+     "ok": true
+    },
+    "DEF2": {
+     "recombined": 0.484,
+     "pooled": 0.484,
+     "ok": true
+    }
+   },
+   "why": "rule 3e -- the union of the two groups must reproduce the pooled curve computed by a different file. If it does not, this file's classification pass broke the join and every split number is noise"
+  },
+  "C3_excluded_counted": {
+   "ok": true,
+   "team_weeks": 535,
+   "excluded": 5
+  }
+ },
+ "controls_all_passed": true,
+ "group_sizes": {
+  "WR_FLEX": 18,
+  "RB_FLEX": 12
+ },
+ "wr_flex_share_by_team_season": {
+  "2023:1": 0.722,
+  "2023:2": 0.278,
+  "2023:3": 0.778,
+  "2023:4": 0.222,
+  "2023:5": 0.588,
+  "2023:6": 0.2,
+  "2023:7": 0.611,
+  "2023:8": 0.588,
+  "2023:9": 0.0,
+  "2023:10": 0.944,
+  "2024:1": 0.778,
+  "2024:2": 0.5,
+  "2024:3": 0.167,
+  "2024:4": 0.556,
+  "2024:5": 0.556,
+  "2024:6": 0.611,
+  "2024:7": 1.0,
+  "2024:8": 0.944,
+  "2024:9": 0.611,
+  "2024:10": 0.944,
+  "2025:1": 0.889,
+  "2025:2": 0.5,
+  "2025:3": 0.111,
+  "2025:4": 0.611,
+  "2025:5": 0.389,
+  "2025:6": 0.333,
+  "2025:7": 0.889,
+  "2025:8": 0.278,
+  "2025:9": 0.389,
+  "2025:10": 0.778
+ },
+ "pooled_curve": {
+  "QB": [
+   0.693,
+   0.427,
+   0.407,
+   null,
+   null,
+   null
+  ],
+  "RB": [
+   0.869,
+   0.713,
+   0.49,
+   0.273,
+   0.155,
+   0.074
+  ],
+  "WR": [
+   0.83,
+   0.696,
+   0.53,
+   0.331,
+   0.179,
+   0.168
+  ],
+  "TE": [
+   0.719,
+   0.414,
+   0.406,
+   1.0,
+   null,
+   null
+  ],
+  "K": [
+   0.952,
+   0.828,
+   null,
+   null,
+   null,
+   null
+  ],
+  "DEF": [
+   0.823,
+   0.484,
+   0.364,
+   0.0,
+   null,
+   null
+  ]
+ },
+ "archetype_curves": {
+  "WR_FLEX": {
+   "QB": [
+    0.783,
+    0.342,
+    null,
+    null,
+    null,
+    null
+   ],
+   "RB": [
+    0.891,
+    0.674,
+    0.417,
+    0.238,
+    0.087,
+    0.044
+   ],
+   "WR": [
+    0.857,
+    0.717,
+    0.602,
+    0.32,
+    0.222,
+    0.158
+   ],
+   "TE": [
+    0.761,
+    0.371,
+    null,
+    null,
+    null,
+    null
+   ],
+   "K": [
+    0.944,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "DEF": [
+    0.828,
+    0.529,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  "RB_FLEX": {
+   "QB": [
+    0.554,
+    0.53,
+    null,
+    null,
+    null,
+    null
+   ],
+   "RB": [
+    0.836,
+    0.779,
+    0.592,
+    0.324,
+    0.248,
+    0.114
+   ],
+   "WR": [
+    0.798,
+    0.662,
+    0.418,
+    0.356,
+    0.071,
+    null
+   ],
+   "TE": [
+    0.648,
+    0.48,
+    null,
+    null,
+    null,
+    null
+   ],
+   "K": [
+    0.962,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "DEF": [
+    0.812,
+    0.43,
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ },
+ "grades": {
+  "P170_pooled_curve_wrong_for_both": true
+ }
+}
