@@ -26697,5 +26697,5530 @@
    "first_date": "2026-08-16",
    "last_date": "2026-08-18"
   }
+ ],
+ "weekly_snapshot_dates": [
+  "2026-08-17",
+  "2026-08-18"
+ ],
+ "n_weekly_series": 226,
+ "n_weekly_two_sided_both_ends": 15,
+ "n_weekly_with_movement": 14,
+ "weekly_series": {
+  "KXNFLCOMPETE-PMAHOMES1526AUG-PMAHOMES15": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20624.24,
+    "series": "KXNFLCOMPETE",
+    "status": "finalized",
+    "title": "Patrick Mahomes to compete in the Los Angeles R vs Kansas City Pro Football game originally scheduled for Aug 15, 2026?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20624.24,
+    "series": "KXNFLCOMPETE",
+    "status": "finalized",
+    "title": "Patrick Mahomes to compete in the Los Angeles R vs Kansas City Pro Football game originally scheduled for Aug 15, 2026?"
+   }
+  ],
+  "KXNFLCOMPETE-JPAU27FEB-Y": [
+   {
+    "date": "2026-08-17",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 0.1,
+    "mid": null,
+    "oi": 649.76,
+    "series": "KXNFLCOMPETE",
+    "status": "active",
+    "title": "Jake Paul to compete in a Pro Football game in the 2026-27 season?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 0.1,
+    "mid": null,
+    "oi": 649.76,
+    "series": "KXNFLCOMPETE",
+    "status": "active",
+    "title": "Jake Paul to compete in a Pro Football game in the 2026-27 season?"
+   }
+  ],
+  "KXNFLCOMPETE-ADON27FEB-Y": [
+   {
+    "date": "2026-08-17",
+    "last": 0.85,
+    "bid": 0.82,
+    "ask": 0.85,
+    "mid": 0.835,
+    "oi": 160382.07,
+    "series": "KXNFLCOMPETE",
+    "status": "active",
+    "title": "Aaron Donald to compete in the Pro Football Game in 2026-27 season?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.81,
+    "bid": 0.77,
+    "ask": 0.8,
+    "mid": 0.785,
+    "oi": 160305.04,
+    "series": "KXNFLCOMPETE",
+    "status": "active",
+    "title": "Aaron Donald to compete in the Pro Football Game in 2026-27 season?"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG13ARILV-LVFMENDOZA15-2": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9769.23,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 2+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9769.23,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 2+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG13ARILV-LVFMENDOZA15-1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20472.54,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 1+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20472.54,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 1+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG13ARILV-ARICBECK19-2": [
+   {
+    "date": "2026-08-17",
+    "last": 0.08,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1407.49,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 2+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.08,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1407.49,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 2+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG13ARILV-ARICBECK19-1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.15,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7032.0,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 1+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.15,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7032.0,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 1+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG06CARARI-CARHKING16-2": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2347.38,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Haynes King: 2+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2347.38,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Haynes King: 2+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG06CARARI-ARIKSLOVIS12-1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2689.78,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 1+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2689.78,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 1+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG06CARARI-CARKPICKETT12-1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 34346.4,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 1+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 34346.4,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 1+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG06CARARI-CARHKING16-1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17485.46,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Haynes King: 1+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17485.46,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Haynes King: 1+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG06CARARI-ARICBECKQB-2": [
+   {
+    "date": "2026-08-17",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 33583.41,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 2+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 33583.41,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 2+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSTDS-26AUG06CARARI-ARICBECKQB-1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 40608.28,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 1+ passing touchdowns"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 40608.28,
+    "series": "KXNFLPASSTDS",
+    "status": "finalized",
+    "title": "Carson Beck: 1+ passing touchdowns"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEAJMILROE6-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2799.57,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2799.57,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEAJMILROE6-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3029.72,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3029.72,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEAJMILROE6-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3798.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3798.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEAJMILROE6-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7742.75,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7742.75,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jalen Milroe: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEADLOCK2-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.03,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19816.75,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.03,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19816.75,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEADLOCK2-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.09,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9851.07,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.09,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9851.07,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEADLOCK2-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4220.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4220.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-SEADLOCK2-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9517.46,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.04,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9517.46,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Lock: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-DALJMILTON10-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2495.58,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2495.58,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-DALJMILTON10-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3039.12,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3039.12,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-DALJMILTON10-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.03,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4289.08,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.03,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4289.08,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15DALSEA-DALJMILTON10-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19737.36,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19737.36,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Milton III: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-PHITMCKEE16-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1646.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1646.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-PHITMCKEE16-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4347.38,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4347.38,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-PHITMCKEE16-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1898.7,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1898.7,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-PHITMCKEE16-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17845.06,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17845.06,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tanner McKee: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-BALTHUNTLEY5-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.98,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4038.6,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.98,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4038.6,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-BALTHUNTLEY5-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5699.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5699.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-BALTHUNTLEY5-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2927.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2927.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15PHIBAL-BALTHUNTLEY5-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 31788.31,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 31788.31,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyler Huntley: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-LARTSIMPSON15-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5074.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Ty Simpson: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5074.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Ty Simpson: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-LARTSIMPSON15-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7046.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Ty Simpson: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7046.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Ty Simpson: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-LARTSIMPSON15-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9384.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Ty Simpson: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9384.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Ty Simpson: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-LARSBENNETT13-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.07,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8884.39,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Stetson Bennett IV: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.07,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8884.39,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Stetson Bennett IV: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-LARSBENNETT13-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2269.64,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Stetson Bennett IV: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2269.64,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Stetson Bennett IV: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-LARSBENNETT13-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 18037.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Stetson Bennett IV: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 18037.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Stetson Bennett IV: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-KCJFIELDS6-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9923.83,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Justin Fields: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9923.83,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Justin Fields: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-KCJFIELDS6-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.08,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17590.94,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Justin Fields: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.08,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17590.94,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Justin Fields: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-KCJFIELDS6-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6585.95,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Justin Fields: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6585.95,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Justin Fields: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-KCGNUSSMEIER14-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3611.2,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Garrett Nussmeier: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3611.2,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Garrett Nussmeier: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-KCGNUSSMEIER14-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3323.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Garrett Nussmeier: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3323.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Garrett Nussmeier: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15LARKC-KCGNUSSMEIER14-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 16611.16,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Garrett Nussmeier: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 16611.16,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Garrett Nussmeier: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-NOZWILSON4-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2105.17,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Zach Wilson: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2105.17,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Zach Wilson: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-NOZWILSON4-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2879.62,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Zach Wilson: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2879.62,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Zach Wilson: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-NOZWILSON4-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4335.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Zach Wilson: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4335.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Zach Wilson: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-NOSRATTLER2-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6003.84,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Spencer Rattler: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6003.84,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Spencer Rattler: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-NOSRATTLER2-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4436.11,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Spencer Rattler: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4436.11,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Spencer Rattler: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-NOSRATTLER2-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11485.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Spencer Rattler: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11485.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Spencer Rattler: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-JACNMULLENS14-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7669.87,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Nick Mullens: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7669.87,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Nick Mullens: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-JACNMULLENS14-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2196.36,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Nick Mullens: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2196.36,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Nick Mullens: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15JACNO-JACNMULLENS14-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1937.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Nick Mullens: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1937.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Nick Mullens: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-NYGJWINSTON19-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3073.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jameis Winston: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3073.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jameis Winston: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-NYGJWINSTON19-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4638.6,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jameis Winston: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4638.6,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jameis Winston: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-NYGJWINSTON19-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7369.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jameis Winston: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7369.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jameis Winston: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-NYGJDART6-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 16965.53,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jaxson Dart: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 16965.53,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jaxson Dart: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-NYGJDART6-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19246.55,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jaxson Dart: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19246.55,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jaxson Dart: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-MINKMURRAY1-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.05,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5446.03,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyler Murray: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.05,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5446.03,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyler Murray: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-MINKMURRAY1-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6593.44,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyler Murray: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6593.44,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyler Murray: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-MINKMURRAY1-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3978.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyler Murray: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3978.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyler Murray: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-MINJMCCARTHY9-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3017.57,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "J.J. McCarthy: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3017.57,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "J.J. McCarthy: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-MINJMCCARTHY9-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3156.69,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "J.J. McCarthy: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3156.69,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "J.J. McCarthy: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15MINNYG-MINJMCCARTHY9-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9507.47,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "J.J. McCarthy: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9507.47,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "J.J. McCarthy: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARKPICKETT12-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1869.99,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1869.99,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARKPICKETT12-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4302.53,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4302.53,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARHKING16-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.39,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 32034.52,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.39,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 32034.52,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARHKING16-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.17,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11143.06,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.17,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11143.06,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARHKING16-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.3,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 18036.15,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.3,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 18036.15,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARBYOUNG9-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4483.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Bryce Young: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4483.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Bryce Young: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-CARBYOUNG9-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15348.07,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Bryce Young: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15348.07,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Bryce Young: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-BUFKALLEN11-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3273.76,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyle Allen: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3273.76,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyle Allen: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-BUFKALLEN11-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1956.5,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyle Allen: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1956.5,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyle Allen: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-BUFKALLEN11-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3501.14,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyle Allen: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3501.14,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kyle Allen: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-BUFJALLEN17-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6390.22,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Josh Allen: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6390.22,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Josh Allen: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CARBUF-BUFJALLEN17-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11766.85,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Josh Allen: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11766.85,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Josh Allen: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CLESSANDERS2-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 29168.34,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Shedeur Sanders: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 29168.34,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Shedeur Sanders: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CLESSANDERS2-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 13275.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Shedeur Sanders: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 13275.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Shedeur Sanders: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CLESSANDERS2-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7669.04,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Shedeur Sanders: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7669.04,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Shedeur Sanders: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CLEDWATSON4-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2936.42,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Deshaun Watson: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2936.42,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Deshaun Watson: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CLEDWATSON4-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9225.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Deshaun Watson: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9225.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Deshaun Watson: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CLEDWATSON4-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7073.25,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Deshaun Watson: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7073.25,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Deshaun Watson: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CHITBAGENT17-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2905.66,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2905.66,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CHITBAGENT17-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2440.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2440.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CHITBAGENT17-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6756.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6756.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG15CLECHI-CHITBAGENT17-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7550.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7550.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tyson Bagent: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14MIAWAS-WASSHARTMAN15-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1967.79,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Hartman: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1967.79,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Hartman: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14MIAWAS-WASSHARTMAN15-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.05,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3501.39,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Hartman: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.05,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3501.39,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Hartman: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14MIAWAS-MIAQEWERS14-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2248.15,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Quinn Ewers: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2248.15,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Quinn Ewers: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14MIAWAS-MIAQEWERS14-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8198.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Quinn Ewers: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8198.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Quinn Ewers: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14MIAWAS-MIAMWILLIS2-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 37236.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Malik Willis: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 37236.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Malik Willis: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14MIAWAS-MIAMWILLIS2-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6694.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Malik Willis: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6694.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Malik Willis: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-DENSEHLINGER4-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.13,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3502.7,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Ehlinger: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.13,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3502.7,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Ehlinger: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-DENSEHLINGER4-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1824.09,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Ehlinger: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1824.09,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Ehlinger: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-DENSEHLINGER4-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10343.21,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Ehlinger: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10343.21,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Sam Ehlinger: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-DENJSTIDHAM8-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2892.9,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jarrett Stidham: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2892.9,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jarrett Stidham: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-DENJSTIDHAM8-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1881.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jarrett Stidham: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1881.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jarrett Stidham: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-DENJSTIDHAM8-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 13970.72,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jarrett Stidham: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 13970.72,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jarrett Stidham: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-ATLTTAGOVAILOA1-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15824.97,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tua Tagovailoa: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15824.97,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tua Tagovailoa: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-ATLTTAGOVAILOA1-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 31420.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tua Tagovailoa: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 31420.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tua Tagovailoa: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14DENATL-ATLTTAGOVAILOA1-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 49884.68,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tua Tagovailoa: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 49884.68,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tua Tagovailoa: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14TBNYJ-NYJGSMITH7-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.07,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2310.39,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Geno Smith: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.07,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2310.39,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Geno Smith: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14TBNYJ-NYJGSMITH7-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.29,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2723.89,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Geno Smith: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.29,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2723.89,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Geno Smith: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14TBNYJ-NYJGSMITH7-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.58,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7429.74,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Geno Smith: 25+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.58,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7429.74,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Geno Smith: 25+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14TBNYJ-NYJCKLUBNIK10-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 38102.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 38102.37,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14TBNYJ-NYJCKLUBNIK10-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4213.15,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4213.15,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG14TBNYJ-NYJCKLUBNIK10-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 18418.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 18418.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-TENWLEVIS8-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 41924.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Levis: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 41924.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Levis: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-TENWLEVIS8-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2584.35,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Levis: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2584.35,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Levis: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-TENCWARD1-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5584.44,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cam Ward: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5584.44,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cam Ward: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-TENCWARD1-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11765.26,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cam Ward: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11765.26,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Cam Ward: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-SFKROURKE14-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2272.17,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kurtis Rourke: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2272.17,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kurtis Rourke: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-SFKROURKE14-175": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2269.14,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kurtis Rourke: 175+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2269.14,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kurtis Rourke: 175+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-SFKROURKE14-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11587.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kurtis Rourke: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11587.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kurtis Rourke: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-SFAMARTINEZ4-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2304.81,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Adrian Martinez: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2304.81,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Adrian Martinez: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13TENSF-SFAMARTINEZ4-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2787.35,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Adrian Martinez: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2787.35,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Adrian Martinez: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARIKSLOVIS12-175": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1977.55,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 175+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1977.55,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 175+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARIKSLOVIS12-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1644.61,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1644.61,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARIKSLOVIS12-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2388.92,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2388.92,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-LACTLANCE5-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6758.28,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Trey Lance: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6758.28,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Trey Lance: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-LACTLANCE5-175": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6641.84,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Trey Lance: 175+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6641.84,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Trey Lance: 175+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-LACTLANCE5-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6904.14,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Trey Lance: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6904.14,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Trey Lance: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-LACDUIAGALELEI7-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2897.2,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "DJ Uiagalelei: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2897.2,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "DJ Uiagalelei: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-LACDUIAGALELEI7-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2925.18,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "DJ Uiagalelei: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2925.18,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "DJ Uiagalelei: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-HOUGMERTZ18-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3266.78,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Graham Mertz: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3266.78,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Graham Mertz: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-HOUGMERTZ18-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5373.42,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Graham Mertz: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5373.42,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Graham Mertz: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-HOUDMILLS10-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20601.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Davis Mills: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20601.27,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Davis Mills: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-HOUDMILLS10-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3930.44,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Davis Mills: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3930.44,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Davis Mills: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13LACHOU-HOUDMILLS10-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11386.31,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Davis Mills: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11386.31,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Davis Mills: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-DETLALTMYER2-250": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8217.75,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 250+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8217.75,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 250+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-DETLALTMYER2-200": [
+   {
+    "date": "2026-08-17",
+    "last": 0.06,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3695.89,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 200+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.06,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3695.89,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 200+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITWHOWARD18-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7491.09,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Howard: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7491.09,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Howard: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITWHOWARD18-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 37406.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Howard: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 37406.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Howard: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITWHOWARD18-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8270.61,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Howard: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8270.61,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Will Howard: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-DETLALTMYER2-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 16314.45,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 16314.45,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-DETLALTMYER2-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12069.97,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12069.97,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-DETLALTMYER2-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4771.97,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4771.97,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Luke Altmyer: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13INDNE-NETDEVITO16-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3818.26,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tommy DeVito: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3818.26,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tommy DeVito: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13INDNE-NETDEVITO16-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8635.08,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tommy DeVito: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8635.08,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Tommy DeVito: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13INDNE-INDRLEONARD15-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5388.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Riley Leonard: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5388.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Riley Leonard: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13INDNE-INDRLEONARD15-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5799.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Riley Leonard: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5799.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Riley Leonard: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13INDNE-INDARICHARDSON5-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7720.28,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Anthony Richardson Sr.: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7720.28,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Anthony Richardson Sr.: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13INDNE-INDARICHARDSON5-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12382.09,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Anthony Richardson Sr.: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12382.09,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Anthony Richardson Sr.: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-LVFMENDOZA15-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10328.8,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10328.8,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-LVFMENDOZA15-200": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12895.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 200+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12895.65,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 200+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-LVFMENDOZA15-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19918.38,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 19918.38,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-LVFMENDOZA15-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 59597.64,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 59597.64,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Fernando Mendoza: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARICBECK19-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.61,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3675.43,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.61,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3675.43,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARICBECK19-200": [
+   {
+    "date": "2026-08-17",
+    "last": 0.07,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 428.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 200+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.07,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 428.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 200+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARICBECK19-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.16,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1229.93,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.16,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1229.93,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13ARILV-ARICBECK19-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.35,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5221.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.35,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5221.33,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-CINJBURROW9-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20884.78,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Burrow: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20884.78,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Burrow: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-CINJBURROW9-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 42595.63,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Burrow: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 42595.63,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Burrow: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13DETCIN-CINJBURROW9-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 22021.08,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Burrow: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 22021.08,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Joe Burrow: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-GBJLOVE10-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17811.54,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jordan Love: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 17811.54,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jordan Love: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-GBJLOVE10-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10412.18,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jordan Love: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10412.18,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jordan Love: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-GBJLOVE10-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 50305.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jordan Love: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 50305.59,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Jordan Love: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITDALLAR16-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 32162.21,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 32162.21,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITDALLAR16-200": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5425.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 200+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5425.67,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 200+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITDALLAR16-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 13766.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 13766.96,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG13GBPIT-PITDALLAR16-125": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12807.98,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 125+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12807.98,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Drew Allar: 125+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-CARHKING16-200": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7714.63,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 200+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7714.63,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 200+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-CARHKING16-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12874.76,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12874.76,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-ARIKSLOVIS12-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10272.99,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10272.99,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kedon Slovis: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-CARHKING16-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 30668.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 30668.0,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-CARHKING16-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10959.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10959.24,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Haynes King: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-CARKPICKETT12-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 71857.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 71857.88,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 100+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-CARKPICKETT12-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 49651.23,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 50+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 49651.23,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Kenny Pickett: 50+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-ARICBECKQB-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10878.19,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 75+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10878.19,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 75+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-ARICBECKQB-200": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 135307.41,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 200+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 135307.41,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 200+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-ARICBECKQB-150": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 60751.69,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 150+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 60751.69,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 150+ passing yards"
+   }
+  ],
+  "KXNFLPASSYDS-26AUG06CARARI-ARICBECKQB-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 86947.29,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 100+ passing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 86947.29,
+    "series": "KXNFLPASSYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 100+ passing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-LVAJEANTY2-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6133.08,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Ashton Jeanty: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6133.08,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Ashton Jeanty: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-LVAJEANTY2-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 27210.16,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Ashton Jeanty: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 27210.16,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Ashton Jeanty: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-LVMWASHINGTON30-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5127.69,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Mike Washington Jr.: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5127.69,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Mike Washington Jr.: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-LVMWASHINGTON30-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10380.27,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Mike Washington Jr.: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10380.27,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Mike Washington Jr.: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-ARIJLOVE4-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10077.21,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10077.21,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-ARIJLOVE4-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15069.88,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15069.88,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-ARICKINER37-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5959.8,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 5959.8,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13ARILV-ARICKINER37-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6825.52,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6825.52,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13INDNE-NEJMILLER30-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9077.04,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jam Miller: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 9077.04,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jam Miller: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13INDNE-NEJMILLER30-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7450.63,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jam Miller: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7450.63,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jam Miller: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13INDNE-INDSMCGOWAN20-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3467.09,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Seth McGowan: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3467.09,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Seth McGowan: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13INDNE-INDSMCGOWAN20-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4457.75,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Seth McGowan: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4457.75,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Seth McGowan: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13INDNE-INDRLEONARD15-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4418.11,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Riley Leonard: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4418.11,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Riley Leonard: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13INDNE-INDARICHARDSON5-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11754.77,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Anthony Richardson Sr.: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11754.77,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Anthony Richardson Sr.: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13GBPIT-PITKJOHNSON20-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7194.2,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Kaleb Johnson: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7194.2,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Kaleb Johnson: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13GBPIT-PITKJOHNSON20-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10403.3,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Kaleb Johnson: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 10403.3,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Kaleb Johnson: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13GBPIT-GBMLLOYD32-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8637.82,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "MarShawn Lloyd: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 8637.82,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "MarShawn Lloyd: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG13GBPIT-GBMLLOYD32-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 32230.22,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "MarShawn Lloyd: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 32230.22,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "MarShawn Lloyd: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG14TBNYJ-NYJDTRAYANUM40-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4248.98,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Chip Trayanum: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 4248.98,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Chip Trayanum: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG14TBNYJ-NYJDTRAYANUM40-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6620.06,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Chip Trayanum: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6620.06,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Chip Trayanum: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG14TBNYJ-NYJCKLUBNIK10-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11867.47,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11867.47,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Cade Klubnik: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-CARADILLON28-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 994.0,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "AJ Dillon: 75+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 994.0,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "AJ Dillon: 75+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-CARADILLON28-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1611.83,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "AJ Dillon: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 1611.83,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "AJ Dillon: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARICBECK19-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20809.03,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 20809.03,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Carson Beck: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-CARTETIENNE23-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6559.16,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Trevor Etienne: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6559.16,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Trevor Etienne: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-CARTETIENNE23-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12126.09,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Trevor Etienne: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 12126.09,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Trevor Etienne: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARICKINER37-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3488.45,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 3488.45,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARICKINER37-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2906.79,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 2906.79,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Corey Kiner: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIZKNIGHT20-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15525.15,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Bam Knight: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 15525.15,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Bam Knight: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIZKNIGHT20-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11302.45,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Bam Knight: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 11302.45,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Bam Knight: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-CARHKING16-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 25385.58,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Haynes King: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 25385.58,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Haynes King: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-CARHKING16-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 41554.6,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Haynes King: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.99,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 41554.6,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Haynes King: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIJLOVE4-75": [
+   {
+    "date": "2026-08-17",
+    "last": 0.05,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 959.64,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 75+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.05,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 959.64,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 75+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIJLOVE4-50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.08,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 779.31,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 50+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.08,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 779.31,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 50+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIJLOVE4-40": [
+   {
+    "date": "2026-08-17",
+    "last": 0.15,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 471.45,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 40+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.15,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 471.45,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 40+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIJLOVE4-25": [
+   {
+    "date": "2026-08-17",
+    "last": 0.29,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7676.89,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 25+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.29,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 7676.89,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 25+ rushing yards"
+   }
+  ],
+  "KXNFLRSHYDS-26AUG06CARARI-ARIJLOVE4-100": [
+   {
+    "date": "2026-08-17",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6634.01,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 100+ rushing yards"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.02,
+    "bid": 0.0,
+    "ask": 1.0,
+    "mid": null,
+    "oi": 6634.01,
+    "series": "KXNFLRSHYDS",
+    "status": "finalized",
+    "title": "Jeremiyah Love: 100+ rushing yards"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-JLOVE4": [
+   {
+    "date": "2026-08-17",
+    "last": 0.46,
+    "bid": 0.14,
+    "ask": 0.67,
+    "mid": 0.405,
+    "oi": 100.78,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Jeremiyah Love play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.4,
+    "bid": 0.37,
+    "ask": 0.48,
+    "mid": 0.425,
+    "oi": 255.7,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Jeremiyah Love play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-GKITTLE85": [
+   {
+    "date": "2026-08-17",
+    "last": 0.43,
+    "bid": 0.24,
+    "ask": 0.77,
+    "mid": 0.505,
+    "oi": 100.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will George Kittle play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.4,
+    "bid": 0.45,
+    "ask": 0.56,
+    "mid": 0.505,
+    "oi": 238.6,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will George Kittle play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-JTYSON0": [
+   {
+    "date": "2026-08-17",
+    "last": 0.18,
+    "bid": 0.18,
+    "ask": 0.19,
+    "mid": 0.185,
+    "oi": 2287.24,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Jordyn Tyson play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.01,
+    "bid": 0.01,
+    "ask": 0.02,
+    "mid": 0.015,
+    "oi": 8266.65,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Jordyn Tyson play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-CHUBBARD30": [
+   {
+    "date": "2026-08-17",
+    "last": 0.0,
+    "bid": 0.76,
+    "ask": 0.81,
+    "mid": 0.785,
+    "oi": 0.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Chuba Hubbard play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.76,
+    "bid": 0.7,
+    "ask": 0.8,
+    "mid": 0.75,
+    "oi": 1.6,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Chuba Hubbard play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-JJACOBS8": [
+   {
+    "date": "2026-08-17",
+    "last": 0.37,
+    "bid": 0.4,
+    "ask": 0.49,
+    "mid": 0.445,
+    "oi": 1226.77,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Josh Jacobs play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.41,
+    "bid": 0.43,
+    "ask": 0.49,
+    "mid": 0.46,
+    "oi": 1253.01,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Josh Jacobs play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-PNACUA12": [
+   {
+    "date": "2026-08-17",
+    "last": 0.95,
+    "bid": 0.81,
+    "ask": 0.94,
+    "mid": 0.875,
+    "oi": 3415.03,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Puka Nacua play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.82,
+    "bid": 0.77,
+    "ask": 0.92,
+    "mid": 0.845,
+    "oi": 3266.41,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Puka Nacua play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-VVEA50": [
+   {
+    "date": "2026-08-17",
+    "last": 0.74,
+    "bid": 0.73,
+    "ask": 0.74,
+    "mid": 0.735,
+    "oi": 125.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Vita Vea play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.74,
+    "bid": 0.73,
+    "ask": 0.83,
+    "mid": 0.78,
+    "oi": 125.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Vita Vea play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-TDELL1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.84,
+    "bid": 0.84,
+    "ask": 0.85,
+    "mid": 0.845,
+    "oi": 1441.97,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Tank Dell play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.84,
+    "bid": 0.84,
+    "ask": 0.93,
+    "mid": 0.885,
+    "oi": 1441.97,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Tank Dell play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-PMAHOMES15": [
+   {
+    "date": "2026-08-17",
+    "last": 0.93,
+    "bid": 0.92,
+    "ask": 0.93,
+    "mid": 0.925,
+    "oi": 2157.52,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Patrick Mahomes play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.93,
+    "bid": 0.93,
+    "ask": 0.95,
+    "mid": 0.94,
+    "oi": 2157.52,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Patrick Mahomes play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-MNABERS1": [
+   {
+    "date": "2026-08-17",
+    "last": 0.79,
+    "bid": 0.79,
+    "ask": 0.8,
+    "mid": 0.795,
+    "oi": 110.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Malik Nabers play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.8,
+    "bid": 0.79,
+    "ask": 0.88,
+    "mid": 0.835,
+    "oi": 90.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Malik Nabers play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-MLEMON9": [
+   {
+    "date": "2026-08-17",
+    "last": 0.79,
+    "bid": 0.76,
+    "ask": 0.78,
+    "mid": 0.77,
+    "oi": 1225.01,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Makai Lemon play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.78,
+    "bid": 0.7,
+    "ask": 0.77,
+    "mid": 0.735,
+    "oi": 1227.01,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Makai Lemon play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-LBURDEN10": [
+   {
+    "date": "2026-08-17",
+    "last": 0.8,
+    "bid": 0.79,
+    "ask": 0.8,
+    "mid": 0.795,
+    "oi": 19.85,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Luther Burden III play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.8,
+    "bid": 0.79,
+    "ask": 0.88,
+    "mid": 0.835,
+    "oi": 19.85,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Luther Burden III play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-KSADIQ16": [
+   {
+    "date": "2026-08-17",
+    "last": 0.75,
+    "bid": 0.75,
+    "ask": 0.77,
+    "mid": 0.76,
+    "oi": 190.94,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Kenyon Sadiq play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.75,
+    "bid": 0.75,
+    "ask": 0.84,
+    "mid": 0.795,
+    "oi": 190.94,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Kenyon Sadiq play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-APIERCE14": [
+   {
+    "date": "2026-08-17",
+    "last": 0.33,
+    "bid": 0.34,
+    "ask": 0.35,
+    "mid": 0.345,
+    "oi": 3458.19,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Alec Pierce play in a Pro Football game in Week 1?"
+   },
+   {
+    "date": "2026-08-18",
+    "last": 0.12,
+    "bid": 0.1,
+    "ask": 0.18,
+    "mid": 0.14,
+    "oi": 4413.89,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Alec Pierce play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-CMCCAFFREY23": [
+   {
+    "date": "2026-08-18",
+    "last": 0.0,
+    "bid": 0.47,
+    "ask": 0.94,
+    "mid": 0.705,
+    "oi": 0.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Christian McCaffrey play in a Pro Football game in Week 1?"
+   }
+  ],
+  "KXNFLWEEKCOMPETE-26W1-BHALL20": [
+   {
+    "date": "2026-08-18",
+    "last": 0.0,
+    "bid": 0.49,
+    "ask": 0.96,
+    "mid": 0.725,
+    "oi": 0.0,
+    "series": "KXNFLWEEKCOMPETE",
+    "status": "active",
+    "title": "Will Breece Hall play in a Pro Football game in Week 1?"
+   }
+  ]
+ },
+ "weekly_top_movers": [
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-APIERCE14",
+   "from": 0.345,
+   "to": 0.14,
+   "delta": -0.205,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-JTYSON0",
+   "from": 0.185,
+   "to": 0.015,
+   "delta": -0.17,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLCOMPETE-ADON27FEB-Y",
+   "from": 0.835,
+   "to": 0.785,
+   "delta": -0.05,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-VVEA50",
+   "from": 0.735,
+   "to": 0.78,
+   "delta": 0.045,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-TDELL1",
+   "from": 0.845,
+   "to": 0.885,
+   "delta": 0.04,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-MNABERS1",
+   "from": 0.795,
+   "to": 0.835,
+   "delta": 0.04,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-LBURDEN10",
+   "from": 0.795,
+   "to": 0.835,
+   "delta": 0.04,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-CHUBBARD30",
+   "from": 0.785,
+   "to": 0.75,
+   "delta": -0.035,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-MLEMON9",
+   "from": 0.77,
+   "to": 0.735,
+   "delta": -0.035,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-KSADIQ16",
+   "from": 0.76,
+   "to": 0.795,
+   "delta": 0.035,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-PNACUA12",
+   "from": 0.875,
+   "to": 0.845,
+   "delta": -0.03,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-JLOVE4",
+   "from": 0.405,
+   "to": 0.425,
+   "delta": 0.02,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-JJACOBS8",
+   "from": 0.445,
+   "to": 0.46,
+   "delta": 0.015,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  },
+  {
+   "key": "KXNFLWEEKCOMPETE-26W1-PMAHOMES15",
+   "from": 0.925,
+   "to": 0.94,
+   "delta": 0.015,
+   "first_date": "2026-08-17",
+   "last_date": "2026-08-18"
+  }
  ]
 }
