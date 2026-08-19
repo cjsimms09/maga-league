@@ -1,0 +1,141 @@
+# TERRITORY: C
+name: draftsharks.com — discovery probe only
+# Cory, 2026-08-19: "can you view this site, pull in all these projections,
+# score for our league and put them in our database" --
+# https://www.draftsharks.com/rankings/half-ppr
+#
+# Blocked at CONNECT from both the agent sandbox (curl) and WebFetch, and NOT
+# one of ffanalytics' twelve scraped sources (it scrapes FantasySharks, a
+# different company). This is a from-scratch source, so before writing a real
+# parser: does GitHub Actions' network even reach it, and what shape is the
+# page (a real table, embedded JSON, a login wall)? This job answers only
+# that. It writes no board field, joins no crosswalk, computes no points.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      # ⚠️ continue-on-error IS THE POINT OF THIS STEP, NOT A SOFTENING OF IT.
+      # The module exits 1 on any non-200, and a 403 is the MOST LIKELY and most
+      # informative outcome here -- Draft Sharks already blocks at CONNECT from
+      # two other vantage points, so "does Actions reach it either" is the whole
+      # question. Without this, that exact answer fails the step, skips both the
+      # cat and the commit, and the discovery artifact never lands in the repo:
+      # the probe would throw away its own negative result, which is the one
+      # result it was built to get. The run still shows red, so the signal is
+      # not lost -- only the discarding is. (A, gatekeeper review, 2026-08-19.)
+      - name: Probe the page
+        id: probe
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_discover.py
+      - name: Show what came back
+        if: always()
+        run: cat draft/data/draftsharks_discovery.json || echo "no artifact written — the probe died before writing"
+      # SECOND PROBE (A, 2026-08-19). The first answered "is it reachable" --
+      # 200 from Actions, 418KB, 2 tables, no embedded JSON. It could not answer
+      # the one that decides Cory's ask, because it only stored a 2000-char
+      # snippet: does the page carry per-player FLOOR and CEILING, and are the
+      # rows real data or a teaser? Its parser ships with a known-positive
+      # control that passed locally, where the site is blocked at CONNECT.
+      - name: Read the table shape
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_shape.py
+      - name: Show the shape
+        if: always()
+        run: cat draft/data/draftsharks_shape.json || echo "no shape artifact written"
+      # THE STORE (Cory's ruling 2026-08-19: "we want to use their ceiling not
+      # ours" -- register 119). Store only: it does NOT touch draft_data.json
+      # and does not join the crosswalk. Its column map is by SUBSTRING with a
+      # known-positive AND a known-negative control that both passed locally.
+      - name: Extract the projections store
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_projections.py
+      - name: Locate the real payload
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_payload.py
+      # ⭐ RENDER THE PAGE. Cory: "25 players??" -- every static probe returned 25
+      # because that is all the server sends; the table is a Vue component and
+      # the rest is drawn client-side. Parsing harder cannot fix that, so run a
+      # real browser. Also records every JSON XHR, because if a clean endpoint
+      # exists we should call it directly instead of driving a browser -- and we
+      # cannot see it without executing the page once.
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install Playwright
+        # ⛔ INSTALL OUTSIDE THE REPO. `npm i -D playwright` writes package.json
+        # and package-lock.json into the working tree, which made every
+        # `git pull --rebase` in the commit step below fail with "you have
+        # unstaged changes" -- four identical retries, nothing pushed, and the
+        # job still reported SUCCESS.
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.47.0
+          npx playwright install --with-deps chromium
+          echo "NODE_PATH=/tmp/pw/node_modules" >> "$GITHUB_ENV"
+      - name: Render the rankings
+        continue-on-error: true
+        run: node draft/tools/draftsharks_render.js
+      - name: Show what rendering got
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import json
+          try:
+              d = json.load(open('draft/data/draftsharks_rendered.json'))
+          except Exception as e:
+              print('no rendered artifact:', e); raise SystemExit(0)
+          print('rows', d['n_rows'], 'jsonld', d['n_jsonld_names'], 'controls', d['controls_all_passed'])
+          for k, v in d['controls'].items():
+              print(('  OK  ' if v['ok'] else '  FAIL') + k)
+          print('header:', ' | '.join(d['header'][:14]))
+          for x in d['json_endpoints_seen'][:12]:
+              print('  xhr', x['status'], x['url'][:150])
+          EOF
+      - name: Commit the discovery artifact
+        if: always()
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json draft/data/draftsharks_rendered.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
+            pushed=0
+            for i in 1 2 3 4; do
+              git rebase --abort 2>/dev/null || true
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
+              sleep $((2**i))
+            done
+            # ⛔ WITHOUT THIS THE JOB GOES GREEN HAVING PUSHED NOTHING. The loop
+            # was `... && break` under `set -uo pipefail` (no -e), so four failed
+            # attempts fell through to exit 0. A capture job that silently stores
+            # nothing is worse than one that fails, because nobody looks.
+            if [ "$pushed" != "1" ]; then
+              echo "::error::all four push attempts failed — the artifact was NOT stored"
+              exit 1
+            fi
+          else
+            echo "No change to the store."
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: draftsharks-discovery
+          path: |
+            draft/data/draftsharks_discovery.json
+            draft/data/draftsharks_shape.json
+            draft/data/draftsharks_projections.json
+            draft/data/draftsharks_payload.json
+            draft/data/draftsharks_rendered.json
+          if-no-files-found: warn

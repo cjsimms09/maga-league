@@ -1,0 +1,89 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/streamability.py",
+ "_prereg": "draft/STREAMABILITY-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. Counted from transactions; nothing tuned.",
+ "controls": {
+  "C1_draft_join": {
+   "ok": true,
+   "per_season": {
+    "2025": {
+     "on_roster_wk1": 143,
+     "not_on_roster_wk1": 7,
+     "ok": true
+    },
+    "2024": {
+     "on_roster_wk1": 147,
+     "not_on_roster_wk1": 3,
+     "ok": true
+    },
+    "2023": {
+     "on_roster_wk1": 144,
+     "not_on_roster_wk1": 6,
+     "ok": true
+    }
+   },
+   "why": "a drafted player must be on his drafting roster in week 1"
+  },
+  "C2_trades_excluded_and_counted": {
+   "ok": true,
+   "trades_excluded": 6
+  },
+  "C3_three_seasons": {
+   "ok": true,
+   "seasons": [
+    "2023",
+    "2024",
+    "2025"
+   ]
+  },
+  "C4_known_positive_DEF_is_streamable": {
+   "ok": true,
+   "got": 0.925,
+   "why": "this league cycles 100% of the defence pool; if defences look un-streamable the join is wrong and nothing else counts"
+  },
+  "C5_denominator_rank_2_plus": {
+   "ok": true,
+   "roster_weeks_at_rank_2plus": {
+    "QB": 390,
+    "RB": 1952,
+    "WR": 2159,
+    "TE": 388,
+    "K": 29,
+    "DEF": 200
+   }
+  }
+ },
+ "controls_all_passed": true,
+ "streamability": {
+  "QB": 0.59,
+  "RB": 0.311,
+  "WR": 0.252,
+  "TE": 0.624,
+  "K": 0.966,
+  "DEF": 0.925
+ },
+ "need_second_body": {
+  "QB": 0.1752,
+  "RB": 0.4909,
+  "WR": 0.5206,
+  "TE": 0.1558,
+  "K": 0.0286,
+  "DEF": 0.0363
+ },
+ "P153": {
+  "stream": {
+   "QB": 0.59,
+   "RB": 0.311,
+   "WR": 0.252,
+   "TE": 0.624,
+   "K": 0.966,
+   "DEF": 0.925
+  },
+  "qb_minus_rb": 0.278,
+  "TRUE": true
+ },
+ "P154": {
+  "need_2nd_QB": 0.1752,
+  "TRUE": false
+ }
+}

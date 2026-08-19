@@ -85,10 +85,21 @@ jobs:
             git add draft/backtest/discovery_ceiling_sources.json
             git commit -m "Ceiling source probe: which source publishes a per-player point ceiling [skip deploy]"
             # main moves fast in draft week; rebase rather than fail the run on a race.
+            pushed=0
             for i in 1 2 3 4; do
-              git pull --rebase origin main && git push origin HEAD:main && break
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
               sleep $((2**i))
             done
+            # ⛔ AN EXHAUSTED RETRY LOOP MUST FAIL. Register 123: this idiom was
+            # `... && break` under `set -uo pipefail` (no -e), so four failed
+            # attempts fell through and the job exited 0 having stored NOTHING.
+            # Observed live on run 32285390841.
+            if [ "$pushed" != "1" ]; then
+              echo "::error::all four push attempts failed — the artifact was NOT stored"
+              exit 1
+            fi
           else
             echo "No change to the discovery artifact."
           fi
