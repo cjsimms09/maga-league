@@ -1,0 +1,832 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/vona_arm_grade.json",
+ "_note": "P107 arm grades. Choice side: CI run 32206775148 (one bundle, three arms). Grade side: replay_seats_grade.py, the SAME grader for every arm. Audit: draft/audit/vona_self_exclusion_2026-08-19.md",
+ "prereg": "draft/backtest/VONA-SELF-EXCLUSION-PREREG.md",
+ "ci_run": 32206775148,
+ "arms": {
+  "a0": {
+   "choices_file": "engine_seat_choices.json",
+   "vona_arm": "a0",
+   "pooled": {
+    "optimal": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -281.53,
+     "cory_mean_delta": -357.93
+    },
+    "realistic": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -175.62,
+     "cory_mean_delta": -260.23
+    }
+   },
+   "pooled_status_filtered": {
+    "optimal": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -189.62,
+     "cory_mean_delta": -286.79
+    },
+    "realistic": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -132.19,
+     "cory_mean_delta": -218.17
+    }
+   },
+   "per_season": {
+    "2025": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [
+        "coryjsimms"
+       ],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 1,
+       "median_owner_delta": -143.18,
+       "cory_delta": 28.8
+      },
+      "realistic": {
+       "owners_tool_beats": [
+        "Jreis",
+        "coryjsimms"
+       ],
+       "owners_beating_tool": [
+        "B8T3S",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 2,
+       "median_owner_delta": -41.47,
+       "cory_delta": 111.12
+      }
+     }
+    },
+    "2024": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -360.99,
+       "cory_delta": -639.78
+      },
+      "realistic": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -277.56,
+       "cory_delta": -537.82
+      }
+     }
+    },
+    "2023": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -358.91,
+       "cory_delta": -462.8
+      },
+      "realistic": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -156.03,
+       "cory_delta": -354.0
+      }
+     }
+    }
+   },
+   "seat_tool_totals": {
+    "2025:1": {
+     "optimal": 1469.52,
+     "realistic": 1368.84
+    },
+    "2025:2": {
+     "optimal": 1221.66,
+     "realistic": 1102.52
+    },
+    "2025:3": {
+     "optimal": 1224.1,
+     "realistic": 1163.78
+    },
+    "2025:4": {
+     "optimal": 1511.34,
+     "realistic": 1378.94
+    },
+    "2025:5": {
+     "optimal": 1719.46,
+     "realistic": 1611.36
+    },
+    "2025:6": {
+     "optimal": 1475.4,
+     "realistic": 1381.92
+    },
+    "2025:7": {
+     "optimal": 1829.96,
+     "realistic": 1601.14
+    },
+    "2025:8": {
+     "optimal": 1699.42,
+     "realistic": 1646.22
+    },
+    "2025:9": {
+     "optimal": 1488.3,
+     "realistic": 1372.48
+    },
+    "2025:10": {
+     "optimal": 1558.94,
+     "realistic": 1387.44
+    },
+    "2024:1": {
+     "optimal": 1397.3,
+     "realistic": 1203.5
+    },
+    "2024:2": {
+     "optimal": 1613.72,
+     "realistic": 1483.52
+    },
+    "2024:3": {
+     "optimal": 1547.52,
+     "realistic": 1379.82
+    },
+    "2024:4": {
+     "optimal": 1216.3,
+     "realistic": 1109.9
+    },
+    "2024:5": {
+     "optimal": 1278.0,
+     "realistic": 1146.8
+    },
+    "2024:6": {
+     "optimal": 1737.98,
+     "realistic": 1627.78
+    },
+    "2024:7": {
+     "optimal": 1403.92,
+     "realistic": 1310.32
+    },
+    "2024:8": {
+     "optimal": 1373.3,
+     "realistic": 1233.9
+    },
+    "2024:9": {
+     "optimal": 1274.6,
+     "realistic": 1132.0
+    },
+    "2024:10": {
+     "optimal": 1319.56,
+     "realistic": 1210.46
+    },
+    "2023:1": {
+     "optimal": 1232.08,
+     "realistic": 1136.78
+    },
+    "2023:2": {
+     "optimal": 1592.52,
+     "realistic": 1513.18
+    },
+    "2023:3": {
+     "optimal": 1215.02,
+     "realistic": 1198.22
+    },
+    "2023:4": {
+     "optimal": 1217.02,
+     "realistic": 1145.58
+    },
+    "2023:5": {
+     "optimal": 1104.92,
+     "realistic": 1013.28
+    },
+    "2023:6": {
+     "optimal": 1417.08,
+     "realistic": 1409.38
+    },
+    "2023:7": {
+     "optimal": 1728.48,
+     "realistic": 1719.08
+    },
+    "2023:8": {
+     "optimal": 1328.36,
+     "realistic": 1299.36
+    },
+    "2023:9": {
+     "optimal": 1364.98,
+     "realistic": 1338.48
+    },
+    "2023:10": {
+     "optimal": 1258.04,
+     "realistic": 1211.9
+    }
+   }
+  },
+  "a1": {
+   "choices_file": "engine_seat_choices_a1.json",
+   "vona_arm": "a1",
+   "pooled": {
+    "optimal": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -174.43,
+     "cory_mean_delta": -188.35
+    },
+    "realistic": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -181.54,
+     "cory_mean_delta": -181.61
+    }
+   },
+   "pooled_status_filtered": {
+    "optimal": {
+     "beats_n_of_10_pooled": 1,
+     "median_owner_mean_delta": -111.11,
+     "cory_mean_delta": -87.32
+    },
+    "realistic": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -125.62,
+     "cory_mean_delta": -126.94
+    }
+   },
+   "per_season": {
+    "2025": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [
+        "Jreis",
+        "MarianSaar",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet"
+       ],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "mhagen"
+       ],
+       "beats_n_of_10": 5,
+       "median_owner_delta": -20.74,
+       "cory_delta": 184.28
+      },
+      "realistic": {
+       "owners_tool_beats": [
+        "Jreis",
+        "MarianSaar",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet"
+       ],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "mhagen"
+       ],
+       "beats_n_of_10": 5,
+       "median_owner_delta": -30.19,
+       "cory_delta": 154.44
+      }
+     }
+    },
+    "2024": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -388.97,
+       "cory_delta": -474.98
+      },
+      "realistic": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -397.89,
+       "cory_delta": -365.42
+      }
+     }
+    },
+    "2023": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [
+        "B8T3S",
+        "Schmelley"
+       ],
+       "owners_beating_tool": [
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 2,
+       "median_owner_delta": -106.12,
+       "cory_delta": -274.34
+      },
+      "realistic": {
+       "owners_tool_beats": [
+        "B8T3S",
+        "Schmelley",
+        "ds7mmet"
+       ],
+       "owners_beating_tool": [
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "cashworth",
+        "coryjsimms",
+        "mhagen"
+       ],
+       "beats_n_of_10": 3,
+       "median_owner_delta": -136.34,
+       "cory_delta": -333.84
+      }
+     }
+    }
+   },
+   "seat_tool_totals": {
+    "2025:1": {
+     "optimal": 1625.0,
+     "realistic": 1412.16
+    },
+    "2025:2": {
+     "optimal": 1412.6,
+     "realistic": 1207.48
+    },
+    "2025:3": {
+     "optimal": 1681.46,
+     "realistic": 1484.66
+    },
+    "2025:4": {
+     "optimal": 1566.36,
+     "realistic": 1435.42
+    },
+    "2025:5": {
+     "optimal": 1538.74,
+     "realistic": 1457.64
+    },
+    "2025:6": {
+     "optimal": 1770.92,
+     "realistic": 1632.28
+    },
+    "2025:7": {
+     "optimal": 1849.32,
+     "realistic": 1592.3
+    },
+    "2025:8": {
+     "optimal": 1790.34,
+     "realistic": 1594.78
+    },
+    "2025:9": {
+     "optimal": 1517.74,
+     "realistic": 1287.54
+    },
+    "2025:10": {
+     "optimal": 1547.04,
+     "realistic": 1314.5
+    },
+    "2024:1": {
+     "optimal": 1562.1,
+     "realistic": 1375.9
+    },
+    "2024:2": {
+     "optimal": 1376.5,
+     "realistic": 1200.1
+    },
+    "2024:3": {
+     "optimal": 1637.02,
+     "realistic": 1438.52
+    },
+    "2024:4": {
+     "optimal": 1365.7,
+     "realistic": 1122.1
+    },
+    "2024:5": {
+     "optimal": 1459.3,
+     "realistic": 1249.1
+    },
+    "2024:6": {
+     "optimal": 1459.68,
+     "realistic": 1209.38
+    },
+    "2024:7": {
+     "optimal": 1651.02,
+     "realistic": 1440.52
+    },
+    "2024:8": {
+     "optimal": 1281.2,
+     "realistic": 1036.8
+    },
+    "2024:9": {
+     "optimal": 1425.4,
+     "realistic": 1147.3
+    },
+    "2024:10": {
+     "optimal": 1437.76,
+     "realistic": 1270.06
+    },
+    "2023:1": {
+     "optimal": 1420.54,
+     "realistic": 1156.94
+    },
+    "2023:2": {
+     "optimal": 1758.92,
+     "realistic": 1628.28
+    },
+    "2023:3": {
+     "optimal": 1429.66,
+     "realistic": 1309.82
+    },
+    "2023:4": {
+     "optimal": 1290.78,
+     "realistic": 1165.28
+    },
+    "2023:5": {
+     "optimal": 1534.02,
+     "realistic": 1336.98
+    },
+    "2023:6": {
+     "optimal": 1437.42,
+     "realistic": 1279.08
+    },
+    "2023:7": {
+     "optimal": 1561.38,
+     "realistic": 1398.26
+    },
+    "2023:8": {
+     "optimal": 1459.32,
+     "realistic": 1253.94
+    },
+    "2023:9": {
+     "optimal": 1793.38,
+     "realistic": 1484.86
+    },
+    "2023:10": {
+     "optimal": 1600.18,
+     "realistic": 1287.96
+    }
+   }
+  },
+  "a2": {
+   "choices_file": "engine_seat_choices_a2.json",
+   "vona_arm": "a2",
+   "pooled": {
+    "optimal": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -324.56,
+     "cory_mean_delta": -362.05
+    },
+    "realistic": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -265.51,
+     "cory_mean_delta": -290.53
+    }
+   },
+   "pooled_status_filtered": {
+    "optimal": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -272.08,
+     "cory_mean_delta": -337.89
+    },
+    "realistic": {
+     "beats_n_of_10_pooled": 0,
+     "median_owner_mean_delta": -179.8,
+     "cory_mean_delta": -265.26
+    }
+   },
+   "per_season": {
+    "2025": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -194.7,
+       "cory_delta": -28.2
+      },
+      "realistic": {
+       "owners_tool_beats": [
+        "Schmelley",
+        "coryjsimms"
+       ],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "cashworth",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 2,
+       "median_owner_delta": -115.92,
+       "cory_delta": 22.52
+      }
+     }
+    },
+    "2024": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -381.09,
+       "cory_delta": -655.2
+      },
+      "realistic": {
+       "owners_tool_beats": [
+        "B8T3S"
+       ],
+       "owners_beating_tool": [
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 1,
+       "median_owner_delta": -346.02,
+       "cory_delta": -552.74
+      }
+     }
+    },
+    "2023": {
+     "league_summary": {
+      "optimal": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -352.13,
+       "cory_delta": -402.76
+      },
+      "realistic": {
+       "owners_tool_beats": [],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "MarianSaar",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "cashworth",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 0,
+       "median_owner_delta": -239.56,
+       "cory_delta": -341.36
+      }
+     }
+    }
+   },
+   "seat_tool_totals": {
+    "2025:1": {
+     "optimal": 1412.52,
+     "realistic": 1280.24
+    },
+    "2025:2": {
+     "optimal": 1134.38,
+     "realistic": 1066.28
+    },
+    "2025:3": {
+     "optimal": 1430.8,
+     "realistic": 1302.08
+    },
+    "2025:4": {
+     "optimal": 1499.64,
+     "realistic": 1318.04
+    },
+    "2025:5": {
+     "optimal": 1545.24,
+     "realistic": 1418.64
+    },
+    "2025:6": {
+     "optimal": 1509.46,
+     "realistic": 1305.4
+    },
+    "2025:7": {
+     "optimal": 1710.74,
+     "realistic": 1593.52
+    },
+    "2025:8": {
+     "optimal": 1598.14,
+     "realistic": 1523.82
+    },
+    "2025:9": {
+     "optimal": 1715.6,
+     "realistic": 1521.06
+    },
+    "2025:10": {
+     "optimal": 1360.74,
+     "realistic": 1188.64
+    },
+    "2024:1": {
+     "optimal": 1381.88,
+     "realistic": 1188.58
+    },
+    "2024:2": {
+     "optimal": 1295.38,
+     "realistic": 1161.98
+    },
+    "2024:3": {
+     "optimal": 1602.32,
+     "realistic": 1467.32
+    },
+    "2024:4": {
+     "optimal": 1166.26,
+     "realistic": 1079.46
+    },
+    "2024:5": {
+     "optimal": 1646.88,
+     "realistic": 1525.28
+    },
+    "2024:6": {
+     "optimal": 1418.58,
+     "realistic": 1215.58
+    },
+    "2024:7": {
+     "optimal": 1325.12,
+     "realistic": 1239.92
+    },
+    "2024:8": {
+     "optimal": 1329.2,
+     "realistic": 1181.7
+    },
+    "2024:9": {
+     "optimal": 1639.18,
+     "realistic": 1423.58
+    },
+    "2024:10": {
+     "optimal": 1323.46,
+     "realistic": 1176.92
+    },
+    "2023:1": {
+     "optimal": 1292.12,
+     "realistic": 1149.42
+    },
+    "2023:2": {
+     "optimal": 1647.48,
+     "realistic": 1532.36
+    },
+    "2023:3": {
+     "optimal": 1269.62,
+     "realistic": 1263.22
+    },
+    "2023:4": {
+     "optimal": 1170.58,
+     "realistic": 1045.08
+    },
+    "2023:5": {
+     "optimal": 1262.84,
+     "realistic": 1171.9
+    },
+    "2023:6": {
+     "optimal": 1056.14,
+     "realistic": 1056.14
+    },
+    "2023:7": {
+     "optimal": 1402.58,
+     "realistic": 1402.58
+    },
+    "2023:8": {
+     "optimal": 1059.94,
+     "realistic": 1038.76
+    },
+    "2023:9": {
+     "optimal": 1613.44,
+     "realistic": 1349.18
+    },
+    "2023:10": {
+     "optimal": 1285.16,
+     "realistic": 1255.02
+    }
+   }
+  }
+ }
+}

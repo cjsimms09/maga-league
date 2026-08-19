@@ -358,7 +358,11 @@ def main() -> None:
     doc["_vona_arm"] = (json.loads(cp.read_text()).get("meta") or {}).get("vona_arm", "a0")
     out.write_text(json.dumps(doc, indent=1))
     globals()["OUT"] = out
-    print(f"wrote {out.relative_to(ROOT)}  (arm {doc['_vona_arm']})")
+    try:
+        shown = out.relative_to(ROOT)
+    except ValueError:
+        shown = out                       # an out-of-tree --out is legitimate
+    print(f"wrote {shown}  (arm {doc['_vona_arm']})")
     for s in doc["coverage"]["seasons"]:
         ls = doc["years"][str(s)]["league_summary"]
         o, r_ = ls["optimal"], ls["realistic"]
