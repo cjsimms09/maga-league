@@ -35,6 +35,7 @@ import keeper_slate as keeper_slate_mod  # noqa: E402
 import adp_series as adp_series_mod  # noqa: E402
 import proj_series as proj_series_mod  # noqa: E402
 import grab_by as grab_by_mod  # noqa: E402
+import multisource_blend as multisource_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -1740,6 +1741,28 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     if not players:
         raise SystemExit("no players — cannot build a board")
 
+    # THE MULTI-SOURCE MEAN — Cory's ruling, 2026-08-19: *"switch to mean
+    # projections, fix ceiling and floors"* … *"Ship it"*.
+    #
+    # Placed HERE, before keepers/ADP/VORP/tiers, and not one line later,
+    # because every one of those derives from proj_mean. `kept_players` is
+    # built from `dict(p)` COPIES a few dozen lines below; blending after that
+    # point would leave the keeper panel on Sleeper-only numbers while the
+    # board moved — the exact keeper/board split that shipped a wrong name on
+    # screen at pick 33 once already (see the vorp back-fill note below).
+    #
+    # The module REFUSES rather than half-applying (missing store, coverage
+    # under 30%, or a failed rookie-bloc veto), and the diagnostic it returns
+    # is stamped into provenance either way, so a build that did NOT blend
+    # says so on the artifact rather than looking identical to one that did.
+    ms_diag = multisource_mod.apply_multisource(players)
+    if ms_diag.get("applied"):
+        print(f"  multi-source mean: {ms_diag['players_changed']} players "
+              f"({ms_diag['coverage']:.0%} of priced board) from "
+              f"{ms_diag.get('sources')}; ceilings/floors from cross-source spread")
+    else:
+        print(f"  multi-source mean: NOT APPLIED — {ms_diag.get('reason')}")
+
     profiles = build_manager_profiles(cfg, offline, force=force_profiles)
     print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
           f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
@@ -1951,6 +1974,8 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             # 'file-cache' (fallback, with a warning). The file is never trusted
             # silently.
             "config_confirmed": dict(confirmed_status),
+            # Stamped whether or not it applied — see the note at the call site.
+            "multisource_mean": dict(ms_diag),
         },
     }
     _assert_provenance_matches_data(available, artifact)
