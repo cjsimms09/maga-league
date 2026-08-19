@@ -214,3 +214,79 @@ a module whose veto was wired to nothing.
 | **D** | register 63 — the veto's power |
 | **B** | the war room cannot tell Cory which of the three provenances a number carries |
 | **A** | P116 (the gate), P117 (does the seat replay have the resolution to see any of this — predicted **null**, and a null here means the instrument is blind, not that the blend is useless) |
+
+---
+
+## 8. THE BLEND TILTED THE BOARD TOWARD RUNNING BACKS — AND THE EVIDENCE SAYS IT IS RIGHT
+
+**Found after publishing, by re-measuring on the shipped board rather than the
+candidate.** This is the most decision-relevant thing in this document and it
+directly contradicts §5's reassurance.
+
+### What happened
+
+| | pre-blend | published |
+|---|---|---|
+| RB replacement | 179.30 | **170.47** (−8.83) |
+| WR replacement | 162.60 | **171.85** (+9.25) |
+| RB starter slots | 21 | **24** |
+| WR starter slots | 29 | **26** |
+
+Every VORP is `proj_mean − replacement[pos]`, so **every RB gained ~8.8 VORP and
+every WR lost ~9.3 — an ~18-point swing toward running backs.**
+
+**And it shows on the board Cory will actually read.** Position mix of the top-N
+by VORP — a stable measurement, no simulated draft involved:
+
+| top N | pre-blend | published |
+|---|---|---|
+| 12 | RB6 WR4 | **RB9** WR3 |
+| 24 | RB10 WR10 | **RB14** WR7 |
+| 36 | RB10 WR18 | **RB19** WR12 |
+| 48 | RB12 WR26 | **RB22** WR18 |
+| 120 | RB28 WR51 | **RB36** WR44 |
+
+### I said this could not happen, and I was wrong
+
+§3 measured the positional level offset (RB 0.85, WR 0.95–0.97) and concluded it
+**"is absorbed by VORP's replacement level — if every RB is 15% low, replacement
+moves with them and VORP barely changes."**
+
+**That is true WITHIN a position and false ACROSS them.** A position-specific
+level shift changes which position wins the **flex** seats; the allocation moves
+(21→24 RB, 29→26 WR); replacement follows; and every VORP in both positions
+moves with it. The offset I dismissed as harmless is the entire mechanism.
+
+### Is it a real signal or one bad scraper?
+
+The decisive check — median source/Sleeper ratio, coherent players only:
+
+| pos | CBS | ESPN | FFToday |
+|---|---|---|---|
+| QB | 1.068 | 1.030 | 1.044 |
+| **RB** | **1.182** | **1.137** | **1.108** |
+| WR | 1.079 | 1.029 | 1.017 |
+| TE | **1.149** | 0.991 | 0.994 |
+
+**All three independently scored scrapers say Sleeper is 11–18% low on running
+backs, while agreeing with him to within 2–8% on receivers.** That is not one
+source's artifact. **The RB lift is evidence.**
+
+**TE is the opposite case and worth separating: the tight-end lift is carried by
+CBS alone** (1.149 against 0.991 and 0.994). Any TE conclusion drawn from the
+blended board is one scraper's opinion wearing a consensus label — which matters,
+because TE is the position §1's roster lab flagged.
+
+### What this means for the complaint
+
+**Cory's instinct and the multi-source consensus are in direct conflict, and this
+document cannot resolve it — but it can say precisely what the disagreement is
+about.** Three independent forecasters think Sleeper underrates running backs.
+If they are right, the board ranking more of them is a CORRECTION, not a
+regression, and *"too many RBs"* is an objection to draft strategy — positional
+scarcity, roster construction, what wins a 10-team league — rather than to
+projection accuracy. **Those are different objections and only the second one is
+a defect.**
+
+**Not settled here and not settleable before Saturday:** whether the scrapers are
+right. That is P113's territory and it grades in January.
