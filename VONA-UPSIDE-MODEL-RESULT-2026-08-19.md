@@ -260,3 +260,64 @@ disagreement is not evidence either way.
 **That is one preregistered grade, in January, on realised points — and it is the
 single most important thing this model still owes.** Everything else about it now
 works.
+
+---
+
+# 8. ⛔ CORRECTING §7'S HEADLINE — I quoted a systematic level offset as a per-player opinion
+
+**I told you twice that `own_v6` "hates" the upside picks, with −119 on Matthew
+Golden as the headline. That number is mostly not about Golden.**
+
+Measured across every board player carrying both numbers:
+
+| `own_v6 − board mean`, 499 players | |
+|---|---|
+| median | **−15.3** |
+| mean | −19.8 |
+| **share negative** | **80%** |
+
+| position | median | p25 | p75 |
+|---|---|---|---|
+| QB | −17.9 | −51.0 | −10.1 |
+| RB | −17.2 | −35.8 | −0.7 |
+| WR | **−23.1** | −39.0 | −3.1 |
+| TE | −3.0 | −16.8 | +4.0 |
+
+**`own_v6` runs below the board mean on four players in five. "Our own model is
+bearish on him" is the DEFAULT STATE, not a signal** — and I read five default
+states as a finding.
+
+## THE CAVEAT SURVIVES, WEAKENED, AND HERE IS THE HONEST VERSION
+
+Corrected for the offset — each pick's percentile **within his own position**:
+
+| pick | raw diff | position median | **percentile** |
+|---|---|---|---|
+| **Matthew Golden** | −119.0 | −23.1 | **0th** — the most bearish WR on the board |
+| Jalen Coker | −60.3 | −23.1 | 9th |
+| Alec Pierce | −52.2 | −23.1 | 16th |
+| Chris Rodriguez | −36.9 | −17.2 | 23rd |
+| **Zach Charbonnet** | +33.9 | −17.2 | **96th** — own_v6 likes him a lot |
+| Jonathon Brooks | — | — | no own-model number at all |
+
+**Four of five sit in the bottom quartile of their own position. That is still a
+real skew and the direction of the caveat holds.** But **"five of six, and Golden
+by 119 points" overstated it badly** — the −119 is a −23 league-wide receiver
+offset plus a −96 player-specific one, and I presented the whole thing as
+Golden's.
+
+**Golden at the 0th percentile is the one that is genuinely alarming and it did
+not need inflating.**
+
+## AND THE BIGGER FINDING, WHICH IS NOT ABOUT UPSIDE AT ALL
+
+**`own_v6` sits ~15–20 points below the board mean on 80% of players, and nothing
+in the repo flags it.** It is harmless today *because* it is a labelled third
+opinion that never enters `proj_mean` — **but it is exactly the kind of
+systematic offset that would drag every projection down the moment someone
+blended it in, and the January 2027 promotion decision (REC-2) is that moment.**
+Register 107.
+
+**Fourth self-correction today, same shape as the other three: I had a number
+that fit a story and did not run the distribution behind it.** The check took
+nine seconds, again.
