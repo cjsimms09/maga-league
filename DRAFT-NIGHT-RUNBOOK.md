@@ -48,31 +48,75 @@ the exposure numbers describe the real slate or the predicted one.
 2. **Freeze**: confirm `draft/freeze_pre_draft.py` has run against THAT board
    and note the freeze SHA (it prints; also in the freeze artifact).
 
-   > ⚠️ **EXPECT IT TO SAY `PROVISIONAL`, AND EXPECT ITS REASON TO BE WRONG —
-   > register 5l, found 2026-08-18.** The freeze stamps `CONFIRMED` only when
-   > `keeper_lock_passed` is true, and **that flag is `false` forever**:
-   > `assess_slate()` takes it as a parameter defaulting to `false` and all
-   > three `build.py` call sites omit it. So on Saturday morning — with keepers
-   > locked since 6:00 PM Friday — the freeze will print **`PROVISIONAL … the
-   > keeper lock has not passed`**. That sentence is FALSE and it is the tool's
-   > fault, not the league's.
+   > ✅ **THIS NOTE'S OWN ESCAPE HATCH HAS FIRED — A SHIPPED THE FIX, SO EXPECT
+   > `CONFIRMED`, NOT `PROVISIONAL`. Rewritten 2026-08-19 (A).**
    >
-   > **WHAT TO DO: take the freeze anyway and note the SHA. It is a complete,
-   > correct capture of the board** — the status word is the only thing wrong,
-   > and the freeze IS the season's grading baseline whatever it calls itself.
-   > Do NOT go looking for an unlocked keeper slate; do NOT re-run it hoping
-   > for a different word.
+   > The paragraph that stood here told you to expect **`PROVISIONAL … the keeper
+   > lock has not passed`**, to know that sentence was false, and to take the
+   > freeze anyway. It ended: *"If A ships it before Saturday, the freeze can
+   > stamp `CONFIRMED` and this note stops applying — check which world you are
+   > in by reading the printed status, not by assuming."*
    >
-   > **AND THE ALARM THAT WOULD NORMALLY CATCH THIS IS THE SAME DEAD FLAG.**
-   > `standing_check.py` escalates on *"THE KEEPER LOCK HAS PASSED AND THE
-   > FREEZE IS STILL {status} … unrecoverable once the draft starts"* — gated
-   > on `keeper_lock_passed` alone, so it can never fire. **Nothing will tell
-   > you to re-take the freeze after the lock. This paragraph is the
-   > replacement for that alarm until A ships the fix** (prepared:
-   > `draft/backtest/5l_proposed_fix_for_approval_2026-08-18.md`; ROUTES
-   > `TO: A` item 00). **If A ships it before Saturday, the freeze can stamp
-   > `CONFIRMED` and this note stops applying — check which world you are in
-   > by reading the printed status, not by assuming.**
+   > **A shipped it (register 5l, 08-18). You are in the second world, and being
+   > told so here beats deducing it at 3am.**
+   >
+   > `build.py._keeper_lock_passed()` now derives the flag from **two independent
+   > paths, either sufficient**: keeper PLACEMENTS existing on the draft, or the
+   > configured deadline having passed — read from `league_config.json`, where
+   > your ruling lives verbatim (*"Keepers will be set by 08/21 at 6pm"*). It is
+   > wired at **all three** `assess_slate()` call sites, guarded by a test with a
+   > proven fail arm.
+   >
+   > **VERIFIED BY DRIVING THE CLOCK rather than waiting for Friday** — the whole
+   > point, since the correct behaviour otherwise first appears after the last
+   > useful moment to learn it is wrong:
+   >
+   > | moment | `keeper_lock_passed` |
+   > |---|---|
+   > | Fri 08-21 17:59 CDT | `False` |
+   > | **Fri 08-21 18:00 CDT** | **`True`** |
+   > | **Sat 08-22 09:00 CDT (draft morning)** | **`True`** |
+   >
+   > **SO: on Saturday morning the freeze should print `CONFIRMED`. If it prints
+   > `PROVISIONAL`, that is now REAL INFORMATION and not a known bug** — it means
+   > the board you froze was built BEFORE Friday 6pm, i.e. step 1's rebuild did
+   > not actually happen or did not commit. **Rebuild and re-freeze.** That is the
+   > opposite of the old instruction, which was "do not re-run it hoping for a
+   > different word", and following the old text would have hidden a real failure.
+   >
+   > **AND THE ALARM IS ALIVE AGAIN TOO.** `standing_check.py:531` reads
+   > `keeper_slate.keeper_lock_passed` off the board and escalates on *"THE KEEPER
+   > LOCK HAS PASSED AND THE FREEZE IS STILL {status}"*. It was gated on the dead
+   > flag and could never fire; it can now. **The board also publishes
+   > `keeper_lock_date` (2026-08-21) with your ruling verbatim beside it** —
+   > register E25, so no reader has to hardcode the date again.
+2b. **Re-check, and if needed regenerate, the two board-derived artifacts** (register 86):
+   `variance_inputs_2026.json` and `playoff_sos_2026.json` are derived from the
+   board and are NOT rebuilt by `draft-data.yml`. They have been hand-regenerated
+   twice already in one day.
+
+   > ⚠️ **CORRECTED WITHIN THE HOUR OF WRITING IT, BY TESTING MY OWN
+   > INSTRUCTION.** This step first said step 1's rebuild *"silently invalidates
+   > both"*. I then triggered a rebuild and **both drift tests PASSED** — because
+   > a same-day rebuild off unchanged upstream inputs moves the board's
+   > `built_at` without moving the values these two artifacts derive from.
+   > **"Always goes stale" was wrong; "goes stale whenever the board's values
+   > actually move" is right**, and Saturday's rebuild pulls fresh ADP and
+   > projections, so it very likely WILL move them. **Do not skip this step on
+   > the strength of one quiet rebuild — but do let the tests decide rather than
+   > regenerating on faith.**
+
+   > **Why this is a runbook step and not a code fix:** wiring the regeneration
+   > into `draft-data.yml` is the real answer and it is deliberately deferred to
+   > **after** the draft (register 86, recheck 08-26) — a workflow change on
+   > draft morning is exactly the kind of thing that breaks the morning. **The
+   > recurrence rate is once per rebuild and rebuilds are nightly, so this DOES
+   > reach Saturday; the mitigation is doing it by hand, here, after step 1.**
+   >
+   > Run them after the rebuild commits, then confirm the board-drift tests pass
+   > (`test_playoff_sos.py`, `test_variance_inputs.py`). If either is red, it is
+   > telling you these were not regenerated against the board you just built.
+
 3. **Netlify check**: dashboard → Usage → build minutes comfortably under cap.
    NO deploys Aug 20–22 except draft-critical fixes.
 4. **Ledger check (5 min, Cory's browser)**: logged in as commissioner, visit
