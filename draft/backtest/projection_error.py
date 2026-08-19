@@ -329,35 +329,30 @@ KEY_SEP = "|"
 #: A position leaves this dict the moment its graded rows exist. Nothing is
 #: estimated for it in the meantime — a declared refusal is the answer, and a
 #: guessed discount would be fitting.
-POSITIONS_NOT_MEASURED = {
-    "K": {
-        "reason": "No kicker rows reach the graded stores: fetch_component_stats.py "
-                  "filters to POSITION_GROUPS = (QB, RB, WR, TE) and kickers are "
-                  "position_group 'SPEC'. Not a source gap — the file we already "
-                  "fetch served 569 kicker rows / 43 kickers / weeks 1-22 for 2024 "
-                  "(HTTP 200, probed 2026-08-17), with a 1:1 map to all eight of our "
-                  "kicker scoring keys.",
-        "unblocked_by": "C adding K to that filter and re-emitting 2023-25. The "
-                        "calibration then needs no code change — this module has "
-                        "never filtered positions. NOTE fgm_50p must absorb BOTH "
-                        "fg_made_50_59 and fg_made_60_, or every 60-yard field goal "
-                        "is silently dropped.",
-        "owner": "C", "recheck": "2026-08-19",
-        "audit": "draft/audit/kdef_calibration_p0_2026-08-17.md",
-    },
-    "DEF": {
-        "reason": "No team-defence rows exist in the nflverse player file at all — "
-                  "it carries individual defenders (DB/DL/LB), not units. DST "
-                  "scoring needs a team-level aggregation (sacks, INTs, fumble "
-                  "recoveries, return TDs, points allowed) that does not exist here.",
-        "unblocked_by": "A team-week defence construction from stats_team_week or "
-                        "pbp, built and graded. NOT attempted before the 2026-08-20 "
-                        "keeper lock: a new instrument measured once, late, is a "
-                        "worse instrument than a declared absence.",
-        "owner": "A", "recheck": "post-2026-08-22",
-        "audit": "draft/audit/kdef_calibration_p0_2026-08-17.md",
-    },
-}
+#: ⚠️ CLOSED 2026-08-19 (register 2e, C): K and DEF both left this dict —
+#: "the moment its graded rows exist", per the rule stated above — the day
+#: they got graded rows. `fetch_component_stats.py` now carries
+#: `component_stats_kicker_<season>.json` (real, fetched, committed;
+#: `fetch_kicker_season`/`build_kicker_season`) and `component_stats_def_
+#: <season>.json` (`fetch_def_season`/`build_def_season`, team-week defense
+#: + kicking from nflverse's `stats_team_week` release, joined against
+#: `games.csv` for points allowed). `regenerate()` above now merges
+#: `_assemble_kicker_bundles()` / `_assemble_def_bundles()` into the SAME
+#: `calibrate()` call the offense path uses, additively (see the block
+#: comment there). VERIFIED LOCALLY 2026-08-19 (network-free — both
+#: assemblies read only committed stores): K measured 4 of 5 bands
+#: (`1-3` too thin at n=7, MIN_N=8 — correctly `unmeasurable`, not a
+#: pretended number), 101 graded / 152 on board across 2023-25; DEF
+#: measured 4 of 4 bands (no `33+` band exists — 32 teams never reaches
+#: rank 33), 96 graded / 96 on board, zero ungraded. What is NOT verified
+#: from this sandbox: the FULL `regenerate()` merge with the REAL offense
+#: assembly (Sleeper-gated — `_assemble_asof_bundles` is `# pragma: no
+#: cover (egress; CI only)`), only with the offense side mocked
+#: (`test_regenerate_PASSES_CALIBRATION_POSITIONS_PLUS_K_DEF_when_it_
+#: actually_fits`). The next real CI dispatch is the first time all three
+#: populations run together for real; if it disagrees with the isolated
+#: numbers above, that is new information, not a contradiction of them.
+POSITIONS_NOT_MEASURED = {}
 
 
 def document(cal: dict) -> dict:
@@ -627,6 +622,157 @@ def _assemble_asof_bundles(seasons=CALIBRATION_SEASONS) -> dict:  # pragma: no c
             "crosswalk": crosswalk, "players_meta": players_meta}
 
 
+# ── K/DEF, register 2e (2026-08-19) — SEPARATE, LOCAL, NETWORK-FREE ────────
+#
+# `_assemble_asof_bundles` above needs Sleeper's live player index
+# (`SL.fetch_players()`) for `players_meta`, contemporaneous FFC ADP, and the
+# real draft-pick sequence — none of which this sandbox can reach (verified
+# 2026-08-19: `api.sleeper.app` 403s at the proxy), which is why that
+# function is `# pragma: no cover (egress; CI only)`.
+#
+# NEITHER OF THESE IS. K needs nothing that function needs: kicker
+# sleeper_ids come from the SAME gsis->sleeper crosswalk
+# `fetch_component_stats.py` already baked into `component_stats_kicker_
+# <season>.json` at fetch time (no live Sleeper call). DEF needs even less —
+# it is keyed by BOARD TEAM CODE, not a player id at all (Sleeper keys DST
+# roster slots by team code directly — `scoring.py`'s own comment — so there
+# is no crosswalk to attempt or fail). Both read the scoring table from
+# `frozen_scoring_table()` off a COMMITTED store, and the projection method
+# below is pure Python. So both functions read only files already committed
+# to this repo, run in ordinary pytest with no monkeypatching, and their
+# output is independently checked against real numbers by
+# `test_component_stats.py` / this module's own test file — neither is
+# "written but never run."
+#
+# WHY `lab_projections.walk_forward` AND NOT A NEW METHOD. `build_bundle.py`
+# already owns "how do you honestly project a player from strictly prior
+# seasons" for QB/RB/WR/TE, and inventing a second definition of that
+# question for K/DEF would be exactly the two-places-that-drift shape rule
+# 11 warns about (the same reason `_assemble_asof_bundles` above reuses
+# `cli.py`'s season-assembly machinery instead of re-deriving it). So this
+# imports `lab_projections` — TERRITORY A, called READ-ONLY, nothing in it
+# edited — and calls `walk_forward` directly. It is genuinely position-
+# agnostic: `positions` is just a `{pid: pos}` dict, `_positional_baseline`
+# buckets on whatever string is in it, and `AGE_PEAK`/`AGE_DECAY_PER_YEAR`
+# have no "K" or "DEF" entry so `_age_multiplier` returns 1.0 for both — no
+# age curve is invented for a store that carries no birth dates (K) or is
+# not a person at all (DEF); that is the honest reading of "unmeasured", not
+# a bug to route around.
+#
+# ONE SHARED ASSEMBLER, TWO THIN CALLERS — the same "one definition, not two
+# that could drift" discipline `CALIBRATION_POSITIONS` states for itself
+# above. `_assemble_kicker_bundles`/`_assemble_def_bundles` differ only in
+# which store-reading function and position label they pass in.
+def _assemble_position_bundles(seasons, position: str, weekly_points_fn,
+                               store_label: str) -> dict:
+    """Shared bundle+actual assembly for any position whose realized points
+    come entirely from a committed local store (K, DEF — NOT QB/RB/WR/TE,
+    which still needs the full AsOf/Sleeper/ADP machinery in
+    `_assemble_asof_bundles`). Returns the exact shape `calibrate()`
+    consumes: `{"bundles": [...], "actual": [...], "skipped": [...]}`, or
+    `{"status": "VOID", ...}` if no season produced both.
+
+    Each bundle is `{"season": s, "players": [{"player_id", "position",
+    "proj_mean"}, ...]}` — `proj_mean` from `walk_forward` on STRICTLY PRIOR
+    seasons' points (never the season being graded; the same leak-free rule
+    `calibrate(exclude_season=...)` polices for the offense path).
+    `actual[i]` is that season's OWN realized points, weeks 1-17, summed
+    from the committed store.
+
+    `weekly_points_fn(season, scoring_cfg, last_week=17) -> {id: {week:
+    points}}` — `fetch_component_stats.scored_kicker_weekly_points` or
+    `.scored_def_weekly_points`.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+    bt = _Path(__file__).resolve().parent
+    if str(bt) not in _sys.path:
+        _sys.path.insert(0, str(bt))
+
+    import fetch_component_stats as FCS
+    from backtest import lab_projections as WF
+
+    scoring_cfg = FCS.frozen_scoring_table()
+    # walk_forward's SEASON_WEIGHTS covers 2 prior years; ask for those plus
+    # the graded season itself so `actual` can be read off the same fetch.
+    need = sorted({y for s in seasons for y in (s - 2, s - 1, s)})
+
+    pts_by_season, games_by_season, skipped = {}, {}, []
+    for y in need:
+        try:
+            weekly_pts = weekly_points_fn(y, scoring_cfg, last_week=17)
+        except FileNotFoundError:
+            skipped.append({"season": y, "reason": "no %s store fetched for "
+                            "this season" % store_label})
+            continue
+        pts, games = {}, {}
+        for pid, rows in weekly_pts.items():
+            pts[pid] = round(sum(rows.values()), 2)
+            games[pid] = len(rows)
+        pts_by_season[y] = pts
+        games_by_season[y] = games
+
+    positions = {pid: position for pts in pts_by_season.values() for pid in pts}
+
+    bundles, actual = [], []
+    for season in seasons:
+        if season not in pts_by_season:
+            skipped.append({"season": season, "reason": "no %s store for "
+                            "the graded season itself" % store_label})
+            continue
+        proj = WF.walk_forward(season, pts_by_season, games_by_season,
+                               positions, ages={})
+        act = pts_by_season[season]
+        if not proj or not act:
+            skipped.append({"season": season, "reason": "empty %s "
+                            "projection or actual set" % store_label})
+            continue
+        players = [{"player_id": pid, "position": position, "proj_mean": pm}
+                   for pid, pm in proj.items()]
+        bundles.append({"season": season, "players": players})
+        actual.append(act)
+
+    if not bundles:
+        return {"status": "VOID", "reason": "no %s season produced both a "
+                                            "projection and a gradeable "
+                                            "actual set" % store_label,
+                "skipped": skipped}
+    return {"bundles": bundles, "actual": actual, "skipped": skipped}
+
+
+def _assemble_kicker_bundles(seasons=CALIBRATION_SEASONS) -> dict:
+    """K's bundle+actual assembly — player_id is the sleeper_id already
+    baked into `component_stats_kicker_<season>.json` by
+    `fetch_component_stats.py`'s gsis->sleeper crosswalk. See the block
+    comment above for the full "why no network access" and "why
+    walk_forward" reasoning shared with `_assemble_def_bundles`."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    bt = _Path(__file__).resolve().parent
+    if str(bt) not in _sys.path:
+        _sys.path.insert(0, str(bt))
+    import fetch_component_stats as FCS
+    return _assemble_position_bundles(seasons, "K",
+                                      FCS.scored_kicker_weekly_points, "kicker")
+
+
+def _assemble_def_bundles(seasons=CALIBRATION_SEASONS) -> dict:
+    """DEF's bundle+actual assembly — `player_id` here is a BOARD TEAM CODE
+    (e.g. "LAR"), never a crosswalked player id; a team defense has no
+    gsis/sleeper player id to cross, and Sleeper keys DST roster slots by
+    team code directly. See the block comment above for the full "why no
+    network access" and "why walk_forward" reasoning shared with
+    `_assemble_kicker_bundles`."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    bt = _Path(__file__).resolve().parent
+    if str(bt) not in _sys.path:
+        _sys.path.insert(0, str(bt))
+    import fetch_component_stats as FCS
+    return _assemble_position_bundles(seasons, "DEF",
+                                      FCS.scored_def_weekly_points, "team-defense")
+
+
 def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
     """The no-args entry point `artifact_registry.json` calls. Assembles real
     bundles + actuals for `CALIBRATION_SEASONS` (via `_assemble_asof_bundles`)
@@ -659,8 +805,39 @@ def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
     # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
     # workflow actually takes — a filter on the wrong call site is a fix that
     # feels done and changes nothing. Register 4r.
+    #
+    # ── K/DEF, register 2e (2026-08-19) — MERGED IN HERE, ADDITIVELY. ──────
+    # `only_positions` starts as exactly `CALIBRATION_POSITIONS` (the QB/RB/
+    # WR/TE code path below is byte-for-byte what it was before this change
+    # whenever both assemblies below are empty) and gains `"K"` / `"DEF"`
+    # ONLY if the matching assembler actually produced a bundle. `bundles`/
+    # `actual` gain entries the SAME way — appended, never merged into an
+    # existing QB/RB/WR/TE bundle — so `calibrate()` buckets K/DEF rows into
+    # their own `(position, band)` cells and cannot shift a QB/RB/WR/TE
+    # cell's population by one row. `CALIBRATION_POSITIONS` itself is left
+    # untouched (register-2e's own routing text: widening that shared
+    # constant is a bigger, undesired blast radius — see this module's
+    # POSITIONS_NOT_MEASURED note and fetch_component_stats.py's identical
+    # reasoning about POSITION_GROUPS). Each source assembles and merges
+    # INDEPENDENTLY — a DEF store problem cannot take K down with it, or the
+    # reverse.
+    only_positions = CALIBRATION_POSITIONS
+    for label, pos, assembler in (
+        ("kicker", "K", _assemble_kicker_bundles),
+        ("team-defense", "DEF", _assemble_def_bundles),
+    ):
+        asm_x = assembler(CALIBRATION_SEASONS)
+        if asm_x.get("status") != "VOID":
+            bundles = bundles + asm_x["bundles"]
+            actual = actual + asm_x["actual"]
+            skipped = skipped + asm_x.get("skipped", [])
+            only_positions = only_positions + (pos,)
+        else:
+            skipped = skipped + [{"source": label, "reason": asm_x.get("reason"),
+                                  "detail": asm_x.get("skipped")}]
+
     cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
-                    only_positions=CALIBRATION_POSITIONS)
+                    only_positions=only_positions)
     # ── 4s: A DROPPED SEASON MUST LEAVE A TRACE. calibrate()'s dict is what
     # gets serialised, so the skip record is attached HERE, before save() —
     # the previous code assigned it to a variable the artifact never saw. An
