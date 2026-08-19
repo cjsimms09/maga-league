@@ -57,8 +57,26 @@ SEASONS = ("2023", "2024", "2025")
 POSITIONS = ("QB", "RB", "WR", "TE")
 
 
-def _legal(avail, positions, roster):
-    """The tournament's own legality view, reused rather than re-derived."""
+def _legal(avail, positions, roster, picks_left):
+    """THE CANDIDATE SET THE POLICY WAS ACTUALLY ALLOWED TO CHOOSE FROM —
+    mirroring `_legality_first`, not just `_eligible`.
+
+    ⚠️ THE FIRST CUT GOT THIS WRONG AND THE CONTROL CAUGHT IT (A, 08-19).
+    It scored `best` over the position-uncapped eligible pool in EVERY
+    round, including the late rounds where `_legality_first` FORCES a
+    required starter (an empty DEF/K disqualifies the roster). So the
+    oracle correctly took a forced kicker while the baseline credited a
+    300-point receiver, and the instrument reported ~200 points of regret
+    per pick in every round — a plausible, confident, wrong number. The
+    oracle's own regret came back 165.1/pick instead of 0, which is the
+    only reason this was noticed. A regret baseline must be reachable by
+    a legal roster or it is measuring the cost of the RULES, not of the
+    policy."""
+    missing = T._need_required(roster, positions, picks_left)
+    if missing and picks_left <= len(missing) + 1:
+        forced = T._eligible(avail, positions, roster, only=set(missing))
+        if forced:
+            return forced
     return T._eligible(avail, positions, roster)
 
 
@@ -94,7 +112,7 @@ def season_rows(hist, yr):
                                {pid: -pts(pid) for pid in avail})
         if bk:
             return bk
-        cands = _legal(avail, pos, roster)
+        cands = _legal(avail, pos, roster, left)
         return max(((pts(p), p) for p in cands), default=(None, None))[1]
 
     out = []
@@ -115,7 +133,7 @@ def season_rows(hist, yr):
             if chosen is None:
                 chosen = cory_real[i]
             chosen = str(chosen)
-            legal = _legal(avail, positions, roster)
+            legal = _legal(avail, positions, roster, left)
             best = max((pts(x) for x in legal), default=0.0)
             out.append({"season": yr, "round": rnd, "policy": policy,
                         "taken_pts": round(pts(chosen), 1),
