@@ -132,6 +132,12 @@ const STREAM = ST.streamability;
 const STREAM_TAX = process.env.STREAMTAX !== 'off';
 
 const startProb = (pos, held) => {
+  /* CORY'S SWITCH: "then I can also switch our roster spot on and off for all".
+   * OFF means the roster equation contributes NOTHING -- every body is worth its
+   * full surplus, nothing is capped, nothing is forced. It will draft a roster
+   * you cannot field. That is the point of looking at it: it shows what pure
+   * value says before any shaping. A DIAGNOSTIC, never a comparator. */
+  if (!ROSTER_ON) return 1;
   const row = W[pos];
   if (!row) return 0;
   const base = held < row.length ? row[held] : 0;
@@ -163,39 +169,113 @@ const startProb = (pos, held) => {
  * final picks come from. Men without a Draft Sharks line are EXCLUDED from that
  * arm rather than back-filled from the blend -- mixing the two inside one
  * ranking is the defect this toggle exists to let him see. */
+/* ── EVERY SOURCE GETS A VOTE ────────────────────────────────────────────────
+ * Cory: "can we actually do this with all sources, basically model can tell me
+ * what every source says to draft.. then I can also switch our roster spot on
+ * and off for all"
+ *
+ *   --source blend | ds | sleeper | own_v6 | fantasypros | cbs | espn | fftoday
+ *   --source all     runs every one and prints what each would draft
+ *   --roster off     turns the roster equation OFF for whichever arm is running
+ *
+ * Coverage inside Cory's picks, measured, because a source that cannot see a
+ * player cannot vote on him: within the top 150 by ADP every source is at 93%
+ * or better (sleeper 100, cbs/espn/draftsharks 99, fftoday 97, fantasypros 94,
+ * own_v6 93), so all of them can speak through his twelve picks. Deeper it
+ * thins -- at top-250 own_v6 is 83%.
+ *
+ * ⚠️ A NAMED SOURCE IS READ RAW, NOT CENTRED. The blend subtracts each source's
+ * per-position level offset before averaging, because mixing sources needs
+ * them on one scale. But "what does CBS say to draft" means CBS's own numbers,
+ * including its own positional bias -- Draft Sharks really is 25.6 points low
+ * on quarterbacks and 10.9 high on receivers, and centring that away would be
+ * me editorialising over the answer he asked for. The blend arm stays centred
+ * because there the offsets are correcting a real mixing problem.
+ *
+ * ⚠️ THE BAND IS DRAFT SHARKS' EITHER WAY. Nobody else publishes a per-player
+ * outcome range, so every arm wears DS's percentage on its own level -- except
+ * the ds arm, which uses DS's published floor/ceiling exactly (C7). A source
+ * without a DS band for a player gets floor = proj = ceiling and the adjuster
+ * cannot move him. */
+const NAMED_SOURCES = ['sleeper', 'own_v6', 'fantasypros', 'cbs', 'espn', 'fftoday'];
+const ALL_ARMS = ['blend', 'ds'].concat(NAMED_SOURCES);
 const SOURCE = (() => {
   const i = process.argv.indexOf('--source');
-  const v = i >= 0 ? process.argv[i + 1] : 'blend';
-  if (v !== 'blend' && v !== 'ds') throw new Error('--source must be blend or ds');
+  let v = i >= 0 ? process.argv[i + 1] : 'blend';
+  if (v === 'draftsharks') v = 'ds';
+  if (v !== 'all' && ALL_ARMS.indexOf(v) < 0) {
+    throw new Error('--source must be one of: all, ' + ALL_ARMS.join(', '));
+  }
   return v;
 })();
+/* Cory's other switch: the roster equation, on or off, for whichever arm runs.
+ * OFF means w = 1 for everybody and NO K/DEF fill -- a genuinely unshaped
+ * board, which is the thing worth looking at. It is a DIAGNOSTIC, not a
+ * comparator: it will draft a roster you cannot field, and that is the point. */
+const ROSTER_ON = process.env.ROSTER !== 'off' && !process.argv.includes('--roster-off');
 
-const pool = [];
-let noBand = 0, excludedNoDS = 0;
-BL.players.forEach(p => {
-  if (!POS.includes(p.position) || p.adp == null || p.proj == null) return;
-  if (SOURCE === 'ds' && p.ds_proj == null) { excludedNoDS++; return; }
-  const has = p.floor != null && p.ceiling != null;
-  if (!has) noBand++;
-  pool.push({
-    id: p.player_id, name: p.name, position: p.position, adp: p.adp, bye: p.bye,
-    /* the toggle: which projection drives the ranking. The band is scaled to
-     * whichever level is in play, so its PERCENTAGE is identical in both arms
-     * (Cory: "the same % apart from mean proj"). */
-    proj: SOURCE === 'ds' ? p.ds_proj : p.proj,
-    floor: has ? (SOURCE === 'ds' ? p.ds_proj * (p.floor / p.proj) : p.floor)
-               : (SOURCE === 'ds' ? p.ds_proj : p.proj),
-    ceiling: has ? (SOURCE === 'ds' ? p.ds_proj * (p.ceiling / p.proj) : p.ceiling)
-                 : (SOURCE === 'ds' ? p.ds_proj : p.proj),
-    banded: has,
-    injury_risk_pct: p.injury_risk_pct,
-    /* HIS band width, and it is divided by HIS OWN projection and by nothing
-     * else. No cohort denominator. */
-    band_width: p.proj > 0 && has ? (p.ceiling - p.floor) / p.proj : 0,
-    /* ADP noise for draining the room; a market property, not a band term */
-    sd: Math.max(4, p.adp * 0.18),
+const DS = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json'), 'utf8'));
+
+/* the per-source numbers live in the snapshot; the blend does not carry them */
+const SNAP = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'projection_snapshot_2026.json'), 'utf8'));
+if (!SNAP.controls_all_passed) throw new Error('the snapshot failed its controls — REFUSING');
+const snapById = {};
+SNAP.players.forEach(p => { snapById[String(p.player_id)] = p; });
+
+/* Draft Sharks' published rows, for the ds arm's band */
+const dsRaw = {};
+(DS.players || []).forEach(r => { if (r.sleeper_id != null) dsRaw[String(r.sleeper_id)] = r; });
+
+/* ONE pool builder for every arm (rule 11). The inline loop this replaces
+ * hard-coded the blend/ds fork in three ternaries and could not have served a
+ * named source without a fourth. */
+/* what does THIS arm think this man is worth? */
+function projFor(p, arm) {
+  if (arm === 'blend') return p.proj;
+  if (arm === 'ds') return p.ds_proj;
+  const sp = snapById[String(p.player_id)];
+  return sp && sp.proj ? sp.proj[arm] : null;   // raw, uncentred — see the note above
+}
+
+/* ONE pool builder, every arm (rule 11). The inline loop this replaces
+ * hard-coded the blend/ds fork in three ternaries and could not have served a
+ * named source without a fourth. */
+function buildPool(arm) {
+  const out = [];
+  let nb = 0, ex = 0;
+  BL.players.forEach(p => {
+    if (!POS.includes(p.position) || p.adp == null) return;
+    const proj = projFor(p, arm);
+    if (proj == null) { ex++; return; }        // this source has no opinion on him
+    const r = dsRaw[String(p.player_id)];
+    /* the band: Draft Sharks' PERCENTAGE on this arm's level -- or, on the ds
+     * arm itself, Draft Sharks' published floor/ceiling exactly (C7). */
+    let floor = proj, ceiling = proj, has = false;
+    if (p.floor != null && p.ceiling != null && p.proj > 0) {
+      has = true;
+      if (arm === 'ds' && r && r.floor_proj != null) {
+        floor = r.floor_proj; ceiling = r.ceil_proj;
+      } else {
+        floor = proj * (p.floor / p.proj);
+        ceiling = proj * (p.ceiling / p.proj);
+      }
+    } else { nb++; }
+    out.push({
+      id: p.player_id, name: p.name, position: p.position, adp: p.adp, bye: p.bye,
+      proj, floor, ceiling, banded: has,
+      injury_risk_pct: p.injury_risk_pct,
+      /* HIS band width, over HIS OWN projection and nothing else. No cohort. */
+      band_width: has && proj > 0 ? (ceiling - floor) / proj : 0,
+      /* ADP noise for draining the room; a market property, not a band term */
+      sd: Math.max(4, p.adp * 0.18),
+    });
   });
-});
+  return { pool: out, noBand: nb, excluded: ex };
+}
+
+let { pool, noBand, excluded: excludedNoDS } = buildPool(SOURCE === 'all' ? 'blend' : SOURCE);
 
 /* ── THE CEILING ADJUSTER — CORY'S KNOB, AS HE ACTUALLY SPECIFIED IT ─────────
  *
@@ -259,8 +339,6 @@ const TIE_UNTIL = 0.5;
  * scale with THE BLEND'S OWN per-position offsets, read out of its artifact
  * rather than recomputed here (rule 11: one derivation, reused). With no second
  * source they are a one-source row, and `keeper_single_source` says so. */
-const DS = JSON.parse(fs.readFileSync(
-  path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json'), 'utf8'));
 const DS_OFFSET = (BL.controls.C3_centering_is_per_position
   .median_offsets_vs_board_mean_by_position || {}).draftsharks || {};
 const dsById = {};
@@ -392,7 +470,9 @@ function runRoom(lean, hardFill) {
      * allowed to skip it drafts twelve quarterbacks and hands back a fake
      * improvement, which has happened twice on this project. */
     const must = unfilled(held);
-    const forcing = (SCHED.length - i) <= must;
+    /* with the roster equation off there is no K/DEF fill either -- a half-off
+     * switch would be a shaped board wearing an "off" label */
+    const forcing = ROSTER_ON && (SCHED.length - i) <= must;
     /* ⛔ THE FIRST VERSION LEFT 295 OF 300 ROOMS WITH AN EMPTY STARTING SLOT.
      * The gate excluded BAD positions (w = 0, or a full non-flex one) but never
      * REQUIRED a position that fills an empty slot, so on the last pick a 6th
@@ -513,6 +593,71 @@ function noCohortBands() {
        + 'property of a player. Anything else touching a band is the defect.' };
 }
 
+/* ── EVERY SOURCE'S OPINION, side by side ────────────────────────────────────
+ * Cory: "model can tell me what every source says to draft". One room shape,
+ * one seat, one adjuster — only the projection changes. Where they AGREE is
+ * where the pick is not really a judgement call; where they split is where his
+ * own read is worth the most. */
+if (SOURCE === 'all') {
+  const arms = ALL_ARMS.map(arm => {
+    const built = buildPool(arm);
+    if (built.pool.length < 50) return { arm, thin: built.pool.length };
+    pool = built.pool; noBand = built.noBand; excludedNoDS = built.excluded;
+    _s = 20260819;                       // identical rooms for every arm
+    const rs = [];
+    for (let i = 0; i < ROOMS; i++) rs.push(runRoom(LEAN, true));
+    const cnt = {};
+    POS.forEach(q => {
+      const k = PLAN.keep.filter(x => x.position === q).length;
+      cnt[q] = +(k + rs.reduce((a, r) => a + r.got.filter(g => g.position === q).length, 0) / rs.length).toFixed(2);
+    });
+    /* ⚠️ SOME SOURCES DO NOT PROJECT KICKERS OR DEFENCES AT ALL. Measured:
+     * own_v6 and fantasypros have ZERO of each, fftoday zero kickers. Their
+     * arms therefore CANNOT field a legal roster -- and in the table that shows
+     * up as a bare 0 in the K column, which reads like a preference. It is not
+     * a preference, it is an absence, and it has to say so. */
+    const missing = POS.filter(q => (STARTERS[q] || 0) > 0
+      && built.pool.filter(x => x.position === q).length === 0);
+    return { arm, pool: built.pool.length, roster: cnt, first: rs[0].got,
+      cannot_field: missing, illegal: rs.filter(r => r.empty_starting_slots > 0).length };
+  });
+
+  console.log(`WHAT EVERY SOURCE SAYS TO DRAFT — A = ${LEAN}, RAMP = ${RAMP}, `
+    + `roster equation ${ROSTER_ON ? 'ON' : 'OFF'}, ${ROOMS} rooms, identical in every arm\n`);
+  console.log('  ' + 'source'.padEnd(14) + 'pool'.padStart(6)
+    + POS.map(q => q.padStart(6)).join('') + '   roster (keepers included)');
+  arms.forEach(a => {
+    if (a.thin != null) { console.log('  ' + a.arm.padEnd(14) + String(a.thin).padStart(6) + '   — too thin to run'); return; }
+    console.log('  ' + a.arm.padEnd(14) + String(a.pool).padStart(6)
+      + POS.map(q => String(a.roster[q]).padStart(6)).join('')
+      + (a.cannot_field.length
+        ? '   ⛔ projects NO ' + a.cannot_field.join('/') + ' — cannot field a legal roster'
+        : ''));
+  });
+
+  console.log('\n  AND WHO EACH ONE TAKES AT YOUR PICKS (one shared room):\n');
+  const live = arms.filter(a => a.first);
+  const picks = SCHED.slice(0, 6);
+  console.log('  ' + 'pick'.padStart(5) + '  ' + live.map(a => a.arm.slice(0, 11).padEnd(13)).join(''));
+  picks.forEach((pk, i) => {
+    console.log('  ' + String(pk).padStart(5) + '  ' + live.map(a => {
+      const g = a.first[i];
+      return (g ? g.name.split(' ').slice(-1)[0].slice(0, 9) + ' ' + g.position : '—').padEnd(13);
+    }).join(''));
+  });
+  /* where they agree, the pick is not a judgement call */
+  console.log('\n  agreement at each pick (how many of the ' + live.length + ' arms take the SAME man):');
+  picks.forEach((pk, i) => {
+    const names = live.map(a => a.first[i] && a.first[i].name).filter(Boolean);
+    const tally = {};
+    names.forEach(n => { tally[n] = (tally[n] || 0) + 1; });
+    const best = Object.entries(tally).sort((x, y) => y[1] - x[1])[0] || ['—', 0];
+    console.log('   ' + String(pk).padStart(4) + '  ' + String(best[1]) + '/' + names.length
+      + '  ' + best[0] + (best[1] === names.length ? '   ← unanimous' : ''));
+  });
+  process.exit(0);
+}
+
 /* ── run ──────────────────────────────────────────────────────────────────── */
 const rooms = [];
 for (let i = 0; i < ROOMS; i++) rooms.push(runRoom(LEAN, true));
@@ -585,12 +730,33 @@ const ctl = {
   C1_no_cohort_statistic_touches_a_band: noCohortBands(),
   C2_known_positive_ceiling_can_move_a_pick: knownPositive(),
   C5_known_positive_injury_can_move_a_pick: durabilityKnownPositive(),
+  /* Cory: "does toggle also switch the proj ceilings and floors back to
+   * Draftsharks original" — this is that question, asserted rather than
+   * answered. Under --source ds the band must be Draft Sharks' PUBLISHED
+   * numbers EXACTLY, not a reconstruction that happens to agree. */
+  C7_ds_arm_uses_draftsharks_published_band_exactly: (() => {
+    if (SOURCE !== 'ds') return { ok: true, skipped: 'only meaningful on --source ds' };
+    let worst = 0, n = 0;
+    pool.forEach(x => {
+      const r = dsRaw[String(x.id)];
+      if (!r || r.floor_proj == null) return;
+      worst = Math.max(worst, Math.abs(x.floor - r.floor_proj), Math.abs(x.ceiling - r.ceil_proj));
+      n++;
+    });
+    return { ok: worst === 0, n, worst_difference: worst,
+      why: 'the first version reconstructed the band as ds_proj x (blend_floor / '
+         + 'blend_proj) — algebraically identical, and it agreed to within 0.29 '
+         + 'points. But the blend rounds to 0.1, so Gibbs\' published 370 came '
+         + 'back as 370.06. Toggling to Draft Sharks should show what Draft '
+         + 'Sharks published. Pinned at ZERO, not at a tolerance.' };
+  })(),
   C3_players_without_a_band_are_named_not_invented: {
     ok: true, pool: pool.length, without_a_draftsharks_band: noBand,
     treatment: 'floor = proj = ceiling, so LEAN cannot move them either way',
     why: 'an invented band is the exact thing Cory has been correcting' },
   C4_comparator_keeps_the_hard_K_DEF_fill: {
-    ok: rooms.every(r => r.empty_starting_slots === 0),
+    ok: !ROSTER_ON || rooms.every(r => r.empty_starting_slots === 0),
+    roster_equation: ROSTER_ON ? 'ON' : 'OFF — empty slots are EXPECTED and are the finding',
     rooms_with_an_empty_starting_slot: rooms.filter(r => r.empty_starting_slots > 0).length,
     why: 'a comparator allowed to skip the fill drafts twelve quarterbacks and '
        + 'returns a fake improvement — happened twice on this project' },
@@ -675,7 +841,8 @@ fs.writeFileSync(path.join(ROOT, 'draft', 'data', OUTNAME), JSON.stringify(doc, 
 /* ── print ────────────────────────────────────────────────────────────────── */
 console.log(`THE DRAFT MODEL — value early, normal roster, upside at the end`);
 console.log(`  source = ${SOURCE}   A = ${LEAN}   RAMP = ${RAMP}   ${ROOMS} rooms   pool ${pool.length}`
-  + (excludedNoDS ? `  (${excludedNoDS} excluded: no Draft Sharks line)` : `  (${noBand} with no DS band)`) + '\n');
+  + (excludedNoDS ? `  (${excludedNoDS} excluded: no ${SOURCE} projection)` : '')
+  + (noBand ? `  (${noBand} with no DS band)` : '') + (ROSTER_ON ? '' : '   ⚠ ROSTER EQUATION OFF') + '\n');
 Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK   ' : '  FAIL ') + k));
 
 console.log(`\n  P209  normal roster              ${P209 ? 'TRUE ' : 'FALSE'}`);
