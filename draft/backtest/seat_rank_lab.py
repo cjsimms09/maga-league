@@ -27,7 +27,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent            # draft/backtest
 DRAFT = HERE.parent
 ROOT = DRAFT.parent
+sys.path.insert(0, str(DRAFT / "tools"))
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(DRAFT))
 
 # THE OWNER ROSTERS COME FROM THE GRADING MODULE'S OWN CROSSWALK, NOT A SECOND
 # ONE (rule 11). `engine_seat_replay.json` carries `engine_roster` and NO
@@ -123,15 +125,21 @@ def controls(years, first):
         "got": ranks, "ok": ranks == list(range(1, 11))}
 
     # First-appearance: a 2024 rookie must fire, a long-tenured veteran must
-    # not. Both are looked up by NAME in the replay's own rosters, so this
-    # control breaks loudly if the store stops carrying them rather than
-    # quietly passing on an empty search.
+    # not.
+    #
+    # ⚠️ THE FIRST VERSION OF THIS CONTROL FAILED, AND ITS FAILURE WAS ITSELF
+    # THE FINDING. It looked both players up in the 2024 ENGINE rosters —
+    # Nabers came back `null` because the engine never drafted him in any 2024
+    # seat, which is the very blindness P126 is about. A control must not be
+    # routed through the population under test. Looked up in the league-wide
+    # name map instead, so it answers "does the flag work" and nothing else.
     want_rookie, want_vet = "Malik Nabers", "Derrick Henry"
-    got = {}
-    for s, seat in years[2024]["seats"].items() if 2024 in years else []:
-        for p in seat.get("engine_roster") or []:
-            if p.get("name") in (want_rookie, want_vet):
-                got[p["name"]] = first.get(str(p["player_id"]))
+    names = R.name_map()
+    by_name = {}
+    for pid, nm in names.items():
+        if nm in (want_rookie, want_vet):
+            by_name[nm] = str(pid)
+    got = {nm: first.get(pid) for nm, pid in by_name.items()}
     ok = (got.get(want_rookie) == 2024 and
           got.get(want_vet) is not None and got.get(want_vet) < 2024)
     out["first_appearance_known_positive"] = {
@@ -140,6 +148,22 @@ def controls(years, first):
         "ok": bool(ok),
         "why": "a 2024 rookie must be first-seen in 2024 and a veteran earlier; "
                "if this fails every point share below is the probe, not the data"}
+
+    # THE COUNTER'S OWN POSITIVE, and the headline is worthless without it.
+    # The engine side reports ZERO first-appearing players in 30 of 30 rosters.
+    # A counter that can never return non-zero prints exactly that. So run the
+    # SAME function on a roster built to contain one, and require it to fire.
+    probe_pid = next((p for p, s in first.items() if s == 2024), None)
+    n, pts, tot = share_first(
+        [{"player_id": probe_pid, "actual": 10.0},
+         {"player_id": next(p for p, s in first.items() if s <= 2021),
+          "actual": 90.0}], 2024, first)
+    out["counter_fires_on_a_known_first_appearing_roster"] = {
+        "got_players": n, "got_points": pts, "of_total": tot,
+        "ok": n == 1 and abs(pts - 10.0) < 1e-9,
+        "why": "share_first() is the function that reports the engine's zero; "
+               "a zero from a counter that has never returned a positive is a "
+               "bug report, not a measurement (rule 3e)"}
     return out
 
 
@@ -155,7 +179,6 @@ def main() -> int:
     first = first_seen(range(2021, max(seasons) + 1))
 
     ctl = controls(years, first)
-    all_ok = all(c["ok"] for c in ctl.values())
 
     per_season, pooled = {}, {a: [] for a in ARMS}
     for season in seasons:
@@ -185,6 +208,8 @@ def main() -> int:
                   for pid, rows in weekly.items()}
         picks, _keepers = R.season_draft(R.season_record(season))
         eng_n = eng_p = eng_t = own_n = own_p = own_t = 0.0
+        eng_line = own_line = 0.0
+        eng_sz, own_sz = [], []
         for s, d in y["seats"].items():
             n, p, t = share_first(d.get("engine_roster") or [], season, first)
             eng_n += n; eng_p += p; eng_t += t
@@ -195,6 +220,30 @@ def main() -> int:
                    and POS.get(str(pk["player_id"])) in ("QB", "RB", "WR", "TE")]
             n, p, t = share_first(own, season, first)
             own_n += n; own_p += p; own_t += t
+            eng_sz.append(len(d.get("engine_roster") or []))
+            own_sz.append(len(own))
+            eng_line += d["arms"]["optimal"]["tool_total"]
+            own_line += d["arms"]["optimal"]["owner_total"]
+
+        # ── THE DECOMPOSITION THAT SPLITS ONE NUMBER INTO TWO FAILURES ──
+        # A season total is (points ACQUIRED) x (share of them STARTED). Those
+        # are different defects with different owners, and -174 pooled them.
+        # `conversion` is lineup points over roster points: how much of what
+        # the roster holds ever reaches a starting slot.
+        row["decomposition"] = {
+            "engine": {"roster_points": round(eng_t, 1),
+                       "lineup_points": round(eng_line, 1),
+                       "conversion": round(eng_line / eng_t, 4) if eng_t else None,
+                       "mean_skill_roster": round(sum(eng_sz) / len(eng_sz), 2)},
+            "owner": {"roster_points": round(own_t, 1),
+                      "lineup_points": round(own_line, 1),
+                      "conversion": round(own_line / own_t, 4) if own_t else None,
+                      "mean_skill_roster": round(sum(own_sz) / len(own_sz), 2)},
+            "engine_roster_points_vs_owner": (round(eng_t / own_t - 1, 4)
+                                              if own_t else None),
+            "conversion_gap": (round(eng_line / eng_t - own_line / own_t, 4)
+                               if eng_t and own_t else None),
+        }
         row["first_appearing"] = {
             "engine": {"players": eng_n, "points": round(eng_p, 1),
                        "share_of_points": round(eng_p / eng_t, 4) if eng_t else None},
@@ -204,6 +253,17 @@ def main() -> int:
                                          if eng_t and own_t else None),
         }
         per_season[season] = row
+
+    # A CONVERSION ABOVE 1.0 WOULD MEAN A LINEUP SCORING MORE THAN THE ROSTER
+    # THAT FIELDS IT — impossible, and the one arithmetic slip that would make
+    # the whole decomposition read backwards. Asserted rather than eyeballed.
+    for season in seasons:
+        f = per_season[season]["decomposition"]
+        for side in ("engine", "owner"):
+            c = f[side]["conversion"]
+            ctl["conversion_%s_%d_in_unit_interval" % (side, season)] = {
+                "got": c, "ok": c is not None and 0.0 < c <= 1.0}
+    all_ok = all(c["ok"] for c in ctl.values())
 
     report = {
         "_territory": "TERRITORY: A — draft/backtest/seat_rank_lab.py",
@@ -245,6 +305,26 @@ def main() -> int:
             print("     %d  mean rank %.2f   top-3 %d/%d   ranks %s"
                   % (season, a["mean_rank"], a["top3_n"], a["top3_of"],
                      " ".join(str(x["rank"]) for x in a["seats"])))
+
+    print("\n  ── decomposition: points ACQUIRED x share of them STARTED ──")
+    print("     %-6s %-30s %-30s %s"
+          % ("", "engine  roster/lineup conv", "owner   roster/lineup conv",
+             "roster vs owner · conv gap"))
+    for season in seasons:
+        f = per_season[season]["decomposition"]
+        e, o = f["engine"], f["owner"]
+        print("     %-6d %8.0f/%-8.0f %.3f      %8.0f/%-8.0f %.3f      "
+              "%+.1f%%   %+.3f"
+              % (season, e["roster_points"], e["lineup_points"], e["conversion"],
+                 o["roster_points"], o["lineup_points"], o["conversion"],
+                 100 * f["engine_roster_points_vs_owner"], f["conversion_gap"]))
+    print("     skill roster sizes are like-for-like (engine %s, owner %s) — "
+          "checked, because a bigger bench inflates roster points and "
+          "mechanically depresses conversion"
+          % ([per_season[s]["decomposition"]["engine"]["mean_skill_roster"]
+              for s in seasons],
+             [per_season[s]["decomposition"]["owner"]["mean_skill_roster"]
+              for s in seasons]))
 
     print("\n  ── first-appearing players (no weekly points in ANY prior "
           "season) — the population a walk-forward projection cannot price ──")
