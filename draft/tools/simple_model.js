@@ -195,6 +195,31 @@ const CURVE_ARM = process.env.CURVE || 'cory';
 const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
 const VALUE_ARM = process.env.VALUE || 'surplus';   // 'surplus' | 'vona'
 
+/* ── P199/P200 — VONA ACROSS POSITIONS AT THE FLEX (Cory's observation) ──────
+ * "vona could apply between positions if vying for same spot ie flex"
+ *
+ * The reason VONA left the value term is that it is not comparable across
+ * positions. The FLEX is the exception: RB, WR and TE compete for one slot
+ * against one alternative, so there they share a denominator.
+ *
+ * A body is worth his surplus in whichever slot he actually fills, weighted by
+ * how often he fills each. f is MEASURED (P175, 535 team-weeks). */
+const FX = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'flex_exposure.json'), 'utf8'));
+if (!FX.controls_all_passed) throw new Error('flex_exposure failed its controls — REFUSING');
+const FSHARE = FX.f;
+const FLEXVONA = process.env.FLEXVONA === 'on';
+/* declared: raw max is TE 130.4; the empirical flex owner is WR 124.8. Both run,
+ * and the verdict must agree under each (the TE oddity is open from P172). */
+const FLEX_WIRE = process.env.FLEXWIRE === 'wr' ? WAIVER.WR
+  : Math.max(WAIVER.RB, WAIVER.WR, WAIVER.TE);
+const flexShare = (pos, held) => {
+  if (!FLEXVONA) return 0;
+  const row = FSHARE[pos];
+  if (!row) return 0;
+  const v = row[held];                    // held bodies -> he is body held+1
+  return v == null ? 0 : v;
+};
+
 const RULES = process.env.RULES !== 'off';   // Cory's two rulings, on by default
 function needOf(pos, held, flexOwner, cand) {
   /* CORY'S RULING, 2026-08-19: "same problem with K and def, once you draft 1
@@ -300,7 +325,10 @@ function runRoom(a) {
       const vona = later == null ? here : Math.max(0, here - later);
       /* surplus = what he is worth AT ALL, against a body I could have free.
        * VONA answers "when", not "how much" (P196). */
-      const surplus = Math.max(0, here - (WAIVER[x.position] || 0));
+      const own = Math.max(0, here - (WAIVER[x.position] || 0));
+      const fsh = flexShare(x.position, held[x.position] || 0);
+      const flexS = Math.max(0, here - FLEX_WIRE);
+      const surplus = (1 - fsh) * own + fsh * flexS;
       const valueTerm = VALUE_ARM === 'vona' ? vona : surplus;
       const v = valueTerm * needOf(x.position, held[x.position] || 0, fo, x);
       if (v > bestV) { bestV = v; best = x; }
