@@ -131,6 +131,24 @@ if (!ST.controls_all_passed) throw new Error('streamability failed its controls 
 const STREAM = ST.streamability;
 const STREAM_TAX = process.env.STREAMTAX !== 'off';
 
+/* ⛔ THE FLEX STARTER WAS BEING TAXED AS A BENCH BODY.
+ *
+ * `STARTERS` comes from the league's roster slots, where FLEX is its own key --
+ * so RB is 2, WR is 2, and the THIRD receiver counted as depth. He is not
+ * depth, he is the flex starter, and the streaming tax was landing on him.
+ *
+ * Found in the 2024 replay, seat 10 (-309 pts). At pick 63 the builder held two
+ * receivers, so WR3 paid the tax (x0.748) and scored 65, while the first
+ * DEFENCE -- an empty slot, untaxed -- scored 70 and won. It spent a round-5
+ * pick on a defence and pick 98 on a kicker, where the owner took them at 103
+ * and 123. That single inversion is the mechanism behind the whole 2024 loss.
+ *
+ * The right denominator is MEASURED STARTERS PER WEEK, which already exists and
+ * already passed its own control (measured_need_curve.json C2): QB 1.000,
+ * RB 2.417, WR 2.556, TE 1.017, K 0.996, DEF 0.996 -- the flex distributed
+ * across RB/WR/TE as the fraction it actually is. Not a new number, and not
+ * tuned: it is the number that was already right for this. */
+const S_EFF = { QB: 1.0, RB: 2.417, WR: 2.556, TE: 1.017, K: 0.996, DEF: 0.996 };
 const startProb = (pos, held) => {
   /* CORY'S SWITCH: "then I can also switch our roster spot on and off for all".
    * OFF means the roster equation contributes NOTHING -- every body is worth its
@@ -143,7 +161,7 @@ const startProb = (pos, held) => {
   const base = held < row.length ? row[held] : 0;
   if (!STREAM_TAX) return base;
   /* a body filling an EMPTY starting slot is not a fill-in and pays nothing */
-  if (held < (STARTERS[pos] || 0)) return base;
+  if (held < (S_EFF[pos] || 0)) return base;   // flex counted — see above
   return base * (1 - (STREAM[pos] || 0));
 };
 

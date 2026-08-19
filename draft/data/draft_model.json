@@ -11,11 +11,12 @@
  "players_excluded_for_having_no_draftsharks_line": 0,
  "controls": {
   "C1_no_cohort_statistic_touches_a_band": {
-   "ok": true,
+   "ok": false,
    "banned_cohort_tables_found": [],
    "per_position_tables_present": [
     "WAIVER",
-    "W"
+    "W",
+    "S_EFF"
    ],
    "permitted": [
     "WAIVER",
@@ -57,7 +58,7 @@
    "why": "a comparator allowed to skip the fill drafts twelve quarterbacks and returns a fake improvement — happened twice on this project"
   }
  },
- "controls_all_passed": true,
+ "controls_all_passed": false,
  "predictions": {
   "P209_normal_roster": {
    "pass": false,
@@ -90,17 +91,17 @@
    }
   },
   "P212_durability_moves_the_right_picks": {
-   "pass": true,
+   "pass": false,
    "mean_injury_risk_starting_core": {
-    "on": 41.593333333333334,
-    "off": 45.403888888888886
+    "on": 41.24444444444445,
+    "off": 44.06722222222222
    },
    "mean_injury_risk_bench": {
     "on": 26.993333333333332,
-    "off": 27.25
+    "off": 27.226666666666667
    },
-   "starter_drop": 3.81,
-   "bench_drop": 0.26,
+   "starter_drop": 2.82,
+   "bench_drop": 0.23,
    "bar": "starters fall >= 3 points AND bench falls less than starters"
   },
   "P214_a_second_QB_only_when_the_first_is_weak": {
@@ -110,7 +111,7 @@
    "rooms_taking_one": 265,
    "mean_QB1_when_only_one_taken": 362.5,
    "mean_QB1_when_a_second_is_taken": 362.5,
-   "gap": 0,
+   "gap": 0.1,
    "bar": "QB1 at least 10 points worse in the rooms that hedge"
   },
   "P213_baseline_kills_the_second_QB": {
@@ -140,11 +141,11 @@
    "band_width": 0.4809619238476954,
    "banded": true,
    "injury_risk_pct": 45,
-   "w": 0.62,
+   "w": 0.9,
    "band_used": 234.6,
-   "durability": 0.903,
+   "durability": 0.859,
    "baseline": 78.4,
-   "value": 87.4
+   "value": 120.7
   },
   {
    "pick": 48,
@@ -191,11 +192,11 @@
    "band_width": 0.7311411992263057,
    "banded": true,
    "injury_risk_pct": 67,
-   "w": 0.748,
+   "w": 1,
    "band_used": 192.6,
-   "durability": 0.825,
+   "durability": 0.766,
    "baseline": 124.8,
-   "value": 41.9
+   "value": 52
   },
   {
    "pick": 73,
