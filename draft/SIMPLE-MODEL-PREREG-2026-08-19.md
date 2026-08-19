@@ -98,3 +98,59 @@ embarrass me.**
 untouched. **`no_fit_guard`: `a` is an input Cory sets, not a parameter I fit,
 and no arm here is selected by moving it.** Whether any of this ships before
 Saturday is Cory's call and I will hand him P188 and P189 as the evidence.
+
+---
+
+# ADDENDUM — P190, committed after P188 failed and before the arm is run
+
+**P188 FALSE at `a = 0`, and it failed the way it was designed to detect.**
+
+| roster | three-term model | Cory |
+|---|---|---|
+| QB | 2.25 | 1 |
+| RB | **4.06** ✅ | 4-5 |
+| WR | 3.41 | 4-5 |
+| TE | 2.77 | — |
+| K | 1.75 | 1 |
+| **DEF** | **0.76, minimum 0** | 1 |
+
+**A minimum of 0 at DEF means some rosters finish with NO DEFENCE — an illegal
+lineup, not a shape preference.** P186 and P187 passed, so the adjuster and the
+projection swap are sound; what broke is the roster half.
+
+## WHAT I SIMPLIFIED AWAY, AND BOTH ARE CORY'S OWN RULINGS
+
+**Neither is a term I invented, and both were preregistered and graded before
+today's rewrite:**
+
+1. **K/DEF need = 0 once you hold one.** Cory, 08-19: *"same problem with K and
+   def, once you draft 1 the need should be 0."* Graded as **P149** and again in
+   **P177**, where it put K and DEF on exactly **1.00 with sd 0.00** in all 300
+   rooms.
+2. **The reservation gate.** Cory, 08-19: *"if value is best at RB and WR each
+   round then we should take them until there are 4 picks remaining and we still
+   need QB, TE, DEF, K… then RB and WR need goes to 0… so picks remaining should
+   have a role."* Built and graded as **P162**. It is what makes an empty
+   starting slot impossible.
+
+**"Simplify the model" meant drop MY scaffolding — the ceiling weight, tier,
+risk, bye, stack, the position rescale, the lateness ramp. It did not mean drop
+Cory's rulings, and I dropped two.**
+
+**P190 — the three terms PLUS Cory's two existing rules meet his spec.** Same
+300 rooms, `a = 0`, on the ROSTER:
+
+- **(a)** DEF = **1.00** and K = **1.00**, and **no room finishes with an empty
+  starting slot** (minimum 1 at every required position)
+- **(b)** RB in **4-6**
+- **(c)** QB **still above 1.30** — ⭐ **because neither of Cory's rules touches
+  quarterback, and if adding them "fixes" QB then something else moved and I
+  need to find out what. This bar is here to catch me, not to pass.**
+
+**FALSE if any of the three misses.**
+
+**This is the second and last arm.** If (a) or (b) fails, the honest report is
+that the simple model cannot hold the shape and I say so.
+
+**Still REPORT ONLY. `no_fit_guard`: nothing here is selected by moving a
+constant, and both additions are rulings Cory made before this thread existed.**
