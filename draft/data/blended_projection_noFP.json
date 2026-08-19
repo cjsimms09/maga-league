@@ -24,20 +24,65 @@
   "C2_ordering_by_the_blend_differs_from_any_single_source": {
    "ok": true,
    "top100_identical_to_draftsharks": 6,
-   "top100_identical_to_board_mean": 17,
+   "top100_identical_to_board_mean": 12,
    "why": "a blend that reproduces one source exactly is not a blend"
   },
-  "C3_centering_applied": {
+  "C3_centering_is_per_position": {
    "ok": true,
-   "median_offsets_vs_board_mean": {
-    "sleeper": 0,
-    "own_v6": -15.319999999999999,
-    "cbs": 12.61,
-    "espn": 0.6400000000000006,
-    "fftoday": -1.8300000000000125,
-    "draftsharks": 8.050000000000011
+   "median_offsets_vs_board_mean_by_position": {
+    "sleeper": {
+     "RB": 0,
+     "WR": 0,
+     "QB": 0,
+     "TE": 0,
+     "DEF": 0,
+     "K": -27.099999999999994,
+     "_global": 0
+    },
+    "own_v6": {
+     "RB": -17.150000000000002,
+     "WR": -22.970000000000006,
+     "QB": -17.93,
+     "TE": -2.95,
+     "_global": -15.319999999999999
+    },
+    "cbs": {
+     "RB": 11.449999999999989,
+     "WR": 12.129999999999995,
+     "QB": -0.07999999999998408,
+     "TE": 13.129999999999995,
+     "DEF": 21.700000000000003,
+     "K": 18.480000000000004,
+     "_global": 12.61
+    },
+    "espn": {
+     "RB": 2.030000000000001,
+     "WR": -2.8000000000000007,
+     "QB": -2.2999999999999545,
+     "TE": -3.75,
+     "DEF": 11,
+     "K": 14.969999999999999,
+     "_global": 0.6400000000000006
+    },
+    "fftoday": {
+     "RB": 0.3999999999999986,
+     "WR": -2.730000000000018,
+     "QB": -1.839999999999975,
+     "TE": -3.3999999999999915,
+     "DEF": 0,
+     "_global": -1.8300000000000125
+    },
+    "draftsharks": {
+     "RB": 6.680000000000007,
+     "WR": 10.930000000000007,
+     "QB": -25.600000000000023,
+     "TE": 4.030000000000001,
+     "DEF": 11,
+     "K": 25.569999999999993,
+     "_global": 8.050000000000011
+    }
    },
-   "why": "own_v6 runs a median 15.3 low on 80% of players (register 107); averaging it raw drags every blended number down. A level offset is not an opinion, so it is removed before averaging."
+   "why": "a single GLOBAL offset was wrong: Draft Sharks runs 25.6 points LOW on quarterbacks and 10.9 HIGH on receivers, a 36.5-point spread, so one number pushed QBs the wrong way by ~34 and distorted the position balance of the whole blend"
   },
   "C4_coverage_reported": {
    "ok": true,
@@ -57,7 +102,7 @@
    "position": "RB",
    "adp": 1,
    "bye": 6,
-   "proj": 316.5,
+   "proj": 316.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -67,8 +112,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 256.6,
-   "ceiling": 363.7,
+   "floor": 256.7,
+   "ceiling": 363.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 54,
    "ds_proj": 322,
@@ -80,7 +125,7 @@
    "position": "RB",
    "adp": 2,
    "bye": 11,
-   "proj": 306.3,
+   "proj": 306.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -90,8 +135,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 260,
-   "ceiling": 358.4,
+   "floor": 260.1,
+   "ceiling": 358.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 25,
    "ds_proj": 311,
@@ -103,7 +148,7 @@
    "position": "RB",
    "adp": 4,
    "bye": 8,
-   "proj": 272,
+   "proj": 272.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -113,8 +158,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 225.5,
-   "ceiling": 336.9,
+   "floor": 225.7,
+   "ceiling": 337.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 78,
    "ds_proj": 293,
@@ -126,7 +171,7 @@
    "position": "WR",
    "adp": 3,
    "bye": 11,
-   "proj": 281.8,
+   "proj": 283.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -136,8 +181,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 211.6,
-   "ceiling": 312.5,
+   "floor": 212.8,
+   "ceiling": 314.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 51,
    "ds_proj": 293,
@@ -149,7 +194,7 @@
    "position": "RB",
    "adp": 5.9,
    "bye": 13,
-   "proj": 271.1,
+   "proj": 271.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -159,8 +204,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 230,
-   "ceiling": 330.8,
+   "floor": 230.1,
+   "ceiling": 330.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 277,
@@ -172,7 +217,7 @@
    "position": "WR",
    "adp": 5.2,
    "bye": 11,
-   "proj": 255.1,
+   "proj": 256.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -182,8 +227,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 232.7,
-   "ceiling": 303.8,
+   "floor": 234.2,
+   "ceiling": 305.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 262,
@@ -195,7 +240,7 @@
    "position": "RB",
    "adp": 8.1,
    "bye": 7,
-   "proj": 250.3,
+   "proj": 250.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -205,8 +250,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 217.4,
-   "ceiling": 307.8,
+   "floor": 217.5,
+   "ceiling": 308,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 274,
@@ -218,7 +263,7 @@
    "position": "RB",
    "adp": 12.1,
    "bye": 6,
-   "proj": 243.5,
+   "proj": 243.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -228,8 +273,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 212,
-   "ceiling": 314.5,
+   "floor": 212.1,
+   "ceiling": 314.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 68,
    "ds_proj": 240,
@@ -241,7 +286,7 @@
    "position": "WR",
    "adp": 6.9,
    "bye": 6,
-   "proj": 251.2,
+   "proj": 252.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -251,8 +296,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 227.9,
-   "ceiling": 283.2,
+   "floor": 229.4,
+   "ceiling": 285,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 259,
@@ -264,7 +309,7 @@
    "position": "RB",
    "adp": 9.3,
    "bye": 13,
-   "proj": 238.8,
+   "proj": 239,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -274,8 +319,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 207.8,
-   "ceiling": 300.8,
+   "floor": 208,
+   "ceiling": 301,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 262,
@@ -287,7 +332,7 @@
    "position": "RB",
    "adp": 13.8,
    "bye": 6,
-   "proj": 236.6,
+   "proj": 236.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -297,8 +342,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 200.7,
-   "ceiling": 314.5,
+   "floor": 200.8,
+   "ceiling": 314.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 45,
    "ds_proj": 237,
@@ -310,7 +355,7 @@
    "position": "RB",
    "adp": 12.9,
    "bye": 10,
-   "proj": 232.5,
+   "proj": 232.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -320,8 +365,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 202.5,
-   "ceiling": 320.6,
+   "floor": 202.6,
+   "ceiling": 320.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 248,
@@ -333,7 +378,7 @@
    "position": "QB",
    "adp": 17,
    "bye": 7,
-   "proj": 404.7,
+   "proj": 413.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -343,8 +388,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 327.8,
-   "ceiling": 469.8,
+   "floor": 334.8,
+   "ceiling": 479.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 379,
@@ -356,7 +401,7 @@
    "position": "TE",
    "adp": 18.8,
    "bye": 13,
-   "proj": 191.5,
+   "proj": 191,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -366,8 +411,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 174.1,
-   "ceiling": 231.8,
+   "floor": 173.7,
+   "ceiling": 231.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 81,
    "ds_proj": 209,
@@ -379,7 +424,7 @@
    "position": "WR",
    "adp": 16.1,
    "bye": 11,
-   "proj": 212.8,
+   "proj": 214.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -389,8 +434,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 196,
-   "ceiling": 254.8,
+   "floor": 197.5,
+   "ceiling": 256.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 73,
    "ds_proj": 228,
@@ -402,7 +447,7 @@
    "position": "RB",
    "adp": 15.2,
    "bye": 7,
-   "proj": 216.8,
+   "proj": 217,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -412,8 +457,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 188.8,
-   "ceiling": 308.4,
+   "floor": 188.9,
+   "ceiling": 308.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 73,
    "ds_proj": 232,
@@ -425,7 +470,7 @@
    "position": "TE",
    "adp": 19.8,
    "bye": 14,
-   "proj": 199.4,
+   "proj": 198.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -435,8 +480,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 185.5,
-   "ceiling": 239.1,
+   "floor": 185.1,
+   "ceiling": 238.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 46,
    "ds_proj": 201,
@@ -448,7 +493,7 @@
    "position": "WR",
    "adp": 10.1,
    "bye": 14,
-   "proj": 220.1,
+   "proj": 221.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -458,8 +503,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 190.9,
-   "ceiling": 263.4,
+   "floor": 192.3,
+   "ceiling": 265.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 44,
    "ds_proj": 249,
@@ -471,7 +516,7 @@
    "position": "RB",
    "adp": 26.1,
    "bye": 11,
-   "proj": 213.5,
+   "proj": 213.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -481,8 +526,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 157.8,
-   "ceiling": 264.6,
+   "floor": 157.9,
+   "ceiling": 264.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 67,
    "ds_proj": 234,
@@ -494,7 +539,7 @@
    "position": "RB",
    "adp": 23.1,
    "bye": 14,
-   "proj": 191.3,
+   "proj": 191.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -504,8 +549,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 168.1,
-   "ceiling": 277.5,
+   "floor": 168.2,
+   "ceiling": 277.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 215,
@@ -517,7 +562,7 @@
    "position": "WR",
    "adp": 10.8,
    "bye": 6,
-   "proj": 213.7,
+   "proj": 215.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -527,8 +572,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 181.8,
-   "ceiling": 277.6,
+   "floor": 183.2,
+   "ceiling": 279.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 241,
@@ -540,7 +585,7 @@
    "position": "RB",
    "adp": 29.8,
    "bye": 13,
-   "proj": 209.1,
+   "proj": 209.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -550,8 +595,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 177.4,
-   "ceiling": 265.2,
+   "floor": 177.5,
+   "ceiling": 265.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 43,
    "ds_proj": 224,
@@ -563,7 +608,7 @@
    "position": "RB",
    "adp": 24.5,
    "bye": 11,
-   "proj": 217.4,
+   "proj": 217.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -573,8 +618,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 193.3,
-   "ceiling": 282.5,
+   "floor": 193.4,
+   "ceiling": 282.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 52,
    "ds_proj": 217,
@@ -586,7 +631,7 @@
    "position": "WR",
    "adp": 27.3,
    "bye": 5,
-   "proj": 204.3,
+   "proj": 205.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -596,8 +641,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 155,
-   "ceiling": 247.1,
+   "floor": 156.2,
+   "ceiling": 249.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 74,
    "ds_proj": 224,
@@ -609,7 +654,7 @@
    "position": "RB",
    "adp": 28.8,
    "bye": 14,
-   "proj": 208,
+   "proj": 208.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -619,8 +664,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 181,
-   "ceiling": 264,
+   "floor": 181.1,
+   "ceiling": 264.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 43,
    "ds_proj": 223,
@@ -632,7 +677,7 @@
    "position": "WR",
    "adp": 18.1,
    "bye": 11,
-   "proj": 205.7,
+   "proj": 207.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -642,8 +687,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 172.7,
-   "ceiling": 261.8,
+   "floor": 174,
+   "ceiling": 263.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 61,
    "ds_proj": 224,
@@ -655,7 +700,7 @@
    "position": "WR",
    "adp": 21.8,
    "bye": 14,
-   "proj": 209.7,
+   "proj": 211.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -665,8 +710,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 186.7,
-   "ceiling": 262.3,
+   "floor": 188.1,
+   "ceiling": 264.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 219,
@@ -678,7 +723,7 @@
    "position": "RB",
    "adp": 32.6,
    "bye": 8,
-   "proj": 195.7,
+   "proj": 195.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -688,8 +733,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 160,
-   "ceiling": 264.1,
+   "floor": 160.1,
+   "ceiling": 264.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 72,
    "ds_proj": 203,
@@ -701,7 +746,7 @@
    "position": "WR",
    "adp": 21,
    "bye": 8,
-   "proj": 204.2,
+   "proj": 205.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -711,8 +756,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 178,
-   "ceiling": 249.4,
+   "floor": 179.4,
+   "ceiling": 251.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 49,
    "ds_proj": 226,
@@ -724,7 +769,7 @@
    "position": "WR",
    "adp": 25.3,
    "bye": 8,
-   "proj": 202.7,
+   "proj": 204.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -734,8 +779,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 170,
-   "ceiling": 243,
+   "floor": 171.3,
+   "ceiling": 244.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 75,
    "ds_proj": 211,
@@ -747,7 +792,7 @@
    "position": "RB",
    "adp": 38,
    "bye": 8,
-   "proj": 198.4,
+   "proj": 198.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -757,8 +802,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 180.3,
-   "ceiling": 275.7,
+   "floor": 180.4,
+   "ceiling": 275.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 45,
    "ds_proj": 208,
@@ -770,7 +815,7 @@
    "position": "RB",
    "adp": 47.3,
    "bye": 10,
-   "proj": 196.5,
+   "proj": 196.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -780,8 +825,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 167.1,
-   "ceiling": 260.1,
+   "floor": 167.2,
+   "ceiling": 260.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 207,
@@ -793,7 +838,7 @@
    "position": "TE",
    "adp": 39.3,
    "bye": 10,
-   "proj": 165.6,
+   "proj": 165.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -803,8 +848,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 136.1,
-   "ceiling": 199.2,
+   "floor": 135.7,
+   "ceiling": 198.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 60,
    "ds_proj": 197,
@@ -816,7 +861,7 @@
    "position": "RB",
    "adp": 43.3,
    "bye": 10,
-   "proj": 187.8,
+   "proj": 187.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -826,8 +871,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 163.1,
-   "ceiling": 265.9,
+   "floor": 163.2,
+   "ceiling": 266.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 63,
    "ds_proj": 190,
@@ -839,7 +884,7 @@
    "position": "WR",
    "adp": 34.2,
    "bye": 13,
-   "proj": 194.8,
+   "proj": 196.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -849,8 +894,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 173.3,
-   "ceiling": 227.6,
+   "floor": 174.7,
+   "ceiling": 229.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 208,
@@ -862,7 +907,7 @@
    "position": "QB",
    "adp": 33.5,
    "bye": 13,
-   "proj": 361.2,
+   "proj": 369.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -872,8 +917,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 317.7,
-   "ceiling": 465.4,
+   "floor": 325.3,
+   "ceiling": 476.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 340,
@@ -885,7 +930,7 @@
    "position": "WR",
    "adp": 28,
    "bye": 8,
-   "proj": 177.2,
+   "proj": 178.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -895,8 +940,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 138.9,
-   "ceiling": 253.7,
+   "floor": 140.1,
+   "ceiling": 256,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 199,
@@ -908,7 +953,7 @@
    "position": "RB",
    "adp": 41.2,
    "bye": 11,
-   "proj": 184.1,
+   "proj": 184.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -918,8 +963,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 166.5,
-   "ceiling": 267.4,
+   "floor": 166.6,
+   "ceiling": 267.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 48,
    "ds_proj": 188,
@@ -931,7 +976,7 @@
    "position": "QB",
    "adp": 48,
    "bye": 11,
-   "proj": 356.9,
+   "proj": 365.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -941,8 +986,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 310.8,
-   "ceiling": 449.3,
+   "floor": 318.3,
+   "ceiling": 460.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 340,
@@ -954,7 +999,7 @@
    "position": "WR",
    "adp": 42,
    "bye": 13,
-   "proj": 176.3,
+   "proj": 177.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -964,8 +1009,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 158.4,
-   "ceiling": 216.6,
+   "floor": 159.9,
+   "ceiling": 218.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 38,
    "ds_proj": 197,
@@ -977,7 +1022,7 @@
    "position": "WR",
    "adp": 30.8,
    "bye": 10,
-   "proj": 187.6,
+   "proj": 189.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -987,8 +1032,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 172.6,
-   "ceiling": 235.7,
+   "floor": 174,
+   "ceiling": 237.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 50,
    "ds_proj": 199,
@@ -1000,7 +1045,7 @@
    "position": "WR",
    "adp": 37,
    "bye": 5,
-   "proj": 184.1,
+   "proj": 185.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1010,8 +1055,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 164.2,
-   "ceiling": 238.8,
+   "floor": 165.6,
+   "ceiling": 240.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 185,
@@ -1023,7 +1068,7 @@
    "position": "TE",
    "adp": 46.4,
    "bye": 13,
-   "proj": 160.6,
+   "proj": 160.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1033,8 +1078,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 135,
-   "ceiling": 190.6,
+   "floor": 134.6,
+   "ceiling": 190.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 182,
@@ -1046,7 +1091,7 @@
    "position": "WR",
    "adp": 36,
    "bye": 10,
-   "proj": 183.9,
+   "proj": 185.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1056,8 +1101,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 155.9,
-   "ceiling": 245.9,
+   "floor": 157.3,
+   "ceiling": 248.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 184,
@@ -1069,7 +1114,7 @@
    "position": "QB",
    "adp": 50.5,
    "bye": 6,
-   "proj": 344.8,
+   "proj": 353.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1079,8 +1124,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 296.8,
-   "ceiling": 430.8,
+   "floor": 304.2,
+   "ceiling": 441.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 337,
@@ -1092,7 +1137,7 @@
    "position": "RB",
    "adp": 53.8,
    "bye": 7,
-   "proj": 163.1,
+   "proj": 163.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1102,8 +1147,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 140.1,
-   "ceiling": 271.5,
+   "floor": 140.2,
+   "ceiling": 271.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 43,
    "ds_proj": 170,
@@ -1115,7 +1160,7 @@
    "position": "WR",
    "adp": 35.3,
    "bye": 6,
-   "proj": 186.3,
+   "proj": 187.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1125,8 +1170,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 165.4,
-   "ceiling": 230.9,
+   "floor": 166.8,
+   "ceiling": 232.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 66,
    "ds_proj": 205,
@@ -1138,7 +1183,7 @@
    "position": "RB",
    "adp": 45.5,
    "bye": 8,
-   "proj": 176.5,
+   "proj": 176.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1148,8 +1193,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 151.4,
-   "ceiling": 249,
+   "floor": 151.5,
+   "ceiling": 249.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 85,
    "ds_proj": 197,
@@ -1161,7 +1206,7 @@
    "position": "WR",
    "adp": 56.2,
    "bye": 6,
-   "proj": 180,
+   "proj": 181.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1171,8 +1216,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 157.8,
-   "ceiling": 239.3,
+   "floor": 159.2,
+   "ceiling": 241.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 179,
@@ -1184,7 +1229,7 @@
    "position": "QB",
    "adp": 58.9,
    "bye": 10,
-   "proj": 349.9,
+   "proj": 358.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1194,8 +1239,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 304.5,
-   "ceiling": 454.6,
+   "floor": 312,
+   "ceiling": 465.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 331,
@@ -1207,7 +1252,7 @@
    "position": "WR",
    "adp": 40.1,
    "bye": 7,
-   "proj": 179.4,
+   "proj": 181,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1217,8 +1262,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 157.8,
-   "ceiling": 240.6,
+   "floor": 159.2,
+   "ceiling": 242.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 182,
@@ -1230,7 +1275,7 @@
    "position": "WR",
    "adp": 54.7,
    "bye": 11,
-   "proj": 178.6,
+   "proj": 180.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1240,8 +1285,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 146.2,
-   "ceiling": 224.9,
+   "floor": 147.5,
+   "ceiling": 226.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 49,
    "ds_proj": 193,
@@ -1253,7 +1298,7 @@
    "position": "TE",
    "adp": 71.4,
    "bye": 11,
-   "proj": 147.7,
+   "proj": 147.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1263,8 +1308,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 135.7,
-   "ceiling": 193.6,
+   "floor": 135.3,
+   "ceiling": 193,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 53,
    "ds_proj": 148,
@@ -1276,7 +1321,7 @@
    "position": "TE",
    "adp": 67,
    "bye": 6,
-   "proj": 142.6,
+   "proj": 142.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1286,8 +1331,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 126.6,
-   "ceiling": 185.4,
+   "floor": 126.1,
+   "ceiling": 184.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 60,
    "ds_proj": 160,
@@ -1299,7 +1344,7 @@
    "position": "TE",
    "adp": 64.5,
    "bye": 11,
-   "proj": 150.3,
+   "proj": 149.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1309,8 +1354,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 134.2,
-   "ceiling": 191.3,
+   "floor": 133.7,
+   "ceiling": 190.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 57,
    "ds_proj": 158,
@@ -1322,7 +1367,7 @@
    "position": "QB",
    "adp": 77,
    "bye": 14,
-   "proj": 340.1,
+   "proj": 348.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1332,8 +1377,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 296.2,
-   "ceiling": 432.2,
+   "floor": 303.7,
+   "ceiling": 443.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 325,
@@ -1345,7 +1390,7 @@
    "position": "QB",
    "adp": 56.9,
    "bye": 7,
-   "proj": 333.8,
+   "proj": 342.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1355,8 +1400,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 286.9,
-   "ceiling": 433.8,
+   "floor": 294.3,
+   "ceiling": 445,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 41,
    "ds_proj": 334,
@@ -1368,7 +1413,7 @@
    "position": "TE",
    "adp": 62.3,
    "bye": 11,
-   "proj": 140.5,
+   "proj": 140,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1378,8 +1423,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 121.3,
-   "ceiling": 185.9,
+   "floor": 120.9,
+   "ceiling": 185.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 161,
@@ -1391,7 +1436,7 @@
    "position": "WR",
    "adp": 52.6,
    "bye": 7,
-   "proj": 161.1,
+   "proj": 162.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1401,8 +1446,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 143.4,
-   "ceiling": 214.2,
+   "floor": 144.8,
+   "ceiling": 216.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 182,
@@ -1414,7 +1459,7 @@
    "position": "WR",
    "adp": 44.3,
    "bye": 10,
-   "proj": 168.3,
+   "proj": 169.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1424,8 +1469,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 143,
-   "ceiling": 215.4,
+   "floor": 144.4,
+   "ceiling": 217.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 193,
@@ -1437,7 +1482,7 @@
    "position": "RB",
    "adp": 57.7,
    "bye": 11,
-   "proj": 166.7,
+   "proj": 166.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1447,8 +1492,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 140.1,
-   "ceiling": 289.4,
+   "floor": 140.2,
+   "ceiling": 289.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 29,
    "ds_proj": 163,
@@ -1460,7 +1505,7 @@
    "position": "QB",
    "adp": 103.3,
    "bye": 8,
-   "proj": 332,
+   "proj": 340.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1470,8 +1515,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 282.3,
-   "ceiling": 422.4,
+   "floor": 289.6,
+   "ceiling": 433.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 327,
@@ -1483,7 +1528,7 @@
    "position": "WR",
    "adp": 59.7,
    "bye": 8,
-   "proj": 160.6,
+   "proj": 162.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1493,8 +1538,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 135.2,
-   "ceiling": 218.5,
+   "floor": 136.5,
+   "ceiling": 220.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 65,
    "ds_proj": 183,
@@ -1506,7 +1551,7 @@
    "position": "TE",
    "adp": 93.2,
    "bye": 5,
-   "proj": 141.3,
+   "proj": 140.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1516,8 +1561,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 121,
-   "ceiling": 169.4,
+   "floor": 120.6,
+   "ceiling": 168.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 146,
@@ -1529,7 +1574,7 @@
    "position": "WR",
    "adp": 60.8,
    "bye": 10,
-   "proj": 164.6,
+   "proj": 166.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1539,8 +1584,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 143.6,
-   "ceiling": 236.9,
+   "floor": 145,
+   "ceiling": 239.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 173,
@@ -1552,7 +1597,7 @@
    "position": "QB",
    "adp": 97.6,
    "bye": 11,
-   "proj": 339.1,
+   "proj": 347.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1562,8 +1607,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 315.3,
-   "ceiling": 457,
+   "floor": 323.3,
+   "ceiling": 468.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 299,
@@ -1575,7 +1620,7 @@
    "position": "RB",
    "adp": 49.8,
    "bye": 11,
-   "proj": 165.1,
+   "proj": 165.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1585,8 +1630,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 140.3,
-   "ceiling": 264.4,
+   "floor": 140.4,
+   "ceiling": 264.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 64,
    "ds_proj": 173,
@@ -1598,7 +1643,7 @@
    "position": "WR",
    "adp": 51.3,
    "bye": 10,
-   "proj": 159.9,
+   "proj": 161.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1608,8 +1653,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 132.8,
-   "ceiling": 216.6,
+   "floor": 134.1,
+   "ceiling": 218.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 54,
    "ds_proj": 183,
@@ -1621,7 +1666,7 @@
    "position": "QB",
    "adp": 81.4,
    "bye": 7,
-   "proj": 335.1,
+   "proj": 343.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1631,8 +1676,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 285.2,
-   "ceiling": 422.7,
+   "floor": 292.5,
+   "ceiling": 433.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 329,
@@ -1644,7 +1689,7 @@
    "position": "TE",
    "adp": 92.2,
    "bye": 8,
-   "proj": 140.5,
+   "proj": 140,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1654,8 +1699,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 99.6,
-   "ceiling": 199.1,
+   "floor": 99.2,
+   "ceiling": 198.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 44,
    "ds_proj": 151,
@@ -1667,7 +1712,7 @@
    "position": "RB",
    "adp": 65.4,
    "bye": 9,
-   "proj": 163.6,
+   "proj": 163.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1677,8 +1722,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 132.7,
-   "ceiling": 222.5,
+   "floor": 132.8,
+   "ceiling": 222.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 66,
    "ds_proj": 175,
@@ -1690,7 +1735,7 @@
    "position": "QB",
    "adp": 68.8,
    "bye": 10,
-   "proj": 337.1,
+   "proj": 345.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1700,8 +1745,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 290.3,
-   "ceiling": 438.1,
+   "floor": 297.8,
+   "ceiling": 449.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 20,
    "ds_proj": 324,
@@ -1713,7 +1758,7 @@
    "position": "TE",
    "adp": 113.4,
    "bye": 13,
-   "proj": 131.6,
+   "proj": 131.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1723,8 +1768,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 117.5,
-   "ceiling": 174.8,
+   "floor": 117.1,
+   "ceiling": 174.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 131,
@@ -1736,7 +1781,7 @@
    "position": "WR",
    "adp": 63.4,
    "bye": 11,
-   "proj": 159.6,
+   "proj": 161.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1746,8 +1791,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 132.4,
-   "ceiling": 204,
+   "floor": 133.8,
+   "ceiling": 206,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 25,
    "ds_proj": 194,
@@ -1759,7 +1804,7 @@
    "position": "TE",
    "adp": 116.8,
    "bye": 10,
-   "proj": 134.1,
+   "proj": 133.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1769,8 +1814,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 117.7,
-   "ceiling": 170,
+   "floor": 117.3,
+   "ceiling": 169.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 83,
    "ds_proj": 131,
@@ -1782,7 +1827,7 @@
    "position": "RB",
    "adp": 72.2,
    "bye": 11,
-   "proj": 157.8,
+   "proj": 158,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1792,8 +1837,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 133.3,
-   "ceiling": 224.5,
+   "floor": 133.4,
+   "ceiling": 224.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 64,
    "ds_proj": 180,
@@ -1805,7 +1850,7 @@
    "position": "WR",
    "adp": 48.9,
    "bye": 7,
-   "proj": 162.9,
+   "proj": 164.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1815,8 +1860,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 136.7,
-   "ceiling": 219.1,
+   "floor": 138.1,
+   "ceiling": 221.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 54,
    "ds_proj": 174,
@@ -1828,7 +1873,7 @@
    "position": "RB",
    "adp": 77.9,
    "bye": 9,
-   "proj": 158,
+   "proj": 158.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1838,8 +1883,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 137,
-   "ceiling": 239.5,
+   "floor": 137.1,
+   "ceiling": 239.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 165,
@@ -1851,7 +1896,7 @@
    "position": "QB",
    "adp": 95.7,
    "bye": 5,
-   "proj": 333.4,
+   "proj": 342.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1861,8 +1906,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 300,
-   "ceiling": 450,
+   "floor": 307.8,
+   "ceiling": 461.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 309,
@@ -1874,7 +1919,7 @@
    "position": "QB",
    "adp": 85.6,
    "bye": 8,
-   "proj": 323.2,
+   "proj": 331.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1884,8 +1929,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 280.6,
-   "ceiling": 422.5,
+   "floor": 288.2,
+   "ceiling": 433.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 319,
@@ -1897,7 +1942,7 @@
    "position": "QB",
    "adp": 112.5,
    "bye": 6,
-   "proj": 334.1,
+   "proj": 342.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1907,8 +1952,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 306.6,
-   "ceiling": 443.3,
+   "floor": 314.5,
+   "ceiling": 454.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 23,
    "ds_proj": 303,
@@ -1920,7 +1965,7 @@
    "position": "QB",
    "adp": 74.1,
    "bye": 7,
-   "proj": 332.8,
+   "proj": 341.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1930,8 +1975,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 286.8,
-   "ceiling": 426.7,
+   "floor": 294.3,
+   "ceiling": 437.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 326,
@@ -1943,7 +1988,7 @@
    "position": "QB",
    "adp": 101.5,
    "bye": 10,
-   "proj": 332.6,
+   "proj": 341.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1953,8 +1998,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 299.5,
-   "ceiling": 439.1,
+   "floor": 307.3,
+   "ceiling": 450.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 28,
    "ds_proj": 312,
@@ -1966,7 +2011,7 @@
    "position": "RB",
    "adp": 84.7,
    "bye": 10,
-   "proj": 153.5,
+   "proj": 153.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1976,8 +2021,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 130.6,
-   "ceiling": 243.1,
+   "floor": 130.7,
+   "ceiling": 243.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 161,
@@ -1989,7 +2034,7 @@
    "position": "WR",
    "adp": 89.2,
    "bye": 13,
-   "proj": 151.5,
+   "proj": 153.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -1999,8 +2044,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 122.2,
-   "ceiling": 232.9,
+   "floor": 123.5,
+   "ceiling": 235.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 67,
    "ds_proj": 145,
@@ -2012,7 +2057,7 @@
    "position": "TE",
    "adp": 100.8,
    "bye": 8,
-   "proj": 118.4,
+   "proj": 117.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2022,8 +2067,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 108.1,
-   "ceiling": 156.6,
+   "floor": 107.7,
+   "ceiling": 155.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 73,
    "ds_proj": 127,
@@ -2035,7 +2080,7 @@
    "position": "WR",
    "adp": 73.2,
    "bye": 14,
-   "proj": 152,
+   "proj": 153.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2045,8 +2090,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 133.5,
-   "ceiling": 214.1,
+   "floor": 134.9,
+   "ceiling": 216.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 55,
    "ds_proj": 164,
@@ -2058,7 +2103,7 @@
    "position": "RB",
    "adp": 76.1,
    "bye": 9,
-   "proj": 158,
+   "proj": 158.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2068,8 +2113,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 136,
-   "ceiling": 241.4,
+   "floor": 136.1,
+   "ceiling": 241.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 27,
    "ds_proj": 165,
@@ -2081,7 +2126,7 @@
    "position": "TE",
    "adp": 98.4,
    "bye": 7,
-   "proj": 123.6,
+   "proj": 123.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2091,8 +2136,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 109.3,
-   "ceiling": 171.1,
+   "floor": 108.9,
+   "ceiling": 170.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 62,
    "ds_proj": 130,
@@ -2104,7 +2149,7 @@
    "position": "TE",
    "adp": 108.5,
    "bye": 14,
-   "proj": 127.9,
+   "proj": 127.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2114,8 +2159,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 116,
-   "ceiling": 154.7,
+   "floor": 115.6,
+   "ceiling": 154.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 55,
    "ds_proj": 129,
@@ -2127,7 +2172,7 @@
    "position": "WR",
    "adp": 86.4,
    "bye": 10,
-   "proj": 158.2,
+   "proj": 159.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2137,8 +2182,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 136.2,
-   "ceiling": 210,
+   "floor": 137.5,
+   "ceiling": 212.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 43,
    "ds_proj": 165,
@@ -2150,7 +2195,7 @@
    "position": "WR",
    "adp": 80.4,
    "bye": 9,
-   "proj": 156.9,
+   "proj": 158.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2160,8 +2205,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 131.5,
-   "ceiling": 198.7,
+   "floor": 132.9,
+   "ceiling": 200.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 173,
@@ -2173,7 +2218,7 @@
    "position": "WR",
    "adp": 70.5,
    "bye": 7,
-   "proj": 152.3,
+   "proj": 153.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2183,8 +2228,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 126.2,
-   "ceiling": 195,
+   "floor": 127.5,
+   "ceiling": 197,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 175,
@@ -2196,7 +2241,7 @@
    "position": "WR",
    "adp": 69.7,
    "bye": 7,
-   "proj": 150.9,
+   "proj": 152.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2206,8 +2251,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 131.8,
-   "ceiling": 225.4,
+   "floor": 133.2,
+   "ceiling": 227.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 158,
@@ -2219,7 +2264,7 @@
    "position": "RB",
    "adp": 75.3,
    "bye": 5,
-   "proj": 145,
+   "proj": 145.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2229,8 +2274,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 130.3,
-   "ceiling": 274.2,
+   "floor": 130.4,
+   "ceiling": 274.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 138,
@@ -2242,7 +2287,7 @@
    "position": "TE",
    "adp": 155.5,
    "bye": 7,
-   "proj": 115.7,
+   "proj": 115.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2252,8 +2297,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 100.4,
-   "ceiling": 148.3,
+   "floor": 99.9,
+   "ceiling": 147.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 48,
    "ds_proj": 128,
@@ -2265,7 +2310,7 @@
    "position": "TE",
    "adp": 144,
    "bye": 11,
-   "proj": 121.8,
+   "proj": 121.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2275,8 +2320,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 107.9,
-   "ceiling": 160.4,
+   "floor": 107.5,
+   "ceiling": 159.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 47,
    "ds_proj": 123,
@@ -2288,7 +2333,7 @@
    "position": "TE",
    "adp": 157.2,
    "bye": 8,
-   "proj": 120,
+   "proj": 119.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2298,8 +2343,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 104.7,
-   "ceiling": 150.7,
+   "floor": 104.2,
+   "ceiling": 150.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 45,
    "ds_proj": 125,
@@ -2311,7 +2356,7 @@
    "position": "WR",
    "adp": 110.1,
    "bye": 11,
-   "proj": 135.3,
+   "proj": 136.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2321,8 +2366,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 113.1,
-   "ceiling": 180.3,
+   "floor": 114.5,
+   "ceiling": 182.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 165,
@@ -2334,7 +2379,7 @@
    "position": "WR",
    "adp": 106.2,
    "bye": 9,
-   "proj": 147,
+   "proj": 148.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2344,8 +2389,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 126,
-   "ceiling": 188,
+   "floor": 127.3,
+   "ceiling": 190.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 60,
    "ds_proj": 161,
@@ -2357,7 +2402,7 @@
    "position": "WR",
    "adp": 67.8,
    "bye": 9,
-   "proj": 149.6,
+   "proj": 151.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2367,8 +2412,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 125.3,
-   "ceiling": 209.1,
+   "floor": 126.6,
+   "ceiling": 211.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 40,
    "ds_proj": 166,
@@ -2380,7 +2425,7 @@
    "position": "RB",
    "adp": 87.2,
    "bye": 10,
-   "proj": 139.6,
+   "proj": 139.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2390,8 +2435,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 124.6,
-   "ceiling": 247.1,
+   "floor": 124.7,
+   "ceiling": 247.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 139,
@@ -2403,7 +2448,7 @@
    "position": "TE",
    "adp": 186.8,
    "bye": 8,
-   "proj": 113.5,
+   "proj": 113,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2413,8 +2458,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 103.9,
-   "ceiling": 141.1,
+   "floor": 103.5,
+   "ceiling": 140.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 57,
    "ds_proj": 119,
@@ -2426,7 +2471,7 @@
    "position": "QB",
    "adp": 131.7,
    "bye": 10,
-   "proj": 316.6,
+   "proj": 325.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2436,8 +2481,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 301.4,
-   "ceiling": 440.7,
+   "floor": 309.6,
+   "ceiling": 452.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 291,
@@ -2449,7 +2494,7 @@
    "position": "RB",
    "adp": 89.9,
    "bye": 5,
-   "proj": 142,
+   "proj": 141.8,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -2458,8 +2503,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 114.3,
-   "ceiling": 244.7,
+   "floor": 114.1,
+   "ceiling": 244.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 159,
@@ -2471,7 +2516,7 @@
    "position": "TE",
    "adp": 173,
    "bye": 6,
-   "proj": 107.4,
+   "proj": 106.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2481,8 +2526,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 96.3,
-   "ceiling": 137.1,
+   "floor": 95.9,
+   "ceiling": 136.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 51,
    "ds_proj": 116,
@@ -2494,7 +2539,7 @@
    "position": "WR",
    "adp": 122.4,
    "bye": 7,
-   "proj": 127,
+   "proj": 128.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2504,8 +2549,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 108.3,
-   "ceiling": 171.8,
+   "floor": 109.7,
+   "ceiling": 174,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 156,
@@ -2517,7 +2562,7 @@
    "position": "RB",
    "adp": 79.4,
    "bye": 10,
-   "proj": 140.2,
+   "proj": 140.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2527,8 +2572,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 116.5,
-   "ceiling": 231,
+   "floor": 116.6,
+   "ceiling": 231.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 142,
@@ -2540,7 +2585,7 @@
    "position": "RB",
    "adp": 104.5,
    "bye": 10,
-   "proj": 132.7,
+   "proj": 132.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2550,8 +2595,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 117.5,
-   "ceiling": 228.9,
+   "floor": 117.6,
+   "ceiling": 229.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 31,
    "ds_proj": 131,
@@ -2563,7 +2608,7 @@
    "position": "WR",
    "adp": 88.3,
    "bye": 10,
-   "proj": 134.3,
+   "proj": 135.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2573,8 +2618,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 107.6,
-   "ceiling": 197.5,
+   "floor": 108.9,
+   "ceiling": 199.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 40,
    "ds_proj": 151,
@@ -2586,7 +2631,7 @@
    "position": "WR",
    "adp": 102.2,
    "bye": 7,
-   "proj": 143.8,
+   "proj": 145.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2596,8 +2641,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 119.2,
-   "ceiling": 206.6,
+   "floor": 120.6,
+   "ceiling": 208.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 56,
    "ds_proj": 158,
@@ -2609,7 +2654,7 @@
    "position": "WR",
    "adp": 107.1,
    "bye": 6,
-   "proj": 139.7,
+   "proj": 141.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2619,8 +2664,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 117.3,
-   "ceiling": 189.7,
+   "floor": 118.6,
+   "ceiling": 191.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 162,
@@ -2632,7 +2677,7 @@
    "position": "WR",
    "adp": 82.8,
    "bye": 14,
-   "proj": 137.7,
+   "proj": 139.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2642,8 +2687,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 114.9,
-   "ceiling": 201.3,
+   "floor": 116.3,
+   "ceiling": 203.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 145,
@@ -2655,7 +2700,7 @@
    "position": "RB",
    "adp": 99.2,
    "bye": 6,
-   "proj": 134.8,
+   "proj": 134.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2665,8 +2710,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 108.7,
-   "ceiling": 221.8,
+   "floor": 108.8,
+   "ceiling": 222,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 155,
@@ -2678,7 +2723,7 @@
    "position": "QB",
    "adp": 152.7,
    "bye": 8,
-   "proj": 289.6,
+   "proj": 298.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2688,8 +2733,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 267.1,
-   "ceiling": 400.1,
+   "floor": 275.1,
+   "ceiling": 412.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 17,
    "ds_proj": 296,
@@ -2701,7 +2746,7 @@
    "position": "WR",
    "adp": 117.8,
    "bye": 9,
-   "proj": 143.4,
+   "proj": 145,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2711,8 +2756,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 124,
-   "ceiling": 209,
+   "floor": 125.3,
+   "ceiling": 211.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 140,
@@ -2724,7 +2769,7 @@
    "position": "WR",
    "adp": 130.3,
    "bye": 5,
-   "proj": 135.7,
+   "proj": 137.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2734,8 +2779,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 111.6,
-   "ceiling": 200,
+   "floor": 112.9,
+   "ceiling": 202.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 152,
@@ -2747,7 +2792,7 @@
    "position": "RB",
    "adp": 109.3,
    "bye": 7,
-   "proj": 131.7,
+   "proj": 131.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2757,8 +2802,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 107,
-   "ceiling": 228.3,
+   "floor": 107.1,
+   "ceiling": 228.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 128,
@@ -2770,7 +2815,7 @@
    "position": "QB",
    "adp": 133.9,
    "bye": 11,
-   "proj": 305.3,
+   "proj": 314,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2780,8 +2825,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 286.7,
-   "ceiling": 415.7,
+   "floor": 294.9,
+   "ceiling": 427.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 82,
    "ds_proj": 296,
@@ -2793,7 +2838,7 @@
    "position": "RB",
    "adp": 114.3,
    "bye": 6,
-   "proj": 126.1,
+   "proj": 126.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2803,8 +2848,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 100.7,
-   "ceiling": 217.7,
+   "floor": 100.8,
+   "ceiling": 217.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 65,
    "ds_proj": 124,
@@ -2816,7 +2861,7 @@
    "position": "TE",
    "adp": 201.5,
    "bye": 9,
-   "proj": 103.5,
+   "proj": 103,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2826,8 +2871,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 93,
-   "ceiling": 146.7,
+   "floor": 92.5,
+   "ceiling": 146,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 108,
@@ -2839,7 +2884,7 @@
    "position": "RB",
    "adp": 100,
    "bye": 7,
-   "proj": 132.6,
+   "proj": 132.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2849,8 +2894,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 105.3,
-   "ceiling": 223.4,
+   "floor": 105.4,
+   "ceiling": 223.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 30,
    "ds_proj": 146,
@@ -2862,7 +2907,7 @@
    "position": "WR",
    "adp": 133,
    "bye": 11,
-   "proj": 115.7,
+   "proj": 117.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2872,8 +2917,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 102.9,
-   "ceiling": 193.9,
+   "floor": 104.3,
+   "ceiling": 196.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 136,
@@ -2885,7 +2930,7 @@
    "position": "QB",
    "adp": 123.4,
    "bye": 6,
-   "proj": 294.6,
+   "proj": 303.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2895,8 +2940,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 247.5,
-   "ceiling": 379.8,
+   "floor": 254.7,
+   "ceiling": 391,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 325,
@@ -2908,7 +2953,7 @@
    "position": "WR",
    "adp": 105.3,
    "bye": 13,
-   "proj": 136.1,
+   "proj": 137.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2918,8 +2963,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 115.8,
-   "ceiling": 196.1,
+   "floor": 117.1,
+   "ceiling": 198.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 61,
    "ds_proj": 161,
@@ -2931,7 +2976,7 @@
    "position": "TE",
    "adp": 183.2,
    "bye": 11,
-   "proj": 101.9,
+   "proj": 101.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2941,8 +2986,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 97.9,
-   "ceiling": 151.9,
+   "floor": 97.4,
+   "ceiling": 151.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 28,
    "ds_proj": 102,
@@ -2954,7 +2999,7 @@
    "position": "QB",
    "adp": 142.9,
    "bye": 11,
-   "proj": 300,
+   "proj": 308.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2964,8 +3009,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 296.6,
-   "ceiling": 449.5,
+   "floor": 305.1,
+   "ceiling": 462.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 29,
    "ds_proj": 261,
@@ -2977,7 +3022,7 @@
    "position": "RB",
    "adp": 91.1,
    "bye": 11,
-   "proj": 123.8,
+   "proj": 123.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -2987,8 +3032,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 113.7,
-   "ceiling": 238.4,
+   "floor": 113.8,
+   "ceiling": 238.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 135,
@@ -3000,7 +3045,7 @@
    "position": "TE",
    "adp": 153.4,
    "bye": 7,
-   "proj": 102,
+   "proj": 101.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3010,8 +3055,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 94.8,
-   "ceiling": 142.2,
+   "floor": 94.4,
+   "ceiling": 141.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 22,
    "ds_proj": 114,
@@ -3023,7 +3068,7 @@
    "position": "TE",
    "adp": 210.9,
    "bye": 6,
-   "proj": 90.9,
+   "proj": 89.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3045,7 +3090,7 @@
    "position": "WR",
    "adp": 149.6,
    "bye": 7,
-   "proj": 132.1,
+   "proj": 133.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3055,8 +3100,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 115.7,
-   "ceiling": 182.2,
+   "floor": 117.1,
+   "ceiling": 184.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 137,
@@ -3068,7 +3113,7 @@
    "position": "WR",
    "adp": 111.2,
    "bye": 7,
-   "proj": 132,
+   "proj": 133.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3078,8 +3123,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 109.8,
-   "ceiling": 199.3,
+   "floor": 111.2,
+   "ceiling": 201.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 31,
    "ds_proj": 149,
@@ -3091,7 +3136,7 @@
    "position": "TE",
    "adp": 230.05,
    "bye": 10,
-   "proj": 97.6,
+   "proj": 96.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3113,7 +3158,7 @@
    "position": "WR",
    "adp": 141.5,
    "bye": 11,
-   "proj": 130.4,
+   "proj": 132,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3123,8 +3168,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 109.2,
-   "ceiling": 192,
+   "floor": 110.6,
+   "ceiling": 194.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 148,
@@ -3136,7 +3181,7 @@
    "position": "WR",
    "adp": 128.8,
    "bye": 8,
-   "proj": 130.6,
+   "proj": 132.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3146,8 +3191,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 108.1,
-   "ceiling": 203.5,
+   "floor": 109.4,
+   "ceiling": 206,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 51,
    "ds_proj": 145,
@@ -3159,7 +3204,7 @@
    "position": "WR",
    "adp": 138.2,
    "bye": 11,
-   "proj": 127.4,
+   "proj": 129,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3169,8 +3214,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 103.3,
-   "ceiling": 185.9,
+   "floor": 104.6,
+   "ceiling": 188.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 29,
    "ds_proj": 148,
@@ -3182,7 +3227,7 @@
    "position": "TE",
    "adp": 167.7,
    "bye": 13,
-   "proj": 89.2,
+   "proj": 88.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3192,8 +3237,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 80.4,
-   "ceiling": 130.6,
+   "floor": 80,
+   "ceiling": 129.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 24,
    "ds_proj": 112,
@@ -3205,7 +3250,7 @@
    "position": "WR",
    "adp": 96.4,
    "bye": 10,
-   "proj": 125.9,
+   "proj": 127.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3215,8 +3260,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 108.7,
-   "ceiling": 209.2,
+   "floor": 110,
+   "ceiling": 211.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 139,
@@ -3228,7 +3273,7 @@
    "position": "TE",
    "adp": 146.9,
    "bye": 7,
-   "proj": 97.9,
+   "proj": 97.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3238,8 +3283,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 92.3,
-   "ceiling": 156,
+   "floor": 91.9,
+   "ceiling": 155.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 106,
@@ -3251,7 +3296,7 @@
    "position": "WR",
    "adp": 137.5,
    "bye": 11,
-   "proj": 126.1,
+   "proj": 127.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3261,8 +3306,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 108.1,
-   "ceiling": 200.1,
+   "floor": 109.5,
+   "ceiling": 202.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 38,
    "ds_proj": 133,
@@ -3274,7 +3319,7 @@
    "position": "TE",
    "adp": 196.3,
    "bye": 11,
-   "proj": 86.2,
+   "proj": 85.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3284,8 +3329,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 75.6,
-   "ceiling": 150.4,
+   "floor": 75.2,
+   "ceiling": 149.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 98,
@@ -3297,7 +3342,7 @@
    "position": "WR",
    "adp": 159,
    "bye": 5,
-   "proj": 113.1,
+   "proj": 114.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3307,8 +3352,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 102.9,
-   "ceiling": 194.7,
+   "floor": 104.4,
+   "ceiling": 197.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 18,
    "ds_proj": 122,
@@ -3320,7 +3365,7 @@
    "position": "QB",
    "adp": 151.2,
    "bye": 6,
-   "proj": 261.3,
+   "proj": 270,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3330,8 +3375,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 250.9,
-   "ceiling": 389.6,
+   "floor": 259.2,
+   "ceiling": 402.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 15,
    "ds_proj": 275,
@@ -3343,7 +3388,7 @@
    "position": "QB",
    "adp": 178,
    "bye": 13,
-   "proj": 282.8,
+   "proj": 291.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3353,8 +3398,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 266.4,
-   "ceiling": 413.4,
+   "floor": 274.6,
+   "ceiling": 426.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 277,
@@ -3366,7 +3411,7 @@
    "position": "TE",
    "adp": 231.9,
    "bye": 9,
-   "proj": 86.8,
+   "proj": 85.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3388,7 +3433,7 @@
    "position": "QB",
    "adp": 158.1,
    "bye": 8,
-   "proj": 281.1,
+   "proj": 289.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3398,8 +3443,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 275.9,
-   "ceiling": 405,
+   "floor": 284.4,
+   "ceiling": 417.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 29,
    "ds_proj": 270,
@@ -3411,7 +3456,7 @@
    "position": "WR",
    "adp": 151.9,
    "bye": 8,
-   "proj": 113,
+   "proj": 115.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3433,7 +3478,7 @@
    "position": "TE",
    "adp": 305.7,
    "bye": 5,
-   "proj": 85.3,
+   "proj": 83.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3455,7 +3500,7 @@
    "position": "TE",
    "adp": 283.5,
    "bye": 6,
-   "proj": 81.6,
+   "proj": 80.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3477,7 +3522,7 @@
    "position": "WR",
    "adp": 134.7,
    "bye": 8,
-   "proj": 107.8,
+   "proj": 109.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3487,8 +3532,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 98.6,
-   "ceiling": 208.2,
+   "floor": 100,
+   "ceiling": 211.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 117,
@@ -3500,7 +3545,7 @@
    "position": "RB",
    "adp": 160,
    "bye": 9,
-   "proj": 110.8,
+   "proj": 110.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3510,8 +3555,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 93,
-   "ceiling": 184.4,
+   "floor": 93.1,
+   "ceiling": 184.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 131,
@@ -3523,7 +3568,7 @@
    "position": "WR",
    "adp": 202.35,
    "bye": 13,
-   "proj": 113.1,
+   "proj": 114.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3533,8 +3578,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 95.8,
-   "ceiling": 181.6,
+   "floor": 97.2,
+   "ceiling": 184.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 124,
@@ -3546,7 +3591,7 @@
    "position": "TE",
    "adp": 259.8,
    "bye": 10,
-   "proj": 80.7,
+   "proj": 79.3,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3568,7 +3613,7 @@
    "position": "WR",
    "adp": 182.1,
    "bye": 11,
-   "proj": 109.2,
+   "proj": 110.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3578,8 +3623,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 94.3,
-   "ceiling": 197.5,
+   "floor": 95.7,
+   "ceiling": 200.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 32,
    "ds_proj": 110,
@@ -3591,7 +3636,7 @@
    "position": "WR",
    "adp": 165.1,
    "bye": 11,
-   "proj": 105,
+   "proj": 106.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3601,8 +3646,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 92.9,
-   "ceiling": 186.6,
+   "floor": 94.3,
+   "ceiling": 189.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 121,
@@ -3614,7 +3659,7 @@
    "position": "RB",
    "adp": 135.6,
    "bye": 8,
-   "proj": 108.4,
+   "proj": 108.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3624,8 +3669,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 98,
-   "ceiling": 231.5,
+   "floor": 98.1,
+   "ceiling": 231.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 104,
@@ -3637,7 +3682,7 @@
    "position": "TE",
    "adp": 299.1,
    "bye": 13,
-   "proj": 76.3,
+   "proj": 74.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3659,7 +3704,7 @@
    "position": "QB",
    "adp": 173.7,
    "bye": 5,
-   "proj": 266.1,
+   "proj": 274.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3669,8 +3714,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 262.9,
-   "ceiling": 425.6,
+   "floor": 271.4,
+   "ceiling": 439.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 32,
    "ds_proj": 247,
@@ -3682,7 +3727,7 @@
    "position": "WR",
    "adp": 184,
    "bye": 10,
-   "proj": 93.3,
+   "proj": 94.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3692,8 +3737,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 79.3,
-   "ceiling": 160,
+   "floor": 80.6,
+   "ceiling": 162.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 126,
@@ -3705,7 +3750,7 @@
    "position": "WR",
    "adp": 280.65,
    "bye": 13,
-   "proj": 96.9,
+   "proj": 98.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3715,8 +3760,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 85.2,
-   "ceiling": 203.4,
+   "floor": 86.6,
+   "ceiling": 206.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 100,
@@ -3728,7 +3773,7 @@
    "position": "RB",
    "adp": 147.7,
    "bye": 8,
-   "proj": 108.2,
+   "proj": 108.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3738,8 +3783,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 95.8,
-   "ceiling": 205.9,
+   "floor": 95.9,
+   "ceiling": 206.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 113,
@@ -3751,7 +3796,7 @@
    "position": "WR",
    "adp": 164.1,
    "bye": 13,
-   "proj": 99.2,
+   "proj": 100.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3761,8 +3806,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 85.8,
-   "ceiling": 177,
+   "floor": 87.2,
+   "ceiling": 179.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 111,
@@ -3774,7 +3819,7 @@
    "position": "TE",
    "adp": 270.85,
    "bye": 11,
-   "proj": 73.5,
+   "proj": 72.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3796,7 +3841,7 @@
    "position": "RB",
    "adp": 150.3,
    "bye": 7,
-   "proj": 94.2,
+   "proj": 94.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3806,8 +3851,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 86.1,
-   "ceiling": 221.1,
+   "floor": 86.2,
+   "ceiling": 221.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 27,
    "ds_proj": 104,
@@ -3819,7 +3864,7 @@
    "position": "RB",
    "adp": 127.3,
    "bye": 11,
-   "proj": 108.5,
+   "proj": 108.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3829,8 +3874,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 81.4,
-   "ceiling": 222.5,
+   "floor": 81.5,
+   "ceiling": 222.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 37,
    "ds_proj": 120,
@@ -3842,7 +3887,7 @@
    "position": "WR",
    "adp": 83.7,
    "bye": 8,
-   "proj": 115.1,
+   "proj": 116.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3852,8 +3897,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 90.6,
-   "ceiling": 186.9,
+   "floor": 91.9,
+   "ceiling": 189.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 45,
    "ds_proj": 141,
@@ -3865,7 +3910,7 @@
    "position": "TE",
    "adp": 300.1,
    "bye": 13,
-   "proj": 64.3,
+   "proj": 62.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3887,7 +3932,7 @@
    "position": "WR",
    "adp": 166.9,
    "bye": 6,
-   "proj": 87.9,
+   "proj": 89.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -3897,8 +3942,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 77.1,
-   "ceiling": 171.6,
+   "floor": 78.5,
+   "ceiling": 174.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 106,
@@ -3910,7 +3955,7 @@
    "position": "TE",
    "adp": 262.8,
    "bye": 10,
-   "proj": 52.1,
+   "proj": 50,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -3931,7 +3976,7 @@
    "position": "TE",
    "adp": 343.6,
    "bye": 7,
-   "proj": 65.3,
+   "proj": 63.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3953,7 +3998,7 @@
    "position": "WR",
    "adp": 193.1,
    "bye": 6,
-   "proj": 89.5,
+   "proj": 92,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3975,7 +4020,7 @@
    "position": "TE",
    "adp": 270,
    "bye": 8,
-   "proj": 69.2,
+   "proj": 67.8,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -3997,7 +4042,7 @@
    "position": "WR",
    "adp": 170.4,
    "bye": 13,
-   "proj": 83.4,
+   "proj": 85.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4019,7 +4064,7 @@
    "position": "TE",
    "adp": 340.6,
    "bye": 9,
-   "proj": 60.5,
+   "proj": 59.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4041,7 +4086,7 @@
    "position": "WR",
    "adp": 223.25,
    "bye": 13,
-   "proj": 89.5,
+   "proj": 91.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4051,8 +4096,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 77.2,
-   "ceiling": 163.6,
+   "floor": 78.6,
+   "ceiling": 166.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 28,
    "ds_proj": 116,
@@ -4064,7 +4109,7 @@
    "position": "WR",
    "adp": 287.8,
    "bye": 8,
-   "proj": 73.1,
+   "proj": 75.6,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4086,7 +4131,7 @@
    "position": "WR",
    "adp": 198.4,
    "bye": 11,
-   "proj": 77.6,
+   "proj": 80.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4108,7 +4153,7 @@
    "position": "RB",
    "adp": 171.3,
    "bye": 11,
-   "proj": 85.2,
+   "proj": 85.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4118,8 +4163,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 74.1,
-   "ceiling": 157.7,
+   "floor": 74.2,
+   "ceiling": 157.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 107,
@@ -4131,7 +4176,7 @@
    "position": "WR",
    "adp": 261.8,
    "bye": 9,
-   "proj": 86.6,
+   "proj": 89,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4153,7 +4198,7 @@
    "position": "TE",
    "adp": 342.6,
    "bye": 10,
-   "proj": 59.8,
+   "proj": 58.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4175,7 +4220,7 @@
    "position": "QB",
    "adp": 169.3,
    "bye": 9,
-   "proj": 253.5,
+   "proj": 262.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4185,8 +4230,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 243,
-   "ceiling": 388,
+   "floor": 251.3,
+   "ceiling": 401.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 264,
@@ -4198,7 +4243,7 @@
    "position": "WR",
    "adp": 181.3,
    "bye": 13,
-   "proj": 93.3,
+   "proj": 94.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4208,8 +4253,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 80.2,
-   "ceiling": 187.5,
+   "floor": 81.6,
+   "ceiling": 190.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 38,
    "ds_proj": 107,
@@ -4221,7 +4266,7 @@
    "position": "TE",
    "adp": 265.4,
    "bye": 8,
-   "proj": 56,
+   "proj": 54.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4242,7 +4287,7 @@
    "position": "QB",
    "adp": 231.05,
    "bye": 13,
-   "proj": 253,
+   "proj": 261.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4252,8 +4297,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 243.6,
-   "ceiling": 410.5,
+   "floor": 251.9,
+   "ceiling": 424.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 241,
@@ -4265,7 +4310,7 @@
    "position": "WR",
    "adp": 256.8,
    "bye": 14,
-   "proj": 73.1,
+   "proj": 76.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4286,7 +4331,7 @@
    "position": "WR",
    "adp": 277.8,
    "bye": 13,
-   "proj": 86.7,
+   "proj": 88,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4294,8 +4339,8 @@
     "cbs",
     "draftsharks"
    ],
-   "floor": 75.7,
-   "ceiling": 150,
+   "floor": 76.9,
+   "ceiling": 152.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 49,
    "ds_proj": 119,
@@ -4307,7 +4352,7 @@
    "position": "WR",
    "adp": 245.15,
    "bye": 6,
-   "proj": 76.2,
+   "proj": 78.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4329,7 +4374,7 @@
    "position": "RB",
    "adp": 212.75,
    "bye": 13,
-   "proj": 75.8,
+   "proj": 75.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4339,8 +4384,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 68,
-   "ceiling": 151.5,
+   "floor": 68.1,
+   "ceiling": 151.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 32,
    "ds_proj": 78,
@@ -4352,7 +4397,7 @@
    "position": "RB",
    "adp": 139.9,
    "bye": 11,
-   "proj": 82.2,
+   "proj": 82.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4362,8 +4407,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 69.9,
-   "ceiling": 174,
+   "floor": 70,
+   "ceiling": 174.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 94,
@@ -4375,7 +4420,7 @@
    "position": "TE",
    "adp": 347.6,
    "bye": 11,
-   "proj": 50.1,
+   "proj": 48.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4396,7 +4441,7 @@
    "position": "WR",
    "adp": 197.7,
    "bye": 11,
-   "proj": 70.4,
+   "proj": 72.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4418,7 +4463,7 @@
    "position": "RB",
    "adp": 136.8,
    "bye": 14,
-   "proj": 81.3,
+   "proj": 81.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4428,8 +4473,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 68.7,
-   "ceiling": 166.8,
+   "floor": 68.8,
+   "ceiling": 167.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 23,
    "ds_proj": 97,
@@ -4441,7 +4486,7 @@
    "position": "TE",
    "adp": 358.6,
    "bye": 6,
-   "proj": 47,
+   "proj": 44.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4462,7 +4507,7 @@
    "position": "WR",
    "adp": 207.05,
    "bye": 7,
-   "proj": 67,
+   "proj": 70,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4483,7 +4528,7 @@
    "position": "WR",
    "adp": 315.3,
    "bye": 8,
-   "proj": 77,
+   "proj": 79.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4505,7 +4550,7 @@
    "position": "WR",
    "adp": 224.8,
    "bye": 5,
-   "proj": 48.7,
+   "proj": 52.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -4525,7 +4570,7 @@
    "position": "RB",
    "adp": 264.1,
    "bye": 6,
-   "proj": 70.7,
+   "proj": 70.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4535,8 +4580,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 59.7,
-   "ceiling": 119.4,
+   "floor": 59.8,
+   "ceiling": 119.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 77,
@@ -4548,7 +4593,7 @@
    "position": "WR",
    "adp": 215.1,
    "bye": null,
-   "proj": 72.1,
+   "proj": 75.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -4567,7 +4612,7 @@
    "position": "RB",
    "adp": 163.2,
    "bye": 7,
-   "proj": 76.6,
+   "proj": 76.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4577,8 +4622,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 66.1,
-   "ceiling": 180.5,
+   "floor": 66.2,
+   "ceiling": 180.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 95,
@@ -4590,7 +4635,7 @@
    "position": "TE",
    "adp": 176.1,
    "bye": 7,
-   "proj": 75.1,
+   "proj": 73.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4612,7 +4657,7 @@
    "position": "TE",
    "adp": 363.6,
    "bye": 10,
-   "proj": 31.4,
+   "proj": 27.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -4632,7 +4677,7 @@
    "position": "TE",
    "adp": 364.6,
    "bye": 11,
-   "proj": 30.7,
+   "proj": 26.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -4652,7 +4697,7 @@
    "position": "WR",
    "adp": 285.8,
    "bye": 11,
-   "proj": 58.7,
+   "proj": 61.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4674,7 +4719,7 @@
    "position": "RB",
    "adp": 227.2,
    "bye": 7,
-   "proj": 68.9,
+   "proj": 69,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4684,8 +4729,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 59.1,
-   "ceiling": 128,
+   "floor": 59.2,
+   "ceiling": 128.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 29,
    "ds_proj": 70,
@@ -4697,7 +4742,7 @@
    "position": "WR",
    "adp": 255.95,
    "bye": 7,
-   "proj": 70,
+   "proj": 72.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4719,7 +4764,7 @@
    "position": "TE",
    "adp": 365.6,
    "bye": 11,
-   "proj": 34,
+   "proj": 31.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4740,7 +4785,7 @@
    "position": "WR",
    "adp": 229.05,
    "bye": 8,
-   "proj": 61.7,
+   "proj": 65.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -4760,7 +4805,7 @@
    "position": "TE",
    "adp": 379.6,
    "bye": 11,
-   "proj": 41.2,
+   "proj": 38.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4781,7 +4826,7 @@
    "position": "WR",
    "adp": 199.3,
    "bye": 6,
-   "proj": 63,
+   "proj": 65.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4803,7 +4848,7 @@
    "position": "TE",
    "adp": 368.6,
    "bye": 6,
-   "proj": 30.9,
+   "proj": 26.6,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -4823,7 +4868,7 @@
    "position": "WR",
    "adp": 271.7,
    "bye": 10,
-   "proj": 65.7,
+   "proj": 68.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4844,7 +4889,7 @@
    "position": "TE",
    "adp": 361.6,
    "bye": 5,
-   "proj": 42.5,
+   "proj": 41.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4866,7 +4911,7 @@
    "position": "RB",
    "adp": 162.3,
    "bye": 10,
-   "proj": 65.5,
+   "proj": 65.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4876,8 +4921,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 62.1,
-   "ceiling": 227.6,
+   "floor": 62.2,
+   "ceiling": 228,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 22,
    "ds_proj": 57,
@@ -4889,7 +4934,7 @@
    "position": "WR",
    "adp": 310,
    "bye": 5,
-   "proj": 63.3,
+   "proj": 66.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -4910,7 +4955,7 @@
    "position": "WR",
    "adp": 316.6,
    "bye": 9,
-   "proj": 49.6,
+   "proj": 52.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4932,7 +4977,7 @@
    "position": "WR",
    "adp": 204.65,
    "bye": 10,
-   "proj": 66.6,
+   "proj": 68.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4941,8 +4986,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 58.9,
-   "ceiling": 150,
+   "floor": 60.5,
+   "ceiling": 154.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 35,
    "ds_proj": 95,
@@ -4954,7 +4999,7 @@
    "position": "WR",
    "adp": 351.6,
    "bye": 5,
-   "proj": 59.4,
+   "proj": 61.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -4976,7 +5021,7 @@
    "position": "QB",
    "adp": 179.4,
    "bye": 9,
-   "proj": 249,
+   "proj": 257.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -4986,8 +5031,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 244.2,
-   "ceiling": 370.6,
+   "floor": 252.7,
+   "ceiling": 383.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 53,
    "ds_proj": 258,
@@ -4999,7 +5044,7 @@
    "position": "WR",
    "adp": 250.4,
    "bye": 10,
-   "proj": 64.7,
+   "proj": 66.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5008,8 +5053,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 57,
-   "ceiling": 135.1,
+   "floor": 58.6,
+   "ceiling": 138.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 65,
    "ds_proj": 101,
@@ -5021,7 +5066,7 @@
    "position": "RB",
    "adp": 177.1,
    "bye": 11,
-   "proj": 69.1,
+   "proj": 68.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5029,8 +5074,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 55.3,
-   "ceiling": 187,
+   "floor": 54.8,
+   "ceiling": 185.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 72,
    "ds_proj": 85,
@@ -5042,7 +5087,7 @@
    "position": "QB",
    "adp": 213.45,
    "bye": 14,
-   "proj": 235.7,
+   "proj": 244.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5052,8 +5097,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 223.3,
-   "ceiling": 365.5,
+   "floor": 231.5,
+   "ceiling": 378.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 10,
    "ds_proj": 247,
@@ -5065,7 +5110,7 @@
    "position": "WR",
    "adp": 306.7,
    "bye": 6,
-   "proj": 58.9,
+   "proj": 61.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5087,7 +5132,7 @@
    "position": "RB",
    "adp": 175.2,
    "bye": 13,
-   "proj": 60.9,
+   "proj": 61,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5097,8 +5142,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 51.3,
-   "ceiling": 179.2,
+   "floor": 51.4,
+   "ceiling": 179.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 21,
    "ds_proj": 70,
@@ -5128,7 +5173,7 @@
    "position": "WR",
    "adp": 319.6,
    "bye": 8,
-   "proj": 64.1,
+   "proj": 65.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5137,8 +5182,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 56.3,
-   "ceiling": 128.7,
+   "floor": 57.9,
+   "ceiling": 132.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 19,
    "ds_proj": 107,
@@ -5150,7 +5195,7 @@
    "position": "TE",
    "adp": 415.6,
    "bye": 5,
-   "proj": 36.2,
+   "proj": 34.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5171,7 +5216,7 @@
    "position": "WR",
    "adp": 203.5,
    "bye": 9,
-   "proj": 88.5,
+   "proj": 90.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5181,8 +5226,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 73,
-   "ceiling": 155.3,
+   "floor": 74.3,
+   "ceiling": 158.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 48,
    "ds_proj": 114,
@@ -5194,7 +5239,7 @@
    "position": "TE",
    "adp": 407.6,
    "bye": 11,
-   "proj": 34.9,
+   "proj": 32.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5215,7 +5260,7 @@
    "position": "WR",
    "adp": 274.9,
    "bye": 7,
-   "proj": 57,
+   "proj": 60,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5236,7 +5281,7 @@
    "position": "TE",
    "adp": 290.8,
    "bye": 5,
-   "proj": 28.9,
+   "proj": 27.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5258,7 +5303,7 @@
    "position": "TE",
    "adp": 382.6,
    "bye": 9,
-   "proj": 44.4,
+   "proj": 40.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5278,7 +5323,7 @@
    "position": "RB",
    "adp": 214.3,
    "bye": 7,
-   "proj": 45.4,
+   "proj": 44.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5299,7 +5344,7 @@
    "position": "TE",
    "adp": 387.6,
    "bye": 8,
-   "proj": 31.6,
+   "proj": 27.3,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5319,7 +5364,7 @@
    "position": "WR",
    "adp": 345.6,
    "bye": 14,
-   "proj": 53.2,
+   "proj": 56.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5340,7 +5385,7 @@
    "position": "TE",
    "adp": 417.6,
    "bye": 7,
-   "proj": 27.1,
+   "proj": 25,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5361,7 +5406,7 @@
    "position": "WR",
    "adp": 346.6,
    "bye": 11,
-   "proj": 52.5,
+   "proj": 55,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5383,7 +5428,7 @@
    "position": "TE",
    "adp": 389.6,
    "bye": 7,
-   "proj": 35.8,
+   "proj": 34.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5405,7 +5450,7 @@
    "position": "WR",
    "adp": 301.1,
    "bye": 13,
-   "proj": 51.5,
+   "proj": 54.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5426,7 +5471,7 @@
    "position": "RB",
    "adp": 208.9,
    "bye": 5,
-   "proj": 43.5,
+   "proj": 43.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5436,8 +5481,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 33.7,
-   "ceiling": 115.1,
+   "floor": 33.8,
+   "ceiling": 115.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 18,
    "ds_proj": 71,
@@ -5449,7 +5494,7 @@
    "position": "RB",
    "adp": 154.2,
    "bye": 10,
-   "proj": 46.4,
+   "proj": 46.6,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5459,8 +5504,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 41.8,
-   "ceiling": 143.3,
+   "floor": 41.9,
+   "ceiling": 143.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 70,
@@ -5472,7 +5517,7 @@
    "position": "TE",
    "adp": 390.6,
    "bye": 8,
-   "proj": 48.4,
+   "proj": 47,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5494,7 +5539,7 @@
    "position": "WR",
    "adp": 304.7,
    "bye": 11,
-   "proj": 57.5,
+   "proj": 60.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5515,7 +5560,7 @@
    "position": "TE",
    "adp": 394.6,
    "bye": null,
-   "proj": 49.2,
+   "proj": 44.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5535,7 +5580,7 @@
    "position": "RB",
    "adp": 195.25,
    "bye": 9,
-   "proj": 38.2,
+   "proj": 38.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5544,8 +5589,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 33.6,
-   "ceiling": 135.1,
+   "floor": 33.5,
+   "ceiling": 134.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 19,
    "ds_proj": 58,
@@ -5557,7 +5602,7 @@
    "position": "TE",
    "adp": 396.6,
    "bye": null,
-   "proj": 65.7,
+   "proj": 59.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -5576,7 +5621,7 @@
    "position": "WR",
    "adp": 184.95,
    "bye": 8,
-   "proj": 75.1,
+   "proj": 76.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5615,7 +5660,7 @@
    "position": "TE",
    "adp": 406.6,
    "bye": 8,
-   "proj": 21.9,
+   "proj": 19.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5636,7 +5681,7 @@
    "position": "TE",
    "adp": 402.6,
    "bye": 10,
-   "proj": 29.8,
+   "proj": 25.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5656,7 +5701,7 @@
    "position": "TE",
    "adp": 405.6,
    "bye": 11,
-   "proj": 43.3,
+   "proj": 41.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5678,7 +5723,7 @@
    "position": "WR",
    "adp": 349.6,
    "bye": 10,
-   "proj": 45.7,
+   "proj": 49.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5698,7 +5743,7 @@
    "position": "TE",
    "adp": 409.6,
    "bye": 11,
-   "proj": 42.7,
+   "proj": 41.3,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5720,7 +5765,7 @@
    "position": "TE",
    "adp": 410.6,
    "bye": 7,
-   "proj": 31.8,
+   "proj": 25.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -5739,7 +5784,7 @@
    "position": "TE",
    "adp": 413.6,
    "bye": 7,
-   "proj": 23.3,
+   "proj": 19,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5777,7 +5822,7 @@
    "position": "RB",
    "adp": 251.4,
    "bye": 8,
-   "proj": 62,
+   "proj": 61.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5798,7 +5843,7 @@
    "position": "TE",
    "adp": 419.6,
    "bye": 9,
-   "proj": 31.5,
+   "proj": 25.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -5817,7 +5862,7 @@
    "position": "TE",
    "adp": 420.6,
    "bye": 6,
-   "proj": 25.1,
+   "proj": 22.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5855,7 +5900,7 @@
    "position": "TE",
    "adp": 423.6,
    "bye": 6,
-   "proj": 40.3,
+   "proj": 38.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5877,7 +5922,7 @@
    "position": "TE",
    "adp": 424.6,
    "bye": 14,
-   "proj": 20,
+   "proj": 15.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -5897,7 +5942,7 @@
    "position": "WR",
    "adp": 200.8,
    "bye": 11,
-   "proj": 56.5,
+   "proj": 59.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5918,7 +5963,7 @@
    "position": "WR",
    "adp": 303.7,
    "bye": 10,
-   "proj": 48.5,
+   "proj": 51,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -5940,7 +5985,7 @@
    "position": "WR",
    "adp": 284.35,
    "bye": 6,
-   "proj": 63.6,
+   "proj": 66.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -5961,7 +6006,7 @@
    "position": "RB",
    "adp": 129.5,
    "bye": 8,
-   "proj": 96.1,
+   "proj": 96.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5971,8 +6016,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 75.5,
-   "ceiling": 215,
+   "floor": 75.6,
+   "ceiling": 215.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 93,
@@ -5984,7 +6029,7 @@
    "position": "RB",
    "adp": 235.45,
    "bye": 7,
-   "proj": 49.3,
+   "proj": 49.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -5994,8 +6039,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 45.8,
-   "ceiling": 128.9,
+   "floor": 46,
+   "ceiling": 129.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 57,
@@ -6007,7 +6052,7 @@
    "position": "WR",
    "adp": 289.65,
    "bye": 10,
-   "proj": 62.6,
+   "proj": 65.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -6029,7 +6074,7 @@
    "position": "TE",
    "adp": 433.6,
    "bye": 8,
-   "proj": 49,
+   "proj": 44.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6049,7 +6094,7 @@
    "position": "TE",
    "adp": 434.6,
    "bye": 14,
-   "proj": 16.9,
+   "proj": 12.6,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6069,7 +6114,7 @@
    "position": "WR",
    "adp": 276.5,
    "bye": 8,
-   "proj": 50.3,
+   "proj": 53.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6090,7 +6135,7 @@
    "position": "RB",
    "adp": 190.2,
    "bye": 14,
-   "proj": 55.4,
+   "proj": 55.8,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -6099,8 +6144,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 46.1,
-   "ceiling": 111.5,
+   "floor": 46.4,
+   "ceiling": 112.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 34,
    "ds_proj": 77,
@@ -6112,7 +6157,7 @@
    "position": "TE",
    "adp": 443.6,
    "bye": 13,
-   "proj": 30.1,
+   "proj": 23.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6131,7 +6176,7 @@
    "position": "TE",
    "adp": 445.6,
    "bye": 10,
-   "proj": 37.5,
+   "proj": 33.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6151,7 +6196,7 @@
    "position": "WR",
    "adp": 318.6,
    "bye": 7,
-   "proj": 37.2,
+   "proj": 40.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6171,7 +6216,7 @@
    "position": "WR",
    "adp": 344.6,
    "bye": 14,
-   "proj": 47.8,
+   "proj": 50.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6192,7 +6237,7 @@
    "position": "TE",
    "adp": 446.6,
    "bye": 7,
-   "proj": 20.3,
+   "proj": 16,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6212,7 +6257,7 @@
    "position": "RB",
    "adp": 278.5,
    "bye": 11,
-   "proj": 36.4,
+   "proj": 36.5,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6222,8 +6267,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 29.1,
-   "ceiling": 106.9,
+   "floor": 29.2,
+   "ceiling": 107.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 50,
@@ -6235,7 +6280,7 @@
    "position": "TE",
    "adp": 448.6,
    "bye": 7,
-   "proj": 42.7,
+   "proj": 38.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6255,7 +6300,7 @@
    "position": "TE",
    "adp": 449.6,
    "bye": 6,
-   "proj": 41,
+   "proj": 36.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6275,7 +6320,7 @@
    "position": "WR",
    "adp": 352.6,
    "bye": 8,
-   "proj": 31.5,
+   "proj": 35.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6295,7 +6340,7 @@
    "position": "TE",
    "adp": 451.6,
    "bye": null,
-   "proj": 32.5,
+   "proj": 26.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6314,7 +6359,7 @@
    "position": "TE",
    "adp": 454.6,
    "bye": 10,
-   "proj": 25.1,
+   "proj": 20.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6334,7 +6379,7 @@
    "position": "RB",
    "adp": 311.3,
    "bye": 11,
-   "proj": 31.5,
+   "proj": 31,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6355,7 +6400,7 @@
    "position": "WR",
    "adp": 266.1,
    "bye": 13,
-   "proj": 37.6,
+   "proj": 41.3,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6375,7 +6420,7 @@
    "position": "WR",
    "adp": 354.6,
    "bye": 13,
-   "proj": 52.1,
+   "proj": 55,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6396,7 +6441,7 @@
    "position": "WR",
    "adp": 348.6,
    "bye": 11,
-   "proj": 45.4,
+   "proj": 48.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6417,7 +6462,7 @@
    "position": "RB",
    "adp": 145.7,
    "bye": 6,
-   "proj": 93.5,
+   "proj": 93.7,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6427,8 +6472,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 76.1,
-   "ceiling": 192.3,
+   "floor": 76.2,
+   "ceiling": 192.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 36,
    "ds_proj": 107,
@@ -6440,7 +6485,7 @@
    "position": "RB",
    "adp": 238.4,
    "bye": 10,
-   "proj": 41.1,
+   "proj": 41.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6450,8 +6495,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 37.9,
-   "ceiling": 117.4,
+   "floor": 38,
+   "ceiling": 117.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 20,
    "ds_proj": 64,
@@ -6463,7 +6508,7 @@
    "position": "WR",
    "adp": 356.6,
    "bye": 11,
-   "proj": 36,
+   "proj": 39,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6484,7 +6529,7 @@
    "position": "WR",
    "adp": 357.6,
    "bye": 7,
-   "proj": 42.1,
+   "proj": 45.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6503,7 +6548,7 @@
    "position": "RB",
    "adp": 185.7,
    "bye": 14,
-   "proj": 47,
+   "proj": 46.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -6512,8 +6557,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 40.3,
-   "ceiling": 130.7,
+   "floor": 40.2,
+   "ceiling": 130.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 22,
    "ds_proj": 77,
@@ -6525,7 +6570,7 @@
    "position": "RB",
    "adp": 189.25,
    "bye": 13,
-   "proj": 64.2,
+   "proj": 64.3,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6535,8 +6580,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 61.3,
-   "ceiling": 189.7,
+   "floor": 61.4,
+   "ceiling": 190.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 42,
    "ds_proj": 66,
@@ -6548,7 +6593,7 @@
    "position": "RB",
    "adp": 247.85,
    "bye": 6,
-   "proj": 45.6,
+   "proj": 45.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6558,8 +6603,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 39.3,
-   "ceiling": 148.8,
+   "floor": 39.4,
+   "ceiling": 149.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 23,
    "ds_proj": 50,
@@ -6571,7 +6616,7 @@
    "position": "WR",
    "adp": 360.6,
    "bye": 10,
-   "proj": 44.4,
+   "proj": 48.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6591,7 +6636,7 @@
    "position": "WR",
    "adp": 362.6,
    "bye": 9,
-   "proj": 47.2,
+   "proj": 49.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -6613,7 +6658,7 @@
    "position": "WR",
    "adp": 366.6,
    "bye": 8,
-   "proj": 39.6,
+   "proj": 42.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -6635,7 +6680,7 @@
    "position": "QB",
    "adp": 168.4,
    "bye": 13,
-   "proj": 216.6,
+   "proj": 225.2,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6645,8 +6690,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 212.9,
-   "ceiling": 358.2,
+   "floor": 221.5,
+   "ceiling": 372.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 23,
    "ds_proj": 240,
@@ -6658,7 +6703,7 @@
    "position": "RB",
    "adp": 239.55,
    "bye": 7,
-   "proj": 34.6,
+   "proj": 34.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6668,8 +6713,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 29.6,
-   "ceiling": 109.5,
+   "floor": 29.7,
+   "ceiling": 109.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 24,
    "ds_proj": 62,
@@ -6681,7 +6726,7 @@
    "position": "TE",
    "adp": 493.6,
    "bye": 13,
-   "proj": 16.9,
+   "proj": 10.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6700,7 +6745,7 @@
    "position": "RB",
    "adp": 320.6,
    "bye": 13,
-   "proj": 39.8,
+   "proj": 39.9,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6710,8 +6755,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 37.9,
-   "ceiling": 92.8,
+   "floor": 38,
+   "ceiling": 93.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 63,
@@ -6723,7 +6768,7 @@
    "position": "TE",
    "adp": 497.6,
    "bye": 5,
-   "proj": 18.7,
+   "proj": 14.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6743,7 +6788,7 @@
    "position": "TE",
    "adp": 498.6,
    "bye": 13,
-   "proj": 24.2,
+   "proj": 18,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6762,7 +6807,7 @@
    "position": "WR",
    "adp": 273.9,
    "bye": 8,
-   "proj": 31.5,
+   "proj": 31.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6781,7 +6826,7 @@
    "position": "RB",
    "adp": 296.8,
    "bye": 7,
-   "proj": 36.3,
+   "proj": 36.4,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6791,8 +6836,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 33.8,
-   "ceiling": 83.9,
+   "floor": 33.9,
+   "ceiling": 84.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 21,
    "ds_proj": 58,
@@ -6804,7 +6849,7 @@
    "position": "RB",
    "adp": 211.9,
    "bye": 8,
-   "proj": 50,
+   "proj": 50.1,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -6814,8 +6859,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 45.8,
-   "ceiling": 168.8,
+   "floor": 46,
+   "ceiling": 169.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 48,
@@ -6827,7 +6872,7 @@
    "position": "WR",
    "adp": 353.6,
    "bye": 11,
-   "proj": 36.1,
+   "proj": 39.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6848,7 +6893,7 @@
    "position": "WR",
    "adp": 370.6,
    "bye": 5,
-   "proj": 31,
+   "proj": 34.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6867,7 +6912,7 @@
    "position": "TE",
    "adp": 508.6,
    "bye": 8,
-   "proj": 13.5,
+   "proj": 7.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6886,7 +6931,7 @@
    "position": "TE",
    "adp": 509.6,
    "bye": null,
-   "proj": 37.7,
+   "proj": 31.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6905,7 +6950,7 @@
    "position": "TE",
    "adp": 512.6,
    "bye": 8,
-   "proj": 15.3,
+   "proj": 11,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6925,7 +6970,7 @@
    "position": "WR",
    "adp": 371.6,
    "bye": 6,
-   "proj": 21.2,
+   "proj": 24.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -6946,7 +6991,7 @@
    "position": "TE",
    "adp": 514.6,
    "bye": 9,
-   "proj": 22.5,
+   "proj": 16.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -6965,7 +7010,7 @@
    "position": "TE",
    "adp": 515.6,
    "bye": 13,
-   "proj": 21.3,
+   "proj": 17.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -6985,7 +7030,7 @@
    "position": "WR",
    "adp": 268.7,
    "bye": 8,
-   "proj": 50.2,
+   "proj": 52.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -7007,7 +7052,7 @@
    "position": "TE",
    "adp": 524.6,
    "bye": 10,
-   "proj": 10.4,
+   "proj": 6.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7027,7 +7072,7 @@
    "position": "TE",
    "adp": 525.6,
    "bye": 6,
-   "proj": 16.8,
+   "proj": 12.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7047,7 +7092,7 @@
    "position": "TE",
    "adp": 526.6,
    "bye": 11,
-   "proj": 17.5,
+   "proj": 13.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7085,7 +7130,7 @@
    "position": "TE",
    "adp": 533.6,
    "bye": 11,
-   "proj": 14,
+   "proj": 9.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7105,7 +7150,7 @@
    "position": "TE",
    "adp": 535.6,
    "bye": null,
-   "proj": 13,
+   "proj": 6.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7124,7 +7169,7 @@
    "position": "TE",
    "adp": 537.6,
    "bye": 10,
-   "proj": 13.3,
+   "proj": 9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7144,7 +7189,7 @@
    "position": "TE",
    "adp": 548.6,
    "bye": 11,
-   "proj": 12.7,
+   "proj": 6.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7163,7 +7208,7 @@
    "position": "WR",
    "adp": 399.6,
    "bye": 11,
-   "proj": 31.4,
+   "proj": 34.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7184,7 +7229,7 @@
    "position": "WR",
    "adp": 436.6,
    "bye": 10,
-   "proj": 33.6,
+   "proj": 36.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7205,7 +7250,7 @@
    "position": "TE",
    "adp": 553.6,
    "bye": 11,
-   "proj": 23.3,
+   "proj": 19,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7225,7 +7270,7 @@
    "position": "TE",
    "adp": 555.6,
    "bye": 6,
-   "proj": 15.9,
+   "proj": 13.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7245,7 +7290,7 @@
    "position": "TE",
    "adp": 556.6,
    "bye": 11,
-   "proj": 10.7,
+   "proj": 4.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7264,7 +7309,7 @@
    "position": "TE",
    "adp": 557.6,
    "bye": 10,
-   "proj": 16.4,
+   "proj": 12.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7284,7 +7329,7 @@
    "position": "TE",
    "adp": 287.1,
    "bye": 11,
-   "proj": 11.9,
+   "proj": 5.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7321,7 +7366,7 @@
    "position": "TE",
    "adp": 564.6,
    "bye": 13,
-   "proj": 10.9,
+   "proj": 4.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7340,7 +7385,7 @@
    "position": "RB",
    "adp": 317.6,
    "bye": 13,
-   "proj": 29.7,
+   "proj": 29.8,
    "n_sources": 6,
    "sources_used": [
     "sleeper",
@@ -7350,8 +7395,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 24.7,
-   "ceiling": 96.1,
+   "floor": 24.8,
+   "ceiling": 96.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 47,
@@ -7363,7 +7408,7 @@
    "position": "RB",
    "adp": 376.6,
    "bye": 13,
-   "proj": 23.1,
+   "proj": 23,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7383,7 +7428,7 @@
    "position": "WR",
    "adp": 401.6,
    "bye": 8,
-   "proj": 31.6,
+   "proj": 34.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7404,7 +7449,7 @@
    "position": "TE",
    "adp": 574.6,
    "bye": 11,
-   "proj": 10,
+   "proj": 3.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7423,7 +7468,7 @@
    "position": "RB",
    "adp": 314.3,
    "bye": 5,
-   "proj": 55.3,
+   "proj": 55.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -7445,7 +7490,7 @@
    "position": "RB",
    "adp": 378.6,
    "bye": 5,
-   "proj": 18.5,
+   "proj": 18.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7466,7 +7511,7 @@
    "position": "TE",
    "adp": 582.6,
    "bye": 10,
-   "proj": 9.2,
+   "proj": 3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7485,7 +7530,7 @@
    "position": "TE",
    "adp": 583.6,
    "bye": 6,
-   "proj": 9.3,
+   "proj": 3.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7504,7 +7549,7 @@
    "position": "TE",
    "adp": 584.6,
    "bye": 13,
-   "proj": 11.4,
+   "proj": 5.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7523,7 +7568,7 @@
    "position": "TE",
    "adp": 587.6,
    "bye": 9,
-   "proj": 10.6,
+   "proj": 4.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7542,7 +7587,7 @@
    "position": "TE",
    "adp": 590.6,
    "bye": 6,
-   "proj": 20.3,
+   "proj": 14.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7561,7 +7606,7 @@
    "position": "RB",
    "adp": 312.3,
    "bye": 13,
-   "proj": 32.6,
+   "proj": 32.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7582,7 +7627,7 @@
    "position": "TE",
    "adp": 596.6,
    "bye": 10,
-   "proj": 8.6,
+   "proj": 2.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7601,7 +7646,7 @@
    "position": "TE",
    "adp": 597.6,
    "bye": 8,
-   "proj": 9,
+   "proj": 2.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7620,7 +7665,7 @@
    "position": "TE",
    "adp": 598.6,
    "bye": 7,
-   "proj": 9.2,
+   "proj": 3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7639,7 +7684,7 @@
    "position": "RB",
    "adp": 323.6,
    "bye": 14,
-   "proj": 48.2,
+   "proj": 48.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7660,7 +7705,7 @@
    "position": "WR",
    "adp": 313.3,
    "bye": 7,
-   "proj": 38.3,
+   "proj": 42,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7680,7 +7725,7 @@
    "position": "WR",
    "adp": 381.6,
    "bye": 11,
-   "proj": 33.4,
+   "proj": 37.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7699,7 +7744,7 @@
    "position": "TE",
    "adp": 599.6,
    "bye": 9,
-   "proj": 8.5,
+   "proj": 2.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7718,7 +7763,7 @@
    "position": "TE",
    "adp": 603.6,
    "bye": 6,
-   "proj": 12.5,
+   "proj": 6.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -7737,7 +7782,7 @@
    "position": "WR",
    "adp": 384.6,
    "bye": 8,
-   "proj": 32.8,
+   "proj": 36.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7757,7 +7802,7 @@
    "position": "WR",
    "adp": 392.6,
    "bye": 7,
-   "proj": 28.5,
+   "proj": 31.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7778,7 +7823,7 @@
    "position": "WR",
    "adp": 386.6,
    "bye": 8,
-   "proj": 40.4,
+   "proj": 43.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -7798,7 +7843,7 @@
    "position": "RB",
    "adp": 293.8,
    "bye": 9,
-   "proj": 16.4,
+   "proj": 15.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -7819,7 +7864,7 @@
    "position": "WR",
    "adp": 388.6,
    "bye": 7,
-   "proj": 26.2,
+   "proj": 29.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8055,7 +8100,7 @@
    "position": "TE",
    "adp": 751.4,
    "bye": 10,
-   "proj": 18.9,
+   "proj": 12.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8128,7 +8173,7 @@
    "position": "RB",
    "adp": 241.7,
    "bye": null,
-   "proj": 33.7,
+   "proj": 34.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8148,7 +8193,7 @@
    "position": "RB",
    "adp": 292.8,
    "bye": 6,
-   "proj": 29.6,
+   "proj": 29.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -8157,8 +8202,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 28.2,
-   "ceiling": 112.8,
+   "floor": 28.1,
+   "ceiling": 112.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 42,
@@ -8170,7 +8215,7 @@
    "position": "WR",
    "adp": 422.6,
    "bye": 13,
-   "proj": 27.7,
+   "proj": 30.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8191,7 +8236,7 @@
    "position": "RB",
    "adp": 395.6,
    "bye": 8,
-   "proj": 28.7,
+   "proj": 29.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8229,7 +8274,7 @@
    "position": "WR",
    "adp": 373.6,
    "bye": 11,
-   "proj": 27.7,
+   "proj": 30.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8250,7 +8295,7 @@
    "position": "RB",
    "adp": 393.6,
    "bye": 10,
-   "proj": 25.6,
+   "proj": 25.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8271,7 +8316,7 @@
    "position": "WR",
    "adp": 258.8,
    "bye": 6,
-   "proj": 59.5,
+   "proj": 62.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8292,7 +8337,7 @@
    "position": "RB",
    "adp": 309,
    "bye": 13,
-   "proj": 47.5,
+   "proj": 47.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8313,7 +8358,7 @@
    "position": "RB",
    "adp": 295.65,
    "bye": 14,
-   "proj": 28.1,
+   "proj": 28.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8321,8 +8366,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 22.6,
-   "ceiling": 77.8,
+   "floor": 22.8,
+   "ceiling": 78.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 25,
    "ds_proj": 57,
@@ -8334,15 +8379,15 @@
    "position": "RB",
    "adp": 412.6,
    "bye": null,
-   "proj": 51,
+   "proj": 52.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
     "own_v6",
     "draftsharks"
    ],
-   "floor": 32.7,
-   "ceiling": 146.3,
+   "floor": 33.4,
+   "ceiling": 149.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 28,
    "ds_proj": 53,
@@ -8354,7 +8399,7 @@
    "position": "WR",
    "adp": 322.6,
    "bye": 7,
-   "proj": 37.6,
+   "proj": 40.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -8376,7 +8421,7 @@
    "position": "WR",
    "adp": 403.6,
    "bye": 6,
-   "proj": 28.1,
+   "proj": 31.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8396,7 +8441,7 @@
    "position": "WR",
    "adp": 404.6,
    "bye": 11,
-   "proj": 22.1,
+   "proj": 25.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8416,7 +8461,7 @@
    "position": "WR",
    "adp": 463.6,
    "bye": 11,
-   "proj": 27.6,
+   "proj": 30.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8437,7 +8482,7 @@
    "position": "RB",
    "adp": 428.6,
    "bye": 8,
-   "proj": 29.6,
+   "proj": 29.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -8459,7 +8504,7 @@
    "position": "WR",
    "adp": 383.6,
    "bye": 10,
-   "proj": 26,
+   "proj": 29,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8480,7 +8525,7 @@
    "position": "WR",
    "adp": 411.6,
    "bye": 6,
-   "proj": 30.2,
+   "proj": 33.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8500,7 +8545,7 @@
    "position": "WR",
    "adp": 414.6,
    "bye": 13,
-   "proj": 27.7,
+   "proj": 31.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8520,7 +8565,7 @@
    "position": "WR",
    "adp": 398.6,
    "bye": 5,
-   "proj": 23.1,
+   "proj": 26.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8541,7 +8586,7 @@
    "position": "WR",
    "adp": 418.6,
    "bye": 5,
-   "proj": 20.1,
+   "proj": 23.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8561,7 +8606,7 @@
    "position": "RB",
    "adp": 308,
    "bye": 8,
-   "proj": 36.4,
+   "proj": 37.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8569,8 +8614,8 @@
     "cbs",
     "draftsharks"
    ],
-   "floor": 29.2,
-   "ceiling": 109.3,
+   "floor": 30,
+   "ceiling": 112.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 39,
    "ds_proj": 55,
@@ -8600,7 +8645,7 @@
    "position": "RB",
    "adp": 302.4,
    "bye": 7,
-   "proj": 23,
+   "proj": 24,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8637,7 +8682,7 @@
    "position": "RB",
    "adp": 218,
    "bye": 11,
-   "proj": 39.4,
+   "proj": 39.3,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -8646,8 +8691,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 33.1,
-   "ceiling": 97.2,
+   "floor": 33,
+   "ceiling": 96.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 75,
@@ -8659,7 +8704,7 @@
    "position": "WR",
    "adp": 426.6,
    "bye": 13,
-   "proj": 28.3,
+   "proj": 31.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8680,7 +8725,7 @@
    "position": "RB",
    "adp": 438.6,
    "bye": 6,
-   "proj": 17.7,
+   "proj": 17.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8701,7 +8746,7 @@
    "position": "WR",
    "adp": 429.6,
    "bye": 6,
-   "proj": 18.2,
+   "proj": 21.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8721,7 +8766,7 @@
    "position": "RB",
    "adp": 237.7,
    "bye": 6,
-   "proj": 28.8,
+   "proj": 28.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8742,7 +8787,7 @@
    "position": "RB",
    "adp": 266.8,
    "bye": null,
-   "proj": 66.9,
+   "proj": 67.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8779,7 +8824,7 @@
    "position": "WR",
    "adp": 391.6,
    "bye": 7,
-   "proj": 22.5,
+   "proj": 25.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -8800,7 +8845,7 @@
    "position": "WR",
    "adp": 432.6,
    "bye": null,
-   "proj": 43.9,
+   "proj": 47.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8819,7 +8864,7 @@
    "position": "WR",
    "adp": 437.6,
    "bye": 8,
-   "proj": 22.1,
+   "proj": 23.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8838,7 +8883,7 @@
    "position": "WR",
    "adp": 439.6,
    "bye": 14,
-   "proj": 21.3,
+   "proj": 25.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8857,7 +8902,7 @@
    "position": "WR",
    "adp": 440.6,
    "bye": null,
-   "proj": 44.8,
+   "proj": 48.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8876,7 +8921,7 @@
    "position": "RB",
    "adp": 453.6,
    "bye": 8,
-   "proj": 18.4,
+   "proj": 19.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8896,7 +8941,7 @@
    "position": "WR",
    "adp": 441.6,
    "bye": 10,
-   "proj": 21.8,
+   "proj": 25.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8915,7 +8960,7 @@
    "position": "WR",
    "adp": 444.6,
    "bye": 9,
-   "proj": 23.1,
+   "proj": 26.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8953,7 +8998,7 @@
    "position": "RB",
    "adp": 456.6,
    "bye": 10,
-   "proj": 15.8,
+   "proj": 16.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -8973,7 +9018,7 @@
    "position": "WR",
    "adp": 450.6,
    "bye": 14,
-   "proj": 28.3,
+   "proj": 32.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -8992,7 +9037,7 @@
    "position": "RB",
    "adp": 457.6,
    "bye": 8,
-   "proj": 17.8,
+   "proj": 18.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9012,7 +9057,7 @@
    "position": "WR",
    "adp": 452.6,
    "bye": 10,
-   "proj": 35.5,
+   "proj": 37.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -9033,7 +9078,7 @@
    "position": "WR",
    "adp": 455.6,
    "bye": 11,
-   "proj": 15.5,
+   "proj": 19.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9053,7 +9098,7 @@
    "position": "RB",
    "adp": 465.6,
    "bye": 11,
-   "proj": 28.2,
+   "proj": 29.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9073,7 +9118,7 @@
    "position": "WR",
    "adp": 459.6,
    "bye": 10,
-   "proj": 20.3,
+   "proj": 24.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9092,7 +9137,7 @@
    "position": "WR",
    "adp": 464.6,
    "bye": 13,
-   "proj": 27.2,
+   "proj": 31,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9111,7 +9156,7 @@
    "position": "RB",
    "adp": 321.6,
    "bye": 5,
-   "proj": 29.6,
+   "proj": 30.6,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9131,7 +9176,7 @@
    "position": "RB",
    "adp": 469.6,
    "bye": 8,
-   "proj": 23.8,
+   "proj": 23.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9151,7 +9196,7 @@
    "position": "RB",
    "adp": 501.6,
    "bye": null,
-   "proj": 23.9,
+   "proj": 24.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9170,7 +9215,7 @@
    "position": "RB",
    "adp": 254.8,
    "bye": 8,
-   "proj": 26,
+   "proj": 25.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -9179,8 +9224,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 23.7,
-   "ceiling": 88.4,
+   "floor": 23.6,
+   "ceiling": 88.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 29,
    "ds_proj": 45,
@@ -9210,7 +9255,7 @@
    "position": "WR",
    "adp": 500.6,
    "bye": 13,
-   "proj": 15.9,
+   "proj": 19.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9229,7 +9274,7 @@
    "position": "RB",
    "adp": 503.6,
    "bye": 8,
-   "proj": 15.1,
+   "proj": 16.1,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9267,7 +9312,7 @@
    "position": "RB",
    "adp": 505.6,
    "bye": null,
-   "proj": 13.2,
+   "proj": 14.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9287,7 +9332,7 @@
    "position": "RB",
    "adp": 506.6,
    "bye": 7,
-   "proj": 21.2,
+   "proj": 21.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -9326,7 +9371,7 @@
    "position": "WR",
    "adp": 291.8,
    "bye": 6,
-   "proj": 32.2,
+   "proj": 35.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -9347,7 +9392,7 @@
    "position": "RB",
    "adp": 516.6,
    "bye": 9,
-   "proj": 18.8,
+   "proj": 19.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9366,7 +9411,7 @@
    "position": "RB",
    "adp": 517.6,
    "bye": 10,
-   "proj": 14.2,
+   "proj": 14.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -9387,7 +9432,7 @@
    "position": "RB",
    "adp": 518.6,
    "bye": 10,
-   "proj": 13.7,
+   "proj": 14.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9424,7 +9469,7 @@
    "position": "RB",
    "adp": 520.6,
    "bye": 14,
-   "proj": 12.8,
+   "proj": 13.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9461,7 +9506,7 @@
    "position": "WR",
    "adp": 507.6,
    "bye": 11,
-   "proj": 11.2,
+   "proj": 14.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9481,7 +9526,7 @@
    "position": "RB",
    "adp": 523.6,
    "bye": 10,
-   "proj": 13.7,
+   "proj": 14.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9500,7 +9545,7 @@
    "position": "WR",
    "adp": 511.6,
    "bye": 7,
-   "proj": 26.2,
+   "proj": 29,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -9521,7 +9566,7 @@
    "position": "WR",
    "adp": 513.6,
    "bye": 13,
-   "proj": 13,
+   "proj": 16.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9540,7 +9585,7 @@
    "position": "RB",
    "adp": 528.6,
    "bye": 14,
-   "proj": 16.1,
+   "proj": 16,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -9560,7 +9605,7 @@
    "position": "RB",
    "adp": 531.6,
    "bye": 11,
-   "proj": 11.5,
+   "proj": 12.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9579,7 +9624,7 @@
    "position": "WR",
    "adp": 120.62,
    "bye": 6,
-   "proj": 13.2,
+   "proj": 17,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9598,7 +9643,7 @@
    "position": "RB",
    "adp": 534.6,
    "bye": 13,
-   "proj": 11.5,
+   "proj": 12.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9617,7 +9662,7 @@
    "position": "WR",
    "adp": 521.6,
    "bye": 11,
-   "proj": 12.5,
+   "proj": 16.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9636,7 +9681,7 @@
    "position": "RB",
    "adp": 549.6,
    "bye": 9,
-   "proj": 11,
+   "proj": 11.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9655,7 +9700,7 @@
    "position": "RB",
    "adp": 550.6,
    "bye": 6,
-   "proj": 13.4,
+   "proj": 14.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9674,7 +9719,7 @@
    "position": "RB",
    "adp": 551.6,
    "bye": 8,
-   "proj": 15.8,
+   "proj": 15.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -9683,8 +9728,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 12.7,
-   "ceiling": 55.6,
+   "floor": 12.6,
+   "ceiling": 55.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 33,
    "ds_proj": 45,
@@ -9696,7 +9741,7 @@
    "position": "RB",
    "adp": 552.6,
    "bye": 9,
-   "proj": 10.2,
+   "proj": 11.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9715,7 +9760,7 @@
    "position": "WR",
    "adp": 527.6,
    "bye": 11,
-   "proj": 12.1,
+   "proj": 15.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9734,7 +9779,7 @@
    "position": "WR",
    "adp": 529.6,
    "bye": 14,
-   "proj": 11.4,
+   "proj": 15.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9753,7 +9798,7 @@
    "position": "WR",
    "adp": 530.6,
    "bye": 13,
-   "proj": 11.5,
+   "proj": 15.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9790,7 +9835,7 @@
    "position": "RB",
    "adp": 559.6,
    "bye": 13,
-   "proj": 9.8,
+   "proj": 10.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9809,7 +9854,7 @@
    "position": "RB",
    "adp": 561.6,
    "bye": null,
-   "proj": 23.5,
+   "proj": 24.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9828,7 +9873,7 @@
    "position": "RB",
    "adp": 562.6,
    "bye": 8,
-   "proj": 11.5,
+   "proj": 12.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9847,7 +9892,7 @@
    "position": "WR",
    "adp": 536.6,
    "bye": 7,
-   "proj": 14.2,
+   "proj": 18,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9866,7 +9911,7 @@
    "position": "WR",
    "adp": 538.6,
    "bye": 10,
-   "proj": 11.3,
+   "proj": 15.1,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9885,7 +9930,7 @@
    "position": "RB",
    "adp": 565.6,
    "bye": 7,
-   "proj": 11.6,
+   "proj": 12.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9904,7 +9949,7 @@
    "position": "RB",
    "adp": 566.6,
    "bye": 11,
-   "proj": 11.6,
+   "proj": 12.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -9977,7 +10022,7 @@
    "position": "WR",
    "adp": 542.6,
    "bye": 11,
-   "proj": 34.2,
+   "proj": 36.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -10015,7 +10060,7 @@
    "position": "RB",
    "adp": 570.6,
    "bye": 11,
-   "proj": 18.5,
+   "proj": 18.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -10035,7 +10080,7 @@
    "position": "WR",
    "adp": 544.6,
    "bye": null,
-   "proj": 23.1,
+   "proj": 27,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10054,7 +10099,7 @@
    "position": "WR",
    "adp": 545.6,
    "bye": 8,
-   "proj": 12.4,
+   "proj": 16.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10073,7 +10118,7 @@
    "position": "WR",
    "adp": 546.6,
    "bye": 14,
-   "proj": 11.1,
+   "proj": 14.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10092,7 +10137,7 @@
    "position": "WR",
    "adp": 547.6,
    "bye": 14,
-   "proj": 12.6,
+   "proj": 16.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10111,7 +10156,7 @@
    "position": "WR",
    "adp": 281.5,
    "bye": null,
-   "proj": 25.1,
+   "proj": 28.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10130,7 +10175,7 @@
    "position": "RB",
    "adp": 573.6,
    "bye": 7,
-   "proj": 9.9,
+   "proj": 10.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10167,7 +10212,7 @@
    "position": "RB",
    "adp": 585.6,
    "bye": 6,
-   "proj": 9.6,
+   "proj": 10.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10186,7 +10231,7 @@
    "position": "WR",
    "adp": 554.6,
    "bye": null,
-   "proj": 20.4,
+   "proj": 24.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10205,7 +10250,7 @@
    "position": "RB",
    "adp": 588.6,
    "bye": null,
-   "proj": 24.8,
+   "proj": 25.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10224,7 +10269,7 @@
    "position": "WR",
    "adp": 563.6,
    "bye": 7,
-   "proj": 33.4,
+   "proj": 36.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -10245,7 +10290,7 @@
    "position": "WR",
    "adp": 567.6,
    "bye": 10,
-   "proj": 10.5,
+   "proj": 14.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10264,7 +10309,7 @@
    "position": "WR",
    "adp": 568.6,
    "bye": 9,
-   "proj": 10.8,
+   "proj": 14.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10283,7 +10328,7 @@
    "position": "WR",
    "adp": 569.6,
    "bye": 13,
-   "proj": 18.5,
+   "proj": 21.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -10304,7 +10349,7 @@
    "position": "WR",
    "adp": 571.6,
    "bye": 11,
-   "proj": 10.1,
+   "proj": 13.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10323,7 +10368,7 @@
    "position": "WR",
    "adp": 572.6,
    "bye": 13,
-   "proj": 9.9,
+   "proj": 13.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10342,7 +10387,7 @@
    "position": "RB",
    "adp": 593.6,
    "bye": 6,
-   "proj": 5.7,
+   "proj": 6.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10361,7 +10406,7 @@
    "position": "QB",
    "adp": 243.25,
    "bye": 11,
-   "proj": 187.5,
+   "proj": 191.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -10401,7 +10446,7 @@
    "position": "WR",
    "adp": 577.6,
    "bye": 11,
-   "proj": 9.7,
+   "proj": 13.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10420,7 +10465,7 @@
    "position": "WR",
    "adp": 578.6,
    "bye": 11,
-   "proj": 10.8,
+   "proj": 14.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10439,7 +10484,7 @@
    "position": "WR",
    "adp": 579.6,
    "bye": 9,
-   "proj": 19.1,
+   "proj": 22.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10458,7 +10503,7 @@
    "position": "WR",
    "adp": 580.6,
    "bye": 13,
-   "proj": 11.4,
+   "proj": 15.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10477,7 +10522,7 @@
    "position": "WR",
    "adp": 581.6,
    "bye": 8,
-   "proj": 34.9,
+   "proj": 38.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10496,7 +10541,7 @@
    "position": "WR",
    "adp": 586.6,
    "bye": 7,
-   "proj": 13,
+   "proj": 16.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10515,7 +10560,7 @@
    "position": "WR",
    "adp": 589.6,
    "bye": 7,
-   "proj": 9.7,
+   "proj": 13.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10534,7 +10579,7 @@
    "position": "WR",
    "adp": 591.6,
    "bye": 11,
-   "proj": 9.9,
+   "proj": 13.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10553,7 +10598,7 @@
    "position": "WR",
    "adp": 592.6,
    "bye": 13,
-   "proj": 37.7,
+   "proj": 40.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -10575,7 +10620,7 @@
    "position": "RB",
    "adp": 604.6,
    "bye": null,
-   "proj": 20.4,
+   "proj": 21.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10594,7 +10639,7 @@
    "position": "WR",
    "adp": 594.6,
    "bye": null,
-   "proj": 38.6,
+   "proj": 42.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10613,7 +10658,7 @@
    "position": "WR",
    "adp": 595.6,
    "bye": 8,
-   "proj": 9.4,
+   "proj": 13.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -10632,7 +10677,7 @@
    "position": "WR",
    "adp": 600.6,
    "bye": 11,
-   "proj": 9.4,
+   "proj": 13.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11029,7 +11074,7 @@
    "position": "WR",
    "adp": 601.6,
    "bye": null,
-   "proj": 10.4,
+   "proj": 14.2,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11066,7 +11111,7 @@
    "position": "WR",
    "adp": 605.6,
    "bye": 9,
-   "proj": 9.1,
+   "proj": 13,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11085,7 +11130,7 @@
    "position": "WR",
    "adp": 606.6,
    "bye": null,
-   "proj": 37.9,
+   "proj": 41.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11104,7 +11149,7 @@
    "position": "WR",
    "adp": 607.6,
    "bye": 5,
-   "proj": 8.2,
+   "proj": 12,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11123,7 +11168,7 @@
    "position": "WR",
    "adp": 608.6,
    "bye": 13,
-   "proj": 7.9,
+   "proj": 11.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11304,7 +11349,7 @@
    "position": "WR",
    "adp": 722.7,
    "bye": 5,
-   "proj": 29.6,
+   "proj": 33.4,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11431,7 +11476,7 @@
    "position": "WR",
    "adp": 734.6,
    "bye": 11,
-   "proj": 17.5,
+   "proj": 21.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11738,7 +11783,7 @@
    "position": "WR",
    "adp": 762.6,
    "bye": 8,
-   "proj": 17.5,
+   "proj": 21.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11775,7 +11820,7 @@
    "position": "QB",
    "adp": 240.7,
    "bye": 11,
-   "proj": 152.4,
+   "proj": 156.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -11796,7 +11841,7 @@
    "position": "QB",
    "adp": 222.4,
    "bye": 11,
-   "proj": 84.6,
+   "proj": 88.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -11818,7 +11863,7 @@
    "position": "QB",
    "adp": 247.15,
    "bye": 11,
-   "proj": 84.3,
+   "proj": 88,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -11840,7 +11885,7 @@
    "position": "QB",
    "adp": 253.1,
    "bye": 14,
-   "proj": 36.1,
+   "proj": 39.8,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -11862,7 +11907,7 @@
    "position": "QB",
    "adp": 216,
    "bye": 13,
-   "proj": 45,
+   "proj": 48.6,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -11884,7 +11929,7 @@
    "position": "QB",
    "adp": 260.8,
    "bye": 5,
-   "proj": 19,
+   "proj": 22.6,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -11906,7 +11951,7 @@
    "position": "QB",
    "adp": 375.6,
    "bye": 6,
-   "proj": 17.3,
+   "proj": 21.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -11927,7 +11972,7 @@
    "position": "QB",
    "adp": 377.6,
    "bye": 11,
-   "proj": 32.5,
+   "proj": 33.8,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -11946,7 +11991,7 @@
    "position": "QB",
    "adp": 380.6,
    "bye": 14,
-   "proj": 16.7,
+   "proj": 21.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -11984,7 +12029,7 @@
    "position": "QB",
    "adp": 279.8,
    "bye": 8,
-   "proj": 16.5,
+   "proj": 20.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -12006,7 +12051,7 @@
    "position": "QB",
    "adp": 408.6,
    "bye": 13,
-   "proj": 17.6,
+   "proj": 21.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12027,7 +12072,7 @@
    "position": "QB",
    "adp": 427.6,
    "bye": 9,
-   "proj": 12.2,
+   "proj": 16.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12047,7 +12092,7 @@
    "position": "QB",
    "adp": 430.6,
    "bye": 9,
-   "proj": 24.2,
+   "proj": 29.3,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12067,7 +12112,7 @@
    "position": "QB",
    "adp": 442.6,
    "bye": 13,
-   "proj": 13.9,
+   "proj": 19,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12087,7 +12132,7 @@
    "position": "QB",
    "adp": 249.7,
    "bye": 6,
-   "proj": 22.8,
+   "proj": 26.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -12109,7 +12154,7 @@
    "position": "QB",
    "adp": 487.6,
    "bye": 8,
-   "proj": 14.6,
+   "proj": 18.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12130,7 +12175,7 @@
    "position": "QB",
    "adp": 477.6,
    "bye": 13,
-   "proj": 13,
+   "proj": 16.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12151,7 +12196,7 @@
    "position": "QB",
    "adp": 466.6,
    "bye": 7,
-   "proj": 10.2,
+   "proj": 15.3,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12171,7 +12216,7 @@
    "position": "QB",
    "adp": 467.6,
    "bye": 11,
-   "proj": 9.6,
+   "proj": 14.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12191,7 +12236,7 @@
    "position": "QB",
    "adp": 483.6,
    "bye": 6,
-   "proj": 12.8,
+   "proj": 16.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12212,7 +12257,7 @@
    "position": "QB",
    "adp": 468.6,
    "bye": 11,
-   "proj": 73.8,
+   "proj": 78.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12233,7 +12278,7 @@
    "position": "QB",
    "adp": 470.6,
    "bye": 7,
-   "proj": 18.9,
+   "proj": 24,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12253,7 +12298,7 @@
    "position": "QB",
    "adp": 480.6,
    "bye": 14,
-   "proj": 11.8,
+   "proj": 15.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12274,7 +12319,7 @@
    "position": "QB",
    "adp": 471.6,
    "bye": 11,
-   "proj": 16.8,
+   "proj": 17.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12294,7 +12339,7 @@
    "position": "QB",
    "adp": 476.6,
    "bye": 10,
-   "proj": 11.6,
+   "proj": 15.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12315,7 +12360,7 @@
    "position": "QB",
    "adp": 472.6,
    "bye": 8,
-   "proj": 13.8,
+   "proj": 17.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -12337,7 +12382,7 @@
    "position": "QB",
    "adp": 473.6,
    "bye": 9,
-   "proj": 7.2,
+   "proj": 13.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12356,7 +12401,7 @@
    "position": "QB",
    "adp": 474.6,
    "bye": 13,
-   "proj": 12.3,
+   "proj": 17.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12376,7 +12421,7 @@
    "position": "QB",
    "adp": 475.6,
    "bye": 8,
-   "proj": 12.4,
+   "proj": 17.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12396,7 +12441,7 @@
    "position": "QB",
    "adp": 478.6,
    "bye": 6,
-   "proj": 16.1,
+   "proj": 17.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12415,7 +12460,7 @@
    "position": "QB",
    "adp": 479.6,
    "bye": 10,
-   "proj": 9.7,
+   "proj": 14.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12435,7 +12480,7 @@
    "position": "QB",
    "adp": 481.6,
    "bye": null,
-   "proj": 14.4,
+   "proj": 15.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12454,7 +12499,7 @@
    "position": "QB",
    "adp": 482.6,
    "bye": 6,
-   "proj": 10.2,
+   "proj": 15.3,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12492,7 +12537,7 @@
    "position": "QB",
    "adp": 485.6,
    "bye": null,
-   "proj": 14.3,
+   "proj": 15.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12511,7 +12556,7 @@
    "position": "QB",
    "adp": 486.6,
    "bye": 10,
-   "proj": 9.8,
+   "proj": 14.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12531,7 +12576,7 @@
    "position": "QB",
    "adp": 488.6,
    "bye": 7,
-   "proj": 8.7,
+   "proj": 13.8,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12551,7 +12596,7 @@
    "position": "QB",
    "adp": 490.6,
    "bye": 9,
-   "proj": 14.2,
+   "proj": 15.5,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12570,7 +12615,7 @@
    "position": "QB",
    "adp": 491.6,
    "bye": 11,
-   "proj": 16.3,
+   "proj": 17.6,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12589,7 +12634,7 @@
    "position": "QB",
    "adp": 492.6,
    "bye": 10,
-   "proj": 9.9,
+   "proj": 15,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12609,7 +12654,7 @@
    "position": "QB",
    "adp": 494.6,
    "bye": 9,
-   "proj": 11.6,
+   "proj": 16.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12629,7 +12674,7 @@
    "position": "QB",
    "adp": 495.6,
    "bye": null,
-   "proj": 15.4,
+   "proj": 16.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12648,7 +12693,7 @@
    "position": "QB",
    "adp": 496.6,
    "bye": 6,
-   "proj": 14,
+   "proj": 15.3,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12667,7 +12712,7 @@
    "position": "QB",
    "adp": 489.6,
    "bye": 7,
-   "proj": 9.9,
+   "proj": 13.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12706,7 +12751,7 @@
    "position": "QB",
    "adp": 705.2,
    "bye": 11,
-   "proj": 10.6,
+   "proj": 15.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12762,7 +12807,7 @@
    "position": "QB",
    "adp": 713.6,
    "bye": 7,
-   "proj": 16.4,
+   "proj": 17.7,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -12835,7 +12880,7 @@
    "position": "QB",
    "adp": 721.3,
    "bye": 10,
-   "proj": 10.5,
+   "proj": 15.6,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12891,7 +12936,7 @@
    "position": "QB",
    "adp": 747.9,
    "bye": 5,
-   "proj": 10.5,
+   "proj": 15.6,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -12965,7 +13010,7 @@
    "position": "DEF",
    "adp": 121.6,
    "bye": 11,
-   "proj": 112.8,
+   "proj": 107.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -12974,8 +13019,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 107.5,
-   "ceiling": 139.1,
+   "floor": 102.9,
+   "ceiling": 133.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 107,
@@ -12987,7 +13032,7 @@
    "position": "K",
    "adp": 115.7,
    "bye": 14,
-   "proj": 148.2,
+   "proj": 145.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -12995,8 +13040,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 131.4,
-   "ceiling": 159.9,
+   "floor": 129.1,
+   "ceiling": 157,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 8,
    "ds_proj": 177,
@@ -13008,7 +13053,7 @@
    "position": "K",
    "adp": 148.5,
    "bye": 11,
-   "proj": 140.4,
+   "proj": 137.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13016,8 +13061,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 137.5,
-   "ceiling": 160.6,
+   "floor": 134.9,
+   "ceiling": 157.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 146,
@@ -13029,7 +13074,7 @@
    "position": "DEF",
    "adp": 119.6,
    "bye": 8,
-   "proj": 127.6,
+   "proj": 122.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13038,8 +13083,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 114.3,
-   "ceiling": 142.9,
+   "floor": 110,
+   "ceiling": 137.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 125,
@@ -13051,7 +13096,7 @@
    "position": "DEF",
    "adp": 128.1,
    "bye": 11,
-   "proj": 120.3,
+   "proj": 115.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13060,8 +13105,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 102.3,
-   "ceiling": 132.3,
+   "floor": 98.1,
+   "ceiling": 127,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 120,
@@ -13073,7 +13118,7 @@
    "position": "K",
    "adp": 139.1,
    "bye": 8,
-   "proj": 140.2,
+   "proj": 137.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13081,8 +13126,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 130.4,
-   "ceiling": 156.2,
+   "floor": 128,
+   "ceiling": 153.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 158,
@@ -13094,7 +13139,7 @@
    "position": "DEF",
    "adp": 161.6,
    "bye": 11,
-   "proj": 105.3,
+   "proj": 100.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13103,8 +13148,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 91.5,
-   "ceiling": 119.2,
+   "floor": 87.3,
+   "ceiling": 113.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 114,
@@ -13116,7 +13161,7 @@
    "position": "DEF",
    "adp": 180.4,
    "bye": 6,
-   "proj": 110.9,
+   "proj": 106.1,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13125,8 +13170,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 103.9,
-   "ceiling": 133.9,
+   "floor": 99.4,
+   "ceiling": 128,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 111,
@@ -13138,15 +13183,15 @@
    "position": "DEF",
    "adp": 191,
    "bye": 7,
-   "proj": 104.3,
+   "proj": 102.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
     "fftoday",
     "draftsharks"
    ],
-   "floor": 96.5,
-   "ceiling": 124.7,
+   "floor": 95,
+   "ceiling": 122.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 107,
@@ -13158,7 +13203,7 @@
    "position": "K",
    "adp": 140.6,
    "bye": 7,
-   "proj": 139.4,
+   "proj": 136.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13166,8 +13211,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 123.8,
-   "ceiling": 149.2,
+   "floor": 121.4,
+   "ceiling": 146.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 9,
    "ds_proj": 170,
@@ -13179,7 +13224,7 @@
    "position": "K",
    "adp": 188.4,
    "bye": 11,
-   "proj": 132.8,
+   "proj": 130.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13187,8 +13232,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 128.3,
-   "ceiling": 154.9,
+   "floor": 125.8,
+   "ceiling": 151.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 150,
@@ -13200,7 +13245,7 @@
    "position": "DEF",
    "adp": 144.7,
    "bye": 10,
-   "proj": 111.4,
+   "proj": 106.5,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13209,8 +13254,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 106.1,
-   "ceiling": 144,
+   "floor": 101.5,
+   "ceiling": 137.7,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 106,
@@ -13222,7 +13267,7 @@
    "position": "DEF",
    "adp": 225.5,
    "bye": 6,
-   "proj": 106.9,
+   "proj": 102,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13231,8 +13276,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 99.8,
-   "ceiling": 135.1,
+   "floor": 95.3,
+   "ceiling": 129,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 106,
@@ -13244,7 +13289,7 @@
    "position": "K",
    "adp": 192.3,
    "bye": 6,
-   "proj": 130.5,
+   "proj": 127.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13252,8 +13297,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 127.9,
-   "ceiling": 152.3,
+   "floor": 125.3,
+   "ceiling": 149.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 8,
    "ds_proj": 150,
@@ -13265,7 +13310,7 @@
    "position": "K",
    "adp": 160.8,
    "bye": 7,
-   "proj": 130.7,
+   "proj": 128,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13273,8 +13318,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 125.5,
-   "ceiling": 154,
+   "floor": 122.9,
+   "ceiling": 150.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 151,
@@ -13286,7 +13331,7 @@
    "position": "K",
    "adp": 224,
    "bye": 6,
-   "proj": 128.3,
+   "proj": 125.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13294,8 +13339,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 125.6,
-   "ceiling": 150.7,
+   "floor": 123,
+   "ceiling": 147.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 143,
@@ -13307,7 +13352,7 @@
    "position": "DEF",
    "adp": 126,
    "bye": 10,
-   "proj": 123.2,
+   "proj": 118.3,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13316,8 +13361,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 106,
-   "ceiling": 135.3,
+   "floor": 101.8,
+   "ceiling": 130,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 122,
@@ -13329,7 +13374,7 @@
    "position": "K",
    "adp": 233.7,
    "bye": 10,
-   "proj": 128.5,
+   "proj": 125.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13337,8 +13382,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 124.1,
-   "ceiling": 148.9,
+   "floor": 121.5,
+   "ceiling": 145.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 145,
@@ -13350,7 +13395,7 @@
    "position": "DEF",
    "adp": 200.1,
    "bye": 13,
-   "proj": 105.1,
+   "proj": 100.3,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13359,8 +13404,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 97.8,
-   "ceiling": 123.6,
+   "floor": 93.3,
+   "ceiling": 117.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 114,
@@ -13372,7 +13417,7 @@
    "position": "K",
    "adp": 257.8,
    "bye": 10,
-   "proj": 129.9,
+   "proj": 127.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13380,8 +13425,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 122.2,
-   "ceiling": 149.4,
+   "floor": 119.7,
+   "ceiling": 146.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 153,
@@ -13393,7 +13438,7 @@
    "position": "K",
    "adp": 172.1,
    "bye": 11,
-   "proj": 124.2,
+   "proj": 126.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -13413,7 +13458,7 @@
    "position": "K",
    "adp": 166.15,
    "bye": 13,
-   "proj": 123.4,
+   "proj": 125.7,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -13433,7 +13478,7 @@
    "position": "K",
    "adp": 205.4,
    "bye": 13,
-   "proj": 128.5,
+   "proj": 125.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13441,8 +13486,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 120.9,
-   "ceiling": 150.3,
+   "floor": 118.4,
+   "ceiling": 147.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 153,
@@ -13454,7 +13499,7 @@
    "position": "K",
    "adp": 220.6,
    "bye": 5,
-   "proj": 127.2,
+   "proj": 124.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13462,8 +13507,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 124.6,
-   "ceiling": 146.1,
+   "floor": 122,
+   "ceiling": 143,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 148,
@@ -13475,7 +13520,7 @@
    "position": "K",
    "adp": 209.9,
    "bye": 8,
-   "proj": 128.1,
+   "proj": 125.4,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13483,8 +13528,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 121.4,
-   "ceiling": 145.6,
+   "floor": 118.8,
+   "ceiling": 142.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 153,
@@ -13496,7 +13541,7 @@
    "position": "DEF",
    "adp": 219,
    "bye": 14,
-   "proj": 88.9,
+   "proj": 83.6,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13517,7 +13562,7 @@
    "position": "K",
    "adp": 234.7,
    "bye": 6,
-   "proj": 121.3,
+   "proj": 123.5,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -13537,7 +13582,7 @@
    "position": "DEF",
    "adp": 194.3,
    "bye": 9,
-   "proj": 109.2,
+   "proj": 104.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13546,8 +13591,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 101.4,
-   "ceiling": 128.7,
+   "floor": 96.9,
+   "ceiling": 123,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 112,
@@ -13559,7 +13604,7 @@
    "position": "K",
    "adp": 246.15,
    "bye": 10,
-   "proj": 123,
+   "proj": 120.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13567,8 +13612,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 120.5,
-   "ceiling": 142.9,
+   "floor": 117.9,
+   "ceiling": 139.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 148,
@@ -13580,7 +13625,7 @@
    "position": "K",
    "adp": 253.8,
    "bye": 7,
-   "proj": 121.5,
+   "proj": 118.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13588,8 +13633,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 117.2,
-   "ceiling": 139.3,
+   "floor": 114.7,
+   "ceiling": 136.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 143,
@@ -13601,7 +13646,7 @@
    "position": "DEF",
    "adp": 252.3,
    "bye": 5,
-   "proj": 96.8,
+   "proj": 93.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13609,8 +13654,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 87.7,
-   "ceiling": 112.3,
+   "floor": 84.5,
+   "ceiling": 108.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 106,
@@ -13622,7 +13667,7 @@
    "position": "DEF",
    "adp": 324.6,
    "bye": 5,
-   "proj": 88.5,
+   "proj": 83.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13643,7 +13688,7 @@
    "position": "DEF",
    "adp": 207.8,
    "bye": 7,
-   "proj": 103.6,
+   "proj": 98.8,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13652,8 +13697,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 97.8,
-   "ceiling": 129.1,
+   "floor": 93.2,
+   "ceiling": 123,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 106,
@@ -13665,7 +13710,7 @@
    "position": "DEF",
    "adp": 221.4,
    "bye": 11,
-   "proj": 97.2,
+   "proj": 92.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13674,8 +13719,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 88.7,
-   "ceiling": 116,
+   "floor": 84.3,
+   "ceiling": 110.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 114,
@@ -13687,7 +13732,7 @@
    "position": "DEF",
    "adp": 226.35,
    "bye": 8,
-   "proj": 89.3,
+   "proj": 84.4,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13696,8 +13741,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 82.6,
-   "ceiling": 109.3,
+   "floor": 78.1,
+   "ceiling": 103.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 107,
@@ -13709,7 +13754,7 @@
    "position": "DEF",
    "adp": 236.9,
    "bye": 10,
-   "proj": 98.5,
+   "proj": 93.7,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13718,8 +13763,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 92,
-   "ceiling": 122.9,
+   "floor": 87.5,
+   "ceiling": 116.9,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 105,
@@ -13731,7 +13776,7 @@
    "position": "K",
    "adp": 328.6,
    "bye": 8,
-   "proj": 120.6,
+   "proj": 118,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13739,8 +13784,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 117.3,
-   "ceiling": 139.5,
+   "floor": 114.8,
+   "ceiling": 136.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 147,
@@ -13752,7 +13797,7 @@
    "position": "K",
    "adp": 232.7,
    "bye": 9,
-   "proj": 119.8,
+   "proj": 117.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13760,8 +13805,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 117.3,
-   "ceiling": 140.6,
+   "floor": 114.7,
+   "ceiling": 137.5,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 144,
@@ -13773,7 +13818,7 @@
    "position": "DEF",
    "adp": 228.05,
    "bye": 7,
-   "proj": 101.8,
+   "proj": 96.9,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13782,8 +13827,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 94.1,
-   "ceiling": 121.9,
+   "floor": 89.6,
+   "ceiling": 116.1,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 106,
@@ -13795,7 +13840,7 @@
    "position": "DEF",
    "adp": 236.2,
    "bye": 8,
-   "proj": 90,
+   "proj": 85.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13804,8 +13849,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 83.8,
-   "ceiling": 111.2,
+   "floor": 79.3,
+   "ceiling": 105.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 102,
@@ -13817,7 +13862,7 @@
    "position": "DEF",
    "adp": 325.6,
    "bye": 13,
-   "proj": 93,
+   "proj": 88.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13826,8 +13871,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 88.3,
-   "ceiling": 120.3,
+   "floor": 83.7,
+   "ceiling": 114,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 99,
@@ -13839,7 +13884,7 @@
    "position": "DEF",
    "adp": 206.2,
    "bye": 11,
-   "proj": 98.5,
+   "proj": 93.2,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13860,7 +13905,7 @@
    "position": "DEF",
    "adp": 282.5,
    "bye": 8,
-   "proj": 98.4,
+   "proj": 93,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13881,7 +13926,7 @@
    "position": "DEF",
    "adp": 326.6,
    "bye": 10,
-   "proj": 98.1,
+   "proj": 93.3,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -13890,8 +13935,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 92.4,
-   "ceiling": 124.1,
+   "floor": 87.8,
+   "ceiling": 118,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 102,
@@ -13903,7 +13948,7 @@
    "position": "K",
    "adp": 332.6,
    "bye": 13,
-   "proj": 110.3,
+   "proj": 112.6,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -13923,7 +13968,7 @@
    "position": "K",
    "adp": 216.8,
    "bye": 11,
-   "proj": 116.5,
+   "proj": 113.9,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13931,8 +13976,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 113.3,
-   "ceiling": 134.1,
+   "floor": 110.8,
+   "ceiling": 131,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 146,
@@ -13944,7 +13989,7 @@
    "position": "K",
    "adp": 219.7,
    "bye": 10,
-   "proj": 115.5,
+   "proj": 112.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13952,8 +13997,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 112.3,
-   "ceiling": 131.6,
+   "floor": 109.7,
+   "ceiling": 128.6,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 143,
@@ -13965,7 +14010,7 @@
    "position": "DEF",
    "adp": 327.6,
    "bye": 6,
-   "proj": 96.1,
+   "proj": 90.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -13986,7 +14031,7 @@
    "position": "K",
    "adp": 336.6,
    "bye": 9,
-   "proj": 105.1,
+   "proj": 107.4,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -14006,7 +14051,7 @@
    "position": "DEF",
    "adp": 331.6,
    "bye": 7,
-   "proj": 92.4,
+   "proj": 87.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14027,7 +14072,7 @@
    "position": "DEF",
    "adp": 248.85,
    "bye": 11,
-   "proj": 98.1,
+   "proj": 93.2,
    "n_sources": 5,
    "sources_used": [
     "sleeper",
@@ -14036,8 +14081,8 @@
     "fftoday",
     "draftsharks"
    ],
-   "floor": 90.5,
-   "ceiling": 126.7,
+   "floor": 86,
+   "ceiling": 120.4,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 103,
@@ -14049,7 +14094,7 @@
    "position": "K",
    "adp": 333.6,
    "bye": 14,
-   "proj": 103.7,
+   "proj": 106,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -14069,7 +14114,7 @@
    "position": "DEF",
    "adp": 334.6,
    "bye": 14,
-   "proj": 84.3,
+   "proj": 79,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14090,7 +14135,7 @@
    "position": "K",
    "adp": 329.6,
    "bye": 5,
-   "proj": 108.7,
+   "proj": 106,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14098,8 +14143,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 104.8,
-   "ceiling": 126.4,
+   "floor": 102.3,
+   "ceiling": 123.3,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 141,
@@ -14111,7 +14156,7 @@
    "position": "DEF",
    "adp": 294.8,
    "bye": 9,
-   "proj": 81.1,
+   "proj": 75.8,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14132,7 +14177,7 @@
    "position": "K",
    "adp": 335.6,
    "bye": 11,
-   "proj": 95.9,
+   "proj": 98.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -14152,7 +14197,7 @@
    "position": "K",
    "adp": 341.6,
    "bye": 13,
-   "proj": 94.9,
+   "proj": 97.2,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -14172,7 +14217,7 @@
    "position": "DEF",
    "adp": 337.6,
    "bye": 13,
-   "proj": 81.6,
+   "proj": 76.3,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14193,7 +14238,7 @@
    "position": "DEF",
    "adp": 338.6,
    "bye": 13,
-   "proj": 76.3,
+   "proj": 71,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14214,7 +14259,7 @@
    "position": "DEF",
    "adp": 339.6,
    "bye": 6,
-   "proj": 82,
+   "proj": 76.7,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14235,7 +14280,7 @@
    "position": "K",
    "adp": 330.6,
    "bye": null,
-   "proj": 84,
+   "proj": 111.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14253,7 +14298,7 @@
    "position": "K",
    "adp": 242.4,
    "bye": 11,
-   "proj": 116.1,
+   "proj": 113.5,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14261,8 +14306,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 111.5,
-   "ceiling": 136.3,
+   "floor": 108.9,
+   "ceiling": 133.2,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 150,
@@ -14274,7 +14319,7 @@
    "position": "K",
    "adp": 350.6,
    "bye": 6,
-   "proj": 56,
+   "proj": 83.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14292,7 +14337,7 @@
    "position": "K",
    "adp": 355.6,
    "bye": 8,
-   "proj": 83.7,
+   "proj": 81.1,
    "n_sources": 4,
    "sources_used": [
     "sleeper",
@@ -14300,8 +14345,8 @@
     "espn",
     "draftsharks"
    ],
-   "floor": 79.5,
-   "ceiling": 114.5,
+   "floor": 77,
+   "ceiling": 110.8,
    "band_from": "draftsharks_pct",
    "injury_risk_pct": 0,
    "ds_proj": 139,
@@ -14313,7 +14358,7 @@
    "position": "K",
    "adp": 359.6,
    "bye": null,
-   "proj": 49,
+   "proj": 76.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14331,7 +14376,7 @@
    "position": "K",
    "adp": 367.6,
    "bye": null,
-   "proj": 44,
+   "proj": 71.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14349,7 +14394,7 @@
    "position": "K",
    "adp": 369.6,
    "bye": 8,
-   "proj": 57.3,
+   "proj": 67.9,
    "n_sources": 2,
    "sources_used": [
     "sleeper",
@@ -14368,7 +14413,7 @@
    "position": "K",
    "adp": 374.6,
    "bye": 6,
-   "proj": 90.6,
+   "proj": 92.9,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -14388,7 +14433,7 @@
    "position": "K",
    "adp": 298.4,
    "bye": 7,
-   "proj": 89,
+   "proj": 91.3,
    "n_sources": 3,
    "sources_used": [
     "sleeper",
@@ -14408,7 +14453,7 @@
    "position": "K",
    "adp": 458.6,
    "bye": null,
-   "proj": 20,
+   "proj": 47.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14426,7 +14471,7 @@
    "position": "K",
    "adp": 460.6,
    "bye": null,
-   "proj": 20,
+   "proj": 47.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14444,7 +14489,7 @@
    "position": "K",
    "adp": 461.6,
    "bye": null,
-   "proj": 20,
+   "proj": 47.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14462,7 +14507,7 @@
    "position": "K",
    "adp": 462.6,
    "bye": null,
-   "proj": 20,
+   "proj": 47.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14480,7 +14525,7 @@
    "position": "K",
    "adp": 499.6,
    "bye": 13,
-   "proj": 11,
+   "proj": 38.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14498,7 +14543,7 @@
    "position": "K",
    "adp": 288.8,
    "bye": 13,
-   "proj": 0,
+   "proj": 27.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14516,7 +14561,7 @@
    "position": "K",
    "adp": 730.4,
    "bye": null,
-   "proj": 0,
+   "proj": 27.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"
@@ -14534,7 +14579,7 @@
    "position": "K",
    "adp": 760.5,
    "bye": 9,
-   "proj": 0,
+   "proj": 27.1,
    "n_sources": 1,
    "sources_used": [
     "sleeper"

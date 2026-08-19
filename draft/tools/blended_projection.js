@@ -42,19 +42,52 @@ const EXCLUDE_FP = process.argv.includes('--exclude-fp');
 const SOURCES = ['sleeper', 'own_v6', 'cbs', 'espn', 'fftoday', 'draftsharks']
   .concat(EXCLUDE_FP ? [] : ['fantasypros']);
 
-/* own_v6 sits a median 15.3 points BELOW the board mean on 80% of players
- * (register 107). Averaging it in raw drags every blended number down. Centre
- * it on the shared population first -- a level offset is not an opinion. */
+/* ── CENTRING, PER POSITION ───────────────────────────────────────────────────
+ * A level offset is not an opinion, so it comes out before averaging. own_v6
+ * runs a median 15.3 points below the board mean on 80% of players
+ * (register 107); averaging it raw drags every blended number down.
+ *
+ * ⛔ AND THE OFFSET IS NOT ONE NUMBER, WHICH THE FIRST VERSION ASSUMED. Cory
+ * asked whether the bands made sense and the check that answers it turned this
+ * up instead. Measured medians against the board mean:
+ *
+ *     source         global     QB      RB      WR      TE    spread
+ *     draftsharks      +8.1  -25.6    +6.7   +10.9    +4.0     36.5
+ *     own_v6          -15.3  -15.3   -17.2   -22.4    -2.9     19.5
+ *     cbs             +12.4   +0.4   +11.4   +12.1   +13.1     12.7
+ *
+ * Draft Sharks is 25.6 points LOW on quarterbacks and 10.9 HIGH on receivers.
+ * A single global offset subtracted 8.1 from every one of them -- pushing QBs
+ * the WRONG WAY by about 34 points and distorting the position balance of the
+ * whole blend. Same cross-position mistake as the VONA value term (P196) and
+ * the ceiling-steals list, which is three times in one day: a statistic pooled
+ * across positions that had no business being pooled. */
 const offsets = {};
 SOURCES.forEach(s => {
-  const d = [];
+  offsets[s] = {};
+  const byPos = {};
   SNAP.players.forEach(p => {
     const a = p.proj[s], b = p.proj.board_proj_mean;
-    if (a != null && b != null && b > 0) d.push(a - b);
+    if (a == null || b == null || b <= 0 || !p.position) return;
+    (byPos[p.position] || (byPos[p.position] = [])).push(a - b);
   });
-  d.sort((x, y) => x - y);
-  offsets[s] = d.length >= 30 ? d[d.length >> 1] : 0;
+  const all = [];
+  Object.values(byPos).forEach(v => all.push(...v));
+  all.sort((x, y) => x - y);
+  const globalMed = all.length >= 30 ? all[all.length >> 1] : 0;
+  Object.entries(byPos).forEach(([pos, v]) => {
+    v.sort((x, y) => x - y);
+    /* fall back to the global median only where a position is too thin to
+     * centre on its own, and that fallback is visible in the artifact */
+    offsets[s][pos] = v.length >= 20 ? v[v.length >> 1] : globalMed;
+  });
+  offsets[s]._global = globalMed;
 });
+const offsetOf = (s, pos) => {
+  const o = offsets[s];
+  if (!o) return 0;
+  return (o[pos] != null ? o[pos] : o._global) || 0;
+};
 
 const rows = [];
 let noBand = 0, noSource = 0;
@@ -63,7 +96,7 @@ SNAP.players.forEach(p => {
   SOURCES.forEach(s => {
     const v = p.proj[s];
     if (v == null) return;
-    vals.push(v - offsets[s]);            // centred
+    vals.push(v - offsetOf(s, p.position));   // centred WITHIN his position
     used.push(s);
   });
   if (!vals.length) { noSource++; return; }
@@ -119,10 +152,14 @@ const ctl = {
       top100_identical_to_board_mean: same(bl, bd),
       why: 'a blend that reproduces one source exactly is not a blend' };
   })(),
-  C3_centering_applied: { ok: true, median_offsets_vs_board_mean: offsets,
-    why: 'own_v6 runs a median 15.3 low on 80% of players (register 107); '
-       + 'averaging it raw drags every blended number down. A level offset is '
-       + 'not an opinion, so it is removed before averaging.' },
+  C3_centering_is_per_position: {
+    ok: Object.entries(offsets).every(([, o]) =>
+      Object.keys(o).filter(k => k !== '_global').length >= 4),
+    median_offsets_vs_board_mean_by_position: offsets,
+    why: 'a single GLOBAL offset was wrong: Draft Sharks runs 25.6 points LOW '
+       + 'on quarterbacks and 10.9 HIGH on receivers, a 36.5-point spread, so '
+       + 'one number pushed QBs the wrong way by ~34 and distorted the position '
+       + 'balance of the whole blend' },
   C4_coverage_reported: { ok: rows.length > 400,
     players_blended: rows.length, no_source_at_all: noSource,
     players_without_a_draftsharks_band: noBand,
@@ -155,8 +192,10 @@ fs.writeFileSync(path.join(ROOT, 'draft', 'data',
 console.log(`BLENDED PROJECTION — mean of all sources, Draft Sharks' band as a %`);
 console.log(`  FantasyPros ${EXCLUDE_FP ? 'EXCLUDED' : 'included'}   sources: ${SOURCES.join(', ')}\n`);
 Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK  ' : '  FAIL') + k));
-console.log(`\n  centring offsets vs the board mean (median points):`);
-Object.entries(offsets).forEach(([s, o]) => console.log(`    ${s.padEnd(14)}${o.toFixed(1).padStart(7)}`));
+console.log(`\n  centring offsets vs the board mean, PER POSITION (median points):`);
+console.log('    ' + 'source'.padEnd(14) + ['QB', 'RB', 'WR', 'TE'].map(q => q.padStart(8)).join(''));
+Object.entries(offsets).forEach(([s, o]) => console.log('    ' + s.padEnd(14)
+  + ['QB', 'RB', 'WR', 'TE'].map(q => String(o[q] == null ? '—' : o[q].toFixed(1)).padStart(8)).join('')));
 console.log(`\n  ${rows.length} players blended, ${withBand.length} carry a Draft Sharks band`);
 console.log(`\n  ${'player'.padEnd(22)}${'blend'.padStart(7)}${'DS'.padStart(7)}${'board'.padStart(8)}`
   + `${'floor'.padStart(8)}${'ceiling'.padStart(9)}   n`);
