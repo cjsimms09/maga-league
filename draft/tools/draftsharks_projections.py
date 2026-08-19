@@ -70,6 +70,22 @@ class Tables(HTMLParser):
             self._r = []
         elif tag in ("td", "th") and self._r is not None:
             self._c = []
+        elif self._c is not None:
+            # ⛔ THE PLAYER NAME IS NOT TEXT. First capture returned 'DET 1'
+            # for the Player cell -- team and bye -- and resolved 0 of 25
+            # positions, caught by C3. The numeric columns were fine (C2
+            # passed), so only this cell is special: the name lives in an
+            # attribute on a nested element, not in a text node. Harvest the
+            # attributes that carry human-readable names.
+            d = dict(attrs)
+            for k in ("alt", "title", "aria-label", "data-name", "data-player"):
+                v = d.get(k)
+                if v and len(v) > 1:
+                    # \x00 delimits each attribute so they stay SEPARATE
+                    # candidates. Joining them with a space made title=
+                    # and alt= merge into one capitalised run and the
+                    # name came out doubled.
+                    self._c.append("\x00" + v + "\x00")
 
     def handle_endtag(self, tag):
         if tag == "table" and self._t is not None:
@@ -79,7 +95,7 @@ class Tables(HTMLParser):
                 self._t.append(self._r)
             self._r = None
         elif tag in ("td", "th") and self._c is not None:
-            self._r.append(re.sub(r"\s+", " ", "".join(self._c)).strip())
+            self._r.append(re.sub(r"[ \t\r\n]+", " ", "".join(self._c)).strip())
             self._c = None
 
     def handle_data(self, data):
@@ -130,11 +146,24 @@ def parse_rows(table, col):
             rec[f] = v if f in ("player", "injury_risk") else num(v)
         # the player cell carries name + team + pos in one blob on this site
         raw = r[col["player"]] if "player" in col else ""
-        rec["player_raw"] = raw
+        rec["player_raw"] = (raw or "").replace("\x00", " | ")
         m = re.search(r"\b(QB|RB|WR|TE|K|DEF|DST)\b", raw or "")
         rec["position"] = ("DEF" if m and m.group(1) in ("DEF", "DST") else
                            (m.group(1) if m else None))
-        rec["player"] = re.split(r"\s{2,}|\|", (raw or "").strip())[0][:60]
+        # the cell is a soup of team, bye and (from attributes) the name. Take
+        # the longest run that looks like a person's name rather than the first
+        # fragment -- the first fragment is what produced 'DET 1'.
+        cands = []
+        for chunk in re.split(r"\x00", raw or ""):
+            for c in re.findall(r"[A-Z][A-Za-z'`.-]+(?:\s+[A-Z][A-Za-z'`.-]+)+", chunk):
+                # drop a trailing position or team token: "Jahmyr Gibbs RB" -> name
+                c = re.sub(r"\s+(QB|RB|WR|TE|K|DEF|DST)\b.*$", "", c).strip()
+                if c and not re.fullmatch(r"[A-Z]{2,4}(\s+\d+)?", c) and c not in cands:
+                    cands.append(c)
+        # SHORTEST multi-word candidate: the name itself, not a name plus suffixes
+        multi = [c for c in cands if len(c.split()) >= 2]
+        rec["player"] = (min(multi, key=len)[:60] if multi
+                         else (cands[0][:60] if cands else ""))
         if rec.get("ceiling") is not None or rec.get("ds_proj") is not None:
             out.append(rec)
     return out, tiers, odd
@@ -151,6 +180,10 @@ def main() -> int:
 
     p = Tables(); p.feed(html)
     best = max(p.tables, key=len) if p.tables else []
+    # If the name extraction fails again, the answer must be IN the artifact
+    # rather than requiring another round trip to a host we cannot reach.
+    m_row = re.search(r"<tr[^>]*>(?:(?!</tr>).){200,}?</tr>", html, re.DOTALL)
+    sample_row_html = (m_row.group(0)[:3000] if m_row else None)
     col, unmapped = (map_columns(best[0]) if best else ({}, []))
     rows, tiers, odd = (parse_rows(best, col) if col.get("player") is not None
                         else ([], 0, 0))
@@ -190,6 +223,7 @@ def main() -> int:
         "coverage_note": "the page server-renders only its first page of "
                          "rankings; the remainder is behind pagination/XHR "
                          "(register 120, routed to C)",
+        "sample_row_html": sample_row_html,
         "players": rows,
     }
     OUT.write_text(json.dumps(doc, indent=1))
