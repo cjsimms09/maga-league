@@ -11079,6 +11079,21 @@
       out += '    He sits at the TOP of that band, where it is harshest — the ' + pos + '\n'
         + '    one slot above him is priced off a different, much kinder cohort.\n';
     }
+    /* THE LAST TWO ORPHANED PROVENANCE FIELDS (register 8b/28 extension,
+     * relay 08-18: "four provenance fields, zero readers"). ceiling/floor
+     * sources are read above; sd and adp_sd were still invisible — a reader
+     * could not tell a measured error-sd from the position-variance fallback,
+     * or a published FFC adp_sd from the clamped fallback that covers 369 of
+     * 696 rows. One compact line each, only when the value is the FALLBACK —
+     * the measured case is the norm and needs no caption (A, 08-19). */
+    if (String(p.proj_sd_source || '') === 'position_variance') {
+      out += '    ~ proj_sd here is the POSITION-VARIANCE fallback, not measured\n'
+        + '      error (proj_sd_source) — K/DEF and unmeasured cells.\n';
+    }
+    if (/^(fallback|clamped)/.test(String(p.adp_sd_source || ''))) {
+      out += '    ~ adp_sd is a ' + p.adp_sd_source + ' estimate, not a published\n'
+        + '      market spread (adp_sd_source).\n';
+    }
     return out;
   }
 
