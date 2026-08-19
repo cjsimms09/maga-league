@@ -208,6 +208,13 @@ const FX = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'flex_exp
 if (!FX.controls_all_passed) throw new Error('flex_exposure failed its controls — REFUSING');
 const FSHARE = FX.f;
 const FLEXVONA = process.env.FLEXVONA === 'on';
+/* P201/P202 — Cory: "shouldn't it only compare to waiver when drafting bench?"
+ *   'split'      : starters priced vs the next-pick best at their position
+ *                  (VONA), bench priced vs the wire — his idea literally
+ *   'bench-only' : starters unchanged, bench priced vs the wire
+ *   'off'        : the current arm */
+const BASE_ARM = process.env.BASE || 'off';
+let baseGapStart = [], baseGapBench = [];
 /* declared: raw max is TE 130.4; the empirical flex owner is WR 124.8. Both run,
  * and the verdict must agree under each (the TE oddity is open from P172). */
 const FLEX_WIRE = process.env.FLEXWIRE === 'wr' ? WAIVER.WR
@@ -325,8 +332,23 @@ function runRoom(a) {
       const vona = later == null ? here : Math.max(0, here - later);
       /* surplus = what he is worth AT ALL, against a body I could have free.
        * VONA answers "when", not "how much" (P196). */
-      const own = Math.max(0, here - (WAIVER[x.position] || 0));
       const fsh = flexShare(x.position, held[x.position] || 0);
+      /* is this body filling a STARTING slot, or is he depth? */
+      const slots = (base[x.position] || 0)
+        + (fo === x.position ? (STARTERS.FLEX || 0) : 0);
+      const isStarter = (held[x.position] || 0) < slots;
+      let own;
+      if (BASE_ARM === 'split' && isStarter) {
+        /* his baseline is the next real player at the position, not the wire */
+        own = Math.max(0, here - (later == null ? (WAIVER[x.position] || 0) : later));
+      } else {
+        own = Math.max(0, here - (WAIVER[x.position] || 0));
+      }
+      if (i === 4) {   // one mid-draft pick, recorded so the gap is visible
+        const b = (BASE_ARM === 'split' && isStarter && later != null)
+          ? later : (WAIVER[x.position] || 0);
+        (isStarter ? baseGapStart : baseGapBench).push(b);
+      }
       const flexS = Math.max(0, here - FLEX_WIRE);
       const surplus = (1 - fsh) * own + fsh * flexS;
       const valueTerm = VALUE_ARM === 'vona' ? vona : surplus;
@@ -370,6 +392,8 @@ const rstat = {}; POS.forEach(q => {
   rstat[q] = { mean: +mean(v).toFixed(2), sd: +sd(v).toFixed(2), min: Math.min(...v), max: Math.max(...v) };
 });
 const illegal = rows.filter(r => !r.legal).length;
+const medOf = a => { if (!a.length) return null; const v = [...a].sort((x, y) => x - y); return v[v.length >> 1]; };
+const gapStart = medOf(baseGapStart), gapBench = medOf(baseGapBench);
 /* Cory, 2026-08-19: "rest RB and WR with normally more WR than RBs". "Normally"
  * is a RATE, not a comparison of two means -- two means can order one way while
  * most individual rooms order the other. */
@@ -429,6 +453,10 @@ console.log(`\n  P186  adjuster is exactly what Cory described : ${p186 ? 'TRUE'
 console.log(`  P187  their projections reorder our board    : ${p187 ? 'TRUE' : 'FALSE'}  (${p187moved} of top 100 move)`);
 console.log(`  P188  keeps the roster shape we already won  : ${p188 ? 'TRUE' : 'FALSE'}`);
 console.log(`  P189  the QB leak survives (predicted TRUE)  : ${p189 ? 'TRUE' : 'FALSE'}`);
+console.log(`\n  BASELINE AT A MID-DRAFT PICK (arm = ${BASE_ARM})`);
+console.log(`    median baseline, STARTER bodies : ${gapStart == null ? 'n/a' : gapStart.toFixed(1)}`);
+console.log(`    median baseline, BENCH bodies   : ${gapBench == null ? 'n/a' : gapBench.toFixed(1)}`);
+console.log(`    gap                             : ${(gapStart != null && gapBench != null) ? (gapStart - gapBench).toFixed(1) : 'n/a'}`);
 console.log(`\n  CORY'S SPEC — 1 QB/TE/K/DEF, rest RB+WR, normally more WR`);
 console.log(`    onesies all on 1 (+/-0.10)   : ${onesies ? 'YES' : 'NO'}`);
 console.log(`    rooms with WR > RB           : ${(wrOverRb * 100).toFixed(0)}%`);
