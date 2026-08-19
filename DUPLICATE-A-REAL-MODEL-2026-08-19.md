@@ -120,10 +120,15 @@ falling out of the arithmetic instead of being hardcoded.
 normal roster largely **because it is handed the roster shape** — it fills
 starting slots by construction. That is the model being *told* what normal is,
 not discovering it. Two more limits, both from its own header: it assumes the
-room drafts in strict ADP order, and it models no upside at all. **And it has
+room drafts in strict ADP order, and it models no upside at all. ~~**And it has
 never once been graded on the seat replay, while the engine has (8th of 10).
 I am not telling you it is better. I am telling you it exists, it is simple, it
-is the shape you have been asking for, and nobody ever measured it.**
+is the shape you have been asking for, and nobody ever measured it.**~~
+
+⛔ **THAT LAST SENTENCE IS RETRACTED — IT HAS BEEN GRADED TWICE AND THE NUMBERS
+WERE ALREADY IN THE REPO. SEE §12,** which also carries the half that does not
+flatter it. I asserted an absence without looking, which is the exact failure
+this document was written about.
 
 ## 4. TWO CORRECTIONS TO THINGS I TOLD YOU TODAY
 
@@ -355,3 +360,87 @@ is the whole of rule 3f. **The residual is real but small and cosmetic:** three
 provenance fields say a switched-off layer is on, and the war room already has a
 `disabled` state it never reaches, so you see a green badge for a layer you
 turned off. Filed as register 101, 🟡, post-draft.
+
+---
+
+# 12. ⛔ RETRACTION — "`draft_plan.js` has never been graded" IS FALSE, AND THE GRADE HAS BEEN ON THE BOARD ALL ALONG
+
+**I wrote that in §3 this afternoon, committed it, and said it to Cory in as many
+words. It is wrong.** I ran the tool, liked the roster, and asserted an absence
+without looking — the exact shape of the five false premises that cost session D
+a day on 08-17, made inside a document about false premises.
+
+**What actually exists, and it is CURRENT:**
+
+`emit_seat_plan.js:48` — `const PLAN = require('./draft_plan.js')`. It emits
+`public/seat_plan.json`, which the war room reads. That file was built from the
+**08:52:22Z board on Cory's real twelve picks** and carries this:
+
+| line | score |
+|---|---|
+| engine's own greedy #1 at every pick | **1917.58** |
+| engine **constrained to the plan's seats** | **1938.59** |
+| **`draft_plan.js`'s global seat assignment** | **1957.55** |
+
+**`draft_plan.js` is +39.97 ahead of what the engine does today, on his real
+schedule, on the current board — and +21.0 of that comes back just by making the
+engine fill the plan's SEAT instead of taking its own #1, because the engine
+already names the plan's own player at 4 of the 6 seats.** The disagreement is
+mostly about *which slot to fill when*, not about who is good.
+
+**And it has a second, independent grade** — `roster_robustness.py`, 10,000
+simulated 17-week seasons under measured availability, scoring **E[starting
+lineup points]**, the metric the conversion work says is the one that matters:
+
+| roster | lineup pts | wire pts needed | un-fieldable skill slot-weeks |
+|---|---|---|---|
+| **`seat_plan_planned` (= `draft_plan.js`)** | 2681.0 ± 2.9 | **63.8** | **3.78** |
+| seat-plan shortlist, followed literally | 2666.3 ± 2.7 | 112.4 | 9.07 |
+| fragile bye-stack (the deliberate bad roster) | 2622.0 ± 2.7 | 142.5 | 9.47 |
+| Cory's actual 2025 roster | 2192.7 ± 2.5 | 135.2 | 8.26 |
+
+**It needs BARELY HALF the waiver help of anything else on the list.** That is
+"starts what it holds", measured, on the axis this whole week has been about.
+
+## ⚠️ AND THE HALF THAT DOES NOT FLATTER IT, WHICH IS WHY THE RETRACTION MATTERS
+
+**On raw lineup points the doctrine tournament beats it, and the artifact's own
+headline says so:**
+
+| doctrine arm (120 rooms x 250 seasons) | lineup pts |
+|---|---|
+| robust_rb | 2746.5 ± 3.8 |
+| **market_adp — just follow ADP** | **2746.1 ± 5.6** |
+| **shipped** | **2743.6 ± 5.1** |
+| te_early | 2742.6 ± 4.8 |
+| early_qb | 2734.4 ± 5.6 |
+| late_qb | 2726.5 ± 4.7 |
+| **seat_plan arm** | **2718.8 ± 4.7** |
+| zero_rb | 2653.9 ± 5.9 |
+| **bpa_vorp — naive best-available on VORP** | **2637.6 ± 7.4** |
+
+> *"doctrine(s) shipped, robust_rb, early_qb, te_early dominate the seat-plan arm
+> in the paired room test — the seat-plan overlay is giving up availability
+> structure it did not have to give up."* — the artifact's own headline
+
+**Three things in that table are worth more than my retraction:**
+
+1. **`market_adp` — literally just drafting by ADP — ties the shipped engine**
+   (2746.1 vs 2743.6, both ±5). **That is the "roughly a wash" verdict of the
+   seat replay, reproduced by a completely independent harness.** Two different
+   simulators, two different metrics, same answer.
+2. **`bpa_vorp` — the simplest possible VONA rule — is the WORST of the nine.**
+   **Simplicity is not the win.** What helps is the slot structure, not the
+   absence of terms; Cory asked for simpler and the naive version of simpler is
+   measurably last.
+3. **`p_unfieldable_skill_week` is 0.96–1.00 for every arm in this simulator.**
+   It is saturated and discriminates nothing. **Do not quote it as evidence** —
+   the fieldability probe's version (which does separate the arms) is a
+   different, bye-week-only measurement, and I should not have put them near
+   each other without saying so.
+
+**So the corrected position: `draft_plan.js` beats the shipped engine head-to-head
+on Cory's actual schedule (+40) and needs half the waiver help, and loses to the
+shipped doctrine on pooled 17-week lineup totals. Both are measured. I do not yet
+know which yardstick is right, and the previous version of this document did not
+know there were two.** Register 102.
