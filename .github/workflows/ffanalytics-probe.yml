@@ -172,14 +172,7 @@ jobs:
       - name: Re-score and re-join under our own table
         run: python3 draft/tools/multisource_projections.py
       - name: Stamp the capture time (workflow-side, not a change to A's module)
-        run: |
-          python3 -c "
-          import json, datetime
-          p = 'draft/data/multisource_projections.json'
-          doc = json.load(open(p))
-          doc['_captured_at'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-          json.dump(doc, open(p, 'w'), indent=1)
-          "
+        run: python3 draft/tools/stamp_multisource_captured_at.py
       - name: Commit it
         run: |
           git config user.name Claude
