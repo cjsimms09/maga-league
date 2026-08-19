@@ -466,6 +466,16 @@ details.season .body { padding: 1rem; }
 .hero-item.good .hero-value { background: linear-gradient(180deg, #b8ffd6, var(--green)); -webkit-background-clip: text; background-clip: text; }
 .hero-item.bad { border-color: rgba(255, 70, 85, .5); }
 .hero-item.bad .hero-value { background: linear-gradient(180deg, #ffc4ca, var(--red-bright)); -webkit-background-clip: text; background-clip: text; }
+.hero-item .hero-label .sub { font-weight: 700; letter-spacing: .04em; text-transform: none; opacity: .75; }
+/* PLAYOFF-ODDS WIDGET postures (A dispatch, 2026-08-19) — comfortable reuses
+   .good's green; bubble/chasing get their own colors since neither is bad,
+   just a different risk stance. */
+.hero-item.po-comfortable { border-color: rgba(47, 213, 118, .45); }
+.hero-item.po-comfortable .hero-value { background: linear-gradient(180deg, #b8ffd6, var(--green)); -webkit-background-clip: text; background-clip: text; }
+.hero-item.po-bubble { border-color: rgba(185, 130, 42, .5); }
+.hero-item.po-bubble .hero-value { background: linear-gradient(180deg, #ffe3b0, var(--gold)); -webkit-background-clip: text; background-clip: text; }
+.hero-item.po-chasing { border-color: rgba(178, 58, 58, .5); }
+.hero-item.po-chasing .hero-value { background: linear-gradient(180deg, #ffc4ca, #b23a3a); -webkit-background-clip: text; background-clip: text; }
 
 /* ---------- roast banner ---------- */
 .roast-banner {
