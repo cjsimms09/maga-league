@@ -49,7 +49,26 @@ DRAFT = HERE.parent
 ROOT = DRAFT.parent
 BOARD = ROOT / "public" / "draft_data.json"
 
-SEASONS = [2023, 2024, 2025]
+# ⚠️ EXTENDED FROM [2023, 2024, 2025] TO ALL FIVE COMMITTED SEASONS **AFTER**
+# SEEING THE TWO-FOLD RESULT, and saying so here because that is the kind of
+# change that is usually p-hacking.
+#
+# What it is: MORE DATA under an UNCHANGED decision rule. The criterion — clears
+# every fold at p < 0.05 with a consistent sign — was written in P122 before any
+# run and is not touched. Two folds could not separate "weak signal" from "no
+# signal", and 2021/2022 were sitting on disk unused; four folds is a power
+# increase, not a threshold search.
+#
+# What it would have been: moving the threshold, dropping the sign requirement,
+# or picking which folds to keep after reading them. None of that happens, and
+# adding folds can only make a marginal result HARDER to sustain, never easier.
+#
+# THE COST, stated: age at season is derived from the 2026 board's `age`, so a
+# 2021 fold only sees players still rostered five years later. That is
+# survivorship, it biases the AGE arm specifically toward players who lasted,
+# and it is why a null on age in the early folds is weaker evidence than a null
+# in the late ones.
+SEASONS = [2021, 2022, 2023, 2024, 2025]
 MIN_WEEKS = 8            # a tail needs weeks behind it; named before the run
 POSITIONS = ("QB", "RB", "WR", "TE")
 SEED = 20260819
