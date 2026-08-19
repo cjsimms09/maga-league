@@ -103,3 +103,31 @@ win-count bar (18/30) passes exactly, with nothing to spare.
 
 **NOTHING SHIPS FROM THESE RUNS.** The flag defaults off; the cap variant needs
 its own prereg run by A (one flag, reproduces in seconds) or Cory's ruling.
+
+## 7. ROBUSTNESS, SAME DAY — three attacks, declared and run after grading
+
+Run on the `--objective-normal` arm only, to stress the result before A leans
+on it. No mechanism change; measurement only.
+
+**① Bootstrap (6,000 resamples, seed 7):** ACTUAL +45.8, CI95 **[+10.0, +81.7]**,
+P(mean≤0) = 0.006. SKILL +29.3, CI95 **[+3.2, +58.0]**, P(mean≤0) = 0.014.
+Both intervals exclude zero.
+
+**② Leave-one-season-out:** positive on BOTH gradings dropping ANY season —
+drop 2023: +48.9/+27.1 · drop 2024: +65.7/+40.0 · **drop 2025 (the best
+season): +22.9/+20.9.** Not one season's artifact.
+
+**③ Keeper-pricing artifact: killed by the cleanest control available.**
+Keepers sit at picks 1–18 (top of the draft), so `MV` prices them at the top
+and candidates cannot spuriously displace them. And **2023 carries ZERO
+keepers and grades +39.7 actual / +33.9 skill** — the mechanism wins in the
+one season where keeper pricing cannot possibly be doing hidden work.
+
+**⚠️ One process bug caught while running ①:** the harness writes ONE output
+file, so my shipped-arm verification run had clobbered the normal-arm JSON,
+and the first bootstrap silently measured the WRONG ARM (it reproduced
+−20.4/+7.9 — recognizable, which is how it was caught). This is the same
+off-arm-clobbers-on-arm trap A already fixed in the model tool
+(`479047e5 "Give each arm its own artifact"`). The re-run now asserts the
+arm's mean before measuring. A: the harness deserves the same per-arm-artifact
+fix when you take it over.
