@@ -135,15 +135,17 @@ if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a measurement
 console.log('\n  q per week (measured, incl. bye): '
   + POS.map(p => p + ' ' + ((WEEKS - gamesExpected(p) + 1) / WEEKS).toFixed(3)).join('  '));
 console.log('\n  need by HOW MANY YOU ALREADY HOLD  (flex credited to RB)');
-console.log('  %-4s %-7s %s'.replace('%s', ''), 'pos', 'slots',
-  [0, 1, 2, 3, 4, 5].map(h => ('held ' + h).padStart(11)).join(''));
+console.log('  ' + 'pos'.padEnd(5) + 'slots'.padEnd(7)
+  + [0, 1, 2, 3, 4, 5].map(h => ('held ' + h).padStart(11)).join(''));
 POS.forEach(pos => {
   const S = slotsOf(pos, 'RB');
   const o = [], n = [];
   for (let h = 0; h <= 5; h++) { o.push(needOld(pos, h, 'RB')); n.push(needNew(pos, h, 'RB')); }
   rows[pos] = { slots: S, one_week: o.map(x => +x.toFixed(3)), season: n.map(x => +x.toFixed(3)) };
-  console.log('  %-4s %-7s %s   shipped (one week)', pos, S, o.map(x => x.toFixed(3).padStart(11)).join(''));
-  console.log('  %-4s %-7s %s   CORRECTED (season)', '', '', n.map(x => x.toFixed(3).padStart(11)).join(''));
+  console.log('  ' + pos.padEnd(5) + String(S).padEnd(7)
+    + o.map(x => x.toFixed(3).padStart(11)).join('') + '   shipped (one week)');
+  console.log('  ' + ''.padEnd(5) + ''.padEnd(7)
+    + n.map(x => x.toFixed(3).padStart(11)).join('') + '   CORRECTED (season)');
 });
 
 /* P142 — RB/WR need at the 3rd and 4th HELD body */
@@ -172,15 +174,18 @@ p143.TRUE = p143.second_QB < p143.third_RB && p143.second_QB < p143.third_WR
          && p143.second_TE < p143.third_RB && p143.second_TE < p143.third_WR;
 
 console.log('\n  PRICED AGAINST THE WIRE — need x (last starter\'s points - waiver level)');
-console.log('  %-4s %s', 'pos', [0, 1, 2, 3, 4, 5].map(h => ('held ' + h).padStart(11)).join(''));
-POS.forEach(p => console.log('  %-4s %s', p, priced[p].map(x => x.toFixed(1).padStart(11)).join('')));
+console.log('  ' + 'pos'.padEnd(5) + [0, 1, 2, 3, 4, 5].map(h => ('held ' + h).padStart(11)).join(''));
+POS.forEach(p => console.log('  ' + p.padEnd(5) + priced[p].map(x => x.toFixed(1).padStart(11)).join('')));
 
-console.log('\n  P142 (RB/WR need >= 0.25 at held 3 AND 4): %s', p142.TRUE ? 'TRUE' : 'FALSE');
-console.log('     shipped said RB held-3 %.3f, held-4 %.3f; corrected says %.3f, %.3f',
-  p142.shipped_RB_held3, p142.shipped_RB_held4, p142.RB_held3, p142.RB_held4);
-console.log('  P143 (2nd QB and 2nd TE price below 3rd RB and 3rd WR): %s', p143.TRUE ? 'TRUE' : 'FALSE');
-console.log('     2nd QB %.1f · 2nd TE %.1f   vs   3rd RB %.1f · 3rd WR %.1f',
-  p143.second_QB, p143.second_TE, p143.third_RB, p143.third_WR);
+console.log('\n  P142 (RB/WR need >= 0.25 at held 3 AND 4): ' + (p142.TRUE ? 'TRUE' : 'FALSE'));
+console.log('     shipped RB held-3 ' + p142.shipped_RB_held3.toFixed(3)
+  + ', held-4 ' + p142.shipped_RB_held4.toFixed(3)
+  + '  ->  corrected ' + p142.RB_held3.toFixed(3) + ', ' + p142.RB_held4.toFixed(3));
+console.log('     WR held-3 ' + p142.WR_held3.toFixed(3) + ', held-4 ' + p142.WR_held4.toFixed(3)
+  + '   <- WR does NOT own the flex in this run, so it collapses one body earlier');
+console.log('  P143 (2nd QB and 2nd TE price below 3rd RB and 3rd WR): ' + (p143.TRUE ? 'TRUE' : 'FALSE'));
+console.log('     2nd QB ' + p143.second_QB.toFixed(1) + ' · 2nd TE ' + p143.second_TE.toFixed(1)
+  + '   vs   3rd RB ' + p143.third_RB.toFixed(1) + ' · 3rd WR ' + p143.third_WR.toFixed(1));
 
 const rep = { _territory: 'TERRITORY: A — draft/tools/need_curve.js',
   _prereg: 'draft/NEED-CURVE-PREREG-2026-08-19.md',
