@@ -141,3 +141,57 @@ waiver levels, same flex rule, still one equation, still no cap.
 response to a failure had to be. I am not adding a cap, and `SHORTLIST`,
 `RANK_WINDOW` and the waiver levels are untouched.** If P146 also fails, the next
 step is again a stated change to the equation — not scaffolding.
+
+---
+
+# ADDENDUM 2 — P146 FALSE, and WORSE. Two defects in MY driver, both already solved elsewhere in this repo.
+
+**Result: `QB1 RB2 WR3 TE3 K2 DEF1`, and P145 FALSE at −6.9%.** Expected-weeks
+fixed the quarterback (QB 1 ✅) and broke three other cells.
+
+## DEFECT 1 — THE FLEX CHASE IS SELF-REINFORCING
+
+`chooseFlexOwner()` gives the flex to whichever position currently has the
+largest need-weighted margin. **Once RB and WR are stocked their weights decay,
+so TE wins the flex — which raises TE's slot count `S` from 1 to 2 — which makes
+a SECOND tight end "a starter" at weight 1.0.** It took Kelce at 93 and Andrews
+at 108 for exactly that reason.
+
+**The flex is not a prize for the position with the best margin. It is a seat
+filled by whoever is actually on the roster.** `draft_plan.js` already gets this
+right: `flexOwner` is set **from the seat assignment**, not from a chase
+(`draft_plan.js:433`). My version re-litigates it every pick and lets a position
+promote itself.
+
+## DEFECT 2 — A ZERO IS NOT A RECOMMENDATION
+
+Pick 148 took `TE Brenton Strange` at **value 0.0**, and pick 133 a second kicker
+at 1.0. When every remaining candidate prices at or near zero the driver still
+takes an arbitrary maximum. **`draft_plan.js` explicitly guards this** — *"A ZERO
+IS NOT A RECOMMENDATION. Once every remaining option prices at 0 the model has
+nothing to say, and picking the arbitrary winner of that tie is how a backup
+kicker ends up on the sheet"* — and says **UNPRICED**. I did not carry that
+across.
+
+**Both are defects in MY driver, both were solved in this repo already, and
+neither is evidence about Cory's equation.** Rule 11: one derivation, reused.
+
+## P147 — the same equation, with both defects removed
+
+- **flex owner** = the position that actually holds a startable surplus body,
+  taken from the roster as drafted, **not** re-chosen per pick by margin.
+- **UNPRICED floor**: if the best remaining value is `< 1.0`, the pick is
+  reported as UNPRICED and **left to upside**, exactly as `draft_plan.js` does.
+  It is not filled with an arbitrary zero.
+
+**Nothing else changes: same `E[weeks started]` weight, same waiver levels, one
+equation, still no cap.**
+
+**P147: 3–4 WR, 3–4 RB, exactly 1 QB, 1 TE, 1 DEF, at most 1 K, and any remaining
+picks UNPRICED rather than junk — with total projected points within 5% of
+`draft_plan.js` over the picks it actually prices.**
+
+**FALSE if any cell misses.** ⚠️ **If P147 fails too, I stop iterating and report
+that the one-equation form does not produce Cory's shape without structure —
+three preregistered attempts is enough to say so honestly rather than keep
+tuning until it works.**

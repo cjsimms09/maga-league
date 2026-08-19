@@ -79,7 +79,8 @@ function need(pos, held, flexOwner) {
  *
  * ARM=weeks selects it. Preregistered in the addendum before running -- a change
  * to the EQUATION, not a cap bolted on. */
-const ARM_WEEKS = (process.env.ARM || '') === 'weeks';
+const ARM_WEEKS = (process.env.ARM || '').startsWith('weeks');
+const UNPRICED_FLOOR = (process.env.ARM || '') === 'weeks2' ? 1.0 : -Infinity;
 function weightOf(pos, held, flexOwner) {
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
@@ -101,16 +102,20 @@ const keptCounts = Object.assign({}, held);
 
 /* the flex goes, at EVERY pick, to whoever currently has the largest
  * need-weighted margin — recomputed, never cached (control 2) */
+/* ⛔ DEFECT 1, P147: the first version handed the flex to whichever position had
+ * the largest need-weighted margin. That is self-reinforcing -- once RB and WR
+ * stock up their weights decay, TE wins the flex, TE's slot count rises to 2,
+ * and a SECOND tight end becomes "a starter" at weight 1.0. It drafted three.
+ * The flex is a SEAT FILLED BY WHOEVER IS ON THE ROSTER, not a prize.
+ * draft_plan.js:433 sets flexOwner from the seat assignment; this now does the
+ * same thing -- the position with a startable body beyond its own base slots. */
 function chooseFlexOwner() {
-  let best = null, bestV = -Infinity;
+  let best = null, bestSurplus = 0;
   FLEX_ELIGIBLE.forEach(pos => {
-    const avail = pool.filter(p => p.position === pos && !taken.has(String(p.player_id)));
-    const top = avail.sort((a, b) => b.proj_mean - a.proj_mean)[0];
-    if (!top) return;
-    const v = weightOf(pos, held[pos] || 0, pos) * Math.max(0, top.proj_mean - (WAIVER[pos] || 0));
-    if (v > bestV) { bestV = v; best = pos; }
+    const surplus = (held[pos] || 0) - (STARTERS[pos] || 0);
+    if (surplus > bestSurplus) { bestSurplus = surplus; best = pos; }
   });
-  return best;
+  return best;   // null until somebody actually has a spare body
 }
 
 const taken = new Set();
@@ -127,7 +132,13 @@ SCHED.forEach((pk, i) => {
       * Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
     if (v > bestV) { bestV = v; best = p; }
   });
-  if (!best) { picks.push({ pick: pk, name: null }); return; }
+  /* ⛔ DEFECT 2, P147: a zero is not a recommendation. draft_plan.js says so in
+   * as many words and this driver ignored it, taking a second kicker at 1.0 and
+   * a tight end at 0.0. Below the floor the model has nothing to say. */
+  if (!best || bestV < UNPRICED_FLOOR) {
+    picks.push({ pick: pk, name: null, unpriced: true, best_value: +Math.max(0, bestV).toFixed(1) });
+    return;
+  }
   taken.add(String(best.player_id));
   held[best.position] = (held[best.position] || 0) + 1;
   picks.push({ pick: pk, name: best.name, pos: best.position, adp: best.adp,
@@ -184,7 +195,8 @@ if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a measurement
 console.log('\n  keepers: ' + PLAN.keep.map(k => k.position + ' ' + k.name).join(', '));
 console.log('\n  pick  take                        proj   need   value  flex');
 picks.forEach(p => console.log('  ' + String(p.pick).padStart(4) + '  '
-  + (p.name ? (p.pos + ' ' + p.name) : '—').padEnd(27)
+  + (p.name ? (p.pos + ' ' + p.name)
+      : ('UNPRICED — free option, take upside')).padEnd(27)
   + (p.proj != null ? p.proj.toFixed(0).padStart(6) : '     —')
   + (p.need != null ? p.need.toFixed(3).padStart(7) : '      —')
   + (p.value != null ? p.value.toFixed(1).padStart(8) : '       —')
