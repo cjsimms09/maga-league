@@ -53,6 +53,28 @@ output alone risks introducing a DIFFERENT bug while trying to match one
 that already works. Flagging so the script gets committed alongside
 whatever ships, not before.
 
+## A forward-looking gap, found after the above — not a bug in what exists today
+
+Cory's three actual keepers (Chase, Henry, Walker) are entirely absent from
+`board_mean_candidate.json`. **Verified this matches the live board's own
+existing, correct behavior** — `kept_players` is a separate array, deliberately
+excluded from `players[]` on `public/draft_data.json` too, same as this
+candidate. Not a defect.
+
+**But it is a real question for WHEN this ships.** `kept_players` currently
+carries `proj_mean == proj_sleeper` for all three (Chase 256.6, Henry 238.4,
+Walker 225.5) — and FantasyPros already disagrees meaningfully in the same
+direction the mean-of-4 candidate moves the pool (Chase 275.44, Henry 264.64,
+both higher). **If `players[]` switches to the 4-source mean while
+`kept_players` stays Sleeper-only, the board's headline projection number
+will mean two different things depending on whether a player is currently on
+Cory's roster or in the pool** — his own keepers would read systematically
+lower than a same-caliber undrafted player, right at the exact comparison
+(keeper value vs. the pool) his own roster decisions depend on most. Whoever
+builds the merge needs to re-price `kept_players` from the same 4-source data
+in the same pass, not just `players[]`. Flagging now, before it ships, rather
+than after.
+
 ## What this does not check
 
 - Whether CBS/ESPN/FFToday's own scrapers are individually correct — that
