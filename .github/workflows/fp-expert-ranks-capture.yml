@@ -105,11 +105,23 @@ jobs:
           git add draft/backtest/fp_expert_ranks_*.json draft/data/expert_spread_2026.json public/expert_spread_2026.json
           if ! git diff --cached --quiet; then
             git commit -m "Capture FantasyPros per-expert draft ranks + re-derive expert_spread_2026 [skip deploy]"
+            pushed=0
             for i in 1 2 3 4; do
               git rebase --abort 2>/dev/null || true
-              git pull --rebase origin main && git push origin HEAD:main && break
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
               sleep $((2**i))
             done
+            # ⛔ AN EXHAUSTED RETRY LOOP MUST FAIL. Register 123: this idiom was
+            # `... && break` under `set -uo pipefail` (no -e), so four failed
+            # attempts fell through and the job exited 0 having stored NOTHING.
+            # Observed live on run 32285390841. A capture that silently stores
+            # nothing is worse than one that fails, because nobody looks.
+            if [ "$pushed" != "1" ]; then
+              echo "::error::all four push attempts failed — the artifact was NOT stored"
+              exit 1
+            fi
           else
             echo "No change to the store."
           fi

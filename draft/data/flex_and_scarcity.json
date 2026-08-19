@@ -1,0 +1,203 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/flex_and_scarcity.py",
+ "_prereg": "draft/FLEX-AND-SCARCITY-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY.",
+ "league_base_slots": {
+  "QB": 1,
+  "RB": 2,
+  "WR": 2,
+  "TE": 1,
+  "K": 1,
+  "DEF": 1
+ },
+ "flex_slots": 1,
+ "controls": {
+  "C1_known_positive_reproduces_published_wire": {
+   "ok": true,
+   "detail": {
+    "QB": {
+     "rank": 17,
+     "published": 322.9,
+     "got": 322.9,
+     "player": "Baker Mayfield",
+     "ok": true
+    },
+    "RB": {
+     "rank": 48,
+     "published": 78.4,
+     "got": 78.4,
+     "player": "Tyler Allgeier",
+     "ok": true
+    },
+    "WR": {
+     "rank": 53,
+     "published": 124.8,
+     "got": 124.8,
+     "player": "Rashid Shaheed",
+     "ok": true
+    },
+    "TE": {
+     "rank": 15,
+     "published": 130.4,
+     "got": 130.4,
+     "player": "Jake Ferguson",
+     "ok": true
+    },
+    "K": {
+     "rank": 11,
+     "published": 128.6,
+     "got": 128.6,
+     "player": "Nick Folk",
+     "ok": true
+    },
+    "DEF": {
+     "rank": 11,
+     "published": 100.0,
+     "got": 100.0,
+     "player": "Dallas Cowboys",
+     "ok": true
+    }
+   },
+   "why": "rule 3e -- if this probe cannot reproduce the six wire levels the model actually prices, it is reading a different pool and nothing else it prints counts"
+  },
+  "C2_flex_shares_sum_to_one": {
+   "ok": true,
+   "sum": 1.0,
+   "shares": {
+    "RB": 0.4224,
+    "WR": 0.5607,
+    "TE": 0.0168
+   },
+   "why": "there is exactly one flex slot; a lineup join that is wrong prints a plausible split that does not sum to one"
+  },
+  "C3_thirty_team_seasons": {
+   "ok": true,
+   "got": 30,
+   "why": "ten owners, three completed seasons"
+  },
+  "C4_pool_matches_the_model": {
+   "ok": true,
+   "pool_sizes": {
+    "QB": 91,
+    "RB": 158,
+    "WR": 241,
+    "TE": 133,
+    "K": 45,
+    "DEF": 32
+   },
+   "field": "proj_mean",
+   "why": "same field and filter as model_diagnostics.js"
+  },
+  "C5_weeks_used": {
+   "ok": true,
+   "team_weeks": 535,
+   "excluded": 5,
+   "why": "exclusions counted, not silently dropped"
+  }
+ },
+ "controls_all_passed": true,
+ "flex_share_pooled": {
+  "RB": 0.4224,
+  "WR": 0.5607,
+  "TE": 0.0168
+ },
+ "flex_wr_share_by_team_season": {
+  "n": 30,
+  "mean": 0.5588,
+  "sd": 0.2723,
+  "min": 0.0,
+  "max": 1.0,
+  "sorted": [
+   0.0,
+   0.111,
+   0.167,
+   0.2,
+   0.222,
+   0.278,
+   0.278,
+   0.333,
+   0.389,
+   0.389,
+   0.5,
+   0.5,
+   0.556,
+   0.556,
+   0.588,
+   0.588,
+   0.611,
+   0.611,
+   0.611,
+   0.611,
+   0.722,
+   0.778,
+   0.778,
+   0.778,
+   0.889,
+   0.889,
+   0.944,
+   0.944,
+   0.944,
+   1.0
+  ]
+ },
+ "curve_drops": {
+  "QB": {
+   "demand_rank": 10,
+   "proj_at_demand": 350.3,
+   "wire_rank": 17,
+   "proj_at_wire": 322.9,
+   "drop": 27.4,
+   "drop_per_rank": 3.91
+  },
+  "RB": {
+   "demand_rank": 24,
+   "proj_at_demand": 170.5,
+   "wire_rank": 48,
+   "proj_at_wire": 78.4,
+   "drop": 92.1,
+   "drop_per_rank": 3.84
+  },
+  "WR": {
+   "demand_rank": 26,
+   "proj_at_demand": 171.8,
+   "wire_rank": 53,
+   "proj_at_wire": 124.8,
+   "drop": 47.0,
+   "drop_per_rank": 1.74
+  },
+  "TE": {
+   "demand_rank": 10,
+   "proj_at_demand": 141.4,
+   "wire_rank": 15,
+   "proj_at_wire": 130.4,
+   "drop": 11.0,
+   "drop_per_rank": 2.2
+  },
+  "K": {
+   "demand_rank": 10,
+   "proj_at_demand": 129.2,
+   "wire_rank": 11,
+   "proj_at_wire": 128.6,
+   "drop": 0.7,
+   "drop_per_rank": 0.66
+  },
+  "DEF": {
+   "demand_rank": 10,
+   "proj_at_demand": 103.0,
+   "wire_rank": 11,
+   "proj_at_wire": 100.0,
+   "drop": 3.0,
+   "drop_per_rank": 3.0
+  }
+ },
+ "median_top36": {
+  "RB": 200.4,
+  "WR": 185.2
+ },
+ "wr_minus_rb_level_offset": -15.2,
+ "grades": {
+  "P167_flex_is_bimodal": true,
+  "P168_rb_curve_is_steeper": true,
+  "P169_level_offset_at_least_25": false
+ }
+}

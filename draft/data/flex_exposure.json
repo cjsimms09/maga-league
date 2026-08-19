@@ -1,0 +1,122 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/flex_exposure.py",
+ "_prereg": "draft/FLEX-REPLACEMENT-PREREG-2026-08-19.md (P175)",
+ "_note": "REPORT ONLY.",
+ "controls": {
+  "C1_flex_starts_total_one_slot": {
+   "ok": true,
+   "flex_starts_per_team_week": 1.0,
+   "expected": 1,
+   "why": "a flex-start classifier that does not total exactly one slot per team-week is misclassifying somebody"
+  },
+  "C2_f_sums_back_to_position_total": {
+   "ok": true,
+   "detail": {
+    "RB": {
+     "summed_over_bodies": 226,
+     "position_total": 226,
+     "ok": true
+    },
+    "WR": {
+     "summed_over_bodies": 300,
+     "position_total": 300,
+     "ok": true
+    },
+    "TE": {
+     "summed_over_bodies": 9,
+     "position_total": 9,
+     "ok": true
+    }
+   },
+   "why": "f must be a fraction of that body's OWN starts, so f x starts summed over n reproduces the position's flex starts"
+  },
+  "C3_excluded_counted": {
+   "ok": true,
+   "team_weeks": 535,
+   "excluded": 5
+  }
+ },
+ "controls_all_passed": true,
+ "f": {
+  "RB": [
+   0.0,
+   0.0,
+   0.45,
+   0.5441176470588235,
+   0.6818181818181818,
+   null
+  ],
+  "WR": [
+   0.0,
+   0.0,
+   0.43462897526501765,
+   0.5511363636363636,
+   0.8823529411764706,
+   null
+  ],
+  "TE": [
+   0.0,
+   0.061224489795918366,
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ "starts": {
+  "RB": [
+   465,
+   383,
+   260,
+   136,
+   44,
+   6
+  ],
+  "WR": [
+   446,
+   372,
+   283,
+   176,
+   68,
+   23
+  ],
+  "TE": [
+   383,
+   147,
+   13,
+   1,
+   0,
+   0
+  ]
+ },
+ "flex_wire": 130.4,
+ "blended_replacement": {
+  "RB": [
+   78.4,
+   78.4,
+   101.8,
+   106.7,
+   113.9,
+   null
+  ],
+  "WR": [
+   124.8,
+   124.8,
+   127.2,
+   127.9,
+   129.7,
+   null
+  ],
+  "TE": [
+   130.4,
+   130.4,
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ "grades": {
+  "P175_flex_exposure_persists_past_the_third": true
+ }
+}
