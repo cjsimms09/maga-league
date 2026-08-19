@@ -67,6 +67,27 @@ function need(pos, held, flexOwner) {
   return 1 - Math.pow(1 - binomAtLeast(held - S + 1, S, Q[pos]), WEEKS);
 }
 
+/* ── P146: EXPECTED WEEKS STARTED, not P(ever needed) ──────────────────────
+ * P144 failed on one cell -- it took a second QB at need 0.933 x (354-319) =
+ * 32.2. `need` is P(I will need him AT ALL) and the equation then multiplied it
+ * by a FULL SEASON's margin. A QB2 does not play a season; he plays the one or
+ * two weeks his starter is out. The margin was right, the DURATION was missing.
+ *
+ * That single factor is Cory's distinction stated properly: a backup at a
+ * one-slot position plays almost never; a backup at a three-slot injury-heavy
+ * position plays often. A probability cannot see the difference.
+ *
+ * ARM=weeks selects it. Preregistered in the addendum before running -- a change
+ * to the EQUATION, not a cap bolted on. */
+const ARM_WEEKS = (process.env.ARM || '') === 'weeks';
+function weightOf(pos, held, flexOwner) {
+  const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
+  if (S <= 0) return 0;
+  if (held < S) return 1.0;
+  if (!ARM_WEEKS) return need(pos, held, flexOwner);
+  return binomAtLeast(held - S + 1, S, Q[pos]);   // = E[weeks started]/17
+}
+
 /* ── the drive ────────────────────────────────────────────────────────────── */
 const pool = DATA.players.filter(p => p.position && (p.proj_mean || 0) > 0 && POS.includes(p.position));
 const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
@@ -86,7 +107,7 @@ function chooseFlexOwner() {
     const avail = pool.filter(p => p.position === pos && !taken.has(String(p.player_id)));
     const top = avail.sort((a, b) => b.proj_mean - a.proj_mean)[0];
     if (!top) return;
-    const v = need(pos, held[pos] || 0, pos) * Math.max(0, top.proj_mean - (WAIVER[pos] || 0));
+    const v = weightOf(pos, held[pos] || 0, pos) * Math.max(0, top.proj_mean - (WAIVER[pos] || 0));
     if (v > bestV) { bestV = v; best = pos; }
   });
   return best;
@@ -102,7 +123,7 @@ SCHED.forEach((pk, i) => {
   pool.forEach(p => {
     const id = String(p.player_id);
     if (taken.has(id) || gone.has(id)) return;
-    const v = need(p.position, held[p.position] || 0, flexOwner)
+    const v = weightOf(p.position, held[p.position] || 0, flexOwner)
       * Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
     if (v > bestV) { bestV = v; best = p; }
   });
@@ -111,7 +132,7 @@ SCHED.forEach((pk, i) => {
   held[best.position] = (held[best.position] || 0) + 1;
   picks.push({ pick: pk, name: best.name, pos: best.position, adp: best.adp,
                proj: best.proj_mean, value: +bestV.toFixed(1),
-               need: +need(best.position, (held[best.position] || 1) - 1, flexOwner).toFixed(3),
+               need: +weightOf(best.position, (held[best.position] || 1) - 1, flexOwner).toFixed(3),
                flex_to: flexOwner });
 });
 
@@ -156,7 +177,8 @@ const p145 = { one_equation_total: +mineTotal.toFixed(1), draft_plan_total: +pla
   pct_diff: +(100 * (mineTotal - planTotal) / planTotal).toFixed(1) };
 p145.TRUE = Math.abs(p145.pct_diff) <= 5;
 
-console.log('ONE EQUATION — need x (proj - waiver). No seats, no shortlist, no cap.\n');
+console.log('ONE EQUATION — ' + (ARM_WEEKS ? 'E[weeks started] (P146)' : 'P(ever needed) (P144)')
+  + ' x (proj - waiver). No seats, no shortlist, no cap.\n');
 Object.entries(ctl).forEach(([k, v]) => console.log('  ' + (v.ok ? 'OK ' : '!! ') + k));
 if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a measurement.\n');
 console.log('\n  keepers: ' + PLAN.keep.map(k => k.position + ' ' + k.name).join(', '));
