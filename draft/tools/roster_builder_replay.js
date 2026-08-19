@@ -250,6 +250,41 @@ function gradeSeason(season, roster) {
 }
 
 /* ── the counterfactual: fixed opponents, one seat differs ─────────────────── */
+/* ── MARGINAL LINEUP VALUE — the relay's mechanism, re-run by A ───────────────
+ * Prereg: draft/MLV-PREREG-2026-08-19.md. Register 132.
+ *
+ * Every other arm tonight taxed the POSITION COUNT: a 4th RB pays x0.25 whether
+ * he would start or rot on the bench. This taxes DISPLACEMENT --
+ *
+ *     marginal(c) = lineupValue(roster + c) - lineupValue(roster)
+ *
+ * -- so a 4th back better than the flex starter keeps his value (he starts, and
+ * the man he benches nets off) while one worse than the flex is worth ~zero.
+ *
+ * Under Cory's own skill-not-luck ruling a bench body contributes exactly zero,
+ * so this does not APPROXIMATE the graded objective, it IS the graded objective.
+ * No curve and nothing to tune.
+ *
+ * ⚠️ Value here is the MARKET'S OWN ORDER, same as every other arm, so the
+ * comparison stays paired on player evaluation and only the construction rule
+ * differs. */
+const MLV = process.argv.includes('--mlv');
+const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
+
+function lineupValueOf(vals) {
+  /* vals: {pos: [value, ...]} sorted desc. Dedicated slots then one flex. */
+  let total = 0;
+  const left = {};
+  POS.forEach(q => {
+    const need = STARTERS[q] || 0;
+    const have = (vals[q] || []).slice().sort((a, b) => b - a);
+    for (let i = 0; i < need; i++) total += have[i] || 0;
+    left[q] = have.slice(need);
+  });
+  const flex = FLEX.flatMap(q => left[q] || []).sort((a, b) => b - a);
+  return total + (flex[0] || 0);
+}
+
 function buildSeat(season, draft, seatId, rosterOn) {
   const picks = (draft.picks || []).slice().sort((a, b) => a.pick_no - b.pick_no);
   const N = picks.length;
@@ -275,14 +310,14 @@ function buildSeat(season, draft, seatId, rosterOn) {
       return m + k * (raw(p) - m);
     };
   }
-  const mine = [], held = {};
+  const mine = [], held = {}, mineVals = {};
   const takenByMe = new Set();
   picks.forEach((pk, idx) => {
     if (pk.roster_id !== seatId) return;
     if (pk.is_keeper) {                       // keepers stay as recorded (C4)
       mine.push(pk.player_id);
       const q = posOf(pk.player_id);
-      if (q) held[q] = (held[q] || 0) + 1;
+      if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk)); }
       return;
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
@@ -309,15 +344,30 @@ function buildSeat(season, draft, seatId, rosterOn) {
         short = left < 1;
         if (short) deadlineFired++;
       }
-      const w = startProb(q, held[q] || 0, rosterOn, short);
-      const v = valueOf(c) * w;
+      let v;
+      if (MLV) {
+        /* ⚠️ K<=1 / DEF<=1 — from Cory's "fielding a normal roster". C2 runs
+         * this OFF separately, because the relay's uncapped arm drafted TWO
+         * kickers: no-injury grading rewards a second kicker and a normal
+         * roster does not. If the cap is load-bearing it must be reported as a
+         * rule, not as something the mechanism discovered. */
+        if (MLV_CAP && (q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
+        const cur = {};
+        POS.forEach(z => { cur[z] = (mineVals[z] || []).slice(); });
+        const before = lineupValueOf(cur);
+        (cur[q] || (cur[q] = [])).push(valueOf(c));
+        v = lineupValueOf(cur) - before;
+      } else {
+        const w = startProb(q, held[q] || 0, rosterOn, short);
+        v = valueOf(c) * w;
+      }
       if (v > bestV) { bestV = v; best = c; }
     }
     if (!best) return;
     takenByMe.add(best.player_id);
     mine.push(best.player_id);
     const q = posOf(best.player_id);
-    if (q) held[q] = (held[q] || 0) + 1;
+    if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(best)); }
   });
   return mine;
 }
