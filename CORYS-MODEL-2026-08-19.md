@@ -93,3 +93,58 @@ post-draft list.
 
 ⚠️ **Nothing here ships before Saturday.** This is the correct statement of your
 model, with its one missing input named.
+
+---
+
+# ⛔ CORRECTION, WITHIN THE HOUR — Cory: *"if jamarr gets hurt, im probably not winning fantasy anyways"*
+
+**That kills the framing I used above, and he is right.**
+
+I wrote *"RB and WR have the biggest cliffs → insure them."* **But insurance
+against a catastrophe that already costs you the season is worthless.** If Ja'Marr
+Chase goes down you are not winning the league whether or not you spent a pick on
+cover — **you would be paying draft capital to improve outcomes in the worlds
+where the outcome does not matter.**
+
+**In his own language: you do not hedge a risk that, if it lands, puts you out of
+the game. You hedge risks that move you between winning and losing.**
+
+## SO WHY DO RB4 AND WR4 STILL BELONG ON THE ROSTER? NOT AS INSURANCE.
+
+**Because they play.** The measured curve is not a table of disaster rates — **it
+counts actual starts**:
+
+| | 1st | 2nd | 3rd | **4th** | 5th |
+|---|---|---|---|---|---|
+| RB | 87% | 71% | 49% | **27%** | 16% |
+| WR | 83% | 70% | 53% | **33%** | 18% |
+| QB | 69% | 43% | 41% | — | |
+| TE | 72% | 41% | 41% | — | |
+
+**An RB4 starts about 4–5 games. A WR4 starts about 5–6.** They are **part-time
+starters**, earning their roster spot in the ordinary course of a season — byes,
+committee weeks, matchups, the third guy underperforming — **not standing by for a
+catastrophe.**
+
+**A QB2 or TE2 would be pure catastrophe cover**, which is exactly the kind Cory
+says not to buy — *and* the kind whose downside is smallest anyway, because the
+QB wire is 319 points deep.
+
+## THE CORRECTED PRINCIPLE, AND IT IS SIMPLER THAN WHAT I WROTE ABOVE
+
+> ## **Draft bodies that will START. Do not draft bodies that will cover disasters.**
+
+**That single rule produces the whole specification** — and it needs no cliff
+table, no risk aversion, and no cap:
+
+- RB4 (27%) and WR4 (33%) **start** → draft them
+- RB6 (7%) and WR6 (17%) **mostly do not** → do not
+- QB2 and TE2 **only start when something has already gone wrong** → do not
+- K2 and DEF2 → never
+
+**And the right instrument is the measured curve itself, because it counts starts
+and nothing else.** My binomial was trying to model disasters; the counting
+approach measures playing time, which is the thing that actually pays.
+
+**Cory has now corrected the model's framing three times today — the 0.25 floor,
+the K/DEF zero, and this — and all three corrections made it simpler.**
