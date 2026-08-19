@@ -1,4 +1,5 @@
 # TERRITORY: A
+# TERRITORY-GRANT: C scraped_at register 79 2026-08-19
 """OBSERVED expert disagreement per player, published for the war room.
 
 Cory, 08-18, on the skill grading: "Yes! Best way to implement this data into
@@ -52,6 +53,7 @@ def build() -> dict:
                     "expert ranks, 2026 preseason. DISPLAY DATA: not a ceiling, "
                     "not fitted, asserts nothing beyond what experts published.",
            "_source": src.get("url"), "season": 2026,
+           "scraped_at": src.get("scraped_at"),
            "crosswalk_misses": misses, "players": rows}
     out = json.dumps(doc, indent=1)
     (ROOT / "public" / "expert_spread_2026.json").write_text(out)
