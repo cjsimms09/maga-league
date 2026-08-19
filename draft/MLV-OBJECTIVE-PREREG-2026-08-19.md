@@ -131,3 +131,28 @@ off-arm-clobbers-on-arm trap A already fixed in the model tool
 (`479047e5 "Give each arm its own artifact"`). The re-run now asserts the
 arm's mean before measuring. A: the harness deserves the same per-arm-artifact
 fix when you take it over.
+
+---
+
+## 8. PREREG — MLV-LOOKAHEAD (`--objective-look`), committed before the run
+
+**The myopia:** plain MLV takes the largest immediate marginal. If WRs are flat
+(the next WR at my next pick is nearly as good) and TEs cliff (the last real TE
+leaves before I pick again), taking the WR wastes the pick — waiting was free
+at WR and expensive at TE.
+
+**The rule:** at each pick, for every candidate `c`, compute
+`wait_cost(c) = marginal(c) − marginal(best at c's position still available at
+my NEXT pick)` — availability read from the fixed-opponent draft, the same
+no-hindsight information the harness's supply counter already uses (its C3
+note). Take the candidate maximizing `wait_cost`, tiebreak by `marginal`.
+Legality guard and K≤1/DEF≤1 unchanged. **No constants.** At the last pick
+there is no next pick; `wait_cost = marginal`.
+
+**Bar, declared now:** beats `--objective-normal` on BOTH gradings
+(actual > +45.8 and skill > +29.3), 30/30 legal, and beats it head-to-head in
+**≥ 16 of 30** seats on skill. FALSE otherwise, filed beside the rest.
+
+**Falsifiable signature:** the gain, if any, concentrates in EARLY picks
+(rounds 3–7, where cliffs differ most); a gain concentrated late means the
+mechanism is not the claimed one.
