@@ -221,3 +221,84 @@ would be a search, and `no_fit_guard` forbids selecting one.
 
 **Controls carried forward, including the known positive: `FLEXR=off` must still
 reproduce P166 to the decimal.**
+
+---
+
+# ⛔ CORRECTION BEFORE P176 IS GRADED — I HAVE BEEN REPORTING DRAFTED COUNTS
+# AGAINST A ROSTER SPEC, ALL SESSION
+
+**`average_draft.js` counted only DRAFTED picks. Cory keeps Ja'Marr Chase (WR),
+Derrick Henry (RB) and Kenneth Walker (RB), held from pick one and never
+counted.** Every roster number I have put in front of him is **2 RB and 1 WR
+light**, including the P166 headline I called *"the closest any arm has come."*
+
+**On roster terms the P166 arm is `RB 5.94 / WR 4.55` — which rounds to
+"6 RB, 5 WR", word for word the thing Cory rejected:** *"i dont want 6 rb
+5wr."* **He diagnosed the model's roster from the outside while the tool
+reported 3.94 and I called it close.**
+
+**P158's own gate had the same bug** — `stat.RB.mean >= 4 && <= 5` on drafted
+counts — so it read TRUE on a six-back roster. **Re-graded on the roster it is
+FALSE.** Tool now prints both columns and gates on the roster.
+
+⚠️ **This does NOT rescue P176's bar (b), and I am not rewriting it.** I wrote
+*"mean RB drafted ≥ 3.0"* and the blend drafts 2.36, so **(b) is FALSE as
+written and the bar itself was mis-specified by me.** Both facts are recorded;
+neither is quietly dropped.
+
+## P176 GRADED — FALSE, and the failure is not in the half Cory asked about
+
+| roster | off (P166) | **blend** | Cory |
+|---|---|---|---|
+| QB | 1.20 | **1.56** | 1 |
+| **RB** | **5.94** | **4.36** | **4-5** |
+| **WR** | 4.55 | **4.92** | **4-5** |
+| TE | 1.08 | 1.30 | — |
+| K | 1.14 | **1.40** | 1 |
+| DEF | 1.10 | **1.47** | 1 |
+
+**(a) TRUE — WR 4.92 > RB 4.36.** **(b) FALSE as written** (drafted 2.36); on
+roster terms RB 4.36 with a minimum of 3 in all 300 rooms. **(c) FALSE — QB
++0.36, K +0.26, DEF +0.37 all past the 0.25 bar.** **So P176 is FALSE.**
+
+**The blend puts RB and WR exactly where Cory says they belong and leaks ~1.4
+picks into BACKUP kickers, defences and quarterbacks.**
+
+---
+
+# ADDENDUM 3 — P177, the last arm, committed before it runs
+
+**The leak has a named cause and the fix is Cory's own ruling, already made and
+already graded.** He ruled on 08-19: *"same problem with K and def, once you
+draft 1 the need should be 0"* — filed and graded as **P149**, where it fixed
+both cells and cost 0.4% of value. **That rule is not in this arm.** Raising
+RB's replacement freed picks, and a second kicker still prices positive against
+a 128.6 wire because nothing zeroes him.
+
+**P177 — the blend PLUS Cory's existing K/DEF rule meets his full spec.**
+`need(K, held ≥ 1) = 0` and `need(DEF, held ≥ 1) = 0`, exactly zero, nothing
+else changed. Over the same 300 rooms, on the **ROSTER**:
+
+- **(a)** WR > RB
+- **(b)** RB in **4–5** and WR in **4–5**
+- **(c)** K ≤ **1.05** and DEF ≤ **1.05**
+- **(d)** QB ≤ **1.30** — ⭐ **the one his rule does NOT address.** If the
+  quarterback leak survives, the K/DEF rule was a patch on a symptom and the
+  equation still has a hole. **This bar is here to be able to fail.**
+
+**FALSE if any of the four misses.**
+
+## ⚠️ WHY A THIRD ARM IS NOT A SEARCH — and the reader should judge this
+
+Addendum 2 said the blend was "the second and last arm". **This is a third, and
+that needs a reason better than wanting a better number.** The reason: **the
+change is not mine and was not chosen from these results.** It is a ruling Cory
+issued, preregistered and graded on its own two weeks of evidence before this
+thread existed. **What would make it a search is picking it because P176 failed
+— so bar (d) is written to catch exactly that**, since his K/DEF rule cannot
+possibly fix the quarterback and a passing (d) would mean I had tuned something
+else.
+
+**If P177 fails, I stop and report the equation as unfinished. No fourth arm.**
+
+**REPORT ONLY. `no_fit_guard`. Nothing ships before Saturday.**

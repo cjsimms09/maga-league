@@ -61,6 +61,17 @@ const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0
  * ⚠️ THE RAW MAX IS TE 130.4, above WR's 124.8, yet real teams flex a tight end
  * 1.7% of the time -- so the TE wire rank (15) or the TE projections are
  * suspect. Both choices are run and must agree (rule 3d). */
+/* P176: the MEASURED blend. f(q,n) is the share of the nth body's starts that
+ * are FLEX starts, counted from the same 535 team-weeks
+ * (draft/backtest/flex_exposure.py, P175). It rises with depth -- RB 0.450 at
+ * the 3rd body, 0.544 at the 4th, 0.682 at the 5th -- which is the OPPOSITE
+ * shape from the order-indexed slot label, and it is why the blended
+ * replacement is monotone and cannot be dodged by drafting more backs. */
+const FLEXX = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'flex_exposure.json'), 'utf8'));
+if (!FLEXX.controls_all_passed) throw new Error('flex_exposure failed its controls — REFUSING');
+const FSHARE = FLEXX.f;
+
 const FLEXR_ARM = process.env.FLEXR || 'max';
 const flexWire = () => {
   if (FLEXR_ARM === 'off') return null;                       // known-positive control
@@ -80,9 +91,19 @@ function slotOf(q, heldQ, held, base) {
 }
 
 function replacementFor(q, heldQ, held, base) {
+  const own = WAIVER[q] || 0;
+  /* P176 — the measured blend. No slot label at all: the nth body carries the
+   * flex exposure the league's own lineups gave him. Falls back to the own
+   * wire where f is unmeasured (too few starts to count). */
+  if (FLEXR_ARM === 'blend') {
+    const flexR = Math.max(...FLEX_ELIGIBLE.map(x => WAIVER[x] || 0));
+    const f = ((FSHARE || {})[q] || [])[heldQ];   // heldQ held -> he is body heldQ+1
+    if (f == null) return own;
+    return f * flexR + (1 - f) * own;
+  }
   const slot = slotOf(q, heldQ, held, base);
   if (slot === 'flex' && FLEX_R != null) return FLEX_R;
-  return WAIVER[q] || 0;
+  return own;
 }
 const SCHED = PLAN.SCHED;
 const ROOMS = (() => { const i = process.argv.indexOf('--rooms'); return i >= 0 ? +process.argv[i + 1] : 300; })();
@@ -193,10 +214,18 @@ function runRoom() {
     held[best.position] = (held[best.position] || 0) + 1;
     got.push(best.position);
   });
+  /* ⛔ THE COUNTS WERE DRAFTED-ONLY AND WERE BEING COMPARED TO A ROSTER SPEC.
+   * Cory keeps Chase (WR), Henry (RB) and Walker (RB), so a "RB 3.94" headline
+   * is a SIX-BACK roster -- which is, word for word, the thing he rejected
+   * ("i dont want 6 rb 5wr"). He diagnosed the model's roster from the outside
+   * while this tool reported a number 2 RB and 1 WR light. Both are emitted now
+   * and the ROSTER one is the one his requirements are about. */
   const c = {};
   got.forEach(q => { c[q] = (c[q] || 0) + 1; });
+  const roster = Object.assign({}, c);
+  PLAN.keep.forEach(k => { roster[k.position] = (roster[k.position] || 0) + 1; });
   const legal = ['QB','RB','WR','TE','K','DEF'].every(q => (held[q]||0) >= (base[q]||0));
-  return { counts: c, top32, legal, slots };
+  return { counts: c, roster, top32, legal, slots };
 }
 
 const rows = [];
@@ -204,11 +233,14 @@ for (let r = 0; r < ROOMS; r++) rows.push(runRoom());
 
 const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
 const sd = a => { const m = mean(a); return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
-const stat = {};
+const stat = {}, rstat = {};
 POS.forEach(q => {
   const v = rows.map(r => r.counts[q] || 0);
   stat[q] = { mean: +mean(v).toFixed(2), sd: +sd(v).toFixed(2),
               min: Math.min(...v), max: Math.max(...v) };
+  const w = rows.map(r => r.roster[q] || 0);
+  rstat[q] = { mean: +mean(w).toFixed(2), sd: +sd(w).toFixed(2),
+               min: Math.min(...w), max: Math.max(...w) };
 });
 
 /* ── controls ─────────────────────────────────────────────────────────────── */
@@ -249,32 +281,41 @@ console.log('THE AVERAGE DRAFT — ' + ROOMS + ' simulated rooms   (P158)\n');
 Object.entries(ctl).forEach(([k, c]) => console.log('  ' + (c.ok ? 'OK ' : '!! ') + k));
 if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a measurement.\n');
 console.log('\n  rooms differ: ' + JSON.stringify(ctl.C1_rooms_actually_differ.players_gone_by_pick_33));
-console.log('\n  %s', 'MEAN DRAFTED ROSTER across ' + ROOMS + ' rooms (Cory drafts 12)');
-console.log('  ' + 'pos'.padEnd(6) + 'mean'.padStart(7) + 'sd'.padStart(7) + 'min'.padStart(6) + 'max'.padStart(6) + '   Cory said');
+/* ⛔ P158 WAS GRADED ON THE DRAFTED COUNT AND CORY'S BAND IS A ROSTER BAND.
+ * He keeps Chase, Henry and Walker, so "RB 3.94 drafted" IS a SIX-back roster
+ * -- literally the thing he rejected ("i dont want 6 rb 5wr"). The gate below
+ * now reads the ROSTER, and both tables are printed so the gap can never hide
+ * again. */
+console.log('\n  %s', 'MEAN ROSTER across ' + ROOMS + ' rooms (12 picks + keepers '
+  + PLAN.keep.map(k => k.position).join('/') + ')');
+console.log('  ' + 'pos'.padEnd(6) + 'drafted'.padStart(9) + 'ROSTER'.padStart(9)
+  + 'sd'.padStart(7) + 'min'.padStart(6) + 'max'.padStart(6) + '   Cory said');
 const SAID = { QB: '1', RB: '4-5', WR: '4-5', TE: '(not stated)', K: '1', DEF: '1' };
-POS.forEach(q => console.log('  ' + q.padEnd(6) + String(stat[q].mean).padStart(7)
-  + String(stat[q].sd).padStart(7) + String(stat[q].min).padStart(6)
-  + String(stat[q].max).padStart(6) + '   ' + SAID[q]));
+POS.forEach(q => console.log('  ' + q.padEnd(6) + String(stat[q].mean).padStart(9)
+  + String(rstat[q].mean).padStart(9)
+  + String(rstat[q].sd).padStart(7) + String(rstat[q].min).padStart(6)
+  + String(rstat[q].max).padStart(6) + '   ' + SAID[q]));
 
 const p158 = {
-  QB: Math.abs(stat.QB.mean - 1) <= 0.5,
-  RB: stat.RB.mean >= 4 && stat.RB.mean <= 5,
-  WR: stat.WR.mean >= 4 && stat.WR.mean <= 5,
-  K: Math.abs(stat.K.mean - 1) <= 0.3,
-  DEF: Math.abs(stat.DEF.mean - 1) <= 0.3,
+  QB: Math.abs(rstat.QB.mean - 1) <= 0.5,
+  RB: rstat.RB.mean >= 4 && rstat.RB.mean <= 5,
+  WR: rstat.WR.mean >= 4 && rstat.WR.mean <= 5,
+  K: Math.abs(rstat.K.mean - 1) <= 0.3,
+  DEF: Math.abs(rstat.DEF.mean - 1) <= 0.3,
 };
 p158.TRUE = Object.values(p158).every(Boolean);
 console.log('\n  P158: ' + (p158.TRUE ? 'TRUE' : 'FALSE'));
 Object.entries(p158).filter(([k]) => k !== 'TRUE')
   .forEach(([k, v]) => console.log('     ' + (v ? 'ok  ' : 'MISS') + ' ' + k
-    + '  mean ' + stat[k].mean));
-console.log('     TE mean ' + stat.TE.mean + ' — Cory did not state a TE band; reported for his ruling.');
+    + '  roster mean ' + rstat[k].mean));
+console.log('     TE roster mean ' + rstat.TE.mean + ' — Cory did not state a TE band; reported for his ruling.');
 
 const rep = { _territory: 'TERRITORY: A — draft/tools/average_draft.js',
   _prereg: 'draft/AVERAGE-DRAFT-PREREG-2026-08-19.md',
   _note: 'REPORT ONLY. The average over simulated rooms, not one draft.',
   rooms: ROOMS, board_built_at: DATA.built_at, controls: ctl, controls_all_passed: allOk,
-  mean_roster: stat, P158: p158 };
+  mean_drafted: stat, mean_roster: rstat, keepers: PLAN.keep.map(k => k.position),
+  P158: p158 };
 const i = process.argv.indexOf('--json');
 if (i >= 0) { fs.writeFileSync(process.argv[i + 1], JSON.stringify(rep, null, 1));
   console.log('\n  wrote ' + process.argv[i + 1]); }
