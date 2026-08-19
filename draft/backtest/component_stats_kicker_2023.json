@@ -1,0 +1,3671 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/fetch_component_stats.py (TERRITORY-GRANT: C, register 2e, 2026-08-19)",
+ "_note": "Per-KICKER weekly component stats (all 8 kicker scoring keys), regular season, trimmed to the columns the kicker scoring table consumes. SEPARATE from component_stats_<season>.json on purpose \u2014 POSITION_GROUPS above is untouched and this store is read by nothing that assumes an offense-only population. Missing-vs-zero rule: a player-week ABSENT from a week's players map is MISSING DATA (no offensive stat row that week), never a zero; inside a present row an absent stat key is a zero of that stat (zero-valued keys are stripped at build time); row-presence means 'was on a field', exactly as the weekly points stores encode it",
+ "season": 2023,
+ "provenance": {
+  "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2023.parquet",
+  "tried": [
+   {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2023.parquet",
+    "ok": true
+   }
+  ],
+  "fetched": "2026-08-19",
+  "weeks_span": [
+   1,
+   18
+  ],
+  "season_type": "REG",
+  "position_filter": "K (stats_player_week's `position` column, NOT position_group == 'SPEC', which also carries P and LS)",
+  "columns_kept": [
+   "fgm_0_19",
+   "fgm_20_29",
+   "fgm_30_39",
+   "fgm_40_49",
+   "fgm_50p",
+   "fgmiss",
+   "xpm",
+   "xpmiss",
+   "pos",
+   "team"
+  ],
+  "crosswalk": "nfl_data_py.import_ids() gsis_id -> sleeper_id; unmapped players keyed gsis:<id>, never dropped",
+  "raw_rows": 543,
+  "kept_player_weeks": 543,
+  "players": 39,
+  "sleeper_mapped_players": 39,
+  "unmapped_gsis_players": 0
+ },
+ "weeks": [
+  {
+   "week": 1,
+   "players": {
+    "10937": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 3
+    },
+    "10955": {
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "11008": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 5
+    },
+    "11058": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 1
+    },
+    "11533": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 4,
+     "xpmiss": 1
+    },
+    "1264": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 2
+    },
+    "1266": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 1
+    },
+    "1348": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 1
+    },
+    "1433": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 4
+    },
+    "17": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CHI"
+    },
+    "2747": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 1
+    },
+    "3451": {
+     "fgm_30_39": 3,
+     "pos": "K",
+     "team": "HOU"
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "4195": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "4227": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 2
+    },
+    "4666": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 3
+    },
+    "4958": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 3
+    },
+    "503": {
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "NYG"
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "5189": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "5272": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 2
+    },
+    "6083": {
+     "pos": "K",
+     "team": "IND",
+     "xpm": 3
+    },
+    "650": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TEN"
+    },
+    "6528": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 2
+    },
+    "6650": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 2
+    },
+    "7042": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 1
+    },
+    "7839": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CIN"
+    },
+    "7922": {
+     "pos": "K",
+     "team": "DET",
+     "xpm": 3
+    },
+    "8259": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 4
+    }
+   }
+  },
+  {
+   "week": 2,
+   "players": {
+    "10937": {
+     "fgm_20_29": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 3
+    },
+    "10955": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "11008": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 3
+    },
+    "11058": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 2
+    },
+    "11533": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 1
+    },
+    "1264": {
+     "fgm_40_49": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 3
+    },
+    "1348": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CLE"
+    },
+    "1433": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "JAX"
+    },
+    "17": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 2
+    },
+    "1945": {
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 2
+    },
+    "2020": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 2
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 4
+    },
+    "3451": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 2
+    },
+    "3678": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 3
+    },
+    "4195": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 4
+    },
+    "4227": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 2
+    },
+    "4666": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "4958": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    },
+    "503": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 4
+    },
+    "5095": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 1
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 3
+    },
+    "5189": {
+     "fgm_30_39": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "CAR"
+    },
+    "5272": {
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 4
+    },
+    "6083": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 4
+    },
+    "6219": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 1
+    },
+    "650": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 3
+    },
+    "6528": {
+     "fgm_40_49": 2,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 3
+    },
+    "6650": {
+     "fgm_20_29": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 3
+    },
+    "7042": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 5
+    },
+    "7839": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 3
+    },
+    "7922": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 4
+    },
+    "8259": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 1
+    }
+   }
+  },
+  {
+   "week": 3,
+   "players": {
+    "10937": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 3
+    },
+    "10955": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 1
+    },
+    "11008": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 1
+    },
+    "11058": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 2
+    },
+    "11533": {
+     "fgm_20_29": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 1
+    },
+    "1264": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 2
+    },
+    "1266": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 1
+    },
+    "1348": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 3
+    },
+    "1433": {
+     "fgm_30_39": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 2
+    },
+    "17": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 2
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 1
+    },
+    "2747": {
+     "fgm_30_39": 4,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 4
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 2
+    },
+    "4195": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 2
+    },
+    "4227": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 5
+    },
+    "4666": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "ATL"
+    },
+    "4958": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 1
+    },
+    "503": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYG"
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 1
+    },
+    "5119": {
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 10
+    },
+    "5189": {
+     "fgm_40_49": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 3
+    },
+    "5272": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 3
+    },
+    "6083": {
+     "fgm_30_39": 1,
+     "fgm_50p": 4,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "650": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TEN"
+    },
+    "6528": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "WAS"
+    },
+    "6650": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TB"
+    },
+    "7042": {
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 4
+    },
+    "7839": {
+     "fgm_40_49": 2,
+     "fgm_50p": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 1
+    },
+    "7922": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 2
+    },
+    "8259": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 4
+    }
+   }
+  },
+  {
+   "week": 4,
+   "players": {
+    "10937": {
+     "pos": "K",
+     "team": "SF",
+     "xpm": 5
+    },
+    "10955": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE"
+    },
+    "11008": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "GB"
+    },
+    "11058": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NO"
+    },
+    "11533": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 3
+    },
+    "1264": {
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 4
+    },
+    "1266": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 1
+    },
+    "1348": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CLE"
+    },
+    "1433": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 2
+    },
+    "17": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "PIT"
+    },
+    "2020": {
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 4
+    },
+    "2747": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 3
+    },
+    "3451": {
+     "fgm_30_39": 3,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 3
+    },
+    "3678": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 4
+    },
+    "4195": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 2
+    },
+    "4227": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 2
+    },
+    "4666": {
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1
+    },
+    "4958": {
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    },
+    "503": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYG"
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "5119": {
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 2
+    },
+    "5189": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "5272": {
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 3
+    },
+    "6083": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "650": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 3
+    },
+    "6528": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 4
+    },
+    "6650": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 2
+    },
+    "7042": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 6
+    },
+    "7839": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "CIN"
+    },
+    "7922": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 4
+    },
+    "8259": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 3
+    }
+   }
+  },
+  {
+   "week": 5,
+   "players": {
+    "10937": {
+     "pos": "K",
+     "team": "SF",
+     "xpm": 6
+    },
+    "10955": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE"
+    },
+    "11008": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 1
+    },
+    "11058": {
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 4
+    },
+    "11533": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 1
+    },
+    "1264": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 1
+    },
+    "1266": {
+     "fgm_20_29": 3,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 2
+    },
+    "1433": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 2
+    },
+    "17": {
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "PIT"
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 4
+    },
+    "3451": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 1
+    },
+    "4195": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 2
+    },
+    "4227": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 3
+    },
+    "4666": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1
+    },
+    "4958": {
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    },
+    "503": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 1
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "5119": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 4
+    },
+    "5189": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 3
+    },
+    "5272": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 2
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 2
+    },
+    "650": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 1
+    },
+    "6528": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "WAS"
+    },
+    "7042": {
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2
+    },
+    "7839": {
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "7922": {
+     "pos": "K",
+     "team": "DET",
+     "xpm": 6
+    }
+   }
+  },
+  {
+   "week": 6,
+   "players": {
+    "10937": {
+     "fgm_20_29": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 2
+    },
+    "10955": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "11058": {
+     "fgm_40_49": 2,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 1
+    },
+    "11533": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 2
+    },
+    "1264": {
+     "fgm_20_29": 4,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpmiss": 1
+    },
+    "1266": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1348": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 1
+    },
+    "1433": {
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 4
+    },
+    "17": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI"
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 1
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 1
+    },
+    "3451": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 2
+    },
+    "3678": {
+     "pos": "K",
+     "team": "DEN"
+    },
+    "4195": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 2
+    },
+    "4227": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 1
+    },
+    "4666": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1
+    },
+    "4958": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    },
+    "503": {
+     "fgm_20_29": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NYG"
+    },
+    "5095": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 1
+    },
+    "5119": {
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 6
+    },
+    "5189": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 3
+    },
+    "5272": {
+     "fgm_50p": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 2
+    },
+    "650": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 1
+    },
+    "6528": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 3
+    },
+    "6650": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "TB"
+    },
+    "7042": {
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2
+    },
+    "7839": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 2
+    },
+    "7922": {
+     "fgm_30_39": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 2
+    },
+    "8259": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 2
+    }
+   }
+  },
+  {
+   "week": 7,
+   "players": {
+    "10937": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 2
+    },
+    "10955": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "11008": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2
+    },
+    "11058": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 1
+    },
+    "1264": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 5
+    },
+    "1348": {
+     "fgm_40_49": 1,
+     "fgm_50p": 3,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 3
+    },
+    "1433": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 4
+    },
+    "17": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 3
+    },
+    "2020": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 1
+    },
+    "4195": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 4
+    },
+    "4227": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 4
+    },
+    "4666": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1
+    },
+    "4958": {
+     "fgm_40_49": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "LA",
+     "xpmiss": 1
+    },
+    "503": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 2
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LV"
+    },
+    "5119": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 2
+    },
+    "5272": {
+     "fgm_20_29": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 5
+    },
+    "6528": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1
+    },
+    "6650": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 1
+    },
+    "7042": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2
+    },
+    "7922": {
+     "pos": "K",
+     "team": "DET"
+    },
+    "8259": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 2
+    }
+   }
+  },
+  {
+   "week": 8,
+   "players": {
+    "10937": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 2
+    },
+    "10955": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "11008": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 1
+    },
+    "11058": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 5
+    },
+    "11533": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 5
+    },
+    "1264": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 4
+    },
+    "1266": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 1
+    },
+    "1348": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 2
+    },
+    "1433": {
+     "fgm_30_39": 2,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "JAX"
+    },
+    "17": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2020": {
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 1
+    },
+    "2747": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 3
+    },
+    "3451": {
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 3
+    },
+    "4195": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 5
+    },
+    "4227": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "KC"
+    },
+    "4666": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "503": {
+     "fgm_30_39": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 1
+    },
+    "5095": {
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "5119": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 4
+    },
+    "5189": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpmiss": 1
+    },
+    "5272": {
+     "fgm_20_29": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 3
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 3
+    },
+    "650": {
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 4
+    },
+    "6528": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 4
+    },
+    "6650": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 1
+    },
+    "7042": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "7922": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 2
+    },
+    "8259": {
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 3
+    },
+    "8932": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LA"
+    }
+   }
+  },
+  {
+   "week": 9,
+   "players": {
+    "10955": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "1099": {
+     "pos": "K",
+     "team": "NYG"
+    },
+    "11008": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2
+    },
+    "11058": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 3
+    },
+    "11533": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 2
+    },
+    "1264": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 4
+    },
+    "1266": {
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1348": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 3
+    },
+    "17": {
+     "pos": "K",
+     "team": "ARI"
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 2
+    },
+    "2020": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 2
+    },
+    "2747": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SEA"
+    },
+    "3451": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 1
+    },
+    "4195": {
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 4
+    },
+    "4227": {
+     "pos": "K",
+     "team": "KC",
+     "xpm": 3
+    },
+    "4666": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 3
+    },
+    "5119": {
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 2
+    },
+    "5189": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "5272": {
+     "fgm_0_19": 1,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 2
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 3
+    },
+    "650": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 1
+    },
+    "6528": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 2
+    },
+    "6650": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 4
+    },
+    "7042": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 1
+    },
+    "7839": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 3
+    },
+    "8259": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 3
+    },
+    "8932": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LA"
+    }
+   }
+  },
+  {
+   "week": 10,
+   "players": {
+    "10937": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 4
+    },
+    "10955": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE"
+    },
+    "1099": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 2
+    },
+    "11008": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "11058": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NO"
+    },
+    "11533": {
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 7
+    },
+    "1264": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 4
+    },
+    "1266": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1348": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "1433": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "JAX"
+    },
+    "17": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 2
+    },
+    "2020": {
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 1
+    },
+    "2747": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 4,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3678": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 3,
+     "pos": "K",
+     "team": "DEN",
+     "xpmiss": 1
+    },
+    "4666": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "5095": {
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 1
+    },
+    "5189": {
+     "fgm_30_39": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "5272": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 3
+    },
+    "6083": {
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "650": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "TEN"
+    },
+    "6528": {
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "6650": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 2
+    },
+    "7042": {
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2
+    },
+    "7617": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 3
+    },
+    "7922": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 5
+    },
+    "8259": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 5
+    }
+   }
+  },
+  {
+   "week": 11,
+   "players": {
+    "10937": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 3
+    },
+    "1099": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 4
+    },
+    "11008": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "11533": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "1264": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 4
+    },
+    "1266": {
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1348": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 1
+    },
+    "1433": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 4
+    },
+    "17": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2020": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 2
+    },
+    "2747": {
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 3,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DEN"
+    },
+    "4195": {
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 3
+    },
+    "4227": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 2
+    },
+    "5095": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 1
+    },
+    "5119": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 2
+    },
+    "5189": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "5272": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 2
+    },
+    "650": {
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 2
+    },
+    "6528": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "6650": {
+     "pos": "K",
+     "team": "TB",
+     "xpm": 2
+    },
+    "7042": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "7617": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 2
+    },
+    "7922": {
+     "pos": "K",
+     "team": "DET",
+     "xpm": 3
+    },
+    "8259": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 2
+    },
+    "8932": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    }
+   }
+  },
+  {
+   "week": 12,
+   "players": {
+    "10937": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 4
+    },
+    "10955": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 1
+    },
+    "1099": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 1
+    },
+    "11008": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "11058": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO"
+    },
+    "11533": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 4,
+     "xpmiss": 1
+    },
+    "1264": {
+     "fgm_40_49": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 2
+    },
+    "1266": {
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "1348": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CLE"
+    },
+    "1433": {
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 1
+    },
+    "17": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "ARI"
+    },
+    "1945": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CHI"
+    },
+    "2747": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 3
+    },
+    "4195": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 4
+    },
+    "4227": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 4
+    },
+    "4666": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 3
+    },
+    "5095": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "5119": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 4
+    },
+    "5189": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "5272": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 1
+    },
+    "6083": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 3
+    },
+    "650": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 2
+    },
+    "6528": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1
+    },
+    "6650": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 2
+    },
+    "7042": {
+     "fgm_40_49": 2,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 4
+    },
+    "7617": {
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 1
+    },
+    "7922": {
+     "pos": "K",
+     "team": "DET",
+     "xpmiss": 1
+    },
+    "8259": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 1
+    },
+    "8932": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 4,
+     "xpmiss": 1
+    }
+   }
+  },
+  {
+   "week": 13,
+   "players": {
+    "10937": {
+     "pos": "K",
+     "team": "SF",
+     "xpm": 6
+    },
+    "10955": {
+     "pos": "K",
+     "team": "NE"
+    },
+    "11008": {
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 3
+    },
+    "11058": {
+     "pos": "K",
+     "team": "NO",
+     "xpm": 4
+    },
+    "11533": {
+     "fgm_30_39": 4,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 3
+    },
+    "1266": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1348": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "1433": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 4
+    },
+    "17": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 3
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2747": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 5
+    },
+    "3678": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 2
+    },
+    "4195": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 1
+    },
+    "4227": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 1
+    },
+    "4666": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1
+    },
+    "5119": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 6
+    },
+    "5189": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1
+    },
+    "6083": {
+     "fgm_20_29": 3,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "650": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "6528": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1
+    },
+    "6650": {
+     "pos": "K",
+     "team": "TB",
+     "xpm": 3
+    },
+    "7617": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 1
+    },
+    "7839": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "7922": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 3
+    },
+    "8259": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "LAC"
+    },
+    "8932": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 4
+    }
+   }
+  },
+  {
+   "week": 14,
+   "players": {
+    "10937": {
+     "pos": "K",
+     "team": "SF",
+     "xpm": 4
+    },
+    "10955": {
+     "pos": "K",
+     "team": "NE",
+     "xpm": 3
+    },
+    "1099": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 3
+    },
+    "11008": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 1
+    },
+    "11058": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 4
+    },
+    "11533": {
+     "fgm_40_49": 1,
+     "fgm_50p": 3,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 3
+    },
+    "1264": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 2
+    },
+    "1266": {
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 3
+    },
+    "1348": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 4
+    },
+    "1433": {
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 3
+    },
+    "1945": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2020": {
+     "fgm_20_29": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "2747": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 3
+    },
+    "4195": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 1
+    },
+    "4227": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 2
+    },
+    "4666": {
+     "fgm_20_29": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "5095": {
+     "pos": "K",
+     "team": "LV"
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 3
+    },
+    "5189": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CAR"
+    },
+    "5272": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIN"
+    },
+    "6083": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpmiss": 1
+    },
+    "650": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 2
+    },
+    "6650": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 3
+    },
+    "7042": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2
+    },
+    "7617": {
+     "pos": "K",
+     "team": "HOU",
+     "xpmiss": 1
+    },
+    "7839": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "7922": {
+     "pos": "K",
+     "team": "DET",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "8259": {
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 1
+    },
+    "8932": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    }
+   }
+  },
+  {
+   "week": 15,
+   "players": {
+    "10937": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 6
+    },
+    "10955": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2
+    },
+    "1099": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYG"
+    },
+    "11008": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2
+    },
+    "11058": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 3
+    },
+    "11533": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 1
+    },
+    "1264": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 2
+    },
+    "1266": {
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1348": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 2
+    },
+    "1433": {
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 1
+    },
+    "17": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 2
+    },
+    "1945": {
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "2020": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 2
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "fgm_20_29": 2,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 2
+    },
+    "4195": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 2
+    },
+    "4227": {
+     "fgm_20_29": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 3
+    },
+    "4666": {
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 1
+    },
+    "5095": {
+     "pos": "K",
+     "team": "LV",
+     "xpm": 9
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 3
+    },
+    "5189": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CAR"
+    },
+    "5230": {
+     "pos": "K",
+     "team": "DET",
+     "xpm": 6
+    },
+    "5272": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 3
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 3
+    },
+    "650": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "6528": {
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "6650": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 4
+    },
+    "7042": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 4
+    },
+    "7839": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 3
+    },
+    "8259": {
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 3
+    },
+    "8932": {
+     "fgm_20_29": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    }
+   }
+  },
+  {
+   "week": 16,
+   "players": {
+    "10937": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 2
+    },
+    "10955": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "11008": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "11058": {
+     "pos": "K",
+     "team": "NO",
+     "xpm": 2
+    },
+    "11533": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 2
+    },
+    "1264": {
+     "fgm_20_29": 3,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 3
+    },
+    "1266": {
+     "fgm_20_29": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 3
+    },
+    "1348": {
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 2
+    },
+    "1433": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "JAX"
+    },
+    "17": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "1945": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 4
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 3
+    },
+    "2747": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 2
+    },
+    "3678": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 1
+    },
+    "4195": {
+     "fgm_20_29": 2,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 3
+    },
+    "4227": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 2
+    },
+    "4666": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "LV"
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 3,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 1
+    },
+    "5189": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1,
+     "xpmiss": 2
+    },
+    "5230": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "5272": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 3
+    },
+    "59": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 2
+    },
+    "6083": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "650": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 2
+    },
+    "6528": {
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 4
+    },
+    "6650": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 3
+    },
+    "7042": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CIN"
+    },
+    "8259": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 3,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 1
+    },
+    "8932": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 3
+    }
+   }
+  },
+  {
+   "week": 17,
+   "players": {
+    "10937": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 3
+    },
+    "10955": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 3
+    },
+    "11008": {
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "11058": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 2
+    },
+    "11533": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 2
+    },
+    "1264": {
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 8
+    },
+    "1266": {
+     "fgm_40_49": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 2
+    },
+    "1433": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 2,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 2
+    },
+    "17": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 3
+    },
+    "1945": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 3
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 4
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 2
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 1
+    },
+    "4195": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 4
+    },
+    "4227": {
+     "fgm_20_29": 2,
+     "fgm_40_49": 3,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 1
+    },
+    "4666": {
+     "fgm_30_39": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "5095": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 1
+    },
+    "5230": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 1
+    },
+    "5272": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 1
+    },
+    "59": {
+     "fgm_30_39": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "6083": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 2
+    },
+    "650": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TEN"
+    },
+    "6528": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1
+    },
+    "6650": {
+     "pos": "K",
+     "team": "TB",
+     "xpm": 1
+    },
+    "7042": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 2
+    },
+    "7922": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 4,
+     "xpmiss": 1
+    },
+    "8259": {
+     "fgm_30_39": 1,
+     "fgm_50p": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LAC"
+    },
+    "8932": {
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2,
+     "xpmiss": 2
+    }
+   }
+  },
+  {
+   "week": 18,
+   "players": {
+    "10937": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "10955": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "NE"
+    },
+    "11008": {
+     "fgm_20_29": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2
+    },
+    "11058": {
+     "fgm_20_29": 2,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 6
+    },
+    "11533": {
+     "fgm_50p": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 5
+    },
+    "1264": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 1
+    },
+    "1266": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "1433": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 2
+    },
+    "17": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 2
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 2
+    },
+    "2020": {
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CHI"
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 1
+    },
+    "3451": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "3678": {
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 2
+    },
+    "4195": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 1
+    },
+    "4227": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 1
+    },
+    "4666": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "4958": {
+     "pos": "K",
+     "team": "LA",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "5095": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 3
+    },
+    "5119": {
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 2
+    },
+    "5230": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 3,
+     "xpmiss": 1
+    },
+    "5272": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 2
+    },
+    "59": {
+     "fgm_20_29": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 3
+    },
+    "6083": {
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "IND"
+    },
+    "6268": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CAR"
+    },
+    "650": {
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 4
+    },
+    "6528": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1
+    },
+    "6650": {
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "TB"
+    },
+    "7042": {
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 3
+    },
+    "7839": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "7922": {
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 2
+    },
+    "8259": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 3,
+     "pos": "K",
+     "team": "LAC"
+    }
+   }
+  }
+ ]
+}
