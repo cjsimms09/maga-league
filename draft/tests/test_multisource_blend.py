@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE.parent))
 
 import multisource_blend as MS  # noqa: E402
@@ -185,3 +186,48 @@ def test_a_skill_position_still_takes_the_blended_mean(tmp_path):
     assert all(p["proj_mean_source"] == "multisource-mean-2026" for p in players)
     assert all(p["proj_mean_sleeper_only"] == 100.0 for p in players)
     assert all(p["proj_mean"] == 110.0 for p in players)
+
+
+def test_KEEPERS_ARE_IN_THE_JOIN_UNIVERSE():
+    """Register 80. `build.py` moves kept players OUT of `players` and into
+    `kept_players`, so a capture that joins over `board["players"]` alone can
+    never match a keeper — and on 2026-08-19 that silently left Cory's entire
+    keeper slate (Derrick Henry, Ja'Marr Chase, Kenneth Walker) on Sleeper-only
+    projections while the rest of the board was blended, with their VORP
+    computed against a replacement level that HAD moved.
+
+    The capture's own `unmatched` diagnostic named two of them the whole time.
+    Nobody read it, so this asserts it instead.
+    """
+    src = (ROOT / "draft" / "tools" / "multisource_projections.py").read_text()
+    assert 'board.get("kept_players")' in src, (
+        "the multisource join no longer reads kept_players — keepers are "
+        "excluded from board['players'] by construction, so this drops every "
+        "kept player out of the store without erroring")
+    # both join paths, not just the first: the name index AND the Sleeper
+    # comparison universe both walk the board and both were wrong.
+    assert src.count('board.get("kept_players")') >= 2, (
+        "only one of the two board walks includes kept_players — the other "
+        "will report a coverage or agreement figure computed over a different "
+        "population than the one it blended")
+
+
+def test_a_board_with_kept_players_blends_them(tmp_path):
+    """The behavioural half: a keeper present in the store must be blended like
+    anyone else. Guards against a 'fix' that reads kept_players and then drops
+    them somewhere downstream."""
+    players = _board(40)
+    keeper = {"player_id": "999", "name": "Kept Man", "position": "WR",
+              "proj_mean": 100.0, "years_exp": 5, "is_keeper": True}
+    src = {str(i): {"by_source": {"CBS": 110.0, "ESPN": 110.0}} for i in range(40)}
+    src["999"] = {"by_source": {"CBS": 110.0, "ESPN": 110.0}}
+    MS.apply_multisource(players + [keeper], store_path=_store(tmp_path, src))
+    # mean(CBS 110, ESPN 110, Sleeper 100) = 106.67 — Sleeper is an OPINION in
+    # the average, not a thing the blend replaces, so the expected value is not
+    # the scrapers' own mean. (My first version of this test asserted 110.0 and
+    # failed on correct code.)
+    assert keeper["proj_mean"] == pytest.approx(106.67, abs=0.01), (
+        "a kept player in the store was not blended — keepers must be priced "
+        "on the same basis as the pool their VORP is measured against")
+    assert keeper["proj_mean_source"] == "multisource-mean-2026"
+    assert keeper["proj_mean_sleeper_only"] == 100.0
