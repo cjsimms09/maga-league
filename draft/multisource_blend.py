@@ -53,6 +53,36 @@ Z = 1.28                    # ~p90 / p10 of a normal — the same band the
 VETO_P = 0.05
 MIN_COVERAGE = 0.30         # a capture this thin is a broken fetch, not a board
 
+# ── THE COHERENCE GATE — added 2026-08-19, AFTER the first measured board ────
+# Averaging assumes the numbers estimate the SAME QUANTITY. Measured on the
+# 08-19 board they do not, and the failure is concentrated exactly where the
+# blend has its effect:
+#
+#   WR Ashton Dulin    Sleeper   2.5   CBS  86   ESPN  26   FFToday 65
+#   K  Drew Stevens    Sleeper  20.0   CBS 126   ESPN 134
+#   QB Justin Fields   Sleeper  36.7   CBS  12   ESPN  13   FFToday 15
+#
+# A 34x spread is not an opinion about performance. It is a disagreement about
+# WHETHER THE PLAYER PLAYS — a scraper projecting a generic full season against
+# a platform that knows the depth chart. The mean of those is a number no
+# source believes, and it was moving late-board players up to 80 places within
+# their position while the top 12 moved 0.5-3.0. **The blend was doing nearly
+# nothing where its inputs were comparable and nearly everything where they
+# were not.**
+#
+# So: blend only where the sources agree the player HAS a role. The bound is
+# stated a priori from that mechanism, NOT swept — 2x is the widest spread that
+# can still be a dispute about performance; past it they are answering
+# different questions, and on the playing-time question Sleeper is the better
+# authority (it is the platform carrying the depth chart), so the player is
+# LEFT ALONE rather than averaged or overridden. `no_fit_guard`: this constant
+# was never chosen by grading arms against an outcome.
+MAX_SOURCE_RATIO = 2.0
+# Below this, ratios stop meaning anything (2.5 -> 86 and 0.4 -> 14 are the same
+# ratio and neither is a projection), and every source is saying "roughly zero"
+# anyway, so there is nothing to gain and rounding noise to lose.
+ROLE_FLOOR = 10.0
+
 
 def _permutation_p(a: list[float], b: list[float], seed: int = 20260819,
                    n: int = 4000) -> float:
@@ -96,6 +126,7 @@ def apply_multisource(players: list[dict], *, store_path: Path | None = None) ->
 
     # ---- gather the candidate changes WITHOUT applying them ----------------
     pending, rookie_shift, vet_shift = [], [], []
+    skipped_incoherent, skipped_floor = [], 0
     for p in eligible:
         m = src.get(str(p.get("player_id")))
         if not m:
@@ -103,6 +134,16 @@ def apply_multisource(players: list[dict], *, store_path: Path | None = None) ->
         vals = list((m.get("by_source") or {}).values()) + [p["proj_mean"]]
         vals = [v for v in vals if isinstance(v, (int, float)) and v > 0]
         if len(vals) < MIN_OPINIONS:
+            continue
+        # THE COHERENCE GATE. Counted, not silently dropped — a player the blend
+        # declined to touch is a fact about the capture, and a build where this
+        # count jumps is a capture that changed underneath us.
+        if min(vals) < ROLE_FLOOR:
+            skipped_floor += 1
+            continue
+        if max(vals) / min(vals) > MAX_SOURCE_RATIO:
+            skipped_incoherent.append(
+                (p.get("name"), p.get("position"), round(max(vals) / min(vals), 1)))
             continue
         mean = st.mean(vals)
         sd = st.pstdev(vals)
@@ -112,6 +153,12 @@ def apply_multisource(players: list[dict], *, store_path: Path | None = None) ->
             (rookie_shift if p.get("years_exp") == 0 else vet_shift).append(rel)
 
     diag["coverage"] = round(len(pending) / len(eligible), 4)
+    diag["skipped_incoherent"] = len(skipped_incoherent)
+    diag["skipped_below_role_floor"] = skipped_floor
+    # The widest spreads we declined, so the gate is auditable from the artifact
+    # rather than only from a log nobody keeps.
+    diag["incoherent_examples"] = sorted(
+        skipped_incoherent, key=lambda t: -t[2])[:10]
     if diag["coverage"] < MIN_COVERAGE:
         diag["reason"] = (f"coverage {diag['coverage']:.1%} below the "
                           f"{MIN_COVERAGE:.0%} floor — that is a broken fetch, "
