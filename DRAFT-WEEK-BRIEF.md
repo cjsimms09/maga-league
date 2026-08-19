@@ -51,7 +51,9 @@ E35 closed with evidence; the inbox tick-sweep (~110 items) cleared the
 acting-without-ticking debt across all lanes. The captures run themselves:
 weekly projections (Thu), event player props (Thu), odds (Thu/Sun), Kalshi
 (daily), the Tuesday grade, the nightly board. Next human dates: keeper lock
-Thu 08-20 6pm CDT, freeze Sat after 03:00 CDT, draft Sat 6pm.
+FRIDAY 08-21 6pm CDT (Cory's ruled date; older docs' 'Thursday' was weekday
+drift — the config derives the weekday from the date for exactly this reason),
+freeze Sat after 03:00 CDT, draft Sat 6pm.
 
 ---
 
