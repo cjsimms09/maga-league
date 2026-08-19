@@ -44,6 +44,38 @@ const arg = (n, d) => { const i = process.argv.indexOf('--' + n); return i >= 0 
 const IN = arg('in', path.join(__dirname, 'bundles.json'));
 const OUT = arg('out', path.join(__dirname, 'engine_seat_choices.json'));
 
+/* ---- REGISTER 56 / P107 ARMS -------------------------------------------
+ * `--arm` selects a VONA configuration. DEFAULT IS a0, THE SHIPPING ENGINE,
+ * so every existing caller and the committed choice file are unchanged.
+ *
+ * WHY THE ARMS ARE SELECTED HERE AND NOT BY THREE FORKED COPIES OF THIS FILE:
+ * the bundle is REASSEMBLED on every CI run (Sleeper and FFC are refused at
+ * CONNECT in the agent sandbox, so it cannot be committed), and two runs can
+ * therefore see two different player universes. An A1-minus-A0 delta taken
+ * across two runs would be confounded by that drift. Passing `--arm` lets one
+ * CI job drive all three arms through ONE `bundles.json`, which is the only
+ * way the difference means what the prereg says it means.
+ *
+ * The arm is stamped into meta so a choice file can never be read as the
+ * shipping configuration when it is not. */
+const ARMS = {
+  a0: {},                                                  // shipping
+  a1: { VONA_INCLUDE_SELF: true },                         // the fix
+  a2: { VONA_SURVIVAL_RESCALE: true },                      // the diagnostic
+};
+const ARM = arg('arm', 'a0');
+if (!Object.prototype.hasOwnProperty.call(ARMS, ARM)) {
+  console.error('unknown --arm ' + ARM + '; known: ' + Object.keys(ARMS).join(','));
+  process.exit(2);
+}
+Object.keys(ARMS[ARM]).forEach(k => {
+  if (!(k in E.CFG)) {                   // a renamed flag must not fail SILENT
+    console.error('arm ' + ARM + ' sets unknown engine flag ' + k);
+    process.exit(2);
+  }
+  E.CFG[k] = ARMS[ARM][k];
+});
+
 // Cory's picks get the full component readout through this round — the QB
 // question ("does survival/VONA already produce the top-3 drafters' QB
 // wait?") is answered from the engine's own published components, not from a
@@ -261,6 +293,12 @@ function main() {
       + 'recorded them.',
     meta: {
       git_head: gitHead(),
+      // REGISTER 56 / P107. `vona_arm` names the configuration; `vona_flags`
+      // is read back OFF THE ENGINE rather than echoing the request, so a
+      // flag that failed to apply shows up in the artifact as what it is.
+      vona_arm: ARM,
+      vona_flags: { VONA_INCLUDE_SELF: E.CFG.VONA_INCLUDE_SELF,
+                    VONA_SURVIVAL_RESCALE: E.CFG.VONA_SURVIVAL_RESCALE },
       weights: 'MEASURED_WEIGHTS',
       weights_values: E.MEASURED_WEIGHTS,
       qb_detail_seat: QB_DETAIL_SEAT,

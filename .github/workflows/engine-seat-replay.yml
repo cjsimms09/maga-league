@@ -30,13 +30,28 @@ jobs:
         run: python draft/backtest/cli.py --seasons "${{ inputs.seasons }}" --out draft/backtest/bundles.json
       - name: Seat-level engine replay (choices only)
         run: node draft/backtest/replay_seats.js --in draft/backtest/bundles.json --out draft/backtest/engine_seat_choices.json
+      # REGISTER 56 / P107 — the VONA self-exclusion arms, driven through THE
+      # SAME bundles.json as the step above. The bundle is reassembled on every
+      # run (Sleeper/FFC are refused at CONNECT in the agent sandbox, so it
+      # cannot be committed), so arms compared across two runs would carry that
+      # drift inside the delta. One job, one bundle, three arms.
+      - name: VONA arms A1 (include-self) and A2 (rescale diagnostic)
+        run: |
+          node draft/backtest/replay_seats.js --arm a1 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_a1.json
+          node draft/backtest/replay_seats.js --arm a2 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_a2.json
       - name: Commit the choice file to the dispatching branch
         run: |
           git config user.name Claude
           git config user.email noreply@anthropic.com
           # The bundles are large and carry the whole player universe; the
           # choice file is the deliverable and carries no outcome data.
-          git add draft/backtest/engine_seat_choices.json
+          git add draft/backtest/engine_seat_choices.json \
+                  draft/backtest/engine_seat_choices_a1.json \
+                  draft/backtest/engine_seat_choices_a2.json
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "Engine seat replay: choice file from CI bundle assembly [skip deploy]"
           for i in 1 2 3 4 5; do
