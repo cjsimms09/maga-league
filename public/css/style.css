@@ -149,6 +149,35 @@ a { color: var(--gold); }
 .navbar button:hover { border-color: var(--red); color: var(--red-bright); }
 .navbar .who { color: var(--muted); font-size: .68rem; letter-spacing: .1em; padding: 0 .25rem 0 .7rem; text-transform: uppercase; }
 
+/* Desktop "More" dropdown — same _primary/_more split the phone tab bar
+   uses, rendered as an inline dropdown instead of a bottom sheet (nav-
+   consolidation map, ROUTES.md 08-18, A-approved). */
+.navbar .nav-more { position: relative; list-style: none; }
+.navbar .nav-more > summary {
+  cursor: pointer; list-style: none;
+  color: #4a5972; text-decoration: none; text-transform: uppercase;
+  font-family: var(--font-display); font-size: .72rem; letter-spacing: .12em; font-weight: 700;
+  padding: .45rem .75rem; border-radius: 999px; transition: all .15s ease;
+}
+.navbar .nav-more > summary::-webkit-details-marker,
+.navbar .nav-more > summary::marker { display: none; content: ''; }
+.navbar .nav-more > summary:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+.navbar .nav-more.active > summary, .navbar .nav-more[open] > summary { color: var(--gold-bright); }
+.navbar .nav-more-panel {
+  position: absolute; top: 100%; left: 0; margin-top: .4rem; z-index: 60;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: .4rem; min-width: 13rem; display: grid; gap: .1rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
+}
+.navbar .nav-more-panel a {
+  display: flex; align-items: center; gap: .5rem;
+  text-transform: none; letter-spacing: normal; font-weight: 600;
+  font-size: .8rem; padding: .5rem .6rem; border-radius: 8px; color: #cdd7e6;
+}
+.navbar .nav-more-panel a:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+.navbar .nav-more-panel a.active { color: var(--gold-bright); }
+.navbar .nav-more-panel a.commish { color: var(--red-bright); }
+
 /* ---------- alerts ---------- */
 .alert-banner {
   display: flex; gap: .6rem; align-items: baseline;
@@ -3790,6 +3819,13 @@ table.roll tbody tr:hover td, table.roll tr:hover td{ background:rgba(12,26,43,.
 .navbar a.active{ color:var(--navy); background:rgba(37,99,235,.08); }
 .navbar button{ color:var(--muted); border-color:var(--line); background:transparent; }
 .navbar .who{ color:var(--muted); }
+.navbar .nav-more > summary{ color:var(--muted); }
+.navbar .nav-more > summary:hover{ color:var(--navy); background:rgba(12,26,43,.05); }
+.navbar .nav-more.active > summary, .navbar .nav-more[open] > summary{ color:var(--blue); }
+.navbar .nav-more-panel{ background:var(--panel); border-color:var(--line); box-shadow:0 12px 40px rgba(12,26,43,.18); }
+.navbar .nav-more-panel a{ color:var(--navy); }
+.navbar .nav-more-panel a:hover{ background:var(--panel-soft); }
+.navbar .nav-more-panel a.active{ color:var(--blue); }
 
 /* bottom tab bar (phones) — light glass */
 .tabbar{ background:rgba(255,255,255,.92); border-top:1px solid var(--line);
