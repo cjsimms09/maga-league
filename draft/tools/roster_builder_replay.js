@@ -83,8 +83,19 @@ const W = {
   WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
 if (TE_MEASURED) {
-  /* substitution, not a tune — and ONLY the TE row */
+  /* ⚠️ THE WHOLE MEASURED TE ROW CARRIES AN ARTIFACT AND E AVOIDED IT.
+   * measured_need_curve TE reads [0.719, 0.414, 0.406, 1] -- the FOURTH value
+   * is 1.0, which is not monotone and cannot be a need curve. Every other
+   * position decays cleanly (RB .869 .713 .49 .273 .155 .074). It is a
+   * small-sample fluke at a depth almost no team reaches.
+   * E's arm changed ONLY the second value, which is the right call. This one
+   * swaps the whole row, so it is the CONTAMINATED version and is kept only as
+   * the contrast that shows the artifact contributes ~nothing. */
   W.TE = (MNC.curve.TE || []).filter(v => v != null);
+}
+if (process.argv.includes('--te2-only')) {
+  /* E's arm, reproduced: ONE cell, Cory's row otherwise intact. */
+  W.TE = [1.00, (MNC.curve.TE || [])[1], 0];
 }
 const STARTERS = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
 const FLEX = ['RB', 'WR', 'TE'];
