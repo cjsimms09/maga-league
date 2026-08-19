@@ -149,6 +149,103 @@ function noteFor(q, vona, surplus, here) {
   return `neutral — ${vona.toFixed(0)} to wait, +${surplus.toFixed(0)} over the wire`;
 }
 
+
+/* ── 1. OPPONENT NEEDS, SMALL ENOUGH TO READ AT 8 SECONDS A PICK ─────────────
+ * Cory: "It should be very easy for me to view other team needs in a very small
+ * window, find way to make it clear yet small."
+ * One row per owner. Not tendencies, not probabilities -- the two facts that
+ * change his pick: what they KEEP (so those slots are shut) and what is still
+ * OPEN. Rendered as a compact string the view can print in one line. */
+const ON = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'opponent_need_2026.json'), 'utf8')); }
+  catch (e) { return null; }
+})();
+const opponents_compact = [];
+if (ON && ON.opponents) {
+  Object.entries(ON.opponents).forEach(([who, o]) => {
+    const ns = o.need_state_at_draft_open || {};
+    const open = POS.filter(q => ns[q] === 'open');
+    const keeps = (o.keeper_slate || []).map(k => k.position);
+    const kc = {}; keeps.forEach(q => { kc[q] = (kc[q] || 0) + 1; });
+    opponents_compact.push({
+      owner: who,
+      keeps: POS.filter(q => kc[q]).map(q => (kc[q] > 1 ? kc[q] : '') + q).join(' '),
+      needs: open.join(' '),
+      /* the one number that changes YOUR pick: how likely they take each
+       * position early, from their own history */
+      /* ⛔ THE FIRST VERSION PRINTED "RB 50%" FOR ALL TEN OWNERS. That is the
+       * LEAGUE bucket, not the owner -- tendency_by_bucket marks each cell with
+       * source: 'league_bucket' when it has no owner history, and I was reading
+       * the probability without the source. A column identical down every row is
+       * not information, and it looked like information. Owner-specific cells
+       * only; otherwise the column says so. */
+      early_lean: (() => {
+        const e = (o.tendency_by_bucket || {}).early || {};
+        const cells = e.cells || {};
+        const own = Object.entries(cells)
+          .filter(([, c]) => c && c.source && c.source !== 'league_bucket' && c.rate > 0)
+          .sort((a, b) => b[1].rate - a[1].rate)[0];
+        return own ? `${own[0]} ${(own[1].rate * 100).toFixed(0)}%` : 'league avg only';
+      })(),
+    });
+  });
+}
+
+/* ── 2. ROUND-TO-ROUND DROP-OFFS ─────────────────────────────────────────────
+ * Cory: "what I need from you is info about when position drop offs are high or
+ * low between rounds."
+ * Not VONA within a pick -- the change in what is available BETWEEN his picks.
+ * A big number means the position falls off a cliff between these two rounds;
+ * a small one means the tier holds and he can wait. */
+const round_dropoffs = [];
+for (let i = 0; i + 1 < picks.length; i++) {
+  const a = picks[i], b = picks[i + 1];
+  const row = { from_pick: a.pick, to_pick: b.pick,
+                from_round: a.round, to_round: b.round, pos: {} };
+  POS.forEach(q => {
+    const x = a.positions[q].best_now, y = b.positions[q].best_now;
+    row.pos[q] = (x == null || y == null) ? null : +(x - y).toFixed(1);
+  });
+  const vals = POS.map(q => row.pos[q]).filter(v => v != null);
+  row.steepest = POS.reduce((bq, q) => (row.pos[q] != null
+    && (bq == null || row.pos[q] > row.pos[bq])) ? q : bq, null);
+  row.flattest = POS.reduce((bq, q) => (row.pos[q] != null
+    && (bq == null || row.pos[q] < row.pos[bq])) ? q : bq, null);
+  round_dropoffs.push(row);
+}
+
+/* ── 3. CEILING STEALS ───────────────────────────────────────────────────────
+ * Cory: "look for players who's ADP is a steal if they perform closer to their
+ * ceilings."
+ * A player the room prices by his MEAN, whose CEILING would make him a far
+ * earlier pick. Measured as the gap between where ADP has him and where his
+ * ceiling would rank him on the whole board. Positive = the room is late on him
+ * IF he hits. This is an IF, and the artifact says so -- it is not a projection
+ * that he will. */
+/* ⛔ RANKED WITHIN POSITION, NOT ACROSS THE BOARD. The first version ranked
+ * ceilings over the whole pool and returned TWELVE QUARTERBACKS out of twelve --
+ * because QB ceilings sit on a 400-point scale while a receiver's top out near
+ * 290. That is the same cross-position comparability bug that was in the value
+ * term (P196), reappearing here. A steal is "early for HIS position". */
+const ceilRank = new Map(), adpRank = new Map();
+POS.forEach(q => {
+  const grp = pool.filter(x => x.position === q);
+  [...grp].sort((a, b) => b.ds.ceiling - a.ds.ceiling).forEach((x, i) => ceilRank.set(x.id, i + 1));
+  [...grp].sort((a, b) => a.adp - b.adp).forEach((x, i) => adpRank.set(x.id, i + 1));
+});
+const ceiling_steals = pool
+  .map(x => ({
+    name: x.name, position: x.position, adp: +x.adp.toFixed(1),
+    proj: +x.ds.proj.toFixed(1), ceiling: +x.ds.ceiling.toFixed(1),
+    upside: +(x.ds.ceiling - x.ds.proj).toFixed(1),
+    ceiling_rank: ceilRank.get(x.id), adp_rank: adpRank.get(x.id),
+    steal_gap: adpRank.get(x.id) - ceilRank.get(x.id),
+    injury_risk_pct: x.ds.risk,
+  }))
+  .filter(r => r.adp <= 200 && r.steal_gap >= 5)
+  .sort((a, b) => b.steal_gap - a.steal_gap)
+  .slice(0, 25);
+
 const out = {
   _territory: 'TERRITORY: A — draft/tools/position_boards.js',
   _what: 'Top N per position with when-gone and when-to-strike. NO single '
@@ -159,6 +256,10 @@ const out = {
     + 'composes ADP with opponent-need Layer 2 and needs live draft context.',
   built_at: BOARD.built_at || null,
   rooms: ROOMS, adjuster_a: A, top_n: TOPN, waiver: WAIVER, picks,
+  opponents_compact, round_dropoffs, ceiling_steals,
+  _steals_caveat: 'ceiling_steals is an IF, not a forecast: it ranks players by '
+    + 'how much earlier their CEILING would have ranked them AT THEIR OWN POSITION than their ADP did. It says '
+    + 'nothing about whether they reach it.',
 };
 
 /* CONTROLS — a board that silently lost a position is worse than no board. */
@@ -199,4 +300,23 @@ picks.filter(r => show.includes(r.pick)).forEach(r => {
       + `  ceil ${String(pl.ceiling).padStart(5)}  there next pick ${String(pl.pct_still_there_next_pick).padStart(3)}%`));
   });
 });
+console.log('\n  ── OTHER TEAMS, SMALL ──');
+console.log('    ' + 'owner'.padEnd(9) + 'keeps'.padEnd(12) + 'still needs'.padEnd(22) + 'leans early');
+opponents_compact.forEach(o => console.log('    ' + String(o.owner).slice(0, 8).padEnd(9)
+  + String(o.keeps || '—').padEnd(12) + String(o.needs || '—').padEnd(22) + (o.early_lean || '—')));
+
+console.log('\n  ── DROP-OFF BETWEEN YOUR PICKS (points of best-available lost) ──');
+console.log('    ' + 'from→to'.padEnd(10) + POS.map(q => q.padStart(6)).join('') + '   steepest  flattest');
+round_dropoffs.forEach(r => console.log('    '
+  + (r.from_pick + '→' + r.to_pick).padEnd(10)
+  + POS.map(q => String(r.pos[q] == null ? '—' : r.pos[q].toFixed(0)).padStart(6)).join('')
+  + '   ' + String(r.steepest).padEnd(9) + r.flattest));
+
+console.log('\n  ── CEILING STEALS — the room prices the mean; how early would the CEILING have gone? ──');
+console.log('    ' + 'player'.padEnd(22) + 'pos'.padEnd(5) + 'adp'.padStart(6)
+  + 'proj'.padStart(7) + 'ceil'.padStart(7) + 'upside'.padStart(8) + '  pos-ranks earlier if he hits');
+ceiling_steals.slice(0, 12).forEach(r => console.log('    ' + r.name.slice(0, 21).padEnd(22)
+  + r.position.padEnd(5) + String(r.adp).padStart(6) + String(r.proj).padStart(7)
+  + String(r.ceiling).padStart(7) + String(r.upside).padStart(8) + String(r.steal_gap).padStart(12)));
+
 console.log(`\n  wrote public/position_boards.json`);
