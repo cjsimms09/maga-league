@@ -86,3 +86,60 @@ FantasyPros. **The two things that would actually move `proj_mean` and `ceiling`
 are a market/betting feed (we have zero of those) and expected fantasy points
 built from the 98,263 play-by-play rows already on our disk.** Neither is a sixth
 projector. `DUPLICATE-A-REAL-MODEL-2026-08-19.md` §§5–6, 10.
+
+---
+
+# ADDENDUM — P148 was a DUPLICATE of P146, and I preregistered it on a false premise
+
+**Cory: *"then adjust the need down"*. I filed P148 as *"P144 with exactly one
+substitution"* and claimed P146 had changed that substitution **"alongside a
+buggy flex chase."**
+
+**That was false. P146 used the SAME flex chase as P144** — the flex fix did not
+arrive until P147. **So P146 already WAS the isolated single substitution, and
+P148 re-ran it under a new name and produced byte-identical output:**
+`QB1 RB2 WR3 TE3 K2 DEF1`, −6.9%, the same twelve players.
+
+**Rule 3i again, on my own code this time: I asserted what a previous arm had
+changed without reading it.** That is the sixth instance today and the first
+against source rather than data.
+
+## SO THE REAL RESULT, STATED HONESTLY
+
+**The single substitution — weighting a backup by how much of the season he plays
+instead of by whether he is ever needed — DOES fix the quarterback and DOES break
+tight end and kicker.** That is now measured twice under two names.
+
+**And the mechanism is identifiable: the flex chase.** Once `E[weeks]` decays the
+RB and WR weights, the flex goes to TE, which raises TE's slot count from 1 to 2,
+which makes a **second tight end a "starter" at weight 1.0.** P144 never triggers
+it only because its higher `P(ever needed)` weights keep RB and WR holding the
+flex.
+
+**P147 fixed the flex correctly and then lost on a floor I set arbitrarily at
+1.0** — a second kicker priced at 1.06 and slipped through by six hundredths.
+
+## WHERE I AM STOPPING, AS THE PREREG SAID I WOULD
+
+**Four arms. The prereg capped me at three and said the response to failure is a
+stated limit, not more tuning. So:**
+
+> **The one-equation form produces five of Cory's six cells and +4% value on its
+> first and simplest version. The sixth cell — the second quarterback — is not
+> fixed by any of the three changes I tried, and each attempt cost value.**
+
+**The untried combination is `E[weeks]` + the roster-based flex + no arbitrary
+floor.** I can see it, I have not run it, and **I am not running it tonight** —
+because a fifth arm chosen after seeing four results is exactly the search that
+`no_fit_guard` exists to stop, and because the honest thing to hand Cory is
+"five of six, here is the open one" rather than a number I hunted for.
+
+**It is the first thing to run post-draft, preregistered, on a fresh board.**
+Register 111.
+
+## WHAT THIS DOES NOT CHANGE
+
+**Your equation is right and the evidence for that is P144, not my three
+attempts to improve it.** One line, no cap, no seats, no weights — 3–4 WR, 3–4
+RB, 1 TE, 1 K, 1 DEF, and more projected value than the seat plan. **The
+mechanism you described is doing the work.**
