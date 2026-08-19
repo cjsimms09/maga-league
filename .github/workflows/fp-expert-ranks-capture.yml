@@ -88,12 +88,22 @@ jobs:
         run: python3 draft/tools/rederive_expert_spread.py
 
       - name: Commit the store
+        # ⚠️ `git status --porcelain --cached` IS NOT VALID — `--cached` is a
+        # `git diff` flag, not a `git status` one. Found by dispatching for
+        # real: the fetch succeeded (fetch_error null, 788 experts, a live
+        # scraped_at), `git status --porcelain --cached` errored to stderr
+        # printing nothing to stdout, `[ -n "" ]` read false, and the run
+        # logged "No change to the store" and discarded a real, fresh
+        # capture — the exact silent-false-negative shape rule 3e exists
+        # for. `git diff --cached --quiet` is the correct check (nonzero
+        # exit means there IS a staged diff) and is what this repo's other
+        # capture workflows already use for the same purpose.
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
           git add draft/backtest/fp_expert_ranks_*.json draft/data/expert_spread_2026.json public/expert_spread_2026.json
-          if [ -n "$(git status --porcelain --cached)" ]; then
+          if ! git diff --cached --quiet; then
             git commit -m "Capture FantasyPros per-expert draft ranks + re-derive expert_spread_2026 [skip deploy]"
             for i in 1 2 3 4; do
               git pull --rebase origin main && git push origin HEAD:main && break
