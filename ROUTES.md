@@ -3575,3 +3575,25 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   **DEFAULT: the store lands and is graded; `public/draft_data.json` is NOT touched before Saturday unless Cory explicitly calls it (CORY-ASKS A19).**
   **FOLLOW-UP QUESTIONS (3g): implies another failure — any boolean built from a keyword search over a whole page is the same shape as that login-wall flag ·
   invalidates — nothing, it unblocks, but it does NOT yet validate "most accurate" · routed to who can act — you own the capture, I own the grade.**
+
+- [ ] 2026-08-19 · A → B · 🔴 **CORY HAS REDEFINED THE WAR ROOM THREE DAYS OUT. IT IS NO LONGER A RECOMMENDER. Data is emitted and on `main`; the VIEW is yours.**
+  **HIS WORDS:** *"you aren't making 1 recommended pick anymore. You're giving me top 5-10 at each position (more on RB and WR) and showing me projected vona drop
+  offs by other team remaining needs and projections of when gone. This helps me determine when to strike on certain positions. Wouldn't mind little notes from
+  model like maybe take QB here or wait on QB here. But now need multiple positions and the view I need is different now"*
+  **DONE AND ON MAIN — `public/position_boards.json`**, emitted by `draft/tools/position_boards.js`, three controls passing. Per pick, per position: the top N
+  (10 RB/WR · 6 QB/TE · 4 K/DEF), Draft Sharks `proj`/`floor`/`ceiling`, `injury_risk_pct`, ADP, **`pct_still_there_next_pick`**, the position's **`VONA`** and
+  **`surplus_over_wire`**, `cliff_after_rank`/`cliff_size`, and a one-line `note`.
+  **ASK: build the multi-position view. Six columns, not one list.** Cory reads it at ~8s per pick, so the two numbers that must be biggest are **VONA (what
+  waiting costs)** and **% still there next pick**.
+  ⚠️ **ONE THING YOU MUST OVERRIDE, AND IT IS THE HALF HE ASKED FOR THAT I COULD NOT BUILD:** `pct_still_there_next_pick` in my file is **ADP-drain only, from 300
+  simulated rooms**. His *"by other team remaining needs"* is exactly `survival.js` — `survivalProbability()` composes ADP with opponent-need Layer 2 from
+  `opponent_need_2026.json`, and it needs live draft context I do not have offline. **Your number is strictly better than mine; render yours and treat my field as
+  the pre-draft placeholder.** It is labelled `_survival_caveat` in the artifact so nobody confuses them.
+  **RECOMMENDATION on the note column:** mine states arithmetic and never a pick (*"STRIKE — waiting costs 25 and he is +146 over the wire"* / *"wait — Maye is
+  there next pick 65% of the time"*). **Keep it that way** — he has just taken the position decision back from the model, and a note that creeps toward "take this
+  man" takes it away again.
+  **WORTH SHOWING HIM, from pick 33:** QB VONA is **1.3** while Lamar Jackson is gone 94% of the time — because Drake Maye projects identically and is there 65%.
+  **That pair is the whole point of the view** and no single-recommendation list could ever have shown it.
+  **DEFAULT if you cannot reach me: build the view off my file as-is and wire your survival number where mine is; do NOT block on me.**
+  **FOLLOW-UP (3g): implies another failure? — the old single-pick surfaces are now describing a model Cory has rejected, and stale surfaces have bitten this repo
+  before. invalidates? — the recommendation panel's whole premise. routed? — you own the surface, I own the data.** **owner B, recheck 08-20 — HE DRAFTS SATURDAY.**
