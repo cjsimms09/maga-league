@@ -78,6 +78,37 @@ MIN_COVERAGE = 0.30         # a capture this thin is a broken fetch, not a board
 # LEFT ALONE rather than averaged or overridden. `no_fit_guard`: this constant
 # was never chosen by grading arms against an outcome.
 MAX_SOURCE_RATIO = 2.0
+
+# ── DEF KEEPS OUR MEAN AND TAKES THE CROSS-SOURCE DISPERSION ────────────────
+# Found by the publish gate refusing the first blended board (run 32215423928):
+# `test_all_32_sweep_correction_is_exactly_the_td_components` and
+# `test_def_replacement_and_vorp_consistent` both failed, and they were RIGHT to.
+#
+# For DEF — and only DEF — the board's `proj_mean` is not an estimate at all. It
+# is `score_stat_line(normalize_def_stat_line(row))`: our own component line,
+# scored exactly under this league's table, to the cent. The tests pin that
+# identity because the whole DEF pipeline and the vorp identity rest on it. The
+# blend replaced it with an outside consensus (ARI 80.0 -> 87.2, DEF replacement
+# 103.0 -> 108.05) and broke it silently.
+#
+# THE PRINCIPLE, which stands without reference to the tests that surfaced it:
+# **where the board holds a first-party, exactly-scored quantity, an external
+# consensus is not more accurate — it is a different estimate of the same thing
+# with no evidence behind it.** At the skill positions our `proj_mean` is itself
+# a single vendor's projection, so adding three more opinions is a real gain in
+# source count. For DEF there is nothing to improve on.
+#
+# THE DISPERSION IS A DIFFERENT QUESTION AND IT STILL APPLIES. Our pipeline
+# cannot produce a per-defence `proj_sd` at all — `fetch_component_stats.py`
+# excludes K and DST at the source (register 2e), so all 32 defences shared ONE
+# ratio (0.380). Cross-source spread gives 29 distinct values for 31. So DEF
+# keeps our mean AND gains a real dispersion, which was always the larger half
+# of this change.
+#
+# NOT a fix to make a test pass: the mean is dropped for DEF, which is the
+# HARDER thing to justify to anyone who wanted the blend everywhere, and the
+# dispersion is kept, which is the part the tests never objected to.
+MEAN_EXCLUDED_POSITIONS = {"DEF"}
 # Below this, ratios stop meaning anything (2.5 -> 86 and 0.4 -> 14 are the same
 # ratio and neither is a projection), and every source is saying "roughly zero"
 # anyway, so there is nothing to gain and rounding noise to lose.
@@ -183,10 +214,18 @@ def apply_multisource(players: list[dict], *, store_path: Path | None = None) ->
         return diag
 
     # ---- apply --------------------------------------------------------------
+    mean_kept = 0
     for p, mean, sd in pending:
-        p["proj_mean_sleeper_only"] = p["proj_mean"]
-        p["proj_mean"] = round(mean, 2)
-        p["proj_mean_source"] = "multisource-mean-2026"
+        if p.get("position") in MEAN_EXCLUDED_POSITIONS:
+            # our own exactly-scored component line stays the mean; the band
+            # below is still built from the cross-source spread, around OUR
+            # centre rather than theirs.
+            mean = p["proj_mean"]
+            mean_kept += 1
+        else:
+            p["proj_mean_sleeper_only"] = p["proj_mean"]
+            p["proj_mean"] = round(mean, 2)
+            p["proj_mean_source"] = "multisource-mean-2026"
         if sd > 0:
             p["proj_sd"] = round(sd, 2)
             p["proj_sd_source"] = "cross-source-disagreement"
@@ -195,6 +234,8 @@ def apply_multisource(players: list[dict], *, store_path: Path | None = None) ->
             p["proj_ceiling_source"] = "cross-source-p90"
             p["proj_floor_source"] = "cross-source-p10"
     diag.update(applied=True, players_changed=len(pending),
+                mean_left_first_party=mean_kept,
+                mean_excluded_positions=sorted(MEAN_EXCLUDED_POSITIONS),
                 sources=store.get("sources_used"),
                 excluded=list((store.get("sources_excluded") or {})))
     return diag
