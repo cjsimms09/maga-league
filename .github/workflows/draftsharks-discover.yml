@@ -58,13 +58,16 @@ jobs:
       - name: Extract the projections store
         continue-on-error: true
         run: python3 draft/tools/draftsharks_projections.py
+      - name: Locate the real payload
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_payload.py
       - name: Commit the discovery artifact
         if: always()
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
             for i in 1 2 3 4; do
@@ -83,4 +86,5 @@ jobs:
             draft/data/draftsharks_discovery.json
             draft/data/draftsharks_shape.json
             draft/data/draftsharks_projections.json
+            draft/data/draftsharks_payload.json
           if-no-files-found: warn
