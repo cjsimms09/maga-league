@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C git checkout container commit directory rocker deps System scraper stack fix root workspace step order install before after openssl 2026-08-19
+# TERRITORY-GRANT: C git checkout container commit directory rocker deps System scraper stack fix root workspace step order install before after openssl GITHUB_WORKSPACE 2026-08-19
 name: ffanalytics multi-source projection probe
 # WHY THIS EXISTS, AND WHY IT IS A PROBE BEFORE IT IS A PIPELINE.
 #
@@ -106,7 +106,19 @@ jobs:
           if-no-files-found: warn
       - name: Commit the raw rows and the probe report
         if: success()
+        # ⚠️ THE GIT-BEFORE-CHECKOUT FIX WAS NECESSARY, NOT SUFFICIENT. With it,
+        # checkout DOES create a real `.git` (confirmed: the POST checkout
+        # cleanup step later runs real git-config commands against it) — but
+        # THIS step still hit `fatal: not in a git directory`, same message,
+        # even though `draft/data/...` relative paths resolved fine in the
+        # steps before and after it. That is the signature of a workspace git
+        # considers untrusted in a containerized job (a known actions/checkout
+        # gap: it does not always register `safe.directory` for the CONTAINER's
+        # git before later `docker exec` steps run), not a missing repo. `cd`
+        # and `safe.directory` are both explicit here rather than assumed.
         run: |
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name Claude
           git config user.email noreply@anthropic.com
           git add draft/data/ffanalytics_probe.json draft/data/ffanalytics_raw_projections.csv
