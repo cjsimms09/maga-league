@@ -106,19 +106,29 @@ function runRoom() {
      * 0.49 x 29 = 14.2). Declared here before running. */
     const lam = (process.env.RAMP === 'off') ? 1
       : Math.min(1, unfilled() / Math.max(1, SCHED.length - i));
+    /* ── P162: CORY'S GATE. "picks remaining should have a role" — and its role
+     * is RESERVATION. You never let the number of slots you MUST still fill
+     * exceed the chances you have left. Inside that window RB/WR are not
+     * low-weighted, they are NOT OPTIONS. */
+    const mandatory = unfilled();
+    const forcing = (SCHED.length - i) <= mandatory;
+    const needsSlot = q => {
+      const S = (base[q] || 0) + (fo === q ? (STARTERS.FLEX || 0) : 0);
+      return (held[q] || 0) < S;
+    };
     let best = null, bestV = -Infinity;
     pool.forEach(p => {
       const id = String(p.player_id);
       if (taken.has(id) || gone.has(id)) return;
-      const nd = needOf(p.position, held[p.position] || 0, fo);
+      if (forcing && !needsSlot(p.position)) return;   // the gate
+      /* P161: ramp URGENCY only, never DEPTH. An empty slot weighs lambda (not
+       * urgent early, everything late); a filled position weighs its MEASURED
+       * depth, which is a per-week start rate and does not change with the
+       * calendar. P158's linear blend and P159's exponent both ramped depth too,
+       * which is why each broke something. */
+      const w = weightOf(p.position, held[p.position] || 0, fo, 1);
       const margin = Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
-      /* P159: need^lambda, not (1-lambda)+lambda*need. The linear blend drags
-       * every need toward 1 by the same ADDITIVE amount, which compresses the
-       * distinction that decides a pick and is why a second QB leaked through.
-       * The exponent is the natural damping for a MULTIPLICATIVE weight and has
-       * identical endpoints: lambda 0 -> 1 for everyone (pure value), lambda 1
-       * -> need, and a slot you cannot field is need 1.0 at every lambda. */
-      const v = margin * Math.pow(nd, lam);
+      const v = margin * w;
       if (v > bestV) { bestV = v; best = p; }
     });
     if (!best) return;
@@ -128,7 +138,8 @@ function runRoom() {
   });
   const c = {};
   got.forEach(q => { c[q] = (c[q] || 0) + 1; });
-  return { counts: c, top32 };
+  const legal = ['QB','RB','WR','TE','K','DEF'].every(q => (held[q]||0) >= (base[q]||0));
+  return { counts: c, top32, legal };
 }
 
 const rows = [];
@@ -161,6 +172,12 @@ const ctl = {
   C3_same_picks_and_keepers_every_room: { ok: SCHED.length === 12 && PLAN.keep.length === 3,
     sched: SCHED, keepers: PLAN.keep.map(k => k.position) },
   C4_sources_passed_their_controls: { ok: true },
+  C6_gate_never_leaves_a_slot_empty: (() => {
+    const bad = rows.filter(r => !r.legal).length;
+    return { ok: bad === 0, rooms_with_an_unfilled_starting_slot: bad,
+      why: 'if the reservation arithmetic is wrong the gate can strand a slot; '
+         + 'that would make the whole idea fail and it must be zero' };
+  })(),
   C5_deterministic_run_inside_the_distribution: (() => {
     /* the n=1 ADP-order result was QB2 RB3 WR4 TE1 K1 DEF1 */
     const det = { QB: 2, RB: 3, WR: 4, TE: 1, K: 1, DEF: 1 };
