@@ -49,7 +49,25 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 
 const SHORTLIST_N = 10;   // declared in the prereg, NOT tuned on the output
 const RANK_WINDOW = 7;    // same
-const ONESIE = { K: 1, DEF: 1 };
+
+/* ── ARM 2: THE POSITIONAL CAP ─────────────────────────────────────────────
+ * Derived from the league's own roster_slots in the prereg addendum, BEFORE
+ * this arm ran, with the explicit condition that no number here may change
+ * after seeing the roster it produces:
+ *
+ *   one-starter skill (QB, TE)  starters + 1        one backup against injury
+ *   streamed onesies (K, DEF)   1                   measured wire churn in THIS
+ *                                                   league: DEF 100% / K 83% of
+ *                                                   the pool cycles (waiver_supply)
+ *   multi-starter (RB, WR)      starters + FLEX + 3
+ *
+ * Capacity 18 >= 15, so it constrains without making the roster infeasible.
+ * KEEPERS COUNT — they occupy roster spots.
+ *
+ * Arm 1 (no cap) is still the default; ARM=capped turns this on, so both arms
+ * come out of one module and neither is a rewrite of the other. */
+const CAP = { QB: 2, RB: 6, WR: 6, TE: 2, K: 1, DEF: 1 };
+const CAPPED = (process.env.ARM || '') === 'capped';
 
 /* ── UPSIDE ───────────────────────────────────────────────────────────────── */
 const pool = DATA.players.filter(p => p.position && (p.proj_mean || 0) > 0);
@@ -113,11 +131,24 @@ const rho = upsRows.length > 20
  * starters by seat projection, bench by P(need) x (proj - waiver). We take its
  * seats verbatim and change exactly one thing: at a BENCH seat, pick by upside
  * from within the top-N by value. */
-const out = [], notes = [];
+const out = [];
 let noUpside = 0;
 const taken = new Set();
+/* keepers occupy roster spots, so they count against the cap from pick one */
+const held = {};
+PLAN.keep.forEach(k => { held[k.position] = (held[k.position] || 0) + 1; });
+const capBlocks = [];
 PLAN.ranked.forEach((row, i) => {
-  const list = (row.list || []).filter(x => !taken.has(String((x.p || {}).player_id)));
+  const list = (row.list || [])
+    .filter(x => !taken.has(String((x.p || {}).player_id)))
+    .filter(x => {
+      if (!CAPPED) return true;
+      const pos = (x.p || {}).position;
+      const cap = CAP[pos];
+      if (cap == null || (held[pos] || 0) < cap) return true;
+      capBlocks.push({ pick: row.pick, pos, name: x.p.name });
+      return false;
+    });
   if (!list.length) { out.push({ pick: row.pick, role: row.role, p: null }); return; }
   const isBench = row.role === 'bench';
   let chosen, why;
@@ -140,6 +171,7 @@ PLAN.ranked.forEach((row, i) => {
   }
   const pid = String((chosen.p || {}).player_id);
   taken.add(pid);
+  held[chosen.p.position] = (held[chosen.p.position] || 0) + 1;
   out.push({ pick: row.pick, role: row.role, name: chosen.p.name, pos: chosen.p.position,
              adp: chosen.p.adp, proj: chosen.p.proj_mean, value: chosen.v,
              upside: UPSIDE.has(pid) ? +UPSIDE.get(pid).toFixed(1) : null,
@@ -162,6 +194,12 @@ const ctl = {
     why: 'absent, not zero (register 101)' },
   C5_fifteen_players: { ok: out.filter(x => x.name).length + PLAN.keep.length === 15,
     got: out.filter(x => x.name).length + PLAN.keep.length },
+  C6_no_position_exceeds_its_cap: { ok: !CAPPED
+      || Object.entries(held).every(([p, n]) => CAP[p] == null || n <= CAP[p]),
+    arm: CAPPED ? 'capped' : 'uncapped (arm 1 — cap not applied)',
+    cap: CAPPED ? CAP : null, held: Object.assign({}, held),
+    why: 'enforced in code, so a violation means the enforcement is broken, '
+       + 'not the policy' },
 };
 const allOk = Object.values(ctl).every(c => c.ok);
 
@@ -170,7 +208,7 @@ const counts = {};
 PLAN.keep.forEach(k => { counts[k.position] = (counts[k.position] || 0) + 1; });
 out.forEach(x => { if (x.pos) counts[x.pos] = (counts[x.pos] || 0) + 1; });
 
-console.log('VONA · NORMAL ROSTER · UPSIDE LATE   (prereg P137/P138/P139)\n');
+console.log('VONA · NORMAL ROSTER · UPSIDE LATE   arm=' + (CAPPED ? 'CAPPED (P140)' : 'uncapped (P137-P139)') + '\n');
 Object.entries(ctl).forEach(([k, c]) => console.log('  ' + (c.ok ? 'OK ' : '!! ') + k
   + (c.rho !== undefined ? '   rho=' + c.rho + ' on n=' + c.n : '')));
 if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a recommendation.\n');

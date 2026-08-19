@@ -113,3 +113,71 @@ post-draft.** Register 106.
 
 **Nothing here ships before Saturday.** The model is report-only, writes no board
 field and changes no weight. `draft/data/vona_upside_plan.json` is the artifact.
+
+---
+
+# 6. ⭐ ARM 2 — WITH THE CAP, IT IS THE MODEL YOU ASKED FOR. P140 TRUE on both halves.
+
+The cap was **derived from the league's own `roster_slots` and written into the
+prereg addendum before arm 2 ran**, with the condition that no number could
+change afterwards. It is a policy, not a fitted constant.
+
+```
+one-starter skill (QB, TE)   starters + 1          QB 2 · TE 2
+streamed onesies  (K, DEF)   1                     K 1 · DEF 1
+multi-starter     (RB, WR)   starters + FLEX + 3   RB 6 · WR 6
+```
+
+**All six controls pass** — including C6, the cap enforcement, and C2's
+orthogonality re-measured at **rho = 0.008**.
+
+| pick | seat | take | proj | upside | why |
+|---|---|---|---|---|---|
+| 33 | FLEX | RB Travis Etienne | 206 | −5.1 | VONA, tie → safer |
+| 48 | QB | QB Joe Burrow | 367 | −8.7 | VONA, tie → safer |
+| 53 | WR | WR Jameson Williams | 184 | −3.2 | VONA, tie → safer |
+| 68 | TE | TE Kyle Pitts | 151 | +4.7 | VONA |
+| 73 | bench | RB Jonathon Brooks | 143 | **+6.3** | upside |
+| 88 | bench | WR Alec Pierce | 164 | **+6.2** | upside |
+| 93 | bench | TE Dallas Goedert | 138 | **+15.0** | upside |
+| 108 | DEF | DEF LA Rams | 132 | −0.3 | VONA |
+| 113 | K | K Brandon Aubrey | 146 | +1.9 | VONA |
+| 128 | bench | QB Daniel Jones | 300 | **+24.2** | upside |
+| 133 | bench | **WR Jalen Coker** | 124 | **+6.7** | upside |
+| 148 | bench | RB Chris Rodriguez | 101 | **+13.6** | upside |
+
+## **`QB2 · RB5 · WR4 · TE2 · K1 · DEF1`**
+
+**Every bound P137 named is met** — ≥2 QB ✅ · ≥2 TE ✅ · ≤6 RB ✅ · **≥4 WR ✅**
+(the one arm 1 missed) · 1 K ✅ · 1 DEF ✅.
+
+**And the starter picks are byte-identical to arm 1.** The cap bound only on the
+bench, which is the second half of P140 and the thing that would have condemned
+the cap if it had failed: a cap that changes a *starting* pick is a cap that is
+wrong.
+
+**One pick moved:** at 133 the second backup quarterback (Malik Willis) is
+blocked by `QB ≤ 2`, and the model takes **WR Jalen Coker, +6.7 upside** instead.
+That is the whole fix — and it is worth noting **Daniel Jones survives at 128**,
+so the roster still carries the upside quarterback, just not two of them.
+
+## SO, AGAINST YOUR FOUR REQUIREMENTS
+
+| you asked for | |
+|---|---|
+| **uses VONA** | ✅ starters are pure VONA; nothing is summed with it |
+| **drafts a normal roster** | ✅ `QB2 RB5 WR4 TE2 K1 DEF1` |
+| **drafts upside late** | ✅ all six bench picks chosen on upside; **5 of 6 differ from the value pick** |
+| **upside calculated correctly** | ✅ **rho = +0.008 against value**, vs +0.70 for the term we ship and +0.9951 for raw ceiling |
+
+⚠️ **THE CAVEAT FROM §4 SURVIVES AND I AM NOT BURYING IT UNDER A GOOD RESULT.**
+`own_v6` is still bearish on the upside picks — **Daniel Jones −77.7**, Goedert
+−13.0, Rodriguez −36.9. High residual upside and "our own projector hates him"
+remain close to the same statement, because cross-source disagreement is highest
+exactly where a player is unproven. **The cap fixed the roster shape. It did not
+answer whether these are sleepers or players nobody can price.** That is the next
+question, and it is a grade, not an argument.
+
+**Still report-only. Writes no board field, changes no weight, ships nothing
+before Saturday.** `draft/data/vona_upside_plan_capped.json`.
+Run it yourself: `ARM=capped node draft/tools/vona_upside_plan.js`.
