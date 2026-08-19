@@ -1,0 +1,73 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/tools/draftsharks_payload.py",
+ "_what": "locate the real data payload. REPORT ONLY.",
+ "url": "https://www.draftsharks.com/rankings/half-ppr",
+ "status": 200,
+ "bytes": 418011,
+ "control_anchors_found": {
+  "ok": true,
+  "hits": 10,
+  "why": "these values were parsed OUT of this same document by the previous capture, so they must be findable. A null here means the probe is broken, not that the data is absent -- which is the distinction rule 3e exists for."
+ },
+ "candidate_payloads": [
+  {
+   "label": "window assignment",
+   "bytes": 93056,
+   "offset": 27989,
+   "head": "{\n        keyConstants: {\"KEY_05PPR\":\"05ppr\",\"KEY_15PPR\":\"15ppr\",\"KEY_1PPR\":\"1ppr\",\"KEY_3D_PROJECTIONS\":\"3dProjections\",\"KEY_3D_PROJECTIONS_ROS\":\"3dProjectionsRos\",\"KEY_3D_ROS\":\"3dRos\",\"KEY_3D_TRADE_V"
+  }
+ ],
+ "api_like_urls": [],
+ "anchor_contexts": [
+  {
+   "anchor": "370",
+   "offset": 136978,
+   "context": "78 11.7061 149.671 11.3898C150.077 10.983 150.528 10.6666 151.092 10.418C151.657 10.192 152.266 10.0564 152.92 10.0564H160.615C162.239 10.0564 163.571 8.72309 163.571 7.09597V4.97168H152.943V4.99428Z\" fill=\"white\"/>\n<path d=\"M135.433 24.8134H141.48L130.311 6.23708C130.062 5.8077 129.431 4.99414 127.964 4.99414C126.317 4.99414 125.843 5.8077 125.595 6.23708L116.208 21.9207C115.441 23.1862 116.366 24.8134 117.832 24.8134H126.881C128.505 24.8134 129.837 23.48 129.837 21.8529V19.7286H123.316L127.851 12.0676L135.433 24.813"
+  },
+  {
+   "anchor": "370",
+   "offset": 137072,
+   "context": "6 10.0564 152.92 10.0564H160.615C162.239 10.0564 163.571 8.72309 163.571 7.09597V4.97168H152.943V4.99428Z\" fill=\"white\"/>\n<path d=\"M135.433 24.8134H141.48L130.311 6.23708C130.062 5.8077 129.431 4.99414 127.964 4.99414C126.317 4.99414 125.843 5.8077 125.595 6.23708L116.208 21.9207C115.441 23.1862 116.366 24.8134 117.832 24.8134H126.881C128.505 24.8134 129.837 23.48 129.837 21.8529V19.7286H123.316L127.851 12.0676L135.433 24.8134Z\" fill=\"white\"/>\n<path d=\"M88.9497 10.8021C88.4759 9.60431 87.7989 8.56476 86.9415 7.706C86."
+  },
+  {
+   "anchor": "370",
+   "offset": 223148,
+   "context": "span class=\"column-title\">307</span></td><td class=\"ds-cell ds-proj centered\" data-value=\"322\" data-attribute=\"fantasy_points\"><span class=\"column-title\">322</span></td><td class=\"ds-cell ds-cell--pill ceiling-proj centered\" style=\"display: none;\" data-value=\"370.3\" data-attribute=\"ceiling_points\"><span class=\"column-title ds-pill ds-pill--lg-desktop\" :class=\"getCeilingClass(&#039;15&#039;, &#039;RB&#039;)\">370</span></td><td class=\"highlight three-d-value centered\" data-value=\"100\" data-attribute=\"dsValue\"><span clas"
+  },
+  {
+   "anchor": "370",
+   "offset": 223299,
+   "context": "e\">322</span></td><td class=\"ds-cell ds-cell--pill ceiling-proj centered\" style=\"display: none;\" data-value=\"370.3\" data-attribute=\"ceiling_points\"><span class=\"column-title ds-pill ds-pill--lg-desktop\" :class=\"getCeilingClass(&#039;15&#039;, &#039;RB&#039;)\">370</span></td><td class=\"highlight three-d-value centered\" data-value=\"100\" data-attribute=\"dsValue\"><span class=\"column-title ds-cell__fill\">100</span></td>\n    </tr>\n    </tbody>\n\n        \n    \n    \n    \n<tbody\n    data-player-row\n    data-key=\"13541\"\n    data"
+  },
+  {
+   "anchor": "261",
+   "offset": 27937,
+   "context": "new\":false,\"isPartnerPage\":false,\"showMoneyBackGuarantee\":false};\nvar dsCurrentWeek = 1;\nvar dsSumDuringPostseason = true;\nvar dsSiteSearchScriptFile = \"site-search.min.js\";\nvar dsModifiedTimes = {\"site-search.min.js\":\"1782225482\",\"league-settings.js\":\"1786467261\",\"league-settings-modal.css\":\"1785951591\"};\n    window.DsGlossary = {\n        keyConstants: {\"KEY_05PPR\":\"05ppr\",\"KEY_15PPR\":\"15ppr\",\"KEY_1PPR\":\"1ppr\",\"KEY_3D_PROJECTIONS\":\"3dProjections\",\"KEY_3D_PROJECTIONS_ROS\":\"3dProjectionsRos\",\"KEY_3D_ROS\":\"3dRos\",\"KEY_3"
+  },
+  {
+   "anchor": "261",
+   "offset": 222750,
+   "context": "lass(3)\">54%</span></td><td class=\"ds-cell ds-cell--pill floor-proj centered\" style=\"display: none;\" data-value=\"260.8\" data-attribute=\"floor_points\"><span class=\"column-title ds-pill ds-pill--lg-desktop\" :class=\"getFloorClass(&#039;19&#039;, &#039;RB&#039;)\">261</span></td><td class=\"ds-cell consensus-proj centered\" style=\"display: none;\" data-value=\"307\" data-attribute=\"consensus_projection\"><span class=\"column-title\">307</span></td><td class=\"ds-cell ds-proj centered\" data-value=\"322\" data-attribute=\"fantasy_points"
+  },
+  {
+   "anchor": "322",
+   "offset": 137517,
+   "context": "/>\n<path d=\"M88.9497 10.8021C88.4759 9.60431 87.7989 8.56476 86.9415 7.706C86.084 6.84725 85.046 6.16928 83.8727 5.69471C82.6993 5.22013 81.4131 4.99414 80.0367 4.99414H68.7318V7.11843C68.7318 8.74555 70.0631 10.0789 71.6878 10.0789H80.0367C80.6911 10.0789 81.3229 10.1919 81.8644 10.4405C82.4285 10.6665 82.9024 11.0054 83.3086 11.4122C83.7147 11.819 84.0306 12.3162 84.2563 12.9037C84.4819 13.4913 84.5947 14.1693 84.5947 14.8698C84.5947 15.5704 84.4819 16.2484 84.2337 16.8359C84.0081 17.4235 83.6922 17.9433 83.286 18.3"
+  },
+  {
+   "anchor": "322",
+   "offset": 222978,
+   "context": "#039;19&#039;, &#039;RB&#039;)\">261</span></td><td class=\"ds-cell consensus-proj centered\" style=\"display: none;\" data-value=\"307\" data-attribute=\"consensus_projection\"><span class=\"column-title\">307</span></td><td class=\"ds-cell ds-proj centered\" data-value=\"322\" data-attribute=\"fantasy_points\"><span class=\"column-title\">322</span></td><td class=\"ds-cell ds-cell--pill ceiling-proj centered\" style=\"display: none;\" data-value=\"370.3\" data-attribute=\"ceiling_points\"><span class=\"column-title ds-pill ds-pill--lg-desktop\""
+  },
+  {
+   "anchor": "322",
+   "offset": 223042,
+   "context": "l consensus-proj centered\" style=\"display: none;\" data-value=\"307\" data-attribute=\"consensus_projection\"><span class=\"column-title\">307</span></td><td class=\"ds-cell ds-proj centered\" data-value=\"322\" data-attribute=\"fantasy_points\"><span class=\"column-title\">322</span></td><td class=\"ds-cell ds-cell--pill ceiling-proj centered\" style=\"display: none;\" data-value=\"370.3\" data-attribute=\"ceiling_points\"><span class=\"column-title ds-pill ds-pill--lg-desktop\" :class=\"getCeilingClass(&#039;15&#039;, &#039;RB&#039;)\">370</s"
+  },
+  {
+   "anchor": "322",
+   "offset": 290917,
+   "context": "e\">253</span></td><td class=\"ds-cell ds-cell--pill ceiling-proj centered\" style=\"display: none;\" data-value=\"321.5\" data-attribute=\"ceiling_points\"><span class=\"column-title ds-pill ds-pill--lg-desktop\" :class=\"getCeilingClass(&#039;27&#039;, &#039;RB&#039;)\">322</span></td><td class=\"highlight three-d-value centered\" data-value=\"62\" data-attribute=\"dsValue\"><span class=\"column-title ds-cell__fill\">62</span></td>\n    </tr>\n    </tbody>\n\n        \n    \n    \n    \n<tbody\n    data-player-row\n    data-key=\"10198\"\n    data-t"
+  }
+ ]
+}
