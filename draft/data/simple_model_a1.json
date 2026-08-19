@@ -2,7 +2,7 @@
  "_territory": "TERRITORY: A — draft/tools/simple_model.js",
  "_prereg": "draft/SIMPLE-MODEL-PREREG-2026-08-19.md",
  "_note": "REPORT ONLY. engine.js, draft_plan.js and public/draft_data.json untouched.",
- "adjuster_a": 0,
+ "adjuster_a": 1,
  "rooms": 300,
  "controls": {
   "C1_a0_is_a_plain_ds_proj_ranking": {
@@ -53,26 +53,26 @@
  ],
  "mean_roster": {
   "QB": {
-   "mean": 2.41,
+   "mean": 2.4,
    "sd": 0.72,
    "min": 1,
    "max": 4
   },
   "RB": {
-   "mean": 4.07,
-   "sd": 0.74,
+   "mean": 4.12,
+   "sd": 0.78,
    "min": 2,
    "max": 6
   },
   "WR": {
-   "mean": 3.5,
-   "sd": 0.77,
+   "mean": 3.42,
+   "sd": 0.84,
    "min": 2,
    "max": 6
   },
   "TE": {
-   "mean": 3.02,
-   "sd": 0.94,
+   "mean": 3.06,
+   "sd": 1.01,
    "min": 1,
    "max": 5
   },

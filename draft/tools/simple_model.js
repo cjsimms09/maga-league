@@ -67,12 +67,34 @@ boardPool.forEach(p => {
 const projUsed = (x, a) => x.ds.proj + a * (x.ds.ceiling - x.ds.proj);
 
 /* ── need: the measured curve, unchanged ──────────────────────────────────── */
+const RULES = process.env.RULES !== 'off';   // Cory's two rulings, on by default
 function needOf(pos, held, flexOwner) {
+  /* CORY'S RULING, 2026-08-19: "same problem with K and def, once you draft 1
+   * the need should be 0." Preregistered and graded as P149, and again as P177
+   * where it put K and DEF on exactly 1.00 with sd 0.00 in all 300 rooms. NOT
+   * a term I invented, and dropping it in the rewrite is what let DEF fall to
+   * 0.76 with a minimum of ZERO -- rosters with no defence at all. */
+  if (RULES && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
   if (held < S) return 1;                       // an empty starting slot
   const v = (CURVE[pos] || [])[held];
   return v == null ? 0 : v;
+}
+
+/* CORY'S RULING, 2026-08-19: "if value is best at RB and WR each round then we
+ * should take them until there are 4 picks remaining and we still need QB, TE,
+ * DEF, K... then RB and WR need goes to 0... so picks remaining should have a
+ * role." Graded as P162. Its role is RESERVATION: you never let the number of
+ * slots you MUST still fill exceed the chances you have left. Inside that
+ * window the positions you do not need are not low-weighted, they are NOT
+ * OPTIONS -- which is what makes an empty starting slot impossible. */
+function unfilledSlots(held, base) {
+  let n = 0;
+  POS.forEach(q => { n += Math.max(0, (base[q] || 0) - (held[q] || 0)); });
+  const surplus = FLEX_ELIGIBLE.reduce(
+    (a, q) => a + Math.max(0, (held[q] || 0) - (base[q] || 0)), 0);
+  return n + Math.max(0, (STARTERS.FLEX || 0) - surplus);
 }
 
 /* ── VONA on proj_used: what I lose at this position by waiting one pick ───── */
@@ -107,8 +129,16 @@ function runRoom(a) {
     const availLater = laterGone
       ? pool.filter(x => !taken.has(x.id) && !laterGone.has(x.id)) : [];
     const fo = flexOwner();
+    const mustFill = unfilledSlots(held, base);
+    const forcing = RULES && (SCHED.length - i) <= mustFill;
+    const needsSlot = q => {
+      if ((q === 'K' || q === 'DEF') && (held[q] || 0) >= (base[q] || 0)) return false;
+      const S = (base[q] || 0) + (fo === q ? (STARTERS.FLEX || 0) : 0);
+      return (held[q] || 0) < S;
+    };
     let best = null, bestV = -Infinity;
     for (const x of avail) {
+      if (forcing && !needsSlot(x.position)) continue;   // the reservation gate
       const here = projUsed(x, a);
       /* VONA: this man now, against the best I could still get at his position
        * at my NEXT pick. On the last pick there is no next pick, so the whole
@@ -126,7 +156,8 @@ function runRoom(a) {
   const c = {}; got.forEach(q => { c[q] = (c[q] || 0) + 1; });
   const roster = Object.assign({}, c);
   PLAN.keep.forEach(k => { roster[k.position] = (roster[k.position] || 0) + 1; });
-  return { counts: c, roster };
+  const legal = POS.every(q => (roster[q] || 0) >= (base[q] || 0));
+  return { counts: c, roster, legal };
 }
 
 /* ── P186: the adjuster is an identity ────────────────────────────────────── */
@@ -153,8 +184,11 @@ const rstat = {}; POS.forEach(q => {
   const v = rows.map(r => r.roster[q] || 0);
   rstat[q] = { mean: +mean(v).toFixed(2), sd: +sd(v).toFixed(2), min: Math.min(...v), max: Math.max(...v) };
 });
+const illegal = rows.filter(r => !r.legal).length;
 const p188 = rstat.RB.mean >= 4 && rstat.RB.mean <= 6
   && Math.abs(rstat.K.mean - 1) < 0.05 && Math.abs(rstat.DEF.mean - 1) < 0.05;
+const p190 = Math.abs(rstat.DEF.mean - 1) < 0.05 && Math.abs(rstat.K.mean - 1) < 0.05
+  && illegal === 0 && rstat.RB.mean >= 4 && rstat.RB.mean <= 6 && rstat.QB.mean > 1.30;
 const p189 = rstat.QB.mean > 1.30;
 
 const ctl = {
@@ -174,8 +208,10 @@ const out = {
   controls: ctl, controls_all_passed: Object.values(ctl).every(c => c.ok),
   pool_size: pool.length, excluded_inside_adp200: excluded,
   mean_roster: rstat,
+  rules_on: RULES, rooms_with_an_empty_starting_slot: illegal,
   grades: { P186_adjuster_identity: p186, P187_reorders_our_board: p187,
-            P188_keeps_the_shape_we_won: p188, P189_qb_leak_survives: p189 },
+            P188_keeps_the_shape_we_won: p188, P189_qb_leak_survives: p189,
+            P190_with_corys_two_rules: p190 },
   p187_moved_in_top_100: p187moved,
 };
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', `simple_model_a${String(A).replace('.', '')}.json`),
@@ -195,3 +231,5 @@ console.log(`\n  P186  adjuster is exactly what Cory described : ${p186 ? 'TRUE'
 console.log(`  P187  their projections reorder our board    : ${p187 ? 'TRUE' : 'FALSE'}  (${p187moved} of top 100 move)`);
 console.log(`  P188  keeps the roster shape we already won  : ${p188 ? 'TRUE' : 'FALSE'}`);
 console.log(`  P189  the QB leak survives (predicted TRUE)  : ${p189 ? 'TRUE' : 'FALSE'}`);
+console.log(`  P190  + Cory's K/DEF rule and reservation gate: ${p190 ? 'TRUE' : 'FALSE'}  `
+  + `(rules ${RULES ? 'ON' : 'OFF'}, rooms with an empty starting slot: ${illegal})`);
