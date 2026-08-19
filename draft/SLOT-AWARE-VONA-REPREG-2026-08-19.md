@@ -71,6 +71,36 @@ distinct-value count, the position mix of the top 40, and whether QBs win ties.
 3. **The roster shape moves toward legality, not away.** Register 59's symptom is
    RB10/WR1 with an un-fieldable week-11 lineup. s1 must not increase the count
    of un-fieldable weeks.
+
+   > **⚠️ MEASURED 2026-08-19 — AND MY FIRST ANSWER WAS THAT I COULD NOT.**
+   > I marked this NOT MEASURABLE because the seat replay's `optimal` estimand
+   > CONSTRUCTS a legal lineup every week by definition, so it can never report
+   > one. **That was a condition written against an instrument that cannot
+   > answer it — the same error as publishing a null on an instrument that
+   > could not have seen the effect.** `draft/tools/fieldability_probe.js`
+   > measures it directly on the live board, where byes are known, with a
+   > bipartite matcher (greedy strands dedicated slots) and five controls
+   > including two greedy traps.
+   >
+   > **Un-fieldable SKILL weeks — K/DEF excluded, because a one-kicker roster
+   > is un-fieldable in its own kicker's bye by construction and you stream
+   > that:**
+   >
+   > | arm | un-fieldable skill weeks |
+   > |---|---|
+   > | shipped | **3** — wk6 (QB+WR), wk11 (WR), wk13 (TE) |
+   > | **s1 slot-aware** | **0** — the only arm at zero |
+   > | need=1.0 | 1 (wk14 QB) |
+   > | auto | 1 (wk6 QB) |
+   >
+   > **Register 59's week-11 empty WR slot reproduces exactly on the shipped
+   > arm, and there are two more weeks nobody had found.** CONDITION 3 PASSES.
+   >
+   > **What this does NOT establish:** the probe drains the room in strict ADP
+   > order, so its roster counts are the same untrustworthy kind register 67
+   > names — shipped shows RB12/WR2 here against RB4.77 on the seat replay, and
+   > s1 shows QB4/TE3 here against QB2.00/TE1.47 there. **The COMPARISON between
+   > arms on one shared room is what is meaningful; neither absolute count is.**
 4. **No one-start pileup** — s1 must not raise the QB+TE count on the simulated
    roster above s0's.
 

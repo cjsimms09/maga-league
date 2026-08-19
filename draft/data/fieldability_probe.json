@@ -1,0 +1,435 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/fieldability_probe.js",
+ "_note": "REPORT ONLY. Room drained in strict ADP order, which the real room will not be — the engine's own tendency, not a forecast of the 22nd (register 67).",
+ "board_built_at": "2026-08-19T00:54:18Z",
+ "starters": {
+  "DEF": 1,
+  "FLEX": 1,
+  "K": 1,
+  "QB": 1,
+  "RB": 2,
+  "TE": 1,
+  "WR": 2
+ },
+ "bye_weeks_on_this_board": [
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  13,
+  14
+ ],
+ "arms": {
+  "shipped": {
+   "roster_size": 18,
+   "counts": {
+    "WR": 2,
+    "RB": 12,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfieldable_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "QB",
+      "WR"
+     ]
+    },
+    {
+     "week": 7,
+     "unfilled": [
+      "K"
+     ]
+    },
+    {
+     "week": 11,
+     "unfilled": [
+      "DEF",
+      "WR"
+     ]
+    },
+    {
+     "week": 13,
+     "unfilled": [
+      "TE"
+     ]
+    }
+   ],
+   "unfieldable_skill_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "QB",
+      "WR"
+     ]
+    },
+    {
+     "week": 11,
+     "unfilled": [
+      "WR"
+     ]
+    },
+    {
+     "week": 13,
+     "unfilled": [
+      "TE"
+     ]
+    }
+   ],
+   "weeks": {
+    "5": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "6": {
+     "ok": false,
+     "unfilled": [
+      "QB",
+      "WR"
+     ],
+     "bodies": 15,
+     "slots": 9
+    },
+    "7": {
+     "ok": false,
+     "unfilled": [
+      "K"
+     ],
+     "bodies": 14,
+     "slots": 9
+    },
+    "8": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 16,
+     "slots": 9
+    },
+    "9": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    },
+    "10": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "11": {
+     "ok": false,
+     "unfilled": [
+      "DEF",
+      "WR"
+     ],
+     "bodies": 14,
+     "slots": 9
+    },
+    "13": {
+     "ok": false,
+     "unfilled": [
+      "TE"
+     ],
+     "bodies": 15,
+     "slots": 9
+    },
+    "14": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    }
+   }
+  },
+  "slot_aware": {
+   "roster_size": 18,
+   "counts": {
+    "WR": 6,
+    "RB": 3,
+    "TE": 3,
+    "QB": 4,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfieldable_weeks": [
+    {
+     "week": 7,
+     "unfilled": [
+      "K"
+     ]
+    },
+    {
+     "week": 11,
+     "unfilled": [
+      "DEF"
+     ]
+    }
+   ],
+   "unfieldable_skill_weeks": [],
+   "weeks": {
+    "5": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "6": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 16,
+     "slots": 9
+    },
+    "7": {
+     "ok": false,
+     "unfilled": [
+      "K"
+     ],
+     "bodies": 15,
+     "slots": 9
+    },
+    "8": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
+     "slots": 9
+    },
+    "9": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    },
+    "10": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    },
+    "11": {
+     "ok": false,
+     "unfilled": [
+      "DEF"
+     ],
+     "bodies": 14,
+     "slots": 9
+    },
+    "13": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 13,
+     "slots": 9
+    },
+    "14": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    }
+   }
+  },
+  "need1": {
+   "roster_size": 18,
+   "counts": {
+    "WR": 4,
+    "RB": 9,
+    "TE": 2,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfieldable_weeks": [
+    {
+     "week": 7,
+     "unfilled": [
+      "K"
+     ]
+    },
+    {
+     "week": 11,
+     "unfilled": [
+      "DEF"
+     ]
+    },
+    {
+     "week": 14,
+     "unfilled": [
+      "QB"
+     ]
+    }
+   ],
+   "unfieldable_skill_weeks": [
+    {
+     "week": 14,
+     "unfilled": [
+      "QB"
+     ]
+    }
+   ],
+   "weeks": {
+    "5": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "6": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
+     "slots": 9
+    },
+    "7": {
+     "ok": false,
+     "unfilled": [
+      "K"
+     ],
+     "bodies": 15,
+     "slots": 9
+    },
+    "8": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
+     "slots": 9
+    },
+    "9": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    },
+    "10": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "11": {
+     "ok": false,
+     "unfilled": [
+      "DEF"
+     ],
+     "bodies": 15,
+     "slots": 9
+    },
+    "13": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 16,
+     "slots": 9
+    },
+    "14": {
+     "ok": false,
+     "unfilled": [
+      "QB"
+     ],
+     "bodies": 16,
+     "slots": 9
+    }
+   }
+  },
+  "auto": {
+   "roster_size": 18,
+   "counts": {
+    "WR": 4,
+    "RB": 9,
+    "TE": 2,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfieldable_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "DEF",
+      "QB"
+     ]
+    },
+    {
+     "week": 7,
+     "unfilled": [
+      "K"
+     ]
+    }
+   ],
+   "unfieldable_skill_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "QB"
+     ]
+    }
+   ],
+   "weeks": {
+    "5": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "6": {
+     "ok": false,
+     "unfilled": [
+      "DEF",
+      "QB"
+     ],
+     "bodies": 12,
+     "slots": 9
+    },
+    "7": {
+     "ok": false,
+     "unfilled": [
+      "K"
+     ],
+     "bodies": 15,
+     "slots": 9
+    },
+    "8": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    },
+    "9": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 18,
+     "slots": 9
+    },
+    "10": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 16,
+     "slots": 9
+    },
+    "11": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 16,
+     "slots": 9
+    },
+    "13": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 16,
+     "slots": 9
+    },
+    "14": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 17,
+     "slots": 9
+    }
+   }
+  }
+ }
+}
