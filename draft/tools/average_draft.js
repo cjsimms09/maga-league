@@ -40,6 +40,140 @@ const STARTERS = (DATA.league || {}).starters || {};
  * too generous. draft_plan.js is NOT touched -- it feeds seat_plan.json,
  * which the war room reads. */
 const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+
+/* ── P172/P173/P174 — THE FLEX BODY'S REPLACEMENT IS NOT ITS OWN POSITION'S
+ * WIRE.  Prereg: draft/FLEX-REPLACEMENT-PREREG-2026-08-19.md
+ *
+ * Cory: "once 2 starting RBs are taken they're competing for flex and WR will
+ * almost always win that."  He is describing a defect and he is right.
+ *
+ * `margin` was `proj_mean - WAIVER[own position]` for EVERY body. That is
+ * correct for a body filling a DEDICATED slot and wrong for the body filling
+ * the FLEX, because a flex slot does not care which position fills it. With
+ * RB2/WR2/TE1/FLEX1 the THIRD running back does not occupy an RB slot -- he
+ * occupies the flex, so his alternative is the best flex-eligible body, not
+ * RB #48. The old rule credited him a 78.4 replacement he could never claim,
+ * which at rank ~30 made RB3 (75.2) beat WR3 (37.1) by 2.03x.
+ *
+ * No new constant and no fitted weight: which case applies is decided by the
+ * league's own `starters` block and how many of that position are held.
+ *
+ * ⚠️ THE RAW MAX IS TE 130.4, above WR's 124.8, yet real teams flex a tight end
+ * 1.7% of the time -- so the TE wire rank (15) or the TE projections are
+ * suspect. Both choices are run and must agree (rule 3d). */
+/* P176: the MEASURED blend. f(q,n) is the share of the nth body's starts that
+ * are FLEX starts, counted from the same 535 team-weeks
+ * (draft/backtest/flex_exposure.py, P175). It rises with depth -- RB 0.450 at
+ * the 3rd body, 0.544 at the 4th, 0.682 at the 5th -- which is the OPPOSITE
+ * shape from the order-indexed slot label, and it is why the blended
+ * replacement is monotone and cannot be dodged by drafting more backs. */
+const FLEXX = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'flex_exposure.json'), 'utf8'));
+if (!FLEXX.controls_all_passed) throw new Error('flex_exposure failed its controls — REFUSING');
+const FSHARE = FLEXX.f;
+
+const FLEXR_ARM = process.env.FLEXR || 'max';
+const flexWire = () => {
+  if (FLEXR_ARM === 'off') return null;                       // known-positive control
+  if (FLEXR_ARM === 'wr') return WAIVER.WR;                   // empirical flex owner
+  return Math.max(...FLEX_ELIGIBLE.map(q => WAIVER[q] || 0)); // derived max
+};
+const FLEX_R = flexWire();
+
+/* Which slot would the n-th body at this position occupy? Read from the league,
+ * never hardcoded, and returned as a label so the run can print it. */
+function slotOf(q, heldQ, held, base) {
+  if (heldQ < (base[q] || 0)) return 'dedicated';
+  if (!FLEX_ELIGIBLE.includes(q)) return 'bench';
+  const surplus = FLEX_ELIGIBLE.reduce(
+    (a, x) => a + Math.max(0, (held[x] || 0) - (base[x] || 0)), 0);
+  return surplus < (STARTERS.FLEX || 0) ? 'flex' : 'bench';
+}
+
+function replacementFor(q, heldQ, held, base) {
+  const own = WAIVER[q] || 0;
+  /* P176 — the measured blend. No slot label at all: the nth body carries the
+   * flex exposure the league's own lineups gave him. Falls back to the own
+   * wire where f is unmeasured (too few starts to count). */
+  if (FLEXR_ARM === 'blend') {
+    const flexR = Math.max(...FLEX_ELIGIBLE.map(x => WAIVER[x] || 0));
+    const f = ((FSHARE || {})[q] || [])[heldQ];   // heldQ held -> he is body heldQ+1
+    if (f == null) return own;
+    return f * flexR + (1 - f) * own;
+  }
+  const slot = slotOf(q, heldQ, held, base);
+  if (slot === 'flex' && FLEX_R != null) return FLEX_R;
+  return own;
+}
+/* ── P179/P180 — THE QUANTILE RAMP. Prereg: draft/QUANTILE-RAMP-PREREG-2026-08-19.md
+ *
+ * Cory: "the 0.45 ceiling seems dumb... I am wanting ceiling later in draft,
+ * wnat it to ramp up. no reason to take ceiling by a random value?"
+ *
+ * A body who starts s of the weeks does not start in s average weeks -- he
+ * starts in his BEST s of weeks, because that is what a lineup decision is. So
+ * the statistic that belongs in his valuation is the conditional mean of his
+ * top s fraction, approximated by its median: the (1 - s/2) quantile.
+ *
+ *   s = 1.00  ->  quantile 0.500  ->  exactly his mean      (a every-week starter)
+ *   s = 0.175 ->  quantile 0.913  ->  mean + 1.36 sigma     (a backup QB)
+ *
+ * THE RAMP SIZE IS THE START RATE. Nothing is chosen, and 0.45 appears nowhere.
+ *
+ * The SAME transform is applied to the replacement, using the dispersion of
+ * players at the wire rank -- because the wire body only plays in those weeks
+ * too. That makes the ramp a pure DISPERSION DIFFERENTIAL: a body gains only if
+ * his own range is wider than the wire's. A veteran backup QB behind a deep
+ * wire gains nothing; a wide-range young receiver gains a lot. P180 tests that
+ * this is really the mechanism. */
+const RAMPQ = process.env.RAMPQ === 'on';
+const Z128 = 1.2815515655446004;          // the z the board's bands were built with
+
+/* inverse normal CDF, Acklam's rational approximation (|err| < 1.15e-9) */
+function zOf(p) {
+  if (p <= 0 || p >= 1) return 0;
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
+             1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
+             6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00,
+             -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00,
+             3.754408661907416e+00];
+  const pl = 0.02425;
+  let q, r;
+  if (p < pl) {
+    q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])
+         / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  if (p > 1 - pl) {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])
+          / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  q = p - 0.5; r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q
+       / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+
+/* sigma implied by the board's own band construction (register 103: the field
+ * is labelled cross-source-p90 and the computation is mean + 1.28 sd). Using
+ * the same z it was built with rather than inventing a second one. */
+const sigmaOf = p => (p.proj_ceiling != null && p.proj_mean != null)
+  ? Math.max(0, (+p.proj_ceiling - +p.proj_mean) / Z128) : 0;
+
+/* dispersion at each position's WIRE rank -- the alternative body's range */
+const WIRE_RANK = { QB: 17, RB: 48, WR: 53, TE: 15, K: 11, DEF: 11 };
+const SIGMA_WIRE = {};
+POS.forEach(q => {
+  const v = DATA.players.filter(p => p.position === q && p.proj_mean != null)
+    .sort((a, b) => +b.proj_mean - +a.proj_mean);
+  const r = WIRE_RANK[q] || 1;
+  const win = v.slice(Math.max(0, r - 4), r + 3).map(sigmaOf).sort((a, b) => a - b);
+  SIGMA_WIRE[q] = win.length ? win[win.length >> 1] : 0;
+});
+
 const SCHED = PLAN.SCHED;
 const ROOMS = (() => { const i = process.argv.indexOf('--rooms'); return i >= 0 ? +process.argv[i + 1] : 300; })();
 
@@ -59,6 +193,13 @@ const gauss = () => { const u = Math.max(1e-12, rnd()), v = rnd();
  * NOT change with the calendar and is never ramped. This is what makes RB/WR
  * retain value, QB/TE tank, and K/DEF go to ~0 after one. */
 function depthOf(pos, held, flexOwner) {
+  /* P177 — CORY'S OWN K/DEF RULING, 2026-08-19: "same problem with K and def,
+   * once you draft 1 the need should be 0." Preregistered and graded as P149
+   * before this thread existed, where it fixed both cells and cost 0.4% of
+   * value. Not a knob and not selected from these results: without it a second
+   * kicker still prices positive against a 128.6 wire, which is where the blend
+   * arm's freed picks leaked. */
+  if (process.env.KDEF === 'on' && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
   if (held < S) return null;              // not a depth question — the slot is EMPTY
@@ -71,6 +212,17 @@ function depthOf(pos, held, flexOwner) {
 /* P161: ramp URGENCY only. An empty slot is not urgent early and is everything
  * late; depth is a measured rate and is never ramped. Ramping them together is
  * why every previous arm broke something. */
+/* P179: the PURE per-week start rate, with no streamability discount and no
+ * urgency substitution -- the quantile transform needs "how often does he play",
+ * which is a different question from "how much is that worth". */
+function startRateOf(pos, held, flexOwner) {
+  const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
+  if (S <= 0) return 0;
+  if (held < S) return 1;                 // slot still empty -- he starts every week
+  const v = (CURVE[pos] || [])[held];
+  return v == null ? 0 : v;
+}
+
 function weightOf(pos, held, flexOwner, lam) {
   const d = depthOf(pos, held, flexOwner);
   return (d === null) ? lam : d;
@@ -95,7 +247,7 @@ function runRoom() {
     FLEX_ELIGIBLE.forEach(q => { const s = (held[q] || 0) - (base[q] || 0); if (s > bs) { bs = s; best = q; } });
     return best;
   };
-  const taken = new Set(), got = [];
+  const taken = new Set(), got = [], slots = [];
   /* ⛔ THE FIRST VERSION OF THIS CONTROL COUNTED gone.size, WHICH IS ALWAYS 32 BY
    * CONSTRUCTION -- picks 1..32 are always 32 players however the room is
    * jittered. It measured nothing and failed the run, correctly, for the wrong
@@ -133,19 +285,54 @@ function runRoom() {
        * calendar. P158's linear blend and P159's exponent both ramped depth too,
        * which is why each broke something. */
       const w = weightOf(p.position, held[p.position] || 0, fo, 1);
-      const margin = Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
+      /* P172: the replacement depends on the SLOT this body would fill, not on
+       * his position alone. FLEXR=off restores the old rule exactly. */
+      const R = replacementFor(p.position, held[p.position] || 0, held, base);
+      /* P179: price BOTH sides at the quantile his start rate implies. `w` is
+       * the measured per-week start rate for this body, so the quantile is
+       * 1 - w/2 -- the median of the weeks he actually plays. */
+      let C = +p.proj_mean, Reff = R;
+      if (RAMPQ) {
+        /* ⛔ THE FIRST VERSION USED `w`, WHICH IS NOT ALWAYS A START RATE.
+         * `weightOf` returns the URGENCY ramp lambda when the slot is still
+         * empty, so an early every-week starter arrived here with a tiny w,
+         * got priced at a ~99th percentile, and the arm drafted 2.62
+         * quarterbacks -- the opposite of the prediction. Caught by control C5
+         * (the deterministic run fell outside the simulated range), which
+         * refused to report the numbers. The quantile needs the START RATE:
+         * a body whose slot is still empty starts every week, s = 1, and is
+         * priced at his mean. */
+        const sr = startRateOf(p.position, held[p.position] || 0, fo);
+        const s = Math.min(1, Math.max(0.01, sr));
+        const z = zOf(1 - s / 2);
+        C = +p.proj_mean + z * sigmaOf(p);
+        Reff = R + z * (SIGMA_WIRE[p.position] || 0);
+      }
+      const margin = Math.max(0, C - Reff);
       const v = margin * w;
       if (v > bestV) { bestV = v; best = p; }
     });
     if (!best) return;
+    /* CONTROL 2: record which slot the body actually TAKEN was priced into, so
+     * the classification can be audited rather than trusted. Must be read
+     * BEFORE held is incremented. */
+    slots.push(`${best.position}:${slotOf(best.position, held[best.position] || 0, held, base)}`);
     taken.add(String(best.player_id));
     held[best.position] = (held[best.position] || 0) + 1;
     got.push(best.position);
   });
+  /* ⛔ THE COUNTS WERE DRAFTED-ONLY AND WERE BEING COMPARED TO A ROSTER SPEC.
+   * Cory keeps Chase (WR), Henry (RB) and Walker (RB), so a "RB 3.94" headline
+   * is a SIX-BACK roster -- which is, word for word, the thing he rejected
+   * ("i dont want 6 rb 5wr"). He diagnosed the model's roster from the outside
+   * while this tool reported a number 2 RB and 1 WR light. Both are emitted now
+   * and the ROSTER one is the one his requirements are about. */
   const c = {};
   got.forEach(q => { c[q] = (c[q] || 0) + 1; });
+  const roster = Object.assign({}, c);
+  PLAN.keep.forEach(k => { roster[k.position] = (roster[k.position] || 0) + 1; });
   const legal = ['QB','RB','WR','TE','K','DEF'].every(q => (held[q]||0) >= (base[q]||0));
-  return { counts: c, top32, legal };
+  return { counts: c, roster, top32, legal, slots };
 }
 
 const rows = [];
@@ -153,11 +340,14 @@ for (let r = 0; r < ROOMS; r++) rows.push(runRoom());
 
 const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
 const sd = a => { const m = mean(a); return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
-const stat = {};
+const stat = {}, rstat = {};
 POS.forEach(q => {
   const v = rows.map(r => r.counts[q] || 0);
   stat[q] = { mean: +mean(v).toFixed(2), sd: +sd(v).toFixed(2),
               min: Math.min(...v), max: Math.max(...v) };
+  const w = rows.map(r => r.roster[q] || 0);
+  rstat[q] = { mean: +mean(w).toFixed(2), sd: +sd(w).toFixed(2),
+               min: Math.min(...w), max: Math.max(...w) };
 });
 
 /* ── controls ─────────────────────────────────────────────────────────────── */
@@ -198,32 +388,41 @@ console.log('THE AVERAGE DRAFT — ' + ROOMS + ' simulated rooms   (P158)\n');
 Object.entries(ctl).forEach(([k, c]) => console.log('  ' + (c.ok ? 'OK ' : '!! ') + k));
 if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a measurement.\n');
 console.log('\n  rooms differ: ' + JSON.stringify(ctl.C1_rooms_actually_differ.players_gone_by_pick_33));
-console.log('\n  %s', 'MEAN DRAFTED ROSTER across ' + ROOMS + ' rooms (Cory drafts 12)');
-console.log('  ' + 'pos'.padEnd(6) + 'mean'.padStart(7) + 'sd'.padStart(7) + 'min'.padStart(6) + 'max'.padStart(6) + '   Cory said');
+/* ⛔ P158 WAS GRADED ON THE DRAFTED COUNT AND CORY'S BAND IS A ROSTER BAND.
+ * He keeps Chase, Henry and Walker, so "RB 3.94 drafted" IS a SIX-back roster
+ * -- literally the thing he rejected ("i dont want 6 rb 5wr"). The gate below
+ * now reads the ROSTER, and both tables are printed so the gap can never hide
+ * again. */
+console.log('\n  %s', 'MEAN ROSTER across ' + ROOMS + ' rooms (12 picks + keepers '
+  + PLAN.keep.map(k => k.position).join('/') + ')');
+console.log('  ' + 'pos'.padEnd(6) + 'drafted'.padStart(9) + 'ROSTER'.padStart(9)
+  + 'sd'.padStart(7) + 'min'.padStart(6) + 'max'.padStart(6) + '   Cory said');
 const SAID = { QB: '1', RB: '4-5', WR: '4-5', TE: '(not stated)', K: '1', DEF: '1' };
-POS.forEach(q => console.log('  ' + q.padEnd(6) + String(stat[q].mean).padStart(7)
-  + String(stat[q].sd).padStart(7) + String(stat[q].min).padStart(6)
-  + String(stat[q].max).padStart(6) + '   ' + SAID[q]));
+POS.forEach(q => console.log('  ' + q.padEnd(6) + String(stat[q].mean).padStart(9)
+  + String(rstat[q].mean).padStart(9)
+  + String(rstat[q].sd).padStart(7) + String(rstat[q].min).padStart(6)
+  + String(rstat[q].max).padStart(6) + '   ' + SAID[q]));
 
 const p158 = {
-  QB: Math.abs(stat.QB.mean - 1) <= 0.5,
-  RB: stat.RB.mean >= 4 && stat.RB.mean <= 5,
-  WR: stat.WR.mean >= 4 && stat.WR.mean <= 5,
-  K: Math.abs(stat.K.mean - 1) <= 0.3,
-  DEF: Math.abs(stat.DEF.mean - 1) <= 0.3,
+  QB: Math.abs(rstat.QB.mean - 1) <= 0.5,
+  RB: rstat.RB.mean >= 4 && rstat.RB.mean <= 5,
+  WR: rstat.WR.mean >= 4 && rstat.WR.mean <= 5,
+  K: Math.abs(rstat.K.mean - 1) <= 0.3,
+  DEF: Math.abs(rstat.DEF.mean - 1) <= 0.3,
 };
 p158.TRUE = Object.values(p158).every(Boolean);
 console.log('\n  P158: ' + (p158.TRUE ? 'TRUE' : 'FALSE'));
 Object.entries(p158).filter(([k]) => k !== 'TRUE')
   .forEach(([k, v]) => console.log('     ' + (v ? 'ok  ' : 'MISS') + ' ' + k
-    + '  mean ' + stat[k].mean));
-console.log('     TE mean ' + stat.TE.mean + ' — Cory did not state a TE band; reported for his ruling.');
+    + '  roster mean ' + rstat[k].mean));
+console.log('     TE roster mean ' + rstat.TE.mean + ' — Cory did not state a TE band; reported for his ruling.');
 
 const rep = { _territory: 'TERRITORY: A — draft/tools/average_draft.js',
   _prereg: 'draft/AVERAGE-DRAFT-PREREG-2026-08-19.md',
   _note: 'REPORT ONLY. The average over simulated rooms, not one draft.',
   rooms: ROOMS, board_built_at: DATA.built_at, controls: ctl, controls_all_passed: allOk,
-  mean_roster: stat, P158: p158 };
+  mean_drafted: stat, mean_roster: rstat, keepers: PLAN.keep.map(k => k.position),
+  P158: p158 };
 const i = process.argv.indexOf('--json');
 if (i >= 0) { fs.writeFileSync(process.argv[i + 1], JSON.stringify(rep, null, 1));
   console.log('\n  wrote ' + process.argv[i + 1]); }

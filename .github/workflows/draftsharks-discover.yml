@@ -23,16 +23,51 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
+      # ⚠️ continue-on-error IS THE POINT OF THIS STEP, NOT A SOFTENING OF IT.
+      # The module exits 1 on any non-200, and a 403 is the MOST LIKELY and most
+      # informative outcome here -- Draft Sharks already blocks at CONNECT from
+      # two other vantage points, so "does Actions reach it either" is the whole
+      # question. Without this, that exact answer fails the step, skips both the
+      # cat and the commit, and the discovery artifact never lands in the repo:
+      # the probe would throw away its own negative result, which is the one
+      # result it was built to get. The run still shows red, so the signal is
+      # not lost -- only the discarding is. (A, gatekeeper review, 2026-08-19.)
       - name: Probe the page
+        id: probe
+        continue-on-error: true
         run: python3 draft/tools/draftsharks_discover.py
       - name: Show what came back
-        run: cat draft/data/draftsharks_discovery.json
+        if: always()
+        run: cat draft/data/draftsharks_discovery.json || echo "no artifact written — the probe died before writing"
+      # SECOND PROBE (A, 2026-08-19). The first answered "is it reachable" --
+      # 200 from Actions, 418KB, 2 tables, no embedded JSON. It could not answer
+      # the one that decides Cory's ask, because it only stored a 2000-char
+      # snippet: does the page carry per-player FLOOR and CEILING, and are the
+      # rows real data or a teaser? Its parser ships with a known-positive
+      # control that passed locally, where the site is blocked at CONNECT.
+      - name: Read the table shape
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_shape.py
+      - name: Show the shape
+        if: always()
+        run: cat draft/data/draftsharks_shape.json || echo "no shape artifact written"
+      # THE STORE (Cory's ruling 2026-08-19: "we want to use their ceiling not
+      # ours" -- register 119). Store only: it does NOT touch draft_data.json
+      # and does not join the crosswalk. Its column map is by SUBSTRING with a
+      # known-positive AND a known-negative control that both passed locally.
+      - name: Extract the projections store
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_projections.py
+      - name: Locate the real payload
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_payload.py
       - name: Commit the discovery artifact
+        if: always()
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/data/draftsharks_discovery.json
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
             for i in 1 2 3 4; do
@@ -47,5 +82,9 @@ jobs:
         if: always()
         with:
           name: draftsharks-discovery
-          path: draft/data/draftsharks_discovery.json
+          path: |
+            draft/data/draftsharks_discovery.json
+            draft/data/draftsharks_shape.json
+            draft/data/draftsharks_projections.json
+            draft/data/draftsharks_payload.json
           if-no-files-found: warn

@@ -1,0 +1,146 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/tools/draftsharks_payload.py",
+ "_what": "locate the real data payload. REPORT ONLY.",
+ "url": "https://www.draftsharks.com/rankings/half-ppr",
+ "status": 200,
+ "bytes": 418011,
+ "control_anchors_found": {
+  "ok": true,
+  "hits": 12,
+  "why": "these values were parsed OUT of this same document by the previous capture, so they must be findable. A null here means the probe is broken, not that the data is absent -- which is the distinction rule 3e exists for."
+ },
+ "candidate_payloads": [
+  {
+   "label": "window assignment",
+   "bytes": 93056,
+   "offset": 27989,
+   "head": "{\n        keyConstants: {\"KEY_05PPR\":\"05ppr\",\"KEY_15PPR\":\"15ppr\",\"KEY_1PPR\":\"1ppr\",\"KEY_3D_PROJECTIONS\":\"3dProjections\",\"KEY_3D_PROJECTIONS_ROS\":\"3dProjectionsRos\",\"KEY_3D_ROS\":\"3dRos\",\"KEY_3D_TRADE_V",
+   "head_full": "{\n        keyConstants: {\"KEY_05PPR\":\"05ppr\",\"KEY_15PPR\":\"15ppr\",\"KEY_1PPR\":\"1ppr\",\"KEY_3D_PROJECTIONS\":\"3dProjections\",\"KEY_3D_PROJECTIONS_ROS\":\"3dProjectionsRos\",\"KEY_3D_ROS\":\"3dRos\",\"KEY_3D_TRADE_VALUES\":\"3dTradeValues\",\"KEY_3D_VALUE\":\"3dValue\",\"KEY_3D_VALUE_PLUS\":\"3dValuePlus\",\"KEY_3D_ROS_PROJ_PLUS\":\"3dRosProj\",\"KEY_ADD\":\"add\",\"KEY_ADP\":\"adp\",\"KEY_ADP_MARKET_INDEX\":\"adpMarketIndex\",\"KEY_AGILITY_SCORE\":\"agilityScore\",\"KEY_AIR_YDS_ATTEMPT\":\"airYdsAttempt\",\"KEY_AUCTION_TOOLS\":\"auctionTools\",\"KEY_AUCTION_MARKET_DOLLARS\":\"auctionMarketDollars\",\"KEY_AUCTION_MARKET_VALUE\":\"auctionMarketValue\",\"KEY_AUCTION_WAR_ROOM\":\"auctionWarRoom\",\"KEY_AVG_TRG_DIST\":\"avgTrgDist\",\"KEY_BEST_BALL_WAR_ROOM\":\"bestBallWarRoom\",\"KEY_BYE_WEEK\":\"byeWeek\",\"KEY_BURST_SCORE\":\"burstScore\",\"KEY_CATCH_RADIUS\":\"catchRadius\",\"KEY_CEILING\":\"ceiling\",\"KEY_CONSENSUS\":\"consensus\",\"KEY_CONSENSUS_PROJ\":\"consensusproj\",\"KEY_CUSTOM\":\"custom\",\"KEY_DEFENSE_SPECIALTEAMS\":\"defenseSpecialteams\",\"KEY_DEFENSE_SPECIALTEAMS_ADJUSTED\":\"defenseSpeicalteamsadjuste\",\"KEY_DEF_SNAPS_PLAYED\":\"defSnapsPlayed\",\"KEY_DFS_LINEUP_OPTIMIZER\":\"dfsLineupoptimizer\",\"KEY_DMVP\":\"dmvp\",\"KEY_DOMINATOR_RATING\":\"dominatorRating\",\"KEY_DRAFT_SHARKS_APP\":\"draftSharksApp\",\"KEY_DRAFT_WAR_ROOM\":\"draftWarRoom\",\"KEY_DROP\":\"drop\",\"KEY_DROPBACKS\":\"dropbacks\",\"KEY_DS_ANALYSIS\":\"dsAnalysis\",\"KEY_DS_AUCTION_VALUE\":\"dsAuctionValue\",\"KEY_DS_PROJECTION\":\"proj\",\"KEY_DS_PROJECTION_ALT\":\"dsprojection\",\"KEY_DS_PROJECTION_MULTI_YEAR\":\"dsProjectionMultiYear\",\"KEY_DURABILITY\":\"durability\",\"KEY_DYNASTY_TRADE_CALCULATOR\":\"dynastyTradeCalculator\",\"KEY_DYNASTY_WAR_ROOM\":\"dynastyWarRoom\",\"KEY_DYNASTY_TOOLS\":\"dynastyTools\",\"KEY_DYNASTY_VALUE\":\"dynastyValue\",\"KEY_EFFECTIVE_AGE\":\"effectiveAge\",\"KEY_FLOOR\":\"floor\",\"KEY_HEIGHT_ADJUSTED_SPEED_SCORE\":\"heightAdjustedSpeedScore\",\"KEY_HIGH_CEILING_ADD\":\"highCeilingAdd\",\"KEY_INJURY_RISK\":\"injuryrisk\",\"KEY_INSIDER_ONLY_ARTICLES\":\"insiderOnlyArticles\",\"KEY_K_ADJUSTED\":\"kadjusted\",\"KEY_K_AVG_POINTS\":\"kavgpoints\",\"KEY_KEEPER_TOOLS\":\"keeperTools\",\"KEY_KEEPER_SCORE\":\"keeperScore\",\"KEY_KEEPER_WAR_ROOM\":\"keeperWarRoom\",\"KEY_KEEPER_VALUE\":\"keeperValue\",\"KEY_LEAGUE_SYNCED_FREE_AGENT_FINDER\":\"leagueSyncedFreeAgentFinder\",\"KEY_LOCK\":\"lock\",\"KEY_MOCK_DRAFT_TRAINER\":\"mockDraftTrainer\",\"KEY_NEXT_WEEK_STREAMER\":\"nextWeekStreamer\",\"KEY_NEXT_PICK_ODDS\":\"nextPickOdds\",\"KEY_NON_PPR\":\"nonPpr\",\"KEY_NON_PPR_SCORING\":\"nonPprScoring\",\"KEY_OPPORTUNITY_SHARE\":\"opportunityShare\",\"KEY_PERSONALIZED_ADVICE\":\"personalizedAdvice\",\"KEY_PLAYER_AGE\":\"playerAge\",\"KEY_PLAYER_OVERALL_RANK\":\"playerOverallRank\",\"KEY_PLAYER_RANKINGS_FOR_ALL_FORMATS\":\"playerRankingsForAllFormats\",\"KEY_PPG_PLAYED\":\"ppgplayed\",\"KEY_INJURIES_PER_SEASON\":\"injuriesPerSeason\",\"KEY_PROBABILITY_OF_INJURY_PER_SEASON\":\"probabilityOfInjuryPerSeason\",\"KEY_PROBABILITY_OF_INJURY_IN_SEASON\":\"probabilityOfInjuryInTheSeason\",\"KEY_PROBABILITY_OF_INJURY_PER_GAME\":\"probabilityofinjurypergame\",\"KEY_PROJ\":\"proj\",\"KEY_PROJECTED_GAMES_MISSED\":\"projectedgamesmissed\",\"KEY_PROJ_GAMES\":\"projgames\",\"KEY_QB_ADJUSTED\":\"qbadjusted\",\"KEY_QB_AVG_POINTS\":\"qbavgpts\",\"KEY_RB_ADJUSTED\":\"rbadjused\",\"KEY_RB_AVG_POINTS\":\"rbavgspts\",\"KEY_RE_DRAFT_TRADE_NAVIGATOR\":\"redraftTradeNavigator\",\"KEY_REST_OF_SEASON\":\"restOfSeason\",\"KEY_ROS_IMPACT\":\"rosImpact\",\"KEY_RUN_STUFFS\":\"runStuffs\",\"KEY_RZ_OPPORTUNITIES\":\"rzOpportunities\",\"KEY_RZ_SNAP_SHARE\":\"rzSnapShare\",\"KEY_SACKS_DEF_PLAYER\":\"sacksDefPlayer\",\"KEY_SCIENTIFIC_INJURY_PREDICTOR\":\"scientificInjuryPredictor\",\"KEY_SNAP_SHARE\":\"snapShare\",\"KEY_SOS\":\"sos\",\"KEY_SOLO_TACKLES_DEF_PLAYER\":\"soloTacklesDefPlayer\",\"KEY_SPARQX\":\"sparqx\",\"KEY_SPEED_SCORE\":\"speedScore\",\"KEY_STARTER\":\"starter\",\"KEY_STARTERS_ONLY\":\"startersOnly\",\"KEY_TARGETS_ALLOWED\":\"targetsAllowed\",\"KEY_TARGET_SHARE\":\"targetShare\",\"KEY_TE_ADJUSTED\":\"teadjusted\",\"KEY_TEAM_DEF_SNAPS\":\"teamDefSnaps\",\"KEY_TEAM_INTEL\":\"teamIntel\",\"KEY_TE_AVG_POINTS\":\"teavgpoints\",\"KEY_THREE_CONE_DRILL\":\"threeConeDrill\",\"KEY_THIS_WEEK_BOOST\":\"thisWeekBoost\",\"KEY_THROW_VELOCITY\":\"throwVelocity\",\"KEY_TOTAL_QBR\":\"totalQbr\",\"KEY_UNLIMITED_LIVE_DRAFT_SYNC\":\"unlimitedLiveDraftSync\",\"KEY_WHO_SHOULD_I_KEEP_TOOL\":\"whoShouldIKeepTool\",\"KEY_WHO_SHOULD_I_START_TOOL\":\"whoShouldIStartTool\",\"KEY_WIN_NOW\":\"winNow\",\"KEY_UPSIDE_MODE\":\"upsideMode\",\"KEY_WR_ADJUSTED\":\"wradjusted\",\"KEY_WR_AVG_POINTS\":\"wravgpts\",\"KEY_YDS_PASS_ROUTE\":\"ydsPassRoute\",\"KEY_EXPORT_AUC_VALUES\":\"exportAucVals\",\"KEY_PPR_POINTS\":\"pprPoints\",\"KEY_05PPR_SCORING\":\"05pprScoring\",\"KEY_15PPR_SCORING\":\"15pprScoring\",\"KEY_1YR_PROJ\":\"1yrProj\",\"KEY_3YR_PROJ\":\"3yrProj\",\"KEY_5YR_PROJ\":\"5yrProj\",\"KEY_10YR_PROJ\":\"10yrProj\",\"KEY_ACTUAL_TRADE_TAX\":\"actualTradeTax\",\"KEY_ADJUSTED_3D_VALUE\":\"adjusted3dValue\",\"KEY_ADJUSTED_3D_VALUE_PLUS\":\"adjusted3dValuePlus\",\"KEY_CEILING_LIKELIHOOD\":\"ceilingLikelihood\",\"KEY_CEILING_PTS\":\"ceilingPts\",\"KEY_DRAFT_CAPITAL\":\"draftCapital\",\"KEY_DROPS\":\"drops\",\"KEY_FANTASY_PTS\":\"fantasyPts\",\"KEY_FLOOR_PTS\":\"floorPts\",\"KEY_GRADE\":\"grade\",\"KEY_LINEUPS\":\"lineups\",\"KEY_LOOKING_AHEAD_10_YEAR\":\"lookingAhead10Year\",\"KEY_LOOKING_AHEAD_AGE_CHANGE\":\"lookingAheadAgeChange\",\"KEY_LOOKING_AHEAD_FIVE_YEAR\":\"lookingAheadFiveYear\",\"KEY_LOOKING_AHEAD_THREE_YEAR\":\"lookingAheadThreeYear\",\"KEY_LOOKING_AHEAD_TEN_YEAR\":\"lookingAhead10Year\",\"KEY_MAX_AUCTION_BID\":\"maxAuctionBid\",\"KEY_MINE\":\"mine\",\"KEY_MINOR\":\"minor\",\"KEY_OVERALL_IMPACT\":\"overallImpact\",\"KEY_OVERALL_RANK\":\"overallRank\",\"KEY_PROJECTED_OWNERSHIP\":\"projectedOwership\",\"KEY_REMAINING_SOS\":\"remainingSos\",\"KEY_REST_OF_SEASON_PROJECTED_POINTS_CONSENSUS\":\"restOfSeasonProjectedPointsConsensus\",\"KEY_THREE_YEAR\":\"threeYear\",\"KEY_TRADE_LIKELIHOOD\":\"tradeLikelihood\",\"KEY_TRADE_VALUE\":\"tradeValue\",\"KEY_WK_X_1_VS_Y\":\"wkX1VsY\",\"KEY_WK_X_VS_Y\":\"wkXVsY\",\"KEY_YTD_VS_POS_SOS\":\"ytdVsPosSos\",\"KEY_ONE_PPR_SCORING\":\"1pprScoring\",\"KEY_DESIRED_EXPOSURE\":\"desiredExposure\",\"KEY_FORMAT_ADP\":\"formatAdp\",\"KEY_MARKET_INDEX\":\"marketIndex\",\"KEY_POINT\":\"point\",\"KEY_POSITION_RANK_CHANGES_POS\":\"positionRankChangesPos\",\"KEY_POS_RANK\":\"posRank\",\"KEY_REASONABLE_TRADE_TAX\":\"reasonableTradeTax\",\"KEY_TRADE_3D_VALUE\":"
+  }
+ ],
+ "api_like_urls": [],
+ "anchor_contexts": [
+  {
+   "anchor": "Chase",
+   "offset": 126324,
+   "context": "rks.com/fantasy/points-outlook/puka-nacua/13680\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Los Angeles Rams\"},\"description\":\"Puka Nacua (WR1) is ranked #3 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":4,\"item\":{\"@type\":\"Person\",\"name\":\"Ja'Marr Chase\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/jamarr-chase/10771\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Cincinnati Bengals\"},\"description\":\"Ja'Marr Chase (WR2) is ranked #4 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":5,\"item"
+  },
+  {
+   "anchor": "Chase",
+   "offset": 126524,
+   "context": "026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":4,\"item\":{\"@type\":\"Person\",\"name\":\"Ja'Marr Chase\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/jamarr-chase/10771\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Cincinnati Bengals\"},\"description\":\"Ja'Marr Chase (WR2) is ranked #4 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":5,\"item\":{\"@type\":\"Person\",\"name\":\"Christian McCaffrey\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/christian-mccaffrey/7750\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name"
+  },
+  {
+   "anchor": "Chase",
+   "offset": 133177,
+   "context": "fantasy/points-outlook/omarion-hampton/35318\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Los Angeles Chargers\"},\"description\":\"Omarion Hampton (RB11) is ranked #23 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":24,\"item\":{\"@type\":\"Person\",\"name\":\"Chase Brown\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/chase-brown/13586\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Cincinnati Bengals\"},\"description\":\"Chase Brown (RB12) is ranked #24 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":25,"
+  },
+  {
+   "anchor": "Gibbs",
+   "offset": 125318,
+   "context": "s Half-PPR Rankings for 2026. These rankings are generated using our award winning 3D projection system and latest player news.\",\"numberOfItems\":25,\"itemListOrder\":\"https://schema.org/ItemListOrderAscending\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"item\":{\"@type\":\"Person\",\"name\":\"Jahmyr Gibbs\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/jahmyr-gibbs/13542\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Detroit Lions\"},\"description\":\"Jahmyr Gibbs (RB1) is ranked #1 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":2,\"item\":{\"@ty"
+  },
+  {
+   "anchor": "Gibbs",
+   "offset": 125511,
+   "context": "rderAscending\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"item\":{\"@type\":\"Person\",\"name\":\"Jahmyr Gibbs\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/jahmyr-gibbs/13542\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Detroit Lions\"},\"description\":\"Jahmyr Gibbs (RB1) is ranked #1 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":2,\"item\":{\"@type\":\"Person\",\"name\":\"Bijan Robinson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/bijan-robinson/13541\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Atlant"
+  },
+  {
+   "anchor": "Gibbs",
+   "offset": 219181,
+   "context": "   <span class=\"sticky-left\">Tier 1</span>\n                    </div>\n                </td>\n            </tr>\n        </tbody>\n    \n    \n<tbody\n    data-player-row\n    data-key=\"13542\"\n    data-tier-overall=\"1\"\n    data-tier-positional=\"1\"\n    data-fantasy-position=\"RB\"\n    data-player-name=\"Jahmyr Gibbs\"\n    data-team-id=\"11\"\n    data-is-rookie=\"false\"\n    data-percent-low=\"19\"\n    data-percent-high=\"15\"\n    class=\"\"\n    x-show=\"isVisibleRow($el)\">\n\n    <tr class=\"player-row\">\n        <td class=\"ds-cell ds-cell--lg rank centered\">\n            <div class=\"column-title rank-index\">\n                <"
+  },
+  {
+   "anchor": "Jefferson",
+   "offset": 128735,
+   "context": "sharks.com/fantasy/points-outlook/james-cook/12585\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Buffalo Bills\"},\"description\":\"James Cook (RB5) is ranked #10 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":11,\"item\":{\"@type\":\"Person\",\"name\":\"Justin Jefferson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/justin-jefferson/10586\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Minnesota Vikings\"},\"description\":\"Justin Jefferson (WR6) is ranked #11 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":"
+  },
+  {
+   "anchor": "Jefferson",
+   "offset": 128941,
+   "context": "lf-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":11,\"item\":{\"@type\":\"Person\",\"name\":\"Justin Jefferson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/justin-jefferson/10586\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Minnesota Vikings\"},\"description\":\"Justin Jefferson (WR6) is ranked #11 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":12,\"item\":{\"@type\":\"Person\",\"name\":\"Ashton Jeanty\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/ashton-jeanty/35317\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Las Ve"
+  },
+  {
+   "anchor": "Jefferson",
+   "offset": 266789,
+   "context": "ue=\"75\" data-attribute=\"dsValue\"><span class=\"column-title ds-cell__fill\">75</span></td>\n    </tr>\n    </tbody>\n\n        \n    \n    \n    \n<tbody\n    data-player-row\n    data-key=\"10586\"\n    data-tier-overall=\"2\"\n    data-tier-positional=\"2\"\n    data-fantasy-position=\"WR\"\n    data-player-name=\"Justin Jefferson\"\n    data-team-id=\"18\"\n    data-is-rookie=\"false\"\n    data-percent-low=\"15\"\n    data-percent-high=\"30\"\n    class=\"\"\n    x-show=\"isVisibleRow($el)\">\n\n    <tr class=\"player-row\">\n        <td class=\"ds-cell ds-cell--lg rank centered\">\n            <div class=\"column-title rank-index\">\n                <"
+  },
+  {
+   "anchor": "Robinson",
+   "offset": 125650,
+   "context": "harks.com/fantasy/points-outlook/jahmyr-gibbs/13542\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Detroit Lions\"},\"description\":\"Jahmyr Gibbs (RB1) is ranked #1 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":2,\"item\":{\"@type\":\"Person\",\"name\":\"Bijan Robinson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/bijan-robinson/13541\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Atlanta Falcons\"},\"description\":\"Bijan Robinson (RB2) is ranked #2 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":3,\"item\""
+  },
+  {
+   "anchor": "Robinson",
+   "offset": 125849,
+   "context": "r 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":2,\"item\":{\"@type\":\"Person\",\"name\":\"Bijan Robinson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/bijan-robinson/13541\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Atlanta Falcons\"},\"description\":\"Bijan Robinson (RB2) is ranked #2 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":3,\"item\":{\"@type\":\"Person\",\"name\":\"Puka Nacua\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/puka-nacua/13680\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Los Angeles R"
+  },
+  {
+   "anchor": "Robinson",
+   "offset": 223668,
+   "context": "e=\"100\" data-attribute=\"dsValue\"><span class=\"column-title ds-cell__fill\">100</span></td>\n    </tr>\n    </tbody>\n\n        \n    \n    \n    \n<tbody\n    data-player-row\n    data-key=\"13541\"\n    data-tier-overall=\"1\"\n    data-tier-positional=\"1\"\n    data-fantasy-position=\"RB\"\n    data-player-name=\"Bijan Robinson\"\n    data-team-id=\"2\"\n    data-is-rookie=\"false\"\n    data-percent-low=\"15\"\n    data-percent-high=\"17\"\n    class=\"\"\n    x-show=\"isVisibleRow($el)\">\n\n    <tr class=\"player-row\">\n        <td class=\"ds-cell ds-cell--lg rank centered\">\n            <div class=\"column-title rank-index\">\n                <s"
+  }
+ ],
+ "largest_payload_keys": [
+  "KEY_05PPR",
+  "KEY_05PPR_SCORING",
+  "KEY_10YR_PROJ",
+  "KEY_15PPR",
+  "KEY_15PPR_SCORING",
+  "KEY_1PPR",
+  "KEY_1YR_PROJ",
+  "KEY_3D_PROJECTIONS",
+  "KEY_3D_PROJECTIONS_ROS",
+  "KEY_3D_ROS",
+  "KEY_3D_ROS_PROJ_PLUS",
+  "KEY_3D_TRADE_VALUES",
+  "KEY_3D_VALUE",
+  "KEY_3D_VALUE_PLUS",
+  "KEY_3YR_PROJ",
+  "KEY_5YR_PROJ",
+  "KEY_ACTUAL_TRADE_TAX",
+  "KEY_ADD",
+  "KEY_ADJUSTED_3D_VALUE",
+  "KEY_ADJUSTED_3D_VALUE_PLUS",
+  "KEY_ADP",
+  "KEY_ADP_MARKET_INDEX",
+  "KEY_AGILITY_SCORE",
+  "KEY_AIR_YDS_ATTEMPT",
+  "KEY_AUCTION_MARKET_DOLLARS",
+  "KEY_AUCTION_MARKET_VALUE",
+  "KEY_AUCTION_TOOLS",
+  "KEY_AUCTION_WAR_ROOM",
+  "KEY_AVG_TRG_DIST",
+  "KEY_BEST_BALL_WAR_ROOM",
+  "KEY_BURST_SCORE",
+  "KEY_BYE_WEEK",
+  "KEY_CATCH_RADIUS",
+  "KEY_CEILING",
+  "KEY_CEILING_LIKELIHOOD",
+  "KEY_CEILING_PTS",
+  "KEY_CONSENSUS",
+  "KEY_CONSENSUS_PROJ",
+  "KEY_CUSTOM",
+  "KEY_DEFENSE_SPECIALTEAMS",
+  "KEY_DEF_SNAPS_PLAYED",
+  "KEY_DESIRED_EXPOSURE",
+  "KEY_DFS_LINEUP_OPTIMIZER",
+  "KEY_DMVP",
+  "KEY_DOMINATOR_RATING",
+  "KEY_DRAFT_CAPITAL",
+  "KEY_DRAFT_SHARKS_APP",
+  "KEY_DRAFT_WAR_ROOM",
+  "KEY_DROP",
+  "KEY_DROPBACKS",
+  "KEY_DROPS",
+  "KEY_DS_ANALYSIS",
+  "KEY_DS_AUCTION_VALUE",
+  "KEY_DS_PROJECTION",
+  "KEY_DS_PROJECTION_ALT",
+  "KEY_DS_PROJECTION_MULTI_YEAR",
+  "KEY_DURABILITY",
+  "KEY_DYNASTY_TOOLS",
+  "KEY_DYNASTY_TRADE_CALCULATOR",
+  "KEY_DYNASTY_VALUE"
+ ]
+}
