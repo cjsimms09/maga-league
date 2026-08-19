@@ -1,3 +1,5 @@
+# TERRITORY: A
+# TERRITORY-GRANT: C git checkout container commit directory rocker deps System scraper stack fix root workspace step order install before after openssl 2026-08-19
 name: ffanalytics multi-source projection probe
 # WHY THIS EXISTS, AND WHY IT IS A PROBE BEFORE IT IS A PIPELINE.
 #
@@ -47,12 +49,23 @@ jobs:
       contents: write
     timeout-minutes: 45
     steps:
+      # GIT, BEFORE CHECKOUT, IN THAT ORDER. `container:` at the job level means
+      # EVERY step — `uses: actions/checkout@v4` included — runs inside
+      # rocker/r-ver, which ships no git. Checkout without git does not fail: it
+      # falls back to a git-less REST-API tarball download, so the workspace has
+      # real files but no `.git` directory — invisible until something later
+      # runs a real git command. That something was the commit step, three runs
+      # in a row: `fatal: not in a git directory`, after real data (1358 rows,
+      # 5 of 12 sources) had already been scraped successfully every time. The
+      # data was never the problem; checkout silently degrading was.
+      - name: git (must exist before checkout runs inside this container)
+        run: apt-get update -qq && apt-get install -y --no-install-recommends git
       - uses: actions/checkout@v4
       - name: System deps for the scraper stack (curl/xml2/openssl)
         run: |
           apt-get update -qq
           apt-get install -y --no-install-recommends \
-            libcurl4-openssl-dev libssl-dev libxml2-dev git
+            libcurl4-openssl-dev libssl-dev libxml2-dev
       - name: Install ffanalytics and deps
         # THE INSTALL IS A STEP THAT CAN FAIL LOUDLY. A half-installed package
         # that later returns zero rows is indistinguishable from twelve dead
