@@ -1,0 +1,959 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/roster_builder_replay.js",
+ "_prereg": "draft/ROSTER-BUILDER-REPLAY-PREREG-2026-08-19.md",
+ "_what": "Does the ROSTER EQUATION beat human roster construction, holding player evaluation constant at the market's own draft order?",
+ "_cannot": "THIS CANNOT TEST PROJECTIONS. It says nothing about whether Draft Sharks beats CBS.",
+ "controls": {
+  "C1_known_positive_grader_reproduces_a_handed_roster": {
+   "ok": true,
+   "seats_checked": 30,
+   "why": "the grader is handed the owner's own roster (and a shuffled copy) and must return the same total. A harness that cannot reproduce a roster it was given is reporting differences it invented."
+  },
+  "C2_no_hindsight_in_the_choice": {
+   "ok": true,
+   "why": "buildSeat receives the draft and the roster state only. Actual points are not in scope at pick time — enforced by the function signature, not by discipline."
+  },
+  "C3_legality_reported_not_assumed": {
+   "ok": true,
+   "seats_with_an_unfillable_slot": 0,
+   "detail": [],
+   "why": "a roster short at a position is REPORTED, never silently scored short"
+  },
+  "C4_keepers_as_recorded": {
+   "ok": true,
+   "why": "is_keeper picks stay with their real owner in every arm; the builder does not re-choose them"
+  },
+  "C5_comparator_is_not_a_straw_man": {
+   "ok": true,
+   "why": "the equation-OFF arm still takes best-available on the same market order — it is not crippled, it simply has no shaping"
+  }
+ },
+ "controls_all_passed": true,
+ "seat_years": 30,
+ "predictions": {
+  "P215_builder_beats_the_humans": {
+   "pass": false,
+   "mean_delta": -22.48,
+   "wins": 14,
+   "of": 30,
+   "bar": "mean > 0 and >= 18 of 30"
+  },
+  "P216_it_wins_on_conversion": {
+   "pass": true,
+   "conversion_wins": 26,
+   "of": 30,
+   "mean_conversion_builder": 0.9376,
+   "mean_conversion_owner": 0.8842,
+   "bar": ">= 20 of 30"
+  },
+  "P217_the_equation_is_what_does_it": {
+   "pass": false,
+   "equation_beats_no_equation": 13,
+   "of": 30,
+   "mean_delta_no_equation": 2.54,
+   "bar": ">= 20 of 30"
+  }
+ },
+ "seats": [
+  {
+   "season": "2025",
+   "seat": 1,
+   "owner": {
+    "points": 1566.82,
+    "roster_points": 1701.62,
+    "conversion": 0.9208
+   },
+   "builder": {
+    "points": 1588.82,
+    "roster_points": 1619.82,
+    "conversion": 0.9809
+   },
+   "builder_no_equation": {
+    "points": 1643.12,
+    "roster_points": 1756.42,
+    "conversion": 0.9355
+   },
+   "delta": 22,
+   "delta_no_equation": 76.3,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "owner": {
+    "points": 1442.34,
+    "roster_points": 1482.94,
+    "conversion": 0.9726
+   },
+   "builder": {
+    "points": 1571.74,
+    "roster_points": 1622.84,
+    "conversion": 0.9685
+   },
+   "builder_no_equation": {
+    "points": 1442.34,
+    "roster_points": 1482.94,
+    "conversion": 0.9726
+   },
+   "delta": 129.4,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 5,
+    "QB": 1,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "owner": {
+    "points": 1612.08,
+    "roster_points": 1947.02,
+    "conversion": 0.828
+   },
+   "builder": {
+    "points": 1907.78,
+    "roster_points": 2038.08,
+    "conversion": 0.9361
+   },
+   "builder_no_equation": {
+    "points": 1612.08,
+    "roster_points": 1947.02,
+    "conversion": 0.828
+   },
+   "delta": 295.7,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 6,
+    "WR": 5,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "owner": {
+    "points": 1636.98,
+    "roster_points": 1810.58,
+    "conversion": 0.9041
+   },
+   "builder": {
+    "points": 1774.08,
+    "roster_points": 1808.08,
+    "conversion": 0.9812
+   },
+   "builder_no_equation": {
+    "points": 1636.98,
+    "roster_points": 1810.58,
+    "conversion": 0.9041
+   },
+   "delta": 137.1,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 6,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "owner": {
+    "points": 1969.12,
+    "roster_points": 2225,
+    "conversion": 0.885
+   },
+   "builder": {
+    "points": 1924.32,
+    "roster_points": 2021.12,
+    "conversion": 0.9521
+   },
+   "builder_no_equation": {
+    "points": 1969.12,
+    "roster_points": 2225,
+    "conversion": 0.885
+   },
+   "delta": -44.8,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 4,
+    "WR": 5,
+    "QB": 2,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "owner": {
+    "points": 1745.98,
+    "roster_points": 2036.28,
+    "conversion": 0.8574
+   },
+   "builder": {
+    "points": 1630.5,
+    "roster_points": 1674.2,
+    "conversion": 0.9739
+   },
+   "builder_no_equation": {
+    "points": 1745.98,
+    "roster_points": 2036.28,
+    "conversion": 0.8574
+   },
+   "delta": -115.48,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "owner": {
+    "points": 2121.24,
+    "roster_points": 2321.84,
+    "conversion": 0.9136
+   },
+   "builder": {
+    "points": 2054.14,
+    "roster_points": 2156.94,
+    "conversion": 0.9523
+   },
+   "builder_no_equation": {
+    "points": 2121.24,
+    "roster_points": 2321.84,
+    "conversion": 0.9136
+   },
+   "delta": -67.1,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "QB": 1,
+    "WR": 6,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "owner": {
+    "points": 1904.28,
+    "roster_points": 2151.9,
+    "conversion": 0.8849
+   },
+   "builder": {
+    "points": 2086.12,
+    "roster_points": 2311.6,
+    "conversion": 0.9025
+   },
+   "builder_no_equation": {
+    "points": 1904.28,
+    "roster_points": 2151.9,
+    "conversion": 0.8849
+   },
+   "delta": 181.84,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 4,
+    "WR": 5,
+    "TE": 2,
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "owner": {
+    "points": 1858.94,
+    "roster_points": 2329.62,
+    "conversion": 0.798
+   },
+   "builder": {
+    "points": 1911.48,
+    "roster_points": 2102.98,
+    "conversion": 0.9089
+   },
+   "builder_no_equation": {
+    "points": 1858.94,
+    "roster_points": 2329.62,
+    "conversion": 0.798
+   },
+   "delta": 52.54,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 6,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "owner": {
+    "points": 1653.5,
+    "roster_points": 2094.06,
+    "conversion": 0.7896
+   },
+   "builder": {
+    "points": 1741.6,
+    "roster_points": 1866.2,
+    "conversion": 0.9332
+   },
+   "builder_no_equation": {
+    "points": 1653.5,
+    "roster_points": 2094.06,
+    "conversion": 0.7896
+   },
+   "delta": 88.1,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "owner": {
+    "points": 2220.14,
+    "roster_points": 2660.2,
+    "conversion": 0.8346
+   },
+   "builder": {
+    "points": 2057.74,
+    "roster_points": 2209.54,
+    "conversion": 0.9313
+   },
+   "builder_no_equation": {
+    "points": 2220.14,
+    "roster_points": 2660.2,
+    "conversion": 0.8346
+   },
+   "delta": -162.4,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "owner": {
+    "points": 2058.82,
+    "roster_points": 2255.42,
+    "conversion": 0.9128
+   },
+   "builder": {
+    "points": 1857.42,
+    "roster_points": 1917.12,
+    "conversion": 0.9689
+   },
+   "builder_no_equation": {
+    "points": 2058.82,
+    "roster_points": 2255.42,
+    "conversion": 0.9128
+   },
+   "delta": -201.4,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "TE": 1,
+    "WR": 6,
+    "RB": 5,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "owner": {
+    "points": 1798.02,
+    "roster_points": 2002.62,
+    "conversion": 0.8978
+   },
+   "builder": {
+    "points": 1822.42,
+    "roster_points": 1910.02,
+    "conversion": 0.9541
+   },
+   "builder_no_equation": {
+    "points": 1798.02,
+    "roster_points": 2002.62,
+    "conversion": 0.8978
+   },
+   "delta": 24.4,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 4,
+    "WR": 6,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 2,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "owner": {
+    "points": 1971.62,
+    "roster_points": 2200.26,
+    "conversion": 0.8961
+   },
+   "builder": {
+    "points": 1806.74,
+    "roster_points": 1976.34,
+    "conversion": 0.9142
+   },
+   "builder_no_equation": {
+    "points": 1971.62,
+    "roster_points": 2200.26,
+    "conversion": 0.8961
+   },
+   "delta": -164.88,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 6,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "owner": {
+    "points": 1820.98,
+    "roster_points": 1966.88,
+    "conversion": 0.9258
+   },
+   "builder": {
+    "points": 1713.68,
+    "roster_points": 1848.18,
+    "conversion": 0.9272
+   },
+   "builder_no_equation": {
+    "points": 1820.98,
+    "roster_points": 1966.88,
+    "conversion": 0.9258
+   },
+   "delta": -107.3,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 4,
+    "WR": 6,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 2,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "owner": {
+    "points": 2074.5,
+    "roster_points": 2321.3,
+    "conversion": 0.8937
+   },
+   "builder": {
+    "points": 1935.5,
+    "roster_points": 1964.2,
+    "conversion": 0.9854
+   },
+   "builder_no_equation": {
+    "points": 2074.5,
+    "roster_points": 2321.3,
+    "conversion": 0.8937
+   },
+   "delta": -139,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 4,
+    "QB": 1,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "owner": {
+    "points": 1783.96,
+    "roster_points": 2182.84,
+    "conversion": 0.8173
+   },
+   "builder": {
+    "points": 1780.92,
+    "roster_points": 1905.32,
+    "conversion": 0.9347
+   },
+   "builder_no_equation": {
+    "points": 1783.96,
+    "roster_points": 2182.84,
+    "conversion": 0.8173
+   },
+   "delta": -3.04,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "QB": 1,
+    "WR": 6,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "owner": {
+    "points": 1739.82,
+    "roster_points": 1903.66,
+    "conversion": 0.9139
+   },
+   "builder": {
+    "points": 1616.76,
+    "roster_points": 1817.16,
+    "conversion": 0.8897
+   },
+   "builder_no_equation": {
+    "points": 1739.82,
+    "roster_points": 1903.66,
+    "conversion": 0.9139
+   },
+   "delta": -123.06,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 6,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "owner": {
+    "points": 1928.96,
+    "roster_points": 2185.84,
+    "conversion": 0.8825
+   },
+   "builder": {
+    "points": 1657.76,
+    "roster_points": 1841.86,
+    "conversion": 0.9
+   },
+   "builder_no_equation": {
+    "points": 1928.96,
+    "roster_points": 2185.84,
+    "conversion": 0.8825
+   },
+   "delta": -271.2,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "owner": {
+    "points": 1815.86,
+    "roster_points": 2138.92,
+    "conversion": 0.849
+   },
+   "builder": {
+    "points": 1506.78,
+    "roster_points": 1768.78,
+    "conversion": 0.8519
+   },
+   "builder_no_equation": {
+    "points": 1815.86,
+    "roster_points": 2138.92,
+    "conversion": 0.849
+   },
+   "delta": -309.08,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "owner": {
+    "points": 1804.08,
+    "roster_points": 1944.48,
+    "conversion": 0.9278
+   },
+   "builder": {
+    "points": 1841.9,
+    "roster_points": 2035.2,
+    "conversion": 0.905
+   },
+   "builder_no_equation": {
+    "points": 1804.08,
+    "roster_points": 1944.48,
+    "conversion": 0.9278
+   },
+   "delta": 37.82,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 5,
+    "RB": 5,
+    "TE": 1,
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "owner": {
+    "points": 1862.24,
+    "roster_points": 2038.42,
+    "conversion": 0.9136
+   },
+   "builder": {
+    "points": 1842.86,
+    "roster_points": 1976.96,
+    "conversion": 0.9322
+   },
+   "builder_no_equation": {
+    "points": 1862.24,
+    "roster_points": 2038.42,
+    "conversion": 0.9136
+   },
+   "delta": -19.38,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "TE": 1,
+    "WR": 6,
+    "RB": 5,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "owner": {
+    "points": 1619.82,
+    "roster_points": 1680.62,
+    "conversion": 0.9638
+   },
+   "builder": {
+    "points": 1788.06,
+    "roster_points": 1962.14,
+    "conversion": 0.9113
+   },
+   "builder_no_equation": {
+    "points": 1619.82,
+    "roster_points": 1680.62,
+    "conversion": 0.9638
+   },
+   "delta": 168.24,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 5,
+    "QB": 2,
+    "RB": 5,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "owner": {
+    "points": 1502.92,
+    "roster_points": 1682.04,
+    "conversion": 0.8935
+   },
+   "builder": {
+    "points": 1710.36,
+    "roster_points": 1896.6,
+    "conversion": 0.9018
+   },
+   "builder_no_equation": {
+    "points": 1502.92,
+    "roster_points": 1682.04,
+    "conversion": 0.8935
+   },
+   "delta": 207.44,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 5,
+    "QB": 2,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "owner": {
+    "points": 1743.7,
+    "roster_points": 2118.9,
+    "conversion": 0.8229
+   },
+   "builder": {
+    "points": 1750.54,
+    "roster_points": 1813.94,
+    "conversion": 0.965
+   },
+   "builder_no_equation": {
+    "points": 1743.7,
+    "roster_points": 2118.9,
+    "conversion": 0.8229
+   },
+   "delta": 6.84,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 6,
+    "TE": 1,
+    "DEF": 1,
+    "QB": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "owner": {
+    "points": 2014.3,
+    "roster_points": 2382.32,
+    "conversion": 0.8455
+   },
+   "builder": {
+    "points": 1881.98,
+    "roster_points": 1962.28,
+    "conversion": 0.9591
+   },
+   "builder_no_equation": {
+    "points": 2014.3,
+    "roster_points": 2382.32,
+    "conversion": 0.8455
+   },
+   "delta": -132.32,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "RB": 5,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "owner": {
+    "points": 2130.52,
+    "roster_points": 2497.62,
+    "conversion": 0.853
+   },
+   "builder": {
+    "points": 1840.48,
+    "roster_points": 1899.28,
+    "conversion": 0.969
+   },
+   "builder_no_equation": {
+    "points": 2130.52,
+    "roster_points": 2497.62,
+    "conversion": 0.853
+   },
+   "delta": -290.04,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "WR": 6,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "owner": {
+    "points": 1613.98,
+    "roster_points": 1644.98,
+    "conversion": 0.9812
+   },
+   "builder": {
+    "points": 1616.68,
+    "roster_points": 1630.38,
+    "conversion": 0.9916
+   },
+   "builder_no_equation": {
+    "points": 1613.98,
+    "roster_points": 1644.98,
+    "conversion": 0.9812
+   },
+   "delta": 2.7,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 5,
+    "QB": 2,
+    "RB": 5,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "owner": {
+    "points": 1737.92,
+    "roster_points": 1966.76,
+    "conversion": 0.8836
+   },
+   "builder": {
+    "points": 1930.74,
+    "roster_points": 2116.58,
+    "conversion": 0.9122
+   },
+   "builder_no_equation": {
+    "points": 1737.92,
+    "roster_points": 1966.76,
+    "conversion": 0.8836
+   },
+   "delta": 192.82,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "RB": 5,
+    "TE": 1,
+    "QB": 2,
+    "WR": 5,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "owner": {
+    "points": 1893.98,
+    "roster_points": 2191.48,
+    "conversion": 0.8642
+   },
+   "builder": {
+    "points": 1823.06,
+    "roster_points": 1954.56,
+    "conversion": 0.9327
+   },
+   "builder_no_equation": {
+    "points": 1893.98,
+    "roster_points": 2191.48,
+    "conversion": 0.8642
+   },
+   "delta": -70.92,
+   "delta_no_equation": 0,
+   "builder_counts": {
+    "WR": 6,
+    "QB": 1,
+    "RB": 5,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "unfillable": []
+  }
+ ]
+}
