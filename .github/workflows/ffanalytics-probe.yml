@@ -1,0 +1,83 @@
+name: ffanalytics multi-source projection probe
+# WHY THIS EXISTS, AND WHY IT IS A PROBE BEFORE IT IS A PIPELINE.
+#
+# Cory, 2026-08-19: *"can we not scrape fantasy projections ... using this?"*
+# Measured the same day: `proj_mean` equals `proj_sleeper` EXACTLY for 609 of 609
+# priced players. The board is ONE VENDOR. `ffanalytics` scrapes TWELVE, and this
+# repo read it three times (2026-08-14 survey, 08-14 real-source read, 08-15
+# re-check) taking only its METHODS — add_uncertainty, add_ecr, avg_type — and
+# never its DATA.
+#
+# IT MUST RUN HERE AND NOT IN THE AGENT SANDBOX: every projection host is refused
+# at CONNECT there (measured 2026-08-19: fantasysharks / draftsharks /
+# fantasypros / numberfire / fftoday all return 000). Same policy shape as
+# Sleeper and FFC, and the same reason `external-source-projections-2025.yml`
+# already exists.
+#
+# RULE 3e — THIS PROBE SHIPS WITH A KNOWN POSITIVE AND CANNOT REPORT A CLEAN
+# "NO". A scraper that returns zero rows and a scraper that was asked wrong look
+# identical from the outside. So: every source is asked SEPARATELY, its row count
+# is printed, and THE JOB FAILS if the total is zero. "Nothing came back" is a
+# bug report until at least one source has demonstrably returned players.
+#
+# It writes RAW ROWS. It does not touch `proj_mean`, the board, or any weight —
+# whether a second source reaches Cory's number is a graded decision, not a
+# consequence of the data arriving.
+on:
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Comma-separated ffanalytics sources (blank = all twelve)"
+        required: false
+        default: ""
+      season:
+        description: "Season to scrape"
+        required: false
+        default: "2026"
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - name: Install ffanalytics and deps
+        run: |
+          Rscript -e 'install.packages("remotes", repos="https://cloud.r-project.org")'
+          Rscript -e 'remotes::install_github("FantasyFootballAnalytics/ffanalytics", upgrade="never")'
+      - name: Probe each source separately, count rows, fail on a total zero
+        env:
+          FFA_SOURCES: ${{ inputs.sources }}
+          FFA_SEASON: ${{ inputs.season }}
+        run: Rscript draft/tools/ffanalytics_probe.R
+      - name: Show what landed
+        run: |
+          ls -la draft/data/ffanalytics_* || true
+          head -5 draft/data/ffanalytics_raw_projections.csv || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ffanalytics-probe
+          path: |
+            draft/data/ffanalytics_probe.json
+            draft/data/ffanalytics_raw_projections.csv
+          if-no-files-found: warn
+      - name: Commit the raw rows and the probe report
+        if: success()
+        run: |
+          git config user.name Claude
+          git config user.email noreply@anthropic.com
+          git add draft/data/ffanalytics_probe.json draft/data/ffanalytics_raw_projections.csv
+          git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
+          git commit -m "ffanalytics probe: raw multi-source projection rows from Actions [skip deploy]"
+          for i in 1 2 3 4 5; do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}" || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then echo "pushed"; exit 0; fi
+            echo "push race, retry $i"; sleep 3
+          done
+          echo "COULD NOT PUSH after retries"; exit 1

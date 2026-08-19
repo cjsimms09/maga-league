@@ -61,6 +61,53 @@ function studies() {
   return out.sort();
 }
 
+/* ── THE SWEEP MUST NOT LEAVE A MARK ON THE REPO ──────────────────────────
+ * FOUND THE HARD WAY, 2026-08-19: the first real sweep left THREE committed
+ * artifacts modified in the working tree — `roster_room_audit.json`,
+ * `archetype_rooms.json`, `bench_wire_room_sim.json` — because those studies
+ * WRITE their output as a side effect of running. Two hazards, and the second
+ * is the worse one:
+ *
+ *   (1) a study run under arm a0 writes a PRE-FIX artifact into the repo under
+ *       no label at all, so a file that looks like today's evidence is
+ *       yesterday's engine's;
+ *   (2) a study KILLED BY THE TIMEOUT leaves a PARTIAL artifact.
+ *       `bench_wire_room_sim.json` came back 1,981 lines where the committed
+ *       file has 9,992 — a truncated file that is byte-for-byte a valid JSON
+ *       document and indistinguishable from a complete one.
+ *
+ * A measurement tool that damages the evidence it is measuring is not a
+ * measurement tool. So: snapshot the dirty set BEFORE the sweep, and after each
+ * study restore every TRACKED file the study dirtied. Files already dirty when
+ * the sweep started are left alone — restoring those would destroy work the
+ * sweep did not cause. Untracked files are REPORTED, never deleted: a sweep
+ * that removes files is a worse failure than one that leaves them. */
+function dirtySet() {
+  try {
+    return new Set(cp.execSync('git status --porcelain', { cwd: ROOT, encoding: 'utf8' })
+      .split('\n').filter(Boolean).map(l => l.slice(3).trim()));
+  } catch (e) { return null; }
+}
+const DIRTY_AT_START = dirtySet();
+if (DIRTY_AT_START === null) {
+  console.error('REFUSING to sweep: cannot read `git status`, so files this sweep '
+    + 'dirties could not be restored. A sweep that cannot clean up after itself '
+    + 'must not start.');
+  process.exit(2);
+}
+const SIDE_EFFECTS = {};
+function restoreRepo(rel) {
+  const now = dirtySet();
+  if (!now) return;
+  const caused = [...now].filter(f => !DIRTY_AT_START.has(f));
+  if (!caused.length) return;
+  SIDE_EFFECTS[rel] = caused;
+  caused.forEach(f => {
+    try { cp.execSync('git checkout -- ' + JSON.stringify(f), { cwd: ROOT, stdio: 'ignore' }); }
+    catch (e) { /* untracked: reported below, never deleted */ }
+  });
+}
+
 function run(rel, arm) {
   const started = Date.now();
   try {
@@ -140,6 +187,7 @@ list.forEach((rel, i) => {
     status = 'DIFFERS';
     detail = firstDiff(r0.out, r1.out);
   }
+  restoreRepo(rel);
   const secs = Math.round((r0.ms + r1.ms) / 1000);
   rows.push({ study: rel, status: status, seconds: secs, detail: detail,
               a0_lines: strip(r0.out).split('\n').length });
@@ -150,6 +198,17 @@ list.forEach((rel, i) => {
 });
 
 const by = s => rows.filter(r => r.status === s);
+const sideEffectStudies = Object.keys(SIDE_EFFECTS);
+if (sideEffectStudies.length) {
+  console.log('\n  ⚠️ STUDIES THAT WRITE INTO THE REPO — restored after each run, and '
+    + 'named because a study with side effects cannot be swept safely by anyone '
+    + 'who does not know it has them:');
+  sideEffectStudies.forEach(k => console.log('     ' + k + '  ->  ' + SIDE_EFFECTS[k].join(', ')));
+  const stillDirty = [...(dirtySet() || [])].filter(f => !DIRTY_AT_START.has(f));
+  console.log(stillDirty.length
+    ? '     ⚠️ STILL DIRTY AFTER RESTORE (untracked, NOT deleted): ' + stillDirty.join(', ')
+    : '     repo restored clean.');
+}
 if (CONTROL && by('DIFFERS').length) {
   console.log('\n  ⚠️ NONDETERMINISTIC UNDER A FIXED ARM — these studies\' diffs in the '
     + 'real sweep mean nothing about VONA:');
@@ -173,6 +232,7 @@ const doc = {
   counts: { SAME: by('SAME').length, DIFFERS: by('DIFFERS').length,
             UNREADABLE: by('UNREADABLE').length, total: rows.length },
   studies: rows,
+  side_effect_studies: SIDE_EFFECTS,
 };
 const outPath = arg('json', null);
 if (outPath) { fs.writeFileSync(outPath, JSON.stringify(doc, null, 1)); console.log('\nwrote ' + outPath); }
