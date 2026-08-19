@@ -122,7 +122,7 @@ function mkData() {
   const d = mkData();
   d.picks[0].positions.RB = mkBlock({ cliff_after_rank: 3 }); // == players.length, no row after it
   const html = V.renderPositionBoards(d, 33, null, esc);
-  const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+  const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
   ck('a cliff at the very end of the list does not print a trailing divider with nothing under it',
     !/pb-cliff-row/.test(rbSection));
 }
@@ -141,7 +141,7 @@ function mkData() {
     /\b191\b/.test(htmlBlend));
   ck('the toggle never re-sorts the list — Alpha still leads under "blend" (200 DS-ranked #1)',
     (function () {
-      const rbSection = htmlBlend.slice(htmlBlend.indexOf('>RB<'), htmlBlend.indexOf('>WR<'));
+      const rbSection = htmlBlend.slice(htmlBlend.indexOf('pb-pos">RB<'), htmlBlend.indexOf('pb-pos">WR<'));
       const alphaIdx = rbSection.indexOf('Alpha Back');
       const betaIdx = rbSection.indexOf('Beta Back');
       return alphaIdx > -1 && betaIdx > -1 && alphaIdx < betaIdx;
@@ -169,18 +169,18 @@ function mkData() {
     /<div>Player<\/div><div>Proj<\/div><div[^>]*>Fl–Ce<\/div><div>Surv<\/div>/.test(html));
   ck('team sits inline beside the name (one line, not a wrapped subline)',
     (function () {
-      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
       return /Alpha Back <span class="pb-team">AAA<\/span>/.test(rbSection);
     })());
   ck('floor–ceiling renders as a range bar (SVG), not bare/absent text — never dropped',
     (function () {
-      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
       return /class="pb-range">/.test(rbSection) && /pb-range-band/.test(rbSection)
         && /floor 170 · proj 200 · ceiling 250/.test(rbSection);
     })());
   ck('ADP moves to a title on the name (one hover away), not a visible cell — still the same number',
     (function () {
-      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
       return /class="pb-name" title="ADP 20"/.test(rbSection);
     })());
   ck('the injury risk indicator is a DOT with the exact percentage on hover (Beta Back, 60%) — not a text column',
@@ -229,17 +229,17 @@ function mkData() {
     (html.match(/class="pb-do-mini"/g) || []).length === 6);
   ck('the RB column names its own steepest transition, R4→5 (17 pts), not a cross-position pick',
     (function () {
-      const rbSection = html.slice(html.indexOf('>RB<'), html.indexOf('>WR<'));
+      const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
       return /R4→5.*17 pts/.test(rbSection.replace(/<[^>]+>/g, ' ')) || /R4→5/.test(rbSection) && /17/.test(rbSection);
     })());
   ck('the WR column names ITS OWN steepest transition, R5→6 (27 pts) — a different round than RB\'s',
     (function () {
-      const wrSection = html.slice(html.indexOf('>WR<'), html.indexOf('>QB<'));
+      const wrSection = html.slice(html.indexOf('pb-pos">WR<'), html.indexOf('pb-pos">QB<'));
       return /R5→6/.test(wrSection) && /27/.test(wrSection);
     })());
   ck('a position flat across every round (TE, all zero) says so rather than drawing a fake bar',
     (function () {
-      const teSection = html.slice(html.indexOf('>TE<'), html.indexOf('>K<'));
+      const teSection = html.slice(html.indexOf('pb-pos">TE<'), html.indexOf('pb-pos">K<'));
       return /flat across rounds/.test(teSection);
     })());
   ck('each chart is own-scaled: RB\'s bars are NOT scaled against WR\'s larger max (own-scale, not shared)',
@@ -263,6 +263,46 @@ function mkData() {
     /<title>/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
   ck('the chart carries an aria-label naming the position and its biggest gap (accessibility)',
     /aria-label="RB round-to-round drop-off, biggest gap R4→5/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
+}
+
+// ── the strike bar (WAR-ROOM-SPEC.md P2) — peak VONA pick per position ───
+{
+  // Deliberately different peaks per position, mirroring strike_page.js's
+  // own claim: "TE peaks early, RB in the middle, QB and K at the very end."
+  const strikeData = {
+    picks: [
+      { pick: 33, round: 4, positions: {
+        RB: mkBlock({ VONA: 10 }), WR: mkBlock({ VONA: 5 }), QB: mkBlock({ VONA: 1 }),
+        TE: mkBlock({ VONA: 21 }), K: mkBlock({ VONA: 0 }), DEF: mkBlock({ VONA: 0 }) } },
+      { pick: 48, round: 5, positions: {
+        RB: mkBlock({ VONA: 35 }), WR: mkBlock({ VONA: 14 }), QB: mkBlock({ VONA: 2 }),
+        TE: mkBlock({ VONA: 3 }), K: mkBlock({ VONA: 0 }), DEF: mkBlock({ VONA: 0 }) } },
+      { pick: 133, round: 15, positions: {
+        RB: mkBlock({ VONA: 8 }), WR: mkBlock({ VONA: 2 }), QB: mkBlock({ VONA: 6 }),
+        TE: mkBlock({ VONA: 0 }), K: mkBlock({ VONA: 14 }), DEF: mkBlock({ VONA: 0, cliff_after_rank: null }) } },
+    ],
+  };
+  const peaks = V.strikePeaks(strikeData);
+  ck('TE peaks early (pick 33), matching strike_page.js\'s own stated shape',
+    peaks.TE && peaks.TE.pick === 33 && peaks.TE.vona === 21);
+  ck('RB peaks in the middle (pick 48)',
+    peaks.RB && peaks.RB.pick === 48 && peaks.RB.vona === 35);
+  ck('K peaks at the very end (pick 133)',
+    peaks.K && peaks.K.pick === 133 && peaks.K.vona === 14);
+  ck('a position with VONA 0 everywhere still resolves to its first pick, not null (0 is a real answer)',
+    peaks.DEF && peaks.DEF.pick === 33 && peaks.DEF.vona === 0);
+  ck('strikePeaks on empty data returns null for every position, not a throw',
+    V.strikePeaks({ picks: [] }).RB === null);
+  const bar = V.strikeBar(strikeData, esc);
+  ck('the strike bar renders one cell per position, six total',
+    (bar.match(/pb-strike-cell/g) || []).length === 6);
+  ck('TE\'s cell names its peak pick and rounded cost',
+    (function () {
+      const teCell = bar.slice(bar.indexOf('>TE<'), bar.indexOf('>TE<') + 200);
+      return /pick 33/.test(teCell) && /costs 21/.test(teCell);
+    })());
+  ck('the bar carries a title explaining it is a fact, not a recommendation (P196: never rank across positions)',
+    /not a recommendation/.test(bar));
 }
 
 // ── six columns, RB/WR first (Cory: "more on RB and WR") ─────────────────

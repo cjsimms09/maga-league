@@ -1544,6 +1544,27 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   font-size: var(--wr-fs-sub); font-weight: 700; color: var(--wr-structure);
   margin: 0 0 .4rem; letter-spacing: .01em;
 }
+/* THE STRIKE BAR — WAR-ROOM-SPEC.md P2 (A→B, 2026-08-19): "the peak of each
+   position's own VONA curve across Cory's twelve picks — where waiting one
+   more turn costs the most." Persistent, one row, six cells, per the spec —
+   this is the HEADLINE glance; the full curve lives in each column's own
+   mini chart below. Sits above the toggle so it is the first thing on
+   screen, matching "always visible". */
+.pb-strike-bar {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: .4rem;
+  margin: 0 0 .6rem; padding: .4rem .3rem;
+  border: 1px solid var(--wr-line); border-radius: 6px; background: var(--wr-panel-soft);
+}
+.pb-strike-cell { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.pb-strike-pos {
+  font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--wr-structure); margin-bottom: .1rem;
+}
+.pb-strike-pick { font-size: .72rem; font-weight: 700; color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+.pb-strike-cost { font-size: .6rem; color: var(--wr-warn); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .pb-strike-bar { grid-template-columns: repeat(3, 1fr); row-gap: .5rem; }
+}
 /* Projection-source toggle (ROUTES-B-TOGGLE.md, A→B 2026-08-19): "I want to
    be able to toggle between them." Ranking/selection stay Draft-Sharks-fixed
    — this only swaps which number each row prints, so it reads as a quiet

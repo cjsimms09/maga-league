@@ -335,6 +335,54 @@
       + '<tbody>' + rows + '</tbody></table></details>';
   }
 
+  /* ── THE STRIKE BAR — WAR-ROOM-SPEC.md P2 (A→B, 2026-08-19) ────────────────
+   * Cory: "I will chose what position, what I need from you is info about
+   * when position drop offs are high or low between rounds" — and, in the
+   * spec's own words, "the peak of each position's own VONA curve across
+   * Cory's twelve picks — where waiting one more turn costs the most."
+   *
+   * NOT A SECOND COMPUTATION. `draft/tools/strike_page.js` already answers
+   * this exact question for `public/strike.html` — this mirrors that same
+   * "which of my 12 picks has this position's highest VONA" loop verbatim
+   * (Rule 11: one derivation), not a fresh one, even though it has to live
+   * in browser JS rather than literally sharing the Node script. Reads only
+   * `data.picks`/`data.round_dropoffs`-adjacent `positions[pos].VONA`,
+   * already on the artifact this file already consumes — no new fetch.
+   *
+   * PERSISTENT AND SMALL, per the spec: one row, six cells, pick + cost. It
+   * is the HEADLINE; the full per-round curve stays in each column's own
+   * mini chart below (roundDropoffChart) for whoever wants the detail. */
+  function strikePeaks(data) {
+    var picks = (data && data.picks) || [];
+    var out = {};
+    POS_ORDER.forEach(function (pos) {
+      var best = null, bv = -Infinity;
+      picks.forEach(function (pk) {
+        var d = (pk.positions || {})[pos];
+        if (!d || d.VONA == null) return;
+        if (d.VONA > bv) { bv = d.VONA; best = pk; }
+      });
+      out[pos] = best ? { pick: best.pick, round: best.round, vona: bv } : null;
+    });
+    return out;
+  }
+
+  function strikeBar(data, esc) {
+    var peaks = strikePeaks(data);
+    var cells = POS_ORDER.map(function (pos) {
+      var p = peaks[pos];
+      return '<div class="pb-strike-cell">'
+        + '<span class="pb-strike-pos">' + esc(pos) + '</span>'
+        + (p
+          ? '<span class="pb-strike-pick" title="' + esc('round ' + p.round) + '">pick ' + esc(fmtNum(p.pick)) + '</span>'
+            + '<span class="pb-strike-cost">costs ' + esc(fmtNum(Math.round(p.vona))) + '</span>'
+          : '<span class="pb-strike-pick">—</span>')
+        + '</div>';
+    }).join('');
+    return '<div class="pb-strike-bar" title="The pick where waiting on this position costs the most across your 12 picks — not a recommendation, a fact about the position (WAR-ROOM-SPEC.md P2)">'
+      + cells + '</div>';
+  }
+
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
    * so a missing/stale artifact degrades to nothing rather than a broken panel.
    * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
@@ -350,6 +398,7 @@
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
         + ' (round ' + esc(String(pick.round)) + ')'
         + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '') + '</div>'
+      + strikeBar(data, esc)
       + projSourceToggle(esc, src)
       + '<div class="pb-grid">' + cols + '</div>'
       + opponentsStrip(data.opponents_compact, esc)
@@ -361,7 +410,8 @@
   var API = { renderPositionBoards: renderPositionBoards, findPick: findPick,
     positionColumn: positionColumn, projFieldsFor: projFieldsFor,
     roundDropoffChart: roundDropoffChart, rangeBarMini: rangeBarMini,
-    rangeScaleFor: rangeScaleFor, POS_ORDER: POS_ORDER };
+    rangeScaleFor: rangeScaleFor, strikePeaks: strikePeaks, strikeBar: strikeBar,
+    POS_ORDER: POS_ORDER };
   global.PositionBoardsView = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
