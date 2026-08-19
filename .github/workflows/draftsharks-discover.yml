@@ -1,0 +1,51 @@
+# TERRITORY: C
+name: draftsharks.com — discovery probe only
+# Cory, 2026-08-19: "can you view this site, pull in all these projections,
+# score for our league and put them in our database" --
+# https://www.draftsharks.com/rankings/half-ppr
+#
+# Blocked at CONNECT from both the agent sandbox (curl) and WebFetch, and NOT
+# one of ffanalytics' twelve scraped sources (it scrapes FantasySharks, a
+# different company). This is a from-scratch source, so before writing a real
+# parser: does GitHub Actions' network even reach it, and what shape is the
+# page (a real table, embedded JSON, a login wall)? This job answers only
+# that. It writes no board field, joins no crosswalk, computes no points.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Probe the page
+        run: python3 draft/tools/draftsharks_discover.py
+      - name: Show what came back
+        run: cat draft/data/draftsharks_discovery.json
+      - name: Commit the discovery artifact
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/draftsharks_discovery.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
+            for i in 1 2 3 4; do
+              git rebase --abort 2>/dev/null || true
+              git pull --rebase origin main && git push origin HEAD:main && break
+              sleep $((2**i))
+            done
+          else
+            echo "No change to the store."
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: draftsharks-discovery
+          path: draft/data/draftsharks_discovery.json
+          if-no-files-found: warn
