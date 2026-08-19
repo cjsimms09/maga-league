@@ -45,8 +45,11 @@ const IN = arg('in', path.join(__dirname, 'bundles.json'));
 const OUT = arg('out', path.join(__dirname, 'engine_seat_choices.json'));
 
 /* ---- REGISTER 56 / P107 ARMS -------------------------------------------
- * `--arm` selects a VONA configuration. DEFAULT IS a0, THE SHIPPING ENGINE,
- * so every existing caller and the committed choice file are unchanged.
+ * `--arm` selects a VONA configuration. The default is a0, the PRE-FIX
+ * engine — which was the shipping one until Cory ruled on the P107 grade on
+ * 2026-08-19 and a1 shipped. The default is left at a0 so the committed
+ * `engine_seat_choices.json` keeps meaning what every earlier reading of it
+ * meant; the shipped configuration is now `--arm a1`.
  *
  * WHY THE ARMS ARE SELECTED HERE AND NOT BY THREE FORKED COPIES OF THIS FILE:
  * the bundle is REASSEMBLED on every CI run (Sleeper and FFC are refused at
@@ -58,10 +61,16 @@ const OUT = arg('out', path.join(__dirname, 'engine_seat_choices.json'));
  *
  * The arm is stamped into meta so a choice file can never be read as the
  * shipping configuration when it is not. */
+/* EVERY ARM PINS EVERY FLAG. `a0: {}` was correct for exactly one day and
+ * became a silent bug the moment Cory shipped the fix (2026-08-19): an arm
+ * that sets nothing INHERITS the shipped default, so "a0" would have quietly
+ * become a second copy of a1 and the next A1-minus-A0 delta would have read
+ * as a clean zero. An arm is a configuration, not a diff against whatever
+ * happens to be shipping. */
 const ARMS = {
-  a0: {},                                                  // shipping
-  a1: { VONA_INCLUDE_SELF: true },                         // the fix
-  a2: { VONA_SURVIVAL_RESCALE: true },                      // the diagnostic
+  a0: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false },  // pre-fix
+  a1: { VONA_INCLUDE_SELF: true,  VONA_SURVIVAL_RESCALE: false },  // the fix (SHIPPED 08-19)
+  a2: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: true },   // the diagnostic
 };
 const ARM = arg('arm', 'a0');
 if (!Object.prototype.hasOwnProperty.call(ARMS, ARM)) {
