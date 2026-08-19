@@ -90,8 +90,18 @@ def main() -> int:
 
     shipped = arm_by_round(HERE / "engine_seat_choices.json", positions,
                            totals_by_season)
-    auto = arm_by_round(HERE / "engine_seat_choices_auto.json", positions,
-                        totals_by_season)
+    # P130 extends this to A13's two candidate arms on the SAME metric and the
+    # SAME crosswalk (rule 11) rather than a second lab that would drift.
+    ARMS = {"auto": "engine_seat_choices_auto.json",
+            "need1": "engine_seat_choices_need1.json",
+            "slot_s1": "engine_seat_choices_slot_s1.json"}
+    graded = {}
+    for nm, fn in ARMS.items():
+        fp = HERE / fn
+        if not fp.exists():
+            print("  ! missing arm, NOT silently skipped: " + fn); continue
+        graded[nm] = arm_by_round(fp, positions, totals_by_season)
+    auto = graded["auto"]
 
     ctl = {}
     # CONTROL 1 — both arms must draft the SAME NUMBER of picks per round, or a
@@ -160,6 +170,24 @@ def main() -> int:
         print("   %-7s need=%-5s %+10.1f" % (name, w, phase_tot.get(name, 0.0)))
     print("\n  EARLY (rounds 1-6): %+.1f    LATE (rounds 7+): %+.1f"
           % (early, late))
+
+    # ── P130: do A13's arms bleed in the same rounds? ────────────────────────
+    print("\n  ── P130 — every roster-aware arm, same metric (per seat-season) ──")
+    print("   %-9s %8s %8s %8s %8s   %9s" % ("arm", "Anchor", "Build", "Fill",
+                                             "Tight", "TOTAL"))
+    p130 = {}
+    for nm, g in graded.items():
+        row = {}
+        for name, _l, _h, _w in PHASES:
+            row[name] = round(sum(g[s]["by_phase"].get(name, 0.0)
+                                  - shipped[s]["by_phase"].get(name, 0.0)
+                                  for s in seasons) / 30.0, 1)
+        row["TOTAL"] = round(sum(row[n] for n, _l, _h, _w in PHASES), 1)
+        p130[nm] = row
+        print("   %-9s %+8.1f %+8.1f %+8.1f %+8.1f   %+9.1f"
+              % (nm, row["Anchor"], row["Build"], row["Fill"], row["Tight"],
+                 row["TOTAL"]))
+    report["p130_by_arm"] = p130
 
     i = sys.argv.index("--json") if "--json" in sys.argv else -1
     if i >= 0:

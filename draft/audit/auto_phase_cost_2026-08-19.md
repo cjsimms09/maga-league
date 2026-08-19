@@ -80,11 +80,42 @@ phase table is *"not fitted — three prior drafts is nowhere near enough"* by i
 own comment. **Nothing here is a licence to tune the ramp**, which would be
 fitting a configuration to a diagnostic three days before a draft.
 
+## 4b. P130, SAME DAY — EVERY ROSTER-AWARE ARM PAYS THE SAME PRICE IN BUILD
+
+§5's rule-3g question was whether A13's arms lose in the same rounds. Run on the
+same metric and the same crosswalk:
+
+| arm | Anchor | **Build** | Fill | **Tight** | net |
+|---|---|---|---|---|---|
+| auto | −1.5 | **−175.7** | −64.3 | **+84.8** | −156.7 |
+| `need: 1.0` | −0.8 | **−161.6** | −48.0 | **+111.4** | −99.0 |
+| slot-aware | **0.0** | **−162.8** | −44.8 | **+123.9** | **−83.7** |
+
+**P130 is FALSE and fails on the exact condition it named.** I predicted the
+constant-weight arm would be flatter and would bleed in Anchor where the ramped
+one does not. **Anchor is −0.8 and 0.0 — as near-zero as auto's −1.5.**
+
+**So the ramp is not what protects the early rounds. Nothing is — the rounds
+protect themselves.** With every slot empty, `need` has nothing to discriminate
+on **at any weight**. `autoWeights`' own Anchor comment says so (*"every slot is
+empty, so 'need' is noise"*), and I had read that as a justification for the low
+weight when it is a statement that the weight is **irrelevant** there.
+
+**And the separation is somewhere else entirely: Build costs all three arms
+−162 to −176, a 14-point spread, while Tight separates them by 39.** Slot-aware
+is not better because it protects the middle rounds — it loses the same there.
+**It is better because it earns the most back after round 11**, which is where
+Cory's last five picks sit.
+
 ## 5. RULE 3g
 
-**Implies another failure?** The Build phase is where four of Cory's fifteen
-picks live and where every arm's differences concentrate — **A13's two candidate
-arms have never been decomposed this way**, and the same lab would do it.
+**Implies another failure?** ~~A13's two candidate arms have never been
+decomposed this way.~~ **DONE IN §4b, within the hour, and this sentence was
+already false when I left it — the exact "body outlives its label" pattern I
+spent today cataloguing, in my own file.** What §4b raises instead is sharper:
+**Build costs every roster-aware arm the same ~165 points**, and a cost
+invariant to the arm is usually structural rather than a defect. **P131 asks
+whether it is recoverable at all.**
 
 **Invalidates something?** No. It sharpens P127 rather than contradicting it,
 and the reconciliation control proves the two aggregations agree.
