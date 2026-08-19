@@ -33,22 +33,22 @@
  "predictions": {
   "P215_builder_beats_the_humans": {
    "pass": false,
-   "mean_delta": -22.48,
+   "mean_delta": -20.41,
    "wins": 14,
    "of": 30,
    "bar": "mean > 0 and >= 18 of 30"
   },
   "P216_it_wins_on_conversion": {
    "pass": true,
-   "conversion_wins": 26,
+   "conversion_wins": 25,
    "of": 30,
-   "mean_conversion_builder": 0.9376,
+   "mean_conversion_builder": 0.9335,
    "mean_conversion_owner": 0.8842,
    "bar": ">= 20 of 30"
   },
   "P217_the_equation_is_what_does_it": {
    "pass": false,
-   "equation_beats_no_equation": 13,
+   "equation_beats_no_equation": 14,
    "of": 30,
    "mean_delta_no_equation": 2.54,
    "bar": ">= 20 of 30"
@@ -64,16 +64,16 @@
     "conversion": 0.9208
    },
    "builder": {
-    "points": 1588.82,
-    "roster_points": 1619.82,
-    "conversion": 0.9809
+    "points": 1652.22,
+    "roster_points": 1715.92,
+    "conversion": 0.9629
    },
    "builder_no_equation": {
     "points": 1643.12,
     "roster_points": 1756.42,
     "conversion": 0.9355
    },
-   "delta": 22,
+   "delta": 85.4,
    "delta_no_equation": 76.3,
    "builder_counts": {
     "WR": 6,
@@ -94,16 +94,16 @@
     "conversion": 0.9726
    },
    "builder": {
-    "points": 1571.74,
-    "roster_points": 1622.84,
-    "conversion": 0.9685
+    "points": 1603.54,
+    "roster_points": 1718.94,
+    "conversion": 0.9329
    },
    "builder_no_equation": {
     "points": 1442.34,
     "roster_points": 1482.94,
     "conversion": 0.9726
    },
-   "delta": 129.4,
+   "delta": 161.2,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 5,
@@ -124,16 +124,16 @@
     "conversion": 0.828
    },
    "builder": {
-    "points": 1907.78,
-    "roster_points": 2038.08,
-    "conversion": 0.9361
+    "points": 1651.1,
+    "roster_points": 1736.8,
+    "conversion": 0.9507
    },
    "builder_no_equation": {
     "points": 1612.08,
     "roster_points": 1947.02,
     "conversion": 0.828
    },
-   "delta": 295.7,
+   "delta": 39.02,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 6,
@@ -154,16 +154,16 @@
     "conversion": 0.9041
    },
    "builder": {
-    "points": 1774.08,
-    "roster_points": 1808.08,
-    "conversion": 0.9812
+    "points": 1739.98,
+    "roster_points": 1806.88,
+    "conversion": 0.963
    },
    "builder_no_equation": {
     "points": 1636.98,
     "roster_points": 1810.58,
     "conversion": 0.9041
    },
-   "delta": 137.1,
+   "delta": 103,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 5,
@@ -184,22 +184,22 @@
     "conversion": 0.885
    },
    "builder": {
-    "points": 1924.32,
-    "roster_points": 2021.12,
-    "conversion": 0.9521
+    "points": 2032,
+    "roster_points": 2124.3,
+    "conversion": 0.9566
    },
    "builder_no_equation": {
     "points": 1969.12,
     "roster_points": 2225,
     "conversion": 0.885
    },
-   "delta": -44.8,
+   "delta": 62.88,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 4,
-    "WR": 5,
-    "QB": 2,
+    "WR": 6,
     "TE": 2,
+    "QB": 1,
     "DEF": 1,
     "K": 1
    },
@@ -214,16 +214,16 @@
     "conversion": 0.8574
    },
    "builder": {
-    "points": 1630.5,
-    "roster_points": 1674.2,
-    "conversion": 0.9739
+    "points": 1908,
+    "roster_points": 1987.5,
+    "conversion": 0.96
    },
    "builder_no_equation": {
     "points": 1745.98,
     "roster_points": 2036.28,
     "conversion": 0.8574
    },
-   "delta": -115.48,
+   "delta": 162.02,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 6,
@@ -244,16 +244,16 @@
     "conversion": 0.9136
    },
    "builder": {
-    "points": 2054.14,
-    "roster_points": 2156.94,
-    "conversion": 0.9523
+    "points": 2078.74,
+    "roster_points": 2202.14,
+    "conversion": 0.944
    },
    "builder_no_equation": {
     "points": 2121.24,
     "roster_points": 2321.84,
     "conversion": 0.9136
    },
-   "delta": -67.1,
+   "delta": -42.5,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 5,
@@ -274,22 +274,22 @@
     "conversion": 0.8849
    },
    "builder": {
-    "points": 2086.12,
-    "roster_points": 2311.6,
-    "conversion": 0.9025
+    "points": 1950.58,
+    "roster_points": 2002.18,
+    "conversion": 0.9742
    },
    "builder_no_equation": {
     "points": 1904.28,
     "roster_points": 2151.9,
     "conversion": 0.8849
    },
-   "delta": 181.84,
+   "delta": 46.3,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 4,
-    "WR": 5,
+    "WR": 6,
     "TE": 2,
-    "QB": 2,
+    "QB": 1,
     "DEF": 1,
     "K": 1
    },
@@ -304,16 +304,16 @@
     "conversion": 0.798
    },
    "builder": {
-    "points": 1911.48,
-    "roster_points": 2102.98,
-    "conversion": 0.9089
+    "points": 1818.56,
+    "roster_points": 1998.36,
+    "conversion": 0.91
    },
    "builder_no_equation": {
     "points": 1858.94,
     "roster_points": 2329.62,
     "conversion": 0.798
    },
-   "delta": 52.54,
+   "delta": -40.38,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 5,
@@ -334,16 +334,16 @@
     "conversion": 0.7896
    },
    "builder": {
-    "points": 1741.6,
-    "roster_points": 1866.2,
-    "conversion": 0.9332
+    "points": 1695.78,
+    "roster_points": 1850.68,
+    "conversion": 0.9163
    },
    "builder_no_equation": {
     "points": 1653.5,
     "roster_points": 2094.06,
     "conversion": 0.7896
    },
-   "delta": 88.1,
+   "delta": 42.28,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 6,
@@ -364,22 +364,22 @@
     "conversion": 0.8346
    },
    "builder": {
-    "points": 2057.74,
-    "roster_points": 2209.54,
-    "conversion": 0.9313
+    "points": 2059.72,
+    "roster_points": 2333.72,
+    "conversion": 0.8826
    },
    "builder_no_equation": {
     "points": 2220.14,
     "roster_points": 2660.2,
     "conversion": 0.8346
    },
-   "delta": -162.4,
+   "delta": -160.42,
    "delta_no_equation": 0,
    "builder_counts": {
-    "WR": 6,
+    "WR": 5,
     "RB": 5,
     "QB": 1,
-    "TE": 1,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
@@ -394,20 +394,20 @@
     "conversion": 0.9128
    },
    "builder": {
-    "points": 1857.42,
-    "roster_points": 1917.12,
-    "conversion": 0.9689
+    "points": 1986.82,
+    "roster_points": 2163.92,
+    "conversion": 0.9182
    },
    "builder_no_equation": {
     "points": 2058.82,
     "roster_points": 2255.42,
     "conversion": 0.9128
    },
-   "delta": -201.4,
+   "delta": -72,
    "delta_no_equation": 0,
    "builder_counts": {
-    "TE": 1,
-    "WR": 6,
+    "TE": 2,
+    "WR": 5,
     "RB": 5,
     "QB": 1,
     "DEF": 1,
@@ -424,16 +424,16 @@
     "conversion": 0.8978
    },
    "builder": {
-    "points": 1822.42,
-    "roster_points": 1910.02,
-    "conversion": 0.9541
+    "points": 1848.82,
+    "roster_points": 2047.52,
+    "conversion": 0.903
    },
    "builder_no_equation": {
     "points": 1798.02,
     "roster_points": 2002.62,
     "conversion": 0.8978
    },
-   "delta": 24.4,
+   "delta": 50.8,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 4,
@@ -454,21 +454,21 @@
     "conversion": 0.8961
    },
    "builder": {
-    "points": 1806.74,
-    "roster_points": 1976.34,
-    "conversion": 0.9142
+    "points": 1958.54,
+    "roster_points": 2176.84,
+    "conversion": 0.8997
    },
    "builder_no_equation": {
     "points": 1971.62,
     "roster_points": 2200.26,
     "conversion": 0.8961
    },
-   "delta": -164.88,
+   "delta": -13.08,
    "delta_no_equation": 0,
    "builder_counts": {
-    "RB": 5,
+    "RB": 4,
     "WR": 6,
-    "TE": 1,
+    "TE": 2,
     "QB": 1,
     "DEF": 1,
     "K": 1
@@ -484,16 +484,16 @@
     "conversion": 0.9258
    },
    "builder": {
-    "points": 1713.68,
-    "roster_points": 1848.18,
-    "conversion": 0.9272
+    "points": 1814.28,
+    "roster_points": 1977.98,
+    "conversion": 0.9172
    },
    "builder_no_equation": {
     "points": 1820.98,
     "roster_points": 1966.88,
     "conversion": 0.9258
    },
-   "delta": -107.3,
+   "delta": -6.7,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 4,
@@ -514,16 +514,16 @@
     "conversion": 0.8937
    },
    "builder": {
-    "points": 1935.5,
-    "roster_points": 1964.2,
-    "conversion": 0.9854
+    "points": 1926.5,
+    "roster_points": 2016.5,
+    "conversion": 0.9554
    },
    "builder_no_equation": {
     "points": 2074.5,
     "roster_points": 2321.3,
     "conversion": 0.8937
    },
-   "delta": -139,
+   "delta": -148,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 6,
@@ -544,22 +544,22 @@
     "conversion": 0.8173
    },
    "builder": {
-    "points": 1780.92,
-    "roster_points": 1905.32,
-    "conversion": 0.9347
+    "points": 1772.72,
+    "roster_points": 1896.82,
+    "conversion": 0.9346
    },
    "builder_no_equation": {
     "points": 1783.96,
     "roster_points": 2182.84,
     "conversion": 0.8173
    },
-   "delta": -3.04,
+   "delta": -11.24,
    "delta_no_equation": 0,
    "builder_counts": {
-    "RB": 5,
+    "RB": 4,
     "QB": 1,
     "WR": 6,
-    "TE": 1,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
@@ -574,21 +574,21 @@
     "conversion": 0.9139
    },
    "builder": {
-    "points": 1616.76,
-    "roster_points": 1817.16,
-    "conversion": 0.8897
+    "points": 1739.06,
+    "roster_points": 2013.16,
+    "conversion": 0.8638
    },
    "builder_no_equation": {
     "points": 1739.82,
     "roster_points": 1903.66,
     "conversion": 0.9139
    },
-   "delta": -123.06,
+   "delta": -0.76,
    "delta_no_equation": 0,
    "builder_counts": {
-    "RB": 5,
+    "RB": 4,
     "WR": 6,
-    "TE": 1,
+    "TE": 2,
     "QB": 1,
     "DEF": 1,
     "K": 1
@@ -604,23 +604,23 @@
     "conversion": 0.8825
    },
    "builder": {
-    "points": 1657.76,
-    "roster_points": 1841.86,
-    "conversion": 0.9
+    "points": 1983.16,
+    "roster_points": 2226.36,
+    "conversion": 0.8908
    },
    "builder_no_equation": {
     "points": 1928.96,
     "roster_points": 2185.84,
     "conversion": 0.8825
    },
-   "delta": -271.2,
+   "delta": 54.2,
    "delta_no_equation": 0,
    "builder_counts": {
-    "WR": 6,
+    "WR": 5,
     "RB": 5,
-    "TE": 1,
-    "QB": 1,
+    "TE": 2,
     "DEF": 1,
+    "QB": 1,
     "K": 1
    },
    "unfillable": []
@@ -634,22 +634,22 @@
     "conversion": 0.849
    },
    "builder": {
-    "points": 1506.78,
-    "roster_points": 1768.78,
-    "conversion": 0.8519
+    "points": 1509,
+    "roster_points": 1705,
+    "conversion": 0.885
    },
    "builder_no_equation": {
     "points": 1815.86,
     "roster_points": 2138.92,
     "conversion": 0.849
    },
-   "delta": -309.08,
+   "delta": -306.86,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 6,
-    "RB": 5,
-    "TE": 1,
+    "RB": 4,
     "QB": 1,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
@@ -664,21 +664,21 @@
     "conversion": 0.9278
    },
    "builder": {
-    "points": 1841.9,
-    "roster_points": 2035.2,
-    "conversion": 0.905
+    "points": 1791.5,
+    "roster_points": 1982.3,
+    "conversion": 0.9037
    },
    "builder_no_equation": {
     "points": 1804.08,
     "roster_points": 1944.48,
     "conversion": 0.9278
    },
-   "delta": 37.82,
+   "delta": -12.58,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 5,
-    "RB": 5,
-    "TE": 1,
+    "RB": 4,
+    "TE": 2,
     "QB": 2,
     "DEF": 1,
     "K": 1
@@ -694,21 +694,21 @@
     "conversion": 0.9136
    },
    "builder": {
-    "points": 1842.86,
-    "roster_points": 1976.96,
-    "conversion": 0.9322
+    "points": 1640.46,
+    "roster_points": 1688.66,
+    "conversion": 0.9715
    },
    "builder_no_equation": {
     "points": 1862.24,
     "roster_points": 2038.42,
     "conversion": 0.9136
    },
-   "delta": -19.38,
+   "delta": -221.78,
    "delta_no_equation": 0,
    "builder_counts": {
-    "TE": 1,
+    "TE": 2,
     "WR": 6,
-    "RB": 5,
+    "RB": 4,
     "QB": 1,
     "DEF": 1,
     "K": 1
@@ -724,22 +724,22 @@
     "conversion": 0.9638
    },
    "builder": {
-    "points": 1788.06,
-    "roster_points": 1962.14,
-    "conversion": 0.9113
+    "points": 1777.16,
+    "roster_points": 1974.34,
+    "conversion": 0.9001
    },
    "builder_no_equation": {
     "points": 1619.82,
     "roster_points": 1680.62,
     "conversion": 0.9638
    },
-   "delta": 168.24,
+   "delta": 157.34,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 5,
     "QB": 2,
-    "RB": 5,
-    "TE": 1,
+    "RB": 4,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
@@ -754,16 +754,16 @@
     "conversion": 0.8935
    },
    "builder": {
-    "points": 1710.36,
-    "roster_points": 1896.6,
-    "conversion": 0.9018
+    "points": 1658.16,
+    "roster_points": 1820.2,
+    "conversion": 0.911
    },
    "builder_no_equation": {
     "points": 1502.92,
     "roster_points": 1682.04,
     "conversion": 0.8935
    },
-   "delta": 207.44,
+   "delta": 155.24,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 5,
@@ -784,21 +784,21 @@
     "conversion": 0.8229
    },
    "builder": {
-    "points": 1750.54,
-    "roster_points": 1813.94,
-    "conversion": 0.965
+    "points": 1797.88,
+    "roster_points": 1843.88,
+    "conversion": 0.9751
    },
    "builder_no_equation": {
     "points": 1743.7,
     "roster_points": 2118.9,
     "conversion": 0.8229
    },
-   "delta": 6.84,
+   "delta": 54.18,
    "delta_no_equation": 0,
    "builder_counts": {
-    "RB": 5,
+    "RB": 4,
     "WR": 6,
-    "TE": 1,
+    "TE": 2,
     "DEF": 1,
     "QB": 1,
     "K": 1
@@ -814,22 +814,22 @@
     "conversion": 0.8455
    },
    "builder": {
-    "points": 1881.98,
-    "roster_points": 1962.28,
-    "conversion": 0.9591
+    "points": 1901.68,
+    "roster_points": 1983.88,
+    "conversion": 0.9586
    },
    "builder_no_equation": {
     "points": 2014.3,
     "roster_points": 2382.32,
     "conversion": 0.8455
    },
-   "delta": -132.32,
+   "delta": -112.62,
    "delta_no_equation": 0,
    "builder_counts": {
-    "WR": 6,
+    "WR": 5,
     "RB": 5,
     "QB": 1,
-    "TE": 1,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
@@ -844,16 +844,16 @@
     "conversion": 0.853
    },
    "builder": {
-    "points": 1840.48,
-    "roster_points": 1899.28,
-    "conversion": 0.969
+    "points": 1776.48,
+    "roster_points": 1814.48,
+    "conversion": 0.9791
    },
    "builder_no_equation": {
     "points": 2130.52,
     "roster_points": 2497.62,
     "conversion": 0.853
    },
-   "delta": -290.04,
+   "delta": -354.04,
    "delta_no_equation": 0,
    "builder_counts": {
     "RB": 5,
@@ -874,22 +874,22 @@
     "conversion": 0.9812
    },
    "builder": {
-    "points": 1616.68,
-    "roster_points": 1630.38,
-    "conversion": 0.9916
+    "points": 1683.22,
+    "roster_points": 1697.82,
+    "conversion": 0.9914
    },
    "builder_no_equation": {
     "points": 1613.98,
     "roster_points": 1644.98,
     "conversion": 0.9812
    },
-   "delta": 2.7,
+   "delta": 69.24,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 5,
     "QB": 2,
-    "RB": 5,
-    "TE": 1,
+    "RB": 4,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
@@ -904,20 +904,20 @@
     "conversion": 0.8836
    },
    "builder": {
-    "points": 1930.74,
-    "roster_points": 2116.58,
-    "conversion": 0.9122
+    "points": 1694.94,
+    "roster_points": 1828.28,
+    "conversion": 0.9271
    },
    "builder_no_equation": {
     "points": 1737.92,
     "roster_points": 1966.76,
     "conversion": 0.8836
    },
-   "delta": 192.82,
+   "delta": -42.98,
    "delta_no_equation": 0,
    "builder_counts": {
-    "RB": 5,
-    "TE": 1,
+    "RB": 4,
+    "TE": 2,
     "QB": 2,
     "WR": 5,
     "DEF": 1,
@@ -934,22 +934,22 @@
     "conversion": 0.8642
    },
    "builder": {
-    "points": 1823.06,
-    "roster_points": 1954.56,
-    "conversion": 0.9327
+    "points": 1584.64,
+    "roster_points": 1638.94,
+    "conversion": 0.9669
    },
    "builder_no_equation": {
     "points": 1893.98,
     "roster_points": 2191.48,
     "conversion": 0.8642
    },
-   "delta": -70.92,
+   "delta": -309.34,
    "delta_no_equation": 0,
    "builder_counts": {
     "WR": 6,
     "QB": 1,
-    "RB": 5,
-    "TE": 1,
+    "RB": 4,
+    "TE": 2,
     "DEF": 1,
     "K": 1
    },
