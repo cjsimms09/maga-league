@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Depth Charts — MFGA</title>
+<style>
+  /* Self-contained like draft-sheet.ejs/projections.ejs — desktop-first, no JS
+     needed except a plain <a href="#team"> jump list. */
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111; background: #fff; margin: 0; padding: 18px; font-size: 13px; line-height: 1.35; }
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 8px; border-bottom: 1.5px solid #111; padding-bottom: 3px; }
+  .meta { font-size: 11px; color: #444; margin: 2px 0 14px; max-width: 70em; }
+  .jump { display: flex; flex-wrap: wrap; gap: .3rem .5rem; margin-bottom: 20px;
+    font-size: 11.5px; font-weight: 700; }
+  .jump a { color: #111; text-decoration: none; border: 1px solid #ccc; border-radius: 3px;
+    padding: .15rem .45rem; }
+  .jump a:hover { background: #f4f1e8; }
+  .team-block { border-top: 3px solid #111; padding-top: 10px; margin-top: 24px; scroll-margin-top: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .pos-col h3 { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: #555;
+    margin: 10px 0 3px; border-bottom: 1px solid #e2e2e2; padding-bottom: 2px; }
+  .pos-col h3:first-child { margin-top: 0; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  td { padding: 1px 4px; }
+  td.ord { color: #777; width: 1.4em; }
+  td.nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 12em; }
+  td.starter { font-weight: 700; }
+  .inj { color: #a01414; font-size: 10px; font-weight: 700; margin-left: .3em; }
+  .abs { color: #bbb; }
+</style>
+</head>
+<body>
+<h1>Team Depth Charts</h1>
+<p class="meta">
+  Every rostered player currently on the board, grouped by team and sorted by
+  depth-chart order within position (<b>1</b> = starter). Data-only, from
+  <code>draft_data.json</code> — nothing here is a projection or a ranking of
+  our own.<% if (builtAt) { %> Board built <%= builtAt %>.<% } %>
+</p>
+<p class="jump">
+  <% for (const t of teams) { %><a href="#<%= t.team %>"><%= t.team %></a><% } %>
+</p>
+
+<% for (const t of teams) { %>
+<div class="team-block" id="<%= t.team %>">
+  <h2><%= t.team %></h2>
+  <div class="grid">
+    <% for (const pos of ['QB', 'RB', 'WR', 'TE']) { %>
+      <% if (!t.byPos[pos] || !t.byPos[pos].length) continue; %>
+      <div class="pos-col">
+        <h3><%= pos %></h3>
+        <table>
+          <% for (const p of t.byPos[pos]) { %>
+          <tr>
+            <td class="ord"><%= p.order != null ? p.order : '—' %></td>
+            <td class="nm <%= p.order === 1 ? 'starter' : '' %>"><%= p.name %><% if (p.injury) { %><span class="inj"><%= p.injury %></span><% } %></td>
+          </tr>
+          <% } %>
+        </table>
+      </div>
+    <% } %>
+    <div class="pos-col">
+      <% for (const pos of ['K', 'DEF']) { %>
+        <% if (!t.byPos[pos] || !t.byPos[pos].length) continue; %>
+        <h3><%= pos %></h3>
+        <table>
+          <% for (const p of t.byPos[pos]) { %>
+          <tr>
+            <td class="ord"><%= p.order != null ? p.order : '—' %></td>
+            <td class="nm <%= p.order === 1 ? 'starter' : '' %>"><%= p.name %></td>
+          </tr>
+          <% } %>
+        </table>
+      <% } %>
+    </div>
+  </div>
+</div>
+<% } %>
+</body>
+</html>

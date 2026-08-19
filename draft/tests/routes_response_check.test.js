@@ -265,9 +265,22 @@ function item(date, done, body) {
     regressedAgainst(bl.closure_by_pair).join(', '));
 
   const tampered = JSON.parse(JSON.stringify(bl.closure_by_pair));
-  tampered['E (red team) → A'].done += 1;   // pretend one more had been closed
+  /* TAMPER A PAIR THAT ACTUALLY EXISTS IN THE LIVE COUNT, CHOSEN FROM THE DATA.
+   * This hardcoded `E (red team) → A` and broke twice for two different reasons:
+   * once when A ticked a batch of that pair's items (a fail arm that goes red on
+   * genuine progress punishes the behaviour the ratchet exists to encourage), and
+   * again when the pair was absent from the live census entirely, so the tamper
+   * computed 0 + 1 = 1 against a live count of 4 and registered no regression at
+   * all — a FAIL ARM THAT SILENTLY STOPS ARMING, which is the exact failure this
+   * whole file is about. Picking the busiest live pair makes both impossible. */
+  const pair = Object.keys(bl.closure_by_pair)
+    .filter((k) => now[k] && typeof now[k].done === 'number')
+    .sort((a, b) => now[b].done - now[a].done)[0];
+  check('CONTROL — the fail arm has a real pair to tamper with, so it is armed',
+    !!pair, JSON.stringify(Object.keys(now).slice(0, 6)));
+  tampered[pair].done = now[pair].done + 1;   // pretend one more had been closed
   check('FAIL ARM — if a closed item came back open the ratchet DETECTS it',
-    regressedAgainst(tampered).indexOf('E (red team) → A') >= 0,
+    regressedAgainst(tampered).indexOf(pair) >= 0,
     regressedAgainst(tampered).join(', '));
 
   /* AND IT MUST NOT FIRE ON NEW WORK — the wolf-crying case, pinned. */

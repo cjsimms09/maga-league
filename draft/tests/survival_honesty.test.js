@@ -264,6 +264,9 @@ if (block) {
  * red for the whole week the tilt was disconnected. */
 {
   const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+  const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
+  // A's precondition (E31): this block's ctx below passes roster: [].
+  assertRosterFictionPrecondition(E);
   const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const players = art.players.filter(p => p.vorp != null);
   const byAdp = players.slice().sort(
@@ -286,9 +289,21 @@ if (block) {
     .map(p => ({ team_slot: p.slot, pick_no: p.overall, roster: [], profile: null, room: [] }));
   const expectedIv = ((art.pick_order || {}).picks || [])
     .filter(p => p.overall >= CUR && p.overall < NEXT).length - 1;   // minus my own
+  /* THE PICK BOARD IS THREADED, and its absence was a real gap in a file about
+   * SURVIVAL (session E, 2026-08-18; register E21). `survival.js:liveIndexOf`
+   * converts a board slot to a live selection index through `ctx.pickBoard`,
+   * and when it is missing it converts by IDENTITY and increments
+   * `SCALE.unconverted` — a counter that exists, in its own words, so a surface
+   * can say the scale is unconverted "instead of quietly showing numbers from
+   * the wrong one". This block already reads `art.pick_order.picks` two lines
+   * above to build `iv`; it simply never passed the same rows as the scale.
+   * Measured on the live board at pick 33: 48 of 650 players shift, up to
+   * 12.5pp (Terry McLaurin 80.2% -> 92.8%), concentrated in the ADP band around
+   * the next pick, which is exactly where survival feeds VONA. */
   const ctx = { board: board, roster: [], league: art.league, currentPick: CUR, nextPick: NEXT,
     weights: E.MEASURED_WEIGHTS, totalPicks: 150, myPicksLeft: 8, progress: 34 / 150,
     roundsLeft: 11, intervening: iv, runMultipliers: {}, drift: null,
+    pickBoard: ((art.pick_order || {}).picks) || null,
     currentKeepers: [], ceilingAllStages: false };
 
   const wasOn = E.CFG.CONSERVE_SURVIVAL_ON;

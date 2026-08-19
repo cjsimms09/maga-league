@@ -85,7 +85,24 @@ const mTop = rec(E.MEASURED_WEIGHTS)[0];
   ck('SHIPPED (MEASURED) no longer recommends a player the room has never heard of',
     adpOf(mTop.player) <= REACH_ADP,
     { pick: mTop.player.name, adp: adpOf(mTop.player), vorp: mTop.player.vorp });
-  const better = board.filter(p => adpOf(p) < 150).sort((a, b) => b.vorp - a.vorp)[0];
+  /* ⚠️ SKILL POSITIONS ONLY, CORRECTED 2026-08-19 — AND THE COMPARATOR WAS THE
+   * BUG, NOT THE ENGINE. This selector took the highest VORP on the board
+   * regardless of position, and on 08-19 it nominated the LOS ANGELES RAMS
+   * DEFENCE (vorp 29) as the "far better player" the engine was ignoring in
+   * favour of a bench receiver at -36.2. VORP IS NOT COMPARABLE ACROSS
+   * POSITIONS WHOSE REPLACEMENT POOL IS ~10 DEEP: a defence's replacement is
+   * the tenth-best defence, so every startable defence carries a large VORP
+   * that means nothing against a skill player's. That is the SAME reasoning
+   * behind the opening-script fix shipped the same morning, where raw VORP made
+   * a defence a TARGET eighty picks before its ADP.
+   *
+   * It surfaced when the VONA fix (register 56) moved the picked player's VORP
+   * down across the 50-point band — so the flip EXPOSED a wrong comparator
+   * rather than causing a wrong pick. The branch this suite is about is a SKILL
+   * branch; comparing it to a onesie was never the question. */
+  const SKILL = ['QB', 'RB', 'WR', 'TE'];
+  const better = board.filter(p => adpOf(p) < 150 && SKILL.indexOf(p.position) >= 0)
+    .sort((a, b) => b.vorp - a.vorp)[0];
   ck('  and it is not being outranked by a far better player on the same board',
     !better || Number(mTop.player.vorp) >= Number(better.vorp) - 50,
     better ? { available: better.name, vorp: better.vorp, picked: mTop.player.vorp } : null);

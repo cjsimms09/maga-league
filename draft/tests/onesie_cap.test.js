@@ -52,47 +52,64 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
 
 // ── WHAT THE CAP WAS COVERING, NOW UNGUARDED ──────────────────────────────
 /* THIS BLOCK USED TO ASSERT THAT A CAPPED THIRD QB/TE SANK TO THE BOTTOM.
- * The cap is deleted (Cory, 2026-08-14: "delete them, do not fix them"), so
- * nothing sinks and this measures what is left instead.
+ * The cap is deleted (Cory, 2026-08-14: "delete them, do not fix them",
+ * executed in the engine 08-18 — register 5n), so nothing sinks by count and
+ * this measures what is left instead.
  *
- * THE CAP WAS A STAND-IN FOR A VALUATION THAT DOES NOT WORK -- the bench branch
- * ranks on proj_ceiling - proj_mean in RAW SEASON POINTS, and a quarterback
- * scores 350-400, so his spread is the largest absolute number on the board by
- * construction. This file's own retirement trigger was "the units defect is
- * gone". IT IS NOT GONE. The cap was removed by instruction, not because the
- * thing it covered was fixed, and the difference matters: measured immediately
- * after deletion, with 2 QB and 2 TE carried, a third of each surfaces at
- * BOARD RANK 5 AND 4 -- discounted to a spare, and still near the top, because
- * the value exception fires once the better ones are gone and they have fallen
- * past ADP.
+ * CORRECTED 08-18, AND THE CORRECTION IS THE POINT: the paragraph that lived
+ * here said the units defect ("bench ranks raw spreads, QB biggest by
+ * construction") was NOT fixed. IT WAS -- upsideBonus has normalised every
+ * spread by its position's replacement level since 08-13
+ * (computeCeilingScales), and the "rank 5 and 4" this block treated as the
+ * defect showing was measured WITHOUT score context: on the live board those
+ * are fallen elites carried at ONE-TENTH scores (2.4 / 1.4 vs 16.9 at #1)
+ * through the value exception, each printing "YOU CANNOT START HIM". That is
+ * pricing plus honesty, not the defect. A stale alarm is how the stale
+ * deletion comment survived four days over live code -- same class.
  *
- * PINNED AS A FACT, NOT AS A DESIRED STATE. If these ranks move in EITHER
- * direction this fires: worse means the exposure grew, better means something
- * fixed the units defect and this file can finally retire. Read it as the alarm
- * going off and re-derive; do not adjust the numbers to make it quiet. */
+ * SO THE ALARM NOW MEASURES THE RIGHT INVARIANT: a third QB/TE may surface
+ * near the top ONLY as a fallen elite -- value exception set, score a small
+ * fraction of the leader's, cannot-start sentence printed. Any of those three
+ * failing is the real regression. */
 {
   const roster = build(['QB', 'QB', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR']);
   const res = rec(roster);
   const rankOf = pos => res.findIndex(r => r.player.position === pos) + 1;
   const qb = rankOf('QB'), te = rankOf('TE');
 
-  /* THIS BLOCK ASSERTED THE DEFECT (2026-08-13). When the cap was deleted these
-   * two checks were rewritten to pin the CONSEQUENCE — "a third QB still
-   * surfaces near the top" — as a standing exposure. That was honest at the
-   * time. But it made the suite go RED ON THE FIX and green on the bug, which
-   * is the same shape as test_acceptance.py asserting adp_sd_for(100) == 22.0.
-   * The cap is restored, so the expectation moves back and the reason is here
-   * rather than in a diff nobody reads. */
-  ck('a THIRD quarterback is sunk, not surfaced near the top',
-    qb === 0 || qb > 12, { third_QB_board_rank: qb, of: res.length });
+  /* TWO ERAS OF THIS BLOCK MET IN A MERGE. The 08-13-restore era pinned "a
+   * third QB is SUNK"; the post-ruling era pins the EXPOSURE. Cory's 08-14
+   * ruling ("delete them, do not fix them") is the final word — executed in
+   * the engine 08-18 after register 5n found the deletion comment sitting on
+   * live cap code. So: nothing sinks by count; a third QB/TE is a DISCOUNTED
+   * spare, and where he lands on the board is tracked as a fact, alarm-style
+   * (see the exposure note above) — not celebrated, not hidden. */
+  ck('a THIRD quarterback is a discounted spare — priced, never sunk by a count',
+    qb > 0 && res[qb - 1].onesie && res[qb - 1].onesie.discounted
+    && !res[qb - 1].onesie.capped, { third_QB_board_rank: qb, of: res.length });
   ck('  and so is a third TE',
-    te === 0 || te > 12, { third_TE_board_rank: te, of: res.length });
+    te > 0 && res[te - 1].onesie && res[te - 1].onesie.discounted
+    && !res[te - 1].onesie.capped, { third_TE_board_rank: te, of: res.length });
   ck('  both are at least PRICED as spares rather than at full value',
     res[qb - 1].onesie && res[qb - 1].onesie.discounted
     && res[te - 1].onesie && res[te - 1].onesie.discounted);
   ck('  and each SAYS he cannot start, in a sentence a human can overrule',
     /CANNOT START HIM|cannot start him/.test((res[qb - 1].onesie || {}).why || ''),
     (res[qb - 1].onesie || {}).why);
+  // THE REAL ALARM (08-18): near the top only as a labelled fallen elite at a
+  // fraction of the leader's score. If a third QB/TE ever ranks top-10 WITHOUT
+  // the value exception, or carrying more than a third of the leader's score,
+  // something upstream regressed (the discount, the normalisation, or the
+  // exception's gate) -- that is the condition worth waking a human for.
+  const topScore = res[0].score || 1;
+  [qb, te].forEach((rank, i) => {
+    const r = res[rank - 1];
+    if (rank <= 10) {
+      ck('  ' + (i ? 'TE' : 'QB') + '3 in the top 10 is a LABELLED fallen elite at a fraction of the leader',
+        r.onesie && r.onesie.exception === 'value' && (r.score || 0) < topScore / 3,
+        { rank: rank, score: r.score, top: topScore, exception: (r.onesie || {}).exception });
+    }
+  });
 }
 
 // ── THE FIRST SPARE IS STILL ALLOWED ───────────────────────────────────────
@@ -122,8 +139,10 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
   ck('a SECOND kicker is priced as a spare — both are streamed and neither earns a pick',
     k && k.onesie && k.onesie.discounted, k && k.onesie);
   ck('  and so is a second defence', d && d.onesie && d.onesie.discounted, d && d.onesie);
-  ck('  and BOTH are capped — zero spares allowed, so pricing low is not enough',
-    (k && k.onesie && k.onesie.capped) && (d && d.onesie && d.onesie.capped),
+  ck('  and NEITHER is capped — the count-cap is deleted (Cory 08-14); the '
+    + 'discount prices them and the K/DEF rail arm in demoteFlaggedOnesies '
+    + 'still sinks a flagged second one',
+    !(k && k.onesie && k.onesie.capped) && !(d && d.onesie && d.onesie.capped),
     { k: k && k.onesie, d: d && d.onesie });
 }
 
@@ -151,11 +170,10 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
    * above had already excluded flex-startable players. One function, two answers
    * to "does the flex count", which priced the first unstartable QB at 81% of
    * standalone VORP and the first unstartable TE at 8%. */
-  ck('CFG.ONESIE_MAX_SPARE exists and allows exactly one spare QB and TE',
-    E.CFG.ONESIE_MAX_SPARE && E.CFG.ONESIE_MAX_SPARE.QB === 1
-    && E.CFG.ONESIE_MAX_SPARE.TE === 1 && E.CFG.ONESIE_MAX_SPARE.K === 0
-    && E.CFG.ONESIE_MAX_SPARE.DEF === 0, E.CFG.ONESIE_MAX_SPARE);
-  ck('  and CFG.ONESIE_HARD_CAP is on', E.CFG.ONESIE_HARD_CAP === true);
+  ck('CFG.ONESIE_MAX_SPARE and CFG.ONESIE_HARD_CAP are GONE — the deletion is '
+    + 'structural, not a false flag on live constants (the register-5n shape)',
+    E.CFG.ONESIE_MAX_SPARE === undefined && E.CFG.ONESIE_HARD_CAP === undefined,
+    { max_spare: E.CFG.ONESIE_MAX_SPARE, hard_cap: E.CFG.ONESIE_HARD_CAP });
   /* THE ROSTER HERE MUST BE LEGALLY COMPLETE, and my first version was not.
    * `['QB','QB','QB','TE','TE','TE']` has no RB, WR, K or DEF, so mandatoryGaps
    * returns six and applyRosterLegality FORCES with five picks left — the result
@@ -164,8 +182,8 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
    * roster. Legality outranks the cap and should: a legal lineup beats a tidy
    * one. Filled out so the cap is what is actually under test. */
   const full = build(['QB', 'QB', 'QB', 'TE', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR', 'K', 'DEF']);
-  ck('  a roster already carrying three QBs and three TEs reports capped entries',
-    rec(full).some(r => r.onesie && r.onesie.capped),
+  ck('  a roster already carrying three QBs and three TEs reports ZERO capped entries',
+    !rec(full).some(r => r.onesie && r.onesie.capped),
     { gaps: 0, capped: rec(full).filter(r => r.onesie && r.onesie.capped).length });
 }
 

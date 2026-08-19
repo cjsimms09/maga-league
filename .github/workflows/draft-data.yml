@@ -268,6 +268,11 @@ jobs:
           python draft/backtest/cory_conditional.py || echo "19b race skipped"
           python draft/opening_script.py
           python draft/room_read.py || echo "room read unchanged/skipped"
+          # The census is a snapshot OF the board just built — regenerate it
+          # here or its committed copy is one nightly behind and the gate's
+          # on_board_skill cross-check reds on correct board growth
+          # (refused rebuild 32199445523, off-by-one, A 08-19).
+          python draft/backtest/projection_coverage_census.py
 
       - name: Acceptance gate on the FRESH board — nothing untested is published
         # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
@@ -311,11 +316,23 @@ jobs:
           echo "== the board about to be committed must pass the suite that reads it"
           echo "   (repo-parity pins deselected here ONLY — their inputs were just rebuilt; see test_gate_selection.py)"
           if ! python -m pytest draft/tests -q -m "not repo_parity" 2>&1 | tee /tmp/board_gate_output.txt; then
-            echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
-            echo "    The previously published board is untouched and still live."
-            echo "    Fix the board (or whatever the suite is telling you about it)"
-            echo "    and re-run — do NOT bypass this to get a rebuild out."
-            exit 1
+            # REGISTER 55, fixed on Cory's call 08-19: a suite failure is not
+            # automatically a BOARD failure. On 08-19 this gate refused the
+            # board four times and only ONE of six failures was about the
+            # board; the rest were repo hygiene. gate_triage decides which
+            # kind we have — everything blocks by default, and only tests
+            # named ADVISORY (with a stated reason, self-checked against
+            # reading the board) may fail without stopping the publish.
+            echo "== suite failed — triaging: is this the BOARD, or the repo's own tooling?"
+            if python3 draft/tools/gate_triage.py /tmp/board_gate_output.txt; then
+              echo "::warning::Board published with ADVISORY test failures — repo hygiene, not the board. Fix them, but they did not hold the board."
+            else
+              echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
+              echo "    The previously published board is untouched and still live."
+              echo "    Fix the board (or whatever the suite is telling you about it)"
+              echo "    and re-run — do NOT bypass this to get a rebuild out."
+              exit 1
+            fi
           fi
 
       - name: Make a refused publish LOUD, not just red — found 2026-08-15
@@ -441,7 +458,12 @@ jobs:
           # was never in this commit list — so the committed record was frozen
           # at its last hand-commit and the union could not actually grow. A
           # union that only grows in a discarded working tree is not a record.
-          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json"
+          # projection_coverage_census.json ADDED 2026-08-19, the SAME defect one
+          # line below its own warning: A wired the census REGENERATION into this
+          # workflow (so the gate stopped failing on a stale census) but not into
+          # this list — so CI graded a fresh census and committed the old one, and
+          # the repo's copy stayed one rebuild behind for every consumer but the gate.
+          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then

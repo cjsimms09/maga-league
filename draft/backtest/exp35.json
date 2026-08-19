@@ -17,7 +17,7 @@
       "n": 764,
       "top_decile": 0.513,
       "rank_corr": 0.64,
-      "mae": 47.72,
+      "mae": 47.74,
       "is_shipped": false
     },
     {
@@ -25,23 +25,23 @@
       "n": 764,
       "top_decile": 0.487,
       "rank_corr": 0.634,
-      "mae": 49.04,
+      "mae": 49.05,
       "is_shipped": false
     },
     {
       "regression_weight": 0.2,
       "n": 764,
       "top_decile": 0.461,
-      "rank_corr": 0.626,
-      "mae": 50.49,
+      "rank_corr": 0.627,
+      "mae": 50.5,
       "is_shipped": false
     },
     {
       "regression_weight": 0.35,
       "n": 764,
       "top_decile": 0.395,
-      "rank_corr": 0.607,
-      "mae": 52.99,
+      "rank_corr": 0.608,
+      "mae": 53.0,
       "is_shipped": true
     },
     {
@@ -49,7 +49,7 @@
       "n": 764,
       "top_decile": 0.355,
       "rank_corr": 0.583,
-      "mae": 55.85,
+      "mae": 55.86,
       "is_shipped": false
     },
     {
@@ -57,15 +57,15 @@
       "n": 764,
       "top_decile": 0.329,
       "rank_corr": 0.533,
-      "mae": 60.33,
+      "mae": 60.34,
       "is_shipped": false
     },
     {
       "regression_weight": 1.0,
       "n": 764,
       "top_decile": 0.276,
-      "rank_corr": 0.253,
-      "mae": 67.72,
+      "rank_corr": 0.252,
+      "mae": 67.73,
       "is_shipped": false
     }
   ],
@@ -85,7 +85,7 @@
           "n": 172,
           "top_decile": 0.529,
           "rank_corr": 0.624,
-          "mae": 70.41,
+          "mae": 70.33,
           "is_shipped": false
         },
         {
@@ -93,47 +93,47 @@
           "n": 172,
           "top_decile": 0.588,
           "rank_corr": 0.62,
-          "mae": 68.41,
+          "mae": 68.33,
           "is_shipped": false
         },
         {
           "regression_weight": 0.2,
           "n": 172,
           "top_decile": 0.529,
-          "rank_corr": 0.611,
-          "mae": 67.22,
+          "rank_corr": 0.612,
+          "mae": 67.15,
           "is_shipped": false
         },
         {
           "regression_weight": 0.35,
           "n": 172,
           "top_decile": 0.529,
-          "rank_corr": 0.605,
-          "mae": 67.25,
+          "rank_corr": 0.606,
+          "mae": 67.18,
           "is_shipped": true
         },
         {
           "regression_weight": 0.5,
           "n": 172,
           "top_decile": 0.529,
-          "rank_corr": 0.579,
-          "mae": 68.72,
+          "rank_corr": 0.582,
+          "mae": 68.66,
           "is_shipped": false
         },
         {
           "regression_weight": 0.7,
           "n": 172,
           "top_decile": 0.529,
-          "rank_corr": 0.546,
-          "mae": 71.95,
+          "rank_corr": 0.549,
+          "mae": 71.9,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
           "n": 172,
-          "top_decile": 0.353,
-          "rank_corr": 0.226,
-          "mae": 81.18,
+          "top_decile": 0.294,
+          "rank_corr": 0.244,
+          "mae": 81.16,
           "is_shipped": false
         }
       ],
@@ -152,7 +152,7 @@
           "regression_weight": 0.0,
           "n": 458,
           "top_decile": 0.543,
-          "rank_corr": 0.617,
+          "rank_corr": 0.618,
           "mae": 53.61,
           "is_shipped": false
         },
@@ -161,7 +161,7 @@
           "n": 458,
           "top_decile": 0.543,
           "rank_corr": 0.611,
-          "mae": 54.24,
+          "mae": 54.25,
           "is_shipped": false
         },
         {
@@ -169,7 +169,7 @@
           "n": 458,
           "top_decile": 0.522,
           "rank_corr": 0.601,
-          "mae": 55.12,
+          "mae": 55.13,
           "is_shipped": false
         },
         {
@@ -185,7 +185,7 @@
           "n": 458,
           "top_decile": 0.391,
           "rank_corr": 0.554,
-          "mae": 59.67,
+          "mae": 59.69,
           "is_shipped": false
         },
         {
@@ -193,15 +193,15 @@
           "n": 458,
           "top_decile": 0.391,
           "rank_corr": 0.508,
-          "mae": 63.99,
+          "mae": 64.01,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
           "n": 458,
           "top_decile": 0.326,
-          "rank_corr": 0.195,
-          "mae": 71.93,
+          "rank_corr": 0.194,
+          "mae": 71.94,
           "is_shipped": false
         }
       ],
@@ -220,8 +220,8 @@
           "regression_weight": 0.0,
           "n": 455,
           "top_decile": 0.5,
-          "rank_corr": 0.648,
-          "mae": 52.67,
+          "rank_corr": 0.649,
+          "mae": 52.71,
           "is_shipped": false
         },
         {
@@ -229,7 +229,7 @@
           "n": 455,
           "top_decile": 0.478,
           "rank_corr": 0.64,
-          "mae": 53.55,
+          "mae": 53.58,
           "is_shipped": false
         },
         {
@@ -237,15 +237,15 @@
           "n": 455,
           "top_decile": 0.457,
           "rank_corr": 0.629,
-          "mae": 54.61,
+          "mae": 54.64,
           "is_shipped": false
         },
         {
           "regression_weight": 0.35,
           "n": 455,
           "top_decile": 0.413,
-          "rank_corr": 0.607,
-          "mae": 56.66,
+          "rank_corr": 0.608,
+          "mae": 56.69,
           "is_shipped": true
         },
         {
@@ -253,7 +253,7 @@
           "n": 455,
           "top_decile": 0.391,
           "rank_corr": 0.578,
-          "mae": 59.21,
+          "mae": 59.24,
           "is_shipped": false
         },
         {
@@ -261,15 +261,15 @@
           "n": 455,
           "top_decile": 0.391,
           "rank_corr": 0.527,
-          "mae": 63.51,
+          "mae": 63.53,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
           "n": 455,
           "top_decile": 0.326,
-          "rank_corr": 0.212,
-          "mae": 70.85,
+          "rank_corr": 0.215,
+          "mae": 70.86,
           "is_shipped": false
         }
       ],

@@ -142,8 +142,14 @@ const CALIBRATION = {
     + '— the composite list never calls it and is blind to positional fill until '
     + 'applyRosterLegality fires in the endgame' },
   risk: { status: 'measured', note: 'measured as a drag; weighted to zero' },
-  ceiling: { status: 'soft', note: 'could not be signed (−4.8 [−26, +17]); '
-    + 'weighted to zero' },
+  // The old note ("could not be signed (−4.8 [−26, +17])") was RETRACTED
+  // 08-17: that measurement came from a board where ceiling was rank-identical
+  // to value (Spearman 1.0000). Unreachable here two ways over (weight-0 terms
+  // never pass decision_significant, and the renderer never prints notes) —
+  // corrected anyway, because the day someone wires caveats through, a
+  // retracted measurement must not ship with them (relay's trace, B's routing).
+  ceiling: { status: 'measured', note: 'measured positive on the real-ceiling '
+    + 'board (3/3 seeds); shipped at 0.45 by Cory\'s 08-17 ruling' },
   bye: { status: 'measured', note: 'a real null; weighted to zero' },
 };
 
@@ -203,8 +209,11 @@ function causes(winner, alternative, contribs) {
     detail: 'a plausibility rail fired on the alternative', rails: alt.rails.length });
   if ((winner || {}).legality) out.push({ code: 'structural:legality_forced',
     kind: 'structural', detail: 'roster legality forced this pick' });
-  if (((alt.onesie || {}).capped)) out.push({ code: 'structural:onesie_cap',
-    kind: 'structural', detail: 'the alternative hit the onesie duplicate cap' });
+  // structural:onesie_cap is RETIRED with its mechanism (Cory 08-14, executed
+  // 08-18, register 5n): `capped` is now a constant false in the engine, so
+  // this emission could never fire again — kept out rather than left as a
+  // reader of a dead flag, which is how the false-deletion comment survived
+  // four days in the engine itself.
   return out;
 }
 

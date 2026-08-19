@@ -86,6 +86,111 @@ check('daysUntil: after the draft goes negative', D.daysUntil('2026-08-22', '202
   // No config date AND no season year → unconfigured (banner hides, no throw).
   const none = D.draftAnnouncement({}, '2026-08-10T00:00:00Z');
   check('draftAnnouncement: no date + no season year → configured:false, no message', none.configured === false && none.message === null && none.date === null);
+
+  // ── REGISTER 5m (B, 2026-08-18): `configured` used to return `true`
+  // unconditionally — a bare, unruled placeholder announcing itself with the
+  // authority of a decision, the same defect keeperDeadlineAnnouncement below
+  // was already fixed for. The committed ruling in league_config.json (`draft`,
+  // "Yes it's 6pm", A10 08-18) is a REAL decision even with the runtime store
+  // empty, so it earns configured:true; a season the ruling does not name gets
+  // a genuinely-guessed placeholder and must NOT claim the ruling's authority.
+  check('draftAnnouncement: the committed 2026 ruling backs configured:true even '
+    + 'with an empty runtime config (this is the middle tier, not a guess)',
+    di.configured === true);
+  const offYear = D.draftAnnouncement({}, '2027-08-01T00:00:00Z', 2027);
+  check('draftAnnouncement: FAIL ARM — a season the committed ruling does not '
+    + 'name gets an unconfigured placeholder, not the ruling\'s authority '
+    + '(2027-08-22 is a guess, not a decision)',
+    offYear.date === '2027-08-22' && offYear.configured === false);
+  const runtimeOnly = D.draftAnnouncement({ draft_date: '2027-09-04', draft_time: '5:00 PM' }, '2027-08-01T00:00:00Z', 2027);
+  check('draftAnnouncement: a real runtime value earns configured:true on its '
+    + 'own, independent of the committed ruling',
+    runtimeOnly.configured === true && runtimeOnly.date === '2027-09-04');
+}
+
+// ── keeperDeadlineAnnouncement — register row 42's fix: `configured` and
+// `derived` are SEPARATE, so a fallback guess can never fire the pinned,
+// league-wide alert the way it used to (a hardcoded fallback and a real
+// ruling both returned configured:true before this row was found). ────────
+{
+  // No config.keepers.deadline at all, but a season year → falls back to a
+  // DERIVED date (never a hardcoded literal), and MUST read configured:false.
+  const derived = D.keeperDeadlineAnnouncement({}, '2026-08-10T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: no config -> derived fallback date, not configured', derived.date === '2026-08-21' && derived.configured === false && derived.derived === true);
+  check('keeperDeadlineAnnouncement: derived still produces a real message (informational banner can show it)', typeof derived.message === 'string' && derived.message.indexOf('KEEPER DEADLINE') === 0);
+
+  // The ruled config (the real shape Cory's ruling landed in) -> configured:true.
+  const ruledConfig = { keepers: { deadline: { date: '2026-08-21', time: '6:00 PM', tz: 'CDT' } } };
+  const ruled = D.keeperDeadlineAnnouncement(ruledConfig, '2026-08-18T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: config.keepers.deadline present -> configured:true, derived:false', ruled.configured === true && ruled.derived === false);
+  check('keeperDeadlineAnnouncement: weekday DERIVED from the ruled date (Friday)', ruled.weekday === 'Friday');
+  check('keeperDeadlineAnnouncement: message states the deadline, not a guess', ruled.message === 'KEEPER DEADLINE: Friday August 21 at 6:00 PM CDT — set your keeper before it locks.');
+  check('keeperDeadlineAnnouncement: not passed 3 days out', ruled.passed === false && ruled.hoursLeft > 24);
+
+  // FAIL ARM for the exact bug this row found: even though a date exists (via
+  // fallback), configured must stay false so the pinned alert never fires.
+  check('FAIL ARM — a derived-only date never reports configured:true', derived.configured !== true);
+
+  // Deadline instant math: 6:00 PM CDT = 23:00 UTC (CDT is UTC-5).
+  const past = D.keeperDeadlineAnnouncement(ruledConfig, '2026-08-21T23:30:00Z', 2026);
+  check('keeperDeadlineAnnouncement: passes exactly at the CDT instant, not just the calendar day', past.passed === true);
+  const before = D.keeperDeadlineAnnouncement(ruledConfig, '2026-08-21T22:30:00Z', 2026);
+  check('keeperDeadlineAnnouncement: half an hour before the instant is NOT yet passed', before.passed === false && before.countdownText === 'less than an hour left');
+
+  // A bad date string must not throw, same contract as draftAnnouncement.
+  const bad = D.keeperDeadlineAnnouncement({ keepers: { deadline: { date: 'nonsense' } } }, '2026-08-10T00:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: a bad configured date does not throw and falls back to the raw string', bad.longDate === 'nonsense' && bad.configured === true);
+
+  // No date and no season year -> fully unconfigured, no throw.
+  const none = D.keeperDeadlineAnnouncement({}, '2026-08-10T00:00:00Z');
+  check('keeperDeadlineAnnouncement: no date + no season year -> configured:false, no message', none.configured === false && none.message === null && none.date === null);
+}
+
+// ── keeperDeadlineAnnouncement — expires on the DEADLINE INSTANT, not the day ─
+{
+  // Fallback DATE derives its year from the season; default 6pm CDT.
+  const ki = D.keeperDeadlineAnnouncement({}, '2026-08-20T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: fallback is the season-year deadline, Fri 8/21 6pm CDT',
+    ki.message === "KEEPER DEADLINE: Friday August 21 at 6:00 PM CDT — set your keeper before it locks.");
+  check('keeperDeadlineAnnouncement: deadline instant is 23:00 UTC (6pm CDT = UTC-5)',
+    ki.deadlineISO === '2026-08-21T23:00:00.000Z');
+  check('keeperDeadlineAnnouncement: fallback year FOLLOWS the season (2027 → 2027)',
+    D.keeperDeadlineAnnouncement({}, '2027-01-01T00:00:00Z', 2027).date === '2027-08-21');
+  // 35 hours out (1 day 11h) — whole-day-plus-hours phrasing.
+  check('keeperDeadlineAnnouncement: 35 hours out reads "1 day left"',
+    ki.hoursLeft === 35 && ki.countdownText === '1 day left' && ki.passed === false);
+  // Inside 24h — hour-granularity phrasing, and the view's "today" trigger.
+  const soon = D.keeperDeadlineAnnouncement({}, '2026-08-21T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: 11 hours out reads "11 hours left"',
+    soon.hoursLeft === 11 && soon.countdownText === '11 hours left');
+  // Inside the last hour — collapses to a single phrase rather than "1 hour left" then "0 hours left".
+  const last = D.keeperDeadlineAnnouncement({}, '2026-08-21T22:30:00Z', 2026);
+  check('keeperDeadlineAnnouncement: under an hour reads "less than an hour left"',
+    last.countdownText === 'less than an hour left');
+  // THE CENTRAL CONTRACT: it expires at the INSTANT, not at local midnight —
+  // 1am the day after the deadline date is well past a 6pm deadline the day before.
+  const after = D.keeperDeadlineAnnouncement({}, '2026-08-22T00:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: an hour past the deadline instant is passed', after.passed === true);
+  check('keeperDeadlineAnnouncement: passed → no countdown text (the banner/alert both hide on passed)',
+    after.countdownText === null);
+  // Config overrides date + time + timezone (CST, the non-DST Central offset).
+  // Shape converted at the 6nyayc merge: the branch's flat keeper_deadline_*
+  // keys predate main's `keepers.deadline` block (register 42's fix). Same
+  // three behaviors under test, current contract.
+  const over = D.keeperDeadlineAnnouncement(
+    { keepers: { deadline: { date: '2026-08-21', time: '5:30 PM', tz: 'CST' } } },
+    '2026-08-20T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: config overrides date + time + tz',
+    over.message === 'KEEPER DEADLINE: Friday August 21 at 5:30 PM CST — set your keeper before it locks.');
+  check('keeperDeadlineAnnouncement: CST is UTC-6, not UTC-5', over.deadlineISO === '2026-08-21T23:30:00.000Z');
+  // No config date AND no season year → unconfigured (banner hides, no throw).
+  const noneK = D.keeperDeadlineAnnouncement({}, '2026-08-10T00:00:00Z');
+  check('keeperDeadlineAnnouncement: no date + no season year → configured:false, no message',
+    noneK.configured === false && noneK.message === null && noneK.date === null);
+  // A bad configured date does not throw and falls back to the raw string.
+  const bad = D.keeperDeadlineAnnouncement({ keepers: { deadline: { date: 'nonsense' } } }, '2026-08-10T00:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: a bad configured date does not throw',
+    bad.longDate === 'nonsense' && bad.passed === false);
 }
 
 // ── buildModel on the fixture ──────────────────────────────────────────────

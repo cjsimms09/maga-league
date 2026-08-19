@@ -1,5 +1,62 @@
 # DRAFT-WEEK BRIEF — read this first (written 2026-08-17, draft is 2026-08-22)
 
+---
+
+## ⚡ 08-18/19 NIGHT — appended by A so the first-read file does not repeat its own famous failure (four files describing a pre-ruling state). Everything below this block describes 08-17; this block is what changed since.
+
+**THE PROJECTION QUESTION IS SETTLED FOR THIS DRAFT AND MOVED TO ITS REAL VENUE.**
+A2 is CLOSED (A ruled, backed by Cory's A11 pre-authorization chain): **Sleeper
+stays the board baseline through Saturday.** V7 ran three times and V8 once —
+usage/efficiency 0/3 folds, C4/C6 double null (C6 caught as a 0.9997-correlated
+costume by the standing >0.98 gate, its first live firing), and V8's WR
+source-correction a two-fold null with the champion surviving best-of-K. The one
+replicated positive is PER-GAME-shaped (WR λ 0.75/0.61, CI>0 both folds, with a
+dated survivorship caveat on P98): our model knows WR per-game production the
+market doesn't price; the market knows availability. So the fight moved to where
+per-game is graded: **the weekly lab, frozen at week zero** (`WEEKLY-LAB-FREEZE-
+2026.md` — pairwise start/sit metric implemented in `start_sit_metric.py`, wired
+into the Tuesday grader, Cory-bar computes itself from 09-15; predictions P101 on
+record). C's weekly projection archive (Sleeper+FP, pre-kickoff Thursdays) is
+LIVE in CI — the capture that makes the 2027 goal gradeable at all.
+
+**ROSTER-SHAPE STRATEGY IS A POWERED NULL, NOT AN OPEN QUESTION.** The
+many-worlds simulator (`season_forward_sim.py`, identity/conservation-certified)
+re-asked the tournament's question across 54,000 priced worlds: the oracle is
+worth +$425-1,438/season against ~$20 resolution, and NO strategy separates from
+following the market (P100 TRUE). Draft-day implication: take the board's value,
+don't force shapes. The in-season half (`season_forward_inseason.py`) hindcast
+2023-25 as-if-live and beat the constant-odds baseline 2-3x at week 8 in all
+three seasons (P103 TRUE) — `write_live()` feeds B's playoff-odds widget from
+week 1, with 2025's late-upset week-12 degradation as its standing humility
+caveat.
+
+**BOTH E FIXES CORY WILL DRAFT ON ARE REVIEWED AND ACCEPTED, not just ticked:**
+E15 (the Nix-over-Purdy QB inversion — dead twice over: the population-polluted
+calibration was regenerated AND the cross-band tiebreak gate refuses the class)
+and E35 (the keeper reconciler false-halt on Cory's exact 3-keeper slate — the
+still-halts-on-real-errors arm verified). The runbook's freeze order is fixed in
+its own heading (Saturday AFTER 03:00 CDT, never Friday), the keeper banner is
+live off Cory's committed ruling, and the restore-button trap (5g) is ruled and
+dispatched.
+
+**THE ANCHOR QUESTION RUNS ON SATURDAY'S OWN DATA.** The probe that justified FP
+as the ADP anchor had compared FP to itself (ρ=1.0000 exactly); the real
+comparison (`exp_real_ffc_vs_fp.py`, refusals wired for the old defect's
+signature) shows ρ=0.894 in Cory's window — genuinely different sources. FP
+stays wired for Saturday; **P102 grades which source better predicted the room's
+actual picks, within 48h of the draft.**
+
+**LEDGER: 103 predictions, none overdue.** Registers 19/19b, 5l, 5n, 5i, E15,
+E35 closed with evidence; the inbox tick-sweep (~110 items) cleared the
+acting-without-ticking debt across all lanes. The captures run themselves:
+weekly projections (Thu), event player props (Thu), odds (Thu/Sun), Kalshi
+(daily), the Tuesday grade, the nightly board. Next human dates: keeper lock
+FRIDAY 08-21 6pm CDT (Cory's ruled date; older docs' 'Thursday' was weekday
+drift — the config derives the weekday from the date for exactly this reason),
+freeze Sat after 03:00 CDT, draft Sat 6pm.
+
+---
+
 **Supersedes `MONDAY-BRIEF.md` as the entry point.** That file is still accurate
 about 08-15/16 and is not deleted; this one covers 08-17, which changed the
 model's foundations rather than its features.
@@ -50,7 +107,11 @@ with a measured win is now live, none of it invented tonight.
 
 **All three of Cory's rulings are IN THE LIVE ENGINE:** adp_sd 0.11/2.0 (every
 band 0.95-1.02x market; backtest ordered, reversion armed), ceiling weight
-0.45 (measured inverted-U peak; top rec verified unchanged at Cory's picks),
+0.45 (inside the measured winning band — the 3-seed prereg has every engine-scale
+value 0.15-0.65 beating zero; "at the peak" was retired 08-18 when A checked the
+formulas: exp 21's λ=0.5 inverted-U peak multiplies the RAW spread while the
+engine weight multiplies a 0.15-scaled, 20-point-capped bonus, so the two scales
+never shared an axis. Top rec verified unchanged at Cory's picks),
 the ruled board itself published (first since 08-15; issue #8 auto-closed).
 
 **The war room is the tabbed COCKPIT, desktop-first, deployed and probe-verified**
@@ -89,19 +150,45 @@ re-test extends the grid past 0.75 (best_w sat on the edge).
 **AND WITH THE BLEND NULL, THE KEEPER SLATE IS FINAL (chain steps 1–2 closed):
 keep all three — Chase R1 (+43), Henry R2 (+10), Walker R3 (+32), surplus
 +86.3** on the survival-fixed, rulings-live board; every keep-fewer option is
-strictly worse. Cory confirms at the 08-20 lock; the board re-derives then.
+strictly worse. Cory confirms at the lock — **08-21 6:00 PM CDT, his 08-18 ruling** — and the board re-derives then.
 
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
+
+> **STATUS AS OF 08-19: item 1 is STRUCK (false — verified in a browser) and item
+> 4 carries a correction (the ceiling weight shipped at 0.45). Read the strikes,
+> not the heading — the heading describes what was true on 08-17.**
 
 *Added by the relay so these reach lanes without waiting on a merge. Cory today:
 **"are you following up and delegating appropriately so nothing gets missed."**
 They were in the register and the register is not what people read first.*
 
-**1. THE WAR ROOM COMPUTES EVERY PICK NUMBER FOR THE WRONG SEAT** (register 4c).
+~~**1. THE WAR ROOM COMPUTES EVERY PICK NUMBER FOR THE WRONG SEAT** (register 4c).
 Its own banner says so: 3 keepers mean Cory owns 12 picks, the board gives 15,
-the seat belongs to someone with 0 keepers, and *"every pick number, survival %
-and timing call on this page is computed for the wrong seat."* **That build was
-sent to Cory as a demo.** Fix the seat, or make the page REFUSE to compute.
+the seat belongs to someone with 0 keepers. That build was sent to Cory as a
+demo.~~
+
+**⚠️ FALSE ON THE CURRENT BOARD AND THE CURRENT PAGE — struck 2026-08-19,
+register 4c CLOSED 08-18. THIS IS THE ONE TO READ IF YOU READ ONLY ONE
+CORRECTION IN THIS FILE, because uncorrected it tells Cory to distrust every
+pick number, survival % and timing call on the surface he drafts from, three
+days before he drafts on it.** Verified in a REAL BROWSER against a real war
+room, not read off the artifact: `pick_order.my_picks` is **12 entries — 33, 48,
+53, 68, 73, 88, 93, 108, 113, 128, 133, 148** — with `my_picks_before_keepers`
+carrying the 15 and the three keeper-consumed picks (8, 13, 28) sitting **only**
+in the latter. `forfeited` names Chase/Henry/Walker at `cost_round` 2/1/3, all
+`team_slot: 8`. Rendered `/admin/warroom` as commissioner and read the DOM: it
+says *"🟢 YOU ARE UP · pick 33"* and *"seat 8"* — pick 33 is exactly
+`my_picks[0]`, and none of the keeper-consumed picks appears as his. The
+numbering model is documented and checked against 2023/2024/2025 (150 picks,
+round 4 at overall 31 every year).
+
+**HOW IT SURVIVED FOUR DAYS, since that is the reusable part:** the row was
+closed in the register and nobody swept the file the register is not. I found it
+by listing every register id these Cory-facing docs name and checking each
+against its live status — 15 references across four files, and **most were
+legitimate pointers rather than defects**, so the sweep's raw output was mostly
+noise. It was still worth running: one real instance, in the file `CLAUDE.md`
+tells every session to read first, on the page Cory drafts from.
 
 **2. CORY DRAFTS ON DESKTOP. A's LIVE ORDER TO B SAYS PHONE-FIRST** (4d).
 `7ee6f993`, 16:06 today, specifies *phone-first* and *the 390px column*. The
@@ -115,7 +202,7 @@ number. **Nobody decided this** — it is a default. No surface may call `proj_m
 a "consensus" or a "blend" (21b).
 
 **4. TWO WEIGHT SYSTEMS DISAGREE ABOUT UPSIDE, AND A BROWSER TOGGLE PICKS** (25).
-`MEASURED_WEIGHTS.ceiling = 0` (`engine.js:567`). `autoWeights()` ships **0.45
+~~`MEASURED_WEIGHTS.ceiling = 0` (`engine.js:567`).~~ **STALE — CORRECTED 2026-08-18: the live value is `0.45`, shipped as `09f94f99` when Cory ruled it.** The point of item 4 survives and is arguably sharper: the two systems still disagree and a browser toggle still picks between them — but the disagreement is now 0.45 vs the Auto ladder, not zero vs non-zero. `autoWeights()` ships **0.45
 Anchor / 0.6 Build / 0.8 Fill** (`engine.js:3386`). State lives in `localStorage`
 and **no surface says which is active.** "The model ignores upside" is true only
 with Auto OFF. This reframes the ceiling ruling: not zero-vs-non-zero, but *which
@@ -141,6 +228,18 @@ already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
 ---
 
 ## 🟣 08-18 NIGHT — THE THREE THINGS THAT CHANGED FOR SATURDAY (A)
+
+**STATE AS OF 08-18 ~06:00 UTC, so nobody re-derives it:** the board is
+PUBLISHED (05:33Z), deploy-verified, and frozen as **v27** — the first build
+where every input is playoff-free. All suites green on it: Python 4,174+, JS
+326/326 (the first fully green night). Keepers carry vorp 94.0/59.1/46.2 on
+the badge screens for the lock (**08-21 6:00 PM CDT — Cory ruled 08-18**; earlier copies of this brief said 08-20). The v7 candidate hunt has now killed
+FIVE ideas the honest way — C1 age curves, C2 ridge, C3 fitted recency, C5
+WR-only efficiency, C7 availability gate — each graded leak-free on TWO
+walk-forward folds (`v7_candidate_grade.json`), and the night's best
+finding is methodological: two of them looked shippable on exactly one
+fold each and died on the other. own_v6 is a hard baseline: nothing
+changes before Saturday, and nothing measured this week says it should.
 
 **0. THE LEAGUE ANALYZER FOR THE RICHARD BET: YES — IT IS BUILT, TESTED, AND
 ONE BUTTON AWAY.** Cory asked whether it will be ready right after the draft.
@@ -499,6 +598,21 @@ players per cell), so read those as directions, not corrections.
 B's default is to grey or asterisk these on screen; the mark should say **"no
 2025 weeks — cohort average"**, not "unmeasured".
 
+> ✅ **SHIPPED 2026-08-18 — YOU NO LONGER HAVE TO CARRY THIS ONE.** The range bar
+> on any such player now renders a **`~`** mark, and both its tooltip and its
+> screen-reader label read *"cohort average, not this player"*. It fires on
+> **34 of the 173 skill players in your ADP 25-220 range (19.7%)** — the share
+> is lower than the 32% this brief was written against, because the per-player
+> volatility work landed on 08-18 and fixed most of them.
+>
+> **It is a provenance mark, not a warning.** For several of these the model is
+> refusing to guess from data it does not hold, which is the behaviour you want.
+> It tells you where the number came from, not that the number is wrong. And it
+> is deliberately conservative — an unrecognised or missing stamp does **not**
+> get marked, so the mark stays rare enough to mean something.
+>
+> Register 4v, `draft/tests/cohort_ceiling_is_marked.test.js` (16 checks).
+
 **Two other places the same number leaks, so you know them when you see them:**
 
 - **The paths panel's "◆ the &lt;plan&gt; branch" badge.** It marks the path
@@ -506,11 +620,41 @@ B's default is to grey or asterisk these on screen; the mark should say **"no
   your first eight picks** — including at 88 and 108, where the quarterback in
   question (Purdy, Love) is below replacement. **Read the badge as "the most
   raw points on offer", not as "the plan says take this".**
+- **🆕 THE BOARD RANKS RUNNING BACKS ~50 SLOTS BELOW THE MARKET, AND THE KEEPER
+  LOCK WILL CLOSE PART OF THAT BY ITSELF.** Measured 08-18 across the top 150 by
+  ADP: mean signed move **RB +49.6 · WR +8.5 · QB +7.2 · TE −3.6** (positive =
+  the board rates him worse than the room does). Permutation test, 20,000
+  shuffles: **RB p = 0.0024**; WR, QB and TE are all null. The same test finding
+  RB significant is what makes those three nulls readable rather than a dead
+  probe.
+
+  **The part that matters on the night:** at the 08-21 lock the RB replacement
+  level falls **179.3 → 146.1**, against WR −15.1, TE −5.8, QB −4.2. Since
+  `vorp = proj_mean − replacement`, a lower replacement **raises every RB** — so
+  the lock moves RBs up the board and closes part of this gap with nothing
+  shipped. **Do not hand-correct the RB gap before Saturday; the lock will move
+  it again on top of you.** Registers 2d and 5f.
+
 - **The strategy banner's silence.** It scores each doctrine by the best-dollar
   player it allows; a QB tops that list at every pick, so the only doctrines
   that can ever differ are the ones forbidding QB. **If you enrol in Balanced,
   the banner will stay quiet all night, and that is structural, not a bug you
   can wait out** (register 4x).
+
+  > ✅ **MEASURED 2026-08-18, and it is stronger than "will probably stay
+  > quiet".** Run through the banner's own scoring function at your twelve real
+  > picks: **the leader gap is EXACTLY 0.000 at all twelve**, and from pick 88
+  > onward all nine doctrines return a single identical score. At every pick at
+  > least six of the nine allow the same top player, so they score the same and
+  > **there is no leader to change.**
+  >
+  > **It cannot be fixed by tuning.** The banner switches when a challenger
+  > leads by *more than* a threshold; the gap is zero, so that is false for
+  > every threshold — including zero, because the test is strict. Register 4x
+  > asked for the `$4` band to be re-derived; **no value of it changes
+  > anything**, and moving it would change how *decided* vs *even money* renders
+  > on every pick you see, for nothing. Closed on that basis.
+  > `draft/audit/doctrine_banner_cannot_fire_2026-08-18.md`.
 
 **WHAT IS NOT AFFECTED, AND IT IS THE bigger half: THE RECOMMENDATIONS.** The
 ranked board, the top-of-board pick, the tiers and the VORP ordering never touch
@@ -533,7 +677,7 @@ comparison is the honest move; re-pricing it properly is a post-season job.**
 `draft/audit/dollar_replacement_baseline_2026-08-18.md`.
 
 
-**One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
+~~**One decision is waiting on him**~~ **— NONE IS, as of 2026-08-18. Cory ruled this on 08-17 (*"leave it"*); `CORY-ASKS.md` ③ is ✅ CLOSED.** The measurement below stands and is worth keeping — it is the reason the ruling was right — but it is a RECORD now, not a pending call: `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
 The shipped ADP-sd rule is 1.39x FFC's published dispersion in the 50-100 band.
 **Our constant did not drift** (reproduces to 0.1%); the market tightened. Blast
 radius inside his 160 picks is **one player**. Both easy fixes were refused on
@@ -807,11 +951,11 @@ instrument than a known one.
 Prereg `CEILING-REDERIVATION-PREREG.md`, result
 `draft/backtest/EXP-CEILING-REDERIVATION.md`.
 
-**The tool ships `ceiling = 0`. That zero came from a −4.8 [−26, +17]
+**~~The tool ships `ceiling = 0`.~~ THE TOOL SHIPS `ceiling = 0.45` — corrected 2026-08-18. That zero came from a −4.8 [−26, +17]
 measurement taken on a board where `proj_ceiling` was `proj_mean × a constant`,
 which made the ceiling term rank-identical to the value term (Spearman
 1.0000).** Raising the ceiling slider was arithmetically the same as raising the
-value slider. **It was never a measured setting.**
+value slider. **It was never a measured setting.** **And that is exactly why Cory ruled it upward after the dispersion fix: the three preregistered runs that beat zero were run on a board where `proj_ceiling` finally carried per-player information. The paragraph's ARGUMENT is intact — the zero was an artefact — but its opening sentence described a state that ended on 08-17.**
 
 Re-run on the first real-ceiling board (505 distinct ceiling/mean ratios where
 there was 1), 400 paired rooms × 3 fixed seeds, against a `core` arm that IS the

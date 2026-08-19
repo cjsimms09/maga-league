@@ -110,6 +110,31 @@ const p = (proj, sd = 7) => ({ proj, sd });
         L({ owner_id: 3, name: 'David', oppName: 'Michael', live: 82.6, oppLive: 88.9 })], [])[0].need));
   }
 
+  // primetimeWindow() — the Sunday-night/Monday promo gate for the scoreboard
+  // banner and home page link (Cory, 2026-08-18). All fixed UTC instants so
+  // the check does not depend on the machine running it, converted through
+  // known ET-Sunday/Monday/etc dates (2026-08-16 = Sun, -17 = Mon, -18 = Tue,
+  // August is EDT, UTC-4).
+  {
+    const pw = t => W.primetimeWindow(new Date(t));
+    ck('primetimeWindow: Sunday 3pm ET (before the night game) -> off',
+      pw('2026-08-16T19:00:00Z') === false);
+    ck('primetimeWindow: Sunday 7pm ET (the requested cutoff) -> on',
+      pw('2026-08-16T23:00:00Z') === true);
+    ck('primetimeWindow: Sunday 11:30pm ET -> on',
+      pw('2026-08-17T03:30:00Z') === true);
+    ck('primetimeWindow: Monday 2am ET -> on (all day Monday)',
+      pw('2026-08-17T06:00:00Z') === true);
+    ck('primetimeWindow: Monday 11pm ET -> on',
+      pw('2026-08-18T03:00:00Z') === true);
+    ck('primetimeWindow: Tuesday 1am ET -> off (Cory: "go away Tuesday...")',
+      pw('2026-08-18T05:00:00Z') === false);
+    ck('primetimeWindow: Saturday 11pm ET -> off',
+      pw('2026-08-16T03:00:00Z') === false);
+    ck('primetimeWindow: Wednesday noon ET -> off ("...through Sunday afternoon")',
+      pw('2026-08-19T16:00:00Z') === false);
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();

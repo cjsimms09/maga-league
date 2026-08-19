@@ -302,6 +302,45 @@ def _load_predicted_keepers() -> dict | None:
             "predictions": preds}
 
 
+def _parse_12h(t):
+    import re
+    m = re.match(r"(\d{1,2}):(\d{2})\s*(AM|PM)", str(t or "").strip(), re.I)
+    if not m:
+        return (23, 59)                     # unparseable time -> end of day, the late direction
+    hh = int(m.group(1)) % 12
+    if m.group(3).upper() == "PM":
+        hh += 12
+    return (hh, int(m.group(2)))
+
+
+def _keeper_lock_passed(cfg: dict, placements, now=None) -> bool:
+    """Has the keeper lock passed? (register 5l — the flag was permanently False)
+
+    TWO INDEPENDENT PATHS, EITHER SUFFICIENT, because the previous version had
+    ZERO and read as if it had one:
+      * placements exist on the draft — the commissioner has placed keepers,
+        which cannot happen before the lock; this is the DERIVED path the
+        standing_check docstring believed was already wired.
+      * the configured deadline has passed — Cory's ruling, verbatim, in
+        league_config.json rather than a literal in this file.
+    A hardcoded date alone would be a second definition of the lock. A
+    placement-only rule misses a lock that passes with teams unplaced, which is
+    exactly the state the standing_check escalation exists to catch. `now` is
+    injectable so the test can drive the clock instead of waiting for Friday.
+    """
+    import datetime as _dt
+    if placements:
+        return True
+    d = ((cfg.get("keepers") or {}).get("deadline") or {})
+    if not d.get("date"):
+        return False                        # unknown is NOT "passed" — the safe direction
+    tz = _dt.timezone(_dt.timedelta(hours=-5))          # CDT
+    hh, mm = _parse_12h(d.get("time") or "11:59 PM")
+    y, m, dd = (int(x) for x in str(d["date"]).split("-"))
+    current = now if now is not None else _dt.datetime.now(tz)
+    return current >= _dt.datetime(y, m, dd, hh, mm, tzinfo=tz)
+
+
 def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     """SLATE RAILS (keeper_slate.py): stamp an honest CONFIRMED/PREDICTED status so the
     board can never present a wrong/incomplete slate as truth. Sleeper is the source:
@@ -309,7 +348,8 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     PLACEMENTS (the confirmed signal). Offline builds are always 'predicted'."""
     teams = int(cfg.get("teams") or 10)
     if offline:
-        return keeper_slate_mod.assess_slate(teams, {}, placements=None)
+        return keeper_slate_mod.assess_slate(teams, {}, placements=None,
+                                             keeper_lock_passed=_keeper_lock_passed(cfg, None))
     try:
         import sleeper_import as si
         lid = cfg["league_id"]
@@ -333,7 +373,8 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
                     kp.setdefault(str(p.get("roster_id")), []).append(str(p.get("player_id")))
             if kp:
                 placements = kp
-        slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements)
+        slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements,
+                                              keeper_lock_passed=_keeper_lock_passed(cfg, placements))
         print(f"  keeper slate: {slate['status']} — {slate['teams_designated']}/{teams} designated, "
               f"placements={'yes' if slate['placements_present'] else 'no'}"
               + (f", {len(slate['mismatches'])} MISMATCH" if slate['mismatches'] else ""))
@@ -341,7 +382,8 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     except Exception as exc:                              # noqa: BLE001
         # Loudly: 'could not verify' must never read as 'verified'. Unknown -> not confirmed.
         print(f"  ! keeper-slate verification failed ({type(exc).__name__}: {exc}) — status UNKNOWN")
-        s = keeper_slate_mod.assess_slate(teams, {}, placements=None)
+        s = keeper_slate_mod.assess_slate(teams, {}, placements=None,
+                                          keeper_lock_passed=_keeper_lock_passed(cfg, None))
         s["status"] = "unverified"; s["confirmed"] = False; s["safe_to_treat_as_truth"] = False
         s["reason"] = f"could not reach Sleeper to verify the slate ({type(exc).__name__})"
         return s
@@ -1562,7 +1604,13 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
         except Exception as exc:  # noqa: BLE001 — profiles still build, on the proxy path
             print(f"  ! historical ADP unavailable ({exc}); manager market metrics stay proxied")
 
-    profiles = managers_mod.build_profiles(drafts, players_db, historical_adp=hist)
+    # `season_now` has been a build_profiles parameter since it was written and
+    # was never passed, so the rookie metric had no way to ask "was he a rookie
+    # AT THAT DRAFT" and fell back to today's years_exp — which pinned it at 0.0
+    # for every manager (register E13). Supplying it is the whole fix.
+    profiles = managers_mod.build_profiles(
+        drafts, players_db, historical_adp=hist,
+        season_now=int(cfg.get("season") or time.gmtime().tm_year))
     proxied = [p["name"] for p in profiles.get("managers", {}).values()
                if (p.get("reach_delta") or {}).get("proxy")]
     if proxied:

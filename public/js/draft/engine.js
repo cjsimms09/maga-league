@@ -243,6 +243,50 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* REGISTER 56 — THE SELF-EXCLUSION FIX, BEHIND A FLAG AND DEFAULTED OFF.
+     *
+     * `vona()` asks what it costs to WAIT on a player, and computes the answer
+     * over a pool that excludes that player. But if you pass on him, he is one
+     * of the men who might still be there at your next pick -- with probability
+     * `survival(him, nextPick)`. Excluding him asserts that probability is ZERO
+     * for every player on the board. Measured on the live 08-19 board at pick 48
+     * (next turn 53): Los Angeles Rams DEF, survival 0.9999999995, VONA 14.0.
+     * Certain to be there, priced at fourteen points of urgency.
+     *
+     * For the TOP man at a position, including him collapses algebraically to
+     * (1 - s) x (proj - E[best OTHER]) -- the wait only costs you in the worlds
+     * where he is gone. Below the top the two differ, and the include-self form
+     * is the one that stays right there, which is why THIS is the arm and the
+     * flat rescale below is only a diagnostic.
+     *
+     * DEFAULT OFF UNTIL GRADED. `VONA-SELF-EXCLUSION-PREREG.md`, P107. The
+     * default is the shipping behaviour on purpose: this is the primary
+     * decision metric and the prereg's own date gate says nothing reaches
+     * Cory's board before 2026-08-22.
+     *
+     * ✅ ON, 2026-08-19, BY CORY'S RULING ("ship it now") — MADE ON THE GRADE,
+     * NOT ON THE ARGUMENT. P107: +114.1 points per seat-season, CI95
+     * [+48.0, +180.1], season-CLUSTERED [+38.5, +189.6], POSITIVE IN 3 SEASONS
+     * OF 3, better in 24 of 30 seat-seasons, Cory's own seat +188.5 / +164.8 /
+     * +155.5. The date gate was mine and he overruled it with the numbers in
+     * front of him, including what it costs: THIS CHANGES HIS FIRST-ROUND PICK
+     * (QB Josh Allen -> RB James Cook at 8) and moves the first QB from round 1
+     * to pick 108.
+     *
+     * TWO CAVEATS THAT TRAVEL WITH THE NUMBER, because a flag comment is where
+     * they will actually be read: the `realistic` lineup arm is a NULL
+     * (+12.4 [-49.0, +73.9]) — this builds a better ROSTER and at n=30 that
+     * does not yet show through the noise of setting lineups from it (P108);
+     * and the shipping engine LOSES to the median owner in every replayed
+     * season, so this closes about a third of a gap it does not close.
+     * `VONA-SELF-EXCLUSION-PREREG.md`, audit `vona_self_exclusion_2026-08-19.md`. */
+    VONA_INCLUDE_SELF: true,
+    /* THE DIAGNOSTIC ARM (A2) — flat `(1 - s) x straight` for everyone.
+     * Prototyped 08-19 and it collapses VONA toward zero for every player who
+     * will last, which hands the ranking to the leftover terms: C.J. Stroud,
+     * Bryce Young and Geno Smith entered a top-6. Kept as a runnable arm rather
+     * than a remembered anecdote. SHIPS UNDER NO OUTCOME. */
+    VONA_SURVIVAL_RESCALE: false,
     /* WIRE-COMPARED BENCH BRANCH — ON by Cory's ruling, 2026-08-16 ("1. Yes"),
      * made with the evidence in front of him: the QB2 anomaly that blocked
      * this was exonerated (it belongs to VONA_SLOT_AWARE, which stays false),
@@ -276,8 +320,11 @@
      * WHAT IT DOES NOT FIX, stated so the next measurement is not a surprise:
      * Josh Allen at pick 8. There `have (0) < slots (1)`, so no onesie rule
      * applies at all — that is pure cross-position VONA and a separate defect. */
-    ONESIE_HARD_CAP: true,
-    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
+    // ONESIE_HARD_CAP / ONESIE_MAX_SPARE: DELETED 2026-08-18, executing Cory's
+    // 2026-08-14 ruling verbatim ("delete them, do not fix them"). A comment
+    // below claimed this deletion had happened for four days while the cap ran
+    // live (register 5n). A duplicate who cannot start is priced as a backup
+    // (ONESIE_KEEP), never sunk by a count.
     ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
     ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
     /* THE STRUCTURAL CAP, added 2026-08-12 after the roster-construction run.
@@ -969,9 +1016,26 @@
   function vona(player, board, nextPick, survivalCtx) {
     if (nextPick == null) return player.proj_mean; // no future pick: everything is at stake
     const ctx = survivalCtx || {};
-    const samePos = board.filter(p => p.position === player.position && p.player_id !== player.player_id);
+    /* REGISTER 56. `VONA_INCLUDE_SELF` decides whether the man you are pricing
+     * is in the pool of what is available at your own next pick. He is, with
+     * probability survival(him, nextPick) -- excluding him asserts that is zero.
+     * expectedBestAvailable already handles him correctly once he is in the
+     * list, because it is an expectation over "best SURVIVOR", so no second
+     * formula is written here and none can drift from the first. */
+    const samePos = board.filter(p => p.position === player.position
+      && (CFG.VONA_INCLUDE_SELF || p.player_id !== player.player_id));
     const sameEba = expectedBestAvailable(samePos, nextPick, ctx);
-    const straight = player.proj_mean - sameEba;
+    let straight = player.proj_mean - sameEba;
+    /* A2, the diagnostic arm. Mutually exclusive with A1 in the sense that
+     * running both double-counts survival -- the include-self pool already
+     * carries the (1 - s) factor for the top man. Guarded so a future caller
+     * cannot switch both on and read the product as an arm. */
+    if (CFG.VONA_SURVIVAL_RESCALE) {
+      if (CFG.VONA_INCLUDE_SELF) throw new Error(
+        'VONA_SURVIVAL_RESCALE and VONA_INCLUDE_SELF are alternative arms of ' +
+        'register 56 (P107) — running both applies the survival discount twice.');
+      straight *= (1 - survival(player, nextPick, ctx));
+    }
     if (!CFG.VONA_SLOT_AWARE) return straight;
 
     const slot = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
@@ -1038,7 +1102,34 @@
     return rate * (player.vorp || 0) - forgone;
   }
 
-  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15, OFF BY DEFAULT.
+  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15.
+   *
+   * ⚠️ "OFF BY DEFAULT" WAS TRUE WHEN WRITTEN AND IS NOT NOW (session E,
+   * 2026-08-17; register E22). `CFG.VONA_WIRE_BENCH` was ruled ON 2026-08-16.
+   * The flag reads as enabled and the branch still cannot do its job, for TWO
+   * independent reasons, and only the first is already on the record:
+   *
+   *   1. FILED ALREADY (ROUTES, 2026-08-16): the branch is unreachable while
+   *      `VONA_SLOT_AWARE` is false, because `vona()` returns `straight` at the
+   *      top. Ruling pending; not this lane's to re-file.
+   *
+   *   2. NOT PREVIOUSLY FILED, AND IT CHANGES THE REMEDY: even reachable, the
+   *      DATA never arrives. `app.js:2079` reads `state.data.wire_level`, and
+   *      **`build.py` never writes `wire_level` onto the board** — the artifact
+   *      `draft/data/wire_level.json` is committed and real (422 scored
+   *      acquisitions, 2023-25) but is not joined into `public/draft_data.json`.
+   *      So `ctx.wireWeekly` is null in production.
+   *
+   * MEASURED with `VONA_SLOT_AWARE` forced true: supplying the committed
+   * artifact changes **65 player scores** at pick 93 (e.g. Joe Flacco −198.55 →
+   * −155.29). So the remedy on file — "finish slot-aware so the branch is
+   * reachable" — is NOT SUFFICIENT on its own: the branch would run and take its
+   * fallback for every player.
+   *
+   * AND THE FALLBACK IS THE WRONG ONE TO BE TAKING WHOLESALE. The `wb == null`
+   * path below is documented as the K/DEF case ("nflverse is offense-only"), i.e.
+   * a per-POSITION gap. With the map absent entirely, every position takes the
+   * two-position path.
    *
    * Cory's design, stated directly: "once you're drafting for bench (not a
    * starter slot), a duplicate shouldn't be compared to the best available in
@@ -1373,11 +1464,12 @@
     const have = roster.filter(p => p.position === pos).length;
     if (have < slots) return none;                       // still filling the slot
 
-    /* PAST THIS MANY SPARES HE IS NOT PRICED LOW, HE IS SUNK. `capped` is read by
-     * demoteFlaggedOnesies, which is intact and still carries the reasoning —
-     * only the line that SET the flag was removed. */
-    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
-    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
+    /* The hard cap is DELETED (Cory 08-14, executed 08-18 — register 5n: the
+     * comment that used to sit here said "only the line that SET the flag was
+     * removed" while the line right below it still set the flag). `capped` is
+     * kept in the return shape as a constant false so no reader breaks; the
+     * demotion and the structural:onesie_cap emission it fed are dead by
+     * design, not by accident. */
 
     // TE is a onesie only once the FLEX cannot take him either.
     if (pos === 'TE' || pos === 'RB' || pos === 'WR') {
@@ -1393,22 +1485,17 @@
     const left = Number(ctx.myPicksLeft);
     if (Number.isFinite(left) && left <= CFG.ONESIE_ENDGAME_PICKS) return none;
 
-    /* THE HARD CAP — A CEILING ON HABITUAL BEHAVIOUR, NOT A PROHIBITION.
-     *
-     * ⚠️ TEMPORARY. This is a constraint standing in for a valuation that does
-     * not work. The bench branch ranks on `proj_ceiling − proj_mean` in RAW
-     * SEASON POINTS, and a quarterback scores 350–400 a season, so his spread is
-     * the largest absolute number on the board almost by construction (measured
-     * p90: QB 66.5, RB 44.9, WR 34.7, TE 30.8, K 28.1). THAT MEASURES SCALE, NOT
-     * UPSIDE — and scale is something the model already knows and should not
-     * count twice. A second quarterback should be PRICED LOW BECAUSE HE CANNOT
-     * START, not forbidden because somebody counted.
-     * ITS REPLACEMENT IS NAMED: position-normalised ceiling. See the retirement
-     * check in draft/tests/onesie_cap.test.js and the trigger in PARKED.md.
-     *
-     * `spare` counts bodies beyond the STRICT slots — FLEX excluded, because the
-     * flex is contested by RB/WR/TE and must not be pre-reserved for whichever
-     * position happens to be scoring well. */
+    /* HISTORY, KEPT SHORT BECAUSE THE STALE LONG VERSION DID DAMAGE: the hard
+     * cap that lived here was a splint over the raw-spread units defect. The
+     * defect was FIXED AT SOURCE on 08-13 (upsideBonus normalises each spread
+     * by its position's replacement level — see computeCeilingScales), and the
+     * cap was deleted on Cory's 08-14 ruling, executed 08-18 (register 5n).
+     * The paragraph that used to sit here still described the bench branch as
+     * ranking raw spreads, which had been false for five days — and that stale
+     * claim propagated into an audit and a register row before it was caught.
+     * Measured 08-18, live board through recommend(): a third QB/TE surfaces
+     * only via the elite-faller value exception, at a one-tenth score, with
+     * "YOU CANNOT START HIM" printed beside it — priced, labelled, not capped. */
     /* ONESIE_MAX_SPARE AND wouldCap ARE DELETED (Cory, 2026-08-14: "delete them,
      * do not fix them"). They read as "one spare allowed at QB and at TE" and
      * behaved as "one at QB, ZERO at TE", because the cap counted a tight end
@@ -1449,12 +1536,11 @@
        * principle -- "priced low because he cannot start" -- and the code applied
        * it only when a cap happened to bind. It applies always now; the exception
        * still SURFACES him (insurance, trade value, bye cover) and says why. */
-      /* THE EXCEPTION SURFACES A SPARE; IT DOES NOT SURFACE A THIRD ONE. An elite
-       * faller is worth seeing as QB2 (insurance, bye cover, trade value) and is
-       * not worth seeing as QB3 — at that point "you cannot start him" has been
-       * true twice over. So the cap still binds through the exception. */
+      /* The cap no longer binds through the exception — deleted with the rest of
+       * it (Cory 08-14, executed 08-18). A third spare is still priced at
+       * ONESIE_KEEP like any unstartable duplicate; pricing, not prohibition. */
       return { duplicate: true, discount: CFG.ONESIE_KEEP,
-        capped: wouldCap, exception: 'value',
+        capped: false, exception: 'value',
         why: pos + (have + 1) + ' — ' + (player.name || 'he') + ' at +' + Math.round(fell)
           + ' vs ADP, top-' + CFG.ONESIE_ELITE_RANK + ' at the position; insurance and '
           + 'trade value. YOU CANNOT START HIM, so he is priced as a spare.' };
@@ -1492,9 +1578,39 @@
      * instead of silently promoting every duplicate. */
     const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|sus|susp|suspended|na|dnr|cov)$/i;
     if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
+      /* ⚠️ THE LINE SAID "insurance, not a starter" WHILE PRICING HIM AS A
+       * STARTER (session E, 2026-08-18; register E20).
+       *
+       * `discount: 1` means NO discount is applied — the application below is
+       * gated on `onesie.discount < 1` — so this branch prices a duplicate at
+       * FULL standalone value, exactly as if the position were empty. That is
+       * defensible on the football: if your starter is on PUP, this man plays.
+       * It is the opposite of what the old sentence told the reader.
+       *
+       * MEASURED on the live board with George Kittle (TE, PUP, proj 152.8)
+       * rostered and the FLEX closed: Travis Kelce ranks **4th at pick 73,
+       * score 6.1**. With the same roster and a HEALTHY TE1 he is 8th at 0.6 —
+       * a tenfold difference in score, under a line that said he was not being
+       * treated as a starter.
+       *
+       * The value exception fifty lines above was corrected away from
+       * `discount: 1` for precisely this reason ("it used to return discount 1
+       * … which is how a second quarterback reached FULL VALUE and board rank
+       * 1"). This branch is the one place that correction should NOT apply —
+       * the principle there is "priced low because he cannot start", and here he
+       * can. So the PRICE stays and the SENTENCE changes.
+       *
+       * AND IT NAMES WHAT THE MODEL DOES NOT KNOW. Every status in SERIOUS is
+       * treated identically: measured, PUP and IR produce the same rank and the
+       * same score, so "out roughly four games and then back" is priced exactly
+       * like "out for the season". Whether duration should enter is a model
+       * question, filed for A — but a reader deciding in the seconds a pick
+       * allows should not have to infer it. */
       return { duplicate: true, discount: 1, exception: 'injury',
-        why: pos + '2 — your starter is flagged ' + starter.injury_status
-          + '; this is insurance, not a starter' };
+        why: pos + (have + 1) + ' — your ' + pos + '1 is flagged '
+          + starter.injury_status + ', so he is priced as a STARTER at full value, '
+          + 'NOT discounted as a backup. The model does not weigh how long that '
+          + 'status lasts.' };
     }
 
     /* THE CAP LANDS HERE, AFTER EVERY EXCEPTION HAS HAD ITS SAY.
@@ -1505,9 +1621,9 @@
      * flagged OUT. That is the difference between a ceiling on habitual
      * behaviour and a prohibition, and getting the order wrong is what made the
      * first version refuse the pick it should most want. */
-    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: wouldCap, exception: null,
+    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: false, exception: null,
       why: pos + (have + 1) + ' — you cannot start him; priced as a backup'
-        + (wouldCap ? ', and you already carry ' + have + ' — SUNK, not merely discounted' : '') };
+        };
   }
 
   /** Where he ranks at his own position on the CURRENT board. */
@@ -2304,11 +2420,9 @@
     const isFlaggedOnesie = s =>
       ((s.player.position === 'K' || s.player.position === 'DEF')
         && !s.forced && s.rails && s.rails.length > 0)
-      // A CAPPED ONESIE SINKS TOO, and for a stronger reason than a rail: the
-      // rail says "this looks wrong", the cap says "he cannot start". Sinking
-      // rather than scoring is the point — a multiplicative discount could not
-      // express never, which is why the cap exists at all.
-      || (s.onesie && s.onesie.capped && !s.forced);
+      // The capped-onesie arm is GONE (Cory 08-14, executed 08-18, register 5n):
+      // a spare who cannot start is priced as a backup, never sunk by a count.
+      ;
     /* THREE BUCKETS, NOT TWO. `keep.concat(sink)` put demoted-but-SCOREABLE
      * players after REFUSED ones, so the bottom of the list read
      * [scoreable, refused, sunk] — measured, the refused block began at index
@@ -3250,6 +3364,28 @@
                  'formula than skill positions; compare within position instead',
         terms: { note: 'refused: K/DEF have no measured calibration cells, so a ' +
                        'cross-position dollar gap would compare two constructions (D10a).' },
+      };
+    }
+    // 5e ruling (A, 08-18, extending D10a to QB): playerDollars prices RAW
+    // projected points — p.position never enters the formula — while every
+    // other value surface here is denominated over replacement. In a 10-team
+    // 1-QB league, QB replacement is 341.7 against 136-180 elsewhere, so raw
+    // points hand every QB a ~342-point head start: 22 of the top 25 by E[$]
+    // are QBs on the 08-18 board, versus ONE by the board's own rank. The
+    // obvious fix (subtract replacement inside the dollar formula) was BUILT
+    // AND MEASURED WORSE on the pairs Cory actually weighs
+    // (draft/audit/dollar_replacement_baseline_2026-08-18.md) — so the honest
+    // answer is the same refusal K/DEF already gets, not a re-price.
+    if (a.position !== b.position && (a.position === 'QB' || b.position === 'QB')) {
+      return {
+        total: 0, high: 0, entry: 0, echo: 0, rs: 0, leader: null,
+        even_money: true, confidence: 'refused', band: CFG.DG_NOISE_BAND,
+        verdict: 'no dollar read — the dollar figure prices raw points and QB ' +
+                 'replacement (~342) dwarfs every other position\'s, so a ' +
+                 'QB-vs-other gap is a formula artifact; compare within position',
+        terms: { note: 'refused: cross-position dollars have no replacement level ' +
+                       'in them, and QB is where that bites (5e). Re-pricing was ' +
+                       'measured worse than refusing.' },
       };
     }
     const da = playerDollars(a), db = playerDollars(b);
