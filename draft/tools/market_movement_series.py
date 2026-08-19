@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # TERRITORY: A
-# TERRITORY-GRANT: C weekly ticker dollars mid oi status title series build_weekly weekly_snapshot_files WEEKLY_DATE_RE _dollars _mid _movers_for _ticker_series yes_bid_dollars yes_ask_dollars last_price_dollars open_interest_fp market movement task21 2026-08-19 out return committed adapter column rebuilt Idempotent PREREG population reason for if in def else try except TypeError ValueError EMPTY quote bool movers delta date priced key dict list sort lambda abs round float None from to first last both side book two_sided territory built written grant
+# TERRITORY-GRANT: C weekly ticker dollars mid oi status title series build_weekly weekly_snapshot_files WEEKLY_DATE_RE _dollars _mid _movers_for _ticker_series yes_bid_dollars yes_ask_dollars last_price_dollars open_interest_fp market movement task21 2026-08-19 out return committed adapter column rebuilt Idempotent PREREG population reason for if in def else try except TypeError ValueError EMPTY quote bool movers delta date priced key dict list sort lambda abs round float None from to first last both side book two_sided territory built written grant bid ask KXNFLPASSYDS hide that doc json loads path read_text}
 """MARKET MOVEMENT SERIES — day-over-day price movement from the Kalshi
 capture snapshots, consolidated into one grader-ready store.
 
@@ -217,8 +217,7 @@ def build_weekly():
         "n_two_sided_both_ends": sum(1 for k, v in series.items() if sum(c["mid"] is not None for c in v) >= 2),
         "n_with_movement": len(movers),
         "series": series,
-        "top_movers": movers[:40],
-    }
+        "top_movers": movers[:40]}  # weekly series dict close
 
 
 def main() -> int:
