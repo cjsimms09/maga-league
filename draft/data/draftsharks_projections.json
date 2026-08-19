@@ -44,10 +44,11 @@
  "controls_all_passed": false,
  "n_players": 25,
  "coverage_note": "the page server-renders only its first page of rankings; the remainder is behind pagination/XHR (register 120, routed to C)",
+ "sample_row_html": "<tr>\n                        <th id=\"rank\" class=\"ds-cell ds-cell--header rank\">\n                            <div class=\"sort-link-flex-container default-header-cols\"><span class=\"column-title\">RK</span></div>\n                        </th>\n                        <th id=\"player-name\" class=\"ds-cell ds-cell--header ds-cell--player player-name sortable-header unselectable\">\n                            <div class=\"sort-link-flex-container sortable- default-header-cols\"><span class=\"column-title\">Player</span></div>\n                        </th>\n                        <th class=\"ds-cell ds-cell--header customizable-column proj-games-played ds-cell--help-icon-hidden\" data-depth=\"rankings,projections\" data-attribute=\"games_played\" @mousedown=\"sortBy(&#039;games_played&#039;)\" data-ds-tooltip=\"Projected games in which player will play\"><div class=\"sort-link-flex-container sortable-header\"><span class=\"column-title\" :class=\"getSortClass(&#039;games_played&#039;)\"><span class=\"column-title__text\">Games</span></span></div></th><th class=\"ds-cell ds-cell--header adp customizable-column ds-cell--help-icon-hidden\" @mousedown=\"sortBy(&#039;adp&#039;, true)\" data-depth=\"rankings\" data-attribute=\"adp\" data-ds-tooltip=\"Average draft position based closely on your league scoring rules\"><div class=\"sort-link-flex-container sortable-header\"><span class=\"column-title\" :class=\"getSortClass(&#039;adp&#039;)\"><span class=\"column-title__text\">ADP</span></span></div></th><th class=\"ds-cell ds-cell--header bye customizable-column ds-cell--help-icon-hidden\" style=\"display: none;\" data-depth=\"rankings\" data-attribute=\"player.team.bye\" @mousedown=\"sortBy(&#039;player.team.bye&#039;)\"><div class=\"sort-link-flex-container sortable-header\"><span class=\"column-title\" :class=\"getSortClass(&#039;player.team.bye&#039;)\"><span class=\"column-title__text\">Bye</span></span></div></th><th class=\"ds-cell ds-cell--header strength-of-schedule customizable-column ds-cell--help-icon-hidden\" style=\"display: none;\" data-depth=\"rankings\" data-attribute=\"strength_of_schedule\" @mousedown=\"sortBy(&#039;strength_of_schedule&#039;)\" data-ds-tooltip=\"Strength of schedule. A lower number means a player faces harder competition\"><div class=\"sort-link-flex-container sortable-header\"><span class=\"column-title\" :class=\"getSortClass(&#039;strength_of_schedule&#039;)\"><span class=\"column-title__text\">SOS</span></span></div></th><th class=\"ds-cell ds-cell--header sip-player-profile customizable-column ds-cell--help-icon-hidden\" style=\"display: none;\" data-depth=\"rankings\" data-attribute=\"player.sipPlayerProfile.injury_prob\" @mousedown=\"sortBy(&#039;player.sipPlayerProfile.injury_prob&#039;)\" data-ds-tooltip=\"Indicates the probability that a player will suffer an injury during the season\"><div class=\"sort-link-flex-container sortable-header\"><span class=\"column-title\" :class=\"getSortClass(&#039;player.sipPlayerProfile.injury_prob&#039;)\"><span class=\"column-title__text\">Injury<br />Risk</span></span></div></t",
  "players": [
   {
    "rank": 1.0,
-   "player": "DET 1",
+   "player": "",
    "games": 17.0,
    "adp": 1.01,
    "bye": 6.0,
@@ -58,12 +59,12 @@
    "ds_proj": 322.0,
    "ceiling": 370.0,
    "value_3d": 100.0,
-   "player_raw": "DET 1",
+   "player_raw": " | DET logo |  DET 1  | Open player details | ",
    "position": null
   },
   {
    "rank": 2.0,
-   "player": "ATL 2",
+   "player": "",
    "games": 17.0,
    "adp": 1.02,
    "bye": 11.0,
@@ -74,12 +75,12 @@
    "ds_proj": 311.0,
    "ceiling": 364.0,
    "value_3d": 95.0,
-   "player_raw": "ATL 2",
+   "player_raw": " | ATL logo |  ATL 2  | Open player details | ",
    "position": null
   },
   {
    "rank": 3.0,
-   "player": "LAR 1",
+   "player": "",
    "games": 17.0,
    "adp": 1.04,
    "bye": 11.0,
@@ -90,12 +91,12 @@
    "ds_proj": 293.0,
    "ceiling": 325.0,
    "value_3d": 95.0,
-   "player_raw": "LAR 1",
+   "player_raw": " | LAR logo |  LAR 1  | Open player details | ",
    "position": null
   },
   {
    "rank": 4.0,
-   "player": "CIN 2",
+   "player": "",
    "games": 17.0,
    "adp": 1.03,
    "bye": 6.0,
@@ -106,12 +107,12 @@
    "ds_proj": 277.0,
    "ceiling": 327.0,
    "value_3d": 93.0,
-   "player_raw": "CIN 2",
+   "player_raw": " | CIN logo |  CIN 2  | Open player details | ",
    "position": null
   },
   {
    "rank": 5.0,
-   "player": "SF 3",
+   "player": "",
    "games": 17.0,
    "adp": 1.05,
    "bye": 8.0,
@@ -122,12 +123,12 @@
    "ds_proj": 293.0,
    "ceiling": 363.0,
    "value_3d": 86.0,
-   "player_raw": "SF 3",
+   "player_raw": " | SF logo |  SF 3  | Open player details | ",
    "position": null
   },
   {
    "rank": 6.0,
-   "player": "SEA 3",
+   "player": "",
    "games": 17.0,
    "adp": 1.07,
    "bye": 11.0,
@@ -138,12 +139,12 @@
    "ds_proj": 262.0,
    "ceiling": 312.0,
    "value_3d": 85.0,
-   "player_raw": "SEA 3",
+   "player_raw": " | SEA logo |  SEA 3  | Open player details | ",
    "position": null
   },
   {
    "rank": 7.0,
-   "player": "DET 4",
+   "player": "",
    "games": 17.0,
    "adp": 1.08,
    "bye": 6.0,
@@ -154,12 +155,12 @@
    "ds_proj": 259.0,
    "ceiling": 292.0,
    "value_3d": 79.0,
-   "player_raw": "DET 4",
+   "player_raw": " | DET logo |  DET 4  | Open player details | ",
    "position": null
   },
   {
    "rank": 8.0,
-   "player": "IND 4",
+   "player": "",
    "games": 17.0,
    "adp": 1.06,
    "bye": 13.0,
@@ -170,12 +171,12 @@
    "ds_proj": 277.0,
    "ceiling": 338.0,
    "value_3d": 76.0,
-   "player_raw": "IND 4",
+   "player_raw": " | IND logo |  IND 4  | Open player details | ",
    "position": null
   },
   {
    "rank": 9.0,
-   "player": "DAL 5",
+   "player": "",
    "games": 17.0,
    "adp": 1.1,
    "bye": 14.0,
@@ -186,12 +187,12 @@
    "ds_proj": 249.0,
    "ceiling": 298.0,
    "value_3d": 75.0,
-   "player_raw": "DAL 5",
+   "player_raw": " | DAL logo |  DAL 5  | Open player details | ",
    "position": null
   },
   {
    "rank": 10.0,
-   "player": "BUF 5",
+   "player": "",
    "games": 17.0,
    "adp": 1.09,
    "bye": 7.0,
@@ -202,12 +203,12 @@
    "ds_proj": 274.0,
    "ceiling": 337.0,
    "value_3d": 75.0,
-   "player_raw": "BUF 5",
+   "player_raw": " | BUF logo |  BUF 5  | Open player details | ",
    "position": null
   },
   {
    "rank": 11.0,
-   "player": "MIN 6",
+   "player": "",
    "games": 17.0,
    "adp": 1.11,
    "bye": 6.0,
@@ -218,12 +219,12 @@
    "ds_proj": 241.0,
    "ceiling": 313.0,
    "value_3d": 73.0,
-   "player_raw": "MIN 6",
+   "player_raw": " | MIN logo |  MIN 6  | Open player details | ",
    "position": null
   },
   {
    "rank": 12.0,
-   "player": "LVR 6",
+   "player": "",
    "games": 17.0,
    "adp": 1.12,
    "bye": 13.0,
@@ -234,12 +235,12 @@
    "ds_proj": 262.0,
    "ceiling": 330.0,
    "value_3d": 68.0,
-   "player_raw": "LVR 6",
+   "player_raw": " | LVR logo |  LVR 6  | Open player details | ",
    "position": null
   },
   {
    "rank": 13.0,
-   "player": "PHI 7",
+   "player": "",
    "games": 17.0,
    "adp": 2.01,
    "bye": 10.0,
@@ -250,12 +251,12 @@
    "ds_proj": 248.0,
    "ceiling": 342.0,
    "value_3d": 64.0,
-   "player_raw": "PHI 7",
+   "player_raw": " | PHI logo |  PHI 7  | Open player details | ",
    "position": null
   },
   {
    "rank": 14.0,
-   "player": "ATL 7",
+   "player": "",
    "games": 17.0,
    "adp": 2.08,
    "bye": 11.0,
@@ -266,12 +267,12 @@
    "ds_proj": 228.0,
    "ceiling": 273.0,
    "value_3d": 62.0,
-   "player_raw": "ATL 7",
+   "player_raw": " | ATL logo |  ATL 7  | Open player details | ",
    "position": null
   },
   {
    "rank": 15.0,
-   "player": "BAL 8",
+   "player": "",
    "games": 17.0,
    "adp": 2.06,
    "bye": 13.0,
@@ -282,28 +283,12 @@
    "ds_proj": 253.0,
    "ceiling": 322.0,
    "value_3d": 62.0,
-   "player_raw": "BAL 8",
+   "player_raw": " | BAL logo |  BAL 8  | Open player details | ",
    "position": null
   },
   {
    "rank": 16.0,
-   "player": "HOU 8",
-   "games": 17.0,
-   "adp": 2.1,
-   "bye": 8.0,
-   "sos": 4.4,
-   "injury_risk": "49%",
-   "floor": 197.0,
-   "consensus": 193.0,
-   "ds_proj": 226.0,
-   "ceiling": 276.0,
-   "value_3d": 61.0,
-   "player_raw": "HOU 8",
-   "position": null
-  },
-  {
-   "rank": 17.0,
-   "player": "NE 9",
+   "player": "",
    "games": 17.0,
    "adp": 2.07,
    "bye": 11.0,
@@ -314,12 +299,28 @@
    "ds_proj": 224.0,
    "ceiling": 285.0,
    "value_3d": 61.0,
-   "player_raw": "NE 9",
+   "player_raw": " | NE logo |  NE 8  | Open player details | ",
+   "position": null
+  },
+  {
+   "rank": 17.0,
+   "player": "",
+   "games": 17.0,
+   "adp": 2.1,
+   "bye": 8.0,
+   "sos": 4.4,
+   "injury_risk": "49%",
+   "floor": 197.0,
+   "consensus": 193.0,
+   "ds_proj": 226.0,
+   "ceiling": 276.0,
+   "value_3d": 61.0,
+   "player_raw": " | HOU logo |  HOU 9  | Open player details | ",
    "position": null
   },
   {
    "rank": 18.0,
-   "player": "KC 9",
+   "player": "",
    "games": 17.0,
    "adp": 2.05,
    "bye": 5.0,
@@ -330,12 +331,12 @@
    "ds_proj": 244.0,
    "ceiling": 329.0,
    "value_3d": 59.0,
-   "player_raw": "KC 9",
+   "player_raw": " | KC logo |  KC 9  | Open player details | ",
    "position": null
   },
   {
    "rank": 19.0,
-   "player": "DAL 10",
+   "player": "",
    "games": 17.0,
    "adp": 2.12,
    "bye": 14.0,
@@ -346,12 +347,12 @@
    "ds_proj": 219.0,
    "ceiling": 274.0,
    "value_3d": 58.0,
-   "player_raw": "DAL 10",
+   "player_raw": " | DAL logo |  DAL 10  | Open player details | ",
    "position": null
   },
   {
    "rank": 20.0,
-   "player": "BUF 1",
+   "player": "",
    "games": 17.0,
    "adp": 3.01,
    "bye": 7.0,
@@ -362,12 +363,12 @@
    "ds_proj": 379.0,
    "ceiling": 440.0,
    "value_3d": 57.0,
-   "player_raw": "BUF 1",
+   "player_raw": " | BUF logo |  BUF 1  | Open player details | ",
    "position": null
   },
   {
    "rank": 21.0,
-   "player": "KC 11",
+   "player": "",
    "games": 17.0,
    "adp": 3.03,
    "bye": 5.0,
@@ -377,13 +378,13 @@
    "consensus": 185.0,
    "ds_proj": 224.0,
    "ceiling": 271.0,
-   "value_3d": 57.0,
-   "player_raw": "KC 11",
+   "value_3d": 56.0,
+   "player_raw": " | KC logo |  KC 11  | Open player details | ",
    "position": null
   },
   {
    "rank": 22.0,
-   "player": "MIA 10",
+   "player": "",
    "games": 17.0,
    "adp": 2.02,
    "bye": 6.0,
@@ -394,12 +395,12 @@
    "ds_proj": 240.0,
    "ceiling": 310.0,
    "value_3d": 55.0,
-   "player_raw": "MIA 10",
+   "player_raw": " | MIA logo |  MIA 10  | Open player details | ",
    "position": null
   },
   {
    "rank": 23.0,
-   "player": "LAC 11",
+   "player": "",
    "games": 17.0,
    "adp": 2.04,
    "bye": 7.0,
@@ -410,12 +411,12 @@
    "ds_proj": 232.0,
    "ceiling": 330.0,
    "value_3d": 55.0,
-   "player_raw": "LAC 11",
+   "player_raw": " | LAC logo |  LAC 11  | Open player details | ",
    "position": null
   },
   {
    "rank": 24.0,
-   "player": "CIN 12",
+   "player": "",
    "games": 17.0,
    "adp": 2.03,
    "bye": 6.0,
@@ -426,12 +427,12 @@
    "ds_proj": 237.0,
    "ceiling": 315.0,
    "value_3d": 54.0,
-   "player_raw": "CIN 12",
+   "player_raw": " | CIN logo |  CIN 12  | Open player details | ",
    "position": null
   },
   {
    "rank": 25.0,
-   "player": "LVR 1",
+   "player": "",
    "games": 17.0,
    "adp": 2.09,
    "bye": 13.0,
@@ -442,7 +443,7 @@
    "ds_proj": 209.0,
    "ceiling": 253.0,
    "value_3d": 53.0,
-   "player_raw": "LVR 1",
+   "player_raw": " | LVR logo |  LVR 1  | Open player details | ",
    "position": null
   }
  ]
