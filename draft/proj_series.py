@@ -134,11 +134,9 @@ def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX
     because a field that is present-and-empty on 5 preseason rows and meaningful on 80 in-season
     ones is read wrong exactly once.
 
-    RAW_BY_ID, ADDED 2026-08-19 (TERRITORY-GRANT: C, weekly_proj_snapshot.py's own raw-fields
-    gap): the provider's RAW stat line beside the scored points, same side-channel shape as
-    situation/dist -- same population as `proj`, so a raw entry can never describe a player the
-    snapshot does not price, and a corrected scoring table can re-score history rather than only
-    ever re-fetching it.
+    RAW_BY_ID, ADDED 2026-08-19 (TERRITORY-GRANT: C, weekly_proj_snapshot.py's own raw stat_line
+    gap): same side-channel shape as situation_by_id/dist_by_id -- same population as `proj`, so
+    raw_by_id can never describe a player the snapshot does not price, archiver stats vendor.
     """
     trimmed = {str(pid): round(float(p), 2)
                for pid, p in sorted(proj_by_id.items(), key=lambda kv: -kv[1])[:top_n]}
