@@ -143,3 +143,61 @@ Register 111.
 attempts to improve it.** One line, no cap, no seats, no weights — 3–4 WR, 3–4
 RB, 1 TE, 1 K, 1 DEF, and more projected value than the seat plan. **The
 mechanism you described is doing the work.**
+
+---
+
+# P149 — YOUR K/DEF RULE WORKS. And it exposes where the equation genuinely runs out.
+
+**Cory: *"same problem with K and def, once you draft 1 the need should be 0."***
+
+**Applied — `need(K, held ≥ 1) = 0`, `need(DEF, held ≥ 1) = 0`, exactly zero —
+together with the roster-based flex and no arbitrary floor.**
+
+| | drafted | cells | value vs seat plan |
+|---|---|---|---|
+| P144 | QB2 RB3 WR4 TE1 K1 DEF1 | 5 of 6 | +4.0% |
+| P146/148 | QB1 RB2 WR3 TE3 K2 DEF1 | 3 of 6 | −6.9% |
+| P147 | QB1 RB3 WR2 TE1 K2 DEF1 | 4 of 6 | −19.9% |
+| **P149 — your rule** | **QB2 RB3 WR3 TE2 K1 DEF1** | **4 of 6** | **−0.4%** ⭐ |
+
+**✅ K 1. ✅ DEF 1.** Both were broken in every arm that used expected-weeks, and
+your rule fixed both. **And it is the closest any corrected arm has come on value
+— −0.4% against the seat plan, from −6.9% and −19.9%.**
+
+## ⚠️ AND HERE IS WHERE I STOP, WITH THE REASON
+
+The two remaining misses are **picks 128 and 148**, and their values are
+**0.6 and 0.0**.
+
+| pick | take | value |
+|---|---|---|
+| 128 | QB Baker Mayfield | **0.6** |
+| 148 | TE Brenton Strange | **0.0** |
+
+**The model is not choosing these players. It is indifferent, and my driver
+forces it to name somebody anyway.** `draft_plan.js` already refuses in that
+situation — *"A ZERO IS NOT A RECOMMENDATION… picking the arbitrary winner of
+that tie is how a backup kicker ends up on the sheet"* — and says **UNPRICED**.
+
+**I could carry that guard across. Its own threshold is `value ≤ 1e-9`, and
+Mayfield at 0.6 survives it.** To knock him out I would have to set the floor
+somewhere between 0.6 and the next real pick — **a number I could only choose by
+looking at this answer. That is the tuning `no_fit_guard` exists to stop, and I
+am not doing it.**
+
+## THE HONEST FINAL STATE
+
+> **The equation gets your shape right wherever it has anything to say. The two
+> cells it misses are its last two picks, priced at 0.6 and 0.0 — where it is
+> telling us it has no opinion, and any model would be guessing.**
+
+**Five arms. Your original mechanism (P144) is still the best on shape and value.
+Your K/DEF rule (P149) is a genuine, independent improvement that fixed two cells
+and cost nothing.** Both are yours; none of the three changes I invented helped.
+
+**What is actually open, stated narrowly:** the last two or three picks of a
+twelve-pick draft price at essentially zero under every arm, and the right answer
+there is almost certainly **not** a need calculation at all — it is the upside
+term from `vona_upside_plan.js`, which exists, is orthogonal to value at
+rho +0.008, and is exactly what a free option should be spent on. **Joining those
+two is the post-draft job.** Register 111.
