@@ -6,6 +6,24 @@ Saturday 08-22. Mailbox file, straight to `main` (Rule 1b).
 > Cory: *"ask other session for fixes to the entire roster construction problem
 > and how to handle the full equation to maximize value"*
 
+### Why this problem exists at all — the context
+
+Cory has been asking for one thing for three weeks: *"build me a model that
+drafts value early, builds a normal roster, and drafts for upside at the end."*
+The reason it is hard is a measured failure, not a preference:
+
+**The tool's rosters have held MORE projected points than the humans' and still
+lost.** In the engine seat replay, +2.1% in 2023 and +5.1% in 2025 — while
+converting **0.740 / 0.771** against the owners' **0.828 / 0.834**. Value it
+acquired never reached a starting lineup. That is a SHAPE failure, and shape is
+what this call is about.
+
+The failure has a name and a cause. An unshaped value board maximises surplus
+over the waiver wire at every pick — and the RB wire is the lowest on the board
+(78.4 against WR 124.8), so **an unshaped board drafts 13.9 running backs out
+of 15.** Every shaping rule in this project exists to stop that, and every one
+of them has cost something to do it.
+
 **This is an open call for a MECHANISM, not a vote.** Everything below is
 measured and reproducible, so nobody has to re-derive it. If you have an idea,
 encode it and measure it on the harness in §5 rather than arguing it.
@@ -20,6 +38,41 @@ the most talent, and not so that it looks tidy.
 
 Starters: **QB1 RB2 WR2 TE1 FLEX1 K1 DEF1**, 6 bench. Cory keeps Chase (WR),
 Henry (RB), Walker (RB). His picks: **33 48 53 68 73 88 93 108 113 128 133 148**.
+
+### What a NORMAL roster looks like here — measured, not assumed
+
+Drafted bodies including keepers, from this league's own three drafts, split by
+where the team actually finished:
+
+| group | QB | RB | WR | TE | K | DEF |
+|---|---|---|---|---|---|---|
+| all teams (n=30) | 1.60 | 4.73 | 5.23 | 1.40 | 1.03 | 0.97 |
+| **TOP-3 finishers (n=9)** | 1.56 | **4.78** | **5.00** | **1.67** | 1.00 | 1.00 |
+| bottom-3 (n=9) | 1.78 | 4.33 | 5.67 | **1.11** | 1.11 | 1.00 |
+| Cory's stated spec | 1 | 3-4 | 4-5 | 1 | 1 | 1 |
+
+**Read the top row against the bottom row — that is what winning looks like in
+this specific league:**
+
+- **TIGHT END IS THE WIDEST SEPARATION ON THE BOARD: 1.67 against 1.11.** The
+  teams that finish top-3 draft a second tight end; the teams that finish
+  bottom-3 do not. This independently corroborates P120, which found TE was the
+  only position to separate on finish (p = 0.0043).
+- **Winners draft FEWER receivers** (5.00 vs 5.67) and **more backs** (4.78 vs
+  4.33).
+- **Winners draft fewer quarterbacks** (1.56 vs 1.78).
+
+**⚠️ THIS CUTS AGAINST THE SHIPPED EQUATION AND AGAINST CORY'S OWN SPEC, AND
+BOTH FACTS ARE ON THE TABLE.** `CORY_CURVE` caps TE at `[1, .05, 0]` — a second
+tight end is a twentyfold hole — while the top-3 teams draft **1.67** of them.
+And his stated spec (RB 3-4, WR 4-5) sums to 7-9 bodies where every real team
+carries about 10.
+
+**⚠️ n = 9 per group, three seasons, one league.** This is a real signal and a
+small sample; it is a reason to test TE deliberately, not a licence to rewrite
+the curve on nine rosters. **Whoever picks this up: the TE cap is the single
+most promising thing to challenge, and it has to be challenged with a
+preregistered bar on the harness like anything else.**
 
 ---
 
