@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 56,
+ "next_numeric_id": 57,
  "history": [
   {
    "id": 47,
@@ -31,6 +31,11 @@
    "id": 55,
    "claimed_at": "2026-08-19",
    "note": "A: board gate cannot distinguish a bad board from unhappy tooling"
+  },
+  {
+   "id": 56,
+   "claimed_at": "2026-08-19",
+   "note": "A: VONA excludes the player from his own next-pick pool"
   }
  ]
 }
