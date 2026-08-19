@@ -1,0 +1,125 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/roster_shape_lab.py",
+ "_prereg": "draft/ROSTER-SHAPE-PREREG-2026-08-19.md (P120)",
+ "_note": "Drafted position counts per team-season, keepers INCLUDED, joined to finishing rank. Both sides go through one counting function so a 'skew' cannot come from counting two different universes. n is 3 seasons x 10 teams \u2014 small and non-independent within a season.",
+ "seed": 20260819,
+ "shuffles": 4000,
+ "top_n": 3,
+ "player_position_resolution": {
+  "resolved": 448,
+  "unresolved": 32,
+  "rate": 0.9333
+ },
+ "roster_sizes_seen": {
+  "2025": [
+   15
+  ],
+  "2024": [
+   15
+  ],
+  "2023": [
+   18
+  ]
+ },
+ "seasons_used": [
+  "2023",
+  "2024",
+  "2025"
+ ],
+ "league": {
+  "QB": {
+   "top3_mean": 1.556,
+   "rest_mean": 1.762,
+   "diff": -0.206,
+   "permutation_p": 0.4935,
+   "n_top3": 9,
+   "n_rest": 21
+  },
+  "RB": {
+   "top3_mean": 4.444,
+   "rest_mean": 4.524,
+   "diff": -0.08,
+   "permutation_p": 1.0,
+   "n_top3": 9,
+   "n_rest": 21
+  },
+  "WR": {
+   "top3_mean": 5,
+   "rest_mean": 5.476,
+   "diff": -0.476,
+   "permutation_p": 0.4612,
+   "n_top3": 9,
+   "n_rest": 21
+  },
+  "TE": {
+   "top3_mean": 1.889,
+   "rest_mean": 1.286,
+   "diff": 0.603,
+   "permutation_p": 0.0043,
+   "n_top3": 9,
+   "n_rest": 21
+  },
+  "K": {
+   "top3_mean": 1,
+   "rest_mean": 0.952,
+   "diff": 0.048,
+   "permutation_p": 1.0,
+   "n_top3": 9,
+   "n_rest": 21
+  },
+  "DEF": {
+   "top3_mean": 1,
+   "rest_mean": 0.952,
+   "diff": 0.048,
+   "permutation_p": 1.0,
+   "n_top3": 9,
+   "n_rest": 21
+  }
+ },
+ "positions_differing_at_p05": [
+  "TE"
+ ],
+ "tool": {
+  "s0": {
+   "n_seat_years": 30,
+   "mean": {
+    "QB": 2.07,
+    "RB": 4.77,
+    "WR": 5.1,
+    "TE": 1,
+    "K": 0,
+    "DEF": 0
+   },
+   "median": {
+    "QB": 1.5,
+    "RB": 5.0,
+    "WR": 4.5,
+    "TE": 1.0,
+    "K": 0.0,
+    "DEF": 0.0
+   },
+   "roster_size_mean": 12.93
+  },
+  "s1": {
+   "n_seat_years": 30,
+   "mean": {
+    "QB": 2,
+    "RB": 4.63,
+    "WR": 4.87,
+    "TE": 1.47,
+    "K": 0,
+    "DEF": 0
+   },
+   "median": {
+    "QB": 2.0,
+    "RB": 5.0,
+    "WR": 4.5,
+    "TE": 1.0,
+    "K": 0.0,
+    "DEF": 0.0
+   },
+   "roster_size_mean": 12.97
+  }
+ },
+ "verdict": "separates on: TE"
+}
