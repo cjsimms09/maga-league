@@ -156,3 +156,41 @@ specific, measured, actionable one instead.
 - **TE at p = 0.0043 is one position out of six.** A Bonferroni-style correction
   across six would put it at ~0.026 — still under 0.05, but it is one test in a
   family and should be quoted that way.
+
+---
+
+## 5. "Need to strive for top 3" — where the tool actually finishes
+
+Cory asked directly. Same 30 seat-years, `optimal` estimand, both rosters frozen
+as drafted and opponents fixed, so the tool and the owners are scored the same
+way. For each seat, the tool's season total is ranked against that season's field
+of ten owner totals.
+
+| season | s0 (shipped) | s1 (slot-aware) |
+|---|---|---|
+| 2023 | top-3 in **1/10**, median rank 9.0 | top-3 in **1/10**, median **7.5** |
+| 2024 | top-3 in **0/10**, median rank 11.0 | top-3 in **1/10**, median 11.0 |
+| 2025 | top-3 in **0/10**, median rank 6.0 | top-3 in **1/10**, median **5.0** |
+
+**Shipped, the tool reaches top-3 in 1 of 30 seat-years. In 2024 it finished
+below all ten owners in every single seat.** That is the honest answer, and it is
+a long way from Cory's goal.
+
+s1 doubles it to 3 of 30 and improves the median rank in two seasons of three —
+consistent with its +58.2 per seat-year, and still nowhere near top 3.
+
+**Two things stop this being as bad as it reads, and both are in the harness's
+own honesty block rather than my interpretation:**
+
+- **The replay's engine is deliberately handicapped.** Its risk term is age-only
+  on bundle boards; injury, depth and opportunity inputs are DECLARED ABSENT.
+  The live engine has strictly more information. **This is a floor on the tool,
+  not an estimate of it.**
+- **Rookies are near-blind on bundle boards** — walk-forward projections make
+  them absent-or-zero — which is precisely where "upside late" would pay.
+
+**What it does establish, and this is the part that should change behaviour:
+there is no version of these numbers where the tool is currently a top-3
+drafter.** The gap is large enough that the work between now and Saturday should
+be about not losing points (fieldable lineups, the TE gap, keeper correctness)
+rather than about squeezing the value model.
