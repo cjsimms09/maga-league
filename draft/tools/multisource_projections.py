@@ -18,9 +18,15 @@ comparable to each other at all.
 The rows carry an `id` column of 4-5 digit integers that LOOKS like a Sleeper
 id. It is not: exactly 14 of 531 distinct ids collide with a board sleeper_id,
 which is coincidence. The join is by normalised name + position, with team as a
-disambiguator, and every unmatched row is COUNTED AND NAMED rather than dropped
-silently (register 46 is exactly the defect where a correct drop was invisible
-because nothing reported it).
+disambiguator. Every unmatched row is COUNTED (`unmatched_total`) and the first
+25 are NAMED (`unmatched`) rather than dropped silently — register 46 is exactly
+the defect where a correct drop was invisible because nothing reported it.
+
+⚠️ THAT SENTENCE USED TO SAY EVERY ROW WAS "COUNTED AND NAMED" AND IT WAS FALSE:
+the list was capped at 25 with no count beside it, so its length was the only
+number available and "25 unmatched" could not be told from "at least 25". It hid
+that CBS had more. Fixed 2026-08-19 (register 84) the day register 80 showed
+what an under-reporting diagnostic costs.
 
 ── WHAT THIS DOES NOT DO ─────────────────────────────────────────────────────
 It does not write `proj_mean`, touch the board, or ship anything. It produces a
@@ -214,6 +220,15 @@ def main() -> None:
             key = (norm_name(r.get("player")), pos)
             cands = by_name.get(key) or []
         if not cands:
+            # COUNT ALWAYS, NAME UP TO 25 (A, 2026-08-19, register 84).
+            # The cap was here without a count beside it, so the LIST LENGTH
+            # was the only number anyone could read — and "25 unmatched" was
+            # indistinguishable from "at least 25". That is how this file's own
+            # docstring came to claim every unmatched row is "COUNTED AND
+            # NAMED" while silently dropping the 26th onward, and it is the
+            # same shape as register 80: a diagnostic that under-reports is
+            # worse than one that is absent, because its number gets believed.
+            d["unmatched_total"] = d.get("unmatched_total", 0) + 1
             if len(d["unmatched"]) < 25:
                 d["unmatched"].append(f"{r.get('player')} ({pos})")
             continue

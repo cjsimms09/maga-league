@@ -960,6 +960,20 @@
    "min": 268.5,
    "max": 311.3
   },
+  "3198": {
+   "name": "Derrick Henry",
+   "position": "RB",
+   "by_source": {
+    "CBS": 282.7,
+    "ESPN": 263.9,
+    "FFToday": 251.6
+   },
+   "n_sources": 3,
+   "mean": 266.07,
+   "sd": 12.79,
+   "min": 251.6,
+   "max": 282.7
+  },
   "4034": {
    "name": "Christian McCaffrey",
    "position": "RB",
@@ -1099,6 +1113,20 @@
    "sd": 6.95,
    "min": 208.1,
    "max": 224.4
+  },
+  "8151": {
+   "name": "Kenneth Walker",
+   "position": "RB",
+   "by_source": {
+    "CBS": 221.4,
+    "ESPN": 251.5,
+    "FFToday": 236.9
+   },
+   "n_sources": 3,
+   "mean": 236.6,
+   "sd": 12.29,
+   "min": 221.4,
+   "max": 251.5
   },
   "11584": {
    "name": "Bucky Irving",
@@ -2138,6 +2166,20 @@
    "sd": 23.53,
    "min": 218.0,
    "max": 270.1
+  },
+  "7564": {
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "by_source": {
+    "CBS": 279.1,
+    "ESPN": 279.0,
+    "FFToday": 272.5
+   },
+   "n_sources": 3,
+   "mean": 276.87,
+   "sd": 3.09,
+   "min": 272.5,
+   "max": 279.1
   },
   "7547": {
    "name": "Amon-Ra St. Brown",
@@ -6412,13 +6454,13 @@
   }
  },
  "coverage": {
-  "players_with_at_least_one_source": 478,
-  "players_with_2plus": 388,
-  "players_with_all_3": 274,
+  "players_with_at_least_one_source": 481,
+  "players_with_2plus": 391,
+  "players_with_all_3": 277,
   "by_position": {
    "QB": 69,
-   "RB": 108,
-   "WR": 151,
+   "RB": 110,
+   "WR": 152,
    "TE": 85,
    "K": 33,
    "DEF": 32
@@ -6429,7 +6471,7 @@
    "rows": 442,
    "scored": 442,
    "zero_points": 0,
-   "joined": 394,
+   "joined": 397,
    "unmatched": [
     "Desmond Ridder (QB)",
     "Shane Buechele (QB)",
@@ -6440,8 +6482,6 @@
     "Drew Lock (QB)",
     "Jake Browning (QB)",
     "Brady Cook (QB)",
-    "Derrick Henry (RB)",
-    "Kenneth Walker III (RB)",
     "Kenneth Gainwell (RB)",
     "AJ Dillon (RB)",
     "Christopher Brooks (RB)",
@@ -6454,24 +6494,24 @@
     "Carlos Washington Jr. (RB)",
     "Deuce Vaughn (RB)",
     "Salvon Ahmed (RB)",
-    "Ja'Marr Chase (WR)",
-    "Bub Means (WR)"
-   ]
+    "Bub Means (WR)",
+    "Josh Palmer (WR)",
+    "Chigoziem Okonkwo (TE)",
+    "Ben Sims (TE)"
+   ],
+   "unmatched_total": 45
   },
   "ESPN": {
    "rows": 416,
    "scored": 416,
    "zero_points": 12,
-   "joined": 399,
+   "joined": 402,
    "unmatched": [
-    "Derrick Henry (RB)",
-    "Kenneth Walker III (RB)",
     "Kene Nwangwu (RB)",
     "Bam Knight (RB)",
     "Jacob Saylors (RB)",
     "DeeJay Dallas (RB)",
     "Josh Williams (RB)",
-    "Ja'Marr Chase (WR)",
     "Travis Hunter (WR)",
     "Hollywood Brown (WR)",
     "Mason Tipton (WR)",
@@ -6481,19 +6521,17 @@
     "Elijah Higgins (TE)",
     "Chiefs D/ST (DEF)",
     "Jaguars D/ST (DEF)"
-   ]
+   ],
+   "unmatched_total": 14
   },
   "FFToday": {
    "rows": 390,
    "scored": 358,
    "zero_points": 2,
-   "joined": 347,
+   "joined": 350,
    "unmatched": [
     "Kenny Pickett (QB)",
-    "Derrick Henry (RB)",
-    "Kenneth Walker (RB)",
     "Kenneth Gainwell (RB)",
-    "Ja'Marr Chase (WR)",
     "Travis Hunter (WR)",
     "Josh Palmer (WR)",
     "Mitchell Tinsley (WR)",
@@ -6501,33 +6539,34 @@
     "Devin Duvernay (WR)",
     "Chigoziem Okonkwo (TE)"
    ],
+   "unmatched_total": 8,
    "excluded_no_fg_split": 32
   }
  },
  "agreement_spearman": {
   "CBS vs ESPN": {
-   "n": 322,
-   "spearman": 0.932
+   "n": 325,
+   "spearman": 0.9337
   },
   "CBS vs FFToday": {
-   "n": 289,
-   "spearman": 0.9407
+   "n": 292,
+   "spearman": 0.9424
   },
   "ESPN vs FFToday": {
-   "n": 325,
-   "spearman": 0.9694
+   "n": 328,
+   "spearman": 0.9703
   },
   "CBS vs Sleeper": {
-   "n": 394,
-   "spearman": 0.9261
+   "n": 397,
+   "spearman": 0.9478
   },
   "ESPN vs Sleeper": {
-   "n": 399,
-   "spearman": 0.9294
+   "n": 402,
+   "spearman": 0.9565
   },
   "FFToday vs Sleeper": {
-   "n": 347,
-   "spearman": 0.9569
+   "n": 350,
+   "spearman": 0.9704
   }
  }
 }
