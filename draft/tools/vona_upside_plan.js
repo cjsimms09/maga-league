@@ -50,7 +50,15 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const SHORTLIST_N = 10;   // declared in the prereg, NOT tuned on the output
 const RANK_WINDOW = 7;    // same
 
-/* ── ARM 2: THE POSITIONAL CAP ─────────────────────────────────────────────
+/* ⛔ RETIRED AS A RECOMMENDATION, 2026-08-19. Cory: "i dont want 6 rb 5wr.. it
+ * may end that way but thats not a set roster." A CAP IS A SET ROSTER. This arm
+ * hits its shape because the alternatives are forbidden, which says nothing
+ * about whether the valuation is right. Kept, and labelled, as a DEMONSTRATION
+ * that a cap can force a shape -- not deleted, because deleting it would hide
+ * that it was built. Use the uncapped arm for anything that matters.
+ * See ROSTER-SHAPE-IS-AN-OUTCOME-2026-08-19.md.
+ *
+ * ── ARM 2: THE POSITIONAL CAP ─────────────────────────────────────────────
  * Derived from the league's own roster_slots in the prereg addendum, BEFORE
  * this arm ran, with the explicit condition that no number here may change
  * after seeing the roster it produces:
