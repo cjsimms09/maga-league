@@ -195,7 +195,7 @@ Object.keys(ARMS).forEach(name => {
     .map(b => ({ week: b.week,
                  unfilled: b.unfilled.filter(u => u !== 'K' && u !== 'DEF') }))
     .filter(b => b.unfilled.length);
-  /* THE ROSTER ITSELF, not just its shape. Added 2026-08-19 for P133: the
+  /* THE ROSTER ITSELF, not just its shape. Added 2026-08-19 for P144 (was P133): the
    * report carried position COUNTS only, so "did this arm draft the same
    * players after a rebuild" was unanswerable from its output — two rosters
    * with identical counts can share no players at all. Extending the
