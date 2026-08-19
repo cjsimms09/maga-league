@@ -214,8 +214,44 @@ def scripted_candidates(board: dict, removed_ids: set[str], my_picks: list[int],
                 continue
             cands.append({"player_id": str(p["player_id"]), "name": p.get("name"),
                           "position": p.get("position"), "vorp": round(p.get("vorp") or 0, 1),
-                          "survival": round(surv, 2)})
-        cands.sort(key=lambda c: (-c["vorp"], -c["survival"]))
+                          "survival": round(surv, 2),
+                          "adp": float(adp)})
+        # ⚠️ RAW VORP IS NOT COMPARABLE ACROSS POSITIONS WITH SHALLOW POOLS,
+        # AND THIS SCRIPT WAS RANKING ON IT ALONE (A, 2026-08-19, three days
+        # before the draft; found by reading what the script would actually
+        # tell Cory to do).
+        #
+        # MEASURED: at pick 48 this file made **Los Angeles Rams DEF the
+        # TARGET** — VORP 29.0, above Drake Maye 26.0 and Mike Evans 24.6.
+        # The war room's own engine, scoring the same board with
+        # MEASURED_WEIGHTS, ranks that defense FIFTH: Maye 375.8, Evans
+        # 192.8, LaPorta 163.6, Rams DEF 135.5. The market drafts that
+        # defense at ADP 128. So the script was scripting an EIGHTY-PICK
+        # REACH that the tool it claims to script would never make — the
+        # surface-disagrees-with-the-engine class, in the one document read
+        # at pick speed.
+        #
+        # WHY VORP DOES IT: replacement level for DEF/K is computed over a
+        # pool ~10 deep, so DEF1 shows a big margin over DEF-replacement
+        # while being worth ~14 points over the defense available 80 picks
+        # later (Rams 132.0 vs Texans 118.0, ADP 126). A cross-position
+        # number that shallow is a scarcity artifact, not value.
+        #
+        # NOT AN ONESIE CAP. Cory ruled those deleted 2026-08-14 ("delete
+        # them, do not fix them") and this does NOT reinstate one: nothing
+        # is capped, no roster rule changes, the engine is untouched. This
+        # only stops a SCRIPT that cannot see the engine's score from
+        # promoting a onesie into a TARGET slot on a number the engine
+        # disagrees with — and only while the market says the player is
+        # still ~a round away or more.
+        ONESIE_POS = {"K", "DEF"}
+        REACH_ROUNDS = 1.5           # tolerate ~1.5 rounds of reach, not eight
+        teams = int(((board.get("league") or {}).get("teams")) or 10)
+        for c in cands:
+            reach = c["adp"] - pick            # picks EARLY vs the market
+            c["_onesie_reach"] = (c["position"] in ONESIE_POS
+                                  and reach > REACH_ROUNDS * teams)
+        cands.sort(key=lambda c: (c["_onesie_reach"], -c["vorp"], -c["survival"]))
         slate = cands[:CANDIDATES_PER_PICK]
         if pin_ids:
             ids = {c["player_id"] for c in slate}
