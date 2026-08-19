@@ -181,12 +181,33 @@ def run(grades: dict) -> dict:
     sizes = {s: sorted({t["counts"]["TOTAL"] for t in teams.values()})
              for s, teams in seasons.items()}
 
-    perms = {}
-    for p in POSITIONS:
-        t3, b7, pv, n3, n7 = _within_season_permutation(seasons, p)
-        perms[p] = {"top3_mean": t3, "rest_mean": b7,
-                    "diff": (None if t3 is None else round(t3 - b7, 3)),
-                    "permutation_p": round(pv, 4), "n_top3": n3, "n_rest": n7}
+    def _perms(subset):
+        out = {}
+        for p in POSITIONS:
+            t3, b7, pv, n3, n7 = _within_season_permutation(subset, p)
+            out[p] = {"top3_mean": t3, "rest_mean": b7,
+                      "diff": (None if t3 is None else round(t3 - b7, 3)),
+                      "permutation_p": round(pv, 4), "n_top3": n3, "n_rest": n7}
+        return out
+
+    perms = _perms(seasons)
+
+    # ── DRAFT-LENGTH MATCHING, AND IT REVERSES THE POOLED HEADLINE ───────────
+    # 2023 drafted EIGHTEEN players per team; 2024, 2025 and 2026 draft FIFTEEN.
+    # (All four seasons carry 15 roster_positions — the difference is draft
+    # LENGTH, not roster size, and pooling them mixes two different economies:
+    # three extra picks per team have to go somewhere, and in 2023 they went to
+    # running backs — top-3 teams drafted 5.67 of them.)
+    #
+    # 2026 is a 15-pick draft, so the matched subset is the comparison that
+    # applies to Saturday and the pooled one is contaminated. Reported side by
+    # side rather than replacing it, because n falls to 6 top-3 team-seasons and
+    # neither cut is strong enough to stand alone.
+    matched_seasons = {s: t for s, t in seasons.items()
+                       if sorted({v["counts"]["TOTAL"] for v in t.values()})
+                       == sorted({v["counts"]["TOTAL"]
+                                  for v in seasons[max(seasons)].values()})}
+    perms_matched = _perms(matched_seasons) if len(matched_seasons) >= 2 else {}
 
     tools = {name: tool_shapes(Path(path)) for name, path in grades.items()}
 
@@ -204,6 +225,13 @@ def run(grades: dict) -> dict:
         "roster_sizes_seen": sizes,
         "seasons_used": sorted(seasons),
         "league": perms,
+        "league_draft_length_matched": perms_matched,
+        "draft_length_matched_seasons": sorted(matched_seasons),
+        "draft_length_note": (
+            "2023 drafted 18 players per team; 2024/2025/2026 draft 15. All four "
+            "carry 15 roster_positions, so this is draft LENGTH, not roster size. "
+            "2026 is a 15-pick draft, so the MATCHED cut is the one that applies "
+            "and the pooled cut mixes two economies."),
         "positions_differing_at_p05": signif,
         "tool": tools,
         "verdict": ("NO POSITION SEPARATES TOP-3 FROM THE REST — roster shape is "
@@ -241,6 +269,17 @@ def main() -> int:
         print(f"    {p:5} {v['top3_mean']:6.2f}  {v['rest_mean']:6.2f}  "
               f"{v['diff']:+6.2f}   {v['permutation_p']:.4f}"
               + ("  *" if v["permutation_p"] < 0.05 else ""))
+    if doc.get("league_draft_length_matched"):
+        print(f"\n  DRAFT-LENGTH MATCHED — {doc['draft_length_matched_seasons']} only "
+              f"(2026 is a 15-pick draft; 2023 was 18)")
+        print("    pos    top3    rest    diff       p")
+        for p in POSITIONS:
+            v = doc["league_draft_length_matched"][p]
+            if v["top3_mean"] is None:
+                continue
+            print(f"    {p:5} {v['top3_mean']:6.2f}  {v['rest_mean']:6.2f}  "
+                  f"{v['diff']:+6.2f}   {v['permutation_p']:.4f}"
+                  + ("  *" if v["permutation_p"] < 0.05 else ""))
     print("\n  THE TOOL — mean drafted counts per seat-year")
     for name, t in doc["tool"].items():
         print(f"    {name} (n={t['n_seat_years']}, roster {t['roster_size_mean']}): "

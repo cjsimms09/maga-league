@@ -8,6 +8,54 @@ Preregs: `ROSTER-SHAPE-PREREG-2026-08-19.md` (P120) ·
 
 ---
 
+## ⚠️ CORRECTION, SAME DAY — §1'S HEADLINE WAS TOO STRONG, AND CORY WAS CLOSER TO RIGHT THAN I SAID
+
+**§1 below says RB does not separate winners from losers "at all", at p = 1.000.
+That number pools three seasons which did not draft the same number of players,
+and it should not have been stated that strongly.**
+
+**2023 drafted EIGHTEEN players per team. 2024, 2025 and 2026 draft FIFTEEN.**
+All four carry 15 `roster_positions`, so this is draft *length*, not roster size
+— and in 2023 the three extra picks per team went overwhelmingly to running
+backs: top-3 teams there drafted **5.67** of them. That single season is what
+flattens the pooled RB comparison to nothing.
+
+**On the draft length that actually applies to Saturday (2024 + 2025 only):**
+
+| pos | top-3 | rest | diff | p |
+|---|---|---|---|---|
+| **RB** | **3.83** | **4.57** | **−0.74** | **0.0617** |
+| TE | 1.83 | 1.29 | +0.55 | 0.0522 |
+| QB | 1.33 | 1.64 | −0.31 | 0.339 |
+| WR | 5.17 | 5.00 | +0.17 | 0.785 |
+
+**The winners of this league draft FEWER running backs, not the same number.**
+And the tool drafts **4.77** against a comparable winners' mean of **3.83** —
+a gap of nearly a full back, roughly three times the +0.33 §1 reports.
+
+**What survives and what does not:**
+
+- **"RB does not separate top-3 from the rest" — WITHDRAWN as stated.** It holds
+  pooled and does not hold on the matched cut, where RB is the *largest* effect
+  of the six.
+- **"TE separates at p = 0.0043" — WEAKENED.** On the matched cut it is p =
+  0.0522, so part of that significance was carried by 2023.
+- **Neither position clears p < 0.05 on the matched cut, and n falls to 6 top-3
+  team-seasons.** The honest verdict is that the matched data is too thin to
+  settle it and the pooled data mixes two economies. **Both cuts are now in
+  `draft/data/roster_shape_lab.json`; neither should be quoted alone.**
+- **Unchanged: the tool is short on TE under every cut** (1.00 shipped against
+  1.83–1.89), and **s1 is closer to the target than s0 under both.**
+
+**Why this matters more than the arithmetic:** I published a conclusion that
+contradicted Cory's own instinct about his roster, and the conclusion was an
+artifact of pooling a season with a different draft length. He said *"too many
+RB"*; on the comparison that applies to his draft, the tool drafts nearly a full
+back more than the teams that win. **The complaint had more support than my
+write-up gave it.**
+
+---
+
 ## 1. THE HEADLINE REVERSES THE COMPLAINT
 
 Drafted position counts per team-season from this league's own three complete

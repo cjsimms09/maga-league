@@ -76,6 +76,61 @@
    "n_rest": 21
   }
  },
+ "league_draft_length_matched": {
+  "QB": {
+   "top3_mean": 1.333,
+   "rest_mean": 1.643,
+   "diff": -0.31,
+   "permutation_p": 0.3385,
+   "n_top3": 6,
+   "n_rest": 14
+  },
+  "RB": {
+   "top3_mean": 3.833,
+   "rest_mean": 4.571,
+   "diff": -0.738,
+   "permutation_p": 0.0617,
+   "n_top3": 6,
+   "n_rest": 14
+  },
+  "WR": {
+   "top3_mean": 5.167,
+   "rest_mean": 5,
+   "diff": 0.167,
+   "permutation_p": 0.7853,
+   "n_top3": 6,
+   "n_rest": 14
+  },
+  "TE": {
+   "top3_mean": 1.833,
+   "rest_mean": 1.286,
+   "diff": 0.547,
+   "permutation_p": 0.0522,
+   "n_top3": 6,
+   "n_rest": 14
+  },
+  "K": {
+   "top3_mean": 1,
+   "rest_mean": 1,
+   "diff": 0,
+   "permutation_p": 1.0,
+   "n_top3": 6,
+   "n_rest": 14
+  },
+  "DEF": {
+   "top3_mean": 1,
+   "rest_mean": 0.929,
+   "diff": 0.071,
+   "permutation_p": 1.0,
+   "n_top3": 6,
+   "n_rest": 14
+  }
+ },
+ "draft_length_matched_seasons": [
+  "2024",
+  "2025"
+ ],
+ "draft_length_note": "2023 drafted 18 players per team; 2024/2025/2026 draft 15. All four carry 15 roster_positions, so this is draft LENGTH, not roster size. 2026 is a 15-pick draft, so the MATCHED cut is the one that applies and the pooled cut mixes two economies.",
  "positions_differing_at_p05": [
   "TE"
  ],
@@ -119,6 +174,26 @@
     "DEF": 0.0
    },
    "roster_size_mean": 12.97
+  },
+  "need1": {
+   "n_seat_years": 30,
+   "mean": {
+    "QB": 1.63,
+    "RB": 5.83,
+    "WR": 4.33,
+    "TE": 1.13,
+    "K": 0,
+    "DEF": 0
+   },
+   "median": {
+    "QB": 2.0,
+    "RB": 6.0,
+    "WR": 4.5,
+    "TE": 1.0,
+    "K": 0.0,
+    "DEF": 0.0
+   },
+   "roster_size_mean": 12.93
   }
  },
  "verdict": "separates on: TE"
