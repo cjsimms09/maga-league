@@ -1,0 +1,102 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/simple_model.js",
+ "_prereg": "draft/SIMPLE-MODEL-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. engine.js, draft_plan.js and public/draft_data.json untouched.",
+ "adjuster_a": 0,
+ "rooms": 300,
+ "controls": {
+  "C1_a0_is_a_plain_ds_proj_ranking": {
+   "ok": true,
+   "why": "known positive and the smoke test for the whole pipeline"
+  },
+  "C2_no_source_mixing": {
+   "ok": true,
+   "pool": 247,
+   "excluded_inside_adp200": 11,
+   "excluded_names": [
+    "Jayden Higgins (WR, adp 151.9)",
+    "Malik Washington (WR, adp 193.1)",
+    "Ja'Kobi Lane (WR, adp 170.4)",
+    "Cooper Kupp (WR, adp 198.4)",
+    "Kayshon Boutte (WR, adp 197.7)",
+    "David Njoku (TE, adp 176.1)",
+    "Isaac TeSlaa (WR, adp 199.3)",
+    "Tank Dell (WR, adp 184.9)",
+    "Theo Wease (WR, adp 120.6)",
+    "Nick Folk (K, adp 172.1)"
+   ],
+   "why": "a player with no Draft Sharks line is EXCLUDED, never back-filled with our proj_mean — mixing two sources inside one VONA is the defect this model removes"
+  },
+  "C3_band_order_valid": {
+   "ok": true,
+   "rejected_rows": 0,
+   "rejected": []
+  },
+  "C4_need_curve_is_the_committed_one": {
+   "ok": true
+  }
+ },
+ "controls_all_passed": true,
+ "pool_size": 247,
+ "excluded_inside_adp200": [
+  "Jayden Higgins (WR, adp 151.9)",
+  "Malik Washington (WR, adp 193.1)",
+  "Ja'Kobi Lane (WR, adp 170.4)",
+  "Cooper Kupp (WR, adp 198.4)",
+  "Kayshon Boutte (WR, adp 197.7)",
+  "David Njoku (TE, adp 176.1)",
+  "Isaac TeSlaa (WR, adp 199.3)",
+  "Tank Dell (WR, adp 184.9)",
+  "Theo Wease (WR, adp 120.6)",
+  "Nick Folk (K, adp 172.1)",
+  "Blake Grupe (K, adp 166.2)"
+ ],
+ "mean_roster": {
+  "QB": {
+   "mean": 2.41,
+   "sd": 0.72,
+   "min": 1,
+   "max": 4
+  },
+  "RB": {
+   "mean": 4.07,
+   "sd": 0.74,
+   "min": 2,
+   "max": 6
+  },
+  "WR": {
+   "mean": 3.5,
+   "sd": 0.77,
+   "min": 2,
+   "max": 6
+  },
+  "TE": {
+   "mean": 3.02,
+   "sd": 0.94,
+   "min": 1,
+   "max": 5
+  },
+  "K": {
+   "mean": 1,
+   "sd": 0,
+   "min": 1,
+   "max": 1
+  },
+  "DEF": {
+   "mean": 1,
+   "sd": 0,
+   "min": 1,
+   "max": 1
+  }
+ },
+ "rules_on": true,
+ "rooms_with_an_empty_starting_slot": 0,
+ "grades": {
+  "P186_adjuster_identity": true,
+  "P187_reorders_our_board": true,
+  "P188_keeps_the_shape_we_won": true,
+  "P189_qb_leak_survives": true,
+  "P190_with_corys_two_rules": true
+ },
+ "p187_moved_in_top_100": 85
+}
