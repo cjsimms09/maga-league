@@ -78,7 +78,11 @@ BOARD.players.forEach(p => {
   if (!d || !POS.includes(p.position)) return;
   pool.push({ id: String(p.player_id), name: p.name || p.player_name, position: p.position,
               team: p.team || null, adp: adpOf(p), sd: p.adp_sd == null ? 12 : +p.adp_sd, ds: d,
-              blend: meanById.get(String(p.player_id)) || null });
+              blend: meanById.get(String(p.player_id)) || null,
+              // WAR-ROOM-SPEC.md P1's per-row field list names `bye` — was
+              // missing from this artifact entirely (checked: draft_data.json
+              // carries it as `bye`, this file just never joined it).
+              bye: p.bye == null ? null : +p.bye });
 });
 const projUsed = x => x.ds.proj + A * (x.ds.ceiling - x.ds.proj);
 
@@ -141,7 +145,7 @@ const picks = SCHED.map((pk, i) => {
       cliff_after_rank: cliffAfter, cliff_size: +cliffSize.toFixed(1),
       note: noteFor(q, vona, surplus, here),
       players: here.map(o => ({
-        player_id: o.x.id, name: o.x.name, team: o.x.team,
+        player_id: o.x.id, name: o.x.name, team: o.x.team, bye: o.x.bye,
         proj: +o.x.ds.proj.toFixed(1), floor: +o.x.ds.floor.toFixed(1),
         ceiling: +o.x.ds.ceiling.toFixed(1), injury_risk_pct: o.x.ds.risk,
         // The blend's own numbers for this SAME player — the toggle's other

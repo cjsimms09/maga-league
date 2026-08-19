@@ -25,7 +25,7 @@ function mkBlock(overrides) {
     note: 'STRIKE — waiting costs 20 and he is +100 over the wire',
     players: [
       { player_id: '1', name: 'Alpha Back', team: 'AAA', proj: 200, floor: 170, ceiling: 250,
-        proj_blend: 191, floor_blend: 165, ceiling_blend: 240,
+        proj_blend: 191, floor_blend: 165, ceiling_blend: 240, bye: 9,
         adp: 20, pct_still_there_next_pick: 10, injury_risk_pct: 15 },
       { player_id: '2', name: 'Beta Back', team: 'BBB', proj: 180, floor: 150, ceiling: 220,
         proj_blend: 176, floor_blend: 148, ceiling_blend: 215,
@@ -178,10 +178,15 @@ function mkData() {
       return /class="pb-range">/.test(rbSection) && /pb-range-band/.test(rbSection)
         && /floor 170 · proj 200 · ceiling 250/.test(rbSection);
     })());
-  ck('ADP moves to a title on the name (one hover away), not a visible cell — still the same number',
+  ck('ADP and bye both move to the name\'s title (one hover away, never dropped) — WAR-ROOM-SPEC.md P1 names both',
     (function () {
       const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
-      return /class="pb-name" title="ADP 20"/.test(rbSection);
+      return /class="pb-name" title="ADP 20 · bye 9"/.test(rbSection);
+    })());
+  ck('a player with no bye data still shows ADP alone, not a broken "ADP 20 · bye null"',
+    (function () {
+      const rbSection = html.slice(html.indexOf('pb-pos">RB<'), html.indexOf('pb-pos">WR<'));
+      return /class="pb-name" title="ADP 30"/.test(rbSection);
     })());
   ck('the injury risk indicator is a DOT with the exact percentage on hover (Beta Back, 60%) — not a text column',
     /pb-risk-dot pb-risk-hi" title="60% injury risk/.test(html));

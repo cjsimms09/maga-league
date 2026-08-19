@@ -100,7 +100,16 @@
       ? 'live, opponent-need aware'
       : 'pre-draft estimate (ADP-drain only) — live number not available yet';
     var pf = projFieldsFor(p, projSource);
-    var nameTitle = p.adp != null ? 'ADP ' + fmtNum(p.adp) : '';
+    /* WAR-ROOM-SPEC.md P1 names `bye` in its per-row field list; the artifact
+     * never carried it (checked: draft_data.json has it, position_boards.js
+     * just never joined it — fixed there). Same hover pattern as ADP, not a
+     * fifth visible column — bye-week collision matters for roster building,
+     * not for the 8-second in-the-moment pick, so it costs nothing to keep
+     * it one hover away rather than fighting for more row width. */
+    var nameTitleParts = [];
+    if (p.adp != null) nameTitleParts.push('ADP ' + fmtNum(p.adp));
+    if (p.bye != null) nameTitleParts.push('bye ' + fmtNum(p.bye));
+    var nameTitle = nameTitleParts.join(' · ');
     /* THE DOT LIVES ON THE NAME CELL, NOT THE SURVIVAL CELL — measured, not
      * guessed. "100%●" inline with the survival percentage needed 49px of
      * real width; no allocation split among four columns in a ~150px table
