@@ -80,7 +80,11 @@ def test_every_tracked_row_names_an_owner():
     bad = []
     for cells in rows():
         owner = _owner_cell(cells)
-        if not owner or not re.search(r"\b(A|B|C|D|E|Cory|relay)\b", owner) \
+        # CASE-INSENSITIVE on the names (2026-08-19): a row written "**CORY**"
+        # reads as a perfectly good owner to a human and was rejected on
+        # capitalisation alone. This only widens the match for names already
+        # allowed — an unowned row still fails, which is the whole point.
+        if not owner or not re.search(r"\b(A|B|C|D|E|Cory|relay)\b", owner, re.I) \
                 or PLACEHOLDERS.search(owner):
             bad.append(" | ".join(c[:40] for c in cells))
     assert not bad, "rows with no owner:\n" + "\n".join(bad)
