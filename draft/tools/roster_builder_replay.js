@@ -278,6 +278,9 @@ function gradeSeason(season, roster) {
  * differs. */
 const MLV = process.argv.includes('--mlv');
 const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
+/* Cory: "Or exclude def and k all together" — MLV never VOLUNTEERS a K or DEF;
+ * the legality fill seats them at the end, which is what a human does. */
+const MLV_NO_ONESIE = process.argv.includes('--mlv-no-onesie');
 
 function lineupValueOf(vals) {
   /* vals: {pos: [value, ...]} sorted desc. Dedicated slots then one flex. */
@@ -360,6 +363,8 @@ function buildSeat(season, draft, seatId, rosterOn) {
          * roster does not. If the cap is load-bearing it must be reported as a
          * rule, not as something the mechanism discovered. */
         if (MLV_CAP && (q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
+        /* excluded entirely: only the forcing gate may seat them */
+        if (MLV_NO_ONESIE && (q === 'K' || q === 'DEF') && !forcing) continue;
         const cur = {};
         POS.forEach(z => { cur[z] = (mineVals[z] || []).slice(); });
         const before = lineupValueOf(cur);
