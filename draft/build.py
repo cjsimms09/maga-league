@@ -35,6 +35,7 @@ import keeper_slate as keeper_slate_mod  # noqa: E402
 import adp_series as adp_series_mod  # noqa: E402
 import proj_series as proj_series_mod  # noqa: E402
 import grab_by as grab_by_mod  # noqa: E402
+import multisource_blend as multisource_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -1740,6 +1741,28 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     if not players:
         raise SystemExit("no players — cannot build a board")
 
+    # THE MULTI-SOURCE MEAN — Cory's ruling, 2026-08-19: *"switch to mean
+    # projections, fix ceiling and floors"* … *"Ship it"*.
+    #
+    # Placed HERE, before keepers/ADP/VORP/tiers, and not one line later,
+    # because every one of those derives from proj_mean. `kept_players` is
+    # built from `dict(p)` COPIES a few dozen lines below; blending after that
+    # point would leave the keeper panel on Sleeper-only numbers while the
+    # board moved — the exact keeper/board split that shipped a wrong name on
+    # screen at pick 33 once already (see the vorp back-fill note below).
+    #
+    # The module REFUSES rather than half-applying (missing store, coverage
+    # under 30%, or a failed rookie-bloc veto), and the diagnostic it returns
+    # is stamped into provenance either way, so a build that did NOT blend
+    # says so on the artifact rather than looking identical to one that did.
+    ms_diag = multisource_mod.apply_multisource(players)
+    if ms_diag.get("applied"):
+        print(f"  multi-source mean: {ms_diag['players_changed']} players "
+              f"({ms_diag['coverage']:.0%} of priced board) from "
+              f"{ms_diag.get('sources')}; ceilings/floors from cross-source spread")
+    else:
+        print(f"  multi-source mean: NOT APPLIED — {ms_diag.get('reason')}")
+
     profiles = build_manager_profiles(cfg, offline, force=force_profiles)
     print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
           f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
@@ -1951,6 +1974,8 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             # 'file-cache' (fallback, with a warning). The file is never trusted
             # silently.
             "config_confirmed": dict(confirmed_status),
+            # Stamped whether or not it applied — see the note at the call site.
+            "multisource_mean": dict(ms_diag),
         },
     }
     _assert_provenance_matches_data(available, artifact)
@@ -2185,6 +2210,10 @@ def main() -> None:
                          "profiles already cover them (they are otherwise built "
                          "once, since a completed draft never changes)")
     ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--allow-fixture-write", action="store_true",
+                    help="permit an --offline (fixture) build to overwrite the "
+                         "real public/draft_data.json. Off by default: see the "
+                         "refusal at the write site.")
     args = ap.parse_args()
 
     if args.snapshot:
@@ -2213,9 +2242,26 @@ def main() -> None:
               "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
     artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles,
                      confirmed_status=status)
+    # ...AND IT MUST NOT WRITE INTO THE DATED ARCHIVES EITHER, which is the worse
+    # half of the same bug (A, 08-19). The three retainers below are APPEND-ONLY
+    # HISTORY: today's ADP, today's frozen preseason projection, today's depth
+    # chart and injury designations. DATA-LIFECYCLE.md's whole argument for
+    # capturing them daily is that they are unmeasurable in retrospect — so a
+    # fixture run that stamps `sleeper(233)` into the 2026-08-19 slot does not
+    # make a mess that can be cleaned up later, it destroys the only copy of a
+    # day. The board write is recoverable from git; these are recoverable from
+    # nothing. `--allow-fixture-write` does NOT unlock them, deliberately:
+    # there is no legitimate reason to want fixture data in the season archive.
+    _fixture_run = args.offline
+    if _fixture_run:
+        print("  ! offline build: skipping ADP series, projection snapshot and "
+              "roster-state capture — a fixture must never enter the dated "
+              "archives, which cannot be rebuilt for a day that has passed")
     # Retain today's ADP into the dated series and stamp velocity/staleness on the
     # board. Non-fatal: a series hiccup must never block the board from shipping.
     try:
+        if _fixture_run:
+            raise RuntimeError("fixture run — archive write suppressed")
         _update_adp_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships without the stamps
         print(f"  ! ADP series not updated ({exc}); board ships without velocity stamps")
@@ -2223,6 +2269,8 @@ def main() -> None:
     # CLEAN projection grade is possible after the season (a retroactive fetch leaks — exp33).
     # Non-fatal. FantasyPros projections are added by the CI probe (needs egress).
     try:
+        if _fixture_run:
+            raise RuntimeError("fixture run — archive write suppressed")
         _update_proj_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships regardless
         print(f"  ! projection snapshot not updated ({exc})")
@@ -2234,6 +2282,8 @@ def main() -> None:
     # here is recoverable only if the capture starts before the state moves.
     # Non-fatal, like its siblings — the board ships regardless.
     try:
+        if _fixture_run:
+            raise RuntimeError("fixture run — archive write suppressed")
         import roster_state as roster_state_mod
         _rs = roster_state_mod.capture(artifact.get("players") or [],
                                        artifact["built_at"][:10])
@@ -2242,6 +2292,20 @@ def main() -> None:
     except Exception as exc:  # noqa: BLE001
         print(f"  ! roster state not captured ({exc})")
     out = Path(args.out)
+    # AN OFFLINE BUILD MUST NOT OVERWRITE THE BOARD CORY DRAFTS OFF (A, 08-19).
+    # `--offline` loads a 233-player FIXTURE pool whose own ADP provenance says
+    # "DISABLED — this board is fixture data, not real ADP or real projections.
+    # Do not draft off it." — and then wrote it straight over public/draft_data.json,
+    # replacing 697 real players. I did exactly that today, three days before
+    # the draft, while testing an unrelated change; the only reason it was
+    # caught is that `git status` happened to be the next command. Nothing in
+    # the run warned, and the artifact it leaves is a plausible-looking board.
+    # A fixture build is for reading, so it writes somewhere else unless the
+    # caller says the quiet part out loud.
+    if args.offline and out.resolve() == OUT.resolve() and not args.allow_fixture_write:
+        out = OUT.parent.parent / "draft" / "data" / "board_offline_fixture.json"
+        print(f"  ! offline build: REFUSING to overwrite {OUT} with a fixture board "
+              f"(pass --allow-fixture-write to insist) — writing {out} instead")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))
     size_kb = out.stat().st_size / 1024
