@@ -114,20 +114,30 @@ because points on your bench are worth nothing.
 **That objection rests entirely on the six-team-season shape data that does not
 clear significance.** With that evidence removed, what is left is:
 
-- `need: 1.0` gains **+68.6** points/seat-season; slot-aware **+58.2**
+- ~~`need: 1.0` gains **+68.6** points/seat-season; slot-aware **+58.2**~~
+  **⚠️ WITHDRAWN WITHIN THE HOUR — I MADE THE SAME ERROR I JUST CRITICISED.**
+  The paired difference is **+10.4, 95% CI [−38.0, +58.8]**, and season-clustered
+  the three season means are **+11.7, −7.2, +26.7 — the sign flips.** The two
+  arms are **not separable on points.** Using that gap as a reason was exactly
+  the TE mistake, made while arguing against it.
+  **What IS supported: both arms beat shipped in 3 of 3 seasons** — `need: 1.0`
+  +68.6, CI [+18.1, +119.1]; slot-aware +58.2, CI [+5.9, +110.5]. **Turning
+  roster-awareness on is a real gain. Which arm is a coin the data cannot flip.**
 - `need: 1.0` is **one weight**; slot-aware is a **feature flag** that has
   collapsed three separate times in three different ways
 - `need: 1.0` needs no new code path; slot-aware turns on ~400 lines that are
   currently unreachable
 
-**On points, on simplicity, and on risk, `need: 1.0` is the better change. My
-earlier recommendation was built on the weaker evidence and I am withdrawing
-it.**
+~~**On points, on simplicity, and on risk, `need: 1.0` is the better change.**~~
+**CORRECTED: on SIMPLICITY and RISK. Not on points — the arms are not separable
+there, per the withdrawal above.** My earlier recommendation was built on the
+weaker evidence and I am withdrawing it; this one rests on engineering risk,
+which is the only ground the data leaves standing.
 
 ⚠️ **What I am NOT claiming:** that `need: 1.0` produces a roster you will like
 the look of. It drafts more backs. **I no longer have evidence that fewer backs
 is better** — I only have evidence that starting more of your points is better,
-and `need: 1.0` does that best.
+and that ~~`need: 1.0` does that best~~ **BOTH arms do it, indistinguishably.**
 
 ## 7. WHAT SIMPLIFYING WOULD ACTUALLY MEAN
 
