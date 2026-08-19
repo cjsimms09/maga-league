@@ -177,3 +177,47 @@ was accidentally right and the real defect is elsewhere.
 
 **REPORT ONLY. `no_fit_guard`: P175 is a measurement of the league, not a
 selection among arms, and the arm it feeds is POST-DRAFT regardless of outcome.**
+
+---
+
+# ADDENDUM 2 — P176, committed after P175 and before the blend arm is run
+
+**P175 TRUE, and much harder than the bar I set.** I predicted flex exposure
+would persist at the 4th body at `f ≥ 0.10`. Measured:
+
+| | 1st | 2nd | 3rd | 4th | 5th |
+|---|---|---|---|---|---|
+| **RB** | 0.0 | 0.0 | **0.450** | **0.544** | 0.682 |
+| **WR** | 0.0 | 0.0 | **0.435** | **0.551** | 0.882 |
+
+**Exposure RISES with depth — the deeper bodies are MORE flex-dependent, not
+less.** So the order-indexed version was not merely imprecise, it had the shape
+backwards. The implied replacement is now **monotone**, which is what closes the
+escape hatch:
+
+| | 1st | 2nd | 3rd | 4th | 5th |
+|---|---|---|---|---|---|
+| **RB** | 78.4 | 78.4 | **101.8** | **106.7** | 113.9 |
+| **WR** | 124.8 | 124.8 | 127.2 | 127.9 | 129.7 |
+
+## ⚠️ WHY THIS IS P176 AND NOT A RE-GRADE OF P172
+
+**P172/P173/P174 were written against the derived-max arm and P172 was graded
+FALSE on it. That grade stands and is not being revisited.** Re-running Cory's
+bars on a second arm after seeing the first fail is a second bite at the same
+apple, and quietly reusing the old numbers would hide that. **So the blend arm
+gets its own prediction, with the same bars, declared before it runs:**
+
+**P176 — the measured blend meets all three of Cory's requirements at once.**
+Over the same 300 rooms:
+
+- **(a)** mean **WR > mean RB** *(his "more WR than RBs")*
+- **(b)** mean **RB ≥ 3.0** and **≥ 90% of rooms take 3+** *(his "we still need
+  at least 3 RBs due to injuries and bye weeks")*
+- **(c)** QB, TE, K, DEF all within **0.25** of 1.20 / 1.08 / 1.14 / 1.10
+
+**FALSE if any of the three misses. This is the second and last arm** — a third
+would be a search, and `no_fit_guard` forbids selecting one.
+
+**Controls carried forward, including the known positive: `FLEXR=off` must still
+reproduce P166 to the decimal.**
