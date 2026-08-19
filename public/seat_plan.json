@@ -1,6 +1,6 @@
 {
   "generated_from": "draft/tools/emit_seat_plan.js",
-  "source_board_built_at": "2026-08-19T07:52:30Z",
+  "source_board_built_at": "2026-08-19T08:52:22Z",
   "source_board_players": 700,
   "keepers": [
     {
@@ -836,7 +836,7 @@
           "name": "Minnesota Vikings",
           "position": "DEF",
           "proj_mean": 112,
-          "adp": 179.7,
+          "adp": 180.4,
           "rank_metric": 112,
           "display_primary": 112,
           "display_primary_units": "season points",
@@ -927,7 +927,7 @@
           "name": "Harrison Mevis",
           "position": "K",
           "proj_mean": 134.1,
-          "adp": 187.7,
+          "adp": 188.4,
           "rank_metric": 134.1,
           "display_primary": 134.1,
           "display_primary_units": "season points",
