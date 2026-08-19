@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 132,
+ "next_numeric_id": 133,
  "history": [
   {
    "id": 47,
@@ -101,6 +101,11 @@
    "id": 131,
    "claimed_at": "2026-08-19",
    "note": "renumbered from a colliding 128 (persistence-shrink: Cory's K/DEF insight, P227/228 TRUE, P229 FALSE) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 132,
+   "claimed_at": "2026-08-19",
+   "note": "renumbered from a colliding 130 (the harness cannot resolve the ranking -- 3 correlated clusters, not 30 observations) -- another session's row, first-allocation-wins per timestamp"
   }
  ]
 }
