@@ -170,6 +170,13 @@ const SOURCE = (() => {
   return v;
 })();
 
+const DS = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json'), 'utf8'));
+
+/* Draft Sharks' published rows, for the ds arm's band */
+const dsRaw = {};
+(DS.players || []).forEach(r => { if (r.sleeper_id != null) dsRaw[String(r.sleeper_id)] = r; });
+
 const pool = [];
 let noBand = 0, excludedNoDS = 0;
 BL.players.forEach(p => {
@@ -179,14 +186,27 @@ BL.players.forEach(p => {
   if (!has) noBand++;
   pool.push({
     id: p.player_id, name: p.name, position: p.position, adp: p.adp, bye: p.bye,
-    /* the toggle: which projection drives the ranking. The band is scaled to
-     * whichever level is in play, so its PERCENTAGE is identical in both arms
-     * (Cory: "the same % apart from mean proj"). */
+    /* the toggle: which projection drives the ranking, and which band goes with
+     * it. Cory: "does toggle also switch the proj ceilings and floors back to
+     * Draftsharks original" — yes, and under --source ds they are Draft Sharks'
+     * PUBLISHED numbers, read straight from his store.
+     *
+     * ⚠️ THE FIRST VERSION RECONSTRUCTED THEM as ds_proj x (blend_floor /
+     * blend_proj). That is algebraically the same thing -- the blend wears DS's
+     * ratio by construction -- and it checked out to within 0.29 points across
+     * all 247 players. But the residue is real: the blend stores proj, floor and
+     * ceiling rounded to 0.1, so the ratio carries the rounding through and
+     * Gibbs' published ceiling of 370 came back as 370.06. Toggling to "Draft
+     * Sharks" should show what Draft Sharks published, not a faithful
+     * reconstruction of it, so the raw fields are read directly and C7 pins the
+     * identity at zero rather than at a tolerance. */
     proj: SOURCE === 'ds' ? p.ds_proj : p.proj,
-    floor: has ? (SOURCE === 'ds' ? p.ds_proj * (p.floor / p.proj) : p.floor)
-               : (SOURCE === 'ds' ? p.ds_proj : p.proj),
-    ceiling: has ? (SOURCE === 'ds' ? p.ds_proj * (p.ceiling / p.proj) : p.ceiling)
-                 : (SOURCE === 'ds' ? p.ds_proj : p.proj),
+    floor: SOURCE === 'ds'
+      ? (dsRaw[String(p.player_id)] || {}).floor_proj ?? p.ds_proj
+      : (has ? p.floor : p.proj),
+    ceiling: SOURCE === 'ds'
+      ? (dsRaw[String(p.player_id)] || {}).ceil_proj ?? p.ds_proj
+      : (has ? p.ceiling : p.proj),
     banded: has,
     injury_risk_pct: p.injury_risk_pct,
     /* HIS band width, and it is divided by HIS OWN projection and by nothing
@@ -259,8 +279,6 @@ const TIE_UNTIL = 0.5;
  * scale with THE BLEND'S OWN per-position offsets, read out of its artifact
  * rather than recomputed here (rule 11: one derivation, reused). With no second
  * source they are a one-source row, and `keeper_single_source` says so. */
-const DS = JSON.parse(fs.readFileSync(
-  path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json'), 'utf8'));
 const DS_OFFSET = (BL.controls.C3_centering_is_per_position
   .median_offsets_vs_board_mean_by_position || {}).draftsharks || {};
 const dsById = {};
@@ -585,6 +603,26 @@ const ctl = {
   C1_no_cohort_statistic_touches_a_band: noCohortBands(),
   C2_known_positive_ceiling_can_move_a_pick: knownPositive(),
   C5_known_positive_injury_can_move_a_pick: durabilityKnownPositive(),
+  /* Cory: "does toggle also switch the proj ceilings and floors back to
+   * Draftsharks original" — this is that question, asserted rather than
+   * answered. Under --source ds the band must be Draft Sharks' PUBLISHED
+   * numbers EXACTLY, not a reconstruction that happens to agree. */
+  C7_ds_arm_uses_draftsharks_published_band_exactly: (() => {
+    if (SOURCE !== 'ds') return { ok: true, skipped: 'only meaningful on --source ds' };
+    let worst = 0, n = 0;
+    pool.forEach(x => {
+      const r = dsRaw[String(x.id)];
+      if (!r || r.floor_proj == null) return;
+      worst = Math.max(worst, Math.abs(x.floor - r.floor_proj), Math.abs(x.ceiling - r.ceil_proj));
+      n++;
+    });
+    return { ok: worst === 0, n, worst_difference: worst,
+      why: 'the first version reconstructed the band as ds_proj x (blend_floor / '
+         + 'blend_proj) — algebraically identical, and it agreed to within 0.29 '
+         + 'points. But the blend rounds to 0.1, so Gibbs\' published 370 came '
+         + 'back as 370.06. Toggling to Draft Sharks should show what Draft '
+         + 'Sharks published. Pinned at ZERO, not at a tolerance.' };
+  })(),
   C3_players_without_a_band_are_named_not_invented: {
     ok: true, pool: pool.length, without_a_draftsharks_band: noBand,
     treatment: 'floor = proj = ceiling, so LEAN cannot move them either way',

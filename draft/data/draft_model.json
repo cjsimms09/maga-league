@@ -39,6 +39,10 @@
    "value_lost_by_a_max_risk_bench_body": 0.015,
    "why": "injury must bite the starter and barely touch the bench body — that asymmetry IS the term. A uniform discount would be a knob for nothing."
   },
+  "C7_ds_arm_uses_draftsharks_published_band_exactly": {
+   "ok": true,
+   "skipped": "only meaningful on --source ds"
+  },
   "C3_players_without_a_band_are_named_not_invented": {
    "ok": true,
    "pool": 700,
