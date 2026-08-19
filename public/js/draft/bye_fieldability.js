@@ -1,17 +1,28 @@
 // TERRITORY: B
-/* BYE-WEEK FIELDABILITY WARNING — A dispatch (ROUTES.md 08-19, register 59
- * item (4)): "if the roster cannot fill a starting slot in some week once
- * byes are applied, say so on screen... the difference between noticing in
- * August and noticing in November."
+/* BYE-WEEK FIELDABILITY WARNING — A dispatch (ROUTES.md 08-19, register 73):
+ * "if the roster cannot fill a starting slot in some week once byes are
+ * applied, say so on screen... the difference between noticing in August
+ * and noticing in November."
  *
- * WHY THIS EXISTS: measured tonight (B, register 59 item (1) reproduction),
- * 10 of 10 realistic-opponent simulated drafts at Cory's real schedule and
- * real keepers left at least one week where a dedicated starter slot could
- * not be filled even counting FLEX — week 6 in all ten, traced to Ja'Marr
- * Chase (Cory's own keeper, week-6 bye) colliding with a single rostered
- * QB whose bye also lands on 6 in 9 of 10 seeds. Two independent, ordinary
- * scarcities (one QB, a thin WR corps) landing on the same calendar week is
- * exactly the kind of thing nobody catches by eye at 8s/pick.
+ * WHY THIS EXISTS: measured (B, register 59 item (1) reproduction), 10 of 10
+ * realistic-opponent simulated drafts at Cory's real schedule and real
+ * keepers left at least one week where a dedicated starter slot could not
+ * be filled even counting FLEX — week 6 in all ten, traced to Ja'Marr Chase
+ * (Cory's own keeper, week-6 bye) colliding with a single rostered QB whose
+ * bye also lands on 6 in 9 of 10 seeds. A's own live-board probe (register
+ * 73, fieldability_probe.js) found the shipped configuration un-fieldable in
+ * three weeks: 6 (QB+WR), 11 (WR), 13 (TE) — register 59's week-11 hole
+ * exactly.
+ *
+ * ⚠️ CORRECTED 08-19: the first cut of this file (register 59 item (4))
+ * counted its own matcher — pooling every dedicated position's leftover,
+ * QB included, into FLEX capacity. This league's FLEX is RB/WR/TE only
+ * (draft_data.json league.starters has no SUPER_FLEX; legality.js's own
+ * FLEX_POS agrees), so a spare QB could mask a real WR/TE shortfall and
+ * under-report a genuine hole. A's dispatch called this by name before I
+ * found it myself: "greedy is WRONG here... Rule 11: one matcher." Fixed by
+ * moving the matcher to fieldable.js (shared with A's probe — see that
+ * file) instead of patching the count-based logic in place.
  *
  * SCOPE, matching legality.js's own STREAMABLE convention: K/DEF are
  * excluded from the check. They're one-per-roster and streamed by design
@@ -26,28 +37,30 @@
   'use strict';
 
   var DEDICATED = ['QB', 'RB', 'WR', 'TE'];
+  var SKILL_SLOTS = { QB: true, RB: true, WR: true, TE: true, FLEX: true };
 
-  /* For each week 1-18: exclude anyone on bye that week, then check every
-   * dedicated slot can be filled from position-matched players, with
-   * leftover dedicated-position players (beyond each slot's own need)
-   * pooling into FLEX. Returns the weeks that fail — not a boolean, so the
-   * caller can name them rather than just say "some week is a problem". */
+  function getFieldable() {
+    if (typeof Fieldable !== 'undefined') return Fieldable.fieldable;
+    if (typeof module !== 'undefined' && module.exports) {
+      return require('./fieldable.js').fieldable;
+    }
+    return null;
+  }
+
+  /* For each week 1-18: ask the shared bipartite matcher (fieldable.js,
+   * Rule 11 — one matcher, shared with A's fieldability_probe.js) whether
+   * every SKILL slot (K/DEF excluded, see SCOPE above) can be filled once
+   * that week's byes are applied. Returns the weeks that fail — not a
+   * boolean, so the caller can name them rather than just say "some week is
+   * a problem". */
   function unfieldableWeeks(roster, starters) {
-    var s = starters || {};
+    var match = getFieldable();
+    if (!match) return [];
     var holes = [];
     for (var wk = 1; wk <= 18; wk++) {
-      var avail = (roster || []).filter(function (p) { return p && p.bye !== wk; });
-      var byPos = {};
-      avail.forEach(function (p) { byPos[p.position] = (byPos[p.position] || 0) + 1; });
-      var flexPool = 0, ok = true;
-      DEDICATED.forEach(function (pos) {
-        var need = s[pos] || 0;
-        var have = byPos[pos] || 0;
-        if (have < need) ok = false;
-        else flexPool += (have - need);
-      });
-      if ((s.FLEX || 0) > flexPool) ok = false;
-      if (!ok) holes.push(wk);
+      var r = match(roster, wk, starters);
+      var skillUnfilled = (r.unfilled || []).filter(function (s) { return SKILL_SLOTS[s]; });
+      if (skillUnfilled.length) holes.push(wk);
     }
     return holes;
   }

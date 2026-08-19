@@ -156,12 +156,21 @@
     file, this include line is a disclosed trespass into A's territory —
     same pattern as expert_spread.js's own include just above. %>
 <script src="/js/draft/market_delta.js"></script>
-<%# bye_fieldability.js — register 59 item (4) (ROUTES.md 08-19): if the
+<%# fieldable.js — THE ONE FIELDABILITY MATCHER (Rule 11). Extracted from A's
+    draft/tools/fieldability_probe.js so the live warning below and A's
+    research probe share one bipartite-matching implementation instead of
+    drifting apart — B's first cut of that warning had its own hand-rolled
+    count-based matcher, and it had a real bug (pooled spare QBs into FLEX
+    capacity this league's FLEX cannot accept). Pure, no dependencies.
+    Loaded before bye_fieldability.js, which calls it. %>
+<script src="/js/draft/fieldable.js"></script>
+<%# bye_fieldability.js — register 73 (ROUTES.md 08-19, A→B dispatch): if the
     roster cannot fill a starting slot (FLEX included) in some week once
     byes are applied, say so on screen. Pure, DISPLAY ONLY, reads the same
-    roster/starters renderLegality() already computes. ⚠️ B-owned file,
-    this include line is a disclosed trespass into A's territory — same
-    pattern as expert_spread.js's/market_delta.js's own includes above. %>
+    roster/starters renderLegality() already computes; the actual matching
+    is fieldable.js above. ⚠️ B-owned file, this include line is a disclosed
+    trespass into A's territory — same pattern as expert_spread.js's/
+    market_delta.js's own includes above. %>
 <script src="/js/draft/bye_fieldability.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?

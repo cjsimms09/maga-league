@@ -117,6 +117,39 @@ ck('warningHtml on a clean roster/no starters -> empty string', B.warningHtml([]
       { QB: 0, RB: 1, WR: 1, TE: 1 }) === true);
 }
 
+// ── CORRECTED 08-19: the matcher moved to fieldable.js (shared with A's ────
+// fieldability_probe.js, Rule 11) after this exact scenario exposed the bug
+// in the first cut — a spare QB falsely covering FLEX, which this league's
+// FLEX (RB/WR/TE only) does not accept.
+{
+  const roster = [
+    { position: 'QB', bye: 1 }, { position: 'QB', bye: 2 }, // 1 spare QB
+    { position: 'RB', bye: 3 }, { position: 'RB', bye: 4 }, // exactly the 2 needed, no spare
+    { position: 'WR', bye: 5 }, { position: 'WR', bye: 6 }, // exactly the 2 needed, no spare
+    { position: 'TE', bye: 7 },                              // exactly the 1 needed, no spare
+  ];
+  // Week 10: nobody on bye, every dedicated slot fillable — but FLEX has
+  // nothing left except the spare QB, which is not FLEX-eligible here.
+  ck('KNOWN-POSITIVE regression: a spare QB with zero real RB/WR/TE depth beyond '
+    + 'dedicated need must NOT be counted as covering FLEX',
+    B.unfieldableWeeks(roster, STARTERS).indexOf(10) >= 0, B.unfieldableWeeks(roster, STARTERS));
+  ck('...the OLD counting matcher would have missed this (spare QB pooled into FLEX '
+    + 'capacity it cannot legally fill) — this is the case that caught it',
+    /week 10/.test(B.warningHtml(roster, STARTERS, esc)));
+}
+
+// ── the shared matcher is actually shared, not a second copy ───────────────
+{
+  const fs = require('fs');
+  const path = require('path');
+  const SRC = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'bye_fieldability.js'), 'utf8');
+  ck('bye_fieldability.js calls the shared Fieldable matcher rather than its own count-based logic',
+    /Fieldable\.fieldable|require\(.\.\/fieldable\.js.\)/.test(SRC));
+  const PROBE = fs.readFileSync(path.join(__dirname, '..', 'tools', 'fieldability_probe.js'), 'utf8');
+  ck('fieldability_probe.js delegates to the same shared module (Rule 11: one matcher)',
+    /require\([^)]*fieldable\.js[^)]*\)/.test(PROBE));
+}
+
 // ── HTML safety ──────────────────────────────────────────────────────────────
 ck('the warning HTML is built through the passed esc() (no raw injection point for player-derived strings)',
   typeof B.warningHtml([{ position: 'QB', bye: 1 }], STARTERS, esc) === 'string');
@@ -135,6 +168,9 @@ ck('the warning HTML is built through the passed esc() (no raw injection point f
   ck('the module is actually loaded on the war-room page, before app.js',
     SCRIPTS.indexOf('bye_fieldability.js') > -1
     && SCRIPTS.indexOf('bye_fieldability.js') < SCRIPTS.indexOf('src="/js/draft/app.js"'));
+  ck('fieldable.js (the shared matcher) loads before bye_fieldability.js, which calls it',
+    SCRIPTS.indexOf('src="/js/draft/fieldable.js"') > -1
+    && SCRIPTS.indexOf('src="/js/draft/fieldable.js"') < SCRIPTS.indexOf('src="/js/draft/bye_fieldability.js"'));
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
