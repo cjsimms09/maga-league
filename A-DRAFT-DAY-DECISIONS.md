@@ -4,8 +4,11 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **51 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
-before 08-22 and most are owned by A. That is not a decision list, it is a
+up."* The register has **70 open rows** (re-counted 08-19). **The number it replaces,
+51, is the point:** nineteen rows were filed after that sentence was written and
+it went on asserting 51, until `test_the_backlog_claim_is_still_roughly_true`
+refused the build. **Do not quote this without re-running
+`register_recheck_check.js`** — a stated count decays daily. Most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
 So every open row was put to a single question — **can this change a number on

@@ -1,0 +1,240 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/one_equation_plan.js",
+ "_prereg": "draft/ONE-EQUATION-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. No cap, no seats. Writes no board field.",
+ "board_built_at": "2026-08-19T08:52:22Z",
+ "waiver_levels": {
+  "QB": 319,
+  "RB": 111.95,
+  "WR": 124.25,
+  "TE": 123.97,
+  "K": 134.11,
+  "DEF": 112
+ },
+ "q_per_week": {
+  "QB": 0.14705882352941177,
+  "RB": 0.22352941176470592,
+  "WR": 0.17647058823529413,
+  "TE": 0.18823529411764703,
+  "K": 0.08823529411764706,
+  "DEF": 0.058823529411764705
+ },
+ "controls": {
+  "C1_need_curve_matches_published": {
+   "ok": true,
+   "got": [
+    1,
+    0.902
+   ],
+   "why": "must reproduce need_curve.js's published RB column exactly"
+  },
+  "C2_flex_credited_once_every_pick": {
+   "ok": true,
+   "trace": [
+    "RB",
+    "WR",
+    "WR",
+    "RB",
+    "RB",
+    "TE",
+    "TE",
+    "TE",
+    "WR",
+    "WR",
+    "RB",
+    "RB"
+   ],
+   "why": "recomputed per pick; crediting it to RB+WR+TE at once once drafted three TEs"
+  },
+  "C3_keepers_counted": {
+   "ok": true,
+   "kept": {
+    "WR": 1,
+    "RB": 2
+   }
+  },
+  "C4_twelve_picks_on_the_real_schedule": {
+   "ok": true,
+   "sched": [
+    33,
+    48,
+    53,
+    68,
+    73,
+    88,
+    93,
+    108,
+    113,
+    128,
+    133,
+    148
+   ]
+  },
+  "C5_room_drained_by_adp": {
+   "ok": true,
+   "why": "strict ADP order, identical to the other arms"
+  }
+ },
+ "controls_all_passed": true,
+ "picks": [
+  {
+   "pick": 33,
+   "name": "Travis Etienne",
+   "pos": "RB",
+   "adp": 41,
+   "proj": 205.68,
+   "value": 93.7,
+   "need": 1,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 48,
+   "name": "Jameson Williams",
+   "pos": "WR",
+   "adp": 59.67,
+   "proj": 184.25,
+   "value": 60,
+   "need": 1,
+   "flex_to": "WR"
+  },
+  {
+   "pick": 53,
+   "name": "Davante Adams",
+   "pos": "WR",
+   "adp": 57,
+   "proj": 182.07,
+   "value": 57.8,
+   "need": 1,
+   "flex_to": "WR"
+  },
+  {
+   "pick": 68,
+   "name": "Dak Prescott",
+   "pos": "QB",
+   "adp": 80,
+   "proj": 358.98,
+   "value": 40,
+   "need": 1,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 73,
+   "name": "Tony Pollard",
+   "pos": "RB",
+   "adp": 80.67,
+   "proj": 165.67,
+   "value": 28.6,
+   "need": 0.532,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 88,
+   "name": "Los Angeles Rams",
+   "pos": "DEF",
+   "adp": 128.33,
+   "proj": 132,
+   "value": 20,
+   "need": 1,
+   "flex_to": "TE"
+  },
+  {
+   "pick": 93,
+   "name": "Travis Kelce",
+   "pos": "TE",
+   "adp": 96.67,
+   "proj": 143.65,
+   "value": 19.7,
+   "need": 1,
+   "flex_to": "TE"
+  },
+  {
+   "pick": 108,
+   "name": "Mark Andrews",
+   "pos": "TE",
+   "adp": 117.33,
+   "proj": 138.78,
+   "value": 14.8,
+   "need": 1,
+   "flex_to": "TE"
+  },
+  {
+   "pick": 113,
+   "name": "Brandon Aubrey",
+   "pos": "K",
+   "adp": 120.33,
+   "proj": 145.65,
+   "value": 11.5,
+   "need": 1,
+   "flex_to": "WR"
+  },
+  {
+   "pick": 128,
+   "name": "Xavier Worthy",
+   "pos": "WR",
+   "adp": 138.67,
+   "proj": 139.9,
+   "value": 6.9,
+   "need": 0.441,
+   "flex_to": "WR"
+  },
+  {
+   "pick": 133,
+   "name": "Jason Myers",
+   "pos": "K",
+   "adp": 155,
+   "proj": 145.64,
+   "value": 1,
+   "need": 0.088,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 148,
+   "name": "Brenton Strange",
+   "pos": "TE",
+   "adp": 159.67,
+   "proj": 123.97,
+   "value": 0,
+   "need": 0,
+   "flex_to": "RB"
+  }
+ ],
+ "drafted_counts": {
+  "RB": 2,
+  "WR": 3,
+  "QB": 1,
+  "DEF": 1,
+  "TE": 3,
+  "K": 2
+ },
+ "full_roster": {
+  "RB": 4,
+  "WR": 4,
+  "QB": 1,
+  "DEF": 1,
+  "TE": 3,
+  "K": 2
+ },
+ "P144": {
+  "drafted_counts": {
+   "RB": 2,
+   "WR": 3,
+   "QB": 1,
+   "DEF": 1,
+   "TE": 3,
+   "K": 2
+  },
+  "WR_in_3_4": true,
+  "RB_in_3_4": false,
+  "QB_is_1": true,
+  "TE_is_1": false,
+  "K_is_1": false,
+  "DEF_is_1": true,
+  "TRUE": false
+ },
+ "P145": {
+  "one_equation_total": 2066.2,
+  "draft_plan_total": 2220.1,
+  "pct_diff": -6.9,
+  "TRUE": false
+ }
+}

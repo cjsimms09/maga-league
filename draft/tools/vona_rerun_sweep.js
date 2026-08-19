@@ -84,11 +84,48 @@ function studies() {
  * that removes files is a worse failure than one that leaves them. */
 function dirtySet() {
   try {
-    return new Set(cp.execSync('git status --porcelain', { cwd: ROOT, encoding: 'utf8' })
+    return new Set(cp.execSync('git status --porcelain',
+      { cwd: (typeof WORKTREE === 'string' ? WORKTREE : ROOT), encoding: 'utf8' })
       .split('\n').filter(Boolean).map(l => l.slice(3).trim()));
   } catch (e) { return null; }
 }
-const DIRTY_AT_START = dirtySet();
+/* ⚠️ STUDIES RUN IN A DETACHED GIT WORKTREE, NOT THE LIVE TREE — AND THIS IS THE
+ * FOURTH FIX TO ONE PROBLEM. The first three treated the symptom.
+ *
+ * v1 snapshotted the dirty set once at start and restored whatever a study
+ * dirtied. v2 re-snapshotted before each study. Both are RACES: a sweep takes an
+ * hour, its author keeps working, and a file edited while a study is mid-run is
+ * indistinguishable from a file that study wrote. It silently reverted, in
+ * order: a preregistration rewrite, `--need` support in `replay_seats.js` (which
+ * then let CI grade an arm that never ran), and two further edits.
+ *
+ * NO SNAPSHOT LOGIC FIXES THAT — the information needed to tell the two apart
+ * does not exist in `git status`. The fix is isolation: every study runs against
+ * a throwaway worktree at HEAD, so it may write whatever it likes and the live
+ * tree is untouchable by construction. Studies then read HEAD's committed
+ * artifacts, which is what a reproducible sweep should read anyway. */
+function makeWorktree() {
+  const dir = path.join(require('os').tmpdir(), 'vona-sweep-' + process.pid);
+  try {
+    cp.execSync('git worktree add --detach ' + JSON.stringify(dir) + ' HEAD',
+                { cwd: ROOT, stdio: 'ignore' });
+    return dir;
+  } catch (e) {
+    console.error('REFUSING to sweep: could not create an isolated worktree ('
+      + String(e.message).split('\n')[0] + '). Running studies in the live tree is '
+      + 'how this tool reverted four of its author\'s edits; it will not do that again.');
+    process.exit(2);
+  }
+}
+const WORKTREE = makeWorktree();
+function cleanupWorktree() {
+  try { cp.execSync('git worktree remove --force ' + JSON.stringify(WORKTREE),
+                    { cwd: ROOT, stdio: 'ignore' }); } catch (e) { /* best effort */ }
+}
+process.on('exit', cleanupWorktree);
+['SIGINT', 'SIGTERM'].forEach(sig => process.on(sig, () => { cleanupWorktree(); process.exit(130); }));
+
+let DIRTY_AT_START = dirtySet();
 if (DIRTY_AT_START === null) {
   console.error('REFUSING to sweep: cannot read `git status`, so files this sweep '
     + 'dirties could not be restored. A sweep that cannot clean up after itself '
@@ -96,16 +133,39 @@ if (DIRTY_AT_START === null) {
   process.exit(2);
 }
 const SIDE_EFFECTS = {};
-function restoreRepo(rel) {
+/* ⚠️ RE-SNAPSHOT BEFORE EVERY STUDY, NOT ONCE AT THE START — AND THIS COST ME
+ * THREE EDITS BEFORE I WORKED OUT WHY.
+ *
+ * The first version snapshotted the dirty set ONCE. That is correct only if
+ * nothing but the sweep touches the tree while it runs — and a sweep that takes
+ * an hour runs while its author is still working. It reverted, in order: my
+ * rewrite of `NEED-WEIGHT-PREREG.md` (which was a MERCY — I was clobbering a
+ * preregistration), and then TWICE it silently reverted real source edits,
+ * including `--need` support in `replay_seats.js`.
+ *
+ * THE SECOND ONE ALMOST PUBLISHED A FALSE RESULT. CI dispatched
+ * `replay_seats.js --need 1.0` against a script that no longer understood
+ * `--need`, node ignored the unknown argument, and the run produced a
+ * `_need1.json` choice file BYTE-IDENTICAL to the shipped arm. Graded, P110
+ * would have returned a perfect null — an arm that never ran, reported as an
+ * arm that found nothing. **The only reason it was caught is that `meta.weights`
+ * is READ BACK OFF THE RESOLVED WEIGHT VECTOR instead of echoing the request**,
+ * so the artifact said `MEASURED_WEIGHTS` where it should have said
+ * `MEASURED_WEIGHTS with need=1`.
+ *
+ * So the baseline is re-taken immediately before each study runs. A file the
+ * AUTHOR dirtied between studies is then part of that study's baseline and is
+ * left alone; only what the study itself writes is restored. */
+function restoreRepo(rel, baseline) {
   const now = dirtySet();
   if (!now) return;
-  const caused = [...now].filter(f => !DIRTY_AT_START.has(f));
+  const caused = [...now].filter(f => !baseline.has(f));
   if (!caused.length) return;
   SIDE_EFFECTS[rel] = caused;
-  caused.forEach(f => {
-    try { cp.execSync('git checkout -- ' + JSON.stringify(f), { cwd: ROOT, stdio: 'ignore' }); }
-    catch (e) { /* untracked: reported below, never deleted */ }
-  });
+  /* NO LONGER RESTORES ANYTHING. With studies isolated in a worktree, a dirty
+   * LIVE file is by definition not the sweep's doing — it is the author's, and
+   * touching it is precisely the bug this rewrite removes. Kept as a REPORTER so
+   * "which studies write artifacts" is still recorded. */
 }
 
 function run(rel, arm) {
@@ -113,7 +173,7 @@ function run(rel, arm) {
   try {
     const stdout = cp.execSync(
       'node -r ./draft/tools/vona_arm_preload.js ' + rel,
-      { cwd: ROOT, encoding: 'utf8', timeout: TIMEOUT,
+      { cwd: WORKTREE, encoding: 'utf8', timeout: TIMEOUT,
         maxBuffer: 64 * 1024 * 1024,
         env: Object.assign({}, process.env, { VONA_ARM: arm }) });
     return { ok: true, out: stdout, ms: Date.now() - started };
@@ -158,6 +218,7 @@ console.log('VONA RE-RUN SWEEP — ' + list.length + ' engine-driven studies, '
 
 const rows = [];
 list.forEach((rel, i) => {
+  const beforeStudy = dirtySet() || DIRTY_AT_START;
   const r0 = run(rel, ARM_A);
   const r1 = run(rel, ARM_B);
   let status, detail = null;
@@ -187,7 +248,7 @@ list.forEach((rel, i) => {
     status = 'DIFFERS';
     detail = firstDiff(r0.out, r1.out);
   }
-  restoreRepo(rel);
+  restoreRepo(rel, beforeStudy);
   const secs = Math.round((r0.ms + r1.ms) / 1000);
   rows.push({ study: rel, status: status, seconds: secs, detail: detail,
               a0_lines: strip(r0.out).split('\n').length });
@@ -204,7 +265,8 @@ if (sideEffectStudies.length) {
     + 'named because a study with side effects cannot be swept safely by anyone '
     + 'who does not know it has them:');
   sideEffectStudies.forEach(k => console.log('     ' + k + '  ->  ' + SIDE_EFFECTS[k].join(', ')));
-  const stillDirty = [...(dirtySet() || [])].filter(f => !DIRTY_AT_START.has(f));
+  const stillDirty = [...(dirtySet() || [])].filter(f => !DIRTY_AT_START.has(f)
+    && Object.values(SIDE_EFFECTS).some(v => v.indexOf(f) >= 0));
   console.log(stillDirty.length
     ? '     ⚠️ STILL DIRTY AFTER RESTORE (untracked, NOT deleted): ' + stillDirty.join(', ')
     : '     repo restored clean.');

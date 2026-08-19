@@ -243,6 +243,90 @@
     "DEF New England Patriots",
     "K Cam Little"
    ]
+  },
+  "mean_all": {
+   "coverage": 609,
+   "filled_from_sleeper": 0,
+   "picks_changed_vs_sleeper": 12,
+   "changes": [
+    {
+     "pick": 8,
+     "sleeper": "RB James Cook",
+     "challenger": "QB Josh Allen"
+    },
+    {
+     "pick": 13,
+     "sleeper": "TE Brock Bowers",
+     "challenger": "TE Trey McBride"
+    },
+    {
+     "pick": 28,
+     "sleeper": "RB Breece Hall",
+     "challenger": "RB Javonte Williams"
+    },
+    {
+     "pick": 33,
+     "sleeper": "RB David Montgomery",
+     "challenger": "RB D'Andre Swift"
+    },
+    {
+     "pick": 48,
+     "sleeper": "RB Bhayshul Tuten",
+     "challenger": "RB Jadarian Price"
+    },
+    {
+     "pick": 53,
+     "sleeper": "RB Jadarian Price",
+     "challenger": "WR Jameson Williams"
+    },
+    {
+     "pick": 68,
+     "sleeper": "RB Rhamondre Stevenson",
+     "challenger": "RB Tony Pollard"
+    },
+    {
+     "pick": 73,
+     "sleeper": "RB Kyle Monangai",
+     "challenger": "RB Rico Dowdle"
+    },
+    {
+     "pick": 88,
+     "sleeper": "RB Jordan Mason",
+     "challenger": "RB Jonathon Brooks"
+    },
+    {
+     "pick": 93,
+     "sleeper": "WR Jayden Reed",
+     "challenger": "RB Jordan Mason"
+    },
+    {
+     "pick": 108,
+     "sleeper": "QB Jared Goff",
+     "challenger": "WR Wan'Dale Robinson"
+    },
+    {
+     "pick": 113,
+     "sleeper": "RB Chris Rodriguez",
+     "challenger": "WR Khalil Shakir"
+    }
+   ],
+   "schedule": [
+    "QB Josh Allen",
+    "TE Trey McBride",
+    "RB Javonte Williams",
+    "RB D'Andre Swift",
+    "RB Jadarian Price",
+    "WR Jameson Williams",
+    "RB Tony Pollard",
+    "RB Rico Dowdle",
+    "RB Jonathon Brooks",
+    "RB Jordan Mason",
+    "WR Wan'Dale Robinson",
+    "WR Khalil Shakir",
+    "RB Tyrone Tracy",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ]
   }
  }
 }

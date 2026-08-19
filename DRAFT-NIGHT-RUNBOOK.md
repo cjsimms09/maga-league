@@ -79,6 +79,79 @@ the exposure numbers describe the real slate or the predicted one.
    > KEEPER LOCK HAS PASSED AND THE FREEZE IS STILL {status} … unrecoverable
    > once the draft starts"*, gated on the same flag — dead code until 5l, live
    > now. This paragraph is no longer the replacement for that alarm.
+   > ⚠️ **EXPECT `PROVISIONAL`, AND IT IS PROBABLY CORRECT. READ THE REASON, NOT
+   > THE WORD. Rewritten twice on 2026-08-19 (A) — my FIRST rewrite of this
+   > note was wrong and would have sent you rebuilding for nothing.**
+   >
+   > **What changed and what did not.** The old note said the flag was dead
+   > (register 5l) and to ignore a `PROVISIONAL`. **A shipped that fix**, so the
+   > flag is live: `_keeper_lock_passed` derives from placements OR the
+   > configured deadline in `league_config.json` (your ruling verbatim), wired
+   > at all three call sites, and driving the clock confirms it flips at
+   > **Fri 08-21 18:00 CDT** and is true on draft morning.
+   >
+   > **BUT THE LOCK IS ONLY ONE OF THREE CONDITIONS, AND I FIRST WROTE THIS NOTE
+   > HAVING CHECKED ONLY THAT ONE.** `freeze_pre_draft.py:275` requires **all
+   > three**: the lock has passed **AND** `safe_to_treat_as_truth` **AND** no
+   > designation/placement mismatch.
+   >
+   > **`safe_to_treat_as_truth` is FALSE today and no rebuild changes it.** The
+   > board's own reason: *"6/10 team(s) have designated on Sleeper and NO keeper
+   > placements exist on the draft yet."* It turns true when the **commissioner
+   > places keepers on the draft**, which is a league action, not a tool action.
+   >
+   > **SO, PLAINLY: if nothing else changes, Saturday's freeze prints
+   > `PROVISIONAL` and that is CORRECT.** Take it and note the SHA — it is a
+   > complete, correct capture of the board either way.
+   >
+   > **THE DECISION IS IN THE REASON STRING, WHICH NAMES THE FAILING CONDITION.
+   > That is the whole point of it carrying the slate's own words:**
+   >
+   > | the printed reason says | what it means | what to do |
+   > |---|---|---|
+   > | *"the keeper lock has not passed"* | the board you froze was built **before Fri 6pm** — step 1's rebuild did not happen or did not commit | **rebuild and re-freeze** |
+   > | *"the importer does not yet call the slate truth"* | keepers are not placed on the draft yet — **league state, not tool state** | **take the freeze, move on** |
+   > | *"N designation/placement mismatch(es)"* | someone's placed keeper differs from their designation | **surface it, do not silently re-freeze** |
+   >
+   > **DO NOT read the word `PROVISIONAL` and rebuild.** That was my first
+   > rewrite's instruction and it was wrong: it would have had you chasing a
+   > board problem on draft morning when the cause is that the commissioner has
+   > not placed keepers.
+   >
+   > **The alarm is alive again too.** `standing_check.py:531` reads
+   > `keeper_slate.keeper_lock_passed` off the board and was gated on the dead
+   > flag; it can now fire. **And the board publishes `keeper_lock_date`
+   > (2026-08-21) with your ruling verbatim beside it** — register E25, so no
+   > reader has to hardcode the date again.
+2b. **Re-check, and if needed regenerate, the two board-derived artifacts** (register 86):
+   `variance_inputs_2026.json`, `playoff_sos_2026.json` **and `public/seat_plan.json`**
+   are derived from the board and are NOT rebuilt by `draft-data.yml`. The first two
+   have been hand-regenerated twice already in one day. **`seat_plan.json` is the one
+   the war room actually reads (`app.js:867`)** — regenerate it with
+   `node draft/tools/emit_seat_plan.js` and check `source_board_built_at` matches the
+   board you just built.
+
+   > ⚠️ **CORRECTED WITHIN THE HOUR OF WRITING IT, BY TESTING MY OWN
+   > INSTRUCTION.** This step first said step 1's rebuild *"silently invalidates
+   > both"*. I then triggered a rebuild and **both drift tests PASSED** — because
+   > a same-day rebuild off unchanged upstream inputs moves the board's
+   > `built_at` without moving the values these two artifacts derive from.
+   > **"Always goes stale" was wrong; "goes stale whenever the board's values
+   > actually move" is right**, and Saturday's rebuild pulls fresh ADP and
+   > projections, so it very likely WILL move them. **Do not skip this step on
+   > the strength of one quiet rebuild — but do let the tests decide rather than
+   > regenerating on faith.**
+
+   > **Why this is a runbook step and not a code fix:** wiring the regeneration
+   > into `draft-data.yml` is the real answer and it is deliberately deferred to
+   > **after** the draft (register 86, recheck 08-26) — a workflow change on
+   > draft morning is exactly the kind of thing that breaks the morning. **The
+   > recurrence rate is once per rebuild and rebuilds are nightly, so this DOES
+   > reach Saturday; the mitigation is doing it by hand, here, after step 1.**
+   >
+   > Run them after the rebuild commits, then confirm the board-drift tests pass
+   > (`test_playoff_sos.py`, `test_variance_inputs.py`). If either is red, it is
+   > telling you these were not regenerated against the board you just built.
 
 3. **Netlify check**: dashboard → Usage → build minutes comfortably under cap.
    NO deploys Aug 20–22 except draft-critical fixes.

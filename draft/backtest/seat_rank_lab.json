@@ -1,0 +1,709 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/seat_rank_lab.py",
+ "_prereg": "draft/SEAT-RANK-PREREG-2026-08-19.md (P125, P126)",
+ "_note": "REPORT ONLY. One configuration graded (shipped MEASURED_WEIGHTS); nothing swept, nothing selected. Engine-on-bundles, which is given strictly LESS than the live board \u2014 risk term age-only, injury/depth/opportunity declared absent, walk-forward projections rather than the shipped multi-source mean.",
+ "_source": "draft/data/engine_seat_replay.json",
+ "chance_top3_rate": 0.3,
+ "controls": {
+  "rank_ceiling_is_1": {
+   "got": 1,
+   "ok": true
+  },
+  "rank_floor_is_10": {
+   "got": 10,
+   "ok": true
+  },
+  "real_owner_ranks_are_a_permutation": {
+   "got": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "ok": true
+  },
+  "first_appearance_known_positive": {
+   "rookie": "Malik Nabers",
+   "rookie_first_season": 2024,
+   "veteran": "Derrick Henry",
+   "veteran_first_season": 2021,
+   "ok": true,
+   "why": "a 2024 rookie must be first-seen in 2024 and a veteran earlier; if this fails every point share below is the probe, not the data"
+  },
+  "counter_fires_on_a_known_first_appearing_roster": {
+   "got_players": 1,
+   "got_points": 10.0,
+   "of_total": 100.0,
+   "ok": true,
+   "why": "share_first() is the function that reports the engine's zero; a zero from a counter that has never returned a positive is a bug report, not a measurement (rule 3e)"
+  },
+  "conversion_engine_2023_in_unit_interval": {
+   "got": 0.7402,
+   "ok": true
+  },
+  "conversion_owner_2023_in_unit_interval": {
+   "got": 0.8276,
+   "ok": true
+  },
+  "conversion_engine_2024_in_unit_interval": {
+   "got": 0.8146,
+   "ok": true
+  },
+  "conversion_owner_2024_in_unit_interval": {
+   "got": 0.8256,
+   "ok": true
+  },
+  "conversion_engine_2025_in_unit_interval": {
+   "got": 0.7715,
+   "ok": true
+  },
+  "conversion_owner_2025_in_unit_interval": {
+   "got": 0.8337,
+   "ok": true
+  }
+ },
+ "controls_all_passed": true,
+ "per_season": {
+  "2023": {
+   "arms": {
+    "optimal": {
+     "seats": [
+      {
+       "seat": 1,
+       "owner": "coryjsimms",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1420.54,
+       "top3": false
+      },
+      {
+       "seat": 2,
+       "owner": "ds7mmet",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1758.92,
+       "top3": true
+      },
+      {
+       "seat": 3,
+       "owner": "cashworth",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1429.66,
+       "top3": false
+      },
+      {
+       "seat": 4,
+       "owner": "Jreis",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1290.78,
+       "top3": false
+      },
+      {
+       "seat": 5,
+       "owner": "B8T3S",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1534.02,
+       "top3": false
+      },
+      {
+       "seat": 6,
+       "owner": "MarianSaar",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1437.42,
+       "top3": false
+      },
+      {
+       "seat": 7,
+       "owner": "mhagen",
+       "rank": 7,
+       "of": 10,
+       "tool_total": 1561.38,
+       "top3": false
+      },
+      {
+       "seat": 8,
+       "owner": "Richard2121",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1459.32,
+       "top3": false
+      },
+      {
+       "seat": 9,
+       "owner": "Schmelley",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1793.38,
+       "top3": true
+      },
+      {
+       "seat": 10,
+       "owner": "Sadbru",
+       "rank": 6,
+       "of": 10,
+       "tool_total": 1600.18,
+       "top3": false
+      }
+     ],
+     "mean_rank": 7.3,
+     "top3_n": 2,
+     "top3_of": 10
+    },
+    "realistic": {
+     "seats": [
+      {
+       "seat": 1,
+       "owner": "coryjsimms",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1156.94,
+       "top3": false
+      },
+      {
+       "seat": 2,
+       "owner": "ds7mmet",
+       "rank": 2,
+       "of": 10,
+       "tool_total": 1628.28,
+       "top3": true
+      },
+      {
+       "seat": 3,
+       "owner": "cashworth",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1309.82,
+       "top3": false
+      },
+      {
+       "seat": 4,
+       "owner": "Jreis",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1165.28,
+       "top3": false
+      },
+      {
+       "seat": 5,
+       "owner": "B8T3S",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1336.98,
+       "top3": false
+      },
+      {
+       "seat": 6,
+       "owner": "MarianSaar",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1279.08,
+       "top3": false
+      },
+      {
+       "seat": 7,
+       "owner": "mhagen",
+       "rank": 7,
+       "of": 10,
+       "tool_total": 1398.26,
+       "top3": false
+      },
+      {
+       "seat": 8,
+       "owner": "Richard2121",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1253.94,
+       "top3": false
+      },
+      {
+       "seat": 9,
+       "owner": "Schmelley",
+       "rank": 6,
+       "of": 10,
+       "tool_total": 1484.86,
+       "top3": false
+      },
+      {
+       "seat": 10,
+       "owner": "Sadbru",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1287.96,
+       "top3": false
+      }
+     ],
+     "mean_rank": 7.6,
+     "top3_n": 1,
+     "top3_of": 10
+    }
+   },
+   "first_appearing": {
+    "engine": {
+     "players": 0.0,
+     "points": 0.0,
+     "share_of_points": 0.0
+    },
+    "owner": {
+     "players": 12.0,
+     "points": 1554.1,
+     "share_of_points": 0.0769
+    },
+    "owner_minus_engine_share": 0.0769
+   },
+   "decomposition": {
+    "engine": {
+     "roster_points": 20649.8,
+     "lineup_points": 15285.6,
+     "conversion": 0.7402,
+     "mean_skill_roster": 13.0
+    },
+    "owner": {
+     "roster_points": 20217.5,
+     "lineup_points": 16731.9,
+     "conversion": 0.8276,
+     "mean_skill_roster": 13.0
+    },
+    "engine_roster_points_vs_owner": 0.0214,
+    "conversion_gap": -0.0874
+   }
+  },
+  "2024": {
+   "arms": {
+    "optimal": {
+     "seats": [
+      {
+       "seat": 1,
+       "owner": "coryjsimms",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1562.1,
+       "top3": false
+      },
+      {
+       "seat": 2,
+       "owner": "ds7mmet",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1376.5,
+       "top3": false
+      },
+      {
+       "seat": 3,
+       "owner": "cashworth",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1637.02,
+       "top3": false
+      },
+      {
+       "seat": 4,
+       "owner": "Jreis",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1365.7,
+       "top3": false
+      },
+      {
+       "seat": 5,
+       "owner": "B8T3S",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1459.3,
+       "top3": false
+      },
+      {
+       "seat": 6,
+       "owner": "MarianSaar",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1459.68,
+       "top3": false
+      },
+      {
+       "seat": 7,
+       "owner": "mhagen",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1651.02,
+       "top3": false
+      },
+      {
+       "seat": 8,
+       "owner": "Richard2121",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1281.2,
+       "top3": false
+      },
+      {
+       "seat": 9,
+       "owner": "Schmelley",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1425.4,
+       "top3": false
+      },
+      {
+       "seat": 10,
+       "owner": "Sadbru",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1437.76,
+       "top3": false
+      }
+     ],
+     "mean_rank": 10.0,
+     "top3_n": 0,
+     "top3_of": 10
+    },
+    "realistic": {
+     "seats": [
+      {
+       "seat": 1,
+       "owner": "coryjsimms",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1375.9,
+       "top3": false
+      },
+      {
+       "seat": 2,
+       "owner": "ds7mmet",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1200.1,
+       "top3": false
+      },
+      {
+       "seat": 3,
+       "owner": "cashworth",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1438.52,
+       "top3": false
+      },
+      {
+       "seat": 4,
+       "owner": "Jreis",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1122.1,
+       "top3": false
+      },
+      {
+       "seat": 5,
+       "owner": "B8T3S",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1249.1,
+       "top3": false
+      },
+      {
+       "seat": 6,
+       "owner": "MarianSaar",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1209.38,
+       "top3": false
+      },
+      {
+       "seat": 7,
+       "owner": "mhagen",
+       "rank": 9,
+       "of": 10,
+       "tool_total": 1440.52,
+       "top3": false
+      },
+      {
+       "seat": 8,
+       "owner": "Richard2121",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1036.8,
+       "top3": false
+      },
+      {
+       "seat": 9,
+       "owner": "Schmelley",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1147.3,
+       "top3": false
+      },
+      {
+       "seat": 10,
+       "owner": "Sadbru",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1270.06,
+       "top3": false
+      }
+     ],
+     "mean_rank": 9.8,
+     "top3_n": 0,
+     "top3_of": 10
+    }
+   },
+   "first_appearing": {
+    "engine": {
+     "players": 0.0,
+     "points": 0.0,
+     "share_of_points": 0.0
+    },
+    "owner": {
+     "players": 16.0,
+     "points": 2196.4,
+     "share_of_points": 0.101
+    },
+    "owner_minus_engine_share": 0.101
+   },
+   "decomposition": {
+    "engine": {
+     "roster_points": 17990.2,
+     "lineup_points": 14655.7,
+     "conversion": 0.8146,
+     "mean_skill_roster": 12.9
+    },
+    "owner": {
+     "roster_points": 21748.9,
+     "lineup_points": 17955.2,
+     "conversion": 0.8256,
+     "mean_skill_roster": 13.1
+    },
+    "engine_roster_points_vs_owner": -0.1728,
+    "conversion_gap": -0.0109
+   }
+  },
+  "2025": {
+   "arms": {
+    "optimal": {
+     "seats": [
+      {
+       "seat": 1,
+       "owner": "coryjsimms",
+       "rank": 5,
+       "of": 10,
+       "tool_total": 1625.0,
+       "top3": false
+      },
+      {
+       "seat": 2,
+       "owner": "ds7mmet",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1412.6,
+       "top3": false
+      },
+      {
+       "seat": 3,
+       "owner": "cashworth",
+       "rank": 5,
+       "of": 10,
+       "tool_total": 1681.46,
+       "top3": false
+      },
+      {
+       "seat": 4,
+       "owner": "Jreis",
+       "rank": 7,
+       "of": 10,
+       "tool_total": 1566.36,
+       "top3": false
+      },
+      {
+       "seat": 5,
+       "owner": "B8T3S",
+       "rank": 7,
+       "of": 10,
+       "tool_total": 1538.74,
+       "top3": false
+      },
+      {
+       "seat": 6,
+       "owner": "MarianSaar",
+       "rank": 5,
+       "of": 10,
+       "tool_total": 1770.92,
+       "top3": false
+      },
+      {
+       "seat": 7,
+       "owner": "mhagen",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1849.32,
+       "top3": true
+      },
+      {
+       "seat": 8,
+       "owner": "Richard2121",
+       "rank": 4,
+       "of": 10,
+       "tool_total": 1790.34,
+       "top3": false
+      },
+      {
+       "seat": 9,
+       "owner": "Schmelley",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1517.74,
+       "top3": false
+      },
+      {
+       "seat": 10,
+       "owner": "Sadbru",
+       "rank": 7,
+       "of": 10,
+       "tool_total": 1547.04,
+       "top3": false
+      }
+     ],
+     "mean_rank": 6.1,
+     "top3_n": 1,
+     "top3_of": 10
+    },
+    "realistic": {
+     "seats": [
+      {
+       "seat": 1,
+       "owner": "coryjsimms",
+       "rank": 7,
+       "of": 10,
+       "tool_total": 1412.16,
+       "top3": false
+      },
+      {
+       "seat": 2,
+       "owner": "ds7mmet",
+       "rank": 10,
+       "of": 10,
+       "tool_total": 1207.48,
+       "top3": false
+      },
+      {
+       "seat": 3,
+       "owner": "cashworth",
+       "rank": 4,
+       "of": 10,
+       "tool_total": 1484.66,
+       "top3": false
+      },
+      {
+       "seat": 4,
+       "owner": "Jreis",
+       "rank": 4,
+       "of": 10,
+       "tool_total": 1435.42,
+       "top3": false
+      },
+      {
+       "seat": 5,
+       "owner": "B8T3S",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1457.64,
+       "top3": true
+      },
+      {
+       "seat": 6,
+       "owner": "MarianSaar",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1632.28,
+       "top3": true
+      },
+      {
+       "seat": 7,
+       "owner": "mhagen",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1592.3,
+       "top3": true
+      },
+      {
+       "seat": 8,
+       "owner": "Richard2121",
+       "rank": 3,
+       "of": 10,
+       "tool_total": 1594.78,
+       "top3": true
+      },
+      {
+       "seat": 9,
+       "owner": "Schmelley",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1287.54,
+       "top3": false
+      },
+      {
+       "seat": 10,
+       "owner": "Sadbru",
+       "rank": 8,
+       "of": 10,
+       "tool_total": 1314.5,
+       "top3": false
+      }
+     ],
+     "mean_rank": 5.3,
+     "top3_n": 4,
+     "top3_of": 10
+    }
+   },
+   "first_appearing": {
+    "engine": {
+     "players": 0.0,
+     "points": 0.0,
+     "share_of_points": 0.0
+    },
+    "owner": {
+     "players": 17.0,
+     "points": 1968.7,
+     "share_of_points": 0.0979
+    },
+    "owner_minus_engine_share": 0.0979
+   },
+   "decomposition": {
+    "engine": {
+     "roster_points": 21126.8,
+     "lineup_points": 16299.5,
+     "conversion": 0.7715,
+     "mean_skill_roster": 12.9
+    },
+    "owner": {
+     "roster_points": 20110.9,
+     "lineup_points": 16766.4,
+     "conversion": 0.8337,
+     "mean_skill_roster": 12.8
+    },
+    "engine_roster_points_vs_owner": 0.0505,
+    "conversion_gap": -0.0622
+   }
+  }
+ },
+ "pooled": {
+  "optimal": {
+   "mean_rank": 7.8,
+   "top3_n": 3,
+   "top3_of": 30,
+   "top3_rate": 0.1
+  },
+  "realistic": {
+   "mean_rank": 7.57,
+   "top3_n": 5,
+   "top3_of": 30,
+   "top3_rate": 0.1667
+  }
+ }
+}

@@ -125,13 +125,41 @@
           "years_kept": 1
         }
       ]
+    },
+    {
+      "draft_slot": 5,
+      "slot_provisional": true,
+      "owner_id": "471160336402083840",
+      "keepers": [
+        {
+          "player_id": "7569",
+          "name": "Nico Collins",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "8130",
+          "name": "Trey McBride",
+          "position": "TE",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "9509",
+          "name": "Bijan Robinson",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
     }
   ],
   "_note": "generated from final_rosters keeper designations. Slots marked slot_provisional=true are placeholders: the COUNT is real and drives the pool and my pick numbers correctly, but WHICH seat that team occupies is not known until the draft order is set.",
-  "_placed_teams": 5,
-  "_provisional_slots": 4,
-  "_total_keepers": 13,
-  "_designating_teams": 5,
+  "_placed_teams": 6,
+  "_provisional_slots": 5,
+  "_total_keepers": 16,
+  "_designating_teams": 6,
   "_designations_source": "sleeper",
   "_problems": []
 }

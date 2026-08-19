@@ -81,3 +81,61 @@ def test_unparseable_time_falls_to_end_of_day():
     assert build._keeper_lock_passed(cfg, None, now=at_six) is False
     end_of_day = dt.datetime(2026, 8, 21, 23, 59, tzinfo=CDT)
     assert build._keeper_lock_passed(cfg, None, now=end_of_day) is True
+
+
+# ── register E25 — the board publishes WHEN the lock is, not only WHETHER it
+# ── has passed. The original defect was the repo holding TWO keeper-lock dates
+# ── (DECISIONS-NEEDED/TERRITORY said the 21st, ten other files disagreed) and
+# ── nothing on the board saying which was real.
+
+def test_the_board_publishes_the_lock_date_beside_the_flag():
+    """A flag reporting `keeper_lock_passed: false` without the date it is false
+    ABOUT invites the next reader to hardcode one, which is how the repo got two."""
+    import keeper_slate as ks
+    deadline = {"date": "2026-08-21", "time": "6:00 PM", "tz": "CDT"}
+    out = ks.assess_slate(10, {}, placements=None, keeper_lock_passed=False,
+                          keeper_lock_deadline=deadline)
+    assert out["keeper_lock_date"] == "2026-08-21"
+    assert out["keeper_lock_deadline"] == deadline
+
+
+def test_an_unpassed_deadline_is_published_as_null_not_omitted():
+    """The key is ALWAYS present. An absent key reads as 'this build predates the
+    field'; a null reads as 'nobody passed it'. Only one of those is actionable,
+    and register 5l is what happens when the difference is invisible."""
+    import keeper_slate as ks
+    out = ks.assess_slate(10, {}, placements=None, keeper_lock_passed=False)
+    assert "keeper_lock_date" in out and out["keeper_lock_date"] is None
+    assert "keeper_lock_deadline" in out and out["keeper_lock_deadline"] is None
+
+
+def test_all_three_call_sites_pass_the_deadline():
+    """Same shape as the 5l guard above, for the same reason. A parameter that
+    exists and is never passed produces a clean, plausible, uniformly-degenerate
+    value — here, a board that reports the lock date as null forever."""
+    src = (Path(__file__).resolve().parents[1] / "build.py").read_text()
+    calls = src.count("assess_slate(")
+    wired = src.count("keeper_lock_deadline=_keeper_lock_deadline(")
+    assert calls == wired, (
+        f"{calls} assess_slate call(s) but only {wired} pass keeper_lock_deadline "
+        "— an omitted site publishes a null date silently (register E25/5l)")
+    assert wired >= 3
+
+
+def test_the_deadline_comes_from_config_and_is_not_a_second_definition():
+    """E25's defect was TWO dates in the repo. The cure is one copy, in
+    league_config.json where Cory's ruling lives verbatim — so this asserts
+    build.py reads it rather than carrying a literal of its own.
+
+    KNOWN-POSITIVE (rule 3e): the same helper must return None when the config
+    has no deadline, or a test that only ever sees a populated config cannot
+    tell 'reads the config' from 'returns a hardcoded date'."""
+    cfg = {"keepers": {"deadline": {"date": "2027-01-02", "time": "9:00 AM"}}}
+    got = build._keeper_lock_deadline(cfg)
+    assert got["date"] == "2027-01-02", "must echo the config, not a literal"
+    assert build._keeper_lock_deadline({}) is None
+    assert build._keeper_lock_deadline({"keepers": {}}) is None
+    src = (Path(__file__).resolve().parents[1] / "build.py").read_text()
+    assert "2026-08-21" not in src, (
+        "build.py carries a keeper-lock date literal — that is E25's second "
+        "definition reappearing in the file meant to remove it")

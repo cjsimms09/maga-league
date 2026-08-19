@@ -696,16 +696,28 @@ def test_calibrate_only_positions_KEEPS_NON_ROSTERED_POSITIONS_OUT_OF_CELLS():
         "a punter reached a calibration cell: %r" % list(cal["cells"]))
 
 
-def test_regenerate_PASSES_CALIBRATION_POSITIONS_when_it_actually_fits(monkeypatch):
+def test_regenerate_PASSES_CALIBRATION_POSITIONS_PLUS_K_DEF_when_it_actually_fits(monkeypatch):
     """Register 4r's actual production fix — `regenerate()` is what the
     workflows dispatch, and it is the function that fit 1c8bfb90 on a
     contaminated population. Live egress cannot be exercised in this
     sandbox, so every dependency up to the `calibrate()` call itself is
     faked and what `regenerate()` actually passed is inspected directly.
-    MUTATION: drop the `only_positions=CALIBRATION_POSITIONS` argument from
-    `regenerate()`'s own `calibrate()` call — this is invisible to every
-    other test in this file and would only surface on the next real
-    dispatch, four days before the draft."""
+
+    UPDATED register 2e (2026-08-19): `regenerate()` now ALSO merges in
+    `_assemble_kicker_bundles()` and `_assemble_def_bundles()` — both
+    network-free, reading the committed `component_stats_kicker_<season>
+    .json` / `component_stats_def_<season>.json` stores this repo now
+    carries — so the exact tuple asserted here grew by two elements, "K"
+    and "DEF". The four-position invariant this test used to pin now lives
+    one layer down, at `CALIBRATION_POSITIONS` itself (see
+    test_CALIBRATION_POSITIONS_IS_EXACTLY_THE_FOUR_GRADED_POSITIONS, which is
+    UNCHANGED — `regenerate()` builds `only_positions` FROM that constant
+    plus `"K"`/`"DEF"`, it never mutates the constant).
+    MUTATION: drop the `only_positions=CALIBRATION_POSITIONS + ("K", "DEF")`
+    argument from `regenerate()`'s own `calibrate()` call, or drop either
+    merge — any of these is invisible to every other test in this file and
+    would only surface on the next real dispatch, four days before the
+    draft."""
     import sleeper_import as SL
     import adp as ADP
     from backtest.asof import AsOfDataStore
@@ -743,6 +755,7 @@ def test_regenerate_PASSES_CALIBRATION_POSITIONS_when_it_actually_fits(monkeypat
                         lambda *a, **k: {"adp": {}})
 
     PE.regenerate()
-    assert seen.get("only_positions") == PE.CALIBRATION_POSITIONS, (
+    assert seen.get("only_positions") == PE.CALIBRATION_POSITIONS + ("K", "DEF"), (
         "regenerate() must fit the production calibration with "
-        "only_positions=CALIBRATION_POSITIONS — got %r" % seen.get("only_positions"))
+        "only_positions=CALIBRATION_POSITIONS + ('K', 'DEF') — got %r"
+        % (seen.get("only_positions"),))

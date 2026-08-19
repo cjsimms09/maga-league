@@ -82,6 +82,36 @@ a `ROUTES.md` conflict and a verification that went stale mid-run.
 **Ready means:** full suite green on the branch, merged with current `main`
 first, one concern, and a commit message that explains it.
 
+### HOW A MERGES — written down 2026-08-19 after a near-miss
+
+A is the only one who merges, and until today the *procedure* was nowhere.
+
+**Merge, then push. DO NOT REBASE AFTER A MERGE.**
+
+```
+git merge --no-commit --no-ff origin/<branch>   # inspect before committing
+<run the full suite>                            # the gate runs BEFORE the merge lands
+git commit                                      # local only
+git push -u origin main                         # only once green
+```
+
+**Why the rule exists, concretely.** On 2026-08-19 I merged C's
+`external-ingest-program` branch and then ran my usual
+`fetch → rebase → push`. That habit is safe on a linear history and had worked
+all day. With a merge commit in the way, **`git rebase` tried to FLATTEN the
+merge and replay all of C's commits onto `origin/main`** — it stopped on a
+conflict twenty-three commits in. The push succeeded only because `main` still
+pointed at my own commit. **Had I typed `git rebase --continue` instead of
+checking state first, I would have rewritten another lane's history on `main`.**
+
+**If `main` moved while the suite was running**, do not rebase — merge again
+(`git merge origin/main`) or re-run the merge from scratch. A rebase is for
+*your own* unpushed commits, never for history that arrived from someone else.
+
+**And commit the merge LOCALLY while the suite runs**, so the tree is clean
+without anything reaching `main` — the gate is what decides whether it pushes,
+not the clock or a tidy `git status`.
+
 ## RULE 2 — EVERY REQUEST TO A IS ONE DECISION, WITH A DEFAULT
 
 A must be able to answer in one word. So a request to A carries all four:
@@ -433,6 +463,42 @@ defect and it belongs in the register with `relay` in the owner column.
 
 **Both were found by asking a second question about a finding that already
 looked complete.** That is the whole rule.
+
+## RULE 3i — A NUMBER IS NOT A FINDING UNTIL YOU HAVE SEEN ITS DISTRIBUTION
+
+**Added 2026-08-19 by A, after four corrections in one evening.**
+
+Rule 3f governs the probe you wrote. **This one governs the number you quoted
+WITHOUT writing a probe at all**, which is the gap 3f does not cover — none of
+the four failures below was a code defect. Every one was a single value that fit
+a story.
+
+| what I said | what the population said |
+|---|---|
+| *"the live board takes RB10"* | a stale **eighteen**-pick artifact; his real twelve give **RB7** (register 98) |
+| *"the blend is thinnest at TE — 28 one source short"* | **85 of those 86 have ADP > 200**; inside his draft range TE coverage is 96% |
+| *"`draft_plan.js` has never been graded"* | **an absence asserted without a grep** — it has two, one in a file the war room reads (register 102) |
+| *"`own_v6` hates the upside picks, Golden by −119"* | **`own_v6` is 15-20 under the board mean on 80% of ALL players**; position-relative the claim survives at a quarter its size (register 107) |
+
+**Three of the four are the same operation: quoting one value without looking at
+the population behind it.** The fourth is its mirror — asserting an absence
+without searching for the thing.
+
+**THE RULE.** Before a single number goes into a document, a register row, or a
+sentence to Cory — a difference, a count, an extreme, or an absence —
+
+1. **look at its distribution.** Is −119 extreme, or is the median −23?
+2. **or grep for the thing you are about to say does not exist.**
+
+**Every one of these checks took under ten seconds, and each cost hours of
+Cory's attention instead.**
+
+⚠️ **A FIFTH INSTANCE OCCURRED WHILE THIS RULE WAS BEING WRITTEN.** I numbered it
+`3h` without checking — **`3h` was already taken by the rule immediately below,
+and `RULE 3f` appears TWICE in this file (lines ~224 and ~376) with different
+content, which nobody had noticed.** Caught by grepping the headings. **That
+duplication is register 108 and is not fixed here**, because renumbering a rule
+other documents cite is not a draft-week change.
 
 ## RULE 3h — D AND E FIND; SOMEONE ELSE ACTS. THE HOP IS THE RELAY'S.
 

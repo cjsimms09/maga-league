@@ -254,8 +254,15 @@ function check(text, todayStr, opts) {
      * self-feeding loop must not have. */
     if (Number.isFinite(ms) && ms < SUCCESSOR_FROM) continue;    // pre-rule, exempt
     const changed = c[COL.changed];
-    const hasSuccessor = /->\s*P\d+|→\s*P\d+/.test(changed);
-    const retires = /\bRETIRES?\b|\bRETIRED\b/i.test(changed);
+    /* ⚠️ THE EMPHASIS MARKERS SIT BETWEEN THE ARROW AND THE NUMBER, AND THIS
+     * REGEX COULD NOT SEE PAST THEM. Hit 08-19: five graded rows written
+     * "-> **P171**" were every one reported as having no successor. This is the
+     * SECOND guard in this repo defeated by markdown bold — the first made
+     * sixteen register rows invisible on 08-18. That one failed SILENTLY and
+     * this one fails LOUDLY, which is the only reason it cost minutes instead
+     * of weeks. Both are fixed and both now carry a self-test. */
+    const hasSuccessor = SUCCESSOR_RE.test(changed);
+    const retires = RETIRES_RE.test(changed);
     if (!hasSuccessor && !retires) {
       problems.push(
         `${id}: GRADED WITH NO SUCCESSOR. A grade is the cheapest moment to ask ` +
@@ -337,7 +344,39 @@ function check(text, todayStr, opts) {
   return { problems, count: seen.length };
 }
 
+const SUCCESSOR_RE = /(?:->|\u2192)\s*[*_~`]*\s*P\d+/;
+const RETIRES_RE = /\bRETIRES?\b|\bRETIRED\b/i;
+
+/* ── KNOWN POSITIVE, RULE 3e ──────────────────────────────────
+ * A guard that stops recognising a valid successor turns the build red on
+ * CORRECT rows until someone reformats them by trial and error, which trains
+ * people to reformat rather than to answer the question the guard is asking. */
+const SUCCESSOR_SELF_TEST = [
+  ['spawned -> P77', true],
+  ['spawned -> **P77**', true],
+  ['spawned **-> P77**', true],
+  ['spawned \u2192 **P77**', true],
+  ['spawned -> `P77`', true],
+  ['RETIRES: nothing left to ask', true],
+  ['this went nowhere and nobody said so', false],
+  ['P77 was mentioned but nothing points at it', false],
+];
+
+function successorSelfTest() {
+  const bad = [];
+  for (const [text, want] of SUCCESSOR_SELF_TEST) {
+    const got = SUCCESSOR_RE.test(text) || RETIRES_RE.test(text);
+    if (got !== want) bad.push(`  "${text}" -> ${got} (expected ${want})`);
+  }
+  if (bad.length) {
+    console.error('\u26d4 successor PARSER SELF-TEST FAILED \u2014 refusing to audit:');
+    bad.forEach(b => console.error(b));
+    process.exit(1);
+  }
+}
+
 function main() {
+  successorSelfTest();   // rule 3e — before it can report a null
   const argv = process.argv.slice(2);
   const i = argv.indexOf('--today');
   const today = i >= 0 && argv[i + 1]

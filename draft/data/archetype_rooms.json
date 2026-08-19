@@ -45,7 +45,7 @@
   "WR": 155,
   "TE": 124.1
  },
- "generated_at": "2026-08-19T03:03:43.604Z",
+ "generated_at": "2026-08-19T03:43:58.088Z",
  "note": "SIMULATION throughout: season outcomes are model outcomes conditioned on proj_mean, the opponent model, and a constant measured weekly sd — not measurements.",
  "summary": {
   "shipped": {

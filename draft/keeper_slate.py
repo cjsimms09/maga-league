@@ -27,13 +27,31 @@ that fetches rosters + draft picks lives in build.py (CI).
 from __future__ import annotations
 
 
-def assess_slate(expected_teams, designations, placements=None, keeper_lock_passed=False):
+def assess_slate(expected_teams, designations, placements=None, keeper_lock_passed=False,
+                 keeper_lock_deadline=None):
     """expected_teams: int (rosters in the league).
     designations: {team_id: [player_id,...]} from Sleeper roster.keepers (INTENTIONS).
       A team ABSENT from this dict is undesignated/unknown — NOT a team keeping zero.
     placements: {team_id: [player_id,...]} from the draft's placed keeper picks
       (is_keeper), or None if the commissioner has not placed keepers yet.
     keeper_lock_passed: has the lock date passed (used only to sharpen the reason text).
+    keeper_lock_deadline: the deadline block from league_config (register E25) — WHEN
+      the lock is, published beside WHETHER it has passed.
+
+      **E25's defect was not a wrong date, it was TWO dates.** `DECISIONS-NEEDED.md`
+      and `TERRITORY.md` said the 21st while ten other files disagreed, and nothing
+      on the board said which was real. A flag that reports `keeper_lock_passed:
+      false` without publishing the date it is false ABOUT invites the next reader
+      to hardcode one, which is how the repo got two in the first place. So the
+      board now carries the deadline itself, sourced from `league_config.json`
+      where Cory's ruling lives verbatim — one copy, and readers point at it.
+
+      Passed explicitly at every call site rather than defaulted, because register
+      5l is exactly this function with exactly this shape of parameter: `assess_slate(
+      ..., keeper_lock_passed=False)` was omitted at all three sites and the board's
+      flag was permanently false while looking perfectly plausible. A `None` here is
+      published AS null rather than silently omitted, so an unpassed argument shows
+      on the board instead of hiding as an absent key.
 
     Returns a status dict the board stamps and the site-check alarms on.
     """
@@ -110,6 +128,12 @@ def assess_slate(expected_teams, designations, placements=None, keeper_lock_pass
         "placements_present": placed,
         "mismatches": mismatches,
         "keeper_lock_passed": bool(keeper_lock_passed),
+        # WHEN the lock is, beside WHETHER it has passed (register E25). Always
+        # emitted, null included — an absent key reads as "this build predates the
+        # field", a null reads as "nobody passed it", and only one of those is
+        # actionable.
+        "keeper_lock_date": (keeper_lock_deadline or {}).get("date"),
+        "keeper_lock_deadline": keeper_lock_deadline or None,
         "reason": reason,
         # the one line the board and the alarm both key on:
         "safe_to_treat_as_truth": confirmed,
