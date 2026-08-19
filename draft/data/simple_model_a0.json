@@ -91,6 +91,11 @@
  },
  "rules_on": true,
  "rooms_with_an_empty_starting_slot": 0,
+ "cory_spec": {
+  "onesies_all_1": true,
+  "share_of_rooms_WR_over_RB": 0.917,
+  "meets_spec": true
+ },
  "grades": {
   "P186_adjuster_identity": true,
   "P187_reorders_our_board": true,

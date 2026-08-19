@@ -342,6 +342,12 @@ const rstat = {}; POS.forEach(q => {
   rstat[q] = { mean: +mean(v).toFixed(2), sd: +sd(v).toFixed(2), min: Math.min(...v), max: Math.max(...v) };
 });
 const illegal = rows.filter(r => !r.legal).length;
+/* Cory, 2026-08-19: "rest RB and WR with normally more WR than RBs". "Normally"
+ * is a RATE, not a comparison of two means -- two means can order one way while
+ * most individual rooms order the other. */
+const wrOverRb = rows.filter(r => (r.roster.WR || 0) > (r.roster.RB || 0)).length / rows.length;
+const onesies = ['QB', 'TE', 'K', 'DEF'].every(q => Math.abs(rstat[q].mean - 1) <= 0.10);
+const corySpec = onesies && wrOverRb >= 0.5;
 const p188 = rstat.RB.mean >= 4 && rstat.RB.mean <= 6
   && Math.abs(rstat.K.mean - 1) < 0.05 && Math.abs(rstat.DEF.mean - 1) < 0.05;
 const p190 = Math.abs(rstat.DEF.mean - 1) < 0.05 && Math.abs(rstat.K.mean - 1) < 0.05
@@ -366,6 +372,7 @@ const out = {
   pool_size: pool.length, excluded_inside_adp200: excluded,
   mean_roster: rstat,
   rules_on: RULES, rooms_with_an_empty_starting_slot: illegal,
+  cory_spec: { onesies_all_1: onesies, share_of_rooms_WR_over_RB: +wrOverRb.toFixed(3), meets_spec: corySpec },
   grades: { P186_adjuster_identity: p186, P187_reorders_our_board: p187,
             P188_keeps_the_shape_we_won: p188, P189_qb_leak_survives: p189,
             P190_with_corys_two_rules: p190 },
@@ -394,5 +401,9 @@ console.log(`\n  P186  adjuster is exactly what Cory described : ${p186 ? 'TRUE'
 console.log(`  P187  their projections reorder our board    : ${p187 ? 'TRUE' : 'FALSE'}  (${p187moved} of top 100 move)`);
 console.log(`  P188  keeps the roster shape we already won  : ${p188 ? 'TRUE' : 'FALSE'}`);
 console.log(`  P189  the QB leak survives (predicted TRUE)  : ${p189 ? 'TRUE' : 'FALSE'}`);
+console.log(`\n  CORY'S SPEC — 1 QB/TE/K/DEF, rest RB+WR, normally more WR`);
+console.log(`    onesies all on 1 (+/-0.10)   : ${onesies ? 'YES' : 'NO'}`);
+console.log(`    rooms with WR > RB           : ${(wrOverRb * 100).toFixed(0)}%`);
+console.log(`    MEETS HIS SPEC               : ${corySpec ? 'YES' : 'NO'}`);
 console.log(`  P190  + Cory's K/DEF rule and reservation gate: ${p190 ? 'TRUE' : 'FALSE'}  `
   + `(rules ${RULES ? 'ON' : 'OFF'}, rooms with an empty starting slot: ${illegal})`);
