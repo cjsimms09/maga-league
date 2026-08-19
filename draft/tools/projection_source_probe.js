@@ -55,6 +55,16 @@ const SOURCES = {
   // A 50/50 of champion and FantasyPros wherever both exist. Not a proposal —
   // an arm, so "a mix" is a measured row instead of a hypothetical.
   half_fp: '__HALF_FP__',
+  /* CORY'S OWN RULING, 2026-08-19: *"I will want to use mean average of all
+   * sources."* THIS IS THAT MEAN, BUILT FROM WHAT THE BOARD ALREADY CARRIES —
+   * Sleeper, FantasyPros, and our own model — while the twelve-source
+   * ffanalytics ingest is still being fetched. It is not a substitute for that
+   * ingest; it is the answer to "what would the mean look like" using data that
+   * needed no new fetch at all, which is worth knowing before more arrives.
+   * A player is averaged over whichever of the three he HAS: absent stays
+   * absent, and a one-source player keeps his one number rather than being
+   * dropped or given a fabricated peer. */
+  mean_all: '__MEAN_ALL__',
 };
 
 const keep = KEEP.keepersFrom(DATA);
@@ -70,6 +80,11 @@ function poolFor(source) {
     if (col === '__HALF_FP__') {
       const fp = p.proj_fantasypros;
       v = (fp == null) ? null : 0.5 * p.proj_mean + 0.5 * fp;
+    } else if (col === '__MEAN_ALL__') {
+      const xs = [p.proj_sleeper != null ? p.proj_sleeper : p.proj_mean,
+                  p.proj_fantasypros, p.proj_ownmodel]
+        .filter(x => x != null && isFinite(x) && x > 0);
+      v = xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
     } else {
       v = p[col];
     }
