@@ -64,3 +64,42 @@ seat-years, else FALSE even if the mean clears.
 
 No constant in the mechanism may be adjusted after seeing a grade. If the bar
 fails, the FALSE is filed as plainly as a pass, beside the two dead ends.
+
+---
+
+## 6. GRADED, SAME DAY — the FALSE first
+
+**Preregistered arm (`--objective`): FALSE on its own win-count clause.**
+Actual **+19.2** (bar > +2.5 ✓), skill **+10.8** (bar > +7.9 ✓), 30/30 legal ✓
+— but skill wins **15/30** against the declared ≥18/30. FALSE, despite both
+means clearing. Also the mechanism prediction FAILED: conversion moved
+**+0.0004**, not the predicted ≥ +0.04. **The win is ACQUISITION (+20.4 vs the
+shipped term's −148), not conversion.** §7's question is answered in reverse:
+the humans' conversion was never the thing to buy — displacement-aware picking
+matches it for free, and the −148 the curve was paying was never necessary.
+And the arm buys ~2 kickers and ~2 defences: optimal under no-injury grading
+(bench = 0), not a normal roster.
+
+**Normal-roster variant (`--objective-normal`, K≤1 DEF≤1): clears every bar.**
+The cap is from Cory's own brief — *"draft best team while fielding a normal
+roster"* — but it was added AFTER the first grade was seen, so it is formally
+post-hoc and is labeled so. Measured:
+
+| | actual | skill | legal |
+|---|---|---|---|
+| shipped shape term | −20.4 (14/30) | +7.9 (16/30) | 30/30 |
+| plain best-available | +2.5 | 0.0 | 30/30 |
+| MLV preregistered | +19.2 (16/30) | +10.8 (15/30) | 30/30 |
+| **MLV normal-roster** | **+45.8 (20/30)** | **+29.3 (18/30)** | **30/30** |
+
+All three seasons positive on BOTH gradings (actual +39.7/+6.1/+91.7; skill
++33.9/+7.9/+46.2). Shape: exactly 1 K, 1 DEF, QB 2.07, RB 4.47, WR 4.57,
+TE 1.83. Acquisition **+51.7**, conversion +0.0039. First K at mean pick
+**104** (range 102–108; prereg window 96–145 ✓; humans 126). First DEF at mean
+**89** — still earlier than the humans' 128, consistent with §4's finding that
+forcing onesies later costs points. Honest noise statement: skill sd 77.7,
+n=30, so the +29.3 mean is ≈2.1 SE — real but not overwhelming, and P215's own
+win-count bar (18/30) passes exactly, with nothing to spare.
+
+**NOTHING SHIPS FROM THESE RUNS.** The flag defaults off; the cap variant needs
+its own prereg run by A (one flag, reproduces in seconds) or Cory's ruling.

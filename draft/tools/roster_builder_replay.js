@@ -43,6 +43,19 @@ const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamab
 if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
 const STREAM = ST.streamability;
 const KDEF_TAX = process.argv.includes('--kdef-tax');
+/* ── MLV ARM (relay, prereg draft/MLV-OBJECTIVE-PREREG-2026-08-19.md) ────────
+ * Answers the open call's S7 question by REPLACING rank x multiplier with the
+ * objective itself: marginal(c) = lineupValue(roster+c) - lineupValue(roster),
+ * in the harness's own market-rank units, via the harness's own lineup shape.
+ * A curve taxes the POSITION COUNT; this taxes the DISPLACEMENT. No constants.
+ * Flag-guarded: every shipped arm is byte-identical with the flag off. */
+const OBJECTIVE = process.argv.includes('--objective') || process.argv.includes('--objective-normal');
+/* Cory, 2026-08-19: "goal is to draft best team while fielding a normal
+ * roster!!!" — the normal-roster variant adds K<=1, DEF<=1 as a SHAPE
+ * CONSTRAINT from his words (a second onesie is an upgrade the no-injury
+ * objective buys because bench is worth zero; a normal roster does not carry
+ * one). Constraint from the brief, not a constant fitted to a grade. */
+const OBJ_NORMAL = process.argv.includes('--objective-normal');
 const KDEF_MODE = process.argv.includes('--kdef-supply');
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
@@ -205,6 +218,51 @@ function gradeSeason(season, roster) {
     conversion: held > 0 ? +(starters / held).toFixed(4) : null };
 }
 
+/* market value of a HELD man: his own draft slot, era-correct, no hindsight.
+ * Same units as valueOf below, so the marginal nets candidate against the man
+ * he displaces on one scale. */
+function marketValueMap(picks, N) {
+  const mv = {};
+  picks.forEach(p => { mv[String(p.player_id)] = (N + 1) - p.pick_no; });
+  return mv;
+}
+
+/* lineup value in market-rank units — same shape as bestLineup: dedicated
+ * slots from the best at each position, then ONE exact flex. */
+function lineupRankValue(ids, mv) {
+  const byPos = {};
+  ids.forEach(id => {
+    const q = posOf(id);
+    if (!q) return;
+    (byPos[q] || (byPos[q] = [])).push(mv[String(id)] || 0);
+  });
+  POS.forEach(q => { if (byPos[q]) byPos[q].sort((a, b) => b - a); });
+  let total = 0;
+  const left = [];
+  POS.forEach(q => {
+    const need = STARTERS[q] || 0;
+    const have = byPos[q] || [];
+    for (let i = 0; i < need; i++) total += have[i] || 0;
+    if (FLEX.includes(q)) left.push(...have.slice(need));
+  });
+  left.sort((a, b) => b - a);
+  return total + (left[0] || 0);
+}
+
+/* Unfilled legality requirements — the rule of the game, not a weight:
+ * QB>=1 RB>=2 WR>=2 TE>=1 K>=1 DEF>=1 and RB+WR+TE>=6 (the flex body). */
+function legalityNeeds(held) {
+  const short = q => Math.max(0, (STARTERS[q] || 0) - (held[q] || 0));
+  const perPos = { QB: short('QB'), RB: short('RB'), WR: short('WR'),
+    TE: short('TE'), K: short('K'), DEF: short('DEF') };
+  const skillHeld = (held.RB || 0) + (held.WR || 0) + (held.TE || 0);
+  const skillShort = perPos.RB + perPos.WR + perPos.TE;
+  const flexExtra = Math.max(0, 6 - skillHeld - skillShort);
+  const total = perPos.QB + perPos.RB + perPos.WR + perPos.TE
+    + perPos.K + perPos.DEF + flexExtra;
+  return { perPos, flexExtra, total };
+}
+
 /* ── the counterfactual: fixed opponents, one seat differs ─────────────────── */
 function buildSeat(season, draft, seatId, rosterOn) {
   const picks = (draft.picks || []).slice().sort((a, b) => a.pick_no - b.pick_no);
@@ -212,7 +270,11 @@ function buildSeat(season, draft, seatId, rosterOn) {
   /* value = the market's own order. Era-correct, no hindsight, and the same
    * information the owner had. */
   const valueOf = p => (N + 1) - p.pick_no;
+  const MV = OBJECTIVE ? marketValueMap(picks, N) : null;
+  const myPickIdxs = picks.map((p, i) => (p.roster_id === seatId && !p.is_keeper) ? i : -1)
+    .filter(i => i >= 0);
   const mine = [], held = {};
+  const firstOnesie = { K: null, DEF: null };
   const takenByMe = new Set();
   picks.forEach((pk, idx) => {
     if (pk.roster_id !== seatId) return;
@@ -246,8 +308,25 @@ function buildSeat(season, draft, seatId, rosterOn) {
         short = left < 1;
         if (short) deadlineFired++;
       }
-      const w = startProb(q, held[q] || 0, rosterOn, short);
-      const v = valueOf(c) * w;
+      let v;
+      if (OBJECTIVE && rosterOn) {
+        /* legality guard: when picks remaining == requirements unfilled, only
+         * a requirement-reducing position is eligible. A game rule, per prereg. */
+        if (OBJ_NORMAL && (q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
+        const needs = legalityNeeds(held);
+        const remaining = myPickIdxs.filter(i => i >= idx).length;
+        if (remaining <= needs.total) {
+          const reduces = needs.perPos[q] > 0
+            || (needs.flexExtra > 0 && FLEX.includes(q));
+          if (!reduces) continue;
+        }
+        const base = lineupRankValue(mine, MV);
+        v = lineupRankValue(mine.concat(c.player_id), MV) - base
+          + valueOf(c) * 1e-6;            /* deterministic tiebreak only */
+      } else {
+        const w = startProb(q, held[q] || 0, rosterOn, short);
+        v = valueOf(c) * w;
+      }
       if (v > bestV) { bestV = v; best = c; }
     }
     if (!best) return;
@@ -255,7 +334,10 @@ function buildSeat(season, draft, seatId, rosterOn) {
     mine.push(best.player_id);
     const q = posOf(best.player_id);
     if (q) held[q] = (held[q] || 0) + 1;
+    /* prereg shape check: WHERE does the onesie land, in overall pick numbers */
+    if ((q === 'K' || q === 'DEF') && firstOnesie[q] == null) firstOnesie[q] = best.pick_no;
   });
+  mine.firstOnesie = firstOnesie;
   return mine;
 }
 
@@ -292,7 +374,8 @@ Object.values(H.seasons).forEach(season => {
       skill: { owner: sO, builder: sOn, builder_no_equation: sOff },
       skill_delta: +(sOn.points - sO.points).toFixed(2),
       skill_delta_no_equation: +(sOff.points - sO.points).toFixed(2),
-      builder_counts: cnt, unfillable: short });
+      builder_counts: cnt, unfillable: short,
+      first_onesie: on.firstOnesie || null });
   });
 });
 
