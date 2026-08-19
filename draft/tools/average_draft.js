@@ -33,7 +33,13 @@ const CURVE = MN.curve, STREAM = ST.streamability;
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 const FLEX_ELIGIBLE = ['RB', 'WR', 'TE'];
 const STARTERS = (DATA.league || {}).starters || {};
-const WAIVER = PLAN.WAIVER || { QB: 319, RB: 112, WR: 124, TE: 124, K: 134, DEF: 112 };
+/* P165/P166: the waiver level recomputed from THIS ROOM's revealed
+ * consumption (WR 52 RB 47 QB 16 TE 14 K 10 DEF 10 per 150-pick draft,
+ * 2023-25) instead of from an ADP-order drain. The room takes far more
+ * running backs than ADP order does, so the old RB wire was 33.6 points
+ * too generous. draft_plan.js is NOT touched -- it feeds seat_plan.json,
+ * which the war room reads. */
+const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
 const SCHED = PLAN.SCHED;
 const ROOMS = (() => { const i = process.argv.indexOf('--rooms'); return i >= 0 ? +process.argv[i + 1] : 300; })();
 
