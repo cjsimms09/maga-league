@@ -1,0 +1,240 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/one_equation_plan.js",
+ "_prereg": "draft/ONE-EQUATION-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. No cap, no seats. Writes no board field.",
+ "board_built_at": "2026-08-19T08:52:22Z",
+ "waiver_levels": {
+  "QB": 319,
+  "RB": 111.95,
+  "WR": 124.25,
+  "TE": 123.97,
+  "K": 134.11,
+  "DEF": 112
+ },
+ "q_per_week": {
+  "QB": 0.14705882352941177,
+  "RB": 0.22352941176470592,
+  "WR": 0.17647058823529413,
+  "TE": 0.18823529411764703,
+  "K": 0.08823529411764706,
+  "DEF": 0.058823529411764705
+ },
+ "controls": {
+  "C1_need_curve_matches_published": {
+   "ok": true,
+   "got": [
+    1,
+    0.902
+   ],
+   "why": "must reproduce need_curve.js's published RB column exactly"
+  },
+  "C2_flex_credited_once_every_pick": {
+   "ok": false,
+   "trace": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    "RB",
+    "RB",
+    "RB",
+    "WR",
+    "RB",
+    "WR",
+    "WR"
+   ],
+   "why": "recomputed per pick; crediting it to RB+WR+TE at once once drafted three TEs"
+  },
+  "C3_keepers_counted": {
+   "ok": true,
+   "kept": {
+    "WR": 1,
+    "RB": 2
+   }
+  },
+  "C4_twelve_picks_on_the_real_schedule": {
+   "ok": true,
+   "sched": [
+    33,
+    48,
+    53,
+    68,
+    73,
+    88,
+    93,
+    108,
+    113,
+    128,
+    133,
+    148
+   ]
+  },
+  "C5_room_drained_by_adp": {
+   "ok": true,
+   "why": "strict ADP order, identical to the other arms"
+  }
+ },
+ "controls_all_passed": false,
+ "picks": [
+  {
+   "pick": 33,
+   "name": "Zay Flowers",
+   "pos": "WR",
+   "adp": 37.67,
+   "proj": 199.12,
+   "value": 74.9,
+   "need": 1,
+   "flex_to": null
+  },
+  {
+   "pick": 48,
+   "name": "Drake Maye",
+   "pos": "QB",
+   "adp": 51,
+   "proj": 373.73,
+   "value": 54.7,
+   "need": 1,
+   "flex_to": null
+  },
+  {
+   "pick": 53,
+   "name": "Kyle Pitts",
+   "pos": "TE",
+   "adp": 75.33,
+   "proj": 151.47,
+   "value": 27.5,
+   "need": 1,
+   "flex_to": null
+  },
+  {
+   "pick": 68,
+   "name": "Los Angeles Rams",
+   "pos": "DEF",
+   "adp": 128.33,
+   "proj": 132,
+   "value": 20,
+   "need": 1,
+   "flex_to": null
+  },
+  {
+   "pick": 73,
+   "name": "Tony Pollard",
+   "pos": "RB",
+   "adp": 80.67,
+   "proj": 165.67,
+   "value": 18.1,
+   "need": 0.338,
+   "flex_to": null
+  },
+  {
+   "pick": 88,
+   "name": "Alec Pierce",
+   "pos": "WR",
+   "adp": 92.67,
+   "proj": 164.03,
+   "value": 15.8,
+   "need": 0.396,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 93,
+   "name": "Brandon Aubrey",
+   "pos": "K",
+   "adp": 120.33,
+   "proj": 145.65,
+   "value": 11.5,
+   "need": 1,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 108,
+   "name": "Jayden Reed",
+   "pos": "WR",
+   "adp": 113.33,
+   "proj": 148.62,
+   "value": 6,
+   "need": 0.248,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 113,
+   "name": "Aaron Jones",
+   "pos": "RB",
+   "adp": 118,
+   "proj": 136.18,
+   "value": 4.6,
+   "need": 0.188,
+   "flex_to": "WR"
+  },
+  {
+   "pick": 128,
+   "name": "Xavier Worthy",
+   "pos": "WR",
+   "adp": 138.67,
+   "proj": 139.9,
+   "value": 2.1,
+   "need": 0.134,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 133,
+   "name": "Khalil Shakir",
+   "pos": "WR",
+   "adp": 156.33,
+   "proj": 132.32,
+   "value": 1,
+   "need": 0.126,
+   "flex_to": "WR"
+  },
+  {
+   "pick": 148,
+   "name": "Brenton Strange",
+   "pos": "TE",
+   "adp": 159.67,
+   "proj": 123.97,
+   "value": 0,
+   "need": 0.156,
+   "flex_to": "WR"
+  }
+ ],
+ "drafted_counts": {
+  "WR": 5,
+  "QB": 1,
+  "TE": 2,
+  "DEF": 1,
+  "RB": 2,
+  "K": 1
+ },
+ "full_roster": {
+  "WR": 6,
+  "QB": 1,
+  "TE": 2,
+  "DEF": 1,
+  "RB": 4,
+  "K": 1
+ },
+ "P144": {
+  "drafted_counts": {
+   "WR": 5,
+   "QB": 1,
+   "TE": 2,
+   "DEF": 1,
+   "RB": 2,
+   "K": 1
+  },
+  "WR_in_3_4": false,
+  "RB_in_3_4": false,
+  "QB_is_1": true,
+  "TE_is_1": false,
+  "K_is_1": true,
+  "DEF_is_1": true,
+  "TRUE": false
+ },
+ "P145": {
+  "one_equation_total": 2012.7,
+  "draft_plan_total": 2220.1,
+  "pct_diff": -9.3,
+  "TRUE": false
+ }
+}
