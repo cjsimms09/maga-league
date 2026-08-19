@@ -181,3 +181,82 @@ question, and it is a grade, not an argument.
 **Still report-only. Writes no board field, changes no weight, ships nothing
 before Saturday.** `draft/data/vona_upside_plan_capped.json`.
 Run it yourself: `ARM=capped node draft/tools/vona_upside_plan.js`.
+
+---
+
+# 7. ⚖️ YOUR RULING APPLIED — `QB1 · RB6 · WR5 · TE1 · K1 · DEF1`. P141 TRUE.
+
+**Cory: *"NOT 2 qbS AND 2 TE THATS NOT NORMAL"*. Accepted, `CAP.QB = 1`,
+`CAP.TE = 1`.**
+
+**My derivation was the weak link, not the mechanism.** I wrote *"one-starter
+skill: `starters + 1`, one backup against injury"* — **that "+1" is my inference,
+not something the league's roster rules say.** With six bench slots, spending two
+of them on positions you start one of was a choice, and it was mine.
+
+**This is not `no_fit_guard` being bent.** The guard stops *me* changing a
+constant because I saw a number I liked. **You own what "normal roster" means and
+it was one of the four requirements you set** — arm 2 failed a requirement whose
+definition is yours. Written into the prereg addendum so nobody later reads it as
+a fitted parameter.
+
+| pick | seat | take | proj | upside |
+|---|---|---|---|---|
+| 33 | FLEX | RB Travis Etienne | 206 | −5.1 |
+| 48 | QB | QB Joe Burrow | 367 | −8.7 |
+| 53 | WR | WR Jameson Williams | 184 | −3.2 |
+| 68 | TE | TE Kyle Pitts | 151 | +4.7 |
+| **73** | bench | **RB Jonathon Brooks** | 143 | **+6.3** |
+| **88** | bench | **WR Alec Pierce** | 164 | **+6.2** |
+| **93** | bench | **RB Zach Charbonnet** | 100 | **+14.0** |
+| 108 | DEF | DEF LA Rams | 132 | −0.3 |
+| 113 | K | K Brandon Aubrey | 146 | +1.9 |
+| **128** | bench | **WR Matthew Golden** | 136 | **+7.6** |
+| **133** | bench | **WR Jalen Coker** | 124 | **+6.7** |
+| **148** | bench | **RB Chris Rodriguez** | 101 | **+13.6** |
+
+## **`QB1 · RB6 · WR5 · TE1 · K1 · DEF1`**
+
+**All six controls pass.** Starter picks **unchanged again** — the cap has never
+once bound on a starting seat across three arms, which is the check that would
+condemn it. The two freed slots went where they should: **Charbonnet (RB, +14.0)
+and Matthew Golden (WR, +7.6)** — both skill, both upside.
+
+## ⚠️ THE PRICE OF THE RULING, RECORDED NOW RATHER THAN DISCOVERED IN WEEK 8
+
+**QB1/TE1 means a bye week leaves that slot empty.** The fieldability probe
+already measures it on the shipped engine, which is also QB1/TE1: **un-fieldable
+skill weeks at 8 (QB) and 10 (TE).**
+
+**Streaming covers it and this league's own numbers say so** — 802 completed
+waiver adds 2023-25, with DEF 100% and K 83% of the pool cycling. **It is not
+free. It is two weeks where you must remember to add a body.**
+
+## ⚠️ AND THE CAVEAT GOT WORSE, WHICH IS THE HONEST HEADLINE
+
+`own_v6` against the six upside picks:
+
+| | `proj_ownmodel` − `proj_mean` |
+|---|---|
+| Zach Charbonnet | **+33.9** ✅ |
+| Chris Rodriguez | −36.9 |
+| Alec Pierce | −52.2 |
+| Jalen Coker | −60.3 |
+| **Matthew Golden** | **−119.0** |
+| Jonathon Brooks | **ABSENT** — no prior-season production to model |
+
+**Five of six, and Golden by 119 points.** This is now the clearest result of the
+day and it is not a good one for the upside term: **cross-source disagreement is
+highest exactly where a player is unproven, and our own projector — built on
+prior-season production — marks those same players down hardest. Brooks does not
+even have a projection from it.**
+
+**Two readings, and I cannot separate them today:** either the upside term is
+finding genuine sleepers that a production-based model structurally cannot see,
+**or it is finding players nobody can price and calling the confusion upside.**
+`own_v6` and the residual-upside term disagree by construction, so their
+disagreement is not evidence either way.
+
+**That is one preregistered grade, in January, on realised points — and it is the
+single most important thing this model still owes.** Everything else about it now
+works.

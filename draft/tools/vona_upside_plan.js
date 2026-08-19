@@ -66,7 +66,13 @@ const RANK_WINDOW = 7;    // same
  *
  * Arm 1 (no cap) is still the default; ARM=capped turns this on, so both arms
  * come out of one module and neither is a rewrite of the other. */
-const CAP = { QB: 2, RB: 6, WR: 6, TE: 2, K: 1, DEF: 1 };
+/* ⚖️ CORY'S RULING 2026-08-19: "NOT 2 qbS AND 2 TE THATS NOT NORMAL" — QB 1,
+ * TE 1. He owns what "normal roster" means; my "starters + 1" was an inference,
+ * not a league rule, and spending two of six bench slots on positions you start
+ * one of was my choice. Prereg addendum 2. NOT a tuned constant: the requirement
+ * holder ruled on a requirement he set. Cost recorded there too — bye weeks leave
+ * the slot empty and must be streamed. */
+const CAP = { QB: 1, RB: 6, WR: 6, TE: 1, K: 1, DEF: 1 };
 const CAPPED = (process.env.ARM || '') === 'capped';
 
 /* ── UPSIDE ───────────────────────────────────────────────────────────────── */
