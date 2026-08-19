@@ -127,7 +127,21 @@ def main() -> None:
     board = json.loads(BOARD.read_text())
     by_name = defaultdict(list)
     by_team_def = defaultdict(list)
-    for p in board["players"]:
+    # KEEPERS ARE NOT IN `players` AND THAT SILENTLY EXCLUDED CORY'S WHOLE
+    # KEEPER SLATE (register 80, A 2026-08-19).
+    #
+    # `build.py` moves kept players OUT of `players` and into `kept_players`,
+    # so a join over `board["players"]` alone can never match one. The result:
+    # Derrick Henry, Ja'Marr Chase and Kenneth Walker — the only three keepers
+    # on the board, all Cory's — were absent from the store, kept Sleeper-only
+    # projections while the rest of the board was blended, and had their VORP
+    # computed against a replacement level that HAD moved. The capture's own
+    # `unmatched` diagnostic named "Derrick Henry (RB)" and "Kenneth Walker III
+    # (RB)" the whole time and nobody read it.
+    #
+    # The join universe is now BOTH lists. Kept players are still excluded from
+    # the draftable board by build.py; that is a separate and correct thing.
+    for p in list(board["players"]) + list(board.get("kept_players") or []):
         if p.get("position"):
             by_name[(norm_name(p.get("name")), p["position"])].append(p)
         if p.get("position") == "DEF":
@@ -249,7 +263,8 @@ def main() -> None:
                      if s1 in p["by_source"] and s2 in p["by_source"]]
             agree[f"{s1} vs {s2}"] = {"n": len(pairs), "spearman": spearman(pairs)}
     # And against the board's incumbent Sleeper number — the champion.
-    sleeper = {str(p["player_id"]): p.get("proj_mean") for p in board["players"]}
+    sleeper = {str(p["player_id"]): p.get("proj_mean")
+               for p in list(board["players"]) + list(board.get("kept_players") or [])}
     for s in srcs:
         pairs = [(p["by_source"][s], sleeper[pid]) for pid, p in players.items()
                  if s in p["by_source"] and sleeper.get(pid) is not None]
