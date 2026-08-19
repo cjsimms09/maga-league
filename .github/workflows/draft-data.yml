@@ -268,6 +268,11 @@ jobs:
           python draft/backtest/cory_conditional.py || echo "19b race skipped"
           python draft/opening_script.py
           python draft/room_read.py || echo "room read unchanged/skipped"
+          # The census is a snapshot OF the board just built — regenerate it
+          # here or its committed copy is one nightly behind and the gate's
+          # on_board_skill cross-check reds on correct board growth
+          # (refused rebuild 32199445523, off-by-one, A 08-19).
+          python draft/backtest/projection_coverage_census.py
 
       - name: Acceptance gate on the FRESH board — nothing untested is published
         # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
