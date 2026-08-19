@@ -105,6 +105,75 @@ function replacementFor(q, heldQ, held, base) {
   if (slot === 'flex' && FLEX_R != null) return FLEX_R;
   return own;
 }
+/* ── P179/P180 — THE QUANTILE RAMP. Prereg: draft/QUANTILE-RAMP-PREREG-2026-08-19.md
+ *
+ * Cory: "the 0.45 ceiling seems dumb... I am wanting ceiling later in draft,
+ * wnat it to ramp up. no reason to take ceiling by a random value?"
+ *
+ * A body who starts s of the weeks does not start in s average weeks -- he
+ * starts in his BEST s of weeks, because that is what a lineup decision is. So
+ * the statistic that belongs in his valuation is the conditional mean of his
+ * top s fraction, approximated by its median: the (1 - s/2) quantile.
+ *
+ *   s = 1.00  ->  quantile 0.500  ->  exactly his mean      (a every-week starter)
+ *   s = 0.175 ->  quantile 0.913  ->  mean + 1.36 sigma     (a backup QB)
+ *
+ * THE RAMP SIZE IS THE START RATE. Nothing is chosen, and 0.45 appears nowhere.
+ *
+ * The SAME transform is applied to the replacement, using the dispersion of
+ * players at the wire rank -- because the wire body only plays in those weeks
+ * too. That makes the ramp a pure DISPERSION DIFFERENTIAL: a body gains only if
+ * his own range is wider than the wire's. A veteran backup QB behind a deep
+ * wire gains nothing; a wide-range young receiver gains a lot. P180 tests that
+ * this is really the mechanism. */
+const RAMPQ = process.env.RAMPQ === 'on';
+const Z128 = 1.2815515655446004;          // the z the board's bands were built with
+
+/* inverse normal CDF, Acklam's rational approximation (|err| < 1.15e-9) */
+function zOf(p) {
+  if (p <= 0 || p >= 1) return 0;
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
+             1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
+             6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00,
+             -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00,
+             3.754408661907416e+00];
+  const pl = 0.02425;
+  let q, r;
+  if (p < pl) {
+    q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])
+         / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  if (p > 1 - pl) {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])
+          / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  q = p - 0.5; r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q
+       / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+
+/* sigma implied by the board's own band construction (register 103: the field
+ * is labelled cross-source-p90 and the computation is mean + 1.28 sd). Using
+ * the same z it was built with rather than inventing a second one. */
+const sigmaOf = p => (p.proj_ceiling != null && p.proj_mean != null)
+  ? Math.max(0, (+p.proj_ceiling - +p.proj_mean) / Z128) : 0;
+
+/* dispersion at each position's WIRE rank -- the alternative body's range */
+const WIRE_RANK = { QB: 17, RB: 48, WR: 53, TE: 15, K: 11, DEF: 11 };
+const SIGMA_WIRE = {};
+POS.forEach(q => {
+  const v = DATA.players.filter(p => p.position === q && p.proj_mean != null)
+    .sort((a, b) => +b.proj_mean - +a.proj_mean);
+  const r = WIRE_RANK[q] || 1;
+  const win = v.slice(Math.max(0, r - 4), r + 3).map(sigmaOf).sort((a, b) => a - b);
+  SIGMA_WIRE[q] = win.length ? win[win.length >> 1] : 0;
+});
+
 const SCHED = PLAN.SCHED;
 const ROOMS = (() => { const i = process.argv.indexOf('--rooms'); return i >= 0 ? +process.argv[i + 1] : 300; })();
 
@@ -143,6 +212,17 @@ function depthOf(pos, held, flexOwner) {
 /* P161: ramp URGENCY only. An empty slot is not urgent early and is everything
  * late; depth is a measured rate and is never ramped. Ramping them together is
  * why every previous arm broke something. */
+/* P179: the PURE per-week start rate, with no streamability discount and no
+ * urgency substitution -- the quantile transform needs "how often does he play",
+ * which is a different question from "how much is that worth". */
+function startRateOf(pos, held, flexOwner) {
+  const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
+  if (S <= 0) return 0;
+  if (held < S) return 1;                 // slot still empty -- he starts every week
+  const v = (CURVE[pos] || [])[held];
+  return v == null ? 0 : v;
+}
+
 function weightOf(pos, held, flexOwner, lam) {
   const d = depthOf(pos, held, flexOwner);
   return (d === null) ? lam : d;
@@ -208,7 +288,27 @@ function runRoom() {
       /* P172: the replacement depends on the SLOT this body would fill, not on
        * his position alone. FLEXR=off restores the old rule exactly. */
       const R = replacementFor(p.position, held[p.position] || 0, held, base);
-      const margin = Math.max(0, p.proj_mean - R);
+      /* P179: price BOTH sides at the quantile his start rate implies. `w` is
+       * the measured per-week start rate for this body, so the quantile is
+       * 1 - w/2 -- the median of the weeks he actually plays. */
+      let C = +p.proj_mean, Reff = R;
+      if (RAMPQ) {
+        /* ⛔ THE FIRST VERSION USED `w`, WHICH IS NOT ALWAYS A START RATE.
+         * `weightOf` returns the URGENCY ramp lambda when the slot is still
+         * empty, so an early every-week starter arrived here with a tiny w,
+         * got priced at a ~99th percentile, and the arm drafted 2.62
+         * quarterbacks -- the opposite of the prediction. Caught by control C5
+         * (the deterministic run fell outside the simulated range), which
+         * refused to report the numbers. The quantile needs the START RATE:
+         * a body whose slot is still empty starts every week, s = 1, and is
+         * priced at his mean. */
+        const sr = startRateOf(p.position, held[p.position] || 0, fo);
+        const s = Math.min(1, Math.max(0.01, sr));
+        const z = zOf(1 - s / 2);
+        C = +p.proj_mean + z * sigmaOf(p);
+        Reff = R + z * (SIGMA_WIRE[p.position] || 0);
+      }
+      const margin = Math.max(0, C - Reff);
       const v = margin * w;
       if (v > bestV) { bestV = v; best = p; }
     });

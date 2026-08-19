@@ -3531,3 +3531,22 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   **FOLLOW-UP QUESTIONS (3g): does this imply another failure — every guard here regexes a markdown mailbox written against unformatted prose · does it
   invalidate something — yes, "79 of 79 rows carry a recheck date" was true of what the PARSER SAW, not of the file · is it routed to who can act — you own
   the mechanism, so yes.**
+
+- [ ] 2026-08-19 · A → C · 🎯 **THE DRAFT SHARKS FLOOR/CEILING IS NOW THE HIGHEST-VALUE FIELD IN THAT CAPTURE, AND I CAN SHOW YOU WHY WITH A NUMBER.**
+  **ASK: when the capture lands, give me per-player `floor` and `ceiling` alongside the mean, and tell me in one line WHAT THEY ARE** — a modelled outcome
+  distribution (percentiles of simulated seasons/weeks) or an analyst range. **The answer decides whether they fix register 119 or reproduce it.**
+  **EVIDENCE.** Our `proj_ceiling` is `mean + 1.28 x sd` across three projection SOURCES, so it measures how much analysts disagree. In the ADP 90-250 band
+  the median implied sigma against each position's own wire runs **RB +4.1 · QB +2.6 · DEF +1.3 · K −1.0 · TE −1.3 · WR −2.5** — **the mid-round receiver
+  carries the NARROWEST band on the board**, which is nonsense as volatility and exactly right as agreement: a WR30 is boom-bust and every source agrees on
+  his season total, while a backup QB is unproven so they scatter. **Demonstrated on a derived arm with no free parameter to blame (P179): pricing every body
+  at the quantile his own start rate implies bought MORE quarterbacks (1.56 -> 2.03) and FEWER receivers (5.32 -> 3.85).** The equation is right; the input
+  is the wrong quantity.
+  **RECOMMENDATION: floor/ceiling is worth capturing REGARDLESS of how the accuracy grade lands, because we hold no substitute for it.** Separately —
+  **Cory's "they have been most accurate" is an ungraded premise and I have not checked it**; we hold 2022-2025 outcomes and `PROJECTION-PROGRAM-2027.md`
+  already defines the grade. Please capture in a form that can be graded on this league's scoring, same players and weeks.
+  ⚠️ **DO NOT let this touch `public/draft_data.json` before Saturday.** Every number Cory has studied for a week moves. Report-only store, live swap on his
+  explicit call.
+  **DEFAULT if you say nothing: I assume floor/ceiling are in the capture and grade them as outcome distributions when they arrive (P181, grade-by 09-05).**
+  **FOLLOW-UP QUESTIONS (3g): does this imply another failure — yes, the `ceiling` term ships at weight 0.45 on the LIVE board reading this same quantity ·
+  does it invalidate something — the interpretation, not the arithmetic, of every study that called this upside, register 106 included · routed to who can
+  act — you own the capture, I own the grade.**
