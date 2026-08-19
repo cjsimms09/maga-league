@@ -1,0 +1,6533 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/tools/multisource_projections.py",
+ "_note": "Scored under THIS LEAGUE'S table from raw stat lines. The providers' own site_pts is deliberately ignored \u2014 it encodes their league's rules, not ours. Writes NO board field.",
+ "sources_used": [
+  "CBS",
+  "ESPN",
+  "FFToday"
+ ],
+ "sources_excluded": {
+  "FantasyPros": "exactly 10 rows per position \u2014 a top-10 leaderboard page, not a projection set. We already hold 426 real FP players on the board via a different path.",
+  "Walterfootball": "exactly 10 per position and no DST at all \u2014 same truncation."
+ },
+ "scoring_source": "draft/backtest/nflverse_weekly_points_2024.json fingerprint",
+ "players": {
+  "4984": {
+   "name": "Josh Allen",
+   "position": "QB",
+   "by_source": {
+    "CBS": 421.74,
+    "ESPN": 419.84,
+    "FFToday": 418.18
+   },
+   "n_sources": 3,
+   "mean": 419.92,
+   "sd": 1.45,
+   "min": 418.18,
+   "max": 421.74
+  },
+  "4881": {
+   "name": "Lamar Jackson",
+   "position": "QB",
+   "by_source": {
+    "CBS": 380.76,
+    "ESPN": 382.62,
+    "FFToday": 370.76
+   },
+   "n_sources": 3,
+   "mean": 378.05,
+   "sd": 5.21,
+   "min": 370.76,
+   "max": 382.62
+  },
+  "3294": {
+   "name": "Dak Prescott",
+   "position": "QB",
+   "by_source": {
+    "CBS": 376.66,
+    "ESPN": 351.12,
+    "FFToday": 355.26
+   },
+   "n_sources": 3,
+   "mean": 361.01,
+   "sd": 11.19,
+   "min": 351.12,
+   "max": 376.66
+  },
+  "7523": {
+   "name": "Trevor Lawrence",
+   "position": "QB",
+   "by_source": {
+    "CBS": 372.8,
+    "ESPN": 344.82,
+    "FFToday": 340.02
+   },
+   "n_sources": 3,
+   "mean": 352.55,
+   "sd": 14.45,
+   "min": 340.02,
+   "max": 372.8
+  },
+  "11566": {
+   "name": "Jayden Daniels",
+   "position": "QB",
+   "by_source": {
+    "CBS": 369.42,
+    "ESPN": 363.04,
+    "FFToday": 355.0
+   },
+   "n_sources": 3,
+   "mean": 362.49,
+   "sd": 5.9,
+   "min": 355.0,
+   "max": 369.42
+  },
+  "8183": {
+   "name": "Brock Purdy",
+   "position": "QB",
+   "by_source": {
+    "CBS": 368.14,
+    "ESPN": 352.94,
+    "FFToday": 342.96
+   },
+   "n_sources": 3,
+   "mean": 354.68,
+   "sd": 10.35,
+   "min": 342.96,
+   "max": 368.14
+  },
+  "6770": {
+   "name": "Joe Burrow",
+   "position": "QB",
+   "by_source": {
+    "CBS": 367.1,
+    "ESPN": 372.18,
+    "FFToday": 367.32
+   },
+   "n_sources": 3,
+   "mean": 368.87,
+   "sd": 2.34,
+   "min": 367.1,
+   "max": 372.18
+  },
+  "11560": {
+   "name": "Caleb Williams",
+   "position": "QB",
+   "by_source": {
+    "CBS": 364.54,
+    "ESPN": 333.04,
+    "FFToday": 354.04
+   },
+   "n_sources": 3,
+   "mean": 350.54,
+   "sd": 13.1,
+   "min": 333.04,
+   "max": 364.54
+  },
+  "11564": {
+   "name": "Drake Maye",
+   "position": "QB",
+   "by_source": {
+    "CBS": 363.2,
+    "ESPN": 381.04,
+    "FFToday": 382.9
+   },
+   "n_sources": 3,
+   "mean": 375.71,
+   "sd": 8.88,
+   "min": 363.2,
+   "max": 382.9
+  },
+  "6904": {
+   "name": "Jalen Hurts",
+   "position": "QB",
+   "by_source": {
+    "CBS": 368.04,
+    "ESPN": 374.96,
+    "FFToday": 359.84
+   },
+   "n_sources": 3,
+   "mean": 367.61,
+   "sd": 6.18,
+   "min": 359.84,
+   "max": 374.96
+  },
+  "12508": {
+   "name": "Jaxson Dart",
+   "position": "QB",
+   "by_source": {
+    "CBS": 359.86,
+    "ESPN": 350.6,
+    "FFToday": 337.2
+   },
+   "n_sources": 3,
+   "mean": 349.22,
+   "sd": 9.3,
+   "min": 337.2,
+   "max": 359.86
+  },
+  "4046": {
+   "name": "Patrick Mahomes",
+   "position": "QB",
+   "by_source": {
+    "CBS": 363.08,
+    "ESPN": 342.74,
+    "FFToday": 342.74
+   },
+   "n_sources": 3,
+   "mean": 349.52,
+   "sd": 9.59,
+   "min": 342.74,
+   "max": 363.08
+  },
+  "421": {
+   "name": "Matthew Stafford",
+   "position": "QB",
+   "by_source": {
+    "CBS": 351.76,
+    "ESPN": 371.18,
+    "FFToday": 351.88
+   },
+   "n_sources": 3,
+   "mean": 358.27,
+   "sd": 9.13,
+   "min": 351.76,
+   "max": 371.18
+  },
+  "3163": {
+   "name": "Jared Goff",
+   "position": "QB",
+   "by_source": {
+    "CBS": 350.46,
+    "ESPN": 333.54,
+    "FFToday": 355.36
+   },
+   "n_sources": 3,
+   "mean": 346.45,
+   "sd": 9.35,
+   "min": 333.54,
+   "max": 355.36
+  },
+  "6797": {
+   "name": "Justin Herbert",
+   "position": "QB",
+   "by_source": {
+    "CBS": 352.76,
+    "ESPN": 340.6,
+    "FFToday": 340.78
+   },
+   "n_sources": 3,
+   "mean": 344.71,
+   "sd": 5.69,
+   "min": 340.6,
+   "max": 352.76
+  },
+  "4892": {
+   "name": "Baker Mayfield",
+   "position": "QB",
+   "by_source": {
+    "CBS": 347.82,
+    "ESPN": 317.26,
+    "FFToday": 312.6
+   },
+   "n_sources": 3,
+   "mean": 325.89,
+   "sd": 15.62,
+   "min": 312.6,
+   "max": 347.82
+  },
+  "5870": {
+   "name": "Daniel Jones",
+   "position": "QB",
+   "by_source": {
+    "CBS": 340.5,
+    "ESPN": 314.74,
+    "FFToday": 295.32
+   },
+   "n_sources": 3,
+   "mean": 316.85,
+   "sd": 18.51,
+   "min": 295.32,
+   "max": 340.5
+  },
+  "8161": {
+   "name": "Malik Willis",
+   "position": "QB",
+   "by_source": {
+    "CBS": 336.56,
+    "ESPN": 273.0,
+    "FFToday": 297.7
+   },
+   "n_sources": 3,
+   "mean": 302.42,
+   "sd": 26.16,
+   "min": 273.0,
+   "max": 336.56
+  },
+  "4943": {
+   "name": "Sam Darnold",
+   "position": "QB",
+   "by_source": {
+    "CBS": 333.66,
+    "ESPN": 299.12,
+    "FFToday": 313.7
+   },
+   "n_sources": 3,
+   "mean": 315.49,
+   "sd": 14.16,
+   "min": 299.12,
+   "max": 333.66
+  },
+  "5849": {
+   "name": "Kyler Murray",
+   "position": "QB",
+   "by_source": {
+    "CBS": 332.22,
+    "ESPN": 290.28,
+    "FFToday": 328.28
+   },
+   "n_sources": 3,
+   "mean": 316.93,
+   "sd": 18.91,
+   "min": 290.28,
+   "max": 332.22
+  },
+  "11563": {
+   "name": "Bo Nix",
+   "position": "QB",
+   "by_source": {
+    "CBS": 328.96,
+    "ESPN": 354.68,
+    "FFToday": 352.2
+   },
+   "n_sources": 3,
+   "mean": 345.28,
+   "sd": 11.58,
+   "min": 328.96,
+   "max": 354.68
+  },
+  "9758": {
+   "name": "C.J. Stroud",
+   "position": "QB",
+   "by_source": {
+    "CBS": 325.94,
+    "ESPN": 296.9,
+    "FFToday": 284.16
+   },
+   "n_sources": 3,
+   "mean": 302.33,
+   "sd": 17.48,
+   "min": 284.16,
+   "max": 325.94
+  },
+  "12545": {
+   "name": "Tyler Shough",
+   "position": "QB",
+   "by_source": {
+    "CBS": 325.3,
+    "ESPN": 312.04,
+    "FFToday": 335.74
+   },
+   "n_sources": 3,
+   "mean": 324.36,
+   "sd": 9.7,
+   "min": 312.04,
+   "max": 335.74
+  },
+  "6804": {
+   "name": "Jordan Love",
+   "position": "QB",
+   "by_source": {
+    "CBS": 316.38,
+    "ESPN": 314.94,
+    "FFToday": 314.74
+   },
+   "n_sources": 3,
+   "mean": 315.35,
+   "sd": 0.73,
+   "min": 314.74,
+   "max": 316.38
+  },
+  "9228": {
+   "name": "Bryce Young",
+   "position": "QB",
+   "by_source": {
+    "CBS": 311.28,
+    "ESPN": 280.8,
+    "FFToday": 283.1
+   },
+   "n_sources": 3,
+   "mean": 291.73,
+   "sd": 13.86,
+   "min": 280.8,
+   "max": 311.28
+  },
+  "3257": {
+   "name": "Jacoby Brissett",
+   "position": "QB",
+   "by_source": {
+    "CBS": 302.5,
+    "ESPN": 233.2,
+    "FFToday": 263.6
+   },
+   "n_sources": 3,
+   "mean": 266.43,
+   "sd": 28.36,
+   "min": 233.2,
+   "max": 302.5
+  },
+  "12522": {
+   "name": "Cam Ward",
+   "position": "QB",
+   "by_source": {
+    "CBS": 278.48,
+    "ESPN": 264.5,
+    "FFToday": 265.18
+   },
+   "n_sources": 3,
+   "mean": 269.39,
+   "sd": 6.44,
+   "min": 264.5,
+   "max": 278.48
+  },
+  "6768": {
+   "name": "Tua Tagovailoa",
+   "position": "QB",
+   "by_source": {
+    "CBS": 263.52,
+    "ESPN": 135.24,
+    "FFToday": 169.96
+   },
+   "n_sources": 3,
+   "mean": 189.57,
+   "sd": 54.18,
+   "min": 135.24,
+   "max": 263.52
+  },
+  "1373": {
+   "name": "Geno Smith",
+   "position": "QB",
+   "by_source": {
+    "CBS": 265.3,
+    "ESPN": 272.6,
+    "FFToday": 264.46
+   },
+   "n_sources": 3,
+   "mean": 267.45,
+   "sd": 3.66,
+   "min": 264.46,
+   "max": 272.6
+  },
+  "96": {
+   "name": "Aaron Rodgers",
+   "position": "QB",
+   "by_source": {
+    "CBS": 244.08,
+    "ESPN": 264.92,
+    "FFToday": 275.96
+   },
+   "n_sources": 3,
+   "mean": 261.65,
+   "sd": 13.22,
+   "min": 244.08,
+   "max": 275.96
+  },
+  "4017": {
+   "name": "Deshaun Watson",
+   "position": "QB",
+   "by_source": {
+    "CBS": 213.68,
+    "ESPN": 142.7,
+    "FFToday": 152.7
+   },
+   "n_sources": 3,
+   "mean": 169.69,
+   "sd": 31.37,
+   "min": 142.7,
+   "max": 213.68
+  },
+  "13269": {
+   "name": "Fernando Mendoza",
+   "position": "QB",
+   "by_source": {
+    "CBS": 213.42,
+    "ESPN": 218.96,
+    "FFToday": 216.86
+   },
+   "n_sources": 3,
+   "mean": 216.41,
+   "sd": 2.28,
+   "min": 213.42,
+   "max": 218.96
+  },
+  "1166": {
+   "name": "Kirk Cousins",
+   "position": "QB",
+   "by_source": {
+    "CBS": 47.98,
+    "ESPN": 52.38,
+    "FFToday": 60.46
+   },
+   "n_sources": 3,
+   "mean": 53.61,
+   "sd": 5.17,
+   "min": 47.98,
+   "max": 60.46
+  },
+  "11559": {
+   "name": "Michael Penix",
+   "position": "QB",
+   "by_source": {
+    "CBS": 46.16,
+    "ESPN": 133.06,
+    "FFToday": 106.8
+   },
+   "n_sources": 3,
+   "mean": 95.34,
+   "sd": 36.39,
+   "min": 46.16,
+   "max": 133.06
+  },
+  "12524": {
+   "name": "Shedeur Sanders",
+   "position": "QB",
+   "by_source": {
+    "CBS": 49.02,
+    "ESPN": 113.24,
+    "FFToday": 140.12
+   },
+   "n_sources": 3,
+   "mean": 100.79,
+   "sd": 38.22,
+   "min": 49.02,
+   "max": 140.12
+  },
+  "13275": {
+   "name": "Ty Simpson",
+   "position": "QB",
+   "by_source": {
+    "CBS": 43.2,
+    "ESPN": 10.34
+   },
+   "n_sources": 2,
+   "mean": 26.77,
+   "sd": 16.43,
+   "min": 10.34,
+   "max": 43.2
+  },
+  "2307": {
+   "name": "Marcus Mariota",
+   "position": "QB",
+   "by_source": {
+    "CBS": 30.28
+   },
+   "n_sources": 1,
+   "mean": 30.28,
+   "sd": null,
+   "min": 30.28,
+   "max": 30.28
+  },
+  "7585": {
+   "name": "Davis Mills",
+   "position": "QB",
+   "by_source": {
+    "CBS": 14.3,
+    "FFToday": 20.04
+   },
+   "n_sources": 2,
+   "mean": 17.17,
+   "sd": 2.87,
+   "min": 14.3,
+   "max": 20.04
+  },
+  "6136": {
+   "name": "Jarrett Stidham",
+   "position": "QB",
+   "by_source": {
+    "CBS": 13.62
+   },
+   "n_sources": 1,
+   "mean": 13.62,
+   "sd": null,
+   "min": 13.62,
+   "max": 13.62
+  },
+  "9999": {
+   "name": "Will Levis",
+   "position": "QB",
+   "by_source": {
+    "CBS": 13.34
+   },
+   "n_sources": 1,
+   "mean": 13.34,
+   "sd": null,
+   "min": 13.34,
+   "max": 13.34
+  },
+  "11557": {
+   "name": "Joe Milton",
+   "position": "QB",
+   "by_source": {
+    "CBS": 15.34,
+    "FFToday": 13.28
+   },
+   "n_sources": 2,
+   "mean": 14.31,
+   "sd": 1.03,
+   "min": 13.28,
+   "max": 15.34
+  },
+  "7083": {
+   "name": "Tyler Huntley",
+   "position": "QB",
+   "by_source": {
+    "CBS": 14.12
+   },
+   "n_sources": 1,
+   "mean": 14.12,
+   "sd": null,
+   "min": 14.12,
+   "max": 14.12
+  },
+  "4972": {
+   "name": "Mason Rudolph",
+   "position": "QB",
+   "by_source": {
+    "CBS": 13.1
+   },
+   "n_sources": 1,
+   "mean": 13.1,
+   "sd": null,
+   "min": 13.1,
+   "max": 13.1
+  },
+  "4464": {
+   "name": "Nick Mullens",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.48
+   },
+   "n_sources": 1,
+   "mean": 10.48,
+   "sd": null,
+   "min": 10.48,
+   "max": 10.48
+  },
+  "9230": {
+   "name": "Tanner McKee",
+   "position": "QB",
+   "by_source": {
+    "CBS": 12.76
+   },
+   "n_sources": 1,
+   "mean": 12.76,
+   "sd": null,
+   "min": 12.76,
+   "max": 12.76
+  },
+  "6011": {
+   "name": "Gardner Minshew",
+   "position": "QB",
+   "by_source": {
+    "CBS": 13.76
+   },
+   "n_sources": 1,
+   "mean": 13.76,
+   "sd": null,
+   "min": 13.76,
+   "max": 13.76
+  },
+  "9229": {
+   "name": "Anthony Richardson",
+   "position": "QB",
+   "by_source": {
+    "CBS": 12.36
+   },
+   "n_sources": 1,
+   "mean": 12.36,
+   "sd": null,
+   "min": 12.36,
+   "max": 12.36
+  },
+  "4179": {
+   "name": "Joshua Dobbs",
+   "position": "QB",
+   "by_source": {
+    "CBS": 14.1
+   },
+   "n_sources": 1,
+   "mean": 14.1,
+   "sd": null,
+   "min": 14.1,
+   "max": 14.1
+  },
+  "13404": {
+   "name": "Garrett Nussmeier",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.24
+   },
+   "n_sources": 1,
+   "mean": 11.24,
+   "sd": null,
+   "min": 11.24,
+   "max": 11.24
+  },
+  "13295": {
+   "name": "Behren Morton",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.62
+   },
+   "n_sources": 1,
+   "mean": 11.62,
+   "sd": null,
+   "min": 11.62,
+   "max": 11.62
+  },
+  "13272": {
+   "name": "Carson Beck",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.34,
+    "ESPN": 34.94,
+    "FFToday": 34.36
+   },
+   "n_sources": 3,
+   "mean": 26.88,
+   "sd": 10.99,
+   "min": 11.34,
+   "max": 34.94
+  },
+  "11256": {
+   "name": "Tyson Bagent",
+   "position": "QB",
+   "by_source": {
+    "CBS": 13.72,
+    "FFToday": 14.4
+   },
+   "n_sources": 2,
+   "mean": 14.06,
+   "sd": 0.34,
+   "min": 13.72,
+   "max": 14.4
+  },
+  "13335": {
+   "name": "Cole Payton",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.2
+   },
+   "n_sources": 1,
+   "mean": 11.2,
+   "sd": null,
+   "min": 11.2,
+   "max": 11.2
+  },
+  "829": {
+   "name": "Andy Dalton",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.9
+   },
+   "n_sources": 1,
+   "mean": 11.9,
+   "sd": null,
+   "min": 11.9,
+   "max": 11.9
+  },
+  "7527": {
+   "name": "Mac Jones",
+   "position": "QB",
+   "by_source": {
+    "CBS": 12.48,
+    "ESPN": 10.04,
+    "FFToday": 13.22
+   },
+   "n_sources": 3,
+   "mean": 11.91,
+   "sd": 1.36,
+   "min": 10.04,
+   "max": 13.22
+  },
+  "11562": {
+   "name": "Spencer Rattler",
+   "position": "QB",
+   "by_source": {
+    "CBS": 12.14
+   },
+   "n_sources": 1,
+   "mean": 12.14,
+   "sd": null,
+   "min": 12.14,
+   "max": 12.14
+  },
+  "12500": {
+   "name": "Quinn Ewers",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.86,
+    "FFToday": 20.24
+   },
+   "n_sources": 2,
+   "mean": 15.55,
+   "sd": 4.69,
+   "min": 10.86,
+   "max": 20.24
+  },
+  "11565": {
+   "name": "J.J. McCarthy",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.38,
+    "ESPN": 48.36,
+    "FFToday": 17.24
+   },
+   "n_sources": 3,
+   "mean": 25.66,
+   "sd": 16.23,
+   "min": 11.38,
+   "max": 48.36
+  },
+  "5127": {
+   "name": "Kyle Allen",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.04,
+    "FFToday": 11.84
+   },
+   "n_sources": 2,
+   "mean": 10.94,
+   "sd": 0.9,
+   "min": 10.04,
+   "max": 11.84
+  },
+  "7610": {
+   "name": "Trey Lance",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.86
+   },
+   "n_sources": 1,
+   "mean": 11.86,
+   "sd": null,
+   "min": 11.86,
+   "max": 11.86
+  },
+  "12511": {
+   "name": "Will Howard",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.84,
+    "FFToday": 12.14
+   },
+   "n_sources": 2,
+   "mean": 11.49,
+   "sd": 0.65,
+   "min": 10.84,
+   "max": 12.14
+  },
+  "7591": {
+   "name": "Justin Fields",
+   "position": "QB",
+   "by_source": {
+    "CBS": 12.02,
+    "ESPN": 13.14,
+    "FFToday": 15.38
+   },
+   "n_sources": 3,
+   "mean": 13.51,
+   "sd": 1.4,
+   "min": 12.02,
+   "max": 15.38
+  },
+  "12510": {
+   "name": "Jalen Milroe",
+   "position": "QB",
+   "by_source": {
+    "CBS": 11.1
+   },
+   "n_sources": 1,
+   "mean": 11.1,
+   "sd": null,
+   "min": 11.1,
+   "max": 11.1
+  },
+  "13303": {
+   "name": "Cade Klubnik",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.5,
+    "FFToday": 11.98
+   },
+   "n_sources": 2,
+   "mean": 11.24,
+   "sd": 0.74,
+   "min": 10.5,
+   "max": 11.98
+  },
+  "12470": {
+   "name": "Riley Leonard",
+   "position": "QB",
+   "by_source": {
+    "CBS": 12.44,
+    "FFToday": 21.26
+   },
+   "n_sources": 2,
+   "mean": 16.85,
+   "sd": 4.41,
+   "min": 12.44,
+   "max": 21.26
+  },
+  "13289": {
+   "name": "Drew Allar",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.84
+   },
+   "n_sources": 1,
+   "mean": 10.84,
+   "sd": null,
+   "min": 10.84,
+   "max": 10.84
+  },
+  "2306": {
+   "name": "Jameis Winston",
+   "position": "QB",
+   "by_source": {
+    "CBS": 9.96,
+    "ESPN": 10.82,
+    "FFToday": 19.88
+   },
+   "n_sources": 3,
+   "mean": 13.55,
+   "sd": 4.49,
+   "min": 9.96,
+   "max": 19.88
+  },
+  "19": {
+   "name": "Joe Flacco",
+   "position": "QB",
+   "by_source": {
+    "CBS": 10.56,
+    "ESPN": 10.7
+   },
+   "n_sources": 2,
+   "mean": 10.63,
+   "sd": 0.07,
+   "min": 10.56,
+   "max": 10.7
+  },
+  "9221": {
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "by_source": {
+    "CBS": 352.5,
+    "ESPN": 327.9,
+    "FFToday": 331.4
+   },
+   "n_sources": 3,
+   "mean": 337.27,
+   "sd": 10.87,
+   "min": 327.9,
+   "max": 352.5
+  },
+  "9509": {
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 354.8,
+    "ESPN": 312.0,
+    "FFToday": 324.9
+   },
+   "n_sources": 3,
+   "mean": 330.57,
+   "sd": 17.93,
+   "min": 312.0,
+   "max": 354.8
+  },
+  "6813": {
+   "name": "Jonathan Taylor",
+   "position": "RB",
+   "by_source": {
+    "CBS": 311.3,
+    "ESPN": 292.5,
+    "FFToday": 268.5
+   },
+   "n_sources": 3,
+   "mean": 290.77,
+   "sd": 17.52,
+   "min": 268.5,
+   "max": 311.3
+  },
+  "4034": {
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "by_source": {
+    "CBS": 281.9,
+    "ESPN": 305.0,
+    "FFToday": 304.9
+   },
+   "n_sources": 3,
+   "mean": 297.27,
+   "sd": 10.87,
+   "min": 281.9,
+   "max": 305.0
+  },
+  "9226": {
+   "name": "De'Von Achane",
+   "position": "RB",
+   "by_source": {
+    "CBS": 281.6,
+    "ESPN": 262.4,
+    "FFToday": 239.2
+   },
+   "n_sources": 3,
+   "mean": 261.07,
+   "sd": 17.34,
+   "min": 239.2,
+   "max": 281.6
+  },
+  "12527": {
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "by_source": {
+    "CBS": 260.8,
+    "ESPN": 248.9,
+    "FFToday": 236.3
+   },
+   "n_sources": 3,
+   "mean": 248.67,
+   "sd": 10.0,
+   "min": 236.3,
+   "max": 260.8
+  },
+  "8138": {
+   "name": "James Cook",
+   "position": "RB",
+   "by_source": {
+    "CBS": 247.1,
+    "ESPN": 266.3,
+    "FFToday": 259.2
+   },
+   "n_sources": 3,
+   "mean": 257.53,
+   "sd": 7.93,
+   "min": 247.1,
+   "max": 266.3
+  },
+  "9224": {
+   "name": "Chase Brown",
+   "position": "RB",
+   "by_source": {
+    "CBS": 265.7,
+    "ESPN": 239.3,
+    "FFToday": 237.8
+   },
+   "n_sources": 3,
+   "mean": 247.6,
+   "sd": 12.81,
+   "min": 237.8,
+   "max": 265.7
+  },
+  "4866": {
+   "name": "Saquon Barkley",
+   "position": "RB",
+   "by_source": {
+    "CBS": 240.9,
+    "ESPN": 253.1,
+    "FFToday": 241.3
+   },
+   "n_sources": 3,
+   "mean": 245.1,
+   "sd": 5.66,
+   "min": 240.9,
+   "max": 253.1
+  },
+  "5850": {
+   "name": "Josh Jacobs",
+   "position": "RB",
+   "by_source": {
+    "CBS": 228.4,
+    "ESPN": 244.4,
+    "FFToday": 226.7
+   },
+   "n_sources": 3,
+   "mean": 233.17,
+   "sd": 7.97,
+   "min": 226.7,
+   "max": 244.4
+  },
+  "8150": {
+   "name": "Kyren Williams",
+   "position": "RB",
+   "by_source": {
+    "CBS": 227.3,
+    "ESPN": 218.0,
+    "FFToday": 230.6
+   },
+   "n_sources": 3,
+   "mean": 225.3,
+   "sd": 5.33,
+   "min": 218.0,
+   "max": 230.6
+  },
+  "6790": {
+   "name": "D'Andre Swift",
+   "position": "RB",
+   "by_source": {
+    "CBS": 220.2,
+    "ESPN": 195.3,
+    "FFToday": 204.0
+   },
+   "n_sources": 3,
+   "mean": 206.5,
+   "sd": 10.32,
+   "min": 195.3,
+   "max": 220.2
+  },
+  "12481": {
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "by_source": {
+    "CBS": 220.5,
+    "ESPN": 208.1,
+    "FFToday": 224.4
+   },
+   "n_sources": 3,
+   "mean": 217.67,
+   "sd": 6.95,
+   "min": 208.1,
+   "max": 224.4
+  },
+  "11584": {
+   "name": "Bucky Irving",
+   "position": "RB",
+   "by_source": {
+    "CBS": 216.4,
+    "ESPN": 189.0,
+    "FFToday": 209.5
+   },
+   "n_sources": 3,
+   "mean": 204.97,
+   "sd": 11.64,
+   "min": 189.0,
+   "max": 216.4
+  },
+  "13287": {
+   "name": "Jeremiyah Love",
+   "position": "RB",
+   "by_source": {
+    "CBS": 211.6,
+    "ESPN": 248.1,
+    "FFToday": 231.9
+   },
+   "n_sources": 3,
+   "mean": 230.53,
+   "sd": 14.93,
+   "min": 211.6,
+   "max": 248.1
+  },
+  "12507": {
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "by_source": {
+    "CBS": 212.6,
+    "ESPN": 236.7,
+    "FFToday": 241.5
+   },
+   "n_sources": 3,
+   "mean": 230.27,
+   "sd": 12.64,
+   "min": 212.6,
+   "max": 241.5
+  },
+  "7588": {
+   "name": "Javonte Williams",
+   "position": "RB",
+   "by_source": {
+    "CBS": 199.4,
+    "ESPN": 244.9,
+    "FFToday": 216.8
+   },
+   "n_sources": 3,
+   "mean": 220.37,
+   "sd": 18.75,
+   "min": 199.4,
+   "max": 244.9
+  },
+  "7543": {
+   "name": "Travis Etienne",
+   "position": "RB",
+   "by_source": {
+    "CBS": 207.0,
+    "ESPN": 221.1,
+    "FFToday": 204.9
+   },
+   "n_sources": 3,
+   "mean": 211.0,
+   "sd": 7.19,
+   "min": 204.9,
+   "max": 221.1
+  },
+  "8155": {
+   "name": "Breece Hall",
+   "position": "RB",
+   "by_source": {
+    "CBS": 202.3,
+    "ESPN": 252.5,
+    "FFToday": 222.0
+   },
+   "n_sources": 3,
+   "mean": 225.6,
+   "sd": 20.65,
+   "min": 202.3,
+   "max": 252.5
+  },
+  "12490": {
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "by_source": {
+    "CBS": 187.8,
+    "ESPN": 189.4,
+    "FFToday": 207.3
+   },
+   "n_sources": 3,
+   "mean": 194.83,
+   "sd": 8.84,
+   "min": 187.8,
+   "max": 207.3
+  },
+  "12512": {
+   "name": "Quinshon Judkins",
+   "position": "RB",
+   "by_source": {
+    "CBS": 194.3,
+    "ESPN": 210.6,
+    "FFToday": 193.3
+   },
+   "n_sources": 3,
+   "mean": 199.4,
+   "sd": 7.93,
+   "min": 193.3,
+   "max": 210.6
+  },
+  "13286": {
+   "name": "Jadarian Price",
+   "position": "RB",
+   "by_source": {
+    "CBS": 184.2,
+    "ESPN": 180.9,
+    "FFToday": 169.8
+   },
+   "n_sources": 3,
+   "mean": 178.3,
+   "sd": 6.16,
+   "min": 169.8,
+   "max": 184.2
+  },
+  "5892": {
+   "name": "David Montgomery",
+   "position": "RB",
+   "by_source": {
+    "CBS": 185.8,
+    "ESPN": 179.8,
+    "FFToday": 182.9
+   },
+   "n_sources": 3,
+   "mean": 182.83,
+   "sd": 2.45,
+   "min": 179.8,
+   "max": 185.8
+  },
+  "6806": {
+   "name": "J.K. Dobbins",
+   "position": "RB",
+   "by_source": {
+    "CBS": 171.8,
+    "ESPN": 167.5,
+    "FFToday": 165.2
+   },
+   "n_sources": 3,
+   "mean": 168.17,
+   "sd": 2.74,
+   "min": 165.2,
+   "max": 171.8
+  },
+  "8228": {
+   "name": "Jaylen Warren",
+   "position": "RB",
+   "by_source": {
+    "CBS": 181.1,
+    "ESPN": 164.1,
+    "FFToday": 180.8
+   },
+   "n_sources": 3,
+   "mean": 175.33,
+   "sd": 7.94,
+   "min": 164.1,
+   "max": 181.1
+  },
+  "12529": {
+   "name": "TreVeyon Henderson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 171.1,
+    "ESPN": 178.0,
+    "FFToday": 179.3
+   },
+   "n_sources": 3,
+   "mean": 176.13,
+   "sd": 3.6,
+   "min": 171.1,
+   "max": 179.3
+  },
+  "7021": {
+   "name": "Rico Dowdle",
+   "position": "RB",
+   "by_source": {
+    "CBS": 172.6,
+    "ESPN": 175.1,
+    "FFToday": 151.4
+   },
+   "n_sources": 3,
+   "mean": 166.37,
+   "sd": 10.63,
+   "min": 151.4,
+   "max": 175.1
+  },
+  "11583": {
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "by_source": {
+    "CBS": 163.3,
+    "ESPN": 152.2,
+    "FFToday": 117.0
+   },
+   "n_sources": 3,
+   "mean": 144.17,
+   "sd": 19.74,
+   "min": 117.0,
+   "max": 163.3
+  },
+  "7611": {
+   "name": "Rhamondre Stevenson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 166.4,
+    "ESPN": 184.5,
+    "FFToday": 162.7
+   },
+   "n_sources": 3,
+   "mean": 171.2,
+   "sd": 9.53,
+   "min": 162.7,
+   "max": 184.5
+  },
+  "5967": {
+   "name": "Tony Pollard",
+   "position": "RB",
+   "by_source": {
+    "CBS": 167.7,
+    "ESPN": 167.7,
+    "FFToday": 181.2
+   },
+   "n_sources": 3,
+   "mean": 172.2,
+   "sd": 6.36,
+   "min": 167.7,
+   "max": 181.2
+  },
+  "12489": {
+   "name": "RJ Harvey",
+   "position": "RB",
+   "by_source": {
+    "CBS": 166.6,
+    "ESPN": 128.8,
+    "FFToday": 143.9
+   },
+   "n_sources": 3,
+   "mean": 146.43,
+   "sd": 15.54,
+   "min": 128.8,
+   "max": 166.6
+  },
+  "8408": {
+   "name": "Jordan Mason",
+   "position": "RB",
+   "by_source": {
+    "CBS": 147.6,
+    "ESPN": 140.7,
+    "FFToday": 125.3
+   },
+   "n_sources": 3,
+   "mean": 137.87,
+   "sd": 9.32,
+   "min": 125.3,
+   "max": 147.6
+  },
+  "12533": {
+   "name": "Jacory Croskey-Merritt",
+   "position": "RB",
+   "by_source": {
+    "CBS": 141.5,
+    "ESPN": 152.7,
+    "FFToday": 131.0
+   },
+   "n_sources": 3,
+   "mean": 141.73,
+   "sd": 8.86,
+   "min": 131.0,
+   "max": 152.7
+  },
+  "7594": {
+   "name": "Chuba Hubbard",
+   "position": "RB",
+   "by_source": {
+    "CBS": 154.4,
+    "ESPN": 151.4,
+    "FFToday": 171.5
+   },
+   "n_sources": 3,
+   "mean": 159.1,
+   "sd": 8.85,
+   "min": 151.4,
+   "max": 171.5
+  },
+  "12534": {
+   "name": "Kyle Monangai",
+   "position": "RB",
+   "by_source": {
+    "CBS": 145.5,
+    "ESPN": 159.0,
+    "FFToday": 127.7
+   },
+   "n_sources": 3,
+   "mean": 144.07,
+   "sd": 12.82,
+   "min": 127.7,
+   "max": 159.0
+  },
+  "8136": {
+   "name": "Rachaad White",
+   "position": "RB",
+   "by_source": {
+    "CBS": 140.2,
+    "ESPN": 145.5,
+    "FFToday": 153.9
+   },
+   "n_sources": 3,
+   "mean": 146.53,
+   "sd": 5.64,
+   "min": 140.2,
+   "max": 153.9
+  },
+  "11586": {
+   "name": "Blake Corum",
+   "position": "RB",
+   "by_source": {
+    "CBS": 122.7,
+    "ESPN": 151.9,
+    "FFToday": 125.9
+   },
+   "n_sources": 3,
+   "mean": 133.5,
+   "sd": 13.08,
+   "min": 122.7,
+   "max": 151.9
+  },
+  "10219": {
+   "name": "Chris Rodriguez",
+   "position": "RB",
+   "by_source": {
+    "CBS": 118.7,
+    "ESPN": 66.1,
+    "FFToday": 92.2
+   },
+   "n_sources": 3,
+   "mean": 92.33,
+   "sd": 21.47,
+   "min": 66.1,
+   "max": 118.7
+  },
+  "4199": {
+   "name": "Aaron Jones",
+   "position": "RB",
+   "by_source": {
+    "CBS": 142.0,
+    "ESPN": 153.1,
+    "FFToday": 129.5
+   },
+   "n_sources": 3,
+   "mean": 141.53,
+   "sd": 9.64,
+   "min": 129.5,
+   "max": 153.1
+  },
+  "11655": {
+   "name": "Tyrone Tracy",
+   "position": "RB",
+   "by_source": {
+    "CBS": 123.9,
+    "ESPN": 89.8,
+    "FFToday": 112.5
+   },
+   "n_sources": 3,
+   "mean": 108.73,
+   "sd": 14.17,
+   "min": 89.8,
+   "max": 123.9
+  },
+  "4035": {
+   "name": "Alvin Kamara",
+   "position": "RB",
+   "by_source": {
+    "CBS": 127.1,
+    "ESPN": 109.5,
+    "FFToday": 107.3
+   },
+   "n_sources": 3,
+   "mean": 114.63,
+   "sd": 8.86,
+   "min": 107.3,
+   "max": 127.1
+  },
+  "12474": {
+   "name": "Woody Marks",
+   "position": "RB",
+   "by_source": {
+    "CBS": 118.2,
+    "ESPN": 114.2,
+    "FFToday": 105.6
+   },
+   "n_sources": 3,
+   "mean": 112.67,
+   "sd": 5.26,
+   "min": 105.6,
+   "max": 118.2
+  },
+  "9753": {
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "by_source": {
+    "CBS": 116.8,
+    "ESPN": 122.0,
+    "FFToday": 100.7
+   },
+   "n_sources": 3,
+   "mean": 113.17,
+   "sd": 9.07,
+   "min": 100.7,
+   "max": 122.0
+  },
+  "11576": {
+   "name": "Braelon Allen",
+   "position": "RB",
+   "by_source": {
+    "CBS": 109.6,
+    "ESPN": 68.4,
+    "FFToday": 68.2
+   },
+   "n_sources": 3,
+   "mean": 82.07,
+   "sd": 19.47,
+   "min": 68.2,
+   "max": 109.6
+  },
+  "13414": {
+   "name": "Kaelon Black",
+   "position": "RB",
+   "by_source": {
+    "CBS": 110.5,
+    "ESPN": 25.8,
+    "FFToday": 20.0
+   },
+   "n_sources": 3,
+   "mean": 52.1,
+   "sd": 41.36,
+   "min": 20.0,
+   "max": 110.5
+  },
+  "9225": {
+   "name": "Tank Bigsby",
+   "position": "RB",
+   "by_source": {
+    "CBS": 98.4,
+    "ESPN": 60.2,
+    "FFToday": 61.1
+   },
+   "n_sources": 3,
+   "mean": 73.23,
+   "sd": 17.8,
+   "min": 60.2,
+   "max": 98.4
+  },
+  "8205": {
+   "name": "Isiah Pacheco",
+   "position": "RB",
+   "by_source": {
+    "CBS": 112.3,
+    "ESPN": 119.8,
+    "FFToday": 90.8
+   },
+   "n_sources": 3,
+   "mean": 107.63,
+   "sd": 12.29,
+   "min": 90.8,
+   "max": 119.8
+  },
+  "12467": {
+   "name": "Jordan James",
+   "position": "RB",
+   "by_source": {
+    "CBS": 110.7,
+    "ESPN": 54.4,
+    "FFToday": 40.1
+   },
+   "n_sources": 3,
+   "mean": 68.4,
+   "sd": 30.48,
+   "min": 40.1,
+   "max": 110.7
+  },
+  "9508": {
+   "name": "Tyjae Spears",
+   "position": "RB",
+   "by_source": {
+    "CBS": 120.5,
+    "ESPN": 133.3,
+    "FFToday": 96.9
+   },
+   "n_sources": 3,
+   "mean": 116.9,
+   "sd": 15.08,
+   "min": 96.9,
+   "max": 133.3
+  },
+  "8154": {
+   "name": "Brian Robinson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 90.0,
+    "ESPN": 90.4,
+    "FFToday": 80.5
+   },
+   "n_sources": 3,
+   "mean": 86.97,
+   "sd": 4.58,
+   "min": 80.5,
+   "max": 90.4
+  },
+  "13302": {
+   "name": "Adam Randall",
+   "position": "RB",
+   "by_source": {
+    "CBS": 99.9,
+    "ESPN": 23.0
+   },
+   "n_sources": 2,
+   "mean": 61.45,
+   "sd": 38.45,
+   "min": 23.0,
+   "max": 99.9
+  },
+  "8800": {
+   "name": "Malik Davis",
+   "position": "RB",
+   "by_source": {
+    "CBS": 89.3,
+    "FFToday": 25.9
+   },
+   "n_sources": 2,
+   "mean": 57.6,
+   "sd": 31.7,
+   "min": 25.9,
+   "max": 89.3
+  },
+  "12469": {
+   "name": "Dylan Sampson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 107.1,
+    "ESPN": 70.5,
+    "FFToday": 94.1
+   },
+   "n_sources": 3,
+   "mean": 90.57,
+   "sd": 15.15,
+   "min": 70.5,
+   "max": 107.1
+  },
+  "4137": {
+   "name": "James Conner",
+   "position": "RB",
+   "by_source": {
+    "CBS": 105.0,
+    "ESPN": 0.0,
+    "FFToday": 31.0
+   },
+   "n_sources": 3,
+   "mean": 45.33,
+   "sd": 44.05,
+   "min": 0.0,
+   "max": 105.0
+  },
+  "8132": {
+   "name": "Tyler Allgeier",
+   "position": "RB",
+   "by_source": {
+    "CBS": 91.6,
+    "ESPN": 78.1,
+    "FFToday": 78.5
+   },
+   "n_sources": 3,
+   "mean": 82.73,
+   "sd": 6.27,
+   "min": 78.1,
+   "max": 91.6
+  },
+  "11199": {
+   "name": "Emari Demercado",
+   "position": "RB",
+   "by_source": {
+    "CBS": 93.4,
+    "ESPN": 56.4,
+    "FFToday": 52.5
+   },
+   "n_sources": 3,
+   "mean": 67.43,
+   "sd": 18.43,
+   "min": 52.5,
+   "max": 93.4
+  },
+  "5995": {
+   "name": "Justice Hill",
+   "position": "RB",
+   "by_source": {
+    "CBS": 97.2,
+    "ESPN": 94.7,
+    "FFToday": 78.2
+   },
+   "n_sources": 3,
+   "mean": 90.03,
+   "sd": 8.43,
+   "min": 78.2,
+   "max": 97.2
+  },
+  "11435": {
+   "name": "Emanuel Wilson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 85.7,
+    "ESPN": 6.3,
+    "FFToday": 10.1
+   },
+   "n_sources": 3,
+   "mean": 34.03,
+   "sd": 36.57,
+   "min": 6.3,
+   "max": 85.7
+  },
+  "6039": {
+   "name": "Ty Johnson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 92.5,
+    "ESPN": 71.7,
+    "FFToday": 86.7
+   },
+   "n_sources": 3,
+   "mean": 83.63,
+   "sd": 8.76,
+   "min": 71.7,
+   "max": 92.5
+  },
+  "13305": {
+   "name": "Mike Washington",
+   "position": "RB",
+   "by_source": {
+    "CBS": 90.7,
+    "ESPN": 58.2,
+    "FFToday": 54.1
+   },
+   "n_sources": 3,
+   "mean": 67.67,
+   "sd": 16.37,
+   "min": 54.1,
+   "max": 90.7
+  },
+  "4147": {
+   "name": "Samaje Perine",
+   "position": "RB",
+   "by_source": {
+    "CBS": 84.0,
+    "ESPN": 91.5,
+    "FFToday": 66.2
+   },
+   "n_sources": 3,
+   "mean": 80.57,
+   "sd": 10.61,
+   "min": 66.2,
+   "max": 91.5
+  },
+  "11588": {
+   "name": "Jawhar Jordan",
+   "position": "RB",
+   "by_source": {
+    "CBS": 82.4,
+    "ESPN": 5.4,
+    "FFToday": 12.0
+   },
+   "n_sources": 3,
+   "mean": 33.27,
+   "sd": 34.85,
+   "min": 5.4,
+   "max": 82.4
+  },
+  "9511": {
+   "name": "Keaton Mitchell",
+   "position": "RB",
+   "by_source": {
+    "CBS": 70.0,
+    "ESPN": 83.0,
+    "FFToday": 61.6
+   },
+   "n_sources": 3,
+   "mean": 71.53,
+   "sd": 8.8,
+   "min": 61.6,
+   "max": 83.0
+  },
+  "7528": {
+   "name": "Najee Harris",
+   "position": "RB",
+   "by_source": {
+    "CBS": 65.3
+   },
+   "n_sources": 1,
+   "mean": 65.3,
+   "sd": null,
+   "min": 65.3,
+   "max": 65.3
+  },
+  "11647": {
+   "name": "Kimani Vidal",
+   "position": "RB",
+   "by_source": {
+    "CBS": 73.8,
+    "ESPN": 29.9,
+    "FFToday": 53.4
+   },
+   "n_sources": 3,
+   "mean": 52.37,
+   "sd": 17.94,
+   "min": 29.9,
+   "max": 73.8
+  },
+  "11643": {
+   "name": "Jaylen Wright",
+   "position": "RB",
+   "by_source": {
+    "CBS": 54.8,
+    "ESPN": 38.5,
+    "FFToday": 49.2
+   },
+   "n_sources": 3,
+   "mean": 47.5,
+   "sd": 6.76,
+   "min": 38.5,
+   "max": 54.8
+  },
+  "12455": {
+   "name": "Brashard Smith",
+   "position": "RB",
+   "by_source": {
+    "CBS": 54.5,
+    "ESPN": 0.0
+   },
+   "n_sources": 2,
+   "mean": 27.25,
+   "sd": 27.25,
+   "min": 0.0,
+   "max": 54.5
+  },
+  "10235": {
+   "name": "Roschon Johnson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 32.9,
+    "FFToday": 10.3
+   },
+   "n_sources": 2,
+   "mean": 21.6,
+   "sd": 11.3,
+   "min": 10.3,
+   "max": 32.9
+  },
+  "12476": {
+   "name": "Devin Neal",
+   "position": "RB",
+   "by_source": {
+    "CBS": 36.0
+   },
+   "n_sources": 1,
+   "mean": 36.0,
+   "sd": null,
+   "min": 36.0,
+   "max": 36.0
+  },
+  "12544": {
+   "name": "LeQuint Allen",
+   "position": "RB",
+   "by_source": {
+    "CBS": 37.3,
+    "ESPN": 35.2,
+    "FFToday": 37.7
+   },
+   "n_sources": 3,
+   "mean": 36.73,
+   "sd": 1.1,
+   "min": 35.2,
+   "max": 37.7
+  },
+  "12738": {
+   "name": "Phil Mafah",
+   "position": "RB",
+   "by_source": {
+    "CBS": 31.6,
+    "ESPN": 24.3
+   },
+   "n_sources": 2,
+   "mean": 27.95,
+   "sd": 3.65,
+   "min": 24.3,
+   "max": 31.6
+  },
+  "13424": {
+   "name": "Seth McGowan",
+   "position": "RB",
+   "by_source": {
+    "CBS": 29.6,
+    "ESPN": 10.2,
+    "FFToday": 23.8
+   },
+   "n_sources": 3,
+   "mean": 21.2,
+   "sd": 8.13,
+   "min": 10.2,
+   "max": 29.6
+  },
+  "9506": {
+   "name": "Sean Tucker",
+   "position": "RB",
+   "by_source": {
+    "CBS": 27.6,
+    "ESPN": 32.6,
+    "FFToday": 55.9
+   },
+   "n_sources": 3,
+   "mean": 38.7,
+   "sd": 12.33,
+   "min": 27.6,
+   "max": 55.9
+  },
+  "11571": {
+   "name": "Isaiah Davis",
+   "position": "RB",
+   "by_source": {
+    "CBS": 32.7,
+    "ESPN": 39.9,
+    "FFToday": 38.2
+   },
+   "n_sources": 3,
+   "mean": 36.93,
+   "sd": 3.07,
+   "min": 32.7,
+   "max": 39.9
+  },
+  "13405": {
+   "name": "Kaytron Allen",
+   "position": "RB",
+   "by_source": {
+    "CBS": 26.3,
+    "ESPN": 10.0,
+    "FFToday": 32.8
+   },
+   "n_sources": 3,
+   "mean": 23.03,
+   "sd": 9.59,
+   "min": 10.0,
+   "max": 32.8
+  },
+  "8230": {
+   "name": "Ty Chandler",
+   "position": "RB",
+   "by_source": {
+    "CBS": 31.6
+   },
+   "n_sources": 1,
+   "mean": 31.6,
+   "sd": null,
+   "min": 31.6,
+   "max": 31.6
+  },
+  "11651": {
+   "name": "Isaac Guerendo",
+   "position": "RB",
+   "by_source": {
+    "CBS": 27.7,
+    "ESPN": 0.0
+   },
+   "n_sources": 2,
+   "mean": 13.85,
+   "sd": 13.85,
+   "min": 0.0,
+   "max": 27.7
+  },
+  "7561": {
+   "name": "Elijah Mitchell",
+   "position": "RB",
+   "by_source": {
+    "CBS": 25.1
+   },
+   "n_sources": 1,
+   "mean": 25.1,
+   "sd": null,
+   "min": 25.1,
+   "max": 25.1
+  },
+  "4663": {
+   "name": "Austin Ekeler",
+   "position": "RB",
+   "by_source": {
+    "CBS": 30.1
+   },
+   "n_sources": 1,
+   "mean": 30.1,
+   "sd": null,
+   "min": 30.1,
+   "max": 30.1
+  },
+  "13403": {
+   "name": "Jam Miller",
+   "position": "RB",
+   "by_source": {
+    "CBS": 24.0
+   },
+   "n_sources": 1,
+   "mean": 24.0,
+   "sd": null,
+   "min": 24.0,
+   "max": 24.0
+  },
+  "8129": {
+   "name": "Dameon Pierce",
+   "position": "RB",
+   "by_source": {
+    "CBS": 22.1
+   },
+   "n_sources": 1,
+   "mean": 22.1,
+   "sd": null,
+   "min": 22.1,
+   "max": 22.1
+  },
+  "12515": {
+   "name": "Donovan Edwards",
+   "position": "RB",
+   "by_source": {
+    "CBS": 21.9
+   },
+   "n_sources": 1,
+   "mean": 21.9,
+   "sd": null,
+   "min": 21.9,
+   "max": 21.9
+  },
+  "13345": {
+   "name": "Jonah Coleman",
+   "position": "RB",
+   "by_source": {
+    "CBS": 23.2,
+    "ESPN": 66.4,
+    "FFToday": 25.3
+   },
+   "n_sources": 3,
+   "mean": 38.3,
+   "sd": 19.89,
+   "min": 23.2,
+   "max": 66.4
+  },
+  "11579": {
+   "name": "Audric Estime",
+   "position": "RB",
+   "by_source": {
+    "CBS": 22.1
+   },
+   "n_sources": 1,
+   "mean": 22.1,
+   "sd": null,
+   "min": 22.1,
+   "max": 22.1
+  },
+  "4219": {
+   "name": "Jeremy McNichols",
+   "position": "RB",
+   "by_source": {
+    "CBS": 23.6,
+    "FFToday": 37.1
+   },
+   "n_sources": 2,
+   "mean": 30.35,
+   "sd": 6.75,
+   "min": 23.6,
+   "max": 37.1
+  },
+  "13337": {
+   "name": "Emmett Johnson",
+   "position": "RB",
+   "by_source": {
+    "CBS": 22.4,
+    "ESPN": 42.5,
+    "FFToday": 30.8
+   },
+   "n_sources": 3,
+   "mean": 31.9,
+   "sd": 8.24,
+   "min": 22.4,
+   "max": 42.5
+  },
+  "9493": {
+   "name": "Puka Nacua",
+   "position": "WR",
+   "by_source": {
+    "CBS": 309.4,
+    "ESPN": 297.1,
+    "FFToday": 281.3
+   },
+   "n_sources": 3,
+   "mean": 295.93,
+   "sd": 11.5,
+   "min": 281.3,
+   "max": 309.4
+  },
+  "9488": {
+   "name": "Jaxon Smith-Njigba",
+   "position": "WR",
+   "by_source": {
+    "CBS": 284.9,
+    "ESPN": 271.9,
+    "FFToday": 255.6
+   },
+   "n_sources": 3,
+   "mean": 270.8,
+   "sd": 11.99,
+   "min": 255.6,
+   "max": 284.9
+  },
+  "8112": {
+   "name": "Drake London",
+   "position": "WR",
+   "by_source": {
+    "CBS": 270.1,
+    "ESPN": 218.0,
+    "FFToday": 222.7
+   },
+   "n_sources": 3,
+   "mean": 236.93,
+   "sd": 23.53,
+   "min": 218.0,
+   "max": 270.1
+  },
+  "7547": {
+   "name": "Amon-Ra St. Brown",
+   "position": "WR",
+   "by_source": {
+    "CBS": 261.3,
+    "ESPN": 262.9,
+    "FFToday": 258.6
+   },
+   "n_sources": 3,
+   "mean": 260.93,
+   "sd": 1.77,
+   "min": 258.6,
+   "max": 262.9
+  },
+  "8137": {
+   "name": "George Pickens",
+   "position": "WR",
+   "by_source": {
+    "CBS": 245.8,
+    "ESPN": 199.2,
+    "FFToday": 189.2
+   },
+   "n_sources": 3,
+   "mean": 211.4,
+   "sd": 24.66,
+   "min": 189.2,
+   "max": 245.8
+  },
+  "10229": {
+   "name": "Rashee Rice",
+   "position": "WR",
+   "by_source": {
+    "CBS": 251.1,
+    "ESPN": 225.7,
+    "FFToday": 201.7
+   },
+   "n_sources": 3,
+   "mean": 226.17,
+   "sd": 20.17,
+   "min": 201.7,
+   "max": 251.1
+  },
+  "8144": {
+   "name": "Chris Olave",
+   "position": "WR",
+   "by_source": {
+    "CBS": 233.2,
+    "ESPN": 207.3,
+    "FFToday": 200.0
+   },
+   "n_sources": 3,
+   "mean": 213.5,
+   "sd": 14.25,
+   "min": 200.0,
+   "max": 233.2
+  },
+  "5859": {
+   "name": "A.J. Brown",
+   "position": "WR",
+   "by_source": {
+    "CBS": 229.1,
+    "ESPN": 206.4,
+    "FFToday": 200.5
+   },
+   "n_sources": 3,
+   "mean": 212.0,
+   "sd": 12.33,
+   "min": 200.5,
+   "max": 229.1
+  },
+  "7569": {
+   "name": "Nico Collins",
+   "position": "WR",
+   "by_source": {
+    "CBS": 217.6,
+    "ESPN": 207.4,
+    "FFToday": 200.1
+   },
+   "n_sources": 3,
+   "mean": 208.37,
+   "sd": 7.18,
+   "min": 200.1,
+   "max": 217.6
+  },
+  "11632": {
+   "name": "Malik Nabers",
+   "position": "WR",
+   "by_source": {
+    "CBS": 207.9,
+    "ESPN": 200.8,
+    "FFToday": 190.2
+   },
+   "n_sources": 3,
+   "mean": 199.63,
+   "sd": 7.27,
+   "min": 190.2,
+   "max": 207.9
+  },
+  "6786": {
+   "name": "CeeDee Lamb",
+   "position": "WR",
+   "by_source": {
+    "CBS": 223.0,
+    "ESPN": 244.3,
+    "FFToday": 209.2
+   },
+   "n_sources": 3,
+   "mean": 225.5,
+   "sd": 14.44,
+   "min": 209.2,
+   "max": 244.3
+  },
+  "9997": {
+   "name": "Zay Flowers",
+   "position": "WR",
+   "by_source": {
+    "CBS": 215.8,
+    "ESPN": 199.9,
+    "FFToday": 193.1
+   },
+   "n_sources": 3,
+   "mean": 202.93,
+   "sd": 9.51,
+   "min": 193.1,
+   "max": 215.8
+  },
+  "6801": {
+   "name": "Tee Higgins",
+   "position": "WR",
+   "by_source": {
+    "CBS": 206.4,
+    "ESPN": 180.1,
+    "FFToday": 171.1
+   },
+   "n_sources": 3,
+   "mean": 185.87,
+   "sd": 14.98,
+   "min": 171.1,
+   "max": 206.4
+  },
+  "6794": {
+   "name": "Justin Jefferson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 215.0,
+    "ESPN": 236.2,
+    "FFToday": 218.3
+   },
+   "n_sources": 3,
+   "mean": 223.17,
+   "sd": 9.31,
+   "min": 215.0,
+   "max": 236.2
+  },
+  "12526": {
+   "name": "Tetairoa McMillan",
+   "position": "WR",
+   "by_source": {
+    "CBS": 204.2,
+    "ESPN": 196.5,
+    "FFToday": 183.1
+   },
+   "n_sources": 3,
+   "mean": 194.6,
+   "sd": 8.72,
+   "min": 183.1,
+   "max": 204.2
+  },
+  "12514": {
+   "name": "Emeka Egbuka",
+   "position": "WR",
+   "by_source": {
+    "CBS": 197.2,
+    "ESPN": 190.9,
+    "FFToday": 185.6
+   },
+   "n_sources": 3,
+   "mean": 191.23,
+   "sd": 4.74,
+   "min": 185.6,
+   "max": 197.2
+  },
+  "8142": {
+   "name": "Alec Pierce",
+   "position": "WR",
+   "by_source": {
+    "CBS": 185.2,
+    "ESPN": 155.3,
+    "FFToday": 164.7
+   },
+   "n_sources": 3,
+   "mean": 168.4,
+   "sd": 12.48,
+   "min": 155.3,
+   "max": 185.2
+  },
+  "8148": {
+   "name": "Jameson Williams",
+   "position": "WR",
+   "by_source": {
+    "CBS": 191.7,
+    "ESPN": 181.1,
+    "FFToday": 188.0
+   },
+   "n_sources": 3,
+   "mean": 186.93,
+   "sd": 4.39,
+   "min": 181.1,
+   "max": 191.7
+  },
+  "5927": {
+   "name": "Terry McLaurin",
+   "position": "WR",
+   "by_source": {
+    "CBS": 185.3,
+    "ESPN": 179.8,
+    "FFToday": 162.2
+   },
+   "n_sources": 3,
+   "mean": 175.77,
+   "sd": 9.85,
+   "min": 162.2,
+   "max": 185.3
+  },
+  "11635": {
+   "name": "Ladd McConkey",
+   "position": "WR",
+   "by_source": {
+    "CBS": 192.5,
+    "ESPN": 179.9,
+    "FFToday": 169.6
+   },
+   "n_sources": 3,
+   "mean": 180.67,
+   "sd": 9.36,
+   "min": 169.6,
+   "max": 192.5
+  },
+  "7525": {
+   "name": "DeVonta Smith",
+   "position": "WR",
+   "by_source": {
+    "CBS": 196.3,
+    "ESPN": 194.5,
+    "FFToday": 189.7
+   },
+   "n_sources": 3,
+   "mean": 193.5,
+   "sd": 2.79,
+   "min": 189.7,
+   "max": 196.3
+  },
+  "8146": {
+   "name": "Garrett Wilson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 192.3,
+    "ESPN": 198.7,
+    "FFToday": 195.5
+   },
+   "n_sources": 3,
+   "mean": 195.5,
+   "sd": 2.61,
+   "min": 192.3,
+   "max": 198.7
+  },
+  "2216": {
+   "name": "Mike Evans",
+   "position": "WR",
+   "by_source": {
+    "CBS": 185.4,
+    "ESPN": 154.8,
+    "FFToday": 172.0
+   },
+   "n_sources": 3,
+   "mean": 170.73,
+   "sd": 12.52,
+   "min": 154.8,
+   "max": 185.4
+  },
+  "2133": {
+   "name": "Davante Adams",
+   "position": "WR",
+   "by_source": {
+    "CBS": 179.6,
+    "ESPN": 201.6,
+    "FFToday": 186.1
+   },
+   "n_sources": 3,
+   "mean": 189.1,
+   "sd": 9.23,
+   "min": 179.6,
+   "max": 201.6
+  },
+  "12519": {
+   "name": "Luther Burden",
+   "position": "WR",
+   "by_source": {
+    "CBS": 181.3,
+    "ESPN": 166.2,
+    "FFToday": 166.9
+   },
+   "n_sources": 3,
+   "mean": 171.47,
+   "sd": 6.96,
+   "min": 166.2,
+   "max": 181.3
+  },
+  "8167": {
+   "name": "Christian Watson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 169.9,
+    "ESPN": 157.4,
+    "FFToday": 172.7
+   },
+   "n_sources": 3,
+   "mean": 166.67,
+   "sd": 6.65,
+   "min": 157.4,
+   "max": 172.7
+  },
+  "11620": {
+   "name": "Rome Odunze",
+   "position": "WR",
+   "by_source": {
+    "CBS": 171.5,
+    "ESPN": 180.4,
+    "FFToday": 169.0
+   },
+   "n_sources": 3,
+   "mean": 173.63,
+   "sd": 4.89,
+   "min": 169.0,
+   "max": 180.4
+  },
+  "11631": {
+   "name": "Brian Thomas",
+   "position": "WR",
+   "by_source": {
+    "CBS": 169.7,
+    "ESPN": 146.9,
+    "FFToday": 139.4
+   },
+   "n_sources": 3,
+   "mean": 152.0,
+   "sd": 12.88,
+   "min": 139.4,
+   "max": 169.7
+  },
+  "11628": {
+   "name": "Marvin Harrison",
+   "position": "WR",
+   "by_source": {
+    "CBS": 171.3,
+    "ESPN": 159.9,
+    "FFToday": 161.3
+   },
+   "n_sources": 3,
+   "mean": 164.17,
+   "sd": 5.08,
+   "min": 159.9,
+   "max": 171.3
+  },
+  "4983": {
+   "name": "DJ Moore",
+   "position": "WR",
+   "by_source": {
+    "CBS": 176.6,
+    "ESPN": 173.6,
+    "FFToday": 171.5
+   },
+   "n_sources": 3,
+   "mean": 173.9,
+   "sd": 2.09,
+   "min": 171.5,
+   "max": 176.6
+  },
+  "7526": {
+   "name": "Jaylen Waddle",
+   "position": "WR",
+   "by_source": {
+    "CBS": 175.1,
+    "ESPN": 175.1,
+    "FFToday": 170.7
+   },
+   "n_sources": 3,
+   "mean": 173.63,
+   "sd": 2.07,
+   "min": 170.7,
+   "max": 175.1
+  },
+  "9487": {
+   "name": "Parker Washington",
+   "position": "WR",
+   "by_source": {
+    "CBS": 165.7,
+    "ESPN": 151.0,
+    "FFToday": 142.2
+   },
+   "n_sources": 3,
+   "mean": 152.97,
+   "sd": 9.69,
+   "min": 142.2,
+   "max": 165.7
+  },
+  "5045": {
+   "name": "Courtland Sutton",
+   "position": "WR",
+   "by_source": {
+    "CBS": 168.1,
+    "ESPN": 172.0,
+    "FFToday": 158.3
+   },
+   "n_sources": 3,
+   "mean": 166.13,
+   "sd": 5.76,
+   "min": 158.3,
+   "max": 172.0
+  },
+  "5846": {
+   "name": "DK Metcalf",
+   "position": "WR",
+   "by_source": {
+    "CBS": 162.7,
+    "ESPN": 163.0,
+    "FFToday": 163.9
+   },
+   "n_sources": 3,
+   "mean": 163.2,
+   "sd": 0.51,
+   "min": 162.7,
+   "max": 163.9
+  },
+  "9754": {
+   "name": "Quentin Johnston",
+   "position": "WR",
+   "by_source": {
+    "CBS": 160.4,
+    "ESPN": 141.4,
+    "FFToday": 131.7
+   },
+   "n_sources": 3,
+   "mean": 144.5,
+   "sd": 11.92,
+   "min": 131.7,
+   "max": 160.4
+  },
+  "4037": {
+   "name": "Chris Godwin",
+   "position": "WR",
+   "by_source": {
+    "CBS": 157.8,
+    "ESPN": 130.1,
+    "FFToday": 141.9
+   },
+   "n_sources": 3,
+   "mean": 143.27,
+   "sd": 11.35,
+   "min": 130.1,
+   "max": 157.8
+  },
+  "9756": {
+   "name": "Jordan Addison",
+   "position": "WR",
+   "by_source": {
+    "CBS": 148.4,
+    "ESPN": 138.4,
+    "FFToday": 136.3
+   },
+   "n_sources": 3,
+   "mean": 141.03,
+   "sd": 5.28,
+   "min": 136.3,
+   "max": 148.4
+  },
+  "10232": {
+   "name": "Michael Wilson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 148.9,
+    "ESPN": 139.5,
+    "FFToday": 139.2
+   },
+   "n_sources": 3,
+   "mean": 142.53,
+   "sd": 4.5,
+   "min": 139.2,
+   "max": 148.9
+  },
+  "13417": {
+   "name": "De'Zhaun Stribling",
+   "position": "WR",
+   "by_source": {
+    "CBS": 143.0,
+    "ESPN": 110.1,
+    "FFToday": 99.7
+   },
+   "n_sources": 3,
+   "mean": 117.6,
+   "sd": 18.46,
+   "min": 99.7,
+   "max": 143.0
+  },
+  "8676": {
+   "name": "Rashid Shaheed",
+   "position": "WR",
+   "by_source": {
+    "CBS": 146.0,
+    "ESPN": 118.9,
+    "FFToday": 118.9
+   },
+   "n_sources": 3,
+   "mean": 127.93,
+   "sd": 12.78,
+   "min": 118.9,
+   "max": 146.0
+  },
+  "9502": {
+   "name": "Tank Dell",
+   "position": "WR",
+   "by_source": {
+    "CBS": 146.2,
+    "ESPN": 87.7,
+    "FFToday": 20.5
+   },
+   "n_sources": 3,
+   "mean": 84.8,
+   "sd": 51.36,
+   "min": 20.5,
+   "max": 146.2
+  },
+  "10222": {
+   "name": "Jayden Reed",
+   "position": "WR",
+   "by_source": {
+    "CBS": 145.9,
+    "ESPN": 134.7,
+    "FFToday": 151.3
+   },
+   "n_sources": 3,
+   "mean": 143.97,
+   "sd": 6.91,
+   "min": 134.7,
+   "max": 151.3
+  },
+  "5947": {
+   "name": "Jakobi Meyers",
+   "position": "WR",
+   "by_source": {
+    "CBS": 145.1,
+    "ESPN": 144.9,
+    "FFToday": 143.6
+   },
+   "n_sources": 3,
+   "mean": 144.53,
+   "sd": 0.66,
+   "min": 143.6,
+   "max": 145.1
+  },
+  "4981": {
+   "name": "Calvin Ridley",
+   "position": "WR",
+   "by_source": {
+    "CBS": 136.0,
+    "ESPN": 110.5,
+    "FFToday": 94.3
+   },
+   "n_sources": 3,
+   "mean": 113.6,
+   "sd": 17.16,
+   "min": 94.3,
+   "max": 136.0
+  },
+  "11646": {
+   "name": "Jalen Coker",
+   "position": "WR",
+   "by_source": {
+    "CBS": 138.6,
+    "ESPN": 117.4,
+    "FFToday": 105.1
+   },
+   "n_sources": 3,
+   "mean": 120.37,
+   "sd": 13.84,
+   "min": 105.1,
+   "max": 138.6
+  },
+  "7571": {
+   "name": "Rashod Bateman",
+   "position": "WR",
+   "by_source": {
+    "CBS": 126.3,
+    "ESPN": 104.4,
+    "FFToday": 103.2
+   },
+   "n_sources": 3,
+   "mean": 111.3,
+   "sd": 10.62,
+   "min": 103.2,
+   "max": 126.3
+  },
+  "9500": {
+   "name": "Josh Downs",
+   "position": "WR",
+   "by_source": {
+    "CBS": 139.3,
+    "ESPN": 123.8,
+    "FFToday": 140.7
+   },
+   "n_sources": 3,
+   "mean": 134.6,
+   "sd": 7.66,
+   "min": 123.8,
+   "max": 140.7
+  },
+  "13293": {
+   "name": "Ja'Kobi Lane",
+   "position": "WR",
+   "by_source": {
+    "CBS": 129.1,
+    "ESPN": 82.5,
+    "FFToday": 70.4
+   },
+   "n_sources": 3,
+   "mean": 94.0,
+   "sd": 25.31,
+   "min": 70.4,
+   "max": 129.1
+  },
+  "5872": {
+   "name": "Deebo Samuel",
+   "position": "WR",
+   "by_source": {
+    "CBS": 145.0,
+    "ESPN": 135.0,
+    "FFToday": 108.0
+   },
+   "n_sources": 3,
+   "mean": 129.33,
+   "sd": 15.63,
+   "min": 108.0,
+   "max": 145.0
+  },
+  "7049": {
+   "name": "Jauan Jennings",
+   "position": "WR",
+   "by_source": {
+    "CBS": 128.4,
+    "ESPN": 89.6,
+    "FFToday": 83.1
+   },
+   "n_sources": 3,
+   "mean": 100.37,
+   "sd": 20.0,
+   "min": 83.1,
+   "max": 128.4
+  },
+  "12484": {
+   "name": "Jayden Higgins",
+   "position": "WR",
+   "by_source": {
+    "CBS": 126.6,
+    "ESPN": 112.2,
+    "FFToday": 99.6
+   },
+   "n_sources": 3,
+   "mean": 112.8,
+   "sd": 11.03,
+   "min": 99.6,
+   "max": 126.6
+  },
+  "8126": {
+   "name": "Wan'Dale Robinson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 146.4,
+    "ESPN": 136.1,
+    "FFToday": 142.1
+   },
+   "n_sources": 3,
+   "mean": 141.53,
+   "sd": 4.22,
+   "min": 136.1,
+   "max": 146.4
+  },
+  "6819": {
+   "name": "Michael Pittman",
+   "position": "WR",
+   "by_source": {
+    "CBS": 142.3,
+    "ESPN": 154.3,
+    "FFToday": 155.7
+   },
+   "n_sources": 3,
+   "mean": 150.77,
+   "sd": 6.01,
+   "min": 142.3,
+   "max": 155.7
+  },
+  "13298": {
+   "name": "KC Concepcion",
+   "position": "WR",
+   "by_source": {
+    "CBS": 135.1,
+    "ESPN": 123.2,
+    "FFToday": 124.6
+   },
+   "n_sources": 3,
+   "mean": 127.63,
+   "sd": 5.31,
+   "min": 123.2,
+   "max": 135.1
+  },
+  "8121": {
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "by_source": {
+    "CBS": 128.7,
+    "ESPN": 123.1,
+    "FFToday": 134.9
+   },
+   "n_sources": 3,
+   "mean": 128.9,
+   "sd": 4.82,
+   "min": 123.1,
+   "max": 134.9
+  },
+  "13346": {
+   "name": "Denzel Boston",
+   "position": "WR",
+   "by_source": {
+    "CBS": 131.0,
+    "ESPN": 113.8,
+    "FFToday": 84.6
+   },
+   "n_sources": 3,
+   "mean": 109.8,
+   "sd": 19.15,
+   "min": 84.6,
+   "max": 131.0
+  },
+  "2449": {
+   "name": "Stefon Diggs",
+   "position": "WR",
+   "by_source": {
+    "CBS": 133.2,
+    "ESPN": 126.1,
+    "FFToday": 137.6
+   },
+   "n_sources": 3,
+   "mean": 132.3,
+   "sd": 4.74,
+   "min": 126.1,
+   "max": 137.6
+  },
+  "11624": {
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "by_source": {
+    "CBS": 135.5,
+    "ESPN": 150.5,
+    "FFToday": 139.6
+   },
+   "n_sources": 3,
+   "mean": 141.87,
+   "sd": 6.33,
+   "min": 135.5,
+   "max": 150.5
+  },
+  "12501": {
+   "name": "Matthew Golden",
+   "position": "WR",
+   "by_source": {
+    "CBS": 123.6,
+    "ESPN": 153.0,
+    "FFToday": 127.2
+   },
+   "n_sources": 3,
+   "mean": 134.6,
+   "sd": 13.09,
+   "min": 123.6,
+   "max": 153.0
+  },
+  "13279": {
+   "name": "Carnell Tate",
+   "position": "WR",
+   "by_source": {
+    "CBS": 126.1,
+    "ESPN": 163.9,
+    "FFToday": 149.2
+   },
+   "n_sources": 3,
+   "mean": 146.4,
+   "sd": 15.56,
+   "min": 126.1,
+   "max": 163.9
+  },
+  "1479": {
+   "name": "Keenan Allen",
+   "position": "WR",
+   "by_source": {
+    "CBS": 128.5
+   },
+   "n_sources": 1,
+   "mean": 128.5,
+   "sd": null,
+   "min": 128.5,
+   "max": 128.5
+  },
+  "6783": {
+   "name": "Jerry Jeudy",
+   "position": "WR",
+   "by_source": {
+    "CBS": 123.9,
+    "ESPN": 114.5,
+    "FFToday": 108.0
+   },
+   "n_sources": 3,
+   "mean": 115.47,
+   "sd": 6.53,
+   "min": 108.0,
+   "max": 123.9
+  },
+  "9504": {
+   "name": "Kayshon Boutte",
+   "position": "WR",
+   "by_source": {
+    "CBS": 112.9,
+    "ESPN": 74.4,
+    "FFToday": 59.0
+   },
+   "n_sources": 3,
+   "mean": 82.1,
+   "sd": 22.67,
+   "min": 59.0,
+   "max": 112.9
+  },
+  "13294": {
+   "name": "Makai Lemon",
+   "position": "WR",
+   "by_source": {
+    "CBS": 121.3,
+    "ESPN": 130.6,
+    "FFToday": 119.7
+   },
+   "n_sources": 3,
+   "mean": 123.87,
+   "sd": 4.81,
+   "min": 119.7,
+   "max": 130.6
+  },
+  "8180": {
+   "name": "Jalen Nailor",
+   "position": "WR",
+   "by_source": {
+    "CBS": 115.6,
+    "ESPN": 101.8,
+    "FFToday": 91.7
+   },
+   "n_sources": 3,
+   "mean": 103.03,
+   "sd": 9.8,
+   "min": 91.7,
+   "max": 115.6
+  },
+  "4039": {
+   "name": "Cooper Kupp",
+   "position": "WR",
+   "by_source": {
+    "CBS": 120.6,
+    "ESPN": 84.2,
+    "FFToday": 80.5
+   },
+   "n_sources": 3,
+   "mean": 95.1,
+   "sd": 18.09,
+   "min": 80.5,
+   "max": 120.6
+  },
+  "12499": {
+   "name": "Elic Ayomanor",
+   "position": "WR",
+   "by_source": {
+    "CBS": 114.0,
+    "ESPN": 22.1,
+    "FFToday": 30.5
+   },
+   "n_sources": 3,
+   "mean": 55.53,
+   "sd": 41.48,
+   "min": 22.1,
+   "max": 114.0
+  },
+  "10213": {
+   "name": "Tre Tucker",
+   "position": "WR",
+   "by_source": {
+    "CBS": 122.1,
+    "ESPN": 113.5,
+    "FFToday": 109.5
+   },
+   "n_sources": 3,
+   "mean": 115.03,
+   "sd": 5.26,
+   "min": 109.5,
+   "max": 122.1
+  },
+  "11627": {
+   "name": "Troy Franklin",
+   "position": "WR",
+   "by_source": {
+    "CBS": 122.1,
+    "ESPN": 43.2,
+    "FFToday": 56.3
+   },
+   "n_sources": 3,
+   "mean": 73.87,
+   "sd": 34.52,
+   "min": 43.2,
+   "max": 122.1
+  },
+  "4950": {
+   "name": "Christian Kirk",
+   "position": "WR",
+   "by_source": {
+    "CBS": 115.7,
+    "ESPN": 30.1,
+    "FFToday": 52.1
+   },
+   "n_sources": 3,
+   "mean": 65.97,
+   "sd": 36.3,
+   "min": 30.1,
+   "max": 115.7
+  },
+  "8134": {
+   "name": "Khalil Shakir",
+   "position": "WR",
+   "by_source": {
+    "CBS": 120.7,
+    "ESPN": 136.8,
+    "FFToday": 136.6
+   },
+   "n_sources": 3,
+   "mean": 131.37,
+   "sd": 7.54,
+   "min": 120.7,
+   "max": 136.8
+  },
+  "11618": {
+   "name": "Jalen McMillan",
+   "position": "WR",
+   "by_source": {
+    "CBS": 112.5,
+    "ESPN": 108.9,
+    "FFToday": 99.0
+   },
+   "n_sources": 3,
+   "mean": 106.8,
+   "sd": 5.71,
+   "min": 99.0,
+   "max": 112.5
+  },
+  "5848": {
+   "name": "Marquise Brown",
+   "position": "WR",
+   "by_source": {
+    "CBS": 106.5,
+    "FFToday": 31.2
+   },
+   "n_sources": 2,
+   "mean": 68.85,
+   "sd": 37.65,
+   "min": 31.2,
+   "max": 106.5
+  },
+  "13301": {
+   "name": "Antonio Williams",
+   "position": "WR",
+   "by_source": {
+    "CBS": 109.0,
+    "ESPN": 61.6,
+    "FFToday": 70.3
+   },
+   "n_sources": 3,
+   "mean": 80.3,
+   "sd": 20.6,
+   "min": 61.6,
+   "max": 109.0
+  },
+  "12497": {
+   "name": "Tory Horton",
+   "position": "WR",
+   "by_source": {
+    "CBS": 104.5,
+    "ESPN": 52.9,
+    "FFToday": 45.5
+   },
+   "n_sources": 3,
+   "mean": 67.63,
+   "sd": 26.24,
+   "min": 45.5,
+   "max": 104.5
+  },
+  "11834": {
+   "name": "Devaughn Vele",
+   "position": "WR",
+   "by_source": {
+    "CBS": 105.6,
+    "ESPN": 97.5,
+    "FFToday": 52.2
+   },
+   "n_sources": 3,
+   "mean": 85.1,
+   "sd": 23.5,
+   "min": 52.2,
+   "max": 105.6
+  },
+  "8188": {
+   "name": "Tyquan Thornton",
+   "position": "WR",
+   "by_source": {
+    "CBS": 95.1,
+    "ESPN": 65.9,
+    "FFToday": 64.0
+   },
+   "n_sources": 3,
+   "mean": 75.0,
+   "sd": 14.23,
+   "min": 64.0,
+   "max": 95.1
+  },
+  "13311": {
+   "name": "Chris Bell",
+   "position": "WR",
+   "by_source": {
+    "CBS": 104.8,
+    "ESPN": 49.0
+   },
+   "n_sources": 2,
+   "mean": 76.9,
+   "sd": 27.9,
+   "min": 49.0,
+   "max": 104.8
+  },
+  "12540": {
+   "name": "Chimere Dike",
+   "position": "WR",
+   "by_source": {
+    "CBS": 101.3,
+    "ESPN": 33.7,
+    "FFToday": 25.4
+   },
+   "n_sources": 3,
+   "mean": 53.47,
+   "sd": 33.99,
+   "min": 25.4,
+   "max": 101.3
+  },
+  "13276": {
+   "name": "Omar Cooper",
+   "position": "WR",
+   "by_source": {
+    "CBS": 97.4,
+    "ESPN": 55.8,
+    "FFToday": 89.1
+   },
+   "n_sources": 3,
+   "mean": 80.77,
+   "sd": 17.98,
+   "min": 55.8,
+   "max": 97.4
+  },
+  "13079": {
+   "name": "Jahdae Walker",
+   "position": "WR",
+   "by_source": {
+    "CBS": 89.8,
+    "FFToday": 22.7
+   },
+   "n_sources": 2,
+   "mean": 56.25,
+   "sd": 33.55,
+   "min": 22.7,
+   "max": 89.8
+  },
+  "13281": {
+   "name": "Jordyn Tyson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 94.1,
+    "ESPN": 84.4,
+    "FFToday": 132.8
+   },
+   "n_sources": 3,
+   "mean": 103.77,
+   "sd": 20.91,
+   "min": 84.4,
+   "max": 132.8
+  },
+  "13329": {
+   "name": "Malik Benson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 96.6,
+    "ESPN": 39.9
+   },
+   "n_sources": 2,
+   "mean": 68.25,
+   "sd": 28.35,
+   "min": 39.9,
+   "max": 96.6
+  },
+  "6149": {
+   "name": "Darius Slayton",
+   "position": "WR",
+   "by_source": {
+    "CBS": 91.8,
+    "ESPN": 72.6,
+    "FFToday": 76.1
+   },
+   "n_sources": 3,
+   "mean": 80.17,
+   "sd": 8.35,
+   "min": 72.6,
+   "max": 91.8
+  },
+  "12535": {
+   "name": "Isaac TeSlaa",
+   "position": "WR",
+   "by_source": {
+    "CBS": 83.9,
+    "ESPN": 60.1,
+    "FFToday": 77.5
+   },
+   "n_sources": 3,
+   "mean": 73.83,
+   "sd": 10.06,
+   "min": 60.1,
+   "max": 83.9
+  },
+  "6427": {
+   "name": "Ashton Dulin",
+   "position": "WR",
+   "by_source": {
+    "CBS": 86.2,
+    "ESPN": 26.2,
+    "FFToday": 64.9
+   },
+   "n_sources": 3,
+   "mean": 59.1,
+   "sd": 24.84,
+   "min": 26.2,
+   "max": 86.2
+  },
+  "8125": {
+   "name": "Calvin Austin",
+   "position": "WR",
+   "by_source": {
+    "CBS": 85.4,
+    "ESPN": 10.4,
+    "FFToday": 41.0
+   },
+   "n_sources": 3,
+   "mean": 45.6,
+   "sd": 30.79,
+   "min": 10.4,
+   "max": 85.4
+  },
+  "13274": {
+   "name": "Germie Bernard",
+   "position": "WR",
+   "by_source": {
+    "CBS": 89.1,
+    "ESPN": 89.6,
+    "FFToday": 93.7
+   },
+   "n_sources": 3,
+   "mean": 90.8,
+   "sd": 2.06,
+   "min": 89.1,
+   "max": 93.7
+  },
+  "10444": {
+   "name": "Cedric Tillman",
+   "position": "WR",
+   "by_source": {
+    "CBS": 84.7
+   },
+   "n_sources": 1,
+   "mean": 84.7,
+   "sd": null,
+   "min": 84.7,
+   "max": 84.7
+  },
+  "10226": {
+   "name": "Andrei Iosivas",
+   "position": "WR",
+   "by_source": {
+    "CBS": 83.6,
+    "ESPN": 47.1,
+    "FFToday": 60.6
+   },
+   "n_sources": 3,
+   "mean": 63.77,
+   "sd": 15.07,
+   "min": 47.1,
+   "max": 83.6
+  },
+  "3286": {
+   "name": "Demarcus Robinson",
+   "position": "WR",
+   "by_source": {
+    "CBS": 80.7
+   },
+   "n_sources": 1,
+   "mean": 80.7,
+   "sd": null,
+   "min": 80.7,
+   "max": 80.7
+  },
+  "11625": {
+   "name": "Adonai Mitchell",
+   "position": "WR",
+   "by_source": {
+    "CBS": 83.0,
+    "ESPN": 107.4,
+    "FFToday": 90.2
+   },
+   "n_sources": 3,
+   "mean": 93.53,
+   "sd": 10.24,
+   "min": 83.0,
+   "max": 107.4
+  },
+  "13317": {
+   "name": "Ted Hurst",
+   "position": "WR",
+   "by_source": {
+    "CBS": 83.8,
+    "ESPN": 53.0
+   },
+   "n_sources": 2,
+   "mean": 68.4,
+   "sd": 15.4,
+   "min": 53.0,
+   "max": 83.8
+  },
+  "11650": {
+   "name": "Luke McCaffrey",
+   "position": "WR",
+   "by_source": {
+    "CBS": 71.2,
+    "ESPN": 17.5
+   },
+   "n_sources": 2,
+   "mean": 44.35,
+   "sd": 26.85,
+   "min": 17.5,
+   "max": 71.2
+  },
+  "6271": {
+   "name": "Olamide Zaccheaus",
+   "position": "WR",
+   "by_source": {
+    "CBS": 84.0,
+    "ESPN": 27.2,
+    "FFToday": 64.2
+   },
+   "n_sources": 3,
+   "mean": 58.47,
+   "sd": 23.54,
+   "min": 27.2,
+   "max": 84.0
+  },
+  "11610": {
+   "name": "Malik Washington",
+   "position": "WR",
+   "by_source": {
+    "CBS": 88.3,
+    "ESPN": 90.2,
+    "FFToday": 89.6
+   },
+   "n_sources": 3,
+   "mean": 89.37,
+   "sd": 0.79,
+   "min": 88.3,
+   "max": 90.2
+  },
+  "13296": {
+   "name": "Caleb Douglas",
+   "position": "WR",
+   "by_source": {
+    "CBS": 77.9,
+    "ESPN": 93.0,
+    "FFToday": 84.7
+   },
+   "n_sources": 3,
+   "mean": 85.2,
+   "sd": 6.17,
+   "min": 77.9,
+   "max": 93.0
+  },
+  "8130": {
+   "name": "Trey McBride",
+   "position": "TE",
+   "by_source": {
+    "CBS": 213.6,
+    "ESPN": 186.3,
+    "FFToday": 198.9
+   },
+   "n_sources": 3,
+   "mean": 199.6,
+   "sd": 11.16,
+   "min": 186.3,
+   "max": 213.6
+  },
+  "12517": {
+   "name": "Colston Loveland",
+   "position": "TE",
+   "by_source": {
+    "CBS": 193.7,
+    "ESPN": 165.7,
+    "FFToday": 157.3
+   },
+   "n_sources": 3,
+   "mean": 172.23,
+   "sd": 15.56,
+   "min": 157.3,
+   "max": 193.7
+  },
+  "11604": {
+   "name": "Brock Bowers",
+   "position": "TE",
+   "by_source": {
+    "CBS": 197.4,
+    "ESPN": 192.9,
+    "FFToday": 202.3
+   },
+   "n_sources": 3,
+   "mean": 197.53,
+   "sd": 3.84,
+   "min": 192.9,
+   "max": 202.3
+  },
+  "5022": {
+   "name": "Dallas Goedert",
+   "position": "TE",
+   "by_source": {
+    "CBS": 171.6,
+    "ESPN": 144.1,
+    "FFToday": 127.5
+   },
+   "n_sources": 3,
+   "mean": 147.73,
+   "sd": 18.19,
+   "min": 127.5,
+   "max": 171.6
+  },
+  "9484": {
+   "name": "Tucker Kraft",
+   "position": "TE",
+   "by_source": {
+    "CBS": 169.5,
+    "ESPN": 142.1,
+    "FFToday": 130.9
+   },
+   "n_sources": 3,
+   "mean": 147.5,
+   "sd": 16.21,
+   "min": 130.9,
+   "max": 169.5
+  },
+  "7553": {
+   "name": "Kyle Pitts",
+   "position": "TE",
+   "by_source": {
+    "CBS": 175.9,
+    "ESPN": 143.8,
+    "FFToday": 147.6
+   },
+   "n_sources": 3,
+   "mean": 155.77,
+   "sd": 14.32,
+   "min": 143.8,
+   "max": 175.9
+  },
+  "12518": {
+   "name": "Tyler Warren",
+   "position": "TE",
+   "by_source": {
+    "CBS": 163.4,
+    "ESPN": 169.3,
+    "FFToday": 152.6
+   },
+   "n_sources": 3,
+   "mean": 161.77,
+   "sd": 6.91,
+   "min": 152.6,
+   "max": 169.3
+  },
+  "12506": {
+   "name": "Harold Fannin",
+   "position": "TE",
+   "by_source": {
+    "CBS": 166.9,
+    "ESPN": 143.5,
+    "FFToday": 148.6
+   },
+   "n_sources": 3,
+   "mean": 153.0,
+   "sd": 10.05,
+   "min": 143.5,
+   "max": 166.9
+  },
+  "8131": {
+   "name": "Isaiah Likely",
+   "position": "TE",
+   "by_source": {
+    "CBS": 162.2,
+    "ESPN": 123.8,
+    "FFToday": 117.6
+   },
+   "n_sources": 3,
+   "mean": 134.53,
+   "sd": 19.73,
+   "min": 117.6,
+   "max": 162.2
+  },
+  "10859": {
+   "name": "Sam LaPorta",
+   "position": "TE",
+   "by_source": {
+    "CBS": 163.0,
+    "ESPN": 147.7,
+    "FFToday": 135.0
+   },
+   "n_sources": 3,
+   "mean": 148.57,
+   "sd": 11.45,
+   "min": 135.0,
+   "max": 163.0
+  },
+  "4217": {
+   "name": "George Kittle",
+   "position": "TE",
+   "by_source": {
+    "CBS": 162.5,
+    "ESPN": 141.0,
+    "FFToday": 124.0
+   },
+   "n_sources": 3,
+   "mean": 142.5,
+   "sd": 15.75,
+   "min": 124.0,
+   "max": 162.5
+  },
+  "5012": {
+   "name": "Mark Andrews",
+   "position": "TE",
+   "by_source": {
+    "CBS": 149.3,
+    "ESPN": 142.3,
+    "FFToday": 131.0
+   },
+   "n_sources": 3,
+   "mean": 140.87,
+   "sd": 7.54,
+   "min": 131.0,
+   "max": 149.3
+  },
+  "10236": {
+   "name": "Dalton Kincaid",
+   "position": "TE",
+   "by_source": {
+    "CBS": 149.8,
+    "ESPN": 123.2,
+    "FFToday": 120.5
+   },
+   "n_sources": 3,
+   "mean": 131.17,
+   "sd": 13.22,
+   "min": 120.5,
+   "max": 149.8
+  },
+  "1466": {
+   "name": "Travis Kelce",
+   "position": "TE",
+   "by_source": {
+    "CBS": 156.5,
+    "ESPN": 144.1,
+    "FFToday": 137.6
+   },
+   "n_sources": 3,
+   "mean": 146.07,
+   "sd": 7.84,
+   "min": 137.6,
+   "max": 156.5
+  },
+  "9480": {
+   "name": "Brenton Strange",
+   "position": "TE",
+   "by_source": {
+    "CBS": 146.4,
+    "ESPN": 113.4,
+    "FFToday": 106.6
+   },
+   "n_sources": 3,
+   "mean": 122.13,
+   "sd": 17.38,
+   "min": 106.6,
+   "max": 146.4
+  },
+  "7002": {
+   "name": "Juwan Johnson",
+   "position": "TE",
+   "by_source": {
+    "CBS": 142.5,
+    "ESPN": 114.0,
+    "FFToday": 115.6
+   },
+   "n_sources": 3,
+   "mean": 124.03,
+   "sd": 13.07,
+   "min": 114.0,
+   "max": 142.5
+  },
+  "8110": {
+   "name": "Jake Ferguson",
+   "position": "TE",
+   "by_source": {
+    "CBS": 140.6,
+    "ESPN": 132.3,
+    "FFToday": 124.0
+   },
+   "n_sources": 3,
+   "mean": 132.3,
+   "sd": 6.78,
+   "min": 124.0,
+   "max": 140.6
+  },
+  "3214": {
+   "name": "Hunter Henry",
+   "position": "TE",
+   "by_source": {
+    "CBS": 126.4,
+    "ESPN": 120.8,
+    "FFToday": 119.9
+   },
+   "n_sources": 3,
+   "mean": 122.37,
+   "sd": 2.88,
+   "min": 119.9,
+   "max": 126.4
+  },
+  "8111": {
+   "name": "Cade Otton",
+   "position": "TE",
+   "by_source": {
+    "CBS": 128.3,
+    "ESPN": 78.5,
+    "FFToday": 97.0
+   },
+   "n_sources": 3,
+   "mean": 101.27,
+   "sd": 20.55,
+   "min": 78.5,
+   "max": 128.3
+  },
+  "11603": {
+   "name": "AJ Barner",
+   "position": "TE",
+   "by_source": {
+    "CBS": 112.8,
+    "ESPN": 91.6,
+    "FFToday": 101.4
+   },
+   "n_sources": 3,
+   "mean": 101.93,
+   "sd": 8.66,
+   "min": 91.6,
+   "max": 112.8
+  },
+  "5001": {
+   "name": "Dalton Schultz",
+   "position": "TE",
+   "by_source": {
+    "CBS": 127.9,
+    "ESPN": 103.1,
+    "FFToday": 116.1
+   },
+   "n_sources": 3,
+   "mean": 115.7,
+   "sd": 10.13,
+   "min": 103.1,
+   "max": 127.9
+  },
+  "13330": {
+   "name": "Kenyon Sadiq",
+   "position": "TE",
+   "by_source": {
+    "CBS": 110.3,
+    "ESPN": 121.2,
+    "FFToday": 77.0
+   },
+   "n_sources": 3,
+   "mean": 102.83,
+   "sd": 18.8,
+   "min": 77.0,
+   "max": 121.2
+  },
+  "8172": {
+   "name": "Greg Dulcich",
+   "position": "TE",
+   "by_source": {
+    "CBS": 116.4,
+    "ESPN": 96.0,
+    "FFToday": 111.6
+   },
+   "n_sources": 3,
+   "mean": 108.0,
+   "sd": 8.71,
+   "min": 96.0,
+   "max": 116.4
+  },
+  "12493": {
+   "name": "Oronde Gadsden",
+   "position": "TE",
+   "by_source": {
+    "CBS": 109.4,
+    "ESPN": 65.2,
+    "FFToday": 96.7
+   },
+   "n_sources": 3,
+   "mean": 90.43,
+   "sd": 18.58,
+   "min": 65.2,
+   "max": 109.4
+  },
+  "12487": {
+   "name": "Terrance Ferguson",
+   "position": "TE",
+   "by_source": {
+    "CBS": 97.5,
+    "ESPN": 111.0,
+    "FFToday": 86.5
+   },
+   "n_sources": 3,
+   "mean": 98.33,
+   "sd": 10.02,
+   "min": 86.5,
+   "max": 111.0
+  },
+  "2505": {
+   "name": "Darren Waller",
+   "position": "TE",
+   "by_source": {
+    "CBS": 105.3,
+    "ESPN": 92.8,
+    "FFToday": 53.7
+   },
+   "n_sources": 3,
+   "mean": 83.93,
+   "sd": 21.98,
+   "min": 53.7,
+   "max": 105.3
+  },
+  "7600": {
+   "name": "Pat Freiermuth",
+   "position": "TE",
+   "by_source": {
+    "CBS": 104.1,
+    "ESPN": 108.3,
+    "FFToday": 113.1
+   },
+   "n_sources": 3,
+   "mean": 108.5,
+   "sd": 3.68,
+   "min": 104.1,
+   "max": 113.1
+  },
+  "6865": {
+   "name": "Colby Parkinson",
+   "position": "TE",
+   "by_source": {
+    "CBS": 98.0,
+    "ESPN": 61.2,
+    "FFToday": 68.1
+   },
+   "n_sources": 3,
+   "mean": 75.77,
+   "sd": 15.97,
+   "min": 61.2,
+   "max": 98.0
+  },
+  "4033": {
+   "name": "David Njoku",
+   "position": "TE",
+   "by_source": {
+    "CBS": 97.4,
+    "ESPN": 85.7,
+    "FFToday": 61.4
+   },
+   "n_sources": 3,
+   "mean": 81.5,
+   "sd": 14.99,
+   "min": 61.4,
+   "max": 97.4
+  },
+  "5844": {
+   "name": "T.J. Hockenson",
+   "position": "TE",
+   "by_source": {
+    "CBS": 103.1,
+    "ESPN": 120.9,
+    "FFToday": 104.3
+   },
+   "n_sources": 3,
+   "mean": 109.43,
+   "sd": 8.12,
+   "min": 103.1,
+   "max": 120.9
+  },
+  "3271": {
+   "name": "Tyler Higbee",
+   "position": "TE",
+   "by_source": {
+    "CBS": 93.9,
+    "ESPN": 28.9,
+    "FFToday": 50.1
+   },
+   "n_sources": 3,
+   "mean": 57.63,
+   "sd": 27.07,
+   "min": 28.9,
+   "max": 93.9
+  },
+  "4993": {
+   "name": "Mike Gesicki",
+   "position": "TE",
+   "by_source": {
+    "CBS": 96.5,
+    "ESPN": 71.3,
+    "FFToday": 90.5
+   },
+   "n_sources": 3,
+   "mean": 86.1,
+   "sd": 10.75,
+   "min": 71.3,
+   "max": 96.5
+  },
+  "12498": {
+   "name": "Mason Taylor",
+   "position": "TE",
+   "by_source": {
+    "CBS": 98.1,
+    "ESPN": 48.4,
+    "FFToday": 85.1
+   },
+   "n_sources": 3,
+   "mean": 77.2,
+   "sd": 21.04,
+   "min": 48.4,
+   "max": 98.1
+  },
+  "11597": {
+   "name": "Theo Johnson",
+   "position": "TE",
+   "by_source": {
+    "CBS": 85.5,
+    "ESPN": 51.4,
+    "FFToday": 52.2
+   },
+   "n_sources": 3,
+   "mean": 63.03,
+   "sd": 15.89,
+   "min": 51.4,
+   "max": 85.5
+  },
+  "4066": {
+   "name": "Evan Engram",
+   "position": "TE",
+   "by_source": {
+    "CBS": 93.9,
+    "ESPN": 82.0,
+    "FFToday": 94.9
+   },
+   "n_sources": 3,
+   "mean": 90.27,
+   "sd": 5.86,
+   "min": 82.0,
+   "max": 94.9
+  },
+  "5906": {
+   "name": "Dawson Knox",
+   "position": "TE",
+   "by_source": {
+    "CBS": 75.6,
+    "ESPN": 57.0,
+    "FFToday": 63.9
+   },
+   "n_sources": 3,
+   "mean": 65.5,
+   "sd": 7.68,
+   "min": 57.0,
+   "max": 75.6
+  },
+  "8127": {
+   "name": "Charlie Kolar",
+   "position": "TE",
+   "by_source": {
+    "CBS": 69.8,
+    "ESPN": 28.4,
+    "FFToday": 37.4
+   },
+   "n_sources": 3,
+   "mean": 45.2,
+   "sd": 17.78,
+   "min": 28.4,
+   "max": 69.8
+  },
+  "12502": {
+   "name": "Gunnar Helm",
+   "position": "TE",
+   "by_source": {
+    "CBS": 77.8,
+    "ESPN": 96.9,
+    "FFToday": 86.0
+   },
+   "n_sources": 3,
+   "mean": 86.9,
+   "sd": 7.82,
+   "min": 77.8,
+   "max": 96.9
+  },
+  "7891": {
+   "name": "Brock Wright",
+   "position": "TE",
+   "by_source": {
+    "CBS": 67.9
+   },
+   "n_sources": 1,
+   "mean": 67.9,
+   "sd": null,
+   "min": 67.9,
+   "max": 67.9
+  },
+  "8225": {
+   "name": "Daniel Bellinger",
+   "position": "TE",
+   "by_source": {
+    "CBS": 64.2
+   },
+   "n_sources": 1,
+   "mean": 64.2,
+   "sd": null,
+   "min": 64.2,
+   "max": 64.2
+  },
+  "9479": {
+   "name": "Darnell Washington",
+   "position": "TE",
+   "by_source": {
+    "CBS": 65.8,
+    "ESPN": 58.0,
+    "FFToday": 54.9
+   },
+   "n_sources": 3,
+   "mean": 59.57,
+   "sd": 4.59,
+   "min": 54.9,
+   "max": 65.8
+  },
+  "5973": {
+   "name": "Josh Oliver",
+   "position": "TE",
+   "by_source": {
+    "CBS": 59.4,
+    "ESPN": 29.6,
+    "FFToday": 39.3
+   },
+   "n_sources": 3,
+   "mean": 42.77,
+   "sd": 12.41,
+   "min": 29.6,
+   "max": 59.4
+  },
+  "13434": {
+   "name": "Will Kacmarek",
+   "position": "TE",
+   "by_source": {
+    "CBS": 66.3,
+    "ESPN": 32.4
+   },
+   "n_sources": 2,
+   "mean": 49.35,
+   "sd": 16.95,
+   "min": 32.4,
+   "max": 66.3
+  },
+  "9482": {
+   "name": "Michael Mayer",
+   "position": "TE",
+   "by_source": {
+    "CBS": 67.0,
+    "ESPN": 60.9,
+    "FFToday": 81.5
+   },
+   "n_sources": 3,
+   "mean": 69.8,
+   "sd": 8.64,
+   "min": 60.9,
+   "max": 81.5
+  },
+  "5857": {
+   "name": "Noah Fant",
+   "position": "TE",
+   "by_source": {
+    "CBS": 70.3,
+    "ESPN": 29.0,
+    "FFToday": 51.0
+   },
+   "n_sources": 3,
+   "mean": 50.1,
+   "sd": 16.87,
+   "min": 29.0,
+   "max": 70.3
+  },
+  "13307": {
+   "name": "Marlin Klein",
+   "position": "TE",
+   "by_source": {
+    "CBS": 62.4
+   },
+   "n_sources": 1,
+   "mean": 62.4,
+   "sd": null,
+   "min": 62.4,
+   "max": 62.4
+  },
+  "10214": {
+   "name": "Davis Allen",
+   "position": "TE",
+   "by_source": {
+    "CBS": 55.1
+   },
+   "n_sources": 1,
+   "mean": 55.1,
+   "sd": null,
+   "min": 55.1,
+   "max": 55.1
+  },
+  "13349": {
+   "name": "Eli Stowers",
+   "position": "TE",
+   "by_source": {
+    "CBS": 57.7,
+    "ESPN": 24.2
+   },
+   "n_sources": 2,
+   "mean": 40.95,
+   "sd": 16.75,
+   "min": 24.2,
+   "max": 57.7
+  },
+  "6869": {
+   "name": "Adam Trautman",
+   "position": "TE",
+   "by_source": {
+    "CBS": 53.7
+   },
+   "n_sources": 1,
+   "mean": 53.7,
+   "sd": null,
+   "min": 53.7,
+   "max": 53.7
+  },
+  "3202": {
+   "name": "Austin Hooper",
+   "position": "TE",
+   "by_source": {
+    "CBS": 52.8,
+    "ESPN": 34.6,
+    "FFToday": 47.5
+   },
+   "n_sources": 3,
+   "mean": 44.97,
+   "sd": 7.64,
+   "min": 34.6,
+   "max": 52.8
+  },
+  "9481": {
+   "name": "Luke Musgrave",
+   "position": "TE",
+   "by_source": {
+    "CBS": 51.5,
+    "FFToday": 46.9
+   },
+   "n_sources": 2,
+   "mean": 49.2,
+   "sd": 2.3,
+   "min": 46.9,
+   "max": 51.5
+  },
+  "8177": {
+   "name": "Grant Calcaterra",
+   "position": "TE",
+   "by_source": {
+    "CBS": 46.0
+   },
+   "n_sources": 1,
+   "mean": 46.0,
+   "sd": null,
+   "min": 46.0,
+   "max": 46.0
+  },
+  "6826": {
+   "name": "Cole Kmet",
+   "position": "TE",
+   "by_source": {
+    "CBS": 45.9,
+    "ESPN": 44.9,
+    "FFToday": 72.9
+   },
+   "n_sources": 3,
+   "mean": 54.57,
+   "sd": 12.97,
+   "min": 44.9,
+   "max": 72.9
+  },
+  "13299": {
+   "name": "Nate Boerkircher",
+   "position": "TE",
+   "by_source": {
+    "CBS": 45.0
+   },
+   "n_sources": 1,
+   "mean": 45.0,
+   "sd": null,
+   "min": 45.0,
+   "max": 45.0
+  },
+  "13421": {
+   "name": "Eli Raridon",
+   "position": "TE",
+   "by_source": {
+    "CBS": 44.5,
+    "ESPN": 29.1
+   },
+   "n_sources": 2,
+   "mean": 36.8,
+   "sd": 7.7,
+   "min": 29.1,
+   "max": 44.5
+  },
+  "7694": {
+   "name": "Tommy Tremble",
+   "position": "TE",
+   "by_source": {
+    "CBS": 43.7,
+    "ESPN": 32.7
+   },
+   "n_sources": 2,
+   "mean": 38.2,
+   "sd": 5.5,
+   "min": 32.7,
+   "max": 43.7
+  },
+  "8145": {
+   "name": "Jeremy Ruckert",
+   "position": "TE",
+   "by_source": {
+    "CBS": 45.1
+   },
+   "n_sources": 1,
+   "mean": 45.1,
+   "sd": null,
+   "min": 45.1,
+   "max": 45.1
+  },
+  "7716": {
+   "name": "John Bates",
+   "position": "TE",
+   "by_source": {
+    "CBS": 40.4,
+    "ESPN": 26.6
+   },
+   "n_sources": 2,
+   "mean": 33.5,
+   "sd": 6.9,
+   "min": 26.6,
+   "max": 40.4
+  },
+  "11433": {
+   "name": "Nate Adkins",
+   "position": "TE",
+   "by_source": {
+    "CBS": 36.8
+   },
+   "n_sources": 1,
+   "mean": 36.8,
+   "sd": null,
+   "min": 36.8,
+   "max": 36.8
+  },
+  "7075": {
+   "name": "Charlie Woerner",
+   "position": "TE",
+   "by_source": {
+    "CBS": 40.7
+   },
+   "n_sources": 1,
+   "mean": 40.7,
+   "sd": null,
+   "min": 40.7,
+   "max": 40.7
+  },
+  "12473": {
+   "name": "Mitchell Evans",
+   "position": "TE",
+   "by_source": {
+    "CBS": 34.3
+   },
+   "n_sources": 1,
+   "mean": 34.3,
+   "sd": null,
+   "min": 34.3,
+   "max": 34.3
+  },
+  "11600": {
+   "name": "Ja'Tavion Sanders",
+   "position": "TE",
+   "by_source": {
+    "CBS": 37.7,
+    "ESPN": 32.4,
+    "FFToday": 37.5
+   },
+   "n_sources": 3,
+   "mean": 35.87,
+   "sd": 2.45,
+   "min": 32.4,
+   "max": 37.7
+  },
+  "5985": {
+   "name": "Foster Moreau",
+   "position": "TE",
+   "by_source": {
+    "CBS": 30.7
+   },
+   "n_sources": 1,
+   "mean": 30.7,
+   "sd": null,
+   "min": 30.7,
+   "max": 30.7
+  },
+  "11596": {
+   "name": "Ben Sinnott",
+   "position": "TE",
+   "by_source": {
+    "CBS": 29.7
+   },
+   "n_sources": 1,
+   "mean": 29.7,
+   "sd": null,
+   "min": 29.7,
+   "max": 29.7
+  },
+  "12658": {
+   "name": "Jackson Hawes",
+   "position": "TE",
+   "by_source": {
+    "CBS": 29.0
+   },
+   "n_sources": 1,
+   "mean": 29.0,
+   "sd": null,
+   "min": 29.0,
+   "max": 29.0
+  },
+  "11820": {
+   "name": "Devin Culp",
+   "position": "TE",
+   "by_source": {
+    "CBS": 29.3
+   },
+   "n_sources": 1,
+   "mean": 29.3,
+   "sd": null,
+   "min": 29.3,
+   "max": 29.3
+  },
+  "7828": {
+   "name": "Noah Gray",
+   "position": "TE",
+   "by_source": {
+    "CBS": 27.4,
+    "ESPN": 45.2,
+    "FFToday": 46.4
+   },
+   "n_sources": 3,
+   "mean": 39.67,
+   "sd": 8.69,
+   "min": 27.4,
+   "max": 46.4
+  },
+  "11599": {
+   "name": "Cade Stover",
+   "position": "TE",
+   "by_source": {
+    "CBS": 25.7,
+    "ESPN": 27.9
+   },
+   "n_sources": 2,
+   "mean": 26.8,
+   "sd": 1.1,
+   "min": 25.7,
+   "max": 27.9
+  },
+  "13282": {
+   "name": "Jack Endries",
+   "position": "TE",
+   "by_source": {
+    "CBS": 24.8
+   },
+   "n_sources": 1,
+   "mean": 24.8,
+   "sd": null,
+   "min": 24.8,
+   "max": 24.8
+  },
+  "10871": {
+   "name": "Luke Schoonmaker",
+   "position": "TE",
+   "by_source": {
+    "CBS": 26.8
+   },
+   "n_sources": 1,
+   "mean": 26.8,
+   "sd": null,
+   "min": 26.8,
+   "max": 26.8
+  },
+  "13278": {
+   "name": "Max Klare",
+   "position": "TE",
+   "by_source": {
+    "CBS": 24.7,
+    "ESPN": 5.8
+   },
+   "n_sources": 2,
+   "mean": 15.25,
+   "sd": 9.45,
+   "min": 5.8,
+   "max": 24.7
+  },
+  "1339": {
+   "name": "Zach Ertz",
+   "position": "TE",
+   "by_source": {
+    "CBS": 20.1
+   },
+   "n_sources": 1,
+   "mean": 20.1,
+   "sd": null,
+   "min": 20.1,
+   "max": 20.1
+  },
+  "7946": {
+   "name": "Jack Stoll",
+   "position": "TE",
+   "by_source": {
+    "CBS": 21.6
+   },
+   "n_sources": 1,
+   "mean": 21.6,
+   "sd": null,
+   "min": 21.6,
+   "max": 21.6
+  },
+  "11593": {
+   "name": "Brevyn Spann-Ford",
+   "position": "TE",
+   "by_source": {
+    "CBS": 22.1
+   },
+   "n_sources": 1,
+   "mean": 22.1,
+   "sd": null,
+   "min": 22.1,
+   "max": 22.1
+  },
+  "10227": {
+   "name": "Payne Durham",
+   "position": "TE",
+   "by_source": {
+    "CBS": 19.1
+   },
+   "n_sources": 1,
+   "mean": 19.1,
+   "sd": null,
+   "min": 19.1,
+   "max": 19.1
+  },
+  "13400": {
+   "name": "Justin Joly",
+   "position": "TE",
+   "by_source": {
+    "CBS": 22.5
+   },
+   "n_sources": 1,
+   "mean": 22.5,
+   "sd": null,
+   "min": 22.5,
+   "max": 22.5
+  },
+  "13435": {
+   "name": "Joe Royer",
+   "position": "TE",
+   "by_source": {
+    "CBS": 20.6
+   },
+   "n_sources": 1,
+   "mean": 20.6,
+   "sd": null,
+   "min": 20.6,
+   "max": 20.6
+  },
+  "13429": {
+   "name": "Seydou Traore",
+   "position": "TE",
+   "by_source": {
+    "CBS": 19.3
+   },
+   "n_sources": 1,
+   "mean": 19.3,
+   "sd": null,
+   "min": 19.3,
+   "max": 19.3
+  },
+  "13319": {
+   "name": "Oscar Delp",
+   "position": "TE",
+   "by_source": {
+    "CBS": 23.1
+   },
+   "n_sources": 1,
+   "mean": 23.1,
+   "sd": null,
+   "min": 23.1,
+   "max": 23.1
+  },
+  "13322": {
+   "name": "Sam Roush",
+   "position": "TE",
+   "by_source": {
+    "CBS": 22.1
+   },
+   "n_sources": 1,
+   "mean": 22.1,
+   "sd": null,
+   "min": 22.1,
+   "max": 22.1
+  },
+  "2747": {
+   "name": "Jason Myers",
+   "position": "K",
+   "by_source": {
+    "CBS": 180.92,
+    "ESPN": 154.0
+   },
+   "n_sources": 2,
+   "mean": 167.46,
+   "sd": 13.46,
+   "min": 154.0,
+   "max": 180.92
+  },
+  "3451": {
+   "name": "Ka'imi Fairbairn",
+   "position": "K",
+   "by_source": {
+    "CBS": 168.07,
+    "ESPN": 153.0
+   },
+   "n_sources": 2,
+   "mean": 160.53,
+   "sd": 7.53,
+   "min": 153.0,
+   "max": 168.07
+  },
+  "11533": {
+   "name": "Brandon Aubrey",
+   "position": "K",
+   "by_source": {
+    "CBS": 164.96,
+    "ESPN": 165.0
+   },
+   "n_sources": 2,
+   "mean": 164.98,
+   "sd": 0.02,
+   "min": 164.96,
+   "max": 165.0
+  },
+  "11058": {
+   "name": "Blake Grupe",
+   "position": "K",
+   "by_source": {
+    "CBS": 163.48,
+    "ESPN": 129.0
+   },
+   "n_sources": 2,
+   "mean": 146.24,
+   "sd": 17.24,
+   "min": 129.0,
+   "max": 163.48
+  },
+  "650": {
+   "name": "Nick Folk",
+   "position": "K",
+   "by_source": {
+    "CBS": 162.78,
+    "ESPN": 136.0
+   },
+   "n_sources": 2,
+   "mean": 149.39,
+   "sd": 13.39,
+   "min": 136.0,
+   "max": 162.78
+  },
+  "11539": {
+   "name": "Jake Bates",
+   "position": "K",
+   "by_source": {
+    "CBS": 156.33,
+    "ESPN": 140.0
+   },
+   "n_sources": 2,
+   "mean": 148.17,
+   "sd": 8.17,
+   "min": 140.0,
+   "max": 156.33
+  },
+  "2020": {
+   "name": "Cairo Santos",
+   "position": "K",
+   "by_source": {
+    "CBS": 153.75,
+    "ESPN": 142.0
+   },
+   "n_sources": 2,
+   "mean": 147.88,
+   "sd": 5.88,
+   "min": 142.0,
+   "max": 153.75
+  },
+  "8259": {
+   "name": "Cameron Dicker",
+   "position": "K",
+   "by_source": {
+    "CBS": 153.83,
+    "ESPN": 158.0
+   },
+   "n_sources": 2,
+   "mean": 155.92,
+   "sd": 2.08,
+   "min": 153.83,
+   "max": 158.0
+  },
+  "12015": {
+   "name": "Harrison Mevis",
+   "position": "K",
+   "by_source": {
+    "CBS": 147.33,
+    "ESPN": 157.0
+   },
+   "n_sources": 2,
+   "mean": 152.17,
+   "sd": 4.83,
+   "min": 147.33,
+   "max": 157.0
+  },
+  "11792": {
+   "name": "Will Reichard",
+   "position": "K",
+   "by_source": {
+    "CBS": 152.47,
+    "ESPN": 139.0
+   },
+   "n_sources": 2,
+   "mean": 145.74,
+   "sd": 6.73,
+   "min": 139.0,
+   "max": 152.47
+  },
+  "6650": {
+   "name": "Chase McLaughlin",
+   "position": "K",
+   "by_source": {
+    "CBS": 153.37,
+    "ESPN": 140.0
+   },
+   "n_sources": 2,
+   "mean": 146.69,
+   "sd": 6.69,
+   "min": 140.0,
+   "max": 153.37
+  },
+  "12711": {
+   "name": "Tyler Loop",
+   "position": "K",
+   "by_source": {
+    "CBS": 138.3,
+    "ESPN": 147.0
+   },
+   "n_sources": 2,
+   "mean": 142.65,
+   "sd": 4.35,
+   "min": 138.3,
+   "max": 147.0
+  },
+  "11786": {
+   "name": "Cam Little",
+   "position": "K",
+   "by_source": {
+    "CBS": 143.91,
+    "ESPN": 145.0
+   },
+   "n_sources": 2,
+   "mean": 144.45,
+   "sd": 0.55,
+   "min": 143.91,
+   "max": 145.0
+  },
+  "4227": {
+   "name": "Harrison Butker",
+   "position": "K",
+   "by_source": {
+    "CBS": 144.02,
+    "ESPN": 146.0
+   },
+   "n_sources": 2,
+   "mean": 145.01,
+   "sd": 0.99,
+   "min": 144.02,
+   "max": 146.0
+  },
+  "3678": {
+   "name": "Wil Lutz",
+   "position": "K",
+   "by_source": {
+    "CBS": 143.22,
+    "ESPN": 130.0
+   },
+   "n_sources": 2,
+   "mean": 136.61,
+   "sd": 6.61,
+   "min": 130.0,
+   "max": 143.22
+  },
+  "7839": {
+   "name": "Evan McPherson",
+   "position": "K",
+   "by_source": {
+    "CBS": 145.0,
+    "ESPN": 135.0
+   },
+   "n_sources": 2,
+   "mean": 140.0,
+   "sd": 5.0,
+   "min": 135.0,
+   "max": 145.0
+  },
+  "5189": {
+   "name": "Eddy Pineiro",
+   "position": "K",
+   "by_source": {
+    "CBS": 140.53,
+    "ESPN": 147.0
+   },
+   "n_sources": 2,
+   "mean": 143.76,
+   "sd": 3.23,
+   "min": 140.53,
+   "max": 147.0
+  },
+  "11653": {
+   "name": "Charlie Smyth",
+   "position": "K",
+   "by_source": {
+    "CBS": 134.81,
+    "ESPN": 137.0
+   },
+   "n_sources": 2,
+   "mean": 135.91,
+   "sd": 1.09,
+   "min": 134.81,
+   "max": 137.0
+  },
+  "13545": {
+   "name": "Trey Smack",
+   "position": "K",
+   "by_source": {
+    "CBS": 130.85,
+    "ESPN": 143.0
+   },
+   "n_sources": 2,
+   "mean": 136.93,
+   "sd": 6.08,
+   "min": 130.85,
+   "max": 143.0
+  },
+  "7042": {
+   "name": "Tyler Bass",
+   "position": "K",
+   "by_source": {
+    "CBS": 134.29,
+    "ESPN": 135.0
+   },
+   "n_sources": 2,
+   "mean": 134.64,
+   "sd": 0.36,
+   "min": 134.29,
+   "max": 135.0
+  },
+  "5119": {
+   "name": "Jason Sanders",
+   "position": "K",
+   "by_source": {
+    "CBS": 133.22,
+    "ESPN": 128.0
+   },
+   "n_sources": 2,
+   "mean": 130.61,
+   "sd": 2.61,
+   "min": 128.0,
+   "max": 133.22
+  },
+  "6528": {
+   "name": "Joey Slye",
+   "position": "K",
+   "by_source": {
+    "CBS": 131.57,
+    "ESPN": 120.0
+   },
+   "n_sources": 2,
+   "mean": 125.78,
+   "sd": 5.78,
+   "min": 120.0,
+   "max": 131.57
+  },
+  "13968": {
+   "name": "Drew Stevens",
+   "position": "K",
+   "by_source": {
+    "CBS": 126.36,
+    "ESPN": 134.0
+   },
+   "n_sources": 2,
+   "mean": 130.18,
+   "sd": 3.82,
+   "min": 126.36,
+   "max": 134.0
+  },
+  "7922": {
+   "name": "Riley Patterson",
+   "position": "K",
+   "by_source": {
+    "CBS": 126.0,
+    "ESPN": 126.0
+   },
+   "n_sources": 2,
+   "mean": 126.0,
+   "sd": 0.0,
+   "min": 126.0,
+   "max": 126.0
+  },
+  "4195": {
+   "name": "Jake Elliott",
+   "position": "K",
+   "by_source": {
+    "CBS": 124.24,
+    "ESPN": 133.0
+   },
+   "n_sources": 2,
+   "mean": 128.62,
+   "sd": 4.38,
+   "min": 124.24,
+   "max": 133.0
+  },
+  "10955": {
+   "name": "Chad Ryland",
+   "position": "K",
+   "by_source": {
+    "CBS": 125.3,
+    "ESPN": 118.0
+   },
+   "n_sources": 2,
+   "mean": 121.65,
+   "sd": 3.65,
+   "min": 118.0,
+   "max": 125.3
+  },
+  "1945": {
+   "name": "Chris Boswell",
+   "position": "K",
+   "by_source": {
+    "CBS": 120.39,
+    "ESPN": 137.0
+   },
+   "n_sources": 2,
+   "mean": 128.69,
+   "sd": 8.3,
+   "min": 120.39,
+   "max": 137.0
+  },
+  "12961": {
+   "name": "Ryan Fitzgerald",
+   "position": "K",
+   "by_source": {
+    "CBS": 111.09,
+    "ESPN": 120.0
+   },
+   "n_sources": 2,
+   "mean": 115.55,
+   "sd": 4.45,
+   "min": 111.09,
+   "max": 120.0
+  },
+  "6083": {
+   "name": "Matt Gay",
+   "position": "K",
+   "by_source": {
+    "CBS": 111.06,
+    "ESPN": 121.0
+   },
+   "n_sources": 2,
+   "mean": 116.03,
+   "sd": 4.97,
+   "min": 111.06,
+   "max": 121.0
+  },
+  "11261": {
+   "name": "Andre Szmyt",
+   "position": "K",
+   "by_source": {
+    "CBS": 108.05,
+    "ESPN": 116.0
+   },
+   "n_sources": 2,
+   "mean": 112.03,
+   "sd": 3.98,
+   "min": 108.05,
+   "max": 116.0
+  },
+  "13066": {
+   "name": "Ben Sauls",
+   "position": "K",
+   "by_source": {
+    "CBS": 88.17
+   },
+   "n_sources": 1,
+   "mean": 88.17,
+   "sd": null,
+   "min": 88.17,
+   "max": 88.17
+  },
+  "13833": {
+   "name": "Dominic Zvada",
+   "position": "K",
+   "by_source": {
+    "CBS": 30.29,
+    "ESPN": 137.0
+   },
+   "n_sources": 2,
+   "mean": 83.64,
+   "sd": 53.36,
+   "min": 30.29,
+   "max": 137.0
+  },
+  "DEN": {
+   "name": "Denver Broncos",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 157.4,
+    "ESPN": 120.0,
+    "FFToday": 132.0
+   },
+   "n_sources": 3,
+   "mean": 136.47,
+   "sd": 15.59,
+   "min": 120.0,
+   "max": 157.4
+  },
+  "HOU": {
+   "name": "Houston Texans",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 153.3,
+    "ESPN": 124.0,
+    "FFToday": 137.0
+   },
+   "n_sources": 3,
+   "mean": 138.1,
+   "sd": 11.99,
+   "min": 124.0,
+   "max": 153.3
+  },
+  "SEA": {
+   "name": "Seattle Seahawks",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 144.0,
+    "ESPN": 117.0,
+    "FFToday": 123.0
+   },
+   "n_sources": 3,
+   "mean": 128.0,
+   "sd": 11.58,
+   "min": 117.0,
+   "max": 144.0
+  },
+  "LAR": {
+   "name": "Los Angeles Rams",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 125.3,
+    "ESPN": 119.0,
+    "FFToday": 100.0
+   },
+   "n_sources": 3,
+   "mean": 114.77,
+   "sd": 10.75,
+   "min": 100.0,
+   "max": 125.3
+  },
+  "PHI": {
+   "name": "Philadelphia Eagles",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 137.4,
+    "ESPN": 112.0,
+    "FFToday": 115.0
+   },
+   "n_sources": 3,
+   "mean": 121.47,
+   "sd": 11.33,
+   "min": 112.0,
+   "max": 137.4
+  },
+  "MIN": {
+   "name": "Minnesota Vikings",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 138.0,
+    "ESPN": 103.0,
+    "FFToday": 110.0
+   },
+   "n_sources": 3,
+   "mean": 117.0,
+   "sd": 15.12,
+   "min": 103.0,
+   "max": 138.0
+  },
+  "NO": {
+   "name": "New Orleans Saints",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 121.9,
+    "ESPN": 98.0,
+    "FFToday": 94.0
+   },
+   "n_sources": 3,
+   "mean": 104.63,
+   "sd": 12.32,
+   "min": 94.0,
+   "max": 121.9
+  },
+  "NE": {
+   "name": "New England Patriots",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 119.2,
+    "ESPN": 114.0,
+    "FFToday": 87.0
+   },
+   "n_sources": 3,
+   "mean": 106.73,
+   "sd": 14.11,
+   "min": 87.0,
+   "max": 119.2
+  },
+  "BAL": {
+   "name": "Baltimore Ravens",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 116.2,
+    "ESPN": 119.0,
+    "FFToday": 93.0
+   },
+   "n_sources": 3,
+   "mean": 109.4,
+   "sd": 11.65,
+   "min": 93.0,
+   "max": 119.0
+  },
+  "CLE": {
+   "name": "Cleveland Browns",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 115.9,
+    "ESPN": 112.0,
+    "FFToday": 97.0
+   },
+   "n_sources": 3,
+   "mean": 108.3,
+   "sd": 8.15,
+   "min": 97.0,
+   "max": 115.9
+  },
+  "KC": {
+   "name": "Kansas City Chiefs",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 105.0,
+    "FFToday": 100.0
+   },
+   "n_sources": 2,
+   "mean": 102.5,
+   "sd": 2.5,
+   "min": 100.0,
+   "max": 105.0
+  },
+  "DET": {
+   "name": "Detroit Lions",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 127.9,
+    "ESPN": 117.0,
+    "FFToday": 97.0
+   },
+   "n_sources": 3,
+   "mean": 113.97,
+   "sd": 12.8,
+   "min": 97.0,
+   "max": 127.9
+  },
+  "LAC": {
+   "name": "Los Angeles Chargers",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 126.7,
+    "ESPN": 106.0,
+    "FFToday": 105.0
+   },
+   "n_sources": 3,
+   "mean": 112.57,
+   "sd": 10.0,
+   "min": 105.0,
+   "max": 126.7
+  },
+  "ATL": {
+   "name": "Atlanta Falcons",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 124.5,
+    "ESPN": 100.0,
+    "FFToday": 90.0
+   },
+   "n_sources": 3,
+   "mean": 104.83,
+   "sd": 14.49,
+   "min": 90.0,
+   "max": 124.5
+  },
+  "PIT": {
+   "name": "Pittsburgh Steelers",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 124.5,
+    "ESPN": 121.0,
+    "FFToday": 112.0
+   },
+   "n_sources": 3,
+   "mean": 119.17,
+   "sd": 5.27,
+   "min": 112.0,
+   "max": 124.5
+  },
+  "CIN": {
+   "name": "Cincinnati Bengals",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 117.7,
+    "ESPN": 99.0,
+    "FFToday": 92.0
+   },
+   "n_sources": 3,
+   "mean": 102.9,
+   "sd": 10.85,
+   "min": 92.0,
+   "max": 117.7
+  },
+  "BUF": {
+   "name": "Buffalo Bills",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 117.3,
+    "ESPN": 103.0,
+    "FFToday": 110.0
+   },
+   "n_sources": 3,
+   "mean": 110.1,
+   "sd": 5.84,
+   "min": 103.0,
+   "max": 117.3
+  },
+  "CHI": {
+   "name": "Chicago Bears",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 117.2,
+    "ESPN": 109.0,
+    "FFToday": 88.0
+   },
+   "n_sources": 3,
+   "mean": 104.73,
+   "sd": 12.3,
+   "min": 88.0,
+   "max": 117.2
+  },
+  "MIA": {
+   "name": "Miami Dolphins",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 97.5,
+    "ESPN": 101.0,
+    "FFToday": 71.0
+   },
+   "n_sources": 3,
+   "mean": 89.83,
+   "sd": 13.39,
+   "min": 71.0,
+   "max": 101.0
+  },
+  "TB": {
+   "name": "Tampa Bay Buccaneers",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 109.2,
+    "ESPN": 117.0,
+    "FFToday": 93.0
+   },
+   "n_sources": 3,
+   "mean": 106.4,
+   "sd": 10.0,
+   "min": 93.0,
+   "max": 117.0
+  },
+  "LV": {
+   "name": "Las Vegas Raiders",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 92.0,
+    "ESPN": 98.0,
+    "FFToday": 75.0
+   },
+   "n_sources": 3,
+   "mean": 88.33,
+   "sd": 9.74,
+   "min": 75.0,
+   "max": 98.0
+  },
+  "GB": {
+   "name": "Green Bay Packers",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 105.5,
+    "ESPN": 103.0,
+    "FFToday": 89.0
+   },
+   "n_sources": 3,
+   "mean": 99.17,
+   "sd": 7.26,
+   "min": 89.0,
+   "max": 105.5
+  },
+  "WAS": {
+   "name": "Washington Commanders",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 104.0,
+    "ESPN": 114.0,
+    "FFToday": 80.0
+   },
+   "n_sources": 3,
+   "mean": 99.33,
+   "sd": 14.27,
+   "min": 80.0,
+   "max": 114.0
+  },
+  "IND": {
+   "name": "Indianapolis Colts",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 102.7,
+    "ESPN": 99.0,
+    "FFToday": 92.0
+   },
+   "n_sources": 3,
+   "mean": 97.9,
+   "sd": 4.44,
+   "min": 92.0,
+   "max": 102.7
+  },
+  "CAR": {
+   "name": "Carolina Panthers",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 100.6,
+    "ESPN": 93.0,
+    "FFToday": 77.0
+   },
+   "n_sources": 3,
+   "mean": 90.2,
+   "sd": 9.84,
+   "min": 77.0,
+   "max": 100.6
+  },
+  "NYG": {
+   "name": "New York Giants",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 81.9,
+    "ESPN": 98.0,
+    "FFToday": 85.0
+   },
+   "n_sources": 3,
+   "mean": 88.3,
+   "sd": 6.97,
+   "min": 81.9,
+   "max": 98.0
+  },
+  "SF": {
+   "name": "San Francisco 49ers",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 93.6,
+    "ESPN": 103.0,
+    "FFToday": 79.0
+   },
+   "n_sources": 3,
+   "mean": 91.87,
+   "sd": 9.87,
+   "min": 79.0,
+   "max": 103.0
+  },
+  "TEN": {
+   "name": "Tennessee Titans",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 96.7,
+    "ESPN": 103.0,
+    "FFToday": 61.0
+   },
+   "n_sources": 3,
+   "mean": 86.9,
+   "sd": 18.49,
+   "min": 61.0,
+   "max": 103.0
+  },
+  "DAL": {
+   "name": "Dallas Cowboys",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 83.2,
+    "ESPN": 99.0,
+    "FFToday": 85.0
+   },
+   "n_sources": 3,
+   "mean": 89.07,
+   "sd": 7.06,
+   "min": 83.2,
+   "max": 99.0
+  },
+  "ARI": {
+   "name": "Arizona Cardinals",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 80.8,
+    "ESPN": 106.0,
+    "FFToday": 82.0
+   },
+   "n_sources": 3,
+   "mean": 89.6,
+   "sd": 11.61,
+   "min": 80.8,
+   "max": 106.0
+  },
+  "NYJ": {
+   "name": "New York Jets",
+   "position": "DEF",
+   "by_source": {
+    "CBS": 74.6,
+    "ESPN": 101.0,
+    "FFToday": 69.0
+   },
+   "n_sources": 3,
+   "mean": 81.53,
+   "sd": 13.95,
+   "min": 69.0,
+   "max": 101.0
+  },
+  "7567": {
+   "name": "Kenny Gainwell",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 154.3
+   },
+   "n_sources": 1,
+   "mean": 154.3,
+   "sd": null,
+   "min": 154.3,
+   "max": 154.3
+  },
+  "11575": {
+   "name": "Ray Davis",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 29.8,
+    "FFToday": 61.5
+   },
+   "n_sources": 2,
+   "mean": 45.65,
+   "sd": 15.85,
+   "min": 29.8,
+   "max": 61.5
+  },
+  "11581": {
+   "name": "MarShawn Lloyd",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 81.5,
+    "FFToday": 68.5
+   },
+   "n_sources": 2,
+   "mean": 75.0,
+   "sd": 6.5,
+   "min": 68.5,
+   "max": 81.5
+  },
+  "12495": {
+   "name": "Ollie Gordon",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 31.1,
+    "FFToday": 32.9
+   },
+   "n_sources": 2,
+   "mean": 32.0,
+   "sd": 0.9,
+   "min": 31.1,
+   "max": 32.9
+  },
+  "12457": {
+   "name": "Jaydon Blue",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 49.0,
+    "FFToday": 41.0
+   },
+   "n_sources": 2,
+   "mean": 45.0,
+   "sd": 4.0,
+   "min": 41.0,
+   "max": 49.0
+  },
+  "13288": {
+   "name": "Nicholas Singleton",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 19.4,
+    "FFToday": 8.5
+   },
+   "n_sources": 2,
+   "mean": 13.95,
+   "sd": 5.45,
+   "min": 8.5,
+   "max": 19.4
+  },
+  "13347": {
+   "name": "Demond Claiborne",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 11.3,
+    "FFToday": 25.4
+   },
+   "n_sources": 2,
+   "mean": 18.35,
+   "sd": 7.05,
+   "min": 11.3,
+   "max": 25.4
+  },
+  "12048": {
+   "name": "George Holani",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 38.6,
+    "FFToday": 48.6
+   },
+   "n_sources": 2,
+   "mean": 43.6,
+   "sd": 5.0,
+   "min": 38.6,
+   "max": 48.6
+  },
+  "11370": {
+   "name": "Chris Brooks",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 30.1,
+    "FFToday": 21.9
+   },
+   "n_sources": 2,
+   "mean": 26.0,
+   "sd": 4.1,
+   "min": 21.9,
+   "max": 30.1
+  },
+  "12471": {
+   "name": "DJ Giddens",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 29.8,
+    "FFToday": 36.0
+   },
+   "n_sources": 2,
+   "mean": 32.9,
+   "sd": 3.1,
+   "min": 29.8,
+   "max": 36.0
+  },
+  "11577": {
+   "name": "Will Shipley",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 17.8,
+    "FFToday": 33.0
+   },
+   "n_sources": 2,
+   "mean": 25.4,
+   "sd": 7.6,
+   "min": 17.8,
+   "max": 33.0
+  },
+  "6130": {
+   "name": "Devin Singletary",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 19.5,
+    "FFToday": 25.9
+   },
+   "n_sources": 2,
+   "mean": 22.7,
+   "sd": 3.2,
+   "min": 19.5,
+   "max": 25.9
+  },
+  "12543": {
+   "name": "Tahj Brooks",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 18.8,
+    "FFToday": 9.4
+   },
+   "n_sources": 2,
+   "mean": 14.1,
+   "sd": 4.7,
+   "min": 9.4,
+   "max": 18.8
+  },
+  "12531": {
+   "name": "Trevor Etienne",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 10.1,
+    "FFToday": 12.7
+   },
+   "n_sources": 2,
+   "mean": 11.4,
+   "sd": 1.3,
+   "min": 10.1,
+   "max": 12.7
+  },
+  "9757": {
+   "name": "Kendre Miller",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 5.5,
+    "FFToday": 8.7
+   },
+   "n_sources": 2,
+   "mean": 7.1,
+   "sd": 1.6,
+   "min": 5.5,
+   "max": 8.7
+  },
+  "12504": {
+   "name": "Kaleb Johnson",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 3.6,
+    "FFToday": 13.4
+   },
+   "n_sources": 2,
+   "mean": 8.5,
+   "sd": 4.9,
+   "min": 3.6,
+   "max": 13.4
+  },
+  "11574": {
+   "name": "Dylan Laube",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 0.0
+   },
+   "n_sources": 1,
+   "mean": 0.0,
+   "sd": null,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "11570": {
+   "name": "Rasheen Ali",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 0.0,
+    "FFToday": 15.6
+   },
+   "n_sources": 2,
+   "mean": 7.8,
+   "sd": 7.8,
+   "min": 0.0,
+   "max": 15.6
+  },
+  "8208": {
+   "name": "Tyler Badie",
+   "position": "RB",
+   "by_source": {
+    "ESPN": 0.0
+   },
+   "n_sources": 1,
+   "mean": 0.0,
+   "sd": null,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "9486": {
+   "name": "Dontayvion Wicks",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 89.8,
+    "FFToday": 62.6
+   },
+   "n_sources": 2,
+   "mean": 76.2,
+   "sd": 13.6,
+   "min": 62.6,
+   "max": 89.8
+  },
+  "12509": {
+   "name": "Tre' Harris",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 70.6,
+    "FFToday": 69.5
+   },
+   "n_sources": 2,
+   "mean": 70.05,
+   "sd": 0.55,
+   "min": 69.5,
+   "max": 70.6
+  },
+  "11783": {
+   "name": "Ryan Flournoy",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 74.5,
+    "FFToday": 83.7
+   },
+   "n_sources": 2,
+   "mean": 79.1,
+   "sd": 4.6,
+   "min": 74.5,
+   "max": 83.7
+  },
+  "13320": {
+   "name": "Zachariah Branch",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 65.7,
+    "FFToday": 36.2
+   },
+   "n_sources": 2,
+   "mean": 50.95,
+   "sd": 14.75,
+   "min": 36.2,
+   "max": 65.7
+  },
+  "11626": {
+   "name": "Xavier Legette",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 78.9,
+    "FFToday": 79.7
+   },
+   "n_sources": 2,
+   "mean": 79.3,
+   "sd": 0.4,
+   "min": 78.9,
+   "max": 79.7
+  },
+  "8119": {
+   "name": "Jahan Dotson",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 73.8,
+    "FFToday": 45.4
+   },
+   "n_sources": 2,
+   "mean": 59.6,
+   "sd": 14.2,
+   "min": 45.4,
+   "max": 73.8
+  },
+  "8117": {
+   "name": "Jalen Tolbert",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 71.0,
+    "FFToday": 67.6
+   },
+   "n_sources": 2,
+   "mean": 69.3,
+   "sd": 1.7,
+   "min": 67.6,
+   "max": 71.0
+  },
+  "12536": {
+   "name": "Jaylin Noel",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 61.0,
+    "FFToday": 67.0
+   },
+   "n_sources": 2,
+   "mean": 64.0,
+   "sd": 3.0,
+   "min": 61.0,
+   "max": 67.0
+  },
+  "11637": {
+   "name": "Keon Coleman",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 63.8,
+    "FFToday": 53.2
+   },
+   "n_sources": 2,
+   "mean": 58.5,
+   "sd": 5.3,
+   "min": 53.2,
+   "max": 63.8
+  },
+  "12492": {
+   "name": "Pat Bryant",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 58.0,
+    "FFToday": 66.1
+   },
+   "n_sources": 2,
+   "mean": 62.05,
+   "sd": 4.05,
+   "min": 58.0,
+   "max": 66.1
+  },
+  "9494": {
+   "name": "Marvin Mims",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 55.8
+   },
+   "n_sources": 1,
+   "mean": 55.8,
+   "sd": null,
+   "min": 55.8,
+   "max": 55.8
+  },
+  "8917": {
+   "name": "KaVontae Turpin",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 54.2,
+    "FFToday": 68.3
+   },
+   "n_sources": 2,
+   "mean": 61.25,
+   "sd": 7.05,
+   "min": 54.2,
+   "max": 68.3
+  },
+  "12483": {
+   "name": "Jack Bech",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 51.5,
+    "FFToday": 67.6
+   },
+   "n_sources": 2,
+   "mean": 59.55,
+   "sd": 8.05,
+   "min": 51.5,
+   "max": 67.6
+  },
+  "7090": {
+   "name": "Darnell Mooney",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 54.6,
+    "FFToday": 56.7
+   },
+   "n_sources": 2,
+   "mean": 55.65,
+   "sd": 1.05,
+   "min": 54.6,
+   "max": 56.7
+  },
+  "9501": {
+   "name": "DeMario Douglas",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 52.7,
+    "FFToday": 40.5
+   },
+   "n_sources": 2,
+   "mean": 46.6,
+   "sd": 6.1,
+   "min": 40.5,
+   "max": 52.7
+  },
+  "12482": {
+   "name": "Savion Williams",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 49.8,
+    "FFToday": 28.4
+   },
+   "n_sources": 2,
+   "mean": 39.1,
+   "sd": 10.7,
+   "min": 28.4,
+   "max": 49.8
+  },
+  "13285": {
+   "name": "Malachi Fields",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 51.4
+   },
+   "n_sources": 1,
+   "mean": 51.4,
+   "sd": null,
+   "min": 51.4,
+   "max": 51.4
+  },
+  "7562": {
+   "name": "Tutu Atwell",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 43.3,
+    "FFToday": 55.1
+   },
+   "n_sources": 2,
+   "mean": 49.2,
+   "sd": 5.9,
+   "min": 43.3,
+   "max": 55.1
+  },
+  "7496": {
+   "name": "Nick Westbrook-Ikhine",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 16.7,
+    "FFToday": 48.1
+   },
+   "n_sources": 2,
+   "mean": 32.4,
+   "sd": 15.7,
+   "min": 16.7,
+   "max": 48.1
+  },
+  "4454": {
+   "name": "Kendrick Bourne",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 41.4,
+    "FFToday": 54.2
+   },
+   "n_sources": 2,
+   "mean": 47.8,
+   "sd": 6.4,
+   "min": 41.4,
+   "max": 54.2
+  },
+  "3634": {
+   "name": "Kalif Raymond",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 36.9,
+    "FFToday": 45.1
+   },
+   "n_sources": 2,
+   "mean": 41.0,
+   "sd": 4.1,
+   "min": 36.9,
+   "max": 45.1
+  },
+  "7587": {
+   "name": "Dyami Brown",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 41.7,
+    "FFToday": 64.2
+   },
+   "n_sources": 2,
+   "mean": 52.95,
+   "sd": 11.25,
+   "min": 41.7,
+   "max": 64.2
+  },
+  "11608": {
+   "name": "Isaiah Williams",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 35.4
+   },
+   "n_sources": 1,
+   "mean": 35.4,
+   "sd": null,
+   "min": 35.4,
+   "max": 35.4
+  },
+  "8135": {
+   "name": "Treylon Burks",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 35.3,
+    "FFToday": 29.4
+   },
+   "n_sources": 2,
+   "mean": 32.35,
+   "sd": 2.95,
+   "min": 29.4,
+   "max": 35.3
+  },
+  "7670": {
+   "name": "Joshua Palmer",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 35.0
+   },
+   "n_sources": 1,
+   "mean": 35.0,
+   "sd": null,
+   "min": 35.0,
+   "max": 35.0
+  },
+  "13413": {
+   "name": "Cyrus Allen",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 34.3
+   },
+   "n_sources": 1,
+   "mean": 34.3,
+   "sd": null,
+   "min": 34.3,
+   "max": 34.3
+  },
+  "11629": {
+   "name": "Devontez Walker",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 33.9,
+    "FFToday": 30.7
+   },
+   "n_sources": 2,
+   "mean": 32.3,
+   "sd": 1.6,
+   "min": 30.7,
+   "max": 33.9
+  },
+  "13477": {
+   "name": "Colbie Young",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 30.6
+   },
+   "n_sources": 1,
+   "mean": 30.6,
+   "sd": null,
+   "min": 30.6,
+   "max": 30.6
+  },
+  "13420": {
+   "name": "Bryce Lance",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 32.8
+   },
+   "n_sources": 1,
+   "mean": 32.8,
+   "sd": null,
+   "min": 32.8,
+   "max": 32.8
+  },
+  "12641": {
+   "name": "Jaylin Lane",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 27.9
+   },
+   "n_sources": 1,
+   "mean": 27.9,
+   "sd": null,
+   "min": 27.9,
+   "max": 27.9
+  },
+  "13411": {
+   "name": "Zavion Thomas",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 27.4
+   },
+   "n_sources": 1,
+   "mean": 27.4,
+   "sd": null,
+   "min": 27.4,
+   "max": 27.4
+  },
+  "10218": {
+   "name": "Xavier Hutchinson",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 28.4,
+    "FFToday": 47.1
+   },
+   "n_sources": 2,
+   "mean": 37.75,
+   "sd": 9.35,
+   "min": 28.4,
+   "max": 47.1
+  },
+  "13268": {
+   "name": "Elijah Sarratt",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 28.1
+   },
+   "n_sources": 1,
+   "mean": 28.1,
+   "sd": null,
+   "min": 28.1,
+   "max": 28.1
+  },
+  "13338": {
+   "name": "Kevin Coleman",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 23.5
+   },
+   "n_sources": 1,
+   "mean": 23.5,
+   "sd": null,
+   "min": 23.5,
+   "max": 23.5
+  },
+  "11623": {
+   "name": "Jordan Whittington",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 25.5,
+    "FFToday": 33.2
+   },
+   "n_sources": 2,
+   "mean": 29.35,
+   "sd": 3.85,
+   "min": 25.5,
+   "max": 33.2
+  },
+  "12503": {
+   "name": "Isaiah Bond",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 26.4,
+    "FFToday": 43.0
+   },
+   "n_sources": 2,
+   "mean": 34.7,
+   "sd": 8.3,
+   "min": 26.4,
+   "max": 43.0
+  },
+  "12718": {
+   "name": "Konata Mumpfield",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 23.7,
+    "FFToday": 31.1
+   },
+   "n_sources": 2,
+   "mean": 27.4,
+   "sd": 3.7,
+   "min": 23.7,
+   "max": 31.1
+  },
+  "11630": {
+   "name": "Roman Wilson",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 25.5,
+    "FFToday": 0.0
+   },
+   "n_sources": 2,
+   "mean": 12.75,
+   "sd": 12.75,
+   "min": 0.0,
+   "max": 25.5
+  },
+  "13402": {
+   "name": "Skyler Bell",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 24.7
+   },
+   "n_sources": 1,
+   "mean": 24.7,
+   "sd": null,
+   "min": 24.7,
+   "max": 24.7
+  },
+  "4177": {
+   "name": "Mack Hollins",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 24.2,
+    "FFToday": 44.2
+   },
+   "n_sources": 2,
+   "mean": 34.2,
+   "sd": 10.0,
+   "min": 24.2,
+   "max": 44.2
+  },
+  "13380": {
+   "name": "Brenen Thompson",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 24.3
+   },
+   "n_sources": 1,
+   "mean": 24.3,
+   "sd": null,
+   "min": 24.3,
+   "max": 24.3
+  },
+  "2078": {
+   "name": "Odell Beckham",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 21.8
+   },
+   "n_sources": 1,
+   "mean": 21.8,
+   "sd": null,
+   "min": 21.8,
+   "max": 21.8
+  },
+  "12547": {
+   "name": "Kyle Williams",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 20.3
+   },
+   "n_sources": 1,
+   "mean": 20.3,
+   "sd": null,
+   "min": 20.3,
+   "max": 20.3
+  },
+  "12485": {
+   "name": "Tez Johnson",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 19.6,
+    "FFToday": 26.2
+   },
+   "n_sources": 2,
+   "mean": 22.9,
+   "sd": 3.3,
+   "min": 19.6,
+   "max": 26.2
+  },
+  "12523": {
+   "name": "Jimmy Horn",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 14.8
+   },
+   "n_sources": 1,
+   "mean": 14.8,
+   "sd": null,
+   "min": 14.8,
+   "max": 14.8
+  },
+  "12505": {
+   "name": "Jalen Royals",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 17.3,
+    "FFToday": 31.1
+   },
+   "n_sources": 2,
+   "mean": 24.2,
+   "sd": 6.9,
+   "min": 17.3,
+   "max": 31.1
+  },
+  "12670": {
+   "name": "KeAndre Lambert-Smith",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 17.1,
+    "FFToday": 25.5
+   },
+   "n_sources": 2,
+   "mean": 21.3,
+   "sd": 4.2,
+   "min": 17.1,
+   "max": 25.5
+  },
+  "12541": {
+   "name": "Dont'e Thornton",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 11.3,
+    "FFToday": 37.7
+   },
+   "n_sources": 2,
+   "mean": 24.5,
+   "sd": 13.2,
+   "min": 11.3,
+   "max": 37.7
+  },
+  "5970": {
+   "name": "Greg Dortch",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 8.4,
+    "FFToday": 13.1
+   },
+   "n_sources": 2,
+   "mean": 10.75,
+   "sd": 2.35,
+   "min": 8.4,
+   "max": 13.1
+  },
+  "13533": {
+   "name": "Barion Brown",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 8.2
+   },
+   "n_sources": 1,
+   "mean": 8.2,
+   "sd": null,
+   "min": 8.2,
+   "max": 8.2
+  },
+  "8204": {
+   "name": "Bo Melton",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 7.8
+   },
+   "n_sources": 1,
+   "mean": 7.8,
+   "sd": null,
+   "min": 7.8,
+   "max": 7.8
+  },
+  "11168": {
+   "name": "Xavier Smith",
+   "position": "WR",
+   "by_source": {
+    "ESPN": 6.4
+   },
+   "n_sources": 1,
+   "mean": 6.4,
+   "sd": null,
+   "min": 6.4,
+   "max": 6.4
+  },
+  "8210": {
+   "name": "Chig Okonkwo",
+   "position": "TE",
+   "by_source": {
+    "ESPN": 93.5
+   },
+   "n_sources": 1,
+   "mean": 93.5,
+   "sd": null,
+   "min": 93.5,
+   "max": 93.5
+  },
+  "8698": {
+   "name": "Jake Tonges",
+   "position": "TE",
+   "by_source": {
+    "ESPN": 26.0,
+    "FFToday": 51.0
+   },
+   "n_sources": 2,
+   "mean": 38.5,
+   "sd": 12.5,
+   "min": 26.0,
+   "max": 51.0
+  },
+  "12521": {
+   "name": "Elijah Arroyo",
+   "position": "TE",
+   "by_source": {
+    "ESPN": 50.4,
+    "FFToday": 45.1
+   },
+   "n_sources": 2,
+   "mean": 47.75,
+   "sd": 2.65,
+   "min": 45.1,
+   "max": 50.4
+  },
+  "6001": {
+   "name": "Drew Sample",
+   "position": "TE",
+   "by_source": {
+    "ESPN": 29.1
+   },
+   "n_sources": 1,
+   "mean": 29.1,
+   "sd": null,
+   "min": 29.1,
+   "max": 29.1
+  },
+  "5409": {
+   "name": "Tanner Hudson",
+   "position": "TE",
+   "by_source": {
+    "ESPN": 23.5
+   },
+   "n_sources": 1,
+   "mean": 23.5,
+   "sd": null,
+   "min": 23.5,
+   "max": 23.5
+  },
+  "12713": {
+   "name": "Andy Borregales",
+   "position": "K",
+   "by_source": {
+    "ESPN": 127.0
+   },
+   "n_sources": 1,
+   "mean": 127.0,
+   "sd": null,
+   "min": 127.0,
+   "max": 127.0
+  },
+  "827": {
+   "name": "Tyrod Taylor",
+   "position": "QB",
+   "by_source": {
+    "FFToday": 13.34
+   },
+   "n_sources": 1,
+   "mean": 13.34,
+   "sd": null,
+   "min": 13.34,
+   "max": 13.34
+  },
+  "1379": {
+   "name": "Kyle Juszczyk",
+   "position": "RB",
+   "by_source": {
+    "FFToday": 35.9
+   },
+   "n_sources": 1,
+   "mean": 35.9,
+   "sd": null,
+   "min": 35.9,
+   "max": 35.9
+  },
+  "12472": {
+   "name": "Raheim Sanders",
+   "position": "RB",
+   "by_source": {
+    "FFToday": 23.7
+   },
+   "n_sources": 1,
+   "mean": 23.7,
+   "sd": null,
+   "min": 23.7,
+   "max": 23.7
+  },
+  "11589": {
+   "name": "Trey Benson",
+   "position": "RB",
+   "by_source": {
+    "FFToday": 10.0
+   },
+   "n_sources": 1,
+   "mean": 10.0,
+   "sd": null,
+   "min": 10.0,
+   "max": 10.0
+  },
+  "6803": {
+   "name": "Brandon Aiyuk",
+   "position": "WR",
+   "by_source": {
+    "FFToday": 19.5
+   },
+   "n_sources": 1,
+   "mean": 19.5,
+   "sd": null,
+   "min": 19.5,
+   "max": 19.5
+  },
+  "12496": {
+   "name": "Tai Felton",
+   "position": "WR",
+   "by_source": {
+    "FFToday": 12.3
+   },
+   "n_sources": 1,
+   "mean": 12.3,
+   "sd": null,
+   "min": 12.3,
+   "max": 12.3
+  },
+  "JAX": {
+   "name": "Jacksonville Jaguars",
+   "position": "DEF",
+   "by_source": {
+    "FFToday": 101.0
+   },
+   "n_sources": 1,
+   "mean": 101.0,
+   "sd": null,
+   "min": 101.0,
+   "max": 101.0
+  }
+ },
+ "coverage": {
+  "players_with_at_least_one_source": 478,
+  "players_with_2plus": 388,
+  "players_with_all_3": 274,
+  "by_position": {
+   "QB": 69,
+   "RB": 108,
+   "WR": 151,
+   "TE": 85,
+   "K": 33,
+   "DEF": 32
+  }
+ },
+ "diagnostics": {
+  "CBS": {
+   "rows": 442,
+   "scored": 442,
+   "zero_points": 0,
+   "joined": 394,
+   "unmatched": [
+    "Desmond Ridder (QB)",
+    "Shane Buechele (QB)",
+    "Mitch Trubisky (QB)",
+    "Adrian Martinez (QB)",
+    "Chris Oladokun (QB)",
+    "Kenny Pickett (QB)",
+    "Drew Lock (QB)",
+    "Jake Browning (QB)",
+    "Brady Cook (QB)",
+    "Derrick Henry (RB)",
+    "Kenneth Walker III (RB)",
+    "Kenneth Gainwell (RB)",
+    "AJ Dillon (RB)",
+    "Christopher Brooks (RB)",
+    "Kyle Juszczyk (FB)",
+    "Frank Gore Jr. (RB)",
+    "Trayveon Williams (RB)",
+    "Andrew Beck (FB)",
+    "Michael Burton (FB)",
+    "Israel Abanikanda (RB)",
+    "Carlos Washington Jr. (RB)",
+    "Deuce Vaughn (RB)",
+    "Salvon Ahmed (RB)",
+    "Ja'Marr Chase (WR)",
+    "Bub Means (WR)"
+   ]
+  },
+  "ESPN": {
+   "rows": 416,
+   "scored": 416,
+   "zero_points": 12,
+   "joined": 399,
+   "unmatched": [
+    "Derrick Henry (RB)",
+    "Kenneth Walker III (RB)",
+    "Kene Nwangwu (RB)",
+    "Bam Knight (RB)",
+    "Jacob Saylors (RB)",
+    "DeeJay Dallas (RB)",
+    "Josh Williams (RB)",
+    "Ja'Marr Chase (WR)",
+    "Travis Hunter (WR)",
+    "Hollywood Brown (WR)",
+    "Mason Tipton (WR)",
+    "Laquon Treadwell (WR)",
+    "Derius Davis (WR)",
+    "Erick All Jr. (TE)",
+    "Elijah Higgins (TE)",
+    "Chiefs D/ST (DEF)",
+    "Jaguars D/ST (DEF)"
+   ]
+  },
+  "FFToday": {
+   "rows": 390,
+   "scored": 358,
+   "zero_points": 2,
+   "joined": 347,
+   "unmatched": [
+    "Kenny Pickett (QB)",
+    "Derrick Henry (RB)",
+    "Kenneth Walker (RB)",
+    "Kenneth Gainwell (RB)",
+    "Ja'Marr Chase (WR)",
+    "Travis Hunter (WR)",
+    "Josh Palmer (WR)",
+    "Mitchell Tinsley (WR)",
+    "Mason Tipton (WR)",
+    "Devin Duvernay (WR)",
+    "Chigoziem Okonkwo (TE)"
+   ],
+   "excluded_no_fg_split": 32
+  }
+ },
+ "agreement_spearman": {
+  "CBS vs ESPN": {
+   "n": 322,
+   "spearman": 0.932
+  },
+  "CBS vs FFToday": {
+   "n": 289,
+   "spearman": 0.9407
+  },
+  "ESPN vs FFToday": {
+   "n": 325,
+   "spearman": 0.9694
+  },
+  "CBS vs Sleeper": {
+   "n": 394,
+   "spearman": 0.9261
+  },
+  "ESPN vs Sleeper": {
+   "n": 399,
+   "spearman": 0.9294
+  },
+  "FFToday vs Sleeper": {
+   "n": 347,
+   "spearman": 0.9569
+  }
+ }
+}
