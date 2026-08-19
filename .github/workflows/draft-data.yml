@@ -316,11 +316,23 @@ jobs:
           echo "== the board about to be committed must pass the suite that reads it"
           echo "   (repo-parity pins deselected here ONLY — their inputs were just rebuilt; see test_gate_selection.py)"
           if ! python -m pytest draft/tests -q -m "not repo_parity" 2>&1 | tee /tmp/board_gate_output.txt; then
-            echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
-            echo "    The previously published board is untouched and still live."
-            echo "    Fix the board (or whatever the suite is telling you about it)"
-            echo "    and re-run — do NOT bypass this to get a rebuild out."
-            exit 1
+            # REGISTER 55, fixed on Cory's call 08-19: a suite failure is not
+            # automatically a BOARD failure. On 08-19 this gate refused the
+            # board four times and only ONE of six failures was about the
+            # board; the rest were repo hygiene. gate_triage decides which
+            # kind we have — everything blocks by default, and only tests
+            # named ADVISORY (with a stated reason, self-checked against
+            # reading the board) may fail without stopping the publish.
+            echo "== suite failed — triaging: is this the BOARD, or the repo's own tooling?"
+            if python3 draft/tools/gate_triage.py /tmp/board_gate_output.txt; then
+              echo "::warning::Board published with ADVISORY test failures — repo hygiene, not the board. Fix them, but they did not hold the board."
+            else
+              echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
+              echo "    The previously published board is untouched and still live."
+              echo "    Fix the board (or whatever the suite is telling you about it)"
+              echo "    and re-run — do NOT bypass this to get a rebuild out."
+              exit 1
+            fi
           fi
 
       - name: Make a refused publish LOUD, not just red — found 2026-08-15
