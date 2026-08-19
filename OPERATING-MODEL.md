@@ -82,6 +82,36 @@ a `ROUTES.md` conflict and a verification that went stale mid-run.
 **Ready means:** full suite green on the branch, merged with current `main`
 first, one concern, and a commit message that explains it.
 
+### HOW A MERGES — written down 2026-08-19 after a near-miss
+
+A is the only one who merges, and until today the *procedure* was nowhere.
+
+**Merge, then push. DO NOT REBASE AFTER A MERGE.**
+
+```
+git merge --no-commit --no-ff origin/<branch>   # inspect before committing
+<run the full suite>                            # the gate runs BEFORE the merge lands
+git commit                                      # local only
+git push -u origin main                         # only once green
+```
+
+**Why the rule exists, concretely.** On 2026-08-19 I merged C's
+`external-ingest-program` branch and then ran my usual
+`fetch → rebase → push`. That habit is safe on a linear history and had worked
+all day. With a merge commit in the way, **`git rebase` tried to FLATTEN the
+merge and replay all of C's commits onto `origin/main`** — it stopped on a
+conflict twenty-three commits in. The push succeeded only because `main` still
+pointed at my own commit. **Had I typed `git rebase --continue` instead of
+checking state first, I would have rewritten another lane's history on `main`.**
+
+**If `main` moved while the suite was running**, do not rebase — merge again
+(`git merge origin/main`) or re-run the merge from scratch. A rebase is for
+*your own* unpushed commits, never for history that arrived from someone else.
+
+**And commit the merge LOCALLY while the suite runs**, so the tree is clean
+without anything reaching `main` — the gate is what decides whether it pushes,
+not the clock or a tidy `git status`.
+
 ## RULE 2 — EVERY REQUEST TO A IS ONE DECISION, WITH A DEFAULT
 
 A must be able to answer in one word. So a request to A carries all four:
