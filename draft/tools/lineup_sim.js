@@ -55,34 +55,50 @@ BOARD.players.forEach(p => {
   if (bye == null) noBye++;
   pool.push({ id: String(p.player_id), name: p.name || p.player_name, position: p.position,
     adp: adpOf(p), bye, ds: d,
+    exp: p.years_exp == null ? null : +p.years_exp,
     mu: d.proj / WEEKS,
     /* miss rate, calibrated onto the measured position rate rather than read as
      * a games-missed percentage (a 78 risk score is not 78% of games). */
     risk: d.risk });
 });
-/* ⛔ THE FIRST VERSION PUT THE WHOLE SEASON BAND INTO WEEKLY NOISE and gave an
- * RB a weekly sd of 18.0 on a mean of 14.1 -- wider than the mean, which no
- * running back has ever been. sd_week = sd_season/sqrt(17) assumes the season
- * band is 17 iid weeks of noise. It is not: most of a season ceiling is
- * SYSTEMATIC -- he wins the job, the offence is good, he stays healthy -- and
- * that is drawn ONCE and shifts every week together.
+/* ⛔⛔ I REPLACED EVERY PLAYER'S OWN BAND WITH A POSITIONAL CONSTANT, AND CORY
+ * HAD BEEN TELLING ME SO FOR HOURS. The line was
  *
- * ⭐ AND THE DISTINCTION IS THE WHOLE POINT OF THE EXPERIMENT, NOT A DETAIL:
- * a SEASON-level breakout is captured by simply owning him, with no weekly
- * foresight required. Only WEEKLY noise needs foresight to capture. Conflating
- * them credits lineup skill with the entire upside of a breakout.
+ *     sdWeek = WEEK_CV[position] * mu
  *
- * So: weekly sd anchored to football (skill positions run roughly half their
- * mean week to week; K and DEF are flatter), and whatever the season band has
- * left over becomes a season-level multiplier drawn once per season. */
-/* ⭐ MEASURED, not assumed. Weekly sd / weekly mean, from three seasons of this
- * league's own `players_points` (byes and inactives dropped, min 8 games, min 4
- * ppg): QB 0.44 · RB 0.54 · WR 0.57 · TE 0.59 · K 0.48 · DEF 0.70. My first
- * pass guessed 0.40/0.55/0.60/0.65/0.35/0.45 -- close where the draft happens
- * and low at K and DEF. Replaced with the counted values so the verdict does
- * not rest on my guess. */
-const WEEK_CV = { QB: 0.44, RB: 0.54, WR: 0.57, TE: 0.59, K: 0.48, DEF: 0.70 };
+ * which gives every wide receiver the same volatility. Draft Sharks publishes a
+ * per-player band and I collapsed it to six numbers -- the exact information
+ * that makes the data worth having.
+ *
+ * ⭐ AND HIS ROOKIE ARGUMENT IS THE KEY TO THE SPLIT, MEASURED AND CONFIRMED:
+ * "a rookie WR will probably have a higher variance in floor to ceiling than an
+ * established WR... due to the unknown and potential for more targets."
+ * (ceiling-floor)/proj by experience, WR: rookie 84% · 1-2yr 65% · 3-5yr 45% ·
+ * 6+yr 50%. Rookie RBs run 2.38x a veteran's width. Every position the same way.
+ *
+ * That resolves the weekly/seasonal split that I had been ASSUMING. A rookie's
+ * extra width is not week-to-week noise -- it is not knowing his ROLE, which is
+ * drawn once and resolves by about week 4. A veteran's width, with the role
+ * known, IS week-to-week.
+ *
+ *     weekly volatility  = the ESTABLISHED baseline at his position
+ *     season uncertainty = whatever HIS band carries ABOVE that baseline
+ *
+ * So a rookie gets ordinary weekly swings plus a large one-time draw on how the
+ * season goes, and a boom-bust veteran gets large weekly swings and little
+ * season-level doubt. Same band width, opposite meanings -- which is what the
+ * positional constant could never express. */
+const VET_CV = { QB: 0.44, RB: 0.54, WR: 0.57, TE: 0.59, K: 0.48, DEF: 0.70 };
 const Q_POS = { QB: 0.147, RB: 0.224, WR: 0.176, TE: 0.188, K: 0.02, DEF: 0.02 };
+/* the ESTABLISHED band width per position: the median (ceiling-floor)/proj among
+ * players with 3+ years, which is the width that is pure weekly volatility */
+const VET_WIDTH = {};
+POS.forEach(q => {
+  const w = pool.filter(x => x.position === q && x.exp != null && x.exp >= 3
+      && x.ds.proj > 40)
+    .map(x => (x.ds.ceiling - x.ds.floor) / x.ds.proj).sort((a, b) => a - b);
+  VET_WIDTH[q] = w.length >= 8 ? w[w.length >> 1] : null;
+});
 const RISK_MED = {};
 POS.forEach(q => {
   const v = pool.filter(x => x.position === q && x.risk != null).map(x => x.risk).sort((a, b) => a - b);
@@ -92,13 +108,19 @@ pool.forEach(x => {
   const med = RISK_MED[x.position];
   const scale = (x.risk != null && med > 0) ? Math.min(2.5, x.risk / med) : 1;
   x.missRate = Math.min(0.6, (Q_POS[x.position] || 0.15) * scale);
-  x.sdWeek = Math.max(0.5, (WEEK_CV[x.position] || 0.5) * x.mu);
-  /* what the season band claims, minus what iid weekly noise would produce.
-   * The remainder is season-level and is drawn once. */
-  const sdSeasonBand = (x.ds.ceiling - x.ds.proj) / 1.2815515655446004;
-  const sdSeasonFromWeekly = x.sdWeek * Math.sqrt(WEEKS);
-  x.sdSeason = Math.max(0, Math.sqrt(Math.max(0,
-    sdSeasonBand * sdSeasonBand - sdSeasonFromWeekly * sdSeasonFromWeekly))) / WEEKS;
+
+  /* HIS OWN band, not his position's */
+  const width = x.ds.proj > 0 ? (x.ds.ceiling - x.ds.floor) / x.ds.proj : 0;
+  const vet = VET_WIDTH[x.position] || (VET_CV[x.position] * 2.2);
+  /* weekly: the established baseline, scaled by how his width compares to it,
+   * but never above it -- a wider-than-veteran band is role doubt, not extra
+   * week-to-week swing */
+  const weeklyFrac = Math.min(1, vet > 0 ? width / vet : 1);
+  x.sdWeek = Math.max(0.5, (VET_CV[x.position] || 0.5) * weeklyFrac * x.mu);
+  /* season-level: everything his band carries ABOVE the veteran baseline */
+  const excess = Math.max(0, width - vet);
+  x.sdSeason = (excess / 2 / 1.2815515655446004) * x.mu;
+  x.bandWidth = width;
 });
 
 let _s = 7;
