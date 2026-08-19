@@ -117,6 +117,23 @@ list.forEach((rel, i) => {
   if (!r0.ok || !r1.ok) {
     status = 'UNREADABLE';
     detail = { a0: r0.ok ? 'ok' : r0.why, a1: r1.ok ? 'ok' : r1.why };
+  } else if (strip(r0.out).trim().length === 0) {
+    /* ⚠️ EMPTY OUTPUT IS **UNREADABLE**, NOT "SAME" — AND THE CONTROL RUN IS
+     * WHAT CAUGHT THIS, BEFORE ANY RESULT WAS WRITTEN DOWN.
+     *
+     * `draft/backtest/replay.js` came back "SAME 0s". It is a MODULE with no
+     * CLI entry point: running it directly executes nothing and prints nothing,
+     * two empty strings compare equal, and the sweep cheerfully reported that
+     * one of the two most important harnesses in the project was unaffected by
+     * the fix. That is a null from a probe that has never returned a positive —
+     * "nothing found" and "asked wrong" are indistinguishable from the outside,
+     * and only one of them is a finding (Rule 3e). A sweep that launders
+     * "I could not run this" into "this holds" is worse than no sweep, because
+     * it retires the question. */
+    status = 'UNREADABLE';
+    detail = { why: 'NO OUTPUT when run directly — a library or a harness with '
+                  + 'no CLI entry point, not a study that holds. Re-run it '
+                  + 'through its own runner under both arms.' };
   } else if (strip(r0.out) === strip(r1.out)) {
     status = 'SAME';
   } else {
