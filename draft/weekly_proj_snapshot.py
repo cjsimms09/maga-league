@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # TERRITORY: A
+# TERRITORY-GRANT: C raw_by_id raw stats stat_line pid append_snapshot proj_series score_stat_line scoring vendor fields beside points scores archiver register grant header 2026-08-19
 """THE WEEKLY PROJECTION SNAPSHOT — the one input with a real deadline.
 
 WHY THIS AND NOT THE SHADOW LAYER. Cory asked whether a thin shadow-strategy
@@ -126,9 +127,11 @@ def main() -> int:
         return 1
 
     # Convert the provider's stat lines to OUR scoring, the same way the board
-    # does. The archive stores POINTS rather than raw lines because that is what
-    # a strategy reads — and because the scoring table is itself versioned, a
-    # line archived today could be scored differently later.
+    # does — AND keep the raw stat line beside the scored points (TERRITORY-
+    # GRANT: C, 2026-08-19): the scoring table is itself versioned, so a raw
+    # line archived today can be RE-scored under a corrected table later,
+    # while a stored point total alone cannot be un-scored back into the
+    # stats that produced it.
     cfg_path = HERE / "config" / "league_config.json"
     scoring = {}
     if cfg_path.exists():
@@ -140,6 +143,7 @@ def main() -> int:
 
     from scoring import score_stat_line
     proj = {}
+    raw_by_id = {}
     for pid, row in (raw or {}).items():
         stats = row.get("stats") if isinstance(row, dict) and "stats" in row else row
         if not isinstance(stats, dict):
@@ -147,13 +151,15 @@ def main() -> int:
         pts = score_stat_line(stats, scoring)
         if pts:
             proj[str(pid)] = pts
+            raw_by_id[str(pid)] = stats
     if not proj:
         print("! nothing scored above zero; refusing to write")
         return 1
 
     doc = json.loads(OUT.read_text()) if OUT.exists() else {"series": []}
     doc["series"] = PS.append_snapshot(doc.get("series") or [], date,
-                                       "sleeper_weekly", proj, week=week)
+                                       "sleeper_weekly", proj, week=week,
+                                       raw_by_id=raw_by_id)
     doc.setdefault("_note", "")
     if "in-season weekly" not in doc["_note"]:
         doc["_note"] = (doc["_note"] + " IN-SEASON WEEKLY snapshots (source "

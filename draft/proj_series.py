@@ -114,7 +114,7 @@ def distribution_from_board(players, fields=DIST_FIELDS):
 
 
 def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX_SNAPS,
-                    week=None, situation_by_id=None, dist_by_id=None):
+                    week=None, situation_by_id=None, dist_by_id=None, raw_by_id=None):
     """series: [{date, source, proj:{id:points}}] oldest->newest. Returns a NEW list with this
     (date, source, week) snapshot added or REPLACED (a same-day re-run of the same source and
     week overwrites, never doubles), keeping the top_n highest-projection players and the most
@@ -131,6 +131,12 @@ def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX
     every existing reader keeps working. A None week is written as absent rather than null,
     because a field that is present-and-empty on 5 preseason rows and meaningful on 80 in-season
     ones is read wrong exactly once.
+
+    RAW_BY_ID, ADDED 2026-08-19 (TERRITORY-GRANT: C, weekly_proj_snapshot.py's own raw-fields
+    gap): the provider's RAW stat line beside the scored points, same side-channel shape as
+    situation/dist -- same population as `proj`, so a raw entry can never describe a player the
+    snapshot does not price, and a corrected scoring table can re-score history rather than only
+    ever re-fetching it.
     """
     trimmed = {str(pid): round(float(p), 2)
                for pid, p in sorted(proj_by_id.items(), key=lambda kv: -kv[1])[:top_n]}
@@ -153,6 +159,8 @@ def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX
     if dist_by_id:
         snap["dist"] = {pid: dist_by_id[pid]
                         for pid in trimmed if pid in dist_by_id}
+    if raw_by_id:
+        snap["raw"] = {pid: raw_by_id[pid] for pid in trimmed if pid in raw_by_id}
     if week is not None:
         snap["week"] = int(week)
     kept.append(snap)
