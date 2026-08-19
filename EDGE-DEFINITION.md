@@ -110,5 +110,58 @@ come from, in points or dollars, and which input is carrying it?*
 
 **And the honest current answer, stated plainly so it can be improved on:** the
 only edge number this project holds is **+$56/season from ceiling tilt, in a
-proxy** — and that weight has been shipping at **zero** in the composite while
-the study that priced it sat in the repo.
+proxy**. `ceiling` now ships at **0.45** (Cory's ruling, shipped) rather than
+the zero this section originally described — the number below is stale on that
+one fact and is corrected here rather than silently.
+
+## RE-ANSWERED, 2026-08-19 — does the mean-of-4 board move where the edge is?
+
+Routed by A: the shipped multi-source projection blend leaves the top-12 at
+each position almost untouched (median move 0.5–3.0 pts) and substantially
+reorders the tail (whole-position max move 24–29 slots). **Either that is
+exactly right, or it is a warning that we shipped a change whose entire effect
+sits in the one region our grading cannot see.** Both readings are true, and
+they are not in tension — they are two separate facts about the same shape.
+
+**This is the same question A already filed BLIND as P117** (`PREDICTION-LEDGER.md`,
+grade-by 09-05): a NULL on the seat replay is predicted and explicitly must
+NOT be read as "the blend does not help" — only as "the instrument cannot see
+tail-of-board reordering." What follows here is the E1-E5/football-sense
+reasoning behind that same prediction, not a second measurement — P117 owns
+the graded number when it lands.
+
+**Why the shape is structurally correct, not a coincidence.** VORP is
+`proj_mean − replacement[pos]`, and `replacement` itself is a function of
+`proj_mean` across the whole position — a small, real projection change near
+the top moves both the player's number and the shelf it is measured against by
+similar amounts, so early picks are naturally stable under almost any honest
+re-projection. The blend's actual NEW information — real cross-source
+disagreement instead of a per-band constant — is inherently a **late-round
+signal**: three independent scrapers agree closely on Josh Allen (sd 1.45)
+and disagree by 34x on whether Ashton Dulin plays a meaningful role at all.
+Tier-1 players don't have role uncertainty to disagree about. **The tail is
+where genuine disagreement lives, which is also where Cory says the draft is
+won** (*"find upside late"*, this session) — this is the same match the
+tier-ramped ceiling proposal (routed to me, same day) derives from first
+principles rather than asserts.
+
+**But the honest second half, not waved away: we cannot currently PROVE this
+helps E1-E5.** The seat replay — this project's only instrument that grades in
+E1-E5's own currency (points, dollars, finish) rather than accuracy — has a
+measured detection floor of **±41.8 pts/season** (session D, register DS1,
+same shape P110 was built to respect). A change concentrated in bench-tier
+reordering is exactly the kind of effect that floor is least likely to resolve
+from noise. So: the blend is well-argued to be *pointed* at the edge, and it
+is *not yet measured* to have moved it. Those are different claims, and only
+the first one is currently true.
+
+**What would close the gap, in order:** (1) the tier-ramped mean→ceiling blend
+I am preregistering per A's routed ask — if the ramp shape is named from an
+existing artifact and graded on the seat replay rather than swept, a positive
+result there is a real E1-E5 signal, not an accuracy footnote; (2) re-running
+`FRONTIER.md` experiment 21's ceiling-tilt study on the blended dispersion
+instead of the old band-constant one — if cross-source ceiling/floor is a
+truer per-player signal (which is the whole argument for shipping it), the
+already-measured +$56/season λ=0.5 result should either strengthen or hold,
+and a study that already speaks E1-E5's language is the cheapest way to find
+out. Neither is done yet; both are now named rather than assumed.
