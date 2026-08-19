@@ -167,7 +167,23 @@ def test_the_live_corpus_still_surfaces_the_pair_this_was_built_for():
     assert "graded_test" in blend or "_ruling" in blend, (
         "proj_mean_blend regressed to a refusal — if the blocker is back, "
         "restore the original pairing assertion")
+    # THE CORPUS MUST BE DATED FOR THIS TO MEAN ANYTHING, and in a shallow
+    # checkout it is not: `committed_at()` shells `git log -1 -- <path>`, and
+    # draft-data.yml checks out with `fetch-depth: 2`, so almost every
+    # artifact's last-touching commit is outside the fetched history, `at`
+    # comes back None, and pairs() correctly skips undated rows (the rule
+    # `test_a_refusal_with_no_commit_date_is_skipped_not_guessed` pins).
+    # My first cut asserted pairs unconditionally: green locally (106/106
+    # dated), RED in the board gate — it measured checkout depth and called
+    # it blindness, refusing a good board twice (runs 32199445523 /
+    # 32200542104). Skip loudly rather than pass quietly (A, 08-19).
+    dated = [r for r in rows if r.get("at")]
+    if len(dated) < 10:
+        import pytest
+        pytest.skip(f"shallow checkout: only {len(dated)} of {len(rows)} "
+                    "artifacts carry a commit date, so pairing is "
+                    "unmeasurable here — run in a full clone")
     got = S.pairs(rows, min_shared=3, min_score=0.0)
-    assert got, "the tool finds NO pairs on the live corpus — it has gone blind"
+    assert got, "the tool finds NO pairs on a DATED live corpus — it has gone blind"
     assert got[0][0]["path"].endswith("proj_mean_blend.json"), \
         f"the founding case is no longer ranked first: {got[0][0]['path']}"
