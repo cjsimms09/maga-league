@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-19T07:52:30Z",
-   "board_content_hash": "36ab6b5ccd9c",
+   "board_built_at": "2026-08-19T08:52:22Z",
+   "board_content_hash": "774e8ccc50d8",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
@@ -70,7 +70,7 @@
       "name": "Cam Skattebo",
       "position": "RB",
       "vorp": 37.8,
-      "survival": 0.46,
+      "survival": 0.45,
       "adp": 32.6,
       "_onesie_reach": false
      },
@@ -79,7 +79,7 @@
       "name": "Travis Etienne",
       "position": "RB",
       "vorp": 35.2,
-      "survival": 0.86,
+      "survival": 0.87,
       "adp": 38.0,
       "_onesie_reach": false
      },
@@ -97,7 +97,7 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 31.1,
-      "survival": 0.78,
+      "survival": 0.76,
       "adp": 39.3,
       "_onesie_reach": false
      },
@@ -106,7 +106,7 @@
       "name": "Bucky Irving",
       "position": "RB",
       "vorp": 28.1,
-      "survival": 0.95,
+      "survival": 0.96,
       "adp": 43.3,
       "_onesie_reach": false
      }
@@ -120,7 +120,7 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "vorp": 31.8,
-      "survival": 0.46,
+      "survival": 0.45,
       "adp": 47.3,
       "_onesie_reach": false
      },
@@ -188,7 +188,7 @@
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 12.4,
-      "survival": 0.78,
+      "survival": 0.8,
       "adp": 56.2,
       "_onesie_reach": false
      },
@@ -206,7 +206,7 @@
       "name": "Davante Adams",
       "position": "WR",
       "vorp": 10.2,
-      "survival": 0.69,
+      "survival": 0.68,
       "adp": 54.7,
       "_onesie_reach": false
      }
@@ -222,7 +222,7 @@
       "name": "Cam Skattebo",
       "position": "RB",
       "vorp": 37.8,
-      "survival": 0.46,
+      "survival": 0.45,
       "adp": 32.6,
       "_onesie_reach": false
      },
@@ -231,7 +231,7 @@
       "name": "Travis Etienne",
       "position": "RB",
       "vorp": 35.2,
-      "survival": 0.86,
+      "survival": 0.87,
       "adp": 38.0,
       "_onesie_reach": false
      },
@@ -249,7 +249,7 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 31.1,
-      "survival": 0.78,
+      "survival": 0.76,
       "adp": 39.3,
       "_onesie_reach": false
      },
@@ -258,7 +258,7 @@
       "name": "Bucky Irving",
       "position": "RB",
       "vorp": 28.1,
-      "survival": 0.95,
+      "survival": 0.96,
       "adp": 43.3,
       "_onesie_reach": false
      }
@@ -272,7 +272,7 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "vorp": 31.8,
-      "survival": 0.46,
+      "survival": 0.45,
       "adp": 47.3,
       "_onesie_reach": false
      },
@@ -340,7 +340,7 @@
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 12.4,
-      "survival": 0.78,
+      "survival": 0.8,
       "adp": 56.2,
       "_onesie_reach": false
      },
@@ -358,7 +358,7 @@
       "name": "Davante Adams",
       "position": "WR",
       "vorp": 10.2,
-      "survival": 0.69,
+      "survival": 0.68,
       "adp": 54.7,
       "_onesie_reach": false
      }
