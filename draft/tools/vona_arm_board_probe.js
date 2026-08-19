@@ -36,10 +36,12 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const KEEP = require(path.join(__dirname, 'keepers_of.js'));
 
+/* EVERY ARM PINS EVERY FLAG — see replay_seats.js for why. `a0` means the
+ * PRE-FIX engine, which since 2026-08-19 is no longer the shipped one. */
 const ARMS = {
-  a0: {},                                   // the shipping engine
-  a1: { VONA_INCLUDE_SELF: true },          // the fix
-  a2: { VONA_SURVIVAL_RESCALE: true },      // the diagnostic
+  a0: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false },  // pre-fix
+  a1: { VONA_INCLUDE_SELF: true,  VONA_SURVIVAL_RESCALE: false },  // SHIPPED 08-19
+  a2: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: true },   // diagnostic
 };
 const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
 const FOCUS_PICK = 48;                      // where the defect was found

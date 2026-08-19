@@ -262,8 +262,25 @@
      * DEFAULT OFF UNTIL GRADED. `VONA-SELF-EXCLUSION-PREREG.md`, P107. The
      * default is the shipping behaviour on purpose: this is the primary
      * decision metric and the prereg's own date gate says nothing reaches
-     * Cory's board before 2026-08-22. */
-    VONA_INCLUDE_SELF: false,
+     * Cory's board before 2026-08-22.
+     *
+     * ✅ ON, 2026-08-19, BY CORY'S RULING ("ship it now") — MADE ON THE GRADE,
+     * NOT ON THE ARGUMENT. P107: +114.1 points per seat-season, CI95
+     * [+48.0, +180.1], season-CLUSTERED [+38.5, +189.6], POSITIVE IN 3 SEASONS
+     * OF 3, better in 24 of 30 seat-seasons, Cory's own seat +188.5 / +164.8 /
+     * +155.5. The date gate was mine and he overruled it with the numbers in
+     * front of him, including what it costs: THIS CHANGES HIS FIRST-ROUND PICK
+     * (QB Josh Allen -> RB James Cook at 8) and moves the first QB from round 1
+     * to pick 108.
+     *
+     * TWO CAVEATS THAT TRAVEL WITH THE NUMBER, because a flag comment is where
+     * they will actually be read: the `realistic` lineup arm is a NULL
+     * (+12.4 [-49.0, +73.9]) — this builds a better ROSTER and at n=30 that
+     * does not yet show through the noise of setting lineups from it (P108);
+     * and the shipping engine LOSES to the median owner in every replayed
+     * season, so this closes about a third of a gap it does not close.
+     * `VONA-SELF-EXCLUSION-PREREG.md`, audit `vona_self_exclusion_2026-08-19.md`. */
+    VONA_INCLUDE_SELF: true,
     /* THE DIAGNOSTIC ARM (A2) — flat `(1 - s) x straight` for everyone.
      * Prototyped 08-19 and it collapses VONA toward zero for every player who
      * will last, which hands the ranking to the leftover terms: C.J. Stroud,

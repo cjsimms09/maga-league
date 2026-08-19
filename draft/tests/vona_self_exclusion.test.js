@@ -52,9 +52,13 @@ const withFlags = (flags, fn) => {
   try { return fn(); } finally { Object.keys(saved).forEach(k => { E.CFG[k] = saved[k]; }); }
 };
 
-/* ---- 1. THE FLAGS SHIP OFF ---------------------------------------------- */
-ck('VONA_INCLUDE_SELF ships OFF — the graded change does not reach Cory\'s board by accident',
-   E.CFG.VONA_INCLUDE_SELF === false, { v: E.CFG.VONA_INCLUDE_SELF });
+/* ---- 1. THE SHIPPED CONFIGURATION IS THE RULED ONE ----------------------- */
+/* This arm was written as "ships OFF" while P107 was ungraded, and it is now
+ * "ships ON" because Cory ruled on the grade (2026-08-19, "ship it now"). It
+ * pins THE RULING, not a preference: an edit that silently reverts the fix has
+ * to come here and say so, which is the whole job of this line. */
+ck('VONA_INCLUDE_SELF ships ON — Cory\'s 2026-08-19 ruling on the P107 grade',
+   E.CFG.VONA_INCLUDE_SELF === true, { v: E.CFG.VONA_INCLUDE_SELF });
 ck('VONA_SURVIVAL_RESCALE ships OFF — it is a diagnostic arm and ships under no outcome',
    E.CFG.VONA_SURVIVAL_RESCALE === false, { v: E.CFG.VONA_SURVIVAL_RESCALE });
 
@@ -71,11 +75,11 @@ const sCertain = E.survival(CERTAIN[0], 53, cCtx);
 ck('precondition: the synthetic certain-survivor really does survive (>0.99)',
    sCertain > 0.99, { survival: sCertain });
 
-const vCertainOld = withFlags({ VONA_INCLUDE_SELF: false }, () => E.vona(CERTAIN[0], CERTAIN, 53, cCtx));
+const vCertainOld = withFlags({ VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false }, () => E.vona(CERTAIN[0], CERTAIN, 53, cCtx));
 ck('THE DEFECT: with the player excluded from his own pool, a certain survivor is priced at his full margin',
    vCertainOld > 10, { vona: vCertainOld, margin_over_next: 14 });
 
-const vCertainNew = withFlags({ VONA_INCLUDE_SELF: true }, () => E.vona(CERTAIN[0], CERTAIN, 53, cCtx));
+const vCertainNew = withFlags({ VONA_INCLUDE_SELF: true, VONA_SURVIVAL_RESCALE: false }, () => E.vona(CERTAIN[0], CERTAIN, 53, cCtx));
 ck('THE FIX: a man certain to be there costs about nothing to wait on',
    Math.abs(vCertainNew) < 0.5, { vona: vCertainNew });
 
@@ -92,8 +96,8 @@ const sDoomed = E.survival(DOOMED[0], 60, dCtx);
 ck('precondition: the synthetic doomed player really is doomed (<0.20)',
    sDoomed < 0.20, { survival: sDoomed });
 
-const vDoomedOld = withFlags({ VONA_INCLUDE_SELF: false }, () => E.vona(DOOMED[0], DOOMED, 60, dCtx));
-const vDoomedNew = withFlags({ VONA_INCLUDE_SELF: true }, () => E.vona(DOOMED[0], DOOMED, 60, dCtx));
+const vDoomedOld = withFlags({ VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false }, () => E.vona(DOOMED[0], DOOMED, 60, dCtx));
+const vDoomedNew = withFlags({ VONA_INCLUDE_SELF: true, VONA_SURVIVAL_RESCALE: false }, () => E.vona(DOOMED[0], DOOMED, 60, dCtx));
 ck('CONTROL: a player who will be gone keeps essentially all of his urgency',
    vDoomedNew > 0.8 * vDoomedOld && vDoomedNew > 25, { old: vDoomedOld, fixed: vDoomedNew });
 
@@ -107,7 +111,7 @@ ck('CONTROL: a player who will be gone keeps essentially all of his urgency',
   const others = b.slice(1);
   const ebaOther = E.expectedBestAvailable(others, next, ctx);
   const predicted = (1 - s) * (b[0].proj_mean - ebaOther);
-  const actual = withFlags({ VONA_INCLUDE_SELF: true }, () => E.vona(b[0], b, next, ctx));
+  const actual = withFlags({ VONA_INCLUDE_SELF: true, VONA_SURVIVAL_RESCALE: false }, () => E.vona(b[0], b, next, ctx));
   ck('include-self equals (1 - s) x margin for the top man at a position [case ' + i + ']',
      Math.abs(predicted - actual) < 0.01, { predicted: predicted, actual: actual, s: s });
 });
@@ -126,12 +130,19 @@ ck('running A1 and A2 together REFUSES rather than silently double-discounting',
 /* ---- 6. A2 IS RUNNABLE AND IS NOT A1 ------------------------------------ */
 /* The diagnostic must actually differ from the fix somewhere, or the prereg is
  * comparing an arm with itself — the costume gate, applied to our own arms. */
-const vRescaleDoomed = withFlags({ VONA_SURVIVAL_RESCALE: true },
-                                 () => E.vona(DOOMED[0], DOOMED, 60, dCtx));
+/* ⚠️ EVERY FLAG SET EXPLICITLY, and this line is why: it was written as
+ * `{ VONA_SURVIVAL_RESCALE: true }` alone, and the moment the fix SHIPPED
+ * (VONA_INCLUDE_SELF default false -> true) it stopped describing arm A2 and
+ * started asking for both arms at once — which the engine correctly refused,
+ * and this suite went red. A partial flag set is a diff against whatever
+ * happens to be shipping, not a configuration. */
+const A2 = { VONA_SURVIVAL_RESCALE: true, VONA_INCLUDE_SELF: false };
+const A1 = { VONA_SURVIVAL_RESCALE: false, VONA_INCLUDE_SELF: true };
+const vRescaleDoomed = withFlags(A2, () => E.vona(DOOMED[0], DOOMED, 60, dCtx));
 ck('A2 differs from A1 below the top of a position — they are not the same arm in two costumes',
    Math.abs(vRescaleDoomed - vDoomedNew) > 0.01
-   || Math.abs(withFlags({ VONA_SURVIVAL_RESCALE: true }, () => E.vona(DOOMED[1], DOOMED, 60, dCtx))
-               - withFlags({ VONA_INCLUDE_SELF: true }, () => E.vona(DOOMED[1], DOOMED, 60, dCtx))) > 0.01,
+   || Math.abs(withFlags(A2, () => E.vona(DOOMED[1], DOOMED, 60, dCtx))
+               - withFlags(A1, () => E.vona(DOOMED[1], DOOMED, 60, dCtx))) > 0.01,
    { a2_top: vRescaleDoomed, a1_top: vDoomedNew });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
