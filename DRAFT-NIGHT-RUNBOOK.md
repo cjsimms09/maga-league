@@ -90,10 +90,21 @@ the exposure numbers describe the real slate or the predicted one.
    > flag and could never fire; it can now. **The board also publishes
    > `keeper_lock_date` (2026-08-21) with your ruling verbatim beside it** —
    > register E25, so no reader has to hardcode the date again.
-2b. **Regenerate the two artifacts that go stale on EVERY rebuild** (register 86):
+2b. **Re-check, and if needed regenerate, the two board-derived artifacts** (register 86):
    `variance_inputs_2026.json` and `playoff_sos_2026.json` are derived from the
-   board and are NOT rebuilt by `draft-data.yml`, so step 1's rebuild silently
-   invalidates both. They have been hand-regenerated twice already in one day.
+   board and are NOT rebuilt by `draft-data.yml`. They have been hand-regenerated
+   twice already in one day.
+
+   > ⚠️ **CORRECTED WITHIN THE HOUR OF WRITING IT, BY TESTING MY OWN
+   > INSTRUCTION.** This step first said step 1's rebuild *"silently invalidates
+   > both"*. I then triggered a rebuild and **both drift tests PASSED** — because
+   > a same-day rebuild off unchanged upstream inputs moves the board's
+   > `built_at` without moving the values these two artifacts derive from.
+   > **"Always goes stale" was wrong; "goes stale whenever the board's values
+   > actually move" is right**, and Saturday's rebuild pulls fresh ADP and
+   > projections, so it very likely WILL move them. **Do not skip this step on
+   > the strength of one quiet rebuild — but do let the tests decide rather than
+   > regenerating on faith.**
 
    > **Why this is a runbook step and not a code fix:** wiring the regeneration
    > into `draft-data.yml` is the real answer and it is deliberately deferred to
