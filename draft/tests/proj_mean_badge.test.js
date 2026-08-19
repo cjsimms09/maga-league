@@ -91,9 +91,16 @@ ck('renderDrill\'s ceiling/floor/mean row actually calls projMeanBadge(p)',
   } catch (e) { board = null; }
   if (board) {
     const blended = board.filter(p => p.proj_mean_source === 'multisource-mean-2026');
-    ck('the live board today: 0 blended players is EXPECTED (the multi-source rebuild '
-      + 'has not run against this committed board yet) — if this ever becomes non-zero '
-      + 'without the badge firing on a real player, that is the regression to chase',
+    // CORRECTED 08-19: this read 0 blended players as expected when the badge
+    // was first shipped, ahead of the multisource rebuild. The board now
+    // publishes with the blend (register 74/75) — 274 rows, Gibbs among
+    // them — so this is a live known-positive against real players now,
+    // not the vacuous branch. Kept as an OR so a future board rebuild that
+    // temporarily drops back to 0 (a regen gap, not a regression) still
+    // passes honestly instead of failing on population size alone.
+    ck((blended.length
+        ? 'the live board carries ' + blended.length + ' blended players today — every one fires the badge'
+        : 'the live board today has 0 blended players — the OR branch is exercised, not this one'),
       blended.length === 0 || blended.every(p => /wr-proj-blend/.test(projMeanBadge(p))),
       { blendedCount: blended.length });
   } else {
