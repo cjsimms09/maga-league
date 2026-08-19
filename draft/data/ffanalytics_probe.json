@@ -1,0 +1,138 @@
+{
+  "_territory": "TERRITORY: A — draft/tools/ffanalytics_probe.R",
+  "_note": "RAW ROWS ONLY. Nothing here is averaged, scored, or allowed near proj_mean. ffanalytics does NOT scrape Draft Sharks — it scrapes FantasySharks, a different company.",
+  "season": 2026,
+  "scraped_at": "2026-08-19T03:52:11Z",
+  "sources_asked": ["CBS", "ESPN", "FantasyPros", "FantasySharks", "FFToday", "FleaFlicker", "NumberFire", "FantasyFootballNerd", "NFL", "RTSports", "Walterfootball", "FantasyData"],
+  "sources_returning_rows": ["CBS", "ESPN", "FantasyPros", "FFToday", "Walterfootball"],
+  "total_rows": 1358,
+  "per_source": {
+    "CBS": {
+      "ok": true,
+      "rows": 442,
+      "positions": {
+        "QB": 77,
+        "RB": 100,
+        "WR": 100,
+        "TE": 100,
+        "K": 33,
+        "DST": 32
+      },
+      "error": {}
+    },
+    "ESPN": {
+      "ok": true,
+      "rows": 416,
+      "positions": {
+        "QB": 42,
+        "RB": 100,
+        "WR": 150,
+        "TE": 60,
+        "K": 32,
+        "DST": 32
+      },
+      "error": {}
+    },
+    "FantasyPros": {
+      "ok": true,
+      "rows": 60,
+      "positions": {
+        "QB": 10,
+        "RB": 10,
+        "WR": 10,
+        "TE": 10,
+        "K": 10,
+        "DST": 10
+      },
+      "error": {}
+    },
+    "FantasySharks": {
+      "ok": true,
+      "rows": 0,
+      "positions": {
+        "QB": 0,
+        "RB": 0,
+        "WR": 0,
+        "TE": 0,
+        "K": 0,
+        "DST": 0
+      },
+      "error": {}
+    },
+    "FFToday": {
+      "ok": true,
+      "rows": 390,
+      "positions": {
+        "QB": 50,
+        "RB": 95,
+        "WR": 131,
+        "TE": 50,
+        "K": 32,
+        "DST": 32
+      },
+      "error": {}
+    },
+    "FleaFlicker": {
+      "ok": true,
+      "rows": 0,
+      "positions": [],
+      "error": {}
+    },
+    "NumberFire": {
+      "ok": true,
+      "rows": 0,
+      "positions": [],
+      "error": {}
+    },
+    "FantasyFootballNerd": {
+      "ok": true,
+      "rows": 0,
+      "positions": [],
+      "error": {}
+    },
+    "NFL": {
+      "ok": true,
+      "rows": 0,
+      "positions": {
+        "QB": 0,
+        "RB": 0,
+        "WR": 0,
+        "TE": 0,
+        "K": 0,
+        "DST": 0
+      },
+      "error": {}
+    },
+    "RTSports": {
+      "ok": true,
+      "rows": 0,
+      "positions": {
+        "QB": 0,
+        "RB": 0,
+        "WR": 0,
+        "TE": 0,
+        "K": 0,
+        "DST": 0
+      },
+      "error": {}
+    },
+    "Walterfootball": {
+      "ok": true,
+      "rows": 50,
+      "positions": {
+        "QB": 10,
+        "RB": 10,
+        "WR": 10,
+        "TE": 10,
+        "K": 10
+      },
+      "error": {}
+    },
+    "FantasyData": {
+      "ok": true,
+      "rows": 0,
+      "positions": [],
+      "error": {}
+    }
+  }
+}
