@@ -48,48 +48,50 @@ the exposure numbers describe the real slate or the predicted one.
 2. **Freeze**: confirm `draft/freeze_pre_draft.py` has run against THAT board
    and note the freeze SHA (it prints; also in the freeze artifact).
 
-   > ✅ **THIS NOTE'S OWN ESCAPE HATCH HAS FIRED — A SHIPPED THE FIX, SO EXPECT
-   > `CONFIRMED`, NOT `PROVISIONAL`. Rewritten 2026-08-19 (A).**
+   > ⚠️ **EXPECT `PROVISIONAL`, AND IT IS PROBABLY CORRECT. READ THE REASON, NOT
+   > THE WORD. Rewritten twice on 2026-08-19 (A) — my FIRST rewrite of this
+   > note was wrong and would have sent you rebuilding for nothing.**
    >
-   > The paragraph that stood here told you to expect **`PROVISIONAL … the keeper
-   > lock has not passed`**, to know that sentence was false, and to take the
-   > freeze anyway. It ended: *"If A ships it before Saturday, the freeze can
-   > stamp `CONFIRMED` and this note stops applying — check which world you are
-   > in by reading the printed status, not by assuming."*
+   > **What changed and what did not.** The old note said the flag was dead
+   > (register 5l) and to ignore a `PROVISIONAL`. **A shipped that fix**, so the
+   > flag is live: `_keeper_lock_passed` derives from placements OR the
+   > configured deadline in `league_config.json` (your ruling verbatim), wired
+   > at all three call sites, and driving the clock confirms it flips at
+   > **Fri 08-21 18:00 CDT** and is true on draft morning.
    >
-   > **A shipped it (register 5l, 08-18). You are in the second world, and being
-   > told so here beats deducing it at 3am.**
+   > **BUT THE LOCK IS ONLY ONE OF THREE CONDITIONS, AND I FIRST WROTE THIS NOTE
+   > HAVING CHECKED ONLY THAT ONE.** `freeze_pre_draft.py:275` requires **all
+   > three**: the lock has passed **AND** `safe_to_treat_as_truth` **AND** no
+   > designation/placement mismatch.
    >
-   > `build.py._keeper_lock_passed()` now derives the flag from **two independent
-   > paths, either sufficient**: keeper PLACEMENTS existing on the draft, or the
-   > configured deadline having passed — read from `league_config.json`, where
-   > your ruling lives verbatim (*"Keepers will be set by 08/21 at 6pm"*). It is
-   > wired at **all three** `assess_slate()` call sites, guarded by a test with a
-   > proven fail arm.
+   > **`safe_to_treat_as_truth` is FALSE today and no rebuild changes it.** The
+   > board's own reason: *"6/10 team(s) have designated on Sleeper and NO keeper
+   > placements exist on the draft yet."* It turns true when the **commissioner
+   > places keepers on the draft**, which is a league action, not a tool action.
    >
-   > **VERIFIED BY DRIVING THE CLOCK rather than waiting for Friday** — the whole
-   > point, since the correct behaviour otherwise first appears after the last
-   > useful moment to learn it is wrong:
+   > **SO, PLAINLY: if nothing else changes, Saturday's freeze prints
+   > `PROVISIONAL` and that is CORRECT.** Take it and note the SHA — it is a
+   > complete, correct capture of the board either way.
    >
-   > | moment | `keeper_lock_passed` |
-   > |---|---|
-   > | Fri 08-21 17:59 CDT | `False` |
-   > | **Fri 08-21 18:00 CDT** | **`True`** |
-   > | **Sat 08-22 09:00 CDT (draft morning)** | **`True`** |
+   > **THE DECISION IS IN THE REASON STRING, WHICH NAMES THE FAILING CONDITION.
+   > That is the whole point of it carrying the slate's own words:**
    >
-   > **SO: on Saturday morning the freeze should print `CONFIRMED`. If it prints
-   > `PROVISIONAL`, that is now REAL INFORMATION and not a known bug** — it means
-   > the board you froze was built BEFORE Friday 6pm, i.e. step 1's rebuild did
-   > not actually happen or did not commit. **Rebuild and re-freeze.** That is the
-   > opposite of the old instruction, which was "do not re-run it hoping for a
-   > different word", and following the old text would have hidden a real failure.
+   > | the printed reason says | what it means | what to do |
+   > |---|---|---|
+   > | *"the keeper lock has not passed"* | the board you froze was built **before Fri 6pm** — step 1's rebuild did not happen or did not commit | **rebuild and re-freeze** |
+   > | *"the importer does not yet call the slate truth"* | keepers are not placed on the draft yet — **league state, not tool state** | **take the freeze, move on** |
+   > | *"N designation/placement mismatch(es)"* | someone's placed keeper differs from their designation | **surface it, do not silently re-freeze** |
    >
-   > **AND THE ALARM IS ALIVE AGAIN TOO.** `standing_check.py:531` reads
-   > `keeper_slate.keeper_lock_passed` off the board and escalates on *"THE KEEPER
-   > LOCK HAS PASSED AND THE FREEZE IS STILL {status}"*. It was gated on the dead
-   > flag and could never fire; it can now. **The board also publishes
-   > `keeper_lock_date` (2026-08-21) with your ruling verbatim beside it** —
-   > register E25, so no reader has to hardcode the date again.
+   > **DO NOT read the word `PROVISIONAL` and rebuild.** That was my first
+   > rewrite's instruction and it was wrong: it would have had you chasing a
+   > board problem on draft morning when the cause is that the commissioner has
+   > not placed keepers.
+   >
+   > **The alarm is alive again too.** `standing_check.py:531` reads
+   > `keeper_slate.keeper_lock_passed` off the board and was gated on the dead
+   > flag; it can now fire. **And the board publishes `keeper_lock_date`
+   > (2026-08-21) with your ruling verbatim beside it** — register E25, so no
+   > reader has to hardcode the date again.
 2b. **Re-check, and if needed regenerate, the two board-derived artifacts** (register 86):
    `variance_inputs_2026.json`, `playoff_sos_2026.json` **and `public/seat_plan.json`**
    are derived from the board and are NOT rebuilt by `draft-data.yml`. The first two
