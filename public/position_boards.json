@@ -6660,6 +6660,549 @@
    }
   }
  ],
+ "opponents_compact": [
+  {
+   "owner": "Cory",
+   "keeps": "2RB WR",
+   "needs": "QB WR TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "David",
+   "keeps": "",
+   "needs": "QB RB WR TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Justin",
+   "keeps": "2RB",
+   "needs": "QB WR TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Jeremy",
+   "keeps": "",
+   "needs": "QB RB WR TE K DEF",
+   "early_lean": "RB 50%"
+  },
+  {
+   "owner": "Bates",
+   "keeps": "2RB WR",
+   "needs": "QB WR TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Marian",
+   "keeps": "RB 2WR",
+   "needs": "QB RB TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Michael",
+   "keeps": "QB RB WR",
+   "needs": "RB WR TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Richard",
+   "keeps": "RB WR TE",
+   "needs": "QB RB WR K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Dylan",
+   "keeps": "2RB WR",
+   "needs": "QB WR TE K DEF",
+   "early_lean": "league avg only"
+  },
+  {
+   "owner": "Sam",
+   "keeps": "",
+   "needs": "QB RB WR TE K DEF",
+   "early_lean": "league avg only"
+  }
+ ],
+ "round_dropoffs": [
+  {
+   "from_pick": 33,
+   "to_pick": 48,
+   "from_round": 4,
+   "to_round": 5,
+   "pos": {
+    "QB": 0,
+    "RB": 17,
+    "WR": 11,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "RB",
+   "flattest": "QB"
+  },
+  {
+   "from_pick": 48,
+   "to_pick": 53,
+   "from_round": 5,
+   "to_round": 6,
+   "pos": {
+    "QB": 0,
+    "RB": 0,
+    "WR": 3,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "WR",
+   "flattest": "QB"
+  },
+  {
+   "from_pick": 53,
+   "to_pick": 68,
+   "from_round": 6,
+   "to_round": 7,
+   "pos": {
+    "QB": 3,
+    "RB": 27,
+    "WR": 0,
+    "TE": 36,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "TE",
+   "flattest": "WR"
+  },
+  {
+   "from_pick": 68,
+   "to_pick": 73,
+   "from_round": 7,
+   "to_round": 8,
+   "pos": {
+    "QB": 3,
+    "RB": 0,
+    "WR": 0,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "QB",
+   "flattest": "RB"
+  },
+  {
+   "from_pick": 73,
+   "to_pick": 88,
+   "from_round": 8,
+   "to_round": 9,
+   "pos": {
+    "QB": 5,
+    "RB": 15,
+    "WR": 21,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "WR",
+   "flattest": "TE"
+  },
+  {
+   "from_pick": 88,
+   "to_pick": 93,
+   "from_round": 9,
+   "to_round": 10,
+   "pos": {
+    "QB": 0,
+    "RB": 4,
+    "WR": 0,
+    "TE": 1,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "RB",
+   "flattest": "QB"
+  },
+  {
+   "from_pick": 93,
+   "to_pick": 108,
+   "from_round": 10,
+   "to_round": 11,
+   "pos": {
+    "QB": 2,
+    "RB": 2,
+    "WR": 8,
+    "TE": 9,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "TE",
+   "flattest": "K"
+  },
+  {
+   "from_pick": 108,
+   "to_pick": 113,
+   "from_round": 11,
+   "to_round": 12,
+   "pos": {
+    "QB": 0,
+    "RB": 0,
+    "WR": 0,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "QB",
+   "flattest": "QB"
+  },
+  {
+   "from_pick": 113,
+   "to_pick": 128,
+   "from_round": 12,
+   "to_round": 13,
+   "pos": {
+    "QB": 2,
+    "RB": 28,
+    "WR": 9,
+    "TE": 20,
+    "K": 0,
+    "DEF": 0
+   },
+   "steepest": "RB",
+   "flattest": "K"
+  },
+  {
+   "from_pick": 128,
+   "to_pick": 133,
+   "from_round": 13,
+   "to_round": 14,
+   "pos": {
+    "QB": 0,
+    "RB": 0,
+    "WR": 0,
+    "TE": 0,
+    "K": 0,
+    "DEF": 3
+   },
+   "steepest": "DEF",
+   "flattest": "QB"
+  },
+  {
+   "from_pick": 133,
+   "to_pick": 148,
+   "from_round": 14,
+   "to_round": 15,
+   "pos": {
+    "QB": 0,
+    "RB": 0,
+    "WR": 8,
+    "TE": 3,
+    "K": 0,
+    "DEF": 8
+   },
+   "steepest": "WR",
+   "flattest": "QB"
+  }
+ ],
+ "ceiling_steals": [
+  {
+   "name": "Matthew Golden",
+   "position": "WR",
+   "adp": 133,
+   "proj": 136,
+   "ceiling": 228,
+   "upside": 92,
+   "ceiling_rank": 35,
+   "adp_rank": 50,
+   "steal_gap": 15,
+   "injury_risk_pct": 37
+  },
+  {
+   "name": "MarShawn Lloyd",
+   "position": "RB",
+   "adp": 177.1,
+   "proj": 85,
+   "ceiling": 230,
+   "upside": 145,
+   "ceiling_rank": 39,
+   "adp_rank": 54,
+   "steal_gap": 15,
+   "injury_risk_pct": 72
+  },
+  {
+   "name": "De'Zhaun Stribling",
+   "position": "WR",
+   "adp": 134.7,
+   "proj": 117,
+   "ceiling": 226,
+   "upside": 109,
+   "ceiling_rank": 38,
+   "adp_rank": 51,
+   "steal_gap": 13,
+   "injury_risk_pct": 0
+  },
+  {
+   "name": "Terrance Ferguson",
+   "position": "TE",
+   "adp": 196.3,
+   "proj": 98,
+   "ceiling": 171,
+   "upside": 73,
+   "ceiling_rank": 13,
+   "adp_rank": 25,
+   "steal_gap": 12,
+   "injury_risk_pct": 0
+  },
+  {
+   "name": "Jalen McMillan",
+   "position": "WR",
+   "adp": 184,
+   "proj": 126,
+   "ceiling": 216,
+   "upside": 90,
+   "ceiling_rank": 50,
+   "adp_rank": 62,
+   "steal_gap": 12,
+   "injury_risk_pct": 39
+  },
+  {
+   "name": "Mike Evans",
+   "position": "WR",
+   "adp": 59.7,
+   "proj": 183,
+   "ceiling": 249,
+   "upside": 66,
+   "ceiling_rank": 15,
+   "adp_rank": 26,
+   "steal_gap": 11,
+   "injury_risk_pct": 65
+  },
+  {
+   "name": "Rome Odunze",
+   "position": "WR",
+   "adp": 60.8,
+   "proj": 173,
+   "ceiling": 249,
+   "upside": 76,
+   "ceiling_rank": 16,
+   "adp_rank": 27,
+   "steal_gap": 11,
+   "injury_risk_pct": 36
+  },
+  {
+   "name": "Deebo Samuel",
+   "position": "WR",
+   "adp": 128.8,
+   "proj": 145,
+   "ceiling": 226,
+   "upside": 81,
+   "ceiling_rank": 37,
+   "adp_rank": 48,
+   "steal_gap": 11,
+   "injury_risk_pct": 51
+  },
+  {
+   "name": "Chris Rodriguez",
+   "position": "RB",
+   "adp": 150.3,
+   "proj": 104,
+   "ceiling": 244,
+   "upside": 140,
+   "ceiling_rank": 36,
+   "adp_rank": 47,
+   "steal_gap": 11,
+   "injury_risk_pct": 27
+  },
+  {
+   "name": "Christian Watson",
+   "position": "WR",
+   "adp": 63.4,
+   "proj": 194,
+   "ceiling": 248,
+   "upside": 54,
+   "ceiling_rank": 18,
+   "adp_rank": 28,
+   "steal_gap": 10,
+   "injury_risk_pct": 25
+  },
+  {
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "adp": 89.9,
+   "proj": 159,
+   "ceiling": 274,
+   "upside": 115,
+   "ceiling_rank": 23,
+   "adp_rank": 33,
+   "steal_gap": 10,
+   "injury_risk_pct": 35
+  },
+  {
+   "name": "Josh Downs",
+   "position": "WR",
+   "adp": 105.3,
+   "proj": 161,
+   "ceiling": 232,
+   "upside": 71,
+   "ceiling_rank": 31,
+   "adp_rank": 41,
+   "steal_gap": 10,
+   "injury_risk_pct": 61
+  },
+  {
+   "name": "Keaton Mitchell",
+   "position": "RB",
+   "adp": 163.2,
+   "proj": 95,
+   "ceiling": 224,
+   "upside": 129,
+   "ceiling_rank": 41,
+   "adp_rank": 51,
+   "steal_gap": 10,
+   "injury_risk_pct": 33
+  },
+  {
+   "name": "Kyler Murray",
+   "position": "QB",
+   "adp": 123.4,
+   "proj": 325,
+   "ceiling": 419,
+   "upside": 94,
+   "ceiling_rank": 8,
+   "adp_rank": 17,
+   "steal_gap": 9,
+   "injury_risk_pct": 33
+  },
+  {
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "adp": 130.3,
+   "proj": 152,
+   "ceiling": 224,
+   "upside": 72,
+   "ceiling_rank": 41,
+   "adp_rank": 49,
+   "steal_gap": 8,
+   "injury_risk_pct": 35
+  },
+  {
+   "name": "Daniel Jones",
+   "position": "QB",
+   "adp": 178,
+   "proj": 277,
+   "ceiling": 405,
+   "upside": 128,
+   "ceiling_rank": 19,
+   "adp_rank": 27,
+   "steal_gap": 8,
+   "injury_risk_pct": 36
+  },
+  {
+   "name": "Omar Cooper",
+   "position": "WR",
+   "adp": 181.3,
+   "proj": 107,
+   "ceiling": 215,
+   "upside": 108,
+   "ceiling_rank": 52,
+   "adp_rank": 60,
+   "steal_gap": 8,
+   "injury_risk_pct": 38
+  },
+  {
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "adp": 53.8,
+   "proj": 170,
+   "ceiling": 283,
+   "upside": 113,
+   "ceiling_rank": 16,
+   "adp_rank": 23,
+   "steal_gap": 7,
+   "injury_risk_pct": 43
+  },
+  {
+   "name": "Jadarian Price",
+   "position": "RB",
+   "adp": 57.7,
+   "proj": 163,
+   "ceiling": 283,
+   "upside": 120,
+   "ceiling_rank": 17,
+   "adp_rank": 24,
+   "steal_gap": 7,
+   "injury_risk_pct": 29
+  },
+  {
+   "name": "Blake Corum",
+   "position": "RB",
+   "adp": 91.1,
+   "proj": 135,
+   "ceiling": 260,
+   "upside": 125,
+   "ceiling_rank": 27,
+   "adp_rank": 34,
+   "steal_gap": 7,
+   "injury_risk_pct": 33
+  },
+  {
+   "name": "Denzel Boston",
+   "position": "WR",
+   "adp": 165.1,
+   "proj": 121,
+   "ceiling": 215,
+   "upside": 94,
+   "ceiling_rank": 51,
+   "adp_rank": 58,
+   "steal_gap": 7,
+   "injury_risk_pct": 42
+  },
+  {
+   "name": "Stefon Diggs",
+   "position": "WR",
+   "adp": 111.2,
+   "proj": 149,
+   "ceiling": 225,
+   "upside": 76,
+   "ceiling_rank": 39,
+   "adp_rank": 45,
+   "steal_gap": 6,
+   "injury_risk_pct": 31
+  },
+  {
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "adp": 141.5,
+   "proj": 148,
+   "ceiling": 218,
+   "upside": 70,
+   "ceiling_rank": 48,
+   "adp_rank": 54,
+   "steal_gap": 6,
+   "injury_risk_pct": 37
+  },
+  {
+   "name": "Makai Lemon",
+   "position": "WR",
+   "adp": 96.4,
+   "proj": 139,
+   "ceiling": 231,
+   "upside": 92,
+   "ceiling_rank": 33,
+   "adp_rank": 39,
+   "steal_gap": 6,
+   "injury_risk_pct": 33
+  },
+  {
+   "name": "Nicholas Singleton",
+   "position": "RB",
+   "adp": 195.3,
+   "proj": 58,
+   "ceiling": 205,
+   "upside": 147,
+   "ceiling_rank": 52,
+   "adp_rank": 58,
+   "steal_gap": 6,
+   "injury_risk_pct": 19
+  }
+ ],
+ "_steals_caveat": "ceiling_steals is an IF, not a forecast: it ranks players by how much earlier their CEILING would have ranked them AT THEIR OWN POSITION than their ADP did. It says nothing about whether they reach it.",
  "controls": {
   "C1_every_pick_has_every_position": {
    "ok": true,
