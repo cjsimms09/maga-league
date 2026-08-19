@@ -225,12 +225,21 @@ def qb_question(choices: dict, years: dict, league_table: dict) -> dict:
     }
 
 
-def run() -> dict:
-    if not CHOICES.exists():
-        raise SystemExit("no engine_seat_choices.json — dispatch the "
+def run(choices_path: Path | None = None) -> dict:
+    """`choices_path` defaults to the shipping-configuration choice file.
+
+    REGISTER 56 / P107 added sibling files for the VONA arms
+    (`engine_seat_choices_a1.json`, `_a2.json`) produced by the SAME CI job
+    against the SAME bundle. Grading them means pointing this function at one
+    of those instead — the machinery is identical, which is the point: an arm
+    graded by a second grader is an arm graded against a different ruler.
+    """
+    cp = choices_path or CHOICES
+    if not cp.exists():
+        raise SystemExit(f"no {cp.name} — dispatch the "
                          "backtest workflow (it assembles bundles where the "
                          "network is) and pull its commit first")
-    choices = json.loads(CHOICES.read_text())
+    choices = json.loads(cp.read_text())
     league_table = json.loads(LEAGUE_TABLE.read_text())
     restated = json.loads(RESTATED.read_text()) if RESTATED.exists() else None
 
@@ -337,9 +346,19 @@ def run() -> dict:
 
 
 def main() -> None:
-    doc = run()
-    OUT.write_text(json.dumps(doc, indent=1))
-    print(f"wrote {OUT.relative_to(ROOT)}")
+    # `--choices` / `--out` keep the default invocation byte-identical while
+    # letting the P107 arms be graded by this same module.
+    argv = sys.argv[1:]
+    def _arg(name, default):
+        return argv[argv.index(name) + 1] if name in argv else default
+    cp = Path(_arg("--choices", str(CHOICES)))
+    out = Path(_arg("--out", str(OUT)))
+    doc = run(cp)
+    doc["_choices_file"] = cp.name
+    doc["_vona_arm"] = (json.loads(cp.read_text()).get("meta") or {}).get("vona_arm", "a0")
+    out.write_text(json.dumps(doc, indent=1))
+    globals()["OUT"] = out
+    print(f"wrote {out.relative_to(ROOT)}  (arm {doc['_vona_arm']})")
     for s in doc["coverage"]["seasons"]:
         ls = doc["years"][str(s)]["league_summary"]
         o, r_ = ls["optimal"], ls["realistic"]
