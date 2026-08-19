@@ -179,7 +179,16 @@ Object.keys(ARMS).forEach(name => {
     .map(b => ({ week: b.week,
                  unfilled: b.unfilled.filter(u => u !== 'K' && u !== 'DEF') }))
     .filter(b => b.unfilled.length);
+  /* THE ROSTER ITSELF, not just its shape. Added 2026-08-19 for P133: the
+   * report carried position COUNTS only, so "did this arm draft the same
+   * players after a rebuild" was unanswerable from its output — two rosters
+   * with identical counts can share no players at all. Extending the
+   * instrument is the right move when a question needs a field it does not
+   * emit; downgrading the question to what the file happens to contain is
+   * how a prereg quietly becomes a description of the available data. */
   report.arms[name] = { roster_size: roster.length, counts: counts,
+                        roster_ids: roster.map(function (p) { return String(p.player_id); }),
+                        roster_names: roster.map(function (p) { return p.name; }),
                         unfieldable_weeks: bad,
                         unfieldable_skill_weeks: skillBad, weeks: weeks };
 });
