@@ -1,0 +1,64 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/ffanalytics_duplicate.py",
+ "_prereg": "draft/FFANALYTICS-DUPLICATION-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. Writes no board field. no_fit_guard.",
+ "controls": {
+  "C2_pbeta_known_values": {
+   "ok": true,
+   "why": "I_x(1,1)=x; I_.5(a,a)=.5; I_x(a,b)=1-I_(1-x)(b,a). Hand-rolled because scipy is absent."
+  },
+  "C3_wilcox_known_values": {
+   "ok": true,
+   "why": "symmetric triple -> 2; n<=2 returns the plain mean (R L88)"
+  },
+  "C4_whd_brackets_and_median": {
+   "ok": true,
+   "got_median": 51.0,
+   "why": "every quantile inside [min,max]; equal weights on 1..101 -> ~51"
+  },
+  "C1_reproduces_committed_mean": {
+   "ok": true,
+   "worst_abs_diff": 0.005,
+   "worst_player": "3451",
+   "why": "if this harness cannot reproduce numbers ALREADY IN THE REPO, no difference it reports downstream is real"
+  },
+  "C5_baseline_player_has_zero_vor": {
+   "ok": true,
+   "why": "the reference player's own VOR must be exactly 0"
+  }
+ },
+ "controls_all_passed": true,
+ "our_replacement_used": {
+  "RB": 170.47,
+  "WR": 171.85,
+  "QB": 350.26,
+  "TE": 141.45,
+  "DEF": 103.0,
+  "K": 129.25
+ },
+ "ffanalytics_baseline": {
+  "QB": 13,
+  "RB": 35,
+  "WR": 36,
+  "TE": 13,
+  "K": 8,
+  "DEF": 3
+ },
+ "P135": {
+  "estimators_only_moved": 0,
+  "baseline_only_moved": 25,
+  "both_moved": 23,
+  "TRUE": true
+ },
+ "P136": {
+  "top100_moving_5plus": 47,
+  "median_abs_move": 4,
+  "max_move": 24,
+  "TRUE": true
+ },
+ "bands": {
+  "our_median_band_width": 19.3,
+  "ffanalytics_median_band_width": 15.9
+ },
+ "n_players": 481
+}
