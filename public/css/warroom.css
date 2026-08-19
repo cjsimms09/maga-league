@@ -1799,3 +1799,43 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 /* No mobile override left here: the desktop rule above already matches what
    this used to set at <640px. A phone this narrow still relies on
    .pb-grid's overflow-x scroll, same as before. */
+
+/* ROSTER BUILDER MODEL PANEL — ROSTER-BUILDER-PANEL-DESIGN.md, §1: "It is a
+   SECOND VOICE. It never replaces, reorders, or annotates his board." The
+   left accent stripe in --wr-accent (not --wr-structure, which the board's
+   own panels use) is the one visual cue that separates this box from
+   everything around it — if a reader could mistake it for the board's own
+   recommendation, the design failed. rbm-marginal is money-adjacent but
+   deliberately NOT --wr-money/gold: gold is reserved for dollar figures
+   project-wide, and this is a points figure. */
+.rbm-wrap {
+  border: 1px solid var(--wr-line); border-left: 3px solid var(--wr-accent);
+  border-radius: 6px; background: var(--wr-panel); padding: .55rem .7rem;
+  margin: .5rem 0;
+}
+.rbm-head { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; margin-bottom: .4rem; }
+.rbm-title { font-size: var(--wr-fs-title); font-weight: 800; color: var(--wr-accent); letter-spacing: .02em; }
+.rbm-sub { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; }
+.rbm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.rbm-row {
+  display: grid; grid-template-columns: 1.3rem 1fr auto auto auto;
+  align-items: baseline; column-gap: .4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+  padding-bottom: .35rem;
+}
+.rbm-row:last-child { border-bottom: none; padding-bottom: 0; }
+.rbm-rank { font-weight: 800; color: var(--wr-muted); font-variant-numeric: tabular-nums; font-size: var(--wr-fs-micro); }
+.rbm-name { font-weight: 700; color: var(--wr-ink); }
+.rbm-pos { font-size: .58rem; color: var(--wr-muted); text-transform: uppercase; }
+.rbm-adp { font-size: .6rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rbm-marginal { font-weight: 700; color: var(--wr-good); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* spans the full row on the line below name/pos/adp/marginal — the reason
+   Cory asked for this panel at all ("and why"), so it never gets squeezed. */
+.rbm-why { grid-column: 2 / -1; font-size: .64rem; color: var(--wr-warn); font-style: italic; }
+.rbm-foot {
+  margin-top: .5rem; padding-top: .4rem; border-top: 1px solid var(--wr-line);
+  font-size: .58rem; color: var(--wr-muted); display: flex; flex-direction: column; gap: .15rem;
+}
+.rbm-evidence { margin-top: .35rem; font-size: var(--wr-fs-micro); }
+.rbm-evidence summary { cursor: pointer; font-weight: 600; color: var(--wr-structure); list-style: revert; }
+.rbm-evidence p { margin: .3rem 0 0; color: var(--wr-muted); line-height: 1.4; }

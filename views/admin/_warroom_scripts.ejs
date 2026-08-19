@@ -179,6 +179,16 @@
     Loaded before app.js, which calls PositionBoardsView.renderPositionBoards()
     from renderPositionBoardsPanel(). %>
 <script src="/js/draft/position_boards_view.js"></script>
+<%# mlv.js — marginal lineup value, "Roster builder model says" (A's module,
+    ROSTER-BUILDER-PANEL-DESIGN.md, register 132). Pure, stateless: valuing
+    is surplus-over-the-wire so it never recommends a raw-points QB over the
+    board's own ordering. Loaded before app.js, which calls
+    RosterBuilderMLV.recommend() on every render. %>
+<script src="/js/draft/mlv.js"></script>
+<%# rbm_view.js — pure render layer for the panel above (TERRITORY: B), same
+    split as position_boards_view.js: turns RosterBuilderMLV's output into
+    HTML and touches no DOM/state itself. %>
+<script src="/js/draft/rbm_view.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with

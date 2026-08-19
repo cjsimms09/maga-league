@@ -197,6 +197,14 @@ ck('  and app.js calls it unguarded, so loading it is not optional',
     // override_record.js below.
     ['draft_session.js', 'draft state persistence — a missing tag silently '
       + 'restores nothing after a reset'],
+    // mlv.js exports via `root.RosterBuilderMLV = factory()` (a generic UMD
+    // wrapper A wrote, not this codebase's own `global.X =` convention every
+    // other draft/ module uses) — the `provides` scan above only matches the
+    // literal text "global.", so this file is invisible to it even though
+    // app.js calls RosterBuilderMLV.recommend() directly. Same blind spot as
+    // decision_contract.js, caught here instead of live on draft night.
+    ['mlv.js', 'renderRosterBuilderPanel() calls RosterBuilderMLV.recommend() '
+      + 'for the "Roster builder model says" panel'],
   ];
   CROSS_LANE.forEach(([file, why]) => {
     ck(file + ' is loaded in the war room (' + why + ')',
@@ -206,6 +214,9 @@ ck('  and app.js calls it unguarded, so loading it is not optional',
   });
   ck('  the contract loads BEFORE app.js',
     ejs.indexOf('decision_contract.js') < ejs.indexOf('/js/draft/app.js')
+    || ejs.indexOf('/js/draft/app.js') === -1);
+  ck('  mlv.js loads BEFORE app.js',
+    ejs.indexOf('/js/draft/mlv.js') < ejs.indexOf('/js/draft/app.js')
     || ejs.indexOf('/js/draft/app.js') === -1);
 }
 

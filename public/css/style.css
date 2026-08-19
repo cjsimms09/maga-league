@@ -2719,6 +2719,11 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * this is a visual reorder only, and it is reversible in one line if
  * Cory wants the old card back on top. */
 .wr-zone1 > #position-boards   { order: 5; }   /* six columns + strike bar + the toggle — now the FIRST thing on screen */
+/* Same order as #position-boards, immediately after it in the DOM — flex
+ * ties break by source order, so this needs no number of its own. A SECOND
+ * VOICE belongs right beside the board it comments on, not buried past the
+ * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
+.wr-zone1 > #roster-builder-mlv { order: 5; }
 .wr-zone1 > #recs-card         { order: 6; }   /* the retired one-answer card — still fully present, now second */
 .wr-zone1 > #doctrine-banner   { order: 7; }   /* THE PLAN — reference, beneath the rec */
 .wr-zone1 > #legality-strip    { order: 8; }   /* WATCH — reference, beneath the rec */

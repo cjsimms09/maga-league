@@ -1021,6 +1021,33 @@
     }
   }
 
+  /* "ROSTER BUILDER MODEL SAYS" — ROSTER-BUILDER-PANEL-DESIGN.md (A,
+   * 2026-08-19). A SECOND VOICE beside the position boards above: Cory's own
+   * board is unchanged by this panel's existence — it only reports what a
+   * different, cross-position-aware model would take and why.
+   *
+   * §6 of the spec, twice, is why this stays this small: "do not feed it raw
+   * projections" (the module scores surplus-over-the-wire itself — state.board
+   * players already carry proj_mean, and mlv.js does the rest) and "do not let
+   * it write to the board, the roster, or any pick. Report only." This
+   * function computes and renders; nothing here can move a pick. */
+  function renderRosterBuilderPanel() {
+    const host = $('#roster-builder-mlv');
+    if (!host || typeof RosterBuilderMLV === 'undefined' || typeof RBMView === 'undefined') return;
+    const board = state.board || [];
+    if (!board.length) { host.innerHTML = ''; return; }
+    let recs;
+    try {
+      recs = RosterBuilderMLV.recommend(board, state.myRoster || [],
+        { league: state.data.league, topN: 3 });
+    } catch (e) {
+      console.error('[roster-builder]', e && e.message);
+      host.innerHTML = ''; return;
+    }
+    const caveat = (RosterBuilderMLV.EVIDENCE || {}).caveat || null;
+    host.innerHTML = RBMView.render(recs, caveat, escapeHtml);
+  }
+
   /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
    *
    * `display_contract` names each displayable field's units, direction and the
@@ -2536,6 +2563,10 @@
     // just populated. Reordering this ahead of it would silently fall back
     // to the JSON estimate on every render, never the live number.
     safeRender('positionBoards', renderPositionBoardsPanel);
+    // A second voice beside the position boards above — same staleness
+    // reasoning: every pick changes both the available board and Cory's own
+    // roster, so it is recomputed on every render alongside them.
+    safeRender('rosterBuilderMlv', renderRosterBuilderPanel);
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
