@@ -88,7 +88,7 @@ function dirtySet() {
       .split('\n').filter(Boolean).map(l => l.slice(3).trim()));
   } catch (e) { return null; }
 }
-const DIRTY_AT_START = dirtySet();
+let DIRTY_AT_START = dirtySet();
 if (DIRTY_AT_START === null) {
   console.error('REFUSING to sweep: cannot read `git status`, so files this sweep '
     + 'dirties could not be restored. A sweep that cannot clean up after itself '
@@ -96,10 +96,33 @@ if (DIRTY_AT_START === null) {
   process.exit(2);
 }
 const SIDE_EFFECTS = {};
-function restoreRepo(rel) {
+/* ⚠️ RE-SNAPSHOT BEFORE EVERY STUDY, NOT ONCE AT THE START — AND THIS COST ME
+ * THREE EDITS BEFORE I WORKED OUT WHY.
+ *
+ * The first version snapshotted the dirty set ONCE. That is correct only if
+ * nothing but the sweep touches the tree while it runs — and a sweep that takes
+ * an hour runs while its author is still working. It reverted, in order: my
+ * rewrite of `NEED-WEIGHT-PREREG.md` (which was a MERCY — I was clobbering a
+ * preregistration), and then TWICE it silently reverted real source edits,
+ * including `--need` support in `replay_seats.js`.
+ *
+ * THE SECOND ONE ALMOST PUBLISHED A FALSE RESULT. CI dispatched
+ * `replay_seats.js --need 1.0` against a script that no longer understood
+ * `--need`, node ignored the unknown argument, and the run produced a
+ * `_need1.json` choice file BYTE-IDENTICAL to the shipped arm. Graded, P110
+ * would have returned a perfect null — an arm that never ran, reported as an
+ * arm that found nothing. **The only reason it was caught is that `meta.weights`
+ * is READ BACK OFF THE RESOLVED WEIGHT VECTOR instead of echoing the request**,
+ * so the artifact said `MEASURED_WEIGHTS` where it should have said
+ * `MEASURED_WEIGHTS with need=1`.
+ *
+ * So the baseline is re-taken immediately before each study runs. A file the
+ * AUTHOR dirtied between studies is then part of that study's baseline and is
+ * left alone; only what the study itself writes is restored. */
+function restoreRepo(rel, baseline) {
   const now = dirtySet();
   if (!now) return;
-  const caused = [...now].filter(f => !DIRTY_AT_START.has(f));
+  const caused = [...now].filter(f => !baseline.has(f));
   if (!caused.length) return;
   SIDE_EFFECTS[rel] = caused;
   caused.forEach(f => {
@@ -158,6 +181,7 @@ console.log('VONA RE-RUN SWEEP — ' + list.length + ' engine-driven studies, '
 
 const rows = [];
 list.forEach((rel, i) => {
+  const beforeStudy = dirtySet() || DIRTY_AT_START;
   const r0 = run(rel, ARM_A);
   const r1 = run(rel, ARM_B);
   let status, detail = null;
@@ -187,7 +211,7 @@ list.forEach((rel, i) => {
     status = 'DIFFERS';
     detail = firstDiff(r0.out, r1.out);
   }
-  restoreRepo(rel);
+  restoreRepo(rel, beforeStudy);
   const secs = Math.round((r0.ms + r1.ms) / 1000);
   rows.push({ study: rel, status: status, seconds: secs, detail: detail,
               a0_lines: strip(r0.out).split('\n').length });
@@ -204,7 +228,8 @@ if (sideEffectStudies.length) {
     + 'named because a study with side effects cannot be swept safely by anyone '
     + 'who does not know it has them:');
   sideEffectStudies.forEach(k => console.log('     ' + k + '  ->  ' + SIDE_EFFECTS[k].join(', ')));
-  const stillDirty = [...(dirtySet() || [])].filter(f => !DIRTY_AT_START.has(f));
+  const stillDirty = [...(dirtySet() || [])].filter(f => !DIRTY_AT_START.has(f)
+    && Object.values(SIDE_EFFECTS).some(v => v.indexOf(f) >= 0));
   console.log(stillDirty.length
     ? '     ⚠️ STILL DIRTY AFTER RESTORE (untracked, NOT deleted): ' + stillDirty.join(', ')
     : '     repo restored clean.');

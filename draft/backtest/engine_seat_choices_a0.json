@@ -2,7 +2,7 @@
  "_territory": "TERRITORY: A — produced by draft/backtest/replay_seats.js",
  "_note": "CHOICES ONLY — no outcome data enters this file. Grading joins committed weekly stores afterwards via replay_seats_grade.py. Engine: the shipped engine.js/survival.js at the recorded head, MEASURED_WEIGHTS (the War Room configuration), fixed-opponents counterfactual per seat, K/DEF mirrored, keepers as history recorded them.",
  "meta": {
-  "git_head": "b62b906d83c0a0620645fecaf83a275f0bab7a61",
+  "git_head": "06517eb4664266773048187f415003c24a10b400",
   "vona_arm": "a0",
   "vona_flags": {
    "VONA_INCLUDE_SELF": false,
@@ -25,21 +25,21 @@
    {
     "season": 2023,
     "projection_method": "walk_forward",
-    "spearman_vs_adp": 0.5961,
+    "spearman_vs_adp": 0.5963,
     "players_on_board": 841,
     "picks": 150
    },
    {
     "season": 2024,
     "projection_method": "walk_forward",
-    "spearman_vs_adp": 0.533,
+    "spearman_vs_adp": 0.5334,
     "players_on_board": 812,
     "picks": 150
    },
    {
     "season": 2025,
     "projection_method": "walk_forward",
-    "spearman_vs_adp": 0.5486,
+    "spearman_vs_adp": 0.5487,
     "players_on_board": 801,
     "picks": 150
    }

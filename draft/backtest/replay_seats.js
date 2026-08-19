@@ -72,6 +72,24 @@ const ARMS = {
   a1: { VONA_INCLUDE_SELF: true,  VONA_SURVIVAL_RESCALE: false },  // the fix (SHIPPED 08-19)
   a2: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: true },   // the diagnostic
 };
+/* ---- REGISTER 59 / P110 — THE `need` WEIGHT ARM ------------------------
+ * `--need <w>` overrides ONE weight on top of MEASURED_WEIGHTS. It exists
+ * because `need` is the only roster-aware term in the score and it ships at
+ * zero — which is why the tool drives Cory's own schedule to twelve running
+ * backs and two receivers (register 59).
+ *
+ * ONE WEIGHT, NAMED ON THE COMMAND LINE, AND THE RESOLVED VECTOR STAMPED INTO
+ * THE ARTIFACT — never the request. That is not decoration: this file's first
+ * `--need` run was DISPATCHED TO CI AGAINST A COPY OF THIS SCRIPT THAT HAD LOST
+ * THE FLAG, node ignored the unknown argument, and the job produced a choice
+ * file byte-identical to the arm it was supposed to differ from. Graded, P110
+ * would have read as a clean null. The read-back stamp is the only thing that
+ * caught it.
+ *
+ * Not a general weight-vector override: a sweep that can set anything is a
+ * sweep whose result nobody can attribute, which is what no_fit_guard exists
+ * to prevent. */
+const NEED = arg('need', null);
 const ARM = arg('arm', 'a0');
 if (!Object.prototype.hasOwnProperty.call(ARMS, ARM)) {
   console.error('unknown --arm ' + ARM + '; known: ' + Object.keys(ARMS).join(','));
@@ -84,6 +102,17 @@ Object.keys(ARMS[ARM]).forEach(k => {
   }
   E.CFG[k] = ARMS[ARM][k];
 });
+
+/* The weight vector every seat is driven with. MEASURED_WEIGHTS unless --need
+ * names an override, so the default invocation is byte-identical to every
+ * earlier run of this file. */
+const WEIGHTS = (NEED == null)
+  ? E.MEASURED_WEIGHTS
+  : Object.assign({}, E.MEASURED_WEIGHTS, { need: parseFloat(NEED) });
+if (NEED != null && !isFinite(WEIGHTS.need)) {
+  console.error('--need must be a number, got ' + NEED);
+  process.exit(2);
+}
 
 // Cory's picks get the full component readout through this round — the QB
 // question ("does survival/VONA already produce the top-3 drafters' QB
@@ -212,7 +241,7 @@ function replaySeat(bundle, seatId, excludedIds) {
     const ctx = {
       board: board, currentPick: pick.pick_no, nextPick: nextPick || pick.pick_no + teams,
       totalPicks: picks.length, myPicksLeft: myPicksLeft, roster: engineRoster,
-      league: league, weights: E.MEASURED_WEIGHTS, runMultipliers: {}, intervening: [],
+      league: league, weights: WEIGHTS, runMultipliers: {}, intervening: [],
       roundsLeft: Math.max(1, (bundle.rounds || 15) - (pick.round || 1) + 1),
     };
     const scored = E.recommend(ctx);
@@ -308,8 +337,9 @@ function main() {
       vona_arm: ARM,
       vona_flags: { VONA_INCLUDE_SELF: E.CFG.VONA_INCLUDE_SELF,
                     VONA_SURVIVAL_RESCALE: E.CFG.VONA_SURVIVAL_RESCALE },
-      weights: 'MEASURED_WEIGHTS',
-      weights_values: E.MEASURED_WEIGHTS,
+      weights: (NEED == null) ? 'MEASURED_WEIGHTS'
+                              : 'MEASURED_WEIGHTS with need=' + WEIGHTS.need,
+      weights_values: WEIGHTS,
       qb_detail_seat: QB_DETAIL_SEAT,
       qb_detail_through_round: QB_DETAIL_THROUGH_ROUND,
       bundles: bundles.map(b => ({ season: b.season,
