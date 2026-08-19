@@ -1,10 +1,28 @@
 {
-  "_opportunity_cap_why": "0.0 = LAYER OFF, Cory's ruling 2026-08-17 ('Remove 1'), after draft/audit/opportunity_adjustment_2026-08-16.md graded it for the first time: NEUTRAL on ordering in 17 of 18 cells, WORSE on level in 18 of 18 with every CI clear, and a SHUFFLED control (same magnitudes, randomly reassigned within position) performed identically — so it was carrying scale, not player information. It was also structurally one-sided: composite_z handles WR/TE/RB only, so QB/K/DEF carried exactly 0.0000 while RB/WR/TE reached +0.15, lifting three positions against three others in a VORP that compares across positions. Measured effect of turning it off on the live board: 51 of the top 60 overall ranks move and QB1 goes from rank 16 to 10. CENTRING it instead moved QB1 by ONE, because the distortion is the SPREAD (elite RB/WR/TE pinned at the cap while replacement sits near zero), not the level. HONEST LIMIT: the grade ran on reconstructed baselines that FLATTER the layer, so every positive number was an upper bound; its performance against Sleeper's own preseason baseline is unmeasurable until REC-2 grades it in January 2027. REVERSIBLE: restore 0.15 here, nothing else changes.",
-  "_player_volatility_in_tails_why": "ON, ruled by A 2026-08-18 executing Cory's order ('fix!!!! floors and ceilings need to be corrected like I have agreed to' — his explicit override of the no-change-before-08-22 hold for THIS fix). Construction is VOLATILITY-WIRING-PREREG.md §2 verbatim: ceiling = mean x p90[cell] x f, floor = mean x p10[cell] / f, f = player's realized 2025 weekly cv over his cell median, normalized so the measured cell LEVEL is preserved (the §2 gate, tested in test_player_volatility_tails.py). Population fork ruled 2025-ONLY: persistence is measured on one-year transitions (rho +0.482/+0.605), so a 2024 cv on a 2026 board is outside the measured support; a player without a 2025 cv keeps his CELL constant (prereg §3's protection for the injury-return group: Evans, G. Wilson, Nabers, Daniels). Within-cell ceiling spread goes from exactly 1.0x to the measured 1.4-2.0x p10-p90 (ceiling_fix_blast_radius §2). Blast radius: bench branch + playerDollars only; ~~MEASURED_WEIGHTS.ceiling stays 0 and the composite ordering does not move — the weight question remains C1's, post-draft, per prereg §4 arm 3.~~ **STALE AS OF 09f94f99 AND CORRECTED BY THE RELAY 2026-08-18: the live engine carries `MEASURED_WEIGHTS.ceiling = 0.45`.** Cory ruled the weight and it SHIPPED; the sentence above describes the pre-ruling state. This is the FIFTH instance of register 5h — a weight ruling ships and the prose quoting the old number is never updated — and the first one found inside a CONFIG file, which is worse than a doc because a config reads as authoritative. **The blast radius of the ruling itself was measured at 0 of 12 seats (P74), so nothing Cory drafts moves; what was wrong was only this description.** Set to false to revert; nothing else changes.",
-  "_use_measured_ceiling_why": "Cory 2026-08-17: 'We absolutely need to change draft board if we aren't considering upside.' He is right and the board could not express upside at all. proj_ceiling was mean + 1.036*proj_sd — and once REC-1 made proj_sd a per-BAND ratio, that is a monotone transform of the mean, IDENTICAL in shape for every player in a cell. Consequences, all three measured: the bench branch (which ranks on ceiling - mean) ranked Jordan Love, Baker Mayfield, Tyler Shough and Sam Darnold as the highest-upside players on the board, because a QB scores 350-400 and his spread is the largest absolute number almost by construction — engine.js's own comment says this 'measures SCALE, NOT UPSIDE' and added a hard cap to paper over it. CEILING_TIEBREAK, which is ON, was a NO-OP: breaking a near-tie by a monotone function of the mean just picks whoever was already ahead. And the composite ceiling weight was measured as collinear with value and zeroed — a true statement about the FORMULA, not a finding about upside. ON turns proj_ceiling into the MEASURED p90 of realized/projected outcomes (projection_error_calibration: 1,304 graded player-seasons, 20 cells). The same bench ranking then reads Gibbs, Bijan, McCaffrey, Jeremiyah Love, CeeDee Lamb. It also moves the board TOWARD anchors and away from deep fliers (band 33+ ceilings fall a median 7.5, bands 1-8 rise 17-30), which is the direction the barbell pass independently supports — that study read this same calibration directly and found anchors out-ceiling swings with zero overlap. This is a correctness fix on measured data, not a strategy bet. Set to false to revert; nothing else changes with it. Its sibling player_spread_in_sd stays OFF because those modifiers are hand-set constants the fit could not measure (permutation null [0.33, 5.65]).",
+  "_keepers_deadline_why": "THE SINGLE SOURCE OF TRUTH FOR THE KEEPER DEADLINE, ruled by Cory 2026-08-18: \"Keepers will be set by 08/21 at 6pm\". It lives here because register row 42 was a P0 for exactly one reason - there was no such place. B's banner would have announced 'Friday August 21 at 6:00 PM CDT' to all ten managers from a HARDCODED FALLBACK while fifteen files in this repo said 08-20, and nothing could adjudicate. Cory's ruling says the banner's date was right and the fifteen files were wrong. Any surface stating the deadline reads THIS key; a second hardcoded date anywhere is the defect recurring. Guarded against the nightly rebuild by test_config_local_rulings_survive.py - Sleeper has never heard of this key, so an unguarded rebuild would destroy it, which is exactly what happened to use_measured_ceiling on 08-17.",
+  "_opportunity_cap_why": "0.0 = LAYER OFF, Cory's ruling 2026-08-17 ('Remove 1'), after draft/audit/opportunity_adjustment_2026-08-16.md graded it for the first time: NEUTRAL on ordering in 17 of 18 cells, WORSE on level in 18 of 18 with every CI clear, and a SHUFFLED control (same magnitudes, randomly reassigned within position) performed identically \u2014 so it was carrying scale, not player information. It was also structurally one-sided: composite_z handles WR/TE/RB only, so QB/K/DEF carried exactly 0.0000 while RB/WR/TE reached +0.15, lifting three positions against three others in a VORP that compares across positions. Measured effect of turning it off on the live board: 51 of the top 60 overall ranks move and QB1 goes from rank 16 to 10. CENTRING it instead moved QB1 by ONE, because the distortion is the SPREAD (elite RB/WR/TE pinned at the cap while replacement sits near zero), not the level. HONEST LIMIT: the grade ran on reconstructed baselines that FLATTER the layer, so every positive number was an upper bound; its performance against Sleeper's own preseason baseline is unmeasurable until REC-2 grades it in January 2027. REVERSIBLE: restore 0.15 here, nothing else changes.",
+  "_player_volatility_in_tails_why": "ON, ruled by A 2026-08-18 executing Cory's order ('fix!!!! floors and ceilings need to be corrected like I have agreed to' \u2014 his explicit override of the no-change-before-08-22 hold for THIS fix). Construction is VOLATILITY-WIRING-PREREG.md \u00a72 verbatim: ceiling = mean x p90[cell] x f, floor = mean x p10[cell] / f, f = player's realized 2025 weekly cv over his cell median, normalized so the measured cell LEVEL is preserved (the \u00a72 gate, tested in test_player_volatility_tails.py). Population fork ruled 2025-ONLY: persistence is measured on one-year transitions (rho +0.482/+0.605), so a 2024 cv on a 2026 board is outside the measured support; a player without a 2025 cv keeps his CELL constant (prereg \u00a73's protection for the injury-return group: Evans, G. Wilson, Nabers, Daniels). Within-cell ceiling spread goes from exactly 1.0x to the measured 1.4-2.0x p10-p90 (ceiling_fix_blast_radius \u00a72). Blast radius: bench branch + playerDollars only; ~~MEASURED_WEIGHTS.ceiling stays 0 and the composite ordering does not move \u2014 the weight question remains C1's, post-draft, per prereg \u00a74 arm 3.~~ **STALE AS OF 09f94f99 AND CORRECTED BY THE RELAY 2026-08-18: the live engine carries `MEASURED_WEIGHTS.ceiling = 0.45`.** Cory ruled the weight and it SHIPPED; the sentence above describes the pre-ruling state. This is the FIFTH instance of register 5h \u2014 a weight ruling ships and the prose quoting the old number is never updated \u2014 and the first one found inside a CONFIG file, which is worse than a doc because a config reads as authoritative. **The blast radius of the ruling itself was measured at 0 of 12 seats (P74), so nothing Cory drafts moves; what was wrong was only this description.** Set to false to revert; nothing else changes.",
+  "_use_measured_ceiling_why": "Cory 2026-08-17: 'We absolutely need to change draft board if we aren't considering upside.' He is right and the board could not express upside at all. proj_ceiling was mean + 1.036*proj_sd \u2014 and once REC-1 made proj_sd a per-BAND ratio, that is a monotone transform of the mean, IDENTICAL in shape for every player in a cell. Consequences, all three measured: the bench branch (which ranks on ceiling - mean) ranked Jordan Love, Baker Mayfield, Tyler Shough and Sam Darnold as the highest-upside players on the board, because a QB scores 350-400 and his spread is the largest absolute number almost by construction \u2014 engine.js's own comment says this 'measures SCALE, NOT UPSIDE' and added a hard cap to paper over it. CEILING_TIEBREAK, which is ON, was a NO-OP: breaking a near-tie by a monotone function of the mean just picks whoever was already ahead. And the composite ceiling weight was measured as collinear with value and zeroed \u2014 a true statement about the FORMULA, not a finding about upside. ON turns proj_ceiling into the MEASURED p90 of realized/projected outcomes (projection_error_calibration: 1,304 graded player-seasons, 20 cells). The same bench ranking then reads Gibbs, Bijan, McCaffrey, Jeremiyah Love, CeeDee Lamb. It also moves the board TOWARD anchors and away from deep fliers (band 33+ ceilings fall a median 7.5, bands 1-8 rise 17-30), which is the direction the barbell pass independently supports \u2014 that study read this same calibration directly and found anchors out-ceiling swings with zero overlap. This is a correctness fix on measured data, not a strategy bet. Set to false to revert; nothing else changes with it. Its sibling player_spread_in_sd stays OFF because those modifiers are hand-set constants the fit could not measure (permutation null [0.33, 5.65]).",
   "adp_blend_weight": 0.7,
   "bench_size": 6,
   "confirmed": false,
+  "draft": {
+    "_reaches": "\u26a0\ufe0f THIS KEY DOES NOT REACH THE MEMBER DASHBOARD ON ITS OWN. That surface reads `world.config.draft_time` from the runtime store, which is set at /admin and is not in git. This file is the durable record and what the draft tooling reads. Setting the runtime value is a separate action, routed to A.",
+    "_survives_rebuild": "`preserve_local_rulings` in build.py keeps any key the committed file has and Sleeper does not supply, so the nightly rebuild cannot erase this. Guarded by test_config_local_rulings_survive.py::test_the_draft_start_ruling_survives_a_rebuild.",
+    "_why": "Recorded as a RULING rather than left as a fallback. Before this, `src/dashboard.js` read `world.config.draft_time` and fell back to a hardcoded 6:00 PM with a <season>-08-22 date, and NO committed config set either \u2014 so the league was being shown a default nobody had confirmed. Cory confirmed the default is correct (CORY-ASKS A10). The keeper deadline went the same way on 08-18 and for the same reason: a hardcoded default doing load-bearing work is one unchecked sentence away from being wrong, and P71 is the case where fifteen internal files disagreed with a default and the DEFAULT was right.",
+    "cory_ruling_verbatim": "Yes it's 6pm",
+    "pick_clock": {
+      "_what_it_voids": "warroom_charts.js:76 \u2014 'at eight seconds a pick nobody hovers, so it renders a [static form]' \u2014 is the clearest case: detail-on-demand was ruled out BY THE CLOCK, and it is the obvious answer to Cory's 'too busy and wordy'. Register 4e (the shortlist caption) was also declined partly on density-under-time. Both go back to B.",
+      "_why": "Recorded because it is a DESIGN PREMISE, not a scheduling detail. Fifty references across this repo argue from 'eight seconds a pick' \u2014 including live code comments in app.js, engine.js and warroom_charts.js, and the rationale for at least two shipped design decisions. None of them is functional logic (there is no timer), but several are the stated REASON a surface was kept sparse. With no clock those reasons are void and the decisions they justified have to be re-made on their merits.",
+      "cory_ruling_verbatim": "Draft has no time limit",
+      "has_time_limit": false,
+      "ruled_on": "2026-08-18"
+    },
+    "ruled_on": "2026-08-18",
+    "start_date": "2026-08-22",
+    "start_time": "6:00 PM",
+    "tz": "CDT"
+  },
   "draft_type": "snake",
   "history": [
     {
@@ -28,20 +46,20 @@
       "season": "2023"
     }
   ],
-  "imported_at": "2026-08-18T11:20:18Z",
+  "imported_at": "2026-08-19T00:54:03Z",
   "keepers": {
     "cost_model": "top_picks_flat",
     "count": 3,
+    "deadline": {
+      "cory_ruling_verbatim": "Keepers will be set by 08/21 at 6pm",
+      "date": "2026-08-21",
+      "ruled_on": "2026-08-18",
+      "time": "6:00 PM",
+      "tz": "CDT"
+    },
     "max_years": 3,
     "undrafted_round": 10,
-    "undrafted_rule": "assigned_round",
-    "deadline": {
-      "date": "2026-08-21",
-      "time": "6:00 PM",
-      "tz": "CDT",
-      "cory_ruling_verbatim": "Keepers will be set by 08/21 at 6pm",
-      "ruled_on": "2026-08-18"
-    }
+    "undrafted_rule": "assigned_round"
   },
   "league_id": "1374848328470102016",
   "league_name": "Make Football Great Again",
@@ -59,7 +77,7 @@
   "rookie_capital_prior": {
     "cory_approval_verbatim": "I need you to fix this model, even if we need to lower our standards for this year only. give me a draft tool that gives me a chance at edge... lets at least take a swing. take ownership and give me something.",
     "enabled": true,
-    "evidence": "league_benchmark_2026-08-16.md §4: preregistered, cleared its 25% bar on the 3-season all-seats replay (+25.1 pooled optimal = 38% of the Cory gap; realistic-arm league position 2/10 -> 4/10; 2025 +86, 2024 -10.6 — concentration named). Fit classes 2021-2025, all strictly prior to 2026.",
+    "evidence": "league_benchmark_2026-08-16.md \u00a74: preregistered, cleared its 25% bar on the 3-season all-seats replay (+25.1 pooled optimal = 38% of the Cory gap; realistic-arm league position 2/10 -> 4/10; 2025 +86, 2024 -10.6 \u2014 concentration named). Fit classes 2021-2025, all strictly prior to 2026.",
     "ruled": "2026-08-17"
   },
   "roster_size": 15,
@@ -382,23 +400,5 @@
     "day_of_week": 2,
     "is_faab": false,
     "type_code": 1
-  },
-  "_keepers_deadline_why": "THE SINGLE SOURCE OF TRUTH FOR THE KEEPER DEADLINE, ruled by Cory 2026-08-18: \"Keepers will be set by 08/21 at 6pm\". It lives here because register row 42 was a P0 for exactly one reason - there was no such place. B's banner would have announced 'Friday August 21 at 6:00 PM CDT' to all ten managers from a HARDCODED FALLBACK while fifteen files in this repo said 08-20, and nothing could adjudicate. Cory's ruling says the banner's date was right and the fifteen files were wrong. Any surface stating the deadline reads THIS key; a second hardcoded date anywhere is the defect recurring. Guarded against the nightly rebuild by test_config_local_rulings_survive.py - Sleeper has never heard of this key, so an unguarded rebuild would destroy it, which is exactly what happened to use_measured_ceiling on 08-17.",
-  "draft": {
-    "start_date": "2026-08-22",
-    "start_time": "6:00 PM",
-    "tz": "CDT",
-    "cory_ruling_verbatim": "Yes it's 6pm",
-    "ruled_on": "2026-08-18",
-    "_why": "Recorded as a RULING rather than left as a fallback. Before this, `src/dashboard.js` read `world.config.draft_time` and fell back to a hardcoded 6:00 PM with a <season>-08-22 date, and NO committed config set either — so the league was being shown a default nobody had confirmed. Cory confirmed the default is correct (CORY-ASKS A10). The keeper deadline went the same way on 08-18 and for the same reason: a hardcoded default doing load-bearing work is one unchecked sentence away from being wrong, and P71 is the case where fifteen internal files disagreed with a default and the DEFAULT was right.",
-    "_reaches": "⚠️ THIS KEY DOES NOT REACH THE MEMBER DASHBOARD ON ITS OWN. That surface reads `world.config.draft_time` from the runtime store, which is set at /admin and is not in git. This file is the durable record and what the draft tooling reads. Setting the runtime value is a separate action, routed to A.",
-    "_survives_rebuild": "`preserve_local_rulings` in build.py keeps any key the committed file has and Sleeper does not supply, so the nightly rebuild cannot erase this. Guarded by test_config_local_rulings_survive.py::test_the_draft_start_ruling_survives_a_rebuild.",
-    "pick_clock": {
-      "has_time_limit": false,
-      "cory_ruling_verbatim": "Draft has no time limit",
-      "ruled_on": "2026-08-18",
-      "_why": "Recorded because it is a DESIGN PREMISE, not a scheduling detail. Fifty references across this repo argue from 'eight seconds a pick' — including live code comments in app.js, engine.js and warroom_charts.js, and the rationale for at least two shipped design decisions. None of them is functional logic (there is no timer), but several are the stated REASON a surface was kept sparse. With no clock those reasons are void and the decisions they justified have to be re-made on their merits.",
-      "_what_it_voids": "warroom_charts.js:76 — 'at eight seconds a pick nobody hovers, so it renders a [static form]' — is the clearest case: detail-on-demand was ruled out BY THE CLOCK, and it is the obvious answer to Cory's 'too busy and wordy'. Register 4e (the shortlist caption) was also declined partly on density-under-time. Both go back to B."
-    }
   }
 }

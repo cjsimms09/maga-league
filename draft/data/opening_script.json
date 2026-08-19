@@ -2,20 +2,20 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-18T11:20:33Z",
-   "board_content_hash": "afe9ef260c94",
+   "board_built_at": "2026-08-19T00:54:18Z",
+   "board_content_hash": "0186beafc86e",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
-   "designated_slates_hash": "0d0c68bf2ac1"
+   "designated_slates_hash": "d1f0bcdb5644"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
-   "enrolled": "Balanced Value (the control)",
-   "why": "19b race ran; no archetype cleared the paired CI + even-money band"
+   "enrolled": "Elite-TE Anchor",
+   "why": "19b Cory-conditional race: +$26/season vs control (CI [4.75, 48.88], 2.4 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Late-QB +$28"
   },
   "keeper_basis": {
-   "designated_teams": 4,
+   "designated_teams": 5,
    "predicted_slate_teams": 3,
    "supersessions": [
     {
@@ -24,6 +24,14 @@
      "kept_unpredicted": [
       "Ashton Jeanty",
       "Chase Brown"
+     ]
+    },
+    {
+     "handle": "Jreis",
+     "freed": [],
+     "kept_unpredicted": [
+      "A.J. Brown",
+      "James Cook"
      ]
     },
     {
@@ -79,18 +87,18 @@
       "survival": 1.0
      },
      {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 26.6,
+      "survival": 0.26
+     },
+     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.98
-     },
-     {
-      "player_id": "11635",
-      "name": "Ladd McConkey",
-      "position": "WR",
-      "vorp": 25.1,
-      "survival": 0.95
      }
     ]
    },
@@ -130,7 +138,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.9
+      "survival": 0.89
      }
     ]
    },
@@ -156,7 +164,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.83
+      "survival": 0.82
      },
      {
       "player_id": "6770",
@@ -201,18 +209,18 @@
       "survival": 1.0
      },
      {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 26.6,
+      "survival": 0.26
+     },
+     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.98
-     },
-     {
-      "player_id": "11635",
-      "name": "Ladd McConkey",
-      "position": "WR",
-      "vorp": 25.1,
-      "survival": 0.95
      }
     ]
    },
@@ -252,7 +260,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.9
+      "survival": 0.89
      }
     ]
    },
@@ -278,7 +286,7 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.83
+      "survival": 0.82
      },
      {
       "player_id": "6770",
