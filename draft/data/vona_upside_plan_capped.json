@@ -31,18 +31,18 @@
    "ok": true,
    "arm": "capped",
    "cap": {
-    "QB": 2,
+    "QB": 1,
     "RB": 6,
     "WR": 6,
-    "TE": 2,
+    "TE": 1,
     "K": 1,
     "DEF": 1
    },
    "held": {
-    "WR": 4,
-    "RB": 5,
-    "QB": 2,
-    "TE": 2,
+    "WR": 5,
+    "RB": 6,
+    "QB": 1,
+    "TE": 1,
     "DEF": 1,
     "K": 1
    },
@@ -148,12 +148,12 @@
   {
    "pick": 93,
    "role": "bench",
-   "name": "Dallas Goedert",
-   "pos": "TE",
-   "adp": 121.67,
-   "proj": 138.18,
-   "value": 3.944349441641697,
-   "upside": 15,
+   "name": "Zach Charbonnet",
+   "pos": "RB",
+   "adp": 138,
+   "proj": 100.3,
+   "value": 0.9038820985792962,
+   "upside": 14,
    "why": "upside within the value shortlist",
    "shortlist_n": 10,
    "value_pick": "Kenny Gainwell"
@@ -187,15 +187,15 @@
   {
    "pick": 128,
    "role": "bench",
-   "name": "Daniel Jones",
-   "pos": "QB",
-   "adp": 178.67,
-   "proj": 300.27,
-   "value": 0.8154639135352468,
-   "upside": 24.2,
+   "name": "Matthew Golden",
+   "pos": "WR",
+   "adp": 143,
+   "proj": 136.22,
+   "value": 0.5159191367322519,
+   "upside": 7.6,
    "why": "upside within the value shortlist",
    "shortlist_n": 10,
-   "value_pick": "Baker Mayfield"
+   "value_pick": "Xavier Worthy"
   },
   {
    "pick": 133,
@@ -225,10 +225,10 @@
   }
  ],
  "roster_counts": {
-  "WR": 4,
-  "RB": 5,
-  "QB": 2,
-  "TE": 2,
+  "WR": 5,
+  "RB": 6,
+  "QB": 1,
+  "TE": 1,
   "DEF": 1,
   "K": 1
  },
@@ -240,13 +240,13 @@
   },
   {
    "pick": 93,
-   "took": "Dallas Goedert",
+   "took": "Zach Charbonnet",
    "value_would_take": "Kenny Gainwell"
   },
   {
    "pick": 128,
-   "took": "Daniel Jones",
-   "value_would_take": "Baker Mayfield"
+   "took": "Matthew Golden",
+   "value_would_take": "Xavier Worthy"
   },
   {
    "pick": 133,
