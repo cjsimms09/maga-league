@@ -1,0 +1,72 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/reprojection.js",
+ "_prereg": "draft/REPROJECTION-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. Orders on proj_used − waiver, which is the VALUE term, not the full composite. engine.js untouched.",
+ "controls": {
+  "C1_a_zero_is_todays_board": {
+   "ok": true,
+   "why": "the known positive — if the adjuster at zero is not identical to the current ordering, the feature is unsafe to show three days before a draft and nothing else here counts"
+  },
+  "C2_band_coverage_reported": {
+   "ok": true,
+   "players_with_a_real_band": 247,
+   "players_falling_back_to_mean": 363,
+   "rejected_rows": [],
+   "why": "a silent fallback would make the adjuster look weaker than it is and hide which players are inert"
+  },
+  "C3_declared_choices": {
+   "ok": true,
+   "TIE_BAND": 0.02,
+   "FLIP": 0.5,
+   "why": "these are CHOICES, not measurements. Declared in the prereg, reported here, never tuned toward a result."
+  }
+ },
+ "controls_all_passed": true,
+ "band_source": {
+  "with_band": 247,
+  "fallback_to_mean": 363,
+  "pool": 610
+ },
+ "adjuster_steps": [
+  0,
+  0.25,
+  0.5,
+  0.75,
+  1
+ ],
+ "mean_proj_used_at": [
+  82.55,
+  89.27,
+  95.99,
+  102.71,
+  109.44
+ ],
+ "players_above_own_mean_at": [
+  0,
+  247,
+  247,
+  247,
+  247
+ ],
+ "reorder_at_half": {
+  "moved_in_top_100": 92,
+  "median_width_gained": 99.24,
+  "median_width_lost": 52.98,
+  "ratio": 1.87
+ },
+ "tiebreak": {
+  "violations": 0,
+  "tie_groups": 120,
+  "groups_correctly_ordered": 120,
+  "early_groups": 85,
+  "early_ordered_by_floor": 85,
+  "late_groups": 35,
+  "late_ordered_by_ceiling": 35
+ },
+ "grades": {
+  "P182_a0_identical": true,
+  "P183_monotone": true,
+  "P184_reorders_by_width": true,
+  "P185_tiebreak_only_breaks_ties": true
+ }
+}
