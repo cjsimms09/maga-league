@@ -16,17 +16,17 @@
 
 const POSTURE = { COMFORTABLE: 'comfortable', BUBBLE: 'bubble', CHASING: 'chasing' };
 
-/* PROVISIONAL THRESHOLDS (B, 2026-08-19). A's feed does not classify
- * posture yet — flagged in ROUTES.md (B -> A, 2026-08-18): "someone has to
- * first say which state a seat is in," and that needs A's domain logic, not
- * a guess made here. This is a placeholder on p_playoffs alone so the
- * widget isn't blocked waiting for that field; replace the whole function
- * the day the feed ships its own classification, don't extend it. */
+/* A's ruled thresholds (ROUTES.md, A 08-19 same-hour reply to B's 08-18
+ * ask: "someone has to first say which state a seat is in"): >=0.70
+ * comfortable / <=0.30 chasing / bubble between. The feed itself also
+ * carries `posture` per seat now, computed with these same constants —
+ * this function exists so the widget still classifies correctly against
+ * hindcast/fixture data that predates the feed's own field. */
 function posture(pPlayoffs) {
   if (pPlayoffs == null) return null;
-  if (pPlayoffs >= 0.65) return POSTURE.COMFORTABLE;
-  if (pPlayoffs >= 0.25) return POSTURE.BUBBLE;
-  return POSTURE.CHASING;
+  if (pPlayoffs >= 0.70) return POSTURE.COMFORTABLE;
+  if (pPlayoffs <= 0.30) return POSTURE.CHASING;
+  return POSTURE.BUBBLE;
 }
 
 const POSTURE_COPY = {

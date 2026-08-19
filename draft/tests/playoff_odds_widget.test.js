@@ -43,9 +43,9 @@ ck('a cell with no p_playoffs -> not available',
 
 // ── posture: the thresholds, and that copy always matches the classification ──
 {
-  ck('posture: >=65% is comfortable', P.posture(0.65) === 'comfortable' && P.posture(0.9) === 'comfortable');
-  ck('posture: 25-64% is bubble', P.posture(0.25) === 'bubble' && P.posture(0.64) === 'bubble');
-  ck('posture: <25% is chasing', P.posture(0.24) === 'chasing' && P.posture(0) === 'chasing');
+  ck('posture: >=70% is comfortable (A\'s ruled threshold)', P.posture(0.70) === 'comfortable' && P.posture(0.9) === 'comfortable');
+  ck('posture: 31-69% is bubble', P.posture(0.31) === 'bubble' && P.posture(0.69) === 'bubble');
+  ck('posture: <=30% is chasing (A\'s ruled threshold)', P.posture(0.30) === 'chasing' && P.posture(0) === 'chasing');
   ck('posture: null input -> null, not a throw or a guessed default', P.posture(null) === null);
 
   for (const p of [0.9, 0.5, 0.1]) {
