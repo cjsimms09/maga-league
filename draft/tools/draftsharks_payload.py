@@ -43,7 +43,11 @@ HEADERS = {
 # Values the previous capture already proved are in this document. Anchoring on
 # these is what makes the probe testable: if it cannot find a number we KNOW is
 # present, the probe is broken -- not the page. That is the known-positive.
-ANCHORS = ["370", "261", "322"]
+# ⛔ THE FIRST ANCHOR SET WAS BARE NUMBERS AND IT WAS NOISY: "370" matched SVG
+# path coordinates in the site logo, ten times, none of them the data. A good
+# anchor has to be a string that can only be the thing you are looking for.
+# These are players any half-PPR top-25 must contain.
+ANCHORS = ["Chase", "Gibbs", "Jefferson", "Robinson"]
 
 
 def main() -> int:
@@ -71,13 +75,13 @@ def main() -> int:
         for m in re.finditer(pat, html, re.DOTALL):
             raw = m.group(1)
             found.append({"label": label, "bytes": len(raw), "offset": m.start(),
-                          "head": raw[:200]})
+                          "head": raw[:200], "head_full": raw[:6000]})
 
     # 2. Where do the anchor values physically sit?
     anchor_hits = []
     for a in ANCHORS:
-        for m in list(re.finditer(re.escape(a), html))[:4]:
-            s, e = max(0, m.start() - 260), min(len(html), m.end() + 260)
+        for m in list(re.finditer(re.escape(a), html))[:3]:
+            s, e = max(0, m.start() - 300), min(len(html), m.end() + 300)
             anchor_hits.append({"anchor": a, "offset": m.start(),
                                 "context": html[s:e]})
 
@@ -102,6 +106,10 @@ def main() -> int:
         "candidate_payloads": found,
         "api_like_urls": api[:40],
         "anchor_contexts": anchor_hits[:12],
+        "largest_payload_keys": (lambda f: (
+            sorted(set(re.findall(r'[\{,]\s*"?([A-Za-z_][A-Za-z0-9_]{2,30})"?\s*:',
+                                  f[0]["head_full"])))[:60] if f else []))(
+            [dict(x, head_full=x.get("head_full", "")) for x in found[:1]]),
     }
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"status={status} bytes={len(html)} payload_candidates={len(found)} "
