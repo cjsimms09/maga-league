@@ -107,3 +107,45 @@ shortlist N is too wide.
 HERE, before the run, and are not to be tuned by looking at the output.** If the
 roster looks wrong the answer is a new preregistered definition, not a nudged
 constant — that is how `need`, `ceiling` and `opportunity_adj` each went wrong.
+
+---
+
+# ADDENDUM — ARM 2, THE POSITIONAL CAP. Filed and committed BEFORE arm 2 runs.
+
+Arm 1 drafted **QB3 RB5 WR3 TE2 K1 DEF1** — two backup quarterbacks in a 1-QB
+league (P137 FALSE, register 106). **Cory asked for a model that drafts a normal
+roster; an arm that does not is not the deliverable, so the fix happens now
+rather than post-draft.**
+
+## WHY THIS IS NOT A `no_fit_guard` VIOLATION
+
+**The guard forbids choosing a constant because it improved an output.** A
+positional maximum read off the league's own roster rules is a **policy declared
+in advance**, and the derivation is written here before the arm runs. **No number
+below may be changed after seeing arm 2's roster. If arm 2's roster is still
+wrong, the answer is a different preregistered rule, not a nudged cap.**
+
+## THE DERIVATION — one rule per class, from `roster_slots`
+
+League: `QB1 · RB2 · WR2 · TE1 · FLEX1 · K1 · DEF1 · BN6`.
+
+| class | rule | cap |
+|---|---|---|
+| **one-starter skill (QB, TE)** | `starters + 1` — one backup against injury; a 1-QB league never starts two | **QB 2 · TE 2** |
+| **streamed onesies (K, DEF)** | `1` — measured wire churn in THIS league is DEF 100% and K 83% of the pool cycling through waivers (`waiver_supply.js`), so a second is worth less than any bench skill player | **K 1 · DEF 1** |
+| **multi-starter skill (RB, WR)** | `starters + FLEX + 3` | **RB 6 · WR 6** |
+
+Total capacity **18 ≥ 15**, so the cap constrains without making the roster
+infeasible. **Keepers count against the cap** — they occupy roster spots.
+
+## P140
+
+**With the cap, the roster satisfies every bound P137 named** — ≥2 QB, ≥2 TE,
+≤6 RB, **≥4 WR**, exactly 1 K, exactly 1 DEF — **and the STARTER picks are
+identical to arm 1**, because a cap that binds on a starting seat means the cap
+is wrong, not the pick.
+
+**FALSE if** any bound is still missed, or if any starter pick changes.
+
+**Extra control C6:** no position may exceed its cap in the final roster. This is
+enforced in code, so a violation means the enforcement is broken, not the policy.
