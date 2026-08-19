@@ -14,27 +14,27 @@
           "player_id": "7564",
           "name": "Ja'Marr Chase",
           "position": "WR",
-          "vorp": 106.6,
+          "vorp": 121.8,
           "cost_round": 1,
-          "surplus": -4.6,
-          "confidence": "low"
+          "surplus": 10.6,
+          "confidence": "medium"
         },
         {
           "player_id": "3198",
           "name": "Derrick Henry",
           "position": "RB",
-          "vorp": 88.4,
+          "vorp": 109.1,
           "cost_round": 2,
-          "surplus": 31.3,
+          "surplus": 51.9,
           "confidence": "high"
         },
         {
           "player_id": "8151",
           "name": "Kenneth Walker",
           "position": "RB",
-          "vorp": 75.5,
+          "vorp": 83.8,
           "cost_round": 3,
-          "surplus": 33.5,
+          "surplus": 41.8,
           "confidence": "high"
         }
       ],

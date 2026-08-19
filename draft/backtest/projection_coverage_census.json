@@ -7,19 +7,19 @@
   "sleeper": "2026-08-19"
  },
  "universes": {
-  "fantasypros": 430,
-  "own_weekly_v1": 506,
-  "sleeper": 697
+  "fantasypros": 431,
+  "own_weekly_v1": 507,
+  "sleeper": 700
  },
  "silently_dropped_by_price_week": {
-  "n": 114,
+  "n": 116,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 620,
+  "on_board_skill": 623,
   "by_position": {
-   "WR": 43,
+   "WR": 44,
    "RB": 35,
    "TE": 21,
-   "QB": 15
+   "QB": 16
   },
   "in_fantasypros": [
    "2078",
@@ -103,21 +103,21 @@
     "name": "Phil Mafah",
     "position": "RB",
     "proj_mean": 5.7,
-    "adp": 526.0
+    "adp": 527.0
    }
   ]
  },
  "shared_population": {
-  "n": 419,
+  "n": 420,
   "by_position": {
    "WR": 157,
-   "TE": 98,
+   "TE": 99,
    "RB": 97,
    "QB": 67
   },
-  "share_of_sleeper": 0.6011,
-  "share_of_fantasypros": 0.9744,
-  "share_of_ours": 0.8281
+  "share_of_sleeper": 0.6,
+  "share_of_fantasypros": 0.9745,
+  "share_of_ours": 0.8284
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": true,
@@ -150,11 +150,11 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 419,
+   "n": 420,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
-   "n": 506,
+   "n": 507,
    "why": "what the wider universe does, where FantasyPros cannot follow. Reported beside the primary, never instead of it."
   }
  }
