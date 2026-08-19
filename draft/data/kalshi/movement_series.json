@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: A \u2014 built by draft/tools/market_movement_series.py",
+ "_territory": "TERRITORY: A \u2014 written by draft/tools/market_movement_series.py (TERRITORY-GRANT: C, task 21 item 2, 2026-08-19)",
  "_prereg": "draft/backtest/MOVEMENT-VS-OUTCOME-PREREG.md",
  "_note": "Chronological {last, bid, ask, mid, oi} per (player_code|stat|threshold) across every committed season_ladders snapshot; mid only where both book sides exist \u2014 the study price. Rebuilt whole on each run \u2014 the snapshots are the source of truth, this is their join.",
  "snapshot_dates": [

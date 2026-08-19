@@ -1,3 +1,5 @@
+# TERRITORY: A
+# TERRITORY-GRANT: C weekly ticker dollars mid oi status title series build_weekly wk market snap task21 2026-08-19
 """The movement store must FIRE on real movement and must NOT manufacture
 movement from untraded rungs — the exact false-positive its first build
 produced (rule 3e both ways: a positive arm AND the named artifact arm)."""

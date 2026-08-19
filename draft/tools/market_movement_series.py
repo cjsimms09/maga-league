@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# TERRITORY: A
+# TERRITORY-GRANT: C weekly ticker dollars mid oi status title series build_weekly weekly_snapshot_files WEEKLY_DATE_RE _dollars _mid _movers_for _ticker_series yes_bid_dollars yes_ask_dollars last_price_dollars open_interest_fp market movement task21 2026-08-19
 """MARKET MOVEMENT SERIES — day-over-day price movement from the Kalshi
 capture snapshots, consolidated into one grader-ready store.
 
@@ -144,7 +146,7 @@ def build():
                      "oi": rung.get("open_interest")})
     movers = _movers_for(series)
     return {
-        "_territory": "TERRITORY: A — built by draft/tools/market_movement_series.py",
+        "_territory": "TERRITORY: A — written by draft/tools/market_movement_series.py (TERRITORY-GRANT: C, task 21 item 2, 2026-08-19)",
         "_prereg": "draft/backtest/MOVEMENT-VS-OUTCOME-PREREG.md",
         "_note": ("Chronological {last, bid, ask, mid, oi} per "
                   "(player_code|stat|threshold) across every committed "
@@ -199,7 +201,7 @@ def build_weekly():
                      "status": m.get("status"), "title": m.get("title")})
     movers = _movers_for(series)
     return {
-        "_territory": "TERRITORY: A — built by draft/tools/market_movement_series.py",
+        "_territory": "TERRITORY: A — written by draft/tools/market_movement_series.py (TERRITORY-GRANT: C, task 21 item 2, 2026-08-19)",
         "_prereg": "draft/backtest/MOVEMENT-VS-OUTCOME-PREREG.md",
         "_note": ("Chronological {last, bid, ask, mid, oi} per market "
                   "TICKER (the prereg's own join key for this side -- "
