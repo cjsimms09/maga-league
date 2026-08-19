@@ -62,8 +62,16 @@ function fetchedArtifacts() {
   return out;
 }
 
+/* A FINGERPRINT COUNTS AS A STAMP, AND IS A BETTER ONE (register 79, 08-19).
+ * This list was all clocks. But the question this tool asks is "which board or
+ * engine built what Cory is told", and a hash of the inputs answers that
+ * DIRECTLY, where a timestamp only proxies for it — two artifacts built a
+ * minute apart from different boards have near-identical times and different
+ * hashes. It is also reproducible, which a clock is not, so an artifact can be
+ * pinned as committed == regenerated and still carry provenance. */
 const STAMP_KEYS = ['built_at', 'generated_at', 'built', 'git_head', 'as_of',
-                    'board_built_at', 'source_board_built_at', 'scraped_at'];
+                    'board_built_at', 'source_board_built_at', 'scraped_at',
+                    'input_fingerprint'];
 
 function provenanceOf(doc) {
   const hits = {};
@@ -157,7 +165,17 @@ if (fs.existsSync(spPath)) {
     const list = liveTopAt(pk, picks[i + 1] || null, roster, board, i, picks.length);
     const top = list[0];
     const seat = seats.find(s => s.pick === pk) || {};
-    const planned = (seat.plan_player || {});
+    /* `superseded_plan_player` IS STILL THE PLAN'S NAME (A, 2026-08-19).
+     * Reading only `plan_player` made this tool report "PLAN NAMES NOBODY" at
+     * four of Cory's seats, and I routed that to B as a gap in what the war
+     * room tells him. IT IS NOT. `emit_seat_plan` demotes a bench seat to
+     * `superseded_plan_player` when two waiver lines disagree there — the seat
+     * still names a player and says why it was demoted.
+     * `roster_robustness.py:seat_plan_roster` already reads it exactly this
+     * way, so this tool was the odd one out and manufactured its own finding.
+     * The demotion is surfaced as a LABEL rather than folded in silently. */
+    const planned = (seat.plan_player || seat.superseded_plan_player || {});
+    const superseded = !seat.plan_player && !!seat.superseded_plan_player;
 
     /* ⚠️ COMPARE WITHIN THE SEAT'S OWN SLOT. MY FIRST VERSION DID NOT, AND IT
      * PRODUCED A FALSE ALARM I NEARLY REPORTED.
@@ -202,6 +220,7 @@ if (fs.existsSync(spPath)) {
        * surface rather than a conflict with the engine. */
       plan_names_nobody: !planned.name,
       plan_player_rank_within_slot: planRank >= 0 ? planRank + 1 : null,
+      plan_player_superseded: superseded,
       not_comparable: !!alreadyTaken,
     });
     if (top && top.player) {
