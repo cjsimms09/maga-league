@@ -987,6 +987,38 @@
     }
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
       state.projSource || 'ds');
+    wirePositionBoardsScroll(host);
+  }
+
+  /* pb-grid is wider than the panel at a normal desktop width by design
+   * (see .pb-grid's own CSS comment) — a live screenshot showed that
+   * overflow has no visible signal, so K/DEF just vanish off the right
+   * edge with nothing telling you they're there. This measures the real
+   * scrollLeft (Rule 3e/3i: measure, don't assume) and toggles fade/hint
+   * classes only on the edge that actually has more content. Re-run after
+   * every re-render since host.innerHTML above replaces the scrollable
+   * element each time. */
+  function wirePositionBoardsScroll(host) {
+    var grid = host.querySelector('.pb-grid');
+    var wrap = host.querySelector('.pb-wrap');
+    if (!grid || !wrap) return;
+    function update() {
+      var max = grid.scrollWidth - grid.clientWidth;
+      wrap.classList.toggle('pb-grid-more-left', grid.scrollLeft > 2);
+      wrap.classList.toggle('pb-grid-more-right', max > 2 && grid.scrollLeft < max - 2);
+    }
+    update();
+    grid.addEventListener('scroll', update, { passive: true });
+    /* A synchronous update() right after innerHTML assignment measured a
+     * false "no overflow" on first load in real testing — the right rail's
+     * own async content was still settling and briefly left this panel
+     * wider than its final width. ResizeObserver's callback fires once on
+     * observe() with the CURRENT size and again on every later layout
+     * change (rail content finishing, window resize), so the fade/hint
+     * self-corrects once the page settles instead of staying wrong. */
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(update).observe(grid);
+    }
   }
 
   /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.

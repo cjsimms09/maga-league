@@ -424,9 +424,26 @@
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
         + ' (round ' + esc(String(pick.round)) + ')'
         + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '') + '</div>'
+      /* pb-toolbar: the six pb-grid columns are wider than the panel at a
+       * normal desktop width by design (see .pb-grid's own CSS comment —
+       * widening to fit the header labels without ellipsis pushed K/DEF
+       * off-screen). That is an honest trade, but a live screenshot (Cory:
+       * "keep improving layout... professional fantasy site") showed it has
+       * no visible affordance: the 5th column ends in a bare sliver at the
+       * panel edge with nothing telling you two more boards exist or that
+       * you can scroll to them. The hint lives here, in the toolbar's own
+       * empty space, rather than overlaid on the grid — a first attempt
+       * put it in the grid's own corner and a live screenshot caught it
+       * sitting on top of the TE column's "+66.6 wire" text, clipping a
+       * real number. app.js's renderPositionBoardsPanel toggles the
+       * pb-grid-more-left/right classes on .pb-wrap from a real scrollLeft
+       * measurement after every render. */
       + strikeBar(data, esc)
-      + projSourceToggle(esc, src)
-      + '<div class="pb-grid">' + cols + '</div>'
+      + '<div class="pb-toolbar">'
+        + projSourceToggle(esc, src)
+        + '<div class="pb-grid-hint" aria-hidden="true">scroll for more →</div>'
+      + '</div>'
+      + '<div class="pb-grid-wrap"><div class="pb-grid">' + cols + '</div></div>'
       + opponentsStrip(data.opponents_compact, esc)
       + dropoffsStrip(data.round_dropoffs, esc)
       + stealsStrip(data.ceiling_steals, data._steals_caveat, esc)

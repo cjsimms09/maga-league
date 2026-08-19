@@ -157,6 +157,31 @@ function mkData() {
     && !/class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlDs));
 }
 
+// ── the horizontal-scroll affordance (six columns are wider than the panel
+// at a normal desktop width by design — see .pb-grid's own CSS comment; a
+// live screenshot showed K/DEF vanishing off the right edge with no signal
+// anything was there. app.js measures real scrollLeft and toggles
+// pb-grid-more-left/right on .pb-wrap; this only checks the static markup
+// those classes hook into is present, and — the defect an earlier version
+// actually shipped — that the hint sits in the toolbar's own space rather
+// than overlaid on a column where it would clip real text) ────────────────
+{
+  const d = mkData();
+  const html = V.renderPositionBoards(d, 33, null, esc);
+  ck('the toggle and the scroll hint share one toolbar row, not the grid itself',
+    /<div class="pb-toolbar">[\s\S]*?pb-src-toggle[\s\S]*?pb-grid-hint[\s\S]*?<\/div>/.test(html));
+  ck('the hint text names the action, not just a bare arrow',
+    /class="pb-grid-hint" aria-hidden="true">scroll for more/.test(html));
+  ck('the hint is OUTSIDE pb-grid-wrap — it must never sit on top of a column\'s own text',
+    (function () {
+      const wrapIdx = html.indexOf('pb-grid-wrap');
+      const hintIdx = html.indexOf('pb-grid-hint');
+      return hintIdx > -1 && wrapIdx > -1 && hintIdx < wrapIdx;
+    })());
+  ck('pb-grid itself is unchanged — still the six-column scroll container the classes attach to',
+    /<div class="pb-grid-wrap"><div class="pb-grid">/.test(html));
+}
+
 // ── the row restructure: 4 columns, not 6 (measured width fix — six nowrap
 // numeric columns did not fit an ~120px table cell budget at any readable
 // size; a 3-column subline attempt after that wrapped every row to 3-4 lines

@@ -1569,7 +1569,7 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    be able to toggle between them." Ranking/selection stay Draft-Sharks-fixed
    — this only swaps which number each row prints, so it reads as a quiet
    display switch, not a second ranking control. */
-.pb-src-toggle { display: flex; gap: .3rem; margin: 0 0 .5rem; }
+.pb-src-toggle { display: flex; gap: .3rem; }
 .pb-src-btn {
   font-size: .64rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
   color: var(--wr-muted); background: var(--wr-panel); border: 1px solid var(--wr-line);
@@ -1592,6 +1592,34 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   display: grid; grid-template-columns: repeat(6, minmax(12.5rem, 1fr));
   gap: .5rem; overflow-x: auto; padding-bottom: .15rem;
 }
+/* THE SCROLL AFFORDANCE — pb-grid is wider than the panel at a normal
+   desktop width by design (see .pb-grid's comment below), and a live
+   screenshot showed that overflow has no visible signal: the last column
+   just ends in a bare sliver with nothing telling you K/DEF exist past it.
+   .pb-wrap gets pb-grid-more-left/right classes from app.js, from a real
+   scrollLeft measurement (a naive `overflow: hidden` check right after
+   render read the panel's PRE-layout width and missed the overflow
+   entirely in real testing — a ResizeObserver re-checks once the page
+   settles). The fade only shows on the edge that actually has more
+   content. The hint label lives in the toolbar row's own empty space, not
+   overlaid on the grid — a first version sat in the grid's own corner and
+   a live screenshot caught it painted over the TE column's "+66.6 wire"
+   text, clipping a real number the same way the ellipsis headers used to. */
+.pb-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: 0 0 .5rem; }
+.pb-grid-hint {
+  font-size: .58rem; color: var(--wr-muted); font-style: italic;
+  white-space: nowrap; opacity: 0; transition: opacity .15s;
+}
+.pb-wrap.pb-grid-more-right .pb-grid-hint { opacity: 1; }
+.pb-grid-wrap { position: relative; }
+.pb-grid-wrap::before, .pb-grid-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: .15rem; width: 1.8rem;
+  pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 1;
+}
+.pb-grid-wrap::before { left: 0; background: linear-gradient(to right, var(--wr-panel), transparent); }
+.pb-grid-wrap::after { right: 0; background: linear-gradient(to left, var(--wr-panel), transparent); }
+.pb-wrap.pb-grid-more-left .pb-grid-wrap::before { opacity: 1; }
+.pb-wrap.pb-grid-more-right .pb-grid-wrap::after { opacity: 1; }
 .pb-col {
   /* min-width: 0, NOT a rem value — a grid item's default minimum size is
      `auto`, which resolves to its CONTENT's min-content width and silently
