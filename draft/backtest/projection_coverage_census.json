@@ -3,22 +3,22 @@
  "_question": "which players can a three-way weekly grade actually compare?",
  "_limit": "SEASON projections used as the pre-season proxy for the WEEKLY universes. Re-test at week 1 from real weekly snapshots.",
  "measured_from": {
-  "fantasypros": "2026-08-18",
-  "sleeper": "2026-08-18"
+  "fantasypros": "2026-08-19",
+  "sleeper": "2026-08-19"
  },
  "universes": {
-  "fantasypros": 427,
+  "fantasypros": 430,
   "own_weekly_v1": 506,
-  "sleeper": 696
+  "sleeper": 697
  },
  "silently_dropped_by_price_week": {
-  "n": 113,
+  "n": 114,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 619,
+  "on_board_skill": 620,
   "by_position": {
    "WR": 43,
    "RB": 35,
-   "TE": 20,
+   "TE": 21,
    "QB": 15
   },
   "in_fantasypros": [
@@ -31,6 +31,7 @@
    "11583",
    "12467",
    "12511",
+   "12515",
    "12738"
   ],
   "named_top": [
@@ -46,96 +47,96 @@
     "name": "Deshaun Watson",
     "position": "QB",
     "proj_mean": 112.06,
-    "adp": 228.0
+    "adp": 229.0
    },
    {
     "player_id": "9502",
     "name": "Tank Dell",
     "position": "WR",
     "proj_mean": 57.4,
-    "adp": 186.5
+    "adp": 185.5
    },
    {
     "player_id": "12467",
     "name": "Jordan James",
     "position": "RB",
     "proj_mean": 54.2,
-    "adp": 238.0
+    "adp": 239.0
    },
    {
     "player_id": "11581",
     "name": "MarShawn Lloyd",
     "position": "RB",
     "proj_mean": 48.3,
-    "adp": 180.0
+    "adp": 178.0
    },
    {
     "player_id": "12511",
     "name": "Will Howard",
     "position": "QB",
     "proj_mean": 24.5,
-    "adp": 424.0
+    "adp": 426.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
     "proj_mean": 23.0,
-    "adp": 434.0
+    "adp": 436.0
    },
    {
     "player_id": "9999",
     "name": "Will Levis",
     "position": "QB",
     "proj_mean": 13.7,
-    "adp": 471.0
+    "adp": 472.0
    },
    {
     "player_id": "11292",
     "name": "Tommy DeVito",
     "position": "QB",
     "proj_mean": 13.38,
-    "adp": 482.0
+    "adp": 483.0
    },
    {
     "player_id": "12738",
     "name": "Phil Mafah",
     "position": "RB",
     "proj_mean": 5.7,
-    "adp": 525.0
+    "adp": 526.0
    }
   ]
  },
  "shared_population": {
-  "n": 417,
+  "n": 419,
   "by_position": {
-   "WR": 156,
+   "WR": 157,
+   "TE": 98,
    "RB": 97,
-   "TE": 97,
    "QB": 67
   },
-  "share_of_sleeper": 0.5991,
-  "share_of_fantasypros": 0.9766,
-  "share_of_ours": 0.8241
+  "share_of_sleeper": 0.6011,
+  "share_of_fantasypros": 0.9744,
+  "share_of_ours": 0.8281
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": true,
   "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": true,
   "in_ours_not_fantasypros": {
-   "n": 89,
+   "n": 87,
    "by_position": {
-    "WR": 41,
+    "WR": 40,
     "RB": 26,
-    "TE": 14,
+    "TE": 13,
     "QB": 8
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 10,
+   "n": 11,
    "by_position": {
+    "RB": 5,
     "QB": 4,
-    "RB": 4,
     "WR": 2
    }
   }
@@ -149,7 +150,7 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 417,
+   "n": 419,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {

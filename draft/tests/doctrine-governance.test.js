@@ -197,7 +197,16 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
   const mk = (id, pos, v, team) => ({ player_id: String(id), name: pos + id, position: pos,
     team: team || 'X', vorp: v, proj_mean: 100 + v, proj_ceiling: 130 + v, proj_floor: 70,
     proj_sd: 20, adjusted_adp: 40 - v / 6, raw_adp: 40 - v / 6, adp_sd: 5, adp_source: 'ffc' });
-  const bd = [mk(1, 'RB', 60), mk(2, 'WR', 59.4), mk(3, 'RB', 52), mk(4, 'WR', 51),
+  /* ⚠️ RB1's MARGIN WIDENED 60 -> 75 ON 2026-08-19, and the reason belongs
+   * here: these arms need the wr_anchor doctrine to LOSE, and with 60 vs 59.4
+   * it lost by a hair that the VONA self-exclusion fix (register 56) reversed —
+   * the doctrine started WINNING and every "when it loses" arm became
+   * unexercisable, reporting a governance failure that had not happened. A
+   * fixture whose intended state hangs on 0.6 of VORP is a fixture that will
+   * flip again on the next honest engine change. The margin is now large enough
+   * that the LOSS is the fixture's property rather than an accident of the
+   * current scorer. */
+  const bd = [mk(1, 'RB', 75), mk(2, 'WR', 59.4), mk(3, 'RB', 52), mk(4, 'WR', 51),
               mk(5, 'TE', 40), mk(6, 'QB', 38), mk(9, 'K', 8), mk(10, 'DEF', 9)];
   const ctx = d => ({ board: bd.slice(), roster: [],
     league: { starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 }, teams: 10 },

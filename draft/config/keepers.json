@@ -80,6 +80,27 @@
     {
       "draft_slot": 3,
       "slot_provisional": true,
+      "owner_id": "440723317066821632",
+      "keepers": [
+        {
+          "player_id": "5859",
+          "name": "A.J. Brown",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "8138",
+          "name": "James Cook",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 4,
+      "slot_provisional": true,
       "owner_id": "461443264013135872",
       "keepers": [
         {
@@ -107,10 +128,10 @@
     }
   ],
   "_note": "generated from final_rosters keeper designations. Slots marked slot_provisional=true are placeholders: the COUNT is real and drives the pool and my pick numbers correctly, but WHICH seat that team occupies is not known until the draft order is set.",
-  "_placed_teams": 4,
-  "_provisional_slots": 3,
-  "_total_keepers": 11,
-  "_designating_teams": 4,
+  "_placed_teams": 5,
+  "_provisional_slots": 4,
+  "_total_keepers": 13,
+  "_designating_teams": 5,
   "_designations_source": "sleeper",
   "_problems": []
 }

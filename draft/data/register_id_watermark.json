@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 55,
+ "next_numeric_id": 60,
  "history": [
   {
    "id": 47,
@@ -26,6 +26,31 @@
   {
    "id": 54,
    "claimed_at": "2026-08-19"
+  },
+  {
+   "id": 55,
+   "claimed_at": "2026-08-19",
+   "note": "A: board gate cannot distinguish a bad board from unhappy tooling"
+  },
+  {
+   "id": 56,
+   "claimed_at": "2026-08-19",
+   "note": "A: VONA excludes the player from his own next-pick pool"
+  },
+  {
+   "id": 57,
+   "claimed_at": "2026-08-19",
+   "note": "A: two implementations of within-position share disagree in SIGN on the live board"
+  },
+  {
+   "id": 58,
+   "claimed_at": "2026-08-19",
+   "note": "A: studies write committed artifacts as a side effect; a timeout leaves a truncated one"
+  },
+  {
+   "id": 59,
+   "claimed_at": "2026-08-19",
+   "note": "A: the tool drafts 12 RBs and 2 WRs; need+bye ship at weight 0"
   }
  ]
 }

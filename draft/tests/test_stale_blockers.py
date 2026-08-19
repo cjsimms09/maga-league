@@ -167,7 +167,34 @@ def test_the_live_corpus_still_surfaces_the_pair_this_was_built_for():
     assert "graded_test" in blend or "_ruling" in blend, (
         "proj_mean_blend regressed to a refusal — if the blocker is back, "
         "restore the original pairing assertion")
+    # THE CORPUS MUST BE DATED FOR THIS TO MEAN ANYTHING, and in a shallow
+    # checkout it is not: `committed_at()` shells `git log -1 -- <path>`, and
+    # draft-data.yml checks out with `fetch-depth: 2`, so almost every
+    # artifact's last-touching commit is outside the fetched history, `at`
+    # comes back None, and pairs() correctly skips undated rows (the rule
+    # `test_a_refusal_with_no_commit_date_is_skipped_not_guessed` pins).
+    # My first cut asserted pairs unconditionally: green locally (106/106
+    # dated), RED in the board gate — it measured checkout depth and called
+    # it blindness, refusing a good board twice (runs 32199445523 /
+    # 32200542104). Skip loudly rather than pass quietly (A, 08-19).
+    # THE PRECONDITION IS WHAT THE TOOL NEEDS, NOT A PROXY FOR IT. Pairing
+    # requires a DATED refusal and a DATED artifact committed after it —
+    # that is the whole mechanism. Two earlier attempts guessed instead and
+    # both were wrong: "fewer than 10 dated rows" (draft-data.yml's last two
+    # commits clear 10 while pairing stays impossible, run 32201791331) and
+    # `is-shallow-repository` (true in this sandbox too, which would have
+    # disabled the guard everywhere — a check that never runs is the class
+    # the relay flagged). So compute the precondition exactly.
+    refusals = [r for r in rows if r.get("blocked") and r.get("at")]
+    dated = [r for r in rows if r.get("at")]
+    pairing_possible = any(any(l["at"] > f["at"] for l in dated) for f in refusals)
+    if not pairing_possible:
+        import pytest
+        pytest.skip(f"{len(refusals)} dated refusals / {len(dated)} of "
+                    f"{len(rows)} artifacts dated — no refusal has a later "
+                    "dated artifact to pair with, so pairing is unmeasurable "
+                    "in this checkout (shallow clone); run in a full clone")
     got = S.pairs(rows, min_shared=3, min_score=0.0)
-    assert got, "the tool finds NO pairs on the live corpus — it has gone blind"
+    assert got, "the tool finds NO pairs on a DATED live corpus — it has gone blind"
     assert got[0][0]["path"].endswith("proj_mean_blend.json"), \
         f"the founding case is no longer ranked first: {got[0][0]['path']}"

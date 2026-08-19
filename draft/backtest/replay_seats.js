@@ -44,6 +44,76 @@ const arg = (n, d) => { const i = process.argv.indexOf('--' + n); return i >= 0 
 const IN = arg('in', path.join(__dirname, 'bundles.json'));
 const OUT = arg('out', path.join(__dirname, 'engine_seat_choices.json'));
 
+/* ---- REGISTER 56 / P107 ARMS -------------------------------------------
+ * `--arm` selects a VONA configuration. The default is a0, the PRE-FIX
+ * engine — which was the shipping one until Cory ruled on the P107 grade on
+ * 2026-08-19 and a1 shipped. The default is left at a0 so the committed
+ * `engine_seat_choices.json` keeps meaning what every earlier reading of it
+ * meant; the shipped configuration is now `--arm a1`.
+ *
+ * WHY THE ARMS ARE SELECTED HERE AND NOT BY THREE FORKED COPIES OF THIS FILE:
+ * the bundle is REASSEMBLED on every CI run (Sleeper and FFC are refused at
+ * CONNECT in the agent sandbox, so it cannot be committed), and two runs can
+ * therefore see two different player universes. An A1-minus-A0 delta taken
+ * across two runs would be confounded by that drift. Passing `--arm` lets one
+ * CI job drive all three arms through ONE `bundles.json`, which is the only
+ * way the difference means what the prereg says it means.
+ *
+ * The arm is stamped into meta so a choice file can never be read as the
+ * shipping configuration when it is not. */
+/* EVERY ARM PINS EVERY FLAG. `a0: {}` was correct for exactly one day and
+ * became a silent bug the moment Cory shipped the fix (2026-08-19): an arm
+ * that sets nothing INHERITS the shipped default, so "a0" would have quietly
+ * become a second copy of a1 and the next A1-minus-A0 delta would have read
+ * as a clean zero. An arm is a configuration, not a diff against whatever
+ * happens to be shipping. */
+const ARMS = {
+  a0: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false },  // pre-fix
+  a1: { VONA_INCLUDE_SELF: true,  VONA_SURVIVAL_RESCALE: false },  // the fix (SHIPPED 08-19)
+  a2: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: true },   // the diagnostic
+};
+/* ---- REGISTER 59 / P110 — THE `need` WEIGHT ARM ------------------------
+ * `--need <w>` overrides ONE weight on top of MEASURED_WEIGHTS. It exists
+ * because `need` is the only roster-aware term in the score and it ships at
+ * zero — which is why the tool drives Cory's own schedule to twelve running
+ * backs and two receivers (register 59).
+ *
+ * ONE WEIGHT, NAMED ON THE COMMAND LINE, AND THE RESOLVED VECTOR STAMPED INTO
+ * THE ARTIFACT — never the request. That is not decoration: this file's first
+ * `--need` run was DISPATCHED TO CI AGAINST A COPY OF THIS SCRIPT THAT HAD LOST
+ * THE FLAG, node ignored the unknown argument, and the job produced a choice
+ * file byte-identical to the arm it was supposed to differ from. Graded, P110
+ * would have read as a clean null. The read-back stamp is the only thing that
+ * caught it.
+ *
+ * Not a general weight-vector override: a sweep that can set anything is a
+ * sweep whose result nobody can attribute, which is what no_fit_guard exists
+ * to prevent. */
+const NEED = arg('need', null);
+const ARM = arg('arm', 'a0');
+if (!Object.prototype.hasOwnProperty.call(ARMS, ARM)) {
+  console.error('unknown --arm ' + ARM + '; known: ' + Object.keys(ARMS).join(','));
+  process.exit(2);
+}
+Object.keys(ARMS[ARM]).forEach(k => {
+  if (!(k in E.CFG)) {                   // a renamed flag must not fail SILENT
+    console.error('arm ' + ARM + ' sets unknown engine flag ' + k);
+    process.exit(2);
+  }
+  E.CFG[k] = ARMS[ARM][k];
+});
+
+/* The weight vector every seat is driven with. MEASURED_WEIGHTS unless --need
+ * names an override, so the default invocation is byte-identical to every
+ * earlier run of this file. */
+const WEIGHTS = (NEED == null)
+  ? E.MEASURED_WEIGHTS
+  : Object.assign({}, E.MEASURED_WEIGHTS, { need: parseFloat(NEED) });
+if (NEED != null && !isFinite(WEIGHTS.need)) {
+  console.error('--need must be a number, got ' + NEED);
+  process.exit(2);
+}
+
 // Cory's picks get the full component readout through this round — the QB
 // question ("does survival/VONA already produce the top-3 drafters' QB
 // wait?") is answered from the engine's own published components, not from a
@@ -171,7 +241,7 @@ function replaySeat(bundle, seatId, excludedIds) {
     const ctx = {
       board: board, currentPick: pick.pick_no, nextPick: nextPick || pick.pick_no + teams,
       totalPicks: picks.length, myPicksLeft: myPicksLeft, roster: engineRoster,
-      league: league, weights: E.MEASURED_WEIGHTS, runMultipliers: {}, intervening: [],
+      league: league, weights: WEIGHTS, runMultipliers: {}, intervening: [],
       roundsLeft: Math.max(1, (bundle.rounds || 15) - (pick.round || 1) + 1),
     };
     const scored = E.recommend(ctx);
@@ -261,8 +331,15 @@ function main() {
       + 'recorded them.',
     meta: {
       git_head: gitHead(),
-      weights: 'MEASURED_WEIGHTS',
-      weights_values: E.MEASURED_WEIGHTS,
+      // REGISTER 56 / P107. `vona_arm` names the configuration; `vona_flags`
+      // is read back OFF THE ENGINE rather than echoing the request, so a
+      // flag that failed to apply shows up in the artifact as what it is.
+      vona_arm: ARM,
+      vona_flags: { VONA_INCLUDE_SELF: E.CFG.VONA_INCLUDE_SELF,
+                    VONA_SURVIVAL_RESCALE: E.CFG.VONA_SURVIVAL_RESCALE },
+      weights: (NEED == null) ? 'MEASURED_WEIGHTS'
+                              : 'MEASURED_WEIGHTS with need=' + WEIGHTS.need,
+      weights_values: WEIGHTS,
       qb_detail_seat: QB_DETAIL_SEAT,
       qb_detail_through_round: QB_DETAIL_THROUGH_ROUND,
       bundles: bundles.map(b => ({ season: b.season,

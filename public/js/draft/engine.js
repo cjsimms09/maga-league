@@ -243,6 +243,50 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* REGISTER 56 — THE SELF-EXCLUSION FIX, BEHIND A FLAG AND DEFAULTED OFF.
+     *
+     * `vona()` asks what it costs to WAIT on a player, and computes the answer
+     * over a pool that excludes that player. But if you pass on him, he is one
+     * of the men who might still be there at your next pick -- with probability
+     * `survival(him, nextPick)`. Excluding him asserts that probability is ZERO
+     * for every player on the board. Measured on the live 08-19 board at pick 48
+     * (next turn 53): Los Angeles Rams DEF, survival 0.9999999995, VONA 14.0.
+     * Certain to be there, priced at fourteen points of urgency.
+     *
+     * For the TOP man at a position, including him collapses algebraically to
+     * (1 - s) x (proj - E[best OTHER]) -- the wait only costs you in the worlds
+     * where he is gone. Below the top the two differ, and the include-self form
+     * is the one that stays right there, which is why THIS is the arm and the
+     * flat rescale below is only a diagnostic.
+     *
+     * DEFAULT OFF UNTIL GRADED. `VONA-SELF-EXCLUSION-PREREG.md`, P107. The
+     * default is the shipping behaviour on purpose: this is the primary
+     * decision metric and the prereg's own date gate says nothing reaches
+     * Cory's board before 2026-08-22.
+     *
+     * ✅ ON, 2026-08-19, BY CORY'S RULING ("ship it now") — MADE ON THE GRADE,
+     * NOT ON THE ARGUMENT. P107: +114.1 points per seat-season, CI95
+     * [+48.0, +180.1], season-CLUSTERED [+38.5, +189.6], POSITIVE IN 3 SEASONS
+     * OF 3, better in 24 of 30 seat-seasons, Cory's own seat +188.5 / +164.8 /
+     * +155.5. The date gate was mine and he overruled it with the numbers in
+     * front of him, including what it costs: THIS CHANGES HIS FIRST-ROUND PICK
+     * (QB Josh Allen -> RB James Cook at 8) and moves the first QB from round 1
+     * to pick 108.
+     *
+     * TWO CAVEATS THAT TRAVEL WITH THE NUMBER, because a flag comment is where
+     * they will actually be read: the `realistic` lineup arm is a NULL
+     * (+12.4 [-49.0, +73.9]) — this builds a better ROSTER and at n=30 that
+     * does not yet show through the noise of setting lineups from it (P108);
+     * and the shipping engine LOSES to the median owner in every replayed
+     * season, so this closes about a third of a gap it does not close.
+     * `VONA-SELF-EXCLUSION-PREREG.md`, audit `vona_self_exclusion_2026-08-19.md`. */
+    VONA_INCLUDE_SELF: true,
+    /* THE DIAGNOSTIC ARM (A2) — flat `(1 - s) x straight` for everyone.
+     * Prototyped 08-19 and it collapses VONA toward zero for every player who
+     * will last, which hands the ranking to the leftover terms: C.J. Stroud,
+     * Bryce Young and Geno Smith entered a top-6. Kept as a runnable arm rather
+     * than a remembered anecdote. SHIPS UNDER NO OUTCOME. */
+    VONA_SURVIVAL_RESCALE: false,
     /* WIRE-COMPARED BENCH BRANCH — ON by Cory's ruling, 2026-08-16 ("1. Yes"),
      * made with the evidence in front of him: the QB2 anomaly that blocked
      * this was exonerated (it belongs to VONA_SLOT_AWARE, which stays false),
@@ -972,9 +1016,26 @@
   function vona(player, board, nextPick, survivalCtx) {
     if (nextPick == null) return player.proj_mean; // no future pick: everything is at stake
     const ctx = survivalCtx || {};
-    const samePos = board.filter(p => p.position === player.position && p.player_id !== player.player_id);
+    /* REGISTER 56. `VONA_INCLUDE_SELF` decides whether the man you are pricing
+     * is in the pool of what is available at your own next pick. He is, with
+     * probability survival(him, nextPick) -- excluding him asserts that is zero.
+     * expectedBestAvailable already handles him correctly once he is in the
+     * list, because it is an expectation over "best SURVIVOR", so no second
+     * formula is written here and none can drift from the first. */
+    const samePos = board.filter(p => p.position === player.position
+      && (CFG.VONA_INCLUDE_SELF || p.player_id !== player.player_id));
     const sameEba = expectedBestAvailable(samePos, nextPick, ctx);
-    const straight = player.proj_mean - sameEba;
+    let straight = player.proj_mean - sameEba;
+    /* A2, the diagnostic arm. Mutually exclusive with A1 in the sense that
+     * running both double-counts survival -- the include-self pool already
+     * carries the (1 - s) factor for the top man. Guarded so a future caller
+     * cannot switch both on and read the product as an arm. */
+    if (CFG.VONA_SURVIVAL_RESCALE) {
+      if (CFG.VONA_INCLUDE_SELF) throw new Error(
+        'VONA_SURVIVAL_RESCALE and VONA_INCLUDE_SELF are alternative arms of ' +
+        'register 56 (P107) — running both applies the survival discount twice.');
+      straight *= (1 - survival(player, nextPick, ctx));
+    }
     if (!CFG.VONA_SLOT_AWARE) return straight;
 
     const slot = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
