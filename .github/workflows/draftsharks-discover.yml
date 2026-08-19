@@ -61,13 +61,42 @@ jobs:
       - name: Locate the real payload
         continue-on-error: true
         run: python3 draft/tools/draftsharks_payload.py
+      # ⭐ RENDER THE PAGE. Cory: "25 players??" -- every static probe returned 25
+      # because that is all the server sends; the table is a Vue component and
+      # the rest is drawn client-side. Parsing harder cannot fix that, so run a
+      # real browser. Also records every JSON XHR, because if a clean endpoint
+      # exists we should call it directly instead of driving a browser -- and we
+      # cannot see it without executing the page once.
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install Playwright
+        run: npm i -D playwright@1.47.0 && npx playwright install --with-deps chromium
+      - name: Render the rankings
+        continue-on-error: true
+        run: node draft/tools/draftsharks_render.js
+      - name: Show what rendering got
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import json
+          try:
+              d = json.load(open('draft/data/draftsharks_rendered.json'))
+          except Exception as e:
+              print('no rendered artifact:', e); raise SystemExit(0)
+          print('rows', d['n_rows'], 'jsonld', d['n_jsonld_names'], 'controls', d['controls_all_passed'])
+          for k, v in d['controls'].items():
+              print(('  OK  ' if v['ok'] else '  FAIL') + k)
+          print('header:', ' | '.join(d['header'][:14]))
+          for x in d['json_endpoints_seen'][:12]:
+              print('  xhr', x['status'], x['url'][:150])
+          EOF
       - name: Commit the discovery artifact
         if: always()
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json draft/data/draftsharks_rendered.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
             for i in 1 2 3 4; do
@@ -87,4 +116,5 @@ jobs:
             draft/data/draftsharks_shape.json
             draft/data/draftsharks_projections.json
             draft/data/draftsharks_payload.json
+            draft/data/draftsharks_rendered.json
           if-no-files-found: warn
