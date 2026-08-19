@@ -30,6 +30,25 @@
    "violations": [],
    "why": "a row where ceiling <= projection <= floor does not hold means the columns are crossed -- this is the check that catches a mis-map that C1 cannot, because a wrong-but-numeric column still maps"
   },
+  "C3a_jsonld_names_found": {
+   "ok": false,
+   "names_in_jsonld": 0,
+   "why": "the names live in the page's schema.org ItemList, not the table (register 121). A null here means the ItemList moved, which is a different failure from the table being empty."
+  },
+  "C3b_every_row_joined_by_rank": {
+   "ok": false,
+   "unjoined": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0
+   ],
+   "why": "join is on OVERALL RANK, carried on BOTH sides, so a mismatch is detectable -- unlike a join on array position, which silently shifts every player by one if a row is dropped"
+  },
   "C3_positions_resolved": {
    "ok": false,
    "resolved": 0,
@@ -60,7 +79,9 @@
    "ceiling": 370.0,
    "value_3d": 100.0,
    "player_raw": " | DET logo |  DET 1  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 2.0,
@@ -76,7 +97,9 @@
    "ceiling": 364.0,
    "value_3d": 95.0,
    "player_raw": " | ATL logo |  ATL 2  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 3.0,
@@ -92,7 +115,9 @@
    "ceiling": 325.0,
    "value_3d": 95.0,
    "player_raw": " | LAR logo |  LAR 1  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 4.0,
@@ -108,7 +133,9 @@
    "ceiling": 327.0,
    "value_3d": 93.0,
    "player_raw": " | CIN logo |  CIN 2  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 5.0,
@@ -124,7 +151,9 @@
    "ceiling": 363.0,
    "value_3d": 86.0,
    "player_raw": " | SF logo |  SF 3  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 6.0,
@@ -140,7 +169,9 @@
    "ceiling": 312.0,
    "value_3d": 85.0,
    "player_raw": " | SEA logo |  SEA 3  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 7.0,
@@ -156,7 +187,9 @@
    "ceiling": 292.0,
    "value_3d": 79.0,
    "player_raw": " | DET logo |  DET 4  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 8.0,
@@ -172,7 +205,9 @@
    "ceiling": 338.0,
    "value_3d": 76.0,
    "player_raw": " | IND logo |  IND 4  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 9.0,
@@ -188,7 +223,9 @@
    "ceiling": 298.0,
    "value_3d": 75.0,
    "player_raw": " | DAL logo |  DAL 5  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 10.0,
@@ -204,7 +241,9 @@
    "ceiling": 337.0,
    "value_3d": 75.0,
    "player_raw": " | BUF logo |  BUF 5  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 11.0,
@@ -220,7 +259,9 @@
    "ceiling": 313.0,
    "value_3d": 73.0,
    "player_raw": " | MIN logo |  MIN 6  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 12.0,
@@ -236,7 +277,9 @@
    "ceiling": 330.0,
    "value_3d": 68.0,
    "player_raw": " | LVR logo |  LVR 6  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 13.0,
@@ -252,7 +295,9 @@
    "ceiling": 342.0,
    "value_3d": 64.0,
    "player_raw": " | PHI logo |  PHI 7  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 14.0,
@@ -268,7 +313,9 @@
    "ceiling": 273.0,
    "value_3d": 62.0,
    "player_raw": " | ATL logo |  ATL 7  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 15.0,
@@ -284,7 +331,9 @@
    "ceiling": 322.0,
    "value_3d": 62.0,
    "player_raw": " | BAL logo |  BAL 8  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 16.0,
@@ -300,7 +349,9 @@
    "ceiling": 285.0,
    "value_3d": 61.0,
    "player_raw": " | NE logo |  NE 8  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 17.0,
@@ -316,7 +367,9 @@
    "ceiling": 276.0,
    "value_3d": 61.0,
    "player_raw": " | HOU logo |  HOU 9  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 18.0,
@@ -332,7 +385,9 @@
    "ceiling": 329.0,
    "value_3d": 59.0,
    "player_raw": " | KC logo |  KC 9  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 19.0,
@@ -348,7 +403,9 @@
    "ceiling": 274.0,
    "value_3d": 58.0,
    "player_raw": " | DAL logo |  DAL 10  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 20.0,
@@ -364,7 +421,9 @@
    "ceiling": 440.0,
    "value_3d": 57.0,
    "player_raw": " | BUF logo |  BUF 1  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 21.0,
@@ -380,7 +439,9 @@
    "ceiling": 271.0,
    "value_3d": 56.0,
    "player_raw": " | KC logo |  KC 11  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 22.0,
@@ -396,7 +457,9 @@
    "ceiling": 310.0,
    "value_3d": 55.0,
    "player_raw": " | MIA logo |  MIA 10  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 23.0,
@@ -412,7 +475,9 @@
    "ceiling": 330.0,
    "value_3d": 55.0,
    "player_raw": " | LAC logo |  LAC 11  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 24.0,
@@ -428,7 +493,9 @@
    "ceiling": 315.0,
    "value_3d": 54.0,
    "player_raw": " | CIN logo |  CIN 12  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   },
   {
    "rank": 25.0,
@@ -444,7 +511,9 @@
    "ceiling": 253.0,
    "value_3d": 53.0,
    "player_raw": " | LVR logo |  LVR 1  | Open player details | ",
-   "position": null
+   "position": null,
+   "ds_player_id": null,
+   "team": null
   }
  ]
 }
