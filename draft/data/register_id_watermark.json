@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 59,
+ "next_numeric_id": 60,
  "history": [
   {
    "id": 47,
@@ -46,6 +46,11 @@
    "id": 58,
    "claimed_at": "2026-08-19",
    "note": "A: studies write committed artifacts as a side effect; a timeout leaves a truncated one"
+  },
+  {
+   "id": 59,
+   "claimed_at": "2026-08-19",
+   "note": "A: the tool drafts 12 RBs and 2 WRs; need+bye ship at weight 0"
   }
  ]
 }

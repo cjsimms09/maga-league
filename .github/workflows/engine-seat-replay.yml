@@ -41,6 +41,17 @@ jobs:
       # run (Sleeper/FFC are refused at CONNECT in the agent sandbox, so it
       # cannot be committed), so arms compared across two runs would carry that
       # drift inside the delta. One job, one bundle, three arms.
+      # REGISTER 59 / P110 — the `need` weight arm. `need` is the only
+      # roster-aware term in the score and it ships at 0, which is why the tool
+      # drives Cory's own schedule to twelve running backs and two receivers.
+      # ONE binary against the shipped configuration, both arms on the SAME
+      # bundle: need=1.0 is DEFAULT_WEIGHTS' own value, not a value picked for
+      # looking good. `NEED-WEIGHT-PREREG.md`.
+      - name: need-weight arm N1 (need=1.0, shipped VONA)
+        run: |
+          node draft/backtest/replay_seats.js --arm a1 --need 1.0 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_need1.json
       - name: VONA comparison arms A0 (pre-fix) and A2 (rescale diagnostic)
         run: |
           node draft/backtest/replay_seats.js --arm a0 \
@@ -57,7 +68,8 @@ jobs:
           # choice file is the deliverable and carries no outcome data.
           git add draft/backtest/engine_seat_choices.json \
                   draft/backtest/engine_seat_choices_a0.json \
-                  draft/backtest/engine_seat_choices_a2.json
+                  draft/backtest/engine_seat_choices_a2.json \
+                  draft/backtest/engine_seat_choices_need1.json
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "Engine seat replay: choice file from CI bundle assembly [skip deploy]"
           for i in 1 2 3 4 5; do
