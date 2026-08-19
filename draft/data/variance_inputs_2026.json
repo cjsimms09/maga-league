@@ -1467,6 +1467,14 @@
    "source_season": 2025,
    "position": "QB"
   },
+  "4054": {
+   "mean": 2.05,
+   "sd": 2.799,
+   "cv": 1.3653,
+   "n_weeks": 10,
+   "source_season": 2025,
+   "position": "TE"
+  },
   "4066": {
    "mean": 4.787,
    "sd": 3.281,
@@ -3217,7 +3225,7 @@
  "board_coverage": {
   "QB": {
    "measured": 49,
-   "fallback": 41
+   "fallback": 42
   },
   "RB": {
    "measured": 105,
@@ -3225,10 +3233,10 @@
   },
   "WR": {
    "measured": 159,
-   "fallback": 81
+   "fallback": 82
   },
   "TE": {
-   "measured": 85,
+   "measured": 86,
    "fallback": 47
   }
  }
