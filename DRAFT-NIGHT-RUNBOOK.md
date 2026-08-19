@@ -91,9 +91,12 @@ the exposure numbers describe the real slate or the predicted one.
    > `keeper_lock_date` (2026-08-21) with your ruling verbatim beside it** —
    > register E25, so no reader has to hardcode the date again.
 2b. **Re-check, and if needed regenerate, the two board-derived artifacts** (register 86):
-   `variance_inputs_2026.json` and `playoff_sos_2026.json` are derived from the
-   board and are NOT rebuilt by `draft-data.yml`. They have been hand-regenerated
-   twice already in one day.
+   `variance_inputs_2026.json`, `playoff_sos_2026.json` **and `public/seat_plan.json`**
+   are derived from the board and are NOT rebuilt by `draft-data.yml`. The first two
+   have been hand-regenerated twice already in one day. **`seat_plan.json` is the one
+   the war room actually reads (`app.js:867`)** — regenerate it with
+   `node draft/tools/emit_seat_plan.js` and check `source_board_built_at` matches the
+   board you just built.
 
    > ⚠️ **CORRECTED WITHIN THE HOUR OF WRITING IT, BY TESTING MY OWN
    > INSTRUCTION.** This step first said step 1's rebuild *"silently invalidates
