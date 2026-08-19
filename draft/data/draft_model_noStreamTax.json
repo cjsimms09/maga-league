@@ -22,9 +22,9 @@
   },
   "C2_known_positive_ceiling_can_move_a_pick": {
    "ok": true,
-   "w_at_a_bench_slot": 0.1122,
+   "w_at_a_bench_slot": 0.15,
    "gap_at_lean_0": 0,
-   "gap_at_lean_1": 79.7,
+   "gap_at_lean_1": 77.4,
    "why": "a planted +150 ceiling must be worth NOTHING at LEAN=0 and a lot at LEAN=1 in a bench slot. If it cannot move here, a null result on ceilings anywhere else means nothing (rule 3e)."
   },
   "C5_known_positive_injury_can_move_a_pick": {
@@ -52,23 +52,23 @@
  "controls_all_passed": true,
  "predictions": {
   "P209_normal_roster": {
-   "pass": true,
+   "pass": false,
    "mean_roster_with_keepers": {
-    "QB": 1.06,
+    "QB": 1.82,
     "RB": 5,
-    "WR": 5.94,
+    "WR": 5.17,
     "TE": 1,
     "K": 1,
     "DEF": 1
    },
-   "onesies_all_1": true,
-   "share_of_rooms_WR_over_RB": 0.943
+   "onesies_all_1": false,
+   "share_of_rooms_WR_over_RB": 0.173
   },
   "P210_upside_at_the_end": {
    "pass": false,
-   "mean_band_width_first_4_picks": 0.484,
-   "mean_band_width_last_4_picks": 0.661,
-   "ratio": 1.368,
+   "mean_band_width_first_4_picks": 0.511,
+   "mean_band_width_last_4_picks": 0.599,
+   "ratio": 1.172,
    "bar": 1.4
   },
   "P211_the_knob_does_what_he_said": {
@@ -83,38 +83,38 @@
   "P212_durability_moves_the_right_picks": {
    "pass": false,
    "mean_injury_risk_starting_core": {
-    "on": 33.96944444444444,
-    "off": 34.72833333333333
+    "on": 33.638888888888886,
+    "off": 34.888888888888886
    },
    "mean_injury_risk_bench": {
-    "on": 35.36611111111111,
-    "off": 35.98444444444444
+    "on": 35.03333333333333,
+    "off": 35.208333333333336
    },
-   "starter_drop": 0.76,
-   "bench_drop": 0.62,
+   "starter_drop": 1.25,
+   "bench_drop": 0.18,
    "bar": "starters fall >= 3 points AND bench falls less than starters"
   },
   "P214_a_second_QB_only_when_the_first_is_weak": {
    "pass": false,
    "_ruling": "Cory: \"1.22 on QB is not bad, I do see carryng 2 qbs sometimes if you didnt draft a good one\"",
-   "rooms_taking_two_QBs": 17,
-   "rooms_taking_one": 283,
-   "mean_QB1_when_only_one_taken": 343.6,
-   "mean_QB1_when_a_second_is_taken": 348.8,
-   "gap": -5.2,
+   "rooms_taking_two_QBs": 247,
+   "rooms_taking_one": 53,
+   "mean_QB1_when_only_one_taken": 321.8,
+   "mean_QB1_when_a_second_is_taken": 347.8,
+   "gap": -26,
    "bar": "QB1 at least 10 points worse in the rooms that hedge"
   },
   "P213_baseline_kills_the_second_QB": {
-   "pass": true,
-   "mean_QB": 1.06,
+   "pass": false,
+   "mean_QB": 1.82,
    "mean_TE": 1,
    "bar": "QB <= 1.1 and TE >= 0.9"
   }
  },
  "mean_drafted_by_position": {
-  "QB": 1.06,
+  "QB": 1.82,
   "RB": 3,
-  "WR": 4.94,
+  "WR": 4.17,
   "TE": 1,
   "K": 1,
   "DEF": 1
@@ -131,11 +131,11 @@
    "band_width": 0.4809619238476954,
    "banded": true,
    "injury_risk_pct": 45,
-   "w": 0.62,
-   "band_used": 208.7,
-   "durability": 0.903,
+   "w": 0.9,
+   "band_used": 195.3,
+   "durability": 0.859,
    "baseline": 78.4,
-   "value": 72.9
+   "value": 90.3
   },
   {
    "pick": 48,
@@ -165,45 +165,45 @@
    "band_width": 0.3296337402885683,
    "banded": true,
    "injury_risk_pct": 38,
-   "w": 0.748,
-   "band_used": 178.5,
-   "durability": 0.901,
+   "w": 1,
+   "band_used": 171.1,
+   "durability": 0.867,
    "baseline": 124.8,
-   "value": 36.2
+   "value": 40.1
   },
   {
    "pick": 68,
    "round": 4,
-   "name": "Mike Evans",
-   "position": "WR",
-   "proj": 163.2,
-   "floor": 137.3,
-   "ceiling": 222,
-   "band_width": 0.5189950980392156,
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "proj": 166.8,
+   "floor": 143.2,
+   "ceiling": 277.7,
+   "band_width": 0.8063549160671463,
    "banded": true,
-   "injury_risk_pct": 65,
-   "w": 0.673,
-   "band_used": 164.1,
-   "durability": 0.847,
-   "baseline": 124.8,
-   "value": 22.4
+   "injury_risk_pct": 43,
+   "w": 0.25,
+   "band_used": 205.4,
+   "durability": 0.962,
+   "baseline": 78.4,
+   "value": 30.6
   },
   {
    "pick": 73,
    "round": 5,
-   "name": "Chuba Hubbard",
-   "position": "RB",
-   "proj": 146.4,
-   "floor": 131.5,
-   "ceiling": 276.8,
-   "band_width": 0.9924863387978142,
+   "name": "Courtland Sutton",
+   "position": "WR",
+   "proj": 160.4,
+   "floor": 138,
+   "ceiling": 212.9,
+   "band_width": 0.46695760598503744,
    "banded": true,
-   "injury_risk_pct": 36,
-   "w": 0.172,
-   "band_used": 199.1,
-   "durability": 0.978,
-   "baseline": 78.4,
-   "value": 20.3
+   "injury_risk_pct": 43,
+   "w": 0.9,
+   "band_used": 152.9,
+   "durability": 0.865,
+   "baseline": 124.8,
+   "value": 21.9
   },
   {
    "pick": 88,
@@ -267,11 +267,11 @@
    "band_width": 0.5925155925155924,
    "banded": true,
    "injury_risk_pct": 36,
-   "w": 0.112,
-   "band_used": 172.5,
-   "durability": 0.986,
+   "w": 0.15,
+   "band_used": 170.8,
+   "durability": 0.981,
    "baseline": 124.8,
-   "value": 5.3
+   "value": 6.8
   },
   {
    "pick": 128,
@@ -284,28 +284,28 @@
    "band_width": 1.2304832713754645,
    "banded": true,
    "injury_risk_pct": 34,
-   "w": 0.034,
-   "band_used": 166.4,
-   "durability": 0.996,
+   "w": 0.05,
+   "band_used": 165.3,
+   "durability": 0.994,
    "baseline": 78.4,
-   "value": 3
+   "value": 4.3
   },
   {
    "pick": 133,
    "round": 11,
-   "name": "Rashid Shaheed",
-   "position": "WR",
-   "proj": 128.1,
-   "floor": 109.8,
-   "ceiling": 203.3,
-   "band_width": 0.7298985167837628,
+   "name": "Sam Darnold",
+   "position": "QB",
+   "proj": 308.9,
+   "floor": 305.4,
+   "ceiling": 462.8,
+   "band_width": 0.5095500161864682,
    "banded": true,
-   "injury_risk_pct": 38,
-   "w": 0.037,
-   "band_used": 164,
+   "injury_risk_pct": 29,
+   "w": 0.05,
+   "band_used": 381.9,
    "durability": 0.995,
-   "baseline": 124.8,
-   "value": 1.5
+   "baseline": 322.9,
+   "value": 2.9
   },
   {
    "pick": 148,

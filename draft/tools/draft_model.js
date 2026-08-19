@@ -578,7 +578,13 @@ const doc = {
   mean_drafted_by_position: roster,
   example_room: rooms[0].got,
 };
-fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'draft_model.json'), JSON.stringify(doc, null, 1));
+/* ⚠️ THE ARMS MUST NOT SHARE A FILENAME. They did, and running the STREAMTAX=off
+ * arm second overwrote the artifact with the arm the commit message was NOT
+ * describing -- a committed JSON saying P209 false beside a committed claim that
+ * it was true. An off-arm is a comparison, not a replacement. */
+const OUTNAME = 'draft_model' + (STREAM_TAX ? '' : '_noStreamTax')
+  + (DURABILITY ? '' : '_noDurability') + '.json';
+fs.writeFileSync(path.join(ROOT, 'draft', 'data', OUTNAME), JSON.stringify(doc, null, 1));
 
 /* ── print ────────────────────────────────────────────────────────────────── */
 console.log(`THE DRAFT MODEL — value early, normal roster, upside at the end`);
@@ -615,5 +621,6 @@ rooms[0].got.forEach(g => console.log('  ' + String(g.pick).padStart(4) + '  '
   + g.w.toFixed(2).padStart(7) + String(g.floor).padStart(8) + String(g.proj).padStart(8)
   + String(g.ceiling).padStart(8) + String(g.band_used).padStart(8)
   + (g.banded ? g.band_width.toFixed(2) : '—').padStart(8)));
-console.log(`\n  ⚠️  REPORT ONLY. If the roster misses, the fix is the defect, not LEAN.`);
+console.log(`\n  wrote draft/data/${OUTNAME}`);
+console.log(`  ⚠️  REPORT ONLY. If the roster misses, the fix is the defect, not LEAN.`);
 process.exit(allOk ? 0 : 1);
