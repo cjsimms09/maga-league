@@ -51,13 +51,20 @@ jobs:
       - name: Show the shape
         if: always()
         run: cat draft/data/draftsharks_shape.json || echo "no shape artifact written"
+      # THE STORE (Cory's ruling 2026-08-19: "we want to use their ceiling not
+      # ours" -- register 119). Store only: it does NOT touch draft_data.json
+      # and does not join the crosswalk. Its column map is by SUBSTRING with a
+      # known-positive AND a known-negative control that both passed locally.
+      - name: Extract the projections store
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_projections.py
       - name: Commit the discovery artifact
         if: always()
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
             for i in 1 2 3 4; do
@@ -75,4 +82,5 @@ jobs:
           path: |
             draft/data/draftsharks_discovery.json
             draft/data/draftsharks_shape.json
+            draft/data/draftsharks_projections.json
           if-no-files-found: warn
