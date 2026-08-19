@@ -39,13 +39,25 @@ jobs:
       - name: Show what came back
         if: always()
         run: cat draft/data/draftsharks_discovery.json || echo "no artifact written — the probe died before writing"
+      # SECOND PROBE (A, 2026-08-19). The first answered "is it reachable" --
+      # 200 from Actions, 418KB, 2 tables, no embedded JSON. It could not answer
+      # the one that decides Cory's ask, because it only stored a 2000-char
+      # snippet: does the page carry per-player FLOOR and CEILING, and are the
+      # rows real data or a teaser? Its parser ships with a known-positive
+      # control that passed locally, where the site is blocked at CONNECT.
+      - name: Read the table shape
+        continue-on-error: true
+        run: python3 draft/tools/draftsharks_shape.py
+      - name: Show the shape
+        if: always()
+        run: cat draft/data/draftsharks_shape.json || echo "no shape artifact written"
       - name: Commit the discovery artifact
         if: always()
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/data/draftsharks_discovery.json
+          git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
             for i in 1 2 3 4; do
@@ -60,5 +72,7 @@ jobs:
         if: always()
         with:
           name: draftsharks-discovery
-          path: draft/data/draftsharks_discovery.json
+          path: |
+            draft/data/draftsharks_discovery.json
+            draft/data/draftsharks_shape.json
           if-no-files-found: warn
