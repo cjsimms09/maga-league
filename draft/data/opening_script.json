@@ -2,20 +2,20 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-18T05:33:24Z",
-   "board_content_hash": "bb295750c92c",
+   "board_built_at": "2026-08-19T00:54:18Z",
+   "board_content_hash": "0186beafc86e",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
-   "designated_slates_hash": "0d0c68bf2ac1"
+   "designated_slates_hash": "d1f0bcdb5644"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
-   "enrolled": "Balanced Value (the control)",
-   "why": "19b race ran; no archetype cleared the paired CI + even-money band"
+   "enrolled": "Elite-TE Anchor",
+   "why": "19b Cory-conditional race: +$26/season vs control (CI [4.75, 48.88], 2.4 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Late-QB +$28"
   },
   "keeper_basis": {
-   "designated_teams": 4,
+   "designated_teams": 5,
    "predicted_slate_teams": 3,
    "supersessions": [
     {
@@ -24,6 +24,14 @@
      "kept_unpredicted": [
       "Ashton Jeanty",
       "Chase Brown"
+     ]
+    },
+    {
+     "handle": "Jreis",
+     "freed": [],
+     "kept_unpredicted": [
+      "A.J. Brown",
+      "James Cook"
      ]
     },
     {
@@ -62,35 +70,45 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 37.0,
-      "survival": 0.78
+      "survival": 0.78,
+      "adp": 39.3,
+      "_onesie_reach": false
      },
      {
       "player_id": "4881",
       "name": "Lamar Jackson",
       "position": "QB",
       "vorp": 30.3,
-      "survival": 0.52
-     },
-     {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
+      "survival": 0.52,
+      "adp": 33.5,
+      "_onesie_reach": false
      },
      {
       "player_id": "7525",
       "name": "DeVonta Smith",
       "position": "WR",
       "vorp": 26.6,
-      "survival": 0.26
+      "survival": 0.26,
+      "adp": 30.8,
+      "_onesie_reach": false
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.98
+      "survival": 0.98,
+      "adp": 48.0,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 25.1,
+      "survival": 0.95,
+      "adp": 40.1,
+      "_onesie_reach": false
      }
     ]
    },
@@ -98,39 +116,49 @@
     "pick": 48,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.5
+      "survival": 0.5,
+      "adp": 48.0,
+      "_onesie_reach": false
      },
      {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.97
+      "survival": 0.97,
+      "adp": 59.7,
+      "_onesie_reach": false
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 23.2,
-      "survival": 0.43
+      "survival": 0.43,
+      "adp": 46.4,
+      "_onesie_reach": false
      },
      {
       "player_id": "10859",
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.91
+      "survival": 0.89,
+      "adp": 67.0,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "vorp": 20.4,
+      "survival": 0.6,
+      "adp": 50.5,
+      "_onesie_reach": false
      }
     ]
    },
@@ -138,39 +166,49 @@
     "pick": 53,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.86
+      "survival": 0.86,
+      "adp": 59.7,
+      "_onesie_reach": false
      },
      {
       "player_id": "10859",
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.84
+      "survival": 0.82,
+      "adp": 67.0,
+      "_onesie_reach": false
      },
      {
       "player_id": "6770",
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 20.4,
-      "survival": 0.4
+      "survival": 0.4,
+      "adp": 50.5,
+      "_onesie_reach": false
      },
      {
-      "player_id": "HOU",
-      "name": "Houston Texans",
-      "position": "DEF",
-      "vorp": 15.0,
-      "survival": 1.0
+      "player_id": "5927",
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "vorp": 14.2,
+      "survival": 0.46,
+      "adp": 52.6,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "9487",
+      "name": "Parker Washington",
+      "position": "WR",
+      "vorp": 13.8,
+      "survival": 0.99,
+      "adp": 70.5,
+      "_onesie_reach": false
      }
     ]
    }
@@ -184,35 +222,45 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 37.0,
-      "survival": 0.78
+      "survival": 0.78,
+      "adp": 39.3,
+      "_onesie_reach": false
      },
      {
       "player_id": "4881",
       "name": "Lamar Jackson",
       "position": "QB",
       "vorp": 30.3,
-      "survival": 0.52
-     },
-     {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
+      "survival": 0.52,
+      "adp": 33.5,
+      "_onesie_reach": false
      },
      {
       "player_id": "7525",
       "name": "DeVonta Smith",
       "position": "WR",
       "vorp": 26.6,
-      "survival": 0.26
+      "survival": 0.26,
+      "adp": 30.8,
+      "_onesie_reach": false
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.98
+      "survival": 0.98,
+      "adp": 48.0,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 25.1,
+      "survival": 0.95,
+      "adp": 40.1,
+      "_onesie_reach": false
      }
     ]
    },
@@ -220,39 +268,49 @@
     "pick": 48,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.5
+      "survival": 0.5,
+      "adp": 48.0,
+      "_onesie_reach": false
      },
      {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.97
+      "survival": 0.97,
+      "adp": 59.7,
+      "_onesie_reach": false
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 23.2,
-      "survival": 0.43
+      "survival": 0.43,
+      "adp": 46.4,
+      "_onesie_reach": false
      },
      {
       "player_id": "10859",
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.91
+      "survival": 0.89,
+      "adp": 67.0,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "vorp": 20.4,
+      "survival": 0.6,
+      "adp": 50.5,
+      "_onesie_reach": false
      }
     ]
    },
@@ -260,39 +318,49 @@
     "pick": 53,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 24.6,
-      "survival": 0.86
+      "survival": 0.86,
+      "adp": 59.7,
+      "_onesie_reach": false
      },
      {
       "player_id": "10859",
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 22.1,
-      "survival": 0.84
+      "survival": 0.82,
+      "adp": 67.0,
+      "_onesie_reach": false
      },
      {
       "player_id": "6770",
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 20.4,
-      "survival": 0.4
+      "survival": 0.4,
+      "adp": 50.5,
+      "_onesie_reach": false
      },
      {
-      "player_id": "HOU",
-      "name": "Houston Texans",
-      "position": "DEF",
-      "vorp": 15.0,
-      "survival": 1.0
+      "player_id": "5927",
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "vorp": 14.2,
+      "survival": 0.46,
+      "adp": 52.6,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "9487",
+      "name": "Parker Washington",
+      "position": "WR",
+      "vorp": 13.8,
+      "survival": 0.99,
+      "adp": 70.5,
+      "_onesie_reach": false
      }
     ]
    }

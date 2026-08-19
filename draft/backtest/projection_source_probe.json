@@ -1,0 +1,248 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/projection_source_probe.js",
+ "_note": "SENSITIVITY, NOT ACCURACY. No source is graded here and none can be from this repo — proj_mean_blend.py's constructibility gate returns no_control for want of challenger history. This counts how many of Cory's picks the source choice moves.",
+ "board_built_at": "2026-08-19T00:54:18Z",
+ "proj_mean_source": "proj_sleeper (609/609 priced players match it EXACTLY)",
+ "sources": {
+  "sleeper": {
+   "coverage": 609,
+   "filled_from_sleeper": 0,
+   "picks_changed_vs_sleeper": 0,
+   "changes": [],
+   "schedule": [
+    "RB James Cook",
+    "TE Brock Bowers",
+    "RB Breece Hall",
+    "RB David Montgomery",
+    "RB Bhayshul Tuten",
+    "RB Jadarian Price",
+    "RB Rhamondre Stevenson",
+    "RB Kyle Monangai",
+    "RB Jordan Mason",
+    "WR Jayden Reed",
+    "QB Jared Goff",
+    "RB Chris Rodriguez",
+    "RB Tyrone Tracy",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ]
+  },
+  "fantasypros": {
+   "coverage": 426,
+   "filled_from_sleeper": 183,
+   "picks_changed_vs_sleeper": 9,
+   "changes": [
+    {
+     "pick": 8,
+     "sleeper": "RB James Cook",
+     "challenger": "QB Josh Allen"
+    },
+    {
+     "pick": 33,
+     "sleeper": "RB David Montgomery",
+     "challenger": "RB Travis Etienne"
+    },
+    {
+     "pick": 68,
+     "sleeper": "RB Rhamondre Stevenson",
+     "challenger": "RB Tony Pollard"
+    },
+    {
+     "pick": 73,
+     "sleeper": "RB Kyle Monangai",
+     "challenger": "RB Rhamondre Stevenson"
+    },
+    {
+     "pick": 88,
+     "sleeper": "RB Jordan Mason",
+     "challenger": "WR Alec Pierce"
+    },
+    {
+     "pick": 93,
+     "sleeper": "WR Jayden Reed",
+     "challenger": "RB Rachaad White"
+    },
+    {
+     "pick": 108,
+     "sleeper": "QB Jared Goff",
+     "challenger": "RB Aaron Jones"
+    },
+    {
+     "pick": 113,
+     "sleeper": "RB Chris Rodriguez",
+     "challenger": "WR Jakobi Meyers"
+    },
+    {
+     "pick": 128,
+     "sleeper": "RB Tyrone Tracy",
+     "challenger": "WR Xavier Worthy"
+    }
+   ],
+   "schedule": [
+    "QB Josh Allen",
+    "TE Brock Bowers",
+    "RB Breece Hall",
+    "RB Travis Etienne",
+    "RB Bhayshul Tuten",
+    "RB Jadarian Price",
+    "RB Tony Pollard",
+    "RB Rhamondre Stevenson",
+    "WR Alec Pierce",
+    "RB Rachaad White",
+    "RB Aaron Jones",
+    "WR Jakobi Meyers",
+    "WR Xavier Worthy",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ]
+  },
+  "ownmodel": {
+   "coverage": 488,
+   "filled_from_sleeper": 121,
+   "picks_changed_vs_sleeper": 13,
+   "changes": [
+    {
+     "pick": 8,
+     "sleeper": "RB James Cook",
+     "challenger": "QB Josh Allen"
+    },
+    {
+     "pick": 13,
+     "sleeper": "TE Brock Bowers",
+     "challenger": "TE Trey McBride"
+    },
+    {
+     "pick": 28,
+     "sleeper": "RB Breece Hall",
+     "challenger": "RB Javonte Williams"
+    },
+    {
+     "pick": 33,
+     "sleeper": "RB David Montgomery",
+     "challenger": "RB D'Andre Swift"
+    },
+    {
+     "pick": 48,
+     "sleeper": "RB Bhayshul Tuten",
+     "challenger": "RB Jadarian Price"
+    },
+    {
+     "pick": 53,
+     "sleeper": "RB Jadarian Price",
+     "challenger": "RB Rico Dowdle"
+    },
+    {
+     "pick": 68,
+     "sleeper": "RB Rhamondre Stevenson",
+     "challenger": "RB Jonathon Brooks"
+    },
+    {
+     "pick": 73,
+     "sleeper": "RB Kyle Monangai",
+     "challenger": "RB RJ Harvey"
+    },
+    {
+     "pick": 88,
+     "sleeper": "RB Jordan Mason",
+     "challenger": "RB Zach Charbonnet"
+    },
+    {
+     "pick": 93,
+     "sleeper": "WR Jayden Reed",
+     "challenger": "RB Woody Marks"
+    },
+    {
+     "pick": 108,
+     "sleeper": "QB Jared Goff",
+     "challenger": "WR Wan'Dale Robinson"
+    },
+    {
+     "pick": 113,
+     "sleeper": "RB Chris Rodriguez",
+     "challenger": "RB Tyrone Tracy"
+    },
+    {
+     "pick": 128,
+     "sleeper": "RB Tyrone Tracy",
+     "challenger": "WR Khalil Shakir"
+    }
+   ],
+   "schedule": [
+    "QB Josh Allen",
+    "TE Trey McBride",
+    "RB Javonte Williams",
+    "RB D'Andre Swift",
+    "RB Jadarian Price",
+    "RB Rico Dowdle",
+    "RB Jonathon Brooks",
+    "RB RJ Harvey",
+    "RB Zach Charbonnet",
+    "RB Woody Marks",
+    "WR Wan'Dale Robinson",
+    "RB Tyrone Tracy",
+    "WR Khalil Shakir",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ]
+  },
+  "half_fp": {
+   "coverage": 426,
+   "filled_from_sleeper": 183,
+   "picks_changed_vs_sleeper": 7,
+   "changes": [
+    {
+     "pick": 8,
+     "sleeper": "RB James Cook",
+     "challenger": "QB Josh Allen"
+    },
+    {
+     "pick": 33,
+     "sleeper": "RB David Montgomery",
+     "challenger": "RB D'Andre Swift"
+    },
+    {
+     "pick": 73,
+     "sleeper": "RB Kyle Monangai",
+     "challenger": "RB Tony Pollard"
+    },
+    {
+     "pick": 93,
+     "sleeper": "WR Jayden Reed",
+     "challenger": "RB Kenny Gainwell"
+    },
+    {
+     "pick": 108,
+     "sleeper": "QB Jared Goff",
+     "challenger": "WR Jayden Reed"
+    },
+    {
+     "pick": 113,
+     "sleeper": "RB Chris Rodriguez",
+     "challenger": "RB Aaron Jones"
+    },
+    {
+     "pick": 128,
+     "sleeper": "RB Tyrone Tracy",
+     "challenger": "WR Khalil Shakir"
+    }
+   ],
+   "schedule": [
+    "QB Josh Allen",
+    "TE Brock Bowers",
+    "RB Breece Hall",
+    "RB D'Andre Swift",
+    "RB Bhayshul Tuten",
+    "RB Jadarian Price",
+    "RB Rhamondre Stevenson",
+    "RB Tony Pollard",
+    "RB Jordan Mason",
+    "RB Kenny Gainwell",
+    "WR Jayden Reed",
+    "RB Aaron Jones",
+    "WR Khalil Shakir",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ]
+  }
+ }
+}

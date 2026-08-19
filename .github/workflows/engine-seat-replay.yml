@@ -28,15 +28,48 @@ jobs:
         run: pip install -r draft/requirements.txt
       - name: Assemble era-appropriate bundles
         run: python draft/backtest/cli.py --seasons "${{ inputs.seasons }}" --out draft/backtest/bundles.json
-      - name: Seat-level engine replay (choices only)
-        run: node draft/backtest/replay_seats.js --in draft/backtest/bundles.json --out draft/backtest/engine_seat_choices.json
+      # `engine_seat_choices.json` is BY DEFINITION the SHIPPED configuration —
+      # every reader of it, including test_engine_seat_replay.py, assumes that.
+      # Since Cory shipped the VONA fix on 2026-08-19 the shipped arm is a1, so
+      # the default file is built with `--arm a1` and the pre-fix engine keeps
+      # its own file. Naming the arm explicitly rather than relying on the
+      # engine default is the same rule the ARMS table itself follows.
+      - name: Seat-level engine replay (choices only, SHIPPED arm)
+        run: node draft/backtest/replay_seats.js --arm a1 --in draft/backtest/bundles.json --out draft/backtest/engine_seat_choices.json
+      # REGISTER 56 / P107 — the VONA self-exclusion arms, driven through THE
+      # SAME bundles.json as the step above. The bundle is reassembled on every
+      # run (Sleeper/FFC are refused at CONNECT in the agent sandbox, so it
+      # cannot be committed), so arms compared across two runs would carry that
+      # drift inside the delta. One job, one bundle, three arms.
+      # REGISTER 59 / P110 — the `need` weight arm. `need` is the only
+      # roster-aware term in the score and it ships at 0, which is why the tool
+      # drives Cory's own schedule to twelve running backs and two receivers.
+      # ONE binary against the shipped configuration, both arms on the SAME
+      # bundle: need=1.0 is DEFAULT_WEIGHTS' own value, not a value picked for
+      # looking good. `NEED-WEIGHT-PREREG.md`.
+      - name: need-weight arm N1 (need=1.0, shipped VONA)
+        run: |
+          node draft/backtest/replay_seats.js --arm a1 --need 1.0 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_need1.json
+      - name: VONA comparison arms A0 (pre-fix) and A2 (rescale diagnostic)
+        run: |
+          node draft/backtest/replay_seats.js --arm a0 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_a0.json
+          node draft/backtest/replay_seats.js --arm a2 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_a2.json
       - name: Commit the choice file to the dispatching branch
         run: |
           git config user.name Claude
           git config user.email noreply@anthropic.com
           # The bundles are large and carry the whole player universe; the
           # choice file is the deliverable and carries no outcome data.
-          git add draft/backtest/engine_seat_choices.json
+          git add draft/backtest/engine_seat_choices.json \
+                  draft/backtest/engine_seat_choices_a0.json \
+                  draft/backtest/engine_seat_choices_a2.json \
+                  draft/backtest/engine_seat_choices_need1.json
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "Engine seat replay: choice file from CI bundle assembly [skip deploy]"
           for i in 1 2 3 4 5; do

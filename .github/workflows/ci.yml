@@ -1,8 +1,59 @@
 name: CI — tests and robot mock
 on:
   push:
-    branches: [main]
+    # ⚠️ LANE BRANCHES WERE ADDED 2026-08-18, ON A REAL INCIDENT, AND THE
+    # INCIDENT IS THE ARGUMENT.
+    #
+    # This read `branches: [main]` only. Every lane works on a branch, so NO
+    # LANE'S WORK SAW CI UNTIL IT LANDED ON MAIN — which is exactly when it is
+    # most expensive to find out. The relay ran 25 commits on
+    # claude/fantasy-football-research-926y6z, all green locally, dispatched CI
+    # by hand out of curiosity, and it was RED: a union merge had left SIX
+    # near-duplicate items in ROUTES.md, the file three lanes read from, and
+    # `routes_integrity`'s ratchet caught it. Nothing else would have, until A
+    # merged it into main during draft week.
+    #
+    # "Green locally" is not the same claim as "green in CI": the local sweep
+    # that missed it used a 60s per-file timeout that manufactured two FALSE
+    # failures at the same time, so the signal was buried in noise of my own
+    # making.
+    #
+    # COST, MEASURED RATHER THAN FEARED: this repo is PUBLIC, so Actions minutes
+    # are free — the only real cost is runner contention across 14 live lane
+    # branches, which the concurrency block below bounds by cancelling a
+    # branch's own superseded runs. main is never cancelled.
+    #
+    # To revert: delete the `claude/**` line. Nothing else depends on it.
+    branches: [main, 'claude/**']
   workflow_dispatch: {}
+
+# One in-flight run per branch. A lane that pushes five times in a minute gets
+# ONE run of the newest commit instead of five.
+#
+# ⚠️ THIS BLOCK USED TO CLAIM "main is excluded so a merge is never cancelled by
+# a later push". THAT IS FALSE, IT WAS MINE, AND IT IS CORRECTED HERE RATHER THAN
+# QUIETLY DROPPED. Measured 2026-08-18 over the 30 most recent `main` runs:
+# **20 cancelled, 9 failed, 0 succeeded.**
+#
+# `cancel-in-progress: false` does NOT protect a run. It means a newer run
+# QUEUES instead of killing the in-flight one — and GitHub keeps only ONE
+# pending run per concurrency group, so the older PENDING run is cancelled when
+# the next push arrives. At a push-per-minute cadence against a ~10-minute CI,
+# that cancels nearly everything between the first push and the last.
+#
+# THE CONSEQUENCE IS THE PART THAT MATTERS: **`main` mostly does not get tested
+# at all** under rapid merging, which is how three separate guards sat red on
+# `main` unnoticed on 08-18 (the triage guard, the decisions sheet, and the
+# unverified-workflow ratchet). A "green" inferred from having pushed is not a
+# measurement; a full local run is.
+#
+# NOT CHANGED IN DRAFT WEEK, DELIBERATELY. The fix is a merge cadence — or a
+# scheduled run of `main` — not a YAML edit three days out, and a wrong comment
+# in the file every lane reads is worse than the behaviour it describes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -74,7 +125,14 @@ jobs:
         # test_pbp_two_point import them at collection time, so without them
         # pytest aborts the WHOLE Python step at collection (exit 2, run
         # 32038354284) and every other Python suite silently goes unrun.
-        run: pip install pytest numpy pandas
+        #
+        # 2026-08-18: install from draft/requirements.txt instead of a
+        # hardcoded trio. The hardcoded list WAS the venv-gap class — the
+        # fourth instance (run 32146131568: requests + lxml missing for the
+        # census suites) was only reachable because this line and the
+        # requirements file could drift apart. One source of truth now;
+        # pytest is in the file.
+        run: pip install -r draft/requirements.txt
       # ┌─────────────────────────────────────────────────────────────────────┐
       # │ SESSION A: READ BEFORE EDITING THIS BLOCK (B, 2026-08-10)            │
       # │ The npm-install-ordering bug is ALREADY FIXED here — deps install in │
@@ -277,6 +335,30 @@ jobs:
         if: always()
         run: node draft/tools/register_recheck_check.js
 
+      - name: Board freshness — a board older than its own inputs turns this RED
+        # Register 35. The board publishes without its upstream inputs and
+        # NOTHING triggers the rebuild. Twice on 2026-08-18: A's keeper-vorp fix
+        # landed 073aadfc at 03:20:28Z against a board built 02:03:30Z, resolved
+        # only because an unrelated rebuild happened to fire at 03:49; then the
+        # calibration table was regenerated f6acbe76 at 03:59:04Z against that
+        # 03:49:25Z board — 9m39s stale — by a commit whose own message says it
+        # "moves every proj_ceiling/proj_floor/proj_sd on the board."
+        #
+        # The row asks for exactly one thing: "fail a parity check that NAMES the
+        # stale artifact." That check already existed and was already tested —
+        # board_input_staleness.test.js, 14 checks including a control proving it
+        # discriminates rather than always firing. **Nothing ran it against the
+        # LIVE board.** The suite proved the tool works; no step asked the tool
+        # anything. That is the same gap register 28 named in a different place:
+        # a guard that is written but not wired.
+        #
+        # It exits 0 on today's board (built 05:33:24Z, every declared input
+        # older), so wiring it changes nothing until it is right to change
+        # something. When it does fire it prints WHICH input is newer and by how
+        # long, which is the "names the stale artifact" half of the ask.
+        if: always()
+        run: node draft/tools/board_input_staleness.js
+
       - name: Predictions — graded by their own date, and the grade must CHANGE something
         # Cory, 2026-08-18: "Still don't think we are making predictions, grading
         # and closing the loop. No one is in charge of it.."
@@ -300,6 +382,64 @@ jobs:
           node draft/tests/prediction_ledger_check.test.js
           node draft/tools/prediction_ledger_check.js
 
+      - name: Breadth — are we casting a wide enough net, or turning the same two knobs
+        # Cory, 2026-08-18: "Making sure we're casting a wide enough net to try
+        # as many things as we can."
+        #
+        # THE STEP ABOVE CANNOT SEE THIS FAILURE. It enforces that predictions
+        # get graded and that a grade names a successor — both of which stay
+        # green while the search is narrow. P28 graded TRUE: the live arm set is
+        # five rows varying exactly two knobs (tilt_scale, divisor), both on the
+        # Vegas axis. You can grade those five every Tuesday for eighteen weeks,
+        # promote a champion every time, and never test a signal you were not
+        # already using. The projector's own docstring says so — "the mechanical
+        # loop only selects among the arms it is given" — and nothing enforced it.
+        #
+        # So this reads DEFAULT_ARMS out of the projector and classifies each
+        # signal axis LIVE / GRADED / NONE. A one-off graded study is NOT
+        # breadth: pace_arm and advanced_efficiency both carry real verdicts and
+        # neither runs again, which is how a programme feels wide while the loop
+        # stays narrow. Today: 1 of 8 axes LIVE.
+        #
+        # It fails on a DEADLINE, not a floor — a floor is satisfied the day it
+        # is written and never again. The dates come from BLEND-SEARCH-DESIGN.md's
+        # own sequence table; when one passes with no live arm, this goes red and
+        # names the axis. Moving a date is fine, in a commit that says why.
+        if: always()
+        run: |
+          node draft/tests/projection_breadth.test.js
+          node draft/tools/projection_breadth.js
+
+      - name: Weight drift — prose that quotes a weight the engine does not carry
+        # REGISTER 5h, MADE MECHANICAL. One mechanism, EIGHT instances in two
+        # days: Cory rules a weight, it ships, and the prose quoting the old
+        # number never moves. CLAUDE.md, A-DRAFT-DAY-DECISIONS C2, three
+        # DECISIONS entries, league_config.json — inside a CONFIG file, which
+        # reads as authority — and twice in DRAFT-WEEK-BRIEF.md, the file
+        # CLAUDE.md tells every session to read FIRST.
+        #
+        # Every one was found by a human tripping over it while looking for
+        # something else. Four of the last five surfaced as side-effects of
+        # unrelated searches. That is what a class looks like when nothing
+        # sweeps for it. The cost is not tidiness: a stale doc contradicting
+        # shipped code MANUFACTURES FALSE FINDINGS — the live 0.45 was nearly
+        # filed as a defect against the documentation.
+        #
+        # ⚠️ THE FIRST PROTOTYPE FLAGGED 18 AND HALF WERE CORRECT SENTENCES. A
+        # quoted old value is only wrong when the sentence asserts it is
+        # CURRENT, and three kinds of quote are legitimate forever: a frozen
+        # artifact (baseline/v1.json really does carry ceiling 0 — that is
+        # register 5g and it is true), a historical experiment result, and a
+        # RECORD of a past state. So this reads only files that assert current
+        # state — the register and the ledger are excluded BY DESIGN — and the
+        # three known-legitimate quotes are allowlisted WITH REASONS, which is
+        # a claim in writing rather than a mute button.
+        if: always()
+        run: |
+          node draft/tests/weight_claim_sweep.test.js
+          node draft/tools/weight_claim_sweep.js --control
+          node draft/tools/weight_claim_sweep.js
+
       - name: Commitments — a date, and a check that FIRES if the date passes
         # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
         # draft/data/commitments.json carries a due date AND a verification that
@@ -314,8 +454,26 @@ jobs:
         # enforcement table's empty cells, a grading cron that existed and never
         # ran, and a staleness bar that could not fire inside the window it
         # protected. CANNOT DETERMINE counts as unmet, always.
+        # The gate's own test runs first (relay's 08-18 ask, wired by A): the
+        # test has SEEN the gate refuse — 6 of its 9 checks are fail arms
+        # running the real script as a subprocess. A gate nothing has watched
+        # fail is the vacuous shape this whole block exists to end.
         if: always()
-        run: node draft/tools/commitments_check.js
+        run: |
+          node draft/tests/commitments_check.test.js
+          node draft/tools/commitments_check.js
+
+      - name: Lane status — work that exists but main cannot see (REPORT ONLY)
+        # E built this after b26e1713 sat stranded 16h with a league-facing
+        # banner on it, and asked A to wire it (ROUTES 08-17; wired 08-18).
+        # REPORTS ONLY, by design: never merges, never deletes, never fails
+        # the build — `|| true` keeps even a tool crash from failing CI,
+        # because a visibility aid that can redden main becomes a thing
+        # people delete. It prints one line per unmerged branch and a ⚠️
+        # when one looks stranded (3+ commits, 12h+ old). fetch-depth: 0 is
+        # already set for the checkout, so remote branches are visible.
+        if: always()
+        run: git fetch --all --quiet && node draft/tools/lane_status.js || true
 
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()

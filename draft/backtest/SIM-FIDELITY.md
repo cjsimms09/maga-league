@@ -10,12 +10,12 @@ Experiment 2 §6 reported `run_pressure` at **0% incidence**. That is a **MODEL 
 
 | cascade | sim run share | runs/draft | |err| vs real |
 |---|---|---|---|
-| 0.0 | 39% | 18.96 | 0.07 |
-| 1.0 | 41% | 19.54 | 0.053 |
-| 2.0 | 43% | 20.21 | 0.035 |
+| 0.0 | 39% | 19.04 | 0.069 |
+| 1.0 | 41% | 19.67 | 0.05 |
+| 2.0 | 43% | 20.08 | 0.037 |
 | 4.0 | 46% | 21.29 | 0.005 ← fitted |
-| 8.0 | 49% | 22.08 | 0.024 |
-| 16.0 | 55% | 24.08 | 0.086 |
+| 8.0 | 49% | 22.04 | 0.023 |
+| 16.0 | 55% | 24.25 | 0.091 |
 
 **Fitted magnitude: 4.0** — the value whose run frequency best matches the real drafts (real 46% vs fitted 46%). Fitted from OUR data, not chosen for taste.
 
@@ -26,8 +26,8 @@ Experiment 2 §6 reported `run_pressure` at **0% incidence**. That is a **MODEL 
 | run_share | 0.463 | 0.458 | ±0.05 | ✅ |
 | runs_per_draft | 19.33 | 21.29 | ±1.5 | ❌ |
 | mean_run_len | 3.15 | 3.23 | ±0.5 | ✅ |
-| timing_q1_RB | 0.316 | 0.289 | ±0.15 | ✅ |
-| timing_q1_WR | 0.468 | 0.367 | ±0.15 | ✅ |
+| timing_q1_RB | 0.316 | 0.293 | ±0.15 | ✅ |
+| timing_q1_WR | 0.468 | 0.364 | ±0.15 | ✅ |
 | timing_q1_QB | 0.089 | 0.151 | ±0.15 | ✅ |
 | timing_q3_RB | 0.329 | 0.292 | ±0.15 | ✅ |
 | timing_q3_WR | 0.316 | 0.361 | ±0.15 | ✅ |

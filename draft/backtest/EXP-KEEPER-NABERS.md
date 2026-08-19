@@ -37,14 +37,14 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | slate | E[$] | vs current (95% CI) | RB kept | RB drafted (mean, VORP) |
 |---|---|---|---|---|
-| Chase+Henry+Walker | 637 | — (control) | 2 | 2.1 @ -55.1 |
-| Chase+Henry+Nabers | 553 | -83.9 [-109.25, -60.12] | 1 | 3.1 @ -51.0 |
-| Chase+Nabers+Walker | 542 | -94.5 [-123.62, -67.75] | 1 | 3.1 @ -50.9 |
-| Chase+Henry | 500 | -136.8 [-172.12, -103.62] | 1 | 2.77 @ -46.9 |
+| Chase+Henry+Walker | 600 | — (control) | 2 | 2.07 @ -54.8 |
+| Chase+Henry+Nabers | 536 | -64.6 [-86.0, -43.0] | 1 | 3.06 @ -51.1 |
+| Chase+Nabers+Walker | 520 | -81.0 [-106.12, -57.38] | 1 | 3.06 @ -51.2 |
+| Chase+Henry | 452 | -148.1 [-181.75, -116.75] | 1 | 2.72 @ -45.4 |
 
 ## The bias flag (Cory's hypothesis, applied to THIS decision)
 
-- Nabers model VORP **23.7**; market-implied VORP (his ADP rank 28) **26.6** — model and market roughly agree.
+- Nabers model VORP **23.7**; market-implied VORP (his ADP rank 28) **26.04** — model and market roughly agree.
 - Breakeven to keep Nabers over **Walker**: VORP **46.2**; over **Henry**: VORP **59.1**.
 - So even trusting the market over our model, Nabers' value does not reach the breakeven; the bias would have to be very large AND unshared by the market to flip it.
 
@@ -52,9 +52,9 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | experience | n | VORP rank − ADP rank (+ = we rank below market) |
 |---|---|---|
-| rookie(0) | 82 | +5.3 |
-| 2nd-yr(1) | 88 | +13.5 |
+| rookie(0) | 83 | +4.0 |
+| 2nd-yr(1) | 88 | +14.0 |
 | 3rd-yr(2) | 63 | +16.5 |
-| vet(3+) | 343 | -7.7 |
+| vet(3+) | 343 | -7.6 |
 
 **Caveats:** anchor = FANTASYPROS; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally — flagged, not yet wired to the live board) · surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks · MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent · bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)

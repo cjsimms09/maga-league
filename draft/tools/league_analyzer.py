@@ -160,8 +160,19 @@ def draft_grades(picks, proj_idx, keeper_ids=frozenset()):
             "teams": teams}
 
 
-def analyze(rosters, users, picks, board_players, keeper_ids=frozenset()):
-    """The whole artifact, from raw Sleeper responses + our board. Pure."""
+def analyze(rosters, users, picks, board_players, keeper_ids=frozenset(),
+            league_status=None):
+    """The whole artifact, from raw Sleeper responses + our board. Pure.
+
+    league_status is Sleeper's own league.status. The first rehearsal
+    dispatch (2026-08-18, run on the real league) found the surprise this
+    parameter exists for: PRE-DRAFT ROSTERS ARE NOT EMPTY — Sleeper carries
+    LAST SEASON'S rosters until the draft clears them, so a pre-draft run
+    produces a full, plausible-looking standings table that is 2026
+    projections priced over 2025 rosters. Without the stamp below, that
+    table reads as the draft result. A rehearsal artifact must say it is
+    one on its face, in the same _claim line B renders verbatim.
+    """
     proj_idx = board_projection_index(board_players)
     display = {u["user_id"]: (u.get("display_name") or u["user_id"])
                for u in users}
@@ -180,13 +191,24 @@ def analyze(rosters, users, picks, board_players, keeper_ids=frozenset()):
     standings = all_play_table(rows)
     grades = draft_grades(picks, proj_idx, keeper_ids)
     surpluses = [t["surplus_total"] for t in grades["teams"].values()]
+    rehearsal = league_status is not None and league_status not in (
+        "in_season", "complete", "post_season", "drafting")
+    claim = ("PROJECTIONS, not results: standings are our proj_mean "
+             "through each team's best legal lineup, all-play framing "
+             "(2026-08-18 grading ruling); draft grades are surplus vs "
+             "THIS draft's own round means, keepers excluded. The "
+             "realized grade belongs to the weekly grading cron.")
+    if rehearsal:
+        claim = ("⚠️ REHEARSAL — the league is still pre-draft, and Sleeper "
+                 "carries LAST SEASON'S rosters until the draft clears them: "
+                 "this table is 2026 projections priced over 2025 rosters, "
+                 "NOT the draft result. Ignore the standings; the run exists "
+                 "to prove the fetch path. ") + claim
     return {
         "_territory": "TERRITORY: A — produced by draft/tools/league_analyzer.py",
-        "_claim": ("PROJECTIONS, not results: standings are our proj_mean "
-                   "through each team's best legal lineup, all-play framing "
-                   "(2026-08-18 grading ruling); draft grades are surplus vs "
-                   "THIS draft's own round means, keepers excluded. The "
-                   "realized grade belongs to the weekly grading cron."),
+        "_rehearsal": rehearsal,
+        "league_status": league_status,
+        "_claim": claim,
         "projected_standings": standings,
         "draft_grades": grades,
         "honesty": {
@@ -222,7 +244,8 @@ def main():  # pragma: no cover — the CI dispatch path; logic above is tested
     keeper_ids = frozenset(str(k["player_id"])
                            for k in board.get("kept_players", []))
     doc = analyze(rosters, users, picks, board["players"]
-                  + board.get("kept_players", []), keeper_ids)
+                  + board.get("kept_players", []), keeper_ids,
+                  league_status=league.get("status"))
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT}")
     for r in doc["projected_standings"]:

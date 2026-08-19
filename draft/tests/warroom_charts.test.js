@@ -187,7 +187,15 @@ const ck = (n, c, d) => {
       { id: '23', rank: 3, name: 'Tier Two Guy', proj: 240, cliffAfter: false },
     ] },
   ]);
-  ck('the column header carries position and count', /<b>WR<\/b><span>62 left<\/span>/.test(cols));
+  /* "undrafted", not "left" — register 4f, fixed 2026-08-18. The posRails
+   * assertion above deliberately still pins "41 left": that rail counts
+   * STARTABLE bodies before the tier empties, and it is the panel that owns the
+   * word. This one counts the whole undrafted pool at the position, and the two
+   * sat one glance apart both saying "left". Only the word changed — the `62`
+   * is asserted here exactly as before. */
+  ck('the column header carries position and count, and says UNDRAFTED so it '
+    + 'cannot be read as the scarcity rail\'s "left"',
+  /<b>WR<\/b><span>62 undrafted<\/span>/.test(cols));
   ck('the RED CLIFF LINE is drawn after the marked row and only there',
     /Nacua[\s\S]{0,200}wr-cliffline/.test(cols)
     && (cols.match(/wr-cliffline/g) || []).length === 1);

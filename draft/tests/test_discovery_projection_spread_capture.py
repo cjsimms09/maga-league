@@ -19,6 +19,46 @@ def test_norm_matches_expert_grading_style():
     assert C._norm("Ja'Marr Chase Jr.") == "jamarr chase"
 
 
+# ── register-the-bug: the REAL stage-2 dispatch found CBS/Walterfootball
+# parsing real row counts (377/247) with 0/15 planted-control hits. The
+# cause, confirmed against ffanalytics's own scrape_cbs regex: a combined
+# "Name  POS  TEAM" cell, not a clean name column. ──────────────────────────
+
+def test_clean_name_STRIPS_a_trailing_position_and_team_WITH_SPACES():
+    assert C._clean_name("Ja'Marr Chase  WR  CIN") == "Ja'Marr Chase"
+
+
+def test_clean_name_STRIPS_a_trailing_position_and_team_GLUED_NO_SPACE():
+    """pandas.read_html can merge adjacent text nodes with no separator at
+    all -- the exact shape that produced 0/15 hits on 377 real CBS rows.
+    MUTATION: require whitespace before the position code and this case
+    (the one that actually broke) keeps failing silently."""
+    assert C._clean_name("Ja'Marr ChaseWRCIN") == "Ja'Marr Chase"
+
+
+def test_clean_name_LEAVES_AN_ALREADY_CLEAN_NAME_ALONE():
+    """MUTATION: match too eagerly and a genuinely clean 'Justin Jefferson'
+    (no trailing position/team) could get mangled -- this is the safety
+    check that the fix is additive, not a new way to break good sources."""
+    assert C._clean_name("Justin Jefferson") == "Justin Jefferson"
+
+
+def test_clean_name_HANDLES_A_SUFFIX_NAME_WITH_TRAILING_CODES():
+    assert C._clean_name("Michael Pittman Jr.  WR  IND") == "Michael Pittman Jr."
+
+
+def test_rows_from_table_APPLIES_clean_name_not_just_strips_junk():
+    """End-to-end: a table whose 'name' column carries the combined CBS-style
+    cell must still produce a clean, controllable name -- not just a
+    points-parsing test in isolation."""
+    html = _table_html([("Player %d  RB  KC" % i, "%d.0" % (300 - i)) for i in range(12)])
+    found = C._best_table(html)
+    assert found is not None
+    name_col, pts_col, df = found
+    rows = C._rows_from_table(name_col, pts_col, df, "RB")
+    assert rows[0]["name"] == "Player 0"
+
+
 def test_control_names_reads_the_real_board():
     """MUTATION: point this at the wrong file or field and the control set
     would be empty or wrong, silently disabling the whole validation gate --
@@ -67,6 +107,11 @@ def test_capture_source_VOIDS_on_a_FAILED_planted_value_control():
         result = C.capture_source("cbs", {"christian mccaffrey", "puka nacua"})
     assert result["status"] == "VOID"
     assert "control" in result["reason"]
+    assert result["sample_names"][:3] == ["Nobody Real 0", "Nobody Real 1", "Nobody Real 2"], (
+        "a VOID result must still carry what the parser actually extracted -- "
+        "this is the exact diagnostic the real stage-2 dispatch was missing "
+        "when CBS/Walterfootball parsed real row counts with 0/15 hits and "
+        "nobody could tell why without a second dispatch")
 
 
 def test_capture_source_OK_when_control_clears():

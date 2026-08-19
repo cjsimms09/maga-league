@@ -115,6 +115,19 @@ function main() {
     console.log('\n  (' + old.length + ' branch(es) older than ' + ABANDONED_DAYS
       + 'd not shown — old divergence, not stranded work.)');
   }
+  /* THE TWO QUESTIONS THIS LIST DOES NOT ANSWER, NAMED WHERE THEY ARE READ.
+   * A branch list is the START of a merge decision, not the end of one, and
+   * both follow-ups were built after a wrong answer was already given:
+   * the backlog one after the relay quoted `main`'s counts to Cory while four
+   * lanes were clearing on these branches, and the revert one after a branch
+   * routed for merging turned out to carry the PRE-FIX `src/dashboard.js`. */
+  if (live.length) {
+    console.log('\n  NEXT, BEFORE MERGING ANY OF THESE:');
+    console.log('    node draft/tools/routes_branch_reconcile.js'
+      + '   — what work here is `main` blind to?');
+    console.log('    node draft/tools/reopen_risk.js'
+      + '              — what closed fix would merging it UNDO?');
+  }
   console.log('='.repeat(76));
   return 0;
 }

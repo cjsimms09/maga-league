@@ -32,6 +32,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const SRC = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
+/* A's precondition (E31): this file's contexts pass roster: [] at every pick
+ * (see this file's own header). Legal only while need/bye/risk stay
+ * structurally inert -- checked here, every run, rather than assumed once. */
+assertRosterFictionPrecondition(E);
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 let pass = 0, fail = 0;
@@ -83,6 +88,17 @@ const WEIGHTS = (function () {
   return w;
 })();
 
+/* THE PICK BOARD IS THREADED TOO (session E, 2026-08-18; register E21).
+ * This file's own header is the canonical record of a fixture that did not
+ * match production -- the `|| undefined` weights. The pick board was the same
+ * class, one dimension over: `app.js:2066` threads `pick_order.picks` into
+ * every context it builds, and `survival.js` converts board slot to live
+ * selection through it, counting every unconverted call in `SCALE` precisely so
+ * the wrong scale cannot pass unnoticed. Measured at pick 33, threading it moves
+ * 48 of 650 survival numbers by up to 12.5pp and changes the top recommendation
+ * at 2 of Cory's 12 picks. */
+const PICK_BOARD = ((D.pick_order || {}).picks) || null;
+
 /* AND WHAT IS STILL NOT THE APP'S CONTEXT, NAMED RATHER THAN QUIETLY FIXED:
  * every context below passes `roster: []` and `currentKeepers: []` at all twelve
  * picks, while the app supplies `state.myRoster` — which holds Cory's three
@@ -132,7 +148,7 @@ const WEIGHTS = (function () {
       myPicksLeft: MY.filter(p => p >= pick).length, roster: [], doctrine: null,
       myPickIndex: Math.max(0, MY.indexOf(pick)), totalMyPicks: MY.length,
       currentKeepers: [], league: D.league,
-      weights: WEIGHTS,
+      weights: WEIGHTS, pickBoard: PICK_BOARD,
       runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: pick,
       intervening: next ? next - pick : 0,
       roundsLeft: Math.max(0, Math.ceil((150 - pick) / (D.league.teams || 10))),
@@ -311,7 +327,7 @@ const WEIGHTS = (function () {
   const ctx = {
     board: three, nextPick: 148, totalPicks: 150, myPicksLeft: 1, roster: [],
     doctrine: null, myPickIndex: 11, totalMyPicks: 12, currentKeepers: [],
-    league: D.league, weights: WEIGHTS,
+    league: D.league, weights: WEIGHTS, pickBoard: PICK_BOARD,
     runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: 133,
     intervening: 15, roundsLeft: 2,
   };

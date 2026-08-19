@@ -28,6 +28,8 @@ carry, wrong field names — while the truth was **3,194 open NFL markets, 890
 player-level**. A probe ships with a known-positive control or two
 independent paths that check each other, and stores the raw response shape.
 
+**⚡ RULE 3f, added 08-18 — THE CONTROL IS FOR THE PROBE YOU THREW AWAY, NOT JUST THE TOOL YOU SHIPPED.** Rule 3e is being followed for TOOLS and ignored for QUESTIONS, and the gap is where the damage is. **Nine ad-hoc probes returned a confident wrong answer in a single session (relay, 08-18) — not one crashed, every one printed clean plausible output:** a missing `year` argument that exempted every row and printed OK · a name collision that reported a known defect absent · `ctx.starters` where the code reads `ctx.league.starters` · a 60s timeout reported as two test failures · a control anchored to `HEAD` that passed once then failed forever · a merge resolver that **silently deleted 9,400 characters including a 🔴🔴 draft-blocking item** · a length-diff that cried "44 items lost" when the answer was zero · a sweep for missing controls that matched on vocabulary · `--today DATE` where the tool takes `--today=DATE`. **Every one was written to answer a question in the moment, and every one's output was headed for a register row, a routed item or a sentence to Cory.** **Before a probe's answer is written down anywhere, run it once against a case where you already know the answer.** Of those nine, three were caught by exactly that — twice the control failed on its FIRST attempt, which is the only reason the finding exists — three by CI once it could see the branch, and **one by luck.** `OPERATING-MODEL.md` Rule 3f.
+
 **⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
 Cory: *"too much finding and not enough fixing and following up and correcting."*
 Every finding now carries three follow-up QUESTIONS — does this imply another
@@ -65,17 +67,25 @@ information — which is the single cause of three conclusions we had believed.
 The board, the backtest harness and the money proxy are all fixed, the studies
 that rested on them are re-run, and a real per-player upside signal now exists.
 
-**One of those re-runs REVERSED, and it is the headline: the composite `ceiling`
-weight ships at 0 on a measurement that could not have come out any other way.**
-Three preregistered runs across two independent seed sets now say a non-zero
-weight beats that zero — 3/3 seeds, separably, at every value from 0.15 to 0.65.
-**It is held at zero through the draft deliberately**, because the
-no-change-before-08-22 rule was fixed in all four preregs before any of them
-produced a number. Brief §7b.
+**One of those re-runs REVERSED, and it became a shipped ruling.** Three
+preregistered runs across two independent seed sets said a non-zero `ceiling`
+weight beats zero — 3/3 seeds, separably, at every value from 0.15 to 0.65.
 
-So there are now **TWO decisions waiting on Cory** (the ADP-sd ratchet, and the
-ceiling weight after 08-22) and the ONE action for draft day. The brief carries
-all three.
+**⚠️ CORRECTED 2026-08-18: this section said the weight "is held at zero through
+the draft deliberately". THAT IS NO LONGER TRUE, AND HAS NOT BEEN SINCE
+`09f94f99` — "Ship Cory's ceiling ruling: MEASURED_WEIGHTS.ceiling 0 -> 0.45,
+with the full paperwork".** Verified in the live engine:
+`MEASURED_WEIGHTS.ceiling === 0.45`, and `app.js:52` seeds the board from it.
+Cory ruled, it shipped, and four documents went on describing the pre-ruling
+state — including this one, which is the file every session reads first.
+
+~~**So ONE decision waits on Cory, not two:** the ADP-sd ratchet.~~ **⚠️ CORRECTED 2026-08-18: ZERO decisions wait on Cory. He ruled the ADP-sd ratchet on 08-17 — *"leave it"* — and `CORY-ASKS.md` ③ has carried it as ✅ CLOSED ever since.** The ceiling weight is decided too. **This sentence, in the file every session reads first, would have sent the next reader to ask Cory for a decision he had already made** — and it nearly sent me. Brief §7b.
+
+**And the correction has a live consequence — register 5g:** `draft/baseline/v1.json`
+is frozen at 2026-08-10 and still carries `ceiling: 0` and `stack: 0.5`, and the
+war room's "⏮ Restore the measured core" button is hardcoded to that version. One
+tap on draft night reverts **both** Cory's ceiling ruling and the D10 stack
+ruling, disclosing only a date.
 
 
 **⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** A is the

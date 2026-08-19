@@ -1156,6 +1156,17 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
   padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
 }
 
+/* SOURCE GAP badge (Cory, 08-18: "dont gatekeep... if nothing critical") —
+   same chip grammar as FALLING above, gold for the confident "lean market"
+   read (32 of 33 in the ruled sample), red for UNEXPLAINED, where the usual
+   cause does not apply and both numbers are suspect. */
+.wr-source-gap {
+  display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
+  color: #0a1422; background: var(--gold); border-radius: 3px;
+  padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
+}
+.wr-source-gap.unexplained { color: #fff; background: var(--red); }
+
 /* clickable names everywhere */
 .rec-nm { cursor: pointer; text-decoration: underline dotted rgba(147, 165, 188, .5); text-underline-offset: 2px; }
 .rec-nm:hover { color: var(--gold-bright); }

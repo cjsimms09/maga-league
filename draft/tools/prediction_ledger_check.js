@@ -43,16 +43,26 @@ const YEAR = 2026;
  * program going quiet. Raise it if the lanes are keeping up. */
 const MIN_OPEN = 6;
 
+/* Days without a NEW prediction before the programme counts as stalled. */
+const MAX_QUIET_DAYS = 14;
+
 /* Columns: | # | prediction | made | owner | grade by | status | result | what changed | */
 const COL = { id: 0, prediction: 1, made: 2, owner: 3, gradeBy: 4, status: 5, result: 6, changed: 7 };
 const WIDTH = 8;
+
+/* Split on UNESCAPED pipes only. The register checker learned this the hard
+ * way: five of its nine `\|`-carrying rows had their status read from a
+ * fragment of prose. Same parser, same discipline. */
+function splitCells(t) {
+  return t.slice(1, -1).split(/(?<!\\)\|/).map((c) => c.trim());
+}
 
 function rows(text) {
   const out = [];
   for (const line of text.split('\n')) {
     const t = line.trim();
     if (!t.startsWith('|') || !t.endsWith('|')) continue;
-    const cells = t.slice(1, -1).split('|').map((c) => c.trim());
+    const cells = splitCells(t);
     if (cells.length !== WIDTH) continue;              // not the ledger table
     if (/^-+:?$/.test(cells[0]) || cells[0] === '') continue;   // separator
     if (/^#$/.test(cells[0])) continue;                          // header
@@ -61,16 +71,82 @@ function rows(text) {
   return out;
 }
 
+/* ── A ROW THAT DOES NOT PARSE MUST NOT SILENTLY VANISH (added 2026-08-18) ──
+ *
+ * `rows()` skips any line that does not split into exactly WIDTH cells. Right
+ * for headers and separators — WRONG as the only handling for a line that
+ * carries a prediction id: one stray pipe in the prose and the row leaves the
+ * ledger without a trace, and the zero-rows guard only fires when EVERYTHING
+ * vanishes. Demonstrated live before fixing (rule 3e): a P-row containing
+ * `(a \| b)` parsed to 0 rows and its overdue date was never chased. */
+function lostRows(text) {
+  const lost = [];
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    if (!t.startsWith('|')) continue;
+    const first = splitCells(t.endsWith('|') ? t : t + '|')[0] || '';
+    if (!/^\**P\d+\**$/.test(first)) continue;         // not a prediction id
+    if (!t.endsWith('|') || splitCells(t).length !== WIDTH) lost.push(first.replace(/\*/g, ''));
+  }
+  return lost;
+}
+
 /* An em-dash or a bare hyphen is how this file writes "nothing here yet". It must
  * NOT count as a consequence, or every row closes itself by being punctuated. */
 function isEmptyCell(c) {
   return !c || /^[-—–\s]*$/.test(c);
 }
 
+/* ── THE STATUS IS THE FIRST WORD, EXACTLY (reviewer requirement, 08-18) ────
+ *
+ * The first cut of the vocabulary check was a SUBSTRING regex, so "ABANDONMENT"
+ * and "GRADED-LATER" read as valid — the independent reviewer (gpt-5, run
+ * 32179350309) caught it and named those exact costumes. Bare equality is
+ * wrong in the other direction: live statuses legitimately read "✅ GRADED
+ * 08-18" and "**GRADED — TRUE**". So: strip emphasis, take the FIRST token
+ * containing letters, and require THAT token to equal one of the three words.
+ * "GRADED — TRUE" passes (token "GRADED"); "GRADED-LATER" is one token and
+ * fails; "REOPENED" fails; "ABANDONMENT" fails. */
+const VOCAB = ['OPEN', 'GRADED', 'ABANDONED'];
+function statusWord(cell) {
+  const cleaned = String(cell || '').replace(/[*_~`]/g, ' ');
+  for (const tok of cleaned.split(/\s+/)) {
+    if (/[A-Za-z]/.test(tok)) return tok.toUpperCase();
+  }
+  return '';
+}
+
+/* ⚠️ `year` IS REQUIRED AND HAS NO DEFAULT — ON PURPOSE, AND IT STILL BIT ME.
+ * `Date.UTC(undefined, ...)` is an Invalid Date, which is TRUTHY, so a caller
+ * that forgets the argument gets a date-shaped object that fails every
+ * comparison silently. Both blocks added on 08-18 (successor, cadence) called
+ * `parseDate(cell)` with no year; the successor rule then exempted EVERY row and
+ * reported a clean ledger. Rule 3e exactly — a null that meant "asked wrong".
+ * Callers now go through `made()`/an explicit YEAR; this throws rather than
+ * hand back a lie. */
 function parseDate(cell, year) {
+  if (!Number.isFinite(year)) {
+    throw new TypeError('parseDate: year is required — see the note above this line');
+  }
   const m = String(cell || '').match(/(\d{2})-(\d{2})/);
   if (!m) return null;
-  return new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
+  const d = new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+
+/* ── MM-DD WRAPS AT NEW YEAR (added 2026-08-18) ─────────────────────────────
+ *
+ * YEAR is pinned 2026, so a January grade-by (P19 grades fortnightly into
+ * January) parsed as ALREADY EIGHT MONTHS OVERDUE the day it was filed. Loud
+ * rather than silent, but wrong — and a checker that cries wolf on the first
+ * 2027 row gets its date "fixed" by deletion. A grade-by can never precede its
+ * own `made` date, so a due date earlier than made rolls into the next year. */
+function dueDate(gradeByCell, madeCell) {
+  const due = parseDate(gradeByCell, YEAR);
+  if (!due) return null;
+  const made = parseDate(madeCell, YEAR);
+  if (made && due < made) return new Date(Date.UTC(YEAR + 1, due.getUTCMonth(), due.getUTCDate()));
+  return due;
 }
 
 function check(text, todayStr, opts) {
@@ -82,29 +158,38 @@ function check(text, todayStr, opts) {
   const seen = [];
   for (const cells of rows(text)) {
     const id = cells[COL.id];
-    const status = cells[COL.status].toUpperCase();
+    const status = statusWord(cells[COL.status]);
     const changed = cells[COL.changed];
     const owner = cells[COL.owner];
-    const due = parseDate(cells[COL.gradeBy], YEAR);
+    const due = dueDate(cells[COL.gradeBy], cells[COL.made]);
     seen.push(id);
 
     if (isEmptyCell(owner)) {
       problems.push(`${id}: NO OWNER. A prediction nobody owns is a wish.`);
     }
+    /* A status outside the vocabulary dodges EVERY rule here: a past-due row
+     * marked "DEFERRED" produced zero problems (demonstrated before fixing).
+     * That is the register's "✅ that did not mean closed" in a new costume —
+     * a word nobody agreed on, treated as an exit from the loop. */
+    if (!VOCAB.includes(status)) {
+      problems.push(
+        `${id}: UNKNOWN STATUS "${cells[COL.status]}". The vocabulary is OPEN, GRADED, ` +
+        `ABANDONED — anything else is a row that no rule can chase.`);
+    }
     if (!due) {
       problems.push(`${id}: NO GRADE-BY DATE. An ungraded date is an ungraded prediction.`);
     }
-    if (status.includes('OPEN') && due && due < today) {
+    if (status === 'OPEN' && due && due < today) {
       problems.push(
         `${id}: OVERDUE — grade by ${cells[COL.gradeBy]}, still OPEN. Owner ${owner}. ` +
         `Grade it, or move the date WITH A REASON.`);
     }
-    if (status.includes('GRADED') && isEmptyCell(changed)) {
+    if (status === 'GRADED' && isEmptyCell(changed)) {
       problems.push(
         `${id}: GRADED BUT NOTHING CHANGED. Cory: "a grade that moved nothing." ` +
         `Write the consequence — "NOTHING — <reason>" is a real answer, blank is not.`);
     }
-    if (status.includes('ABANDONED') && isEmptyCell(changed)) {
+    if (status === 'ABANDONED' && isEmptyCell(changed)) {
       problems.push(`${id}: ABANDONED with no reason recorded.`);
     }
   }
@@ -116,11 +201,94 @@ function check(text, todayStr, opts) {
    * BACKLOG is itself a failure: below this many OPEN predictions, we have stopped
    * looking, and the build says so. */
   if (minOpen > 0) {
-    const open = rows(text).filter((c) => c[COL.status].toUpperCase().includes('OPEN'));
+    const open = rows(text).filter((c) => statusWord(c[COL.status]) === 'OPEN');
     if (open.length < minOpen) {
       problems.push(
         `ONLY ${open.length} OPEN PREDICTIONS (minimum ${minOpen}). An empty backlog is ` +
         `not success — it is the program stopping. File new hypotheses.`);
+    }
+  }
+
+  /* ── THE SUCCESSOR RULE — THIS IS WHAT MAKES THE LOOP SELF-FEEDING ────────
+   *
+   * Cory, 2026-08-18: "structured, organized, self-feeding ... I don't have to
+   * ask for more predictions, projections, improvements."
+   *
+   * THE GAP THIS CLOSES, MEASURED THE SAME DAY. The ledger held 76 predictions
+   * of which 71 were filed on ONE day. Every rule above was green throughout,
+   * because every rule above is about predictions that ALREADY EXIST — overdue
+   * ones, ungraded ones, a floor on the backlog. **Nothing required a grade to
+   * produce anything.** Grade thirty, file zero, stay above the floor: green.
+   * That is a program ending politely, and the build would have applauded.
+   *
+   * SO: A GRADE MUST NAME WHAT COMES NEXT. Grading is the moment we know the
+   * most we will ever know about a line of enquiry — it is the cheapest possible
+   * moment to ask the next question, and the only one at which the answer is
+   * fresh. Two forms count, in the `what changed` cell:
+   *
+   *   "-> P77"    this grade spawned that prediction (the line continues)
+   *   "RETIRES"   this line is closed on purpose, and the cell says why
+   *
+   * A grade that does neither is a dead end nobody declared. It is not that the
+   * work was wrong — it is that nothing was asked next, and no mechanism noticed.
+   *
+   * ⚠️ DELIBERATELY NOT RETROACTIVE. Rows graded before this rule existed are
+   * exempt by date: punishing past work for a rule invented today teaches people
+   * to argue with the checker instead of using it. From SUCCESSOR_FROM onward,
+   * every grade carries one. */
+  const SUCCESSOR_FROM = Date.parse('2026-08-19');
+  for (const c of rows(text)) {
+    const id = c[COL.id];
+    if (statusWord(c[COL.status]) !== 'GRADED') continue;
+    /* ⚠️ `parseDate` returns a DATE, and an unparseable cell returns an INVALID
+     * DATE — which is truthy. The first version of this guard read
+     * `if (!made || made < SUCCESSOR_FROM) continue` with a STRING bound, so a
+     * Date-vs-string comparison was always false and an Invalid Date sailed past
+     * the null check. Result: it flagged all 40 pre-existing grades — exactly the
+     * retroactive punishment the comment above promises not to inflict. Caught by
+     * running it, one minute after writing it. */
+    const made = parseDate(c[COL.made], YEAR);
+    const ms = made ? made.getTime() : NaN;
+    /* An UNDATED grade is NOT exempt. Exempting it would make "delete the date"
+     * the cheapest way out of the rule, which is the one escape hatch a
+     * self-feeding loop must not have. */
+    if (Number.isFinite(ms) && ms < SUCCESSOR_FROM) continue;    // pre-rule, exempt
+    const changed = c[COL.changed];
+    const hasSuccessor = /->\s*P\d+|→\s*P\d+/.test(changed);
+    const retires = /\bRETIRES?\b|\bRETIRED\b/i.test(changed);
+    if (!hasSuccessor && !retires) {
+      problems.push(
+        `${id}: GRADED WITH NO SUCCESSOR. A grade is the cheapest moment to ask ` +
+        `the next question. Name the prediction it spawned ("-> P77") or RETIRE ` +
+        `the line and say why. A dead end nobody declared is how the programme ends.`);
+    }
+  }
+
+  /* ── CADENCE — A LEDGER THAT STOPPED GROWING HAS STOPPED WORKING ───────────
+   *
+   * 71 of 76 predictions were filed on a single day and every check passed. A
+   * burst is not a programme. If nothing new has been filed in this many days,
+   * the loop is not feeding itself whatever the backlog count says.
+   *
+   * Opt-in like `minOpen`, so unit fixtures are not judged by it. */
+  if (opts && typeof opts.maxQuietDays === 'number' && opts.today) {
+    /* `.sort()` with no comparator sorts by STRING — on Dates that is
+     * "Fri Aug 21..." vs "Mon Aug 17...", i.e. alphabetical by weekday name.
+     * The newest row would have been whatever day-name sorts last. */
+    const made = rows(text)
+      .map((c) => parseDate(c[COL.made], YEAR))
+      .filter((d) => d !== null)
+      .sort((a, b) => a.getTime() - b.getTime());
+    const newest = made[made.length - 1];
+    if (newest) {
+      const days = Math.round(
+        (Date.parse(opts.today) - newest.getTime()) / 86400000);
+      if (days > opts.maxQuietDays) {
+        problems.push(
+          `NO NEW PREDICTION IN ${days} DAYS (limit ${opts.maxQuietDays}). The ` +
+          `backlog may be full and the programme still stalled — nothing has been ` +
+          `ASKED since ${newest}. File a hypothesis or say why the search is over.`);
+      }
     }
   }
 
@@ -155,6 +323,13 @@ function check(text, todayStr, opts) {
       `First allocation wins — renumber the LATER row to the next free id.`);
   }
 
+  for (const id of lostRows(text)) {
+    problems.push(
+      `${id}: LOOKS LIKE A PREDICTION ROW BUT DID NOT PARSE into ${WIDTH} cells — ` +
+      `a stray unescaped pipe in the prose, or a missing trailing pipe. Escape prose ` +
+      `pipes as \\| or the row silently leaves the ledger and is never chased.`);
+  }
+
   if (!seen.length) {
     problems.push('NO PREDICTION ROWS PARSED — the ledger table shape changed, and a ' +
                   'check that silently matches nothing is worse than no check.');
@@ -169,8 +344,13 @@ function main() {
     ? argv[i + 1]
     : new Date().toISOString().slice(0, 10);
 
+  /* MAX_QUIET_DAYS: a ledger that stopped growing has stopped working, however
+   * full its backlog. 14 days spans the fortnightly grade cadence the program
+   * commits to (P19, first grade 09-15) with a week of slack — tight enough to
+   * catch a stall, loose enough that a normal quiet week is not an alarm. */
   const { problems, count } = check(fs.readFileSync(LEDGER, 'utf8'), today,
-                                    { minOpen: MIN_OPEN });
+                                    { minOpen: MIN_OPEN, maxQuietDays: MAX_QUIET_DAYS,
+                                      today: today });
   if (problems.length) {
     console.error(`PREDICTION LEDGER — ${problems.length} problem(s) as of ${today}:\n`);
     for (const p of problems) console.error('  ✗ ' + p);
@@ -183,5 +363,5 @@ function main() {
   return 0;
 }
 
-module.exports = { check, rows, isEmptyCell, parseDate, MIN_OPEN };
+module.exports = { check, rows, lostRows, isEmptyCell, parseDate, dueDate, MIN_OPEN, MAX_QUIET_DAYS };
 if (require.main === module) process.exitCode = main();

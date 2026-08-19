@@ -1,0 +1,56 @@
+{
+ "next_numeric_id": 60,
+ "history": [
+  {
+   "id": 47,
+   "claimed_at": "2026-08-18"
+  },
+  {
+   "id": "47-50 reconciled",
+   "claimed_at": "2026-08-18",
+   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
+  },
+  {
+   "id": 51,
+   "claimed_at": "2026-08-18"
+  },
+  {
+   "id": 52,
+   "claimed_at": "2026-08-18",
+   "note": "claimed by A re-forming a malformed id-less row (board structural properties, E-confirmed)"
+  },
+  {
+   "id": 53,
+   "claimed_at": "2026-08-18"
+  },
+  {
+   "id": 54,
+   "claimed_at": "2026-08-19"
+  },
+  {
+   "id": 55,
+   "claimed_at": "2026-08-19",
+   "note": "A: board gate cannot distinguish a bad board from unhappy tooling"
+  },
+  {
+   "id": 56,
+   "claimed_at": "2026-08-19",
+   "note": "A: VONA excludes the player from his own next-pick pool"
+  },
+  {
+   "id": 57,
+   "claimed_at": "2026-08-19",
+   "note": "A: two implementations of within-position share disagree in SIGN on the live board"
+  },
+  {
+   "id": 58,
+   "claimed_at": "2026-08-19",
+   "note": "A: studies write committed artifacts as a side effect; a timeout leaves a truncated one"
+  },
+  {
+   "id": 59,
+   "claimed_at": "2026-08-19",
+   "note": "A: the tool drafts 12 RBs and 2 WRs; need+bye ship at weight 0"
+  }
+ ]
+}

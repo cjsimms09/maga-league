@@ -1,0 +1,12 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/shuffle_null.py",
+ "_what": "BLEND-SEARCH-DESIGN.md \u00a73's third owed null. The |rho| a signal with ZERO real information produces at its own p95, by sample size -- the floor signal_rank_null's p95 should roughly match on a single flat position group.",
+ "permutations": 2000,
+ "calibration_p95_rho_by_n": {
+  "n=50": 0.2616,
+  "n=100": 0.1972,
+  "n=200": 0.144,
+  "n=500": 0.093,
+  "n=1000": 0.0611
+ }
+}

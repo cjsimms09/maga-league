@@ -170,7 +170,31 @@ const FILLED = state(ROSTER_FULL);
    * kicker, Jason Sanders) — filed as register 5a for mechanism diagnosis
    * (suspect: VONA context propagation; the need term is proven multiplied
    * away above). The blindness finding stands in substance; the pin bounds
-   * the residual movement so growth is loud without hiding the question. */
+   * the residual movement so growth is loud without hiding the question.
+   *
+   * ⚠️ 5a IS NOW DIAGNOSED (2026-08-18) AND THE SUSPECT WAS WRONG — it is not
+   * VONA, and the kicker is not responding to anything. **Jason Sanders's score
+   * is IDENTICAL in both arms** (-23.7516 either way); no kicker moves at all.
+   * He is DISPLACED: Jordan Love rises 79 -> 60 and crosses him, and the top 70
+   * is a boundary, so somebody has to be 71st.
+   *
+   * ⚠️ AND THE ARGUMENT DIRECTLY ABOVE IS A NON-SEQUITUR, WHICH MATTERS MORE
+   * THAN THE KICKER. `MEASURED_WEIGHTS.need === 0` is TRUE and does NOT imply
+   * the composite is roster-blind, because the roster reaches the score by two
+   * other routes:
+   *   1. IT SELECTS THE SCORING BRANCH. `need_fills` flips starter <-> bench and
+   *      the branches are different formulas — the bench arm scores
+   *      `wCeil * benchCeiling` and carries the onesie discount, applied "to the
+   *      assembled score" precisely BECAUSE need reads ~0 for a backup.
+   *      178 players switch branch; 76 of the 90 score-movers are switchers.
+   *   2. IT DRIVES `stack`, WEIGHT 1.0. The remaining 14 movers are all WR,
+   *      responding to a rostered quarterback.
+   * 76 + 14 = 90, complete, and none of it is need's weight.
+   *
+   * NEITHER IS A BUG — branch selection by roster is the whole point of
+   * starter-vs-bench scoring. What was wrong was the inference. The assertions
+   * below still hold and are worth keeping; the DECOMPOSITION lives in
+   * `draft/tests/roster_awareness_is_branch_not_need.test.js`. */
   const scoreMovers = EMPTY.scoreNames.filter(n => FILLED.scoreNames.indexOf(n) < 0);
   ck('THE COMPOSITE SCORE TOP 70 moves by AT MOST the one known boundary row '
     + 'when QB and TE are filled (register 5a owns the mechanism)',
@@ -182,10 +206,33 @@ const FILLED = state(ROSTER_FULL);
   ck('CONTROL: there were quarterbacks in the top 70 to be dropped',
     (EMPTY.top70.QB || 0) > 5, EMPTY.top70.QB);
 
-  ck('  and the RENDERED top 70 differs by at most the one boundary player a '
-    + 'marked promotion can swap',
-    EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0).length <= 1,
-    EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0));
+  /* RE-PINNED 2026-08-18 (v27 board). The v25 bound — "at most the one
+   * boundary player a marked promotion can swap" — was a BOARD measurement
+   * wearing a structural claim's clothes, and the v27 rebuild exceeded it:
+   * two rendered movers (Stefon Diggs, Cade Otton), displaced at the 68-69
+   * boundary by Sam Darnold and Tyler Shough coming IN. Measured cause: the
+   * CEILING term's bench branch. With the QB slot FILLED a second QB is a
+   * bench stash — the onesie machinery marks him "QB2 — priced as a backup"
+   * and the upside bonus fires (ceiling 0 -> ~6), lifting both QBs across
+   * the line. That channel is DECLARED roster-aware (engine.js D3b/onesie
+   * block, measured 08-13) — it is not the blindness this file pins, which
+   * is positional fill through `need`. So the pin is ATTRIBUTION plus a
+   * loose growth bound, not a count: every leaver must keep an IDENTICAL
+   * score across arms (pure displacement, not repricing), and every entrant
+   * must wear a declared mark — the onesie backup discount or a promotion. */
+  const outR = EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0);
+  const inR = FILLED.names.filter(n => EMPTY.names.indexOf(n) < 0);
+  const rec = (S, n) => S.recs.find(x => x.player.name === n);
+  ck('  and every RENDERED mover is attributed: leavers keep an identical '
+    + 'score across arms (boundary displacement, not repricing) and every '
+    + 'entrant wears a declared mark (onesie backup / marked promotion), '
+    + 'few enough that growth stays loud',
+  outR.length <= 4 && inR.length <= 4
+    && outR.every(n => { const a = rec(EMPTY, n), b = rec(FILLED, n);
+      return a && b && Math.abs(a.score - b.score) < 1e-9; })
+    && inR.every(n => { const b = rec(FILLED, n);
+      return b && ((b.onesie && b.onesie.discounted) || b.ceiling_tiebreak); }),
+  { out: outR, in: inR });
 }
 
 // ── BREAKING THE NULL. A "does not change" that cannot be made to change is

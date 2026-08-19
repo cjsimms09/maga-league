@@ -106,5 +106,29 @@ console.log('\n--- the id survives into the sync ---');
     s4.allPicks()[0].draft_slot === 4);
 }
 
+// IS_KEEPER MUST SURVIVE NORMALISATION — Sleeper serves it on every pick
+// (log_draft_picks.py's own _from_sleeper reads the identical field), and
+// reconcile.js/selectionIndexOf both key off `p.is_keeper` on whatever
+// allPicks() returns. Found empirically, session E 2026-08-18: with a real
+// keeper correctly placed on Sleeper, allPicks() silently dropped is_keeper
+// building its output object (same shape as the draft_slot omission fixed
+// just above, in the same function) — reconcile() then reported the keeper
+// "missing... still on the board" and halted, on a slate that was correct.
+{
+  const s = new DraftSync({ draftId: '127', onPicks: function () {}, onStatus: function () {} });
+  s.picks = [
+    { player_id: '7564', pick_no: 8, round: 1, draft_slot: 8, roster_id: 8, is_keeper: true },
+    { player_id: '999', pick_no: 9, round: 1, draft_slot: 3, roster_id: 3, is_keeper: false },
+    { player_id: '111', pick_no: 10, round: 1, draft_slot: 4, roster_id: 4 },  // field absent entirely
+  ];
+  const out = s.allPicks();
+  ok('a keeper pick carries is_keeper: true through normalisation',
+    out.find(function (p) { return p.player_id === '7564'; }).is_keeper === true, JSON.stringify(out));
+  ok('an ordinary pick carries is_keeper: false, not undefined',
+    out.find(function (p) { return p.player_id === '999'; }).is_keeper === false);
+  ok('a pick with no is_keeper field at all normalises to false, not undefined',
+    out.find(function (p) { return p.player_id === '111'; }).is_keeper === false);
+}
+
 console.log(`\n${pass}/${pass + fail} sync checks passed`);
 process.exit(fail ? 1 : 0);

@@ -311,6 +311,18 @@
         draft_slot: p.draft_slot != null ? p.draft_slot
           : (p.metadata && p.metadata.draft_slot != null ? p.metadata.draft_slot : null),
         source: p.__manual ? 'manual' : 'sleeper',
+        // SLEEPER SERVES `is_keeper` ON EVERY PICK (log_draft_picks.py's own
+        // `_from_sleeper` reads the identical field) and this normaliser
+        // built a NEW object without carrying it over — the same shape as the
+        // draft_slot omission fixed above, in the same function, and never
+        // caught for this field because a mock room carries no real keepers,
+        // so reconcileKeepers() (app.js) is the only live consumer and it is
+        // explicitly skipped in mock mode (`state.mockMode` guard). Found
+        // empirically: with Cory's real keepers correctly placed on Sleeper,
+        // `reconcile()` reported all three "missing... still on the board"
+        // and halted, because every pick here silently lost is_keeper before
+        // reconcile() ever saw it. Session E, 2026-08-18.
+        is_keeper: !!p.is_keeper,
         metadata: p.metadata || {},
       });
     });

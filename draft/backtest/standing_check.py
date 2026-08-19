@@ -133,10 +133,16 @@ LIVENESS_ROWS = ("market_capture_alive", *SERIES_WATCH,
                  # window measured in HOURS rather than days.
                  #
                  # The full examination is Monday-gated. The Mondays around the
-                 # draft are 08-17 and 08-24. The keeper lock is 08-20 and the
+                 # draft are 08-17 and 08-24. The keeper lock is 08-21 and the
                  # draft is 08-22, SO A WEEKLY pre_draft_freeze ROW COULD NOT
                  # FIRE BETWEEN THE LOCK AND THE DRAFT — it would next speak two
                  # days after the thing it protects was already lost.
+                 #
+                 # DATE CORRECTED 2026-08-18 (Cory: "Keeper lock is 8/21"). This
+                 # said 08-20; the repo carried both dates and nobody reconciled
+                 # them. THE CONCLUSION HERE GETS STRONGER, not weaker: the gap
+                 # between lock and draft is ONE day, not two, so the window in
+                 # which a weekly row could have helped is narrower still.
                  #
                  # That is bar_days + examination_lag > tolerable_loss_days with
                  # the numbers that actually matter, and it is the identical
