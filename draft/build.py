@@ -342,6 +342,19 @@ def _keeper_lock_passed(cfg: dict, placements, now=None) -> bool:
     return current >= _dt.datetime(y, m, dd, hh, mm, tzinfo=tz)
 
 
+def _keeper_lock_deadline(cfg: dict) -> dict | None:
+    """The deadline block itself, so the board publishes WHEN the lock is and not
+    only whether it has passed (register E25).
+
+    Read from `league_config.json`, which is where Cory's ruling lives verbatim
+    ("Keepers will be set by 08/21 at 6pm"). Deliberately NOT a literal in this
+    file: E25's defect was the repo holding TWO keeper-lock dates that nobody
+    reconciled, and a second definition here would be a third.
+    """
+    d = ((cfg.get("keepers") or {}).get("deadline") or {})
+    return d or None
+
+
 def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     """SLATE RAILS (keeper_slate.py): stamp an honest CONFIRMED/PREDICTED status so the
     board can never present a wrong/incomplete slate as truth. Sleeper is the source:
@@ -350,7 +363,8 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     teams = int(cfg.get("teams") or 10)
     if offline:
         return keeper_slate_mod.assess_slate(teams, {}, placements=None,
-                                             keeper_lock_passed=_keeper_lock_passed(cfg, None))
+                                             keeper_lock_passed=_keeper_lock_passed(cfg, None),
+                                             keeper_lock_deadline=_keeper_lock_deadline(cfg))
     try:
         import sleeper_import as si
         lid = cfg["league_id"]
@@ -375,7 +389,8 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
             if kp:
                 placements = kp
         slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements,
-                                              keeper_lock_passed=_keeper_lock_passed(cfg, placements))
+                                              keeper_lock_passed=_keeper_lock_passed(cfg, placements),
+                                              keeper_lock_deadline=_keeper_lock_deadline(cfg))
         print(f"  keeper slate: {slate['status']} — {slate['teams_designated']}/{teams} designated, "
               f"placements={'yes' if slate['placements_present'] else 'no'}"
               + (f", {len(slate['mismatches'])} MISMATCH" if slate['mismatches'] else ""))
@@ -384,7 +399,8 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
         # Loudly: 'could not verify' must never read as 'verified'. Unknown -> not confirmed.
         print(f"  ! keeper-slate verification failed ({type(exc).__name__}: {exc}) — status UNKNOWN")
         s = keeper_slate_mod.assess_slate(teams, {}, placements=None,
-                                          keeper_lock_passed=_keeper_lock_passed(cfg, None))
+                                          keeper_lock_passed=_keeper_lock_passed(cfg, None),
+                                          keeper_lock_deadline=_keeper_lock_deadline(cfg))
         s["status"] = "unverified"; s["confirmed"] = False; s["safe_to_treat_as_truth"] = False
         s["reason"] = f"could not reach Sleeper to verify the slate ({type(exc).__name__})"
         return s
