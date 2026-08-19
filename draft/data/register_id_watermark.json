@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 57,
+ "next_numeric_id": 58,
  "history": [
   {
    "id": 47,
@@ -36,6 +36,11 @@
    "id": 56,
    "claimed_at": "2026-08-19",
    "note": "A: VONA excludes the player from his own next-pick pool"
+  },
+  {
+   "id": 57,
+   "claimed_at": "2026-08-19",
+   "note": "A: two implementations of within-position share disagree in SIGN on the live board"
   }
  ]
 }
