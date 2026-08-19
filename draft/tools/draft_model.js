@@ -99,10 +99,45 @@ const W = {
   RB:  [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR:  [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
+/* ── AND A BACKUP COMPETES WITH STREAMING, WHICH IS WHY QB2 KEPT WINNING ─────
+ *
+ * Cory, on run 4: "pretty clode but QB still too high!!" — QB 1.82.
+ *
+ * The mechanism, isolated: late in a draft every position sits near w = 0.05,
+ * so w stops discriminating and raw surplus decides. Darnold's ceiling-leaning
+ * band clears the QB wire by 59 points; the 6th receiver's clears the WR wire by
+ * 39. The quarterback wins on scale.
+ *
+ * What the surplus is missing is WHAT THE WIRE ACTUALLY IS. WAIVER.QB = 322.9 is
+ * the best quarterback left after the draft — but quarterbacks can be STREAMED,
+ * a different one each week, chosen on matchup. So the real alternative to a
+ * rostered QB2 is not one fixed man at 322.9, it is a fresh pick every Sunday.
+ * A backup receiver has no such competition: measured streamability is QB 0.590
+ * and WR 0.252.
+ *
+ * ⚠️ THIS APPLIES TO BENCH BODIES ONLY, and that restriction is the whole
+ * point. My STARTING quarterback is not competing with streaming — I am
+ * fielding him every week by choice. Only the body whose entire job is to fill
+ * in is substitutable by the wire, so only he pays the tax.
+ *
+ * NOT A NEW KNOB: streamability is measured (draft/data/streamability.json,
+ * passed its own controls) and this is the same (1 − streamability) factor the
+ * derived need curve already used to collapse QB2 from .427 to .084. Cory's
+ * transcription of the curve simply has no streaming term in it, and this is
+ * where it belongs. */
+const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamability.json'), 'utf8'));
+if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
+const STREAM = ST.streamability;
+const STREAM_TAX = process.env.STREAMTAX !== 'off';
+
 const startProb = (pos, held) => {
   const row = W[pos];
   if (!row) return 0;
-  return held < row.length ? row[held] : 0;
+  const base = held < row.length ? row[held] : 0;
+  if (!STREAM_TAX) return base;
+  /* a body filling an EMPTY starting slot is not a fill-in and pays nothing */
+  if (held < (STARTERS[pos] || 0)) return base;
+  return base * (1 - (STREAM[pos] || 0));
 };
 
 /* ── the pool ─────────────────────────────────────────────────────────────────
@@ -138,6 +173,79 @@ function bandUsed(x, w, lean) {
   const bold = x.proj + lean * (x.ceiling - x.proj);
   return w * safe + (1 - w) * bold;
 }
+
+/* ── THE KEEPERS, who are not on the board ───────────────────────────────────
+ *
+ * Chase, Henry and Walker are NOT among the board's 700 players -- the board
+ * holds DRAFTABLE men, and a keeper is not draftable. So the snapshot never saw
+ * them, the blend never saw them, and until the baseline needed their bands
+ * nothing in this project had noticed.
+ *
+ * ⚠️ IT SURFACED AS A CRASH ONLY BECAUSE THE LOOKUP THROWS. The line it
+ * replaced was `pool.find(...) || { proj: k.proj || 0 }`, which would have made
+ * Ja'Marr Chase a ZERO-POINT incumbent at receiver -- silently, in every room,
+ * for the whole run. The fallback was the bug; the crash was the fix working.
+ *
+ * Their numbers come from Draft Sharks by sleeper_id and are put on the blend's
+ * scale with THE BLEND'S OWN per-position offsets, read out of its artifact
+ * rather than recomputed here (rule 11: one derivation, reused). With no second
+ * source they are a one-source row, and `keeper_single_source` says so. */
+const DS = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json'), 'utf8'));
+const DS_OFFSET = (BL.controls.C3_centering_is_per_position
+  .median_offsets_vs_board_mean_by_position || {}).draftsharks || {};
+const dsById = {};
+(DS.players || []).forEach(r => { if (r.sleeper_id != null) dsById[String(r.sleeper_id)] = r; });
+
+function keeperRow(k) {
+  const d = dsById[String(k.player_id)];
+  if (!d || !d.ds_proj) throw new Error(
+    'keeper has no Draft Sharks line and there is nothing honest to put here: ' + k.name);
+  const off = DS_OFFSET[k.position] || DS_OFFSET._global || 0;
+  const proj = d.ds_proj - off;                       // same centring as the blend
+  return { id: 'KEEP:' + k.player_id, name: k.name, position: k.position,
+    proj: +proj.toFixed(1),
+    floor: +(proj * (d.floor_proj / d.ds_proj)).toFixed(1),
+    ceiling: +(proj * (d.ceil_proj / d.ds_proj)).toFixed(1),
+    banded: true, injury_risk_pct: d.injury_risk_pct,
+    band_width: (d.ceil_proj - d.floor_proj) / d.ds_proj,
+    keeper_single_source: true };
+}
+const KEEPERS = PLAN.keep.map(keeperRow);
+
+/* ── THE BASELINE — and the wrong turn, kept because it is the useful part ───
+ *
+ * Run 1 came back QB 1.69, and the mechanism looked like a baseline error: at
+ * the end of a draft EVERY position sits near w = 0.05, so w stops
+ * discriminating and raw surplus decides -- and a backup QB's ceiling clears the
+ * QB wire by 63 points where a 6th receiver's clears the WR wire by 39. I
+ * replaced the wire with "the man he displaces". Two runs:
+ *
+ *   run 2, baseline = worst held man's PROJECTION   QB 1.22  TE 1.00
+ *   run 3, baseline = worst held man's BAND         QB 3.10  TE 5.78  ← collapse
+ *
+ * Run 3 drafted five tight ends and took men at w = 0.00, which is only possible
+ * when EVERY candidate scores exactly zero and the tie falls to pool order.
+ * Henry and Walker fill both RB slots, so under the displacement rule every
+ * drafted back had to beat Walker's own band at 218.4, none could, RB surplus
+ * went to zero board-wide and the model wandered.
+ *
+ * ⛔ THE COLLAPSE IS A SYMPTOM. THE RULE ITSELF IS THE ERROR, and the football
+ * says so plainly: a third running back does not displace Derrick Henry. He
+ * starts the week Henry is hurt or on bye -- and in THAT week the man he
+ * replaces is whoever I could have streamed. His alternative is THE WIRE.
+ * Measured starters-per-week agrees out loud: RB 2.417, WR 2.556, so a third
+ * body at either is playing regularly, not waiting on a displacement.
+ *
+ * And it is true at quarterback too, which is the part I had backwards. If
+ * Stafford goes down I do not start Darnold because he beat Stafford -- I start
+ * someone because Stafford is OUT, and the honest alternative is again the wire.
+ * w already carries how OFTEN that happens (0.05); the baseline carries what it
+ * is worth WHEN it happens. That is the wire at every position.
+ *
+ * So P196 stands and the amendment is WITHDRAWN. The QB2 count is whatever it
+ * is with the forcing defect fixed and nothing else changed -- which is the only
+ * honest way to find out what run 1's 1.69 was really made of. */
 
 /* ── DURABILITY — Cory asked, and the honest first answer was "it doesn't" ────
  *
@@ -200,7 +308,12 @@ function runRoom(lean, hardFill) {
   const order = pool.map(p => ({ p, k: p.adp + gauss() * p.sd }))
     .sort((x, y) => x.k - y.k).map(x => x.p.id);
   const held = {};
-  PLAN.keep.forEach(k => { held[k.position] = (held[k.position] || 0) + 1; });
+  const mine = {};                    // the actual bodies, for baselineOf
+  PLAN.keep.forEach(k => {
+    held[k.position] = (held[k.position] || 0) + 1;
+    const kp = KEEPERS[PLAN.keep.indexOf(k)];
+    (mine[k.position] || (mine[k.position] = [])).push(kp);
+  });
   const taken = new Set(), got = [];
   SCHED.forEach((pk, i) => {
     const gone = new Set(order.slice(0, pk - 1));
@@ -211,26 +324,39 @@ function runRoom(lean, hardFill) {
      * improvement, which has happened twice on this project. */
     const must = unfilled(held);
     const forcing = (SCHED.length - i) <= must;
+    /* ⛔ THE FIRST VERSION LEFT 295 OF 300 ROOMS WITH AN EMPTY STARTING SLOT.
+     * The gate excluded BAD positions (w = 0, or a full non-flex one) but never
+     * REQUIRED a position that fills an empty slot, so on the last pick a 6th
+     * receiver at w = 0.05 was still legal while the tight end slot sat empty.
+     * Cory: "must draft 1 k and 1 def!! If 2 rounds and don't have either it
+     * equation should force." Forcing now means what the word means: once the
+     * picks left equal the slots left, only a body that REDUCES the empty count
+     * may be taken. C4 is what caught this. */
+    const fillsASlot = q => {
+      const t = { ...held };
+      t[q] = (t[q] || 0) + 1;
+      return unfilled(t) < must;
+    };
     let best = null, bestV = -Infinity, bestParts = null;
     for (const x of avail) {
       const w = startProb(x.position, held[x.position] || 0);
-      if (forcing && w <= 0) continue;
-      if (forcing && (STARTERS[x.position] || 0) <= (held[x.position] || 0)
-          && !FLEX_ELIGIBLE.includes(x.position)) continue;
+      if (forcing && !fillsASlot(x.position)) continue;
       const band = bandUsed(x, w, lean);
       const dur = (DURABILITY && !DUR_OFF) ? durability(x, w) : 1;
-      const v = Math.max(0, band - (WAIVER[x.position] || 0)) * w * dur;
-      if (v > bestV) { bestV = v; best = x; bestParts = { w, band, dur }; }
+      const base = WAIVER[x.position] || 0;   // P196: the wire, at every position
+      const v = Math.max(0, band - base) * w * dur;
+      if (v > bestV) { bestV = v; best = x; bestParts = { w, band, dur, base }; }
     }
     if (!best) return;
     taken.add(best.id);
     held[best.position] = (held[best.position] || 0) + 1;
+    (mine[best.position] || (mine[best.position] = [])).push(best);
     got.push({ pick: pk, round: i + 1, name: best.name, position: best.position,
       proj: best.proj, floor: best.floor, ceiling: best.ceiling,
       band_width: best.band_width, banded: best.banded,
       injury_risk_pct: best.injury_risk_pct,
       w: +bestParts.w.toFixed(3), band_used: +bestParts.band.toFixed(1),
-      durability: +bestParts.dur.toFixed(3),
+      durability: +bestParts.dur.toFixed(3), baseline: +bestParts.base.toFixed(1),
       value: +bestV.toFixed(1) });
   });
   return { got, held, empty_starting_slots: unfilled(held) };
@@ -285,9 +411,20 @@ function durabilityKnownPositive() {
  * W (the need curve). If a future edit reintroduces a VET_WIDTH-style table the
  * run fails here rather than quietly grouping players again. */
 function noCohortBands() {
-  const src = fs.readFileSync(__filename, 'utf8');
+  /* ⚠️ THE FIRST VERSION OF THIS CONTROL FAILED ON ITS OWN DOCUMENTATION. It
+   * scanned the raw file, so it matched VET_WIDTH and RISK_MED in the header
+   * comment that says those tables are DELETED, and in the banned list itself.
+   * A control that fires on prose about a defect, rather than on the defect,
+   * is measuring the wrong thing -- so the CHECK is fixed and the bar is not
+   * touched: comments and this function's own body are stripped first, and
+   * what remains is executable code only. */
+  const raw = fs.readFileSync(__filename, 'utf8');
+  const src = raw
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')            // block comments
+    .replace(/^\s*\/\/.*$/gm, ' ')                 // line comments
+    .replace(/function noCohortBands\(\)[\s\S]*?\n\}/, ' ');   // this checker
   const banned = ['VET_WIDTH', 'VET_CV', 'WEEK_CV', 'RISK_MED', 'Q_POS'];
-  const found = banned.filter(t => src.split(t).length > 2);   // >2 = a real use
+  const found = banned.filter(t => src.includes(t));
   const perPosTables = (src.match(/^const ([A-Z_]+) = \{[^}]*QB:/gm) || [])
     .map(m => m.match(/const ([A-Z_]+)/)[1]);
   const allowed = ['WAIVER', 'W'];
@@ -375,6 +512,28 @@ const ctl = {
 };
 const allOk = Object.values(ctl).every(c => c.ok);
 
+/* P214 — CORY'S RULING, and it is a sharper test than the count ──────────────
+ * "1.22 on QB is not bad, I do see carryng 2 qbs sometimes if you didnt draft a
+ * good one"
+ *
+ * The operative word is IF. A second quarterback taken AT RANDOM is a wasted
+ * pick; one taken BECAUSE THE FIRST IS WEAK is a hedge, and only the second is
+ * what he described. So the count is not the question -- the CONDITION is.
+ * P213's bar of 1.1 is left FALSE where it stands rather than widened to fit
+ * this, because moving a preregistered bar after seeing the number is the one
+ * thing no_fit_guard exists to stop. */
+const qb1Of = r => {
+  const q = r.got.filter(g => g.position === 'QB');
+  return q.length ? Math.max(...q.map(g => g.proj)) : null;
+};
+const two = rooms.filter(r => r.got.filter(g => g.position === 'QB').length >= 2);
+const one = rooms.filter(r => r.got.filter(g => g.position === 'QB').length === 1);
+const avg = v => v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+const qb1two = avg(two.map(qb1Of).filter(v => v != null));
+const qb1one = avg(one.map(qb1Of).filter(v => v != null));
+const P214 = two.length > 0 && one.length > 0 && (qb1one - qb1two) >= 10;
+
+const P213 = rosterWithKeepers.QB <= 1.1 && rosterWithKeepers.TE >= 0.9;
 const P209 = onesies && wrOverRb >= 0.80;
 const P210 = lW / eW >= 1.40;
 const P211 = Object.values(ident).every(Boolean);
@@ -398,6 +557,23 @@ const doc = {
       mean_band_width_last_4_picks: +lW.toFixed(3),
       ratio: +(lW / eW).toFixed(3), bar: 1.40 },
     P211_the_knob_does_what_he_said: { pass: P211, identities: ident },
+    P212_durability_moves_the_right_picks: {
+      pass: starterDrop >= 3 && benchDrop < starterDrop,
+      mean_injury_risk_starting_core: { on: riskOn.starters, off: riskOff.starters },
+      mean_injury_risk_bench: { on: riskOn.bench, off: riskOff.bench },
+      starter_drop: +starterDrop.toFixed(2), bench_drop: +benchDrop.toFixed(2),
+      bar: 'starters fall >= 3 points AND bench falls less than starters' },
+    P214_a_second_QB_only_when_the_first_is_weak: { pass: P214,
+      _ruling: 'Cory: "1.22 on QB is not bad, I do see carryng 2 qbs sometimes '
+             + 'if you didnt draft a good one"',
+      rooms_taking_two_QBs: two.length, rooms_taking_one: one.length,
+      mean_QB1_when_only_one_taken: qb1one == null ? null : +qb1one.toFixed(1),
+      mean_QB1_when_a_second_is_taken: qb1two == null ? null : +qb1two.toFixed(1),
+      gap: (qb1one != null && qb1two != null) ? +(qb1one - qb1two).toFixed(1) : null,
+      bar: 'QB1 at least 10 points worse in the rooms that hedge' },
+    P213_baseline_kills_the_second_QB: { pass: P213,
+      mean_QB: rosterWithKeepers.QB, mean_TE: rosterWithKeepers.TE,
+      bar: 'QB <= 1.1 and TE >= 0.9' },
   },
   mean_drafted_by_position: roster,
   example_room: rooms[0].got,
@@ -415,6 +591,18 @@ console.log(`        rooms with WR > RB: ${(wrOverRb * 100).toFixed(0)}%   bar 8
 console.log(`\n  P210  upside at the end          ${P210 ? 'TRUE ' : 'FALSE'}`);
 console.log(`        band width  first 4 picks ${eW.toFixed(3)}   last 4 picks ${lW.toFixed(3)}`
   + `   ratio ${(lW / eW).toFixed(2)}x   bar 1.40x`);
+console.log(`\n  P214  QB2 ONLY when QB1 is weak  ${P214 ? 'TRUE ' : 'FALSE'}   (Cory's ruling)`);
+console.log(`        QB1 projects ${qb1one == null ? '—' : qb1one.toFixed(1)} in the ${one.length} rooms that take one,`
+  + ` ${qb1two == null ? '—' : qb1two.toFixed(1)} in the ${two.length} that hedge`
+  + `   gap ${(qb1one != null && qb1two != null) ? (qb1one - qb1two).toFixed(1) : '—'}  bar 10`);
+console.log(`\n  P213  baseline kills the QB2     ${P213 ? 'TRUE ' : 'FALSE'}   (bar left where it was)`);
+console.log(`        mean QB ${rosterWithKeepers.QB} (bar <=1.1)   mean TE ${rosterWithKeepers.TE} (bar >=0.9)`);
+console.log(`\n  P212  durability moves the right picks   `
+  + `${(starterDrop >= 3 && benchDrop < starterDrop) ? 'TRUE ' : 'FALSE'}`);
+console.log(`        mean injury risk  starting core ${(riskOff.starters||0).toFixed(1)} -> `
+  + `${(riskOn.starters||0).toFixed(1)}  (drop ${starterDrop.toFixed(1)}, bar 3.0)`);
+console.log(`                          bench         ${(riskOff.bench||0).toFixed(1)} -> `
+  + `${(riskOn.bench||0).toFixed(1)}  (drop ${benchDrop.toFixed(1)}, must be smaller)`);
 console.log(`\n  P211  the knob                   ${P211 ? 'TRUE ' : 'FALSE'}`);
 Object.entries(ident).forEach(([k, v]) => console.log(`        ${v ? 'ok  ' : 'FAIL'} ${k}`));
 
