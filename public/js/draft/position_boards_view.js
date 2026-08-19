@@ -202,6 +202,18 @@
    * existing exact-numbers table already uses (`.pb-do-hot`, `--wr-bad`) —
    * one color meaning "the cliff", never a decorative rainbow across bars.
    * Direct-labelled ONLY on that one bar (the caption line), never every bar. */
+  /* IMPROVED, 2026-08-19 — Cory: "improve the charts you have... could be
+   * great." Two real, low-risk upgrades, kept inside this codebase's own
+   * established idiom (plain SVG + native `title` tooltips — every chart in
+   * warroom_charts.js works the same way; a one-off custom JS tooltip here
+   * would be a new pattern for one chart, not an improvement):
+   *   1. ROUND LABELS. The chart had bars and nothing else — no axis, no
+   *      way to read WHICH round a bar belongs to without hovering every
+   *      one. A small label row underneath (the round each transition ENDS
+   *      at) turns "some bars" into an actual axis.
+   *   2. HOVER LIFT. Pure CSS (`.pb-do-bar:hover`) brightens and nudges the
+   *      hovered bar up — real interactivity, costs no JS, and pairs with
+   *      the tooltip that already fires on the same hover. */
   function roundDropoffChart(pos, dropoffs, esc) {
     if (!dropoffs || !dropoffs.length) return '';
     var vals = dropoffs.map(function (d) {
@@ -209,7 +221,7 @@
       return v == null ? 0 : v;
     });
     var max = Math.max.apply(null, vals.concat([1]));
-    var w = 132, h = 30, gap = 2, n = vals.length;
+    var w = 132, h = 38, gap = 2, n = vals.length;
     var bw = (w - gap * (n - 1)) / n;
     var maxV = Math.max.apply(null, vals);
     var maxIdx = vals.indexOf(maxV);
@@ -224,6 +236,9 @@
         + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="1">'
         + '<title>' + esc(lbl) + '</title></rect>';
     }).join('');
+    var labels = dropoffs.map(function (d) {
+      return '<span class="pb-do-tick">' + esc(fmtNum(d.to_round)) + '</span>';
+    }).join('');
     var hotD = dropoffs[maxIdx];
     var cap = maxV > 0
       ? '▽ R' + hotD.from_round + '→' + hotD.to_round + ', −' + fmtNum(maxV) + ' pts'
@@ -235,6 +250,7 @@
         + '<line class="pb-do-baseline" x1="0" y1="' + (h - 0.5) + '" x2="' + w + '" y2="' + (h - 0.5) + '"/>'
         + bars
       + '</svg>'
+      + '<div class="pb-do-ticks" title="the round each transition ends at">' + labels + '</div>'
       + '<div class="pb-do-mini-cap' + (maxV > 0 ? ' pb-do-hot' : '') + '">' + esc(cap) + '</div>'
       + '</div>';
   }

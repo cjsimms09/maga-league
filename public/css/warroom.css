@@ -1676,8 +1676,11 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .pb-range { text-align: center; }
 .pb-range-wrap { display: inline-block; line-height: 0; }
 .pb-range-rail { stroke: var(--wr-chart-grid); stroke-width: 1; }
-.pb-range-band { fill: var(--wr-chart-main); }
+.pb-range-band { fill: var(--wr-chart-main); transition: filter .1s; }
 .pb-range-tick { stroke: var(--wr-ink); stroke-width: 1; }
+/* Same hover signal as the round-drop-off bars — pairs with the title
+   tooltip that already carries the exact floor/proj/ceiling numbers. */
+.pb-range-wrap:hover .pb-range-band { filter: brightness(1.4); }
 .pb-surv-safe { color: var(--wr-good); }
 .pb-surv-mid { color: var(--wr-warn); }
 .pb-surv-hot { color: var(--wr-bad); font-weight: 700; }
@@ -1706,8 +1709,25 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .pb-do-mini { margin: .5rem 0 0; padding-top: .35rem; border-top: 1px solid var(--wr-line); }
 .pb-do-mini svg { display: block; }
 .pb-do-baseline { stroke: var(--wr-chart-grid); stroke-width: 1; }
-.pb-do-bar { fill: var(--wr-chart-main); }
+.pb-do-bar { fill: var(--wr-chart-main); transition: filter .1s, transform .1s; }
 .pb-do-bar-hot { fill: var(--wr-bad); }
+/* Real interactivity, kept to pure CSS — no JS, pairs with the native
+   `title` tooltip that already fires on the same hover (Cory: "improve the
+   charts... could be great"). transform-box makes the lift scale from the
+   bar's own bottom edge rather than the SVG's (0,0) corner, so a short bar
+   near the baseline doesn't appear to jump sideways. */
+.pb-do-bar:hover {
+  filter: brightness(1.35);
+  transform: translateY(-1px);
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+/* The round-number axis a bar chart with no labels never had — which round
+   each bar's transition ENDS at, roughly under its bar. */
+.pb-do-ticks {
+  display: flex; justify-content: space-between; margin-top: .1rem;
+}
+.pb-do-tick { font-size: .5rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; }
 .pb-do-mini-cap {
   font-size: .58rem; color: var(--wr-muted); margin-top: .15rem;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

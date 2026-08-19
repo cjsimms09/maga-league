@@ -268,6 +268,17 @@ function mkData() {
     /<title>/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
   ck('the chart carries an aria-label naming the position and its biggest gap (accessibility)',
     /aria-label="RB round-to-round drop-off, biggest gap R4→5/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
+  ck('a round-number tick renders under every bar, one per transition (was bars with no axis at all)',
+    (function () {
+      const chart = V.roundDropoffChart('RB', d.round_dropoffs, esc);
+      return (chart.match(/class="pb-do-tick"/g) || []).length === d.round_dropoffs.length;
+    })());
+  ck('the ticks name the round each transition ENDS at (to_round), in order — 5, 6, 7 for this fixture',
+    (function () {
+      const chart = V.roundDropoffChart('RB', d.round_dropoffs, esc);
+      const nums = [...chart.matchAll(/pb-do-tick">(\d+)</g)].map(m => m[1]);
+      return nums.join(',') === '5,6,7';
+    })());
 }
 
 // ── the strike bar (WAR-ROOM-SPEC.md P2) — peak VONA pick per position ───
