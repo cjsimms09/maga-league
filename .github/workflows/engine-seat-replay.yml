@@ -106,6 +106,16 @@ jobs:
             exit 1
           fi
           echo "arms differ — the slot-aware branch executed"
+      # EVERY WEIGHT ARM MUST DIFFER FROM ITS CONTROL, not just the slot pair.
+      # Found 2026-08-19: `--bye 1.0` produced a `seasons` block BIT-IDENTICAL to
+      # the shipped arm across all 30 seats, while the weights stamp correctly
+      # read "MEASURED_WEIGHTS with bye=1" and it graded at +0.0 in 30 of 30.
+      # The stamp built after the `--need` incident CANNOT catch this: there the
+      # weight was never applied, here the weight was applied and the quantity it
+      # multiplies was zero. Only comparing the OUTPUT tells "does not help"
+      # apart from "has nothing to multiply". Register 69.
+      - name: refuse a weight arm that changed nothing
+        run: python3 draft/tools/arm_participation_check.py
       - name: VONA comparison arms A0 (pre-fix) and A2 (rescale diagnostic)
         run: |
           node draft/backtest/replay_seats.js --arm a0 \
