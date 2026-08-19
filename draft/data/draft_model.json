@@ -52,6 +52,7 @@
   },
   "C4_comparator_keeps_the_hard_K_DEF_fill": {
    "ok": true,
+   "roster_equation": "ON",
    "rooms_with_an_empty_starting_slot": 0,
    "why": "a comparator allowed to skip the fill drafts twelve quarterbacks and returns a fake improvement — happened twice on this project"
   }
@@ -152,8 +153,8 @@
    "position": "WR",
    "proj": 181.9,
    "floor": 159.5,
-   "ceiling": 241.8,
-   "band_width": 0.45244639912039586,
+   "ceiling": 241.80000000000004,
+   "band_width": 0.452446399120396,
    "banded": true,
    "injury_risk_pct": 36,
    "w": 1,
@@ -288,8 +289,8 @@
    "position": "WR",
    "proj": 133.1,
    "floor": 110.1,
-   "ceiling": 207.4,
-   "band_width": 0.7310293012772353,
+   "ceiling": 207.40000000000003,
+   "band_width": 0.7310293012772355,
    "banded": true,
    "injury_risk_pct": 51,
    "w": 0.112,
