@@ -168,36 +168,51 @@ BL.players.forEach(p => {
   });
 });
 
-/* ── THE BAND RULE, WITH CORY'S LATE-CEILING RAMP ────────────────────────────
+/* ── THE CEILING ADJUSTER — CORY'S KNOB, AS HE ACTUALLY SPECIFIED IT ─────────
  *
- * Cory, 2026-08-19: "the upside late theory with updated ceilings,, it needs to
- * be able to be tuned up to where players are judged closer to their ceiling
- * late in the draft"
+ * ⛔ THE PREVIOUS VERSION OF THIS FUNCTION FAILED CORY'S OWN TEST CASE, and he
+ * is the one who wrote the test:
  *
- * I deliberately designed this knob OUT -- a ramp on round number is a knob I
- * chose, and w already produces upside-late for free. Cory is asking for it
- * back, and he is entitled to: the w rule alone cannot do what he wants at his
- * LAST picks, because the K/DEF/TE fill forces w = 1 there and those men get
- * judged at their FLOOR on pick 148. That is the pick where he most wants a
- * swing, and the derived rule was arguing with him about it.
+ *   "if someone has mean proj of 500 and ceiling of 550, and another have a
+ *    mean proj of 450 but ceiling of 550, and I crank ceiling adjuster all the
+ *    way up, then 550 player should be ahead of 500"
  *
- * So the ceiling share gets an explicit, tunable ramp ON TOP of the w rule:
+ * Run against the old rule at LEAN = 1:
  *
- *   ceilingShare = clamp( (1 − w) + RAMP × progress , 0, 1 )
- *   band         = (1 − ceilingShare) × safe + ceilingShare × bold
+ *   starter slot (w=1)   A -> 450.0   B -> 400.0    ← their FLOORS
+ *   bench slot   (w=0)   A -> 550.0   B -> 550.0    ← correct, but only here
  *
- * progress runs 0 at his first pick to 1 at his last.
+ * Cranking the ceiling adjuster all the way up pushed starters to their FLOOR.
+ * That is the opposite of what the knob is called and the opposite of what he
+ * asked for, three separate times, in the same words: "if I crank ceiling
+ * adjuster all the way up it should be ranking off pure ceiling projections..
+ * if I crank it to 50 it should use 50% of the added ceiling."
  *
- * ⚠️ RAMP = 0 IS EXACTLY THE OLD BEHAVIOUR, byte for byte, and C6 asserts that
- * identity. So this cannot silently change what was already graded -- the
- * derived rule is still the default and the ramp is something Cory turns up.
- * `no_fit_guard`: the board prints at RAMP 0 / 0.5 / 1.0 and HE picks. */
-function bandUsed(x, w, lean, progress) {
-  const safe = x.proj - lean * (x.proj - x.floor);
-  const bold = x.proj + lean * (x.ceiling - x.proj);
-  const share = Math.min(1, Math.max(0, (1 - w) + RAMP * (progress || 0)));
-  return (1 - share) * safe + share * bold;
+ * I had conflated two different things. HIS knob is one number applied to
+ * EVERYONE. What I built used it as "how far toward whichever end w selects",
+ * so w and LEAN fought each other. He also said "We are simplifying model!!"
+ * and I had complicated it.
+ *
+ *   adj  = clamp(A + RAMP × progress, 0, 1)
+ *   used = proj + adj × (ceiling − proj)
+ *
+ * A = 0 ranks on the blended mean. A = 1 ranks on pure ceiling, for every
+ * player at every slot. A = 0.5 uses exactly half the added ceiling. RAMP is
+ * the late-draft crank on top, so the last picks are judged nearer their
+ * ceiling than the first ones.
+ *
+ * AND THE FLOOR GOES WHERE HE PUT IT — a TIEBREAK, early. "What I want is!
+ * Floors to be used for tiebreakers in early rounds and ceilings in later
+ * rounds." It is not part of the scale; it separates men the scale has already
+ * called level. */
+function projUsed(x, a, progress) {
+  const adj = Math.min(1, Math.max(0, a + RAMP * (progress || 0)));
+  return x.proj + adj * (x.ceiling - x.proj);
 }
+/* two candidates are "level" within this fraction of the better one's value */
+const TIE_EPS = 0.02;
+/* the floor only breaks ties in the FIRST HALF of his picks */
+const TIE_UNTIL = 0.5;
 
 /* ── THE KEEPERS, who are not on the board ───────────────────────────────────
  *
@@ -366,11 +381,16 @@ function runRoom(lean, hardFill) {
     for (const x of avail) {
       const w = startProb(x.position, held[x.position] || 0);
       if (forcing && !fillsASlot(x.position)) continue;
-      const band = bandUsed(x, w, lean, SCHED.length > 1 ? i / (SCHED.length - 1) : 0);
+      const progress = SCHED.length > 1 ? i / (SCHED.length - 1) : 0;
+      const band = projUsed(x, lean, progress);
       const dur = (DURABILITY && !DUR_OFF) ? durability(x, w) : 1;
       const base = WAIVER[x.position] || 0;   // P196: the wire, at every position
       const v = Math.max(0, band - base) * w * dur;
-      if (v > bestV) { bestV = v; best = x; bestParts = { w, band, dur, base }; }
+      /* CORY'S FLOOR TIEBREAK, early rounds only */
+      const level = best && bestV > 0 && Math.abs(v - bestV) <= TIE_EPS * bestV;
+      if (level && progress < TIE_UNTIL) {
+        if (x.floor > best.floor) { bestV = v; best = x; bestParts = { w, band, dur, base }; }
+      } else if (v > bestV) { bestV = v; best = x; bestParts = { w, band, dur, base }; }
     }
     if (!best) return;
     taken.add(best.id);
@@ -402,8 +422,8 @@ function knownPositive() {
     band_width: 150 / twin.proj };
   const held = { WR: 4, RB: 3, QB: 1, TE: 1 };      // bench slot: w small
   const w = startProb('WR', held.WR);
-  const atLean0 = bandUsed(plant, w, 0) - bandUsed(twin, w, 0);
-  const atLean1 = bandUsed(plant, w, 1) - bandUsed(twin, w, 1);
+  const atLean0 = projUsed(plant, 0, 0) - projUsed(twin, 0, 0);
+  const atLean1 = projUsed(plant, 1, 0) - projUsed(twin, 1, 0);
   return { ok: Math.abs(atLean0) < 1e-9 && atLean1 > 50,
     w_at_a_bench_slot: w,
     gap_at_lean_0: +atLean0.toFixed(3), gap_at_lean_1: +atLean1.toFixed(1),
@@ -494,11 +514,22 @@ const eW = mean(early), lW = mean(late);
 /* P211 — the identities Cory specified for the knob */
 const probe = pool.find(x => x.banded && x.position === 'WR');
 const ident = {
-  lean0_is_pure_projection: Math.abs(bandUsed(probe, 0.5, 0) - probe.proj) < 1e-9,
-  lean1_bench_is_pure_ceiling: Math.abs(bandUsed(probe, 0, 1) - probe.ceiling) < 1e-9,
-  lean1_starter_is_pure_floor: Math.abs(bandUsed(probe, 1, 1) - probe.floor) < 1e-9,
-  lean_half_is_half_the_added_ceiling:
-    Math.abs(bandUsed(probe, 0, 0.5) - (probe.proj + 0.5 * (probe.ceiling - probe.proj))) < 1e-9,
+  a0_is_the_blended_mean: Math.abs(projUsed(probe, 0, 0) - probe.proj) < 1e-9,
+  a1_is_pure_ceiling_FOR_EVERYONE:
+    Math.abs(projUsed(probe, 1, 0) - probe.ceiling) < 1e-9,
+  a_half_is_half_the_added_ceiling:
+    Math.abs(projUsed(probe, 0.5, 0) - (probe.proj + 0.5 * (probe.ceiling - probe.proj))) < 1e-9,
+  /* CORY'S OWN TEST CASE, run every time this file runs */
+  corys_500_550_vs_450_550_tie_at_full_crank: (() => {
+    const A = { proj: 500, floor: 450, ceiling: 550 };
+    const B = { proj: 450, floor: 400, ceiling: 550 };
+    return Math.abs(projUsed(A, 1, 0) - projUsed(B, 1, 0)) < 1e-9;
+  })(),
+  corys_case_bigger_ceiling_wins_at_full_crank: (() => {
+    const hi = { proj: 450, floor: 400, ceiling: 550 };   // lower mean, higher ceiling
+    const lo = { proj: 500, floor: 450, ceiling: 520 };   // higher mean, lower ceiling
+    return projUsed(hi, 1, 0) > projUsed(lo, 1, 0);
+  })(),
 };
 
 const onesies = ['QB', 'TE', 'K', 'DEF'].every(q => Math.abs(rosterWithKeepers[q] - 1) <= 0.1);
