@@ -48,31 +48,38 @@ the exposure numbers describe the real slate or the predicted one.
 2. **Freeze**: confirm `draft/freeze_pre_draft.py` has run against THAT board
    and note the freeze SHA (it prints; also in the freeze artifact).
 
-   > ⚠️ **EXPECT IT TO SAY `PROVISIONAL`, AND EXPECT ITS REASON TO BE WRONG —
-   > register 5l, found 2026-08-18.** The freeze stamps `CONFIRMED` only when
-   > `keeper_lock_passed` is true, and **that flag is `false` forever**:
-   > `assess_slate()` takes it as a parameter defaulting to `false` and all
-   > three `build.py` call sites omit it. So on Saturday morning — with keepers
-   > locked since 6:00 PM Friday — the freeze will print **`PROVISIONAL … the
-   > keeper lock has not passed`**. That sentence is FALSE and it is the tool's
-   > fault, not the league's.
+   > ✅ **EXPECT `CONFIRMED`. THIS NOTE USED TO SAY THE OPPOSITE, AND IT WAS
+   > RIGHT WHEN IT WAS WRITTEN — register 5l, FIXED 2026-08-18 by A.** The
+   > freeze stamps `CONFIRMED` only when `keeper_lock_passed` is true, and that
+   > flag used to be `false` forever (`assess_slate()` took it as a parameter
+   > defaulting to `false` and all three `build.py` call sites omitted it). It
+   > now derives from **two independent paths, either sufficient**: keepers
+   > PLACED on the draft, or the configured deadline having passed.
    >
-   > **WHAT TO DO: take the freeze anyway and note the SHA. It is a complete,
-   > correct capture of the board** — the status word is the only thing wrong,
-   > and the freeze IS the season's grading baseline whatever it calls itself.
-   > Do NOT go looking for an unlocked keeper slate; do NOT re-run it hoping
-   > for a different word.
+   > **VERIFIED BY DRIVING THE CLOCK 2026-08-19, not by reading the fix:**
+   > `_keeper_lock_passed(cfg, None, now=…)` returns `False` at 5:59 PM Friday,
+   > `True` at 6:00 PM Friday, `True` Saturday morning — off Cory's own ruling
+   > (`keepers.deadline` = 08-21 6:00 PM CDT) as committed in
+   > `league_config.json`, not a literal in the code.
    >
-   > **AND THE ALARM THAT WOULD NORMALLY CATCH THIS IS THE SAME DEAD FLAG.**
-   > `standing_check.py` escalates on *"THE KEEPER LOCK HAS PASSED AND THE
-   > FREEZE IS STILL {status} … unrecoverable once the draft starts"* — gated
-   > on `keeper_lock_passed` alone, so it can never fire. **Nothing will tell
-   > you to re-take the freeze after the lock. This paragraph is the
-   > replacement for that alarm until A ships the fix** (prepared:
-   > `draft/backtest/5l_proposed_fix_for_approval_2026-08-18.md`; ROUTES
-   > `TO: A` item 00). **If A ships it before Saturday, the freeze can stamp
-   > `CONFIRMED` and this note stops applying — check which world you are in
-   > by reading the printed status, not by assuming.**
+   > **SO THE STATUS WORD IS A REAL SIGNAL AGAIN, AND THAT CUTS BOTH WAYS:**
+   >
+   > * `CONFIRMED` — expected. Note the SHA and move on.
+   > * `PROVISIONAL` on Saturday — **do not shrug this off the way the old
+   >   version of this note told you to.** It now means one of two real things:
+   >   the keeper deadline in `league_config.json` was changed or lost, or the
+   >   build ran with a clock/timezone you did not expect. Check
+   >   `keepers.deadline` in the config first — it takes ten seconds.
+   >
+   > **Either way: TAKE THE FREEZE AND NOTE THE SHA.** It is a complete, correct
+   > capture of the board regardless of the status word, and it is the season's
+   > grading baseline. Do not re-run it hoping for a different word.
+   >
+   > **AND THE ALARM WORKS AGAIN TOO.** `standing_check.py` escalates on *"THE
+   > KEEPER LOCK HAS PASSED AND THE FREEZE IS STILL {status} … unrecoverable
+   > once the draft starts"*, gated on the same flag — dead code until 5l, live
+   > now. This paragraph is no longer the replacement for that alarm.
+
 3. **Netlify check**: dashboard → Usage → build minutes comfortably under cap.
    NO deploys Aug 20–22 except draft-critical fixes.
 4. **Ledger check (5 min, Cory's browser)**: logged in as commissioner, visit

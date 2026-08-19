@@ -154,15 +154,41 @@ strictly worse. Cory confirms at the lock — **08-21 6:00 PM CDT, his 08-18 rul
 
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
 
+> **STATUS AS OF 08-19: item 1 is STRUCK (false — verified in a browser) and item
+> 4 carries a correction (the ceiling weight shipped at 0.45). Read the strikes,
+> not the heading — the heading describes what was true on 08-17.**
+
 *Added by the relay so these reach lanes without waiting on a merge. Cory today:
 **"are you following up and delegating appropriately so nothing gets missed."**
 They were in the register and the register is not what people read first.*
 
-**1. THE WAR ROOM COMPUTES EVERY PICK NUMBER FOR THE WRONG SEAT** (register 4c).
+~~**1. THE WAR ROOM COMPUTES EVERY PICK NUMBER FOR THE WRONG SEAT** (register 4c).
 Its own banner says so: 3 keepers mean Cory owns 12 picks, the board gives 15,
-the seat belongs to someone with 0 keepers, and *"every pick number, survival %
-and timing call on this page is computed for the wrong seat."* **That build was
-sent to Cory as a demo.** Fix the seat, or make the page REFUSE to compute.
+the seat belongs to someone with 0 keepers. That build was sent to Cory as a
+demo.~~
+
+**⚠️ FALSE ON THE CURRENT BOARD AND THE CURRENT PAGE — struck 2026-08-19,
+register 4c CLOSED 08-18. THIS IS THE ONE TO READ IF YOU READ ONLY ONE
+CORRECTION IN THIS FILE, because uncorrected it tells Cory to distrust every
+pick number, survival % and timing call on the surface he drafts from, three
+days before he drafts on it.** Verified in a REAL BROWSER against a real war
+room, not read off the artifact: `pick_order.my_picks` is **12 entries — 33, 48,
+53, 68, 73, 88, 93, 108, 113, 128, 133, 148** — with `my_picks_before_keepers`
+carrying the 15 and the three keeper-consumed picks (8, 13, 28) sitting **only**
+in the latter. `forfeited` names Chase/Henry/Walker at `cost_round` 2/1/3, all
+`team_slot: 8`. Rendered `/admin/warroom` as commissioner and read the DOM: it
+says *"🟢 YOU ARE UP · pick 33"* and *"seat 8"* — pick 33 is exactly
+`my_picks[0]`, and none of the keeper-consumed picks appears as his. The
+numbering model is documented and checked against 2023/2024/2025 (150 picks,
+round 4 at overall 31 every year).
+
+**HOW IT SURVIVED FOUR DAYS, since that is the reusable part:** the row was
+closed in the register and nobody swept the file the register is not. I found it
+by listing every register id these Cory-facing docs name and checking each
+against its live status — 15 references across four files, and **most were
+legitimate pointers rather than defects**, so the sweep's raw output was mostly
+noise. It was still worth running: one real instance, in the file `CLAUDE.md`
+tells every session to read first, on the page Cory drafts from.
 
 **2. CORY DRAFTS ON DESKTOP. A's LIVE ORDER TO B SAYS PHONE-FIRST** (4d).
 `7ee6f993`, 16:06 today, specifies *phone-first* and *the 390px column*. The
