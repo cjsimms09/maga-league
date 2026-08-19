@@ -43,6 +43,8 @@ const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamab
 if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
 const STREAM = ST.streamability;
 const KDEF_TAX = process.argv.includes('--kdef-tax');
+const KDEF_MODE = process.argv.includes('--kdef-supply');
+let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 /* one position crosswalk, two sources, board first (rule 11) */
@@ -79,7 +81,7 @@ const FLEX = ['RB', 'WR', 'TE'];
  * across RB/WR/TE as the fraction it actually is. Not a new number, and not
  * tuned: it is the number that was already right for this. */
 const S_EFF = { QB: 1.0, RB: 2.417, WR: 2.556, TE: 1.017, K: 0.996, DEF: 0.996 };
-function startProb(pos, held, rosterOn) {
+function startProb(pos, held, rosterOn, supplyShort) {
   if (!rosterOn) return 1;
   const row = W[pos];
   if (!row) return 0;
@@ -89,6 +91,18 @@ function startProb(pos, held, rosterOn) {
    * exemption assumes a starting slot must be filled at any price. True for a
    * running back (streamability 0.311); FALSE for a kicker (0.966), who is
    * abundant and interchangeable whether or not the slot is empty. */
+  /* ── REGISTER 127, SECOND ATTEMPT: THE SUPPLY DEADLINE ────────────────────
+   * Prereg: draft/KDEF-SUPPLY-DEADLINE-PREREG-2026-08-19.md.
+   * Ten teams, ten kickers, no surplus -- the last one leaves the board at
+   * pick 136-149 depending on the season, and Cory's last two picks are 133
+   * and 148. So the onesie is priced CHEAPLY while it is abundant and at FULL
+   * value exactly once, at the last moment one still exists. The first attempt
+   * used a fixed weight for a time-varying problem and left 8 of 30 rosters
+   * with no kicker. */
+  if (KDEF_MODE && (pos === 'K' || pos === 'DEF')) {
+    if (supplyShort) return base;                    // last chance — full weight
+    return base * (1 - (STREAM[pos] || 0));          // abundant — he can wait
+  }
   if (KDEF_TAX && (pos === 'K' || pos === 'DEF')) {
     return base * (1 - (STREAM[pos] || 0));
   }
@@ -217,7 +231,22 @@ function buildSeat(season, draft, seatId, rosterOn) {
       if (takenByMe.has(c.player_id)) continue;
       const q = posOf(c.player_id);
       if (!q) continue;
-      const w = startProb(q, held[q] || 0, rosterOn);
+      /* C3: counted from the fixed-opponent draft only — picks already made
+       * plus the opponents' known future picks. No outcome data. */
+      let short = false;
+      if (KDEF_MODE && (q === 'K' || q === 'DEF')) {
+        const myNext = picks.findIndex((c, k) => k > idx && c.roster_id === seatId);
+        const horizon = myNext < 0 ? N : myNext;
+        let left = 0;
+        for (let k = idx; k < horizon; k++) {
+          const c = picks[k];
+          if (c.is_keeper || takenByMe.has(c.player_id)) continue;
+          if (posOf(c.player_id) === q) left++;
+        }
+        short = left < 1;
+        if (short) deadlineFired++;
+      }
+      const w = startProb(q, held[q] || 0, rosterOn, short);
       const v = valueOf(c) * w;
       if (v > bestV) { bestV = v; best = c; }
     }
@@ -314,6 +343,10 @@ const ctl = {
   C4_keepers_as_recorded: { ok: true,
     why: 'is_keeper picks stay with their real owner in every arm; the builder '
        + 'does not re-choose them' },
+  C1_supply_deadline_actually_fired: { ok: !KDEF_MODE || deadlineFired > 0,
+    times_fired: deadlineFired, mode: KDEF_MODE ? 'supply-deadline' : 'off',
+    why: 'if the deadline never fires, this arm is the untaxed board wearing a '
+       + 'new name and every number below it is meaningless (rule 3e)' },
   C5_comparator_is_not_a_straw_man: { ok: true,
     why: 'the equation-OFF arm still takes best-available on the same market '
        + 'order — it is not crippled, it simply has no shaping' },

@@ -23,6 +23,12 @@
    "ok": true,
    "why": "is_keeper picks stay with their real owner in every arm; the builder does not re-choose them"
   },
+  "C1_supply_deadline_actually_fired": {
+   "ok": true,
+   "times_fired": 0,
+   "mode": "off",
+   "why": "if the deadline never fires, this arm is the untaxed board wearing a new name and every number below it is meaningless (rule 3e)"
+  },
   "C5_comparator_is_not_a_straw_man": {
    "ok": true,
    "why": "the equation-OFF arm still takes best-available on the same market order — it is not crippled, it simply has no shaping"
