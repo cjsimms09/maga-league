@@ -73,3 +73,36 @@ mean anything, and it should be stated as a number rather than assumed.
 `no_fit_guard` holds: whatever it says, **nothing is selected from it and
 nothing ships before Saturday.** If P168 comes back FALSE the response is a
 register row and a post-draft job, not a re-tuned wire three days out.
+
+---
+
+# ADDENDUM — P170, committed after P167 came back TRUE and before the split is run
+
+**P167 came back TRUE and harder than my bar: sd 0.272, and the range is the
+whole interval — min 0.000, max 1.000.** At least one team-season never once
+flexed a receiver and at least one never flexed anything else. **Cory is
+describing a roster archetype, not a league average.**
+
+**That has a consequence I have not measured and am predicting now.** The
+measured need curve is pooled across all 30 team-seasons. If the league is two
+archetypes, **the pooled curve describes a roster nobody actually builds** —
+it blends a WR-flex team (whose WR3 really does start, and whose RB3 mostly does
+not) with an RB-flex team (the reverse).
+
+**P170 — the pooled curve is materially wrong for both archetypes.** Split the
+30 team-seasons at a WR-flex share of 0.5 and recount:
+
+- within **WR-flex** team-seasons, the **WR 3rd-body** start rate exceeds the
+  pooled **0.530** by at least **0.05**, and
+- within **RB-flex** team-seasons, the **RB 3rd-body** start rate exceeds the
+  pooled **0.490** by at least **0.05**.
+
+**FALSE if either misses.** If FALSE, the archetypes differ in who they flex but
+not in how their depth actually starts, and the pooled curve is fine.
+
+**Controls carried forward, plus:** the two subgroups must both have at least 10
+team-seasons — a split that lands 27/3 is not two archetypes and the result is
+reported as unusable rather than as a finding.
+
+**Still REPORT ONLY.** `no_fit_guard`: even if P170 is TRUE, the response before
+Saturday is a register row, not a split curve wired into the board.
