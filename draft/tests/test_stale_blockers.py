@@ -177,12 +177,23 @@ def test_the_live_corpus_still_surfaces_the_pair_this_was_built_for():
     # dated), RED in the board gate — it measured checkout depth and called
     # it blindness, refusing a good board twice (runs 32199445523 /
     # 32200542104). Skip loudly rather than pass quietly (A, 08-19).
+    # THE PRECONDITION IS WHAT THE TOOL NEEDS, NOT A PROXY FOR IT. Pairing
+    # requires a DATED refusal and a DATED artifact committed after it —
+    # that is the whole mechanism. Two earlier attempts guessed instead and
+    # both were wrong: "fewer than 10 dated rows" (draft-data.yml's last two
+    # commits clear 10 while pairing stays impossible, run 32201791331) and
+    # `is-shallow-repository` (true in this sandbox too, which would have
+    # disabled the guard everywhere — a check that never runs is the class
+    # the relay flagged). So compute the precondition exactly.
+    refusals = [r for r in rows if r.get("blocked") and r.get("at")]
     dated = [r for r in rows if r.get("at")]
-    if len(dated) < 10:
+    pairing_possible = any(any(l["at"] > f["at"] for l in dated) for f in refusals)
+    if not pairing_possible:
         import pytest
-        pytest.skip(f"shallow checkout: only {len(dated)} of {len(rows)} "
-                    "artifacts carry a commit date, so pairing is "
-                    "unmeasurable here — run in a full clone")
+        pytest.skip(f"{len(refusals)} dated refusals / {len(dated)} of "
+                    f"{len(rows)} artifacts dated — no refusal has a later "
+                    "dated artifact to pair with, so pairing is unmeasurable "
+                    "in this checkout (shallow clone); run in a full clone")
     got = S.pairs(rows, min_shared=3, min_score=0.0)
     assert got, "the tool finds NO pairs on a DATED live corpus — it has gone blind"
     assert got[0][0]["path"].endswith("proj_mean_blend.json"), \
