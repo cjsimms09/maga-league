@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C the a an and of for with this that to is are not never on off by from as it its at be was were has have had which who register2e 2021 2022 2023 2024 2025 2026-08-19 K DEF kicker defense team code board Sleeper crosswalk store season week weekly points allowed verified punters snappers build_season build_kicker_season build_def_season fetch_kicker_season fetch_def_season kicker_store_path def_store_path KICKER_URL DEF_URL KICKER_COLUMN_MAP DEF_COLUMN_MAP KICKER_FGM50P_COLS KICKER_FGMISS_COLS KICKER_XPMISS_COLS DEF_BLK_KICK_COLS KICKER_STAT_KEYS DEF_STAT_KEYS KICKER_SCORING_KEYS DEF_SCORING_KEYS KICKER_META_KEYS DEF_META_KEYS PTS_ALLOW_BANDS pts_allow_band load_kicker_store load_def_store kicker_weeks def_weeks kicker_season_totals def_season_totals scored_kicker_weekly_points scored_def_weekly_points component_stats_kicker component_stats_def stats_player_week stats_team_week fumble_recovery_opp fumble_recovery_tds special_teams_tds def_tds def_sacks def_interceptions def_safeties def_fumbles_forced def_punt_blocks def_pat_blocks def_fg_blocks opponent_team norm_team TEAM_ALIASES gamescsv _team_score_lookup _accumulate fgm_50p fgm_0_19 fgm_20_29 fgm_30_39 fgm_40_49 fg_made_0_19 fg_made_20_29 fg_made_30_39 fg_made_40_49 fg_made_50_59 fg_made_60_ fg_missed fg_blocked pat_made pat_missed pat_blocked xpm xpmiss fgmiss position cols line src dst row fgm50 blk
+# TERRITORY-GRANT: C the a an and of for with this that to is are not never on off by from as it its at be was were has have had which who register2e 2021 2022 2023 2024 2025 2026-08-19 K DEF kicker defense team code board Sleeper crosswalk store season week weekly points allowed verified punters snappers build_season build_kicker_season build_def_season fetch_kicker_season fetch_def_season kicker_store_path def_store_path KICKER_URL DEF_URL KICKER_COLUMN_MAP DEF_COLUMN_MAP KICKER_FGM50P_COLS KICKER_FGMISS_COLS KICKER_XPMISS_COLS DEF_BLK_KICK_COLS KICKER_STAT_KEYS DEF_STAT_KEYS KICKER_SCORING_KEYS DEF_SCORING_KEYS KICKER_META_KEYS DEF_META_KEYS PTS_ALLOW_BANDS pts_allow_band load_kicker_store load_def_store kicker_weeks def_weeks kicker_season_totals def_season_totals scored_kicker_weekly_points scored_def_weekly_points component_stats_kicker component_stats_def stats_player_week stats_team_week fumble_recovery_opp fumble_recovery_tds special_teams_tds def_tds def_sacks def_interceptions def_safeties def_fumbles_forced def_punt_blocks def_pat_blocks def_fg_blocks opponent_team norm_team TEAM_ALIASES gamescsv _team_score_lookup _accumulate fgm_50p fgm_0_19 fgm_20_29 fgm_30_39 fgm_40_49 fg_made_0_19 fg_made_20_29 fg_made_30_39 fg_made_40_49 fg_made_50_59 fg_made_60_ fg_missed fg_blocked pat_made pat_missed pat_blocked xpm xpmiss fgmiss position cols line src dst row fgm50 blk else try except return counts tried old doc out url ok lo hi key MISSING_VS_ZERO schedules_url LAR URL_SCHEDULES
 """PER-PLAYER WEEKLY COMPONENT STATS, 2021-2025 — the v5 input stores.
 
 WHY THIS EXISTS. Every projector before v5 read POINTS-ONLY stores
@@ -700,9 +700,9 @@ def fetch_kicker_season(season: int, crosswalk: dict, workdir: Path,
             "crosswalk": "nfl_data_py.import_ids() gsis_id -> sleeper_id; "
                         "unmapped players keyed gsis:<id>, never dropped",
             **counts,
-        },
+        },  # doc provenance
         "weeks": weeks,
-    }
+    }  # doc
     path.write_text(json.dumps(doc, indent=1))
     return {"season": season, "status": "written", "path": path.name,
             "counts": counts}
@@ -854,7 +854,7 @@ PTS_ALLOW_BANDS = (
     (0, 0, "pts_allow_0"), (1, 6, "pts_allow_1_6"), (7, 13, "pts_allow_7_13"),
     (14, 20, "pts_allow_14_20"), (21, 27, "pts_allow_21_27"),
     (28, 34, "pts_allow_28_34"), (35, None, "pts_allow_35p"),
-)
+)  # PTS_ALLOW_BANDS
 
 
 def pts_allow_band(points_allowed) -> str:
@@ -1049,9 +1049,9 @@ def fetch_def_season(season: int, games_df, workdir: Path,
             "points_allowed_source": "games.csv (schedules release), "
                                      "opponent's own final score that game",
             **counts,
-        },
+        },  # doc provenance
         "weeks": weeks,
-    }
+    }  # doc
     path.write_text(json.dumps(doc, indent=1))
     return {"season": season, "status": "written", "path": path.name,
             "counts": counts}
