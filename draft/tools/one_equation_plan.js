@@ -101,7 +101,7 @@ const ZERO_BEYOND_SLOT = ['K', 'DEF'];
  * ARM=measured. Loaded from the artifact rather than retyped, and refused if
  * that artifact's own controls did not all pass. */
 let MEASURED = null, STREAM = null;
-if (ARM === 'full') {
+if (ARM === 'full' || ARM === 'ramp') {
   const m = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
     'measured_need_curve.json'), 'utf8'));
   const t = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
@@ -124,7 +124,7 @@ function weightOf(pos, held, flexOwner) {
   if (S <= 0) return 0;
   if (held < S) return 1.0;
   if (ARM === 'cory' && ZERO_BEYOND_SLOT.includes(pos)) return 0;   // P149
-  if (ARM === 'full') {
+  if (ARM === 'full' || ARM === 'ramp') {
     /* P155: measured start rate x (1 - streamability). Every term counted from
      * this league's own history; no constant chosen here. */
     const row = (MEASURED || {})[pos] || [];
@@ -183,18 +183,40 @@ function chooseFlexOwner() {
   return best;
 }
 
+/* ── P156/P157: CORY'S RAMP. need is quiet early and loud late.
+ *   lambda(t) = min(1, unfilled starting slots / picks remaining)
+ * Derived, not chosen: a ratio of two things the roster already knows. At
+ * lambda 0 the model is pure value; at lambda 1 need is everything, and a slot
+ * you cannot field has need 1.0 -- which forces the K and DEF at the end
+ * without being told to. */
+const BASE_SLOTS = { QB: STARTERS.QB || 0, RB: STARTERS.RB || 0, WR: STARTERS.WR || 0,
+                     TE: STARTERS.TE || 0, K: STARTERS.K || 0, DEF: STARTERS.DEF || 0 };
+function unfilledSlots() {
+  let n = 0;
+  Object.entries(BASE_SLOTS).forEach(([pos, s]) => { n += Math.max(0, s - (held[pos] || 0)); });
+  const flexNeed = (STARTERS.FLEX || 0);
+  const surplus = FLEX_ELIGIBLE.reduce((a, p) =>
+    a + Math.max(0, (held[p] || 0) - (BASE_SLOTS[p] || 0)), 0);
+  return n + Math.max(0, flexNeed - surplus);
+}
+const lambdaTrace = [];
+
 const taken = new Set();
 const picks = [], flexTrace = [];
 SCHED.forEach((pk, i) => {
   const gone = new Set(byAdp.slice(0, pk - 1).map(x => String(x.player_id)));
   const flexOwner = chooseFlexOwner();
   flexTrace.push({ pick: pk, flex_to: flexOwner });
+  const remaining = SCHED.length - i;
+  const lam = (ARM === 'ramp') ? Math.min(1, unfilledSlots() / Math.max(1, remaining)) : 1;
+  lambdaTrace.push({ pick: pk, lambda: +lam.toFixed(3), unfilled: unfilledSlots(), remaining });
   let best = null, bestV = -Infinity;
   pool.forEach(p => {
     const id = String(p.player_id);
     if (taken.has(id) || gone.has(id)) return;
-    const v = weightOf(p.position, held[p.position] || 0, flexOwner)
-      * Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
+    const nd = weightOf(p.position, held[p.position] || 0, flexOwner);
+    const margin = Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
+    const v = (ARM === 'ramp') ? margin * ((1 - lam) + lam * nd) : nd * margin;
     if (v > bestV) { bestV = v; best = p; }
   });
   /* ⛔ DEFECT 2, P147: a zero is not a recommendation. draft_plan.js says so in
@@ -266,6 +288,10 @@ picks.forEach(p => console.log('  ' + String(p.pick).padStart(4) + '  '
   + (p.need != null ? p.need.toFixed(3).padStart(7) : '      —')
   + (p.value != null ? p.value.toFixed(1).padStart(8) : '       —')
   + '  ' + (p.flex_to || '')));
+if (ARM === 'ramp') {
+  console.log('\n  lambda per pick (unfilled slots / picks remaining):');
+  console.log('   ' + lambdaTrace.map(l => l.lambda.toFixed(2)).join('  '));
+}
 console.log('\n  DRAFTED: ' + POS.map(p => p + c(p)).join(' '));
 console.log('  FULL 15: ' + POS.map(p => p + (full[p] || 0)).join(' '));
 console.log('\n  P144 (3-4 WR, 3-4 RB, exactly 1 QB/TE/K/DEF among the twelve): '
@@ -279,6 +305,7 @@ console.log('  P145 (within 5% of draft_plan on total projected points): '
 const rep = { _territory: 'TERRITORY: A — draft/tools/one_equation_plan.js',
   _prereg: 'draft/ONE-EQUATION-PREREG-2026-08-19.md',
   _note: 'REPORT ONLY. No cap, no seats. Writes no board field.',
+  lambda_trace: lambdaTrace,
   board_built_at: DATA.built_at, waiver_levels: WAIVER, q_per_week: Q,
   controls: ctl, controls_all_passed: allOk,
   picks, drafted_counts: counts, full_roster: full, P144: p144, P145: p145 };
