@@ -4,10 +4,10 @@ _my keepers + my picks (34, 41, 54…) on the PREDICTED board · 200 paired room
 
 | archetype | mean edge $ | 95% CI | decisions ≠ control | verdict |
 |---|---|---|---|---|
-| late_qb | +21.75 | [-3.0, 50.38] | 5.2 | parked: CI includes $0 |
-| zero_rb | +10.38 | [-14.38, 35.5] | 2.0 | parked: CI includes $0 |
-| hero_rb | +10.38 | [-15.0, 37.25] | 2.0 | parked: CI includes $0 |
-| elite_te | +6.38 | [-10.5, 25.62] | 2.4 | parked: CI includes $0 |
+| late_qb | +22.25 | [-2.62, 50.62] | 5.2 | parked: CI includes $0 |
+| zero_rb | +9.75 | [-15.12, 35.25] | 2.0 | parked: CI includes $0 |
+| hero_rb | +9.75 | [-15.62, 36.5] | 2.0 | parked: CI includes $0 |
+| elite_te | +6.25 | [-10.5, 25.25] | 2.4 | parked: CI includes $0 |
 | wr_anchor | +0.12 | [-21.38, 21.75] | 2.7 | parked: CI includes $0 |
 | robust_rb | +0.00 | [0.0, 0.0] | 0.0 | parked: CI includes $0 |
 | early_qb | +0.00 | [0.0, 0.0] | 0.0 | parked: CI includes $0 |
