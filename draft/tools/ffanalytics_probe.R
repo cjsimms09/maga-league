@@ -75,12 +75,23 @@ for (src in sources) {
     per_pos[[p]] <- n
     total <- total + n
     if (n > 0) {
+      # ⚠️ KEEP EVERY COLUMN, AND `points` IS NOT ONE OF THEM — MY BUG, FOUND
+      # ON THE FIRST SUCCESSFUL SCRAPE (run 32212505971). I extracted a fixed
+      # list including "points", and every row came back with points = NA,
+      # because `scrape_data()` returns RAW STAT LINES (pass_yds, rush_att,
+      # rec, ...) and points only exist after `projections_table()` applies a
+      # scoring config.
+      #
+      # THE FIX IS NOT TO ASK ffanalytics FOR POINTS. This repo's standing rule
+      # is that a provider's points encode a DIFFERENT LEAGUE'S RULES —
+      # `build_bundle.py` says it outright: "always our scoring engine, never a
+      # provider's". Raw stat lines are strictly better: they let `scoring.py`
+      # price all twelve sources under OUR 44-key table, which is the only way
+      # twelve sources are comparable to each other or to Sleeper.
       df <- res[[p]]
-      keep <- intersect(c("id", "player", "team", "pos", "points", "data_src"), names(df))
-      slim <- df[, keep, drop = FALSE]
-      slim$source <- src
-      slim$position <- p
-      frames[[length(frames) + 1]] <- slim
+      df$source <- src
+      df$position_asked <- p
+      frames[[length(frames) + 1]] <- df
     }
   }
   report[[src]] <- list(ok = TRUE, rows = total, positions = per_pos, error = NULL)
@@ -108,14 +119,20 @@ out <- list(
 write(toJSON(out, auto_unbox = TRUE, pretty = TRUE), "draft/data/ffanalytics_probe.json")
 
 if (length(frames)) {
-  all <- do.call(rbind, lapply(frames, function(f) {
-    for (col in c("id", "player", "team", "pos", "points", "data_src", "source", "position")) {
-      if (!col %in% names(f)) f[[col]] <- NA
-    }
-    f[, c("id", "player", "team", "pos", "position", "points", "source", "data_src")]
-  }))
+  # UNION of columns across sources, not the intersection: providers publish
+  # different stat lines, and an intersection would silently discard the
+  # columns only some sources carry — exactly the information a multi-source
+  # capture exists to preserve.
+  allcols <- unique(unlist(lapply(frames, names)))
+  padded <- lapply(frames, function(f) {
+    for (col in setdiff(allcols, names(f))) f[[col]] <- NA
+    f[, allcols, drop = FALSE]
+  })
+  all <- do.call(rbind, padded)
   write.csv(all, "draft/data/ffanalytics_raw_projections.csv", row.names = FALSE)
-  cat("\nwrote draft/data/ffanalytics_raw_projections.csv —", nrow(all), "rows\n")
+  cat("\nwrote draft/data/ffanalytics_raw_projections.csv —", nrow(all), "rows,",
+      length(allcols), "columns\n")
+  cat("columns:", paste(head(allcols, 40), collapse = ", "), "\n")
 }
 
 cat("\n  TOTAL", grand, "rows from", length(ok_sources), "of", length(sources), "sources\n")

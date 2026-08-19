@@ -84,10 +84,47 @@ function studies() {
  * that removes files is a worse failure than one that leaves them. */
 function dirtySet() {
   try {
-    return new Set(cp.execSync('git status --porcelain', { cwd: ROOT, encoding: 'utf8' })
+    return new Set(cp.execSync('git status --porcelain',
+      { cwd: (typeof WORKTREE === 'string' ? WORKTREE : ROOT), encoding: 'utf8' })
       .split('\n').filter(Boolean).map(l => l.slice(3).trim()));
   } catch (e) { return null; }
 }
+/* ⚠️ STUDIES RUN IN A DETACHED GIT WORKTREE, NOT THE LIVE TREE — AND THIS IS THE
+ * FOURTH FIX TO ONE PROBLEM. The first three treated the symptom.
+ *
+ * v1 snapshotted the dirty set once at start and restored whatever a study
+ * dirtied. v2 re-snapshotted before each study. Both are RACES: a sweep takes an
+ * hour, its author keeps working, and a file edited while a study is mid-run is
+ * indistinguishable from a file that study wrote. It silently reverted, in
+ * order: a preregistration rewrite, `--need` support in `replay_seats.js` (which
+ * then let CI grade an arm that never ran), and two further edits.
+ *
+ * NO SNAPSHOT LOGIC FIXES THAT — the information needed to tell the two apart
+ * does not exist in `git status`. The fix is isolation: every study runs against
+ * a throwaway worktree at HEAD, so it may write whatever it likes and the live
+ * tree is untouchable by construction. Studies then read HEAD's committed
+ * artifacts, which is what a reproducible sweep should read anyway. */
+function makeWorktree() {
+  const dir = path.join(require('os').tmpdir(), 'vona-sweep-' + process.pid);
+  try {
+    cp.execSync('git worktree add --detach ' + JSON.stringify(dir) + ' HEAD',
+                { cwd: ROOT, stdio: 'ignore' });
+    return dir;
+  } catch (e) {
+    console.error('REFUSING to sweep: could not create an isolated worktree ('
+      + String(e.message).split('\n')[0] + '). Running studies in the live tree is '
+      + 'how this tool reverted four of its author\'s edits; it will not do that again.');
+    process.exit(2);
+  }
+}
+const WORKTREE = makeWorktree();
+function cleanupWorktree() {
+  try { cp.execSync('git worktree remove --force ' + JSON.stringify(WORKTREE),
+                    { cwd: ROOT, stdio: 'ignore' }); } catch (e) { /* best effort */ }
+}
+process.on('exit', cleanupWorktree);
+['SIGINT', 'SIGTERM'].forEach(sig => process.on(sig, () => { cleanupWorktree(); process.exit(130); }));
+
 let DIRTY_AT_START = dirtySet();
 if (DIRTY_AT_START === null) {
   console.error('REFUSING to sweep: cannot read `git status`, so files this sweep '
@@ -125,10 +162,10 @@ function restoreRepo(rel, baseline) {
   const caused = [...now].filter(f => !baseline.has(f));
   if (!caused.length) return;
   SIDE_EFFECTS[rel] = caused;
-  caused.forEach(f => {
-    try { cp.execSync('git checkout -- ' + JSON.stringify(f), { cwd: ROOT, stdio: 'ignore' }); }
-    catch (e) { /* untracked: reported below, never deleted */ }
-  });
+  /* NO LONGER RESTORES ANYTHING. With studies isolated in a worktree, a dirty
+   * LIVE file is by definition not the sweep's doing — it is the author's, and
+   * touching it is precisely the bug this rewrite removes. Kept as a REPORTER so
+   * "which studies write artifacts" is still recorded. */
 }
 
 function run(rel, arm) {
@@ -136,7 +173,7 @@ function run(rel, arm) {
   try {
     const stdout = cp.execSync(
       'node -r ./draft/tools/vona_arm_preload.js ' + rel,
-      { cwd: ROOT, encoding: 'utf8', timeout: TIMEOUT,
+      { cwd: WORKTREE, encoding: 'utf8', timeout: TIMEOUT,
         maxBuffer: 64 * 1024 * 1024,
         env: Object.assign({}, process.env, { VONA_ARM: arm }) });
     return { ok: true, out: stdout, ms: Date.now() - started };
