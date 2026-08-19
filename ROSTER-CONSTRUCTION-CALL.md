@@ -68,6 +68,19 @@ tight end is a twentyfold hole — while the top-3 teams draft **1.67** of them.
 And his stated spec (RB 3-4, WR 4-5) sums to 7-9 bodies where every real team
 carries about 10.
 
+**✅ CORY RULED, 2026-08-19 (relayed via C): "We should be trying to match the
+top 3 finishers row.. let everyone know. That's the winning strategy."**
+**The TOP-3 finishers row is now the target roster shape — QB 1.56 / RB 4.78 /
+WR 5.00 / TE 1.67 / K 1.00 / DEF 1.00 — not his own earlier-stated spec (RB
+3-4, WR 4-5) and not the shipped `CORY_CURVE`, which caps TE at `[1, .05, 0]`
+and therefore cannot reach 1.67 no matter what it is fed.** This settles the
+open question two paragraphs up in Cory's own favor for the data, against his
+own earlier spec — he is choosing the measured winners' shape over his own
+prior guess. **Full ruling recorded in `CORY-ASKS.md`'s 2026-08-19 section.**
+Whoever builds the mechanism: the target to hit is this row, not §7's bars
+alone — a proposal that beats the harness bars but still caps TE at one body
+has not implemented this ruling.
+
 **⚠️ n = 9 per group, three seasons, one league.** This is a real signal and a
 small sample; it is a reason to test TE deliberately, not a licence to rewrite
 the curve on nine rosters. **Whoever picks this up: the TE cap is the single
