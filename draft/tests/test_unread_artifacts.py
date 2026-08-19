@@ -63,10 +63,16 @@ def test_KNOWN_POSITIVE_the_founding_case_is_now_a_real_consumer():
     if not art.exists():
         import pytest
         pytest.skip("artifact not in this checkout")
-    hits = U.readers("nflverse_durability.json", U.sources())
-    assert hits, "the founding case reads as UNCONSUMED again — the admin.js wiring may have been removed"
-    assert any(p.name == "admin.js" for p in hits), \
-        f"consumed, but not by the wiring this test names: {hits}"
+    # RETIRED AS THE DOCSTRING PROMISED (A, 08-18): the founding case got a
+    # REAL consumer — B's durability-table surface reads it in
+    # src/routes/admin.js:1012 (verified by hand, a genuine fs read, not a
+    # stem false-positive). The assertion flips: the detector must now see
+    # that consumer, or the reader-detection itself has regressed.
+    rd = U.readers("nflverse_durability.json", U.sources())
+    assert any("admin.js" in str(x) for x in rd), (
+        "the founding case's real consumer (admin.js durability table, "
+        "merged 08-18) is no longer detected — reader detection regressed, "
+        "or the surface was unwired without retiring this test")
 
 
 def test_CONTROL_the_detector_is_not_reporting_everything():
