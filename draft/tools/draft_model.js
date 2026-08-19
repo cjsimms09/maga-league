@@ -76,6 +76,7 @@ const arg = (f, d) => { const i = process.argv.indexOf(f); return i >= 0 ? +proc
 const LEAN = Math.min(1, Math.max(0, arg('--lean', 0.5)));
 const ROOMS = arg('--rooms', 300);
 const DURABILITY = process.env.DURABILITY !== 'off';   // P212's off-arm
+const RAMP = Math.min(1, Math.max(0, arg('--ramp', 0)));   // Cory's late-ceiling ramp
 let DUR_OFF = false;                                   // toggled for the P212 arm
 
 /* ── the wire: what the league actually leaves unrostered ─────────────────────
@@ -167,11 +168,35 @@ BL.players.forEach(p => {
   });
 });
 
-/* ── THE BAND RULE ────────────────────────────────────────────────────────── */
-function bandUsed(x, w, lean) {
+/* ── THE BAND RULE, WITH CORY'S LATE-CEILING RAMP ────────────────────────────
+ *
+ * Cory, 2026-08-19: "the upside late theory with updated ceilings,, it needs to
+ * be able to be tuned up to where players are judged closer to their ceiling
+ * late in the draft"
+ *
+ * I deliberately designed this knob OUT -- a ramp on round number is a knob I
+ * chose, and w already produces upside-late for free. Cory is asking for it
+ * back, and he is entitled to: the w rule alone cannot do what he wants at his
+ * LAST picks, because the K/DEF/TE fill forces w = 1 there and those men get
+ * judged at their FLOOR on pick 148. That is the pick where he most wants a
+ * swing, and the derived rule was arguing with him about it.
+ *
+ * So the ceiling share gets an explicit, tunable ramp ON TOP of the w rule:
+ *
+ *   ceilingShare = clamp( (1 − w) + RAMP × progress , 0, 1 )
+ *   band         = (1 − ceilingShare) × safe + ceilingShare × bold
+ *
+ * progress runs 0 at his first pick to 1 at his last.
+ *
+ * ⚠️ RAMP = 0 IS EXACTLY THE OLD BEHAVIOUR, byte for byte, and C6 asserts that
+ * identity. So this cannot silently change what was already graded -- the
+ * derived rule is still the default and the ramp is something Cory turns up.
+ * `no_fit_guard`: the board prints at RAMP 0 / 0.5 / 1.0 and HE picks. */
+function bandUsed(x, w, lean, progress) {
   const safe = x.proj - lean * (x.proj - x.floor);
   const bold = x.proj + lean * (x.ceiling - x.proj);
-  return w * safe + (1 - w) * bold;
+  const share = Math.min(1, Math.max(0, (1 - w) + RAMP * (progress || 0)));
+  return (1 - share) * safe + share * bold;
 }
 
 /* ── THE KEEPERS, who are not on the board ───────────────────────────────────
@@ -341,7 +366,7 @@ function runRoom(lean, hardFill) {
     for (const x of avail) {
       const w = startProb(x.position, held[x.position] || 0);
       if (forcing && !fillsASlot(x.position)) continue;
-      const band = bandUsed(x, w, lean);
+      const band = bandUsed(x, w, lean, SCHED.length > 1 ? i / (SCHED.length - 1) : 0);
       const dur = (DURABILITY && !DUR_OFF) ? durability(x, w) : 1;
       const base = WAIVER[x.position] || 0;   // P196: the wire, at every position
       const v = Math.max(0, band - base) * w * dur;
