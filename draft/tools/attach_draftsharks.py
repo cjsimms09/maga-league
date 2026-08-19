@@ -132,6 +132,21 @@ players, vorp_diag = vorp_mod.apply_vorp(board["players"], cfg)
 players = vorp_mod.assign_tiers(players)
 board["players"] = players
 
+# ⛔ AND THE BOARD PUBLISHES ITS OWN SEPARATE COPY OF THE REPLACEMENT LEVELS.
+# `apply_vorp` sets p["replacement"] per row; `board["replacement"]` is a
+# DIFFERENT object that build.py writes from the same diag. Updating only the
+# rows left the published block holding the pre-attach levels, and three tests
+# caught it -- board_is_internally_consistent (vorp_broken 700),
+# keeper_lock_reorders_the_board (published RB 170.47 vs recomputed 166.0) and
+# dollar_replacement_baseline.
+#
+# ⚠️ MY OWN C2 CONTROL PASSED THROUGHOUT, because it checked
+# `vorp == proj_mean - p["replacement"]` -- the per-row copy I had just written.
+# It verified the identity I maintained instead of the one the board ships. The
+# test suite checks the PUBLISHED block, which is the one the war room reads.
+# C6 below now checks that copy.
+board["replacement"] = vorp_diag
+
 # pool/overall/pos ranks follow the same order build.py uses: VORP desc, K/DEF
 # demoted out of the cross-position order (Cory's ruling 2026-08-17), which
 # apply_vorp already encodes in the vorp it returns.
@@ -210,6 +225,16 @@ ctl = {
         "why": "Cory wants to toggle between a Draft-Sharks model and a blended-mean "
                "model. Both numbers must sit on every row that has them, or the "
                "toggle is re-deriving one arm at read time."},
+    "C6_published_replacement_block_matches_the_rows": {
+        "ok": all(
+            abs(float((vorp_diag.get("replacement_points") or {}).get(p["position"], 0))
+                - float(p.get("replacement") or 0)) < 0.011
+            for p in players if p.get("position") and p.get("replacement") is not None),
+        "published": (vorp_diag or {}).get("replacement_points"),
+        "why": "the board ships board['replacement'] SEPARATELY from the per-row "
+               "field. C2 checked the row copy -- the one I had just written -- and "
+               "passed while the published block was stale and three tests failed. "
+               "A control has to check what SHIPS, not what you maintained."},
     "C4_no_player_lost_his_projection": {
         "ok": lost == 0, "players_with_null_proj_mean": lost},
 }
