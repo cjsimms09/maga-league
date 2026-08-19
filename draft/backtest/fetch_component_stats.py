@@ -1,5 +1,5 @@
 # TERRITORY: A
-# TERRITORY-GRANT: C the a an and of for with this that to is are not never on off by from as it its at be was were has have had which who register2e 2021 2022 2023 2024 2025 2026-08-19 K DEF kicker defense team code board Sleeper crosswalk store season week weekly points allowed verified punters snappers build_season build_kicker_season build_def_season fetch_kicker_season fetch_def_season kicker_store_path def_store_path KICKER_URL DEF_URL KICKER_COLUMN_MAP DEF_COLUMN_MAP KICKER_FGM50P_COLS KICKER_FGMISS_COLS KICKER_XPMISS_COLS DEF_BLK_KICK_COLS KICKER_STAT_KEYS DEF_STAT_KEYS KICKER_SCORING_KEYS DEF_SCORING_KEYS KICKER_META_KEYS DEF_META_KEYS PTS_ALLOW_BANDS pts_allow_band load_kicker_store load_def_store kicker_weeks def_weeks kicker_season_totals def_season_totals scored_kicker_weekly_points scored_def_weekly_points component_stats_kicker component_stats_def stats_player_week stats_team_week fumble_recovery_opp fumble_recovery_tds special_teams_tds def_tds def_sacks def_interceptions def_safeties def_fumbles_forced def_punt_blocks def_pat_blocks def_fg_blocks opponent_team norm_team TEAM_ALIASES gamescsv _team_score_lookup _accumulate fgm_50p fgm_0_19 fgm_20_29 fgm_30_39 fgm_40_49 fg_made_0_19 fg_made_20_29 fg_made_30_39 fg_made_40_49 fg_made_50_59 fg_made_60_ fg_missed fg_blocked pat_made pat_missed pat_blocked xpm xpmiss fgmiss position
+# TERRITORY-GRANT: C the a an and of for with this that to is are not never on off by from as it its at be was were has have had which who register2e 2021 2022 2023 2024 2025 2026-08-19 K DEF kicker defense team code board Sleeper crosswalk store season week weekly points allowed verified punters snappers build_season build_kicker_season build_def_season fetch_kicker_season fetch_def_season kicker_store_path def_store_path KICKER_URL DEF_URL KICKER_COLUMN_MAP DEF_COLUMN_MAP KICKER_FGM50P_COLS KICKER_FGMISS_COLS KICKER_XPMISS_COLS DEF_BLK_KICK_COLS KICKER_STAT_KEYS DEF_STAT_KEYS KICKER_SCORING_KEYS DEF_SCORING_KEYS KICKER_META_KEYS DEF_META_KEYS PTS_ALLOW_BANDS pts_allow_band load_kicker_store load_def_store kicker_weeks def_weeks kicker_season_totals def_season_totals scored_kicker_weekly_points scored_def_weekly_points component_stats_kicker component_stats_def stats_player_week stats_team_week fumble_recovery_opp fumble_recovery_tds special_teams_tds def_tds def_sacks def_interceptions def_safeties def_fumbles_forced def_punt_blocks def_pat_blocks def_fg_blocks opponent_team norm_team TEAM_ALIASES gamescsv _team_score_lookup _accumulate fgm_50p fgm_0_19 fgm_20_29 fgm_30_39 fgm_40_49 fg_made_0_19 fg_made_20_29 fg_made_30_39 fg_made_40_49 fg_made_50_59 fg_made_60_ fg_missed fg_blocked pat_made pat_missed pat_blocked xpm xpmiss fgmiss position cols line src dst row fgm50 blk
 """PER-PLAYER WEEKLY COMPONENT STATS, 2021-2025 — the v5 input stores.
 
 WHY THIS EXISTS. Every projector before v5 read POINTS-ONLY stores
@@ -547,7 +547,7 @@ KICKER_COLUMN_MAP = {
     "fg_made_30_39": "fgm_30_39",
     "fg_made_40_49": "fgm_40_49",
     "pat_made": "xpm",
-}
+}  # KICKER_COLUMN_MAP
 KICKER_FGM50P_COLS = ("fg_made_50_59", "fg_made_60_")   # ACCUMULATE -> fgm_50p
 KICKER_FGMISS_COLS = ("fg_missed", "fg_blocked")        # ACCUMULATE -> fgmiss
 KICKER_XPMISS_COLS = ("pat_missed", "pat_blocked")      # ACCUMULATE -> xpmiss
@@ -838,7 +838,7 @@ DEF_COLUMN_MAP = {
     "def_tds": "def_td",
     "special_teams_tds": "def_st_td",
     "def_fumbles_forced": "ff",
-}
+}  # DEF_COLUMN_MAP
 #: components of ONE key — ACCUMULATE (same FUM_LOST_COLS/KICKER_FGM50P_COLS
 #: pattern). The league prices blk_kick at 0.0 today, but a kick blocked by
 #: this team's defense/special-teams is one event regardless of which of the
