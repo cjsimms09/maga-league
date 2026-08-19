@@ -30,3 +30,7 @@ draft/data/bbm/*.csv
 # Background-agent worktrees (Claude Code Agent tool) — full duplicate
 # checkouts; never repo content. Same line the relay branch carries.
 .claude/worktrees/
+
+# A fixture (--offline) board. Readable output, never a shipped artifact — see
+# the refusal at the write site in draft/build.py.
+draft/data/board_offline_fixture.json
