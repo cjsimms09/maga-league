@@ -91,5 +91,55 @@ function mkBoard() {
     hits.length >= 5, { fired_on: hits.length });
 }
 
+// ── THE BADGE — Cory, 08-18: "dont gatekeep things for after draft if
+// nothing critical." The caveat above only ever reached the Why? dossier,
+// one tap away; A ordered a compact row badge so it's visible at pick speed
+// without a tap, same lesson as register 4e/4b. ─────────────────────────────
+// escapeHtml is a free variable inside sourceGapBadge's body (app.js defines
+// it once at module scope) — direct eval() inside lift() resolves it from
+// THIS file's scope, so it has to exist here too, same shape as the real one.
+const escapeHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sourceGapBadge = lift('sourceGapBadge');
+{
+  const b = mkBoard();
+  const p = b[54];
+  p.adjusted_adp = 20; p.proj_sleeper = 146; p.proj_fantasypros = 176; p.proj_mean = 146;
+  const html = sourceGapBadge(p, b);
+  ck('lean-market case renders a badge (not just the dossier sentence)',
+    /wr-source-gap/.test(html), html);
+  ck('  and it is the gold/plain variant, not the unexplained one',
+    !/unexplained/.test(html), html);
+  ck('  and the full sentence is readable without a tap — it rides the title attribute',
+    /title="SOURCE GAP:/.test(html), html);
+}
+{
+  const b = mkBoard();
+  const p = b[54];
+  p.adjusted_adp = 20; p.proj_sleeper = 146; p.proj_fantasypros = 130; p.proj_mean = 146;
+  const html = sourceGapBadge(p, b);
+  ck('UNEXPLAINED case renders the higher-doubt variant, visibly distinct',
+    /wr-source-gap unexplained/.test(html), html);
+  ck('  and the short label says so (not the same icon as the confident case)',
+    /❓/.test(html) && !/📉/.test(html), html);
+}
+{
+  const b = mkBoard();
+  ck('CONTROL — a player with no gap renders no badge at all',
+    sourceGapBadge(b[10], b) === '');
+}
+{
+  ck('the rec-card render actually calls the badge (built and dropped is not shipped)',
+    /sourceGapBadge\(p, state\.board\)/.test(SRC));
+}
+{
+  // LIVE KNOWN-POSITIVE on the badge path specifically, mirroring the caveat's own.
+  const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const board = DATA.players.filter(p => p.proj_mean != null);
+  const hits = board.filter(p => sourceGapBadge(p, board) !== '');
+  ck('KNOWN-POSITIVE — the badge itself fires on the live board, not just the string it wraps',
+    hits.length >= 5, { fired_on: hits.length });
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

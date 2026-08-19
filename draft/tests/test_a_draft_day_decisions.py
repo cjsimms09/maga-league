@@ -110,17 +110,16 @@ def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     the ids that remain the sheet's live argument after relay's 08-18
     §3 rewrite (35 closed when the rebuild trigger was wired; the bullet
     lists slimmed; then C2 was struck when the 08-17 ceiling ruling surfaced,
-    taking bold-5 with it): 31 and E15 (the un-hidden rows), 4e / E6
-    (display work) — 5 (C2's ceiling weight). When one
-    of THESE is decided, move this list in that commit too — replace it with
-    one the sheet is still built around, never just delete it, or the control
-    erodes to nothing one row at a time (relay's phrasing, kept at merge)."""
+    taking bold-5 with it): 31 and E15 (the un-hidden rows), E6 (display
+    work) — 5i (the runbook/rebuild-window row). When one of THESE is
+    decided, move this list in that commit too — replace it with one the
+    sheet is still built around, never just delete it, or the control erodes
+    to nothing one row at a time (relay's phrasing, kept at merge).
+
+    RE-AIMED AGAIN 2026-08-18: 4e shipped and was struck from the sheet in
+    the same commit that struck 4i/4v/4f, per the rule this docstring states
+    -- swapped for 5i, which the sheet is still built around today."""
     named = _ids_named()
-    #: 4e -> 5i (relay, 08-18, in the commit that struck 4e). 4e was DECIDED and
-    #: struck per the rule above; 5i replaces it rather than shrinking the list,
-    #: because "never just delete it, or the control erodes to nothing one row at
-    #: a time" is the whole point of this docstring. 5i is Cory's own ruling on
-    #: the Friday freeze and the sheet is still built around it.
     for core in ("31", "5i", "E15", "E6"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
     #: and the list must stay big enough to be a real control

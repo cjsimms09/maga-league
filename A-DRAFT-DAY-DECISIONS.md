@@ -95,13 +95,11 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
 - **Display work owned by B** — **E6** (a caveat that marks the wrong
   players, fixed by E, unreviewed by B — a label change, no number moved).
-  ~~4e~~, ~~4i~~, ~~4v~~ and ~~4f~~ **all CLOSED 08-18**: the shortlist now says
-  what orders it, the restore button works, the cohort ceilings are marked on the
-  board, and BIG BOARD says *"undrafted"* where it collided with the scarcity
-  rail's *"left"*. **4e was struck LATE, by the relay:** the register carried it
-  `✅ CLOSED 08-18` while this sheet still called it pending, which is exactly
-  what `test_a_draft_day_decisions.py` catches — and `main` was RED on it until
-  this edit. Strike the sheet in the deciding commit.
+  ~~4e~~, ~~4i~~, ~~4v~~ and ~~4f~~ **all CLOSED 08-18**: the shortlist caption
+  shipped exactly as routed (`.rec-order-note`, 7/7 tests, live-verified on a
+  rendered board), the restore button works, the cohort ceilings are marked on
+  the board, and BIG BOARD now says *"undrafted"* where it collided with the
+  scarcity rail's *"left"*.
 - **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
   finished with a ✅ that meant *"fixed, verify"*, and the register's own check
   read any tick as closed, so none of the three was ever chased. E15 is now

@@ -1,0 +1,160 @@
+{
+ "_territory": "TERRITORY: A \u2014 exp_real_ffc_vs_fp.py (register 19/19b re-run)",
+ "ffc_observed_at": "2026-08-18",
+ "ffc_params": {
+  "format": "half-ppr",
+  "teams": 10,
+  "total_drafts": 2467
+ },
+ "coverage": {
+  "ffc": 221,
+  "fp": 326,
+  "shared": 216
+ },
+ "rho_shared": 0.9341,
+ "rho_cory_window_27_160": 0.8939,
+ "n_window": 129,
+ "movers_ge_one_round": 129,
+ "top_movers": [
+  {
+   "pid": "7571",
+   "name": "Rashod Bateman",
+   "ffc": 130.1,
+   "fp": 276.5,
+   "delta": 146.4
+  },
+  {
+   "pid": "TEN",
+   "name": "Tennessee Titans",
+   "ffc": 173.5,
+   "fp": 294.0,
+   "delta": 120.5
+  },
+  {
+   "pid": "NO",
+   "name": "New Orleans Saints",
+   "ffc": 182.7,
+   "fp": 277.0,
+   "delta": 94.3
+  },
+  {
+   "pid": "DET",
+   "name": "Detroit Lions",
+   "ffc": 131.2,
+   "fp": 217.0,
+   "delta": 85.8
+  },
+  {
+   "pid": "6650",
+   "name": "Chase McLaughlin",
+   "ffc": 142.9,
+   "fp": 224.33,
+   "delta": 81.4
+  },
+  {
+   "pid": "11783",
+   "name": "Ryan Flournoy",
+   "ffc": 162.8,
+   "fp": 240.5,
+   "delta": 77.7
+  },
+  {
+   "pid": "3678",
+   "name": "Wil Lutz",
+   "ffc": 163.5,
+   "fp": 236.0,
+   "delta": 72.5
+  },
+  {
+   "pid": "2020",
+   "name": "Cairo Santos",
+   "ffc": 171.9,
+   "fp": 243.67,
+   "delta": 71.8
+  },
+  {
+   "pid": "MIN",
+   "name": "Minnesota Vikings",
+   "ffc": 114.1,
+   "fp": 182.67,
+   "delta": 68.6
+  },
+  {
+   "pid": "CLE",
+   "name": "Cleveland Browns",
+   "ffc": 171.7,
+   "fp": 237.0,
+   "delta": 65.3
+  },
+  {
+   "pid": "10213",
+   "name": "Tre Tucker",
+   "ffc": 135.2,
+   "fp": 200.0,
+   "delta": 64.8
+  },
+  {
+   "pid": "12492",
+   "name": "Pat Bryant",
+   "ffc": 180.3,
+   "fp": 243.0,
+   "delta": 62.7
+  },
+  {
+   "pid": "4981",
+   "name": "Calvin Ridley",
+   "ffc": 140.6,
+   "fp": 203.0,
+   "delta": 62.4
+  },
+  {
+   "pid": "LAC",
+   "name": "Los Angeles Chargers",
+   "ffc": 143.0,
+   "fp": 205.0,
+   "delta": 62.0
+  },
+  {
+   "pid": "BUF",
+   "name": "Buffalo Bills",
+   "ffc": 158.3,
+   "fp": 219.5,
+   "delta": 61.2
+  },
+  {
+   "pid": "DAL",
+   "name": "Dallas Cowboys",
+   "ffc": 155.6,
+   "fp": 215.0,
+   "delta": 59.4
+  },
+  {
+   "pid": "11575",
+   "name": "Ray Davis",
+   "ffc": 150.7,
+   "fp": 210.0,
+   "delta": 59.3
+  },
+  {
+   "pid": "11792",
+   "name": "Will Reichard",
+   "ffc": 159.2,
+   "fp": 217.33,
+   "delta": 58.1
+  },
+  {
+   "pid": "SEA",
+   "name": "Seattle Seahawks",
+   "ffc": 82.2,
+   "fp": 137.67,
+   "delta": 55.5
+  },
+  {
+   "pid": "PIT",
+   "name": "Pittsburgh Steelers",
+   "ffc": 141.0,
+   "fp": 195.33,
+   "delta": 54.3
+  }
+ ]
+}
