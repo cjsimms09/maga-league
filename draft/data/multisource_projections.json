@@ -6506,7 +6506,8 @@
     "Erick All (TE)",
     "Connor Heyward (FB)",
     "Elijah Higgins (TE)"
-   ]
+   ],
+   "unmatched_total": 41
   },
   "ESPN": {
    "rows": 416,
@@ -6527,7 +6528,8 @@
     "Elijah Higgins (TE)",
     "Chiefs D/ST (DEF)",
     "Jaguars D/ST (DEF)"
-   ]
+   ],
+   "unmatched_total": 13
   },
   "FFToday": {
    "rows": 390,
@@ -6541,6 +6543,7 @@
     "Mason Tipton (WR)",
     "Devin Duvernay (WR)"
    ],
+   "unmatched_total": 5,
    "excluded_no_fg_split": 32
   }
  },
