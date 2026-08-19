@@ -404,8 +404,31 @@ lineup points]**, the metric the conversion work says is the one that matters:
 
 ## ⚠️ AND THE HALF THAT DOES NOT FLATTER IT, WHICH IS WHY THE RETRACTION MATTERS
 
-**On raw lineup points the doctrine tournament beats it, and the artifact's own
-headline says so:**
+⛔ **CORRECTED WITHIN THE HOUR — THIS SECTION SAID "TWO YARDSTICKS, OPPOSITE
+ANSWERS" AND BOTH HALVES OF THAT WERE WRONG. I CHECKED IT BECAUSE I HAD JUST
+PUBLISHED IT, WHICH IS THE ONLY REASON IT DID NOT STAND.** The corrected reading
+is below the table; read that before the table.
+
+**(a) The doctrine `seat_plan` arm is NOT `draft_plan.js`.** `archetype_policy.js:236-246`
+defines it as *"the engine's greedy #1 PLUS this positional schedule… seek the
+plan's scheduled position among the ENGINE's candidates; defer to the engine
+wherever the plan is silent."* **It is the OVERLAY — engine ordering inside the
+plan's slot schedule — which is precisely the `seat_constrained` line (1938.59),
+not the `global_plan` line (1957.55).** The two artifacts agree with each other:
+the overlay is worse than the full plan, by +19 in the emit and by −25 in the
+tournament. **`draft_plan.js` itself was never in that tournament.**
+
+**(b) The singles and the doctrines are different populations and the artifact
+deliberately never crosses them.** `seat_plan_planned` is ONE roster over 10,000
+seasons; a doctrine arm is 120 rooms × 250 seasons. The artifact carries two
+separate dominance blocks for exactly this reason, and
+`dominance_vs_planned_roster` compares the planned roster **only** to the other
+three singles. **Putting 2681.0 next to 2743.6 was my error, not the artifact's.**
+
+**So the corrected position: `draft_plan.js` does not lose to four doctrines —
+that comparison has never been made. What loses is the hybrid, and both
+independent measurements say the same thing about it.** The table below is the
+doctrine tournament and it is about ARMS, not about the plan:
 
 | doctrine arm (120 rooms x 250 seasons) | lineup pts |
 |---|---|
@@ -439,8 +462,28 @@ headline says so:**
    different, bye-week-only measurement, and I should not have put them near
    each other without saying so.
 
-**So the corrected position: `draft_plan.js` beats the shipped engine head-to-head
-on Cory's actual schedule (+40) and needs half the waiver help, and loses to the
-shipped doctrine on pooled 17-week lineup totals. Both are measured. I do not yet
-know which yardstick is right, and the previous version of this document did not
-know there were two.** Register 102.
+~~**So the corrected position: `draft_plan.js` beats the shipped engine
+head-to-head on Cory's actual schedule (+40) and needs half the waiver help, and
+loses to the shipped doctrine on pooled 17-week lineup totals. Both are measured.
+I do not yet know which yardstick is right, and the previous version of this
+document did not know there were two.**~~
+
+**⛔ CORRECTED. The second clause is not a measurement of `draft_plan.js` at all,
+per (a) and (b) above. WHAT IS ACTUALLY MEASURED, all of it:**
+
+- **`draft_plan.js` +39.97 over the engine's live greedy line**, on Cory's real
+  schedule, on the current board.
+- **The overlay recovers +21.0 of that 40** — so roughly half the gap is "fill
+  the plan's seat" and half is "and take the plan's player."
+- **The overlay is worse than the full plan on both independent harnesses** —
+  −19 in the emit, −25 in the doctrine tournament, which is one finding seen
+  twice rather than two findings.
+- **`draft_plan.js`'s roster needs 63.8 wire points a season against 112–142 for
+  every other single roster**, and dominates Cory's actual 2025 roster outright.
+- **`draft_plan.js` has never been run through the doctrine tournament**, and
+  that — not "which yardstick governs" — is the real open question.
+
+**I made two corrections to this section in one afternoon. Both came from
+checking a claim I had already published rather than from anyone catching me,
+and both moved in the same direction: I was reaching for a tidy "here are two
+verdicts" story that the artifacts do not support.** Register 102.
