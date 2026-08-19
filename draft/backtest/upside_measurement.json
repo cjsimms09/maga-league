@@ -1,0 +1,137 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/upside_measurement.py",
+ "_note": "P112. Realised upside only. Says nothing about whether a signal found here is DRAFTABLE \u2014 Q-B is that bridge.",
+ "prereg": "draft/backtest/UPSIDE-MEASUREMENT-PREREG.md",
+ "seasons": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "min_weeks": 8,
+ "min_mean": 3.0,
+ "positions": [
+  "QB",
+  "RB",
+  "WR",
+  "TE"
+ ],
+ "permutations": 2000,
+ "seed": 20260819,
+ "players_by_season": {
+  "2021": 253,
+  "2022": 269,
+  "2023": 266,
+  "2024": 272,
+  "2025": 275
+ },
+ "Q_A_tail_shape": {
+  "n": 1335,
+  "p25": 1.0966,
+  "p50": 1.2762,
+  "p75": 1.4293,
+  "iqr": 0.3327,
+  "verdict": "SPREAD \u2014 shape information exists beyond level and spread"
+ },
+ "Q_B_residual_persistence": [
+  {
+   "from": 2021,
+   "to": 2022,
+   "n": 195,
+   "rho_residual_tail": -0.0893,
+   "null_95": [
+    -0.1379,
+    0.1382
+   ],
+   "status": "null",
+   "CONTROL_rho_cv": 0.5043
+  },
+  {
+   "from": 2022,
+   "to": 2023,
+   "n": 181,
+   "rho_residual_tail": -0.0572,
+   "null_95": [
+    -0.1388,
+    0.1493
+   ],
+   "status": "null",
+   "CONTROL_rho_cv": 0.3871
+  },
+  {
+   "from": 2023,
+   "to": 2024,
+   "n": 196,
+   "rho_residual_tail": 0.0054,
+   "null_95": [
+    -0.1406,
+    0.1434
+   ],
+   "status": "null",
+   "CONTROL_rho_cv": 0.4687
+  },
+  {
+   "from": 2024,
+   "to": 2025,
+   "n": 195,
+   "rho_residual_tail": 0.0453,
+   "null_95": [
+    -0.1366,
+    0.1399
+   ],
+   "status": "null",
+   "CONTROL_rho_cv": 0.6348
+  }
+ ],
+ "Q_C_ceiling_construct": {
+  "_substitution": "The prereg asked this against the live board, which has no realised season to score against. Same question, form the data can answer: predict season-t p90 from season t-1, three ways.",
+  "tail_z_median_used": 1.2762,
+  "folds": [
+   {
+    "from": 2021,
+    "to": 2022,
+    "n": 195,
+    "mae": {
+     "level_only": 7.319,
+     "band_const": 2.304,
+     "player_cv": 2.377
+    },
+    "player_cv_beats_band_const": -0.073
+   },
+   {
+    "from": 2022,
+    "to": 2023,
+    "n": 181,
+    "mae": {
+     "level_only": 7.324,
+     "band_const": 2.023,
+     "player_cv": 2.283
+    },
+    "player_cv_beats_band_const": -0.261
+   },
+   {
+    "from": 2023,
+    "to": 2024,
+    "n": 196,
+    "mae": {
+     "level_only": 7.54,
+     "band_const": 2.073,
+     "player_cv": 2.072
+    },
+    "player_cv_beats_band_const": 0.001
+   },
+   {
+    "from": 2024,
+    "to": 2025,
+    "n": 195,
+    "mae": {
+     "level_only": 7.52,
+     "band_const": 2.095,
+     "player_cv": 2.132
+    },
+    "player_cv_beats_band_const": -0.036
+   }
+  ]
+ }
+}

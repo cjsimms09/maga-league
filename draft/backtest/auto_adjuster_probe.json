@@ -1,0 +1,201 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/auto_adjuster_probe.js",
+ "_note": "REPORT ONLY. Room drained in strict ADP order, which the real room will not be — this measures the engine's own dependence on the adjuster, not what happens on the 22nd.",
+ "board_built_at": "2026-08-19T00:54:18Z",
+ "auto_defaults_off": "app.js:3252 — localStorage AUTO_KEY === \"1\", so OFF unless Cory switched it on",
+ "arms": {
+  "shipped": {
+   "picks": [
+    "RB James Cook",
+    "TE Brock Bowers",
+    "RB Breece Hall",
+    "RB David Montgomery",
+    "RB Bhayshul Tuten",
+    "RB Jadarian Price",
+    "RB Rhamondre Stevenson",
+    "RB Kyle Monangai",
+    "RB Jordan Mason",
+    "WR Jayden Reed",
+    "QB Jared Goff",
+    "RB Chris Rodriguez",
+    "RB Tyrone Tracy",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ],
+   "roster_counts": {
+    "RB": 10,
+    "TE": 1,
+    "WR": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   }
+  },
+  "need1": {
+   "picks": [
+    "WR CeeDee Lamb",
+    "TE Brock Bowers",
+    "TE Colston Loveland",
+    "RB David Montgomery",
+    "RB Bhayshul Tuten",
+    "WR Mike Evans",
+    "RB Rhamondre Stevenson",
+    "QB Dak Prescott",
+    "RB Jordan Mason",
+    "WR Jayden Reed",
+    "RB Chris Rodriguez",
+    "RB Aaron Jones",
+    "RB Tyrone Tracy",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ],
+   "roster_counts": {
+    "WR": 3,
+    "TE": 2,
+    "RB": 7,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   }
+  },
+  "auto": {
+   "picks": [
+    "WR CeeDee Lamb",
+    "TE Brock Bowers",
+    "TE Colston Loveland",
+    "RB D'Andre Swift",
+    "QB Joe Burrow",
+    "RB Bhayshul Tuten",
+    "RB Rhamondre Stevenson",
+    "RB Jordan Mason",
+    "WR Jayden Reed",
+    "WR Jordan Addison",
+    "RB Chris Rodriguez",
+    "RB Aaron Jones",
+    "RB Tyrone Tracy",
+    "DEF Minnesota Vikings",
+    "K Cam Little"
+   ],
+   "roster_counts": {
+    "WR": 3,
+    "TE": 2,
+    "RB": 7,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   }
+  }
+ },
+ "auto_phase_trace": [
+  {
+   "pick": 8,
+   "phase": "Anchor",
+   "need": 0.4,
+   "ceiling": 0.5,
+   "bye": 0.5
+  },
+  {
+   "pick": 13,
+   "phase": "Anchor",
+   "need": 0.4,
+   "ceiling": 0.5,
+   "bye": 0.5
+  },
+  {
+   "pick": 28,
+   "phase": "Build",
+   "need": 0.9,
+   "ceiling": 0.6,
+   "bye": 0.8
+  },
+  {
+   "pick": 33,
+   "phase": "Build",
+   "need": 0.9,
+   "ceiling": 0.6,
+   "bye": 0.8
+  },
+  {
+   "pick": 48,
+   "phase": "Build",
+   "need": 0.9,
+   "ceiling": 0.6,
+   "bye": 0.8
+  },
+  {
+   "pick": 53,
+   "phase": "Build",
+   "need": 0.9,
+   "ceiling": 0.6,
+   "bye": 0.8
+  },
+  {
+   "pick": 68,
+   "phase": "Fill",
+   "need": 1.5,
+   "ceiling": 0.8,
+   "bye": 1.4
+  },
+  {
+   "pick": 73,
+   "phase": "Fill",
+   "need": 1.5,
+   "ceiling": 0.8,
+   "bye": 1.4
+  },
+  {
+   "pick": 88,
+   "phase": "Fill",
+   "need": 1.5,
+   "ceiling": 0.8,
+   "bye": 1.4
+  },
+  {
+   "pick": 93,
+   "phase": "Fill",
+   "need": 1.5,
+   "ceiling": 0.8,
+   "bye": 1.4
+  },
+  {
+   "pick": 108,
+   "phase": "Endgame",
+   "need": 1.3,
+   "ceiling": 0.5,
+   "bye": 1.1
+  },
+  {
+   "pick": 113,
+   "phase": "Endgame",
+   "need": 1.3,
+   "ceiling": 0.5,
+   "bye": 1.1
+  },
+  {
+   "pick": 128,
+   "phase": "Endgame",
+   "need": 1.3,
+   "ceiling": 0.5,
+   "bye": 1.6
+  },
+  {
+   "pick": 133,
+   "phase": "Endgame",
+   "need": 1.3,
+   "ceiling": 0.5,
+   "bye": 1.6
+  },
+  {
+   "pick": 148,
+   "phase": "Endgame",
+   "need": 1.3,
+   "ceiling": 0.5,
+   "bye": 1.6
+  }
+ ],
+ "agreement": {
+  "auto_vs_shipped": "4/15",
+  "need1_vs_shipped": "9/15",
+  "auto_vs_need1": "8/15"
+ }
+}

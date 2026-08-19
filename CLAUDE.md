@@ -81,11 +81,26 @@ state — including this one, which is the file every session reads first.
 
 ~~**So ONE decision waits on Cory, not two:** the ADP-sd ratchet.~~ **⚠️ CORRECTED 2026-08-18: ZERO decisions wait on Cory. He ruled the ADP-sd ratchet on 08-17 — *"leave it"* — and `CORY-ASKS.md` ③ has carried it as ✅ CLOSED ever since.** The ceiling weight is decided too. **This sentence, in the file every session reads first, would have sent the next reader to ask Cory for a decision he had already made** — and it nearly sent me. Brief §7b.
 
-**And the correction has a live consequence — register 5g:** `draft/baseline/v1.json`
+~~**And the correction has a live consequence — register 5g:** `draft/baseline/v1.json`
 is frozen at 2026-08-10 and still carries `ceiling: 0` and `stack: 0.5`, and the
 war room's "⏮ Restore the measured core" button is hardcoded to that version. One
 tap on draft night reverts **both** Cory's ceiling ruling and the D10 stack
-ruling, disclosing only a date.
+ruling, disclosing only a date.~~
+
+**⚠️ CORRECTED 2026-08-19 — THAT IS FIXED AND THIS FILE WAS STILL CARRYING IT AS
+LIVE.** `app.js:779` pins `BASELINE_VERSION = 'v27'`, not v1, and the pin comment
+records the ruling (A, 2026-08-18, register 5g) and the reason: v1 predated both
+of Cory's rulings, so restore was a silent reversion of both. **Verified rather
+than read: v27 and v28 carry IDENTICAL `MEASURED_WEIGHTS`** — `{value 1, tier 0,
+need 0, risk 0, ceiling 0.45, keeper 1, bye 0, stack 1}` — so the button restores
+the ceiling and stack rulings rather than reverting them, and the localStorage key
+rotates with the pin so a cached v1 cannot shadow it.
+
+**Found because this claim was about to be dispatched to B as work.** The premise
+check killed the item before it cost B a trip — which is the point of Rule 3f, and
+the reason it is worth writing corrections into THIS file rather than only into
+the register: five of six premises handed to session D on 08-17 were wrong, and
+this is the file every session reads first.
 
 
 **⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** A is the
@@ -117,8 +132,19 @@ describes.
 
 **🧾 NOTHING GETS LEFT BEHIND — `DEFECT-REGISTER.md`.** Every open data or
 logic concern that could change a number Cory drafts or starts on, each with an
-owner and a next action. Four blocking rows today. A row with no owner is itself
-a defect — `test_defect_register.py` fails on it.
+owner and a next action. A row with no owner is itself a defect —
+`test_defect_register.py` fails on it.
+
+~~Four blocking rows today.~~ **⚠️ THE COUNT IS GONE ON PURPOSE, 2026-08-19: a
+tally in a prose file that no test reads is a claim that decays silently, and
+this one had. Open the register — it is the authority, and it is guarded.**
+**The 08-19 additions are 55-61 plus a REOPENED 2e**, and the two that reach
+Saturday are **59** (driven down Cory's own schedule the tool takes RB10/WR1,
+leaving an empty WR2 slot in week 11) and **60** (the flex rule, the empty-slot
+insurance, the slot-aware VONA and the wire bench rule are all built and all
+disconnected — `need` is the only roster-aware term and it ships at weight 0).
+**2e was carrying a ✅ with its own named root cause still in the code**, which
+is worse than an open row because an open row gets chased.
 
 **🔗 "WE DON'T HAVE IT" IS NOT AN ANSWER — `DATA-LIFECYCLE.md`.** Eight
 questions every data gap must walk: why not, can we get it, should we capture it

@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 61,
+ "next_numeric_id": 63,
  "history": [
   {
    "id": 47,
@@ -56,6 +56,16 @@
    "id": 60,
    "claimed_at": "2026-08-19",
    "note": "A: the roster-building system is built and disconnected at three separate points"
+  },
+  {
+   "id": 61,
+   "claimed_at": "2026-08-19",
+   "note": "A: the 08-17 per-player ceiling CV does not beat the band constant out of sample"
+  },
+  {
+   "id": 62,
+   "claimed_at": "2026-08-19",
+   "note": "A: four of five war-room artifacts carry no provenance stamp; 3 bench seats name nobody"
   }
  ]
 }
