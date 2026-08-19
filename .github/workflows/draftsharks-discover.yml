@@ -70,7 +70,17 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - name: Install Playwright
-        run: npm i -D playwright@1.47.0 && npx playwright install --with-deps chromium
+        # ⛔ INSTALL OUTSIDE THE REPO. `npm i -D playwright` writes package.json
+        # and package-lock.json into the working tree, which made every
+        # `git pull --rebase` in the commit step below fail with "you have
+        # unstaged changes" -- four identical retries, nothing pushed, and the
+        # job still reported SUCCESS.
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.47.0
+          npx playwright install --with-deps chromium
+          echo "NODE_PATH=/tmp/pw/node_modules" >> "$GITHUB_ENV"
       - name: Render the rankings
         continue-on-error: true
         run: node draft/tools/draftsharks_render.js
@@ -99,11 +109,22 @@ jobs:
           git add draft/data/draftsharks_discovery.json draft/data/draftsharks_shape.json draft/data/draftsharks_projections.json draft/data/draftsharks_payload.json draft/data/draftsharks_rendered.json
           if ! git diff --cached --quiet; then
             git commit -m "Draft Sharks discovery probe: is the page reachable and what shape is it [skip deploy]"
+            pushed=0
             for i in 1 2 3 4; do
               git rebase --abort 2>/dev/null || true
-              git pull --rebase origin main && git push origin HEAD:main && break
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
               sleep $((2**i))
             done
+            # ⛔ WITHOUT THIS THE JOB GOES GREEN HAVING PUSHED NOTHING. The loop
+            # was `... && break` under `set -uo pipefail` (no -e), so four failed
+            # attempts fell through to exit 0. A capture job that silently stores
+            # nothing is worse than one that fails, because nobody looks.
+            if [ "$pushed" != "1" ]; then
+              echo "::error::all four push attempts failed — the artifact was NOT stored"
+              exit 1
+            fi
           else
             echo "No change to the store."
           fi
