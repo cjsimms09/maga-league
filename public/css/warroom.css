@@ -1544,6 +1544,17 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   font-size: var(--wr-fs-sub); font-weight: 700; color: var(--wr-structure);
   margin: 0 0 .4rem; letter-spacing: .01em;
 }
+/* Projection-source toggle (ROUTES-B-TOGGLE.md, A→B 2026-08-19): "I want to
+   be able to toggle between them." Ranking/selection stay Draft-Sharks-fixed
+   — this only swaps which number each row prints, so it reads as a quiet
+   display switch, not a second ranking control. */
+.pb-src-toggle { display: flex; gap: .3rem; margin: 0 0 .5rem; }
+.pb-src-btn {
+  font-size: .64rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+  color: var(--wr-muted); background: var(--wr-panel); border: 1px solid var(--wr-line);
+  border-radius: 999px; padding: .12rem .55rem; cursor: pointer;
+}
+.pb-src-btn.pb-src-active { color: var(--wr-structure); border-color: var(--wr-structure); background: var(--wr-panel-soft); }
 .pb-grid {
   display: grid; grid-template-columns: repeat(6, minmax(9.5rem, 1fr));
   gap: .5rem; overflow-x: auto; padding-bottom: .15rem;

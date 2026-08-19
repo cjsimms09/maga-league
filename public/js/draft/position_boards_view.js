@@ -23,6 +23,18 @@
  * from the model; a note drifting toward "take this man" hands it back. The
  * note strings themselves come from the JSON (A's `noteFor()`), unmodified.
  *
+ * ⚠️ THE PROJECTION-SOURCE TOGGLE, PER ROUTES-B-TOGGLE.md (A→B, 2026-08-19):
+ * Cory: "can we actually program 2 models, one that uses proj from draft
+ * shark and 1 that uses mean proj... I want to be able to toggle between
+ * them." Every list here is SELECTED and RANKED on Draft Sharks
+ * (draft/tools/position_boards.js) — that never changes under the toggle.
+ * `proj_blend`/`floor_blend`/`ceiling_blend` carry the SAME already-selected
+ * player's public/draft_data.json blend numbers (proj_mean/proj_floor/
+ * proj_ceiling), attached alongside. The `projSource` param ('ds' default |
+ * 'blend') only picks WHICH of the two already-present numbers a row prints
+ * — never a reselection, never a reorder. Every player here carries both by
+ * construction (A's C4 control), so there is no unranked case on this side.
+ *
  * PURE: no DOM, no fetch. Dual browser/Node export, same shape as
  * market_delta.js / expert_spread.js this session.
  */
@@ -60,18 +72,29 @@
     return '<span class="pb-risk' + cls + '" title="' + esc(pct + '% injury risk (Draft Sharks)') + '">⚕' + pct + '%</span>';
   }
 
-  function playerRow(p, esc, liveSurvivalById, isCliffLine) {
+  /* Which of the two already-present numbers a row prints. 'blend' falls
+   * back to the DS number only if a blend figure is somehow absent (should
+   * not happen — A's C4 control — but a fallback beats a blank cell). */
+  function projFieldsFor(p, projSource) {
+    if (projSource === 'blend' && p.proj_blend != null) {
+      return { proj: p.proj_blend, floor: p.floor_blend, ceiling: p.ceiling_blend };
+    }
+    return { proj: p.proj, floor: p.floor, ceiling: p.ceiling };
+  }
+
+  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource) {
     var surv = survivalFor(p, liveSurvivalById);
     var survClass = surv.pct == null ? '' : surv.pct >= 70 ? 'pb-surv-safe' : surv.pct >= 30 ? 'pb-surv-mid' : 'pb-surv-hot';
     var survTitle = surv.live
       ? 'live, opponent-need aware'
       : 'pre-draft estimate (ADP-drain only) — live number not available yet';
+    var pf = projFieldsFor(p, projSource);
     return '<tr class="pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '">'
       + '<td class="pb-name">' + esc(p.name || '')
         + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + '</td>'
-      + '<td class="pb-proj">' + esc(fmtNum(p.proj)) + '</td>'
-      + '<td class="pb-fc" title="' + esc('floor ' + fmtNum(p.floor) + ' / ceiling ' + fmtNum(p.ceiling)) + '">'
-        + esc(fmtNum(p.floor) + '/' + fmtNum(p.ceiling)) + '</td>'
+      + '<td class="pb-proj">' + esc(fmtNum(pf.proj)) + '</td>'
+      + '<td class="pb-fc" title="' + esc('floor ' + fmtNum(pf.floor) + ' / ceiling ' + fmtNum(pf.ceiling)) + '">'
+        + esc(fmtNum(pf.floor) + '/' + fmtNum(pf.ceiling)) + '</td>'
       + '<td class="pb-adp">' + esc(fmtNum(p.adp)) + '</td>'
       + '<td class="pb-surv ' + survClass + '" title="' + esc(survTitle) + '">' + esc(fmtPct(surv.pct))
         + (surv.live ? '' : '<sup class="pb-est">~</sup>') + '</td>'
@@ -79,11 +102,11 @@
       + '</tr>';
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById) {
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource) {
     if (!block) return '';
     var players = block.players || [];
     var rows = players.map(function (p, i) {
-      var row = playerRow(p, esc, liveSurvivalById, false);
+      var row = playerRow(p, esc, liveSurvivalById, false, projSource);
       if (block.cliff_after_rank != null && i === block.cliff_after_rank - 1 && i < players.length - 1) {
         row += '<tr class="pb-cliff-row"><td colspan="6">▽ cliff — next tier drops '
           + esc(fmtNum(block.cliff_size)) + ' pts ▽</td></tr>';
@@ -102,6 +125,18 @@
       + (players.length ? '<table class="pb-table"><thead><tr>'
         + '<th>Player</th><th>Proj</th><th>Fl/Ce</th><th>ADP</th><th>Surv</th><th></th></tr></thead>'
         + '<tbody>' + rows + '</tbody></table>' : '<div class="pb-empty">none available</div>')
+      + '</div>';
+  }
+
+  /* Cory: "can we actually program 2 models... I want to be able to toggle
+   * between them." Selection/order are Draft-Sharks-fixed (unchanged by this
+   * control — see the file header); this only swaps which already-present
+   * number each row prints. */
+  function projSourceToggle(esc, projSource) {
+    var ds = projSource !== 'blend';
+    return '<div class="pb-src-toggle" title="Ranking and selection always use Draft Sharks — this only swaps which projection number is displayed">'
+      + '<button type="button" class="pb-src-btn' + (ds ? ' pb-src-active' : '') + '" data-pb-source="ds">Draft Sharks</button>'
+      + '<button type="button" class="pb-src-btn' + (!ds ? ' pb-src-active' : '') + '" data-pb-source="blend">Blend</button>'
       + '</div>';
   }
 
@@ -153,18 +188,21 @@
   }
 
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
-   * so a missing/stale artifact degrades to nothing rather than a broken panel. */
-  function renderPositionBoards(data, pickNum, liveSurvivalById, esc) {
+   * so a missing/stale artifact degrades to nothing rather than a broken panel.
+   * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
+  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource) {
     if (!data || !Array.isArray(data.picks) || !data.picks.length) return '';
     var pick = findPick(data, pickNum);
     if (!pick) return '';
+    var src = projSource === 'blend' ? 'blend' : 'ds';
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
         + ' (round ' + esc(String(pick.round)) + ')'
         + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '') + '</div>'
+      + projSourceToggle(esc, src)
       + '<div class="pb-grid">' + cols + '</div>'
       + opponentsStrip(data.opponents_compact, esc)
       + dropoffsStrip(data.round_dropoffs, esc)
@@ -173,7 +211,7 @@
   }
 
   var API = { renderPositionBoards: renderPositionBoards, findPick: findPick,
-    positionColumn: positionColumn, POS_ORDER: POS_ORDER };
+    positionColumn: positionColumn, projFieldsFor: projFieldsFor, POS_ORDER: POS_ORDER };
   global.PositionBoardsView = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

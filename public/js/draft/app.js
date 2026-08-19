@@ -11,6 +11,12 @@
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   const WEIGHT_KEY = 'mfga.draft.weights';
+  // ROUTES-B-TOGGLE.md (A→B, 2026-08-19): "toggle between them" — which
+  // projection arm position_boards' numbers display. 'ds' matches how that
+  // panel's own lists are selected and ranked (Draft Sharks); 'blend' shows
+  // the same already-selected players' public/draft_data.json proj_mean
+  // numbers instead. Neither choice re-ranks anything — display only.
+  const PROJ_SOURCE_KEY = 'mfga.draft.projsource';
 
   // ── MOCK SURVIVAL CALIBRATION ───────────────────────────────────────────────
   // Grade "% to last to my next pick" — the number Cory reads most, never once
@@ -942,6 +948,25 @@
    * for this exact block) AND `pick.next_pick === ctx.nextPick` (the engine's
    * own next-turn target agrees with the block's). Every other case falls back
    * to the view's own built-in estimate marker — exactly as designed. */
+  // Default 'ds': position_boards' own lists SELECT and RANK on Draft Sharks
+  // (draft/tools/position_boards.js), so showing its numbers by default keeps
+  // the visible figure consistent with the order the list is actually in.
+  // 'blend' shows the same players' public/draft_data.json proj_mean instead
+  // — a genuine second lens, never a reselection (every player here carries
+  // both, ROUTES-B-TOGGLE.md's C4 control).
+  function loadProjSource() {
+    try {
+      const saved = localStorage.getItem(PROJ_SOURCE_KEY);
+      state.projSource = (saved === 'blend' || saved === 'ds') ? saved : 'ds';
+    } catch (e) { state.projSource = 'ds'; }
+  }
+  function setProjSource(src) {
+    if (src !== 'blend' && src !== 'ds') return;
+    state.projSource = src;
+    try { localStorage.setItem(PROJ_SOURCE_KEY, src); } catch (e) {}
+    try { renderPositionBoardsPanel(); } catch (e) { console.error('[position-boards]', e && e.message); }
+  }
+
   function renderPositionBoardsPanel() {
     const host = $('#position-boards');
     const d = state.positionBoards;
@@ -960,7 +985,8 @@
         });
       }
     }
-    host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml);
+    host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
+      state.projSource || 'ds');
   }
 
   /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
@@ -1469,6 +1495,7 @@
   function init() {
     loadWeights();
     loadFrozenBaseline();
+    loadProjSource();
     loadSeatPlan();
     loadSourceBoards();
     loadPositionBoards();
@@ -10861,6 +10888,12 @@
         cav.parentNode.appendChild(d);
         return;
       }
+      // Position boards' projection-source toggle (ROUTES-B-TOGGLE.md, A→B
+      // 2026-08-19: "can we actually program 2 models... I want to be able to
+      // toggle between them"). One shared preference, persisted, same pattern
+      // as the chip-grid disclosure above.
+      const pbSrc = ev.target.closest('[data-pb-source]');
+      if (pbSrc) { ev.preventDefault(); return setProjSource(pbSrc.getAttribute('data-pb-source')); }
     });
 
     $$('.weight-slider').forEach(sl => {

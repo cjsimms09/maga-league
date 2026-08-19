@@ -25,10 +25,13 @@ function mkBlock(overrides) {
     note: 'STRIKE — waiting costs 20 and he is +100 over the wire',
     players: [
       { player_id: '1', name: 'Alpha Back', team: 'AAA', proj: 200, floor: 170, ceiling: 250,
+        proj_blend: 191, floor_blend: 165, ceiling_blend: 240,
         adp: 20, pct_still_there_next_pick: 10, injury_risk_pct: 15 },
       { player_id: '2', name: 'Beta Back', team: 'BBB', proj: 180, floor: 150, ceiling: 220,
+        proj_blend: 176, floor_blend: 148, ceiling_blend: 215,
         adp: 30, pct_still_there_next_pick: 40, injury_risk_pct: 60 },
       { player_id: '3', name: 'Gamma Back', team: 'CCC', proj: 100, floor: 80, ceiling: 130,
+        proj_blend: null, floor_blend: null, ceiling_blend: null,
         adp: 90, pct_still_there_next_pick: 85, injury_risk_pct: null },
     ],
   }, overrides);
@@ -117,6 +120,36 @@ function mkData() {
     !/pb-cliff-row/.test(rbSection));
 }
 
+// ── the projection-source toggle (ROUTES-B-TOGGLE.md, A→B 2026-08-19) ────
+{
+  const d = mkData();
+  const htmlDefault = V.renderPositionBoards(d, 33, null, esc);
+  ck('with no projSource passed, defaults to Draft Sharks numbers (unchanged behavior)',
+    /\b200\b/.test(htmlDefault) && !/\b191\b/.test(htmlDefault));
+  const htmlDs = V.renderPositionBoards(d, 33, null, esc, 'ds');
+  ck('projSource "ds" prints the Draft Sharks proj (200), not the blend (191)',
+    /\b200\b/.test(htmlDs) && !/\b191\b/.test(htmlDs));
+  const htmlBlend = V.renderPositionBoards(d, 33, null, esc, 'blend');
+  ck('projSource "blend" prints the blend proj (191), not the Draft Sharks one (200) alone',
+    /\b191\b/.test(htmlBlend));
+  ck('the toggle never re-sorts the list — Alpha still leads under "blend" (200 DS-ranked #1)',
+    (function () {
+      const rbSection = htmlBlend.slice(htmlBlend.indexOf('>RB<'), htmlBlend.indexOf('>WR<'));
+      const alphaIdx = rbSection.indexOf('Alpha Back');
+      const betaIdx = rbSection.indexOf('Beta Back');
+      return alphaIdx > -1 && betaIdx > -1 && alphaIdx < betaIdx;
+    })());
+  ck('a player with no blend number (Gamma) falls back to the Draft Sharks figure under "blend", not a blank',
+    /\b100\b/.test(htmlBlend));
+  ck('the toggle buttons render, and the active one is marked',
+    /data-pb-source="ds"/.test(htmlBlend) && /data-pb-source="blend"/.test(htmlBlend)
+    && /class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlBlend)
+    && !/class="pb-src-btn pb-src-active" data-pb-source="ds"/.test(htmlBlend));
+  ck('...and flips when "ds" is active',
+    /class="pb-src-btn pb-src-active" data-pb-source="ds"/.test(htmlDs)
+    && !/class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlDs));
+}
+
 // ── six columns, RB/WR first (Cory: "more on RB and WR") ─────────────────
 {
   ck('POS_ORDER leads with RB and WR', V.POS_ORDER[0] === 'RB' && V.POS_ORDER[1] === 'WR');
@@ -170,6 +203,11 @@ function mkData() {
       html.length > 2000, { length: html.length });
     ck('...and player_id actually made it into the emitted data (the field this view needs to override survival)',
       data.picks[0].positions.RB.players.every(p => p.player_id != null));
+    ck('...and proj_blend actually made it into the emitted data (ROUTES-B-TOGGLE.md — the toggle needs both arms present)',
+      data.picks[0].positions.RB.players.every(p => p.proj_blend != null));
+    const htmlBlendReal = V.renderPositionBoards(data, data.picks[0].pick, null, esc, 'blend');
+    ck('...and the real artifact actually renders under "blend" too, not just "ds"',
+      htmlBlendReal.length > 2000, { length: htmlBlendReal.length });
   } else {
     console.log('SKIP  no committed position_boards.json');
   }
@@ -182,6 +220,10 @@ function mkData() {
   ck('app.js calls PositionBoardsView.renderPositionBoards', /PositionBoardsView\.renderPositionBoards/.test(SRC));
   ck('app.js computes a live survival map via DraftSurvival before rendering (the override, not just the fetch)',
     /conservedSurvival/.test(SRC));
+  ck('app.js wires the projection-source toggle (data-pb-source -> setProjSource, ROUTES-B-TOGGLE.md)',
+    /data-pb-source/.test(SRC) && /function setProjSource/.test(SRC) && /state\.projSource/.test(SRC));
+  ck('the toggle preference is persisted and reloaded on init, same pattern as the other UI prefs',
+    /function loadProjSource/.test(SRC) && /loadProjSource\(\)/.test(SRC));
 
   const VIEW = fs.readFileSync(path.join(ROOT, 'views', 'admin', 'warroom.ejs'), 'utf8');
   ck('warroom.ejs has a mount point for the position boards panel', /position-boards/.test(VIEW));

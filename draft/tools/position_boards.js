@@ -53,12 +53,32 @@ const dsById = new Map();
 });
 const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
+/* THE BLEND NUMBER, ALONGSIDE — ROUTE-B-TOGGLE (ROUTES-B-TOGGLE.md, A→B
+ * 2026-08-19): `public/draft_data.json` rows now carry `proj_mean` (the
+ * position-centred blend, all 700) beside the Draft Sharks fields this file
+ * has always used to select and rank. SELECTION AND ORDERING STAY
+ * DRAFT-SHARKS-PRICED — unchanged, and not something this file's TOPN/VONA/
+ * cliff/note math should quietly start reading two ways three days before the
+ * draft. The blend is read ONLY to attach as a second, alongside number for
+ * the war room's toggle (view: TERRITORY B) to display for the SAME already-
+ * selected player — never to reselect or reorder who is in the list. Every
+ * player here has a Draft Sharks line by construction, so `proj_mean` is
+ * always present too (blend covers 700, DS-selected are a subset); no
+ * unranked case to handle on this side of the join. */
+const meanById = new Map();
+BOARD.players.forEach(p => {
+  if (p.proj_mean == null) return;
+  meanById.set(String(p.player_id), { proj: +p.proj_mean,
+    floor: p.proj_floor == null ? null : +p.proj_floor,
+    ceiling: p.proj_ceiling == null ? null : +p.proj_ceiling });
+});
 const pool = [];
 BOARD.players.forEach(p => {
   const d = dsById.get(String(p.player_id));
   if (!d || !POS.includes(p.position)) return;
   pool.push({ id: String(p.player_id), name: p.name || p.player_name, position: p.position,
-              team: p.team || null, adp: adpOf(p), sd: p.adp_sd == null ? 12 : +p.adp_sd, ds: d });
+              team: p.team || null, adp: adpOf(p), sd: p.adp_sd == null ? 12 : +p.adp_sd, ds: d,
+              blend: meanById.get(String(p.player_id)) || null });
 });
 const projUsed = x => x.ds.proj + A * (x.ds.ceiling - x.ds.proj);
 
@@ -124,6 +144,13 @@ const picks = SCHED.map((pk, i) => {
         player_id: o.x.id, name: o.x.name, team: o.x.team,
         proj: +o.x.ds.proj.toFixed(1), floor: +o.x.ds.floor.toFixed(1),
         ceiling: +o.x.ds.ceiling.toFixed(1), injury_risk_pct: o.x.ds.risk,
+        // The blend's own numbers for this SAME player — the toggle's other
+        // arm. Ranking, VONA, cliff and surplus above are unaffected: they
+        // stay computed from `ds`, only these three fields switch under the
+        // view's toggle.
+        proj_blend: o.x.blend ? +o.x.blend.proj.toFixed(1) : null,
+        floor_blend: (o.x.blend && o.x.blend.floor != null) ? +o.x.blend.floor.toFixed(1) : null,
+        ceiling_blend: (o.x.blend && o.x.blend.ceiling != null) ? +o.x.blend.ceiling.toFixed(1) : null,
         adp: +o.x.adp.toFixed(1),
         pct_available_now: +(o.availNow * 100).toFixed(0),
         pct_still_there_next_pick: +(o.availNext * 100).toFixed(0),
@@ -251,6 +278,11 @@ const out = {
   _what: 'Top N per position with when-gone and when-to-strike. NO single '
        + 'recommendation — Cory chooses the position.',
   _sources: 'projections/floor/ceiling = Draft Sharks; ADP/adp_sd = our board (Sleeper/FantasyPros)',
+  _blend_toggle_caveat: 'proj/floor/ceiling are Draft Sharks, which SELECTS and RANKS every list '
+    + 'here — that is unchanged. proj_blend/floor_blend/ceiling_blend carry the SAME already-selected '
+    + "player's blend numbers (public/draft_data.json's proj_mean/proj_floor/proj_ceiling) for the war "
+    + "room's toggle to display instead. They never change who is in the list or its order — every "
+    + 'player here has a Draft Sharks line by construction, so the blend fields are always present too.',
   _survival_caveat: 'pct_still_there_next_pick is ADP-DRAIN ONLY over ' + ROOMS
     + ' simulated rooms. The war room MUST override it with survival.js, which '
     + 'composes ADP with opponent-need Layer 2 and needs live draft context.',
@@ -279,6 +311,15 @@ const ctl = {
   })(),
   C3_survival_is_labelled_adp_only: { ok: true,
     why: 'the live war room has an opponent-aware number and MUST override this one' },
+  C4_every_player_carries_a_blend_number: (() => {
+    const missing = [];
+    picks.forEach(r => POS.forEach(q => (r.positions[q].players || []).forEach(p => {
+      if (p.proj_blend == null) missing.push(`pick ${r.pick} ${q} ${p.name}`);
+    })));
+    return { ok: missing.length === 0, missing: missing.slice(0, 8),
+      why: 'every player here has a Draft Sharks line by construction, so the blend join '
+         + 'should never miss — a miss means the id join broke, not that he lacks a blend proj' };
+  })(),
 };
 out.controls = ctl;
 out.controls_all_passed = Object.values(ctl).every(c => c.ok);
