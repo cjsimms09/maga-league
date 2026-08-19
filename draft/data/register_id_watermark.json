@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 58,
+ "next_numeric_id": 59,
  "history": [
   {
    "id": 47,
@@ -41,6 +41,11 @@
    "id": 57,
    "claimed_at": "2026-08-19",
    "note": "A: two implementations of within-position share disagree in SIGN on the live board"
+  },
+  {
+   "id": 58,
+   "claimed_at": "2026-08-19",
+   "note": "A: studies write committed artifacts as a side effect; a timeout leaves a truncated one"
   }
  ]
 }
