@@ -50,7 +50,8 @@ const rejected = [];
   if (p.sleeper_id == null) return;
   const f = +p.floor_proj, m = +p.ds_proj, c = +p.ceil_proj;
   if (!(f <= m && m <= c)) { rejected.push(`${p.name} ${f}/${m}/${c}`); return; }
-  dsById.set(String(p.sleeper_id), { floor: f, proj: m, ceiling: c });
+  dsById.set(String(p.sleeper_id), { floor: f, proj: m, ceiling: c,
+    risk: p.injury_risk_pct == null ? null : +p.injury_risk_pct });
 });
 
 const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
@@ -67,14 +68,103 @@ boardPool.forEach(p => {
 const projUsed = (x, a) => x.ds.proj + a * (x.ds.ceiling - x.ds.proj);
 
 /* ── need: the measured curve, unchanged ──────────────────────────────────── */
+/* ── THE NEED FIX (P191-P193). Prereg: draft/NEED-FIX-PREREG-2026-08-19.md ────
+ *
+ * Cory: "our equation sucks.. this shouldn't be that hard." He is right and it
+ * is not.
+ *
+ * The measured curve gives K2 = 0.828 in a ONE-KICKER league. That is not a
+ * near-miss, it is the wrong question: the curve measures WHICH OF MY BODIES
+ * FILLED THE ONE SLOT, and those shares decompose a single slot rather than
+ * counting how many bodies I need. The curve's own control proves it -- QB
+ * starters per team-week is 1.000 exactly.
+ *
+ * So every 1-slot position is broken and no multi-slot one is. Cory's K/DEF
+ * hard rule was patching this bug on the two positions he happened to notice.
+ *
+ *   need(pos, n) = P( Binomial(n-1, 1-q) < S_eff ) * (1 - streamability)
+ *
+ * S_eff is the MEASURED starters per team-week, fractional and treated as such
+ * (floor w.p. 1-frac, ceil w.p. frac) -- which is how the flex enters without a
+ * rule about it. q is the per-player miss rate. Nothing is chosen. */
+const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamability.json'), 'utf8'));
+if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
+const STREAM = ST.streamability;
+const S_EFF = { QB: 1.000, RB: 2.417, WR: 2.556, TE: 1.017, K: 0.996, DEF: 0.996 };
+const NEEDFIX = process.env.NEEDFIX !== 'off';
+
+function binomLess(n, pAvail, S) {
+  /* P(Binomial(n, pAvail) < S) with S possibly fractional: mix floor and ceil
+   * by the fractional part, which is the flex arriving as a probability. */
+  const lo = Math.floor(S), hi = Math.ceil(S), frac = S - lo;
+  const cdfBelow = k => {                      // P(X < k)
+    let acc = 0, c = 1;
+    for (let i = 0; i < k && i <= n; i++) {
+      acc += c * Math.pow(pAvail, i) * Math.pow(1 - pAvail, n - i);
+      c = c * (n - i) / (i + 1);
+    }
+    return Math.min(1, acc);
+  };
+  return lo === hi ? cdfBelow(lo) : (1 - frac) * cdfBelow(lo) + frac * cdfBelow(hi);
+}
+
+/* ── PER-PLAYER MISS RATE, AND THE ASSUMPTION IS STATED ──────────────────────
+ *
+ * Register 112: our own board carries ONE `games_expected` per POSITION, so
+ * Josh Allen and a third-string journeyman are equally available. Draft Sharks
+ * gives a per-player `injury_risk_pct` — the first per-player availability
+ * signal this project has had.
+ *
+ * ⚠️ IT IS NOT A GAMES-MISSED RATE AND IS NOT USED AS ONE. It runs 0-85 with a
+ * median of 35, and reading it as "misses 78% of games" for McCaffrey would be
+ * absurd. It is an ORDINAL risk score, so it is calibrated onto the position's
+ * MEASURED miss rate (from the same lineups the need curve was counted on):
+ *
+ *     q(p) = q_measured(pos) × ( risk(p) / median risk(pos) ) + bye
+ *
+ * The position level stays exactly what we measured; only the ORDERING within
+ * a position comes from Draft Sharks. Capped so a extreme score cannot send a
+ * player past "misses most of the year". K and DEF carry risk 0 throughout,
+ * which is why their q is the bye alone. */
+const Q_POS = { QB: 0.147, RB: 0.224, WR: 0.176, TE: 0.188, K: 0.02, DEF: 0.02 };
+const BYE = 1 / 17;
+const RISK_MED = {};
+function qOf(x) {
+  const pos = x.position;
+  const r = x.ds && x.ds.risk;
+  const med = RISK_MED[pos];
+  const scale = (r != null && med > 0) ? Math.min(2.5, r / med) : 1;
+  return Math.min(0.75, (Q_POS[pos] || 0.15) * scale + BYE);
+}
+const Q_MED = {};
+
+/* median Draft Sharks risk per position — the denominator of the calibration */
+(() => {
+  const by = {};
+  pool.forEach(x => { const r = x.ds && x.ds.risk;
+    if (r != null) (by[x.position] = by[x.position] || []).push(r); });
+  POS.forEach(q => { const v = (by[q] || []).sort((a, b) => a - b);
+    RISK_MED[q] = v.length ? v[v.length >> 1] : 0; });
+})();
+
+
+function needFixed(pos, held, x) {
+  const S = S_EFF[pos] || 1;
+  const q = x ? qOf(x) : ((Q_POS[pos] || 0.15) + BYE);
+  const raw = binomLess(held, 1 - q, S);
+  const sr = STREAM[pos];
+  return sr == null ? raw : raw * (1 - sr);
+}
+
 const RULES = process.env.RULES !== 'off';   // Cory's two rulings, on by default
-function needOf(pos, held, flexOwner) {
+function needOf(pos, held, flexOwner, cand) {
   /* CORY'S RULING, 2026-08-19: "same problem with K and def, once you draft 1
    * the need should be 0." Preregistered and graded as P149, and again as P177
    * where it put K and DEF on exactly 1.00 with sd 0.00 in all 300 rooms. NOT
    * a term I invented, and dropping it in the rewrite is what let DEF fall to
    * 0.76 with a minimum of ZERO -- rosters with no defence at all. */
   if (RULES && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
+  if (NEEDFIX) return needFixed(pos, held, cand);
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
   if (held < S) return 1;                       // an empty starting slot
@@ -145,7 +235,7 @@ function runRoom(a) {
        * remaining value is on the table. */
       const later = nextPick ? bestAt(availLater, x.position, a) : null;
       const vona = later == null ? here : Math.max(0, here - later);
-      const v = vona * needOf(x.position, held[x.position] || 0, fo);
+      const v = vona * needOf(x.position, held[x.position] || 0, fo, x);
       if (v > bestV) { bestV = v; best = x; }
     }
     if (!best) return;

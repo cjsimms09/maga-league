@@ -53,50 +53,50 @@
  ],
  "mean_roster": {
   "QB": {
-   "mean": 2.41,
-   "sd": 0.72,
+   "mean": 2.15,
+   "sd": 0.41,
    "min": 1,
-   "max": 4
+   "max": 3
   },
   "RB": {
-   "mean": 4.07,
-   "sd": 0.74,
-   "min": 2,
-   "max": 6
+   "mean": 5.48,
+   "sd": 0.63,
+   "min": 4,
+   "max": 7
   },
   "WR": {
-   "mean": 3.5,
-   "sd": 0.77,
-   "min": 2,
+   "mean": 4.93,
+   "sd": 0.47,
+   "min": 4,
    "max": 6
   },
   "TE": {
-   "mean": 3.02,
-   "sd": 0.94,
+   "mean": 1.85,
+   "sd": 0.69,
    "min": 1,
-   "max": 5
+   "max": 4
   },
   "K": {
-   "mean": 1,
-   "sd": 0,
-   "min": 1,
+   "mean": 0.21,
+   "sd": 0.41,
+   "min": 0,
    "max": 1
   },
   "DEF": {
-   "mean": 1,
-   "sd": 0,
-   "min": 1,
-   "max": 1
+   "mean": 0.38,
+   "sd": 0.51,
+   "min": 0,
+   "max": 2
   }
  },
- "rules_on": true,
- "rooms_with_an_empty_starting_slot": 0,
+ "rules_on": false,
+ "rooms_with_an_empty_starting_slot": 287,
  "grades": {
   "P186_adjuster_identity": true,
   "P187_reorders_our_board": true,
-  "P188_keeps_the_shape_we_won": true,
+  "P188_keeps_the_shape_we_won": false,
   "P189_qb_leak_survives": true,
-  "P190_with_corys_two_rules": true
+  "P190_with_corys_two_rules": false
  },
  "p187_moved_in_top_100": 85
 }
