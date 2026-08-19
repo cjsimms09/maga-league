@@ -1,0 +1,699 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/vona_board.js",
+ "_what": "REPORT ONLY. No need curve, no roster shape, no recommendation. Cory chooses the position; this says what waiting costs.",
+ "_sources": "projections/floor/ceiling = Draft Sharks; ADP + adp_sd = our board (Sleeper/FantasyPros)",
+ "rooms": 300,
+ "adjuster_a": 0,
+ "picks": [
+  33,
+  48,
+  53,
+  68,
+  73,
+  88,
+  93,
+  108,
+  113,
+  128,
+  133,
+  148
+ ],
+ "waiver": {
+  "QB": 322.9,
+  "RB": 78.4,
+  "WR": 124.8,
+  "TE": 130.4,
+  "K": 128.6,
+  "DEF": 100
+ },
+ "rows": [
+  {
+   "pick": 33,
+   "round": 4,
+   "next_pick": 48,
+   "pos": {
+    "QB": {
+     "best_now": 340.4,
+     "best_at_next_pick": 338.7,
+     "VONA": 1.7,
+     "surplus_over_wire": 17.5,
+     "upside_on_offer": 95.9,
+     "usual_best_available": "Lamar Jackson"
+    },
+    "RB": {
+     "best_now": 214.9,
+     "best_at_next_pick": 199.1,
+     "VONA": 15.9,
+     "surplus_over_wire": 136.5,
+     "upside_on_offer": 74.4,
+     "usual_best_available": "Travis Etienne"
+    },
+    "WR": {
+     "best_now": 207.8,
+     "best_at_next_pick": 194.3,
+     "VONA": 13.5,
+     "surplus_over_wire": 83,
+     "upside_on_offer": 50.7,
+     "usual_best_available": "Zay Flowers"
+    },
+    "TE": {
+     "best_now": 194.3,
+     "best_at_next_pick": 177.4,
+     "VONA": 16.9,
+     "surplus_over_wire": 63.9,
+     "upside_on_offer": 39.2,
+     "usual_best_available": "Colston Loveland"
+    },
+    "K": {
+     "best_now": 177,
+     "best_at_next_pick": 177,
+     "VONA": 0,
+     "surplus_over_wire": 48.4,
+     "upside_on_offer": 14,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 125,
+     "VONA": 0,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 48,
+   "round": 5,
+   "next_pick": 53,
+   "pos": {
+    "QB": {
+     "best_now": 338.7,
+     "best_at_next_pick": 336.6,
+     "VONA": 2.1,
+     "surplus_over_wire": 15.8,
+     "upside_on_offer": 94.9,
+     "usual_best_available": "Drake Maye"
+    },
+    "RB": {
+     "best_now": 199.1,
+     "best_at_next_pick": 188.6,
+     "VONA": 10.5,
+     "surplus_over_wire": 120.7,
+     "upside_on_offer": 84.2,
+     "usual_best_available": "D'Andre Swift"
+    },
+    "WR": {
+     "best_now": 194.3,
+     "best_at_next_pick": 194,
+     "VONA": 0.3,
+     "surplus_over_wire": 69.5,
+     "upside_on_offer": 54.7,
+     "usual_best_available": "Christian Watson"
+    },
+    "TE": {
+     "best_now": 177.4,
+     "best_at_next_pick": 170,
+     "VONA": 7.4,
+     "surplus_over_wire": 47,
+     "upside_on_offer": 42.5,
+     "usual_best_available": "Tyler Warren"
+    },
+    "K": {
+     "best_now": 177,
+     "best_at_next_pick": 177,
+     "VONA": 0,
+     "surplus_over_wire": 48.4,
+     "upside_on_offer": 14,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 125,
+     "VONA": 0,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 53,
+   "round": 6,
+   "next_pick": 68,
+   "pos": {
+    "QB": {
+     "best_now": 336.6,
+     "best_at_next_pick": 330.6,
+     "VONA": 6.1,
+     "surplus_over_wire": 13.7,
+     "upside_on_offer": 95.8,
+     "usual_best_available": "Joe Burrow"
+    },
+    "RB": {
+     "best_now": 188.6,
+     "best_at_next_pick": 177.7,
+     "VONA": 10.9,
+     "surplus_over_wire": 110.2,
+     "upside_on_offer": 93.5,
+     "usual_best_available": "Rhamondre Stevenson"
+    },
+    "WR": {
+     "best_now": 194,
+     "best_at_next_pick": 181.9,
+     "VONA": 12.1,
+     "surplus_over_wire": 69.2,
+     "upside_on_offer": 55,
+     "usual_best_available": "Christian Watson"
+    },
+    "TE": {
+     "best_now": 170,
+     "best_at_next_pick": 159,
+     "VONA": 11,
+     "surplus_over_wire": 39.6,
+     "upside_on_offer": 46.6,
+     "usual_best_available": "Tucker Kraft"
+    },
+    "K": {
+     "best_now": 177,
+     "best_at_next_pick": 177,
+     "VONA": 0,
+     "surplus_over_wire": 48.4,
+     "upside_on_offer": 14,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 125,
+     "VONA": 0,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 68,
+   "round": 7,
+   "next_pick": 73,
+   "pos": {
+    "QB": {
+     "best_now": 330.6,
+     "best_at_next_pick": 329.3,
+     "VONA": 1.2,
+     "surplus_over_wire": 7.7,
+     "upside_on_offer": 94,
+     "usual_best_available": "Trevor Lawrence"
+    },
+    "RB": {
+     "best_now": 177.7,
+     "best_at_next_pick": 173.6,
+     "VONA": 4.1,
+     "surplus_over_wire": 99.3,
+     "upside_on_offer": 96.9,
+     "usual_best_available": "Rhamondre Stevenson"
+    },
+    "WR": {
+     "best_now": 181.9,
+     "best_at_next_pick": 175.5,
+     "VONA": 6.4,
+     "surplus_over_wire": 57.1,
+     "upside_on_offer": 60,
+     "usual_best_available": "Parker Washington"
+    },
+    "TE": {
+     "best_now": 159,
+     "best_at_next_pick": 156.8,
+     "VONA": 2.2,
+     "surplus_over_wire": 28.6,
+     "upside_on_offer": 54,
+     "usual_best_available": "Tucker Kraft"
+    },
+    "K": {
+     "best_now": 177,
+     "best_at_next_pick": 176.9,
+     "VONA": 0.1,
+     "surplus_over_wire": 48.4,
+     "upside_on_offer": 14,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 125,
+     "VONA": 0,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 73,
+   "round": 8,
+   "next_pick": 88,
+   "pos": {
+    "QB": {
+     "best_now": 329.3,
+     "best_at_next_pick": 327.7,
+     "VONA": 1.7,
+     "surplus_over_wire": 6.4,
+     "upside_on_offer": 92.6,
+     "usual_best_available": "Trevor Lawrence"
+    },
+    "RB": {
+     "best_now": 173.6,
+     "best_at_next_pick": 160.6,
+     "VONA": 13,
+     "surplus_over_wire": 95.2,
+     "upside_on_offer": 99.5,
+     "usual_best_available": "Rhamondre Stevenson"
+    },
+    "WR": {
+     "best_now": 175.5,
+     "best_at_next_pick": 166.5,
+     "VONA": 9,
+     "surplus_over_wire": 50.7,
+     "upside_on_offer": 60.3,
+     "usual_best_available": "DK Metcalf"
+    },
+    "TE": {
+     "best_now": 156.8,
+     "best_at_next_pick": 149,
+     "VONA": 7.8,
+     "surplus_over_wire": 26.4,
+     "upside_on_offer": 55.3,
+     "usual_best_available": "George Kittle"
+    },
+    "K": {
+     "best_now": 176.9,
+     "best_at_next_pick": 176.5,
+     "VONA": 0.4,
+     "surplus_over_wire": 48.3,
+     "upside_on_offer": 14.1,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 125,
+     "VONA": 0,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 88,
+   "round": 9,
+   "next_pick": 93,
+   "pos": {
+    "QB": {
+     "best_now": 327.7,
+     "best_at_next_pick": 327.1,
+     "VONA": 0.5,
+     "surplus_over_wire": 4.8,
+     "upside_on_offer": 91.6,
+     "usual_best_available": "Brock Purdy"
+    },
+    "RB": {
+     "best_now": 160.6,
+     "best_at_next_pick": 157.2,
+     "VONA": 3.4,
+     "surplus_over_wire": 82.2,
+     "upside_on_offer": 107.6,
+     "usual_best_available": "J.K. Dobbins"
+    },
+    "WR": {
+     "best_now": 166.5,
+     "best_at_next_pick": 165.4,
+     "VONA": 1.2,
+     "surplus_over_wire": 41.7,
+     "upside_on_offer": 65.5,
+     "usual_best_available": "Jayden Reed"
+    },
+    "TE": {
+     "best_now": 149,
+     "best_at_next_pick": 146.6,
+     "VONA": 2.4,
+     "surplus_over_wire": 18.6,
+     "upside_on_offer": 52.6,
+     "usual_best_available": "George Kittle"
+    },
+    "K": {
+     "best_now": 176.5,
+     "best_at_next_pick": 176.2,
+     "VONA": 0.3,
+     "surplus_over_wire": 47.9,
+     "upside_on_offer": 14.4,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 125,
+     "VONA": 0,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 93,
+   "round": 10,
+   "next_pick": 108,
+   "pos": {
+    "QB": {
+     "best_now": 327.1,
+     "best_at_next_pick": 323.9,
+     "VONA": 3.2,
+     "surplus_over_wire": 4.2,
+     "upside_on_offer": 92,
+     "usual_best_available": "Brock Purdy"
+    },
+    "RB": {
+     "best_now": 157.2,
+     "best_at_next_pick": 145.2,
+     "VONA": 12,
+     "surplus_over_wire": 78.8,
+     "upside_on_offer": 107.9,
+     "usual_best_available": "Jonathon Brooks"
+    },
+    "WR": {
+     "best_now": 165.4,
+     "best_at_next_pick": 163.2,
+     "VONA": 2.2,
+     "surplus_over_wire": 40.6,
+     "upside_on_offer": 66.6,
+     "usual_best_available": "Jayden Reed"
+    },
+    "TE": {
+     "best_now": 146.6,
+     "best_at_next_pick": 138.4,
+     "VONA": 8.3,
+     "surplus_over_wire": 16.2,
+     "upside_on_offer": 50.9,
+     "usual_best_available": "George Kittle"
+    },
+    "K": {
+     "best_now": 176.2,
+     "best_at_next_pick": 174.7,
+     "VONA": 1.6,
+     "surplus_over_wire": 47.6,
+     "upside_on_offer": 14.7,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 125,
+     "best_at_next_pick": 124.8,
+     "VONA": 0.2,
+     "surplus_over_wire": 25,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 108,
+   "round": 11,
+   "next_pick": 113,
+   "pos": {
+    "QB": {
+     "best_now": 323.9,
+     "best_at_next_pick": 321.2,
+     "VONA": 2.7,
+     "surplus_over_wire": 1,
+     "upside_on_offer": 94.2,
+     "usual_best_available": "Kyler Murray"
+    },
+    "RB": {
+     "best_now": 145.2,
+     "best_at_next_pick": 140,
+     "VONA": 5.2,
+     "surplus_over_wire": 66.8,
+     "upside_on_offer": 109.3,
+     "usual_best_available": "Jordan Mason"
+    },
+    "WR": {
+     "best_now": 163.2,
+     "best_at_next_pick": 160.7,
+     "VONA": 2.5,
+     "surplus_over_wire": 38.4,
+     "upside_on_offer": 66.2,
+     "usual_best_available": "Jayden Reed"
+    },
+    "TE": {
+     "best_now": 138.4,
+     "best_at_next_pick": 135.8,
+     "VONA": 2.6,
+     "surplus_over_wire": 8,
+     "upside_on_offer": 46.2,
+     "usual_best_available": "Mark Andrews"
+    },
+    "K": {
+     "best_now": 174.7,
+     "best_at_next_pick": 173.7,
+     "VONA": 1,
+     "surplus_over_wire": 46.1,
+     "upside_on_offer": 16,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 124.8,
+     "best_at_next_pick": 124.2,
+     "VONA": 0.6,
+     "surplus_over_wire": 24.8,
+     "upside_on_offer": 15,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 113,
+   "round": 12,
+   "next_pick": 128,
+   "pos": {
+    "QB": {
+     "best_now": 321.2,
+     "best_at_next_pick": 307.2,
+     "VONA": 14,
+     "surplus_over_wire": 0,
+     "upside_on_offer": 96.1,
+     "usual_best_available": "Kyler Murray"
+    },
+    "RB": {
+     "best_now": 140,
+     "best_at_next_pick": 131.7,
+     "VONA": 8.3,
+     "surplus_over_wire": 61.6,
+     "upside_on_offer": 111,
+     "usual_best_available": "Tyjae Spears"
+    },
+    "WR": {
+     "best_now": 160.7,
+     "best_at_next_pick": 151.7,
+     "VONA": 9,
+     "surplus_over_wire": 35.9,
+     "upside_on_offer": 67.8,
+     "usual_best_available": "Jayden Reed"
+    },
+    "TE": {
+     "best_now": 135.8,
+     "best_at_next_pick": 130.9,
+     "VONA": 4.9,
+     "surplus_over_wire": 5.3,
+     "upside_on_offer": 45.1,
+     "usual_best_available": "Mark Andrews"
+    },
+    "K": {
+     "best_now": 173.7,
+     "best_at_next_pick": 170,
+     "VONA": 3.8,
+     "surplus_over_wire": 45.1,
+     "upside_on_offer": 16.9,
+     "usual_best_available": "Brandon Aubrey"
+    },
+    "DEF": {
+     "best_now": 124.2,
+     "best_at_next_pick": 119.9,
+     "VONA": 4.3,
+     "surplus_over_wire": 24.2,
+     "upside_on_offer": 15.1,
+     "usual_best_available": "Houston Texans"
+    }
+   }
+  },
+  {
+   "pick": 128,
+   "round": 13,
+   "next_pick": 133,
+   "pos": {
+    "QB": {
+     "best_now": 307.2,
+     "best_at_next_pick": 303.5,
+     "VONA": 3.7,
+     "surplus_over_wire": 0,
+     "upside_on_offer": 106,
+     "usual_best_available": "Tyler Shough"
+    },
+    "RB": {
+     "best_now": 131.7,
+     "best_at_next_pick": 130.5,
+     "VONA": 1.3,
+     "surplus_over_wire": 53.3,
+     "upside_on_offer": 112.9,
+     "usual_best_available": "Tyjae Spears"
+    },
+    "WR": {
+     "best_now": 151.7,
+     "best_at_next_pick": 149.5,
+     "VONA": 2.2,
+     "surplus_over_wire": 26.9,
+     "upside_on_offer": 75.4,
+     "usual_best_available": "Xavier Worthy"
+    },
+    "TE": {
+     "best_now": 130.9,
+     "best_at_next_pick": 129.6,
+     "VONA": 1.3,
+     "surplus_over_wire": 0.5,
+     "upside_on_offer": 43.1,
+     "usual_best_available": "Brenton Strange"
+    },
+    "K": {
+     "best_now": 170,
+     "best_at_next_pick": 168.5,
+     "VONA": 1.5,
+     "surplus_over_wire": 41.4,
+     "upside_on_offer": 20.4,
+     "usual_best_available": "Cameron Dicker"
+    },
+    "DEF": {
+     "best_now": 119.9,
+     "best_at_next_pick": 117.1,
+     "VONA": 2.7,
+     "surplus_over_wire": 19.9,
+     "upside_on_offer": 17.4,
+     "usual_best_available": "Denver Broncos"
+    }
+   }
+  },
+  {
+   "pick": 133,
+   "round": 14,
+   "next_pick": 148,
+   "pos": {
+    "QB": {
+     "best_now": 303.5,
+     "best_at_next_pick": 291.5,
+     "VONA": 12,
+     "surplus_over_wire": 0,
+     "upside_on_offer": 108.6,
+     "usual_best_available": "Tyler Shough"
+    },
+    "RB": {
+     "best_now": 130.5,
+     "best_at_next_pick": 125.1,
+     "VONA": 5.4,
+     "surplus_over_wire": 52.1,
+     "upside_on_offer": 112.5,
+     "usual_best_available": "Tyjae Spears"
+    },
+    "WR": {
+     "best_now": 149.5,
+     "best_at_next_pick": 137.6,
+     "VONA": 11.9,
+     "surplus_over_wire": 24.7,
+     "upside_on_offer": 76.2,
+     "usual_best_available": "Romeo Doubs"
+    },
+    "TE": {
+     "best_now": 129.6,
+     "best_at_next_pick": 126.9,
+     "VONA": 2.7,
+     "surplus_over_wire": 0,
+     "upside_on_offer": 43.4,
+     "usual_best_available": "Brenton Strange"
+    },
+    "K": {
+     "best_now": 168.5,
+     "best_at_next_pick": 160.7,
+     "VONA": 7.8,
+     "surplus_over_wire": 39.9,
+     "upside_on_offer": 21.8,
+     "usual_best_available": "Cameron Dicker"
+    },
+    "DEF": {
+     "best_now": 117.1,
+     "best_at_next_pick": 114.1,
+     "VONA": 3,
+     "surplus_over_wire": 17.1,
+     "upside_on_offer": 19.7,
+     "usual_best_available": "New England Patriots"
+    }
+   }
+  },
+  {
+   "pick": 148,
+   "round": 15,
+   "next_pick": null,
+   "pos": {
+    "QB": {
+     "best_now": 291.5,
+     "best_at_next_pick": null,
+     "VONA": null,
+     "surplus_over_wire": 0,
+     "upside_on_offer": 117.8,
+     "usual_best_available": "Tyler Shough"
+    },
+    "RB": {
+     "best_now": 125.1,
+     "best_at_next_pick": null,
+     "VONA": null,
+     "surplus_over_wire": 46.7,
+     "upside_on_offer": 112.6,
+     "usual_best_available": "Tyjae Spears"
+    },
+    "WR": {
+     "best_now": 137.6,
+     "best_at_next_pick": null,
+     "VONA": null,
+     "surplus_over_wire": 12.8,
+     "upside_on_offer": 81.1,
+     "usual_best_available": "Khalil Shakir"
+    },
+    "TE": {
+     "best_now": 126.9,
+     "best_at_next_pick": null,
+     "VONA": null,
+     "surplus_over_wire": 0,
+     "upside_on_offer": 44.5,
+     "usual_best_available": "Brenton Strange"
+    },
+    "K": {
+     "best_now": 160.7,
+     "best_at_next_pick": null,
+     "VONA": null,
+     "surplus_over_wire": 32.1,
+     "upside_on_offer": 29.4,
+     "usual_best_available": "Cairo Santos"
+    },
+    "DEF": {
+     "best_now": 114.1,
+     "best_at_next_pick": null,
+     "VONA": null,
+     "surplus_over_wire": 14.1,
+     "upside_on_offer": 22.2,
+     "usual_best_available": "New England Patriots"
+    }
+   }
+  }
+ ],
+ "ceiling_crossover_pick": {
+  "QB": 33,
+  "RB": 73,
+  "WR": 68,
+  "TE": 53,
+  "K": null,
+  "DEF": 133
+ }
+}

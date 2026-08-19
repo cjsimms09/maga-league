@@ -156,6 +156,77 @@ function needFixed(pos, held, x) {
   return sr == null ? raw : raw * (1 - sr);
 }
 
+/* ── CORY'S CURVE, TRANSCRIBED. Prereg: draft/CORYS-CURVE-PREREG-2026-08-19.md
+ *
+ * "must draft 1 k and 1 def!! ... once have 1 QB and TE, equation should
+ *  severely restrict QB and TE recommendation, it should put in such a hole
+ *  that value should have to be incredible! WR should hold importance until you
+ *  have 4 then be cut, RB should hold until you have 3 then cut, and cut to
+ *  almost 0 when you have 4."
+ *
+ * Indexed by HOW MANY I ALREADY HOLD. The values are MY RENDERING of his words
+ * and are declared, not fitted: "severely restrict" is 0.05, a twentyfold hole,
+ * so a second quarterback must out-value a receiver by 20x to be taken. If the
+ * roster misses, the response is NOT to nudge these. */
+const CORY = {
+  K:   [1.00, 0],
+  DEF: [1.00, 0],
+  QB:  [1.00, 0.05, 0],
+  TE:  [1.00, 0.05, 0],
+  RB:  [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
+  WR:  [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
+};
+const CURVE_ARM = process.env.CURVE || 'cory';
+/* P197/P198 — every need FORM that has been graded, re-run on identical inputs
+ * (Draft Sharks projections, surplus valuation, corrected wire, same rooms).
+ * Prereg: draft/REGRADE-PREREG-2026-08-19.md. A sweep, and no arm may become
+ * "the model" by winning it. */
+
+/* ── P196: VALUE IS SURPLUS OVER THE WIRE, NOT THE TIMING CLIFF ──────────────
+ * P194 failed with need at 0.05 -- a twentyfold hole -- because VONA is not
+ * comparable across positions. QB's best-to-2nd cliff is 39.0, the largest on
+ * the board, while its 2nd man is worth 17 over a 322.9 wire; RB's cliff is
+ * 11.0 sitting on 233 points of surplus. Late, when RB/WR need has collapsed
+ * and their cliffs are 3-5 points, the quarterback's raw 39 wins anyway.
+ *
+ * I wrote this diagnosis myself in model_diagnostics.js -- "VONA is a TIMING
+ * signal and does not belong in the value term" -- and then built the model on
+ * VONA alone. */
+const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+const VALUE_ARM = process.env.VALUE || 'surplus';   // 'surplus' | 'vona'
+
+/* ── P199/P200 — VONA ACROSS POSITIONS AT THE FLEX (Cory's observation) ──────
+ * "vona could apply between positions if vying for same spot ie flex"
+ *
+ * The reason VONA left the value term is that it is not comparable across
+ * positions. The FLEX is the exception: RB, WR and TE compete for one slot
+ * against one alternative, so there they share a denominator.
+ *
+ * A body is worth his surplus in whichever slot he actually fills, weighted by
+ * how often he fills each. f is MEASURED (P175, 535 team-weeks). */
+const FX = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'flex_exposure.json'), 'utf8'));
+if (!FX.controls_all_passed) throw new Error('flex_exposure failed its controls — REFUSING');
+const FSHARE = FX.f;
+const FLEXVONA = process.env.FLEXVONA === 'on';
+/* P201/P202 — Cory: "shouldn't it only compare to waiver when drafting bench?"
+ *   'split'      : starters priced vs the next-pick best at their position
+ *                  (VONA), bench priced vs the wire — his idea literally
+ *   'bench-only' : starters unchanged, bench priced vs the wire
+ *   'off'        : the current arm */
+const BASE_ARM = process.env.BASE || 'off';
+let baseGapStart = [], baseGapBench = [];
+/* declared: raw max is TE 130.4; the empirical flex owner is WR 124.8. Both run,
+ * and the verdict must agree under each (the TE oddity is open from P172). */
+const FLEX_WIRE = process.env.FLEXWIRE === 'wr' ? WAIVER.WR
+  : Math.max(WAIVER.RB, WAIVER.WR, WAIVER.TE);
+const flexShare = (pos, held) => {
+  if (!FLEXVONA) return 0;
+  const row = FSHARE[pos];
+  if (!row) return 0;
+  const v = row[held];                    // held bodies -> he is body held+1
+  return v == null ? 0 : v;
+};
+
 const RULES = process.env.RULES !== 'off';   // Cory's two rulings, on by default
 function needOf(pos, held, flexOwner, cand) {
   /* CORY'S RULING, 2026-08-19: "same problem with K and def, once you draft 1
@@ -163,6 +234,29 @@ function needOf(pos, held, flexOwner, cand) {
    * where it put K and DEF on exactly 1.00 with sd 0.00 in all 300 rooms. NOT
    * a term I invented, and dropping it in the rewrite is what let DEF fall to
    * 0.76 with a minimum of ZERO -- rosters with no defence at all. */
+  if (CURVE_ARM === 'cory') {
+    const row = CORY[pos] || [];
+    const v = row[held];
+    return v == null ? (row.length ? row[row.length - 1] : 0) : v;
+  }
+  if (CURVE_ARM === 'derived') return needFixed(pos, held, cand);
+  if (CURVE_ARM === 'measured') {           // the counted curve, as committed
+    const v = (CURVE[pos] || [])[held];
+    return v == null ? 0 : v;
+  }
+  if (CURVE_ARM === 'p144' || CURVE_ARM === 'p146') {
+    /* B/C: the two forms from the one-equation family. P144 weighted a body by
+     * P(EVER needed across the season); P146 by E[weeks he actually starts] --
+     * the single substitution that fixed QB and broke TE, K and RB. Both are
+     * rebuilt from the SAME measured start rates so the only difference between
+     * them is the substitution itself. */
+    const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
+    if (held < S) return 1;
+    const r = (CURVE[pos] || [])[held];
+    if (r == null) return 0;
+    if (CURVE_ARM === 'p146') return r;                  // expected weeks started
+    return 1 - Math.pow(1 - r, 17);                      // P(ever needed) over a season
+  }
   if (RULES && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
   if (NEEDFIX) return needFixed(pos, held, cand);
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
@@ -223,6 +317,7 @@ function runRoom(a) {
     const forcing = RULES && (SCHED.length - i) <= mustFill;
     const needsSlot = q => {
       if ((q === 'K' || q === 'DEF') && (held[q] || 0) >= (base[q] || 0)) return false;
+      if (CURVE_ARM === 'cory' && needOf(q, held[q] || 0, fo, null) <= 0) return false;
       const S = (base[q] || 0) + (fo === q ? (STARTERS.FLEX || 0) : 0);
       return (held[q] || 0) < S;
     };
@@ -235,7 +330,29 @@ function runRoom(a) {
        * remaining value is on the table. */
       const later = nextPick ? bestAt(availLater, x.position, a) : null;
       const vona = later == null ? here : Math.max(0, here - later);
-      const v = vona * needOf(x.position, held[x.position] || 0, fo, x);
+      /* surplus = what he is worth AT ALL, against a body I could have free.
+       * VONA answers "when", not "how much" (P196). */
+      const fsh = flexShare(x.position, held[x.position] || 0);
+      /* is this body filling a STARTING slot, or is he depth? */
+      const slots = (base[x.position] || 0)
+        + (fo === x.position ? (STARTERS.FLEX || 0) : 0);
+      const isStarter = (held[x.position] || 0) < slots;
+      let own;
+      if (BASE_ARM === 'split' && isStarter) {
+        /* his baseline is the next real player at the position, not the wire */
+        own = Math.max(0, here - (later == null ? (WAIVER[x.position] || 0) : later));
+      } else {
+        own = Math.max(0, here - (WAIVER[x.position] || 0));
+      }
+      if (i === 4) {   // one mid-draft pick, recorded so the gap is visible
+        const b = (BASE_ARM === 'split' && isStarter && later != null)
+          ? later : (WAIVER[x.position] || 0);
+        (isStarter ? baseGapStart : baseGapBench).push(b);
+      }
+      const flexS = Math.max(0, here - FLEX_WIRE);
+      const surplus = (1 - fsh) * own + fsh * flexS;
+      const valueTerm = VALUE_ARM === 'vona' ? vona : surplus;
+      const v = valueTerm * needOf(x.position, held[x.position] || 0, fo, x);
       if (v > bestV) { bestV = v; best = x; }
     }
     if (!best) return;
@@ -275,6 +392,14 @@ const rstat = {}; POS.forEach(q => {
   rstat[q] = { mean: +mean(v).toFixed(2), sd: +sd(v).toFixed(2), min: Math.min(...v), max: Math.max(...v) };
 });
 const illegal = rows.filter(r => !r.legal).length;
+const medOf = a => { if (!a.length) return null; const v = [...a].sort((x, y) => x - y); return v[v.length >> 1]; };
+const gapStart = medOf(baseGapStart), gapBench = medOf(baseGapBench);
+/* Cory, 2026-08-19: "rest RB and WR with normally more WR than RBs". "Normally"
+ * is a RATE, not a comparison of two means -- two means can order one way while
+ * most individual rooms order the other. */
+const wrOverRb = rows.filter(r => (r.roster.WR || 0) > (r.roster.RB || 0)).length / rows.length;
+const onesies = ['QB', 'TE', 'K', 'DEF'].every(q => Math.abs(rstat[q].mean - 1) <= 0.10);
+const corySpec = onesies && wrOverRb >= 0.5;
 const p188 = rstat.RB.mean >= 4 && rstat.RB.mean <= 6
   && Math.abs(rstat.K.mean - 1) < 0.05 && Math.abs(rstat.DEF.mean - 1) < 0.05;
 const p190 = Math.abs(rstat.DEF.mean - 1) < 0.05 && Math.abs(rstat.K.mean - 1) < 0.05
@@ -299,6 +424,7 @@ const out = {
   pool_size: pool.length, excluded_inside_adp200: excluded,
   mean_roster: rstat,
   rules_on: RULES, rooms_with_an_empty_starting_slot: illegal,
+  cory_spec: { onesies_all_1: onesies, share_of_rooms_WR_over_RB: +wrOverRb.toFixed(3), meets_spec: corySpec },
   grades: { P186_adjuster_identity: p186, P187_reorders_our_board: p187,
             P188_keeps_the_shape_we_won: p188, P189_qb_leak_survives: p189,
             P190_with_corys_two_rules: p190 },
@@ -307,7 +433,13 @@ const out = {
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', `simple_model_a${String(A).replace('.', '')}.json`),
   JSON.stringify(out, null, 1));
 
-console.log(`THE SIMPLE MODEL — Draft Sharks × VONA × need   (adjuster a = ${A})\n`);
+console.log(`THE SIMPLE MODEL — Draft Sharks × VONA × need   (adjuster a = ${A}, curve = ${CURVE_ARM})\n`);
+if (CURVE_ARM === 'cory') {
+  console.log('  CORY\'S CURVE, as it ran — need by how many I already hold');
+  POS.forEach(q => console.log('    ' + q.padEnd(5)
+    + (CORY[q] || []).map(v => v.toFixed(2).padStart(7)).join('')));
+  console.log('');
+}
 Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK  ' : '  FAIL') + k));
 console.log(`\n  pool (players with a Draft Sharks line) : ${pool.length}`);
 console.log(`  excluded inside ADP 200                : ${excluded.length}  ${excluded.slice(0, 4).join(', ')}`);
@@ -321,5 +453,13 @@ console.log(`\n  P186  adjuster is exactly what Cory described : ${p186 ? 'TRUE'
 console.log(`  P187  their projections reorder our board    : ${p187 ? 'TRUE' : 'FALSE'}  (${p187moved} of top 100 move)`);
 console.log(`  P188  keeps the roster shape we already won  : ${p188 ? 'TRUE' : 'FALSE'}`);
 console.log(`  P189  the QB leak survives (predicted TRUE)  : ${p189 ? 'TRUE' : 'FALSE'}`);
+console.log(`\n  BASELINE AT A MID-DRAFT PICK (arm = ${BASE_ARM})`);
+console.log(`    median baseline, STARTER bodies : ${gapStart == null ? 'n/a' : gapStart.toFixed(1)}`);
+console.log(`    median baseline, BENCH bodies   : ${gapBench == null ? 'n/a' : gapBench.toFixed(1)}`);
+console.log(`    gap                             : ${(gapStart != null && gapBench != null) ? (gapStart - gapBench).toFixed(1) : 'n/a'}`);
+console.log(`\n  CORY'S SPEC — 1 QB/TE/K/DEF, rest RB+WR, normally more WR`);
+console.log(`    onesies all on 1 (+/-0.10)   : ${onesies ? 'YES' : 'NO'}`);
+console.log(`    rooms with WR > RB           : ${(wrOverRb * 100).toFixed(0)}%`);
+console.log(`    MEETS HIS SPEC               : ${corySpec ? 'YES' : 'NO'}`);
 console.log(`  P190  + Cory's K/DEF rule and reservation gate: ${p190 ? 'TRUE' : 'FALSE'}  `
   + `(rules ${RULES ? 'ON' : 'OFF'}, rooms with an empty starting slot: ${illegal})`);
