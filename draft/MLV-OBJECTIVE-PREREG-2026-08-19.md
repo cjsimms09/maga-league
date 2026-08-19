@@ -166,3 +166,46 @@ positions whose per-game rates matter less; the myopic displacement rule keeps
 the better STARTERS.** `--objective-normal` remains the recommendation, and
 this axis is closed: two arms measured, a clear winner, and the improvement
 hypothesis is FALSE on the grading that counts.
+
+---
+
+## 9. LIMITS — Cory: "MLV has massive issues too though." He is right. The list.
+
+**Measured:**
+1. **Thin bench is a real, priced cost: ~16.5 pts/season.** Relative
+   (skill−actual) gap vs the humans is −16.5 — MLV rosters lose more to
+   absence and gain less from weekly lineup optionality than human benches do.
+   It is ALREADY CHARGED inside the +45.8 actual (that arm includes injuries
+   and byes). But the SKILL arm hides it by construction — Cory's no-injury
+   ruling is what makes zero-bench-value optimal, and if he weighs insurance,
+   the ruling itself is the lever to revisit, not the mechanism.
+2. **High variance: sd 98.8 on actual.** Worst seat −155, 6/30 seats lose by
+   50+. This is a MEAN edge (16/30 win by 50+), not a guarantee for any one
+   draft night.
+3. **Sequencing is not solved.** One lookahead formulation failed on skill
+   (§8); that closes the axis I tried, not the question.
+
+**Real and unmeasured:**
+4. **Rank-units are not points.** lineupValue sums market ranks; a
+   displacement worth 10 rank-points at pick 20 is a different quantity of
+   POINTS than at pick 120. The live engine must run this in projected points,
+   and the harness result does not automatically license points-units
+   behavior. That translation is the single biggest risk in shipping it, and
+   it is A's to validate.
+5. **Fixed opponents** — nobody re-reacts to our different picks. Shared by
+   every arm including the shipped one; still a limit on all of them.
+6. **n=30, one league, three seasons.** No out-of-league validation exists or
+   can, and 2024 is weak (+6.1, 6/10) in every arm.
+7. **No stacking, no correlation, no bye planning** in the mechanism. Byes are
+   priced only by the actual grading, never planned for.
+8. **Taste: it buys late QB/TE upgrades** (QB mean 2.07) because an upgrade
+   always has positive marginal. Defensible under the objective; not how
+   humans spend pick 14.
+9. **It is an autodraft policy, not a war-room integration.** recommend() is
+   roster-blind (register 59); wiring a roster-conditional marginal into a
+   ranked list a human reads at 8 seconds a pick is real design work, not a
+   flag.
+
+**The honest net:** best measured construction rule on both gradings, with a
+real thin-bench cost inside the number, a real variance band around it, and a
+units question that must be answered before it touches the live board.
