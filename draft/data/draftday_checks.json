@@ -4,28 +4,32 @@
  "_note": "REPORT ONLY. Every check carries a known-positive (rule 3e).",
  "checks": {
   "check1_board_proj_and_bands": {
-   "pass": false,
-   "board_players_carrying_a_draftsharks_projection": 0,
+   "pass": true,
+   "board_players_carrying_a_draftsharks_projection": 247,
    "board_total": 700,
    "board_proj_mean_sources": [
-    "multisource-mean-2026"
+    "blend: mean of 7 sources, centred per position",
+    "blend: mean of 6 sources, centred per position",
+    "blend: mean of 5 sources, centred per position",
+    "blend: mean of 2 sources, centred per position",
+    "blend: mean of 4 sources, centred per position",
+    "blend: mean of 1 sources, centred per position",
+    "blend: mean of 3 sources, centred per position"
    ],
    "board_band_sources": [
-    "cross-source-p10",
-    "measured-2023-25-p10-x-player-cv",
-    "measured-2023-25-p10",
-    "gaussian_z"
+    "draftsharks_pct",
+    "none — no Draft Sharks band for this player"
    ],
    "band_pct_mismatch_vs_draftsharks": {
-    "median": 29.2,
+    "median": 0,
     "n_compared": 247,
     "units": "percentage points of ceiling-over-mean"
    },
    "band_width_distribution": {
     "board": {
-     "median": 61.3,
-     "p10": 13,
-     "p90": 155.2
+     "median": 0,
+     "p10": 0,
+     "p90": 83.9
     },
     "blend_with_draftsharks": {
      "median": 49.7,
@@ -34,7 +38,7 @@
     },
     "note": "the board is NOT narrower on average -- it is a different QUANTITY. Its band is mean +/- 1.28 x sd ACROSS SOURCES (register 119), so it measures how much analysts disagree, not how the player can turn out."
    },
-   "verdict": "NO. The live board carries ZERO Draft Sharks projections and its floor/ceiling are cross-source disagreement, not Draft Sharks percentages. Neither half of what Cory asked for is on the board he would draft on."
+   "verdict": "see numbers"
   },
   "check2_stack": {
    "pass": true,
@@ -47,7 +51,7 @@
    "known_positive_reverse_direction": 6,
    "keepers_are_seeded_into_the_live_roster": true,
    "weight_in_MEASURED_WEIGHTS": 1,
-   "scale_note": "the boost is +6 raw score points against a Burrow projection of 367. It is real, and it is small -- it moves ties, it does not move a round.",
+   "scale_note": "the boost is +6 raw score points against a Burrow projection of 356. It is real, and it is small -- it moves ties, it does not move a round.",
    "first_probe_was_wrong": "the first version passed `myRoster:` where the engine reads `ctx.roster`, and returned 0 -- which reads exactly like a broken stack term. The known positive is the only reason that is not what got reported."
   },
   "check3_vona": {
@@ -60,50 +64,50 @@
     "SURVIVOR_CUTOFF": 0.005
    },
    "divergence_from_an_independent_recomputation": {
-    "n": 584,
-    "median_pct": 0.588,
-    "p90_pct": 4.462,
-    "max_pct": 62.413,
+    "n": 583,
+    "median_pct": 0.709,
+    "p90_pct": 4.722,
+    "max_pct": 68.905,
     "worst_5": [
-     {
-      "name": "Davante Adams",
-      "position": "WR",
-      "next_pick": 53,
-      "engine": -0.5,
-      "independent": -1.32,
-      "rel_err_pct": 62.4
-     },
      {
       "name": "Matthew Stafford",
       "position": "QB",
-      "next_pick": 88,
-      "engine": -0.76,
-      "independent": -1.88,
-      "rel_err_pct": 59.7
-     },
-     {
-      "name": "Dak Prescott",
-      "position": "QB",
       "next_pick": 73,
-      "engine": 1.67,
-      "independent": 1.06,
-      "rel_err_pct": 58
+      "engine": -0.61,
+      "independent": -1.97,
+      "rel_err_pct": 68.9
      },
      {
-      "name": "Travis Kelce",
+      "name": "Jameson Williams",
+      "position": "WR",
+      "next_pick": 53,
+      "engine": 1.49,
+      "independent": 1.05,
+      "rel_err_pct": 42.3
+     },
+     {
+      "name": "Tucker Kraft",
       "position": "TE",
       "next_pick": 93,
-      "engine": 1.74,
-      "independent": 1.29,
-      "rel_err_pct": 34.4
+      "engine": 1.8,
+      "independent": 1.37,
+      "rel_err_pct": 31.1
      },
      {
-      "name": "Jayden Daniels",
+      "name": "Caleb Williams",
       "position": "QB",
-      "next_pick": 88,
-      "engine": 4.53,
-      "independent": 3.41,
-      "rel_err_pct": 33
+      "next_pick": 73,
+      "engine": -3.21,
+      "independent": -4.57,
+      "rel_err_pct": 29.7
+     },
+     {
+      "name": "Joe Burrow",
+      "position": "QB",
+      "next_pick": 73,
+      "engine": 6.09,
+      "independent": 4.73,
+      "rel_err_pct": 28.7
      }
     ]
    },

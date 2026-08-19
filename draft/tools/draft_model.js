@@ -147,17 +147,46 @@ const startProb = (pos, held) => {
  * with floor = proj = ceiling, so LEAN cannot move him in either direction, and
  * C3 prints how many that is. Inventing a band for him is exactly the thing
  * Cory has spent two days correcting. */
+/* ── CORY'S TWO MODELS ────────────────────────────────────────────────────────
+ * "can we actually program 2 models, one that uses proj from draft shark and 1
+ *  that uses mean proj. and I want to be able to toggle between them"
+ *
+ *   --source blend   the mean of every source, centred per position (default)
+ *   --source ds      Draft Sharks' own projection, uncentred
+ *
+ * The BAND is Draft Sharks' either way -- that was never the question, and there
+ * is no other per-player outcome range to use.
+ *
+ * ⚠️ THE DS ARM RANKS 247 PLAYERS, NOT 700. Coverage by ADP depth: top-100
+ * 100%, top-150 99.3%, top-200 94.5%, top-250 88.4%. Cory's last pick is 148,
+ * by which point the board is ~250 deep, so the DS arm thins exactly where his
+ * final picks come from. Men without a Draft Sharks line are EXCLUDED from that
+ * arm rather than back-filled from the blend -- mixing the two inside one
+ * ranking is the defect this toggle exists to let him see. */
+const SOURCE = (() => {
+  const i = process.argv.indexOf('--source');
+  const v = i >= 0 ? process.argv[i + 1] : 'blend';
+  if (v !== 'blend' && v !== 'ds') throw new Error('--source must be blend or ds');
+  return v;
+})();
+
 const pool = [];
-let noBand = 0;
+let noBand = 0, excludedNoDS = 0;
 BL.players.forEach(p => {
   if (!POS.includes(p.position) || p.adp == null || p.proj == null) return;
+  if (SOURCE === 'ds' && p.ds_proj == null) { excludedNoDS++; return; }
   const has = p.floor != null && p.ceiling != null;
   if (!has) noBand++;
   pool.push({
     id: p.player_id, name: p.name, position: p.position, adp: p.adp, bye: p.bye,
-    proj: p.proj,
-    floor: has ? p.floor : p.proj,
-    ceiling: has ? p.ceiling : p.proj,
+    /* the toggle: which projection drives the ranking. The band is scaled to
+     * whichever level is in play, so its PERCENTAGE is identical in both arms
+     * (Cory: "the same % apart from mean proj"). */
+    proj: SOURCE === 'ds' ? p.ds_proj : p.proj,
+    floor: has ? (SOURCE === 'ds' ? p.ds_proj * (p.floor / p.proj) : p.floor)
+               : (SOURCE === 'ds' ? p.ds_proj : p.proj),
+    ceiling: has ? (SOURCE === 'ds' ? p.ds_proj * (p.ceiling / p.proj) : p.ceiling)
+                 : (SOURCE === 'ds' ? p.ds_proj : p.proj),
     banded: has,
     injury_risk_pct: p.injury_risk_pct,
     /* HIS band width, and it is divided by HIS OWN projection and by nothing
@@ -603,7 +632,8 @@ const doc = {
        + 'his band we read, and value-early/upside-late is an OUTPUT.',
   _bands_are_per_player: 'no cohort statistic touches a band. Enforced by C1.',
   _prereg: 'draft/DRAFT-MODEL-PREREG-2026-08-19.md',
-  lean: LEAN, rooms: ROOMS,
+  lean: LEAN, ramp: RAMP, source: SOURCE, rooms: ROOMS,
+  players_excluded_for_having_no_draftsharks_line: excludedNoDS,
   controls: ctl, controls_all_passed: allOk,
   predictions: {
     P209_normal_roster: { pass: P209, mean_roster_with_keepers: rosterWithKeepers,
@@ -638,13 +668,14 @@ const doc = {
  * arm second overwrote the artifact with the arm the commit message was NOT
  * describing -- a committed JSON saying P209 false beside a committed claim that
  * it was true. An off-arm is a comparison, not a replacement. */
-const OUTNAME = 'draft_model' + (STREAM_TAX ? '' : '_noStreamTax')
+const OUTNAME = 'draft_model' + (SOURCE === 'ds' ? '_ds' : '') + (STREAM_TAX ? '' : '_noStreamTax')
   + (DURABILITY ? '' : '_noDurability') + '.json';
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', OUTNAME), JSON.stringify(doc, null, 1));
 
 /* ── print ────────────────────────────────────────────────────────────────── */
 console.log(`THE DRAFT MODEL — value early, normal roster, upside at the end`);
-console.log(`  LEAN = ${LEAN}   ${ROOMS} rooms   pool ${pool.length} (${noBand} with no DS band)\n`);
+console.log(`  source = ${SOURCE}   A = ${LEAN}   RAMP = ${RAMP}   ${ROOMS} rooms   pool ${pool.length}`
+  + (excludedNoDS ? `  (${excludedNoDS} excluded: no Draft Sharks line)` : `  (${noBand} with no DS band)`) + '\n');
 Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK   ' : '  FAIL ') + k));
 
 console.log(`\n  P209  normal roster              ${P209 ? 'TRUE ' : 'FALSE'}`);
