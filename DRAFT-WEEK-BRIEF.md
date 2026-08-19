@@ -1,5 +1,62 @@
 # DRAFT-WEEK BRIEF — read this first (written 2026-08-17, draft is 2026-08-22)
 
+---
+
+## ⚡ 08-18/19 NIGHT — appended by A so the first-read file does not repeat its own famous failure (four files describing a pre-ruling state). Everything below this block describes 08-17; this block is what changed since.
+
+**THE PROJECTION QUESTION IS SETTLED FOR THIS DRAFT AND MOVED TO ITS REAL VENUE.**
+A2 is CLOSED (A ruled, backed by Cory's A11 pre-authorization chain): **Sleeper
+stays the board baseline through Saturday.** V7 ran three times and V8 once —
+usage/efficiency 0/3 folds, C4/C6 double null (C6 caught as a 0.9997-correlated
+costume by the standing >0.98 gate, its first live firing), and V8's WR
+source-correction a two-fold null with the champion surviving best-of-K. The one
+replicated positive is PER-GAME-shaped (WR λ 0.75/0.61, CI>0 both folds, with a
+dated survivorship caveat on P98): our model knows WR per-game production the
+market doesn't price; the market knows availability. So the fight moved to where
+per-game is graded: **the weekly lab, frozen at week zero** (`WEEKLY-LAB-FREEZE-
+2026.md` — pairwise start/sit metric implemented in `start_sit_metric.py`, wired
+into the Tuesday grader, Cory-bar computes itself from 09-15; predictions P101 on
+record). C's weekly projection archive (Sleeper+FP, pre-kickoff Thursdays) is
+LIVE in CI — the capture that makes the 2027 goal gradeable at all.
+
+**ROSTER-SHAPE STRATEGY IS A POWERED NULL, NOT AN OPEN QUESTION.** The
+many-worlds simulator (`season_forward_sim.py`, identity/conservation-certified)
+re-asked the tournament's question across 54,000 priced worlds: the oracle is
+worth +$425-1,438/season against ~$20 resolution, and NO strategy separates from
+following the market (P100 TRUE). Draft-day implication: take the board's value,
+don't force shapes. The in-season half (`season_forward_inseason.py`) hindcast
+2023-25 as-if-live and beat the constant-odds baseline 2-3x at week 8 in all
+three seasons (P103 TRUE) — `write_live()` feeds B's playoff-odds widget from
+week 1, with 2025's late-upset week-12 degradation as its standing humility
+caveat.
+
+**BOTH E FIXES CORY WILL DRAFT ON ARE REVIEWED AND ACCEPTED, not just ticked:**
+E15 (the Nix-over-Purdy QB inversion — dead twice over: the population-polluted
+calibration was regenerated AND the cross-band tiebreak gate refuses the class)
+and E35 (the keeper reconciler false-halt on Cory's exact 3-keeper slate — the
+still-halts-on-real-errors arm verified). The runbook's freeze order is fixed in
+its own heading (Saturday AFTER 03:00 CDT, never Friday), the keeper banner is
+live off Cory's committed ruling, and the restore-button trap (5g) is ruled and
+dispatched.
+
+**THE ANCHOR QUESTION RUNS ON SATURDAY'S OWN DATA.** The probe that justified FP
+as the ADP anchor had compared FP to itself (ρ=1.0000 exactly); the real
+comparison (`exp_real_ffc_vs_fp.py`, refusals wired for the old defect's
+signature) shows ρ=0.894 in Cory's window — genuinely different sources. FP
+stays wired for Saturday; **P102 grades which source better predicted the room's
+actual picks, within 48h of the draft.**
+
+**LEDGER: 103 predictions, none overdue.** Registers 19/19b, 5l, 5n, 5i, E15,
+E35 closed with evidence; the inbox tick-sweep (~110 items) cleared the
+acting-without-ticking debt across all lanes. The captures run themselves:
+weekly projections (Thu), event player props (Thu), odds (Thu/Sun), Kalshi
+(daily), the Tuesday grade, the nightly board. Next human dates: keeper lock
+FRIDAY 08-21 6pm CDT (Cory's ruled date; older docs' 'Thursday' was weekday
+drift — the config derives the weekday from the date for exactly this reason),
+freeze Sat after 03:00 CDT, draft Sat 6pm.
+
+---
+
 **Supersedes `MONDAY-BRIEF.md` as the entry point.** That file is still accurate
 about 08-15/16 and is not deleted; this one covers 08-17, which changed the
 model's foundations rather than its features.

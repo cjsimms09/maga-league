@@ -121,23 +121,31 @@ def test_KNOWN_POSITIVE_coverage_differences_are_reported_not_dropped():
 
 
 def test_KNOWN_POSITIVE_the_reconciler_works_on_the_REAL_store():
-    """CONTROL on real rows, not fixtures. Perturb exactly one of the 1,426
-    committed games and require the reconciler to find exactly that one.
+    """CONTROL on real rows, not fixtures. Perturb exactly one committed game
+    and require the reconciler to find exactly that one.
 
     A self-join alone would be true by construction and prove nothing; the
     perturbation is what makes this able to fail, and it exercises real key
     construction over every season rather than a hand-built row.
-    """
+
+    The count is a FLOOR, not a pin: the 2026 season legitimately grows as
+    nflverse publishes lines (1,426 at first write; 1,471 after the 08-18
+    refresh took 2026 from 67 to 112 games). Pinning the exact total made
+    correct data growth read as a defect — the stale-pin class A -> all
+    lanes flagged on 08-18. The floor still catches the real failures:
+    a truncated store or a flatten() that drops seasons."""
     seasons = load_store()["seasons"]
     a = flatten(seasons)
-    assert len(a) == 1426, f"expected 1,426 games, flattened {len(a)}"
+    assert len(a) >= 1426, f"store shrank below the founding count: {len(a)}"
+    assert len(a) == sum(len(v) for v in seasons.values()), \
+        "flatten() lost or invented games against the store's own count"
 
     b = dict(a)
     victim = sorted(b)[len(b) // 2]
     b[victim] = dict(b[victim], total_line=b[victim]["total_line"] + 0.5)
 
     r = reconcile(a, b)
-    assert r["matched"] == 1426 and not r["only_a"] and not r["only_b"]
+    assert r["matched"] == len(a) and not r["only_a"] and not r["only_b"]
     assert len(r["disagreements"]) == 1
     assert r["disagreements"][0]["key"] == victim
     assert r["disagreements"][0]["field"] == "total_line"
