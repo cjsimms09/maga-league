@@ -777,7 +777,16 @@
    * five minutes ago must never become the thing restore restores. Re-pin
    * by ruling only. The localStorage key rotates with the pin so a cached
    * v1 cannot shadow the ruled reference. */
-  const BASELINE_VERSION = 'v27';
+  /* ⚠️ v27 -> v29, 2026-08-19. Register 5g's defect is that this pin can
+   * SILENTLY REVERT A RULING: the button discloses only a date, so a pin left
+   * behind the shipped engine turns "restore the measured core" into "undo
+   * whatever Cory decided since". v27 predates CFG.ROSTER_SHAPE, so leaving it
+   * would have made one tap switch his roster builder off without saying so --
+   * and he asked for an off switch that is DELIBERATE, not a side effect of a
+   * restore. v29 is the shipped state: roster shape on, 6-source blend, own_v6
+   * removed. The localStorage key rotates with the pin, so a cached v27 cannot
+   * shadow it. */
+  const BASELINE_VERSION = 'v29';
   const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
     try {
