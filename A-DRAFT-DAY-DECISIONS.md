@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **70 open rows** (re-counted 08-19). **The number it replaces,
+up."* The register has **97 open rows** (08-19, moved from 70 same day). **The number it replaces,
 51, is the point:** nineteen rows were filed after that sentence was written and
 it went on asserting 51, until `test_the_backlog_claim_is_still_roughly_true`
 refused the build. **Do not quote this without re-running
