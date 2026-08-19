@@ -199,6 +199,16 @@
           fieldability.js. Empty/hidden on a healthy roster. %>
       <div id="bye-fieldability-warn"></div>
 
+      <%# POSITION BOARDS — Cory redefined the war room 2026-08-19: "not one
+          recommendation — top 5-10 at each position (more on RB and WR),
+          projected VONA drop-offs, other team needs, ceiling steals." Primary
+          per-pick view now; the single-recommendation panels below still work
+          but are no longer the first thing on screen. Populated by
+          public/js/draft/position_boards_view.js via renderPositionBoardsPanel()
+          in app.js, from public/position_boards.json. Empty/absent on a
+          missing artifact — degrades to nothing, never a broken panel. %>
+      <div id="position-boards" class="position-boards"></div>
+
       <%# Minimum-viable summary — retained host (hidden on warroom by CSS). %>
       <div id="mvs" class="mvs" style="display:none">
         <div class="mvs-line" id="mvs-status"></div>

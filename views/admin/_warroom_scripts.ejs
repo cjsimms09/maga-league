@@ -172,6 +172,13 @@
     trespass into A's territory — same pattern as expert_spread.js's/
     market_delta.js's own includes above. %>
 <script src="/js/draft/bye_fieldability.js"></script>
+<%# position_boards_view.js — Cory redefined the war room 2026-08-19 (A
+    dispatch, ROUTES.md `48c915f1`): six position columns, not one
+    recommendation. Pure render module (TERRITORY: B), reads
+    public/position_boards.json (A's `draft/tools/position_boards.js`).
+    Loaded before app.js, which calls PositionBoardsView.renderPositionBoards()
+    from renderPositionBoardsPanel(). %>
+<script src="/js/draft/position_boards_view.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with

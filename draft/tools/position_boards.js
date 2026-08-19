@@ -121,7 +121,7 @@ const picks = SCHED.map((pk, i) => {
       cliff_after_rank: cliffAfter, cliff_size: +cliffSize.toFixed(1),
       note: noteFor(q, vona, surplus, here),
       players: here.map(o => ({
-        name: o.x.name, team: o.x.team,
+        player_id: o.x.id, name: o.x.name, team: o.x.team,
         proj: +o.x.ds.proj.toFixed(1), floor: +o.x.ds.floor.toFixed(1),
         ceiling: +o.x.ds.ceiling.toFixed(1), injury_risk_pct: o.x.ds.risk,
         adp: +o.x.adp.toFixed(1),

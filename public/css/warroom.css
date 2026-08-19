@@ -1532,3 +1532,95 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   .cv-drill-line { flex-direction: column; gap: .05rem; }
   .cv-drill-line > span:first-child { flex: none; }
 }
+
+/* ══ POSITION BOARDS — Cory redefined the war room, 2026-08-19 (A dispatch,
+   ROUTES.md `48c915f1`): six position columns, not one recommendation.
+   TERRITORY: B. Data: public/position_boards.json (A). View: pure render
+   module public/js/draft/position_boards_view.js. Primary per-pick surface —
+   RB/WR lead per Cory's "more on RB and WR" — everything below is arithmetic
+   read straight off the artifact, never a rewritten judgement. ══════════ */
+.pb-wrap { margin: .5rem 0 .75rem; }
+.pb-head {
+  font-size: var(--wr-fs-sub); font-weight: 700; color: var(--wr-structure);
+  margin: 0 0 .4rem; letter-spacing: .01em;
+}
+.pb-grid {
+  display: grid; grid-template-columns: repeat(6, minmax(9.5rem, 1fr));
+  gap: .5rem; overflow-x: auto; padding-bottom: .15rem;
+}
+.pb-col {
+  border: 1px solid var(--wr-line); border-radius: 6px;
+  background: var(--wr-panel); padding: .4rem .45rem; min-width: 9.5rem;
+}
+.pb-col-head {
+  display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap;
+  border-bottom: 1px solid var(--wr-line); padding-bottom: .25rem; margin-bottom: .3rem;
+}
+.pb-pos {
+  font-size: var(--wr-fs-title); font-weight: 800; color: var(--wr-structure);
+  letter-spacing: .02em;
+}
+.pb-vona { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+.pb-vona b { color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+.pb-surplus { font-size: var(--wr-fs-micro); color: var(--wr-money); font-variant-numeric: tabular-nums; }
+.pb-note {
+  font-size: var(--wr-fs-micro); color: var(--wr-warn); font-style: italic;
+  margin: 0 0 .35rem; line-height: 1.35;
+}
+.pb-table { width: 100%; border-collapse: collapse; font-size: var(--wr-fs-micro); }
+.pb-table th {
+  text-align: left; font-weight: 600; color: var(--wr-muted);
+  font-size: .6rem; text-transform: uppercase; letter-spacing: .03em;
+  padding: .1rem .2rem; border-bottom: 1px solid var(--wr-line);
+}
+.pb-row > td { padding: .18rem .2rem; border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent); }
+.pb-row.pb-cliff-line > td { border-bottom-color: var(--wr-line); }
+.pb-name { font-weight: 600; color: var(--wr-ink); }
+.pb-team { color: var(--wr-muted); font-size: .58rem; text-transform: uppercase; }
+.pb-proj, .pb-fc, .pb-adp, .pb-surv { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pb-fc { color: var(--wr-muted); }
+.pb-surv-safe { color: var(--wr-good); }
+.pb-surv-mid { color: var(--wr-warn); }
+.pb-surv-hot { color: var(--wr-bad); font-weight: 700; }
+.pb-est { color: var(--wr-muted); font-size: .55rem; margin-left: .05rem; }
+.pb-risk { font-size: .58rem; color: var(--wr-muted); white-space: nowrap; }
+.pb-risk-mid { color: var(--wr-warn); }
+.pb-risk-hi { color: var(--wr-bad); font-weight: 700; }
+.pb-cliff-row td {
+  font-size: .6rem; color: var(--wr-bad); text-align: center;
+  padding: .2rem 0; border-bottom: 1px dashed var(--wr-line);
+  background: color-mix(in srgb, var(--wr-bad) 6%, transparent);
+}
+.pb-empty { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; padding: .2rem 0; }
+
+/* the three side panels — collapsed by default, same <details> grammar as
+   .rec-chips / .rec-against so the disclosure affordance is consistent */
+.pb-opponents, .pb-dropoffs, .pb-steals {
+  margin: .45rem 0 0; font-size: var(--wr-fs-micro);
+  border-top: 1px solid var(--wr-line); padding-top: .35rem;
+}
+.pb-opponents summary, .pb-dropoffs summary, .pb-steals summary {
+  cursor: pointer; font-weight: 600; color: var(--wr-structure);
+  list-style: revert;
+}
+.pb-opp-body { margin-top: .3rem; display: flex; flex-direction: column; gap: .2rem; }
+.pb-opp-row { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; }
+.pb-opp-name { font-weight: 700; min-width: 5.5rem; }
+.pb-opp-keeps { color: var(--wr-muted); }
+.pb-opp-needs { color: var(--wr-ink); }
+.pb-do-table, .pb-steals-table { width: 100%; border-collapse: collapse; margin-top: .3rem; }
+.pb-do-table th, .pb-steals-table th {
+  text-align: left; font-weight: 600; color: var(--wr-muted);
+  font-size: .58rem; text-transform: uppercase; letter-spacing: .03em;
+  padding: .1rem .25rem;
+}
+.pb-do-table td, .pb-steals-table td {
+  padding: .12rem .25rem; border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.pb-do-range { color: var(--wr-muted); white-space: nowrap; }
+.pb-do-hot { color: var(--wr-bad); font-weight: 700; }
+
+@media (max-width: 640px) {
+  .pb-grid { grid-template-columns: repeat(6, minmax(8.2rem, 1fr)); }
+}

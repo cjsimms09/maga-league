@@ -30,14 +30,15 @@
    "positions": {
     "QB": {
      "best_now": 340,
-     "expected_best_at_next_pick": 338.6,
-     "VONA": 1.4,
+     "expected_best_at_next_pick": 338.7,
+     "VONA": 1.3,
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 2,
      "cliff_size": 3,
      "note": "neutral — 1 to wait, +17 over the wire",
      "players": [
       {
+       "player_id": "4881",
        "name": "Lamar Jackson",
        "team": "BAL",
        "proj": 340,
@@ -45,11 +46,12 @@
        "ceiling": 438,
        "injury_risk_pct": 42,
        "adp": 33.5,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 57,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 17.1
       },
       {
+       "player_id": "11564",
        "name": "Drake Maye",
        "team": "NE",
        "proj": 340,
@@ -57,11 +59,12 @@
        "ceiling": 428,
        "injury_risk_pct": 35,
        "adp": 48,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 17.1
       },
       {
+       "player_id": "6770",
        "name": "Joe Burrow",
        "team": "CIN",
        "proj": 337,
@@ -69,11 +72,12 @@
        "ceiling": 421,
        "injury_risk_pct": 34,
        "adp": 50.5,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 66,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 63,
        "surplus_over_wire": 14.1
       },
       {
+       "player_id": "11566",
        "name": "Jayden Daniels",
        "team": "WAS",
        "proj": 334,
@@ -82,10 +86,11 @@
        "injury_risk_pct": 41,
        "adp": 56.9,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 11.1
       },
       {
+       "player_id": "6904",
        "name": "Jalen Hurts",
        "team": "PHI",
        "proj": 331,
@@ -94,10 +99,11 @@
        "injury_risk_pct": 33,
        "adp": 58.9,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 84,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 8.1
       },
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -106,21 +112,22 @@
        "injury_risk_pct": 34,
        "adp": 81.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 6.1
       }
      ]
     },
     "RB": {
      "best_now": 224,
-     "expected_best_at_next_pick": 199,
-     "VONA": 25,
+     "expected_best_at_next_pick": 199.1,
+     "VONA": 24.9,
      "surplus_over_wire": 145.6,
      "cliff_after_rank": 2,
      "cliff_size": 15,
      "note": "STRIKE — waiting costs 25 and he is +146 over the wire",
      "players": [
       {
+       "player_id": "8155",
        "name": "Breece Hall",
        "team": "NYJ",
        "proj": 224,
@@ -128,11 +135,12 @@
        "ceiling": 284,
        "injury_risk_pct": 43,
        "adp": 29.8,
-       "pct_available_now": 26,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 145.6
       },
       {
+       "player_id": "7588",
        "name": "Javonte Williams",
        "team": "DAL",
        "proj": 223,
@@ -140,11 +148,12 @@
        "ceiling": 283,
        "injury_risk_pct": 43,
        "adp": 28.8,
-       "pct_available_now": 18,
+       "pct_available_now": 19,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 144.6
       },
       {
+       "player_id": "7543",
        "name": "Travis Etienne",
        "team": "NO",
        "proj": 208,
@@ -152,11 +161,12 @@
        "ceiling": 289,
        "injury_risk_pct": 45,
        "adp": 38,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 129.6
       },
       {
+       "player_id": "6790",
        "name": "D'Andre Swift",
        "team": "CHI",
        "proj": 207,
@@ -164,11 +174,12 @@
        "ceiling": 274,
        "injury_risk_pct": 42,
        "adp": 47.3,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 128.6
       },
       {
+       "player_id": "12481",
        "name": "Cam Skattebo",
        "team": "NYG",
        "proj": 203,
@@ -176,11 +187,12 @@
        "ceiling": 274,
        "injury_risk_pct": 72,
        "adp": 32.6,
-       "pct_available_now": 59,
+       "pct_available_now": 62,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 124.6
       },
       {
+       "player_id": "5892",
        "name": "David Montgomery",
        "team": "HOU",
        "proj": 197,
@@ -189,10 +201,11 @@
        "injury_risk_pct": 85,
        "adp": 45.5,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 43,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 118.6
       },
       {
+       "player_id": "11584",
        "name": "Bucky Irving",
        "team": "TB",
        "proj": 190,
@@ -201,10 +214,11 @@
        "injury_risk_pct": 63,
        "adp": 43.3,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 32,
+       "pct_still_there_next_pick": 29,
        "surplus_over_wire": 111.6
       },
       {
+       "player_id": "12512",
        "name": "Quinshon Judkins",
        "team": "CLE",
        "proj": 188,
@@ -212,11 +226,12 @@
        "ceiling": 273,
        "injury_risk_pct": 48,
        "adp": 41.2,
-       "pct_available_now": 93,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 15,
        "surplus_over_wire": 109.6
       },
       {
+       "player_id": "7611",
        "name": "Rhamondre Stevenson",
        "team": "NE",
        "proj": 180,
@@ -229,6 +244,7 @@
        "surplus_over_wire": 101.6
       },
       {
+       "player_id": "8228",
        "name": "Jaylen Warren",
        "team": "PIT",
        "proj": 175,
@@ -243,27 +259,16 @@
      ]
     },
     "WR": {
-     "best_now": 224,
+     "best_now": 208,
      "expected_best_at_next_pick": 194.3,
-     "VONA": 29.7,
-     "surplus_over_wire": 99.2,
-     "cliff_after_rank": 1,
-     "cliff_size": 16,
-     "note": "STRIKE — waiting costs 30 and he is +99 over the wire",
+     "VONA": 13.7,
+     "surplus_over_wire": 83.2,
+     "cliff_after_rank": 8,
+     "cliff_size": 8,
+     "note": "STRIKE — waiting costs 14 and he is +83 over the wire",
      "players": [
       {
-       "name": "Rashee Rice",
-       "team": "KC",
-       "proj": 224,
-       "floor": 170,
-       "ceiling": 271,
-       "injury_risk_pct": 74,
-       "adp": 27.3,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 99.2
-      },
-      {
+       "player_id": "9997",
        "name": "Zay Flowers",
        "team": "BAL",
        "proj": 208,
@@ -271,11 +276,12 @@
        "ceiling": 243,
        "injury_risk_pct": 36,
        "adp": 34.2,
-       "pct_available_now": 82,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 83.2
       },
       {
+       "player_id": "6801",
        "name": "Tee Higgins",
        "team": "CIN",
        "proj": 205,
@@ -283,11 +289,12 @@
        "ceiling": 254,
        "injury_risk_pct": 66,
        "adp": 35.3,
-       "pct_available_now": 79,
+       "pct_available_now": 81,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 80.2
       },
       {
+       "player_id": "11632",
        "name": "Malik Nabers",
        "team": "NYG",
        "proj": 199,
@@ -295,11 +302,12 @@
        "ceiling": 285,
        "injury_risk_pct": 39,
        "adp": 28,
-       "pct_available_now": 13,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 74.2
       },
       {
+       "player_id": "7525",
        "name": "DeVonta Smith",
        "team": "PHI",
        "proj": 199,
@@ -312,6 +320,7 @@
        "surplus_over_wire": 74.2
       },
       {
+       "player_id": "8146",
        "name": "Garrett Wilson",
        "team": "NYJ",
        "proj": 197,
@@ -320,10 +329,11 @@
        "injury_risk_pct": 38,
        "adp": 42,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 8,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 72.2
       },
       {
+       "player_id": "8167",
        "name": "Christian Watson",
        "team": "GB",
        "proj": 194,
@@ -336,6 +346,7 @@
        "surplus_over_wire": 69.2
       },
       {
+       "player_id": "2133",
        "name": "Davante Adams",
        "team": "LAR",
        "proj": 193,
@@ -344,10 +355,11 @@
        "injury_risk_pct": 49,
        "adp": 54.7,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 68.2
       },
       {
+       "player_id": "7526",
        "name": "Jaylen Waddle",
        "team": "DEN",
        "proj": 193,
@@ -356,10 +368,11 @@
        "injury_risk_pct": 37,
        "adp": 44.3,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 33,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 68.2
       },
       {
+       "player_id": "12526",
        "name": "Tetairoa McMillan",
        "team": "CAR",
        "proj": 185,
@@ -367,22 +380,36 @@
        "ceiling": 240,
        "injury_risk_pct": 37,
        "adp": 37,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 60.2
+      },
+      {
+       "player_id": "12514",
+       "name": "Emeka Egbuka",
+       "team": "TB",
+       "proj": 184,
+       "floor": 156,
+       "ceiling": 246,
+       "injury_risk_pct": 42,
+       "adp": 36,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 2,
+       "surplus_over_wire": 59.2
       }
      ]
     },
     "TE": {
      "best_now": 197,
-     "expected_best_at_next_pick": 177.3,
-     "VONA": 19.7,
+     "expected_best_at_next_pick": 177.4,
+     "VONA": 19.6,
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
      "note": "STRIKE — waiting costs 20 and he is +67 over the wire",
      "players": [
       {
+       "player_id": "12517",
        "name": "Colston Loveland",
        "team": "CHI",
        "proj": 197,
@@ -390,11 +417,12 @@
        "ceiling": 237,
        "injury_risk_pct": 60,
        "adp": 39.3,
-       "pct_available_now": 77,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 66.6
       },
       {
+       "player_id": "12518",
        "name": "Tyler Warren",
        "team": "IND",
        "proj": 182,
@@ -402,11 +430,12 @@
        "ceiling": 216,
        "injury_risk_pct": 36,
        "adp": 46.4,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 53,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 51.6
       },
       {
+       "player_id": "9484",
        "name": "Tucker Kraft",
        "team": "GB",
        "proj": 161,
@@ -414,11 +443,12 @@
        "ceiling": 213,
        "injury_risk_pct": 39,
        "adp": 62.3,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 82,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 30.6
       },
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -427,10 +457,11 @@
        "injury_risk_pct": 60,
        "adp": 67,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "12506",
        "name": "Harold Fannin",
        "team": "CLE",
        "proj": 158,
@@ -439,10 +470,11 @@
        "injury_risk_pct": 57,
        "adp": 64.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 27.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -451,7 +483,7 @@
        "injury_risk_pct": 44,
        "adp": 92.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 20.6
       }
      ]
@@ -466,6 +498,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -478,6 +511,7 @@
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -490,6 +524,7 @@
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -502,6 +537,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -525,6 +561,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -537,6 +574,7 @@
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -549,6 +587,7 @@
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -561,6 +600,7 @@
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -591,6 +631,7 @@
      "note": "neutral — 3 to wait, +17 over the wire",
      "players": [
       {
+       "player_id": "4881",
        "name": "Lamar Jackson",
        "team": "BAL",
        "proj": 340,
@@ -598,11 +639,12 @@
        "ceiling": 438,
        "injury_risk_pct": 42,
        "adp": 33.5,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 17.1
       },
       {
+       "player_id": "11564",
        "name": "Drake Maye",
        "team": "NE",
        "proj": 340,
@@ -610,11 +652,12 @@
        "ceiling": 428,
        "injury_risk_pct": 35,
        "adp": 48,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 17.1
       },
       {
+       "player_id": "6770",
        "name": "Joe Burrow",
        "team": "CIN",
        "proj": 337,
@@ -622,11 +665,12 @@
        "ceiling": 421,
        "injury_risk_pct": 34,
        "adp": 50.5,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 45,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 44,
        "surplus_over_wire": 14.1
       },
       {
+       "player_id": "11566",
        "name": "Jayden Daniels",
        "team": "WAS",
        "proj": 334,
@@ -634,11 +678,12 @@
        "ceiling": 434,
        "injury_risk_pct": 41,
        "adp": 56.9,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 71,
        "surplus_over_wire": 11.1
       },
       {
+       "player_id": "6904",
        "name": "Jalen Hurts",
        "team": "PHI",
        "proj": 331,
@@ -646,11 +691,12 @@
        "ceiling": 430,
        "injury_risk_pct": 33,
        "adp": 58.9,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 8.1
       },
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -658,7 +704,7 @@
        "ceiling": 415,
        "injury_risk_pct": 34,
        "adp": 81.4,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 6.1
       }
@@ -666,14 +712,15 @@
     },
     "RB": {
      "best_now": 207,
-     "expected_best_at_next_pick": 189,
-     "VONA": 18,
+     "expected_best_at_next_pick": 188.6,
+     "VONA": 18.4,
      "surplus_over_wire": 128.6,
      "cliff_after_rank": 1,
      "cliff_size": 10,
      "note": "STRIKE — waiting costs 18 and he is +129 over the wire",
      "players": [
       {
+       "player_id": "6790",
        "name": "D'Andre Swift",
        "team": "CHI",
        "proj": 207,
@@ -681,11 +728,12 @@
        "ceiling": 274,
        "injury_risk_pct": 42,
        "adp": 47.3,
-       "pct_available_now": 51,
+       "pct_available_now": 53,
        "pct_still_there_next_pick": 23,
        "surplus_over_wire": 128.6
       },
       {
+       "player_id": "5892",
        "name": "David Montgomery",
        "team": "HOU",
        "proj": 197,
@@ -693,11 +741,12 @@
        "ceiling": 278,
        "injury_risk_pct": 85,
        "adp": 45.5,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 13,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 118.6
       },
       {
+       "player_id": "11584",
        "name": "Bucky Irving",
        "team": "TB",
        "proj": 190,
@@ -705,11 +754,12 @@
        "ceiling": 269,
        "injury_risk_pct": 63,
        "adp": 43.3,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 29,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 111.6
       },
       {
+       "player_id": "12512",
        "name": "Quinshon Judkins",
        "team": "CLE",
        "proj": 188,
@@ -722,6 +772,7 @@
        "surplus_over_wire": 109.6
       },
       {
+       "player_id": "7611",
        "name": "Rhamondre Stevenson",
        "team": "NE",
        "proj": 180,
@@ -734,6 +785,7 @@
        "surplus_over_wire": 101.6
       },
       {
+       "player_id": "8228",
        "name": "Jaylen Warren",
        "team": "PIT",
        "proj": 175,
@@ -742,10 +794,11 @@
        "injury_risk_pct": 66,
        "adp": 65.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 96.6
       },
       {
+       "player_id": "12529",
        "name": "TreVeyon Henderson",
        "team": "NE",
        "proj": 173,
@@ -753,11 +806,12 @@
        "ceiling": 277,
        "injury_risk_pct": 64,
        "adp": 49.8,
-       "pct_available_now": 70,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 74,
+       "pct_still_there_next_pick": 37,
        "surplus_over_wire": 94.6
       },
       {
+       "player_id": "12490",
        "name": "Bhayshul Tuten",
        "team": "JAX",
        "proj": 170,
@@ -765,11 +819,12 @@
        "ceiling": 283,
        "injury_risk_pct": 43,
        "adp": 53.8,
-       "pct_available_now": 91,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 91.6
       },
       {
+       "player_id": "5967",
        "name": "Tony Pollard",
        "team": "TEN",
        "proj": 165,
@@ -782,6 +837,7 @@
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "7021",
        "name": "Rico Dowdle",
        "team": "PIT",
        "proj": 165,
@@ -805,6 +861,7 @@
      "note": "wait — only 3 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "8146",
        "name": "Garrett Wilson",
        "team": "NYJ",
        "proj": 197,
@@ -812,11 +869,12 @@
        "ceiling": 242,
        "injury_risk_pct": 38,
        "adp": 42,
-       "pct_available_now": 8,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 72.2
       },
       {
+       "player_id": "8167",
        "name": "Christian Watson",
        "team": "GB",
        "proj": 194,
@@ -825,10 +883,11 @@
        "injury_risk_pct": 25,
        "adp": 63.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 69.2
       },
       {
+       "player_id": "2133",
        "name": "Davante Adams",
        "team": "LAR",
        "proj": 193,
@@ -836,11 +895,12 @@
        "ceiling": 243,
        "injury_risk_pct": 49,
        "adp": 54.7,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 68.2
       },
       {
+       "player_id": "7526",
        "name": "Jaylen Waddle",
        "team": "DEN",
        "proj": 193,
@@ -848,23 +908,12 @@
        "ceiling": 247,
        "injury_risk_pct": 37,
        "adp": 44.3,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 34,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 68.2
       },
       {
-       "name": "Luther Burden",
-       "team": "CHI",
-       "proj": 183,
-       "floor": 152,
-       "ceiling": 248,
-       "injury_risk_pct": 54,
-       "adp": 51.3,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 50,
-       "surplus_over_wire": 58.2
-      },
-      {
+       "player_id": "2216",
        "name": "Mike Evans",
        "team": "SF",
        "proj": 183,
@@ -877,6 +926,20 @@
        "surplus_over_wire": 58.2
       },
       {
+       "player_id": "12519",
+       "name": "Luther Burden",
+       "team": "CHI",
+       "proj": 183,
+       "floor": 152,
+       "ceiling": 248,
+       "injury_risk_pct": 54,
+       "adp": 51.3,
+       "pct_available_now": 77,
+       "pct_still_there_next_pick": 54,
+       "surplus_over_wire": 58.2
+      },
+      {
+       "player_id": "11635",
        "name": "Ladd McConkey",
        "team": "LAC",
        "proj": 182,
@@ -884,11 +947,12 @@
        "ceiling": 244,
        "injury_risk_pct": 42,
        "adp": 40.1,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 57.2
       },
       {
+       "player_id": "5927",
        "name": "Terry McLaurin",
        "team": "WAS",
        "proj": 182,
@@ -897,10 +961,11 @@
        "injury_risk_pct": 37,
        "adp": 52.6,
        "pct_available_now": 90,
-       "pct_still_there_next_pick": 55,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 57.2
       },
       {
+       "player_id": "8148",
        "name": "Jameson Williams",
        "team": "DET",
        "proj": 179,
@@ -908,11 +973,12 @@
        "ceiling": 238,
        "injury_risk_pct": 36,
        "adp": 56.2,
-       "pct_available_now": 99,
+       "pct_available_now": 98,
        "pct_still_there_next_pick": 86,
        "surplus_over_wire": 54.2
       },
       {
+       "player_id": "9487",
        "name": "Parker Washington",
        "team": "JAX",
        "proj": 175,
@@ -921,21 +987,22 @@
        "injury_risk_pct": 0,
        "adp": 70.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 50.2
       }
      ]
     },
     "TE": {
      "best_now": 197,
-     "expected_best_at_next_pick": 169.9,
-     "VONA": 27.1,
+     "expected_best_at_next_pick": 170,
+     "VONA": 27,
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
      "note": "STRIKE — waiting costs 27 and he is +67 over the wire",
      "players": [
       {
+       "player_id": "12517",
        "name": "Colston Loveland",
        "team": "CHI",
        "proj": 197,
@@ -943,11 +1010,12 @@
        "ceiling": 237,
        "injury_risk_pct": 60,
        "adp": 39.3,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 22,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 66.6
       },
       {
+       "player_id": "12518",
        "name": "Tyler Warren",
        "team": "IND",
        "proj": 182,
@@ -955,11 +1023,12 @@
        "ceiling": 216,
        "injury_risk_pct": 36,
        "adp": 46.4,
-       "pct_available_now": 53,
+       "pct_available_now": 50,
        "pct_still_there_next_pick": 30,
        "surplus_over_wire": 51.6
       },
       {
+       "player_id": "9484",
        "name": "Tucker Kraft",
        "team": "GB",
        "proj": 161,
@@ -967,11 +1036,12 @@
        "ceiling": 213,
        "injury_risk_pct": 39,
        "adp": 62.3,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 30.6
       },
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -979,11 +1049,12 @@
        "ceiling": 208,
        "injury_risk_pct": 60,
        "adp": 67,
-       "pct_available_now": 90,
+       "pct_available_now": 89,
        "pct_still_there_next_pick": 82,
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "12506",
        "name": "Harold Fannin",
        "team": "CLE",
        "proj": 158,
@@ -991,11 +1062,12 @@
        "ceiling": 201,
        "injury_risk_pct": 57,
        "adp": 64.5,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 27.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -1003,8 +1075,8 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 20.6
       }
      ]
@@ -1019,6 +1091,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -1031,6 +1104,7 @@
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -1043,6 +1117,7 @@
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -1055,6 +1130,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -1078,6 +1154,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -1090,6 +1167,7 @@
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -1102,6 +1180,7 @@
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -1114,6 +1193,7 @@
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -1136,14 +1216,15 @@
    "positions": {
     "QB": {
      "best_now": 340,
-     "expected_best_at_next_pick": 330.4,
-     "VONA": 9.6,
+     "expected_best_at_next_pick": 330.6,
+     "VONA": 9.4,
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 1,
      "cliff_size": 3,
-     "note": "neutral — 10 to wait, +17 over the wire",
+     "note": "neutral — 9 to wait, +17 over the wire",
      "players": [
       {
+       "player_id": "11564",
        "name": "Drake Maye",
        "team": "NE",
        "proj": 340,
@@ -1151,11 +1232,12 @@
        "ceiling": 428,
        "injury_risk_pct": 35,
        "adp": 48,
-       "pct_available_now": 28,
+       "pct_available_now": 30,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 17.1
       },
       {
+       "player_id": "6770",
        "name": "Joe Burrow",
        "team": "CIN",
        "proj": 337,
@@ -1163,11 +1245,12 @@
        "ceiling": 421,
        "injury_risk_pct": 34,
        "adp": 50.5,
-       "pct_available_now": 45,
+       "pct_available_now": 44,
        "pct_still_there_next_pick": 6,
        "surplus_over_wire": 14.1
       },
       {
+       "player_id": "11566",
        "name": "Jayden Daniels",
        "team": "WAS",
        "proj": 334,
@@ -1175,11 +1258,12 @@
        "ceiling": 434,
        "injury_risk_pct": 41,
        "adp": 56.9,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 15,
+       "pct_available_now": 71,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 11.1
       },
       {
+       "player_id": "6904",
        "name": "Jalen Hurts",
        "team": "PHI",
        "proj": 331,
@@ -1187,11 +1271,12 @@
        "ceiling": 430,
        "injury_risk_pct": 33,
        "adp": 58.9,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 25,
        "surplus_over_wire": 8.1
       },
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -1200,10 +1285,11 @@
        "injury_risk_pct": 34,
        "adp": 81.4,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 88,
+       "pct_still_there_next_pick": 87,
        "surplus_over_wire": 6.1
       },
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -1227,6 +1313,7 @@
      "note": "STRIKE — waiting costs 29 and he is +129 over the wire",
      "players": [
       {
+       "player_id": "6790",
        "name": "D'Andre Swift",
        "team": "CHI",
        "proj": 207,
@@ -1239,6 +1326,7 @@
        "surplus_over_wire": 128.6
       },
       {
+       "player_id": "5892",
        "name": "David Montgomery",
        "team": "HOU",
        "proj": 197,
@@ -1246,11 +1334,12 @@
        "ceiling": 278,
        "injury_risk_pct": 85,
        "adp": 45.5,
-       "pct_available_now": 13,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 118.6
       },
       {
+       "player_id": "11584",
        "name": "Bucky Irving",
        "team": "TB",
        "proj": 190,
@@ -1258,11 +1347,12 @@
        "ceiling": 269,
        "injury_risk_pct": 63,
        "adp": 43.3,
-       "pct_available_now": 10,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 111.6
       },
       {
+       "player_id": "7611",
        "name": "Rhamondre Stevenson",
        "team": "NE",
        "proj": 180,
@@ -1271,10 +1361,11 @@
        "injury_risk_pct": 64,
        "adp": 72.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 78,
+       "pct_still_there_next_pick": 74,
        "surplus_over_wire": 101.6
       },
       {
+       "player_id": "8228",
        "name": "Jaylen Warren",
        "team": "PIT",
        "proj": 175,
@@ -1282,11 +1373,12 @@
        "ceiling": 238,
        "injury_risk_pct": 66,
        "adp": 65.4,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 41,
        "surplus_over_wire": 96.6
       },
       {
+       "player_id": "12529",
        "name": "TreVeyon Henderson",
        "team": "NE",
        "proj": 173,
@@ -1294,11 +1386,12 @@
        "ceiling": 277,
        "injury_risk_pct": 64,
        "adp": 49.8,
-       "pct_available_now": 40,
+       "pct_available_now": 37,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 94.6
       },
       {
+       "player_id": "12490",
        "name": "Bhayshul Tuten",
        "team": "JAX",
        "proj": 170,
@@ -1306,11 +1399,12 @@
        "ceiling": 283,
        "injury_risk_pct": 43,
        "adp": 53.8,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 91.6
       },
       {
+       "player_id": "5967",
        "name": "Tony Pollard",
        "team": "TEN",
        "proj": 165,
@@ -1319,10 +1413,11 @@
        "injury_risk_pct": 35,
        "adp": 77.9,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "7021",
        "name": "Rico Dowdle",
        "team": "PIT",
        "proj": 165,
@@ -1331,10 +1426,11 @@
        "injury_risk_pct": 27,
        "adp": 76.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "13286",
        "name": "Jadarian Price",
        "team": "SEA",
        "proj": 163,
@@ -1343,21 +1439,22 @@
        "injury_risk_pct": 29,
        "adp": 57.7,
        "pct_available_now": 71,
-       "pct_still_there_next_pick": 20,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 84.6
       }
      ]
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 180.6,
-     "VONA": 13.4,
+     "expected_best_at_next_pick": 181.9,
+     "VONA": 12.1,
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 3,
      "cliff_size": 10,
-     "note": "STRIKE — waiting costs 13 and he is +69 over the wire",
+     "note": "STRIKE — waiting costs 12 and he is +69 over the wire",
      "players": [
       {
+       "player_id": "8167",
        "name": "Christian Watson",
        "team": "GB",
        "proj": 194,
@@ -1365,11 +1462,12 @@
        "ceiling": 248,
        "injury_risk_pct": 25,
        "adp": 63.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 69.2
       },
       {
+       "player_id": "2133",
        "name": "Davante Adams",
        "team": "LAR",
        "proj": 193,
@@ -1377,11 +1475,12 @@
        "ceiling": 243,
        "injury_risk_pct": 49,
        "adp": 54.7,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 0,
        "surplus_over_wire": 68.2
       },
       {
+       "player_id": "7526",
        "name": "Jaylen Waddle",
        "team": "DEN",
        "proj": 193,
@@ -1389,23 +1488,12 @@
        "ceiling": 247,
        "injury_risk_pct": 37,
        "adp": 44.3,
-       "pct_available_now": 9,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 68.2
       },
       {
-       "name": "Luther Burden",
-       "team": "CHI",
-       "proj": 183,
-       "floor": 152,
-       "ceiling": 248,
-       "injury_risk_pct": 54,
-       "adp": 51.3,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 58.2
-      },
-      {
+       "player_id": "2216",
        "name": "Mike Evans",
        "team": "SF",
        "proj": 183,
@@ -1414,10 +1502,24 @@
        "injury_risk_pct": 65,
        "adp": 59.7,
        "pct_available_now": 88,
-       "pct_still_there_next_pick": 13,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 58.2
       },
       {
+       "player_id": "12519",
+       "name": "Luther Burden",
+       "team": "CHI",
+       "proj": 183,
+       "floor": 152,
+       "ceiling": 248,
+       "injury_risk_pct": 54,
+       "adp": 51.3,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 2,
+       "surplus_over_wire": 58.2
+      },
+      {
+       "player_id": "5927",
        "name": "Terry McLaurin",
        "team": "WAS",
        "proj": 182,
@@ -1425,11 +1527,12 @@
        "ceiling": 242,
        "injury_risk_pct": 37,
        "adp": 52.6,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 57.2
       },
       {
+       "player_id": "8148",
        "name": "Jameson Williams",
        "team": "DET",
        "proj": 179,
@@ -1442,6 +1545,7 @@
        "surplus_over_wire": 54.2
       },
       {
+       "player_id": "9487",
        "name": "Parker Washington",
        "team": "JAX",
        "proj": 175,
@@ -1449,11 +1553,12 @@
        "ceiling": 224,
        "injury_risk_pct": 0,
        "adp": 70.5,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 70,
        "surplus_over_wire": 50.2
       },
       {
+       "player_id": "4983",
        "name": "DJ Moore",
        "team": "BUF",
        "proj": 174,
@@ -1461,11 +1566,12 @@
        "ceiling": 234,
        "injury_risk_pct": 54,
        "adp": 48.9,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 49.2
       },
       {
+       "player_id": "11620",
        "name": "Rome Odunze",
        "team": "CHI",
        "proj": 173,
@@ -1473,22 +1579,23 @@
        "ceiling": 249,
        "injury_risk_pct": 36,
        "adp": 60.8,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 48.2
       }
      ]
     },
     "TE": {
      "best_now": 197,
-     "expected_best_at_next_pick": 159.1,
-     "VONA": 37.9,
+     "expected_best_at_next_pick": 159,
+     "VONA": 38,
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
      "note": "STRIKE — waiting costs 38 and he is +67 over the wire",
      "players": [
       {
+       "player_id": "12517",
        "name": "Colston Loveland",
        "team": "CHI",
        "proj": 197,
@@ -1496,11 +1603,12 @@
        "ceiling": 237,
        "injury_risk_pct": 60,
        "adp": 39.3,
-       "pct_available_now": 8,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 66.6
       },
       {
+       "player_id": "12518",
        "name": "Tyler Warren",
        "team": "IND",
        "proj": 182,
@@ -1509,10 +1617,11 @@
        "injury_risk_pct": 36,
        "adp": 46.4,
        "pct_available_now": 30,
-       "pct_still_there_next_pick": 2,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 51.6
       },
       {
+       "player_id": "9484",
        "name": "Tucker Kraft",
        "team": "GB",
        "proj": 161,
@@ -1520,11 +1629,12 @@
        "ceiling": 213,
        "injury_risk_pct": 39,
        "adp": 62.3,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 36,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 37,
        "surplus_over_wire": 30.6
       },
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -1537,6 +1647,7 @@
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "12506",
        "name": "Harold Fannin",
        "team": "CLE",
        "proj": 158,
@@ -1544,11 +1655,12 @@
        "ceiling": 201,
        "injury_risk_pct": 57,
        "adp": 64.5,
-       "pct_available_now": 97,
+       "pct_available_now": 96,
        "pct_still_there_next_pick": 37,
        "surplus_over_wire": 27.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -1556,8 +1668,8 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 87,
        "surplus_over_wire": 20.6
       }
      ]
@@ -1572,6 +1684,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -1580,10 +1693,11 @@
        "injury_risk_pct": 8,
        "adp": 115.7,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -1596,6 +1710,7 @@
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -1608,6 +1723,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -1631,6 +1747,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -1643,6 +1760,7 @@
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -1655,6 +1773,7 @@
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -1667,6 +1786,7 @@
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -1697,6 +1817,7 @@
      "note": "neutral — 8 to wait, +14 over the wire",
      "players": [
       {
+       "player_id": "6770",
        "name": "Joe Burrow",
        "team": "CIN",
        "proj": 337,
@@ -1709,6 +1830,7 @@
        "surplus_over_wire": 14.1
       },
       {
+       "player_id": "11566",
        "name": "Jayden Daniels",
        "team": "WAS",
        "proj": 334,
@@ -1716,11 +1838,12 @@
        "ceiling": 434,
        "injury_risk_pct": 41,
        "adp": 56.9,
-       "pct_available_now": 15,
+       "pct_available_now": 17,
        "pct_still_there_next_pick": 7,
        "surplus_over_wire": 11.1
       },
       {
+       "player_id": "6904",
        "name": "Jalen Hurts",
        "team": "PHI",
        "proj": 331,
@@ -1728,11 +1851,12 @@
        "ceiling": 430,
        "injury_risk_pct": 33,
        "adp": 58.9,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 25,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 8.1
       },
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -1740,11 +1864,12 @@
        "ceiling": 415,
        "injury_risk_pct": 34,
        "adp": 81.4,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 79,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 6.1
       },
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -1757,6 +1882,7 @@
        "surplus_over_wire": 4.1
       },
       {
+       "player_id": "6797",
        "name": "Justin Herbert",
        "team": "LAC",
        "proj": 326,
@@ -1765,21 +1891,22 @@
        "injury_risk_pct": 36,
        "adp": 74.1,
        "pct_available_now": 72,
-       "pct_still_there_next_pick": 57,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 3.1
       }
      ]
     },
     "RB": {
      "best_now": 180,
-     "expected_best_at_next_pick": 173.1,
-     "VONA": 6.9,
+     "expected_best_at_next_pick": 173.6,
+     "VONA": 6.4,
      "surplus_over_wire": 101.6,
      "cliff_after_rank": 2,
      "cliff_size": 10,
-     "note": "neutral — 7 to wait, +102 over the wire",
+     "note": "neutral — 6 to wait, +102 over the wire",
      "players": [
       {
+       "player_id": "7611",
        "name": "Rhamondre Stevenson",
        "team": "NE",
        "proj": 180,
@@ -1787,11 +1914,12 @@
        "ceiling": 256,
        "injury_risk_pct": 64,
        "adp": 72.2,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 49,
+       "pct_available_now": 74,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 101.6
       },
       {
+       "player_id": "8228",
        "name": "Jaylen Warren",
        "team": "PIT",
        "proj": 175,
@@ -1800,10 +1928,11 @@
        "injury_risk_pct": 66,
        "adp": 65.4,
        "pct_available_now": 41,
-       "pct_still_there_next_pick": 15,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 96.6
       },
       {
+       "player_id": "5967",
        "name": "Tony Pollard",
        "team": "TEN",
        "proj": 165,
@@ -1811,11 +1940,12 @@
        "ceiling": 250,
        "injury_risk_pct": 35,
        "adp": 77.9,
-       "pct_available_now": 99,
+       "pct_available_now": 96,
        "pct_still_there_next_pick": 87,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "7021",
        "name": "Rico Dowdle",
        "team": "PIT",
        "proj": 165,
@@ -1823,11 +1953,12 @@
        "ceiling": 252,
        "injury_risk_pct": 27,
        "adp": 76.1,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 75,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "13286",
        "name": "Jadarian Price",
        "team": "SEA",
        "proj": 163,
@@ -1835,11 +1966,12 @@
        "ceiling": 283,
        "injury_risk_pct": 29,
        "adp": 57.7,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 84.6
       },
       {
+       "player_id": "6806",
        "name": "J.K. Dobbins",
        "team": "DEN",
        "proj": 161,
@@ -1847,11 +1979,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 84.7,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 87,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 82.6
       },
       {
+       "player_id": "11583",
        "name": "Jonathon Brooks",
        "team": "CAR",
        "proj": 159,
@@ -1860,10 +1993,11 @@
        "injury_risk_pct": 35,
        "adp": 89.9,
        "pct_available_now": 90,
-       "pct_still_there_next_pick": 83,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 80.6
       },
       {
+       "player_id": "8408",
        "name": "Jordan Mason",
        "team": "MIN",
        "proj": 155,
@@ -1871,11 +2005,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 99.2,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 97,
        "surplus_over_wire": 76.6
       },
       {
+       "player_id": "12533",
        "name": "Jacory Croskey-Merritt",
        "team": "WAS",
        "proj": 146,
@@ -1883,11 +2018,12 @@
        "ceiling": 246,
        "injury_risk_pct": 30,
        "adp": 100,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 67.6
       },
       {
+       "player_id": "12489",
        "name": "RJ Harvey",
        "team": "DEN",
        "proj": 142,
@@ -1895,22 +2031,23 @@
        "ceiling": 234,
        "injury_risk_pct": 36,
        "adp": 79.4,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 78,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 63.6
       }
      ]
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 174.6,
-     "VONA": 19.4,
+     "expected_best_at_next_pick": 175.5,
+     "VONA": 18.5,
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 1,
      "cliff_size": 11,
-     "note": "STRIKE — waiting costs 19 and he is +69 over the wire",
+     "note": "STRIKE — waiting costs 18 and he is +69 over the wire",
      "players": [
       {
+       "player_id": "8167",
        "name": "Christian Watson",
        "team": "GB",
        "proj": 194,
@@ -1918,11 +2055,12 @@
        "ceiling": 248,
        "injury_risk_pct": 25,
        "adp": 63.4,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 69.2
       },
       {
+       "player_id": "2216",
        "name": "Mike Evans",
        "team": "SF",
        "proj": 183,
@@ -1930,11 +2068,12 @@
        "ceiling": 249,
        "injury_risk_pct": 65,
        "adp": 59.7,
-       "pct_available_now": 13,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 58.2
       },
       {
+       "player_id": "9487",
        "name": "Parker Washington",
        "team": "JAX",
        "proj": 175,
@@ -1942,11 +2081,12 @@
        "ceiling": 224,
        "injury_risk_pct": 0,
        "adp": 70.5,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 70,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 50.2
       },
       {
+       "player_id": "11620",
        "name": "Rome Odunze",
        "team": "CHI",
        "proj": 173,
@@ -1954,11 +2094,12 @@
        "ceiling": 249,
        "injury_risk_pct": 36,
        "adp": 60.8,
-       "pct_available_now": 16,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 11,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 48.2
       },
       {
+       "player_id": "5846",
        "name": "DK Metcalf",
        "team": "PIT",
        "proj": 173,
@@ -1967,10 +2108,11 @@
        "injury_risk_pct": 36,
        "adp": 80.4,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 48.2
       },
       {
+       "player_id": "13279",
        "name": "Carnell Tate",
        "team": "TEN",
        "proj": 166,
@@ -1978,11 +2120,12 @@
        "ceiling": 232,
        "injury_risk_pct": 40,
        "adp": 67.8,
-       "pct_available_now": 53,
-       "pct_still_there_next_pick": 34,
+       "pct_available_now": 59,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 41.2
       },
       {
+       "player_id": "5045",
        "name": "Courtland Sutton",
        "team": "DEN",
        "proj": 165,
@@ -1991,10 +2134,11 @@
        "injury_risk_pct": 43,
        "adp": 86.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "10222",
        "name": "Jayden Reed",
        "team": "GB",
        "proj": 165,
@@ -2007,6 +2151,7 @@
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "11628",
        "name": "Marvin Harrison",
        "team": "ARI",
        "proj": 164,
@@ -2014,11 +2159,12 @@
        "ceiling": 231,
        "injury_risk_pct": 55,
        "adp": 73.2,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 56,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 39.2
       },
       {
+       "player_id": "9756",
        "name": "Jordan Addison",
        "team": "MIN",
        "proj": 162,
@@ -2034,14 +2180,15 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 156.9,
-     "VONA": 4.1,
+     "expected_best_at_next_pick": 156.8,
+     "VONA": 4.2,
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 3,
      "cliff_size": 7,
      "note": "neutral — 4 to wait, +31 over the wire",
      "players": [
       {
+       "player_id": "9484",
        "name": "Tucker Kraft",
        "team": "GB",
        "proj": 161,
@@ -2049,11 +2196,12 @@
        "ceiling": 213,
        "injury_risk_pct": 39,
        "adp": 62.3,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 37,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 30.6
       },
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -2062,10 +2210,11 @@
        "injury_risk_pct": 60,
        "adp": 67,
        "pct_available_now": 50,
-       "pct_still_there_next_pick": 36,
+       "pct_still_there_next_pick": 38,
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "12506",
        "name": "Harold Fannin",
        "team": "CLE",
        "proj": 158,
@@ -2074,10 +2223,11 @@
        "injury_risk_pct": 57,
        "adp": 64.5,
        "pct_available_now": 37,
-       "pct_still_there_next_pick": 13,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 27.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -2085,11 +2235,12 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 84,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 83,
        "surplus_over_wire": 20.6
       },
       {
+       "player_id": "7553",
        "name": "Kyle Pitts",
        "team": "ATL",
        "proj": 148,
@@ -2097,11 +2248,12 @@
        "ceiling": 194,
        "injury_risk_pct": 53,
        "adp": 71.4,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 46,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 17.6
       },
       {
+       "player_id": "1466",
        "name": "Travis Kelce",
        "team": "KC",
        "proj": 146,
@@ -2110,7 +2262,7 @@
        "injury_risk_pct": 42,
        "adp": 93.2,
        "pct_available_now": 93,
-       "pct_still_there_next_pick": 86,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 15.6
       }
      ]
@@ -2125,6 +2277,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -2132,11 +2285,12 @@
        "ceiling": 191,
        "injury_risk_pct": 8,
        "adp": 115.7,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -2149,6 +2303,7 @@
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -2161,6 +2316,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -2184,6 +2340,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -2196,6 +2353,7 @@
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -2208,6 +2366,7 @@
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -2220,6 +2379,7 @@
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -2250,6 +2410,7 @@
      "note": "neutral — 6 to wait, +11 over the wire",
      "players": [
       {
+       "player_id": "11566",
        "name": "Jayden Daniels",
        "team": "WAS",
        "proj": 334,
@@ -2262,6 +2423,7 @@
        "surplus_over_wire": 11.1
       },
       {
+       "player_id": "6904",
        "name": "Jalen Hurts",
        "team": "PHI",
        "proj": 331,
@@ -2269,11 +2431,12 @@
        "ceiling": 430,
        "injury_risk_pct": 33,
        "adp": 58.9,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 8.1
       },
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -2281,11 +2444,12 @@
        "ceiling": 415,
        "injury_risk_pct": 34,
        "adp": 81.4,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 6.1
       },
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -2294,10 +2458,11 @@
        "injury_risk_pct": 36,
        "adp": 103.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 4.1
       },
       {
+       "player_id": "6797",
        "name": "Justin Herbert",
        "team": "LAC",
        "proj": 326,
@@ -2305,11 +2470,12 @@
        "ceiling": 418,
        "injury_risk_pct": 36,
        "adp": 74.1,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 3.1
       },
       {
+       "player_id": "3294",
        "name": "Dak Prescott",
        "team": "DAL",
        "proj": 325,
@@ -2317,22 +2483,23 @@
        "ceiling": 413,
        "injury_risk_pct": 34,
        "adp": 77,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 71,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 2.1
       }
      ]
     },
     "RB": {
      "best_now": 180,
-     "expected_best_at_next_pick": 160.1,
-     "VONA": 19.9,
+     "expected_best_at_next_pick": 160.6,
+     "VONA": 19.4,
      "surplus_over_wire": 101.6,
      "cliff_after_rank": 2,
      "cliff_size": 10,
-     "note": "STRIKE — waiting costs 20 and he is +102 over the wire",
+     "note": "STRIKE — waiting costs 19 and he is +102 over the wire",
      "players": [
       {
+       "player_id": "7611",
        "name": "Rhamondre Stevenson",
        "team": "NE",
        "proj": 180,
@@ -2340,11 +2507,12 @@
        "ceiling": 256,
        "injury_risk_pct": 64,
        "adp": 72.2,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 101.6
       },
       {
+       "player_id": "8228",
        "name": "Jaylen Warren",
        "team": "PIT",
        "proj": 175,
@@ -2352,11 +2520,12 @@
        "ceiling": 238,
        "injury_risk_pct": 66,
        "adp": 65.4,
-       "pct_available_now": 15,
+       "pct_available_now": 17,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 96.6
       },
       {
+       "player_id": "5967",
        "name": "Tony Pollard",
        "team": "TEN",
        "proj": 165,
@@ -2365,10 +2534,11 @@
        "injury_risk_pct": 35,
        "adp": 77.9,
        "pct_available_now": 87,
-       "pct_still_there_next_pick": 10,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "7021",
        "name": "Rico Dowdle",
        "team": "PIT",
        "proj": 165,
@@ -2376,11 +2546,12 @@
        "ceiling": 252,
        "injury_risk_pct": 27,
        "adp": 76.1,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "13286",
        "name": "Jadarian Price",
        "team": "SEA",
        "proj": 163,
@@ -2388,11 +2559,12 @@
        "ceiling": 283,
        "injury_risk_pct": 29,
        "adp": 57.7,
-       "pct_available_now": 10,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 84.6
       },
       {
+       "player_id": "6806",
        "name": "J.K. Dobbins",
        "team": "DEN",
        "proj": 161,
@@ -2400,11 +2572,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 84.7,
-       "pct_available_now": 87,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 39,
        "surplus_over_wire": 82.6
       },
       {
+       "player_id": "11583",
        "name": "Jonathon Brooks",
        "team": "CAR",
        "proj": 159,
@@ -2412,11 +2585,12 @@
        "ceiling": 274,
        "injury_risk_pct": 35,
        "adp": 89.9,
-       "pct_available_now": 83,
-       "pct_still_there_next_pick": 57,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 80.6
       },
       {
+       "player_id": "8408",
        "name": "Jordan Mason",
        "team": "MIN",
        "proj": 155,
@@ -2425,10 +2599,11 @@
        "injury_risk_pct": 39,
        "adp": 99.2,
        "pct_available_now": 97,
-       "pct_still_there_next_pick": 83,
+       "pct_still_there_next_pick": 81,
        "surplus_over_wire": 76.6
       },
       {
+       "player_id": "12533",
        "name": "Jacory Croskey-Merritt",
        "team": "WAS",
        "proj": 146,
@@ -2436,11 +2611,12 @@
        "ceiling": 246,
        "injury_risk_pct": 30,
        "adp": 100,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 86,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 80,
        "surplus_over_wire": 67.6
       },
       {
+       "player_id": "12489",
        "name": "RJ Harvey",
        "team": "DEN",
        "proj": 142,
@@ -2448,22 +2624,49 @@
        "ceiling": 234,
        "injury_risk_pct": 36,
        "adp": 79.4,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 29,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 63.6
       }
      ]
     },
     "WR": {
-     "best_now": 175,
+     "best_now": 194,
      "expected_best_at_next_pick": 166.5,
-     "VONA": 8.5,
-     "surplus_over_wire": 50.2,
-     "cliff_after_rank": 2,
-     "cliff_size": 7,
-     "note": "neutral — 8 to wait, +50 over the wire",
+     "VONA": 27.5,
+     "surplus_over_wire": 69.2,
+     "cliff_after_rank": 1,
+     "cliff_size": 11,
+     "note": "STRIKE — waiting costs 27 and he is +69 over the wire",
      "players": [
       {
+       "player_id": "8167",
+       "name": "Christian Watson",
+       "team": "GB",
+       "proj": 194,
+       "floor": 161,
+       "ceiling": 248,
+       "injury_risk_pct": 25,
+       "adp": 63.4,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 69.2
+      },
+      {
+       "player_id": "2216",
+       "name": "Mike Evans",
+       "team": "SF",
+       "proj": 183,
+       "floor": 154,
+       "ceiling": 249,
+       "injury_risk_pct": 65,
+       "adp": 59.7,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 58.2
+      },
+      {
+       "player_id": "9487",
        "name": "Parker Washington",
        "team": "JAX",
        "proj": 175,
@@ -2471,11 +2674,12 @@
        "ceiling": 224,
        "injury_risk_pct": 0,
        "adp": 70.5,
-       "pct_available_now": 40,
+       "pct_available_now": 41,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 50.2
       },
       {
+       "player_id": "5846",
        "name": "DK Metcalf",
        "team": "PIT",
        "proj": 173,
@@ -2483,11 +2687,12 @@
        "ceiling": 219,
        "injury_risk_pct": 36,
        "adp": 80.4,
-       "pct_available_now": 90,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 18,
        "surplus_over_wire": 48.2
       },
       {
+       "player_id": "13279",
        "name": "Carnell Tate",
        "team": "TEN",
        "proj": 166,
@@ -2495,11 +2700,12 @@
        "ceiling": 232,
        "injury_risk_pct": 40,
        "adp": 67.8,
-       "pct_available_now": 34,
+       "pct_available_now": 33,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 41.2
       },
       {
+       "player_id": "5045",
        "name": "Courtland Sutton",
        "team": "DEN",
        "proj": 165,
@@ -2507,11 +2713,12 @@
        "ceiling": 219,
        "injury_risk_pct": 43,
        "adp": 86.4,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 48,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "10222",
        "name": "Jayden Reed",
        "team": "GB",
        "proj": 165,
@@ -2520,10 +2727,11 @@
        "injury_risk_pct": 36,
        "adp": 110.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "11628",
        "name": "Marvin Harrison",
        "team": "ARI",
        "proj": 164,
@@ -2531,11 +2739,12 @@
        "ceiling": 231,
        "injury_risk_pct": 55,
        "adp": 73.2,
-       "pct_available_now": 56,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 39.2
       },
       {
+       "player_id": "9756",
        "name": "Jordan Addison",
        "team": "MIN",
        "proj": 162,
@@ -2548,6 +2757,7 @@
        "surplus_over_wire": 37.2
       },
       {
+       "player_id": "6819",
        "name": "Michael Pittman",
        "team": "PIT",
        "proj": 161,
@@ -2556,45 +2766,22 @@
        "injury_risk_pct": 60,
        "adp": 106.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 36.2
-      },
-      {
-       "name": "Josh Downs",
-       "team": "IND",
-       "proj": 161,
-       "floor": 137,
-       "ceiling": 232,
-       "injury_risk_pct": 61,
-       "adp": 105.3,
-       "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 36.2
-      },
-      {
-       "name": "Brian Thomas",
-       "team": "JAX",
-       "proj": 158,
-       "floor": 138,
-       "ceiling": 236,
-       "injury_risk_pct": 35,
-       "adp": 69.7,
-       "pct_available_now": 38,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 33.2
       }
      ]
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 150,
-     "VONA": 11,
+     "expected_best_at_next_pick": 149,
+     "VONA": 12,
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 3,
      "cliff_size": 7,
-     "note": "neutral — 11 to wait, +31 over the wire",
+     "note": "neutral — 12 to wait, +31 over the wire",
      "players": [
       {
+       "player_id": "9484",
        "name": "Tucker Kraft",
        "team": "GB",
        "proj": 161,
@@ -2602,11 +2789,12 @@
        "ceiling": 213,
        "injury_risk_pct": 39,
        "adp": 62.3,
-       "pct_available_now": 28,
+       "pct_available_now": 27,
        "pct_still_there_next_pick": 7,
        "surplus_over_wire": 30.6
       },
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -2614,11 +2802,12 @@
        "ceiling": 208,
        "injury_risk_pct": 60,
        "adp": 67,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 38,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "12506",
        "name": "Harold Fannin",
        "team": "CLE",
        "proj": 158,
@@ -2626,11 +2815,12 @@
        "ceiling": 201,
        "injury_risk_pct": 57,
        "adp": 64.5,
-       "pct_available_now": 13,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 27.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -2638,11 +2828,12 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 65,
+       "pct_available_now": 83,
+       "pct_still_there_next_pick": 59,
        "surplus_over_wire": 20.6
       },
       {
+       "player_id": "7553",
        "name": "Kyle Pitts",
        "team": "ATL",
        "proj": 148,
@@ -2650,11 +2841,12 @@
        "ceiling": 194,
        "injury_risk_pct": 53,
        "adp": 71.4,
-       "pct_available_now": 46,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 17.6
       },
       {
+       "player_id": "1466",
        "name": "Travis Kelce",
        "team": "KC",
        "proj": 146,
@@ -2662,22 +2854,23 @@
        "ceiling": 175,
        "injury_risk_pct": 42,
        "adp": 93.2,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 63,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 15.6
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 176.6,
-     "VONA": 0.4,
+     "expected_best_at_next_pick": 176.5,
+     "VONA": 0.5,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -2686,10 +2879,11 @@
        "injury_risk_pct": 8,
        "adp": 115.7,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 94,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -2702,6 +2896,7 @@
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -2714,6 +2909,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -2737,6 +2933,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -2749,6 +2946,7 @@
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -2761,6 +2959,7 @@
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -2773,6 +2972,7 @@
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -2795,14 +2995,15 @@
    "positions": {
     "QB": {
      "best_now": 329,
-     "expected_best_at_next_pick": 327.2,
-     "VONA": 1.8,
+     "expected_best_at_next_pick": 327.1,
+     "VONA": 1.9,
      "surplus_over_wire": 6.1,
      "cliff_after_rank": 1,
      "cliff_size": 2,
      "note": "neutral — 2 to wait, +6 over the wire",
      "players": [
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -2810,11 +3011,12 @@
        "ceiling": 415,
        "injury_risk_pct": 34,
        "adp": 81.4,
-       "pct_available_now": 40,
-       "pct_still_there_next_pick": 24,
+       "pct_available_now": 35,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 6.1
       },
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -2822,11 +3024,12 @@
        "ceiling": 416,
        "injury_risk_pct": 36,
        "adp": 103.3,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 82,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 4.1
       },
       {
+       "player_id": "6797",
        "name": "Justin Herbert",
        "team": "LAC",
        "proj": 326,
@@ -2834,11 +3037,12 @@
        "ceiling": 418,
        "injury_risk_pct": 36,
        "adp": 74.1,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 18,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 3.1
       },
       {
+       "player_id": "3294",
        "name": "Dak Prescott",
        "team": "DAL",
        "proj": 325,
@@ -2846,11 +3050,12 @@
        "ceiling": 413,
        "injury_risk_pct": 34,
        "adp": 77,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -2858,11 +3063,12 @@
        "ceiling": 419,
        "injury_risk_pct": 33,
        "adp": 123.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 96,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "11560",
        "name": "Caleb Williams",
        "team": "CHI",
        "proj": 324,
@@ -2870,22 +3076,23 @@
        "ceiling": 421,
        "injury_risk_pct": 20,
        "adp": 68.8,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 1.1
       }
      ]
     },
     "RB": {
      "best_now": 165,
-     "expected_best_at_next_pick": 157.1,
-     "VONA": 7.9,
+     "expected_best_at_next_pick": 157.2,
+     "VONA": 7.8,
      "surplus_over_wire": 86.6,
      "cliff_after_rank": 5,
      "cliff_size": 9,
      "note": "neutral — 8 to wait, +87 over the wire",
      "players": [
       {
+       "player_id": "5967",
        "name": "Tony Pollard",
        "team": "TEN",
        "proj": 165,
@@ -2893,11 +3100,12 @@
        "ceiling": 250,
        "injury_risk_pct": 35,
        "adp": 77.9,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "7021",
        "name": "Rico Dowdle",
        "team": "PIT",
        "proj": 165,
@@ -2905,11 +3113,12 @@
        "ceiling": 252,
        "injury_risk_pct": 27,
        "adp": 76.1,
-       "pct_available_now": 8,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 86.6
       },
       {
+       "player_id": "6806",
        "name": "J.K. Dobbins",
        "team": "DEN",
        "proj": 161,
@@ -2917,11 +3126,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 84.7,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 39,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 82.6
       },
       {
+       "player_id": "11583",
        "name": "Jonathon Brooks",
        "team": "CAR",
        "proj": 159,
@@ -2929,11 +3139,12 @@
        "ceiling": 274,
        "injury_risk_pct": 35,
        "adp": 89.9,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 80.6
       },
       {
+       "player_id": "8408",
        "name": "Jordan Mason",
        "team": "MIN",
        "proj": 155,
@@ -2941,11 +3152,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 99.2,
-       "pct_available_now": 83,
+       "pct_available_now": 81,
        "pct_still_there_next_pick": 73,
        "surplus_over_wire": 76.6
       },
       {
+       "player_id": "12533",
        "name": "Jacory Croskey-Merritt",
        "team": "WAS",
        "proj": 146,
@@ -2953,11 +3165,12 @@
        "ceiling": 246,
        "injury_risk_pct": 30,
        "adp": 100,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 76,
+       "pct_available_now": 80,
+       "pct_still_there_next_pick": 67,
        "surplus_over_wire": 67.6
       },
       {
+       "player_id": "12489",
        "name": "RJ Harvey",
        "team": "DEN",
        "proj": 142,
@@ -2965,11 +3178,12 @@
        "ceiling": 234,
        "injury_risk_pct": 36,
        "adp": 79.4,
-       "pct_available_now": 29,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 63.6
       },
       {
+       "player_id": "12534",
        "name": "Kyle Monangai",
        "team": "CHI",
        "proj": 139,
@@ -2977,11 +3191,12 @@
        "ceiling": 246,
        "injury_risk_pct": 0,
        "adp": 87.2,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 38,
        "surplus_over_wire": 60.6
       },
       {
+       "player_id": "7594",
        "name": "Chuba Hubbard",
        "team": "CAR",
        "proj": 138,
@@ -2989,11 +3204,12 @@
        "ceiling": 261,
        "injury_risk_pct": 36,
        "adp": 75.3,
-       "pct_available_now": 7,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 59.6
       },
       {
+       "player_id": "11586",
        "name": "Blake Corum",
        "team": "LAR",
        "proj": 135,
@@ -3001,22 +3217,23 @@
        "ceiling": 260,
        "injury_risk_pct": 33,
        "adp": 91.1,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 56.6
       }
      ]
     },
     "WR": {
      "best_now": 173,
-     "expected_best_at_next_pick": 165.2,
-     "VONA": 7.8,
+     "expected_best_at_next_pick": 165.4,
+     "VONA": 7.6,
      "surplus_over_wire": 48.2,
      "cliff_after_rank": 1,
      "cliff_size": 8,
      "note": "neutral — 8 to wait, +48 over the wire",
      "players": [
       {
+       "player_id": "5846",
        "name": "DK Metcalf",
        "team": "PIT",
        "proj": 173,
@@ -3025,10 +3242,11 @@
        "injury_risk_pct": 36,
        "adp": 80.4,
        "pct_available_now": 18,
-       "pct_still_there_next_pick": 3,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 48.2
       },
       {
+       "player_id": "5045",
        "name": "Courtland Sutton",
        "team": "DEN",
        "proj": 165,
@@ -3036,11 +3254,12 @@
        "ceiling": 219,
        "injury_risk_pct": 43,
        "adp": 86.4,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "10222",
        "name": "Jayden Reed",
        "team": "GB",
        "proj": 165,
@@ -3048,11 +3267,12 @@
        "ceiling": 220,
        "injury_risk_pct": 36,
        "adp": 110.1,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "9756",
        "name": "Jordan Addison",
        "team": "MIN",
        "proj": 162,
@@ -3061,10 +3281,11 @@
        "injury_risk_pct": 37,
        "adp": 107.1,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 37.2
       },
       {
+       "player_id": "6819",
        "name": "Michael Pittman",
        "team": "PIT",
        "proj": 161,
@@ -3072,11 +3293,12 @@
        "ceiling": 206,
        "injury_risk_pct": 60,
        "adp": 106.2,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9500",
        "name": "Josh Downs",
        "team": "IND",
        "proj": 161,
@@ -3084,11 +3306,12 @@
        "ceiling": 232,
        "injury_risk_pct": 61,
        "adp": 105.3,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 94,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9754",
        "name": "Quentin Johnston",
        "team": "LAC",
        "proj": 158,
@@ -3097,10 +3320,11 @@
        "injury_risk_pct": 56,
        "adp": 102.2,
        "pct_available_now": 97,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 33.2
       },
       {
+       "player_id": "5947",
        "name": "Jakobi Meyers",
        "team": "JAX",
        "proj": 156,
@@ -3113,6 +3337,7 @@
        "surplus_over_wire": 31.2
       },
       {
+       "player_id": "11624",
        "name": "Xavier Worthy",
        "team": "KC",
        "proj": 152,
@@ -3125,6 +3350,7 @@
        "surplus_over_wire": 27.2
       },
       {
+       "player_id": "4037",
        "name": "Chris Godwin",
        "team": "TB",
        "proj": 151,
@@ -3132,7 +3358,7 @@
        "ceiling": 222,
        "injury_risk_pct": 40,
        "adp": 88.3,
-       "pct_available_now": 60,
+       "pct_available_now": 57,
        "pct_still_there_next_pick": 33,
        "surplus_over_wire": 26.2
       }
@@ -3140,14 +3366,15 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 147,
-     "VONA": 14,
+     "expected_best_at_next_pick": 146.6,
+     "VONA": 14.4,
      "surplus_over_wire": 30.6,
-     "cliff_after_rank": 5,
+     "cliff_after_rank": 4,
      "cliff_size": 15,
      "note": "waiting costs 14, but he is only +31 over the wire — thin",
      "players": [
       {
+       "player_id": "9484",
        "name": "Tucker Kraft",
        "team": "GB",
        "proj": 161,
@@ -3156,10 +3383,11 @@
        "injury_risk_pct": 39,
        "adp": 62.3,
        "pct_available_now": 7,
-       "pct_still_there_next_pick": 4,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 30.6
       },
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -3167,11 +3395,12 @@
        "ceiling": 208,
        "injury_risk_pct": 60,
        "adp": 67,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -3179,23 +3408,12 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 54,
+       "pct_available_now": 59,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 20.6
       },
       {
-       "name": "Kyle Pitts",
-       "team": "ATL",
-       "proj": 148,
-       "floor": 136,
-       "ceiling": 194,
-       "injury_risk_pct": 53,
-       "adp": 71.4,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 17.6
-      },
-      {
+       "player_id": "1466",
        "name": "Travis Kelce",
        "team": "KC",
        "proj": 146,
@@ -3203,11 +3421,25 @@
        "ceiling": 175,
        "injury_risk_pct": 42,
        "adp": 93.2,
-       "pct_available_now": 63,
+       "pct_available_now": 65,
        "pct_still_there_next_pick": 54,
        "surplus_over_wire": 15.6
       },
       {
+       "player_id": "5012",
+       "name": "Mark Andrews",
+       "team": "BAL",
+       "proj": 131,
+       "floor": 117,
+       "ceiling": 174,
+       "injury_risk_pct": 36,
+       "adp": 113.4,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 91,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "5022",
        "name": "Dallas Goedert",
        "team": "PHI",
        "proj": 131,
@@ -3215,22 +3447,23 @@
        "ceiling": 166,
        "injury_risk_pct": 83,
        "adp": 116.8,
-       "pct_available_now": 91,
-       "pct_still_there_next_pick": 88,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 0.6
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 176.3,
-     "VONA": 0.7,
+     "expected_best_at_next_pick": 176.2,
+     "VONA": 0.8,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
      "note": "wait — only 1 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -3238,11 +3471,12 @@
        "ceiling": 191,
        "injury_risk_pct": 8,
        "adp": 115.7,
-       "pct_available_now": 94,
+       "pct_available_now": 93,
        "pct_still_there_next_pick": 89,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -3255,6 +3489,7 @@
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -3267,6 +3502,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -3290,6 +3526,7 @@
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -3302,6 +3539,7 @@
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -3314,6 +3552,7 @@
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -3326,6 +3565,7 @@
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -3348,14 +3588,15 @@
    "positions": {
     "QB": {
      "best_now": 329,
-     "expected_best_at_next_pick": 323.4,
-     "VONA": 5.6,
+     "expected_best_at_next_pick": 323.9,
+     "VONA": 5.1,
      "surplus_over_wire": 6.1,
      "cliff_after_rank": 5,
      "cliff_size": 6,
-     "note": "neutral — 6 to wait, +6 over the wire",
+     "note": "neutral — 5 to wait, +6 over the wire",
      "players": [
       {
+       "player_id": "7523",
        "name": "Trevor Lawrence",
        "team": "JAX",
        "proj": 329,
@@ -3363,11 +3604,12 @@
        "ceiling": 415,
        "injury_risk_pct": 34,
        "adp": 81.4,
-       "pct_available_now": 24,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 6.1
       },
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -3375,11 +3617,12 @@
        "ceiling": 416,
        "injury_risk_pct": 36,
        "adp": 103.3,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 31,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 38,
        "surplus_over_wire": 4.1
       },
       {
+       "player_id": "6797",
        "name": "Justin Herbert",
        "team": "LAC",
        "proj": 326,
@@ -3387,11 +3630,12 @@
        "ceiling": 418,
        "injury_risk_pct": 36,
        "adp": 74.1,
-       "pct_available_now": 11,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 3.1
       },
       {
+       "player_id": "3294",
        "name": "Dak Prescott",
        "team": "DAL",
        "proj": 325,
@@ -3399,11 +3643,12 @@
        "ceiling": 413,
        "injury_risk_pct": 34,
        "adp": 77,
-       "pct_available_now": 5,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -3411,11 +3656,12 @@
        "ceiling": 419,
        "injury_risk_pct": 33,
        "adp": 123.4,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 83,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "12508",
        "name": "Jaxson Dart",
        "team": "NYG",
        "proj": 319,
@@ -3423,22 +3669,23 @@
        "ceiling": 417,
        "injury_risk_pct": 36,
        "adp": 85.6,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 161,
-     "expected_best_at_next_pick": 145.3,
-     "VONA": 15.7,
+     "expected_best_at_next_pick": 145.2,
+     "VONA": 15.8,
      "surplus_over_wire": 82.6,
      "cliff_after_rank": 3,
      "cliff_size": 9,
      "note": "STRIKE — waiting costs 16 and he is +83 over the wire",
      "players": [
       {
+       "player_id": "6806",
        "name": "J.K. Dobbins",
        "team": "DEN",
        "proj": 161,
@@ -3446,11 +3693,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 84.7,
-       "pct_available_now": 26,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 82.6
       },
       {
+       "player_id": "11583",
        "name": "Jonathon Brooks",
        "team": "CAR",
        "proj": 159,
@@ -3458,11 +3706,12 @@
        "ceiling": 274,
        "injury_risk_pct": 35,
        "adp": 89.9,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 80.6
       },
       {
+       "player_id": "8408",
        "name": "Jordan Mason",
        "team": "MIN",
        "proj": 155,
@@ -3471,10 +3720,11 @@
        "injury_risk_pct": 39,
        "adp": 99.2,
        "pct_available_now": 73,
-       "pct_still_there_next_pick": 30,
+       "pct_still_there_next_pick": 29,
        "surplus_over_wire": 76.6
       },
       {
+       "player_id": "12533",
        "name": "Jacory Croskey-Merritt",
        "team": "WAS",
        "proj": 146,
@@ -3482,11 +3732,12 @@
        "ceiling": 246,
        "injury_risk_pct": 30,
        "adp": 100,
-       "pct_available_now": 76,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 67.6
       },
       {
+       "player_id": "12489",
        "name": "RJ Harvey",
        "team": "DEN",
        "proj": 142,
@@ -3494,11 +3745,12 @@
        "ceiling": 234,
        "injury_risk_pct": 36,
        "adp": 79.4,
-       "pct_available_now": 17,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 63.6
       },
       {
+       "player_id": "12534",
        "name": "Kyle Monangai",
        "team": "CHI",
        "proj": 139,
@@ -3506,11 +3758,12 @@
        "ceiling": 246,
        "injury_risk_pct": 0,
        "adp": 87.2,
-       "pct_available_now": 43,
+       "pct_available_now": 38,
        "pct_still_there_next_pick": 9,
        "surplus_over_wire": 60.6
       },
       {
+       "player_id": "11586",
        "name": "Blake Corum",
        "team": "LAR",
        "proj": 135,
@@ -3518,11 +3771,12 @@
        "ceiling": 260,
        "injury_risk_pct": 33,
        "adp": 91.1,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 56.6
       },
       {
+       "player_id": "7567",
        "name": "Kenny Gainwell",
        "team": "TB",
        "proj": 131,
@@ -3530,11 +3784,12 @@
        "ceiling": 226,
        "injury_risk_pct": 31,
        "adp": 104.5,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "9508",
        "name": "Tyjae Spears",
        "team": "TEN",
        "proj": 131,
@@ -3547,6 +3802,7 @@
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "8136",
        "name": "Rachaad White",
        "team": "WAS",
        "proj": 128,
@@ -3555,21 +3811,35 @@
        "injury_risk_pct": 39,
        "adp": 109.3,
        "pct_available_now": 90,
-       "pct_still_there_next_pick": 50,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 49.6
       }
      ]
     },
     "WR": {
-     "best_now": 165,
-     "expected_best_at_next_pick": 163.1,
-     "VONA": 1.9,
-     "surplus_over_wire": 40.2,
-     "cliff_after_rank": 7,
-     "cliff_size": 4,
-     "note": "wait — only 2 lost by waiting, the tier holds",
+     "best_now": 173,
+     "expected_best_at_next_pick": 163.2,
+     "VONA": 9.8,
+     "surplus_over_wire": 48.2,
+     "cliff_after_rank": 1,
+     "cliff_size": 8,
+     "note": "neutral — 10 to wait, +48 over the wire",
      "players": [
       {
+       "player_id": "5846",
+       "name": "DK Metcalf",
+       "team": "PIT",
+       "proj": 173,
+       "floor": 145,
+       "ceiling": 219,
+       "injury_risk_pct": 36,
+       "adp": 80.4,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 48.2
+      },
+      {
+       "player_id": "5045",
        "name": "Courtland Sutton",
        "team": "DEN",
        "proj": 165,
@@ -3577,11 +3847,12 @@
        "ceiling": 219,
        "injury_risk_pct": 43,
        "adp": 86.4,
-       "pct_available_now": 17,
+       "pct_available_now": 16,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "10222",
        "name": "Jayden Reed",
        "team": "GB",
        "proj": 165,
@@ -3589,11 +3860,12 @@
        "ceiling": 220,
        "injury_risk_pct": 36,
        "adp": 110.1,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 59,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "9756",
        "name": "Jordan Addison",
        "team": "MIN",
        "proj": 162,
@@ -3601,11 +3873,12 @@
        "ceiling": 220,
        "injury_risk_pct": 37,
        "adp": 107.1,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 39,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 37.2
       },
       {
+       "player_id": "6819",
        "name": "Michael Pittman",
        "team": "PIT",
        "proj": 161,
@@ -3613,11 +3886,12 @@
        "ceiling": 206,
        "injury_risk_pct": 60,
        "adp": 106.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9500",
        "name": "Josh Downs",
        "team": "IND",
        "proj": 161,
@@ -3625,11 +3899,12 @@
        "ceiling": 232,
        "injury_risk_pct": 61,
        "adp": 105.3,
-       "pct_available_now": 94,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9754",
        "name": "Quentin Johnston",
        "team": "LAC",
        "proj": 158,
@@ -3637,11 +3912,12 @@
        "ceiling": 227,
        "injury_risk_pct": 56,
        "adp": 102.2,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 33.2
       },
       {
+       "player_id": "5947",
        "name": "Jakobi Meyers",
        "team": "JAX",
        "proj": 156,
@@ -3654,6 +3930,7 @@
        "surplus_over_wire": 31.2
       },
       {
+       "player_id": "11624",
        "name": "Xavier Worthy",
        "team": "KC",
        "proj": 152,
@@ -3662,10 +3939,11 @@
        "injury_risk_pct": 35,
        "adp": 130.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 27.2
       },
       {
+       "player_id": "4037",
        "name": "Chris Godwin",
        "team": "TB",
        "proj": 151,
@@ -3676,31 +3954,20 @@
        "pct_available_now": 33,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 26.2
-      },
-      {
-       "name": "Stefon Diggs",
-       "team": "WAS",
-       "proj": 149,
-       "floor": 124,
-       "ceiling": 225,
-       "injury_risk_pct": 31,
-       "adp": 111.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 66,
-       "surplus_over_wire": 24.2
       }
      ]
     },
     "TE": {
      "best_now": 160,
-     "expected_best_at_next_pick": 137.9,
-     "VONA": 22.1,
+     "expected_best_at_next_pick": 138.4,
+     "VONA": 21.6,
      "surplus_over_wire": 29.6,
      "cliff_after_rank": 3,
      "cliff_size": 15,
      "note": "waiting costs 22, but he is only +30 over the wire — thin",
      "players": [
       {
+       "player_id": "10859",
        "name": "Sam LaPorta",
        "team": "DET",
        "proj": 160,
@@ -3708,11 +3975,12 @@
        "ceiling": 208,
        "injury_risk_pct": 60,
        "adp": 67,
-       "pct_available_now": 6,
+       "pct_available_now": 5,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 29.6
       },
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -3720,11 +3988,12 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 51,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 20.6
       },
       {
+       "player_id": "1466",
        "name": "Travis Kelce",
        "team": "KC",
        "proj": 146,
@@ -3737,18 +4006,7 @@
        "surplus_over_wire": 15.6
       },
       {
-       "name": "Dallas Goedert",
-       "team": "PHI",
-       "proj": 131,
-       "floor": 115,
-       "ceiling": 166,
-       "injury_risk_pct": 83,
-       "adp": 116.8,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 64,
-       "surplus_over_wire": 0.6
-      },
-      {
+       "player_id": "5012",
        "name": "Mark Andrews",
        "team": "BAL",
        "proj": 131,
@@ -3756,11 +4014,25 @@
        "ceiling": 174,
        "injury_risk_pct": 36,
        "adp": 113.4,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 60,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 0.6
       },
       {
+       "player_id": "5022",
+       "name": "Dallas Goedert",
+       "team": "PHI",
+       "proj": 131,
+       "floor": 115,
+       "ceiling": 166,
+       "injury_risk_pct": 83,
+       "adp": 116.8,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 72,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "10236",
        "name": "Dalton Kincaid",
        "team": "BUF",
        "proj": 130,
@@ -3768,8 +4040,8 @@
        "ceiling": 180,
        "injury_risk_pct": 62,
        "adp": 98.4,
-       "pct_available_now": 63,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 0
       }
      ]
@@ -3784,6 +4056,7 @@
      "note": "wait — only 2 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -3796,6 +4069,7 @@
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -3804,10 +4078,11 @@
        "injury_risk_pct": 9,
        "adp": 140.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -3820,6 +4095,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -3835,14 +4111,15 @@
     },
     "DEF": {
      "best_now": 125,
-     "expected_best_at_next_pick": 124.7,
-     "VONA": 0.3,
+     "expected_best_at_next_pick": 124.8,
+     "VONA": 0.2,
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
      "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -3851,10 +4128,11 @@
        "injury_risk_pct": 0,
        "adp": 119.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -3863,10 +4141,11 @@
        "injury_risk_pct": 0,
        "adp": 126,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -3875,10 +4154,11 @@
        "injury_risk_pct": 0,
        "adp": 128.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -3901,14 +4181,15 @@
    "positions": {
     "QB": {
      "best_now": 327,
-     "expected_best_at_next_pick": 320.9,
-     "VONA": 6.1,
+     "expected_best_at_next_pick": 321.2,
+     "VONA": 5.8,
      "surplus_over_wire": 4.1,
      "cliff_after_rank": 3,
      "cliff_size": 7,
      "note": "skip — the best QB left is worth 4 over a free one",
      "players": [
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -3916,11 +4197,12 @@
        "ceiling": 416,
        "injury_risk_pct": 36,
        "adp": 103.3,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 38,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 4.1
       },
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -3928,11 +4210,12 @@
        "ceiling": 419,
        "injury_risk_pct": 33,
        "adp": 123.4,
-       "pct_available_now": 83,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 70,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "12508",
        "name": "Jaxson Dart",
        "team": "NYG",
        "proj": 319,
@@ -3940,11 +4223,12 @@
        "ceiling": 417,
        "injury_risk_pct": 36,
        "adp": 85.6,
-       "pct_available_now": 7,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 4,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "11563",
        "name": "Bo Nix",
        "team": "DEN",
        "proj": 312,
@@ -3952,11 +4236,12 @@
        "ceiling": 412,
        "injury_risk_pct": 28,
        "adp": 101.5,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 30,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "4046",
        "name": "Patrick Mahomes",
        "team": "KC",
        "proj": 309,
@@ -3964,11 +4249,12 @@
        "ceiling": 417,
        "injury_risk_pct": 37,
        "adp": 95.7,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "3163",
        "name": "Jared Goff",
        "team": "DET",
        "proj": 303,
@@ -3976,22 +4262,23 @@
        "ceiling": 402,
        "injury_risk_pct": 23,
        "adp": 112.5,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 159,
-     "expected_best_at_next_pick": 140.1,
-     "VONA": 18.9,
+     "expected_best_at_next_pick": 140,
+     "VONA": 19,
      "surplus_over_wire": 80.6,
      "cliff_after_rank": 2,
      "cliff_size": 9,
      "note": "STRIKE — waiting costs 19 and he is +81 over the wire",
      "players": [
       {
+       "player_id": "11583",
        "name": "Jonathon Brooks",
        "team": "CAR",
        "proj": 159,
@@ -3999,11 +4286,12 @@
        "ceiling": 274,
        "injury_risk_pct": 35,
        "adp": 89.9,
-       "pct_available_now": 14,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 80.6
       },
       {
+       "player_id": "8408",
        "name": "Jordan Mason",
        "team": "MIN",
        "proj": 155,
@@ -4011,11 +4299,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 99.2,
-       "pct_available_now": 30,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 29,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 76.6
       },
       {
+       "player_id": "12533",
        "name": "Jacory Croskey-Merritt",
        "team": "WAS",
        "proj": 146,
@@ -4023,11 +4312,12 @@
        "ceiling": 246,
        "injury_risk_pct": 30,
        "adp": 100,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 26,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 67.6
       },
       {
+       "player_id": "12534",
        "name": "Kyle Monangai",
        "team": "CHI",
        "proj": 139,
@@ -4036,10 +4326,11 @@
        "injury_risk_pct": 0,
        "adp": 87.2,
        "pct_available_now": 9,
-       "pct_still_there_next_pick": 6,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 60.6
       },
       {
+       "player_id": "11586",
        "name": "Blake Corum",
        "team": "LAR",
        "proj": 135,
@@ -4047,11 +4338,12 @@
        "ceiling": 260,
        "injury_risk_pct": 33,
        "adp": 91.1,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 13,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 56.6
       },
       {
+       "player_id": "7567",
        "name": "Kenny Gainwell",
        "team": "TB",
        "proj": 131,
@@ -4059,11 +4351,12 @@
        "ceiling": 226,
        "injury_risk_pct": 31,
        "adp": 104.5,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 25,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "9508",
        "name": "Tyjae Spears",
        "team": "TEN",
        "proj": 131,
@@ -4072,10 +4365,11 @@
        "injury_risk_pct": 37,
        "adp": 160,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "8136",
        "name": "Rachaad White",
        "team": "WAS",
        "proj": 128,
@@ -4083,11 +4377,12 @@
        "ceiling": 222,
        "injury_risk_pct": 39,
        "adp": 109.3,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 33,
+       "pct_available_now": 51,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 49.6
       },
       {
+       "player_id": "4199",
        "name": "Aaron Jones",
        "team": "MIN",
        "proj": 124,
@@ -4095,11 +4390,12 @@
        "ceiling": 214,
        "injury_risk_pct": 65,
        "adp": 114.3,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 49,
        "surplus_over_wire": 45.6
       },
       {
+       "player_id": "9753",
        "name": "Zach Charbonnet",
        "team": "SEA",
        "proj": 120,
@@ -4107,22 +4403,23 @@
        "ceiling": 246,
        "injury_risk_pct": 37,
        "adp": 127.3,
-       "pct_available_now": 80,
-       "pct_still_there_next_pick": 75,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 41.6
       }
      ]
     },
     "WR": {
      "best_now": 165,
-     "expected_best_at_next_pick": 160.8,
-     "VONA": 4.2,
+     "expected_best_at_next_pick": 160.7,
+     "VONA": 4.3,
      "surplus_over_wire": 40.2,
      "cliff_after_rank": 6,
      "cliff_size": 4,
      "note": "neutral — 4 to wait, +40 over the wire",
      "players": [
       {
+       "player_id": "10222",
        "name": "Jayden Reed",
        "team": "GB",
        "proj": 165,
@@ -4130,11 +4427,12 @@
        "ceiling": 220,
        "injury_risk_pct": 36,
        "adp": 110.1,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 59,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "9756",
        "name": "Jordan Addison",
        "team": "MIN",
        "proj": 162,
@@ -4142,11 +4440,12 @@
        "ceiling": 220,
        "injury_risk_pct": 37,
        "adp": 107.1,
-       "pct_available_now": 39,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 37.2
       },
       {
+       "player_id": "6819",
        "name": "Michael Pittman",
        "team": "PIT",
        "proj": 161,
@@ -4154,11 +4453,12 @@
        "ceiling": 206,
        "injury_risk_pct": 60,
        "adp": 106.2,
-       "pct_available_now": 38,
+       "pct_available_now": 41,
        "pct_still_there_next_pick": 20,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9500",
        "name": "Josh Downs",
        "team": "IND",
        "proj": 161,
@@ -4166,11 +4466,12 @@
        "ceiling": 232,
        "injury_risk_pct": 61,
        "adp": 105.3,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 31,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9754",
        "name": "Quentin Johnston",
        "team": "LAC",
        "proj": 158,
@@ -4178,11 +4479,12 @@
        "ceiling": 227,
        "injury_risk_pct": 56,
        "adp": 102.2,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 33.2
       },
       {
+       "player_id": "5947",
        "name": "Jakobi Meyers",
        "team": "JAX",
        "proj": 156,
@@ -4191,10 +4493,11 @@
        "injury_risk_pct": 37,
        "adp": 122.4,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 92,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 31.2
       },
       {
+       "player_id": "11624",
        "name": "Xavier Worthy",
        "team": "KC",
        "proj": 152,
@@ -4202,11 +4505,12 @@
        "ceiling": 224,
        "injury_risk_pct": 35,
        "adp": 130.3,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 27.2
       },
       {
+       "player_id": "2449",
        "name": "Stefon Diggs",
        "team": "WAS",
        "proj": 149,
@@ -4214,11 +4518,12 @@
        "ceiling": 225,
        "injury_risk_pct": 31,
        "adp": 111.2,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 24.2
       },
       {
+       "player_id": "8121",
        "name": "Romeo Doubs",
        "team": "NE",
        "proj": 148,
@@ -4231,6 +4536,7 @@
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "13298",
        "name": "KC Concepcion",
        "team": "CLE",
        "proj": 148,
@@ -4246,7 +4552,7 @@
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 135.7,
+     "expected_best_at_next_pick": 135.8,
      "VONA": 15.3,
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
@@ -4254,6 +4560,7 @@
      "note": "waiting costs 15, but he is only +21 over the wire — thin",
      "players": [
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -4261,11 +4568,12 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 18,
+       "pct_available_now": 24,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 20.6
       },
       {
+       "player_id": "1466",
        "name": "Travis Kelce",
        "team": "KC",
        "proj": 146,
@@ -4274,22 +4582,11 @@
        "injury_risk_pct": 42,
        "adp": 93.2,
        "pct_available_now": 22,
-       "pct_still_there_next_pick": 13,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 15.6
       },
       {
-       "name": "Dallas Goedert",
-       "team": "PHI",
-       "proj": 131,
-       "floor": 115,
-       "ceiling": 166,
-       "injury_risk_pct": 83,
-       "adp": 116.8,
-       "pct_available_now": 64,
-       "pct_still_there_next_pick": 55,
-       "surplus_over_wire": 0.6
-      },
-      {
+       "player_id": "5012",
        "name": "Mark Andrews",
        "team": "BAL",
        "proj": 131,
@@ -4297,11 +4594,25 @@
        "ceiling": 174,
        "injury_risk_pct": 36,
        "adp": 113.4,
-       "pct_available_now": 60,
-       "pct_still_there_next_pick": 48,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 0.6
       },
       {
+       "player_id": "5022",
+       "name": "Dallas Goedert",
+       "team": "PHI",
+       "proj": 131,
+       "floor": 115,
+       "ceiling": 166,
+       "injury_risk_pct": 83,
+       "adp": 116.8,
+       "pct_available_now": 72,
+       "pct_still_there_next_pick": 63,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "10236",
        "name": "Dalton Kincaid",
        "team": "BUF",
        "proj": 130,
@@ -4309,11 +4620,12 @@
        "ceiling": 180,
        "injury_risk_pct": 62,
        "adp": 98.4,
-       "pct_available_now": 28,
+       "pct_available_now": 27,
        "pct_still_there_next_pick": 19,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "8110",
        "name": "Jake Ferguson",
        "team": "DAL",
        "proj": 129,
@@ -4321,22 +4633,23 @@
        "ceiling": 156,
        "injury_risk_pct": 55,
        "adp": 108.5,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 173.9,
-     "VONA": 3.1,
+     "expected_best_at_next_pick": 173.7,
+     "VONA": 3.3,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
      "note": "wait — only 3 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -4345,10 +4658,11 @@
        "injury_risk_pct": 8,
        "adp": 115.7,
        "pct_available_now": 70,
-       "pct_still_there_next_pick": 60,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -4356,11 +4670,12 @@
        "ceiling": 182,
        "injury_risk_pct": 9,
        "adp": 140.6,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -4369,10 +4684,11 @@
        "injury_risk_pct": 0,
        "adp": 139.1,
        "pct_available_now": 94,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -4388,14 +4704,15 @@
     },
     "DEF": {
      "best_now": 125,
-     "expected_best_at_next_pick": 124.1,
-     "VONA": 0.9,
+     "expected_best_at_next_pick": 124.2,
+     "VONA": 0.8,
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
      "note": "wait — only 1 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -4403,11 +4720,12 @@
        "ceiling": 140,
        "injury_risk_pct": 0,
        "adp": 119.6,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 73,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -4415,11 +4733,12 @@
        "ceiling": 134,
        "injury_risk_pct": 0,
        "adp": 126,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -4427,11 +4746,12 @@
        "ceiling": 132,
        "injury_risk_pct": 0,
        "adp": 128.1,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -4454,14 +4774,15 @@
    "positions": {
     "QB": {
      "best_now": 327,
-     "expected_best_at_next_pick": 307.6,
-     "VONA": 19.4,
+     "expected_best_at_next_pick": 307.2,
+     "VONA": 19.8,
      "surplus_over_wire": 4.1,
      "cliff_after_rank": 2,
      "cliff_size": 13,
      "note": "skip — the best QB left is worth 4 over a free one",
      "players": [
       {
+       "player_id": "8183",
        "name": "Brock Purdy",
        "team": "SF",
        "proj": 327,
@@ -4469,11 +4790,12 @@
        "ceiling": 416,
        "injury_risk_pct": 36,
        "adp": 103.3,
-       "pct_available_now": 17,
+       "pct_available_now": 24,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 4.1
       },
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -4481,11 +4803,12 @@
        "ceiling": 419,
        "injury_risk_pct": 33,
        "adp": 123.4,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 35,
+       "pct_available_now": 70,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "11563",
        "name": "Bo Nix",
        "team": "DEN",
        "proj": 312,
@@ -4493,11 +4816,12 @@
        "ceiling": 412,
        "injury_risk_pct": 28,
        "adp": 101.5,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "4046",
        "name": "Patrick Mahomes",
        "team": "KC",
        "proj": 309,
@@ -4505,11 +4829,12 @@
        "ceiling": 417,
        "injury_risk_pct": 37,
        "adp": 95.7,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "3163",
        "name": "Jared Goff",
        "team": "DET",
        "proj": 303,
@@ -4517,11 +4842,12 @@
        "ceiling": 402,
        "injury_risk_pct": 23,
        "adp": 112.5,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "421",
        "name": "Matthew Stafford",
        "team": "LAR",
        "proj": 299,
@@ -4529,22 +4855,23 @@
        "ceiling": 403,
        "injury_risk_pct": 39,
        "adp": 97.6,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 159,
-     "expected_best_at_next_pick": 131.9,
-     "VONA": 27.1,
+     "expected_best_at_next_pick": 131.7,
+     "VONA": 27.3,
      "surplus_over_wire": 80.6,
-     "cliff_after_rank": 2,
-     "cliff_size": 9,
+     "cliff_after_rank": 3,
+     "cliff_size": 11,
      "note": "STRIKE — waiting costs 27 and he is +81 over the wire",
      "players": [
       {
+       "player_id": "11583",
        "name": "Jonathon Brooks",
        "team": "CAR",
        "proj": 159,
@@ -4552,11 +4879,12 @@
        "ceiling": 274,
        "injury_risk_pct": 35,
        "adp": 89.9,
-       "pct_available_now": 9,
+       "pct_available_now": 11,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 80.6
       },
       {
+       "player_id": "8408",
        "name": "Jordan Mason",
        "team": "MIN",
        "proj": 155,
@@ -4564,11 +4892,12 @@
        "ceiling": 255,
        "injury_risk_pct": 39,
        "adp": 99.2,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 18,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 76.6
       },
       {
+       "player_id": "12533",
        "name": "Jacory Croskey-Merritt",
        "team": "WAS",
        "proj": 146,
@@ -4576,23 +4905,25 @@
        "ceiling": 246,
        "injury_risk_pct": 30,
        "adp": 100,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 67.6
       },
       {
-       "name": "Kyle Monangai",
-       "team": "CHI",
-       "proj": 139,
+       "player_id": "11586",
+       "name": "Blake Corum",
+       "team": "LAR",
+       "proj": 135,
        "floor": 124,
-       "ceiling": 246,
-       "injury_risk_pct": 0,
-       "adp": 87.2,
+       "ceiling": 260,
+       "injury_risk_pct": 33,
+       "adp": 91.1,
        "pct_available_now": 6,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 60.6
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 56.6
       },
       {
+       "player_id": "7567",
        "name": "Kenny Gainwell",
        "team": "TB",
        "proj": 131,
@@ -4600,11 +4931,12 @@
        "ceiling": 226,
        "injury_risk_pct": 31,
        "adp": 104.5,
-       "pct_available_now": 25,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 23,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "9508",
        "name": "Tyjae Spears",
        "team": "TEN",
        "proj": 131,
@@ -4612,11 +4944,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 160,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "8136",
        "name": "Rachaad White",
        "team": "WAS",
        "proj": 128,
@@ -4624,11 +4957,12 @@
        "ceiling": 222,
        "injury_risk_pct": 39,
        "adp": 109.3,
-       "pct_available_now": 33,
+       "pct_available_now": 34,
        "pct_still_there_next_pick": 7,
        "surplus_over_wire": 49.6
       },
       {
+       "player_id": "4199",
        "name": "Aaron Jones",
        "team": "MIN",
        "proj": 124,
@@ -4636,11 +4970,12 @@
        "ceiling": 214,
        "injury_risk_pct": 65,
        "adp": 114.3,
-       "pct_available_now": 51,
+       "pct_available_now": 49,
        "pct_still_there_next_pick": 14,
        "surplus_over_wire": 45.6
       },
       {
+       "player_id": "9753",
        "name": "Zach Charbonnet",
        "team": "SEA",
        "proj": 120,
@@ -4648,11 +4983,12 @@
        "ceiling": 246,
        "injury_risk_pct": 37,
        "adp": 127.3,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 44,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 41.6
       },
       {
+       "player_id": "12474",
        "name": "Woody Marks",
        "team": "HOU",
        "proj": 113,
@@ -4668,14 +5004,15 @@
     },
     "WR": {
      "best_now": 165,
-     "expected_best_at_next_pick": 151.8,
-     "VONA": 13.2,
+     "expected_best_at_next_pick": 151.7,
+     "VONA": 13.3,
      "surplus_over_wire": 40.2,
      "cliff_after_rank": 6,
      "cliff_size": 4,
      "note": "STRIKE — waiting costs 13 and he is +40 over the wire",
      "players": [
       {
+       "player_id": "10222",
        "name": "Jayden Reed",
        "team": "GB",
        "proj": 165,
@@ -4683,11 +5020,12 @@
        "ceiling": 220,
        "injury_risk_pct": 36,
        "adp": 110.1,
-       "pct_available_now": 38,
+       "pct_available_now": 34,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 40.2
       },
       {
+       "player_id": "9756",
        "name": "Jordan Addison",
        "team": "MIN",
        "proj": 162,
@@ -4695,11 +5033,12 @@
        "ceiling": 220,
        "injury_risk_pct": 37,
        "adp": 107.1,
-       "pct_available_now": 17,
+       "pct_available_now": 24,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 37.2
       },
       {
+       "player_id": "6819",
        "name": "Michael Pittman",
        "team": "PIT",
        "proj": 161,
@@ -4712,6 +5051,7 @@
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9500",
        "name": "Josh Downs",
        "team": "IND",
        "proj": 161,
@@ -4719,11 +5059,12 @@
        "ceiling": 232,
        "injury_risk_pct": 61,
        "adp": 105.3,
-       "pct_available_now": 14,
+       "pct_available_now": 13,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
       {
+       "player_id": "9754",
        "name": "Quentin Johnston",
        "team": "LAC",
        "proj": 158,
@@ -4731,11 +5072,12 @@
        "ceiling": 227,
        "injury_risk_pct": 56,
        "adp": 102.2,
-       "pct_available_now": 10,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 33.2
       },
       {
+       "player_id": "5947",
        "name": "Jakobi Meyers",
        "team": "JAX",
        "proj": 156,
@@ -4743,11 +5085,12 @@
        "ceiling": 211,
        "injury_risk_pct": 37,
        "adp": 122.4,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 31.2
       },
       {
+       "player_id": "11624",
        "name": "Xavier Worthy",
        "team": "KC",
        "proj": 152,
@@ -4755,11 +5098,12 @@
        "ceiling": 224,
        "injury_risk_pct": 35,
        "adp": 130.3,
-       "pct_available_now": 97,
+       "pct_available_now": 98,
        "pct_still_there_next_pick": 57,
        "surplus_over_wire": 27.2
       },
       {
+       "player_id": "2449",
        "name": "Stefon Diggs",
        "team": "WAS",
        "proj": 149,
@@ -4767,11 +5111,12 @@
        "ceiling": 225,
        "injury_risk_pct": 31,
        "adp": 111.2,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 24.2
       },
       {
+       "player_id": "8121",
        "name": "Romeo Doubs",
        "team": "NE",
        "proj": 148,
@@ -4780,10 +5125,11 @@
        "injury_risk_pct": 37,
        "adp": 141.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 93,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "13298",
        "name": "KC Concepcion",
        "team": "CLE",
        "proj": 148,
@@ -4792,21 +5138,22 @@
        "injury_risk_pct": 29,
        "adp": 138.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 85,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 23.2
       }
      ]
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 130.7,
-     "VONA": 20.3,
+     "expected_best_at_next_pick": 130.9,
+     "VONA": 20.1,
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
      "cliff_size": 15,
      "note": "waiting costs 20, but he is only +21 over the wire — thin",
      "players": [
       {
+       "player_id": "4217",
        "name": "George Kittle",
        "team": "SF",
        "proj": 151,
@@ -4814,11 +5161,12 @@
        "ceiling": 214,
        "injury_risk_pct": 44,
        "adp": 92.2,
-       "pct_available_now": 18,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 20.6
       },
       {
+       "player_id": "1466",
        "name": "Travis Kelce",
        "team": "KC",
        "proj": 146,
@@ -4826,23 +5174,12 @@
        "ceiling": 175,
        "injury_risk_pct": 42,
        "adp": 93.2,
-       "pct_available_now": 13,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 15.6
       },
       {
-       "name": "Dallas Goedert",
-       "team": "PHI",
-       "proj": 131,
-       "floor": 115,
-       "ceiling": 166,
-       "injury_risk_pct": 83,
-       "adp": 116.8,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 25,
-       "surplus_over_wire": 0.6
-      },
-      {
+       "player_id": "5012",
        "name": "Mark Andrews",
        "team": "BAL",
        "proj": 131,
@@ -4850,11 +5187,25 @@
        "ceiling": 174,
        "injury_risk_pct": 36,
        "adp": 113.4,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 19,
+       "pct_available_now": 50,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 0.6
       },
       {
+       "player_id": "5022",
+       "name": "Dallas Goedert",
+       "team": "PHI",
+       "proj": 131,
+       "floor": 115,
+       "ceiling": 166,
+       "injury_risk_pct": 83,
+       "adp": 116.8,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 29,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "10236",
        "name": "Dalton Kincaid",
        "team": "BUF",
        "proj": 130,
@@ -4863,10 +5214,11 @@
        "injury_risk_pct": 62,
        "adp": 98.4,
        "pct_available_now": 19,
-       "pct_still_there_next_pick": 5,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "8110",
        "name": "Jake Ferguson",
        "team": "DAL",
        "proj": 129,
@@ -4874,22 +5226,23 @@
        "ceiling": 156,
        "injury_risk_pct": 55,
        "adp": 108.5,
-       "pct_available_now": 38,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 169.8,
-     "VONA": 7.2,
+     "expected_best_at_next_pick": 170,
+     "VONA": 7,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
      "note": "neutral — 7 to wait, +48 over the wire",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -4897,11 +5250,12 @@
        "ceiling": 191,
        "injury_risk_pct": 8,
        "adp": 115.7,
-       "pct_available_now": 60,
+       "pct_available_now": 61,
        "pct_still_there_next_pick": 32,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -4909,11 +5263,12 @@
        "ceiling": 182,
        "injury_risk_pct": 9,
        "adp": 140.6,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -4921,11 +5276,12 @@
        "ceiling": 176,
        "injury_risk_pct": 0,
        "adp": 139.1,
-       "pct_available_now": 89,
+       "pct_available_now": 90,
        "pct_still_there_next_pick": 69,
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -4941,14 +5297,15 @@
     },
     "DEF": {
      "best_now": 125,
-     "expected_best_at_next_pick": 119.7,
-     "VONA": 5.3,
+     "expected_best_at_next_pick": 119.9,
+     "VONA": 5.1,
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
      "note": "neutral — 5 to wait, +25 over the wire",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -4956,11 +5313,12 @@
        "ceiling": 140,
        "injury_risk_pct": 0,
        "adp": 119.6,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -4968,11 +5326,12 @@
        "ceiling": 134,
        "injury_risk_pct": 0,
        "adp": 126,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 37,
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -4980,11 +5339,12 @@
        "ceiling": 132,
        "injury_risk_pct": 0,
        "adp": 128.1,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 48,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -5007,14 +5367,15 @@
    "positions": {
     "QB": {
      "best_now": 325,
-     "expected_best_at_next_pick": 303.1,
-     "VONA": 21.9,
+     "expected_best_at_next_pick": 303.5,
+     "VONA": 21.5,
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
      "cliff_size": 22,
      "note": "skip — the best QB left is worth 2 over a free one",
      "players": [
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -5022,11 +5383,12 @@
        "ceiling": 419,
        "injury_risk_pct": 33,
        "adp": 123.4,
-       "pct_available_now": 35,
+       "pct_available_now": 34,
        "pct_still_there_next_pick": 24,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "3163",
        "name": "Jared Goff",
        "team": "DET",
        "proj": 303,
@@ -5034,11 +5396,12 @@
        "ceiling": 402,
        "injury_risk_pct": 23,
        "adp": 112.5,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "12545",
        "name": "Tyler Shough",
        "team": "NO",
        "proj": 296,
@@ -5051,6 +5414,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "6804",
        "name": "Jordan Love",
        "team": "GB",
        "proj": 296,
@@ -5058,11 +5422,12 @@
        "ceiling": 403,
        "injury_risk_pct": 82,
        "adp": 133.9,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "4892",
        "name": "Baker Mayfield",
        "team": "TB",
        "proj": 291,
@@ -5070,11 +5435,12 @@
        "ceiling": 405,
        "injury_risk_pct": 37,
        "adp": 131.7,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "5870",
        "name": "Daniel Jones",
        "team": "IND",
        "proj": 277,
@@ -5090,14 +5456,15 @@
     },
     "RB": {
      "best_now": 131,
-     "expected_best_at_next_pick": 130.3,
-     "VONA": 0.7,
+     "expected_best_at_next_pick": 130.5,
+     "VONA": 0.5,
      "surplus_over_wire": 52.6,
      "cliff_after_rank": 4,
      "cliff_size": 7,
      "note": "wait — only 1 lost by waiting, the tier holds",
      "players": [
       {
+       "player_id": "9508",
        "name": "Tyjae Spears",
        "team": "TEN",
        "proj": 131,
@@ -5105,11 +5472,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 160,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 89,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "8136",
        "name": "Rachaad White",
        "team": "WAS",
        "proj": 128,
@@ -5122,6 +5490,7 @@
        "surplus_over_wire": 49.6
       },
       {
+       "player_id": "4199",
        "name": "Aaron Jones",
        "team": "MIN",
        "proj": 124,
@@ -5130,10 +5499,11 @@
        "injury_risk_pct": 65,
        "adp": 114.3,
        "pct_available_now": 14,
-       "pct_still_there_next_pick": 7,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 45.6
       },
       {
+       "player_id": "9753",
        "name": "Zach Charbonnet",
        "team": "SEA",
        "proj": 120,
@@ -5141,11 +5511,12 @@
        "ceiling": 246,
        "injury_risk_pct": 37,
        "adp": 127.3,
-       "pct_available_now": 44,
-       "pct_still_there_next_pick": 35,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 41.6
       },
       {
+       "player_id": "12474",
        "name": "Woody Marks",
        "team": "HOU",
        "proj": 113,
@@ -5154,22 +5525,11 @@
        "injury_risk_pct": 0,
        "adp": 147.7,
        "pct_available_now": 93,
-       "pct_still_there_next_pick": 85,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 34.6
       },
       {
-       "name": "Isiah Pacheco",
-       "team": "DET",
-       "proj": 107,
-       "floor": 87,
-       "ceiling": 220,
-       "injury_risk_pct": 36,
-       "adp": 145.7,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 68,
-       "surplus_over_wire": 28.6
-      },
-      {
+       "player_id": "12469",
        "name": "Dylan Sampson",
        "team": "CLE",
        "proj": 107,
@@ -5178,10 +5538,24 @@
        "injury_risk_pct": 34,
        "adp": 171.3,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 97,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 28.6
       },
       {
+       "player_id": "8205",
+       "name": "Isiah Pacheco",
+       "team": "DET",
+       "proj": 107,
+       "floor": 87,
+       "ceiling": 220,
+       "injury_risk_pct": 36,
+       "adp": 145.7,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 72,
+       "surplus_over_wire": 28.6
+      },
+      {
+       "player_id": "11655",
        "name": "Tyrone Tracy",
        "team": "NYG",
        "proj": 104,
@@ -5189,11 +5563,12 @@
        "ceiling": 222,
        "injury_risk_pct": 34,
        "adp": 135.6,
-       "pct_available_now": 67,
-       "pct_still_there_next_pick": 54,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 25.6
       },
       {
+       "player_id": "10219",
        "name": "Chris Rodriguez",
        "team": "JAX",
        "proj": 104,
@@ -5201,11 +5576,12 @@
        "ceiling": 244,
        "injury_risk_pct": 27,
        "adp": 150.3,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 81,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 79,
        "surplus_over_wire": 25.6
       },
       {
+       "player_id": "8132",
        "name": "Tyler Allgeier",
        "team": "ARI",
        "proj": 97,
@@ -5213,22 +5589,23 @@
        "ceiling": 199,
        "injury_risk_pct": 23,
        "adp": 136.8,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 57,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 18.6
       }
      ]
     },
     "WR": {
      "best_now": 156,
-     "expected_best_at_next_pick": 149.7,
-     "VONA": 6.3,
+     "expected_best_at_next_pick": 149.5,
+     "VONA": 6.5,
      "surplus_over_wire": 31.2,
-     "cliff_after_rank": 6,
-     "cliff_size": 5,
-     "note": "neutral — 6 to wait, +31 over the wire",
+     "cliff_after_rank": 9,
+     "cliff_size": 7,
+     "note": "neutral — 7 to wait, +31 over the wire",
      "players": [
       {
+       "player_id": "5947",
        "name": "Jakobi Meyers",
        "team": "JAX",
        "proj": 156,
@@ -5236,11 +5613,12 @@
        "ceiling": 211,
        "injury_risk_pct": 37,
        "adp": 122.4,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 18,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 31.2
       },
       {
+       "player_id": "11624",
        "name": "Xavier Worthy",
        "team": "KC",
        "proj": 152,
@@ -5249,22 +5627,11 @@
        "injury_risk_pct": 35,
        "adp": 130.3,
        "pct_available_now": 57,
-       "pct_still_there_next_pick": 34,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 27.2
       },
       {
-       "name": "Stefon Diggs",
-       "team": "WAS",
-       "proj": 149,
-       "floor": 124,
-       "ceiling": 225,
-       "injury_risk_pct": 31,
-       "adp": 111.2,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 24.2
-      },
-      {
+       "player_id": "8121",
        "name": "Romeo Doubs",
        "team": "NE",
        "proj": 148,
@@ -5272,11 +5639,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 141.5,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 79,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 83,
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "13298",
        "name": "KC Concepcion",
        "team": "CLE",
        "proj": 148,
@@ -5284,11 +5652,12 @@
        "ceiling": 216,
        "injury_risk_pct": 29,
        "adp": 138.2,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "5872",
        "name": "Deebo Samuel",
        "team": "SF",
        "proj": 145,
@@ -5296,11 +5665,12 @@
        "ceiling": 226,
        "injury_risk_pct": 51,
        "adp": 128.8,
-       "pct_available_now": 49,
+       "pct_available_now": 47,
        "pct_still_there_next_pick": 29,
        "surplus_over_wire": 20.2
       },
       {
+       "player_id": "8126",
        "name": "Wan'Dale Robinson",
        "team": "TEN",
        "proj": 140,
@@ -5309,10 +5679,11 @@
        "injury_risk_pct": 36,
        "adp": 117.8,
        "pct_available_now": 9,
-       "pct_still_there_next_pick": 4,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 15.2
       },
       {
+       "player_id": "8134",
        "name": "Khalil Shakir",
        "team": "BUF",
        "proj": 137,
@@ -5325,6 +5696,7 @@
        "surplus_over_wire": 12.2
       },
       {
+       "player_id": "12501",
        "name": "Matthew Golden",
        "team": "GB",
        "proj": 136,
@@ -5332,11 +5704,12 @@
        "ceiling": 228,
        "injury_risk_pct": 37,
        "adp": 133,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 45,
        "surplus_over_wire": 11.2
       },
       {
+       "player_id": "8676",
        "name": "Rashid Shaheed",
        "team": "SEA",
        "proj": 133,
@@ -5344,34 +5717,36 @@
        "ceiling": 211,
        "injury_risk_pct": 38,
        "adp": 137.5,
-       "pct_available_now": 81,
-       "pct_still_there_next_pick": 66,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 64,
        "surplus_over_wire": 8.2
+      },
+      {
+       "player_id": "11618",
+       "name": "Jalen McMillan",
+       "team": "TB",
+       "proj": 126,
+       "floor": 107,
+       "ceiling": 216,
+       "injury_risk_pct": 39,
+       "adp": 184,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 100,
+       "surplus_over_wire": 1.2
       }
      ]
     },
     "TE": {
      "best_now": 131,
-     "expected_best_at_next_pick": 129.9,
-     "VONA": 1.1,
+     "expected_best_at_next_pick": 129.6,
+     "VONA": 1.4,
      "surplus_over_wire": 0.6,
-     "cliff_after_rank": 2,
-     "cliff_size": 2,
+     "cliff_after_rank": 4,
+     "cliff_size": 3,
      "note": "skip — the best TE left is worth 1 over a free one",
      "players": [
       {
-       "name": "Dallas Goedert",
-       "team": "PHI",
-       "proj": 131,
-       "floor": 115,
-       "ceiling": 166,
-       "injury_risk_pct": 83,
-       "adp": 116.8,
-       "pct_available_now": 25,
-       "pct_still_there_next_pick": 19,
-       "surplus_over_wire": 0.6
-      },
-      {
+       "player_id": "5012",
        "name": "Mark Andrews",
        "team": "BAL",
        "proj": 131,
@@ -5379,11 +5754,25 @@
        "ceiling": 174,
        "injury_risk_pct": 36,
        "adp": 113.4,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 0.6
       },
       {
+       "player_id": "5022",
+       "name": "Dallas Goedert",
+       "team": "PHI",
+       "proj": 131,
+       "floor": 115,
+       "ceiling": 166,
+       "injury_risk_pct": 83,
+       "adp": 116.8,
+       "pct_available_now": 29,
+       "pct_still_there_next_pick": 17,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "8110",
        "name": "Jake Ferguson",
        "team": "DAL",
        "proj": 129,
@@ -5391,11 +5780,12 @@
        "ceiling": 156,
        "injury_risk_pct": 55,
        "adp": 108.5,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "9480",
        "name": "Brenton Strange",
        "team": "JAX",
        "proj": 128,
@@ -5403,23 +5793,12 @@
        "ceiling": 164,
        "injury_risk_pct": 48,
        "adp": 155.5,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 88,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 87,
        "surplus_over_wire": 0
       },
       {
-       "name": "Isaiah Likely",
-       "team": "NYG",
-       "proj": 127,
-       "floor": 116,
-       "ceiling": 168,
-       "injury_risk_pct": 73,
-       "adp": 100.8,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 3,
-       "surplus_over_wire": 0
-      },
-      {
+       "player_id": "7002",
        "name": "Juwan Johnson",
        "team": "NO",
        "proj": 125,
@@ -5427,22 +5806,36 @@
        "ceiling": 157,
        "injury_risk_pct": 45,
        "adp": 157.2,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 97,
+       "surplus_over_wire": 0
+      },
+      {
+       "player_id": "3214",
+       "name": "Hunter Henry",
+       "team": "NE",
+       "proj": 123,
+       "floor": 109,
+       "ceiling": 162,
+       "injury_risk_pct": 47,
+       "adp": 144,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 167.9,
-     "VONA": 9.1,
+     "expected_best_at_next_pick": 168.5,
+     "VONA": 8.5,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
      "note": "neutral — 9 to wait, +48 over the wire",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -5451,10 +5844,11 @@
        "injury_risk_pct": 8,
        "adp": 115.7,
        "pct_available_now": 32,
-       "pct_still_there_next_pick": 24,
+       "pct_still_there_next_pick": 25,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -5462,11 +5856,12 @@
        "ceiling": 182,
        "injury_risk_pct": 9,
        "adp": 140.6,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 67,
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -5475,10 +5870,11 @@
        "injury_risk_pct": 0,
        "adp": 139.1,
        "pct_available_now": 69,
-       "pct_still_there_next_pick": 59,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -5494,14 +5890,15 @@
     },
     "DEF": {
      "best_now": 125,
-     "expected_best_at_next_pick": 117.4,
-     "VONA": 7.6,
+     "expected_best_at_next_pick": 117.1,
+     "VONA": 7.9,
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
      "note": "neutral — 8 to wait, +25 over the wire",
      "players": [
       {
+       "player_id": "HOU",
        "name": "Houston Texans",
        "team": "HOU",
        "proj": 125,
@@ -5509,11 +5906,12 @@
        "ceiling": 140,
        "injury_risk_pct": 0,
        "adp": 119.6,
-       "pct_available_now": 11,
+       "pct_available_now": 14,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 25
       },
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -5521,11 +5919,12 @@
        "ceiling": 134,
        "injury_risk_pct": 0,
        "adp": 126,
-       "pct_available_now": 40,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 37,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -5533,11 +5932,12 @@
        "ceiling": 132,
        "injury_risk_pct": 0,
        "adp": 128.1,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -5560,14 +5960,15 @@
    "positions": {
     "QB": {
      "best_now": 325,
-     "expected_best_at_next_pick": 291.8,
-     "VONA": 33.2,
+     "expected_best_at_next_pick": 291.5,
+     "VONA": 33.5,
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
-     "cliff_size": 29,
+     "cliff_size": 22,
      "note": "skip — the best QB left is worth 2 over a free one",
      "players": [
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -5576,10 +5977,24 @@
        "injury_risk_pct": 33,
        "adp": 123.4,
        "pct_available_now": 24,
-       "pct_still_there_next_pick": 6,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "team": "DET",
+       "proj": 303,
+       "floor": 278,
+       "ceiling": 402,
+       "injury_risk_pct": 23,
+       "adp": 112.5,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 0
+      },
+      {
+       "player_id": "12545",
        "name": "Tyler Shough",
        "team": "NO",
        "proj": 296,
@@ -5588,10 +6003,11 @@
        "injury_risk_pct": 17,
        "adp": 152.7,
        "pct_available_now": 93,
-       "pct_still_there_next_pick": 57,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "6804",
        "name": "Jordan Love",
        "team": "GB",
        "proj": 296,
@@ -5599,11 +6015,12 @@
        "ceiling": 403,
        "injury_risk_pct": 82,
        "adp": 133.9,
-       "pct_available_now": 51,
+       "pct_available_now": 50,
        "pct_still_there_next_pick": 11,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "4892",
        "name": "Baker Mayfield",
        "team": "TB",
        "proj": 291,
@@ -5611,11 +6028,12 @@
        "ceiling": 405,
        "injury_risk_pct": 37,
        "adp": 131.7,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "5870",
        "name": "Daniel Jones",
        "team": "IND",
        "proj": 277,
@@ -5626,31 +6044,20 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 0
-      },
-      {
-       "name": "Malik Willis",
-       "team": "MIA",
-       "proj": 275,
-       "floor": 264,
-       "ceiling": 410,
-       "injury_risk_pct": 15,
-       "adp": 151.2,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 48,
-       "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 131,
-     "expected_best_at_next_pick": 125.5,
-     "VONA": 5.5,
+     "expected_best_at_next_pick": 125.1,
+     "VONA": 5.9,
      "surplus_over_wire": 52.6,
      "cliff_after_rank": 1,
      "cliff_size": 7,
-     "note": "wait — Tyjae Spears is there next pick 74% of the time",
+     "note": "wait — Tyjae Spears is there next pick 71% of the time",
      "players": [
       {
+       "player_id": "9508",
        "name": "Tyjae Spears",
        "team": "TEN",
        "proj": 131,
@@ -5658,11 +6065,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 160,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 71,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "4199",
        "name": "Aaron Jones",
        "team": "MIN",
        "proj": 124,
@@ -5670,11 +6078,12 @@
        "ceiling": 214,
        "injury_risk_pct": 65,
        "adp": 114.3,
-       "pct_available_now": 7,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
        "surplus_over_wire": 45.6
       },
       {
+       "player_id": "9753",
        "name": "Zach Charbonnet",
        "team": "SEA",
        "proj": 120,
@@ -5682,11 +6091,12 @@
        "ceiling": 246,
        "injury_risk_pct": 37,
        "adp": 127.3,
-       "pct_available_now": 35,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 34,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 41.6
       },
       {
+       "player_id": "12474",
        "name": "Woody Marks",
        "team": "HOU",
        "proj": 113,
@@ -5694,23 +6104,12 @@
        "ceiling": 215,
        "injury_risk_pct": 0,
        "adp": 147.7,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 41,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 40,
        "surplus_over_wire": 34.6
       },
       {
-       "name": "Isiah Pacheco",
-       "team": "DET",
-       "proj": 107,
-       "floor": 87,
-       "ceiling": 220,
-       "injury_risk_pct": 36,
-       "adp": 145.7,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 41,
-       "surplus_over_wire": 28.6
-      },
-      {
+       "player_id": "12469",
        "name": "Dylan Sampson",
        "team": "CLE",
        "proj": 107,
@@ -5718,11 +6117,25 @@
        "ceiling": 198,
        "injury_risk_pct": 34,
        "adp": 171.3,
-       "pct_available_now": 97,
+       "pct_available_now": 96,
        "pct_still_there_next_pick": 88,
        "surplus_over_wire": 28.6
       },
       {
+       "player_id": "8205",
+       "name": "Isiah Pacheco",
+       "team": "DET",
+       "proj": 107,
+       "floor": 87,
+       "ceiling": 220,
+       "injury_risk_pct": 36,
+       "adp": 145.7,
+       "pct_available_now": 72,
+       "pct_still_there_next_pick": 45,
+       "surplus_over_wire": 28.6
+      },
+      {
+       "player_id": "11655",
        "name": "Tyrone Tracy",
        "team": "NYG",
        "proj": 104,
@@ -5730,11 +6143,12 @@
        "ceiling": 222,
        "injury_risk_pct": 34,
        "adp": 135.6,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 25.6
       },
       {
+       "player_id": "10219",
        "name": "Chris Rodriguez",
        "team": "JAX",
        "proj": 104,
@@ -5742,11 +6156,12 @@
        "ceiling": 244,
        "injury_risk_pct": 27,
        "adp": 150.3,
-       "pct_available_now": 81,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 49,
        "surplus_over_wire": 25.6
       },
       {
+       "player_id": "8132",
        "name": "Tyler Allgeier",
        "team": "ARI",
        "proj": 97,
@@ -5754,11 +6169,12 @@
        "ceiling": 199,
        "injury_risk_pct": 23,
        "adp": 136.8,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 27,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 25,
        "surplus_over_wire": 18.6
       },
       {
+       "player_id": "9511",
        "name": "Keaton Mitchell",
        "team": "LAC",
        "proj": 95,
@@ -5766,22 +6182,23 @@
        "ceiling": 224,
        "injury_risk_pct": 33,
        "adp": 163.2,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 76,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 16.6
       }
      ]
     },
     "WR": {
      "best_now": 156,
-     "expected_best_at_next_pick": 136,
-     "VONA": 20,
+     "expected_best_at_next_pick": 137.6,
+     "VONA": 18.4,
      "surplus_over_wire": 31.2,
      "cliff_after_rank": 5,
      "cliff_size": 8,
-     "note": "waiting costs 20, but he is only +31 over the wire — thin",
+     "note": "waiting costs 18, but he is only +31 over the wire — thin",
      "players": [
       {
+       "player_id": "5947",
        "name": "Jakobi Meyers",
        "team": "JAX",
        "proj": 156,
@@ -5789,11 +6206,12 @@
        "ceiling": 211,
        "injury_risk_pct": 37,
        "adp": 122.4,
-       "pct_available_now": 8,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 31.2
       },
       {
+       "player_id": "11624",
        "name": "Xavier Worthy",
        "team": "KC",
        "proj": 152,
@@ -5801,11 +6219,12 @@
        "ceiling": 224,
        "injury_risk_pct": 35,
        "adp": 130.3,
-       "pct_available_now": 34,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 27.2
       },
       {
+       "player_id": "8121",
        "name": "Romeo Doubs",
        "team": "NE",
        "proj": 148,
@@ -5813,11 +6232,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 141.5,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 83,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "13298",
        "name": "KC Concepcion",
        "team": "CLE",
        "proj": 148,
@@ -5825,11 +6245,12 @@
        "ceiling": 216,
        "injury_risk_pct": 29,
        "adp": 138.2,
-       "pct_available_now": 68,
+       "pct_available_now": 65,
        "pct_still_there_next_pick": 10,
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "5872",
        "name": "Deebo Samuel",
        "team": "SF",
        "proj": 145,
@@ -5842,6 +6263,7 @@
        "surplus_over_wire": 20.2
       },
       {
+       "player_id": "8134",
        "name": "Khalil Shakir",
        "team": "BUF",
        "proj": 137,
@@ -5850,10 +6272,11 @@
        "injury_risk_pct": 35,
        "adp": 149.6,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 51,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 12.2
       },
       {
+       "player_id": "12501",
        "name": "Matthew Golden",
        "team": "GB",
        "proj": 136,
@@ -5861,11 +6284,12 @@
        "ceiling": 228,
        "injury_risk_pct": 37,
        "adp": 133,
-       "pct_available_now": 42,
+       "pct_available_now": 45,
        "pct_still_there_next_pick": 4,
        "surplus_over_wire": 11.2
       },
       {
+       "player_id": "8676",
        "name": "Rashid Shaheed",
        "team": "SEA",
        "proj": 133,
@@ -5873,11 +6297,12 @@
        "ceiling": 211,
        "injury_risk_pct": 38,
        "adp": 137.5,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 8.2
       },
       {
+       "player_id": "11618",
        "name": "Jalen McMillan",
        "team": "TB",
        "proj": 126,
@@ -5890,6 +6315,7 @@
        "surplus_over_wire": 1.2
       },
       {
+       "player_id": "10213",
        "name": "Tre Tucker",
        "team": "LV",
        "proj": 124,
@@ -5905,26 +6331,15 @@
     },
     "TE": {
      "best_now": 131,
-     "expected_best_at_next_pick": 127,
-     "VONA": 4,
+     "expected_best_at_next_pick": 126.9,
+     "VONA": 4.1,
      "surplus_over_wire": 0.6,
-     "cliff_after_rank": 5,
-     "cliff_size": 4,
+     "cliff_after_rank": 4,
+     "cliff_size": 3,
      "note": "skip — the best TE left is worth 1 over a free one",
      "players": [
       {
-       "name": "Dallas Goedert",
-       "team": "PHI",
-       "proj": 131,
-       "floor": 115,
-       "ceiling": 166,
-       "injury_risk_pct": 83,
-       "adp": 116.8,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 3,
-       "surplus_over_wire": 0.6
-      },
-      {
+       "player_id": "5012",
        "name": "Mark Andrews",
        "team": "BAL",
        "proj": 131,
@@ -5932,11 +6347,38 @@
        "ceiling": 174,
        "injury_risk_pct": 36,
        "adp": 113.4,
-       "pct_available_now": 14,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 0.6
       },
       {
+       "player_id": "5022",
+       "name": "Dallas Goedert",
+       "team": "PHI",
+       "proj": 131,
+       "floor": 115,
+       "ceiling": 166,
+       "injury_risk_pct": 83,
+       "adp": 116.8,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 3,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "8110",
+       "name": "Jake Ferguson",
+       "team": "DAL",
+       "proj": 129,
+       "floor": 117,
+       "ceiling": 156,
+       "injury_risk_pct": 55,
+       "adp": 108.5,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 2,
+       "surplus_over_wire": 0
+      },
+      {
+       "player_id": "9480",
        "name": "Brenton Strange",
        "team": "JAX",
        "proj": 128,
@@ -5944,11 +6386,12 @@
        "ceiling": 164,
        "injury_risk_pct": 48,
        "adp": 155.5,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 62,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "7002",
        "name": "Juwan Johnson",
        "team": "NO",
        "proj": 125,
@@ -5961,6 +6404,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "3214",
        "name": "Hunter Henry",
        "team": "NE",
        "proj": 123,
@@ -5968,34 +6412,23 @@
        "ceiling": 162,
        "injury_risk_pct": 47,
        "adp": 144,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 39,
-       "surplus_over_wire": 0
-      },
-      {
-       "name": "Dalton Schultz",
-       "team": "HOU",
-       "proj": 119,
-       "floor": 109,
-       "ceiling": 148,
-       "injury_risk_pct": 57,
-       "adp": 186.8,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 159.8,
-     "VONA": 17.2,
+     "expected_best_at_next_pick": 160.7,
+     "VONA": 16.3,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
-     "note": "STRIKE — waiting costs 17 and he is +48 over the wire",
+     "note": "STRIKE — waiting costs 16 and he is +48 over the wire",
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -6003,11 +6436,12 @@
        "ceiling": 191,
        "injury_risk_pct": 8,
        "adp": 115.7,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 25,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -6015,11 +6449,12 @@
        "ceiling": 182,
        "injury_risk_pct": 9,
        "adp": 140.6,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 24,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -6027,11 +6462,12 @@
        "ceiling": 176,
        "injury_risk_pct": 0,
        "adp": 139.1,
-       "pct_available_now": 59,
+       "pct_available_now": 60,
        "pct_still_there_next_pick": 31,
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -6055,6 +6491,7 @@
      "note": "neutral — 8 to wait, +22 over the wire",
      "players": [
       {
+       "player_id": "DEN",
        "name": "Denver Broncos",
        "team": "DEN",
        "proj": 122,
@@ -6062,11 +6499,12 @@
        "ceiling": 134,
        "injury_risk_pct": 0,
        "adp": 126,
-       "pct_available_now": 22,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 22
       },
       {
+       "player_id": "SEA",
        "name": "Seattle Seahawks",
        "team": "SEA",
        "proj": 120,
@@ -6074,11 +6512,12 @@
        "ceiling": 132,
        "injury_risk_pct": 0,
        "adp": 128.1,
-       "pct_available_now": 28,
+       "pct_available_now": 24,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 20
       },
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -6087,10 +6526,11 @@
        "injury_risk_pct": 0,
        "adp": 161.6,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 84,
+       "pct_still_there_next_pick": 80,
        "surplus_over_wire": 14
       },
       {
+       "player_id": "BAL",
        "name": "Baltimore Ravens",
        "team": "BAL",
        "proj": 114,
@@ -6121,6 +6561,7 @@
      "note": null,
      "players": [
       {
+       "player_id": "5849",
        "name": "Kyler Murray",
        "team": "MIN",
        "proj": 325,
@@ -6128,11 +6569,12 @@
        "ceiling": 419,
        "injury_risk_pct": 33,
        "adp": 123.4,
-       "pct_available_now": 6,
+       "pct_available_now": 5,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
       {
+       "player_id": "12545",
        "name": "Tyler Shough",
        "team": "NO",
        "proj": 296,
@@ -6140,11 +6582,12 @@
        "ceiling": 409,
        "injury_risk_pct": 17,
        "adp": 152.7,
-       "pct_available_now": 57,
+       "pct_available_now": 58,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "6804",
        "name": "Jordan Love",
        "team": "GB",
        "proj": 296,
@@ -6157,6 +6600,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "4892",
        "name": "Baker Mayfield",
        "team": "TB",
        "proj": 291,
@@ -6164,11 +6608,12 @@
        "ceiling": 405,
        "injury_risk_pct": 37,
        "adp": 131.7,
-       "pct_available_now": 10,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "5870",
        "name": "Daniel Jones",
        "team": "IND",
        "proj": 277,
@@ -6181,6 +6626,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "8161",
        "name": "Malik Willis",
        "team": "MIA",
        "proj": 275,
@@ -6188,7 +6634,7 @@
        "ceiling": 410,
        "injury_risk_pct": 15,
        "adp": 151.2,
-       "pct_available_now": 48,
+       "pct_available_now": 51,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
@@ -6204,6 +6650,7 @@
      "note": null,
      "players": [
       {
+       "player_id": "9508",
        "name": "Tyjae Spears",
        "team": "TEN",
        "proj": 131,
@@ -6211,11 +6658,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 160,
-       "pct_available_now": 74,
+       "pct_available_now": 71,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 52.6
       },
       {
+       "player_id": "9753",
        "name": "Zach Charbonnet",
        "team": "SEA",
        "proj": 120,
@@ -6223,11 +6671,12 @@
        "ceiling": 246,
        "injury_risk_pct": 37,
        "adp": 127.3,
-       "pct_available_now": 9,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.6
       },
       {
+       "player_id": "12474",
        "name": "Woody Marks",
        "team": "HOU",
        "proj": 113,
@@ -6235,23 +6684,12 @@
        "ceiling": 215,
        "injury_risk_pct": 0,
        "adp": 147.7,
-       "pct_available_now": 41,
+       "pct_available_now": 40,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 34.6
       },
       {
-       "name": "Isiah Pacheco",
-       "team": "DET",
-       "proj": 107,
-       "floor": 87,
-       "ceiling": 220,
-       "injury_risk_pct": 36,
-       "adp": 145.7,
-       "pct_available_now": 41,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 28.6
-      },
-      {
+       "player_id": "12469",
        "name": "Dylan Sampson",
        "team": "CLE",
        "proj": 107,
@@ -6264,6 +6702,20 @@
        "surplus_over_wire": 28.6
       },
       {
+       "player_id": "8205",
+       "name": "Isiah Pacheco",
+       "team": "DET",
+       "proj": 107,
+       "floor": 87,
+       "ceiling": 220,
+       "injury_risk_pct": 36,
+       "adp": 145.7,
+       "pct_available_now": 45,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 28.6
+      },
+      {
+       "player_id": "11655",
        "name": "Tyrone Tracy",
        "team": "NYG",
        "proj": 104,
@@ -6271,11 +6723,12 @@
        "ceiling": 222,
        "injury_risk_pct": 34,
        "adp": 135.6,
-       "pct_available_now": 16,
+       "pct_available_now": 13,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
       {
+       "player_id": "10219",
        "name": "Chris Rodriguez",
        "team": "JAX",
        "proj": 104,
@@ -6283,11 +6736,12 @@
        "ceiling": 244,
        "injury_risk_pct": 27,
        "adp": 150.3,
-       "pct_available_now": 51,
+       "pct_available_now": 49,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
       {
+       "player_id": "8132",
        "name": "Tyler Allgeier",
        "team": "ARI",
        "proj": 97,
@@ -6295,11 +6749,12 @@
        "ceiling": 199,
        "injury_risk_pct": 23,
        "adp": 136.8,
-       "pct_available_now": 27,
+       "pct_available_now": 25,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 18.6
       },
       {
+       "player_id": "9511",
        "name": "Keaton Mitchell",
        "team": "LAC",
        "proj": 95,
@@ -6307,11 +6762,12 @@
        "ceiling": 224,
        "injury_risk_pct": 33,
        "adp": 163.2,
-       "pct_available_now": 76,
+       "pct_available_now": 73,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 16.6
       },
       {
+       "player_id": "8154",
        "name": "Brian Robinson",
        "team": "ATL",
        "proj": 94,
@@ -6319,7 +6775,7 @@
        "ceiling": 199,
        "injury_risk_pct": 36,
        "adp": 139.9,
-       "pct_available_now": 29,
+       "pct_available_now": 30,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 15.6
       }
@@ -6335,6 +6791,7 @@
      "note": null,
      "players": [
       {
+       "player_id": "8121",
        "name": "Romeo Doubs",
        "team": "NE",
        "proj": 148,
@@ -6342,11 +6799,12 @@
        "ceiling": 218,
        "injury_risk_pct": 37,
        "adp": 141.5,
-       "pct_available_now": 16,
+       "pct_available_now": 23,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "13298",
        "name": "KC Concepcion",
        "team": "CLE",
        "proj": 148,
@@ -6359,6 +6817,7 @@
        "surplus_over_wire": 23.2
       },
       {
+       "player_id": "8134",
        "name": "Khalil Shakir",
        "team": "BUF",
        "proj": 137,
@@ -6366,11 +6825,12 @@
        "ceiling": 189,
        "injury_risk_pct": 35,
        "adp": 149.6,
-       "pct_available_now": 51,
+       "pct_available_now": 53,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 12.2
       },
       {
+       "player_id": "8676",
        "name": "Rashid Shaheed",
        "team": "SEA",
        "proj": 133,
@@ -6378,11 +6838,12 @@
        "ceiling": 211,
        "injury_risk_pct": 38,
        "adp": 137.5,
-       "pct_available_now": 9,
+       "pct_available_now": 14,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 8.2
       },
       {
+       "player_id": "11618",
        "name": "Jalen McMillan",
        "team": "TB",
        "proj": 126,
@@ -6395,6 +6856,7 @@
        "surplus_over_wire": 1.2
       },
       {
+       "player_id": "10213",
        "name": "Tre Tucker",
        "team": "LV",
        "proj": 124,
@@ -6407,6 +6869,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "11646",
        "name": "Jalen Coker",
        "team": "CAR",
        "proj": 122,
@@ -6414,11 +6877,12 @@
        "ceiling": 210,
        "injury_risk_pct": 18,
        "adp": 159,
-       "pct_available_now": 77,
+       "pct_available_now": 76,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "13346",
        "name": "Denzel Boston",
        "team": "CLE",
        "proj": 121,
@@ -6426,11 +6890,12 @@
        "ceiling": 215,
        "injury_risk_pct": 42,
        "adp": 165.1,
-       "pct_available_now": 94,
+       "pct_available_now": 96,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "1479",
        "name": "Keenan Allen",
        "team": "IND",
        "proj": 119,
@@ -6443,6 +6908,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "13417",
        "name": "De'Zhaun Stribling",
        "team": "SF",
        "proj": 117,
@@ -6466,6 +6932,7 @@
      "note": null,
      "players": [
       {
+       "player_id": "9480",
        "name": "Brenton Strange",
        "team": "JAX",
        "proj": 128,
@@ -6473,11 +6940,12 @@
        "ceiling": 164,
        "injury_risk_pct": 48,
        "adp": 155.5,
-       "pct_available_now": 62,
+       "pct_available_now": 60,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "7002",
        "name": "Juwan Johnson",
        "team": "NO",
        "proj": 125,
@@ -6490,6 +6958,7 @@
        "surplus_over_wire": 0
       },
       {
+       "player_id": "3214",
        "name": "Hunter Henry",
        "team": "NE",
        "proj": 123,
@@ -6497,11 +6966,12 @@
        "ceiling": 162,
        "injury_risk_pct": 47,
        "adp": 144,
-       "pct_available_now": 39,
+       "pct_available_now": 36,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "5001",
        "name": "Dalton Schultz",
        "team": "HOU",
        "proj": 119,
@@ -6509,11 +6979,12 @@
        "ceiling": 148,
        "injury_risk_pct": 57,
        "adp": 186.8,
-       "pct_available_now": 100,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "5844",
        "name": "T.J. Hockenson",
        "team": "MIN",
        "proj": 116,
@@ -6521,11 +6992,12 @@
        "ceiling": 148,
        "injury_risk_pct": 51,
        "adp": 173,
-       "pct_available_now": 83,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
       {
+       "player_id": "8210",
        "name": "Chig Okonkwo",
        "team": "WAS",
        "proj": 114,
@@ -6533,7 +7005,7 @@
        "ceiling": 159,
        "injury_risk_pct": 22,
        "adp": 153.4,
-       "pct_available_now": 63,
+       "pct_available_now": 53,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
@@ -6549,6 +7021,7 @@
      "note": null,
      "players": [
       {
+       "player_id": "11533",
        "name": "Brandon Aubrey",
        "team": "DAL",
        "proj": 177,
@@ -6556,11 +7029,12 @@
        "ceiling": 191,
        "injury_risk_pct": 8,
        "adp": 115.7,
-       "pct_available_now": 9,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 48.4
       },
       {
+       "player_id": "8259",
        "name": "Cameron Dicker",
        "team": "LAC",
        "proj": 170,
@@ -6568,11 +7042,12 @@
        "ceiling": 182,
        "injury_risk_pct": 9,
        "adp": 140.6,
-       "pct_available_now": 24,
+       "pct_available_now": 31,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.4
       },
       {
+       "player_id": "3451",
        "name": "Ka'imi Fairbairn",
        "team": "HOU",
        "proj": 158,
@@ -6585,6 +7060,7 @@
        "surplus_over_wire": 29.4
       },
       {
+       "player_id": "2020",
        "name": "Cairo Santos",
        "team": "CHI",
        "proj": 153,
@@ -6608,6 +7084,7 @@
      "note": null,
      "players": [
       {
+       "player_id": "NE",
        "name": "New England Patriots",
        "team": "NE",
        "proj": 114,
@@ -6615,11 +7092,12 @@
        "ceiling": 129,
        "injury_risk_pct": 0,
        "adp": 161.6,
-       "pct_available_now": 84,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
       },
       {
+       "player_id": "BAL",
        "name": "Baltimore Ravens",
        "team": "BAL",
        "proj": 114,
@@ -6632,6 +7110,7 @@
        "surplus_over_wire": 14
       },
       {
+       "player_id": "GB",
        "name": "Green Bay Packers",
        "team": "GB",
        "proj": 114,
@@ -6644,6 +7123,7 @@
        "surplus_over_wire": 14
       },
       {
+       "player_id": "PIT",
        "name": "Pittsburgh Steelers",
        "team": "PIT",
        "proj": 112,
@@ -6731,12 +7211,12 @@
    "pos": {
     "QB": 0,
     "RB": 17,
-    "WR": 27,
+    "WR": 11,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "WR",
+   "steepest": "RB",
    "flattest": "QB"
   },
   {
@@ -6779,12 +7259,12 @@
    "pos": {
     "QB": 3,
     "RB": 0,
-    "WR": 19,
+    "WR": 0,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "WR",
+   "steepest": "QB",
    "flattest": "RB"
   },
   {
@@ -6795,12 +7275,12 @@
    "pos": {
     "QB": 5,
     "RB": 15,
-    "WR": 2,
+    "WR": 21,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "RB",
+   "steepest": "WR",
    "flattest": "TE"
   },
   {
@@ -6811,12 +7291,12 @@
    "pos": {
     "QB": 0,
     "RB": 4,
-    "WR": 8,
+    "WR": 0,
     "TE": 1,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "WR",
+   "steepest": "RB",
    "flattest": "QB"
   },
   {
@@ -6827,13 +7307,13 @@
    "pos": {
     "QB": 2,
     "RB": 2,
-    "WR": 0,
+    "WR": 8,
     "TE": 9,
     "K": 0,
     "DEF": 0
    },
    "steepest": "TE",
-   "flattest": "WR"
+   "flattest": "K"
   },
   {
    "from_pick": 108,
@@ -6938,18 +7418,6 @@
    "injury_risk_pct": 0
   },
   {
-   "name": "Rome Odunze",
-   "position": "WR",
-   "adp": 60.8,
-   "proj": 173,
-   "ceiling": 249,
-   "upside": 76,
-   "ceiling_rank": 15,
-   "adp_rank": 27,
-   "steal_gap": 12,
-   "injury_risk_pct": 36
-  },
-  {
    "name": "Terrance Ferguson",
    "position": "TE",
    "adp": 196.3,
@@ -6974,6 +7442,30 @@
    "injury_risk_pct": 39
   },
   {
+   "name": "Mike Evans",
+   "position": "WR",
+   "adp": 59.7,
+   "proj": 183,
+   "ceiling": 249,
+   "upside": 66,
+   "ceiling_rank": 15,
+   "adp_rank": 26,
+   "steal_gap": 11,
+   "injury_risk_pct": 65
+  },
+  {
+   "name": "Rome Odunze",
+   "position": "WR",
+   "adp": 60.8,
+   "proj": 173,
+   "ceiling": 249,
+   "upside": 76,
+   "ceiling_rank": 16,
+   "adp_rank": 27,
+   "steal_gap": 11,
+   "injury_risk_pct": 36
+  },
+  {
    "name": "Deebo Samuel",
    "position": "WR",
    "adp": 128.8,
@@ -6996,18 +7488,6 @@
    "adp_rank": 47,
    "steal_gap": 11,
    "injury_risk_pct": 27
-  },
-  {
-   "name": "Mike Evans",
-   "position": "WR",
-   "adp": 59.7,
-   "proj": 183,
-   "ceiling": 249,
-   "upside": 66,
-   "ceiling_rank": 16,
-   "adp_rank": 26,
-   "steal_gap": 10,
-   "injury_risk_pct": 65
   },
   {
    "name": "Christian Watson",
@@ -7190,16 +7670,16 @@
    "injury_risk_pct": 33
   },
   {
-   "name": "Jaydon Blue",
+   "name": "Nicholas Singleton",
    "position": "RB",
-   "adp": 185.7,
-   "proj": 77,
-   "ceiling": 214,
-   "upside": 137,
-   "ceiling_rank": 49,
-   "adp_rank": 55,
+   "adp": 195.3,
+   "proj": 58,
+   "ceiling": 205,
+   "upside": 147,
+   "ceiling_rank": 52,
+   "adp_rank": 58,
    "steal_gap": 6,
-   "injury_risk_pct": 22
+   "injury_risk_pct": 19
   }
  ],
  "_steals_caveat": "ceiling_steals is an IF, not a forecast: it ranks players by how much earlier their CEILING would have ranked them AT THEIR OWN POSITION than their ADP did. It says nothing about whether they reach it.",

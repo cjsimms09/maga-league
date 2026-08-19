@@ -898,6 +898,71 @@
       .catch(e => console.warn('[seat-plan] unavailable:', e && e.message));
   }
 
+  /* ── POSITION BOARDS — Cory redefined the war room, 2026-08-19 (A dispatch,
+   * ROUTES.md `48c915f1`): "not one recommendation — six position columns."
+   * A built the data (`draft/tools/position_boards.js` -> `public/position_boards.json`);
+   * `public/js/draft/position_boards_view.js` is the pure render module (TERRITORY: B).
+   * Same fail-soft shape as `loadSeatPlan` — an enhancement to the board, never
+   * a dependency of it. */
+  function loadPositionBoards() {
+    fetch('/position_boards.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.picks)) return;
+        state.positionBoards = d;
+        try { renderPositionBoardsPanel(); } catch (e) { console.error('[position-boards]', e && e.message); }
+      })
+      .catch(e => console.warn('[position-boards] unavailable:', e && e.message));
+  }
+
+  /* ⚠️ THE SURVIVAL OVERRIDE — LIVE ONLY WHEN THE TARGET ACTUALLY MATCHES.
+   *
+   * `position_boards.json`'s `pct_still_there_next_pick` is ADP-drain only (300
+   * simulated rooms, no live draft context, no keepers, no this-room profiles).
+   * A's own dispatch: app.js MUST override it with a live, opponent-aware
+   * number computed via `DraftSurvival.conservedSurvival()`.
+   *
+   * NOT a second computation — REUSED. `renderRecommendations()` already calls
+   * `E.onTheClock(context(), state.lists)`, which calls `conservedSurvival(ctx.board,
+   * ctx.nextPick, ctx)` internally (engine.js:944) and stamps the result onto
+   * every scored player as `survival_to_next` (line 2243). `renderSurvival()`
+   * reads the identical field for the same reason: ONE derivation, never two
+   * that can quietly disagree (2026-08-10 critique — Best Available and Survival
+   * Odds once showed different numbers for the same player on the same screen).
+   *
+   * BUT `survival_to_next` targets `ctx.nextPick` — MY NEXT TURN from wherever
+   * the draft is right now — and a position-boards block's `next_pick` is a
+   * DIFFERENT target unless I am actually on the clock for that block's own
+   * `pick`. Off the clock, `findPick` previews an UPCOMING entry (round 4,
+   * pick 33) while the live draft sits at pick 30; `ctx.nextPick` there is 33
+   * (my next turn), not the block's `next_pick` of 48. Stamping `survival_to_next`
+   * onto that preview would label a mismatched-window number "live" — worse
+   * than the estimate it would replace, because it LOOKS authoritative. So the
+   * override applies only when `currentPick() === pick.pick` (I am on the clock
+   * for this exact block) AND `pick.next_pick === ctx.nextPick` (the engine's
+   * own next-turn target agrees with the block's). Every other case falls back
+   * to the view's own built-in estimate marker — exactly as designed. */
+  function renderPositionBoardsPanel() {
+    const host = $('#position-boards');
+    const d = state.positionBoards;
+    if (!host || !d || typeof PositionBoardsView === 'undefined') return;
+    const cur = currentPick();
+    const pick = PositionBoardsView.findPick(d, cur);
+    let liveSurvivalById = null;
+    if (pick && state.lastClock && state.lastClock.scored) {
+      const ctx = context();
+      if (cur === pick.pick && pick.next_pick === ctx.nextPick) {
+        liveSurvivalById = {};
+        state.lastClock.scored.forEach(function (s) {
+          if (s.survival_to_next != null) {
+            liveSurvivalById[String(s.player.player_id)] = s.survival_to_next;
+          }
+        });
+      }
+    }
+    host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml);
+  }
+
   /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
    *
    * `display_contract` names each displayable field's units, direction and the
@@ -1406,6 +1471,7 @@
     loadFrozenBaseline();
     loadSeatPlan();
     loadSourceBoards();
+    loadPositionBoards();
     loadConditionalValue();
     loadOpponentNeed();
     loadExpertSpread();
@@ -2406,6 +2472,11 @@
     checkKeeperLock();
     safeRender('header', renderHeader);
     safeRender('recommendations', renderRecommendations);
+    // AFTER recommendations, not before: the live survival override reuses
+    // state.lastClock.scored's survival_to_next, which renderRecommendations
+    // just populated. Reordering this ahead of it would silently fall back
+    // to the JSON estimate on every render, never the live number.
+    safeRender('positionBoards', renderPositionBoardsPanel);
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
