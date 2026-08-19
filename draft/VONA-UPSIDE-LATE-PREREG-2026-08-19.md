@@ -149,3 +149,47 @@ is wrong, not the pick.
 
 **Extra control C6:** no position may exceed its cap in the final roster. This is
 enforced in code, so a violation means the enforcement is broken, not the policy.
+
+---
+
+# ADDENDUM 2 — ⚖️ CORY'S RULING, 2026-08-19. QB 1 and TE 1.
+
+**Cory, verbatim, on seeing arm 2's `QB2 · RB5 · WR4 · TE2`:**
+***"NOT 2 qbS AND 2 TE THATS NOT NORMAL"***
+
+**RULING ACCEPTED. `CAP.QB = 1`, `CAP.TE = 1`.**
+
+## WHY THIS IS NOT ME TUNING ON THE OUTPUT — and the distinction matters
+
+**`no_fit_guard` forbids ME changing a constant because I saw a number I liked.
+It does not forbid the owner of the definition ruling on it.** Cory owns what
+"normal roster" means — that is his call in `CLAUDE.md`, not mine — and *"drafts
+a normal roster"* was one of the four requirements he set. **Arm 2 failed a
+requirement whose definition belongs to him. The constant changes because the
+requirement holder ruled, not because I optimised.** Written down here so nobody
+later reads this as a fitted parameter.
+
+**And my derivation was the weak link, not the mechanism.** I wrote *"one-starter
+skill: `starters + 1`, one backup against injury"* — **that "+1" is my inference,
+not something the league's roster rules say.** With six bench slots, spending two
+of them on positions you start one of is a choice, and it was mine.
+
+## ⚠️ THE COST, STATED RATHER THAN DISCOVERED LATER
+
+`QB1 / TE1` means **a bye week leaves that slot empty.** The fieldability probe
+already measures this on the shipped engine, which is also QB1/TE1: **un-fieldable
+skill weeks at 8 (QB) and 10 (TE).**
+
+**The answer is streaming, and this league's own measured wire churn supports it**
+— `waiver_supply.js`: 802 completed adds across 2023-25, DEF 100% and K 83% of
+the pool cycling. A one-week QB or TE off the wire is a real option here. **It is
+not free, and I am recording it as the price of the ruling rather than pretending
+QB1/TE1 has no downside.**
+
+## P141
+
+**With `QB 1 · TE 1`, the roster is `QB1 · TE1 · K1 · DEF1` plus eleven RB/WR**,
+the two freed bench slots go to skill-position upside, and **the STARTER picks
+are again unchanged.**
+
+**FALSE if** any starter moves, or if the freed slots do not go to RB/WR.
