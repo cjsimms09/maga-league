@@ -21,11 +21,23 @@
  *     const collisions = sameByeAtPos.length;   // others already rostered
  *     const value = drop * posWeight * Math.min(1, collisions / max(1, slots));
  *
- * With `collisions === 0` the value is 0 regardless of everything else. So the
- * term can only fire on your SECOND player at a position sharing a bye — and by
- * then the collision already exists. **A penalty that cannot fire until the
- * damage is done is not a preventative.** That is a hypothesis about the code;
- * this probe tests it against the real board rather than asserting it.
+ * With `collisions === 0` the value is 0 regardless of everything else.
+ *
+ * ⚠️ **I GUESSED FROM THAT THAT THE TERM FIRES TOO LATE — "a penalty that cannot
+ * fire until the damage is done is not a preventative" — AND THE MEASUREMENT
+ * REFUTES IT.** `sameByeAtPos` counts the ROSTER, not the candidate, so when you
+ * already hold one receiver on bye 11 and the candidate is a second, collisions
+ * is 1 and the penalty fires **on exactly the pick that would create the
+ * collision**. The timing is right.
+ *
+ * **THE PROBLEM IS MAGNITUDE.** Measured on the live board at Cory's fifteen
+ * picks: penalties of 0.37 to 2.63 against score gaps of several points, firing
+ * on 5 of 15 picks and — at a full `bye: 1.0`, four times its shipped value of
+ * ZERO — changing the pick **once in fifteen**. `Math.min(1, collisions/slots)`
+ * caps a first collision at 0.5 for a two-starter position, and `drop` is one
+ * player's weekly margin over replacement, which is ~1-2 points. The term is
+ * correctly designed and numerically negligible, which is a different defect
+ * from the one I assumed and needs a different fix.
  *
  * REPORT ONLY. Ships no weight, changes no configuration.
  *
@@ -105,21 +117,35 @@ SCHED.forEach((pk, i) => {
   });
   if (nonzero) everFired++;
 
-  /* WOULD IT HAVE CHANGED THE PICK? Re-score with bye at 0 and compare the top
-   * name. This is the only question that matters — a term that moves a score
-   * without ever moving a CHOICE is decoration. */
-  const zeroCtx = Object.assign({}, ctx,
+  /* WOULD IT HAVE CHANGED THE PICK? A term that moves a score without ever
+   * moving a CHOICE is decoration.
+   *
+   * ⚠️ THE FIRST VERSION OF THIS COMPARISON WAS VACUOUS AND I NEARLY PUBLISHED
+   * ITS RESULT. It re-scored with `{...MEASURED_WEIGHTS, bye: 0}` against
+   * MEASURED_WEIGHTS — but **`MEASURED_WEIGHTS.bye` IS ALREADY 0**, so both
+   * sides were the same configuration and "changed the pick: 0/15" was
+   * arithmetic, not a finding. Caught only because the probe prints the shipped
+   * weight in its own header and the 0 was sitting there.
+   *
+   * The honest comparison is bye=1.0 against bye=0 — i.e. what turning the
+   * term ON would do, which is the decision anyone would actually face. */
+  const onCtx = Object.assign({}, ctx,
+    { weights: Object.assign({}, E.MEASURED_WEIGHTS, { bye: 1.0 }) });
+  const offCtx = Object.assign({}, ctx,
     { weights: Object.assign({}, E.MEASURED_WEIGHTS, { bye: 0 }) });
-  const out0 = E.recommend(zeroCtx);
-  const list0 = Array.isArray(out0) ? out0 : (out0 && out0.scored) || [];
+  const outOn = E.recommend(onCtx);
+  const outOff = E.recommend(offCtx);
+  const listOn = Array.isArray(outOn) ? outOn : (outOn && outOn.scored) || [];
+  const listOff = Array.isArray(outOff) ? outOff : (outOff && outOff.scored) || [];
   const a = top20[0] && (top20[0].player || top20[0]);
-  const b = list0[0] && (list0[0].player || list0[0]);
-  const changed = !!(a && b && String(a.player_id) !== String(b.player_id));
+  const pOn = listOn[0] && (listOn[0].player || listOn[0]);
+  const pOff = listOff[0] && (listOff[0].player || listOff[0]);
+  const changed = !!(pOn && pOff && String(pOn.player_id) !== String(pOff.player_id));
   if (changed) everChanged++;
 
   rows.push({ pick: pk, top20_with_a_bye_penalty: nonzero,
               largest_penalty: Math.round(max * 100) / 100, largest_on: maxWho,
-              pick_changes_if_bye_zeroed: changed,
+              pick_changes_if_bye_turned_ON: changed,
               picked: a ? (a.position + ' ' + a.name) : null });
 
   if (a) { taken.add(String(a.player_id)); roster.push(Object.assign({}, a)); }
@@ -142,13 +168,13 @@ console.log('  shipped bye weight: ' + E.MEASURED_WEIGHTS.bye);
 console.log('  CONTROL (a roster that DEFINITELY has a collision): '
   + (ctrl.ok ? '✅ penalty ' + ctrl.value.toFixed(2) + ' — ' + ctrl.detail
              : '⛔ RETURNED ZERO — every null below is the probe, not the term'));
-console.log('\n  pick   top20 w/ penalty   largest   changes pick?   taken');
+console.log('\n  pick   top20 w/ penalty   largest   bye=1 moves it?   taken');
 rows.forEach(r => console.log('  ' + String(r.pick).padStart(4) + '   '
   + String(r.top20_with_a_bye_penalty).padStart(13) + '   '
   + String(r.largest_penalty).padStart(7) + '   '
-  + String(r.pick_changes_if_bye_zeroed).padStart(12) + '   ' + r.picked));
+  + String(r.pick_changes_if_bye_turned_ON).padStart(12) + '   ' + r.picked));
 console.log('\n  any candidate carried a penalty: ' + report.picks_where_any_candidate_carried_a_penalty);
-console.log('  the bye term CHANGED the pick:   ' + report.picks_the_bye_term_actually_changed);
+console.log('  turning bye ON to 1.0 CHANGED the pick: ' + report.picks_the_bye_term_actually_changed);
 
 const outPath = (() => { const i = process.argv.indexOf('--json'); return i >= 0 ? process.argv[i + 1] : null; })();
 if (outPath) { fs.writeFileSync(outPath, JSON.stringify(report, null, 1)); console.log('  wrote ' + outPath); }
