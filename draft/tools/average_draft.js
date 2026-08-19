@@ -124,6 +124,13 @@ const gauss = () => { const u = Math.max(1e-12, rnd()), v = rnd();
  * NOT change with the calendar and is never ramped. This is what makes RB/WR
  * retain value, QB/TE tank, and K/DEF go to ~0 after one. */
 function depthOf(pos, held, flexOwner) {
+  /* P177 — CORY'S OWN K/DEF RULING, 2026-08-19: "same problem with K and def,
+   * once you draft 1 the need should be 0." Preregistered and graded as P149
+   * before this thread existed, where it fixed both cells and cost 0.4% of
+   * value. Not a knob and not selected from these results: without it a second
+   * kicker still prices positive against a 128.6 wire, which is where the blend
+   * arm's freed picks leaked. */
+  if (process.env.KDEF === 'on' && (pos === 'K' || pos === 'DEF') && held >= 1) return 0;
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
   if (held < S) return null;              // not a depth question — the slot is EMPTY
