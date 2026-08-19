@@ -31,16 +31,65 @@ def build() -> dict:
 
     src = json.loads((HERE / "fp_expert_ranks_2026.json").read_text())
     idx = EG.name_index()
-    rows, misses = [], 0
+
+    # ── TWO FALLBACKS, BOTH ARGUED A PRIORI, NEITHER FITTED (register 91) ────
+    # `crosswalk_misses` shipped as a bare COUNT of 9 and named nobody. One of
+    # the nine was **Kenneth Walker III at ECR 23 — one of Cory's three
+    # keepers** — so his expert-split badge was silently blank on the surface
+    # Cory drafts from. That is register 80's shape in a second artifact.
+    #
+    # (1) COLLISION + UNIQUE POSITION. `sleeper_name_index` deliberately drops
+    #     any name held by two rostered players — *"a caller gets no answer
+    #     rather than a wrong one"*, which is the right instinct. But it
+    #     discards the candidates, and **this caller already knows the
+    #     position**: it checks `hit.position == row.position` on the next
+    #     line. "kenneth walker" collides between an inactive WR (4634) and
+    #     the KC running back (8151); only one is an RB, so the ambiguity the
+    #     exclusion protects against does not exist for this caller. The
+    #     store publishes `collisions`, so this needs no change in C's
+    #     territory. **Where the position does NOT disambiguate, nothing is
+    #     resolved** — Kyle Williams (3 WRs) and Frank Gore Jr. (2 RBs) stay
+    #     unmatched, which preserves the principle rather than eroding it.
+    #
+    # (2) `adp.NICKNAMES`, because rule 11 says one crosswalk. "Hollywood
+    #     Brown" -> "Marquise Brown" is already in that table and this join
+    #     was not reading it. Reusing it is the fix; inventing a fuzzy
+    #     name rule here is what rule 11 exists to prevent — and a
+    #     "conservative prefix rule" I proposed on 08-19 for a sibling defect
+    #     would itself have missed Gainwell, so the general lesson is bought.
+    collisions = json.loads(
+        (HERE / "sleeper_name_index.json").read_text()).get("collisions") or {}
+    try:
+        sys.path.insert(0, str(ROOT / "draft"))
+        from adp import NICKNAMES
+    except Exception:                                   # noqa: BLE001
+        NICKNAMES = {}
+
+    rows, misses, recovered = [], 0, []
     for p in src["players"]:
         ranks = list((p.get("expert_ranks") or {}).values())
         if len(ranks) < 5:
             continue
-        hit = idx.get(EG._norm(p.get("name")))
+        norm = EG._norm(p.get("name"))
+        pos = (p.get("position") or "").upper()
+        hit = idx.get(norm)
         pid = None
-        if hit and (hit.get("position") or "").upper() == (p.get("position") or "").upper():
+        if hit and (hit.get("position") or "").upper() == pos:
             pid = str(hit["player_id"])
         else:
+            same_pos = [c for c in collisions.get(norm, [])
+                        if (c.get("position") or "").upper() == pos]
+            if len(same_pos) == 1:
+                pid = str(same_pos[0]["player_id"])
+                recovered.append({"name": p.get("name"), "position": pos,
+                                  "player_id": pid, "via": "collision+position"})
+            elif norm in NICKNAMES:
+                alt = idx.get(NICKNAMES[norm])
+                if alt and (alt.get("position") or "").upper() == pos:
+                    pid = str(alt["player_id"])
+                    recovered.append({"name": p.get("name"), "position": pos,
+                                      "player_id": pid, "via": "adp.NICKNAMES"})
+        if pid is None:
             misses += 1
         rows.append({
             "player_id": pid, "name": p.get("name"),
@@ -54,7 +103,17 @@ def build() -> dict:
                     "not fitted, asserts nothing beyond what experts published.",
            "_source": src.get("url"), "season": 2026,
            "scraped_at": src.get("scraped_at"),
-           "crosswalk_misses": misses, "players": rows}
+           "crosswalk_misses": misses,
+           # NAMED, not just counted. Register 80's whole lesson is that a
+           # diagnostic nobody can act on is worse than none, because its
+           # existence is mistaken for the check having been done — and a bare
+           # `9` cannot tell you one of them is a keeper.
+           "crosswalk_unmatched": [
+               {"name": r["name"], "position": r["position"],
+                "rank_ecr": r["rank_ecr"]}
+               for r in rows if not r["player_id"]],
+           "crosswalk_recovered": recovered,
+           "players": rows}
     out = json.dumps(doc, indent=1)
     (ROOT / "public" / "expert_spread_2026.json").write_text(out)
     (ROOT / "draft" / "data" / "expert_spread_2026.json").write_text(out)

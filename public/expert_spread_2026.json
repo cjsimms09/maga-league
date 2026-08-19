@@ -4,7 +4,59 @@
  "_source": "https://api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?type=draft&scoring=HALF&position=ALL&week=0&experts=show",
  "season": 2026,
  "scraped_at": "2026-08-19T08:29:01Z",
- "crosswalk_misses": 9,
+ "crosswalk_misses": 6,
+ "crosswalk_unmatched": [
+  {
+   "name": "Kyle Williams",
+   "position": "WR",
+   "rank_ecr": 301
+  },
+  {
+   "name": "Bam Knight",
+   "position": "RB",
+   "rank_ecr": 355
+  },
+  {
+   "name": "Kyle Juszczyk",
+   "position": "RB",
+   "rank_ecr": 419
+  },
+  {
+   "name": "Tommy Myers",
+   "position": "TE",
+   "rank_ecr": 444
+  },
+  {
+   "name": "Frank Gore Jr.",
+   "position": "RB",
+   "rank_ecr": 465
+  },
+  {
+   "name": "Hunter Luepke",
+   "position": "RB",
+   "rank_ecr": 481
+  }
+ ],
+ "crosswalk_recovered": [
+  {
+   "name": "Kenneth Walker III",
+   "position": "RB",
+   "player_id": "8151",
+   "via": "collision+position"
+  },
+  {
+   "name": "Antonio Williams",
+   "position": "WR",
+   "player_id": "13301",
+   "via": "collision+position"
+  },
+  {
+   "name": "Hollywood Brown",
+   "position": "WR",
+   "player_id": "5848",
+   "via": "adp.NICKNAMES"
+  }
+ ],
  "players": [
   {
    "player_id": "9221",
@@ -249,7 +301,7 @@
    "rank_std": 6.1
   },
   {
-   "player_id": null,
+   "player_id": "8151",
    "name": "Kenneth Walker III",
    "position": "RB",
    "rank_ecr": 23,
@@ -2317,7 +2369,7 @@
    "rank_std": 35.9
   },
   {
-   "player_id": null,
+   "player_id": "13301",
    "name": "Antonio Williams",
    "position": "WR",
    "rank_ecr": 232,
@@ -2955,7 +3007,7 @@
    "rank_std": 58.0
   },
   {
-   "player_id": null,
+   "player_id": "5848",
    "name": "Hollywood Brown",
    "position": "WR",
    "rank_ecr": 305,
