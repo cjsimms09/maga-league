@@ -165,3 +165,21 @@ truer per-player signal (which is the whole argument for shipping it), the
 already-measured +$56/season λ=0.5 result should either strengthen or hold,
 and a study that already speaks E1-E5's language is the cheapest way to find
 out. Neither is done yet; both are now named rather than assumed.
+
+## THE LATE-UPSIDE LEG OF THIS ARGUMENT NOW RESTS ON ONE UNGRADED SIGNAL — NAMED, NOT HIDDEN
+
+**Routed by A, 2026-08-19.** The "find upside late" reasoning above (tail
+disagreement is where the draft is won) leaned on FOUR possible mechanisms for
+late-round upside; **three have since been measured away.** A player's own past
+right tail does not persist (P112, 4/4 null), his own CV ties a positional
+constant (0/4), age and opportunity trend do not predict a big season out of
+sample (opportunity's own sign flips negative in 3 of 4 folds), and an earlier
+age/opportunity-vs-disagreement result turned out to be a `cv = sd/mean`
+denominator artifact. **What is left is cross-source disagreement used
+DIRECTLY as dispersion — which shipped today in the mean-of-4 blend and is
+graded by P113, not before January 2027.** So the honest statement is: the
+edge story above is not resting on four legs, it is resting on one, and that
+one is unmeasured until the 2026 season plays out. Nothing in this document's
+own predictions changes — P113 was already the acknowledged dependency in §7
+of `TIER-RAMP-PREREG-2026-08-19.md` — but a reader of this file alone would
+not have known the other three routes had already closed, and now does.
