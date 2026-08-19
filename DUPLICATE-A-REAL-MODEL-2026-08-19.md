@@ -24,8 +24,8 @@ are that file's.
 |---|---|---|
 | **centre** | `wilcox.loc` — a **robust weighted location** across sources (L85, L399) | plain mean |
 | **spread** | `weighted.sd` across sources (L7, L457) | unweighted cross-source sd ✅ same family |
-| **floor** | **weighted 5th percentile**, Harrell–Davis estimator (L405, L467-8) | `cross-source-p10` ✅ same family |
-| **ceiling** | **weighted 95th percentile**, same estimator (L405, L467-9) | `cross-source-p90` ✅ same family |
+| **floor** | **weighted 5th percentile**, Harrell–Davis estimator (L405, L467-8) | ~~`cross-source-p10` ✅ same family~~ ⛔ **`mean − 1.28×sd`, a Gaussian on n=3 — the FIELD says p10, the arithmetic is parametric. Register 103, §13.** |
+| **ceiling** | **weighted 95th percentile**, same estimator (L405, L467-9) | ~~`cross-source-p90` ✅ same family~~ ⛔ **same — `mean + 1.28×sd`. Not the same family; I read the field name instead of the code.** |
 | **source weights** | measured per source, and **five sources are weighted ZERO** (L106-110) | all sources equal |
 | **replacement** | fixed positional rank: **QB13 · RB35 · WR36 · TE13 · K8 · DST3** (L173) | own derivation |
 | **value** | `points_vor = points − points(baseline player)` (L500) | `vorp` ✅ same |
@@ -487,3 +487,70 @@ per (a) and (b) above. WHAT IS ACTUALLY MEASURED, all of it:**
 checking a claim I had already published rather than from anyone catching me,
 and both moved in the same direction: I was reaching for a tidy "here are two
 verdicts" story that the artifacts do not support.** Register 102.
+
+---
+
+# 13. "ARE WE FOLLOWING THE MODELS IN THOSE REPOS?" — NO. Here is every line, and the real reason.
+
+**Cory, 2026-08-19.** Straight answer: **of twelve things the published model
+does, we do two.** Checked against the code today, not from memory.
+
+| # | what ffanalytics / the textbook does | what we do | following? |
+|---|---|---|---|
+| 1 | aggregate many independent projection sources | 5 sources blended | ✅ **yes** |
+| 2 | score each source's RAW STAT LINES under your league's own table, ignoring their site points | `multisource_projections.py` does exactly this, and says so | ✅ **yes** |
+| 3 | centre = **weighted Wilcox robust location** | `st.mean(vals)` — a plain mean | ❌ no |
+| 4 | source weights **measured**, five of fourteen set to 0.000 | all sources weighted equally, none ever measured | ❌ no |
+| 5 | floor/ceiling = **weighted empirical quantile** (Harrell–Davis) of the source values | `mean ± 1.28 × sd` — a **Gaussian on n = 3** | ❌ no ⚠️ |
+| 6 | VOR against a **fixed positional rank** (QB13 RB35 WR36 TE13 K8 DST3) | own derivation — our RB replacement is **170.5** where theirs is **139.3** | 🟠 partly |
+| 7 | **dropoff** emitted per player | `position_dropoff.js` is built and **does not reach the board** | 🟠 partly |
+| 8 | **three separate rankings**; ceiling never enters value | one score, `+ 0.45 × ceiling` on every player | ❌ **no — the big one** |
+| 9 | tiers by **Cohen's *d*** | our own tiering, never compared to theirs | ❌ no |
+| 10 | starters → **low** uncertainty; bench → **high** uncertainty | 0.45 uniformly, hardest on the round-4 starter picks | ❌ no |
+| 11 | the objective is **STARTING-LINEUP points** | engine maximises roster value; conversion 0.74/0.77 vs owners' 0.83 | ❌ no (register 60) |
+| 12 | expected fantasy points from play-by-play (OSF) | not built — **98,263 pbp rows already ingested and unused for this** | ❌ no |
+
+## ⚠️ AND ONE OF THOSE IS WORSE THAN "NOT FOLLOWING" — ROW 5
+
+`multisource_blend.py:231-235` sets:
+
+```python
+p["proj_ceiling"]        = round(mean + Z * sd, 2)     # Z = 1.28
+p["proj_ceiling_source"] = "cross-source-p90"
+```
+
+**The field says `p90`. The computation is `mean + 1.28 × sd` — a normal
+approximation over three numbers.** The code's own comment is honest
+(*"~p90/p10 of a normal"*); the **board field that the war room and every
+downstream study read is not.** A parametric band on n = 3 wearing an empirical
+percentile's name. **That is the third label today that claims more than the
+arithmetic delivers**, after `opportunity_adjustment: "ok"` on a switched-off
+layer (register 101) and my own "never graded" (register 102). Filed as
+register 103.
+
+## THE REAL ANSWER TO "WHY NOT"
+
+**Not because we evaluated their choices and preferred ours. Because nobody
+opened them.** Every one of rows 3–12 is something this project built its own
+version of from first principles, and **I read `calc_projections.R` for the first
+time today, after you told me to.** The repo has 186 tools, 260 backtest scripts
+and 193 audit documents, and not one of them cites the reference implementation
+of the model it is reimplementing.
+
+**Two honest qualifications, because "we ignored the textbook" is too neat:**
+
+- **Rows 1 and 2 are not small.** Scoring raw stat lines under our own table
+  instead of trusting a vendor's points is the single most important thing on
+  the list, and we do it. Most public tools do not.
+- **Some divergences may be right.** Their VOR baseline (row 6) is a
+  10-team/12-team convention that may not fit a 10-team league with our slots;
+  our replacement is derived rather than conventional. **But "may be right" is
+  the point — nobody checked, so we do not know whether our number is better or
+  just different.**
+
+**What I am NOT going to do is convert this into twelve tickets before
+Saturday.** Rows 3, 4, 5, 9 change `proj_mean` and every band on a board Cory has
+been studying for a week. Rows 8, 10, 11 change what the engine picks. **The
+whole list is post-draft, and row 8 — take ceiling out of the score and emit it
+as its own ranking — is the one worth doing first, because it is the one Cory
+identified unprompted and the reference implementation agrees with him.**
