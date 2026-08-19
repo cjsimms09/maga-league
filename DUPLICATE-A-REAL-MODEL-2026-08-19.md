@@ -256,3 +256,102 @@ recommendation.**
 3. **Is it routed to the lane that can act?** A owns the composite and the
    purchase recommendation; C owns the probe control in §5. Filed as registers
    98, 99, 100.
+
+---
+
+# ADDENDUM — nflverse/open-source-football, read 2026-08-19
+
+Cory sent `github.com/nflverse/open-source-football` after the above was written.
+
+## 9. WHAT IS ACTUALLY IN IT — the unflattering count first
+
+**42 posts. Three touch fantasy football. One is useful to us.** The rest is
+team-level play-by-play work — EPA stability, win probability, QB Elo, penalty
+predictability, field-goal models. Good analytics; not a draft model and not a
+projection source. **Saying so rather than mining it for a paragraph, because
+this project's failure mode is finding a way to make every resource look
+relevant.**
+
+The three:
+
+| post | worth |
+|---|---|
+| **2020-08-30 · Calculating Expected Fantasy Points for Receivers** (Anthony Reinhard) | ⭐ **the real find — see §10** |
+| 2020-08-25 · Visualizing "trap backs" | volume-without-efficiency RBs; a diagnostic, not a projection |
+| 2020-09-26 · Receiving by position | descriptive |
+
+## 10. ⭐ THIS IS HOW YOU ACTUALLY PROJECT A CEILING
+
+Your words: *"Lookup how to actually project ceiling."* Here is a published,
+working answer, and it is not what we do.
+
+**Per target, from play-by-play:**
+
+```r
+PPR_points     = 1 + gain/10 + (6 if gain reaches the end zone)
+catch_run_prob = cp × yac_prob            # nflfastR completion-prob × xYAC model
+exp_PPR_points = PPR_points × catch_run_prob
+```
+
+**Then — and this is the part that matters — simulate every one of his targets
+10,000 times and take the distribution.**
+
+**The ceiling is a high quantile of the player's OWN simulated outcome
+distribution**, built from his own target profile: air yards, field position,
+catch probability, yards-after-catch model. It is player-specific because it is
+*made* of that player's opportunity, not because a constant was multiplied by
+his mean.
+
+**Our three generations of ceiling, in order:**
+
+| | what it was | how much player-specific information |
+|---|---|---|
+| before 08-17 | `proj_mean × a per-band constant` | **zero** — the defect that broke three conclusions |
+| today | cross-source p90 (five projectors' disagreement) | some, but **0.70 collinear with the mean** (register 97) |
+| **this** | **quantile of a 10,000-run simulation of his own targets** | **player-specific by construction** |
+
+**And the same machinery gives the thing that should probably replace the
+ceiling term entirely: `actual − expected`.** A receiver who scored four more
+touchdowns than his opportunity supports is not a high-ceiling player, he is a
+player due to regress; one below is due positive regression. **That is a real
+upside signal with a sign, and it is orthogonal to level by construction** —
+which is exactly the property my "residual upside" sketch was groping at
+yesterday (+0.04 correlation with the mean) and this one is a published method
+instead of my invention.
+
+⚠️ **Three limits, stated up front.** (1) The post covers **receivers only** —
+no rushing, no fumbles, no two-point conversions, and the author says so. RB and
+QB need the same treatment built separately. (2) It measures the **average**
+receiver's expectation given the opportunity; a genuinely elite YAC player will
+beat it every year, so "over-performed xFP" is not automatically regression.
+(3) It is **backward-looking** — it prices last season's opportunity, and the
+projection question is next season's.
+
+**But the input cost is nearly zero, and that is the headline: we already
+ingest it.** The board's provenance shows **98,263 play-by-play rows already
+loaded (2024 + 2025), 761 players with metrics, 739 GSIS-translated.** The board
+already carries `wopr`, `target_share`, `air_yards_share`, `adot`, `rz_share`,
+`rz_targets`, `carries`, `gl_carries`. **This is not a data purchase. It is a
+computation on data sitting on our disk.** That makes it a better use of the
+next month than any of the sources in §5 or §6.
+
+## 11. AND A NEAR-MISS I AM WRITING DOWN BECAUSE IT NEARLY BECAME A DRAFT-WEEK 🔴
+
+Chasing §10 I found that **`opportunity_adj` is exactly `-0.0` on all 700 board
+players** — one distinct value — while the provenance reports
+`opportunity_adjustment: "ok"`, `opportunity_applied: true`,
+`opportunity_adj_coverage: 1.0`, `opportunity_observed_in_data: true`. A dead
+signal with four green lights on it, two days before the draft. I had the
+register row half-written.
+
+**It is not a defect. It is your ruling.** `league_config.json` carries
+`opportunity_cap: 0.0` — *"LAYER OFF, Cory's ruling 2026-08-17 ('Remove 1')"* —
+after the layer was graded for the first time and found **NEUTRAL on ordering in
+17 of 18 cells, WORSE on level in 18 of 18, and identical to a SHUFFLED
+control.** The zero is correct, deliberate, graded, and reversible in one line.
+
+**What stopped it was reading the config before writing the finding down**, which
+is the whole of rule 3f. **The residual is real but small and cosmetic:** three
+provenance fields say a switched-off layer is on, and the war room already has a
+`disabled` state it never reaches, so you see a green badge for a layer you
+turned off. Filed as register 101, 🟡, post-draft.
