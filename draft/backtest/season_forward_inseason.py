@@ -157,10 +157,33 @@ def hindcast(n_worlds=N_WORLDS):
     return doc
 
 
+# POSTURE THRESHOLDS — A's ruling (B asked for the classification to come
+# from domain logic, 08-19: "someone has to first say which state a seat is
+# in"). Ruled, not fitted: >= 0.70 is comfortable (floor plays protect a
+# lead), <= 0.30 is chasing (ceiling plays or bust), between is the bubble
+# (every start/sit is live). Adjustable before week 1 with a dated edit
+# here; after week 1 a change is a ruling with paperwork like any other.
+POSTURE_COMFORTABLE = 0.70
+POSTURE_CHASING = 0.30
+
+
+def posture(p_playoffs):
+    if p_playoffs >= POSTURE_COMFORTABLE:
+        return "comfortable"
+    if p_playoffs <= POSTURE_CHASING:
+        return "chasing"
+    return "bubble"
+
+
 def write_live(season=2026, n_worlds=N_WORLDS):
     """The week-1+ entry: publish public/season_forward_live.json for B's
     widget. Refuses (stated, not silent) until the season has realized
-    weeks — running this preseason is a caller error, not an empty file."""
+    weeks — running this preseason is a caller error, not an empty file.
+
+    SHAPE PER B's REPLY (08-19, merged before this shipped as final):
+    APPEND, never overwrite — one growing `weeks` map so week-over-week is
+    a diff of two rows B already has; and every seat carries `posture`, the
+    classification A's thresholds rule and B's copy renders."""
     history = MG.load_history()
     payouts = MG.load_payouts()
     s = MG.season_of(history, season)
@@ -174,17 +197,32 @@ def write_live(season=2026, n_worlds=N_WORLDS):
                          "weeks — the live feed starts after week 1, not before")
     w = max(done)
     odds = forward_odds(history, payouts, season, w, n_worlds=n_worlds)
-    out = {"_territory": "TERRITORY: A — season_forward_inseason.write_live",
-           "_validated_by": "season_forward_hindcast.json (P103 TRUE: week-8 "
-                            "Brier 0.072-0.131 vs 0.24 baseline, all seasons)",
-           "season": season, "as_of_week": w, "n_worlds": n_worlds,
-           "per_seat": odds,
-           "_shape_note": "provisional until B states render preferences "
-                          "(A -> B dispatch 08-18)"}
+    for seat, cell in odds.items():
+        cell["posture"] = posture(cell["p_playoffs"])
+
     dest = HERE.parents[1] / "public" / "season_forward_live.json"
-    dest.write_text(json.dumps(out, indent=1))
-    print(f"wrote {dest.name}: season {season} through week {w}")
-    return out
+    doc = None
+    if dest.exists():
+        try:
+            doc = json.loads(dest.read_text())
+        except Exception:
+            doc = None
+    if not isinstance(doc, dict) or doc.get("season") != season             or not isinstance(doc.get("weeks"), dict):
+        doc = {"season": season, "weeks": {}}
+    doc.update({
+        "_territory": "TERRITORY: A — season_forward_inseason.write_live",
+        "_validated_by": "season_forward_hindcast.json (P103 TRUE: week-8 "
+                         "Brier 0.072-0.131 vs 0.24 baseline, all seasons)",
+        "_shape": "append-only weeks map + per-seat posture, per B's 08-19 "
+                  "reply; posture thresholds ruled in season_forward_inseason.py",
+        "n_worlds": n_worlds,
+        "latest_week": w,
+    })
+    doc["weeks"][str(w)] = {"as_of_week": w, "per_seat": odds}
+    dest.write_text(json.dumps(doc, indent=1))
+    print(f"wrote {dest.name}: season {season} week {w} appended "
+          f"({len(doc['weeks'])} week(s) held)")
+    return doc
 
 
 def main():
