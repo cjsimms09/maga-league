@@ -154,8 +154,20 @@ def test_the_live_corpus_still_surfaces_the_pair_this_was_built_for():
     if not any("proj_mean_blend" in r["path"] for r in rows):
         import pytest
         pytest.skip("proj_mean_blend.json not present in this checkout")
+    # RETIRED-AND-FLIPPED (A, 08-19): the founding refusal RESOLVED — the
+    # Sleeper-history join it was blocked on happened (sleeper_hist_proj +
+    # SOURCE-BLEND-2025 graded), and proj_mean_blend.json now carries
+    # `graded_test`/`_ruling` instead of a refusal, so the tool CORRECTLY
+    # stopped pairing it (verified by hand before this rewrite — caught by
+    # the 08-19 refused rebuild). The flipped pins: the resolution must
+    # stay visible in the artifact, and the tool must still fire on the
+    # live corpus at all.
+    import json as _json
+    blend = _json.loads((ROOT / "draft" / "backtest" / "proj_mean_blend.json").read_text())
+    assert "graded_test" in blend or "_ruling" in blend, (
+        "proj_mean_blend regressed to a refusal — if the blocker is back, "
+        "restore the original pairing assertion")
     got = S.pairs(rows, min_shared=3, min_score=0.0)
-    blend_pairs = [p for p in got if "proj_mean_blend" in p[0]["path"]]
-    assert blend_pairs, "the founding refusal now pairs with nothing"
+    assert got, "the tool finds NO pairs on the live corpus — it has gone blind"
     assert got[0][0]["path"].endswith("proj_mean_blend.json"), \
         f"the founding case is no longer ranked first: {got[0][0]['path']}"
