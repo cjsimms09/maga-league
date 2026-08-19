@@ -57,9 +57,22 @@ jobs:
         # THE INSTALL IS A STEP THAT CAN FAIL LOUDLY. A half-installed package
         # that later returns zero rows is indistinguishable from twelve dead
         # scrapers, which is the exact ambiguity this probe exists to avoid.
+        #
+        # GIT CLONE + install_local, NOT remotes::install_github. Attempt 2
+        # (run 32211747087) died in four seconds on
+        #   cannot open URL '.../repos/FantasyFootballAnalytics/ffanalytics/contents/DESCRIPTION'
+        # because install_github goes through the GitHub REST API with a bundled
+        # PAT, and that PAT is rate-limited/unauthorised inside a container job.
+        # A plain git clone touches no API and needs no token. The commit SHA is
+        # printed so the artifact can be tied to the exact scraper version --
+        # this package patches its selectors often (last change 2026-07-15,
+        # "transitioning css selector to xpath"), so "which ffanalytics" is a
+        # real question about any result it produces.
         run: |
-          Rscript -e 'install.packages("remotes", repos="https://packagemanager.posit.co/cran/__linux__/jammy/latest")'
-          Rscript -e 'options(repos=c(CRAN="https://packagemanager.posit.co/cran/__linux__/jammy/latest")); remotes::install_github("FantasyFootballAnalytics/ffanalytics", upgrade="never")'
+          Rscript -e 'install.packages(c("remotes","devtools"), repos="https://packagemanager.posit.co/cran/__linux__/jammy/latest")'
+          git clone --depth 1 https://github.com/FantasyFootballAnalytics/ffanalytics.git /tmp/ffa
+          echo "ffanalytics commit: $(git -C /tmp/ffa rev-parse HEAD)"
+          Rscript -e 'options(repos=c(CRAN="https://packagemanager.posit.co/cran/__linux__/jammy/latest")); remotes::install_deps("/tmp/ffa", upgrade="never"); install.packages("/tmp/ffa", repos=NULL, type="source")'
           Rscript -e 'library(ffanalytics); cat("ffanalytics loaded OK\n")'
       - name: Probe each source separately, count rows, fail on a total zero
         env:
