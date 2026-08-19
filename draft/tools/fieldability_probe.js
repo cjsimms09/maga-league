@@ -39,7 +39,23 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const ENGINE_PATH = path.join(ROOT, 'public', 'js', 'draft', 'engine.js');
 const KEEP = require(path.join(__dirname, 'keepers_of.js'));
 
-const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
+/* ⚠️ THIS WAS A HARDCODED FIFTEEN-PICK CONSTANT AND IT WAS WRONG — CORY CAUGHT
+ * IT, 2026-08-19: *"Why do you keep saying at pick 8?? I don't get a pick in the
+ * first 3 rounds because I kept 3 players."*
+ *
+ * He is right. `league.keeper_rules` is `cost_model: "top_picks_flat", count: 3`,
+ * so keeping three forfeits rounds 1-3. His real schedule is TWELVE picks
+ * starting at 33, which `seat_plan.json.my_picks` has carried correctly all
+ * along. The constant here included picks 8, 13 and 28 — the three most
+ * valuable picks in the draft — that he does not own.
+ *
+ * `draft_plan.js` already DERIVES the schedule from the snake, refuses to guess
+ * when the league fields are missing, and cross-checks against the artifact's
+ * own pre-keeper list. It existed the whole time. This is rule 11 exactly: one
+ * derivation, reused — not a constant retyped into each probe.
+ *
+ * SEVEN OTHER TOOLS STILL CARRY THE SAME LITERAL (register 95). */
+const SCHED = require(path.join(__dirname, 'draft_plan.js')).SCHED;
 const STARTERS = (DATA.league && DATA.league.starters) || {};
 const FLEX_ELIG = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'],
                     REC_FLEX: ['WR', 'TE'] };
