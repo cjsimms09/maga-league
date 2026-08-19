@@ -75,6 +75,48 @@ builds the merge needs to re-price `kept_players` from the same 4-source data
 in the same pass, not just `players[]`. Flagging now, before it ships, rather
 than after.
 
+## UPDATE, same day — it shipped, and I independently re-verified the live wiring
+
+`53814c46`/`f297e7f3`/`6d585e95` wired the blend into `build.py` for real
+(`multisource_blend.py`), fixed a genuine coherence bug found by measuring
+against the real board instead of the candidate (a 34x Sleeper-vs-scraper
+spread on role-uncertain players — "does he play at all" not "how well" —
+was moving late-board names up to 80 slots while barely touching the top 12;
+gated at `max/min ≤ 2.0`, argued a priori, not swept), and caught a near-miss
+where a test `--offline` run almost overwrote the real 697-player board with
+a 233-player fixture and nearly destroyed irreplaceable daily archive data
+(now refused with two independent guards, one overridable, one not).
+
+**Independently re-verified before the live board rebuilds on it:**
+- **The reproducibility gap I flagged is fixed** — `multisource_blend.py` is
+  a real, committed, readable module, not just commit-message prose.
+- **The keeper-repricing gap I flagged is correctly handled** — traced
+  `build.py` directly: `apply_multisource(players)` runs immediately after
+  `load_players`, *before* the `kept_players` split (`dict(p)` copies), so
+  keepers inherit the new `proj_mean`/`proj_ceiling`/`proj_floor` for free.
+  `vorp` for `kept_players` is derived fresh from the (now-updated)
+  `proj_mean` at the same point that fixed my earlier E17 finding — the same
+  mechanism transparently covers both.
+- **No Sleeper double-count**: `by_source` in `multisource_projections.json`
+  holds only CBS/ESPN/FFToday; `proj_mean` (Sleeper) is appended separately.
+  Checked directly against the store, not assumed.
+- **8/8 `test_multisource_blend.py`, 176/176 of the broader
+  vorp/keeper/multisource-tagged suite** (pytest not preinstalled in my
+  sandbox; installed it to actually run these rather than reading and
+  assuming green). One unrelated failure found in a wider sweep —
+  `A-DRAFT-DAY-DECISIONS.md` stating a stale "51 open rows" against today's
+  actual 70 — a document-staleness gap from today's high filing volume
+  across sessions, nothing to do with the blend.
+- **The `.gitignore`/offline-fixture guard**: read the write-site code
+  directly (`build.py:2294-2309`) — refuses the board overwrite unless
+  `--allow-fixture-write`, and the archive suppression (`_fixture_run`) has
+  no override at all, exactly as the commit describes.
+
+**No defects found in the shipped wiring.** The live board (`built_at`
+2026-08-19T00:54Z at last check) has not yet rebuilt with this — it applies
+on the next real `draft-data.yml` run. Will re-check the actual live
+artifact once that happens, same as every other shipped change this session.
+
 ## What this does not check
 
 - Whether CBS/ESPN/FFToday's own scrapers are individually correct — that
