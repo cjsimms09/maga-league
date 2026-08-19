@@ -54,6 +54,28 @@ const KDEF_MODE = process.argv.includes('--kdef-supply');
  * starts 0.414 of the weeks he is rostered -- that is the number this arm
  * substitutes for Cory's hand-transcribed 0.05, nothing else changes. */
 const TE_RELAX = process.argv.includes('--te-relax');
+/* ── TE ARM: the MEASURED row instead of the transcribed one ──────────────────
+ * Prereg: draft/TE-CAP-PREREG-2026-08-19.md. Top-3 finishers draft TE 1.67,
+ * bottom-3 draft 1.11 -- the widest winner/loser separation on the board -- and
+ * CORY_CURVE.TE = [1, .05, 0] makes a second tight end a twentyfold hole.
+ * The replacement is NOT chosen: it is measured_need_curve.json's own TE row,
+ * 540 team-weeks, its own passing controls, committed long before tonight. */
+const TE_MEASURED = process.argv.includes('--te-measured');
+/* ── PERSISTENCE SHRINK — Cory's insight, measured ────────────────────────────
+ * Prereg: draft/PERSISTENCE-SHRINK-PREREG-2026-08-19.md.
+ * "it barely matters what one you have... Too dependent on who they play."
+ * Measured H1->H2 per-game persistence: K 0.013, TE 0.041, DEF 0.132,
+ * QB 0.208, WR 0.259, RB 0.572. A kicker's first half predicts nothing about
+ * his second, so the 48 points of "surplus" between the best kicker and the
+ * wire kicker is an artifact of trusting a projection where none has signal.
+ * Shrink each position's spread toward its own mean by its own persistence. */
+const SHRINK = process.argv.includes('--persistence');
+const PERSIST = { RB: 0.572, WR: 0.259, QB: 0.208, DEF: 0.132, TE: 0.041, K: 0.013 };
+const MNC = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'measured_need_curve.json'), 'utf8'));
+if (TE_MEASURED && !MNC.controls_all_passed) {
+  throw new Error('measured_need_curve failed its controls — REFUSING');
+}
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
@@ -71,6 +93,10 @@ const W = {
   RB: [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
+if (TE_MEASURED) {
+  /* substitution, not a tune — and ONLY the TE row */
+  W.TE = (MNC.curve.TE || []).filter(v => v != null);
+}
 const STARTERS = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
 const FLEX = ['RB', 'WR', 'TE'];
 
@@ -222,7 +248,26 @@ function buildSeat(season, draft, seatId, rosterOn) {
   const N = picks.length;
   /* value = the market's own order. Era-correct, no hindsight, and the same
    * information the owner had. */
-  const valueOf = p => (N + 1) - p.pick_no;
+  let valueOf = p => (N + 1) - p.pick_no;
+  if (SHRINK) {
+    /* per-position mean of the market's own value, then shrink toward it */
+    const byPos = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (!q) return;
+      (byPos[q] || (byPos[q] = [])).push((N + 1) - p.pick_no);
+    });
+    const mean = {};
+    Object.entries(byPos).forEach(([q, v]) => { mean[q] = v.reduce((a, b) => a + b, 0) / v.length; });
+    const raw = valueOf;
+    valueOf = p => {
+      const q = posOf(p.player_id);
+      const m = mean[q];
+      if (m == null) return raw(p);
+      const k = PERSIST[q] != null ? PERSIST[q] : 1;
+      return m + k * (raw(p) - m);
+    };
+  }
   const mine = [], held = {};
   const takenByMe = new Set();
   picks.forEach((pk, idx) => {
