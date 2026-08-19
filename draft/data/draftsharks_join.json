@@ -2,13 +2,13 @@
  "_territory": "TERRITORY: A — draft/tools/draftsharks_join.js",
  "_ruling": "Cory 2026-08-19: 'We want to use their ceiling not ours' (CORY-ASKS A19/A20)",
  "_note": "REPORT ONLY. Touches no board field.",
- "store_captured_players": 25,
+ "store_captured_players": 250,
  "controls": {
   "C1_known_positive_join": {
    "ok": true,
    "on_board": true,
-   "in_store": true,
-   "joined": true,
+   "in_store": false,
+   "joined": false,
    "why": "if Draft Sharks lists a top-1 player our board also carries and the join misses him, the normaliser is broken. Vacuous only if he is not in the store yet, which is reported rather than passed silently."
   },
   "C2_no_ambiguous_names_joined": {
@@ -18,134 +18,130 @@
   },
   "C3_spread_is_not_just_the_mean": {
    "ok": true,
-   "rho_spread": -0.23586006805599746,
-   "rho_raw_ceiling": 0.726348518091677,
+   "rho_spread": -0.01924890664908934,
+   "rho_raw_ceiling": 0.8268694068720025,
    "why": "raw ceilings correlate at ~0.995 with the projection (register 97), so comparing them proves nothing. The comparison that matters is the SPREAD."
   }
  },
  "controls_all_passed": true,
  "verdict": {
-  "coverage": 0.0314,
-  "matched": 22,
+  "coverage": 0.3529,
+  "matched": 247,
   "board_players": 700,
   "unmatched_from_store": 3,
-  "level_ds_minus_ours_spread_median": 42.36,
-  "rho_spread": -0.2359,
+  "level_ds_minus_ours_spread_median": 54.28,
+  "rho_spread": -0.0192,
   "SAFE_TO_SWAP": false,
-  "why_not": "coverage 3.1% is below the 95% bar. A partial ceiling swap biases exactly the players it covers -- the top of the board, where Cory picks first -- against the rest, because `ceiling` ships at weight 0.45 and is compared across players."
+  "why_not": "coverage 35.3% is below the 95% bar. A partial ceiling swap biases exactly the players it covers -- the top of the board, where Cory picks first -- against the rest, because `ceiling` ships at weight 0.45 and is compared across players."
  },
  "dispersion": {
   "ours": {
-   "mean": 19.31954545454546,
-   "sd": 8.137057779526907,
-   "cv": 0.4211826721633577
+   "mean": 17.371336032388676,
+   "sd": 8.883132243283548,
+   "cv": 0.5113672446794558
   },
   "theirs": {
-   "mean": 59.18181818181818,
-   "sd": 16.947078308766475,
-   "cv": 0.2863561618992799
+   "mean": 72.16194331983806,
+   "sd": 35.81623844076252,
+   "cv": 0.4963314011932418
   }
+ },
+ "join_methods": {
+  "by_sleeper_id": 247,
+  "by_name": 0
  },
  "sample_matched": [
   {
-   "player": "Jahmyr Gibbs",
+   "player": "J Gibbs",
    "position": "RB",
    "player_id": "9221",
    "ds_ceiling": 370,
    "ds_floor": 261,
    "ds_proj": 322,
-   "ds_games": 17,
    "our_ceiling": 351.88,
    "our_floor": 303.97,
    "our_mean": 327.92,
    "our_games_expected": 14.2
   },
   {
-   "player": "Bijan Robinson",
+   "player": "B Robinson",
    "position": "RB",
    "player_id": "9509",
    "ds_ceiling": 364,
    "ds_floor": 264,
    "ds_proj": 311,
-   "ds_games": 17,
    "our_ceiling": 349.97,
    "our_floor": 292.33,
    "our_mean": 321.15,
    "our_games_expected": 14.2
   },
   {
-   "player": "Puka Nacua",
+   "player": "P Nacua",
    "position": "WR",
    "player_id": "9493",
    "ds_ceiling": 325,
    "ds_floor": 220,
    "ds_proj": 293,
-   "ds_games": 17,
    "our_ceiling": 310.82,
    "our_floor": 262.58,
    "our_mean": 286.7,
    "our_games_expected": 15
   },
   {
-   "player": "Christian McCaffrey",
+   "player": "C McCaffrey",
    "position": "RB",
    "player_id": "4034",
    "ds_ceiling": 363,
    "ds_floor": 243,
    "ds_proj": 293,
-   "ds_games": 17,
    "our_ceiling": 312.8,
    "our_floor": 261.1,
    "our_mean": 286.95,
    "our_games_expected": 14.2
   },
   {
-   "player": "Jaxon Smith-Njigba",
+   "player": "J Smith-Njigba",
    "position": "WR",
    "player_id": "9488",
    "ds_ceiling": 312,
    "ds_floor": 239,
    "ds_proj": 262,
-   "ds_games": 17,
    "our_ceiling": 285.71,
    "our_floor": 238.04,
    "our_mean": 261.88,
    "our_games_expected": 15
   },
   {
-   "player": "Amon-Ra St. Brown",
+   "player": "A St. Brown",
    "position": "WR",
    "player_id": "7547",
    "ds_ceiling": 292,
    "ds_floor": 235,
    "ds_proj": 259,
-   "ds_games": 17,
    "our_ceiling": 271.21,
    "our_floor": 233.94,
    "our_mean": 252.57,
    "our_games_expected": 15
   },
   {
-   "player": "Jonathan Taylor",
+   "player": "J Taylor",
    "position": "RB",
    "player_id": "6813",
    "ds_ceiling": 338,
    "ds_floor": 235,
    "ds_proj": 277,
-   "ds_games": 17,
    "our_ceiling": 309.68,
    "our_floor": 253.62,
    "our_mean": 281.65,
    "our_games_expected": 14.2
   },
   {
-   "player": "CeeDee Lamb",
+   "player": "C Lamb",
    "position": "WR",
    "player_id": "6786",
    "ds_ceiling": 298,
    "ds_floor": 216,
    "ds_proj": 249,
-   "ds_games": 17,
    "our_ceiling": 240.84,
    "our_floor": 208.66,
    "our_mean": 224.75,
@@ -153,8 +149,8 @@
   }
  ],
  "unmatched_sample": [
-  "Ja'Marr Chase",
-  "Derrick Henry",
-  "Kenneth Walker III"
+  "J Chase",
+  "D Henry",
+  "K Walker III"
  ]
 }

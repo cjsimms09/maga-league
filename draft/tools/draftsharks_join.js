@@ -35,14 +35,41 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const OUT = path.join(ROOT, 'draft', 'data', 'draftsharks_join.json');
 
-const STORE_PATH = path.join(ROOT, 'draft', 'data', 'draftsharks_projections.json');
+/* PREFER C's 250-player store, built from the PDF exports Cory produced, over
+ * my 25-row live scrape. Cory: "It should be 250 players that c upoaded" — and
+ * he was right; I had been scraping data the repo already held.
+ *
+ * The two were cross-validated on the (floor, projection, ceiling) triple,
+ * which cannot collide the way a name can: all 25 scraped players appear in the
+ * 250 with IDENTICAL values and the same player attached. Independent
+ * acquisition paths, exact agreement. (Two adjacent players, A.J. Brown and
+ * Nico Collins, carry swapped RANK LABELS between the sources; their values
+ * agree, and we use values, not ranks.) */
+const BIG = path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json');
+const SMALL = path.join(ROOT, 'draft', 'data', 'draftsharks_projections.json');
+const STORE_PATH = fs.existsSync(BIG) ? BIG : SMALL;
 if (!fs.existsSync(STORE_PATH)) {
   console.error('No Draft Sharks store yet — run the capture workflow first.');
   process.exit(2);
 }
-const STORE = JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
+const RAW = JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
+/* Normalise C's field names onto the ones this tool already speaks, and carry
+ * the sleeper_id -- an EXACT key, which beats any name normaliser. */
+const STORE = {
+  controls_all_passed: RAW.controls_all_passed !== false,
+  players: (RAW.players || []).map(p => ({
+    player: p.name || p.player, position: p.position,
+    sleeper_id: p.sleeper_id, rank: p.rank,
+    floor: p.floor_proj != null ? p.floor_proj : p.floor,
+    ds_proj: p.ds_proj,
+    ceiling: p.ceil_proj != null ? p.ceil_proj : p.ceiling,
+    consensus: p.cons_proj != null ? p.cons_proj : p.consensus,
+    games: p.games,
+  })),
+};
+console.log(`store: ${path.basename(STORE_PATH)} (${STORE.players.length} players)\n`);
 if (!STORE.controls_all_passed) {
-  throw new Error('draftsharks_projections failed its own controls — REFUSING to join');
+  throw new Error('the Draft Sharks store failed its own controls — REFUSING to join');
 }
 const BOARD = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
@@ -68,10 +95,23 @@ BOARD.players.forEach(p => {
 });
 dupNames.forEach(k => boardByName.delete(k));
 
+/* sleeper_id is an EXACT key and our board carries it. Names are the fallback,
+ * and the fallback is where a wrong join can happen -- C's PDF abbreviates
+ * first names ("B Robinson"), which collides Bijan Robinson with Brian
+ * Robinson. I hit exactly that in an ad-hoc probe and it produced a fake value
+ * disagreement, so the id path exists to keep the name path from ever seeing
+ * those cases. */
+const boardById = new Map();
+BOARD.players.forEach(p => {
+  const id = p.player_id != null ? String(p.player_id) : null;
+  if (id) boardById.set(id, p);
+});
+let byId = 0, byName = 0;
 const matched = [], unmatched = [];
 (STORE.players || []).forEach(r => {
   const k = norm(r.player);
-  const b = boardByName.get(k);
+  let b = r.sleeper_id ? boardById.get(String(r.sleeper_id)) : null;
+  if (b) byId++; else { b = boardByName.get(k); if (b) byName++; }
   if (!b) { unmatched.push(r.player); return; }
   if (r.position && b.position && r.position !== b.position) {
     unmatched.push(`${r.player} (position mismatch ${r.position} vs ${b.position})`);
@@ -178,7 +218,8 @@ const doc = {
   _note: 'REPORT ONLY. Touches no board field.',
   store_captured_players: (STORE.players || []).length,
   controls: ctl, controls_all_passed: Object.values(ctl).every(c => c.ok),
-  verdict, dispersion, sample_matched: matched.slice(0, 8),
+  verdict, dispersion, join_methods: { by_sleeper_id: byId, by_name: byName },
+  sample_matched: matched.slice(0, 8),
   unmatched_sample: unmatched.slice(0, 15),
 };
 fs.writeFileSync(OUT, JSON.stringify(doc, null, 1));
@@ -186,7 +227,7 @@ fs.writeFileSync(OUT, JSON.stringify(doc, null, 1));
 console.log('DRAFT SHARKS -> OUR BOARD\n');
 Object.entries(ctl).forEach(([k, v]) => console.log((v.ok ? '  OK  ' : '  FAIL') + k));
 console.log(`\n  store players      ${(STORE.players || []).length}`);
-console.log(`  joined to board    ${matched.length}  (unmatched ${unmatched.length})`);
+console.log(`  joined to board    ${matched.length}  (by id ${byId}, by name ${byName}, unmatched ${unmatched.length})`);
 console.log(`  board coverage     ${(coverage * 100).toFixed(1)}%`);
 console.log(`  rho(spread)        ${verdict.rho_spread}   (n=${both.length})`);
 console.log('\n  DOES THE CEILING CARRY PLAYER-SPECIFIC INFORMATION?');
