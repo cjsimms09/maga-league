@@ -464,6 +464,42 @@ defect and it belongs in the register with `relay` in the owner column.
 **Both were found by asking a second question about a finding that already
 looked complete.** That is the whole rule.
 
+## RULE 3i — A NUMBER IS NOT A FINDING UNTIL YOU HAVE SEEN ITS DISTRIBUTION
+
+**Added 2026-08-19 by A, after four corrections in one evening.**
+
+Rule 3f governs the probe you wrote. **This one governs the number you quoted
+WITHOUT writing a probe at all**, which is the gap 3f does not cover — none of
+the four failures below was a code defect. Every one was a single value that fit
+a story.
+
+| what I said | what the population said |
+|---|---|
+| *"the live board takes RB10"* | a stale **eighteen**-pick artifact; his real twelve give **RB7** (register 98) |
+| *"the blend is thinnest at TE — 28 one source short"* | **85 of those 86 have ADP > 200**; inside his draft range TE coverage is 96% |
+| *"`draft_plan.js` has never been graded"* | **an absence asserted without a grep** — it has two, one in a file the war room reads (register 102) |
+| *"`own_v6` hates the upside picks, Golden by −119"* | **`own_v6` is 15-20 under the board mean on 80% of ALL players**; position-relative the claim survives at a quarter its size (register 107) |
+
+**Three of the four are the same operation: quoting one value without looking at
+the population behind it.** The fourth is its mirror — asserting an absence
+without searching for the thing.
+
+**THE RULE.** Before a single number goes into a document, a register row, or a
+sentence to Cory — a difference, a count, an extreme, or an absence —
+
+1. **look at its distribution.** Is −119 extreme, or is the median −23?
+2. **or grep for the thing you are about to say does not exist.**
+
+**Every one of these checks took under ten seconds, and each cost hours of
+Cory's attention instead.**
+
+⚠️ **A FIFTH INSTANCE OCCURRED WHILE THIS RULE WAS BEING WRITTEN.** I numbered it
+`3h` without checking — **`3h` was already taken by the rule immediately below,
+and `RULE 3f` appears TWICE in this file (lines ~224 and ~376) with different
+content, which nobody had noticed.** Caught by grepping the headings. **That
+duplication is register 108 and is not fixed here**, because renumbering a rule
+other documents cite is not a draft-week change.
+
 ## RULE 3h — D AND E FIND; SOMEONE ELSE ACTS. THE HOP IS THE RELAY'S.
 
 **Cory, 2026-08-17:** *"A isn't acting on E or Ds actions. Does it know it's
