@@ -842,3 +842,65 @@ first" and "the top few TEs are scarce" as stated beliefs.** That is two
 independent conventions agreeing with things this project has argued about — and
 **a convention is not a measurement. I am recording it as what people believe,
 not as support for either claim.**
+
+---
+
+# 19. ⭐ RESOLVED — AND ON THE ONE THING THAT MATTERED, OUR NUMBER IS RIGHT AND THEIRS IS A 12-TEAM CONVENTION
+
+§16 called the replacement level *"the largest unexamined input in the engine"*
+and filed it 🔴 with the implication that ours might be wrong. **I then did the
+one check that settles it: translate our replacement VALUES into positional
+RANKS and compare them to the league's own slots.**
+
+Our league (`draft_data.json`): **10 teams**, starters
+`QB1 · RB2 · WR2 · TE1 · FLEX1 · K1 · DEF1`.
+
+| | our replacement | **= our rank** | **teams × starters** | ffanalytics |
+|---|---|---|---|---|
+| **QB** | 350.3 | **#10** | **10** ✅ | #13 |
+| **TE** | 141.4 | **#10** | **10** ✅ | #13 |
+| **K** | 129.2 | **#10** | **10** ✅ | #8 |
+| **DEF** | 103.0 | **#10** | **10** ✅ | **#3** |
+| RB | 170.5 | #24 | 20 + flex | #35 |
+| WR | 171.8 | #26 | 20 + flex | #36 |
+
+**Our one-starter positions land on rank 10 exactly — the last starter in a
+ten-team league. That is the definition of replacement, not an approximation of
+it.** RB and WR sit at 24 and 26 against a floor of 20, the extra 4 and 6 being
+the flex absorbed.
+
+**ffanalytics' `default_baseline` is a TWELVE-team convention.** QB13 and TE13
+are "12 starters plus one"; RB35 and WR36 are 24 starters plus flex on a
+12-team board. **Scaled to our size (×10/12) they give QB 10.8 and TE 10.8 —
+which is our number.** And **DST3 fits nothing at all**: it prices the third
+defence as replacement in a league that starts ten of them.
+
+## SO THE MAYE / PITTS DISAGREEMENT IN §17 IS RESOLVED, AND NOT AGAINST US
+
+The published baseline called Drake Maye a reach (#42 → #56) and Kyle Pitts a
+reach (#53 → #65) **only because it believes replacement is QB13 and TE13.** In
+a 10-team, 1-QB, 1-TE league it is QB10 and TE10, and **our board has it right.**
+`draft_plan.js` taking Maye at 48 and Pitts at 68 is not contradicted by the
+reference implementation — it is contradicted by the reference implementation
+being sized for a different league.
+
+**That also explains the entire §16 result.** The QB/TE fall of +17.2 and +8.8
+ranks was not a finding about our model; it was the 12-vs-10 team difference
+propagating through VOR. **Register 104 is downgraded from 🔴 accordingly, on
+this measurement.**
+
+## ⚠️ WHAT IS *NOT* RESOLVED, AND I AM NOT LETTING IT RIDE ON A GOOD RESULT
+
+**RB and WR.** Scaled to ten teams the convention gives **RB 29.2 and WR 30.0**;
+we use **24 and 26**. Both sit above the bare starter floor of 20, so both are
+defensible, and **ours prices every back and receiver against a richer
+replacement — which makes them look WORSE, not better.** That is the one place
+our number is tighter than the scaled convention and nobody has graded it. **It
+stays open, at 🟠, as a one-number-per-position post-draft experiment.**
+
+**And the general lesson is the one this whole document keeps arriving at:
+"duplicate the published model" was the right instruction and the published
+model is still not authoritative.** It encodes a league that is not ours. The
+value of reading it was never that it is correct — it is that it made us state
+our own assumptions in a form where they could be checked. **Four of six of ours
+turned out exactly right; one of theirs (DST3) is indefensible anywhere.**
