@@ -341,12 +341,18 @@
     const slots = starters[pos] || 0;
     if (!slots) return { value: 0, detail: 'not a dedicated starting position' };
 
+    // NEVER penalise the FIRST player at a position: with zero existing
+    // roster depth there, the season roster is not decided yet and this is
+    // need's question, not bye's. Also the denominator guard for `drop` below.
+    const rosterAtPos = roster.filter(r => r.position === pos);
+    if (!rosterAtPos.length) return { value: 0, detail: 'no existing depth at position yet' };
+
     // Who else at this position is out that week, including the candidate.
-    const sameByeAtPos = roster.filter(r => r.position === pos && r.bye === bye);
-    const availableThatWeek = roster.filter(r => r.position === pos && r.bye !== bye).length;
+    const sameByeAtPos = rosterAtPos.filter(r => r.bye === bye);
+    const availableThatWeek = rosterAtPos.filter(r => r.bye !== bye).length;
     const needed = slots;
     const shortBefore = Math.max(0, needed - availableThatWeek
-      - Math.max(0, roster.filter(r => r.position === pos).length - sameByeAtPos.length - availableThatWeek));
+      - Math.max(0, rosterAtPos.length - sameByeAtPos.length - availableThatWeek));
     const shortAfter = Math.max(0, needed - availableThatWeek);
 
     // Adding this player only hurts if he was going to start that week and now
@@ -358,7 +364,19 @@
     const drop = Math.max(0, weeklyMean - replacementWeekly);
     const posWeight = CFG.BYE_WEIGHT_BY_POS[pos] == null ? 1 : CFG.BYE_WEIGHT_BY_POS[pos];
     const collisions = sameByeAtPos.length; // how many others already share it
-    const value = drop * posWeight * Math.min(1, collisions / Math.max(1, slots));
+    /* SCALE BY THE ACTUAL SHORTAGE, NOT BY COLLISIONS ALONE. The old formula
+     * (`collisions / slots`) returned exactly ZERO whenever no other roster
+     * player happened to share this candidate's specific bye week — even when
+     * `shortAfter` had already found a real hole. That is the shape of
+     * register 59's WR2 gap: Chase (bye 6) and Reed (bye 11) never collide,
+     * yet together they are exactly `slots` deep with zero margin, so EITHER
+     * bye alone leaves WR2 empty. Verified empirically before this fix:
+     * shortAfter=1, value=0, for that exact pair. `collisions` is folded back
+     * in as a second, independent way to be short (a pure pile-up costs full
+     * severity even if `shortAfter` alone would read partial). Session E,
+     * 2026-08-19, register 59 follow-up. */
+    const severity = Math.max(shortAfter / Math.max(1, needed), collisions / Math.max(1, slots));
+    const value = drop * posWeight * Math.min(1, severity);
     return {
       value,
       detail: collisions
