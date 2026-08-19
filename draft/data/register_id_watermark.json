@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 133,
+ "next_numeric_id": 135,
  "history": [
   {
    "id": 47,
@@ -106,6 +106,16 @@
    "id": 132,
    "claimed_at": "2026-08-19",
    "note": "renumbered from a colliding 130 (the harness cannot resolve the ranking -- 3 correlated clusters, not 30 observations) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 133,
+   "claimed_at": "2026-08-19",
+   "note": "renumbered from a colliding 131 (Cory's RB regime call is measured and monotone) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 134,
+   "claimed_at": "2026-08-19",
+   "note": "renumbered from a colliding 132 (the relay's marginal-lineup-value mechanism clears every bar) -- another session's row, first-allocation-wins per timestamp"
   }
  ]
 }
