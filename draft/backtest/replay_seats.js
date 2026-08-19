@@ -67,10 +67,49 @@ const OUT = arg('out', path.join(__dirname, 'engine_seat_choices.json'));
  * become a second copy of a1 and the next A1-minus-A0 delta would have read
  * as a clean zero. An arm is a configuration, not a diff against whatever
  * happens to be shipping. */
+/* ...AND "EVERY FLAG" DID NOT INCLUDE `VONA_SLOT_AWARE` OR `VONA_WIRE_BENCH`
+ * until 2026-08-19, which is the same defect the paragraph above describes,
+ * one flag over. a0/a1/a2 pinned two of the four VONA flags and INHERITED the
+ * other two — safe only because each CI step is its own node process and the
+ * engine default happened to be false. The moment register 60's re-take makes
+ * `VONA_SLOT_AWARE` a live question, an unpinned arm is a configuration nobody
+ * can name from the artifact. All four flags are pinned on every arm now. */
 const ARMS = {
-  a0: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false },  // pre-fix
-  a1: { VONA_INCLUDE_SELF: true,  VONA_SURVIVAL_RESCALE: false },  // the fix (SHIPPED 08-19)
-  a2: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: true },   // the diagnostic
+  // pre-fix
+  a0: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: false,
+        VONA_SLOT_AWARE: false, VONA_WIRE_BENCH: false },
+  // the fix (SHIPPED 08-19)
+  a1: { VONA_INCLUDE_SELF: true,  VONA_SURVIVAL_RESCALE: false,
+        VONA_SLOT_AWARE: false, VONA_WIRE_BENCH: false },
+  // the diagnostic
+  a2: { VONA_INCLUDE_SELF: false, VONA_SURVIVAL_RESCALE: true,
+        VONA_SLOT_AWARE: false, VONA_WIRE_BENCH: false },
+
+  /* ---- REGISTER 60 (2) / P119 — THE SLOT-AWARE RE-TAKE ------------------
+   * `VONA_SLOT_AWARE` is off because flooring the flex marginal at 0 tied
+   * 1331 of 1686 players at exactly 0 and quarterbacks won the tie — measured
+   * on a VONA computing the wrong quantity, before register 56 / P107.
+   * `SLOT-AWARE-VONA-REPREG-2026-08-19.md` re-takes it and the collapse half
+   * has already PASSED (modal share 0.9%, 458 distinct of 562, control clean).
+   * These two arms are the seat-replay half — condition (2) of four, and the
+   * prereg says explicitly that a NULL here leaves the flag OFF.
+   *
+   * s0 IS DELIBERATELY IDENTICAL TO a1. It is not redundant: reading the
+   * s1−s0 delta off a1's committed file would compare two runs against two
+   * separately-reassembled bundles, and the drift between them would sit
+   * inside the delta. Same bundle, same run, both arms — the rule this table
+   * already follows for a0/a1/a2. */
+  s0: { VONA_INCLUDE_SELF: true, VONA_SURVIVAL_RESCALE: false,
+        VONA_SLOT_AWARE: false, VONA_WIRE_BENCH: false },
+  s1: { VONA_INCLUDE_SELF: true, VONA_SURVIVAL_RESCALE: false,
+        VONA_SLOT_AWARE: true,  VONA_WIRE_BENCH: false },
+  /* s2 (VONA_WIRE_BENCH true) is NOT DEFINED HERE ON PURPOSE. It needs
+   * `ctx.wireWeekly`, and register 60 (3) records that `build.py` never joins
+   * `draft/data/wire_level.json` onto the board — so an s2 arm would run,
+   * produce a valid-looking artifact, and be byte-identical to s1 because
+   * `wireBenchValue` returns null and falls back. That is precisely the
+   * false-null shape the `--need` incident produced. It gets defined when the
+   * join exists, not before. */
 };
 /* ---- REGISTER 59 / P110 — THE `need` WEIGHT ARM ------------------------
  * `--need <w>` overrides ONE weight on top of MEASURED_WEIGHTS. It exists

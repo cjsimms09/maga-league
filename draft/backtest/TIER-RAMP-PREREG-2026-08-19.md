@@ -1,5 +1,5 @@
 <!-- TERRITORY: E -->
-# PREREGISTRATION — the tier-ramped mean→ceiling blend (register 60/62, P119)
+# PREREGISTRATION — the tier-ramped mean→ceiling blend (register 60/62, P120)
 
 **Filed 2026-08-19 by E, BEFORE any arm ran.** Routed by A:
 *"THE TIER-RAMPED MEAN→CEILING BLEND IS NOW BUILDABLE AND IT IS YOURS TO
@@ -98,7 +98,7 @@ convention so results are comparable across the three).
 
 ## 6. Predictions, registered before any run
 
-**P119-a (points/dollars, the E1-E5 estimand).** `mean(T1 − T0)` on the
+**P120-a (points/dollars, the E1-E5 estimand).** `mean(T1 − T0)` on the
 `optimal` estimand, season-clustered — same instrument as P110/P114. **I
 predict a SMALL POSITIVE, likely inside the seat replay's own noise floor
 (±41.8 pts/season, DS1).** Reasoning: T0's flat 0.45 already captures most of
@@ -111,16 +111,16 @@ argument** — it would most likely be the same instrument-cannot-see-it shape
 P114 already names for `bye`, not a refutation. Naming this before the run so
 a null cannot be read as stronger than it is.
 
-**P119-b (the mechanism — where I expect it to actually move something).**
+**P120-b (the mechanism — where I expect it to actually move something).**
 Compare rosters' KEEPER-eligible depth at pick time: T1 should draft
 MORE tier-1-talent-fallen-to-a-late-round players than T0, identifiable as
 players with `tier ≤ 3` taken after round 8. This is the exact case the
 round-based ramp cannot represent (Fill/Endgame phases price him as a
 flier) and the tier-based one can. If T1 does not show this shift, the
-mechanism itself has failed regardless of what P119-a says, and that is the
+mechanism itself has failed regardless of what P120-a says, and that is the
 more informative failure to report.
 
-**P119-c (does it interact with the un-fieldable-lineup problem, register
+**P120-c (does it interact with the un-fieldable-lineup problem, register
 59).** **I predict NO measurable interaction, stated so it cannot be claimed
 after the fact.** This arm reweights VALUE among players already selected by
 hard legality and VONA; it does nothing about `need`/`bye` shipping at zero,
