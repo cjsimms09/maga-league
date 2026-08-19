@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 128,
+ "next_numeric_id": 129,
  "history": [
   {
    "id": 47,
@@ -81,6 +81,11 @@
    "id": 127,
    "claimed_at": "2026-08-19",
    "note": "renumbered from a colliding 125 (dollar_replacement_baseline.test.js went red) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 128,
+   "claimed_at": "2026-08-19",
+   "note": "renumbered from a second colliding 126 (proj_mean blend refusal-override correction) -- another session's row, first-allocation-wins per timestamp"
   }
  ]
 }
