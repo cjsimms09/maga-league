@@ -50,6 +50,7 @@
 'use strict';
 
 const { execSync } = require('child_process');
+const { warnIfStale } = require('./git_ref_freshness.js');
 
 /* ⚠️ `maxBuffer` IS NOT DEFENSIVE, IT IS LOAD-BEARING, AND THE CONTROL DID NOT
  * CATCH THIS. `ROUTES.md` is **over a megabyte** — Node's default 1 MB pipe
@@ -175,6 +176,11 @@ function control() {
 function main(argv) {
   if (argv.includes('--control')) return control();
   const laneArg = (argv[argv.indexOf('--lane') + 1] || '').trim();
+
+  /* ABOVE the numbers, never below: a stale-ref warning printed under a table
+   * is read after the number has already been believed. See git_ref_freshness.js
+   * — this tool itself ran against a 45-commit-stale `origin/main` on 08-19. */
+  warnIfStale('origin/main');
 
   const branches = unmergedBranches(Date.now());
   const mainText = git('git show origin/main:ROUTES.md');

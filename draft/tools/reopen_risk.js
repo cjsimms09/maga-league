@@ -73,6 +73,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { warnIfStale } = require('./git_ref_freshness.js');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const REGISTER = path.join(ROOT, 'DEFECT-REGISTER.md');
@@ -226,6 +227,10 @@ function main(argv) {
   const di = argv.indexOf('--days');
   const days = di >= 0 ? Number(argv[di + 1]) : DEFAULT_RECENT_DAYS;
   const todayISO = new Date().toISOString().slice(0, 10);
+
+  /* Same reason as routes_branch_reconcile.js: this compares branches AGAINST
+   * `origin/main`, so a stale cache silently changes every merge base. */
+  warnIfStale('origin/main', ROOT);
 
   const rows = recentlyClosedRows(fs.readFileSync(REGISTER, 'utf8'), todayISO, days);
   const guarded = new Map();          //: file -> [row ids]
