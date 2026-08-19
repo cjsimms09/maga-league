@@ -79,8 +79,15 @@ function need(pos, held, flexOwner) {
  *
  * ARM=weeks selects it. Preregistered in the addendum before running -- a change
  * to the EQUATION, not a cap bolted on. */
-const ARM_WEEKS = (process.env.ARM || '').startsWith('weeks');
-const UNPRICED_FLOOR = (process.env.ARM || '') === 'weeks2' ? 1.0 : -Infinity;
+const ARM = process.env.ARM || '';
+/* P148 (ARM=qbfix) is P144 with ONE substitution: a backup is weighted by how
+ * much of the season he actually PLAYS (the weekly binomial = E[weeks]/17)
+ * instead of by whether he is EVER needed. 0.933 -> 0.147 for a second QB. No
+ * constant chosen, no cap, starter weight still 1.0, flex rule unchanged from
+ * P144 -- which is the arm that hit 5 of 6 cells and +4% value. */
+const ARM_WEEKS = ARM.startsWith('weeks') || ARM === 'qbfix';
+const UNPRICED_FLOOR = ARM === 'weeks2' ? 1.0 : -Infinity;
+const P144_FLEX = ARM === 'qbfix' || ARM === '';
 function weightOf(pos, held, flexOwner) {
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
@@ -110,12 +117,23 @@ const keptCounts = Object.assign({}, held);
  * draft_plan.js:433 sets flexOwner from the seat assignment; this now does the
  * same thing -- the position with a startable body beyond its own base slots. */
 function chooseFlexOwner() {
-  let best = null, bestSurplus = 0;
+  if (!P144_FLEX) {
+    let best = null, bestSurplus = 0;
+    FLEX_ELIGIBLE.forEach(pos => {
+      const surplus = (held[pos] || 0) - (STARTERS[pos] || 0);
+      if (surplus > bestSurplus) { bestSurplus = surplus; best = pos; }
+    });
+    return best;
+  }
+  let best = null, bestV = -Infinity;
   FLEX_ELIGIBLE.forEach(pos => {
-    const surplus = (held[pos] || 0) - (STARTERS[pos] || 0);
-    if (surplus > bestSurplus) { bestSurplus = surplus; best = pos; }
+    const avail = pool.filter(p => p.position === pos && !taken.has(String(p.player_id)));
+    const top = avail.sort((a, b) => b.proj_mean - a.proj_mean)[0];
+    if (!top) return;
+    const v = weightOf(pos, held[pos] || 0, pos) * Math.max(0, top.proj_mean - (WAIVER[pos] || 0));
+    if (v > bestV) { bestV = v; best = pos; }
   });
-  return best;   // null until somebody actually has a spare body
+  return best;
 }
 
 const taken = new Set();

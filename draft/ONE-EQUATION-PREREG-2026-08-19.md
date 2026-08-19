@@ -195,3 +195,43 @@ picks UNPRICED rather than junk — with total projected points within 5% of
 that the one-equation form does not produce Cory's shape without structure —
 three preregistered attempts is enough to say so honestly rather than keep
 tuning until it works.**
+
+---
+
+# ADDENDUM 3 — Cory: *"then adjust the need down"*. P148, ONE change from the best arm.
+
+**His call on his own specification, and I am recording it as that rather than as
+me fitting.** P144 hit 5 of 6 cells and **+4% value**; its only miss was taking a
+second quarterback. He is ruling that the need for that second body should be
+lower.
+
+## THE CHANGE, AND WHY IT IS NOT A TUNED CONSTANT
+
+**P148 = P144, with exactly one substitution**, and it is the units fix already
+diagnosed in addendum 1:
+
+```
+for held >= S:   weight  =  E[weeks started] / 17        [ = the weekly binomial ]
+                 instead of  P(needed in ANY of 17 weeks)
+```
+
+**No constant is chosen. No cap is added. The starter weight stays 1.0, the
+waiver levels stay, the flex rule stays exactly as P144 had it.** The only edit
+is that a backup is valued by **how much of the season he actually plays**
+instead of by **whether he is ever needed** — which is the difference between
+`0.933` and `0.147` for a second quarterback, and it is a units correction, not a
+dial.
+
+⚠️ **P146 already tried this substitution and failed — but P146 changed it
+ALONGSIDE a buggy flex chase, and P147 changed the flex AND added a floor. This
+isolates the single substitution against the arm that actually worked**, which is
+what I should have done first instead of stacking three edits.
+
+## P148
+
+**Drafted twelve: 3–4 WR, 3–4 RB, exactly 1 QB, 1 TE, 1 K, 1 DEF — all six cells
+— with total projected points within 5% of `draft_plan.js`.**
+
+**FALSE if any cell misses or value drops more than 5%.** ⚠️ **This is the fourth
+arm. If it fails, the report to Cory is that the one-equation form gets five of
+six and the sixth needs structure — stated as a limit, not tuned around.**
