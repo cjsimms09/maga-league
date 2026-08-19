@@ -102,3 +102,58 @@ is exact:**
 **QB1 starts 69% of weeks because the ranking is hindsight and owners stream —
 the position still averages exactly one starter.** The control is replaced, and
 the wrong premise is recorded in the module rather than quietly relaxed.
+
+---
+
+# P152 — I drove the draft on the MEASURED curve. FALSE on shape, and it failed exactly where I said it might.
+
+**Cory: *"test and make sure its right."*** So I replaced the binomial entirely
+and drove on counted data: `value = measured_need(pos, held) × (proj − waiver)`.
+
+**Result: `QB2 RB2 WR4 TE2 K1 DEF1` — 3 of 6 cells. Value +0.8%, the best of any
+arm.**
+
+## THE PREREG CALLED THIS SHOT
+
+I wrote, before running: *"QB2 (.427) and TE2 (.414) are left AT their measured
+rates on purpose… the waiver term already handles it, so the equation gets to
+prove it without my help. **If it drafts a QB2 anyway, that is a real finding
+against the form.**"*
+
+**It drafted QB Brock Purdy at need .427 and TE Brenton Strange at need .414.**
+The waiver term did **not** rescue it: Purdy at `354 − 319 = 35`, times .427, is
+14.8 — enough to beat a real running back late.
+
+## SO THE FINDING IS YOURS, AND THE TEST CONFIRMS IT
+
+**The measured curve answers *"how often does a ROSTERED Nth body start"*. It does
+not answer *"how often must I DRAFT one"* — and at QB, TE, K and DEF those are
+different questions, because a second body at those positions is a **waiver
+stream**, not a pick.**
+
+You said this before I tested it. **The test is the evidence, not the argument.**
+
+## THE STATE OF THE FIVE ARMS, HONESTLY
+
+| arm | drafted | cells | value |
+|---|---|---|---|
+| **P144** `P(ever needed)` | QB2 RB3 WR4 TE1 K1 DEF1 | **5 of 6** | +4.0% |
+| P146/148 `E[weeks]` | QB1 RB2 WR3 TE3 K2 DEF1 | 3 of 6 | −6.9% |
+| P147 + flex + floor | QB1 RB3 WR2 TE1 K2 DEF1 | 4 of 6 | −19.9% |
+| P149 + your K/DEF rule | QB2 RB3 WR3 TE2 K1 DEF1 | 4 of 6 | −0.4% |
+| **P152 measured curve** | QB2 RB2 WR4 TE2 K1 DEF1 | 3 of 6 | **+0.8%** |
+
+**Six arms in, and P144 — the first and simplest — is still the best on shape.**
+
+## THE NEXT TEST, AND IT IS MEASURABLE RATHER THAN ARGUABLE
+
+**Is a second QB/TE/K/DEF usually STREAMED rather than drafted?** `league_history`
+carries `transactions` for all three seasons. **Count what fraction of each
+position's 2nd-and-beyond bodies arrived by waiver claim versus by draft.** If
+QB2s are overwhelmingly waiver adds and RB4s are overwhelmingly drafted, that is
+the streaming distinction measured — and it converts your rule from a judgement
+into a number the equation can carry.
+
+**That is one query on data already on disk, and it is the first thing I would run
+after Saturday.** ⚠️ **Not tonight: I have run six arms today and the discipline
+that matters now is stopping, not a seventh.**

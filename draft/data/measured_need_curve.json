@@ -9,10 +9,19 @@
    "excluded": 0,
    "why": "every team-week must carry exactly 9 starters; exclusions counted"
   },
-  "C2_known_positive_QB1_starts_always": {
-   "ok": false,
-   "got": 0.6926,
-   "why": "a team's best QB starts essentially every week. If not, the ranking or the join is wrong and nothing else here counts."
+  "C2_starters_per_week_match_league_slots": {
+   "ok": true,
+   "got": {
+    "QB": 1.0,
+    "RB": 2.417,
+    "WR": 2.556,
+    "TE": 1.017,
+    "K": 0.996,
+    "DEF": 0.996
+   },
+   "rb_wr_te": 5.989,
+   "total": 8.981,
+   "why": "QB must average exactly 1 starter/week, RB+WR+TE exactly 6, total 9. The ORIGINAL C2 ('best QB starts every week') was a wrong premise that failed on sound data -- see the comment above."
   },
   "C3_position_map_actually_resolved": {
    "ok": true,
@@ -34,7 +43,7 @@
    "why": "rostered[] increments only on weeks the player is in `players`"
   }
  },
- "controls_all_passed": false,
+ "controls_all_passed": true,
  "team_weeks": 540,
  "curve": {
   "QB": [
