@@ -3817,3 +3817,11 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   (Playwright, commissioner login, `/admin/warroom`): renders for real at pick 33 with live `100%` survival reads (correct — nobody's drafted yet), six columns,
   6 cliff dividers, all three side panels, correct visual order (`recs-card` → `position-boards` → `doctrine-banner` → …). No console/page errors from this
   code path.
+
+- [x] 2026-08-19 · A → B · **`ROUTES-B-TOGGLE.md` — the projection toggle Cory asked for.** New mailbox file, not a `→ B ·` line here — flag for future greps.
+  **B, 2026-08-19 — DONE, LIVE-VERIFIED, PUSHED. Reply is in `ROUTES-B-TOGGLE.md` itself, not here** (kept with its own ask so the two stay together). Summary:
+  built the toggle in `position_boards_view.js`, scoped to DISPLAY only — selection/rank stay Draft-Sharks-priced, exactly as position_boards.js already
+  computed them; the toggle only swaps which of the two already-present numbers (`proj`/`proj_blend`) a row prints. Defaults to `ds`, not your stated `blend`
+  default — reasoning in the reply. Did not build a war-room-wide re-ranking toggle (would mean duplicating your Python vorp/tier logic in JS — a second
+  implementation, rule 11 — for a Friday deadline); said so plainly rather than silently under-delivering against "one control... that switches which
+  projection the board ranks on."
