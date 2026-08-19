@@ -119,3 +119,61 @@ fails the result should be discounted:
 **REPORT ONLY.** `draft_plan.js` and `engine.js` are untouched; the war room
 reads `seat_plan.json` and nothing here writes it. `no_fit_guard` holds:
 **whatever this says, nothing ships before Saturday.**
+
+---
+
+# ADDENDUM — P175, committed after P172 came back FALSE and before the measurement
+
+**P172 FALSE: RB 3.89, WR 3.60 — the fix moved the draft by 0.05 when its own
+arithmetic said the RB3 margin should collapse from 75.2 to 23.2.** Control 1
+passed (the `off` arm reproduces P166 to the decimal), so the change is doing
+what it says; **it is the DESIGN that is wrong, and the trace names it:**
+
+| body | slot | R |
+|---|---|---|
+| RB3 | flex | **130.4** |
+| **RB4** | bench | **78.4** |
+
+**The penalty applies to exactly one body and the next one escapes it, at a
+LOWER replacement than the body above him. The model dodges the flex penalty by
+drafting more running backs** — which is precisely the count Cory wants down.
+
+**ROOT CAUSE, and it invalidates the whole per-body-slot abstraction: I assign
+slots by DRAFT ORDER, but a lineup is assigned by QUALITY every week.** Which
+back is "the flex one" is not decided by when he was drafted, so no
+order-indexed slot label can be right.
+
+## WHAT REPLACES IT — and it is a measurement, not a choice
+
+`P(start | available)` already says how often the nth body starts. The only open
+term is **what he replaces when he does start**, and there are two channels:
+
+- he starts **in the flex** → his alternative is the best flex-eligible body
+- he starts **in a dedicated slot** (someone above him hurt or on bye) → his
+  alternative is his own position's wire
+
+So `R(q, n) = f(q, n) × flex_wire + (1 − f(q, n)) × waiver(q)`, where
+**`f(q, n)` is the measured fraction of the nth body's starts that are FLEX
+starts.** No free parameter — `f` is counted from the same 535 team-weeks, and
+because it is a property of the BODY rather than of the draft, **the escape
+hatch closes: every RB beyond the dedicated slots carries flex exposure.**
+
+**P175 — the flex exposure is concentrated in the 3rd body and does not vanish
+at the 4th.** Measured across 2023-2025: for RB and WR, **`f(q, 3) ≥ 0.30`
+AND `f(q, 4) ≥ 0.10`.**
+
+**FALSE if either misses.** If `f(q, 4)` is near zero the order-indexed version
+was accidentally right and the real defect is elsewhere.
+
+## CONTROLS
+
+1. **KNOWN POSITIVE.** Summed over positions, flex starts per team-week must
+   equal the league's `FLEX` count of **1.00 ± 0.02** — the same control that
+   validated the archetype split. A flex-start classifier that does not total
+   one slot is misclassifying.
+2. **`f` must be a fraction of that body's OWN starts**, so `f × (starts at n)`
+   summed over n reproduces the position's total flex starts.
+3. Excluded team-weeks counted, not dropped.
+
+**REPORT ONLY. `no_fit_guard`: P175 is a measurement of the league, not a
+selection among arms, and the arm it feeds is POST-DRAFT regardless of outcome.**

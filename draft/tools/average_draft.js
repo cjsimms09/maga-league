@@ -40,6 +40,50 @@ const STARTERS = (DATA.league || {}).starters || {};
  * too generous. draft_plan.js is NOT touched -- it feeds seat_plan.json,
  * which the war room reads. */
 const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+
+/* ── P172/P173/P174 — THE FLEX BODY'S REPLACEMENT IS NOT ITS OWN POSITION'S
+ * WIRE.  Prereg: draft/FLEX-REPLACEMENT-PREREG-2026-08-19.md
+ *
+ * Cory: "once 2 starting RBs are taken they're competing for flex and WR will
+ * almost always win that."  He is describing a defect and he is right.
+ *
+ * `margin` was `proj_mean - WAIVER[own position]` for EVERY body. That is
+ * correct for a body filling a DEDICATED slot and wrong for the body filling
+ * the FLEX, because a flex slot does not care which position fills it. With
+ * RB2/WR2/TE1/FLEX1 the THIRD running back does not occupy an RB slot -- he
+ * occupies the flex, so his alternative is the best flex-eligible body, not
+ * RB #48. The old rule credited him a 78.4 replacement he could never claim,
+ * which at rank ~30 made RB3 (75.2) beat WR3 (37.1) by 2.03x.
+ *
+ * No new constant and no fitted weight: which case applies is decided by the
+ * league's own `starters` block and how many of that position are held.
+ *
+ * ⚠️ THE RAW MAX IS TE 130.4, above WR's 124.8, yet real teams flex a tight end
+ * 1.7% of the time -- so the TE wire rank (15) or the TE projections are
+ * suspect. Both choices are run and must agree (rule 3d). */
+const FLEXR_ARM = process.env.FLEXR || 'max';
+const flexWire = () => {
+  if (FLEXR_ARM === 'off') return null;                       // known-positive control
+  if (FLEXR_ARM === 'wr') return WAIVER.WR;                   // empirical flex owner
+  return Math.max(...FLEX_ELIGIBLE.map(q => WAIVER[q] || 0)); // derived max
+};
+const FLEX_R = flexWire();
+
+/* Which slot would the n-th body at this position occupy? Read from the league,
+ * never hardcoded, and returned as a label so the run can print it. */
+function slotOf(q, heldQ, held, base) {
+  if (heldQ < (base[q] || 0)) return 'dedicated';
+  if (!FLEX_ELIGIBLE.includes(q)) return 'bench';
+  const surplus = FLEX_ELIGIBLE.reduce(
+    (a, x) => a + Math.max(0, (held[x] || 0) - (base[x] || 0)), 0);
+  return surplus < (STARTERS.FLEX || 0) ? 'flex' : 'bench';
+}
+
+function replacementFor(q, heldQ, held, base) {
+  const slot = slotOf(q, heldQ, held, base);
+  if (slot === 'flex' && FLEX_R != null) return FLEX_R;
+  return WAIVER[q] || 0;
+}
 const SCHED = PLAN.SCHED;
 const ROOMS = (() => { const i = process.argv.indexOf('--rooms'); return i >= 0 ? +process.argv[i + 1] : 300; })();
 
@@ -95,7 +139,7 @@ function runRoom() {
     FLEX_ELIGIBLE.forEach(q => { const s = (held[q] || 0) - (base[q] || 0); if (s > bs) { bs = s; best = q; } });
     return best;
   };
-  const taken = new Set(), got = [];
+  const taken = new Set(), got = [], slots = [];
   /* ⛔ THE FIRST VERSION OF THIS CONTROL COUNTED gone.size, WHICH IS ALWAYS 32 BY
    * CONSTRUCTION -- picks 1..32 are always 32 players however the room is
    * jittered. It measured nothing and failed the run, correctly, for the wrong
@@ -133,11 +177,18 @@ function runRoom() {
        * calendar. P158's linear blend and P159's exponent both ramped depth too,
        * which is why each broke something. */
       const w = weightOf(p.position, held[p.position] || 0, fo, 1);
-      const margin = Math.max(0, p.proj_mean - (WAIVER[p.position] || 0));
+      /* P172: the replacement depends on the SLOT this body would fill, not on
+       * his position alone. FLEXR=off restores the old rule exactly. */
+      const R = replacementFor(p.position, held[p.position] || 0, held, base);
+      const margin = Math.max(0, p.proj_mean - R);
       const v = margin * w;
       if (v > bestV) { bestV = v; best = p; }
     });
     if (!best) return;
+    /* CONTROL 2: record which slot the body actually TAKEN was priced into, so
+     * the classification can be audited rather than trusted. Must be read
+     * BEFORE held is incremented. */
+    slots.push(`${best.position}:${slotOf(best.position, held[best.position] || 0, held, base)}`);
     taken.add(String(best.player_id));
     held[best.position] = (held[best.position] || 0) + 1;
     got.push(best.position);
@@ -145,7 +196,7 @@ function runRoom() {
   const c = {};
   got.forEach(q => { c[q] = (c[q] || 0) + 1; });
   const legal = ['QB','RB','WR','TE','K','DEF'].every(q => (held[q]||0) >= (base[q]||0));
-  return { counts: c, top32, legal };
+  return { counts: c, top32, legal, slots };
 }
 
 const rows = [];
