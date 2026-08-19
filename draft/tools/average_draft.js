@@ -49,15 +49,25 @@ const rnd = () => { _s = (_s * 1664525 + 1013904223) >>> 0; return _s / 42949672
 const gauss = () => { const u = Math.max(1e-12, rnd()), v = rnd();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
 
-function needOf(pos, held, flexOwner) {
+/* DEPTH — measured start rate x (1 - streamability). A per-week rate; it does
+ * NOT change with the calendar and is never ramped. This is what makes RB/WR
+ * retain value, QB/TE tank, and K/DEF go to ~0 after one. */
+function depthOf(pos, held, flexOwner) {
   const S = (STARTERS[pos] || 0) + (flexOwner === pos ? (STARTERS.FLEX || 0) : 0);
   if (S <= 0) return 0;
-  if (held < S) return 1.0;
+  if (held < S) return null;              // not a depth question — the slot is EMPTY
   const row = CURVE[pos] || [];
   const v = row[held];
   if (v == null) return 0;
   const sr = STREAM[pos];
   return (sr == null) ? v : v * (1 - sr);
+}
+/* P161: ramp URGENCY only. An empty slot is not urgent early and is everything
+ * late; depth is a measured rate and is never ramped. Ramping them together is
+ * why every previous arm broke something. */
+function weightOf(pos, held, flexOwner, lam) {
+  const d = depthOf(pos, held, flexOwner);
+  return (d === null) ? lam : d;
 }
 
 function runRoom() {
