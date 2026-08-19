@@ -85,15 +85,7 @@ jobs:
       # now nothing re-derived it after a capture. Network-free — reads only
       # the file the previous step just wrote.
       - name: Re-derive expert_spread_2026.json from the fresh capture
-        run: |
-          set -euo pipefail
-          python3 -c "
-          import sys
-          sys.path.insert(0, 'draft/backtest')
-          import expert_spread_artifact as E
-          d = E.build()
-          print('wrote expert_spread_2026.json:', len(d['players']), 'players, scraped_at', d['scraped_at'])
-          "
+        run: python3 draft/tools/rederive_expert_spread.py
 
       - name: Commit the store
         run: |
