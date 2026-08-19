@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 126,
+ "next_numeric_id": 127,
  "history": [
   {
    "id": 47,
@@ -71,6 +71,11 @@
    "id": 125,
    "claimed_at": "2026-08-19",
    "note": "E: simple_model a=0.5/a=1 artifacts show ~3 TE / ~2.4 QB rosters, ungraded because P188/P190's bars were only preregistered for a=0"
+  },
+  {
+   "id": 126,
+   "claimed_at": "2026-08-19",
+   "note": "E: main has had 0 successful CI runs in ~30, and wire_level/wire_one_source are real reproducing failures inside that churn"
   }
  ]
 }
