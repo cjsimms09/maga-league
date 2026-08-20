@@ -89,11 +89,71 @@ def compute_for_source(players: list[dict], cfg: dict, source_field: str) -> dic
     return out
 
 
+def apply_source_bands(players: list[dict]) -> dict:
+    """CORY'S RULING, 2026-08-20, verbatim: "I want to use draft sharks
+    ceilings.. for every source that doesn't offer ceilings, make the ceiling
+    AND floor the same % away from their proj as draft sharks."
+
+    THE GAP THIS CLOSES. Draft Sharks is the only source that publishes a floor
+    and a ceiling, and the board already wears its band — but only on the BLEND
+    (`proj_ceiling_source: draftsharks_pct`). Measured before building this:
+    **zero of 700 players carried a per-source ceiling field**, so toggling the
+    war room to FantasyPros showed a FantasyPros projection with no floor and no
+    ceiling at all. The one source that has the numbers was lending them to the
+    blend and to nobody else.
+
+    THE RULE, AND IT IS HIS, NOT A FIT. Draft Sharks' own band is converted to a
+    per-player RATIO against Draft Sharks' own projection:
+
+        ceil_ratio = proj_ds_ceiling / proj_ds
+        floor_ratio = proj_ds_floor   / proj_ds
+
+    and each source's band is that ratio applied to ITS OWN projection. So
+    FantasyPros' ceiling is FantasyPros' number widened by exactly the shape
+    Draft Sharks measured for that player — not Draft Sharks' points wearing
+    FantasyPros' label.
+
+    WHY A RATIO AND NOT A POINT SPREAD. The sources are not on one scale (median
+    ratio to the blend: DS 1.04, FP 1.01, Sleeper 0.96), so lending an absolute
+    +38-point band to a source that projects 20 points lower would put its
+    ceiling above Draft Sharks' own. A ratio is scale-free, which is the same
+    reason every source comparison on this board is done on rank.
+
+    ABSENT IS NOT A GUESS. A player Draft Sharks does not carry gets NO band on
+    any source — the fields are omitted rather than filled from a positional
+    average, because a fabricated ceiling is indistinguishable on screen from a
+    measured one, which is the rule this repo has paid for repeatedly. The count
+    of players skipped is returned so the omission is visible rather than silent.
+    """
+    band = {"with_ds_band": 0, "no_ds_band": 0, "fields_written": 0}
+    for p in players:
+        ds = p.get("proj_ds")
+        dsc = p.get("proj_ds_ceiling")
+        dsf = p.get("proj_ds_floor")
+        if not ds or dsc is None or dsf is None or ds <= 0:
+            band["no_ds_band"] += 1
+            continue
+        band["with_ds_band"] += 1
+        cr, fr = dsc / ds, dsf / ds
+        p["band_ceiling_ratio"] = round(cr, 4)
+        p["band_floor_ratio"] = round(fr, 4)
+        p["band_ratio_source"] = "draftsharks per-player ratio (Cory 2026-08-20)"
+        for key, field in SOURCES.items():
+            v = p.get(field)
+            if v is None:
+                continue
+            p["proj_ceiling_" + key] = round(v * cr, 2)
+            p["proj_floor_" + key] = round(v * fr, 2)
+            band["fields_written"] += 2
+    return band
+
+
 def apply_alt_sources(artifact: dict, cfg: dict) -> dict:
     """Mutates artifact['players'] in place, adding the suffixed fields for
     every source in SOURCES. Returns a small diagnostic dict for logging."""
     players = artifact.get("players") or []
     diag = {}
+    diag["_source_bands"] = apply_source_bands(players)
     for key, field in SOURCES.items():
         computed = compute_for_source(players, cfg, field)
         n_covered = sum(1 for v in computed.values() if v["covered"])
@@ -140,7 +200,23 @@ def main() -> None:
 
     print("alt_source_rankings: wrote per-source vorp/tier onto "
           f"{len(artifact.get('players') or [])} players in {path}")
+    bands = diag.get("_source_bands") or {}
+    if bands:
+        print(f"  source bands (Cory 2026-08-20): {bands['with_ds_band']} player(s) "
+              f"carry a Draft Sharks band and lend it to every source they have "
+              f"({bands['fields_written']} fields); {bands['no_ds_band']} have no DS "
+              f"band and are left WITHOUT one rather than given an invented number.")
+    # ⚠️ THIS LOOP ASSUMED EVERY diag ENTRY HAD THE PER-SOURCE SHAPE, and adding
+    # `_source_bands` to the same dict crashed main() with a bare KeyError —
+    # AFTER the artifact had already been written, so the board was correct and
+    # the process exited 1. A tool that does its job and then fails its own
+    # summary is worse than one that fails outright: wired into CI it would red
+    # the build over a print statement. Underscore-prefixed keys are diagnostics
+    # about the run, not sources, and are skipped by shape rather than by name
+    # so the next one added does not repeat this.
     for key, d in diag.items():
+        if key.startswith("_") or not isinstance(d, dict) or "total" not in d:
+            continue
         pct = round(100 * d["covered"] / d["total"]) if d["total"] else 0
         print(f"  {key:12s} ({d['field']}): {d['covered']}/{d['total']} covered ({pct}%)")
 
