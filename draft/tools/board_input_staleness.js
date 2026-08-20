@@ -103,6 +103,10 @@ const INPUTS = [
  * source is covered the day its board first commits. Absent boards are fine
  * (the toggle's own failure path names them); PRESENT-but-older fails. */
 const DERIVED = 'public/board_*.json';
+/* mlv_plan.json is board-derived too (mlv_seat_plan.js reads the board), and it
+ * was caught 45 minutes stale against the 03:55 rebuild the day the source
+ * toggle shipped — same class, different file, so it joins the check. */
+const DERIVED_EXTRA = ['public/mlv_plan.json'];
 
 /** {stale:[...], fresh:[...]} for boards DERIVED from the blend board. */
 function classifyDerived(boardTime, derived) {
@@ -168,7 +172,8 @@ function main(argv) {
   let derivedNames = [];
   try {
     derivedNames = git('git ls-tree -r --name-only ' + (at || 'HEAD') + ' -- public')
-      .split('\n').filter(n => /^public\/board_[^/]+\.json$/.test(n.trim())).map(n => n.trim());
+      .split('\n').map(n => n.trim())
+      .filter(n => /^public\/board_[^/]+\.json$/.test(n) || DERIVED_EXTRA.includes(n));
   } catch (e) { /* no tree data — derived check silently empty, inputs still run */ }
   const derived = classifyDerived(boardTime,
     derivedNames.map(p => ({ path: p, time: lastCommit(p, at) })));
@@ -212,6 +217,6 @@ function main(argv) {
   return 1;
 }
 
-module.exports = { BOARD, INPUTS, DERIVED, classify, classifyDerived, human, lastCommit, main };
+module.exports = { BOARD, INPUTS, DERIVED, DERIVED_EXTRA, classify, classifyDerived, human, lastCommit, main };
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
