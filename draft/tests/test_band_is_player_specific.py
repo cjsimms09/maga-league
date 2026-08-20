@@ -117,7 +117,30 @@ bad = [p["name"] for p in P
        if p["proj_floor"] > p["proj_mean"] + 0.01 or p["proj_ceiling"] < p["proj_mean"] - 0.01]
 ck("floor <= mean <= ceiling for every player on the board", not bad, bad[:5])
 
-print("\n%d checks, %d failed" % (7, len(_fails)))
-if _fails:
-    print("FAILED")
-    sys.exit(1)
+# ── PYTEST ENTRY POINT, ADDED 2026-08-20 ────────────────────────────────────
+#
+# ⚠️ THIS FILE COLLECTED **ZERO** TESTS UNDER PYTEST AND HAD BEEN READING AS
+# GREEN. It is named test_*.py, so the gate's `pytest draft/tests` imports it —
+# the checks above run at IMPORT and the old tail called sys.exit(1) on failure.
+# pytest reports that as a collection ERROR, not a FAILED line. The board gate
+# greps for "^FAILED" to decide what broke, found nothing, and refused to
+# publish with "no FAILED lines parsed — treating as BLOCKING". That is the gate
+# behaving correctly on a file I wrote badly, and it cost Cory a board rebuild
+# the night before keeper lock.
+#
+# Found by test_ci_loop_integrity, which exists for exactly this: "a test_*.py
+# that collects zero tests is a silent no-op — pytest passes it."
+#
+# The checks still run at import, so the standalone `python3 <file>` output is
+# unchanged. This just gives pytest something to collect and fail on.
+
+
+def test_all_checks_pass():
+    assert not _fails, "%d check(s) failed: " % len(_fails) + "; ".join(_fails)
+
+
+if __name__ == "__main__":
+    print("\n%d checks, %d failed" % (7, len(_fails)))
+    if _fails:
+        print("FAILED")
+        sys.exit(1)
