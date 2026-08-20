@@ -84,40 +84,11 @@
    "file": "league_analysis_2026.json",
    "draft_critical": false,
    "why": "MEASURED, not assumed: its player values live in projected_standings[].starters and it is read by views/admin/league-analysis.ejs — a SEPARATE standings page, not the war room. Stale here cannot change a pick. Regenerating it needs Sleeper, which is 403 from the build sandbox and reachable from CI.",
-   "status": "DRIFTED",
+   "status": "CONSISTENT",
    "checked": 86,
-   "mismatched": 85,
+   "mismatched": 0,
    "compared_against": "proj_mean",
-   "examples": [
-    {
-     "name": "Josh Allen",
-     "position": "QB",
-     "artifact": 405.5,
-     "board": 416.3,
-     "compared_against": "proj_mean"
-    },
-    {
-     "name": "Christian McCaffrey",
-     "position": "RB",
-     "artifact": 256,
-     "board": 287.7,
-     "compared_against": "proj_mean"
-    },
-    {
-     "name": "David Montgomery",
-     "position": "RB",
-     "artifact": 190.1,
-     "board": 181.2,
-     "compared_against": "proj_mean"
-    },
-    {
-     "name": "Amon-Ra St. Brown",
-     "position": "WR",
-     "artifact": 227.5,
-     "board": 253.9,
-     "compared_against": "proj_mean"
-    }
-   ]
+   "examples": []
   }
  ],
  "out_of_scope": [
@@ -127,5 +98,5 @@
   }
  ],
  "draft_critical_all_consistent": true,
- "non_critical_drift": 1
+ "non_critical_drift": 0
 }
