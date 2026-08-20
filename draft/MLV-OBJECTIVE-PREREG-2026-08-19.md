@@ -33,3 +33,31 @@ greedy beats anywhere is a bug, and the run refuses.
   the last internal points buys noise). If DP DOES beat MLV on skill by > 10
   pts/season, MLV is leaving real value behind and the DP policy becomes a
   candidate arm — that outcome would be reported as eagerly as the other.
+
+---
+
+## 13. PREREG — WAIVER-AWARE GRADING (`--grade-waiver`), committed before the run
+
+Cory: the frozen-roster grading "fully excludes waiver pickups. That's terrible
+and not realistic." Correct, and it applies to every arm symmetrically. Fix:
+grade BOTH rosters under a streamed game — every starting slot is floored at
+its position's measured weekly waiver level (season levels from
+ROSTER-CONSTRUCTION-CALL.md §2, this room's own three drafts: QB 322.9 ·
+RB 78.4 · WR 124.8 · TE 130.4 · K 128.6 · DEF 100.0, divided by 17; flex floor
+= the best flex-eligible level). Applied inside `bestLineup`, so actual and
+skill arms both inherit it, both sides identically.
+
+**Declared before running:** under waiver-aware grading, MLV-cap still beats
+the owners on BOTH gradings (actual > 0, skill > 0), and its actual delta
+stays inside the frozen arm's bootstrap CI [+10.0, +81.7]. If the edge
+INVERTS under the realistic game, the frozen-grading result was an artifact of
+ignoring waivers and every conclusion above is downgraded accordingly — filed
+either way.
+
+## 13b. P136 HONESTY NOTE — opponent reaction was measured WITHOUT a blind prereg
+
+The `--react` arm ran before its bar was committed (implementation preceded
+declaration). Labeled exploratory, not blind: actual **+32.7 (21/30)**, skill
+**+14.9 (18/30)** — both call bars still cleared, the drop from the frozen
+pool is −13.1/−14.4, and the actual WIN COUNT improved. Limit 5's answer:
+opponent adaptivity costs ~13 points and does not change the verdict.
