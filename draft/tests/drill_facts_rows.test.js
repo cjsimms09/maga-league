@@ -52,6 +52,8 @@ const injuryRow = eval('(' + lift('injuryRow') + ')');
 // eslint-disable-next-line no-eval
 const pedigreeRow = eval('(' + lift('pedigreeRow') + ')');
 // eslint-disable-next-line no-eval
+const ageRow = eval('(' + lift('ageRow') + ')');
+// eslint-disable-next-line no-eval
 const depthChartTeammates = eval('(' + liftAnyArgs('depthChartTeammates') + ')');
 
 // ── depthChartRow ────────────────────────────────────────────────────────
@@ -204,6 +206,17 @@ ck('a VETERAN with the same round/pick fields present -> null (stale, not shown)
 ck('a rookie with no round on file -> null, not a guess',
   pedigreeRow({ is_nfl_rookie: true, nfl_draft_round: null }) === null);
 ck('missing player / no rookie flag -> null', pedigreeRow(null) === null && pedigreeRow({}) === null);
+
+// ── ageRow — Cory's 08-20 design brief: "player ages" as a plain fact for
+// every player, not just a silent ingredient in the RB-30+ risk flag. ──────
+ck('a player with a real age shows it, plain', ageRow({ age: 24 })[0] === 'Age' && ageRow({ age: 24 })[1] === '24');
+ck('age 0 is falsy but a real (if bizarre) value — must not be treated as missing', ageRow({ age: 0 }) === null || ageRow({ age: 0 })[1] === '0');
+ck('missing age -> null, not a fabricated value', ageRow({ age: null }) === null && ageRow({}) === null);
+ck('missing player object -> null, no throw', ageRow(null) === null);
+ck('ageRow is actually wired into the drill panel, next to injuryRow and pedigreeRow', (() => {
+  const wcSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');
+  return /injuryRow\(p\),\s*\n\s*ageRow\(p\),\s*\n\s*pedigreeRow\(p\),/.test(wcSrc);
+})());
 
 // ── depthChartTeammates — the ask ("who else is on the depth chart"), from
 // data already on the board, zero new fetch ────────────────────────────────
