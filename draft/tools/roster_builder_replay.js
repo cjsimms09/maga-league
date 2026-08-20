@@ -809,7 +809,6 @@ function buildSeat(season, draft, seatId, rosterOn) {
          * faithful denomination is per-position points — §14d's LOO rank
          * curves, already in this file. Both runs are reported in the prereg. */
         const curves = posCurveFor(season.season);
-        if (!this._snakeRank) this._snakeRank = null;
         const rankOf = {};
         {
           const rc = {};
