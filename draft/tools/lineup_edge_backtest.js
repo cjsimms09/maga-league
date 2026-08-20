@@ -36,6 +36,18 @@
  *      results) — the same ceiling ceilingLeak() already computes.
  *
  * Run: node draft/tools/lineup_edge_backtest.js
+ *
+ * ── ADDITIVE, 2026-08-20 (D, P143) ──────────────────────────────────────────
+ * `backtest(seasons, projectFn)` now takes an OPTIONAL second argument. When
+ * omitted, behavior is byte-for-byte unchanged (the flat running average
+ * below still runs). When supplied, `projectFn(priorWeeksData, pid, season,
+ * week)` replaces the flat average as the leak-free projection for that
+ * player-week — `priorWeeksData` is that player's own array of
+ * `{week, pts}` for STRICTLY PRIOR weeks of the same season only (built by
+ * the same "update AFTER this week" loop the flat average already used, so
+ * it carries the identical leakage guarantee). Every existing call site
+ * (`backtest()` with no args, `require('./lineup_edge_backtest.js').backtest`
+ * elsewhere) is unaffected. See draft/tools/lineup_edge_backtest_blend.js.
  */
 const path = require('path');
 const fs = require('fs');
@@ -61,7 +73,7 @@ function slotCount(slots) {
   return Object.values(slots).reduce((a, b) => a + b, 0);
 }
 
-function backtest(seasons) {
+function backtest(seasons, projectFn) {
   const history = LO.harvest();
   seasons = seasons || LO.defaultSeasons(history);
   const rows = [];
@@ -91,18 +103,24 @@ function backtest(seasons) {
 
     for (const rid of Object.keys(byTeam)) {
       const weeks = byTeam[rid];
-      const priorSum = {}, priorGames = {};
+      const priorSum = {}, priorGames = {}, priorWeeksByPid = {};
       for (const wkRow of weeks) {
         const { week, pts, actualScore } = wkRow;
         const rosterIds = Object.keys(pts);
-        // Leak-free projection: strictly-prior running average. A player with
-        // zero prior games this season (week 1, or just added) has no
+        // Leak-free projection: strictly-prior running average (or, if
+        // projectFn was supplied, whatever leak-free function it computes
+        // from the same strictly-prior per-week history). A player with zero
+        // prior games this season (week 1, or just added) has no
         // reconstructable projection and is excluded from the tool's pool —
         // exactly what "projPending"/the zero-fallback does live.
         const proj = {};
         for (const pid of rosterIds) {
           const g = priorGames[pid] || 0;
-          if (g > 0) proj[pid] = priorSum[pid] / g;
+          if (g > 0) {
+            proj[pid] = projectFn
+              ? projectFn(priorWeeksByPid[pid] || [], pid, season, week)
+              : priorSum[pid] / g;
+          }
         }
         // Known-bye exclusion (2023/2024 only — see HISTORICAL_BYES above):
         // a real player is unplayable this week regardless of how good his
@@ -134,6 +152,7 @@ function backtest(seasons) {
         for (const pid of rosterIds) {
           priorSum[pid] = (priorSum[pid] || 0) + pts[pid];
           priorGames[pid] = (priorGames[pid] || 0) + 1;
+          (priorWeeksByPid[pid] = priorWeeksByPid[pid] || []).push({ week, pts: pts[pid] });
         }
       }
     }
