@@ -171,3 +171,43 @@ def test_the_real_board_projects_enough_of_the_draftable_pool():
                     key=lambda p: p["adp"])[:150]
     missing = [p["name"] for p in priced if str(p["player_id"]) not in idx]
     assert not missing, f"unprojectable inside the draftable range: {missing}"
+
+
+# ── the rehearsal stamp (found by the FIRST real dispatch, 2026-08-18) ──────
+
+def _mini():
+    rosters = [{"roster_id": 1, "owner_id": "u1", "players": ["q1"]}]
+    users = [{"user_id": "u1", "display_name": "Cory"}]
+    return rosters, users
+
+
+def test_a_pre_draft_run_stamps_itself_a_rehearsal_in_the_claim_b_renders():
+    """THE DEFECT THE FIRST DISPATCH FOUND: Sleeper's pre-draft rosters are
+    LAST SEASON'S rosters, so a rehearsal produces a full, plausible standings
+    table that reads as the draft result. The stamp must be in _claim itself —
+    the one line B's surface renders verbatim — not only in a flag field."""
+    r, u = _mini()
+    doc = LA.analyze(r, u, [], FULL_BOARD, league_status="pre_draft")
+    assert doc["_rehearsal"] is True
+    assert "REHEARSAL" in doc["_claim"]
+    assert "LAST SEASON" in doc["_claim"]
+
+
+def test_a_post_draft_run_is_NOT_stamped_and_the_claim_stays_clean():
+    """FAIL ARM: the stamp must be able to say no, or draft night's real
+    artifact would carry a rehearsal warning over the real result."""
+    r, u = _mini()
+    for status in ("drafting", "in_season", "complete"):
+        doc = LA.analyze(r, u, [], FULL_BOARD, league_status=status)
+        assert doc["_rehearsal"] is False, status
+        assert "REHEARSAL" not in doc["_claim"], status
+
+
+def test_an_absent_status_does_not_fabricate_a_rehearsal():
+    """A caller that never learned the status (old fixtures, unit tests) must
+    not have its artifact branded a rehearsal by default — absence of evidence
+    is stamped as absence (None), never as a claim either way."""
+    r, u = _mini()
+    doc = LA.analyze(r, u, [], FULL_BOARD)
+    assert doc["_rehearsal"] is False
+    assert doc["league_status"] is None

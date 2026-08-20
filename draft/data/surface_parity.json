@@ -1,0 +1,183 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/surface_parity.js",
+ "_note": "REPORT ONLY. A disagreement is not automatically a defect — the seat plan is allowed to differ from greedy by design. It is a thing a human must have SEEN before draft night.",
+ "board_built_at": "2026-08-19T00:54:18Z",
+ "artifacts": {
+  "seat_plan.json": {
+   "present": true,
+   "bytes": 46632,
+   "provenance": {},
+   "verdict": "NO PROVENANCE STAMP — nothing on disk says which board or engine built this, so it cannot be shown to be current. \"Cannot be shown stale\" is not the same thing."
+  },
+  "draft_data.json": {
+   "present": true,
+   "bytes": 1074073,
+   "provenance": {
+    "built_at": "2026-08-19T00:54:18Z"
+   },
+   "verdict": "STAMPED"
+  },
+  "opponent_need_2026.json": {
+   "present": true,
+   "bytes": 71057,
+   "provenance": {},
+   "verdict": "NO PROVENANCE STAMP — nothing on disk says which board or engine built this, so it cannot be shown to be current. \"Cannot be shown stale\" is not the same thing."
+  },
+  "expert_spread_2026.json": {
+   "present": true,
+   "bytes": 80206,
+   "provenance": {},
+   "verdict": "NO PROVENANCE STAMP — nothing on disk says which board or engine built this, so it cannot be shown to be current. \"Cannot be shown stale\" is not the same thing."
+  },
+  "conditional_value_2026.json": {
+   "present": true,
+   "bytes": 13043,
+   "provenance": {},
+   "verdict": "NO PROVENANCE STAMP — nothing on disk says which board or engine built this, so it cannot be shown to be current. \"Cannot be shown stale\" is not the same thing."
+  }
+ },
+ "seat_plan_agreement": {
+  "seats_checked": 12,
+  "seats_naming_a_player": 8,
+  "seats_naming_nobody": 3,
+  "seats_not_comparable_greedy_divergence": 1,
+  "disagreements_within_slot": 3,
+  "disagreements_outside_the_slot_top_5": 1,
+  "rows": [
+   {
+    "pick": 33,
+    "slot": "TE",
+    "is_starter_seat": true,
+    "plan_says": "TE Colston Loveland",
+    "engine_says_in_slot": "TE Colston Loveland",
+    "agree": true,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 1,
+    "not_comparable": false
+   },
+   {
+    "pick": 48,
+    "slot": "QB",
+    "is_starter_seat": true,
+    "plan_says": "QB Drake Maye",
+    "engine_says_in_slot": "QB Joe Burrow",
+    "agree": false,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 2,
+    "not_comparable": false
+   },
+   {
+    "pick": 53,
+    "slot": "WR",
+    "is_starter_seat": true,
+    "plan_says": "WR Mike Evans",
+    "engine_says_in_slot": "WR Mike Evans",
+    "agree": true,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 1,
+    "not_comparable": false
+   },
+   {
+    "pick": 68,
+    "slot": "FLEX",
+    "is_starter_seat": true,
+    "plan_says": "WR Parker Washington",
+    "engine_says_in_slot": "WR Parker Washington",
+    "agree": true,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 1,
+    "not_comparable": false
+   },
+   {
+    "pick": 73,
+    "slot": "BENCH",
+    "is_starter_seat": false,
+    "plan_says": "RB J.K. Dobbins",
+    "engine_says_in_slot": "RB Kyle Monangai",
+    "agree": false,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 4,
+    "not_comparable": false
+   },
+   {
+    "pick": 88,
+    "slot": "BENCH",
+    "is_starter_seat": false,
+    "plan_says": null,
+    "engine_says_in_slot": "RB Jordan Mason",
+    "agree": false,
+    "plan_names_nobody": true,
+    "plan_player_rank_within_slot": null,
+    "not_comparable": false
+   },
+   {
+    "pick": 93,
+    "slot": "BENCH",
+    "is_starter_seat": false,
+    "plan_says": null,
+    "engine_says_in_slot": "WR Jayden Reed",
+    "agree": false,
+    "plan_names_nobody": true,
+    "plan_player_rank_within_slot": null,
+    "not_comparable": false
+   },
+   {
+    "pick": 108,
+    "slot": "DEF",
+    "is_starter_seat": true,
+    "plan_says": "DEF Los Angeles Rams",
+    "engine_says_in_slot": "DEF Los Angeles Rams",
+    "agree": true,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 1,
+    "not_comparable": false
+   },
+   {
+    "pick": 113,
+    "slot": "K",
+    "is_starter_seat": true,
+    "plan_says": "K Brandon Aubrey",
+    "engine_says_in_slot": "K Brandon Aubrey",
+    "agree": true,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": 1,
+    "not_comparable": false
+   },
+   {
+    "pick": 128,
+    "slot": "BENCH",
+    "is_starter_seat": false,
+    "plan_says": null,
+    "engine_says_in_slot": "RB Tyrone Tracy",
+    "agree": false,
+    "plan_names_nobody": true,
+    "plan_player_rank_within_slot": null,
+    "not_comparable": false
+   },
+   {
+    "pick": 133,
+    "slot": "BENCH",
+    "is_starter_seat": false,
+    "plan_says": "RB Chris Rodriguez",
+    "engine_says_in_slot": "DEF New England Patriots",
+    "agree": false,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": null,
+    "not_comparable": true
+   },
+   {
+    "pick": 148,
+    "slot": "BENCH",
+    "is_starter_seat": false,
+    "plan_says": "WR Jayden Higgins",
+    "engine_says_in_slot": "K Cam Little",
+    "agree": false,
+    "plan_names_nobody": false,
+    "plan_player_rank_within_slot": null,
+    "not_comparable": false
+   }
+  ],
+  "reading": "A SEAT NAMES A PLAYER THE ENGINE RANKS OUTSIDE THE TOP 5 OF THAT SEAT'S OWN SLOT — that is the opening-script shape and needs a human before 08-22.",
+  "silent_reading": "3 seat(s) name NOBODY. That is a gap in what Cory is told at those picks, not a conflict with the engine — but a seat that recommends nothing is a seat the war room cannot help him at."
+ }
+}

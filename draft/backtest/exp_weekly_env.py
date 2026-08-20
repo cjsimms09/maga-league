@@ -51,10 +51,16 @@ DAMPENING = (1.0, 0.5)         # both reported, neither tuned
 # ⚠ 18b (D, 2026-08-18): 0.5 was this grid's own MINIMUM, so the published
 # "+0.228 ceiling" was a floor on the ceiling. D's finer preregistered sweep
 # (no egress, six-check reproduction control) found λ*=0.60 both seasons
-# (+0.238, a +4.3% refinement) and the real finding: the optimum is
-# ASYMMETRIC — dud games want λ≈0.80 and carry 5-10× the value of
-# shootouts (λ 0.25-0.50). This tuple stays as-is so the historical run
-# reproduces; the asymmetric arm is preregistered separately, post-draft.
+# (+0.2379, a +4.3% refinement) and the real finding: the optimum is
+# ASYMMETRIC — dud games want λ≈0.80 and carry 2.3-7.2× the value of
+# shootouts (λ 0.25-0.50; the raw 5-10× shrank under D's own 40-draw
+# placebo, register 33b — the shootout-side placebo is exactly 0.0000, so
+# the free lunch exists only in the shrink direction). This tuple stays
+# as-is so the historical run reproduces; the asymmetric arm is
+# preregistered separately, post-draft. Bounding fact from the same row:
+# a PERFECT oracle at +0.2379 is 77% of the all-seats replay's ±0.310
+# detection floor — this channel's best case is smaller than the smallest
+# effect that instrument can resolve.
 PERMUTATIONS = 200
 
 ARMS = ("pace_raw", "pace_neutral", "env_points", "oracle_total")

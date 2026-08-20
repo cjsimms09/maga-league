@@ -2,12 +2,12 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-18T05:33:24Z",
-   "board_content_hash": "bb295750c92c",
+   "board_built_at": "2026-08-19T08:52:22Z",
+   "board_content_hash": "774e8ccc50d8",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
-   "designated_slates_hash": "0d0c68bf2ac1"
+   "designated_slates_hash": "5d857bbdee99"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
@@ -15,8 +15,8 @@
    "why": "19b race ran; no archetype cleared the paired CI + even-money band"
   },
   "keeper_basis": {
-   "designated_teams": 4,
-   "predicted_slate_teams": 3,
+   "designated_teams": 6,
+   "predicted_slate_teams": 2,
    "supersessions": [
     {
      "handle": "cashworth",
@@ -24,6 +24,14 @@
      "kept_unpredicted": [
       "Ashton Jeanty",
       "Chase Brown"
+     ]
+    },
+    {
+     "handle": "Jreis",
+     "freed": [],
+     "kept_unpredicted": [
+      "A.J. Brown",
+      "James Cook"
      ]
     },
     {
@@ -58,39 +66,49 @@
     "pick": 33,
     "candidates": [
      {
+      "player_id": "12481",
+      "name": "Cam Skattebo",
+      "position": "RB",
+      "vorp": 37.8,
+      "survival": 0.45,
+      "adp": 32.6,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "7543",
+      "name": "Travis Etienne",
+      "position": "RB",
+      "vorp": 35.2,
+      "survival": 0.87,
+      "adp": 38.0,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "6790",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "vorp": 31.8,
+      "survival": 0.99,
+      "adp": 47.3,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
-      "vorp": 37.0,
-      "survival": 0.78
+      "vorp": 31.1,
+      "survival": 0.76,
+      "adp": 39.3,
+      "_onesie_reach": false
      },
      {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 30.3,
-      "survival": 0.52
-     },
-     {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
-      "player_id": "7525",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "vorp": 26.6,
-      "survival": 0.26
-     },
-     {
-      "player_id": "11564",
-      "name": "Drake Maye",
-      "position": "QB",
-      "vorp": 26.0,
-      "survival": 0.98
+      "player_id": "11584",
+      "name": "Bucky Irving",
+      "position": "RB",
+      "vorp": 28.1,
+      "survival": 0.96,
+      "adp": 43.3,
+      "_onesie_reach": false
      }
     ]
    },
@@ -98,39 +116,49 @@
     "pick": 48,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
+      "player_id": "6790",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "vorp": 31.8,
+      "survival": 0.45,
+      "adp": 47.3,
+      "_onesie_reach": false
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
-      "vorp": 26.0,
-      "survival": 0.5
-     },
-     {
-      "player_id": "2216",
-      "name": "Mike Evans",
-      "position": "WR",
-      "vorp": 24.6,
-      "survival": 0.97
+      "vorp": 23.5,
+      "survival": 0.5,
+      "adp": 48.0,
+      "_onesie_reach": false
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
-      "vorp": 23.2,
-      "survival": 0.43
+      "vorp": 19.8,
+      "survival": 0.43,
+      "adp": 46.4,
+      "_onesie_reach": false
      },
      {
-      "player_id": "10859",
-      "name": "Sam LaPorta",
-      "position": "TE",
-      "vorp": 22.1,
-      "survival": 0.91
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "vorp": 16.9,
+      "survival": 0.6,
+      "adp": 50.5,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "12490",
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "vorp": 15.4,
+      "survival": 0.85,
+      "adp": 53.8,
+      "_onesie_reach": false
      }
     ]
    },
@@ -138,39 +166,49 @@
     "pick": 53,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
-      "player_id": "2216",
-      "name": "Mike Evans",
-      "position": "WR",
-      "vorp": 24.6,
-      "survival": 0.86
-     },
-     {
-      "player_id": "10859",
-      "name": "Sam LaPorta",
-      "position": "TE",
-      "vorp": 22.1,
-      "survival": 0.84
-     },
-     {
       "player_id": "6770",
       "name": "Joe Burrow",
       "position": "QB",
-      "vorp": 20.4,
-      "survival": 0.4
+      "vorp": 16.9,
+      "survival": 0.4,
+      "adp": 50.5,
+      "_onesie_reach": false
      },
      {
-      "player_id": "HOU",
-      "name": "Houston Texans",
-      "position": "DEF",
-      "vorp": 15.0,
-      "survival": 1.0
+      "player_id": "12490",
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "vorp": 15.4,
+      "survival": 0.56,
+      "adp": 53.8,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "8148",
+      "name": "Jameson Williams",
+      "position": "WR",
+      "vorp": 12.4,
+      "survival": 0.8,
+      "adp": 56.2,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "6904",
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "vorp": 11.6,
+      "survival": 0.7,
+      "adp": 58.9,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "2133",
+      "name": "Davante Adams",
+      "position": "WR",
+      "vorp": 10.2,
+      "survival": 0.68,
+      "adp": 54.7,
+      "_onesie_reach": false
      }
     ]
    }
@@ -180,39 +218,49 @@
     "pick": 33,
     "candidates": [
      {
+      "player_id": "12481",
+      "name": "Cam Skattebo",
+      "position": "RB",
+      "vorp": 37.8,
+      "survival": 0.45,
+      "adp": 32.6,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "7543",
+      "name": "Travis Etienne",
+      "position": "RB",
+      "vorp": 35.2,
+      "survival": 0.87,
+      "adp": 38.0,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "6790",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "vorp": 31.8,
+      "survival": 0.99,
+      "adp": 47.3,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
-      "vorp": 37.0,
-      "survival": 0.78
+      "vorp": 31.1,
+      "survival": 0.76,
+      "adp": 39.3,
+      "_onesie_reach": false
      },
      {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 30.3,
-      "survival": 0.52
-     },
-     {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
-      "player_id": "7525",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "vorp": 26.6,
-      "survival": 0.26
-     },
-     {
-      "player_id": "11564",
-      "name": "Drake Maye",
-      "position": "QB",
-      "vorp": 26.0,
-      "survival": 0.98
+      "player_id": "11584",
+      "name": "Bucky Irving",
+      "position": "RB",
+      "vorp": 28.1,
+      "survival": 0.96,
+      "adp": 43.3,
+      "_onesie_reach": false
      }
     ]
    },
@@ -220,39 +268,49 @@
     "pick": 48,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
+      "player_id": "6790",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "vorp": 31.8,
+      "survival": 0.45,
+      "adp": 47.3,
+      "_onesie_reach": false
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
-      "vorp": 26.0,
-      "survival": 0.5
-     },
-     {
-      "player_id": "2216",
-      "name": "Mike Evans",
-      "position": "WR",
-      "vorp": 24.6,
-      "survival": 0.97
+      "vorp": 23.5,
+      "survival": 0.5,
+      "adp": 48.0,
+      "_onesie_reach": false
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
-      "vorp": 23.2,
-      "survival": 0.43
+      "vorp": 19.8,
+      "survival": 0.43,
+      "adp": 46.4,
+      "_onesie_reach": false
      },
      {
-      "player_id": "10859",
-      "name": "Sam LaPorta",
-      "position": "TE",
-      "vorp": 22.1,
-      "survival": 0.91
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "vorp": 16.9,
+      "survival": 0.6,
+      "adp": 50.5,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "12490",
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "vorp": 15.4,
+      "survival": 0.85,
+      "adp": 53.8,
+      "_onesie_reach": false
      }
     ]
    },
@@ -260,39 +318,49 @@
     "pick": 53,
     "candidates": [
      {
-      "player_id": "LAR",
-      "name": "Los Angeles Rams",
-      "position": "DEF",
-      "vorp": 29.0,
-      "survival": 1.0
-     },
-     {
-      "player_id": "2216",
-      "name": "Mike Evans",
-      "position": "WR",
-      "vorp": 24.6,
-      "survival": 0.86
-     },
-     {
-      "player_id": "10859",
-      "name": "Sam LaPorta",
-      "position": "TE",
-      "vorp": 22.1,
-      "survival": 0.84
-     },
-     {
       "player_id": "6770",
       "name": "Joe Burrow",
       "position": "QB",
-      "vorp": 20.4,
-      "survival": 0.4
+      "vorp": 16.9,
+      "survival": 0.4,
+      "adp": 50.5,
+      "_onesie_reach": false
      },
      {
-      "player_id": "HOU",
-      "name": "Houston Texans",
-      "position": "DEF",
-      "vorp": 15.0,
-      "survival": 1.0
+      "player_id": "12490",
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "vorp": 15.4,
+      "survival": 0.56,
+      "adp": 53.8,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "8148",
+      "name": "Jameson Williams",
+      "position": "WR",
+      "vorp": 12.4,
+      "survival": 0.8,
+      "adp": 56.2,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "6904",
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "vorp": 11.6,
+      "survival": 0.7,
+      "adp": 58.9,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "2133",
+      "name": "Davante Adams",
+      "position": "WR",
+      "vorp": 10.2,
+      "survival": 0.68,
+      "adp": 54.7,
+      "_onesie_reach": false
      }
     ]
    }

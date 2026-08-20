@@ -2,7 +2,8 @@
 
 Projections are not built from scratch. A consensus baseline is converted to
 *our* scoring, then nudged by opportunity metrics that consensus reacts to
-slowly — target share, air yards, red-zone work, snap share. The nudge is capped
+slowly — target share, air yards, red-zone work. (Snap share is NOT one of
+them — see opportunity_metrics; register rows 13/13b.) The nudge is capped
 because opportunity is a leading indicator, not a projection.
 """
 from __future__ import annotations
@@ -142,8 +143,11 @@ def opportunity_metrics(pbp, weekly, seasons: list[int], weights: list[float]) -
     COMPUTED ANYWHERE (corrected 2026-08-17). A docstring naming a field the
     function does not produce is worse than silence: a reader plans around it,
     and the absence looks like a data gap rather than a missing feature. Snap
-    share needs nflverse snap_counts, which this repo has never pulled — it is
-    a real gap and it is filed as one, not implied here.
+    share needs nflverse snap_counts, which this repo NOW PULLS WEEKLY
+    (35,705 player-weeks committed since 2026-08-17) — the gap moved from
+    DATA to WIRING, and snap share is a measured NULL anyway (register 13:
+    rho 0.81-0.84 vs prior points, second opportunity metric to die that
+    death), so nothing should wire it without new evidence.
     """
     import pandas as pd  # imported here so the module loads without pandas
 

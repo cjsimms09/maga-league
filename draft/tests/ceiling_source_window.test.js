@@ -122,11 +122,25 @@ const WINDOW = B.players.filter(p => {
 {
   const bandOf = r => (r <= 3 ? '1-3' : r <= 8 ? '4-8' : r <= 16 ? '9-16'
     : r <= 32 ? '17-32' : '33+');
+  /* THE RANK THAT PICKS THE CELL IS THE FULL-UNIVERSE ONE (A's 08-18 ruling,
+   * projections.py:306): the pipeline bands players + kept_players by
+   * proj_mean, and the published pos_rank is the AVAILABILITY rank — they
+   * legitimately differ at band boundaries by exactly the keeper count.
+   * Grouping by pos_rank here put three boundary RBs into a cell the fitter
+   * never assigned them, which read as cv 0.077 in a genuinely flat source.
+   * Recompute the ruled rank instead of borrowing the published one. */
+  const universe = B.players.concat(B.kept_players || []);
+  const uniRank = {};
+  ['QB','RB','WR','TE','K','DEF'].forEach(pos => {
+    universe.filter(p => p.position === pos && Number(p.proj_mean) > 0)
+      .sort((a, b) => Number(b.proj_mean) - Number(a.proj_mean))
+      .forEach((p, i) => { uniRank[String(p.player_id)] = i + 1; });
+  });
   const cvByCell = src => {
     const g = {};
     B.players.filter(p => p.proj_ceiling_source === src
       && Number(p.proj_mean) > 0 && p.proj_ceiling != null).forEach(p => {
-      const k = p.position + '|' + bandOf(Number(p.pos_rank));
+      const k = p.position + '|' + bandOf(Number(uniRank[String(p.player_id)] || p.pos_rank));
       (g[k] = g[k] || []).push(p.proj_ceiling / p.proj_mean);
     });
     return Object.keys(g).filter(k => g[k].length >= 3).map(k => {

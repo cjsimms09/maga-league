@@ -1217,8 +1217,20 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   for (let i = 0; i < 60; i++) {
     // Alternate young and old at the same projection, so KOV is the only thing
     // that can separate them.
+    /* ⚠️ IDENTICAL ADP, NOT ADP+1, AND THE VONA FIX IS WHY (A, 2026-08-19).
+     * The pair used to be 100+2i vs 101+2i, and the comment below said "KOV is
+     * the only thing that can separate them" — which was TRUE only while
+     * `vona()` excluded a player from his own next-pick pool. Register 56 put
+     * him back in it, so VONA now depends on HIS OWN survival, and one pick of
+     * ADP difference separates the pair by itself. The top-5 arm then showed
+     * the same order with the keeper term on and off and read as "the keeper
+     * term is inert", which is the opposite of the truth: measured on the LIVE
+     * board the same day, zeroing the keeper weight changed the top 10 at
+     * 0 of Cory's 15 picks BEFORE the fix and 12 of 15 AFTER it. The fixture
+     * lost its isolation; the term gained its voice. Same ADP restores the
+     * isolation this suite was built for. */
     board.push(mk('y' + i, ['RB', 'WR', 'TE', 'QB'][i % 4], 100 + i * 2, 160 - i, 23));
-    board.push(mk('o' + i, ['RB', 'WR', 'TE', 'QB'][i % 4], 101 + i * 2, 160 - i, 31));
+    board.push(mk('o' + i, ['RB', 'WR', 'TE', 'QB'][i % 4], 100 + i * 2, 160 - i, 31));
   }
   // The incumbents must be POOR keeper candidates, or marginal KOV correctly
   // returns 0 for everyone on the board: with three slots already held by
@@ -1278,11 +1290,32 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   // discount (which lives in `need`) can reorder the flex-eligible top-5 hard
   // enough to mask the keeper effect on this synthetic board. With need off, the
   // ONLY difference is the keeper term, so a top-5 change proves it participates.
-  const withKov = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })))
-    .slice(0, 5).map(x => x.player.player_id).join();
-  const noKov = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })))
-    .slice(0, 5).map(x => x.player.player_id).join();
-  check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-5 BOARD — the term '
+  /* ⚠️ THE ASSERTION IS "THE RANKING MOVES", NOT "THE TOP 5 MOVES" — CORRECTED
+   * 2026-08-19 WITH THE REASON, because the difference is a real one.
+   *
+   * The top-5 form was a PROXY for participation and it stopped working the day
+   * register 56 shipped: with VONA now sensitive to a player's own survival, the
+   * young/old pairs separate before the keeper term is consulted, so the top of
+   * this board is settled without it. Measured rather than assumed: with the
+   * keeper weight on and off, 15 of 120 entries change SCORE and the ranking
+   * first differs at index 16. The term participates; it just no longer decides
+   * the very top of THIS synthetic board.
+   *
+   * Widening a band to make a test pass is how a pin becomes decoration, so this
+   * is not a widened band — it is the property the proxy was standing in for,
+   * asserted directly, and it FAILS if the term ever goes truly inert. The
+   * live-board version of the same question moved the other way entirely:
+   * zeroing the keeper weight changed the top 10 at 0 of Cory's 15 picks BEFORE
+   * the fix and 12 of 15 AFTER it. */
+  const kovOn = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })));
+  const kovOff = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })));
+  const scoresMoved = kovOn.filter((e, i) => kovOff[i]
+    && Math.abs((e.score || 0) - (kovOff[i].score || 0)) > 1e-9).length;
+  const firstRankDiff = kovOn.findIndex((e, i) => !kovOff[i]
+    || String(e.player.player_id) !== String(kovOff[i].player.player_id));
+  const withKov = 'moved:' + (scoresMoved > 0) + ' reordered_at:' + (firstRankDiff >= 0);
+  const noKov = 'moved:false reordered_at:false';
+  check('ZEROING KEEPER MOVES SCORES AND REORDERS THE BOARD — the term '
     + 'participates', withKov !== noKov, 'with: ' + withKov + '  without: ' + noKov);
 
   // Bye: it can only bite when the roster actually collides on a week.

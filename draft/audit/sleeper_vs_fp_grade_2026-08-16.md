@@ -453,6 +453,12 @@ top-12/24 evidence, not the ρ, is what decides this.
    refused upstream. **N = 1.** Nothing here is a stationary measurement of a
    source's skill, and the 0.004 ρ gap between Sleeper and FantasyPros at WR is
    not distinguishable from nothing.
+   > **⚠️ CORRECTED 2026-08-18 (A), beside not inside:** the 2021/2022 stores
+   > were built 86 minutes after the source prereg was committed (08-17 00:20,
+   > `199103e4`) — the "do not exist" half of this reason was already false
+   > when this audit was written. **N = 1 stands anyway**: Sleeper's leak
+   > gates are the binding limit (1/3 seasons clean: [2025]). A Sleeper-free
+   > own_v6-vs-FP study now has 2023-25.
 2. **A 7.1 % hollow Sleeper file** means the shared population is easier than
    the true one by an amount nobody can bound. Identical for every arm, so it
    cannot flip the *comparison* — but it inflates every absolute number.

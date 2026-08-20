@@ -70,6 +70,67 @@ if (TE_MEASURED && !MNC.controls_all_passed) {
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+/* ── MLV ARM (relay, prereg draft/MLV-OBJECTIVE-PREREG-2026-08-19.md) ────────
+ * Answers the open call's S7 question by REPLACING rank x multiplier with the
+ * objective itself: marginal(c) = lineupValue(roster+c) - lineupValue(roster),
+ * in the harness's own market-rank units, via the harness's own lineup shape.
+ * A curve taxes the POSITION COUNT; this taxes the DISPLACEMENT. No constants.
+ * Flag-guarded: every shipped arm is byte-identical with the flag off. */
+const OBJECTIVE = process.argv.includes('--objective') || process.argv.includes('--objective-normal')
+  || process.argv.includes('--objective-look') || process.argv.includes('--objective-window')
+  || process.argv.includes('--objective-points');
+/* MLV-LOOKAHEAD (prereg S8): charge each pick its COST OF WAITING —
+ * marginal(c) minus the marginal of the best same-position man still on the
+ * board at my NEXT pick, availability read from the fixed-opponent draft
+ * (the harness's own C3 information rule). No constants. */
+const OBJ_LOOK = process.argv.includes('--objective-look');
+/* NORMAL-WINDOW MLV (prereg S10): the league's own drafts define normal.
+ * A first K/DEF may not be taken earlier than ANY human owner in the three
+ * recorded drafts ever took theirs — min over 30 owner-seasons, per position,
+ * read from league history. Zero constants. Legality guard overrides. */
+const OBJ_WINDOW = process.argv.includes('--objective-window');
+/* UNITS TEST (prereg S11): identical cap arm, lineupValue computed on the
+ * empirical pick->realized-points curve instead of linear rank. The curve is
+ * fit LEAVE-ONE-SEASON-OUT so no replay ever sees its own season's outcomes;
+ * bucketed by round (15 picks, the draft's own unit), bucket means, monotone
+ * non-increasing enforced, linear interpolation between bucket centers. */
+const OBJ_POINTS = process.argv.includes('--objective-points');
+/* Cory, 2026-08-19: "goal is to draft best team while fielding a normal
+ * roster!!!" — the normal-roster variant adds K<=1, DEF<=1 as a SHAPE
+ * CONSTRAINT from his words (a second onesie is an upgrade the no-injury
+ * objective buys because bench is worth zero; a normal roster does not carry
+ * one). Constraint from the brief, not a constant fitted to a grade. */
+const OBJ_NORMAL = process.argv.includes('--objective-normal') || OBJ_LOOK || OBJ_WINDOW || OBJ_POINTS;
+const KDEF_MODE = process.argv.includes('--kdef-supply');
+let deadlineFired = 0;   // C1: the deadline must be SEEN firing
+
+const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+
+/* earliest overall pick at which ANY human owner took their first K / DEF,
+ * across every recorded draft — the league's own definition of "too early".
+ * Computed after POSOF exists (see below); filled by initWindows(). */
+const ONESIE_WINDOW = { K: null, DEF: null };
+function initWindows() {
+  const seasons = Array.isArray(H.seasons) ? H.seasons : Object.values(H.seasons);
+  seasons.forEach(season => {
+    (season.drafts || []).forEach(d => {
+      if ((d.picks || []).length < 100) return;
+      const firstBySeat = {};
+      d.picks.slice().sort((a, b) => a.pick_no - b.pick_no).forEach(pk => {
+        const q = posOf(pk.player_id);
+        if (q !== 'K' && q !== 'DEF') return;
+        const key = pk.roster_id + ':' + q;
+        if (firstBySeat[key] == null) {
+          firstBySeat[key] = pk.pick_no;
+          if (ONESIE_WINDOW[q] == null || pk.pick_no < ONESIE_WINDOW[q]) ONESIE_WINDOW[q] = pk.pick_no;
+        }
+      });
+    });
+  });
+  if (OBJ_WINDOW && (ONESIE_WINDOW.K == null || ONESIE_WINDOW.DEF == null)) {
+    throw new Error('window arm: league history yielded no K/DEF window — refusing to run blind');
+  }
+}
 /* one position crosswalk, two sources, board first (rule 11) */
 const POSOF = {};
 Object.entries(PP.positions || {}).forEach(([id, q]) => { POSOF[String(id)] = q; });
@@ -112,6 +173,10 @@ if (process.argv.includes('--te2-only')) {
   /* E's arm, reproduced: ONE cell, Cory's row otherwise intact. */
   W.TE = [1.00, (MNC.curve.TE || [])[1], 0];
 }
+  K: [1.00, 0], DEF: [1.00, 0], QB: [1.00, 0.05, 0], TE: [1.00, 0.05, 0],
+  RB: [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
+  WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
+};
 const STARTERS = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
 const FLEX = ['RB', 'WR', 'TE'];
 
@@ -296,6 +361,52 @@ function lineupValueOf(vals) {
   return total + (flex[0] || 0);
 }
 
+/* market value of a HELD man: his own draft slot, era-correct, no hindsight.
+ * Same units as valueOf below, so the marginal nets candidate against the man
+ * he displaces on one scale. */
+function marketValueMap(picks, N, curve) {
+  const mv = {};
+  picks.forEach(p => { mv[String(p.player_id)] = curve ? curve(p.pick_no) : (N + 1) - p.pick_no; });
+  return mv;
+}
+
+/* lineup value in market-rank units — same shape as bestLineup: dedicated
+ * slots from the best at each position, then ONE exact flex. */
+function lineupRankValue(ids, mv) {
+  const byPos = {};
+  ids.forEach(id => {
+    const q = posOf(id);
+    if (!q) return;
+    (byPos[q] || (byPos[q] = [])).push(mv[String(id)] || 0);
+  });
+  POS.forEach(q => { if (byPos[q]) byPos[q].sort((a, b) => b - a); });
+  let total = 0;
+  const left = [];
+  POS.forEach(q => {
+    const need = STARTERS[q] || 0;
+    const have = byPos[q] || [];
+    for (let i = 0; i < need; i++) total += have[i] || 0;
+    if (FLEX.includes(q)) left.push(...have.slice(need));
+  });
+  left.sort((a, b) => b - a);
+  return total + (left[0] || 0);
+}
+
+/* Unfilled legality requirements — the rule of the game, not a weight:
+ * QB>=1 RB>=2 WR>=2 TE>=1 K>=1 DEF>=1 and RB+WR+TE>=6 (the flex body). */
+function legalityNeeds(held) {
+  const short = q => Math.max(0, (STARTERS[q] || 0) - (held[q] || 0));
+  const perPos = { QB: short('QB'), RB: short('RB'), WR: short('WR'),
+    TE: short('TE'), K: short('K'), DEF: short('DEF') };
+  const skillHeld = (held.RB || 0) + (held.WR || 0) + (held.TE || 0);
+  const skillShort = perPos.RB + perPos.WR + perPos.TE;
+  const flexExtra = Math.max(0, 6 - skillHeld - skillShort);
+  const total = perPos.QB + perPos.RB + perPos.WR + perPos.TE
+    + perPos.K + perPos.DEF + flexExtra;
+  return { perPos, flexExtra, total };
+}
+
+/* ── the counterfactual: fixed opponents, one seat differs ─────────────────── */
 function buildSeat(season, draft, seatId, rosterOn) {
   const picks = (draft.picks || []).slice().sort((a, b) => a.pick_no - b.pick_no);
   const N = picks.length;
@@ -324,6 +435,12 @@ function buildSeat(season, draft, seatId, rosterOn) {
   /* mineAt[i] = the pick_no of MY OWN SLOT that produced mine[i]. Not the slot
    * the player was really drafted at — the question is when I spent a pick. */
   const mine = [], mineAt = [], held = {}, mineVals = {};
+  const valueOf = p => (N + 1) - p.pick_no;
+  const MV = OBJECTIVE ? marketValueMap(picks, N, OBJ_POINTS ? CURVES[String(season.season)] : null) : null;
+  const myPickIdxs = picks.map((p, i) => (p.roster_id === seatId && !p.is_keeper) ? i : -1)
+    .filter(i => i >= 0);
+  const mine = [], held = {};
+  const firstOnesie = { K: null, DEF: null };
   const takenByMe = new Set();
   picks.forEach((pk, idx) => {
     if (pk.roster_id !== seatId) return;
@@ -331,11 +448,35 @@ function buildSeat(season, draft, seatId, rosterOn) {
       mine.push(pk.player_id); mineAt.push(pk.pick_no);
       const q = posOf(pk.player_id);
       if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk)); }
+      mine.push(pk.player_id);
+      const q = posOf(pk.player_id);
+      if (q) held[q] = (held[q] || 0) + 1;
       return;
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
      * what I have already taken */
     let best = null, bestV = -Infinity;
+    /* lookahead pass 1: my next pick's index, and the best same-position
+     * marginal available THEN — from the fixed draft, no outcome data */
+    let nextIdx = -1;
+    const nextBestMarg = {};
+    if (OBJ_LOOK) {
+      for (let j = idx + 1; j < N; j++) {
+        if (picks[j].roster_id === seatId && !picks[j].is_keeper) { nextIdx = j; break; }
+      }
+      if (nextIdx >= 0) {
+        const base = lineupRankValue(mine, MV);
+        for (let j = nextIdx; j < N; j++) {
+          const c = picks[j];
+          if (c.is_keeper || takenByMe.has(c.player_id)) continue;
+          const q = posOf(c.player_id);
+          if (!q) continue;
+          const m = lineupRankValue(mine.concat(c.player_id), MV) - base;
+          if (nextBestMarg[q] == null || m > nextBestMarg[q]) nextBestMarg[q] = m;
+        }
+      }
+    }
+    let best = null, bestV = -Infinity, bestTie = -Infinity;
     for (let j = idx; j < N; j++) {
       const c = picks[j];
       if (c.is_keeper) continue;
@@ -378,6 +519,30 @@ function buildSeat(season, draft, seatId, rosterOn) {
         const before = lineupValueOf(cur);
         (cur[q] || (cur[q] = [])).push(valueOf(c));
         v = lineupValueOf(cur) - before;
+      if (OBJECTIVE && rosterOn) {
+        /* legality guard: when picks remaining == requirements unfilled, only
+         * a requirement-reducing position is eligible. A game rule, per prereg. */
+        if (OBJ_NORMAL && (q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
+        const needs = legalityNeeds(held);
+        const remaining = myPickIdxs.filter(i => i >= idx).length;
+        const forced = remaining <= needs.total;
+        if (OBJ_WINDOW && !forced && (q === 'K' || q === 'DEF') && (held[q] || 0) === 0
+            && pk.pick_no < ONESIE_WINDOW[q]) continue;
+        if (forced) {
+          const reduces = needs.perPos[q] > 0
+            || (needs.flexExtra > 0 && FLEX.includes(q));
+          if (!reduces) continue;
+        }
+        const base = lineupRankValue(mine, MV);
+        const marg = lineupRankValue(mine.concat(c.player_id), MV) - base;
+        if (OBJ_LOOK && nextIdx >= 0) {
+          /* cost of waiting; tiebreak by the marginal itself, then market value */
+          v = marg - (nextBestMarg[q] || 0);
+          const tie = marg + valueOf(c) * 1e-6;
+          if (v > bestV || (v === bestV && tie > bestTie)) { bestV = v; bestTie = tie; best = c; }
+          continue;
+        }
+        v = marg + valueOf(c) * 1e-6;     /* deterministic tiebreak only */
       } else {
         const w = startProb(q, held[q] || 0, rosterOn, short);
         v = valueOf(c) * w;
@@ -391,12 +556,79 @@ function buildSeat(season, draft, seatId, rosterOn) {
     if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(best)); }
   });
   mine.takenAt = mineAt;
+    mine.push(best.player_id);
+    const q = posOf(best.player_id);
+    if (q) held[q] = (held[q] || 0) + 1;
+    /* prereg shape check: WHERE does the onesie land, in overall pick numbers */
+    if ((q === 'K' || q === 'DEF') && firstOnesie[q] == null) firstOnesie[q] = best.pick_no;
+  });
+  mine.firstOnesie = firstOnesie;
   return mine;
 }
 
 const ownerRoster = (draft, seatId) => (draft.picks || [])
   .filter(p => p.roster_id === seatId).map(p => p.player_id);
 
+initWindows();
+
+/* ── LOO pick->points curves for the units test (prereg S11) ─────────────────
+ * curveFor(seasonKey) returns f(pick_no) fit on the OTHER seasons' realized
+ * totals. Realized total = the season's own weekly points, summed weeks 1-17. */
+const CURVES = {};
+function seasonTotals(season) {
+  const tot = {};
+  Object.entries(season.weeks || {}).forEach(([wn, arr]) => {
+    const w = +wn;
+    if (w < 1 || w > 17 || !Array.isArray(arr)) return;
+    const seen = new Set();
+    arr.forEach(m => Object.entries(m.players_points || {}).forEach(([id, v]) => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      tot[id] = (tot[id] || 0) + v;
+    }));
+  });
+  return tot;
+}
+function buildCurves() {
+  if (!OBJ_POINTS) return;
+  const seasons = Array.isArray(H.seasons) ? H.seasons : Object.values(H.seasons);
+  const usable = seasons.filter(sn => sn.weeks && (sn.drafts || []).some(d => (d.picks || []).length >= 100));
+  usable.forEach(target => {
+    const pts = [];                                   // [pick_no, realized] from OTHER seasons
+    usable.forEach(src => {
+      if (String(src.season) === String(target.season)) return;   // LOO — the leak rule
+      const draft = (src.drafts || []).find(d => (d.picks || []).length >= 100);
+      const tot = seasonTotals(src);
+      draft.picks.forEach(pk => {
+        const v = tot[String(pk.player_id)];
+        if (v != null) pts.push([pk.pick_no, v]);
+      });
+    });
+    const BUCKET = 15;                                // one round — the draft's own unit
+    const sums = {}, ns = {};
+    pts.forEach(([p, v]) => {
+      const b = Math.floor((p - 1) / BUCKET);
+      sums[b] = (sums[b] || 0) + v; ns[b] = (ns[b] || 0) + 1;
+    });
+    const bs = Object.keys(sums).map(Number).sort((a, b) => a - b);
+    const centers = bs.map(b => b * BUCKET + (BUCKET + 1) / 2);
+    let means = bs.map(b => sums[b] / ns[b]);
+    for (let i = 1; i < means.length; i++)            // monotone non-increasing
+      if (means[i] > means[i - 1]) means[i] = means[i - 1];
+    CURVES[String(target.season)] = pick => {
+      if (pick <= centers[0]) return means[0];
+      for (let i = 1; i < centers.length; i++) {
+        if (pick <= centers[i]) {
+          const t = (pick - centers[i - 1]) / (centers[i] - centers[i - 1]);
+          return means[i - 1] + t * (means[i] - means[i - 1]);
+        }
+      }
+      return means[means.length - 1];
+    };
+  });
+  if (!Object.keys(CURVES).length) throw new Error('units test: no LOO curves — refusing');
+}
+buildCurves();
 /* ── run ──────────────────────────────────────────────────────────────────── */
 const seats = [];
 Object.values(H.seasons).forEach(season => {
@@ -430,6 +662,7 @@ Object.values(H.seasons).forEach(season => {
       .sort((a, b) => a.pick_no - b.pick_no);
     const ownerAt = ownerPicks.map(p => p.pick_no);
     const ownerIds = ownerPicks.map(p => p.player_id);
+    const firstAt = (list, q) => { const g = list.find(x => posOf(x) === q); return g ? 1 : null; };
     seats.push({ season: season.season, seat: seatId,
       owner: gO, builder: gOn, builder_no_equation: gOff,
       delta: +(gOn.points - gO.points).toFixed(2),
@@ -442,6 +675,7 @@ Object.values(H.seasons).forEach(season => {
         builder_DEF: firstPickOf(on, on.takenAt, 'DEF'),
         owner_K: firstPickOf(ownerIds, ownerAt, 'K'),
         owner_DEF: firstPickOf(ownerIds, ownerAt, 'DEF') } });
+      first_onesie: on.firstOnesie || null });
   });
 });
 

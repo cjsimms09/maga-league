@@ -1,0 +1,569 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/vona_arm_board_probe.js",
+ "_note": "DESCRIPTIVE. Grades nothing, selects nothing. The graded arm comparison is the CI seat replay (P107); this measures where the arms move TODAY'S board, including the K/DEF rows the seat replay mirrors away.",
+ "board_built_at": "2026-08-19T00:54:18Z",
+ "focus_pick": 48,
+ "next_pick": 53,
+ "board_mean_survival_to_next": 0.9911,
+ "arms": {
+  "a1": {
+   "players_that_moved": 319,
+   "mean_survival_of_demoted": 0.9738,
+   "mean_survival_of_promoted": 0.9896,
+   "biggest_moves": [
+    {
+     "player_id": "7670",
+     "name": "Joshua Palmer",
+     "pos": "WR",
+     "from": 323,
+     "to": 372,
+     "move": 49,
+     "survival": 1
+    },
+    {
+     "player_id": "8041",
+     "name": "Shane Zylstra",
+     "pos": "TE",
+     "from": 302,
+     "to": 344,
+     "move": 42,
+     "survival": 1
+    },
+    {
+     "player_id": "13402",
+     "name": "Skyler Bell",
+     "pos": "WR",
+     "from": 208,
+     "to": 243,
+     "move": 35,
+     "survival": 1
+    },
+    {
+     "player_id": "96",
+     "name": "Aaron Rodgers",
+     "pos": "QB",
+     "from": 327,
+     "to": 361,
+     "move": 34,
+     "survival": 1
+    },
+    {
+     "player_id": "5154",
+     "name": "Trent Sherfield",
+     "pos": "WR",
+     "from": 397,
+     "to": 427,
+     "move": 30,
+     "survival": 1
+    },
+    {
+     "player_id": "13322",
+     "name": "Sam Roush",
+     "pos": "TE",
+     "from": 250,
+     "to": 220,
+     "move": -30,
+     "survival": 1
+    },
+    {
+     "player_id": "11377",
+     "name": "Tyrell Shavers",
+     "pos": "WR",
+     "from": 396,
+     "to": 423,
+     "move": 27,
+     "survival": 1
+    },
+    {
+     "player_id": "12658",
+     "name": "Jackson Hawes",
+     "pos": "TE",
+     "from": 210,
+     "to": 237,
+     "move": 27,
+     "survival": 1
+    },
+    {
+     "player_id": "1373",
+     "name": "Geno Smith",
+     "pos": "QB",
+     "from": 152,
+     "to": 175,
+     "move": 23,
+     "survival": 1
+    },
+    {
+     "player_id": "11637",
+     "name": "Keon Coleman",
+     "pos": "WR",
+     "from": 164,
+     "to": 183,
+     "move": 19,
+     "survival": 1
+    },
+    {
+     "player_id": "12522",
+     "name": "Cam Ward",
+     "pos": "QB",
+     "from": 154,
+     "to": 172,
+     "move": 18,
+     "survival": 0.9999999999999922
+    },
+    {
+     "player_id": "8183",
+     "name": "Brock Purdy",
+     "pos": "QB",
+     "from": 13,
+     "to": 27,
+     "move": 14,
+     "survival": 0.9999800304004042
+    }
+   ],
+   "top50_scoped_post_hoc": {
+    "n": 47,
+    "mean_survival_demoted": 0.9166,
+    "mean_survival_promoted": 0.9136,
+    "n_demoted": 18,
+    "n_promoted": 29
+   },
+   "top10": [
+    {
+     "rank": 1,
+     "name": "Bhayshul Tuten",
+     "pos": "RB",
+     "score": 8,
+     "survival": 0.645,
+     "rank_under_a0": 3
+    },
+    {
+     "rank": 2,
+     "name": "Jadarian Price",
+     "pos": "RB",
+     "score": 9.1,
+     "survival": 0.7956,
+     "rank_under_a0": 1
+    },
+    {
+     "rank": 3,
+     "name": "Joe Burrow",
+     "pos": "QB",
+     "score": 4.75,
+     "survival": 0.65,
+     "rank_under_a0": 7
+    },
+    {
+     "rank": 4,
+     "name": "Drake Maye",
+     "pos": "QB",
+     "score": 4.39,
+     "survival": 0.5191,
+     "rank_under_a0": 8
+    },
+    {
+     "rank": 5,
+     "name": "Rhamondre Stevenson",
+     "pos": "RB",
+     "score": 3.7,
+     "survival": 0.9965,
+     "rank_under_a0": 4
+    },
+    {
+     "rank": 6,
+     "name": "TreVeyon Henderson",
+     "pos": "RB",
+     "score": 2.7,
+     "survival": 0.5056,
+     "rank_under_a0": 5
+    },
+    {
+     "rank": 7,
+     "name": "Mike Evans",
+     "pos": "WR",
+     "score": 1.5,
+     "survival": 0.8661,
+     "rank_under_a0": 2
+    },
+    {
+     "rank": 8,
+     "name": "Sam LaPorta",
+     "pos": "TE",
+     "score": 0.77,
+     "survival": 0.9017,
+     "rank_under_a0": 6
+    },
+    {
+     "rank": 9,
+     "name": "Jaylen Warren",
+     "pos": "RB",
+     "score": -0.44,
+     "survival": 0.9747,
+     "rank_under_a0": 9
+    },
+    {
+     "rank": 10,
+     "name": "Tony Pollard",
+     "pos": "RB",
+     "score": -6.2,
+     "survival": 1,
+     "rank_under_a0": 11
+    }
+   ],
+   "roster_counts": {
+    "WR": 2,
+    "RB": 12,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   }
+  },
+  "a2": {
+   "players_that_moved": 558,
+   "mean_survival_of_demoted": 0.9801,
+   "mean_survival_of_promoted": 0.9998,
+   "biggest_moves": [
+    {
+     "player_id": "5927",
+     "name": "Terry McLaurin",
+     "pos": "WR",
+     "from": 18,
+     "to": 471,
+     "move": 453,
+     "survival": 0.5589594180242019
+    },
+    {
+     "player_id": "11566",
+     "name": "Jayden Daniels",
+     "pos": "QB",
+     "from": 32,
+     "to": 485,
+     "move": 453,
+     "survival": 0.7757676373918267
+    },
+    {
+     "player_id": "12519",
+     "name": "Luther Burden",
+     "pos": "WR",
+     "from": 33,
+     "to": 486,
+     "move": 453,
+     "survival": 0.600927154663403
+    },
+    {
+     "player_id": "260",
+     "name": "Josh Johnson",
+     "pos": "QB",
+     "from": 460,
+     "to": 10,
+     "move": -450,
+     "survival": 1
+    },
+    {
+     "player_id": "11560",
+     "name": "Caleb Williams",
+     "pos": "QB",
+     "from": 17,
+     "to": 464,
+     "move": 447,
+     "survival": 0.9250173548814353
+    },
+    {
+     "player_id": "8148",
+     "name": "Jameson Williams",
+     "pos": "WR",
+     "from": 20,
+     "to": 465,
+     "move": 445,
+     "survival": 0.7739172429891537
+    },
+    {
+     "player_id": "2133",
+     "name": "Davante Adams",
+     "pos": "WR",
+     "from": 44,
+     "to": 487,
+     "move": 443,
+     "survival": 0.6920294540587014
+    },
+    {
+     "player_id": "3294",
+     "name": "Dak Prescott",
+     "pos": "QB",
+     "from": 10,
+     "to": 452,
+     "move": 442,
+     "survival": 0.9978799603838826
+    },
+    {
+     "player_id": "19",
+     "name": "Joe Flacco",
+     "pos": "QB",
+     "from": 449,
+     "to": 9,
+     "move": -440,
+     "survival": 1
+    },
+    {
+     "player_id": "6904",
+     "name": "Jalen Hurts",
+     "pos": "QB",
+     "from": 27,
+     "to": 467,
+     "move": 440,
+     "survival": 0.8168977348313418
+    },
+    {
+     "player_id": "8167",
+     "name": "Christian Watson",
+     "pos": "WR",
+     "from": 21,
+     "to": 460,
+     "move": 439,
+     "survival": 0.9619517748653417
+    },
+    {
+     "player_id": "9487",
+     "name": "Parker Washington",
+     "pos": "WR",
+     "from": 19,
+     "to": 455,
+     "move": 436,
+     "survival": 0.9923265132778383
+    }
+   ],
+   "top50_scoped_post_hoc": {
+    "n": 46,
+    "mean_survival_demoted": 0.9026,
+    "mean_survival_promoted": 0.9943,
+    "n_demoted": 36,
+    "n_promoted": 10
+   },
+   "top10": [
+    {
+     "rank": 1,
+     "name": "Jadarian Price",
+     "pos": "RB",
+     "score": 9.1,
+     "survival": 0.7956,
+     "rank_under_a0": 1
+    },
+    {
+     "rank": 2,
+     "name": "Rhamondre Stevenson",
+     "pos": "RB",
+     "score": 8.98,
+     "survival": 0.9965,
+     "rank_under_a0": 4
+    },
+    {
+     "rank": 3,
+     "name": "Bhayshul Tuten",
+     "pos": "RB",
+     "score": 8.87,
+     "survival": 0.645,
+     "rank_under_a0": 3
+    },
+    {
+     "rank": 4,
+     "name": "Kyle Monangai",
+     "pos": "RB",
+     "score": 8.38,
+     "survival": 0.9917,
+     "rank_under_a0": 15
+    },
+    {
+     "rank": 5,
+     "name": "Jordan Mason",
+     "pos": "RB",
+     "score": 8.38,
+     "survival": 0.9977,
+     "rank_under_a0": 14
+    },
+    {
+     "rank": 6,
+     "name": "Tony Pollard",
+     "pos": "RB",
+     "score": 7.5,
+     "survival": 1,
+     "rank_under_a0": 11
+    },
+    {
+     "rank": 7,
+     "name": "Joe Burrow",
+     "pos": "QB",
+     "score": 6.65,
+     "survival": 0.65,
+     "rank_under_a0": 7
+    },
+    {
+     "rank": 8,
+     "name": "Jaylen Warren",
+     "pos": "RB",
+     "score": 6.58,
+     "survival": 0.9747,
+     "rank_under_a0": 9
+    },
+    {
+     "rank": 9,
+     "name": "Joe Flacco",
+     "pos": "QB",
+     "score": 6,
+     "survival": 1,
+     "rank_under_a0": 449
+    },
+    {
+     "rank": 10,
+     "name": "Josh Johnson",
+     "pos": "QB",
+     "score": 6,
+     "survival": 1,
+     "rank_under_a0": 460
+    }
+   ],
+   "roster_counts": {
+    "WR": 3,
+    "RB": 11,
+    "TE": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   }
+  },
+  "a0": {
+   "top10": [
+    {
+     "rank": 1,
+     "name": "Jadarian Price",
+     "pos": "RB",
+     "score": 11.82,
+     "survival": 0.7956
+    },
+    {
+     "rank": 2,
+     "name": "Mike Evans",
+     "pos": "WR",
+     "score": 11.17,
+     "survival": 0.8661
+    },
+    {
+     "rank": 3,
+     "name": "Bhayshul Tuten",
+     "pos": "RB",
+     "score": 8.64,
+     "survival": 0.645
+    },
+    {
+     "rank": 4,
+     "name": "Rhamondre Stevenson",
+     "pos": "RB",
+     "score": 3.9,
+     "survival": 0.9965
+    },
+    {
+     "rank": 5,
+     "name": "TreVeyon Henderson",
+     "pos": "RB",
+     "score": 2.7,
+     "survival": 0.5056
+    },
+    {
+     "rank": 6,
+     "name": "Sam LaPorta",
+     "pos": "TE",
+     "score": 2.14,
+     "survival": 0.9017
+    },
+    {
+     "rank": 7,
+     "name": "Joe Burrow",
+     "pos": "QB",
+     "score": 1.45,
+     "survival": 0.65
+    },
+    {
+     "rank": 8,
+     "name": "Drake Maye",
+     "pos": "QB",
+     "score": 1.29,
+     "survival": 0.5191
+    },
+    {
+     "rank": 9,
+     "name": "Jaylen Warren",
+     "pos": "RB",
+     "score": -0.44,
+     "survival": 0.9747
+    },
+    {
+     "rank": 10,
+     "name": "Dak Prescott",
+     "pos": "QB",
+     "score": -4.01,
+     "survival": 0.9979
+    }
+   ],
+   "roster_counts": {
+    "WR": 3,
+    "RB": 10,
+    "QB": 1,
+    "TE": 2,
+    "K": 1,
+    "DEF": 1
+   }
+  }
+ },
+ "full_schedule": {
+  "a0": [
+   "QB Josh Allen",
+   "TE Brock Bowers",
+   "TE Colston Loveland",
+   "RB David Montgomery",
+   "RB Jadarian Price",
+   "RB Bhayshul Tuten",
+   "RB Rhamondre Stevenson",
+   "WR Jayden Reed",
+   "WR Alec Pierce",
+   "RB Jordan Mason",
+   "RB Chris Rodriguez",
+   "RB Aaron Jones",
+   "RB Tyrone Tracy",
+   "K Cam Little",
+   "DEF New England Patriots"
+  ],
+  "a1": [
+   "RB James Cook",
+   "TE Brock Bowers",
+   "RB Breece Hall",
+   "RB David Montgomery",
+   "RB Bhayshul Tuten",
+   "RB Jadarian Price",
+   "RB Rhamondre Stevenson",
+   "RB Kyle Monangai",
+   "RB Jordan Mason",
+   "WR Jayden Reed",
+   "QB Jared Goff",
+   "RB Chris Rodriguez",
+   "RB Tyrone Tracy",
+   "DEF New England Patriots",
+   "K Cam Little"
+  ],
+  "a2": [
+   "RB James Cook",
+   "TE Brock Bowers",
+   "RB Breece Hall",
+   "RB David Montgomery",
+   "RB Jadarian Price",
+   "RB Bhayshul Tuten",
+   "RB Rhamondre Stevenson",
+   "RB Kyle Monangai",
+   "RB Jordan Mason",
+   "QB Brock Purdy",
+   "WR Jayden Reed",
+   "WR Brandon Aiyuk",
+   "RB Chris Rodriguez",
+   "DEF New England Patriots",
+   "K Cam Little"
+  ]
+ }
+}

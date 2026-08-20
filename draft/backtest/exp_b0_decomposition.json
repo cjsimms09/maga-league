@@ -1,0 +1,57 @@
+{
+ "experiment": "B0 decomposition \u2014 market-follow vs RB-fade, Cory's seat",
+ "n_rooms": 200,
+ "reuses": "cory_conditional load_world/draft_room/grade_room + exp_keeper_b0 masks",
+ "per_policy_vs_balanced": {
+  "balanced": {
+   "mean_vs_balanced": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "avg_RB_on_my_roster": 3.0
+  },
+  "b0_need": {
+   "mean_vs_balanced": -92.12,
+   "ci95": [
+    -121.88,
+    -63.88
+   ],
+   "avg_RB_on_my_roster": 3.86
+  },
+  "hyb_rb": {
+   "mean_vs_balanced": -0.62,
+   "ci95": [
+    -17.25,
+    15.5
+   ],
+   "avg_RB_on_my_roster": 3.85
+  },
+  "hyb_nonrb": {
+   "mean_vs_balanced": -50.62,
+   "ci95": [
+    -80.0,
+    -20.12
+   ],
+   "avg_RB_on_my_roster": 2.23
+  }
+ },
+ "decomposition": {
+  "b0_need": -92.12,
+  "rb_component": -0.62,
+  "nonrb_component": -50.62,
+  "interaction": -40.88
+ },
+ "preregistered": {
+  "P-dec1_rb_carries_majority": {
+   "predicted": true,
+   "graded": true
+  },
+  "P-dec2_nonrb_alone_is_null": {
+   "predicted": true,
+   "graded": false
+  }
+ },
+ "decision_rule_fires": false,
+ "decision_rule": "The sharper 'trust ADP over the board AT RB' briefing sentence ships ONLY if P-dec1 is TRUE and hyb_rb's CI excludes 0; otherwise the broad B0-within-need instruction stands unchanged."
+}

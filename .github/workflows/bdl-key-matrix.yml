@@ -146,10 +146,21 @@ jobs:
           if [ -n "$(git status --porcelain draft/backtest/bdl_key_matrix.json)" ]; then
             git add draft/backtest/bdl_key_matrix.json
             git commit -m "BDL key matrix: which key authorizes which betting endpoint [skip deploy]"
+            pushed=0
             for i in 1 2 3 4; do
-              git pull --rebase origin main && git push origin HEAD:main && break
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
               sleep $((2**i))
             done
+            # ⛔ AN EXHAUSTED RETRY LOOP MUST FAIL. Register 123: this idiom was
+            # `... && break` under `set -uo pipefail` (no -e), so four failed
+            # attempts fell through and the job exited 0 having stored NOTHING.
+            # Observed live on run 32285390841.
+            if [ "$pushed" != "1" ]; then
+              echo "::error::all four push attempts failed — the artifact was NOT stored"
+              exit 1
+            fi
           else
             echo "No change."
           fi

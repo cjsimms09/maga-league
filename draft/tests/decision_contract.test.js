@@ -97,8 +97,13 @@ const mk = (id, score, weighted, extra) => Object.assign({
   const cs2 = DC.causes(win, alt2, DC.contributions(win, alt2, 4));
   const codes = cs2.map(c => c.code);
   check('structural causes come from engine STATE, not from prose',
-    codes.indexOf('structural:demoted') >= 0 && codes.indexOf('structural:rail') >= 0
-    && codes.indexOf('structural:onesie_cap') >= 0);
+    codes.indexOf('structural:demoted') >= 0 && codes.indexOf('structural:rail') >= 0);
+  // structural:onesie_cap is RETIRED with its mechanism (Cory 08-14, executed
+  // 08-18, register 5n). The fixture above still passes capped:true, and the
+  // contract must now IGNORE it — a reader of a dead flag is how the false
+  // deletion survived four days in the engine.
+  check('  and the retired onesie_cap cause never fires, even on a capped-shaped input',
+    codes.indexOf('structural:onesie_cap') < 0);
 }
 
 // ── (4) CALIBRATION TRAVELS WITH THE TERM ──────────────────────────────────

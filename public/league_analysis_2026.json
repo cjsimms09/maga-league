@@ -1,0 +1,780 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/league_analyzer.py",
+ "_rehearsal": true,
+ "league_status": "pre_draft",
+ "_claim": "\u26a0\ufe0f REHEARSAL \u2014 the league is still pre-draft, and Sleeper carries LAST SEASON'S rosters until the draft clears them: this table is 2026 projections priced over 2025 rosters, NOT the draft result. Ignore the standings; the run exists to prove the fetch path. PROJECTIONS, not results: standings are our proj_mean through each team's best legal lineup, all-play framing (2026-08-18 grading ruling); draft grades are surplus vs THIS draft's own round means, keepers excluded. The realized grade belongs to the weekly grading cron.",
+ "projected_standings": [
+  {
+   "roster_id": 7,
+   "owner": "mhagen",
+   "starter_total": 1831.2,
+   "bench_total": 875.7,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "4984",
+     "proj": 405.5,
+     "pos": "QB",
+     "name": "Josh Allen"
+    },
+    {
+     "slot": "RB",
+     "player_id": "4034",
+     "proj": 256.0,
+     "pos": "RB",
+     "name": "Christian McCaffrey"
+    },
+    {
+     "slot": "RB",
+     "player_id": "5892",
+     "proj": 190.1,
+     "pos": "RB",
+     "name": "David Montgomery"
+    },
+    {
+     "slot": "WR",
+     "player_id": "7547",
+     "proj": 227.5,
+     "pos": "WR",
+     "name": "Amon-Ra St. Brown"
+    },
+    {
+     "slot": "WR",
+     "player_id": "8137",
+     "proj": 205.7,
+     "pos": "WR",
+     "name": "George Pickens"
+    },
+    {
+     "slot": "TE",
+     "player_id": "10859",
+     "proj": 158.5,
+     "pos": "TE",
+     "name": "Sam LaPorta"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "6801",
+     "proj": 186.9,
+     "pos": "WR",
+     "name": "Tee Higgins"
+    },
+    {
+     "slot": "K",
+     "player_id": "6650",
+     "proj": 97.0,
+     "pos": "K",
+     "name": "Chase McLaughlin"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "DEN",
+     "proj": 104.0,
+     "pos": "DEF",
+     "name": "Denver Broncos"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 1,
+   "projected_all_play_wins_per_week": 9,
+   "gap_to_first": 0.0
+  },
+  {
+   "roster_id": 5,
+   "owner": "B8T3S",
+   "starter_total": 1788.1,
+   "bench_total": 797.5,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "11563",
+     "proj": 335.72,
+     "pos": "QB",
+     "name": "Bo Nix"
+    },
+    {
+     "slot": "RB",
+     "player_id": "9221",
+     "proj": 299.9,
+     "pos": "RB",
+     "name": "Jahmyr Gibbs"
+    },
+    {
+     "slot": "RB",
+     "player_id": "6813",
+     "proj": 254.3,
+     "pos": "RB",
+     "name": "Jonathan Taylor"
+    },
+    {
+     "slot": "WR",
+     "player_id": "8112",
+     "proj": 205.2,
+     "pos": "WR",
+     "name": "Drake London"
+    },
+    {
+     "slot": "WR",
+     "player_id": "8146",
+     "proj": 183.4,
+     "pos": "WR",
+     "name": "Garrett Wilson"
+    },
+    {
+     "slot": "TE",
+     "player_id": "7553",
+     "proj": 138.6,
+     "pos": "TE",
+     "name": "Kyle Pitts"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "2133",
+     "proj": 161.0,
+     "pos": "WR",
+     "name": "Davante Adams"
+    },
+    {
+     "slot": "K",
+     "player_id": "4227",
+     "proj": 92.0,
+     "pos": "K",
+     "name": "Harrison Butker"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "HOU",
+     "proj": 118.0,
+     "pos": "DEF",
+     "name": "Houston Texans"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 2,
+   "projected_all_play_wins_per_week": 8,
+   "gap_to_first": 43.1
+  },
+  {
+   "roster_id": 8,
+   "owner": "Richard2121",
+   "starter_total": 1780.3,
+   "bench_total": 833.6,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "11560",
+     "proj": 345.34,
+     "pos": "QB",
+     "name": "Caleb Williams"
+    },
+    {
+     "slot": "RB",
+     "player_id": "9509",
+     "proj": 292.9,
+     "pos": "RB",
+     "name": "Bijan Robinson"
+    },
+    {
+     "slot": "RB",
+     "player_id": "6790",
+     "proj": 189.5,
+     "pos": "RB",
+     "name": "D'Andre Swift"
+    },
+    {
+     "slot": "WR",
+     "player_id": "7569",
+     "proj": 210.5,
+     "pos": "WR",
+     "name": "Nico Collins"
+    },
+    {
+     "slot": "WR",
+     "player_id": "7525",
+     "proj": 189.2,
+     "pos": "WR",
+     "name": "DeVonta Smith"
+    },
+    {
+     "slot": "TE",
+     "player_id": "8130",
+     "proj": 186.9,
+     "pos": "TE",
+     "name": "Trey McBride"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "12512",
+     "proj": 180.0,
+     "pos": "RB",
+     "name": "Quinshon Judkins"
+    },
+    {
+     "slot": "K",
+     "player_id": "2020",
+     "proj": 92.0,
+     "pos": "K",
+     "name": "Cairo Santos"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "NYG",
+     "proj": 94.0,
+     "pos": "DEF",
+     "name": "New York Giants"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 3,
+   "projected_all_play_wins_per_week": 7,
+   "gap_to_first": 50.9
+  },
+  {
+   "roster_id": 9,
+   "owner": "Schmelley",
+   "starter_total": 1773.4,
+   "bench_total": 967.0,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "3294",
+     "proj": 352.88,
+     "pos": "QB",
+     "name": "Dak Prescott"
+    },
+    {
+     "slot": "RB",
+     "player_id": "4866",
+     "proj": 228.2,
+     "pos": "RB",
+     "name": "Saquon Barkley"
+    },
+    {
+     "slot": "RB",
+     "player_id": "12507",
+     "proj": 218.9,
+     "pos": "RB",
+     "name": "Omarion Hampton"
+    },
+    {
+     "slot": "WR",
+     "player_id": "9493",
+     "proj": 259.0,
+     "pos": "WR",
+     "name": "Puka Nacua"
+    },
+    {
+     "slot": "WR",
+     "player_id": "7526",
+     "proj": 182.5,
+     "pos": "WR",
+     "name": "Jaylen Waddle"
+    },
+    {
+     "slot": "TE",
+     "player_id": "1466",
+     "proj": 136.4,
+     "pos": "TE",
+     "name": "Travis Kelce"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "8155",
+     "proj": 192.5,
+     "pos": "RB",
+     "name": "Breece Hall"
+    },
+    {
+     "slot": "K",
+     "player_id": "12711",
+     "proj": 97.0,
+     "pos": "K",
+     "name": "Tyler Loop"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "PHI",
+     "proj": 106.0,
+     "pos": "DEF",
+     "name": "Philadelphia Eagles"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 4,
+   "projected_all_play_wins_per_week": 6,
+   "gap_to_first": 57.8
+  },
+  {
+   "roster_id": 6,
+   "owner": "MarianSaar",
+   "starter_total": 1772.6,
+   "bench_total": 1019.5,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "12508",
+     "proj": 328.54,
+     "pos": "QB",
+     "name": "Jaxson Dart"
+    },
+    {
+     "slot": "RB",
+     "player_id": "9226",
+     "proj": 229.9,
+     "pos": "RB",
+     "name": "De'Von Achane"
+    },
+    {
+     "slot": "RB",
+     "player_id": "7543",
+     "proj": 189.7,
+     "pos": "RB",
+     "name": "Travis Etienne"
+    },
+    {
+     "slot": "WR",
+     "player_id": "9488",
+     "proj": 235.1,
+     "pos": "WR",
+     "name": "Jaxon Smith-Njigba"
+    },
+    {
+     "slot": "WR",
+     "player_id": "6794",
+     "proj": 205.4,
+     "pos": "WR",
+     "name": "Justin Jefferson"
+    },
+    {
+     "slot": "TE",
+     "player_id": "11604",
+     "proj": 202.5,
+     "pos": "TE",
+     "name": "Brock Bowers"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "12526",
+     "proj": 184.5,
+     "pos": "WR",
+     "name": "Tetairoa McMillan"
+    },
+    {
+     "slot": "K",
+     "player_id": "2747",
+     "proj": 102.0,
+     "pos": "K",
+     "name": "Jason Myers"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "CAR",
+     "proj": 95.0,
+     "pos": "DEF",
+     "name": "Carolina Panthers"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 5,
+   "projected_all_play_wins_per_week": 5,
+   "gap_to_first": 58.6
+  },
+  {
+   "roster_id": 1,
+   "owner": "coryjsimms",
+   "starter_total": 1705.7,
+   "bench_total": 1411.7,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "11564",
+     "proj": 367.76,
+     "pos": "QB",
+     "name": "Drake Maye"
+    },
+    {
+     "slot": "RB",
+     "player_id": "3198",
+     "proj": 238.4,
+     "pos": "RB",
+     "name": "Derrick Henry"
+    },
+    {
+     "slot": "RB",
+     "player_id": "8151",
+     "proj": 225.5,
+     "pos": "RB",
+     "name": "Kenneth Walker"
+    },
+    {
+     "slot": "WR",
+     "player_id": "7564",
+     "proj": 256.6,
+     "pos": "WR",
+     "name": "Ja'Marr Chase"
+    },
+    {
+     "slot": "WR",
+     "player_id": "8144",
+     "proj": 194.9,
+     "pos": "WR",
+     "name": "Chris Olave"
+    },
+    {
+     "slot": "TE",
+     "player_id": "4217",
+     "proj": 138.3,
+     "pos": "TE",
+     "name": "George Kittle"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "2216",
+     "proj": 187.2,
+     "pos": "WR",
+     "name": "Mike Evans"
+    },
+    {
+     "slot": "K",
+     "player_id": "8259",
+     "proj": 97.0,
+     "pos": "K",
+     "name": "Cameron Dicker"
+    },
+    {
+     "slot": "DEF",
+     "player_id": null,
+     "proj": 0.0,
+     "pos": null,
+     "name": "EMPTY SLOT"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 6,
+   "projected_all_play_wins_per_week": 4,
+   "gap_to_first": 125.5
+  },
+  {
+   "roster_id": 3,
+   "owner": "cashworth",
+   "starter_total": 1676.5,
+   "bench_total": 556.8,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "3163",
+     "proj": 333.46,
+     "pos": "QB",
+     "name": "Jared Goff"
+    },
+    {
+     "slot": "RB",
+     "player_id": "12527",
+     "proj": 234.5,
+     "pos": "RB",
+     "name": "Ashton Jeanty"
+    },
+    {
+     "slot": "RB",
+     "player_id": "9224",
+     "proj": 226.7,
+     "pos": "RB",
+     "name": "Chase Brown"
+    },
+    {
+     "slot": "WR",
+     "player_id": "11635",
+     "proj": 187.7,
+     "pos": "WR",
+     "name": "Ladd McConkey"
+    },
+    {
+     "slot": "WR",
+     "player_id": "9487",
+     "proj": 176.4,
+     "pos": "WR",
+     "name": "Parker Washington"
+    },
+    {
+     "slot": "TE",
+     "player_id": "7002",
+     "proj": 112.9,
+     "pos": "TE",
+     "name": "Juwan Johnson"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "7588",
+     "proj": 188.8,
+     "pos": "RB",
+     "name": "Javonte Williams"
+    },
+    {
+     "slot": "K",
+     "player_id": "1945",
+     "proj": 99.0,
+     "pos": "K",
+     "name": "Chris Boswell"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "SEA",
+     "proj": 117.0,
+     "pos": "DEF",
+     "name": "Seattle Seahawks"
+    }
+   ],
+   "n_unprojected": 2,
+   "unprojected_players": [
+    "11638",
+    "4018"
+   ],
+   "projected_rank": 7,
+   "projected_all_play_wins_per_week": 3,
+   "gap_to_first": 154.7
+  },
+  {
+   "roster_id": 2,
+   "owner": "ds7mmet",
+   "starter_total": 1537.6,
+   "bench_total": 1126.6,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "4881",
+     "proj": 372.0,
+     "pos": "QB",
+     "name": "Lamar Jackson"
+    },
+    {
+     "slot": "RB",
+     "player_id": "11584",
+     "proj": 179.3,
+     "pos": "RB",
+     "name": "Bucky Irving"
+    },
+    {
+     "slot": "RB",
+     "player_id": "7021",
+     "proj": 142.1,
+     "pos": "RB",
+     "name": "Rico Dowdle"
+    },
+    {
+     "slot": "WR",
+     "player_id": "12514",
+     "proj": 185.5,
+     "pos": "WR",
+     "name": "Emeka Egbuka"
+    },
+    {
+     "slot": "WR",
+     "player_id": "8148",
+     "proj": 176.2,
+     "pos": "WR",
+     "name": "Jameson Williams"
+    },
+    {
+     "slot": "TE",
+     "player_id": "2505",
+     "proj": 99.1,
+     "pos": "TE",
+     "name": "Darren Waller"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "11631",
+     "proj": 164.4,
+     "pos": "WR",
+     "name": "Brian Thomas"
+    },
+    {
+     "slot": "K",
+     "player_id": "11533",
+     "proj": 107.0,
+     "pos": "K",
+     "name": "Brandon Aubrey"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "NE",
+     "proj": 112.0,
+     "pos": "DEF",
+     "name": "New England Patriots"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 8,
+   "projected_all_play_wins_per_week": 2,
+   "gap_to_first": 293.6
+  },
+  {
+   "roster_id": 10,
+   "owner": "Sadbru",
+   "starter_total": 1485.0,
+   "bench_total": 748.7,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "6797",
+     "proj": 337.48,
+     "pos": "QB",
+     "name": "Justin Herbert"
+    },
+    {
+     "slot": "RB",
+     "player_id": "8150",
+     "proj": 192.0,
+     "pos": "RB",
+     "name": "Kyren Williams"
+    },
+    {
+     "slot": "RB",
+     "player_id": "12534",
+     "proj": 143.1,
+     "pos": "RB",
+     "name": "Kyle Monangai"
+    },
+    {
+     "slot": "WR",
+     "player_id": "6786",
+     "proj": 222.5,
+     "pos": "WR",
+     "name": "CeeDee Lamb"
+    },
+    {
+     "slot": "WR",
+     "player_id": "9997",
+     "proj": 187.7,
+     "pos": "WR",
+     "name": "Zay Flowers"
+    },
+    {
+     "slot": "TE",
+     "player_id": "12493",
+     "proj": 113.8,
+     "pos": "TE",
+     "name": "Oronde Gadsden"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "6819",
+     "proj": 136.4,
+     "pos": "WR",
+     "name": "Michael Pittman"
+    },
+    {
+     "slot": "K",
+     "player_id": "5095",
+     "proj": 49.0,
+     "pos": "K",
+     "name": "Daniel Carlson"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "BAL",
+     "proj": 103.0,
+     "pos": "DEF",
+     "name": "Baltimore Ravens"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 9,
+   "projected_all_play_wins_per_week": 1,
+   "gap_to_first": 346.2
+  },
+  {
+   "roster_id": 4,
+   "owner": "Jreis",
+   "starter_total": 1439.2,
+   "bench_total": 896.5,
+   "starters": [
+    {
+     "slot": "QB",
+     "player_id": "12524",
+     "proj": 106.12,
+     "pos": "QB",
+     "name": "Shedeur Sanders"
+    },
+    {
+     "slot": "RB",
+     "player_id": "8138",
+     "proj": 245.3,
+     "pos": "RB",
+     "name": "James Cook"
+    },
+    {
+     "slot": "RB",
+     "player_id": "5850",
+     "proj": 186.1,
+     "pos": "RB",
+     "name": "Josh Jacobs"
+    },
+    {
+     "slot": "WR",
+     "player_id": "5859",
+     "proj": 207.7,
+     "pos": "WR",
+     "name": "A.J. Brown"
+    },
+    {
+     "slot": "WR",
+     "player_id": "10229",
+     "proj": 185.3,
+     "pos": "WR",
+     "name": "Rashee Rice"
+    },
+    {
+     "slot": "TE",
+     "player_id": "5012",
+     "proj": 132.5,
+     "pos": "TE",
+     "name": "Mark Andrews"
+    },
+    {
+     "slot": "FLEX",
+     "player_id": "12481",
+     "proj": 180.2,
+     "pos": "RB",
+     "name": "Cam Skattebo"
+    },
+    {
+     "slot": "K",
+     "player_id": "11792",
+     "proj": 100.0,
+     "pos": "K",
+     "name": "Will Reichard"
+    },
+    {
+     "slot": "DEF",
+     "player_id": "PIT",
+     "proj": 96.0,
+     "pos": "DEF",
+     "name": "Pittsburgh Steelers"
+    }
+   ],
+   "n_unprojected": 0,
+   "unprojected_players": [],
+   "projected_rank": 10,
+   "projected_all_play_wins_per_week": 0,
+   "gap_to_first": 392.0
+  }
+ ],
+ "draft_grades": {
+  "round_means": {},
+  "teams": {}
+ },
+ "honesty": {
+  "round_surplus_sums_to_zero": true,
+  "total_surplus_across_teams": 0.0,
+  "unprojected_total": 2
+ }
+}

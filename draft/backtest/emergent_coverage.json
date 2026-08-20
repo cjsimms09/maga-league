@@ -1,0 +1,5455 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/emergent_coverage.py",
+ "preregistration": "draft/backtest/EMERGENT-COVERAGE-PREREG.md",
+ "question": "Q17",
+ "status": "graded",
+ "gate_control": {
+  "what": "re-run with season Y's OWN production as the prior; invisible share must be 0.000 everywhere or the join is broken",
+  "violations": [],
+  "n_violations": 0,
+  "passed": true
+ },
+ "headline": {
+  "trend_verdict": "NOT ESTABLISHED \u2014 the slope beats its shuffle null in 1 of 3 seasons; the preregistered week-17-minus-week-1 delta is a two-point comparison of noisy weeks and is NOT the read",
+  "primary_metric": "invisible share of STARTABLE production, arm any_prior",
+  "pooled_across_seasons": 0.1294,
+  "band": "MATERIAL \u2014 the grade is partly measuring our universe",
+  "all_points_share": 0.1433,
+  "sensitivity_prior_20_startable": 0.1653
+ },
+ "seasons": {
+  "2023": {
+   "any_prior": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2137.0,
+       "invisible": 257.0,
+       "share": 0.1203
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2620.6,
+       "invisible": 328.5,
+       "share": 0.1254
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2448.5,
+       "invisible": 341.3,
+       "share": 0.1394
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2367.4,
+       "invisible": 356.6,
+       "share": 0.1506
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 13,
+       "share": 0.1806,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2186.6,
+       "invisible": 297.0,
+       "share": 0.1358
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 5,
+       "share": 0.0694,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 1990.3,
+       "invisible": 216.0,
+       "share": 0.1085
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2007.1,
+       "invisible": 275.7,
+       "share": 0.1374
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 6,
+       "share": 0.0833,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2529.1,
+       "invisible": 353.5,
+       "share": 0.1398
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 1993.7,
+       "invisible": 311.5,
+       "share": 0.1562
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2126.1,
+       "invisible": 378.0,
+       "share": 0.1778
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2051.3,
+       "invisible": 369.4,
+       "share": 0.1801
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2370.4,
+       "invisible": 431.9,
+       "share": 0.1822
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2042.8,
+       "invisible": 328.4,
+       "share": 0.1608
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2239.5,
+       "invisible": 428.4,
+       "share": 0.1913
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 17,
+       "share": 0.2361,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2431.6,
+       "invisible": 523.3,
+       "share": 0.2152
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2563.0,
+       "invisible": 445.3,
+       "share": 0.1737
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 14,
+       "share": 0.1944,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 8,
+         "share": 0.3333
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2413.9,
+       "invisible": 435.7,
+       "share": 0.1805
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.1381,
+     "all_points_share": 0.1574,
+     "startable_by_position": {
+      "QB": 0.1078,
+      "RB": 0.1201,
+      "WR": 0.1618,
+      "TE": 0.1569
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.125,
+     "week_17_startable": 0.1944,
+     "delta": 0.0694,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.371,
+     "slope_p_value": 0.0648,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": 0.397
+    },
+    "visible_players": 589
+   },
+   "prior_20": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2137.0,
+       "invisible": 349.7,
+       "share": 0.1636
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 13,
+       "share": 0.1806,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2620.6,
+       "invisible": 449.5,
+       "share": 0.1715
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2448.5,
+       "invisible": 455.2,
+       "share": 0.1859
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2367.4,
+       "invisible": 460.3,
+       "share": 0.1944
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 13,
+       "share": 0.1806,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2186.6,
+       "invisible": 357.5,
+       "share": 0.1635
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 1990.3,
+       "invisible": 318.8,
+       "share": 0.1602
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 14,
+       "share": 0.1944,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2007.1,
+       "invisible": 381.7,
+       "share": 0.1902
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2529.1,
+       "invisible": 457.2,
+       "share": 0.1808
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 1993.7,
+       "invisible": 411.5,
+       "share": 0.2064
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 13,
+       "share": 0.1806,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2126.1,
+       "invisible": 476.7,
+       "share": 0.2242
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 17,
+       "share": 0.2361,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2051.3,
+       "invisible": 511.6,
+       "share": 0.2494
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 15,
+       "share": 0.2083,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2370.4,
+       "invisible": 572.8,
+       "share": 0.2416
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2042.8,
+       "invisible": 425.9,
+       "share": 0.2085
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 14,
+       "share": 0.1944,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2239.5,
+       "invisible": 516.1,
+       "share": 0.2305
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 21,
+       "share": 0.2917,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 5,
+         "share": 0.4167
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2431.6,
+       "invisible": 714.3,
+       "share": 0.2937
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2563.0,
+       "invisible": 650.1,
+       "share": 0.2536
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 20,
+       "share": 0.2778,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 9,
+         "share": 0.375
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2413.9,
+       "invisible": 664.7,
+       "share": 0.2753
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.1822,
+     "all_points_share": 0.2114,
+     "startable_by_position": {
+      "QB": 0.1765,
+      "RB": 0.174,
+      "WR": 0.1838,
+      "TE": 0.201
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.1528,
+     "week_17_startable": 0.2778,
+     "delta": 0.125,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.551,
+     "slope_p_value": 0.01,
+     "slope_beats_null": true,
+     "slope_pp_per_week_weeks_1_15": 0.54
+    },
+    "visible_players": 366
+   },
+   "CONTROL_perfect_foresight": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2137.0,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2620.6,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2448.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2367.4,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2186.6,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 1990.3,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2007.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2529.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 1993.7,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2126.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2051.3,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2370.4,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2042.8,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2239.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2431.6,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2563.0,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2413.9,
+       "invisible": 0,
+       "share": 0.0
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.0,
+     "all_points_share": 0.0,
+     "startable_by_position": {
+      "QB": 0.0,
+      "RB": 0.0,
+      "WR": 0.0,
+      "TE": 0.0
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.0,
+     "week_17_startable": 0.0,
+     "delta": 0.0,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.0,
+     "slope_p_value": 1.0,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": 0.0
+    },
+    "visible_players": 559
+   }
+  },
+  "2024": {
+   "any_prior": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 6,
+       "share": 0.0833,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2183.7,
+       "invisible": 183.8,
+       "share": 0.0842
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 4,
+       "share": 0.0556,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2157.0,
+       "invisible": 197.3,
+       "share": 0.0915
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 6,
+       "share": 0.0833,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2460.2,
+       "invisible": 260.0,
+       "share": 0.1057
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2347.7,
+       "invisible": 277.4,
+       "share": 0.1182
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2295.2,
+       "invisible": 269.3,
+       "share": 0.1173
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2230.7,
+       "invisible": 343.2,
+       "share": 0.1539
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2141.8,
+       "invisible": 263.1,
+       "share": 0.1228
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2640.9,
+       "invisible": 384.8,
+       "share": 0.1457
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2366.1,
+       "invisible": 264.2,
+       "share": 0.1117
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 1927.1,
+       "invisible": 262.4,
+       "share": 0.1362
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 4,
+       "share": 0.0556,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2311.4,
+       "invisible": 246.2,
+       "share": 0.1065
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2020.5,
+       "invisible": 278.1,
+       "share": 0.1376
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2544.9,
+       "invisible": 366.0,
+       "share": 0.1438
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2134.2,
+       "invisible": 233.6,
+       "share": 0.1094
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2377.2,
+       "invisible": 338.7,
+       "share": 0.1425
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2552.1,
+       "invisible": 385.0,
+       "share": 0.1509
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2603.5,
+       "invisible": 443.2,
+       "share": 0.1702
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.1111,
+     "all_points_share": 0.1264,
+     "startable_by_position": {
+      "QB": 0.1324,
+      "RB": 0.0858,
+      "WR": 0.1373,
+      "TE": 0.0882
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.0833,
+     "week_17_startable": 0.1528,
+     "delta": 0.0695,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.208,
+     "slope_p_value": 0.1771,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": 0.129
+    },
+    "visible_players": 559
+   },
+   "prior_20": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2183.7,
+       "invisible": 272.0,
+       "share": 0.1246
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2157.0,
+       "invisible": 319.7,
+       "share": 0.1482
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2460.2,
+       "invisible": 430.2,
+       "share": 0.1748
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2347.7,
+       "invisible": 351.9,
+       "share": 0.1499
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2295.2,
+       "invisible": 397.5,
+       "share": 0.1732
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 15,
+       "share": 0.2083,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2230.7,
+       "invisible": 496.4,
+       "share": 0.2226
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2141.8,
+       "invisible": 423.8,
+       "share": 0.1979
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2640.9,
+       "invisible": 557.2,
+       "share": 0.211
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2366.1,
+       "invisible": 444.7,
+       "share": 0.188
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 1927.1,
+       "invisible": 340.9,
+       "share": 0.1769
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 6,
+       "share": 0.0833,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2311.4,
+       "invisible": 384.2,
+       "share": 0.1662
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2020.5,
+       "invisible": 397.1,
+       "share": 0.1965
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2544.9,
+       "invisible": 501.2,
+       "share": 0.197
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2134.2,
+       "invisible": 340.4,
+       "share": 0.1595
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2377.2,
+       "invisible": 494.4,
+       "share": 0.208
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2552.1,
+       "invisible": 533.4,
+       "share": 0.209
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 15,
+       "share": 0.2083,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2603.5,
+       "invisible": 557.8,
+       "share": 0.2143
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.1512,
+     "all_points_share": 0.1834,
+     "startable_by_position": {
+      "QB": 0.1912,
+      "RB": 0.1275,
+      "WR": 0.1544,
+      "TE": 0.152
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.0972,
+     "week_17_startable": 0.2083,
+     "delta": 0.1111,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.126,
+     "slope_p_value": 0.4663,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": -0.005
+    },
+    "visible_players": 365
+   },
+   "CONTROL_perfect_foresight": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2183.7,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2157.0,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2460.2,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2347.7,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2295.2,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2230.7,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2141.8,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2640.9,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2366.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 1927.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2311.4,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2020.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2544.9,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2134.2,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2377.2,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2552.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2603.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.0,
+     "all_points_share": 0.0,
+     "startable_by_position": {
+      "QB": 0.0,
+      "RB": 0.0,
+      "WR": 0.0,
+      "TE": 0.0
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.0,
+     "week_17_startable": 0.0,
+     "delta": 0.0,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.0,
+     "slope_p_value": 1.0,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": 0.0
+    },
+    "visible_players": 570
+   }
+  },
+  "2025": {
+   "any_prior": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2252.7,
+       "invisible": 224.3,
+       "share": 0.0996
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 5,
+       "share": 0.0694,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2568.6,
+       "invisible": 235.7,
+       "share": 0.0918
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 6,
+       "share": 0.0833,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2290.5,
+       "invisible": 268.2,
+       "share": 0.1171
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2487.1,
+       "invisible": 364.9,
+       "share": 0.1467
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2376.9,
+       "invisible": 351.0,
+       "share": 0.1477
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2211.5,
+       "invisible": 298.1,
+       "share": 0.1348
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2282.0,
+       "invisible": 345.8,
+       "share": 0.1515
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2110.4,
+       "invisible": 350.5,
+       "share": 0.1661
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2242.6,
+       "invisible": 304.5,
+       "share": 0.1358
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2119.0,
+       "invisible": 341.6,
+       "share": 0.1612
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2127.6,
+       "invisible": 265.5,
+       "share": 0.1248
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 1997.5,
+       "invisible": 314.1,
+       "share": 0.1572
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2305.9,
+       "invisible": 340.3,
+       "share": 0.1476
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 1,
+         "share": 0.0417
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2091.1,
+       "invisible": 368.5,
+       "share": 0.1762
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2535.8,
+       "invisible": 400.9,
+       "share": 0.1581
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2527.5,
+       "invisible": 398.5,
+       "share": 0.1577
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 19,
+       "share": 0.2639,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 5,
+         "share": 0.4167
+        }
+       }
+      },
+      "all_points": {
+       "total": 2279.4,
+       "invisible": 474.6,
+       "share": 0.2082
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.1389,
+     "all_points_share": 0.146,
+     "startable_by_position": {
+      "QB": 0.0833,
+      "RB": 0.1912,
+      "WR": 0.0956,
+      "TE": 0.1765
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.0972,
+     "week_17_startable": 0.2639,
+     "delta": 0.1667,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.419,
+     "slope_p_value": 0.0424,
+     "slope_beats_null": true,
+     "slope_pp_per_week_weeks_1_15": 0.248
+    },
+    "visible_players": 570
+   },
+   "prior_20": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 8,
+       "share": 0.1111,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2252.7,
+       "invisible": 308.6,
+       "share": 0.137
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 7,
+       "share": 0.0972,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2568.6,
+       "invisible": 346.5,
+       "share": 0.1349
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2290.5,
+       "invisible": 376.9,
+       "share": 0.1646
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 15,
+       "share": 0.2083,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 5,
+         "share": 0.4167
+        }
+       }
+      },
+      "all_points": {
+       "total": 2487.1,
+       "invisible": 455.2,
+       "share": 0.183
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 14,
+       "share": 0.1944,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2376.9,
+       "invisible": 515.1,
+       "share": 0.2167
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 14,
+       "share": 0.1944,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2211.5,
+       "invisible": 385.4,
+       "share": 0.1743
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2282.0,
+       "invisible": 441.4,
+       "share": 0.1934
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 13,
+       "share": 0.1806,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        }
+       }
+      },
+      "all_points": {
+       "total": 2110.4,
+       "invisible": 428.9,
+       "share": 0.2032
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 11,
+       "share": 0.1528,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 7,
+         "share": 0.2917
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2242.6,
+       "invisible": 399.8,
+       "share": 0.1783
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 14,
+       "share": 0.1944,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 4,
+         "share": 0.3333
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        }
+       }
+      },
+      "all_points": {
+       "total": 2119.0,
+       "invisible": 461.0,
+       "share": 0.2176
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2127.6,
+       "invisible": 381.7,
+       "share": 0.1794
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 1997.5,
+       "invisible": 407.0,
+       "share": 0.2037
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 10,
+       "share": 0.1389,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 2,
+         "share": 0.0833
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2305.9,
+       "invisible": 432.4,
+       "share": 0.1875
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 12,
+       "share": 0.1667,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 3,
+         "share": 0.25
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2091.1,
+       "invisible": 476.9,
+       "share": 0.228
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 5,
+         "share": 0.2083
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        }
+       }
+      },
+      "all_points": {
+       "total": 2535.8,
+       "invisible": 507.9,
+       "share": 0.2003
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 9,
+       "share": 0.125,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 4,
+         "share": 0.1667
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 3,
+         "share": 0.125
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 1,
+         "share": 0.0833
+        }
+       }
+      },
+      "all_points": {
+       "total": 2527.5,
+       "invisible": 484.4,
+       "share": 0.1916
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 20,
+       "share": 0.2778,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 2,
+         "share": 0.1667
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 6,
+         "share": 0.25
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 6,
+         "share": 0.5
+        }
+       }
+      },
+      "all_points": {
+       "total": 2279.4,
+       "invisible": 588.3,
+       "share": 0.2581
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.1626,
+     "all_points_share": 0.1913,
+     "startable_by_position": {
+      "QB": 0.1127,
+      "RB": 0.1961,
+      "WR": 0.1299,
+      "TE": 0.2108
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.1111,
+     "week_17_startable": 0.2778,
+     "delta": 0.1667,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.211,
+     "slope_p_value": 0.3741,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": 0.045
+    },
+    "visible_players": 353
+   },
+   "CONTROL_perfect_foresight": {
+    "by_week": {
+     "1": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2252.7,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "2": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2568.6,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "3": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2290.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "4": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2487.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "5": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2376.9,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "6": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2211.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "7": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2282.0,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "8": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2110.4,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "9": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2242.6,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "10": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2119.0,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "11": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2127.6,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "12": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 1997.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "13": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2305.9,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "14": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2091.1,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "15": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2535.8,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "16": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2527.5,
+       "invisible": 0,
+       "share": 0.0
+      }
+     },
+     "17": {
+      "startable": {
+       "n": 72,
+       "invisible": 0,
+       "share": 0.0,
+       "by_position": {
+        "QB": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "RB": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "WR": {
+         "n": 24,
+         "invisible": 0,
+         "share": 0.0
+        },
+        "TE": {
+         "n": 12,
+         "invisible": 0,
+         "share": 0.0
+        }
+       }
+      },
+      "all_points": {
+       "total": 2279.4,
+       "invisible": 0,
+       "share": 0.0
+      }
+     }
+    },
+    "pooled": {
+     "startable_share": 0.0,
+     "all_points_share": 0.0,
+     "startable_by_position": {
+      "QB": 0.0,
+      "RB": 0.0,
+      "WR": 0.0,
+      "TE": 0.0
+     }
+    },
+    "trajectory": {
+     "week_1_startable": 0.0,
+     "week_17_startable": 0.0,
+     "delta": 0.0,
+     "_delta_caveat": "two noisy weeks; the slope below is the read",
+     "slope_pp_per_week": 0.0,
+     "slope_p_value": 1.0,
+     "slope_beats_null": false,
+     "slope_pp_per_week_weeks_1_15": 0.0
+    },
+    "visible_players": 616
+   }
+  }
+ }
+}

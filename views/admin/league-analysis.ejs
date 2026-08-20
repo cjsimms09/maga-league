@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>League Analysis — MFGA</title>
+<style>
+  /* Self-contained like draft-sheet.ejs/projections.ejs — desktop-first per
+     Cory's doctrine, no JS needed. This is the bet-with-Richard surface: the
+     claim banner is deliberately the loudest thing on the page. */
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111; background: #fff; margin: 0; padding: 18px; font-size: 13px; line-height: 1.35; }
+  h1 { font-size: 19px; margin: 0 0 8px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 6px;
+    border-bottom: 1.5px solid #111; padding-bottom: 3px; }
+  .claim { font-size: 13px; font-weight: 700; padding: 10px 12px; border-radius: 4px;
+    margin: 0 0 16px; max-width: 68em; line-height: 1.4; }
+  .claim.rehearsal { background: #fff3cd; border: 2px solid #d4a300; color: #6b4e00; }
+  .claim.real { background: #f4f1e8; border: 1px solid #ccc; color: #333; font-weight: 600; }
+  .empty { font-size: 14px; color: #a01414; font-weight: 700; padding: 20px 0; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin-bottom: 8px; }
+  th, td { padding: 3px 8px; text-align: right; border-bottom: 1px solid #e2e2e2; }
+  th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: #555;
+    border-bottom: 1.5px solid #111; }
+  td.nm, th.nm { text-align: left; white-space: nowrap; }
+  td.rk { color: #777; width: 2em; }
+  .hole { color: #a01414; font-weight: 700; }
+  .abs { color: #999; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .card { border: 1px solid #ddd; border-radius: 4px; padding: 10px 12px; }
+  .card .nm { font-weight: 700; font-size: 13px; }
+  .card .surplus { font-size: 18px; font-weight: 800; margin: 2px 0 6px; }
+  .surplus.pos { color: #0a6b2d; }
+  .surplus.neg { color: #a01414; }
+  .card .pick { font-size: 11.5px; margin: 2px 0; }
+  .card .pick .lbl { color: #666; text-transform: uppercase; font-size: 9.5px; letter-spacing: .04em; }
+  .card .ungraded { font-size: 10.5px; color: #999; margin-top: 4px; }
+  .meta { font-size: 11px; color: #444; margin: 2px 0 8px; max-width: 70em; }
+</style>
+</head>
+<body>
+<h1>League Analysis <% if (rehearsal) { %><span style="font-size:12px;color:#a01414;">(rehearsal)</span><% } %></h1>
+
+<% if (!artifact) { %>
+  <p class="empty">No league-analysis artifact yet — <code>public/league_analysis_2026.json</code> is missing or unreadable. This runs after the last pick on draft night (or as a pre-draft rehearsal); nothing to show before then.</p>
+<% } else { %>
+  <p class="claim <%= rehearsal ? 'rehearsal' : 'real' %>"><%= claim %></p>
+
+  <h2>Projected standings</h2>
+  <table>
+    <tr>
+      <th></th><th class="nm">Owner</th><th>Starters</th><th>Bench</th>
+      <th>Gap to 1st</th><th>All-play W/wk</th><th></th>
+    </tr>
+    <% for (const r of standings) { %>
+    <tr>
+      <td class="rk"><%= r.projected_rank %></td>
+      <td class="nm"><%= r.owner %></td>
+      <td><%= r.starter_total %></td>
+      <td class="abs"><%= r.bench_total %></td>
+      <td><% if (r.gap_to_first > 0) { %>−<%= r.gap_to_first %><% } else { %><span class="abs">—</span><% } %></td>
+      <td><%= r.projected_all_play_wins_per_week %></td>
+      <td>
+        <% if (r.n_unprojected > 0) { %>
+          <span class="hole" title="<%= (r.unprojected_players || []).join(', ') %>"><%= r.n_unprojected %> unprojected</span>
+        <% } %>
+      </td>
+    </tr>
+    <% } %>
+  </table>
+
+  <h2>Draft grades</h2>
+  <% const teamCards = standings.filter(r => r.grade); %>
+  <% if (!teamCards.length) { %>
+    <p class="meta">No graded picks yet — this fills in once the draft has live (non-keeper) picks.</p>
+  <% } else { %>
+  <div class="cards">
+    <% for (const r of teamCards) { %>
+    <% const g = r.grade; %>
+    <div class="card">
+      <div class="nm"><%= r.owner %></div>
+      <div class="surplus <%= g.surplus_total >= 0 ? 'pos' : 'neg' %>"><%= g.surplus_total > 0 ? '+' : '' %><%= g.surplus_total %></div>
+      <% if (g.best_pick) { %>
+        <div class="pick"><span class="lbl">Best:</span> <%= g.best_pick.name %> (R<%= g.best_pick.round %>) <span class="<%= g.best_pick.surplus >= 0 ? 'surplus pos' : 'surplus neg' %>" style="font-size:11px;"><%= g.best_pick.surplus > 0 ? '+' : '' %><%= g.best_pick.surplus %></span></div>
+      <% } %>
+      <% if (g.worst_pick) { %>
+        <div class="pick"><span class="lbl">Worst:</span> <%= g.worst_pick.name %> (R<%= g.worst_pick.round %>) <span class="<%= g.worst_pick.surplus >= 0 ? 'surplus pos' : 'surplus neg' %>" style="font-size:11px;"><%= g.worst_pick.surplus > 0 ? '+' : '' %><%= g.worst_pick.surplus %></span></div>
+      <% } %>
+      <% if (g.ungraded_picks > 0) { %>
+        <div class="ungraded"><%= g.ungraded_picks %> pick<%= g.ungraded_picks === 1 ? '' : 's' %> ungraded (no projection)</div>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+  <% } %>
+
+  <p class="meta" style="margin-top:18px;">
+    Grades are surplus vs this draft's own round means, keepers excluded, zero-sum by construction
+    (honesty check: total surplus across teams = <%= honesty.total_surplus_across_teams %>,
+    <%= honesty.unprojected_total %> total unprojected starter slot<%= honesty.unprojected_total === 1 ? '' : 's' %> league-wide).
+  </p>
+<% } %>
+</body>
+</html>

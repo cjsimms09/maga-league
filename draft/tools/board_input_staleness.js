@@ -61,6 +61,31 @@ const INPUTS = [
   'draft/adp.py',
   'draft/keepers.py',
   'draft/own_projections.py',
+  /* ── THE DATA STORES, ADDED 2026-08-19 ON A LIVE MISS ────────────────────
+   *
+   * THIS LIST WATCHED THE CODE AND NOT THE DATA, AND THE DATA IS WHAT MOVED.
+   * `1052af25` regenerated `component_stats_2025.json` (101 rows carried
+   * `fum_lost` wrong by exactly −2.0 — the 2025 capture predated the fetch's
+   * three-column fumbles sum). The store was healed correctly and nobody
+   * rebuilt the board on top of it, so a fresh `own_v6` run stopped
+   * reproducing the committed `own_v6` column — which Cory's ruling blends
+   * into `proj_mean`. **This check stayed GREEN through all of it**, because
+   * `draft/own_projections.py` had not changed; only what it READS had.
+   * Register 5r, bisected: last green `c7b42a6b`, red from `1052af25`.
+   *
+   * GLOB PATHSPECS, NOT YEAR LITERALS. The stores are per-season and the
+   * loader builds their paths with an f-string, so naming
+   * `component_stats_2025.json` here would be a season literal that silently
+   * stops covering anything next August. git resolves the glob itself (the
+   * path is quoted, so the shell never sees it) and `lastCommit` takes the
+   * newest match — which is the right semantics: ANY store in the family
+   * moving after the board is a stale board.
+   *
+   * This keeps the declared-not-derived rule the header states. A glob is
+   * still reviewable in a diff; what it is not is a parse of `build.py`'s
+   * reads, which is the thing that would shrink silently. */
+  'draft/backtest/component_stats_*.json',        // own_v6 volume features
+  'draft/backtest/nflverse_weekly_points_*.json', // own_v4 weekly points
 ];
 
 function git(cmd) {

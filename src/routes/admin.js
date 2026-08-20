@@ -1000,6 +1000,19 @@ router.get('/warroom', aw(async (req, res) => {
     // A missing draft order is normal preseason; fall back to the override.
   }
 
+  // DURABILITY, READ-ONLY (Cory, 2026-08-18: "dont gatekeep things for after
+  // draft if nothing critical") — C's `where_the_constant_is_furthest_from_
+  // the_player`, un-deferred from post-draft. Static reference: no board
+  // field reads it, so a missing or malformed file loses the section, never
+  // the page.
+  let durability = null;
+  try {
+    const fs = require('fs'), path = require('path');
+    const raw = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', '..', 'draft', 'backtest', 'nflverse_durability.json'), 'utf8'));
+    durability = raw.where_the_constant_is_furthest_from_the_player || null;
+  } catch (e) { durability = null; }
+
   res.render('admin/warroom', {
     season,
     config: req.world.config,
@@ -1013,6 +1026,7 @@ router.get('/warroom', aw(async (req, res) => {
     // backend — better than a manual guess — but not yet the Sleeper-verified
     // state the A2 machinery flips to when the draft object's order lands.
     slotProvenance: claimedSlot ? 'site-claimed' : null,
+    durability,
   });
 }));
 
@@ -1230,6 +1244,82 @@ router.get('/projections', requireCory, aw(async (req, res) => {
     ownModel: prov.own_model || (prov.projections || {}).own_model || {},
     projProv: prov.projections || null,
   });
+}));
+
+// THE POST-DRAFT ANALYZER SURFACE (Cory, 2026-08-18, verbatim: "After draft
+// it should immediately be ready for me, I will make bet with Richard.").
+// Reads public/league_analysis_2026.json, produced by
+// draft/tools/league_analyzer.py off Sleeper + our board — this route does no
+// computation of its own, it only lays the artifact out. The `_claim` line is
+// rendered VERBATIM near the top by design: Cory must never quote a
+// projection to Richard as a result, and the artifact itself carries that
+// caveat (rehearsal warning pre-draft, "projections not results" after).
+router.get('/league-analysis', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = null;
+  try {
+    artifact = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', '..', 'public', 'league_analysis_2026.json'), 'utf8'));
+  } catch (e) { artifact = null; }
+  if (!artifact) {
+    return res.render('admin/league-analysis', {
+      artifact: null, standings: [], roundMeans: {}, rehearsal: false, claim: '', honesty: {},
+    });
+  }
+  const grades = (artifact.draft_grades || {}).teams || {};
+  const roundMeans = (artifact.draft_grades || {}).round_means || {};
+  // Join the grade (keyed by roster_id, from draft_grades.teams) onto each
+  // standings row (which already carries the owner name) — one row per team,
+  // never two derivations of who's who.
+  const standings = (artifact.projected_standings || []).map(r => ({
+    ...r,
+    grade: grades[String(r.roster_id)] || null,
+  }));
+  res.render('admin/league-analysis', {
+    artifact,
+    standings,
+    roundMeans,
+    rehearsal: !!artifact._rehearsal,
+    claim: artifact._claim || '',
+    honesty: artifact.honesty || {},
+  });
+}));
+
+// TEAM DEPTH CHARTS, ALL 32 (Cory, 2026-08-18: "we should always be looking or
+// thinking of new tools. ie depth chart tool for all 32 teams."). Data-ready,
+// not a build-from-scratch: every rostered player in draft_data.json already
+// carries `team` and `depth_chart_order` (confirmed 08-17 while answering
+// Cory's earlier ask for the SAME field on the drill-down, ROUTES.md item
+// "CORY'S NEXT TWO ASKS"). This just lays what's already on disk out by team.
+router.get('/depth-charts', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = {};
+  try { artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')); } catch (e) { artifact = {}; }
+  const POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+  const byTeam = {};
+  for (const p of (artifact.players || [])) {
+    if (!p || !p.team || p.team === 'FA') continue;
+    (byTeam[p.team] = byTeam[p.team] || []).push(p);
+  }
+  const teams = Object.keys(byTeam).sort().map(team => {
+    const byPos = {};
+    for (const pos of POS_ORDER) {
+      byPos[pos] = byTeam[team]
+        .filter(p => p.position === pos)
+        .sort((a, b) => {
+          const ao = a.depth_chart_order == null ? 999 : a.depth_chart_order;
+          const bo = b.depth_chart_order == null ? 999 : b.depth_chart_order;
+          return ao - bo;
+        })
+        .map(p => ({
+          name: p.name, order: p.depth_chart_order, injury: p.injury_status || null,
+          adp: p.adp != null ? Math.round(p.adp * 10) / 10 : null,
+          overallRank: p.overall_rank != null ? p.overall_rank : null,
+        }));
+    }
+    return { team, byPos };
+  });
+  res.render('admin/depth-charts', { teams, builtAt: artifact.built_at || null });
 }));
 
 // ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----

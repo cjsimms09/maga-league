@@ -602,6 +602,72 @@ router.get('/', aw(async (req, res) => {
     } catch (e) { /* the banner still renders even if the alert heal fails */ }
   }
 
+  // ── KEEPER-SET DEADLINE — same self-deriving, self-expiring shape as the
+  // draft-day alert just above, and the same reason: one edit moves the banner
+  // and the pinned alert together. It EXPIRES — the banner and the alert both
+  // stop rendering the instant `keeperInfo.passed` flips, no separate cleanup
+  // step, and it never shows once keepers are already locked for the season
+  // (admin's manual `keepers_locked` flag wins if it fires early).
+  //
+  // THE RULED DATE LIVES IN `draft/config/league_config.json`, NOT `world.config`
+  // — register row 42's whole point was that a hardcoded fallback and a real
+  // ruling were indistinguishable, and Cory's answer ("Keepers will be set by
+  // 08/21 at 6pm") is committed there, guarded by `test_config_local_rulings_
+  // survive.py` against the nightly Sleeper-driven rebuild. `keeperDeadline
+  // Announcement` only returns `configured: true` when this key is present, so
+  // the pinned league-wide alert can never fire off a guess (same fix class as
+  // the draft-day alert, applied at the source this time).
+  const isKeeperAlert = a => a.id === 'keeperdeadline' || /^KEEPER DEADLINE/i.test(a.message || '');
+  let keeperInfo;
+  try {
+    const leagueConfig = JSON.parse(require('fs').readFileSync(
+      require('path').join(__dirname, '..', '..', 'draft', 'config', 'league_config.json'), 'utf8'));
+    keeperInfo = DASH.keeperDeadlineAnnouncement(leagueConfig, new Date().toISOString(), season && season.year);
+  } catch (e) { keeperInfo = DASH.keeperDeadlineAnnouncement({}, new Date().toISOString(), season && season.year); }
+  if (season && season.keepers_locked) keeperInfo.passed = true;
+  if (keeperInfo.configured && keeperInfo.message) {
+    try {
+      const alerts = await getDoc('alerts', []);
+      const pinned = alerts.find(isKeeperAlert);
+      if (pinned && keeperInfo.passed) {
+        if (pinned.active) {
+          await mutateDoc('alerts', [], as => {
+            const p = as.find(isKeeperAlert);
+            if (!p || !p.active) return undefined;
+            p.active = false;
+            return as;
+          });
+        }
+        if (Array.isArray(res.locals.alerts)) {
+          res.locals.alerts = res.locals.alerts.filter(a => !isKeeperAlert(a));
+        }
+      } else if (!pinned) {
+        const created = { id: 'keeperdeadline', message: keeperInfo.message, level: 'urgent', active: true, created_at: now() };
+        await mutateDoc('alerts', [], as => {
+          if (as.find(isKeeperAlert)) return undefined;
+          as.unshift(created);
+          return as;
+        });
+        // Same "shows now" reasoning as the heal branches below: res.locals.alerts
+        // was already computed from the pre-mutation snapshot, so without this the
+        // brand-new alert would be invisible on the very request that created it.
+        if (Array.isArray(res.locals.alerts)) {
+          res.locals.alerts = [created, ...res.locals.alerts];
+        }
+      } else if (pinned.message !== keeperInfo.message) {
+        await mutateDoc('alerts', [], as => {
+          const p = as.find(isKeeperAlert);
+          if (!p || p.message === keeperInfo.message) return undefined;
+          p.message = keeperInfo.message; p.level = 'urgent'; p.active = true;
+          return as;
+        });
+        for (const a of (res.locals.alerts || [])) {
+          if (isKeeperAlert(a)) a.message = keeperInfo.message;
+        }
+      }
+    } catch (e) { /* the banner still renders even if the alert heal fails */ }
+  }
+
   // Sleeper live data (site works fine when unconfigured/unreachable).
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   if (sData && !Object.keys(world.config.sleeper_map || {}).length) {
@@ -834,8 +900,11 @@ router.get('/', aw(async (req, res) => {
 
   res.render('dashboard', {
     pickemNudge,
+    // Sunday night / Monday only (Cory, 2026-08-18) — the home page's cue to
+    // check the scores screen while games are actually live.
+    gameNight: WW.primetimeWindow(),
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
+    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
@@ -2951,6 +3020,9 @@ router.get('/scoreboard', aw(async (req, res) => {
   // ET day → the what-to-watch line only lights up Sun/Mon nights
   const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
   const primetime = etDay === 0 || etDay === 1;
+  // The narrower promo window for the What-to-Watch banner on this page —
+  // Sunday night + Monday only, gone the rest of the week (Cory, 2026-08-18).
+  const gameNight = WW.primetimeWindow();
 
   // SIDE-BET MONEY ON THE GAME CARD (member-site review, 2026-08-15). Half the
   // point of a matchup bet is watching the game with it in mind — and this is
@@ -3044,7 +3116,7 @@ router.get('/scoreboard', aw(async (req, res) => {
   const liveStale = await liveFreshness();
   res.render('scoreboard', {
     liveStale,
-    me, owners, weekNo, cards, locked, whRace, whBand, recordChips,
+    me, owners, weekNo, cards, locked, whRace, whBand, recordChips, gameNight,
     regWeeks: nav.regWeeks,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),

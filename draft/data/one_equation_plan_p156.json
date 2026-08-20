@@ -1,0 +1,314 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/one_equation_plan.js",
+ "_prereg": "draft/ONE-EQUATION-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. No cap, no seats. Writes no board field.",
+ "lambda_trace": [
+  {
+   "pick": 33,
+   "lambda": 0.5,
+   "unfilled": 6,
+   "remaining": 12
+  },
+  {
+   "pick": 48,
+   "lambda": 0.455,
+   "unfilled": 5,
+   "remaining": 11
+  },
+  {
+   "pick": 53,
+   "lambda": 0.4,
+   "unfilled": 4,
+   "remaining": 10
+  },
+  {
+   "pick": 68,
+   "lambda": 0.333,
+   "unfilled": 3,
+   "remaining": 9
+  },
+  {
+   "pick": 73,
+   "lambda": 0.375,
+   "unfilled": 3,
+   "remaining": 8
+  },
+  {
+   "pick": 88,
+   "lambda": 0.429,
+   "unfilled": 3,
+   "remaining": 7
+  },
+  {
+   "pick": 93,
+   "lambda": 0.5,
+   "unfilled": 3,
+   "remaining": 6
+  },
+  {
+   "pick": 108,
+   "lambda": 0.6,
+   "unfilled": 3,
+   "remaining": 5
+  },
+  {
+   "pick": 113,
+   "lambda": 0.5,
+   "unfilled": 2,
+   "remaining": 4
+  },
+  {
+   "pick": 128,
+   "lambda": 0.333,
+   "unfilled": 1,
+   "remaining": 3
+  },
+  {
+   "pick": 133,
+   "lambda": 0.5,
+   "unfilled": 1,
+   "remaining": 2
+  },
+  {
+   "pick": 148,
+   "lambda": 0,
+   "unfilled": 0,
+   "remaining": 1
+  }
+ ],
+ "board_built_at": "2026-08-19T08:52:22Z",
+ "waiver_levels": {
+  "QB": 319,
+  "RB": 111.95,
+  "WR": 124.25,
+  "TE": 123.97,
+  "K": 134.11,
+  "DEF": 112
+ },
+ "q_per_week": {
+  "QB": 0.14705882352941177,
+  "RB": 0.22352941176470592,
+  "WR": 0.17647058823529413,
+  "TE": 0.18823529411764703,
+  "K": 0.08823529411764706,
+  "DEF": 0.058823529411764705
+ },
+ "controls": {
+  "C1_need_curve_matches_published": {
+   "ok": true,
+   "got": [
+    1,
+    0.902
+   ],
+   "why": "must reproduce need_curve.js's published RB column exactly"
+  },
+  "C2_flex_credited_once_every_pick": {
+   "ok": false,
+   "trace": [
+    null,
+    null,
+    null,
+    "RB",
+    "RB",
+    "RB",
+    "RB",
+    "RB",
+    "RB",
+    "RB",
+    "RB",
+    "RB"
+   ],
+   "why": "recomputed per pick; crediting it to RB+WR+TE at once once drafted three TEs"
+  },
+  "C3_keepers_counted": {
+   "ok": true,
+   "kept": {
+    "WR": 1,
+    "RB": 2
+   }
+  },
+  "C4_twelve_picks_on_the_real_schedule": {
+   "ok": true,
+   "sched": [
+    33,
+    48,
+    53,
+    68,
+    73,
+    88,
+    93,
+    108,
+    113,
+    128,
+    133,
+    148
+   ]
+  },
+  "C5_room_drained_by_adp": {
+   "ok": true,
+   "why": "strict ADP order, identical to the other arms"
+  }
+ },
+ "controls_all_passed": false,
+ "picks": [
+  {
+   "pick": 33,
+   "name": "Zay Flowers",
+   "pos": "WR",
+   "adp": 37.67,
+   "proj": 199.12,
+   "value": 74.9,
+   "need": 1,
+   "flex_to": null
+  },
+  {
+   "pick": 48,
+   "name": "Drake Maye",
+   "pos": "QB",
+   "adp": 51,
+   "proj": 373.73,
+   "value": 54.7,
+   "need": 1,
+   "flex_to": null
+  },
+  {
+   "pick": 53,
+   "name": "Bhayshul Tuten",
+   "pos": "RB",
+   "adp": 56.33,
+   "proj": 185.83,
+   "value": 54.3,
+   "need": 0.338,
+   "flex_to": null
+  },
+  {
+   "pick": 68,
+   "name": "Rhamondre Stevenson",
+   "pos": "RB",
+   "adp": 75.67,
+   "proj": 167.03,
+   "value": 40.2,
+   "need": 0.188,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 73,
+   "name": "Tony Pollard",
+   "pos": "RB",
+   "adp": 80.67,
+   "proj": 165.67,
+   "value": 35.7,
+   "need": 0.107,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 88,
+   "name": "Alec Pierce",
+   "pos": "WR",
+   "adp": 92.67,
+   "proj": 164.03,
+   "value": 29.5,
+   "need": 0.396,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 93,
+   "name": "Brock Purdy",
+   "pos": "QB",
+   "adp": 107,
+   "proj": 353.56,
+   "value": 20.3,
+   "need": 0.175,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 108,
+   "name": "Los Angeles Rams",
+   "pos": "DEF",
+   "adp": 128.33,
+   "proj": 132,
+   "value": 20,
+   "need": 1,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 113,
+   "name": "Mark Andrews",
+   "pos": "TE",
+   "adp": 117.33,
+   "proj": 138.78,
+   "value": 14.8,
+   "need": 1,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 128,
+   "name": "Xavier Worthy",
+   "pos": "WR",
+   "adp": 138.67,
+   "proj": 139.9,
+   "value": 11.7,
+   "need": 0.248,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 133,
+   "name": "Jason Myers",
+   "pos": "K",
+   "adp": 155,
+   "proj": 145.64,
+   "value": 11.5,
+   "need": 1,
+   "flex_to": "RB"
+  },
+  {
+   "pick": 148,
+   "name": "Khalil Shakir",
+   "pos": "WR",
+   "adp": 156.33,
+   "proj": 132.32,
+   "value": 8.1,
+   "need": 0.134,
+   "flex_to": "RB"
+  }
+ ],
+ "drafted_counts": {
+  "WR": 4,
+  "QB": 2,
+  "RB": 3,
+  "DEF": 1,
+  "TE": 1,
+  "K": 1
+ },
+ "full_roster": {
+  "WR": 5,
+  "QB": 2,
+  "RB": 5,
+  "DEF": 1,
+  "TE": 1,
+  "K": 1
+ },
+ "P144": {
+  "drafted_counts": {
+   "WR": 4,
+   "QB": 2,
+   "RB": 3,
+   "DEF": 1,
+   "TE": 1,
+   "K": 1
+  },
+  "WR_in_3_4": true,
+  "RB_in_3_4": true,
+  "QB_is_1": false,
+  "TE_is_1": true,
+  "K_is_1": true,
+  "DEF_is_1": true,
+  "TRUE": false
+ },
+ "P145": {
+  "one_equation_total": 2297.6,
+  "draft_plan_total": 2220.1,
+  "pct_diff": 3.5,
+  "TRUE": true
+ }
+}

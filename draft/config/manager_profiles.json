@@ -7,7 +7,7 @@
   "drafts_analysed": 3,
   "editable": "Hand-edit any value here; the build never overwrites a file whose `locked` flag is true.",
   "league_average": {
-    "bpa_rate": 0.311,
+    "bpa_rate": 0.316,
     "first_round_by_position": {
       "DEF": 13.17,
       "K": 13.1,
@@ -16,15 +16,17 @@
       "TE": 6.57,
       "WR": 3.4
     },
-    "reach_delta_mean": 9.61,
-    "rookie_rate": 0.0
+    "reach_delta_mean": 6.4,
+    "rookie_rate": 0.127,
+    "rookie_rate_basis": "years_exp == season_now - draft_season",
+    "rookie_rate_coverage": 0.929
   },
   "managers": {
     "434915673219526656": {
       "bpa_vs_need": {
         "adp_coverage": 1.0,
-        "bpa_rate": 0.309,
-        "league_rate": 0.311,
+        "bpa_rate": 0.311,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -258,30 +260,32 @@
       },
       "reach_delta": {
         "adp_coverage": 1.0,
-        "league_mean_vs_adp": 9.61,
-        "mean": -5.25,
-        "mean_vs_adp": 4.36,
+        "league_mean_vs_adp": 6.4,
+        "mean": -3.33,
+        "mean_vs_adp": 3.07,
         "proxy": false,
         "raw_mean": 0.85,
         "sd": 19.24
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 38,
+        "league_rate": 0.127,
+        "picks": 41,
+        "rate": 0.177
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 1.006,
-        "beta_value": 0.994
+        "alpha_need": 1.015,
+        "beta_value": 0.985
       },
       "summary": "Drafts near market value."
     },
     "434921290978029568": {
       "bpa_vs_need": {
         "adp_coverage": 0.95,
-        "bpa_rate": 0.304,
-        "league_rate": 0.311,
+        "bpa_rate": 0.321,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -537,30 +541,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.95,
-        "league_mean_vs_adp": 9.61,
-        "mean": 7.31,
-        "mean_vs_adp": 16.92,
+        "league_mean_vs_adp": 6.4,
+        "mean": -1.49,
+        "mean_vs_adp": 4.91,
         "proxy": false,
-        "raw_mean": 21.79,
-        "sd": 134.15
+        "raw_mean": 3.92,
+        "sd": 27.9
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 37,
+        "league_rate": 0.127,
+        "picks": 40,
+        "rate": 0.213
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 1.022,
-        "beta_value": 0.978
+        "alpha_need": 0.983,
+        "beta_value": 1.017
       },
-      "summary": "Reaches ~7 picks early. Takes QB early (round 5 on average, 1.4 rounds before the league). Takes TE early (round 5 on average, 1.8 rounds before the league)."
+      "summary": "Drafts near market value. Takes QB early (round 5 on average, 1.4 rounds before the league). Takes TE early (round 5 on average, 1.8 rounds before the league). Chases rookies."
     },
     "434921916734631936": {
       "bpa_vs_need": {
         "adp_coverage": 0.925,
-        "bpa_rate": 0.319,
-        "league_rate": 0.311,
+        "bpa_rate": 0.321,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -845,30 +851,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.925,
-        "league_mean_vs_adp": 9.61,
-        "mean": -2.6,
-        "mean_vs_adp": 7.01,
+        "league_mean_vs_adp": 6.4,
+        "mean": -0.67,
+        "mean_vs_adp": 5.73,
         "proxy": false,
         "raw_mean": 5.28,
         "sd": 32.43
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 39,
+        "league_rate": 0.127,
+        "picks": 42,
+        "rate": 0.128
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.974,
-        "beta_value": 1.026
+        "alpha_need": 0.983,
+        "beta_value": 1.017
       },
       "summary": "Drafts near market value. Takes QB early (round 5 on average, 1.4 rounds before the league)."
     },
     "439662843298574336": {
       "bpa_vs_need": {
         "adp_coverage": 0.975,
-        "bpa_rate": 0.319,
-        "league_rate": 0.311,
+        "bpa_rate": 0.321,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -1137,30 +1145,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.975,
-        "league_mean_vs_adp": 9.61,
-        "mean": -5.93,
-        "mean_vs_adp": 3.68,
+        "league_mean_vs_adp": 6.4,
+        "mean": -4.26,
+        "mean_vs_adp": 2.14,
         "proxy": false,
-        "raw_mean": -0.28,
-        "sd": 18.31
+        "raw_mean": -0.7,
+        "sd": 17.23
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 37,
+        "league_rate": 0.127,
+        "picks": 40,
+        "rate": 0.116
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.974,
-        "beta_value": 1.026
+        "alpha_need": 0.983,
+        "beta_value": 1.017
       },
       "summary": "Drafts near market value. Waits on QB (round 8). Waits on TE (round 8)."
     },
     "440723317066821632": {
       "bpa_vs_need": {
         "adp_coverage": 0.955,
-        "bpa_rate": 0.288,
-        "league_rate": 0.311,
+        "bpa_rate": 0.304,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -1407,30 +1417,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.955,
-        "league_mean_vs_adp": 9.61,
-        "mean": 4.82,
-        "mean_vs_adp": 14.43,
+        "league_mean_vs_adp": 6.4,
+        "mean": 6.5,
+        "mean_vs_adp": 12.9,
         "proxy": false,
-        "raw_mean": 17.64,
-        "sd": 82.59
+        "raw_mean": 17.23,
+        "sd": 82.64
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 41,
+        "league_rate": 0.127,
+        "picks": 44,
+        "rate": 0.109
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 1.073,
-        "beta_value": 0.927
+        "alpha_need": 1.037,
+        "beta_value": 0.963
       },
-      "summary": "Drafts near market value."
+      "summary": "Reaches ~6 picks early."
     },
     "458507445241638912": {
       "bpa_vs_need": {
         "adp_coverage": 0.921,
-        "bpa_rate": 0.345,
-        "league_rate": 0.311,
+        "bpa_rate": 0.347,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -1676,30 +1688,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.921,
-        "league_mean_vs_adp": 9.61,
-        "mean": -4.89,
-        "mean_vs_adp": 4.72,
+        "league_mean_vs_adp": 6.4,
+        "mean": -2.95,
+        "mean_vs_adp": 3.45,
         "proxy": false,
-        "raw_mean": 1.46,
-        "sd": 28.76
+        "raw_mean": 1.49,
+        "sd": 28.81
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 36,
+        "league_rate": 0.127,
+        "picks": 39,
+        "rate": 0.134
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.89,
-        "beta_value": 1.11
+        "alpha_need": 0.901,
+        "beta_value": 1.099
       },
       "summary": "Drafts near market value."
     },
     "459850070410391552": {
       "bpa_vs_need": {
         "adp_coverage": 0.949,
-        "bpa_rate": 0.37,
-        "league_rate": 0.311,
+        "bpa_rate": 0.357,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -1968,30 +1982,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.949,
-        "league_mean_vs_adp": 9.61,
-        "mean": 5.05,
-        "mean_vs_adp": 14.65,
+        "league_mean_vs_adp": 6.4,
+        "mean": -1.17,
+        "mean_vs_adp": 5.23,
         "proxy": false,
-        "raw_mean": 18.02,
-        "sd": 136.41
+        "raw_mean": 4.45,
+        "sd": 54.05
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 37,
+        "league_rate": 0.127,
+        "picks": 40,
+        "rate": 0.099
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.809,
-        "beta_value": 1.191
+        "alpha_need": 0.869,
+        "beta_value": 1.131
       },
-      "summary": "Drafts near market value. Takes best available."
+      "summary": "Drafts near market value."
     },
     "461443264013135872": {
       "bpa_vs_need": {
         "adp_coverage": 0.947,
-        "bpa_rate": 0.314,
-        "league_rate": 0.311,
+        "bpa_rate": 0.316,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -2237,30 +2253,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.947,
-        "league_mean_vs_adp": 9.61,
-        "mean": -6.96,
-        "mean_vs_adp": 2.65,
+        "league_mean_vs_adp": 6.4,
+        "mean": -5.03,
+        "mean_vs_adp": 1.36,
         "proxy": false,
         "raw_mean": -1.99,
         "sd": 20.67
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 37,
+        "league_rate": 0.127,
+        "picks": 39,
+        "rate": 0.148
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.99,
-        "beta_value": 1.01
+        "alpha_need": 0.999,
+        "beta_value": 1.001
       },
-      "summary": "Waits \u2014 lets value fall ~7 picks."
+      "summary": "Drafts near market value."
     },
     "471160336402083840": {
       "bpa_vs_need": {
         "adp_coverage": 0.897,
-        "bpa_rate": 0.247,
-        "league_rate": 0.311,
+        "bpa_rate": 0.249,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -2501,30 +2519,32 @@
       },
       "reach_delta": {
         "adp_coverage": 0.897,
-        "league_mean_vs_adp": 9.61,
-        "mean": 12.92,
-        "mean_vs_adp": 22.53,
+        "league_mean_vs_adp": 6.4,
+        "mean": 15.11,
+        "mean_vs_adp": 21.51,
         "proxy": false,
-        "raw_mean": 31.14,
-        "sd": 141.15
+        "raw_mean": 31.58,
+        "sd": 140.91
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 37,
+        "league_rate": 0.127,
+        "picks": 40,
+        "rate": 0.099
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 1.205,
-        "beta_value": 0.795
+        "alpha_need": 1.212,
+        "beta_value": 0.789
       },
-      "summary": "Reaches ~13 picks early. Drafts for need."
+      "summary": "Reaches ~15 picks early. Drafts for need."
     },
     "739930057887334400": {
       "bpa_vs_need": {
         "adp_coverage": 0.905,
-        "bpa_rate": 0.296,
-        "league_rate": 0.311,
+        "bpa_rate": 0.312,
+        "league_rate": 0.316,
         "proxy": false
       },
       "draft_patterns": {
@@ -2767,22 +2787,24 @@
       },
       "reach_delta": {
         "adp_coverage": 0.905,
-        "league_mean_vs_adp": 9.61,
-        "mean": -4.97,
-        "mean_vs_adp": 4.64,
+        "league_mean_vs_adp": 6.4,
+        "mean": -3.33,
+        "mean_vs_adp": 3.07,
         "proxy": false,
-        "raw_mean": 1.33,
-        "sd": 23.15
+        "raw_mean": 0.85,
+        "sd": 22.86
       },
       "rookie_affinity": {
-        "league_rate": 0.0,
-        "rate": 0.0
+        "derivable_picks": 39,
+        "league_rate": 0.127,
+        "picks": 42,
+        "rate": 0.051
       },
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 1.048,
-        "beta_value": 0.952
+        "alpha_need": 1.012,
+        "beta_value": 0.988
       },
       "summary": "Drafts near market value."
     }

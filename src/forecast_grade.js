@@ -625,11 +625,17 @@ function decisionByKind(decisions) {
   const rows = ((decisions || {}).inseason || {}).rows || [];
   const out = {};
   for (const r of rows) {
-    const b = out[r.kind] || (out[r.kind] = { n: 0, scored: 0, wins: 0, edges: [] });
+    const b = out[r.kind] || (out[r.kind] = { n: 0, scored: 0, decided: 0, wins: 0, edges: [] });
     b.n += 1;
     if (r.edge != null) {
       b.scored += 1;
       b.edges.push(r.edge);
+      // A tie (edge === 0) is neither a win nor a loss — it stays out of the
+      // DECIDED denominator entirely. The old rate was wins/scored, which
+      // silently read every exact tie as a loss; accuracy.js caught it and
+      // recomputed locally rather than patch this file blind (its call, this
+      // fix). Same rule as the top-level tool_won/counterfactual_won tallies.
+      if (r.edge !== 0) b.decided += 1;
       if (r.edge > 0) b.wins += 1;
     }
   }
@@ -637,8 +643,8 @@ function decisionByKind(decisions) {
   for (const k of Object.keys(out)) {
     const b = out[k];
     res[k] = {
-      n: b.n, scored: b.scored,
-      accuracy: b.scored ? Math.round((b.wins / b.scored) * 1000) / 1000 : null,
+      n: b.n, scored: b.scored, decided: b.decided,
+      accuracy: b.decided ? Math.round((b.wins / b.decided) * 1000) / 1000 : null,
       mean_edge: b.scored
         ? Math.round((b.edges.reduce((s, v) => s + v, 0) / b.scored) * 100) / 100 : null,
     };

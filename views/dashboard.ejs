@@ -20,6 +20,31 @@
   </a>
 <% } %>
 
+<%# ── KEEPER-SET DEADLINE — expires on its own the instant the deadline
+    passes (server-derived, same source as the pinned alert), so there is
+    nothing to remember to take down. `configured` gates this the same way
+    it gates the pinned alert (dashboard.js) — a fallback date never renders
+    with the authority of a ruling nobody made. %>
+<% const _kd = (typeof keeperInfo !== 'undefined' && keeperInfo) ? keeperInfo : null; %>
+<% if (_kd && _kd.configured && !_kd.passed) { %>
+  <%# Dedicated "kd-banner*" classes, not a reuse of "draft-banner*" — several
+      surfaces assert the DRAFT banner specifically is gone by testing for the
+      literal string `class="draft-banner`, which a shared prefix would also
+      match on this banner's inner spans regardless of the outer element's
+      class order. This banner's lifecycle is independent of the draft's (the
+      keeper deadline, not the draft date) so it needs its own identity anyway. %>
+  <a class="kd-banner<%= _kd.hoursLeft != null && _kd.hoursLeft <= 24 ? ' today' : '' %>" href="/draft#keepers" title="Set your keeper before it locks">
+    <span class="kd-banner-ico">🔒</span>
+    <span class="kd-banner-txt">
+      <b>Keeper Deadline — <%= _kd.when %></b>
+      <span class="kd-banner-sub">Set your keeper before it locks <span class="kd-banner-cue">→</span></span>
+    </span>
+    <% if (_kd.countdownText) { %>
+      <span class="kd-banner-count<%= _kd.hoursLeft != null && _kd.hoursLeft <= 24 ? ' today' : '' %>"><b><%= _kd.countdownText %></b></span>
+    <% } %>
+  </a>
+<% } %>
+
 <%# ── THE IN-SEASON HERO — your game, first thing, during a season week. Score,
     opponent, who's leading, and a lineup problem if there's a real one. Taps
     through to your full matchup. Absent off-season (the draft banner leads then). %>
@@ -104,6 +129,18 @@
 </div>
 <% } %>
 
+<%# GAME NIGHT — Sunday night + Monday only (Cory, 2026-08-18: "put a link
+    on home page during that time but it should take to scores page"). Gone
+    Tuesday through Sunday afternoon; the always-on weekhub CTA below covers
+    the rest of the week. %>
+<% if (typeof gameNight !== 'undefined' && gameNight) { %>
+  <a class="gn-banner" href="/scoreboard">
+    <span class="gn-banner-ico">🔴</span>
+    <span class="gn-banner-txt"><b>Games are live</b><span class="gn-banner-sub">every score, the sweat meter, what's at stake — one screen</span></span>
+    <span class="gn-banner-cue">→</span>
+  </a>
+<% } %>
+
 <%# The Sunday landing — one tap to every game. Prominent, not buried. %>
 <a class="weekhub-cta" href="/scoreboard">
   <span class="whc-ico">🏈</span>
@@ -185,9 +222,6 @@
 <% } %>
 
 <div class="grid cols-2">
-
-  <%# THE MONEY — the real scoreboard, in dollars, beside the wins standings. %>
-  <%- include('partials/money-line') %>
 
   <% if (sleeperStandings.length) { %>
   <%
@@ -297,6 +331,11 @@
     </div>
   </div>
   <% } %>
+
+  <%# THE MONEY — the real scoreboard, in dollars. Cory, 2026-08-18: keep it,
+      just move it below the actual matchups rather than beside the wins
+      standings — the games are what you look at first. %>
+  <%- include('partials/money-line') %>
 
   <% if (review) { %>
   <div class="card">

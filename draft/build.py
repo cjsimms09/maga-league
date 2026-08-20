@@ -35,6 +35,7 @@ import keeper_slate as keeper_slate_mod  # noqa: E402
 import adp_series as adp_series_mod  # noqa: E402
 import proj_series as proj_series_mod  # noqa: E402
 import grab_by as grab_by_mod  # noqa: E402
+import multisource_blend as multisource_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -302,6 +303,58 @@ def _load_predicted_keepers() -> dict | None:
             "predictions": preds}
 
 
+def _parse_12h(t):
+    import re
+    m = re.match(r"(\d{1,2}):(\d{2})\s*(AM|PM)", str(t or "").strip(), re.I)
+    if not m:
+        return (23, 59)                     # unparseable time -> end of day, the late direction
+    hh = int(m.group(1)) % 12
+    if m.group(3).upper() == "PM":
+        hh += 12
+    return (hh, int(m.group(2)))
+
+
+def _keeper_lock_passed(cfg: dict, placements, now=None) -> bool:
+    """Has the keeper lock passed? (register 5l — the flag was permanently False)
+
+    TWO INDEPENDENT PATHS, EITHER SUFFICIENT, because the previous version had
+    ZERO and read as if it had one:
+      * placements exist on the draft — the commissioner has placed keepers,
+        which cannot happen before the lock; this is the DERIVED path the
+        standing_check docstring believed was already wired.
+      * the configured deadline has passed — Cory's ruling, verbatim, in
+        league_config.json rather than a literal in this file.
+    A hardcoded date alone would be a second definition of the lock. A
+    placement-only rule misses a lock that passes with teams unplaced, which is
+    exactly the state the standing_check escalation exists to catch. `now` is
+    injectable so the test can drive the clock instead of waiting for Friday.
+    """
+    import datetime as _dt
+    if placements:
+        return True
+    d = ((cfg.get("keepers") or {}).get("deadline") or {})
+    if not d.get("date"):
+        return False                        # unknown is NOT "passed" — the safe direction
+    tz = _dt.timezone(_dt.timedelta(hours=-5))          # CDT
+    hh, mm = _parse_12h(d.get("time") or "11:59 PM")
+    y, m, dd = (int(x) for x in str(d["date"]).split("-"))
+    current = now if now is not None else _dt.datetime.now(tz)
+    return current >= _dt.datetime(y, m, dd, hh, mm, tzinfo=tz)
+
+
+def _keeper_lock_deadline(cfg: dict) -> dict | None:
+    """The deadline block itself, so the board publishes WHEN the lock is and not
+    only whether it has passed (register E25).
+
+    Read from `league_config.json`, which is where Cory's ruling lives verbatim
+    ("Keepers will be set by 08/21 at 6pm"). Deliberately NOT a literal in this
+    file: E25's defect was the repo holding TWO keeper-lock dates that nobody
+    reconciled, and a second definition here would be a third.
+    """
+    d = ((cfg.get("keepers") or {}).get("deadline") or {})
+    return d or None
+
+
 def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     """SLATE RAILS (keeper_slate.py): stamp an honest CONFIRMED/PREDICTED status so the
     board can never present a wrong/incomplete slate as truth. Sleeper is the source:
@@ -309,7 +362,9 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     PLACEMENTS (the confirmed signal). Offline builds are always 'predicted'."""
     teams = int(cfg.get("teams") or 10)
     if offline:
-        return keeper_slate_mod.assess_slate(teams, {}, placements=None)
+        return keeper_slate_mod.assess_slate(teams, {}, placements=None,
+                                             keeper_lock_passed=_keeper_lock_passed(cfg, None),
+                                             keeper_lock_deadline=_keeper_lock_deadline(cfg))
     try:
         import sleeper_import as si
         lid = cfg["league_id"]
@@ -333,7 +388,9 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
                     kp.setdefault(str(p.get("roster_id")), []).append(str(p.get("player_id")))
             if kp:
                 placements = kp
-        slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements)
+        slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements,
+                                              keeper_lock_passed=_keeper_lock_passed(cfg, placements),
+                                              keeper_lock_deadline=_keeper_lock_deadline(cfg))
         print(f"  keeper slate: {slate['status']} — {slate['teams_designated']}/{teams} designated, "
               f"placements={'yes' if slate['placements_present'] else 'no'}"
               + (f", {len(slate['mismatches'])} MISMATCH" if slate['mismatches'] else ""))
@@ -341,7 +398,9 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     except Exception as exc:                              # noqa: BLE001
         # Loudly: 'could not verify' must never read as 'verified'. Unknown -> not confirmed.
         print(f"  ! keeper-slate verification failed ({type(exc).__name__}: {exc}) — status UNKNOWN")
-        s = keeper_slate_mod.assess_slate(teams, {}, placements=None)
+        s = keeper_slate_mod.assess_slate(teams, {}, placements=None,
+                                          keeper_lock_passed=_keeper_lock_passed(cfg, None),
+                                          keeper_lock_deadline=_keeper_lock_deadline(cfg))
         s["status"] = "unverified"; s["confirmed"] = False; s["safe_to_treat_as_truth"] = False
         s["reason"] = f"could not reach Sleeper to verify the slate ({type(exc).__name__})"
         return s
@@ -1562,7 +1621,13 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
         except Exception as exc:  # noqa: BLE001 — profiles still build, on the proxy path
             print(f"  ! historical ADP unavailable ({exc}); manager market metrics stay proxied")
 
-    profiles = managers_mod.build_profiles(drafts, players_db, historical_adp=hist)
+    # `season_now` has been a build_profiles parameter since it was written and
+    # was never passed, so the rookie metric had no way to ask "was he a rookie
+    # AT THAT DRAFT" and fell back to today's years_exp — which pinned it at 0.0
+    # for every manager (register E13). Supplying it is the whole fix.
+    profiles = managers_mod.build_profiles(
+        drafts, players_db, historical_adp=hist,
+        season_now=int(cfg.get("season") or time.gmtime().tm_year))
     proxied = [p["name"] for p in profiles.get("managers", {}).values()
                if (p.get("reach_delta") or {}).get("proxy")]
     if proxied:
@@ -1692,6 +1757,28 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     if not players:
         raise SystemExit("no players — cannot build a board")
 
+    # THE MULTI-SOURCE MEAN — Cory's ruling, 2026-08-19: *"switch to mean
+    # projections, fix ceiling and floors"* … *"Ship it"*.
+    #
+    # Placed HERE, before keepers/ADP/VORP/tiers, and not one line later,
+    # because every one of those derives from proj_mean. `kept_players` is
+    # built from `dict(p)` COPIES a few dozen lines below; blending after that
+    # point would leave the keeper panel on Sleeper-only numbers while the
+    # board moved — the exact keeper/board split that shipped a wrong name on
+    # screen at pick 33 once already (see the vorp back-fill note below).
+    #
+    # The module REFUSES rather than half-applying (missing store, coverage
+    # under 30%, or a failed rookie-bloc veto), and the diagnostic it returns
+    # is stamped into provenance either way, so a build that did NOT blend
+    # says so on the artifact rather than looking identical to one that did.
+    ms_diag = multisource_mod.apply_multisource(players)
+    if ms_diag.get("applied"):
+        print(f"  multi-source mean: {ms_diag['players_changed']} players "
+              f"({ms_diag['coverage']:.0%} of priced board) from "
+              f"{ms_diag.get('sources')}; ceilings/floors from cross-source spread")
+    else:
+        print(f"  multi-source mean: NOT APPLIED — {ms_diag.get('reason')}")
+
     profiles = build_manager_profiles(cfg, offline, force=force_profiles)
     print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
           f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
@@ -1777,6 +1864,20 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         print(f"  ! grab-by unavailable ({type(exc).__name__}: {exc})")
         grab_by_block = None
 
+    # The wire level (register 60 (3)) — see the note at its artifact key below
+    # for why the FLAT map and the full artifact both travel. Absent file is not
+    # fatal and is not faked: `wire_level` becomes null, and `wireBenchValue`
+    # already treats null as "fall back to the vorp rule".
+    _wire_path = HERE / "data" / "wire_level.json"
+    try:
+        wire_level_block = json.loads(_wire_path.read_text())
+        _wl = (wire_level_block or {}).get("per_week") or {}
+        print(f"  wire level: {', '.join(f'{k} {v}' for k, v in sorted(_wl.items()))} "
+              f"(pooled median, {wire_level_block.get('scored')} scored acquisitions)")
+    except Exception as exc:  # noqa: BLE001 — the board ships without it
+        print(f"  ! wire level unavailable ({type(exc).__name__}: {exc})")
+        wire_level_block = None
+
     artifact = {
         "version": ARTIFACT_VERSION,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -1841,6 +1942,44 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         },
         "replacement": vorp_diag,
         "grab_by": grab_by_block,
+        # REGISTER 60 (3) — THE WIRE LEVEL, AND A FOURTH DISCONNECTION NOBODY
+        # HAD RECORDED (A, 08-19).
+        #
+        # Register 60 says `build.py` never joins `draft/data/wire_level.json`
+        # onto the board, and that `app.js:2156` already reads
+        # `state.data.wire_level`, so the feature is "a build.py change plus a
+        # config flip". IT IS NOT, and the missing join was hiding it.
+        #
+        # `engine.js`'s `wireBenchValue` reads `ctx.wireWeekly[player.position]`
+        # — its documented contract is `{POS: weekly points}`. The artifact's
+        # top level is `{per_week, n, statistic, scored, ongoing, ...}`. Joining
+        # it verbatim would have given the engine a wrapper whose keys are not
+        # positions, `wire` would be `undefined` for every player, and
+        # `wireBenchValue` returns null on exactly that — falling back to the
+        # vorp rule **silently, indistinguishably from the flag being off.**
+        # A feature that ships, runs, and does nothing, with nothing to catch it.
+        #
+        # So the board carries the FLAT map the engine's contract names, and the
+        # full artifact beside it so the provenance travels too (register 62 is
+        # about artifacts that carry no stamp — this one should not become
+        # another). No app.js change is needed, which also keeps this inside A's
+        # territory.
+        #
+        # WHICH ESTIMATE: `per_week` — the pooled median over SCORED
+        # acquisitions. The artifact also carries `ongoing.per_week` (QB 19.34 /
+        # RB 5.90 vs 23.38 / 7.80), and its own note says that one "slightly
+        # OVERSTATES what a held wire add delivers; the gap to per_week is a
+        # floor". Both are on the board; the choice between them prices every
+        # bench player and is NOT settled by this commit — it is an open
+        # decision, recorded as such, not a default someone has to reverse-
+        # engineer from a build script.
+        #
+        # THIS CHANGES NOTHING LIVE TODAY. `VONA_WIRE_BENCH` sits below the
+        # `VONA_SLOT_AWARE` early return in `vona()`, and that flag is off
+        # pending P119. The join exists so the s2 replay arm can be defined at
+        # all — without it, s2 would run and come out byte-identical to s1.
+        "wire_level": (wire_level_block or {}).get("per_week"),
+        "wire_level_source": wire_level_block,
         "manager_profiles": profiles,
         "players": available,
         "kept_player_ids": sorted(kept_ids),
@@ -1903,6 +2042,8 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             # 'file-cache' (fallback, with a warning). The file is never trusted
             # silently.
             "config_confirmed": dict(confirmed_status),
+            # Stamped whether or not it applied — see the note at the call site.
+            "multisource_mean": dict(ms_diag),
         },
     }
     _assert_provenance_matches_data(available, artifact)
@@ -2137,6 +2278,10 @@ def main() -> None:
                          "profiles already cover them (they are otherwise built "
                          "once, since a completed draft never changes)")
     ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--allow-fixture-write", action="store_true",
+                    help="permit an --offline (fixture) build to overwrite the "
+                         "real public/draft_data.json. Off by default: see the "
+                         "refusal at the write site.")
     args = ap.parse_args()
 
     if args.snapshot:
@@ -2165,9 +2310,26 @@ def main() -> None:
               "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
     artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles,
                      confirmed_status=status)
+    # ...AND IT MUST NOT WRITE INTO THE DATED ARCHIVES EITHER, which is the worse
+    # half of the same bug (A, 08-19). The three retainers below are APPEND-ONLY
+    # HISTORY: today's ADP, today's frozen preseason projection, today's depth
+    # chart and injury designations. DATA-LIFECYCLE.md's whole argument for
+    # capturing them daily is that they are unmeasurable in retrospect — so a
+    # fixture run that stamps `sleeper(233)` into the 2026-08-19 slot does not
+    # make a mess that can be cleaned up later, it destroys the only copy of a
+    # day. The board write is recoverable from git; these are recoverable from
+    # nothing. `--allow-fixture-write` does NOT unlock them, deliberately:
+    # there is no legitimate reason to want fixture data in the season archive.
+    _fixture_run = args.offline
+    if _fixture_run:
+        print("  ! offline build: skipping ADP series, projection snapshot and "
+              "roster-state capture — a fixture must never enter the dated "
+              "archives, which cannot be rebuilt for a day that has passed")
     # Retain today's ADP into the dated series and stamp velocity/staleness on the
     # board. Non-fatal: a series hiccup must never block the board from shipping.
     try:
+        if _fixture_run:
+            raise RuntimeError("fixture run — archive write suppressed")
         _update_adp_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships without the stamps
         print(f"  ! ADP series not updated ({exc}); board ships without velocity stamps")
@@ -2175,6 +2337,8 @@ def main() -> None:
     # CLEAN projection grade is possible after the season (a retroactive fetch leaks — exp33).
     # Non-fatal. FantasyPros projections are added by the CI probe (needs egress).
     try:
+        if _fixture_run:
+            raise RuntimeError("fixture run — archive write suppressed")
         _update_proj_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships regardless
         print(f"  ! projection snapshot not updated ({exc})")
@@ -2186,6 +2350,8 @@ def main() -> None:
     # here is recoverable only if the capture starts before the state moves.
     # Non-fatal, like its siblings — the board ships regardless.
     try:
+        if _fixture_run:
+            raise RuntimeError("fixture run — archive write suppressed")
         import roster_state as roster_state_mod
         _rs = roster_state_mod.capture(artifact.get("players") or [],
                                        artifact["built_at"][:10])
@@ -2194,6 +2360,20 @@ def main() -> None:
     except Exception as exc:  # noqa: BLE001
         print(f"  ! roster state not captured ({exc})")
     out = Path(args.out)
+    # AN OFFLINE BUILD MUST NOT OVERWRITE THE BOARD CORY DRAFTS OFF (A, 08-19).
+    # `--offline` loads a 233-player FIXTURE pool whose own ADP provenance says
+    # "DISABLED — this board is fixture data, not real ADP or real projections.
+    # Do not draft off it." — and then wrote it straight over public/draft_data.json,
+    # replacing 697 real players. I did exactly that today, three days before
+    # the draft, while testing an unrelated change; the only reason it was
+    # caught is that `git status` happened to be the next command. Nothing in
+    # the run warned, and the artifact it leaves is a plausible-looking board.
+    # A fixture build is for reading, so it writes somewhere else unless the
+    # caller says the quiet part out loud.
+    if args.offline and out.resolve() == OUT.resolve() and not args.allow_fixture_write:
+        out = OUT.parent.parent / "draft" / "data" / "board_offline_fixture.json"
+        print(f"  ! offline build: REFUSING to overwrite {OUT} with a fixture board "
+              f"(pass --allow-fixture-write to insist) — writing {out} instead")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))
     size_kb = out.stat().st_size / 1024

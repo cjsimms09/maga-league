@@ -37,6 +37,25 @@ global.document = { getElementById: () => null, querySelector: () => null, addEv
 
 const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+
+/* `E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS` WAS A LATENT INSTANCE OF A DEFECT
+ * THIS REPO HAS ALREADY REMOVED THREE TIMES (session E, 2026-08-18; E19).
+ *
+ * It is inert today because MEASURED_WEIGHTS exists. The shape is the problem:
+ * if the export were ever renamed or removed, this suite would silently score
+ * DEFAULT_WEIGHTS — five of eight terms differ — and stay green while grading a
+ * board no surface renders. That is exactly what rec_rows.test.js measured when
+ * it happened for real: the top recommendation differed at 7 of Cory's 12 picks.
+ * Its conclusion is the rule followed here: a suite that cannot find the
+ * production weights must STOP, not guess. */
+const PROD_WEIGHTS = (function () {
+  const w = E.MEASURED_WEIGHTS;
+  if (!w || typeof w.value !== 'number') {
+    throw new Error('REFUSING to replay: engine.js no longer exports MEASURED_WEIGHTS, '
+      + 'which is what app.js initialises state.weights from.');
+  }
+  return w;
+})();
 const PLAN = require(path.join(ROOT, 'draft', 'tools', 'draft_plan.js'));
 
 let checks = 0, failed = 0;
@@ -92,7 +111,7 @@ SCHED.forEach((pk, i) => {
     round: Math.ceil(pk / (DATA.league.teams || 10)),
     myPicksLeft: SCHED.length - i, myPickIndex: i, totalMyPicks: SCHED.length,
     totalPicks: 150, league: DATA.league,
-    weights: E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS,
+    weights: PROD_WEIGHTS,
     currentKeepers: roster.filter(p => p.is_keeper),
     ceilingAllStages: false, doctrine: null, drift: null,
     intervening: (SCHED[i + 1] || pk) - pk,
@@ -179,7 +198,7 @@ recs.forEach((r, i) => {
     round: Math.ceil(pk / (DATA.league.teams || 10)),
     myPicksLeft: SCHED.length - idx, myPickIndex: idx, totalMyPicks: SCHED.length,
     totalPicks: 150, league: DATA.league,
-    weights: E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS,
+    weights: PROD_WEIGHTS,
     currentKeepers: past.filter(p => p.is_keeper),
     ceilingAllStages: false, doctrine: null, drift: null,
     intervening: (SCHED[idx + 1] || pk) - pk,

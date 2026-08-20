@@ -561,6 +561,53 @@
   </details>
   </div><%# /wr-toprow %>
 
+  <%# DURABILITY — READ-ONLY, static reference (Cory, 2026-08-18: "dont
+      gatekeep things for after draft if nothing critical"). C's realized-
+      availability study against the board's positional constant. No board
+      field reads this; it changes no number the engine uses — it is here so
+      the read is one tap away instead of a memory of a register row. %>
+  <% if (typeof durability !== 'undefined' && durability && durability.most_optimistic && durability.most_optimistic.length) { %>
+  <details class="wr-help-wrap" id="durability-card">
+    <summary class="layer-sum">📋 Durability — realized vs. the board's constant (<%= durability.n %> players, HISTORY NOT FORECAST)</summary>
+    <div class="wr-help">
+      <p class="muted" style="margin:0 0 .6rem"><%= durability._how_to_read_it %></p>
+      <p class="muted" style="margin:0 0 .8rem"><b>⚠️ HISTORY, NOT A FORECAST.</b> This does not say these players will miss games in 2026 — it says the board currently assumes they play the positional average and their own record says otherwise. An argument for a per-player prior, not for fading anyone.</p>
+      <div style="overflow-x:auto">
+      <table class="wr-durability-table" style="width:100%; border-collapse:collapse; font-size:.82rem">
+        <thead>
+          <tr style="text-align:left; border-bottom:1px solid var(--line, #2c3a50)">
+            <th style="padding:.3rem .5rem">Player</th>
+            <th style="padding:.3rem .5rem">Pos</th>
+            <th style="padding:.3rem .5rem">ADP</th>
+            <th style="padding:.3rem .5rem">Seasons</th>
+            <th style="padding:.3rem .5rem">Realized</th>
+            <th style="padding:.3rem .5rem">Board</th>
+            <th style="padding:.3rem .5rem">Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% durability.most_optimistic.slice(0, 20).forEach(function(r) { %>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:.3rem .5rem"><%= r.name %></td>
+            <td style="padding:.3rem .5rem"><%= r.pos %></td>
+            <td style="padding:.3rem .5rem"><%= r.adp != null ? r.adp.toFixed(1) : '—' %></td>
+            <td style="padding:.3rem .5rem"><%= r.seasons %></td>
+            <td style="padding:.3rem .5rem"><%= r.realized != null ? r.realized.toFixed(1) : '—' %></td>
+            <td style="padding:.3rem .5rem"><%= r.board != null ? r.board.toFixed(1) : '—' %></td>
+            <td style="padding:.3rem .5rem; color:#ff8a8a"><%= r.gap != null ? r.gap.toFixed(2) : '—' %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      </div>
+      <% if (durability.understated && durability.understated.length) { %>
+      <p class="muted" style="margin:.7rem 0 0"><b>The other direction — the board understates these players' durability:</b>
+        <%= durability.understated.map(function(r) { return r.name + ' (+' + (r.gap != null ? r.gap.toFixed(2) : '?') + ')'; }).join(', ') %></p>
+      <% } %>
+    </div>
+  </details>
+  <% } %>
+
   <%# FIRST-RUN / HELP — assembled by renderHelp() from PANEL_GUIDE. %>
   <details class="wr-help-wrap" id="help-card">
     <summary class="layer-sum">❓ How to run draft night with this page</summary>

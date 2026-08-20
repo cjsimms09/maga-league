@@ -432,9 +432,16 @@ def expected_games(pos: str, games: int, mu: float) -> float:
 
 
 def comp_opinion(target_season: int, prior_seasons: tuple, positions: dict,
-                 ages_2026: dict, vegas_imp: dict) -> dict:
+                 ages_2026: dict, vegas_imp: dict, eg_map: dict | None = None) -> dict:
     """The component opinion for every QB/RB/WR/TE with a Y−1 profile, under
-    the frozen V5_CONFIG. Floats (rounding happens at the ensemble)."""
+    the frozen V5_CONFIG. Floats (rounding happens at the ensemble).
+
+    eg_map (ADDED 2026-08-18 for the V7 C7 study, default None): an optional
+    {pid: expected_games} override for the availability gate. None — every
+    caller that existed before this parameter — reproduces the frozen
+    behaviour byte for byte (the registry parity run proves it, not this
+    comment). A pid absent from a provided map falls back to the frozen
+    gate, so a partial map can never zero a player."""
     _assert_no_leak(prior_seasons, target_season)
     y1 = max(prior_seasons)
     y2 = min(prior_seasons) if len(prior_seasons) > 1 else None
@@ -475,7 +482,8 @@ def comp_opinion(target_season: int, prior_seasons: tuple, positions: dict,
         f2p = f2.get(pid)
         if f2p:
             r = RATE_RECENCY[0] * r + RATE_RECENCY[1] * rate(f2p, pos)
-        eg = expected_games(pos, f["games"], mu_g[pos])
+        eg = (eg_map[pid] if eg_map is not None and pid in eg_map
+              else expected_games(pos, f["games"], mu_g[pos]))
         age = ages_2026.get(pid)
         age_y = (float(age) - (2026 - target_season)) if age is not None else None
         v = _age_mult(pos, age_y) * r * eg

@@ -220,3 +220,102 @@ def test_the_rule_is_written_where_lanes_read_it():
         "OPERATING-MODEL.md does not carry the refusal rule — a test that "
         "enforces an unwritten rule just looks like an obstacle"
     )
+
+
+# ── 6. NO Q-ID COLLIDES OR DUPLICATES — the same defect class found in the
+#      register (register_dedup_2026-08-18.md), found here the same evening
+#      by the same audit ────────────────────────────────────────────────────
+
+def _q_rows():
+    """(id, first-cell-of-question-text) for every Q-numbered row, however the
+    caller's `rows()` split it — re-derived directly here because this file's
+    ids are `Q<n>`, not the bare `<n>[a-z]` shape REGISTER rows use."""
+    out = []
+    for line in QUESTIONS.read_text().splitlines():
+        line = line.strip()
+        if not line.startswith("|") or set(line) <= set("|-: "):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        rid = cells[0].replace("*", "").replace("`", "").strip()
+        if re.match(r"^Q\d+$", rid):
+            out.append((rid, cells[1] if len(cells) > 1 else ""))
+    return out
+
+
+def _normalized(text):
+    text = re.sub(r"^\s*\*?\(renumbered from [^)]*\)\*?\s*", "", text, flags=re.I)
+    text = re.sub(r"[*_`✅🔴🟠🟡🟢⚠️📐🔑~]", "", text)
+    return re.sub(r"\s+", " ", text).strip().lower()[:120]
+
+
+def test_no_two_DIFFERENT_findings_share_a_Q_id():
+    """DEFECT GUARDED: register_dedup's exact bug, but as an id COLLISION
+    rather than a content duplicate — Q17 briefly named two unrelated
+    questions (the live keeper-deadline decision and D's already-answered
+    emergent-coverage finding) at once, found 2026-08-18 auditing for it."""
+    by_id = {}
+    for rid, text in _q_rows():
+        by_id.setdefault(rid, []).append(_normalized(text))
+    collisions = {
+        rid: texts for rid, texts in by_id.items()
+        if len(texts) > 1 and len(set(texts)) > 1
+    }
+    assert not collisions, (
+        "one Q-id names more than one DIFFERENT question — renumber the "
+        f"newer one:\n  " + "\n  ".join(f"{rid}: {texts}" for rid, texts in collisions.items())
+    )
+
+
+def test_no_two_DIFFERENT_Q_ids_carry_the_same_finding():
+    """The other half: the SAME question filed twice under two different ids —
+    found the same evening as a genuine duplicate, id Q16, produced by the
+    same parallel-branch-merge shape as the register's."""
+    by_text = {}
+    for rid, text in _q_rows():
+        by_text.setdefault(_normalized(text), set()).add(rid)
+    dupes = {t: ids for t, ids in by_text.items() if len(ids) > 1}
+    assert not dupes, (
+        "the same question appears under more than one id — merge them:\n  "
+        + "\n  ".join(f"{ids}: {t}" for t, ids in dupes.items())
+    )
+
+
+def test_the_Q_id_duplicate_checks_can_actually_fire():
+    """Known-positive control for BOTH checks above, using the real shapes
+    found tonight: a collision (one id, two different findings) and a
+    duplicate (two ids, one finding)."""
+    real = QUESTIONS.read_text()
+    fake_collision = (
+        "| Q97 | **keeper deadline is 08-21** | S | Cory |\n"
+        "| Q97 | **does the opponent arm clear at RB** | M | D |\n"
+    )
+    fake_duplicate = (
+        "| Q98 | **does averaging alone explain the blend gain** | S | D |\n"
+        "| Q99 | **does averaging alone explain the blend gain** | S | D |\n"
+    )
+    import re as _re
+
+    def _rows_from(text):
+        out = []
+        for line in text.splitlines():
+            line = line.strip()
+            if not line.startswith("|") or set(line) <= set("|-: "):
+                continue
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            rid = cells[0].replace("*", "").replace("`", "").strip()
+            if _re.match(r"^Q\d+$", rid):
+                out.append((rid, cells[1] if len(cells) > 1 else ""))
+        return out
+
+    by_id, by_text = {}, {}
+    for rid, text in _rows_from(real + fake_collision + fake_duplicate):
+        norm = _normalized(text)
+        by_id.setdefault(rid, []).append(norm)
+        by_text.setdefault(norm, set()).add(rid)
+
+    collisions = {r: t for r, t in by_id.items() if len(t) > 1 and len(set(t)) > 1}
+    dupes = {t: i for t, i in by_text.items() if len(i) > 1}
+    assert "Q97" in collisions, "the fail arm did not detect a planted id collision"
+    assert {"Q98", "Q99"} in [set(v) for v in dupes.values()], (
+        "the fail arm did not detect a planted content duplicate"
+    )

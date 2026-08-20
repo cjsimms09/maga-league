@@ -47,11 +47,23 @@ name: Weekly player-props fetch (The Odds API historical, budget-aware)
 # $RUNNER_TEMP, committing nothing — the mechanics get verified before any
 # credit-spending event-odds call fires.
 #
-# THIS SESSION DOES NOT DISPATCH THIS WORKFLOW FOR REAL. draft/data/props/ is
-# empty on this branch; a human decides when the real fetch — and its real
-# credit cost — is worth making. See ROUTES.md TO:A and DECISIONS-NEEDED.md.
+# SCHEDULED SINCE 2026-08-18, ON CORY'S PRIORITY-1 ORDER (relayed via the
+# loop-breadth finding): Thursdays 12:00 UTC, real fetch, in-season only —
+# ~1,120-1,280 credits/week against the ~100k/mo pool, per the budget above.
+# The old rule ("a human decides when the real fetch is worth making") applied
+# to one-off historical backtests and still does — the weekly in-season fetch
+# is now a standing decision, made once, by the owner.
 
 on:
+  # Thursday 12:00 UTC — before the 14:00 UTC projector run, so the props arm's
+  # input folder is populated when weekly_own_proj prices the week. Cory,
+  # 2026-08-18, relayed as Priority 1: without this cron the props arm is
+  # silently absent from every grade all season because nobody pressed a button
+  # (ledger P92 predicts exactly that; this line is what falsifies it).
+  # Scheduled runs derive week/date themselves and SKIP cleanly before week 1 —
+  # a job that goes red every preseason Thursday is a job we learn to ignore.
+  schedule:
+    - cron: '0 12 * * 4'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -104,6 +116,28 @@ jobs:
           LIMIT: ${{ github.event.inputs.limit }}
         run: |
           set -uo pipefail
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            # A cron fire carries no inputs — derive them. Week 1 kickoff week
+            # starts 2026-09-08 (Tue); the Thursday fetch that precedes it is
+            # 09-10. Before then: skip green, not red (see the trigger comment).
+            SEASON="2026"
+            KICKOFF=$(date -u -d '2026-09-08' +%s)
+            NOW=$(date -u +%s)
+            if [ "$NOW" -lt "$KICKOFF" ]; then
+              echo "preseason ($(date -u +%F)) — scheduled props fetch starts week 1 (09-10). Skipping."
+              exit 0
+            fi
+            WEEK=$(( (NOW - KICKOFF) / 604800 + 1 ))
+            DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            DRY_RUN="false"
+            MARKETS="player_pass_yds,player_pass_tds,player_pass_interceptions,player_rush_yds,player_rush_tds,player_receptions,player_reception_yds,player_reception_tds"
+            LIMIT=""
+            echo "scheduled run: season=$SEASON week=$WEEK date=$DATE"
+          fi
+          if [ -n "${GITHUB_ENV:-}" ]; then
+            echo "SEASON=$SEASON" >> "$GITHUB_ENV"
+            echo "WEEK=$WEEK" >> "$GITHUB_ENV"
+          fi
           ARGS="--season $SEASON --week $WEEK --markets $MARKETS"
           if [ -n "$DATE" ]; then
             ARGS="$ARGS --date $DATE"
@@ -137,6 +171,6 @@ jobs:
             echo "no change (identical snapshot, or nothing written) — nothing to commit"
             exit 0
           fi
-          git commit -m "Weekly props snapshot: season ${{ github.event.inputs.season }} week ${{ github.event.inputs.week }} [skip deploy]" \
+          git commit -m "Weekly props snapshot: season ${SEASON:-?} week ${WEEK:-?} [skip deploy]" \
             -m "Automated capture via weekly-props-fetch.yml (credit cost logged in the run output and the snapshot's own provenance)."
           git push

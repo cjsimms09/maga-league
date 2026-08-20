@@ -1,0 +1,4272 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by draft/backtest/fetch_component_stats.py (TERRITORY-GRANT: C, register 2e, 2026-08-19)",
+ "_note": "Per-TEAM-DEFENSE weekly component stats, regular season, keyed by BOARD team code (adp._norm_team-normalized \u2014 nflverse's 'LA' becomes the board's 'LAR', etc). SEPARATE from component_stats_<season>.json on purpose \u2014 POSITION_GROUPS above is untouched and this store is read by nothing that assumes an offense-only, player-keyed population. Points-allowed bands are ONE-HOT (the applicable pts_allow_* key is present with value 1; every other band is absent, never a stored 0). Missing-vs-zero rule: a player-week ABSENT from a week's players map is MISSING DATA (no offensive stat row that week), never a zero; inside a present row an absent stat key is a zero of that stat (zero-valued keys are stripped at build time); row-presence means 'was on a field', exactly as the weekly points stores encode it",
+ "season": 2022,
+ "provenance": {
+  "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_2022.parquet",
+  "tried": [
+   {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_2022.parquet",
+    "ok": true
+   }
+  ],
+  "schedules_url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
+  "fetched": "2026-08-19",
+  "weeks_span": [
+   1,
+   18
+  ],
+  "season_type": "REG",
+  "columns_kept": [
+   "blk_kick",
+   "def_st_td",
+   "def_td",
+   "ff",
+   "fum_rec",
+   "fum_rec_td",
+   "int",
+   "pts_allow_0",
+   "pts_allow_14_20",
+   "pts_allow_1_6",
+   "pts_allow_21_27",
+   "pts_allow_28_34",
+   "pts_allow_35p",
+   "pts_allow_7_13",
+   "sack",
+   "safe",
+   "pos",
+   "team"
+  ],
+  "team_code_normalization": "adp._norm_team / adp.TEAM_ALIASES (nflverse -> board vocabulary, e.g. 'LA' -> 'LAR')",
+  "points_allowed_source": "games.csv (schedules release), opponent's own final score that game",
+  "raw_rows": 542,
+  "kept_team_weeks": 542,
+  "teams": 32,
+  "unknown_team_codes": 0,
+  "missing_points_allowed": 0
+ },
+ "weeks": [
+  {
+   "week": 1,
+   "players": {
+    "ARI": {
+     "ff": 3,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "BAL"
+    },
+    "BUF": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 7,
+     "team": "BUF"
+    },
+    "CAR": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "CLE"
+    },
+    "DAL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 3,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DEN"
+    },
+    "DET": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "HOU"
+    },
+    "IND": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 3,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 2,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "ff": 2,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "MIN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "NE"
+    },
+    "NO": {
+     "blk_kick": 1,
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "NO"
+    },
+    "NYG": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "PHI"
+    },
+    "PIT": {
+     "blk_kick": 1,
+     "def_td": 1,
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 4,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 7,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "SEA"
+    },
+    "SF": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "SF"
+    },
+    "TB": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 4,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "team": "TEN"
+    },
+    "WAS": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 2,
+   "players": {
+    "ARI": {
+     "ff": 2,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "blk_kick": 1,
+     "def_st_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "safe": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "def_st_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "BAL"
+    },
+    "BUF": {
+     "def_td": 1,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "CAR"
+    },
+    "CHI": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "safe": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "GB"
+    },
+    "HOU": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "HOU"
+    },
+    "IND": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_0": 1,
+     "sack": 5,
+     "team": "JAX"
+    },
+    "KC": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "KC"
+    },
+    "LAC": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "LAR"
+    },
+    "LV": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "MIA"
+    },
+    "MIN": {
+     "blk_kick": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "MIN"
+    },
+    "NE": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "NE"
+    },
+    "NO": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "PIT"
+    },
+    "SEA": {
+     "blk_kick": 1,
+     "def_st_td": 1,
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "SF"
+    },
+    "TB": {
+     "def_td": 1,
+     "ff": 3,
+     "fum_rec": 2,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "TB"
+    },
+    "TEN": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 3,
+   "players": {
+    "ARI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "BAL"
+    },
+    "BUF": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "safe": 1,
+     "team": "BUF"
+    },
+    "CAR": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 3,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 3,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "blk_kick": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "safe": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "GB"
+    },
+    "HOU": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "team": "HOU"
+    },
+    "IND": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "KC"
+    },
+    "LAC": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "blk_kick": 1,
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "MIA"
+    },
+    "MIN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 4,
+     "team": "NE"
+    },
+    "NO": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "NO"
+    },
+    "NYG": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 9,
+     "team": "PHI"
+    },
+    "PIT": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "safe": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 4,
+   "players": {
+    "ARI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "BAL"
+    },
+    "BUF": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "def_td": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "blk_kick": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "DAL"
+    },
+    "DEN": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "HOU"
+    },
+    "IND": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "IND"
+    },
+    "JAX": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "LV"
+    },
+    "MIA": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "MIA"
+    },
+    "MIN": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "MIN"
+    },
+    "NE": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "NE"
+    },
+    "NO": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 3,
+     "fum_rec": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "int": 4,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 3,
+     "fum_rec": 4,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "PIT"
+    },
+    "SEA": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 7,
+     "team": "SF"
+    },
+    "TB": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 3,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "TEN"
+    },
+    "WAS": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 5,
+   "players": {
+    "ARI": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "ARI"
+    },
+    "ATL": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "BAL"
+    },
+    "BUF": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 3,
+     "team": "BUF"
+    },
+    "CAR": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "CAR"
+    },
+    "CHI": {
+     "blk_kick": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "blk_kick": 1,
+     "ff": 2,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 3,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "DEN"
+    },
+    "DET": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "safe": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "team": "HOU"
+    },
+    "IND": {
+     "blk_kick": 1,
+     "ff": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "IND"
+    },
+    "JAX": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "KC"
+    },
+    "LAC": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "LAR"
+    },
+    "LV": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "LV"
+    },
+    "MIA": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "MIN": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_0": 1,
+     "sack": 2,
+     "team": "NE"
+    },
+    "NO": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "safe": 1,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "PHI"
+    },
+    "PIT": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "def_td": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "TB"
+    },
+    "TEN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "TEN"
+    },
+    "WAS": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 6,
+   "players": {
+    "ARI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "BAL"
+    },
+    "BUF": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "BUF"
+    },
+    "CAR": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "CHI"
+    },
+    "CIN": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "CLE"
+    },
+    "DAL": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "DAL"
+    },
+    "DEN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DEN"
+    },
+    "GB": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "GB"
+    },
+    "IND": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "LAC"
+    },
+    "LAR": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "LAR"
+    },
+    "MIA": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "MIA"
+    },
+    "MIN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "NE"
+    },
+    "NO": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "blk_kick": 2,
+     "def_st_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "PHI"
+    },
+    "PIT": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 3,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "SF"
+    },
+    "TB": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "TB"
+    },
+    "WAS": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 7,
+   "players": {
+    "ARI": {
+     "def_td": 2,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "team": "ATL"
+    },
+    "BAL": {
+     "blk_kick": 1,
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "BAL"
+    },
+    "CAR": {
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "fum_rec": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 4,
+     "fum_rec": 3,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 5,
+     "team": "DAL"
+    },
+    "DEN": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "DET"
+    },
+    "GB": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "HOU"
+    },
+    "IND": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "IND"
+    },
+    "JAX": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "safe": 1,
+     "team": "KC"
+    },
+    "LAC": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "safe": 1,
+     "team": "LAC"
+    },
+    "LV": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "NE": {
+     "ff": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 4,
+     "team": "NE"
+    },
+    "NO": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "NO"
+    },
+    "NYG": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "NYJ"
+    },
+    "PIT": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "SEA"
+    },
+    "SF": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "SF"
+    },
+    "TB": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "TB"
+    },
+    "TEN": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "TEN"
+    },
+    "WAS": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 8,
+   "players": {
+    "ARI": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "ARI"
+    },
+    "ATL": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "BAL"
+    },
+    "BUF": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "CAR"
+    },
+    "CHI": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 4,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "HOU"
+    },
+    "IND": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "IND"
+    },
+    "JAX": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "JAX"
+    },
+    "LAR": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "LAR"
+    },
+    "LV": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "MIA"
+    },
+    "MIN": {
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "MIN"
+    },
+    "NE": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "NE"
+    },
+    "NO": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_0": 1,
+     "sack": 4,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 6,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "PHI"
+    },
+    "PIT": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "SEA"
+    },
+    "SF": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "SF"
+    },
+    "TB": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "TB"
+    },
+    "TEN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "TEN"
+    },
+    "WAS": {
+     "ff": 1,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 9,
+   "players": {
+    "ARI": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "BAL"
+    },
+    "BUF": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "CAR"
+    },
+    "CHI": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "CIN"
+    },
+    "DET": {
+     "ff": 2,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 4,
+     "team": "HOU"
+    },
+    "IND": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "JAX"
+    },
+    "KC": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "LAC"
+    },
+    "LAR": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "LAR"
+    },
+    "LV": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "blk_kick": 1,
+     "def_st_td": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "MIN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "MIN"
+    },
+    "NE": {
+     "blk_kick": 1,
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 9,
+     "team": "NE"
+    },
+    "NO": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "NO"
+    },
+    "NYJ": {
+     "ff": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "PHI"
+    },
+    "SEA": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "SEA"
+    },
+    "TB": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "TB"
+    },
+    "TEN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "TEN"
+    },
+    "WAS": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 10,
+   "players": {
+    "ARI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "ARI"
+    },
+    "ATL": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "ATL"
+    },
+    "BUF": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 4,
+     "team": "BUF"
+    },
+    "CAR": {
+     "blk_kick": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "CAR"
+    },
+    "CHI": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "CHI"
+    },
+    "CLE": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "def_td": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "GB"
+    },
+    "HOU": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "HOU"
+    },
+    "IND": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 2,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "MIA"
+    },
+    "MIN": {
+     "ff": 1,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "MIN"
+    },
+    "NO": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "NYG"
+    },
+    "PHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "PHI"
+    },
+    "PIT": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "PIT"
+    },
+    "SEA": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "TEN"
+    },
+    "WAS": {
+     "ff": 2,
+     "fum_rec": 3,
+     "fum_rec_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 11,
+   "players": {
+    "ARI": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "def_st_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 4,
+     "team": "BAL"
+    },
+    "BUF": {
+     "blk_kick": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "BUF"
+    },
+    "CAR": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "CIN"
+    },
+    "CLE": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 7,
+     "team": "DAL"
+    },
+    "DEN": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DET"
+    },
+    "GB": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "GB"
+    },
+    "HOU": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "HOU"
+    },
+    "IND": {
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "IND"
+    },
+    "KC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "LAR"
+    },
+    "LV": {
+     "blk_kick": 1,
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "LV"
+    },
+    "MIN": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "MIN"
+    },
+    "NE": {
+     "def_st_td": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 4,
+     "team": "NE"
+    },
+    "NO": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "PIT"
+    },
+    "SF": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "SF"
+    },
+    "TEN": {
+     "blk_kick": 1,
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "def_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 12,
+   "players": {
+    "ARI": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "ARI"
+    },
+    "ATL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 4,
+     "team": "BAL"
+    },
+    "BUF": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "safe": 1,
+     "team": "BUF"
+    },
+    "CAR": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "CAR"
+    },
+    "CHI": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "GB"
+    },
+    "HOU": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 5,
+     "team": "HOU"
+    },
+    "IND": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LAR"
+    },
+    "LV": {
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "LV"
+    },
+    "MIA": {
+     "ff": 3,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "MIA"
+    },
+    "MIN": {
+     "def_st_td": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "MIN"
+    },
+    "NE": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "NE"
+    },
+    "NO": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "NO"
+    },
+    "NYG": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "PHI"
+    },
+    "PIT": {
+     "blk_kick": 1,
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "PIT"
+    },
+    "SEA": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_0": 1,
+     "sack": 1,
+     "team": "SF"
+    },
+    "TB": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "TB"
+    },
+    "TEN": {
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 13,
+   "players": {
+    "ATL": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "BAL"
+    },
+    "BUF": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "BUF"
+    },
+    "CHI": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "CIN"
+    },
+    "CLE": {
+     "def_st_td": 1,
+     "def_td": 1,
+     "ff": 2,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 2,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DET"
+    },
+    "GB": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "safe": 1,
+     "team": "HOU"
+    },
+    "IND": {
+     "blk_kick": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "IND"
+    },
+    "JAX": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "JAX"
+    },
+    "KC": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "KC"
+    },
+    "LAC": {
+     "blk_kick": 1,
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "LV"
+    },
+    "MIA": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 4,
+     "team": "MIA"
+    },
+    "MIN": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NE"
+    },
+    "NO": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 3,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "SF"
+    },
+    "TB": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "TEN"
+    },
+    "WAS": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 14,
+   "players": {
+    "ARI": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "ARI"
+    },
+    "BAL": {
+     "blk_kick": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "BAL"
+    },
+    "BUF": {
+     "ff": 3,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "BUF"
+    },
+    "CAR": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "CAR"
+    },
+    "CIN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "CIN"
+    },
+    "CLE": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "DAL"
+    },
+    "DEN": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "DET"
+    },
+    "HOU": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "HOU"
+    },
+    "JAX": {
+     "ff": 2,
+     "fum_rec": 3,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "JAX"
+    },
+    "KC": {
+     "def_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 6,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "LAC"
+    },
+    "LAR": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "LV"
+    },
+    "MIA": {
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "MIA"
+    },
+    "MIN": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "NE"
+    },
+    "NYG": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 4,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "safe": 1,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 7,
+     "team": "PHI"
+    },
+    "PIT": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "PIT"
+    },
+    "SEA": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "TB"
+    },
+    "TEN": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "TEN"
+    }
+   }
+  },
+  {
+   "week": 15,
+   "players": {
+    "ARI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 7,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "ATL"
+    },
+    "BAL": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "BAL"
+    },
+    "BUF": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CIN"
+    },
+    "CLE": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 3,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "DAL"
+    },
+    "DEN": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "DEN"
+    },
+    "DET": {
+     "def_st_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "HOU"
+    },
+    "IND": {
+     "blk_kick": 1,
+     "def_st_td": 1,
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 7,
+     "team": "IND"
+    },
+    "JAX": {
+     "def_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "LAC"
+    },
+    "LAR": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "LAR"
+    },
+    "LV": {
+     "blk_kick": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "MIN": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "team": "MIN"
+    },
+    "NE": {
+     "def_td": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "NE"
+    },
+    "NO": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "NO"
+    },
+    "NYG": {
+     "ff": 4,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "ff": 3,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "PHI"
+    },
+    "PIT": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "PIT"
+    },
+    "SEA": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "TB"
+    },
+    "TEN": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "TEN"
+    },
+    "WAS": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 16,
+   "players": {
+    "ARI": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "blk_kick": 1,
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "BAL"
+    },
+    "BUF": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "CIN"
+    },
+    "CLE": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "DAL"
+    },
+    "DEN": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "GB"
+    },
+    "HOU": {
+     "ff": 2,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "HOU"
+    },
+    "IND": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 3,
+     "team": "JAX"
+    },
+    "KC": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "KC"
+    },
+    "LAC": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 7,
+     "team": "LAC"
+    },
+    "LAR": {
+     "def_td": 1,
+     "int": 4,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 6,
+     "team": "LAR"
+    },
+    "LV": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "MIN": {
+     "blk_kick": 1,
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "MIN"
+    },
+    "NE": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NE"
+    },
+    "NO": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "NO"
+    },
+    "NYG": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "def_td": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 6,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "PIT"
+    },
+    "SEA": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 17,
+   "players": {
+    "ARI": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "ATL"
+    },
+    "BAL": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "BAL"
+    },
+    "CAR": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "CAR"
+    },
+    "CHI": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "CHI"
+    },
+    "CLE": {
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "CLE"
+    },
+    "DAL": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "DAL"
+    },
+    "DEN": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 7,
+     "team": "DET"
+    },
+    "GB": {
+     "def_st_td": 1,
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "GB"
+    },
+    "HOU": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "HOU"
+    },
+    "IND": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 2,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "LAC"
+    },
+    "LAR": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "LAR"
+    },
+    "LV": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "MIA"
+    },
+    "MIN": {
+     "blk_kick": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "MIN"
+    },
+    "NE": {
+     "def_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NE"
+    },
+    "NO": {
+     "def_td": 1,
+     "ff": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "NO"
+    },
+    "NYG": {
+     "def_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 7,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 4,
+     "team": "SEA"
+    },
+    "SF": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "SF"
+    },
+    "TB": {
+     "ff": 2,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "TB"
+    },
+    "TEN": {
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 18,
+   "players": {
+    "ARI": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 4,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "BAL"
+    },
+    "BUF": {
+     "def_st_td": 2,
+     "ff": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "BUF"
+    },
+    "CAR": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "ff": 2,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "DAL"
+    },
+    "DEN": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "HOU"
+    },
+    "IND": {
+     "def_td": 1,
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 2,
+     "fum_rec": 1,
+     "fum_rec_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 4,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 2,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "team": "KC"
+    },
+    "LAC": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "LAC"
+    },
+    "LAR": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "LAR"
+    },
+    "LV": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "LV"
+    },
+    "MIA": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "safe": 1,
+     "team": "MIA"
+    },
+    "MIN": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "MIN"
+    },
+    "NE": {
+     "ff": 1,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 2,
+     "team": "NE"
+    },
+    "NO": {
+     "ff": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "NO"
+    },
+    "NYG": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "PHI"
+    },
+    "PIT": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 7,
+     "team": "PIT"
+    },
+    "SEA": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "SEA"
+    },
+    "SF": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 3,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "SF"
+    },
+    "TB": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "TB"
+    },
+    "TEN": {
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "def_td": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 1,
+     "team": "WAS"
+    }
+   }
+  }
+ ]
+}

@@ -119,14 +119,29 @@ check('the metric is deterministic across runs (seeded, not drifting)',
 //
 // The pool is NOT re-frozen, same reasoning as above: the board did not change,
 // the engine did, and re-freezing would confound them.
+//
+// RE-PINNED 2026-08-19: 93.3% -> 79.2%, magnitude 15.9 -> 10.8. THE VONA
+// SELF-EXCLUSION FIX (register 56 / P107, shipped this morning on Cory's ruling).
+// `vona()` had been pricing the cost of waiting on a player over a pool that
+// EXCLUDED him — asserting P(he survives) = 0 for the whole board — and putting
+// him back in it is the single change. The pool is NOT re-frozen: same reasoning
+// as every re-pin above, the board did not move, the engine did.
+//
+// THE DIRECTION IS THE INTERESTING PART AND IT IS THE RIGHT ONE. The tool now
+// departs from ADP order LESS OFTEN (93.3% -> 79.2%) and by LESS when it does
+// (15.9 -> 10.8). That is what removing a spurious urgency term should do: the
+// old formula manufactured wait-cost for men who were certainly going to still
+// be there, and manufactured urgency is exactly what pushes a pick away from
+// the market for no reason. Graded, not argued: +114.1 points per seat-season,
+// CI95 [+48.0, +180.1], positive in 3 replayed seasons of 3.
 check('intervention rate is pinned (frozen pool, shipped weights, seat 8)',
-  Math.abs(r.rate - 0.933) < 0.05,
+  Math.abs(r.rate - 0.792) < 0.05,
   'rate=' + (r.rate * 100).toFixed(1) + '% — this now measures the ENGINE on a FIXED '
     + 'board, so a move here is a real composite change. If intended, freeze a NEW '
     + 'pool version and re-pin; do not widen the band.');
 
 check('mean deviation magnitude is pinned (frozen pool)',
-  Math.abs(r.meanMagnitude - 15.9) < 3,
+  Math.abs(r.meanMagnitude - 10.8) < 3,
   'magnitude=' + r.meanMagnitude.toFixed(1));
 
 // A SCOPE NOTE ADDED 2026-08-12 (and OVERTAKEN TWICE since — kept as history):

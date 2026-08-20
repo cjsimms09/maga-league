@@ -1,0 +1,116 @@
+name: FP RANGE-FIELDS PROBE — does FantasyPros' payload carry best/worst-case or dispersion at all?
+# TERRITORY: D. Register 22 (DATA-LIFECYCLE step 2: "can we get it?").
+#
+# fp-projections-probe.yml already answers "does FP serve point projections" by
+# reading the MAPPED stats (post-whitelist). That whitelist (_FP_STAT_MAP in
+# fantasypros_adp.py) only knows the ~13 scoring categories this league prices
+# and silently drops everything else it does not recognise -- which is exactly
+# where a best/worst-case range or an expert-consensus std-dev field would be
+# hiding if FP's API serves one.
+#
+# This probe changes NOTHING in fantasypros_adp.py. It calls the same sanctioned
+# fetch_projections() and the same _rows_from() row-extraction helper, then
+# reports the RAW, UNMAPPED keys on a sample of rows -- the one thing the
+# existing probe cannot show. Side-effect-free: it reads and reports, does not
+# rebuild or commit anything.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Probe FantasyPros' raw payload for range / dispersion fields
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          python3 - <<'PY'
+          import sys, json, re
+          sys.path.insert(0, "draft")
+          sys.path.insert(0, "draft/backtest")
+          import fantasypros_adp as FP
+
+          # Terms a best/worst-case range or a consensus dispersion field would
+          # plausibly be named. Declared BEFORE reading the response, so a hit
+          # cannot be reverse-engineered from what happens to be there.
+          CANDIDATE_TERMS = re.compile(
+              r"best|worst|high|low|floor|ceil|std|dev|sd\b|range|spread|"
+              r"min\b|max\b|variance|consensus|volatil|upside|downside",
+              re.IGNORECASE,
+          )
+
+          year = 2025
+          text, url, diag = FP.fetch_projections(year)
+          print("=" * 72)
+          print(f"FANTASYPROS RAW PAYLOAD PROBE — {year}")
+          print("=" * 72)
+          print("fetch url  :", url)
+          print("fetch diag :", json.dumps(diag)[:400])
+
+          s = (text or "").strip()
+          data = None
+          if s.startswith("{") or s.startswith("["):
+              try:
+                  data = json.loads(s)
+              except (ValueError, TypeError):
+                  data = None
+          if data is None:
+              raw = FP._extract_rows_json(text)
+              try:
+                  data = json.loads(raw) if raw else []
+              except (ValueError, TypeError):
+                  data = []
+
+          rows = FP._rows_from(data)
+          print(f"\nraw rows found: {len(rows)}")
+
+          if not rows:
+              print("\nVERDICT: NO raw rows recovered -- cannot inspect field shape today.")
+              print("This is a NULL for 'can we get it', not evidence it doesn't exist.")
+          else:
+              all_keys = set()
+              nested_stats_keys = set()
+              for o in rows:
+                  if not isinstance(o, dict):
+                      continue
+                  all_keys.update(o.keys())
+                  st = o.get("stats")
+                  if isinstance(st, dict):
+                      nested_stats_keys.update(st.keys())
+
+              hits_top = sorted(k for k in all_keys if CANDIDATE_TERMS.search(str(k)))
+              hits_nested = sorted(k for k in nested_stats_keys if CANDIDATE_TERMS.search(str(k)))
+
+              print(f"\ntop-level keys seen across {len(rows)} rows ({len(all_keys)} distinct):")
+              print(" ", sorted(all_keys))
+              if nested_stats_keys:
+                  print(f"\nnested 'stats' keys ({len(nested_stats_keys)} distinct):")
+                  print(" ", sorted(nested_stats_keys))
+
+              print("\nONE FULL RAW ROW, verbatim, for a human to read:")
+              print(" ", json.dumps(rows[0], indent=2)[:2000])
+
+              print("\n" + "=" * 72)
+              if hits_top or hits_nested:
+                  print("VERDICT: CANDIDATE RANGE/DISPERSION FIELDS FOUND.")
+                  print("  top-level  :", hits_top)
+                  print("  nested     :", hits_nested)
+                  print("Register 22's step 2 ('can we get it') is YES for at least these")
+                  print("field names -- the next step is confirming they are populated")
+                  print("(not always null/zero) and deciding whether to capture them.")
+              else:
+                  print("VERDICT: NO range/dispersion-shaped field name in this payload.")
+                  print("Register 22's step 2 is a MEASURED NO at this endpoint, on this")
+                  print("sample -- not an assumption. FP may still expose ranges only on a")
+                  print("paid tier or a different endpoint (e.g. the site's Ecosystem/ADP")
+                  print("draft-value page vs this projections API); that is untested and")
+                  print("would need a second probe against a named different URL.")
+              print("=" * 72)
+          PY

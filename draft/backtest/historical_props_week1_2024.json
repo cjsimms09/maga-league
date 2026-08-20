@@ -26,7 +26,7 @@
    "total_credits_est": 961,
    "formula": "odds_credits = games * snapshots_per_game * 10 * markets * regions (vendor formula); events_list_credits_est = events_list_calls * 2 (empirically observed in key-probe run 31967817943, not vendor-documented)"
   },
-  "credits_remaining_last_seen": "62724",
+  "credits_remaining_last_seen": "56918",
   "health": {
    "weeks_fetched": 1,
    "games_planned": 16,
@@ -50,3043 +50,3043 @@
    "week": 1,
    "players": {
     "A.J. Terrell": {
-     "any_td": 1.68
+     "any_td": 0.04
     },
     "Alex Highsmith": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Arnold Ebiketie": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Avery Williams": {
-     "any_td": 2.27
+     "any_td": 0.09
     },
     "Beanie Bishop Jr.": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Bijan Robinson": {
-     "any_td": 3.99,
+     "any_td": 0.75,
      "rec": 3.5,
      "rec_yd": 27.5,
      "rush_yd": 63.5
     },
     "Calvin Austin III": {
-     "any_td": 2.69
+     "any_td": 0.15
     },
     "Cameron Heyward": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Casey Washington": {
-     "any_td": 2.35
+     "any_td": 0.1
     },
     "Charlie Woerner": {
-     "any_td": 2.35
+     "any_td": 0.1
     },
     "Chris Blair": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Clark Phillips III": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Connor Heyward": {
-     "any_td": 2.01
+     "any_td": 0.07
     },
     "Cordarrelle Patterson": {
-     "any_td": 2.6
+     "any_td": 0.13
     },
     "Damontae Kazee": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Darnell Mooney": {
-     "any_td": 3.31,
+     "any_td": 0.31,
      "rec": 3.5,
      "rec_yd": 35.5
     },
     "Darnell Washington": {
-     "any_td": 2.47
+     "any_td": 0.11
     },
     "David Onyemata": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "DeShon Elliott": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Donte Jackson": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Drake London": {
-     "any_td": 3.71,
+     "any_td": 0.51,
      "rec": 5.0,
      "rec_yd": 63.5
     },
     "Eddie Goldman": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Elandon Roberts": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "George Pickens": {
-     "any_td": 3.54,
+     "any_td": 0.41,
      "rec": 4.5,
      "rec_yd": 53.0
     },
     "Grady Jarrett": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jase McClellan": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Jaylen Warren": {
-     "any_td": 3.43,
+     "any_td": 0.35,
      "rec_yd": 13.5,
      "rush_yd": 27.5
     },
     "Jessie Bates III": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Joey Porter Jr.": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Justin Fields": {
-     "any_td": 3.36
+     "any_td": 0.33
     },
     "Justin Simmons": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Kaden Elliss": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "KhaDarel Hodge": {
-     "any_td": 2.55
+     "any_td": 0.13
     },
     "Kirk Cousins": {
-     "any_td": 2.35,
+     "any_td": 0.1,
      "pass_td": 1.5,
      "pass_yd": 243.5,
      "rush_yd": 3.5
     },
     "Kyle Pitts": {
-     "any_td": 3.58,
+     "any_td": 0.43,
      "rec": 3.5,
      "rec_yd": 45.5
     },
     "Larry Ogunjobi": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Lorenzo Carter": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Mark Robinson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Matthew Judon": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Micah Abernathy": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Mike Hughes": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Miles Killebrew": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Minkah Fitzpatrick": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "MyCole Pruitt": {
-     "any_td": 1.95
+     "any_td": 0.06
     },
     "Najee Harris": {
-     "any_td": 3.66,
+     "any_td": 0.48,
      "rec": 1.5,
      "rec_yd": 7.5,
      "rush_yd": 56.5
     },
     "Nate Landman": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "No Touchdown": {
-     "any_td": 0.91
+     "any_td": 0.02
     },
     "Pat Freiermuth": {
-     "any_td": 3.2,
+     "any_td": 0.27,
      "rec": 3.5,
      "rec_yd": 27.5
     },
     "Patrick Queen": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Ray-Ray McCloud III": {
-     "any_td": 2.8,
+     "any_td": 0.17,
      "rec": 1.5,
      "rec_yd": 14.5
     },
     "Richie Grant": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Roman Wilson": {
-     "any_td": 2.8
+     "any_td": 0.17
     },
     "Ross Dwelley": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Russell Wilson": {
-     "any_td": 2.69
+     "any_td": 0.15
     },
     "Scott Miller": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "T.J. Watt": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Ta'Quon Graham": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Troy Andersen": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Tyler Allgeier": {
-     "any_td": 3.38,
+     "any_td": 0.33,
      "rec_yd": 0.5,
      "rush_yd": 28.5
     },
     "Van Jefferson": {
-     "any_td": 2.91,
+     "any_td": 0.19,
      "rec": 1.5,
      "rec_yd": 18.5
     },
     "Zach Harrison": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "AJ Epenesa": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Austin Johnson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Budda Baker": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Cam Lewis": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Chris Moore": {
-     "any_td": 2.27
+     "any_td": 0.09
     },
     "Christian Benford": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Curtis Samuel": {
-     "any_td": 3.29,
+     "any_td": 0.3,
      "rec": 2.5,
      "rec_yd": 29.5
     },
     "DaQuan Jones": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Dalton Kincaid": {
-     "any_td": 3.68,
+     "any_td": 0.49,
      "rec": 4.5,
      "rec_yd": 49.5
     },
     "Dante Stills": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Dawson Knox": {
-     "any_td": 3.15,
+     "any_td": 0.25,
      "rec_yd": 14.5
     },
     "DeeJay Dallas": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Dennis Gardeck": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Dorian Williams": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Ed Oliver": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Elijah Higgins": {
-     "any_td": 2.31
+     "any_td": 0.1
     },
     "Emari Demercado": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Garrett Williams": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Greg Dortch": {
-     "any_td": 2.99,
+     "any_td": 0.21,
      "rec": 2.5,
      "rec_yd": 27.5
     },
     "Greg Rousseau": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jalen Thompson": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "James Conner": {
-     "any_td": 3.71,
+     "any_td": 0.51,
      "rec": 2.5,
      "rec_yd": 12.5,
      "rush_yd": 54.5
     },
     "James Cook": {
-     "any_td": 3.88,
+     "any_td": 0.65,
      "rec": 2.5,
      "rec_yd": 17.5,
      "rush_yd": 61.5
     },
     "Josh Allen": {
-     "any_td": 4.06,
+     "any_td": 0.85,
      "pass_td": 1.5,
      "pass_yd": 244.5,
      "rush_yd": 33.5
     },
     "Justin Jones": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Kaiir Elam": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Keon Coleman": {
-     "any_td": 3.39,
+     "any_td": 0.34,
      "rec": 2.5,
      "rec_yd": 32.5
     },
     "Khalil Shakir": {
-     "any_td": 3.51,
+     "any_td": 0.39,
      "rec": 3.5,
      "rec_yd": 44.5
     },
     "Kyler Murray": {
-     "any_td": 3.34,
+     "any_td": 0.32,
      "pass_td": 1.5,
      "pass_yd": 226.0,
      "rush_yd": 31.5
     },
     "Kyzir White": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Mack Hollins": {
-     "any_td": 2.74
+     "any_td": 0.16
     },
     "Mack Wilson Sr.": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Marquez Valdes-Scantling": {
-     "any_td": 2.83
+     "any_td": 0.17
     },
     "Marvin Harrison Jr.": {
-     "any_td": 3.64,
+     "any_td": 0.46,
      "rec": 5.5,
      "rec_yd": 64.5
     },
     "Michael Wilson": {
-     "any_td": 3.15,
+     "any_td": 0.25,
      "rec": 2.5,
      "rec_yd": 28.5
     },
     "Mike Edwards": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Nicholas Morrow": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Owen Pappoe": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Quintin Morris": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Rasul Douglas": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Ray Davis": {
-     "any_td": 2.93,
+     "any_td": 0.19,
      "rec_yd": 3.5,
      "rush_yd": 16.5
     },
     "Reggie Gilliam": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Roy Lopez": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Sean Murphy-Bunting": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Starling Thomas V": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Taron Johnson": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Taylor Rapp": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Terrel Bernard": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Tip Reiman": {
-     "any_td": 2.2
+     "any_td": 0.08
     },
     "Travis Vokolek": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Trey Benson": {
-     "any_td": 3.2,
+     "any_td": 0.27,
      "rush_yd": 19.5
     },
     "Trey McBride": {
-     "any_td": 3.61,
+     "any_td": 0.45,
      "rec": 5.5,
      "rec_yd": 49.5
     },
     "Ty Johnson": {
-     "any_td": 2.57
+     "any_td": 0.13
     },
     "Victor Dimukeje": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Xavier Weaver": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Zach Pascal": {
-     "any_td": 2.4
+     "any_td": 0.11
     },
     "Zaven Collins": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Amani Hooker": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Andrew Billings": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Arden Key": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Caleb Williams": {
-     "any_td": 3.26,
+     "any_td": 0.29,
      "pass_td": 1.5,
      "pass_yd": 238.5,
      "rush_yd": 19.5
     },
     "Calvin Ridley": {
-     "any_td": 3.47,
+     "any_td": 0.37,
      "rec": 4.5,
      "rec_yd": 55.5
     },
     "Chidobe Awuzie": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Chigoziem Okonkwo": {
-     "any_td": 2.98,
+     "any_td": 0.21,
      "rec": 2.5,
      "rec_yd": 26.5
     },
     "Cole Kmet": {
-     "any_td": 3.32,
+     "any_td": 0.31,
      "rec": 2.5,
      "rec_yd": 21.5
     },
     "D'Andre Swift": {
-     "any_td": 3.74,
+     "any_td": 0.53,
      "rec": 1.5,
      "rec_yd": 13.5,
      "rush_yd": 43.5
     },
     "DJ Moore": {
-     "any_td": 3.7,
+     "any_td": 0.5,
      "rec": 4.5,
      "rec_yd": 60.5
     },
     "David Martin-Robinson": {
-     "any_td": 1.68
+     "any_td": 0.04
     },
     "DeAndre Carter": {
-     "any_td": 1.73
+     "any_td": 0.05
     },
     "DeAndre Hopkins": {
-     "any_td": 3.43,
+     "any_td": 0.35,
      "rec": 3.5,
      "rec_yd": 44.5
     },
     "DeMarcus Walker": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Ernest Jones": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Gerald Everett": {
-     "any_td": 2.89,
+     "any_td": 0.19,
      "rec": 1.5,
      "rec_yd": 13.5
     },
     "Gervon Dexter Sr.": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Harold Landry III": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jack Gibbens": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jack Sanborn": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jaquan Brisker": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Jaylon Johnson": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Jeffery Simmons": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jha'Quan Jackson": {
-     "any_td": 1.81
+     "any_td": 0.05
     },
     "Jonathan Owens": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Josh Whyle": {
-     "any_td": 2.52
+     "any_td": 0.12
     },
     "Julius Chestnut": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Keenan Allen": {
-     "any_td": 3.59,
+     "any_td": 0.43,
      "rec": 4.5,
      "rec_yd": 49.5
     },
     "Kenneth Murray Jr.": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Kevin Byard": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Khalil Herbert": {
-     "any_td": 3.21,
+     "any_td": 0.27,
      "rec_yd": 3.5,
      "rush_yd": 27.0
     },
     "Khari Blasingame": {
-     "any_td": 1.77
+     "any_td": 0.05
     },
     "Kyler Gordon": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "L'Jarius Sneed": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Marcedes Lewis": {
-     "any_td": 1.98
+     "any_td": 0.06
     },
     "Nick Vannett": {
-     "any_td": 1.74
+     "any_td": 0.05
     },
     "Nick Westbrook-Ikhine": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Quandre Diggs": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Roger McCreary": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Rome Odunze": {
-     "any_td": 3.39,
+     "any_td": 0.34,
      "rec": 3.5,
      "rec_yd": 41.5
     },
     "Roschon Johnson": {
-     "any_td": 2.99
+     "any_td": 0.21
     },
     "T.J. Edwards": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Thomas Odukoya": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Tony Pollard": {
-     "any_td": 3.72,
+     "any_td": 0.52,
      "rec": 1.5,
      "rec_yd": 11.5,
      "rush_yd": 44.5
     },
     "Travis Homer": {
-     "any_td": 1.73
+     "any_td": 0.05
     },
     "Tremaine Edmunds": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Treylon Burks": {
-     "any_td": 2.77
+     "any_td": 0.16
     },
     "Tyjae Spears": {
-     "any_td": 3.4,
+     "any_td": 0.34,
      "rec": 2.5,
      "rec_yd": 15.5,
      "rush_yd": 34.5
     },
     "Tyler Boyd": {
-     "any_td": 2.95,
+     "any_td": 0.2,
      "rec": 2.5,
      "rec_yd": 24.5
     },
     "Tyler Scott": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Tyrique Stevenson": {
-     "any_td": 1.83
+     "any_td": 0.05
     },
     "Velus Jones Jr.": {
-     "any_td": 2.27
+     "any_td": 0.09
     },
     "Will Levis": {
-     "any_td": 2.8,
+     "any_td": 0.17,
      "pass_td": 1.5,
      "pass_yd": 236.5,
      "rush_yd": 8.5
     },
     "Alex Austin": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Andrei Iosivas": {
-     "any_td": 3.54
+     "any_td": 0.41
     },
     "Anfernee Jennings": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Antonio Gibson": {
-     "any_td": 3.06,
+     "any_td": 0.23,
      "rec": 2.5,
      "rec_yd": 12.5,
      "rush_yd": 19.5
     },
     "Austin Hooper": {
-     "any_td": 2.45,
+     "any_td": 0.11,
      "rec": 1.5,
      "rec_yd": 10.5
     },
     "Charlie Jones": {
-     "any_td": 2.49
+     "any_td": 0.12
     },
     "Chase Brown": {
-     "any_td": 3.46,
+     "any_td": 0.37,
      "rec": 2.5,
      "rec_yd": 14.5,
      "rush_yd": 33.5
     },
     "Christian Gonzalez": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Daniel Ekuale": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Davon Godchaux": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "DeMario Douglas": {
-     "any_td": 3.09,
+     "any_td": 0.24,
      "rec": 3.5,
      "rec_yd": 35.5
     },
     "Deatrich Wise Jr.": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Drew Sample": {
-     "any_td": 2.44
+     "any_td": 0.11
     },
     "Erick All": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Hunter Henry": {
-     "any_td": 2.91,
+     "any_td": 0.19,
      "rec": 2.5,
      "rec_yd": 28.5
     },
     "Ja'Lynn Polk": {
-     "any_td": 2.91,
+     "any_td": 0.19,
      "rec": 2.5,
      "rec_yd": 30.5
     },
     "Ja'Marr Chase": {
-     "any_td": 3.91,
+     "any_td": 0.67,
      "rec_yd": 66.0
     },
     "Ja'Whaun Bentley": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "JaMycal Hasty": {
-     "any_td": 1.98
+     "any_td": 0.06
     },
     "Jabrill Peppers": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Jacoby Brissett": {
-     "any_td": 2.69,
+     "any_td": 0.15,
      "pass_td": 0.5,
      "pass_yd": 209.5,
      "rush_yd": 12.5
     },
     "Jaheim Bell": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Jahlani Tavai": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Javon Baker": {
-     "any_td": 2.24,
+     "any_td": 0.09,
      "rec_yd": 5.5
     },
     "Jaylinn Hawkins": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jermaine Burton": {
-     "any_td": 2.8
+     "any_td": 0.17
     },
     "Joe Burrow": {
-     "any_td": 2.93,
+     "any_td": 0.2,
      "pass_td": 1.5,
      "pass_yd": 244.5,
      "rush_yd": 9.5
     },
     "Jonathan Jones": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Josh Uche": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "K.J. Osborn": {
-     "any_td": 2.83,
+     "any_td": 0.17,
      "rec": 2.5,
      "rec_yd": 23.5
     },
     "Kayshon Boutte": {
-     "any_td": 1.78
+     "any_td": 0.05
     },
     "Keion White": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Kyle Dugger": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Marcus Jones": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Marte Mapu": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Mike Gesicki": {
-     "any_td": 3.26
+     "any_td": 0.29
     },
     "Oshane Ximines": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Raekwon McMillan": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Rhamondre Stevenson": {
-     "any_td": 3.59,
+     "any_td": 0.43,
      "rec": 2.5,
      "rec_yd": 14.5,
      "rush_yd": 51.5
     },
     "Tanner Hudson": {
-     "any_td": 2.44
+     "any_td": 0.11
     },
     "Tanner McLachlan": {
-     "any_td": 1.66
+     "any_td": 0.04
     },
     "Tee Higgins": {
-     "any_td": 3.62
+     "any_td": 0.45
     },
     "Trayveon Williams": {
-     "any_td": 1.99
+     "any_td": 0.07
     },
     "Trenton Irwin": {
-     "any_td": 3.19
+     "any_td": 0.26
     },
     "Tyquan Thornton": {
-     "any_td": 2.55,
+     "any_td": 0.13,
      "rec_yd": 10.5
     },
     "Zack Moss": {
-     "any_td": 3.76,
+     "any_td": 0.54,
      "rec": 1.5,
      "rec_yd": 11.5,
      "rush_yd": 45.5
     },
     "Alex Wright": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Amari Cooper": {
-     "any_td": 3.61,
+     "any_td": 0.45,
      "rec": 4.5,
      "rec_yd": 56.5
     },
     "Andrew Booth Jr.": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Brandin Cooks": {
-     "any_td": 3.31,
+     "any_td": 0.31,
      "rec": 3.5,
      "rec_yd": 39.5
     },
     "Brevyn Spann-Ford": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Caelen Carson": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Cameron Mitchell": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Cedric Tillman": {
-     "any_td": 2.73,
+     "any_td": 0.16,
      "rec": 1.5,
      "rec_yd": 12.5
     },
     "CeeDee Lamb": {
-     "any_td": 3.85,
+     "any_td": 0.62,
      "rec": 6.5,
      "rec_yd": 80.5
     },
     "Chauncey Golston": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "D'Anthony Bell": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "D'Onta Foreman": {
-     "any_td": 3.0
+     "any_td": 0.21
     },
     "Dak Prescott": {
-     "any_td": 2.76,
+     "any_td": 0.16,
      "pass_td": 1.5,
      "pass_yd": 248.0,
      "rush_yd": 12.5
     },
     "Dalvin Cook": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Dalvin Tomlinson": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Damone Clark": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "David Bell": {
-     "any_td": 2.17
+     "any_td": 0.08
     },
     "David Njoku": {
-     "any_td": 3.53,
+     "any_td": 0.4,
      "rec": 4.5,
      "rec_yd": 43.5
     },
     "DeMarcus Lawrence": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Denzel Ward": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Deshaun Watson": {
-     "any_td": 3.1,
+     "any_td": 0.24,
      "pass_td": 1.5,
      "pass_yd": 219.5,
      "rush_yd": 21.5
     },
     "Deuce Vaughn": {
-     "any_td": 2.01
+     "any_td": 0.07
     },
     "Devin Bush": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Donovan Wilson": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Elijah Moore": {
-     "any_td": 3.0,
+     "any_td": 0.21,
      "rec": 1.5,
      "rec_yd": 19.5
     },
     "Eric Kendricks": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Ezekiel Elliott": {
-     "any_td": 3.61,
+     "any_td": 0.45,
      "rec": 1.5,
      "rec_yd": 7.5,
      "rush_yd": 31.5
     },
     "Grant Delpit": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Greg Newsome II": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Hunter Luepke": {
-     "any_td": 1.59
+     "any_td": 0.04
     },
     "Israel Mukuamu": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jaelon Darden": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Jake Ferguson": {
-     "any_td": 3.46,
+     "any_td": 0.37,
      "rec": 4.5,
      "rec_yd": 40.5
     },
     "Jalen Brooks": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Jalen Tolbert": {
-     "any_td": 2.94,
+     "any_td": 0.2,
      "rec": 1.5,
      "rec_yd": 20.5
     },
     "Jamari Thrash": {
-     "any_td": 1.73
+     "any_td": 0.05
     },
     "Jeremiah Owusu-Koramoah": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Jerome Ford": {
-     "any_td": 3.83,
+     "any_td": 0.6,
      "rec": 2.5,
      "rec_yd": 14.5,
      "rush_yd": 50.5
     },
     "Jerry Jeudy": {
-     "any_td": 3.32,
+     "any_td": 0.31,
      "rec": 3.5,
      "rec_yd": 39.5
     },
     "John Stephens Jr.": {
-     "any_td": 1.45
+     "any_td": 0.03
     },
     "Jordan Akins": {
-     "any_td": 2.33
+     "any_td": 0.1
     },
     "Jordan Hicks": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jordan Phillips": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jourdan Lewis": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Juan Thornhill": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Juanyeh Thomas": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "KaVontae Turpin": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Luke Schoonmaker": {
-     "any_td": 2.2,
+     "any_td": 0.08,
      "rec_yd": 1.5
     },
     "Malik Hooker": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Markquese Bell": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Martin Emerson Jr.": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Mazi Smith": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Micah Parsons": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Myles Garrett": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Ogbo Okoronkwo": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Osa Odighizuwa": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Pierre Strong Jr.": {
-     "any_td": 2.91
+     "any_td": 0.19
     },
     "Rico Dowdle": {
-     "any_td": 3.23,
+     "any_td": 0.28,
      "rec": 1.5,
      "rec_yd": 9.5,
      "rush_yd": 34.5
     },
     "Rodney McLeod": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Ronnie Hickman": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Ryan Flournoy": {
-     "any_td": 1.98
+     "any_td": 0.06
     },
     "Shelby Harris": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Tony Fields II": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Trevon Diggs": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Za'Darius Smith": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Aidan Hutchinson": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Alex Anzalone": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Amik Robertson": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Amon-Ra St. Brown": {
-     "any_td": 3.96,
+     "any_td": 0.72,
      "rec": 7.5,
      "rec_yd": 83.5
     },
     "Blake Corum": {
-     "any_td": 3.44,
+     "any_td": 0.36,
      "rec": 1.5,
      "rec_yd": 6.5,
      "rush_yd": 24.0
     },
     "Brian Branch": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Brock Wright": {
-     "any_td": 2.55
+     "any_td": 0.13
     },
     "Carlton Davis III": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Christian Rozeboom": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Cody Schrader": {
-     "any_td": 1.68
+     "any_td": 0.04
     },
     "Colby Parkinson": {
-     "any_td": 3.19,
+     "any_td": 0.27,
      "rec": 2.5,
      "rec_yd": 24.5
     },
     "Cooper Kupp": {
-     "any_td": 3.8,
+     "any_td": 0.57,
      "rec": 5.5,
      "rec_yd": 67.5
     },
     "Craig Reynolds": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "David Montgomery": {
-     "any_td": 4.09,
+     "any_td": 0.89,
      "rec": 1.5,
      "rec_yd": 7.5,
      "rush_yd": 57.5
     },
     "Davis Allen": {
-     "any_td": 2.52
+     "any_td": 0.12
     },
     "Demarcus Robinson": {
-     "any_td": 3.15,
+     "any_td": 0.25,
      "rec": 2.5,
      "rec_yd": 32.0
     },
     "Hunter Long": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Isaiah Williams": {
-     "any_td": 2.35
+     "any_td": 0.1
     },
     "Jahmyr Gibbs": {
-     "any_td": 4.04,
+     "any_td": 0.82,
      "rec": 3.5,
      "rec_yd": 24.5,
      "rush_yd": 53.5
     },
     "Jameson Williams": {
-     "any_td": 3.5,
+     "any_td": 0.39,
      "rec": 2.5,
      "rec_yd": 39.0
     },
     "Jared Goff": {
-     "any_td": 2.46,
+     "any_td": 0.11,
      "pass_td": 1.5,
      "pass_yd": 271.5,
      "rush_yd": 0.5
     },
     "Jordan Whittington": {
-     "any_td": 2.57
+     "any_td": 0.13
     },
     "Kalif Raymond": {
-     "any_td": 3.04,
+     "any_td": 0.22,
      "rec": 1.5,
      "rec_yd": 19.5
     },
     "Kamren Curl": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Kerby Joseph": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Kyren Williams": {
-     "any_td": 4.05,
+     "any_td": 0.83,
      "rec": 2.5,
      "rec_yd": 13.5,
      "rush_yd": 59.5
     },
     "Matthew Stafford": {
-     "any_td": 2.2,
+     "any_td": 0.08,
      "pass_td": 1.5,
      "pass_yd": 273.0,
      "rush_yd": 0.5
     },
     "Parker Hesse": {
-     "any_td": 1.98
+     "any_td": 0.06
     },
     "Puka Nacua": {
-     "any_td": 3.85,
+     "any_td": 0.62,
      "rec": 6.5,
      "rec_yd": 74.5
     },
     "Quentin Lake": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Ronnie Rivers": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Sam LaPorta": {
-     "any_td": 3.76,
+     "any_td": 0.55,
      "rec": 5.5,
      "rec_yd": 53.5
     },
     "Sione Vaki": {
-     "any_td": 2.31
+     "any_td": 0.1
     },
     "Terrion Arnold": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Tim Patrick": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Tom Kennedy": {
-     "any_td": 2.21
+     "any_td": 0.09
     },
     "Tre'Davious White": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Tre'Quan Smith": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Troy Reeder": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tutu Atwell": {
-     "any_td": 2.47
+     "any_td": 0.12
     },
     "Tyler Johnson": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Xavier Smith": {
-     "any_td": 1.68
+     "any_td": 0.04
     },
     "Adonai Mitchell": {
-     "any_td": 3.19,
+     "any_td": 0.27,
      "rec": 2.5,
      "rec_yd": 35.5
     },
     "Alec Pierce": {
-     "any_td": 3.19,
+     "any_td": 0.27,
      "rec": 2.5,
      "rec_yd": 31.5
     },
     "Anthony Gould": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Anthony Richardson": {
-     "any_td": 3.87,
+     "any_td": 0.63,
      "pass_td": 1.5,
      "pass_yd": 224.5,
      "rush_yd": 43.5
     },
     "Ashton Dulin": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Azeez Al-Shaair": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Brevin Jordan": {
-     "any_td": 2.76,
+     "any_td": 0.16,
      "rec_yd": 8.5
     },
     "C.J. Stroud": {
-     "any_td": 3.1,
+     "any_td": 0.24,
      "pass_td": 1.5,
      "pass_yd": 277.5,
      "rush_yd": 8.5
     },
     "Cade Stover": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Calen Bullock": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Cam Akers": {
-     "any_td": 3.03
+     "any_td": 0.22
     },
     "Dallis Flowers": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Dalton Schultz": {
-     "any_td": 3.5,
+     "any_td": 0.39,
      "rec": 3.5,
      "rec_yd": 34.5
     },
     "Dameon Pierce": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Danielle Hunter": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Dare Ogunbowale": {
-     "any_td": 1.77
+     "any_td": 0.05
     },
     "DeForest Buckner": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Del'Shawn Phillips": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Derek Barnett": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Derek Stingley Jr.": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Drew Ogletree": {
-     "any_td": 2.27
+     "any_td": 0.09
     },
     "E.J. Speed": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Eric Murray": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Folorunso Fatukasi": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Henry To'oTo'o": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jake Hansen": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Jalen Pitre": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Jaylon Jones": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jeff Okudah": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Jimmie Ward": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Joe Mixon": {
-     "any_td": 3.95,
+     "any_td": 0.72,
      "rec": 2.5,
      "rec_yd": 13.5,
      "rush_yd": 56.5
     },
     "John Metchie III": {
-     "any_td": 2.35
+     "any_td": 0.1
     },
     "Jonathan Taylor": {
-     "any_td": 4.0,
+     "any_td": 0.77,
      "rec": 2.5,
      "rec_yd": 12.5,
      "rush_yd": 73.5
     },
     "Josh Downs": {
-     "any_td": 3.04
+     "any_td": 0.22
     },
     "JuJu Brents": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Julian Blackmon": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Kamari Lassiter": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Kenny Moore II": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Khalil Davis": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Kwity Paye": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Kylen Granson": {
-     "any_td": 3.24,
+     "any_td": 0.28,
      "rec": 1.5,
      "rec_yd": 19.5
     },
     "Mario Edwards Jr.": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Michael Pittman Jr.": {
-     "any_td": 3.64,
+     "any_td": 0.46,
      "rec": 5.5,
      "rec_yd": 64.5
     },
     "Mo Alie-Cox": {
-     "any_td": 2.57
+     "any_td": 0.13
     },
     "Myles Bryant": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Neville Hewitt": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Nick Cross": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Nico Collins": {
-     "any_td": 3.69,
+     "any_td": 0.49,
      "rec": 5.5,
      "rec_yd": 68.5
     },
     "Robert Woods": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Rodney Thomas II": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Segun Olubi": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Stefon Diggs": {
-     "any_td": 3.6,
+     "any_td": 0.44,
      "rec": 4.5,
      "rec_yd": 57.5
     },
     "Steven Sims": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Tank Dell": {
-     "any_td": 3.49,
+     "any_td": 0.38,
      "rec": 3.5,
      "rec_yd": 50.5
     },
     "Tim Settle": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Trey Sermon": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Tyler Goodson": {
-     "any_td": 1.91
+     "any_td": 0.06
     },
     "Tyquan Lewis": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Will Anderson Jr.": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Will Mallory": {
-     "any_td": 2.01
+     "any_td": 0.07
     },
     "Xavier Hutchinson": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Zaire Franklin": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Ar'Darius Washington": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Brandon Stephens": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Brent Urban": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Broderick Washington": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Bryan Cook": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Carson Steele": {
-     "any_td": 2.8
+     "any_td": 0.17
     },
     "Chamarri Conner": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Charlie Kolar": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Chris Collier": {
-     "any_td": 1.83
+     "any_td": 0.05
     },
     "Chris Jones": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "David Ojabo": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Deonte Harty": {
-     "any_td": 2.01
+     "any_td": 0.07
     },
     "Derrick Henry": {
-     "any_td": 4.06,
+     "any_td": 0.85,
      "rec": 1.5,
      "rec_yd": 7.5,
      "rush_yd": 64.5
     },
     "Derrick Nnadi": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Devontez Walker": {
-     "any_td": 2.4
+     "any_td": 0.11
     },
     "Drue Tranquill": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Eddie Jackson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "George Karlaftis": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Isaiah Likely": {
-     "any_td": 2.73,
+     "any_td": 0.15,
      "rec": 1.5,
      "rec_yd": 16.5
     },
     "Isiah Pacheco": {
-     "any_td": 3.96,
+     "any_td": 0.72,
      "rec": 2.5,
      "rec_yd": 14.5,
      "rush_yd": 59.5
     },
     "Jalyn Armour-Davis": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Jared Wiley": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Jaylen Watson": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Joshua Williams": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "JuJu Smith-Schuster": {
-     "any_td": 2.87
+     "any_td": 0.18
     },
     "Justice Hill": {
-     "any_td": 2.76,
+     "any_td": 0.16,
      "rec": 1.5,
      "rec_yd": 10.5,
      "rush_yd": 15.5
     },
     "Justin Madubuike": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Justin Reid": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Justin Watson": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "rec": 1.5,
      "rec_yd": 16.5
     },
     "Kyle Hamilton": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Kyle Van Noy": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Lamar Jackson": {
-     "any_td": 3.47,
+     "any_td": 0.37,
      "pass_td": 1.5,
      "pass_yd": 213.0,
      "rush_yd": 50.5
     },
     "Leo Chenal": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Malik Harrison": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Marcus Williams": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Mark Andrews": {
-     "any_td": 3.68,
+     "any_td": 0.49,
      "rec": 4.5,
      "rec_yd": 49.5
     },
     "Marlon Humphrey": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Mecole Hardman": {
-     "any_td": 2.55,
+     "any_td": 0.13,
      "rec_yd": 7.5
     },
     "Michael Pierce": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Mike Danna": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Nate Wiggins": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Nazeeh Johnson": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Nelson Agholor": {
-     "any_td": 2.8,
+     "any_td": 0.17,
      "rec": 1.5,
      "rec_yd": 17.5
     },
     "Nick Bolton": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Noah Gray": {
-     "any_td": 2.49,
+     "any_td": 0.12,
      "rec": 1.5,
      "rec_yd": 11.5
     },
     "Odafe Oweh": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Patrick Mahomes": {
-     "any_td": 3.12,
+     "any_td": 0.25,
      "pass_td": 1.5,
      "pass_yd": 269.5,
      "rush_yd": 20.5
     },
     "Patrick Ricard": {
-     "any_td": 1.61
+     "any_td": 0.04
     },
     "Peyton Hendershot": {
-     "any_td": 1.8
+     "any_td": 0.05
     },
     "Rashee Rice": {
-     "any_td": 3.75,
+     "any_td": 0.54,
      "rec": 5.5,
      "rec_yd": 62.5
     },
     "Rasheen Ali": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Rashod Bateman": {
-     "any_td": 3.04,
+     "any_td": 0.22,
      "rec": 2.5,
      "rec_yd": 29.0
     },
     "Roquan Smith": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Samaje Perine": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "rec_yd": 7.5,
      "rush_yd": 7.5
     },
     "Skyy Moore": {
-     "any_td": 2.4
+     "any_td": 0.11
     },
     "Tavius Robinson": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tershawn Wharton": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Travis Jones": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Travis Kelce": {
-     "any_td": 3.91,
+     "any_td": 0.67,
      "rec": 5.5,
      "rec_yd": 56.5
     },
     "Trent McDuffie": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Trenton Simpson": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Tylan Wallace": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Xavier Worthy": {
-     "any_td": 3.62,
+     "any_td": 0.45,
      "rec": 3.5,
      "rec_yd": 46.5
     },
     "Zay Flowers": {
-     "any_td": 3.54,
+     "any_td": 0.41,
      "rec": 4.5,
      "rec_yd": 52.5
     },
     "Alexander Mattison": {
-     "any_td": 2.89,
+     "any_td": 0.19,
      "rush_yd": 15.5
     },
     "Alohi Gilman": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Ameer Abdullah": {
-     "any_td": 2.4
+     "any_td": 0.11
     },
     "Asante Samuel Jr.": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Brenden Rice": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Brock Bowers": {
-     "any_td": 3.2,
+     "any_td": 0.27,
      "rec": 3.5,
      "rec_yd": 34.0
     },
     "Bud Dupree": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "DJ Chark Jr.": {
-     "any_td": 2.95
+     "any_td": 0.2
     },
     "DJ Turner": {
-     "any_td": 1.98
+     "any_td": 0.06
     },
     "Daiyan Henley": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Davante Adams": {
-     "any_td": 3.6,
+     "any_td": 0.44,
      "rec": 5.5,
      "rec_yd": 71.0
     },
     "Denzel Perryman": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Derius Davis": {
-     "any_td": 2.64
+     "any_td": 0.14
     },
     "Derwin James Jr.": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Dylan Laube": {
-     "any_td": 2.4
+     "any_td": 0.11
     },
     "Eric Tomlinson": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Gardner Minshew": {
-     "any_td": 2.47,
+     "any_td": 0.11,
      "pass_td": 1.5,
      "pass_yd": 218.5,
      "rush_yd": 7.5
     },
     "Gus Edwards": {
-     "any_td": 3.56,
+     "any_td": 0.42,
      "rec": 1.5,
      "rec_yd": 4.5,
      "rush_yd": 45.5
     },
     "Harrison Bryant": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Hassan Haskins": {
-     "any_td": 2.31
+     "any_td": 0.1
     },
     "Hayden Hurst": {
-     "any_td": 2.98,
+     "any_td": 0.21,
      "rec": 2.5,
      "rec_yd": 18.5
     },
     "J.K. Dobbins": {
-     "any_td": 3.47,
+     "any_td": 0.37,
      "rec": 1.5,
      "rec_yd": 9.5,
      "rush_yd": 35.5
     },
     "Ja'Sir Taylor": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jakobi Meyers": {
-     "any_td": 3.31,
+     "any_td": 0.31,
      "rec": 3.5,
      "rec_yd": 40.5
     },
     "Jaret Patterson": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Joey Bosa": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Joshua Palmer": {
-     "any_td": 3.54,
+     "any_td": 0.41,
      "rec": 4.5,
      "rec_yd": 53.5
     },
     "Justin Herbert": {
-     "any_td": 2.8,
+     "any_td": 0.17,
      "pass_td": 1.5,
      "pass_yd": 225.5,
      "rush_yd": 12.5
     },
     "Khalil Mack": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Kimani Vidal": {
-     "any_td": 2.33
+     "any_td": 0.1
     },
     "Kristian Fulton": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Ladd McConkey": {
-     "any_td": 3.49,
+     "any_td": 0.38,
      "rec": 3.5,
      "rec_yd": 40.0
     },
     "Michael Mayer": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "rec": 1.5,
      "rec_yd": 16.5
     },
     "Morgan Fox": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Otito Ogbonnia": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Quentin Johnston": {
-     "any_td": 3.09,
+     "any_td": 0.24,
      "rec": 2.5,
      "rec_yd": 25.5
     },
     "Ramel Keyton": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Simi Fehoko": {
-     "any_td": 1.99
+     "any_td": 0.07
     },
     "Stone Smartt": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Tarheeb Still": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tre Tucker": {
-     "any_td": 2.58,
+     "any_td": 0.13,
      "rec": 1.5,
      "rec_yd": 14.5
     },
     "Troy Dye": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Tuli Tuipulotu": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tyreik McAllister": {
-     "any_td": 1.9
+     "any_td": 0.06
     },
     "Will Dissly": {
-     "any_td": 3.04,
+     "any_td": 0.22,
      "rec": 2.5,
      "rec_yd": 18.5
     },
     "Zamir White": {
-     "any_td": 3.72,
+     "any_td": 0.52,
      "rec": 1.5,
      "rec_yd": 9.5,
      "rush_yd": 57.5
     },
     "Alec Ingold": {
-     "any_td": 1.83
+     "any_td": 0.05
     },
     "Andre Cisco": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Anthony Walker Jr.": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Braxton Berrios": {
-     "any_td": 2.9,
+     "any_td": 0.19,
      "rec": 1.5,
      "rec_yd": 13.5
     },
     "Brenton Strange": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Brian Thomas Jr": {
-     "any_td": 3.37,
+     "any_td": 0.33,
      "rec": 3.5,
      "rec_yd": 41.5
     },
     "Calais Campbell": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Christian Kirk": {
-     "any_td": 3.61,
+     "any_td": 0.45,
      "rec": 4.5,
      "rec_yd": 54.5
     },
     "D'Ernest Johnson": {
-     "any_td": 2.2
+     "any_td": 0.08
     },
     "Darnell Savage": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "David Long Jr.": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "De'Von Achane": {
-     "any_td": 3.88,
+     "any_td": 0.65,
      "rec": 2.5,
      "rec_yd": 23.0,
      "rush_yd": 52.5
     },
     "Demeioun Robinson": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Devin Duvernay": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Devin Lloyd": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Duke Riley": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Durham Smythe": {
-     "any_td": 2.55
+     "any_td": 0.13
     },
     "Elijah Campbell": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Emmanuel Ogbah": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Evan Engram": {
-     "any_td": 3.67,
+     "any_td": 0.48,
      "rec": 5.5,
      "rec_yd": 45.5
     },
     "Foyesade Oluokun": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Gabe Davis": {
-     "any_td": 3.39,
+     "any_td": 0.34,
      "rec": 2.5,
      "rec_yd": 40.0
     },
     "Grant DuBose": {
-     "any_td": 2.25
+     "any_td": 0.09
     },
     "Jaelan Phillips": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jaylen Waddle": {
-     "any_td": 3.75,
+     "any_td": 0.54,
      "rec": 5.5,
      "rec_yd": 66.5
     },
     "Jaylen Wright": {
-     "any_td": 2.49
+     "any_td": 0.12
     },
     "Jeff Wilson Jr.": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Jevon Holland": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Jonnu Smith": {
-     "any_td": 3.33,
+     "any_td": 0.32,
      "rec": 2.5,
      "rec_yd": 25.5
     },
     "Jordan Poyer": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jordyn Brooks": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Julian Hill": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Kader Kohou": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Kendall Fuller": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Luke Farrell": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Malik Washington": {
-     "any_td": 3.04
+     "any_td": 0.22
     },
     "Parker Washington": {
-     "any_td": 2.69
+     "any_td": 0.15
     },
     "Raheem Mostert": {
-     "any_td": 3.93,
+     "any_td": 0.69,
      "rec": 1.5,
      "rec_yd": 7.5,
      "rush_yd": 44.5
     },
     "Robbie Chosen": {
-     "any_td": 2.27
+     "any_td": 0.09
     },
     "Ronald Darby": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Tank Bigsby": {
-     "any_td": 2.89,
+     "any_td": 0.19,
      "rush_yd": 15.5
     },
     "Tanner Conner": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Tim Jones": {
-     "any_td": 1.83
+     "any_td": 0.05
     },
     "Travis Etienne Jr.": {
-     "any_td": 3.93,
+     "any_td": 0.69,
      "rec": 3.5,
      "rec_yd": 20.5,
      "rush_yd": 58.5
     },
     "Trevor Lawrence": {
-     "any_td": 3.09,
+     "any_td": 0.24,
      "pass_td": 1.5,
      "pass_yd": 252.5,
      "rush_yd": 17.5
     },
     "Tua Tagovailoa": {
-     "any_td": 2.52,
+     "any_td": 0.12,
      "pass_td": 1.5,
      "pass_yd": 269.5,
      "rush_yd": 2.5
     },
     "Tyreek Hill": {
-     "any_td": 4.04,
+     "any_td": 0.81,
      "rec": 7.5,
      "rec_yd": 98.5
     },
     "Tyson Campbell": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Zach Sieler": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "A'Shawn Robinson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "A.T. Perry": {
-     "any_td": 2.83
+     "any_td": 0.17
     },
     "Adam Prentice": {
-     "any_td": 1.81
+     "any_td": 0.05
     },
     "Adam Thielen": {
-     "any_td": 3.25,
+     "any_td": 0.28,
      "rec": 3.5,
      "rec_yd": 37.0
     },
     "Alontae Taylor": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Alvin Kamara": {
-     "any_td": 3.91,
+     "any_td": 0.68,
      "rec": 4.5,
      "rec_yd": 28.5,
      "rush_yd": 52.5
     },
     "Bryce Young": {
-     "any_td": 2.73,
+     "any_td": 0.15,
      "pass_td": 0.5,
      "pass_yd": 199.5,
      "rush_yd": 11.5
     },
     "Bub Means": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Cameron Jordan": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Carl Granderson": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Cedrick Wilson Jr.": {
-     "any_td": 2.76,
+     "any_td": 0.16,
      "rec": 1.5,
      "rec_yd": 18.5
     },
     "Chau Smith-Wade": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Chris Olave": {
-     "any_td": 3.69,
+     "any_td": 0.5,
      "rec": 5.5,
      "rec_yd": 65.5
     },
     "Chuba Hubbard": {
-     "any_td": 3.88,
+     "any_td": 0.65,
      "rec": 1.5,
      "rec_yd": 11.5,
      "rush_yd": 56.5
     },
     "DJ Johnson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Dallin Holker": {
-     "any_td": 1.73
+     "any_td": 0.05
     },
     "David Moore": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Demario Davis": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Derek Carr": {
-     "any_td": 2.35,
+     "any_td": 0.1,
      "pass_td": 1.5,
      "pass_yd": 227.0,
      "rush_yd": 2.5
     },
     "Derrick Brown": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Diontae Johnson": {
-     "any_td": 3.27,
+     "any_td": 0.29,
      "rec": 4.5,
      "rec_yd": 52.5
     },
     "Feleipe Franks": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Foster Moreau": {
-     "any_td": 2.23,
+     "any_td": 0.09,
      "rec_yd": 6.5
     },
     "Ian Thomas": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Ihmir Smith-Marsette": {
-     "any_td": 2.16
+     "any_td": 0.08
     },
     "Ja'Tavion Sanders": {
-     "any_td": 2.89,
+     "any_td": 0.19,
      "rec": 2.5,
      "rec_yd": 20.0
     },
     "Jadeveon Clowney": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Jalen Coker": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Jamaal Williams": {
-     "any_td": 3.37,
+     "any_td": 0.33,
      "rec": 1.5,
      "rec_yd": 3.5,
      "rush_yd": 24.5
     },
     "Jaycee Horn": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Jonathan Mingo": {
-     "any_td": 2.76,
+     "any_td": 0.16,
      "rec": 1.5,
      "rec_yd": 16.5
     },
     "Jordan Fuller": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Jordan Howden": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jordan Matthews": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Jordan Mims": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Josey Jewell": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Juwan Johnson": {
-     "any_td": 3.08,
+     "any_td": 0.23,
      "rec": 2.5,
      "rec_yd": 24.5
     },
     "Kool-Aid McKinstry": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Lonnie Johnson Jr.": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Marshon Lattimore": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Mason Tipton": {
-     "any_td": 1.96
+     "any_td": 0.06
     },
     "Michael Jackson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Mike Boone": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Miles Sanders": {
-     "any_td": 3.2,
+     "any_td": 0.27,
      "rec_yd": 2.5,
      "rush_yd": 20.5
     },
     "Nathan Shepherd": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Nick Scott": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Paulson Adebo": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Pete Werner": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Raheem Blackshear": {
-     "any_td": 2.24
+     "any_td": 0.09
     },
     "Rashid Shaheed": {
-     "any_td": 3.39,
+     "any_td": 0.34,
      "rec": 2.5,
      "rec_yd": 35.5
     },
     "Shaq Thompson": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Shy Tuttle": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Taysom Hill": {
-     "any_td": 3.57,
+     "any_td": 0.42,
      "rec_yd": 7.5,
      "rush_yd": 16.5
     },
     "Tommy Tremble": {
-     "any_td": 2.8
+     "any_td": 0.17
     },
     "Trevin Wallace": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Troy Hill": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Tyrann Mathieu": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Will Harris": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Willie Gay": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Xavier Legette": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "rec": 1.5,
      "rec_yd": 14.5
     },
     "Xavier Woods": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Aaron Jones": {
-     "any_td": 3.82,
+     "any_td": 0.59,
      "rec": 2.5,
      "rec_yd": 14.5,
      "rush_yd": 55.5
     },
     "Bobby Okereke": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Brandon Powell": {
-     "any_td": 2.47
+     "any_td": 0.11
     },
     "Bryce Ford-Wheaton": {
-     "any_td": 1.59
+     "any_td": 0.04
     },
     "Byron Murphy Jr.": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "C.J. Ham": {
-     "any_td": 1.96
+     "any_td": 0.06
     },
     "Chris Manhertz": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Daniel Bellinger": {
-     "any_td": 2.73,
+     "any_td": 0.15,
      "rec": 1.5,
      "rec_yd": 11.5
     },
     "Daniel Jones": {
-     "any_td": 3.33,
+     "any_td": 0.32,
      "pass_td": 1.5,
      "pass_yd": 212.5,
      "rush_yd": 27.5
     },
     "Darius Slayton": {
-     "any_td": 2.91,
+     "any_td": 0.19,
      "rec": 1.5,
      "rec_yd": 22.5
     },
     "Deonte Banks": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Devin Singletary": {
-     "any_td": 3.79,
+     "any_td": 0.57,
      "rec": 2.5,
      "rec_yd": 11.5,
      "rush_yd": 54.5
     },
     "Eric Gray": {
-     "any_td": 2.47
+     "any_td": 0.12
     },
     "Gunner Olszewski": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Harrison Phillips": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Harrison Smith": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jakob Johnson": {
-     "any_td": 1.68
+     "any_td": 0.04
     },
     "Jalen Nailor": {
-     "any_td": 2.8,
+     "any_td": 0.17,
      "rec": 1.5,
      "rec_yd": 15.5
     },
     "Jalin Hyatt": {
-     "any_td": 3.0,
+     "any_td": 0.21,
      "rec": 2.5,
      "rec_yd": 22.5
     },
     "Jason Pinnock": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Johnny Mundt": {
-     "any_td": 2.89,
+     "any_td": 0.19,
      "rec": 2.5,
      "rec_yd": 20.5
     },
     "Jordan Addison": {
-     "any_td": 3.35,
+     "any_td": 0.32,
      "rec": 3.5,
      "rec_yd": 44.5
     },
     "Josh Oliver": {
-     "any_td": 2.63,
+     "any_td": 0.14,
      "rec": 1.5,
      "rec_yd": 7.5
     },
     "Justin Jefferson": {
-     "any_td": 3.83,
+     "any_td": 0.6,
      "rec": 6.5,
      "rec_yd": 81.5
     },
     "Kayvon Thibodeaux": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Malik Nabers": {
-     "any_td": 3.72,
+     "any_td": 0.52,
      "rec": 4.5,
      "rec_yd": 62.5
     },
     "Myles Gaskin": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Nick Muse": {
-     "any_td": 1.79
+     "any_td": 0.05
     },
     "Sam Darnold": {
-     "any_td": 2.95,
+     "any_td": 0.2,
      "pass_td": 1.5,
      "pass_yd": 227.5,
      "rush_yd": 12.5
     },
     "Stephon Gilmore": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Theo Johnson": {
-     "any_td": 2.76,
+     "any_td": 0.16,
      "rec": 1.5,
      "rec_yd": 16.5
     },
     "Trent Sherfield": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Trishton Jackson": {
-     "any_td": 2.66
+     "any_td": 0.14
     },
     "Ty Chandler": {
-     "any_td": 3.29,
+     "any_td": 0.3,
      "rec": 1.5,
      "rec_yd": 6.5,
      "rush_yd": 27.5
     },
     "Tyrone Tracy Jr.": {
-     "any_td": 2.95
+     "any_td": 0.2
     },
     "Wan'Dale Robinson": {
-     "any_td": 3.04,
+     "any_td": 0.22,
      "rec": 3.5,
      "rec_yd": 27.5
     },
     "AJ Brown": {
-     "any_td": 3.87,
+     "any_td": 0.64,
      "rec": 5.5,
      "rec_yd": 71.5
     },
     "Ben Sims": {
-     "any_td": 1.98
+     "any_td": 0.06
     },
     "Bo Melton": {
-     "any_td": 2.57
+     "any_td": 0.13
     },
     "Britain Covey": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Christian Watson": {
-     "any_td": 3.57,
+     "any_td": 0.42,
      "rec": 3.5,
      "rec_yd": 39.5
     },
     "Dallas Goedert": {
-     "any_td": 3.48,
+     "any_td": 0.38,
      "rec": 4.5,
      "rec_yd": 38.5
     },
     "DeVonta Smith": {
-     "any_td": 3.66,
+     "any_td": 0.47,
      "rec": 4.5,
      "rec_yd": 59.5
     },
     "Dontayvion Wicks": {
-     "any_td": 3.13,
+     "any_td": 0.25,
      "rec": 2.5,
      "rec_yd": 30.5
     },
     "Emanuel Wilson": {
-     "any_td": 3.0
+     "any_td": 0.21
     },
     "Grant Calcaterra": {
-     "any_td": 2.01
+     "any_td": 0.07
     },
     "Jahan Dotson": {
-     "any_td": 2.73,
+     "any_td": 0.15,
      "rec": 1.5,
      "rec_yd": 15.5
     },
     "Jalen Hurts": {
-     "any_td": 3.98,
+     "any_td": 0.74,
      "pass_td": 1.5,
      "pass_yd": 240.0,
      "rush_yd": 39.5
     },
     "Jayden Reed": {
-     "any_td": 3.59,
+     "any_td": 0.44,
      "rec": 3.5,
      "rec_yd": 42.5
     },
     "Johnny Wilson": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Jordan Love": {
-     "any_td": 2.88,
+     "any_td": 0.18,
      "pass_td": 1.5,
      "pass_yd": 256.5,
      "rush_yd": 8.5
     },
     "Josh Jacobs": {
-     "any_td": 3.94,
+     "any_td": 0.71,
      "rec": 2.5,
      "rec_yd": 17.5,
      "rush_yd": 61.5
     },
     "Kenneth Gainwell": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "rec_yd": 4.5,
      "rush_yd": 12.5
     },
     "Luke Musgrave": {
-     "any_td": 3.16,
+     "any_td": 0.25,
      "rec": 2.5,
      "rec_yd": 25.5
     },
     "Malik Heath": {
-     "any_td": 2.45
+     "any_td": 0.11
     },
     "MarShawn Lloyd": {
-     "any_td": 3.04
+     "any_td": 0.22
     },
     "Romeo Doubs": {
-     "any_td": 3.43,
+     "any_td": 0.35,
      "rec": 3.5,
      "rec_yd": 41.5
     },
     "Saquon Barkley": {
-     "any_td": 3.99,
+     "any_td": 0.75,
      "rec": 2.5,
      "rec_yd": 17.5,
      "rush_yd": 64.5
     },
     "Tucker Kraft": {
-     "any_td": 2.87
+     "any_td": 0.18
     },
     "Will Shipley": {
-     "any_td": 2.14
+     "any_td": 0.08
     },
     "AJ Barner": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Adam Trautman": {
-     "any_td": 2.69,
+     "any_td": 0.15,
      "rec_yd": 7.5
     },
     "Alex Singleton": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Audric Estime": {
-     "any_td": 2.57
+     "any_td": 0.13
     },
     "Baron Browning": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Blake Watson": {
-     "any_td": 2.31
+     "any_td": 0.1
     },
     "Bo Nix": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "pass_td": 1.5,
      "pass_yd": 200.0,
      "rush_yd": 20.5
     },
     "Boye Mafe": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Brady Russell": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Brandon Jones": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Byron Murphy II": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Coby Bryant": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Cody Barton": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Courtland Sutton": {
-     "any_td": 3.47,
+     "any_td": 0.37,
      "rec": 3.5,
      "rec_yd": 46.5
     },
     "DK Metcalf": {
-     "any_td": 3.72,
+     "any_td": 0.52,
      "rec": 4.5,
      "rec_yd": 61.5
     },
     "Dareke Young": {
-     "any_td": 2.45
+     "any_td": 0.11
     },
     "Derick Hall": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Devaughn Vele": {
-     "any_td": 2.2
+     "any_td": 0.08
     },
     "Devon Key": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Devon Witherspoon": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Dre'Mont Jones": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Geno Smith": {
-     "any_td": 2.93,
+     "any_td": 0.19,
      "pass_td": 1.5,
      "pass_yd": 240.5,
      "rush_yd": 10.5
     },
     "Greg Dulcich": {
-     "any_td": 2.93,
+     "any_td": 0.2,
      "rec": 2.5,
      "rec_yd": 19.5
     },
     "Ja'Quan McMillian": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Jake Bobo": {
-     "any_td": 2.69
+     "any_td": 0.15
     },
     "Jaleel McLaughlin": {
-     "any_td": 3.15,
+     "any_td": 0.25,
      "rec": 2.5,
      "rec_yd": 14.0,
      "rush_yd": 24.5
     },
     "Jarran Reed": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Javonte Williams": {
-     "any_td": 3.6,
+     "any_td": 0.44,
      "rec": 2.5,
      "rec_yd": 15.5,
      "rush_yd": 52.5
     },
     "Jaxon Smith-Njigba": {
-     "any_td": 3.52,
+     "any_td": 0.4,
      "rec": 4.5,
      "rec_yd": 47.5
     },
     "Jerome Baker": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "John Franklin-Myers": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Johnathan Hankins": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Jonathon Cooper": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Josh Reynolds": {
-     "any_td": 3.08,
+     "any_td": 0.23,
      "rec": 2.5,
      "rec_yd": 28.5
     },
     "Julian Love": {
-     "any_td": 1.68
+     "any_td": 0.04
     },
     "K'Von Wallace": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Kenneth Walker III": {
-     "any_td": 4.01,
+     "any_td": 0.78,
      "rec": 1.5,
      "rec_yd": 10.5,
      "rush_yd": 67.0
     },
     "Kenny McIntosh": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Laviska Shenault Jr": {
-     "any_td": 2.33
+     "any_td": 0.1
     },
     "Leonard Williams": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Levi Wallace": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Lil'Jordan Humphrey": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Lucas Krull": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Marvin Mims Jr.": {
-     "any_td": 2.89,
+     "any_td": 0.19,
      "rec": 1.5,
      "rec_yd": 18.0
     },
     "Michael Burton": {
-     "any_td": 1.86
+     "any_td": 0.06
     },
     "Nate Adkins": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Nik Bonitto": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Noah Fant": {
-     "any_td": 3.12,
+     "any_td": 0.25,
      "rec": 2.5,
      "rec_yd": 28.5
     },
     "P.J. Locke": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Pat Surtain II": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Pharaoh Brown": {
-     "any_td": 2.23
+     "any_td": 0.09
     },
     "Rayshawn Jenkins": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Riley Moss": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Riq Woolen": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Tre Brown": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Troy Franklin": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Tyler Lockett": {
-     "any_td": 3.47,
+     "any_td": 0.37,
      "rec": 3.5,
      "rec_yd": 46.5
     },
     "Tyrel Dodson": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Zach Allen": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Zach Charbonnet": {
-     "any_td": 3.41,
+     "any_td": 0.35,
      "rec": 1.5,
      "rec_yd": 9.5,
      "rush_yd": 24.5
     },
     "Aaron Rodgers": {
-     "any_td": 2.23,
+     "any_td": 0.09,
      "pass_td": 1.5,
      "pass_yd": 232.5,
      "rush_yd": 1.5
     },
     "Allen Lazard": {
-     "any_td": 2.83,
+     "any_td": 0.17,
      "rec": 1.5,
      "rec_yd": 17.0
     },
     "Ashtyn Davis": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Braelon Allen": {
-     "any_td": 2.6,
+     "any_td": 0.13,
      "rush_yd": 13.5
     },
     "Brandon Aiyuk": {
-     "any_td": 3.61,
+     "any_td": 0.45,
      "rec": 3.5,
      "rec_yd": 49.5
     },
     "Breece Hall": {
-     "any_td": 3.93,
+     "any_td": 0.7,
      "rec": 4.5,
      "rec_yd": 28.5,
      "rush_yd": 64.5
     },
     "Brenden Bates": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "Brock Purdy": {
-     "any_td": 2.66,
+     "any_td": 0.14,
      "pass_td": 1.5,
      "pass_yd": 236.5,
      "rush_yd": 8.5
     },
     "C.J. Mosley": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Charvarius Ward": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Chris Conley": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Christian McCaffrey": {
-     "any_td": 4.21,
+     "any_td": 1.09,
      "rec": 4.5,
      "rec_yd": 34.0,
      "rush_yd": 71.5
     },
     "Chuck Clark": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "D.J. Reed": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "De'Vondre Campbell": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Deebo Samuel": {
-     "any_td": 3.74,
+     "any_td": 0.53,
      "rec": 4.5,
      "rec_yd": 50.5,
      "rush_yd": 14.5
     },
     "Demetrius Flannigan-Fowles": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Deommodore Lenoir": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Eric Saubert": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Fred Warner": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Garrett Wilson": {
-     "any_td": 3.8,
+     "any_td": 0.57,
      "rec": 5.5,
      "rec_yd": 68.0
     },
     "George Kittle": {
-     "any_td": 3.63,
+     "any_td": 0.46,
      "rec": 3.5,
      "rec_yd": 45.5
     },
     "George Odum": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Irvin Charles": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Isaac Guerendo": {
-     "any_td": 2.35
+     "any_td": 0.1
     },
     "Isaac Yiadom": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Isaiah Davis": {
-     "any_td": 2.07
+     "any_td": 0.07
     },
     "Isaiah Oliver": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Israel Abanikanda": {
-     "any_td": 1.77
+     "any_td": 0.05
     },
     "Jacob Cowing": {
-     "any_td": 2.1
+     "any_td": 0.07
     },
     "Jake Tonges": {
-     "any_td": 1.77
+     "any_td": 0.05
     },
     "Jamien Sherwood": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Jason Brownlee": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Jauan Jennings": {
-     "any_td": 3.04,
+     "any_td": 0.22,
      "rec": 1.5,
      "rec_yd": 19.5
     },
     "Javon Hargrave": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Javon Kinlaw": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jeremy Ruckert": {
-     "any_td": 2.31,
+     "any_td": 0.1,
      "rec_yd": 6.5
     },
     "Jermaine Johnson": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Ji'Ayir Brown": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Jordan Elliott": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Jordan Mason": {
-     "any_td": 2.73,
+     "any_td": 0.16,
      "rush_yd": 11.5
     },
     "Kenny Yeboah": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Kyle Juszczyk": {
-     "any_td": 2.4,
+     "any_td": 0.11,
      "rec_yd": 3.5
     },
     "Leonard Floyd": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Leonard Taylor III": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Malachi Corley": {
-     "any_td": 2.31
+     "any_td": 0.1
     },
     "Michael Carter II": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Micheal Clemons": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Mike Williams": {
-     "any_td": 3.37,
+     "any_td": 0.33,
      "rec": 2.5,
      "rec_yd": 28.5
     },
     "Nick Bosa": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Patrick Taylor": {
-     "any_td": 1.61
+     "any_td": 0.04
     },
     "Quincy Williams": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Quinnen Williams": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Renardo Green": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Rock Ya-Sin": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Ronnie Bell": {
-     "any_td": 2.17
+     "any_td": 0.08
     },
     "Sauce Gardner": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Solomon Thomas": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tatum Bethune": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tony Adams": {
-     "any_td": 1.37
+     "any_td": 0.03
     },
     "Tracy Walker III": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Tyler Conklin": {
-     "any_td": 3.15,
+     "any_td": 0.25,
      "rec": 3.5,
      "rec_yd": 30.5
     },
     "Will McDonald IV": {
-     "any_td": 1.09
+     "any_td": 0.02
     },
     "Xavier Gipson": {
-     "any_td": 2.69,
+     "any_td": 0.15,
      "rec": 1.5,
      "rec_yd": 12.5
     },
     "Antoine Winfield Jr.": {
-     "any_td": 1.58
+     "any_td": 0.04
     },
     "Austin Ekeler": {
-     "any_td": 3.44,
+     "any_td": 0.36,
      "rec": 3.5,
      "rec_yd": 21.0,
      "rush_yd": 26.5
     },
     "Baker Mayfield": {
-     "any_td": 2.87,
+     "any_td": 0.18,
      "pass_td": 1.5,
      "pass_yd": 248.5,
      "rush_yd": 8.5
     },
     "Ben Sinnott": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Benjamin St-Juste": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Bobby Wagner": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Brian Robinson Jr.": {
-     "any_td": 3.48,
+     "any_td": 0.38,
      "rec": 1.5,
      "rec_yd": 9.0,
      "rush_yd": 43.5
     },
     "Bucky Irving": {
-     "any_td": 3.15,
+     "any_td": 0.25,
      "rec_yd": 6.5,
      "rush_yd": 20.5
     },
     "Byron Pringle": {
-     "any_td": 1.75
+     "any_td": 0.05
     },
     "Cade Otton": {
-     "any_td": 3.35,
+     "any_td": 0.32,
      "rec": 2.5,
      "rec_yd": 26.5
     },
     "Chris Godwin": {
-     "any_td": 3.6,
+     "any_td": 0.44,
      "rec": 5.5,
      "rec_yd": 58.5
     },
     "Colson Yankoff": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Daron Payne": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Devin Culp": {
-     "any_td": 1.88
+     "any_td": 0.06
     },
     "Dyami Brown": {
-     "any_td": 3.0,
+     "any_td": 0.21,
      "rec": 1.5,
      "rec_yd": 15.5
     },
     "Emmanuel Forbes": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Frankie Luvu": {
-     "any_td": 1.15
+     "any_td": 0.02
     },
     "Jalen McMillan": {
-     "any_td": 3.04,
+     "any_td": 0.22,
      "rec": 2.5,
      "rec_yd": 26.5
     },
     "Jamel Dean": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jamison Crowder": {
-     "any_td": 2.42
+     "any_td": 0.11
     },
     "Jayden Daniels": {
-     "any_td": 3.59,
+     "any_td": 0.44,
      "pass_td": 1.5,
      "pass_yd": 209.5,
      "rush_yd": 40.5
     },
     "Jeremy Chinn": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Jeremy McNichols": {
-     "any_td": 1.93
+     "any_td": 0.06
     },
     "John Bates": {
-     "any_td": 2.01
+     "any_td": 0.07
     },
     "Jonathan Allen": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Jordan Whitehead": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "K.J. Britt": {
-     "any_td": 1.24
+     "any_td": 0.02
     },
     "Kameron Johnson": {
-     "any_td": 2.83
+     "any_td": 0.17
     },
     "Ko Kieft": {
-     "any_td": 2.27
+     "any_td": 0.09
     },
     "Lavonte David": {
-     "any_td": 1.33
+     "any_td": 0.03
     },
     "Luke McCaffrey": {
-     "any_td": 2.73
+     "any_td": 0.16
     },
     "Mike Evans": {
-     "any_td": 3.85,
+     "any_td": 0.62,
      "rec": 4.5,
      "rec_yd": 70.0
     },
     "Mike Sainristil": {
-     "any_td": 1.49
+     "any_td": 0.04
     },
     "Noah Brown": {
-     "any_td": 2.8,
+     "any_td": 0.17,
      "rec_yd": 13.5
     },
     "Olamide Zaccheaus": {
-     "any_td": 2.63,
+     "any_td": 0.14,
      "rec": 1.5,
      "rec_yd": 15.5
     },
     "Payne Durham": {
-     "any_td": 2.04
+     "any_td": 0.07
     },
     "Percy Butler": {
-     "any_td": 1.02
+     "any_td": 0.02
     },
     "Rachaad White": {
-     "any_td": 3.92,
+     "any_td": 0.68,
      "rec": 3.5,
      "rec_yd": 20.5,
      "rush_yd": 58.5
     },
     "Sean Tucker": {
-     "any_td": 2.3
+     "any_td": 0.1
     },
     "Terry McLaurin": {
-     "any_td": 3.56,
+     "any_td": 0.42,
      "rec": 4.5,
      "rec_yd": 59.5
     },
     "Trey Palmer": {
-     "any_td": 2.92,
+     "any_td": 0.19,
      "rec_yd": 10.5
     },
     "Zach Ertz": {
-     "any_td": 3.12,
+     "any_td": 0.25,
      "rec": 3.5,
      "rec_yd": 27.5
     },
     "Zyon McCollum": {
-     "any_td": 1.33
+     "any_td": 0.03
     }
    },
    "health": {

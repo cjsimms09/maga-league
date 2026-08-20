@@ -1,6 +1,16 @@
 {
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/conditional_value.py; DISPLAY-WIRED to the war room per Cory's ruling 2026-08-17 ('Yes!') \u2014 chips + drill-down read this, printed separately; the SCORING side stays gated: engine/composite/vorp/build never read it and the composite never contains these numbers",
- "generated_at_note": "rebuild: python3 draft/backtest/conditional_value.py",
+ "rebuild_with": "python3 draft/backtest/conditional_value.py",
+ "input_fingerprint": {
+  "board": "9b26df5b013c",
+  "keepers": "10b76c4ff681",
+  "wire": "08700aea8f79",
+  "component_2021": "27b467b7ecd2",
+  "component_2022": "0751e8c75bb3",
+  "component_2023": "cd8ef757f7fa",
+  "component_2024": "3209d2e739e3",
+  "component_2025": "bbd3ddc0ea92"
+ },
  "mandate": "docs/queued/conditional-value-program.md",
  "seasons": [
   2021,
@@ -418,21 +428,21 @@
     {
      "pid": "5995",
      "name": "Justice Hill",
-     "adp": 217.5,
+     "adp": 210.5,
      "depth_chart_order": 2,
-     "proj_mean": 54.24,
+     "proj_mean": 81.45,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
      "class_elevated_sd": 7.6,
      "class_n_elevated_weeks": 111,
      "premium_pts_to_cory": 4.5,
      "premium_pts_to_cory_own_availability": 7.9,
-     "premium_pts_to_field": 0.9
+     "premium_pts_to_field": 0.7
     },
     {
      "pid": "13302",
      "name": "Adam Randall",
-     "adp": 306.0,
+     "adp": 305.0,
      "depth_chart_order": 3,
      "proj_mean": 26.1,
      "own_elevated_history": null,
@@ -441,7 +451,7 @@
      "class_n_elevated_weeks": 111,
      "premium_pts_to_cory": 4.5,
      "premium_pts_to_cory_own_availability": 7.9,
-     "premium_pts_to_field": 0.9
+     "premium_pts_to_field": 0.7
     }
    ]
   },
@@ -503,8 +513,8 @@
     {
      "pid": "13337",
      "name": "Emmett Johnson",
-     "adp": 199.0,
-     "depth_chart_order": 3,
+     "adp": 207.0,
+     "depth_chart_order": 4,
      "proj_mean": 59.2,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
@@ -512,21 +522,21 @@
      "class_n_elevated_weeks": 111,
      "premium_pts_to_cory": 4.5,
      "premium_pts_to_cory_own_availability": 9.9,
-     "premium_pts_to_field": 0.9
+     "premium_pts_to_field": 0.7
     },
     {
      "pid": "11199",
      "name": "Emari Demercado",
-     "adp": 313.0,
+     "adp": 311.0,
      "depth_chart_order": 2,
-     "proj_mean": 31.43,
+     "proj_mean": 32.3,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
      "class_elevated_sd": 7.6,
      "class_n_elevated_weeks": 111,
      "premium_pts_to_cory": 4.5,
      "premium_pts_to_cory_own_availability": 9.9,
-     "premium_pts_to_field": 0.9
+     "premium_pts_to_field": 0.7
     }
    ]
   }
@@ -553,10 +563,10 @@
   "wire_per_week": {
    "QB": 23.38,
    "RB": 7.8,
-   "WR": 11.1,
+   "WR": 10.85,
    "TE": 11.6
   },
-  "startable_rb_bar_ppw": 11.54
+  "startable_rb_bar_ppw": 11.76
  },
  "caveats": [
   "correlations come from 5 seasons of weekly rows and are NOISY \u2014 every class and pair above carries its n; pair-level r moves season to season (see per_season blocks) and the class-pooled rho is the stabler number",

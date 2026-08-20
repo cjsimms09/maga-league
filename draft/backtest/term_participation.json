@@ -1,0 +1,252 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/term_participation.js",
+ "_note": "REPORT ONLY, selects nothing. \"Participates\" = zeroing the term changes what the tool would TELL CORY TO DO at his own picks — not that it moves scores. Room drained in strict ADP order, which the real room will not be.",
+ "board_built_at": "2026-08-19T00:54:18Z",
+ "weights": {
+  "value": 1,
+  "tier": 0,
+  "need": 0,
+  "risk": 0,
+  "ceiling": 0.45,
+  "keeper": 1,
+  "bye": 0,
+  "stack": 1
+ },
+ "schedule": [
+  8,
+  13,
+  28,
+  33,
+  48,
+  53,
+  68,
+  73,
+  88,
+  93,
+  108,
+  113,
+  128,
+  133,
+  148
+ ],
+ "arms": {
+  "a0": {
+   "baseline_roster": {
+    "QB": 1,
+    "TE": 2,
+    "RB": 8,
+    "WR": 2,
+    "K": 1,
+    "DEF": 1
+   },
+   "baseline_picks": [
+    "QB Josh Allen",
+    "TE Brock Bowers",
+    "TE Colston Loveland",
+    "RB David Montgomery",
+    "RB Jadarian Price",
+    "RB Bhayshul Tuten",
+    "RB Rhamondre Stevenson",
+    "WR Jayden Reed",
+    "WR Alec Pierce",
+    "RB Jordan Mason",
+    "RB Chris Rodriguez",
+    "RB Aaron Jones",
+    "RB Tyrone Tracy",
+    "K Cam Little",
+    "DEF New England Patriots"
+   ],
+   "terms": [
+    {
+     "term": "value",
+     "weight": 1,
+     "shipped_off": false,
+     "picks_changed": 9,
+     "top10_changed": 14,
+     "roster_without": {
+      "QB": 1,
+      "TE": 2,
+      "RB": 8,
+      "WR": 2,
+      "DEF": 1,
+      "K": 1
+     }
+    },
+    {
+     "term": "tier",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "need",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "risk",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "ceiling",
+     "weight": 0.45,
+     "shipped_off": false,
+     "picks_changed": 3,
+     "top10_changed": 12,
+     "roster_without": {
+      "QB": 1,
+      "TE": 2,
+      "RB": 6,
+      "WR": 4,
+      "K": 1,
+      "DEF": 1
+     }
+    },
+    {
+     "term": "keeper",
+     "weight": 1,
+     "shipped_off": false,
+     "picks_changed": 0,
+     "top10_changed": 0,
+     "roster_without": {
+      "QB": 1,
+      "TE": 2,
+      "RB": 8,
+      "WR": 2,
+      "K": 1,
+      "DEF": 1
+     }
+    },
+    {
+     "term": "bye",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "stack",
+     "weight": 1,
+     "shipped_off": false,
+     "picks_changed": 1,
+     "top10_changed": 10,
+     "roster_without": {
+      "QB": 1,
+      "TE": 2,
+      "RB": 7,
+      "WR": 3,
+      "K": 1,
+      "DEF": 1
+     }
+    }
+   ]
+  },
+  "a1": {
+   "baseline_roster": {
+    "RB": 10,
+    "TE": 1,
+    "WR": 1,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "baseline_picks": [
+    "RB James Cook",
+    "TE Brock Bowers",
+    "RB Breece Hall",
+    "RB David Montgomery",
+    "RB Bhayshul Tuten",
+    "RB Jadarian Price",
+    "RB Rhamondre Stevenson",
+    "RB Kyle Monangai",
+    "RB Jordan Mason",
+    "WR Jayden Reed",
+    "QB Jared Goff",
+    "RB Chris Rodriguez",
+    "RB Tyrone Tracy",
+    "DEF New England Patriots",
+    "K Cam Little"
+   ],
+   "terms": [
+    {
+     "term": "value",
+     "weight": 1,
+     "shipped_off": false,
+     "picks_changed": 10,
+     "top10_changed": 15,
+     "roster_without": {
+      "TE": 2,
+      "QB": 2,
+      "RB": 8,
+      "WR": 1,
+      "DEF": 1,
+      "K": 1
+     }
+    },
+    {
+     "term": "tier",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "need",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "risk",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "ceiling",
+     "weight": 0.45,
+     "shipped_off": false,
+     "picks_changed": 9,
+     "top10_changed": 13,
+     "roster_without": {
+      "RB": 6,
+      "TE": 1,
+      "QB": 2,
+      "WR": 4,
+      "K": 1,
+      "DEF": 1
+     }
+    },
+    {
+     "term": "keeper",
+     "weight": 1,
+     "shipped_off": false,
+     "picks_changed": 3,
+     "top10_changed": 12,
+     "roster_without": {
+      "RB": 10,
+      "WR": 1,
+      "QB": 1,
+      "TE": 1,
+      "DEF": 1,
+      "K": 1
+     }
+    },
+    {
+     "term": "bye",
+     "weight": 0,
+     "shipped_off": true
+    },
+    {
+     "term": "stack",
+     "weight": 1,
+     "shipped_off": false,
+     "picks_changed": 3,
+     "top10_changed": 6,
+     "roster_without": {
+      "RB": 9,
+      "TE": 1,
+      "WR": 2,
+      "QB": 1,
+      "DEF": 1,
+      "K": 1
+     }
+    }
+   ]
+  }
+ }
+}

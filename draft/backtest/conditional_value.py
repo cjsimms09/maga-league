@@ -76,6 +76,29 @@ WIRE = HERE.parent / "data" / "wire_level.json"
 SIM = HERE.parent / "tools" / "conditional_value_sim.js"
 
 
+def _input_fingerprint() -> dict:
+    """SHA-256 (first 12) of each input this artifact is derived from.
+
+    Deterministic on purpose — see the note at the call site. A missing input is
+    recorded as "ABSENT" rather than skipped: an artifact built without one of
+    its sources must not fingerprint identically to one built with it.
+    """
+    import hashlib
+    out = {}
+    for name, path in (("board", BOARD), ("keepers", KEEPERS), ("wire", WIRE)):
+        try:
+            out[name] = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+        except OSError:
+            out[name] = "ABSENT"
+    for season in SEASONS:
+        pth = HERE / ("component_stats_%d.json" % season)
+        try:
+            out["component_%d" % season] = hashlib.sha256(pth.read_bytes()).hexdigest()[:12]
+        except OSError:
+            out["component_%d" % season] = "ABSENT"
+    return out
+
+
 # ── pure arithmetic ──────────────────────────────────────────────────────────
 
 def pearson(xs, ys):
@@ -650,7 +673,23 @@ def build_artifact(seasons=SEASONS, sims=20000, write=True):
                       "drill-down read this, printed separately; the SCORING "
                       "side stays gated: engine/composite/vorp/build never "
                       "read it and the composite never contains these numbers",
-        "generated_at_note": "rebuild: python3 draft/backtest/conditional_value.py",
+        # ── PROVENANCE (register 79, A 2026-08-19) ──────────────────────────
+        # This key used to be `generated_at_note` and its value was the rebuild
+        # command. **A key that reads as a timestamp and holds a shell
+        # instruction is worse than no provenance at all**, because anyone
+        # scanning the artifact sees "generated_at..." and stops looking.
+        # `surface_parity.js` correctly did not count it, and the artifact
+        # showed as unstamped while appearing stamped to a human.
+        #
+        # WHAT REPLACES IT IS A FINGERPRINT, NOT A CLOCK, and deliberately:
+        # a wall-clock time would make this artifact non-reproducible, and the
+        # repo pins several artifacts as committed == regenerated. It also
+        # answers the wrong question. "When was this built" only ever proxies
+        # for "was it built from the inputs that are here now", and the hash
+        # answers that one directly — it changes when an input changes and does
+        # not change when nothing has.
+        "rebuild_with": "python3 draft/backtest/conditional_value.py",
+        "input_fingerprint": _input_fingerprint(),
         "mandate": "docs/queued/conditional-value-program.md",
         "seasons": list(seasons),
         "league": {"weekly_high_dollars": 100, "fantasy_weeks": FANTASY_WEEKS,

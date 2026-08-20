@@ -369,10 +369,43 @@ const isHeading = l => /^## TO: /.test(l);
    * a named function, driven here on synthetic sides, and the real stages just
    * feed it when they exist. */
   const itemsOf = t => t.split('\n').filter(isItem);
-  const unionLost = (oursTxt, theirsTxt, resolvedItems) => {
+  /* SURVIVAL, WIDENED 2026-08-18 — the same both-files doctrine the closure
+   * ratchet adopted the day the archive landed. Verbatim-in-ROUTES.md was the
+   * only accepted survival, and that made two legitimate resolutions read as
+   * corruption: (1) an item whose resolution is the ARCHIVE — the stale side
+   * of a merge still carries pre-archive copies, and "restoring" them
+   * resurrects 60+ items the archive already holds; (2) an item EDITED in the
+   * resolution — E's own datestamp correction (08-17 -> 08-18, their commit
+   * d6a8d084) changed headline lines byte-wise, and a date fix must not
+   * require keeping the wrong-dated twin alive. So a line survives if it is
+   * verbatim in the resolution, verbatim in ROUTES-ARCHIVE.md, or its
+   * NORMALISED key (checkbox and date stripped, whitespace collapsed, first
+   * 80 chars) appears in either. A genuinely deleted item has no normalised
+   * twin anywhere and still fails — the FAIL ARM below proves it. */
+  //: emphasis stripped too (08-18, same night): B's triage keeps a resolved
+  //: item's text as an indented reference with the `**`/`~~` removed, so a
+  //: key that retains markdown reads a preserved item as a deletion.
+  const normKey = l => l.replace(/^- \[[ x]\] /, '')
+    .replace(/^\d{4}-\d{2}-\d{2} · /, '')
+    .replace(/~~|\*\*|`/g, '')
+    .replace(/\s+/g, ' ').slice(0, 80);
+  let archiveTxt = '';
+  try { archiveTxt = fs.readFileSync(path.join(ROOT, 'ROUTES-ARCHIVE.md'), 'utf8'); }
+  catch (e) { /* no archive yet */ }
+  const unionLost = (oursTxt, theirsTxt, resolvedItems, resolvedFullTxt) => {
     const both = new Set(itemsOf(oursTxt).concat(itemsOf(theirsTxt)));
-    const now = new Set(resolvedItems);
-    return [...both].filter(l => !now.has(l));
+    const now = new Set(resolvedItems.concat(itemsOf(archiveTxt)));
+    const nowNorm = new Set([...now].map(normKey));
+    /* THIRD SURVIVAL FORM, added 08-18 the same night as the second: B's
+     * inbox-backlog triage collapses resolved items into ONE ticked summary
+     * whose body lists them as INDENTED reference lines — the content
+     * survives verbatim, just not as item lines. A deleted item leaves no
+     * text at all, so substring-survival in the full resolution (or the
+     * archive) still catches real deletion while accepting the collapse. */
+    const full = ((resolvedFullTxt || '') + '\n' + archiveTxt)
+      .replace(/~~|\*\*|`/g, '').replace(/[ \t]+/g, ' ');
+    return [...both].filter(l => !now.has(l) && !nowNorm.has(normKey(l))
+      && !full.includes(normKey(l)));
   };
   {
     const A = '## TO: C\n- [ ] 2026-08-13 · A · an item only A wrote, long enough to be real\n';
@@ -402,7 +435,7 @@ const isHeading = l => /^## TO: /.test(l);
      * this morning, never saw a total, and did not ask why. A crash after a
      * `ck` reads exactly like a suite that stopped at the failure. */
     const resolved = LINES.filter(isItem);
-    const lost = unionLost(ours, theirs, resolved);
+    const lost = unionLost(ours, theirs, resolved, LINES.join('\n'));
     ck('MERGE — every item line from EITHER side survives the resolution',
       lost.length === 0, lost.map(l => l.slice(0, 90)));
     ck('CONTROL — both sides genuinely carry items, or the union proves nothing',

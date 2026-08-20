@@ -1,0 +1,104 @@
+diff --git a/draft/tests/surface_contract.test.js b/draft/tests/surface_contract.test.js
+index d889b9b..5cfc344 100644
+--- a/draft/tests/surface_contract.test.js
++++ b/draft/tests/surface_contract.test.js
+@@ -123,7 +123,31 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'),
+    * kind of claim that goes stale silently — this one already did, at 62%. */
+   const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+   const MY = D.pick_order.my_picks;
+-  const keepers = (D.kept_players || []).slice();
++  /* SEEDED THE WAY THE APP SEEDS THEM, NOT VERBATIM (session E, 2026-08-17).
++   *
++   * This read `(D.kept_players || []).slice()` — the raw artifact rows, which
++   * carry no `vorp`. That is exactly the shape register E17 fixed in the app:
++   * `populateKeepers` now derives `vorp` before the keeper reaches
++   * `state.myRoster`, because `kept_players` is a different population from
++   * `players` and omits it.
++   *
++   * Left verbatim, this fixture scored Cory's three keepers as worth zero and
++   * so measured a keeper term no surface produces — the same defect
++   * `rec_rows.test.js` records for `|| undefined` weights: a suite grading a
++   * system nobody runs. It surfaced when E18 stopped the keeper bar ranking
++   * rows it cannot value: the keeper share fell from ~14% to 1.1% and the
++   * table-order check went red. The ASSERTION was right; the fixture was stale.
++   *
++   * `vorp === round(proj_mean − replacement_points[pos], 2)` holds for every
++   * board row, so this is the artifact's own formula, not an invented number. */
++  const RP = ((D.replacement || {}).replacement_points) || {};
++  const keepers = (D.kept_players || []).map(k => {
++    if (k.vorp != null || k.proj_mean == null || RP[k.position] == null) return k;
++    return Object.assign({}, k, {
++      replacement: RP[k.position],
++      vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100,
++    });
++  });
+   const priced = D.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
+   const roster = keepers.slice(), taken = keepers.slice(), tot = {};
+   MY.forEach(p => {
+diff --git a/public/js/draft/composite.js b/public/js/draft/composite.js
+index 906aa02..5604439 100644
+--- a/public/js/draft/composite.js
++++ b/public/js/draft/composite.js
+@@ -213,7 +213,47 @@
+     const slots = keeperSlots(ctx);
+     if (slots <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: Infinity, displaced: null });
+ 
+-    // Everyone already competing for those slots.
++    /* Everyone already competing for those slots.
++     *
++     * ⚠️ A ROSTER ENTRY WHOSE VALUE WE NEVER KNEW IS NOT A CANDIDATE, AND
++     * COUNTING ONE AS THE WEAKEST INCUMBENT MAKES THE SCREEN ASSERT SOMETHING
++     * IT CANNOT KNOW (session E, 2026-08-17; register E18).
++     *
++     * `nextYearVorp` reads `(player.vorp || 0)`, so an entry with no `vorp`
++     * scores as worth exactly zero rather than unknown — and since the bar is
++     * `ranked[slots-1]`, a valueless entry occupying that index drags the bar
++     * NEGATIVE and `max(0, raw - bar)` then ADDS to every candidate. That is
++     * how the board came to say "Zay Flowers ... he beats Ja'Marr Chase for the
++     * last slot by 17 pts" (E17, fixed at the seam by seeding keeper vorp).
++     *
++     * THIS IS THE SAME DEFECT ARRIVING BY A DIFFERENT ROUTE. Two live paths put
++     * valueless rows on the roster by design: `recordManualPick` builds a stub
++     * for a name typed at the table, and the Sleeper poll builds one for a pick
++     * whose player is not on our board (measured 3.3% expected, 14% upper
++     * bound). Both are CORRECT to exist — the pick count, seat rosters, need
++     * and legality all have to see them. They are simply not keeper candidates,
++     * because nothing here knows what they are worth.
++     *
++     * WHAT IT PRODUCED, measured on the live board at pick 33 with a roster of
++     * two keepers plus one off-board stub: three KEEPER TARGET badges reading
++     * "beats <stub> by 12 pts" — a comparison against a player carrying no
++     * projection at all. On screen the stub wears its real Sleeper name, so it
++     * reads as a genuine judgement about a genuine player.
++     *
++     * THE DOCSTRING ABOVE ALREADY STATES THE RIGHT ANSWER: "With fewer
++     * incumbents than slots there is a free slot, so the bar is zero." A row we
++     * cannot value is not an incumbent, so dropping it lands exactly there.
++     * Fixed as a CONTRACT VIOLATION rather than an improvement — the same
++     * grounds as the negative-KOV floor above, and true independent of any
++     * measurement.
++     *
++     * INERT FOR CORY'S CURRENT SLATE, and that was measured rather than hoped:
++     * with three valued keepers the bar is `ranked[2]`, all three outrank any
++     * valueless row, and the bar is identical before and after this change at
++     * every one of his twelve picks. It can only bind when FEWER THAN `slots`
++     * roster entries carry a real value — e.g. if he locks two keepers on 08-20
++     * and an off-board pick lands on his roster.
++     */
+     const incumbents = [];
+     for (const p of (ctx.roster || [])) {
+       if (p && p.player_id !== player.player_id) incumbents.push(p);
+@@ -222,10 +262,12 @@
+       if (p && p.keeper_eligible_again !== false
+           && !incumbents.some(q => q.player_id === p.player_id)) incumbents.push(p);
+     }
++    /* ABSENT STAYS ABSENT. Not `|| 0` — that substitution is the whole defect. */
++    const valued = incumbents.filter(p => Number.isFinite(Number(p && p.vorp)));
+ 
+     // The bar is the weakest candidate who would still hold a slot. With fewer
+     // incumbents than slots there is a free slot, so the bar is zero.
+-    const ranked = incumbents
++    const ranked = valued
+       .map(p => ({ p, kov: keeperOptionValueRaw(p, ctx).value }))
+       .sort((a, b) => b.kov - a.kov);
+     const bar = ranked.length >= slots ? ranked[slots - 1].kov : 0;

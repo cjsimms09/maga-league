@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """KEEPER DECISION WITH NABERS — does a slate including Malik Nabers beat Chase/Henry/Walker?
 
-Cory is second-guessing the settled slate (keeper lock Aug 20). He has Nabers on his
+Cory is second-guessing the settled slate (keeper lock Aug 21). He has Nabers on his
 roster; Nabers would replace Henry or Walker. Two questions, and they can disagree:
 
   (A) RAW SURPLUS — flat-cost keeper model (league_config: cost_model top_picks_flat,

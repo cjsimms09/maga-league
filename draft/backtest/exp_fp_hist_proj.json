@@ -27,18 +27,18 @@
     },
     "g3_ghosts": {
      "status": "pass",
-     "ghost_count": 180,
+     "ghost_count": 162,
      "ghost_sample_pids": [
-      "10221",
-      "10223",
-      "10228",
       "1034",
       "1049",
       "10862",
       "10863",
       "10866",
       "10983",
-      "11046"
+      "11046",
+      "11053",
+      "11114",
+      "11139"
      ]
     },
     "g4_anchor": {
@@ -59,35 +59,35 @@
     "mode": "statline",
     "fp_cells": {
      "QB": {
-      "n": 75,
+      "n": 77,
       "status": "measured",
-      "spearman": 0.8826,
-      "mae": 46.22,
-      "bias": 27.32
+      "spearman": 0.8849,
+      "mae": 45.28,
+      "bias": 26.38
      },
      "RB": {
-      "n": 121,
+      "n": 123,
       "status": "measured",
-      "spearman": 0.871,
-      "mae": 25.92,
-      "bias": 1.58
+      "spearman": 0.8729,
+      "mae": 25.73,
+      "bias": 1.73
      },
      "WR": {
-      "n": 180,
+      "n": 182,
       "status": "measured",
-      "spearman": 0.9243,
-      "mae": 22.9,
-      "bias": -9.13
+      "spearman": 0.9251,
+      "mae": 22.81,
+      "bias": -9.12
      },
      "TE": {
-      "n": 96,
+      "n": 97,
       "status": "measured",
-      "spearman": 0.8971,
-      "mae": 16.86,
-      "bias": -8.93
+      "spearman": 0.8989,
+      "mae": 16.76,
+      "bias": -8.76
      }
     },
-    "excluded_no_weekly_row": 108,
+    "excluded_no_weekly_row": 109,
     "survivorship_note": "players projected but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount",
     "baseline_statuses": {
      "naive_prev": "no_prior_store",
@@ -143,18 +143,18 @@
     },
     "g3_ghosts": {
      "status": "pass",
-     "ghost_count": 96,
+     "ghost_count": 83,
      "ghost_sample_pids": [
       "10215",
       "10216",
-      "10221",
-      "10223",
-      "10228",
       "10862",
       "10866",
-      "111",
       "11292",
-      "11378"
+      "11568",
+      "11581",
+      "11582",
+      "11583",
+      "11590"
      ]
     },
     "g4_anchor": {
@@ -182,28 +182,28 @@
       "bias": 14.11
      },
      "RB": {
-      "n": 111,
+      "n": 113,
       "status": "measured",
-      "spearman": 0.752,
-      "mae": 39.09,
-      "bias": 0.08
+      "spearman": 0.7585,
+      "mae": 39.43,
+      "bias": -0.43
      },
      "WR": {
-      "n": 177,
+      "n": 180,
       "status": "measured",
-      "spearman": 0.7917,
-      "mae": 30.06,
-      "bias": -3.49
+      "spearman": 0.797,
+      "mae": 30.37,
+      "bias": -4.13
      },
      "TE": {
-      "n": 87,
+      "n": 88,
       "status": "measured",
-      "spearman": 0.7087,
-      "mae": 24.05,
-      "bias": -8.89
+      "spearman": 0.7103,
+      "mae": 23.82,
+      "bias": -8.83
      }
     },
-    "excluded_no_weekly_row": 96,
+    "excluded_no_weekly_row": 98,
     "survivorship_note": "players projected but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount",
     "baseline_statuses": {
      "naive_prev": "built",
@@ -214,61 +214,61 @@
       "n": 57,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.8015,
+       "spearman": 0.8013,
        "mae": 62.41,
        "bias": 18.95
       },
       "naive_prev": {
-       "spearman": 0.6115,
+       "spearman": 0.613,
        "mae": 81.36,
        "bias": 3.88
       },
       "fp_minus_naive_prev_mae": -18.95
      },
      "RB": {
-      "n": 86,
+      "n": 87,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.7625,
-       "mae": 41.02,
-       "bias": -1.11
+       "spearman": 0.769,
+       "mae": 41.55,
+       "bias": -2.09
       },
       "naive_prev": {
-       "spearman": 0.6779,
-       "mae": 49.94,
-       "bias": 0.31
+       "spearman": 0.6853,
+       "mae": 50.31,
+       "bias": -0.64
       },
-      "fp_minus_naive_prev_mae": -8.92
+      "fp_minus_naive_prev_mae": -8.76
      },
      "WR": {
-      "n": 138,
+      "n": 140,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.7757,
-       "mae": 31.73,
-       "bias": -4.45
+       "spearman": 0.7824,
+       "mae": 32.27,
+       "bias": -5.24
       },
       "naive_prev": {
-       "spearman": 0.7028,
-       "mae": 42.12,
-       "bias": 9.36
+       "spearman": 0.7105,
+       "mae": 42.45,
+       "bias": 8.59
       },
-      "fp_minus_naive_prev_mae": -10.39
+      "fp_minus_naive_prev_mae": -10.18
      },
      "TE": {
-      "n": 76,
+      "n": 77,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.7131,
-       "mae": 24.27,
-       "bias": -8.99
+       "spearman": 0.7154,
+       "mae": 24.0,
+       "bias": -8.92
       },
       "naive_prev": {
-       "spearman": 0.7048,
-       "mae": 28.2,
-       "bias": 0.66
+       "spearman": 0.7089,
+       "mae": 27.91,
+       "bias": 0.57
       },
-      "fp_minus_naive_prev_mae": -3.93
+      "fp_minus_naive_prev_mae": -3.91
      }
     }
    },
@@ -309,6 +309,14 @@
        "realized": 29.3,
        "projected": 189.83,
        "verdict": "full_season"
+      },
+      {
+       "name": "Travis Hunter",
+       "pid": "12530",
+       "adp": 71.67,
+       "realized": 0.0,
+       "projected": 126.19,
+       "verdict": "full_season"
       }
      ]
     },
@@ -335,35 +343,35 @@
     "mode": "statline",
     "fp_cells": {
      "QB": {
-      "n": 71,
+      "n": 72,
       "status": "measured",
-      "spearman": 0.7515,
-      "mae": 63.7,
-      "bias": 15.45
+      "spearman": 0.7589,
+      "mae": 62.55,
+      "bias": 14.01
      },
      "RB": {
-      "n": 115,
+      "n": 126,
       "status": "measured",
-      "spearman": 0.7649,
-      "mae": 37.63,
-      "bias": -0.72
+      "spearman": 0.7734,
+      "mae": 35.88,
+      "bias": 0.09
      },
      "WR": {
-      "n": 178,
+      "n": 184,
       "status": "measured",
-      "spearman": 0.7621,
-      "mae": 31.05,
-      "bias": -3.88
+      "spearman": 0.7732,
+      "mae": 30.36,
+      "bias": -3.97
      },
      "TE": {
-      "n": 100,
+      "n": 112,
       "status": "measured",
-      "spearman": 0.7824,
-      "mae": 22.5,
-      "bias": -12.48
+      "spearman": 0.798,
+      "mae": 20.79,
+      "bias": -11.36
      }
     },
-    "excluded_no_weekly_row": 189,
+    "excluded_no_weekly_row": 169,
     "survivorship_note": "players projected but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount",
     "baseline_statuses": {
      "naive_prev": "built",
@@ -374,85 +382,85 @@
       "n": 57,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.768,
-       "mae": 66.32,
-       "bias": 20.35
+       "spearman": 0.769,
+       "mae": 65.95,
+       "bias": 18.9
       },
       "naive_prev": {
-       "spearman": 0.7015,
-       "mae": 80.14,
-       "bias": 11.98
+       "spearman": 0.7026,
+       "mae": 80.54,
+       "bias": 10.53
       },
       "recency_blend": {
-       "spearman": 0.7162,
-       "mae": 75.25,
-       "bias": 10.08
+       "spearman": 0.7163,
+       "mae": 75.51,
+       "bias": 8.63
       },
-      "fp_minus_naive_prev_mae": -13.82,
-      "fp_minus_recency_blend_mae": -8.93
+      "fp_minus_naive_prev_mae": -14.59,
+      "fp_minus_recency_blend_mae": -9.56
      },
      "RB": {
-      "n": 88,
+      "n": 93,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.7795,
-       "mae": 39.93,
-       "bias": -2.96
+       "spearman": 0.7876,
+       "mae": 38.63,
+       "bias": -2.65
       },
       "naive_prev": {
-       "spearman": 0.7478,
-       "mae": 45.35,
-       "bias": 9.05
+       "spearman": 0.7411,
+       "mae": 44.95,
+       "bias": 10.1
       },
       "recency_blend": {
-       "spearman": 0.7581,
-       "mae": 44.93,
-       "bias": 7.5
+       "spearman": 0.7553,
+       "mae": 44.3,
+       "bias": 8.27
       },
-      "fp_minus_naive_prev_mae": -5.42,
-      "fp_minus_recency_blend_mae": -5.0
+      "fp_minus_naive_prev_mae": -6.32,
+      "fp_minus_recency_blend_mae": -5.67
      },
      "WR": {
-      "n": 141,
+      "n": 146,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.7423,
-       "mae": 34.55,
-       "bias": -3.4
+       "spearman": 0.7627,
+       "mae": 33.58,
+       "bias": -3.62
       },
       "naive_prev": {
-       "spearman": 0.7006,
-       "mae": 38.98,
-       "bias": 11.98
+       "spearman": 0.727,
+       "mae": 38.2,
+       "bias": 11.85
       },
       "recency_blend": {
-       "spearman": 0.7,
-       "mae": 38.36,
-       "bias": 12.75
+       "spearman": 0.7286,
+       "mae": 37.55,
+       "bias": 12.37
       },
-      "fp_minus_naive_prev_mae": -4.43,
-      "fp_minus_recency_blend_mae": -3.81
+      "fp_minus_naive_prev_mae": -4.62,
+      "fp_minus_recency_blend_mae": -3.97
      },
      "TE": {
-      "n": 83,
+      "n": 86,
       "status": "measured",
       "fantasypros": {
-       "spearman": 0.7892,
-       "mae": 21.08,
-       "bias": -10.19
+       "spearman": 0.8067,
+       "mae": 20.49,
+       "bias": -9.96
       },
       "naive_prev": {
-       "spearman": 0.7404,
-       "mae": 26.96,
-       "bias": 2.63
+       "spearman": 0.7623,
+       "mae": 26.18,
+       "bias": 2.43
       },
       "recency_blend": {
-       "spearman": 0.7827,
-       "mae": 24.27,
-       "bias": 2.32
+       "spearman": 0.7999,
+       "mae": 23.54,
+       "bias": 2.15
       },
-      "fp_minus_naive_prev_mae": -5.88,
-      "fp_minus_recency_blend_mae": -3.19
+      "fp_minus_naive_prev_mae": -5.69,
+      "fp_minus_recency_blend_mae": -3.05
      }
     }
    },

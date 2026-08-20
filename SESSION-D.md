@@ -185,4 +185,4 @@ does not crown, or attribute a seat delta to an owner it does not belong to.**
 re-derivation, by every session, on boot. A wrong one there is the cheapest
 possible error to make and the most expensive to hold.
 
-`draft/audit/replay_best_drafter_claim_2026-08-18.md`. Register 31.
+`draft/audit/replay_best_drafter_claim_2026-08-18.md`. Register DS1.

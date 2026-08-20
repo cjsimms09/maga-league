@@ -1,0 +1,70 @@
+name: Props implied points — crosswalk at scale (all 3 seasons)
+
+# TERRITORY: C — dispatches draft/tools/props_implied_points.py.
+#
+# Routed 2026-08-18 (ROUTES.md, A -> C, "THE PROPS ARM'S LAST MISSING
+# JOIN — run the fuzzy crosswalk against the FULL-SEASON props stores").
+# Runs props_season_projection.py's own name-match (rule 11, imported
+# unmodified) against historical_props_{2023,2024,2025}.json and writes
+# props_implied_points_{year}.json per season — {sleeper_pid: implied
+# season points}, match-rate, unmatched names listed in full. Feeds the
+# V7 props residual arm's last committed-data axis; nothing here touches
+# the board or any number Cory drafts from on 08-22.
+#
+# nfl_data_py's import_ids (the crosswalk's name index) is proxy-blocked
+# from the sandbox (403/000, same as every other nfl_data_py egress this
+# week) — this runs in CI only, dispatched from `main` for the same
+# push-guard reason as every other fetch workflow this week.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: props-implied-points
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure crosswalk/aggregation logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_props_implied_points.py draft/tests/test_props_season_projection.py -q
+
+      - name: Build the per-season implied-points stores
+        run: python3 draft/tools/props_implied_points.py
+
+      - name: Commit the feature stores
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/props_implied_points_2023.json \
+                  draft/backtest/props_implied_points_2024.json \
+                  draft/backtest/props_implied_points_2025.json
+          if ! git diff --cached --quiet; then
+            git commit -m "props_implied_points: crosswalk at scale — 2023/2024/2025 built against the full-season stores [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — the feature stores already match what was on disk"

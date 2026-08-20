@@ -26,7 +26,7 @@
    "total_credits_est": 961,
    "formula": "odds_credits = games * snapshots_per_game * 10 * markets * regions (vendor formula); events_list_credits_est = events_list_calls * 2 (empirically observed in key-probe run 31967817943, not vendor-documented)"
   },
-  "credits_remaining_last_seen": "60792",
+  "credits_remaining_last_seen": "58852",
   "health": {
    "weeks_fetched": 1,
    "games_planned": 16,

@@ -40,8 +40,12 @@ check('rank 1 is the earliest open first pick (round 4 reverses → high slot fi
   A.open[0].rank === 1 && A.open[0].first === Math.min.apply(null, A.open.map(c => c.first)));
 check('Bowers survival is reported and higher for earlier first picks',
   A.open[0].bowersSurvival != null && A.open[0].bowersSurvival >= A.open[A.open.length - 1].bowersSurvival);
+// Aug 21, not Aug 20: Cory ruled the keeper lock 08-21 6pm CDT on 08-18
+// (register 42/E25). E fixed the caveat in src/slotpicker.js the same day and
+// this pin was the one carrier of the dead date left behind — re-aimed at the
+// ruled one in the merge that took the fix.
 check('provenance + caveat carried', A.provenance === 'site claims — Sleeper pending'
-  && /Aug 20/.test(A.caveat));
+  && /Aug 21/.test(A.caveat));
 check('not yet claimed by me', A.claimed === false && A.myClaim === null);
 
 // (1) RE-RANK ON A CLAIM: someone takes slot 10 (the previous #1). The model must

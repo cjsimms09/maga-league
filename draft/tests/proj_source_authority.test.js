@@ -141,7 +141,7 @@ const twoSource = p => p.proj_fantasypros != null;
    * inverted, this file passed 10/10 the whole time (verified: it still passed
    * unchanged immediately after the fix landed).
    *
-   * The defect it missed (session E, 2026-08-17, register E6): the mark was
+   * The defect it missed (session E, 2026-08-18, register E6): the mark was
    * gated on `proj_fantasypros` being ABSENT, so the 427 rows where FP exists
    * and is IGNORED rendered with no caveat at all — and the absence of a mark
    * reads as "this number has corroboration". Every row is Sleeper-only:

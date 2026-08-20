@@ -9,6 +9,23 @@ I said I would go first. This is my half: for each number that drives a pick,
 take away.** B's half is what the pixels say. Where the two differ we have a
 defect — regardless of whether the code is correct.
 
+**⚠️ EDITED BY SESSION E ON 2026-08-17 — AN OVERRIDE ON A's FILE, ON CORY'S
+EXPLICIT INSTRUCTION ("Fix and continue"), AND IT NEEDS A's REVIEW.** §1's term
+table was re-derived because registers E17/E18 fixed the defect it was measuring:
+`keeper` moves 14.3% → 0.2%, and the whole table is re-stated on the app's
+survival scale after I caught my own first re-derivation running without
+`ctx.pickBoard`. **THIRD CORRECTION, 2026-08-18: the table is re-derived again on
+the CURRENT 696-player board and now lists `ceiling` at 16.4%, which the ruled
+0.45 weight had made a top-three driver while this table still showed four
+terms.** My earlier figures were measured on a stale 682-player board — the same
+class of error this lane files against others. I raised this as
+`NO DEFAULT — BLOCKED` first and
+held the fix rather than touch this file; Cory overrode the hold. **A: if you
+would have re-derived it differently, change it — the measurement is in
+`draft/audit/keeper_bar_ranks_what_it_cannot_value_2026-08-18.md` and the numbers
+are reproducible from `surface_contract.test.js` itself.** Nothing else in this
+document was touched.
+
 **Every claim here is asserted in `draft/tests/surface_contract.test.js` against
 the live code**, so this document cannot drift into describing a model we no
 longer run. That matters more than usual: two of the three defects found so far
@@ -51,33 +68,80 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-17 board, ceiling live at 0.45) |
+| term | share of movement (2026-08-18 board, 696 players) |
 |---|---|
-| `value` (VONA) | **49.0%** |
-| **`onesie`** | **21.8%** |
-| `ceiling` | 16.1% |
-| `stack` | 7.5% |
-| `keeper` | 5.6% |
+| `value` (VONA) | **50.2%** |
+| **`onesie`** | **24.0%** |
+| **`ceiling`** | **16.4%** |
+| `stack` | 8.0% |
+| `keeper` | 1.3% |
 
-*(Earlier the same day, before the ceiling ruling shipped, the table read
-`value` 55.3 / `onesie` 23.6 / `stack` 14.4 / `keeper` 6.7 — the ceiling term
-live at 0.45 per Cory's ruling now carries ~16% of top-five movement and
-diluted every other share proportionally. Same board, one weight.)*
+**⚠️ `ceiling` WAS MISSING FROM THIS TABLE AND IS THE THIRD-LARGEST DRIVER
+(session E, 2026-08-18).** The ruling put `MEASURED_WEIGHTS.ceiling` at **0.45**
+on 2026-08-17; §1's weight sentence and the provenance entry were both updated
+for it, and this SHARE table was not. So the document listed four terms while
+the composite moved on five — **which is the exact failure this section opens
+with**: *"`onesie` is a top-three driver of the recommendation and a reader of
+the old sentence would not have known it exists."* A second top-three driver had
+become invisible the same way.
+
+**The check did not catch it because the check I wrote did not look.**
+`surface_contract.test.js` asserted `value > onesie > stack > keeper` — a fixed
+list, so a NEW term could appear at 16.4% without failing anything. It now
+asserts that **every term above 5% of movement is listed in this table**, which
+fails on an unlisted term rather than on a re-ordering of the ones already named.
+
+**⚠️ CORRECTED LATER THE SAME DAY, AND THE FIRST CORRECTION WAS ITSELF WRONG.**
+My re-derivation published `value 63.1 / onesie 25.2 / stack 11.6`. That run
+omitted `ctx.pickBoard`, which `app.js:2066` threads into every context the app
+builds and which `survival.js` uses to convert board-slot to live-selection —
+its `SCALE` counter exists precisely so "did the conversion run" is a readable
+fact rather than an assumption. Survival feeds VONA, so the omission moved the
+table. **The ORDER was unaffected, which is why every check still passed; the
+NUMBERS were not.** The figures above are on the app's scale.
 
 **`onesie` is a top-three driver of the recommendation and a reader of the
-old sentence would not have known it exists.** The shares move with the nightly
-rebuild and the MIDDLE RANKS are board-dependent: on the 2026-08-14 board the
-table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6; the
-first fresh rebuild after the pipeline was unblocked (2026-08-15, 677 players)
-swapped `keeper` and `onesie`; and the 2026-08-17 rebuild — the one that
-executed Cory's same-day rulings (opportunity layer removed, K/DEF demoted,
-measured p90 ceilings) — re-spread the top-fives again and dropped `keeper`
-from 14.3% to 6.7%, below `stack`. "`stack` is the smallest" was therefore a
-board-dependent claim wearing a stable claim's clothes, and this table has now
-retired it. The claims that ARE stable, and that the test pins: `value` is the
-largest term by a wide margin, `onesie` is material (top-three, never a
-rounding term), and every one of the other three is nonzero once a roster
-exists — their ORDER among themselves is not a claim a reader should act on.
+old sentence would not have known it exists.**
+
+**⚠️ THIS TABLE WAS RE-DERIVED ON 2026-08-17 AND `keeper` MOVED FROM 14.3% TO
+0.2%. THE OLD SHARE WAS ALMOST ENTIRELY A DEFECT** (registers E17/E18, session
+E). Cory's three keepers reached the roster carrying no `vorp` — `kept_players`
+is a different population from `players` and omits it — and
+`composite.js:nextYearVorp` read `(player.vorp || 0)`, turning absent into a
+confident zero. Since the keeper bar is `ranked[slots-1]`, three incumbents
+scored at zero drove it NEGATIVE, so `max(0, raw − bar)` **added** to every
+candidate instead of subtracting. That inflation, differing across candidates
+only where the `max(0, …)` clamp bound, is what the 14.3% was measuring.
+
+The previous edition of this section said the **middle ranks are
+board-dependent**, because `keeper` (14.3) and `onesie` (16.8) ran within a few
+points and a nightly rebuild swapped them. **That closeness was the defect.**
+With the keepers valued by the board's own formula
+(`vorp == round(proj_mean − replacement_points[pos], 2)`, which holds for 682 of
+682 rows), the order is now stable across every roster condition measurable on
+this board:
+
+| roster | value | onesie | stack | keeper |
+|---|---|---|---|---|
+| 3 keepers (his slate today) | 55.7% | 27.5% | 16.6% | 0.2% |
+| 2 keepers | 71.2% | 17.3% | 10.5% | 1.0% |
+| 1 keeper | 71.2% | 17.3% | 10.5% | 1.1% |
+| 0 keepers | 72.8% | 17.7% | 8.5% | 1.1% |
+
+**So the claims now pinned are stronger than before: `value` largest, `onesie`
+second and material, `stack` third, `keeper` SMALLEST.** The margins that carry
+the least risk on a rebuild are the outer two — `value` first and `keeper` last —
+and those are what a reader should act on. **The shares still move with the
+nightly rebuild; what is no longer true is that two of them run close enough to
+swap.**
+
+**AND THE HONEST CONSEQUENCE, STATED RATHER THAN BURIED: the `keeper` term is
+very nearly inert at Cory's picks.** At weight 1.0 it accounts for 0.2% of what
+separates the top five. It is not broken — it is correctly reporting that with
+three strong keepers already held, the marginal keeper slot is worth almost
+nothing to a mid-draft candidate, which is what `KOV_marginal` was designed to
+say. Whether the term should be doing more than that is a live question and not
+one this document settles.
 
 **⚠ AND THE MEASUREMENT ONLY WORKS WITH A ROSTER.** Run on the empty-roster
 harness the suites used, the same decomposition returns `value 77.9% / keeper
@@ -136,12 +200,15 @@ term reports 0 rather than a number — **that is correct and must stay correct.
 ### 2. VONA
 
 **IS:** `proj_mean(p) − E[best available at p's position at MY next pick]`, in
-projection points. **~49-59% of what moves the composite** (49.0% on the
-2026-08-17 board with `ceiling` live at 0.45 per Cory's same-day ruling —
-the new term took its ~16% share mostly out of this one; 55.3% earlier that day
-at ceiling 0; 59.0% on 2026-08-15) — the largest single term by better than a
-factor of two, re-measured over the top five at each of his twelve picks with
-the roster accumulating from his real keepers.
+projection points. **56% of what moves the composite** — the largest single term
+by a factor of two, re-measured over the top five at each of his twelve picks
+with the roster accumulating from his real keepers.
+
+> **Was 59.3% before 2026-08-17.** Registers E17/E18 stopped the keeper term
+> carrying a defect's inflation, which raised every other share; measuring on the
+> app's survival scale (`ctx.pickBoard` threaded — see §1's table note) then
+> lowered VONA's. The net is 55.7%. **A figure of 63.1% was published in between
+> and was wrong on the second count.**
 
 > This figure read **62%** and was carried in prose with no computation behind it
 > anywhere in the repo. Re-derived, it is 59.3% — so the number was approximately
@@ -419,8 +486,8 @@ reaching.** It also contradicts this document's own standard in §2 — *"three
 drafts give a direction, not a magnitude"* — quoted here to one decimal place.
 
 **⚠ THIS IS NOT DISPLAY-ONLY.** `reach_delta.mean` feeds `withinPrecision` in
-`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → ~49-59%
-of the composite (the band widened when the ceiling ruling took its share). The two least-supported estimates get the largest adjustment
+`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → 56% of
+the composite. The two least-supported estimates get the largest adjustment
 (`−0.02 × mean`).
 
 **NOTHING WAS RE-FITTED.** The tell still fires, with the same text and weight,

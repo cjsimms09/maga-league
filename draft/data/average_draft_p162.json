@@ -1,0 +1,114 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/average_draft.js",
+ "_prereg": "draft/AVERAGE-DRAFT-PREREG-2026-08-19.md",
+ "_note": "REPORT ONLY. The average over simulated rooms, not one draft.",
+ "rooms": 300,
+ "board_built_at": "2026-08-19T08:52:22Z",
+ "controls": {
+  "C1_rooms_actually_differ": {
+   "ok": true,
+   "players_differing_from_room_0": {
+    "mean": 2.79,
+    "sd": 0.83,
+    "min": 1,
+    "max": 5
+   },
+   "distinct_players_ever_gone_by_pick_33": 57,
+   "why": "the FIRST version counted gone.size, which is always 32 by construction and measured nothing. What varies is WHICH players are gone."
+  },
+  "C2_adp_sd_from_the_board": {
+   "ok": true,
+   "players_without_adp_sd_lookups": 0,
+   "why": "reported, not silently defaulted"
+  },
+  "C3_same_picks_and_keepers_every_room": {
+   "ok": true,
+   "sched": [
+    33,
+    48,
+    53,
+    68,
+    73,
+    88,
+    93,
+    108,
+    113,
+    128,
+    133,
+    148
+   ],
+   "keepers": [
+    "WR",
+    "RB",
+    "RB"
+   ]
+  },
+  "C4_sources_passed_their_controls": {
+   "ok": true
+  },
+  "C6_gate_never_leaves_a_slot_empty": {
+   "ok": true,
+   "rooms_with_an_unfilled_starting_slot": 0,
+   "why": "if the reservation arithmetic is wrong the gate can strand a slot; that would make the whole idea fail and it must be zero"
+  },
+  "C5_deterministic_run_inside_the_distribution": {
+   "ok": true,
+   "deterministic": {
+    "QB": 2,
+    "RB": 3,
+    "WR": 4,
+    "TE": 1,
+    "K": 1,
+    "DEF": 1
+   },
+   "why": "if the n=1 result is outside the simulated range, the noise model is wrong"
+  }
+ },
+ "controls_all_passed": true,
+ "mean_roster": {
+  "QB": {
+   "mean": 1.66,
+   "sd": 0.65,
+   "min": 1,
+   "max": 3
+  },
+  "RB": {
+   "mean": 1.89,
+   "sd": 0.59,
+   "min": 1,
+   "max": 3
+  },
+  "WR": {
+   "mean": 4.48,
+   "sd": 0.66,
+   "min": 2,
+   "max": 5
+  },
+  "TE": {
+   "mean": 1.62,
+   "sd": 0.66,
+   "min": 1,
+   "max": 4
+  },
+  "K": {
+   "mean": 1.35,
+   "sd": 0.48,
+   "min": 1,
+   "max": 2
+  },
+  "DEF": {
+   "mean": 1,
+   "sd": 0,
+   "min": 1,
+   "max": 1
+  }
+ },
+ "P158": {
+  "QB": false,
+  "RB": false,
+  "WR": true,
+  "K": false,
+  "DEF": true,
+  "TRUE": false
+ }
+}

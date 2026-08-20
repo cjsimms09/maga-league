@@ -36,13 +36,32 @@
    *
    * @param picks   observed picks: {player_id, is_keeper, draft_slot, roster_id, pick_no}
    * @param assumed [{player_id, team_slot, cost_round, name}] from the artifact
-   * @param opts    {currentRound, playersById}
+   * @param opts    {currentRound, playersById, teams, topPicksFlat}
    */
   function reconcile(picks, assumed, opts) {
     opts = opts || {};
     const byId = opts.playersById || {};
     const assumedById = {};
     (assumed || []).forEach(function (k) { assumedById[String(k.player_id)] = k; });
+
+    // TOP_PICKS_FLAT: a team's N keepers share ONE fungible set of rounds
+    // 1..N (see placementErrors, the authoritative law, below). WHICH specific
+    // player the artifact's collision-roll happened to pre-label "round 2" is
+    // a bookkeeping tie-break, not a constraint Cory's manual Sleeper
+    // placement is bound to — he is free to place any of his N keepers in any
+    // of his own rounds 1..N. Comparing his real placement against one
+    // arbitrarily pre-assigned round (below, the non-top_picks_flat branch)
+    // would flag a false "misplaced" halt every time his choice legally
+    // differs from our tie-break's, which the reconcile.test.js fixtures
+    // never exercise (every fixture there is one keeper per team, where the
+    // two checks cannot diverge). Found red-teaming E's board sweep, 08-18.
+    const keeperCountByTeam = {};
+    if (opts.topPicksFlat) {
+      (assumed || []).forEach(function (k) {
+        const t = String(k.team_slot);
+        keeperCountByTeam[t] = (keeperCountByTeam[t] || 0) + 1;
+      });
+    }
 
     const seenKeepers = {};
     const unknown = [];
@@ -74,8 +93,14 @@
       const obsRound = (teams && p.pick_no) ? Math.ceil(p.pick_no / teams) : null;
       const wrongTeam = obsTeam != null && designated.team_slot != null
         && Number(obsTeam) !== Number(designated.team_slot);
-      const wrongRound = obsRound != null && designated.cost_round != null
-        && Number(obsRound) !== Number(designated.cost_round);
+      let wrongRound;
+      if (opts.topPicksFlat) {
+        const n = keeperCountByTeam[String(designated.team_slot)] || 1;
+        wrongRound = obsRound != null && !(Number(obsRound) >= 1 && Number(obsRound) <= n);
+      } else {
+        wrongRound = obsRound != null && designated.cost_round != null
+          && Number(obsRound) !== Number(designated.cost_round);
+      }
       if (wrongTeam || wrongRound) {
         misplaced.push({
           player_id: id,

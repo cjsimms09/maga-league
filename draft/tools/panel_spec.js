@@ -268,7 +268,7 @@ const PANELS = [
   { fn: 'renderChecklist', weight: 'TRUSTS', lines: null,
     question: 'Is anything about this board unverified?',
     means: 'Open items — slot unconfirmed, keeper slate predicted rather than locked.',
-    changes_it: 'Sleeper confirming the seat; keeper lock on 08-20',
+    changes_it: 'Sleeper confirming the seat; keeper lock on 08-21',
     reads: ['keeper_slate', 'league.my_draft_slot'] },
 
   { fn: 'renderUnrecordedPicks', weight: 'TRUSTS', lines: null,

@@ -265,9 +265,22 @@ function item(date, done, body) {
     regressedAgainst(bl.closure_by_pair).join(', '));
 
   const tampered = JSON.parse(JSON.stringify(bl.closure_by_pair));
-  tampered['E (red team) → A'].done += 1;   // pretend one more had been closed
+  /* TAMPER A PAIR THAT ACTUALLY EXISTS IN THE LIVE COUNT, CHOSEN FROM THE DATA.
+   * This hardcoded `E (red team) → A` and broke twice for two different reasons:
+   * once when A ticked a batch of that pair's items (a fail arm that goes red on
+   * genuine progress punishes the behaviour the ratchet exists to encourage), and
+   * again when the pair was absent from the live census entirely, so the tamper
+   * computed 0 + 1 = 1 against a live count of 4 and registered no regression at
+   * all — a FAIL ARM THAT SILENTLY STOPS ARMING, which is the exact failure this
+   * whole file is about. Picking the busiest live pair makes both impossible. */
+  const pair = Object.keys(bl.closure_by_pair)
+    .filter((k) => now[k] && typeof now[k].done === 'number')
+    .sort((a, b) => now[b].done - now[a].done)[0];
+  check('CONTROL — the fail arm has a real pair to tamper with, so it is armed',
+    !!pair, JSON.stringify(Object.keys(now).slice(0, 6)));
+  tampered[pair].done = now[pair].done + 1;   // pretend one more had been closed
   check('FAIL ARM — if a closed item came back open the ratchet DETECTS it',
-    regressedAgainst(tampered).indexOf('E (red team) → A') >= 0,
+    regressedAgainst(tampered).indexOf(pair) >= 0,
     regressedAgainst(tampered).join(', '));
 
   /* AND IT MUST NOT FIRE ON NEW WORK — the wolf-crying case, pinned. */
@@ -295,6 +308,72 @@ check('CONTROL — the closure census really does span BOTH files, which is the 
   const totalAlone = Object.values(noArchive).reduce((s, v) => s + v.done, 0);
   return totalSpanning > totalAlone;
 })(), 'the census counted the same either way — it is not reading the archive');
+
+// ── A DUPLICATE MUST NOT READ AS AN UNANSWERED LANE ───────────────────────
+// Twice on 2026-08-19 this tool sent someone after a lane that had done the
+// work: B's answer sat on a second copy of its item for four days, and two of
+// E's four "open" asks were duplicates of items A had already ticked, identical
+// to the character. Both times the conclusion was "a lane is not responding".
+// A backlog number that cannot tell a duplicate from a silence is worse than no
+// number, because it spends attention on a lane that already delivered.
+{
+  const twin = (done, body) => ({
+    done: done, date: '2026-08-15', who: 'loop review (A-lane)', section: 'B',
+    body: ['- [' + (done ? 'x' : ' ') + '] 2026-08-15 · loop review (A-lane) · ' + body],
+  });
+  //: REALISTIC LENGTH ON PURPOSE — the duplicates this exemption exists for are
+  //: hundreds of characters of distinctive prose, and the MIN_DUPLICATE_CHARS
+  //: floor exists precisely so short filler does not match. A fixture shorter
+  //: than the floor would test the floor, not the exemption.
+  const REAL = 'THE ANALYZER K-DIFF IS WRITTEN AND WAITING — one guarded block, gated on '
+    + 'January evidence, do not apply early. draft/audit/loop_review_2026-08-15.md '
+    + 'section 5.1 carries the exact diff for projectStandings.';
+  const OTHER = 'SOMETHING NOBODY HAS EVER ANSWERED — a genuinely open ask of comparable '
+    + 'length, so the two differ by CONTENT rather than by size, which is the only '
+    + 'difference the exemption is allowed to act on.';
+  const openOne = twin(false, REAL);
+  const tickedTwin = twin(true, REAL);
+  const lonely = twin(false, OTHER);
+
+  const keys = R.answeredKeys([openOne, tickedTwin, lonely]);
+  check('an open item whose IDENTICAL twin is ticked counts as answered — the '
+    + 'mailbox lost the answer, the lane did not withhold it',
+  R.answeredElsewhere(openOne, keys) === true);
+
+  check('FAIL ARM — an open item with NO ticked twin is still open. Without '
+    + 'this the exemption would clear the whole backlog and the ratchet would '
+    + 'be decorative',
+  R.answeredElsewhere(lonely, keys) === false);
+
+  check('a TICKED item is never "answered elsewhere" — it is simply answered, '
+    + 'and double-counting it would understate the closure rate',
+  R.answeredElsewhere(tickedTwin, keys) === false);
+
+  const NOW = Date.parse('2026-08-19T00:00:00Z');
+  const b = R.blocked([openOne, tickedTwin, lonely], NOW, 3).map(i => i.body[0]);
+  check('blocked() excludes the duplicate and KEEPS the genuinely unanswered '
+    + 'one — the whole point, on the real code path',
+  b.length === 1 && /NOBODY HAS EVER ANSWERED/.test(b[0]), JSON.stringify(b));
+
+  check('A SHORT SHARED BODY IS A COINCIDENCE, NOT A DUPLICATE — two items can '
+    + 'legitimately say "please advise", and clearing a real ask on that would '
+    + 'be the exemption quietly eating the backlog',
+  R.answeredElsewhere(
+    R.parse('- [ ] 2026-08-05 · relay → E · ask\n  please advise')[0],
+    R.answeredKeys([R.parse('- [x] 2026-08-05 · relay → E · ask\n  please advise')[0]])
+  ) === false);
+
+  check('CONTROL — the floor is real and the long twin above clears it, so the '
+    + 'guard discriminates by LENGTH rather than switching the feature off',
+  R.normaliseItem(openOne).length >= R.MIN_DUPLICATE_CHARS === false
+    || R.answeredElsewhere(openOne, keys) === true);
+
+  check('CONTROL — normalisation ignores wrapping and case, since a duplicate '
+    + 'is re-wrapped by the merge that created it; matching on anything '
+    + 'structural would miss exactly the copies that cause the problem',
+  R.normaliseItem(twin(false, 'The  Analyzer   K-DIFF is  written'))
+    === R.normaliseItem(twin(true, 'the analyzer k-diff is written')));
+}
 
 console.log('\n' + pass + '/' + (pass + fail) + ' routes-response checks passed');
 assert.strictEqual(fail, 0);

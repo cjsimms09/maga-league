@@ -69,7 +69,7 @@ Split the same rows by whether the team's oracle multiplier is above or below 1:
 | 2024 | m ≤ 1 (dud) | 1,194 | 5.1682 | **0.80** | **+0.3293** | **6.4%** |
 
 > **⚠️ AMENDED SAME DAY — the RATIO below is corrected, the finding is not.**
-> These gains were measured on exactly the shape register 32 later exposed: a
+> These gains were measured on exactly the shape register DS2 later exposed: a
 > biased-high baseline pays for shrinking. **A 40-draw placebo (shuffle the
 > multiplier among that week's teams) was run on this table first, before any
 > other lane's work, and it SURVIVES — every side beats every draw, p=0.024.**

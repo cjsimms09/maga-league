@@ -83,18 +83,104 @@ function rows(text) {
  *
  * So: an explicit terminal WORD, in the status cell, or the row is open.
  * ANSWERED / MITIGATED / IN HAND / WAITING are deliberately NOT terminal — they
- * are progress reports, and the safe direction to err is toward being chased. */
-const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded)\b/i;
+ * are progress reports, and the safe direction to err is toward being chased.
+ *
+ * ⚠️ RETRACTED ADDED 2026-08-18, ON A THIRD FAILURE MODE OF THE SAME CELL.
+ * The merge of `main` brought in two rows — DS5 and 44 — whose status reads
+ * "⚠️ RETRACTED, kept for the record", both being the SAME retraction under two
+ * ids after a renumber. A retracted finding is withdrawn by definition: the
+ * author looked again and said it was not real. Counting it OPEN forever
+ * inflates the backlog with rows nobody can ever close, and an open count that
+ * includes uncloseable rows is one people learn to ignore — the same decay that
+ * killed the intervention-rate check.
+ *
+ * Note the direction of both bugs found in this cell so far: the ✅ rule closed
+ * rows that were still live, and this one held open rows that were already dead.
+ * **The status cell is the single most misread field in the register**, which is
+ * why every rule about it is a WORD LIST rather than a symbol or a substring. */
+const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded|retracted)\b/i;
 
 function isClosed(r) {
   return TERMINAL.test(r.status);
 }
 
-/* "recheck 08-19" / "recheck 2026-08-19" — the register uses MM-DD. */
+/* "recheck 08-19" / "recheck 2026-08-19" — the register uses MM-DD.
+ *
+ * ⚠️ THE SEPARATOR IS NOT `\s+`, AND THAT COST US SIXTEEN INVISIBLE ROWS.
+ * On 08-18 the E-lane merge added rows written `recheck **08-19**` and
+ * `recheck post-08-22`. Both are perfectly clear to a human and BOTH WERE
+ * INVISIBLE to this function, so sixteen open rows — including E12, "the
+ * draft-day runbook's one irreversible step rests on a false premise" —
+ * silently counted as having no recheck date and were never chased.
+ *
+ * That was remediated by hand-normalising the DATES. The MECHANISM was left
+ * exactly as it was, so the same sixteen rows would reappear the moment
+ * anyone bolded another one. Re-measured 08-19 with a known-positive control
+ * (see SELF_TEST below): `recheck **08-26**` and `recheck post-08-22` were
+ * still invisible, three weeks and one documented incident later.
+ *
+ * A false NEGATIVE here silently exempts a row from the only mechanism that
+ * chases it — and an undated row is only REPORTED, never failed on (see the
+ * comment in main()), so a missed date is genuinely silent. That is the
+ * dangerous direction, and it is why this tolerates markdown emphasis.
+ *
+ * ⛔ IT DOES NOT TOLERATE A FREE-STANDING WORD, AND THE FIRST VERSION OF THIS
+ * FIX DID. `(?:[a-z-]+[\s-]+)?` was meant to catch "recheck post-08-22"; it
+ * also caught row 21b's "recheck WAS 08-18 — see the 08-23 date at the end of
+ * this row", grabbing the SUPERSEDED date and reporting a healthy row as
+ * overdue. The old regex got 21b right. Caught within a minute because the
+ * dated/undated counts did not move while a new overdue row appeared — a
+ * suspicious positive, rule 3d — and the shape is pinned in SELF_TEST below.
+ * Only a HYPHEN-ATTACHED prefix ("post-", "pre-") is allowed. */
+const RECHECK_RE =
+  /recheck\b[\s:]*[*_~`]*\s*(?:[a-z]+-)?(?:(\d{4})-)?(\d{2})-(\d{2})/i;
+
 function recheckOf(r) {
-  const m = r.all.match(/recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/i);
+  const m = r.all.match(RECHECK_RE);
   if (!m) return null;
   return `${m[1] || YEAR}-${m[2]}-${m[3]}`;
+}
+
+/* ── KNOWN POSITIVE, RULE 3e ────────────────────────────────────────────────
+ * A parser with no test is how the last one stayed broken through its own
+ * incident report. Every shape below has been seen in the register or is one
+ * keystroke from it; the NEGATIVES matter as much, because a regex loose
+ * enough to match anything would "fix" the false negatives by never firing. */
+const SELF_TEST = [
+  // the shapes that were INVISIBLE before 08-19, each one keystrokes from the register
+  ['recheck 08-26.', '2026-08-26'],
+  ['recheck **08-26**.', '2026-08-26'],
+  ['**recheck 08-26**.', '2026-08-26'],
+  ['_recheck 08-26_.', '2026-08-26'],
+  ['recheck `08-26`.', '2026-08-26'],
+  ['recheck post-08-22.', '2026-08-22'],
+  ['recheck pre-09-01.', '2026-09-01'],
+  ['recheck 2027-01-15.', '2027-01-15'],
+  ['recheck: 09-05.', '2026-09-05'],
+  // ⛔ THE ONE THAT KILLED THE FIRST FIX — verbatim from row 21b. A superseded
+  // date announced in prose, with the live one later in the same row. The
+  // parser must reach past it, not grab it.
+  ['owner A, recheck WAS 08-18 — see the 08-23 date at the end of this row, '
+   + 'unblocked by nothing, owner relay, recheck 08-23.', '2026-08-23'],
+  // known NEGATIVES — a regex loose enough to match anything would "fix" the
+  // false negatives by never returning null, which is not a fix
+  ['no date here at all', null],
+  ['rechecked the numbers and moved on', null],
+  ['recheck when the draft is over', null],
+];
+
+function selfTest() {
+  const bad = [];
+  for (const [text, want] of SELF_TEST) {
+    const got = recheckOf({ all: text });
+    if (got !== want) bad.push(`  "${text}" -> ${got} (expected ${want})`);
+  }
+  if (bad.length) {
+    console.error('⛔ recheck PARSER SELF-TEST FAILED — refusing to audit, because a\n' +
+      '   broken parser reports "0 rows without a date" exactly like a healthy one:');
+    bad.forEach(b => console.error(b));
+    process.exit(1);
+  }
 }
 
 function audit(text, today) {
@@ -103,10 +189,53 @@ function audit(text, today) {
   const dated = open.map(r => ({ r, due: recheckOf(r) })).filter(x => x.due);
   const overdue = dated.filter(x => x.due < today);
   const undated = open.filter(r => !recheckOf(r));
-  return { all, open, dated, overdue, undated };
+  return { all, open, dated, overdue, undated, dupes: nearDuplicates(open) };
+}
+
+/* ── TWO OPEN ROWS, ONE FINDING (added 2026-08-18, on three at once) ────────
+ *
+ * Merging `main` produced THREE duplicate pairs — DS1/31, DS4/45, DS5/44 —
+ * each the same measurement word for word under two ids. The mechanism will
+ * recur: the D lane renumbered its `DS`-prefixed rows to numeric ids at its own
+ * merge (row 45 still says "renumbered from 38 at merge — id taken"), and a
+ * later merge brings BOTH the original and the renumbered copy back.
+ *
+ * That costs more than tidiness. A duplicated row inflates the open count, and
+ * two lanes can independently work the same defect and each believe the other
+ * row is something else. It is the register's version of the ledger's duplicate
+ * id — which was also found live, and also only after it had already happened.
+ *
+ * ⚠️ COMPARED ON A NORMALISED PREFIX, NOT THE WHOLE CELL. Rows accrete
+ * annotations, so two copies diverge in their tails within a day of being
+ * filed — comparing full text would stop matching exactly when it matters. The
+ * headline is what identifies a finding, so that is what is compared.
+ */
+function normalise(r) {
+  return String(r.all || '')
+    .replace(/\*|`|_|~/g, '')          // markdown emphasis
+    .replace(/^\s*[A-Za-z0-9]+\s*/, '')  // the id itself
+    .replace(/\(renumbered[^)]*\)/i, '') // the renumber note, which differs BY DESIGN
+    .replace(/[^\w ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .slice(0, 160);
+}
+
+function nearDuplicates(open) {
+  const seen = new Map();
+  const out = [];
+  for (const r of open) {
+    const k = normalise(r);
+    if (k.length < 40) continue;        // too short to be a confident match
+    if (seen.has(k)) out.push({ a: seen.get(k).id.trim(), b: r.id.trim(), head: k.slice(0, 70) });
+    else seen.set(k, r);
+  }
+  return out;
 }
 
 function main() {
+  selfTest();                       // rule 3e — before it is allowed to report a null
   const i = process.argv.indexOf('--today');
   const today = i > -1 ? process.argv[i + 1] : new Date().toISOString().slice(0, 10);
   const a = audit(fs.readFileSync(REGISTER, 'utf8'), today);
@@ -115,6 +244,17 @@ function main() {
   console.log(`  today: ${today}`);
   console.log(`  ${a.all.length} rows, ${a.open.length} open, `
     + `${a.dated.length} carrying a recheck date, ${a.undated.length} without one\n`);
+
+  /* A DUPLICATE IS A HARD FAILURE, not a note. Two open rows for one finding
+   * means two lanes can work it independently, each believing the other row is
+   * something else — and the open count that everyone reads is wrong. */
+  if (a.dupes.length) {
+    console.log(`  ✗ ${a.dupes.length} DUPLICATE ROW PAIR(S) — one finding, two open ids:\n`);
+    a.dupes.forEach(d => console.log(`      ${d.a} and ${d.b}: "${d.head}…"`));
+    console.log('\n  Keep one, mark the other SUPERSEDED with a pointer. Do NOT delete it —\n'
+      + '  an id that vanishes breaks every reference to it.');
+    process.exitCode = 1;
+  }
 
   if (a.overdue.length) {
     console.log('  🔴 PAST ITS OWN RECHECK DATE AND STILL OPEN:\n');
@@ -141,4 +281,4 @@ function main() {
 }
 
 if (require.main === module) process.exitCode = main();
-module.exports = { audit, rows, isClosed, recheckOf };
+module.exports = { audit, rows, isClosed, recheckOf, nearDuplicates, normalise };

@@ -1,0 +1,118 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/draftday_checks.js",
+ "_ruling": "Cory 2026-08-19: check the board's proj/bands, the stack boost, and VONA",
+ "_note": "REPORT ONLY. Every check carries a known-positive (rule 3e).",
+ "checks": {
+  "check1_board_proj_and_bands": {
+   "pass": true,
+   "board_players_carrying_a_draftsharks_projection": 247,
+   "board_total": 700,
+   "board_proj_mean_sources": [
+    "blend: mean of 7 sources, centred per position",
+    "blend: mean of 6 sources, centred per position",
+    "blend: mean of 5 sources, centred per position",
+    "blend: mean of 2 sources, centred per position",
+    "blend: mean of 4 sources, centred per position",
+    "blend: mean of 1 sources, centred per position",
+    "blend: mean of 3 sources, centred per position"
+   ],
+   "board_band_sources": [
+    "draftsharks_pct",
+    "none — no Draft Sharks band for this player"
+   ],
+   "band_pct_mismatch_vs_draftsharks": {
+    "median": 0,
+    "n_compared": 247,
+    "units": "percentage points of ceiling-over-mean"
+   },
+   "band_width_distribution": {
+    "board": {
+     "median": 0,
+     "p10": 0,
+     "p90": 83.9
+    },
+    "blend_with_draftsharks": {
+     "median": 49.7,
+     "p10": 24.5,
+     "p90": 143.3
+    },
+    "note": "the board is NOT narrower on average -- it is a different QUANTITY. Its band is mean +/- 1.28 x sd ACROSS SOURCES (register 119), so it measures how much analysts disagree, not how the player can turn out."
+   },
+   "verdict": "see numbers"
+  },
+  "check2_stack": {
+   "pass": true,
+   "burrow_with_chase_held": 6,
+   "reasons": [
+    "stacks with your CIN WR"
+   ],
+   "burrow_with_empty_roster": 0,
+   "burrow_with_a_dallas_wr_held": 0,
+   "known_positive_reverse_direction": 6,
+   "keepers_are_seeded_into_the_live_roster": true,
+   "weight_in_MEASURED_WEIGHTS": 1,
+   "scale_note": "the boost is +6 raw score points against a Burrow projection of 356. It is real, and it is small -- it moves ties, it does not move a round.",
+   "first_probe_was_wrong": "the first version passed `myRoster:` where the engine reads `ctx.roster`, and returned 0 -- which reads exactly like a broken stack term. The known positive is the only reason that is not what got reported."
+  },
+  "check3_vona": {
+   "formula_is_right": true,
+   "formula": "proj_mean − E[best available at my next pick, same position]",
+   "flags": {
+    "VONA_INCLUDE_SELF": true,
+    "VONA_SLOT_AWARE": false,
+    "VONA_SURVIVAL_RESCALE": false,
+    "SURVIVOR_CUTOFF": 0.005
+   },
+   "divergence_from_an_independent_recomputation": {
+    "n": 583,
+    "median_pct": 0.709,
+    "p90_pct": 4.722,
+    "max_pct": 68.905,
+    "worst_5": [
+     {
+      "name": "Matthew Stafford",
+      "position": "QB",
+      "next_pick": 73,
+      "engine": -0.61,
+      "independent": -1.97,
+      "rel_err_pct": 68.9
+     },
+     {
+      "name": "Jameson Williams",
+      "position": "WR",
+      "next_pick": 53,
+      "engine": 1.49,
+      "independent": 1.05,
+      "rel_err_pct": 42.3
+     },
+     {
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "next_pick": 93,
+      "engine": 1.8,
+      "independent": 1.37,
+      "rel_err_pct": 31.1
+     },
+     {
+      "name": "Caleb Williams",
+      "position": "QB",
+      "next_pick": 73,
+      "engine": -3.21,
+      "independent": -4.57,
+      "rel_err_pct": 29.7
+     },
+     {
+      "name": "Joe Burrow",
+      "position": "QB",
+      "next_pick": 73,
+      "engine": 6.09,
+      "independent": 4.73,
+      "rel_err_pct": 28.7
+     }
+    ]
+   },
+   "where_it_comes_from": "expectedBestAvailable BREAKS at SURVIVOR_CUTOFF = 0.005 and then credits ALL leftover probability mass to the WORST player on the board rather than to the men the break skipped. That pushes E[best available] DOWN, which pushes VONA UP. It is a documented deliberate choice (\"rather than silently crediting zero points\"), NOT obviously a bug — but it is a modelling decision sitting inside the primary decision metric, and nobody has graded it.",
+   "slot_aware_is_off": "VONA_SLOT_AWARE is FALSE. engine.js documents at length that a 2nd TE valued against the 3rd TE \"decides nothing\" and that the fix was to price him against the flex field. That fix is BUILT AND SWITCHED OFF, which is register 60's pattern exactly."
+  }
+ }
+}

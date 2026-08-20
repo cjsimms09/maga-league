@@ -1,0 +1,376 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/residual_arm_fit.py",
+ "_warning": "AGAINST THE RUNNING-MEAN BASELINE, NOT SLEEPER. See draft/audit/residual_arm_sleeper_blocker_2026-08-18.md \u2014 sleeper_proj is not constructible for 2023-25.",
+ "preregistration": "draft/backtest/RESIDUAL-ARM-RUNNING-MEAN-PREREG.md",
+ "positions": {
+  "QB": {
+   "vegas": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.15,
+      "delta_mae": -0.0202
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": -0.0067,
+     "seasons_positive": 0,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": -0.0087,
+      "ci_hi": 0.0032,
+      "excludes_zero": false,
+      "draws": 500
+     },
+     "clears": false
+    }
+   }
+  },
+  "RB": {
+   "vegas": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.5,
+      "delta_mae": -0.1172
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": -0.0391,
+     "seasons_positive": 0,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": -0.0402,
+      "ci_hi": -0.0007,
+      "excludes_zero": true,
+      "draws": 500
+     },
+     "clears": false
+    }
+   },
+   "usage": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": 0.0,
+     "seasons_positive": 0,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
+      "excludes_zero": false,
+      "draws": 500
+     },
+     "clears": false
+    }
+   }
+  },
+  "WR": {
+   "vegas": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": 0.0,
+     "seasons_positive": 0,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
+      "excludes_zero": false,
+      "draws": 500
+     },
+     "clears": false
+    }
+   },
+   "usage": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": 0.0,
+     "seasons_positive": 0,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
+      "excludes_zero": false,
+      "draws": 500
+     },
+     "clears": false
+    }
+   }
+  },
+  "TE": {
+   "vegas": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.25,
+      "delta_mae": -0.0103
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.15,
+      "delta_mae": 0.0148
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.15,
+      "delta_mae": 0.0044
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": 0.003,
+     "seasons_positive": 2,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": -0.0154,
+      "ci_hi": 0.0084,
+      "excludes_zero": false,
+      "draws": 500
+     },
+     "clears": false
+    }
+   },
+   "usage": {
+    "leave_one_out": {
+     "2023": {
+      "fitted_on": [
+       2024,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2024": {
+      "fitted_on": [
+       2023,
+       2025
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     },
+     "2025": {
+      "fitted_on": [
+       2023,
+       2024
+      ],
+      "lambda": 0.0,
+      "delta_mae": 0.0
+     }
+    },
+    "verdict": {
+     "pooled_delta_mae": 0.0,
+     "seasons_positive": 0,
+     "seasons_judged": 3,
+     "ci": {
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
+      "excludes_zero": false,
+      "draws": 500
+     },
+     "clears": false
+    }
+   }
+  }
+ },
+ "best_of_k": {
+  "QB": {
+   "k": 2,
+   "n_rows": 1075,
+   "winner": "do_nothing",
+   "runner_up": "vegas",
+   "mae": {
+    "do_nothing": 8.1506,
+    "vegas": 8.1506
+   },
+   "field_margin": 0.0,
+   "null_field_margin_mean": 0.0,
+   "null_field_margin_p95": 0.0,
+   "field_p_value": 1.0,
+   "survives": false,
+   "field_margin_net_of_null": 0.0,
+   "runner_up_margin": 0.0,
+   "null_runner_up_margin_mean": 0.0,
+   "runner_up_p_value": 1.0
+  },
+  "RB": {
+   "k": 3,
+   "n_rows": 1685,
+   "winner": "do_nothing",
+   "runner_up": "vegas",
+   "mae": {
+    "do_nothing": 5.54,
+    "usage": 5.5485,
+    "vegas": 5.54
+   },
+   "field_margin": 0.0029,
+   "null_field_margin_mean": 0.0587,
+   "null_field_margin_p95": 0.1204,
+   "field_p_value": 0.996,
+   "survives": false,
+   "field_margin_net_of_null": -0.0558,
+   "runner_up_margin": 0.0,
+   "null_runner_up_margin_mean": 0.0589,
+   "runner_up_p_value": 1.0
+  },
+  "WR": {
+   "k": 3,
+   "n_rows": 2494,
+   "winner": "do_nothing",
+   "runner_up": "usage",
+   "mae": {
+    "do_nothing": 5.3298,
+    "usage": 5.3298,
+    "vegas": 5.3298
+   },
+   "field_margin": 0.0,
+   "null_field_margin_mean": 0.0,
+   "null_field_margin_p95": 0.0,
+   "field_p_value": 1.0,
+   "survives": false,
+   "field_margin_net_of_null": 0.0,
+   "runner_up_margin": 0.0,
+   "null_runner_up_margin_mean": 0.0,
+   "runner_up_p_value": 1.0
+  },
+  "TE": {
+   "k": 3,
+   "n_rows": 872,
+   "winner": "vegas",
+   "runner_up": "do_nothing",
+   "mae": {
+    "do_nothing": 4.6072,
+    "usage": 4.6072,
+    "vegas": 4.6019
+   },
+   "field_margin": 0.0035,
+   "null_field_margin_mean": 0.0036,
+   "null_field_margin_p95": 0.0075,
+   "field_p_value": 0.4511,
+   "survives": false,
+   "field_margin_net_of_null": -0.0,
+   "runner_up_margin": 0.0053,
+   "null_runner_up_margin_mean": 0.0035,
+   "runner_up_p_value": 0.2375
+  }
+ }
+}

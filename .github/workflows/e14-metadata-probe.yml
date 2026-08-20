@@ -1,0 +1,113 @@
+name: E14 — does Sleeper pick metadata actually carry position/team?
+
+# TERRITORY: A — answers E's register E14 (routed 2026-08-17), which is an
+# UNVERIFIED ASSUMPTION under three manager metrics: `managers.py` prefers
+# contemporaneous `meta.get("position")`, and the only store E could inspect
+# (`league_history.json`) carries metadata EMPTY on 480 of 480 picks — but
+# that store comes from a DIFFERENT exporter than the production path
+# (`si.all_drafts()` -> `fetch_draft_picks()` -> raw Sleeper payload). E's
+# sandbox had no egress (HTTP 000 on both endpoints, response codes filed),
+# so the hypothesis was filed unverified rather than claimed either way.
+#
+# THE CHECK IS E'S OWN ONE-LINER, run where egress exists: fetch every
+# completed draft's picks through the PRODUCTION functions and count how
+# many carry metadata.position / metadata.team.
+#   N of N  -> E14 closes: `_homer` and positional timing read the era they
+#              claim to read, and only E13 (rookie_affinity) remains.
+#   0 of N  -> homer_index describes which teams old picks play for NOW,
+#              and every "loves <TEAM>" summary line is wrong — E14 becomes
+#              a defect row.
+# Either way the answer is COMMITTED (register row 23's rule: a spent fetch
+# whose answer lives only in a log is a fetch paid for twice).
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: e14-metadata-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install requests
+
+      - name: Count metadata coverage through the production fetch path
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          sys.path.insert(0, 'draft')
+          import sleeper_import as si
+
+          league_id = json.loads(
+              open('draft/data/sleeper_league_settings.json').read()
+          )["fetched_league_id"]
+
+          out = {"_territory": "TERRITORY: A — .github/workflows/e14-metadata-probe.yml",
+                 "_answers": "register E14 (E, 2026-08-17): is pick metadata populated "
+                             "on the PRODUCTION path managers.py actually reads?",
+                 "league_id": league_id, "drafts": []}
+          # walk the league chain back through previous_league_id like build.py does
+          seen = set()
+          lid = league_id
+          import urllib.request
+          def get(url):
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  return json.loads(r.read().decode())
+          while lid and lid not in seen:
+              seen.add(lid)
+              doc = get(f"https://api.sleeper.app/v1/league/{lid}")
+              for d in get(f"https://api.sleeper.app/v1/league/{lid}/drafts"):
+                  if d.get("status") != "complete":
+                      continue
+                  picks = si.fetch_draft_picks(d["draft_id"], live=True)
+                  n = len(picks)
+                  pos = sum(1 for p in picks if (p.get("metadata") or {}).get("position"))
+                  team = sum(1 for p in picks if (p.get("metadata") or {}).get("team"))
+                  out["drafts"].append({
+                      "season": doc.get("season"), "draft_id": d["draft_id"],
+                      "picks": n, "with_metadata_position": pos,
+                      "with_metadata_team": team})
+              lid = doc.get("previous_league_id")
+          total = sum(d["picks"] for d in out["drafts"])
+          tpos = sum(d["with_metadata_position"] for d in out["drafts"])
+          tteam = sum(d["with_metadata_team"] for d in out["drafts"])
+          out["totals"] = {"picks": total, "with_position": tpos, "with_team": tteam}
+          out["verdict"] = (
+              "E14 CLOSES — metadata is populated on the production path; "
+              "homer/positional-timing read the era they claim"
+              if total and tpos == total and tteam == total else
+              "E14 IS A DEFECT — metadata coverage is partial or empty on the "
+              "production path; homer_index and the 'loves <TEAM>' lines are "
+              "suspect" if total else
+              "VOID — no completed drafts reachable; not a negative result")
+          open('draft/data/e14_metadata_probe.json', 'w').write(
+              json.dumps(out, indent=1))
+          print(json.dumps(out["totals"], indent=1))
+          print(out["verdict"])
+          PY
+
+      - name: Commit the answer
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/e14_metadata_probe.json
+          if ! git diff --cached --quiet; then
+            git commit -m "E14 probe: metadata coverage on the production draft-pick path [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::ANSWER NOT PUSHED"
+            exit 1
+          fi

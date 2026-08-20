@@ -244,6 +244,14 @@ def run(year: int, timeout=60):   # pragma: no cover  (egress, CI only)
     except Exception as e:
         err = f"{type(e).__name__}: {e}"
 
+    # Register 79 — OUR fetch time, distinct from `source_meta.last_updated`
+    # (FantasyPros' own field, extracted from their payload). Cory reads
+    # expert_spread_2026.json at the table; a two-day-old scrape with no
+    # date on it is not obviously stale on screen. `surface_parity.js`
+    # already recognises `scraped_at` as a stamp key.
+    import datetime
+    scraped_at = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
     art = {
         "_territory": "TERRITORY: C — written by fp_expert_ranks.py",
         "_what": ("Every individual expert's draft rank for every rostered-position player, "
@@ -256,6 +264,7 @@ def run(year: int, timeout=60):   # pragma: no cover  (egress, CI only)
                                "preregistered study against this store, not in a fetcher."),
         "season": year,
         "url": url,
+        "scraped_at": scraped_at,
         "api_key_found": bool(key),
         "fetch_error": err,          # 4s: a failed fetch is recorded, never a shrug
         **store,

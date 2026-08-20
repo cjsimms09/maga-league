@@ -1,0 +1,37 @@
+{
+ "_territory": "TERRITORY: A — mirrored by draft/tools/weekly_grade_runner.js",
+ "_note": "Weekly mirror of evidence_weights:current (grade-cron's consumed weights, rules_era stamp included). Consumed by learning_loop.py into model_update_recommendations.json — the RECOMMENDATION artifact, not a live parameter (REC-4).",
+ "fetched_at": "2026-08-18T14:02:06.567Z",
+ "calibration_snapshots": 3,
+ "weights": {
+  "updated_at": "2026-08-18T12:02:22.836Z",
+  "season": 2026,
+  "graded_n": 0,
+  "league_se": null,
+  "combined": {
+   "posterior": null,
+   "weights": {
+    "league": 0,
+    "external": 0
+   },
+   "dominant": "none",
+   "transferability": null,
+   "transferability_is_placeholder": true
+  },
+  "rules_era": "1la32x"
+ },
+ "player_weeks": {
+  "method": "player-week-projection-v1",
+  "n_forecasts": 0,
+  "n_graded": 0,
+  "n_pending": 0,
+  "excluded_late_or_unknown_timing": 0,
+  "disqualified": 0,
+  "by_position": {},
+  "by_week": {},
+  "rank_corr": {
+   "ours": null,
+   "sleeper": null
+  }
+ }
+}

@@ -1,0 +1,218 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/backtest/opponent_arm.py",
+ "preregistration": "draft/backtest/OPPONENT-ARM-PREREG.md",
+ "row": "in-season row 3 (P57)",
+ "status": "graded",
+ "population": {
+  "2023": {
+   "eligible": 2023,
+   "no_opponent": 0,
+   "no_rating": 0,
+   "kept": 2023
+  },
+  "2024": {
+   "eligible": 2099,
+   "no_opponent": 0,
+   "no_rating": 0,
+   "kept": 2099
+  },
+  "2025": {
+   "eligible": 2009,
+   "no_opponent": 0,
+   "no_rating": 0,
+   "kept": 2009
+  }
+ },
+ "positions": {
+  "QB": {
+   "n_rows": {
+    "2023": 351,
+    "2024": 360,
+    "2025": 364
+   },
+   "leave_one_out": {
+    "2023": {
+     "fitted_on": [
+      2024,
+      2025
+     ],
+     "lambda": 0.15,
+     "delta_mae": -0.008
+    },
+    "2024": {
+     "fitted_on": [
+      2023,
+      2025
+     ],
+     "lambda": 0.25,
+     "delta_mae": -0.0637
+    },
+    "2025": {
+     "fitted_on": [
+      2023,
+      2024
+     ],
+     "lambda": 0.0,
+     "delta_mae": 0.0
+    }
+   },
+   "placebo": {
+    "draws": 60,
+    "mean": -0.0039,
+    "p95": 0.0109,
+    "p_value": 0.9508,
+    "gain_net_of_placebo": -0.02
+   },
+   "verdict": {
+    "pooled_delta_mae": -0.0239,
+    "seasons_positive": 0,
+    "seasons": 3,
+    "placebo_p": 0.9508,
+    "clears": false
+   }
+  },
+  "RB": {
+   "n_rows": {
+    "2023": 568,
+    "2024": 571,
+    "2025": 551
+   },
+   "leave_one_out": {
+    "2023": {
+     "fitted_on": [
+      2024,
+      2025
+     ],
+     "lambda": 0.25,
+     "delta_mae": 0.0554
+    },
+    "2024": {
+     "fitted_on": [
+      2023,
+      2025
+     ],
+     "lambda": 0.25,
+     "delta_mae": 0.0235
+    },
+    "2025": {
+     "fitted_on": [
+      2023,
+      2024
+     ],
+     "lambda": 0.5,
+     "delta_mae": -0.0349
+    }
+   },
+   "placebo": {
+    "draws": 60,
+    "mean": -0.0015,
+    "p95": 0.0038,
+    "p_value": 0.0164,
+    "gain_net_of_placebo": 0.0161
+   },
+   "verdict": {
+    "pooled_delta_mae": 0.0147,
+    "seasons_positive": 2,
+    "seasons": 3,
+    "placebo_p": 0.0164,
+    "clears": false
+   }
+  },
+  "WR": {
+   "n_rows": {
+    "2023": 839,
+    "2024": 875,
+    "2025": 780
+   },
+   "leave_one_out": {
+    "2023": {
+     "fitted_on": [
+      2024,
+      2025
+     ],
+     "lambda": 0.0,
+     "delta_mae": 0.0
+    },
+    "2024": {
+     "fitted_on": [
+      2023,
+      2025
+     ],
+     "lambda": 0.35,
+     "delta_mae": -0.0376
+    },
+    "2025": {
+     "fitted_on": [
+      2023,
+      2024
+     ],
+     "lambda": 0.15,
+     "delta_mae": 0.0083
+    }
+   },
+   "placebo": {
+    "draws": 60,
+    "mean": -0.0018,
+    "p95": 0.0,
+    "p_value": 0.9836,
+    "gain_net_of_placebo": -0.008
+   },
+   "verdict": {
+    "pooled_delta_mae": -0.0098,
+    "seasons_positive": 1,
+    "seasons": 3,
+    "placebo_p": 0.9836,
+    "clears": false
+   }
+  },
+  "TE": {
+   "n_rows": {
+    "2023": 265,
+    "2024": 293,
+    "2025": 314
+   },
+   "leave_one_out": {
+    "2023": {
+     "fitted_on": [
+      2024,
+      2025
+     ],
+     "lambda": 0.0,
+     "delta_mae": 0.0
+    },
+    "2024": {
+     "fitted_on": [
+      2023,
+      2025
+     ],
+     "lambda": 0.0,
+     "delta_mae": 0.0
+    },
+    "2025": {
+     "fitted_on": [
+      2023,
+      2024
+     ],
+     "lambda": 0.0,
+     "delta_mae": 0.0
+    }
+   },
+   "placebo": {
+    "draws": 60,
+    "mean": -0.0039,
+    "p95": 0.0074,
+    "p_value": 0.541,
+    "gain_net_of_placebo": 0.0039
+   },
+   "verdict": {
+    "pooled_delta_mae": 0.0,
+    "seasons_positive": 0,
+    "seasons": 3,
+    "placebo_p": 0.541,
+    "clears": false
+   }
+  }
+ },
+ "clears_any": [],
+ "multiplicity": "4 positions tested, disclosed in the prereg"
+}

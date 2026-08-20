@@ -410,6 +410,13 @@ BOARD_FIELD_SOURCES = {
     # always blended with [season-1, season-2] usage through opportunity_adj —
     # projections.blend does `base * (1 + adj)`. Reaches 2024 on every path.
     "proj_mean": "runtime", "proj_baseline": "runtime",
+    # THE MULTI-SOURCE BLEND (A, 2026-08-19). `proj_mean_sleeper_only` is the
+    # pre-blend value kept verbatim so the change is reversible and auditable
+    # from the artifact; `proj_mean_source` names which of the two paths wrote
+    # the number on the row. Both are written at BUILD time from the 2026
+    # capture and the same run's Sleeper pull, so they carry the same season
+    # reach as `proj_mean` itself — runtime, not a prior season.
+    "proj_mean_sleeper_only": "runtime", "proj_mean_source": "runtime",
     "proj_sd": "derived", "proj_ceiling": "derived", "proj_floor": "derived",
     "variance": "derived", "variance_why": "derived", "weekly_sd": "derived",
     "games_expected": "derived", "vorp": "derived", "replacement": "derived",
@@ -581,6 +588,16 @@ BOARD_FIELD_PURPOSE = {
     # classification is where the change must be argued.
     "nfl_draft_round": HISTORICAL_PRIOR, "nfl_draft_pick": HISTORICAL_PRIOR,
     "proj_ceiling_source": DERIVED_PURPOSE,
+    # Siblings of proj_ceiling_source, and classified the same way for the
+    # same reason: nothing FETCHES them, the build writes them to say which
+    # path produced proj_mean on that row. A live surface may read them to
+    # label a number's provenance; it may not treat them as a value.
+    "proj_mean_source": DERIVED_PURPOSE,
+    # The pre-blend Sleeper projection, retained so the blend is reversible
+    # and so a surface can show what a number USED to be. It is a real
+    # projection and not an experiment output, but it is superseded on the
+    # rows that carry it — never the value to act on.
+    "proj_mean_sleeper_only": DERIVED_PURPOSE,
     "proj_floor_source": DERIVED_PURPOSE,
     "capital_tier": DERIVED_PURPOSE, "is_nfl_rookie": DERIVED_PURPOSE,
     # declared in config or code rather than measured from a feed

@@ -47,9 +47,10 @@ const TEAMS = 10;
 const ROUNDS = 15;
 const TOTAL = TEAMS * ROUNDS;
 
-const board = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')
-).players.filter(p => p.position && p.proj_mean != null);
+const ART = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+const board = ART.players.filter(p => p.position && p.proj_mean != null);
+const PICK_BOARD = ((ART.pick_order || {}).picks) || null;
 
 // --------------------------------------------------------- roster arithmetic
 function slotState(roster) {
@@ -181,13 +182,55 @@ function depletedBoard(roster, round) {
   return board.filter(p => !held.has(p.player_id) && !gone.has(p.player_id));
 }
 
+/* THE WEIGHT VECTOR IS THE THIRD FIXTURE DEFECT IN THIS FILE, AND IT IS THE
+ * SAME ONE TWICE ABOVE (session E, 2026-08-18; register E19).
+ *
+ * The two notes above both say a version of: the fixture did not match a real
+ * draft, so the sweep was green while the very bug it was built for sat in the
+ * live tool. Roster quality was one. Board depletion was the other. This is the
+ * third: it scored `E.DEFAULT_WEIGHTS` while the app initialises from
+ * `MEASURED_WEIGHTS` (app.js:52, pinned by surface_contract.test.js) — five of
+ * the eight terms are ZERO in production, `bye` and `need` among them.
+ *
+ * So a file written to catch "QB2 in round 9 with a starter rostered" — the
+ * exact complaint Cory raised live about Bo Nix — had never scored the weight
+ * vector that produced it.
+ *
+ * MEASURED, NOT ASSUMED, AND THE RESULT IS A NEGATIVE: on this board all four
+ * ENFORCED checks pass under both vectors. The only movement is the reported
+ * open finding, 47 bye-stack recommendations under DEFAULT against 50 under
+ * MEASURED — which is coherent, since `bye` is weighted 0.0 in production and
+ * therefore penalises nothing. The fixture was wrong; it was not hiding a
+ * violation. Recorded that way rather than as a catch.
+ *
+ * REFUSES RATHER THAN FALLS BACK, following rec_rows.test.js: a suite that
+ * cannot find the production weights must stop, not guess. `|| DEFAULT_WEIGHTS`
+ * is how the first version of this defect survived in two other files. */
+const WEIGHTS = (function () {
+  const w = E.MEASURED_WEIGHTS;
+  if (!w || typeof w.value !== 'number') {
+    throw new Error('REFUSING to sweep: engine.js no longer exports MEASURED_WEIGHTS, '
+      + 'which is what app.js initialises state.weights from. Sweeping with anything '
+      + 'else grades advice no surface gives.');
+  }
+  return w;
+})();
+
 function ctxFor(roster, round) {
   const currentPick = (round - 1) * TEAMS + 4;
   return {
     board: depletedBoard(roster, round),
     roster: roster,
     league: { starters: STARTERS, teams: TEAMS },
-    weights: E.DEFAULT_WEIGHTS,
+    weights: WEIGHTS,
+    /* AND THE PICK BOARD — the FOURTH fixture dimension in this file (session E,
+     * 2026-08-17; register E21). Roster quality, board depletion and the weight
+     * vector are the three already recorded above. `survival.js` converts board
+     * slot to live selection through `ctx.pickBoard` and counts every
+     * unconverted call in `SCALE`; without it, survival runs on the wrong scale
+     * and survival feeds VONA. `art` is the same artifact this file already
+     * reads its board from. */
+    pickBoard: PICK_BOARD,
     currentPick: currentPick,
     nextPick: currentPick + TEAMS,
     totalPicks: TOTAL,

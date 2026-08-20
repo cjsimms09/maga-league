@@ -128,14 +128,36 @@ def test_the_head_to_head_is_a_paired_test_not_a_mean_comparison(tmp_path):
 
 
 def test_a_separable_leader_is_still_enrolled_over_the_incumbent(tmp_path):
-    """The gate must not be a ratchet that freezes the incumbent forever."""
-    res = _run_main(tmp_path, incumbent="late_qb")   # an incumbent that cannot win
+    """The gate must not be a ratchet that freezes the incumbent forever:
+    when the head-to-head is SEPARABLE, the leader enrolls — whoever it is.
+
+    REWRITTEN 08-19: the original fixture note said late_qb "cannot win";
+    the 08-19 board made it win separably (+57 CI[12.9, 105.8]) and the
+    old assertion (enrolled != incumbent whenever separable) turned a
+    legitimate incumbent VICTORY into a red gate. That pinned the live
+    data's winner, not the rule. The rule (cory_conditional.py:614-619):
+    separable -> leader; inseparable -> incumbent holds only if among the
+    top two. Both halves tested, plus a deterministic anti-ratchet arm
+    with an incumbent that is never a winner."""
+    res = _run_main(tmp_path, incumbent="late_qb")
     h = res["head_to_head"]
-    if h is None or h["separable"]:
-        assert res["enrolled"] != "late_qb"
-    else:
-        # incumbent is not among the co-leaders -> the leader takes it
-        assert res["enrolled"] == h["leader"]
+    if h is not None:
+        if h["separable"]:
+            assert res["enrolled"] == h["leader"]
+        elif "late_qb" in (h["leader"], h["runner_up"]):
+            assert res["enrolled"] == "late_qb"   # inseparable — no churn
+        else:
+            assert res["enrolled"] == h["leader"]
+
+    # DETERMINISTIC anti-ratchet arm: zero_rb never carries edge on any
+    # board (CI [0,0] by construction of the zero-arm), so an incumbent
+    # zero_rb must never survive a live head-to-head.
+    sub = tmp_path / "antiratchet"
+    sub.mkdir()
+    res2 = _run_main(sub, incumbent="zero_rb")
+    if res2["head_to_head"] is not None:
+        assert res2["enrolled"] != "zero_rb", \
+            "a no-edge incumbent survived a live head-to-head — the ratchet is back"
 
 
 # --- THE CONTROL-VALIDITY GATE ------------------------------------------------

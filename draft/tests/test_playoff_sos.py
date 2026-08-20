@@ -65,15 +65,31 @@ def test_schedule_slice_spot_checked_matchups_match_the_source():
 
 def test_schedule_slice_agrees_with_the_vegas_store_where_they_overlap():
     """The vegas store's 2026 season is the SAME source dataset (games.csv)
-    trimmed to games with lines. Any 2026 pairing both files carry must agree
-    — here they share zero weeks (lines stop at week 5), so the honest
-    assertion is that the overlap is empty AND both derive full 16-game
-    weeks where they do carry a week, rather than pretending a cross-check
-    ran that could not."""
-    vegas_weeks = {g["week"] for g in VEGAS["seasons"]["2026"]}
+    trimmed to games with lines. Any 2026 pairing both files carry must
+    AGREE on home/away — that was always this test's stated rule; when it
+    was written the overlap happened to be empty (lines stopped at week 5)
+    and it asserted the vacuous half. The 08-18 refresh brought late-week
+    lines, so the cross-check it promised finally RUNS: every playoff-week
+    game in the slice must appear in the vegas store as the same pairing,
+    and the overlap must be non-trivial now that both carry those weeks."""
     slice_weeks = {g["week"] for g in SCHED["games"]}
     assert slice_weeks == {15, 16, 17}
-    assert vegas_weeks.isdisjoint(slice_weeks)
+    # Books post late-week lines for only a SUBSET of games preseason, so
+    # coverage is partial by nature — the cross-check is AGREEMENT on the
+    # intersection: any game both files carry must be the same matchup with
+    # the same home/away orientation. A pairing vegas carries that the
+    # slice lacks (or vice versa oriented differently) is a real defect.
+    vegas_games = {(g["week"], frozenset((g["home"], g["away"]))):
+                   (g["home"], g["away"])
+                   for g in VEGAS["seasons"]["2026"] if g["week"] in slice_weeks}
+    slice_games = {(g["week"], frozenset((g["home"], g["away"]))):
+                   (g["home"], g["away"]) for g in SCHED["games"]}
+    overlap = set(vegas_games) & set(slice_games)
+    assert overlap, ("vegas now carries playoff weeks but shares NO matchup "
+                     "with the slice — one of the two derives from a "
+                     "different schedule")
+    flipped = [k for k in overlap if vegas_games[k] != slice_games[k]]
+    assert not flipped, f"home/away disagree on: {sorted(flipped)[:4]}"
 
 
 def test_artifact_playoff_opponents_match_matchups_pinned_from_the_source():

@@ -67,3 +67,89 @@ Build C1-C5 by **08-24**; C6-C7 by **08-28**; grading as candidates land;
 composite ruling by **09-05**; blend re-open (D14) reads the results. 2020 is
 excluded from any extended historical window on sight (COVID-corrupt ECR).
 Owner: A. Recheck 08-25.
+
+## 6. Grades as they land (added after each run — never edited above this line)
+
+**2026-08-18 — C1 and C3 graded (`v7_candidate_grade.py`), both NO SHIP:**
+
+- **C2** closed earlier the same day: Ridge gaps 0.000–0.014 across the alpha
+  grid, a null on 4 parameters (`ridge_arm_fit.json`).
+- **C1 (fitted age curves): NO SHIP — the leak-free curve shape DEGRADES v6.**
+  Refit on transitions ending ≤2024 (the committed `age_curve_2026.json`
+  includes 2024→25 and would leak), mean-normalized per position, applied to
+  QB/RB/WR (207 players). RB loses on everything (ρ −0.012, MAE +2.2,
+  P@12 −0.083) and MAE rises at all three featured positions. v2's linear age
+  term already owns whatever signal the curve shape carries. The curves stand
+  as DESCRIPTION (the QB-decline correction, WR peak 22); as a FEATURE they
+  are dead.
+- **C3 (fitted recency): NO SHIP — the component-level gap vanishes at the
+  system level.** Leak-free w (QB .475 / RB .8 / WR .6 / TE .6), the whole
+  stack rebuilt per-position. QB — the position whose blend-level gap was
+  0.115 — comes out slightly WORSE (ρ 0.723→0.711); TE marginally better on
+  family 1 only; 0 of 4 clear §3. The market and composite arms swamp the
+  blend input — P50's "the champion already carries it," measured again by a
+  different route. **P-v7a graded FALSE (ledger P65 — renumbered from P62 at merge).**
+
+Standing after this pass: **C1, C2, C3 dead. Live: C4 (C builds, post-P38
+grant), C5 (WR-only NGS restriction), C6, C7.** P-v7b (top-tier precision
+flips a blend answer) stays OPEN — its subject is the source-blend decision,
+not these arms; observed so far P@12 moved at exactly one cell in two arms.
+
+**2026-08-18 (same night) — C5 graded, NO SHIP — and the ablation flips the
+transfer's premise for OUR stack:** dropping the xFP efficiency arm (beta→0)
+at RB is a wash (ρ −0.001, MAE −0.2), and at TE it makes the model WORSE
+(MAE +0.47, past the 2% bar) — TE's efficiency term is earning its keep.
+position_predictor's "efficiency helps WR only" was about NGS metrics; our
+xFP-at-league-efficiency construction is a different feature, and this
+measurement says it stays position-general. **Standing: C1, C2, C3, C5 dead.
+Live: C4 (C, post-P38), C6, C7.**
+
+**2026-08-18 (same night) — C7 graded: NO SHIP under §3, and it is NOT like
+the other kills.** The fitted per-player availability gate (own 2023+2024
+games, k=1 shrink to position mean, 625 players; rookies fall back to the
+frozen gate; QB untouched by construction — v6 takes QB from v4) **degrades
+NOTHING** and splits the metric families at three positions: **RB P@12
+0.750→0.833** (one more true top-12 RB — the draftable zone) with ρ down
+0.010 inside the noise bar; **WR MAE −3.5%** and P@24 +0.042 with ρ down
+0.005; **TE improves family 1 outright** (ρ +0.003, MAE −0.2). No position
+improves BOTH families, so §3 refuses — and the bar is not moved after
+seeing the numbers, because a bar that moves when a result is likeable is
+not a bar. **The routed next step:** C7 re-enters post-draft alongside C4,
+graded on the 2024 secondary fold (§2 names it) — if RB's top-tier gain
+replicates out-of-fold, THAT is the §3 conversation, with two folds instead
+of a likeable one. This is also the first live instance of the P-v7b shape
+(top-tier precision disagreeing with full-board Spearman, at RB as
+predicted) — observed inside an arm, not yet at the blend decision, so P63
+stays OPEN with the observation recorded.
+
+**Final standing for draft week: C1, C2, C3, C5 dead; C7 the named
+closest-miss with a two-fold re-test owned (A, post-draft); C4 with C
+post-P38; C6 by 08-28. own_v6 enters Saturday unbeaten by five
+challengers.**
+
+**2026-08-18 (same night, the fold that settles it) — §2's 2024 SECONDARY
+FOLD RUN, and it killed both likeable single-fold results in opposite
+directions:**
+
+- **C7's RB top-tier gain INVERTS:** P@12 +0.083 on 2025 becomes **−0.083 on
+  2024** (one FEWER true top-12 RB), and the fold's improvements wander to
+  different positions (WR precision up where 2025 had WR MAE up) — the
+  signature of noise, not signal. **C7 closes DEAD, not closest-miss**; the
+  "re-test post-draft" next step is already done, tonight, and the answer
+  was no.
+- **C5 "ships" on the 2024 fold alone** (RB improves both families) — after
+  degrading TE on 2025. The mirror image of C7's likeable miss. Cross-fold,
+  §3's no-degradation clause fails on 2025 and the answer stays NO.
+- C1 degrades RB on this fold too (consistent — genuinely harmful); C3 is a
+  wash here (QB degradation was 2025-only, further confirming the system
+  swallows the blend input).
+
+**THE META-FINDING, worth more than any candidate:** in one night, single
+folds produced a likeable near-ship (C7-2025) and an outright §3 ship
+(C5-2024), and each vanished or inverted on the other fold. One fold's
+verdict on this data is one likeable number — every future candidate grades
+on BOTH folds before §3 is read, which this study now does by default.
+
+**FINAL standing: C1, C2, C3, C5, C7 all dead on two-fold evidence. Live:
+C4 (C, post-P38) and C6 (A, by 08-28, needs its information-set design for
+"who is your QB" at draft time). own_v6 enters Saturday unbeaten by six.**

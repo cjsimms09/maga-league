@@ -82,6 +82,36 @@ a `ROUTES.md` conflict and a verification that went stale mid-run.
 **Ready means:** full suite green on the branch, merged with current `main`
 first, one concern, and a commit message that explains it.
 
+### HOW A MERGES — written down 2026-08-19 after a near-miss
+
+A is the only one who merges, and until today the *procedure* was nowhere.
+
+**Merge, then push. DO NOT REBASE AFTER A MERGE.**
+
+```
+git merge --no-commit --no-ff origin/<branch>   # inspect before committing
+<run the full suite>                            # the gate runs BEFORE the merge lands
+git commit                                      # local only
+git push -u origin main                         # only once green
+```
+
+**Why the rule exists, concretely.** On 2026-08-19 I merged C's
+`external-ingest-program` branch and then ran my usual
+`fetch → rebase → push`. That habit is safe on a linear history and had worked
+all day. With a merge commit in the way, **`git rebase` tried to FLATTEN the
+merge and replay all of C's commits onto `origin/main`** — it stopped on a
+conflict twenty-three commits in. The push succeeded only because `main` still
+pointed at my own commit. **Had I typed `git rebase --continue` instead of
+checking state first, I would have rewritten another lane's history on `main`.**
+
+**If `main` moved while the suite was running**, do not rebase — merge again
+(`git merge origin/main`) or re-run the merge from scratch. A rebase is for
+*your own* unpushed commits, never for history that arrived from someone else.
+
+**And commit the merge LOCALLY while the suite runs**, so the tree is clean
+without anything reaching `main` — the gate is what decides whether it pushes,
+not the clock or a tidy `git status`.
+
 ## RULE 2 — EVERY REQUEST TO A IS ONE DECISION, WITH A DEFAULT
 
 A must be able to answer in one word. So a request to A carries all four:
@@ -190,6 +220,55 @@ ideally in the prereg — so "surprising" is a fact and not a memory.
 more suspicious than a modest honest effect: perfect foresight of something that
 obviously matters should be worth a lot, so a near-zero oracle result usually
 means the oracle never got through. Register row 18 is exactly this, reopened.
+
+## RULE 3f — THE CONTROL IS FOR THE PROBE YOU THREW AWAY, NOT JUST THE TOOL YOU SHIPPED
+
+**Added 2026-08-18 by the relay, from a count rather than an argument.**
+
+`CLAUDE.md`'s Rule 3e already says a probe ships with a known-positive control.
+**It is being followed for tools and ignored for questions**, and the gap is
+where the damage is.
+
+**NINE PROBES RETURNED A CONFIDENT WRONG ANSWER IN ONE SESSION.** Not one
+crashed; every one produced clean, plausible, well-formatted output:
+
+  · `parseDate(cell)` missing its `year` — exempted every row, printed OK
+  · a name collision across two modules — "the known defect is not there"
+  · `ctx.starters` where the code reads `ctx.league.starters` — "never fires"
+  · a 60s per-file timeout — reported two slow tests as failures
+  · a control anchored to `HEAD` — passed once, then failed forever
+  · a union resolver preferring *theirs* — deleted 9,400 characters silently
+  · a length-diff that never asked whether the other side deleted deliberately
+    — "44 items lost" when the answer was zero
+  · a sweep for missing controls that matched on VOCABULARY, so a file whose
+    fail arms are named `test_..._is_caught` read as having none
+  · `--today DATE` where the tool takes `--today=DATE` — silently used the real
+    clock, and looked exactly like a dead guard
+
+**EVERY ONE WAS AN AD-HOC PROBE WRITTEN TO ANSWER A QUESTION IN THE MOMENT.**
+None was a shipped tool. Shipped tools in this repo mostly do carry controls —
+that is why the rule reads as followed. **The throwaway probe is the one nobody
+controls, and it is also the one whose output goes straight into a register row,
+a routed item, or a sentence to Cory.**
+
+**THE RULE:** before a probe's answer is written down anywhere, run it once
+against a case where you already know the answer. If it cannot produce the
+positive you know is there, its negative means nothing.
+
+**WHAT THIS COSTS AND WHAT IT BUYS.** It costs one extra run. Measured on the
+same session: of the nine, **three were caught by exactly this** — and in two of
+those the control failed on its FIRST attempt, which is the only reason the
+finding exists at all. Three more were caught by CI once it could see the branch.
+**One was caught by luck**, and it had already deleted a 🔴🔴 draft-blocking item
+and Cory's own Priority 1 from a mailbox.
+
+**AND THE OBVIOUS OBJECTION IS THE POINT.** A control does not make a probe
+correct — the sweep that flagged `merge_completeness.py` had a control in the
+sense that it ran and produced output. It had no case where the answer was known
+in advance. **"It ran" and "it was tested" are different claims, and this rule is
+about the second one.**
+
+---
 
 ## RULE 3e — WHERE E SITS: BESIDE THE PIPELINE, NEVER INSIDE IT
 
@@ -384,6 +463,42 @@ defect and it belongs in the register with `relay` in the owner column.
 
 **Both were found by asking a second question about a finding that already
 looked complete.** That is the whole rule.
+
+## RULE 3i — A NUMBER IS NOT A FINDING UNTIL YOU HAVE SEEN ITS DISTRIBUTION
+
+**Added 2026-08-19 by A, after four corrections in one evening.**
+
+Rule 3f governs the probe you wrote. **This one governs the number you quoted
+WITHOUT writing a probe at all**, which is the gap 3f does not cover — none of
+the four failures below was a code defect. Every one was a single value that fit
+a story.
+
+| what I said | what the population said |
+|---|---|
+| *"the live board takes RB10"* | a stale **eighteen**-pick artifact; his real twelve give **RB7** (register 98) |
+| *"the blend is thinnest at TE — 28 one source short"* | **85 of those 86 have ADP > 200**; inside his draft range TE coverage is 96% |
+| *"`draft_plan.js` has never been graded"* | **an absence asserted without a grep** — it has two, one in a file the war room reads (register 102) |
+| *"`own_v6` hates the upside picks, Golden by −119"* | **`own_v6` is 15-20 under the board mean on 80% of ALL players**; position-relative the claim survives at a quarter its size (register 107) |
+
+**Three of the four are the same operation: quoting one value without looking at
+the population behind it.** The fourth is its mirror — asserting an absence
+without searching for the thing.
+
+**THE RULE.** Before a single number goes into a document, a register row, or a
+sentence to Cory — a difference, a count, an extreme, or an absence —
+
+1. **look at its distribution.** Is −119 extreme, or is the median −23?
+2. **or grep for the thing you are about to say does not exist.**
+
+**Every one of these checks took under ten seconds, and each cost hours of
+Cory's attention instead.**
+
+⚠️ **A FIFTH INSTANCE OCCURRED WHILE THIS RULE WAS BEING WRITTEN.** I numbered it
+`3h` without checking — **`3h` was already taken by the rule immediately below,
+and `RULE 3f` appears TWICE in this file (lines ~224 and ~376) with different
+content, which nobody had noticed.** Caught by grepping the headings. **That
+duplication is register 108 and is not fixed here**, because renumbering a rule
+other documents cite is not a draft-week change.
 
 ## RULE 3h — D AND E FIND; SOMEONE ELSE ACTS. THE HOP IS THE RELAY'S.
 

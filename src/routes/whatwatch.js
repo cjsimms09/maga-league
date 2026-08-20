@@ -251,5 +251,23 @@ function ord(n) {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
+/**
+ * The narrower "game night" window used to PROMOTE the watch panel from
+ * elsewhere — the scoreboard banner, the home page link (Cory, 2026-08-18:
+ * "only on Sunday night game and Monday! And go away Tuesday through Sunday
+ * afternoon"). NOT the panel's own /watch gate (member.js `inWindow`), which
+ * stays open all Sunday on purpose — the early/late slate has real sweat too
+ * and narrowing that would hide live games, not just quiet promotion.
+ * Sunday from 7pm ET (ahead of the 8:20 SNF kickoff) through midnight, plus
+ * all of Monday. Off Tuesday through Sunday afternoon.
+ */
+function primetimeWindow(now) {
+  const et = new Date((now || new Date()).toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = et.getDay();
+  if (day === 1) return true;                // Monday, all day
+  if (day === 0) return et.getHours() >= 19;  // Sunday, from 7pm ET
+  return false;
+}
+
 module.exports = { CFG, remainStats, sweat, highSweat, sweatLabel, needLine, panelRows,
-  rankOwners, gameStake, ord };
+  rankOwners, gameStake, ord, primetimeWindow };

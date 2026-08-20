@@ -41,20 +41,38 @@ def _src(tmp_path, name, body):
 
 # ── THE KNOWN-POSITIVE, FIRST, BECAUSE IT IS THE ONE THAT FAILED ───────────────
 
-def test_KNOWN_POSITIVE_the_founding_case_is_still_detected():
-    """`nflverse_durability.json` must have NO consumer.
+def test_KNOWN_POSITIVE_the_founding_case_is_now_a_real_consumer():
+    """`nflverse_durability.json` used to have NO consumer — now it does.
 
-    C built it 2026-08-17; its only references outside its own producer and the
-    test suite are none. If this ever finds a reader, either somebody wired it in
-    (good — retire this assertion in that commit) or the producer/self exclusions
-    have drifted and the tool has gone blind again.
+    RETIRED AS AN UNREAD-ARTIFACT ASSERTION 2026-08-18, per this test's own
+    original instruction ("if this ever finds a reader ... good — retire this
+    assertion in that commit"): B wired it into the admin war room's durability
+    section (`src/routes/admin.js:1012`, `readFileSync(... 'nflverse_durability.json'
+    ...)`, live-tested by `durability_section.test.js`). Verified as a genuine
+    read — not a producer/self reference — before flipping this: the file is a
+    `.js` route handler, not `nflverse_run.py` or `unread_artifacts.py` itself,
+    the two exclusions this file exists to enforce.
+
+    Kept, not deleted, because it is still the detector's founding case and this
+    is now the mirror-image regression: the tool must correctly credit a REAL
+    consumer once one exists, the same way it must correctly deny the producer
+    and itself. Losing this coverage would mean nothing here proves the detector
+    still recognises a genuine reader for this specific artifact.
     """
     art = ROOT / "draft" / "backtest" / "nflverse_durability.json"
     if not art.exists():
         import pytest
         pytest.skip("artifact not in this checkout")
-    assert U.readers("nflverse_durability.json", U.sources()) == [], \
-        "the founding case now reads as CONSUMED — verify a real consumer exists"
+    # RETIRED AS THE DOCSTRING PROMISED (A, 08-18): the founding case got a
+    # REAL consumer — B's durability-table surface reads it in
+    # src/routes/admin.js:1012 (verified by hand, a genuine fs read, not a
+    # stem false-positive). The assertion flips: the detector must now see
+    # that consumer, or the reader-detection itself has regressed.
+    rd = U.readers("nflverse_durability.json", U.sources())
+    assert any("admin.js" in str(x) for x in rd), (
+        "the founding case's real consumer (admin.js durability table, "
+        "merged 08-18) is no longer detected — reader detection regressed, "
+        "or the surface was unwired without retiring this test")
 
 
 def test_CONTROL_the_detector_is_not_reporting_everything():

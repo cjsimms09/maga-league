@@ -80,7 +80,11 @@ def test_every_tracked_row_names_an_owner():
     bad = []
     for cells in rows():
         owner = _owner_cell(cells)
-        if not owner or not re.search(r"\b(A|B|C|D|E|Cory|relay)\b", owner) \
+        # CASE-INSENSITIVE on the names (2026-08-19): a row written "**CORY**"
+        # reads as a perfectly good owner to a human and was rejected on
+        # capitalisation alone. This only widens the match for names already
+        # allowed — an unowned row still fails, which is the whole point.
+        if not owner or not re.search(r"\b(A|B|C|D|E|Cory|relay)\b", owner, re.I) \
                 or PLACEHOLDERS.search(owner):
             bad.append(" | ".join(c[:40] for c in cells))
     assert not bad, "rows with no owner:\n" + "\n".join(bad)
@@ -160,6 +164,66 @@ def _numbered_rows():
             continue
         out.append((rid, cells[1][:80] if len(cells) > 1 else ""))
     return out
+
+
+def _normalized_headline(cells):
+    """The first ~120 chars of a row's finding, stripped of markup, lowercased.
+    Loose enough to survive an emoji or a bold-marker difference; tight enough
+    that two genuinely different findings essentially never collide.
+
+    Also strips a leading "(renumbered from X at merge...)" annotation. Found
+    the hard way: id 43 carried exactly that prefix in front of a byte-for-byte
+    copy of DS3's finding, and the first version of this check missed it
+    because the parenthetical alone was enough to push the real text past the
+    120-char comparison window.
+    """
+    text = cells[1] if len(cells) > 1 else ""
+    text = re.sub(r"^\s*\*?\(renumbered from [^)]*\)\*?\s*", "", text, flags=re.I)
+    text = re.sub(r"[*_`✅🔴🟠🟡🟢⚠️📐🔑]", "", text)
+    text = re.sub(r"\s+", " ", text).strip().lower()
+    return text[:120]
+
+
+def test_no_two_DIFFERENT_ids_carry_the_same_finding():
+    """DEFECT GUARDED: register 31 and DS1 were the SAME finding under two
+    different ids, produced when an earlier merge failed to recognise a row
+    duplicated across two branches as one row instead of two. `id` uniqueness
+    (above) does not catch this shape — the ids were different on purpose, to
+    dodge a collision, and the collision happened one column over instead.
+    Found by D auditing for exactly this on 2026-08-18; consolidated into 31.
+    """
+    by_headline = {}
+    for cells in rows():
+        rid = cells[0].replace("*", "").replace("`", "").strip()
+        if not rid:
+            continue
+        by_headline.setdefault(_normalized_headline(cells), set()).add(rid)
+    dupes = {h: ids for h, ids in by_headline.items() if len(ids) > 1}
+    assert not dupes, (
+        "the same finding appears under more than one row id — merge them:\n  "
+        + "\n  ".join(f"{ids}: {h!r}" for h, ids in dupes.items())
+    )
+
+
+def test_CONTROL_the_headline_duplicate_check_can_actually_fire(tmp_path, monkeypatch):
+    """A check that has never been seen to fail is not known to work."""
+    fake = tmp_path / "DEFECT-REGISTER.md"
+    same_open = ("**THE BOARD MIS-PRICES K/DEF ENTIRELY AND HAS DONE SO SINCE "
+                 "THE FETCH FILTER DROPPED THEM, WHICH NOBODY NOTICED FOR A WEEK"
+                 " BECAUSE THE CALIBRATION COUNTS CELLS ATTEMPTED, NOT CELLS")
+    fake.write_text(
+        "| id | what | owner | status | next |\n|---|---|---|---|---|\n"
+        f"| 7 | {same_open} PRICED.** branch A's later note here | A | OPEN | fix it |\n"
+        f"| DS9 | {same_open} PRICED.** branch B's later note here | B | OPEN | fix it too |\n",
+        encoding="utf8")
+    import sys as _sys
+    monkeypatch.setattr(_sys.modules[__name__], "REGISTER", str(fake))
+    by_headline = {}
+    for cells in rows():
+        rid = cells[0].replace("*", "").replace("`", "").strip()
+        by_headline.setdefault(_normalized_headline(cells), set()).add(rid)
+    dupes = {h: ids for h, ids in by_headline.items() if len(ids) > 1}
+    assert dupes and {"7", "DS9"} in [set(v) for v in dupes.values()], dupes
 
 
 def test_no_two_rows_share_an_id():

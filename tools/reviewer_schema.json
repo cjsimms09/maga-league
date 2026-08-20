@@ -111,15 +111,13 @@
             "type": [
               "string",
               "null"
-            ],
-            "description": "Repo-relative path the finding anchors to, or null when the finding is not about one file."
+            ]
           },
           "line": {
             "type": [
               "integer",
               "null"
-            ],
-            "description": "1-indexed line, or null when the finding is not about one line."
+            ]
           }
         }
       }
@@ -136,7 +134,10 @@
       "description": "Why this verdict rather than the adjacent one."
     },
     "parity_only_claims": {
-      "type": "array",
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
         "type": "string"
       },

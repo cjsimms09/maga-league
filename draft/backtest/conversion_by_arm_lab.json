@@ -1,0 +1,160 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/conversion_by_arm_lab.py",
+ "_prereg": "P127 (PREDICTION-LEDGER.md), metric fixed before this ran",
+ "_estimand": "optimal",
+ "_note": "REPORT ONLY. Several arms graded on a metric fixed in advance; nothing selected. Engine-on-bundles, which is handed strictly less than the live board.",
+ "controls": {
+  "slot_s0_reproduces_shipped": {
+   "ok": true,
+   "why": "slot_s0 is the shipped configuration re-run under the slot-aware harness; if its conversion differs, this lab is not grading what it thinks it is"
+  },
+  "owner_conversion_identical_across_arms": {
+   "ok": true,
+   "why": "the owners' rosters are the same in every arm; a drifting owner baseline would mean the denominator is being recomputed wrong"
+  },
+  "conversion_in_unit_interval": {
+   "ok": true
+  }
+ },
+ "controls_all_passed": true,
+ "arms": {
+  "shipped": {
+   "2023": {
+    "engine_roster_points": 20649.8,
+    "engine_lineup_points": 15285.6,
+    "engine_conversion": 0.7402,
+    "owner_conversion": 0.8276,
+    "conversion_gap": -0.0874
+   },
+   "2024": {
+    "engine_roster_points": 17990.2,
+    "engine_lineup_points": 14655.7,
+    "engine_conversion": 0.8146,
+    "owner_conversion": 0.8256,
+    "conversion_gap": -0.011
+   },
+   "2025": {
+    "engine_roster_points": 21126.8,
+    "engine_lineup_points": 16299.5,
+    "engine_conversion": 0.7715,
+    "owner_conversion": 0.8337,
+    "conversion_gap": -0.0622
+   }
+  },
+  "need1": {
+   "2023": {
+    "engine_roster_points": 17970.7,
+    "engine_lineup_points": 15743.3,
+    "engine_conversion": 0.8761,
+    "owner_conversion": 0.8276,
+    "conversion_gap": 0.0485
+   },
+   "2024": {
+    "engine_roster_points": 18376.3,
+    "engine_lineup_points": 15592.7,
+    "engine_conversion": 0.8485,
+    "owner_conversion": 0.8256,
+    "conversion_gap": 0.0229
+   },
+   "2025": {
+    "engine_roster_points": 20450.1,
+    "engine_lineup_points": 16962.0,
+    "engine_conversion": 0.8294,
+    "owner_conversion": 0.8337,
+    "conversion_gap": -0.0043
+   }
+  },
+  "slot_s1": {
+   "2023": {
+    "engine_roster_points": 17796.9,
+    "engine_lineup_points": 15626.7,
+    "engine_conversion": 0.8781,
+    "owner_conversion": 0.8276,
+    "conversion_gap": 0.0505
+   },
+   "2024": {
+    "engine_roster_points": 18982.6,
+    "engine_lineup_points": 15664.4,
+    "engine_conversion": 0.8252,
+    "owner_conversion": 0.8256,
+    "conversion_gap": -0.0004
+   },
+   "2025": {
+    "engine_roster_points": 20476.9,
+    "engine_lineup_points": 16695.1,
+    "engine_conversion": 0.8153,
+    "owner_conversion": 0.8337,
+    "conversion_gap": -0.0184
+   }
+  },
+  "auto": {
+   "2023": {
+    "engine_roster_points": 16772.3,
+    "engine_lineup_points": 14792.7,
+    "engine_conversion": 0.882,
+    "owner_conversion": 0.8276,
+    "conversion_gap": 0.0544
+   },
+   "2024": {
+    "engine_roster_points": 17785.9,
+    "engine_lineup_points": 15312.4,
+    "engine_conversion": 0.8609,
+    "owner_conversion": 0.8256,
+    "conversion_gap": 0.0353
+   },
+   "2025": {
+    "engine_roster_points": 20508.8,
+    "engine_lineup_points": 16644.2,
+    "engine_conversion": 0.8116,
+    "owner_conversion": 0.8337,
+    "conversion_gap": -0.0221
+   }
+  },
+  "bye1": {
+   "2023": {
+    "engine_roster_points": 20649.8,
+    "engine_lineup_points": 15285.6,
+    "engine_conversion": 0.7402,
+    "owner_conversion": 0.8276,
+    "conversion_gap": -0.0874
+   },
+   "2024": {
+    "engine_roster_points": 17990.2,
+    "engine_lineup_points": 14655.7,
+    "engine_conversion": 0.8146,
+    "owner_conversion": 0.8256,
+    "conversion_gap": -0.011
+   },
+   "2025": {
+    "engine_roster_points": 21126.8,
+    "engine_lineup_points": 16299.5,
+    "engine_conversion": 0.7715,
+    "owner_conversion": 0.8337,
+    "conversion_gap": -0.0622
+   }
+  },
+  "slot_s0": {
+   "2023": {
+    "engine_roster_points": 20649.8,
+    "engine_lineup_points": 15285.6,
+    "engine_conversion": 0.7402,
+    "owner_conversion": 0.8276,
+    "conversion_gap": -0.0874
+   },
+   "2024": {
+    "engine_roster_points": 17990.2,
+    "engine_lineup_points": 14655.7,
+    "engine_conversion": 0.8146,
+    "owner_conversion": 0.8256,
+    "conversion_gap": -0.011
+   },
+   "2025": {
+    "engine_roster_points": 21126.8,
+    "engine_lineup_points": 16299.5,
+    "engine_conversion": 0.7715,
+    "owner_conversion": 0.8337,
+    "conversion_gap": -0.0622
+   }
+  }
+ }
+}

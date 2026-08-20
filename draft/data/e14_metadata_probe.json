@@ -1,0 +1,41 @@
+{
+ "_territory": "TERRITORY: A \u2014 .github/workflows/e14-metadata-probe.yml",
+ "_answers": "register E14 (E, 2026-08-17): is pick metadata populated on the PRODUCTION path managers.py actually reads?",
+ "league_id": "1374848328470102016",
+ "drafts": [
+  {
+   "season": "2025",
+   "draft_id": "1248121522766217216",
+   "picks": 150,
+   "with_metadata_position": 150,
+   "with_metadata_team": 150
+  },
+  {
+   "season": "2024",
+   "draft_id": "1117672595379277825",
+   "picks": 150,
+   "with_metadata_position": 150,
+   "with_metadata_team": 150
+  },
+  {
+   "season": "2023",
+   "draft_id": "1001232801791856640",
+   "picks": 150,
+   "with_metadata_position": 150,
+   "with_metadata_team": 150
+  },
+  {
+   "season": "2023",
+   "draft_id": "990840142107619329",
+   "picks": 30,
+   "with_metadata_position": 30,
+   "with_metadata_team": 30
+  }
+ ],
+ "totals": {
+  "picks": 480,
+  "with_position": 480,
+  "with_team": 480
+ },
+ "verdict": "E14 CLOSES \u2014 metadata is populated on the production path; homer/positional-timing read the era they claim"
+}

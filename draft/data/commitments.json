@@ -79,7 +79,7 @@
       "id": "schedule-rerun-on-slate",
       "item": null,
       "what": "Every roster-construction result produced this week is re-run against the REAL pick schedule once the slate confirms. Two schedules were used and they disagree: '12 picks from 34' (assumes only Cory's three keepers exist) and the slot-8 snake 33/48/53 (assumes none). They produce different rosters -- TE 1 under one, TE 2 under the other. NEITHER IS REAL. A one-pick offset changed the constructed roster more than a 30-point shift in RB replacement did, so nothing built on an assumed schedule can be graded until the true one is known.",
-      "due": "2026-08-20",
+      "due": "2026-08-21",
       "why_that_date": "Keeper lock. The slate confirms which keepers cost which picks, which is the only thing that resolves the schedule, and it lands two days before the draft -- so this is the last date on which a wrong schedule is still correctable.",
       "verify": "node draft/tools/commit_verify.js schedule-rerun-on-slate",
       "owner": "A"

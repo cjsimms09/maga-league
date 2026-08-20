@@ -261,6 +261,42 @@ def grade_week(snapshot: dict, actuals: dict, provider_proj: dict | None = None,
     }
 
 
+def cory_bar_startsit(weeks: dict) -> dict:
+    """The 2027 goal's bar, season-to-date, per WEEKLY-LAB-FREEZE-2026.
+
+    Pools every graded week's rows where the CHAMPION and BOTH providers
+    price the player (the shared-population clause); the metric and the
+    3-of-4 computation live in start_sit_metric.py, imported not copied.
+    NOT RUN until a graded week carries both provider columns — which is
+    what C's weekly projection archive dispatch exists to make true."""
+    from start_sit_metric import meets_cory_bar, pairwise_accuracy
+    wk_inputs = []
+    for wk in sorted(weeks, key=int):
+        e = weeks[wk]
+        champ = e.get("champion_arm")
+        rows = e.get("rows") or {}
+        wr = {}
+        for pid, r in rows.items():
+            proj = {"ours": (r.get("proj") or {}).get(champ),
+                    "sleeper": r.get("sleeper"),
+                    "fantasypros": r.get("fantasypros")}
+            if any(v is None for v in proj.values()):
+                continue
+            wr[pid] = {"pos": r.get("pos"), "actual": r.get("actual"),
+                       "proj": proj}
+        if wr:
+            wk_inputs.append(wr)
+    if not wk_inputs:
+        return {"status": ("NOT RUN — no graded week carries the champion "
+                           "AND both provider columns yet; the FP half "
+                           "starts the day C's weekly archive carries it"),
+                "_freeze": "WEEKLY-LAB-FREEZE-2026.md"}
+    acc = pairwise_accuracy(wk_inputs, ["ours", "sleeper", "fantasypros"])
+    bar = meets_cory_bar(acc, "ours", ["sleeper", "fantasypros"])
+    return {"_freeze": "WEEKLY-LAB-FREEZE-2026.md; metric start_sit_metric.py",
+            "weeks_pooled": len(wk_inputs), "accuracy": acc, "bar": bar}
+
+
 # ── the mechanical promotion rule (pure) ─────────────────────────────────────
 
 def _arm_series(weeks: dict, arm: str) -> dict:
@@ -327,7 +363,41 @@ def decide_promotion(champion: dict, weeks: dict, active_arms: list) -> dict | N
         "from": {"version": champion["version"], "arm": champ_arm},
         "to": {"version": nxt, "arm": best["arm"]},
         "evidence": best,
+        # THE STANDING NULL (BLEND-SEARCH-DESIGN §3, D's condition 4, wired
+        # 08-18): picking the best of K arms buys a margin for free, and that
+        # free margin GROWS as arms are added. ATTACHED, NOT GATING — the
+        # promotion rule above is Cory-ruled verbatim and this does not change
+        # it; it makes every promotion carry the question "would K skill-free
+        # arms have produced this margin?" so the human reading the promotion
+        # issue sees the answer beside the win instead of nobody asking.
+        "best_of_k": _best_of_k_null(weeks, [a["name"] for a in active_arms]),
     }
+
+
+def _best_of_k_null(weeks: dict, arm_names: list) -> dict:
+    """best_of_k over the arms' common graded weeks (rows = weeks, error =
+    weekly MAE — exchangeable under 'arm identity carries no information').
+    Never raises: a promotion must not fail because its null could not run —
+    an unrunnable null is REPORTED as unrunnable, not silently absent."""
+    try:
+        from best_of_k import best_of_k
+        series = {a: _arm_series(weeks, a) for a in arm_names}
+        series = {a: s for a, s in series.items() if s}
+        common = None
+        for s in series.values():
+            common = set(s) if common is None else common & set(s)
+        common = sorted(common or [])
+        if len(series) < 2 or len(common) < 3:
+            return {"status": "NOT RUN — needs >=2 arms with >=3 common graded weeks",
+                    "arms": len(series), "common_weeks": len(common)}
+        errors_by_arm = {a: [series[a][w][0] for w in common] for a in series}
+        out = best_of_k(errors_by_arm)
+        out["status"] = "ran"
+        out["rows_are"] = "weekly MAEs over common weeks " + str(common)
+        return out
+    except Exception as exc:                              # noqa: BLE001
+        return {"status": f"FAILED to run ({type(exc).__name__}: {exc}) — "
+                          "the null is missing, not passed"}
 
 
 def seed_challenger(promoted_def: dict, active_arms: list) -> dict | None:
@@ -636,6 +706,10 @@ def main(argv: list | None = None) -> int:
     changed = bool(n_graded or promo
                    or (alert and ov))
     if changed:
+        # Season-to-date pairwise start/sit grade — Cory's bar, recomputed
+        # whole every Tuesday (WEEKLY-LAB-FREEZE-2026 §1-2; the metric lives
+        # in start_sit_metric.py and the freeze outranks both).
+        ledger["cory_bar_startsit"] = cory_bar_startsit(ledger["weeks"])
         ledger_out.parent.mkdir(parents=True, exist_ok=True)
         ledger_out.write_text(json.dumps(ledger, indent=1))
         print(f"wrote {ledger_out}: {len(ledger['weeks'])} week(s) graded, "

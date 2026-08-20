@@ -159,7 +159,7 @@ function analyze(opts) {
     taken: takenSlots.sort((a, b) => a - b).map(s => ({ slot: s, ownerId: slotToOwner[s], ownerName: ownerName(slotToOwner[s]) })),
     recommendation: recommendation,
     provenance: 'site claims — Sleeper pending',
-    caveat: 'final numbers firm at keeper lock (Aug 20)',
+    caveat: 'final numbers firm at keeper lock (Aug 21)',
   };
 }
 

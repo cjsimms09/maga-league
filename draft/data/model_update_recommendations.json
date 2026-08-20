@@ -122,8 +122,18 @@
     "artifact": "draft/backtest/source_weight_prior.json"
    },
    "inseason_arm_evidence": {
-    "status": "absent",
-    "why": "no player_weeks block in the evidence-weights mirror yet \u2014 the player loop's first graded week lands it; mirrored weekly by weekly_grade_runner.js"
+    "method": "player-week-projection-v1",
+    "n_forecasts": 0,
+    "n_graded": 0,
+    "n_pending": 0,
+    "excluded_late_or_unknown_timing": 0,
+    "disqualified": 0,
+    "by_position": {},
+    "by_week": {},
+    "rank_corr": {
+     "ours": null,
+     "sleeper": null
+    }
    },
    "unlock_progress": {
     "weeks_graded": 0,
@@ -318,10 +328,28 @@
   },
   {
    "id": "REC-4-evidence-weights-have-no-reader",
-   "status": "wiring-gap",
+   "status": "wired-to-recommendation-artifact",
    "summary": "grade-cron writes evidence_weights:current every week. The read side now exists: netlify/functions/weights-read.js exposes it read-only, draft/tools/weekly_grade_runner.js mirrors it into draft/data/evidence_weights_latest.json every Tuesday, and this artifact consumes the mirror on each weekly regeneration \u2014 so weekly grades flow into the RECOMMENDATION artifact, era-stamped. A LIVE parameter consumer stays deliberately unwired: that change is beyond REC-1's ruling and remains a design ruling for Cory.",
-   "consumed_evidence_weights": null,
-   "reader_status": "reader wired and executed, but no mirror on disk yet \u2014 the weekly runner writes it once WEIGHTS_READ_URL/SITE_URL is configured in the workflow and grade-cron has produced a snapshot; until then this is a named absence, not a claim",
+   "consumed_evidence_weights": {
+    "updated_at": "2026-08-18T12:02:22.836Z",
+    "season": 2026,
+    "graded_n": 0,
+    "league_se": null,
+    "combined": {
+     "posterior": null,
+     "weights": {
+      "league": 0,
+      "external": 0
+     },
+     "dominant": "none",
+     "transferability": null,
+     "transferability_is_placeholder": true
+    },
+    "rules_era": "1la32x",
+    "fetched_at": "2026-08-18T14:02:06.567Z",
+    "era_note": "rules_era travels with the weights; a snapshot graded under different money-bearing rules must not steer this era's model"
+   },
+   "reader_status": "mirror consumed",
    "evidence": [
     "writer: netlify/functions/grade-cron.js (evidence_weights:current, era-stamped)",
     "read side: netlify/functions/weights-read.js (read-only expose) \u2192 draft/tools/weekly_grade_runner.js (weekly mirror) \u2192 this artifact"

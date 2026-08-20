@@ -1,0 +1,664 @@
+{
+ "_prereg": "POLICY-REGRADE-SIM-PREREG.md; blind prediction P100",
+ "n_worlds": 2000,
+ "seasons": {
+  "2023": {
+   "cory_seat": 1,
+   "arms": {
+    "market": {
+     "p_playoffs": 0.6785,
+     "E_total": {
+      "mean": 614.3,
+      "p5": 100.0,
+      "p95": 1150.0
+     },
+     "E_playoff": {
+      "mean": 287.85,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 281.95,
+      "p5": 100.0,
+      "p95": 600.0
+     },
+     "se_mean": 7.136
+    },
+    "need_value": {
+     "p_playoffs": 0.81,
+     "E_total": {
+      "mean": 801.25,
+      "p5": 200.0,
+      "p95": 1250.0
+     },
+     "E_playoff": {
+      "mean": 354.35,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 377.1,
+      "p5": 100.0,
+      "p95": 650.0
+     },
+     "se_mean": 7.136
+    },
+    "zero_rb": {
+     "p_playoffs": 0.86,
+     "E_total": {
+      "mean": 825.58,
+      "p5": 200.0,
+      "p95": 1300.0
+     },
+     "E_playoff": {
+      "mean": 384.5,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 354.88,
+      "p5": 100.0,
+      "p95": 600.0
+     },
+     "se_mean": 7.476
+    },
+    "robust_rb": {
+     "p_playoffs": 0.8855,
+     "E_total": {
+      "mean": 929.77,
+      "p5": 300.0,
+      "p95": 1350.0
+     },
+     "E_playoff": {
+      "mean": 397.62,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 437.3,
+      "p5": 200.0,
+      "p95": 700.0
+     },
+     "se_mean": 7.136
+    },
+    "hero_rb": {
+     "p_playoffs": 0.8955,
+     "E_total": {
+      "mean": 953.9,
+      "p5": 300.0,
+      "p95": 1400.0
+     },
+     "E_playoff": {
+      "mean": 405.05,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 449.9,
+      "p5": 200.0,
+      "p95": 700.0
+     },
+     "se_mean": 7.476
+    },
+    "elite_te": {
+     "p_playoffs": 0.8495,
+     "E_total": {
+      "mean": 799.8,
+      "p5": 200.0,
+      "p95": 1250.0
+     },
+     "E_playoff": {
+      "mean": 376.55,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 343.7,
+      "p5": 100.0,
+      "p95": 600.0
+     },
+     "se_mean": 7.136
+    },
+    "wr_feast": {
+     "p_playoffs": 0.803,
+     "E_total": {
+      "mean": 738.98,
+      "p5": 100.0,
+      "p95": 1250.0
+     },
+     "E_playoff": {
+      "mean": 351.43,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 320.45,
+      "p5": 100.0,
+      "p95": 600.0
+     },
+     "se_mean": 7.816
+    },
+    "cory_actual": {
+     "p_playoffs": 0.6605,
+     "E_total": {
+      "mean": 598.23,
+      "p5": 100.0,
+      "p95": 1150.0
+     },
+     "E_playoff": {
+      "mean": 279.52,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 277.3,
+      "p5": 100.0,
+      "p95": 500.0
+     },
+     "se_mean": 7.136
+    },
+    "oracle_realized": {
+     "p_playoffs": 0.9995,
+     "E_total": {
+      "mean": 1558.38,
+      "p5": 1200.0,
+      "p95": 1850.0
+     },
+     "E_playoff": {
+      "mean": 507.38,
+      "p5": 400.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 862.75,
+      "p5": 500.0,
+      "p95": 1200.0
+     },
+     "se_mean": 4.418
+    }
+   }
+  },
+  "2024": {
+   "cory_seat": 1,
+   "arms": {
+    "market": {
+     "p_playoffs": 0.981,
+     "E_total": {
+      "mean": 1442.2,
+      "p5": 975.0,
+      "p95": 1825.0
+     },
+     "E_playoff": {
+      "mean": 585.91,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 654.85,
+      "p5": 300.0,
+      "p95": 1000.0
+     },
+     "se_mean": 5.777
+    },
+    "need_value": {
+     "p_playoffs": 0.992,
+     "E_total": {
+      "mean": 1599.28,
+      "p5": 1175.0,
+      "p95": 2025.0
+     },
+     "E_playoff": {
+      "mean": 605.51,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 773.95,
+      "p5": 500.0,
+      "p95": 1100.0
+     },
+     "se_mean": 5.777
+    },
+    "zero_rb": {
+     "p_playoffs": 0.969,
+     "E_total": {
+      "mean": 1383.75,
+      "p5": 900.0,
+      "p95": 1825.0
+     },
+     "E_playoff": {
+      "mean": 575.75,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 616.25,
+      "p5": 300.0,
+      "p95": 900.0
+     },
+     "se_mean": 6.287
+    },
+    "robust_rb": {
+     "p_playoffs": 1.0,
+     "E_total": {
+      "mean": 1594.11,
+      "p5": 1225.0,
+      "p95": 1925.0
+     },
+     "E_playoff": {
+      "mean": 633.14,
+      "p5": 500.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 717.85,
+      "p5": 400.0,
+      "p95": 1000.0
+     },
+     "se_mean": 4.758
+    },
+    "hero_rb": {
+     "p_playoffs": 0.9785,
+     "E_total": {
+      "mean": 1363.54,
+      "p5": 900.0,
+      "p95": 1825.0
+     },
+     "E_playoff": {
+      "mean": 581.16,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 590.25,
+      "p5": 300.0,
+      "p95": 900.0
+     },
+     "se_mean": 6.287
+    },
+    "elite_te": {
+     "p_playoffs": 0.981,
+     "E_total": {
+      "mean": 1442.2,
+      "p5": 975.0,
+      "p95": 1825.0
+     },
+     "E_playoff": {
+      "mean": 585.91,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 654.85,
+      "p5": 300.0,
+      "p95": 1000.0
+     },
+     "se_mean": 5.777
+    },
+    "wr_feast": {
+     "p_playoffs": 0.9755,
+     "E_total": {
+      "mean": 1317.74,
+      "p5": 850.0,
+      "p95": 1725.0
+     },
+     "E_playoff": {
+      "mean": 575.29,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 549.2,
+      "p5": 300.0,
+      "p95": 900.0
+     },
+     "se_mean": 5.947
+    },
+    "cory_actual": {
+     "p_playoffs": 0.99,
+     "E_total": {
+      "mean": 1485.91,
+      "p5": 1050.0,
+      "p95": 1900.0
+     },
+     "E_playoff": {
+      "mean": 597.16,
+      "p5": 400.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 674.5,
+      "p5": 400.0,
+      "p95": 1000.0
+     },
+     "se_mean": 5.777
+    },
+    "oracle_realized": {
+     "p_playoffs": 1.0,
+     "E_total": {
+      "mean": 1910.7,
+      "p5": 1600.0,
+      "p95": 2225.0
+     },
+     "E_playoff": {
+      "mean": 642.92,
+      "p5": 500.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 1021.15,
+      "p5": 700.0,
+      "p95": 1300.0
+     },
+     "se_mean": 4.248
+    }
+   }
+  },
+  "2025": {
+   "cory_seat": 1,
+   "arms": {
+    "market": {
+     "p_playoffs": 0.257,
+     "E_total": {
+      "mean": 160.95,
+      "p5": 0.0,
+      "p95": 675.0
+     },
+     "E_playoff": {
+      "mean": 126.92,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 22.4,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 4.588
+    },
+    "need_value": {
+     "p_playoffs": 0.176,
+     "E_total": {
+      "mean": 110.49,
+      "p5": 0.0,
+      "p95": 650.0
+     },
+     "E_playoff": {
+      "mean": 85.69,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 17.55,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 4.418
+    },
+    "zero_rb": {
+     "p_playoffs": 0.257,
+     "E_total": {
+      "mean": 160.95,
+      "p5": 0.0,
+      "p95": 675.0
+     },
+     "E_playoff": {
+      "mean": 126.92,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 22.4,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 4.588
+    },
+    "robust_rb": {
+     "p_playoffs": 0.257,
+     "E_total": {
+      "mean": 160.95,
+      "p5": 0.0,
+      "p95": 675.0
+     },
+     "E_playoff": {
+      "mean": 126.92,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 22.4,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 4.588
+    },
+    "hero_rb": {
+     "p_playoffs": 0.492,
+     "E_total": {
+      "mean": 322.96,
+      "p5": 0.0,
+      "p95": 800.0
+     },
+     "E_playoff": {
+      "mean": 254.22,
+      "p5": 0.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 34.3,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 5.437
+    },
+    "elite_te": {
+     "p_playoffs": 0.257,
+     "E_total": {
+      "mean": 160.95,
+      "p5": 0.0,
+      "p95": 675.0
+     },
+     "E_playoff": {
+      "mean": 126.92,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 22.4,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 4.588
+    },
+    "wr_feast": {
+     "p_playoffs": 0.218,
+     "E_total": {
+      "mean": 126.9,
+      "p5": 0.0,
+      "p95": 650.0
+     },
+     "E_playoff": {
+      "mean": 107.86,
+      "p5": 0.0,
+      "p95": 550.0
+     },
+     "E_weekly_high": {
+      "mean": 9.6,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 4.418
+    },
+    "cory_actual": {
+     "p_playoffs": 0.065,
+     "E_total": {
+      "mean": 38.56,
+      "p5": 0.0,
+      "p95": 400.0
+     },
+     "E_playoff": {
+      "mean": 29.85,
+      "p5": 0.0,
+      "p95": 400.0
+     },
+     "E_weekly_high": {
+      "mean": 6.65,
+      "p5": 0.0,
+      "p95": 100.0
+     },
+     "se_mean": 2.719
+    },
+    "oracle_realized": {
+     "p_playoffs": 0.996,
+     "E_total": {
+      "mean": 1476.89,
+      "p5": 1100.0,
+      "p95": 1825.0
+     },
+     "E_playoff": {
+      "mean": 610.41,
+      "p5": 500.0,
+      "p95": 675.0
+     },
+     "E_weekly_high": {
+      "mean": 636.23,
+      "p5": 300.0,
+      "p95": 950.0
+     },
+     "se_mean": 4.928
+    }
+   }
+  }
+ },
+ "verdicts": {
+  "instrument_control": {
+   "2023": {
+    "delta": 960.15,
+    "bar": 23.11,
+    "separates": true
+   },
+   "2024": {
+    "delta": 424.79,
+    "bar": 20.05,
+    "separates": true
+   },
+   "2025": {
+    "delta": 1438.33,
+    "bar": 15.29,
+    "separates": true
+   }
+  },
+  "separations": {
+   "need_value": {
+    "2023": {
+     "delta": 186.95,
+     "bar": 28.54,
+     "beyond_bar": true
+    },
+    "2024": {
+     "delta": 157.08,
+     "bar": 23.11,
+     "beyond_bar": true
+    },
+    "2025": {
+     "delta": -50.46,
+     "bar": 18.01,
+     "beyond_bar": true
+    },
+    "separates": false
+   },
+   "zero_rb": {
+    "2023": {
+     "delta": 211.28,
+     "bar": 29.22,
+     "beyond_bar": true
+    },
+    "2024": {
+     "delta": -58.45,
+     "bar": 24.13,
+     "beyond_bar": true
+    },
+    "2025": {
+     "delta": 0.0,
+     "bar": 18.35,
+     "beyond_bar": false
+    },
+    "separates": false
+   },
+   "robust_rb": {
+    "2023": {
+     "delta": 315.47,
+     "bar": 28.54,
+     "beyond_bar": true
+    },
+    "2024": {
+     "delta": 151.91,
+     "bar": 21.07,
+     "beyond_bar": true
+    },
+    "2025": {
+     "delta": 0.0,
+     "bar": 18.35,
+     "beyond_bar": false
+    },
+    "separates": false
+   },
+   "hero_rb": {
+    "2023": {
+     "delta": 339.6,
+     "bar": 29.22,
+     "beyond_bar": true
+    },
+    "2024": {
+     "delta": -78.66,
+     "bar": 24.13,
+     "beyond_bar": true
+    },
+    "2025": {
+     "delta": 162.01,
+     "bar": 20.05,
+     "beyond_bar": true
+    },
+    "separates": false
+   },
+   "elite_te": {
+    "2023": {
+     "delta": 185.5,
+     "bar": 28.54,
+     "beyond_bar": true
+    },
+    "2024": {
+     "delta": 0.0,
+     "bar": 23.11,
+     "beyond_bar": false
+    },
+    "2025": {
+     "delta": 0.0,
+     "bar": 18.35,
+     "beyond_bar": false
+    },
+    "separates": false
+   },
+   "wr_feast": {
+    "2023": {
+     "delta": 124.68,
+     "bar": 29.9,
+     "beyond_bar": true
+    },
+    "2024": {
+     "delta": -124.46,
+     "bar": 23.45,
+     "beyond_bar": true
+    },
+    "2025": {
+     "delta": -34.05,
+     "bar": 18.01,
+     "beyond_bar": true
+    },
+    "separates": false
+   }
+  },
+  "instrument_valid": true
+ }
+}

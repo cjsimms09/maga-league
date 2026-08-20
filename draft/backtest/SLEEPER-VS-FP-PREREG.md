@@ -30,6 +30,19 @@ exist, so 2024 cannot be predicted leak-free from the committed point stores.
 stationary measurement of a source's skill and nothing produced here may be
 read as one.
 
+> **⚠️ CORRECTION, 2026-08-18 (A) — the STATED REASON above was superseded 86
+> minutes after this prereg was committed; the CONCLUSION stands.** The
+> 2021/2022 weekly-points stores were built at 08-17 00:20 (`199103e4`,
+> *"the N=1 limit is gone"*) — all five stores are on disk. own_v6's coverage
+> is therefore NO LONGER the binding limit. **The binding limit is Sleeper's
+> leak gates**: 2023 and 2024 fail them independently (`sleeper_hist_proj.json`,
+> *"1/3 season(s) passed every leak gate: [2025]"*), so the THREE-WAY grade is
+> still N=1 exactly as declared. What changed: any study not needing Sleeper —
+> own_v6 vs FantasyPros alone — now has 2023, 2024 and 2025 available. The
+> preregistered sentence above is left as written because it was the design's
+> honest basis at commit time; this note is the correction beside it, per the
+> relay's 08-18 route.
+
 Sleeper's 2023/2024 are refused by step 2 in any case, so even a two-source
 multi-season grade is unavailable. **N = 1 season. That is the ceiling of this
 evidence and it is fixed here, before the numbers.**

@@ -103,9 +103,17 @@ def test_KNOWN_POSITIVE_adp_source_IS_read_and_proj_ceiling_source_IS_NOT():
     zeros means the search is broken, all non-zeros means the strip is."""
     assert PC.readers("adp_source"), "adp_source has real consumers; finding none " \
         "means the reader search is broken, not that nothing reads it"
-    assert PC.readers("proj_ceiling_source") == [], \
-        "if this now has a reader, register 8b's core claim has changed — " \
-        "verify a real consumer exists and retire this assertion in that commit"
+    # RETIRED 2026-08-18, per this assertion's own instruction, the same hour
+    # the reader appeared: E's dispersionCaveat (app.js) now genuinely reads
+    # BOTH proj_floor_source and proj_ceiling_source — verified a real
+    # consumer, not a comment: it branches the on-screen caveat on
+    # /^measured-/ to tell a symmetric Gaussian band from a cohort p10/p90,
+    # which is register 8b's ask delivered rather than its claim broken.
+    # The known-positive half above still guards the search; the flip side
+    # is now that the reader must KEEP existing:
+    assert "public/js/draft/app.js" in PC.readers("proj_ceiling_source"), \
+        "dispersionCaveat stopped reading proj_ceiling_source — the surface " \
+        "caveat can no longer tell Gaussian from cohort bands (register 8b)"
 
 
 def test_variance_why_is_unread_and_that_corrects_my_own_register_text():
