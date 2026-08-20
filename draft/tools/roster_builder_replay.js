@@ -801,22 +801,38 @@ function buildSeat(season, draft, seatId, rosterOn) {
         cands.forEach(([q]) => { const u = urgency(q); if (u > bu) { bu = u; bq = q; } });
         chosen = firstOf[bq];
       } else if (GAUNTLET === 'snake') {
-        /* VOB + smoothed opportunity cost (prereg §4) */
+        /* VOB + smoothed opportunity cost (prereg §4) — IN POINTS UNITS.
+         * The first run used market-rank values and collapsed (drafted QB/DEF
+         * early in 30/30 seats): VBD's subtraction is NOT order-preserving in
+         * rank units, because a flat position's 10th man goes latest, which
+         * INFLATES its rank-VOB exactly where its points-VOB is smallest. The
+         * faithful denomination is per-position points — §14d's LOO rank
+         * curves, already in this file. Both runs are reported in the prereg. */
+        const curves = posCurveFor(season.season);
+        if (!this._snakeRank) this._snakeRank = null;
+        const rankOf = {};
+        {
+          const rc = {};
+          picks.forEach(p2 => {
+            if (p2.is_keeper) return;
+            const q2 = posOf(p2.player_id);
+            if (!q2) return;
+            rankOf[String(p2.player_id)] = (rc[q2] = (rc[q2] || 0) + 1);
+          });
+        }
+        const pts = c => {
+          const q2 = posOf(c.player_id);
+          const f = q2 && curves[q2];
+          return f ? f(rankOf[String(c.player_id)] || 999) : 0;
+        };
         const w = Math.max(1, Math.round(2 + 10 * (pk.pick_no / 150)));
-        const seen = {};
-        const repl = {};
-        picks.forEach(p2 => {
-          const q2 = posOf(p2.player_id);
-          if (!q2) return;
-          const r = (seen[q2] = (seen[q2] || 0) + 1);
-          if (r === SNAKE_BASE_RANK[q2]) repl[q2] = valueOf(p2);
-        });
         let bq = null, bs = -Infinity;
         cands.forEach(([q, c]) => {
-          const vob = Math.max(0, valueOf(c) - (repl[q] || 0));
+          const base = curves[q] ? curves[q](SNAKE_BASE_RANK[q]) : 0;
+          const vob = Math.max(0, pts(c) - base);
           const sv = (survOf[q] || []).slice(0, w);
-          const smoothNext = sv.length ? sv.reduce((a, x) => a + valueOf(x), 0) / sv.length : 0;
-          const opp = Math.max(0, valueOf(c) - smoothNext);
+          const smoothNext = sv.length ? sv.reduce((a, x) => a + pts(x), 0) / sv.length : 0;
+          const opp = Math.max(0, pts(c) - smoothNext);
           const score = vob + opp;
           if (score > bs) { bs = score; bq = q; }
         });
