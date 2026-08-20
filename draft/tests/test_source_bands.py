@@ -15,6 +15,8 @@ import json
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location(
     "asr", ROOT / "draft" / "tools" / "alt_source_rankings.py")
@@ -85,6 +87,14 @@ def test_a_zero_or_negative_ds_projection_cannot_produce_an_infinite_ratio():
         assert "proj_ceiling_fantasypros" not in p, bad
 
 
+@pytest.mark.post_chain  # the DS band this rule travels FROM is written by
+# attach_draftsharks.py, which runs in the post-processing chain. On a freshly
+# built board this measured `with_ds_band: 0, no_ds_band: 700` and refused the
+# publish (run 32425450897) — not because the rule broke, but because it was
+# being asked about a board that has no Draft Sharks bands on it yet. Marked
+# here and added to draft-data.yml's post-chain step in the same commit, per
+# the conftest rule. The synthetic tests above stay unmarked: they build their
+# own players and are true of any board.
 def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
     """The counts that matter: it is worthless if it fires only on players he
     will never see."""

@@ -5334,7 +5334,30 @@
     renderAll();
   }
 
-  function setProjSource(key) {
+  /* ⚠️ RENAMED 2026-08-20 FROM `setProjSource`, AND THE RENAME IS THE FIX.
+   *
+   * This function and the one at the top of the file both declared the name
+   * `setProjSource` in this same IIFE scope. The later declaration — this one —
+   * won, and B's had been dead since the day it was written. The comment above
+   * `safeRender('sourceBoards', ...)` says this block "stays in the file,
+   * UNREFERENCED"; it was the opposite of unreferenced, it was the only one
+   * reachable, and the position-boards toggle Cory clicks during the draft has
+   * been landing here instead of on the panel's own handler.
+   *
+   * Three wrong behaviours came out of the one collision:
+   *   · `renderPositionBoardsPanel()` is never called, so the panel he is
+   *     looking at did not update when he clicked its own toggle;
+   *   · any key other than 'blend' fetched `/board_<key>.json` and called
+   *     `applySourceBoard`, which SWAPS THE BOARD AND RE-SCORES VONA — a
+   *     display toggle silently re-scoring the draft;
+   *   · the two wrote different localStorage keys (`wr_proj_source` here,
+   *     `mfga.draft.projsource` there, which is the one `loadProjSource()`
+   *     reads on boot), so the choice never restored.
+   *
+   * Guarded by `draft/tests/one_name_one_function.test.js`, which carries its
+   * own planted-collision control and the JS-semantics assertion this rests on.
+   */
+  function setProjSourcePanel(key) {
     const prev = state.projSource;
     state.projSource = key;
     try { localStorage.setItem('wr_proj_source', key); } catch (e) { /* private mode */ }
@@ -5377,7 +5400,10 @@
         console.warn('[proj-source]', e && e.message);
       });
   }
-  window.__setProjSource = setProjSource;
+  //: bound to the RENAMED panel handler — see its header. The only caller is
+  //  renderProjSource()'s own buttons, and renderProjSource is not in the
+  //  render loop, so this binding exists for the unmounted panel alone.
+  window.__setProjSource = setProjSourcePanel;
 
   function renderProjSource() {
     const host = projSourceHost();
