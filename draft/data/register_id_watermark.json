@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 178,
+ "next_numeric_id": 180,
  "history": [
   {
    "id": 47,
@@ -399,6 +399,11 @@
    "id": "no new id consumed -- large dedup pass",
    "claimed_at": "2026-08-20",
    "note": "A large main sync reintroduced content already resolved in the prior merge round under stale pre-renumber ids: main's own copy of DEFECT-REGISTER.md never saw D's earlier renumbering (159/160/162-167 -> 166/167/172-177), since that renumbering only ever existed on D's branch. This merge's diff surfaced two conflict blocks and ~18 duplicate id pairs total (148-167 each appearing twice). Verified row by row: every duplicate was either (a) byte-identical to an already-canonical row elsewhere in the file, or (b) a stale-numbered copy of content D had already renumbered in the prior merge (172-177), or (c) new content that collided with an existing id but turned out, on check, to ALREADY be present under a different canonical id (the 'dollar panel E[$] QB inversion' finding, briefly reinserted as a new 178, was actually a duplicate of the already-canonical 169 -- caught by register_recheck_check's own near-duplicate detector and removed before commit). Net: zero new ids consumed this round, next_numeric_id unchanged at 178, every duplicate resolved to its single canonical id with no content lost."
+  },
+  {
+   "id": 179,
+   "claimed_at": "2026-08-20",
+   "note": "A: eleven of the 150 draft-critical JS suites are red and A's own earlier report to Cory said there were none -- the external reviewer challenged the unverified 'draft-critical' claim and was right; draft_critical.js now derives the set from what the war room actually loads. A genuine independent collision with D's own 168 (both new rows landing the same day, no textual overlap so git's clean auto-merge missed it, caught by test_defect_register.py's own duplicate-id check). Was 168 pre-renumber on main's side. Watermark now authoritative from 180."
   }
  ]
 }
