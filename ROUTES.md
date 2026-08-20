@@ -3890,3 +3890,14 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   usage stats (carries/opportunity-share/red-zone-share for RB, target-share/WOPR/aDOT for WR/TE), and injury status/risk in the player-detail drill-down —
   all from data already on the board, no new fetches. `draft/tests/drill_facts_rows.test.js` (75/75), full regression clean, live-verified in a real browser
   with a screenshot review.
+
+- [x] 2026-08-20 · B · 🆕 **LIKE / DISLIKE PLAYERS, SYNCED AND GRADEABLE — Cory, live: "a way to like and dislike players when doing mocks and this info
+  needs to stay in the room for when I do my draft.. grade me on these... to see if I was right."** Shipped: a 👍/👎 pair in the drill-down (available even
+  on a taken player — an opinion is gradeable either way), a read-only glyph on position-board rows, server-synced via the existing A-1 prefs path
+  (`playerCalls`, same cross-device/mock-and-real guarantee `targets`/`avoid`/`queue` already carry — verified against a FRESH browser context under the
+  same login, not just a reload). Each call snapshots `proj_mean`/`adjusted_adp`/`tier`/`games_expected`/season/pick at the moment of the click.
+  **THE GRADE: `draft/tools/grade_player_calls.js`, not yet runnable against real results — the season has not started.** Compares the snapshot against
+  Sleeper's real season stat line (`src/sleeper.js`'s already-built `seasonStats()`, no new fetch pipeline) once `≥3` games are played; degrades to PENDING
+  before that rather than a guessed verdict. 12-case known-positive self-check proves the comparison math in both directions (`node
+  draft/tools/grade_player_calls.js --selfcheck`) since there is no real weekly data to test it against yet. **ASK: none — this is usable tonight, gradeable
+  starting week 3-4.** `draft/tests/player_calls.test.js` (39 cases), full regression clean, live-verified with a screenshot.
