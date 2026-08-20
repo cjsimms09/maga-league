@@ -393,3 +393,30 @@ already prices him at zero, so the cap mostly re-ties tie-breaks among
 worthless picks.** The one channel that could break this prediction: ACTUAL
 grading counts bench bodies through weekly best-lineup, and the cap changes
 WHICH zero-marginal bodies fill the bench. Filed either way.
+
+## 16-GRADED, SAME DAY — P148 TRUE: THE HARD CAP IS REDUNDANT, AND WHERE IT BINDS IT ONLY HURTS
+
+Controls: byte-guard held; depth control live; 24/30 seats byte-identical to
+the reference arm in both comparisons (the cap rarely binds). One analysis
+correction made before quoting anything: the frozen arms were first compared
+against waiver-graded references — those identical/h2h cells were invalid and
+are discarded; means below are all correctly referenced.
+
+| waiver-graded | actual | skill | vs its reference |
+|---|---|---|---|
+| MLV-cap (ref) | +2.57 | +2.10 | — |
+| `--pos-cap` alone | −0.64 | −1.41 | **h2h 0/30** — never once improved a differing seat |
+| depth discount (ref) | +25.90 | +18.56 | — |
+| `--pos-cap` + discount | +23.41 | +18.56 | actual −2.5, skill identical |
+
+Frozen beside: cap-alone +40.3/+24.1 (vs +45.8/+29.3), combined +82.4/+42.2
+(vs +86.2/+42.8) — the same slight decline both gradings.
+
+**P148 TRUE on both blind clauses** (cap-alone within ±10 of MLV-cap;
+combined within ±10 of depth-alone). The mechanism, now measured twice from
+opposite directions: MLV plus the discount already never VOLUNTEERS a
+beyond-depth player — the only thing a hard constraint adds is removing
+bench option value in the ~6 seats where it binds, and in those seats it
+never once won. **The soft version of Cory's idea (§15's re-pricing) strictly
+dominates the hard version (§16's constraint). Keep the discount as the
+candidate; the cap is retired.**
