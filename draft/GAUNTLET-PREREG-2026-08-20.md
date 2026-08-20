@@ -66,3 +66,28 @@ analogue of the replay's market order); same caps and forcing. Report-only,
 exactly like the Roster Builder panel — nothing feeds engine.js. Whether it
 ships before Saturday is A's freeze call; the graded numbers ship in this
 doc either way.
+
+## 4. THE EIGHTH STRATEGY — Subvertadown's "Snake Value" (second upload, added same day)
+
+Cory's second resource (Subvertadown, 2025-06-17) argues VBD alone lacks a
+minimax guarantee in snake drafts and defines **Snake Value = value-over-
+baseline + a VONA opportunity-cost term**, computed against the OPPONENTS'
+expected takes one round ahead, with the remaining-points curve smoothed
+(±2 picks early, growing to ±12 late). Distinct from strict VONA: the value
+ordering is PRESERVED and urgency is additive — a bonus, not the ranking.
+
+**Replay implementation, declared:** VOB baseline = the market value of the
+last STARTER-rank player per position (QB10 · RB24 · WR26 · TE10 · K10 ·
+DEF10 — the classic table, deliberately NOT the drafted-depth table, since
+the article means standard VBD); opportunity cost = v(best now) − v(best
+recorded survivor past my next slot), same-position, floored at 0; smoothing
+implemented as the survivor mean over a ±w window with w = 2 + 10 ×
+(pick_no/150), per the article's own ramp. Score = VOB + OppCost; caps and
+forcing as §1.
+
+**P156, blind:** Snake Value beats strict VONA on skill (the article's own
+claim, aligned with our Hybrid finding) AND lands within ±10 of BAV — the
+additive-urgency term is a LIGHT lookahead, and every lookahead we have
+graded loses or ties. If it beats BAV by more than +10, the additive form
+succeeded where the ranking form failed four times, and that is a genuine
+discovery about WHERE timing information belongs.
