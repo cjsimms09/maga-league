@@ -502,6 +502,21 @@ jobs:
           # schedule -- register 98 was an eighteen-pick artifact quoted for hours
           # after his real twelve were known.
           node draft/tools/mlv_seat_plan.js
+          # KEEPER VORP PARITY -- are Cory's keepers priced on the SAME
+          # replacement table as every other row on his board? They were not:
+          # kept_players are copied out of `players` before apply_vorp runs on
+          # the keeper-removed pool, so they shipped carrying a vorp from a
+          # different pass (RB 170.47 / WR 171.85 against a published RB 168.60
+          # / WR 170.10). Register 148's shape, in the one comparison keepers
+          # exist for.
+          #
+          # FIXED AT THE SOURCE in build.py the same day, so on a healthy
+          # rebuild this is a NO-OP that prints "nothing to do" -- which is the
+          # point. It stays in the chain because the source fix only helps a
+          # board that REBUILDS, and it applies the artifact's own published
+          # table rather than computing one, so it cannot introduce a level.
+          # Refuses outright if the board publishes no replacement table.
+          python3 draft/tools/keeper_vorp_parity.py --fix
           # The alternate source boards behind Cory's toggle. Runs AFTER the
           # blend + DS attach, because it re-ranks whatever the board finally
           # says. It calls vorp.apply_vorp / assign_tiers -- the SAME functions

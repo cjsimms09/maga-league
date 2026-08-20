@@ -1854,13 +1854,42 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     # consumer gets the same number; E's UI-side derivation becomes the
     # designed no-op fallback. Unknown position stays ABSENT — never a
     # fallback constant (the || 0 lesson, again).
+    #
+    # ⚠️ RECOMPUTED UNCONDITIONALLY, NOT ONLY WHEN ABSENT — fixed 2026-08-20.
+    #
+    # The guard used to be `if rec.get("vorp") is None`, and it almost never
+    # fired: `kept_players` is built from `players` ABOVE (rec = dict(p)),
+    # BEFORE apply_vorp runs on `available`, so each record arrives carrying a
+    # vorp from an earlier pass over a DIFFERENT pool. The absent-vorp case this
+    # block was written for had already been closed upstream, so the block
+    # became a no-op and the stale number shipped.
+    #
+    # MEASURED ON THE LIVE BOARD: Cory's three keepers implied replacement
+    # RB 170.47 / WR 171.85 while the board published RB 168.60 / WR 170.10.
+    # Chase read 99.95 where the board's own formula says 101.70; Henry 88.68 vs
+    # 90.55; Walker 63.35 vs 65.22. About 1.8 points, ~2-3%, so it flips no pick
+    # on its own — but it is TWO REPLACEMENT TABLES, which is register 148
+    # exactly, and it is worst in the one comparison keepers exist for: "is my
+    # keeper worth more than what I could draft instead", where both sides have
+    # to be priced on the same table to mean anything.
+    #
+    # `available`'s table is the right one of the two: it is what every other
+    # row on the board is priced against, and it is what the artifact publishes
+    # as `replacement`.
+    #
+    # Unknown position still stays ABSENT — never a fallback constant (the
+    # `|| 0` lesson, again).
     _repl = (vorp_diag or {}).get("replacement_points") or {}
     for rec in kept_players:
-        if rec.get("vorp") is None:
-            rp = _repl.get(rec.get("position"))
-            pm = rec.get("proj_mean")
-            if rp is not None and pm is not None:
-                rec["vorp"] = round(float(pm) - float(rp), 2)
+        rp = _repl.get(rec.get("position"))
+        pm = rec.get("proj_mean")
+        if rp is not None and pm is not None:
+            rec["vorp"] = round(float(pm) - float(rp), 2)
+        elif rec.get("vorp") is not None:
+            # Cannot re-price him on the published table, so the number that is
+            # here came from another one. Drop it rather than ship a value the
+            # board cannot reproduce.
+            rec["vorp"] = None
 
     # GRAB-BY — "stick to value, know when to grab". Per-position EVLW (value lost to
     # waiting one pick) + grab-by pick, aware of MY keepers' filled slots. Forecast
