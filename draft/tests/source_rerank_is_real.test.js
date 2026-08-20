@@ -150,15 +150,32 @@ if (fs.existsSync(planPath)) {
  * heading. Same class as the mock-end label lie: a surface asserting a source
  * it is not using. */
 const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
-const renderBoardSrc = APP.slice(APP.indexOf('function renderBoard()'),
-  APP.indexOf('function renderBoard()') + 3000);
+/* A FIXED-WIDTH SLICE IS A TRAP: adding a comment block above the code pushed
+ * it out of a 3000-char window and turned two green checks red without the
+ * behaviour changing at all. Slice to the NEXT function instead, so the window
+ * tracks the function rather than its byte count. */
+const rbStart = APP.indexOf('function renderBoard()');
+const rbEnd = APP.indexOf('\n  function ', rbStart + 10);
+const renderBoardSrc = APP.slice(rbStart, rbEnd > rbStart ? rbEnd : rbStart + 8000);
 ck('renderBoard uses the SOURCE-ADJUSTED board, not state.board raw — the Big '
    + 'Board tab is where Cory reads rankings and it was ignoring his selection',
   /sourceAdjustedBoard\(\)/.test(renderBoardSrc), null);
 
-ck('...and re-orders by the swapped overall_rank when a source is active, '
-   + 'because forSource swaps the FIELD but the array arrives in blend order',
+ck('...and re-orders when a source is active, because forSource swaps the '
+   + 'FIELD but the array still arrives in blend order',
   /state\.rankSource/.test(renderBoardSrc) && /overall_rank/.test(renderBoardSrc), null);
+
+/* Cory, 2026-08-20: "it should just be pure ranking from that source!" */
+ck('SLEEPER uses its OWN published rank, because that is the one source whose '
+   + 'board we actually hold (sleeper_rank, all 700 players) — for the others '
+   + 'we ingested projections, not rankings',
+  /sleeper:\s*'sleeper_rank'/.test(renderBoardSrc), null);
+
+ck('...and the ordering is DECLARED to the panel rather than inferred from a '
+   + 'source name, so the heading cannot imply a board we do not have',
+  /bigBoardOrdering/.test(APP)
+    && /Sleeper\\'s own published/.test(APP)
+    && /our replacement math on/.test(APP), null);
 
 ck('KNOWN NEGATIVE — on BLEND it does not re-sort at all, so the shipped order '
    + 'is byte-identical and this fix cannot have moved the default board',
@@ -189,5 +206,5 @@ SOURCES.forEach(k => {
     !!b.built_from_board, { built_from_board: b.built_from_board });
 });
 
-console.log('\n%d checks, %d failed', 24, fails.length);
+console.log('\n%d checks, %d failed', 26, fails.length);
 if (fails.length) { console.log('FAILED'); process.exit(1); }
