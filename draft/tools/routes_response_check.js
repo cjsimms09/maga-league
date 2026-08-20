@@ -54,7 +54,14 @@ const BASELINE = path.join(ROOT, 'draft', 'baseline', 'routes_backlog_baseline.j
 /** Below this age an unanswered item is simply in flight, not a communication failure. */
 const RESPOND_BY_DAYS = 3;
 
-const ITEM = /^- \[( |x)\] (\d{4}-\d{2}-\d{2}) · (.+?) ·/;
+/* THE PREFIX HOLE, closed 2026-08-20 (the regex-sweep A handed the relay):
+ * lanes answer items by PREPENDING before the date — `✅ **2026-08-19 · A → D
+ * · CLOSED...`, `✅ A, 08-18: accepted — ... · 2026-08-17 · B ·` — and the old
+ * anchor required the date to touch the checkbox, so 38 of 585 item-shaped
+ * rows on main parsed as NOTHING: never counted answered, and an unticked one
+ * would have been invisible to blocked() too. The lazy prefix matches the
+ * EARLIEST full date (two-digit dates in prefixes cannot match \d{4}-). */
+const ITEM = /^- \[( |x)\] (?:[\s\S]*?)(\d{4}-\d{2}-\d{2}) · (.+?) ·/;
 
 /**
  * ROUTES items, each with the body that follows it.
@@ -163,81 +170,9 @@ function ageDays(item, nowMs) {
 }
 
 /** The blocked set: open, no default, old enough that silence is now a failure. */
-/**
- * AN ITEM WHOSE IDENTICAL TWIN IS TICKED HAS BEEN ANSWERED — THE MAILBOX JUST
- * LOST THE ANSWER.
- *
- * ── WHY THIS EXISTS: IT SENT ME AFTER TWO LANES THAT HAD DONE THE WORK ─────
- *
- * 2026-08-19, twice in one afternoon:
- *
- *   · B was carrying a 4-day-old BLOCKED item. B had answered it on 08-18
- *     ("intentionally gated on January evidence, not stalled") — onto a SECOND
- *     COPY of the item. The original stayed open, so this check went on
- *     reporting B as blocked for four days while the answer sat ten lines away.
- *   · Cory then asked what to send A to clear E. Two of E's four open asks
- *     turned out to be duplicates of items A had ALREADY TICKED — identical to
- *     the character, at L357 and L362.
- *
- * Both times the conclusion drawn from this tool was "a lane is not
- * responding", and both times the truth was "the mailbox has two copies".
- * **A backlog number that cannot tell those apart is worse than no number**,
- * because it spends someone's attention on a lane that did the work.
- *
- * So an item is treated as ANSWERED when a copy carrying the same normalised
- * text is ticked anywhere in the file. `routes_resurrections.py` already knows
- * how to find those pairs; this is the same idea applied one step earlier, so
- * the pair never becomes a false accusation in the first place.
- *
- * ⚠️ NORMALISED ON TEXT, NOT ON POSITION OR DATE. A duplicate is re-wrapped,
- * re-indented and sometimes re-dated by the merge that created it, so matching
- * on anything structural would miss exactly the copies that cause the problem.
- */
-function normaliseItem(i) {
-  /* ⚠️ THE CHECKBOX COMES OFF FIRST, AND FORGETTING THAT MADE THIS FUNCTION
-   * INCAPABLE OF EVER MATCHING A PAIR. `- [x] ` normalises to a stray "x" and
-   * `- [ ] ` to nothing, so a ticked item and its open twin differed by exactly
-   * the character that distinguishes them — the function could only ever match
-   * items in the SAME state, which is the one comparison it is never asked to
-   * make. Caught by the fail arm in the test; it would have shipped as a
-   * silently inert exemption otherwise. */
-  const body = i.body.map(function (l) { return l.replace(/^- \[[ x]\]\s*/, ''); }).join(' ');
-  return (i.who + ' ' + body).toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 200);
-}
-
-/** Keys of every item that is ticked — the set an open twin is checked against. */
-function answeredKeys(items) {
-  const k = new Set();
-  items.forEach(function (i) { if (i.done) k.add(normaliseItem(i)); });
-  return k;
-}
-
-/* A REAL DUPLICATE IS LONG. A SHORT ONE IS A COINCIDENCE.
- *
- * The duplicates this exemption exists for are hundreds of characters of
- * distinctive prose accidentally copied by a union merge. Two SHORT items can
- * legitimately share text — "please advise", "see above", a one-line ack — and
- * clearing a real ask because someone once ticked an item with the same eight
- * words would be the exemption quietly eating the backlog.
- *
- * Found by the existing fixture, which uses `please advise` as filler for three
- * items that are meant to be DIFFERENT: my first version cleared two of them.
- * That fixture was doing its job — the collision it exposed is possible in the
- * real file too, just rarer.
- */
-const MIN_DUPLICATE_CHARS = 80;
-
-/** True when this open item has a ticked twin elsewhere in the file. */
-function answeredElsewhere(item, keys) {
-  const k = normaliseItem(item);
-  return !item.done && k.length >= MIN_DUPLICATE_CHARS && keys.has(k);
-}
-
 function blocked(items, nowMs, respondBy) {
-  const keys = answeredKeys(items);
   return items.filter(function (i) {
-    return !i.done && !hasDefault(i) && !answeredElsewhere(i, keys)
-      && ageDays(i, nowMs) >= respondBy;
+    return !i.done && !hasDefault(i) && ageDays(i, nowMs) >= respondBy;
   });
 }
 
@@ -499,7 +434,6 @@ function closureByPair(items, rootDir) {
 }
 
 module.exports = { parse, hasDefault, noAsk, broadcastKeys, isBroadcast, ageDays,
-  normaliseItem, answeredKeys, answeredElsewhere, MIN_DUPLICATE_CHARS,
   blocked, byLane, closureByPair, RESPOND_BY_DAYS, main };
 
 if (require.main === module) process.exit(main());
