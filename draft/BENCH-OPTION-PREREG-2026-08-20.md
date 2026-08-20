@@ -100,3 +100,59 @@ wire friction**.
 Nothing else moves: same constants, same M=200, same masks, same pruning,
 same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation
 policy — v1's FALSE stays on the record as the wire-liquidity lesson.
+
+---
+
+## 6 · V3 AMENDMENT, 2026-08-20 — ONE UNIT EVERYWHERE (after P257–P259 FALSE)
+
+v2's debug dump found the real defect: **units**. Roster players were valued on
+`posCurveFor` — a draft-slot OUTCOME curve built from league matchup data,
+where a player's points count only for weeks he sat on a roster (QB10 reads
+96.5 season pts; reality ~280) — while the wire levels are real measured
+points. Mixed units made the wire look better than most of the roster; the
+drafter responded rationally to a nonsense landscape. Snake-rank's lesson,
+one level deeper.
+
+**v3, declared before any v3 run (P260–P262):** player levels come from
+**nflverse LOO realized rank curves** (target season excluded; the SAME stores
+the §13 wire levels were measured against, so numerator and denominator share
+a unit); K/DEF (absent from nflverse) use the measured surplus schedules
+K(r) = 128.6 + max(0, 8−2r), DEF(r) = 100 + max(0, 14−3r) — the +6/+10
+starter surpluses from the 08-20 table, decaying to wire. Market rank (draft
+order within position) still indexes the curve, as every VBD baseline does.
+The realized-rank curve is optimistic about the r-th DRAFTED player (bust risk
+lives in the rank, not the curve); the absence rates (.19) carry bust-weeks —
+declared as a known approximation, not hidden. Friction wire and forcing
+fallback unchanged from v2.
+
+---
+
+## 7 · V4 AMENDMENT, 2026-08-20 — POSITION-DEPENDENT FRICTION (after P260 FALSE / P262 TRUE)
+
+v3 fixed the units and the arm jumped from −280.8 to −4.2 skill with zero
+vacancies — and drafted EXACTLY 2 K + 2 DEF in all 30 seats. The exactness is
+the tell: under one roster-wide weekly claim, an absent K whose claim is busy
+scores zero, so one K of insurance prices at ~+13 and every seat buys it.
+That friction model is wrong in a specific, measured way: **nobody competes
+for kickers.** P150: K adds deliver 1.02× the wire level (uncontested, always
+available); RB adds 1.47× (contested, scarce). Cory, verbatim: *"defense and
+K isnt very much difference"* — from the wire.
+
+**v4, declared before any v4 run (P263–P265):** friction is position-
+dependent. {QB, K, DEF} slots refill at their wire level WITHOUT consuming
+the claim (uncontested streaming); {RB, WR, TE} empty slots (including flex)
+share ONE claim per week. Nothing else moves.
+
+---
+
+## 8 · V5 AMENDMENT, 2026-08-20 — SUPPLY-AWARE FORCING (after P264 TRUE / P265 FALSE)
+
+v4's position-dependent friction landed the economics: **waiver-aware skill
++3.46, h2h 16/30 — both champion-bar clauses — with K exactly 1.00 in 30/30
+and QB 1.00.** One regression: TE 0.57 — streaming TE is so cheap the arm
+never drafts one, opponents exhaust the recorded TE pool, and last-pick
+forcing meets an empty shelf (register 59's supply problem in a new seat).
+The cure already exists in this file: **§14d(b) supply-aware forcing** — when
+a needed position's remaining pool supply is down to the gap itself, force it
+NOW, while at least one exists. v5 adopts exactly that; nothing else moves.
+P266–P268 filed blind before the v5 run.
