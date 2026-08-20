@@ -8118,6 +8118,25 @@
     var src = player && player.proj_ceiling_source;
     if (typeof src !== 'string' || !src) return false;
     if (/-x-player-cv$/.test(src)) return false;          //: measured per player
+    /* EXTENDED 2026-08-20, AND IT WAS FOUND BY THE TEST THAT GUARDS THIS RULE
+     * CATCHING A CHANGE A MADE THE SAME NIGHT.
+     *
+     * Register 4v's rule is "a ceiling that is not about THIS player says so on
+     * screen". The predicate only knew the `measured-*` family, which Cory's
+     * Draft Sharks ruling retired entirely -- zero on the board now. Two
+     * CURRENT constructions are exactly what the rule is about:
+     *   - `position-median band ...` -- A's third band fallback, added hours
+     *     earlier for players our own pipeline scores at nothing. It is the
+     *     POSITION's typical band, deliberately, and its own stamp says
+     *     ABSTENTION. It is a cohort number by construction, and unmarked it
+     *     would read as a measurement of him.
+     *   - `none -- no band...` -- a collapsed flat band, which is not a claim
+     *     about upside at all and is the most misleading of the three.
+     * Both carry the mark now. `draftsharks_pct` and `pre-DS band` do not: the
+     * first is his own Draft Sharks band, the second his own band SHAPE
+     * rescaled to a new level. */
+    if (/^position-median band/.test(src)) return true;
+    if (/^none/.test(src)) return true;
     return /^measured-/.test(src);                        //: measured per BAND
   }
 
