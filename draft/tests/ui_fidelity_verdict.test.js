@@ -25,19 +25,12 @@
  * hands full VORP to everyone. That is a draft state that cannot exist — he
  * holds three keepers before pick one.
  * Read from the live board rather than hardcoded, so it cannot drift from it. */
-const KEEPERS_FOR_FIXTURE = (function () {
-  const a = JSON.parse(require('fs').readFileSync(
-    require('path').join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
-  const k = (a.kept_players || []).map(function (x) {
-    return { player_id: x.player_id, name: x.name, position: x.position,
-      proj_mean: x.proj_mean, vorp: x.vorp, is_keeper: true };
-  });
-  if (!k.length) {
-    throw new Error('this suite needs real keepers and the board supplied none '
-      + '— refusing to fall back to roster: [], the fiction register 160 made illegal');
-  }
-  return k;
-}());
+/* ONE DERIVATION, REUSED. Five suites had each grown their own copy of this
+ * block; a fixture that differs between suites makes their results
+ * incomparable. realRoster() REFUSES rather than falling back to roster: [],
+ * which is the fiction register 160 made illegal. */
+const KEEPERS_FOR_FIXTURE = require('./_empty_roster_fiction_precondition.js')
+  .realRoster();
 
 const fs = require('fs');
 const path = require('path');

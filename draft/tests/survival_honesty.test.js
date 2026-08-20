@@ -1,14 +1,12 @@
 'use strict';
 /* Cory's real keepers — the roster: [] fiction is no longer legal now that
  * need carries weight (register 160). See _empty_roster_fiction_precondition.js. */
-const KEEPERS_FOR_FIXTURE = (function () {
-  try {
-    const a = JSON.parse(require('fs').readFileSync(
-      require('path').join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
-    return (a.kept_players || []).map(k => ({ player_id: k.player_id, name: k.name,
-      position: k.position, proj_mean: k.proj_mean, vorp: k.vorp, is_keeper: true }));
-  } catch (e) { return []; }
-}());
+/* ONE DERIVATION, REUSED. Five suites had each grown their own copy of this
+ * block; a fixture that differs between suites makes their results
+ * incomparable. realRoster() REFUSES rather than falling back to roster: [],
+ * which is the fiction register 160 made illegal. */
+const KEEPERS_FOR_FIXTURE = require('./_empty_roster_fiction_precondition.js')
+  .realRoster();
 /* SURVIVAL: THE ACCOUNTING, AND THE HONESTY OF HOW IT RENDERS.
  *
  * Survival is third on this project's own list of things most likely to be wrong.
