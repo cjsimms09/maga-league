@@ -337,6 +337,23 @@ BOARD_FIELD_SOURCES = {
     "consensus_rank_season": "derived",
     "bye": "seasonal", "bye_source": "seasonal",
     "proj_sleeper": "seasonal", "proj_fantasypros": "seasonal",
+    # ── THE POST-PROCESSING CHAIN'S OWN FIELDS, ADDED 2026-08-20 ─────────────
+    # Companion to the BOARD_FIELD_PURPOSE entries below; both tables are
+    # asserted against the real artifact, so a field must be in BOTH. See the
+    # long note there for why twelve live-board fields were invisible to this
+    # gate until the post-processing chain was wired into the build.
+    #
+    # "seasonal": Draft Sharks' own THIS-SEASON projections, fetched.
+    "proj_ds": "seasonal", "proj_draftsharks": "seasonal",
+    "proj_ds_floor": "seasonal", "proj_ds_ceiling": "seasonal",
+    "injury_risk_pct": "seasonal",
+    # "derived": computed by the build from what it already holds — blend
+    # provenance, and the pre-attach values kept so the Draft Sharks swap stays
+    # auditable rather than silent (register 140).
+    "blend_n_sources": "derived", "blend_sources_used": "derived",
+    "proj_mean_pre_ds": "derived", "proj_floor_pre_ds": "derived",
+    "proj_ceiling_pre_ds": "derived",
+    "proj_mean_source_pre_ds": "derived", "ds_band_from": "derived",
 
     # nflfastR play-by-play for [season-1, season-2] — build.py:665. These ARE
     # prior-season values on a 2026 board, and legitimately so: 2026 usage does
@@ -533,6 +550,39 @@ BOARD_FIELD_PURPOSE = {
     "raw_adp_season": DERIVED_PURPOSE, "adp_season": DERIVED_PURPOSE,
     "consensus_rank_season": DERIVED_PURPOSE,
     "proj_fantasypros": LIVE_FEED, "proj_sleeper": LIVE_FEED,
+    # ── THE POST-PROCESSING CHAIN'S OWN FIELDS, ADDED 2026-08-20 ─────────────
+    #
+    # ⚠ WHY THEY APPEAR ONLY NOW, WHICH IS THE HONEST PART OF THIS ENTRY. These
+    # twelve have been on the LIVE board for weeks, written by
+    # attach_draftsharks.py. They were invisible to this table because
+    # post-processing ran AFTER the publish gate, so the gate only ever graded
+    # the raw board. A wired the chain INTO draft-data.yml on 08-19 (register
+    # 142 — the nightly rebuild was silently discarding every post-processing
+    # fix), and the very next build refused to publish: the gate could finally
+    # see what the chain writes, and none of it was declared.
+    #
+    # THE REFUSAL WAS CORRECT AND IS NOT BEING WEAKENED. The fix is to declare
+    # them, classified from WHAT WRITES THEM as this table requires — not to
+    # exempt post-processing from the check.
+    #
+    # LIVE_FEED: fetched from Draft Sharks, their numbers, not ours.
+    "proj_ds": LIVE_FEED, "proj_draftsharks": LIVE_FEED,
+    "proj_ds_floor": LIVE_FEED, "proj_ds_ceiling": LIVE_FEED,
+    "injury_risk_pct": LIVE_FEED,
+    #
+    # DERIVED_PURPOSE: the build computes these from sources it already holds.
+    # `blend_n_sources` / `blend_sources_used` are how many sources backed a
+    # player's blend and which — provenance ABOUT a number, never an input to
+    # one. The four `*_pre_ds` fields are the blend's own values BEFORE Draft
+    # Sharks was attached, kept so the swap is auditable rather than silent
+    # (register 140: 363 players' bands were collapsed to floor=ceiling=mean
+    # and shipped, and these are what makes that visible next time).
+    # `ds_band_from` and `proj_mean_source_pre_ds` are provenance strings, the
+    # same shape as `adp_sd_source` and `proj_ceiling_source` above.
+    "blend_n_sources": DERIVED_PURPOSE, "blend_sources_used": DERIVED_PURPOSE,
+    "proj_mean_pre_ds": DERIVED_PURPOSE, "proj_floor_pre_ds": DERIVED_PURPOSE,
+    "proj_ceiling_pre_ds": DERIVED_PURPOSE,
+    "proj_mean_source_pre_ds": DERIVED_PURPOSE, "ds_band_from": DERIVED_PURPOSE,
     # ESTIMATED FROM PRIOR SEASONS. Allowed — this is how anything gets priced —
     # and named, because the failure is a prior read as a current measurement.
     "opportunity_adj": HISTORICAL_PRIOR, "opportunity_share": HISTORICAL_PRIOR,
