@@ -304,3 +304,25 @@ check('CONTROL — the closure census really does span BOTH files, which is the 
 
 console.log('\n' + pass + '/' + (pass + fail) + ' routes-response checks passed');
 assert.strictEqual(fail, 0);
+
+/* ── THE PREFIX HOLE, closed 2026-08-20 (the regex sweep A handed the relay) ── */
+{
+  const { parseItems } = (() => { try { return require('../tools/routes_response_check.js'); } catch (e) { return {}; } })();
+  const ITEM = /^- \[( |x)\] (?:[\s\S]*?)(\d{4}-\d{2}-\d{2}) · (.+?) ·/;
+  // the three real prefix shapes measured on main (38 of 585 rows were invisible)
+  const shapes = [
+    ['- [x] ✅ **2026-08-19 · A → D · CLOSED, AND YOU CALLED IT.** body', '2026-08-19'],
+    ['- [x] ✅ A, 08-18: accepted — 4i is mine. · 2026-08-17 · B · 🔀 body', '2026-08-17'],
+    ['- [x] ✅ **RULED BY A** · 2026-08-18 · relay → C · body', '2026-08-18'],
+  ];
+  shapes.forEach(([row, want]) => {
+    const m = ITEM.exec(row);
+    if (!m || m[2] !== want) { console.error('FAIL prefix shape must parse with date ' + want + ': ' + row.slice(0, 60)); process.exit(1); }
+  });
+  // a plain row still parses identically
+  const plain = ITEM.exec('- [ ] 2026-08-20 · relay → C · body');
+  if (!plain || plain[2] !== '2026-08-20' || plain[3] !== 'relay → C') { console.error('FAIL plain row regression'); process.exit(1); }
+  // CONTROL: a two-digit date alone must NOT satisfy the parser (the prefix cannot fake a date)
+  if (ITEM.exec('- [ ] 08-18 · relay → C · body')) { console.error('FAIL control: two-digit date must not parse'); process.exit(1); }
+  console.log('prefix-hole checks: 5/5 passed');
+}
