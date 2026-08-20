@@ -209,3 +209,35 @@ hypothesis is FALSE on the grading that counts.
 **The honest net:** best measured construction rule on both gradings, with a
 real thin-bench cost inside the number, a real variance band around it, and a
 units question that must be answered before it touches the live board.
+
+---
+
+## 10. PREREG — NORMAL-WINDOW MLV (`--objective-window`), committed before the run
+
+**Cory: "a better roster equation that makes a normal roster based on league
+history and extracts as much value as possible."** Taken literally: the league's
+own drafts DEFINE normal. The mechanism:
+
+- MLV cap arm unchanged (marginal lineup value, K≤1/DEF≤1, legality guard).
+- **One added rule, read from league history, zero constants: a first K or
+  first DEF may not be taken at an overall pick earlier than ANY human owner
+  in the league's three recorded drafts has ever taken theirs** (the min over
+  30 owner-seasons, per position). Before the window opens those picks fall to
+  the next-best marginal — and when all marginals are ~0 (lineup full), the
+  tiebreak takes best market value, i.e. natural bench depth. The legality
+  guard overrides the window (a legal roster outranks a normal-looking one).
+
+**Why nearly free, predicted before running:** K streamability is .966 — the
+board's K value declines slowly, so deferring from pick 85 to the human window
+costs little; the freed rounds 9–11 become depth/upgrades, which the ACTUAL
+grading (injuries, byes) pays and the skill grading prices at ~0.
+
+**Bar, declared now:** 30/30 legal · K exactly 1, DEF exactly 1 · first-K mean
+inside 100–145 · **actual > +45.8** (beats the cap arm — depth must PAY, not
+just look normal) · **skill > +25** and head-to-head vs cap arm ≥ 14/30 on
+skill (within noise of +29.3; the claim is "normality nearly free", so skill
+materially WORSE than the cap arm is FALSE even if actual improves).
+
+**Falsifiable signature:** the actual-arm gain must come from BENCH weeks
+(depth covering absences), not from the starters — if starters drive it, the
+mechanism is not the claimed one.
