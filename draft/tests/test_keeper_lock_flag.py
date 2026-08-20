@@ -39,11 +39,37 @@ def test_arm2_after_deadline_no_placements_is_true():
     assert build._keeper_lock_passed(CFG, None, now=now) is True
 
 
-def test_arm3_placements_before_deadline_is_true():
-    """The derived path the standing_check docstring believed existed: an
-    early lock is caught without any date."""
+def test_placements_before_the_deadline_do_NOT_pass_the_lock():
+    """⚠️ INVERTED 2026-08-20 ON CORY'S RULING, verbatim: "The keepers placed
+    right now are accurate but owners are allow to change and add or subtract
+    anytime before 6pm Friday."
+
+    This test used to assert the opposite, on the reasoning that a placement
+    "cannot happen before the lock". It can, and it did: six teams placed
+    keepers two days early, `_keeper_lock_passed` went True on the first one,
+    the freeze alarm fired a day ahead of the deadline, and the board rebuild
+    refused to publish for a full day on the back of it — two days before the
+    draft.
+
+    A placement is evidence about what a team INTENDS. It is not evidence about
+    what time it is, and this function answers a question about time.
+    """
     now = dt.datetime(2026, 8, 18, 12, 0, tzinfo=CDT)
-    assert build._keeper_lock_passed(CFG, {"1": ["p1"]}, now=now) is True
+    assert build._keeper_lock_passed(CFG, {"1": ["p1"]}, now=now) is False
+
+
+def test_placements_do_not_change_the_answer_in_EITHER_direction():
+    """The removal has to be a removal, not a sign flip. Same clock, same
+    config, placements present and absent — one answer, before and after the
+    deadline."""
+    before = dt.datetime(2026, 8, 20, 12, 0, tzinfo=CDT)
+    after = dt.datetime(2026, 8, 22, 8, 0, tzinfo=CDT)
+    for now in (before, after):
+        assert (build._keeper_lock_passed(CFG, None, now=now)
+                is build._keeper_lock_passed(CFG, {"1": ["p1"], "2": ["p2"]}, now=now))
+    # ...and the two clocks genuinely disagree, or the check above is vacuous.
+    assert build._keeper_lock_passed(CFG, None, now=before) is False
+    assert build._keeper_lock_passed(CFG, None, now=after) is True
 
 
 def test_boundary_exactly_six_pm_friday_is_passed():

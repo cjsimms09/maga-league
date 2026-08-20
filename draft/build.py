@@ -330,21 +330,31 @@ def _parse_12h(t):
 def _keeper_lock_passed(cfg: dict, placements, now=None) -> bool:
     """Has the keeper lock passed? (register 5l — the flag was permanently False)
 
-    TWO INDEPENDENT PATHS, EITHER SUFFICIENT, because the previous version had
-    ZERO and read as if it had one:
-      * placements exist on the draft — the commissioner has placed keepers,
-        which cannot happen before the lock; this is the DERIVED path the
-        standing_check docstring believed was already wired.
-      * the configured deadline has passed — Cory's ruling, verbatim, in
-        league_config.json rather than a literal in this file.
-    A hardcoded date alone would be a second definition of the lock. A
-    placement-only rule misses a lock that passes with teams unplaced, which is
-    exactly the state the standing_check escalation exists to catch. `now` is
-    injectable so the test can drive the clock instead of waiting for Friday.
+    ⚠️ THE DERIVED PATH IS WRONG BY LEAGUE RULE AND IS REMOVED (Cory's ruling,
+    2026-08-20, verbatim): "The keepers placed right now are accurate but owners
+    are allow to change and add or subtract anytime before 6pm Friday."
+
+    This function carried TWO paths, either sufficient, and the first was
+    `if placements: return True` — on the reasoning that placement "cannot
+    happen before the lock". It can, and it has: six teams have keepers placed
+    on the draft today, two days early, and every one of them is revocable until
+    the deadline. So the flag has been reading True since the first placement
+    landed, the freeze alarm fired a day early on it, and the board rebuild has
+    refused to publish ever since.
+
+    THE LOCK PASSES AT THE DEADLINE. Full stop, one path, no inference. A
+    placement is evidence about what a team INTENDS, not about what time it is,
+    and this function's whole job is to answer what time it is relative to a
+    rule. `placements` is kept in the signature — every caller passes it and the
+    parameter is what makes the removal visible in the diff rather than silent —
+    and is deliberately unused.
+
+    A hardcoded date would be a second definition of the lock, so the deadline
+    is read from league_config.json where Cory's ruling lives verbatim. `now` is
+    injectable so a test can drive the clock instead of waiting for Friday.
     """
     import datetime as _dt
-    if placements:
-        return True
+    del placements                      # see above — intentionally not consulted
     d = ((cfg.get("keepers") or {}).get("deadline") or {})
     if not d.get("date"):
         return False                        # unknown is NOT "passed" — the safe direction
