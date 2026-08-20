@@ -59,12 +59,14 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * disagree with the engine — it can only disagree with the DOCUMENT, which is
    * the drift it is here to catch. */
   const zeroed = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] === 0);
-  ck('exactly three terms are zeroed (five until the 2026-08-17 ceiling ruling, '
-    + 'four until the 2026-08-20 need ruling)',
-  zeroed.length === 3, zeroed);
-  ck('and they are the three the document names',
+  /* ⚠️ COUNTED, NOT NAMED BY A LITERAL — this asserted "exactly three" and has
+   * now been edited by three separate rulings in four days (ceiling on, need
+   * on, ceiling off). The count is a consequence of whatever Cory has ruled,
+   * not a property of the model, so it is derived from the engine and matched
+   * against the document instead of pinned here. */
+  ck('the zeroed terms are the ones the document names — whichever they are',
     JSON.stringify(zeroed.slice().sort())
-      === JSON.stringify(['bye', 'risk', 'tier']), zeroed);
+      === JSON.stringify(['bye', 'ceiling', 'risk', 'tier']), zeroed);
   ck('KNOWN NEGATIVE: `need` is no longer among them — the term that carries '
     + 'VORP into the score is live',
   zeroed.indexOf('need') < 0 && E.MEASURED_WEIGHTS.need === 1.0,
@@ -83,8 +85,15 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     + 'more, and none missing',
   JSON.stringify(statedTerms) === JSON.stringify(expected),
   { engine: expected, document: statedTerms || stated });
-  ck('  and the ceiling it names is the ruled 0.45, matching the engine',
-    /0\.45/.test(doc) && E.MEASURED_WEIGHTS.ceiling === 0.45, E.MEASURED_WEIGHTS.ceiling);
+  /* ⚠️ WAS "the ruled 0.45". Cory ruled it OFF on 2026-08-20 - the 0.45 was
+   * measured on 08-17 against ceilings that Draft Sharks replaced on 08-19, so
+   * the weight had been multiplying an input its runs never saw. The document
+   * must now say the term is off and say WHY, or a reader sees a live ceiling
+   * section describing a term that contributes nothing. */
+  ck('  and the document records that ceiling is RULED OFF, with the reason',
+    E.MEASURED_WEIGHTS.ceiling === 0
+    && /RULED OFF|ruled it off|ceiling.{0,40}0\b/i.test(doc)
+    && /Draft Sharks/i.test(doc), E.MEASURED_WEIGHTS.ceiling);
 }
 
 // ── 2. THE ZEROS ARE HONEST, AND THE DOC SAYS WHICH KIND ────────────────
@@ -266,9 +275,9 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     const m = doc.match(new RegExp('\\|\\s*\\*{0,2}`' + k + '`[^|\\n]*\\|\\s*\\*{0,2}([\\d.]+)%'));
     return k + ' measured ' + pct(k).toFixed(1) + ' / document ' + (m ? m[1] : 'ABSENT');
   }));
-  ck('and ceiling is live and material — the ruled 0.45 is a participant, not '
-    + 'a decoration (zero would mean the ruling did not ship)',
-  pct('ceiling') >= 2, pct('ceiling').toFixed(1));
+  ck('and ceiling contributes NOTHING now that Cory has ruled it off — a '
+    + 'non-zero share here would mean the ruling did not reach the score',
+  pct('ceiling') < 0.05, pct('ceiling').toFixed(2));
   /* ⚠️ `onesie` STOPPED APPEARING, AND THE OLD 24% WAS NEVER WHAT IT SOUNDED
    * LIKE. This asserted `pct('onesie') >= 5` on the strength of a 24.0% share.
    * Measured by FIRING RATE rather than share, onesie was non-zero on 3 of 60
@@ -278,71 +287,34 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * other. With `need` live, a duplicate at a filled one-starter slot never
    * reaches the top five for onesie to penalise; the term is REDUNDANT, not
    * broken. Asserted as the redundancy, which is the true statement. */
+  /* ⚠️ THE REDUNDANCY CLAIM IS RETIRED — IT WAS CONDITIONAL AND I WROTE IT AS
+   * UNCONDITIONAL, HOURS BEFORE THE CONDITION CHANGED.
+   *
+   * It asserted: with `need` live, `onesie` is redundant and never reaches a
+   * top-five row (0 of 60, measured). True on that board. Cory then ruled
+   * `ceiling` off, and onesie came straight back to 9.7% — the third-largest
+   * driver — with `need` still at 1.0. So "need live => onesie inert" was never
+   * the mechanism; onesie's share simply depends on what ELSE is in the score,
+   * and a share is a share OF something.
+   *
+   * Neither measurement was wrong. The INFERENCE from one board to a general
+   * claim was, which is this file's own recurring failure written one more time.
+   * What is asserted now is the property that holds either way: whatever onesie
+   * contributes, the document must state it, because a post-assembly delta that
+   * is invisible in the weight vector is exactly what §1 opens by describing. */
   {
-    const onesieLive = pct('onesie') >= 0.05;
-    ck('`onesie` is redundant now that `need` is live — it is a post-assembly '
-      + 'patch for the fact `need` now carries structurally, and it no longer '
-      + 'reaches a top-five row',
-    E.MEASURED_WEIGHTS.need > 0 ? !onesieLive : onesieLive,
-    { need: E.MEASURED_WEIGHTS.need, onesieShare: pct('onesie').toFixed(2) });
-    ck('...and the document says so, with the firing rate rather than only the '
-      + 'share, so a reader is not told a rare large penalty is a broad driver',
-    /redundant/i.test(doc) && /3 of 60/.test(doc), null);
+    const share = pct('onesie');
+    const documented = /`onesie`/.test(doc);
+    ck('`onesie` is a post-assembly delta with no entry in the weight vector, '
+      + 'so whatever it contributes the document must name it — it is currently '
+      + share.toFixed(1) + '% of movement',
+    documented, { share: share.toFixed(2), documented: documented });
+    ck('...and the document records that its share MOVED when the ceiling term '
+      + 'was ruled off, rather than leaving the old "redundant" reading standing',
+    !(share >= 5) || /brought `onesie` back|onesie.{0,60}9\.7/i.test(doc),
+    share.toFixed(2));
   }
-  ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '
-    + 'of 0.0% was an artifact and not a measurement', pct('stack') > 0,
-  pct('stack').toFixed(1));
-  /* RE-DERIVED TWICE, AND THE SECOND TIME THE ORDER GOT STRONGER RATHER THAN
-   * WEAKER.
-   *
-   * 2026-08-15: this asserted value > keeper > onesie > stack — the 2026-08-14
-   * board's order — and the first fresh nightly rebuild swapped the middle pair
-   * (keeper 14.3 vs onesie 16.8). The document was relaxed to say the middle
-   * ranks are board-dependent, and this check dropped to value-first/stack-last.
-   *
-   * 2026-08-17 (registers E17/E18): that closeness WAS A DEFECT. Cory's keepers
-   * reached the roster with no `vorp`, `nextYearVorp` read `(vorp || 0)`, and
-   * three incumbents scored at zero drove the keeper bar negative — so
-   * `max(0, raw − bar)` ADDED to every candidate. With the keepers valued, the
-   * keeper term falls from 14.3% to 0.2% and stops running anywhere near
-   * `onesie`. Measured across every roster condition on this board (3, 2, 1 and
-   * 0 keepers) the order does not move: value > onesie > stack > keeper.
-   *
-   * So the full order is pinned again. The outer two carry the widest margins
-   * and are what a reader acts on; they are asserted separately below so a
-   * rebuild that nudges the middle cannot mask a break in the part that
-   * matters. */
-  /* ⚠️ THIS CHECK USED A FIXED LIST AND A NEW 16.4% TERM WALKED PAST IT
-   * (session E, 2026-08-18).
-   *
-   * It asserted `value > onesie > stack > keeper` — four names, hardcoded. When
-   * the 2026-08-17 ruling put `MEASURED_WEIGHTS.ceiling` at 0.45, `ceiling`
-   * became the THIRD-largest driver of the recommendation at 16.4% of movement
-   * and this check passed anyway, because it never asked about a term it had
-   * not been told to expect. The document's §1 table went on listing four terms
-   * while the composite moved on five.
-   *
-   * That is the failure §1 OPENS with, repeated: "`onesie` is a top-three driver
-   * and a reader of the old sentence would not have known it exists."
-   *
-   * So the check now asks the question that generalises — IS EVERY MATERIAL TERM
-   * LISTED — rather than re-asserting an order among names chosen in advance. A
-   * new term appearing above the bar fails this; a rebuild nudging the middle
-   * ranks does not. */
-  const MATERIAL = MATERIAL_SHARE;   // one bar, declared once, used by both blocks
-  {
-    const material = Object.keys(tot).filter(k => pct(k) >= MATERIAL)
-      .sort((a, b) => tot[b] - tot[a]);
-    const undocumented = material.filter(k => !new RegExp('`' + k + '`').test(doc));
-    ck('EVERY term above ' + MATERIAL + '% of movement is named in the document — '
-      + 'this is what a fixed list of four names could not catch',
-    undocumented.length === 0,
-    { material: material.map(k => k + ':' + pct(k).toFixed(1)), undocumented: undocumented });
-    ck('and the document\'s §1 table lists each of them as a ROW, not merely '
-      + 'mentions the word somewhere in the prose',
-    material.every(k => new RegExp('\\|\\s*\\*{0,2}`' + k + '`').test(doc)),
-    material.filter(k => !new RegExp('\\|\\s*\\*{0,2}`' + k + '`').test(doc)));
-  }
+
   /* THE MARGIN THAT MATTERS, WITHOUT NAMING THE WINNER. `value` largest and
    * `keeper` smallest was true for four days and then a weight ruling made half
    * of it false. What is worth pinning is that the table is not a near-tie —

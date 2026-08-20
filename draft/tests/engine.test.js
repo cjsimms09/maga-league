@@ -1596,13 +1596,19 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   // WR2+flex league.
   check('measured: need at 1.0 — the only term carrying VORP, at parity with '
     + 'value (register 160, Cory\'s 2026-08-20 ruling)', m.need === 1.0, String(m.need));
-  check('measured: ceiling at 0.45 — RULED 2026-08-17 (Cory: "IS THIS STUDIES? IF SO, YES"). '
-    + 'The old -4.8 [-26,+17] zero was measured on a proj_mean-x-constant board (rank-identical '
-    + 'to value, Spearman 1.0000); three preregistered runs on real ceilings beat zero 3/3 seeds, '
-    + 'separably, at every value 0.15-0.65. 0.45 is the exp-21 inverted-U PEAK — "should it be '
-    + 'higher?" is answered NO by the provably negative heavy-tilt arm. Full record at '
-    + 'MEASURED_WEIGHTS in engine.js.',
-    m.ceiling === 0.45, String(m.ceiling));
+  // ⚠️ RULED BACK TO ZERO 2026-08-20 (Cory: "switch it off, its so arbitrary..
+  // doesnt make sense.. lets get back to the basic of our model for this
+  // draft"). NOT a reversal of his 08-17 ruling: that ruling's three
+  // preregistered runs were taken against the ceilings live on 08-17, and
+  // Draft Sharks became the ceiling source on 08-19 (189 of the draftable top
+  // 200), so a weight fitted on one input had been multiplying another for two
+  // days. Measured consequence: 8 of his 12 picks change; 33/48/53 do not.
+  // The DS floor/ceiling stay on the board and now travel to every source as a
+  // per-player ratio (his band ruling, same day) - what stopped is folding
+  // upside into one score, which is also what ffanalytics does not do.
+  check('measured: ceiling at 0 - RULED OFF 2026-08-20 after Draft Sharks '
+    + 'became the ceiling source the 0.45 was never fitted against',
+  m.ceiling === 0, String(m.ceiling));
   check('measured: bye OFF (a real null)', m.bye === 0, String(m.bye));
   // it must be a real, selectable preset AND the thing matchPreset names it
   const preset = E.WEIGHT_PRESETS.find(p => p.key === 'measured');

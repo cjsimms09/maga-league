@@ -76,7 +76,26 @@ const PICK = 70;
  * only place register 5a's answer is recorded — and every claim that was really
  * about the SHIPPED weights is re-run against the shipped weights instead.
  * Rewriting the whole file to the new regime would delete the diagnosis. */
-const BLIND = Object.assign({}, E.MEASURED_WEIGHTS, { need: 0 });
+/* ⚠️ THIS WAS `Object.assign({}, E.MEASURED_WEIGHTS, { need: 0 })` AND IT BROKE
+ * WITHIN HOURS — by me, in the same session, for the third time in this repo.
+ *
+ * An arm defined as a DIFF against the shipped vector is not an arm, it is a
+ * moving target. The moment Cory ruled `ceiling` 0.45 -> 0, this "need = 0"
+ * regime silently became "need = 0 AND ceiling = 0" — a configuration nobody
+ * ever measured — and MECHANISM 1's decomposition went red (11 branch switchers
+ * against 14 others, where the recorded finding is that switchers dominate).
+ *
+ * That is the identical lesson as replay_seats.js's `a0: {}` and the
+ * freeze_replay "blind vector", both of which I fixed earlier tonight. Writing
+ * it a third time is the evidence that the shape, not the instance, is the
+ * problem: ANY arm that inherits from what ships will eventually describe
+ * something else.
+ *
+ * So the regime this file analyses is now stated in full, as the vector it
+ * actually was on 2026-08-18 when the decomposition was measured. It is history
+ * and it is pinned like history. */
+const BLIND = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.45,
+  keeper: 1.0, bye: 0.0, stack: 1.0 };
 
 function recsFor(roster, weights) {
   const taken = new Set(byAdp.slice(0, PICK - 1).map(p => String(p.player_id)));
@@ -99,11 +118,17 @@ const movers = paired.filter(([a, b]) => Math.abs(b.score - a.score) > 1e-9);
    * DO. The premise it was defending is a premise about the arm this file
    * analyses, and that arm is now explicit rather than implicit. */
   ck('CONTROL: the decomposition arm carries need=0 — that regime is what this '
-    + 'file diagnoses, and it is now named rather than inherited from whatever '
-    + 'the engine happens to ship', BLIND.need === 0, BLIND.need);
-  ck('CONTROL: the SHIPPED weights have moved on from it (register 160), so the '
-    + 'decomposition below is history and not a description of today\'s model',
-  E.MEASURED_WEIGHTS.need === 1.0, E.MEASURED_WEIGHTS.need);
+    + 'file diagnoses, and it is named IN FULL rather than inherited from '
+    + 'whatever the engine happens to ship', BLIND.need === 0, BLIND.need);
+  ck('CONTROL: and it is pinned as a COMPLETE vector, so a later ruling on any '
+    + 'other weight cannot silently redefine the regime this file describes',
+  Object.keys(E.MEASURED_WEIGHTS).every(k => typeof BLIND[k] === 'number'),
+  Object.keys(E.MEASURED_WEIGHTS).filter(k => typeof BLIND[k] !== 'number'));
+  ck('CONTROL: the SHIPPED weights have moved on from it — twice now, need to '
+    + '1.0 (register 160) and ceiling to 0 (2026-08-20) — so the decomposition '
+    + 'below is history and not a description of today\'s model',
+  E.MEASURED_WEIGHTS.need === 1.0 && E.MEASURED_WEIGHTS.ceiling === 0,
+  { need: E.MEASURED_WEIGHTS.need, ceiling: E.MEASURED_WEIGHTS.ceiling });
 
   ck('CONTROL: both arms scored a real, equal population',
     paired.length > 300, paired.length);

@@ -55,10 +55,9 @@ sentence true?**
 ### 1. The score column on a rec row
 
 **IS:** a weighted sum, in projection points, of the terms the tool currently
-weights — `value + need + ceiling + keeper + stack` under the shipped weights
-(`MEASURED_WEIGHTS`, `app.js:52`; `ceiling` joined at **0.45** on Cory's
-2026-08-17 ruling and `need` at **1.0** on his 2026-08-20 ruling, see the
-entries below) — **plus two adjustments applied AFTER that sum, which are not in
+weights — `value + need + keeper + stack` under the shipped weights
+(`MEASURED_WEIGHTS`, `app.js:52`; `need` joined at **1.0** on Cory's 2026-08-20
+ruling. **`ceiling` is RULED OFF as of 2026-08-20** — see the block below) — **plus two adjustments applied AFTER that sum, which are not in
 the weight vector at all.**
 
 **THE "AND NOTHING ELSE" IN THIS LINE WAS FALSE UNTIL 2026-08-14, AND IT IS THE
@@ -69,14 +68,37 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-20 board) | previous edition (2026-08-18) |
+| term | share of movement (2026-08-20, ceiling OFF) | with ceiling at 0.45 |
 |---|---|---|
-| **`need`** | **53.5%** | *0% — the term was weighted zero* |
-| `value` (VONA) | 32.5% | 50.2% |
-| `ceiling` | 10.7% | 16.4% |
-| `stack` | 3.4% | 8.0% |
-| `onesie` | **below 0.05%** | 24.0% |
-| `keeper` | below 0.05% | 1.3% |
+| **`need`** | **58.5%** | 53.5% |
+| `value` (VONA) | 24.4% | 32.5% |
+| **`onesie`** | **9.7%** | *below 0.05% — see below* |
+| `stack` | 7.5% | 3.4% |
+| `ceiling` | **0% — ruled off** | 10.7% |
+| `keeper` | below 0.05% | below 0.05% |
+
+**⚠️ CEILING IS RULED OFF, 2026-08-20 (Cory: "switch it off, its so
+arbitrary.. doesnt make sense").** This is NOT a reversal of his 08-17 ruling.
+That ruling's three preregistered runs were taken against the ceilings live on
+**08-17**; on **08-19** Draft Sharks' band became the ceiling source (commit
+`8bcccca4`) and now covers **189 of the draftable top 200**. A weight fitted
+against one input had been multiplying another for two days, with the paperwork
+still citing the original runs. Measured consequence: **8 of Cory's 12 picks
+change**; 33/48/53 are identical either way.
+
+**THE CEILINGS THEMSELVES ARE NOT GONE.** Draft Sharks' floor and ceiling stay
+on the board and now travel to **every source** as a per-player ratio (his same-day
+band ruling: *"for every source that doesn't offer ceilings, make the ceiling AND
+floor the same % away from their proj as draft sharks"*). What stopped is folding
+`0.45 x ceiling` into one score for every player at every pick — which is also
+what the reference implementation declines to do: `ffanalytics` emits `rank`,
+`floor_rank` and `ceiling_rank` as three separate rankings.
+
+**AND SWITCHING IT OFF BROUGHT `onesie` BACK FROM NOTHING TO 9.7%.** With
+ceiling live, onesie contributed below 0.05%; without it, it is the third-largest
+driver. Neither number is wrong — a share is a share OF something, and removing
+a term redistributes the rest. It is recorded because the paragraph below, written
+hours earlier, declares onesie redundant on the strength of the 0.45 board.
 
 **⚠️ `need` IS NOW THE LARGEST TERM, AND THE SENTENCE "VONA IS WHAT DECIDES A
 PICK" IS NO LONGER TRUE (register 160, 2026-08-20).** E found that the `value`
