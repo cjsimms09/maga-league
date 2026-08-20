@@ -41,6 +41,27 @@
  * covers its own pick, and a position where fewer than three sources have an
  * opinion is marked THIN rather than given a consensus.
  *
+ * ── ⛔ THIS IS A CLI STUDY TOOL. IT MUST NOT BE WIRED INTO THE WAR ROOM. ──
+ *
+ * B flagged this on 2026-08-20 (ROUTES, TO: A) as a side-door reintroduction
+ * of own_v6 against Cory's ruling. CHECKED RATHER THAN ASSUMED, and the flag
+ * is half right, so both halves are written down here:
+ *
+ *   · WRONG about the ruling as it applies to THIS FILE. Cory, CORY-ASKS ④,
+ *     2026-08-19, verbatim: "V6 should still be used to predict and study just
+ *     not part of warroom this year." A command-line study tool is the
+ *     permitted half of that sentence, not the forbidden half. Verified there
+ *     is no UI wiring: the only reference to this filename anywhere in the
+ *     tree is its own usage line, and nothing in `public/` fetches its output
+ *     (it has none — it prints to stdout).
+ *   · RIGHT about the risk, which is why this block exists. `source_boards.js`
+ *     is the WAR-ROOM surface for this question and own_v6 is deliberately
+ *     absent from it. If the dissent-rate and coverage handling below are ever
+ *     worth having on the page, PORT THEM INTO `source_boards.js` and DROP the
+ *     `ownmodel` row on the way across — do not mount this file, and do not
+ *     add own_v6 to the surface that already excludes it. One surface per
+ *     question.
+ *
  * Run: node draft/tools/who_do_the_sources_like.js [--pick 33]
  */
 'use strict';
