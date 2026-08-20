@@ -180,11 +180,11 @@ function bestLineup(roster, pts) {
   POS.forEach(q => {
     const need = STARTERS[q] || 0;
     const have = byPos[q] || [];
-    for (let i = 0; i < need; i++) total += have[i] || 0;
+    for (let i = 0; i < need; i++) total += GRADE_WAIVER ? Math.max(have[i] || 0, WAIVER_WK[q] || 0) : (have[i] || 0);
     left[q] = have.slice(need);
   });
   const flexPool = FLEX.flatMap(q => left[q] || []).sort((a, b) => b - a);
-  total += flexPool[0] || 0;
+  total += GRADE_WAIVER ? Math.max(flexPool[0] || 0, WAIVER_FLEX) : (flexPool[0] || 0);
   /* what share of the roster's total points actually reached the lineup */
   const all = roster.reduce((a, id) => a + (pts[String(id)] || 0), 0);
   return { total, all };
@@ -277,6 +277,21 @@ function gradeSeason(season, roster) {
  * comparison stays paired on player evaluation and only the construction rule
  * differs. */
 const MLV = process.argv.includes('--mlv');
+/* ── OPPONENT REACTION (relay, prereg P136 — S9 limit 5 made falsifiable) ────
+ * Without this flag, opponents implicitly keep their RECORDED picks even when
+ * my counterfactual seat has already taken that player — my future pool is
+ * optimistic. With it, an opponent whose recorded man is gone substitutes the
+ * best remaining player by the market's own order (the earliest remaining
+ * recorded pick), which REMOVES that substitute from my future pool. Opponents
+ * still grade on their recorded rosters; only MY availability changes. */
+const REACT = process.argv.includes('--react');
+/* ── WAIVER-AWARE GRADING (relay, prereg S13): every starting slot floored at
+ * its position's measured weekly waiver level (ROSTER-CONSTRUCTION-CALL.md S2,
+ * season / 17). Applied inside bestLineup, so both sides and both gradings
+ * inherit it identically. */
+const GRADE_WAIVER = process.argv.includes('--grade-waiver');
+const WAIVER_WK = { QB: 322.9/17, RB: 78.4/17, WR: 124.8/17, TE: 130.4/17, K: 128.6/17, DEF: 100.0/17 };
+const WAIVER_FLEX = Math.max(WAIVER_WK.RB, WAIVER_WK.WR, WAIVER_WK.TE);
 const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
 /* Cory: "Or exclude def and k all together" — MLV never VOLUNTEERS a K or DEF;
  * the legality fill seats them at the end, which is what a human does. */
@@ -325,8 +340,24 @@ function buildSeat(season, draft, seatId, rosterOn) {
    * the player was really drafted at — the question is when I spent a pick. */
   const mine = [], mineAt = [], held = {}, mineVals = {};
   const takenByMe = new Set();
+  const gone = takenByMe;                       // alias when REACT is off
+  const consumed = REACT ? new Set() : null;    // opponents' substitutions
+  const isGone = id => takenByMe.has(id) || (consumed && consumed.has(id));
   picks.forEach((pk, idx) => {
-    if (pk.roster_id !== seatId) return;
+    if (pk.roster_id !== seatId) {
+      if (REACT && !pk.is_keeper) {
+        /* the opponent takes their recorded man if still there, else the best
+         * remaining by market order — and either way he leaves MY pool */
+        if (!isGone(pk.player_id)) { consumed.add(pk.player_id); return; }
+        for (let j = idx + 1; j < N; j++) {
+          const c = picks[j];
+          if (c.is_keeper || isGone(c.player_id)) continue;
+          consumed.add(c.player_id);
+          break;
+        }
+      }
+      return;
+    }
     if (pk.is_keeper) {                       // keepers stay as recorded (C4)
       mine.push(pk.player_id); mineAt.push(pk.pick_no);
       const q = posOf(pk.player_id);
@@ -339,7 +370,7 @@ function buildSeat(season, draft, seatId, rosterOn) {
     for (let j = idx; j < N; j++) {
       const c = picks[j];
       if (c.is_keeper) continue;
-      if (takenByMe.has(c.player_id)) continue;
+      if (isGone(c.player_id)) continue;
       const q = posOf(c.player_id);
       if (!q) continue;
       /* C3: counted from the fixed-opponent draft only — picks already made
@@ -351,7 +382,7 @@ function buildSeat(season, draft, seatId, rosterOn) {
         let left = 0;
         for (let k = idx; k < horizon; k++) {
           const c = picks[k];
-          if (c.is_keeper || takenByMe.has(c.player_id)) continue;
+          if (c.is_keeper || isGone(c.player_id)) continue;
           if (posOf(c.player_id) === q) left++;
         }
         short = left < 1;

@@ -61,3 +61,16 @@ declaration). Labeled exploratory, not blind: actual **+32.7 (21/30)**, skill
 **+14.9 (18/30)** — both call bars still cleared, the drop from the frozen
 pool is −13.1/−14.4, and the actual WIN COUNT improved. Limit 5's answer:
 opponent adaptivity costs ~13 points and does not change the verdict.
+
+**§13 GRADED, SAME DAY: PARTIAL FALSE, AND CORY'S INSTINCT WAS RIGHT.**
+Clause (a) holds: MLV-cap still beats the owners under waiver-aware grading —
+**actual +2.6 (18/30), skill +2.1 (16/30)**, sign preserved on both. Clause
+(b) FAILS: +2.6 is far outside [+10.0, +81.7]. **The downgrade applies: most
+of the frozen-game +45.8 was an artifact of grading a streamed game as
+frozen** — the floors raise exactly the weak slots that real waivers patch for
+the humans. What survives, and it is the durable ordering: **MLV ≥ humans ≥
+shipped curve under EVERY grading tried** (frozen, opponent-reaction,
+waiver-aware, points-units). The shipped curve gets WORSE under the realistic
+game: **−39.1 actual (12/30)** vs −20.4 frozen. The strongest robust claim in
+this document is now: the shipped curve should not draft Saturday; MLV-cap is
+the best measured rule; and its real-game margin over a good human is small.
