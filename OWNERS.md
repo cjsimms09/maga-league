@@ -21,7 +21,7 @@ the four things he has actually done this week that we did not:
    draft day.
 
 **The standard for every owner below: a "no" is only finished when it carries a
-measurement, an unblock condition, an owner and a recheck date** (Rule 3f).
+measurement, an unblock condition, an owner and a recheck date** (Rule 3j; renumbered from a duplicated 3f, 2026-08-20).
 
 ---
 
