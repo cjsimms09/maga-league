@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 156,
+ "next_numeric_id": 157,
  "history": [
   {
    "id": 47,
@@ -239,6 +239,16 @@
    "id": 155,
    "claimed_at": "2026-08-20",
    "note": "D: relay_publish.sh (RULE 1c's own new mechanism) trips test_core_needs_no_reviewer.py's paid-reviewer guard on its git commit trailer -- confirmed false positive"
+  },
+  {
+   "id": "150 (D, unmerged) reconciled against a real 150 landing on main",
+   "claimed_at": "2026-08-20",
+   "note": "main independently claimed 150 for a real, different row (weekly_realized.json has three consumers and no writer) while D's still-unmerged branch already had 150 (the MLV units-question finding, claimed hours earlier in D's own branch history). Main's row kept as canonical 150 (physically first in the table); D's renumbered to 156. Watermark now authoritative from 157."
+  },
+  {
+   "id": 156,
+   "claimed_at": "2026-08-20",
+   "note": "D: the MLV units question was measured and the result is hindsight contamination (was 150 pre-renumber)"
   }
  ]
 }
