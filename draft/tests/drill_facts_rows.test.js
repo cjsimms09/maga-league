@@ -365,5 +365,49 @@ ck('the mark carries the identical explanatory title text as the shortlist\'s ow
   ck('the view bootstraps it onto window.WR_TEAM_PACE', /window\.WR_TEAM_PACE = /.test(VIEW));
 }
 
+// ── ceilingBySourceRow — Cory's band ruling, made visible: "I want to use
+// draft sharks ceilings.. for every source that doesn't offer ceilings, make
+// the ceiling AND floor the same % away from their proj as draft sharks."
+// Built and tested (band_ceiling_ratio, band_floor_ratio, 7 tests including
+// his own worked example) but read by no served file (A's audit,
+// nothing_computed_goes_unshown.js, 2026-08-20/21) — this is the first place
+// any proj_ceiling_<key>/proj_floor_<key> renders.
+{
+  const num = (v) => v == null ? '—' : Math.round(v);
+  const ceilingBySourceRow = eval('(' + liftAnyArgs('ceilingBySourceRow') + ')');
+
+  ck('all four sources present -> all four render, labelled, floor-dash-ceiling',
+    (() => {
+      const r = ceilingBySourceRow({ proj_ceiling_ds: 180, proj_floor_ds: 90,
+        proj_ceiling_sleeper: 165, proj_floor_sleeper: 85,
+        proj_ceiling_ownmodel: 140, proj_floor_ownmodel: 70,
+        proj_ceiling_fantasypros: 190, proj_floor_fantasypros: 95 }, num);
+      return r[0] === 'Floor–ceiling, by source'
+        && r[1].indexOf('Draft Sharks 90–180') >= 0
+        && r[1].indexOf('Sleeper 85–165') >= 0
+        && r[1].indexOf('Our model 70–140') >= 0
+        && r[1].indexOf('FantasyPros 95–190') >= 0;
+    })());
+  ck('Cory\'s own worked example: draft sharks proj 100 ceiling 120 -> fantasypros proj 150 -> ceiling 180 '
+    + '(the SAME ratio, 1.2x, carried to a source that never published its own ceiling)',
+    (() => {
+      const r = ceilingBySourceRow({ proj_ceiling_ds: 120, proj_floor_ds: 80,
+        proj_ceiling_fantasypros: 180, proj_floor_fantasypros: 120 }, num);
+      return r[1].indexOf('FantasyPros 120–180') >= 0;
+    })());
+  ck('a source missing BOTH fields is skipped entirely, not printed as a dash pair',
+    (() => {
+      const r = ceilingBySourceRow({ proj_ceiling_ds: 180, proj_floor_ds: 90 }, num);
+      return r[1].indexOf('Sleeper') === -1 && r[1].indexOf('Our model') === -1
+        && r[1].indexOf('FantasyPros') === -1;
+    })());
+  ck('no source carries either field -> null, not an empty label',
+    ceilingBySourceRow({}, num) === null);
+  ck('missing player -> null, no throw', ceilingBySourceRow(null, num) === null);
+  ck('ceilingBySourceRow is actually wired into the drill panel, right after the blend\'s own '
+    + 'floor/mean/ceiling row',
+    /projMeanBadge\(p\) \+ ' \/ ' \+ num\(p\.proj_ceiling\)[\s\S]{0,200}ceilingBySourceRow\(p, num\),/.test(SRC));
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
