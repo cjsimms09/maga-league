@@ -64,35 +64,54 @@ function mkRecs(overrides) {
     /bench only .{1,3} he does not crack your lineup/.test(html));
 }
 
-// ── the K/DEF footer line — §5① ─────────────────────────────────────────
+// ── the K/DEF footer line — §5①, CORRECTED 2026-08-19 (register 134): they
+// are CAPPED, not excluded, and top the list once the lineup is full. The
+// footer used to say the opposite ("excluded... take them at the end"),
+// which would have contradicted row 1 the moment it was actually a kicker. ──
 {
   const html = V.render(mkRecs(), null, esc);
-  ck('the K/DEF exclusion is disclosed in the footer, not hidden',
-    /K and DEF excluded/.test(html));
-  ck('the footer names the standing reason (worth +17/+23 all draft)',
-    /\+17/.test(html) && /\+23/.test(html));
+  ck('the footer says CAPPED, never the old "excluded" claim',
+    /capped at one/.test(html) && !/K and DEF excluded/.test(html));
+  ck('the footer says they TOP THE LIST once full, not "take them at the end"',
+    /top this list/.test(html) && !/take them at the end/.test(html));
+  ck('the footer names the standing reason a bench body is worth zero (kicker +17)',
+    /\+17/.test(html) && /bench player is worth zero/.test(html));
   ck('the footer clarifies STARTING lineup, not roster — the units the marginal number is in',
     /STARTING LINEUP, not to your roster/.test(html));
 }
 
-// ── the evidence disclosure — §5②: "a sentence, not a colour" ─────────────
+// ── the evidence disclosure — §5②: "a sentence, not a colour". `evidence` is
+// now the whole RosterBuilderMLV.EVIDENCE object (read live, not retyped —
+// the K/DEF correction is exactly the kind of number this avoids re-breaking
+// on the next fix), not a single caveat string. ───────────────────────────
 {
-  const withEvidence = V.render(mkRecs(), 'Beats the humans in all three seasons.', esc);
+  const EV = {
+    caveat: 'Beats the humans in all three seasons.',
+    onesies_are_capped_not_excluded: 'Register 134. Once your lineup is full this model puts a DEF and a K at the top.',
+    cannot_value_a_bench: '6 of 15 roster spots score zero marginal value.',
+  };
+  const withEvidence = V.render(mkRecs(), EV, esc);
   ck('evidence renders as a <details> disclosure, collapsed by default (matches pb-opponents/pb-dropoffs)',
     /<details class="rbm-evidence"><summary>why trust this<\/summary>/.test(withEvidence));
   ck('the caveat sentence itself is printed inside it', /Beats the humans in all three seasons\./.test(withEvidence));
+  ck('the register-134 cap-not-exclusion string is printed too, not just the caveat',
+    /Register 134\. Once your lineup is full/.test(withEvidence));
+  ck('the bench-limitation string is printed too', /6 of 15 roster spots score zero/.test(withEvidence));
   ck('no confidence badge/color class anywhere — the spec explicitly forbids one',
     !/rbm-confidence|rbm-badge/.test(withEvidence));
   const withoutEvidence = V.render(mkRecs(), null, esc);
-  ck('no evidence disclosure renders when no caveat is given, rather than an empty <details>',
+  ck('no evidence disclosure renders when nothing is given, rather than an empty <details>',
     !/rbm-evidence/.test(withoutEvidence));
+  const partialEvidence = V.render(mkRecs(), { caveat: 'only this one' }, esc);
+  ck('a partial evidence object (one field, not all three) still renders — no crash on a missing key',
+    /only this one/.test(partialEvidence) && /<details class="rbm-evidence">/.test(partialEvidence));
 }
 
 // ── honest empty states ────────────────────────────────────────────────────
 {
-  ck('no recs → empty string, not a broken shell', V.render([], 'x', esc) === '');
-  ck('null recs → empty string', V.render(null, 'x', esc) === '');
-  ck('undefined recs → empty string', V.render(undefined, 'x', esc) === '');
+  ck('no recs → empty string, not a broken shell', V.render([], { caveat: 'x' }, esc) === '');
+  ck('null recs → empty string', V.render(null, { caveat: 'x' }, esc) === '');
+  ck('undefined recs → empty string', V.render(undefined, { caveat: 'x' }, esc) === '');
 }
 
 // ── this panel must never read as the board's own pick (§1) ────────────────
@@ -118,7 +137,7 @@ function mkRecs(overrides) {
     const D = JSON.parse(fs.readFileSync(BOARD, 'utf8'));
     const recs = RosterBuilderMLV.recommend(D.players, [], { league: D.league, topN: 3 });
     ck('CONTROL — recommend() actually returns rows against the real board', recs.length > 0, recs.length);
-    const html = V.render(recs, RosterBuilderMLV.EVIDENCE.caveat, esc);
+    const html = V.render(recs, RosterBuilderMLV.EVIDENCE, esc);
     ck('KNOWN-POSITIVE — the live board renders a non-trivial panel through both modules composed',
       html.length > 200, { length: html.length });
     ck('...and K/DEF really are absent from a real recommendation (the cap doing its job)',

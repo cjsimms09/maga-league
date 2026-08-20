@@ -47,16 +47,30 @@
   /**
    * `recs` — the array RosterBuilderMLV.recommend() returns:
    *   [{ player, position, marginal, why }, ...]
-   * `evidenceCaveat` — the one honest sentence (RosterBuilderMLV.EVIDENCE.caveat),
-   *   printed in a <details> disclosure, never a confidence badge (§5②: "the
-   *   honest statement is a sentence, not a colour").
+   * `evidence` — RosterBuilderMLV.EVIDENCE (or null/undefined) — read live off
+   *   the module rather than retyped here, so a future correction to the
+   *   numbers (like this one) only has to land in mlv.js. `.caveat` and the
+   *   two register-134 strings render in a <details> disclosure, never a
+   *   confidence badge (§5②: "the honest statement is a sentence, not a
+   *   colour").
    * Returns '' when there is nothing to show — no board, no roster, module
    * unavailable upstream — so a missing input degrades to nothing rather than
    * a broken box (same convention as renderPositionBoards).
    */
-  function render(recs, evidenceCaveat, esc) {
+  function render(recs, evidence, esc) {
     if (!Array.isArray(recs) || !recs.length) return '';
+    evidence = evidence || {};
     var rows = recs.slice(0, 3).map(function (r, i) { return row(r, i, esc); }).join('');
+    /* ⚠️ CORRECTED 2026-08-19, register 134 — the footer used to say "K and DEF
+     * excluded... take them at the end", which is the OPPOSITE of what the
+     * module does: they are CAPPED at one, not excluded, and once the
+     * starting lineup is full the panel puts a kicker/defence AT THE TOP —
+     * a bench body is worth exactly zero to this model. The old line would
+     * have told Cory "take them at the end" in the same render where row 1
+     * was a kicker. ROSTER-BUILDER-PANEL-DESIGN.md §5① has the replacement
+     * copy verbatim; used as-is rather than re-derived. */
+    var evidenceItems = [evidence.caveat, evidence.onesies_are_capped_not_excluded,
+      evidence.cannot_value_a_bench].filter(Boolean);
     return '<div class="rbm-wrap">'
       + '<div class="rbm-head">'
         + '<span class="rbm-title">Roster builder model says</span>'
@@ -65,10 +79,13 @@
       + '<ol class="rbm-list">' + rows + '</ol>'
       + '<div class="rbm-foot">'
         + '<div class="rbm-foot-line">points added to your STARTING LINEUP, not to your roster</div>'
-        + '<div class="rbm-foot-line">K and DEF excluded — worth +17 and +23 all draft; take them at the end</div>'
+        + '<div class="rbm-foot-line">K and DEF capped at one. Once your lineup is full they top '
+          + 'this list — a bench player is worth zero to this model, a kicker in an empty slot is worth +17</div>'
       + '</div>'
-      + (evidenceCaveat
-        ? '<details class="rbm-evidence"><summary>why trust this</summary><p>' + esc(evidenceCaveat) + '</p></details>'
+      + (evidenceItems.length
+        ? '<details class="rbm-evidence"><summary>why trust this</summary>'
+          + evidenceItems.map(function (s) { return '<p>' + esc(s) + '</p>'; }).join('')
+          + '</details>'
         : '')
       + '</div>';
   }

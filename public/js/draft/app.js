@@ -1044,8 +1044,7 @@
       console.error('[roster-builder]', e && e.message);
       host.innerHTML = ''; return;
     }
-    const caveat = (RosterBuilderMLV.EVIDENCE || {}).caveat || null;
-    host.innerHTML = RBMView.render(recs, caveat, escapeHtml);
+    host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, escapeHtml);
   }
 
   /* LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS — Cory: "a running
