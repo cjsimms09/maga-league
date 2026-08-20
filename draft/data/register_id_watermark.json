@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 157,
+ "next_numeric_id": 158,
  "history": [
   {
    "id": 47,
@@ -249,6 +249,11 @@
    "id": 156,
    "claimed_at": "2026-08-20",
    "note": "D: the MLV units question was measured and the result is hindsight contamination (was 150 pre-renumber)"
+  },
+  {
+   "id": 157,
+   "claimed_at": "2026-08-20",
+   "note": "D: test_gate_selection.py hardcodes the old gate marker expression, left behind by A's own post_chain fix in the same commit that closed register 155"
   }
  ]
 }
