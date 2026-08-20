@@ -1260,13 +1260,21 @@ body.is-rehearsal .slot-watermark { display: none !important; }
    Over 18 hours old the board needs an explicit acknowledgement. The board
    stays visible behind it: hiding it would make a stale artifact look the same
    as a broken tool, which is the failure this whole surface exists to prevent. */
+/* THEME-AWARE, NOT HARDCODED — h3/p used to be fixed light-mode maroons
+   (#8f1019/#a3121d), which is legible but off-palette on the dark war room
+   (a fixed hex ignores the --red the rest of that page actually uses).
+   var(--red) resolves to the correct value in either theme automatically. A
+   thinner 1px border + left accent reads as a considered alert card rather
+   than a screaming box — the same refinement #keeper-lock-note's compact
+   variant already uses, applied here to the one that stays full-size. */
 .stale-block {
-  border: 2px solid var(--red); border-radius: var(--radius);
-  background: rgba(255, 70, 85, .12); padding: 1rem 1.1rem; margin-bottom: 1rem;
+  border: 1px solid var(--red); border-left: 4px solid var(--red);
+  border-radius: var(--radius);
+  background: rgba(255, 70, 85, .09); padding: 1rem 1.1rem; margin-bottom: 1rem;
   box-shadow: var(--glow-red);
 }
-.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: #8f1019; font-size: 1rem; }
-.stale-block p { margin: 0 0 .7rem; color: #a3121d; font-size: .86rem; line-height: 1.5; font-weight: 600; }
+.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: var(--red); font-size: 1rem; }
+.stale-block p { margin: 0 0 .7rem; color: var(--ink); font-size: .86rem; line-height: 1.5; font-weight: 500; }
 #warroom.is-stale { opacity: .55; filter: grayscale(.35); pointer-events: none; }
 
 /* ==========================================================================
