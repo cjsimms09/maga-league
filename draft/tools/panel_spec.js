@@ -184,6 +184,28 @@ const PANELS = [
       + 'and a K at the top on a thinned board (register 134, measured). It cannot '
       + 'value a bench at all, so it has nothing to say about the last few picks.',
   },
+  { fn: 'renderMlvPlan', weight: 'CONTEXT', lines: 96,
+    question: 'What TEAM does the roster-builder model end up drafting me, across '
+      + 'all twelve picks — not just this one?',
+    means: 'the same marginal-lineup-value rule run forward over Cory\'s real pick '
+      + 'schedule, from his real keepers, with K and DEF capped at one each. The '
+      + 'board is assumed to drain in ADP order.',
+    changes_it: 'a new board build; a change to his keepers or pick schedule; it is '
+      + 'a nightly artifact and does NOT re-run as the draft happens',
+    reads: ['mlv_plan.json', 'mlv.js recommend()', 'seat_plan.json my_picks',
+      'draft_data.json pick_order'],
+    note: 'THE SPLIT IN THIS PANEL IS ITS PRODUCT AND MUST SURVIVE ANY RESTYLING. '
+      + 'MLV has a real opinion about six of the twelve picks and NONE about the '
+      + 'other six: once nine starting slots are full, every remaining player scores '
+      + 'marginal exactly 0 (451 of 451 at pick 93), so the sort is decided by array '
+      + 'order — reversing the input returns third-string quarterbacks, equally '
+      + '"correct". Those rows therefore show the BOARD\'s order, dimmed and under a '
+      + 'labelled divider. B: do not delete the divider, do not un-dim those rows, '
+      + 'and do not sort the table — the reading order IS the meaning. The tail is '
+      + 'all tight ends because our board ranks TE a median 46 places earlier than '
+      + 'the market, which the panel states on its face. Registers 146 and 147. It '
+      + 'is a PLAN, not a prediction, and nobody in the room reacts to Cory in it.',
+  },
   { fn: 'renderSourceBoards', weight: 'CONTEXT', lines: 58,
     question: 'Who does each projection source have as their best available, right now?',
     means: 'each source\'s OWN ranking walked past everyone already drafted. Six '

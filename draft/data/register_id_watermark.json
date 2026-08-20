@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 146,
+ "next_numeric_id": 149,
  "history": [
   {
    "id": 47,
@@ -139,6 +139,14 @@
    "id": "137-138",
    "claimed_at": "2026-08-20",
    "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
+  },
+  {
+   "id": 146,
+   "claimed_at": "2026-08-20"
+  },
+  {
+   "id": 148,
+   "claimed_at": "2026-08-20"
   }
  ]
 }

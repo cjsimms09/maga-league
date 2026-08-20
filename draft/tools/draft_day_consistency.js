@@ -58,6 +58,10 @@ const WATCHED = [
     why: 'the best-available-by-source cheat sheet' },
   { file: 'mlv_recommend.json', draft_critical: true,
     why: 'the roster-builder panel\'s static fallback' },
+  { file: 'mlv_plan.json', draft_critical: true,
+    why: 'the whole-draft MLV plan panel — it is a NIGHTLY artifact that does not '
+       + 're-run as the draft happens, which is exactly the shape register 143 '
+       + 'produced, so it is watched rather than trusted' },
   { file: 'conditional_value_2026.json', draft_critical: true,
     why: 'conditional-value chips ON THE WAR-ROOM CARDS (app.js) — handcuffs for '
        + 'Cory\'s own backs are a real late-round decision' },
