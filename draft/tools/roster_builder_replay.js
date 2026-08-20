@@ -292,6 +292,75 @@ const REACT = process.argv.includes('--react');
 const GRADE_WAIVER = process.argv.includes('--grade-waiver');
 const WAIVER_WK = { QB: 322.9/17, RB: 78.4/17, WR: 124.8/17, TE: 130.4/17, K: 128.6/17, DEF: 100.0/17 };
 const WAIVER_FLEX = Math.max(WAIVER_WK.RB, WAIVER_WK.WR, WAIVER_WK.TE);
+
+/* ── THE REALISTIC VONA EQUATION (relay, prereg §14 — committed before this) ──
+ * Cory: "find me a more realistic calc equation that drafts a normal roster
+ * with most value (VONA)". Value scale = LOO pick→points curve (P135 retired
+ * the units risk); objective = waiver-FLOORED lineup marginal (§13's floors at
+ * DRAFT time, season units); normal roster = K≤1/DEF≤1 + displacement; timing
+ * = VONA against the recorded draft's own survivors at my next pick. */
+const REAL_VONA = process.argv.includes('--real-vona');
+const REAL = REAL_VONA || process.argv.includes('--real');
+const SEASON_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+const SEASON_WAIVER_FLEX = Math.max(SEASON_WAIVER.RB, SEASON_WAIVER.WR, SEASON_WAIVER.TE);
+
+function lineupValueFloored(vals) {
+  let total = 0;
+  const left = {};
+  POS.forEach(q => {
+    const need = STARTERS[q] || 0;
+    const have = (vals[q] || []).slice().sort((a, b) => b - a);
+    for (let i = 0; i < need; i++) total += Math.max(have[i] || 0, SEASON_WAIVER[q] || 0);
+    left[q] = have.slice(need);
+  });
+  const flex = FLEX.flatMap(q => left[q] || []).sort((a, b) => b - a);
+  return total + Math.max(flex[0] || 0, SEASON_WAIVER_FLEX);
+}
+
+/* pick_no → expected season points, fit on the OTHER seasons (leave the target
+ * season out — leak-free), 15-pick buckets, monotone-enforced. Keeper picks
+ * are excluded from the FIT (a kept star's slot is not a market price); a
+ * drafted player with no scoring week counts as the 0 he scored (1-3 per
+ * season, measured before this was written — busts are real). */
+const CURVE_BUCKET = 15;
+const CURVE_CACHE = {};
+let curveControlPrinted = false;
+function curveFor(targetSeason) {
+  const key = String(targetSeason);
+  if (CURVE_CACHE[key]) return CURVE_CACHE[key];
+  const buckets = [];
+  Object.values(H.seasons).forEach(season => {
+    if (String(season.season) === key) return;
+    if (!season.weeks || !(season.drafts || []).length) return;
+    const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
+    if (!draft) return;
+    const tot = {};
+    Object.entries(season.weeks).forEach(([wn, arr]) => {
+      const w = +wn;
+      if (w < 1 || w > 17 || !Array.isArray(arr)) return;
+      const seen = new Set();
+      arr.forEach(m => Object.entries(m.players_points || {}).forEach(([id, v]) => {
+        if (seen.has(id)) return;
+        seen.add(id);
+        tot[id] = (tot[id] || 0) + v;
+      }));
+    });
+    (draft.picks || []).forEach(p => {
+      if (p.is_keeper) return;
+      const b = Math.floor((p.pick_no - 1) / CURVE_BUCKET);
+      (buckets[b] || (buckets[b] = [])).push(tot[String(p.player_id)] || 0);
+    });
+  });
+  const mean = buckets.map(a => a.reduce((x, y) => x + y, 0) / a.length);
+  for (let i = 1; i < mean.length; i++) mean[i] = Math.min(mean[i], mean[i - 1]);
+  const fn = pickNo => mean[Math.min(Math.max(Math.floor((pickNo - 1) / CURVE_BUCKET), 0), mean.length - 1)];
+  if (!curveControlPrinted) {
+    curveControlPrinted = true;
+    if (!(fn(1) > fn(101))) throw new Error('curve control FAILED: curve(1)=' + fn(1) + ' !> curve(101)=' + fn(101));
+    console.error('[curve control] LOO-' + key + ': pick1=' + fn(1).toFixed(1) + ' pick101=' + fn(101).toFixed(1) + ' — strictly decreasing, curve is live');
+  }
+  return (CURVE_CACHE[key] = fn);
+}
 const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
 /* Cory: "Or exclude def and k all together" — MLV never VOLUNTEERS a K or DEF;
  * the legality fill seats them at the end, which is what a human does. */
@@ -336,6 +405,10 @@ function buildSeat(season, draft, seatId, rosterOn) {
       return m + k * (raw(p) - m);
     };
   }
+  if (REAL) {
+    const curve = curveFor(season.season);
+    valueOf = p => curve(p.pick_no);
+  }
   /* mineAt[i] = the pick_no of MY OWN SLOT that produced mine[i]. Not the slot
    * the player was really drafted at — the question is when I spent a pick. */
   const mine = [], mineAt = [], held = {}, mineVals = {};
@@ -366,7 +439,27 @@ function buildSeat(season, draft, seatId, rosterOn) {
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
      * what I have already taken */
-    let best = null, bestV = -Infinity;
+    let best = null, bestV = -Infinity, bestM = -Infinity;
+    /* VONA's "at my next pick": candidates whose RECORDED slot is after my own
+     * next slot demonstrably survived until my next turn. Top-2 per position
+     * (top-1 unless it is the candidate itself — the curve is monotone, so the
+     * earliest surviving slot is the best survivor). */
+    let survTop = null;
+    if (REAL_VONA) {
+      survTop = {};
+      const myNextIdx = picks.findIndex((c, k) => k > idx && c.roster_id === seatId);
+      const myNextNo = myNextIdx < 0 ? null : picks[myNextIdx].pick_no;
+      if (myNextNo != null) {
+        for (let j = idx; j < N; j++) {
+          const s = picks[j];
+          if (s.is_keeper || isGone(s.player_id) || s.pick_no <= myNextNo) continue;
+          const q = posOf(s.player_id);
+          if (!q) continue;
+          const a = survTop[q] || (survTop[q] = []);
+          if (a.length < 2) a.push(s);
+        }
+      }
+    }
     for (let j = idx; j < N; j++) {
       const c = picks[j];
       if (c.is_keeper) continue;
@@ -388,8 +481,28 @@ function buildSeat(season, draft, seatId, rosterOn) {
         short = left < 1;
         if (short) deadlineFired++;
       }
-      let v;
-      if (MLV) {
+      let v, tieM = 0;
+      if (REAL) {
+        /* normal roster: never a second K or DEF (§14, same rule as MLV_CAP) */
+        if ((q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
+        const cur = {};
+        POS.forEach(z => { cur[z] = (mineVals[z] || []).slice(); });
+        const before = lineupValueFloored(cur);
+        (cur[q] || (cur[q] = [])).push(valueOf(c));
+        const m = lineupValueFloored(cur) - before;
+        v = m;
+        tieM = m;
+        if (REAL_VONA) {
+          const a = (survTop && survTop[q]) || [];
+          const s = (a[0] && a[0].player_id !== c.player_id) ? a[0] : a[1];
+          if (s) {
+            const cur2 = {};
+            POS.forEach(z => { cur2[z] = (mineVals[z] || []).slice(); });
+            (cur2[q] || (cur2[q] = [])).push(valueOf(s));
+            v = m - (lineupValueFloored(cur2) - before);
+          }
+        }
+      } else if (MLV) {
         /* ⚠️ K<=1 / DEF<=1 — from Cory's "fielding a normal roster". C2 runs
          * this OFF separately, because the relay's uncapped arm drafted TWO
          * kickers: no-injury grading rewards a second kicker and a normal
@@ -413,7 +526,10 @@ function buildSeat(season, draft, seatId, rosterOn) {
         const w = startProb(q, held[q] || 0, rosterOn, short);
         v = valueOf(c) * w;
       }
-      if (v > bestV) { bestV = v; best = c; }
+      /* VONA ties on score break by the marginal itself (prereg §14) */
+      if (v > bestV || (REAL_VONA && v === bestV && tieM > bestM)) {
+        bestV = v; bestM = tieM; best = c;
+      }
     }
     if (!best) return;
     takenByMe.add(best.player_id);
