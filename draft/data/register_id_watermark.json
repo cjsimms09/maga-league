@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 151,
+ "next_numeric_id": 152,
  "history": [
   {
    "id": 47,
@@ -226,6 +226,11 @@
    "id": 150,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 147 (A: board ranks TEs a median 46 places earlier than ADP, mechanism partly traced to vorp.py's replacement level; routed to E -- is it edge or calibration fault) -- same collision and deviation as 143-149"
+  },
+  {
+   "id": 151,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 148 (A: two replacement-level tables in the codebase disagree by 2x at RB/WR, confirming register 150's mechanism -- mlv.js's WAIVER table and the relay's measured league depth agree with each other and disagree with vorp.py's starter-slot table, which the live board actually uses) -- same collision and deviation as 143-150"
   }
  ]
 }

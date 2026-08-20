@@ -1007,11 +1007,11 @@
         + 'would take at each of your twelve picks if the board drained in ADP '
         + 'order and nobody reacted to you. K and DEF capped at one each, your rule.',
       read: 'Read it as two halves and treat the orange line as the edge of what the '
-        + 'model knows. Above it, a real opinion. Below it, once your nine starting '
-        + 'slots are full, every remaining player is worth exactly zero to it and it '
-        + 'cannot tell them apart — so those rows are the big board\'s order wearing '
-        + 'the model\'s name. If a name below the line looks wrong to you, you are '
-        + 'right, and it is not an argument you need to win.',
+        + 'model knows. Above it, marginal lineup value — a real opinion. Below it, '
+        + 'once your nine starting slots are full, every player is worth exactly zero '
+        + 'to MLV, so those rows use your bench rule instead: the position you are '
+        + 'still short of the winning shape, taking whoever beats the waiver wire by '
+        + 'the most. If a name below the line looks wrong, trust yourself over it.',
       do: 'Use the top half to see the SHAPE you are heading for and whether it '
         + 'matches the top-3 finishers. Use the bottom half for nothing except '
         + 'knowing the model has stopped talking — from round 7 on, this is your '
@@ -4563,7 +4563,7 @@
       const dim = p.mlv_has_an_opinion ? '' : ' style="opacity:.62"';
       const val = p.mlv_has_an_opinion
         ? '<b>+' + p.marginal + '</b>'
-        : '<span class="muted">board #' + (p.player.overall_rank == null ? '—' : p.player.overall_rank) + '</span>';
+        : '<b>+' + p.wire_surplus + '</b> <span class="muted">wire</span>';
       return '<tr' + dim + '>'
         + '<td>' + p.pick + '</td>'
         + '<td>' + escapeHtml(p.player.position) + '</td>'
@@ -4582,8 +4582,10 @@
         + 'color:#b45309;font-size:.76rem;line-height:1.35">'
         + '<b>⛔ MLV STOPS HERE.</b> Your nine starting slots are full, so all '
         + tied + ' remaining players are worth <b>exactly 0</b> to it — it cannot tell '
-        + 'them apart. Everything below is <b>the big board\'s order</b>, not an MLV '
-        + 'recommendation. From round 7 on this is your call.'
+        + 'them apart. Below this line is <b>your bench rule</b>: the position you are '
+        + 'still short of the top-3-finisher shape, taking the man worth most over what '
+        + 'the waiver wire gives you free. A 13th tight end scores 0 there; a 5th back '
+        + 'does not.'
         + '</td></tr>'
       : '';
 
@@ -4594,13 +4596,12 @@
       .map(([q, v]) => q + ' ' + (v.delta > 0 ? '+' : '') + v.delta)
       .join(', ');
 
-    const te = d.board_rank_tilt && d.board_rank_tilt.TE
-      ? d.board_rank_tilt.TE.median_ranks_earlier_than_market : null;
-    const tilt = (te != null && blind.length)
+    const tilt = blind.length
       ? '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
-        + '<b>Why those are all tight ends:</b> it is the board, not MLV. Our board '
-        + 'ranks TEs a median <b>' + te + ' places earlier</b> than the market does, so '
-        + 'the men still on the board that late ARE tight ends. Register 147.</p>'
+        + '<b>What the wire gives you free:</b> QB 322.9 · RB 78.4 · WR 124.8 · '
+        + 'TE 130.4 · K 128.6 · DEF 100. A drafted man is only worth what he adds '
+        + 'ABOVE that. This league drafts ~14 TEs and ~47 RBs, which is why a late '
+        + 'tight end is worth nothing and a late back is not.</p>'
       : '';
 
     host.innerHTML = '<div class="body">'
