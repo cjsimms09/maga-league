@@ -169,6 +169,19 @@
         <div class="body"><div id="rank-source"></div></div>
       </div>
 
+      <%# Cory, 2026-08-21, direct: "No! I want to be able to toggle between
+          sources, I need multiple options for each position... the old list
+          you used to have that list top 5-10 at each position for that
+          source... need more options on Home Screen and I'll toggle
+          source." The toggle above already changes VONA/the recommended
+          player; this is the list that changes SHAPE with it — top-N per
+          position, for whichever source is selected. Populated by
+          renderSourceTopBoard() via SourceBoard.topByPosition(). %>
+      <div class="card" id="source-top-board-card" style="display:none">
+        <h2>📋 Top Available <span class="sub">by position, for the selected source</span></h2>
+        <div class="body"><div id="source-top-board"></div></div>
+      </div>
+
       <%# THE REAL MOUNT POINT — this did NOT exist before (E's war-room
           draft-value audit, 2026-08-20/21, finding 1). sourceBoardsHost() in
           app.js had a fallback that, finding no #source-boards here, created
