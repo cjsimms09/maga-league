@@ -266,7 +266,7 @@ POS.forEach(q => {
 });
 const ceiling_steals = pool
   .map(x => ({
-    name: x.name, position: x.position, adp: +x.adp.toFixed(1),
+    player_id: x.id, name: x.name, position: x.position, adp: +x.adp.toFixed(1),
     proj: +x.ds.proj.toFixed(1), ceiling: +x.ds.ceiling.toFixed(1),
     upside: +(x.ds.ceiling - x.ds.proj).toFixed(1),
     ceiling_rank: ceilRank.get(x.id), adp_rank: adpRank.get(x.id),

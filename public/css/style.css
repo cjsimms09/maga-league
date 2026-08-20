@@ -2348,6 +2348,8 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   font-variant-numeric: tabular-nums;
 }
 .q-name { flex: 1 1 auto; font-size: .82rem; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.q-name[data-drill] { cursor: pointer; }
+.q-name[data-drill]:hover { text-decoration: underline; }
 .q-move { flex: 0 0 auto; display: flex; gap: .2rem; }
 /* min-height, not just min-width: .btn.small sets padding but not a height, so
    without this these come out 19px tall — a target you miss with a thumb, which
@@ -2659,6 +2661,8 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .cmp-col { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .6rem; background: var(--panel-soft); }
 .cmp-col.lead { border-color: var(--gold); background: rgba(185,130,42,.08); }
 .cmp-name { font-family: var(--font-display); font-weight: 800; color: var(--ink); display: flex; gap: .35rem; align-items: center; }
+.cmp-name[data-drill] { cursor: pointer; }
+.cmp-name[data-drill]:hover { text-decoration: underline; }
 .cmp-stat { font-size: .74rem; color: var(--muted); margin-top: .2rem; }
 .cmp-stat b { color: var(--ink); }
 /* THE dominant number — gold, biggest thing in the tray. */

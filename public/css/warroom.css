@@ -1866,6 +1866,8 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   padding: .12rem .25rem; border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
   font-variant-numeric: tabular-nums;
 }
+.pb-steal-row[data-drill] { cursor: pointer; }
+.pb-steal-row[data-drill]:hover td:first-child { text-decoration: underline; }
 .pb-do-range { color: var(--wr-muted); white-space: nowrap; }
 .pb-do-hot { color: var(--wr-bad); font-weight: 700; }
 /* No mobile override left here: the desktop rule above already matches what
@@ -1905,6 +1907,10 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   padding-bottom: .35rem;
 }
 .rbm-row:last-child { border-bottom: none; padding-bottom: 0; }
+.rbm-row[data-drill] { cursor: pointer; }
+.rbm-row[data-drill]:hover .rbm-name { text-decoration: underline; }
+.src-name[data-drill] { cursor: pointer; }
+.src-name[data-drill]:hover { text-decoration: underline; }
 .rbm-rank { font-weight: 800; color: var(--wr-muted); font-variant-numeric: tabular-nums; font-size: var(--wr-fs-micro); }
 .rbm-name { font-weight: 700; color: var(--wr-ink); }
 .rbm-pos { font-size: .58rem; color: var(--wr-muted); text-transform: uppercase; }

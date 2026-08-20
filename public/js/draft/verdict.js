@@ -119,7 +119,7 @@
       } else if (a.target_share != null && b.target_share != null) {
         vf = 'target_share'; vlab = 'target share';
       } else if (a.wopr != null && b.wopr != null) {
-        vf = 'wopr'; vlab = 'WOPR';
+        vf = 'wopr'; vlab = 'WOPR (weighted opportunity rating — target share + air-yards share combined)';
       }
       if (vf && a[vf] !== b[vf]) {
         var hiV = a[vf] > b[vf] ? a : b, loV = a[vf] > b[vf] ? b : a;

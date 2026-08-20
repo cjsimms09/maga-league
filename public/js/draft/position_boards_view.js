@@ -382,7 +382,8 @@
   function stealsStrip(list, caveat, esc) {
     if (!list || !list.length) return '';
     var rows = list.slice(0, 10).map(function (s) {
-      return '<tr><td>' + esc(s.name || '') + ' <span class="pb-team">' + esc(s.position || '') + '</span></td>'
+      return '<tr' + (s.player_id != null ? ' data-drill="' + esc(String(s.player_id)) + '" class="pb-steal-row"' : '') + '>'
+        + '<td>' + esc(s.name || '') + ' <span class="pb-team">' + esc(s.position || '') + '</span></td>'
         + '<td>' + esc(fmtNum(s.adp)) + '</td>'
         + '<td>' + esc(fmtNum(s.proj)) + ' / ' + esc(fmtNum(s.ceiling)) + '</td>'
         + '<td>' + esc(fmtNum(s.steal_gap)) + ' ranks</td></tr>';

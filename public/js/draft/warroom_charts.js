@@ -846,9 +846,11 @@
       if (p.target_share == null && p.wopr == null && p.rz_share == null) return null;
       var wparts = [];
       if (p.target_share != null) wparts.push(pct(p.target_share) + ' target share');
-      if (p.wopr != null) wparts.push((Math.round(p.wopr * 100) / 100) + ' WOPR');
+      if (p.wopr != null) wparts.push('<span title="Weighted Opportunity Rating — target share and air-yards share blended into one usage number">'
+        + Math.round(p.wopr * 100) / 100 + ' WOPR</span>');
       if (p.rz_share != null) wparts.push(pct(p.rz_share) + ' red-zone share');
-      if (p.adot != null) wparts.push((Math.round(p.adot * 10) / 10) + ' aDOT');
+      if (p.adot != null) wparts.push('<span title="Average Depth of Target — how far downfield his targets travel">'
+        + Math.round(p.adot * 10) / 10 + ' aDOT</span>');
       return wparts.length ? ['Usage', wparts.join(' <span class="muted">·</span> ')] : null;
     }
     return null;
@@ -965,7 +967,7 @@
         : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
       ['Composite score', s ? s.score.toFixed(1)
         : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
-      ['VORP', num(p.vorp, 1)],
+      ['<span title="Value Over Replacement Player — points above the last startable player at his position">VORP</span>', num(p.vorp, 1)],
       ['ADP vs our rank', num(p.adjusted_adp) + ' <span class="muted">adp</span> · #' + num(p.overall_rank) + ' <span class="muted">ours</span>'
         + (p.adjusted_adp != null && p.overall_rank != null
           ? ' <span class="' + (p.overall_rank < p.adjusted_adp ? 'wr-pos-delta' : 'wr-neg-delta') + '">('

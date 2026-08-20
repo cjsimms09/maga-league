@@ -33,7 +33,12 @@
    * this is a second opinion, and a long list stops reading like one. */
   function row(rec, i, esc) {
     var p = rec.player || {};
-    return '<li class="rbm-row">'
+    /* data-drill wires this row into the same document-level click delegate
+     * every other player row on the page uses (warroom_charts.js) — this
+     * panel sits right beside the queue and the board, and a name that
+     * doesn't open the same dossier every other name opens reads as broken,
+     * not as a different feature. */
+    return '<li class="rbm-row"' + (p.player_id != null ? ' data-drill="' + esc(String(p.player_id)) + '"' : '') + '>'
       + '<span class="rbm-rank">' + esc(String(i + 1)) + '</span>'
       + '<span class="rbm-name">' + esc(p.name || '—') + '</span>'
       + '<span class="rbm-pos">' + esc(rec.position || '') + '</span>'

@@ -4015,7 +4015,10 @@
       const name = p ? p.name : id;
       return '<div class="q-row' + (isGone ? ' gone' : '') + '">'
         + '<span class="q-rank">' + (i + 1) + '</span>'
-        + '<span class="q-name">' + escapeHtml(name)
+        // data-drill: the queue is "the list you read when the clock is at
+        // 8 seconds" — its only job before now was take/compare/reorder,
+        // with no way to glance at WHY a name is on it without leaving it.
+        + '<span class="q-name"' + (p ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '') + '>' + escapeHtml(name)
           + (p ? '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' : '')
           + (p && p.bye ? '<span class="muted"> bye ' + p.bye + '</span>' : '')
           + (isGone ? '<span class="q-gone">drafted</span>' : '')
@@ -4791,8 +4794,15 @@
           return '<td class="muted">' + (cov ? '—' : 'no coverage') + '</td>';
         }
         const differs = blend && String(p.player_id) !== String(blend.player_id);
+        const truncated = p.name.length > 16;
+        // data-drill + a full-name title: a truncated AND unclickable name was
+        // the worst combination on the page — you couldn't even confirm who a
+        // clipped name was without retyping it into search. Now both the
+        // truncation and the click open onto the same real answer.
         return '<td' + (differs ? ' style="font-weight:600"' : '') + '>'
-          + escapeHtml(p.name.length > 16 ? p.name.slice(0, 15) + '…' : p.name)
+          + '<span class="src-name" data-drill="' + escapeHtml(String(p.player_id)) + '"'
+            + (truncated ? ' title="' + escapeHtml(p.name) + '"' : '') + '>'
+          + escapeHtml(truncated ? p.name.slice(0, 15) + '…' : p.name) + '</span>'
           + (differs ? ' <span title="differs from the blend">•</span>' : '')
           + '</td>';
       }).join('');
@@ -5416,8 +5426,12 @@
         + '<span class="cmp-bar-val">' + (p[1] >= 0 ? '+' : '') + p[1] + '</span></div>';
     }).join('');
     const col = (p, isLeader) => {
+      // data-drill: same click-through as everywhere else — you are actively
+      // weighing these two names and should be able to open either one's
+      // full profile without closing the tray to go find him again.
       return '<div class="cmp-col' + (isLeader ? ' lead' : '') + '">'
-        + '<div class="cmp-name">' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
+        + '<div class="cmp-name"' + (p.player_id != null ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '')
+          + '>' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
         + '<div class="cmp-stat">proj <b>' + Math.round(p.proj_mean || 0) + '</b> · ceil <b>' + Math.round(p.proj_ceiling || 0) + '</b></div>'
         + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adjusted_adp || p.adp || 0) + '</b></div>'
         + '</div>';
@@ -5434,6 +5448,16 @@
       + '<div class="cmp-bars">' + bar + '</div>'
       + '<details class="cmp-why"><summary>Why? — the derivation</summary>'
         + '<div class="cmp-why-body">' + escapeHtml(g.terms.note)
+        /* ⚠ CRASH FIXED 2026-08-20 (found live-verifying click-in coverage,
+         * not reported by Cory): dollarGap() REFUSES a cross-position K/DEF
+         * or QB pair (D10a/5e rulings — comparing them prices two different
+         * constructions on one scale) and returns a `terms` object with only
+         * `.note`, no `.A`/`.B` breakdown. This code read `g.terms.A.dollars`
+         * unconditionally, so the very first thing a drafter does after
+         * comparing a QB against anyone else — open "Why?" — threw and left
+         * the tray broken. Guarded on `g.terms.A && g.terms.B`, same honest-
+         * degrade shape the rest of this file already uses: the refusal note
+         * above still explains why, this block just adds nothing further. */
         /* ⚠ `entry` AND `RS` ARE ONE SIGNAL, NOT TWO, AND THIS LINE USED TO
          * SHOW THEM AS TWO. Both are a constant times proj_mean
          * (DG_ENTRY_K 0.08, DG_RS_K 0.05), so their ratio is EXACTLY 1.6 for
@@ -5448,14 +5472,16 @@
          *
          * So the two mean-driven pots are shown as ONE season line with the
          * split named as the fixed ratio it is. */
-        + '<br>' + escapeHtml(a.name) + ': boom $' + g.terms.A.dollars.high
-          + ' · season $' + Math.round((g.terms.A.dollars.entry + g.terms.A.dollars.rs) * 10) / 10
-          + ' <span class="muted">(entry $' + g.terms.A.dollars.entry + ' + RS $' + g.terms.A.dollars.rs + ', fixed 1.6:1)</span>'
-        + '<br>' + escapeHtml(b.name) + ': boom $' + g.terms.B.dollars.high
-          + ' · season $' + Math.round((g.terms.B.dollars.entry + g.terms.B.dollars.rs) * 10) / 10
-          + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
-        + '<br><span class="muted">boom is the only term with independent information: '
-          + 'entry and RS are both a constant times the projection, so they always move together.</span>'
+        + (g.terms.A && g.terms.B
+          ? '<br>' + escapeHtml(a.name) + ': boom $' + g.terms.A.dollars.high
+            + ' · season $' + Math.round((g.terms.A.dollars.entry + g.terms.A.dollars.rs) * 10) / 10
+            + ' <span class="muted">(entry $' + g.terms.A.dollars.entry + ' + RS $' + g.terms.A.dollars.rs + ', fixed 1.6:1)</span>'
+          + '<br>' + escapeHtml(b.name) + ': boom $' + g.terms.B.dollars.high
+            + ' · season $' + Math.round((g.terms.B.dollars.entry + g.terms.B.dollars.rs) * 10) / 10
+            + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
+          + '<br><span class="muted">boom is the only term with independent information: '
+            + 'entry and RS are both a constant times the projection, so they always move together.</span>'
+          : '')
         + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
         + '</div></details>'
       + '</div>';
