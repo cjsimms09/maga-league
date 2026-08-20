@@ -69,3 +69,18 @@ The relay's Wednesday ledger sweep checks new rows against all three and
 bounces non-conforming rows back to their lane with the missing part named.
 Exemplar filed the same day: **P282** (the bench-option weekly waiver
 valuation), written to be copied.
+
+### Amendments to the standard from the SIAM skill-luck paper (Cory's upload, 08-20)
+
+* **The skill-design menu explicitly includes split-half persistence**:
+  `draft/tools/skill_luck_r.py` (R* + its Monte-Carlo null band; controls
+  green). Any arm, tool, or edge with ≥20 graded outcomes reports R* beside
+  its mean. **A naked R* — or any split-half statistic — without its null band
+  bounces at the Wednesday sweep**; at small m the null band is enormous and
+  the statistic alone misleads (measured: fair coins drew R*=−0.54 on one
+  seed; our own league's W/L R*=0.68 sits INSIDE its m=10 null band).
+* **Quick-kill creates a quitting-boundary bias in our own records** (the
+  paper's boundary-layer finding, pointed at ourselves): benching an arm after
+  3 bad weeks truncates its record at its worst and flatters every survivor.
+  Cross-arm comparisons must include benched arms' records to the bench date,
+  or state the truncation. The Wednesday sweep checks comparisons for this.
