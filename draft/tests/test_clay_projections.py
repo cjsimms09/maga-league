@@ -47,17 +47,18 @@ def test_team_field_is_text_not_a_failed_float_cast():
 def test_known_positive_control_catches_real_corruption():
     # FAIL ARM (rule 3f): the control this module runs on every invocation
     # must actually be capable of failing, not just capable of passing.
-    lines = C.pdf_text().split("\n")
+    cfg = C.YEAR_CONFIG[2026]
+    lines = C.pdf_text(cfg["pdf"]).split("\n")
     corrupted = [l.replace("283", "999") if "Jahmyr Gibbs" in l and " DI " in l else l
                  for l in lines]
     try:
-        C._verify_known_positive(corrupted)
+        C._verify_known_positive(corrupted, cfg["gibbs_expect"])
         raised = False
     except SystemExit:
         raised = True
     assert raised, "the known-positive control did not fire on injected corruption"
     # and the real, uncorrupted text must still pass
-    C._verify_known_positive(lines)
+    C._verify_known_positive(lines, cfg["gibbs_expect"])
 
 
 def test_no_positional_plausibility_violations():
