@@ -181,3 +181,28 @@ final pick. **v7: within forced candidates, the scarcest needed position
 (smallest supply surviving past my next pick) is taken FIRST; marginal only
 breaks ties.** A forced pick is about feasibility, not value. Nothing else
 moves. P272–P274 blind before the run.
+
+---
+
+## 11 · V8 AMENDMENT, 2026-08-20 — EARLIEST DEADLINE FIRST (after P273 TRUE / P272 FALSE)
+
+v7 fixed TE and the mole moved to K (5 seats K-less): scarcity-by-count chose
+TE at the 2-needs-2-picks endgame while the league's endgame K run ate every
+"surviving" K before the final pick. Count past my next pick is the wrong
+scarcity metric; **the deadline is**: v8's forced pick takes the needed
+position whose LAST available copy dies soonest in the recorded order
+(earliest-deadline-first — the provably correct rule for sequential claims).
+P275–P277 blind before the run; nothing else moves.
+
+---
+
+## 12 · V9 AMENDMENT, 2026-08-20 — THE EDF FEASIBILITY SCHEDULE AS TRIGGER (after P276 TRUE / P275 FALSE)
+
+v8 fixed which position a forced pick takes; the TRIGGER still fired on
+counts, one pick too late when two deadlines die inside one between-picks
+window. v9 completes the scheduling argument: sort needed positions by
+deadline (last available copy's recorded pick_no), match against my remaining
+pick numbers in order, and FORCE the moment any k-th deadline precedes my
+k-th remaining pick. Provably sufficient — a vacancy after this means the
+pool itself ran dry. Points untouched (+8.82 frozen / +3.56 waiver stand as
+v8's result). P278–P280 blind before the run.
