@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 170,
+ "next_numeric_id": 171,
  "history": [
   {
    "id": 47,
@@ -349,6 +349,11 @@
    "id": 169,
    "claimed_at": "2026-08-20",
    "note": "A: the dollar panel's E[$] is nearly flat and partly inverted across the entire QB position, Malik Willis pricing above Josh Allen -- found converting the even-money band to dollars (was 161 pre-renumber on main's side)"
+  },
+  {
+   "id": 170,
+   "claimed_at": "2026-08-20",
+   "note": "D: ADAPTATION-POLICY.md wording does not match the already-shipped, Cory-ruled decide_promotion() in weekly_own_grade.py -- 3-consecutive-weeks vs 3-of-4, and best-of-K as a hard gate vs attached-not-gating. Found scoping the verdict-line wiring ask before writing code. OPEN, owners relay+A (reconcile doc vs code, or take to Cory), recheck 08-26."
   }
  ]
 }
