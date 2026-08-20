@@ -74,7 +74,28 @@ ck('the provenance sentence states the sample it was taken from, so a tool that 
  * one file whose shape was different as clean. Bounded `[\s\S]` spans instead,
  * short enough that it cannot wander into unrelated code, and both shapes are
  * driven through it in the fail arms below. */
-const TABLE = /\bWIRE[A-Z_]*\s*=\s*\{[\s\S]{0,80}?(QB|RB|WR|TE)\s*:\s*\{?\s*(v\s*:\s*)?-?\d[\s\S]{0,80}?(QB|RB|WR|TE)\s*:\s*\{?\s*(v\s*:\s*)?-?\d/;
+/* ⚠️ SCOPED TO LEVELS, NOT TO EVERY IDENTIFIER BEGINNING "WIRE" (2026-08-20).
+ * The pattern was `WIRE[A-Z_]*` and it fired on `average_draft.js`'s
+ * `WIRE_RANK = { QB: 17, RB: 48, WR: 53, TE: 15, K: 11, DEF: 11 }` — which is
+ * a table of DEPTH RANKS across SIX positions, not per-week LEVELS. This file
+ * guards "one derivation of the wire LEVEL", and `wire_level.js` cannot supply
+ * ranks at all: it measures per-week POINTS for MEASURED_POSITIONS =
+ * ['QB','RB','WR','TE'], so K and DEF are outside it entirely. Demanding that
+ * tool read a source that does not hold the quantity would be unsatisfiable.
+ *
+ * ⛔ THIS IS NOT AN EXEMPTION FOR THAT FILE, AND THE SUBSTANTIVE CONCERN IS
+ * REAL AND ROUTED, NOT BURIED. `WIRE_RANK` says RB 48 / WR 53 while `vorp.py`
+ * prices replacement at RB 24 / WR 26 and this league demonstrably drafts
+ * 47 / 52 — the harness is using roughly the right depth while the board Cory
+ * drafts from uses roughly half of it. That is register 148 (two replacement
+ * tables disagreeing by 2x) with a THIRD expression, and it belongs in that
+ * row rather than inside a test's allowlist. Not changed here two days before
+ * the draft because P158's prereg grades against these constants and moving
+ * them mid-prereg invalidates the grading.
+ *
+ * The rank shape is driven through the detector below as a KNOWN NEGATIVE, so
+ * this narrowing is asserted rather than assumed. */
+const TABLE = /\bWIRE(?:_LEVELS?|_BENCH|_PER_WEEK)?\s*=\s*\{[\s\S]{0,80}?(QB|RB|WR|TE)\s*:\s*\{?\s*(v\s*:\s*)?-?\d[\s\S]{0,80}?(QB|RB|WR|TE)\s*:\s*\{?\s*(v\s*:\s*)?-?\d/;
 const jsFiles = fs.readdirSync(TOOLS).filter(f => f.endsWith('.js'));
 const offenders = jsFiles.filter(f => {
   const src = fs.readFileSync(path.join(TOOLS, f), 'utf8')
@@ -88,6 +109,13 @@ ck('CONTROL — the detector FIRES on the exact constant that shipped',
   TABLE.test('const WIRE = { QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3 };'));
 ck('and on the {v, n} shape wire_vs_bench used, which a naive reader would miss',
   TABLE.test('const WIRE = {\n QB: { v: 20.9, n: 5 }, RB: { v: 5.3, n: 46 },\n};'));
+ck('KNOWN NEGATIVE — a DEPTH-RANK table is not a wire-level table and is out of '
+  + 'scope, because wire_level.js holds no ranks and no K/DEF at all. Register '
+  + '148 owns the depth disagreement; this file owns the level.',
+  !TABLE.test('const WIRE_RANK = { QB: 17, RB: 48, WR: 53, TE: 15, K: 11, DEF: 11 };'));
+ck('...and the narrowing did NOT blind it to a real levels table that merely '
+  + 'has a longer name',
+  TABLE.test('const WIRE_LEVELS = { QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3 };'));
 
 // ── 3. EVERY CONSUMER'S RUNTIME VALUE IS THE MEASURED ONE ───────────────
 /* Source-text checks cannot prove a tool ends up with the right number. These
