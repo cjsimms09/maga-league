@@ -73,3 +73,30 @@ does not block the ship (the theorem, not the delta, is what Cory asked for).
 If P254 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
 bench rule stand for Saturday. **DEFAULT if grading is not done by Friday
 noon: nothing ships; the prereg grades post-draft.**
+
+---
+
+## 5 · V2 AMENDMENT, 2026-08-20 — FILED AFTER v1's GRADES, BEFORE ANY v2 RUN
+
+v1 ran and **P254 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
+the uncapped-MLV known-negative), while the QB/TE half of the theorem held
+(1.17 / 1.13). The localization is exact: v1's wire was FRICTIONLESS —
+unlimited claims, every slot, every week — under which real bench depth is
+worth zero (a late RB sits below the RB wire level) and the only positive
+late marginal anywhere is K/DEF starter insurance. Cory's diagnosis question
+("is it luck? lack of accounting for waivers?") has a measured answer:
+neither — waivers were OVER-credited. The missing input is absence **plus
+wire friction**.
+
+**v2 changes, declared before running (P257–P259):**
+1. **One wire fill per week across the roster** — the weekly claim. Each
+   simulated week, the single empty slot where the wire adds most gets its
+   wire level; every other absent slot scores ZERO. This is the real
+   liquidity constraint: three simultaneous RB holes cannot all be streamed.
+2. **Forcing fallback** — when §14c forcing restricts to a needed position
+   and the recorded pool has none left, fall back to unrestricted candidates
+   instead of skipping the pick (P256's vacancy bug, mechanism in the grade).
+
+Nothing else moves: same constants, same M=200, same masks, same pruning,
+same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation
+policy — v1's FALSE stays on the record as the wire-liquidity lesson.
