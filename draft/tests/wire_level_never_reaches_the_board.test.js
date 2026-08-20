@@ -12,13 +12,29 @@
  * `draft/data/wire_level.json` is committed and real — 422 scored acquisitions
  * across 2023-25 — and is simply not joined into `public/draft_data.json`.
  *
- * So `ctx.wireWeekly` is null in production, `wireBenchValue` returns null on
- * its first line, and every player falls back to the vorp rule — a fallback
+ * So `ctx.wireWeekly` was null in production, `wireBenchValue` returned null on
+ * its first line, and every player fell back to the vorp rule — a fallback
  * whose own comment documents it as the K/DEF case ("nflverse is
  * offense-only"), i.e. a per-POSITION gap being taken by every position.
  *
- * This file pins the JOIN, not the flags. Nothing here asserts a flag should
- * flip — that is A's ruling.
+ * ── ✅ THE JOIN LANDED, AND THIS FILE WAS STILL MOURNING IT (2026-08-20) ────
+ *
+ * The board now carries top-level `wire_level` — QB 23.38 · RB 7.8 · WR 10.85 ·
+ * TE 11.6 — with full provenance in `wire_level_source`. The fix shipped; the
+ * test that MEMORIALIZED the gap was never flipped, so it kept asserting
+ * `ART.wire_level === undefined` and turned CI red over its own remedy
+ * arriving. Found by the relay's T-minus-2 sweep, which called it exactly
+ * right: "a STALE TOMBSTONE... GOOD NEWS misread as red."
+ *
+ * ⚠️ A TEST THAT PINS AN ABSENCE MUST BE FLIPPED THE DAY THE ABSENCE ENDS, and
+ * nothing makes that happen automatically — the assertion goes red, someone
+ * reads "test failing" instead of "gap closed", and the signal inverts. The
+ * filename is left alone deliberately: renaming it would break every inbound
+ * reference, and the header is where the history belongs.
+ *
+ * It now pins the JOIN'S PRESENCE and that the board agrees with the measured
+ * artifact, which is the property worth protecting from here on. Nothing here
+ * asserts a flag should flip — that is still A's ruling.
  *
  * Run: node draft/tests/wire_level_never_reaches_the_board.test.js
  */
@@ -46,14 +62,28 @@ ck('and it is measured, not asserted — a real sample size travels with it',
   WL.scored > 100 && Array.isArray(WL.seasons) && WL.seasons.length >= 2,
   { scored: WL.scored, seasons: WL.seasons });
 
-ck('THE JOIN IS MISSING: the published board carries no `wire_level`',
-  ART.wire_level === undefined, Object.keys(ART));
+/* FLIPPED 2026-08-20 — this asserted `=== undefined` to document the gap. */
+ck('THE JOIN LANDED: the published board carries a top-level `wire_level`',
+  ART.wire_level && typeof ART.wire_level === 'object', Object.keys(ART).slice(0, 40));
+ck('...for all four offensive positions, as numbers',
+  ['QB', 'RB', 'WR', 'TE'].every(q => typeof (ART.wire_level || {})[q] === 'number'),
+  ART.wire_level);
+ck('...and the board AGREES with the measured artifact it was joined from — a '
+  + 'join that lands with different numbers is worse than no join',
+  ['QB', 'RB', 'WR', 'TE'].every(q =>
+    Math.abs(ART.wire_level[q] - WL.per_week[q]) < 0.01),
+  { board: ART.wire_level, artifact: WL.per_week });
+ck('...and it ships its own provenance, so nobody has to trust the number '
+  + 'because it is present',
+  ART.wire_level_source && ART.wire_level_source.per_week
+    && ART.wire_level_source.n,
+  ART.wire_level_source ? Object.keys(ART.wire_level_source) : null);
 
 // ─────────────── 2. the app reads the key the board does not have
 {
   const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
-  ck('app.js reads `state.data.wire_level` into ctx.wireWeekly — so the consumer '
-    + 'is wired and only the producer is missing',
+  ck('app.js reads `state.data.wire_level` into ctx.wireWeekly — consumer and '
+    + 'producer are now BOTH wired, which is what makes the join real',
   /wireWeekly:\s*\(state\.data \|\| \{\}\)\.wire_level/.test(app));
 }
 

@@ -6946,11 +6946,61 @@
      * old filter kept board order, so a search that hit several men buried the
      * one actually typed — `gib` returned Jahmyr Gibbs and Antonio Gibson with
      * the winner decided by ADP rather than by what was asked for. */
+    /* ⛔ THE BIG BOARD IGNORED THE RANKING-SOURCE TOGGLE (found 2026-08-20 by
+     * Cory asking "when I select big board tab it shows me actual ranking of
+     * selected source correct?" — it did not).
+     *
+     * `context()` has always used sourceAdjustedBoard(), so the recommendation,
+     * VONA and tiers followed the toggle. This function read `state.board` raw,
+     * so the BIG BOARD TAB kept showing the BLEND's order under a Draft Sharks
+     * or Sleeper heading. That is the same class as the mock-end label lie B
+     * fixed: a surface asserting a source it is not actually using, at eight
+     * seconds a pick.
+     *
+     * Everything needed was already there — the board carries
+     * overall_rank_<source> for all four, and SourceBoard.forSource swaps
+     * `overall_rank` — so this only had to ask for it.
+     *
+     * ON BLEND, BEHAVIOUR IS BYTE-IDENTICAL: sourceAdjustedBoard() returns the
+     * same array and no re-sort happens, so the shipped order is untouched. */
+    /* ⚠️ CORY, 2026-08-20: "The big board shouldn't sort by VONA since all
+     * positions, it should just be pure ranking from that source!" He is right
+     * about the defect and the honest answer is narrower than the ask:
+     *
+     *   SLEEPER publishes its own overall rank and we carry it for all 700
+     *   players (`sleeper_rank`). That IS a pure source ranking, and it is what
+     *   this now uses.
+     *
+     *   DRAFT SHARKS, FANTASYPROS and OUR MODEL publish no ranking we hold — we
+     *   ingested their PROJECTIONS (247 / 429 / 507 players), not their boards.
+     *   So there is no pure ranking to show, and the two candidates are:
+     *     · their raw projection — MEASURED, and unusable: it puts TWELVE
+     *       QUARTERBACKS in the top twelve, because quarterbacks simply score
+     *       more points. Cross-position points are not comparable.
+     *     · our replacement math applied to their numbers — draftable, but it
+     *       is OUR opinion of their projections, not their ranking.
+     *   The second ships, and the panel now SAYS so rather than letting the
+     *   heading imply a board we do not have. Getting DS's published rankings
+     *   is a C ingest job, routed. */
+    const srcBoard = (function () {
+      const b = sourceAdjustedBoard();
+      if (!state.rankSource) return b;
+      const PURE = { sleeper: 'sleeper_rank' };
+      const field = PURE[state.rankSource];
+      const rk = field
+        ? p => (p && p[field] != null ? p[field] : 1e9)
+        : p => (p && p.overall_rank != null ? p.overall_rank : 1e9);
+      return b.slice().sort((x, y) => rk(x) - rk(y));
+    })();
+    /* Exposed so the panel can caption the ordering honestly instead of the
+     * reader inferring it from a source name. */
+    state.bigBoardOrdering = !state.rankSource ? 'blend'
+      : (state.rankSource === 'sleeper' ? 'pure' : 'derived');
     const rows = (state.search
-      ? state.board.filter(match)
+      ? srcBoard.filter(match)
         .map((p, i) => ({ p: p, s: nameScore(p.name, state.search), i: i }))
         .sort((a, b) => (b.s - a.s) || (a.i - b.i)).map(x => x.p)
-      : state.board.filter(match)).slice(0, 200);
+      : srcBoard.filter(match)).slice(0, 200);
 
     // Searching also looks at players already taken. "He isn't here" and "he
     // went four picks ago" are different answers, and only one of them means
@@ -8965,7 +9015,24 @@
       : '';
     host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       + '<p class="muted rs-note">Changes who is recommended and VONA — this is a real re-rank, not just a different number. '
-      + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>';
+      + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>'
+      /* ⚠️ WHAT THE BIG BOARD IS ORDERED BY, SAID OUT LOUD. Cory asked whether
+       * the Big Board shows "pure ranking from that source". For Sleeper it now
+       * does — they publish an overall rank and we carry it for all 700. For the
+       * others we hold PROJECTIONS, not boards, so the order is our replacement
+       * math on their numbers. Sorting them by raw projection instead was
+       * measured and is unusable: twelve quarterbacks in the top twelve. The
+       * heading must not imply a board we do not have. */
+      + (state.rankSource === 'sleeper'
+          ? '<p class="muted rs-note">Big Board order: <b>Sleeper\'s own published '
+            + 'ranking</b> — their board, not ours.</p>'
+          : (state.rankSource
+              ? '<p class="muted rs-note">Big Board order: <b>our replacement math on '
+                + esc(active) + '\'s projections</b>. They publish a ranking we do not '
+                + 'hold — we ingested their numbers, not their board — and sorting by '
+                + 'their raw points instead puts twelve quarterbacks in the top twelve, '
+                + 'because cross-position points are not comparable.</p>'
+              : ''));
   }
 
   /* THE MODEL-COMPARISON PANEL — Cory, live 2026-08-20: "Give me peace to

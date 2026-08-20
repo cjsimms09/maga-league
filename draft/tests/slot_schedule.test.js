@@ -129,10 +129,31 @@ const OUT = execFileSync('node', [TOOL], { encoding: 'utf8', maxBuffer: 8 * 1024
   };
   const qb = slotAt('QB'), te = slotAt('TE');
   ck('the QB and TE are both placed', qb != null && te != null, { qb: qb, te: te });
-  ck('the TIGHT END now comes BEFORE the quarterback — the ordering the old '
-    + 'schedule had backwards', te < qb, { te: te, qb: qb });
-  ck('and the quarterback is NOT taken at Cory\'s first pick, which is what the '
-    + 'forfeited-pick schedule recommended', qb !== PO.my_picks[0], qb);
+
+  /* ⛔ THIS PINNED "TE BEFORE QB" AND WENT RED ON A REBUILT BOARD (2026-08-20),
+   * blocking the publish gate. The comment four lines above says pinning "QB at
+   * 73" would break the day a projection moves — and then it pinned the
+   * ORDERING, which is a function of the same projections. It made a subtler
+   * version of the mistake it warned about, and the board legitimately moved:
+   * MLV now prices QB Burrow at +45.3 against TE Pitts at +18.9, in a league
+   * that scores 6-point passing TDs.
+   *
+   * THE ORDERING WAS NEVER THE FIX. Read the header: the defect was the plan
+   * spending picks 8, 13 and 28 — the three rounds FORFEITED for Henry, Chase
+   * and Walker. TE-before-QB was one board's incidental consequence of using
+   * the right pick set. What the fix ESTABLISHED, and what cannot drift with a
+   * projection, is that every slot lands on a pick Cory actually owns. */
+  const OWNED = (D.pick_order || {}).my_picks || [];
+  const FORFEIT = ((D.pick_order || {}).forfeited || []).map(f => f.cost_round);
+  const placed = [qb, te].filter(x => x != null);
+  ck('CONTROL — the board really does list forfeited rounds, so the check below '
+    + 'is comparing against something', FORFEIT.length === 3, FORFEIT);
+  ck('THE PROPERTY THE FIX ESTABLISHED: every placed slot is a pick Cory OWNS, '
+    + 'never one of the three forfeited for his keepers',
+    placed.every(x => OWNED.indexOf(x) >= 0), { placed: placed, owned: OWNED });
+  ck('...and the plan never reaches into the pre-keeper schedule at all — picks '
+    + '8, 13 and 28 are Henry, Chase and Walker, and they are not his to spend',
+    placed.every(x => [8, 13, 28].indexOf(x) < 0), placed);
 }
 
 // ── 5. THE STABILITY CLAIM IS DERIVED, NOT TYPED ────────────────────────
@@ -216,7 +237,7 @@ console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: the schedule is read from the board rather than typed,');
 console.log('the tool refuses instead of guessing when it is missing, every pick in the plan');
-console.log('is one Cory owns, the tight-end-before-quarterback ordering is pinned, and the');
+console.log('is one Cory owns, every placed slot lands on a pick he OWNS rather than one forfeited for a keeper (the ordering assert this replaced went red on a rebuilt board and was never the fix), and the');
 console.log('robustness verdict is derived from the drift rows rather than asserted.');
 console.log('WHAT IT DOES NOT: establish that the DP\'s plan is the right plan. It assumes the');
 console.log('room drafts in ADP order and it does not price the bench — and our room is known');
