@@ -49,6 +49,13 @@ jobs:
 
       - name: Commit the stores
         run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
           git add draft/backtest/nflverse_weekly_points_kdef_*.json
