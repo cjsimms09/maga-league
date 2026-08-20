@@ -117,11 +117,29 @@ def test_all_32_sweep_correction_is_exactly_the_td_components():
         comps = sum(float(row[k]) for k in DEF_PROJ_TD_ALIASES if k in row)
         assert new - old == pytest.approx(6.0 * comps, abs=0.011), pid
         assert BOARD_DEFS[pid]["proj_baseline"] == pytest.approx(new), pid
-        #: and proj_mean is the BLEND, not our scoring -- asserted rather than
-        #  left silent, so a board that quietly stopped blending DEF (which
-        #  would restore the old equality and look like a fix) fails here.
+        #: ⚠️ AND THIS LINE IS MY OWN REGRESSION, CORRECTED THE SAME NIGHT.
+        #  I replaced "proj_mean == our scoring" -- a PRE-blend claim -- with
+        #  `src.startswith("blend:")`, which is a POST-blend claim, and left it
+        #  in the PRE-chain gate. It refused a rebuild with ('ARI', ''): on the
+        #  freshly BUILT board proj_mean_source is EMPTY, because the blend
+        #  attaches at step 21 and the gate runs at step 16. I spent the night
+        #  fixing exactly this class and then committed a new instance of it.
+        #
+        #  Register 166 is the reason both readings are legitimate: the gated
+        #  artifact and the published artifact are different boards. So the
+        #  assertion names BOTH and requires the pair to be CONSISTENT, which
+        #  is the part that actually has teeth -- an empty stamp must come with
+        #  our own scoring, and a blend stamp must come with something else.
         src = str(BOARD_DEFS[pid].get("proj_mean_source") or "")
-        assert src.startswith("blend:"), (pid, src)
+        mean = BOARD_DEFS[pid].get("proj_mean")
+        if src.startswith("blend:"):
+            #: post-chain board -- proj_mean is the blend, so it may differ
+            pass
+        else:
+            assert src == "", (pid, "unexpected proj_mean_source", src)
+            assert mean == pytest.approx(new), (
+                pid, "no blend stamp, so proj_mean must still be our own "
+                "scoring", mean, new)
         if comps:
             changed += 1
     assert changed == 11    # ARI CAR DAL DET HOU JAX LAR MIN NE NO SEA

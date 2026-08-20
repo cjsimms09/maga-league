@@ -4,14 +4,16 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **121 open rows** (re-counted 08-20, post-merge; prior
-counts 51/70/97 kept going stale until `test_the_backlog_claim_is_still_roughly_true`
-refused the build). **Do not quote this without re-running
-`register_recheck_check.js`** — a stated count decays daily, sometimes within
-the same day. **The "Thirty carry a recheck date on or before 08-22" figure
-below is from 08-18, not re-derived** — flagged rather than implying a
-precision the number no longer has. Most are owned by A. That is not a decision list, it is a
-backlog wearing one, and reading it four days out costs more than it returns.
+up."* The register has **189 open rows** (re-verified 08-20 by D at merge
+time, `register_recheck_check.js` run directly — not copied from either side
+of this merge: 121 and 130 were each briefly true, neither is now). **The
+count keeps moving because the register keeps working** — the guard test
+refuses a stale write-up, which is what forced this line three times in two
+days (51 → 97 → 121/130 → 189). **Do not quote this without re-running
+`register_recheck_check.js`.** The "Thirty carry a recheck date on or before
+08-22" figure below is from 08-18, not re-derived. Most are owned by A. This
+is not a decision list, it is a backlog wearing one, and reading it four
+days out costs more than it returns.
 
 So every open row was put to a single question — **can this change a number on
 Cory's screen on 22 August?** — and the answer is *no* for most of them. What

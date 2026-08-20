@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 180,
+ "next_numeric_id": 181,
  "history": [
   {
    "id": 47,
@@ -404,6 +404,11 @@
    "id": 179,
    "claimed_at": "2026-08-20",
    "note": "A: eleven of the 150 draft-critical JS suites are red and A's own earlier report to Cory said there were none -- the external reviewer challenged the unverified 'draft-critical' claim and was right; draft_critical.js now derives the set from what the war room actually loads. A genuine independent collision with D's own 168 (both new rows landing the same day, no textual overlap so git's clean auto-merge missed it, caught by test_defect_register.py's own duplicate-id check). Was 168 pre-renumber on main's side. Watermark now authoritative from 180."
+  },
+  {
+   "id": 180,
+   "claimed_at": "2026-08-20",
+   "note": "D: test_a_draft_day_decisions.py's open-row counter used a positive OPEN/WAITING/IN HAND/AWAITING match instead of the house TERMINAL-word-exclusion convention register_recheck_check.js enforces everywhere else, undercounting by 62 FIXED/BUILT/DIAGNOSED/MITIGATED/CORRECTED/ANSWERED rows -- caught when fixing A-DRAFT-DAY-DECISIONS.md's stated open-row count at merge time (189 live vs 136 from the test's own logic, outside its 34-row tolerance). Fixed by reusing the shared TERMINAL regex in the Python test rather than a second hand-maintained list. Watermark now authoritative from 181."
   }
  ]
 }
