@@ -136,3 +136,52 @@ P139 — `--real-vona` does NOT beat `--real` beyond noise (§8's lesson:
 lookahead terms on this value signal hurt; VONA is a lighter lookahead, so the
 honest prior is "no gain", filed so a reversal is a real surprise, not a
 retrofit).
+
+## 14b. §14 GRADED, SAME DAY — FALSE, and the failure mode is the finding
+
+Baseline re-asserted first (clobber-guard): MLV-cap waiver-graded reprinted
+**+2.57 (18/30) / +2.10 (16/30)**. Curve control live (LOO-2025: pick 1 →
+211.3, pick 101 → 111.0, strictly decreasing). Engagement: the realistic arm
+differs from MLV-cap in **30/30 seats**.
+
+| arm (waiver-graded) | actual | skill | h2h vs MLV (skill) | legal |
+|---|---|---|---|---|
+| `--mlv` (champion) | **+2.57** (18/30) | **+2.10** (16/30) | — | 30/30 |
+| `--real` | −5.29 (15/30) | **+5.69** (21/30) | 16/30 | **23/30** ❌ |
+| `--real-vona` | −19.83 (13/30) | −9.70 (14/30) | 17/30 | 25/30 ❌ |
+
+Frozen beside (no bar): `--real` −61.4/−51.2, `--real-vona` −61.0/−50.6.
+
+**Bar 1 FAILS** (actual −5.29 vs required > +2.6; skill clause alone would
+have passed at +5.69). **Bar 3 FAILS: 7 seats end the draft with an
+unfillable starting slot** (5 for VONA). **P138 FALSE. P139 TRUE** — the VONA
+timing term made everything worse, §8's lookahead lesson now measured a third
+time on a third construction. **MLV-cap stands.**
+
+**The mechanism, and it is exactly Cory's constraint biting back:** the floor
+makes an empty slot FREE inside the objective — a late kicker whose curve
+value (~111) sits under the K floor (128.6) has marginal **zero**, so the
+drafter rationally never rosters one and "streams" a slot the real game makes
+you fill on someone. The §13 floors were built to grade waivers realistically;
+moved to DRAFT time unmodified, they optimize a game where you may field 8
+starters. "Fielding a normal roster" is a CONSTRAINT, not an emergent
+property of a realistic objective — which was Cory's original sentence all
+along. Follow-ups (3g): does §13's grading under-punish illegal rosters the
+same way (no — grading floors the slot, both sides symmetric, checked);
+does this invalidate §13's verdict (no — MLV fills all slots, floors never
+exempted it); routed to A with §14c below.
+
+## 14c. PREREG — LEGALITY-FORCED REALISTIC ARM (`--real-fill`), committed before the run
+
+One amendment, mechanical: when my remaining picks ≤ my unfilled dedicated
+starting slots, candidates are restricted to positions with an unfilled
+dedicated slot. Nothing else changes — same curve, same floors, same cap,
+optionally the same VONA term (`--real-vona --real-fill`). This encodes the
+constraint the way a human does: "I still need a kicker and I have two picks."
+
+**Bars: identical to §14's three, unchanged numbers.** Decision rule
+identical. **P140, filed blind:** `--real-fill` goes 30/30 legal AND beats
+MLV-cap on waiver-graded skill (> +2.1); I do NOT expect it to also clear the
+actual bar (+2.6) — the skill arm is where a construction rule shows, the
+actual arm is where 2024's variance lives. FALSE on any clause missing, filed
+either way.
