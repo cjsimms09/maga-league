@@ -857,7 +857,18 @@
    * restore. v29 is the shipped state: roster shape on, 6-source blend, own_v6
    * removed. The localStorage key rotates with the pin, so a cached v27 cannot
    * shadow it. */
-  const BASELINE_VERSION = 'v29';
+  /* ⚠️ v29 -> v30, 2026-08-20, register 5g's shape a third time (found by relay,
+   * fixed by E under Cory's direct order -- "we need to fix these in time for
+   * draft"). v29 carries need: 0. Cory ruled need: 0 -> 1.0 the same day
+   * (MEASURED_WEIGHTS.need above, "CORY'S DIRECT RULING 2026-08-20"), and A
+   * froze v30 with that ruling ("Freeze baseline v30 under register 160") --
+   * but the pin here never moved, so one tap of "restore the measured core"
+   * would have silently reverted his own confirmed decision on draft night.
+   * v30 carries every prior ruling unchanged (ceiling 0.45, stack 1) plus
+   * need: 1 -- confirmed byte-for-byte against draft/baseline/v30.json before
+   * this edit. The localStorage key rotates with the pin, so a cached v29
+   * cannot shadow it. */
+  const BASELINE_VERSION = 'v30';
   const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
     try {

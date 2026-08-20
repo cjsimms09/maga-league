@@ -69,7 +69,7 @@ const base = f => JSON.parse(fs.readFileSync(
 {
   const m = APP.match(/const BASELINE_VERSION = '(v\d+)'/);
   ck('the client pins a NAMED baseline version by ruling (not v1, not "newest")',
-    !!m && m[1] === 'v27' && !/api\/baseline\?version=v1/.test(APP),
+    !!m && m[1] === 'v30' && !/api\/baseline\?version=v1/.test(APP),
     m && m[1]);
 
   ck('...and the localStorage key rotates with the pin, so a cached v1 cannot '
@@ -87,7 +87,7 @@ const base = f => JSON.parse(fs.readFileSync(
 
 // ── 2. THE DIFF IS CLOSED. RESTORING IS NOW A NO-OP AGAINST THE RULINGS. ───
 {
-  const restored = base('v27.json').engine_policy.MEASURED_WEIGHTS;
+  const restored = base('v30.json').engine_policy.MEASURED_WEIGHTS;
   const live = E.MEASURED_WEIGHTS;
 
   ck('the ruled pin carries CORY\'S CEILING RULING — restore no longer reverts it',
@@ -97,6 +97,11 @@ const base = f => JSON.parse(fs.readFileSync(
   ck('and the D10 STACK ruling',
     live.stack === 1 && restored.stack === 1,
     { live: live.stack, restored: restored.stack });
+
+  ck('and CORY\'S NEED RULING (2026-08-20, the third instance of this defect) '
+    + '— restore does not silently revert need: 0 -> 1.0',
+    live.need === 1 && restored.need === 1,
+    { live: live.need, restored: restored.need });
 
   /* FAIL ARM, inverted from the original DEFECT check: if live policy ever
    * moves ahead of the pin on these two ruled weights again, this goes red —
@@ -109,7 +114,7 @@ const base = f => JSON.parse(fs.readFileSync(
 
 // ── 3. FRESHER BASELINES EXIST AND ARE NOT USED ────────────────────────────
 {
-  const newer = ['v25.json', 'v26.json', 'v27.json']
+  const newer = ['v28.json', 'v29.json', 'v30.json']
     .filter(f => fs.existsSync(path.join(ROOT, 'draft', 'baseline', f)));
   ck('CONTROL: newer baselines exist, so this is a stale PIN and not an '
     + 'un-refrozen artifact', newer.length >= 1, newer);
@@ -118,8 +123,16 @@ const base = f => JSON.parse(fs.readFileSync(
     const w = (base(f).engine_policy || {}).MEASURED_WEIGHTS;
     return w && w.ceiling === E.MEASURED_WEIGHTS.ceiling;
   });
-  ck('...and they already carry the ruling the pinned one reverts',
+  ck('...and they already carry the ceiling ruling the v1 pin once reverted',
     agree.length === newer.length, { newer: newer.length, agreeing: agree.length });
+
+  // v27/v28/v29 all predate the need ruling (need: 0); only v30 carries it.
+  // This is the exact register-5g shape the fix above closes: a pin sitting
+  // one or more freezes behind the newest ruling, silently reverting it.
+  const needRuled = base('v30.json').engine_policy.MEASURED_WEIGHTS.need === 1;
+  ck('CONTROL: v30 specifically is the first baseline to carry the need '
+    + 'ruling — v27/v28/v29 all still read need: 0', needRuled
+    && base('v29.json').engine_policy.MEASURED_WEIGHTS.need === 0);
 }
 
 // ── 4. WHAT THE USER IS TOLD ───────────────────────────────────────────────

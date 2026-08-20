@@ -48,9 +48,9 @@ dispersion family's calibration history says do not import it untested):
 * **NO CAPS. NO BENCH RULE. NO NEED TERM.** Every roster rule currently
   bolted on must EMERGE or the objective has failed its own thesis.
 
-## 3 · BLIND BARS (P254–P256, filed with this commit)
+## 3 · BLIND BARS (P257, P255–P256, filed with this commit)
 
-* **P254 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
+* **P257 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
   **≤1 K and ≤1 DEF in ≥28/30 seats, and ≤1 QB and ≤2 TE in ≥25/30.**
   The known-negative is already graded: uncapped MLV drafts K 1.93 / DEF 1.90
   (register 136 C2). If `--opt` also multi-drafts them, the thesis is FALSE
@@ -65,11 +65,11 @@ dispersion family's calibration history says do not import it untested):
 
 ## 4 · SHIP PATH AND CLOCK (2026, not 2027 — Cory's ruling)
 
-Grades land tonight/Thursday. If P254 AND P256 pass: the arm ships to the war
+Grades land tonight/Thursday. If P257 AND P256 pass: the arm ships to the war
 room **as the seat-plan panel's generator** (report-only, the exact class MLV
 shipped in), Friday-freeze compatible; A merges the harness code, B repoints
 the panel artifact. P255's result prints beside it either way — a FALSE there
 does not block the ship (the theorem, not the delta, is what Cory asked for).
-If P254 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
+If P257 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
 bench rule stand for Saturday. **DEFAULT if grading is not done by Friday
 noon: nothing ships; the prereg grades post-draft.**
