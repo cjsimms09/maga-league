@@ -542,6 +542,31 @@ jobs:
           # draft. It goes strict once the backlog is worked down; the ratchet
           # is the routed list to B, not this exit code.
           node draft/tools/nothing_computed_goes_unshown.js || true
+          # ── POST-CHAIN ACCEPTANCE — REQUIRED BY THE INDEPENDENT AUDIT ────
+          #
+          # The external reviewer (run 32329894396, 2026-08-20) raised this as
+          # its one HIGH finding, against the gate reorder in this very file,
+          # and it was right:
+          #
+          #   "The acceptance gate no longer tests the final published board;
+          #    it runs before the post-processing chain. A consistency join is
+          #    not a substitute for functional/invariant tests."
+          #
+          # I moved the gate earlier so it would grade the board the BUILDER
+          # produces. That fixed one hole and opened another: nothing
+          # functional then graded the artifact Cory actually drafts from.
+          # draft_day_consistency.js compares VALUES across artifacts; it does
+          # not assert invariants.
+          #
+          # So the invariants that previously broke on this exact chain are now
+          # asserted ON THE PUBLISHED BOARD, after post-processing and before
+          # the commit: register 139 (the falsy-zero ranking that silently
+          # reverted Cory's K/DEF ruling) and register 140 (363 players' bands
+          # collapsed to floor=ceiling=mean and shipped). NOT `|| true` — a
+          # board that fails these must not be published.
+          python3 -m pytest -q \
+            draft/tests/test_attach_draftsharks_ranking.py \
+            draft/tests/test_band_is_player_specific.py
 
       - name: Commit the artifact if it changed
         # ⚠️ `draft/config/keepers.json` ADDED 2026-08-14 — it was REGENERATED EVERY
