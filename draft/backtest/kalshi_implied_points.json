@@ -1,0 +1,1707 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/kalshi_implied_points.py",
+ "_note": "Season-long implied fantasy points from Kalshi's live threshold ladders (season_ladders_*.json, TERRITORY A, reused read-only), crosswalked to sleeper_pid and scored under this league's own table. `implied_per_game_points` divides the season figure by the board's own games_expected -- the closest honest weekly-rate reading available until real per-game weekly markets are priced (weekly_markets_*.json currently carries zero open yardage/TD markets, all settled preseason as of this capture; that changes as week 1 approaches, not never). QB coverage is passing-yards-only (no season pass-TD/INT ladder exists yet) and reads systematically low against a real season -- a coverage gap, named, not an error.",
+ "captured_at": "2026-08-19T11:26:19.920320+00:00",
+ "population": {
+  "kalshi_players": 145,
+  "matched": 143,
+  "unmatched": 2,
+  "match_rate_pct": 98.6,
+  "matched_by_position": {
+   "WR": 53,
+   "RB": 44,
+   "QB": 30,
+   "TE": 16
+  }
+ },
+ "unmatched_players": [
+  {
+   "player_code": "KGAINWELLRB",
+   "parsed_name": "Kenneth Gainwell"
+  },
+  {
+   "player_code": "RPEARSALL1",
+   "parsed_name": "Ricky Pearsall"
+  }
+ ],
+ "series_watch": {
+  "new_series_now_captured": [],
+  "new_series_now_excluded": [],
+  "ffpts_direct_ladder_status": "zero live events as of 2026-08-16 \u2014 recheck each season",
+  "action_needed": false
+ },
+ "players": {
+  "5859": {
+   "name": "A.J. Brown",
+   "position": "WR",
+   "player_code": "ABROWN11",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 163.68,
+   "games_expected": 15.0,
+   "implied_per_game_points": 10.91
+  },
+  "12527": {
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "player_code": "AJEANTY2",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 80.67,
+   "games_expected": 14.2,
+   "implied_per_game_points": 5.68
+  },
+  "4199": {
+   "name": "Aaron Jones",
+   "position": "RB",
+   "player_code": "AJONES33",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 10.8,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.76
+  },
+  "4035": {
+   "name": "Alvin Kamara",
+   "position": "RB",
+   "player_code": "AKAMARA41",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "11625": {
+   "name": "Adonai Mitchell",
+   "position": "WR",
+   "player_code": "AMITCHELL15",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "8142": {
+   "name": "Alec Pierce",
+   "position": "WR",
+   "player_code": "APIERCE14",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "96": {
+   "name": "Aaron Rodgers",
+   "position": "QB",
+   "player_code": "ARODGERS8",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 98.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.36
+  },
+  "7547": {
+   "name": "Amon-Ra St. Brown",
+   "position": "WR",
+   "player_code": "ASTBROWN14",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 140.75,
+   "games_expected": 15.0,
+   "implied_per_game_points": 9.38
+  },
+  "11604": {
+   "name": "Brock Bowers",
+   "position": "TE",
+   "player_code": "BBOWERS89",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 121.54,
+   "games_expected": 14.8,
+   "implied_per_game_points": 8.21
+  },
+  "11586": {
+   "name": "Blake Corum",
+   "position": "RB",
+   "player_code": "BCORUM24",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 30.72,
+   "games_expected": 14.2,
+   "implied_per_game_points": 2.16
+  },
+  "8155": {
+   "name": "Breece Hall",
+   "position": "RB",
+   "player_code": "BHALL20",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 95.85,
+   "games_expected": 14.2,
+   "implied_per_game_points": 6.75
+  },
+  "11584": {
+   "name": "Bucky Irving",
+   "position": "RB",
+   "player_code": "BIRVING7",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 36.04,
+   "games_expected": 14.2,
+   "implied_per_game_points": 2.54
+  },
+  "4892": {
+   "name": "Baker Mayfield",
+   "position": "QB",
+   "player_code": "BMAYFIELD6",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 111.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 7.19
+  },
+  "11563": {
+   "name": "Bo Nix",
+   "position": "QB",
+   "player_code": "BNIX10",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 19.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 1.26
+  },
+  "8183": {
+   "name": "Brock Purdy",
+   "position": "QB",
+   "player_code": "BPURDY13",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 106.0,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.84
+  },
+  "9509": {
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "player_code": "BROBINSON7",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 148.92,
+   "games_expected": 14.2,
+   "implied_per_game_points": 10.49
+  },
+  "11631": {
+   "name": "Brian Thomas",
+   "position": "WR",
+   "player_code": "BTHOMAS7",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 25.82,
+   "games_expected": 15.0,
+   "implied_per_game_points": 1.72
+  },
+  "12490": {
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "player_code": "BTUTEN33",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 7.8,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.55
+  },
+  "9228": {
+   "name": "Bryce Young",
+   "position": "QB",
+   "player_code": "BYOUNG9",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 78.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 5.06
+  },
+  "9224": {
+   "name": "Chase Brown",
+   "position": "RB",
+   "player_code": "CBROWN30",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 92.35,
+   "games_expected": 14.2,
+   "implied_per_game_points": 6.5
+  },
+  "7594": {
+   "name": "Chuba Hubbard",
+   "position": "RB",
+   "player_code": "CHUBBARD30",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "6786": {
+   "name": "CeeDee Lamb",
+   "position": "WR",
+   "player_code": "CLAMB88",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 156.42,
+   "games_expected": 15.0,
+   "implied_per_game_points": 10.43
+  },
+  "12517": {
+   "name": "Colston Loveland",
+   "position": "TE",
+   "player_code": "CLOVELAND84",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 110.92,
+   "games_expected": 14.8,
+   "implied_per_game_points": 7.49
+  },
+  "4034": {
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "player_code": "CMCCAFFREY23",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 106.31,
+   "games_expected": 14.2,
+   "implied_per_game_points": 7.49
+  },
+  "8144": {
+   "name": "Chris Olave",
+   "position": "WR",
+   "player_code": "COLAVE12",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 138.86,
+   "games_expected": 15.0,
+   "implied_per_game_points": 9.26
+  },
+  "12481": {
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "player_code": "CSKATTEBO44",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 97.26,
+   "games_expected": 14.2,
+   "implied_per_game_points": 6.85
+  },
+  "13279": {
+   "name": "Carnell Tate",
+   "position": "WR",
+   "player_code": "CTATE17",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 37.59,
+   "games_expected": 15.0,
+   "implied_per_game_points": 2.51
+  },
+  "12522": {
+   "name": "Cam Ward",
+   "position": "QB",
+   "player_code": "CWARD1",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 101.2,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.53
+  },
+  "8167": {
+   "name": "Christian Watson",
+   "position": "WR",
+   "player_code": "CWATSON9",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "11560": {
+   "name": "Caleb Williams",
+   "position": "QB",
+   "player_code": "CWILLIAMS18",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 122.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 7.9
+  },
+  "9226": {
+   "name": "De'Von Achane",
+   "position": "RB",
+   "player_code": "DACHANE28",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 116.78,
+   "games_expected": 14.2,
+   "implied_per_game_points": 8.22
+  },
+  "2133": {
+   "name": "Davante Adams",
+   "position": "WR",
+   "player_code": "DADAMS17",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 68.17,
+   "games_expected": 15.0,
+   "implied_per_game_points": 4.54
+  },
+  "13346": {
+   "name": "Denzel Boston",
+   "position": "WR",
+   "player_code": "DBOSTONWR",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "9501": {
+   "name": "DeMario Douglas",
+   "position": "WR",
+   "player_code": "DDOUGLAS3",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "3198": {
+   "name": "Derrick Henry",
+   "position": "RB",
+   "player_code": "DHENRY22",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 145.45,
+   "games_expected": 14.2,
+   "implied_per_game_points": 10.24
+  },
+  "5870": {
+   "name": "Daniel Jones",
+   "position": "QB",
+   "player_code": "DJONES17",
+   "stats_available": [
+    "pass_yd",
+    "rush_td"
+   ],
+   "implied_season_points": 10.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 0.68
+  },
+  "8112": {
+   "name": "Drake London",
+   "position": "WR",
+   "player_code": "DLONDON5",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 67.63,
+   "games_expected": 15.0,
+   "implied_per_game_points": 4.51
+  },
+  "11564": {
+   "name": "Drake Maye",
+   "position": "QB",
+   "player_code": "DMAYE10",
+   "stats_available": [
+    "pass_yd",
+    "rush_td"
+   ],
+   "implied_season_points": 136.96,
+   "games_expected": 15.5,
+   "implied_per_game_points": 8.84
+  },
+  "5846": {
+   "name": "DK Metcalf",
+   "position": "WR",
+   "player_code": "DMETCALF4",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 55.01,
+   "games_expected": 15.0,
+   "implied_per_game_points": 3.67
+  },
+  "5892": {
+   "name": "David Montgomery",
+   "position": "RB",
+   "player_code": "DMONTGOMERY32",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 100.95,
+   "games_expected": 14.2,
+   "implied_per_game_points": 7.11
+  },
+  "4983": {
+   "name": "DJ Moore",
+   "position": "WR",
+   "player_code": "DMOORE2",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 106.58,
+   "games_expected": 15.0,
+   "implied_per_game_points": 7.11
+  },
+  "3294": {
+   "name": "Dak Prescott",
+   "position": "QB",
+   "player_code": "DPRESCOTT4",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 101.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.54
+  },
+  "7525": {
+   "name": "DeVonta Smith",
+   "position": "WR",
+   "player_code": "DSMITH6",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 151.84,
+   "games_expected": 15.0,
+   "implied_per_game_points": 10.12
+  },
+  "13417": {
+   "name": "De'Zhaun Stribling",
+   "position": "WR",
+   "player_code": "DSTRIBLINGWR",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "12514": {
+   "name": "Emeka Egbuka",
+   "position": "WR",
+   "player_code": "EEGBUKA2",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 100.38,
+   "games_expected": 15.0,
+   "implied_per_game_points": 6.69
+  },
+  "13423": {
+   "name": "Eli Heidenreich",
+   "position": "RB",
+   "player_code": "EHEIDENREICH29",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "13269": {
+   "name": "Fernando Mendoza",
+   "position": "QB",
+   "player_code": "FMENDOZA15",
+   "stats_available": [
+    "pass_yd",
+    "rush_td"
+   ],
+   "implied_season_points": 44.28,
+   "games_expected": 15.5,
+   "implied_per_game_points": 2.86
+  },
+  "4217": {
+   "name": "George Kittle",
+   "position": "TE",
+   "player_code": "GKITTLE85",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "8137": {
+   "name": "George Pickens",
+   "position": "WR",
+   "player_code": "GPICKENS3",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 119.54,
+   "games_expected": 15.0,
+   "implied_per_game_points": 7.97
+  },
+  "1373": {
+   "name": "Geno Smith",
+   "position": "QB",
+   "player_code": "GSMITH7",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 98.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.36
+  },
+  "8146": {
+   "name": "Garrett Wilson",
+   "position": "WR",
+   "player_code": "GWILSON5",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 26.27,
+   "games_expected": 15.0,
+   "implied_per_game_points": 1.75
+  },
+  "12506": {
+   "name": "Harold Fannin",
+   "position": "TE",
+   "player_code": "HFANNIN44",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 79.76,
+   "games_expected": 14.8,
+   "implied_per_game_points": 5.39
+  },
+  "3214": {
+   "name": "Hunter Henry",
+   "position": "TE",
+   "player_code": "HHENRY85",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "8131": {
+   "name": "Isaiah Likely",
+   "position": "TE",
+   "player_code": "ILIKELY9",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 61.02,
+   "games_expected": 14.8,
+   "implied_per_game_points": 4.12
+  },
+  "8205": {
+   "name": "Isiah Pacheco",
+   "position": "RB",
+   "player_code": "IPACHECO10",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "4984": {
+   "name": "Josh Allen",
+   "position": "QB",
+   "player_code": "JALLEN17",
+   "stats_available": [
+    "pass_yd",
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 172.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 11.12
+  },
+  "11583": {
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "player_code": "JBROOKS24",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 20.28,
+   "games_expected": 14.2,
+   "implied_per_game_points": 1.43
+  },
+  "6770": {
+   "name": "Joe Burrow",
+   "position": "QB",
+   "player_code": "JBURROW9",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 116.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 7.52
+  },
+  "7564": {
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "player_code": "JCHASE1",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 160.8,
+   "games_expected": 15.0,
+   "implied_per_game_points": 10.72
+  },
+  "11646": {
+   "name": "Jalen Coker",
+   "position": "WR",
+   "player_code": "JCOKER18",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "13345": {
+   "name": "Jonah Coleman",
+   "position": "RB",
+   "player_code": "JCOLEMANRB",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "8138": {
+   "name": "James Cook",
+   "position": "RB",
+   "player_code": "JCOOK4",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 140.71,
+   "games_expected": 14.2,
+   "implied_per_game_points": 9.91
+  },
+  "12533": {
+   "name": "Jacory Croskey-Merritt",
+   "position": "RB",
+   "player_code": "JCROSKEYMERRITT22",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 23.52,
+   "games_expected": 14.2,
+   "implied_per_game_points": 1.66
+  },
+  "11566": {
+   "name": "Jayden Daniels",
+   "position": "QB",
+   "player_code": "JDANIELS5",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 15.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 0.99
+  },
+  "12508": {
+   "name": "Jaxson Dart",
+   "position": "QB",
+   "player_code": "JDART6",
+   "stats_available": [
+    "pass_yd",
+    "rush_td"
+   ],
+   "implied_season_points": 38.84,
+   "games_expected": 15.5,
+   "implied_per_game_points": 2.51
+  },
+  "9221": {
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "player_code": "JGIBBS0",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 165.53,
+   "games_expected": 14.2,
+   "implied_per_game_points": 11.66
+  },
+  "3163": {
+   "name": "Jared Goff",
+   "position": "QB",
+   "player_code": "JGOFF16",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 117.0,
+   "games_expected": 15.5,
+   "implied_per_game_points": 7.55
+  },
+  "6797": {
+   "name": "Justin Herbert",
+   "position": "QB",
+   "player_code": "JHERBERT10",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 26.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 1.72
+  },
+  "6904": {
+   "name": "Jalen Hurts",
+   "position": "QB",
+   "player_code": "JHURTS1",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 99.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.43
+  },
+  "5850": {
+   "name": "Josh Jacobs",
+   "position": "RB",
+   "player_code": "JJACOBS8",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 109.13,
+   "games_expected": 14.2,
+   "implied_per_game_points": 7.69
+  },
+  "6794": {
+   "name": "Justin Jefferson",
+   "position": "WR",
+   "player_code": "JJEFFERSON18",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 124.2,
+   "games_expected": 15.0,
+   "implied_per_game_points": 8.28
+  },
+  "6783": {
+   "name": "Jerry Jeudy",
+   "position": "WR",
+   "player_code": "JJEUDY3",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "6804": {
+   "name": "Jordan Love",
+   "position": "QB",
+   "player_code": "JLOVE10",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 115.2,
+   "games_expected": 15.5,
+   "implied_per_game_points": 7.43
+  },
+  "13287": {
+   "name": "Jeremiyah Love",
+   "position": "RB",
+   "player_code": "JLOVE4",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 53.4,
+   "games_expected": 14.2,
+   "implied_per_game_points": 3.76
+  },
+  "13286": {
+   "name": "Jadarian Price",
+   "position": "RB",
+   "player_code": "JPRICE8",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 81.36,
+   "games_expected": 14.2,
+   "implied_per_game_points": 5.73
+  },
+  "9488": {
+   "name": "Jaxon Smith-Njigba",
+   "position": "WR",
+   "player_code": "JSMITHNJIGBA11",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 141.74,
+   "games_expected": 15.0,
+   "implied_per_game_points": 9.45
+  },
+  "6813": {
+   "name": "Jonathan Taylor",
+   "position": "RB",
+   "player_code": "JTAYLOR28",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 101.88,
+   "games_expected": 14.2,
+   "implied_per_game_points": 7.17
+  },
+  "13281": {
+   "name": "Jordyn Tyson",
+   "position": "WR",
+   "player_code": "JTYSON0",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 9.01,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.6
+  },
+  "7526": {
+   "name": "Jaylen Waddle",
+   "position": "WR",
+   "player_code": "JWADDLE17",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 92.97,
+   "games_expected": 15.0,
+   "implied_per_game_points": 6.2
+  },
+  "8228": {
+   "name": "Jaylen Warren",
+   "position": "RB",
+   "player_code": "JWARREN30",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 15.84,
+   "games_expected": 14.2,
+   "implied_per_game_points": 1.12
+  },
+  "8148": {
+   "name": "Jameson Williams",
+   "position": "WR",
+   "player_code": "JWILLIAMS1",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 79.46,
+   "games_expected": 15.0,
+   "implied_per_game_points": 5.3
+  },
+  "7588": {
+   "name": "Javonte Williams",
+   "position": "RB",
+   "player_code": "JWILLIAMS33",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 49.88,
+   "games_expected": 14.2,
+   "implied_per_game_points": 3.51
+  },
+  "13414": {
+   "name": "Kaelon Black",
+   "position": "RB",
+   "player_code": "KBLACKRB",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "9504": {
+   "name": "Kayshon Boutte",
+   "position": "WR",
+   "player_code": "KBOUTTE9",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "13298": {
+   "name": "KC Concepcion",
+   "position": "WR",
+   "player_code": "KCONCEPCION17",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "1166": {
+   "name": "Kirk Cousins",
+   "position": "QB",
+   "player_code": "KCOUSINS8",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 19.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 1.25
+  },
+  "12534": {
+   "name": "Kyle Monangai",
+   "position": "RB",
+   "player_code": "KMONANGAI25",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 24.24,
+   "games_expected": 14.2,
+   "implied_per_game_points": 1.71
+  },
+  "5849": {
+   "name": "Kyler Murray",
+   "position": "QB",
+   "player_code": "KMURRAY1",
+   "stats_available": [
+    "pass_yd",
+    "rush_td"
+   ],
+   "implied_season_points": 97.56,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.29
+  },
+  "7553": {
+   "name": "Kyle Pitts",
+   "position": "TE",
+   "player_code": "KPITTS8",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "13330": {
+   "name": "Kenyon Sadiq",
+   "position": "TE",
+   "player_code": "KSADIQ18",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 24.04,
+   "games_expected": 14.8,
+   "implied_per_game_points": 1.62
+  },
+  "8151": {
+   "name": "Kenneth Walker",
+   "position": "RB",
+   "player_code": "KWALKER9",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 68.16,
+   "games_expected": 14.2,
+   "implied_per_game_points": 4.8
+  },
+  "8150": {
+   "name": "Kyren Williams",
+   "position": "RB",
+   "player_code": "KWILLIAMS23",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 52.25,
+   "games_expected": 14.2,
+   "implied_per_game_points": 3.68
+  },
+  "12519": {
+   "name": "Luther Burden",
+   "position": "WR",
+   "player_code": "LBURDEN10",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 103.28,
+   "games_expected": 15.0,
+   "implied_per_game_points": 6.89
+  },
+  "4881": {
+   "name": "Lamar Jackson",
+   "position": "QB",
+   "player_code": "LJACKSON8",
+   "stats_available": [
+    "pass_yd",
+    "rush_td"
+   ],
+   "implied_season_points": 27.88,
+   "games_expected": 15.5,
+   "implied_per_game_points": 1.8
+  },
+  "11635": {
+   "name": "Ladd McConkey",
+   "position": "WR",
+   "player_code": "LMCCONKEY15",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 107.39,
+   "games_expected": 15.0,
+   "implied_per_game_points": 7.16
+  },
+  "5012": {
+   "name": "Mark Andrews",
+   "position": "TE",
+   "player_code": "MANDREWS89",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "2216": {
+   "name": "Mike Evans",
+   "position": "WR",
+   "player_code": "MEVANS5",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 82.63,
+   "games_expected": 15.0,
+   "implied_per_game_points": 5.51
+  },
+  "12501": {
+   "name": "Matthew Golden",
+   "position": "WR",
+   "player_code": "MGOLDEN0",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "11628": {
+   "name": "Marvin Harrison",
+   "position": "WR",
+   "player_code": "MHARRISON18",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 88.79,
+   "games_expected": 15.0,
+   "implied_per_game_points": 5.92
+  },
+  "13294": {
+   "name": "Makai Lemon",
+   "position": "WR",
+   "player_code": "MLEMONWR",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 36.51,
+   "games_expected": 15.0,
+   "implied_per_game_points": 2.43
+  },
+  "11632": {
+   "name": "Malik Nabers",
+   "position": "WR",
+   "player_code": "MNABERS1",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 97.67,
+   "games_expected": 15.0,
+   "implied_per_game_points": 6.51
+  },
+  "11559": {
+   "name": "Michael Penix",
+   "position": "QB",
+   "player_code": "MPENIX9",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 20.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 1.32
+  },
+  "6819": {
+   "name": "Michael Pittman",
+   "position": "WR",
+   "player_code": "MPITTMAN11",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "421": {
+   "name": "Matthew Stafford",
+   "position": "QB",
+   "player_code": "MSTAFFORD9",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 92.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 5.97
+  },
+  "13305": {
+   "name": "Mike Washington",
+   "position": "RB",
+   "player_code": "MWASHINGTON30",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "8161": {
+   "name": "Malik Willis",
+   "position": "QB",
+   "player_code": "MWILLIS2",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 55.2,
+   "games_expected": 15.5,
+   "implied_per_game_points": 3.56
+  },
+  "10232": {
+   "name": "Michael Wilson",
+   "position": "WR",
+   "player_code": "MWILSON14",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 67.67,
+   "games_expected": 15.0,
+   "implied_per_game_points": 4.51
+  },
+  "7569": {
+   "name": "Nico Collins",
+   "position": "WR",
+   "player_code": "NCOLLINS12",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 88.04,
+   "games_expected": 15.0,
+   "implied_per_game_points": 5.87
+  },
+  "13276": {
+   "name": "Omar Cooper",
+   "position": "WR",
+   "player_code": "OCOOPERWR",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "12493": {
+   "name": "Oronde Gadsden",
+   "position": "TE",
+   "player_code": "OGADSDEN86",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "12507": {
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "player_code": "OHAMPTON8",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 123.05,
+   "games_expected": 14.2,
+   "implied_per_game_points": 8.67
+  },
+  "7600": {
+   "name": "Pat Freiermuth",
+   "position": "TE",
+   "player_code": "PFREIERMUTH88",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "4046": {
+   "name": "Patrick Mahomes",
+   "position": "QB",
+   "player_code": "PMAHOMES15",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 8.6,
+   "games_expected": 15.5,
+   "implied_per_game_points": 0.55
+  },
+  "9493": {
+   "name": "Puka Nacua",
+   "position": "WR",
+   "player_code": "PNACUA12",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 84.45,
+   "games_expected": 15.0,
+   "implied_per_game_points": 5.63
+  },
+  "9487": {
+   "name": "Parker Washington",
+   "position": "WR",
+   "player_code": "PWASHINGTON11",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 74.5,
+   "games_expected": 15.0,
+   "implied_per_game_points": 4.97
+  },
+  "9754": {
+   "name": "Quentin Johnston",
+   "position": "WR",
+   "player_code": "QJOHNSTON1",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "12512": {
+   "name": "Quinshon Judkins",
+   "position": "RB",
+   "player_code": "QJUDKINS10",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 129.79,
+   "games_expected": 14.2,
+   "implied_per_game_points": 9.14
+  },
+  "8121": {
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "player_code": "RDOUBS87",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "12489": {
+   "name": "RJ Harvey",
+   "position": "RB",
+   "player_code": "RHARVEY12",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "11620": {
+   "name": "Rome Odunze",
+   "position": "WR",
+   "player_code": "RODUNZE15",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 76.52,
+   "games_expected": 15.0,
+   "implied_per_game_points": 5.1
+  },
+  "10229": {
+   "name": "Rashee Rice",
+   "position": "WR",
+   "player_code": "RRICE4",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 56.85,
+   "games_expected": 15.0,
+   "implied_per_game_points": 3.79
+  },
+  "7611": {
+   "name": "Rhamondre Stevenson",
+   "position": "RB",
+   "player_code": "RSTEVENSON38",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 7.44,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.52
+  },
+  "4866": {
+   "name": "Saquon Barkley",
+   "position": "RB",
+   "player_code": "SBARKLEY26",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 123.23,
+   "games_expected": 14.2,
+   "implied_per_game_points": 8.68
+  },
+  "4943": {
+   "name": "Sam Darnold",
+   "position": "QB",
+   "player_code": "SDARNOLD14",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 107.2,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.92
+  },
+  "10859": {
+   "name": "Sam LaPorta",
+   "position": "TE",
+   "player_code": "SLAPORTA87",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 72.24,
+   "games_expected": 14.8,
+   "implied_per_game_points": 4.88
+  },
+  "8132": {
+   "name": "Tyler Allgeier",
+   "position": "RB",
+   "player_code": "TALLGEIER22",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 9.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.63
+  },
+  "7543": {
+   "name": "Travis Etienne",
+   "position": "RB",
+   "player_code": "TETIENNE3",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 95.57,
+   "games_expected": 14.2,
+   "implied_per_game_points": 6.73
+  },
+  "12529": {
+   "name": "TreVeyon Henderson",
+   "position": "RB",
+   "player_code": "THENDERSON32",
+   "stats_available": [
+    "rush_td",
+    "rush_yd"
+   ],
+   "implied_season_points": 77.76,
+   "games_expected": 14.2,
+   "implied_per_game_points": 5.48
+  },
+  "6801": {
+   "name": "Tee Higgins",
+   "position": "WR",
+   "player_code": "THIGGINS5",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 73.58,
+   "games_expected": 15.0,
+   "implied_per_game_points": 4.91
+  },
+  "1466": {
+   "name": "Travis Kelce",
+   "position": "TE",
+   "player_code": "TKELCE87",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 54.33,
+   "games_expected": 14.8,
+   "implied_per_game_points": 3.67
+  },
+  "9484": {
+   "name": "Tucker Kraft",
+   "position": "TE",
+   "player_code": "TKRAFT85",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 14.8,
+   "implied_per_game_points": 0.0
+  },
+  "7523": {
+   "name": "Trevor Lawrence",
+   "position": "QB",
+   "player_code": "TLAWRENCE16",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 121.2,
+   "games_expected": 15.5,
+   "implied_per_game_points": 7.82
+  },
+  "8130": {
+   "name": "Trey McBride",
+   "position": "TE",
+   "player_code": "TMCBRIDE85",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 109.53,
+   "games_expected": 14.8,
+   "implied_per_game_points": 7.4
+  },
+  "5927": {
+   "name": "Terry McLaurin",
+   "position": "WR",
+   "player_code": "TMCLAURIN17",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 130.44,
+   "games_expected": 15.0,
+   "implied_per_game_points": 8.7
+  },
+  "12526": {
+   "name": "Tetairoa McMillan",
+   "position": "WR",
+   "player_code": "TMCMILLAN4",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 92.94,
+   "games_expected": 15.0,
+   "implied_per_game_points": 6.2
+  },
+  "5967": {
+   "name": "Tony Pollard",
+   "position": "RB",
+   "player_code": "TPOLLARD20",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "12545": {
+   "name": "Tyler Shough",
+   "position": "QB",
+   "player_code": "TSHOUGH6",
+   "stats_available": [
+    "pass_yd"
+   ],
+   "implied_season_points": 105.4,
+   "games_expected": 15.5,
+   "implied_per_game_points": 6.8
+  },
+  "12518": {
+   "name": "Tyler Warren",
+   "position": "TE",
+   "player_code": "TWARREN84",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 63.72,
+   "games_expected": 14.8,
+   "implied_per_game_points": 4.31
+  },
+  "12474": {
+   "name": "Woody Marks",
+   "position": "RB",
+   "player_code": "WMARKS4",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 0.0,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.0
+  },
+  "8126": {
+   "name": "Wan'Dale Robinson",
+   "position": "WR",
+   "player_code": "WROBINSON4",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "11624": {
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "player_code": "XWORTHY1",
+   "stats_available": [],
+   "implied_season_points": 0.0,
+   "games_expected": 15.0,
+   "implied_per_game_points": 0.0
+  },
+  "9753": {
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "player_code": "ZCHARBONNET26",
+   "stats_available": [
+    "rush_td"
+   ],
+   "implied_season_points": 7.2,
+   "games_expected": 14.2,
+   "implied_per_game_points": 0.51
+  },
+  "9997": {
+   "name": "Zay Flowers",
+   "position": "WR",
+   "player_code": "ZFLOWERS4",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 127.27,
+   "games_expected": 15.0,
+   "implied_per_game_points": 8.48
+  }
+ },
+ "known_positive_control": {
+  "ok": true,
+  "checked": "Ja'Marr Chase",
+  "row": {
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "player_code": "JCHASE1",
+   "stats_available": [
+    "rec",
+    "rec_td",
+    "rec_yd"
+   ],
+   "implied_season_points": 160.8,
+   "games_expected": 15.0,
+   "implied_per_game_points": 10.72
+  }
+ },
+ "agreement_vs_board": {
+  "n": 143,
+  "spearman": 0.7004
+ },
+ "realized_grade": {
+  "status": "not_yet_gradeable",
+  "why": "2026 season has not started; grade_vs_realized() is wired and callable the moment a weekly realized-points store exists"
+ }
+}
