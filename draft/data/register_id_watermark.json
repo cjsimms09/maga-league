@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 149,
+ "next_numeric_id": 151,
  "history": [
   {
    "id": 47,
@@ -216,6 +216,16 @@
    "id": 148,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 145 (A: sleeper_import.py shipped a season-total payload as week 1, fixed at the source with a real test fixture) -- same collision and deviation as 143-147"
+  },
+  {
+   "id": 149,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 146 (A: MLV's roster-builder plan had no opinion about 6 of Cory's 12 real picks, presented board-order ties as confident picks; fixed, indifferent picks now stamped as the board's choice) -- same collision and deviation as 143-148"
+  },
+  {
+   "id": 150,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 147 (A: board ranks TEs a median 46 places earlier than ADP, mechanism partly traced to vorp.py's replacement level; routed to E -- is it edge or calibration fault) -- same collision and deviation as 143-149"
   }
  ]
 }
