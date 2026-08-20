@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 161,
+ "next_numeric_id": 163,
  "history": [
   {
    "id": 47,
@@ -276,6 +276,16 @@
    "id": 160,
    "claimed_at": "2026-08-20",
    "note": "E: Cory's reference article (Snake Value Based Drafting) exposed that MEASURED_WEIGHTS.need=0 zeroes VORP out of the live score entirely for 2-starter positions (RB/WR) -- the board ranks on VONA+ceiling alone, not VBD+opportunity-cost as the article's own reference method does; measured live on Cory's actual keeper roster, Travis Etienne (highest VORP in the top 20) ranks #4 by score"
+  },
+  {
+   "id": 161,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 156 (relay: relay_publish.sh cannot carry a grade update to an existing ledger row, insert-never-overwrite refuses silently -- P153-P156 sat OPEN on main hours after the tool reported success)"
+  },
+  {
+   "id": 162,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 157 (C: ceiling-program store mislabeled the entire 2026 rookie class as UDFA, own Rule 3e control passed at 100% because it checked presence not correctness; fixed, joins draft_picks to roster by name when the gsis format check fails)"
   }
  ]
 }

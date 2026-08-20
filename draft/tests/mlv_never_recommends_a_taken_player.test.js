@@ -127,9 +127,17 @@ check('a null taken does not throw',
 
 /* ── 6. THE CALLERS ACTUALLY PASS IT ─────────────────────────────────────── */
 
-check('BOTH app.js callers pass state.drafted — a guard nobody invokes is not '
-  + 'a guard', (APP.match(/taken: state\.drafted/g) || []).length === 2,
-(APP.match(/taken: state\.drafted/g) || []).length);
+/* ⚠️ COUNTED AGAINST THE CALL SITES, NOT AGAINST A LITERAL. This asserted
+ * `=== 2` and went red the moment a third caller was added — by me, hours
+ * later, WITH the guard correctly passed. A test that fails when someone does
+ * the right thing teaches people to edit the test, which is how the next real
+ * failure gets edited away too. The invariant is "every call site passes it". */
+check('EVERY app.js caller passes state.drafted — a guard nobody invokes is not '
+  + 'a guard',
+(APP.match(/taken: state\.drafted/g) || []).length
+  === (APP.match(/RosterBuilderMLV\.recommend\(/g) || []).length,
+{ withTaken: (APP.match(/taken: state\.drafted/g) || []).length,
+  callSites: (APP.match(/RosterBuilderMLV\.recommend\(/g) || []).length });
 check('every RosterBuilderMLV.recommend call site passes `taken`',
   (APP.match(/RosterBuilderMLV\.recommend\(/g) || []).length
   === (APP.match(/taken: state\.drafted/g) || []).length,
