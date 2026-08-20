@@ -110,10 +110,11 @@
     // matchup one tap from anywhere.
     { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup', primary: true },
     { href: '/scoreboard', label: 'This Week',   short: 'Scores',  icon: '🏈', match: '/scoreboard', primary: true },
-    { href: '/races',   label: 'The Races',     short: 'Races',   icon: '🏁', match: '/races' },
+    // Races/Pick'em/Watch are NOT nav items (nav-consolidation map, ROUTES.md
+    // 08-18, A-approved) — each is a real page and a real route, boxed into
+    // the page it's most related to instead (Races/Pick'em on /scoreboard,
+    // Watch on /matchup) so the top bar carries five destinations, not eight.
     { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈' },
-    { href: '/pickem',  label: "Pick'em",       short: "Pick'em", icon: '🗳️', match: '/pickem' },
-    { href: '/watch',   label: 'What to Watch', short: 'Watch',   icon: '📺', match: '/watch' },
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
     { href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' },
@@ -149,9 +150,24 @@
   const _moreActive = _more.some(_isActive);
 %>
 <nav class="navbar" aria-label="Main">
-  <% for (const n of _nav) { %>
+  <% for (const n of _primary) { %>
     <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%= n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
   <% } %>
+  <%# Desktop adopts the phone's primary+More split (nav-consolidation map,
+      ROUTES.md 08-18, A-approved 08-18) — same _primary/_more arrays, no new
+      logic, ~19 links down to 5 (+ More) for a commissioner. %>
+  <details class="nav-more<%= _moreActive ? ' active' : '' %>">
+    <summary>More <%= _moreActive ? '' : '▾' %></summary>
+    <div class="nav-more-panel">
+      <% for (const n of _more) { %>
+        <%# n.label already carries its own leading icon for commissioner items
+            (e.g. '🎯 Lineup Optimizer'); the base items don't, matching the
+            desktop bar's pre-existing look — same n.label rendered bare as the
+            old flat .navbar loop always did, just fewer of them at a time. %>
+        <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%= n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
+      <% } %>
+    </div>
+  </details>
   <span class="who"><%= _owner.name %></span>
   <a href="/password" title="Change password" style="padding:.5rem .4rem">🔑</a>
   <form method="post" action="/logout" data-no-busy><button type="submit">Log out</button></form>

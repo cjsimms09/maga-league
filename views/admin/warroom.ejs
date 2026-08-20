@@ -39,6 +39,14 @@
       that invalidates a recommendation. %>
   <div id="system-strip" class="system-strip" style="display:none"></div>
 
+  <%# ── POSITION-TAKEN COUNT, LEAGUE-WIDE, INCLUDING KEEPERS — Cory: "a
+      running count at the top of screen somewhere of # of players taken at
+      each position (including keepers) would be nice." Visible on every
+      tab, not just Draft — it's a league fact, not a per-pick
+      recommendation. Populated by renderPosTakenCounts() in app.js via
+      WarRoomCharts.posTakenStrip(). %>
+  <div id="pos-taken-strip" class="pos-taken-strip"></div>
+
   <%# ── THE TOOL BAR — sticky tab navigation + compact external tools.
       warroom_charts.js wires the tabs; the buttons are inert without JS but
       every panel's content still exists in the document. %>
@@ -124,12 +132,28 @@
       <div class="wr-search">
         <span class="wr-search-icon" aria-hidden="true">🔎</span>
         <input type="text" id="search" placeholder="Search any player — take, queue or compare" autocomplete="off">
+        <%# Cory: "make sure there is definitions of all those things and how
+            to use them" — one tap from the decide surface to the glossary,
+            not a hunt through tabs for a collapsed help card. %>
+        <button type="button" class="btn small ghost wr-terms-btn" data-wrtab-btn="intel" data-jump-help="1"
+          title="What VORP, VONA, WOPR, aDOT and every other term on this page mean, and how to use them">❓ Terms</button>
       </div>
       <div id="search-tail" hidden></div>
       <%# QUEUE SLIP ALERT — in-flow, filled when a queued player is ~a turn from gone. %>
       <div id="queue-slip" class="queue-slip" role="status" aria-live="polite" style="display:none"></div>
 
       <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
+
+      <%# RANKING SOURCE — Cory, live 2026-08-20: "This toggle should just
+          rearrange the board though and also may change vona calc or
+          recommended player." Mounted ABOVE the recommendation card on
+          purpose — this changes what that card says, so it has to be read
+          first, not discovered after. Populated by renderRankSourcePanel()
+          in app.js via source_board.js. %>
+      <div class="card" id="rank-source-card" style="display:none">
+        <h2>🔀 Ranking Source</h2>
+        <div class="body"><div id="rank-source"></div></div>
+      </div>
 
       <%# ── THE ANSWER CARD — ONE VOICE, THEN STRUCTURED DISSENT.
           #verdict-block (DraftVerdict.derive — the seat-plan-owns-headline
@@ -191,6 +215,34 @@
         <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
       </div>
       <div id="legality-strip" class="legality-strip" style="display:none"></div>
+      <%# Bye-week fieldability warning (register 59 item (4), ROUTES.md 08-19)
+          — a sibling of the legality strip, not merged into it: legality is
+          hard rules (can this roster be legal at all), this is a softer,
+          roster-shape check (can it be STARTED on a given week). Populated
+          by the same renderLegality() call, from public/js/draft/bye_
+          fieldability.js. Empty/hidden on a healthy roster. %>
+      <div id="bye-fieldability-warn"></div>
+
+      <%# POSITION BOARDS — Cory redefined the war room 2026-08-19: "not one
+          recommendation — top 5-10 at each position (more on RB and WR),
+          projected VONA drop-offs, other team needs, ceiling steals." Primary
+          per-pick view now; the single-recommendation panels below still work
+          but are no longer the first thing on screen. Populated by
+          public/js/draft/position_boards_view.js via renderPositionBoardsPanel()
+          in app.js, from public/position_boards.json. Empty/absent on a
+          missing artifact — degrades to nothing, never a broken panel. %>
+      <div id="position-boards" class="position-boards"></div>
+
+      <%# ROSTER BUILDER MODEL SAYS — ROSTER-BUILDER-PANEL-DESIGN.md (A,
+          2026-08-19), Cory's direct ruling: "it needs to be clear what
+          player model is recommending and why and I still want to retain
+          my current view." A SECOND VOICE beside the position boards above
+          — it never reorders or replaces them. Populated by
+          public/js/draft/rbm_view.js via renderRosterBuilderPanel() in
+          app.js, from RosterBuilderMLV.recommend() (public/js/draft/mlv.js).
+          Empty/absent on missing board or roster state — degrades to
+          nothing, never a broken panel. %>
+      <div id="roster-builder-mlv"></div>
 
       <%# Minimum-viable summary — retained host (hidden on warroom by CSS). %>
       <div id="mvs" class="mvs" style="display:none">
@@ -207,6 +259,17 @@
           <summary>what each strategy would take →</summary>
           <div id="shadow-proj-body"></div>
         </details>
+      </div>
+
+      <%# MODEL COMPARISON — Cory, live 2026-08-20: "Give me peace to click in
+          on war room to see what each model would take! Max value, MLV
+          displacement, upside only model, floor model (safe pick)!" Four
+          named rows, always visible (no <details> — Cory asked to "click in
+          and see", not to hunt for it), each row clickable into the full
+          player panel. Populated by renderModelCompare() in app.js. %>
+      <div class="card" id="model-compare-card" style="display:none">
+        <h2>🧠 Model Comparison <span class="sub">what each model would take right now</span></h2>
+        <div class="body"><div id="model-compare"></div></div>
       </div>
 
       <%# The LRM deadline strip — "elite QB gone by 41" changes what you do NOW. %>
@@ -236,6 +299,18 @@
           <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
         </div>
       </div>
+
+      <%# Cory, live: "did you make sure I can see risers and fallers based
+          on ADP easy." Moved here from the ROSTERS tab — its own copy
+          already said "names to investigate before your pick... if a
+          mover is on your queue or in a tossup, that is the moment this
+          panel earns its space", which is a DRAFT-tab argument, not a
+          ROSTERS-tab one. Same #adp-movers host id, same renderAdpMovers()
+          call site — a relocation, not a rebuild. %>
+      <div class="card" id="adp-movers-card">
+        <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
+        <div class="body"><div id="adp-movers"></div></div>
+      </div>
     </div><%# /wr-zone1 %>
 
     <%# RIGHT RAIL — CHARTS (inline SVG, warroom_charts.js; pure functions,
@@ -250,6 +325,18 @@
       <div class="wr-railcard" id="wr-picks-card">
         <h3 class="wr-railhead">🕓 Recent picks <span class="sub" style="font-weight:400;text-transform:none;letter-spacing:normal">league-wide</span></h3>
         <ul id="picks-feed" style="margin:0; padding-left:1.1rem; max-height:11rem; overflow-y:auto"></ul>
+      </div>
+      <%# Cory: "show me everyone's current roster status on the Home Screen
+          and where they draft relative to me.. I need to see what their
+          needs are so I can try to calc if someone will fall to me."
+          Every opponent seat, soonest-to-pick first, with what they still
+          need (the positions that can make a player NOT fall to you) and
+          what they already have. Populated by warroom_charts.js's
+          renderOpponents() via WarRoomCharts.opponentBoard(). %>
+      <div class="wr-railcard" id="wr-opponents-card">
+        <h3 class="wr-railhead">🧑‍🤝‍🧑 Opponents <button type="button" class="wr-info" data-railinfo="opponents" title="What this shows">ⓘ</button></h3>
+        <p class="wr-railexp" data-railexp="opponents" hidden>Every other seat, soonest pick first. "needs" is the positions their roster still has an unfilled starting slot for — if a position is NOT in their needs, a player there is more likely to fall past them to you. "roster so far" is everything they've drafted or kept.</p>
+        <div id="wr-opponents-board"></div>
       </div>
       <div class="wr-railcard" id="wr-tiles-card">
         <h3 class="wr-railhead">⏳ Running out <button type="button" class="wr-info" data-railinfo="tiles" title="What this shows">ⓘ</button></h3>
@@ -309,8 +396,8 @@
           <table class="roll" id="board">
             <thead><tr>
               <th>#</th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Bye</th>
-              <th class="num">Proj</th><th class="num">VORP</th><th class="num">Tier</th>
-              <th class="num">Adj ADP</th><th class="num">Raw</th><th>Flags</th><th title="Manual news override">News</th><th></th>
+              <th class="num">Proj</th><th class="num" title="Value Over Replacement Player — points above the last startable player at his position">VORP</th><th class="num">Tier</th>
+              <th class="num" title="Our own ranking, adjusted for this room (opponent tendencies, our need)">Adj ADP</th><th class="num" title="The market's plain ADP — no adjustment">Raw</th><th>Flags</th><th title="Manual news override">News</th><th></th>
             </tr></thead>
             <tbody id="board-body"></tbody>
           </table>
@@ -346,11 +433,6 @@
       <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
       <div id="survival-conservation" style="display:none"></div>
       <div class="body"><div id="survival"></div></div>
-    </div>
-
-    <div class="card" id="adp-movers-card">
-      <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
-      <div class="body"><div id="adp-movers"></div></div>
     </div>
 
     <div class="card" id="stack-card" style="display:none">
@@ -626,6 +708,10 @@
   // Sleeper pending' instead of 'manually set, UNVERIFIED'.
   window.CLAIMED_SLOT = <%= claimedSlot ? Number(claimedSlot) : 'null' %>;
   window.SLOT_PROVENANCE = <%- JSON.stringify(typeof slotProvenance !== 'undefined' ? slotProvenance : null) %>;
+  // Team pass rate (Cory's ask, ROUTES.md 08-17), server-read from A's
+  // draft/backtest/team_pace_2021_2025.json — see src/routes/admin.js for
+  // why this travels as bootstrap state rather than a client fetch.
+  window.WR_TEAM_PACE = <%- JSON.stringify(typeof teamPace !== 'undefined' ? teamPace : null) %>;
 </script>
 <%# The draft ENGINE MODULE INCLUDES are A's (the logic lane) — extracted to
     _warroom_scripts.ejs so A loads its modules without editing B's shell. See

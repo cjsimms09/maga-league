@@ -1,10 +1,10 @@
 {
  "_territory": "TERRITORY: A — draft/tools/draft_ready.js",
- "mode": "AFTER-LOCK (strict)",
+ "mode": "PRE-LOCK (lock checks report only)",
  "_absent_is_not_pass": "Every check treats missing data as failure.",
  "go": false,
- "fatal_failures": 4,
- "soft_failures": 0,
+ "fatal_failures": 1,
+ "soft_failures": 4,
  "checks": [
   {
    "name": "the board file loads at all",
@@ -144,16 +144,16 @@
   {
    "name": "the keeper lock has PASSED on Sleeper",
    "ok": false,
-   "fatal": true,
+   "fatal": false,
    "detail": {
     "keeper_lock_passed": false
    },
-   "fix": "Cory said keepers are locked — if this is still false the board has not been rebuilt since the lock"
+   "fix": "expected FALSE before Friday 6pm"
   },
   {
    "name": "the importer calls the slate TRUTH, not a prediction",
    "ok": false,
-   "fatal": true,
+   "fatal": false,
    "detail": {
     "status": "predicted",
     "confirmed": false
@@ -163,7 +163,7 @@
   {
    "name": "every team has designated — a missing team is an unknown keeper, which is an unknown player still on the board",
    "ok": false,
-   "fatal": true,
+   "fatal": false,
    "detail": {
     "designated": 6,
     "expected": 10,
@@ -190,7 +190,7 @@
   {
    "name": "the freeze is SEALED, not PROVISIONAL — a provisional freeze was built on PREDICTED opponent keepers",
    "ok": false,
-   "fatal": true,
+   "fatal": false,
    "detail": {
     "status": "PROVISIONAL"
    },
@@ -198,11 +198,11 @@
   },
   {
    "name": "the board was built within the last 24 hours",
-   "ok": true,
+   "ok": false,
    "fatal": true,
    "detail": {
     "built_at": "2026-08-19T08:52:22Z",
-    "age_hours": 19.4
+    "age_hours": 28
    },
    "fix": "ADP, injuries and suspensions all move daily — rebuild before drafting"
   },
