@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 165,
+ "next_numeric_id": 166,
  "history": [
   {
    "id": 47,
@@ -296,6 +296,11 @@
    "id": 164,
    "claimed_at": "2026-08-20",
    "note": "E: need shipped to 1.0 on main with no recorded Cory ruling, directly contradicting CORY-ASKS A20's own silence-default (need stays 0); a new single-board measurement (need_weight_rerun.js) disagrees in direction with the historical 30-seat study (register 70) that A20's HOLD recommendation was built on, and neither A20 nor register 160 has been updated to match what's actually live"
+  },
+  {
+   "id": 165,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 161 (A: dollar panel's E[$] is nearly flat and partly inverted across the entire QB position -- Malik Willis prices above Josh Allen)"
   }
  ]
 }
