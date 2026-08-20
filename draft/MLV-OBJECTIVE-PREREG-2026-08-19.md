@@ -476,3 +476,97 @@ weekly-arm null, now measured on drafting. **The way to use multiple models
 is the one already shipped: ONE champion picks, the others show as labeled
 second opinions (the shadow panel, the source toggle) — advisors, never
 electors.** RETIRES the ensemble line.
+
+## 18. PREREG — REAL_VONA RE-RUN UNDER THE INCLUDE-SELF FIX (P250), committed before the run
+
+**Why now.** Cory, 2026-08-20: *"We made changes to VONA calculation. Make sure
+we're doing it correctly now and need to rerun roster construction test as
+previous tests would've been flawed!!"* The change is register 56's fix —
+`VONA_INCLUDE_SELF: false → true` in `engine.js` (`b62b906d`, preregistered
+blind as P107 and graded +114.1 pts/seat-season CI [+48.0, +180.1] before it
+shipped). The harness audit that answers his first sentence, run before this
+section was written:
+
+* **`--gauntlet=vona` / `hybrid` / `snake` (P153–P156): CLEAN.** The replay
+  frame is deterministic — a candidate whose recorded pick lands after my next
+  slot IS in `survOf[q]`, so a self-surviving man's urgency is already 0. The
+  Gauntlet grades stand.
+* **A's `--mlv-look` (P240): CLEAN.** Its next-pick scan does not exclude the
+  candidate; a self-surviving man zeroes his own wait cost. The replication
+  stands — and it is now the stronger evidence on the lookahead question,
+  because it reproduced the §8-family split (actual up, skill down) with
+  include-self semantics already correct.
+* **MLV-cap, `--mlv-depth`, `--pos-cap`, exact DP, BAV/ADP, Zero-RB, Hero-RB,
+  Late-QB (P133–P156 champions and nulls): NO EXPOSURE.** No probabilistic
+  survival term anywhere — value is the market's own order. The champion's
+  +45.84/+29.33 and +2.57/+2.10 are untouched by the engine fix.
+* **`--real-vona` (§14, P139): THE ONE FLAWED ARM.** Line 969 substitutes the
+  SECOND survivor when the best survivor is the candidate himself —
+  `(a[0].player_id !== c.player_id) ? a[0] : a[1]` — which asserts a player
+  who demonstrably survives to my next pick cannot be had there. Register 56's
+  exact shape, in my code, found by auditing for it.
+
+**The fix.** `s = a[0]` unconditionally. When the best survivor IS the
+candidate, the cost of waiting on him is zero by construction (`v = m − m`),
+which is the truth the old line papered over. No flag: the old behaviour is
+the defect, both runs are reported here, and P139's grade stays as the record
+of the code as it stood.
+
+**Blind claims, committed before the re-run (grading: waiver-aware skill and
+actual, same 30 seat-years, vs myopic `--real` at −5.29 actual / +5.69 skill
+and old `--real-vona` at −19.83 / −9.70):**
+
+* **(a)** The fixed arm lands BETWEEN the old `--real-vona` and myopic
+  `--real` on both waiver-graded means (±3 tolerance at the boundaries) —
+  self-exclusion could only overstate urgency, so removing it can only shrink
+  the deviation from myopic.
+* **(b)** The P139 verdict does NOT flip: fixed VONA still fails to beat the
+  myopic arm beyond noise. A flip would mean the timing term's value was
+  hiding behind the self-exclusion bug all along — filed as the surprise
+  direction, worth a program reopen if it happens.
+* **(c)** It does not reach MLV-cap's +2.6/+2.1 waiver-graded.
+
+Mechanism note for the grade: the fix binds ONLY at picks where the best
+surviving same-position man is the candidate himself — exactly the picks
+where the old code invented urgency out of the second survivor.
+
+## 18-GRADED, SAME DAY — THE FIX WAS WORTH ~15–21 PTS/SEAT TO THE ARM, AND THE VERDICT STILL DOES NOT MOVE
+
+**The runs (controls green both, same 30 seat-years; actual / skill):**
+
+| arm | frozen | waiver-aware |
+|---|---|---|
+| old `--real-vona` (P139, self-excluding) | −60.96 / −50.63 | −19.83 / −9.70 |
+| myopic `--real` (P138) | −61.36 / −51.23 | −5.29 / +5.69 |
+| **fixed `--real-vona` (include-self)** | **−45.80 / −37.93** | **+1.50 / +11.59** |
+| MLV-cap champion | +45.84 / +29.33 | +2.57 / +2.10 |
+
+**(a) FALSE — the fixed arm landed ABOVE myopic, not between.** Self-exclusion
+was not merely adding noise; it was actively costing the arm ~15 (frozen) to
+~21 (waiver) points per seat. The between-claim's mechanism ("removing
+overstatement can only shrink deviation from myopic") was wrong because the
+overstated urgencies were not symmetric — they systematically pulled picks
+toward positions whose best man was about to be someone else's.
+
+**(b) TRUE — still no beyond-noise win over myopic.** Paired per-seat, same
+30 seats: skill +5.9 (sd 44.7, t 0.72, h2h **11/30**), actual +6.8 (t 0.75,
+12/30). The point estimate now FAVOURS the timing term for the first time in
+five measurements, and the honest reading is still a null: t < 1 and it loses
+head-to-head. The lookahead line stays retired; the corpse is just cleaner.
+
+**(c) FALSE as written — the skill mean (+11.59) numerically exceeds the
+champion's (+2.10) — and the candidacy question it was proxying for is
+still NO, twice over:** paired vs MLV-cap the difference is noise (skill
++9.5, sd 84.8, t 0.61; actual −1.1, t −0.07), and the arm leaves **6 of 30
+seats with an unfillable starting slot** (§14b's exact failure — the waiver
+floor prices an empty slot as free), which fails the 30/30-legal champion
+bar outright.
+
+**What this means for the shipped world: nothing moves.** MLV-cap stays
+champion; P139's grade stays as the record of the code as it stood; the
+gauntlet, mlv-look, and every market-order arm were verified clean before
+this run (§18 audit list). The real product of the re-run is the corrected
+cost estimate of register-56's shape in THIS harness: ~15–21 pts/seat, in
+the same direction the engine-side P107 grade found (+114.1/seat there,
+where survival is probabilistic everywhere rather than binding only on
+self-surviving picks).
