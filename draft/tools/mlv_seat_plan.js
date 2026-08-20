@@ -133,7 +133,13 @@ const picks = [];
 /* the target Cory ruled: the top-3 finishers' measured shape. It is the NEED
  * half of his bench rule and the yardstick the plan reports against — one
  * constant, used for both, rather than two that can drift apart (rule 11). */
-const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
+/* Read from league_config.ruled_roster_target — the ONE definition (register-153
+ * pattern; register 70 measured against the wrong target from a local constant). */
+const TARGET = (() => {
+  const t = require(path.join(ROOT, 'draft', 'config', 'league_config.json')).ruled_roster_target;
+  if (!t || !t.targets) throw new Error('league_config.ruled_roster_target missing — refusing to invent a target');
+  return t.targets;
+})();
 
 /* the VALUE + DROP-OFF half: MLV's own value function, reused not re-derived */
 const surplus = p => Math.max(0, (p.proj_mean || 0) - (MLV.WAIVER[p.position] || 0));
