@@ -181,3 +181,15 @@ final pick. **v7: within forced candidates, the scarcest needed position
 (smallest supply surviving past my next pick) is taken FIRST; marginal only
 breaks ties.** A forced pick is about feasibility, not value. Nothing else
 moves. P272–P274 blind before the run.
+
+---
+
+## 11 · V8 AMENDMENT, 2026-08-20 — EARLIEST DEADLINE FIRST (after P273 TRUE / P272 FALSE)
+
+v7 fixed TE and the mole moved to K (5 seats K-less): scarcity-by-count chose
+TE at the 2-needs-2-picks endgame while the league's endgame K run ate every
+"surviving" K before the final pick. Count past my next pick is the wrong
+scarcity metric; **the deadline is**: v8's forced pick takes the needed
+position whose LAST available copy dies soonest in the recorded order
+(earliest-deadline-first — the provably correct rule for sequential claims).
+P275–P277 blind before the run; nothing else moves.
