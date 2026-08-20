@@ -596,17 +596,35 @@ def _piecewise_break(pts: list, lo: int = 4, hi_pad: int = 4) -> int | None:
         return None
     xs = list(range(1, n + 1))
     best, best_k = None, None
+    tried, failed, last_err = 0, 0, None
     for k in range(lo, n - hi_pad):
         # basis: 1, x, max(0, x-k) — the hinge keeps the two segments joined
         X = [[x, max(0.0, x - k)] for x in xs]
+        tried += 1
         try:
             c = ols(X, pts)
-        except Exception:
+        except Exception as exc:            # a singular fit at one k is normal
+            failed += 1
+            last_err = exc
             continue
         pred = [c[0] * x + c[1] * max(0.0, x - k) + c[2] for x in xs]
         sse = sum((p - q) ** 2 for p, q in zip(pts, pred))
         if best is None or sse < best:
             best, best_k = sse, k
+    # ⚠️ A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS RETURNED A
+    # POSITIVE (Rule 3e). `except Exception: continue` is right for ONE k — a
+    # singular design matrix at a particular breakpoint is ordinary — and it is
+    # a lie when it happens at EVERY k, because then the function returns None
+    # and None already means "this curve has no break". Found 2026-08-20: with
+    # numpy absent, `ols` raises for every k, `_piecewise_break` returned None
+    # for a curve with a hinge PLANTED AT RANK 12, and the study would have
+    # published `piecewise_break_pooled: null` as a finding about football.
+    # "No cliff here" and "the fitter never ran" must not be the same answer.
+    if tried and failed == tried:
+        raise RuntimeError(
+            "_piecewise_break: the least-squares fit failed at ALL %d "
+            "breakpoints, so this is a broken fitter and not a curve without a "
+            "break. Last error: %r" % (tried, last_err))
     return best_k
 
 
