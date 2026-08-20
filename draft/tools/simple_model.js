@@ -306,10 +306,18 @@ function runRoom(a) {
   };
   const taken = new Set(), got = [];
   SCHED.forEach((pk, i) => {
-    const gone = new Set(order.slice(0, pk - 1));
+    /* ⚠️ liveBefore(pk), NOT pk - 1. `order` is the sequence of SELECTIONS;
+     * `pk` is a BOARD pick number, and the two differ by the keeper slots ahead
+     * of it — a keeper occupies a slot but removes nobody extra from the pool.
+     * Measured on this board: pk - 1 over-removes by exactly 3 at every one of
+     * Cory's twelve picks, 36 phantom removals across the plan. That makes the
+     * board look thinner than it is, which OVERSTATES what waiting costs and
+     * pushes the model toward reaching. Caught 2026-08-20 by
+     * pick_schedule.test.js's shape guard. */
+    const gone = new Set(order.slice(0, PLAN.liveBefore(pk)));
     const avail = pool.filter(x => !taken.has(x.id) && !gone.has(x.id));
     const nextPick = SCHED[i + 1];
-    const laterGone = nextPick ? new Set(order.slice(0, nextPick - 1)) : null;
+    const laterGone = nextPick ? new Set(order.slice(0, PLAN.liveBefore(nextPick))) : null;
     const availLater = laterGone
       ? pool.filter(x => !taken.has(x.id) && !laterGone.has(x.id)) : [];
     const fo = flexOwner();
