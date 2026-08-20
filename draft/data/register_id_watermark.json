@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 154,
+ "next_numeric_id": 156,
  "history": [
   {
    "id": 47,
@@ -241,6 +241,16 @@
    "id": 153,
    "claimed_at": "2026-08-20",
    "note": "E: Cory's own war-room audit order -- the source-toggle button lies after a page reload (shows Draft Sharks active, board silently still the blend); confirmed live in a real browser. Two lower-severity findings filed with it: mlv_plan.json never refetches on toggle, no board-table source indicator."
+  },
+  {
+   "id": 154,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 150 (C-owner: weekly_realized.json has three consumers, one existing fetch primitive, zero writers -- not a bug preseason, but nobody owns building the writer before week 1) -- same collision and deviation as 143-153"
+  },
+  {
+   "id": 155,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 151 (A: a world-state alarm about the provisional keeper freeze is wired into the blanket board-publish gate, so the alarm doing its job silently blocks every rebuild on draft weekend; needs Cory to separate re-take-freeze vs Sleeper-fetch-failure) -- same collision and deviation as 143-154"
   }
  ]
 }
