@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 164,
+ "next_numeric_id": 165,
  "history": [
   {
    "id": 47,
@@ -291,6 +291,11 @@
    "id": 163,
    "claimed_at": "2026-08-20",
    "note": "E: mechanism check per Cory's direct ask, why need:1.0 causes RB bloat -- read the real P110 artifact (engine_seat_choices_need1.json), need term dominates RB/WR chosen-score by ~6.5x over VONA while QB is VONA-dominant; both real positional signal AND a mechanical flex-discount gap (register 60's disconnection 2), currently on suppressed RB numbers per register 151's still-open bug"
+  },
+  {
+   "id": 164,
+   "claimed_at": "2026-08-20",
+   "note": "E: need shipped to 1.0 on main with no recorded Cory ruling, directly contradicting CORY-ASKS A20's own silence-default (need stays 0); a new single-board measurement (need_weight_rerun.js) disagrees in direction with the historical 30-seat study (register 70) that A20's HOLD recommendation was built on, and neither A20 nor register 160 has been updated to match what's actually live"
   }
  ]
 }
