@@ -300,7 +300,12 @@ const WAIVER_FLEX = Math.max(WAIVER_WK.RB, WAIVER_WK.WR, WAIVER_WK.TE);
  * DRAFT time, season units); normal roster = K≤1/DEF≤1 + displacement; timing
  * = VONA against the recorded draft's own survivors at my next pick. */
 const REAL_VONA = process.argv.includes('--real-vona');
-const REAL = REAL_VONA || process.argv.includes('--real');
+/* §14c: when my remaining picks ≤ my unfilled dedicated starting slots,
+ * candidates restrict to positions with an unfilled slot — "I still need a
+ * kicker and I have two picks", encoded. §14b measured 7/30 seats ending
+ * ILLEGAL without it: the floor prices an empty slot as free. */
+const REAL_FILL = process.argv.includes('--real-fill');
+const REAL = REAL_VONA || REAL_FILL || process.argv.includes('--real');
 const SEASON_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
 const SEASON_WAIVER_FLEX = Math.max(SEASON_WAIVER.RB, SEASON_WAIVER.WR, SEASON_WAIVER.TE);
 
@@ -444,6 +449,19 @@ function buildSeat(season, draft, seatId, rosterOn) {
      * next slot demonstrably survived until my next turn. Top-2 per position
      * (top-1 unless it is the candidate itself — the curve is monotone, so the
      * earliest surviving slot is the best survivor). */
+    let mustFill = null;
+    if (REAL_FILL) {
+      let unfilled = 0;
+      const needPos = {};
+      POS.forEach(z => {
+        const gap = (STARTERS[z] || 0) - (held[z] || 0);
+        if (gap > 0) { unfilled += gap; needPos[z] = true; }
+      });
+      let remaining = 0;
+      /* a future keeper slot is spoken for — it cannot fill a hole */
+      for (let k = idx; k < N; k++) if (picks[k].roster_id === seatId && !picks[k].is_keeper) remaining++;
+      if (remaining <= unfilled) mustFill = needPos;
+    }
     let survTop = null;
     if (REAL_VONA) {
       survTop = {};
@@ -466,6 +484,7 @@ function buildSeat(season, draft, seatId, rosterOn) {
       if (isGone(c.player_id)) continue;
       const q = posOf(c.player_id);
       if (!q) continue;
+      if (mustFill && !mustFill[q]) continue;   // §14c: no picks to spare
       /* C3: counted from the fixed-opponent draft only — picks already made
        * plus the opponents' known future picks. No outcome data. */
       let short = false;
