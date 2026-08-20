@@ -45,7 +45,17 @@ function runGate(mutate, afterLock) {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'config', 'league_config.json'), 'utf8'));
   const seat = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'seat_plan.json'), 'utf8'));
   const freeze = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'pre_draft_freeze_2026.json'), 'utf8'));
-  const bag = { board, keepers, config, seat, freeze };
+  /* The alternate source boards travel in the bag too, so a mutator can keep
+   * the fixture COHERENT. They are not auto-synced: the staleness BREAK arm
+   * below depends on the board moving while these stay behind, which is the
+   * real-world failure it models. */
+  const SRC_BOARDS = ['board_ds.json', 'board_sleeper.json', 'board_own.json', 'board_fp.json'];
+  const sourceBoards = {};
+  SRC_BOARDS.forEach(f => {
+    const q = path.join(ROOT, 'public', f);
+    if (fs.existsSync(q)) sourceBoards[f] = JSON.parse(fs.readFileSync(q, 'utf8'));
+  });
+  const bag = { board, keepers, config, seat, freeze, sourceBoards };
   if (mutate) mutate(bag);
 
   fs.writeFileSync(path.join(pub, 'draft_data.json'), JSON.stringify(bag.board));
@@ -53,12 +63,12 @@ function runGate(mutate, afterLock) {
   fs.writeFileSync(path.join(cfg, 'league_config.json'), JSON.stringify(bag.config));
   fs.writeFileSync(path.join(pub, 'seat_plan.json'), JSON.stringify(bag.seat));
   fs.writeFileSync(path.join(dat, 'pre_draft_freeze_2026.json'), JSON.stringify(bag.freeze));
-  ['source_boards.json', 'mlv_plan.json', 'position_boards.json',
-    'board_ds.json', 'board_sleeper.json', 'board_own.json', 'board_fp.json']
-    .forEach(f => {
-      const src = path.join(ROOT, 'public', f);
-      if (fs.existsSync(src)) fs.copyFileSync(src, path.join(pub, f));
-    });
+  ['source_boards.json', 'mlv_plan.json', 'position_boards.json'].forEach(f => {
+    const src = path.join(ROOT, 'public', f);
+    if (fs.existsSync(src)) fs.copyFileSync(src, path.join(pub, f));
+  });
+  Object.keys(bag.sourceBoards).forEach(f =>
+    fs.writeFileSync(path.join(pub, f), JSON.stringify(bag.sourceBoards[f])));
   // the two sub-guards the gate shells out to
   ['draft_day_consistency.js', 'board_input_staleness.js'].forEach(f => {
     fs.writeFileSync(path.join(tools, f), 'process.exit(0);\n');
@@ -79,8 +89,19 @@ function runGate(mutate, afterLock) {
 const failedNames = res => (res.doc ? res.doc.checks.filter(c => !c.ok && c.fatal).map(c => c.name) : []);
 const caught = (res, needle) => failedNames(res).some(n => n.toLowerCase().includes(needle.toLowerCase()));
 
-/* ── 0. THE CONTROL — an UNMUTATED board must pass pre-lock ────────────────*/
-const clean = runGate(null, false);
+/* ── 0. THE CONTROL — an otherwise-good repo must pass pre-lock ────────────
+ *
+ * ⚠️ THE CONTROL FRESHENS `built_at`, AND THAT IS THE FIX FOR A REAL FLAW IN
+ * THIS TEST'S FIRST VERSION. It used the repo untouched, so the moment the live
+ * board passed 24 hours old the control failed — meaning this whole suite went
+ * red exactly when the gate was doing its job and Cory most needed to trust it.
+ * A control that depends on the wall clock tests the calendar, not the code.
+ * Staleness is still tested, hard, by its own BREAK arm below. */
+const fresh = b => {
+  b.board.built_at = new Date().toISOString();
+  Object.values(b.sourceBoards).forEach(d => { d.built_from_board = b.board.built_at; });
+};
+const clean = runGate(fresh, false);
 ck('CONTROL — the real, unmutated repo passes the pre-lock gate. Without this '
    + 'every "it caught the break" below could just be a gate that always fails.',
   clean.code === 0, { code: clean.code, fatal: failedNames(clean) });
@@ -140,8 +161,8 @@ ck('BREAK: the board is rebuilt but the source boards are not -> refused. A '
   r.code !== 0 && caught(r, 'built from THIS board'), failedNames(r));
 
 /* ── 5. THE AFTER-LOCK MODE IS ACTUALLY STRICTER ───────────────────────────*/
-const pre = runGate(null, false);
-const post = runGate(null, true);
+const pre = runGate(fresh, false);
+const post = runGate(fresh, true);
 ck('the SAME repo passes pre-lock and FAILS after-lock — the two modes are '
    + 'genuinely different, not a flag that does nothing',
   pre.code === 0 && post.code !== 0,

@@ -14,7 +14,10 @@
 
 // The whitelist IS the schema: anything else posted is dropped, so the store
 // can never be used to smuggle arbitrary payloads under my login.
-const KEYS = ['lists', 'weights', 'autoWeights', 'playerOverrides', 'railAcks'];
+// `playerCalls` added 2026-08-20 (Cory, live: "a way to like and dislike
+// players... this info needs to stay in the room... grade me on these") —
+// same per-id-map shape as playerOverrides, same sync path, no new plumbing.
+const KEYS = ['lists', 'weights', 'autoWeights', 'playerOverrides', 'railAcks', 'playerCalls'];
 const MAX_LIST = 400;        // player ids per list — far above real use, bounded anyway
 const MAX_JSON = 200_000;    // whole-document ceiling
 
@@ -41,6 +44,23 @@ function sanitize(prefs) {
       for (const id of Object.keys(p[k]).slice(0, MAX_LIST)) trimmed[String(id)] = p[k][id];
       out[k] = trimmed;
     }
+  }
+  /* playerCalls carries the SNAPSHOT a later grader needs — unlike
+   * playerOverrides/railAcks above, garbage here doesn't just render wrong,
+   * it makes "was Cory right" ungradeable months from now with no way to
+   * re-derive it. `call` is validated against a fixed enum; everything else
+   * is passed through as opaque context (numbers or strings) rather than
+   * type-checked field by field, since the grader degrades honestly on a
+   * missing field the same way the rest of this codebase does. */
+  if (p.playerCalls && typeof p.playerCalls === 'object' && !Array.isArray(p.playerCalls)) {
+    const trimmed = {};
+    for (const id of Object.keys(p.playerCalls).slice(0, MAX_LIST)) {
+      const c = p.playerCalls[id];
+      if (c && typeof c === 'object' && (c.call === 'like' || c.call === 'dislike')) {
+        trimmed[String(id)] = c;
+      }
+    }
+    out.playerCalls = trimmed;
   }
   if (JSON.stringify(out).length > MAX_JSON) {
     throw new Error('prefs document too large');
