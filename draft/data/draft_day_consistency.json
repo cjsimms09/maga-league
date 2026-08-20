@@ -1,0 +1,153 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/draft_day_consistency.js",
+ "_what": "Does every artifact the war room reads still agree with the live board about the same players?",
+ "_why_content_not_timestamps": "register 143: the stale artifact and the fresh board agreed on their provenance stamps and disagreed on their numbers. A timestamp check is exactly what failed.",
+ "board": {
+  "built_at": "2026-08-19T08:52:22Z",
+  "post_processed_at": "2026-08-20T01:50:17Z",
+  "post_processed_by": "draft/tools/attach_draftsharks.py",
+  "players": 700
+ },
+ "tolerance_points": 0.5,
+ "watched": [
+  {
+   "file": "seat_plan.json",
+   "draft_critical": true,
+   "why": "the seat panel, read at EVERY pick",
+   "status": "CONSISTENT",
+   "checked": 60,
+   "mismatched": 0,
+   "compared_against": "proj_mean",
+   "examples": []
+  },
+  {
+   "file": "position_boards.json",
+   "draft_critical": true,
+   "why": "the per-position board view",
+   "status": "CONSISTENT",
+   "checked": 505,
+   "mismatched": 0,
+   "compared_against": "proj_ds",
+   "examples": []
+  },
+  {
+   "file": "source_boards.json",
+   "draft_critical": true,
+   "why": "the best-available-by-source cheat sheet",
+   "status": "NO PLAYER VALUES",
+   "checked": 0,
+   "mismatched": 0,
+   "compared_against": "proj_mean",
+   "examples": []
+  },
+  {
+   "file": "mlv_recommend.json",
+   "draft_critical": true,
+   "why": "the roster-builder panel's static fallback",
+   "status": "CONSISTENT",
+   "checked": 10,
+   "mismatched": 0,
+   "compared_against": "proj_mean",
+   "examples": []
+  },
+  {
+   "file": "conditional_value_2026.json",
+   "draft_critical": true,
+   "why": "conditional-value chips ON THE WAR-ROOM CARDS (app.js) — handcuffs for Cory's own backs are a real late-round decision",
+   "status": "DRIFTED",
+   "checked": 4,
+   "mismatched": 3,
+   "compared_against": "proj_mean",
+   "examples": [
+    {
+     "name": "Adam Randall",
+     "position": "RB",
+     "artifact": 26.1,
+     "board": 42.6,
+     "compared_against": "proj_mean"
+    },
+    {
+     "name": "Emmett Johnson",
+     "position": "RB",
+     "artifact": 59.2,
+     "board": 39,
+     "compared_against": "proj_mean"
+    },
+    {
+     "name": "Emari Demercado",
+     "position": "RB",
+     "artifact": 32.3,
+     "board": 57.4,
+     "compared_against": "proj_mean"
+    }
+   ]
+  },
+  {
+   "file": "opponent_need_2026.json",
+   "draft_critical": true,
+   "why": "the room model",
+   "status": "NO PLAYER VALUES",
+   "checked": 0,
+   "mismatched": 0,
+   "compared_against": "proj_mean",
+   "examples": []
+  },
+  {
+   "file": "expert_spread_2026.json",
+   "draft_critical": true,
+   "why": "the expert-disagreement badge",
+   "status": "NO PLAYER VALUES",
+   "checked": 0,
+   "mismatched": 0,
+   "compared_against": "proj_mean",
+   "examples": []
+  },
+  {
+   "file": "league_analysis_2026.json",
+   "draft_critical": false,
+   "why": "MEASURED, not assumed: its player values live in projected_standings[].starters and it is read by views/admin/league-analysis.ejs — a SEPARATE standings page, not the war room. Stale here cannot change a pick. Regenerating it needs Sleeper, which is 403 from the build sandbox and reachable from CI.",
+   "status": "DRIFTED",
+   "checked": 86,
+   "mismatched": 85,
+   "compared_against": "proj_mean",
+   "examples": [
+    {
+     "name": "Josh Allen",
+     "position": "QB",
+     "artifact": 405.5,
+     "board": 416.3,
+     "compared_against": "proj_mean"
+    },
+    {
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "artifact": 256,
+     "board": 287.7,
+     "compared_against": "proj_mean"
+    },
+    {
+     "name": "David Montgomery",
+     "position": "RB",
+     "artifact": 190.1,
+     "board": 181.2,
+     "compared_against": "proj_mean"
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "position": "WR",
+     "artifact": 227.5,
+     "board": 253.9,
+     "compared_against": "proj_mean"
+    }
+   ]
+  }
+ ],
+ "out_of_scope": [
+  {
+   "file": "market_upside_2026.json",
+   "why": "read by ZERO site files — measured, not assumed. It cannot reach the draft, so its freshness is not a draft-day question."
+  }
+ ],
+ "draft_critical_all_consistent": false,
+ "non_critical_drift": 1
+}
