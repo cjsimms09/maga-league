@@ -169,6 +169,19 @@
         <div class="body"><div id="rank-source"></div></div>
       </div>
 
+      <%# THE REAL MOUNT POINT — this did NOT exist before (E's war-room
+          draft-value audit, 2026-08-20/21, finding 1). sourceBoardsHost() in
+          app.js had a fallback that, finding no #source-boards here, created
+          one and inserted it as a SIBLING of #pos-recs-out — which lives
+          INSIDE #recs-card's own .body, since #roster-builder (the fallback's
+          FIRST-CHOICE anchor) has never existed anywhere in this codebase.
+          The result: every real session nested a 400+px card inside "THE
+          PICK", which is most of why that card measured 3476px tall and
+          buried six panels beneath it. renderSourceBoards() fully replaces
+          this element's innerHTML (its own <h3>, no <h2> here) — leave it
+          bare, matching exactly what the JS fallback used to create. %>
+      <div class="card source-boards" id="source-boards" style="display:none"></div>
+
       <%# ── THE ANSWER CARD — ONE VOICE, THEN STRUCTURED DISSENT.
           #verdict-block (DraftVerdict.derive — the seat-plan-owns-headline
           adjudication) is the ONE primary "TAKE <name>". The paths beneath it
