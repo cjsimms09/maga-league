@@ -394,6 +394,11 @@
    "id": 177,
    "claimed_at": "2026-08-20",
    "note": "B/A: every field Cory asked for this week is computed, committed, and on no screen -- the coverage flags are the one that can mislead him mid-draft (FantasyPros carries no K/DEF), source_boards.json already publishes the block so it is a render not a build (was 167 pre-renumber on main's side)"
+  },
+  {
+   "id": "no new id consumed -- large dedup pass",
+   "claimed_at": "2026-08-20",
+   "note": "A large main sync reintroduced content already resolved in the prior merge round under stale pre-renumber ids: main's own copy of DEFECT-REGISTER.md never saw D's earlier renumbering (159/160/162-167 -> 166/167/172-177), since that renumbering only ever existed on D's branch. This merge's diff surfaced two conflict blocks and ~18 duplicate id pairs total (148-167 each appearing twice). Verified row by row: every duplicate was either (a) byte-identical to an already-canonical row elsewhere in the file, or (b) a stale-numbered copy of content D had already renumbered in the prior merge (172-177), or (c) new content that collided with an existing id but turned out, on check, to ALREADY be present under a different canonical id (the 'dollar panel E[$] QB inversion' finding, briefly reinserted as a new 178, was actually a duplicate of the already-canonical 169 -- caught by register_recheck_check's own near-duplicate detector and removed before commit). Net: zero new ids consumed this round, next_numeric_id unchanged at 178, every duplicate resolved to its single canonical id with no content lost."
   }
  ]
 }
