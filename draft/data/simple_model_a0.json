@@ -15,13 +15,13 @@
    "excluded_inside_adp200": 11,
    "excluded_names": [
     "Jayden Higgins (WR, adp 151.9)",
-    "Malik Washington (WR, adp 193.1)",
+    "David Njoku (TE, adp 176.1)",
     "Ja'Kobi Lane (WR, adp 170.4)",
+    "Malik Washington (WR, adp 193.1)",
+    "Tank Dell (WR, adp 184.9)",
     "Cooper Kupp (WR, adp 198.4)",
     "Kayshon Boutte (WR, adp 197.7)",
-    "David Njoku (TE, adp 176.1)",
     "Isaac TeSlaa (WR, adp 199.3)",
-    "Tank Dell (WR, adp 184.9)",
     "Theo Wease (WR, adp 120.6)",
     "Nick Folk (K, adp 172.1)"
    ],
@@ -40,13 +40,13 @@
  "pool_size": 247,
  "excluded_inside_adp200": [
   "Jayden Higgins (WR, adp 151.9)",
-  "Malik Washington (WR, adp 193.1)",
+  "David Njoku (TE, adp 176.1)",
   "Ja'Kobi Lane (WR, adp 170.4)",
+  "Malik Washington (WR, adp 193.1)",
+  "Tank Dell (WR, adp 184.9)",
   "Cooper Kupp (WR, adp 198.4)",
   "Kayshon Boutte (WR, adp 197.7)",
-  "David Njoku (TE, adp 176.1)",
   "Isaac TeSlaa (WR, adp 199.3)",
-  "Tank Dell (WR, adp 184.9)",
   "Theo Wease (WR, adp 120.6)",
   "Nick Folk (K, adp 172.1)",
   "Blake Grupe (K, adp 166.2)"
@@ -59,22 +59,22 @@
    "max": 1
   },
   "RB": {
-   "mean": 4.37,
-   "sd": 0.51,
-   "min": 4,
+   "mean": 5.12,
+   "sd": 0.33,
+   "min": 5,
    "max": 6
   },
   "WR": {
-   "mean": 6.63,
-   "sd": 0.51,
+   "mean": 5.88,
+   "sd": 0.33,
    "min": 5,
-   "max": 7
+   "max": 6
   },
   "TE": {
    "mean": 1,
-   "sd": 0.06,
+   "sd": 0,
    "min": 1,
-   "max": 2
+   "max": 1
   },
   "K": {
    "mean": 1,
@@ -93,7 +93,7 @@
  "rooms_with_an_empty_starting_slot": 0,
  "cory_spec": {
   "onesies_all_1": true,
-  "share_of_rooms_WR_over_RB": 0.987,
+  "share_of_rooms_WR_over_RB": 0.877,
   "meets_spec": true
  },
  "grades": {
@@ -103,5 +103,5 @@
   "P189_qb_leak_survives": false,
   "P190_with_corys_two_rules": false
  },
- "p187_moved_in_top_100": 85
+ "p187_moved_in_top_100": 89
 }

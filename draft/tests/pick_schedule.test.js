@@ -275,7 +275,19 @@ ck('every row of the plan sits on a pick I actually own',
    * tell an explanation from a call site reports its own documentation as the
    * bug — which is how a detector gets switched off. */
   const strip = t => t.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
-  const BAD = /\.slice\(\s*0\s*,\s*[A-Za-z_$][\w.$]*(?:pick|Pick|overall|Overall)[\w.$]*\s*-\s*1\s*\)/;
+  /* ⚠️ `pk` ADDED 2026-08-20, AND IT WAS THE SECOND FALSE NEGATIVE IN THIS
+   * DETECTOR'S HISTORY. The comment above boasts that a hand-rolled sweep has
+   * blind spots "in exactly the place a hand-rolled sweep has them: the
+   * character class nobody re-reads" — and this regex had the same one. It
+   * required the literal substring pick/Pick/overall/Overall in the identifier,
+   * so `SCHED.forEach((pk, i) => ... order.slice(0, pk - 1))` sailed through.
+   * BOTH simple_model.js and vona_board.js held TWO instances each: the
+   * `nextPick` one this detector saw, and a `pk` one three lines above it that
+   * it did not. Half a defect reported reads as the whole defect fixed.
+   *
+   * `pk` is matched as a WHOLE identifier (^|[^\w$] ... [^\w$]|$ via the
+   * alternation below) so it does not swallow unrelated names ending in "pk". */
+  const BAD = /\.slice\(\s*0\s*,\s*(?:[A-Za-z_$][\w.$]*(?:pick|Pick|overall|Overall)[\w.$]*|pk)\s*-\s*1\s*\)/;
   const hits = files.filter(f => BAD.test(strip(fs.readFileSync(f, 'utf8'))))
     .map(f => path.relative(ROOT, f));
   ck('NO source file slices a pool by (pick - 1)', hits.length === 0, hits);

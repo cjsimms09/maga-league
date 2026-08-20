@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 156,
+ "next_numeric_id": 157,
  "history": [
   {
    "id": 47,
@@ -251,6 +251,11 @@
    "id": 155,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 151 (A: a world-state alarm about the provisional keeper freeze is wired into the blanket board-publish gate, so the alarm doing its job silently blocks every rebuild on draft weekend; needs Cory to separate re-take-freeze vs Sleeper-fetch-failure) -- same collision and deviation as 143-154"
+  },
+  {
+   "id": 156,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 153 (A: war-room source buttons priced every source over all 700 board players, so DS's 247 read as a 3x coverage gap instead of the true 6-point one inside the drafted range; fixed with one draftable_scope definition, three readers) -- same collision and deviation as 143-155"
   }
  ]
 }
