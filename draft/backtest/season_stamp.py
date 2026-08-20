@@ -679,6 +679,47 @@ BOARD_FIELD_PURPOSE = {
 }
 
 
+# ── THE ALT-SOURCE AND BAND FIELDS, DECLARED IN BOTH REGISTRIES ─────────────
+#
+# ⚠️ THESE 51 FIELDS HAVE BEEN ON THE LIVE BOARD, UNDECLARED, AND THEY ARE WHY
+# THE NIGHTLY REBUILD REFUSED TO PUBLISH FOR A FULL DAY (A, 2026-08-20).
+#
+# `alt_source_rankings.py` writes 48 per-source fields (`vorp_ds`, `tier_ds`,
+# ... x 4 sources) and it was run BY HAND once and its output shipped — so the
+# fields reached the artifact without ever passing through the build that
+# declares things. The gate reads the artifact, found fields no registry named,
+# and correctly refused. Cory's board sat three days stale on the back of it.
+#
+# The remaining 3 are `band_*`, added by me the same evening for his Draft
+# Sharks band ruling, which reproduced the identical defect within hours.
+#
+# GENERATED FROM ONE LOOP over the same SOURCES and field names
+# `alt_source_rankings.py` itself uses, rather than 51 hand-typed lines. Hand
+# typing is how the two registries came apart before: the file's own note above
+# records that registering `proj_ownmodel` in ONE of the two still failed the
+# rebuild, found only by firing the real thing and watching it stay red.
+#
+# ALL DERIVED, and by this table's stated criterion rather than by resemblance:
+# nothing FETCHES any of them. Each is computed by re-running the board's own
+# `apply_vorp`/`assign_tiers` on a shadow copy priced by one source's
+# projection, or (the band fields) as a ratio of two Draft Sharks numbers the
+# board already holds.
+_ALT_SOURCES = ("ds", "sleeper", "ownmodel", "fantasypros")
+_ALT_SUFFIXED = ("vorp", "tier", "pos_rank", "overall_rank", "replacement",
+                 "tier_size", "tier_drop", "tier_rank", "proj_used", "covered",
+                 "proj_ceiling", "proj_floor")
+for _src in _ALT_SOURCES:
+    for _f in _ALT_SUFFIXED:
+        BOARD_FIELD_PURPOSE["%s_%s" % (_f, _src)] = DERIVED_PURPOSE
+        BOARD_FIELD_SOURCES["%s_%s" % (_f, _src)] = "derived"
+# The band ratios and their provenance string. `band_ratio_source` is a
+# provenance ABOUT a number and never an input to one — the same reasoning
+# written for `adp_sd_source` above.
+for _f in ("band_ceiling_ratio", "band_floor_ratio", "band_ratio_source"):
+    BOARD_FIELD_PURPOSE[_f] = DERIVED_PURPOSE
+    BOARD_FIELD_SOURCES[_f] = "derived"
+
+
 def unpurposed_fields(row: dict) -> list:
     """Board fields with no declared PURPOSE — a hole in the map, not a pass.
 
