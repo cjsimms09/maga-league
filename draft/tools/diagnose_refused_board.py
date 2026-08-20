@@ -191,14 +191,50 @@ def main() -> int:
               "increment %.2f/0.5%%)"
               % (gap, 1 + pct, smooth_inc, derived_step, base_rb, flip_rb,
                  smooth_inc))
-        down = flip_rep - rep_before < 0
-        discontinuous = abs(flip_rep - rep_before) > smooth_inc
+        # ⚠️ CORRECTED 2026-08-20. THIS BLOCK BROKE THIS FILE'S OWN HEADER RULE
+        # — "MEASURES, NEVER REIMPLEMENTS ... not a second implementation that
+        # can drift from the first" — and then drifted, on the worst possible
+        # night.
+        #
+        # It used to read HOLD only when the step was DOWN and larger than one
+        # smooth increment. That was the characterization test's rule when this
+        # was written; the test has had THREE regimes since 2026-08-19, because
+        # `step == -g + s` forces a different (still exact) property depending
+        # on how the crossed gap compares to one increment. On run 32425450897
+        # this printed "the characterization test's properties DO NOT HOLD on
+        # this board" while test_replacement_sensitivity PASSED — a false alarm
+        # printed beside six real failures, on a refused rebuild two days
+        # before the draft. A diagnosis tool that invents a seventh problem is
+        # worse than one that says nothing.
+        #
+        # The partition below is the test's, derived from the same identity, so
+        # the two can only disagree if someone edits one without the other —
+        # which `test_the_diagnosis_tool_agrees_with_the_test_it_diagnoses`
+        # now forbids.
+        step_meas = flip_rep - rep_before
+        g = gap * (1 + pct)
+        s = smooth_inc
+        if g > 2 * s:
+            regime = "DOMINANT GAP (g > 2s)"
+            holds = step_meas < 0 and -step_meas > s
+            expect = "step DOWN, larger than one increment"
+        elif g > s:
+            regime = "GAP EXCEEDS ONE INCREMENT (s < g <= 2s)"
+            holds = step_meas < 0 and -step_meas <= s + 1e-9
+            expect = "step DOWN, no larger than one increment"
+        else:
+            regime = "SMALL GAP (g <= s)"
+            holds = -1e-9 <= step_meas <= s + 1e-9
+            expect = "step UP, no larger than one increment"
+        print("   regime: %s — the identity requires %s" % (regime, expect))
         print("   verdict: flip exists, direction %s, %s — the "
               "characterization test's properties %s on this board."
-              % ("DOWN (RB gained slots)" if down else "UP (INVERTED)",
-                 "discontinuous" if discontinuous else "within smooth drift",
-                 "HOLD" if (down and discontinuous and flip_rb > base_rb)
-                 else "DO NOT HOLD"))
+              % ("DOWN (RB gained slots)" if step_meas < 0 else "UP",
+                 "discontinuous" if abs(step_meas) > s else "within smooth drift",
+                 "HOLD" if holds else "DO NOT HOLD"))
+        if holds:
+            print("   (so replacement sensitivity is NOT why a rebuild was "
+                  "refused — look elsewhere in the failure list)")
     return 0
 
 
