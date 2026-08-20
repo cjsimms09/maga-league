@@ -160,5 +160,38 @@ bash scripts/territory-check.sh C --range HEAD HEAD >/tmp/tcZ.out 2>&1; ck $? 0 
 grep -q "REFUSING" /tmp/tcZ.out; ck $? 1 \
   "  and is not mistaken for the bad form"
 
+# ── A BINARY SOURCE DOCUMENT: THE CASE NO DECLARATION COULD FIX (added 2026-08-20)
+#
+# C hit this committing Mike Clay's 2025 guide and reported it instead of
+# working around it. A PDF cannot carry a `# TERRITORY:` header, and
+# `_needs_declaration()` does not fire outside draft/backtest/ / draft/tests/, so
+# an undeclared binary under draft/data/sources/ fell through `else own="A"` and
+# reported TRESPASS against C for doing its own job.
+#
+# ⚠️ THE ASYMMETRY IS WHY THIS TEST EXISTS AT ALL: the same file type committed
+# by A passed silently, because falling through to "A" was accidentally right
+# for one lane and wrong for the other. NOTHING in this suite would have caught
+# that, which is the honest reason it is being added now and not earlier.
+#
+# Working-tree mode, like SCENARIO 2 above — a committed file on a clean tree is
+# not in the range and would make every assertion below vacuously pass.
+git checkout -q . 2>/dev/null || true
+mkdir -p draft/data/sources
+printf '%%PDF-1.4 binary-ish\n' > draft/data/sources/guide_2025.pdf
+bash scripts/territory-check.sh C >/tmp/tcBin.out 2>&1; ck $? 0 \
+  "C may add a BINARY source document (no header is possible on a PDF)"
+bash scripts/territory-check.sh A >/tmp/tcBinA.out 2>&1; ck $? 1 \
+  "  FAIL ARM — A adding the same file is reported, not waved through"
+grep -q "draft/data/sources/guide_2025.pdf" /tmp/tcBinA.out; ck $? 0 \
+  "  and the trespass names the file"
+rm -f draft/data/sources/guide_2025.pdf
+
+# AND THE PREFIX IS NARROW: draft/data/ at large is still A's, or this
+# broadening would have handed C most of A's stores by accident.
+printf '{}' > draft/data/some_a_store.json
+bash scripts/territory-check.sh C >/tmp/tcNarrow.out 2>&1; ck $? 1 \
+  "  the broadening is SCOPED — draft/data/ outside sources/ is still A's"
+rm -f draft/data/some_a_store.json
+
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
