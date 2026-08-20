@@ -41,6 +41,19 @@ const ck = (n, c, d) => {
  * Every data artifact a PRODUCTION surface may read, with the reason it is
  * allowed. The reason is the point: "it is useful" is how research becomes
  * production by accident. Each of these describes THIS league THIS season. */
+/* THE ALTERNATE SOURCE BOARDS behind Cory's projection-source toggle. Same
+ * current season, same players, same league; the ONLY difference is which
+ * source's projection is treated as proj_mean before vorp and tiers are
+ * recomputed. Produced by rerank_by_source.py calling the SAME vorp functions
+ * build.py uses, never a second implementation (register 148 is what two
+ * disagreeing derivations cost). Legitimate production input by the same
+ * reasoning as draft_data.json itself: this season, this league, this draft. */
+const SOURCE_BOARD = 'A current-season board re-ranked as if one projection '
+  + 'source were the only one, for Cory\'s war-room source toggle. Same season, '
+  + 'players and league as draft_data.json; vorp/tier recomputed by the same '
+  + 'vorp.py functions the real board uses. A player the source does not project '
+  + 'is ABSENT and named on screen, never zeroed.';
+
 const PRODUCTION_INPUTS = {
   'draft_data.json': 'THE BOARD. Current-season projections, ADP and provenance, '
     + 'built for this draft.',
@@ -62,6 +75,8 @@ const PRODUCTION_INPUTS = {
     + 'input to it. It also carries its own honesty — six of the twelve picks are '
     + 'stamped as the BOARD\'s order because MLV is indifferent there (register '
     + '146), so it cannot be mistaken for twelve model opinions.',
+  'board_ds.json': SOURCE_BOARD, 'board_sleeper.json': SOURCE_BOARD,
+  'board_own.json': SOURCE_BOARD, 'board_fp.json': SOURCE_BOARD,
   'league_history.json': 'Completed seasons of THIS league — head-to-head records, '
     + 'opponent tendencies, roster norms. Historical by nature and about this '
     + 'league, which is what makes it a legitimate input rather than a leak.',

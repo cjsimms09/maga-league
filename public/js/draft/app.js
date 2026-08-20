@@ -1007,14 +1007,17 @@
         + 'Sharks, Sleeper, our own model, FantasyPros, or the blend the board '
         + 'normally uses. Shows that source\'s best available and how far it sits '
         + 'from the blend.',
-      read: 'Read the last column. When a man is +20 on one source and the blend '
+      read: 'Switching source RE-RANKS THE WHOLE BOARD — rankings, VONA, tiers and the '
+        + 'recommended pick all change, because replacement level is recomputed from '
+        + 'that source. Read the last column. When a man is +20 on one source and the blend '
         + 'does not have him that high, you are looking at one opinion rather than a '
         + 'consensus — treat it as a tiebreak, never as a reason on its own. Always '
         + 'check the coverage line first: Draft Sharks carries about a third of the '
         + 'board, so a short list there means missing players, not bad ones.',
-      do: 'Use it to sanity-check a pick that feels off, and to see a source\'s own '
-        + 'floor/ceiling band on Draft Sharks. Ignore it entirely at a position where '
-        + 'the coverage warning is showing.',
+      do: 'Switch it during a MOCK to see how a different source would have drafted '
+        + 'for you, then press Blend to come back. Do not leave it off Blend for the '
+        + 'real draft unless you mean to — the orange banner tells you when it is off, '
+        + 'and names anyone that source cannot see.',
       src: 'draft_data.json per-player proj_* fields; display only, never scored',
     },
     mlv_plan: {
@@ -4694,10 +4697,80 @@
     return PROJ_SOURCES.find(s => s.key === k) || PROJ_SOURCES[0];
   }
 
+  /* ── SWAPPING THE ACTUAL BOARD, NOT JUST THE DISPLAY ──────────────────────
+   *
+   * Cory, 2026-08-20: "And the board will rearrange based of the source I
+   * select? Ie it will change rankings, VONA, recommended player, etc because
+   * the source of data will change"
+   *
+   * The first version did NOT, and he was right to ask. It showed each source's
+   * numbers beside the blend and left the ranking alone — half a feature.
+   *
+   * ⚠️ THE RE-RANK IS DONE IN PYTHON, NOT HERE, AND THAT IS THE WHOLE POINT.
+   * `vorp` and `tier` come from build.py (engine.js reads proj_mean 47 times,
+   * tier 78, vorp 34). Recomputing them in the browser would be a SECOND
+   * implementation of replacement level — the exact defect register 148
+   * describes, where two replacement tables in this repo disagree by 2x at RB
+   * and WR. So `rerank_by_source.py` calls the SAME vorp functions the real
+   * board uses and emits public/board_<key>.json. This only swaps which one is
+   * loaded.
+   *
+   * ⚠️ IT REUSES MOCK MODE'S PRISTINE COPY rather than inventing a second way
+   * back. `state.pristine` exists precisely because mock mode overwrites the
+   * player pool; going back to the blend restores from it exactly as ending a
+   * mock does. One derivation, reused.
+   */
+  function applySourceBoard(players, league) {
+    state.data.players = fillTeamByes(players.slice());
+    if (league) state.format = E.applyFormatDefaults(state.data.league);
+    state.board = draftablePlayers(state.data.players)
+      .filter(p => !state.drafted.has(String(p.player_id)));
+    applyOverrides();
+    renderAll();
+  }
+
   function setProjSource(key) {
+    const prev = state.projSource;
     state.projSource = key;
     try { localStorage.setItem('wr_proj_source', key); } catch (e) { /* private mode */ }
-    try { renderProjSource(); } catch (e) { console.error('[proj-source]', e && e.message); }
+
+    /* BLEND IS THE LIVE BOARD ITSELF, restored from the pristine copy — never
+     * refetched, so it is byte-for-byte what Cory booted with. */
+    if (key === 'blend') {
+      state.sourceBoardMeta = null;
+      if (state.pristine) applySourceBoard(state.pristine.players);
+      else try { renderProjSource(); } catch (e) { /* noop */ }
+      return;
+    }
+    if (state.sourceBoardCache && state.sourceBoardCache[key]) {
+      const d = state.sourceBoardCache[key];
+      state.sourceBoardMeta = d;
+      applySourceBoard(d.players, d.league);
+      return;
+    }
+    fetch('/board_' + key + '.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.players) || !d.players.length) {
+          /* Rule 3e in the UI: a failed load and an empty source look identical
+           * from the outside. Say which, and do NOT silently sit on the blend
+           * while the button claims otherwise. */
+          state.projSource = prev || 'blend';
+          try { renderProjSource(); } catch (e) { /* noop */ }
+          console.warn('[proj-source] board_' + key + '.json unavailable — stayed on '
+            + (prev || 'blend'));
+          return;
+        }
+        state.sourceBoardCache = state.sourceBoardCache || {};
+        state.sourceBoardCache[key] = d;
+        state.sourceBoardMeta = d;
+        applySourceBoard(d.players, d.league);
+      })
+      .catch(e => {
+        state.projSource = prev || 'blend';
+        try { renderProjSource(); } catch (_) { /* noop */ }
+        console.warn('[proj-source]', e && e.message);
+      });
   }
   window.__setProjSource = setProjSource;
 
@@ -4756,9 +4829,34 @@
       : '<p class="muted" style="margin:.35rem 0 .4rem;font-size:.74rem">'
         + 'Covers all ' + pool.length + ' players still on your board.</p>';
 
+    /* ⚠️ IF THE BOARD IS NOT THE BLEND, SAY SO WHERE HE CANNOT MISS IT. Cory
+     * drafts from this screen; a re-ranked board that looks like the normal one
+     * is the most dangerous thing this panel could do. */
+    const meta = state.sourceBoardMeta;
+    const live = (src.key !== 'blend' && meta)
+      ? '<div style="margin:0 0 .45rem;padding:.4rem .5rem;border-radius:.35rem;'
+        + 'border:2px solid #b45309;background:#b4530922;font-size:.78rem;line-height:1.35">'
+        + '⚠️ <b>THE BOARD IS RE-RANKED ON ' + escapeHtml(String(meta.source_label).toUpperCase())
+        + '</b> — rankings, VONA, tiers and the recommended pick are all '
+        + escapeHtml(meta.source_label) + '\'s, not the blend\'s.'
+        + (meta.players_dropped
+            ? ' <b>' + meta.players_dropped + ' players are missing entirely</b> because '
+              + escapeHtml(meta.source_label) + ' does not project them'
+              + (meta.coverage_top150_pct != null
+                  ? ' (' + meta.coverage_top150_pct + '% of your top 150 covered)' : '')
+              + ((meta.dropped_inside_top150 || []).length
+                  ? ', including <b>' + escapeHtml((meta.dropped_inside_top150 || []).slice(0, 5).join(', '))
+                    + '</b>' : '')
+              + '.'
+            : '')
+        + ' Press <b>Blend</b> to go back.'
+        + '</div>'
+      : '';
+
     host.innerHTML = '<div class="body">'
       + '<h3 style="margin:0 0 .3rem">🔀 Projection source '
       + explainPanel('proj_source') + '</h3>'
+      + live
       + '<div style="margin:0 0 .2rem">' + buttons + '</div>'
       + '<p class="muted" style="margin:0 0 .2rem;font-size:.73rem">'
       + escapeHtml(src.note) + '</p>'
@@ -4767,9 +4865,9 @@
       + '<th>#</th><th>pos</th><th>best available</th><th>' + escapeHtml(src.label)
       + '</th><th>vs blend</th></tr></thead><tbody>' + rows + '</tbody></table>'
       + '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
-      + 'This changes what you SEE, not what the board scores — the ranking above is '
-      + 'unchanged. Use it to check whether a pick you like is one source\'s opinion or '
-      + 'everyone\'s.</p>'
+      + 'Switching source <b>re-ranks the whole board</b> — rankings, VONA, tiers and '
+      + 'the recommended pick all change, because replacement level is recomputed from '
+      + 'that source\'s own numbers by the same code the real board uses.</p>'
       + '</div>';
   }
 
