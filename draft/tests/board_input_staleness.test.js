@@ -167,3 +167,25 @@ function hasHistory(sha) {
 
 console.log('\n' + pass + '/' + (pass + fail) + ' board-staleness checks passed');
 assert.strictEqual(fail, 0);
+
+/* ── DERIVED-BOARD CHECKS, added 2026-08-20 (the source-toggle audit) ──────── */
+{
+  const { classifyDerived } = require('../tools/board_input_staleness.js');
+  // a derived board OLDER than the blend is stale — the inverted relation
+  let r = classifyDerived(1000, [{ path: 'public/board_ds.json', time: 900 }]);
+  assert.strictEqual(r.stale.length, 1, 'older derived board must be stale');
+  assert.strictEqual(r.stale[0].behindSeconds, 100, 'staleness magnitude');
+  // newer or equal is fresh
+  r = classifyDerived(1000, [{ path: 'public/board_ds.json', time: 1000 },
+                             { path: 'public/board_fp.json', time: 1500 }]);
+  assert.strictEqual(r.stale.length, 0, 'equal/newer derived boards are fresh');
+  assert.strictEqual(r.fresh.length, 2);
+  // unknown times are skipped, never guessed
+  r = classifyDerived(1000, [{ path: 'public/board_own.json', time: null }]);
+  assert.strictEqual(r.stale.length + r.fresh.length, 0, 'unknown time is neither');
+  // CONTROL (3e): the check can fire on the real repo relation — a synthetic
+  // pair where the derived board predates the blend by a week
+  r = classifyDerived(2000000, [{ path: 'public/board_sleeper.json', time: 2000000 - 604800 }]);
+  assert.strictEqual(r.stale.length, 1, 'the planted week-stale board must fire');
+  console.log('derived-board checks: 4/4 passed');
+}
