@@ -815,3 +815,51 @@ Two specific traps this project has already hit and would like checked:
 2. **A bar with no denominator lies quietly.** "Draft Sharks 247" was a true
    count over all 700 board players and read as a broken source; over the top
    200 it is 94%. Every count on a surface is supposed to state what it is over.
+
+---
+
+## 15. ADDED AT SEND TIME — THE ONE STRUCTURAL DEFECT FOUND WHILE ASSEMBLING THIS
+
+This is not about the equation, and it may be the most consequential thing in
+the packet, so it is stated plainly rather than buried.
+
+**The board that every automated gate reads is not the board that gets
+published, and not the board the owner drafts from.**
+
+The nightly job (`.github/workflows/draft-data.yml`) runs in this order:
+
+| step | what it does |
+|---|---|
+| 13 | `build.py` writes `public/draft_data.json` |
+| 16 | **"Acceptance gate on the FRESH board — nothing untested is published"** — the full test suite. Fails the job. |
+| 21 | **"Re-apply the blend, the Draft Sharks bands and the source sheet"** — the multi-source blend, the DS floor/ceiling bands, the per-source re-ranking, the seat plan, the position boards, the MLV plan |
+| 22 | commit and publish |
+
+Step 21 rewrites the projections, the floors, the ceilings, the VORP, the tiers
+and the ranks of every row — **after** the gate in step 16 has passed on the
+pre-blend artifact. An independent reviewer already raised this as its one HIGH
+finding on 2026-08-20, and a narrow post-chain gate was added covering two
+invariant suites (a falsy-zero ranking bug, and player-specific bands). A third
+was added tonight (every player inside the owner's top 150 by ADP must carry a
+real Draft Sharks band — measured: 148 of 150 do, 2 carry a rescaled band, 0 are
+bandless). **That is three assertions where step 16 runs several thousand.**
+
+The concrete symptom that exposed it: a test pinning the `proj_ceiling_source`
+enum could not be made true. `projections.py` writes one set of construction
+names; `attach_draftsharks.py` writes a completely different set. **Neither is
+wrong — they are stamps from two different artifacts that share a filename.**
+
+**The questions for the reviewer:**
+
+1. Is the correct fix to move the full gate after the chain, to run it twice, or
+   to fold step 21's work into `build.py` so there is only one artifact? Each has
+   a cost. Running the full suite twice adds ~7 minutes to a job that must
+   complete before an 8am board is useful. Folding the chain into the builder is
+   the clean answer and is not a two-day-before-the-draft change.
+2. Given that only three invariants currently guard the published artifact,
+   **which three would you have picked?** The ones chosen were the ones that had
+   already broken in production. That is a reasonable heuristic and also exactly
+   the heuristic that only ever protects against the past.
+3. Is there a cheap consistency check that would catch the general class —
+   "a field's distribution changed between the gated artifact and the published
+   one" — without needing to know in advance which field?

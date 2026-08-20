@@ -642,9 +642,27 @@ jobs:
           # reverted Cory's K/DEF ruling) and register 140 (363 players' bands
           # collapsed to floor=ceiling=mean and shipped). NOT `|| true` — a
           # board that fails these must not be published.
+          # ADDED 2026-08-20 (A). A THIRD invariant of the same class, and the
+          # only one of Cory's rulings on this chain that had no post-chain
+          # assertion at all: "I want to use draft sharks ceilings.. for every
+          # source that doesnt offer ceilings, make the ceiling AND floor the
+          # same % away from their proj as draft sharks."
+          #
+          # WHY IT HAS TO BE HERE AND NOT IN THE STEP-16 GATE. The construction
+          # stamp is written by attach_draftsharks.py, which runs in THIS step —
+          # so at step 16 the board carries projections.py's enum and the
+          # question cannot be asked. Measured on the committed artifact: inside
+          # the top 150 by ADP, 148 draftsharks_pct + 2 rescaled pre-DS band,
+          # and ZERO with no band. Outside it, 90 players have no band, which is
+          # fine and is why the assertion is scoped to his draft range rather
+          # than to the whole board.
+          #
+          # Control run before this line was written (Rule 3f): forcing one
+          # top-150 player's stamp to the "none" construction makes it fail.
           python3 -m pytest -q \
             draft/tests/test_attach_draftsharks_ranking.py \
-            draft/tests/test_band_is_player_specific.py
+            draft/tests/test_band_is_player_specific.py \
+            "draft/tests/test_provenance_census.py::test_every_player_Cory_can_actually_draft_carries_a_real_band"
 
       - name: Commit the artifact if it changed
         # ⚠️ `draft/config/keepers.json` ADDED 2026-08-14 — it was REGENERATED EVERY
