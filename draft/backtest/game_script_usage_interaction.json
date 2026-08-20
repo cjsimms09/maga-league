@@ -1,0 +1,163 @@
+{
+  "_territory": "TERRITORY: D \u2014 produced by draft/backtest/game_script_usage_interaction.py",
+  "_note": "Grades the usage-share x implied-team-delta interaction arm preregistered in draft/GAME-SCRIPT-USAGE-PREREG-2026-08-20.md against the live v1 position-only tilt and an own_v6/no-tilt stand-in. RB/WR/TE only. baseline_pg substitutes for proj_ownmodel/17 (no historical season-total snapshot exists for 2021-2025 \u2014 stated in the prereg, not hidden here).",
+  "prereg": "draft/GAME-SCRIPT-USAGE-PREREG-2026-08-20.md",
+  "target_seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "min_games": 4,
+  "usage_mult_clip": [
+    0.0,
+    3.0
+  ],
+  "tilt_scale": 1.0,
+  "folds": [
+    {
+      "season": 2022,
+      "usable": true,
+      "population": 406,
+      "player_weeks_total": 3528,
+      "player_weeks_graded": 3437,
+      "player_weeks_no_line": 91,
+      "pos_mean_share": {
+        "RB": 0.1235435950301559,
+        "WR": 0.10112962343573309,
+        "TE": 0.0712599315278928
+      },
+      "mae": {
+        "no_tilt": 4.550945461816912,
+        "v1_tilt": 4.558089814664826,
+        "interaction": 4.588715523923684
+      },
+      "delta_mae_vs_notilt": -0.03777006210677136,
+      "delta_mae_vs_v1": -0.030625709258857547,
+      "usage_report": {
+        "usable": true,
+        "seasons_used": [
+          2021
+        ],
+        "players": 529,
+        "unmatched_ids": 0,
+        "team_column": "team",
+        "has_targets": true,
+        "has_carries": true
+      }
+    },
+    {
+      "season": 2023,
+      "usable": true,
+      "population": 403,
+      "player_weeks_total": 3509,
+      "player_weeks_graded": 3400,
+      "player_weeks_no_line": 109,
+      "pos_mean_share": {
+        "RB": 0.1257466392423526,
+        "WR": 0.1060387596217462,
+        "TE": 0.0685426746356271
+      },
+      "mae": {
+        "no_tilt": 4.466885458322915,
+        "v1_tilt": 4.432745683952253,
+        "interaction": 4.4435822753252365
+      },
+      "delta_mae_vs_notilt": 0.02330318299767864,
+      "delta_mae_vs_v1": -0.010836591372983762,
+      "usage_report": {
+        "usable": true,
+        "seasons_used": [
+          2022
+        ],
+        "players": 505,
+        "unmatched_ids": 0,
+        "team_column": "team",
+        "has_targets": true,
+        "has_carries": true
+      }
+    },
+    {
+      "season": 2024,
+      "usable": true,
+      "population": 382,
+      "player_weeks_total": 3586,
+      "player_weeks_graded": 3482,
+      "player_weeks_no_line": 104,
+      "pos_mean_share": {
+        "WR": 0.10761089701750576,
+        "RB": 0.1384372950557555,
+        "TE": 0.07412967186792173
+      },
+      "mae": {
+        "no_tilt": 4.538475710618327,
+        "v1_tilt": 4.521605529163954,
+        "interaction": 4.531701990821885
+      },
+      "delta_mae_vs_notilt": 0.006773719796441924,
+      "delta_mae_vs_v1": -0.010096461657931322,
+      "usage_report": {
+        "usable": true,
+        "seasons_used": [
+          2023
+        ],
+        "players": 478,
+        "unmatched_ids": 0,
+        "team_column": "team",
+        "has_targets": true,
+        "has_carries": true
+      }
+    },
+    {
+      "season": 2025,
+      "usable": true,
+      "population": 378,
+      "player_weeks_total": 3777,
+      "player_weeks_graded": 3649,
+      "player_weeks_no_line": 128,
+      "pos_mean_share": {
+        "WR": 0.10999405747226527,
+        "TE": 0.07570536170118984,
+        "RB": 0.1408767600057353
+      },
+      "mae": {
+        "no_tilt": 4.502633103521877,
+        "v1_tilt": 4.5014136685349335,
+        "interaction": 4.531929753904819
+      },
+      "delta_mae_vs_notilt": -0.0292966503829426,
+      "delta_mae_vs_v1": -0.030516085369885815,
+      "usage_report": {
+        "usable": true,
+        "seasons_used": [
+          2024
+        ],
+        "players": 492,
+        "unmatched_ids": 0,
+        "team_column": "team",
+        "has_targets": true,
+        "has_carries": true
+      }
+    }
+  ],
+  "pooled": {
+    "n_player_weeks": 13968,
+    "n_folds_usable": 4,
+    "mae": {
+      "no_tilt": 4.514754490956972,
+      "v1_tilt": 4.503678332436535,
+      "interaction": 4.5243408502199305
+    },
+    "delta_mae_vs_v1": -0.02066251778339545,
+    "delta_mae_vs_notilt": -0.009586359262958588,
+    "folds_positive_vs_v1": 0,
+    "folds_total": 4,
+    "correlation_vs_v1_tilt": 0.995668251374574,
+    "correlation_vs_no_tilt": 0.9842374824335052,
+    "correlation_gate": 0.98,
+    "gate_clears": false,
+    "mae_bar": 0.1,
+    "fold_consistency_min": 3,
+    "clears": false
+  }
+}
