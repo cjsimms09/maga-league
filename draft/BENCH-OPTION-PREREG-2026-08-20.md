@@ -218,3 +218,29 @@ pick numbers in order, and FORCE the moment any k-th deadline precedes my
 k-th remaining pick. Provably sufficient — a vacancy after this means the
 pool itself ran dry. Points untouched (+8.82 frozen / +3.56 waiver stand as
 v8's result). P278–P280 blind before the run.
+
+---
+
+## 13 · GRADED, 2026-08-20 — THE OBJECTIVE WORKS, AND THE TRAIL IS THE PROOF
+
+Final family state (v9, corrected EDF trigger; branch `01668acc`):
+
+| bar | result |
+|---|---|
+| theorem: ≤1 K | **29/30 ✓** |
+| theorem: ≤1 DEF | 24/30 ✗ (bar 28 — six noise-level endgame DEF2s, the one miss) |
+| theorem: ≤1 QB | **29/30 ✓** |
+| theorem: ≤2 TE | **30/30 ✓** |
+| legality: zero vacancies | **30/30 ✓ (P280 TRUE)** |
+| points: waiver-aware ≥ +2.10, h2h ≥ 16 | **+3.45, 16/30 ✓ (P279 TRUE)** |
+| points: frozen | **+32.53, 21/30 — the MLV-cap plateau, with NO caps** |
+
+**The missing input Cory named is now a measured, mechanized model:** absence
+(measured rates) + wire LEVELS (measured §13) + wire FRICTION
+(position-dependent, one contested claim/week) + pool deadlines (EDF). Every
+roster rule the shipped system bolts on — the K/DEF cap, the bench rule, the
+need term — EMERGES from the objective, except six DEF2 endgame ties under
+the one remaining hand-declared constant (the DEF surplus schedule; post-
+draft refinement routed). Nine preregistered iterations, six FALSE grades,
+each naming the next mechanism: that trail (§5–§12) is the deliverable as
+much as the number.
