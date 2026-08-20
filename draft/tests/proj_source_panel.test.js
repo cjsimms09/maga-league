@@ -89,7 +89,19 @@ ck('...it loads boards PRE-BUILT by the same code the real board uses',
 ck('going back to the blend restores from the PRISTINE copy rather than a '
    + 'refetch, so it is byte-for-byte the board Cory booted with — and it '
    + 'reuses mock mode\'s existing mechanism instead of inventing a second one',
-  /state\.pristine/.test(SRC.slice(SRC.indexOf('function setProjSource'))), null);
+  /* ⚠️ SCOPED TO THE FUNCTION 2026-08-20, AND IT WAS VACUOUS BEFORE.
+   * This read `SRC.indexOf('function setProjSource')`, which matched the FIRST
+   * declaration of that name — B's position-boards handler at the top of the
+   * file, a completely different function — and then searched all 7,000
+   * remaining lines for `state.pristine`. It could not have failed. Two
+   * functions shared the name (see one_name_one_function.test.js); the panel's
+   * is now `setProjSourcePanel` and this looks only inside its body. */
+  (function () {
+    const i = SRC.indexOf('function setProjSourcePanel');
+    if (i < 0) return false;
+    const body = SRC.slice(i, SRC.indexOf('\n  }\n', i));
+    return /state\.pristine/.test(body) && body.length < 4000;
+  }()), 'searched only setProjSourcePanel\'s own body');
 
 ck('a re-ranked board SHOUTS that it is re-ranked — Cory drafts from this '
    + 'screen and a swapped board that looks normal is the most dangerous thing '

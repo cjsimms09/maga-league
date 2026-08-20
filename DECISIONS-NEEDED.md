@@ -277,8 +277,20 @@ confirmed and already implemented; "draft upside late" contradicted three ways;
 the middle is flat, not dead. **The round-11 QB rail SHIPS**: one line from
 round 11 — "a second QB costs a roster spot the wire fills for free (measured:
 wire ≈ replacement at QB, −76 pts/season when it fires; n=21, thin)" — no
-weight changes. Sub-item (a) is overtaken by events: proj_ceiling became
-measured p90 on 08-17 and the ceiling weight shipped at 0.45 by Cory's ruling.
+weight changes. ~~Sub-item (a) is overtaken by events: proj_ceiling became
+measured p90 on 08-17 and the ceiling weight shipped at 0.45 by Cory's ruling.~~
+
+**⚠️ SUPERSEDED 2026-08-20 BY CORY, IN HIS OWN WORDS — the ceiling weight is
+0.0 and the 0.45 above is history.** *"that ceiling approach just makes no
+sense...... I want to use draft sharks ceilings"*, then *"switch it off, its so
+arbritrary.. doesnt make sense.. lets get back to the basic of our model for
+this draft"*. **The 0.45 was measured on 08-17 against the ceilings that
+existed then — `proj_mean + CEILING_Z × proj_sd`, a symmetric Gaussian — and
+Draft Sharks' real per-player bands replaced those ceilings on 08-19. The
+weight was never re-measured against the field it now multiplies, so keeping it
+would have been carrying a number earned on a quantity that no longer exists.**
+Shipped in `MEASURED_WEIGHTS.ceiling = 0.0`; 8 of Cory's 12 picks change,
+picks 33/48/53 are identical. `draft/WHAT-CORY-WANTS-2026.md` is the spec.
 
 **EMPIRICAL DRAFT VALUE (a)–(e): RULED.**
 (a) Corrupted any_td props stores: RE-FETCH ORDERED through the fixed fetcher
@@ -1183,8 +1195,13 @@ almost immediately after it was written, as this whole session's `git push origi
   - **Stack** stays at 1.0, not the "~0.5" this entry suggests — you personally resolved this
     exact conflict on 2026-08-13 (D10 correction): the code was right, an earlier record was
     wrong, and 1.0 is what was always meant to ship.
-  - ~~**Ceiling** stays at 0, not the "0.65" this entry recommends~~ **SUPERSEDED 2026-08-17
-    by Cory's own ruling — ceiling is set to 0.45.** The history, kept because each step was
+  - ~~**Ceiling** stays at 0, not the "0.65" this entry recommends~~ ~~**SUPERSEDED 2026-08-17
+    by Cory's own ruling — ceiling is set to 0.45.**~~ **⚠️ SUPERSEDED AGAIN 2026-08-20, BACK TO
+    0.0, BY CORY: *"switch it off, its so arbritrary.. doesnt make sense."* The 0.45 was earned
+    on 08-17 against a Gaussian ceiling (`proj_mean + CEILING_Z × proj_sd`); Draft Sharks' real
+    per-player bands replaced that field on 08-19 and the weight was never re-measured against
+    the quantity it now multiplies. A weight kept across a change of the thing it weights is not
+    a surviving ruling, it is a stale constant.** The history, kept because each step was
     right on its evidence: you ruled it to 0 on **2026-08-10**, rejecting 0.65 (the "flip
     diagnostic" showed it deciding a third of the late board on a term with "no defensible
     sign"); a 2026-08-14 follow-up found that measurement collinear with the value term

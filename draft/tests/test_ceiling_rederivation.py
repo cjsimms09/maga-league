@@ -24,6 +24,7 @@ Run: python3 -m pytest draft/tests/test_ceiling_rederivation.py
 from __future__ import annotations
 import json
 import os
+import re
 import sys
 
 import pytest
@@ -163,12 +164,35 @@ def test_the_control_arm_is_frozen_and_the_engine_ships_the_ruling():
     stored artifact (live_ceiling_weight: 0.0). Moving it to follow the engine
     would silently rewrite what the experiment compared against. And the
     engine ships the ruled 0.45 (record at MEASURED_WEIGHTS), read from the
-    source rather than trusted from a second literal — the original point."""
+    source rather than trusted from a second literal — the original point.
+
+    ⚠️ AMENDED 2026-08-20, AND THE AMENDMENT IS THE POINT OF THE WHOLE FILE.
+    This asserted the literal `"ceiling: 0.45" in block` and went red the day
+    Cory ruled the weight back to 0.0 ("switch it off, its so arbritrary"),
+    refusing a board rebuild two days before the draft.
+
+    The control arm and the shipped weight have now CONVERGED — both are 0.0 —
+    so the old assertion's real content ("the engine does not merely echo the
+    control arm") cannot be reproduced by comparing them, and pretending
+    otherwise would be theatre. What survives, and is asserted below, is the
+    half that was always load-bearing: LIVE_CEILING_WEIGHT is the weight that
+    shipped WHEN THE RUNS WERE MADE and must never be moved to follow the
+    engine, because every stored artifact records it as the baseline the
+    experiment compared against.
+
+    And the reason the ruling reversed is worth keeping here, next to the
+    experiment that produced it: the 0.45 was measured on 08-17 against
+    `proj_mean + CEILING_Z x proj_sd`. Draft Sharks' real per-player bands
+    replaced `proj_ceiling` on 08-19. This experiment's conclusion was never
+    re-run against the new field, so the weight it recommended was being
+    applied to a quantity it had never seen."""
     src = open(os.path.join(os.path.dirname(os.path.dirname(HERE)),
                             "public", "js", "draft", "engine.js"), encoding="utf8").read()
     i = src.index("const MEASURED_WEIGHTS")
     block = src[i:i + 200]
-    assert "ceiling: 0.45" in block, block
+    #: the engine still DECLARES the term — a ruling of zero is not the term
+    #  being deleted, and a missing key would break every consumer of the vector
+    assert re.search(r"ceiling:\s*-?\d", block), block
     assert E.LIVE_CEILING_WEIGHT == 0.0, (
         "the control arm moved — that rewrites what every stored run compared "
         "against; a new experiment against the 0.45 baseline is a NEW file")
