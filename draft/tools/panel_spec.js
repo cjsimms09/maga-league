@@ -184,6 +184,26 @@ const PANELS = [
       + 'and a K at the top on a thinned board (register 134, measured). It cannot '
       + 'value a bench at all, so it has nothing to say about the last few picks.',
   },
+  { fn: 'renderProjSource', weight: 'CONTEXT', lines: 118,
+    question: 'What does ONE source say, instead of the blend — and does Draft '
+      + 'Sharks agree with the board?',
+    means: 'the same board priced by a single source\'s projection, with that '
+      + 'source\'s own number, its floor/ceiling band where it has one, and the '
+      + 'signed gap to the blend.',
+    changes_it: 'any pick (the pool shrinks); a new board build; the source button '
+      + 'Cory last pressed, which persists in localStorage',
+    reads: ['state.board', 'draft_data.json proj_mean/proj_ds/proj_sleeper/'
+      + 'proj_ownmodel/proj_fantasypros', 'proj_ds_floor', 'proj_ds_ceiling'],
+    note: 'BUILT BECAUSE CORY REPORTED BOTH HALVES MISSING (2026-08-20): "No draft '
+      + 'shark info, no toggle between sources or blend." Verified — a grep for '
+      + 'proj_ds across every war-room script returned ZERO hits, so months of '
+      + 'attach_draftsharks.py output had never reached a screen, and no toggle had '
+      + 'ever been written. B: THE COVERAGE WARNING IS LOAD-BEARING AND MUST NOT BE '
+      + 'STYLED AWAY — the sources cover different players (blend/Sleeper 700, '
+      + 'own-model 507, FantasyPros 429, Draft Sharks 247), and a man a source does '
+      + 'not carry is MISSING, not worthless. Display only: nothing here feeds '
+      + 'engine.js and the war room ranking is unchanged.',
+  },
   { fn: 'renderMlvPlan', weight: 'CONTEXT', lines: 96,
     question: 'What TEAM does the roster-builder model end up drafting me, across '
       + 'all twelve picks — not just this one?',
