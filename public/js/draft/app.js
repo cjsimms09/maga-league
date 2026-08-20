@@ -4722,7 +4722,15 @@
    */
   function applySourceBoard(players, league) {
     state.data.players = fillTeamByes(players.slice());
-    if (league) state.format = E.applyFormatDefaults(state.data.league);
+    /* ⚠️ THIS TESTED `league` AND THEN APPLIED `state.data.league` — harmless
+     * today because the alternate boards carry the same league block, and a
+     * trap the day they differ. Named by the relay's audit as "no action";
+     * fixed anyway, because a conditional that reads a different value than the
+     * one it tested is exactly the shape nobody re-reads. */
+    if (league) {
+      state.data.league = league;
+      state.format = E.applyFormatDefaults(league);
+    }
     state.board = draftablePlayers(state.data.players)
       .filter(p => !state.drafted.has(String(p.player_id)));
     applyOverrides();
@@ -10907,6 +10915,15 @@
       state.data.pick_order = JSON.parse(JSON.stringify(state.pristine.pick_order));
       state.format = E.applyFormatDefaults(state.data.league);
       state.profiles = indexProfilesBySlot(state.data);
+      /* ⛔ AND THE SOURCE LABEL MUST COME BACK WITH THE POOL. Found by the
+       * relay's war-room audit, 2026-08-20: this restores the pristine BLEND
+       * pool but left `state.projSource` claiming e.g. Sleeper, so the toggle
+       * asserted a source the board was no longer ranked by. A UI-state lie is
+       * worse than a wrong number at 8 seconds a pick, because Cory has no way
+       * to see it. The board and the label are restored together or not at all. */
+      state.projSource = 'blend';
+      state.sourceBoardMeta = null;
+      try { localStorage.setItem('wr_proj_source', 'blend'); } catch (e) { /* private mode */ }
     }
     state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
