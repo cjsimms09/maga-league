@@ -250,6 +250,17 @@
         </details>
       </div>
 
+      <%# MODEL COMPARISON — Cory, live 2026-08-20: "Give me peace to click in
+          on war room to see what each model would take! Max value, MLV
+          displacement, upside only model, floor model (safe pick)!" Four
+          named rows, always visible (no <details> — Cory asked to "click in
+          and see", not to hunt for it), each row clickable into the full
+          player panel. Populated by renderModelCompare() in app.js. %>
+      <div class="card" id="model-compare-card" style="display:none">
+        <h2>🧠 Model Comparison <span class="sub">what each model would take right now</span></h2>
+        <div class="body"><div id="model-compare"></div></div>
+      </div>
+
       <%# The LRM deadline strip — "elite QB gone by 41" changes what you do NOW. %>
       <div class="card" id="lrm-card">
         <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>

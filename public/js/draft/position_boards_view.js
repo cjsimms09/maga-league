@@ -100,6 +100,26 @@
       + esc(entry.call === 'like' ? 'You liked him' : 'You disliked him') + '">' + glyph + '</span>';
   }
 
+  /* ROOKIE TAG — Cory, live: "add some sort of tag to every rookie on the
+   * board so I know they're a rookie, maybe a blue R next to their name."
+   * `rookieIds` is a Set of player_ids built in app.js from `is_nfl_rookie`
+   * on the full board (this file stays pure — no board/global lookup here,
+   * same pattern as liveSurvivalById/callsById below it). */
+  function rookieTag(p, esc, rookieIds) {
+    if (!rookieIds || p.player_id == null || !rookieIds.has(String(p.player_id))) return '';
+    return '<span class="pb-rookie-tag" title="' + esc('Rookie — first NFL season, 2026') + '">R</span>';
+  }
+
+  /* TOP-5 PACE MARK — Cory, live: "a red asterisk or some identifier to a
+   * player on a team with a top 5 pace of play." `paceTeams` is a Set of
+   * team abbreviations built in app.js from window.WR_TEAM_PACE (kept out
+   * of this file for the same reason rookieIds is — no globals in the pure
+   * view layer). */
+  function paceMark(p, esc, paceTeams) {
+    if (!paceTeams || !p.team || !paceTeams.has(p.team)) return '';
+    return '<span class="pb-pace-mark" title="' + esc(p.team + ' — top-5 team pace of play this season') + '">*</span>';
+  }
+
   /* ── WHY THIS ROW IS 4 COLUMNS, NOT 6 ─────────────────────────────────────
    * Measured, not eyeballed, at a real 1440px viewport: six nowrap numeric
    * columns (Proj/Fl-Ce/ADP/Surv/Risk) needed a forced horizontal scroll to
@@ -109,7 +129,7 @@
    * a column (see riskDot above). Team sits beside the name, not under it —
    * a second LINE per row is exactly what turned 10 players into a wall of
    * text the first time through this fix. */
-  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource, scale, callsById) {
+  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource, scale, callsById, badgeInfo) {
     var surv = survivalFor(p, liveSurvivalById);
     var survClass = surv.pct == null ? '' : surv.pct >= 70 ? 'pb-surv-safe' : surv.pct >= 30 ? 'pb-surv-mid' : 'pb-surv-hot';
     var survTitle = surv.live
@@ -135,6 +155,8 @@
      * was never asked to share a cell with three other things. */
     var risk = riskDot(p.injury_risk_pct, esc);
     var call = callGlyph((callsById || {})[String(p.player_id)], esc);
+    var rookie = rookieTag(p, esc, badgeInfo && badgeInfo.rookieIds);
+    var pace = paceMark(p, esc, badgeInfo && badgeInfo.paceTeams);
     /* A CSS-GRID ROW, NOT A <table> ROW. The <table> version's headers and
      * cells drifted apart under table-layout: fixed — a live screenshot
      * caught "PROJ"/"RANGE"/"SURV" overlapping in the header, and Proj's
@@ -154,7 +176,7 @@
     return '<div class="pb-table-row pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '"'
       + (p.player_id != null ? ' data-drill="' + esc(String(p.player_id)) + '"' : '') + '>'
       + '<div class="pb-name"' + (nameTitle ? ' title="' + esc(nameTitle) + '"' : '') + '>'
-        + esc(p.name || '') + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + call + risk + '</div>'
+        + esc(p.name || '') + rookie + pace + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + call + risk + '</div>'
       + '<div class="pb-proj">' + esc(fmtNum(pf.proj)) + '</div>'
       + '<div class="pb-range">' + rangeBarMini(pf.floor, pf.proj, pf.ceiling, scale, esc) + '</div>'
       + '<div class="pb-surv ' + survClass + '" title="' + esc(survTitle) + '">' + esc(fmtPct(surv.pct))
@@ -302,12 +324,12 @@
     return { min: Math.min.apply(null, floors), max: Math.max.apply(null, ceils) };
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById) {
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo) {
     if (!block) return '';
     var players = block.players || [];
     var scale = rangeScaleFor(players, projSource);
     var rows = players.map(function (p, i) {
-      var row = playerRow(p, esc, liveSurvivalById, false, projSource, scale, callsById);
+      var row = playerRow(p, esc, liveSurvivalById, false, projSource, scale, callsById, badgeInfo);
       if (block.cliff_after_rank != null && i === block.cliff_after_rank - 1 && i < players.length - 1) {
         row += '<div class="pb-cliff-row">▽ cliff — next tier drops '
           + esc(fmtNum(block.cliff_size)) + ' pts ▽</div>';
@@ -445,13 +467,13 @@
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
    * so a missing/stale artifact degrades to nothing rather than a broken panel.
    * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
-  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById) {
+  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo) {
     if (!data || !Array.isArray(data.picks) || !data.picks.length) return '';
     var pick = findPick(data, pickNum);
     if (!pick) return '';
     var src = projSource === 'blend' ? 'blend' : 'ds';
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
@@ -487,6 +509,7 @@
     positionColumn: positionColumn, projFieldsFor: projFieldsFor,
     roundDropoffChart: roundDropoffChart, rangeBarMini: rangeBarMini,
     rangeScaleFor: rangeScaleFor, strikePeaks: strikePeaks, strikeBar: strikeBar,
+    playerRow: playerRow, rookieTag: rookieTag, paceMark: paceMark,
     POS_ORDER: POS_ORDER };
   global.PositionBoardsView = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;

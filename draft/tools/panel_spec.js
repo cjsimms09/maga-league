@@ -529,6 +529,17 @@ const PANELS = [
     note: 'DUPLICATES renderShadowProjection at a different size — the same '
       + 'pattern as renderThreats/renderThreatStrip. Two of these pairs on one '
       + 'screen is a large part of what "super busy yet very little info" is.' },
+  { fn: 'renderModelCompare', weight: 'CONTEXT', lines: null,
+    question: 'Cory, live 2026-08-20: "what would each model take? Max value, MLV '
+      + 'displacement, upside only model, floor model (safe pick)!"',
+    means: 'Four NAMED models, curated (not the full strategy dump above): Max '
+      + 'Value and Floor(Safe)/Upside-Only are DraftShadows profiles; MLV '
+      + 'Displacement is the Roster Builder Model\'s own top pick, a different '
+      + 'system entirely (mlv.js). CONTEXT, not TIMES, because it does not order '
+      + 'position — it names alternate PLAYERS at the position already on the '
+      + 'clock, which is exactly the question Cory asked (compare with renderShadowProjection above, which answers the ordering question these four models do not).',
+    changes_it: 'any pick; the board changing under the four named lenses',
+    reads: ['DraftShadows', 'RosterBuilderMLV', 'state.board'] },
 
   // ── TRUSTS ────────────────────────────────────────────────────────────
   { fn: 'renderConfidence', weight: 'TRUSTS', lines: null,

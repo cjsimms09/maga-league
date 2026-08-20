@@ -1043,8 +1043,35 @@
       }
     }
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
-      state.projSource || 'ds', state.playerCalls || {});
+      state.projSource || 'ds', state.playerCalls || {}, badgeInfo());
     wirePositionBoardsScroll(host);
+  }
+
+  /* Rookie ids + top-5-pace teams, computed once per render from data already
+   * on the page (state.board carries is_nfl_rookie; window.WR_TEAM_PACE
+   * carries neutral_plays_per_game) and handed to PositionBoardsView as plain
+   * Sets — same pattern as liveSurvivalById/callsById above: the pure view
+   * file never touches state or window itself. Cory, live 2026-08-20: "add
+   * some sort of tag to every rookie... a blue R" / "a red asterisk... team
+   * with a top 5 pace of play." */
+  function badgeInfo() {
+    const rookieIds = new Set();
+    (state.board || []).forEach(function (p) {
+      if (p && p.is_nfl_rookie === true && p.player_id != null) rookieIds.add(String(p.player_id));
+    });
+    const paceTeams = new Set();
+    try {
+      const pace = window.WR_TEAM_PACE;
+      const teams = pace && pace.teams;
+      if (teams) {
+        Object.keys(teams)
+          .filter(function (t) { return teams[t] && teams[t].neutral_plays_per_game != null; })
+          .sort(function (a, b) { return teams[b].neutral_plays_per_game - teams[a].neutral_plays_per_game; })
+          .slice(0, 5)
+          .forEach(function (t) { paceTeams.add(t); });
+      }
+    } catch (e) {}
+    return { rookieIds: rookieIds, paceTeams: paceTeams };
   }
 
   /* pb-grid is wider than the panel at a normal desktop width by design
@@ -5863,6 +5890,7 @@
     try { renderMVS(out.scored, out.paths); } catch (e) { console.error('[mvs]', e && e.message); }
     // The strategy-split panel — projected from the live board, never blank.
     try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
+    try { renderModelCompare(); } catch (e) { console.error('[model-compare]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
@@ -8440,6 +8468,77 @@
         + (r.driver ? ' <span class="sp-rowdriver muted">' + esc(r.driver)
           + (r.driver_value != null ? ' ' + r.driver_value.toFixed(1) : '') + '</span>' : '')
         + '</span></div>';
+    }).join('');
+  }
+
+  /* THE MODEL-COMPARISON PANEL — Cory, live 2026-08-20: "Give me peace to
+   * click in on war room to see what each model would take! Max value, MLV
+   * displacement, upside only model, floor model (safe pick)!"
+   *
+   * Four named lenses, not the full 9-strategy dump #shadow-projection
+   * already shows one tap away — this is a curated, always-legible strip of
+   * exactly the four models Cory named, so "what would the safe pick be"
+   * never requires opening the full strategy list and finding it by eye.
+   *
+   *   Max Value       -> DraftShadows profile `value_anchor` (exact existing
+   *                      match — reused, not duplicated, per Rule 11).
+   *   Upside-Only      -> DraftShadows profile `upside_pure` (added this turn).
+   *   Floor (Safe)     -> DraftShadows profile `floor_safe` (added this turn).
+   *   MLV Displacement -> the Roster Builder Model's #1 (RosterBuilderMLV.
+   *                       recommend, mlv.js) — a DIFFERENT system from
+   *                       DraftShadows, already built for exactly this
+   *                       question ("what adds the most to my STARTING
+   *                       lineup right now"), reused rather than reinvented.
+   *
+   * Same legality rails as every other surface on this page (E.recommend /
+   * RosterBuilderMLV.recommend both apply them) — no model here can name an
+   * illegal pick. Read-only: nothing here writes to the board or a pick. */
+  function renderModelCompare() {
+    const card = document.getElementById('model-compare-card');
+    const host = document.getElementById('model-compare');
+    if (!card || !host) return;
+    if (!state.board || !state.board.length || !state.data) { card.style.display = 'none'; return; }
+    const rows = [];
+    try {
+      if (typeof DraftShadows !== 'undefined') {
+        const teams = ((state.data.league || {}).teams) || 10;
+        const round = Math.max(1, Math.ceil(currentPick() / teams));
+        const proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        const WANT = [
+          { key: 'value_anchor', label: 'Max Value',
+            title: 'The player who scores highest by raw value alone — no ceiling chase, no roster-need discount.' },
+          { key: 'upside_pure', label: 'Upside-Only',
+            title: 'The highest-ceiling player available — ignores need, risk and floor entirely.' },
+          { key: 'floor_safe', label: 'Floor (Safe)',
+            title: 'The lowest-risk player available — ignores ceiling entirely, leans hardest against injury/age risk.' },
+        ];
+        WANT.forEach(function (w) {
+          const r = proj.find(function (x) { return x.key === w.key; });
+          if (r) rows.push({ label: w.label, title: w.title, player: r.player, position: r.position, player_id: r.player_id });
+        });
+      }
+    } catch (e) { /* DraftShadows models are optional; MLV below is not */ }
+    try {
+      if (typeof RosterBuilderMLV !== 'undefined') {
+        const recs = RosterBuilderMLV.recommend(state.board, state.myRoster || [],
+          { league: state.data.league, topN: 1 });
+        if (recs && recs.length && recs[0].player) {
+          rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
+            position: recs[0].position, player_id: String(recs[0].player.player_id),
+            title: 'The player who adds the most points to your STARTING lineup right now (marginal lineup value) — a different model from the three above.' });
+        }
+      }
+    } catch (e) { /* leave the MLV row off rather than break the strip */ }
+    if (!rows.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const esc = escapeHtml;
+    host.innerHTML = rows.map(function (r) {
+      return '<div class="mc-row"' + (r.player_id != null ? ' data-drill="' + esc(String(r.player_id)) + '"' : '')
+        + ' title="' + esc(r.title || '') + '">'
+        + '<span class="mc-label">' + esc(r.label) + '</span>'
+        + '<span class="mc-pick">' + esc(shortName(r.player))
+        + (r.position ? ' <span class="sp-pos">' + esc(r.position) + '</span>' : '') + '</span>'
+        + '</div>';
     }).join('');
   }
 

@@ -105,7 +105,7 @@ const SRC = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   const CSS = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8');
   ck('the card has a real CSS order in .wr-zone1, so it actually renders in the flow '
     + 'rather than falling back to order:0 (the exact bug #position-boards had once)',
-    /\.wr-zone1 > #adp-movers-card\s*\{\s*order:\s*15;/.test(CSS));
+    /\.wr-zone1 > #adp-movers-card\s*\{\s*order:\s*\d+;/.test(CSS));
 
   ck('a mover row now carries data-drill onto its name, same as every other name on the page',
     /wr-mover-name"' \+ \(p\.player_id != null \? ' data-drill="' \+ escapeHtml\(String\(p\.player_id\)\)/.test(SRC));

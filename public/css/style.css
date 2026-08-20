@@ -2744,10 +2744,11 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .wr-zone1 > #doctrine-picker   { order: 9; }   /* A's compact plan table — reference, beneath the rec */
 .wr-zone1 > #mvs               { order: 10; }  /* redundant summary — hidden on warroom, ordered anyway */
 .wr-zone1 > #shadow-projection { order: 11; }
-.wr-zone1 > #lrm-card          { order: 12; }
-.wr-zone1 > #branch-card       { order: 13; }
-.wr-zone1 > #queue-card        { order: 14; }
-.wr-zone1 > #adp-movers-card   { order: 15; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
+.wr-zone1 > #model-compare-card { order: 12; }  /* Cory: "click in... what each model would take" */
+.wr-zone1 > #lrm-card          { order: 13; }
+.wr-zone1 > #branch-card       { order: 14; }
+.wr-zone1 > #queue-card        { order: 15; }
+.wr-zone1 > #adp-movers-card   { order: 16; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
    ~172px of masthead + a draft-day notice already read + a redundant title).
@@ -2943,6 +2944,20 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .shadow-proj .sp-strat { color: var(--muted,#9aa4bb); }
 .shadow-proj .sp-pick { color: var(--ink); font-weight: 600; text-align: right; }
 @media (max-width: 620px) { .shadow-proj-line { font-size: .78rem; } }
+
+/* MODEL COMPARISON — Cory: "click in... to see what each model would take!
+   Max value, MLV displacement, upside only model, floor model." Same row
+   shape as the strategy-split panel's own <details> list above (.sp-row),
+   but always visible and clickable — four named models, not a tap-to-open
+   dump of every strategy. */
+#model-compare .mc-row { display: flex; justify-content: space-between; gap: .8rem;
+  font-size: .82rem; padding: .3rem .1rem; border-top: 1px solid rgba(255,255,255,.06);
+  cursor: pointer; }
+#model-compare .mc-row:first-child { border-top: none; }
+#model-compare .mc-row:hover { background: rgba(255,255,255,.04); }
+#model-compare .mc-label { color: var(--muted,#9aa4bb); font-weight: 600; }
+#model-compare .mc-pick { color: var(--ink); font-weight: 700; text-align: right; }
+#model-compare .sp-pos { font-size: .7rem; color: var(--muted,#9aa4bb); font-weight: 600; }
 
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;
