@@ -257,6 +257,15 @@ jobs:
           node draft/tools/emit_seat_plan.js
           node draft/tools/position_boards.js
           node draft/tools/mlv_snapshot.js
+          # AND THEN PROVE IT, rather than trusting that running the steps was
+          # enough. This joins every artifact the war room reads BACK to the
+          # freshly built board and compares the VALUES -- not the timestamps,
+          # because timestamps are exactly what failed in register 143 (the
+          # stale seat plan and the fresh board agreed on their provenance
+          # stamps and disagreed on their numbers). Exit 1 on draft-critical
+          # drift, so a board that would mislead Cory fails the build instead of
+          # being published.
+          node draft/tools/draft_day_consistency.js
           # NOT WIRED: draft/tools/variance_portfolio.js (conditional_value_2026.json).
           # It exceeded two minutes locally and this job already has a long
           # critical path; wiring something that may time out would turn a green
