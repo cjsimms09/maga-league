@@ -108,6 +108,12 @@ ck("overall_rank is a clean 1..N with no gaps or duplicates",
 # unchanged. This just gives pytest something to collect and fail on.
 
 
+import pytest  # noqa: E402
+
+
+@pytest.mark.post_chain  # the DS ranking only exists after attach_draftsharks runs; deselected in the PRE-chain gate,
+# run explicitly in draft-data.yml's post-chain step. Marked here and
+# added there in the same commit, per the conftest rule.
 def test_all_checks_pass():
     assert not _fails, "%d check(s) failed: " % len(_fails) + "; ".join(_fails)
 
