@@ -42,6 +42,20 @@ const ROOT = path.join(__dirname, '..', '..');
 const BOARD = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const MS = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'draft', 'data', 'multisource_projections.json'), 'utf8'));
+/* Mike Clay's 2026 guide, ingested by C (draft/tools/clay_projections.py) and
+ * keyed by the same sleeper player_id as everything else. Cory, 2026-08-20:
+ * "can we include that as a source on our war room".
+ *
+ * ⚠️ READ AS A COLUMN, NOT AS A BLEND INPUT. This file emits ORDER only and
+ * writes no board field, so adding Clay here shows what he thinks WITHOUT
+ * moving a single number Cory drafts on. Whether he belongs in `proj_mean` is a
+ * separate decision with a separate blast radius, measured separately.
+ *
+ * His points are scored from RAW STAT LINES under this league's half-PPR table
+ * — his own full-PPR column is never read (C's store, verified by two
+ * hand-calculated checks and a known-positive control with its own fail arm). */
+const CLAY = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'data', 'clay_projections_2026.json'), 'utf8'));
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 const DEPTH = 60;          // deeper than any position can be drawn down in 150 picks
@@ -57,12 +71,18 @@ const SOURCES = [
   { key: 'CBS', label: 'CBS', ms: 'CBS' },
   { key: 'ESPN', label: 'ESPN', ms: 'ESPN' },
   { key: 'FFTODAY', label: 'FFToday', ms: 'FFToday' },
+  { key: 'CLAY', label: 'Mike Clay', note: 'scored under our table', clay: true },
 ];
 
 const players = BOARD.players.filter(p => p.position && POS.indexOf(p.position) >= 0);
 const msOf = id => (MS.players || {})[String(id)];
 
 function valueFor(src, p) {
+  if (src.clay) {
+    const c = (CLAY.players || {})[String(p.player_id)];
+    const v = c && c.proj_clay_scored;
+    return v == null ? null : Number(v);
+  }
   if (src.ms) {
     const m = msOf(p.player_id);
     const v = m && m.by_source && m.by_source[src.ms];
