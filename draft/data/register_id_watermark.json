@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 136,
+ "next_numeric_id": 139,
  "history": [
   {
    "id": 47,
@@ -69,15 +69,28 @@
   },
   {
    "id": 133,
-   "claimed_at": "2026-08-19"
+   "claimed_at": "2026-08-19",
+   "note": "D: keeper-tooling tests write to committed data paths — collided with A's real 133 (MLV-timing arm) at merge with origin/main, renumbered to 136"
   },
   {
-   "id": 134,
-   "claimed_at": "2026-08-20"
+   "id": "133-135 renumbered to 136-138",
+   "claimed_at": "2026-08-20",
+   "note": "D claimed 133/134/135 locally before syncing with origin/main; A had independently claimed real, different 133 (MLV-timing) and 134 (MLV-onesie correction) on main in the meantime. On merge: D's 133 (keeper-tooling) -> 136, D's 134 (falsy-zero vorp sort bug) -> 137, D's 135 (unclassified blend fields) -> 138. A's 133/134 kept as-is. Watermark now authoritative from 139."
   },
   {
-   "id": 135,
-   "claimed_at": "2026-08-20"
+   "id": 136,
+   "claimed_at": "2026-08-20",
+   "note": "D: keeper-tooling tests write to committed data paths (was 133 pre-renumber)"
+  },
+  {
+   "id": 137,
+   "claimed_at": "2026-08-20",
+   "note": "D: attach_draftsharks.py falsy-zero vorp sort bug (was 134 pre-renumber)"
+  },
+  {
+   "id": 138,
+   "claimed_at": "2026-08-20",
+   "note": "D: unclassified Draft Sharks blend fields (was 135 pre-renumber)"
   }
  ]
 }
