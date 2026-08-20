@@ -91,3 +91,59 @@ additive-urgency term is a LIGHT lookahead, and every lookahead we have
 graded loses or ties. If it beats BAV by more than +10, the additive form
 succeeded where the ranking form failed four times, and that is a genuine
 discovery about WHERE timing information belongs.
+
+## 5. PRE-RUN AMENDMENT (declared BEFORE the first gauntlet arm executed)
+
+**`bav` ≡ `adp` in this frame, provably:** the replay's value signal IS the
+market's own order (valueOf strictly decreasing in pick order), so "take the
+best value" and "take the next player by ADP" select identically. The
+articles can separate them only because their value signal is projections,
+which the replay deliberately excludes for era-correctness. Consequence for
+P153: it grades on the merged bav/adp arm's rank among the SEVEN distinct
+arms, and the article's value-vs-ADP split is recorded as UNTESTABLE in this
+frame — a frame limitation stated up front, not an excuse discovered after.
+
+## 6. GRADED, SAME DAY — the table, the four predictions, and one real discovery
+
+Controls: `--mlv` byte-guard held through every patch; 30/30 legal on all
+final arms; pairwise engagement clean except the DECLARED `bav ≡ adp`
+identity (§5). One instrumentation incident recorded per Rule 3f: two snake
+runs crashed silently (strict-mode `this`) and byte-identical stale output
+was nearly quoted — caught because byte-identity is treated as a bug report.
+
+| strategy (skill, 30 seat-years) | frozen | waiver-aware | note |
+|---|---|---|---|
+| **Snake Value (points units)** | **+30.9** | **+6.4** | ≈ MLV-cap (+29.3/+2.1) — see below |
+| Best-Avail-Value ≡ Best-Avail-ADP | +4.8 | +4.7 | the merged arm, §5 |
+| Hero RB | +1.9 | +1.8 | best frozen ACTUAL (+11.9) of the constraints |
+| Late-Round QB | −53.8 | +1.4 | frozen crushed by 5 supply-starved seats |
+| Hybrid VONA→value | −24.8 | −26.8 | |
+| Zero RB | −33.5 | −37.0 | |
+| strict VONA | −42.4 | −52.3 | |
+| Snake Value (rank units — the first, unfaithful run) | −72.6 | −94.3 | kept as the units lesson |
+
+**P153 FALSE** — the merged bav/adp arm finished SECOND, not last; the §5
+amendment named the mechanism before the run (ADP ≡ value in this frame, so
+the article's "ADP worst" physically cannot appear here). **P154 TRUE** —
+the fourth independent lookahead null, in the industry's own formulation.
+**P155 TRUE** — no constraint template beats plain value; the DP corollary
+holds on named strategies too. **P156 FALSE IN THE DECLARED-SURPRISE
+DIRECTION:** Snake Value beat strict VONA (clause 1 ✓) but landed +26 ABOVE
+BAV, far outside ±10 — **the additive form of timing succeeded where the
+ranking form failed four times.** Label honestly: the points re-denomination
+was forced by the rank-run's collapse (a mechanism, not a result-peek), but
+the points run is the second implementation, so this carries the same
+non-blind asterisk P136 did.
+
+**The discovery, stated carefully:** `VOB + additive opportunity cost` in
+points units ≈ MLV displacement (+30.9 vs +29.3 frozen; +6.4 vs +2.1
+waiver-graded; different rosters — DEF before pick 60 in 14/30 seats, which
+MLV never does). Two structurally different formulas from two independent
+traditions land on the same performance plateau — consistent with the DP
+result that the plateau IS the ceiling for this value signal. **For the
+panel: show Snake Value and BAV beside MLV as the three graded voices worth
+weight; show VONA/Zero-RB/Late-QB with their negative track records printed,
+because a famous name with a −40 record is exactly what the strip exists to
+reveal.** And the units lesson generalizes: ANY VBD-family display on the
+war room must be points-denominated — rank-unit VBD actively inverts flat
+positions (register-worthy if any surface does it; none found today).
