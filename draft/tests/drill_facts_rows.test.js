@@ -132,6 +132,51 @@ ck('a RB with every usage field null -> null, not an empty "Usage" label',
   usageRow({ position: 'RB', carries: null, opportunity_share: null, rz_share: null }) === null);
 ck('missing player / no position -> null, no throw', usageRow(null) === null && usageRow({}) === null);
 
+// ── usageRow, the 08-20 additions — A's nothing_computed_goes_unshown.js
+// audit: gl_carries/rz_targets/air_yards_share computed on the real board,
+// read by no served file until now. opportunity_adj is DELIBERATELY absent
+// — it is -0 for all 700 players on the live board (a real distribution
+// check, not an oversight: draft/tests/opportunity_adj_stays_off.test.js
+// pins that it stays off), so displaying it would show "0" for every
+// player on the page, which is worse than not showing it at all.
+ck('RB also gets goal-line carries when present, a separate fact from total carries',
+  (() => { const r = usageRow({ position: 'RB', carries: 249.3, gl_carries: 12.4 });
+    return r[1].indexOf('12.4 goal-line carries/szn') >= 0 && r[1].indexOf('249 carries/szn') >= 0; })());
+ck('...and is absent (not a "0 goal-line carries" line) when the field is null',
+  (() => { const r = usageRow({ position: 'RB', carries: 249.3, gl_carries: null });
+    return r[1].indexOf('goal-line') === -1; })());
+ck('WR/TE gets red-zone TARGETS (the raw count) alongside the share',
+  (() => { const r = usageRow({ position: 'WR', rz_share: 0.275, rz_targets: 19.8 });
+    return r[1].indexOf('19.8 red-zone targets/szn') >= 0 && r[1].indexOf('27.5% red-zone share') >= 0; })());
+ck('WR/TE gets air-yards share, distinct from aDOT',
+  (() => { const r = usageRow({ position: 'WR', adot: 12.1, air_yards_share: 0.286 });
+    return r[1].indexOf('28.6% air-yards share') >= 0 && r[1].indexOf('12.1 aDOT') >= 0; })());
+ck('a RB with ONLY gl_carries (everything else null) still gets a row, not null',
+  usageRow({ position: 'RB', carries: null, opportunity_share: null, rz_share: null, gl_carries: 8.1 }) !== null);
+ck('opportunity_adj is intentionally never referenced by usageRow (it is a constant 0 on the real board)',
+  !/opportunity_adj/.test(lift('usageRow')));
+
+// ── volatilityRow — A's RISK block: proj_sd (season uncertainty) and
+// weekly_sd (start/sit swing) are two different questions, both computed on
+// all 700 players and read by nothing before this. variance_why is
+// deliberately NOT surfaced raw — it is a methodology/provenance trail for
+// auditing the number, not a fact Cory needs at 8s/pick.
+const volatilityRow = eval('(' + lift('volatilityRow') + ')');
+ck('both proj_sd and weekly_sd render, plain-labelled, with a ± and an explanation apiece',
+  (() => { const r = volatilityRow({ proj_sd: 18.72, weekly_sd: 45.21 });
+    return r[0] === 'Volatility' && r[1].indexOf('±18.7 season proj') >= 0 && r[1].indexOf('±45.2 week to week') >= 0; })());
+ck('one present, one absent -> just the one, not a broken row',
+  (() => { const r = volatilityRow({ proj_sd: 9.6, weekly_sd: null });
+    return r[1].indexOf('season proj') >= 0 && r[1].indexOf('week to week') === -1; })());
+ck('neither present -> null, not an empty "Volatility" label', volatilityRow({}) === null);
+ck('missing player -> null, no throw', volatilityRow(null) === null);
+ck('variance_why is deliberately never echoed raw — it is provenance/methodology text, not a player fact',
+  !/variance_why/.test(lift('volatilityRow')));
+ck('volatilityRow is actually wired into the drill panel, next to usageRow', (() => {
+  const wcSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');
+  return /usageRow\(p\),\s*\n\s*volatilityRow\(p\),/.test(wcSrc);
+})());
+
 // ── injuryRow — a designation and a risk pct are two different claims, and
 // neither is fabricated when the other is the only one present. ───────────
 ck('a real designation with a risk pct shows both, one sentence',

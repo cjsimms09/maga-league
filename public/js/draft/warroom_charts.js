@@ -835,25 +835,67 @@
     if (!p || !p.position) return null;
     var pct = function (v) { return v == null ? null : Math.round(v * 1000) / 10 + '%'; };
     if (p.position === 'RB') {
-      if (p.carries == null && p.opportunity_share == null && p.rz_share == null) return null;
+      if (p.carries == null && p.opportunity_share == null && p.rz_share == null && p.gl_carries == null) return null;
       var parts = [];
       if (p.carries != null) parts.push(Math.round(p.carries) + ' carries/szn');
       if (p.opportunity_share != null) parts.push(pct(p.opportunity_share) + ' opportunity share');
       if (p.rz_share != null) parts.push(pct(p.rz_share) + ' red-zone share');
+      /* A, 2026-08-20 (nothing_computed_goes_unshown.js): gl_carries is
+       * computed on all 700 players and read by nothing. Goal-line work is
+       * the clearest TD-upside signal a raw carry count does not capture on
+       * its own — two backs can carry the ball the same number of times
+       * with very different scoring odds. */
+      if (p.gl_carries != null) parts.push('<span title="Goal-line carries per season — the clearest TD-upside signal, separate from total volume">'
+        + Math.round(p.gl_carries * 10) / 10 + ' goal-line carries/szn</span>');
       return parts.length ? ['Usage', parts.join(' <span class="muted">·</span> ')] : null;
     }
     if (p.position === 'WR' || p.position === 'TE') {
-      if (p.target_share == null && p.wopr == null && p.rz_share == null) return null;
+      if (p.target_share == null && p.wopr == null && p.rz_share == null && p.air_yards_share == null
+        && p.rz_targets == null) return null;
       var wparts = [];
       if (p.target_share != null) wparts.push(pct(p.target_share) + ' target share');
       if (p.wopr != null) wparts.push('<span title="Weighted Opportunity Rating — target share and air-yards share blended into one usage number">'
         + Math.round(p.wopr * 100) / 100 + ' WOPR</span>');
       if (p.rz_share != null) wparts.push(pct(p.rz_share) + ' red-zone share');
+      /* A, 2026-08-20: rz_targets (the raw COUNT, not the share) — a share
+       * can be high on a low-volume offense; the count is what actually
+       * shows up in the box score. Computed for 700 players, read by none. */
+      if (p.rz_targets != null) wparts.push('<span title="Projected red-zone targets this season — the raw count behind the share above">'
+        + Math.round(p.rz_targets * 10) / 10 + ' red-zone targets/szn</span>');
       if (p.adot != null) wparts.push('<span title="Average Depth of Target — how far downfield his targets travel">'
         + Math.round(p.adot * 10) / 10 + ' aDOT</span>');
+      /* A, 2026-08-20: air_yards_share — his share of the TEAM's total air
+       * yards, distinct from aDOT (how far HIS OWN targets travel). A deep
+       * threat can have a high aDOT and still be a small slice of the
+       * offense; this is the slice. */
+      if (p.air_yards_share != null) wparts.push('<span title="His share of the TEAM\'s total air yards — a deep aDOT on a small slice of the offense reads very differently from a deep aDOT that IS the offense">'
+        + pct(p.air_yards_share) + ' air-yards share</span>');
       return wparts.length ? ['Usage', wparts.join(' <span class="muted">·</span> ')] : null;
     }
     return null;
+  }
+
+  /* VOLATILITY — Cory: "All the things we figure out here have to be
+   * implemented on the war room or it was all for nothing." A's audit
+   * (nothing_computed_goes_unshown.js, 08-20): proj_sd and weekly_sd are
+   * computed for all 700 players and read by no served file. Two different
+   * questions, both real: proj_sd is season-to-season uncertainty (is this
+   * projection itself shaky); weekly_sd is start/sit swing (does he blow up
+   * or lay an egg week to week even if the season total lands as projected).
+   * `variance_why` (the third field in A's RISK block) is deliberately NOT
+   * echoed here — it is a methodology/provenance trail ("sd level from
+   * measured 2023-25 projection error, band RB|1-3...") aimed at a future
+   * session auditing the number, not a fact Cory needs at 8s/pick; showing
+   * it raw would be over-explaining in the opposite direction from an
+   * unexplained glyph. */
+  function volatilityRow(p) {
+    if (!p || p.proj_sd == null && p.weekly_sd == null) return null;
+    var parts = [];
+    if (p.proj_sd != null) parts.push('<span title="How much his SEASON projection itself could be off — a wide number means the projection is a rougher guess, not that he plays inconsistently">'
+      + '±' + (Math.round(p.proj_sd * 10) / 10) + ' season proj</span>');
+    if (p.weekly_sd != null) parts.push('<span title="How much he swings WEEK TO WEEK even if his season total lands as projected — a wide number means boom/bust, a narrow one means steady">'
+      + '±' + (Math.round(p.weekly_sd * 10) / 10) + ' week to week</span>');
+    return parts.length ? ['Volatility', parts.join(' <span class="muted">·</span> ')] : null;
   }
 
   /* INJURY — a designation alone ("Questionable") means nothing without
@@ -954,6 +996,7 @@
       teamPassRateRow(p),
       teamPaceRow(p),
       usageRow(p),
+      volatilityRow(p),
       injuryRow(p),
       pedigreeRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
