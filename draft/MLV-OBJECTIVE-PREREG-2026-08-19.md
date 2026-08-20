@@ -74,3 +74,65 @@ waiver-aware, points-units). The shipped curve gets WORSE under the realistic
 game: **−39.1 actual (12/30)** vs −20.4 frozen. The strongest robust claim in
 this document is now: the shipped curve should not draft Saturday; MLV-cap is
 the best measured rule; and its real-game margin over a good human is small.
+
+## 14. PREREG — THE REALISTIC VONA EQUATION (`--real`, `--real-vona`), committed before the run
+
+Cory: *"So find me a more realistic calc equation that drafts a normal roster
+with most value (VONA)."* This section composes every graded lesson above into
+ONE objective and commits its bar before any line of it runs.
+
+**The equation.** At each of my picks, over every candidate `c` still on the
+board:
+
+```
+score(c) = M(c)                                   (myopic arm, --real)
+score(c) = M(c) − max over s∈Surv(pos(c)) M(s)    (VONA arm,   --real-vona)
+
+M(c)  = L(roster + c) − L(roster)
+L(R)  = Σ over starting slots  max(points(slot), WAIVER_season(slot))
+        + max(points(flex), WAIVER_flex)
+points(player) = LOO pick→points curve at his recorded pick_no
+Surv(q) = same-position candidates whose recorded pick_no is AFTER my own
+          next pick slot (they demonstrably survived until my next turn)
+```
+
+Piece by piece, each from a graded result: the value scale is the leave-one-
+season-out pick→points curve (retires §9 limit 4, rank units — P135 proved the
+transform is safe; 15-pick buckets, monotone-enforced, keeper picks excluded
+from the fit because a kept star's slot is not a market price). The objective
+is the waiver-FLOORED lineup (§13's floors, season units: QB 322.9 · RB 78.4 ·
+WR 124.8 · TE 130.4 · K 128.6 · DEF 100.0; flex floor 130.4) — the drafter now
+optimizes the streamed game the grading grades, answering Cory's "excludes
+waiver pickups" objection at DRAFT time, not only at grading time. The normal
+roster is the K≤1/DEF≤1 cap plus displacement (§6). The timing term is VONA
+proper: marginal now minus the best same-position marginal still available at
+my next pick, estimated from the recorded draft's own survivors — no
+projections, no hindsight beyond the market order already used everywhere in
+this harness. If `Surv(q)` is empty, score = M(c) (full urgency). Ties on
+score break by M(c).
+
+**Bars, declared before the run — graded on `--grade-waiver`, the realistic
+game (frozen grading reported beside, no bar):**
+
+1. The winning realistic arm beats MLV-cap's waiver-graded mean deltas:
+   actual > **+2.6** AND skill > **+2.1**, on the same 30 seat-years.
+2. Head-to-head: ≥ **16/30** seats where the arm's waiver-graded skill delta
+   beats MLV-cap's for the same seat.
+3. 30/30 legal rosters, K ≤ 1 and DEF ≤ 1 in every seat.
+
+Decision rule: if `--real-vona` clears all three and ≥ `--real`, VONA is the
+recommendation; if only `--real` clears, the myopic realistic arm is; if
+neither clears, **MLV-cap stands and this is filed FALSE like §8 and §10.**
+
+**Controls (Rule 3e), all mandatory:** (a) byte-guard — `--mlv` untouched by
+the patch, must reprint +45.84/+29.33; (b) engagement — the realistic arm must
+differ from `--mlv`'s rosters in ≥1 seat or the flag is presumed dead;
+(c) curve known-positive — curve(pick 1) > curve(pick 101) strictly, printed;
+(d) clobber-guard — the harness writes ONE output file, so every arm's JSON is
+copied aside before the next run and the baseline re-asserted (the §7 bug).
+
+**Predictions filed blind (ledger P138, P139):** P138 — `--real` clears bar 1.
+P139 — `--real-vona` does NOT beat `--real` beyond noise (§8's lesson:
+lookahead terms on this value signal hurt; VONA is a lighter lookahead, so the
+honest prior is "no gain", filed so a reversal is a real surprise, not a
+retrofit).
