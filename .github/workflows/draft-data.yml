@@ -671,6 +671,51 @@ jobs:
           #     rerank_by_source.py runs, also in THIS step).
           # Neither was reporting a bad board. Both were being asked their
           # question at the one moment it has no answer.
+          # THE PER-SOURCE FIELDS, GENERATED RATHER THAN HAND-RUN (2026-08-20).
+          # `rerank_by_source.py` above writes public/board_<key>.json — SEPARATE
+          # FILES. It never puts vorp_ds/tier_ds/pos_rank_ds onto the main board.
+          # `alt_source_rankings.py` is the only producer of those 48 fields and
+          # it was run BY HAND once and its output committed, so every rebuild
+          # dropped them and test_alt_source_rankings correctly read
+          # `assert 147.0 == None` on Jahmyr Gibbs.
+          #
+          # An earlier attempt wired this BEFORE the acceptance gate and turned
+          # one failure into nine — 48 fields arriving after the declaration and
+          # stamping steps had already run. Both causes are fixed (the fields are
+          # declared in season_stamp.py as of bb55ca5f) and it now runs HERE,
+          # after the gate, where it cannot affect it either way.
+          python3 draft/tools/alt_source_rankings.py
+          # ── SELF-DIAGNOSIS, so a post-chain refusal explains itself ───────
+          # Run 32426770992 refused on "ten inside Cory's draft range have a flat
+          # band". The committed board has ZERO, so it is a REBUILD regression,
+          # and nothing in the log said which of the three band paths produced it
+          # or what the inputs were. Reading it off the committed board is
+          # impossible by definition — the committed board is the one that
+          # passes. So the candidate board reports on itself, before the gate
+          # that judges it. Prints nothing when the board is clean.
+          python3 - <<'PY'
+          import json, pathlib
+          P = json.loads(pathlib.Path("public/draft_data.json").read_text())["players"]
+          bad = [p for p in P
+                 if p.get("proj_ceiling") is not None and p.get("proj_mean") is not None
+                 and abs(p["proj_ceiling"] - p["proj_mean"]) <= 0.01
+                 and (p.get("adp") or 999) <= 200]
+          if bad:
+              print("== FLAT BANDS INSIDE CORY'S DRAFT RANGE: %d ==" % len(bad))
+              cols = ("proj_mean", "proj_sd", "proj_ds", "proj_ds_ceiling",
+                      "ds_band_from", "proj_mean_pre_ds", "proj_ceiling_pre_ds",
+                      "proj_floor_pre_ds", "proj_ceiling_source")
+              for p in bad:
+                  print("  %-22s adp %-6s" % (p.get("name"), p.get("adp")))
+                  for c in cols:
+                      print("      %-22s %s" % (c, p.get(c)))
+              print("== the branch that produced each is `ds_band_from`: "
+                    "draftsharks_pct | pre_ds_pct | None(collapsed). A None means "
+                    "attach_draftsharks found no DS band AND no usable prior band "
+                    "on the row it snapshotted. ==")
+          else:
+              print("band check: no flat bands inside ADP<=200")
+          PY
           python3 -m pytest -q -m post_chain \
             draft/tests/test_attach_draftsharks_ranking.py \
             draft/tests/test_band_is_player_specific.py \
