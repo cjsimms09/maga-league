@@ -163,7 +163,7 @@ jobs:
             exit 0
           fi
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/sleeper_hist_proj.json || true
+          git add draft/backtest/sleeper_hist_proj.json draft/backtest/sleeper_hist_rows.json || true
           if ! git diff --cached --quiet; then
             git commit -m "SLEEPER-HIST-PROJ: gated verdict on Sleeper's historical projections [skip deploy]"
             pushed=0
