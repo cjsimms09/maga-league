@@ -94,12 +94,44 @@ a second variant floored at the REALIZED-ADD level, the three headline arms
 (shipped, MLV-cap, depth) are re-graded under it, and the truth is declared
 to sit between the frozen and floored gradings. No bar moves after results.
 
-## 3. The ranking the audit asked for — filled in after both experiments run
+## 3. THE RANKING — graded 08-20, and the program closure that follows from it
 
-(Committed as a placeholder so the answers land against a declared frame:
-the seven candidates will be ranked by measured effect size where one
-exists, with the distinguishing experiment named per candidate. No ranks
-declared pre-run beyond what is already graded.)
+**Cory, same day, before experiment 1 could be re-run:** *"I'm done with
+roster problem. Move on to in season tools and improving our player
+projections this year."* The ruling agrees with the measurements. Experiment
+2 ran (P150 FALSE — the waiver floor SURVIVES: realized adds score 0.90-1.02×
+the floor at QB/WR/TE/K, RB 1.47×, K/DEF control passed); experiment 1 was
+ABANDONED mid-validation (its anchor control failed its first run — the
+instrument, not the idea — and the owner closed the program before the fix
+could be validated; the arm code was discarded, not shipped).
+
+**The audit's seven candidates, ranked by measured effect:**
+
+1. **Better weekly projections.** The measured monster: hindsight lineups
+   beat owners by +15.3/week while our fallback projections LOSE by
+   14.5/week — a ~30 pt/week swing on projection quality alone, dwarfing
+   every draft-construction effect ever measured here (largest: ~26
+   pts/SEASON). Distinguishing experiment: **P143** (blend projections into
+   the lineup backtest, D, 09-01), then the 09-15 scoreboard bar vs
+   Sleeper/FP.
+2. **Projection uncertainty modeling.** Weekly start/sit is argmax under
+   noise; the floor/ceiling-by-win-prob rule waits gated behind P143.
+   Experiment: variance-aware start/sit backtest on the same rig.
+3. **Opponent behavior, in-season.** P144 (E, 09-03) vs the persistence
+   null; feeds start/sit tie-breaks, waiver blocking, the trade scanner.
+4. **Waiver replacement modeling.** P150 says the floor is calibrated —
+   remaining edge is the RB 1.47 anomaly (the wire under-credits RB
+   breakouts), folded into D's waiver-signal backtest.
+5. **Completed-roster optimization / future availability.** DP-bounded at
+   ~zero in-frame; the stochastic-room version is only honestly gradeable
+   through Saturday's shadow ledger. Closed.
+6. **Keeper-induced scarcity.** n=3 seasons, keeper variation ±1-2 picks —
+   unmeasurable; the actionable piece (recompute depth/replacement on the
+   locked 2026 slate) rides Friday's board rebuild. Closed as an experiment.
+7. **The thing we had missed** — named: **conversion.** Points held that
+   never reach a starting slot are worth more than the whole acquisition
+   edge (engine conversion 0.740 vs owners' 0.828). It is not a new signal;
+   it IS items 1-3. The in-season program is the answer, and it is running.
 
 ## 4. Keeper-induced scarcity (third attack) — the honest power statement
 
