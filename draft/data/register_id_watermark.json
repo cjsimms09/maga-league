@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 171,
+ "next_numeric_id": 172,
  "history": [
   {
    "id": 47,
@@ -354,6 +354,11 @@
    "id": 170,
    "claimed_at": "2026-08-20",
    "note": "D: ADAPTATION-POLICY.md wording does not match the already-shipped, Cory-ruled decide_promotion() in weekly_own_grade.py -- 3-consecutive-weeks vs 3-of-4, and best-of-K as a hard gate vs attached-not-gating. Found scoping the verdict-line wiring ask before writing code. OPEN, owners relay+A (reconcile doc vs code, or take to Cory), recheck 08-26."
+  },
+  {
+   "id": 171,
+   "claimed_at": "2026-08-20",
+   "note": "D: a P282-build subagent's Rule 3f branch search for the --opt bench-option code was not exhaustive (git log --all plus locally-fetched branches only, never git ls-remote origin) and wrongly concluded the whole nine-commit bench-option chain was fabricated. Caught and corrected before it reached any shared file -- the code is real, on unmerged branch claude/fantasy-football-research-926y6z@01668acc, fetched and RUN directly (not just read), controls pass. Real residual: P282's own harness still reimplements the value function from prose rather than the real optV/optU, a Rule 11 debt to close once that branch is reachable. OPEN, owner D, recheck 08-27."
   }
  ]
 }

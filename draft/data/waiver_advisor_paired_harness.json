@@ -1,0 +1,2988 @@
+{
+ "_territory": "TERRITORY: D — draft/tools/waiver_advisor_paired_harness.js",
+ "_prediction": "PREDICTION-LEDGER.md P282",
+ "_NOT_A_GRADE": "THIS IS A DRY RUN ON 2023-2025 HISTORY, NOT THE P282 GRADE. The 2026 season has not started and there is no real 2026 wire. Numbers below prove the harness runs correctly and produces a real, non-degenerate answer on historical data; they are NOT a verdict on the live claim.",
+ "_premise_finding": "CORRECTED same day: the --opt flag IS real and runs (verified directly, see file header and the audit doc §0) -- it lives on an unmerged branch (claude/fantasy-football-research-926y6z @ 01668acc), not on this one, which is a known ROUTES ask to A, not fabrication. This harness still reimplements the v9-documented VALUE FUNCTION from prereg prose rather than the real optV/optU (written before that branch was found) -- it does not verify or reproduce the ledger v1-v9 numbers, and should be replaced with the real functions before its own numbers are trusted.",
+ "v1_answer_failed_claims_captured": {
+  "2023": {
+   "waiver_txns": 229,
+   "failed": 107,
+   "complete": 122,
+   "free_agent_txns": 140
+  },
+  "2024": {
+   "waiver_txns": 214,
+   "failed": 93,
+   "complete": 121,
+   "free_agent_txns": 154
+  },
+  "2025": {
+   "waiver_txns": 205,
+   "failed": 89,
+   "complete": 116,
+   "free_agent_txns": 143
+  }
+ },
+ "controls": {
+  "C1_known_positive_disagreement": {
+   "ok": true,
+   "example": {
+    "season": "2023",
+    "week": 2,
+    "roster_id": 2,
+    "pool_size": 23,
+    "incumbent_top3": [
+     "8183",
+     "3214",
+     "7600"
+    ],
+    "bench_top3": [
+     "8183",
+     "3214",
+     "7594"
+    ],
+    "reordered": true,
+    "incumbent_pick": "8183",
+    "bench_pick": "8183",
+    "picks_differ": false,
+    "incumbent_realized_ros": 278.44000000000005,
+    "bench_realized_ros": 278.44000000000005,
+    "incumbent_weeks_observed": 13,
+    "bench_weeks_observed": 13
+   },
+   "why": "a real 2023-2025 decision where the incumbent tool and the bench-option valuation genuinely rank different top-3s, re-run independently from the raw season data and confirmed to reproduce byte-for-byte (rule 3e known-positive, plus a determinism check on the seeded RNG for free)"
+  },
+  "C2_known_negative_identical_rankings": {
+   "ok": true,
+   "why": "identical top-3 lists must report reordered=false, not a residual true-by-default bug"
+  },
+  "C3_leakfree_level_structural": {
+   "ok": true,
+   "calls_checked": 5,
+   "why": "every priorWeeksData row seen by the level function must carry week < the week being projected"
+  },
+  "C4_leak_check_fail_arm": {
+   "ok": true,
+   "why": "the checker must actually flag a planted leak, not just pass everything"
+  },
+  "C5_floor_constants_loaded": {
+   "ok": true,
+   "floor": {
+    "QB": 18.99,
+    "RB": 4.61,
+    "WR": 7.34,
+    "TE": 7.67,
+    "K": 7.56,
+    "DEF": 5.88
+   },
+   "why": "waiver_realized_level.json rows must actually populate FLOOR for all six positions"
+  },
+  "_c6_placeholder": true,
+  "C6_reorder_check_has_fired_at_least_once": {
+   "ok": true,
+   "reordered": 59,
+   "of": 120,
+   "why": "rule 3e — if this never fires on 120 real decisions, treat the harness as unproven, not the objective as agreeing with the incumbent"
+  }
+ },
+ "controls_all_passed": true,
+ "dry_run": {
+  "seasons": [
+   "2023",
+   "2024",
+   "2025"
+  ],
+  "weeks": "1-5",
+  "decisions": 120,
+  "reorder_count": 59,
+  "reorder_rate": 0.49,
+  "reorder_bar_30pct": true,
+  "paired_comparable": 16,
+  "bench_wins": 3,
+  "incumbent_wins": 13,
+  "ties": 0,
+  "mean_paired_delta_bench_minus_incumbent": -41.33
+ },
+ "decisions": [
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 1,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "3214",
+    "7600",
+    "9502"
+   ],
+   "bench_top3": [
+    "3214",
+    "7600",
+    "9502"
+   ],
+   "reordered": false,
+   "incumbent_pick": "3214",
+   "bench_pick": "3214",
+   "picks_differ": false,
+   "incumbent_realized_ros": 19,
+   "bench_realized_ros": 19,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 6
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 2,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "8183",
+    "3214",
+    "7600"
+   ],
+   "bench_top3": [
+    "8183",
+    "3214",
+    "7594"
+   ],
+   "reordered": true,
+   "incumbent_pick": "8183",
+   "bench_pick": "8183",
+   "picks_differ": false,
+   "incumbent_realized_ros": 278.44000000000005,
+   "bench_realized_ros": 278.44000000000005,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 13
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 3,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "KC",
+    "NYG",
+    "IND"
+   ],
+   "bench_top3": [
+    "7594",
+    "6984",
+    "8143"
+   ],
+   "reordered": true,
+   "incumbent_pick": "KC",
+   "bench_pick": "7594",
+   "picks_differ": true,
+   "incumbent_realized_ros": 103,
+   "bench_realized_ros": 86.39999999999999,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 4,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "3214",
+    "7600",
+    "7594"
+   ],
+   "bench_top3": [
+    "7594",
+    "6984",
+    "8143"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3214",
+   "bench_pick": "7594",
+   "picks_differ": true,
+   "incumbent_realized_ros": 19,
+   "bench_realized_ros": 86.39999999999999,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 5,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "8183",
+    "7594",
+    "6984"
+   ],
+   "bench_top3": [
+    "8183",
+    "7594",
+    "6984"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8183",
+   "bench_pick": "8183",
+   "picks_differ": false,
+   "incumbent_realized_ros": 278.44000000000005,
+   "bench_realized_ros": 278.44000000000005,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 13
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 6,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "3214",
+    "KC",
+    "NYG"
+   ],
+   "bench_top3": [
+    "KC",
+    "NYG",
+    "IND"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3214",
+   "bench_pick": "KC",
+   "picks_differ": true,
+   "incumbent_realized_ros": 19,
+   "bench_realized_ros": 103,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 7,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "KC",
+    "NYG",
+    "IND"
+   ],
+   "bench_top3": [
+    "KC",
+    "NYG",
+    "IND"
+   ],
+   "reordered": false,
+   "incumbent_pick": "KC",
+   "bench_pick": "KC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 103,
+   "bench_realized_ros": 103,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 8,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "8183",
+    "7594",
+    "6984"
+   ],
+   "bench_top3": [
+    "7594",
+    "6984",
+    "8143"
+   ],
+   "reordered": true,
+   "incumbent_pick": "8183",
+   "bench_pick": "7594",
+   "picks_differ": true,
+   "incumbent_realized_ros": 278.44000000000005,
+   "bench_realized_ros": 86.39999999999999,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 9,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "3214",
+    "7600",
+    "KC"
+   ],
+   "bench_top3": [
+    "3214",
+    "7600",
+    "9502"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3214",
+   "bench_pick": "3214",
+   "picks_differ": false,
+   "incumbent_realized_ros": 19,
+   "bench_realized_ros": 19,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 6
+  },
+  {
+   "season": "2023",
+   "week": 2,
+   "roster_id": 10,
+   "pool_size": 23,
+   "incumbent_top3": [
+    "8183",
+    "3214",
+    "7600"
+   ],
+   "bench_top3": [
+    "8183",
+    "3214",
+    "7594"
+   ],
+   "reordered": true,
+   "incumbent_pick": "8183",
+   "bench_pick": "8183",
+   "picks_differ": false,
+   "incumbent_realized_ros": 278.44000000000005,
+   "bench_realized_ros": 278.44000000000005,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 13
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 1,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "NO",
+    "PIT",
+    "TEN"
+   ],
+   "bench_top3": [
+    "NO",
+    "PIT",
+    "TEN"
+   ],
+   "reordered": false,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 87,
+   "bench_realized_ros": 87,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 2,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "3163",
+    "6804",
+    "4381"
+   ],
+   "bench_top3": [
+    "3163",
+    "6804",
+    "4381"
+   ],
+   "reordered": false,
+   "incumbent_pick": "3163",
+   "bench_pick": "3163",
+   "picks_differ": false,
+   "incumbent_realized_ros": 236.57999999999998,
+   "bench_realized_ros": 236.57999999999998,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 3,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "5045",
+    "NO",
+    "6820"
+   ],
+   "bench_top3": [
+    "5045",
+    "NO",
+    "6820"
+   ],
+   "reordered": false,
+   "incumbent_pick": "5045",
+   "bench_pick": "5045",
+   "picks_differ": false,
+   "incumbent_realized_ros": 72.2,
+   "bench_realized_ros": 72.2,
+   "incumbent_weeks_observed": 9,
+   "bench_weeks_observed": 9
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 4,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "5045",
+    "6820",
+    "NO"
+   ],
+   "bench_top3": [
+    "6820",
+    "5045",
+    "7670"
+   ],
+   "reordered": true,
+   "incumbent_pick": "5045",
+   "bench_pick": "6820",
+   "picks_differ": true,
+   "incumbent_realized_ros": 72.2,
+   "bench_realized_ros": 34,
+   "incumbent_weeks_observed": 9,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 5,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "3163",
+    "6804",
+    "NO"
+   ],
+   "bench_top3": [
+    "3163",
+    "NO",
+    "6804"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3163",
+   "bench_pick": "3163",
+   "picks_differ": false,
+   "incumbent_realized_ros": 236.57999999999998,
+   "bench_realized_ros": 236.57999999999998,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 6,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "4381",
+    "NO",
+    "10236"
+   ],
+   "bench_top3": [
+    "6820",
+    "5045",
+    "4381"
+   ],
+   "reordered": true,
+   "incumbent_pick": "4381",
+   "bench_pick": "6820",
+   "picks_differ": true,
+   "incumbent_realized_ros": 84.34,
+   "bench_realized_ros": 34,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 7,
+   "pool_size": 16,
+   "incumbent_top3": [
+    "NO",
+    "4381",
+    "6820"
+   ],
+   "bench_top3": [
+    "NO",
+    "6820",
+    "5045"
+   ],
+   "reordered": true,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 87,
+   "bench_realized_ros": 87,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 8,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "NO",
+    "PIT",
+    "TEN"
+   ],
+   "bench_top3": [
+    "NO",
+    "5045",
+    "6820"
+   ],
+   "reordered": true,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 87,
+   "bench_realized_ros": 87,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 9,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "3163",
+    "NO",
+    "PIT"
+   ],
+   "bench_top3": [
+    "NO",
+    "3163",
+    "PIT"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3163",
+   "bench_pick": "NO",
+   "picks_differ": true,
+   "incumbent_realized_ros": 236.57999999999998,
+   "bench_realized_ros": 87,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 3,
+   "roster_id": 10,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "3163",
+    "4381",
+    "10236"
+   ],
+   "bench_top3": [
+    "3163",
+    "4381",
+    "6820"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3163",
+   "bench_pick": "3163",
+   "picks_differ": false,
+   "incumbent_realized_ros": 236.57999999999998,
+   "bench_realized_ros": 236.57999999999998,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 1,
+   "pool_size": 11,
+   "incumbent_top3": [
+    "MIA",
+    "DET",
+    "CIN"
+   ],
+   "bench_top3": [
+    "MIA",
+    "DET",
+    "CIN"
+   ],
+   "reordered": false,
+   "incumbent_pick": "MIA",
+   "bench_pick": "MIA",
+   "picks_differ": false,
+   "incumbent_realized_ros": 107,
+   "bench_realized_ros": 107,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 2,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "9229",
+    "8148",
+    "10229"
+   ],
+   "bench_top3": [
+    "9229",
+    "MIA",
+    "DET"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 4.42,
+   "bench_realized_ros": 4.42,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 3,
+   "pool_size": 11,
+   "incumbent_top3": [
+    "MIA",
+    "DET",
+    "CIN"
+   ],
+   "bench_top3": [
+    "MIA",
+    "DET",
+    "CIN"
+   ],
+   "reordered": false,
+   "incumbent_pick": "MIA",
+   "bench_pick": "MIA",
+   "picks_differ": false,
+   "incumbent_realized_ros": 107,
+   "bench_realized_ros": 107,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 4,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "11439",
+    "8110",
+    "8148"
+   ],
+   "bench_top3": [
+    "11439",
+    "8148",
+    "10229"
+   ],
+   "reordered": true,
+   "incumbent_pick": "11439",
+   "bench_pick": "11439",
+   "picks_differ": false,
+   "incumbent_realized_ros": 38.199999999999996,
+   "bench_realized_ros": 38.199999999999996,
+   "incumbent_weeks_observed": 8,
+   "bench_weeks_observed": 8
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 5,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "9229",
+    "MIA",
+    "DET"
+   ],
+   "bench_top3": [
+    "9229",
+    "MIA",
+    "DET"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 4.42,
+   "bench_realized_ros": 4.42,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 6,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "8110",
+    "8148",
+    "10229"
+   ],
+   "bench_top3": [
+    "8110",
+    "11439",
+    "8148"
+   ],
+   "reordered": true,
+   "incumbent_pick": "8110",
+   "bench_pick": "8110",
+   "picks_differ": false,
+   "incumbent_realized_ros": 89.80000000000001,
+   "bench_realized_ros": 89.80000000000001,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 7,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "9229",
+    "8110",
+    "11439"
+   ],
+   "bench_top3": [
+    "9229",
+    "11439",
+    "8110"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 4.42,
+   "bench_realized_ros": 4.42,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 8,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "11439",
+    "8148",
+    "10229"
+   ],
+   "bench_top3": [
+    "11439",
+    "8148",
+    "10229"
+   ],
+   "reordered": false,
+   "incumbent_pick": "11439",
+   "bench_pick": "11439",
+   "picks_differ": false,
+   "incumbent_realized_ros": 38.199999999999996,
+   "bench_realized_ros": 38.199999999999996,
+   "incumbent_weeks_observed": 8,
+   "bench_weeks_observed": 8
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 9,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "9229",
+    "8110",
+    "MIA"
+   ],
+   "bench_top3": [
+    "9229",
+    "8110",
+    "MIA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 4.42,
+   "bench_realized_ros": 4.42,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2023",
+   "week": 4,
+   "roster_id": 10,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "9229",
+    "8110",
+    "11439"
+   ],
+   "bench_top3": [
+    "9229",
+    "8110",
+    "11439"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 4.42,
+   "bench_realized_ros": 4.42,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 1,
+   "pool_size": 16,
+   "incumbent_top3": [
+    "WAS",
+    "2251",
+    "LV"
+   ],
+   "bench_top3": [
+    "WAS",
+    "2251",
+    "11199"
+   ],
+   "reordered": true,
+   "incumbent_pick": "WAS",
+   "bench_pick": "WAS",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 2,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "9229",
+    "3163",
+    "2251"
+   ],
+   "bench_top3": [
+    "9229",
+    "3163",
+    "8183"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 3,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "WAS",
+    "9229",
+    "LV"
+   ],
+   "bench_top3": [
+    "9229",
+    "WAS",
+    "11199"
+   ],
+   "reordered": true,
+   "incumbent_pick": "WAS",
+   "bench_pick": "9229",
+   "picks_differ": true,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 4,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "WAS",
+    "2251",
+    "9229"
+   ],
+   "bench_top3": [
+    "11199",
+    "8221",
+    "5284"
+   ],
+   "reordered": true,
+   "incumbent_pick": "WAS",
+   "bench_pick": "11199",
+   "picks_differ": true,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 2.2,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 3
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 5,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "9229",
+    "3163",
+    "WAS"
+   ],
+   "bench_top3": [
+    "9229",
+    "3163",
+    "WAS"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 6,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "2251",
+    "9229",
+    "6826"
+   ],
+   "bench_top3": [
+    "2251",
+    "9229",
+    "6826"
+   ],
+   "reordered": false,
+   "incumbent_pick": "2251",
+   "bench_pick": "2251",
+   "picks_differ": false,
+   "incumbent_realized_ros": 26.299999999999997,
+   "bench_realized_ros": 26.299999999999997,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 7,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "WAS",
+    "9229",
+    "2251"
+   ],
+   "bench_top3": [
+    "WAS",
+    "9229",
+    "11199"
+   ],
+   "reordered": true,
+   "incumbent_pick": "WAS",
+   "bench_pick": "WAS",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 8,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "9229",
+    "2251",
+    "11199"
+   ],
+   "bench_top3": [
+    "9229",
+    "11199",
+    "8221"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 9,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "9229",
+    "WAS",
+    "LV"
+   ],
+   "bench_top3": [
+    "9229",
+    "WAS",
+    "LV"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2023",
+   "week": 5,
+   "roster_id": 10,
+   "pool_size": 16,
+   "incumbent_top3": [
+    "9229",
+    "3163",
+    "2251"
+   ],
+   "bench_top3": [
+    "9229",
+    "3163",
+    "2251"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9229",
+   "bench_pick": "9229",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 1,
+   "pool_size": 32,
+   "incumbent_top3": [
+    "CHI",
+    "11582",
+    "4098"
+   ],
+   "bench_top3": [
+    "CHI",
+    "11582",
+    "4098"
+   ],
+   "reordered": false,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 2,
+   "pool_size": 32,
+   "incumbent_top3": [
+    "CHI",
+    "4993",
+    "3214"
+   ],
+   "bench_top3": [
+    "CHI",
+    "11582",
+    "4098"
+   ],
+   "reordered": true,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 3,
+   "pool_size": 32,
+   "incumbent_top3": [
+    "CHI",
+    "4993",
+    "3214"
+   ],
+   "bench_top3": [
+    "CHI",
+    "4993",
+    "3214"
+   ],
+   "reordered": false,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 4,
+   "pool_size": 33,
+   "incumbent_top3": [
+    "CHI",
+    "6804",
+    "2028"
+   ],
+   "bench_top3": [
+    "CHI",
+    "6804",
+    "2028"
+   ],
+   "reordered": false,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 5,
+   "pool_size": 31,
+   "incumbent_top3": [
+    "11582",
+    "4098",
+    "11576"
+   ],
+   "bench_top3": [
+    "11582",
+    "4098",
+    "11576"
+   ],
+   "reordered": false,
+   "incumbent_pick": "11582",
+   "bench_pick": "11582",
+   "picks_differ": false,
+   "incumbent_realized_ros": 7,
+   "bench_realized_ros": 7,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 6,
+   "pool_size": 32,
+   "incumbent_top3": [
+    "CHI",
+    "SEA",
+    "LV"
+   ],
+   "bench_top3": [
+    "CHI",
+    "SEA",
+    "LV"
+   ],
+   "reordered": false,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 7,
+   "pool_size": 32,
+   "incumbent_top3": [
+    "CHI",
+    "SEA",
+    "4993"
+   ],
+   "bench_top3": [
+    "CHI",
+    "11582",
+    "4098"
+   ],
+   "reordered": true,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 8,
+   "pool_size": 32,
+   "incumbent_top3": [
+    "CHI",
+    "4993",
+    "3214"
+   ],
+   "bench_top3": [
+    "CHI",
+    "4993",
+    "3214"
+   ],
+   "reordered": false,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 9,
+   "pool_size": 33,
+   "incumbent_top3": [
+    "CHI",
+    "4993",
+    "3214"
+   ],
+   "bench_top3": [
+    "CHI",
+    "SEA",
+    "4993"
+   ],
+   "reordered": true,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 2,
+   "roster_id": 10,
+   "pool_size": 33,
+   "incumbent_top3": [
+    "CHI",
+    "6804",
+    "SEA"
+   ],
+   "bench_top3": [
+    "CHI",
+    "6804",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "CHI",
+   "bench_pick": "CHI",
+   "picks_differ": false,
+   "incumbent_realized_ros": 57,
+   "bench_realized_ros": 57,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 1,
+   "pool_size": 24,
+   "incumbent_top3": [
+    "8143",
+    "HOU",
+    "7042"
+   ],
+   "bench_top3": [
+    "8143",
+    "HOU",
+    "4111"
+   ],
+   "reordered": true,
+   "incumbent_pick": "8143",
+   "bench_pick": "8143",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50.7,
+   "bench_realized_ros": 50.7,
+   "incumbent_weeks_observed": 10,
+   "bench_weeks_observed": 10
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 2,
+   "pool_size": 25,
+   "incumbent_top3": [
+    "HOU",
+    "SEA",
+    "6826"
+   ],
+   "bench_top3": [
+    "HOU",
+    "SEA",
+    "8143"
+   ],
+   "reordered": true,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 3,
+   "pool_size": 24,
+   "incumbent_top3": [
+    "6826",
+    "7600",
+    "7090"
+   ],
+   "bench_top3": [
+    "6826",
+    "7600",
+    "8143"
+   ],
+   "reordered": true,
+   "incumbent_pick": "6826",
+   "bench_pick": "6826",
+   "picks_differ": false,
+   "incumbent_realized_ros": 37.5,
+   "bench_realized_ros": 37.5,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 4,
+   "pool_size": 25,
+   "incumbent_top3": [
+    "HOU",
+    "SEA",
+    "8143"
+   ],
+   "bench_top3": [
+    "HOU",
+    "7090",
+    "7049"
+   ],
+   "reordered": true,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 5,
+   "pool_size": 24,
+   "incumbent_top3": [
+    "HOU",
+    "SEA",
+    "MIN"
+   ],
+   "bench_top3": [
+    "HOU",
+    "SEA",
+    "6826"
+   ],
+   "reordered": true,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 6,
+   "pool_size": 25,
+   "incumbent_top3": [
+    "HOU",
+    "7042",
+    "1266"
+   ],
+   "bench_top3": [
+    "HOU",
+    "8143",
+    "4111"
+   ],
+   "reordered": true,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 7,
+   "pool_size": 25,
+   "incumbent_top3": [
+    "HOU",
+    "8143",
+    "4111"
+   ],
+   "bench_top3": [
+    "HOU",
+    "8143",
+    "4111"
+   ],
+   "reordered": false,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 8,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "HOU",
+    "SEA",
+    "MIN"
+   ],
+   "bench_top3": [
+    "HOU",
+    "SEA",
+    "4111"
+   ],
+   "reordered": true,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 9,
+   "pool_size": 25,
+   "incumbent_top3": [
+    "HOU",
+    "SEA",
+    "6826"
+   ],
+   "bench_top3": [
+    "HOU",
+    "SEA",
+    "8143"
+   ],
+   "reordered": true,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 3,
+   "roster_id": 10,
+   "pool_size": 24,
+   "incumbent_top3": [
+    "HOU",
+    "6826",
+    "7600"
+   ],
+   "bench_top3": [
+    "HOU",
+    "6826",
+    "7600"
+   ],
+   "reordered": false,
+   "incumbent_pick": "HOU",
+   "bench_pick": "HOU",
+   "picks_differ": false,
+   "incumbent_realized_ros": 50,
+   "bench_realized_ros": 50,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 1,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "NO",
+    "CHI",
+    "5133"
+   ],
+   "bench_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "reordered": true,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 2,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "5133",
+    "1339",
+    "NO"
+   ],
+   "bench_top3": [
+    "5133",
+    "1339",
+    "NO"
+   ],
+   "reordered": false,
+   "incumbent_pick": "5133",
+   "bench_pick": "5133",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 3,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "5133",
+    "1339",
+    "1373"
+   ],
+   "bench_top3": [
+    "5133",
+    "1339",
+    "NO"
+   ],
+   "reordered": true,
+   "incumbent_pick": "5133",
+   "bench_pick": "5133",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 4,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "bench_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 5,
+   "pool_size": 17,
+   "incumbent_top3": [
+    "5133",
+    "1339",
+    "1373"
+   ],
+   "bench_top3": [
+    "5133",
+    "1339",
+    "NO"
+   ],
+   "reordered": true,
+   "incumbent_pick": "5133",
+   "bench_pick": "5133",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 6,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "bench_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 7,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "bench_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 8,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "17",
+    "6083",
+    "NO"
+   ],
+   "bench_top3": [
+    "7593",
+    "8132",
+    "4147"
+   ],
+   "reordered": true,
+   "incumbent_pick": "17",
+   "bench_pick": "7593",
+   "picks_differ": true,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 23.6,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 3
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 9,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "bench_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 4,
+   "roster_id": 10,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "bench_top3": [
+    "NO",
+    "CHI",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "NO",
+   "bench_pick": "NO",
+   "picks_differ": false,
+   "incumbent_realized_ros": 16,
+   "bench_realized_ros": 16,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 1,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "3451",
+    "7042",
+    "3678"
+   ],
+   "bench_top3": [
+    "3451",
+    "7042",
+    "3678"
+   ],
+   "reordered": false,
+   "incumbent_pick": "3451",
+   "bench_pick": "3451",
+   "picks_differ": false,
+   "incumbent_realized_ros": 104,
+   "bench_realized_ros": 104,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 2,
+   "pool_size": 20,
+   "incumbent_top3": [
+    "LAC",
+    "9484",
+    "7042"
+   ],
+   "bench_top3": [
+    "LAC",
+    "9484",
+    "8126"
+   ],
+   "reordered": true,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 24,
+   "bench_realized_ros": 24,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 3,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "1373",
+    "7523",
+    "4943"
+   ],
+   "bench_top3": [
+    "9484",
+    "3451",
+    "8126"
+   ],
+   "reordered": true,
+   "incumbent_pick": "1373",
+   "bench_pick": "9484",
+   "picks_differ": true,
+   "incumbent_realized_ros": 120.49999999999999,
+   "bench_realized_ros": 84.9,
+   "incumbent_weeks_observed": 8,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 4,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "8126",
+    "9486",
+    "11655"
+   ],
+   "bench_top3": [
+    "8126",
+    "9486",
+    "11655"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8126",
+   "bench_pick": "8126",
+   "picks_differ": false,
+   "incumbent_realized_ros": 18.3,
+   "bench_realized_ros": 18.3,
+   "incumbent_weeks_observed": 3,
+   "bench_weeks_observed": 3
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 5,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "LAC",
+    "3451",
+    "MIN"
+   ],
+   "bench_top3": [
+    "LAC",
+    "3451",
+    "MIN"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 24,
+   "bench_realized_ros": 24,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 6,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "LAC",
+    "3451",
+    "7042"
+   ],
+   "bench_top3": [
+    "LAC",
+    "3451",
+    "7042"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 24,
+   "bench_realized_ros": 24,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 7,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "3451",
+    "7042",
+    "3678"
+   ],
+   "bench_top3": [
+    "3451",
+    "7042",
+    "LAC"
+   ],
+   "reordered": true,
+   "incumbent_pick": "3451",
+   "bench_pick": "3451",
+   "picks_differ": false,
+   "incumbent_realized_ros": 104,
+   "bench_realized_ros": 104,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 8,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "LAC",
+    "1373",
+    "7523"
+   ],
+   "bench_top3": [
+    "LAC",
+    "MIN",
+    "9484"
+   ],
+   "reordered": true,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 24,
+   "bench_realized_ros": 24,
+   "incumbent_weeks_observed": 2,
+   "bench_weeks_observed": 2
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 9,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "9484",
+    "8126",
+    "9486"
+   ],
+   "bench_top3": [
+    "9484",
+    "8126",
+    "9486"
+   ],
+   "reordered": false,
+   "incumbent_pick": "9484",
+   "bench_pick": "9484",
+   "picks_differ": false,
+   "incumbent_realized_ros": 84.9,
+   "bench_realized_ros": 84.9,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2024",
+   "week": 5,
+   "roster_id": 10,
+   "pool_size": 22,
+   "incumbent_top3": [
+    "9484",
+    "LAC",
+    "MIN"
+   ],
+   "bench_top3": [
+    "9484",
+    "LAC",
+    "11655"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9484",
+   "bench_pick": "9484",
+   "picks_differ": false,
+   "incumbent_realized_ros": 84.9,
+   "bench_realized_ros": 84.9,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 12
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 1,
+   "pool_size": 15,
+   "incumbent_top3": [
+    "6111",
+    "11564",
+    "TB"
+   ],
+   "bench_top3": [
+    "6111",
+    "11564",
+    "TB"
+   ],
+   "reordered": false,
+   "incumbent_pick": "6111",
+   "bench_pick": "6111",
+   "picks_differ": false,
+   "incumbent_realized_ros": 7.9,
+   "bench_realized_ros": 7.9,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 2,
+   "pool_size": 15,
+   "incumbent_top3": [
+    "4988",
+    "9754",
+    "7611"
+   ],
+   "bench_top3": [
+    "4988",
+    "9754",
+    "8110"
+   ],
+   "reordered": true,
+   "incumbent_pick": "4988",
+   "bench_pick": "4988",
+   "picks_differ": false,
+   "incumbent_realized_ros": 61.6,
+   "bench_realized_ros": 61.6,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 3,
+   "pool_size": 15,
+   "incumbent_top3": [
+    "8110",
+    "4988",
+    "9754"
+   ],
+   "bench_top3": [
+    "8110",
+    "4988",
+    "9754"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8110",
+   "bench_pick": "8110",
+   "picks_differ": false,
+   "incumbent_realized_ros": 128.99999999999997,
+   "bench_realized_ros": 128.99999999999997,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 4,
+   "pool_size": 15,
+   "incumbent_top3": [
+    "9754",
+    "TB",
+    "ATL"
+   ],
+   "bench_top3": [
+    "9754",
+    "4988",
+    "8110"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9754",
+   "bench_pick": "9754",
+   "picks_differ": false,
+   "incumbent_realized_ros": 108.89999999999999,
+   "bench_realized_ros": 108.89999999999999,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 5,
+   "pool_size": 14,
+   "incumbent_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "bench_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "TB",
+   "bench_pick": "TB",
+   "picks_differ": false,
+   "incumbent_realized_ros": 60,
+   "bench_realized_ros": 60,
+   "incumbent_weeks_observed": 7,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 6,
+   "pool_size": 14,
+   "incumbent_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "bench_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "TB",
+   "bench_pick": "TB",
+   "picks_differ": false,
+   "incumbent_realized_ros": 60,
+   "bench_realized_ros": 60,
+   "incumbent_weeks_observed": 7,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 7,
+   "pool_size": 15,
+   "incumbent_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "bench_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "TB",
+   "bench_pick": "TB",
+   "picks_differ": false,
+   "incumbent_realized_ros": 60,
+   "bench_realized_ros": 60,
+   "incumbent_weeks_observed": 7,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 8,
+   "pool_size": 14,
+   "incumbent_top3": [
+    "9754",
+    "4988",
+    "TB"
+   ],
+   "bench_top3": [
+    "9754",
+    "4988",
+    "8110"
+   ],
+   "reordered": true,
+   "incumbent_pick": "9754",
+   "bench_pick": "9754",
+   "picks_differ": false,
+   "incumbent_realized_ros": 108.89999999999999,
+   "bench_realized_ros": 108.89999999999999,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 9,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "bench_top3": [
+    "TB",
+    "ATL",
+    "SEA"
+   ],
+   "reordered": false,
+   "incumbent_pick": "TB",
+   "bench_pick": "TB",
+   "picks_differ": false,
+   "incumbent_realized_ros": 60,
+   "bench_realized_ros": 60,
+   "incumbent_weeks_observed": 7,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 2,
+   "roster_id": 10,
+   "pool_size": 15,
+   "incumbent_top3": [
+    "8110",
+    "TB",
+    "ATL"
+   ],
+   "bench_top3": [
+    "8110",
+    "TB",
+    "ATL"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8110",
+   "bench_pick": "8110",
+   "picks_differ": false,
+   "incumbent_realized_ros": 128.99999999999997,
+   "bench_realized_ros": 128.99999999999997,
+   "incumbent_weeks_observed": 15,
+   "bench_weeks_observed": 15
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 1,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "1373",
+    "6111",
+    "5870"
+   ],
+   "bench_top3": [
+    "1373",
+    "6111",
+    "5870"
+   ],
+   "reordered": false,
+   "incumbent_pick": "1373",
+   "bench_pick": "1373",
+   "picks_differ": false,
+   "incumbent_realized_ros": 13.78,
+   "bench_realized_ros": 13.78,
+   "incumbent_weeks_observed": 1,
+   "bench_weeks_observed": 1
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 2,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "8132",
+    "6151",
+    "10213"
+   ],
+   "bench_top3": [
+    "8132",
+    "6151",
+    "10213"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8132",
+   "bench_pick": "8132",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 3,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "bench_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 30,
+   "bench_realized_ros": 30,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 6
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 4,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "10213",
+    "8188",
+    "12499"
+   ],
+   "bench_top3": [
+    "10213",
+    "8188",
+    "12499"
+   ],
+   "reordered": false,
+   "incumbent_pick": "10213",
+   "bench_pick": "10213",
+   "picks_differ": false,
+   "incumbent_realized_ros": 35,
+   "bench_realized_ros": 35,
+   "incumbent_weeks_observed": 5,
+   "bench_weeks_observed": 5
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 5,
+   "pool_size": 20,
+   "incumbent_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "bench_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 30,
+   "bench_realized_ros": 30,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 6
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 6,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "bench_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 30,
+   "bench_realized_ros": 30,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 6
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 7,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "17",
+    "12185",
+    "12711"
+   ],
+   "bench_top3": [
+    "17",
+    "12185",
+    "12711"
+   ],
+   "reordered": false,
+   "incumbent_pick": "17",
+   "bench_pick": "17",
+   "picks_differ": false,
+   "incumbent_realized_ros": 18,
+   "bench_realized_ros": 18,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 4
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 8,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "bench_top3": [
+    "LAC",
+    "HOU",
+    "NE"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAC",
+   "bench_pick": "LAC",
+   "picks_differ": false,
+   "incumbent_realized_ros": 30,
+   "bench_realized_ros": 30,
+   "incumbent_weeks_observed": 6,
+   "bench_weeks_observed": 6
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 9,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "17",
+    "12185",
+    "12711"
+   ],
+   "bench_top3": [
+    "8132",
+    "6151",
+    "17"
+   ],
+   "reordered": true,
+   "incumbent_pick": "17",
+   "bench_pick": "8132",
+   "picks_differ": true,
+   "incumbent_realized_ros": 18,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 4,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 3,
+   "roster_id": 10,
+   "pool_size": 21,
+   "incumbent_top3": [
+    "3214",
+    "10236",
+    "LAC"
+   ],
+   "bench_top3": [
+    "3214",
+    "10236",
+    "LAC"
+   ],
+   "reordered": false,
+   "incumbent_pick": "3214",
+   "bench_pick": "3214",
+   "picks_differ": false,
+   "incumbent_realized_ros": 93.2,
+   "bench_realized_ros": 93.2,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 13
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 1,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "WAS",
+    "ARI",
+    "2505"
+   ],
+   "bench_top3": [
+    "WAS",
+    "ARI",
+    "2505"
+   ],
+   "reordered": false,
+   "incumbent_pick": "WAS",
+   "bench_pick": "WAS",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 2,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "8136",
+    "12474",
+    "WAS"
+   ],
+   "bench_top3": [
+    "8136",
+    "12474",
+    "6149"
+   ],
+   "reordered": true,
+   "incumbent_pick": "8136",
+   "bench_pick": "8136",
+   "picks_differ": false,
+   "incumbent_realized_ros": 70.5,
+   "bench_realized_ros": 70.5,
+   "incumbent_weeks_observed": 8,
+   "bench_weeks_observed": 8
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 3,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "8136",
+    "12474",
+    "6149"
+   ],
+   "bench_top3": [
+    "8136",
+    "12474",
+    "6149"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8136",
+   "bench_pick": "8136",
+   "picks_differ": false,
+   "incumbent_realized_ros": 70.5,
+   "bench_realized_ros": 70.5,
+   "incumbent_weeks_observed": 8,
+   "bench_weeks_observed": 8
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 4,
+   "pool_size": 12,
+   "incumbent_top3": [
+    "421",
+    "12508",
+    "WAS"
+   ],
+   "bench_top3": [
+    "421",
+    "12508",
+    "6149"
+   ],
+   "reordered": true,
+   "incumbent_pick": "421",
+   "bench_pick": "421",
+   "picks_differ": false,
+   "incumbent_realized_ros": 319.56,
+   "bench_realized_ros": 319.56,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 13
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 5,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "421",
+    "12508",
+    "4227"
+   ],
+   "bench_top3": [
+    "421",
+    "12508",
+    "8136"
+   ],
+   "reordered": true,
+   "incumbent_pick": "421",
+   "bench_pick": "421",
+   "picks_differ": false,
+   "incumbent_realized_ros": 319.56,
+   "bench_realized_ros": 319.56,
+   "incumbent_weeks_observed": 13,
+   "bench_weeks_observed": 13
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 6,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "4227",
+    "WAS",
+    "6083"
+   ],
+   "bench_top3": [
+    "8136",
+    "12474",
+    "WAS"
+   ],
+   "reordered": true,
+   "incumbent_pick": "4227",
+   "bench_pick": "8136",
+   "picks_differ": true,
+   "incumbent_realized_ros": 71,
+   "bench_realized_ros": 70.5,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 8
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 7,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "WAS",
+    "2505",
+    "ARI"
+   ],
+   "bench_top3": [
+    "WAS",
+    "ARI",
+    "8136"
+   ],
+   "reordered": true,
+   "incumbent_pick": "WAS",
+   "bench_pick": "WAS",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 8,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "4227",
+    "6083",
+    "2747"
+   ],
+   "bench_top3": [
+    "4227",
+    "6083",
+    "2747"
+   ],
+   "reordered": false,
+   "incumbent_pick": "4227",
+   "bench_pick": "4227",
+   "picks_differ": false,
+   "incumbent_realized_ros": 71,
+   "bench_realized_ros": 71,
+   "incumbent_weeks_observed": 11,
+   "bench_weeks_observed": 11
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 9,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "WAS",
+    "ARI",
+    "NYG"
+   ],
+   "bench_top3": [
+    "WAS",
+    "ARI",
+    "NYG"
+   ],
+   "reordered": false,
+   "incumbent_pick": "WAS",
+   "bench_pick": "WAS",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 4,
+   "roster_id": 10,
+   "pool_size": 13,
+   "incumbent_top3": [
+    "WAS",
+    "ARI",
+    "NYG"
+   ],
+   "bench_top3": [
+    "WAS",
+    "ARI",
+    "8136"
+   ],
+   "reordered": true,
+   "incumbent_pick": "WAS",
+   "bench_pick": "WAS",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 1,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "LAR",
+    "DEN",
+    "LV"
+   ],
+   "bench_top3": [
+    "LAR",
+    "DEN",
+    "LV"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAR",
+   "bench_pick": "LAR",
+   "picks_differ": false,
+   "incumbent_realized_ros": 47,
+   "bench_realized_ros": 47,
+   "incumbent_weeks_observed": 7,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 2,
+   "pool_size": 16,
+   "incumbent_top3": [
+    "8123",
+    "7021",
+    "7607"
+   ],
+   "bench_top3": [
+    "8123",
+    "7021",
+    "7607"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8123",
+   "bench_pick": "8123",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 3,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "8123",
+    "7021",
+    "7607"
+   ],
+   "bench_top3": [
+    "8123",
+    "7021",
+    "7607"
+   ],
+   "reordered": false,
+   "incumbent_pick": "8123",
+   "bench_pick": "8123",
+   "picks_differ": false,
+   "incumbent_realized_ros": 0,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 0,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 4,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "6804",
+    "1466",
+    "11603"
+   ],
+   "bench_top3": [
+    "6804",
+    "8123",
+    "7021"
+   ],
+   "reordered": true,
+   "incumbent_pick": "6804",
+   "bench_pick": "6804",
+   "picks_differ": false,
+   "incumbent_realized_ros": 142.28,
+   "bench_realized_ros": 142.28,
+   "incumbent_weeks_observed": 9,
+   "bench_weeks_observed": 9
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 5,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "6804",
+    "11603",
+    "1466"
+   ],
+   "bench_top3": [
+    "6804",
+    "8123",
+    "7021"
+   ],
+   "reordered": true,
+   "incumbent_pick": "6804",
+   "bench_pick": "6804",
+   "picks_differ": false,
+   "incumbent_realized_ros": 142.28,
+   "bench_realized_ros": 142.28,
+   "incumbent_weeks_observed": 9,
+   "bench_weeks_observed": 9
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 6,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "6804",
+    "LAR",
+    "DEN"
+   ],
+   "bench_top3": [
+    "6804",
+    "LAR",
+    "DEN"
+   ],
+   "reordered": false,
+   "incumbent_pick": "6804",
+   "bench_pick": "6804",
+   "picks_differ": false,
+   "incumbent_realized_ros": 142.28,
+   "bench_realized_ros": 142.28,
+   "incumbent_weeks_observed": 9,
+   "bench_weeks_observed": 9
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 7,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "1466",
+    "11603",
+    "8698"
+   ],
+   "bench_top3": [
+    "8123",
+    "7021",
+    "7607"
+   ],
+   "reordered": true,
+   "incumbent_pick": "1466",
+   "bench_pick": "8123",
+   "picks_differ": true,
+   "incumbent_realized_ros": 105.2,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 0
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 8,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "LAR",
+    "DEN",
+    "LV"
+   ],
+   "bench_top3": [
+    "LAR",
+    "DEN",
+    "LV"
+   ],
+   "reordered": false,
+   "incumbent_pick": "LAR",
+   "bench_pick": "LAR",
+   "picks_differ": false,
+   "incumbent_realized_ros": 47,
+   "bench_realized_ros": 47,
+   "incumbent_weeks_observed": 7,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 9,
+   "pool_size": 18,
+   "incumbent_top3": [
+    "6804",
+    "8123",
+    "7021"
+   ],
+   "bench_top3": [
+    "LAR",
+    "DEN",
+    "6804"
+   ],
+   "reordered": true,
+   "incumbent_pick": "6804",
+   "bench_pick": "LAR",
+   "picks_differ": true,
+   "incumbent_realized_ros": 142.28,
+   "bench_realized_ros": 47,
+   "incumbent_weeks_observed": 9,
+   "bench_weeks_observed": 7
+  },
+  {
+   "season": "2025",
+   "week": 5,
+   "roster_id": 10,
+   "pool_size": 19,
+   "incumbent_top3": [
+    "1466",
+    "11603",
+    "8698"
+   ],
+   "bench_top3": [
+    "8123",
+    "7021",
+    "7607"
+   ],
+   "reordered": true,
+   "incumbent_pick": "1466",
+   "bench_pick": "8123",
+   "picks_differ": true,
+   "incumbent_realized_ros": 105.2,
+   "bench_realized_ros": 0,
+   "incumbent_weeks_observed": 12,
+   "bench_weeks_observed": 0
+  }
+ ]
+}
