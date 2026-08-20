@@ -362,3 +362,34 @@ WR36 vs drafted RB47/WR52 do not, and which is right depends on whether
 replacement means "last starter" or "last man worth drafting"); (3) the 8
 identical seats say the discount binds only when scarce-position timing is
 contested — the mechanism to watch live is WHEN it moves K/DEF/TE picks.
+
+## 16. PREREG — CORY'S HARD POSITIONAL CAP (`--pos-cap`), committed before the run
+
+Cory, 08-20: *"What if we set a hard cap on position after average # of
+players at each position are taken?"* Distinct mechanism from §15: the
+discount RE-PRICES a player past the depth at ~zero but can still take him;
+the cap FORBIDS the position once the league (opponents' recorded picks +
+my own takes) has consumed `D_q` — the same LOO drafted-depth constant.
+
+**One declared exemption, or the rule eats itself:** the cap never applies
+while I still owe a STARTER at the position (`held < STARTERS`), otherwise a
+drafter who waited on TE is locked out of TE1 by everyone else's 14 — a
+legality failure by construction, which §14c already taught us to see coming.
+
+**Arms:** `--mlv --pos-cap` (cap alone, vs the champion) and
+`--mlv --mlv-depth --pos-cap` (cap on top of the leading candidate — does the
+constraint add anything the re-pricing has not already done?).
+
+**Bars (waiver-graded; frozen beside, no bar):** same as §15 — beat MLV-cap's
++2.6/+2.1 on both means, h2h ≥ 16/30 on skill, 30/30 legal; for the combined
+arm, additionally reported (no bar): does it beat depth-alone's
++25.90/+18.56? Controls: `--mlv` byte-guard; depth control (D_TE ∈ [13,15]);
+engagement counted with byte-identical seats reported as such.
+
+**P148, filed blind:** **the cap is largely REDUNDANT — cap-alone lands
+within ±10 of MLV-cap's means, and combined lands within ±10 of depth-alone's
+means — because MLV rarely volunteers a beyond-depth player and the discount
+already prices him at zero, so the cap mostly re-ties tie-breaks among
+worthless picks.** The one channel that could break this prediction: ACTUAL
+grading counts bench bodies through weekly best-lineup, and the cap changes
+WHICH zero-marginal bodies fill the bench. Filed either way.
