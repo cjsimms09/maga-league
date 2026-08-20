@@ -1859,6 +1859,15 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .rbm-head { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; margin-bottom: .4rem; }
 .rbm-title { font-size: var(--wr-fs-title); font-weight: 800; color: var(--wr-accent); letter-spacing: .02em; }
 .rbm-sub { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; }
+/* agreement with the board's own #1 — the reason this panel earns its
+   screen space, so it is stated rather than left to the eye (ported from
+   A's independent build of the same panel, 2026-08-20 merge). */
+.rbm-agree {
+  font-size: .64rem; margin: .3rem 0 .1rem; padding: .2rem .4rem;
+  border-radius: 4px; background: var(--wr-panel-soft);
+}
+.rbm-agree-yes { color: var(--wr-good); }
+.rbm-agree-no { color: var(--wr-warn); }
 .rbm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
 .rbm-row {
   display: grid; grid-template-columns: 1.3rem 1fr auto auto auto;

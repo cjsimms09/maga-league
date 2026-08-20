@@ -44,6 +44,24 @@
       + '</li>';
   }
 
+  /* Does this panel's #1 agree with the board's own #1? That comparison is
+   * the reason the panel earns its screen space (A's framing, ported in
+   * during the 2026-08-20 merge that found both of us had built this panel
+   * independently — genuinely useful, kept rather than dropped along with
+   * the duplicate rendering it arrived in). `board` is
+   * `{ topName, agrees } | null` — app.js compares by player_id, never by
+   * name, and hands down only the boolean + display name so this file stays
+   * a pure string-in/HTML-out layer with no board-scoring logic of its own. */
+  function agreementLine(board, esc) {
+    if (!board || !board.topName) return '';
+    return '<div class="rbm-agree' + (board.agrees ? ' rbm-agree-yes' : ' rbm-agree-no') + '">'
+      + (board.agrees
+        ? '✓ agrees with the board — both want ' + esc(board.topName)
+        : '⚠ disagrees with the board, which wants ' + esc(board.topName)
+          + ' — usually means the board\'s top name would not start for you')
+      + '</div>';
+  }
+
   /**
    * `recs` — the array RosterBuilderMLV.recommend() returns:
    *   [{ player, position, marginal, why }, ...]
@@ -53,11 +71,19 @@
    *   two register-134 strings render in a <details> disclosure, never a
    *   confidence badge (§5②: "the honest statement is a sentence, not a
    *   colour").
+   * `board` — `{ topName, agrees } | null` — see agreementLine() above.
+   * `explain` — app.js's explainPanel('roster_builder') output (the site-wide
+   *   ⓘ-button + collapsed-detail pattern every other panel uses, PANEL_GUIDE
+   *   registry in app.js), or '' if unavailable. Kept alongside, not instead
+   *   of, the evidence <details> below — this is HOW TO READ the panel
+   *   (the FLEX question, VONA not being cross-position comparable — exactly
+   *   what Cory asked when he asked for this panel); the evidence disclosure
+   *   is WHY TO TRUST it. Different questions, both worth answering.
    * Returns '' when there is nothing to show — no board, no roster, module
    * unavailable upstream — so a missing input degrades to nothing rather than
    * a broken box (same convention as renderPositionBoards).
    */
-  function render(recs, evidence, esc) {
+  function render(recs, evidence, board, explain, esc) {
     if (!Array.isArray(recs) || !recs.length) return '';
     evidence = evidence || {};
     var rows = recs.slice(0, 3).map(function (r, i) { return row(r, i, esc); }).join('');
@@ -75,7 +101,9 @@
       + '<div class="rbm-head">'
         + '<span class="rbm-title">Roster builder model says</span>'
         + '<span class="rbm-sub">a second voice — not your board\'s own pick</span>'
+        + (explain || '')
       + '</div>'
+      + agreementLine(board, esc)
       + '<ol class="rbm-list">' + rows + '</ol>'
       + '<div class="rbm-foot">'
         + '<div class="rbm-foot-line">points added to your STARTING LINEUP, not to your roster</div>'

@@ -55,6 +55,27 @@ const PRODUCTION_INPUTS = {
     + 'valuation.js and survival.js never touch it. Declared rather than '
     + 'grandfathered because a cheat sheet is exactly the kind of surface that '
     + 'becomes an input by accident.',
+  'position_boards.json': 'Per-position VONA, surplus-over-the-wire, round-to-round '
+    + 'drop-offs, opponent needs and ceiling steals for the six position boards '
+    + '(RB/WR/QB/TE/K/DEF) that replaced the single-recommendation panel, 2026-08-19 '
+    + '(Cory: "you aren\'t making 1 recommended pick anymore... top 5-10 at each '
+    + 'position"). Built from THIS draft\'s own current-season board '
+    + '(draft/tools/position_boards.js), same provenance as draft_data.json, not a '
+    + 'separate research artifact. DISPLAY ONLY: position_boards_view.js is a pure '
+    + 'render layer (own file header says so) — engine.js, composite.js, '
+    + 'valuation.js and survival.js never read it; the live survival OVERRIDE it '
+    + 'shows comes from state.lastClock.scored, computed by those modules '
+    + 'separately, not the other way round. Declared 2026-08-20 (found by this test '
+    + 'finally running against the rebased branch that shipped it, not by a new leak).',
+  'season_forward_live.json': 'Weekly playoff-odds / risk-posture feed from A\'s '
+    + 'many-worlds season simulator (P(playoffs), E[$], p5/p95 band per seat), '
+    + 'validated against three hindcast seasons before publishing (P103 TRUE: '
+    + 'Brier 0.072-0.131 vs a constant-odds 0.24 baseline at week 8). Cory-ordered '
+    + '2026-08-18. DISPLAY ONLY on the member dashboard (src/playoffOdds.js\'s '
+    + 'widget, wired in src/routes/member.js) — an IN-SEASON risk-posture read for '
+    + 'Cory\'s own seat, never a draft input; refuses loudly preseason rather than '
+    + 'guessing (pinned by its own test). Declared 2026-08-20, same reason as '
+    + 'position_boards.json above.',
   'league_history.json': 'Completed seasons of THIS league — head-to-head records, '
     + 'opponent tendencies, roster norms. Historical by nature and about this '
     + 'league, which is what makes it a legitimate input rather than a leak.',

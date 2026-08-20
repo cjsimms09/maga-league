@@ -1044,7 +1044,20 @@
       console.error('[roster-builder]', e && e.message);
       host.innerHTML = ''; return;
     }
-    host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, escapeHtml);
+    /* Does this panel's #1 agree with the board's own #1? Compared by
+     * player_id, never by name — the reason the panel earns its screen
+     * space, so it is stated rather than left to the eye. */
+    let boardCompare = null;
+    try {
+      const sc = E.recommend(context());
+      const topOfBoard = sc && sc.length ? sc[0].player : null;
+      if (topOfBoard && recs.length && recs[0].player) {
+        boardCompare = { topName: topOfBoard.name,
+          agrees: String(topOfBoard.player_id) === String(recs[0].player.player_id) };
+      }
+    } catch (e) { boardCompare = null; }
+    host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, boardCompare,
+      explainPanel('roster_builder'), escapeHtml);
   }
 
   /* LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS — Cory: "a running
@@ -2617,7 +2630,6 @@
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
-    safeRender('rosterBuilder', renderRosterBuilder);
     safeRender('sourceBoards', renderSourceBoards);
     safeRender('lists', renderLists);
     safeRender('queue', renderQueue);
@@ -4602,103 +4614,19 @@
     host.style.display = '';
   }
 
-  /* ── "ROSTER BUILDER MODEL SAYS" — a second voice, never the ranking ───────
-   *
-   * Cory, 2026-08-19: "it needs to be clear what player model is recommending
-   * and why and I still want to retain my current view. So maybe a spot that's
-   * says roster builder model says and then the player".
-   *
-   * marginal(c) = lineupValue(roster + c) - lineupValue(roster), valued as
-   * surplus over the waiver wire. The only arm to beat the human owners in all
-   * three seasons on BOTH gradings (+45.8 actual / +29.3 skill, 30/30 legal,
-   * register 132). Against our OWN shipped board the gain is weak (t 1.02, an
-   * upper bound), which is exactly why it is a panel and not a rewrite of
-   * scorePlayer two days before the draft.
-   *
-   * ⚠️ IT ANSWERS THE ONE QUESTION VONA CANNOT. VONA is a within-position
-   * quantity — a backup quarterback's best-to-second cliff is the largest on the
-   * board and sits on 17 points of surplus, a running back's 11-point cliff sits
-   * on 233 (trap 3, ROSTER-CONSTRUCTION-CALL). So "RB has a higher VONA than the
-   * next WR, do I take the RB for my flex" is not answerable from VONA at all.
-   * Marginal lineup value IS cross-position comparable, and this panel is where
-   * that comparison lives.
-   *
-   * REPORT ONLY: it never writes to the board, the roster, the queue or a pick.
-   * Self-mounting, same stopgap contract as the seat panel — if B ever adds a
-   * #roster-builder div, that placement wins and this creates nothing. */
-  function rosterBuilderHost() {
-    const found = $('#roster-builder');
-    if (found) return found;                       // B's placement wins, always
-    const room = document.getElementById('warroom');
-    if (!room) return null;
-    const el = document.createElement('div');
-    el.id = 'roster-builder';
-    el.className = 'card roster-builder';
-    el.setAttribute('data-mounted-by', 'app.js — no #roster-builder in the view');
-    /* Beneath the recommendations, because it is a SECOND opinion and reading it
-     * first would invert what it is for. */
-    const anchor = document.getElementById('pos-recs-out') || document.getElementById('recs');
-    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
-    else room.appendChild(el);
-    return el;
-  }
-
-  function renderRosterBuilder() {
-    const host = rosterBuilderHost();
-    if (!host) return;
-    /* Rule 3e in the UI: a panel that renders nothing and a panel whose module
-     * never loaded look identical from the outside. Say which. */
-    if (typeof RosterBuilderMLV === 'undefined') {
-      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
-        + 'Roster builder unavailable — mlv.js did not load.</p></div>';
-      return;
-    }
-    const league = { starters: (state.data && state.data.league && state.data.league.starters) || {} };
-    const rec = RosterBuilderMLV.recommend(state.board || [], state.myRoster || [],
-      { league: league, topN: 3 });
-    if (!rec.length) {
-      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
-        + 'Nobody left to evaluate.</p></div>';
-      return;
-    }
-    /* Does it agree with the board? That comparison is the reason the panel is
-     * worth screen space, so it is stated rather than left to the eye. */
-    let topOfBoard = null;
-    try {
-      const sc = E.recommend(context());
-      topOfBoard = sc && sc.length ? sc[0].player : null;
-    } catch (e) { topOfBoard = null; }
-    const agrees = topOfBoard && rec[0] && rec[0].player
-      && String(topOfBoard.player_id) === String(rec[0].player.player_id);
-
-    const rows = rec.map((r, i) => {
-      const p = r.player;
-      const adp = p.adjusted_adp == null ? '—' : Math.round(p.adjusted_adp);
-      return '<li style="margin-bottom:.4rem">'
-        + '<b>' + escapeHtml(p.name) + '</b> '
-        + '<span class="muted">' + escapeHtml(p.position) + (p.team ? ' ' + escapeHtml(p.team) : '')
-        + ' · ADP ' + adp + ' · <b>+' + r.marginal + '</b> to your lineup</span>'
-        + '<br><span style="font-size:.78rem">' + escapeHtml(r.why) + '</span>'
-        + '</li>';
-    }).join('');
-
-    host.innerHTML = '<div class="body">'
-      + '<h3 style="margin:0 0 .3rem">🧱 Roster builder model says '
-      + explainPanel('roster_builder') + '</h3>'
-      + '<ol style="margin:0;padding-left:1.1rem">' + rows + '</ol>'
-      + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
-      + (topOfBoard
-          ? (agrees
-              ? '✅ <b>Agrees with the board.</b> Both want ' + escapeHtml(topOfBoard.name) + '.'
-              : '⚠️ <b>Disagrees with the board</b>, which wants '
-                + escapeHtml(topOfBoard.name) + '. Usually that means the board\'s top name '
-                + 'would not start for you.')
-          : '')
-      + '<br>Points added to your STARTING LINEUP, not to your roster. '
-      + 'K and DEF are capped at one, not excluded — once your nine starting slots '
-      + 'are full they top this list, because a bench body is worth zero here.'
-      + '</p></div>';
-  }
+  /* ── "ROSTER BUILDER MODEL SAYS" ────────────────────────────────────────
+   * The real render function is renderRosterBuilderPanel(), above, mounted
+   * at #roster-builder-mlv — it already existed (B, commit 06d11b6b, the
+   * night before this comment) when A independently built a second,
+   * self-mounting implementation here under a different id (#roster-builder)
+   * that this exact stopgap comment said should defer to it. It didn't,
+   * because the id didn't match, and Cory would have seen the panel twice.
+   * Found and resolved in the 2026-08-20 rebase: A's genuinely good addition
+   * — stating whether this panel's #1 agrees with the board's own #1, which
+   * is the reason the panel earns its screen space — was ported into
+   * rbm_view.js's render() as the `board` param rather than lost along with
+   * the duplicate. A's `roster_builder` entry in panel_spec.js now points at
+   * renderRosterBuilderPanel instead of this deleted function. */
 
   /* ── "WHO DOES EACH SOURCE HAVE AS THEIR BEST AVAILABLE" ──────────────────
    *

@@ -166,7 +166,7 @@ const PANELS = [
       + 'button sit behind the disclosure, so the headline stays the only name '
       + 'above the fold.' },
 
-  { fn: 'renderRosterBuilder', weight: 'CONTEXT', lines: 62,
+  { fn: 'renderRosterBuilderPanel', weight: 'CONTEXT', lines: 28,
     question: 'What does a SECOND model think, and does it disagree with the board?',
     means: 'marginal lineup value — what this man adds to my STARTING lineup, valued '
       + 'as surplus over the waiver wire. Unlike VONA it IS comparable across '
@@ -174,7 +174,7 @@ const PANELS = [
       + 'for my flex".',
     changes_it: 'any pick; anything entering or leaving my roster (it is scored on '
       + 'the live roster, not on a snapshot)',
-    reads: ['mlv.js recommend()', 'state.board', 'state.myRoster', 'league.starters'],
+    reads: ['mlv.js recommend()', 'state.board', 'state.myRoster', 'state.data.league.starters'],
     note: 'A SECOND VOICE AND NEVER THE RANKING — Cory: "I still want to retain my '
       + 'current view. So maybe a spot that\'s says roster builder model says and '
       + 'then the player". B must not merge it into the shortlist or sort the board '
@@ -197,6 +197,31 @@ const PANELS = [
       + 'is invariant to that. The bullet marking a source that differs from the '
       + 'blend is the readable payload; the names are the detail. Our own '
       + 'projections are absent on Cory\'s ruling, not by oversight.',
+  },
+  { fn: 'renderPositionBoardsPanel', weight: 'TIMES', lines: 22,
+    question: 'Who is the best available at EACH position, right now — not just one recommendation?',
+    means: 'Per-position VONA and surplus-over-the-wire, six columns (RB/WR/QB/TE/K/DEF), '
+      + 'the same shortlist depth (top 5-10) at every position at once rather than one '
+      + 'cross-position ranked list.',
+    changes_it: 'any pick, at any of the six positions — every column redraws every render',
+    reads: ['public/position_boards.json', 'state.lastClock.scored (live survival override)'],
+    note: 'REPLACED THE SINGLE-RECOMMENDATION MODEL — Cory, 2026-08-19: "you aren\'t '
+      + 'making 1 recommended pick anymore... top 5-10 at each position." VONA is NEVER '
+      + 'compared across the six columns (P196) — that cross-position question belongs to '
+      + 'the roster builder panel below, not this one.',
+  },
+  { fn: 'renderPosTakenCounts', weight: 'CONTEXT', lines: 24,
+    question: 'How many players are off the board at each position, league-wide?',
+    means: 'A tally of state.drafted by position — live picks AND keepers together, since '
+      + 'a kept player is off the board from the first render just as much as a drafted one.',
+    changes_it: 'any pick or keeper confirmation, anywhere in the league — not just mine',
+    reads: ['state.drafted', 'state.data.players', 'state.data.kept_players'],
+    note: 'Cory: "a running count at the top of screen somewhere of # of players taken at '
+      + 'each position (including keepers) would be nice." Visible on every tab, not just '
+      + 'Draft — it is a league fact, not a per-pick recommendation. A kept player is '
+      + 'ABSENT from state.data.players entirely (DraftKeepers.reapply removes him — he '
+      + 'was never "available"), so a naive scan of that array alone silently counts every '
+      + 'keeper as zero; state.data.kept_players is unioned in for exactly that reason.',
   },
   { fn: 'renderSeatPlan', weight: 'DECIDES', lines: 121,
     question: 'Which SEAT am I filling at this pick — and what is the plan for the rest?',
