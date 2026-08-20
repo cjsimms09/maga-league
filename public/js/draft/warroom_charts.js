@@ -940,6 +940,7 @@
     var nexts = d.myNextPicks().filter(function (pk) { return cur == null || pk > cur; }).slice(0, 3);
     var inQueue = d.queue().indexOf(String(p.player_id)) >= 0
       || d.queue().indexOf(p.player_id) >= 0;
+    var myCall = (d.playerCalls ? d.playerCalls() : {})[String(p.player_id)] || null;
 
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
@@ -1041,6 +1042,23 @@
         + '<button class="btn small ghost" data-draft-other="' + esc(p.player_id) + '">Gone</button>'
         + '<button class="btn small ghost" data-compare="' + esc(p.player_id) + '">⚖️ compare</button>'
         + '</div>')
+      /* Like/dislike — Cory: "a way to like and dislike players... grade me
+       * on these... to see if I was right." Deliberately available even
+       * when `taken`, unlike the actions above — an opinion about a player
+       * somebody ELSE drafted is exactly as gradeable as one about a player
+       * on your own roster, and locking the buttons the moment he's gone
+       * would make this feature useless for anyone but your own picks. */
+      + (function () {
+        var call = myCall && myCall.call;
+        return '<div class="wr-drill-actions wr-drill-calls">'
+          + '<button class="btn small ' + (call === 'like' ? 'gold' : 'ghost')
+            + '" data-call="like" data-call-id="' + esc(p.player_id) + '" title="Like — grade this later against what he actually does">'
+            + '\u{1F44D} ' + (call === 'like' ? 'liked' : 'like') + '</button>'
+          + '<button class="btn small ' + (call === 'dislike' ? 'navy' : 'ghost')
+            + '" data-call="dislike" data-call-id="' + esc(p.player_id) + '" title="Dislike — grade this later against what he actually does">'
+            + '\u{1F44E} ' + (call === 'dislike' ? 'disliked' : 'dislike') + '</button>'
+          + '</div>';
+      })()
       + '</div>';
     host.hidden = false;
   }

@@ -80,6 +80,14 @@
     // `queue` is ordered and the other two are not, on purpose: targets and
     // never are opinions about players, the queue is a plan for picks.
     lists: { targets: [], avoid: [], queue: [] },
+    // Cory, live 2026-08-20: "a way to like and dislike players... this
+    // info needs to stay in the room for when I do my draft... grade me on
+    // these." Distinct from targets/avoid above on purpose: a target NUDGES
+    // the recommendation and avoid REMOVES a player from it — both change
+    // what the model does. A like/dislike changes nothing about the model;
+    // it is Cory's own read, recorded so it can be graded against what
+    // actually happens, same mock-and-real persistence as lists via A-1.
+    playerCalls: {},
     clockMode: false,     // the one-answer view
     clockIndex: 0,        // which recommendation it is showing
     // A2 slot verification: a slot can be set manually (a guess/placeholder) or
@@ -165,7 +173,8 @@
 
   function currentPrefs() {
     return { lists: state.lists, weights: state.weights, autoWeights: !!state.autoWeights,
-             playerOverrides: state.playerOverrides || {}, railAcks: state.railAcks || {} };
+             playerOverrides: state.playerOverrides || {}, railAcks: state.railAcks || {},
+             playerCalls: state.playerCalls || {} };
   }
   function markPrefsChanged() {
     if (prefsApplying) return;
@@ -185,10 +194,12 @@
       if (typeof p.autoWeights === 'boolean') state.autoWeights = p.autoWeights;
       if (p.playerOverrides) state.playerOverrides = p.playerOverrides;
       if (p.railAcks) state.railAcks = p.railAcks;
+      if (p.playerCalls) state.playerCalls = p.playerCalls;
       // Refresh the offline cache so a later offline load sees the same truth.
       try { localStorage.setItem(LISTS_KEY, JSON.stringify(state.lists)); } catch (e) {}
       try { localStorage.setItem(RAIL_ACK_KEY, JSON.stringify(state.railAcks || {})); } catch (e) {}
       try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); } catch (e) {}
+      try { localStorage.setItem(CALLS_KEY, JSON.stringify(state.playerCalls || {})); } catch (e) {}
       try { localStorage.setItem(WEIGHT_KEY, JSON.stringify(state.weights)); } catch (e) {}
       try { localStorage.setItem(AUTO_KEY, state.autoWeights ? '1' : '0'); } catch (e) {}
     } finally { prefsApplying = false; }
@@ -458,6 +469,7 @@
     loadOverrides();
     loadLists();
     loadRailAcks();
+    loadCalls();
     loadAuto();
     // A-1: after the local caches load, race them against the server document —
     // the prep laptop's Tuesday homework beats this phone's stale cache.
@@ -514,6 +526,51 @@
     markPrefsChanged();
     try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); }
     catch (e) { /* private mode */ }
+  }
+
+  /* ── Player calls — like/dislike, graded later ────────────────────────── */
+  const CALLS_KEY = 'mfga.draft.calls.players';
+  function loadCalls() {
+    try { state.playerCalls = JSON.parse(localStorage.getItem(CALLS_KEY) || '{}'); }
+    catch (e) { state.playerCalls = {}; }
+  }
+  function saveCalls() {
+    markPrefsChanged();
+    try { localStorage.setItem(CALLS_KEY, JSON.stringify(state.playerCalls || {})); }
+    catch (e) { /* private mode */ }
+  }
+  /* Toggling ON snapshots exactly what was known about the player AT THIS
+   * MOMENT — proj_mean/adp/tier are the board's own numbers, not re-derived
+   * later, because a grader asking "did Cory beat the board" needs the board
+   * as it stood when he made the call, not as it stands after ten more
+   * rebuilds. Re-clicking the SAME call clears it (a like is not forever);
+   * clicking the OTHER call overwrites, since a player cannot be both. */
+  function setPlayerCall(playerId, call) {
+    const id = String(playerId);
+    const calls = state.playerCalls || (state.playerCalls = {});
+    const existing = calls[id];
+    if (existing && existing.call === call) {
+      delete calls[id];
+      saveCalls();
+      renderAll();
+      return;
+    }
+    const p = (state.data && state.data.players || []).find(x => x.player_id === id);
+    calls[id] = {
+      call: call,
+      at: new Date().toISOString(),
+      season: (state.data && state.data.league && state.data.league.season) || null,
+      pick: (function () { try { return currentPick(); } catch (e) { return null; } })(),
+      name: p ? p.name : null,
+      position: p ? p.position : null,
+      team: p ? p.team : null,
+      proj_mean: p ? p.proj_mean : null,
+      adjusted_adp: p ? p.adjusted_adp : null,
+      tier: p ? p.tier : null,
+      games_expected: p ? p.games_expected : null,
+    };
+    saveCalls();
+    renderAll();
   }
 
   function setOverride(playerId, kind, pct) {
@@ -986,7 +1043,7 @@
       }
     }
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
-      state.projSource || 'ds');
+      state.projSource || 'ds', state.playerCalls || {});
     wirePositionBoardsScroll(host);
   }
 
@@ -3533,12 +3590,30 @@
     const chip = (id, kind) => '<button class="list-chip ' + kind + '" data-unlist="' + kind
       + '" data-id="' + escapeHtml(id) + '">' + escapeHtml(nameOf(id)) + ' \u2715</button>';
     const t = state.lists.targets, a = state.lists.avoid;
+    const calls = state.playerCalls || {};
+    const callChip = (id, entry) => '<button class="list-chip ' + (entry.call === 'like' ? 'targets' : 'avoid')
+      + '" data-uncall="' + escapeHtml(id) + '" title="' + escapeHtml(entry.call === 'like' ? 'Liked' : 'Disliked')
+      + (entry.proj_mean != null ? ' at ' + Math.round(entry.proj_mean) + ' proj pts' : '') + '">'
+      + escapeHtml(entry.name || nameOf(id)) + ' \u2715</button>';
+    const likedIds = Object.keys(calls).filter(id => calls[id].call === 'like');
+    const dislikedIds = Object.keys(calls).filter(id => calls[id].call === 'dislike');
     host.innerHTML =
       '<div class="list-row"><b>\u2b50 Targets</b>'
         + (t.length ? t.map(id => chip(id, 'targets')).join('') : '<span class="muted">none yet</span>')
       + '</div>'
       + '<div class="list-row"><b>\u{1F6AB} Never</b>'
         + (a.length ? a.map(id => chip(id, 'avoid')).join('') : '<span class="muted">none yet</span>')
+      + '</div>'
+      /* Deliberately a SEPARATE row pair from targets/avoid above \u2014 a like
+       * is Cory's opinion (graded later against what happens), a target is
+       * an instruction to the model (changes what it recommends now). */
+      + '<div class="list-row"><b>\u{1F44D} Liked (graded later)</b>'
+        + (likedIds.length ? likedIds.map(id => callChip(id, calls[id])).join('')
+          : '<span class="muted">none yet \u2014 click \u{1F44D} on a player</span>')
+      + '</div>'
+      + '<div class="list-row"><b>\u{1F44E} Disliked (graded later)</b>'
+        + (dislikedIds.length ? dislikedIds.map(id => callChip(id, calls[id])).join('')
+          : '<span class="muted">none yet</span>')
       + '</div>';
   }
 
@@ -10561,7 +10636,7 @@
       '<div class="ec-card">'
       + '<div class="ec-head">End this draft and clear all ' + n + ' picks?</div>'
       + '<div class="ec-body">The board goes back to full. Your targets, never-draft '
-      + 'list, weights and news overrides are kept.</div>'
+      + 'list, weights, news overrides and player likes/dislikes are kept.</div>'
       + '<label class="ec-label">Type <b>END</b> to confirm</label>'
       + '<input id="ec-input" class="ec-input" autocomplete="off" spellcheck="false">'
       + '<div id="ec-feedback" class="ec-feedback">waiting…</div>'
@@ -10785,6 +10860,9 @@
      * each source (sleeper, fantasy pro, etc)". Order only, same contract
      * renderSourceBoards() already holds to — never a raw score. */
     sourceBoards: function () { return state.sourceBoards || null; },
+    /* Like/dislike calls, keyed by player_id — Cory: "a way to like and
+     * dislike players... this info needs to stay in the room". */
+    playerCalls: function () { return state.playerCalls || {}; },
     /* Survival to an arbitrary future pick — the SAME engine call the LRM strip
      * makes (full ctx shape: runMultipliers keeps normalizeCtx reading this as
      * a context, pickBoard keeps ADP on the board's own scale). */
@@ -10910,6 +10988,17 @@
       if (listBtn) { toggleList(listBtn.getAttribute('data-list'), listBtn.getAttribute('data-id')); return; }
       const unlist = ev.target.closest('[data-unlist]');
       if (unlist) { toggleList(unlist.getAttribute('data-unlist'), unlist.getAttribute('data-id')); return; }
+      // Like / dislike — Cory's own read, graded later, from anywhere on the
+      // page (the drill-down panel and the calls-review chips both use it).
+      const callBtn = ev.target.closest('[data-call]');
+      if (callBtn) { setPlayerCall(callBtn.getAttribute('data-call-id'), callBtn.getAttribute('data-call')); return; }
+      const uncall = ev.target.closest('[data-uncall]');
+      if (uncall) {
+        const id = uncall.getAttribute('data-uncall');
+        const existing = state.playerCalls && state.playerCalls[id];
+        if (existing) setPlayerCall(id, existing.call);   // same-call re-toggle clears it
+        return;
+      }
       // Queue: the same button adds from the board and removes from the panel,
       // so there is one gesture to learn rather than two.
       const qBtn = ev.target.closest('[data-queue]');

@@ -84,6 +84,22 @@
     return '<span class="pb-risk-dot' + cls + '" title="' + esc(pct + '% injury risk (Draft Sharks)') + '">●</span>';
   }
 
+  /* CALL GLYPH — Cory: "a way to like and dislike players... this info
+   * needs to stay in the room". Inline, not absolutely positioned like
+   * riskDot() above (that corner is already taken) — a small glyph in the
+   * normal text flow costs one more character's width, which the name
+   * column already has room for at typical name lengths. Read-only here on
+   * purpose: the ACT of liking/disliking happens in the drill-down (a
+   * deliberate click, not a second target competing with this row's own
+   * data-drill open-panel click), this is just "you already called this
+   * one" at a glance while scanning the board. */
+  function callGlyph(entry, esc) {
+    if (!entry || !entry.call) return '';
+    var glyph = entry.call === 'like' ? '\u{1F44D}' : '\u{1F44E}';
+    return '<span class="pb-call-glyph pb-call-' + entry.call + '" title="'
+      + esc(entry.call === 'like' ? 'You liked him' : 'You disliked him') + '">' + glyph + '</span>';
+  }
+
   /* ── WHY THIS ROW IS 4 COLUMNS, NOT 6 ─────────────────────────────────────
    * Measured, not eyeballed, at a real 1440px viewport: six nowrap numeric
    * columns (Proj/Fl-Ce/ADP/Surv/Risk) needed a forced horizontal scroll to
@@ -93,7 +109,7 @@
    * a column (see riskDot above). Team sits beside the name, not under it —
    * a second LINE per row is exactly what turned 10 players into a wall of
    * text the first time through this fix. */
-  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource, scale) {
+  function playerRow(p, esc, liveSurvivalById, isCliffLine, projSource, scale, callsById) {
     var surv = survivalFor(p, liveSurvivalById);
     var survClass = surv.pct == null ? '' : surv.pct >= 70 ? 'pb-surv-safe' : surv.pct >= 30 ? 'pb-surv-mid' : 'pb-surv-hot';
     var survTitle = surv.live
@@ -118,6 +134,7 @@
      * nothing — same trick riskBadge's predecessor never had, because it
      * was never asked to share a cell with three other things. */
     var risk = riskDot(p.injury_risk_pct, esc);
+    var call = callGlyph((callsById || {})[String(p.player_id)], esc);
     /* A CSS-GRID ROW, NOT A <table> ROW. The <table> version's headers and
      * cells drifted apart under table-layout: fixed — a live screenshot
      * caught "PROJ"/"RANGE"/"SURV" overlapping in the header, and Proj's
@@ -137,7 +154,7 @@
     return '<div class="pb-table-row pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '"'
       + (p.player_id != null ? ' data-drill="' + esc(String(p.player_id)) + '"' : '') + '>'
       + '<div class="pb-name"' + (nameTitle ? ' title="' + esc(nameTitle) + '"' : '') + '>'
-        + esc(p.name || '') + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + risk + '</div>'
+        + esc(p.name || '') + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + call + risk + '</div>'
       + '<div class="pb-proj">' + esc(fmtNum(pf.proj)) + '</div>'
       + '<div class="pb-range">' + rangeBarMini(pf.floor, pf.proj, pf.ceiling, scale, esc) + '</div>'
       + '<div class="pb-surv ' + survClass + '" title="' + esc(survTitle) + '">' + esc(fmtPct(surv.pct))
@@ -285,12 +302,12 @@
     return { min: Math.min.apply(null, floors), max: Math.max.apply(null, ceils) };
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs) {
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById) {
     if (!block) return '';
     var players = block.players || [];
     var scale = rangeScaleFor(players, projSource);
     var rows = players.map(function (p, i) {
-      var row = playerRow(p, esc, liveSurvivalById, false, projSource, scale);
+      var row = playerRow(p, esc, liveSurvivalById, false, projSource, scale, callsById);
       if (block.cliff_after_rank != null && i === block.cliff_after_rank - 1 && i < players.length - 1) {
         row += '<div class="pb-cliff-row">▽ cliff — next tier drops '
           + esc(fmtNum(block.cliff_size)) + ' pts ▽</div>';
@@ -427,13 +444,13 @@
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
    * so a missing/stale artifact degrades to nothing rather than a broken panel.
    * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
-  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource) {
+  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById) {
     if (!data || !Array.isArray(data.picks) || !data.picks.length) return '';
     var pick = findPick(data, pickNum);
     if (!pick) return '';
     var src = projSource === 'blend' ? 'blend' : 'ds';
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))

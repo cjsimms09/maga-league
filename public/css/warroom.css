@@ -1786,6 +1786,7 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    see riskDot()'s own comment for why this replaced "⚕67%" as its own
    column. Absolutely positioned in .pb-name's own corner — costs the text
    flow nothing, which is the whole point (see playerRow's own comment). */
+.pb-call-glyph { font-size: .58rem; margin-left: .15rem; }
 .pb-risk-dot { position: absolute; top: .05rem; right: 0; color: var(--wr-muted); font-size: .5rem; }
 .pb-risk-dot.pb-risk-mid { color: var(--wr-warn); }
 .pb-risk-dot.pb-risk-hi { color: var(--wr-bad); }
