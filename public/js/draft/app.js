@@ -1371,7 +1371,12 @@
     let recs;
     try {
       recs = RosterBuilderMLV.recommend(board, sourceAdjustedRoster() || [],
-        { league: state.data.league, topN: 3 });
+        /* `taken` added 2026-08-20 — Cory, from a rehearsal: "Roster builder
+         * model is recommending players that are already gone." state.board is
+         * pruned on every pick, so this is belt-and-braces; the point is that
+         * the panel can no longer name a gone player even if the board it is
+         * handed is stale. mlv.js counts anything it filters. */
+        { league: state.data.league, topN: 3, taken: state.drafted });
     } catch (e) {
       console.error('[roster-builder]', e && e.message);
       host.innerHTML = ''; return;
@@ -1390,6 +1395,27 @@
     } catch (e) { boardCompare = null; }
     host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, boardCompare,
       explainPanel('roster_builder'), escapeHtml);
+
+    /* ⚠️ IF THE GUARD EVER FIRES, SAY SO RATHER THAN QUIETLY CLEANING UP.
+     * mlv.js now refuses to recommend a player who is already taken, and counts
+     * what it dropped. Zero is the healthy state and draws nothing. A non-zero
+     * count means this panel was handed a board that still contained drafted
+     * players — the SYMPTOM is fixed above, but the CAUSE would be upstream in
+     * whatever failed to prune, and hiding it is how that cause survives. */
+    if (recs && recs._taken_filtered) {
+      const note = document.createElement('p');
+      note.className = 'muted';
+      note.style.cssText = 'margin:.4rem 0 0;font-size:.72rem;color:#b45309';
+      note.textContent = '⚠️ ' + recs._taken_filtered + ' already-drafted player'
+        + (recs._taken_filtered === 1 ? '' : 's')
+        + ' were removed from this list ('
+        + (recs._taken_names || []).join(', ')
+        + '). They cannot be recommended, but the board handed to this panel '
+        + 'should not have contained them — please report this.';
+      host.appendChild(note);
+      console.error('[roster-builder] board contained drafted players:',
+        recs._taken_filtered, recs._taken_names);
+    }
   }
 
   /* LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS — Cory: "a running
@@ -9348,8 +9374,10 @@
     } catch (e) { /* DraftShadows models are optional; MLV below is not */ }
     try {
       if (typeof RosterBuilderMLV !== 'undefined') {
+        /* `taken` — the MLV Displacement lens is one of the four models Cory
+         * clicks; it must not name a player who is gone (2026-08-20). */
         const recs = RosterBuilderMLV.recommend(sourceAdjustedBoard(), sourceAdjustedRoster() || [],
-          { league: state.data.league, topN: 1 });
+          { league: state.data.league, topN: 1, taken: state.drafted });
         if (recs && recs.length && recs[0].player) {
           rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
             position: recs[0].position, player_id: String(recs[0].player.player_id),
