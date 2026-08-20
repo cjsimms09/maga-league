@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 163,
+ "next_numeric_id": 164,
  "history": [
   {
    "id": 47,
@@ -294,6 +294,16 @@
    "id": 162,
    "claimed_at": "2026-08-20",
    "note": "A: Cory's three keepers were priced on a different replacement table than every other player on his board -- was 154 pre-renumber on main's side, FIXED same day"
+  },
+  {
+   "id": "155 (A, unmerged main claim) reconciled against D's own 155",
+   "claimed_at": "2026-08-20",
+   "note": "A claimed 155 on origin/main for a real, different row (roster_state.py's nightly capture silently losing all output since 08-17) while D's branch already held 155 for the relay_publish.sh false-positive fix (already FIXED). A's row kept as canonical 155 (physically first in the table); D's renumbered to 163. Watermark now authoritative from 164."
+  },
+  {
+   "id": 163,
+   "claimed_at": "2026-08-20",
+   "note": "D: relay_publish.sh's paid-reviewer guard false positive, already FIXED (was 155 pre-renumber)"
   }
  ]
 }
