@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 153,
+ "next_numeric_id": 154,
  "history": [
   {
    "id": 47,
@@ -218,7 +218,17 @@
   {
    "id": 152,
    "claimed_at": "2026-08-20",
-   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (was 148 pre-renumber)"
+   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (was 148 pre-renumber); PARTIALLY FIXED by A's 660b880a same day -- classification half closed, proj_mean_pre_ds KNOWN_PARTICIPANTS half still open"
+  },
+  {
+   "id": "149 (D, unmerged) reconciled against a real 149 landing on main",
+   "claimed_at": "2026-08-20",
+   "note": "main independently claimed 149 for a real, different row (the nothing_computed_goes_unshown finding, 25 board fields/2 artifacts no screen shows) while D's still-unmerged branch already had 149 (the standalone-script test-file pattern). Main's row kept as canonical 149 (physically first in the table); D's renumbered to 153. Watermark now authoritative from 154."
+  },
+  {
+   "id": 153,
+   "claimed_at": "2026-08-20",
+   "note": "D: the standalone-script test-file pattern, now confirmed four times (was 149 pre-renumber)"
   }
  ]
 }
