@@ -451,3 +451,28 @@ share one value signal (market order) — D measured five weekly arms at
 that lesson predicts the vote tracks the shipped/MLV family rather than
 transcending it. A win would mean strategy DIVERSITY carries information the
 best single rule misses — filed so that result would be a genuine surprise.
+
+## 17-GRADED, SAME DAY — P152 TRUE: THE VOTE LANDS BETWEEN ITS MEMBERS, AND DEMOCRACY ELECTED A SECOND KICKER
+
+Controls: byte-guard held; tallies written (814 picks, unanimous on only
+13% — mode 5-6 of 7, so the voters genuinely disagree and the costume-sweep
+concern is CLEARED; the result is about voting, not about fake diversity).
+
+| ensemble vote | actual | skill | vs MLV-cap |
+|---|---|---|---|
+| waiver-graded | **−28.31** (13/30) | +3.07 | fails the +2.6 actual bar; h2h 18/30 on skill |
+| frozen | −1.84 (16/30) | +20.02 | far under +45.84/+29.33 |
+
+**And 2 of 30 seats drafted a SECOND K/DEF** — the four shipped-family
+voters outvote the MLV cap, so the plurality violates the normal-roster
+constraint the champion enforces. Cory's own "that's terrible" case, elected
+by majority.
+
+**P152 TRUE on its blind claim.** The mechanism is the textbook one:
+majority voting adds value when errors are INDEPENDENT; these seven share
+the market-order value signal, so the vote regresses the best member toward
+the family average instead of transcending it. Same lesson as D's ρ≈0.997
+weekly-arm null, now measured on drafting. **The way to use multiple models
+is the one already shipped: ONE champion picks, the others show as labeled
+second opinions (the shadow panel, the source toggle) — advisors, never
+electors.** RETIRES the ensemble line.
