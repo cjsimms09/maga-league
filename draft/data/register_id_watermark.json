@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 143,
+ "next_numeric_id": 144,
  "history": [
   {
    "id": 47,
@@ -186,6 +186,11 @@
    "id": 142,
    "claimed_at": "2026-08-20",
    "note": "renumbered from a colliding 129 (D: mean-of-4 correlation caution) -- same deliberate deviation, documented in the row itself"
+  },
+  {
+   "id": 143,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 140 (A: collapsed floor/ceiling bands for 363 players, fixed) -- collided with E's already-resolved 127-138 chain on merge; E's chain kept because three shipped files (mlv.js, roster_builder_panel.test.js, panel_spec.js) cite content G by number as 'register 134', which is where E's chain independently placed it and where origin's own later merge had silently moved it away to 136"
   }
  ]
 }
