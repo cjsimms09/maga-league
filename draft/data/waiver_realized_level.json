@@ -1,0 +1,57 @@
+{
+ "generated": "2026-08-20T03:13:36.465Z",
+ "prereg": "DISTRIBUTIONAL-OBJECTIVE-PREREG-2026-08-20.md §2 (P150)",
+ "window": "add week + next 3, game weeks only",
+ "joined": 729,
+ "skippedNoGames": 35,
+ "rows": {
+  "QB": {
+   "n": 88,
+   "realized_mean_per_week": 18.06,
+   "realized_median_per_week": 18.91,
+   "floor_per_week": 18.99,
+   "realized_over_floor": 0.951,
+   "share_of_adds_beating_floor": 0.477
+  },
+  "RB": {
+   "n": 149,
+   "realized_mean_per_week": 6.76,
+   "realized_median_per_week": 6.1,
+   "floor_per_week": 4.61,
+   "realized_over_floor": 1.466,
+   "share_of_adds_beating_floor": 0.611
+  },
+  "WR": {
+   "n": 123,
+   "realized_mean_per_week": 7.17,
+   "realized_median_per_week": 6.1,
+   "floor_per_week": 7.34,
+   "realized_over_floor": 0.977,
+   "share_of_adds_beating_floor": 0.398
+  },
+  "TE": {
+   "n": 83,
+   "realized_mean_per_week": 6.89,
+   "realized_median_per_week": 6.9,
+   "floor_per_week": 7.67,
+   "realized_over_floor": 0.898,
+   "share_of_adds_beating_floor": 0.422
+  },
+  "K": {
+   "n": 84,
+   "realized_mean_per_week": 7.72,
+   "realized_median_per_week": 7.67,
+   "floor_per_week": 7.56,
+   "realized_over_floor": 1.02,
+   "share_of_adds_beating_floor": 0.5
+  },
+  "DEF": {
+   "n": 202,
+   "realized_mean_per_week": 7.08,
+   "realized_median_per_week": 6.75,
+   "floor_per_week": 5.88,
+   "realized_over_floor": 1.204,
+   "share_of_adds_beating_floor": 0.594
+  }
+ }
+}
