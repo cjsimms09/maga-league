@@ -22,8 +22,8 @@
   },
   {
    "file": "position_boards.json",
-   "draft_critical": true,
-   "why": "the per-position board view",
+   "draft_critical": false,
+   "why": "MEASURED: read by ZERO served files. It is a per-position board with no page — built nightly, invisible. Routed to B. Cannot mislead Cory today because he cannot see it at all.",
    "status": "CONSISTENT",
    "checked": 505,
    "mismatched": 0,
@@ -42,8 +42,8 @@
   },
   {
    "file": "mlv_recommend.json",
-   "draft_critical": true,
-   "why": "the roster-builder panel's static fallback",
+   "draft_critical": false,
+   "why": "MEASURED: read by ZERO served files. The roster-builder panel computes live from mlv.js and never loads it.",
    "status": "CONSISTENT",
    "checked": 10,
    "mismatched": 0,

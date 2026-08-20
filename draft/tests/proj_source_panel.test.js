@@ -71,11 +71,39 @@ ck('the coverage warning is driven by the MEASURED gap, not a hardcoded sentence
   null);
 
 // ── 3. it must not become a ranking input ───────────────────────────────────
-ck('the toggle is DISPLAY ONLY — it must never be read by the scoring engine, '
-   + 'which is the line every second-opinion surface in this project holds',
-  !/engine\.js/.test(fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8')
-    .slice(SRC.indexOf('PROJ_SOURCES'), SRC.indexOf('function renderSourceBoards'))),
+/* ⚠️ THIS CHECK WAS "the toggle is DISPLAY ONLY" AND THAT IS NOW DELIBERATELY
+ * FALSE. Cory: "And the board will rearrange based of the source I select? Ie
+ * it will change rankings, VONA, recommended player, etc" — it does now. The
+ * old assertion described v1 and would have blocked the thing he asked for, so
+ * it is REPLACED by the invariant that actually protects him, not deleted to
+ * make the suite green. */
+ck('the re-rank is NOT recomputed in the browser — app.js must never derive '
+   + 'replacement level or vorp itself. Register 148 is two replacement tables '
+   + 'in this repo disagreeing by 2x at RB and WR; a third would be worse.',
+  !/function\s+(applyVorp|computeVorp|replacementLevel|assignTiers)\b/.test(SRC),
   null);
+
+ck('...it loads boards PRE-BUILT by the same code the real board uses',
+  /board_'\s*\+\s*key\s*\+\s*'\.json|board_\$\{key\}\.json/.test(SRC), null);
+
+ck('going back to the blend restores from the PRISTINE copy rather than a '
+   + 'refetch, so it is byte-for-byte the board Cory booted with — and it '
+   + 'reuses mock mode\'s existing mechanism instead of inventing a second one',
+  /state\.pristine/.test(SRC.slice(SRC.indexOf('function setProjSource'))), null);
+
+ck('a re-ranked board SHOUTS that it is re-ranked — Cory drafts from this '
+   + 'screen and a swapped board that looks normal is the most dangerous thing '
+   + 'this panel could do',
+  /THE BOARD IS RE-RANKED ON/.test(SRC), null);
+
+ck('and it names the players that source cannot see at all, because a missing '
+   + 'man must never read as a bad one',
+  /players are missing entirely/.test(SRC) && /dropped_inside_top150/.test(SRC), null);
+
+ck('a failed board load does NOT silently leave him on the blend while the '
+   + 'button claims otherwise (rule 3e: a failure and an empty source look '
+   + 'identical from the outside)',
+  /stayed on/.test(SRC), null);
 
 const engineSrc = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'), 'utf8');
 ck('KNOWN NEGATIVE — engine.js does not read projSource, so switching source '
@@ -95,5 +123,5 @@ ck('CONTROL — coverage genuinely DIFFERS between sources, which is why the '
    + 'homogenised and the warning should be re-examined, not deleted.',
   new Set(Object.values(cov)).size > 1, cov);
 
-console.log('\n%d checks, %d failed', 11, fails.length);
+console.log('\n%d checks, %d failed', 16, fails.length);
 if (fails.length) { console.log('FAILED'); process.exit(1); }
