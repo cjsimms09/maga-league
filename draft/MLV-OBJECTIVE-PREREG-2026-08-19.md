@@ -420,3 +420,34 @@ bench option value in the ~6 seats where it binds, and in those seats it
 never once won. **The soft version of Cory's idea (§15's re-pricing) strictly
 dominates the hard version (§16's constraint). Keep the discount as the
 candidate; the cap is retired.**
+
+## 17. PREREG — CORY'S ENSEMBLE VOTE (`--vote`), committed before the run
+
+Cory, 08-20: *"a test to see how it performs where we use lots of the models
+and strategies and then choose the player with most models agreeing?"*
+Never tested as a DRAFTING rule — the war room's shadow panel displays
+seven-strategy agreement (and has already caught a 7/7 consensus driven
+entirely by a zero-weighted term — agreement can be hollow), but the vote
+has never made the picks.
+
+**Mechanism.** One shared roster. At each pick, each of SEVEN committed
+strategies names its candidate GIVEN that shared roster: (1) the shipped
+curve · (2) MLV-cap · (3) MLV + depth discount · (4) shipped + persistence
+shrink · (5) shipped + K/DEF supply deadline · (6) shipped + TE boost ·
+(7) shipped + measured RB row. Plurality wins; ties break toward the
+candidate with the best market rank among the tied. All seven are committed
+flag families — nothing invented for the vote.
+
+**Bars (waiver-graded primary, frozen beside):** the §14 set — beat
+MLV-cap's +2.6/+2.1 on both means, h2h ≥16/30 on skill, 30/30 legal.
+Controls: `--mlv` byte-guard; per-pick vote tallies written to the artifact
+(a 7/7 sweep on every pick = the voters are costumes, declared not
+discovered); engagement vs MLV-cap counted.
+
+**P152, blind:** the ensemble does NOT beat MLV-cap — it lands BETWEEN its
+members. Majority voting helps when errors are independent, and these seven
+share one value signal (market order) — D measured five weekly arms at
+ρ≈0.997 and called it one signal in five costumes; the drafting version of
+that lesson predicts the vote tracks the shipped/MLV family rather than
+transcending it. A win would mean strategy DIVERSITY carries information the
+best single rule misses — filed so that result would be a genuine surprise.
