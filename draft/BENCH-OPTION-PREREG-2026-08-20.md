@@ -124,3 +124,21 @@ The realized-rank curve is optimistic about the r-th DRAFTED player (bust risk
 lives in the rank, not the curve); the absence rates (.19) carry bust-weeks —
 declared as a known approximation, not hidden. Friction wire and forcing
 fallback unchanged from v2.
+
+---
+
+## 7 · V4 AMENDMENT, 2026-08-20 — POSITION-DEPENDENT FRICTION (after P260 FALSE / P262 TRUE)
+
+v3 fixed the units and the arm jumped from −280.8 to −4.2 skill with zero
+vacancies — and drafted EXACTLY 2 K + 2 DEF in all 30 seats. The exactness is
+the tell: under one roster-wide weekly claim, an absent K whose claim is busy
+scores zero, so one K of insurance prices at ~+13 and every seat buys it.
+That friction model is wrong in a specific, measured way: **nobody competes
+for kickers.** P150: K adds deliver 1.02× the wire level (uncontested, always
+available); RB adds 1.47× (contested, scarce). Cory, verbatim: *"defense and
+K isnt very much difference"* — from the wire.
+
+**v4, declared before any v4 run (P263–P265):** friction is position-
+dependent. {QB, K, DEF} slots refill at their wire level WITHOUT consuming
+the claim (uncontested streaming); {RB, WR, TE} empty slots (including flex)
+share ONE claim per week. Nothing else moves.
