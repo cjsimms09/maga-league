@@ -1,0 +1,77 @@
+name: Player bio/capital weekly refresh (pull-list item 5)
+
+# TERRITORY: C — dispatches draft/backtest/player_bio_capital.py.
+#
+# Relay's 08-20 pull-list item 5: "wire your new store's regeneration into a
+# weekly cadence so trades/signings do not silently stale it." Unlike
+# kdef-weekly-points-backfill.yml (a one-time historical backfill of
+# COMPLETED seasons), this store's INPUTS keep changing during the season —
+# rosters move on trades/waivers/practice-squad promotions, and a rookie's
+# draft_picks gsis_id can get "promoted" from a PFR-style id to the modern
+# format later in the year (register 157) once nflverse links it, which
+# would silently un-stick a name-matched join if this never re-ran.
+#
+# Wednesday, after the Tuesday waiver cycle and this session's other
+# Wednesday jobs (weekly-snap-counts.yml 11:00 UTC, weekly-routes.yml
+# 11:30 UTC) so a roster move has settled before this reads it.
+#
+# Egress: nflverse-data's GitHub release assets (rosters, draft_picks) are
+# reachable from the dev sandbox (verified 2026-08-20) but nfl_data_py's
+# import_ids() crosswalk was fetched from the same sandbox too — this stays
+# in CI for consistency with every other scheduled capture in this repo,
+# not because it is blocked here.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 12 * * 3'   # Wednesdays 12:00 UTC — same slot as the
+                            # proposed expert-ranks cron, after the other
+                            # two Wednesday jobs settle roster moves first
+
+permissions:
+  contents: write
+
+concurrency:
+  group: player-bio-capital-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure assembly logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_player_bio_capital.py -q
+
+      - name: Refresh the store
+        run: python3 draft/backtest/player_bio_capital.py
+
+      - name: Commit the store
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/player_bio_capital.json
+          if ! git diff --cached --quiet; then
+            git commit -m "player_bio_capital: weekly refresh (pull-list item 5) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"
