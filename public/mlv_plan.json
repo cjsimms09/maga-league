@@ -49,6 +49,8 @@
    },
    "marginal": 141.7,
    "why": "takes your open FLEX seat",
+   "wire_surplus": 141.7,
+   "short_of_target": null,
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
@@ -79,6 +81,8 @@
    },
    "marginal": 60.1,
    "why": "fills your open WR slot",
+   "wire_surplus": 60.1,
+   "short_of_target": null,
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
@@ -109,6 +113,8 @@
    },
    "marginal": 45.3,
    "why": "fills your open QB slot",
+   "wire_surplus": 45.3,
+   "short_of_target": null,
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
@@ -139,6 +145,8 @@
    },
    "marginal": 22.7,
    "why": "fills your open DEF slot",
+   "wire_surplus": 22.7,
+   "short_of_target": null,
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
@@ -169,6 +177,8 @@
    },
    "marginal": 18.9,
    "why": "fills your open TE slot",
+   "wire_surplus": 18.9,
+   "short_of_target": null,
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
@@ -199,6 +209,8 @@
    },
    "marginal": 16.9,
    "why": "fills your open K slot",
+   "wire_surplus": 16.9,
+   "short_of_target": null,
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
@@ -220,17 +232,19 @@
    "pick": 93,
    "round": 7,
    "player": {
-    "name": "Brock Purdy",
-    "position": "QB",
-    "team": "SF",
-    "adp": 103.3,
-    "proj_mean": 353.8,
-    "overall_rank": 61
+    "name": "Jonathon Brooks",
+    "position": "RB",
+    "team": "CAR",
+    "adp": 89.9,
+    "proj_mean": 142.5,
+    "overall_rank": 102
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 451 remaining players are worth exactly 0 to it, because your nine starting slots are already full. This name is the board's top rank, not an MLV pick.",
+   "why": "MLV IS INDIFFERENT — all 451 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +64 over what the wire gives you at RB, at a position you are still 1.78 short of the top-3-finisher shape.",
+   "wire_surplus": 64.1,
+   "short_of_target": 1.78,
    "mlv_has_an_opinion": false,
-   "chosen_by": "board rank — MLV is indifferent",
+   "chosen_by": "bench rule — need + surplus over the wire",
    "tied_at_zero": 451,
    "board_available": 526,
    "runners_up": []
@@ -239,17 +253,19 @@
    "pick": 108,
    "round": 8,
    "player": {
-    "name": "Dallas Goedert",
-    "position": "TE",
-    "team": "PHI",
-    "adp": 116.8,
-    "proj_mean": 138,
-    "overall_rank": 76
+    "name": "Rachaad White",
+    "position": "RB",
+    "team": "WAS",
+    "adp": 109.3,
+    "proj_mean": 134.6,
+    "overall_rank": 122
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 436 remaining players are worth exactly 0 to it, because your nine starting slots are already full. This name is the board's top rank, not an MLV pick.",
+   "why": "MLV IS INDIFFERENT — all 436 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +56 over what the wire gives you at RB, at a position you are still 0.78 short of the top-3-finisher shape.",
+   "wire_surplus": 56.2,
+   "short_of_target": 0.78,
    "mlv_has_an_opinion": false,
-   "chosen_by": "board rank — MLV is indifferent",
+   "chosen_by": "bench rule — need + surplus over the wire",
    "tied_at_zero": 436,
    "board_available": 511,
    "runners_up": []
@@ -258,24 +274,68 @@
    "pick": 113,
    "round": 9,
    "player": {
-    "name": "Mark Andrews",
-    "position": "TE",
-    "team": "BAL",
-    "adp": 113.4,
-    "proj_mean": 136.7,
-    "overall_rank": 78
+    "name": "Jayden Reed",
+    "position": "WR",
+    "team": "GB",
+    "adp": 110.1,
+    "proj_mean": 146.1,
+    "overall_rank": 101
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 430 remaining players are worth exactly 0 to it, because your nine starting slots are already full. This name is the board's top rank, not an MLV pick.",
+   "why": "MLV IS INDIFFERENT — all 431 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +21 over what the wire gives you at WR, at a position you are still 3 short of the top-3-finisher shape.",
+   "wire_surplus": 21.3,
+   "short_of_target": 3,
    "mlv_has_an_opinion": false,
-   "chosen_by": "board rank — MLV is indifferent",
-   "tied_at_zero": 430,
-   "board_available": 505,
+   "chosen_by": "bench rule — need + surplus over the wire",
+   "tied_at_zero": 431,
+   "board_available": 506,
    "runners_up": []
   },
   {
    "pick": 128,
    "round": 10,
+   "player": {
+    "name": "Xavier Worthy",
+    "position": "WR",
+    "team": "KC",
+    "adp": 130.3,
+    "proj_mean": 140.8,
+    "overall_rank": 110
+   },
+   "marginal": 0,
+   "why": "MLV IS INDIFFERENT — all 420 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +16 over what the wire gives you at WR, at a position you are still 2 short of the top-3-finisher shape.",
+   "wire_surplus": 16,
+   "short_of_target": 2,
+   "mlv_has_an_opinion": false,
+   "chosen_by": "bench rule — need + surplus over the wire",
+   "tied_at_zero": 420,
+   "board_available": 493,
+   "runners_up": []
+  },
+  {
+   "pick": 133,
+   "round": 11,
+   "player": {
+    "name": "Matthew Golden",
+    "position": "WR",
+    "team": "GB",
+    "adp": 133,
+    "proj_mean": 136.4,
+    "overall_rank": 121
+   },
+   "marginal": 0,
+   "why": "MLV IS INDIFFERENT — all 416 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +12 over what the wire gives you at WR, at a position you are still 1 short of the top-3-finisher shape.",
+   "wire_surplus": 11.6,
+   "short_of_target": 1,
+   "mlv_has_an_opinion": false,
+   "chosen_by": "bench rule — need + surplus over the wire",
+   "tied_at_zero": 416,
+   "board_available": 488,
+   "runners_up": []
+  },
+  {
+   "pick": 148,
+   "round": 12,
    "player": {
     "name": "Brenton Strange",
     "position": "TE",
@@ -285,49 +345,13 @@
     "overall_rank": 95
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 420 remaining players are worth exactly 0 to it, because your nine starting slots are already full. This name is the board's top rank, not an MLV pick.",
+   "why": "MLV IS INDIFFERENT — all 404 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +0 over what the wire gives you at TE, at a position you are still 0.67 short of the top-3-finisher shape.",
+   "wire_surplus": 0,
+   "short_of_target": 0.67,
    "mlv_has_an_opinion": false,
-   "chosen_by": "board rank — MLV is indifferent",
-   "tied_at_zero": 420,
-   "board_available": 493,
-   "runners_up": []
-  },
-  {
-   "pick": 133,
-   "round": 11,
-   "player": {
-    "name": "Hunter Henry",
-    "position": "TE",
-    "team": "NE",
-    "adp": 144,
-    "proj_mean": 121.3,
-    "overall_rank": 96
-   },
-   "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 415 remaining players are worth exactly 0 to it, because your nine starting slots are already full. This name is the board's top rank, not an MLV pick.",
-   "mlv_has_an_opinion": false,
-   "chosen_by": "board rank — MLV is indifferent",
-   "tied_at_zero": 415,
-   "board_available": 487,
-   "runners_up": []
-  },
-  {
-   "pick": 148,
-   "round": 12,
-   "player": {
-    "name": "Juwan Johnson",
-    "position": "TE",
-    "team": "NO",
-    "adp": 157.2,
-    "proj_mean": 119.7,
-    "overall_rank": 100
-   },
-   "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 403 remaining players are worth exactly 0 to it, because your nine starting slots are already full. This name is the board's top rank, not an MLV pick.",
-   "mlv_has_an_opinion": false,
-   "chosen_by": "board rank — MLV is indifferent",
-   "tied_at_zero": 403,
-   "board_available": 472,
+   "chosen_by": "bench rule — need + surplus over the wire",
+   "tied_at_zero": 404,
+   "board_available": 473,
    "runners_up": []
   }
  ],
@@ -361,33 +385,33 @@
   }
  },
  "final_shape": {
-  "WR": 2,
-  "RB": 3,
-  "QB": 2,
+  "WR": 5,
+  "RB": 5,
+  "QB": 1,
   "DEF": 1,
-  "TE": 6,
+  "TE": 2,
   "K": 1
  },
  "vs_top3_finishers": {
   "QB": {
-   "plan": 2,
+   "plan": 1,
    "top3_finishers": 1.56,
-   "delta": 0.44
+   "delta": -0.56
   },
   "RB": {
-   "plan": 3,
+   "plan": 5,
    "top3_finishers": 4.78,
-   "delta": -1.78
+   "delta": 0.22
   },
   "WR": {
-   "plan": 2,
+   "plan": 5,
    "top3_finishers": 5,
-   "delta": -3
+   "delta": 0
   },
   "TE": {
-   "plan": 6,
+   "plan": 2,
    "top3_finishers": 1.67,
-   "delta": 4.33
+   "delta": 0.33
   },
   "K": {
    "plan": 1,
