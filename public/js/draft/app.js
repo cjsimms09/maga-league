@@ -6946,11 +6946,34 @@
      * old filter kept board order, so a search that hit several men buried the
      * one actually typed — `gib` returned Jahmyr Gibbs and Antonio Gibson with
      * the winner decided by ADP rather than by what was asked for. */
+    /* ⛔ THE BIG BOARD IGNORED THE RANKING-SOURCE TOGGLE (found 2026-08-20 by
+     * Cory asking "when I select big board tab it shows me actual ranking of
+     * selected source correct?" — it did not).
+     *
+     * `context()` has always used sourceAdjustedBoard(), so the recommendation,
+     * VONA and tiers followed the toggle. This function read `state.board` raw,
+     * so the BIG BOARD TAB kept showing the BLEND's order under a Draft Sharks
+     * or Sleeper heading. That is the same class as the mock-end label lie B
+     * fixed: a surface asserting a source it is not actually using, at eight
+     * seconds a pick.
+     *
+     * Everything needed was already there — the board carries
+     * overall_rank_<source> for all four, and SourceBoard.forSource swaps
+     * `overall_rank` — so this only had to ask for it.
+     *
+     * ON BLEND, BEHAVIOUR IS BYTE-IDENTICAL: sourceAdjustedBoard() returns the
+     * same array and no re-sort happens, so the shipped order is untouched. */
+    const srcBoard = (function () {
+      const b = sourceAdjustedBoard();
+      if (!state.rankSource) return b;
+      const rk = p => (p && p.overall_rank != null ? p.overall_rank : 1e9);
+      return b.slice().sort((x, y) => rk(x) - rk(y));
+    })();
     const rows = (state.search
-      ? state.board.filter(match)
+      ? srcBoard.filter(match)
         .map((p, i) => ({ p: p, s: nameScore(p.name, state.search), i: i }))
         .sort((a, b) => (b.s - a.s) || (a.i - b.i)).map(x => x.p)
-      : state.board.filter(match)).slice(0, 200);
+      : srcBoard.filter(match)).slice(0, 200);
 
     // Searching also looks at players already taken. "He isn't here" and "he
     // went four picks ago" are different answers, and only one of them means
