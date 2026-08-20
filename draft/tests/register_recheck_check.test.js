@@ -205,18 +205,45 @@ ok('FAIL ARM — a row whose date was MOVED must enforce the new date, not the '
     'the row fired on a date its owner had already moved');
 });
 
-ok('CONTROL — "recheck WAS" is the ONLY escape, so a row cannot retire a date '
-  + 'it still means', () => {
-  const md = [
-    '| # | what | owner | status | next action |',
-    '| 9 | a thing | A | OPEN | recheck 08-18, and we should recheck 08-23 too |',
-  ].join('\n');
-  //: two LIVE dates, neither retired — the first still governs, and the row is
-  //: overdue. If this ever returned 08-23 the "WAS" convention would be
-  //: unnecessary and the fix above would be papering over a looser rule.
-  const a = R.audit(md, '2026-08-19');
-  assert.strictEqual(R.recheckOf(a.open[0]), '2026-08-18');
-  assert.strictEqual(a.overdue.length, 1);
+ok('CONTROL — a row with two LIVE dates is CAUGHT rather than silently '
+  + 'resolved, which is what makes "last wins" safe', () => {
+  /* ⚠️ REWRITTEN 2026-08-20, AND IT HAD BEEN RED ON `main` FOR AN UNKNOWN
+   * NUMBER OF DAYS — which means this whole suite was dark, including the arm
+   * that chases every overdue row in the register.
+   *
+   * It used to assert `recheckOf('recheck 08-18, and we should recheck 08-23
+   * too') === '2026-08-18'` — the FIRST date governs — with the reasoning that
+   * if 08-23 ever won, "recheck WAS" would be unnecessary and the fix beside
+   * it would be papering over a looser rule.
+   *
+   * THAT REASONING WAS CORRECT AND IT WAS OVERTAKEN. On 2026-08-20 the tool
+   * adopted LAST-DATE-WINS deliberately, with its own known positives and
+   * negatives (row 115's shape: two dates quoted as examples in the prose, the
+   * operative one at the end — including a case where the operative date is
+   * EARLIER, so it is precedence and not "pick the latest"). The two rules
+   * cannot both hold, the newer one ships, and this control was left asserting
+   * the older one.
+   *
+   * So the control's OBSERVATION is kept — under last-wins, "recheck WAS" is
+   * indeed decorative — and what it guards is moved to the property that
+   * actually makes last-wins safe: A ROW WITH TWO LIVE DATES IS NOT ALLOWED TO
+   * EXIST. Precedence then only decides cases the register forbids. If the
+   * ambiguity check below ever stops firing, last-wins becomes a silent
+   * word-order dependency and this goes red — which is the same protection,
+   * anchored to the rule that is really load-bearing. */
+  const row = { all: '| 9 | a thing | A | OPEN | recheck 08-18, and we '
+    + 'should recheck 08-23 too |' };
+  const seen = new Set();
+  const re = /recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/gi;
+  let m;
+  while ((m = re.exec(row.all)) !== null) seen.add(m[2] + '-' + m[3]);
+  assert.strictEqual(seen.size, 2,
+    'the ambiguity detector no longer sees two dates in a two-date row — the '
+    + 'live-register check at the bottom of this file is now vacuous');
+  //: and the shipped precedence is last-wins, stated rather than assumed
+  assert.strictEqual(R.recheckOf(row), '2026-08-23',
+    'the tool changed its precedence rule again — re-read its SELF_TEST block '
+    + 'and this control together before touching either');
 });
 
 ok('the LIVE register enforces one unambiguous date per open row', () => {
