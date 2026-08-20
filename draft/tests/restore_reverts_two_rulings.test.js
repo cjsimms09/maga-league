@@ -120,8 +120,21 @@ const base = f => JSON.parse(fs.readFileSync(
     live: changed.map(k => k + '=' + live[k]),
     baseline: restored ? changed.map(k => k + '=' + restored[k]) : null });
 
-  ck('...including Cory\'s CEILING ruling', live.ceiling === 0.45
-    && restored && restored.ceiling === 0.45, { live: live.ceiling });
+  /* ⚠️ THIS PINNED ceiling === 0.45, WHICH CORY RULED OFF ON 2026-08-20
+   * ("switch it off, its so arbitrary"). The 0.45 was measured on 08-17
+   * against the ceilings live that day; Draft Sharks became the ceiling source
+   * on 08-19, so the weight had been multiplying an input its runs never saw.
+   *
+   * The invariant this file exists for is unchanged and is asserted directly
+   * above: the pinned baseline equals the shipped vector. What is dropped is
+   * the LITERAL — pinning a specific value here made this file a second place
+   * a weight ruling has to be remembered, which is the same shape as the
+   * version literal it already had to give up. Each ruling is now checked as
+   * "shipped and baseline agree", and the ruling's own record lives in
+   * engine.js's WEIGHT_PROVENANCE where a reader will look for it. */
+  ck('...and the ceiling weight, whatever Cory has most recently ruled it to be',
+    restored && live.ceiling === restored.ceiling,
+    { live: live.ceiling, baseline: restored && restored.ceiling });
   ck('...the D10 STACK ruling', live.stack === 1
     && restored && restored.stack === 1, { live: live.stack });
   ck('...and Cory\'s 2026-08-20 NEED ruling, the one this pin last outran',

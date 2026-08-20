@@ -877,7 +877,7 @@
    * now asserts the pinned baseline's weights EQUAL the shipped
    * MEASURED_WEIGHTS, so a future freeze that forgets the pin fails the build
    * instead of waiting for someone to notice. */
-  const BASELINE_VERSION = 'v30';
+  const BASELINE_VERSION = 'v31';
   const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
     try {

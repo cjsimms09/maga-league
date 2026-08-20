@@ -755,7 +755,39 @@
    * NOT GRADED, AND IT CANNOT BE BEFORE SATURDAY. `model_slate` now records the
    * OLD weighting alongside the new one at every pick, so January settles this
    * on real outcomes instead of on argument. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 1.0, risk: 0.0, ceiling: 0.45,
+  /* ⚠️ ceiling 0.45 -> 0, RULED BY CORY 2026-08-20: "switch it off, its so
+   * arbitrary.. doesnt make sense.. lets get back to the basic of our model for
+   * this draft."
+   *
+   * THIS IS NOT A REVERSAL OF HIS 08-17 RULING — IT IS THE SAME RULING MEETING
+   * AN INPUT IT NEVER SAW. The 0.45 was measured on 2026-08-17 against the
+   * ceilings live that day. On 2026-08-19 Draft Sharks' band became the ceiling
+   * source (commit 8bcccca4, "wearing Draft Sharks' band as a percentage") and
+   * now covers 189 of the draftable top 200. So a weight fitted against one
+   * ceiling source has been multiplying a different one for two days, with the
+   * paperwork below still citing the original runs. Same class as every other
+   * constant this project has had to re-check: fitted, then the inputs moved.
+   *
+   * MEASURED CONSEQUENCE, so the size of the change is on the record: switching
+   * it off changes 8 of Cory's 12 picks. Picks 33/48/53 are identical either
+   * way; 68, 73, 88, 93, 113, 128, 133 and 148 move.
+   *
+   * THE CONSIDERATION I PUT TO HIM AND HE OVERRODE, recorded because he should
+   * not have to remember it: the 08-17 runs were taken AFTER the fix that gave
+   * ceilings real per-player information, and Draft Sharks' percentiles are a
+   * further step the same way — so the evidence plausibly transfers BETTER, not
+   * worse. That is an argument, not a measurement, and I could not turn it into
+   * one before Saturday. He ruled. It is his draft and his call, and the
+   * argument is preserved here rather than lost.
+   *
+   * THE CEILINGS THEMSELVES ARE NOT GONE. Draft Sharks' floor and ceiling stay
+   * on the board and now travel to every source as a per-player ratio (his
+   * 2026-08-20 band ruling, draft/tools/alt_source_rankings.py). What stops is
+   * ADDING 0.45 x ceiling into one score for every player at every pick — which
+   * is also what the reference implementation does: `ffanalytics` emits rank,
+   * floor_rank and ceiling_rank as THREE SEPARATE rankings and never folds
+   * upside into value. */
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 1.0, risk: 0.0, ceiling: 0.0,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
   /* Which zeros are measured and which are merely defaults, as data rather than
@@ -781,7 +813,18 @@
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
-    ceiling: 'MEASURED, AND RULED NON-ZERO 2026-08-17 (Cory: "IS THIS STUDIES? '
+    ceiling: 'RULED BACK TO ZERO 2026-08-20 (Cory: "switch it off, its so '
+      + 'arbitrary"). NOT a reversal of the 08-17 ruling: that ruling\'s '
+      + 'evidence was taken against the ceilings live on 08-17, and Draft '
+      + 'Sharks became the ceiling source on 08-19 (189 of the draftable top '
+      + '200), so the weight was multiplying an input its runs never saw. '
+      + 'Switching it off moves 8 of his 12 picks; 33/48/53 are unchanged. '
+      + 'The DS floor/ceiling remain on the board and now travel to every '
+      + 'source as a per-player ratio; what stopped is folding upside into one '
+      + 'score, which is also what ffanalytics does NOT do. THE ORIGINAL '
+      + 'PAPERWORK FOLLOWS, UNEDITED, because the 08-17 result was real and a '
+      + 're-measurement against DS ceilings would start from it: '
+      + 'MEASURED, AND RULED NON-ZERO 2026-08-17 (Cory: "IS THIS STUDIES? '
       + 'IF SO, YES"). The old zero came from a -4.8 [-26,+17] result taken on '
       + 'a board where proj_ceiling was proj_mean x a constant, making the '
       + 'ceiling term rank-identical to the value term (Spearman 1.0000); it '
