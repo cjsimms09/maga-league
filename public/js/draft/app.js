@@ -10671,6 +10671,137 @@
    * drafts silently at my slots from the exact board snapshot; the 2026 season
    * grades them out-of-sample in dollars. Best-effort like every capture — a
    * shadow failure never touches the real clock. */
+  /* ── EVERY MODEL'S PICK, RECORDED BEFORE THE PICK IS MADE ──────────────────
+   *
+   * Cory, 2026-08-20: "We might as well be capturing predictions for ALL model
+   * recommendation (all the ones we've toyed with and discussed) so we can
+   * grade later and learn."
+   *
+   * He is right and the window is one-way: a pick is unrepeatable. What each
+   * model would have taken at pick 33, with pick 33's exact pool and roster, is
+   * computable for about a second and then gone forever. Miss it and the only
+   * honest answer in January is "we cannot say".
+   *
+   * WHAT WAS ALREADY CAPTURED, and is therefore NOT duplicated here (rule 11):
+   * the nine DraftShadows strategies, under kind `shadow_pick`, from the line
+   * above. Doctrine, opponent predictions, survival, runs and corrections have
+   * their own kinds too.
+   *
+   * WHAT WAS MISSING is everything Cory actually reads and decides against:
+   *   · the board's own #1            E.recommend(ctx)         — "THE PICK"
+   *   · marginal lineup value          RosterBuilderMLV        — the second voice
+   *   · the need rule                  DraftNeedRule           — his bench rule
+   *   · EACH SOURCE'S OWN #1           per-source boards       — the big gap
+   *
+   * The last is the one he keeps asking for — "tell me what all the sources
+   * think" — and grading it is how we eventually answer WHICH SOURCE to trust
+   * at which point in a draft, on this league's own outcomes rather than on a
+   * vendor's marketing.
+   *
+   * ⚠️ ONE POOL, ONE INSTANT. Every model here is handed `boardAtPick` and the
+   * same context the shadows got. A slate where the models saw different pools
+   * is not a comparison, it is four unrelated observations — and this repo has
+   * shipped that mistake in another form (register 148, two replacement tables).
+   *
+   * ⚠️ IT RECORDS, IT DOES NOT DECIDE. Nothing here re-ranks, re-orders or
+   * reaches a surface. A capture that changed a recommendation would be
+   * grading its own homework.
+   *
+   * Rehearsal entries carry `rehearsal: true` rather than being dropped: a mock
+   * is still a real decision under a real pool, and the grading side filters.
+   * Failures are swallowed — a ledger write must never cost Cory a pick. */
+  function modelSlateAt(boardAtPick, baseCtx) {
+    const out = [];
+    const add = function (model, player, extra) {
+      if (!player || player.player_id == null) return;
+      out.push(Object.assign({
+        model: model,
+        player_id: String(player.player_id),
+        name: player.name || null,
+        position: player.position || null,
+      }, extra || {}));
+    };
+
+    try {
+      const sc = E.recommend(baseCtx);
+      if (sc && sc.length) {
+        add('board_composite', sc[0].player, {
+          score: sc[0].score != null ? Math.round(sc[0].score * 10) / 10 : null,
+          gap_to_second: sc[0].gap_to_second != null
+            ? Math.round(sc[0].gap_to_second * 10) / 10 : null,
+        });
+      }
+    } catch (e) { /* one model failing must not lose the others */ }
+
+    try {
+      if (typeof RosterBuilderMLV !== 'undefined') {
+        const r = RosterBuilderMLV.recommend(boardAtPick, state.myRoster || [],
+          { league: state.data.league, topN: 1, taken: state.drafted });
+        if (r && r.length) add('mlv_displacement', r[0].player, { marginal: r[0].marginal });
+      }
+    } catch (e) { /* ignore */ }
+
+    try {
+      if (typeof DraftNeedRule !== 'undefined') {
+        const n = DraftNeedRule.recommend(boardAtPick, state.myRoster || []);
+        const p = n && (n.player || (n.length ? n[0] : null));
+        add('need_rule', p && p.player ? p.player : p, null);
+      }
+    } catch (e) { /* ignore */ }
+
+    /* EACH SOURCE'S OWN TOP AVAILABLE, by that source's own re-ranked board.
+     * `SourceBoard.forSource` swaps in the per-source vorp/rank the build
+     * already computed, so this is the source's opinion, not ours about it. */
+    try {
+      if (typeof SourceBoard !== 'undefined') {
+        SourceBoard.SOURCES.forEach(function (s) {
+          const swapped = SourceBoard.forSource(boardAtPick, s.key);
+          if (!swapped || !swapped.length) return;
+          const best = swapped.slice().sort(function (a, b) {
+            const ra = a.overall_rank == null ? 1e9 : a.overall_rank;
+            const rb = b.overall_rank == null ? 1e9 : b.overall_rank;
+            return ra - rb;
+          })[0];
+          add('source_' + s.key, best, {
+            covered: !!best['covered_' + s.key],
+            overall_rank: best.overall_rank != null ? best.overall_rank : null,
+          });
+        });
+      }
+    } catch (e) { /* ignore */ }
+
+    return out;
+  }
+
+  function captureModelSlate(boardAtPick, baseCtx, round) {
+    if (typeof PredLedger === 'undefined' || !PredLedger.capture) return;
+    try {
+      const models = modelSlateAt(boardAtPick, baseCtx);
+      if (!models.length) return;
+      const c = ledgerCtx();
+      /* ONCE PER PICK. updateShadows runs on every board change, and a slate
+       * written twice for one decision would double-count whichever model
+       * happened to be right. */
+      const fn = PredLedger.oncePer || PredLedger.capture;
+      fn.call(PredLedger, 'model_slate', {
+        season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'model-slate-v1',
+        payload: {
+          rehearsal: !!state.mockMode,
+          round: round,
+          pool_size: (boardAtPick || []).length,
+          roster: (state.myRoster || []).map(function (p) {
+            return { player_id: String(p.player_id), position: p.position };
+          }),
+          /* Named so a January reader knows what was NOT here rather than
+           * inferring it from an absence. */
+          also_captured_separately: ['shadow_pick (9 strategies)', 'doctrine'],
+          models: models,
+        },
+      }, 'slate');
+    } catch (e) { /* a ledger write never costs a pick */ }
+  }
+
   function updateShadows(boardAtPick) {
     if (typeof DraftShadows === 'undefined') return;
     try {
@@ -10698,6 +10829,8 @@
         PredLedger.capture('shadow_pick', { season: c.season, build_at: c.build_at,
           pick: c.pick, method: 'shadow-v1', payload: { picks: picks } });
       }
+      /* EVERY OTHER MODEL, AT THE SAME INSTANT, ON THE SAME POOL. */
+      captureModelSlate(boardAtPick, baseCtx, round);
       renderShadowStrip();
     } catch (e) { /* never block the draft on a shadow */ }
   }
