@@ -53,11 +53,32 @@ def test_the_policy_matches_what_engine_js_actually_ships():
 
 
 def test_it_carries_corys_ruled_ceiling_rather_than_a_stale_constant():
-    """Cory ruled ceiling = 0.45 and it shipped at 09f94f99. If the freeze ever
-    records something else, the artifact is claiming a policy the engine does
-    not run — which is exactly the disagreement this field exists to make
-    impossible."""
-    assert F.engine_policy()["MEASURED_WEIGHTS"]["ceiling"] == 0.45
+    """If the freeze records a ceiling the engine does not run, the artifact is
+    claiming a policy nobody ships — exactly the disagreement this field exists
+    to make impossible.
+
+    ⚠️ REWRITTEN 2026-08-20. This asserted the literal 0.45 and, on the day Cory
+    ruled the weight back to 0.0 ("switch it off, its so arbritrary"), it
+    refused the board rebuild two days before the draft — reporting a stale
+    number in ITSELF as a defect in the board. A test named "rather than a
+    stale constant" had become the stale constant.
+
+    The freeze-vs-engine comparison is the real assertion and it is
+    ruling-agnostic, so that is what is made here. (The test above already
+    walks every key; this one keeps `ceiling` called out by name, because it is
+    the term that has moved three times and the one a future reader will come
+    looking for.)"""
+    from_freeze = F.engine_policy()["MEASURED_WEIGHTS"]["ceiling"]
+    src = (ROOT / "public" / "js" / "draft" / "engine.js").read_text()
+    m = re.search(r"const\s+MEASURED_WEIGHTS\s*=\s*\{(.*?)\}", src, re.S)
+    assert m, "engine.js no longer declares MEASURED_WEIGHTS in the expected shape"
+    in_engine = dict(
+        (k, float(v)) for k, v in
+        re.findall(r"([A-Za-z_]\w*)\s*:\s*(-?\d+(?:\.\d+)?)", m.group(1))
+    )["ceiling"]
+    assert from_freeze == in_engine, (
+        f"the freeze records ceiling {from_freeze} and engine.js ships "
+        f"{in_engine} — one of them is a policy nobody runs")
 
 
 def test_IT_REALLY_PARSES_a_different_engine_gives_a_different_answer(monkeypatch, tmp_path):

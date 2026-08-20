@@ -48,41 +48,40 @@ dispersion family's calibration history says do not import it untested):
 * **NO CAPS. NO BENCH RULE. NO NEED TERM.** Every roster rule currently
   bolted on must EMERGE or the objective has failed its own thesis.
 
-## 3 · BLIND BARS (P310, P311–P312, filed with this commit)
+## 3 · BLIND BARS (P254, P255–P256, filed with this commit)
 
-*(renumbered THREE TIMES by E, 2026-08-20 — see PREDICTION-LEDGER.md's P310
-row for the full chase: P254→P263→P269→P310, each of the first two guesses
-landing on a relay v-N triplet that was live but not yet visible to this
-branch when the guess was made. The third guess is a deliberate LARGE jump,
-not another +1-past-last-seen guess, so it survives several more relay
-iterations before this has to happen again. The P269 collision merged
-SILENTLY — no conflict marker, because the two P269 rows sat on different
-lines — and was caught only by grepping for a duplicate ID after the fact;
-`prediction_ledger_check.js` has no duplicate-ID check, flagged to the relay.
-Superseded anyway: v1 graded FALSE below and P254/P263/P269 are all retired
-from this doc.)*
+*(E, 2026-08-20 — this section spent three merges renumbered to P263, then
+P269, then P310, chasing a collision with this branch's own REAL_VONA row
+under the same original number. Origin/main resolved the identical collision
+the other direction — kept this row at P254 and renumbered REAL_VONA to
+P250 instead — and that resolution is adopted here: it is the numbering
+every other row and file in the ledger already references, and P254 sits
+under the CI three-part-standard gate's pre-P283 grace period, so it does
+not need the LEARNING TARGET/SKILL DESIGN/CONSEQUENCE ROUTE fields the P310
+detour required as a workaround. Full history in PREDICTION-LEDGER.md's
+P254 row.)*
 
-* **P310 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
+* **P254 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
   **≤1 K and ≤1 DEF in ≥28/30 seats, and ≤1 QB and ≤2 TE in ≥25/30.**
   The known-negative is already graded: uncapped MLV drafts K 1.93 / DEF 1.90
   (register 136 C2). If `--opt` also multi-drafts them, the thesis is FALSE
   and files as such.
-* **P311 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
+* **P255 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
   the same 30 seat-years. Direction claim; the DP result says the frozen
   frame is closed, so any gain must come from exactly the stochastic terms —
   a null here means the option value is real but already captured by the cap
   + bench rule, which is itself worth knowing and files loudly.
-* **P312 — legality:** 30/30 rosters legal, every starting slot fillable by a
+* **P256 — legality:** 30/30 rosters legal, every starting slot fillable by a
   rostered player (wire floors price absence, never permanent vacancy).
 
 ## 4 · SHIP PATH AND CLOCK (2026, not 2027 — Cory's ruling)
 
-Grades land tonight/Thursday. If P310 AND P312 pass: the arm ships to the war
+Grades land tonight/Thursday. If P254 AND P256 pass: the arm ships to the war
 room **as the seat-plan panel's generator** (report-only, the exact class MLV
 shipped in), Friday-freeze compatible; A merges the harness code, B repoints
-the panel artifact. P311's result prints beside it either way — a FALSE there
+the panel artifact. P255's result prints beside it either way — a FALSE there
 does not block the ship (the theorem, not the delta, is what Cory asked for).
-If P310 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
+If P254 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
 bench rule stand for Saturday. **DEFAULT if grading is not done by Friday
 noon: nothing ships; the prereg grades post-draft.**
 
@@ -90,7 +89,7 @@ noon: nothing ships; the prereg grades post-draft.**
 
 ## 5 · V2 AMENDMENT, 2026-08-20 — FILED AFTER v1's GRADES, BEFORE ANY v2 RUN
 
-v1 ran and **P310 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
+v1 ran and **P254 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
 the uncapped-MLV known-negative), while the QB/TE half of the theorem held
 (1.17 / 1.13). The localization is exact: v1's wire was FRICTIONLESS —
 unlimited claims, every slot, every week — under which real bench depth is
@@ -107,7 +106,7 @@ wire friction**.
    liquidity constraint: three simultaneous RB holes cannot all be streamed.
 2. **Forcing fallback** — when §14c forcing restricts to a needed position
    and the recorded pool has none left, fall back to unrestricted candidates
-   instead of skipping the pick (P312's vacancy bug, mechanism in the grade).
+   instead of skipping the pick (P256's vacancy bug, mechanism in the grade).
 
 Nothing else moves: same constants, same M=200, same masks, same pruning,
 same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation

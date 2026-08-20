@@ -477,9 +477,9 @@ is the one already shipped: ONE champion picks, the others show as labeled
 second opinions (the shadow panel, the source toggle) — advisors, never
 electors.** RETIRES the ensemble line.
 
-## 18. PREREG — REAL_VONA RE-RUN UNDER THE INCLUDE-SELF FIX (P251), committed before the run
+## 18. PREREG — REAL_VONA RE-RUN UNDER THE INCLUDE-SELF FIX (P283), committed before the run
 
-⚠️ Renumbered P250 -> P251 by E, 2026-08-20 -- collided with A's earlier-committed P250 ("post-chain acceptance step", 04:01:09 UTC vs this row's 18:45:58 UTC). First-allocation-wins per `prediction_ledger_check.js`.
+⚠️ Renumbered TWICE by E. First P250 -> P251 (2026-08-20, collided with A's earlier-committed P250, "post-chain acceptance step," 04:01:09 UTC vs this row's 18:45:58 UTC). Then P251 collided too -- it was independently claimed by the strategy-search need-1.0 row before this branch's P251 choice could be published, so on the next merge P251 already belonged to someone else. Landed on P283, the first free id past the CI three-part-standard gate's cutoff -- and the ledger row now carries the required LEARNING TARGET/SKILL DESIGN/CONSEQUENCE ROUTE fields since P283+ has no grace period. First-allocation-wins per `prediction_ledger_check.js`.
 
 **Why now.** Cory, 2026-08-20: *"We made changes to VONA calculation. Make sure
 we're doing it correctly now and need to rerun roster construction test as

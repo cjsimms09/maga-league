@@ -59,7 +59,29 @@ and reports what every source thinks. It never hands him one answer.
 | in-house terms measured inert (keeper/onesie/doctrine) | ✅ measured 0/120 |
 | **blend still includes our own projection** | ❌ **ruled out, NOT DONE — needs a board rebuild** |
 | **board is stale (2026-08-19T08:52Z)** | ❌ **rebuild refusing, one blocker left** |
-| war room surfacing all of the above | ⏳ B's, after the audit |
+| war room surfacing all of the above | 🔴 **MEASURED 08-20: the fields behind items 1 and 3 of "AND IT SHOWS HIM" are computed, committed, and read by NO SCREEN** |
+
+## ⚠️ THE GAP, MEASURED RATHER THAN ASSUMED (2026-08-20, A)
+
+`node draft/tools/nothing_computed_goes_unshown.js` — our own instrument, not a
+grep. Every field behind his explicit asks this week is in its UNSHOWN list:
+
+| his words | the fields | on a screen? |
+|---|---|---|
+| *"use draft sharks ceilings... for every source... the same % away from their proj"* | `band_ceiling_ratio`, `band_floor_ratio`, `proj_ceiling_<src>`, `proj_floor_<src>` | ❌ none |
+| *"flip between them and see what that source thinks"* | `vorp_*`, `tier_*`, `pos_rank_*`, `overall_rank_*` (4 sources × 700) | ❌ numbers no; **ORDER yes** via `source_boards.js` |
+| a source that does not carry a player | `covered_ds/fantasypros/ownmodel/sleeper` | ❌ none — and `proj_used_*` silently falls back to the blend |
+
+**The coverage one is the only one that can mislead him mid-draft.** FantasyPros
+carries no kicker and no defense (0 of 45 K, 0 of 32 DEF); Draft Sharks misses
+453 of 700. Their fallback value is the blend's, so a source column can show a
+number that is not that source's opinion and nothing says so. Inside his top 150
+the exposure is 9 rows for FantasyPros (8 of them K/DEF), 2 for Draft Sharks, 0
+for Sleeper — small, and not labelled.
+
+Routed to B with a Friday 12:00 default. **This is the difference between "we
+built what he asked for" and "he can see what he asked for", and only the second
+one counts on Saturday.**
 
 ## THE SEQUENCE HE SET
 

@@ -451,7 +451,26 @@ function mkData() {
   ck('app.js computes a live survival map via DraftSurvival before rendering (the override, not just the fetch)',
     /conservedSurvival/.test(SRC));
   ck('app.js wires the projection-source toggle (data-pb-source -> setProjSource, ROUTES-B-TOGGLE.md)',
-    /data-pb-source/.test(SRC) && /function setProjSource/.test(SRC) && /state\.projSource/.test(SRC));
+    /data-pb-source/.test(SRC) && /function setProjSource\s*\(/.test(SRC) && /state\.projSource/.test(SRC));
+  /* ⚠️ ADDED 2026-08-20 AFTER THE CHECK ABOVE PASSED THROUGH A REAL DEFECT.
+   * `/function setProjSource/` was true while a SECOND function of that exact
+   * name, declared later in the same scope, had shadowed this one — so the
+   * toggle's clicks were reaching a handler that fetches board_<key>.json and
+   * re-scores VONA instead of relabelling this panel. The name existing is not
+   * the same as the name resolving. What matters is the BEHAVIOUR the click
+   * lands on, so that is what is asserted now. */
+  ck('  ...and the handler it reaches is the DISPLAY-ONLY one: it refuses any key '
+     + 'but blend/ds and re-renders this panel, rather than swapping the board',
+    (function () {
+      const i = SRC.indexOf('function setProjSource(');
+      if (i < 0) return false;
+      const body = SRC.slice(i, SRC.indexOf('\n  }\n', i));
+      return /!==\s*'blend'\s*&&[^)]*!==\s*'ds'/.test(body)
+        && /renderPositionBoardsPanel\(\)/.test(body)
+        && !/applySourceBoard|fetch\(/.test(body);
+    }()),
+    'if this fails, read one_name_one_function.test.js — the likely cause is a '
+    + 'second declaration of this name winning by line order');
   ck('the toggle preference is persisted and reloaded on init, same pattern as the other UI prefs',
     /function loadProjSource/.test(SRC) && /loadProjSource\(\)/.test(SRC));
 
