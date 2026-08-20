@@ -3013,8 +3013,19 @@
     'LOCK': 'LOCK \u2014 take it and bank the clock',
     'LEAN': 'LEAN \u2014 ahead, a real preference can override',
     'TOSS-UP': 'TOSS-UP \u2014 your call',
-    'SPLIT': 'SPLIT \u2014 two answers, rule wins ties',
+    /* Generic fallback for the glossary/legend, which lists every chip once
+     * with no specific pick behind it. The LIVE chip (renderVerdict, below)
+     * never uses this \u2014 it names which lens actually wins THIS split from
+     * v.splitBy, because a single static "rule wins ties" string was simply
+     * wrong on a plan-backed split (Cory read the contradiction live: the
+     * chip said "rule wins ties" while the why-sentence right under it said
+     * the season plan backed the pick). */
+    'SPLIT': 'SPLIT \u2014 two answers, the priority order decides',
     'PINNED': 'YOUR PIN \u2014 the board disagrees',
+  };
+  const SPLIT_CHIP_WORDS = {
+    'plan': 'SPLIT \u2014 your saved draft plan wins the tie',
+    'rule': 'SPLIT \u2014 the measured rule wins the tie',
   };
   function renderVerdict(out) {
     const host = $('#verdict-block');
@@ -3122,7 +3133,8 @@
       explainPanel('verdict')
       + '<div class="wrv-top">'
       + '<span class="wrv-chip ' + chipClass + '" data-verdict="' + escapeHtml(v.verdict) + '">'
-        + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
+        + escapeHtml((v.verdict === 'SPLIT' && SPLIT_CHIP_WORDS[v.splitBy])
+          || VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
       + '</div>'
       + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
         + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span>'
@@ -10768,6 +10780,11 @@
     myNextPicks: function () { try { return myNextPicks(); } catch (e) { return []; } },
     onTheClock: function () { try { return onTheClock(); } catch (e) { return false; } },
     playerById: function (id) { try { return playerById(id); } catch (e) { return null; } },
+    /* Per-source draft ORDER (source_boards.json) — Cory: "if I click a
+     * player it should give me lots of info including where they rank on
+     * each source (sleeper, fantasy pro, etc)". Order only, same contract
+     * renderSourceBoards() already holds to — never a raw score. */
+    sourceBoards: function () { return state.sourceBoards || null; },
     /* Survival to an arbitrary future pick — the SAME engine call the LRM strip
      * makes (full ctx shape: runMultipliers keeps normalizeCtx reading this as
      * a context, pickBoard keeps ADP on the board's own scale). */

@@ -1137,16 +1137,24 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
 .wr-axis { fill: var(--muted); font-size: 8px; font-family: var(--font-mono); }
 .wr-cliff-line { stroke: var(--wr-chart-main); stroke-width: 1.6; }
-.wr-cliff-dot { fill: var(--wr-chart-main); }
+.wr-cliff-dot { fill: var(--wr-chart-main); transition: filter .1s; }
+/* Clickable dots (player_id present) open the same full drill-down card
+   every other chart's data-drill rows do — Cory: "if I click a player it
+   should give me lots of info". The cursor is the only signal a bare SVG
+   circle has that it's interactive at all, so it earns real weight here. */
+.wr-cliff-dot[data-drill] { cursor: pointer; }
+.wr-cliff-dot:hover { filter: brightness(1.5); }
 .wr-cliff-mark { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 3 2; }
-/* Tier-cliff labels are placed by warroom_charts.js at each cliff's own x,
-   text-anchor="middle", with no collision check between adjacent labels —
-   at the right rail's chart width (~230px) with 3+ cliffs close together
-   this reads as one word ("Robinsdaylojeanty"), reproduced live at 900/1050/
-   1200px. That's a label-placement fix (JS, A's file, held for tonight along
-   with app.js/warroom.ejs) — this is the CSS mitigation: rotate + right-
-   anchor so each label fans out below its own tick instead of stacking
-   horizontally into its neighbor, the standard slanted-axis-label pattern. */
+/* ⚠️ CORRECTED 2026-08-20 — Cory, live: "in tier cliff chart the words run
+   together!! Make better." This CSS-only rotation mitigated the SYMPTOM
+   (fanning labels out at a slant so two adjacent ones overlap less badly)
+   but never fixed the cause: warroom_charts.js's tierCliffChart() drew a
+   label at EVERY tier cliff with no spacing check, so three cliffs within
+   ~40px still painted three names on top of each other, just slanted. The
+   real fix landed in tierCliffChart() itself: a label is skipped (the
+   cliff LINE still always draws) when the previous LABELED cliff is closer
+   than the rotated text's own collision budget. The rotation here still
+   earns its keep for the labels that DO print, close together or not. */
 .wr-cliff-lbl {
   fill: var(--ink); font-size: 7px; font-weight: 600;
   text-anchor: end; transform-box: fill-box; transform-origin: center;
@@ -1467,6 +1475,8 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .wr-drill-surv-row b { flex: 0 0 2.6rem; text-align: right; color: var(--ink);
   font-family: var(--font-mono); font-size: .7rem; }
 .wr-drill-surv-row b.dying { color: var(--red); }
+.wr-drill-src { margin: .6rem 0 0; }
+.wr-drill-src .wr-drill-facts td { font-size: .68rem; padding: .1rem .3rem; }
 .wr-drill-why { margin: .6rem 0 0; font-size: .74rem; color: var(--ink); line-height: 1.45; }
 .wr-drill-ctx { margin: .4rem 0 0; font-size: .66rem; color: var(--muted); }
 .wr-drill-actions { display: flex; gap: .35rem; flex-wrap: wrap; margin: .7rem 0 0; }
@@ -1734,6 +1744,8 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
 }
 .pb-row.pb-cliff-line { border-bottom-color: var(--wr-line); }
+.pb-row[data-drill] { cursor: pointer; }
+.pb-row[data-drill]:hover { background: var(--wr-hover, color-mix(in srgb, var(--wr-line) 35%, transparent)); }
 /* overflow-wrap: break-word IS needed, and hyphens: auto softens it. A
    version without either was tried on the theory that "a word overflowing
    its column reads better than a word cut in half" — wrong in practice: a
@@ -1784,6 +1796,14 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    why a shared scale is the wrong call), the steepest transition marked with
    the SAME status color the exact-numbers table already uses for "hot". */
 .pb-do-mini { margin: .5rem 0 0; padding-top: .35rem; border-top: 1px solid var(--wr-line); }
+/* Always-on label, not a hover tooltip — Cory: "What are the bar charts
+   underneath each position.. again no explanations!!" A title attribute on
+   the wrapper WAS an explanation, but a hover-only one is indistinguishable
+   from none on a chart with no visible axis label. */
+.pb-do-mini-head {
+  font-size: .55rem; font-weight: 600; color: var(--wr-muted);
+  text-transform: uppercase; letter-spacing: .02em; margin-bottom: .15rem;
+}
 .pb-do-mini svg { display: block; }
 .pb-do-baseline { stroke: var(--wr-chart-grid); stroke-width: 1; }
 .pb-do-bar { fill: var(--wr-chart-main); transition: filter .1s, transform .1s; }

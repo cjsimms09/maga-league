@@ -128,7 +128,14 @@
      * reused by every row — header included — cannot drift, by construction:
      * there is only one column-width definition, not table auto-layout's
      * independent guess per row. */
-    return '<div class="pb-table-row pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '">'
+    /* data-drill wires this row into the existing document-level click
+     * delegate (warroom_charts.js) that opens the full player-detail panel —
+     * Cory: "if I click a player it should give me lots of info". Same
+     * attribute the left rail and big-board columns already use; no new
+     * interaction pattern, just extended to the primary per-pick view that
+     * was missing it. */
+    return '<div class="pb-table-row pb-row' + (isCliffLine ? ' pb-cliff-line' : '') + '"'
+      + (p.player_id != null ? ' data-drill="' + esc(String(p.player_id)) + '"' : '') + '>'
       + '<div class="pb-name"' + (nameTitle ? ' title="' + esc(nameTitle) + '"' : '') + '>'
         + esc(p.name || '') + (p.team ? ' <span class="pb-team">' + esc(p.team) + '</span>' : '') + risk + '</div>'
       + '<div class="pb-proj">' + esc(fmtNum(pf.proj)) + '</div>'
@@ -243,7 +250,15 @@
     var cap = maxV > 0
       ? '▽ R' + hotD.from_round + '→' + hotD.to_round + ', −' + fmtNum(maxV) + ' pts'
       : 'flat across rounds';
+    /* ⚠️ Cory, live: "What are the bar charts underneath each position..
+     * again no explanations!!" There WAS an explanation — a title attribute
+     * on the wrapper — but a hover-only tooltip on a chart with no visible
+     * axis label is indistinguishable from no explanation at all unless you
+     * already know to hover. This eyebrow line is the fix: always on
+     * screen, no hover required. The hover title/aria-label stay too, for
+     * the exact-numbers reader. */
     return '<div class="pb-do-mini" title="' + esc('Point drop-off by round transition — ' + pos) + '">'
+      + '<div class="pb-do-mini-head">projected points lost, round to round</div>'
       + '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '" role="img"'
         + ' aria-label="' + esc(pos + ' round-to-round drop-off, biggest gap ' + cap.replace(/^▽ /, '')) + '"'
         + ' preserveAspectRatio="none">'

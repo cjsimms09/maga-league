@@ -107,6 +107,69 @@ ck('the mark carries the identical explanatory title text as the shortlist\'s ow
     /depthChartRow\(p\)/.test(SRC) && /teamPassRateRow\(p\)/.test(SRC));
 }
 
+// ── per-source rank block (Cory: "if I click a player it should give me
+// lots of info including where they rank on each source (sleeper, fantasy
+// pro, etc)"). Lifted straight out of renderDrill() by source-text slice
+// (it's inline, not its own function) and re-executed against a stub
+// `d.sourceBoards()` and `p` — same eval-lift pattern as the rest of this
+// file, extended to a block instead of a whole function. ──────────────────
+{
+  const startMark = 'var SOURCE_LABELS = {';
+  const start = SRC.indexOf(startMark);
+  if (start < 0) throw new Error('per-source rank block not found in warroom_charts.js');
+  const end = SRC.indexOf('\n    }\n', SRC.indexOf('if (srcBoards && srcBoards.order) {', start));
+  if (end < 0) throw new Error('per-source rank block end not found');
+  const block = SRC.slice(start, end + '\n    }'.length);
+  // eslint-disable-next-line no-new-func
+  const runSrcRanks = new Function('d', 'p', 'esc', block + ';\nreturn srcRanksHtml;');
+
+  const order = {
+    BLEND: { RB: ['11', '22', '33'] },
+    SLEEPER: { RB: ['22', '11', '33'] },
+    // DRAFTSHARKS deliberately absent — a whole-source gap.
+    FANTASYPROS: { RB: ['11', '22'] }, // player '33' not carried by this source.
+    CBS: {},
+    ESPN: { RB: [] },
+    FFTODAY: { RB: ['11', '22', '33'] },
+  };
+  const d = { sourceBoards: () => ({ order }) };
+  const p11 = { player_id: 11, position: 'RB' };
+
+  const html11 = runSrcRanks(d, p11, esc);
+  ck('a source that ranks the player prints a 1-based rank (BLEND has 11 first)',
+    /Blend<\/td><td class="wr-num">#1</.test(html11), html11);
+  ck('...and reads it correctly for a source with a different order (SLEEPER has 11 second)',
+    /Sleeper<\/td><td class="wr-num">#2</.test(html11), html11);
+  ck('a source missing the position entirely -> "no coverage", not a crash or a fake #0',
+    /Draft Sharks<\/td><td class="wr-num"><span class="muted">no coverage<\/span>/.test(html11), html11);
+  ck('a source that carries the position but not this player -> "no coverage" too '
+    + '(CBS has no RB key at all here)',
+    /CBS<\/td><td class="wr-num"><span class="muted">no coverage<\/span>/.test(html11), html11);
+  ck('a source with an empty array for the position -> "no coverage", not #0 or a throw',
+    /ESPN<\/td><td class="wr-num"><span class="muted">no coverage<\/span>/.test(html11), html11);
+
+  const p33 = { player_id: 33, position: 'RB' };
+  const html33 = runSrcRanks(d, p33, esc);
+  ck('a player a source ranks but not first still gets the right 1-based number (FFTODAY has 33 third)',
+    /FFToday<\/td><td class="wr-num">#3</.test(html33), html33);
+  ck('a player absent from one source\'s list (in-position, but not ranked) -> "no coverage" '
+    + '(FANTASYPROS never lists 33)',
+    /FantasyPros<\/td><td class="wr-num"><span class="muted">no coverage<\/span>/.test(html33), html33);
+  ck('never prints a raw score alongside the rank — order only, register 107\'s contract',
+    !/proj_|score|pts/.test(html33), html33);
+
+  ck('CONTROL: no source-boards artifact loaded at all -> empty string, not a broken/half-built panel',
+    runSrcRanks({ sourceBoards: () => null }, p11, esc) === '');
+  ck('CONTROL: d.sourceBoards accessor itself missing -> empty string, no throw',
+    runSrcRanks({}, p11, esc) === '');
+
+  ck('all seven sources are actually named in the source text (nothing silently dropped)',
+    ['Blend', 'Sleeper', 'Draft Sharks', 'FantasyPros', 'CBS', 'ESPN', 'FFToday']
+      .every((label) => block.indexOf(label) >= 0), block);
+  ck('the section is wired into renderDrill\'s panel html, not built and discarded',
+    /\+ srcRanksHtml/.test(SRC));
+}
+
 // ── wiring: admin.js reads the artifact server-side and hands it to the view ──
 {
   const ADMIN = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'routes', 'admin.js'), 'utf8');

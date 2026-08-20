@@ -182,11 +182,26 @@
   }
 
   /* ── TIER-CLIFF CHART — proj points vs positional rank, one position ─────
-   * rows: [{ name, proj, tier }] SORTED best-first for ONE position.
+   * rows: [{ name, proj, tier, id, floor, ceiling, gone }] SORTED best-first
+   * for ONE position. `id`/`floor`/`ceiling`/`gone` are optional — the chart
+   * degrades to the old bare name/pts/tier tooltip when they're missing,
+   * never a broken row.
    * opts.goneBy: how many of these are likely GONE before my next pick — the
    * reachable-window shading (index count from the left). Cliffs are drawn
    * where tier changes, each stamped data-cliff-at="<index>" (the LAST man of
-   * the ending tier), which is what the unit test pins.                      */
+   * the ending tier), which is what the unit test pins.
+   *
+   * ⚠️ LABELS SKIP RATHER THAN OVERLAP (Cory, live: "in tier cliff chart the
+   * words run together!!"). A CSS rotation mitigated this once already
+   * (warroom.css's own comment on .wr-cliff-lbl still describes the
+   * original overlap) but never fixed the root cause: every tier cliff got
+   * an unconditional label with no spacing check, so three cliffs inside
+   * ~40px still painted three names on top of each other, just at a slant.
+   * The CLIFF LINE always draws — it's the one fact "waiting drops you a
+   * tier" needs — the NAME only draws when there's real room since the last
+   * one, so a cluster of close cliffs reads as a cluster of thin red lines
+   * with the (still individually correct) name on the ones that fit,
+   * instead of an unreadable word-smear on all of them. */
   function tierCliffChart(rows, opts) {
     opts = opts || {};
     rows = (rows || []).filter(function (r) { return r && r.proj != null; });
@@ -195,14 +210,17 @@
     }
     var N = Math.min(rows.length, opts.maxN || 18);
     rows = rows.slice(0, N);
-    var W = opts.w || 280, H = opts.h || 110;
-    var padL = 30, padR = 6, padT = 8, padB = 18;
+    var W = opts.w || 280, H = opts.h || 116;
+    var padL = 30, padR = 6, padT = 8, padB = 24;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     var lo = Infinity, hi = -Infinity;
     rows.forEach(function (r) { if (r.proj < lo) lo = r.proj; if (r.proj > hi) hi = r.proj; });
     if (!(hi > lo)) { hi = lo + 1; }
     var x = function (i) { return padL + (N === 1 ? 0 : (i / (N - 1)) * plotW); };
     var y = function (v) { return padT + (hi - v) / (hi - lo) * plotH; };
+    // ~5.5px per rotated character at this font-size (measured, not guessed)
+    // is the collision budget; a name shorter than the gap always fits.
+    var MIN_LABEL_GAP = 22;
 
     var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="'
       + esc(opts.pos || '') + ' season projection by positional rank, tier cliffs marked">';
@@ -225,23 +243,34 @@
     var pts = rows.map(function (r, i) { return x(i).toFixed(1) + ',' + y(r.proj).toFixed(1); });
     svg += '<polyline class="wr-cliff-line" fill="none" points="' + pts.join(' ') + '"/>';
     // dots + cliffs
+    var lastLabelX = -Infinity;
     rows.forEach(function (r, i) {
+      var hasRange = r.floor != null && r.ceiling != null;
+      var tip = esc(r.name) + ' — ' + Math.round(r.proj) + ' pts · tier ' + esc(r.tier)
+        + (hasRange ? ' · floor ' + Math.round(r.floor) + '–ceiling ' + Math.round(r.ceiling) : '')
+        + (r.gone != null ? ' · ' + Math.round(r.gone * 100) + '% likely gone by your next pick' : '')
+        + (r.id != null ? ' · click for full detail' : '');
       svg += '<circle class="wr-cliff-dot" cx="' + x(i).toFixed(1) + '" cy="' + y(r.proj).toFixed(1)
-        + '" r="2.2"><title>' + esc(r.name) + ' — ' + Math.round(r.proj) + ' pts · tier '
-        + esc(r.tier) + '</title></circle>';
+        + '" r="2.2"' + (r.id != null ? ' data-drill="' + esc(String(r.id)) + '"' : '')
+        + '><title>' + tip + '</title></circle>';
       var nxt = rows[i + 1];
       if (nxt && nxt.tier !== r.tier) {
         var cx = (x(i) + x(i + 1)) / 2;
         svg += '<line class="wr-cliff-mark" data-cliff-at="' + i + '" x1="' + cx.toFixed(1)
           + '" y1="' + padT + '" x2="' + cx.toFixed(1) + '" y2="' + (padT + plotH) + '"/>';
-        svg += '<text class="wr-cliff-lbl" x="' + x(i).toFixed(1) + '" y="' + (H - 5)
-          + '" text-anchor="middle">' + esc(lastName(r.name)) + '</text>';
+        if (x(i) - lastLabelX >= MIN_LABEL_GAP) {
+          svg += '<text class="wr-cliff-lbl" x="' + x(i).toFixed(1) + '" y="' + (H - 5)
+            + '" text-anchor="middle">' + esc(lastName(r.name)) + '</text>';
+          lastLabelX = x(i);
+        }
       }
     });
     svg += '</svg>';
     return '<div class="wr-chart wr-cliffchart" data-chart="cockpit-cliff" data-pos="' + esc(opts.pos || '')
       + '">' + svg + '<p class="wr-chart-cap">season pts by ' + esc(opts.pos || 'positional')
-      + ' rank · <span class="wr-cliff-key">┆</span> tier cliff · shaded = likely gone before your next pick</p></div>';
+      + ' rank · <span class="wr-cliff-key">┆</span> tier cliff · shaded = likely gone before your next pick'
+      + (rows.some(function (r) { return r.id != null; }) ? ' · click a dot for the full player card' : '')
+      + '</p></div>';
   }
 
   /* ── SURVIVAL SPARKLINES — P(available) vs my upcoming picks ─────────────
@@ -582,8 +611,17 @@
       var s = sv[String(p.player_id)];
       if (s != null && s < 0.5) goneBy++;
     });
+    // Cory: "the tier cliff chart... could be a lot better and include more
+    // useable data!!!" — floor/ceiling and per-player gone% are already
+    // computed for every board player elsewhere on the page (proj_floor/
+    // proj_ceiling ship on the board itself, survival_to_next is `sv` right
+    // above); this just stops throwing them away before they reach the
+    // chart. `id` wires the click-through to the full drill-down card.
     host.innerHTML = Charts.tierCliffChart(at.map(function (p) {
-      return { name: p.name, proj: p.proj_mean, tier: p.tier };
+      var s = sv[String(p.player_id)];
+      return { name: p.name, proj: p.proj_mean, tier: p.tier, id: p.player_id,
+        floor: p.proj_floor, ceiling: p.proj_ceiling,
+        gone: s != null ? (1 - s) : null };
     }), { pos: pos, goneBy: goneBy });
   }
 
@@ -840,6 +878,27 @@
         ? { min: p.proj_floor - (p.proj_ceiling - p.proj_floor) * 0.1,
             max: p.proj_ceiling + (p.proj_ceiling - p.proj_floor) * 0.1, w: 220, h: 14 }
         : {});
+    /* Per-source rank (Cory: "if I click a player it should give me lots of
+     * info including where they rank on each source"). source_boards.json is
+     * ORDER ONLY — same contract renderSourceBoards() already holds to, never
+     * a raw score side by side (register 107: sources' point scales are not
+     * comparable). Honest "no coverage" when a source doesn't carry this
+     * position or player at all, matching this panel's other honest-degrade
+     * rows rather than hiding the row or printing a fake rank. */
+    var SOURCE_LABELS = { BLEND: 'Blend', SLEEPER: 'Sleeper', DRAFTSHARKS: 'Draft Sharks',
+      FANTASYPROS: 'FantasyPros', CBS: 'CBS', ESPN: 'ESPN', FFTODAY: 'FFToday' };
+    var srcBoards = d.sourceBoards ? d.sourceBoards() : null;
+    var srcRanksHtml = '';
+    if (srcBoards && srcBoards.order) {
+      var srcRows = Object.keys(SOURCE_LABELS).map(function (src) {
+        var arr = srcBoards.order[src] && srcBoards.order[src][p.position];
+        var idx = arr ? arr.indexOf(String(p.player_id)) : -1;
+        var rank = idx >= 0 ? '#' + (idx + 1) : '<span class="muted">no coverage</span>';
+        return '<tr><td>' + esc(SOURCE_LABELS[src]) + '</td><td class="wr-num">' + rank + '</td></tr>';
+      }).join('');
+      srcRanksHtml = '<div class="wr-drill-src"><div class="wr-drill-h">rank by source ('
+        + esc(p.position) + ')</div><table class="wr-drill-facts">' + srcRows + '</table></div>';
+    }
     /* Conditional-value readout (Cory's ruling 2026-08-17): app.js resolves
      * artifact + roster and hands back a finished string — this layer stays a
      * presenter. '' (absent, not zero) for everyone without a premium. */
@@ -858,6 +917,7 @@
           return '<tr><td>' + r[0] + '</td><td class="wr-num">' + r[1] + '</td></tr>';
         }).join('') + '</table>'
       + (survRows ? '<div class="wr-drill-surv"><div class="wr-drill-h">survives to my picks</div>' + survRows + '</div>' : '')
+      + srcRanksHtml
       + condHtml
       + (s && s.reasons && s.reasons.length
         ? '<div class="wr-drill-why"><div class="wr-drill-h">the engine\'s why</div>'

@@ -296,6 +296,10 @@ function mkData() {
     /<title>/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
   ck('the chart carries an aria-label naming the position and its biggest gap (accessibility)',
     /aria-label="RB round-to-round drop-off, biggest gap R4→5/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
+  ck('an ALWAYS-VISIBLE label says what the bars measure — Cory: "no explanations!!" — '
+    + 'not just a hover-only title nobody has to trigger',
+    /class="pb-do-mini-head">projected points lost, round to round</.test(
+      V.roundDropoffChart('RB', d.round_dropoffs, esc)));
   ck('a round-number tick renders under every bar, one per transition (was bars with no axis at all)',
     (function () {
       const chart = V.roundDropoffChart('RB', d.round_dropoffs, esc);
@@ -410,6 +414,28 @@ function mkData() {
   } else {
     console.log('SKIP  no committed position_boards.json');
   }
+}
+
+// ── data-drill wiring — Cory: "if I click a player it should give me lots
+// of info". Position-board rows are the primary per-pick view and had no
+// click affordance at all; wired onto the same document-level delegate the
+// left rail and big-board columns already use (data-drill -> openDrill). ──
+{
+  const d = mkData();
+  const block = d.picks[0].positions.RB;
+  const html = V.positionColumn('RB', block, esc, null, 'ds', null);
+  ck('a row for a player with a player_id carries data-drill set to that id',
+    /data-drill="1"[^>]*>[\s\S]*?Alpha Back/.test(html), html);
+  ck('every player in the fixture gets its OWN id, not all rows sharing the first',
+    /data-drill="2"/.test(html) && /data-drill="3"/.test(html), html);
+  const noId = V.positionColumn('RB', Object.assign({}, block, {
+    players: [{ name: 'No ID Back', team: 'ZZZ', proj: 50, floor: 40, ceiling: 60 }],
+  }), esc, null, 'ds', null);
+  ck('CONTROL: a row with no player_id gets no data-drill attribute at all, not a broken data-drill="undefined"',
+    !/data-drill/.test(noId), noId);
+  ck('the row itself is still marked clickable via CSS, not left to guesswork',
+    fs.readFileSync(path.join(ROOT, 'public', 'css', 'warroom.css'), 'utf8')
+      .indexOf('.pb-row[data-drill]') >= 0);
 }
 
 // ── wiring: app.js actually calls this and fetches the artifact ─────────

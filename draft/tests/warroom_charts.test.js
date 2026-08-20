@@ -85,6 +85,48 @@ const ck = (n, c, d) => {
   ck('a flat tier list (no changes) draws no cliff',
     ![...C.tierCliffChart([{ name: 'A A', proj: 200, tier: 1 }, { name: 'B B', proj: 190, tier: 1 }],
       { pos: 'TE' }).matchAll(/data-cliff-at/g)].length);
+  // ── labels skip rather than overlap — Cory, live: "in tier cliff chart
+  // the words run together!! Make better." Three tier changes packed into a
+  // narrow chart (opts.w small enough that every cliff falls inside
+  // MIN_LABEL_GAP of the last) must still draw all three CLIFF LINES but
+  // print at most one of the three overlapping NAMES. ─────────────────────
+  const tightRows = [
+    { name: 'Alpha One', proj: 320, tier: 1 },
+    { name: 'Bravo Two', proj: 300, tier: 2 },
+    { name: 'Charlie Three', proj: 290, tier: 3 },
+    { name: 'Delta Four', proj: 280, tier: 4 },
+  ];
+  const tightSvg = C.tierCliffChart(tightRows, { pos: 'RB', w: 60 });
+  const tightCliffs = [...tightSvg.matchAll(/data-cliff-at="(\d+)"/g)];
+  const tightLabels = [...tightSvg.matchAll(/<text class="wr-cliff-lbl"/g)];
+  ck('a packed chart still draws every cliff LINE (the fact that matters most)',
+    tightCliffs.length === 3, tightCliffs.length);
+  ck('but NOT one label per cliff — collision-skipped rather than overlapping',
+    tightLabels.length > 0 && tightLabels.length < tightCliffs.length,
+    { cliffs: tightCliffs.length, labels: tightLabels.length });
+  ck('a chart with real room prints every label — the skip is spacing-driven, '
+    + 'not a blanket cap',
+    [...C.tierCliffChart(tightRows, { pos: 'RB', w: 600 }).matchAll(/<text class="wr-cliff-lbl"/g)]
+      .length === tightCliffs.length);
+
+  // ── richer tooltip data (floor/ceiling/gone%) — Cory: "could be a lot
+  // better and include more useable data!!!" Optional per row; missing
+  // fields degrade to the old bare name/pts/tier tooltip, never a blank
+  // or a literal "undefined". ──────────────────────────────────────────
+  const richRows = [
+    { name: 'Alpha One', proj: 320, tier: 1, id: '111', floor: 280, ceiling: 360, gone: 0.72 },
+    { name: 'Bravo Two', proj: 200, tier: 2 },
+  ];
+  const richSvg = C.tierCliffChart(richRows, { pos: 'RB' });
+  ck('a row with floor/ceiling/gone% prints all three in its tooltip',
+    /floor 280–ceiling 360/.test(richSvg) && /72% likely gone/.test(richSvg));
+  ck('a row with an id gets data-drill so its dot opens the full player card',
+    /data-drill="111"/.test(richSvg));
+  ck('a row with NO id/floor/ceiling/gone gets the plain tooltip, no "undefined" anywhere',
+    /Bravo Two — 200 pts · tier 2</.test(richSvg) && !/undefined/.test(richSvg));
+  ck('a row with no id gets no data-drill and no stray cursor styling hook',
+    !new RegExp('cx="[^"]*" cy="[^"]*" r="2.2" data-drill="[^"]*"><title>Bravo').test(richSvg));
+
   ck('EMPTY → honest empty state, not a blank svg',
     /wr-chart-empty/.test(C.tierCliffChart([], { pos: 'QB' }))
     && /not enough/.test(C.tierCliffChart([{ name: 'Solo', proj: 100, tier: 1 }], { pos: 'QB' })));
@@ -310,6 +352,19 @@ const ck = (n, c, d) => {
     !/document\.|getElementById|querySelector/.test(pureHalf));
   ck('no state reads in the pure half (WarRoomData)',
     !/WarRoomData/.test(pureHalf));
+}
+
+// ── 10. wiring — per-source ranks in the drill-down (Cory: "where they rank
+// on each source (sleeper, fantasy pro, etc)") reach all the way from
+// state.sourceBoards, through the WarRoomData accessor, into renderDrill. ──
+{
+  const fs = require('fs');
+  const appSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'app.js'), 'utf8');
+  ck('app.js exposes state.sourceBoards on WarRoomData for the controller to read',
+    /sourceBoards:\s*function\s*\(\)\s*\{\s*return state\.sourceBoards/.test(appSrc));
+  const chartsSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');
+  ck('renderDrill actually calls d.sourceBoards(), not just app.js exposing an unused accessor',
+    /d\.sourceBoards\s*\?\s*d\.sourceBoards\(\)/.test(chartsSrc));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
