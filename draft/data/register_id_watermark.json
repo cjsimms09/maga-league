@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 157,
+ "next_numeric_id": 158,
  "history": [
   {
    "id": 47,
@@ -256,6 +256,11 @@
    "id": 156,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 153 (A: war-room source buttons priced every source over all 700 board players, so DS's 247 read as a 3x coverage gap instead of the true 6-point one inside the drafted range; fixed with one draftable_scope definition, three readers) -- same collision and deviation as 143-155"
+  },
+  {
+   "id": 157,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 154 (A: Cory's three keepers priced on a different replacement table than the rest of his board -- kept_players copied before apply_vorp ran on the keeper-removed pool; a repair guard for absent vorp never fired because the value was wrong, not absent; fixed at the source and on the live artifact) -- same collision and deviation as 143-156"
   }
  ]
 }
