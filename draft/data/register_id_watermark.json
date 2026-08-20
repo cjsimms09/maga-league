@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 169,
+ "next_numeric_id": 170,
  "history": [
   {
    "id": 47,
@@ -339,6 +339,16 @@
    "id": 168,
    "claimed_at": "2026-08-20",
    "note": "D: no fantasy draft-pick or ADP data exists in the repo before 2023 (league_history.json, external_adp_historical.json both start 2023) -- found grading P151, blocks 2021->22 LOSO pair and will block every future pick-based LOSO study the same way. OPEN, owner C (historical capture territory), recheck 09-15."
+  },
+  {
+   "id": "161 (A, unmerged main claim) reconciled against D's own canonical 161",
+   "claimed_at": "2026-08-20",
+   "note": "A claimed 161 on origin/main for the dollar-panel E[$] QB-inversion finding (Malik Willis pricing above Josh Allen) while D's branch already held 161 for the source-buttons scope-mismatch row (already FIXED). D's row kept as canonical 161; A's row renumbered to 169. Watermark now authoritative from 170."
+  },
+  {
+   "id": 169,
+   "claimed_at": "2026-08-20",
+   "note": "A: the dollar panel's E[$] is nearly flat and partly inverted across the entire QB position, Malik Willis pricing above Josh Allen -- found converting the even-money band to dollars (was 161 pre-renumber on main's side)"
   }
  ]
 }
