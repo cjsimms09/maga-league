@@ -142,3 +142,17 @@ K isnt very much difference"* — from the wire.
 dependent. {QB, K, DEF} slots refill at their wire level WITHOUT consuming
 the claim (uncontested streaming); {RB, WR, TE} empty slots (including flex)
 share ONE claim per week. Nothing else moves.
+
+---
+
+## 8 · V5 AMENDMENT, 2026-08-20 — SUPPLY-AWARE FORCING (after P264 TRUE / P265 FALSE)
+
+v4's position-dependent friction landed the economics: **waiver-aware skill
++3.46, h2h 16/30 — both champion-bar clauses — with K exactly 1.00 in 30/30
+and QB 1.00.** One regression: TE 0.57 — streaming TE is so cheap the arm
+never drafts one, opponents exhaust the recorded TE pool, and last-pick
+forcing meets an empty shelf (register 59's supply problem in a new seat).
+The cure already exists in this file: **§14d(b) supply-aware forcing** — when
+a needed position's remaining pool supply is down to the gap itself, force it
+NOW, while at least one exists. v5 adopts exactly that; nothing else moves.
+P266–P268 filed blind before the v5 run.
