@@ -1,0 +1,4981 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/schedule_strength.py",
+ "_note": "team x week x position: opponent points-allowed rank (1 = stingiest/hardest matchup, 32 = most generous/easiest), joined from defense_vs_position.json (2021-2025 pooled, rule 11) and nfl_schedule_2026.json. STATIC until 2026 defenses actually play; regenerate weekly in-season.",
+ "captured_at": "2026-08-20T13:27:09Z",
+ "defense_source_seasons": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "season": 2026,
+ "positions": [
+  "QB",
+  "RB",
+  "WR",
+  "TE"
+ ],
+ "by_team": {
+  "SEA": {
+   "1": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "2": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "3": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "4": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "5": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "6": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "7": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "8": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "9": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "10": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "12": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "13": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "14": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "15": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "16": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "17": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "18": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   }
+  },
+  "NE": {
+   "1": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "2": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "3": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "4": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "5": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "6": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "7": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "8": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "9": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "10": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "12": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "13": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "14": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "15": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "16": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "17": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "18": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   }
+  },
+  "LAR": {
+   "1": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "2": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "3": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "4": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "5": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "6": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "7": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "8": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "9": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "10": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "12": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "13": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "14": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "15": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "16": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "17": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "18": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   }
+  },
+  "SF": {
+   "1": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "2": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "3": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "4": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "5": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "6": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "7": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "9": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "10": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "11": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "12": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "13": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "14": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "15": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "16": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "17": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "18": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   }
+  },
+  "CIN": {
+   "1": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "2": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "3": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "4": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "5": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "7": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "8": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "9": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "10": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "11": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "12": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "13": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "14": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "15": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "16": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "17": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "18": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   }
+  },
+  "TB": {
+   "1": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "2": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "3": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "4": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "5": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "6": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "7": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "8": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "9": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "11": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "12": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "13": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "14": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "15": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "16": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "17": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "18": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   }
+  },
+  "DET": {
+   "1": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "2": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "3": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "4": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "5": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "7": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "8": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "9": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "10": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "11": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "12": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "13": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "14": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "15": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "16": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "17": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "18": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   }
+  },
+  "NO": {
+   "1": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "2": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "3": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "4": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "5": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "6": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "7": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "9": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "10": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "11": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "12": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "13": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "14": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "15": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "16": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "17": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "18": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   }
+  },
+  "TEN": {
+   "1": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "2": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "3": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "4": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "5": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "6": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "7": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "8": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "10": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "11": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "12": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "13": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "14": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "15": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "16": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "17": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "18": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   }
+  },
+  "NYJ": {
+   "1": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "2": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "3": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "4": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "5": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "6": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "7": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "8": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "9": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "10": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "11": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "12": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "14": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "15": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "16": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "17": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "18": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   }
+  },
+  "IND": {
+   "1": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "2": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "3": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "4": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "5": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "6": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "7": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "8": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "9": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "10": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "11": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "12": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "14": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "15": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "16": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "17": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "18": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   }
+  },
+  "BAL": {
+   "1": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "2": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "3": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "4": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "5": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "6": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "7": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "8": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "9": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "10": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "11": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "12": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "14": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "15": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "16": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "17": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "18": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   }
+  },
+  "PIT": {
+   "1": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "2": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "3": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "4": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "5": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "6": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "7": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "8": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "10": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "11": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "12": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "13": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "14": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "15": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "16": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "17": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "18": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   }
+  },
+  "ATL": {
+   "1": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "2": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "3": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "4": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "5": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "6": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "7": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "8": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "9": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "10": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "12": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "13": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "14": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "15": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "16": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "17": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "18": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   }
+  },
+  "CAR": {
+   "1": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "2": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "3": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "4": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "6": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "7": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "8": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "9": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "10": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "11": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "12": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "13": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "14": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "15": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "16": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "17": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "18": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   }
+  },
+  "CHI": {
+   "1": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "2": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "3": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "4": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "5": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "6": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "7": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "8": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "9": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "11": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "12": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "13": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "14": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "15": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "16": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "17": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "18": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   }
+  },
+  "JAX": {
+   "1": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "2": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "3": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "4": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "5": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "6": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "8": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "9": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "10": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "11": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "12": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "13": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "14": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "15": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "16": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "17": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "18": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   }
+  },
+  "CLE": {
+   "1": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "2": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "3": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "4": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "5": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "6": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "7": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "8": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "9": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "10": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "12": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "13": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "14": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "15": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "16": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "17": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "18": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   }
+  },
+  "HOU": {
+   "1": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "2": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "3": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "4": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "5": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "6": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "7": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "9": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "10": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "11": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "12": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "13": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "14": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "15": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "16": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "17": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "18": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   }
+  },
+  "BUF": {
+   "1": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "2": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "3": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "4": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "5": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "6": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "8": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "9": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "10": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "11": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "12": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "13": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "14": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "15": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "16": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "17": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "18": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   }
+  },
+  "LV": {
+   "1": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "2": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "3": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "4": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "5": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "6": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "7": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "8": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "9": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "10": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "11": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "12": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "14": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "15": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "16": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "17": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "18": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   }
+  },
+  "MIA": {
+   "1": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "2": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "3": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "4": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "5": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "7": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "8": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "9": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "10": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "11": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "12": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "13": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "14": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "15": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "16": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "17": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "18": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   }
+  },
+  "MIN": {
+   "1": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "2": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "3": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "4": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "5": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "7": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "8": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "9": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "10": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "11": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "12": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "13": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "14": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "15": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "16": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "17": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "18": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   }
+  },
+  "GB": {
+   "1": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "2": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "3": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "4": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "5": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "6": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "7": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "8": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "9": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "10": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "12": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "13": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "14": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "15": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "16": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "17": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "18": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   }
+  },
+  "PHI": {
+   "1": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "2": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "3": {
+    "opponent": "CHI",
+    "opponent_points_allowed_rank": {
+     "QB": 22,
+     "RB": 16,
+     "WR": 28,
+     "TE": 16
+    }
+   },
+   "4": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "5": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "6": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "7": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "8": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "9": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "11": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "12": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "13": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "14": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "15": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "16": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "17": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "18": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   }
+  },
+  "WSH": {
+   "1": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "2": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "3": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "4": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "5": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "6": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "8": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "9": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "10": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "11": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "12": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "13": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "14": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "15": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "16": {
+    "opponent": "MIN",
+    "opponent_points_allowed_rank": {
+     "QB": 1,
+     "RB": 11,
+     "WR": 1,
+     "TE": 4
+    }
+   },
+   "17": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "18": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   }
+  },
+  "LAC": {
+   "1": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "2": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "3": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "4": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "5": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "6": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "8": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "9": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "10": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "11": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "12": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "13": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "14": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "15": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "16": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "17": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "18": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   }
+  },
+  "ARI": {
+   "1": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "2": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "3": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "4": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "5": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "6": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "7": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "8": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "9": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "10": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "11": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "12": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "13": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "15": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "16": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "17": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "18": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   }
+  },
+  "NYG": {
+   "1": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "2": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "3": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "4": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "5": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "6": {
+    "opponent": "NO",
+    "opponent_points_allowed_rank": {
+     "QB": 10,
+     "RB": 13,
+     "WR": 13,
+     "TE": 17
+    }
+   },
+   "7": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "9": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "10": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "11": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "12": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "13": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "14": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "15": {
+    "opponent": "CLE",
+    "opponent_points_allowed_rank": {
+     "QB": 5,
+     "RB": 21,
+     "WR": 4,
+     "TE": 9
+    }
+   },
+   "16": {
+    "opponent": "DET",
+    "opponent_points_allowed_rank": {
+     "QB": 25,
+     "RB": 10,
+     "WR": 31,
+     "TE": 15
+    }
+   },
+   "17": {
+    "opponent": "DAL",
+    "opponent_points_allowed_rank": {
+     "QB": 32,
+     "RB": 25,
+     "WR": 32,
+     "TE": 11
+    }
+   },
+   "18": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   }
+  },
+  "DAL": {
+   "1": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "2": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   },
+   "3": {
+    "opponent": "BAL",
+    "opponent_points_allowed_rank": {
+     "QB": 21,
+     "RB": 23,
+     "WR": 30,
+     "TE": 7
+    }
+   },
+   "4": {
+    "opponent": "HOU",
+    "opponent_points_allowed_rank": {
+     "QB": 2,
+     "RB": 7,
+     "WR": 2,
+     "TE": 14
+    }
+   },
+   "5": {
+    "opponent": "TB",
+    "opponent_points_allowed_rank": {
+     "QB": 29,
+     "RB": 22,
+     "WR": 17,
+     "TE": 28
+    }
+   },
+   "6": {
+    "opponent": "GB",
+    "opponent_points_allowed_rank": {
+     "QB": 12,
+     "RB": 14,
+     "WR": 20,
+     "TE": 10
+    }
+   },
+   "7": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "8": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "9": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "10": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "11": {
+    "opponent": "TEN",
+    "opponent_points_allowed_rank": {
+     "QB": 27,
+     "RB": 20,
+     "WR": 26,
+     "TE": 18
+    }
+   },
+   "12": {
+    "opponent": "PHI",
+    "opponent_points_allowed_rank": {
+     "QB": 6,
+     "RB": 19,
+     "WR": 3,
+     "TE": 1
+    }
+   },
+   "13": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "15": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "16": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "17": {
+    "opponent": "NYG",
+    "opponent_points_allowed_rank": {
+     "QB": 24,
+     "RB": 29,
+     "WR": 23,
+     "TE": 12
+    }
+   },
+   "18": {
+    "opponent": "WSH",
+    "opponent_points_allowed_rank": {
+     "QB": 30,
+     "RB": 28,
+     "WR": 29,
+     "TE": 29
+    }
+   }
+  },
+  "KC": {
+   "1": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "2": {
+    "opponent": "IND",
+    "opponent_points_allowed_rank": {
+     "QB": 17,
+     "RB": 12,
+     "WR": 27,
+     "TE": 24
+    }
+   },
+   "3": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "4": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "6": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "7": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "8": {
+    "opponent": "DEN",
+    "opponent_points_allowed_rank": {
+     "QB": 7,
+     "RB": 1,
+     "WR": 5,
+     "TE": 20
+    }
+   },
+   "9": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "10": {
+    "opponent": "ATL",
+    "opponent_points_allowed_rank": {
+     "QB": 18,
+     "RB": 17,
+     "WR": 24,
+     "TE": 3
+    }
+   },
+   "11": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "12": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "13": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "14": {
+    "opponent": "CIN",
+    "opponent_points_allowed_rank": {
+     "QB": 31,
+     "RB": 32,
+     "WR": 10,
+     "TE": 32
+    }
+   },
+   "15": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "16": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "17": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "18": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   }
+  },
+  "DEN": {
+   "1": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "2": {
+    "opponent": "JAX",
+    "opponent_points_allowed_rank": {
+     "QB": 15,
+     "RB": 4,
+     "WR": 18,
+     "TE": 26
+    }
+   },
+   "3": {
+    "opponent": "LAR",
+    "opponent_points_allowed_rank": {
+     "QB": 14,
+     "RB": 9,
+     "WR": 19,
+     "TE": 13
+    }
+   },
+   "4": {
+    "opponent": "SF",
+    "opponent_points_allowed_rank": {
+     "QB": 20,
+     "RB": 15,
+     "WR": 21,
+     "TE": 27
+    }
+   },
+   "5": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   },
+   "6": {
+    "opponent": "SEA",
+    "opponent_points_allowed_rank": {
+     "QB": 9,
+     "RB": 5,
+     "WR": 8,
+     "TE": 25
+    }
+   },
+   "7": {
+    "opponent": "ARI",
+    "opponent_points_allowed_rank": {
+     "QB": 16,
+     "RB": 31,
+     "WR": 15,
+     "TE": 23
+    }
+   },
+   "8": {
+    "opponent": "KC",
+    "opponent_points_allowed_rank": {
+     "QB": 11,
+     "RB": 3,
+     "WR": 11,
+     "TE": 5
+    }
+   },
+   "9": {
+    "opponent": "CAR",
+    "opponent_points_allowed_rank": {
+     "QB": 8,
+     "RB": 26,
+     "WR": 6,
+     "TE": 19
+    }
+   },
+   "11": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "12": {
+    "opponent": "PIT",
+    "opponent_points_allowed_rank": {
+     "QB": 26,
+     "RB": 6,
+     "WR": 25,
+     "TE": 31
+    }
+   },
+   "13": {
+    "opponent": "MIA",
+    "opponent_points_allowed_rank": {
+     "QB": 23,
+     "RB": 18,
+     "WR": 14,
+     "TE": 30
+    }
+   },
+   "14": {
+    "opponent": "NYJ",
+    "opponent_points_allowed_rank": {
+     "QB": 28,
+     "RB": 30,
+     "WR": 16,
+     "TE": 22
+    }
+   },
+   "15": {
+    "opponent": "LV",
+    "opponent_points_allowed_rank": {
+     "QB": 19,
+     "RB": 24,
+     "WR": 22,
+     "TE": 8
+    }
+   },
+   "16": {
+    "opponent": "BUF",
+    "opponent_points_allowed_rank": {
+     "QB": 3,
+     "RB": 27,
+     "WR": 7,
+     "TE": 2
+    }
+   },
+   "17": {
+    "opponent": "NE",
+    "opponent_points_allowed_rank": {
+     "QB": 13,
+     "RB": 2,
+     "WR": 12,
+     "TE": 21
+    }
+   },
+   "18": {
+    "opponent": "LAC",
+    "opponent_points_allowed_rank": {
+     "QB": 4,
+     "RB": 8,
+     "WR": 9,
+     "TE": 6
+    }
+   }
+  }
+ }
+}
