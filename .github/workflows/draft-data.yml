@@ -212,6 +212,41 @@ jobs:
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
 
+      - name: Re-apply the blend, the Draft Sharks bands and the source sheet (added 2026-08-20)
+        # ⛔ WITHOUT THIS STEP THE NIGHTLY REBUILD SILENTLY UNDOES FOUR SHIPPED
+        # FIXES, AND IT WOULD HAVE DONE IT ON DRAFT MORNING.
+        #
+        # `build.py` writes a clean public/draft_data.json and this workflow
+        # COMMITS it. Everything that runs AFTER build.py -- the multi-source
+        # blend, the Draft Sharks floor/ceiling bands, the ranking rules -- lived
+        # only in scripts someone ran by hand. So each 08:00 UTC rebuild replaced
+        # a corrected board with an uncorrected one, and nothing said so.
+        #
+        # Found 2026-08-20 while answering "have we deployed everything, can I
+        # run mocks on the current model". The honest answer was "yes, until
+        # 3am". What the nightly rebuild was about to discard:
+        #   * Mike Clay in the blend (7 sources; Cory's ask, 08-20)
+        #   * register 140 -- 363 players whose floor/ceiling had been collapsed
+        #     to flat, restored to their own player-specific band
+        #   * register 139 -- the falsy-zero that ranked six replacement-level
+        #     players 695-700 (George Kittle at 697)
+        #   * register 139 -- Cory's 2026-08-17 K/DEF demotion ruling
+        #
+        # ORDER IS LOAD-BEARING: blended_projection reads the frozen projection
+        # snapshot; attach_draftsharks applies that blend plus the DS bands to
+        # the freshly built board and re-derives vorp/tier/ranks; source_boards
+        # reads the finished board. Any other order publishes a board built from
+        # a stale input.
+        #
+        # NOT `|| true`. If the board cannot be corrected it must fail loudly
+        # here rather than publish a quietly wrong board -- that is the whole
+        # lesson of the four rows above.
+        run: |
+          set -euo pipefail
+          node draft/tools/blended_projection.js
+          python3 draft/tools/attach_draftsharks.py
+          node draft/tools/source_boards.js
+
       - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
         # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
         # EXPERIMENT. Tracing PREDICTION-LEDGER P39 on 2026-08-18 established
@@ -463,7 +498,7 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
+          PATHS="public/draft_data.json public/source_boards.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
