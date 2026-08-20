@@ -117,6 +117,43 @@ ck('the league really does have a FLEX slot — the whole question depends on it
     r2.length === 0, r2.map(x => x.player && x.player.name));
 }
 
+/* ── 4b. CORY'S RULING, 2026-08-20, ENCODED SO IT CANNOT DRIFT ─────────────
+ *
+ * "Well if excluding those cost it that much it's the worse option.. do not
+ *  ship that to my board."
+ *
+ * Measured cost of the excluded arm: -83.7 actual / -211.3 skill against the
+ * cap's +45.8 / +29.3, with 0 of 30 rosters legal (register 134). He is right
+ * and this is now a bar, not an intention.
+ *
+ * ⚠️ THE POINT OF THIS CHECK IS THAT IT FAILS IF SOMEONE "TIDIES UP" THE PANEL
+ * BY DROPPING ONESIES. Section 4 above asserts the cap; this asserts the
+ * ABSENCE of exclusion, which is a different claim and the one he ruled on. A
+ * module that silently stopped offering a kicker would pass every other check
+ * in this file, because "recommends good skill players" is true either way. */
+{
+  const full = [top('QB', 3), top('RB', 5), top('RB', 9), top('WR', 4), top('WR', 10),
+    top('TE', 3), top('RB', 15)];
+  const adp = p => Number(p.adjusted_adp != null ? p.adjusted_adp : p.adp) || 9999;
+  const late = pool.filter(p => !full.includes(p) && adp(p) > 90);
+  const onlyOnesies = late.filter(p => p.position === 'K' || p.position === 'DEF');
+
+  ck('CORY\'S RULING — a kicker is REACHABLE on his board, never excluded '
+    + '(excluding cost -83.7 actual / -211.3 skill, 0/30 legal)',
+    M.recommend(onlyOnesies, full, { league: LEAGUE, topN: 1 }).length === 1,
+    'no K or DEF was offered at all');
+
+  ck('… and he is worth a real positive number, not a token that ranks last',
+    M.recommend(onlyOnesies, full, { league: LEAGUE, topN: 1 })[0].marginal > 5,
+    M.recommend(onlyOnesies, full, { league: LEAGUE, topN: 1 })[0]);
+
+  /* The mirror: the module must ALSO be able to say no — to a SECOND one. If
+   * both directions did not hold, this would be pinning a constant. */
+  ck('… while a SECOND one is still refused, which is the other half of his rule',
+    M.recommend(byPos('K'), full.concat([byPos('K')[0]]), { league: LEAGUE, topN: 3 })
+      .every(x => x.position !== 'K'), 'a second kicker was offered');
+}
+
 /* ── 5. THE PORTING ERROR THAT ALREADY HAPPENED ONCE ───────────────────────
  * Fed raw projections this recommended quarterbacks at +415 and a kicker above
  * Puka Nacua. The fix is surplus over the wire, and it lives inside the module
