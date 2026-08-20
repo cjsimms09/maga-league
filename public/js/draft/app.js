@@ -6603,6 +6603,7 @@
     try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
     try { renderModelCompare(); } catch (e) { console.error('[model-compare]', e && e.message); }
     try { renderRankSourcePanel(); } catch (e) { console.error('[rank-source]', e && e.message); }
+    try { renderSourceTopBoard(); } catch (e) { console.error('[source-top-board]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
@@ -9350,6 +9351,61 @@
                 + 'their raw points instead puts twelve quarterbacks in the top twelve, '
                 + 'because cross-position points are not comparable.</p>'
               : ''));
+  }
+
+  /* THE MAIN LIST FOR WHICHEVER SOURCE IS SELECTED — Cory, 2026-08-21, direct
+   * and pointed: "No! I want to be able to toggle between sources, I need
+   * multiple options for each position... the old list you used to have
+   * that list top 5-10 at each position for that source... need more
+   * options on Home Screen and I'll toggle source." The toggle above
+   * (#rank-source) already changes VONA/tiers/the recommended player when
+   * a source is picked; this is the thing that toggle was missing — the
+   * SOURCE'S OWN top-N per position, not just its effect on one pick.
+   * #source-boards (the smaller "Best available, by source" table) is the
+   * across-all-sources-at-once comparison; this panel is the deep, one-
+   * source-at-a-time list Cory asked for by name, and it is the ONE list
+   * on the page that changes shape with the toggle above it.
+   *
+   * REUSES SourceBoard.topByPosition() — zero ranking logic here, only
+   * markup. Same DROP semantics as everywhere else the toggle touches: a
+   * player the selected source does not cover is not in its list. */
+  function renderSourceTopBoard() {
+    const card = document.getElementById('source-top-board-card');
+    const host = document.getElementById('source-top-board');
+    if (!card || !host) return;
+    if (typeof SourceBoard === 'undefined' || !state.board || !state.board.length) {
+      card.style.display = 'none'; return;
+    }
+    card.style.display = '';
+    const esc = escapeHtml;
+    const N = 8;
+    const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+    const activeKey = state.rankSource || 'blend';
+    const activeSrc = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES)
+      .find(function (s) { return s.key === activeKey; });
+    const activeLabel = activeSrc ? activeSrc.label : activeKey;
+    const byPos = SourceBoard.topByPosition(state.board, state.rankSource, N);
+    host.innerHTML = '<p class="muted stb-note">Showing <b>' + esc(activeLabel)
+      + '</b>\'s own top ' + N + ' available at each position — switch the toggle above to see a '
+      + 'different source\'s list.'
+      + (state.rankSource ? ' A player <b>' + esc(activeLabel) + '</b> does not cover is left off, '
+        + 'not shown at its blend price.' : '') + '</p>'
+      + '<div class="stb-grid">' + POS.map(function (pos) {
+        const list = byPos[pos] || [];
+        return '<div class="stb-col">'
+          + '<div class="stb-col-head">' + esc(pos) + '</div>'
+          + (list.length
+            ? '<ol class="stb-list">' + list.map(function (p, i) {
+                return '<li class="stb-row" data-drill="' + esc(String(p.player_id)) + '">'
+                  + '<span class="stb-rank">' + (i + 1) + '</span>'
+                  + '<span class="stb-name">' + esc(shortName(p.name)) + '</span>'
+                  + (p.team ? '<span class="muted stb-team">' + esc(p.team) + '</span>' : '')
+                  + '</li>';
+              }).join('') + '</ol>'
+            : '<p class="muted stb-empty">Nobody left'
+              + (state.rankSource ? ' that ' + esc(activeLabel) + ' covers' : '') + '.</p>')
+          + '</div>';
+      }).join('') + '</div>';
   }
 
   /* THE MODEL-COMPARISON PANEL — Cory, live 2026-08-20: "Give me peace to

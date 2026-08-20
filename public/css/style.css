@@ -2731,6 +2731,11 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * this is a visual reorder only, and it is reversible in one line if
  * Cory wants the old card back on top. */
 .wr-zone1 > #rank-source-card  { order: 5; }   /* Cory: "should just rearrange the board... vona calc or recommended player" — above the rec on purpose */
+/* Cory, 2026-08-21, direct: "need more options on Home Screen and I'll
+ * toggle source" — the top-N-per-position list is the MAIN content the
+ * toggle drives, so it sits right below the toggle itself, ahead of
+ * #source-boards (the smaller single-pick-per-source comparison table). */
+.wr-zone1 > #source-top-board-card { order: 6; }   /* the source's own top-N per position — "the old list", his words */
 /* E's war-room draft-value audit (2026-08-20/21, finding 1's real root
  * cause): sourceBoardsHost() in app.js had NO real mount point here, so its
  * fallback nested a 400+px card INSIDE #recs-card's own .body (specifically
@@ -2739,30 +2744,30 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * nesting, not the visible content of #recs-card itself, is most of why
  * that card measured 3400+px tall. Given its own top-level card and order,
  * right beside rank-source-card (the toggle it's the fuller companion to). */
-.wr-zone1 > #source-boards     { order: 6; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
-.wr-zone1 > #position-boards   { order: 7; }   /* six columns + strike bar + the toggle */
+.wr-zone1 > #source-boards     { order: 7; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
+.wr-zone1 > #position-boards   { order: 8; }   /* six columns + strike bar + the toggle */
 /* Same order as #position-boards, immediately after it in the DOM — flex
  * ties break by source order, so this needs no number of its own. A SECOND
  * VOICE belongs right beside the board it comments on, not buried past the
  * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
-.wr-zone1 > #roster-builder-mlv { order: 7; }
+.wr-zone1 > #roster-builder-mlv { order: 8; }
 /* Same order again, immediately after #roster-builder-mlv in the DOM (app.js
  * inserts it as that element's next sibling) — flex ties break by source
  * order. 2026-08-20/21: mlvPlanHost() anchored at the never-existed
  * `#roster-builder` (a truncated id) and had no fallback, so it appended
  * outside `.wr-zone1` entirely with no order rule at all — this line is
  * half the fix, the anchor correction in app.js is the other half. */
-.wr-zone1 > #mlv-plan          { order: 7; }   /* the roster-builder model's full 12-pick plan, beside its own top pick */
-.wr-zone1 > #recs-card         { order: 8; }   /* the retired one-answer card — still fully present, now second */
+.wr-zone1 > #mlv-plan          { order: 8; }   /* the roster-builder model's full 12-pick plan, beside its own top pick */
+.wr-zone1 > #recs-card         { order: 9; }   /* the retired one-answer card — still fully present, now second */
 /* E's war-room draft-value audit (2026-08-20/21, finding 2): model-compare-
  * card answers "do the models even agree on this pick" — four lenses, four
  * different picks, live, in a 184px card — and it was sitting at order 13,
  * buried below #recs-card's own 3400+px length (finding 1) where a glance
  * never lands. Promoted to right after the recommendation; no content
  * changed, position only. */
-.wr-zone1 > #model-compare-card { order: 9; }  /* Cory: "click in... what each model would take" — promoted, was 13 */
-.wr-zone1 > #doctrine-banner   { order: 10; }   /* THE PLAN — reference, beneath the rec */
-.wr-zone1 > #legality-strip    { order: 11; }   /* WATCH — reference, beneath the rec */
+.wr-zone1 > #model-compare-card { order: 10; }  /* Cory: "click in... what each model would take" — promoted, was 13 */
+.wr-zone1 > #doctrine-banner   { order: 11; }   /* THE PLAN — reference, beneath the rec */
+.wr-zone1 > #legality-strip    { order: 12; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
  * .wr-search (order 1) — and rendered first regardless of where app.js's
  * seatPlanHost() anchored it in the DOM (CSS flex `order` overrides DOM
@@ -2771,15 +2776,15 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * order so app.js's existing DOM insertion (immediately after
  * #legality-strip) breaks the tie and lands it exactly where its own comment
  * already specified: seat plan below the recommendation, not above it. */
-.wr-zone1 > #seat-plan         { order: 11; }   /* which chair — beneath the rec, per app.js's own anchor */
-.wr-zone1 > #doctrine-switch   { order: 12; }
-.wr-zone1 > #doctrine-picker   { order: 12; }  /* A's compact plan table — reference, beneath the rec */
-.wr-zone1 > #mvs               { order: 13; }  /* redundant summary — hidden on warroom, ordered anyway */
-.wr-zone1 > #shadow-projection { order: 14; }
-.wr-zone1 > #lrm-card          { order: 15; }
-.wr-zone1 > #branch-card       { order: 16; }
-.wr-zone1 > #queue-card        { order: 17; }
-.wr-zone1 > #adp-movers-card   { order: 18; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
+.wr-zone1 > #seat-plan         { order: 12; }   /* which chair — beneath the rec, per app.js's own anchor */
+.wr-zone1 > #doctrine-switch   { order: 13; }
+.wr-zone1 > #doctrine-picker   { order: 13; }  /* A's compact plan table — reference, beneath the rec */
+.wr-zone1 > #mvs               { order: 14; }  /* redundant summary — hidden on warroom, ordered anyway */
+.wr-zone1 > #shadow-projection { order: 15; }
+.wr-zone1 > #lrm-card          { order: 16; }
+.wr-zone1 > #branch-card       { order: 17; }
+.wr-zone1 > #queue-card        { order: 18; }
+.wr-zone1 > #adp-movers-card   { order: 19; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
    ~172px of masthead + a draft-day notice already read + a redundant title).
@@ -3020,6 +3025,37 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   line-height: 1.4; background: rgba(245,196,69,.14); border: 1px solid rgba(245,196,69,.55);
 }
 #rank-source .rs-note { margin: .45rem 0 0; font-size: .72rem; }
+
+/* Cory, 2026-08-21: "need more options on Home Screen and I'll toggle
+ * source" — the source's own top-N per position, reactive to #rank-source's
+ * toggle. Six columns like #position-boards, so the two panels read as one
+ * visual family even though this one is a much simpler list. */
+#source-top-board .stb-note { margin: 0 0 .6rem; font-size: .78rem; }
+#source-top-board .stb-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: .5rem;
+}
+#source-top-board .stb-col {
+  background: rgba(0,0,0,.16); border-radius: 8px; padding: .45rem .5rem;
+  min-width: 0;
+}
+#source-top-board .stb-col-head {
+  font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--gold-bright); margin-bottom: .35rem;
+}
+#source-top-board .stb-list { list-style: none; margin: 0; padding: 0; }
+#source-top-board .stb-row {
+  display: flex; align-items: baseline; gap: .3rem; padding: .18rem 0;
+  font-size: .78rem; cursor: pointer; border-radius: 4px;
+  transition: background .14s cubic-bezier(.2,.7,.3,1);
+}
+#source-top-board .stb-row:hover { background: rgba(255,255,255,.06); }
+#source-top-board .stb-rank {
+  font-size: .68rem; color: var(--muted); min-width: 1.1em; flex: 0 0 auto;
+}
+#source-top-board .stb-name { overflow-wrap: anywhere; }
+#source-top-board .stb-team { font-size: .68rem; flex: 0 0 auto; }
+#source-top-board .stb-empty { margin: 0; font-size: .74rem; }
 
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;

@@ -84,6 +84,45 @@ function mk(id, pos, proj_mean, over) {
   ck('coverage() counts real coverage, not fallback', cov.covered === 2 && cov.total === 3, cov);
 }
 
+// ── 3b. topByPosition() — Cory, 2026-08-21: "toggle between sources... the
+// old list you used to have that list top 5-10 at each position for that
+// source." ────────────────────────────────────────────────────────────────
+{
+  const players = [
+    mk('1', 'RB', 200, { pos_rank: 2, pos_rank_ds: 1, covered_ds: true }),
+    mk('2', 'RB', 210, { pos_rank: 1, pos_rank_ds: 2, covered_ds: true }),
+    mk('3', 'RB', 190, { pos_rank: 3, pos_rank_ds: 3, covered_ds: false }), // NOT covered by ds — must be dropped there
+    mk('4', 'WR', 180, { pos_rank: 1, pos_rank_ds: 1, covered_ds: true }),
+  ];
+  const blendTop = SB.topByPosition(players, 'blend', 5);
+  ck('blend groups by position and sorts by the board\'s own pos_rank',
+    blendTop.RB.map(p => p.player_id).join(',') === '2,1,3', blendTop.RB.map(p => p.player_id));
+  ck('...WR too, one position with one player still returns a real array',
+    blendTop.WR.length === 1 && blendTop.WR[0].player_id === '4');
+
+  const dsTop = SB.topByPosition(players, 'ds');
+  ck('a source drops uncovered players from the top-N list too (same DROP rule as forSource)',
+    dsTop.RB.map(p => p.player_id).join(',') === '1,2', dsTop.RB.map(p => p.player_id));
+
+  const many = Array.from({ length: 12 }, (_, i) => mk(String(10 + i), 'QB', 100 - i,
+    { pos_rank: i + 1 }));
+  ck('n caps each position\'s list — default 8 when omitted',
+    SB.topByPosition(many, 'blend').QB.length === 8);
+  ck('...and an explicit n is honoured',
+    SB.topByPosition(many, 'blend', 3).QB.length === 3);
+  ck('n=0/negative degrades to the default rather than an empty list',
+    SB.topByPosition(many, 'blend', 0).QB.length === 8);
+
+  ck('a player with no position is skipped, not crashed on',
+    (function () {
+      const noPos = players.concat([{ player_id: '99', name: 'Nobody', proj_mean: 50 }]);
+      const out = SB.topByPosition(noPos, 'blend');
+      return Object.keys(out).indexOf('undefined') === -1;
+    })());
+  ck('empty board returns an empty object, not a throw',
+    Object.keys(SB.topByPosition([], 'blend')).length === 0);
+}
+
 // ── 4. the real committed board — proves this survives contact with reality ─
 {
   const artifact = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
@@ -114,6 +153,15 @@ function mk(id, pos, proj_mean, over) {
       recDs.length > 0 && recDs[0].player && recDs[0].player.player_id != null);
     ck('CONTROL — recommend() is deterministic: re-running the SAME (blend) board twice agrees with itself',
       JSON.stringify(E.recommend(ctxBlend)[0].player.player_id) === JSON.stringify(recBlend[0].player.player_id));
+
+    const rbTopDs = SB.topByPosition(board, 'ds', 8).RB || [];
+    const rbTopBlend = SB.topByPosition(board, 'blend', 8).RB || [];
+    ck('on the real board, topByPosition returns a real, position-sorted RB list for a source',
+      rbTopDs.length > 0 && rbTopDs.every(p => p.position === 'RB'), rbTopDs.length);
+    ck('...sorted ascending by the swapped pos_rank (forSource already put DS\'s own rank there), not left in input order',
+      rbTopDs.every((p, i) => i === 0 || p.pos_rank >= rbTopDs[i - 1].pos_rank));
+    ck('...and it genuinely differs from the blend list at least somewhere in the top-8 (the whole feature is pointless if it never does)',
+      JSON.stringify(rbTopDs.map(p => p.player_id)) !== JSON.stringify(rbTopBlend.map(p => p.player_id)));
   } else {
     console.log('SKIP  real-board checks — draft_data.json has not been run through alt_source_rankings.py yet');
   }
