@@ -281,6 +281,29 @@ const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
 /* Cory: "Or exclude def and k all together" — MLV never VOLUNTEERS a K or DEF;
  * the legality fill seats them at the end, which is what a human does. */
 const MLV_NO_ONESIE = process.argv.includes('--mlv-no-onesie');
+/* ── MLV-LOOKAHEAD (`--mlv-look`) — register 133 / P240 ───────────────────────
+ * Prereg: draft/MLV-TIMING-PREREG-2026-08-19.md.
+ *
+ *     value(c) = marginal(c) − marginal(best at c's POSITION at my NEXT pick)
+ *
+ * i.e. charge every candidate the cost of WAITING on him. Plain MLV is myopic:
+ * a bench body is worth zero to it, so it fills nine starting slots and then
+ * takes a kicker at its round-9 pick in 30 of 30 seat-years with no sense of
+ * whether a comparable kicker survives to round 10.
+ *
+ * ⚠️ THIS IS A REPLICATION, AND IT IS DECLARED AS ONE BEFORE IT RUNS. The relay
+ * preregistered this identical formula as `--objective-look` (commit 4d4ed1a2)
+ * and graded it FALSE the same evening (8ba64bf8): actual +50.1 but skill +14.5
+ * against a required +29.3, head-to-head on skill 13/30. They routed it to me
+ * rather than letting me spend the run blind, and recommended running it anyway
+ * because an INDEPENDENT implementation reproducing the split closes the axis
+ * twice over — and a disagreement would mean one of the two implementations is
+ * wrong, which is worth more than either result alone.
+ *
+ * So I have NOT read their code, only their number. The implementation below is
+ * mine. P240's bars stand exactly as filed and do not move now that I know what
+ * to expect. */
+const MLV_LOOK = process.argv.includes('--mlv-look');
 
 function lineupValueOf(vals) {
   /* vals: {pos: [value, ...]} sorted desc. Dedicated slots then one flex. */
@@ -378,6 +401,28 @@ function buildSeat(season, draft, seatId, rosterOn) {
         const before = lineupValueOf(cur);
         (cur[q] || (cur[q] = [])).push(valueOf(c));
         v = lineupValueOf(cur) - before;
+        if (MLV_LOOK) {
+          /* what does WAITING on this position cost? The best man at q who is
+           * still on the board at my NEXT pick, valued on the SAME roster — so
+           * the subtraction is like-for-like and not a level difference.
+           * Availability comes from the fixed draft, which is the same
+           * no-hindsight source every other arm uses (C3). */
+          const myNextIdx = picks.findIndex((z, k) => k > idx && z.roster_id === seatId);
+          let bestNext = 0;
+          if (myNextIdx >= 0) {
+            for (let k = myNextIdx; k < N; k++) {
+              const z = picks[k];
+              if (z.is_keeper || takenByMe.has(z.player_id)) continue;
+              if (posOf(z.player_id) !== q) continue;
+              const alt = {};
+              POS.forEach(y => { alt[y] = (mineVals[y] || []).slice(); });
+              (alt[q] || (alt[q] = [])).push(valueOf(z));
+              bestNext = lineupValueOf(alt) - before;
+              break;               // picks are in market order: first is best
+            }
+          }
+          v -= bestNext;
+        }
       } else {
         const w = startProb(q, held[q] || 0, rosterOn, short);
         v = valueOf(c) * w;
