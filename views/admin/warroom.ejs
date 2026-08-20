@@ -63,6 +63,20 @@
           ROSTER SHAPE header itself at 900px) — confirmed on two heights.
           Same fix already applied to phones for the same reason (below). %>
       <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
+      <%# THE CHEAT SHEET, ONE TAP FROM THE BOARD. Cory asked for this twice —
+          "Also maybe a cheat sheet on front page" and, to the relay, "tips or
+          things we've identified... anything that will help me draft better".
+          The relay wrote draft/DRAFT-NIGHT-CHEATSHEET.md and routed placement
+          to A with DEFAULT "no link needed, the file lives on main". Not taken:
+          a markdown file in a repo is not on the front page, and at 6PM
+          Saturday on a phone the difference between a tap and "find the repo,
+          find the file, read raw markdown" is the entire feature.
+          The page is GENERATED from that .md by draft/tools/cheatsheet_page.js
+          (word-for-word verified, 920 of 922 words, the two being ordered-list
+          markers the browser draws itself), so there is one source of truth and
+          the page cannot drift from the sheet. Opens in a new tab so it never
+          takes the board off screen mid-draft. %>
+      <a href="/cheatsheet.html" target="_blank" rel="noopener" title="Draft-night cheat sheet — every tip is a measurement, keyed to your twelve picks">📋Cheat sheet</a>
       <a href="/lineup" title="Lineup Optimizer">⚡Lineup</a>
       <a href="/lineup/accuracy" title="Model Accuracy">📈Accuracy</a>
       <a href="/analyzer" title="Analyzer">📊Analyzer</a>
