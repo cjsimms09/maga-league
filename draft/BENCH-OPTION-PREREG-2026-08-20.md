@@ -156,3 +156,53 @@ The cure already exists in this file: **§14d(b) supply-aware forcing** — when
 a needed position's remaining pool supply is down to the gap itself, force it
 NOW, while at least one exists. v5 adopts exactly that; nothing else moves.
 P266–P268 filed blind before the v5 run.
+
+---
+
+## 9 · V6 AMENDMENT, 2026-08-20 — HORIZON-AWARE FORCING (after P266–P268 FALSE)
+
+v5's supply-aware forcing checked supply AT my pick; nine rosters still ended
+TE-less because the last recorded TE went to an opponent BETWEEN my picks, and
+the early trips it did make cost points (+1.70 vs v4's +3.46). v6 forces a
+needed position at the **last safe moment**: when no copy of it survives past
+my next pick in the recorded order — deterministic, later than v5 (points
+recover), never blind to the between-picks horizon (vacancies close).
+P269–P271 blind before the run; nothing else moves.
+
+---
+
+## 10 · V7 AMENDMENT, 2026-08-20 — SCARCITY-FIRST FORCED PICKS (after P270 TRUE / P269 FALSE)
+
+v6's points are the family's best (**+5.19 waiver-aware, h2h 16/30**) and the
+pick-by-pick trace found the last defect: when forcing offers two needed
+positions and both marginals are ≈0 (the endgame), pick-order tie-breaking
+takes the WRONG one — K before the dying TE — and the TE pool is gone by the
+final pick. **v7: within forced candidates, the scarcest needed position
+(smallest supply surviving past my next pick) is taken FIRST; marginal only
+breaks ties.** A forced pick is about feasibility, not value. Nothing else
+moves. P272–P274 blind before the run.
+
+---
+
+## 11 · V8 AMENDMENT, 2026-08-20 — EARLIEST DEADLINE FIRST (after P273 TRUE / P272 FALSE)
+
+v7 fixed TE and the mole moved to K (5 seats K-less): scarcity-by-count chose
+TE at the 2-needs-2-picks endgame while the league's endgame K run ate every
+"surviving" K before the final pick. Count past my next pick is the wrong
+scarcity metric; **the deadline is**: v8's forced pick takes the needed
+position whose LAST available copy dies soonest in the recorded order
+(earliest-deadline-first — the provably correct rule for sequential claims).
+P275–P277 blind before the run; nothing else moves.
+
+---
+
+## 12 · V9 AMENDMENT, 2026-08-20 — THE EDF FEASIBILITY SCHEDULE AS TRIGGER (after P276 TRUE / P275 FALSE)
+
+v8 fixed which position a forced pick takes; the TRIGGER still fired on
+counts, one pick too late when two deadlines die inside one between-picks
+window. v9 completes the scheduling argument: sort needed positions by
+deadline (last available copy's recorded pick_no), match against my remaining
+pick numbers in order, and FORCE the moment any k-th deadline precedes my
+k-th remaining pick. Provably sufficient — a vacancy after this means the
+pool itself ran dry. Points untouched (+8.82 frozen / +3.56 waiver stand as
+v8's result). P278–P280 blind before the run.

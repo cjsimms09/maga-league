@@ -311,3 +311,69 @@ and what it would change. "This is fine" is a useful answer where it is true.
 
 If a claim in section 4 does not follow from its method, say so plainly — those
 are mine from today and nobody else has looked at them.
+
+
+---
+
+## 8. WHAT IS IN FLIGHT WHILE YOU READ THIS
+
+So you are not auditing a moving target without knowing it:
+
+- A **bench-option objective** (`--opt`) is being iterated in a replay harness by
+  another lane. It is on its fourth version, has not yet passed its own
+  known-positive control, and is **not shipped**. It would be an ADDITION for
+  late-round/bench picks; it does not touch `vona()`, `survival()`,
+  `starterSlotMarginal()` or the weight vector above. Nothing in this packet
+  changes if it ships or dies.
+- `VONA_SLOT_AWARE` (section 5) is **off** and a preregistered re-take is
+  running. Its decision rule says a null leaves the flag off.
+
+Everything in sections 2-6 is the model as it will be used on 2026-08-22 unless
+something below fails.
+
+---
+
+## 9. THE THING THAT WOULD ACTUALLY RUIN THE DRAFT IS PROBABLY NOT THE EQUATION
+
+Stated honestly, ranked by what I think the real risk is. **If you have time for
+only one thing, section 4's claims are mine and unreviewed; but if you have a
+view on anything here, it is worth more than a correction to a formula.**
+
+**1 — THE BOARD IS THREE DAYS STALE AND THE REBUILD PIPELINE IS REFUSING.**
+The war room downloads a board stamped `2026-08-19T08:52:22Z`. The draft is the
+22nd. The nightly rebuild has refused to publish since, correctly — the publish
+gate holds a candidate board back when any acceptance test fails, and leaves the
+previous board live. Four separate blockers were found and three fixed; one
+remains (a set of 48 per-source fields that are derived from the board and that
+nothing in the pipeline regenerates, so a fresh board carries them stale and the
+guard refuses it). **Consequence if unfixed: he drafts on 3-day-old projections
+and ADP.** Not wrong, just old — and ADP moves most in the final week.
+
+**2 — FOUR OF TEN TEAMS HAVE NOT DECLARED KEEPERS.** Keepers lock the night
+before. Six teams have declared; 13 opponent keepers, all inside the top 21 by
+ADP. Measured: the board withholds unconfirmed opponent keepers by design, and
+that costs **zero** at all twelve of his picks today, because every declared
+keeper is already inside the window the model removes. The exposure is exact and
+bounded: **one freed player per keeper ranked deeper than the pick in
+question**, and the four silent teams could add at most twelve more keepers.
+**Is that the right way to bound it?**
+
+**3 — THE LIVE SLEEPER SYNC HAS NEVER RUN AGAINST A REAL DRAFT.** It is hardened
+against five specific failure modes found in a chaos drill: a 200-OK that is not
+an array, an empty array mid-draft (which would rewind the board to pick 1), a
+shrinking pick list (a commissioner undoing a pick), a mid-draft 403 after the
+draft id has already proved itself, and picks arriving with no resolvable id
+(counted, not dropped silently). A separate defect — `is_keeper` being dropped
+by the pick normaliser — was found only because someone placed real keepers.
+**Question: what failure mode does that list not contain? The board is
+recomputed from the pick feed on every tick, so anything the feed can do wrong,
+the board can do wrong.**
+
+**4 — THE MODEL.** Sections 2-6. Real, and fourth.
+
+**NOT ON THIS LIST, checked rather than assumed:** 16 test suites are red, and
+none of them is on a draft surface — they are stamp-specific alarms pointed at a
+superseded implementation. Every draft-critical suite is green as of writing:
+engine, app-wiring, context-interface, sync/reconcile, keepers, survival
+honesty, the recommendation rows, and the four separate guards that stop a
+drafted player reaching any panel.
