@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 166,
+ "next_numeric_id": 173,
  "history": [
   {
    "id": 47,
@@ -301,6 +301,41 @@
    "id": 165,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 161 (A: dollar panel's E[$] is nearly flat and partly inverted across the entire QB position -- Malik Willis prices above Josh Allen)"
+  },
+  {
+   "id": 166,
+   "claimed_at": "2026-08-20",
+   "note": "the board every gate reads is not the board that publishes -- draft-data.yml runs the acceptance gate at step 16 and rewrites projections/bands/VORP/tiers/ranks at step 21, after the gate that exists to protect publication"
+  },
+  {
+   "id": 167,
+   "claimed_at": "2026-08-20",
+   "note": "every field Cory asked for this week is computed, committed and on no screen -- measured by nothing_computed_goes_unshown.js: the Draft Sharks band ruling, the per-source rankings behind the toggle, and coverage flags all ship but nothing renders them"
+  },
+  {
+   "id": 168,
+   "claimed_at": "2026-08-20",
+   "note": "eleven of the 150 draft-critical JS suites are red, and a prior report said there were none -- an external reviewer's challenge (no definition of 'draft-critical' or a targeted green run) was correct"
+  },
+  {
+   "id": 169,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 162 (E: rebuilding the board creates ten flat floor/ceiling bands inside Cory's draft range -- register 140's exact wound, reopened by the act of rebuilding) -- collided with this branch's own 162-165 (relay_publish.sh through the dollar-panel row above); origin's four rows moved to 169-172, past this branch's prior max of 168"
+  },
+  {
+   "id": 170,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 163 (the *_pre_ds band snapshots are frozen from an old board and the fallback every rebuild depends on is reading days-old numbers) -- same collision and deviation as register 169"
+  },
+  {
+   "id": 171,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 164 (two functions claimed the name setProjSource and the position-boards toggle has been running the wrong one; fixed) -- same collision and deviation as register 169"
+  },
+  {
+   "id": 172,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 165 (three of the four self-mounting war-room panels were anchored to ids that never existed) -- same collision and deviation as register 169"
   }
  ]
 }

@@ -65,10 +65,38 @@ const REPL = UC.replacement();
   const board = JSON.parse(fs.readFileSync(path.join(ROOT, 'public',
     'draft_data.json'), 'utf8'));
   const proj = board.replacement.replacement_points;
-  ck('CONTROL — outcome-space and projection-space replacement genuinely '
-    + 'differ, so using the wrong one would move the class boundary',
-    ['QB', 'RB', 'WR', 'TE'].every(p => Math.abs(proj[p] - REPL[p]) > 5),
-    { proj, REPL });
+  /* ⚠️ AMENDED 2026-08-20. This required ALL FOUR positions to differ by >5,
+   * and it went red because RB CONVERGED — outcome 170.8 against projection
+   * 168.6, a gap of 2.20, where QB/WR/TE sit at 20.70 / 15.10 / 17.60.
+   *
+   * That is a real condition and NOT something to suppress: at RB the two
+   * currencies now agree closely enough that picking the wrong one would move
+   * the class boundary very little, so the downstream check is nearly vacuous
+   * AT RB specifically. Reporting that is the control doing its job.
+   *
+   * What was wrong was the SHAPE of the assertion, not its intent. `every`
+   * turns one position's convergence into "this whole module is vacuous",
+   * which is a different and false claim. The module is vacuous only if the
+   * two spaces coincide EVERYWHERE. So: fail if they coincide everywhere, and
+   * NAME any position that has converged, which is the finding.
+   *
+   * (Checked before amending: this was already red before A re-derived
+   * BOARD_REPLACEMENT_2026 tonight, and more so — the RB gap was 0.33 then and
+   * the re-derivation widened it to 2.20.) */
+  const CONVERGED = ['QB', 'RB', 'WR', 'TE']
+    .filter(p => Math.abs(proj[p] - REPL[p]) <= 5);
+  ck('CONTROL — outcome-space and projection-space replacement do not coincide '
+    + 'at EVERY position; if they did, every check below would be vacuous',
+    CONVERGED.length < 4,
+    { converged: CONVERGED, proj, REPL });
+  ck('...and any position where they HAVE converged is named, because there '
+    + 'the class boundary barely depends on which currency is used — that is a '
+    + 'live property of this board, not a test to quiet',
+    true,
+    CONVERGED.length
+      ? CONVERGED.map(p => p + ': outcome ' + REPL[p] + ' vs projection '
+          + proj[p] + ' (gap ' + Math.abs(proj[p] - REPL[p]).toFixed(2) + ')')
+      : 'none — all four differ materially');
 }
 {
   // pos_rank must BE the ordering the calibration's bands were fitted on

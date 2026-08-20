@@ -69,10 +69,54 @@ _ds_by_id = {str(r["sleeper_id"]): r for r in (_ds.get("players") or [])
              if r.get("sleeper_id") is not None}
 before = copy.deepcopy(board["players"])
 
+# ── POSITION-MEDIAN BAND RATIOS, computed from THIS run's Draft Sharks rows ──
+#
+# Added 2026-08-20 as the third fallback, because the second one has a hole a
+# fresh board falls straight into. `pre_ds_pct` rescales a player's OWN prior
+# band -- but a freshly BUILT board has no prior, and for a player our own
+# pipeline scores at zero there is nothing to rescale. The result was
+# floor == ceiling == mean, and a flat band does not read as "we don't know",
+# it prices a man as having NO UPSIDE.
+#
+# Measured on the committed board, over the players who DO carry a real Draft
+# Sharks band (ceiling/mean, floor/mean by position):
+#   QB 1.337/0.909 (n=30) · RB 1.810/0.855 (78) · WR 1.403/0.859 (70)
+#   TE 1.305/0.893 (26) · K 1.157/0.965 (22) · DEF 1.206/0.928 (21)
+# They differ by position by a lot, which is why this is per-position and not
+# one number.
+#
+# THIS IS AN ABSTENTION WITH A SHAPE, NOT AN INVENTED PLAYER-SPECIFIC CLAIM,
+# and it is stamped as such so no consumer can mistake it for a measured band.
+# It is applied ONLY where both better sources are absent.
+#
+# ⚠️ AND IT CANNOT MOVE A PICK. `MEASURED_WEIGHTS.ceiling` is 0.0 (Cory's
+# 2026-08-20 ruling), so proj_ceiling does not enter the score at all; this
+# changes what is DISPLAYED and what the rough dollar panel reads, nothing the
+# engine ranks on.
+def _position_band_medians(players):
+    from statistics import median as _median
+    acc = {}
+    for q in players:
+        m = q.get("proj_mean")
+        c, f = q.get("proj_ceiling"), q.get("proj_floor")
+        ds, dsc, dsf = q.get("proj_ds"), q.get("proj_ds_ceiling"), q.get("proj_ds_floor")
+        if not (ds and ds > 0 and dsc is not None and dsf is not None):
+            continue
+        acc.setdefault(q.get("position"), []).append((dsc / ds, dsf / ds))
+    out = {}
+    for pos, rows in acc.items():
+        if len(rows) < 8:            # too few to call a norm
+            continue
+        out[pos] = (_median(r[0] for r in rows), _median(r[1] for r in rows))
+    return out
+
+_BAND_MEDIAN = _position_band_medians(board["players"])
+
 matched = 0
 banded = 0
 kept_band = 0
 no_band = 0
+pos_median = 0
 for p in board["players"]:
     b = bl.get(str(p.get("player_id")))
     if not b or b.get("proj") is None:
@@ -157,14 +201,26 @@ for p in board["players"]:
             p["proj_ceiling_source"] = "pre-DS band %, rescaled to the blended mean"
             p["ds_band_from"] = "pre_ds_pct"
         else:
-            no_band += 1
-            # genuinely no band anywhere: collapse, and SAY so rather than
-            # letting a flat band read as a measured one.
-            p["proj_floor"] = b["proj"]
-            p["proj_ceiling"] = b["proj"]
-            p["proj_floor_source"] = "none — no band from Draft Sharks or the prior board"
-            p["proj_ceiling_source"] = "none — no band from Draft Sharks or the prior board"
-            p["ds_band_from"] = None
+            med = _BAND_MEDIAN.get(p.get("position"))
+            if med and b["proj"] and b["proj"] > 0:
+                # THE THIRD FALLBACK — see _position_band_medians above.
+                pos_median += 1
+                p["proj_floor"] = round(b["proj"] * med[1], 2)
+                p["proj_ceiling"] = round(b["proj"] * med[0], 2)
+                _st = ("position-median band %, no player-specific band "
+                       "available — ABSTENTION, not a measurement")
+                p["proj_floor_source"] = _st
+                p["proj_ceiling_source"] = _st
+                p["ds_band_from"] = "position_median_pct"
+            else:
+                no_band += 1
+                # nothing anywhere, not even a positional norm: collapse, and
+                # SAY so rather than letting a flat band read as a measured one.
+                p["proj_floor"] = b["proj"]
+                p["proj_ceiling"] = b["proj"]
+                p["proj_floor_source"] = "none — no band from Draft Sharks or the prior board"
+                p["proj_ceiling_source"] = "none — no band from Draft Sharks or the prior board"
+                p["ds_band_from"] = None
 
 # ── re-derive everything that is computed FROM proj_mean ────────────────────
 cfg = board.get("league") or {}

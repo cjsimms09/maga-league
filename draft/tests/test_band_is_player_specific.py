@@ -43,7 +43,21 @@ def ck(name, cond, detail=None):
     if cond:
         print("PASS  " + name)
     else:
-        _fails.append(name)
+        # ⚠️ THE DETAIL GOES INTO _fails TOO, ADDED 2026-08-20, AND THE REASON
+        # IS AN HOUR OF MY OWN TIME. `_fails` used to carry only the check's
+        # NAME, and this file's names carry HISTORICAL context -- "ten did,
+        # including Cooper Kupp and Ja'Kobi Lane" is register 140's story, not a
+        # live count. So when the post-chain gate refused a rebuild, the CI
+        # assertion printed that sentence and nothing else, and it reads exactly
+        # like a measurement of the board in front of you. It is not. The live
+        # answer that run was ONE player (Jayden Higgins, ADP 121.5) and I spent
+        # an hour investigating ten, including two men who were fine.
+        #
+        # A failure message that names a stale example instead of the live one
+        # is a false negative wearing a number (Rule 3i: never quote a value
+        # without the population behind it).
+        _fails.append(name + ("  — LIVE: " + repr(detail)[:320]
+                              if detail is not None else ""))
         print("FAIL  " + name + ("  — " + repr(detail)[:320] if detail is not None else ""))
 
 
