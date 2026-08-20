@@ -185,3 +185,39 @@ MLV-cap on waiver-graded skill (> +2.1); I do NOT expect it to also clear the
 actual bar (+2.6) — the skill arm is where a construction rule shows, the
 actual arm is where 2024's variance lives. FALSE on any clause missing, filed
 either way.
+
+## 14c-GRADED, SAME DAY — FALSE AGAIN (P140), and the root cause is a units mismatch I shipped
+
+`--real-fill --grade-waiver`: actual **−5.72** (15/30), skill **+3.44**
+(20/30), h2h 15/30 — and **STILL 7/30 unfillable**, the very clause the arm
+existed to fix. P140 FALSE on its legality clause (the skill clause passed).
+
+Two mechanisms, both measured, neither a guess: **(1) the forcing engaged and
+the shelf was empty** — every failed seat is missing a QB or TE, and by the
+time remaining-picks ≤ unfilled-slots fires, the candidate pool (players
+drafted AFTER that point in the real draft) holds no QB. Supply failed, not
+will. **(2) The root cause is mine: a position-BLIND value curve under
+per-position floors.** The curve tops out at 211.3 (pick 1); the QB floor is
+322.9. `max(curve, floor) − floor = 0` for every QB at every pick, so a QB
+never has positive marginal and the drafter rationally hoards RB/WR — the
++5.69 skill number in §14b was partly this exploit, not football sense. Same
+for TE (floor 130.4) past the earliest picks.
+
+## 14d. PREREG — POSITION-CONSISTENT UNITS + SUPPLY-AWARE FORCING (`--real-pos`), committed before the run
+
+The two fixes the two mechanisms dictate, and nothing else: **(a)
+per-position rank curves** — the k-th QB drafted is valued at the mean points
+of the k-th QB in the OTHER seasons (leave-target-out, monotone-enforced,
+keepers excluded, no-score picks count as 0); value and floor now share
+units within every position. **(b) supply-aware forcing on top of §14c's** —
+for each unfilled position, if the remaining candidates of that position ≤
+the gap, that position is forced NOW, whole-pool counted. Myopic timing only
+(P139 retired VONA). Controls: `--mlv` byte-guard; per-position known
+positive: QB rank 1 > QB rank 10 and RB rank 1 > RB rank 20, printed or throw.
+
+**Bars: §14's three, verbatim.** **P141, filed blind:** `--real-pos` goes
+30/30 legal AND beats MLV-cap on waiver-graded skill (> +2.1); the actual bar
+(+2.6) is again NOT expected. **Declared closure rule: if P141 fails, this
+program CLOSES with MLV-cap as the realistic equation** — the floors belong
+in grading, not in the objective — and the register row routes to A with that
+sentence.
