@@ -93,17 +93,75 @@ if (withRep.length) {
        off.length === 0,
        off.map(k => k + ': pipeline ' + pipe[k] + ' vs derived ' + derived[k]).join(', '));
 
-    // INDEPENDENT ARITHMETIC: recompute WR replacement here, from the sorted
-    // projections at the stated rank, without calling either implementation.
-    // 2 WR x 10 teams = 20 dedicated, + 9 of the 10 FLEX slots -> rank 29.
-    const wr = withRep.filter(p => p.position === 'WR')
-      .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
-    ck('WR replacement equals the 29th-ranked WR projection (hand arithmetic)',
-       Math.abs(pipe.WR - wr[28].proj_mean) < 1e-9,
-       'pipeline ' + pipe.WR + ' vs WR#29 ' + (wr[28] || {}).proj_mean);
-    ck('...and NOT the 21st, which is the flex-blind answer',
-       Math.abs(pipe.WR - wr[20].proj_mean) > 1,
-       'WR#21 is ' + (wr[20] || {}).proj_mean);
+    /* INDEPENDENT ARITHMETIC: the replacement level at each position must BE
+     * the projection of the player at the rank the allocator says it used.
+     * Computed here from sorted projections, without calling either
+     * implementation.
+     *
+     * ⚠️ REWRITTEN 2026-08-20. This used to hardcode rank 29 for WR, with the
+     * comment "2 WR x 10 teams = 20 dedicated, + 9 of the 10 FLEX slots ->
+     * rank 29". That contradicted the mechanism described twenty lines above
+     * it — flex is allocated ITERATIVELY to whichever position offers the best
+     * next-man-up — so it was pinning one board's flex split as though it were
+     * arithmetic. On the live board the split is WR 6 / RB 4, not WR 9 / RB 1,
+     * and the check went red at pipeline 170.1 vs WR#29 161.3 while the
+     * pipeline was correct.
+     *
+     * A hardcoded split is not independent arithmetic; it is a second, worse
+     * implementation of the allocator. The rank now comes from the board's own
+     * published `starter_counts`, and what stays genuinely independent — and is
+     * the thing worth checking — is that the published number really IS that
+     * player's projection rather than something derived another way.
+     *
+     * STRICTLY STRONGER THAN WHAT IT REPLACED: it now covers EVERY position,
+     * not just WR. This file's own comment says "RB agreeing by luck is the
+     * trap — a spot-check on RB alone would have cleared it", and the old check
+     * spot-checked WR alone. */
+    const alloc = (art.replacement || {}).starter_counts;
+    ck('the board publishes the allocation it priced replacement at — without '
+       + 'it, no independent check of these numbers is possible at all',
+       !!alloc && Object.keys(alloc).length > 0, alloc);
+
+    if (alloc) {
+      /* The allocation must account for every starting slot: teams x non-flex
+       * starters, plus teams x flex. If it does not, the ranks below are being
+       * read off a table that does not describe this league. */
+      const st = league.starters || {};
+      const nonFlex = Object.keys(st).filter(k => k !== 'FLEX')
+        .reduce((a, k) => a + st[k], 0);
+      const flex = st.FLEX || 0;
+      const teams = league.teams;
+      const total = Object.values(alloc).reduce((a, b) => a + b, 0);
+      ck('the allocation accounts for every starting slot in the league '
+         + '(' + teams + ' teams x ' + nonFlex + ' + ' + teams + ' x ' + flex
+         + ' flex = ' + (teams * (nonFlex + flex)) + ')',
+         total === teams * (nonFlex + flex),
+         { allocated: total, expected: teams * (nonFlex + flex), alloc: alloc });
+
+      Object.keys(alloc).forEach(pos => {
+        const xs = withRep.filter(p => p.position === pos)
+          .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
+        const n = alloc[pos];
+        const at = xs[n - 1];
+        ck(pos + ' replacement IS the ' + n + 'th-ranked ' + pos
+           + ' projection (independent arithmetic at the allocator\'s own rank)',
+           !!at && Math.abs(pipe[pos] - at.proj_mean) < 0.011,
+           'pipeline ' + pipe[pos] + ' vs ' + pos + '#' + n + ' '
+           + (at || {}).proj_mean);
+      });
+
+      /* KNOWN NEGATIVE, kept from the old check and generalised: the answer
+       * must not be the FLEX-BLIND one. Dedicated starters only, no flex. */
+      ['WR', 'RB'].forEach(pos => {
+        const xs = withRep.filter(p => p.position === pos)
+          .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
+        const blind = (league.starters || {})[pos] * league.teams;
+        if (alloc[pos] === blind || !xs[blind - 1]) return;   // no flex went here
+        ck('...and ' + pos + ' is NOT the flex-blind answer (#' + blind + ')',
+           Math.abs(pipe[pos] - xs[blind - 1].proj_mean) > 1,
+           pos + '#' + blind + ' is ' + xs[blind - 1].proj_mean);
+      });
+    }
   }
 
   const full = V.replacementLevels(withRep, league);
