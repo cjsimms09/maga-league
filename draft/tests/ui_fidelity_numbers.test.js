@@ -151,6 +151,12 @@ const esc = s => String(s).replace(/[&<>"]/g, c =>
      * why it read as unrelated breakage. On blend the real function returns the
      * same array untouched, so this stub is the real behaviour, not a fake. */
     sourceAdjustedBoard: () => board,
+    /* Same class as sourceAdjustedBoard above, added 2026-08-20: renderBoard
+     * began calling agreementBadge() when the source-agreement mark reached the
+     * row, and this harness evals renderBoard in isolation. With no agreement
+     * artifact loaded the real function returns '' for every player, so an
+     * empty stub is the real behaviour here, not a fake. */
+    agreementBadge: () => '',
     nameScore: () => 1,
     resetCaveats: () => {},
     caveatOnce: (id, marker) => '<span class="cav">' + marker + '</span>',
@@ -161,10 +167,11 @@ const esc = s => String(s).replace(/[&<>"]/g, c =>
   // eslint-disable-next-line no-new-func
   const render = new Function('$', 'state', 'escapeHtml', 'nameScore', 'resetCaveats',
     'caveatOnce', 'projSourceMark', 'riskFlags', 'renderSearchTail',
-    'sourceAdjustedBoard',
+    'sourceAdjustedBoard', 'agreementBadge',
     fnSrc + '; return renderBoard;')(stubs.$, stubs.state, stubs.escapeHtml,
     stubs.nameScore, stubs.resetCaveats, stubs.caveatOnce, stubs.projSourceMark,
-    stubs.riskFlags, stubs.renderSearchTail, stubs.sourceAdjustedBoard);
+    stubs.riskFlags, stubs.renderSearchTail, stubs.sourceAdjustedBoard,
+    stubs.agreementBadge);
   render();
   ck('SENTINEL (B2): a search_rank player\'s ADP cells never render the number',
     captured.indexOf('>328<') < 0 && captured.indexOf('>321<') < 0, 'searched for >328< / >321<');

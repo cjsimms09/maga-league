@@ -958,6 +958,27 @@
       .catch(e => console.warn('[source-boards] unavailable:', e && e.message));
   }
 
+  /* ── WHERE THE SOURCES AGREE, AND WHERE THEY DO NOT ───────────────────────
+   * Cory, 2026-08-20: "let me know when sources disagree".
+   * Built by draft/tools/source_agreement.py from the per-source boards, on
+   * POSITIONAL RANK — the four sources are not on one points scale (our model
+   * runs at 0.79 of the blend, p10 0.38), so a points spread would flag it on
+   * player after player for a reason that is not about the player.
+   * Same fail-soft contract as every other panel: losing it costs a panel,
+   * never the board. */
+  function loadSourceAgreement() {
+    fetch('/source_agreement.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !d.players) return;
+        state.sourceAgreement = d;
+        state.agreeById = {};
+        d.players.forEach(function (r) { state.agreeById[String(r.player_id)] = r; });
+        try { renderAll(); } catch (e) { console.error('[source-agree]', e && e.message); }
+      })
+      .catch(e => console.warn('[source-agree] unavailable:', e && e.message));
+  }
+
   function loadSeatPlan() {
     fetch('/seat_plan.json', { cache: 'no-cache' })
       .then(r => (r.ok ? r.json() : null))
@@ -1105,6 +1126,152 @@
     return SCOPE_FALLBACK;
   }
 
+  /* ── THE SOURCE-AGREEMENT PANEL ────────────────────────────────────────────
+   *
+   * Cory: "let me know when sources disagree... clean, easy to understand".
+   *
+   * THE DESIGN DECISION THAT MATTERS: what NOT to show.
+   *
+   * On the live board, of 256 players in his range, 114 AGREE, 83 have one
+   * dissenting source, 16 are genuinely SPLIT and 43 are THIN (fewer than three
+   * sources — not agreement, absence). Badging all 83 dissents would put a
+   * warning on a third of the board, and a flag that fires on everything is
+   * read as decoration. That is the same failure as the "Draft Sharks covers
+   * 35%" button this session already fixed.
+   *
+   * So the panel is built around the BASE RATE. Measured: our model is the lone
+   * dissenter on 63 of 83 cases (29.6% of judged players), Draft Sharks on 3
+   * (1.4%). "Our model disagrees" is therefore routine and nearly uninformative;
+   * "Draft Sharks disagrees" is rare and worth a look. The panel leads with the
+   * SPLITs and the RARE dissents — about 36 players — and keeps the routine
+   * ones one click deeper rather than on the surface.
+   *
+   * AGREE renders as nothing at all. Silence is the signal.
+   */
+  function agreementBadge(p) {
+    const r = state.agreeById && state.agreeById[String(p && p.player_id)];
+    if (!r) return '';
+    if (r.state === 'AGREE') return '';
+    const src = (state.sourceAgreement && state.sourceAgreement.sources) || {};
+    if (r.state === 'SPLIT') {
+      return '<span class="agr agr-split" title="No two sources cluster — '
+        + escapeHtml(Object.keys(r.ranks || {}).map(function (k) {
+          return (src[k] || k) + ' ' + p.position + r.ranks[k]; }).join(' · '))
+        + '">⚡ split</span>';
+    }
+    if (r.state === 'THIN') {
+      return '<span class="agr agr-thin" title="Only '
+        + Object.keys(r.ranks || {}).length + ' of 4 sources project him, so '
+        + 'agreement cannot be judged. This is ABSENCE, not agreement.">◌ thin</span>';
+    }
+    /* DISSENT — shown only when the dissenting source is one that rarely
+     * dissents. A frequent dissenter carries almost no information. */
+    const rate = r.dissenter_base_rate_pct;
+    if (rate == null || rate > 10) return '';
+    return '<span class="agr agr-dissent" title="'
+      + escapeHtml((src[r.dissenter] || r.dissenter) + ' is alone here, and it '
+        + 'is the lone dissenter on only ' + rate + '% of players — a rare '
+        + 'disagreement. ' + Object.keys(r.ranks || {}).map(function (k) {
+          return (src[k] || k) + ' ' + p.position + r.ranks[k]; }).join(' · '))
+      + '">◑ ' + escapeHtml(src[r.dissenter] || r.dissenter) + '</span>';
+  }
+
+  function renderSourceAgreement() {
+    const host = $('#source-agreement');
+    const card = document.getElementById('source-agreement-card');
+    const d = state.sourceAgreement;
+    if (!host) return;
+    if (!d || !d.players) { if (card) card.style.display = 'none'; return; }
+    if (card) card.style.display = '';
+    const src = d.sources || {};
+    const drafted = state.drafted || new Set();
+    const live = d.players.filter(function (r) { return !drafted.has(String(r.player_id)); });
+
+    const rateOf = function (k) { return (d.dissent_base_rate_pct || {})[k]; };
+    const splits = live.filter(function (r) { return r.state === 'SPLIT'; });
+    const rare = live.filter(function (r) {
+      return r.state === 'DISSENT' && rateOf(r.dissenter) != null
+        && rateOf(r.dissenter) <= 10;
+    });
+    const routine = live.filter(function (r) {
+      return r.state === 'DISSENT' && !(rateOf(r.dissenter) != null
+        && rateOf(r.dissenter) <= 10);
+    });
+
+    const rankCells = function (r) {
+      return Object.keys(src).map(function (k) {
+        const v = (r.ranks || {})[k];
+        const odd = r.dissenter === k;
+        return '<td class="' + (odd ? 'agr-odd' : (v == null ? 'muted' : ''))
+          + '">' + (v == null ? '—' : r.position + v) + '</td>';
+      }).join('');
+    };
+    const head = '<tr><th>player</th><th>board</th>'
+      + Object.keys(src).map(function (k) {
+        return '<th title="lone dissenter on ' + (rateOf(k) == null ? '—' : rateOf(k))
+          + '% of players">' + escapeHtml(src[k]) + '</th>'; }).join('')
+      + '<th>gap</th></tr>';
+    const rowsOf = function (list, n) {
+      return list.slice().sort(function (a, b) { return (b.spread || 0) - (a.spread || 0); })
+        .slice(0, n).map(function (r) {
+          return '<tr><td><b>' + escapeHtml(r.name) + '</b></td>'
+            + '<td class="muted">' + escapeHtml(r.position) + (r.pos_rank || '') + '</td>'
+            + rankCells(r) + '<td>' + (r.spread == null ? '—' : r.spread) + '</td></tr>';
+        }).join('');
+    };
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .25rem">🔎 Where the sources disagree '
+      + explainPanel('source_agreement') + '</h3>'
+      + '<p class="muted" style="margin:0 0 .5rem;font-size:.74rem">'
+      + 'Compared on <b>positional rank</b> (is he WR13 or WR55), not projected '
+      + 'points — the four sources are not on one points scale, so a points gap '
+      + 'would flag the same source over and over for a reason that is not about '
+      + 'the player. Silence means they agree.</p>'
+
+      + (splits.length
+        ? '<h4 style="margin:.5rem 0 .2rem;font-size:.82rem">⚡ Nobody agrees '
+          + '<span class="muted">(' + splits.length + ')</span></h4>'
+          + '<p class="muted" style="margin:0 0 .25rem;font-size:.72rem">No two '
+          + 'sources cluster. Real uncertainty, not one outlier.</p>'
+          + '<table class="mini" style="width:100%;font-size:.78rem"><thead>' + head
+          + '</thead><tbody>' + rowsOf(splits, 12) + '</tbody></table>'
+        : '<p class="muted" style="font-size:.74rem">No player in your range is '
+          + 'fully split — every disagreement has a cluster behind it.</p>')
+
+      + (rare.length
+        ? '<h4 style="margin:.7rem 0 .2rem;font-size:.82rem">◑ A source that '
+          + 'rarely disagrees, disagrees here <span class="muted">('
+          + rare.length + ')</span></h4>'
+          + '<p class="muted" style="margin:0 0 .25rem;font-size:.72rem">'
+          + 'Weighted by how often each source is the odd one out — the column '
+          + 'headers carry that rate. A rare dissent is worth reading; a routine '
+          + 'one is not.</p>'
+          + '<table class="mini" style="width:100%;font-size:.78rem"><thead>' + head
+          + '</thead><tbody>' + rowsOf(rare, 12) + '</tbody></table>'
+        : '')
+
+      /* THE ROUTINE ONES ARE NOT HIDDEN, THEY ARE DEMOTED. Deleting them would
+       * be a different claim than "these are usually uninformative". */
+      + (routine.length
+        ? '<details style="margin-top:.6rem"><summary class="muted" '
+          + 'style="font-size:.74rem;cursor:pointer">'
+          + routine.length + ' more where one source disagrees — but it is '
+          + 'usually the same source, so the flag says little on its own</summary>'
+          + '<table class="mini" style="width:100%;font-size:.78rem;margin-top:.3rem">'
+          + '<thead>' + head + '</thead><tbody>' + rowsOf(routine, 40)
+          + '</tbody></table></details>'
+        : '')
+
+      + '<p class="muted" style="margin:.55rem 0 0;font-size:.72rem">'
+      + 'Counts in your top ' + ((d.draftable_scope || {}).outer || 250) + ': '
+      + Object.keys(d.counts || {}).map(function (k) {
+        return '<b>' + d.counts[k] + '</b> ' + k.toLowerCase(); }).join(' · ')
+      + '. <b>thin</b> means fewer than three sources project him at all — that '
+      + 'is absence, never agreement.</p>'
+      + '</div>';
+  }
+
   function renderPositionBoardsPanel() {
     const host = $('#position-boards');
     const d = state.positionBoards;
@@ -1204,7 +1371,12 @@
     let recs;
     try {
       recs = RosterBuilderMLV.recommend(board, sourceAdjustedRoster() || [],
-        { league: state.data.league, topN: 3 });
+        /* `taken` added 2026-08-20 — Cory, from a rehearsal: "Roster builder
+         * model is recommending players that are already gone." state.board is
+         * pruned on every pick, so this is belt-and-braces; the point is that
+         * the panel can no longer name a gone player even if the board it is
+         * handed is stale. mlv.js counts anything it filters. */
+        { league: state.data.league, topN: 3, taken: state.drafted });
     } catch (e) {
       console.error('[roster-builder]', e && e.message);
       host.innerHTML = ''; return;
@@ -1223,6 +1395,27 @@
     } catch (e) { boardCompare = null; }
     host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, boardCompare,
       explainPanel('roster_builder'), escapeHtml);
+
+    /* ⚠️ IF THE GUARD EVER FIRES, SAY SO RATHER THAN QUIETLY CLEANING UP.
+     * mlv.js now refuses to recommend a player who is already taken, and counts
+     * what it dropped. Zero is the healthy state and draws nothing. A non-zero
+     * count means this panel was handed a board that still contained drafted
+     * players — the SYMPTOM is fixed above, but the CAUSE would be upstream in
+     * whatever failed to prune, and hiding it is how that cause survives. */
+    if (recs && recs._taken_filtered) {
+      const note = document.createElement('p');
+      note.className = 'muted';
+      note.style.cssText = 'margin:.4rem 0 0;font-size:.72rem;color:#b45309';
+      note.textContent = '⚠️ ' + recs._taken_filtered + ' already-drafted player'
+        + (recs._taken_filtered === 1 ? '' : 's')
+        + ' were removed from this list ('
+        + (recs._taken_names || []).join(', ')
+        + '). They cannot be recommended, but the board handed to this panel '
+        + 'should not have contained them — please report this.';
+      host.appendChild(note);
+      console.error('[roster-builder] board contained drafted players:',
+        recs._taken_filtered, recs._taken_names);
+    }
   }
 
   /* LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS — Cory: "a running
@@ -1372,6 +1565,31 @@
         + 'columns — the blend already does that, properly centred. Ignore the '
         + 'row entirely at a position where a source shows "no coverage".',
       src: 'source_boards.json from draft/tools/source_boards.js; order only, no points',
+    },
+    source_agreement: {
+      what: 'Where the four projection sources agree about a player and where '
+        + 'they do not, compared on POSITIONAL RANK (is he WR13 or WR55) rather '
+        + 'than projected points. Four states: agree, one dissenter, split, and '
+        + 'thin.',
+      read: 'Silence means they agree — 114 of the 256 players in your range, '
+        + 'and they draw nothing at all. \u26a1 SPLIT means no two sources '
+        + 'cluster: real uncertainty, and only 16 players. \u25d1 means a '
+        + 'source that RARELY disagrees is alone here, which is worth reading. '
+        + '\u25cc THIN means fewer than three sources project him — that is '
+        + 'absence, never agreement.',
+      do: 'Lead with the splits: nobody has a read on those, so your own view '
+        + 'and the tier cliff matter more than the ranking does. Treat a rare '
+        + 'dissent as a prompt to look, not as a verdict. IGNORE a routine one '
+        + '\u2014 our model is the lone dissenter on 63 of 83 cases (29.6% of '
+        + 'judged players) against Draft Sharks\u2019 3, so "our model '
+        + 'disagrees" tells you almost nothing and is demoted behind a fold.',
+      src: 'public/source_agreement.json, built by '
+        + 'draft/tools/source_agreement.py from the per-source boards '
+        + 'rerank_by_source.py produces (app.js renderSourceAgreement()). '
+        + 'Ranks come from vorp.apply_vorp/assign_tiers, the same functions the '
+        + 'real board uses \u2014 nothing here re-ranks anything. Thresholds are '
+        + 'derived per position from this board\u2019s own median spread, not '
+        + 'typed in.',
     },
     proj_source: {
       what: 'The same board, priced by ONE source instead of the blend: Draft '
@@ -1908,6 +2126,7 @@
     loadRankSource();
     loadSeatPlan();
     loadSourceBoards();
+    loadSourceAgreement();
     loadPositionBoards();
     loadMlvPlan();
     loadConditionalValue();
@@ -2945,6 +3164,7 @@
      * They will show up in nothing_computed_goes_unshown.js as unread, which
      * is correct and is the guard doing its job. */
     safeRender('sourceBoards', renderSourceBoards);
+    safeRender('sourceAgreement', renderSourceAgreement);
     safeRender('lists', renderLists);
     safeRender('queue', renderQueue);
     safeRender('threats', renderThreats);
@@ -7089,7 +7309,13 @@
         '<td class="num">' + p.overall_rank + '</td>' +
         '<td><b class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</b>'
           + (lastOfTier[p.player_id]
-            ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '') + '</td>' +
+            ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '')
+          /* SOURCE AGREEMENT, ON THE ROW. Deliberately silent for the 114
+           * players the sources agree on and for the 63 whose only dissenter is
+           * the one that dissents on a third of the board — a mark that appears
+           * everywhere is read as decoration. Only SPLIT, THIN and a RARE
+           * dissent draw anything. Hover carries every source's rank. */
+          + agreementBadge(p) + '</td>' +
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
         '<td class="muted">' + escapeHtml(p.team || '') + '</td>' +
         '<td class="num">' + (p.bye || '—') + '</td>' +
@@ -9148,8 +9374,10 @@
     } catch (e) { /* DraftShadows models are optional; MLV below is not */ }
     try {
       if (typeof RosterBuilderMLV !== 'undefined') {
+        /* `taken` — the MLV Displacement lens is one of the four models Cory
+         * clicks; it must not name a player who is gone (2026-08-20). */
         const recs = RosterBuilderMLV.recommend(sourceAdjustedBoard(), sourceAdjustedRoster() || [],
-          { league: state.data.league, topN: 1 });
+          { league: state.data.league, topN: 1, taken: state.drafted });
         if (recs && recs.length && recs[0].player) {
           rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
             position: recs[0].position, player_id: String(recs[0].player.player_id),

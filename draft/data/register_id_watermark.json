@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 158,
+ "next_numeric_id": 160,
  "history": [
   {
    "id": 47,
@@ -261,6 +261,16 @@
    "id": 157,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 154 (A: Cory's three keepers priced on a different replacement table than the rest of his board -- kept_players copied before apply_vorp ran on the keeper-removed pool; a repair guard for absent vorp never fired because the value was wrong, not absent; fixed at the source and on the live artifact) -- same collision and deviation as 143-156"
+  },
+  {
+   "id": 158,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 155 (C: roster_state.py has captured real weekly depth-chart/injury state every night since 08-17 and none of it ever reached main -- the nightly workflow's commit-step $PATHS list never named the file; unrecoverable loss, every additional night compounds it) -- same collision and deviation as 143-157"
+  },
+  {
+   "id": 159,
+   "claimed_at": "2026-08-20",
+   "note": "E: Cory live mid-mock, board still showing gone players -- NOT a Sleeper sync error, the position-boards panel renders a static offline ADP-drain simulation with no live drafted-filter; reproduced live marking a real player drafted and confirming the panel still lists him"
   }
  ]
 }
