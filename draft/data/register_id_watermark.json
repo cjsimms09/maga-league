@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 142,
+ "next_numeric_id": 143,
  "history": [
   {
    "id": 47,
@@ -154,6 +154,11 @@
    "id": 141,
    "claimed_at": "2026-08-20",
    "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (genuinely new; verified not duplicated on main via direct grep)"
+  },
+  {
+   "id": 142,
+   "claimed_at": "2026-08-20",
+   "note": "D: test_attach_draftsharks_ranking.py collects zero pytest items — a script-style test file in draft/tests/, red on test_ci_loop_integrity.py"
   }
  ]
 }
