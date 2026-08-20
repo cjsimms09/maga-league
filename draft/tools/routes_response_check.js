@@ -54,7 +54,14 @@ const BASELINE = path.join(ROOT, 'draft', 'baseline', 'routes_backlog_baseline.j
 /** Below this age an unanswered item is simply in flight, not a communication failure. */
 const RESPOND_BY_DAYS = 3;
 
-const ITEM = /^- \[( |x)\] (\d{4}-\d{2}-\d{2}) · (.+?) ·/;
+/* THE PREFIX HOLE, closed 2026-08-20 (the regex-sweep A handed the relay):
+ * lanes answer items by PREPENDING before the date — `✅ **2026-08-19 · A → D
+ * · CLOSED...`, `✅ A, 08-18: accepted — ... · 2026-08-17 · B ·` — and the old
+ * anchor required the date to touch the checkbox, so 38 of 585 item-shaped
+ * rows on main parsed as NOTHING: never counted answered, and an unticked one
+ * would have been invisible to blocked() too. The lazy prefix matches the
+ * EARLIEST full date (two-digit dates in prefixes cannot match \d{4}-). */
+const ITEM = /^- \[( |x)\] (?:[\s\S]*?)(\d{4}-\d{2}-\d{2}) · (.+?) ·/;
 
 /**
  * ROUTES items, each with the body that follows it.
