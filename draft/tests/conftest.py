@@ -83,3 +83,20 @@ def pytest_configure(config):
         "invocation; deselected ONLY by draft-data.yml's publication gate, "
         "where the comparison's own inputs were just rebuilt or refetched and "
         "a mismatch says the board is new, not that it is bad.")
+    config.addinivalue_line(
+        "markers",
+        "post_chain: asserts an invariant that only EXISTS after the "
+        "post-processing chain (blend + Draft Sharks attach). It is a real "
+        "assertion ON the published board and is NOT repo_parity -- this "
+        "conftest's own rule is that anything asserting a value on the "
+        "candidate board stays unmarked, and that rule is not being bent. "
+        "It is marked because the acceptance gate moved: the gate now runs "
+        "BEFORE post-processing (so it grades what the builder produces), "
+        "and a test of Draft Sharks bands cannot pass on a board that has "
+        "no Draft Sharks bands yet. These tests are DESELECTED in the "
+        "pre-chain gate and run EXPLICITLY in the post-chain step of "
+        "draft-data.yml, which the independent audit required. Marking one "
+        "of these WITHOUT adding it to that post-chain step would delete "
+        "the check -- if you mark a test here, add it there in the same "
+        "commit.",
+    )
