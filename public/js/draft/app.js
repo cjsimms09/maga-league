@@ -5530,8 +5530,16 @@
     el.id = 'source-boards';
     el.className = 'card source-boards';
     el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view');
-    const anchor = document.getElementById('roster-builder')
-      || document.getElementById('pos-recs-out');
+    /* `#roster-builder` was the first clause here and it has NEVER existed in
+     * this codebase — `warroom.ejs` has `#roster-builder-mlv`, one word longer.
+     * Removed 2026-08-20: `getElementById` on an absent id returns null, so the
+     * `||` was already falling through to `#pos-recs-out` on every render and
+     * deleting the clause changes nothing observable. It is gone because a dead
+     * anchor that happens to have a live fallback reads as a working two-option
+     * lookup, and `#mlv-plan` copied the same wrong id WITHOUT the fallback and
+     * has been appending itself outside `.wr-zone1` ever since.
+     * Guarded by draft/tests/every_mount_anchor_resolves.test.js. */
+    const anchor = document.getElementById('pos-recs-out');
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
     else room.appendChild(el);
     return el;
