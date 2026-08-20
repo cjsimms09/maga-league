@@ -7,46 +7,46 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-20 00:35 UTC_
+_Last measured: 2026-08-20 02:42 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  510 items · 99 open · 86 of those carry a DEFAULT (silence resolves them)
-  10 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 13 open item(s) with no default: 3 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 10 declare NEITHER, so nobody
+  526 items · 91 open · 85 of those carry a DEFAULT (silence resolves them)
+  3 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 6 open item(s) with no default: 3 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 3 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
   rewording is precisely what stops it matching.
 
   waiting on:
-       7     3d oldest   C
        3     3d oldest   E
 
   the five oldest:
-    3d  2026-08-17 · D → C · 🔴 **P0, KEEPER LOCK 08-20 — ONE LINE IN YOUR FILE IS WHY THE BOARD PRICES 
-    3d  2026-08-17 · D → C · ⛔ **DO NOT BUILD `nflverse_weekly_points_2022.json` — IT EXISTS, AND SO DOE
-    3d  2026-08-17 · D → C · 📥 **PARKED REQUEST, ONE FETCH, AND THE CHECK IS ALREADY WRITTEN AND WAITIN
-    3d  2026-08-17 · D → C · ✏️ **PARKED REQUEST: two of your files carry a claim about your own Vegas s
-    3d  2026-08-17 · relay/PM → C · 🧾 **YOUR TWO LIVE DEFECTS NEED REGISTER ROWS — 'found' and 'fixed' 
+    3d  2026-08-17 · relay/PM → E · 🔴🔴 **Q12 IS THE HIGHEST-VALUE QUESTION OPEN, AND I ALMOST FILED IT
+    3d  2026-08-17 · relay/PM → E · 🔴 **YOU OWN #3, WHICH NOBODY OWNED: DOES THE BIG BOARD MAKE FOOTBAL
+    3d  2026-08-17 · relay/PM → E · 🖥️ **YOU REVIEW THE WAR ROOM, BUT ONLY HALF OF IT — AND NOT YET.** 
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
+    relay → E                  5 items     0% ticked    0 open with NO default
     A → E                     13 items    15% ticked    0 open with NO default
-    D → C                      5 items    20% ticked    4 open with NO default
-    A → C                     35 items    49% ticked    0 open with NO default
-    relay/PM → C              14 items    50% ticked    3 open with NO default
+    relay → D                  6 items    50% ticked    0 open with NO default
     A → B                     45 items    53% ticked    0 open with NO default
+    A → A                     56 items    59% ticked    0 open with NO default
+    relay → C                  5 items    60% ticked    0 open with NO default
+    D → C                      5 items    60% ticked    0 open with NO default
     relay/PM → E              10 items    60% ticked    3 open with NO default
-    A → A                     52 items    63% ticked    0 open with NO default
+    A → C                     35 items    74% ticked    0 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
+    relay/PM → C              14 items    93% ticked    0 open with NO default
     E (red team) → A          28 items    96% ticked    0 open with NO default
+    C → A                    128 items   100% ticked    0 open with NO default
+    relay → A                 61 items   100% ticked    0 open with NO default
     D → A                     41 items   100% ticked    0 open with NO default
-    C → A                    123 items   100% ticked    0 open with NO default
-    relay → A                 59 items   100% ticked    0 open with NO default
     B → A                     22 items   100% ticked    0 open with NO default
     session E (red team) → A  13 items   100% ticked    0 open with NO default
     this session → A           6 items   100% ticked    0 open with NO default
@@ -57,9 +57,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     C → C                     13 items   100% ticked    0 open with NO default
     relay/PM → D               7 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 10
+  baseline 0  ->  now 3
 
-  ❌ THE BACKLOG GREW BY 10. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 3. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -68,14 +68,14 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-       57 commits     1h old  claude/red-team-fantasy-football-97otna
-       37 commits     0h old  claude/warroom-shell-rebuild-0817
-       33 commits     0h old  claude/fantasy-football-research-926y6z
-        6 commits     0h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️    3 commits    29h old  review/draft-path-2026-08-18
-        1 commits     0h old  claude/external-ingest-program-1xfinj
-        1 commits    74h old  sleeper-hist-proj-dispatch
-        1 commits    74h old  sleeper-vs-fp-grade-dispatch
+       84 commits     0h old  claude/red-team-fantasy-football-97otna
+       54 commits     0h old  claude/fantasy-football-research-926y6z
+       45 commits     0h old  claude/warroom-shell-rebuild-0817
+       19 commits     1h old  claude/data-stewardship-setup-bo5h9j
+        8 commits     0h old  claude/external-ingest-program-1xfinj
+  ⚠️    3 commits    32h old  review/draft-path-2026-08-18
+        1 commits    76h old  sleeper-hist-proj-dispatch
+        1 commits    76h old  sleeper-vs-fp-grade-dispatch
 
   ⚠️  1 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
