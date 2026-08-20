@@ -152,6 +152,55 @@
    * @param roster [{name, position, ...}]  what Cory already holds
    * @param opts   {league, valueField|valueFn, topN}
    */
+  /* ⚠️ TAKEN PLAYERS CANNOT BE RECOMMENDED, AND UNTIL 2026-08-20 NOTHING HERE
+   * STOPPED THEM. Cory, from a rehearsal: "Roster builder model is recommending
+   * players that are already gone."
+   *
+   * `recommend()` iterated whatever array it was handed and had no concept of a
+   * drafted player. Every caller passed `state.board`, which the app does prune
+   * on each pick — so the module's correctness depended entirely on every
+   * present and future caller having pruned first. That is the assumption this
+   * repo keeps paying for, and the panel's own contract in app.js says the
+   * opposite: "no model here can name an illegal pick". A player already taken
+   * is an illegal pick.
+   *
+   * So the guard lives HERE, where it cannot be bypassed by a caller, rather
+   * than in the caller that happened to be wrong.
+   *
+   * IT DOES NOT HIDE THE PROBLEM. Silently filtering would mask an upstream
+   * staleness — which is how the underlying defect would survive the symptom
+   * being fixed. Anything filtered is COUNTED and NAMED on the returned array
+   * as `_taken_filtered`, so a caller can surface it and the real cause stays
+   * findable. On a healthy board the count is zero and nothing changes.
+   *
+   * `taken` accepts a Set, an array, or an object keyed by id — the app holds a
+   * Set (`state.drafted`), and refusing the other shapes would just invite a
+   * caller to convert it wrongly. */
+  /* ⚠️ ID TYPE IS COMPARED AS A STRING ON BOTH SIDES, ALWAYS.
+   * The first version did `taken.has(String(id)) || taken.has(id)`, which still
+   * missed a Set holding NUMERIC ids against a board carrying string ones — and
+   * Sleeper returns ids as strings in some payloads and numbers in others, so
+   * that is a live shape, not a hypothetical. A guard that misses on a type
+   * mismatch is the same as no guard, and it fails in the direction that puts a
+   * drafted player back on Cory's screen. Caught by this module's own suite. */
+  function isTaken(taken, id) {
+    if (!taken || id == null) return false;
+    var k = String(id);
+    if (typeof taken.has === 'function') {
+      if (taken.has(k) || taken.has(id)) return true;
+      var found = false;
+      taken.forEach(function (v) { if (String(v) === k) found = true; });
+      return found;
+    }
+    if (Array.isArray(taken)) {
+      for (var i = 0; i < taken.length; i++) {
+        if (String(taken[i]) === k) return true;
+      }
+      return false;
+    }
+    return Object.prototype.hasOwnProperty.call(taken, k) && !!taken[k];
+  }
+
   function recommend(board, roster, opts) {
     opts = opts || {};
     var st = startersOf(opts.league);
@@ -164,8 +213,20 @@
     var base = bagOf(roster, valueFn);
     var baseVal = lineupValue(base, st);
     var out = [];
+    var filtered = [];
+    /* A player already on Cory's OWN roster is taken too, and that needs no
+     * caller to remember: the roster is right here. Recommending a man he
+     * already holds is the same defect wearing a different hat. */
+    var mine = {};
+    (roster || []).forEach(function (p) {
+      if (p && p.player_id != null) mine[String(p.player_id)] = true;
+    });
     (board || []).forEach(function (c) {
       if (!c || !c.position) return;
+      if (isTaken(opts.taken, c.player_id) || mine[String(c.player_id)]) {
+        filtered.push(c.name || String(c.player_id));
+        return;
+      }
       /* ⚠️ IMPOSED, NOT EMERGENT — Cory: "I won't draft 2 kickers and 2 def." */
       if ((c.position === 'K' || c.position === 'DEF')
           && (roster || []).filter(function (p) { return p && p.position === c.position; }).length >= 1) return;
@@ -177,7 +238,12 @@
         why: explain(c, roster, st, valueFn) });
     });
     out.sort(function (a, b) { return b.marginal - a.marginal; });
-    return out.slice(0, opts.topN || 5);
+    var top = out.slice(0, opts.topN || 5);
+    /* EVIDENCE, NOT SILENCE. Zero on a healthy board; non-zero means a caller
+     * handed us a stale pool and the real bug is upstream of here. */
+    top._taken_filtered = filtered.length;
+    top._taken_names = filtered.slice(0, 8);
+    return top;
   }
 
   return { recommend: recommend, lineupValue: lineupValue, startersOf: startersOf, WAIVER: WAIVER,

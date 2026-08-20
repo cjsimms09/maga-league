@@ -247,6 +247,29 @@
           missing artifact — degrades to nothing, never a broken panel. %>
       <div id="position-boards" class="position-boards"></div>
 
+      <%# WHERE THE SOURCES DISAGREE — Cory, 2026-08-20: "Have we built easy way
+          for me to see players, where sources disagree or agree... it should be
+          clean, easy to understand but let me know when sources disagree."
+
+          Compared on POSITIONAL RANK, not points: measured, the four sources are
+          not on one scale (median ratio to the blend — DS 1.04, FP 1.01,
+          Sleeper 0.96, our model 0.79 with p10 0.38), so a points gap would flag
+          our model over and over for a reason that is not about the player.
+
+          The panel leads with what is informative and demotes what is not. Of
+          256 players in his range: 114 agree, 83 have one dissenter, 16 are
+          genuinely split, 43 are thin. Our model is the lone dissenter on 63 of
+          the 83, so that flag carries almost no information; Draft Sharks
+          dissents on 3. Splits and RARE dissents lead; routine ones sit behind a
+          <details>. Agreement renders as nothing at all.
+
+          Built by draft/tools/source_agreement.py from the per-source boards
+          rerank_by_source.py already produces — no second ranking anywhere.
+          Absent artifact -> the card hides itself. %>
+      <div class="card" id="source-agreement-card" style="display:none">
+        <div id="source-agreement"></div>
+      </div>
+
       <%# ROSTER BUILDER MODEL SAYS — ROSTER-BUILDER-PANEL-DESIGN.md (A,
           2026-08-19), Cory's direct ruling: "it needs to be clear what
           player model is recommending and why and I still want to retain

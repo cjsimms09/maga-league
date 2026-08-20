@@ -229,6 +229,23 @@ const PANELS = [
       + 'Registers 146, 147, 148. It is a PLAN, not a prediction, and nobody in the '
       + 'room reacts to Cory in it.',
   },
+  { fn: 'renderSourceAgreement', weight: 'CONTEXT', lines: 96,
+    question: 'Where do the four sources agree about a player, and where do they not?',
+    means: 'each source\'s POSITIONAL RANK for the same man, plus a label: they '
+      + 'agree, one of them dissents, they are split, or too few cover him to say.',
+    changes_it: 'any pick (drafted players drop out); a board rebuild',
+    reads: ['source_agreement.json players[]', 'state.drafted'],
+    note: 'RANK, NEVER POINTS — register 107, re-measured 2026-08-20: median '
+      + 'ratio to the blend is DS 1.04, FP 1.01, Sleeper 0.96, our model 0.79 '
+      + '(p10 0.38), so a points gap reports a level offset as disagreement. '
+      + 'AGREEMENT RENDERS NOTHING: 114 of the 256 players in range agree and a '
+      + 'mark on those is a mark on half the board. The badge is WEIGHTED BY BASE '
+      + 'RATE — our model is the lone dissenter on 63 of 83 cases (29.6%) against '
+      + 'Draft Sharks\' 1.4%, so a routine dissent is suppressed on the row and '
+      + 'demoted behind a <details> in the panel, never deleted. THIN means fewer '
+      + 'than three sources cover him and must never be drawn as agreement; it '
+      + 'carries its own mark for exactly that reason.',
+  },
   { fn: 'renderSourceBoards', weight: 'CONTEXT', lines: 58,
     question: 'Who does each projection source have as their best available, right now?',
     means: 'each source\'s OWN ranking walked past everyone already drafted. Six '
