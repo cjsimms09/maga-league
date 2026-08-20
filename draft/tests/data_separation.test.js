@@ -59,18 +59,6 @@ const PRODUCTION_INPUTS = {
     + 'built for this draft.',
   'seat_plan.json': 'The seat schedule derived from the current board and this '
     + 'year\'s keepers.',
-  'source_agreement.json': 'Per-player AGREEMENT between the four projection '
-    + 'sources, for THIS season, derived entirely from the per-source boards '
-    + 'rerank_by_source.py already builds from the current board. Cory, '
-    + '2026-08-20: "let me know when sources disagree". DISPLAY ONLY and '
-    + 'structurally incapable of being anything else: it carries no points and '
-    + 'no valuation, only each source\'s POSITIONAL RANK plus a label (agree / '
-    + 'one dissenter / split / thin), and no ranking code reads it — engine.js, '
-    + 'composite.js, valuation.js and survival.js never touch it. Rank rather '
-    + 'than points on register 107\'s finding, re-measured 2026-08-20: the '
-    + 'sources are not on one scale (median ratio to the blend DS 1.04, FP 1.01, '
-    + 'Sleeper 0.96, our model 0.79), so a points gap would report a level '
-    + 'offset as disagreement about a player.',
   'source_boards.json': 'THIS season\'s per-source, per-position draft ORDER, '
     + 'derived from the same current-season projections already on the board plus '
     + 'multisource_projections (CBS/ESPN/FFToday, this season). Cory asked to see '

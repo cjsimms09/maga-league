@@ -331,9 +331,38 @@
     return { min: Math.min.apply(null, floors), max: Math.max.apply(null, ceils) };
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo) {
+  /* ⚠️ THE PANEL SHOWED PLAYERS WHO WERE ALREADY GONE, AND THIS IS WHERE.
+   *
+   * Cory, 2026-08-20: "It is also showing players who are already gone on big
+   * board and other places? Is this a sleeper sync issue? Keeper issue? Or
+   * something else." E called the mechanism and it checks out on the artifact:
+   * NEITHER. position_boards.json is a PRE-SIMULATED SNAPSHOT. Each of Cory's
+   * twelve picks carries a `players` list computed offline by draining the pool
+   * by ADP across 300 simulated rooms — "who I expect to be there at pick 33",
+   * not "who is there". Breece Hall sits in the pick-33 RB list on the live
+   * artifact, which is exactly one of the names he was shown.
+   *
+   * So this panel never had any idea who had actually been drafted. It was
+   * built as a PLANNING artifact and is displayed beside live ones, which is
+   * the whole defect — nothing was out of sync, the number simply answered a
+   * different question than the screen implied.
+   *
+   * `takenIds` is now applied at render. A simulated list intersected with the
+   * real draft is still a planning list, but it can no longer name a man who is
+   * demonstrably gone. */
+  function livePlayers(block, takenIds) {
+    var players = (block && block.players) || [];
+    if (!takenIds || !players.length) return players;
+    return players.filter(function (p) {
+      var id = p && (p.player_id != null ? p.player_id : p.id);
+      if (id == null) return true;             // unknown id -> keep, never guess
+      return !takenIds.has(String(id));
+    });
+  }
+
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo, takenIds) {
     if (!block) return '';
-    var players = block.players || [];
+    var players = livePlayers(block, takenIds);
     var scale = rangeScaleFor(players, projSource);
     var rows = players.map(function (p, i) {
       var row = playerRow(p, esc, liveSurvivalById, false, projSource, scale, callsById, badgeInfo);
@@ -474,18 +503,40 @@
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
    * so a missing/stale artifact degrades to nothing rather than a broken panel.
    * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
-  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo) {
+  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo, takenIds) {
     if (!data || !Array.isArray(data.picks) || !data.picks.length) return '';
     var pick = findPick(data, pickNum);
     if (!pick) return '';
     var src = projSource === 'blend' ? 'blend' : 'ds';
+    /* How far the real draft has already diverged from the simulation these
+     * lists were built on. Counted so the caveat below can be specific rather
+     * than a standing disclaimer nobody reads. */
+    var removed = 0;
+    POS_ORDER.forEach(function (pos) {
+      var b = (pick.positions || {})[pos];
+      if (b && b.players) removed += b.players.length - livePlayers(b, takenIds).length;
+    });
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
         + ' (round ' + esc(String(pick.round)) + ')'
-        + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '') + '</div>'
+        + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '')
+        /* ⚠️ SAY WHAT THESE NUMBERS ARE. The names are now filtered against the
+         * real draft, but VONA, best-now, expected-best-next and the cliff were
+         * all computed on the SIMULATED pool this artifact was built from. Once
+         * the real draft diverges they describe a room that did not happen, and
+         * a stale number that looks live is worse than one labelled stale. */
+        + (removed
+            ? '<span class="pb-diverged" title="These lists were pre-computed by '
+              + 'simulating who would be gone by ADP. ' + esc(String(removed))
+              + ' of them have actually been drafted and are now hidden — but '
+              + 'VONA, best-now and the cliff below were computed BEFORE those '
+              + 'picks happened, so read them as a plan, not as live values.">'
+              + ' · ⚠️ ' + esc(String(removed)) + ' already drafted, hidden — '
+              + 'VONA/cliff below are from the pre-draft simulation</span>'
+            : '') + '</div>'
       /* pb-toolbar: the six pb-grid columns are wider than the panel at a
        * normal desktop width by design (see .pb-grid's own CSS comment —
        * widening to fit the header labels without ellipsis pushed K/DEF
