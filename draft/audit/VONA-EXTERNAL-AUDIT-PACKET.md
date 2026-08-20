@@ -377,3 +377,267 @@ superseded implementation. Every draft-critical suite is green as of writing:
 engine, app-wiring, context-interface, sync/reconcile, keepers, survival
 honesty, the recommendation rows, and the four separate guards that stop a
 drafted player reaching any panel.
+
+
+---
+
+## 10. THE THREE TERMS THAT ACTUALLY DECIDE A PICK — MEASURED, NOT ASSUMED
+
+The score has eight weighted terms and two post-assembly deltas. **Three of them
+move anything.** Measured through the real `recommend()` path, top ten at each of
+the owner's twelve real picks, roster growing as the model drafts:
+
+| term | weight | fires on | mean \|value\| | max | verdict |
+|---|---|---|---|---|---|
+| `value` (VONA) | 1.0 | **120/120** | 3.56 | 16.71 | decides picks |
+| `need` (VORP, slot-gated) | 1.0 | **102/120** | 11.22 | 35.08 | fires often |
+| `ceiling` | **0 — RULED OFF 2026-08-20** | — | — | — | see §11 |
+| `stack` | 1.0 | 1/120 | 4.00 | 4.00 | rare |
+| `keeper` | 1.0 | **0/120** | 0.00 | 0.00 | inert |
+| `tier`, `risk`, `bye` | 0.0 | 0/120 | — | — | weighted away by design |
+| `onesie`, `doctrine` | post | **0/120** | 0.00 | 0.00 | inert |
+
+**⚠️ SUPERSEDED WHILE THIS PACKET WAS BEING WRITTEN — READ §11 BEFORE §10's
+CEILING MATERIAL.** The owner ruled the ceiling weight to **zero** on 2026-08-20.
+The shipped model is now **VONA + slot-gated VORP + stack**, and the ceiling
+source below is retained because a reviewer should see what was removed and why.
+
+**`keeper` at weight 1.0 contributing zero is not a bug**, and it is worth
+stating because it looks like one. It prices whether a player drafted THIS year
+would be worth keeping NEXT year: `ramp x P(keep) x (nextYearVorp - what that
+forfeited pick returns next year) x 0.75`. Two independent reasons it is zero
+here: the measured ramp table is `{4-6: 1.0, 7-9: 0.2, 10-12: 0.0, 13-15: 0.0}`,
+so it is switched off from round 10; and in rounds 4-6 where it is live, keeping
+a mid-round player costs a FIRST-round pick next season under this league's
+`top_picks_flat` rule, so the surplus is negative for everyone available.
+**Question: is that reasoning right, or is a zero here hiding an error?**
+
+**⚠️ NOTE THE NAMING TRAP, which confused the owner and would confuse you.**
+`keeper` (above) has nothing to do with the three players he is actually keeping.
+Those enter through **`need`**, which reads `ctx.roster` — so holding 2 RB and
+1 WR is what makes the RB slots full and WR2 open, and that is the second-largest
+term on his board.
+
+### The ceiling term, verbatim
+
+```javascript
+  function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages, gateOpen) {
+    // UNIT MISMATCH — the bug this fixes.
+    //
+    // `raw` is proj_ceiling minus proj_mean, which is a SPREAD: it tracks
+    // proj_sd, not value over replacement. On the real board that is 136 points
+    // for Jahmyr Gibbs and 110 for McCaffrey. Every other term in the composite
+    // is denominated in points-over-replacement, where an elite player scores
+    // ~150 and a round-6 pick scores ~10. So the raw spread was entering the
+    // sum at elite-VORP magnitude for anyone with a wide projection, and the
+    // wider the uncertainty the bigger the bonus — variance was being paid for
+    // as though it were value.
+    //
+    // The plausibility rail caught it and was ignored: on the 2026-08-07 board
+    // it fired `ceiling is Nx this player's VORP` on 15 of the top 15, reaching
+    // 15.0x at pick 54. RAIL_COMPONENT_RATIO = 1.0 states the contract plainly
+    // — no single component may exceed the player's own VORP — so a term
+    // running 15x over it is not a tuning question.
+    //
+    // Two changes, both in named config:
+    //   CEILING_SPREAD_SHARE puts the spread on the composite's scale. Only a
+    //   fraction of theoretical upside is actually collectable, and paying the
+    //   whole spread assumes every boom outcome lands.
+    //   CEILING_MAX_BONUS is a hard ceiling on the ceiling. Whatever the
+    //   projection's variance, this term cannot outweigh the value terms.
+    //
+    // Deliberately NOT capped at the player's own VORP: a round-12 flier has a
+    // VORP near zero and upside is the entire reason to take him. Capping there
+    // would delete the lottery-ticket behaviour the next line exists to create.
+    /* ── POSITION-NORMALISED, 2026-08-13. THE UNITS DEFECT, FIXED AT SOURCE ──
+     *
+     * `proj_ceiling - proj_mean` is a SPREAD IN RAW SEASON POINTS. A quarterback
+     * scores 350-400 a season and a tight end 150, so the QB's spread is the
+     * biggest number on the board BY CONSTRUCTION — p90 of 66.5 at QB against
+     * 30.8 at TE. Ranking bench picks on it MEASURES SCALE AND CALLS IT UPSIDE,
+     * and it is why the board kept handing Cory a second quarterback and a
+     * second tight end he could not start.
+     *
+     * WHY THE ONESIE CAP DID NOT FIX IT, and this is the part that matters: the
+     * cap treats the OUTPUT while this drives the INPUT. And the term was
+     * supposed to be OFF — MEASURED_WEIGHTS.ceiling was 0 at the time (ruled
+     * to 0.45 on 2026-08-17; see the record at the constant), because the
+     * ceiling effect measured -4.8 with a [-26,+17] interval and could not be
+     * signed.
+     * But the bench branch floors it: `Math.max(BENCH_CEILING_FLOOR, w.ceiling)`
+     * with BENCH_CEILING_FLOOR = 0.25 SILENTLY RE-ENABLES A WEIGHT THE
+     * MEASUREMENT SET TO ZERO, for every bench pick. So the deliberately-
+     * disabled, unsignable, unnormalised term is the primary ranker of the whole
+     * back half of the draft.
+     *
+     * THE FIX IS A RATIO, NOT A CAP. Divide each spread by the TYPICAL SPREAD AT
+     * ITS OWN POSITION, then re-scale by the board-wide typical spread so the
+     * term keeps its magnitude on the composite's scale. What survives is "how
+     * much more upside than a normal player at this position" — dimensionless,
+     * and therefore comparable across positions, which is the one thing the raw
+     * spread never was. Median rather than mean: a handful of extreme boom
+     * projections at one position would otherwise set that position's scale. */
+    const rawSpread = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
+    const cs = _ceilingScales;
+    const posScale = cs && cs.scales[player.position];
+    const raw = (posScale > 0 && cs.ref > 0) ? rawSpread * (cs.ref / posScale) : rawSpread;
+    // Ceiling is LATE-ONLY for the LIVE recommendation: zero until CEILING_LATE_FROM
+    // of the draft, then ramps to full (Cory's model — mean+VONA+tiers decide early/mid;
+    // throwaway rounds get the lottery). `allStages` restores the old full-draft ramp
+    // ONLY for the strategy-exploration shadows, whose whole purpose is to explore
+    // ceiling-forward drafts (ctx.ceilingAllStages); it never touches the live board.
+    const lateness = totalPicks ? Math.min(1, pickNumber / totalPicks) : 0.5;
+    const from = CFG.CEILING_LATE_FROM != null ? CFG.CEILING_LATE_FROM : 0.6;
+    /* `gateOpen` REPLACES THE PROXY WITH THE REAL CONDITION.
+     *
+     * CEILING_LATE_FROM = 0.6 is a PROXY for "the throwaway rounds" — pick 90 of
+     * 150. The bench branch fires on the actual condition it is proxying for:
+     * every starting slot is full, so from here on every pick IS a lottery
+     * ticket. Measured, that happens near pick 70, so through rounds 8 and 9 the
+     * proxy said "not late yet" while the real condition had already arrived and
+     * the branch's only anchor read 0.00 for every player on the board.
+     *
+     * So the bench branch passes gateOpen and uses the condition instead of the
+     * proxy. THE STARTER BRANCH IS UNTOUCHED — it still ramps from 0.6, because
+     * that is the arithmetic the 2026-08-10 ceiling decision was made on. */
+    const gate = gateOpen ? 1
+      : allStages ? (0.3 + 0.7 * lateness)
+      : Math.max(0, (lateness - from)) / Math.max(1e-6, 1 - from);
+    const endgame = myPicksLeft != null && myPicksLeft <= 5 ? 1.6 : 1.0;
+    const scaled = raw * CFG.CEILING_SPREAD_SHARE * gate * endgame;
+    return Math.max(-CFG.CEILING_MAX_BONUS, Math.min(CFG.CEILING_MAX_BONUS, scaled));
+  }
+```
+
+`MEASURED_WEIGHTS.ceiling = 0.45`, set by the owner's ruling after three
+preregistered runs across two seed sets beat zero at every value from 0.15 to
+0.65. **Questions:** (a) the reference implementation this project studied
+(`ffanalytics`) emits `rank`, `floor_rank` and `ceiling_rank` as THREE SEPARATE
+rankings and never adds ceiling into value — we add `0.45 x ceiling` to every
+player at every pick. Is adding upside into a single score defensible, or is the
+reference right that upside is a bench instrument? (b) does the code above
+compute what its comments claim?
+
+
+---
+
+## 11. WHAT THE OWNER RULED WHILE THIS PACKET WAS BEING ASSEMBLED
+
+Two rulings, hours apart, and they narrow the audit rather than widen it.
+
+**(a) `ceiling` weight 0.45 → 0.** *"switch it off, its so arbitrary.. doesnt
+make sense.. lets get back to the basic of our model for this draft."*
+
+Not a reversal of his 2026-08-17 ruling — the same ruling meeting an input it
+never saw. The 0.45 was measured on **08-17** against the ceilings live that day.
+On **08-19** Draft Sharks' band became the ceiling source and now covers **189 of
+the draftable top 200**. A weight fitted against one input had been multiplying
+another for two days. Measured consequence: **8 of his 12 picks change**;
+33/48/53 identical either way.
+
+**(b) Draft Sharks' band travels to every source.** *"for every source that
+doesn't offer ceilings, make the ceiling AND floor the same % away from their
+proj as draft sharks"* — implemented as a per-player ratio against Draft Sharks'
+own projection, applied to each source's own number. His worked example is the
+first test: DS proj 100 / ceiling 120, FantasyPros proj 150 → ceiling 180.
+
+**SO THE SHIPPED WEIGHT VECTOR IS NOW:**
+
+```
+value (VONA) 1.0 · need (VORP) 1.0 · stack 1.0 · everything else 0
+```
+
+**THE OWNER'S SPEC, IN HIS WORDS, AND IT IS THE STANDARD TO AUDIT AGAINST:**
+
+> "what I want out of model this year is very basic: correct VONA and accurate
+> depiction of other sources' rankings... our 'model' shouldn't really creep in
+> at all except projected availability, stack, VORP, VONA."
+
+**So the audit question is sharper than "is this good":** does anything in
+sections 2-6 constitute our model creeping in beyond those four things? One
+known answer already — `proj_mean` is a blend of seven sources that still
+includes our own projection, which he has ruled out and which is not yet removed
+because it needs a board rebuild the pipeline is currently refusing. Our model
+is the odd one out at every position (rank agreement with the other three
+sources: QB 0.590, RB 0.873, WR 0.636, TE 0.698, against 0.85-0.98 for each of
+Draft Sharks / FantasyPros / Sleeper).
+
+---
+
+## 12. THE 2027 CAPTURE MANIFEST — A SECOND, SEPARABLE AUDIT
+
+The owner asked for this to be audited alongside the model. It is a different
+question — not "is the math right" but **"will we be able to do this again next
+year, and is anything being lost right now that cannot be recovered?"**
+
+Reproduced in full below. **The reviewer's question: what is missing from this
+list?** It was compiled by checking workflow files against committed stores, so
+its blind spot is anything nobody thought to look for.
+
+One row was red when it was written and is fixed as of this packet: row 6,
+`roster_state_series.json` — the capture ran nightly, wrote real depth-chart and
+injury state, and the commit step did not name the file, so the runner discarded
+it. Never reached the repository. **A capture that runs and is thrown away is
+worse than one that does not run, because the logs say it worked.** That is the
+third instance of that exact defect in one commit-path list.
+
+# THE 2027 CAPTURE MANIFEST — EVERYTHING NEXT AUGUST'S RERUN NEEDS, VERIFIED AGAINST WHAT ACTUALLY COMMITS
+
+**Relay, 2026-08-20, on Cory's order: *"can we make sure we capture everything
+and do everything we can do be able to do this next year!!!!"* Every row below
+was checked against the workflow files and the committed stores TODAY — nothing
+here is assumed from a doc. Status legend: ✅ ACCRUING (job exists, commits,
+verified) · 🔴 LEAKING (job runs, output never committed — unrecoverable daily
+loss) · 🟡 VERIFY (probably fine, one named check owed) · 🔵 RECOVERABLE-LATER
+(public archive; fetch any time, schedule it so it happens).**
+
+The consumer this list serves: re-running the whole 2026 program next year with
+a FOURTH replay season (40 seat-years), the variance Monte-Carlo if we choose
+to build it, re-measured wire levels/friction, and the projection-program
+grades.
+
+| # | input (what 2027 needs) | store | capture | status |
+|---|---|---|---|---|
+| 1 | **Weekly lineups (starters+bench), all 10 teams** — conversion studies, wire availability by complement | `league_history.json` (2026 row live) | `draft-data.yml` nightly, in `$PATHS` ✓ | ✅ ACCRUING |
+| 2 | **Every transaction with FAAB bid** — realized adds, wire friction re-measurement, P145's price curve | `league_history.json` | same job | ✅ ACCRUING (see V1) |
+| 3 | **The 2026 draft, pick by pick** — the 4th replay season | `draft_pick_log_2026.jsonl` | `draft-night-sync.yml` (dry-run verified 08-15, bash -e bug fixed) | ✅ READY (fires Saturday) |
+| 4 | **Keeper designations + final freeze** | `pre_draft_freeze_2026.json`, keepers.json | freeze re-take after Friday 18:00 lock (A's wiring, register 151 plan) | 🟡 VERIFY (V2) |
+| 5 | **Pre-draft board snapshot** (projections, ADP, dollar model as-drafted) | `public/draft_data.json` + `adp_series.json` + `proj_series.json`, all in `$PATHS` | nightly + draft-morning rebuild | ✅ ACCRUING |
+| 6 | **Weekly depth-chart / injury state** — absence-rate re-measurement at player level | `roster_state_series.json` | `build.py` calls `capture()` nightly — **and the file is NOT in `$PATHS`; it has never reached main. Register 155, filed 08-20, STILL OPEN. Every night since 08-17 is already gone.** | 🔴 **LEAKING** |
+| 7 | **Weekly realized points (nflverse)** — outcome curves, variance-MC calibration | `nflverse_weekly_points_2026.json` (does not exist yet) | no workflow — but nflverse is a public archive; 2026 is fetchable in full any time after the season | 🔵 RECOVERABLE (V3 schedules it) |
+| 8 | **Our weekly projections + Sleeper + FP** — projection-error distributions, the 09-15 grades | weekly archives | `weekly-projection-archive.yml`, `sleeper-proj-archive.yml`, `weekly-proj-snapshot.yml`, `fp-expert-ranks-capture.yml` (all had their own $PATHS-class gaps FIXED this week) | ✅ ACCRUING |
+| 9 | **Vegas lines / totals** — game-script features | `vegas_lines_2021_2026.json` + `sgo_latest` | `odds-capture.yml` | ✅ ACCRUING |
+| 10 | **Snap counts / participation** — opportunity features | weekly snap store | `weekly-snap-counts.yml` | ✅ ACCRUING |
+| 11 | **Our own decisions + the models' picks** — grading US, not just players | shadow ledger + `predledger` (every model's pick on the record before the pick, 5206f167) | draft-night shadow ledger + in-season capture routes | ✅ READY |
+
+## The verify list (owners, deadlines)
+
+* **V1 (C, by 09-07 — first waiver week):** confirm `league_history`'s
+  transaction capture includes FAILED waiver claims and their bids, not only
+  successful ones — friction measurement wants the contested-claim rate, and a
+  store of winners only would overstate wire liquidity exactly the way v1 of
+  the bench-option model did. One league API call to check.
+* **V2 (A, Friday):** the post-lock freeze re-take (register 151's plan) also
+  commits the final keeper state — confirm the re-take's output lands in a
+  committed path, not only in the alarm's memory.
+* **V3 (relay, files a one-shot reminder for 2027-01-10):** fetch
+  `nflverse_weekly_points_2026.json` + the 2026 rosters/byes once the season
+  ends. Recoverable-later is only recoverable if someone remembers — the
+  ledger row IS the memory.
+* **V4 (C, by 09-07):** the in-season crons (pull-list item 5's weekly
+  refresh) keep `league_history` refreshing after the draft — verify the
+  first in-season Tuesday actually appends week 1 rather than assuming the
+  nightly does it.
+
+## The one thing that cannot wait: row 6
+
+`roster_state_series.json` is the register-155 leak: the capture runs every
+night, writes real depth-chart and injury state, and the workflow's commit
+step does not name the file, so the runner discards it. The fix is ONE LINE
+(add the path to `$PATHS`). It has been open with an 08-21 recheck since
+yesterday morning; **every additional night is a permanent hole in next
+year's absence model** — the exact data the bench-option objective just
+proved valuable. Escalated to A in ROUTES with a default: if unclaimed by
+Friday 10:00, the relay ships the one-line `$PATHS` addition itself — it is a
+capture list, not board logic, and the loss is irreversible while the change
+is trivially revertable.

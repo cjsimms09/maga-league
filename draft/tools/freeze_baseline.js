@@ -97,7 +97,18 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * A FOURTH CANONICAL STATE joins here (keeper-loaded, his real condition), on
  * the condition written beside its 2026-08-11 removal rather than on a new
  * judgement. v29 remains the pre-ruling reference. */
-const ACTIVE_VERSION = 'v30';
+/* v30 -> v31, 2026-08-20, CORY'S CEILING RULING REVERSED BY CORY: "switch it
+ * off, its so arbitrary." `MEASURED_WEIGHTS.ceiling` 0.45 -> 0. The 0.45 was
+ * measured on 08-17 against the ceilings live that day; Draft Sharks became the
+ * ceiling source on 08-19, so the weight had been multiplying an input its runs
+ * never saw. Moves 8 of his 12 picks. v30 remains the pre-ruling reference.
+ *
+ * AND THE PIN MOVES IN THE SAME COMMIT THIS TIME. Register 5g has fired three
+ * times on exactly this two-step - freeze, then forget the pin - most recently
+ * hours ago, by me, on v30. The invariant added then (restore_reverts_two_rulings
+ * asserts the pinned baseline's weights EQUAL the shipped ones) went red the
+ * moment this weight changed, which is the guard working rather than a chore. */
+const ACTIVE_VERSION = 'v31';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — FOUR AS OF 2026-08-20, and the fourth earns its place.

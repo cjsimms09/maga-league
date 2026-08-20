@@ -671,12 +671,32 @@ jobs:
           # was never in this commit list — so the committed record was frozen
           # at its last hand-commit and the union could not actually grow. A
           # union that only grows in a discarded working tree is not a record.
+          # ⚠️ roster_state_series.json ADDED 2026-08-20 — REGISTER 155, AND IT IS
+          # THE SAME DEFECT A THIRD TIME IN THIS ONE LIST. `build.py:2415` calls
+          # `roster_state_mod.capture()` on every nightly run, writes real
+          # depth-chart and injury state to draft/data/roster_state_series.json,
+          # and this list did not name the file — so the runner discarded it and
+          # the store has NEVER reached main. Every night since 2026-08-17 is a
+          # permanent hole in next year's absence model, which is exactly the
+          # data the bench-option work has just shown to be load-bearing.
+          #
+          # Verified before adding, because a path added for a file nothing
+          # writes is a fix that reports success and does nothing: build.py does
+          # call it (line 2415, via the `roster_state_mod` alias — which is why a
+          # grep for the STORE name in build.py finds nothing and nearly had me
+          # report the manifest's row as wrong), the module's STORE constant
+          # points at that path, and `git ls-tree origin/main` returns zero hits
+          # for it today.
+          #
+          # A capture that runs and is thrown away is worse than one that does
+          # not run: the logs say it worked.
+          #
           # projection_coverage_census.json ADDED 2026-08-19, the SAME defect one
           # line below its own warning: A wired the census REGENERATION into this
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
+          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
