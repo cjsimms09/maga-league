@@ -317,6 +317,11 @@ const REAL = REAL_VONA || REAL_FILL || REAL_POS || process.argv.includes('--real
  * the D_q-th player of that position in the TARGET draft, D_q = the OTHER
  * seasons' mean drafted count. MLV displacement runs on v' unchanged. */
 const MLV_DEPTH = process.argv.includes('--mlv-depth');
+/* §16 (P148): HARD positional cap — the position closes once league-wide
+ * consumption (opponents' recorded picks + my takes) reaches D_q. Exemption:
+ * never while I still owe a starter there, or the rule locks a patient
+ * drafter out of TE1 by everyone else's fourteen. */
+const POS_CAP = process.argv.includes('--pos-cap');
 let depthControlPrinted = false;
 function draftedDepthLOO(targetSeason) {
   const counts = {};   // pos -> [count per other season]
@@ -530,6 +535,19 @@ function buildSeat(season, draft, seatId, rosterOn) {
       return Math.max(0, raw(p) - (q ? repl[q] : 0));
     };
   }
+  let capD = null, oppPrefix = null;
+  if (POS_CAP) {
+    capD = draftedDepthLOO(season.season);
+    oppPrefix = { QB: [], RB: [], WR: [], TE: [], K: [], DEF: [] };
+    const run = {};
+    picks.forEach((p, i) => {
+      POS.forEach(q => { oppPrefix[q][i] = run[q] || 0; });
+      if (p.roster_id !== seatId) {
+        const q = posOf(p.player_id);
+        if (q) run[q] = (run[q] || 0) + 1;
+      }
+    });
+  }
   if (REAL_POS) {
     /* candidate's rank among his position's non-keeper picks in THIS draft —
      * the market's own positional order, era-correct */
@@ -640,6 +658,9 @@ function buildSeat(season, draft, seatId, rosterOn) {
       const q = posOf(c.player_id);
       if (!q) continue;
       if (mustFill && !mustFill[q]) continue;   // §14c: no picks to spare
+      /* §16: position closed at league depth — unless I still owe a starter */
+      if (POS_CAP && (held[q] || 0) >= (STARTERS[q] || 0)
+          && (oppPrefix[q][idx] + (held[q] || 0)) >= capD[q]) continue;
       /* C3: counted from the fixed-opponent draft only — picks already made
        * plus the opponents' known future picks. No outcome data. */
       let short = false;
