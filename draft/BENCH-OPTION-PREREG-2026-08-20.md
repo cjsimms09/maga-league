@@ -232,3 +232,23 @@ the one remaining hand-declared constant (the DEF surplus schedule; post-
 draft refinement routed). Nine preregistered iterations, six FALSE grades,
 each naming the next mechanism: that trail (§5–§12) is the deliverable as
 much as the number.
+
+---
+
+## 14 · V10 AMENDMENT, 2026-08-20 — MEASURED PER-POSITION FRICTION (C's table replaces my declared constant)
+
+C's `wire_friction_table.json` (648 real 2023-25 claims, known-positive
+control green) measured the thing v4 declared: contested rates **RB 50.9% ·
+DEF 49.5% · TE 48.8% · WR 35.4% · QB 29.3% · K 28.9%.** My binary partition
+was wrong in shape: DEF belongs with RB/TE, WR sits between, and the
+"contested vs free" dichotomy is really a ladder. **v10, declared before any
+run:** the partition AND the one-claim budget are both replaced by measured
+per-position fill probabilities — an empty slot at q refills at its wire
+level with probability **p(q) = 1 − c(q)/2** (a contested claim is won half
+the time in a symmetric 10-team league — the one declared approximation
+left, named), else scores zero that week. Independent per slot; the
+friction now lives where C measured it. If the theorem regresses at DEF
+(insurance for a contested DEF may genuinely price a second one), the
+declared reading is that the MODEL is telling us something, and the level-
+discount alternative (loser gets the next wire body, not nothing) is the
+preregistered v11 — not a silent retreat to the old partition.
