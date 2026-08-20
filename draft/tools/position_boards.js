@@ -98,7 +98,12 @@ for (let r = 0; r < ROOMS; r++) {
   const order = pool.map(p => ({ p, k: p.adp + gauss() * p.sd }))
     .sort((x, y) => x.k - y.k).map(x => x.p.id);
   SCHED.forEach((pk, i) => {
-    const gone = new Set(order.slice(0, pk - 1));
+    /* liveBefore(pk), NOT pk - 1 -- `pk` is a BOARD pick number and this
+    * list counts SELECTIONS; they differ by the keeper slots ahead (exactly
+    * 3 at every one of Cory's twelve picks on this board). One derivation:
+    * draft_plan.js liveBefore(). Fixed 2026-08-20 after pick_schedule's
+    * detector was widened to see the `pk` spelling it had been blind to. */
+    const gone = new Set(order.slice(0, PLAN.liveBefore(pk)));
     pool.forEach(x => { if (!gone.has(x.id)) availAt[i].set(x.id, (availAt[i].get(x.id) || 0) + 1); });
     const nxt = SCHED[i + 1];
     if (nxt == null) return;

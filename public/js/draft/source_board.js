@@ -78,15 +78,39 @@
   /** How many of `players` actually carry real coverage for `source` (not a
    * fallback) — the same honesty the #proj-source panel already prints, so
    * any consumer of this module can show the same caveat. Returns null for
-   * 'blend'/falsy (the question does not apply). */
-  function coverage(players, source) {
+   * 'blend'/falsy (the question does not apply).
+   *
+   * ⚠️ `depth` (optional, added 2026-08-20 for Cory's scope ruling — "We
+   * really just need to focus on top 200 players maybe 250") counts only the
+   * `depth` shallowest players BY ADP. Omitted, the whole array is counted,
+   * exactly as before — every existing caller is unchanged.
+   *
+   * WHY IT WAS WORTH A PARAMETER. Over all 700 board players Draft Sharks
+   * covers 35%; over the top 200 by ADP it covers 94%, against Sleeper's
+   * 100%. The unscoped count is not wrong, it just answers a question nobody
+   * asks — nobody drafts the 700th player. A caller showing coverage to a
+   * human should pass a depth.
+   *
+   * Players with no ADP sort LAST, never first: unknown is not early. */
+  function adpOf(p) {
+    var v = p && (p.adjusted_adp != null ? p.adjusted_adp
+      : (p.raw_adp != null ? p.raw_adp : p.adp));
+    return v == null ? 9999 : Number(v);
+  }
+  function coverage(players, source, depth) {
     if (!players || !source || source === 'blend' || !isValidSource(source)) return null;
-    var total = players.length;
-    var covered = players.filter(function (p) { return !!p['covered_' + source]; }).length;
-    return { covered: covered, total: total };
+    var pool = players;
+    if (typeof depth === 'number' && depth > 0 && depth < players.length) {
+      pool = players.slice().sort(function (a, b) { return adpOf(a) - adpOf(b); })
+        .slice(0, depth);
+    }
+    var total = pool.length;
+    var covered = pool.filter(function (p) { return !!p['covered_' + source]; }).length;
+    return { covered: covered, total: total, depth: total < players.length ? total : null };
   }
 
-  var API = { SOURCES: SOURCES, SWAP_FIELDS: SWAP_FIELDS, forSource: forSource, coverage: coverage };
+  var API = { SOURCES: SOURCES, SWAP_FIELDS: SWAP_FIELDS, forSource: forSource,
+    coverage: coverage, adpOf: adpOf };
   global.SourceBoard = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 161,
+ "next_numeric_id": 162,
  "history": [
   {
    "id": 47,
@@ -274,6 +274,16 @@
    "id": 160,
    "claimed_at": "2026-08-20",
    "note": "D: the ranking-source toggle (alt_source_rankings.py) added 39 unclassified board fields and one undeclared TERRITORY file -- register 148/152's exact defect class recurring at a larger scale"
+  },
+  {
+   "id": "153 (A, unmerged main claim) reconciled against D's own 153",
+   "claimed_at": "2026-08-20",
+   "note": "A claimed 153 on origin/main for the source-buttons-scope-mismatch row while D's branch already held 153 for the standalone-script test-file pattern (already FIXED). D's row kept as canonical 153; A's row renumbered to 161. Watermark now authoritative from 162."
+  },
+  {
+   "id": 161,
+   "claimed_at": "2026-08-20",
+   "note": "A: the war room's source buttons priced every source over all 700 board players instead of the drafted-scope range, drawing a 6-point coverage gap as a 3x one -- was 153 pre-renumber on main's side, FIXED same day"
   }
  ]
 }
