@@ -2746,6 +2746,13 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * VOICE belongs right beside the board it comments on, not buried past the
  * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
 .wr-zone1 > #roster-builder-mlv { order: 7; }
+/* Same order again, immediately after #roster-builder-mlv in the DOM (app.js
+ * inserts it as that element's next sibling) — flex ties break by source
+ * order. 2026-08-20/21: mlvPlanHost() anchored at the never-existed
+ * `#roster-builder` (a truncated id) and had no fallback, so it appended
+ * outside `.wr-zone1` entirely with no order rule at all — this line is
+ * half the fix, the anchor correction in app.js is the other half. */
+.wr-zone1 > #mlv-plan          { order: 7; }   /* the roster-builder model's full 12-pick plan, beside its own top pick */
 .wr-zone1 > #recs-card         { order: 8; }   /* the retired one-answer card — still fully present, now second */
 /* E's war-room draft-value audit (2026-08-20/21, finding 2): model-compare-
  * card answers "do the models even agree on this pick" — four lenses, four

@@ -5148,6 +5148,18 @@
    * "ranking" below that line is the BOARD's order wearing MLV's name. The
    * panel draws that line hard and labels everything under it. Register 146.
    */
+  /* ⚠️ 2026-08-20/21 (A's catch, ROUTES.md): anchor was `#roster-builder`,
+   * which has never existed in this codebase — a truncated version of
+   * `#roster-builder-mlv`, the REAL host, one word longer. Unlike
+   * sourceBoardsHost()'s old fallback (which happened to land on a real id
+   * and merely nested wrong), this had no fallback at all: every render
+   * skipped straight to `room.appendChild`, landing #mlv-plan outside
+   * `.wr-zone1` entirely with zero CSS order — its position was whatever
+   * the DOM happened to do, not a decision. `#roster-builder-mlv` is a real
+   * host inside the zone with its own order rule (style.css), and it's the
+   * Roster Builder MLV panel's own recommendation — #mlv-plan is that same
+   * model's FULL plan, so anchoring the plan right after the panel it plans
+   * from is also the right neighbor, not just a real one. */
   function mlvPlanHost() {
     const found = $('#mlv-plan');
     if (found) return found;                       // B's placement wins, always
@@ -5157,7 +5169,7 @@
     el.id = 'mlv-plan';
     el.className = 'card mlv-plan';
     el.setAttribute('data-mounted-by', 'app.js — no #mlv-plan in the view');
-    const anchor = document.getElementById('roster-builder');
+    const anchor = document.getElementById('roster-builder-mlv');
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
     else room.appendChild(el);
     return el;
