@@ -61,7 +61,60 @@ const INPUTS = [
   'draft/adp.py',
   'draft/keepers.py',
   'draft/own_projections.py',
+  /* ── THE DATA STORES, ADDED 2026-08-19 ON A LIVE MISS ────────────────────
+   *
+   * THIS LIST WATCHED THE CODE AND NOT THE DATA, AND THE DATA IS WHAT MOVED.
+   * `1052af25` regenerated `component_stats_2025.json` (101 rows carried
+   * `fum_lost` wrong by exactly −2.0 — the 2025 capture predated the fetch's
+   * three-column fumbles sum). The store was healed correctly and nobody
+   * rebuilt the board on top of it, so a fresh `own_v6` run stopped
+   * reproducing the committed `own_v6` column — which Cory's ruling blends
+   * into `proj_mean`. **This check stayed GREEN through all of it**, because
+   * `draft/own_projections.py` had not changed; only what it READS had.
+   * Register 5r, bisected: last green `c7b42a6b`, red from `1052af25`.
+   *
+   * GLOB PATHSPECS, NOT YEAR LITERALS. The stores are per-season and the
+   * loader builds their paths with an f-string, so naming
+   * `component_stats_2025.json` here would be a season literal that silently
+   * stops covering anything next August. git resolves the glob itself (the
+   * path is quoted, so the shell never sees it) and `lastCommit` takes the
+   * newest match — which is the right semantics: ANY store in the family
+   * moving after the board is a stale board.
+   *
+   * This keeps the declared-not-derived rule the header states. A glob is
+   * still reviewable in a diff; what it is not is a parse of `build.py`'s
+   * reads, which is the thing that would shrink silently. */
+  'draft/backtest/component_stats_*.json',        // own_v6 volume features
+  'draft/backtest/nflverse_weekly_points_*.json', // own_v4 weekly points
 ];
+
+/* ── DERIVED BOARDS, ADDED 2026-08-20 DURING CORY'S WAR-ROOM AUDIT ──────────
+ *
+ * The source toggle (A, 0109d9d0/b7bf4a13) re-ranks the whole board per
+ * projection source by loading `public/board_<key>.json` — full boards with
+ * vorp/tier recomputed by `rerank_by_source.py` FROM the blend board. At
+ * audit time that script was wired into NOTHING (zero hits across workflows,
+ * build.py, netlify.toml, package.json), so the first blend rebuild — the
+ * keeper-lock rebuild on Friday, which moves RB replacement by 33 points —
+ * leaves every per-source board silently STALE while the toggle keeps
+ * serving it as current. The INPUTS check above cannot see this: these are
+ * OUTPUTS of the board, so the relation is INVERTED — a derived board OLDER
+ * than the board it derives from is stale. Glob, not a name list, so a new
+ * source is covered the day its board first commits. Absent boards are fine
+ * (the toggle's own failure path names them); PRESENT-but-older fails. */
+const DERIVED = 'public/board_*.json';
+
+/** {stale:[...], fresh:[...]} for boards DERIVED from the blend board. */
+function classifyDerived(boardTime, derived) {
+  const stale = [], fresh = [];
+  derived.forEach(function (d) {
+    if (d.time == null || boardTime == null) return;
+    (d.time < boardTime ? stale : fresh).push(
+      Object.assign({ behindSeconds: boardTime - d.time }, d));
+  });
+  stale.sort((a, b) => b.behindSeconds - a.behindSeconds);
+  return { stale: stale, fresh: fresh };
+}
 
 function git(cmd) {
   return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
@@ -111,6 +164,14 @@ function main(argv) {
   const inputs = INPUTS.map(p => ({ path: p, time: lastCommit(p, at) }));
   const missing = inputs.filter(i => i.time == null);
   const { stale, fresh } = classify(boardTime, inputs);
+  /* derived boards: enumerate real files at the ref, then time each one */
+  let derivedNames = [];
+  try {
+    derivedNames = git('git ls-tree -r --name-only ' + (at || 'HEAD') + ' -- public')
+      .split('\n').filter(n => /^public\/board_[^/]+\.json$/.test(n.trim())).map(n => n.trim());
+  } catch (e) { /* no tree data — derived check silently empty, inputs still run */ }
+  const derived = classifyDerived(boardTime,
+    derivedNames.map(p => ({ path: p, time: lastCommit(p, at) })));
 
   console.log('='.repeat(74));
   console.log('BOARD INPUT STALENESS — is the board older than what it is built from?');
@@ -122,8 +183,19 @@ function main(argv) {
     console.error('     A shrinking input list is a check that stops firing silently.');
     return 1;
   }
+  if (derived.stale.length) {
+    console.log('\n  ❌ ' + derived.stale.length + ' DERIVED board(s) are OLDER than the blend'
+      + ' board they re-rank:');
+    derived.stale.forEach(function (s) {
+      console.log('     −' + human(s.behindSeconds).padStart(6) + '  ' + s.path);
+    });
+    console.log('  The source toggle serves these as current. Re-run rerank_by_source.py'
+      + ' after\n  EVERY board rebuild — the keeper-lock rebuild moves replacement levels.');
+  }
   if (!stale.length) {
-    console.log('\n  ✅ every declared input predates the board. It can be current.');
+    if (derived.stale.length) { console.log('='.repeat(74)); return 1; }
+    console.log('\n  ✅ every declared input predates the board, and every derived board'
+      + ' postdates it.');
     console.log('     (This does not prove the board is CORRECT — only that it is not'
       + ' provably stale.)');
     console.log('='.repeat(74));
@@ -140,6 +212,6 @@ function main(argv) {
   return 1;
 }
 
-module.exports = { BOARD, INPUTS, classify, human, lastCommit, main };
+module.exports = { BOARD, INPUTS, DERIVED, classify, classifyDerived, human, lastCommit, main };
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
