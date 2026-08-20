@@ -391,14 +391,16 @@ the owner's twelve real picks, roster growing as the model drafts:
 |---|---|---|---|---|---|
 | `value` (VONA) | 1.0 | **120/120** | 3.56 | 16.71 | decides picks |
 | `need` (VORP, slot-gated) | 1.0 | **102/120** | 11.22 | 35.08 | fires often |
-| `ceiling` | 0.45 | **88/120** | 3.84 | 9.00 | fires often |
+| `ceiling` | **0 — RULED OFF 2026-08-20** | — | — | — | see §11 |
 | `stack` | 1.0 | 1/120 | 4.00 | 4.00 | rare |
 | `keeper` | 1.0 | **0/120** | 0.00 | 0.00 | inert |
 | `tier`, `risk`, `bye` | 0.0 | 0/120 | — | — | weighted away by design |
 | `onesie`, `doctrine` | post | **0/120** | 0.00 | 0.00 | inert |
 
-**So the model is VONA + slot-gated VORP + ceiling.** Sections 2-3 gave you the
-first two. The third is below.
+**⚠️ SUPERSEDED WHILE THIS PACKET WAS BEING WRITTEN — READ §11 BEFORE §10's
+CEILING MATERIAL.** The owner ruled the ceiling weight to **zero** on 2026-08-20.
+The shipped model is now **VONA + slot-gated VORP + stack**, and the ceiling
+source below is retained because a reviewer should see what was removed and why.
 
 **`keeper` at weight 1.0 contributing zero is not a bug**, and it is worth
 stating because it looks like one. It prices whether a player drafted THIS year
@@ -515,3 +517,127 @@ rankings and never adds ceiling into value — we add `0.45 x ceiling` to every
 player at every pick. Is adding upside into a single score defensible, or is the
 reference right that upside is a bench instrument? (b) does the code above
 compute what its comments claim?
+
+
+---
+
+## 11. WHAT THE OWNER RULED WHILE THIS PACKET WAS BEING ASSEMBLED
+
+Two rulings, hours apart, and they narrow the audit rather than widen it.
+
+**(a) `ceiling` weight 0.45 → 0.** *"switch it off, its so arbitrary.. doesnt
+make sense.. lets get back to the basic of our model for this draft."*
+
+Not a reversal of his 2026-08-17 ruling — the same ruling meeting an input it
+never saw. The 0.45 was measured on **08-17** against the ceilings live that day.
+On **08-19** Draft Sharks' band became the ceiling source and now covers **189 of
+the draftable top 200**. A weight fitted against one input had been multiplying
+another for two days. Measured consequence: **8 of his 12 picks change**;
+33/48/53 identical either way.
+
+**(b) Draft Sharks' band travels to every source.** *"for every source that
+doesn't offer ceilings, make the ceiling AND floor the same % away from their
+proj as draft sharks"* — implemented as a per-player ratio against Draft Sharks'
+own projection, applied to each source's own number. His worked example is the
+first test: DS proj 100 / ceiling 120, FantasyPros proj 150 → ceiling 180.
+
+**SO THE SHIPPED WEIGHT VECTOR IS NOW:**
+
+```
+value (VONA) 1.0 · need (VORP) 1.0 · stack 1.0 · everything else 0
+```
+
+**THE OWNER'S SPEC, IN HIS WORDS, AND IT IS THE STANDARD TO AUDIT AGAINST:**
+
+> "what I want out of model this year is very basic: correct VONA and accurate
+> depiction of other sources' rankings... our 'model' shouldn't really creep in
+> at all except projected availability, stack, VORP, VONA."
+
+**So the audit question is sharper than "is this good":** does anything in
+sections 2-6 constitute our model creeping in beyond those four things? One
+known answer already — `proj_mean` is a blend of seven sources that still
+includes our own projection, which he has ruled out and which is not yet removed
+because it needs a board rebuild the pipeline is currently refusing. Our model
+is the odd one out at every position (rank agreement with the other three
+sources: QB 0.590, RB 0.873, WR 0.636, TE 0.698, against 0.85-0.98 for each of
+Draft Sharks / FantasyPros / Sleeper).
+
+---
+
+## 12. THE 2027 CAPTURE MANIFEST — A SECOND, SEPARABLE AUDIT
+
+The owner asked for this to be audited alongside the model. It is a different
+question — not "is the math right" but **"will we be able to do this again next
+year, and is anything being lost right now that cannot be recovered?"**
+
+Reproduced in full below. **The reviewer's question: what is missing from this
+list?** It was compiled by checking workflow files against committed stores, so
+its blind spot is anything nobody thought to look for.
+
+One row was red when it was written and is fixed as of this packet: row 6,
+`roster_state_series.json` — the capture ran nightly, wrote real depth-chart and
+injury state, and the commit step did not name the file, so the runner discarded
+it. Never reached the repository. **A capture that runs and is thrown away is
+worse than one that does not run, because the logs say it worked.** That is the
+third instance of that exact defect in one commit-path list.
+
+# THE 2027 CAPTURE MANIFEST — EVERYTHING NEXT AUGUST'S RERUN NEEDS, VERIFIED AGAINST WHAT ACTUALLY COMMITS
+
+**Relay, 2026-08-20, on Cory's order: *"can we make sure we capture everything
+and do everything we can do be able to do this next year!!!!"* Every row below
+was checked against the workflow files and the committed stores TODAY — nothing
+here is assumed from a doc. Status legend: ✅ ACCRUING (job exists, commits,
+verified) · 🔴 LEAKING (job runs, output never committed — unrecoverable daily
+loss) · 🟡 VERIFY (probably fine, one named check owed) · 🔵 RECOVERABLE-LATER
+(public archive; fetch any time, schedule it so it happens).**
+
+The consumer this list serves: re-running the whole 2026 program next year with
+a FOURTH replay season (40 seat-years), the variance Monte-Carlo if we choose
+to build it, re-measured wire levels/friction, and the projection-program
+grades.
+
+| # | input (what 2027 needs) | store | capture | status |
+|---|---|---|---|---|
+| 1 | **Weekly lineups (starters+bench), all 10 teams** — conversion studies, wire availability by complement | `league_history.json` (2026 row live) | `draft-data.yml` nightly, in `$PATHS` ✓ | ✅ ACCRUING |
+| 2 | **Every transaction with FAAB bid** — realized adds, wire friction re-measurement, P145's price curve | `league_history.json` | same job | ✅ ACCRUING (see V1) |
+| 3 | **The 2026 draft, pick by pick** — the 4th replay season | `draft_pick_log_2026.jsonl` | `draft-night-sync.yml` (dry-run verified 08-15, bash -e bug fixed) | ✅ READY (fires Saturday) |
+| 4 | **Keeper designations + final freeze** | `pre_draft_freeze_2026.json`, keepers.json | freeze re-take after Friday 18:00 lock (A's wiring, register 151 plan) | 🟡 VERIFY (V2) |
+| 5 | **Pre-draft board snapshot** (projections, ADP, dollar model as-drafted) | `public/draft_data.json` + `adp_series.json` + `proj_series.json`, all in `$PATHS` | nightly + draft-morning rebuild | ✅ ACCRUING |
+| 6 | **Weekly depth-chart / injury state** — absence-rate re-measurement at player level | `roster_state_series.json` | `build.py` calls `capture()` nightly — **and the file is NOT in `$PATHS`; it has never reached main. Register 155, filed 08-20, STILL OPEN. Every night since 08-17 is already gone.** | 🔴 **LEAKING** |
+| 7 | **Weekly realized points (nflverse)** — outcome curves, variance-MC calibration | `nflverse_weekly_points_2026.json` (does not exist yet) | no workflow — but nflverse is a public archive; 2026 is fetchable in full any time after the season | 🔵 RECOVERABLE (V3 schedules it) |
+| 8 | **Our weekly projections + Sleeper + FP** — projection-error distributions, the 09-15 grades | weekly archives | `weekly-projection-archive.yml`, `sleeper-proj-archive.yml`, `weekly-proj-snapshot.yml`, `fp-expert-ranks-capture.yml` (all had their own $PATHS-class gaps FIXED this week) | ✅ ACCRUING |
+| 9 | **Vegas lines / totals** — game-script features | `vegas_lines_2021_2026.json` + `sgo_latest` | `odds-capture.yml` | ✅ ACCRUING |
+| 10 | **Snap counts / participation** — opportunity features | weekly snap store | `weekly-snap-counts.yml` | ✅ ACCRUING |
+| 11 | **Our own decisions + the models' picks** — grading US, not just players | shadow ledger + `predledger` (every model's pick on the record before the pick, 5206f167) | draft-night shadow ledger + in-season capture routes | ✅ READY |
+
+## The verify list (owners, deadlines)
+
+* **V1 (C, by 09-07 — first waiver week):** confirm `league_history`'s
+  transaction capture includes FAILED waiver claims and their bids, not only
+  successful ones — friction measurement wants the contested-claim rate, and a
+  store of winners only would overstate wire liquidity exactly the way v1 of
+  the bench-option model did. One league API call to check.
+* **V2 (A, Friday):** the post-lock freeze re-take (register 151's plan) also
+  commits the final keeper state — confirm the re-take's output lands in a
+  committed path, not only in the alarm's memory.
+* **V3 (relay, files a one-shot reminder for 2027-01-10):** fetch
+  `nflverse_weekly_points_2026.json` + the 2026 rosters/byes once the season
+  ends. Recoverable-later is only recoverable if someone remembers — the
+  ledger row IS the memory.
+* **V4 (C, by 09-07):** the in-season crons (pull-list item 5's weekly
+  refresh) keep `league_history` refreshing after the draft — verify the
+  first in-season Tuesday actually appends week 1 rather than assuming the
+  nightly does it.
+
+## The one thing that cannot wait: row 6
+
+`roster_state_series.json` is the register-155 leak: the capture runs every
+night, writes real depth-chart and injury state, and the workflow's commit
+step does not name the file, so the runner discards it. The fix is ONE LINE
+(add the path to `$PATHS`). It has been open with an 08-21 recheck since
+yesterday morning; **every additional night is a permanent hole in next
+year's absence model** — the exact data the bench-option objective just
+proved valuable. Escalated to A in ROUTES with a default: if unclaimed by
+Friday 10:00, the relay ships the one-line `$PATHS` addition itself — it is a
+capture list, not board logic, and the loss is irreversible while the change
+is trivially revertable.
