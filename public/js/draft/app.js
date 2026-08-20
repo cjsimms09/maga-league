@@ -1735,7 +1735,32 @@
     const capt = k => (C[k] || {});
     const sign = n => (n > 0 ? '+' : '') + n;
 
-    const rows = (seat.shortlist || []).map(function (pl, i) {
+    /* ⚠️ THE SEAT PLAN IS PRE-COMPUTED, AND IT NAMED A DRAFTED PLAYER.
+     *
+     * Cory's screenshot, 2026-08-20: "SPLIT — your saved draft plan wins the
+     * tie" over Breece Hall. Breece Hall (id 8155) is in seat_plan.json's
+     * pick-33 shortlist on the live artifact, and the plan is built OFFLINE from
+     * the board — it has no idea who has since been taken.
+     *
+     * Fourth surface in one day with this shape, and the fourth distinct cause:
+     * mlv.js had no drafted concept, twenty app.js sites read state.board
+     * directly, position_boards renders a simulation, and this one renders a
+     * saved plan. The renderAll prune does not reach any artifact-backed panel,
+     * because none of them reads state.board.
+     *
+     * A shortlist entry that is gone is worse than useless here — this panel is
+     * the tie-breaker, so a stale name does not just clutter, it DECIDES. */
+    /* `state.drafted` guarded: a missing set must degrade to "nothing is
+     * known to be drafted", never to a thrown TypeError that blanks the seat
+     * panel mid-draft. Caught by seat_panel_markup.test.js, whose harness
+     * builds a state without one. */
+    const isGone = function (pl) {
+      return !!(pl && pl.player_id != null && state.drafted
+        && state.drafted.has(String(pl.player_id)));
+    };
+    const goneFromPlan = (seat.shortlist || []).filter(isGone);
+    const liveShortlist = (seat.shortlist || []).filter(function (pl) { return !isGone(pl); });
+    const rows = liveShortlist.map(function (pl, i) {
       const bw = pl.beats_wire_by;
       /* SIGNED, and captioned as such. Rendering |bw| here is the exact
        * misreading the contract exists to stop. */
@@ -1921,6 +1946,22 @@
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
       + spentLine
       + '<ol class="sp-list' + (seatSpent ? ' sp-list-spent' : '') + '">' + rows + '</ol>'
+      /* ⚠️ THE PLAN WAS BUILT BEFORE THESE PICKS HAPPENED, so say so rather
+       * than quietly showing a shorter list. This panel breaks ties — Cory's
+       * screenshot read "SPLIT — your saved draft plan wins the tie" over a
+       * player who was already drafted — so a silent removal changes WHICH NAME
+       * WINS with no trace. If the plan's own lead is gone, that is the loudest
+       * case and it is named. */
+      + (goneFromPlan.length
+          ? '<div class="sp-note" style="color:#b45309">\u26a0\ufe0f '
+            + goneFromPlan.length + ' name'
+            + (goneFromPlan.length === 1 ? '' : 's')
+            + ' from this saved plan '
+            + (goneFromPlan.length === 1 ? 'is' : 'are') + ' already drafted and '
+            + 'hidden: ' + escapeHtml(goneFromPlan.map(function (p) { return p.name; }).join(', '))
+            + '. The plan was computed before those picks, so the values and the '
+            + 'tie-break below predate them.</div>'
+          : '')
       + staleLine
       + gapLine
       + supLine
@@ -5104,14 +5145,25 @@
       if (p.none) {
         return '<tr><td>' + p.pick + '</td><td colspan="4" class="muted">nobody left</td></tr>';
       }
-      const dim = p.mlv_has_an_opinion ? '' : ' style="opacity:.62"';
+      /* ⚠️ A PLAN ROW WHOSE PLAYER IS ALREADY GONE. This panel is honestly
+       * labelled "a plan, not a prediction" and it walks all twelve FUTURE
+       * picks, so removing a row would break the pick sequence it exists to
+       * show. But leaving a drafted man in it unmarked is how Cory ends up
+       * reading a gone player as a suggestion. Marked, not removed. */
+      const planGone = !!(p.player && p.player.player_id != null && state.drafted
+        && state.drafted.has(String(p.player.player_id)));
+      const dim = planGone ? ' style="opacity:.45"'
+        : (p.mlv_has_an_opinion ? '' : ' style="opacity:.62"');
       const val = p.mlv_has_an_opinion
         ? '<b>+' + p.marginal + '</b>'
         : '<b>+' + p.wire_surplus + '</b> <span class="muted">wire</span>';
       return '<tr' + dim + '>'
         + '<td>' + p.pick + '</td>'
         + '<td>' + escapeHtml(p.player.position) + '</td>'
-        + '<td><b>' + escapeHtml(p.player.name) + '</b></td>'
+        + '<td><b' + (planGone ? ' style="text-decoration:line-through"' : '') + '>'
+          + escapeHtml(p.player.name) + '</b>'
+          + (planGone ? ' <span class="muted" style="color:#b45309;font-size:.7rem">'
+              + 'already drafted</span>' : '') + '</td>'
         + '<td class="muted">' + p.player.adp + '</td>'
         + '<td>' + val + '</td></tr>';
     };
