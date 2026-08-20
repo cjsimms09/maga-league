@@ -148,12 +148,19 @@ principles rather than asserts.
 **But the honest second half, not waved away: we cannot currently PROVE this
 helps E1-E5.** The seat replay — this project's only instrument that grades in
 E1-E5's own currency (points, dollars, finish) rather than accuracy — has a
-measured detection floor of **±41.8 pts/season** (session D, register DS1,
-same shape P110 was built to respect). A change concentrated in bench-tier
-reordering is exactly the kind of effect that floor is least likely to resolve
-from noise. So: the blend is well-argued to be *pointed* at the edge, and it
-is *not yet measured* to have moved it. Those are different claims, and only
-the first one is currently true.
+measured detection floor of ~~**±41.8 pts/season**~~ (session D, register DS1,
+same shape P110 was built to respect). **⚠️ CORRECTED 2026-08-20 — THE FLOOR
+WAS NEVER ±41.8.** D's own `replay_detection_floor_reconciled_2026-08-19.md`
+recomputed it honestly at G=3 season-clusters (the same method
+`three_cluster_bootstrap_2026-08-19.md` used elsewhere) rather than treating
+30 correlated seat-years as 30 independent samples: **the real floor is
+±103.3 pts/season, 2.5x wider.** This does not weaken the paragraph below —
+if anything it strengthens it, since a wider floor makes it even LESS likely
+this instrument has resolved a bench-tier effect. A change concentrated in
+bench-tier reordering is exactly the kind of effect that floor is least
+likely to resolve from noise. So: the blend is well-argued to be *pointed* at
+the edge, and it is *not yet measured* to have moved it. Those are different
+claims, and only the first one is currently true.
 
 **What would close the gap, in order:** (1) the tier-ramped mean→ceiling blend
 I am preregistering per A's routed ask — if the ramp shape is named from an
