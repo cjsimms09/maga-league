@@ -257,6 +257,21 @@ jobs:
           node draft/tools/emit_seat_plan.js
           node draft/tools/position_boards.js
           node draft/tools/mlv_snapshot.js
+          # ⚠️ I NAMED THE WRONG GENERATOR FOR THIS ONE AND THE EXCEPTION I WROTE
+          # WAS FICTION. The line below this step originally read "NOT WIRED:
+          # variance_portfolio.js (conditional_value_2026.json) — it exceeded two
+          # minutes". variance_portfolio.js writes variance_portfolio.json and
+          # has nothing to do with this artifact: I grepped for a MENTION of the
+          # filename, took the first hit as the writer, timed THAT program, and
+          # reported its runtime as this artifact's.
+          #
+          # The real generator is draft/backtest/conditional_value.py and it runs
+          # in FOUR SECONDS. The file feeding the war-room chips sat outside the
+          # nightly rebuild on the strength of a timing measurement taken on an
+          # unrelated program. It matters: the drifted rows were handcuff backups
+          # for Cory's own running backs. It runs BEFORE the consistency check
+          # below, or that check fails on an artifact this step was meant to fix.
+          python3 draft/backtest/conditional_value.py
           # AND THEN PROVE IT, rather than trusting that running the steps was
           # enough. This joins every artifact the war room reads BACK to the
           # freshly built board and compares the VALUES -- not the timestamps,
@@ -266,11 +281,6 @@ jobs:
           # drift, so a board that would mislead Cory fails the build instead of
           # being published.
           node draft/tools/draft_day_consistency.js
-          # NOT WIRED: draft/tools/variance_portfolio.js (conditional_value_2026.json).
-          # It exceeded two minutes locally and this job already has a long
-          # critical path; wiring something that may time out would turn a green
-          # nightly red for a reason unrelated to the board. Left as a named
-          # exception rather than silently omitted — register 143.
 
       - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
         # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
@@ -523,7 +533,7 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
+          PATHS="public/draft_data.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
