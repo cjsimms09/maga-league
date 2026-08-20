@@ -149,6 +149,35 @@ a { color: var(--gold); }
 .navbar button:hover { border-color: var(--red); color: var(--red-bright); }
 .navbar .who { color: var(--muted); font-size: .68rem; letter-spacing: .1em; padding: 0 .25rem 0 .7rem; text-transform: uppercase; }
 
+/* Desktop "More" dropdown — same _primary/_more split the phone tab bar
+   uses, rendered as an inline dropdown instead of a bottom sheet (nav-
+   consolidation map, ROUTES.md 08-18, A-approved). */
+.navbar .nav-more { position: relative; list-style: none; }
+.navbar .nav-more > summary {
+  cursor: pointer; list-style: none;
+  color: #4a5972; text-decoration: none; text-transform: uppercase;
+  font-family: var(--font-display); font-size: .72rem; letter-spacing: .12em; font-weight: 700;
+  padding: .45rem .75rem; border-radius: 999px; transition: all .15s ease;
+}
+.navbar .nav-more > summary::-webkit-details-marker,
+.navbar .nav-more > summary::marker { display: none; content: ''; }
+.navbar .nav-more > summary:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+.navbar .nav-more.active > summary, .navbar .nav-more[open] > summary { color: var(--gold-bright); }
+.navbar .nav-more-panel {
+  position: absolute; top: 100%; left: 0; margin-top: .4rem; z-index: 60;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: .4rem; min-width: 13rem; display: grid; gap: .1rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
+}
+.navbar .nav-more-panel a {
+  display: flex; align-items: center; gap: .5rem;
+  text-transform: none; letter-spacing: normal; font-weight: 600;
+  font-size: .8rem; padding: .5rem .6rem; border-radius: 8px; color: #cdd7e6;
+}
+.navbar .nav-more-panel a:hover { color: #fff; background: rgba(255, 255, 255, .07); }
+.navbar .nav-more-panel a.active { color: var(--gold-bright); }
+.navbar .nav-more-panel a.commish { color: var(--red-bright); }
+
 /* ---------- alerts ---------- */
 .alert-banner {
   display: flex; gap: .6rem; align-items: baseline;
@@ -297,7 +326,7 @@ table.roll.mu-starters th.mu-slot-h { text-align: center; }
 }
 .btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
 .btn.gold { background: linear-gradient(135deg, var(--gold), #e8a52e); color: #241a03; box-shadow: var(--glow-gold); }
-.btn.navy { background: rgba(255, 255, 255, .08); color: #17263a; border: 1px solid var(--line); box-shadow: none; }
+.btn.navy { background: rgba(255, 255, 255, .08); color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
 .btn.navy:hover { background: rgba(255, 255, 255, .14); }
 .btn.small { padding: .32rem .65rem; font-size: .62rem; box-shadow: none; }
 .btn.ghost { background: none; color: var(--red-bright); border: 1px solid rgba(255, 70, 85, .5); box-shadow: none; }
@@ -384,7 +413,7 @@ form.asis { display: inline; }
 .order-list li.done { color: var(--muted); }
 .order-list .pos {
   flex: 0 0 1.7rem; height: 1.7rem; border-radius: 50%;
-  background: rgba(255, 255, 255, .07); color: #17263a; border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .07); color: var(--ink); border: 1px solid var(--line);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-size: .72rem; font-weight: 800;
 }
@@ -466,6 +495,16 @@ details.season .body { padding: 1rem; }
 .hero-item.good .hero-value { background: linear-gradient(180deg, #b8ffd6, var(--green)); -webkit-background-clip: text; background-clip: text; }
 .hero-item.bad { border-color: rgba(255, 70, 85, .5); }
 .hero-item.bad .hero-value { background: linear-gradient(180deg, #ffc4ca, var(--red-bright)); -webkit-background-clip: text; background-clip: text; }
+.hero-item .hero-label .sub { font-weight: 700; letter-spacing: .04em; text-transform: none; opacity: .75; }
+/* PLAYOFF-ODDS WIDGET postures (A dispatch, 2026-08-19) — comfortable reuses
+   .good's green; bubble/chasing get their own colors since neither is bad,
+   just a different risk stance. */
+.hero-item.po-comfortable { border-color: rgba(47, 213, 118, .45); }
+.hero-item.po-comfortable .hero-value { background: linear-gradient(180deg, #b8ffd6, var(--green)); -webkit-background-clip: text; background-clip: text; }
+.hero-item.po-bubble { border-color: rgba(185, 130, 42, .5); }
+.hero-item.po-bubble .hero-value { background: linear-gradient(180deg, #ffe3b0, var(--gold)); -webkit-background-clip: text; background-clip: text; }
+.hero-item.po-chasing { border-color: rgba(178, 58, 58, .5); }
+.hero-item.po-chasing .hero-value { background: linear-gradient(180deg, #ffc4ca, #b23a3a); -webkit-background-clip: text; background-clip: text; }
 
 /* ---------- roast banner ---------- */
 .roast-banner {
@@ -686,7 +725,7 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .layer-sum::-webkit-details-marker { display: none; }
 .layer-sum::before { content: '▸ '; }
 details[open] > .layer-sum::before { content: '▾ '; }
-.layer-sum:hover { color: #17263a; }
+.layer-sum:hover { color: var(--ink); }
 .wr-layer2, .wr-layer3 { display: block; }
 
 /* On a phone Layer 2 starts CLOSED, or the rail pushes Layer 1 off the screen —
@@ -704,7 +743,7 @@ details[open] > .layer-sum::before { content: '▾ '; }
   align-items: center; flex-wrap: wrap; font-size: .74rem; }
 .dv > summary::-webkit-details-marker { display: none; }
 .dv-mark { font-size: .8rem; }
-.dv-line { color: #17263a; font-variant-numeric: tabular-nums; }
+.dv-line { color: var(--ink); font-variant-numeric: tabular-nums; }
 .dv-tier { font-size: .6rem; font-weight: 900; letter-spacing: .08em;
   padding: .05rem .35rem; border-radius: 4px; }
 .dv-t-LEAN { background: rgba(255,255,255,.12); color: var(--muted); }
@@ -742,7 +781,7 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .path-alt {
   display: block; width: 100%; text-align: left; margin-top: .25rem;
   background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 7px;
-  color: #17263a; padding: .3rem .5rem; font-size: .78rem; cursor: pointer;
+  color: var(--ink); padding: .3rem .5rem; font-size: .78rem; cursor: pointer;
 }
 .path-alt:hover { background: rgba(255,255,255,.09); }
 .recs-details { margin-top: .3rem; }
@@ -887,7 +926,7 @@ input[type=range] { accent-color: var(--gold); }
 .todo-item {
   display: inline-block; text-decoration: none;
   background: rgba(255, 255, 255, .07); border: 1px solid var(--line);
-  color: #17263a; border-radius: 999px; padding: .35rem .75rem; font-size: .82rem;
+  color: var(--ink); border-radius: 999px; padding: .35rem .75rem; font-size: .82rem;
 }
 .todo-item:hover { background: rgba(255, 255, 255, .13); }
 .todo-item.urgent {
@@ -1058,7 +1097,7 @@ button.is-busy, .btn.is-busy {
     display: flex; align-items: center; gap: .45rem; min-height: 44px;
     padding: .5rem .6rem; border-radius: 10px; text-decoration: none;
     background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
-    color: #17263a; font-family: var(--font-display); font-weight: 700;
+    color: var(--ink); font-family: var(--font-display); font-weight: 700;
     font-size: .72rem; letter-spacing: .05em; text-transform: uppercase;
   }
   .more-links a.active { border-color: var(--gold); color: var(--gold-bright); }
@@ -1221,13 +1260,21 @@ body.is-rehearsal .slot-watermark { display: none !important; }
    Over 18 hours old the board needs an explicit acknowledgement. The board
    stays visible behind it: hiding it would make a stale artifact look the same
    as a broken tool, which is the failure this whole surface exists to prevent. */
+/* THEME-AWARE, NOT HARDCODED — h3/p used to be fixed light-mode maroons
+   (#8f1019/#a3121d), which is legible but off-palette on the dark war room
+   (a fixed hex ignores the --red the rest of that page actually uses).
+   var(--red) resolves to the correct value in either theme automatically. A
+   thinner 1px border + left accent reads as a considered alert card rather
+   than a screaming box — the same refinement #keeper-lock-note's compact
+   variant already uses, applied here to the one that stays full-size. */
 .stale-block {
-  border: 2px solid var(--red); border-radius: var(--radius);
-  background: rgba(255, 70, 85, .12); padding: 1rem 1.1rem; margin-bottom: 1rem;
+  border: 1px solid var(--red); border-left: 4px solid var(--red);
+  border-radius: var(--radius);
+  background: rgba(255, 70, 85, .09); padding: 1rem 1.1rem; margin-bottom: 1rem;
   box-shadow: var(--glow-red);
 }
-.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: #8f1019; font-size: 1rem; }
-.stale-block p { margin: 0 0 .7rem; color: #a3121d; font-size: .86rem; line-height: 1.5; font-weight: 600; }
+.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: var(--red); font-size: 1rem; }
+.stale-block p { margin: 0 0 .7rem; color: var(--ink); font-size: .86rem; line-height: 1.5; font-weight: 500; }
 #warroom.is-stale { opacity: .55; filter: grayscale(.35); pointer-events: none; }
 
 /* ==========================================================================
@@ -1249,7 +1296,7 @@ body.is-rehearsal .slot-watermark { display: none !important; }
 }
 .jump-strip a b {
   display: block; font-family: var(--font-display); font-size: .72rem;
-  letter-spacing: .04em; color: #17263a;
+  letter-spacing: .04em; color: var(--ink);
 }
 .jump-strip a span { display: block; font-size: .74rem; color: var(--muted); margin-top: .1rem; }
 .jump-strip a.pos { border-color: rgba(47, 213, 118, .45); }
@@ -1337,7 +1384,7 @@ table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text
   background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
 }
 .section-tabs a b {
-  display: block; font-family: var(--font-display); font-size: .8rem; color: #17263a;
+  display: block; font-family: var(--font-display); font-size: .8rem; color: var(--ink);
 }
 .section-tabs a span { display: block; font-size: .66rem; color: var(--muted); margin-top: .1rem; }
 .section-tabs a.active {
@@ -1494,7 +1541,7 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
 }
 .sb-row:last-child { border-bottom: none; }
 .sb-main { flex: 1 1 200px; min-width: 0; }
-.sb-terms { font-weight: 700; color: #17263a; line-height: 1.4; }
+.sb-terms { font-weight: 700; color: var(--ink); line-height: 1.4; }
 .sb-meta { font-size: .76rem; color: var(--muted); margin-top: .15rem; }
 .sb-wait { color: var(--gold-bright); }
 .sb-actions { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap; }
@@ -1537,7 +1584,7 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
   background: rgba(255, 255, 255, .03); border-left: 2px solid var(--line);
 }
 .sb-sides li b { color: #4a5972; flex: 0 0 auto; min-width: 5.5rem; }
-.sb-sides li span { color: #17263a; min-width: 0; overflow-wrap: anywhere; }
+.sb-sides li span { color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
 /* You, so you can find your own row instantly in a ten-handed bet. */
 .sb-sides li.me { border-left-color: var(--gold); background: rgba(245, 196, 69, .07); }
 .sb-sides li.me b { color: var(--gold-bright); }
@@ -1581,7 +1628,7 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   display: block; padding: .55rem .7rem; border-radius: 10px; text-align: center;
   border: 1px solid var(--line); background: rgba(255, 255, 255, .03);
 }
-.seg-opt b { display: block; font-size: .86rem; color: #17263a; }
+.seg-opt b { display: block; font-size: .86rem; color: var(--ink); }
 .seg-opt small { display: block; font-size: .72rem; color: var(--muted); margin-top: .1rem; }
 .seg-opt input:checked + span {
   border-color: var(--gold); background: rgba(245, 196, 69, .12);
@@ -1596,7 +1643,7 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   padding: 0; margin: .3rem 0 .9rem; background: rgba(255, 255, 255, .02);
 }
 .cond-box > summary {
-  padding: .6rem .8rem; cursor: pointer; font-weight: 700; font-size: .85rem; color: #17263a;
+  padding: .6rem .8rem; cursor: pointer; font-weight: 700; font-size: .85rem; color: var(--ink);
 }
 .cond-box > summary .sub { display: block; font-weight: 400; font-size: .74rem; color: var(--muted); }
 .cond-body { padding: 0 .8rem .8rem; }
@@ -1666,7 +1713,7 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .pool-board td { padding: .3rem .45rem; border-bottom: 1px solid rgba(255, 255, 255, .05); }
 .pool-board tr:last-child td { border-bottom: none; }
 .pool-board .pb-rank { width: 1.6rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.pool-board .pb-team { font-weight: 700; color: #17263a; }
+.pool-board .pb-team { font-weight: 700; color: var(--ink); }
 .pool-board .pb-who { text-align: right; }
 .pool-board tr.mine { background: rgba(245, 196, 69, .09); }
 .pool-board tr.mine .pb-team { color: var(--gold-bright); }
@@ -1710,14 +1757,14 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   padding: .45rem .2rem; border-bottom: 1px solid var(--line);
 }
 .pay-row:last-of-type { border-bottom: none; }
-.pay-row > b { flex: 0 0 5.5rem; color: #17263a; font-size: .85rem; }
+.pay-row > b { flex: 0 0 5.5rem; color: var(--ink); font-size: .85rem; }
 .pay-handles { display: flex; gap: .3rem; flex-wrap: wrap; flex: 1 1 auto; }
 .pay-chip {
   border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--muted);
   border-radius: 999px; padding: .28rem .6rem; font-size: .74rem; cursor: pointer;
   min-height: 34px; font-family: inherit;
 }
-.pay-chip code { color: #17263a; font-size: .76rem; }
+.pay-chip code { color: var(--ink); font-size: .76rem; }
 .pay-chip:hover, .pay-chip:focus-visible { border-color: var(--gold); color: #fff; }
 .pay-chip.copied { border-color: #4ade80; color: #86efac; }
 
@@ -1728,7 +1775,7 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, .03);
 }
 .mu-side.up { border-color: rgba(74, 222, 128, .5); background: rgba(74, 222, 128, .08); }
-.mu-team { display: block; font-weight: 700; font-size: .84rem; color: #17263a;
+.mu-team { display: block; font-weight: 700; font-size: .84rem; color: var(--ink);
            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mu-pts { display: block; font-size: 1.4rem; font-weight: 800; font-variant-numeric: tabular-nums; color: #fff; }
 .mu-who { display: block; font-size: .74rem; color: var(--muted); }
@@ -2085,7 +2132,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   background: rgba(255, 255, 255, .04); border-left: 2px solid var(--line);
 }
 .lh-feed li b { color: var(--gold-bright); margin-right: .35rem; }
-.lh-feed li span { color: #17263a; overflow-wrap: anywhere; }
+.lh-feed li span { color: var(--ink); overflow-wrap: anywhere; }
 .lh-feed li.me { border-left-color: var(--gold); background: rgba(245, 196, 69, .07); }
 .lh-form { display: flex; gap: .4rem; }
 .lh-form input { flex: 1 1 auto; min-width: 0; }
@@ -2100,14 +2147,14 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   min-height: 38px; min-width: 38px;
 }
 .install-x:hover { color: #fff; }
-.ic-head { font-weight: 800; font-size: .95rem; color: #17263a; margin-bottom: .25rem; }
+.ic-head { font-weight: 800; font-size: .95rem; color: var(--ink); margin-bottom: .25rem; }
 .ic-lede { font-size: .82rem; color: #4a5972; line-height: 1.5; margin: 0 0 .7rem; padding-right: 1.6rem; }
 .ic-steps { display: grid; gap: .5rem; }
 .ic-steps > div {
   padding: .5rem .7rem; border-radius: 10px;
   background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
 }
-.ic-steps b { display: block; font-size: .8rem; color: #17263a; margin-bottom: .15rem; }
+.ic-steps b { display: block; font-size: .8rem; color: var(--ink); margin-bottom: .15rem; }
 .ic-steps span { font-size: .8rem; color: var(--muted); line-height: 1.5; }
 .ic-steps span b { display: inline; color: var(--gold-bright); }
 .ic-glyph { font-size: .9rem; }
@@ -2170,7 +2217,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .about-me { border-color: rgba(96, 165, 250, .35); }
 .am-row { padding: .5rem .2rem; border-bottom: 1px solid var(--line); }
 .am-row:last-child { border-bottom: none; }
-.am-terms { font-size: .85rem; font-weight: 700; color: #17263a; line-height: 1.4; }
+.am-terms { font-size: .85rem; font-weight: 700; color: var(--ink); line-height: 1.4; }
 .am-sides { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .2rem; font-size: .78rem; }
 .am-for { color: #86efac; }
 .am-vs { color: var(--red-bright, #ff6b7a); }
@@ -2194,7 +2241,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   display: block; padding: .6rem .75rem; border-radius: 12px; height: 100%;
   border: 1px solid var(--line); background: rgba(255, 255, 255, .03);
 }
-.ticket b { display: block; font-size: .88rem; color: #17263a; }
+.ticket b { display: block; font-size: .88rem; color: var(--ink); }
 .ticket small { display: block; font-size: .74rem; color: var(--muted); line-height: 1.4; margin-top: .15rem; }
 .ticket input:checked + span {
   border-color: var(--gold); background: rgba(245, 196, 69, .12);
@@ -2231,7 +2278,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .sb-rules > summary { padding: .6rem .9rem; cursor: pointer; font-size: .82rem; font-weight: 700; color: #4a5972; }
 .sb-rules ul { margin: 0; padding: 0 1.1rem 0 2rem; }
 .sb-rules li { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: .35rem; }
-.sb-rules li b { color: #17263a; }
+.sb-rules li b { color: var(--ink); }
 .sb-rules p { margin: .2rem .9rem .8rem; font-size: .78rem; color: var(--muted); line-height: 1.5; }
 
 /* ---------- the war room: on the clock ----------
@@ -2255,7 +2302,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
 }
 .clock-meta { font-size: .82rem; color: var(--muted); }
-.clock-why { font-size: .95rem; color: #17263a; line-height: 1.45; margin-top: .5rem; }
+.clock-why { font-size: .95rem; color: var(--ink); line-height: 1.45; margin-top: .5rem; }
 .clock-confidence { margin-top: .5rem; font-size: .82rem; }
 .clock-confidence .coin-flip { color: var(--gold-bright); font-weight: 700; }
 /* were light-on-dark holdovers (#fcd34d / #86efac) — low-contrast on the light
@@ -2280,7 +2327,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .branch-head { font-size: .85rem; color: #4a5972; margin-bottom: .25rem; }
 .branch-head b { color: var(--gold-bright); }
 .branch-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
-.branch-rows li { font-size: .8rem; color: #17263a; display: flex; align-items: center; gap: .35rem; }
+.branch-rows li { font-size: .8rem; color: var(--ink); display: flex; align-items: center; gap: .35rem; }
 
 /* Targets and never-draft. */
 .list-row { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-bottom: .45rem; }
@@ -2288,7 +2335,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .list-chip {
   border-radius: 999px; padding: .25rem .55rem; font-size: .74rem; cursor: pointer;
   font-family: inherit; min-height: 32px; border: 1px solid var(--line);
-  background: rgba(255,255,255,.05); color: #17263a;
+  background: rgba(255,255,255,.05); color: var(--ink);
 }
 .list-chip.targets { border-color: var(--gold); color: var(--gold-bright); background: rgba(245,196,69,.12); }
 .list-chip.avoid { border-color: rgba(255,70,85,.5); color: var(--red-bright, #ff6b7a); background: rgba(255,70,85,.08); }
@@ -2309,6 +2356,8 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   font-variant-numeric: tabular-nums;
 }
 .q-name { flex: 1 1 auto; font-size: .82rem; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.q-name[data-drill] { cursor: pointer; }
+.q-name[data-drill]:hover { text-decoration: underline; }
 .q-move { flex: 0 0 auto; display: flex; gap: .2rem; }
 /* min-height, not just min-width: .btn.small sets padding but not a height, so
    without this these come out 19px tall — a target you miss with a thumb, which
@@ -2368,7 +2417,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .plan-note {
   padding: .5rem .7rem; border-radius: 10px; margin-bottom: .7rem;
   background: rgba(255,255,255,.04); border: 1px solid var(--line);
-  font-size: .82rem; line-height: 1.45; color: #17263a;
+  font-size: .82rem; line-height: 1.45; color: var(--ink);
 }
 .plan-note.tight { border-color: rgba(255,70,85,.5); background: rgba(255,70,85,.08); }
 .plan-need { margin-top: .3rem; display: flex; flex-wrap: wrap; gap: .25rem; align-items: center;
@@ -2382,12 +2431,12 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .bye-row.warn { border-left-color: var(--gold); background: rgba(245,196,69,.07); }
 .bye-row.bad { border-left-color: var(--red-bright, #ff6b7a); background: rgba(255,70,85,.09); }
 .bye-week { flex: 0 0 3.2rem; font-weight: 800; color: #4a5972; }
-.bye-players { flex: 1 1 140px; min-width: 0; color: #17263a; overflow-wrap: anywhere; }
+.bye-players { flex: 1 1 140px; min-width: 0; color: var(--ink); overflow-wrap: anywhere; }
 .bye-short { flex: 0 0 auto; font-weight: 700; color: var(--red-bright, #ff6b7a); font-size: .76rem; }
 .bye-row.warn .bye-short { color: var(--gold-bright); }
 
 .checklist { margin-bottom: 1rem; }
-.checklist > summary { padding: .6rem .9rem; cursor: pointer; font-weight: 700; font-size: .86rem; color: #17263a; }
+.checklist > summary { padding: .6rem .9rem; cursor: pointer; font-weight: 700; font-size: .86rem; color: var(--ink); }
 .check-item {
   display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap;
   padding: .35rem .2rem; border-bottom: 1px solid var(--line); font-size: .82rem;
@@ -2401,7 +2450,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .check-fix { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; font-size: .74rem; color: var(--gold-bright); }
 
 /* ---------- a rendered document ---------- */
-.doc-body { font-size: .88rem; line-height: 1.6; color: #17263a; }
+.doc-body { font-size: .88rem; line-height: 1.6; color: var(--ink); }
 .doc-body .doc-h { font-family: var(--font-display); color: #fff; margin: 1.3rem 0 .5rem; line-height: 1.25; }
 .doc-body h1.doc-h { font-size: 1.25rem; }
 .doc-body h2.doc-h { font-size: 1.05rem; color: var(--gold-bright); }
@@ -2526,7 +2575,7 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .dash-count-lbl { font-size: .72rem; color: var(--muted); margin-top: .3rem; text-transform: uppercase; letter-spacing: .05em; }
 .dash-prog { flex: 1 1 240px; display: flex; flex-direction: column; justify-content: center; gap: .45rem;
   background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 14px; padding: .8rem 1rem; }
-.dash-prog-top { font-size: .86rem; color: #17263a; }
+.dash-prog-top { font-size: .86rem; color: var(--ink); }
 .dash-prog-top b { color: var(--ink); }
 .dash-bar { height: 10px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; }
 .dash-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold, #f5c445), #2fd576); border-radius: 6px; }
@@ -2549,7 +2598,7 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .dash-queue { list-style: none; margin: 0; padding: 0; counter-reset: dq; }
 .dash-q { display: flex; gap: .6rem; align-items: flex-start; padding: .5rem .55rem; border-radius: 9px; margin-bottom: .3rem; border: 1px solid transparent; }
 .dash-q-ic { flex: 0 0 auto; font-size: .95rem; }
-.dash-q-lbl { font-size: .88rem; color: #17263a; line-height: 1.35; }
+.dash-q-lbl { font-size: .88rem; color: var(--ink); line-height: 1.35; }
 .dash-q.done { opacity: .62; }
 .dash-q.done .dash-q-lbl { text-decoration: none; color: var(--muted); }
 .dash-q.current { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.55); box-shadow: var(--glow-gold); }
@@ -2575,14 +2624,14 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .sp-rec-tag { flex:0 0 auto; align-self:center; font-family:var(--font-display); font-weight:900; font-size:.62rem;
   letter-spacing:.1em; background:var(--gold,#f5c445); color:var(--navy-deep,#0b1020); padding:.25rem .45rem; border-radius:5px; }
 .sp-rec-slot { font-family:var(--font-display); font-weight:900; color:#fff; font-size:1.15rem; }
-.sp-rec-why { color:#17263a; font-size:.84rem; margin-top:.15rem; }
+.sp-rec-why { color:var(--ink); font-size:.84rem; margin-top:.15rem; }
 .sp-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:.6rem; }
 .sp-card { border:1px solid var(--line); border-radius:12px; padding:.6rem .7rem; background:rgba(255,255,255,.03); }
 .sp-card.top { border-color:rgba(245,196,69,.6); background:rgba(245,196,69,.07); }
 .sp-card-h { display:flex; align-items:baseline; gap:.4rem; }
 .sp-rank { font-family:var(--font-display); font-weight:900; color:var(--gold-bright,#f5c445); }
 .sp-slot { font-weight:800; color:#fff; }
-.sp-first { margin-top:.3rem; color:#17263a; font-size:.9rem; }
+.sp-first { margin-top:.3rem; color:var(--ink); font-size:.9rem; }
 .sp-first b { color:#fff; }
 .sp-b2b { font-size:.62rem; font-weight:800; background:rgba(47,213,118,.2); color:#8ef0b6; padding:.05rem .3rem; border-radius:4px; margin-left:.25rem; }
 .sp-line { color:var(--muted); font-size:.75rem; margin-top:.2rem; }
@@ -2593,7 +2642,7 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
   border:1px solid var(--line); border-radius:7px; padding:.2rem .45rem; margin:.15rem .3rem .15rem 0; text-decoration:line-through; }
 .sp-claimed { border:1px solid rgba(47,213,118,.5); background:rgba(47,213,118,.08); border-radius:14px; padding:1rem; text-align:center; }
 .sp-claimed-h { font-family:var(--font-display); font-size:1.2rem; color:#fff; }
-.sp-claimed-p { color:#17263a; margin-top:.4rem; }
+.sp-claimed-p { color:var(--ink); margin-top:.4rem; }
 .sp-claimed-n { font-size:.76rem; margin-top:.5rem; }
 .sp-foot { font-size:.74rem; margin-top:1rem; }
 
@@ -2620,6 +2669,8 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .cmp-col { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .6rem; background: var(--panel-soft); }
 .cmp-col.lead { border-color: var(--gold); background: rgba(185,130,42,.08); }
 .cmp-name { font-family: var(--font-display); font-weight: 800; color: var(--ink); display: flex; gap: .35rem; align-items: center; }
+.cmp-name[data-drill] { cursor: pointer; }
+.cmp-name[data-drill]:hover { text-decoration: underline; }
 .cmp-stat { font-size: .74rem; color: var(--muted); margin-top: .2rem; }
 .cmp-stat b { color: var(--ink); }
 /* THE dominant number — gold, biggest thing in the tray. */
@@ -2636,7 +2687,7 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .cmp-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
 .cmp-bar-fill.a { left: 50%; background: var(--gold, #f5c445); }
 .cmp-bar-fill.b { right: 50%; background: rgba(76,133,255,.7); }
-.cmp-bar-val { flex: 0 0 2.6rem; text-align: right; color: #17263a; font-variant-numeric: tabular-nums; }
+.cmp-bar-val { flex: 0 0 2.6rem; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
 .cmp-why { margin-top: .5rem; font-size: .74rem; color: var(--muted); }
 .cmp-why summary { cursor: pointer; }
 .cmp-why-body { margin-top: .3rem; line-height: 1.5; color: #4a5972; }
@@ -2667,25 +2718,46 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .wr-zone1 > #search-tail       { order: 2; }
 .wr-zone1 > #queue-slip        { order: 3; }   /* urgent slip — stays above */
 .wr-zone1 > #wr-statusbar      { order: 4; }   /* one-line pick bar — is it my turn */
-.wr-zone1 > #recs-card         { order: 5; }   /* THE recommendation + Take button — up top now */
-.wr-zone1 > #doctrine-banner   { order: 6; }   /* THE PLAN — reference, beneath the rec */
-.wr-zone1 > #legality-strip    { order: 7; }   /* WATCH — reference, beneath the rec */
+/* ⚠️ SWAPPED AHEAD OF #recs-card, 2026-08-19 — Cory, live, in this exact
+ * session: "Where can I toggle between different sources of data and a
+ * blend?" He could not find it because #recs-card measured 3,067px tall
+ * (2.4 screens) and position-boards — which carries that toggle — rendered
+ * AFTER it. Both WAR-ROOM-SPEC.md's own "WHAT NOT TO BUILD" ("No single
+ * recommended pick card. Retired by Cory, 08-19") and Cory's own words
+ * ("you aren't making 1 recommended pick anymore... the view I need is
+ * different now") already called this card retired; it was still sitting
+ * on top of the thing that replaced it. #recs-card is NOT hidden or
+ * deleted — still fully there, one scroll down, Take buttons and all —
+ * this is a visual reorder only, and it is reversible in one line if
+ * Cory wants the old card back on top. */
+.wr-zone1 > #rank-source-card  { order: 5; }   /* Cory: "should just rearrange the board... vona calc or recommended player" — above the rec on purpose */
+.wr-zone1 > #position-boards   { order: 6; }   /* six columns + strike bar + the toggle */
+/* Same order as #position-boards, immediately after it in the DOM — flex
+ * ties break by source order, so this needs no number of its own. A SECOND
+ * VOICE belongs right beside the board it comments on, not buried past the
+ * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
+.wr-zone1 > #roster-builder-mlv { order: 6; }
+.wr-zone1 > #recs-card         { order: 7; }   /* the retired one-answer card — still fully present, now second */
+.wr-zone1 > #doctrine-banner   { order: 8; }   /* THE PLAN — reference, beneath the rec */
+.wr-zone1 > #legality-strip    { order: 9; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
  * .wr-search (order 1) — and rendered first regardless of where app.js's
  * seatPlanHost() anchored it in the DOM (CSS flex `order` overrides DOM
  * position for visual layout). That pushed #recs-card, the actual
  * recommendation, past the fold on a phone screen. Tied to legality-strip's
- * order (7) so app.js's existing DOM insertion (immediately after
+ * order (8) so app.js's existing DOM insertion (immediately after
  * #legality-strip) breaks the tie and lands it exactly where its own comment
  * already specified: seat plan below the recommendation, not above it. */
-.wr-zone1 > #seat-plan         { order: 7; }   /* which chair — beneath the rec, per app.js's own anchor */
-.wr-zone1 > #doctrine-switch   { order: 8; }
-.wr-zone1 > #doctrine-picker   { order: 8; }   /* A's compact plan table — reference, beneath the rec */
-.wr-zone1 > #mvs               { order: 9; }   /* redundant summary — hidden on warroom, ordered anyway */
-.wr-zone1 > #shadow-projection { order: 10; }
-.wr-zone1 > #lrm-card          { order: 11; }
-.wr-zone1 > #branch-card       { order: 12; }
-.wr-zone1 > #queue-card        { order: 13; }
+.wr-zone1 > #seat-plan         { order: 9; }   /* which chair — beneath the rec, per app.js's own anchor */
+.wr-zone1 > #doctrine-switch   { order: 10; }
+.wr-zone1 > #doctrine-picker   { order: 10; }  /* A's compact plan table — reference, beneath the rec */
+.wr-zone1 > #mvs               { order: 11; }  /* redundant summary — hidden on warroom, ordered anyway */
+.wr-zone1 > #shadow-projection { order: 12; }
+.wr-zone1 > #model-compare-card { order: 13; }  /* Cory: "click in... what each model would take" */
+.wr-zone1 > #lrm-card          { order: 14; }
+.wr-zone1 > #branch-card       { order: 15; }
+.wr-zone1 > #queue-card        { order: 16; }
+.wr-zone1 > #adp-movers-card   { order: 17; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
    ~172px of masthead + a draft-day notice already read + a redundant title).
@@ -2780,7 +2852,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   background: rgba(255,255,255,.05); color: #fff; font-size: .9rem; }
 .cmp-results { margin-top: .4rem; display: flex; flex-direction: column; gap: .2rem; }
 .cmp-result { text-align: left; background: rgba(255,255,255,.04); border: 1px solid var(--line);
-  border-radius: 8px; padding: .4rem .55rem; color: #17263a; cursor: pointer; font-size: .85rem; }
+  border-radius: 8px; padding: .4rem .55rem; color: var(--ink); cursor: pointer; font-size: .85rem; }
 .cmp-result:hover { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.4); }
 .cmp-gone { font-size: .64rem; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; }
 .cmp-nomatch { margin-top: .4rem; font-size: .8rem; }
@@ -2793,7 +2865,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .ba-row { display: flex; align-items: center; gap: .35rem; margin-bottom: .3rem; flex-wrap: wrap; }
 .ba-pos { flex: 0 0 auto; }
 .ba-cell { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 7px;
-  color: #17263a; padding: .22rem .45rem; font-size: .8rem; cursor: pointer; }
+  color: var(--ink); padding: .22rem .45rem; font-size: .8rem; cursor: pointer; }
 .ba-cell:hover { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.4); }
 .ba-cell.hot { border-color: rgba(255,70,85,.5); }
 .ba-gone { font-size: .68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -2842,7 +2914,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
    A-emitted and can be long — overflowed the whole PAGE to ~776px on every pick
    instead of scrolling inside itself. On a phone the reasoning must wrap and be
    readable, never force a hidden sideways scroll. (Found in the war-room E2E.) */
-.mvs-line { font-size: .82rem; line-height: 1.35; color: #17263a;
+.mvs-line { font-size: .82rem; line-height: 1.35; color: var(--ink);
   white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .mvs-line.contested { color: #ffb765; }
 .mvs-rec { font-size: 1rem; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
@@ -2879,8 +2951,41 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .shadow-proj .sp-row { display: flex; justify-content: space-between; gap: .8rem;
   font-size: .8rem; padding: .18rem 0; border-top: 1px solid rgba(255,255,255,.06); }
 .shadow-proj .sp-strat { color: var(--muted,#9aa4bb); }
-.shadow-proj .sp-pick { color: #17263a; font-weight: 600; text-align: right; }
+.shadow-proj .sp-pick { color: var(--ink); font-weight: 600; text-align: right; }
 @media (max-width: 620px) { .shadow-proj-line { font-size: .78rem; } }
+
+/* MODEL COMPARISON — Cory: "click in... to see what each model would take!
+   Max value, MLV displacement, upside only model, floor model." Same row
+   shape as the strategy-split panel's own <details> list above (.sp-row),
+   but always visible and clickable — four named models, not a tap-to-open
+   dump of every strategy. */
+#model-compare .mc-row { display: flex; justify-content: space-between; gap: .8rem;
+  font-size: .82rem; padding: .3rem .1rem; border-top: 1px solid rgba(255,255,255,.06);
+  cursor: pointer; }
+#model-compare .mc-row:first-child { border-top: none; }
+#model-compare .mc-row:hover { background: rgba(255,255,255,.04); }
+#model-compare .mc-label { color: var(--muted,#9aa4bb); font-weight: 600; }
+#model-compare .mc-pick { color: var(--ink); font-weight: 700; text-align: right; }
+#model-compare .sp-pos { font-size: .7rem; color: var(--muted,#9aa4bb); font-weight: 600; }
+
+/* RANKING SOURCE TOGGLE — Cory: "should just rearrange the board... vona
+   calc or recommended player." Loud amber warning when off blend (same
+   convention as .shadow-proj.contested) — every number on the page is
+   answering a different question while this is active, and that must be
+   impossible to miss mid-draft. */
+#rank-source .rs-buttons { display: flex; flex-wrap: wrap; gap: .35rem; }
+#rank-source .rs-btn {
+  font-size: .78rem; padding: .3rem .55rem; border-radius: .4rem; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.15); background: transparent; color: inherit;
+}
+#rank-source .rs-btn.rs-active {
+  border-color: #b45309; background: rgba(180,83,9,.16); font-weight: 700;
+}
+#rank-source .rs-warn {
+  margin-top: .5rem; padding: .5rem .6rem; border-radius: 8px; font-size: .82rem;
+  line-height: 1.4; background: rgba(245,196,69,.14); border: 1px solid rgba(245,196,69,.55);
+}
+#rank-source .rs-note { margin: .45rem 0 0; font-size: .72rem; }
 
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;
@@ -2895,7 +3000,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .db-governs.off { background: var(--panel-soft); color: var(--muted); }
 .path-doctrine.inert { opacity: .72; }
 .pd-inert { font-weight: 400; opacity: .8; }
-.ss-seat { color: #17263a; }
+.ss-seat { color: var(--ink); }
 .ss-age { color: var(--muted); }
 /* The health dot is right-aligned and short in the normal case, but it can carry
    a long diagnostic string ("PICK STATE: …") — which, at nowrap, overflowed the
@@ -2911,7 +3016,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .system-details > summary::before { content: '▸ '; }
 .system-details[open] > summary::before { content: '▾ '; }
 .sd-body { padding: .4rem 0; }
-.sd-count { font-size: .78rem; font-weight: 700; color: #17263a; margin-bottom: .4rem; }
+.sd-count { font-size: .78rem; font-weight: 700; color: var(--ink); margin-bottom: .4rem; }
 
 /* In-page typed confirm. Replaces window.prompt, which Chrome can suppress —
    a confirmation the browser can swallow is a trapdoor, not a safety feature. */
@@ -2960,6 +3065,16 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   background: var(--panel-soft); color: var(--muted); }
 .legality-strip.ILLEGAL .ls-tag { background: #fff; color: var(--red); }
 .legality-strip.legal .ls-tag { background: rgba(15,138,77,.15); color: var(--green); }
+
+/* BYE-WEEK FIELDABILITY warning (register 59 item (4), 08-19) — a sibling
+   of the legality strip, same "amber, not red" grammar as .at-risk above:
+   this is a heads-up for a future week, not an illegal roster right now. */
+.wr-bye-warn {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  padding: .35rem .9rem; margin-bottom: .35rem; border-radius: 10px;
+  font-size: .8rem; font-weight: 700; cursor: help;
+  background-color: var(--panel); border: 1px solid rgba(185,130,42,.7); color: var(--gold-bright);
+}
 
 /* ── THE DOCTRINE BANNER ──────────────────────────────────────────────────
    Top of screen, above the status bar: the plan being executed, its
@@ -3109,6 +3224,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   padding: 0 .7rem;
 }
 .wr-search-icon { font-size: .95rem; opacity: .75; }
+.wr-terms-btn { flex: 0 0 auto; white-space: nowrap; }
 .wr-search input {
   flex: 1 1 auto; min-width: 0; border: none; background: none; outline: none;
   color: var(--ink); font-size: .92rem; padding: .6rem 0;
@@ -3469,7 +3585,7 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 }
 .pk-opt:active { transform: scale(.98); }
 .pk-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
-.pk-opt-name { font-family: var(--font-display); font-weight: 800; font-size: .92rem; color: #17263a;
+.pk-opt-name { font-family: var(--font-display); font-weight: 800; font-size: .92rem; color: var(--ink);
   letter-spacing: .01em; line-height: 1.15; }
 .pk-you { font-family: var(--font-body); font-weight: 700; font-size: .58rem; letter-spacing: .1em;
   text-transform: uppercase; color: var(--gold-bright); vertical-align: middle; }
@@ -3607,7 +3723,7 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
   font-size: 1rem; line-height: 1; padding: .3rem .4rem; min-width: 40px; min-height: 40px;
   border-radius: 8px; }
 .dispatch-x:hover { color: #fff; background: rgba(255,255,255,.08); }
-.dispatch-body { margin: .45rem 0 0; font-size: .92rem; line-height: 1.5; color: #17263a; }
+.dispatch-body { margin: .45rem 0 0; font-size: .92rem; line-height: 1.5; color: var(--ink); }
 
 /* JS overlay mode */
 html.dispatch-open { overflow: hidden; }
@@ -3673,7 +3789,7 @@ html.dispatch-open { overflow: hidden; }
 .tt-meta { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .2rem; }
 .tt-who { font-family: var(--font-display); font-weight: 800; font-size: .8rem; color: #fff; }
 .tt-when { font-size: .68rem; }
-.tt-body { font-size: .92rem; line-height: 1.4; color: #17263a; overflow-wrap: anywhere; }
+.tt-body { font-size: .92rem; line-height: 1.4; color: var(--ink); overflow-wrap: anywhere; }
 .tt-form { display: flex; gap: .5rem; }
 .tt-form input[type="text"] { flex: 1 1 auto; min-width: 0; min-height: 44px;
   background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 10px;
@@ -3780,6 +3896,13 @@ table.roll tbody tr:hover td, table.roll tr:hover td{ background:rgba(12,26,43,.
 .navbar a.active{ color:var(--navy); background:rgba(37,99,235,.08); }
 .navbar button{ color:var(--muted); border-color:var(--line); background:transparent; }
 .navbar .who{ color:var(--muted); }
+.navbar .nav-more > summary{ color:var(--muted); }
+.navbar .nav-more > summary:hover{ color:var(--navy); background:rgba(12,26,43,.05); }
+.navbar .nav-more.active > summary, .navbar .nav-more[open] > summary{ color:var(--blue); }
+.navbar .nav-more-panel{ background:var(--panel); border-color:var(--line); box-shadow:0 12px 40px rgba(12,26,43,.18); }
+.navbar .nav-more-panel a{ color:var(--navy); }
+.navbar .nav-more-panel a:hover{ background:var(--panel-soft); }
+.navbar .nav-more-panel a.active{ color:var(--blue); }
 
 /* bottom tab bar (phones) — light glass */
 .tabbar{ background:rgba(255,255,255,.92); border-top:1px solid var(--line);

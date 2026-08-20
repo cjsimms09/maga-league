@@ -85,6 +85,48 @@ const ck = (n, c, d) => {
   ck('a flat tier list (no changes) draws no cliff',
     ![...C.tierCliffChart([{ name: 'A A', proj: 200, tier: 1 }, { name: 'B B', proj: 190, tier: 1 }],
       { pos: 'TE' }).matchAll(/data-cliff-at/g)].length);
+  // ── labels skip rather than overlap — Cory, live: "in tier cliff chart
+  // the words run together!! Make better." Three tier changes packed into a
+  // narrow chart (opts.w small enough that every cliff falls inside
+  // MIN_LABEL_GAP of the last) must still draw all three CLIFF LINES but
+  // print at most one of the three overlapping NAMES. ─────────────────────
+  const tightRows = [
+    { name: 'Alpha One', proj: 320, tier: 1 },
+    { name: 'Bravo Two', proj: 300, tier: 2 },
+    { name: 'Charlie Three', proj: 290, tier: 3 },
+    { name: 'Delta Four', proj: 280, tier: 4 },
+  ];
+  const tightSvg = C.tierCliffChart(tightRows, { pos: 'RB', w: 60 });
+  const tightCliffs = [...tightSvg.matchAll(/data-cliff-at="(\d+)"/g)];
+  const tightLabels = [...tightSvg.matchAll(/<text class="wr-cliff-lbl"/g)];
+  ck('a packed chart still draws every cliff LINE (the fact that matters most)',
+    tightCliffs.length === 3, tightCliffs.length);
+  ck('but NOT one label per cliff — collision-skipped rather than overlapping',
+    tightLabels.length > 0 && tightLabels.length < tightCliffs.length,
+    { cliffs: tightCliffs.length, labels: tightLabels.length });
+  ck('a chart with real room prints every label — the skip is spacing-driven, '
+    + 'not a blanket cap',
+    [...C.tierCliffChart(tightRows, { pos: 'RB', w: 600 }).matchAll(/<text class="wr-cliff-lbl"/g)]
+      .length === tightCliffs.length);
+
+  // ── richer tooltip data (floor/ceiling/gone%) — Cory: "could be a lot
+  // better and include more useable data!!!" Optional per row; missing
+  // fields degrade to the old bare name/pts/tier tooltip, never a blank
+  // or a literal "undefined". ──────────────────────────────────────────
+  const richRows = [
+    { name: 'Alpha One', proj: 320, tier: 1, id: '111', floor: 280, ceiling: 360, gone: 0.72 },
+    { name: 'Bravo Two', proj: 200, tier: 2 },
+  ];
+  const richSvg = C.tierCliffChart(richRows, { pos: 'RB' });
+  ck('a row with floor/ceiling/gone% prints all three in its tooltip',
+    /floor 280–ceiling 360/.test(richSvg) && /72% likely gone/.test(richSvg));
+  ck('a row with an id gets data-drill so its dot opens the full player card',
+    /data-drill="111"/.test(richSvg));
+  ck('a row with NO id/floor/ceiling/gone gets the plain tooltip, no "undefined" anywhere',
+    /Bravo Two — 200 pts · tier 2</.test(richSvg) && !/undefined/.test(richSvg));
+  ck('a row with no id gets no data-drill and no stray cursor styling hook',
+    !new RegExp('cx="[^"]*" cy="[^"]*" r="2.2" data-drill="[^"]*"><title>Bravo').test(richSvg));
+
   ck('EMPTY → honest empty state, not a blank svg',
     /wr-chart-empty/.test(C.tierCliffChart([], { pos: 'QB' }))
     && /not enough/.test(C.tierCliffChart([{ name: 'Solo', proj: 100, tier: 1 }], { pos: 'QB' })));
@@ -201,6 +243,28 @@ const ck = (n, c, d) => {
     && (cols.match(/wr-cliffline/g) || []).length === 1);
   ck('column rows are drill-down triggers', /data-drill="22"/.test(cols));
   ck('EMPTY → honest empty state', /wr-chart-empty/.test(C.posColumns([])));
+
+  /* DEF "players" are full team names ("Los Angeles Rams"); the row's own
+   * `name` can already be a shortened display form (app.js's renderColumns
+   * swaps in p.team for DEF, so shortName()'s person-name transform never
+   * turns it into "L. Angeles Rams" and hits this column's ellipsis — the
+   * exact cut-off-text pattern Cory called out hard on the position
+   * boards). `full` carries the untruncated original as a hover title, so
+   * nothing is silently lost. */
+  const defCols = C.posColumns([
+    { pos: 'DEF', total: 32, rows: [
+      { id: '9001', rank: 1, name: 'LAR', full: 'Los Angeles Rams', proj: 120, cliffAfter: false },
+    ] },
+  ]);
+  ck('a shortened row name renders as-is — shortName() leaves a single word alone',
+    /wr-col-name[^>]*>LAR</.test(defCols));
+  ck('...and the untruncated original is preserved as a hover title',
+    /title="Los Angeles Rams"/.test(defCols));
+  const noFullCols = C.posColumns([
+    { pos: 'WR', total: 1, rows: [{ id: '1', rank: 1, name: 'Ja\'Marr Chase', proj: 310, cliffAfter: false }] },
+  ]);
+  ck('a row with no `full` gets no title attribute at all — not title=""',
+    !/wr-col-name[^>]*title=/.test(noFullCols));
 }
 
 // ── 6. ROSTER SHAPE ───────────────────────────────────────────────────────
@@ -219,7 +283,60 @@ const ck = (n, c, d) => {
   ck('EMPTY → honest empty state', /wr-chart-empty/.test(C.rosterShape([])));
 }
 
-// ── 7. PURITY — the builders read nothing but their arguments ─────────────
+// ── 7. OPPONENT BOARD — Cory: "show me everyone's current roster status...
+// and where they draft relative to me.. so I can try to calc if someone
+// will fall to me" ──────────────────────────────────────────────────────
+{
+  const rows = [
+    { slot: 3, manager: 'ds7mmet', picksUntil: 0, have: { RB: 2, WR: 1 }, needs: ['QB', 'TE'] },
+    { slot: 5, manager: null, picksUntil: 4, have: { QB: 1 }, needs: ['RB', 'WR', 'FLEX'] },
+    { slot: 9, manager: 'cashworth', picksUntil: null, have: {}, needs: [] },
+  ];
+  const html = C.opponentBoard(rows);
+  ck('a mapped seat shows the manager name', /ds7mmet/.test(html));
+  ck('an unmapped seat honestly falls back to "Seat N", never a guessed name',
+    /Seat 5/.test(html));
+  ck('the seat on the clock right now is marked distinctly (0 picks away)',
+    /wr-opp-onclock[\s\S]{0,200}on the clock/.test(html));
+  ck('a seat with picks away says how many, pluralized correctly',
+    /4 picks away/.test(html));
+  ck('a seat with no more picks says so rather than printing a false number',
+    /no more picks/.test(html));
+  ck('needs render — the positions that can stop a player falling to you',
+    /wr-opp-needs[^>]*>QB TE</.test(html));
+  ck('a seat with no open needs says "starters full" rather than a blank',
+    /starters full/.test(html));
+  ck('have renders in the established count-prefix format ("2RB", not "RB2" or "RBx2")',
+    /wr-opp-have[^>]*>2RB WR</.test(html));
+  ck('rows sort soonest-pick-first, with "no more picks" seats last',
+    (function () {
+      const onIdx = html.indexOf('ds7mmet');
+      const fourIdx = html.indexOf('Seat 5');
+      const noneIdx = html.indexOf('cashworth');
+      return onIdx > -1 && fourIdx > -1 && noneIdx > -1 && onIdx < fourIdx && fourIdx < noneIdx;
+    })());
+  ck('EMPTY → honest empty state', /wr-chart-empty/.test(C.opponentBoard([])));
+  ck('a hostile manager name is escaped, not injected raw',
+    !/<script>/.test(C.opponentBoard([{ slot: 1, manager: '<script>x</script>', picksUntil: 1, have: {}, needs: [] }])));
+}
+
+// ── 8. POSITION-TAKEN STRIP — Cory: "a running count at the top of screen
+// somewhere of # of players taken at each position (including keepers)" ──
+{
+  const html = C.posTakenStrip({ QB: 8, RB: 22, WR: 19, TE: 5 });
+  ck('every position prints, in POS_ORDER, even ones with zero taken (K/DEF get no data here)',
+    /QB<\/b> 8[\s\S]*RB<\/b> 22[\s\S]*WR<\/b> 19[\s\S]*TE<\/b> 5[\s\S]*K<\/b> 0[\s\S]*DEF<\/b> 0/.test(html));
+  ck('the total sums every position, not just the ones passed in',
+    /54 total/.test(html));
+  ck('says "including keepers" so the number is never mistaken for live picks only',
+    /incl\. keepers/.test(html));
+  ck('EMPTY counts object → all zeros, not a crash or a blank strip',
+    /QB<\/b> 0/.test(C.posTakenStrip({})) && /0 total/.test(C.posTakenStrip({})));
+  ck('undefined counts → same honest all-zero rendering, not a throw',
+    /QB<\/b> 0/.test(C.posTakenStrip(undefined)));
+}
+
+// ── 9. PURITY — the builders read nothing but their arguments ─────────────
 {
   const fs = require('fs');
   const src = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');
@@ -235,6 +352,19 @@ const ck = (n, c, d) => {
     !/document\.|getElementById|querySelector/.test(pureHalf));
   ck('no state reads in the pure half (WarRoomData)',
     !/WarRoomData/.test(pureHalf));
+}
+
+// ── 10. wiring — per-source ranks in the drill-down (Cory: "where they rank
+// on each source (sleeper, fantasy pro, etc)") reach all the way from
+// state.sourceBoards, through the WarRoomData accessor, into renderDrill. ──
+{
+  const fs = require('fs');
+  const appSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'app.js'), 'utf8');
+  ck('app.js exposes state.sourceBoards on WarRoomData for the controller to read',
+    /sourceBoards:\s*function\s*\(\)\s*\{\s*return state\.sourceBoards/.test(appSrc));
+  const chartsSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');
+  ck('renderDrill actually calls d.sourceBoards(), not just app.js exposing an unused accessor',
+    /d\.sourceBoards\s*\?\s*d\.sourceBoards\(\)/.test(chartsSrc));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

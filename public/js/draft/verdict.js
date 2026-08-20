@@ -119,7 +119,7 @@
       } else if (a.target_share != null && b.target_share != null) {
         vf = 'target_share'; vlab = 'target share';
       } else if (a.wopr != null && b.wopr != null) {
-        vf = 'wopr'; vlab = 'WOPR';
+        vf = 'wopr'; vlab = 'WOPR (weighted opportunity rating — target share + air-yards share combined)';
       }
       if (vf && a[vf] !== b[vf]) {
         var hiV = a[vf] > b[vf] ? a : b, loV = a[vf] > b[vf] ? b : a;
@@ -282,7 +282,7 @@
     var splitGap = (ruleDiffers && ruleEntry && ruleEntry.score != null && top.score != null)
       ? (top.score - ruleEntry.score) : null;
 
-    var verdict, why;
+    var verdict, why, splitBy = null;
     var backed = ruleDiffers ? (ruleEntry ? ruleEntry.player : rulePick) : top.player;
     if (planEntry) backed = planEntry.player;
 
@@ -292,8 +292,19 @@
       why = conf.message; // the engine's own sentence — keep him on purpose, or take the other.
     } else if (planDiffers && (planGap == null || Math.abs(planGap) >= band)) {
       verdict = 'SPLIT';
-      why = 'The season plan owns this seat: take ' + _name(planEntry.player)
-        + ' (' + input.plan.slot + '). The value board prefers ' + _name(top.player)
+      splitBy = 'plan';
+      /* ⚠️ CORRECTED 2026-08-20 — Cory, live: "'season plan owns this seat'
+       * what does that mean.. don't like it." The old line assumed the
+       * reader already knows "season plan" means his own precomputed
+       * multi-round roster plan and "seat" means the roster slot this pick
+       * fills — neither is explained anywhere the sentence itself is read.
+       * Spelled out in plain words rather than jargon; the two facts every
+       * other test/consumer actually checks (the value board's name and its
+       * priced gap in composite pts) are kept byte-identical so nothing
+       * downstream that parses this string breaks. */
+      why = 'Your saved draft plan wants ' + input.plan.slot + ' filled here, so it backs '
+        + _name(planEntry.player) + ' over the top-value name. The value board prefers '
+        + _name(top.player)
         + (planGap != null ? ' by ' + Math.abs(planGap).toFixed(1) + ' composite pts' : '')
         + ' — that is your alternative if you have a reason; log it.';
     } else if (planDiffers) {
@@ -304,6 +315,7 @@
         + ' composite pts) — these are inside the model’s noise. Your call; log which.';
     } else if (!planEntry && ruleDiffers && (splitGap == null || Math.abs(splitGap) >= band)) {
       verdict = 'SPLIT';
+      splitBy = 'rule';
       why = 'Two answers. The measured rule takes ' + _name(rulePick)
         + '; the value board prefers ' + _name(top.player)
         + (splitGap != null ? ' by ' + Math.abs(splitGap).toFixed(1) + ' composite pts' : '')
@@ -410,6 +422,13 @@
       pick: backed,
       headline: 'TAKE ' + _name(backed).toUpperCase(),
       why: why,
+      /* Which lens actually wins THIS split — 'plan' or 'rule', null for every
+       * other verdict. The chip text used to be one static string ("rule wins
+       * ties") for both split paths, which is simply wrong on a plan-backed
+       * split: the WHY sentence right below it says the plan backs the pick,
+       * while the chip above it claimed the rule did. Cory read exactly that
+       * contradiction live. app.js picks the chip wording from this field. */
+      splitBy: splitBy,
       confidence_note: conf.message || '',
       gap_pts: top.gap_to_second != null ? Number(top.gap_to_second.toFixed(1)) : null,
       gap_units: 'composite pts',

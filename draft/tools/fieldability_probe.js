@@ -38,6 +38,13 @@ global.document = { getElementById: () => null, querySelector: () => null,
 const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const ENGINE_PATH = path.join(ROOT, 'public', 'js', 'draft', 'engine.js');
 const KEEP = require(path.join(__dirname, 'keepers_of.js'));
+/* THE MATCHER LIVES IN public/js/draft/fieldable.js NOW (Rule 11, register 73
+ * B-dispatch): B's live warning needed the same bipartite matcher and a
+ * second hand-rolled copy in the browser had a real bug (pooled QB leftovers
+ * into FLEX, which this league's FLEX does not accept). One copy, required
+ * from both callers; fieldability.test.js's planted-hole cases are its
+ * shared control. */
+const Fieldable = require(path.join(ROOT, 'public', 'js', 'draft', 'fieldable.js'));
 
 /* ⚠️ THIS WAS A HARDCODED FIFTEEN-PICK CONSTANT AND IT WAS WRONG — CORY CAUGHT
  * IT, 2026-08-19: *"Why do you keep saying at pick 8?? I don't get a pick in the
@@ -57,8 +64,6 @@ const KEEP = require(path.join(__dirname, 'keepers_of.js'));
  * SEVEN OTHER TOOLS STILL CARRY THE SAME LITERAL (register 95). */
 const SCHED = require(path.join(__dirname, 'draft_plan.js')).SCHED;
 const STARTERS = (DATA.league && DATA.league.starters) || {};
-const FLEX_ELIG = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'],
-                    REC_FLEX: ['WR', 'TE'] };
 
 /* THE BYE WEEKS THIS BOARD ACTUALLY CARRIES — discovered, never a hardcoded
  * 1..18. A season whose bye range moves would otherwise be checked against the
@@ -66,39 +71,10 @@ const FLEX_ELIG = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE
 const BYE_WEEKS = Array.from(new Set(
   DATA.players.filter(p => p.bye).map(p => +p.bye))).sort((a, b) => a - b);
 
-/* CAN THIS SET OF PLAYERS FILL EVERY STARTING SLOT IN WEEK `wk`?
- *
- * Greedy would be wrong: filling FLEX first can strand a dedicated slot. This
- * is a small bipartite matching (players -> slots) solved by augmenting paths,
- * so "un-fieldable" means genuinely un-fieldable rather than
- * "my heuristic could not find it". */
-function fieldable(roster, wk) {
-  const slots = [];
-  Object.keys(STARTERS).forEach(s => {
-    for (let i = 0; i < STARTERS[s]; i++) slots.push(s);
-  });
-  const avail = roster.filter(p => +p.bye !== wk && p.position);
-  const eligible = (p, slot) => (FLEX_ELIG[slot]
-    ? FLEX_ELIG[slot].indexOf(p.position) >= 0
-    : p.position === slot);
-
-  const slotOf = new Array(slots.length).fill(-1);
-  function tryAssign(pi, seen) {
-    for (let s = 0; s < slots.length; s++) {
-      if (seen[s] || !eligible(avail[pi], slots[s])) continue;
-      seen[s] = true;
-      if (slotOf[s] < 0 || tryAssign(slotOf[s], seen)) { slotOf[s] = pi; return true; }
-    }
-    return false;
-  }
-  let filled = 0;
-  for (let i = 0; i < avail.length; i++) {
-    if (tryAssign(i, new Array(slots.length).fill(false))) filled++;
-  }
-  const unfilled = [];
-  slots.forEach((s, i) => { if (slotOf[i] < 0) unfilled.push(s); });
-  return { ok: unfilled.length === 0, unfilled: unfilled, bodies: avail.length,
-           slots: slots.length };
+/* Thin wrapper over Fieldable.fieldable binding STARTERS, so every call site
+ * below and fieldability.test.js's 2-arg calls keep working unchanged. */
+function fieldable(roster, wk, starters) {
+  return Fieldable.fieldable(roster, wk, starters || STARTERS);
 }
 
 function loadEngine(flags) {

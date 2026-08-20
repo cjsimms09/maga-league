@@ -142,6 +142,48 @@
     own labelled panel beneath the recommendations. Guarded consumer: a missing
     module costs the panel, never the board. %>
 <script src="/js/draft/mlv.js"></script>
+<%# rbm_view.js — pure render layer for the roster-builder panel above
+    (TERRITORY: B), same split as position_boards_view.js: turns
+    RosterBuilderMLV's output into HTML and touches no DOM/state itself. %>
+<script src="/js/draft/rbm_view.js"></script>
+<%# market_delta.js — the board-vs-market DISAGREEMENT chip, third in A's
+    08-18 surface set (after the expert badge and the nav-consolidation
+    map). Pure derivation over overall_rank/adjusted_adp — both already on
+    every player object, zero new artifact, zero grading. DISPLAY ONLY:
+    never read by engine.js/composite.js/valuation.js/survival.js. Caption
+    discipline: states disagreement with the room, never "value" or "steal"
+    (market_delta.test.js pins both the chip and the drawer). ⚠️ B-owned
+    file, this include line is a disclosed trespass into A's territory —
+    same pattern as expert_spread.js's own include just above. %>
+<script src="/js/draft/market_delta.js"></script>
+<%# fieldable.js — THE ONE FIELDABILITY MATCHER (Rule 11). Extracted from A's
+    draft/tools/fieldability_probe.js so the live warning below and A's
+    research probe share one bipartite-matching implementation instead of
+    drifting apart — B's first cut of that warning had its own hand-rolled
+    count-based matcher, and it had a real bug (pooled spare QBs into FLEX
+    capacity this league's FLEX cannot accept). Pure, no dependencies.
+    Loaded before bye_fieldability.js, which calls it. %>
+<script src="/js/draft/fieldable.js"></script>
+<%# bye_fieldability.js — register 73 (ROUTES.md 08-19, A→B dispatch): if the
+    roster cannot fill a starting slot (FLEX included) in some week once
+    byes are applied, say so on screen. Pure, DISPLAY ONLY, reads the same
+    roster/starters renderLegality() already computes; the actual matching
+    is fieldable.js above. ⚠️ B-owned file, this include line is a disclosed
+    trespass into A's territory — same pattern as expert_spread.js's/
+    market_delta.js's own includes above. %>
+<script src="/js/draft/bye_fieldability.js"></script>
+<%# position_boards_view.js — Cory redefined the war room 2026-08-19 (A
+    dispatch, ROUTES.md `48c915f1`): six position columns, not one
+    recommendation. Pure render module (TERRITORY: B), reads
+    public/position_boards.json (A's `draft/tools/position_boards.js`).
+    Loaded before app.js, which calls PositionBoardsView.renderPositionBoards()
+    from renderPositionBoardsPanel(). %>
+<script src="/js/draft/position_boards_view.js"></script>
+<%# source_board.js — the shadow-board field-swap that makes the ranking-
+    source toggle a real re-rank (VONA/tier/recommended player), not just a
+    displayed number. Loaded before app.js, which calls SourceBoard.forSource()
+    from context() on every render. %>
+<script src="/js/draft/source_board.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with
