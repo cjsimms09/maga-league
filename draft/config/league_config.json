@@ -24,6 +24,17 @@
     "tz": "CDT"
   },
   "draft_type": "snake",
+  "draftable_scope": {
+    "cory_ruling_verbatim": "We really just need to focus on top 200 players maybe 250",
+    "ruled_at": "2026-08-20",
+    "drafted": 150,
+    "drafted_derivation": "teams * rounds = 10 * 15 = 150. Every player who will be on a roster when the draft ends. Cory's last pick is 148.",
+    "focus": 200,
+    "outer": 250,
+    "rank_by": "adp",
+    "_why_not_all_700": "The board carries 700 players because the ingest carries 700. Only 150 get drafted. Reporting anything -- coverage, accuracy, agreement -- over all 700 measures the deep bench nobody takes, and it makes real sources look broken: Draft Sharks covers 35% of 700 and 94% of the top 200. The first number is true and useless, the second is the one that decides a pick.",
+    "_focus_vs_outer": "focus (200) is the working scope: 150 drafted plus 50 of headroom for runs, injuries and reaches. outer (250) is the widest Cory named and is the right scope for a question that must not clip the tail. Neither is a tuned constant -- both are Cory's ruling, quoted above, and drafted is derived."
+  },
   "history": [
     {
       "league_id": "1374848328470102016",

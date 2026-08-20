@@ -29,6 +29,13 @@ across all 700 players DS covers 35%, but inside the range Cory actually drafts
 it covers 99% of the top 150 and 94% of the top 200. The missing two thirds are
 deep bench nobody takes. Measured before building rather than asserted after.
 
+Which depth "the range Cory actually drafts" MEANS is no longer decided here.
+Cory ruled it 2026-08-20 ("We really just need to focus on top 200 players maybe
+250") and it lives in league_config.draftable_scope, read via
+draft/draftable_scope.py -- the same block build.py puts on the board for the
+client. Coverage is reported at every depth, all-700 included and labelled, so
+nobody can quote one number as though it were the only one.
+
 Players the source does not carry are DROPPED from that source's board and
 COUNTED AND NAMED in its header -- never silently, and never with a zero, which
 would rank them last and look like a judgement instead of an absence.
@@ -44,6 +51,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 sys.path.insert(0, os.path.join(ROOT, "draft"))
 
 import vorp as vorp_mod  # noqa: E402  -- THE SAME MODULE build.py USES
+import draftable_scope as scope_mod  # noqa: E402  -- Cory's scope, not mine
 
 PUB = os.path.join(ROOT, "public")
 BOARD_PATH = os.path.join(PUB, "draft_data.json")
@@ -58,17 +66,15 @@ SOURCES = {
 }
 
 
-def adp_of(p):
-    for k in ("adjusted_adp", "raw_adp", "adp"):
-        v = p.get(k)
-        if v is not None:
-            return float(v)
-    return 9999.0
-
-
 def main():
     board = json.load(open(BOARD_PATH))
     cfg = {"teams": 10, "starters": board["league"]["starters"]}
+    # Cory's scope ruling, read -- not a cutoff chosen here. This used to be a
+    # bare `[:150]` on the next-but-one line, which is how three tools ended up
+    # measuring three different boards.
+    SCOPE = scope_mod.load()
+    DEPTHS = scope_mod.depths()
+    by_adp = scope_mod.by_adp(board["players"])
     written = []
 
     for key, (field, label) in SOURCES.items():
@@ -97,10 +103,26 @@ def main():
             seen[q] = seen.get(q, 0) + 1
             p["pos_rank"] = seen[q]
 
-        # coverage inside the range that matters, not just overall
-        by_adp = sorted(board["players"], key=adp_of)
-        top150 = by_adp[:150]
-        cov150 = sum(1 for p in top150 if isinstance(p.get(field), (int, float)))
+        # COVERAGE AT EVERY DEPTH CORY NAMED, NOT ONE I PICKED. The all-700
+        # number is emitted last and labelled, because on its own it is the
+        # number that made Draft Sharks look broken (35%) when in the 200
+        # players he drafts from it is at 94%.
+        def _cov(n):
+            sub = by_adp[:n]
+            hit = [p for p in sub if isinstance(p.get(field), (int, float))]
+            return {
+                "depth": n,
+                "of": len(sub),
+                "covered": len(hit),
+                "pct": round(100.0 * len(hit) / len(sub), 1) if sub else None,
+                "missing": sorted(
+                    p.get("name") for p in sub
+                    if not isinstance(p.get(field), (int, float))),
+            }
+
+        coverage = {label: _cov(n) for label, n in DEPTHS}
+        coverage["all"] = _cov(len(board["players"]))
+        headline = _cov(SCOPE["focus"])
 
         doc = {
             "_territory": "TERRITORY: A -- draft/tools/rerank_by_source.py",
@@ -116,10 +138,22 @@ def main():
             "board_post_processed": board.get("post_processed_at"),
             "players_ranked": len(players),
             "players_dropped": len(dropped),
-            "coverage_top150_pct": round(100.0 * cov150 / len(top150), 1),
-            "dropped_inside_top150": sorted(
-                p.get("name") for p in top150
-                if not isinstance(p.get(field), (int, float))),
+            # THE SCOPE BLOCK, SHIPPED WITH THE NUMBERS IT SCOPED, so a reader
+            # never has to ask "top what?" and a stale artifact cannot be read
+            # against a newer ruling without the mismatch being visible.
+            "draftable_scope": SCOPE,
+            "coverage": coverage,
+            "coverage_headline": headline,
+            # LEGACY KEYS, still populated. public/board_*.json is regenerated
+            # from the board rather than from itself, so there is no long-lived
+            # skew -- but the deployed client is only replaced on a deploy, and
+            # an older one reading a newer artifact must not silently lose the
+            # coverage caveat. Removed once the deployed app.js no longer reads
+            # them; draftable_scope_is_one_definition.test.js watches for that.
+            "coverage_top150_pct": coverage[
+                "top %d" % SCOPE["drafted"]]["pct"],
+            "dropped_inside_top150": coverage[
+                "top %d" % SCOPE["drafted"]]["missing"],
             "replacement_points": diag.get("replacement_points"),
             "starter_counts": diag.get("starter_counts"),
             "league": board["league"],
@@ -128,15 +162,24 @@ def main():
         out = os.path.join(PUB, "board_%s.json" % key)
         with open(out, "w") as fh:
             json.dump(doc, fh, separators=(",", ":"))
-        written.append((key, label, len(players), len(dropped),
-                        doc["coverage_top150_pct"], doc["dropped_inside_top150"]))
+        written.append((key, label, len(players), len(dropped), coverage, headline))
 
     print("\n  ALTERNATE BOARDS -- what if one source were right?\n")
-    print("  %-14s %8s %9s %14s" % ("source", "ranked", "dropped", "top-150 cov"))
-    for key, label, n, d, cov, names in written:
-        print("  %-14s %8d %9d %13.1f%%" % (label, n, d, cov))
-        if names:
-            print("       missing inside your draft range: %s" % ", ".join(names[:6]))
+    print("  Cory's scope: \"%s\"" % SCOPE["cory_ruling_verbatim"])
+    print("  drafted %d (teams x rounds) | focus %d | outer %d\n"
+          % (SCOPE["drafted"], SCOPE["focus"], SCOPE["outer"]))
+    cols = [lbl for lbl, _ in DEPTHS] + ["all"]
+    print("  %-14s %7s %8s   %s"
+          % ("source", "ranked", "dropped", "  ".join("%8s" % c for c in cols)))
+    for key, label, n, d, cov, head in written:
+        cells = "  ".join("%7.0f%%" % cov[c]["pct"] for c in cols)
+        print("  %-14s %7d %8d   %s" % (label, n, d, cells))
+    print()
+    for key, label, n, d, cov, head in written:
+        if head["missing"]:
+            print("  %s does not project %d of your top %d: %s"
+                  % (label, len(head["missing"]), head["depth"],
+                     ", ".join(head["missing"][:6])))
     print("\n  wrote %d alternate boards to public/" % len(written))
 
 

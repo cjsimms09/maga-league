@@ -1077,6 +1077,34 @@
     return SourceBoard.forSource(state.myRoster, state.rankSource);
   }
 
+  /* HOW DEEP THE BOARD ACTUALLY MATTERS — Cory, 2026-08-20: "We really just
+   * need to focus on top 200 players maybe 250".
+   *
+   * ⚠️ THESE NUMBERS ARE NOT DECIDED HERE. They live in
+   * league_config.draftable_scope and ride onto the board as
+   * `league.draftable_scope` (build.py). The literals below are a FALLBACK for
+   * a board built before that block existed — including the 2026-08-19 board
+   * that is live right now — and draft/tests/draftable_scope_is_one_definition
+   * .test.js fails if they ever stop matching the config, so the fallback
+   * cannot quietly become a second opinion.
+   *
+   * WHY IT MATTERS ON THIS SCREEN: the source buttons used to print coverage
+   * over all 700 board players, so Draft Sharks read "247" beside Sleeper's
+   * "700" — a source that looks like it knows a third of the league. Measured
+   * on the live board, inside the 200 players Cory drafts from, DS covers 94%
+   * and Sleeper 100%. A 6-point gap was being drawn as a 3x one. */
+  const SCOPE_FALLBACK = { drafted: 150, focus: 200, outer: 250 };
+  function draftableScope() {
+    /* state.data.league — NOT state.league, which does not exist. Written
+     * wrong first; a bad path here reads as "no scope on the board" and pins
+     * the fallback forever, which is the silent-degrade failure this whole
+     * change exists to prevent. Verified against the served artifact. */
+    const s = state.data && state.data.league && state.data.league.draftable_scope;
+    if (s && typeof s.focus === 'number' && typeof s.outer === 'number'
+        && typeof s.drafted === 'number') return s;
+    return SCOPE_FALLBACK;
+  }
+
   function renderPositionBoardsPanel() {
     const host = $('#position-boards');
     const d = state.positionBoards;
@@ -9000,13 +9028,25 @@
     const esc = escapeHtml;
     const active = state.rankSource || 'blend';
     const BUTTONS = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES);
+    /* ⚠️ SCOPED TO THE PLAYERS CORY DRAFTS, NOT TO ALL 700. Cory 2026-08-20:
+     * "We really just need to focus on top 200 players maybe 250". These
+     * buttons used to print the whole-board covered count — "Draft Sharks 247"
+     * beside "Sleeper 700" — which reads as a source that knows a third of the
+     * league. Measured on the live 2026-08-19 board, inside the top 200 by ADP
+     * DS covers 94% and Sleeper 100%: a 6-point gap drawn as a 3x one. The
+     * depth comes from league_config.draftable_scope via draftableScope(),
+     * never from a number typed here. */
+    const depth = Math.min(draftableScope().focus, state.board.length);
     const btnHtml = BUTTONS.map(function (s) {
-      const cov = s.key === 'blend' ? null : SourceBoard.coverage(state.board, s.key);
-      const n = cov ? cov.covered : state.board.length;
+      const cov = s.key === 'blend' ? null : SourceBoard.coverage(state.board, s.key, depth);
+      const pct = cov ? Math.round(100 * cov.covered / cov.total) : 100;
       const on = active === s.key;
       return '<button type="button" class="rs-btn' + (on ? ' rs-active' : '')
-        + '" data-rank-source="' + esc(s.key) + '">' + esc(s.label)
-        + ' <span class="muted">' + n + '</span></button>';
+        + '" data-rank-source="' + esc(s.key) + '" title="'
+        + esc(s.label + ' projects ' + (cov ? cov.covered : state.board.length)
+          + ' of the top ' + depth + ' players by ADP — the range you actually draft from')
+        + '">' + esc(s.label)
+        + ' <span class="muted">' + pct + '%</span></button>';
     }).join('');
     const warn = active !== 'blend'
       ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(BUTTONS.find(function (s) { return s.key === active; }).label)
@@ -9014,6 +9054,30 @@
         + 'source, not the blend. Switch back to Blend for the board\'s normal number.</div>'
       : '';
     host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
+      /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
+       * had "Draft Sharks reads 35%" typed into it — a real measurement from
+       * the 2026-08-19 board that would have silently gone stale on the next
+       * rebuild. The widest source gap is derived from the board in hand. */
+      + '<p class="muted rs-note">The <b>%</b> on each button is how much of your '
+      + '<b>top ' + depth + ' by ADP</b> that source actually projects — the range you '
+      + 'draft from, not all ' + state.board.length + ' players on the board.'
+      + (function () {
+        const gaps = SourceBoard.SOURCES.map(function (s) {
+          const wide = SourceBoard.coverage(state.board, s.key);
+          const near = SourceBoard.coverage(state.board, s.key, depth);
+          if (!wide || !near || !wide.total || !near.total) return null;
+          const w = Math.round(100 * wide.covered / wide.total);
+          const n = Math.round(100 * near.covered / near.total);
+          return { label: s.label, wide: w, near: n, gap: n - w };
+        }).filter(Boolean).sort(function (a, b) { return b.gap - a.gap; });
+        return gaps.length && gaps[0].gap >= 10
+          ? ' Scoping matters most for <b>' + esc(gaps[0].label) + '</b>: '
+            + gaps[0].wide + '% of all ' + state.board.length + ', but '
+            + gaps[0].near + '% of the top ' + depth + '. Nobody drafts the '
+            + state.board.length + 'th player.'
+          : '';
+      }())
+      + '</p>'
       + '<p class="muted rs-note">Changes who is recommended and VONA — this is a real re-rank, not just a different number. '
       + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>'
       /* ⚠️ WHAT THE BIG BOARD IS ORDERED BY, SAID OUT LOUD. Cory asked whether

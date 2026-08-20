@@ -36,6 +36,7 @@ import adp_series as adp_series_mod  # noqa: E402
 import proj_series as proj_series_mod  # noqa: E402
 import grab_by as grab_by_mod  # noqa: E402
 import multisource_blend as multisource_mod  # noqa: E402
+import draftable_scope as draftable_scope_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -190,6 +191,18 @@ def adp_season_stamps(adp_source: str | None, year: int) -> dict:
            else season_stamp.seasonal(year))
     return season_stamp.stamp({}, {"raw_adp": src, "adp": src,
                                    "consensus_rank": src})
+
+
+def _draftable_scope(cfg) -> dict:
+    """Cory's scope ruling, carried onto the board so the client reads the same
+    numbers this build does — see draft/draftable_scope.py for the derivation.
+
+    This RAISES rather than degrading. Every other optional block on the board
+    falls back to None because a missing extra is survivable; a missing scope is
+    not, because the consumers would each substitute their own cutoff again and
+    that is precisely the drift the block exists to end.
+    """
+    return draftable_scope_mod.load(cfg)
 
 
 def _my_owner_id() -> str | None:
@@ -1917,6 +1930,14 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "starters": cfg["starters"],
             "scoring": cfg["scoring"],
             "keeper_rules": cfg["keepers"],
+            # THE SCOPE RULING, CARRIED TO THE BROWSER SO NOTHING HAS TO GUESS IT.
+            # Cory 2026-08-20: "We really just need to focus on top 200 players
+            # maybe 250". Before this the client, rerank_by_source.py and three
+            # probes each picked their own cutoff (150/200/250) and could drift
+            # apart without anything failing. This is the one definition
+            # (league_config.draftable_scope); everything else reads it.
+            # `drafted` is DERIVED (teams * rounds), asserted below, not typed.
+            "draftable_scope": _draftable_scope(cfg),
         },
         "pick_order": {
             # THE BOARD AS SLEEPER WILL NUMBER IT — every round x slot, with
