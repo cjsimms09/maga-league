@@ -1123,8 +1123,13 @@
         });
       }
     }
+    /* `state.drafted` — Cory, 2026-08-20: "It is also showing players who are
+     * already gone". These lists are a PRE-SIMULATED snapshot of who was
+     * expected to be available at each pick, so the view had no idea who had
+     * actually been taken. Filtered at render; the panel also says so when the
+     * real draft has diverged from the simulation its numbers came from. */
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
-      state.projSource || 'ds', state.playerCalls || {}, badgeInfo());
+      state.projSource || 'ds', state.playerCalls || {}, badgeInfo(), state.drafted);
     wirePositionBoardsScroll(host);
   }
 
