@@ -14,7 +14,9 @@
    "t_upper_bound": 1.02,
    "wins": "14/30"
   },
-  "caveat": "Beats the HUMANS in all three seasons on both gradings. Beats OUR OWN shipped curve only weakly (t 1.02, upper bound). The K<=1 / DEF<=1 cap is IMPOSED from Cory's words, not emergent: without it the mechanism drafts 1.93 K and 1.90 DEF and its edge halves."
+  "caveat": "Beats the HUMANS in all three seasons on both gradings. Beats OUR OWN shipped curve only weakly (t 1.02, upper bound). The K<=1 / DEF<=1 cap is IMPOSED from Cory's words, not emergent: without it the mechanism drafts 1.93 K and 1.90 DEF and its edge halves.",
+  "onesies_are_capped_not_excluded": "Register 134. Once your lineup is full this model puts a DEF and a K at the top of the list, because a bench body is worth exactly zero to it. Excluding them instead costs -83.7 actual / -211.3 skill and leaves 0 of 30 rosters legal.",
+  "cannot_value_a_bench": "6 of 15 roster spots score zero marginal value and fall through to best-available. Starting-lineup optimiser."
  },
  "roster_assumed": [
   "Ja'Marr Chase (WR)",
@@ -26,81 +28,81 @@
    "name": "Jahmyr Gibbs",
    "position": "RB",
    "adp": 1,
-   "proj": 324.3,
-   "marginal": 245.9,
+   "proj": 324.5,
+   "marginal": 246.1,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "Bijan Robinson",
    "position": "RB",
    "adp": 2,
-   "proj": 316.7,
-   "marginal": 238.3,
+   "proj": 315.7,
+   "marginal": 237.3,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "Christian McCaffrey",
    "position": "RB",
    "adp": 5,
-   "proj": 285.2,
-   "marginal": 206.8,
+   "proj": 287.7,
+   "marginal": 209.3,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "Jonathan Taylor",
    "position": "RB",
    "adp": 6.67,
-   "proj": 277.9,
-   "marginal": 199.5,
+   "proj": 279.6,
+   "marginal": 201.2,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "James Cook",
    "position": "RB",
    "adp": 9.33,
-   "proj": 253.5,
-   "marginal": 175.1,
+   "proj": 254.9,
+   "marginal": 176.5,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "De'Von Achane",
    "position": "RB",
    "adp": 13.33,
-   "proj": 248,
-   "marginal": 169.6,
+   "proj": 249.7,
+   "marginal": 171.3,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "Ashton Jeanty",
    "position": "RB",
    "adp": 11,
-   "proj": 244.1,
-   "marginal": 165.7,
+   "proj": 244.4,
+   "marginal": 166,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "Saquon Barkley",
    "position": "RB",
    "adp": 13.67,
-   "proj": 238.4,
-   "marginal": 160,
-   "why": "takes your open FLEX seat"
-  },
-  {
-   "name": "Chase Brown",
-   "position": "RB",
-   "adp": 14.33,
-   "proj": 238,
-   "marginal": 159.6,
+   "proj": 240.1,
+   "marginal": 161.7,
    "why": "takes your open FLEX seat"
   },
   {
    "name": "Puka Nacua",
    "position": "WR",
    "adp": 4,
-   "proj": 283.7,
-   "marginal": 158.9,
+   "proj": 286,
+   "marginal": 161.2,
    "why": "fills your open WR slot"
+  },
+  {
+   "name": "Chase Brown",
+   "position": "RB",
+   "adp": 14.33,
+   "proj": 237.8,
+   "marginal": 159.4,
+   "why": "takes your open FLEX seat"
   }
  ]
 }
