@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 137,
+ "next_numeric_id": 143,
  "history": [
   {
    "id": 47,
@@ -68,6 +68,31 @@
    "note": "A: four of five war-room artifacts carry no provenance stamp; 3 bench seats name nobody"
   },
   {
+   "id": 63,
+   "claimed_at": "2026-08-19",
+   "note": "D"
+  },
+  {
+   "id": 64,
+   "claimed_at": "2026-08-19",
+   "note": "D"
+  },
+  {
+   "id": 67,
+   "claimed_at": "2026-08-19",
+   "note": "D"
+  },
+  {
+   "id": 95,
+   "claimed_at": "2026-08-19",
+   "note": "D"
+  },
+  {
+   "id": 112,
+   "claimed_at": "2026-08-19",
+   "note": "D"
+  },
+  {
    "id": 125,
    "claimed_at": "2026-08-19",
    "note": "E: simple_model a=0.5/a=1 artifacts show ~3 TE / ~2.4 QB rosters, ungraded because P188/P190's bars were only preregistered for a=0"
@@ -126,6 +151,41 @@
    "id": 136,
    "claimed_at": "2026-08-20",
    "note": "renumbered from a colliding 134 (self-correction: sent Cory a number from a crashing arm) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": "137-138 reconciled",
+   "claimed_at": "2026-08-20",
+   "note": "A had previously renumbered D's colliding 133/134 to 137/138 and retained 133/134 as authoritative (cited from shipped mlv.js, three tests, panel_spec.js). That composite entry is superseded here: E's own chain independently claimed 137/138 for two DIFFERENT new rows (D's TE-boost finding; E's attach_draftsharks.py double bug) after re-verifying no stray references existed to those numbers anywhere in the repo at merge time."
+  },
+  {
+   "id": 137,
+   "claimed_at": "2026-08-20",
+   "note": "D: TE-boost arm (W.TE 0.05 -> 0.50), same season-concentration caveat pattern as the TE-relax arm (register 132)"
+  },
+  {
+   "id": 138,
+   "claimed_at": "2026-08-20",
+   "note": "E: attach_draftsharks.py double bug -- `-(p.get('vorp') or -1e9)` treats a real vorp of exactly 0.0 (replacement level) as absent, sorting 6 real players to the bottom of the board; separately, silently reversed Cory's 2026-08-17 K/DEF demotion ruling on the live board. Both fixed by reusing vorp.py's ONESIE_POSITIONS import."
+  },
+  {
+   "id": 139,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from a colliding 126 (D: dispersion-baseline grading) -- deliberate deviation from strict first-allocation-wins: E's own chain already occupies 127-138 with extensive cross-references between rows, so D's four late-arriving rows were renumbered to fresh IDs 139-142 instead of renumbering E's chain. Documented in the row itself."
+  },
+  {
+   "id": 140,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from a colliding 127 (D: seat-replay detection-floor re-derivation, reconciling with DS1) -- same deliberate deviation, documented in the row itself"
+  },
+  {
+   "id": 141,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from a colliding 128 (D: live-board replacement-level pinning bug) -- same deliberate deviation, documented in the row itself"
+  },
+  {
+   "id": 142,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from a colliding 129 (D: mean-of-4 correlation caution) -- same deliberate deviation, documented in the row itself"
   }
  ]
 }

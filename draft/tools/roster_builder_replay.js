@@ -43,6 +43,7 @@ const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamab
 if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
 const STREAM = ST.streamability;
 const KDEF_TAX = process.argv.includes('--kdef-tax');
+const TE_BOOST = process.argv.includes('--te-boost');
 const KDEF_MODE = process.argv.includes('--kdef-supply');
 /* ── E's ARM, PREREGISTERED IN `ROSTER-CONSTRUCTION-CALL.md`'s REPLY: does
  * relaxing TE's cap to an ALREADY-MEASURED number (not fitted to this study)
@@ -89,7 +90,14 @@ const posOf = id => POSOF[String(id)] || (/^[A-Z]{2,3}$/.test(String(id)) ? 'DEF
  * pieces of the roster equation, unchanged from draft_model.js */
 const W = {
   K: [1.00, 0], DEF: [1.00, 0], QB: [1.00, 0.05, 0],
-  TE: TE_RELAX ? [1.00, 0.414, 0] : [1.00, 0.05, 0],
+  /* ── TE-CURVE-CHALLENGE-PREREG-2026-08-19.md ────────────────────────────
+   * Shipped curve treats a 2nd TE as a twentyfold hole (.05), but top-3
+   * finishers draft 1.67 of them against bottom-3's 1.11 -- the widest
+   * positional separation measured (ROSTER-CONSTRUCTION-CALL.md §1). Behind
+   * a flag, off by default; the shipped curve is untouched unless --te-boost
+   * is passed. TE_RELAX (register 132/137's own arm) takes precedence if
+   * both are somehow passed together -- they were never meant to combine. */
+  TE: TE_RELAX ? [1.00, 0.414, 0] : TE_BOOST ? [1.00, 0.50, 0] : [1.00, 0.05, 0],
   RB: [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
