@@ -80,12 +80,14 @@ BOARD = ROOT / "public" / "draft_data.json"
 YEAR_CONFIG = {
     2026: {
         "pdf": DRAFT / "data" / "sources" / "clay_projections_2026.pdf",
+        "text": DRAFT / "data" / "sources" / "clay_projections_2026_layout.txt",
         "out": DRAFT / "data" / "clay_projections_2026.json",
         "gibbs_expect": ("283", "1373", "14", "86", "68", "546", "3"),
         "has_kicker_section": True,
     },
     2025: {
         "pdf": DRAFT / "data" / "sources" / "clay_projections_2025.pdf",
+        "text": DRAFT / "data" / "sources" / "clay_projections_2025_layout.txt",
         "out": DRAFT / "data" / "clay_projections_2025.json",
         "gibbs_expect": ("235", "1153", "11", "82", "60", "567", "3"),
         "has_kicker_section": False,
@@ -106,9 +108,23 @@ LOCAL_NAME_OVERRIDES = {
 }
 
 
-def pdf_text(pdf: Path) -> str:
+def source_text(cfg: dict) -> str:
+    """The committed `pdftotext -layout` extraction is the source of truth --
+    it is a plain-text file that can carry `# TERRITORY: C`, unlike the raw
+    PDF, which cannot self-declare an owner and has no path-pattern rule in
+    territory-check.sh's c_owns() either (flagged to A, ROUTES.md 2026-08-20).
+    Same choice made for the Draft Sharks PDFs earlier this session.
+
+    Falls back to shelling out to `pdftotext` on the raw PDF only if the
+    committed extraction is missing -- e.g. re-running this file the FIRST
+    time against a newly staged PDF, before its layout text has been
+    generated and committed."""
+    text_path = cfg["text"]
+    if text_path.exists():
+        return text_path.read_text()
+    pdf = cfg["pdf"]
     if not pdf.exists():
-        raise SystemExit(f"missing {pdf}")
+        raise SystemExit(f"missing both {text_path} and {pdf}")
     proc = subprocess.run(
         ["pdftotext", "-layout", str(pdf), "-"],
         capture_output=True, text=True, check=True,
@@ -259,7 +275,7 @@ def _verify_known_positive(lines: list[str], expect: tuple) -> None:
 
 def build_store(year: int) -> dict:
     cfg = YEAR_CONFIG[year]
-    text = pdf_text(cfg["pdf"])
+    text = source_text(cfg)
     lines = text.split("\n")
     _verify_known_positive(lines, cfg["gibbs_expect"])
 

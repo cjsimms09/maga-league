@@ -48,7 +48,7 @@ def test_known_positive_control_catches_real_corruption():
     # FAIL ARM (rule 3f): the control this module runs on every invocation
     # must actually be capable of failing, not just capable of passing.
     cfg = C.YEAR_CONFIG[2026]
-    lines = C.pdf_text(cfg["pdf"]).split("\n")
+    lines = C.source_text(cfg).split("\n")
     corrupted = [l.replace("283", "999") if "Jahmyr Gibbs" in l and " DI " in l else l
                  for l in lines]
     try:
