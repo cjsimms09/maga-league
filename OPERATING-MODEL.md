@@ -56,6 +56,39 @@ fail arms for duplication, orphaning, conflict markers and one-sided merges.
 **A's time is the scarcest thing in the project.** Everything below exists to
 spend less of it.
 
+## RULE 1c — RESEARCH ARTIFACTS PUBLISH STRAIGHT TO `main`, LIKE MAILBOXES. ADDED 08-20 ON CORY'S ORDER, AFTER THE THIRD INVISIBILITY INCIDENT IN ONE DAY.
+
+**Cory, 2026-08-20:** *"Other sessions aren't seeing you work!!! Fix"* — and hours
+later, *"I don't think people are seeing your workflow. You need to give me
+permanent fix and now."* The failure, measured: SIX research artifacts (the whole
+roster-equation program — graded preregs, the exact-DP tool, the program docs,
+ledger rows P138-P150) existed only on the relay's branch while ROUTES rows on
+`main` pointed at them. Every lane following a pointer hit a file that did not
+exist. Hand-copying fixed it three times; a rule fixes it permanently.
+
+**The rule.** These are MAILBOX-CLASS files — knowledge, not code — and they
+commit STRAIGHT TO `main` in the same push that creates them, exactly like
+Rule 1b's four files:
+  * prereg / program / policy docs: `draft/*-PREREG-*.md`, `draft/*PROGRAM*.md`,
+    `draft/ADAPTATION-POLICY.md`, `draft/audit/*.md`
+  * `PREDICTION-LEDGER.md` rows (insert into `main`'s copy — never overwrite it;
+    other lanes' rows live there too)
+  * report-only tools a finding depends on, WITH their output artifacts —
+    a graded number whose instrument is invisible cannot be checked by anyone.
+
+**The boundary Rule 1 still owns:** anything another lane's code IMPORTS, anything
+a surface renders, anything in someone else's TERRITORY (the harness is A's; the
+relay's flags on it stay branch-side until A merges) — that is CODE and only A
+merges it. When in doubt: if a lane could act on it wrongly because it is stale,
+it is mailbox-class; if a lane could break because it changed, it is code.
+
+**The mechanism, so the rule survives sessions:** `draft/tools/relay_publish.sh`
+— one command that fetches `main`, fast-forwards a scratch worktree, copies the
+declared artifact set, inserts (never overwrites) ledger rows, runs the ledger
+and routes checkers, commits, pushes to `main`, and mirrors to the relay branch.
+A relay session that hand-copies is doing it wrong; a relay session that pushes
+research only to its branch is REGRESSING A FIXED DEFECT.
+
 ## THE GOALS EVERY LANE SHARES — Cory's, not any session's
 
 Every lane signs up to all four. A lane that hits its own targets while one of
