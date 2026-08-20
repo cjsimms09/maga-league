@@ -2259,11 +2259,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": 2011,
-   "draft_round": 1,
-   "draft_pick": 27,
-   "draft_team": "BAL",
-   "draft_capital": "1st"
+   "draft_season": 1984,
+   "draft_round": 4,
+   "draft_pick": 102,
+   "draft_team": "WAS",
+   "draft_capital": "4th"
   },
   "956": {
    "gsis_id": "00-0027966",
@@ -6039,10 +6039,10 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": 2013,
+   "draft_season": 1982,
    "draft_round": 6,
-   "draft_pick": 206,
-   "draft_team": "PIT",
+   "draft_pick": 151,
+   "draft_team": "SFO",
    "draft_capital": "6th"
   },
   "1381": {
@@ -7019,11 +7019,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1986,
+   "draft_round": 9,
+   "draft_pick": 244,
+   "draft_team": "DEN",
+   "draft_capital": "9th"
   },
   "1984": {
    "gsis_id": "00-0030821",
@@ -19507,11 +19507,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1985,
+   "draft_round": 7,
+   "draft_pick": 171,
+   "draft_team": "GNB",
+   "draft_capital": "7th"
   },
   "4362": {
    "gsis_id": "00-0033338",
@@ -20711,11 +20711,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": 2017,
-   "draft_round": 1,
-   "draft_pick": 7,
-   "draft_team": "LAC",
-   "draft_capital": "1st"
+   "draft_season": 1982,
+   "draft_round": 5,
+   "draft_pick": 133,
+   "draft_team": "WAS",
+   "draft_capital": "5th"
   },
   "4017": {
    "gsis_id": "00-0033537",
@@ -25555,11 +25555,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1981,
+   "draft_round": 11,
+   "draft_pick": 285,
+   "draft_team": "CIN",
+   "draft_capital": "11th"
   },
   "5450": {
    "gsis_id": "00-0034090",
@@ -27375,11 +27375,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1983,
+   "draft_round": 7,
+   "draft_pick": 187,
+   "draft_team": "NWE",
+   "draft_capital": "7th"
   },
   "5569": {
    "gsis_id": "00-0034311",
@@ -40927,11 +40927,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1985,
+   "draft_round": 10,
+   "draft_pick": 267,
+   "draft_team": "KAN",
+   "draft_capital": "10th"
   },
   "6043": {
    "gsis_id": "00-0035513",
@@ -44987,11 +44987,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1981,
+   "draft_round": 2,
+   "draft_pick": 49,
+   "draft_team": "BUF",
+   "draft_capital": "2nd"
   },
   "7467": {
    "gsis_id": "00-0035859",
@@ -60947,11 +60947,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": 2021,
-   "draft_round": 1,
-   "draft_pick": 29,
-   "draft_team": "GNB",
-   "draft_capital": "1st"
+   "draft_season": 1985,
+   "draft_round": 6,
+   "draft_pick": 148,
+   "draft_team": "CIN",
+   "draft_capital": "6th"
   },
   "7678": {
    "gsis_id": "00-0036902",
@@ -69767,11 +69767,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1984,
+   "draft_round": 1,
+   "draft_pick": 26,
+   "draft_team": "BUF",
+   "draft_capital": "1st"
   },
   "8854": {
    "gsis_id": "00-0037447",
@@ -83487,11 +83487,11 @@
     "2025": false,
     "2026": false
    },
-   "draft_season": 2023,
-   "draft_round": 1,
-   "draft_pick": 18,
-   "draft_team": "DET",
-   "draft_capital": "1st"
+   "draft_season": 1982,
+   "draft_round": 6,
+   "draft_pick": 144,
+   "draft_team": "SEA",
+   "draft_capital": "6th"
   },
   "10235": {
    "gsis_id": "00-0039021",
@@ -98131,11 +98131,11 @@
     "2025": true,
     "2026": false
    },
-   "draft_season": 2025,
-   "draft_round": 6,
-   "draft_pick": 190,
-   "draft_team": "IND",
-   "draft_capital": "6th"
+   "draft_season": 1980,
+   "draft_round": 3,
+   "draft_pick": 79,
+   "draft_team": "HOU",
+   "draft_capital": "3rd"
   },
   "12543": {
    "gsis_id": "00-0040208",
@@ -102079,11 +102079,11 @@
     "2025": true,
     "2026": false
    },
-   "draft_season": 2025,
-   "draft_round": 1,
-   "draft_pick": 21,
-   "draft_team": "PIT",
-   "draft_capital": "1st"
+   "draft_season": 1984,
+   "draft_round": 9,
+   "draft_pick": 248,
+   "draft_team": "SFO",
+   "draft_capital": "9th"
   },
   "12573": {
    "gsis_id": "00-0040685",
@@ -102611,11 +102611,11 @@
     "2025": true,
     "2026": false
    },
-   "draft_season": 2025,
-   "draft_round": 2,
-   "draft_pick": 59,
-   "draft_team": "BAL",
-   "draft_capital": "2nd"
+   "draft_season": 1983,
+   "draft_round": 9,
+   "draft_pick": 245,
+   "draft_team": "SDG",
+   "draft_capital": "9th"
   },
   "12653": {
    "gsis_id": "00-0040723",
@@ -103227,11 +103227,11 @@
     "2025": true,
     "2026": false
    },
-   "draft_season": 2025,
-   "draft_round": 2,
-   "draft_pick": 47,
-   "draft_team": "ARI",
-   "draft_capital": "2nd"
+   "draft_season": 1987,
+   "draft_round": 5,
+   "draft_pick": 138,
+   "draft_team": "CHI",
+   "draft_capital": "5th"
   },
   "12583": {
    "gsis_id": "00-0040752",
@@ -103395,11 +103395,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 20,
+   "draft_team": "PHI",
+   "draft_capital": "1st"
   },
   "13468": {
    "gsis_id": "00-0040869",
@@ -103423,11 +103423,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 77,
+   "draft_team": "GNB",
+   "draft_capital": "3rd"
   },
   "13293": {
    "gsis_id": "00-0040870",
@@ -103451,11 +103451,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 80,
+   "draft_team": "BAL",
+   "draft_capital": "3rd"
   },
   "13381": {
    "gsis_id": "00-0040872",
@@ -103507,11 +103507,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 114,
+   "draft_team": "DAL",
+   "draft_capital": "4th"
   },
   "13268": {
    "gsis_id": "00-0040876",
@@ -103535,11 +103535,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 115,
+   "draft_team": "BAL",
+   "draft_capital": "4th"
   },
   "13492": {
    "gsis_id": "00-0040877",
@@ -103563,11 +103563,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 120,
+   "draft_team": "GNB",
+   "draft_capital": "4th"
   },
   "13480": {
    "gsis_id": "00-0040880",
@@ -103619,11 +103619,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 162,
+   "draft_team": "BAL",
+   "draft_capital": "5th"
   },
   "13288": {
    "gsis_id": "00-0040886",
@@ -103675,11 +103675,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 173,
+   "draft_team": "BAL",
+   "draft_capital": "5th"
   },
   "13302": {
    "gsis_id": "00-0040888",
@@ -103703,11 +103703,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 174,
+   "draft_team": "BAL",
+   "draft_capital": "5th"
   },
   "13508": {
    "gsis_id": "00-0040889",
@@ -103731,11 +103731,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 175,
+   "draft_team": "LVR",
+   "draft_capital": "5th"
   },
   "13413": {
    "gsis_id": "00-0040890",
@@ -103759,11 +103759,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 176,
+   "draft_team": "KAN",
+   "draft_capital": "5th"
   },
   "13335": {
    "gsis_id": "00-0040891",
@@ -103787,11 +103787,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 178,
+   "draft_team": "PHI",
+   "draft_capital": "5th"
   },
   "13329": {
    "gsis_id": "00-0040894",
@@ -103815,11 +103815,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 195,
+   "draft_team": "LVR",
+   "draft_capital": "6th"
   },
   "13313": {
    "gsis_id": "00-0040895",
@@ -103871,11 +103871,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 201,
+   "draft_team": "GNB",
+   "draft_capital": "6th"
   },
   "13582": {
    "gsis_id": "00-0040900",
@@ -103899,11 +103899,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 1990,
+   "draft_round": 1,
+   "draft_pick": 11,
+   "draft_team": "RAI",
+   "draft_capital": "1st"
   },
   "13422": {
    "gsis_id": "00-0040901",
@@ -103927,11 +103927,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 225,
+   "draft_team": "TEN",
+   "draft_capital": "7th"
   },
   "13565": {
    "gsis_id": "00-0040903",
@@ -103955,11 +103955,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 236,
+   "draft_team": "SEA",
+   "draft_capital": "7th"
   },
   "13563": {
    "gsis_id": "00-0040904",
@@ -103983,11 +103983,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 242,
+   "draft_team": "SEA",
+   "draft_capital": "7th"
   },
   "13404": {
    "gsis_id": "00-0040906",
@@ -104011,11 +104011,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 249,
+   "draft_team": "KAN",
+   "draft_capital": "7th"
   },
   "13584": {
    "gsis_id": "00-0040907",
@@ -104039,11 +104039,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 250,
+   "draft_team": "BAL",
+   "draft_capital": "7th"
   },
   "13562": {
    "gsis_id": "00-0040908",
@@ -104067,11 +104067,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 252,
+   "draft_team": "PHI",
+   "draft_capital": "7th"
   },
   "13776": {
    "gsis_id": "00-0040912",
@@ -104571,11 +104571,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 161,
+   "draft_team": "KAN",
+   "draft_capital": "5th"
   },
   "13287": {
    "gsis_id": "00-0041027",
@@ -104599,11 +104599,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 3,
+   "draft_team": "ARI",
+   "draft_capital": "1st"
   },
   "13375": {
    "gsis_id": "00-0041028",
@@ -104655,11 +104655,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 8,
+   "draft_team": "NOR",
+   "draft_capital": "1st"
   },
   "13330": {
    "gsis_id": "00-0041032",
@@ -104683,11 +104683,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 16,
+   "draft_team": "NYJ",
+   "draft_capital": "1st"
   },
   "13445": {
    "gsis_id": "00-0041033",
@@ -104711,11 +104711,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 18,
+   "draft_team": "MIN",
+   "draft_capital": "1st"
   },
   "13417": {
    "gsis_id": "00-0041035",
@@ -104767,11 +104767,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 35,
+   "draft_team": "BUF",
+   "draft_capital": "2nd"
   },
   "13346": {
    "gsis_id": "00-0041037",
@@ -104795,11 +104795,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 39,
+   "draft_team": "CLE",
+   "draft_capital": "2nd"
   },
   "13388": {
    "gsis_id": "00-0041039",
@@ -104907,11 +104907,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 74,
+   "draft_team": "NYG",
+   "draft_capital": "3rd"
   },
   "13320": {
    "gsis_id": "00-0041044",
@@ -104935,11 +104935,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 79,
+   "draft_team": "ATL",
+   "draft_capital": "3rd"
   },
   "13476": {
    "gsis_id": "00-0041045",
@@ -104963,11 +104963,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 81,
+   "draft_team": "JAX",
+   "draft_capital": "3rd"
   },
   "13464": {
    "gsis_id": "00-0041046",
@@ -104991,11 +104991,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 82,
+   "draft_team": "MIN",
+   "draft_capital": "3rd"
   },
   "13353": {
    "gsis_id": "00-0041047",
@@ -105047,11 +105047,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 84,
+   "draft_team": "TAM",
+   "draft_capital": "3rd"
   },
   "13411": {
    "gsis_id": "00-0041051",
@@ -105075,11 +105075,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 89,
+   "draft_team": "CHI",
+   "draft_capital": "3rd"
   },
   "13414": {
    "gsis_id": "00-0041052",
@@ -105103,11 +105103,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 90,
+   "draft_team": "SFO",
+   "draft_capital": "3rd"
   },
   "13303": {
    "gsis_id": "00-0041056",
@@ -105131,11 +105131,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 110,
+   "draft_team": "NYJ",
+   "draft_capital": "4th"
   },
   "13493": {
    "gsis_id": "00-0041059",
@@ -105159,11 +105159,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 119,
+   "draft_team": "JAX",
+   "draft_capital": "4th"
   },
   "13489": {
    "gsis_id": "00-0041060",
@@ -105187,11 +105187,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 124,
+   "draft_team": "CHI",
+   "draft_capital": "4th"
   },
   "13485": {
    "gsis_id": "00-0041063",
@@ -105243,11 +105243,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 134,
+   "draft_team": "ATL",
+   "draft_capital": "4th"
   },
   "13420": {
    "gsis_id": "00-0041067",
@@ -105271,11 +105271,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 136,
+   "draft_team": "NOR",
+   "draft_capital": "4th"
   },
   "13478": {
    "gsis_id": "00-0041068",
@@ -105299,11 +105299,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 139,
+   "draft_team": "SFO",
+   "draft_capital": "4th"
   },
   "13477": {
    "gsis_id": "00-0041069",
@@ -105355,11 +105355,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 143,
+   "draft_team": "ARI",
+   "draft_capital": "5th"
   },
   "13527": {
    "gsis_id": "00-0041072",
@@ -105383,11 +105383,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 145,
+   "draft_team": "LAC",
+   "draft_capital": "5th"
   },
   "13524": {
    "gsis_id": "00-0041075",
@@ -105439,11 +105439,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 152,
+   "draft_team": "DEN",
+   "draft_capital": "5th"
   },
   "13520": {
    "gsis_id": "00-0041078",
@@ -105467,11 +105467,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 154,
+   "draft_team": "SFO",
+   "draft_capital": "5th"
   },
   "13519": {
    "gsis_id": "00-0041079",
@@ -105495,11 +105495,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 155,
+   "draft_team": "TAM",
+   "draft_capital": "5th"
   },
   "13518": {
    "gsis_id": "00-0041080",
@@ -105551,11 +105551,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 159,
+   "draft_team": "MIN",
+   "draft_capital": "5th"
   },
   "13513": {
    "gsis_id": "00-0041083",
@@ -105579,11 +105579,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 163,
+   "draft_team": "MIN",
+   "draft_capital": "5th"
   },
   "13408": {
    "gsis_id": "00-0041084",
@@ -105607,11 +105607,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 164,
+   "draft_team": "JAX",
+   "draft_capital": "5th"
   },
   "13512": {
    "gsis_id": "00-0041085",
@@ -105635,11 +105635,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 166,
+   "draft_team": "CHI",
+   "draft_capital": "5th"
   },
   "13435": {
    "gsis_id": "00-0041087",
@@ -105691,11 +105691,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 181,
+   "draft_team": "BUF",
+   "draft_capital": "5th"
   },
   "13306": {
    "gsis_id": "00-0041092",
@@ -105719,11 +105719,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 182,
+   "draft_team": "CLE",
+   "draft_capital": "6th"
   },
   "13551": {
    "gsis_id": "00-0041093",
@@ -105747,11 +105747,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 183,
+   "draft_team": "ARI",
+   "draft_capital": "6th"
   },
   "13308": {
    "gsis_id": "00-0041094",
@@ -105775,11 +105775,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 185,
+   "draft_team": "TAM",
+   "draft_capital": "6th"
   },
   "13405": {
    "gsis_id": "00-0041096",
@@ -105803,11 +105803,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 187,
+   "draft_team": "WAS",
+   "draft_capital": "6th"
   },
   "13533": {
    "gsis_id": "00-0041099",
@@ -105831,11 +105831,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 190,
+   "draft_team": "NOR",
+   "draft_capital": "6th"
   },
   "13394": {
    "gsis_id": "00-0041100",
@@ -105859,11 +105859,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 191,
+   "draft_team": "JAX",
+   "draft_capital": "6th"
   },
   "13531": {
    "gsis_id": "00-0041102",
@@ -105887,11 +105887,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 193,
+   "draft_team": "NYG",
+   "draft_capital": "6th"
   },
   "13347": {
    "gsis_id": "00-0041104",
@@ -105915,11 +105915,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 198,
+   "draft_team": "MIN",
+   "draft_capital": "6th"
   },
   "13554": {
    "gsis_id": "00-0041106",
@@ -105971,11 +105971,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 212,
+   "draft_team": "NWE",
+   "draft_capital": "6th"
   },
   "13555": {
    "gsis_id": "00-0041112",
@@ -106083,11 +106083,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 221,
+   "draft_team": "CIN",
+   "draft_capital": "7th"
   },
   "13557": {
    "gsis_id": "00-0041117",
@@ -106111,11 +106111,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 223,
+   "draft_team": "WAS",
+   "draft_capital": "7th"
   },
   "13588": {
    "gsis_id": "00-0041122",
@@ -106139,11 +106139,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 233,
+   "draft_team": "JAX",
+   "draft_capital": "7th"
   },
   "13295": {
    "gsis_id": "00-0041123",
@@ -106167,11 +106167,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 234,
+   "draft_team": "NWE",
+   "draft_capital": "7th"
   },
   "13424": {
    "gsis_id": "00-0041125",
@@ -106195,11 +106195,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 237,
+   "draft_team": "IND",
+   "draft_capital": "7th"
   },
   "13403": {
    "gsis_id": "00-0041129",
@@ -106223,11 +106223,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 245,
+   "draft_team": "NWE",
+   "draft_capital": "7th"
   },
   "13580": {
    "gsis_id": "00-0041131",
@@ -106251,11 +106251,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 248,
+   "draft_team": "CLE",
+   "draft_capital": "7th"
   },
   "13333": {
    "gsis_id": "00-0041132",
@@ -106307,11 +106307,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 256,
+   "draft_team": "DEN",
+   "draft_capital": "7th"
   },
   "13579": {
    "gsis_id": "00-0041134",
@@ -106335,11 +106335,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 257,
+   "draft_team": "DEN",
+   "draft_capital": "7th"
   },
   "13415": {
    "gsis_id": "00-0041149",
@@ -107147,11 +107147,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 85,
+   "draft_team": "PIT",
+   "draft_capital": "3rd"
   },
   "13421": {
    "gsis_id": "00-0041395",
@@ -107175,11 +107175,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 95,
+   "draft_team": "NWE",
+   "draft_capital": "3rd"
   },
   "13491": {
    "gsis_id": "00-0041397",
@@ -107203,11 +107203,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 121,
+   "draft_team": "PIT",
+   "draft_capital": "4th"
   },
   "13433": {
    "gsis_id": "00-0041398",
@@ -107231,11 +107231,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 169,
+   "draft_team": "PIT",
+   "draft_capital": "5th"
   },
   "13573": {
    "gsis_id": "00-0041402",
@@ -107259,11 +107259,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 247,
+   "draft_team": "NWE",
+   "draft_capital": "7th"
   },
   "13810": {
    "gsis_id": "00-0041403",
@@ -107371,11 +107371,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 4,
+   "draft_team": "TEN",
+   "draft_capital": "1st"
   },
   "13458": {
    "gsis_id": "00-0041441",
@@ -107399,11 +107399,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 44,
+   "draft_team": "DET",
+   "draft_capital": "2nd"
   },
   "13494": {
    "gsis_id": "00-0041442",
@@ -107427,11 +107427,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 118,
+   "draft_team": "DET",
+   "draft_capital": "4th"
   },
   "13402": {
    "gsis_id": "00-0041443",
@@ -107455,11 +107455,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 125,
+   "draft_team": "BUF",
+   "draft_capital": "4th"
   },
   "13488": {
    "gsis_id": "00-0041444",
@@ -107483,11 +107483,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 126,
+   "draft_team": "BUF",
+   "draft_capital": "4th"
   },
   "13412": {
    "gsis_id": "00-0041446",
@@ -107511,11 +107511,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 168,
+   "draft_team": "DET",
+   "draft_capital": "5th"
   },
   "13547": {
    "gsis_id": "00-0041447",
@@ -107539,11 +107539,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 205,
+   "draft_team": "DET",
+   "draft_capital": "6th"
   },
   "13575": {
    "gsis_id": "00-0041448",
@@ -107567,11 +107567,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 222,
+   "draft_team": "DET",
+   "draft_capital": "7th"
   },
   "13572": {
    "gsis_id": "00-0041449",
@@ -107595,11 +107595,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 243,
+   "draft_team": "HOU",
+   "draft_capital": "7th"
   },
   "14034": {
    "gsis_id": "00-0041451",
@@ -107679,11 +107679,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 72,
+   "draft_team": "CIN",
+   "draft_capital": "3rd"
   },
   "13490": {
    "gsis_id": "00-0041465",
@@ -107707,11 +107707,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 123,
+   "draft_team": "HOU",
+   "draft_capital": "4th"
   },
   "13541": {
    "gsis_id": "00-0041467",
@@ -107735,11 +107735,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 204,
+   "draft_team": "HOU",
+   "draft_capital": "6th"
   },
   "13307": {
    "gsis_id": "00-0041472",
@@ -107763,11 +107763,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 59,
+   "draft_team": "HOU",
+   "draft_capital": "2nd"
   },
   "13365": {
    "gsis_id": "00-0041479",
@@ -107819,11 +107819,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 54,
+   "draft_team": "PHI",
+   "draft_capital": "2nd"
   },
   "13552": {
    "gsis_id": "00-0041484",
@@ -107847,11 +107847,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 6,
+   "draft_pick": 208,
+   "draft_team": "ATL",
+   "draft_capital": "6th"
   },
   "13274": {
    "gsis_id": "00-0041489",
@@ -107875,11 +107875,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 47,
+   "draft_team": "PIT",
+   "draft_capital": "2nd"
   },
   "13423": {
    "gsis_id": "00-0041490",
@@ -107903,11 +107903,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 230,
+   "draft_team": "PIT",
+   "draft_capital": "7th"
   },
   "13309": {
    "gsis_id": "00-0041491",
@@ -107959,11 +107959,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 45,
+   "draft_team": "BAL",
+   "draft_capital": "2nd"
   },
   "13391": {
    "gsis_id": "00-0041495",
@@ -107987,11 +107987,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 51,
+   "draft_team": "MIN",
+   "draft_capital": "2nd"
   },
   "13345": {
    "gsis_id": "00-0041496",
@@ -108015,11 +108015,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 108,
+   "draft_team": "DEN",
+   "draft_capital": "4th"
   },
   "13500": {
    "gsis_id": "00-0041497",
@@ -108043,11 +108043,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 109,
+   "draft_team": "KAN",
+   "draft_capital": "4th"
   },
   "13379": {
    "gsis_id": "00-0041502",
@@ -108071,11 +108071,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 46,
+   "draft_team": "TAM",
+   "draft_capital": "2nd"
   },
   "13299": {
    "gsis_id": "00-0041503",
@@ -108099,11 +108099,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 56,
+   "draft_team": "JAX",
+   "draft_capital": "2nd"
   },
   "13377": {
    "gsis_id": "00-0041509",
@@ -108127,11 +108127,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 5,
+   "draft_team": "NYG",
+   "draft_capital": "1st"
   },
   "13278": {
    "gsis_id": "00-0041510",
@@ -108155,11 +108155,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 61,
+   "draft_team": "LAR",
+   "draft_capital": "2nd"
   },
   "13276": {
    "gsis_id": "00-0041511",
@@ -108211,11 +108211,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 32,
+   "draft_team": "SEA",
+   "draft_capital": "1st"
   },
   "13481": {
    "gsis_id": "00-0041518",
@@ -108239,11 +108239,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 135,
+   "draft_team": "IND",
+   "draft_capital": "4th"
   },
   "13453": {
    "gsis_id": "00-0041522",
@@ -108267,11 +108267,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 43,
+   "draft_team": "MIA",
+   "draft_capital": "2nd"
   },
   "13296": {
    "gsis_id": "00-0041523",
@@ -108295,11 +108295,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 75,
+   "draft_team": "MIA",
+   "draft_capital": "3rd"
   },
   "13434": {
    "gsis_id": "00-0041524",
@@ -108323,11 +108323,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 87,
+   "draft_team": "MIA",
+   "draft_capital": "3rd"
   },
   "13311": {
    "gsis_id": "00-0041525",
@@ -108351,11 +108351,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 94,
+   "draft_team": "MIA",
+   "draft_capital": "3rd"
   },
   "13479": {
    "gsis_id": "00-0041527",
@@ -108379,11 +108379,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 138,
+   "draft_team": "MIA",
+   "draft_capital": "4th"
   },
   "13338": {
    "gsis_id": "00-0041529",
@@ -108435,11 +108435,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 238,
+   "draft_team": "MIA",
+   "draft_capital": "7th"
   },
   "13558": {
    "gsis_id": "00-0041534",
@@ -108519,11 +108519,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 1,
+   "draft_team": "LVR",
+   "draft_capital": "1st"
   },
   "13275": {
    "gsis_id": "00-0041568",
@@ -108547,11 +108547,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 1,
+   "draft_pick": 13,
+   "draft_team": "LAR",
+   "draft_capital": "1st"
   },
   "13457": {
    "gsis_id": "00-0041569",
@@ -108575,11 +108575,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 2,
+   "draft_pick": 55,
+   "draft_team": "NWE",
+   "draft_capital": "2nd"
   },
   "13272": {
    "gsis_id": "00-0041561",
@@ -108631,11 +108631,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 66,
+   "draft_team": "DEN",
+   "draft_capital": "3rd"
   },
   "13466": {
    "gsis_id": "00-0041553",
@@ -108659,11 +108659,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 67,
+   "draft_team": "LVR",
+   "draft_capital": "3rd"
   },
   "13322": {
    "gsis_id": "00-0041558",
@@ -108687,11 +108687,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 69,
+   "draft_team": "CHI",
+   "draft_capital": "3rd"
   },
   "13289": {
    "gsis_id": "00-0041565",
@@ -108715,11 +108715,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 3,
+   "draft_pick": 76,
+   "draft_team": "PIT",
+   "draft_capital": "3rd"
   },
   "13504": {
    "gsis_id": "00-0041549",
@@ -108771,11 +108771,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 104,
+   "draft_team": "ARI",
+   "draft_capital": "4th"
   },
   "13380": {
    "gsis_id": "00-0041550",
@@ -108799,11 +108799,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 105,
+   "draft_team": "LAC",
+   "draft_capital": "4th"
   },
   "13501": {
    "gsis_id": "00-0041557",
@@ -108827,11 +108827,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 107,
+   "draft_team": "SFO",
+   "draft_capital": "4th"
   },
   "13429": {
    "gsis_id": "00-0041579",
@@ -108855,11 +108855,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 5,
+   "draft_pick": 180,
+   "draft_team": "MIA",
+   "draft_capital": "5th"
   }
  },
  "rule_3e_control": {
@@ -108869,5 +108869,11 @@
   "coverage_pct": 100.0,
   "ok": true,
   "missed_players": []
+ },
+ "rule_3e_control_rookie_udfa_rate": {
+  "checked": 72,
+  "udfa": 13,
+  "udfa_pct": 18.1,
+  "ok": true
  }
 }

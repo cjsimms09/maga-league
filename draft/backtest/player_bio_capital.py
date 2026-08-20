@@ -129,20 +129,59 @@ def build_bio_table(roster_rows_by_season: dict) -> dict:
 _MODERN_GSIS_RE = re.compile(r"^\d{2}-\d{7}$")
 
 
-def build_draft_table(draft_rows: list) -> dict:
+def unique_name_index(bio: dict) -> dict:
+    """{name: gsis_id} from bio's own roster names -- ONLY for names that
+    resolve to exactly one gsis_id on the roster. A name that maps to two+
+    real players (measured: 10 real collisions on the 2026 roster alone,
+    e.g. two players both named "Justin Jefferson") is excluded rather than
+    guessed -- same discipline as sleeper_name_index elsewhere in this
+    project: a caller gets no answer rather than a wrong one."""
+    by_name: dict[str, set] = {}
+    for gsis, rec in bio.items():
+        name = rec.get("name")
+        if name:
+            by_name.setdefault(name, set()).add(gsis)
+    return {name: next(iter(gsis_set)) for name, gsis_set in by_name.items()
+           if len(gsis_set) == 1}
+
+
+def build_draft_table(draft_rows: list, name_to_roster_gsis: dict | None = None) -> dict:
     """{gsis_id: {season, round, pick, team}} -- one entry per player (a
     player is drafted exactly once). Filtered by gsis_id FORMAT, not by
     draft season -- a season cutoff mislabeled every veteran drafted before
     2015 as UDFA in an earlier version of this function (Tom Brady's 2000
     draft row carries the same modern-format gsis_id as his roster row; the
     real defect is a small number of RECENT late-round picks who never made
-    an active roster and never got a modern gsis_id assigned at all)."""
+    an active roster and never got a modern gsis_id assigned at all).
+
+    ⚠️ SECOND BUG, CAUGHT THE SAME WAY AS THE FIRST -- BY CHECKING A REAL
+    NAME RATHER THAN TRUSTING "100% COVERAGE": the format filter alone
+    mislabeled the ENTIRE CURRENT-YEAR ROOKIE CLASS as UDFA, not just a
+    handful of ghosts. `draft_picks.parquet`'s own convention is that a
+    freshly-drafted class carries a PFR-STYLE id (`LOV121782`, not
+    `00-1234567`) until nflverse promotes it later in the season -- so
+    EVERY one of 257 real 2026 picks failed the format check, including
+    round-1 picks already on an active roster (Jeremiyah Love, pick 3,
+    read `draft_capital: "UDFA"` in the first shipped version of this
+    module). Measured before fixing: 230 of those 257 (89%) are findable
+    BY EXACT NAME on the 2026 active roster, which already carries a real
+    modern-format gsis_id for them. `name_to_roster_gsis` (from
+    `unique_name_index(bio)`) redirects a non-modern draft-picks row to
+    the roster's own gsis when the name matches exactly and unambiguously
+    -- the remaining picks (no roster row yet, or a genuinely ambiguous
+    name) stay excluded, same as before."""
     out: dict = {}
+    name_to_roster_gsis = name_to_roster_gsis or {}
     for row in draft_rows:
         gsis = row.get("gsis_id")
         season = row.get("season")
-        if not gsis or not season or not _MODERN_GSIS_RE.match(str(gsis)):
+        name = row.get("pfr_player_name")
+        if not gsis or not season:
             continue
+        if not _MODERN_GSIS_RE.match(str(gsis)):
+            gsis = name_to_roster_gsis.get(name)
+            if gsis is None:
+                continue
         out.setdefault(gsis, {"season": int(season), "round": row.get("round"),
                               "pick": row.get("pick"), "team": row.get("team")})
     return out
@@ -225,6 +264,30 @@ def verify_top170_coverage(doc: dict, board: dict, top_n: int = 170) -> dict:
            "coverage_pct": rate, "ok": rate >= 90.0, "missed_players": misses[:30]}
 
 
+def verify_rookie_capital_not_systematically_udfa(doc: dict, board: dict) -> dict:
+    """SECOND RULE 3e CONTROL, added after the one above passed at 100%
+    while the whole current-year rookie class read UDFA -- coverage
+    ("is a label present") and correctness ("is it the right label") are
+    different questions, and only the first was checked. This one checks
+    the DISTRIBUTION (rule 3i): among the board's own `is_nfl_rookie: True`
+    players, the UDFA rate should be low -- most rookies inside ADP range
+    were drafted, not undrafted. 30% is a deliberately loose bar (a real
+    draft class is closer to 0-10% UDFA at this population), so a value
+    this high is a real signal, not sensor noise."""
+    all_players = list(board.get("players") or []) + list(board.get("kept_players") or [])
+    rookies = [p for p in all_players if p.get("is_nfl_rookie")]
+    checked, udfa = 0, 0
+    for p in rookies:
+        row = doc["players"].get(str(p["player_id"]))
+        if not row:
+            continue
+        checked += 1
+        if row.get("draft_capital") == "UDFA":
+            udfa += 1
+    rate = round(100 * udfa / checked, 1) if checked else 0.0
+    return {"checked": checked, "udfa": udfa, "udfa_pct": rate, "ok": rate <= 30.0}
+
+
 def _fetch_parquet_records(url: str) -> list:  # pragma: no cover  (egress)
     import pandas as pd
     return pd.read_parquet(url).to_dict("records")
@@ -249,11 +312,12 @@ def run(seasons=SEASONS) -> dict:  # pragma: no cover  (egress)
 
     bio = build_bio_table(roster_rows_by_season)
     bio = resolve_sleeper_id(bio, fallback_crosswalk)
-    draft = build_draft_table(draft_rows)
+    draft = build_draft_table(draft_rows, unique_name_index(bio))
     doc = build_store(bio, draft, seasons)
 
     board = json.loads((ROOT / "public" / "draft_data.json").read_text())
     doc["rule_3e_control"] = verify_top170_coverage(doc, board)
+    doc["rule_3e_control_rookie_udfa_rate"] = verify_rookie_capital_not_systematically_udfa(doc, board)
     return doc
 
 
@@ -264,6 +328,11 @@ def main(seasons=SEASONS) -> int:  # pragma: no cover  (egress)
         print(f"VOID -- top-170 coverage {control['coverage_pct']}% is under "
              "the 90% floor", file=sys.stderr)
         print(f"missed: {control['missed_players']}", file=sys.stderr)
+        return 1
+    rookie_control = doc["rule_3e_control_rookie_udfa_rate"]
+    if not rookie_control["ok"]:
+        print(f"VOID -- {rookie_control['udfa_pct']}% of board rookies read "
+             "UDFA, over the 30% sanity floor", file=sys.stderr)
         return 1
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.relative_to(ROOT)}: {doc['population']['matched_to_sleeper']} "

@@ -27,6 +27,33 @@ BRADY_ROSTER_ROW = {"full_name": "Tom Brady", "position": "QB",
 BAD_GSIS_ROW = {"season": 2015, "round": 6, "pick": 201, "team": "STL",
                 "gsis_id": "BUDSASSER0", "pfr_player_name": "Bud Sasser"}
 
+# ── real rows, the SECOND bug: the ENTIRE 2026 draft class carries a
+# PFR-style gsis_id (nflverse's own convention for a fresh class, before
+# ids get "promoted") -- 257 of 257 real 2026 picks failed the format
+# check, not just a handful of ghosts. Jeremiyah Love, round 1 pick 3,
+# read "UDFA" in the first shipped version of this fix. Verified against
+# the live nflverse fetch before writing this file (rule 3f).
+LOVE_DRAFT_ROW = {"season": 2026, "round": 1, "pick": 3, "team": "ARI",
+                  "gsis_id": "LOV121782", "pfr_player_name": "Jeremiyah Love"}
+LOVE_ROSTER_ROW = {"full_name": "Jeremiyah Love", "position": "RB",
+                   "birth_date": "2005-05-31", "rookie_year": 2026.0,
+                   "gsis_id": "00-0041027", "sleeper_id": "13287"}
+
+# Mike Washington: a REAL residual gap the by-name fix does NOT close, and
+# it is documented rather than silently left. Three real nflverse sources
+# disagree on his gsis_id (draft_picks WAS797326, 2026 roster 00-0040878,
+# nfl.import_ids() a THIRD id WAS569019), and on top of that draft_picks'
+# own name ("Mike Washington Jr.") does not exact-match the roster's
+# ("Mike Washington") -- verified against the live fetch before writing
+# this file. The name-index fix is exact-match only by design (a fuzzy
+# suffix-stripping match risks matching the WRONG player), so he stays
+# UDFA -- correctly absent from the fix's population, not silently wrong.
+WASHINGTON_DRAFT_ROW = {"season": 2026, "round": 4, "pick": 122, "team": "LVR",
+                        "gsis_id": "WAS797326", "pfr_player_name": "Mike Washington Jr."}
+WASHINGTON_ROSTER_ROW = {"full_name": "Mike Washington", "position": "RB",
+                         "birth_date": "2003-07-03", "rookie_year": 2026.0,
+                         "gsis_id": "00-0040878", "sleeper_id": None}
+
 
 def test_draft_capital_label_matches_sleeper_style_round_names():
     assert P.draft_capital_label(1) == "1st"
@@ -71,6 +98,53 @@ def test_build_draft_table_excludes_a_real_non_standard_gsis_id():
     # appears in any roster file and never got a modern gsis_id
     draft = P.build_draft_table([BAD_GSIS_ROW])
     assert draft == {}
+
+
+def test_unique_name_index_excludes_a_real_roster_collision():
+    # THE REAL COLLISION: the 2026 roster carries two different players
+    # both named "Justin Jefferson" (verified against the live fetch) --
+    # the index must drop the name rather than guess which one.
+    bio = {"00-1": {"name": "Justin Jefferson"}, "00-2": {"name": "Justin Jefferson"},
+          "00-3": {"name": "Jeremiyah Love"}}
+    idx = P.unique_name_index(bio)
+    assert "Justin Jefferson" not in idx
+    assert idx["Jeremiyah Love"] == "00-3"
+
+
+def test_build_draft_table_resolves_the_real_2026_class_by_name():
+    # THE SECOND REAL BUG, PINNED: draft_picks.parquet's own convention
+    # gives the ENTIRE incoming class a PFR-style id (not just ghosts) --
+    # ALL 257 real 2026 picks failed the format check, including
+    # round-1-pick-3 Jeremiyah Love, who read "UDFA" in the first shipped
+    # version. Verified against the live fetch: his draft_picks row is
+    # `LOV121782`/`pfr_player_name "Jeremiyah Love"`; his real 2026
+    # roster row carries a modern gsis (`00-0041027`) under the identical
+    # name string.
+    bio = P.build_bio_table({2026: [LOVE_ROSTER_ROW]})
+    draft = P.build_draft_table([LOVE_DRAFT_ROW], P.unique_name_index(bio))
+    assert "00-0041027" in draft
+    assert draft["00-0041027"]["round"] == 1
+    assert draft["00-0041027"]["pick"] == 3
+
+
+def test_build_draft_table_still_excludes_a_real_suffix_mismatch():
+    # THE FIX'S REAL BOUNDARY, NAMED RATHER THAN HIDDEN: draft_picks calls
+    # him "Mike Washington Jr."; the 2026 roster calls him "Mike
+    # Washington" -- no "Jr." Exact-match by design (a fuzzy match risks
+    # resolving to the WRONG Washington), so he correctly stays excluded
+    # rather than silently mismatched to a different person.
+    bio = P.build_bio_table({2026: [WASHINGTON_ROSTER_ROW]})
+    draft = P.build_draft_table([WASHINGTON_DRAFT_ROW], P.unique_name_index(bio))
+    assert draft == {}
+
+
+def test_build_store_gives_love_first_round_capital_not_udfa():
+    bio = P.build_bio_table({2026: [LOVE_ROSTER_ROW]})
+    draft = P.build_draft_table([LOVE_DRAFT_ROW], P.unique_name_index(bio))
+    doc = P.build_store(bio, draft, (2026,))
+    row = doc["players"]["13287"]
+    assert row["draft_capital"] == "1st"
+    assert row["draft_round"] == 1
 
 
 def test_build_store_gives_brady_the_correct_draft_capital_not_udfa():
@@ -140,3 +214,41 @@ def test_verify_top170_coverage_passes_when_data_is_complete():
     control = P.verify_top170_coverage(doc, board, top_n=1)
     assert control["ok"] is True
     assert control["coverage_pct"] == 100.0
+
+
+# ── the SECOND rule 3e control -- this is the one that would have caught
+#    the real 2026-rookie-class bug before it shipped, since the first
+#    control's 100% coverage passed while every one of those rows was
+#    wrong, not missing ──────────────────────────────────────────────────
+
+def test_verify_rookie_udfa_rate_is_a_real_fail_arm():
+    # THE REAL SHAPE OF THE BUG THIS CONTROL EXISTS TO CATCH: coverage is
+    # 100% (every rookie has SOME label) and every one of those labels is
+    # wrong.
+    board = {"players": [{"player_id": str(i), "name": f"Rookie{i}",
+                         "is_nfl_rookie": True} for i in range(10)],
+            "kept_players": []}
+    doc = {"players": {str(i): {"draft_capital": "UDFA"} for i in range(10)}}
+    control = P.verify_rookie_capital_not_systematically_udfa(doc, board)
+    assert control["ok"] is False
+    assert control["udfa_pct"] == 100.0
+
+
+def test_verify_rookie_udfa_rate_passes_on_a_real_draft_class_shape():
+    board = {"players": [{"player_id": str(i), "name": f"Rookie{i}",
+                         "is_nfl_rookie": True} for i in range(10)],
+            "kept_players": []}
+    doc = {"players": {str(i): {"draft_capital": "1st" if i < 8 else "UDFA"}
+                       for i in range(10)}}
+    control = P.verify_rookie_capital_not_systematically_udfa(doc, board)
+    assert control["ok"] is True
+    assert control["udfa_pct"] == 20.0
+
+
+def test_verify_rookie_udfa_rate_ignores_non_rookies():
+    board = {"players": [{"player_id": "1", "name": "Veteran", "is_nfl_rookie": False}],
+            "kept_players": []}
+    doc = {"players": {"1": {"draft_capital": "UDFA"}}}
+    control = P.verify_rookie_capital_not_systematically_udfa(doc, board)
+    assert control["checked"] == 0
+    assert control["ok"] is True
