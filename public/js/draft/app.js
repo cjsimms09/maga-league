@@ -9317,7 +9317,7 @@
             + 'ranking</b> — their board, not ours.</p>'
           : (state.rankSource
               ? '<p class="muted rs-note">Big Board order: <b>our replacement math on '
-                + esc(active) + '\'s projections</b>. They publish a ranking we do not '
+                + esc(activeSrc.label) + '\'s projections</b>. They publish a ranking we do not '
                 + 'hold — we ingested their numbers, not their board — and sorting by '
                 + 'their raw points instead puts twelve quarterbacks in the top twelve, '
                 + 'because cross-position points are not comparable.</p>'
