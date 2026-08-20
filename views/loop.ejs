@@ -1,0 +1,181 @@
+<%- include('partials/header', { title: 'The Learning Loop', me }) %>
+<style>
+  .loop-wrap { max-width: 980px; margin: 0 auto; padding: 12px; }
+  .loop-wrap h1 { margin-bottom: 2px; }
+  .loop-sub { color: #888; margin-bottom: 18px; }
+  .loop-cards { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  .loop-stat { background: #1d232b; border-radius: 10px; padding: 12px 18px; min-width: 120px; }
+  .loop-stat b { font-size: 1.6em; display: block; }
+  .loop-stat span { color: #9aa4b0; font-size: .85em; }
+  .loop-sec { margin: 26px 0; }
+  .loop-sec h2 { border-bottom: 1px solid #2c3440; padding-bottom: 4px; }
+  .loop-grade { background: #1d232b; border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+  .loop-grade .verdict { font-weight: 700; padding: 1px 8px; border-radius: 6px; font-size: .8em; }
+  .v-right { background: #14532d; color: #86efac; }
+  .v-wrong { background: #713f12; color: #fde68a; }
+  .loop-grade .changed { color: #9aa4b0; margin-top: 6px; font-size: .92em; }
+  .loop-flag { background: #2b1d1d; border: 1px solid #7f1d1d; border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+  .loop-ok { background: #1d2b22; border: 1px solid #14532d; }
+  table.loop-t { width: 100%; border-collapse: collapse; }
+  table.loop-t td, table.loop-t th { padding: 6px 8px; border-bottom: 1px solid #2c3440; text-align: left; font-size: .92em; }
+  .ax-live { color: #86efac; } .ax-null { color: #9aa4b0; }
+  .small { color: #9aa4b0; font-size: .85em; }
+</style>
+<div class="loop-wrap">
+  <h1>🔁 The Learning Loop</h1>
+  <div class="loop-sub">What the model is doing, whether it's working, and whether we're learning.
+    Every number on this page is computed live from the prediction ledger — nothing here can go stale or be spun.</div>
+
+  <div class="loop-sec">
+    <h2>👀 Needs your eyes</h2>
+    <% if (!flags.overdue.length && !flags.nothingGrades.length && flags.missingParts === 0 && !flags.coryOpen.length) { %>
+      <div class="loop-flag loop-ok">Nothing needs intervention right now. Grades are on schedule, every grade changed something, and no decision is waiting on you.</div>
+    <% } %>
+    <% if (flags.overdue.length) { %>
+      <div class="loop-flag"><b><%= flags.overdue.length %> prediction(s) are past their grade date and still ungraded</b> — this is the loop NOT closing.
+        <% flags.overdue.slice(0,5).forEach(r => { %><div class="small"><%= r.id %> (<%= r.owner %>, was due <%= r.due %>): <%= r.claim.slice(0,120) %></div><% }) %>
+        <div class="small">The build gate also fails on these — if this list is non-empty for more than a day, ask the owner lane directly.</div>
+      </div>
+    <% } %>
+    <% if (flags.nothingGrades.length) { %>
+      <div class="loop-flag"><b><%= flags.nothingGrades.length %> recent grade(s) changed NOTHING</b> — each carries a reason; judge whether the reason is honest or the loop going soft.
+        <% flags.nothingGrades.forEach(r => { %><div class="small"><%= r.id %>: <%= r.changed.slice(0,140) %></div><% }) %>
+      </div>
+    <% } %>
+    <% if (flags.missingParts > 0) { %>
+      <div class="loop-flag"><b><%= flags.missingParts %> open prediction(s) still missing the three-part standard</b>
+        (learning target · skill design · consequence route). They go build-failing on <%= flags.fatalDate %> automatically — no action needed unless the count isn't falling week over week.</div>
+    <% } %>
+    <% if (flags.coryOpen.length) { %>
+      <div class="loop-flag"><b>Waiting on YOU:</b>
+        <% flags.coryOpen.forEach(t => { %><div class="small"><%= t %></div><% }) %>
+        <div class="small">Full detail in CORY-ASKS.md.</div>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="loop-sec">
+    <h2>📊 Are we learning?</h2>
+    <div class="loop-cards">
+      <div class="loop-stat"><b><%= stats.filed %></b><span>predictions filed</span></div>
+      <div class="loop-stat"><b><%= stats.graded %></b><span>graded</span></div>
+      <div class="loop-stat"><b><%= stats.wrong %></b><span>were wrong</span></div>
+      <div class="loop-stat"><b><%= stats.changedSomething %></b><span>grades that changed what we do</span></div>
+      <div class="loop-stat"><b><%= stats.open %></b><span>open bets right now</span></div>
+    </div>
+    <p>Being wrong is the point: a wrong prediction that changes the model is how it gets smarter, and a build
+    gate <i>requires</i> every grade to name what it changed. The number to watch is not the win rate — it's
+    whether "changed what we do" keeps up with "graded." If grading continues but nothing changes, we've
+    stopped learning and started bookkeeping.</p>
+  </div>
+
+  <div class="loop-sec">
+    <h2>🧾 The last grades — what we predicted, what happened, what it changed</h2>
+    <% recentGrades.forEach(r => { %>
+      <div class="loop-grade">
+        <span class="verdict <%= r.wrong ? 'v-wrong' : 'v-right' %>"><%= r.wrong ? 'WRONG — and it taught us' : 'RIGHT' %></span>
+        <b> <%= r.id %></b> · <%= r.claim %>
+        <div class="changed"><b>What happened:</b> <%= r.result.slice(0, 200) %></div>
+        <div class="changed"><b>What it changed:</b> <%= r.changed.slice(0, 200) %></div>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="loop-sec">
+    <h2>🎯 Open bets, next up</h2>
+    <table class="loop-t"><tr><th>id</th><th>the bet</th><th>owner</th><th>grades by</th></tr>
+    <% dueSoon.forEach(r => { %>
+      <tr><td><%= r.id %></td><td><%= r.claim.slice(0, 150) %></td><td><%= r.owner %></td><td><%= r.due %></td></tr>
+    <% }) %>
+    </table>
+  </div>
+
+  <% if (axes.length) { %>
+  <div class="loop-sec">
+    <h2>🗺️ Your edge list — where each axis stands</h2>
+    <table class="loop-t"><tr><th>axis</th><th>what's live</th><th>owner</th></tr>
+    <% axes.forEach(a => { %>
+      <tr>
+        <td><%= a.axis %></td>
+        <td class="<%= /NULL/i.test(a.program) ? 'ax-null' : 'ax-live' %>"><%= a.program %></td>
+        <td><%= a.owner %></td>
+      </tr>
+    <% }) %>
+    </table>
+    <div class="small">A gray "GRADED NULL" is a real result, not a failure — we proved that path empty and stopped spending on it.</div>
+  </div>
+  <% } %>
+
+  <div class="loop-sec">
+    <h2>🎲 Skill or luck?</h2>
+    <% if (skill && skill.R_star != null) { %>
+      <p>Measured on this league's real matchups (<%= (skill.seasons_used||[]).join(', ') %>):
+      persistence score R* = <b><%= skill.R_star %></b>, where 0 is a coin flip and 1 is pure skill.
+      The honest catch: with only 10 owners the noise band is
+      [<%= skill.null && skill.null['null_2.5'] %>, <%= skill.null && skill.null['null_97.5'] %>] — so this is
+      <i>suggestive, not proof</i>. As the season's weekly grades pile up, our own models get this
+      same test with real statistical power.</p>
+    <% } else { %>
+      <p>The skill-vs-luck instrument is built (<code>draft/tools/skill_luck_r.py</code>) and its league
+      artifact hasn't been generated on this deploy yet. Once weekly grades accumulate this section shows
+      whether OUR calls persist half-to-half — the difference between an edge and a hot streak.</p>
+    <% } %>
+  </div>
+
+  <div class="loop-sec">
+    <h2>📈 Are we getting better?</h2>
+    <p class="small">Two different questions, honestly separated. <b>Model accuracy</b> (are the projections
+    beating Sleeper/FantasyPros) lives on the <a href="/admin/model-scoreboard">model scoreboard</a> and its
+    weekly series starts with the first in-season grade (~Sep 15). What THIS strip shows is the <b>learning
+    loop's own health</b> over time: how often our claims are wrong (healthy is well above zero — never-wrong
+    means we stopped asking hard questions) and how often a grade changed what we do (falling = bookkeeping).</p>
+    <table class="loop-t"><tr><th>predictions</th><th>graded</th><th>% wrong</th><th>% that changed what we do</th></tr>
+    <% trend.forEach(t => { %>
+      <tr><td><%= t.label %></td><td><%= t.n %></td><td><%= t.pctWrong %>%</td><td><%= t.pctActed %>%</td></tr>
+    <% }) %>
+    </table>
+  </div>
+
+  <div class="loop-sec">
+    <h2>📋 Every prediction, trackable</h2>
+    <div style="margin-bottom:8px">
+      <button class="lf" data-f="all">All (<%= allSorted.length %>)</button>
+      <button class="lf" data-f="open">Open</button>
+      <button class="lf" data-f="graded">Graded</button>
+      <button class="lf" data-f="wrong">Wrong</button>
+      <button class="lf" data-f="nothing">Changed nothing</button>
+    </div>
+    <table class="loop-t" id="loop-all"><tr><th>id</th><th>the bet</th><th>owner</th><th>due</th><th>status</th><th>what it changed</th></tr>
+    <% allSorted.forEach(r => { %>
+      <tr data-status="<%= r.status.toLowerCase() %>" data-wrong="<%= r.wrong %>" data-nothing="<%= /^NOTHING/i.test(r.changed) %>">
+        <td><%= r.id %></td><td><%= r.claim.slice(0, 130) %></td><td><%= r.owner %></td><td><%= r.due %></td>
+        <td><%= r.status === 'GRADED' ? (r.wrong ? 'WRONG' : 'RIGHT') : r.status %></td>
+        <td><%= (r.changed || '—').slice(0, 110) %></td>
+      </tr>
+    <% }) %>
+    </table>
+    <script>
+      document.querySelectorAll('.lf').forEach(b => b.addEventListener('click', () => {
+        const f = b.dataset.f;
+        document.querySelectorAll('#loop-all tr[data-status]').forEach(tr => {
+          const show = f === 'all'
+            || (f === 'open' && tr.dataset.status === 'open')
+            || (f === 'graded' && tr.dataset.status === 'graded')
+            || (f === 'wrong' && tr.dataset.wrong === 'true')
+            || (f === 'nothing' && tr.dataset.nothing === 'true');
+          tr.style.display = show ? '' : 'none';
+        });
+      }));
+    </script>
+  </div>
+
+  <div class="loop-sec">
+    <h2>⚙️ How the loop runs, in one breath</h2>
+    <p><b>Capture</b> (nightly: rosters, lineups, transactions, projections, lines) →
+    <b>Predict</b> (every bet states what we'd learn, how skill is separated from luck, and what changes on TRUE vs FALSE — the build fails otherwise) →
+    <b>Grade</b> (Tuesdays, against pre-declared bars) →
+    <b>Adapt</b> (losing arms benched after 3 weeks, winners promoted only past the luck-nulls) →
+    <b>Audit</b> (structural changes to this process go to an outside AI auditor before we rely on them).</p>
+  </div>
+</div>
+<%- include('partials/footer') %>

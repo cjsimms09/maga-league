@@ -1806,4 +1806,108 @@ router.post('/model-scoreboard/source', requireCory, aw(async (req, res) => {
   res.redirect('/admin/model-scoreboard?saved=' + encodeURIComponent(want));
 }));
 
+/* ── THE LEARNING LOOP (/admin/loop) — Cory's ask, 2026-08-20: "a page meant
+ * for a human that actually shows me what the model is doing, how its going,
+ * are we learning." Every number on this page is COMPUTED from
+ * PREDICTION-LEDGER.md at request time — nothing hand-typed, so it cannot go
+ * stale the way prose does. Territory: relay built, A merged, B owns the
+ * surface after merge. */
+router.get('/loop', requireCory, aw(async (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const ROOT = path.join(__dirname, '..', '..');
+  const checker = require(path.join(ROOT, 'draft', 'tools', 'prediction_ledger_check.js'));
+  const text = fs.readFileSync(path.join(ROOT, 'PREDICTION-LEDGER.md'), 'utf8');
+
+  // one plain-English line from a ledger claim cell: strip markdown noise,
+  // take the first sentence-ish chunk
+  const plain = c => String(c || '')
+    .replace(/[*_`~]/g, '').replace(/🎯|⚠️|📦|🔴|🟡|🟢/g, '')
+    .replace(/\s+/g, ' ').trim().slice(0, 220);
+
+  const all = [];
+  for (const cells of checker.rows(text)) {
+    const status = /GRADED/.test(cells[5]) ? 'GRADED'
+      : /ABANDONED/.test(cells[5]) ? 'ABANDONED'
+      : /OPEN/.test(cells[5]) ? 'OPEN' : 'OTHER';
+    all.push({
+      id: String(cells[0]).trim(),
+      claim: plain(cells[1]),
+      owner: String(cells[3] || '').replace(/\*/g, '').trim(),
+      due: String(cells[4] || '').replace(/\*/g, '').trim(),
+      status,
+      result: plain(cells[6]),
+      changed: plain(cells[7]),
+      wrong: /FALSE/i.test(String(cells[6] || '')),
+      numId: parseInt(String(cells[0]).replace(/\D/g, ''), 10) || 0,
+    });
+  }
+  const graded = all.filter(r => r.status === 'GRADED');
+  const open = all.filter(r => r.status === 'OPEN');
+  const stats = {
+    filed: all.length,
+    graded: graded.length,
+    wrong: graded.filter(r => r.wrong).length,
+    right: graded.filter(r => !r.wrong).length,
+    abandoned: all.filter(r => r.status === 'ABANDONED').length,
+    open: open.length,
+    changedSomething: graded.filter(r => r.changed && !/^NOTHING/i.test(r.changed)).length,
+  };
+  const recentGrades = graded.sort((a, b) => b.numId - a.numId).slice(0, 8);
+  const dueSoon = open
+    .map(r => { const m = r.due.match(/(\d{4}-)?(\d{2})-(\d{2})/); return { ...r, key: m ? (m[1] || '2026-') + m[2] + '-' + m[3] : '9999' }; })
+    .sort((a, b) => a.key.localeCompare(b.key)).slice(0, 6);
+
+  // the edge axes table out of IN-SEASON-EDGE-PROGRAM.md, if present
+  let axes = [];
+  try {
+    const prog = fs.readFileSync(path.join(ROOT, 'draft', 'IN-SEASON-EDGE-PROGRAM.md'), 'utf8');
+    const sec = prog.split('## THE EDGE AXES')[1] || '';
+    axes = sec.split('\n').filter(l => /^\| [a-z]/i.test(l) && !/^\| axis/.test(l))
+      .map(l => { const c = l.split('|').map(x => x.trim()); return { axis: c[1], program: c[2], owner: c[3] }; });
+  } catch (e) { /* page renders without the table */ }
+
+  // skill-vs-luck artifact if the tool has written one (regenerate:
+  // python3 draft/tools/skill_luck_r.py --league > draft/data/skill_luck_league.json)
+  let skill = null;
+  try { skill = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'skill_luck_league.json'), 'utf8')); } catch (e) {}
+
+  /* ── NEEDS YOUR EYES — Cory: "things i need to look for so I can intervene
+   * if we are getting off track, if we arent grading something or acting on
+   * it." Every flag computed, none asserted. */
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const overdue = open
+    .map(r => { const m = r.due.match(/(\d{4}-)?(\d{2})-(\d{2})/); return { ...r, key: m ? (m[1] || '2026-') + m[2] + '-' + m[3] : null }; })
+    .filter(r => r.key && r.key < todayKey);
+  const nothingGrades = graded.filter(r => /^NOTHING/i.test(r.changed)).sort((a, b) => b.numId - a.numId).slice(0, 5);
+  const missingParts = open.filter(r => {
+    const u = r.claim.toUpperCase();
+    return !(u.includes('LEARNING TARGET') && u.includes('SKILL DESIGN') && u.includes('CONSEQUENCE ROUTE'));
+  }).length;
+  let coryOpen = [];
+  try {
+    const asks = fs.readFileSync(path.join(ROOT, 'CORY-ASKS.md'), 'utf8');
+    coryOpen = asks.split('\n').filter(l => /^## OPEN/.test(l)).map(l => l.replace(/^## /, '').trim());
+  } catch (e) {}
+  const flags = { overdue, nothingGrades, missingParts, fatalDate: '2026-09-10', coryOpen };
+
+  /* the FULL trackable table (Cory: "I should easily be able to track
+   * predictions, see if they were graded and see if they were acted on")
+   * plus a getting-better trend: outcomes bucketed by filing order. */
+  const allSorted = all.slice().sort((a, b) => b.numId - a.numId);
+  const bucketSize = 30;
+  const trend = [];
+  const chron = all.slice().sort((a, b) => a.numId - b.numId).filter(r => r.status === 'GRADED');
+  for (let i = 0; i < chron.length; i += bucketSize) {
+    const b = chron.slice(i, i + bucketSize);
+    trend.push({
+      label: `${b[0].id}–${b[b.length - 1].id}`,
+      n: b.length,
+      pctWrong: Math.round(100 * b.filter(r => r.wrong).length / b.length),
+      pctActed: Math.round(100 * b.filter(r => r.changed && !/^NOTHING/i.test(r.changed)).length / b.length),
+    });
+  }
+  res.render('loop', { me: req.owner, stats, recentGrades, dueSoon, axes, skill, flags, allSorted, trend });
+}));
+
 module.exports = router;
