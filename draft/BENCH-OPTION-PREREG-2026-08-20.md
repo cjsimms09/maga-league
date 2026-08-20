@@ -48,34 +48,37 @@ dispersion family's calibration history says do not import it untested):
 * **NO CAPS. NO BENCH RULE. NO NEED TERM.** Every roster rule currently
   bolted on must EMERGE or the objective has failed its own thesis.
 
-## 3 · BLIND BARS (P263, P264–P265, filed with this commit)
+## 3 · BLIND BARS (P269, P270–P271, filed with this commit)
 
-*(renumbered from P254, P255–P256 — collided with the pre-existing P254
-REAL_VONA re-run row; REAL_VONA's commit at 19:57:26 UTC precedes this row's
-20:57:48 UTC, so by first-allocation-wins this row moves. Superseded anyway:
-v1 graded FALSE below and P254 is retired from this doc.)*
+*(renumbered TWICE by E, 2026-08-20. First P254→P263 for colliding with the
+pre-existing P254 REAL_VONA re-run row (REAL_VONA committed 19:57:26 UTC,
+before this row's 20:57:48 UTC). Then P263 itself collided with the relay's
+own live v4 numbering (§7 below, `0042d0ef`) — this branch had renumbered to
+263 before merging that commit. Landed at P269-271, past the relay's own v5
+(P266-268 in §8), so the next merge cannot repeat this. Superseded anyway: v1
+graded FALSE below and P254/P263 are both retired from this doc.)*
 
-* **P263 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
+* **P269 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
   **≤1 K and ≤1 DEF in ≥28/30 seats, and ≤1 QB and ≤2 TE in ≥25/30.**
   The known-negative is already graded: uncapped MLV drafts K 1.93 / DEF 1.90
   (register 136 C2). If `--opt` also multi-drafts them, the thesis is FALSE
   and files as such.
-* **P264 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
+* **P270 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
   the same 30 seat-years. Direction claim; the DP result says the frozen
   frame is closed, so any gain must come from exactly the stochastic terms —
   a null here means the option value is real but already captured by the cap
   + bench rule, which is itself worth knowing and files loudly.
-* **P265 — legality:** 30/30 rosters legal, every starting slot fillable by a
+* **P271 — legality:** 30/30 rosters legal, every starting slot fillable by a
   rostered player (wire floors price absence, never permanent vacancy).
 
 ## 4 · SHIP PATH AND CLOCK (2026, not 2027 — Cory's ruling)
 
-Grades land tonight/Thursday. If P263 AND P265 pass: the arm ships to the war
+Grades land tonight/Thursday. If P269 AND P271 pass: the arm ships to the war
 room **as the seat-plan panel's generator** (report-only, the exact class MLV
 shipped in), Friday-freeze compatible; A merges the harness code, B repoints
-the panel artifact. P264's result prints beside it either way — a FALSE there
+the panel artifact. P270's result prints beside it either way — a FALSE there
 does not block the ship (the theorem, not the delta, is what Cory asked for).
-If P263 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
+If P269 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
 bench rule stand for Saturday. **DEFAULT if grading is not done by Friday
 noon: nothing ships; the prereg grades post-draft.**
 
@@ -83,7 +86,7 @@ noon: nothing ships; the prereg grades post-draft.**
 
 ## 5 · V2 AMENDMENT, 2026-08-20 — FILED AFTER v1's GRADES, BEFORE ANY v2 RUN
 
-v1 ran and **P263 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
+v1 ran and **P269 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
 the uncapped-MLV known-negative), while the QB/TE half of the theorem held
 (1.17 / 1.13). The localization is exact: v1's wire was FRICTIONLESS —
 unlimited claims, every slot, every week — under which real bench depth is
@@ -100,7 +103,7 @@ wire friction**.
    liquidity constraint: three simultaneous RB holes cannot all be streamed.
 2. **Forcing fallback** — when §14c forcing restricts to a needed position
    and the recorded pool has none left, fall back to unrestricted candidates
-   instead of skipping the pick (P265's vacancy bug, mechanism in the grade).
+   instead of skipping the pick (P271's vacancy bug, mechanism in the grade).
 
 Nothing else moves: same constants, same M=200, same masks, same pruning,
 same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation
@@ -129,3 +132,35 @@ The realized-rank curve is optimistic about the r-th DRAFTED player (bust risk
 lives in the rank, not the curve); the absence rates (.19) carry bust-weeks —
 declared as a known approximation, not hidden. Friction wire and forcing
 fallback unchanged from v2.
+
+---
+
+## 7 · V4 AMENDMENT, 2026-08-20 — POSITION-DEPENDENT FRICTION (after P260 FALSE / P262 TRUE)
+
+v3 fixed the units and the arm jumped from −280.8 to −4.2 skill with zero
+vacancies — and drafted EXACTLY 2 K + 2 DEF in all 30 seats. The exactness is
+the tell: under one roster-wide weekly claim, an absent K whose claim is busy
+scores zero, so one K of insurance prices at ~+13 and every seat buys it.
+That friction model is wrong in a specific, measured way: **nobody competes
+for kickers.** P150: K adds deliver 1.02× the wire level (uncontested, always
+available); RB adds 1.47× (contested, scarce). Cory, verbatim: *"defense and
+K isnt very much difference"* — from the wire.
+
+**v4, declared before any v4 run (P263–P265):** friction is position-
+dependent. {QB, K, DEF} slots refill at their wire level WITHOUT consuming
+the claim (uncontested streaming); {RB, WR, TE} empty slots (including flex)
+share ONE claim per week. Nothing else moves.
+
+---
+
+## 8 · V5 AMENDMENT, 2026-08-20 — SUPPLY-AWARE FORCING (after P264 TRUE / P265 FALSE)
+
+v4's position-dependent friction landed the economics: **waiver-aware skill
++3.46, h2h 16/30 — both champion-bar clauses — with K exactly 1.00 in 30/30
+and QB 1.00.** One regression: TE 0.57 — streaming TE is so cheap the arm
+never drafts one, opponents exhaust the recorded TE pool, and last-pick
+forcing meets an empty shelf (register 59's supply problem in a new seat).
+The cure already exists in this file: **§14d(b) supply-aware forcing** — when
+a needed position's remaining pool supply is down to the gap itself, force it
+NOW, while at least one exists. v5 adopts exactly that; nothing else moves.
+P266–P268 filed blind before the v5 run.
