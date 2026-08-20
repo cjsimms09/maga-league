@@ -1,0 +1,232 @@
+{
+  "_territory": "TERRITORY: D",
+  "_note": "P151 grade -- PREDICTION-LEDGER.md P151 / CEILING-PROGRAM-PREREG-2026-08-20.md SS4. Written by p151_target_share_trend.py.",
+  "known_positive_control": {
+    "status": "ok",
+    "breakout_wr_count_2024": 6,
+    "checked_n": 5,
+    "positive_delta_n": 2,
+    "positive_rate": 0.4,
+    "binomial_p_vs_chance": 1.0,
+    "control_demonstration": {
+      "method": "shuffled the pid<->2023-delta-share mapping 1000x (same value distribution, identity destroyed) to confirm a broken join would NOT pass this control",
+      "corrupted_join_mean_positive_rate": 0.5378000000000006,
+      "corrupted_join_reps": 1000,
+      "fraction_of_corrupted_reps_matching_or_beating_real_rate": 0.854
+    }
+  },
+  "year_pairs": [
+    {
+      "year_pair": "2021->2022",
+      "status": "ungradable",
+      "reason": "no draft pick-number data exists for 2022 (league_history.json and external_adp_historical.json both start at 2023) -- LOO pick-curve expectation, and therefore the boom label, cannot be computed"
+    },
+    {
+      "year_pair": "2022->2023",
+      "status": "graded",
+      "loo_fit_seasons_used_for_Y+1_curve": [
+        2024,
+        2025
+      ],
+      "delta_share_eligible_n": 147,
+      "quintile_cutoff_delta": 0.036,
+      "top_quintile_n": 30,
+      "top_quintile_gradable_n": 10,
+      "top_quintile_gradable_excluded_undrafted_in_Y+1": 20,
+      "top_quintile_booms": 1,
+      "top_quintile_boom_rate": 0.1,
+      "rest_gradable_n": 45,
+      "rest_booms": 7,
+      "rest_boom_rate": 0.15555555555555556,
+      "lift_vs_10pct_base_rate": 1.0,
+      "shuffled_label_null": {
+        "reps": 2000,
+        "null_mean_rate": 0.14364999999999872,
+        "empirical_p_observed_or_more_extreme": 0.8255
+      },
+      "top_quintile_delta_share_values": [
+        0.1981,
+        0.1562,
+        0.1504,
+        0.1301,
+        0.1122,
+        0.1105,
+        0.1022,
+        0.1012,
+        0.0945,
+        0.0795,
+        0.0782,
+        0.0747,
+        0.0717,
+        0.0675,
+        0.0639,
+        0.0626,
+        0.0604,
+        0.059,
+        0.0583,
+        0.0567,
+        0.0535,
+        0.0529,
+        0.0486,
+        0.0482,
+        0.0466,
+        0.0441,
+        0.0406,
+        0.04,
+        0.0365,
+        0.0362
+      ],
+      "top_quintile_positions": {
+        "WR": 22,
+        "TE": 8
+      }
+    },
+    {
+      "year_pair": "2023->2024",
+      "status": "graded",
+      "loo_fit_seasons_used_for_Y+1_curve": [
+        2023,
+        2025
+      ],
+      "delta_share_eligible_n": 152,
+      "quintile_cutoff_delta": 0.0423,
+      "top_quintile_n": 31,
+      "top_quintile_gradable_n": 12,
+      "top_quintile_gradable_excluded_undrafted_in_Y+1": 19,
+      "top_quintile_booms": 0,
+      "top_quintile_boom_rate": 0.0,
+      "rest_gradable_n": 46,
+      "rest_booms": 6,
+      "rest_boom_rate": 0.13043478260869565,
+      "lift_vs_10pct_base_rate": 0.0,
+      "shuffled_label_null": {
+        "reps": 2000,
+        "null_mean_rate": 0.10112500000000037,
+        "empirical_p_observed_or_more_extreme": 1.0
+      },
+      "top_quintile_delta_share_values": [
+        0.1388,
+        0.1275,
+        0.1238,
+        0.1146,
+        0.1136,
+        0.101,
+        0.0921,
+        0.0912,
+        0.0853,
+        0.0769,
+        0.0757,
+        0.0693,
+        0.0689,
+        0.0652,
+        0.0651,
+        0.0646,
+        0.0583,
+        0.0578,
+        0.0567,
+        0.0562,
+        0.0535,
+        0.0472,
+        0.0454,
+        0.0448,
+        0.0445,
+        0.0436,
+        0.0435,
+        0.0432,
+        0.0431,
+        0.0428,
+        0.0424
+      ],
+      "top_quintile_positions": {
+        "WR": 19,
+        "TE": 12
+      }
+    },
+    {
+      "year_pair": "2024->2025",
+      "status": "graded",
+      "loo_fit_seasons_used_for_Y+1_curve": [
+        2023,
+        2024
+      ],
+      "delta_share_eligible_n": 153,
+      "quintile_cutoff_delta": 0.0496,
+      "top_quintile_n": 31,
+      "top_quintile_gradable_n": 16,
+      "top_quintile_gradable_excluded_undrafted_in_Y+1": 15,
+      "top_quintile_booms": 1,
+      "top_quintile_boom_rate": 0.0625,
+      "rest_gradable_n": 39,
+      "rest_booms": 6,
+      "rest_boom_rate": 0.15384615384615385,
+      "lift_vs_10pct_base_rate": 0.625,
+      "shuffled_label_null": {
+        "reps": 2000,
+        "null_mean_rate": 0.126875,
+        "empirical_p_observed_or_more_extreme": 0.93
+      },
+      "top_quintile_delta_share_values": [
+        0.2482,
+        0.1438,
+        0.1181,
+        0.117,
+        0.114,
+        0.0935,
+        0.0863,
+        0.0851,
+        0.0824,
+        0.0809,
+        0.08,
+        0.0756,
+        0.0746,
+        0.0732,
+        0.0726,
+        0.0721,
+        0.0713,
+        0.0711,
+        0.0702,
+        0.0657,
+        0.064,
+        0.064,
+        0.0618,
+        0.0575,
+        0.0556,
+        0.0554,
+        0.0534,
+        0.0515,
+        0.0503,
+        0.0501,
+        0.0497
+      ],
+      "top_quintile_positions": {
+        "WR": 22,
+        "TE": 9
+      }
+    }
+  ],
+  "pooled": {
+    "status": "graded",
+    "pairs_pooled": [
+      "2022->2023",
+      "2023->2024",
+      "2024->2025"
+    ],
+    "pairs_excluded": [
+      "2021->2022"
+    ],
+    "top_quintile_gradable_n": 38,
+    "top_quintile_booms": 2,
+    "top_quintile_boom_rate": 0.05263157894736842,
+    "rest_gradable_n": 130,
+    "rest_booms": 19,
+    "rest_boom_rate": 0.14615384615384616,
+    "lift_vs_10pct_base_rate": 0.5263157894736842,
+    "clears_1.5x_bar": false
+  },
+  "correlation_gate": {
+    "proxy_used": "player's own draft pick number in season Y+1 (negated, so higher = earlier/more-valued), because no historical proj_mean or Draft Sharks band exists for 2021-2025",
+    "n": 168,
+    "spearman_rho": -0.033802642257799456,
+    "is_a_costume": false
+  }
+}

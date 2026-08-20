@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 168,
+ "next_numeric_id": 169,
  "history": [
   {
    "id": 47,
@@ -143,7 +143,7 @@
   {
    "id": "136-139 (D, second branch) superseded",
    "claimed_at": "2026-08-20",
-   "note": "D independently claimed 136-139 for keeper-tooling test isolation, the attach_draftsharks.py falsy-zero vorp bug, unclassified blend fields, and the ±41.8 detection floor — on a branch that had not yet seen this same evening's A/D work on main, which already covers the vorp bug (row 139, fixed) and detection floor (row 127, answered). Only the keeper-tooling finding was genuinely new; renumbered to 140 on merge. The unclassified-fields finding is still genuinely open and refiled below."
+   "note": "D independently claimed 136-139 for keeper-tooling test isolation, the attach_draftsharks.py falsy-zero vorp bug, unclassified blend fields, and the \u00b141.8 detection floor \u2014 on a branch that had not yet seen this same evening's A/D work on main, which already covers the vorp bug (row 139, fixed) and detection floor (row 127, answered). Only the keeper-tooling finding was genuinely new; renumbered to 140 on merge. The unclassified-fields finding is still genuinely open and refiled below."
   },
   {
    "id": 140,
@@ -183,12 +183,12 @@
   {
    "id": "D's 143-146 (never merged to main) reconciled against a further main sync",
    "claimed_at": "2026-08-20",
-   "note": "D's branch has not yet been merged to main by A, so every D-only id (D's own renumbered 146, and 143/144/145) only ever existed on D's branch. A's further work on main independently reused 143 (same row D had moved to 146 — dropped D's copy, kept main's 143 as canonical), and claimed real, different new rows at 144 and 145. D's three still-unmerged, genuinely unique rows (keeper-tooling, unclassified blend fields, standalone-script test pattern) renumbered 143/144/145 -> 147/148/149. Watermark now authoritative from 150."
+   "note": "D's branch has not yet been merged to main by A, so every D-only id (D's own renumbered 146, and 143/144/145) only ever existed on D's branch. A's further work on main independently reused 143 (same row D had moved to 146 \u2014 dropped D's copy, kept main's 143 as canonical), and claimed real, different new rows at 144 and 145. D's three still-unmerged, genuinely unique rows (keeper-tooling, unclassified blend fields, standalone-script test pattern) renumbered 143/144/145 -> 147/148/149. Watermark now authoritative from 150."
   },
   {
    "id": 150,
    "claimed_at": "2026-08-20",
-   "note": "D: the MLV units question was measured (--mlv-points on roster_builder_replay.js) and the result is hindsight contamination, not a units-robustness answer — no era-correct projection source is reachable from this sandbox"
+   "note": "D: the MLV units question was measured (--mlv-points on roster_builder_replay.js) and the result is hindsight contamination, not a units-robustness answer \u2014 no era-correct projection source is reachable from this sandbox"
   },
   {
    "id": 146,
@@ -334,6 +334,11 @@
    "id": 167,
    "claimed_at": "2026-08-20",
    "note": "E: Cory's reference article (Snake Value Based Drafting) exposed that MEASURED_WEIGHTS.need=0 zeroes VORP out of the live score entirely for 2-starter positions (RB/WR) -- the board ranks on VONA+ceiling alone, not VBD+opportunity-cost as the article's own reference method does; measured live on Cory's actual keeper roster, Travis Etienne (highest VORP in the top 20) ranks #4 by score. OPEN -- Cory wants this before Saturday (was 160 pre-renumber on main's side)"
+  },
+  {
+   "id": 168,
+   "claimed_at": "2026-08-20",
+   "note": "D: no fantasy draft-pick or ADP data exists in the repo before 2023 (league_history.json, external_adp_historical.json both start 2023) -- found grading P151, blocks 2021->22 LOSO pair and will block every future pick-based LOSO study the same way. OPEN, owner C (historical capture territory), recheck 09-15."
   }
  ]
 }
