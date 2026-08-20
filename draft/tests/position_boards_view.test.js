@@ -273,7 +273,7 @@ function mkData() {
   ck('a position flat across every round (TE, all zero) says so rather than drawing a fake bar',
     (function () {
       const teSection = html.slice(html.indexOf('pb-pos">TE<'), html.indexOf('pb-pos">K<'));
-      return /flat across rounds/.test(teSection);
+      return /Costs about the same whichever round you wait to/.test(teSection);
     })());
   ck('each chart is own-scaled: RB\'s bars are NOT scaled against WR\'s larger max (own-scale, not shared)',
     (function () {
@@ -295,11 +295,16 @@ function mkData() {
   ck('each bar carries an exact-value tooltip via <title>, not a bare shape',
     /<title>/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
   ck('the chart carries an aria-label naming the position and its biggest gap (accessibility)',
-    /aria-label="RB round-to-round drop-off, biggest gap R4→5/.test(V.roundDropoffChart('RB', d.round_dropoffs, esc)));
-  ck('an ALWAYS-VISIBLE label says what the bars measure — Cory: "no explanations!!" — '
-    + 'not just a hover-only title nobody has to trigger',
-    /class="pb-do-mini-head">projected points lost, round to round</.test(
+    /aria-label="RB round-to-round drop-off, biggest gap Biggest jump: waiting from round 4 to 5/.test(
       V.roundDropoffChart('RB', d.round_dropoffs, esc)));
+  ck('an ALWAYS-VISIBLE label says what the bars measure — Cory: "no explanations!!", then '
+    + 'AGAIN "I still don\'t understand... explain better" — a full sentence, not hover-only, '
+    + 'not compressed notation',
+    (function () {
+      const chart = V.roundDropoffChart('RB', d.round_dropoffs, esc);
+      return /class="pb-do-mini-head">waiting costs you points/.test(chart)
+        && /Biggest jump: waiting from round 4 to 5 costs about 17 points at RB\./.test(chart);
+    })());
   ck('a round-number tick renders under every bar, one per transition (was bars with no axis at all)',
     (function () {
       const chart = V.roundDropoffChart('RB', d.round_dropoffs, esc);

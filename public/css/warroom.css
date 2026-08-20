@@ -1852,9 +1852,15 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    underneath each position.. again no explanations!!" A title attribute on
    the wrapper WAS an explanation, but a hover-only one is indistinguishable
    from none on a chart with no visible axis label. */
+/* Cory, 2026-08-20, a SECOND time on this chart: "I still don't understand
+   the projected points lost each round chart... explain better, make
+   charts better." Bumped from .55rem (illegible on a phone, and the reason
+   a real sentence would have had to truncate below) — this now carries a
+   full descriptive phrase, not a 3-word label, and needs room to wrap
+   rather than clip. */
 .pb-do-mini-head {
-  font-size: .55rem; font-weight: 600; color: var(--wr-muted);
-  text-transform: uppercase; letter-spacing: .02em; margin-bottom: .15rem;
+  font-size: .64rem; font-weight: 600; color: var(--wr-muted);
+  letter-spacing: .01em; margin-bottom: .3rem; line-height: 1.3;
 }
 .pb-do-mini svg { display: block; }
 .pb-do-baseline { stroke: var(--wr-chart-grid); stroke-width: 1; }
@@ -1876,10 +1882,14 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .pb-do-ticks {
   display: flex; justify-content: space-between; margin-top: .1rem;
 }
-.pb-do-tick { font-size: .5rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; }
+.pb-do-tick { font-size: .56rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; }
+/* A full sentence now, not a 3-word tag — it needs to be allowed to wrap
+   onto a second line rather than clip with an ellipsis (the previous
+   nowrap+ellipsis truncated the exact number on any narrow column, which
+   was very likely part of "I still don't understand" — the number that
+   explains it could be the part getting cut off). */
 .pb-do-mini-cap {
-  font-size: .58rem; color: var(--wr-muted); margin-top: .15rem;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: .66rem; color: var(--wr-muted); margin-top: .3rem; line-height: 1.35;
 }
 .pb-do-mini-cap.pb-do-hot { color: var(--wr-bad); font-weight: 700; }
 .pb-do-summary-note { font-weight: 400; color: var(--wr-muted); font-size: .58rem; text-transform: none; letter-spacing: normal; }

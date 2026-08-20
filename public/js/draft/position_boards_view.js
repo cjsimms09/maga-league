@@ -267,7 +267,7 @@
       return v == null ? 0 : v;
     });
     var max = Math.max.apply(null, vals.concat([1]));
-    var w = 132, h = 38, gap = 2, n = vals.length;
+    var w = 132, h = 48, gap = 2, n = vals.length;  // taller than the old 38 — Cory: "make charts better", bars were too short to read at a glance
     var bw = (w - gap * (n - 1)) / n;
     var maxV = Math.max.apply(null, vals);
     var maxIdx = vals.indexOf(maxV);
@@ -286,25 +286,32 @@
       return '<span class="pb-do-tick">' + esc(fmtNum(d.to_round)) + '</span>';
     }).join('');
     var hotD = dropoffs[maxIdx];
+    /* ⚠️ Cory, live 2026-08-20, AFTER the first fix: "I still don't
+     * understand the projected points lost each round chart... explain
+     * better, make charts better." The first pass (below) made the caption
+     * always-visible, which was necessary but not sufficient — "▽ R6→7,
+     * −36 pts" is still compressed notation nobody would say out loud. This
+     * pass replaces it with an actual SENTENCE, and ties the whole chart to
+     * a term this same page already explains elsewhere: VONA's own label
+     * reads "what waiting until your next pick costs" — this chart is that
+     * exact idea, just for every round of the WHOLE draft instead of only
+     * your next pick, which is why it is worth a full sentence rather than
+     * a shorthand only the person who built it would parse at a glance. */
     var cap = maxV > 0
-      ? '▽ R' + hotD.from_round + '→' + hotD.to_round + ', −' + fmtNum(maxV) + ' pts'
-      : 'flat across rounds';
-    /* ⚠️ Cory, live: "What are the bar charts underneath each position..
-     * again no explanations!!" There WAS an explanation — a title attribute
-     * on the wrapper — but a hover-only tooltip on a chart with no visible
-     * axis label is indistinguishable from no explanation at all unless you
-     * already know to hover. This eyebrow line is the fix: always on
-     * screen, no hover required. The hover title/aria-label stay too, for
-     * the exact-numbers reader. */
-    return '<div class="pb-do-mini" title="' + esc('Point drop-off by round transition — ' + pos) + '">'
-      + '<div class="pb-do-mini-head">projected points lost, round to round</div>'
+      ? 'Biggest jump: waiting from round ' + hotD.from_round + ' to ' + hotD.to_round
+        + ' costs about ' + fmtNum(maxV) + ' points at ' + pos + '.'
+      : 'Costs about the same whichever round you wait to, in this range.';
+    var hoverExplain = 'How much the best available ' + pos + ' gets worse each round you wait — '
+      + 'the same idea as VONA above, extended across the whole draft instead of just your next pick.';
+    return '<div class="pb-do-mini" title="' + esc(hoverExplain) + '">'
+      + '<div class="pb-do-mini-head">waiting costs you points — here is how much, round by round</div>'
       + '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '" role="img"'
-        + ' aria-label="' + esc(pos + ' round-to-round drop-off, biggest gap ' + cap.replace(/^▽ /, '')) + '"'
+        + ' aria-label="' + esc(pos + ' round-to-round drop-off, biggest gap ' + cap) + '"'
         + ' preserveAspectRatio="none">'
         + '<line class="pb-do-baseline" x1="0" y1="' + (h - 0.5) + '" x2="' + w + '" y2="' + (h - 0.5) + '"/>'
         + bars
       + '</svg>'
-      + '<div class="pb-do-ticks" title="the round each transition ends at">' + labels + '</div>'
+      + '<div class="pb-do-ticks" title="the round each bar\'s transition ends at">' + labels + '</div>'
       + '<div class="pb-do-mini-cap' + (maxV > 0 ? ' pb-do-hot' : '') + '">' + esc(cap) + '</div>'
       + '</div>';
   }
