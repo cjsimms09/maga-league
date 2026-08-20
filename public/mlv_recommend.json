@@ -1,0 +1,108 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/mlv_snapshot.js",
+ "_what": "ROSTER BUILDER MODEL says — marginal lineup value, a SECOND VOICE beside the war room board, never a replacement for it.",
+ "_ruling": "Cory 2026-08-19: \"Let's use mlv... it needs to be clear what player model is recommending and why and I still want to retain my current view.\"",
+ "evidence": {
+  "register": 132,
+  "beats_humans_all_three_seasons": true,
+  "actual": 45.8,
+  "skill": 29.3,
+  "legal": "30/30",
+  "paired_vs_shipped_skill": {
+   "mean": 21.4,
+   "sd": 115,
+   "t_upper_bound": 1.02,
+   "wins": "14/30"
+  },
+  "caveat": "Beats the HUMANS in all three seasons on both gradings. Beats OUR OWN shipped curve only weakly (t 1.02, upper bound). The K<=1 / DEF<=1 cap is IMPOSED from Cory's words, not emergent: without it the mechanism drafts 1.93 K and 1.90 DEF and its edge halves.",
+  "onesies_are_capped_not_excluded": "Register 134. Once your lineup is full this model puts a DEF and a K at the top of the list, because a bench body is worth exactly zero to it. Excluding them instead costs -83.7 actual / -211.3 skill and leaves 0 of 30 rosters legal.",
+  "cannot_value_a_bench": "6 of 15 roster spots score zero marginal value and fall through to best-available. Starting-lineup optimiser."
+ },
+ "roster_assumed": [
+  "Ja'Marr Chase (WR)",
+  "Derrick Henry (RB)",
+  "Kenneth Walker (RB)"
+ ],
+ "recommendations": [
+  {
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "adp": 1,
+   "proj": 324.5,
+   "marginal": 246.1,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "adp": 2,
+   "proj": 315.7,
+   "marginal": 237.3,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "adp": 5,
+   "proj": 287.7,
+   "marginal": 209.3,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "Jonathan Taylor",
+   "position": "RB",
+   "adp": 6.67,
+   "proj": 279.6,
+   "marginal": 201.2,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "James Cook",
+   "position": "RB",
+   "adp": 9.33,
+   "proj": 254.9,
+   "marginal": 176.5,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "De'Von Achane",
+   "position": "RB",
+   "adp": 13.33,
+   "proj": 249.7,
+   "marginal": 171.3,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "adp": 11,
+   "proj": 244.4,
+   "marginal": 166,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "Saquon Barkley",
+   "position": "RB",
+   "adp": 13.67,
+   "proj": 240.1,
+   "marginal": 161.7,
+   "why": "takes your open FLEX seat"
+  },
+  {
+   "name": "Puka Nacua",
+   "position": "WR",
+   "adp": 4,
+   "proj": 286,
+   "marginal": 161.2,
+   "why": "fills your open WR slot"
+  },
+  {
+   "name": "Chase Brown",
+   "position": "RB",
+   "adp": 14.33,
+   "proj": 237.8,
+   "marginal": 159.4,
+   "why": "takes your open FLEX seat"
+  }
+ ]
+}

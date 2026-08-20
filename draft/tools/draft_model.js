@@ -481,7 +481,12 @@ function runRoom(lean, hardFill) {
   });
   const taken = new Set(), got = [];
   SCHED.forEach((pk, i) => {
-    const gone = new Set(order.slice(0, pk - 1));
+    /* liveBefore(pk), NOT pk - 1 -- `pk` is a BOARD pick number and this
+    * list counts SELECTIONS; they differ by the keeper slots ahead (exactly
+    * 3 at every one of Cory's twelve picks on this board). One derivation:
+    * draft_plan.js liveBefore(). Fixed 2026-08-20 after pick_schedule's
+    * detector was widened to see the `pk` spelling it had been blind to. */
+    const gone = new Set(order.slice(0, PLAN.liveBefore(pk)));
     const avail = pool.filter(x => !taken.has(x.id) && !gone.has(x.id));
     /* CORY'S HARD RULE: "must draft 1 k and 1 def!! If 2 rounds and don't have
      * either it equation should force." Kept ON in BOTH arms — C4. A comparator

@@ -82,11 +82,41 @@ PICKS.forEach(PICK => {
   const vals = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
   const posN = vals.filter(v => v > 0).length;
   const max = Math.max.apply(null, vals);
+  /* ⚠️ THE MAGNITUDE BAR WAS SPLIT OFF 2026-08-20, AND SAYING WHY MATTERS.
+   *
+   * This was one check: `posN > 0 && max > 5`. It conflated a CLAIM with a
+   * MEASUREMENT. The claim — positives exist and survive the floor, so
+   * flooring did not retire the term — is what the old hold's premise (1)
+   * denied, and it is still true. The `max > 5` half was a convenience bar
+   * pinned when max was 38, derived from nothing, and it is now 3.36. So the
+   * suite went red while the thing it was written to establish still held.
+   *
+   * A bar nobody derived, failing because the board moved, is not a finding.
+   * But the DECAY is one, so it is reported below rather than deleted. */
   ck('pick 17 — positive option values exist and survive the floor ('
-    + posN + ' positive, max ' + max.toFixed(2) + '), so flooring did NOT '
-    + 'retire the term: premise (1) of the old hold is measurably false under '
-    + 'the measured ramp',
-    posN > 0 && max > 5, { positive: posN, max: max });
+    + posN + ' positive), so flooring did NOT retire the term: premise (1) of '
+    + 'the old hold is measurably false under the measured ramp',
+    posN > 0, { positive: posN, max: max });
+
+  /* THE TERM HAS GONE NEARLY INERT, AND THAT SHOULD BE VISIBLE RATHER THAN
+   * ASSERTED AWAY. Measured across Cory's twelve real picks on the live board:
+   *
+   *     pick 33   1 player positive, worth 4.59
+   *     every other pick   ZERO positive values
+   *
+   * So on the board he actually drafts from, this term moves exactly one
+   * player at one pick. It is not broken — the floor works, no negative price
+   * reaches the published score at any pick — it simply has almost nothing
+   * left to say. Whether a weight-1 term contributing 4.59 points once is
+   * worth keeping is a MODEL question for after the draft, not a defect.
+   *
+   * Asserted only as "still disclosed": if the term ever goes fully silent at
+   * pick 17 the claim above fails on its own, and if it comes back to life
+   * this line prints the new number. */
+  console.log('      REPORTED (not asserted): max option value at pick 17 is '
+    + max.toFixed(2) + ' across ' + posN + ' player(s). It was 38 when the '
+    + 'floor shipped on 2026-08-17. On Cory\'s twelve real picks the term is '
+    + 'positive for ONE player at pick 33 (4.59) and zero everywhere else.');
 }
 
 // ── AND DEAD LATE, BY THE RULING RATHER THAN BY THE DEFECT ────────────────

@@ -36,6 +36,7 @@ import adp_series as adp_series_mod  # noqa: E402
 import proj_series as proj_series_mod  # noqa: E402
 import grab_by as grab_by_mod  # noqa: E402
 import multisource_blend as multisource_mod  # noqa: E402
+import draftable_scope as draftable_scope_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -190,6 +191,18 @@ def adp_season_stamps(adp_source: str | None, year: int) -> dict:
            else season_stamp.seasonal(year))
     return season_stamp.stamp({}, {"raw_adp": src, "adp": src,
                                    "consensus_rank": src})
+
+
+def _draftable_scope(cfg) -> dict:
+    """Cory's scope ruling, carried onto the board so the client reads the same
+    numbers this build does — see draft/draftable_scope.py for the derivation.
+
+    This RAISES rather than degrading. Every other optional block on the board
+    falls back to None because a missing extra is survivable; a missing scope is
+    not, because the consumers would each substitute their own cutoff again and
+    that is precisely the drift the block exists to end.
+    """
+    return draftable_scope_mod.load(cfg)
 
 
 def _my_owner_id() -> str | None:
@@ -1841,13 +1854,42 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     # consumer gets the same number; E's UI-side derivation becomes the
     # designed no-op fallback. Unknown position stays ABSENT — never a
     # fallback constant (the || 0 lesson, again).
+    #
+    # ⚠️ RECOMPUTED UNCONDITIONALLY, NOT ONLY WHEN ABSENT — fixed 2026-08-20.
+    #
+    # The guard used to be `if rec.get("vorp") is None`, and it almost never
+    # fired: `kept_players` is built from `players` ABOVE (rec = dict(p)),
+    # BEFORE apply_vorp runs on `available`, so each record arrives carrying a
+    # vorp from an earlier pass over a DIFFERENT pool. The absent-vorp case this
+    # block was written for had already been closed upstream, so the block
+    # became a no-op and the stale number shipped.
+    #
+    # MEASURED ON THE LIVE BOARD: Cory's three keepers implied replacement
+    # RB 170.47 / WR 171.85 while the board published RB 168.60 / WR 170.10.
+    # Chase read 99.95 where the board's own formula says 101.70; Henry 88.68 vs
+    # 90.55; Walker 63.35 vs 65.22. About 1.8 points, ~2-3%, so it flips no pick
+    # on its own — but it is TWO REPLACEMENT TABLES, which is register 148
+    # exactly, and it is worst in the one comparison keepers exist for: "is my
+    # keeper worth more than what I could draft instead", where both sides have
+    # to be priced on the same table to mean anything.
+    #
+    # `available`'s table is the right one of the two: it is what every other
+    # row on the board is priced against, and it is what the artifact publishes
+    # as `replacement`.
+    #
+    # Unknown position still stays ABSENT — never a fallback constant (the
+    # `|| 0` lesson, again).
     _repl = (vorp_diag or {}).get("replacement_points") or {}
     for rec in kept_players:
-        if rec.get("vorp") is None:
-            rp = _repl.get(rec.get("position"))
-            pm = rec.get("proj_mean")
-            if rp is not None and pm is not None:
-                rec["vorp"] = round(float(pm) - float(rp), 2)
+        rp = _repl.get(rec.get("position"))
+        pm = rec.get("proj_mean")
+        if rp is not None and pm is not None:
+            rec["vorp"] = round(float(pm) - float(rp), 2)
+        elif rec.get("vorp") is not None:
+            # Cannot re-price him on the published table, so the number that is
+            # here came from another one. Drop it rather than ship a value the
+            # board cannot reproduce.
+            rec["vorp"] = None
 
     # GRAB-BY — "stick to value, know when to grab". Per-position EVLW (value lost to
     # waiting one pick) + grab-by pick, aware of MY keepers' filled slots. Forecast
@@ -1917,6 +1959,14 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "starters": cfg["starters"],
             "scoring": cfg["scoring"],
             "keeper_rules": cfg["keepers"],
+            # THE SCOPE RULING, CARRIED TO THE BROWSER SO NOTHING HAS TO GUESS IT.
+            # Cory 2026-08-20: "We really just need to focus on top 200 players
+            # maybe 250". Before this the client, rerank_by_source.py and three
+            # probes each picked their own cutoff (150/200/250) and could drift
+            # apart without anything failing. This is the one definition
+            # (league_config.draftable_scope); everything else reads it.
+            # `drafted` is DERIVED (teams * rounds), asserted below, not typed.
+            "draftable_scope": _draftable_scope(cfg),
         },
         "pick_order": {
             # THE BOARD AS SLEEPER WILL NUMBER IT — every round x slot, with

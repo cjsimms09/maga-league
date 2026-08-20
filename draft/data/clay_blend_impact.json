@@ -1,0 +1,131 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/clay_blend_impact.js",
+ "_what": "What adding Mike Clay as a 7th blend source would do to the board.",
+ "_cannot": "THIS IS NOT THE PIPELINE. The real blend runs in blended_projection.js against projection_snapshot_2026.json, which does not contain Clay. This estimates the impact so the decision to wire him in is informed.",
+ "control_C1_reproduces_todays_blend": {
+  "ok": true,
+  "median_abs_error": 0.3,
+  "p95_abs_error": 5.4,
+  "n": 539,
+  "why": "the 6-source blend is rebuilt from the same code path and checked against the live proj_mean. If today cannot be reproduced, the with-Clay number is an invention."
+ },
+ "clay_coverage": {
+  "players_with_clay": 376,
+  "of": 539,
+  "positions": {
+   "QB": 40,
+   "RB": 94,
+   "WR": 166,
+   "TE": 76
+  }
+ },
+ "point_impact": {
+  "median_abs_delta": 1.21,
+  "p95_abs_delta": 4.66,
+  "max_abs_delta": 23.8
+ },
+ "rank_impact_inside_adp_200": {
+  "players_whose_positional_rank_moves": 67,
+  "of": 181,
+  "biggest": [
+   {
+    "name": "RJ Harvey",
+    "position": "RB",
+    "adp": 83,
+    "rank_move": -3,
+    "delta": -1.72
+   },
+   {
+    "name": "Tyrone Tracy",
+    "position": "RB",
+    "adp": 145,
+    "rank_move": -3,
+    "delta": -6.18
+   },
+   {
+    "name": "Mike Evans",
+    "position": "WR",
+    "adp": 62,
+    "rank_move": -2,
+    "delta": -2.21
+   },
+   {
+    "name": "Rome Odunze",
+    "position": "WR",
+    "adp": 63,
+    "rank_move": 2,
+    "delta": 1.71
+   },
+   {
+    "name": "Matthew Stafford",
+    "position": "QB",
+    "adp": 104,
+    "rank_move": 2,
+    "delta": 3.48
+   },
+   {
+    "name": "Justin Herbert",
+    "position": "QB",
+    "adp": 77,
+    "rank_move": -2,
+    "delta": -0.36
+   },
+   {
+    "name": "Courtland Sutton",
+    "position": "WR",
+    "adp": 90,
+    "rank_move": 2,
+    "delta": 2.14
+   },
+   {
+    "name": "Jayden Reed",
+    "position": "WR",
+    "adp": 113,
+    "rank_move": -2,
+    "delta": -1.55
+   },
+   {
+    "name": "Carnell Tate",
+    "position": "WR",
+    "adp": 73,
+    "rank_move": 2,
+    "delta": 2.82
+   },
+   {
+    "name": "Kyler Murray",
+    "position": "QB",
+    "adp": 130,
+    "rank_move": -2,
+    "delta": -4.18
+   },
+   {
+    "name": "Xavier Worthy",
+    "position": "WR",
+    "adp": 139,
+    "rank_move": 2,
+    "delta": 1.96
+   },
+   {
+    "name": "Kenny Gainwell",
+    "position": "RB",
+    "adp": 109,
+    "rank_move": 2,
+    "delta": 2.23
+   }
+  ]
+ },
+ "cory_schedule": [
+  33,
+  48,
+  53,
+  68,
+  73,
+  88,
+  93,
+  108,
+  113,
+  128,
+  133,
+  148
+ ]
+}

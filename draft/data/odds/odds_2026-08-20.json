@@ -1,0 +1,7341 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/fetch_odds.py",
+ "provenance": {
+  "source": "the-odds-api.com /v4 (free tier)",
+  "sport": "americanfootball_nfl",
+  "regions": "us",
+  "markets": "h2h,spreads,totals",
+  "fetched_at": "2026-08-20T12:22:33+00:00",
+  "credits_remaining": "56915",
+  "credits_used": "43085",
+  "budget_note": "500/mo free tier; this fetch costs 3 credits"
+ },
+ "games": [
+  {
+   "kickoff": "2026-09-10T00:15:00Z",
+   "home": "Seattle Seahawks",
+   "away": "New England Patriots",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.0,
+     "total": 44.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -3.5,
+     "total": 44.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -4.0,
+     "total": 44.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -4.0,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 44.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.5,
+     "total": 44.0
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -3.5,
+     "total": 44.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -4.0,
+     "total": 44.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -3.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -3.5,
+   "implied_home": 24.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-09-11T00:35:00Z",
+   "home": "Los Angeles Rams",
+   "away": "San Francisco 49ers",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -4.0,
+     "total": 48.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -4.0,
+     "total": 48.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.0,
+     "total": 48.5
+    },
+    {
+     "book": "mybookieag",
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -3.5,
+   "implied_home": 26.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Atlanta Falcons",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.0,
+     "total": 42.0
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -3.0,
+     "total": 41.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -3.0,
+     "total": 42.0
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -3.0,
+   "implied_home": 22.75,
+   "implied_away": 19.75
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Baltimore Ravens",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 3.5,
+     "total": 48.0
+    },
+    {
+     "book": "lowvig",
+     "home_spread": 3.5,
+     "total": 48.0
+    },
+    {
+     "book": "betrivers",
+     "home_spread": 3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": 3.5,
+     "total": 48.0
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.5,
+     "total": 48.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": 3.5,
+     "total": 48.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": 3.0,
+     "total": 47.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": 3.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": 3.5,
+   "implied_home": 22.5,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Houston Texans",
+   "away": "Buffalo Bills",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 0.0,
+     "total": 44.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": 0.0,
+     "total": 44.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": 1.0,
+     "total": 44.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": 0.0,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 0.0,
+     "total": 44.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -1.5,
+     "total": 44.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -1.0,
+     "total": 44.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -1.0,
+     "total": 44.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -1.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 0.0,
+   "implied_home": 22.25,
+   "implied_away": 22.25
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Chicago Bears",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 3.0,
+     "total": 47.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": 2.5,
+     "total": 48.0
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 2.5,
+   "implied_home": 22.5,
+   "implied_away": 25.0
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -3.5,
+     "total": 51.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -3.5,
+     "total": 51.0
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -3.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -3.5,
+   "implied_home": 27.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Cleveland Browns",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -7.5,
+     "total": 40.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -7.5
+    }
+   ],
+   "total_median": 40.5,
+   "home_spread_median": -7.5,
+   "implied_home": 24.0,
+   "implied_away": 16.5
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Detroit Lions",
+   "away": "New Orleans Saints",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.0,
+     "total": 48.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -7.0,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 49.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -7.0,
+     "total": 49.0
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -7.0,
+     "total": 49.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.0,
+     "total": 49.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -7.0,
+     "total": 49.0
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -7.0,
+     "total": 49.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -7.0,
+     "total": 49.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -7.0,
+     "total": 49.0
+    }
+   ],
+   "total_median": 49.25,
+   "home_spread_median": -7.0,
+   "implied_home": 28.12,
+   "implied_away": 21.12
+  },
+  {
+   "kickoff": "2026-09-13T17:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "New York Jets",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 38.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -2.5,
+     "total": 39.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -2.5,
+     "total": 39.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.0,
+     "total": 39.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -2.5,
+     "total": 39.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -2.5,
+     "total": 38.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 39.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -2.5,
+     "total": 39.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -2.5,
+     "total": 39.0
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -3.0,
+     "total": 39.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": -2.5,
+   "implied_home": 21.0,
+   "implied_away": 18.5
+  },
+  {
+   "kickoff": "2026-09-13T20:25:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "Arizona Cardinals",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.5,
+     "total": 46.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -10.5,
+     "total": 46.0
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -10.5,
+     "total": 46.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -10.0,
+     "total": 46.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -10.5,
+     "total": 46.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -10.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.5,
+     "total": 46.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -10.5,
+     "total": 46.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -10.0,
+     "total": 46.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -10.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -10.5,
+   "implied_home": 28.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-09-13T20:25:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Green Bay Packers",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": 0.0,
+     "total": 45.0
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": 0.0,
+     "total": 45.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.0,
+     "total": 45.0
+    },
+    {
+     "book": "betrivers",
+     "home_spread": 1.0,
+     "total": 45.0
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -1.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -1.0,
+     "total": 45.0
+    },
+    {
+     "book": "bovada",
+     "home_spread": -1.5,
+     "total": 45.0
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -1.5,
+     "total": 45.0
+    }
+   ],
+   "total_median": 45.0,
+   "home_spread_median": -1.25,
+   "implied_home": 23.12,
+   "implied_away": 21.88
+  },
+  {
+   "kickoff": "2026-09-13T20:25:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Miami Dolphins",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 40.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.0,
+     "total": 40.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.5,
+     "total": 40.0
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -3.5,
+     "total": 40.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -3.5,
+     "total": 40.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -3.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 40.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -3.5,
+     "total": 40.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -4.0,
+     "total": 40.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -4.0,
+     "total": 40.5
+    }
+   ],
+   "total_median": 40.5,
+   "home_spread_median": -3.5,
+   "implied_home": 22.0,
+   "implied_away": 18.5
+  },
+  {
+   "kickoff": "2026-09-13T20:25:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Washington Commanders",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 47.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -5.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -4.5,
+     "total": 47.0
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "betmgm",
+     "home_spread": -5.0,
+     "total": 46.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -4.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -4.5,
+   "implied_home": 25.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-09-14T00:20:00Z",
+   "home": "New York Giants",
+   "away": "Dallas Cowboys",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 48.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 2.5,
+     "total": 48.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": 2.5,
+     "total": 48.0
+    },
+    {
+     "book": "betmgm",
+     "home_spread": 2.5,
+     "total": 48.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": 2.5,
+     "total": 48.0
+    },
+    {
+     "book": "betrivers",
+     "home_spread": 2.5,
+     "total": 48.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": 3.0,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 3.0,
+     "total": 48.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": 3.0,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": 2.5,
+   "implied_home": 23.0,
+   "implied_away": 25.5
+  },
+  {
+   "kickoff": "2026-09-15T00:15:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "Denver Broncos",
+   "books_n": 10,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -2.5,
+     "total": 43.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "betmgm",
+     "total": 42.5
+    },
+    {
+     "book": "bovada",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 42.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.0,
+     "total": 43.5
+    },
+    {
+     "book": "mybookieag",
+     "home_spread": -2.5,
+     "total": 43.0
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -2.5,
+   "implied_home": 22.5,
+   "implied_away": 20.0
+  },
+  {
+   "kickoff": "2026-09-18T00:15:00Z",
+   "home": "Buffalo Bills",
+   "away": "Detroit Lions",
+   "books_n": 5,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 52.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -3.0,
+     "total": 51.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -3.0,
+     "total": 51.5
+    },
+    {
+     "book": "betrivers",
+     "home_spread": -3.0,
+     "total": 52.5
+    }
+   ],
+   "total_median": 52.5,
+   "home_spread_median": -3.0,
+   "implied_home": 27.75,
+   "implied_away": 24.75
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -1.5,
+   "implied_home": 22.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "Baltimore Ravens",
+   "away": "New Orleans Saints",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -7.5,
+   "implied_home": 27.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "Chicago Bears",
+   "away": "Minnesota Vikings",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -3.25,
+   "implied_home": 24.38,
+   "implied_away": 21.12
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "Houston Texans",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Cleveland Browns",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 39.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -6.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -6.5,
+   "implied_home": 24.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "New York Jets",
+   "away": "Green Bay Packers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 5.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 5.5,
+   "implied_home": 18.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "New England Patriots",
+   "away": "Pittsburgh Steelers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -4.5,
+   "implied_home": 24.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-09-20T17:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Philadelphia Eagles",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 41.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 4.5,
+   "implied_home": 19.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-09-20T20:05:00Z",
+   "home": "Denver Broncos",
+   "away": "Jacksonville Jaguars",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -2.5,
+   "implied_home": 23.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-09-20T20:05:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "Las Vegas Raiders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -9.0,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -8.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -8.5,
+   "implied_home": 25.5,
+   "implied_away": 17.0
+  },
+  {
+   "kickoff": "2026-09-20T20:25:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 10.0,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 9.5,
+     "total": 44.0
+    },
+    {
+     "book": "betus",
+     "home_spread": 10.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 10.0,
+   "implied_home": 17.25,
+   "implied_away": 27.25
+  },
+  {
+   "kickoff": "2026-09-20T20:25:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Washington Commanders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 52.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -4.5,
+   "implied_home": 28.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-09-20T20:25:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Miami Dolphins",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -10.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -10.5,
+   "implied_home": 28.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-09-21T00:20:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "Indianapolis Colts",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -6.5,
+   "implied_home": 27.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-09-22T00:15:00Z",
+   "home": "Los Angeles Rams",
+   "away": "New York Giants",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -8.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -9.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -8.5,
+   "implied_home": 28.5,
+   "implied_away": 20.0
+  },
+  {
+   "kickoff": "2026-09-25T00:15:00Z",
+   "home": "Green Bay Packers",
+   "away": "Atlanta Falcons",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -7.5,
+   "implied_home": 27.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Buffalo Bills",
+   "away": "Los Angeles Chargers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 50.0
+    }
+   ],
+   "total_median": 49.25,
+   "home_spread_median": -3.0,
+   "implied_home": 26.12,
+   "implied_away": 23.12
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Carolina Panthers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 38.0
+    }
+   ],
+   "total_median": 38.75,
+   "home_spread_median": 2.0,
+   "implied_home": 18.38,
+   "implied_away": 20.38
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 1.5,
+   "implied_home": 22.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Detroit Lions",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -9.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.0,
+   "home_spread_median": -9.75,
+   "implied_home": 27.88,
+   "implied_away": 18.12
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Houston Texans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": 1.5,
+   "implied_home": 22.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "New England Patriots",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -1.5,
+   "implied_home": 23.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 7.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 7.5,
+   "implied_home": 18.5,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "New York Giants",
+   "away": "Tennessee Titans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -3.0,
+   "implied_home": 23.75,
+   "implied_away": 20.75
+  },
+  {
+   "kickoff": "2026-09-27T17:00:00Z",
+   "home": "Washington Commanders",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 3.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 3.5,
+   "implied_home": 21.5,
+   "implied_away": 25.0
+  },
+  {
+   "kickoff": "2026-09-27T20:05:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Arizona Cardinals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -11.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -11.0,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -11.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -11.5,
+   "implied_home": 29.0,
+   "implied_away": 17.5
+  },
+  {
+   "kickoff": "2026-09-27T20:05:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Minnesota Vikings",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -1.5,
+   "implied_home": 23.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-09-27T20:25:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Baltimore Ravens",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 51.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": 2.5,
+   "implied_home": 24.5,
+   "implied_away": 27.0
+  },
+  {
+   "kickoff": "2026-09-27T20:25:00Z",
+   "home": "New Orleans Saints",
+   "away": "Las Vegas Raiders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 41.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -3.5,
+   "implied_home": 23.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-09-28T00:20:00Z",
+   "home": "Denver Broncos",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.0,
+   "home_spread_median": 3.0,
+   "implied_home": 21.5,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-09-29T00:15:00Z",
+   "home": "Chicago Bears",
+   "away": "Philadelphia Eagles",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -1.5,
+   "implied_home": 24.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-10-02T00:15:00Z",
+   "home": "Cleveland Browns",
+   "away": "Pittsburgh Steelers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 38.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": 2.75,
+   "implied_home": 18.38,
+   "implied_away": 21.12
+  },
+  {
+   "kickoff": "2026-10-04T13:30:00Z",
+   "home": "Washington Commanders",
+   "away": "Indianapolis Colts",
+   "books_n": 4,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 50.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 49.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -1.5,
+   "implied_home": 25.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "New York Giants",
+   "away": "Arizona Cardinals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -7.0,
+   "implied_home": 26.25,
+   "implied_away": 19.25
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Tennessee Titans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -9.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -8.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -8.5,
+   "implied_home": 28.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Buffalo Bills",
+   "away": "New England Patriots",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 50.5
+    }
+   ],
+   "total_median": 50.0,
+   "home_spread_median": -3.5,
+   "implied_home": 26.75,
+   "implied_away": 23.25
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Chicago Bears",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -9.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.0,
+   "home_spread_median": -8.75,
+   "implied_home": 26.88,
+   "implied_away": 18.12
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Jacksonville Jaguars",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 51.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -2.5,
+   "implied_home": 27.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Houston Texans",
+   "away": "Dallas Cowboys",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -2.5,
+   "implied_home": 25.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Green Bay Packers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 1.5,
+   "implied_home": 23.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-10-04T17:00:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": 2.25,
+   "implied_home": 22.38,
+   "implied_away": 24.62
+  },
+  {
+   "kickoff": "2026-10-04T20:05:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Miami Dolphins",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 42.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -7.5,
+   "implied_home": 25.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-10-04T20:25:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Denver Broncos",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-10-04T20:25:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 5.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 5.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 5.5,
+   "implied_home": 19.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-10-04T20:25:00Z",
+   "home": "Seattle Seahawks",
+   "away": "Los Angeles Chargers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -3.0,
+   "implied_home": 24.25,
+   "implied_away": 21.25
+  },
+  {
+   "kickoff": "2026-10-05T00:20:00Z",
+   "home": "Carolina Panthers",
+   "away": "Detroit Lions",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": 3.0,
+   "implied_home": 22.0,
+   "implied_away": 25.0
+  },
+  {
+   "kickoff": "2026-10-06T00:15:00Z",
+   "home": "New Orleans Saints",
+   "away": "Atlanta Falcons",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-10-09T00:15:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 51.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 52.5
+    }
+   ],
+   "total_median": 52.5,
+   "home_spread_median": -3.5,
+   "implied_home": 28.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-10-11T13:30:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Philadelphia Eagles",
+   "books_n": 4,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 44.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 1.5,
+   "implied_home": 21.5,
+   "implied_away": 23.0
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 6.0,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 6.5,
+     "total": 48.0
+    },
+    {
+     "book": "betus",
+     "home_spread": 5.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": 6.0,
+   "implied_home": 21.75,
+   "implied_away": 27.75
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "New York Jets",
+   "away": "Cleveland Browns",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 38.5
+    }
+   ],
+   "total_median": 39.0,
+   "home_spread_median": -2.0,
+   "implied_home": 20.5,
+   "implied_away": 18.5
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Houston Texans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 3.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 3.5,
+   "implied_home": 20.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Indianapolis Colts",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.0,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -2.5,
+   "implied_home": 25.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "New England Patriots",
+   "away": "Las Vegas Raiders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -8.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -8.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -8.5,
+   "implied_home": 26.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "New Orleans Saints",
+   "away": "Minnesota Vikings",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 1.5,
+   "implied_home": 21.5,
+   "implied_away": 23.0
+  },
+  {
+   "kickoff": "2026-10-11T17:00:00Z",
+   "home": "Washington Commanders",
+   "away": "New York Giants",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 49.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -2.5,
+   "implied_home": 25.5,
+   "implied_away": 23.0
+  },
+  {
+   "kickoff": "2026-10-11T20:05:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "Denver Broncos",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -2.5,
+   "implied_home": 23.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-10-11T20:25:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Detroit Lions",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 8.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 8.0,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": 8.25,
+   "implied_home": 20.12,
+   "implied_away": 28.38
+  },
+  {
+   "kickoff": "2026-10-11T20:25:00Z",
+   "home": "Green Bay Packers",
+   "away": "Chicago Bears",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 49.0,
+   "home_spread_median": -3.25,
+   "implied_home": 26.12,
+   "implied_away": 22.88
+  },
+  {
+   "kickoff": "2026-10-11T20:25:00Z",
+   "home": "Seattle Seahawks",
+   "away": "San Francisco 49ers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -3.5,
+   "implied_home": 26.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-10-12T00:20:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Baltimore Ravens",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.0,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": 4.5,
+   "implied_home": 22.0,
+   "implied_away": 26.5
+  },
+  {
+   "kickoff": "2026-10-13T00:15:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 53.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 54.5
+    }
+   ],
+   "total_median": 54.0,
+   "home_spread_median": -3.75,
+   "implied_home": 28.88,
+   "implied_away": 25.12
+  },
+  {
+   "kickoff": "2026-10-16T00:15:00Z",
+   "home": "Denver Broncos",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 1.5,
+   "implied_home": 21.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-10-18T13:30:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Houston Texans",
+   "books_n": 4,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 41.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 40.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 41.5,
+   "home_spread_median": 1.5,
+   "implied_home": 20.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Chicago Bears",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 47.0
+    }
+   ],
+   "total_median": 47.25,
+   "home_spread_median": 3.0,
+   "implied_home": 22.12,
+   "implied_away": 25.12
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Baltimore Ravens",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 6.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 6.75,
+   "implied_home": 18.38,
+   "implied_away": 25.12
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 41.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -6.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -6.5,
+   "implied_home": 25.0,
+   "implied_away": 18.5
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Tennessee Titans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -3.5,
+   "implied_home": 25.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "New England Patriots",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -9.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -9.75,
+   "implied_home": 26.12,
+   "implied_away": 16.38
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "New York Giants",
+   "away": "New Orleans Saints",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -2.5,
+   "implied_home": 23.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-10-18T17:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Pittsburgh Steelers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.0,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -1.5,
+   "implied_home": 23.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-10-18T20:05:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Arizona Cardinals",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -13.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -14.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -14.0,
+   "implied_home": 30.75,
+   "implied_away": 16.75
+  },
+  {
+   "kickoff": "2026-10-18T20:25:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 6.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.0,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": 6.75,
+   "implied_home": 20.62,
+   "implied_away": 27.38
+  },
+  {
+   "kickoff": "2026-10-18T20:25:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "Los Angeles Chargers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-10-19T00:20:00Z",
+   "home": "Green Bay Packers",
+   "away": "Dallas Cowboys",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -3.0,
+   "implied_home": 27.25,
+   "implied_away": 24.25
+  },
+  {
+   "kickoff": "2026-10-20T00:15:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Washington Commanders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 50.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 51.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 50.5
+    }
+   ],
+   "total_median": 50.5,
+   "home_spread_median": -5.5,
+   "implied_home": 28.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-10-23T00:15:00Z",
+   "home": "Chicago Bears",
+   "away": "New England Patriots",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": -1.5,
+   "implied_home": 24.25,
+   "implied_away": 22.75
+  },
+  {
+   "kickoff": "2026-10-25T13:30:00Z",
+   "home": "New Orleans Saints",
+   "away": "Pittsburgh Steelers",
+   "books_n": 4,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 41.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 40.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.0,
+   "home_spread_median": 2.0,
+   "implied_home": 20.0,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "San Francisco 49ers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 4.5,
+   "implied_home": 21.5,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 50.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 52.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -3.5,
+   "implied_home": 27.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 43.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": 1.5,
+   "implied_home": 22.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Cleveland Browns",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 38.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": -2.75,
+   "implied_home": 21.12,
+   "implied_away": 18.38
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "Houston Texans",
+   "away": "New York Giants",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.0,
+     "total": 41.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -5.5,
+   "implied_home": 24.5,
+   "implied_away": 19.0
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Indianapolis Colts",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-10-25T17:00:00Z",
+   "home": "New York Jets",
+   "away": "Miami Dolphins",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 40.5
+    }
+   ],
+   "total_median": 41.0,
+   "home_spread_median": -2.75,
+   "implied_home": 21.88,
+   "implied_away": 19.12
+  },
+  {
+   "kickoff": "2026-10-25T20:05:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Denver Broncos",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.0,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 7.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 7.5,
+   "implied_home": 18.0,
+   "implied_away": 25.5
+  },
+  {
+   "kickoff": "2026-10-25T20:25:00Z",
+   "home": "Detroit Lions",
+   "away": "Green Bay Packers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 50.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 50.0,
+   "home_spread_median": -2.5,
+   "implied_home": 26.25,
+   "implied_away": 23.75
+  },
+  {
+   "kickoff": "2026-10-25T20:25:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 8.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 8.0,
+   "implied_home": 19.25,
+   "implied_away": 27.25
+  },
+  {
+   "kickoff": "2026-10-26T00:20:00Z",
+   "home": "Seattle Seahawks",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -3.0,
+   "implied_home": 24.25,
+   "implied_away": 21.25
+  },
+  {
+   "kickoff": "2026-10-27T00:15:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Dallas Cowboys",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 49.0
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -3.0,
+   "implied_home": 25.75,
+   "implied_away": 22.75
+  },
+  {
+   "kickoff": "2026-10-30T00:15:00Z",
+   "home": "Green Bay Packers",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.5,
+     "total": 45.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -7.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -7.0,
+   "implied_home": 26.25,
+   "implied_away": 19.25
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Arizona Cardinals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -10.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -10.5,
+   "implied_home": 30.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Atlanta Falcons",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -4.5,
+   "implied_home": 25.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Buffalo Bills",
+   "away": "Baltimore Ravens",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -2.5,
+   "implied_home": 27.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Tennessee Titans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -6.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 48.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -6.5,
+   "implied_home": 28.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Cleveland Browns",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.0,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 39.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": -5.75,
+   "implied_home": 22.62,
+   "implied_away": 16.88
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Detroit Lions",
+   "away": "Minnesota Vikings",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 47.0
+    }
+   ],
+   "total_median": 47.25,
+   "home_spread_median": -5.0,
+   "implied_home": 26.12,
+   "implied_away": 21.12
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Indianapolis Colts",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 48.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -4.5,
+   "implied_home": 27.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-11-01T18:00:00Z",
+   "home": "New York Jets",
+   "away": "Las Vegas Raiders",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 41.0,
+   "home_spread_median": -1.5,
+   "implied_home": 21.25,
+   "implied_away": 19.75
+  },
+  {
+   "kickoff": "2026-11-01T21:05:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Los Angeles Chargers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 48.0
+    }
+   ],
+   "total_median": 48.25,
+   "home_spread_median": -4.5,
+   "implied_home": 26.38,
+   "implied_away": 21.88
+  },
+  {
+   "kickoff": "2026-11-01T21:25:00Z",
+   "home": "Denver Broncos",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -1.5,
+   "implied_home": 22.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-11-01T21:25:00Z",
+   "home": "Miami Dolphins",
+   "away": "New England Patriots",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 6.5,
+     "total": 45.0
+    },
+    {
+     "book": "betus",
+     "home_spread": 7.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": 7.0,
+   "implied_home": 19.25,
+   "implied_away": 26.25
+  },
+  {
+   "kickoff": "2026-11-02T01:20:00Z",
+   "home": "Washington Commanders",
+   "away": "Philadelphia Eagles",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 2.5,
+   "implied_home": 22.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-11-03T01:20:00Z",
+   "home": "Seattle Seahawks",
+   "away": "Chicago Bears",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -4.75,
+   "implied_home": 26.12,
+   "implied_away": 21.38
+  },
+  {
+   "kickoff": "2026-11-06T01:15:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Jacksonville Jaguars",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -4.5,
+   "implied_home": 27.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-11-08T14:30:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Cincinnati Bengals",
+   "books_n": 4,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.5,
+     "total": 49.0
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 4.5,
+     "total": 49.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 49.25,
+   "home_spread_median": 4.5,
+   "implied_home": 22.38,
+   "implied_away": 26.88
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Denver Broncos",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 3.0,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 41.0
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 3.0,
+   "implied_home": 19.75,
+   "implied_away": 22.75
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "New Orleans Saints",
+   "away": "Cleveland Browns",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 39.5
+    }
+   ],
+   "total_median": 40.5,
+   "home_spread_median": -3.75,
+   "implied_home": 22.12,
+   "implied_away": 18.38
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Dallas Cowboys",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 52.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 52.5,
+   "home_spread_median": 1.5,
+   "implied_home": 25.5,
+   "implied_away": 27.0
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "Detroit Lions",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 6.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 6.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": 6.5,
+   "implied_home": 20.25,
+   "implied_away": 26.75
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -9.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.0,
+   "home_spread_median": -9.75,
+   "implied_home": 25.88,
+   "implied_away": 16.12
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "Washington Commanders",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 50.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.0,
+   "home_spread_median": 5.0,
+   "implied_home": 23.0,
+   "implied_away": 28.0
+  },
+  {
+   "kickoff": "2026-11-08T18:00:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "New York Giants",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -5.5,
+   "implied_home": 25.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-11-08T21:05:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "Houston Texans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -2.5,
+   "implied_home": 23.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-11-08T21:05:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Las Vegas Raiders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -8.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -9.5,
+     "total": 46.0
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -8.5,
+   "implied_home": 27.5,
+   "implied_away": 19.0
+  },
+  {
+   "kickoff": "2026-11-08T21:25:00Z",
+   "home": "Seattle Seahawks",
+   "away": "Arizona Cardinals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -13.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -13.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -13.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -13.5,
+   "implied_home": 29.5,
+   "implied_away": 16.0
+  },
+  {
+   "kickoff": "2026-11-08T21:25:00Z",
+   "home": "New England Patriots",
+   "away": "Green Bay Packers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -1.5,
+   "implied_home": 24.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-11-09T01:20:00Z",
+   "home": "Chicago Bears",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": -3.5,
+   "implied_home": 25.75,
+   "implied_away": 22.25
+  },
+  {
+   "kickoff": "2026-11-10T01:15:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.0,
+   "home_spread_median": 3.25,
+   "implied_home": 22.88,
+   "implied_away": 26.12
+  },
+  {
+   "kickoff": "2026-11-13T01:15:00Z",
+   "home": "New York Giants",
+   "away": "Washington Commanders",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": -1.5,
+   "implied_home": 24.25,
+   "implied_away": 22.75
+  },
+  {
+   "kickoff": "2026-11-15T14:30:00Z",
+   "home": "Detroit Lions",
+   "away": "New England Patriots",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 48.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -1.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -1.5,
+   "implied_home": 25.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Kansas City Chiefs",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.0,
+   "home_spread_median": 4.0,
+   "implied_home": 20.5,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "New York Jets",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.0,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 6.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.0,
+   "home_spread_median": 6.75,
+   "implied_home": 19.62,
+   "implied_away": 26.38
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "New Orleans Saints",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 42.0
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -1.5,
+   "implied_home": 22.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Houston Texans",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 38.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 36.5
+    }
+   ],
+   "total_median": 37.5,
+   "home_spread_median": 4.5,
+   "implied_home": 16.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "Green Bay Packers",
+   "away": "Minnesota Vikings",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -4.5,
+   "implied_home": 25.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Miami Dolphins",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -6.75,
+   "implied_home": 26.62,
+   "implied_away": 19.88
+  },
+  {
+   "kickoff": "2026-11-15T18:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Jacksonville Jaguars",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": 2.5,
+   "implied_home": 21.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-11-15T21:05:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 10.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 10.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 10.5,
+   "implied_home": 18.5,
+   "implied_away": 29.0
+  },
+  {
+   "kickoff": "2026-11-15T21:05:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.0,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 7.0,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 6.5,
+     "total": 42.0
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 7.0,
+   "implied_home": 18.25,
+   "implied_away": 25.25
+  },
+  {
+   "kickoff": "2026-11-15T21:25:00Z",
+   "home": "Dallas Cowboys",
+   "away": "San Francisco 49ers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.0,
+     "total": 53.5
+    }
+   ],
+   "total_median": 53.0,
+   "home_spread_median": -1.25,
+   "implied_home": 27.12,
+   "implied_away": 25.88
+  },
+  {
+   "kickoff": "2026-11-16T01:20:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Pittsburgh Steelers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 46.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -3.5,
+   "implied_home": 25.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-11-17T01:15:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Los Angeles Chargers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -3.0,
+   "implied_home": 25.25,
+   "implied_away": 22.25
+  },
+  {
+   "kickoff": "2026-11-20T01:15:00Z",
+   "home": "Houston Texans",
+   "away": "Indianapolis Colts",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -5.0,
+   "implied_home": 24.75,
+   "implied_away": 19.75
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "Arizona Cardinals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -11.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -11.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -11.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -11.5,
+   "implied_home": 28.0,
+   "implied_away": 16.5
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Baltimore Ravens",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 4.5,
+   "implied_home": 21.0,
+   "implied_away": 25.5
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "Buffalo Bills",
+   "away": "Miami Dolphins",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -11.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -12.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": -12.0,
+   "implied_home": 30.0,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "Chicago Bears",
+   "away": "New Orleans Saints",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 46.0
+    }
+   ],
+   "total_median": 46.25,
+   "home_spread_median": -6.5,
+   "implied_home": 26.38,
+   "implied_away": 19.88
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Tennessee Titans",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": -6.75,
+   "implied_home": 27.38,
+   "implied_away": 20.62
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "Detroit Lions",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -4.5,
+   "implied_home": 26.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-11-22T18:00:00Z",
+   "home": "New York Giants",
+   "away": "Jacksonville Jaguars",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": 1.25,
+   "implied_home": 22.88,
+   "implied_away": 24.12
+  },
+  {
+   "kickoff": "2026-11-22T21:05:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -9.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.0,
+   "home_spread_median": -10.0,
+   "implied_home": 26.0,
+   "implied_away": 16.0
+  },
+  {
+   "kickoff": "2026-11-22T21:25:00Z",
+   "home": "Denver Broncos",
+   "away": "Las Vegas Raiders",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -8.5,
+     "total": 40.5
+    }
+   ],
+   "total_median": 41.0,
+   "home_spread_median": -8.0,
+   "implied_home": 24.5,
+   "implied_away": 16.5
+  },
+  {
+   "kickoff": "2026-11-22T21:25:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Pittsburgh Steelers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 41.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -5.5,
+   "implied_home": 24.0,
+   "implied_away": 18.5
+  },
+  {
+   "kickoff": "2026-11-23T01:20:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Minnesota Vikings",
+   "books_n": 4,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 46.0
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -4.5,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -3.75,
+   "implied_home": 25.12,
+   "implied_away": 21.38
+  },
+  {
+   "kickoff": "2026-11-24T01:15:00Z",
+   "home": "Washington Commanders",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 51.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 52.5
+    }
+   ],
+   "total_median": 52.5,
+   "home_spread_median": 1.5,
+   "implied_home": 25.5,
+   "implied_away": 27.0
+  },
+  {
+   "kickoff": "2026-11-26T01:00:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Green Bay Packers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 48.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -5.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -5.5,
+   "implied_home": 27.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-11-26T18:00:00Z",
+   "home": "Detroit Lions",
+   "away": "Chicago Bears",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 52.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -2.5,
+     "total": 53.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 52.5,
+   "home_spread_median": -2.5,
+   "implied_home": 27.5,
+   "implied_away": 25.0
+  },
+  {
+   "kickoff": "2026-11-26T20:30:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Philadelphia Eagles",
+   "books_n": 5,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 49.0
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -1.5,
+     "total": 49.5
+    },
+    {
+     "book": "betonlineag",
+     "home_spread": -1.0,
+     "total": 49.5
+    },
+    {
+     "book": "lowvig",
+     "home_spread": -1.0,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -1.5,
+   "implied_home": 25.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-11-27T01:20:00Z",
+   "home": "Buffalo Bills",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 50.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -2.5,
+     "total": 50.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 50.5,
+   "home_spread_median": -2.5,
+   "implied_home": 26.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-11-27T20:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Denver Broncos",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 39.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 38.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": 1.5,
+   "implied_home": 19.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Atlanta Falcons",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -4.0,
+   "implied_home": 23.75,
+   "implied_away": 19.75
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Houston Texans",
+   "away": "Baltimore Ravens",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.0,
+   "home_spread_median": -1.25,
+   "implied_home": 23.12,
+   "implied_away": 21.88
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "New Orleans Saints",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.5,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -6.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -6.5,
+   "implied_home": 27.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Las Vegas Raiders",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 37.5
+    }
+   ],
+   "total_median": 38.5,
+   "home_spread_median": -2.0,
+   "implied_home": 20.25,
+   "implied_away": 18.25
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "New York Giants",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": -2.75,
+   "implied_home": 24.88,
+   "implied_away": 22.12
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Tennessee Titans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 45.0
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -5.5,
+   "implied_home": 25.5,
+   "implied_away": 20.0
+  },
+  {
+   "kickoff": "2026-11-29T18:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 39.5
+    }
+   ],
+   "total_median": 40.0,
+   "home_spread_median": -1.5,
+   "implied_home": 20.75,
+   "implied_away": 19.25
+  },
+  {
+   "kickoff": "2026-11-29T21:25:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Washington Commanders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 4.5,
+   "implied_home": 21.5,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2026-11-29T21:25:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -1.5,
+   "implied_home": 24.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-11-30T01:20:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "New England Patriots",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 46.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-12-01T01:15:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 43.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -3.5,
+   "implied_home": 24.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-12-04T01:15:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Kansas City Chiefs",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -4.25,
+   "implied_home": 25.88,
+   "implied_away": 21.62
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Detroit Lions",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 3.25,
+   "implied_home": 22.12,
+   "implied_away": 25.38
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "Chicago Bears",
+   "away": "Jacksonville Jaguars",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": -3.0,
+   "implied_home": 25.5,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Cincinnati Bengals",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.0,
+     "total": 43.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 4.25,
+   "implied_home": 20.12,
+   "implied_away": 24.38
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "Denver Broncos",
+   "away": "Miami Dolphins",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -9.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -9.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.0,
+   "home_spread_median": -9.5,
+   "implied_home": 25.75,
+   "implied_away": 16.25
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "New Orleans Saints",
+   "away": "Green Bay Packers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.0,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 4.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": 4.5,
+   "implied_home": 20.5,
+   "implied_away": 25.0
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Los Angeles Chargers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 1.5,
+   "implied_home": 22.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "New York Giants",
+   "away": "San Francisco 49ers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 48.0
+    }
+   ],
+   "total_median": 47.75,
+   "home_spread_median": 3.0,
+   "implied_home": 22.38,
+   "implied_away": 25.38
+  },
+  {
+   "kickoff": "2026-12-06T18:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Washington Commanders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 1.5,
+   "implied_home": 22.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-12-06T21:05:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Philadelphia Eagles",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 8.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 8.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 8.5,
+   "implied_home": 17.5,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2026-12-06T21:25:00Z",
+   "home": "New England Patriots",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.0,
+   "home_spread_median": -0.25,
+   "implied_home": 24.62,
+   "implied_away": 24.38
+  },
+  {
+   "kickoff": "2026-12-06T21:25:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -3.5,
+   "implied_home": 23.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-12-07T01:20:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Houston Texans",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 39.5
+    }
+   ],
+   "total_median": 40.5,
+   "home_spread_median": 1.25,
+   "implied_home": 19.62,
+   "implied_away": 20.88
+  },
+  {
+   "kickoff": "2026-12-08T01:15:00Z",
+   "home": "Seattle Seahawks",
+   "away": "Dallas Cowboys",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -4.5,
+   "implied_home": 26.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-12-11T01:15:00Z",
+   "home": "New England Patriots",
+   "away": "Minnesota Vikings",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -4.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -4.5,
+   "implied_home": 24.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Atlanta Falcons",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 39.5
+    }
+   ],
+   "total_median": 40.0,
+   "home_spread_median": 0.0,
+   "implied_home": 20.0,
+   "implied_away": 20.0
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.0,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -6.0,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 47.0
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -6.0,
+   "implied_home": 27.25,
+   "implied_away": 21.25
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "New Orleans Saints",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -2.5,
+   "implied_home": 23.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "Chicago Bears",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.0,
+   "home_spread_median": 5.0,
+   "implied_home": 20.5,
+   "implied_away": 25.5
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "New York Jets",
+   "away": "Denver Broncos",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 39.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": 5.0,
+   "implied_home": 17.25,
+   "implied_away": 22.25
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Detroit Lions",
+   "away": "Tennessee Titans",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": -7.5,
+   "implied_home": 27.25,
+   "implied_away": 19.75
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Washington Commanders",
+   "away": "Houston Texans",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 44.0,
+   "home_spread_median": 1.5,
+   "implied_home": 21.25,
+   "implied_away": 22.75
+  },
+  {
+   "kickoff": "2026-12-13T18:00:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Indianapolis Colts",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -5.5,
+   "implied_home": 26.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-12-13T21:05:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Los Angeles Chargers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 5.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 5.5,
+   "implied_home": 19.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-12-13T21:25:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -1.5,
+   "implied_home": 25.0,
+   "implied_away": 23.5
+  },
+  {
+   "kickoff": "2026-12-13T21:25:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 50.5
+    }
+   ],
+   "total_median": 50.0,
+   "home_spread_median": 2.0,
+   "implied_home": 24.0,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2026-12-13T21:25:00Z",
+   "home": "Seattle Seahawks",
+   "away": "New York Giants",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -7.5,
+   "implied_home": 26.5,
+   "implied_away": 19.0
+  },
+  {
+   "kickoff": "2026-12-14T01:20:00Z",
+   "home": "Green Bay Packers",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 50.5
+    }
+   ],
+   "total_median": 50.0,
+   "home_spread_median": -1.5,
+   "implied_home": 25.75,
+   "implied_away": 24.25
+  },
+  {
+   "kickoff": "2026-12-15T01:15:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Pittsburgh Steelers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -3.0,
+   "implied_home": 23.75,
+   "implied_away": 20.75
+  },
+  {
+   "kickoff": "2026-12-18T01:15:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "San Francisco 49ers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 48.0
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -2.5,
+   "implied_home": 25.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2026-12-19T22:00:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -1.5,
+   "implied_home": 22.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-12-20T01:20:00Z",
+   "home": "Buffalo Bills",
+   "away": "Chicago Bears",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -3.75,
+   "implied_home": 27.62,
+   "implied_away": 23.88
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Washington Commanders",
+   "away": "Atlanta Falcons",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.0,
+   "home_spread_median": -3.75,
+   "implied_home": 25.38,
+   "implied_away": 21.62
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Baltimore Ravens",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 43.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": 2.5,
+   "implied_home": 21.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 2.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 2.5,
+   "implied_home": 22.5,
+   "implied_away": 25.0
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "New York Giants",
+   "away": "Cleveland Browns",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.5,
+     "total": 39.5
+    }
+   ],
+   "total_median": 40.0,
+   "home_spread_median": -4.5,
+   "implied_home": 22.25,
+   "implied_away": 17.75
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Green Bay Packers",
+   "away": "Miami Dolphins",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.0,
+   "home_spread_median": -10.5,
+   "implied_home": 27.75,
+   "implied_away": 17.25
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Houston Texans",
+   "away": "Jacksonville Jaguars",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 43.0,
+   "home_spread_median": -3.0,
+   "implied_home": 23.0,
+   "implied_away": 20.0
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Indianapolis Colts",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 47.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": 1.5,
+   "implied_home": 23.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-12-20T18:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "New Orleans Saints",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -4.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -3.5,
+   "implied_home": 24.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2026-12-20T21:05:00Z",
+   "home": "Arizona Cardinals",
+   "away": "New York Jets",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 40.5
+    }
+   ],
+   "total_median": 41.0,
+   "home_spread_median": 0.0,
+   "implied_home": 20.5,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-12-20T21:25:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Dallas Cowboys",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -6.0,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -7.5,
+     "total": 53.5
+    }
+   ],
+   "total_median": 53.0,
+   "home_spread_median": -6.75,
+   "implied_home": 29.88,
+   "implied_away": 23.12
+  },
+  {
+   "kickoff": "2026-12-20T21:25:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Denver Broncos",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 4.0,
+     "total": 40.5
+    }
+   ],
+   "total_median": 41.0,
+   "home_spread_median": 4.25,
+   "implied_home": 18.38,
+   "implied_away": 22.62
+  },
+  {
+   "kickoff": "2026-12-21T01:20:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Detroit Lions",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 46.0,
+   "home_spread_median": 2.0,
+   "implied_home": 22.0,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-12-22T01:15:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "New England Patriots",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 45.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.0,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2026-12-25T01:15:00Z",
+   "home": "Philadelphia Eagles",
+   "away": "Houston Texans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 37.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -2.5,
+     "total": 38.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 38.5
+    }
+   ],
+   "total_median": 38.5,
+   "home_spread_median": -2.5,
+   "implied_home": 20.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2026-12-25T18:00:00Z",
+   "home": "Chicago Bears",
+   "away": "Green Bay Packers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 47.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": -1.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -1.5,
+   "implied_home": 24.5,
+   "implied_away": 23.0
+  },
+  {
+   "kickoff": "2026-12-25T21:30:00Z",
+   "home": "Denver Broncos",
+   "away": "Buffalo Bills",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 1.5,
+   "implied_home": 22.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2026-12-26T01:15:00Z",
+   "home": "Seattle Seahawks",
+   "away": "Los Angeles Rams",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 47.5
+    },
+    {
+     "book": "fanduel",
+     "home_spread": 1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 0.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": 0.0,
+   "implied_home": 23.25,
+   "implied_away": 23.25
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "New Orleans Saints",
+   "away": "Arizona Cardinals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -5.5,
+   "implied_home": 25.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 45.0
+    }
+   ],
+   "total_median": 45.25,
+   "home_spread_median": 1.25,
+   "implied_home": 22.0,
+   "implied_away": 23.25
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Cleveland Browns",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.0,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -9.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -10.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -10.0,
+   "implied_home": 26.75,
+   "implied_away": 16.75
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Pittsburgh Steelers",
+   "away": "Carolina Panthers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 41.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 41.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.5,
+     "total": 40.5
+    }
+   ],
+   "total_median": 41.5,
+   "home_spread_median": -3.5,
+   "implied_home": 22.5,
+   "implied_away": 19.0
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Cincinnati Bengals",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 52.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 52.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 51.5
+    }
+   ],
+   "total_median": 52.5,
+   "home_spread_median": 1.5,
+   "implied_home": 25.5,
+   "implied_away": 27.0
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Las Vegas Raiders",
+   "away": "Tennessee Titans",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -1.5,
+   "implied_home": 22.0,
+   "implied_away": 20.5
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "Los Angeles Chargers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.0,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.0,
+     "total": 43.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 7.0,
+   "implied_home": 18.75,
+   "implied_away": 25.75
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Washington Commanders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 47.0
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -2.5,
+   "implied_home": 24.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2026-12-27T18:00:00Z",
+   "home": "New York Jets",
+   "away": "New England Patriots",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 6.5,
+     "total": 40.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 6.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 41.5,
+   "home_spread_median": 6.25,
+   "implied_home": 17.62,
+   "implied_away": 23.88
+  },
+  {
+   "kickoff": "2026-12-27T21:25:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "San Francisco 49ers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 46.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 47.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -3.0,
+   "implied_home": 24.75,
+   "implied_away": 21.75
+  },
+  {
+   "kickoff": "2026-12-28T01:20:00Z",
+   "home": "Dallas Cowboys",
+   "away": "Jacksonville Jaguars",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 52.5
+    }
+   ],
+   "total_median": 52.0,
+   "home_spread_median": -3.0,
+   "implied_home": 27.5,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2026-12-29T01:15:00Z",
+   "home": "Detroit Lions",
+   "away": "New York Giants",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -6.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": -5.5,
+   "implied_home": 27.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2027-01-01T01:15:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Baltimore Ravens",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 51.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 50.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -2.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 51.5,
+   "home_spread_median": -2.5,
+   "implied_home": 27.0,
+   "implied_away": 24.5
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Atlanta Falcons",
+   "away": "New Orleans Saints",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 44.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -2.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 44.0,
+   "home_spread_median": -2.0,
+   "implied_home": 23.0,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Miami Dolphins",
+   "away": "Buffalo Bills",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 7.5,
+     "total": 47.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 7.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": 7.5,
+   "implied_home": 20.25,
+   "implied_away": 27.75
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Seattle Seahawks",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 5.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 5.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 5.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 5.5,
+   "implied_home": 18.5,
+   "implied_away": 24.0
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Cleveland Browns",
+   "away": "Indianapolis Colts",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 2.5,
+     "total": 43.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 2.5,
+   "implied_home": 20.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Dallas Cowboys",
+   "away": "New York Giants",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -4.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -5.5,
+     "total": 51.5
+    }
+   ],
+   "total_median": 50.5,
+   "home_spread_median": -5.0,
+   "implied_home": 27.75,
+   "implied_away": 22.75
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "New England Patriots",
+   "away": "Denver Broncos",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -2.75,
+   "implied_home": 22.62,
+   "implied_away": 19.88
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Jacksonville Jaguars",
+   "away": "Washington Commanders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -3.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 49.5
+    }
+   ],
+   "total_median": 48.5,
+   "home_spread_median": -3.5,
+   "implied_home": 26.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Tampa Bay Buccaneers",
+   "away": "Los Angeles Rams",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 4.5,
+     "total": 48.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 3.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 48.0,
+   "home_spread_median": 4.0,
+   "implied_home": 22.0,
+   "implied_away": 26.0
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "New York Jets",
+   "away": "Minnesota Vikings",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.5,
+     "total": 39.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 2.5,
+     "total": 40.5
+    }
+   ],
+   "total_median": 40.0,
+   "home_spread_median": 3.0,
+   "implied_home": 18.5,
+   "implied_away": 21.5
+  },
+  {
+   "kickoff": "2027-01-03T18:00:00Z",
+   "home": "Tennessee Titans",
+   "away": "Pittsburgh Steelers",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.0,
+     "total": 40.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 1.5,
+   "implied_home": 20.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2027-01-03T21:05:00Z",
+   "home": "Arizona Cardinals",
+   "away": "Las Vegas Raiders",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 42.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": 1.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": 1.5,
+   "implied_home": 20.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2027-01-03T21:25:00Z",
+   "home": "Chicago Bears",
+   "away": "Detroit Lions",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 49.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 48.5
+    }
+   ],
+   "total_median": 49.0,
+   "home_spread_median": -1.5,
+   "implied_home": 25.25,
+   "implied_away": 23.75
+  },
+  {
+   "kickoff": "2027-01-03T21:25:00Z",
+   "home": "Los Angeles Chargers",
+   "away": "Kansas City Chiefs",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -1.5,
+   "implied_home": 23.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2027-01-04T01:20:00Z",
+   "home": "San Francisco 49ers",
+   "away": "Philadelphia Eagles",
+   "books_n": 3,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 45.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 46.5
+    }
+   ],
+   "total_median": 45.5,
+   "home_spread_median": -1.5,
+   "implied_home": 23.5,
+   "implied_away": 22.0
+  },
+  {
+   "kickoff": "2027-01-05T01:15:00Z",
+   "home": "Green Bay Packers",
+   "away": "Houston Texans",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 42.5
+    },
+    {
+     "book": "williamhill_us",
+     "home_spread": -3.0,
+     "total": 41.5
+    }
+   ],
+   "total_median": 42.0,
+   "home_spread_median": -2.75,
+   "implied_home": 22.38,
+   "implied_away": 19.62
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Carolina Panthers",
+   "away": "Atlanta Falcons",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 41.5,
+   "home_spread_median": -2.5,
+   "implied_home": 22.0,
+   "implied_away": 19.5
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Baltimore Ravens",
+   "away": "Pittsburgh Steelers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -5.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -5.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -5.5,
+   "implied_home": 24.5,
+   "implied_away": 19.0
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Buffalo Bills",
+   "away": "New York Jets",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.0,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -10.0,
+   "implied_home": 26.75,
+   "implied_away": 16.75
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Minnesota Vikings",
+   "away": "Chicago Bears",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -1.5,
+   "implied_home": 22.5,
+   "implied_away": 21.0
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Cincinnati Bengals",
+   "away": "Cleveland Browns",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": -7.5,
+   "implied_home": 25.5,
+   "implied_away": 18.0
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Washington Commanders",
+   "away": "Dallas Cowboys",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 49.5
+    }
+   ],
+   "total_median": 49.5,
+   "home_spread_median": 1.5,
+   "implied_home": 24.0,
+   "implied_away": 25.5
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Denver Broncos",
+   "away": "Los Angeles Chargers",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 41.5
+    }
+   ],
+   "total_median": 41.5,
+   "home_spread_median": -1.5,
+   "implied_home": 21.5,
+   "implied_away": 20.0
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Green Bay Packers",
+   "away": "Detroit Lions",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -2.5,
+     "total": 47.5
+    }
+   ],
+   "total_median": 47.5,
+   "home_spread_median": -2.5,
+   "implied_home": 25.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Houston Texans",
+   "away": "Tennessee Titans",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -7.0,
+     "total": 39.5
+    }
+   ],
+   "total_median": 39.5,
+   "home_spread_median": -7.0,
+   "implied_home": 23.25,
+   "implied_away": 16.25
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Indianapolis Colts",
+   "away": "Jacksonville Jaguars",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -1.5,
+     "total": 46.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -1.5,
+     "total": 46.5
+    }
+   ],
+   "total_median": 46.5,
+   "home_spread_median": -1.5,
+   "implied_home": 24.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "Kansas City Chiefs",
+   "away": "Las Vegas Raiders",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -8.5,
+     "total": 40.5
+    },
+    {
+     "book": "betus",
+     "home_spread": -8.5,
+     "total": 40.5
+    }
+   ],
+   "total_median": 40.5,
+   "home_spread_median": -8.5,
+   "implied_home": 24.5,
+   "implied_away": 16.0
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "New England Patriots",
+   "away": "Miami Dolphins",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -10.5,
+     "total": 42.5
+    }
+   ],
+   "total_median": 42.5,
+   "home_spread_median": -10.5,
+   "implied_home": 26.5,
+   "implied_away": 16.0
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "New Orleans Saints",
+   "away": "Tampa Bay Buccaneers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 1.5,
+     "total": 43.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 1.5,
+     "total": 43.5
+    }
+   ],
+   "total_median": 43.5,
+   "home_spread_median": 1.5,
+   "implied_home": 21.0,
+   "implied_away": 22.5
+  },
+  {
+   "kickoff": "2027-01-10T18:00:00Z",
+   "home": "New York Giants",
+   "away": "Philadelphia Eagles",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 3.0,
+     "total": 41.5
+    }
+   ],
+   "total_median": 41.5,
+   "home_spread_median": 3.0,
+   "implied_home": 19.25,
+   "implied_away": 22.25
+  },
+  {
+   "kickoff": "2027-01-10T21:05:00Z",
+   "home": "Arizona Cardinals",
+   "away": "San Francisco 49ers",
+   "books_n": 2,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": 8.5,
+     "total": 44.5
+    },
+    {
+     "book": "betus",
+     "home_spread": 8.5,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": 8.5,
+   "implied_home": 18.0,
+   "implied_away": 26.5
+  },
+  {
+   "kickoff": "2027-01-10T21:05:00Z",
+   "home": "Los Angeles Rams",
+   "away": "Seattle Seahawks",
+   "books_n": 1,
+   "books": [
+    {
+     "book": "draftkings",
+     "home_spread": -3.0,
+     "total": 44.5
+    }
+   ],
+   "total_median": 44.5,
+   "home_spread_median": -3.0,
+   "implied_home": 23.75,
+   "implied_away": 20.75
+  }
+ ]
+}

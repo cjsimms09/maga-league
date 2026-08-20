@@ -88,6 +88,44 @@ const INPUTS = [
   'draft/backtest/nflverse_weekly_points_*.json', // own_v4 weekly points
 ];
 
+/* ── DERIVED BOARDS, ADDED 2026-08-20 DURING CORY'S WAR-ROOM AUDIT ──────────
+ *
+ * The source toggle (A, 0109d9d0/b7bf4a13) re-ranks the whole board per
+ * projection source by loading `public/board_<key>.json` — full boards with
+ * vorp/tier recomputed by `rerank_by_source.py` FROM the blend board. At
+ * audit time that script was wired into NOTHING (zero hits across workflows,
+ * build.py, netlify.toml, package.json), so the first blend rebuild — the
+ * keeper-lock rebuild on Friday, which moves RB replacement by 33 points —
+ * leaves every per-source board silently STALE while the toggle keeps
+ * serving it as current. The INPUTS check above cannot see this: these are
+ * OUTPUTS of the board, so the relation is INVERTED — a derived board OLDER
+ * than the board it derives from is stale. Glob, not a name list, so a new
+ * source is covered the day its board first commits. Absent boards are fine
+ * (the toggle's own failure path names them); PRESENT-but-older fails. */
+const DERIVED = 'public/board_*.json';
+/* mlv_plan.json is board-derived too (mlv_seat_plan.js reads the board) — but
+ * WARNING-ONLY, measured before deciding: the generator is deterministic and
+ * writes no timestamp, so after a rebuild that does not move its inputs a
+ * fresh regeneration is BYTE-IDENTICAL and can never clear a commit-ordering
+ * check (proven live 08-20: flagged 45m "stale", regenerated, zero diff).
+ * Commit ordering cannot distinguish a no-op rebuild from real drift here,
+ * and a red that everyone learns to explain away gets switched off. The
+ * strong check for this file is regenerate-and-diff in the rebuild chain —
+ * A's pipeline, asked for in ROUTES. */
+const DERIVED_EXTRA = ['public/mlv_plan.json'];   // reported, never fatal
+
+/** {stale:[...], fresh:[...]} for boards DERIVED from the blend board. */
+function classifyDerived(boardTime, derived) {
+  const stale = [], fresh = [];
+  derived.forEach(function (d) {
+    if (d.time == null || boardTime == null) return;
+    (d.time < boardTime ? stale : fresh).push(
+      Object.assign({ behindSeconds: boardTime - d.time }, d));
+  });
+  stale.sort((a, b) => b.behindSeconds - a.behindSeconds);
+  return { stale: stale, fresh: fresh };
+}
+
 function git(cmd) {
   return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 }
@@ -136,6 +174,15 @@ function main(argv) {
   const inputs = INPUTS.map(p => ({ path: p, time: lastCommit(p, at) }));
   const missing = inputs.filter(i => i.time == null);
   const { stale, fresh } = classify(boardTime, inputs);
+  /* derived boards: enumerate real files at the ref, then time each one */
+  let derivedNames = [];
+  try {
+    derivedNames = git('git ls-tree -r --name-only ' + (at || 'HEAD') + ' -- public')
+      .split('\n').map(n => n.trim())
+      .filter(n => /^public\/board_[^/]+\.json$/.test(n) || DERIVED_EXTRA.includes(n));
+  } catch (e) { /* no tree data — derived check silently empty, inputs still run */ }
+  const derived = classifyDerived(boardTime,
+    derivedNames.map(p => ({ path: p, time: lastCommit(p, at) })));
 
   console.log('='.repeat(74));
   console.log('BOARD INPUT STALENESS — is the board older than what it is built from?');
@@ -147,8 +194,28 @@ function main(argv) {
     console.error('     A shrinking input list is a check that stops firing silently.');
     return 1;
   }
+  const fatalStale = derived.stale.filter(d => !DERIVED_EXTRA.includes(d.path));
+  const warnStale = derived.stale.filter(d => DERIVED_EXTRA.includes(d.path));
+  if (fatalStale.length) {
+    console.log('\n  ❌ ' + fatalStale.length + ' DERIVED board(s) are OLDER than the blend'
+      + ' board they re-rank:');
+    fatalStale.forEach(function (s) {
+      console.log('     −' + human(s.behindSeconds).padStart(6) + '  ' + s.path);
+    });
+    console.log('  The source toggle serves these as current. Re-run rerank_by_source.py'
+      + ' after\n  EVERY board rebuild — the keeper-lock rebuild moves replacement levels.');
+  }
+  if (warnStale.length) {
+    console.log('\n  ⚠️  commit-ordering only (deterministic, timestamp-less — regenerate'
+      + ' and diff to be sure):');
+    warnStale.forEach(function (s) {
+      console.log('     −' + human(s.behindSeconds).padStart(6) + '  ' + s.path);
+    });
+  }
   if (!stale.length) {
-    console.log('\n  ✅ every declared input predates the board. It can be current.');
+    if (fatalStale.length) { console.log('='.repeat(74)); return 1; }
+    console.log('\n  ✅ every declared input predates the board, and every derived board'
+      + ' postdates it.');
     console.log('     (This does not prove the board is CORRECT — only that it is not'
       + ' provably stale.)');
     console.log('='.repeat(74));
@@ -165,6 +232,6 @@ function main(argv) {
   return 1;
 }
 
-module.exports = { BOARD, INPUTS, classify, human, lastCommit, main };
+module.exports = { BOARD, INPUTS, DERIVED, DERIVED_EXTRA, classify, classifyDerived, human, lastCommit, main };
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));

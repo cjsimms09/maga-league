@@ -143,3 +143,51 @@ def test_reuses_external_source_projections_functions_not_reimplemented():
     import external_source_projections as ESP
     assert WPA.join_by_sleeper_id is ESP.join_by_sleeper_id
     assert WPA.sleeper_rows is ESP.sleeper_rows
+
+
+# ── week_shape_check: catches a season-shaped payload standing in for one week ──
+#
+# Real corruption, caught by hand on the 2026-08-20 discovery dispatch: Josh
+# Allen's row from `/projections/nfl/regular/2026` -- a candidate template
+# that does not interpolate {week} at all -- carried gp: 18.0 and scored
+# 405.5 for what weekly_projection_archive_2026_w1.json recorded as "week 1".
+
+def test_a_real_week_shaped_payload_passes():
+    week_shaped = {"4984": {"pass_yd": 240.0, "pass_td": 2.0, "gp": 1.0},
+                  "4881": {"pass_yd": 210.0, "pass_td": 1.0, "gp": 1.0},
+                  "6462": {"gp": 0.0}}  # bye week -- 0 games is still one-week-shaped
+    got = WPA.week_shape_check(week_shaped)
+    assert got["ok"] is True
+
+
+def test_the_actual_season_shaped_corruption_is_caught():
+    # the real shape the discovery dispatch produced -- gp: 18.0 on the
+    # majority of rows, mislabeled as a single week.
+    season_shaped = {"4984": {"pass_yd": 3650.0, "pass_td": 27.0, "gp": 18.0,
+                              "pts_half_ppr": 361.5},
+                     "4881": {"pass_yd": 3380.0, "pass_td": 27.0, "gp": 18.0,
+                              "pts_half_ppr": 326.0},
+                     "6462": {"gp": 18.0}}
+    got = WPA.week_shape_check(season_shaped)
+    assert got["ok"] is False
+    assert got["rows_over_one_game"] == 3
+
+
+def test_a_minority_of_odd_gp_rows_does_not_false_positive():
+    # one bookkeeping oddity must not VOID a real week
+    mostly_week_shaped = {str(i): {"gp": 1.0} for i in range(9)}
+    mostly_week_shaped["odd"] = {"gp": 18.0}
+    got = WPA.week_shape_check(mostly_week_shaped)
+    assert got["ok"] is True
+
+
+def test_no_gp_field_anywhere_does_not_false_positive():
+    # a payload that never carries gp at all cannot be judged by this check --
+    # absence of the tell is not evidence of corruption
+    got = WPA.week_shape_check({"1": {"pass_yd": 240.0}, "2": {"rush_yd": 80.0}})
+    assert got["ok"] is True
+    assert "no gp field" in got["why"]
+
+
+def test_empty_stats_do_not_false_positive():
+    assert WPA.week_shape_check({})["ok"] is True

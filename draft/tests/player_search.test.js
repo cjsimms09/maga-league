@@ -107,8 +107,21 @@ const hit = (name, q) => nameScore(name, q) > 0;
     + 'both exist', nameScore('Puka Nacua', 'nacua') > nameScore('Puka Nacuaman', 'nacua'));
   ck('and the board SORTS by that score — a ranking nobody applies is not a '
     + 'ranking', /\.sort\(\(a, b\) => \(b\.s - a\.s\)/.test(SRC));
+  /* ⚠️ ASSERTED AS BEHAVIOUR, NOT AS A VARIABLE NAME. This control used to be
+   * /: state\.board\.filter\(match\)\)\.slice/ — it pinned the IDENTIFIER the
+   * no-query branch reads from. When the Big Board was taught to follow the
+   * ranking-source toggle, that identifier became `srcBoard` (the same array on
+   * blend, re-ordered by the selected source otherwise) and this control went
+   * red with the behaviour completely unchanged. A control that fires on a
+   * rename is not protecting the invariant, it is protecting the spelling.
+   *
+   * The invariant is: WITH NO QUERY, NOTHING RE-SORTS THE BOARD. So match the
+   * else-branch and assert there is no `.sort(` inside it — which is what would
+   * actually shuffle the board by a score of zero. */
+  const elseBranch = (SRC.match(/:\s*(\w+)\.filter\(match\)\)\.slice\([^)]*\)/) || [])[0];
   ck('CONTROL — with no query the board keeps its own order rather than being '
-    + 'shuffled by a score of zero', /: state\.board\.filter\(match\)\)\.slice/.test(SRC));
+    + 'shuffled by a score of zero',
+    !!elseBranch && !/\.sort\(/.test(elseBranch), elseBranch);
 }
 
 // ── 5. PUNCTUATION AND THE NAMES THIS LEAGUE ACTUALLY CONTAINS ──────────

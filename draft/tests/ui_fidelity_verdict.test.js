@@ -97,6 +97,9 @@ ck('and at every gap the chip equals the engine-derived ladder (contested→TOSS
   ck('rule ≠ value with gap > PATHS_BAND (' + CFG.PATHS_BAND + '): SPLIT', v.verdict === 'SPLIT', v.verdict);
   ck('  SPLIT backs the RULE\'s pick — the page\'s own measured doctrine',
     v.pick && v.pick.player_id === '2', v.pick);
+  ck('  splitBy names the winning lens — "rule" — the chip must say RULE here, '
+    + 'never the plan-flavored wording (Cory read that exact contradiction live)',
+    v.splitBy === 'rule', v.splitBy);
   ck('  and the why names the gap in labeled units',
     /composite pts/.test(v.why) && v.why.indexOf((CFG.PATHS_BAND + 1).toFixed(1)) >= 0, v.why);
   ck('  the RULE lens agrees with its own headline (never "disagrees" under its own pick)',
@@ -214,9 +217,17 @@ function extract(sig) {
 }
 const fnSrc = extract('  function renderVerdict(out) {');
 const chipWords = extract('  const VERDICT_CHIP_WORDS = {');
+// The live chip picks its SPLIT wording from SPLIT_CHIP_WORDS[v.splitBy]
+// (Cory: "'season plan owns this seat' what does that mean.. don't like
+// it" — the old chip said "rule wins ties" even on a plan-backed split,
+// which directly contradicted the why-sentence under it). Extracted
+// alongside chipWords so the sandboxed renderVerdict below has it in scope.
+const splitChipWords = extract('  const SPLIT_CHIP_WORDS = {');
 ck('renderVerdict exists in the shipped app.js', fnSrc.length > 400);
 ck('the chip-word table exists and names every verdict',
   ['LOCK', 'LEAN', 'TOSS-UP', 'SPLIT', 'PINNED'].every(k => chipWords.indexOf("'" + k + "'") >= 0));
+ck('the split-chip-word table exists and names both winning lenses',
+  ['plan', 'rule'].every(k => splitChipWords.indexOf("'" + k + "'") >= 0), splitChipWords);
 
 {
   let captured = '', display = 'none';
@@ -244,7 +255,7 @@ ck('the chip-word table exists and names every verdict',
   // eslint-disable-next-line no-new-func
   const run = new Function('$', 'state', 'escapeHtml', 'shortName', 'currentPick',
     'seatForCurrentPick', 'context', 'expertSpreadBadge', 'E', 'DraftVerdict', 'console', 'explainPanel',
-    chipWords + ';\n' + fnSrc + ';\nreturn renderVerdict;');
+    chipWords + ';\n' + splitChipWords + ';\n' + fnSrc + ';\nreturn renderVerdict;');
   const render = run(stubs.$, stubs.state, stubs.escapeHtml, stubs.shortName,
     stubs.currentPick, stubs.seatForCurrentPick, stubs.context, stubs.expertSpreadBadge, stubs.E,
     stubs.DraftVerdict, stubs.console, () => '');
@@ -267,6 +278,45 @@ ck('the chip-word table exists and names every verdict',
   render({ scored: tossScored, confidence: E.confidence(tossScored) });
   ck('FAIL ARM RENDERED: contested board renders TOSS-UP, and the chip says "your call"',
     captured.indexOf('data-verdict="TOSS-UP"') >= 0 && /your call/i.test(captured), captured.slice(0, 200));
+
+  // ── the split-chip fix, end to end (not just in the derivation) — Cory
+  // read the chip say "rule wins ties" over a why-sentence that said the
+  // PLAN backed the pick. renderVerdict computes its rule/plan lenses
+  // ITSELF from seatForCurrentPick()/DraftNeedRule, not from `out` — so
+  // this needs its own stubs that actually produce each lens, not the
+  // always-null ones the block above uses to isolate LOCK/TOSS-UP. ───────
+  const splitScored = mk(CFG.PATHS_BAND + 1);      // Alpha value-top, Beta trails
+  const runSplit = new Function('$', 'state', 'escapeHtml', 'shortName', 'currentPick',
+    'seatForCurrentPick', 'context', 'expertSpreadBadge', 'E', 'DraftVerdict', 'console',
+    'explainPanel', 'DraftNeedRule',
+    chipWords + ';\n' + splitChipWords + ';\n' + fnSrc + ';\nreturn renderVerdict;');
+
+  const planHost = { set innerHTML(v) { planHost._c = v; }, get innerHTML() { return planHost._c || ''; },
+    style: {} };
+  const renderPlan = runSplit(sel => (sel === '#verdict-block' ? planHost : null),
+    { board: [], myRoster: [], verdictShown: false, lastVerdict: null, data: null, _shadowProj: null },
+    stubs.escapeHtml, stubs.shortName, stubs.currentPick,
+    () => ({ slot: 'WR', shortlist: [{ name: 'Beta' }] }),   // the plan wants WR, names Beta
+    stubs.context, stubs.expertSpreadBadge, stubs.E, stubs.DraftVerdict, stubs.console,
+    () => '', undefined);                                     // DraftNeedRule absent — isolates the plan lens
+  renderPlan({ scored: splitScored, confidence: E.confidence(splitScored) });
+  ck('RENDERED: a plan-backed split says the PLAN wins, never "rule"',
+    /your saved draft plan wins the tie/i.test(planHost._c) && !/rule wins/i.test(planHost._c),
+    planHost._c.slice(0, 200));
+
+  const ruleHost = { set innerHTML(v) { ruleHost._c = v; }, get innerHTML() { return ruleHost._c || ''; },
+    style: {} };
+  const renderRule = runSplit(sel => (sel === '#verdict-block' ? ruleHost : null),
+    { board: [{ player_id: '1', position: 'RB' }], myRoster: [], verdictShown: false,
+      lastVerdict: null, data: null, _shadowProj: null },
+    stubs.escapeHtml, stubs.shortName, stubs.currentPick,
+    () => null,                                               // no plan — isolates the rule lens
+    stubs.context, stubs.expertSpreadBadge, stubs.E, stubs.DraftVerdict, stubs.console, () => '',
+    { recommend: () => ({ pick: { player_id: '2', name: 'Beta', position: 'WR' }, reason: 'r' }) });
+  renderRule({ scored: splitScored, confidence: E.confidence(splitScored) });
+  ck('RENDERED: a rule-backed split says the RULE wins, never "plan"',
+    /the measured rule wins the tie/i.test(ruleHost._c) && !/draft plan wins/i.test(ruleHost._c),
+    ruleHost._c.slice(0, 200));
 }
 
 // ── THE SEAT PLAN OWNS THE HEADLINE — Cory's ruling, 2026-08-16 (queue #4) ─
@@ -280,10 +330,20 @@ ck('the chip-word table exists and names every verdict',
   const v = V.derive({ cfg: CFG, scored, confidence: E.confidence(scored), plan });
   ck('plan ≠ value beyond the band: SPLIT, and the PLAN\'s player is backed',
     v.verdict === 'SPLIT' && v.pick && v.pick.player_id === '2', { v: v.verdict, pick: v.pick });
-  ck('  the why says the season plan owns the seat, in those words',
-    /season plan owns this seat/.test(v.why), v.why);
+  /* ⚠️ CORRECTED 2026-08-20 — Cory, live: "'season plan owns this seat' what
+   * does that mean.. don't like it." Old copy assumed the reader already
+   * knows what a "season plan" or a "seat" is; rewritten to say it in plain
+   * words (WR filled here, backs Beta over the top-value name) rather than
+   * jargon. The two facts every OTHER consumer of this string actually
+   * checks — the value board's name and its priced gap — are unchanged. */
+  ck('  the why explains the plan in plain words — what slot, and that it '
+    + 'backs the pick over the top-value name — not unexplained jargon',
+    /Your saved draft plan wants WR filled here/.test(v.why)
+      && !/season plan owns this seat/.test(v.why), v.why);
   ck('  and prints the value pick as the priced second line',
     /value board prefers Alpha/.test(v.why) && /composite pts/.test(v.why), v.why);
+  ck('  splitBy names the winning lens — "plan" — so the chip can say so too',
+    v.splitBy === 'plan', v.splitBy);
   ck('  the value top appears among alternatives priced ahead of the backed pick',
     v.alternatives.some(a => a.player.player_id === '1' && a.delta_pts > 0), v.alternatives);
   ck('  the PLAN lens agrees with its own headline',

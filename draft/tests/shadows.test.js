@@ -29,7 +29,7 @@ function ctxAt(pick, board) {
 {
   const sh = SH.create({ rounds: 15, built_at: '2026-08-22T00:00:00Z' });
   const keys = Object.keys(sh.strategies);
-  check('all named profiles create shadows (Default + 6 variants)', keys.length === 7, keys.join(','));
+  check('all named profiles create shadows (Default + 8 variants)', keys.length === 9, keys.join(','));
   const hashes = new Set(keys.map(k => sh.strategies[k].weight_hash));
   check('distinct strategies carry distinct weight-function hashes (except intentional aliases)',
     hashes.size >= 6, hashes.size + ' unique of ' + keys.length);
@@ -44,7 +44,7 @@ function ctxAt(pick, board) {
   const h1 = SH.boardHash(board1);
   const picks1 = SH.onMyPick(sh, board1, ctxAt(4, board1), 1);
   check('every shadow logs the SAME board hash at the same real pick',
-    picks1.length === 7 && picks1.every(p => p.board_hash === h1), JSON.stringify(picks1.map(p => p.board_hash)));
+    picks1.length === 9 && picks1.every(p => p.board_hash === h1), JSON.stringify(picks1.map(p => p.board_hash)));
 
   // History moves on: the room drafts the top two. New snapshot, new hash.
   const gone = new Set(board1.slice(0, 2).map(p => String(p.player_id)));
@@ -163,7 +163,7 @@ function ctxAt(pick, board) {
 {
   const board = makeBoard();
   const proj = SH.project(board, ctxAt(9, board), 1, []);
-  check('project returns one row per strategy', proj.length === 7, String(proj.length));
+  check('project returns one row per strategy', proj.length === 9, String(proj.length));
   check('every projected row names a player + strategy',
     proj.every(r => r.player_id && r.player && r.key));
   check('project commits NOTHING (it is read-only — a re-run is identical)',
@@ -175,14 +175,14 @@ function ctxAt(pick, board) {
       return p.every(r => r.player_id !== String(board[0].player_id));
     })());
   check('project is populated with an EMPTY roster (the "renders empty" fix)',
-    SH.project(board, ctxAt(9, board), 1, []).length === 7);
+    SH.project(board, ctxAt(9, board), 1, []).length === 9);
   check('empty board projects nothing (no fabricated pick)',
     SH.project([], ctxAt(9, []), 1, []).length === 0);
 
   // consensus/split summary
   const cons = SH.consensus(proj);
   check('consensus reports n, a leader, and a contested flag',
-    cons && cons.n === 7 && cons.lead && typeof cons.contested === 'boolean',
+    cons && cons.n === 9 && cons.lead && typeof cons.contested === 'boolean',
     JSON.stringify(cons));
   check('consensus on unanimity is NOT contested',
     (function () {
@@ -292,27 +292,22 @@ function ctxAt(pick, board) {
   /r\.driver/.test(APP) && /sp-rowdriver/.test(APP));
 
   // -- the measured case, re-derived rather than quoted
-  /* RE-PINNED 2026-08-18, THE THIRD TIME THIS CASE HAS MOVED, and the pin
-   * moves WITH the reason on the record each time. 08-14: pick 33 was 7/7
-   * Zay Flowers via `need` — hollow, flagged (block comment above, history).
-   * 08-17: the rebuild re-spread the board; 6/7 Colston Loveland via
-   * `keeper`, a live-weighted term — real agreement, unflagged. 08-18: the
-   * keeper-vorp badge fix collapsed the incumbent-bar subsidy that was
-   * inflating the keeper term (~15 phantom points; intervention-rate.test.js
-   * carries the measurement), and pick 33 stopped being a consensus at all:
-   * 5/7 via `value`, contested. A control pinned to a pick that no longer
-   * shows the phenomenon pins nothing — so the case moved to where the live
-   * board actually exhibits BOTH sides today, which is a STRONGER pin than
-   * either predecessor:
+  /* RE-PINNED 2026-08-20, THE FOURTH TIME THIS CASE HAS MOVED, and the pin
+   * moves WITH the reason on the record each time (history above: 08-14,
+   * 08-17, 08-18). This move's cause is new: `shadows.js` gained two more
+   * profiles (`upside_pure`/`floor_safe`, Cory's "upside only" and "floor
+   * (safe pick)" models) so the panel is now 9 voices, not 7 — the old
+   * picks 68/73 no longer read 7/7 or even 9/9 against the current roster
+   * of strategies (measured: 8/9 and 5/9). Re-derived by scanning the live
+   * board for the same two properties rather than guessing new numbers:
    *
-   *   pick 68: 7/7 Parker Washington via `need`  — zero-weighted, FLAGGED
-   *            (the firing side, now measured live, not only synthetic)
-   *   pick 73: 7/7 Jayden Reed via `value`       — live-weighted, quiet
+   *   pick 24: 9/9 Rashee Rice via `need`   — zero-weighted, FLAGGED
+   *   pick 79: 9/9 J.K. Dobbins via `value` — live-weighted, quiet
    *
-   * Both are uncontested, which retires the old "contested might catch it"
-   * question by measurement: `contested` reads false on the hollow case and
-   * the real one alike — it cannot tell them apart, and that is exactly why
-   * the separate artifact signal exists. */
+   * Both are uncontested, which still retires the old "contested might
+   * catch it" question by measurement: `contested` reads false on the
+   * hollow case and the real one alike — it cannot tell them apart, and
+   * that is exactly why the separate artifact signal exists. */
   const B2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const keepers = (B2.kept_players || []).slice();
   const priced = B2.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
@@ -327,9 +322,9 @@ function ctxAt(pick, board) {
       intervening: 15, roundsLeft: 12 };
     return SH.consensus(SH.project(board, ctx, 4, keepers.slice()));
   };
-  const cHollow = liveCase(68);
-  const cReal = liveCase(73);
-  [['68', cHollow], ['73', cReal]].forEach(([p, c]) => console.log(
+  const cHollow = liveCase(24);
+  const cReal = liveCase(79);
+  [['24', cHollow], ['79', cReal]].forEach(([p, c]) => console.log(
     '      pick ' + p + ': ' + c.agree + '/' + c.n + ' -> ' + c.lead
     + ' · driver ' + c.lead_driver + ' · zero-weighted ' + c.driver_zero_weighted
     + ' · contested ' + c.contested));

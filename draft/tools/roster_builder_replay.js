@@ -308,6 +308,73 @@ const REAL_FILL = process.argv.includes('--real-fill');
 /* §14d: position-consistent units + supply-aware forcing. Implies REAL_FILL. */
 const REAL_POS = process.argv.includes('--real-pos');
 const REAL = REAL_VONA || REAL_FILL || REAL_POS || process.argv.includes('--real');
+
+/* ── CORY'S DEPTH DISCOUNT (relay, prereg §15 / P146 — committed before this) ─
+ * "if only 13 TE are taken on average every year, the 14th TE should have
+ * little to no value as I can get that on waiver wire." Premise measured
+ * first: TE drafted 13/14/15 across 2023-25; all positions stable to ±1-2.
+ * Candidate value becomes max(0, v − repl_q), repl_q = the market value of
+ * the D_q-th player of that position in the TARGET draft, D_q = the OTHER
+ * seasons' mean drafted count. MLV displacement runs on v' unchanged. */
+const MLV_DEPTH = process.argv.includes('--mlv-depth');
+/* §16 (P148): HARD positional cap — the position closes once league-wide
+ * consumption (opponents' recorded picks + my takes) reaches D_q. Exemption:
+ * never while I still owe a starter there, or the rule locks a patient
+ * drafter out of TE1 by everyone else's fourteen. */
+const POS_CAP = process.argv.includes('--pos-cap');
+/* §17 (P152): CORY'S ENSEMBLE VOTE — seven committed strategies share one
+ * roster; each names its candidate; plurality drafts. Tallies are written so
+ * a costume-sweep (7/7 on every pick) is declared, not discovered. */
+const VOTE = process.argv.includes('--vote');
+const VOTE_TALLIES = [];
+/* ── THE DRAFT GAUNTLET (relay, prereg GAUNTLET-PREREG-2026-08-20 — committed
+ * first). Eight named industry strategies from Cory's two uploads, each run
+ * through the same 30 seat-years so the war-room strip can show graded voices.
+ * Keys: vona | hybrid | bav | adp | zerorb | herorb | lateqb | snake.
+ * ⚠️ DECLARED PRE-RUN (prereg §5): bav ≡ adp in this frame — value IS the
+ * market order, so "best value" and "follow ADP" pick identically; the
+ * articles separate them only because their value signal is projections. */
+const GAUNTLET = (() => {
+  const a = process.argv.find(x => x.startsWith('--gauntlet='));
+  return a ? a.slice('--gauntlet='.length) : null;
+})();
+const GAUNTLET_KEYS = ['vona', 'hybrid', 'bav', 'adp', 'zerorb', 'herorb', 'lateqb', 'snake'];
+if (GAUNTLET && !GAUNTLET_KEYS.includes(GAUNTLET)) {
+  throw new Error('unknown --gauntlet key: ' + GAUNTLET + ' (valid: ' + GAUNTLET_KEYS.join('|') + ')');
+}
+/* classic VBD starter-rank baseline for `snake` (prereg §4 — deliberately the
+ * starter table, NOT drafted depth; Subvertadown means standard VBD) */
+const SNAKE_BASE_RANK = { QB: 10, RB: 24, WR: 26, TE: 10, K: 10, DEF: 10 };
+let depthControlPrinted = false;
+function draftedDepthLOO(targetSeason) {
+  const counts = {};   // pos -> [count per other season]
+  Object.values(H.seasons).forEach(season => {
+    if (String(season.season) === String(targetSeason)) return;
+    if (!season.weeks || !(season.drafts || []).length) return;
+    const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
+    if (!draft) return;
+    const c = {};
+    (draft.picks || []).forEach(p => {
+      const q = posOf(p.player_id);
+      if (q) c[q] = (c[q] || 0) + 1;
+    });
+    POS.forEach(q => (counts[q] || (counts[q] = [])).push(c[q] || 0));
+  });
+  const D = {};
+  POS.forEach(q => {
+    const a = counts[q] || [];
+    D[q] = a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : 0;
+  });
+  if (!depthControlPrinted) {
+    depthControlPrinted = true;
+    if (!(D.TE >= 13 && D.TE <= 15)) {
+      throw new Error('depth control FAILED: LOO D_TE=' + D.TE + ' outside [13,15] — premise broke, REFUSING');
+    }
+    console.error('[depth control] LOO-' + targetSeason + ': ' + POS.map(q => q + '=' + D[q]).join(' ')
+      + ' — D_TE inside [13,15], premise re-derived live');
+  }
+  return D;
+}
 const SEASON_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
 const SEASON_WAIVER_FLEX = Math.max(SEASON_WAIVER.RB, SEASON_WAIVER.WR, SEASON_WAIVER.TE);
 
@@ -432,6 +499,29 @@ const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
 /* Cory: "Or exclude def and k all together" — MLV never VOLUNTEERS a K or DEF;
  * the legality fill seats them at the end, which is what a human does. */
 const MLV_NO_ONESIE = process.argv.includes('--mlv-no-onesie');
+/* ── MLV-LOOKAHEAD (`--mlv-look`) — register 133 / P240 ───────────────────────
+ * Prereg: draft/MLV-TIMING-PREREG-2026-08-19.md.
+ *
+ *     value(c) = marginal(c) − marginal(best at c's POSITION at my NEXT pick)
+ *
+ * i.e. charge every candidate the cost of WAITING on him. Plain MLV is myopic:
+ * a bench body is worth zero to it, so it fills nine starting slots and then
+ * takes a kicker at its round-9 pick in 30 of 30 seat-years with no sense of
+ * whether a comparable kicker survives to round 10.
+ *
+ * ⚠️ THIS IS A REPLICATION, AND IT IS DECLARED AS ONE BEFORE IT RUNS. The relay
+ * preregistered this identical formula as `--objective-look` (commit 4d4ed1a2)
+ * and graded it FALSE the same evening (8ba64bf8): actual +50.1 but skill +14.5
+ * against a required +29.3, head-to-head on skill 13/30. They routed it to me
+ * rather than letting me spend the run blind, and recommended running it anyway
+ * because an INDEPENDENT implementation reproducing the split closes the axis
+ * twice over — and a disagreement would mean one of the two implementations is
+ * wrong, which is worth more than either result alone.
+ *
+ * So I have NOT read their code, only their number. The implementation below is
+ * mine. P240's bars stand exactly as filed and do not move now that I know what
+ * to expect. */
+const MLV_LOOK = process.argv.includes('--mlv-look');
 
 function lineupValueOf(vals) {
   /* vals: {pos: [value, ...]} sorted desc. Dedicated slots then one flex. */
@@ -472,6 +562,38 @@ function buildSeat(season, draft, seatId, rosterOn) {
       return m + k * (raw(p) - m);
     };
   }
+  if (MLV_DEPTH) {
+    /* repl_q = market value of the D_q-th player of q taken in THIS draft
+     * (its own order, keepers included — the count premise included them) */
+    const D = draftedDepthLOO(season.season);
+    const seen = {};
+    const repl = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (!q) return;
+      const r = (seen[q] = (seen[q] || 0) + 1);
+      if (r === D[q]) repl[q] = (N + 1) - p.pick_no;
+    });
+    POS.forEach(q => { if (repl[q] == null) repl[q] = 0; });   // fewer taken than D_q → no discount
+    const raw = valueOf;
+    valueOf = p => {
+      const q = posOf(p.player_id);
+      return Math.max(0, raw(p) - (q ? repl[q] : 0));
+    };
+  }
+  let capD = null, oppPrefix = null;
+  if (POS_CAP) {
+    capD = draftedDepthLOO(season.season);
+    oppPrefix = { QB: [], RB: [], WR: [], TE: [], K: [], DEF: [] };
+    const run = {};
+    picks.forEach((p, i) => {
+      POS.forEach(q => { oppPrefix[q][i] = run[q] || 0; });
+      if (p.roster_id !== seatId) {
+        const q = posOf(p.player_id);
+        if (q) run[q] = (run[q] || 0) + 1;
+      }
+    });
+  }
   if (REAL_POS) {
     /* candidate's rank among his position's non-keeper picks in THIS draft —
      * the market's own positional order, era-correct */
@@ -491,6 +613,44 @@ function buildSeat(season, draft, seatId, rosterOn) {
   } else if (REAL) {
     const curve = curveFor(season.season);
     valueOf = p => curve(p.pick_no);
+  }
+  /* ── §17 vote-mode per-seat setup: the seven strategies' ingredients ── */
+  let voteCtx = null;
+  if (VOTE) {
+    const N2 = picks.length;
+    const rawVal = p => (N2 + 1) - p.pick_no;
+    /* persistence shrink means (the SHRINK block's own construction) */
+    const byPos = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (q) (byPos[q] || (byPos[q] = [])).push(rawVal(p));
+    });
+    const posMean = {};
+    Object.entries(byPos).forEach(([q, v]) => { posMean[q] = v.reduce((a, b) => a + b, 0) / v.length; });
+    /* depth-discount replacement (the MLV_DEPTH block's own construction) */
+    const D = draftedDepthLOO(season.season);
+    const seen = {}, repl = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (!q) return;
+      const r = (seen[q] = (seen[q] || 0) + 1);
+      if (r === D[q]) repl[q] = rawVal(p);
+    });
+    POS.forEach(q => { if (repl[q] == null) repl[q] = 0; });
+    /* the three shipped-curve variants */
+    const W_TEB = Object.assign({}, W, { TE: [1.00, 0.50, 0] });
+    const W_RBM = Object.assign({}, W, { RB: (MNC.curve.RB || []).filter(v => v != null) });
+    const prob = (Wset, q, heldN, kdefSupplyShort) => {
+      const row = Wset[q];
+      if (!row) return 0;
+      const base = heldN < row.length ? row[heldN] : 0;
+      if (kdefSupplyShort != null && (q === 'K' || q === 'DEF')) {
+        return kdefSupplyShort ? base : base * (1 - (STREAM[q] || 0));
+      }
+      if (heldN < (S_EFF[q] || 0)) return base;
+      return base * (1 - (STREAM[q] || 0));
+    };
+    voteCtx = { rawVal, posMean, repl, W_TEB, W_RBM, prob, valsRank: {}, valsDepth: {} };
   }
   /* mineAt[i] = the pick_no of MY OWN SLOT that produced mine[i]. Not the slot
    * the player was really drafted at — the question is when I spent a pick. */
@@ -517,7 +677,200 @@ function buildSeat(season, draft, seatId, rosterOn) {
     if (pk.is_keeper) {                       // keepers stay as recorded (C4)
       mine.push(pk.player_id); mineAt.push(pk.pick_no);
       const q = posOf(pk.player_id);
-      if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk)); }
+      if (q) {
+        held[q] = (held[q] || 0) + 1;
+        (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk));
+        if (voteCtx) {
+          (voteCtx.valsRank[q] || (voteCtx.valsRank[q] = [])).push(voteCtx.rawVal(pk));
+          (voteCtx.valsDepth[q] || (voteCtx.valsDepth[q] = []))
+            .push(Math.max(0, voteCtx.rawVal(pk) - (voteCtx.repl[q] || 0)));
+        }
+      }
+      return;
+    }
+    if (VOTE) {
+      const vc = voteCtx;
+      /* strategy 5's supply deadline, the KDEF_MODE construction verbatim */
+      const shortOf = {};
+      ['K', 'DEF'].forEach(z => {
+        const myNext = picks.findIndex((c2, k2) => k2 > idx && c2.roster_id === seatId);
+        const horizon = myNext < 0 ? N : myNext;
+        let left = 0;
+        for (let k2 = idx; k2 < horizon; k2++) {
+          const c2 = picks[k2];
+          if (c2.is_keeper || isGone(c2.player_id)) continue;
+          if (posOf(c2.player_id) === z) left++;
+        }
+        shortOf[z] = left < 1;
+      });
+      const best = Array.from({ length: 7 }, () => ({ v: -Infinity, c: null }));
+      const baseRank = {}, baseDepth = {};
+      POS.forEach(z => {
+        baseRank[z] = (vc.valsRank[z] || []).slice();
+        baseDepth[z] = (vc.valsDepth[z] || []).slice();
+      });
+      const Lrank = lineupValueOf(baseRank), Ldepth = lineupValueOf(baseDepth);
+      for (let j = idx; j < N; j++) {
+        const c = picks[j];
+        if (c.is_keeper || isGone(c.player_id)) continue;
+        const q = posOf(c.player_id);
+        if (!q) continue;
+        const vR = vc.rawVal(c);
+        const m = vc.posMean[q];
+        const vS = m == null ? vR : m + (PERSIST[q] != null ? PERSIST[q] : 1) * (vR - m);
+        const vD = Math.max(0, vR - (vc.repl[q] || 0));
+        const h = held[q] || 0;
+        const scores = [
+          vR * vc.prob(W, q, h, null),                                           // 1 shipped
+          null,                                                                  // 2 MLV-cap
+          null,                                                                  // 3 MLV-depth
+          vS * vc.prob(W, q, h, null),                                           // 4 persistence
+          vR * vc.prob(W, q, h, (q === 'K' || q === 'DEF') ? shortOf[q] : null), // 5 kdef-supply
+          vR * vc.prob(vc.W_TEB, q, h, null),                                    // 6 te-boost
+          vR * vc.prob(vc.W_RBM, q, h, null),                                    // 7 rb-measured
+        ];
+        if (!((q === 'K' || q === 'DEF') && h >= 1)) {
+          baseRank[q].push(vR);
+          scores[1] = lineupValueOf(baseRank) - Lrank;
+          baseRank[q].pop();
+          baseDepth[q].push(vD);
+          scores[2] = lineupValueOf(baseDepth) - Ldepth;
+          baseDepth[q].pop();
+        }
+        for (let s = 0; s < 7; s++) {
+          if (scores[s] != null && scores[s] > best[s].v) best[s] = { v: scores[s], c: c };
+        }
+      }
+      const tally = new Map();
+      best.forEach(b => { if (b.c) tally.set(b.c.player_id, (tally.get(b.c.player_id) || 0) + 1); });
+      let win = null, winN = -1;
+      tally.forEach((n, id) => {
+        const cand = best.find(b => b.c && b.c.player_id === id).c;
+        if (n > winN || (n === winN && win && cand.pick_no < win.pick_no)) { win = cand; winN = n; }
+      });
+      if (!win) return;
+      VOTE_TALLIES.push({ season: season.season, seat: seatId, my_pick: pk.pick_no,
+        winner: String(win.player_id), votes: winN,
+        split: [...tally.entries()].map(([id, n]) => id + ':' + n).join(' ') });
+      takenByMe.add(win.player_id);
+      mine.push(win.player_id); mineAt.push(pk.pick_no);
+      const wq = posOf(win.player_id);
+      if (wq) {
+        held[wq] = (held[wq] || 0) + 1;
+        (mineVals[wq] || (mineVals[wq] = [])).push(valueOf(win));
+        (vc.valsRank[wq] || (vc.valsRank[wq] = [])).push(vc.rawVal(win));
+        (vc.valsDepth[wq] || (vc.valsDepth[wq] = []))
+          .push(Math.max(0, vc.rawVal(win) - (vc.repl[wq] || 0)));
+      }
+      return;
+    }
+    if (GAUNTLET) {
+      /* Eight named strategies, one shared candidate walk. Because valueOf is
+       * strictly decreasing in pick order, "best value among eligible" is the
+       * FIRST eligible candidate — every strategy reduces to eligibility
+       * rules plus (for vona/hybrid/snake) a per-position urgency term. */
+      const round = Math.ceil(pk.pick_no / 10);
+      const myNextIdx = picks.findIndex((c, k) => k > idx && c.roster_id === seatId && !c.is_keeper);
+      const myNextNo = myNextIdx < 0 ? null : picks[myNextIdx].pick_no;
+      /* shared positional-need logic (prereg §1): K=1 DEF=1 QB≤2 TE≤2 + §14c forcing */
+      const capOK = q => !((q === 'K' || q === 'DEF') && (held[q] || 0) >= 1)
+        && !((q === 'QB' || q === 'TE') && (held[q] || 0) >= 2);
+      let needPos = null;
+      {
+        let unfilled = 0;
+        const np = {};
+        POS.forEach(z => {
+          const gap = (STARTERS[z] || 0) - (held[z] || 0);
+          if (gap > 0) { unfilled += gap; np[z] = true; }
+        });
+        let remaining = 0;
+        for (let k = idx; k < N; k++) if (picks[k].roster_id === seatId && !picks[k].is_keeper) remaining++;
+        if (remaining <= unfilled) needPos = np;
+      }
+      const firstLive = !picks.slice(0, idx).some(p2 => p2.roster_id === seatId && !p2.is_keeper);
+      /* strategy-specific position eligibility, forcing overrides everything */
+      const posAllowed = q => {
+        if (needPos) return !!needPos[q];
+        if (!capOK(q)) return false;
+        if (GAUNTLET === 'zerorb' && q === 'RB' && round < 5) return false;
+        if (GAUNTLET === 'herorb') {
+          if (firstLive) return q === 'RB';
+          if (q === 'RB' && round < 6) return false;
+        }
+        if (GAUNTLET === 'lateqb' && q === 'QB' && round < 6) return false;
+        return true;
+      };
+      /* first eligible candidate per position, plus survivors past my next slot */
+      const firstOf = {}, survOf = {};
+      for (let j = idx; j < N; j++) {
+        const c = picks[j];
+        if (c.is_keeper || isGone(c.player_id)) continue;
+        const q = posOf(c.player_id);
+        if (!q) continue;
+        if (!firstOf[q] && posAllowed(q)) firstOf[q] = c;
+        if (myNextNo != null && c.pick_no > myNextNo) (survOf[q] = survOf[q] || []).push(c);
+      }
+      const cands = Object.entries(firstOf);
+      if (!cands.length) return;
+      const urgency = q => {
+        const now = firstOf[q] ? valueOf(firstOf[q]) : 0;
+        const s = (survOf[q] || [])[0];
+        return s ? Math.max(0, now - valueOf(s)) : now;   // no survivor = full urgency
+      };
+      let chosen = null;
+      const useVona = GAUNTLET === 'vona' || (GAUNTLET === 'hybrid' && round <= 4);
+      if (useVona && myNextNo != null) {
+        let bq = null, bu = -Infinity;
+        cands.forEach(([q]) => { const u = urgency(q); if (u > bu) { bu = u; bq = q; } });
+        chosen = firstOf[bq];
+      } else if (GAUNTLET === 'snake') {
+        /* VOB + smoothed opportunity cost (prereg §4) — IN POINTS UNITS.
+         * The first run used market-rank values and collapsed (drafted QB/DEF
+         * early in 30/30 seats): VBD's subtraction is NOT order-preserving in
+         * rank units, because a flat position's 10th man goes latest, which
+         * INFLATES its rank-VOB exactly where its points-VOB is smallest. The
+         * faithful denomination is per-position points — §14d's LOO rank
+         * curves, already in this file. Both runs are reported in the prereg. */
+        const curves = posCurveFor(season.season);
+        const rankOf = {};
+        {
+          const rc = {};
+          picks.forEach(p2 => {
+            if (p2.is_keeper) return;
+            const q2 = posOf(p2.player_id);
+            if (!q2) return;
+            rankOf[String(p2.player_id)] = (rc[q2] = (rc[q2] || 0) + 1);
+          });
+        }
+        const pts = c => {
+          const q2 = posOf(c.player_id);
+          const f = q2 && curves[q2];
+          return f ? f(rankOf[String(c.player_id)] || 999) : 0;
+        };
+        const w = Math.max(1, Math.round(2 + 10 * (pk.pick_no / 150)));
+        let bq = null, bs = -Infinity;
+        cands.forEach(([q, c]) => {
+          const base = curves[q] ? curves[q](SNAKE_BASE_RANK[q]) : 0;
+          const vob = Math.max(0, pts(c) - base);
+          const sv = (survOf[q] || []).slice(0, w);
+          const smoothNext = sv.length ? sv.reduce((a, x) => a + pts(x), 0) / sv.length : 0;
+          const opp = Math.max(0, pts(c) - smoothNext);
+          const score = vob + opp;
+          if (score > bs) { bs = score; bq = q; }
+        });
+        chosen = firstOf[bq];
+      } else {
+        /* bav, adp, zerorb, herorb, lateqb, hybrid(late), vona(no future pick):
+         * best value among eligible = earliest eligible in pick order */
+        let bc = null;
+        cands.forEach(([, c]) => { if (!bc || c.pick_no < bc.pick_no) bc = c; });
+        chosen = bc;
+      }
+      if (!chosen) return;
+      takenByMe.add(chosen.player_id);
+      mine.push(chosen.player_id); mineAt.push(pk.pick_no);
+      const cq = posOf(chosen.player_id);
+      if (cq) { held[cq] = (held[cq] || 0) + 1; (mineVals[cq] || (mineVals[cq] = [])).push(valueOf(chosen)); }
       return;
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
@@ -582,6 +935,9 @@ function buildSeat(season, draft, seatId, rosterOn) {
       const q = posOf(c.player_id);
       if (!q) continue;
       if (mustFill && !mustFill[q]) continue;   // §14c: no picks to spare
+      /* §16: position closed at league depth — unless I still owe a starter */
+      if (POS_CAP && (held[q] || 0) >= (STARTERS[q] || 0)
+          && (oppPrefix[q][idx] + (held[q] || 0)) >= capD[q]) continue;
       /* C3: counted from the fixed-opponent draft only — picks already made
        * plus the opponents' known future picks. No outcome data. */
       let short = false;
@@ -610,7 +966,12 @@ function buildSeat(season, draft, seatId, rosterOn) {
         tieM = m;
         if (REAL_VONA) {
           const a = (survTop && survTop[q]) || [];
-          const s = (a[0] && a[0].player_id !== c.player_id) ? a[0] : a[1];
+          /* REGISTER 56'S SHAPE, FIXED 2026-08-20 (prereg §18, P250): the old
+           * line substituted the SECOND survivor when the best survivor was the
+           * candidate himself, asserting a man who demonstrably survives to my
+           * next pick cannot be had there. Include him: if s === c the wait
+           * cost is m − m = 0, which is the truth. */
+          const s = a[0];
           if (s) {
             const cur2 = {};
             POS.forEach(z => { cur2[z] = (mineVals[z] || []).slice(); });
@@ -638,6 +999,28 @@ function buildSeat(season, draft, seatId, rosterOn) {
         const before = lineupValueOf(cur);
         (cur[q] || (cur[q] = [])).push(valueOf(c));
         v = lineupValueOf(cur) - before;
+        if (MLV_LOOK) {
+          /* what does WAITING on this position cost? The best man at q who is
+           * still on the board at my NEXT pick, valued on the SAME roster — so
+           * the subtraction is like-for-like and not a level difference.
+           * Availability comes from the fixed draft, which is the same
+           * no-hindsight source every other arm uses (C3). */
+          const myNextIdx = picks.findIndex((z, k) => k > idx && z.roster_id === seatId);
+          let bestNext = 0;
+          if (myNextIdx >= 0) {
+            for (let k = myNextIdx; k < N; k++) {
+              const z = picks[k];
+              if (z.is_keeper || takenByMe.has(z.player_id)) continue;
+              if (posOf(z.player_id) !== q) continue;
+              const alt = {};
+              POS.forEach(y => { alt[y] = (mineVals[y] || []).slice(); });
+              (alt[q] || (alt[q] = [])).push(valueOf(z));
+              bestNext = lineupValueOf(alt) - before;
+              break;               // picks are in market order: first is best
+            }
+          }
+          v -= bestNext;
+        }
       } else {
         const w = startProb(q, held[q] || 0, rosterOn, short);
         v = valueOf(c) * w;
@@ -796,6 +1179,13 @@ const doc = {
   },
   seats,
 };
+if (VOTE) {
+  const sweep = VOTE_TALLIES.filter(t => t.votes === 7).length;
+  console.error('[vote] ' + VOTE_TALLIES.length + ' picks; unanimous 7/7 on '
+    + sweep + ' (' + Math.round(100 * sweep / VOTE_TALLIES.length) + '%) — a 100% sweep would mean the voters are costumes');
+  fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'vote_tallies.json'),
+    JSON.stringify({ prereg: 'MLV-OBJECTIVE-PREREG §17 (P152)', tallies: VOTE_TALLIES }, null, 1));
+}
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'roster_builder_replay.json'), JSON.stringify(doc, null, 1));
 
 console.log('DOES THE ROSTER EQUATION BEAT THE HUMANS?\n');

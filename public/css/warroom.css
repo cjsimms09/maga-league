@@ -230,6 +230,8 @@
 .wr-mover-dir { flex: 0 0 auto; font-size: .6rem; color: var(--wr-muted); }
 .wr-mover-name { flex: 1 1 auto; min-width: 0; overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap; color: var(--wr-ink); font-weight: 600; }
+.wr-mover-name[data-drill] { cursor: pointer; }
+.wr-mover-name[data-drill]:hover { text-decoration: underline; }
 .wr-mover-adp { flex: 0 0 auto; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
 .wr-mover-vel { flex: 0 0 2.2rem; text-align: right; font-weight: 800; color: var(--wr-ink); }
 .wr-mover-rate { flex: 0 0 auto; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
@@ -266,6 +268,11 @@
 .wr-help h3 { margin: .9rem 0 .25rem; font-size: var(--wr-fs-title); color: var(--wr-structure); }
 .wr-help p { margin: .2rem 0; font-size: var(--wr-fs-body); line-height: 1.5; }
 .wr-help .pe-src { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+.wr-glossary { margin: 0; }
+.wr-glossary dt { font-weight: 800; color: var(--wr-structure); margin: .7rem 0 .1rem; font-size: var(--wr-fs-body); }
+.wr-glossary dt:first-child { margin-top: 0; }
+.wr-glossary dd { margin: 0; font-size: var(--wr-fs-body); line-height: 1.5; color: var(--wr-ink); }
+.wr-glossary dd b { color: var(--wr-structure); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    SIDE-BET CARD GRAMMAR — the in-season pass (2026-08-15) extends this file
@@ -591,7 +598,13 @@ body.warroom-page .card {
   background: var(--wr-panel);
   border: 1px solid var(--wr-line);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(12, 26, 43, .06);
+  /* Two-layer elevation, not one flat line: a tight contact shadow (depth off
+     the surface directly under the card) plus a soft ambient shadow (ANY
+     card looks weightless without both — measured against the flat single
+     0 1px 3px this replaced, which read as a hairline outline, not a raised
+     surface). Cory: "look a lot better... professional." */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .28), 0 6px 16px -8px rgba(0, 0, 0, .35);
+  transition: box-shadow .15s ease;
 }
 body.warroom-page .card > h2 {
   font-size: .72rem;
@@ -672,8 +685,22 @@ body.warroom-page .clock-actions .btn.small {
 }
 
 /* ── THE RECOMMENDATION CARD — navy authority, not gold ─────────────────── */
-body.warroom-page .wr-reccard { border-color: var(--wr-structure); border-top: 3px solid var(--wr-structure); }
-body.warroom-page .wr-reccard > h2 { color: var(--wr-structure); }
+/* THE ONE ANSWER CARD IS THE VISUAL ANCHOR — panel_spec.js already ranks it
+   DECIDES, the top of the weight hierarchy B was missing (Cory: "info is
+   fine but the design... super busy screen, yet very little info"). Every
+   other card on the page uses the SAME shadow/border shape (deliberately —
+   a uniform card language is its own kind of professional), so this is the
+   one place that gets more: a visible glow instead of a flat top border,
+   and a deeper shadow than the ambient one every other card carries. */
+body.warroom-page .wr-reccard {
+  border-color: var(--wr-structure);
+  box-shadow: 0 0 0 1px rgba(122, 162, 247, .18), 0 2px 4px rgba(0, 0, 0, .3),
+    0 12px 28px -10px rgba(122, 162, 247, .22);
+}
+body.warroom-page .wr-reccard > h2 {
+  color: var(--wr-structure);
+  background: linear-gradient(180deg, rgba(122, 162, 247, .10), var(--wr-panel-soft));
+}
 
 /* ── the book's ticker: status + system strips in mono ──────────────────── */
 body.warroom-page .system-strip,
@@ -849,7 +876,6 @@ body.warroom-page .wrap { max-width: 1440px; }
    out is the 🏛 Office link on the sticky tool bar. */
 body.warroom-page .navbar { display: none; }
 body.warroom-page .page-sub { display: none; }
-body.warroom-page .card { box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
 body.warroom-page a { color: var(--gold); }
 /* hardcoded light-theme inks that would vanish on the board */
 body.warroom-page .btn.navy { color: var(--ink); }
@@ -867,6 +893,12 @@ body.warroom-page .wr-chart text[font-weight="600"] { fill: var(--ink); }
 body.warroom-page .wr-chart line[stroke="#e8e6df"] { stroke: var(--wr-chart-grid); }
 body.warroom-page .wr-chart path[fill="#2a5f9e"],
 body.warroom-page .wr-chart rect[fill="#2a5f9e"] { fill: var(--wr-chart-main); }
+/* The ROOM series (survival odds, goneChart) was the one hardcoded fill this
+   pattern never remapped — #eb6834 is a light-surface orange, legible but
+   dull against the dark board. --wr-chart-room's dark-tuned value already
+   existed for exactly this and was simply never wired to it. */
+body.warroom-page .wr-chart path[fill="#eb6834"],
+body.warroom-page .wr-chart rect[fill="#eb6834"] { fill: var(--wr-chart-room); }
 body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
 
 /* ── THE TOOL BAR — sticky tab navigation ───────────────────────────────── */
@@ -1066,6 +1098,49 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-railmore > summary::before { content: '▸ '; }
 .wr-railmore[open] > summary::before { content: '▾ '; }
 
+/* ── LEAGUE-WIDE POSITION-TAKEN STRIP — Cory: "a running count at the top
+   of screen somewhere of # of players taken at each position (including
+   keepers)". Sits outside .wr-zone1 so it's visible on every tab, same
+   register as #system-strip right above it. `:empty` hides it before the
+   board has loaded rather than showing an empty bar. */
+.pos-taken-strip {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .15rem .6rem;
+  padding: .3rem .7rem; margin-bottom: .3rem; border-radius: 10px;
+  background: var(--panel); border: 1px solid var(--line);
+  font-size: .74rem; color: var(--ink);
+}
+.pos-taken-strip:empty { display: none; }
+.pts-label { color: var(--muted); font-size: .66rem; }
+.pts-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pts-cell b { color: var(--wr-structure); font-weight: 800; margin-right: .15rem; }
+.pts-total { margin-left: auto; color: var(--muted); font-size: .68rem; white-space: nowrap; }
+
+/* ── OPPONENTS CARD — every seat, soonest pick first, needs + roster so far
+   (Cory: "show me everyone's current roster status... and where they draft
+   relative to me.. so I can try to calc if someone will fall to me"). */
+.wr-opp-note { font-size: .64rem; margin: 0 0 .35rem; }
+.wr-opp-list {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;
+  gap: .3rem; max-height: 15rem; overflow-y: auto;
+}
+.wr-opp-row {
+  display: grid; grid-template-columns: 1fr auto; gap: .05rem .5rem;
+  font-size: .72rem; padding: .25rem .35rem; border-radius: 6px;
+  border: 1px solid var(--line);
+}
+.wr-opp-row.wr-opp-onclock {
+  border-color: var(--wr-bad);
+  background: color-mix(in srgb, var(--wr-bad) 8%, transparent);
+}
+.wr-opp-who { font-weight: 700; color: var(--ink); }
+.wr-opp-dist { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wr-opp-row.wr-opp-onclock .wr-opp-dist { color: var(--wr-bad); font-weight: 800; }
+/* "needs" is the sharper signal (it's what can stop a player falling to
+   you), so it gets the warn color and the top full-width line; "have" is
+   muted reference context underneath. */
+.wr-opp-needs { grid-column: 1 / -1; font-weight: 700; color: var(--wr-warn); font-size: .68rem; }
+.wr-opp-have { grid-column: 1 / -1; font-size: .64rem; }
+
 /* honest empty state for every chart */
 .wr-chart-empty { margin: .2rem 0; font-size: .7rem; color: var(--muted); font-style: italic; }
 
@@ -1094,16 +1169,24 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
 .wr-axis { fill: var(--muted); font-size: 8px; font-family: var(--font-mono); }
 .wr-cliff-line { stroke: var(--wr-chart-main); stroke-width: 1.6; }
-.wr-cliff-dot { fill: var(--wr-chart-main); }
+.wr-cliff-dot { fill: var(--wr-chart-main); transition: filter .1s; }
+/* Clickable dots (player_id present) open the same full drill-down card
+   every other chart's data-drill rows do — Cory: "if I click a player it
+   should give me lots of info". The cursor is the only signal a bare SVG
+   circle has that it's interactive at all, so it earns real weight here. */
+.wr-cliff-dot[data-drill] { cursor: pointer; }
+.wr-cliff-dot:hover { filter: brightness(1.5); }
 .wr-cliff-mark { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 3 2; }
-/* Tier-cliff labels are placed by warroom_charts.js at each cliff's own x,
-   text-anchor="middle", with no collision check between adjacent labels —
-   at the right rail's chart width (~230px) with 3+ cliffs close together
-   this reads as one word ("Robinsdaylojeanty"), reproduced live at 900/1050/
-   1200px. That's a label-placement fix (JS, A's file, held for tonight along
-   with app.js/warroom.ejs) — this is the CSS mitigation: rotate + right-
-   anchor so each label fans out below its own tick instead of stacking
-   horizontally into its neighbor, the standard slanted-axis-label pattern. */
+/* ⚠️ CORRECTED 2026-08-20 — Cory, live: "in tier cliff chart the words run
+   together!! Make better." This CSS-only rotation mitigated the SYMPTOM
+   (fanning labels out at a slant so two adjacent ones overlap less badly)
+   but never fixed the cause: warroom_charts.js's tierCliffChart() drew a
+   label at EVERY tier cliff with no spacing check, so three cliffs within
+   ~40px still painted three names on top of each other, just slanted. The
+   real fix landed in tierCliffChart() itself: a label is skipped (the
+   cliff LINE still always draws) when the previous LABELED cliff is closer
+   than the rotated text's own collision budget. The rotation here still
+   earns its keep for the labels that DO print, close together or not. */
 .wr-cliff-lbl {
   fill: var(--ink); font-size: 7px; font-weight: 600;
   text-anchor: end; transform-box: fill-box; transform-origin: center;
@@ -1149,6 +1232,27 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-range-tick { stroke: var(--ink); stroke-width: 1.6; }
 .wr-range.lead .wr-range-tick { stroke: var(--gold-bright); }
 
+/* REGISTER 4v — cohort-constant ceiling: a provenance mark, not a warning
+   (for several of these players the model is correctly refusing to guess
+   from data it does not hold). Dashed outline rather than a color swap, so
+   it stays visible without competing with .lead's gold highlight on the
+   top recommendation when both apply to the same bar. */
+.wr-range.cohort-ceiling .wr-range-band { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 1.5; }
+/* `.wr-range svg` is `display: block` above, and `.wr-range` itself stretches
+   to the card's full width — an inline `<sup>` after a block-level svg would
+   otherwise wrap onto its own line, far from the 150px bar it annotates.
+   Make the svg inline-block ONLY on the cohort case, so the mark sits right
+   next to it instead. */
+.wr-range.cohort-ceiling svg { display: inline-block; vertical-align: middle; }
+.wr-ceil-cohort { font-size: .62rem; font-weight: 900; color: var(--muted); margin-left: .1rem; cursor: help; vertical-align: middle; }
+
+/* PROJECTION-SOURCE badge (ROUTES.md 08-19) — the mean silently became a
+   cross-source blend on some players; this says so. Deliberately a
+   different glyph/color from .wr-ceil-cohort above: that mark means
+   "no per-player information", this one means "more sources than usual",
+   and the two provenance questions must never look like the same fact. */
+.wr-proj-blend { font-size: .62rem; font-weight: 900; color: var(--gold-bright); margin-left: .1rem; cursor: help; vertical-align: middle; }
+
 /* FALLING chip — value sliding past its price */
 .wr-falling {
   display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
@@ -1166,6 +1270,45 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
   padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
 }
 .wr-source-gap.unexplained { color: #fff; background: var(--red); }
+
+/* MARKET-DELTA chip (A dispatch, 08-18) — same chip grammar again. Two
+   distinct hues (not red on either side — neither direction is a warning,
+   caption discipline: disagreement with the room, not a value claim). */
+.wr-market-delta {
+  display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
+  color: #0a1422; border-radius: 3px;
+  padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
+}
+.wr-market-delta.up { background: var(--gold); }
+.wr-market-delta.down { background: var(--blue); color: #06111f; }
+
+/* CONTRARIAN PICKS drawer — one tap, closed by default (register 4b: dense
+   by default is the complaint this project already fixed once). */
+.wr-contrarian { margin: .3rem 0 .6rem; }
+.wr-contrarian > summary {
+  cursor: pointer; font-family: var(--font-display); font-weight: 800;
+  font-size: .74rem; letter-spacing: .04em; color: var(--ink);
+  padding: .35rem 0; list-style: none;
+}
+.wr-contrarian > summary::-webkit-details-marker { display: none; }
+.wr-contrarian > summary .muted { font-weight: 600; font-size: .68rem; margin-left: .3rem; }
+.wr-contrarian-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .6rem;
+  padding: .5rem 0 .2rem;
+}
+.wr-contrarian-h {
+  font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: .3rem;
+}
+.wr-contrarian-col ul { list-style: none; margin: 0; padding: 0; }
+.wr-contrarian-col li {
+  display: flex; align-items: center; gap: .4rem; padding: .22rem 0;
+  font-size: .72rem; border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+.cd-nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-delta { font-weight: 900; }
+.cd-delta.up { color: var(--gold-bright); }
+.cd-delta.down { color: var(--blue); }
 
 /* clickable names everywhere */
 .rec-nm { cursor: pointer; text-decoration: underline dotted rgba(147, 165, 188, .5); text-underline-offset: 2px; }
@@ -1364,6 +1507,16 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .wr-drill-surv-row b { flex: 0 0 2.6rem; text-align: right; color: var(--ink);
   font-family: var(--font-mono); font-size: .7rem; }
 .wr-drill-surv-row b.dying { color: var(--red); }
+.wr-drill-src { margin: .6rem 0 0; }
+.wr-drill-src .wr-drill-facts td { font-size: .68rem; padding: .1rem .3rem; }
+.wr-drill-dc { margin: .6rem 0 0; }
+.wr-drill-dc-row { display: flex; align-items: center; gap: .4rem; font-size: .7rem;
+  color: var(--muted); padding: .1rem 0; }
+.wr-drill-dc-ord { flex: 0 0 1.1rem; text-align: center; font-family: var(--font-mono);
+  font-size: .64rem; color: var(--wr-muted); }
+.wr-drill-dc-name { color: var(--ink); }
+.wr-drill-dc-row.wr-drill-dc-him { font-weight: 700; }
+.wr-drill-dc-row.wr-drill-dc-him .wr-drill-dc-name { color: var(--gold, var(--ink)); }
 .wr-drill-why { margin: .6rem 0 0; font-size: .74rem; color: var(--ink); line-height: 1.45; }
 .wr-drill-ctx { margin: .4rem 0 0; font-size: .66rem; color: var(--muted); }
 .wr-drill-actions { display: flex; gap: .35rem; flex-wrap: wrap; margin: .7rem 0 0; }
@@ -1472,3 +1625,357 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
   .cv-drill-line { flex-direction: column; gap: .05rem; }
   .cv-drill-line > span:first-child { flex: none; }
 }
+
+/* ══ POSITION BOARDS — Cory redefined the war room, 2026-08-19 (A dispatch,
+   ROUTES.md `48c915f1`): six position columns, not one recommendation.
+   TERRITORY: B. Data: public/position_boards.json (A). View: pure render
+   module public/js/draft/position_boards_view.js. Primary per-pick surface —
+   RB/WR lead per Cory's "more on RB and WR" — everything below is arithmetic
+   read straight off the artifact, never a rewritten judgement. ══════════ */
+.pb-wrap { margin: .5rem 0 .75rem; }
+.pb-head {
+  font-size: var(--wr-fs-sub); font-weight: 700; color: var(--wr-structure);
+  margin: 0 0 .4rem; letter-spacing: .01em;
+}
+/* THE STRIKE BAR — WAR-ROOM-SPEC.md P2 (A→B, 2026-08-19): "the peak of each
+   position's own VONA curve across Cory's twelve picks — where waiting one
+   more turn costs the most." Persistent, one row, six cells, per the spec —
+   this is the HEADLINE glance; the full curve lives in each column's own
+   mini chart below. Sits above the toggle so it is the first thing on
+   screen, matching "always visible". */
+.pb-strike-bar {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: .4rem;
+  margin: 0 0 .6rem; padding: .4rem .3rem;
+  border: 1px solid var(--wr-line); border-radius: 6px; background: var(--wr-panel-soft);
+}
+.pb-strike-cell { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.pb-strike-pos {
+  font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--wr-structure); margin-bottom: .1rem;
+}
+.pb-strike-pick { font-size: .72rem; font-weight: 700; color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+.pb-strike-cost { font-size: .6rem; color: var(--wr-warn); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .pb-strike-bar { grid-template-columns: repeat(3, 1fr); row-gap: .5rem; }
+}
+/* Projection-source toggle (ROUTES-B-TOGGLE.md, A→B 2026-08-19): "I want to
+   be able to toggle between them." Ranking/selection stay Draft-Sharks-fixed
+   — this only swaps which number each row prints, so it reads as a quiet
+   display switch, not a second ranking control. */
+.pb-src-toggle { display: flex; gap: .3rem; }
+.pb-src-btn {
+  font-size: .64rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+  color: var(--wr-muted); background: var(--wr-panel); border: 1px solid var(--wr-line);
+  border-radius: 999px; padding: .12rem .55rem; cursor: pointer;
+}
+.pb-src-btn.pb-src-active { color: var(--wr-structure); border-color: var(--wr-structure); background: var(--wr-panel-soft); }
+.pb-grid {
+  /* 11.5rem: bumped from 10.5rem after removing letter-spacing/uppercase
+     from the header row (Cory: "words that are cutoff with … are not
+     acceptable") still left "Fl–Ce" 6px short of "Surv" — genuinely not
+     enough total room for all four header labels' natural widths at once
+     (measured: 153px needed, ~144px available), and without ellipsis to
+     hide it, that shortfall painted "Fl–CeSurv" running together — worse
+     than the ellipsis it replaced. +1rem closes it with margin, verified
+     with a real DOM measurement after the change, not assumed. 8.2rem and
+     10.5rem were both tried first (see git history); RB and WR lead
+     POS_ORDER (Cory: "more on RB and WR"), so at a normal desktop width
+     they are still visible with no scroll — the trailing positions may
+     need one, and that is the honest trade over silently cutting text. */
+  display: grid; grid-template-columns: repeat(6, minmax(12.5rem, 1fr));
+  gap: .5rem; overflow-x: auto; padding-bottom: .15rem;
+}
+/* THE SCROLL AFFORDANCE — pb-grid is wider than the panel at a normal
+   desktop width by design (see .pb-grid's comment below), and a live
+   screenshot showed that overflow has no visible signal: the last column
+   just ends in a bare sliver with nothing telling you K/DEF exist past it.
+   .pb-wrap gets pb-grid-more-left/right classes from app.js, from a real
+   scrollLeft measurement (a naive `overflow: hidden` check right after
+   render read the panel's PRE-layout width and missed the overflow
+   entirely in real testing — a ResizeObserver re-checks once the page
+   settles). The fade only shows on the edge that actually has more
+   content. The hint label lives in the toolbar row's own empty space, not
+   overlaid on the grid — a first version sat in the grid's own corner and
+   a live screenshot caught it painted over the TE column's "+66.6 wire"
+   text, clipping a real number the same way the ellipsis headers used to. */
+.pb-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: 0 0 .5rem; }
+.pb-grid-hint {
+  font-size: .58rem; color: var(--wr-muted); font-style: italic;
+  white-space: nowrap; opacity: 0; transition: opacity .15s;
+}
+.pb-wrap.pb-grid-more-right .pb-grid-hint { opacity: 1; }
+.pb-grid-wrap { position: relative; }
+.pb-grid-wrap::before, .pb-grid-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: .15rem; width: 1.8rem;
+  pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 1;
+}
+.pb-grid-wrap::before { left: 0; background: linear-gradient(to right, var(--wr-panel), transparent); }
+.pb-grid-wrap::after { right: 0; background: linear-gradient(to left, var(--wr-panel), transparent); }
+.pb-wrap.pb-grid-more-left .pb-grid-wrap::before { opacity: 1; }
+.pb-wrap.pb-grid-more-right .pb-grid-wrap::after { opacity: 1; }
+.pb-col {
+  /* min-width: 0, NOT a rem value — a grid item's default minimum size is
+     `auto`, which resolves to its CONTENT's min-content width and silently
+     overrides the track's own minmax() floor. That is why narrowing
+     .pb-grid's minmax() alone did nothing: the six nowrap numeric table
+     cells inside (.pb-proj/.pb-fc/.pb-adp/.pb-surv) have a combined
+     min-content width wider than either 9.5rem or 8.2rem, and the grid was
+     honoring THAT, not the track minimum. Verified with a real DOM
+     measurement (grid.scrollWidth vs .clientWidth), not a screenshot guess —
+     the previous "narrow the minmax()" edit measured byte-identical before
+     and after until this line was added. */
+  border: 1px solid var(--wr-line); border-radius: 6px;
+  background: var(--wr-panel); padding: .4rem .45rem; min-width: 0;
+  max-width: 15rem;
+}
+.pb-col-head {
+  display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap;
+  border-bottom: 1px solid var(--wr-line); padding-bottom: .25rem; margin-bottom: .3rem;
+}
+.pb-pos {
+  font-size: var(--wr-fs-title); font-weight: 800; color: var(--wr-structure);
+  letter-spacing: .02em;
+}
+.pb-vona { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+.pb-vona b { color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+.pb-surplus { font-size: var(--wr-fs-micro); color: var(--wr-money); font-variant-numeric: tabular-nums; }
+.pb-note {
+  font-size: var(--wr-fs-micro); color: var(--wr-warn); font-style: italic;
+  margin: 0 0 .35rem; line-height: 1.35;
+}
+/* FOUR COLUMNS, A CSS GRID, NOT A <table> — see position_boards_view.js's
+   own playerRow/riskDot/rangeBarMini comments for the full, measured
+   history. FOUR attempts at this cell were each verified wrong by looking
+   at the actual rendered page, not the code: a bare 6-column table forced a
+   horizontal scroll to reach the last position; a "Player+subline" version
+   wrapped every row to 3-4 lines and broke long names mid-word; "173–290"
+   as its own TEXT column needed 55px against a 26px budget; and a <table>
+   with these same four columns let its OWN header and body cells drift
+   apart under table-layout: fixed — a live screenshot caught "PROJ RANGE
+   SURV" overlapping in the header and a Proj number bleeding into a
+   wrapped name's third line. A <table>'s per-row auto-layout cannot
+   guarantee that. A single grid-template-columns definition, applied to
+   the header row and every body row alike, can — there is only one column
+   geometry in the whole panel, not table auto-layout's independent guess
+   per row. The settled shape: Player / Proj / a floor-ceiling RANGE BAR
+   (fixed pixel width, not character width) / Surv. ADP is a title on the
+   name; risk is a colored dot outside the text flow entirely. */
+.pb-table { font-size: var(--wr-fs-micro); }
+.pb-table-row {
+  display: grid; grid-template-columns: 42% 18% 16% 24%;
+  align-items: center; column-gap: .2rem;
+}
+.pb-table-head {
+  font-weight: 600; color: var(--wr-muted); font-size: .58rem;
+  padding: .1rem .15rem; border-bottom: 1px solid var(--wr-line);
+}
+/* ⚠️ NO ELLIPSIS ON HEADERS — Cory: "words that are cutoff with … are not
+   acceptable." An ellipsis-truncated label ("PR…", "F…") is not an
+   acceptable degrade for four words that are already short; it reads as
+   broken, not compact. uppercase + letter-spacing were the actual cause —
+   both inflate a short word's rendered width for no informational value,
+   which is what forced the ellipsis to fire in the first place (measured:
+   "Proj" needs real room under letter-spacing that it does not need set in
+   plain case). Removed both, and every header cell gets a `title` with the
+   fully spelled-out name, so nothing is lost even at the narrowest column. */
+.pb-table-head > div { white-space: nowrap; }
+.pb-row {
+  padding: .22rem .2rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+}
+.pb-row.pb-cliff-line { border-bottom-color: var(--wr-line); }
+.pb-row[data-drill] { cursor: pointer; }
+.pb-row[data-drill]:hover { background: var(--wr-hover, color-mix(in srgb, var(--wr-line) 35%, transparent)); }
+/* overflow-wrap: break-word IS needed, and hyphens: auto softens it. A
+   version without either was tried on the theory that "a word overflowing
+   its column reads better than a word cut in half" — wrong in practice: a
+   grid track does not grow for an unbreakable word, so "Montgomery" simply
+   painted OVER the Proj column beside it in a live screenshot, which is
+   worse than any hyphenation. hyphens: auto adds a visible "-" at the
+   break, so it reads as intentional wrapping, not a random cut. */
+.pb-name {
+  position: relative; font-weight: 600; color: var(--wr-ink); line-height: 1.25;
+  align-self: start; overflow-wrap: break-word; hyphens: auto;
+}
+.pb-team { color: var(--wr-muted); font-size: .58rem; text-transform: uppercase; font-weight: 400; }
+.pb-proj, .pb-surv {
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.pb-range { text-align: center; }
+.pb-range-wrap { display: inline-block; line-height: 0; }
+.pb-range-rail { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.pb-range-band { fill: var(--wr-chart-main); transition: filter .1s; }
+.pb-range-tick { stroke: var(--wr-ink); stroke-width: 1; }
+/* Same hover signal as the round-drop-off bars — pairs with the title
+   tooltip that already carries the exact floor/proj/ceiling numbers. */
+.pb-range-wrap:hover .pb-range-band { filter: brightness(1.4); }
+.pb-surv-safe { color: var(--wr-good); }
+.pb-surv-mid { color: var(--wr-warn); }
+.pb-surv-hot { color: var(--wr-bad); font-weight: 700; }
+.pb-est { color: var(--wr-muted); font-size: .55rem; margin-left: .05rem; }
+/* the risk DOT (a colored bullet with its exact % on hover), not a badge —
+   see riskDot()'s own comment for why this replaced "⚕67%" as its own
+   column. Absolutely positioned in .pb-name's own corner — costs the text
+   flow nothing, which is the whole point (see playerRow's own comment). */
+.pb-call-glyph { font-size: .58rem; margin-left: .15rem; }
+/* ROOKIE TAG + TOP-5-PACE MARK — Cory, live: "a blue R next to their name"
+   / "a red asterisk... top 5 pace of play." Inline in the text flow (same
+   choice as callGlyph above, not absolutely positioned like riskDot below —
+   the corner is already spoken for), each with its own hover explanation
+   per this session's no-unexplained-glyph convention. */
+.pb-rookie-tag {
+  display: inline-block; font-size: .58rem; font-weight: 800; color: var(--wr-accent, #3b82f6);
+  border: 1px solid currentColor; border-radius: 3px; padding: 0 .2rem; margin-left: .25rem;
+  line-height: 1.3; vertical-align: middle;
+}
+.pb-pace-mark { color: var(--wr-bad); font-weight: 800; margin-left: .15rem; }
+.pb-risk-dot { position: absolute; top: .05rem; right: 0; color: var(--wr-muted); font-size: .5rem; }
+.pb-risk-dot.pb-risk-mid { color: var(--wr-warn); }
+.pb-risk-dot.pb-risk-hi { color: var(--wr-bad); }
+/* A plain full-width block, not a grid row — it sits BETWEEN rows, not
+   inside one, so it needs none of .pb-table-row's column geometry. */
+.pb-cliff-row {
+  font-size: .6rem; color: var(--wr-bad); text-align: center;
+  padding: .2rem 0; border-bottom: 1px dashed var(--wr-line);
+  background: color-mix(in srgb, var(--wr-bad) 6%, transparent);
+}
+.pb-empty { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; padding: .2rem 0; }
+
+/* THE VONA FALL-OFF CHART, BY ROUND — Cory: "really liked the vona fall off
+   charts by round.. improve them." One compact bar chart per column, own
+   y-scale per position (see position_boards_view.js's roundDropoffChart for
+   why a shared scale is the wrong call), the steepest transition marked with
+   the SAME status color the exact-numbers table already uses for "hot". */
+.pb-do-mini { margin: .5rem 0 0; padding-top: .35rem; border-top: 1px solid var(--wr-line); }
+/* Always-on label, not a hover tooltip — Cory: "What are the bar charts
+   underneath each position.. again no explanations!!" A title attribute on
+   the wrapper WAS an explanation, but a hover-only one is indistinguishable
+   from none on a chart with no visible axis label. */
+/* Cory, 2026-08-20, a SECOND time on this chart: "I still don't understand
+   the projected points lost each round chart... explain better, make
+   charts better." Bumped from .55rem (illegible on a phone, and the reason
+   a real sentence would have had to truncate below) — this now carries a
+   full descriptive phrase, not a 3-word label, and needs room to wrap
+   rather than clip. */
+.pb-do-mini-head {
+  font-size: .64rem; font-weight: 600; color: var(--wr-muted);
+  letter-spacing: .01em; margin-bottom: .3rem; line-height: 1.3;
+}
+.pb-do-mini svg { display: block; }
+.pb-do-baseline { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.pb-do-bar { fill: var(--wr-chart-main); transition: filter .1s, transform .1s; }
+.pb-do-bar-hot { fill: var(--wr-bad); }
+/* Real interactivity, kept to pure CSS — no JS, pairs with the native
+   `title` tooltip that already fires on the same hover (Cory: "improve the
+   charts... could be great"). transform-box makes the lift scale from the
+   bar's own bottom edge rather than the SVG's (0,0) corner, so a short bar
+   near the baseline doesn't appear to jump sideways. */
+.pb-do-bar:hover {
+  filter: brightness(1.35);
+  transform: translateY(-1px);
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+/* The round-number axis a bar chart with no labels never had — which round
+   each bar's transition ENDS at, roughly under its bar. */
+.pb-do-ticks {
+  display: flex; justify-content: space-between; margin-top: .1rem;
+}
+.pb-do-tick { font-size: .56rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; }
+/* A full sentence now, not a 3-word tag — it needs to be allowed to wrap
+   onto a second line rather than clip with an ellipsis (the previous
+   nowrap+ellipsis truncated the exact number on any narrow column, which
+   was very likely part of "I still don't understand" — the number that
+   explains it could be the part getting cut off). */
+.pb-do-mini-cap {
+  font-size: .66rem; color: var(--wr-muted); margin-top: .3rem; line-height: 1.35;
+}
+.pb-do-mini-cap.pb-do-hot { color: var(--wr-bad); font-weight: 700; }
+.pb-do-summary-note { font-weight: 400; color: var(--wr-muted); font-size: .58rem; text-transform: none; letter-spacing: normal; }
+
+/* the three side panels — collapsed by default, same <details> grammar as
+   .rec-chips / .rec-against so the disclosure affordance is consistent */
+.pb-opponents, .pb-dropoffs, .pb-steals {
+  margin: .45rem 0 0; font-size: var(--wr-fs-micro);
+  border-top: 1px solid var(--wr-line); padding-top: .35rem;
+}
+.pb-opponents summary, .pb-dropoffs summary, .pb-steals summary {
+  cursor: pointer; font-weight: 600; color: var(--wr-structure);
+  list-style: revert;
+}
+.pb-opp-body { margin-top: .3rem; display: flex; flex-direction: column; gap: .2rem; }
+.pb-opp-row { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; }
+.pb-opp-name { font-weight: 700; min-width: 5.5rem; }
+.pb-opp-keeps { color: var(--wr-muted); }
+.pb-opp-needs { color: var(--wr-ink); }
+.pb-do-table, .pb-steals-table { width: 100%; border-collapse: collapse; margin-top: .3rem; }
+.pb-do-table th, .pb-steals-table th {
+  text-align: left; font-weight: 600; color: var(--wr-muted);
+  font-size: .58rem; text-transform: uppercase; letter-spacing: .03em;
+  padding: .1rem .25rem;
+}
+.pb-do-table td, .pb-steals-table td {
+  padding: .12rem .25rem; border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.pb-steal-row[data-drill] { cursor: pointer; }
+.pb-steal-row[data-drill]:hover td:first-child { text-decoration: underline; }
+.pb-do-range { color: var(--wr-muted); white-space: nowrap; }
+.pb-do-hot { color: var(--wr-bad); font-weight: 700; }
+/* No mobile override left here: the desktop rule above already matches what
+   this used to set at <640px. A phone this narrow still relies on
+   .pb-grid's overflow-x scroll, same as before. */
+
+/* ROSTER BUILDER MODEL PANEL — ROSTER-BUILDER-PANEL-DESIGN.md, §1: "It is a
+   SECOND VOICE. It never replaces, reorders, or annotates his board." The
+   left accent stripe in --wr-accent (not --wr-structure, which the board's
+   own panels use) is the one visual cue that separates this box from
+   everything around it — if a reader could mistake it for the board's own
+   recommendation, the design failed. rbm-marginal is money-adjacent but
+   deliberately NOT --wr-money/gold: gold is reserved for dollar figures
+   project-wide, and this is a points figure. */
+.rbm-wrap {
+  border: 1px solid var(--wr-line); border-left: 3px solid var(--wr-accent);
+  border-radius: 6px; background: var(--wr-panel); padding: .55rem .7rem;
+  margin: .5rem 0;
+}
+.rbm-head { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; margin-bottom: .4rem; }
+.rbm-title { font-size: var(--wr-fs-title); font-weight: 800; color: var(--wr-accent); letter-spacing: .02em; }
+.rbm-sub { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; }
+/* agreement with the board's own #1 — the reason this panel earns its
+   screen space, so it is stated rather than left to the eye (ported from
+   A's independent build of the same panel, 2026-08-20 merge). */
+.rbm-agree {
+  font-size: .64rem; margin: .3rem 0 .1rem; padding: .2rem .4rem;
+  border-radius: 4px; background: var(--wr-panel-soft);
+}
+.rbm-agree-yes { color: var(--wr-good); }
+.rbm-agree-no { color: var(--wr-warn); }
+.rbm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.rbm-row {
+  display: grid; grid-template-columns: 1.3rem 1fr auto auto auto;
+  align-items: baseline; column-gap: .4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+  padding-bottom: .35rem;
+}
+.rbm-row:last-child { border-bottom: none; padding-bottom: 0; }
+.rbm-row[data-drill] { cursor: pointer; }
+.rbm-row[data-drill]:hover .rbm-name { text-decoration: underline; }
+.src-name[data-drill] { cursor: pointer; }
+.src-name[data-drill]:hover { text-decoration: underline; }
+.rbm-rank { font-weight: 800; color: var(--wr-muted); font-variant-numeric: tabular-nums; font-size: var(--wr-fs-micro); }
+.rbm-name { font-weight: 700; color: var(--wr-ink); }
+.rbm-pos { font-size: .58rem; color: var(--wr-muted); text-transform: uppercase; }
+.rbm-adp { font-size: .6rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rbm-marginal { font-weight: 700; color: var(--wr-good); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* spans the full row on the line below name/pos/adp/marginal — the reason
+   Cory asked for this panel at all ("and why"), so it never gets squeezed. */
+.rbm-why { grid-column: 2 / -1; font-size: .64rem; color: var(--wr-warn); font-style: italic; }
+.rbm-foot {
+  margin-top: .5rem; padding-top: .4rem; border-top: 1px solid var(--wr-line);
+  font-size: .58rem; color: var(--wr-muted); display: flex; flex-direction: column; gap: .15rem;
+}
+.rbm-evidence { margin-top: .35rem; font-size: var(--wr-fs-micro); }
+.rbm-evidence summary { cursor: pointer; font-weight: 600; color: var(--wr-structure); list-style: revert; }
+.rbm-evidence p { margin: .3rem 0 0; color: var(--wr-muted); line-height: 1.4; }

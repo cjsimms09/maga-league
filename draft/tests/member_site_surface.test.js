@@ -221,10 +221,25 @@ const POS_OF = ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB', 'K', 'DEF'];
 
   // ── NAV modernization ────────────────────────────────────────────────────
   html = await get('/');
-  ck('nav: The Races is in the member nav', /href="\/races"/.test(html) && /The Races/.test(html));
+  // Races/Pick'em/Watch came OUT of the nav 08-19 (nav-consolidation map,
+  // ROUTES.md 08-18, A-approved) — real pages, boxed into the page each is
+  // most related to instead of a top-bar tab. The home page's own races CTA
+  // (checked two lines down) still reaches it; the desktop More dropdown
+  // reuses the same _primary/_more split the phone tab bar already had.
+  ck('nav: Races/Pick\'em/Watch are NOT top-bar tabs — boxed on their related pages instead',
+    !/href="\/races"[^>]*>[^<]*The Races/.test(html)
+    && !new RegExp('class="navbar"[\\s\\S]*?href="/pickem"[\\s\\S]*?</nav>').test(html));
+  ck('nav: the desktop bar carries a More dropdown with the same split the phone uses',
+    /class="nav-more/.test(html) && /nav-more-panel/.test(html));
   ck('nav: the phone tab bar carries Matchup and Scores as primaries',
     /tabbar/.test(html) && /tb-label">Matchup</.test(html) && /tb-label">Scores</.test(html));
   ck('home: the races CTA rides under the week CTA', /weekhub-cta races/.test(html));
+  html = await get('/scoreboard');
+  ck('scoreboard: Races and Pick\'em are boxed here now that they are out of the nav',
+    /href="\/races"/.test(html) && /The Races/.test(html) && /href="\/pickem"/.test(html));
+  html = await get('/matchup');
+  ck('matchup: Watch is boxed here now that it is out of the nav',
+    /href="\/watch"/.test(html) && /What to Watch/.test(html));
   ck('home: the hero carries the Tuesday preview line when live',
     /week-hero-prev/.test(html) || !/week-hero/.test(html), 'hero without preview');
 
