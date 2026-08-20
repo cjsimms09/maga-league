@@ -55,10 +55,11 @@ sentence true?**
 ### 1. The score column on a rec row
 
 **IS:** a weighted sum, in projection points, of the terms the tool currently
-weights — `value + ceiling + keeper + stack` under the shipped weights
+weights — `value + need + ceiling + keeper + stack` under the shipped weights
 (`MEASURED_WEIGHTS`, `app.js:52`; `ceiling` joined at **0.45** on Cory's
-2026-08-17 ruling, see the entry below) — **plus two adjustments applied AFTER
-that sum, which are not in the weight vector at all.**
+2026-08-17 ruling and `need` at **1.0** on his 2026-08-20 ruling, see the
+entries below) — **plus two adjustments applied AFTER that sum, which are not in
+the weight vector at all.**
 
 **THE "AND NOTHING ELSE" IN THIS LINE WAS FALSE UNTIL 2026-08-14, AND IT IS THE
 THIRD INSTANCE OF THE CLASS THIS DOCUMENT EXISTS TO CATCH — found in the document
@@ -68,13 +69,48 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-18 board, 696 players) |
-|---|---|
-| `value` (VONA) | **50.2%** |
-| **`onesie`** | **24.0%** |
-| **`ceiling`** | **16.4%** |
-| `stack` | 8.0% |
-| `keeper` | 1.3% |
+| term | share of movement (2026-08-20 board) | previous edition (2026-08-18) |
+|---|---|---|
+| **`need`** | **53.5%** | *0% — the term was weighted zero* |
+| `value` (VONA) | 32.5% | 50.2% |
+| `ceiling` | 10.7% | 16.4% |
+| `stack` | 3.4% | 8.0% |
+| `onesie` | **below 0.05%** | 24.0% |
+| `keeper` | below 0.05% | 1.3% |
+
+**⚠️ `need` IS NOW THE LARGEST TERM, AND THE SENTENCE "VONA IS WHAT DECIDES A
+PICK" IS NO LONGER TRUE (register 160, 2026-08-20).** E found that the `value`
+term carries **VONA**, not VORP — `starterSlotMarginal` is the only path by
+which a player's own VORP reaches the score, and it sat behind `need` at weight
+**0.0**. Cory ruled to ship the fix. `need` went 0.0 → 1.0 (parity with `value`;
+not a fitted number) and it immediately became the biggest driver of what
+separates the top five.
+
+**AND IT MADE `onesie` REDUNDANT, WHICH IS THE MORE INTERESTING HALF.** `onesie`
+did not shrink — it stopped appearing. Measured over the same twelve picks:
+
+| | rows where `onesie` is non-zero | largest \|onesie\| |
+|---|---|---|
+| `need` = 0 | **3 of 60** top-five rows | 7.91 |
+| `need` = 1.0 | **0 of 60** | 0.00 |
+
+`onesie` is a post-assembly penalty on a duplicate at a one-starter position. At
+`need` = 0 nothing else in the score knew a slot was already filled, so onesie
+was the patch that carried that fact alone — a large penalty on a rare row. With
+`need` live, a duplicate never reaches the top five for onesie to penalise. **The
+24.0% above was therefore always a mean-absolute-deviation figure dominated by
+three rows, and it was published as though it described the board.** A share of
+movement is not a rate of firing, and this table did not distinguish them.
+
+⚠️ **So the claim this section pins is no longer "`value` is largest".** That was
+a name hardcoded into both the document and its test, for the third time. What is
+asserted now is that **every term above 5% of movement appears in this table, in
+the measured order** — a property that survives a weight ruling instead of being
+invalidated by one.
+
+*The historical record below is left exactly as written. Each correction was
+true when made, and the pattern they form — a share table going stale within
+days, every time — is the reason the check no longer names a winner.*
 
 **⚠️ `ceiling` WAS MISSING FROM THIS TABLE AND IS THE THIRD-LARGEST DRIVER
 (session E, 2026-08-18).** The ruling put `MEASURED_WEIGHTS.ceiling` at **0.45**

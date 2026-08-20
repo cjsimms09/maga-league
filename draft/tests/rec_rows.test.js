@@ -27,6 +27,19 @@
 //
 // Run: node draft/tests/rec_rows.test.js
 'use strict';
+/* ⚠️ CORY'S REAL KEEPERS — the `roster: []` fiction became illegal on
+ * 2026-08-20 (register 160, Cory's ruling): `need` now carries weight 1.0 and
+ * reads ctx.roster, so an empty roster scores every starter seat as OPEN and
+ * hands full VORP to everyone. That is a draft state that cannot exist — he
+ * holds three keepers before pick one.
+ * Read from the live board rather than hardcoded, so it cannot drift from it. */
+/* ONE DERIVATION, REUSED. Five suites had each grown their own copy of this
+ * block; a fixture that differs between suites makes their results
+ * incomparable. realRoster() REFUSES rather than falling back to roster: [],
+ * which is the fiction register 160 made illegal. */
+const KEEPERS_FOR_FIXTURE = require('./_empty_roster_fiction_precondition.js')
+  .realRoster();
+
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
@@ -36,7 +49,11 @@ const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_pre
 /* A's precondition (E31): this file's contexts pass roster: [] at every pick
  * (see this file's own header). Legal only while need/bye/risk stay
  * structurally inert -- checked here, every run, rather than assumed once. */
-assertRosterFictionPrecondition(E);
+/* ⚠️ THE FICTION GUARD IS GONE BECAUSE THE FICTION IS GONE. It asserts a
+ * property of the WEIGHT VECTOR ("need is zero"), which was the right proxy
+ * while these fixtures passed roster: [] and is the wrong question now that
+ * they pass Cory's real keepers. Removed here rather than weakened there —
+ * weakening it would leave every OTHER suite's fiction unguarded. */
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 let pass = 0, fail = 0;
@@ -145,7 +162,7 @@ const PICK_BOARD = ((D.pick_order || {}).picks) || null;
     const next = MY.find(p => p > pick) || null;
     const ctx = {
       board: board, nextPick: next, totalPicks: (D.pick_order.picks || []).length || null,
-      myPicksLeft: MY.filter(p => p >= pick).length, roster: [], doctrine: null,
+      myPicksLeft: MY.filter(p => p >= pick).length, roster: KEEPERS_FOR_FIXTURE, doctrine: null,
       myPickIndex: Math.max(0, MY.indexOf(pick)), totalMyPicks: MY.length,
       currentKeepers: [], league: D.league,
       weights: WEIGHTS, pickBoard: PICK_BOARD,
@@ -234,7 +251,7 @@ const PICK_BOARD = ((D.pick_order || {}).picks) || null;
       pos_rank: rank, proj_mean: mean, proj_ceiling: ceil, vorp: 50,
       proj_floor: mean * 0.5, adp: 40, player_id: name });
     const out = E.recommend({ board: [wr('steady', 150, 175, 1), wr('boom', 150, 230, 2)],
-      roster: [], league: { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } },
+      roster: KEEPERS_FOR_FIXTURE, league: { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } },
       currentPick: 40, nextPick: 53, totalPicks: 150, myPicksLeft: 11,
       roundsLeft: 11, runMultipliers: {}, weights: E.DEFAULT_WEIGHTS });
     const list = Array.isArray(out) ? out : Object.values(out);
@@ -325,7 +342,18 @@ const PICK_BOARD = ((D.pick_order || {}).picks) || null;
 {
   const three = D.players.filter(p => p.adp != null).sort((a, b) => a.adp - b.adp).slice(0, 3);
   const ctx = {
-    board: three, nextPick: 148, totalPicks: 150, myPicksLeft: 1, roster: [],
+    /* ⚠️ A SYNTHETIC ROSTER HERE, NOT CORY'S REAL KEEPERS, and the reason is
+     * specific to this block. `three` is the top THREE BY ADP, and Ja'Marr
+     * Chase is both a keeper and near the top of that list — so seeding the
+     * real keepers puts the same men on the board and the roster at once and
+     * the count drops to 1. That is a keeper-collision artifact, and this block
+     * is about something else entirely: that the ten-row CAP never becomes a
+     * QUOTA on a thin board. The roster only has to be non-empty and truthful
+     * about slot occupancy, so it is a single QB who cannot collide with three
+     * top-ADP skill players. */
+    board: three, nextPick: 148, totalPicks: 150, myPicksLeft: 1,
+    roster: [{ player_id: 'fixture-qb', name: 'Fixture QB', position: 'QB',
+      proj_mean: 300, vorp: 10 }],
     doctrine: null, myPickIndex: 11, totalMyPicks: 12, currentKeepers: [],
     league: D.league, weights: WEIGHTS, pickBoard: PICK_BOARD,
     runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: 133,

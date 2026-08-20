@@ -238,6 +238,96 @@ ck('and caps the count at 3, so at most 30 board slots can be keepers',
   }
 }
 
+/* ── 4. THE RE-CHECK THIS FILE ASKED FOR, RUN ON THE REAL DESIGNATIONS ──────
+ *
+ * ⚠️ THE GAP: section 5 runs the arithmetic on PREDICTIONS while the slate is
+ * withheld, and on the BOARD'S keepers once it confirms. Between those two
+ * states — which is where we are today, 2026-08-20, two days out — there is a
+ * third source nothing was reading: `draft/config/keepers.json`, which holds
+ * the REAL Sleeper designations for every team that has declared.
+ *
+ * Six of ten have. Thirteen opponent keepers, from Sleeper, not predicted. This
+ * file's own closing line says "the real one locks 20 August, and the one
+ * number to re-check then is whether any keeper ranks deeper than pick 33."
+ * That is today, the data is here, and nothing was running it. So it runs here.
+ *
+ * THE UNDESIGNATED FOUR ARE THE RESIDUAL, and they are stated rather than
+ * assumed empty — the same absent-is-not-zero rule the gate itself is built on. */
+{
+  let REAL = null;
+  try {
+    REAL = JSON.parse(fs.readFileSync(
+      path.join(ROOT, 'draft', 'config', 'keepers.json'), 'utf8'));
+  } catch (e) { REAL = null; }
+  ck('the real designation store is readable — this check is worthless without it',
+    !!(REAL && Array.isArray(REAL.teams)), REAL ? typeof REAL.teams : 'unreadable');
+
+  if (REAL && Array.isArray(REAL.teams)) {
+    const mySlot = (DATA.league || {}).my_draft_slot;
+    const realOthers = [];
+    REAL.teams.forEach(t => {
+      if (String(t.draft_slot) === String(mySlot)) return;
+      (t.keepers || []).forEach(k => realOthers.push(String(k.player_id)));
+    });
+    const teamsDesignated = REAL.teams.length;
+    const expected = +((DATA.league || {}).teams || 10);
+    const undesignated = Math.max(0, expected - teamsDesignated);
+
+    ck('CONTROL — the real store carries opponent designations to reason about',
+      realOthers.length >= 5, realOthers.length);
+    ck('CONTROL — and every one resolves to a board row, so the ranks are real '
+      + 'rather than a lookup returning 9999 for everybody',
+    realOthers.every(id => !!byId[id]), realOthers.filter(id => !byId[id]));
+
+    const realDeepest = Math.max.apply(null, realOthers.map(rankOf));
+    ck('THE 20-AUGUST RE-CHECK: no REAL opponent designation ranks deeper than '
+      + 'my first pick — the number this file has been telling every reader to '
+      + 'check on this date',
+    realDeepest < MY[0], { deepest_real_keeper_rank: realDeepest, first_pick: MY[0] });
+
+    const realPerPick = MY.map(pk => ({ pick: pk, n: divergence(realOthers, pk).length }));
+    ck('...so the board and a keeper-aware account agree at every pick on the '
+      + 'REAL slate, not only the predicted one',
+    realPerPick.every(x => x.n === 0), realPerPick.filter(x => x.n));
+
+    /* THE FAIL ARM TRAVELS WITH THE ARM. The null above is the one I expected,
+     * on a new data source, which is precisely when the instrument needs
+     * checking rather than the result trusting. */
+    {
+      const deep = byAdp[MY[0] + 20];
+      const alt = realOthers.slice(0, -1).concat([String(deep.player_id)]);
+      ck('FAIL ARM — swap one real designation for a player deeper than pick '
+        + MY[0] + ' and the divergence appears immediately',
+      divergence(alt, MY[0]).length >= 1,
+      { planted: deep.name + ' #' + rankOf(deep.player_id) });
+    }
+
+    /* ── THE RESIDUAL, NAMED AND BOUNDED ─────────────────────────────────
+     * Four teams have not declared. Absent is not zero: each may keep up to
+     * three. The exposure is not "unknown" — it is exactly one freed player per
+     * keeper ranked deeper than the pick in question, and the league's cost
+     * model bounds how likely such a keeper is. */
+    const worstCase = undesignated * (+((DATA.league || {}).keeper_rules || {}).count || 3);
+    ck('the undesignated teams are COUNTED, not assumed to be keeping nobody',
+      undesignated + teamsDesignated === expected,
+      { designated: teamsDesignated, undesignated: undesignated, expected: expected });
+    ck('and the worst case is bounded and small enough to state: at most '
+      + worstCase + ' further keepers, each costing at most one freed player at '
+      + 'a pick, and only if that keeper ranks deeper than the pick',
+    worstCase <= 12, worstCase);
+
+    console.log('\n      ── THE REAL SLATE, AS IT STANDS TODAY ──');
+    console.log('      ' + teamsDesignated + '/' + expected + ' teams designated on Sleeper · '
+      + realOthers.length + ' opponent keepers · deepest #' + realDeepest
+      + ' · first pick ' + MY[0]);
+    console.log('      divergence from a keeper-aware account: 0 at all '
+      + MY.length + ' picks');
+    console.log('      residual: ' + undesignated + ' team(s) undeclared, at most '
+      + worstCase + ' more keepers; the ONLY one that costs anything is a keeper '
+      + 'ranked deeper than #' + (MY[0] - 1) + '.');
+  }
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  (deepest opponent '
   + 'keeper #' + deepest + ', first pick ' + MY[0] + ')');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
@@ -247,5 +337,9 @@ console.log('already inside the window the model removes — and the exposure if
 console.log('being true is exactly one freed player per keeper deeper than the next pick.');
 console.log('WHAT IT DOES NOT: model the ORDER opponents pick in. Both accounts assume the');
 console.log('room drafts near ADP, and that is the assumption the seat plan already states.');
-console.log('It also uses the PREDICTED slate — the real one locks 20 August, and the one');
-console.log('number to re-check then is whether any keeper ranks deeper than pick 33.');
+console.log('THE 20-AUGUST RE-CHECK IS DONE, and it is section 4 rather than a sentence');
+console.log('telling the next reader to do it. Sections 1-3 run the PREDICTED slate;');
+console.log('section 4 runs the REAL Sleeper designations from draft/config/keepers.json,');
+console.log('and the null holds on both. What is still open is the four teams that have');
+console.log('not declared — bounded above, and the only keeper that costs anything is one');
+console.log('ranked deeper than pick 33.');
