@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 139,
+ "next_numeric_id": 140,
  "history": [
   {
    "id": 47,
@@ -91,6 +91,11 @@
    "id": 138,
    "claimed_at": "2026-08-20",
    "note": "D: unclassified Draft Sharks blend fields (was 135 pre-renumber)"
+  },
+  {
+   "id": 139,
+   "claimed_at": "2026-08-20",
+   "note": "D: the ±41.8 detection floor is the wrong instrument for P119's class, and understates its own class by ~2.5x"
   }
  ]
 }
