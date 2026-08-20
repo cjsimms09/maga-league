@@ -40,3 +40,32 @@ BLEND-SEARCH-DESIGN §Tier-2).
 
 Tuesday: grade everything → print bench/promote/hold per arm → file the
 P-rows → change what the rules say to change → Wednesday: relay sweeps.
+
+---
+
+## THE THREE-PART FILING STANDARD — Cory's ruling, 2026-08-20, verbatim
+
+> "Everytime we predict and grade something we need to make sure we are
+> predicting the right things to learn, grading it the right way to actually
+> capture skill not luck and using that info to either explore new ideas or if
+> we found an edge, implement it.."
+
+Every NEW ledger row filed from this date states, inside the claim cell:
+
+1. **THE LEARNING TARGET** — the decision this grade changes. A row whose
+   grade would change nothing is not filed (the ledger check already fails
+   "a grade that moved nothing"; this moves the test to FILING time).
+2. **THE SKILL DESIGN** — what separates skill from luck in the grading:
+   a paired counterfactual, a persistence/naive null, a baseline arm, or a
+   pre-declared chance rate. A raw outcome with no comparison is a weather
+   report, not a grade. (House precedents: Cory's skill-not-luck replay
+   ruling; best-of-K; the RANDOM-WEIGHT null; P144's persistence null.)
+3. **THE CONSEQUENCE ROUTE, PRE-DECLARED** — TRUE routes to (implement:
+   named surface/owner) and FALSE routes to (explore: named next question),
+   or the reverse. "Interesting either way" without a route is how findings
+   die in registers.
+
+The relay's Wednesday ledger sweep checks new rows against all three and
+bounces non-conforming rows back to their lane with the missing part named.
+Exemplar filed the same day: **P282** (the bench-option weekly waiver
+valuation), written to be copied.
