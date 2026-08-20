@@ -4,11 +4,12 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **70 open rows** (re-counted 08-19). **The number it replaces,
-51, is the point:** nineteen rows were filed after that sentence was written and
-it went on asserting 51, until `test_the_backlog_claim_is_still_roughly_true`
-refused the build. **Do not quote this without re-running
-`register_recheck_check.js`** — a stated count decays daily. Most are owned by A. That is not a decision list, it is a
+up."* The register has **119 open rows** (re-counted 08-20). **The numbers it
+replaces, 51 then 70, are the point:** rows keep getting filed faster than this
+sentence gets updated, and it went on asserting 70 until
+`test_the_backlog_claim_is_still_roughly_true` refused the build again. **Do
+not quote this without re-running `register_recheck_check.js`** — a stated
+count decays daily. Most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 
 So every open row was put to a single question — **can this change a number on
