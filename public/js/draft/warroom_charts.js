@@ -45,6 +45,11 @@
     return parts[parts.length - 1] || '';
   }
   var r1 = function (v) { return Math.round(v * 10) / 10; };
+  /* Used by pure builders below AND the browser-only controller section past
+   * the `typeof document === 'undefined'` guard — declared up here, not down
+   * there, so a pure-builder call from Node (unit tests) sees it too instead
+   * of tripping over an undefined array the guard never let it reach. */
+  var POS_ALL = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 
   /* ════════════════════════ PURE CHART BUILDERS ═══════════════════════════ */
 
@@ -376,6 +381,57 @@
     }).join('') + '</div>';
   }
 
+  /* ── OPPONENT ROSTERS + PICK DISTANCE ─────────────────────────────────────
+   * Cory: "show me everyone's current roster status... and where they draft
+   * relative to me.. I need to see what their needs are so I can try to calc
+   * if someone will fall to me." One row per opponent seat, soonest-to-pick
+   * first — the seats nearest the top are the ones that can actually take a
+   * player before your own next turn.
+   *
+   * rows: [{ slot, manager, picksUntil, have: {pos:count}, needs: [pos,...] }]
+   * `manager` null means the seat is honestly unmapped (same convention as
+   * the threat strip — a name from the order-fallback would be a guess). */
+  function oppPosStr(counts) {
+    return POS_ALL.filter(function (q) { return counts[q]; })
+      .map(function (q) { return (counts[q] > 1 ? counts[q] : '') + q; }).join(' ');
+  }
+  function opponentBoard(rows) {
+    rows = (rows || []).filter(function (r) { return r && r.slot != null; });
+    if (!rows.length) return '<p class="wr-chart-empty">no opponent rosters yet</p>';
+    var body = rows.map(function (r) {
+      var who = r.manager ? esc(r.manager) : 'Seat ' + esc(r.slot);
+      var onClock = r.picksUntil === 0;
+      var dist = r.picksUntil == null ? 'no more picks'
+        : onClock ? 'on the clock'
+        : r.picksUntil + ' pick' + (r.picksUntil === 1 ? '' : 's') + ' away';
+      var have = oppPosStr(r.have || {});
+      var needs = (r.needs || []).join(' ');
+      return '<li class="wr-opp-row' + (onClock ? ' wr-opp-onclock' : '') + '">'
+        + '<span class="wr-opp-who">' + who + '</span>'
+        + '<span class="wr-opp-dist">' + esc(dist) + '</span>'
+        + '<span class="wr-opp-needs" title="still needs a starter here">'
+          + (needs ? esc(needs) : '<span class="muted">starters full</span>') + '</span>'
+        + '<span class="wr-opp-have muted" title="roster so far">' + (have ? esc(have) : '—') + '</span>'
+        + '</li>';
+    }).join('');
+    return '<ul class="wr-opp-list">' + body + '</ul>';
+  }
+
+  /* ── LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS ──────────────────
+   * Cory: "a running count at the top of screen somewhere of # of players
+   * taken at each position (including keepers) would be nice." counts:
+   * {pos: n}. A position with 0 taken is still printed at 0, not omitted —
+   * "QB 0 taken" is itself information this early in a draft. */
+  function posTakenStrip(counts) {
+    counts = counts || {};
+    var total = POS_ALL.reduce(function (s, q) { return s + (counts[q] || 0); }, 0);
+    var cells = POS_ALL.map(function (q) {
+      return '<span class="pts-cell"><b>' + esc(q) + '</b> ' + (counts[q] || 0) + '</span>';
+    }).join('');
+    return '<span class="pts-label">taken (incl. keepers)</span>' + cells
+      + '<span class="pts-total">' + total + ' total</span>';
+  }
+
   var Charts = {
     rangeBar: rangeBar,
     posRails: posRails,
@@ -384,6 +440,8 @@
     survivalSpark: survivalSpark,
     rosterShape: rosterShape,
     posColumns: posColumns,
+    opponentBoard: opponentBoard,
+    posTakenStrip: posTakenStrip,
   };
   global.WarRoomCharts = Charts;
   if (typeof module !== 'undefined' && module.exports) module.exports = Charts;
@@ -392,7 +450,6 @@
    * Browser-only from here down: tabs, rails, charts, drill-down.            */
   if (typeof document === 'undefined') return;
 
-  var POS_ALL = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
   var ui = {
     tab: 'draft',
     cliffPos: null,        // null = follow the timing lead
@@ -580,6 +637,45 @@
     if (!slots.length) { host.innerHTML = '<p class="wr-chart-empty">no roster rules loaded</p>'; return; }
     var bench = roster.length - Object.keys(used).length;
     host.innerHTML = Charts.rosterShape(slots, bench);
+  }
+
+  /* ── opponent rosters + pick distance (Cory: "show me everyone's current
+   * roster status... and where they draft relative to me") ──────────────── */
+  function renderOpponents() {
+    var host = byId('wr-opponents-board');
+    var d = D();
+    if (!host || !d) return;
+    var cur = d.currentPick();
+    if (cur == null) { host.innerHTML = '<p class="wr-chart-empty">no board yet</p>'; return; }
+    var teams = d.teams(), mine = d.mySlot();
+    var starters = d.starters();
+    var rosters = d.rosters();
+    var picks = d.pickOrderPicks();
+    var rows = [];
+    for (var slot = 1; slot <= teams; slot++) {
+      if (slot === mine) continue;
+      var next = null;
+      for (var i = 0; i < picks.length; i++) {
+        if (picks[i].slot === slot && picks[i].overall >= cur) { next = picks[i]; break; }
+      }
+      var roster = rosters[slot] || [];
+      var have = (typeof DraftNeeds !== 'undefined') ? DraftNeeds.posCounts(roster) : {};
+      var needs = (typeof DraftNeeds !== 'undefined') ? DraftNeeds.teamNeeds(roster, starters) : [];
+      rows.push({
+        slot: slot,
+        manager: d.profileForSlot(slot) ? (d.profileForSlot(slot).name || d.profileForSlot(slot).display_name) : null,
+        picksUntil: next ? (next.overall - cur) : null,
+        have: have, needs: needs,
+      });
+    }
+    rows.sort(function (a, b) {
+      if (a.picksUntil == null) return b.picksUntil == null ? 0 : 1;
+      if (b.picksUntil == null) return -1;
+      return a.picksUntil - b.picksUntil;
+    });
+    var note = d.profilesMapped() ? '' : '<p class="wr-opp-note muted">seats unassigned until '
+      + 'Sleeper names them — showing Seat N until then</p>';
+    host.innerHTML = note + Charts.opponentBoard(rows);
   }
 
   /* ── big-board columns ── */
@@ -787,6 +883,7 @@
     try { renderCliff(); } catch (e) { console.error('[cockpit cliff]', e && e.message); }
     try { renderSurvivalSpark(); } catch (e) { console.error('[cockpit surv]', e && e.message); }
     try { renderShape(); } catch (e) { console.error('[cockpit shape]', e && e.message); }
+    try { renderOpponents(); } catch (e) { console.error('[cockpit opponents]', e && e.message); }
     try { renderColumns(); } catch (e) { console.error('[cockpit cols]', e && e.message); }
     try { if (ui.drillId) renderDrill(); } catch (e) { console.error('[cockpit drill]', e && e.message); }
   }

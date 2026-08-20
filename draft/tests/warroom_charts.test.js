@@ -241,7 +241,60 @@ const ck = (n, c, d) => {
   ck('EMPTY → honest empty state', /wr-chart-empty/.test(C.rosterShape([])));
 }
 
-// ── 7. PURITY — the builders read nothing but their arguments ─────────────
+// ── 7. OPPONENT BOARD — Cory: "show me everyone's current roster status...
+// and where they draft relative to me.. so I can try to calc if someone
+// will fall to me" ──────────────────────────────────────────────────────
+{
+  const rows = [
+    { slot: 3, manager: 'ds7mmet', picksUntil: 0, have: { RB: 2, WR: 1 }, needs: ['QB', 'TE'] },
+    { slot: 5, manager: null, picksUntil: 4, have: { QB: 1 }, needs: ['RB', 'WR', 'FLEX'] },
+    { slot: 9, manager: 'cashworth', picksUntil: null, have: {}, needs: [] },
+  ];
+  const html = C.opponentBoard(rows);
+  ck('a mapped seat shows the manager name', /ds7mmet/.test(html));
+  ck('an unmapped seat honestly falls back to "Seat N", never a guessed name',
+    /Seat 5/.test(html));
+  ck('the seat on the clock right now is marked distinctly (0 picks away)',
+    /wr-opp-onclock[\s\S]{0,200}on the clock/.test(html));
+  ck('a seat with picks away says how many, pluralized correctly',
+    /4 picks away/.test(html));
+  ck('a seat with no more picks says so rather than printing a false number',
+    /no more picks/.test(html));
+  ck('needs render — the positions that can stop a player falling to you',
+    /wr-opp-needs[^>]*>QB TE</.test(html));
+  ck('a seat with no open needs says "starters full" rather than a blank',
+    /starters full/.test(html));
+  ck('have renders in the established count-prefix format ("2RB", not "RB2" or "RBx2")',
+    /wr-opp-have[^>]*>2RB WR</.test(html));
+  ck('rows sort soonest-pick-first, with "no more picks" seats last',
+    (function () {
+      const onIdx = html.indexOf('ds7mmet');
+      const fourIdx = html.indexOf('Seat 5');
+      const noneIdx = html.indexOf('cashworth');
+      return onIdx > -1 && fourIdx > -1 && noneIdx > -1 && onIdx < fourIdx && fourIdx < noneIdx;
+    })());
+  ck('EMPTY → honest empty state', /wr-chart-empty/.test(C.opponentBoard([])));
+  ck('a hostile manager name is escaped, not injected raw',
+    !/<script>/.test(C.opponentBoard([{ slot: 1, manager: '<script>x</script>', picksUntil: 1, have: {}, needs: [] }])));
+}
+
+// ── 8. POSITION-TAKEN STRIP — Cory: "a running count at the top of screen
+// somewhere of # of players taken at each position (including keepers)" ──
+{
+  const html = C.posTakenStrip({ QB: 8, RB: 22, WR: 19, TE: 5 });
+  ck('every position prints, in POS_ORDER, even ones with zero taken (K/DEF get no data here)',
+    /QB<\/b> 8[\s\S]*RB<\/b> 22[\s\S]*WR<\/b> 19[\s\S]*TE<\/b> 5[\s\S]*K<\/b> 0[\s\S]*DEF<\/b> 0/.test(html));
+  ck('the total sums every position, not just the ones passed in',
+    /54 total/.test(html));
+  ck('says "including keepers" so the number is never mistaken for live picks only',
+    /incl\. keepers/.test(html));
+  ck('EMPTY counts object → all zeros, not a crash or a blank strip',
+    /QB<\/b> 0/.test(C.posTakenStrip({})) && /0 total/.test(C.posTakenStrip({})));
+  ck('undefined counts → same honest all-zero rendering, not a throw',
+    /QB<\/b> 0/.test(C.posTakenStrip(undefined)));
+}
+
+// ── 9. PURITY — the builders read nothing but their arguments ─────────────
 {
   const fs = require('fs');
   const src = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');

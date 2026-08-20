@@ -1066,6 +1066,49 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .wr-railmore > summary::before { content: '▸ '; }
 .wr-railmore[open] > summary::before { content: '▾ '; }
 
+/* ── LEAGUE-WIDE POSITION-TAKEN STRIP — Cory: "a running count at the top
+   of screen somewhere of # of players taken at each position (including
+   keepers)". Sits outside .wr-zone1 so it's visible on every tab, same
+   register as #system-strip right above it. `:empty` hides it before the
+   board has loaded rather than showing an empty bar. */
+.pos-taken-strip {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .15rem .6rem;
+  padding: .3rem .7rem; margin-bottom: .3rem; border-radius: 10px;
+  background: var(--panel); border: 1px solid var(--line);
+  font-size: .74rem; color: var(--ink);
+}
+.pos-taken-strip:empty { display: none; }
+.pts-label { color: var(--muted); font-size: .66rem; }
+.pts-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pts-cell b { color: var(--wr-structure); font-weight: 800; margin-right: .15rem; }
+.pts-total { margin-left: auto; color: var(--muted); font-size: .68rem; white-space: nowrap; }
+
+/* ── OPPONENTS CARD — every seat, soonest pick first, needs + roster so far
+   (Cory: "show me everyone's current roster status... and where they draft
+   relative to me.. so I can try to calc if someone will fall to me"). */
+.wr-opp-note { font-size: .64rem; margin: 0 0 .35rem; }
+.wr-opp-list {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;
+  gap: .3rem; max-height: 15rem; overflow-y: auto;
+}
+.wr-opp-row {
+  display: grid; grid-template-columns: 1fr auto; gap: .05rem .5rem;
+  font-size: .72rem; padding: .25rem .35rem; border-radius: 6px;
+  border: 1px solid var(--line);
+}
+.wr-opp-row.wr-opp-onclock {
+  border-color: var(--wr-bad);
+  background: color-mix(in srgb, var(--wr-bad) 8%, transparent);
+}
+.wr-opp-who { font-weight: 700; color: var(--ink); }
+.wr-opp-dist { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wr-opp-row.wr-opp-onclock .wr-opp-dist { color: var(--wr-bad); font-weight: 800; }
+/* "needs" is the sharper signal (it's what can stop a player falling to
+   you), so it gets the warn color and the top full-width line; "have" is
+   muted reference context underneath. */
+.wr-opp-needs { grid-column: 1 / -1; font-weight: 700; color: var(--wr-warn); font-size: .68rem; }
+.wr-opp-have { grid-column: 1 / -1; font-size: .64rem; }
+
 /* honest empty state for every chart */
 .wr-chart-empty { margin: .2rem 0; font-size: .7rem; color: var(--muted); font-style: italic; }
 

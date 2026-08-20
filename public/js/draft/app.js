@@ -1048,6 +1048,50 @@
     host.innerHTML = RBMView.render(recs, caveat, escapeHtml);
   }
 
+  /* LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS — Cory: "a running
+   * count at the top of screen somewhere of # of players taken at each
+   * position (including keepers) would be nice." state.drafted already
+   * carries keeper ids alongside live picks (added once at keeper-apply
+   * time, same Set every pick-taken path adds to — see the accounting
+   * invariant's own comment above `myNextTurn`).
+   *
+   * ⚠️ A KEPT PLAYER IS NOT IN state.data.players. Checked live before
+   * shipping this, not assumed: DraftKeepers.reapply() REPLACES
+   * state.data.players with the reapplied set (line ~7291), and a kept
+   * player is never part of it — he was never "available," so he was
+   * never emitted into the pool. Live-drafted players stay in
+   * state.data.players (only state.board, the undrafted VIEW, drops
+   * them), so a first version that scanned state.data.players alone
+   * counted every live pick correctly and every keeper as zero — 3
+   * players confirmed in state.drafted, 0 showing on the strip. The fix
+   * is state.data.kept_players, unioned in. Visible on every tab (mounted
+   * outside .wr-zone1, next to #system-strip), not just the Draft tab,
+   * since it's a league fact rather than a per-pick recommendation. */
+  function renderPosTakenCounts() {
+    const host = $('#pos-taken-strip');
+    if (!host) return;
+    // `!==` here, not `!=` — script_load_order.test.js's guard-detection
+    // regex only recognises `typeof X !== ''`; the equivalent `=== 'undefined'`
+    // early-return this file uses elsewhere reads the same to a human but is
+    // invisible to that check, which then (correctly, per its own blind-spot
+    // comment for cross-file modules) demands warroom_charts.js's tag be
+    // findable — it isn't, since it loads from warroom.ejs, not this include.
+    if (typeof WarRoomCharts !== 'undefined' && state.data && Array.isArray(state.data.players)
+        && state.data.players.length) {
+      const posById = new Map();
+      (state.data.players || []).forEach(p => { if (p && p.position) posById.set(String(p.player_id), p.position); });
+      (state.data.kept_players || []).forEach(p => { if (p && p.position) posById.set(String(p.player_id), p.position); });
+      const counts = {};
+      state.drafted.forEach(id => {
+        const pos = posById.get(String(id));
+        if (pos) counts[pos] = (counts[pos] || 0) + 1;
+      });
+      host.innerHTML = WarRoomCharts.posTakenStrip(counts);
+    } else {
+      host.innerHTML = '';
+    }
+  }
+
   /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
    *
    * `display_contract` names each displayable field's units, direction and the
@@ -2567,6 +2611,10 @@
     // reasoning: every pick changes both the available board and Cory's own
     // roster, so it is recomputed on every render alongside them.
     safeRender('rosterBuilderMlv', renderRosterBuilderPanel);
+    // League-wide, not per-pick-recommendation, but still stale the instant
+    // a pick lands and isn't reflected — same render cadence as everything
+    // else on the screen.
+    safeRender('posTakenCounts', renderPosTakenCounts);
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
@@ -10780,6 +10828,16 @@
     queue: function () { return (state.lists && state.lists.queue) || []; },
     drafted: function () { return state.drafted || new Set(); },
     currentPick: function () { try { return currentPick(); } catch (e) { return null; } },
+    /* OPPONENT ROSTERS + PICK DISTANCE (Cory: "show me everyone's current
+     * roster status... and where they draft relative to me... so I can try
+     * to calc if someone will fall to me"). Four narrow reads, same
+     * guard-every-call discipline as the rest of this accessor. */
+    teams: function () { return ((state.data || {}).league || {}).teams || 10; },
+    mySlot: function () { try { return mySlot(); } catch (e) { return null; } },
+    rosters: function () { return state.rosters || {}; },
+    pickOrderPicks: function () { return ((state.data || {}).pick_order || {}).picks || []; },
+    profilesMapped: function () { return !!state.profilesMappedFromDraft; },
+    profileForSlot: function (slot) { try { return profileForSlot(slot); } catch (e) { return null; } },
     myNextPicks: function () { try { return myNextPicks(); } catch (e) { return []; } },
     onTheClock: function () { try { return onTheClock(); } catch (e) { return false; } },
     playerById: function (id) { try { return playerById(id); } catch (e) { return null; } },

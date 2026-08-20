@@ -39,6 +39,14 @@
       that invalidates a recommendation. %>
   <div id="system-strip" class="system-strip" style="display:none"></div>
 
+  <%# ── POSITION-TAKEN COUNT, LEAGUE-WIDE, INCLUDING KEEPERS — Cory: "a
+      running count at the top of screen somewhere of # of players taken at
+      each position (including keepers) would be nice." Visible on every
+      tab, not just Draft — it's a league fact, not a per-pick
+      recommendation. Populated by renderPosTakenCounts() in app.js via
+      WarRoomCharts.posTakenStrip(). %>
+  <div id="pos-taken-strip" class="pos-taken-strip"></div>
+
   <%# ── THE TOOL BAR — sticky tab navigation + compact external tools.
       warroom_charts.js wires the tabs; the buttons are inert without JS but
       every panel's content still exists in the document. %>
@@ -278,6 +286,18 @@
       <div class="wr-railcard" id="wr-picks-card">
         <h3 class="wr-railhead">🕓 Recent picks <span class="sub" style="font-weight:400;text-transform:none;letter-spacing:normal">league-wide</span></h3>
         <ul id="picks-feed" style="margin:0; padding-left:1.1rem; max-height:11rem; overflow-y:auto"></ul>
+      </div>
+      <%# Cory: "show me everyone's current roster status on the Home Screen
+          and where they draft relative to me.. I need to see what their
+          needs are so I can try to calc if someone will fall to me."
+          Every opponent seat, soonest-to-pick first, with what they still
+          need (the positions that can make a player NOT fall to you) and
+          what they already have. Populated by warroom_charts.js's
+          renderOpponents() via WarRoomCharts.opponentBoard(). %>
+      <div class="wr-railcard" id="wr-opponents-card">
+        <h3 class="wr-railhead">🧑‍🤝‍🧑 Opponents <button type="button" class="wr-info" data-railinfo="opponents" title="What this shows">ⓘ</button></h3>
+        <p class="wr-railexp" data-railexp="opponents" hidden>Every other seat, soonest pick first. "needs" is the positions their roster still has an unfilled starting slot for — if a position is NOT in their needs, a player there is more likely to fall past them to you. "roster so far" is everything they've drafted or kept.</p>
+        <div id="wr-opponents-board"></div>
       </div>
       <div class="wr-railcard" id="wr-tiles-card">
         <h3 class="wr-railhead">⏳ Running out <button type="button" class="wr-info" data-railinfo="tiles" title="What this shows">ⓘ</button></h3>
