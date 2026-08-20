@@ -103,10 +103,16 @@ const INPUTS = [
  * source is covered the day its board first commits. Absent boards are fine
  * (the toggle's own failure path names them); PRESENT-but-older fails. */
 const DERIVED = 'public/board_*.json';
-/* mlv_plan.json is board-derived too (mlv_seat_plan.js reads the board), and it
- * was caught 45 minutes stale against the 03:55 rebuild the day the source
- * toggle shipped — same class, different file, so it joins the check. */
-const DERIVED_EXTRA = ['public/mlv_plan.json'];
+/* mlv_plan.json is board-derived too (mlv_seat_plan.js reads the board) — but
+ * WARNING-ONLY, measured before deciding: the generator is deterministic and
+ * writes no timestamp, so after a rebuild that does not move its inputs a
+ * fresh regeneration is BYTE-IDENTICAL and can never clear a commit-ordering
+ * check (proven live 08-20: flagged 45m "stale", regenerated, zero diff).
+ * Commit ordering cannot distinguish a no-op rebuild from real drift here,
+ * and a red that everyone learns to explain away gets switched off. The
+ * strong check for this file is regenerate-and-diff in the rebuild chain —
+ * A's pipeline, asked for in ROUTES. */
+const DERIVED_EXTRA = ['public/mlv_plan.json'];   // reported, never fatal
 
 /** {stale:[...], fresh:[...]} for boards DERIVED from the blend board. */
 function classifyDerived(boardTime, derived) {
@@ -188,17 +194,26 @@ function main(argv) {
     console.error('     A shrinking input list is a check that stops firing silently.');
     return 1;
   }
-  if (derived.stale.length) {
-    console.log('\n  ❌ ' + derived.stale.length + ' DERIVED board(s) are OLDER than the blend'
+  const fatalStale = derived.stale.filter(d => !DERIVED_EXTRA.includes(d.path));
+  const warnStale = derived.stale.filter(d => DERIVED_EXTRA.includes(d.path));
+  if (fatalStale.length) {
+    console.log('\n  ❌ ' + fatalStale.length + ' DERIVED board(s) are OLDER than the blend'
       + ' board they re-rank:');
-    derived.stale.forEach(function (s) {
+    fatalStale.forEach(function (s) {
       console.log('     −' + human(s.behindSeconds).padStart(6) + '  ' + s.path);
     });
     console.log('  The source toggle serves these as current. Re-run rerank_by_source.py'
       + ' after\n  EVERY board rebuild — the keeper-lock rebuild moves replacement levels.');
   }
+  if (warnStale.length) {
+    console.log('\n  ⚠️  commit-ordering only (deterministic, timestamp-less — regenerate'
+      + ' and diff to be sure):');
+    warnStale.forEach(function (s) {
+      console.log('     −' + human(s.behindSeconds).padStart(6) + '  ' + s.path);
+    });
+  }
   if (!stale.length) {
-    if (derived.stale.length) { console.log('='.repeat(74)); return 1; }
+    if (fatalStale.length) { console.log('='.repeat(74)); return 1; }
     console.log('\n  ✅ every declared input predates the board, and every derived board'
       + ' postdates it.');
     console.log('     (This does not prove the board is CORRECT — only that it is not'
