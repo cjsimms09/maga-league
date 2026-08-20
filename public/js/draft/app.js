@@ -1002,6 +1002,22 @@
         + 'row entirely at a position where a source shows "no coverage".',
       src: 'source_boards.json from draft/tools/source_boards.js; order only, no points',
     },
+    mlv_plan: {
+      what: 'The whole draft, not just this pick: what the roster-builder model '
+        + 'would take at each of your twelve picks if the board drained in ADP '
+        + 'order and nobody reacted to you. K and DEF capped at one each, your rule.',
+      read: 'Read it as two halves and treat the orange line as the edge of what the '
+        + 'model knows. Above it, marginal lineup value — a real opinion. Below it, '
+        + 'once your nine starting slots are full, every player is worth exactly zero '
+        + 'to MLV, so those rows use your bench rule instead: the position you are '
+        + 'still short of the winning shape, taking whoever beats the waiver wire by '
+        + 'the most. If a name below the line looks wrong, trust yourself over it.',
+      do: 'Use the top half to see the SHAPE you are heading for and whether it '
+        + 'matches the top-3 finishers. Use the bottom half for nothing except '
+        + 'knowing the model has stopped talking — from round 7 on, this is your '
+        + 'call and the big board\'s, not the model\'s.',
+      src: 'mlv_plan.json from draft/tools/mlv_seat_plan.js; a PLAN, not a prediction',
+    },
     roster_builder: {
       what: 'A SECOND OPINION, deliberately not the ranking above. It scores each '
         + 'man by what he adds to your STARTING LINEUP — lineup value with him minus '
@@ -1406,6 +1422,7 @@
     loadFrozenBaseline();
     loadSeatPlan();
     loadSourceBoards();
+    loadMlvPlan();
     loadConditionalValue();
     loadOpponentNeed();
     loadExpertSpread();
@@ -2410,6 +2427,7 @@
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
     safeRender('rosterBuilder', renderRosterBuilder);
+    safeRender('mlvPlan', renderMlvPlan);
     safeRender('sourceBoards', renderSourceBoards);
     safeRender('lists', renderLists);
     safeRender('queue', renderQueue);
@@ -4490,6 +4508,119 @@
       + 'K and DEF are capped at one, not excluded — once your nine starting slots '
       + 'are full they top this list, because a bench body is worth zero here.'
       + '</p></div>';
+  }
+
+  /* ── WHAT TEAM WOULD MLV ACTUALLY DRAFT ME? ───────────────────────────────
+   *
+   * Cory, 2026-08-20: "Let's have something on war room screen that tells me
+   * what MLV displacement with 1k and def would pick."
+   *
+   * The roster-builder panel above answers "who NOW". This answers "what do I
+   * END UP WITH", which is a different question and the one a plan answers.
+   *
+   * ⚠️ THE SPLIT IS THE PRODUCT, NOT A CAVEAT ON IT. MLV has a real opinion
+   * about six of his twelve picks and none about the other six — once nine
+   * starting slots are full every remaining player scores exactly zero, so the
+   * "ranking" below that line is the BOARD's order wearing MLV's name. The
+   * panel draws that line hard and labels everything under it. Register 146.
+   */
+  function mlvPlanHost() {
+    const found = $('#mlv-plan');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'mlv-plan';
+    el.className = 'card mlv-plan';
+    el.setAttribute('data-mounted-by', 'app.js — no #mlv-plan in the view');
+    const anchor = document.getElementById('roster-builder');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function loadMlvPlan() {
+    fetch('/mlv_plan.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.picks)) return;
+        state.mlvPlan = d;
+        try { renderMlvPlan(); } catch (e) { console.error('[mlv-plan]', e && e.message); }
+      })
+      .catch(e => console.warn('[mlv-plan] unavailable:', e && e.message));
+  }
+
+  function renderMlvPlan() {
+    const host = mlvPlanHost();
+    if (!host) return;
+    const d = state.mlvPlan;
+    if (!d) return;
+
+    const row = (p) => {
+      if (p.none) {
+        return '<tr><td>' + p.pick + '</td><td colspan="4" class="muted">nobody left</td></tr>';
+      }
+      const dim = p.mlv_has_an_opinion ? '' : ' style="opacity:.62"';
+      const val = p.mlv_has_an_opinion
+        ? '<b>+' + p.marginal + '</b>'
+        : '<b>+' + p.wire_surplus + '</b> <span class="muted">wire</span>';
+      return '<tr' + dim + '>'
+        + '<td>' + p.pick + '</td>'
+        + '<td>' + escapeHtml(p.player.position) + '</td>'
+        + '<td><b>' + escapeHtml(p.player.name) + '</b></td>'
+        + '<td class="muted">' + p.player.adp + '</td>'
+        + '<td>' + val + '</td></tr>';
+    };
+
+    const opinion = d.picks.filter(p => !p.none && p.mlv_has_an_opinion);
+    const blind = d.picks.filter(p => !p.none && !p.mlv_has_an_opinion);
+    const tied = blind.length ? blind[0].tied_at_zero : 0;
+
+    /* THE DIVIDER IS THE HONEST PART OF THIS PANEL. */
+    const divider = blind.length
+      ? '<tr><td colspan="5" style="padding:.45rem .2rem;border-top:2px solid #b45309;'
+        + 'color:#b45309;font-size:.76rem;line-height:1.35">'
+        + '<b>⛔ MLV STOPS HERE.</b> Your nine starting slots are full, so all '
+        + tied + ' remaining players are worth <b>exactly 0</b> to it — it cannot tell '
+        + 'them apart. Below this line is <b>your bench rule</b>: the position you are '
+        + 'still short of the top-3-finisher shape, taking the man worth most over what '
+        + 'the waiver wire gives you free. A 13th tight end scores 0 there; a 5th back '
+        + 'does not.'
+        + '</td></tr>'
+      : '';
+
+    const shape = Object.entries(d.final_shape || {})
+      .map(([q, n]) => q + ' ' + n).join(' · ');
+    const vs = Object.entries(d.vs_top3_finishers || {})
+      .filter(([, v]) => Math.abs(v.delta) >= 1)
+      .map(([q, v]) => q + ' ' + (v.delta > 0 ? '+' : '') + v.delta)
+      .join(', ');
+
+    const tilt = blind.length
+      ? '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
+        + '<b>What the wire gives you free:</b> QB 322.9 · RB 78.4 · WR 124.8 · '
+        + 'TE 130.4 · K 128.6 · DEF 100. A drafted man is only worth what he adds '
+        + 'ABOVE that. This league drafts ~14 TEs and ~47 RBs, which is why a late '
+        + 'tight end is worth nothing and a late back is not.</p>'
+      : '';
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">🗺️ What the roster builder would draft you '
+      + explainPanel('mlv_plan') + '</h3>'
+      + '<p class="muted" style="margin:0 0 .4rem;font-size:.75rem">'
+      + 'All twelve picks, K and DEF capped at one each (your rule). '
+      + '<b>A plan, not a prediction</b> — it assumes the board drains in ADP order '
+      + 'and nobody reacts to you.</p>'
+      + '<table class="mini" style="width:100%;font-size:.8rem"><thead><tr>'
+      + '<th>pick</th><th>pos</th><th>player</th><th>ADP</th><th>+lineup</th>'
+      + '</tr></thead><tbody>'
+      + opinion.map(row).join('') + divider + blind.map(row).join('')
+      + '</tbody></table>'
+      + '<p class="muted" style="margin:.5rem 0 0;font-size:.74rem">'
+      + 'Ends up: <b>' + escapeHtml(shape) + '</b>'
+      + (vs ? ' · vs the top-3 finishers you ruled we should match: <b>' + escapeHtml(vs) + '</b>' : '')
+      + '</p>' + tilt
+      + '</div>';
   }
 
   /* ── "WHO DOES EACH SOURCE HAVE AS THEIR BEST AVAILABLE" ──────────────────

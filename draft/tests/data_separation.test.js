@@ -55,6 +55,13 @@ const PRODUCTION_INPUTS = {
     + 'valuation.js and survival.js never touch it. Declared rather than '
     + 'grandfathered because a cheat sheet is exactly the kind of surface that '
     + 'becomes an input by accident.',
+  'mlv_plan.json': 'What the roster-builder model would draft across Cory\'s twelve '
+    + 'CURRENT-SEASON picks, from the same current board and this year\'s keepers. '
+    + 'Cory asked "what MLV displacement with 1k and def would pick". DISPLAY ONLY: '
+    + 'no ranking code reads it, and it is downstream of the board rather than an '
+    + 'input to it. It also carries its own honesty — six of the twelve picks are '
+    + 'stamped as the BOARD\'s order because MLV is indifferent there (register '
+    + '146), so it cannot be mistaken for twelve model opinions.',
   'league_history.json': 'Completed seasons of THIS league — head-to-head records, '
     + 'opponent tendencies, roster norms. Historical by nature and about this '
     + 'league, which is what makes it a legitimate input rather than a leak.',

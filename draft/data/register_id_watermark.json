@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 151,
+ "next_numeric_id": 153,
  "history": [
   {
    "id": 47,
@@ -189,6 +189,36 @@
    "id": 150,
    "claimed_at": "2026-08-20",
    "note": "D: the MLV units question was measured (--mlv-points on roster_builder_replay.js) and the result is hindsight contamination, not a units-robustness answer — no era-correct projection source is reachable from this sandbox"
+  },
+  {
+   "id": 146,
+   "claimed_at": "2026-08-20",
+   "note": "A: the roster-builder model has no opinion about half of Cory's draft, and its first plan presented that silence as six confident picks"
+  },
+  {
+   "id": 147,
+   "claimed_at": "2026-08-20",
+   "note": "A: the board ranks tight ends a median 46 places earlier than the market does (this id was not claimed through this tool on main's side; recorded here for continuity since the row exists in DEFECT-REGISTER.md)"
+  },
+  {
+   "id": 148,
+   "claimed_at": "2026-08-20",
+   "note": "A: two replacement-level tables disagree by 2x at RB/WR, and the big board uses the wrong one"
+  },
+  {
+   "id": "D's 147-148 (never merged to main) reconciled against A's further main work",
+   "claimed_at": "2026-08-20",
+   "note": "A independently claimed 147 and 148 on origin/main for two real, different rows (roster-builder no-opinion gap, two replacement-level tables) while D's still-unmerged branch already had 147 (keeper-tooling test isolation) and 148 (unclassified Draft Sharks blend fields) from an earlier reconciliation round. A's rows kept as 146/147/148 (canonical, first on main); D's two renumbered to 151/152. Watermark now authoritative from 153."
+  },
+  {
+   "id": 151,
+   "claimed_at": "2026-08-20",
+   "note": "D: keeper-tooling tests write to committed data paths (was 147 pre-renumber)"
+  },
+  {
+   "id": 152,
+   "claimed_at": "2026-08-20",
+   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (was 148 pre-renumber)"
   }
  ]
 }
