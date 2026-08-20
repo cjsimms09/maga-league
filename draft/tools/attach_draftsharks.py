@@ -147,10 +147,38 @@ board["players"] = players
 # C6 below now checks that copy.
 board["replacement"] = vorp_diag
 
-# pool/overall/pos ranks follow the same order build.py uses: VORP desc, K/DEF
-# demoted out of the cross-position order (Cory's ruling 2026-08-17), which
-# apply_vorp already encodes in the vorp it returns.
-ranked = sorted(players, key=lambda p: -(p.get("vorp") or -1e9))
+# pool/overall/pos ranks follow the same order build.py uses.
+#
+# ⛔ TWO DEFECTS LIVED IN THE ONE LINE BELOW UNTIL 2026-08-20, BOTH SHIPPED TO
+# THE LIVE BOARD BY ME, ONE OF THEM REVERSING A CORY RULING. D found the first
+# and the second turned up checking their report.
+#
+# (1) FALSY ZERO. The key was `-(p.get("vorp") or -1e9)`, and `0.0 or -1e9` is
+#     `-1e9` in Python — so a vorp of EXACTLY zero sorted LAST. Exactly six
+#     players have vorp 0.0, one per position, because that is the definition of
+#     the replacement-level player. All six were ranked 695-700 of 700. George
+#     Kittle sat at 697 two days before the draft. `or` cannot distinguish a
+#     missing value from a zero one and must never guard a numeric.
+#
+# (2) THE K/DEF DEMOTION WAS SILENTLY DROPPED, which is the worse half. The
+#     comment here claimed "apply_vorp already encodes [it] in the vorp it
+#     returns". IT DOES NOT — `vorp.py` does it in the SORT KEY
+#     (`p["position"] in ONESIE_POSITIONS` as the primary term), not in the
+#     value. I asserted that premise instead of reading the function, and the
+#     result was Houston DEF at overall 39 and Brandon Aubrey at 44 on the board
+#     Cory drafts from — precisely the "engine recommending a 4th-round defence"
+#     that `vorp.py`'s own comment says Cory's 2026-08-17 ruling exists to stop.
+#
+# Both fixed by REUSING vorp.py's derivation rather than restating it (rule 11):
+# the onesie set is imported, not retyped, so the two files cannot drift.
+def _rank_key(p):
+    v = p.get("vorp")
+    if v is None:            # genuinely absent — not the same thing as 0.0
+        v = -1e9
+    return (p.get("position") in vorp_mod.ONESIE_POSITIONS, -v)
+
+
+ranked = sorted(players, key=_rank_key)
 for i, p in enumerate(ranked, 1):
     p["pool_rank"] = i
     p["overall_rank"] = i
