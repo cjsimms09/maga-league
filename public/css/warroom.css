@@ -1477,6 +1477,14 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .wr-drill-surv-row b.dying { color: var(--red); }
 .wr-drill-src { margin: .6rem 0 0; }
 .wr-drill-src .wr-drill-facts td { font-size: .68rem; padding: .1rem .3rem; }
+.wr-drill-dc { margin: .6rem 0 0; }
+.wr-drill-dc-row { display: flex; align-items: center; gap: .4rem; font-size: .7rem;
+  color: var(--muted); padding: .1rem 0; }
+.wr-drill-dc-ord { flex: 0 0 1.1rem; text-align: center; font-family: var(--font-mono);
+  font-size: .64rem; color: var(--wr-muted); }
+.wr-drill-dc-name { color: var(--ink); }
+.wr-drill-dc-row.wr-drill-dc-him { font-weight: 700; }
+.wr-drill-dc-row.wr-drill-dc-him .wr-drill-dc-name { color: var(--gold, var(--ink)); }
 .wr-drill-why { margin: .6rem 0 0; font-size: .74rem; color: var(--ink); line-height: 1.45; }
 .wr-drill-ctx { margin: .4rem 0 0; font-size: .66rem; color: var(--muted); }
 .wr-drill-actions { display: flex; gap: .35rem; flex-wrap: wrap; margin: .7rem 0 0; }

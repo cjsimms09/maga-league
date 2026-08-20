@@ -142,6 +142,22 @@ const PRODUCTION_INPUTS = {
     + 'ratio-not-raw-spread and reliability-floor checks. The badge prints a '
     + 'FACT ("experts split"), never the spread number itself, in THE PICK\'s '
     + 'name and alternatives.',
+  'league_analysis_2026.json': 'DISCLOSED TRESPASS INTO A\'S FILE (B, 2026-08-20) '
+    + '— found while touching an unrelated part of admin.js, not going looking: '
+    + 'src/routes/admin.js\'s /admin/league-analysis route (requireCory-gated, '
+    + 'added 2026-08-18, Cory verbatim: "After draft it should immediately be '
+    + 'ready for me, I will make bet with Richard") reads '
+    + 'public/league_analysis_2026.json, produced by '
+    + 'draft/tools/league_analyzer.py off Sleeper + the board. POST-DRAFT '
+    + 'ANALYSIS DISPLAY for Cory\'s own use, not a draft-time ranking input — '
+    + 'the route\'s own comment says the artifact carries its own '
+    + '"projections not results" caveat and the claim line renders verbatim so '
+    + 'Cory never misquotes a projection as a result. This route existed and '
+    + 'read this file for two days without a declaration here; the scanner\'s '
+    + 'comment-stripping regex happened not to see it until an unrelated edit '
+    + 'shifted where a later /* comment landed in the file. Not this test\'s '
+    + 'territory to re-rule on — only stating what the already-shipped code '
+    + 'already does. A should confirm the reason text if it needs correcting.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not

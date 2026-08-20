@@ -805,6 +805,109 @@
         ? ' <span class="muted">(' + Math.round(t.neutral_pass_rate * 1000) / 10 + '% score-neutral)</span>' : '')];
   }
 
+  /* TEAM PACE — Cory, live: "pace of play of team". Same artifact/window
+   * global as teamPassRateRow (widened server-side 2026-08-20 to forward
+   * plays_per_game/neutral_plays_per_game/neutral_sec_per_play), kept as its
+   * own row rather than folded into the pass-rate line: pass rate is a
+   * play-CALLING tendency, pace is how fast the team snaps the ball — two
+   * different facts a reader could otherwise conflate. Score-neutral pace is
+   * led with because that is the version not inflated/deflated by garbage-
+   * time snaps; raw plays/game rides along as a secondary figure. */
+  function teamPaceRow(p) {
+    var pace = typeof window !== 'undefined' && window.WR_TEAM_PACE;
+    var t = pace && p && p.team && pace.teams && pace.teams[p.team];
+    if (!t || t.neutral_plays_per_game == null) return null;
+    var neutral = Math.round(t.neutral_plays_per_game * 10) / 10;
+    return ['Team pace (' + esc(pace.season || '') + ')', neutral + ' neutral plays/gm'
+      + (t.plays_per_game != null
+        ? ' <span class="muted">(' + Math.round(t.plays_per_game * 10) / 10 + ' total/gm)</span>' : '')
+      + (t.neutral_sec_per_play != null
+        ? ' <span class="muted">· ' + Math.round(t.neutral_sec_per_play) + 's/play</span>' : '')];
+  }
+
+  /* USAGE — Cory: "more clear info... a powerhouse". Position-tailored,
+   * because a carry share means nothing for a WR and a target share means
+   * nothing for a RB — printing every field for every position would just be
+   * noise wearing the name "more data". QB/K/DEF have no comparable
+   * per-touch usage field on this board, so they get no row rather than an
+   * empty or misleading one. */
+  function usageRow(p) {
+    if (!p || !p.position) return null;
+    var pct = function (v) { return v == null ? null : Math.round(v * 1000) / 10 + '%'; };
+    if (p.position === 'RB') {
+      if (p.carries == null && p.opportunity_share == null && p.rz_share == null) return null;
+      var parts = [];
+      if (p.carries != null) parts.push(Math.round(p.carries) + ' carries/szn');
+      if (p.opportunity_share != null) parts.push(pct(p.opportunity_share) + ' opportunity share');
+      if (p.rz_share != null) parts.push(pct(p.rz_share) + ' red-zone share');
+      return parts.length ? ['Usage', parts.join(' <span class="muted">·</span> ')] : null;
+    }
+    if (p.position === 'WR' || p.position === 'TE') {
+      if (p.target_share == null && p.wopr == null && p.rz_share == null) return null;
+      var wparts = [];
+      if (p.target_share != null) wparts.push(pct(p.target_share) + ' target share');
+      if (p.wopr != null) wparts.push((Math.round(p.wopr * 100) / 100) + ' WOPR');
+      if (p.rz_share != null) wparts.push(pct(p.rz_share) + ' red-zone share');
+      if (p.adot != null) wparts.push((Math.round(p.adot * 10) / 10) + ' aDOT');
+      return wparts.length ? ['Usage', wparts.join(' <span class="muted">·</span> ')] : null;
+    }
+    return null;
+  }
+
+  /* INJURY — a designation alone ("Questionable") means nothing without
+   * knowing whether it is this week's tag or a stale field, and a bare risk
+   * percentage alone means nothing without a label. Both are real fields on
+   * every player; the row is skipped entirely (not printed as "healthy" or
+   * "0%") when NEITHER is present, matching this panel's honest-degrade
+   * convention rather than manufacturing a clean bill of health. */
+  function injuryRow(p) {
+    if (!p) return null;
+    var status = p.injury_status;
+    var riskPct = p.injury_risk_pct != null ? Math.round(p.injury_risk_pct) : null;
+    if (!status && riskPct == null) return null;
+    var val = status ? esc(status) : '<span class="muted">no designation</span>';
+    if (riskPct != null) val += ' <span class="muted">(' + riskPct + '% missed-game risk this season)</span>';
+    return ['Injury', val];
+  }
+
+  /* DRAFT PEDIGREE — shown only for a rookie: `nfl_draft_round` on a
+   * multi-year veteran is stale context nobody asked for (it never changes
+   * after year one), but for a rookie it is live, real, decision-relevant
+   * signal that has no other row on this panel. No year is claimed — the
+   * field doesn't carry one, and guessing would be exactly the kind of
+   * invented fact this panel's other rows refuse to print. */
+  function pedigreeRow(p) {
+    if (!p || p.is_nfl_rookie !== true || p.nfl_draft_round == null) return null;
+    return ['NFL draft', 'Round ' + p.nfl_draft_round
+      + (p.nfl_draft_pick != null ? ', pick ' + p.nfl_draft_pick : '')
+      + ' <span class="muted">(rookie)</span>'];
+  }
+
+  /* DEPTH CHART — TEAMMATES, not just this player's own slot. depthChartRow()
+   * above already prints "starter (RB, DET)"; Cory's ask goes further — who
+   * else is AHEAD or BEHIND him. Nothing new to fetch: every player on the
+   * board already carries `team`/`position`/`depth_chart_order`, so this is
+   * a filter+sort over data already in hand (the same grouping admin.js's
+   * `/admin/depth-charts` route already does server-side, ported here so a
+   * click doesn't need a second page). Capped at 5 rows — a depth chart
+   * beyond WR5/RB4 is bench noise for a redraft decision. */
+  function depthChartTeammates(p, allPlayers, esc) {
+    if (!p || !p.team || !p.position || !Array.isArray(allPlayers)) return '';
+    var mates = allPlayers.filter(function (x) {
+      return x && x.team === p.team && x.position === p.position && x.depth_chart_order != null;
+    }).sort(function (a, b) { return a.depth_chart_order - b.depth_chart_order; }).slice(0, 5);
+    if (!mates.length) return '';
+    var rows = mates.map(function (m) {
+      var isHim = String(m.player_id) === String(p.player_id);
+      return '<div class="wr-drill-dc-row' + (isHim ? ' wr-drill-dc-him' : '') + '">'
+        + '<span class="wr-drill-dc-ord">' + m.depth_chart_order + '</span>'
+        + '<span class="wr-drill-dc-name">' + esc(m.name || '') + '</span>'
+        + (isHim ? '<span class="muted">— this player</span>' : '') + '</div>';
+    }).join('');
+    return '<div class="wr-drill-dc"><div class="wr-drill-h">depth chart — '
+      + esc(p.position) + ', ' + esc(p.team) + '</div>' + rows + '</div>';
+  }
+
   /* ── the drill-down — his "places to click for more info" ── */
   function openDrill(id) {
     ui.drillId = String(id);
@@ -846,6 +949,10 @@
           + 'average, not a measurement of this player">~</sup>' : '')],
       depthChartRow(p),
       teamPassRateRow(p),
+      teamPaceRow(p),
+      usageRow(p),
+      injuryRow(p),
+      pedigreeRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
        * most of the board — the engine scores only the shortlist-depth slice
        * each pick, so a rail/board click outside it has no s. A blank the
@@ -905,6 +1012,7 @@
     var condHtml = '';
     try { condHtml = (d.conditionalDrillHtml && d.conditionalDrillHtml(ui.drillId)) || ''; }
     catch (e) { condHtml = ''; }
+    var dcHtml = depthChartTeammates(p, d.players(), esc);
 
     host.innerHTML = '<div class="wr-drill-panel" role="dialog" aria-label="Player detail">'
       + '<button type="button" class="wr-drill-close" data-drill-close="1" title="Close">✕</button>'
@@ -916,6 +1024,7 @@
       + '<table class="wr-drill-facts">' + rows.filter(Boolean).map(function (r) {
           return '<tr><td>' + r[0] + '</td><td class="wr-num">' + r[1] + '</td></tr>';
         }).join('') + '</table>'
+      + dcHtml
       + (survRows ? '<div class="wr-drill-surv"><div class="wr-drill-h">survives to my picks</div>' + survRows + '</div>' : '')
       + srcRanksHtml
       + condHtml

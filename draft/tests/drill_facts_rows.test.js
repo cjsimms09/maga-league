@@ -31,11 +31,28 @@ const lift = (name) => {
   if (!m) throw new Error(name + ' not found in warroom_charts.js');
   return m[0];
 };
+// depthChartTeammates takes (p, allPlayers, esc), not the single-param shape
+// the lift above assumes — same idea, any parameter list.
+const liftAnyArgs = (name) => {
+  const m = SRC.match(new RegExp('function ' + name + '\\([^)]*\\) \\{[\\s\\S]*?\\n  \\}'));
+  if (!m) throw new Error(name + ' not found in warroom_charts.js');
+  return m[0];
+};
 const esc = (s) => (s == null ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
 // eslint-disable-next-line no-eval
 const depthChartRow = eval('(' + lift('depthChartRow') + ')');
 // eslint-disable-next-line no-eval
 const teamPassRateRow = eval('(' + lift('teamPassRateRow') + ')');
+// eslint-disable-next-line no-eval
+const teamPaceRow = eval('(' + lift('teamPaceRow') + ')');
+// eslint-disable-next-line no-eval
+const usageRow = eval('(' + lift('usageRow') + ')');
+// eslint-disable-next-line no-eval
+const injuryRow = eval('(' + lift('injuryRow') + ')');
+// eslint-disable-next-line no-eval
+const pedigreeRow = eval('(' + lift('pedigreeRow') + ')');
+// eslint-disable-next-line no-eval
+const depthChartTeammates = eval('(' + liftAnyArgs('depthChartTeammates') + ')');
 
 // ── depthChartRow ────────────────────────────────────────────────────────
 ck('starter (order 1) reads "starter"',
@@ -77,6 +94,107 @@ ck('no player / no team -> null', teamPassRateRow({}) === null && teamPassRateRo
     teamPassRateRow({ team: 'DET' }) === null);
 }
 
+// ── teamPaceRow (Cory, live: "pace of play of team") ───────────────────────
+{
+  const realPaceWithTempo = { season: '2025', teams: { DET: {
+    pass_rate: 0.5432, plays_per_game: 63.176, neutral_plays_per_game: 25.647, neutral_sec_per_play: 34.593,
+  } } };
+  global.window = { WR_TEAM_PACE: realPaceWithTempo };
+  const row = teamPaceRow({ team: 'DET' });
+  ck('leads with score-neutral plays/game, one decimal, not garbage-time-inflated raw pace',
+    row[1].indexOf('25.6 neutral plays/gm') === 0, row);
+  ck('raw plays/game rides along as a secondary figure', row[1].indexOf('63.2 total/gm') >= 0, row);
+  ck('seconds/play is included, rounded to a whole second', row[1].indexOf('35s/play') >= 0, row);
+  ck('the season is named in the label, same convention as teamPassRateRow', row[0].indexOf('2025') >= 0);
+}
+ck('a team present in the artifact but missing neutral_plays_per_game -> null, not a half-built row',
+  (() => { global.window = { WR_TEAM_PACE: { season: '2025', teams: { DET: { pass_rate: 0.5 } } } };
+    return teamPaceRow({ team: 'DET' }) === null; })());
+ck('team missing from the artifact -> null', (() => { global.window = { WR_TEAM_PACE: { season: '2025', teams: {} } };
+  return teamPaceRow({ team: 'ZZ' }) === null; })());
+ck('artifact never loaded -> null, no throw', (() => { global.window = { WR_TEAM_PACE: null };
+  return teamPaceRow({ team: 'DET' }) === null; })());
+
+// ── usageRow (Cory: "more clear info... a powerhouse") — position-tailored ─
+ck('RB gets carries/opportunity-share/red-zone-share, not a WR field',
+  (() => { const r = usageRow({ position: 'RB', carries: 249.3, opportunity_share: 0.185, rz_share: 0.218 });
+    return r[1].indexOf('249 carries/szn') >= 0 && r[1].indexOf('18.5% opportunity share') >= 0
+      && r[1].indexOf('21.8% red-zone share') >= 0 && r[1].indexOf('target') === -1; })());
+ck('WR/TE gets target share/WOPR/aDOT, not a RB carries field',
+  (() => { const r = usageRow({ position: 'WR', target_share: 0.159, wopr: 0.248, adot: 5.7, rz_share: 0.1 });
+    return r[1].indexOf('15.9% target share') >= 0 && r[1].indexOf('0.25 WOPR') >= 0
+      && r[1].indexOf('5.7 aDOT') >= 0 && r[1].indexOf('carries') === -1; })());
+ck('TE uses the same shape as WR', (() => usageRow({ position: 'TE', target_share: 0.1 })[0] === 'Usage')());
+ck('QB has no comparable per-touch usage field on this board -> no row, not an empty/misleading one',
+  usageRow({ position: 'QB', target_share: 0.5 }) === null);
+ck('K/DEF -> no row', usageRow({ position: 'K' }) === null && usageRow({ position: 'DEF' }) === null);
+ck('a RB with every usage field null -> null, not an empty "Usage" label',
+  usageRow({ position: 'RB', carries: null, opportunity_share: null, rz_share: null }) === null);
+ck('missing player / no position -> null, no throw', usageRow(null) === null && usageRow({}) === null);
+
+// ── injuryRow — a designation and a risk pct are two different claims, and
+// neither is fabricated when the other is the only one present. ───────────
+ck('a real designation with a risk pct shows both, one sentence',
+  injuryRow({ injury_status: 'Questionable', injury_risk_pct: 23 })[1] === 'Questionable'
+  + ' <span class="muted">(23% missed-game risk this season)</span>');
+ck('a risk pct with NO designation still shows the number, honestly labeled "no designation"',
+  (() => { const v = injuryRow({ injury_status: null, injury_risk_pct: 5 })[1];
+    return v.indexOf('no designation') >= 0 && v.indexOf('5% missed-game risk') >= 0; })());
+ck('a designation with NO risk pct still shows the designation alone',
+  injuryRow({ injury_status: 'Out', injury_risk_pct: null })[1] === 'Out');
+ck('NEITHER present -> null, not a fabricated "healthy"/"0%"',
+  injuryRow({ injury_status: null, injury_risk_pct: null }) === null);
+ck('a hostile designation string is escaped',
+  injuryRow({ injury_status: '<b>X</b>', injury_risk_pct: null })[1].indexOf('<b>X</b>') === -1);
+ck('missing player object -> null, no throw', injuryRow(null) === null);
+
+// ── pedigreeRow — rookies only; a veteran\'s draft round is stale noise ────
+ck('a rookie with a known round/pick shows both, no year claimed (the field carries none)',
+  pedigreeRow({ is_nfl_rookie: true, nfl_draft_round: 1, nfl_draft_pick: 12 })[1]
+    === 'Round 1, pick 12 <span class="muted">(rookie)</span>');
+ck('a rookie with a round but no pick number still shows the round',
+  pedigreeRow({ is_nfl_rookie: true, nfl_draft_round: 3, nfl_draft_pick: null })[1].indexOf('Round 3') === 0);
+ck('a VETERAN with the same round/pick fields present -> null (stale, not shown)',
+  pedigreeRow({ is_nfl_rookie: false, nfl_draft_round: 1, nfl_draft_pick: 12 }) === null);
+ck('a rookie with no round on file -> null, not a guess',
+  pedigreeRow({ is_nfl_rookie: true, nfl_draft_round: null }) === null);
+ck('missing player / no rookie flag -> null', pedigreeRow(null) === null && pedigreeRow({}) === null);
+
+// ── depthChartTeammates — the ask ("who else is on the depth chart"), from
+// data already on the board, zero new fetch ────────────────────────────────
+{
+  const board = [
+    { player_id: '1', name: 'Alpha Back', team: 'DET', position: 'RB', depth_chart_order: 1 },
+    { player_id: '2', name: 'Beta Back', team: 'DET', position: 'RB', depth_chart_order: 2 },
+    { player_id: '3', name: 'Gamma Back', team: 'DET', position: 'RB', depth_chart_order: 3 },
+    { player_id: '4', name: 'Wrong Team Back', team: 'ZZZ', position: 'RB', depth_chart_order: 1 },
+    { player_id: '5', name: 'Wrong Pos', team: 'DET', position: 'WR', depth_chart_order: 1 },
+    { player_id: '6', name: 'No Slot Back', team: 'DET', position: 'RB', depth_chart_order: null },
+  ];
+  const html = depthChartTeammates({ player_id: '2', team: 'DET', position: 'RB' }, board, esc);
+  ck('lists only same-team same-position players, sorted by depth_chart_order',
+    /Alpha Back[\s\S]*Beta Back[\s\S]*Gamma Back/.test(html), html);
+  ck('excludes a different team entirely', html.indexOf('Wrong Team Back') === -1, html);
+  ck('excludes a different position entirely', html.indexOf('Wrong Pos') === -1, html);
+  ck('excludes a player with no depth-chart slot at all', html.indexOf('No Slot Back') === -1, html);
+  ck('marks the CLICKED player distinctly from his teammates',
+    /wr-drill-dc-him[^"]*"[\s\S]{0,80}Beta Back[\s\S]{0,40}this player/.test(html)
+    || /Beta Back[\s\S]{0,40}this player/.test(html), html);
+  ck('the header names the position and team', /depth chart[\s\S]{0,30}RB, DET/.test(html), html);
+}
+ck('a player with no depth-chart teammates at all (e.g. a lone K) -> empty string, no empty shell',
+  depthChartTeammates({ player_id: '9', team: 'ZZZ', position: 'K' }, [], esc) === '');
+ck('caps at 5 even with a longer real depth chart, so a bench pileup cannot blow out the panel',
+  (() => {
+    const many = Array.from({ length: 8 }, (_, i) => ({
+      player_id: String(i + 1), name: 'P' + i, team: 'DET', position: 'WR', depth_chart_order: i + 1,
+    }));
+    const html = depthChartTeammates({ player_id: '1', team: 'DET', position: 'WR' }, many, esc);
+    return (html.match(/wr-drill-dc-row/g) || []).length === 5;
+  })());
+ck('missing player / no allPlayers array -> empty string, no throw',
+  depthChartTeammates(null, [], esc) === '' && depthChartTeammates({ team: 'DET', position: 'RB' }, null, esc) === '');
+
 // ── register 4v's drill-down half (routed 08-18): the ceiling row must mark
 // a cohort-constant ceiling the same way the shortlist's rangeBar() already
 // does, since renderDrill() is the drill-down Cory's own rehearsal harness
@@ -105,6 +223,11 @@ ck('the mark carries the identical explanatory title text as the shortlist\'s ow
     /rows\.filter\(Boolean\)\.map/.test(SRC));
   ck('both rows are actually wired into the drill-down\'s facts table',
     /depthChartRow\(p\)/.test(SRC) && /teamPassRateRow\(p\)/.test(SRC));
+  ck('the four new rows are wired into the same facts table, not built and discarded',
+    /teamPaceRow\(p\)/.test(SRC) && /usageRow\(p\)/.test(SRC)
+    && /injuryRow\(p\)/.test(SRC) && /pedigreeRow\(p\)/.test(SRC));
+  ck('the depth-chart teammates block is actually rendered into the panel html',
+    /depthChartTeammates\(p, d\.players\(\), esc\)/.test(SRC) && /\+ dcHtml/.test(SRC));
 }
 
 // ── per-source rank block (Cory: "if I click a player it should give me
@@ -177,6 +300,9 @@ ck('the mark carries the identical explanatory title text as the shortlist\'s ow
   ck('...degrades to null on any read failure, same pattern as durability',
     /teamPace = null;\s*\n\s*try/.test(ADMIN) || /let teamPace = null;/.test(ADMIN));
   ck('...and passes teamPace to the view', /\n\s*teamPace,/.test(ADMIN));
+  ck('...and the pace fields (Cory: "pace of play") are in the server-side allowlist, not just pass rate',
+    /plays_per_game: t\.plays_per_game/.test(ADMIN) && /neutral_plays_per_game: t\.neutral_plays_per_game/.test(ADMIN)
+    && /neutral_sec_per_play: t\.neutral_sec_per_play/.test(ADMIN));
   const VIEW = fs.readFileSync(path.join(__dirname, '..', '..', 'views', 'admin', 'warroom.ejs'), 'utf8');
   ck('the view bootstraps it onto window.WR_TEAM_PACE', /window\.WR_TEAM_PACE = /.test(VIEW));
 }

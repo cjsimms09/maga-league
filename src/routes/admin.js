@@ -1031,10 +1031,18 @@ router.get('/warroom', aw(async (req, res) => {
       path.join(__dirname, '..', '..', 'draft', 'backtest', 'team_pace_2021_2025.json'), 'utf8'));
     const seasons = Object.keys(raw.seasons || {}).sort();
     const latest = raw.seasons[seasons[seasons.length - 1]];
+    /* WIDENED 2026-08-20 (Cory, live: "pace of play of team... really make
+     * this a powerhouse of info") — plays_per_game/neutral_plays_per_game/
+     * neutral_sec_per_play are real per-team-season fields on the same
+     * already-read artifact, just never forwarded. Still season-level only,
+     * same allowlist discipline as the three fields above (the file's own
+     * per-week detail stays server-side). */
     teamPace = latest ? {
       season: seasons[seasons.length - 1],
       teams: Object.fromEntries(Object.entries(latest).map(([team, t]) => [team, {
         pass_rate: t.pass_rate, neutral_pass_rate: t.neutral_pass_rate, proe: t.proe,
+        plays_per_game: t.plays_per_game, neutral_plays_per_game: t.neutral_plays_per_game,
+        neutral_sec_per_play: t.neutral_sec_per_play,
       }])),
     } : null;
   } catch (e) { teamPace = null; }
