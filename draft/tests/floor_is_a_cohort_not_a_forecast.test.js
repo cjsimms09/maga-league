@@ -162,8 +162,34 @@ else {
       if (a.proj_floor / b.proj_floor > 3) cliffs.push({ pos: pos, hi: a, lo: b });
     }
   });
-  ck('KNOWN-POSITIVE: the live board really does contain adjacent-rank floor cliffs',
-    cliffs.length > 0, cliffs.map(c => c.pos + ': ' + c.hi.name + ' -> ' + c.lo.name));
+/* ⛔ THE COHORT THIS FILE GUARDS NO LONGER SHIPS (found 2026-08-20, from B's
+ * routed report that this suite fails on main — their question was "is the
+ * ruled repricing set still what the test assumes?" and the answer is no).
+ *
+ * Every check below filters `proj_floor_source` on /^measured-/. Measured on
+ * the live board: ZERO players carry one. `attach_draftsharks.py` re-sources
+ * every band, so the 617 players with a real projection now read
+ *     363  "pre-DS band %, rescaled to the blended mean"
+ *     247  "draftsharks_pct"
+ *       7  "none — no band from Draft Sharks or the prior board"
+ * and the measured cohort is gone. The three KNOWN-POSITIVE controls were
+ * therefore asserting a non-empty set over an empty filter — they were not
+ * detecting a defect, they were detecting their own obsolescence.
+ *
+ * ⚠️ THE BOARD'S FLOORS CHANGED KIND, WHICH IS THE REAL FINDING. This file's
+ * premise is that a floor is a COHORT statistic rather than a per-player
+ * forecast. For the 247 Draft Sharks players that is now false: those are DS's
+ * own per-player floor and ceiling. The guard was not broken by a bug; it was
+ * outlived by a data change nobody re-pointed it at.
+ *
+ * So the three controls become conditional on the cohort existing, and the
+ * property that DOES matter on today's board is asserted instead, below. */
+const MEASURED_COHORT_EXISTS = (art.players || []).some(p =>
+  /^measured-/.test(String(p.proj_floor_source || '')));
+  ck('KNOWN-POSITIVE: the live board really does contain adjacent-rank floor cliffs '
+    + '(SKIPPED — no measured-cohort band ships any more; see the header)',
+    !MEASURED_COHORT_EXISTS || cliffs.length > 0,
+    cliffs.map(c => c.pos + ': ' + c.hi.name + ' -> ' + c.lo.name));
 
   /* THE FIRST VERSION OF THIS CHECK ASSERTED EVERY CLIFF SITS ON A BAND EDGE,
    * AND IT WAS WRONG — it went red and was right to. The second version
@@ -192,8 +218,9 @@ else {
   classified.every(c => c.edge || c.repriced || c.penny),
   classified.map(c => c.who + ' edge=' + c.edge + ' repriced=' + c.repriced
     + ' penny=' + c.penny));
-  ck('and both ON-SCREEN causes are actually present, so neither branch is dead code',
-    classified.some(c => c.edge) && classified.some(c => c.repriced),
+  ck('and both ON-SCREEN causes are actually present, so neither branch is dead '
+    + 'code (SKIPPED — no measured-cohort band ships any more)',
+    !MEASURED_COHORT_EXISTS || (classified.some(c => c.edge) && classified.some(c => c.repriced)),
     classified.map(c => c.who + ' edge=' + c.edge + ' repriced=' + c.repriced));
 
   /* The repricing warning must fire on exactly the players whose FULL-UNIVERSE
@@ -220,7 +247,8 @@ else {
     .filter(p => /register E1, ruled/.test(dispersionCaveat(p, all)))
     .map(p => p.position + p.pos_rank + ' ' + p.name));
   ck('KNOWN-POSITIVE: the ruled repricing set is non-empty on the live board '
-    + '(keepers really do shift bands)', expected.size > 0, [...expected]);
+    + '(keepers really do shift bands) — SKIPPED while no measured cohort ships',
+    !MEASURED_COHORT_EXISTS || expected.size > 0, [...expected]);
   ck('the repricing warning fires on exactly the ruled set — every player '
     + 'whose full-universe band differs from his published band, and no other',
   expected.size === flagged.size
@@ -235,6 +263,53 @@ else {
 const reverted = SRC.replace(/ \+ dispersionCaveat\(p, state\.board\) \+/, ' +');
 ck('FAIL ARM: with the caveat removed, the wiring check goes red',
   !/\+ dispersionCaveat\(p, state\.board\) \+/.test(reverted));
+
+/* ── WHAT MATTERS ON TODAY'S BOARD, since three controls above now abstain ──
+ *
+ * A skipped guard that is not replaced is a guard deleted quietly, so the
+ * property is re-asserted against the bands that actually ship. Register 140
+ * is the defect: 363 players' bands were collapsed to floor = ceiling = mean
+ * and published. It cannot be allowed back in through the DS-attach path. */
+{
+  /* Re-read the board: `art` above is block-scoped to the section that loads
+   * it, and this block sits outside it. */
+  const bd = fs.existsSync(BOARD) ? JSON.parse(fs.readFileSync(BOARD, 'utf8')) : { players: [] };
+  const real = (bd.players || []).filter(p => (p.proj_mean || 0) > 0);
+  const adp = p => {
+    for (const k of ['adjusted_adp', 'raw_adp', 'adp']) {
+      if (p[k] != null) return Number(p[k]);
+    }
+    return 9999;
+  };
+  const draftable = real.filter(p => adp(p) < 200);
+  ck('CONTROL — there IS a draftable population to check, so the two checks '
+    + 'below cannot pass by scanning an empty set', draftable.length > 100,
+  { draftable: draftable.length, with_projection: real.length });
+
+  const collapsed = draftable.filter(p => p.proj_floor != null
+    && Math.abs(p.proj_floor - p.proj_mean) < 0.01);
+  ck('REGISTER 140: no DRAFTABLE player has floor collapsed onto his mean — '
+    + 'the defect that shipped 363 flat bands must not return through the '
+    + 'Draft Sharks attach',
+  collapsed.length === 0,
+  collapsed.slice(0, 6).map(p => p.position + ' ' + p.name + ' ' + p.proj_mean));
+
+  const bandless = draftable.filter(p => p.proj_floor == null || p.proj_ceiling == null);
+  ck('every DRAFTABLE player carries a band at all — a missing floor renders as '
+    + 'blank beside players who have one, which reads as certainty',
+  bandless.length === 0, bandless.slice(0, 6).map(p => p.position + ' ' + p.name));
+
+  /* Measured and stated rather than assumed: the collapse shape DOES exist on
+   * seven undraftable rows (three kickers at 27.1, three third-string QBs, one
+   * WR), earliest ADP 289 against Cory's last pick at 148. Named so nobody
+   * later reports it as new, and scoped out because it cannot reach a pick. */
+  const collapsedAnywhere = real.filter(p => p.proj_floor != null
+    && Math.abs(p.proj_floor - p.proj_mean) < 0.01);
+  ck('and the collapse that DOES exist is confined to undraftable rows, which '
+    + 'is why this is scoped to the draftable pool rather than the whole board',
+  collapsedAnywhere.every(p => adp(p) >= 200),
+  collapsedAnywhere.map(p => p.name + ' ADP ' + Math.round(adp(p))));
+}
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
