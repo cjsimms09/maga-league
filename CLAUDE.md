@@ -174,6 +174,16 @@ the register: five of six premises handed to session D on 08-17 were wrong, and
 this is the file every session reads first.
 
 
+**🔁 THE LOOP IS THE MODEL — Cory, 08-20: gather info → predict → grade for
+SKILL, not luck → implement the edge or keep studying. ENFORCED, not asked:**
+every ledger row from P283 must carry its LEARNING TARGET, SKILL DESIGN and
+CONSEQUENCE ROUTE or CI fails (`prediction_ledger_check.js`; P282 is the
+form); the 87-row open back-catalog goes FATAL 2026-09-10 — upgrade your own
+rows. Skill has an instrument now: `draft/tools/skill_luck_r.py` (split-half
+R* + null band, from Cory's SIAM upload — never quote R* without its band).
+Structural changes to the grading process go to the OpenAI auditor first;
+routine rows and grades do not. `ADAPTATION-POLICY.md` bottom three sections.
+
 **⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** **RULE 1c added 08-20 (Cory's order, after six research artifacts sat invisible on a branch while ROUTES rows pointed at them): the relay's research artifacts — preregs, program/policy docs, audit briefs, ledger rows, report-only instruments — publish STRAIGHT TO `main` like mailboxes, via `draft/tools/relay_publish.sh`. Every pointer in ROUTES now resolves on `main`; if one does not, that is a defect, file it.** A is the
 gatekeeper and the only one who merges to `main`; B, C and the relay feed A.
 Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so

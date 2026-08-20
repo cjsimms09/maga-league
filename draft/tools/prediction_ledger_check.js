@@ -155,6 +155,7 @@ function check(text, todayStr, opts) {
   const minOpen = (opts && typeof opts.minOpen === 'number') ? opts.minOpen : 0;
   const today = new Date(todayStr + 'T00:00:00Z');
   const problems = [];
+  const warnings = [];
   const seen = [];
   for (const cells of rows(text)) {
     const id = cells[COL.id];
@@ -191,6 +192,36 @@ function check(text, todayStr, opts) {
     }
     if (status === 'ABANDONED' && isEmptyCell(changed)) {
       problems.push(`${id}: ABANDONED with no reason recorded.`);
+    }
+    /* ── THE THREE-PART STANDARD (Cory, 08-20, verbatim in ADAPTATION-POLICY):
+     * "predicting the right things to learn, grading it the right way to
+     * actually capture skill not luck, and using that info to either explore
+     * new ideas or if we found an edge, implement it." Enforced MECHANICALLY
+     * from P283: a new row's claim must carry all three labeled parts (the
+     * P282 exemplar shows the form). Prose standards decay; gates do not —
+     * this project's own history, five times over. */
+    const idNum = parseInt(String(id).replace(/\D/g, ''), 10);
+    if (status === 'OPEN' || (idNum >= 283 && status === 'GRADED')) {
+      const claim = String(cells[COL.prediction] || '');
+      const missing = ['LEARNING TARGET', 'SKILL DESIGN', 'CONSEQUENCE ROUTE']
+        .filter(part => !claim.toUpperCase().includes(part));
+      if (missing.length) {
+        const msg =
+          `${id}: MISSING ${missing.join(' + ')}. The three-part standard ` +
+          `(ADAPTATION-POLICY, Cory 08-20) — copy P282's form: what the grade ` +
+          `DECIDES, what separates skill from luck, where TRUE/FALSE route.`;
+        /* New rows (P283+) fail immediately. The 88-row back-catalog gets a
+         * GRACE window: warnings until 2026-09-10, fatal after — Cory's
+         * back-audit order ("current processes ... need to be changed so
+         * they do"), made mechanical without redlining every lane at once.
+         * Owners upgrade their own rows; the relay's Wednesday sweep tracks
+         * the burn-down. */
+        if (idNum >= 283 || today >= new Date('2026-09-10T00:00:00Z')) {
+          problems.push(msg);
+        } else {
+          warnings.push(msg);
+        }
+      }
     }
   }
   /* CORY, 2026-08-18: "we need to be adding things and trying things and adapting
@@ -341,7 +372,7 @@ function check(text, todayStr, opts) {
     problems.push('NO PREDICTION ROWS PARSED — the ledger table shape changed, and a ' +
                   'check that silently matches nothing is worse than no check.');
   }
-  return { problems, count: seen.length };
+  return { problems, warnings, count: seen.length };
 }
 
 const SUCCESSOR_RE = /(?:->|\u2192)\s*[*_~`]*\s*P\d+/;
@@ -387,9 +418,13 @@ function main() {
    * full its backlog. 14 days spans the fortnightly grade cadence the program
    * commits to (P19, first grade 09-15) with a week of slack — tight enough to
    * catch a stall, loose enough that a normal quiet week is not an alarm. */
-  const { problems, count } = check(fs.readFileSync(LEDGER, 'utf8'), today,
+  const { problems, warnings, count } = check(fs.readFileSync(LEDGER, 'utf8'), today,
                                     { minOpen: MIN_OPEN, maxQuietDays: MAX_QUIET_DAYS,
                                       today: today });
+  if (warnings && warnings.length) {
+    console.log(`⚠️  ${warnings.length} OPEN pre-P283 row(s) missing three-part-standard parts — ` +
+                `warnings until 2026-09-10, FATAL after. Owners upgrade their own rows; P282 is the form.`);
+  }
   if (problems.length) {
     console.error(`PREDICTION LEDGER — ${problems.length} problem(s) as of ${today}:\n`);
     for (const p of problems) console.error('  ✗ ' + p);
