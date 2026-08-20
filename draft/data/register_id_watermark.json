@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 145,
+ "next_numeric_id": 146,
  "history": [
   {
    "id": 47,
@@ -196,6 +196,11 @@
    "id": 144,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 141 (C/relay: Clay 2025 guide graded against real 2025 outcomes, all three preregistered predictions FALSE) -- same collision and same deliberate deviation as register 143; E's mlv.js citation finding is still open and unfixed as of this merge"
+  },
+  {
+   "id": 145,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 142 (A: nightly rebuild was about to silently undo every board fix, caught 6 hours before it fired, fixed and proven end-to-end) -- same collision and deviation as 143/144; E's mlv.js citation finding still open and unfixed"
   }
  ]
 }
