@@ -1,9 +1,21 @@
 # TERRITORY: C
-"""Mike Clay's 2026 guide, scored under OUR table, from RAW STAT LINES.
+"""Mike Clay's guides, scored under OUR table, from RAW STAT LINES. 2025 and
+2026 editions, same layout, one parser.
 
 Cory, 2026-08-19: "Let's have C start working on getting all this info in our
 system and see how we can use it." Routed via ROUTES.md with the scouting
 already done (A, 2026-08-20) — read before touching this file:
+
+Cory, 2026-08-20, uploading the 2025 guide: "Here is Mike clays 2025
+predictions so we can upload and grade history." 2025 is a COMPLETED season —
+`draft/backtest/nflverse_weekly_points_2025.json` holds real realized points
+under this league's own scoring — so this edition is gradeable NOW, not frozen
+for a future January. `draft/tools/clay_grade_2025.py` does that grade; this
+file only builds the two stores. ⚠️ The 2025 PDF has NO standalone "Kicker
+Projections" section (checked directly, not assumed absent) — kickers were
+already excluded from scoring either way (no distance split), so this only
+costs the raw FGM/FGA counts for that year, handled by treating a missing
+Kicker section as zero rows rather than an error.
 
   - The guide's own points column is FULL PPR (league_config: "rec": 0.5,
     half). Ingesting his point totals would silently bias every pass-catcher.
@@ -57,9 +69,30 @@ from multisource_projections import league_scoring, norm_name  # noqa: E402 (rul
 sys.path.insert(0, str(DRAFT))
 import scoring as SC  # noqa: E402
 
-PDF = DRAFT / "data" / "sources" / "clay_projections_2026.pdf"
 BOARD = ROOT / "public" / "draft_data.json"
-OUT = DRAFT / "data" / "clay_projections_2026.json"
+
+# Per-year config: the PDF, the output store, and the known-positive control's
+# EXPECTED values -- Clay's own projection for Jahmyr Gibbs changes year to
+# year, so the control must be pinned per year, not shared. Both tuples were
+# read from the raw text and cross-checked between the team page and the
+# positional table (two different tables, same document) before being typed
+# in here -- rule 3f, the control is for the parse, not authored from memory.
+YEAR_CONFIG = {
+    2026: {
+        "pdf": DRAFT / "data" / "sources" / "clay_projections_2026.pdf",
+        "text": DRAFT / "data" / "sources" / "clay_projections_2026_layout.txt",
+        "out": DRAFT / "data" / "clay_projections_2026.json",
+        "gibbs_expect": ("283", "1373", "14", "86", "68", "546", "3"),
+        "has_kicker_section": True,
+    },
+    2025: {
+        "pdf": DRAFT / "data" / "sources" / "clay_projections_2025.pdf",
+        "text": DRAFT / "data" / "sources" / "clay_projections_2025_layout.txt",
+        "out": DRAFT / "data" / "clay_projections_2025.json",
+        "gibbs_expect": ("235", "1153", "11", "82", "60", "567", "3"),
+        "has_kicker_section": False,
+    },
+}
 
 SPLIT = re.compile(r"\s{2,}")
 
@@ -75,11 +108,25 @@ LOCAL_NAME_OVERRIDES = {
 }
 
 
-def pdf_text() -> str:
-    if not PDF.exists():
-        raise SystemExit(f"missing {PDF}")
+def source_text(cfg: dict) -> str:
+    """The committed `pdftotext -layout` extraction is the source of truth --
+    it is a plain-text file that can carry `# TERRITORY: C`, unlike the raw
+    PDF, which cannot self-declare an owner and has no path-pattern rule in
+    territory-check.sh's c_owns() either (flagged to A, ROUTES.md 2026-08-20).
+    Same choice made for the Draft Sharks PDFs earlier this session.
+
+    Falls back to shelling out to `pdftotext` on the raw PDF only if the
+    committed extraction is missing -- e.g. re-running this file the FIRST
+    time against a newly staged PDF, before its layout text has been
+    generated and committed."""
+    text_path = cfg["text"]
+    if text_path.exists():
+        return text_path.read_text()
+    pdf = cfg["pdf"]
+    if not pdf.exists():
+        raise SystemExit(f"missing both {text_path} and {pdf}")
     proc = subprocess.run(
-        ["pdftotext", "-layout", str(PDF), "-"],
+        ["pdftotext", "-layout", str(pdf), "-"],
         capture_output=True, text=True, check=True,
     )
     return proc.stdout
@@ -197,7 +244,7 @@ def build_stat_line(pos: str, row: dict) -> dict:
     return stats
 
 
-def _verify_known_positive(lines: list[str]) -> None:
+def _verify_known_positive(lines: list[str], expect: tuple) -> None:
     """Rule 3f: the control is for THIS parse, not a fixture I authored. Gibbs'
     RB-table row must match his independently-printed row on the Detroit team
     page -- two different tables in the same document, same real number.
@@ -219,7 +266,6 @@ def _verify_known_positive(lines: list[str]) -> None:
     # tokens: Pos First Last Gm PAtt Comp PYds PTD INT Sk RuAtt RuYds RuTD Tgt Rec RecYd RecTD Pts Rk ...
     tp_carry, tp_ruyd, tp_rutd = team_page[10], team_page[11], team_page[12]
     tp_targ, tp_rec, tp_reyd, tp_retd = team_page[13], team_page[14], team_page[15], team_page[16]
-    expect = ("283", "1373", "14", "86", "68", "546", "3")
     got = (tp_carry, tp_ruyd, tp_rutd, tp_targ, tp_rec, tp_reyd, tp_retd)
     if got != expect:
         raise SystemExit(f"KNOWN-POSITIVE CONTROL FAILED: team-page column layout assumed "
@@ -227,10 +273,11 @@ def _verify_known_positive(lines: list[str]) -> None:
                           f"stop and look.")
 
 
-def main() -> None:
-    text = pdf_text()
+def build_store(year: int) -> dict:
+    cfg = YEAR_CONFIG[year]
+    text = source_text(cfg)
     lines = text.split("\n")
-    _verify_known_positive(lines)
+    _verify_known_positive(lines, cfg["gibbs_expect"])
 
     qb = parse_rows(section_lines(lines, "Quarterback Projections",
                                    ["Running Back Projections (1"]), 14)
@@ -240,8 +287,16 @@ def main() -> None:
                                    ["Tight End Projections (1"]), 14)
     te = parse_rows(section_lines(lines, "Tight End Projections (1/2)",
                                    ["Interior Defensive Line Projections"]), 14)
+    # `section_lines` returns [] gracefully when its start marker is absent, so
+    # a year with no standalone Kicker section (2025, confirmed by direct grep,
+    # not assumed) just yields zero kicker rows rather than crashing -- the
+    # `has_kicker_section` flag exists so that absence reads as EXPECTED in the
+    # store rather than looking like a parse failure.
     k = parse_rows(section_lines(lines, "Kicker Projections",
                                   ["Category Leaderboard"]), 9)
+    if cfg["has_kicker_section"] and not k:
+        raise SystemExit(f"{year}: Kicker section expected but zero rows parsed — "
+                          f"the section marker likely changed, stop and look.")
 
     scoring = league_scoring()
     board = json.loads(BOARD.read_text())
@@ -321,13 +376,25 @@ def main() -> None:
         da = (sum((x - ma) ** 2 for x in a) ** 0.5) * (sum((y - mb) ** 2 for y in b) ** 0.5)
         return None if da == 0 else round(na / da, 4)
 
-    pairs = [(p["proj_clay_scored"], sleeper_proj[pid]) for pid, p in players.items()
-             if p["matched_board"] and sleeper_proj.get(pid) is not None]
-    agree_vs_sleeper = {"n": len(pairs), "spearman": spearman(pairs)}
+    # The board's `proj_mean` is a snapshot of the CURRENT (2026) draft year --
+    # comparing it against a 2025 preseason projection would be checking
+    # agreement between two different seasons' player values, not evidence of
+    # anything. Only computed for the year the board is actually FOR.
+    if year == 2026:
+        pairs = [(p["proj_clay_scored"], sleeper_proj[pid]) for pid, p in players.items()
+                 if p["matched_board"] and sleeper_proj.get(pid) is not None]
+        agree_vs_sleeper = {"n": len(pairs), "spearman": spearman(pairs)}
+    else:
+        agree_vs_sleeper = {"n": 0, "spearman": None,
+                             "why_skipped": f"the board is for 2026, not {year} -- "
+                             f"comparing a {year} preseason projection against next "
+                             f"year's numbers is not a meaningful check. {year}'s real "
+                             f"grade is against realized outcomes (clay_grade_2025.py), "
+                             f"not against Sleeper."}
 
     doc = {
         "_territory": "TERRITORY: C — written by draft/tools/clay_projections.py",
-        "_note": "Mike Clay's 2026 guide (draft/data/sources/clay_projections_2026.pdf), "
+        "_note": f"Mike Clay's {year} guide ({cfg['pdf'].relative_to(ROOT)}), "
                  "scored under THIS LEAGUE'S table from RAW STAT LINES. His own points "
                  "column is full-PPR and is never read. Writes NO board field, not part "
                  "of any blend. Kickers: raw counts only, not scored (no FG distance "
@@ -335,10 +402,15 @@ def main() -> None:
                  "zero DEF rows.",
         "scoring_source": "draft/backtest/nflverse_weekly_points_2024.json fingerprint "
                            "(via multisource_projections.league_scoring, rule 11)",
-        "source_pdf": "draft/data/sources/clay_projections_2026.pdf",
+        "source_pdf": str(cfg["pdf"].relative_to(ROOT)),
         "known_positive_control": "Jahmyr Gibbs RB-table row verified against his "
                                    "independently-printed Detroit team-page row before "
                                    "any output was trusted — see _verify_known_positive",
+        "crosswalk_note": ("joined against the CURRENT (2026) board's player pool, "
+                            "which is the only crosswalk this repo holds — a player who "
+                            "left the league between this projection's year and now will "
+                            "read unmatched, which is a crosswalk limitation, not a parse "
+                            "error." if year != 2026 else None),
         "players": players,
         "kickers": k_players,
         "coverage": {
@@ -353,17 +425,32 @@ def main() -> None:
             {"name": n, "position": p, "stats": s} for n, p, s in positional_violations],
         "agreement_vs_sleeper_spearman": agree_vs_sleeper,
     }
-    OUT.write_text(json.dumps(doc, indent=1))
+    out = cfg["out"]
+    out.write_text(json.dumps(doc, indent=1))
 
-    print("CLAY 2026 PROJECTIONS — scored under OUR table\n")
+    print(f"CLAY {year} PROJECTIONS — scored under OUR table\n")
     print(f"  by position: {doc['coverage']['by_position']}  kickers: {len(k_players)}")
     print(f"  matched to board: {doc['coverage']['matched_to_board']} / {len(players)}  "
           f"unmatched: {len(unmatched)}")
     print(f"  positional plausibility violations: {len(positional_violations)}")
     print(f"  agreement vs Sleeper (Spearman): n={agree_vs_sleeper['n']} "
           f"rho={agree_vs_sleeper['spearman']}")
-    print(f"\n  wrote {OUT.relative_to(ROOT)}")
+    print(f"\n  wrote {out.relative_to(ROOT)}")
+    return doc
+
+
+# Back-compat: existing callers (including the 2026 test suite) call main()
+# with no arguments and expect the 2026 store. OUT is kept as a module-level
+# alias for the same reason -- the tests read C.OUT directly.
+OUT = YEAR_CONFIG[2026]["out"]
+
+
+def main(year: int = 2026) -> dict:
+    return build_store(year)
 
 
 if __name__ == "__main__":
-    main()
+    import sys as _sys
+    years = [int(a) for a in _sys.argv[1:]] or [2026]
+    for y in years:
+        build_store(y)
