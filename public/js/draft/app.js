@@ -5540,27 +5540,37 @@
    *
    * ⚠️ SIX COLUMNS DISAGREEING IS THE PRODUCT, not a defect to reconcile. The
    * blend is its own labelled column and is the one the board actually uses. */
+  /* ⚠️ 2026-08-20/21 (E's war-room draft-value audit, finding 1): warroom.ejs
+   * now DOES carry a real #source-boards card, so `found` below returns on
+   * every real page load and the fallback that follows is unreachable in
+   * practice. Kept as a defensive fallback rather than deleted — but its old
+   * #roster-builder anchor was ALWAYS dead (that id has never existed
+   * anywhere in this codebase), which is exactly how it silently fell
+   * through to #pos-recs-out and nested a 400+px card inside #recs-card's
+   * own .body for as long as this function existed. If this fallback ever
+   * fires again, appending to #warroom directly (dropping the #roster-
+   * builder branch) is safer than resurrecting that same trap. */
   function sourceBoardsHost() {
     const found = $('#source-boards');
-    if (found) return found;                       // B's placement wins, always
+    if (found) return found;                       // the real mount point, always used now
     const room = document.getElementById('warroom');
     if (!room) return null;
     const el = document.createElement('div');
     el.id = 'source-boards';
     el.className = 'card source-boards';
-    el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view');
-    /* `#roster-builder` was the first clause here and it has NEVER existed in
-     * this codebase — `warroom.ejs` has `#roster-builder-mlv`, one word longer.
-     * Removed 2026-08-20: `getElementById` on an absent id returns null, so the
-     * `||` was already falling through to `#pos-recs-out` on every render and
-     * deleting the clause changes nothing observable. It is gone because a dead
-     * anchor that happens to have a live fallback reads as a working two-option
-     * lookup, and `#mlv-plan` copied the same wrong id WITHOUT the fallback and
-     * has been appending itself outside `.wr-zone1` ever since.
-     * Guarded by draft/tests/every_mount_anchor_resolves.test.js. */
-    const anchor = document.getElementById('pos-recs-out');
-    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
-    else room.appendChild(el);
+    el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view (should not happen)');
+    /* No anchor fallback on purpose. `#roster-builder` never existed in this
+     * codebase (warroom.ejs has `#roster-builder-mlv`, one word longer — the
+     * same truncated id `#mlv-plan` copied without a `#pos-recs-out` net,
+     * which is why it broke outright while this one only degraded); an
+     * earlier version of this file fell back to `#pos-recs-out`, which is
+     * exactly the anchor that nested a 400+px card inside #recs-card's own
+     * .body for as long as this function existed. Appending straight to
+     * #warroom is safer than resurrecting that trap if this branch ever
+     * fires again — and with the real #source-boards mount point in the
+     * view now, it shouldn't. Guarded by
+     * draft/tests/every_mount_anchor_resolves.test.js. */
+    room.appendChild(el);
     return el;
   }
 
@@ -5568,13 +5578,14 @@
     const host = sourceBoardsHost();
     if (!host) return;
     const d = state.sourceBoards;
-    if (!d) return;                                 // still loading; say nothing
+    if (!d) return;                                 // still loading; say nothing (stays display:none)
     /* Rule 3e in the UI again: a artifact that failed its own controls must not
      * be rendered as if it had passed. */
     if (d.controls_all_passed === false) {
       host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
         + 'Source cheat sheet withheld — source_boards.json failed its own controls.'
         + '</p></div>';
+      host.style.display = '';
       return;
     }
     const gone = state.drafted || new Set();
@@ -5630,6 +5641,11 @@
       + 'Order only — no points are shown, because the sources are not on one scale '
       + 'and their offsets differ by position. Our own projections are excluded on '
       + 'your ruling.</p></div>';
+    /* Given a real mount point (E's finding 1 fix, 2026-08-20/21) the shell
+     * starts display:none so it never flashes empty before state.sourceBoards
+     * loads — same convention as #model-compare-card. Un-hide only once
+     * there's real content to show. */
+    host.style.display = '';
   }
 
   function renderPositionRecs() {

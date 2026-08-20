@@ -2731,33 +2731,48 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * this is a visual reorder only, and it is reversible in one line if
  * Cory wants the old card back on top. */
 .wr-zone1 > #rank-source-card  { order: 5; }   /* Cory: "should just rearrange the board... vona calc or recommended player" — above the rec on purpose */
-.wr-zone1 > #position-boards   { order: 6; }   /* six columns + strike bar + the toggle */
+/* E's war-room draft-value audit (2026-08-20/21, finding 1's real root
+ * cause): sourceBoardsHost() in app.js had NO real mount point here, so its
+ * fallback nested a 400+px card INSIDE #recs-card's own .body (specifically
+ * a sibling of #pos-recs-out, since #roster-builder — the fallback's
+ * first-choice anchor — has never existed anywhere in this codebase). That
+ * nesting, not the visible content of #recs-card itself, is most of why
+ * that card measured 3400+px tall. Given its own top-level card and order,
+ * right beside rank-source-card (the toggle it's the fuller companion to). */
+.wr-zone1 > #source-boards     { order: 6; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
+.wr-zone1 > #position-boards   { order: 7; }   /* six columns + strike bar + the toggle */
 /* Same order as #position-boards, immediately after it in the DOM — flex
  * ties break by source order, so this needs no number of its own. A SECOND
  * VOICE belongs right beside the board it comments on, not buried past the
  * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
-.wr-zone1 > #roster-builder-mlv { order: 6; }
-.wr-zone1 > #recs-card         { order: 7; }   /* the retired one-answer card — still fully present, now second */
-.wr-zone1 > #doctrine-banner   { order: 8; }   /* THE PLAN — reference, beneath the rec */
-.wr-zone1 > #legality-strip    { order: 9; }   /* WATCH — reference, beneath the rec */
+.wr-zone1 > #roster-builder-mlv { order: 7; }
+.wr-zone1 > #recs-card         { order: 8; }   /* the retired one-answer card — still fully present, now second */
+/* E's war-room draft-value audit (2026-08-20/21, finding 2): model-compare-
+ * card answers "do the models even agree on this pick" — four lenses, four
+ * different picks, live, in a 184px card — and it was sitting at order 13,
+ * buried below #recs-card's own 3400+px length (finding 1) where a glance
+ * never lands. Promoted to right after the recommendation; no content
+ * changed, position only. */
+.wr-zone1 > #model-compare-card { order: 9; }  /* Cory: "click in... what each model would take" — promoted, was 13 */
+.wr-zone1 > #doctrine-banner   { order: 10; }   /* THE PLAN — reference, beneath the rec */
+.wr-zone1 > #legality-strip    { order: 11; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
  * .wr-search (order 1) — and rendered first regardless of where app.js's
  * seatPlanHost() anchored it in the DOM (CSS flex `order` overrides DOM
  * position for visual layout). That pushed #recs-card, the actual
  * recommendation, past the fold on a phone screen. Tied to legality-strip's
- * order (8) so app.js's existing DOM insertion (immediately after
+ * order so app.js's existing DOM insertion (immediately after
  * #legality-strip) breaks the tie and lands it exactly where its own comment
  * already specified: seat plan below the recommendation, not above it. */
-.wr-zone1 > #seat-plan         { order: 9; }   /* which chair — beneath the rec, per app.js's own anchor */
-.wr-zone1 > #doctrine-switch   { order: 10; }
-.wr-zone1 > #doctrine-picker   { order: 10; }  /* A's compact plan table — reference, beneath the rec */
-.wr-zone1 > #mvs               { order: 11; }  /* redundant summary — hidden on warroom, ordered anyway */
-.wr-zone1 > #shadow-projection { order: 12; }
-.wr-zone1 > #model-compare-card { order: 13; }  /* Cory: "click in... what each model would take" */
-.wr-zone1 > #lrm-card          { order: 14; }
-.wr-zone1 > #branch-card       { order: 15; }
-.wr-zone1 > #queue-card        { order: 16; }
-.wr-zone1 > #adp-movers-card   { order: 17; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
+.wr-zone1 > #seat-plan         { order: 11; }   /* which chair — beneath the rec, per app.js's own anchor */
+.wr-zone1 > #doctrine-switch   { order: 12; }
+.wr-zone1 > #doctrine-picker   { order: 12; }  /* A's compact plan table — reference, beneath the rec */
+.wr-zone1 > #mvs               { order: 13; }  /* redundant summary — hidden on warroom, ordered anyway */
+.wr-zone1 > #shadow-projection { order: 14; }
+.wr-zone1 > #lrm-card          { order: 15; }
+.wr-zone1 > #branch-card       { order: 16; }
+.wr-zone1 > #queue-card        { order: 17; }
+.wr-zone1 > #adp-movers-card   { order: 18; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
    ~172px of masthead + a draft-day notice already read + a redundant title).
