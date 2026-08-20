@@ -42,11 +42,23 @@ with-Clay one:
 | positional rank moves inside ADP 200 | 67 of 181 move, **largest is THREE slots** |
 
 **Nobody's tier collapses and nobody moves more than three places at his own
-position. It is a nudge, not a reshuffle.** One thing stands between the store
-and the blend: Clay has to be added to `projection_snapshot_2026.json`, which is
-C's builder — `blended_projection.js` reads that snapshot, not the store.
-Routed. **If it does not land by Friday 6pm the column stays and the blend does
-not change**, which keeps most of the value either way.
+position. It is a nudge, not a reshuffle.**
+
+**✅ SHIPPED, 2026-08-20 — CLAY IS IN THE BLEND AND ON THE LIVE BOARD.** 189
+players now blend seven sources. **And the offline estimate reproduced the real
+pipeline exactly: predicted a 3-slot maximum, got a 3-slot maximum, same players
+in the same order** (RJ Harvey ▼3, Tyrone Tracy ▼3, Rome Odunze ▲2). 62 of 181
+players inside ADP 200 moved at all. Top of the board is unchanged.
+
+The one blocker was that `blended_projection.js` reads
+`projection_snapshot_2026.json`, which is frozen and marked immutable, and Clay
+landed one day after it was captured. **C routed it rather than touching my file,
+and they were right to.** Resolved by ADDING rather than regenerating: a
+re-run would have replaced every 08-19 forecast with an 08-20 one — the board
+has moved twice since — and destroyed exactly what that file exists to preserve.
+`draft/tools/snapshot_add_clay.py` adds `proj.clay` and nothing else, enforced by
+a byte-comparison of every pre-existing value with a demonstrated fail arm.
+`_captured` is untouched.
 
 **③ THE OTHER DATA — one real find, and one thing I expected to find and did
 not.**
