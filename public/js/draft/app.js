@@ -854,10 +854,30 @@
    * whatever Cory decided since". v27 predates CFG.ROSTER_SHAPE, so leaving it
    * would have made one tap switch his roster builder off without saying so --
    * and he asked for an off switch that is DELIBERATE, not a side effect of a
-   * restore. v29 is the shipped state: roster shape on, 6-source blend, own_v6
-   * removed. The localStorage key rotates with the pin, so a cached v27 cannot
-   * shadow it. */
-  const BASELINE_VERSION = 'v29';
+   * restore. The localStorage key rotates with the pin, so a cached older
+   * baseline cannot shadow it.
+   *
+   * ⚠️ v29 -> v30, 2026-08-20, AND THIS IS REGISTER 5g's SHAPE FOR THE THIRD
+   * TIME — caused by me, hours earlier, in the same session. I froze v30 under
+   * Cory's need ruling (need 0.0 -> 1.0, register 160) and did not move the
+   * pin. B and the relay both caught it independently within the hour.
+   *
+   *   shipped MEASURED_WEIGHTS   need: 1.0
+   *   draft/baseline/v29.json    need: 0.0     <- what the pin pointed at
+   *   draft/baseline/v30.json    need: 1.0     <- byte-identical to shipped
+   *
+   * So one tap on "Restore the measured core" on draft night would have
+   * silently reverted the ruling Cory confirmed this evening, disclosing only a
+   * date. That is the exact failure v1 -> v27 fixed for the ceiling ruling and
+   * v27 -> v29 fixed for ROSTER_SHAPE. Freeze new, forget the pin, restore
+   * quietly undoes the decision — three times now, which makes it a property of
+   * the two-step (freeze, then pin) rather than three separate lapses.
+   *
+   * THE DURABLE FIX IS THE TEST, NOT THIS LINE: restore_reverts_two_rulings.js
+   * now asserts the pinned baseline's weights EQUAL the shipped
+   * MEASURED_WEIGHTS, so a future freeze that forgets the pin fails the build
+   * instead of waiting for someone to notice. */
+  const BASELINE_VERSION = 'v30';
   const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
     try {
