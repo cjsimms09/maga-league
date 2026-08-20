@@ -217,7 +217,15 @@ the shipped arm is **WR4/RB7** and the un-fieldable weeks are **8 (QB) and 10
 (TE)** — no week-11 WR2 gap. The row may still be real; its stated failure mode
 is not. Re-derive before acting on it. Register 98) and **60** (the flex rule, the empty-slot
 insurance, the slot-aware VONA and the wire bench rule are all built and all
-disconnected — `need` is the only roster-aware term and it ships at weight 0).
+disconnected — ~~`need` is the only roster-aware term and it ships at weight 0~~
+**⚠️ CORRECTED 2026-08-20 (A's catch, code-verified by the relay): the KEEPER
+term is roster-aware too, and it ships at weight 1.0.** `composite.js`'s
+`keeperOptionValue` is MARGINAL against my current roster — *"Early on, when I
+hold no candidates, the bar is zero and marginal equals raw"* — so an empty
+roster maximises every player's keeper value and a filling roster shrinks it.
+The score was never purely roster-blind at shipped weights; `need` is the only
+roster-aware term AMONG THE ZERO-WEIGHTED ones. A is measuring how deep the
+empty-roster effect ran through past board-state probes).
 **2e was carrying a ✅ with its own named root cause still in the code**, which
 is worse than an open row because an open row gets chased.
 
