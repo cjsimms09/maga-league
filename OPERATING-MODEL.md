@@ -406,7 +406,13 @@ word. Eighty items is not a queue, it is a wall, and by Rule 3b **a mis-routed
 item is the relay's defect, not A's.** The relay triages A's inbox down to
 decisions only, and anything that is really work goes to the lane that can do it.
 
-## RULE 3f — A REFUSAL IS NOT AN ENDING, AND "WHAT NEXT" IS EVERYONE'S JOB
+## RULE 3j — A REFUSAL IS NOT AN ENDING, AND "WHAT NEXT" IS EVERYONE'S JOB
+
+*(Renumbered from a duplicated `3f` on 2026-08-20 — register 108. `3f` stays with
+"the control is for the probe you threw away", the rule `CLAUDE.md` cites. Any
+pre-08-20 citation of "rule 3f" about REFUSALS means THIS rule. Live docs swept:
+`OWNERS.md` was the one live citation and now reads 3j; archived ROUTES threads
+keep their original wording as history.)*
 
 **Cory, 2026-08-17:** *"WE NEED BE ASKING WHAT SHOULD WE STUDY NEXT, WE ALSO NEED
 TO STOP TREATING REFUSAL AS ENDING. FIX BOTH THESE PROBLEMS FOR GOOD!"*
@@ -530,8 +536,9 @@ Cory's attention instead.**
 `3h` without checking — **`3h` was already taken by the rule immediately below,
 and `RULE 3f` appears TWICE in this file (lines ~224 and ~376) with different
 content, which nobody had noticed.** Caught by grepping the headings. **That
-duplication is register 108 and is not fixed here**, because renumbering a rule
-other documents cite is not a draft-week change.
+duplication was register 108 — FIXED 2026-08-20 by the relay on A's ask:** the
+refusal rule is now 3j (see its own renumber note), 3f resolves uniquely to the
+control rule, and the one live citation (`OWNERS.md`) is swept.
 
 ## RULE 3h — D AND E FIND; SOMEONE ELSE ACTS. THE HOP IS THE RELAY'S.
 
