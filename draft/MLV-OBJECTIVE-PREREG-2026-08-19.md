@@ -529,3 +529,44 @@ and old `--real-vona` at −19.83 / −9.70):**
 Mechanism note for the grade: the fix binds ONLY at picks where the best
 surviving same-position man is the candidate himself — exactly the picks
 where the old code invented urgency out of the second survivor.
+
+## 18-GRADED, SAME DAY — THE FIX WAS WORTH ~15–21 PTS/SEAT TO THE ARM, AND THE VERDICT STILL DOES NOT MOVE
+
+**The runs (controls green both, same 30 seat-years; actual / skill):**
+
+| arm | frozen | waiver-aware |
+|---|---|---|
+| old `--real-vona` (P139, self-excluding) | −60.96 / −50.63 | −19.83 / −9.70 |
+| myopic `--real` (P138) | −61.36 / −51.23 | −5.29 / +5.69 |
+| **fixed `--real-vona` (include-self)** | **−45.80 / −37.93** | **+1.50 / +11.59** |
+| MLV-cap champion | +45.84 / +29.33 | +2.57 / +2.10 |
+
+**(a) FALSE — the fixed arm landed ABOVE myopic, not between.** Self-exclusion
+was not merely adding noise; it was actively costing the arm ~15 (frozen) to
+~21 (waiver) points per seat. The between-claim's mechanism ("removing
+overstatement can only shrink deviation from myopic") was wrong because the
+overstated urgencies were not symmetric — they systematically pulled picks
+toward positions whose best man was about to be someone else's.
+
+**(b) TRUE — still no beyond-noise win over myopic.** Paired per-seat, same
+30 seats: skill +5.9 (sd 44.7, t 0.72, h2h **11/30**), actual +6.8 (t 0.75,
+12/30). The point estimate now FAVOURS the timing term for the first time in
+five measurements, and the honest reading is still a null: t < 1 and it loses
+head-to-head. The lookahead line stays retired; the corpse is just cleaner.
+
+**(c) FALSE as written — the skill mean (+11.59) numerically exceeds the
+champion's (+2.10) — and the candidacy question it was proxying for is
+still NO, twice over:** paired vs MLV-cap the difference is noise (skill
++9.5, sd 84.8, t 0.61; actual −1.1, t −0.07), and the arm leaves **6 of 30
+seats with an unfillable starting slot** (§14b's exact failure — the waiver
+floor prices an empty slot as free), which fails the 30/30-legal champion
+bar outright.
+
+**What this means for the shipped world: nothing moves.** MLV-cap stays
+champion; P139's grade stays as the record of the code as it stood; the
+gauntlet, mlv-look, and every market-order arm were verified clean before
+this run (§18 audit list). The real product of the re-run is the corrected
+cost estimate of register-56's shape in THIS harness: ~15–21 pts/seat, in
+the same direction the engine-side P107 grade found (+114.1/seat there,
+where survival is probabilistic everywhere rather than binding only on
+self-surviving picks).

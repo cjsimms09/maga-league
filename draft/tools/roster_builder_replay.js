@@ -966,7 +966,12 @@ function buildSeat(season, draft, seatId, rosterOn) {
         tieM = m;
         if (REAL_VONA) {
           const a = (survTop && survTop[q]) || [];
-          const s = (a[0] && a[0].player_id !== c.player_id) ? a[0] : a[1];
+          /* REGISTER 56'S SHAPE, FIXED 2026-08-20 (prereg §18, P250): the old
+           * line substituted the SECOND survivor when the best survivor was the
+           * candidate himself, asserting a man who demonstrably survives to my
+           * next pick cannot be had there. Include him: if s === c the wait
+           * cost is m − m = 0, which is the truth. */
+          const s = a[0];
           if (s) {
             const cur2 = {};
             POS.forEach(z => { cur2[z] = (mineVals[z] || []).slice(); });
