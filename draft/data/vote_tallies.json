@@ -1,0 +1,6517 @@
+{
+ "prereg": "MLV-OBJECTIVE-PREREG §17 (P152)",
+ "tallies": [
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 37,
+   "winner": "4217",
+   "votes": 5,
+   "split": "4217:5 5846:1 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 44,
+   "winner": "6770",
+   "votes": 6,
+   "split": "6770:6 4137:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 57,
+   "winner": "8151",
+   "votes": 6,
+   "split": "8151:6 11624:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 64,
+   "winner": "8137",
+   "votes": 6,
+   "split": "8137:6 5012:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 77,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 84,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 8144:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 97,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 4039:2"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 104,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12533:2"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 117,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 9758:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 124,
+   "winner": "5022",
+   "votes": 3,
+   "split": "11637:3 5022:3 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 137,
+   "winner": "11637",
+   "votes": 7,
+   "split": "11637:7"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 144,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 37,
+   "winner": "4217",
+   "votes": 5,
+   "split": "4217:5 5846:1 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 44,
+   "winner": "6770",
+   "votes": 6,
+   "split": "6770:6 4137:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 57,
+   "winner": "8151",
+   "votes": 6,
+   "split": "8151:6 11624:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 64,
+   "winner": "8137",
+   "votes": 6,
+   "split": "8137:6 5012:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 77,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 84,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 8144:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 97,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 4039:2"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 104,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12533:2"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 117,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 9758:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 124,
+   "winner": "5022",
+   "votes": 3,
+   "split": "11637:3 5022:3 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 137,
+   "winner": "11637",
+   "votes": 7,
+   "split": "11637:7"
+  },
+  {
+   "season": "2025",
+   "seat": 1,
+   "my_pick": 144,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 23,
+   "winner": "4881",
+   "votes": 6,
+   "split": "4881:6 12507:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 38,
+   "winner": "5846",
+   "votes": 6,
+   "split": "5846:6 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 43,
+   "winner": "12489",
+   "votes": 6,
+   "split": "12489:6 10859:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 58,
+   "winner": "1466",
+   "votes": 5,
+   "split": "1466:5 6790:1 11624:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 63,
+   "winner": "8137",
+   "votes": 5,
+   "split": "8137:5 12504:2"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 78,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 83,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 12514:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 98,
+   "winner": "11533",
+   "votes": 6,
+   "split": "11533:6 4039:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 103,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12533:2"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 118,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 9758:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 123,
+   "winner": "12484",
+   "votes": 6,
+   "split": "12484:6 5022:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 138,
+   "winner": "12495",
+   "votes": 5,
+   "split": "12495:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 143,
+   "winner": "3214",
+   "votes": 7,
+   "split": "3214:7"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 23,
+   "winner": "4881",
+   "votes": 6,
+   "split": "4881:6 12507:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 38,
+   "winner": "5846",
+   "votes": 6,
+   "split": "5846:6 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 43,
+   "winner": "12489",
+   "votes": 6,
+   "split": "12489:6 10859:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 58,
+   "winner": "1466",
+   "votes": 5,
+   "split": "1466:5 6790:1 11624:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 63,
+   "winner": "8137",
+   "votes": 5,
+   "split": "8137:5 12504:2"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 78,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 83,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 12514:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 98,
+   "winner": "11533",
+   "votes": 6,
+   "split": "11533:6 4039:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 103,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12533:2"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 118,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 9758:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 123,
+   "winner": "12484",
+   "votes": 6,
+   "split": "12484:6 5022:1"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 138,
+   "winner": "12495",
+   "votes": 5,
+   "split": "12495:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 2,
+   "my_pick": 143,
+   "winner": "3214",
+   "votes": 7,
+   "split": "3214:7"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 8,
+   "winner": "12527",
+   "votes": 6,
+   "split": "12527:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 13,
+   "winner": "9224",
+   "votes": 6,
+   "split": "9224:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 28,
+   "winner": "11635",
+   "votes": 7,
+   "split": "11635:7"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 33,
+   "winner": "2216",
+   "votes": 7,
+   "split": "2216:7"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 48,
+   "winner": "5045",
+   "votes": 5,
+   "split": "5045:5 4137:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 53,
+   "winner": "4892",
+   "votes": 6,
+   "split": "4892:6 12529:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 68,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 4018:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 73,
+   "winner": "4199",
+   "votes": 4,
+   "split": "4199:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 88,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 11638:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 93,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 2449:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 108,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 7588:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 113,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 5849:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 128,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 3163:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 133,
+   "winner": "12490",
+   "votes": 5,
+   "split": "12490:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 148,
+   "winner": "12457",
+   "votes": 6,
+   "split": "12457:6 8676:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 8,
+   "winner": "12527",
+   "votes": 6,
+   "split": "12527:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 13,
+   "winner": "9224",
+   "votes": 6,
+   "split": "9224:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 28,
+   "winner": "11635",
+   "votes": 7,
+   "split": "11635:7"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 33,
+   "winner": "2216",
+   "votes": 7,
+   "split": "2216:7"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 48,
+   "winner": "5045",
+   "votes": 5,
+   "split": "5045:5 4137:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 53,
+   "winner": "4892",
+   "votes": 6,
+   "split": "4892:6 12529:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 68,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 4018:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 73,
+   "winner": "4199",
+   "votes": 4,
+   "split": "4199:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 88,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 11638:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 93,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 2449:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 108,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 7588:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 113,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 5849:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 128,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 3163:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 133,
+   "winner": "12490",
+   "votes": 5,
+   "split": "12490:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 3,
+   "my_pick": 148,
+   "winner": "12457",
+   "votes": 6,
+   "split": "12457:6 8676:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 16,
+   "winner": "8138",
+   "votes": 6,
+   "split": "8138:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 25,
+   "winner": "5859",
+   "votes": 7,
+   "split": "5859:7"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 36,
+   "winner": "4217",
+   "votes": 4,
+   "split": "4217:4 7594:2 5846:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 45,
+   "winner": "11566",
+   "votes": 6,
+   "split": "11566:6 9488:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 56,
+   "winner": "10229",
+   "votes": 7,
+   "split": "10229:7"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 65,
+   "winner": "8137",
+   "votes": 6,
+   "split": "8137:6 5012:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 76,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 85,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 9756:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 96,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 4037:2"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 105,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12481:2"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 116,
+   "winner": "9225",
+   "votes": 6,
+   "split": "9225:6 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 125,
+   "winner": "5022",
+   "votes": 3,
+   "split": "11637:3 5022:3 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 136,
+   "winner": "11637",
+   "votes": 7,
+   "split": "11637:7"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 145,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 16,
+   "winner": "8138",
+   "votes": 6,
+   "split": "8138:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 25,
+   "winner": "5859",
+   "votes": 7,
+   "split": "5859:7"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 36,
+   "winner": "4217",
+   "votes": 4,
+   "split": "4217:4 7594:2 5846:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 45,
+   "winner": "11566",
+   "votes": 6,
+   "split": "11566:6 9488:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 56,
+   "winner": "10229",
+   "votes": 7,
+   "split": "10229:7"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 65,
+   "winner": "8137",
+   "votes": 6,
+   "split": "8137:6 5012:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 76,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 85,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 9756:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 96,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 4037:2"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 105,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12481:2"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 116,
+   "winner": "9225",
+   "votes": 6,
+   "split": "9225:6 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 125,
+   "winner": "5022",
+   "votes": 3,
+   "split": "11637:3 5022:3 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 136,
+   "winner": "11637",
+   "votes": 7,
+   "split": "11637:7"
+  },
+  {
+   "season": "2025",
+   "seat": 4,
+   "my_pick": 145,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 21,
+   "winner": "8112",
+   "votes": 7,
+   "split": "8112:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 40,
+   "winner": "8146",
+   "votes": 7,
+   "split": "8146:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 41,
+   "winner": "2133",
+   "votes": 7,
+   "split": "2133:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 60,
+   "winner": "5012",
+   "votes": 5,
+   "split": "5012:5 11563:1 8205:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 61,
+   "winner": "8205",
+   "votes": 4,
+   "split": "8205:4 11563:3"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 80,
+   "winner": "11563",
+   "votes": 7,
+   "split": "11563:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 81,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 5947:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 100,
+   "winner": "11533",
+   "votes": 6,
+   "split": "11533:6 7049:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 101,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 6806:2"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 120,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 7553:3"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 121,
+   "winner": "12484",
+   "votes": 4,
+   "split": "12484:4 7553:3"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 140,
+   "winner": "3214",
+   "votes": 5,
+   "split": "3214:5 7591:2"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 141,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 21,
+   "winner": "8112",
+   "votes": 7,
+   "split": "8112:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 40,
+   "winner": "8146",
+   "votes": 7,
+   "split": "8146:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 41,
+   "winner": "2133",
+   "votes": 7,
+   "split": "2133:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 60,
+   "winner": "5012",
+   "votes": 5,
+   "split": "5012:5 11563:1 8205:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 61,
+   "winner": "8205",
+   "votes": 4,
+   "split": "8205:4 11563:3"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 80,
+   "winner": "11563",
+   "votes": 7,
+   "split": "11563:7"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 81,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 5947:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 100,
+   "winner": "11533",
+   "votes": 6,
+   "split": "11533:6 7049:1"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 101,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 6806:2"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 120,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 7553:3"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 121,
+   "winner": "12484",
+   "votes": 4,
+   "split": "12484:4 7553:3"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 140,
+   "winner": "3214",
+   "votes": 5,
+   "split": "3214:5 7591:2"
+  },
+  {
+   "season": "2025",
+   "seat": 5,
+   "my_pick": 141,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 34,
+   "winner": "11628",
+   "votes": 6,
+   "split": "11628:6 7594:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 47,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 4137:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 54,
+   "winner": "12529",
+   "votes": 6,
+   "split": "12529:6 11563:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 67,
+   "winner": "4018",
+   "votes": 4,
+   "split": "4018:4 11563:3"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 74,
+   "winner": "11563",
+   "votes": 7,
+   "split": "11563:7"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 87,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 11638:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 94,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 8134:2"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 107,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 4663:2"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 114,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 5849:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 127,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 3163:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 134,
+   "winner": "12490",
+   "votes": 5,
+   "split": "12490:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 147,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 34,
+   "winner": "11628",
+   "votes": 6,
+   "split": "11628:6 7594:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 47,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 4137:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 54,
+   "winner": "12529",
+   "votes": 6,
+   "split": "12529:6 11563:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 67,
+   "winner": "4018",
+   "votes": 4,
+   "split": "4018:4 11563:3"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 74,
+   "winner": "11563",
+   "votes": 7,
+   "split": "11563:7"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 87,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 11638:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 94,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 8134:2"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 107,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 4663:2"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 114,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 5849:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 127,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 3163:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 134,
+   "winner": "12490",
+   "votes": 5,
+   "split": "12490:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 6,
+   "my_pick": 147,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 35,
+   "winner": "6801",
+   "votes": 6,
+   "split": "6801:6 7594:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 46,
+   "winner": "10859",
+   "votes": 5,
+   "split": "10859:5 9488:1 4137:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 55,
+   "winner": "5892",
+   "votes": 6,
+   "split": "5892:6 10229:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 66,
+   "winner": "8137",
+   "votes": 7,
+   "split": "8137:7"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 75,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 86,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 11638:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 95,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 8134:2"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 106,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12517:2"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 115,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 7090:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 126,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 3163:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 135,
+   "winner": "12490",
+   "votes": 5,
+   "split": "12490:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 146,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 35,
+   "winner": "6801",
+   "votes": 6,
+   "split": "6801:6 7594:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 46,
+   "winner": "10859",
+   "votes": 5,
+   "split": "10859:5 9488:1 4137:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 55,
+   "winner": "5892",
+   "votes": 6,
+   "split": "5892:6 10229:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 66,
+   "winner": "8137",
+   "votes": 7,
+   "split": "8137:7"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 75,
+   "winner": "11655",
+   "votes": 4,
+   "split": "11655:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 86,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 11638:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 95,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 8134:2"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 106,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 12517:2"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 115,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 7090:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 126,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 3163:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 135,
+   "winner": "12490",
+   "votes": 5,
+   "split": "12490:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 7,
+   "my_pick": 146,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 39,
+   "winner": "5927",
+   "votes": 6,
+   "split": "5927:6 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 42,
+   "winner": "4983",
+   "votes": 6,
+   "split": "4983:6 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 59,
+   "winner": "6790",
+   "votes": 6,
+   "split": "6790:6 11563:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 62,
+   "winner": "12504",
+   "votes": 4,
+   "split": "12504:4 11563:3"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 79,
+   "winner": "11563",
+   "votes": 7,
+   "split": "11563:7"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 82,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 5947:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 99,
+   "winner": "11533",
+   "votes": 6,
+   "split": "11533:6 7049:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 102,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 11560:2"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 119,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 9758:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 122,
+   "winner": "12484",
+   "votes": 6,
+   "split": "12484:6 5022:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 139,
+   "winner": "3214",
+   "votes": 5,
+   "split": "3214:5 7591:2"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 142,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 39,
+   "winner": "5927",
+   "votes": 6,
+   "split": "5927:6 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 42,
+   "winner": "4983",
+   "votes": 6,
+   "split": "4983:6 12489:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 59,
+   "winner": "6790",
+   "votes": 6,
+   "split": "6790:6 11563:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 62,
+   "winner": "12504",
+   "votes": 4,
+   "split": "12504:4 11563:3"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 79,
+   "winner": "11563",
+   "votes": 7,
+   "split": "11563:7"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 82,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 5947:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 99,
+   "winner": "11533",
+   "votes": 6,
+   "split": "11533:6 7049:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 102,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 11560:2"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 119,
+   "winner": "11576",
+   "votes": 4,
+   "split": "11576:4 9758:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 122,
+   "winner": "12484",
+   "votes": 6,
+   "split": "12484:6 5022:1"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 139,
+   "winner": "3214",
+   "votes": 5,
+   "split": "3214:5 7591:2"
+  },
+  {
+   "season": "2025",
+   "seat": 8,
+   "my_pick": 142,
+   "winner": "10222",
+   "votes": 6,
+   "split": "10222:6 12457:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 29,
+   "winner": "12507",
+   "votes": 6,
+   "split": "12507:6 3321:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 32,
+   "winner": "2216",
+   "votes": 5,
+   "split": "2216:5 8155:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 49,
+   "winner": "5045",
+   "votes": 7,
+   "split": "5045:7"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 52,
+   "winner": "6904",
+   "votes": 6,
+   "split": "6904:6 12529:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 69,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 5967:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 72,
+   "winner": "4199",
+   "votes": 4,
+   "split": "4199:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 89,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 12501:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 92,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 2449:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 109,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 8408:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 112,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 3294:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 129,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 6797:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 132,
+   "winner": "7611",
+   "votes": 5,
+   "split": "7611:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 149,
+   "winner": "8676",
+   "votes": 7,
+   "split": "8676:7"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 29,
+   "winner": "12507",
+   "votes": 6,
+   "split": "12507:6 3321:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 32,
+   "winner": "2216",
+   "votes": 5,
+   "split": "2216:5 8155:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 49,
+   "winner": "5045",
+   "votes": 7,
+   "split": "5045:7"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 52,
+   "winner": "6904",
+   "votes": 6,
+   "split": "6904:6 12529:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 69,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 5967:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 72,
+   "winner": "4199",
+   "votes": 4,
+   "split": "4199:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 89,
+   "winner": "PHI",
+   "votes": 5,
+   "split": "PHI:5 12501:1 11533:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 92,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 2449:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 109,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 8408:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 112,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 3294:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 129,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 6797:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 132,
+   "winner": "7611",
+   "votes": 5,
+   "split": "7611:5 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 9,
+   "my_pick": 149,
+   "winner": "8676",
+   "votes": 7,
+   "split": "8676:7"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 11,
+   "winner": "8150",
+   "votes": 6,
+   "split": "8150:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 30,
+   "winner": "3321",
+   "votes": 6,
+   "split": "3321:6 4035:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 31,
+   "winner": "4035",
+   "votes": 6,
+   "split": "4035:6 2216:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 50,
+   "winner": "4046",
+   "votes": 6,
+   "split": "4046:6 9997:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 51,
+   "winner": "9997",
+   "votes": 7,
+   "split": "9997:7"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 70,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 5967:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 71,
+   "winner": "4199",
+   "votes": 4,
+   "split": "4199:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 90,
+   "winner": "PHI",
+   "votes": 6,
+   "split": "PHI:6 6819:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 91,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 2449:2"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 110,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 7528:2"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 111,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 3294:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 130,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 6797:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 131,
+   "winner": "7611",
+   "votes": 3,
+   "split": "7611:3 6797:2 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 150,
+   "winner": "8676",
+   "votes": 7,
+   "split": "8676:7"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 11,
+   "winner": "8150",
+   "votes": 6,
+   "split": "8150:6 8112:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 30,
+   "winner": "3321",
+   "votes": 6,
+   "split": "3321:6 4035:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 31,
+   "winner": "4035",
+   "votes": 6,
+   "split": "4035:6 2216:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 50,
+   "winner": "4046",
+   "votes": 6,
+   "split": "4046:6 9997:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 51,
+   "winner": "9997",
+   "votes": 7,
+   "split": "9997:7"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 70,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 5967:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 71,
+   "winner": "4199",
+   "votes": 4,
+   "split": "4199:4 PHI:3"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 90,
+   "winner": "PHI",
+   "votes": 6,
+   "split": "PHI:6 6819:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 91,
+   "winner": "11533",
+   "votes": 5,
+   "split": "11533:5 2449:2"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 110,
+   "winner": "7049",
+   "votes": 5,
+   "split": "7049:5 7528:2"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 111,
+   "winner": "9225",
+   "votes": 4,
+   "split": "9225:4 3294:2 7553:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 130,
+   "winner": "11637",
+   "votes": 3,
+   "split": "11637:3 6797:2 3214:1 7611:1"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 131,
+   "winner": "7611",
+   "votes": 3,
+   "split": "7611:3 6797:2 3214:2"
+  },
+  {
+   "season": "2025",
+   "seat": 10,
+   "my_pick": 150,
+   "winner": "8676",
+   "votes": 7,
+   "split": "8676:7"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 15,
+   "winner": "11628",
+   "votes": 5,
+   "split": "11628:5 8205:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 26,
+   "winner": "3198",
+   "votes": 6,
+   "split": "3198:6 10859:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 35,
+   "winner": "8112",
+   "votes": 5,
+   "split": "8112:5 5892:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 46,
+   "winner": "6904",
+   "votes": 5,
+   "split": "6904:5 4137:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 55,
+   "winner": "7611",
+   "votes": 6,
+   "split": "7611:6 4217:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 66,
+   "winner": "7553",
+   "votes": 7,
+   "split": "7553:7"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 75,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 11583:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 86,
+   "winner": "7588",
+   "votes": 4,
+   "split": "7588:4 4227:3"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 95,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 106,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 11560:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 115,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 11566:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 126,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 135,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 146,
+   "winner": "11582",
+   "votes": 7,
+   "split": "11582:7"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 15,
+   "winner": "11628",
+   "votes": 5,
+   "split": "11628:5 8205:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 26,
+   "winner": "3198",
+   "votes": 6,
+   "split": "3198:6 10859:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 35,
+   "winner": "8112",
+   "votes": 5,
+   "split": "8112:5 5892:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 46,
+   "winner": "6904",
+   "votes": 5,
+   "split": "6904:5 4137:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 55,
+   "winner": "7611",
+   "votes": 6,
+   "split": "7611:6 4217:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 66,
+   "winner": "7553",
+   "votes": 7,
+   "split": "7553:7"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 75,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 11583:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 86,
+   "winner": "7588",
+   "votes": 4,
+   "split": "7588:4 4227:3"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 95,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 106,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 11560:2"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 115,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 11566:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 126,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 135,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 1,
+   "my_pick": 146,
+   "winner": "11582",
+   "votes": 7,
+   "split": "11582:7"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 34,
+   "winner": "8151",
+   "votes": 6,
+   "split": "8151:6 8112:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 47,
+   "winner": "6904",
+   "votes": 5,
+   "split": "6904:5 4137:1 6801:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 54,
+   "winner": "6819",
+   "votes": 6,
+   "split": "6819:6 7611:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 67,
+   "winner": "5927",
+   "votes": 6,
+   "split": "5927:6 4066:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 74,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 11583:2"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 87,
+   "winner": "4988",
+   "votes": 4,
+   "split": "4988:4 4227:3"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 94,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 107,
+   "winner": "11631",
+   "votes": 7,
+   "split": "11631:7"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 114,
+   "winner": "7594",
+   "votes": 6,
+   "split": "7594:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 127,
+   "winner": "7021",
+   "votes": 3,
+   "split": "5937:3 7021:3 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 134,
+   "winner": "8148",
+   "votes": 6,
+   "split": "8148:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 147,
+   "winner": "4381",
+   "votes": 4,
+   "split": "4381:4 11582:3"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 34,
+   "winner": "8151",
+   "votes": 6,
+   "split": "8151:6 8112:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 47,
+   "winner": "6904",
+   "votes": 5,
+   "split": "6904:5 4137:1 6801:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 54,
+   "winner": "6819",
+   "votes": 6,
+   "split": "6819:6 7611:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 67,
+   "winner": "5927",
+   "votes": 6,
+   "split": "5927:6 4066:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 74,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 11583:2"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 87,
+   "winner": "4988",
+   "votes": 4,
+   "split": "4988:4 4227:3"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 94,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 107,
+   "winner": "11631",
+   "votes": 7,
+   "split": "11631:7"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 114,
+   "winner": "7594",
+   "votes": 6,
+   "split": "7594:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 127,
+   "winner": "7021",
+   "votes": 3,
+   "split": "5937:3 7021:3 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 134,
+   "winner": "8148",
+   "votes": 6,
+   "split": "8148:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 2,
+   "my_pick": 147,
+   "winner": "4381",
+   "votes": 4,
+   "split": "4381:4 11582:3"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 32,
+   "winner": "7526",
+   "votes": 5,
+   "split": "7526:5 8138:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 49,
+   "winner": "6801",
+   "votes": 5,
+   "split": "6801:5 4137:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 52,
+   "winner": "4137",
+   "votes": 6,
+   "split": "4137:6 4217:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 69,
+   "winner": "4066",
+   "votes": 7,
+   "split": "4066:7"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 72,
+   "winner": "5967",
+   "votes": 4,
+   "split": "5967:4 SF:3"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 89,
+   "winner": "NYJ",
+   "votes": 6,
+   "split": "NYJ:6 5848:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 92,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5848:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 109,
+   "winner": "1426",
+   "votes": 5,
+   "split": "1426:5 8110:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 112,
+   "winner": "9508",
+   "votes": 6,
+   "split": "9508:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 129,
+   "winner": "5937",
+   "votes": 6,
+   "split": "5937:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 132,
+   "winner": "8134",
+   "votes": 5,
+   "split": "8134:5 5022:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 149,
+   "winner": "SEA",
+   "votes": 5,
+   "split": "SEA:5"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 32,
+   "winner": "7526",
+   "votes": 5,
+   "split": "7526:5 8138:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 49,
+   "winner": "6801",
+   "votes": 5,
+   "split": "6801:5 4137:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 52,
+   "winner": "4137",
+   "votes": 6,
+   "split": "4137:6 4217:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 69,
+   "winner": "4066",
+   "votes": 7,
+   "split": "4066:7"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 72,
+   "winner": "5967",
+   "votes": 4,
+   "split": "5967:4 SF:3"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 89,
+   "winner": "NYJ",
+   "votes": 6,
+   "split": "NYJ:6 5848:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 92,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5848:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 109,
+   "winner": "1426",
+   "votes": 5,
+   "split": "1426:5 8110:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 112,
+   "winner": "9508",
+   "votes": 6,
+   "split": "9508:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 129,
+   "winner": "5937",
+   "votes": 6,
+   "split": "5937:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 132,
+   "winner": "8134",
+   "votes": 5,
+   "split": "8134:5 5022:2"
+  },
+  {
+   "season": "2024",
+   "seat": 3,
+   "my_pick": 149,
+   "winner": "SEA",
+   "votes": 5,
+   "split": "SEA:5"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 1,
+   "winner": "5850",
+   "votes": 6,
+   "split": "5850:6 11628:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 20,
+   "winner": "8205",
+   "votes": 6,
+   "split": "8205:6 5872:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 21,
+   "winner": "5872",
+   "votes": 5,
+   "split": "5872:5 8136:2"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 40,
+   "winner": "4039",
+   "votes": 5,
+   "split": "4039:5 4035:2"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 41,
+   "winner": "8130",
+   "votes": 6,
+   "split": "8130:6 2449:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 60,
+   "winner": "6770",
+   "votes": 4,
+   "split": "6770:4 4217:2 7525:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 61,
+   "winner": "7525",
+   "votes": 6,
+   "split": "7525:6 7528:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 80,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 8228:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 81,
+   "winner": "8228",
+   "votes": 4,
+   "split": "8228:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 100,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 11637:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 101,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 5248:2"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 120,
+   "winner": "3164",
+   "votes": 6,
+   "split": "3164:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 121,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 140,
+   "winner": "5022",
+   "votes": 6,
+   "split": "5022:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 141,
+   "winner": "1689",
+   "votes": 4,
+   "split": "1689:4 96:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 1,
+   "winner": "5850",
+   "votes": 6,
+   "split": "5850:6 11628:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 20,
+   "winner": "8205",
+   "votes": 6,
+   "split": "8205:6 5872:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 21,
+   "winner": "5872",
+   "votes": 5,
+   "split": "5872:5 8136:2"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 40,
+   "winner": "4039",
+   "votes": 5,
+   "split": "4039:5 4035:2"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 41,
+   "winner": "8130",
+   "votes": 6,
+   "split": "8130:6 2449:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 60,
+   "winner": "6770",
+   "votes": 4,
+   "split": "6770:4 4217:2 7525:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 61,
+   "winner": "7525",
+   "votes": 6,
+   "split": "7525:6 7528:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 80,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 8228:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 81,
+   "winner": "8228",
+   "votes": 4,
+   "split": "8228:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 100,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 11637:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 101,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 5248:2"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 120,
+   "winner": "3164",
+   "votes": 6,
+   "split": "3164:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 121,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 140,
+   "winner": "5022",
+   "votes": 6,
+   "split": "5022:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 4,
+   "my_pick": 141,
+   "winner": "1689",
+   "votes": 4,
+   "split": "1689:4 96:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 31,
+   "winner": "10859",
+   "votes": 5,
+   "split": "10859:5 8138:1 7526:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 50,
+   "winner": "9758",
+   "votes": 5,
+   "split": "9758:5 4137:1 2309:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 51,
+   "winner": "2309",
+   "votes": 6,
+   "split": "2309:6 4137:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 70,
+   "winner": "1479",
+   "votes": 6,
+   "split": "1479:6 5967:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 71,
+   "winner": "5967",
+   "votes": 4,
+   "split": "5967:4 SF:3"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 90,
+   "winner": "NYJ",
+   "votes": 6,
+   "split": "NYJ:6 5848:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 91,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5848:2"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 110,
+   "winner": "1426",
+   "votes": 5,
+   "split": "1426:5 11586:2"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 111,
+   "winner": "9508",
+   "votes": 6,
+   "split": "9508:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 130,
+   "winner": "5937",
+   "votes": 6,
+   "split": "5937:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 131,
+   "winner": "5045",
+   "votes": 5,
+   "split": "5045:5 5022:2"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 150,
+   "winner": "PIT",
+   "votes": 5,
+   "split": "PIT:5"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 31,
+   "winner": "10859",
+   "votes": 5,
+   "split": "10859:5 8138:1 7526:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 50,
+   "winner": "9758",
+   "votes": 5,
+   "split": "9758:5 4137:1 2309:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 51,
+   "winner": "2309",
+   "votes": 6,
+   "split": "2309:6 4137:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 70,
+   "winner": "1479",
+   "votes": 6,
+   "split": "1479:6 5967:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 71,
+   "winner": "5967",
+   "votes": 4,
+   "split": "5967:4 SF:3"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 90,
+   "winner": "NYJ",
+   "votes": 6,
+   "split": "NYJ:6 5848:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 91,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5848:2"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 110,
+   "winner": "1426",
+   "votes": 5,
+   "split": "1426:5 11586:2"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 111,
+   "winner": "9508",
+   "votes": 6,
+   "split": "9508:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 130,
+   "winner": "5937",
+   "votes": 6,
+   "split": "5937:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 131,
+   "winner": "5045",
+   "votes": 5,
+   "split": "5045:5 5022:2"
+  },
+  {
+   "season": "2024",
+   "seat": 5,
+   "my_pick": 150,
+   "winner": "PIT",
+   "votes": 5,
+   "split": "PIT:5"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 33,
+   "winner": "8138",
+   "votes": 6,
+   "split": "8138:6 8112:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 48,
+   "winner": "4881",
+   "votes": 5,
+   "split": "4881:5 4137:1 6801:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 53,
+   "winner": "9997",
+   "votes": 6,
+   "split": "9997:6 7611:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 68,
+   "winner": "4066",
+   "votes": 7,
+   "split": "4066:7"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 73,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 11583:2"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 88,
+   "winner": "6845",
+   "votes": 4,
+   "split": "6845:4 4227:3"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 93,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 108,
+   "winner": "1426",
+   "votes": 5,
+   "split": "1426:5 8110:2"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 113,
+   "winner": "9508",
+   "votes": 6,
+   "split": "9508:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 128,
+   "winner": "7021",
+   "votes": 3,
+   "split": "5937:3 7021:3 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 133,
+   "winner": "11627",
+   "votes": 6,
+   "split": "11627:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 148,
+   "winner": "4381",
+   "votes": 7,
+   "split": "4381:7"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 33,
+   "winner": "8138",
+   "votes": 6,
+   "split": "8138:6 8112:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 48,
+   "winner": "4881",
+   "votes": 5,
+   "split": "4881:5 4137:1 6801:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 53,
+   "winner": "9997",
+   "votes": 6,
+   "split": "9997:6 7611:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 68,
+   "winner": "4066",
+   "votes": 7,
+   "split": "4066:7"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 73,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 11583:2"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 88,
+   "winner": "6845",
+   "votes": 4,
+   "split": "6845:4 4227:3"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 93,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 108,
+   "winner": "1426",
+   "votes": 5,
+   "split": "1426:5 8110:2"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 113,
+   "winner": "9508",
+   "votes": 6,
+   "split": "9508:6 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 128,
+   "winner": "7021",
+   "votes": 3,
+   "split": "5937:3 7021:3 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 133,
+   "winner": "11627",
+   "votes": 6,
+   "split": "11627:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 6,
+   "my_pick": 148,
+   "winner": "4381",
+   "votes": 7,
+   "split": "4381:7"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 37,
+   "winner": "6803",
+   "votes": 5,
+   "split": "6803:5 5892:2"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 44,
+   "winner": "10236",
+   "votes": 6,
+   "split": "10236:6 4137:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 57,
+   "winner": "6790",
+   "votes": 6,
+   "split": "6790:6 7525:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 64,
+   "winner": "9502",
+   "votes": 6,
+   "split": "9502:6 7528:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 77,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 2749:2"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 84,
+   "winner": "7588",
+   "votes": 4,
+   "split": "7588:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 97,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 11635:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 104,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 9753:2"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 117,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 3163:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 124,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 137,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 144,
+   "winner": "11625",
+   "votes": 6,
+   "split": "11625:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 37,
+   "winner": "6803",
+   "votes": 5,
+   "split": "6803:5 5892:2"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 44,
+   "winner": "10236",
+   "votes": 6,
+   "split": "10236:6 4137:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 57,
+   "winner": "6790",
+   "votes": 6,
+   "split": "6790:6 7525:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 64,
+   "winner": "9502",
+   "votes": 6,
+   "split": "9502:6 7528:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 77,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 2749:2"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 84,
+   "winner": "7588",
+   "votes": 4,
+   "split": "7588:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 97,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 11635:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 104,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 9753:2"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 117,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 3163:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 124,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 137,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 7,
+   "my_pick": 144,
+   "winner": "11625",
+   "votes": 6,
+   "split": "11625:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 22,
+   "winner": "7569",
+   "votes": 5,
+   "split": "7569:5 8136:2"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 39,
+   "winner": "4983",
+   "votes": 6,
+   "split": "4983:6 4035:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 42,
+   "winner": "8130",
+   "votes": 6,
+   "split": "8130:6 2449:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 59,
+   "winner": "9229",
+   "votes": 5,
+   "split": "9229:5 4217:1 7525:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 62,
+   "winner": "7525",
+   "votes": 6,
+   "split": "7525:6 7528:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 79,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 8228:2"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 82,
+   "winner": "8228",
+   "votes": 4,
+   "split": "8228:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 99,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 11637:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 102,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 6804:2"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 119,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 5001:3"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 122,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 139,
+   "winner": "5022",
+   "votes": 6,
+   "split": "5022:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 142,
+   "winner": "1689",
+   "votes": 6,
+   "split": "1689:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 22,
+   "winner": "7569",
+   "votes": 5,
+   "split": "7569:5 8136:2"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 39,
+   "winner": "4983",
+   "votes": 6,
+   "split": "4983:6 4035:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 42,
+   "winner": "8130",
+   "votes": 6,
+   "split": "8130:6 2449:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 59,
+   "winner": "9229",
+   "votes": 5,
+   "split": "9229:5 4217:1 7525:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 62,
+   "winner": "7525",
+   "votes": 6,
+   "split": "7525:6 7528:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 79,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 8228:2"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 82,
+   "winner": "8228",
+   "votes": 4,
+   "split": "8228:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 99,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 11637:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 102,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 6804:2"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 119,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 5001:3"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 122,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 139,
+   "winner": "5022",
+   "votes": 6,
+   "split": "5022:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 8,
+   "my_pick": 142,
+   "winner": "1689",
+   "votes": 6,
+   "split": "1689:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 36,
+   "winner": "2133",
+   "votes": 6,
+   "split": "2133:6 5892:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 45,
+   "winner": "5012",
+   "votes": 6,
+   "split": "5012:6 11632:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 56,
+   "winner": "5846",
+   "votes": 6,
+   "split": "5846:6 6790:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 65,
+   "winner": "7528",
+   "votes": 4,
+   "split": "7528:4 SF:3"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 76,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 5849:2"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 85,
+   "winner": "5849",
+   "votes": 7,
+   "split": "5849:7"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 96,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 105,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 6806:2"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 116,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 6768:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 125,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 136,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 145,
+   "winner": "7608",
+   "votes": 7,
+   "split": "7608:7"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 36,
+   "winner": "2133",
+   "votes": 6,
+   "split": "2133:6 5892:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 45,
+   "winner": "5012",
+   "votes": 6,
+   "split": "5012:6 11632:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 56,
+   "winner": "5846",
+   "votes": 6,
+   "split": "5846:6 6790:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 65,
+   "winner": "7528",
+   "votes": 4,
+   "split": "7528:4 SF:3"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 76,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 5849:2"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 85,
+   "winner": "5849",
+   "votes": 7,
+   "split": "5849:7"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 96,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 8167:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 105,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 6806:2"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 116,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 6768:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 125,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 136,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 9,
+   "my_pick": 145,
+   "winner": "7608",
+   "votes": 7,
+   "split": "7608:7"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 23,
+   "winner": "8136",
+   "votes": 6,
+   "split": "8136:6 10859:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 38,
+   "winner": "5892",
+   "votes": 6,
+   "split": "5892:6 4983:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 43,
+   "winner": "2449",
+   "votes": 6,
+   "split": "2449:6 10236:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 58,
+   "winner": "9229",
+   "votes": 5,
+   "split": "9229:5 4217:1 4199:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 63,
+   "winner": "7553",
+   "votes": 7,
+   "split": "7553:7"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 78,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 8228:2"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 83,
+   "winner": "8139",
+   "votes": 4,
+   "split": "8139:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 98,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 9756:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 103,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 9753:2"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 118,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 8183:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 123,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 138,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 143,
+   "winner": "8121",
+   "votes": 6,
+   "split": "8121:6 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 23,
+   "winner": "8136",
+   "votes": 6,
+   "split": "8136:6 10859:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 38,
+   "winner": "5892",
+   "votes": 6,
+   "split": "5892:6 4983:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 43,
+   "winner": "2449",
+   "votes": 6,
+   "split": "2449:6 10236:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 58,
+   "winner": "9229",
+   "votes": 5,
+   "split": "9229:5 4217:1 4199:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 63,
+   "winner": "7553",
+   "votes": 7,
+   "split": "7553:7"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 78,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 8228:2"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 83,
+   "winner": "8139",
+   "votes": 4,
+   "split": "8139:4 4227:2 10222:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 98,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 9756:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 103,
+   "winner": "11631",
+   "votes": 5,
+   "split": "11631:5 9753:2"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 118,
+   "winner": "3164",
+   "votes": 4,
+   "split": "3164:4 8183:2 5001:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 123,
+   "winner": "9488",
+   "votes": 6,
+   "split": "9488:6 5022:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 138,
+   "winner": "5022",
+   "votes": 4,
+   "split": "5022:4 8148:2 7608:1"
+  },
+  {
+   "season": "2024",
+   "seat": 10,
+   "my_pick": 143,
+   "winner": "8121",
+   "votes": 6,
+   "split": "8121:6 7608:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 5,
+   "winner": "7564",
+   "votes": 6,
+   "split": "7564:6 4866:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 16,
+   "winner": "7526",
+   "votes": 6,
+   "split": "7526:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 26,
+   "winner": "2133",
+   "votes": 6,
+   "split": "2133:6 8155:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 38,
+   "winner": "4199",
+   "votes": 5,
+   "split": "4199:5 4881:2"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 46,
+   "winner": "4217",
+   "votes": 6,
+   "split": "4217:6 6806:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 55,
+   "winner": "6797",
+   "votes": 6,
+   "split": "6797:6 6938:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 66,
+   "winner": "8138",
+   "votes": 7,
+   "split": "8138:7"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 75,
+   "winner": "7588",
+   "votes": 4,
+   "split": "7588:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 86,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 9488:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 95,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 8137:2"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 106,
+   "winner": "9754",
+   "votes": 7,
+   "split": "9754:7"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 115,
+   "winner": "4147",
+   "votes": 6,
+   "split": "4147:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 126,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 135,
+   "winner": "8168",
+   "votes": 7,
+   "split": "8168:7"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 146,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 5,
+   "winner": "7564",
+   "votes": 6,
+   "split": "7564:6 4866:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 16,
+   "winner": "7526",
+   "votes": 6,
+   "split": "7526:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 26,
+   "winner": "2133",
+   "votes": 6,
+   "split": "2133:6 8155:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 38,
+   "winner": "4199",
+   "votes": 5,
+   "split": "4199:5 4881:2"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 46,
+   "winner": "4217",
+   "votes": 6,
+   "split": "4217:6 6806:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 55,
+   "winner": "6797",
+   "votes": 6,
+   "split": "6797:6 6938:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 66,
+   "winner": "8138",
+   "votes": 7,
+   "split": "8138:7"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 75,
+   "winner": "7588",
+   "votes": 4,
+   "split": "7588:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 86,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 9488:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 95,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 8137:2"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 106,
+   "winner": "9754",
+   "votes": 7,
+   "split": "9754:7"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 115,
+   "winner": "4147",
+   "votes": 6,
+   "split": "4147:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 126,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 135,
+   "winner": "8168",
+   "votes": 7,
+   "split": "8168:7"
+  },
+  {
+   "season": "2023",
+   "seat": 1,
+   "my_pick": 146,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 8,
+   "winner": "1466",
+   "votes": 6,
+   "split": "1466:6 3198:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 13,
+   "winner": "5859",
+   "votes": 6,
+   "split": "5859:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 23,
+   "winner": "5967",
+   "votes": 5,
+   "split": "5967:5 2133:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 35,
+   "winner": "7591",
+   "votes": 6,
+   "split": "7591:6 4018:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 43,
+   "winner": "5846",
+   "votes": 6,
+   "split": "5846:6 6806:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 58,
+   "winner": "6938",
+   "votes": 5,
+   "split": "6938:5 8112:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 63,
+   "winner": "5927",
+   "votes": 7,
+   "split": "5927:7"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 78,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 83,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 5848:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 98,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5045:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 103,
+   "winner": "4040",
+   "votes": 5,
+   "split": "4040:5 2749:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 118,
+   "winner": "4985",
+   "votes": 4,
+   "split": "4985:4 1373:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 123,
+   "winner": "9225",
+   "votes": 3,
+   "split": "8168:3 9225:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 138,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 143,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 8,
+   "winner": "1466",
+   "votes": 6,
+   "split": "1466:6 3198:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 13,
+   "winner": "5859",
+   "votes": 6,
+   "split": "5859:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 23,
+   "winner": "5967",
+   "votes": 5,
+   "split": "5967:5 2133:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 35,
+   "winner": "7591",
+   "votes": 6,
+   "split": "7591:6 4018:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 43,
+   "winner": "5846",
+   "votes": 6,
+   "split": "5846:6 6806:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 58,
+   "winner": "6938",
+   "votes": 5,
+   "split": "6938:5 8112:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 63,
+   "winner": "5927",
+   "votes": 7,
+   "split": "5927:7"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 78,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 83,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 5848:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 98,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5045:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 103,
+   "winner": "4040",
+   "votes": 5,
+   "split": "4040:5 2749:2"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 118,
+   "winner": "4985",
+   "votes": 4,
+   "split": "4985:4 1373:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 123,
+   "winner": "9225",
+   "votes": 3,
+   "split": "8168:3 9225:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 138,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 2,
+   "my_pick": 143,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 6,
+   "winner": "2449",
+   "votes": 6,
+   "split": "2449:6 4866:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 15,
+   "winner": "4046",
+   "votes": 5,
+   "split": "4046:5 7526:1 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 25,
+   "winner": "4988",
+   "votes": 5,
+   "split": "4988:5 2133:2"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 36,
+   "winner": "4018",
+   "votes": 5,
+   "split": "4018:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 45,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 4981:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 50,
+   "winner": "1426",
+   "votes": 7,
+   "split": "1426:7"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 51,
+   "winner": "2309",
+   "votes": 5,
+   "split": "2309:5 5987:1 7553:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 76,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 85,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 7606:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 96,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5045:2"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 105,
+   "winner": "4040",
+   "votes": 7,
+   "split": "4040:7"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 116,
+   "winner": "9753",
+   "votes": 6,
+   "split": "9753:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 125,
+   "winner": "5890",
+   "votes": 3,
+   "split": "8168:3 5890:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 136,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 145,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 6,
+   "winner": "2449",
+   "votes": 6,
+   "split": "2449:6 4866:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 15,
+   "winner": "4046",
+   "votes": 5,
+   "split": "4046:5 7526:1 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 25,
+   "winner": "4988",
+   "votes": 5,
+   "split": "4988:5 2133:2"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 36,
+   "winner": "4018",
+   "votes": 5,
+   "split": "4018:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 45,
+   "winner": "5844",
+   "votes": 6,
+   "split": "5844:6 4981:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 50,
+   "winner": "1426",
+   "votes": 7,
+   "split": "1426:7"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 51,
+   "winner": "2309",
+   "votes": 5,
+   "split": "2309:5 5987:1 7553:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 76,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 85,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 7606:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 96,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5045:2"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 105,
+   "winner": "4040",
+   "votes": 7,
+   "split": "4040:7"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 116,
+   "winner": "9753",
+   "votes": 6,
+   "split": "9753:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 125,
+   "winner": "5890",
+   "votes": 3,
+   "split": "8168:3 5890:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 136,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 3,
+   "my_pick": 145,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 4,
+   "winner": "4663",
+   "votes": 5,
+   "split": "4663:5 7564:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 17,
+   "winner": "5850",
+   "votes": 5,
+   "split": "5850:5 7547:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 27,
+   "winner": "7525",
+   "votes": 7,
+   "split": "7525:7"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 32,
+   "winner": "4984",
+   "votes": 5,
+   "split": "4984:5 7528:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 47,
+   "winner": "4981",
+   "votes": 7,
+   "split": "4981:7"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 54,
+   "winner": "2505",
+   "votes": 6,
+   "split": "2505:6 6783:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 60,
+   "winner": "5927",
+   "votes": 5,
+   "split": "5927:5 4035:1 5022:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 74,
+   "winner": "4029",
+   "votes": 4,
+   "split": "4029:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 87,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 9488:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 94,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 8137:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 107,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 4033:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 114,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 3199:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 127,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 134,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 147,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 4,
+   "winner": "4663",
+   "votes": 5,
+   "split": "4663:5 7564:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 17,
+   "winner": "5850",
+   "votes": 5,
+   "split": "5850:5 7547:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 27,
+   "winner": "7525",
+   "votes": 7,
+   "split": "7525:7"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 32,
+   "winner": "4984",
+   "votes": 5,
+   "split": "4984:5 7528:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 47,
+   "winner": "4981",
+   "votes": 7,
+   "split": "4981:7"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 54,
+   "winner": "2505",
+   "votes": 6,
+   "split": "2505:6 6783:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 60,
+   "winner": "5927",
+   "votes": 5,
+   "split": "5927:5 4035:1 5022:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 74,
+   "winner": "4029",
+   "votes": 4,
+   "split": "4029:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 87,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 9488:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 94,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 8137:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 107,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 4033:2"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 114,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 3199:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 127,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 134,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 4,
+   "my_pick": 147,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 2,
+   "winner": "6813",
+   "votes": 5,
+   "split": "6813:5 7564:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 19,
+   "winner": "6801",
+   "votes": 6,
+   "split": "6801:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 29,
+   "winner": "8146",
+   "votes": 6,
+   "split": "8146:6 8155:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 34,
+   "winner": "9221",
+   "votes": 5,
+   "split": "9221:5 7591:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 49,
+   "winner": "4983",
+   "votes": 7,
+   "split": "4983:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 67,
+   "winner": "7600",
+   "votes": 7,
+   "split": "7600:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 69,
+   "winner": "8205",
+   "votes": 4,
+   "split": "8205:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 72,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 3294:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 89,
+   "winner": "3294",
+   "votes": 7,
+   "split": "3294:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 92,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 9997:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 109,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 2161:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 112,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 96:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 129,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 132,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 149,
+   "winner": "7596",
+   "votes": 7,
+   "split": "7596:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 2,
+   "winner": "6813",
+   "votes": 5,
+   "split": "6813:5 7564:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 19,
+   "winner": "6801",
+   "votes": 6,
+   "split": "6801:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 29,
+   "winner": "8146",
+   "votes": 6,
+   "split": "8146:6 8155:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 34,
+   "winner": "9221",
+   "votes": 5,
+   "split": "9221:5 7591:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 49,
+   "winner": "4983",
+   "votes": 7,
+   "split": "4983:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 67,
+   "winner": "7600",
+   "votes": 7,
+   "split": "7600:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 69,
+   "winner": "8205",
+   "votes": 4,
+   "split": "8205:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 72,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 3294:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 89,
+   "winner": "3294",
+   "votes": 7,
+   "split": "3294:7"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 92,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 9997:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 109,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 2161:2"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 112,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 96:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 129,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 132,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 5,
+   "my_pick": 149,
+   "winner": "7596",
+   "votes": 7,
+   "split": "7596:7"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 10,
+   "winner": "6794",
+   "votes": 6,
+   "split": "6794:6 3198:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 11,
+   "winner": "3198",
+   "votes": 5,
+   "split": "3198:5 6786:2"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 21,
+   "winner": "8144",
+   "votes": 6,
+   "split": "8144:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 40,
+   "winner": "4881",
+   "votes": 6,
+   "split": "4881:6 8151:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 41,
+   "winner": "8151",
+   "votes": 5,
+   "split": "8151:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 52,
+   "winner": "7553",
+   "votes": 6,
+   "split": "7553:6 2309:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 61,
+   "winner": "5927",
+   "votes": 5,
+   "split": "5927:5 4035:1 5022:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 80,
+   "winner": "8136",
+   "votes": 4,
+   "split": "8136:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 81,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 8119:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 100,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 5045:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 101,
+   "winner": "5045",
+   "votes": 7,
+   "split": "5045:7"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 120,
+   "winner": "4985",
+   "votes": 6,
+   "split": "4985:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 121,
+   "winner": "9225",
+   "votes": 3,
+   "split": "8168:3 9225:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 140,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 6768:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 141,
+   "winner": "5001",
+   "votes": 4,
+   "split": "5001:4 7567:3"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 10,
+   "winner": "6794",
+   "votes": 6,
+   "split": "6794:6 3198:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 11,
+   "winner": "3198",
+   "votes": 5,
+   "split": "3198:5 6786:2"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 21,
+   "winner": "8144",
+   "votes": 6,
+   "split": "8144:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 40,
+   "winner": "4881",
+   "votes": 6,
+   "split": "4881:6 8151:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 41,
+   "winner": "8151",
+   "votes": 5,
+   "split": "8151:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 52,
+   "winner": "7553",
+   "votes": 6,
+   "split": "7553:6 2309:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 61,
+   "winner": "5927",
+   "votes": 5,
+   "split": "5927:5 4035:1 5022:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 80,
+   "winner": "8136",
+   "votes": 4,
+   "split": "8136:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 81,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 8119:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 100,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 5045:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 101,
+   "winner": "5045",
+   "votes": 7,
+   "split": "5045:7"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 120,
+   "winner": "4985",
+   "votes": 6,
+   "split": "4985:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 121,
+   "winner": "9225",
+   "votes": 3,
+   "split": "8168:3 9225:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 140,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 6768:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 6,
+   "my_pick": 141,
+   "winner": "5001",
+   "votes": 4,
+   "split": "5001:4 7567:3"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 3,
+   "winner": "4034",
+   "votes": 5,
+   "split": "4034:5 7564:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 18,
+   "winner": "7547",
+   "votes": 6,
+   "split": "7547:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 28,
+   "winner": "5872",
+   "votes": 6,
+   "split": "5872:6 8155:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 33,
+   "winner": "4984",
+   "votes": 6,
+   "split": "4984:6 9221:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 48,
+   "winner": "6806",
+   "votes": 5,
+   "split": "6806:5 4983:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 53,
+   "winner": "2309",
+   "votes": 7,
+   "split": "2309:7"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 68,
+   "winner": "7600",
+   "votes": 7,
+   "split": "7600:7"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 73,
+   "winner": "4029",
+   "votes": 4,
+   "split": "4029:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 88,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 5937:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 93,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 8137:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 108,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 4149:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 113,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 6943:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 128,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 133,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 148,
+   "winner": "7596",
+   "votes": 5,
+   "split": "7596:5 3163:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 3,
+   "winner": "4034",
+   "votes": 5,
+   "split": "4034:5 7564:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 18,
+   "winner": "7547",
+   "votes": 6,
+   "split": "7547:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 28,
+   "winner": "5872",
+   "votes": 6,
+   "split": "5872:6 8155:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 33,
+   "winner": "4984",
+   "votes": 6,
+   "split": "4984:6 9221:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 48,
+   "winner": "6806",
+   "votes": 5,
+   "split": "6806:5 4983:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 53,
+   "winner": "2309",
+   "votes": 7,
+   "split": "2309:7"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 68,
+   "winner": "7600",
+   "votes": 7,
+   "split": "7600:7"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 73,
+   "winner": "4029",
+   "votes": 4,
+   "split": "4029:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 88,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 5937:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 93,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 8137:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 108,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 4149:2"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 113,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 6943:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 128,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 133,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 7,
+   "my_pick": 148,
+   "winner": "7596",
+   "votes": 5,
+   "split": "7596:5 3163:2"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 1,
+   "winner": "4039",
+   "votes": 6,
+   "split": "4039:6 6813:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 20,
+   "winner": "6904",
+   "votes": 5,
+   "split": "6904:5 8144:1 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 30,
+   "winner": "8155",
+   "votes": 6,
+   "split": "8155:6 5846:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 31,
+   "winner": "9509",
+   "votes": 6,
+   "split": "9509:6 5846:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 56,
+   "winner": "6783",
+   "votes": 7,
+   "split": "6783:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 65,
+   "winner": "4068",
+   "votes": 7,
+   "split": "4068:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 70,
+   "winner": "7600",
+   "votes": 7,
+   "split": "7600:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 71,
+   "winner": "6790",
+   "votes": 4,
+   "split": "6790:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 90,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 5086:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 91,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5185:2"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 110,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 2161:2"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 111,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 96:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 130,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 131,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 150,
+   "winner": "9228",
+   "votes": 7,
+   "split": "9228:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 1,
+   "winner": "4039",
+   "votes": 6,
+   "split": "4039:6 6813:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 20,
+   "winner": "6904",
+   "votes": 5,
+   "split": "6904:5 8144:1 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 30,
+   "winner": "8155",
+   "votes": 6,
+   "split": "8155:6 5846:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 31,
+   "winner": "9509",
+   "votes": 6,
+   "split": "9509:6 5846:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 56,
+   "winner": "6783",
+   "votes": 7,
+   "split": "6783:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 65,
+   "winner": "4068",
+   "votes": 7,
+   "split": "4068:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 70,
+   "winner": "7600",
+   "votes": 7,
+   "split": "7600:7"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 71,
+   "winner": "6790",
+   "votes": 4,
+   "split": "6790:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 90,
+   "winner": "SF",
+   "votes": 6,
+   "split": "SF:6 5086:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 91,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5185:2"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 110,
+   "winner": "2078",
+   "votes": 5,
+   "split": "2078:5 2161:2"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 111,
+   "winner": "4147",
+   "votes": 4,
+   "split": "4147:4 96:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 130,
+   "winner": "6826",
+   "votes": 3,
+   "split": "8168:3 6826:3 7561:1"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 131,
+   "winner": "8168",
+   "votes": 4,
+   "split": "8168:4 7561:3"
+  },
+  {
+   "season": "2023",
+   "seat": 8,
+   "my_pick": 150,
+   "winner": "9228",
+   "votes": 7,
+   "split": "9228:7"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 7,
+   "winner": "4866",
+   "votes": 5,
+   "split": "4866:5 1466:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 14,
+   "winner": "5012",
+   "votes": 6,
+   "split": "5012:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 24,
+   "winner": "7611",
+   "votes": 5,
+   "split": "7611:5 2133:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 37,
+   "winner": "4881",
+   "votes": 5,
+   "split": "4881:5 7543:1 5846:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 44,
+   "winner": "1479",
+   "votes": 7,
+   "split": "1479:7"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 57,
+   "winner": "8112",
+   "votes": 6,
+   "split": "8112:6 6938:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 64,
+   "winner": "8167",
+   "votes": 7,
+   "split": "8167:7"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 77,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 84,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 5848:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 97,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5045:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 104,
+   "winner": "4040",
+   "votes": 5,
+   "split": "4040:5 2749:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 117,
+   "winner": "4985",
+   "votes": 4,
+   "split": "4985:4 9229:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 124,
+   "winner": "8132",
+   "votes": 3,
+   "split": "8168:3 8132:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 137,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 144,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 7,
+   "winner": "4866",
+   "votes": 5,
+   "split": "4866:5 1466:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 14,
+   "winner": "5012",
+   "votes": 6,
+   "split": "5012:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 24,
+   "winner": "7611",
+   "votes": 5,
+   "split": "7611:5 2133:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 37,
+   "winner": "4881",
+   "votes": 5,
+   "split": "4881:5 7543:1 5846:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 44,
+   "winner": "1479",
+   "votes": 7,
+   "split": "1479:7"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 57,
+   "winner": "8112",
+   "votes": 6,
+   "split": "8112:6 6938:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 64,
+   "winner": "8167",
+   "votes": 7,
+   "split": "8167:7"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 77,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 84,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 5848:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 97,
+   "winner": "4227",
+   "votes": 5,
+   "split": "4227:5 5045:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 104,
+   "winner": "4040",
+   "votes": 5,
+   "split": "4040:5 2749:2"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 117,
+   "winner": "4985",
+   "votes": 4,
+   "split": "4985:4 9229:2 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 124,
+   "winner": "8132",
+   "votes": 3,
+   "split": "8168:3 8132:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 137,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 9,
+   "my_pick": 144,
+   "winner": "1166",
+   "votes": 6,
+   "split": "1166:6 7596:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 9,
+   "winner": "3321",
+   "votes": 6,
+   "split": "3321:6 3198:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 12,
+   "winner": "6786",
+   "votes": 6,
+   "split": "6786:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 22,
+   "winner": "6770",
+   "votes": 6,
+   "split": "6770:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 39,
+   "winner": "8129",
+   "votes": 5,
+   "split": "8129:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 42,
+   "winner": "6151",
+   "votes": 5,
+   "split": "6151:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 59,
+   "winner": "8112",
+   "votes": 7,
+   "split": "8112:7"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 62,
+   "winner": "5022",
+   "votes": 7,
+   "split": "5022:7"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 79,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 82,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 4950:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 99,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 5045:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 102,
+   "winner": "4040",
+   "votes": 5,
+   "split": "4040:5 2749:2"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 119,
+   "winner": "4985",
+   "votes": 6,
+   "split": "4985:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 122,
+   "winner": "9225",
+   "votes": 3,
+   "split": "8168:3 9225:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 139,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 142,
+   "winner": "5001",
+   "votes": 7,
+   "split": "5001:7"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 9,
+   "winner": "3321",
+   "votes": 6,
+   "split": "3321:6 3198:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 12,
+   "winner": "6786",
+   "votes": 6,
+   "split": "6786:6 5850:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 22,
+   "winner": "6770",
+   "votes": 6,
+   "split": "6770:6 5967:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 39,
+   "winner": "8129",
+   "votes": 5,
+   "split": "8129:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 42,
+   "winner": "6151",
+   "votes": 5,
+   "split": "6151:5 5846:2"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 59,
+   "winner": "8112",
+   "votes": 7,
+   "split": "8112:7"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 62,
+   "winner": "5022",
+   "votes": 7,
+   "split": "5022:7"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 79,
+   "winner": "6828",
+   "votes": 4,
+   "split": "6828:4 SF:3"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 82,
+   "winner": "SF",
+   "votes": 5,
+   "split": "SF:5 4950:1 4227:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 99,
+   "winner": "4227",
+   "votes": 6,
+   "split": "4227:6 5045:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 102,
+   "winner": "4040",
+   "votes": 5,
+   "split": "4040:5 2749:2"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 119,
+   "winner": "4985",
+   "votes": 6,
+   "split": "4985:6 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 122,
+   "winner": "9225",
+   "votes": 3,
+   "split": "8168:3 9225:3 6826:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 139,
+   "winner": "8148",
+   "votes": 4,
+   "split": "8148:4 3164:2 5001:1"
+  },
+  {
+   "season": "2023",
+   "seat": 10,
+   "my_pick": 142,
+   "winner": "5001",
+   "votes": 7,
+   "split": "5001:7"
+  }
+ ]
+}
