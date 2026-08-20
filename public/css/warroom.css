@@ -1979,30 +1979,3 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .rbm-evidence { margin-top: .35rem; font-size: var(--wr-fs-micro); }
 .rbm-evidence summary { cursor: pointer; font-weight: 600; color: var(--wr-structure); list-style: revert; }
 .rbm-evidence p { margin: .3rem 0 0; color: var(--wr-muted); line-height: 1.4; }
-
-/* ── SOURCE AGREEMENT ───────────────────────────────────────────────────────
-   Cory, 2026-08-20: "let me know when sources disagree". Three marks, and the
-   most important design property is that there is no fourth: agreement renders
-   NOTHING. On the live board 114 of 256 players in range agree, and a mark on
-   those would be a mark on nearly half the board.
-   Muted on purpose — these sit beside a player's name mid-draft and must be
-   readable without competing with the tier and risk marks already there. */
-.roll td .agr {
-  font-size: .66rem; padding: .04rem .3rem; margin-left: .3rem;
-  border-radius: .28rem; white-space: nowrap; cursor: help;
-  border: 1px solid currentColor; opacity: .85;
-}
-/* ⚡ nobody agrees — the loudest, and the rarest (16 of 256) */
-.roll td .agr-split { color: #b45309; }
-/* ◑ a source that rarely dissents, dissents here */
-.roll td .agr-dissent { color: #6d28d9; }
-/* ◌ fewer than three sources cover him. NOT agreement — absence. Deliberately
-   the quietest of the three: it is a statement about our data, not his value. */
-.roll td .agr-thin { color: #6b7280; opacity: .7; }
-
-/* the dissenting source's own cell, inside the panel table */
-#source-agreement .agr-odd { color: #6d28d9; font-weight: 650; }
-#source-agreement table { border-collapse: collapse; }
-#source-agreement th { text-align: left; font-weight: 600; opacity: .75; }
-#source-agreement td, #source-agreement th { padding: .12rem .35rem; }
-#source-agreement tbody tr:nth-child(even) { background: rgba(127,127,127,.06); }
