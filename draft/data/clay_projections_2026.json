@@ -4,6 +4,7 @@
  "scoring_source": "draft/backtest/nflverse_weekly_points_2024.json fingerprint (via multisource_projections.league_scoring, rule 11)",
  "source_pdf": "draft/data/sources/clay_projections_2026.pdf",
  "known_positive_control": "Jahmyr Gibbs RB-table row verified against his independently-printed Detroit team-page row before any output was trusted \u2014 see _verify_known_positive",
+ "crosswalk_note": null,
  "players": {
   "4984": {
    "name": "Josh Allen",
@@ -9307,6 +9308,6 @@
  "positional_plausibility_violations": [],
  "agreement_vs_sleeper_spearman": {
   "n": 380,
-  "spearman": 0.9776
+  "spearman": 0.9856
  }
 }

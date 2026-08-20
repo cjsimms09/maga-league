@@ -1,0 +1,62 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/clay_2025_retrograde.js",
+ "_prereg": "draft/CLAY-2025-RETROGRADE-PREREG-2026-08-20.md",
+ "_what": "Does a preseason projection beat THIS ROOM'S OWN 2025 draft order at ranking what actually happened in 2025?",
+ "population": {
+  "n_drafted_2025": 150,
+  "n_with_2025_points": 127,
+  "excluded_and_why": "the 23 drafted players without 2025 points are 10 DEF + 11 K (the weekly-points store carries neither, and this grade covers QB/RB/WR/TE per the prereg) plus two individuals. Accounted for rather than left as a gap between 150 and 127.",
+  "why": "Cory 2026-08-19: \"grade the top 150 by ADP only\". This league's own 2025 draft IS 150 picks — the exact players this room paid for."
+ },
+ "controls": {
+  "C1_known_positive_the_market_must_show_real_signal": {
+   "ok": true,
+   "pooled_spearman": 0.3726,
+   "bar": "> 0.15",
+   "why": "if the harness cannot show that draft order predicts outcomes, its verdict on Clay is worthless."
+  },
+  "C2_known_negative_shuffled_order_must_collapse": {
+   "ok": true,
+   "pooled_spearman": -0.0148,
+   "bar": "|r| < 0.15",
+   "why": "a harness that scores noise well is measuring its own joins. The shuffle is seeded, not random, so this control reproduces."
+  }
+ },
+ "controls_all_passed": true,
+ "the_comparator_to_beat": {
+  "market_draft_order_vs_actual_2025": {
+   "QB": {
+    "n": 15,
+    "spearman": 0.075,
+    "interpretable": true
+   },
+   "RB": {
+    "n": 46,
+    "spearman": 0.662,
+    "interpretable": true
+   },
+   "WR": {
+    "n": 51,
+    "spearman": 0.3688,
+    "interpretable": true
+   },
+   "TE": {
+    "n": 15,
+    "spearman": -0.075,
+    "interpretable": true
+   },
+   "POOLED": {
+    "n": 127,
+    "spearman": 0.3726
+   }
+  }
+ },
+ "clay": {
+  "version_gate": {
+   "guide_updated_reported": null,
+   "season_start": "2025-09-04",
+   "verdict": "IN-SEASON OR UNDATED — ACCURACY GRADE DOES NOT RUN",
+   "why": "a guide updated after Week 1 contains games already played; grading it measures nothing but our willingness to be impressed. Missing or ambiguous is treated as in-season, because the conservative direction cannot manufacture a false result."
+  }
+ }
+}
