@@ -6562,15 +6562,16 @@
   },
   "CBS vs Sleeper": {
    "n": 401,
-   "spearman": 0.9473
+   "spearman": 0.9738
   },
   "ESPN vs Sleeper": {
    "n": 403,
-   "spearman": 0.9562
+   "spearman": 0.9844
   },
   "FFToday vs Sleeper": {
    "n": 353,
-   "spearman": 0.9704
+   "spearman": 0.9827
   }
- }
+ },
+ "_captured_at": "2026-08-20T07:02:06Z"
 }
