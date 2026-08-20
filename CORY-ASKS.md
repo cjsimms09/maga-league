@@ -21,6 +21,58 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 ---
 
+## ANSWERED 2026-08-20 — "How can they be that high?? That's a massive error"
+
+**It is not an error, and the measurement was already sitting on the board.**
+
+**Our league scores 6-point passing touchdowns; the ADP market is priced at 4.**
+`sleeper_league_settings.json`: `pass_td: 6`, `pass_int: -2`. The board's own
+`projections.scoring_gap_vs_adp_market` block records the market's assumption as
+`{pass_td: 4, pass_int: -1}` and measures the difference on 1,894 scored players:
+
+| position | mean gap | max | share of value |
+|---|---|---|---|
+| **QB (top 12)** | **+43.67** | +56 | **11.9%** |
+| RB · WR · TE · K · DEF | **0.00** | 0 | 0% |
+
+**So every QB number on the board reads ~44 points higher than a 4-point-league
+intuition expects, every other position is untouched, and it is isolated,
+measured and intentional rather than a bug.**
+
+**Six independent sources agree, which is the check that settles it.** Josh Allen
+379–421.7 across Sleeper / CBS / ESPN / FFToday / Draft Sharks / FantasyPros;
+Drake Maye 340–382.9, with ESPN (381.0) and FFToday (382.9) both ABOVE our
+blend's 372.5. **Our board is if anything conservative on the QBs that look
+highest.** And the outside sources are scored from RAW STAT LINES under our own
+table — `multisource_projections.json`'s note says the providers' own site points
+are *"deliberately ignored — it encodes their league's rules, not ours"* — so
+there is no 4-vs-6 mixing inside the blend.
+
+### ⚠️ AND IT CHANGES NOTHING ABOUT WHO TO DRAFT, WHICH IS THE PART WORTH KNOWING
+
+**A raw projection is not what a player is worth.** Measured on the live board:
+
+| | raw proj | wire level | **worth to your lineup** |
+|---|---|---|---|
+| Josh Allen (QB) | **415.3 — highest on the board** | 322.9 | **+92.4** |
+| Jahmyr Gibbs (RB) | 324.3 | 78.4 | **+245.9** |
+| Puka Nacua (WR) | 283.7 | 124.8 | +158.9 |
+
+**Allen projects 91 points MORE than Gibbs and is worth 2.7× LESS**, because a
+322-point quarterback is free off the waiver wire and a 78-point running back is
+what is free at his position. **Josh Allen is the 29th-best pick on the board by
+marginal lineup value.** This is the same fact as the FLEX answer: raw points do
+not compare across positions, and the roster-builder panel is the surface that
+does the comparison correctly.
+
+**The 6-point scoring also does NOT reorder the quarterbacks.** Our top four —
+Allen, Lamar, Maye, Burrow — are the room's QB1-4 in the identical order, and the
+QB1→QB12 spread is only 70.3 points. **One name does move and it is worth having
+on Saturday: Brock Purdy is QB8 on our board and QB15 by ADP** — seven slots of
+disagreement, the largest at the position.
+
+---
+
 ## CORY RULED 2026-08-20 — K and DEF are CAPPED at one, never excluded
 
 | # | ruling | status |
