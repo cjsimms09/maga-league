@@ -89,21 +89,18 @@ function hostBlocks(src) {
     !viewIds.has('definitely-not-an-id-in-this-file'), null);
 }
 
-/* KNOWN, OWNED, AND DATED — not forgiven. One anchor is left failing-by-record
- * rather than failing-the-build, because fixing it is a PLACEMENT decision on
- * B's surface and B measured it live at 1280px, which I did not.
+/* KNOWN, OWNED, AND DATED — not forgiven, and currently empty.
  *
- * `mlvPlanHost` → `#roster-builder`. B holds it with a Friday 12:00 default
- * (ROUTES, 2026-08-21); if it passes, A points the anchor at the real
- * `#roster-builder-mlv` and leaves the markup home to B. The row is here so
- * that a green run is not read as a clean one.
+ * `mlvPlanHost` → `#roster-builder` was the one row here (B, 2026-08-20/21):
+ * fixed same night, anchor repointed at the real `#roster-builder-mlv`
+ * (which already carried its own CSS order) and `#mlv-plan` given an order
+ * rule of its own — B's placement call, measured live at 1280px, not A's.
+ * Row removed rather than left stale, per this file's own rule below.
  *
- * ⚠️ THIS LIST IS NOT A PLACE TO PUT A NEW ONE. Any anchor not named here
- * fails the build, which is the whole point — three of four hosts were written
- * against absent ids and nothing noticed for weeks. */
-const KNOWN_DEAD_ANCHORS = new Set([
-  'mlvPlanHost:roster-builder',
-]);
+ * ⚠️ THIS LIST IS NOT A PLACE TO PUT A NEW ONE CASUALLY. Any anchor not
+ * named here fails the build, which is the whole point — three of four
+ * hosts were written against absent ids and nothing noticed for weeks. */
+const KNOWN_DEAD_ANCHORS = new Set([]);
 
 /* ── THE GUARD ─────────────────────────────────────────────────────────── */
 const blocks = hostBlocks(APP);
