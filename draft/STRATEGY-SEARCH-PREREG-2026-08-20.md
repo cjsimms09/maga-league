@@ -88,3 +88,28 @@ nothing ships — weights stay as ruled, the war room's Auto checkbox stays
 available with its existing "ungraded under fixed VONA" honesty label, and
 this prereg grades post-draft as 2027 knowledge.** A silent Friday is that
 default, not a blocker.
+
+---
+
+## 7 · PRE-RUN AMENDMENT, 2026-08-20 (BEFORE ANY S19 RUN EXISTS): THE BASELINE MOVED UNDER THE PREREG
+
+Between this prereg's commit and any dispatch, **`need` shipped at 1.0 on main
+and Cory confirmed it directly** (*"It was my call"* — A20/register 164 closed,
+`MEASURED_WEIGHTS.need === 1.0` verified live). Two §3 rows are therefore
+stale AS LABELED, and this amendment re-labels them BEFORE the batch runs —
+the same discipline as §5's bav≡adp amendment in the Gauntlet prereg:
+
+* **S19a (no flags) now means the shipped need-1.0 configuration.** It is the
+  thing Cory will actually draft with; still the control.
+* **S19b becomes `--need 0`** — the counterfactual that prices Cory's need
+  ruling on the fixed VONA. P251's claim is UNCHANGED in substance (need-1.0
+  beats need-0 on arm a1); only which arm-id carries which weight flipped.
+  Dispatching S19b as `--need 1.0` would produce a choice file byte-identical
+  to S19a — the exact false-null the harness's weight stamp exists to catch.
+* **⚠️ A, one verification before trusting S19b:** confirm the harness treats
+  `--need 0` as an override and not as "flag absent" (a truthiness check on
+  the parsed value would silently run the baseline; the artifact's stamped
+  `weights.need` must read 0).
+* S19c (`--auto`) and S19d (`--bye 1.0`) are unchanged; note both now run on
+  top of the need-1.0 baseline, which is what "shippable configuration" means
+  after the ruling.
