@@ -91,3 +91,14 @@ additive-urgency term is a LIGHT lookahead, and every lookahead we have
 graded loses or ties. If it beats BAV by more than +10, the additive form
 succeeded where the ranking form failed four times, and that is a genuine
 discovery about WHERE timing information belongs.
+
+## 5. PRE-RUN AMENDMENT (declared BEFORE the first gauntlet arm executed)
+
+**`bav` ≡ `adp` in this frame, provably:** the replay's value signal IS the
+market's own order (valueOf strictly decreasing in pick order), so "take the
+best value" and "take the next player by ADP" select identically. The
+articles can separate them only because their value signal is projections,
+which the replay deliberately excludes for era-correctness. Consequence for
+P153: it grades on the merged bav/adp arm's rank among the SEVEN distinct
+arms, and the article's value-vs-ADP split is recorded as UNTESTABLE in this
+frame — a frame limitation stated up front, not an excuse discovered after.

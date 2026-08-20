@@ -327,6 +327,24 @@ const POS_CAP = process.argv.includes('--pos-cap');
  * a costume-sweep (7/7 on every pick) is declared, not discovered. */
 const VOTE = process.argv.includes('--vote');
 const VOTE_TALLIES = [];
+/* ── THE DRAFT GAUNTLET (relay, prereg GAUNTLET-PREREG-2026-08-20 — committed
+ * first). Eight named industry strategies from Cory's two uploads, each run
+ * through the same 30 seat-years so the war-room strip can show graded voices.
+ * Keys: vona | hybrid | bav | adp | zerorb | herorb | lateqb | snake.
+ * ⚠️ DECLARED PRE-RUN (prereg §5): bav ≡ adp in this frame — value IS the
+ * market order, so "best value" and "follow ADP" pick identically; the
+ * articles separate them only because their value signal is projections. */
+const GAUNTLET = (() => {
+  const a = process.argv.find(x => x.startsWith('--gauntlet='));
+  return a ? a.slice('--gauntlet='.length) : null;
+})();
+const GAUNTLET_KEYS = ['vona', 'hybrid', 'bav', 'adp', 'zerorb', 'herorb', 'lateqb', 'snake'];
+if (GAUNTLET && !GAUNTLET_KEYS.includes(GAUNTLET)) {
+  throw new Error('unknown --gauntlet key: ' + GAUNTLET + ' (valid: ' + GAUNTLET_KEYS.join('|') + ')');
+}
+/* classic VBD starter-rank baseline for `snake` (prereg §4 — deliberately the
+ * starter table, NOT drafted depth; Subvertadown means standard VBD) */
+const SNAKE_BASE_RANK = { QB: 10, RB: 24, WR: 26, TE: 10, K: 10, DEF: 10 };
 let depthControlPrinted = false;
 function draftedDepthLOO(targetSeason) {
   const counts = {};   // pos -> [count per other season]
@@ -721,6 +739,100 @@ function buildSeat(season, draft, seatId, rosterOn) {
         (vc.valsDepth[wq] || (vc.valsDepth[wq] = []))
           .push(Math.max(0, vc.rawVal(win) - (vc.repl[wq] || 0)));
       }
+      return;
+    }
+    if (GAUNTLET) {
+      /* Eight named strategies, one shared candidate walk. Because valueOf is
+       * strictly decreasing in pick order, "best value among eligible" is the
+       * FIRST eligible candidate — every strategy reduces to eligibility
+       * rules plus (for vona/hybrid/snake) a per-position urgency term. */
+      const round = Math.ceil(pk.pick_no / 10);
+      const myNextIdx = picks.findIndex((c, k) => k > idx && c.roster_id === seatId && !c.is_keeper);
+      const myNextNo = myNextIdx < 0 ? null : picks[myNextIdx].pick_no;
+      /* shared positional-need logic (prereg §1): K=1 DEF=1 QB≤2 TE≤2 + §14c forcing */
+      const capOK = q => !((q === 'K' || q === 'DEF') && (held[q] || 0) >= 1)
+        && !((q === 'QB' || q === 'TE') && (held[q] || 0) >= 2);
+      let needPos = null;
+      {
+        let unfilled = 0;
+        const np = {};
+        POS.forEach(z => {
+          const gap = (STARTERS[z] || 0) - (held[z] || 0);
+          if (gap > 0) { unfilled += gap; np[z] = true; }
+        });
+        let remaining = 0;
+        for (let k = idx; k < N; k++) if (picks[k].roster_id === seatId && !picks[k].is_keeper) remaining++;
+        if (remaining <= unfilled) needPos = np;
+      }
+      const firstLive = !picks.slice(0, idx).some(p2 => p2.roster_id === seatId && !p2.is_keeper);
+      /* strategy-specific position eligibility, forcing overrides everything */
+      const posAllowed = q => {
+        if (needPos) return !!needPos[q];
+        if (!capOK(q)) return false;
+        if (GAUNTLET === 'zerorb' && q === 'RB' && round < 5) return false;
+        if (GAUNTLET === 'herorb') {
+          if (firstLive) return q === 'RB';
+          if (q === 'RB' && round < 6) return false;
+        }
+        if (GAUNTLET === 'lateqb' && q === 'QB' && round < 6) return false;
+        return true;
+      };
+      /* first eligible candidate per position, plus survivors past my next slot */
+      const firstOf = {}, survOf = {};
+      for (let j = idx; j < N; j++) {
+        const c = picks[j];
+        if (c.is_keeper || isGone(c.player_id)) continue;
+        const q = posOf(c.player_id);
+        if (!q) continue;
+        if (!firstOf[q] && posAllowed(q)) firstOf[q] = c;
+        if (myNextNo != null && c.pick_no > myNextNo) (survOf[q] = survOf[q] || []).push(c);
+      }
+      const cands = Object.entries(firstOf);
+      if (!cands.length) return;
+      const urgency = q => {
+        const now = firstOf[q] ? valueOf(firstOf[q]) : 0;
+        const s = (survOf[q] || [])[0];
+        return s ? Math.max(0, now - valueOf(s)) : now;   // no survivor = full urgency
+      };
+      let chosen = null;
+      const useVona = GAUNTLET === 'vona' || (GAUNTLET === 'hybrid' && round <= 4);
+      if (useVona && myNextNo != null) {
+        let bq = null, bu = -Infinity;
+        cands.forEach(([q]) => { const u = urgency(q); if (u > bu) { bu = u; bq = q; } });
+        chosen = firstOf[bq];
+      } else if (GAUNTLET === 'snake') {
+        /* VOB + smoothed opportunity cost (prereg §4) */
+        const w = Math.max(1, Math.round(2 + 10 * (pk.pick_no / 150)));
+        const seen = {};
+        const repl = {};
+        picks.forEach(p2 => {
+          const q2 = posOf(p2.player_id);
+          if (!q2) return;
+          const r = (seen[q2] = (seen[q2] || 0) + 1);
+          if (r === SNAKE_BASE_RANK[q2]) repl[q2] = valueOf(p2);
+        });
+        let bq = null, bs = -Infinity;
+        cands.forEach(([q, c]) => {
+          const vob = Math.max(0, valueOf(c) - (repl[q] || 0));
+          const sv = (survOf[q] || []).slice(0, w);
+          const smoothNext = sv.length ? sv.reduce((a, x) => a + valueOf(x), 0) / sv.length : 0;
+          const opp = Math.max(0, valueOf(c) - smoothNext);
+          const score = vob + opp;
+          if (score > bs) { bs = score; bq = q; }
+        });
+        chosen = firstOf[bq];
+      } else {
+        /* bav, adp, zerorb, herorb, lateqb, hybrid(late), vona(no future pick):
+         * best value among eligible = earliest eligible in pick order */
+        let bc = null;
+        cands.forEach(([, c]) => { if (!bc || c.pick_no < bc.pick_no) bc = c; });
+        chosen = bc;
+      }
+      if (!chosen) return;
+      takenByMe.add(chosen.player_id);
+      mine.push(chosen.player_id); mineAt.push(pk.pick_no);
+      const cq = posOf(chosen.player_id);
+      if (cq) { held[cq] = (held[cq] || 0) + 1; (mineVals[cq] || (mineVals[cq] = [])).push(valueOf(chosen)); }
       return;
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
