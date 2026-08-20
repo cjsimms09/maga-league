@@ -256,3 +256,32 @@ beats every realistic-objective variant tried against it head-to-head, and
 fields a normal roster in 30/30 seats without ever being told to. The floors'
 place is the GRADING, where Cory's waiver-realism objection is now
 permanently encoded (P137).
+
+## 12-GRADED, 2026-08-20 — P142 TRUE ON BOTH CLAUSES: CONSTRUCTION IS CLOSED, BY MEASUREMENT
+
+Cory, 08-20: *"Your equation still sucks."* The §12 diagnostic (committed
+08-19, run today as `draft/tools/objective_dp.js`) measures what ANY equation
+could add. Controls first, all mandatory, all passed: the closed-form keeper
+marginal equals brute lineup top-C on 500 random mixes; the replicated MLV
+greedy reproduces the harness's **+45.84/+29.33 to the decimal** by an
+independent implementation path; DP ≥ MLV internal in every seat (the run
+refuses otherwise); and each seat's reconstruction replays forward to the
+DP's own total or throws.
+
+**The exact optimum's gain over the MLV-cap greedy: < 5% in 30/30 seats
+(bar was ≥ 25/30) — median gap 0.00%, max 3.60%.** In the median seat the
+greedy IS the optimum. And the gap that exists is not worth taking:
+**the DP-optimal rosters grade WORSE than the greedy's — skill −10.65
+pts/season (DP wins 14/30), actual −7.59** — the second prediction landed
+too: internal-optimum ≠ graded-points optimum, and chasing the last internal
+points buys noise.
+
+**What this closes:** within this framework — market-order values, fixed
+opponents, legal roster, K≤1/DEF≤1 — **no construction rule of any
+complexity (calculus, Bellman, Monte Carlo, anything) has meaningful room
+above the greedy displacement rule.** "Find a better equation" is now a
+measured dead end on the CONSTRUCTION side. What it does NOT close, stated
+plainly: a better VALUE SIGNAL (projections that beat market order) or a
+real opponent model would move every rule including this one — and those are
+exactly Cory's two stated goals for the year. The equation is not the
+bottleneck. The inputs are.
