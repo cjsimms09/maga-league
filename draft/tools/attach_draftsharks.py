@@ -45,6 +45,7 @@ Run: python3 draft/tools/attach_draftsharks.py [--dry-run]
 """
 from __future__ import annotations
 import json, sys, copy
+import datetime as _dt
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -339,6 +340,23 @@ if DRY:
 if not all_ok:
     print("\n  ⛔ CONTROLS FAILED — board NOT written")
     raise SystemExit(1)
+# ⛔ STAMP THE BOARD, BECAUSE NOT STAMPING IT MADE STALENESS UNDETECTABLE.
+#
+# This script rewrites proj_mean, the bands, vorp, tiers and every rank, and
+# then left `built_at` exactly as build.py wrote it. Downstream artifacts stamp
+# themselves with THAT value -- `seat_plan.json` records
+# `source_board_built_at` -- so a seat plan built from the pre-blend board and
+# one built from the post-blend board carry the IDENTICAL provenance stamp.
+#
+# Found 2026-08-20: the live seat plan claimed the current board and 46 of its
+# 60 shortlist projections did not match it. Not merely stale -- stale AND
+# asserting it was not, which is the harder failure to notice.
+#
+# `built_at` is deliberately NOT overwritten: it is build.py's fact about when
+# the board was BUILT and other code reads it as that. This adds a second,
+# separate fact.
+board["post_processed_at"] = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+board["post_processed_by"] = "draft/tools/attach_draftsharks.py"
 BOARD_P.write_text(json.dumps(board, indent=1))
 print(f"\n  wrote {BOARD_P.relative_to(ROOT)}")
 raise SystemExit(0)

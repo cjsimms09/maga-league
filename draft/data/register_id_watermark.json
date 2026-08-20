@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 146,
+ "next_numeric_id": 147,
  "history": [
   {
    "id": 47,
@@ -201,6 +201,11 @@
    "id": 145,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 142 (A: nightly rebuild was about to silently undo every board fix, caught 6 hours before it fired, fixed and proven end-to-end) -- same collision and deviation as 143/144; E's mlv.js citation finding still open and unfixed"
+  },
+  {
+   "id": 146,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 143 (A: seat_plan.json was stale AND asserting it was not -- 46 of 60 shortlist projections mismatched the live board, fixed with a post_processed_at stamp plus wiring derived artifacts into the nightly job) -- same collision and deviation as 143-145; E's mlv.js citation finding still open and unfixed"
   }
  ]
 }
