@@ -2960,10 +2960,11 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
    but always visible and clickable — four named models, not a tap-to-open
    dump of every strategy. */
 #model-compare .mc-row { display: flex; justify-content: space-between; gap: .8rem;
-  font-size: .82rem; padding: .3rem .1rem; border-top: 1px solid rgba(255,255,255,.06);
-  cursor: pointer; }
+  font-size: .82rem; padding: .3rem .3rem; border-top: 1px solid rgba(255,255,255,.06);
+  border-radius: 6px; cursor: pointer;
+  transition: background .14s cubic-bezier(.2,.7,.3,1), transform .14s cubic-bezier(.2,.7,.3,1); }
 #model-compare .mc-row:first-child { border-top: none; }
-#model-compare .mc-row:hover { background: rgba(255,255,255,.04); }
+#model-compare .mc-row:hover { background: rgba(122,162,247,.08); transform: translateX(3px); }
 #model-compare .mc-label { color: var(--muted,#9aa4bb); font-weight: 600; }
 #model-compare .mc-pick { color: var(--ink); font-weight: 700; text-align: right; }
 #model-compare .sp-pos { font-size: .7rem; color: var(--muted,#9aa4bb); font-weight: 600; }
@@ -2973,13 +2974,24 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
    convention as .shadow-proj.contested) — every number on the page is
    answering a different question while this is active, and that must be
    impossible to miss mid-draft. */
-#rank-source .rs-buttons { display: flex; flex-wrap: wrap; gap: .35rem; }
-#rank-source .rs-btn {
-  font-size: .78rem; padding: .3rem .55rem; border-radius: .4rem; cursor: pointer;
-  border: 1px solid rgba(255,255,255,.15); background: transparent; color: inherit;
+/* A real segmented control, not a row of bordered rectangles — Cory: "cooler
+   tools and features. More clear and interactive." Pill shape, hover lift,
+   the active pill gets a warm gradient + glow instead of a flat tint, same
+   motion tokens as the tab bar (one interaction language across the page). */
+#rank-source .rs-buttons {
+  display: flex; flex-wrap: wrap; gap: .3rem; padding: .25rem;
+  background: rgba(0,0,0,.18); border-radius: 999px; width: fit-content;
 }
+#rank-source .rs-btn {
+  font-size: .78rem; padding: .32rem .7rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid transparent; background: transparent; color: inherit;
+  transition: color .14s cubic-bezier(.2,.7,.3,1), background .14s cubic-bezier(.2,.7,.3,1),
+    transform .14s cubic-bezier(.2,.7,.3,1), box-shadow .14s cubic-bezier(.2,.7,.3,1);
+}
+#rank-source .rs-btn:hover:not(.rs-active) { background: rgba(255,255,255,.08); transform: translateY(-1px); }
 #rank-source .rs-btn.rs-active {
-  border-color: #b45309; background: rgba(180,83,9,.16); font-weight: 700;
+  background: linear-gradient(155deg, #d68a2e, #b45309); color: #fff; font-weight: 700;
+  box-shadow: 0 2px 8px -2px rgba(180,83,9,.65);
 }
 #rank-source .rs-warn {
   margin-top: .5rem; padding: .5rem .6rem; border-radius: 8px; font-size: .82rem;
@@ -3183,7 +3195,23 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   background: var(--panel); border: 1px solid var(--line);
   font-size: .82rem;
 }
-.wr-statusbar.on-clock { border-color: var(--green); background: rgba(15,138,77,.08); }
+/* A living pulse, not a static green box — Cory: "cooler tools and features.
+   More clear and interactive." This is the ONE state where motion earns its
+   keep on a functional page: it is the moment the whole tool exists for, and
+   a slow breathing glow (not a blink — blinking reads as an error state) says
+   "your turn" before the eye even reads the text. Rule 4 (motion only on
+   state changes) still holds: every other statusbar state is static. */
+.wr-statusbar.on-clock {
+  border-color: var(--green); background: rgba(15,138,77,.08);
+  animation: wr-clock-pulse 2.2s ease-in-out infinite;
+}
+@keyframes wr-clock-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(15,138,77,.35); }
+  50% { box-shadow: 0 0 0 6px rgba(15,138,77,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wr-statusbar.on-clock { animation: none; }
+}
 .sb-pick { font-family: var(--font-display); font-weight: 800; color: var(--ink); }
 .wr-statusbar.on-clock .sb-pick { color: var(--green); }
 .sb-next { color: var(--muted); }
