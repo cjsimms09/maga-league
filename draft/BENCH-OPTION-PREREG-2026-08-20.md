@@ -180,3 +180,16 @@ needed position at the **last safe moment**: when no copy of it survives past
 my next pick in the recorded order — deterministic, later than v5 (points
 recover), never blind to the between-picks horizon (vacancies close).
 P269–P271 blind before the run; nothing else moves.
+
+---
+
+## 10 · V7 AMENDMENT, 2026-08-20 — SCARCITY-FIRST FORCED PICKS (after P270 TRUE / P269 FALSE)
+
+v6's points are the family's best (**+5.19 waiver-aware, h2h 16/30**) and the
+pick-by-pick trace found the last defect: when forcing offers two needed
+positions and both marginals are ≈0 (the endgame), pick-order tie-breaking
+takes the WRONG one — K before the dying TE — and the TE pool is gone by the
+final pick. **v7: within forced candidates, the scarcest needed position
+(smallest supply surviving past my next pick) is taken FIRST; marginal only
+breaks ties.** A forced pick is about feasibility, not value. Nothing else
+moves. P272–P274 blind before the run.
