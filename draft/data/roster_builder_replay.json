@@ -15,39 +15,8 @@
   },
   "C3_legality_reported_not_assumed": {
    "ok": true,
-   "seats_with_an_unfillable_slot": 30,
-   "detail": [
-    "2025/1: K,DEF",
-    "2025/2: K,DEF",
-    "2025/3: K,DEF",
-    "2025/4: K,DEF",
-    "2025/5: K,DEF",
-    "2025/6: K,DEF",
-    "2025/7: K,DEF",
-    "2025/8: K,DEF",
-    "2025/9: K,DEF",
-    "2025/10: K,DEF",
-    "2024/1: K,DEF",
-    "2024/2: K,DEF",
-    "2024/3: K,DEF",
-    "2024/4: K,DEF",
-    "2024/5: K,DEF",
-    "2024/6: K,DEF",
-    "2024/7: K,DEF",
-    "2024/8: K,DEF",
-    "2024/9: K,DEF",
-    "2024/10: K,DEF",
-    "2023/1: K,DEF",
-    "2023/2: K,DEF",
-    "2023/3: K,DEF",
-    "2023/4: K,DEF",
-    "2023/5: K,DEF",
-    "2023/6: K,DEF",
-    "2023/7: K,DEF",
-    "2023/8: K,DEF",
-    "2023/9: K,DEF",
-    "2023/10: K,DEF"
-   ],
+   "seats_with_an_unfillable_slot": 0,
+   "detail": [],
    "why": "a roster short at a position is REPORTED, never silently scored short"
   },
   "C4_keepers_as_recorded": {
@@ -69,23 +38,23 @@
  "seat_years": 30,
  "_grading_ruling": "Cory 2026-08-19: \"everything we grade should be graded like we learned.. assuming not injuries, etc.. grade skill not luck\". Every seat carries BOTH an actual and a skill grade; skill puts every player at his own per-active-game rate so availability is removed.",
  "skill_summary": {
-  "mean_delta": -211.34,
-  "wins": 1,
-  "mean_delta_no_equation": -211.34
+  "mean_delta": 29.33,
+  "wins": 18,
+  "mean_delta_no_equation": 29.33
  },
  "predictions": {
   "P215_builder_beats_the_humans": {
-   "pass": false,
-   "mean_delta": -83.68,
-   "wins": 4,
+   "pass": true,
+   "mean_delta": 45.84,
+   "wins": 20,
    "of": 30,
    "bar": "mean > 0 and >= 18 of 30"
   },
   "P216_it_wins_on_conversion": {
    "pass": false,
-   "conversion_wins": 2,
+   "conversion_wins": 15,
    "of": 30,
-   "mean_conversion_builder": 0.8348,
+   "mean_conversion_builder": 0.8881,
    "mean_conversion_owner": 0.8842,
    "bar": ">= 20 of 30"
   },
@@ -93,7 +62,7 @@
    "pass": false,
    "equation_beats_no_equation": 0,
    "of": 30,
-   "mean_delta_no_equation": -83.68,
+   "mean_delta_no_equation": 45.84,
    "bar": ">= 20 of 30"
   }
  },
@@ -107,17 +76,17 @@
     "conversion": 0.9208
    },
    "builder": {
-    "points": 1457.12,
-    "roster_points": 1579.14,
-    "conversion": 0.9227
+    "points": 1455.42,
+    "roster_points": 1497.64,
+    "conversion": 0.9718
    },
    "builder_no_equation": {
-    "points": 1457.12,
-    "roster_points": 1579.14,
-    "conversion": 0.9227
+    "points": 1455.42,
+    "roster_points": 1497.64,
+    "conversion": 0.9718
    },
-   "delta": -109.7,
-   "delta_no_equation": -109.7,
+   "delta": -111.4,
+   "delta_no_equation": -111.4,
    "skill": {
     "owner": {
      "points": 1664.95,
@@ -126,33 +95,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1401.04,
-     "roster_points": 2094.57,
-     "conversion": 0.6689,
+     "points": 1609.18,
+     "roster_points": 2028.27,
+     "conversion": 0.7934,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1401.04,
-     "roster_points": 2094.57,
-     "conversion": 0.6689,
+     "points": 1609.18,
+     "roster_points": 2028.27,
+     "conversion": 0.7934,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -263.91,
-   "skill_delta_no_equation": -263.91,
+   "skill_delta": -55.77,
+   "skill_delta_no_equation": -55.77,
    "builder_counts": {
-    "WR": 6,
+    "WR": 4,
     "RB": 5,
     "TE": 2,
-    "QB": 2
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 84,
+    "builder_DEF": 77,
     "owner_K": 117,
     "owner_DEF": 144
    }
@@ -166,17 +134,17 @@
     "conversion": 0.9726
    },
    "builder": {
-    "points": 1223.34,
-    "roster_points": 1296.16,
-    "conversion": 0.9438
+    "points": 1360.84,
+    "roster_points": 1379.46,
+    "conversion": 0.9865
    },
    "builder_no_equation": {
-    "points": 1223.34,
-    "roster_points": 1296.16,
-    "conversion": 0.9438
+    "points": 1360.84,
+    "roster_points": 1379.46,
+    "conversion": 0.9865
    },
-   "delta": -219,
-   "delta_no_equation": -219,
+   "delta": -81.5,
+   "delta_no_equation": -81.5,
    "skill": {
     "owner": {
      "points": 1391.89,
@@ -185,33 +153,32 @@
      "players_with_no_active_week": 1
     },
     "builder": {
-     "points": 1113.42,
-     "roster_points": 1650.15,
-     "conversion": 0.6747,
+     "points": 1359.72,
+     "roster_points": 1676.41,
+     "conversion": 0.8111,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1113.42,
-     "roster_points": 1650.15,
-     "conversion": 0.6747,
+     "points": 1359.72,
+     "roster_points": 1676.41,
+     "conversion": 0.8111,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -278.47,
-   "skill_delta_no_equation": -278.47,
+   "skill_delta": -32.17,
+   "skill_delta_no_equation": -32.17,
    "builder_counts": {
-    "RB": 6,
-    "WR": 5,
+    "RB": 5,
+    "WR": 4,
     "QB": 2,
-    "TE": 2
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 83,
+    "builder_DEF": 78,
     "owner_K": 103,
     "owner_DEF": 118
    }
@@ -225,17 +192,17 @@
     "conversion": 0.828
    },
    "builder": {
-    "points": 1507.48,
-    "roster_points": 1973.2,
-    "conversion": 0.764
+    "points": 1760.78,
+    "roster_points": 2178,
+    "conversion": 0.8084
    },
    "builder_no_equation": {
-    "points": 1507.48,
-    "roster_points": 1973.2,
-    "conversion": 0.764
+    "points": 1760.78,
+    "roster_points": 2178,
+    "conversion": 0.8084
    },
-   "delta": -104.6,
-   "delta_no_equation": -104.6,
+   "delta": 148.7,
+   "delta_no_equation": 148.7,
    "skill": {
     "owner": {
      "points": 1588.67,
@@ -244,33 +211,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1413.35,
-     "roster_points": 2388.84,
-     "conversion": 0.5916,
+     "points": 1714.15,
+     "roster_points": 2575.69,
+     "conversion": 0.6655,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1413.35,
-     "roster_points": 2388.84,
-     "conversion": 0.5916,
+     "points": 1714.15,
+     "roster_points": 2575.69,
+     "conversion": 0.6655,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -175.32,
-   "skill_delta_no_equation": -175.32,
+   "skill_delta": 125.48,
+   "skill_delta_no_equation": 125.48,
    "builder_counts": {
     "RB": 6,
-    "WR": 4,
+    "WR": 3,
     "QB": 3,
-    "TE": 2
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 88,
+    "builder_DEF": 73,
     "owner_K": 113,
     "owner_DEF": 133
    }
@@ -284,17 +250,17 @@
     "conversion": 0.9041
    },
    "builder": {
-    "points": 1571.88,
-    "roster_points": 1754.38,
-    "conversion": 0.896
+    "points": 1700.58,
+    "roster_points": 1803.08,
+    "conversion": 0.9432
    },
    "builder_no_equation": {
-    "points": 1571.88,
-    "roster_points": 1754.38,
-    "conversion": 0.896
+    "points": 1700.58,
+    "roster_points": 1803.08,
+    "conversion": 0.9432
    },
-   "delta": -65.1,
-   "delta_no_equation": -65.1,
+   "delta": 63.6,
+   "delta_no_equation": 63.6,
    "skill": {
     "owner": {
      "points": 1466.03,
@@ -303,33 +269,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1328.34,
-     "roster_points": 1966.02,
-     "conversion": 0.6757,
+     "points": 1628.64,
+     "roster_points": 2029.92,
+     "conversion": 0.8023,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1328.34,
-     "roster_points": 1966.02,
-     "conversion": 0.6757,
+     "points": 1628.64,
+     "roster_points": 2029.92,
+     "conversion": 0.8023,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -137.69,
-   "skill_delta_no_equation": -137.69,
+   "skill_delta": 162.61,
+   "skill_delta_no_equation": 162.61,
    "builder_counts": {
     "RB": 5,
-    "WR": 7,
+    "WR": 5,
     "QB": 1,
-    "TE": 2
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 85,
+    "builder_DEF": 76,
     "owner_K": 136,
     "owner_DEF": 145
    }
@@ -343,17 +308,17 @@
     "conversion": 0.885
    },
    "builder": {
-    "points": 1929.72,
-    "roster_points": 2234.2,
-    "conversion": 0.8637
+    "points": 2139.42,
+    "roster_points": 2371.3,
+    "conversion": 0.9022
    },
    "builder_no_equation": {
-    "points": 1929.72,
-    "roster_points": 2234.2,
-    "conversion": 0.8637
+    "points": 2139.42,
+    "roster_points": 2371.3,
+    "conversion": 0.9022
    },
-   "delta": -39.4,
-   "delta_no_equation": -39.4,
+   "delta": 170.3,
+   "delta_no_equation": 170.3,
    "skill": {
     "owner": {
      "points": 1944.78,
@@ -362,33 +327,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1663.34,
-     "roster_points": 2513.59,
-     "conversion": 0.6617,
+     "points": 1964.14,
+     "roster_points": 2633.87,
+     "conversion": 0.7457,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1663.34,
-     "roster_points": 2513.59,
-     "conversion": 0.6617,
+     "points": 1964.14,
+     "roster_points": 2633.87,
+     "conversion": 0.7457,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -281.44,
-   "skill_delta_no_equation": -281.44,
+   "skill_delta": 19.36,
+   "skill_delta_no_equation": 19.36,
    "builder_counts": {
     "RB": 3,
-    "WR": 6,
+    "WR": 4,
     "TE": 4,
-    "QB": 2
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 81,
+    "builder_DEF": 80,
     "owner_K": 120,
     "owner_DEF": 141
    }
@@ -402,17 +366,17 @@
     "conversion": 0.8574
    },
    "builder": {
-    "points": 1913.8,
-    "roster_points": 2460.8,
-    "conversion": 0.7777
+    "points": 2013.3,
+    "roster_points": 2410.1,
+    "conversion": 0.8354
    },
    "builder_no_equation": {
-    "points": 1913.8,
-    "roster_points": 2460.8,
-    "conversion": 0.7777
+    "points": 2013.3,
+    "roster_points": 2410.1,
+    "conversion": 0.8354
    },
-   "delta": 167.82,
-   "delta_no_equation": 167.82,
+   "delta": 267.32,
+   "delta_no_equation": 267.32,
    "skill": {
     "owner": {
      "points": 1716.11,
@@ -421,33 +385,32 @@
      "players_with_no_active_week": 1
     },
     "builder": {
-     "points": 1619.62,
-     "roster_points": 2704.38,
-     "conversion": 0.5989,
+     "points": 1833.02,
+     "roster_points": 2668.88,
+     "conversion": 0.6868,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1619.62,
-     "roster_points": 2704.38,
-     "conversion": 0.5989,
+     "points": 1833.02,
+     "roster_points": 2668.88,
+     "conversion": 0.6868,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -96.49,
-   "skill_delta_no_equation": -96.49,
+   "skill_delta": 116.91,
+   "skill_delta_no_equation": 116.91,
    "builder_counts": {
     "WR": 4,
-    "RB": 6,
+    "RB": 4,
     "TE": 2,
-    "QB": 3
+    "QB": 3,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 87,
+    "builder_DEF": 74,
     "owner_K": 127,
     "owner_DEF": 134
    }
@@ -461,17 +424,17 @@
     "conversion": 0.9136
    },
    "builder": {
-    "points": 2000.82,
-    "roster_points": 2447.66,
-    "conversion": 0.8174
+    "points": 2185.92,
+    "roster_points": 2521.36,
+    "conversion": 0.867
    },
    "builder_no_equation": {
-    "points": 2000.82,
-    "roster_points": 2447.66,
-    "conversion": 0.8174
+    "points": 2185.92,
+    "roster_points": 2521.36,
+    "conversion": 0.867
    },
-   "delta": -120.42,
-   "delta_no_equation": -120.42,
+   "delta": 64.68,
+   "delta_no_equation": 64.68,
    "skill": {
     "owner": {
      "points": 1967.36,
@@ -480,33 +443,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1719.82,
-     "roster_points": 2648.21,
-     "conversion": 0.6494,
+     "points": 1986.84,
+     "roster_points": 2671.83,
+     "conversion": 0.7436,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1719.82,
-     "roster_points": 2648.21,
-     "conversion": 0.6494,
+     "points": 1986.84,
+     "roster_points": 2671.83,
+     "conversion": 0.7436,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -247.54,
-   "skill_delta_no_equation": -247.54,
+   "skill_delta": 19.48,
+   "skill_delta_no_equation": 19.48,
    "builder_counts": {
-    "RB": 4,
+    "RB": 3,
     "QB": 2,
-    "WR": 7,
-    "TE": 2
+    "WR": 6,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 86,
+    "builder_DEF": 75,
     "owner_K": 146,
     "owner_DEF": 126
    }
@@ -520,17 +482,17 @@
     "conversion": 0.8849
    },
    "builder": {
-    "points": 1932.86,
-    "roster_points": 2469.3,
-    "conversion": 0.7828
+    "points": 2096.96,
+    "roster_points": 2471,
+    "conversion": 0.8486
    },
    "builder_no_equation": {
-    "points": 1932.86,
-    "roster_points": 2469.3,
-    "conversion": 0.7828
+    "points": 2096.96,
+    "roster_points": 2471,
+    "conversion": 0.8486
    },
-   "delta": 28.58,
-   "delta_no_equation": 28.58,
+   "delta": 192.68,
+   "delta_no_equation": 192.68,
    "skill": {
     "owner": {
      "points": 1831.98,
@@ -539,33 +501,32 @@
      "players_with_no_active_week": 1
     },
     "builder": {
-     "points": 1607.84,
-     "roster_points": 2847.88,
-     "conversion": 0.5646,
+     "points": 1903.57,
+     "roster_points": 2856.84,
+     "conversion": 0.6663,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1607.84,
-     "roster_points": 2847.88,
-     "conversion": 0.5646,
+     "points": 1903.57,
+     "roster_points": 2856.84,
+     "conversion": 0.6663,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -224.14,
-   "skill_delta_no_equation": -224.14,
+   "skill_delta": 71.59,
+   "skill_delta_no_equation": 71.59,
    "builder_counts": {
-    "RB": 4,
-    "WR": 5,
+    "RB": 3,
+    "WR": 4,
     "TE": 2,
-    "QB": 4
+    "QB": 4,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 82,
+    "builder_DEF": 79,
     "owner_K": 122,
     "owner_DEF": 142
    }
@@ -579,17 +540,17 @@
     "conversion": 0.798
    },
    "builder": {
-    "points": 1758.02,
-    "roster_points": 2550,
-    "conversion": 0.6894
+    "points": 1966.2,
+    "roster_points": 2653.98,
+    "conversion": 0.7408
    },
    "builder_no_equation": {
-    "points": 1758.02,
-    "roster_points": 2550,
-    "conversion": 0.6894
+    "points": 1966.2,
+    "roster_points": 2653.98,
+    "conversion": 0.7408
    },
-   "delta": -100.92,
-   "delta_no_equation": -100.92,
+   "delta": 107.26,
+   "delta_no_equation": 107.26,
    "skill": {
     "owner": {
      "points": 1694.87,
@@ -598,33 +559,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1489.41,
-     "roster_points": 2867.18,
-     "conversion": 0.5195,
+     "points": 1774.72,
+     "roster_points": 2895.36,
+     "conversion": 0.613,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1489.41,
-     "roster_points": 2867.18,
-     "conversion": 0.5195,
+     "points": 1774.72,
+     "roster_points": 2895.36,
+     "conversion": 0.613,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -205.46,
-   "skill_delta_no_equation": -205.46,
+   "skill_delta": 79.85,
+   "skill_delta_no_equation": 79.85,
    "builder_counts": {
     "RB": 5,
-    "WR": 5,
+    "WR": 3,
     "QB": 3,
-    "TE": 2
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 89,
+    "builder_DEF": 72,
     "owner_K": 149,
     "owner_DEF": 129
    }
@@ -638,17 +598,17 @@
     "conversion": 0.7896
    },
    "builder": {
-    "points": 1586.82,
-    "roster_points": 2125.18,
-    "conversion": 0.7467
+    "points": 1748.7,
+    "roster_points": 2088.36,
+    "conversion": 0.8374
    },
    "builder_no_equation": {
-    "points": 1586.82,
-    "roster_points": 2125.18,
-    "conversion": 0.7467
+    "points": 1748.7,
+    "roster_points": 2088.36,
+    "conversion": 0.8374
    },
-   "delta": -66.68,
-   "delta_no_equation": -66.68,
+   "delta": 95.2,
+   "delta_no_equation": 95.2,
    "skill": {
     "owner": {
      "points": 1611.11,
@@ -657,33 +617,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1280.89,
-     "roster_points": 2353.02,
-     "conversion": 0.5444,
+     "points": 1565.77,
+     "roster_points": 2331.4,
+     "conversion": 0.6716,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1280.89,
-     "roster_points": 2353.02,
-     "conversion": 0.5444,
+     "points": 1565.77,
+     "roster_points": 2331.4,
+     "conversion": 0.6716,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -330.22,
-   "skill_delta_no_equation": -330.22,
+   "skill_delta": -45.34,
+   "skill_delta_no_equation": -45.34,
    "builder_counts": {
-    "WR": 7,
+    "WR": 5,
     "RB": 4,
     "QB": 2,
-    "TE": 2
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 90,
+    "builder_DEF": 71,
     "owner_K": 130,
     "owner_DEF": 91
    }
@@ -697,17 +656,17 @@
     "conversion": 0.8346
    },
    "builder": {
-    "points": 2104.2,
-    "roster_points": 2772.92,
-    "conversion": 0.7588
+    "points": 2258.4,
+    "roster_points": 2845.02,
+    "conversion": 0.7938
    },
    "builder_no_equation": {
-    "points": 2104.2,
-    "roster_points": 2772.92,
-    "conversion": 0.7588
+    "points": 2258.4,
+    "roster_points": 2845.02,
+    "conversion": 0.7938
    },
-   "delta": -115.94,
-   "delta_no_equation": -115.94,
+   "delta": 38.26,
+   "delta_no_equation": 38.26,
    "skill": {
     "owner": {
      "points": 2096.11,
@@ -716,33 +675,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1760.74,
-     "roster_points": 3038.63,
-     "conversion": 0.5795,
+     "points": 2006.91,
+     "roster_points": 3131.21,
+     "conversion": 0.6409,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1760.74,
-     "roster_points": 3038.63,
-     "conversion": 0.5795,
+     "points": 2006.91,
+     "roster_points": 3131.21,
+     "conversion": 0.6409,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -335.37,
-   "skill_delta_no_equation": -335.37,
+   "skill_delta": -89.2,
+   "skill_delta_no_equation": -89.2,
    "builder_counts": {
     "WR": 5,
-    "RB": 6,
+    "RB": 4,
     "QB": 3,
-    "TE": 1
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 86,
+    "builder_DEF": 75,
     "owner_K": 135,
     "owner_DEF": 146
    }
@@ -756,17 +714,17 @@
     "conversion": 0.9128
    },
    "builder": {
-    "points": 1938.72,
-    "roster_points": 2348.02,
-    "conversion": 0.8257
+    "points": 2075.42,
+    "roster_points": 2327.42,
+    "conversion": 0.8917
    },
    "builder_no_equation": {
-    "points": 1938.72,
-    "roster_points": 2348.02,
-    "conversion": 0.8257
+    "points": 2075.42,
+    "roster_points": 2327.42,
+    "conversion": 0.8917
    },
-   "delta": -120.1,
-   "delta_no_equation": -120.1,
+   "delta": 16.6,
+   "delta_no_equation": 16.6,
    "skill": {
     "owner": {
      "points": 1866.42,
@@ -775,33 +733,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1593.92,
-     "roster_points": 2561.45,
-     "conversion": 0.6223,
+     "points": 1840.09,
+     "roster_points": 2589.11,
+     "conversion": 0.7107,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1593.92,
-     "roster_points": 2561.45,
-     "conversion": 0.6223,
+     "points": 1840.09,
+     "roster_points": 2589.11,
+     "conversion": 0.7107,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -272.5,
-   "skill_delta_no_equation": -272.5,
+   "skill_delta": -26.33,
+   "skill_delta_no_equation": -26.33,
    "builder_counts": {
     "TE": 1,
-    "WR": 6,
-    "RB": 7,
-    "QB": 1
+    "WR": 5,
+    "RB": 6,
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 87,
+    "builder_DEF": 74,
     "owner_K": 134,
     "owner_DEF": 127
    }
@@ -815,17 +772,17 @@
     "conversion": 0.8978
    },
    "builder": {
-    "points": 1713.22,
-    "roster_points": 1941.82,
-    "conversion": 0.8823
+    "points": 1771.12,
+    "roster_points": 1878.42,
+    "conversion": 0.9429
    },
    "builder_no_equation": {
-    "points": 1713.22,
-    "roster_points": 1941.82,
-    "conversion": 0.8823
+    "points": 1771.12,
+    "roster_points": 1878.42,
+    "conversion": 0.9429
    },
-   "delta": -84.8,
-   "delta_no_equation": -84.8,
+   "delta": -26.9,
+   "delta_no_equation": -26.9,
    "skill": {
     "owner": {
      "points": 1705.65,
@@ -834,33 +791,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1408.71,
-     "roster_points": 2083.08,
-     "conversion": 0.6763,
+     "points": 1625.39,
+     "roster_points": 2022.27,
+     "conversion": 0.8037,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1408.71,
-     "roster_points": 2083.08,
-     "conversion": 0.6763,
+     "points": 1625.39,
+     "roster_points": 2022.27,
+     "conversion": 0.8037,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -296.94,
-   "skill_delta_no_equation": -296.94,
+   "skill_delta": -80.26,
+   "skill_delta_no_equation": -80.26,
    "builder_counts": {
-    "RB": 4,
+    "RB": 2,
     "WR": 7,
     "QB": 1,
-    "TE": 2
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 89,
+    "builder_DEF": 72,
     "owner_K": 129,
     "owner_DEF": 149
    }
@@ -874,17 +830,17 @@
     "conversion": 0.8961
    },
    "builder": {
-    "points": 1846.62,
-    "roster_points": 2176.16,
-    "conversion": 0.8486
+    "points": 1945.52,
+    "roster_points": 2173.46,
+    "conversion": 0.8951
    },
    "builder_no_equation": {
-    "points": 1846.62,
-    "roster_points": 2176.16,
-    "conversion": 0.8486
+    "points": 1945.52,
+    "roster_points": 2173.46,
+    "conversion": 0.8951
    },
-   "delta": -125,
-   "delta_no_equation": -125,
+   "delta": -26.1,
+   "delta_no_equation": -26.1,
    "skill": {
     "owner": {
      "points": 1805.99,
@@ -893,33 +849,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1612.43,
-     "roster_points": 2487.55,
-     "conversion": 0.6482,
+     "points": 1857.13,
+     "roster_points": 2489.04,
+     "conversion": 0.7461,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1612.43,
-     "roster_points": 2487.55,
-     "conversion": 0.6482,
+     "points": 1857.13,
+     "roster_points": 2489.04,
+     "conversion": 0.7461,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -193.56,
-   "skill_delta_no_equation": -193.56,
+   "skill_delta": 51.14,
+   "skill_delta_no_equation": 51.14,
    "builder_counts": {
-    "RB": 6,
-    "WR": 5,
+    "RB": 5,
+    "WR": 4,
     "TE": 2,
-    "QB": 2
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 81,
+    "builder_DEF": 80,
     "owner_K": 121,
     "owner_DEF": 81
    }
@@ -933,17 +888,17 @@
     "conversion": 0.9258
    },
    "builder": {
-    "points": 1619.68,
-    "roster_points": 1812.38,
-    "conversion": 0.8937
+    "points": 1665.98,
+    "roster_points": 1725.08,
+    "conversion": 0.9657
    },
    "builder_no_equation": {
-    "points": 1619.68,
-    "roster_points": 1812.38,
-    "conversion": 0.8937
+    "points": 1665.98,
+    "roster_points": 1725.08,
+    "conversion": 0.9657
    },
-   "delta": -201.3,
-   "delta_no_equation": -201.3,
+   "delta": -155,
+   "delta_no_equation": -155,
    "skill": {
     "owner": {
      "points": 1667.16,
@@ -952,33 +907,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1416.1,
-     "roster_points": 2026.8,
-     "conversion": 0.6987,
+     "points": 1642.89,
+     "roster_points": 2004.67,
+     "conversion": 0.8195,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1416.1,
-     "roster_points": 2026.8,
-     "conversion": 0.6987,
+     "points": 1642.89,
+     "roster_points": 2004.67,
+     "conversion": 0.8195,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -251.06,
-   "skill_delta_no_equation": -251.06,
+   "skill_delta": -24.27,
+   "skill_delta_no_equation": -24.27,
    "builder_counts": {
-    "RB": 5,
-    "WR": 7,
+    "RB": 4,
+    "WR": 6,
     "TE": 1,
-    "QB": 1
+    "QB": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 90,
+    "builder_DEF": 71,
     "owner_K": 111,
     "owner_DEF": 150
    }
@@ -992,17 +946,17 @@
     "conversion": 0.8937
    },
    "builder": {
-    "points": 2006.2,
-    "roster_points": 2313.1,
-    "conversion": 0.8673
+    "points": 2024.4,
+    "roster_points": 2187.6,
+    "conversion": 0.9254
    },
    "builder_no_equation": {
-    "points": 2006.2,
-    "roster_points": 2313.1,
-    "conversion": 0.8673
+    "points": 2024.4,
+    "roster_points": 2187.6,
+    "conversion": 0.9254
    },
-   "delta": -68.3,
-   "delta_no_equation": -68.3,
+   "delta": -50.1,
+   "delta_no_equation": -50.1,
    "skill": {
     "owner": {
      "points": 2004.54,
@@ -1011,33 +965,32 @@
      "players_with_no_active_week": 1
     },
     "builder": {
-     "points": 1881.61,
-     "roster_points": 2654.97,
-     "conversion": 0.7087,
+     "points": 1995.58,
+     "roster_points": 2433.5,
+     "conversion": 0.82,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1881.61,
-     "roster_points": 2654.97,
-     "conversion": 0.7087,
+     "points": 1995.58,
+     "roster_points": 2433.5,
+     "conversion": 0.82,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -122.93,
-   "skill_delta_no_equation": -122.93,
+   "skill_delta": -8.96,
+   "skill_delta_no_equation": -8.96,
    "builder_counts": {
-    "WR": 5,
+    "WR": 4,
     "RB": 5,
     "QB": 1,
-    "TE": 4
+    "TE": 3,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 88,
+    "builder_DEF": 73,
     "owner_K": 108,
     "owner_DEF": null
    }
@@ -1051,17 +1004,17 @@
     "conversion": 0.8173
    },
    "builder": {
-    "points": 1781.26,
-    "roster_points": 2372.94,
-    "conversion": 0.7507
+    "points": 1875.56,
+    "roster_points": 2344.14,
+    "conversion": 0.8001
    },
    "builder_no_equation": {
-    "points": 1781.26,
-    "roster_points": 2372.94,
-    "conversion": 0.7507
+    "points": 1875.56,
+    "roster_points": 2344.14,
+    "conversion": 0.8001
    },
-   "delta": -2.7,
-   "delta_no_equation": -2.7,
+   "delta": 91.6,
+   "delta_no_equation": 91.6,
    "skill": {
     "owner": {
      "points": 1729.07,
@@ -1070,33 +1023,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1557.81,
-     "roster_points": 2652.33,
-     "conversion": 0.5873,
+     "points": 1803.98,
+     "roster_points": 2657.62,
+     "conversion": 0.6788,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1557.81,
-     "roster_points": 2652.33,
-     "conversion": 0.5873,
+     "points": 1803.98,
+     "roster_points": 2657.62,
+     "conversion": 0.6788,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -171.26,
-   "skill_delta_no_equation": -171.26,
+   "skill_delta": 74.91,
+   "skill_delta_no_equation": 74.91,
    "builder_counts": {
-    "RB": 4,
+    "RB": 3,
     "QB": 2,
-    "WR": 8,
-    "TE": 1
+    "WR": 7,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 84,
+    "builder_DEF": 77,
     "owner_K": 124,
     "owner_DEF": 137
    }
@@ -1110,17 +1062,17 @@
     "conversion": 0.9139
    },
    "builder": {
-    "points": 1748.42,
-    "roster_points": 2005.06,
-    "conversion": 0.872
+    "points": 1882.02,
+    "roster_points": 2069.86,
+    "conversion": 0.9092
    },
    "builder_no_equation": {
-    "points": 1748.42,
-    "roster_points": 2005.06,
-    "conversion": 0.872
+    "points": 1882.02,
+    "roster_points": 2069.86,
+    "conversion": 0.9092
    },
-   "delta": 8.6,
-   "delta_no_equation": 8.6,
+   "delta": 142.2,
+   "delta_no_equation": 142.2,
    "skill": {
     "owner": {
      "points": 1726.8,
@@ -1129,33 +1081,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1531.72,
-     "roster_points": 2541.13,
-     "conversion": 0.6028,
+     "points": 1777.89,
+     "roster_points": 2522.86,
+     "conversion": 0.7047,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1531.72,
-     "roster_points": 2541.13,
-     "conversion": 0.6028,
+     "points": 1777.89,
+     "roster_points": 2522.86,
+     "conversion": 0.7047,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -195.08,
-   "skill_delta_no_equation": -195.08,
+   "skill_delta": 51.09,
+   "skill_delta_no_equation": 51.09,
    "builder_counts": {
-    "RB": 4,
-    "WR": 6,
+    "RB": 3,
+    "WR": 5,
     "TE": 3,
-    "QB": 2
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 82,
+    "builder_DEF": 79,
     "owner_K": 122,
     "owner_DEF": 139
    }
@@ -1169,17 +1120,17 @@
     "conversion": 0.8825
    },
    "builder": {
-    "points": 1868.86,
-    "roster_points": 2277.54,
-    "conversion": 0.8206
+    "points": 1952.56,
+    "roster_points": 2221.54,
+    "conversion": 0.8789
    },
    "builder_no_equation": {
-    "points": 1868.86,
-    "roster_points": 2277.54,
-    "conversion": 0.8206
+    "points": 1952.56,
+    "roster_points": 2221.54,
+    "conversion": 0.8789
    },
-   "delta": -60.1,
-   "delta_no_equation": -60.1,
+   "delta": 23.6,
+   "delta_no_equation": 23.6,
    "skill": {
     "owner": {
      "points": 1713.67,
@@ -1188,33 +1139,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1522.98,
-     "roster_points": 2540.88,
-     "conversion": 0.5994,
+     "points": 1769.15,
+     "roster_points": 2507.3,
+     "conversion": 0.7056,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1522.98,
-     "roster_points": 2540.88,
-     "conversion": 0.5994,
+     "points": 1769.15,
+     "roster_points": 2507.3,
+     "conversion": 0.7056,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -190.69,
-   "skill_delta_no_equation": -190.69,
+   "skill_delta": 55.48,
+   "skill_delta_no_equation": 55.48,
    "builder_counts": {
-    "WR": 7,
-    "RB": 5,
+    "WR": 6,
+    "RB": 4,
     "TE": 1,
-    "QB": 2
+    "DEF": 1,
+    "QB": 2,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 85,
+    "builder_DEF": 65,
     "owner_K": 136,
     "owner_DEF": 125
    }
@@ -1228,17 +1178,17 @@
     "conversion": 0.849
    },
    "builder": {
-    "points": 1729.64,
-    "roster_points": 2070.16,
-    "conversion": 0.8355
+    "points": 1823.04,
+    "roster_points": 2119.36,
+    "conversion": 0.8602
    },
    "builder_no_equation": {
-    "points": 1729.64,
-    "roster_points": 2070.16,
-    "conversion": 0.8355
+    "points": 1823.04,
+    "roster_points": 2119.36,
+    "conversion": 0.8602
    },
-   "delta": -86.22,
-   "delta_no_equation": -86.22,
+   "delta": 7.18,
+   "delta_no_equation": 7.18,
    "skill": {
     "owner": {
      "points": 1607.21,
@@ -1247,33 +1197,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1441.98,
-     "roster_points": 2535.77,
-     "conversion": 0.5687,
+     "points": 1682.67,
+     "roster_points": 2600.42,
+     "conversion": 0.6471,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1441.98,
-     "roster_points": 2535.77,
-     "conversion": 0.5687,
+     "points": 1682.67,
+     "roster_points": 2600.42,
+     "conversion": 0.6471,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -165.23,
-   "skill_delta_no_equation": -165.23,
+   "skill_delta": 75.46,
+   "skill_delta_no_equation": 75.46,
    "builder_counts": {
     "WR": 7,
-    "RB": 4,
+    "RB": 3,
     "QB": 2,
-    "TE": 2
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 83,
+    "builder_DEF": 78,
     "owner_K": 123,
     "owner_DEF": 103
    }
@@ -1287,17 +1236,17 @@
     "conversion": 0.9278
    },
    "builder": {
-    "points": 1694.4,
-    "roster_points": 2009.1,
-    "conversion": 0.8434
+    "points": 1754.4,
+    "roster_points": 1956.2,
+    "conversion": 0.8968
    },
    "builder_no_equation": {
-    "points": 1694.4,
-    "roster_points": 2009.1,
-    "conversion": 0.8434
+    "points": 1754.4,
+    "roster_points": 1956.2,
+    "conversion": 0.8968
    },
-   "delta": -109.68,
-   "delta_no_equation": -109.68,
+   "delta": -49.68,
+   "delta_no_equation": -49.68,
    "skill": {
     "owner": {
      "points": 1707.25,
@@ -1306,33 +1255,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1526.44,
-     "roster_points": 2520.61,
-     "conversion": 0.6056,
+     "points": 1728.69,
+     "roster_points": 2467.71,
+     "conversion": 0.7005,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1526.44,
-     "roster_points": 2520.61,
-     "conversion": 0.6056,
+     "points": 1728.69,
+     "roster_points": 2467.71,
+     "conversion": 0.7005,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -180.81,
-   "skill_delta_no_equation": -180.81,
+   "skill_delta": 21.44,
+   "skill_delta_no_equation": 21.44,
    "builder_counts": {
     "WR": 6,
-    "RB": 5,
+    "RB": 3,
     "TE": 2,
-    "QB": 2
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 86,
+    "builder_DEF": 75,
     "owner_K": 126,
     "owner_DEF": 146
    }
@@ -1346,17 +1294,17 @@
     "conversion": 0.9136
    },
    "builder": {
-    "points": 1850.14,
-    "roster_points": 2244.22,
-    "conversion": 0.8244
+    "points": 1983.04,
+    "roster_points": 2153.12,
+    "conversion": 0.921
    },
    "builder_no_equation": {
-    "points": 1850.14,
-    "roster_points": 2244.22,
-    "conversion": 0.8244
+    "points": 1983.04,
+    "roster_points": 2153.12,
+    "conversion": 0.921
    },
-   "delta": -12.1,
-   "delta_no_equation": -12.1,
+   "delta": 120.8,
+   "delta_no_equation": 120.8,
    "skill": {
     "owner": {
      "points": 1761.49,
@@ -1365,33 +1313,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1550.86,
-     "roster_points": 2683.25,
-     "conversion": 0.578,
+     "points": 1772.36,
+     "roster_points": 2561.83,
+     "conversion": 0.6918,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1550.86,
-     "roster_points": 2683.25,
-     "conversion": 0.578,
+     "points": 1772.36,
+     "roster_points": 2561.83,
+     "conversion": 0.6918,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -210.63,
-   "skill_delta_no_equation": -210.63,
+   "skill_delta": 10.87,
+   "skill_delta_no_equation": 10.87,
    "builder_counts": {
     "TE": 1,
-    "WR": 5,
-    "RB": 7,
-    "QB": 2
+    "WR": 4,
+    "RB": 6,
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 83,
+    "builder_DEF": 78,
     "owner_K": 138,
     "owner_DEF": 103
    }
@@ -1405,17 +1352,17 @@
     "conversion": 0.9638
    },
    "builder": {
-    "points": 1620.86,
-    "roster_points": 1864.94,
-    "conversion": 0.8691
+    "points": 1712.46,
+    "roster_points": 1888.44,
+    "conversion": 0.9068
    },
    "builder_no_equation": {
-    "points": 1620.86,
-    "roster_points": 1864.94,
-    "conversion": 0.8691
+    "points": 1712.46,
+    "roster_points": 1888.44,
+    "conversion": 0.9068
    },
-   "delta": 1.04,
-   "delta_no_equation": 1.04,
+   "delta": 92.64,
+   "delta_no_equation": 92.64,
    "skill": {
     "owner": {
      "points": 1717.62,
@@ -1424,33 +1371,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1538.91,
-     "roster_points": 2398.44,
-     "conversion": 0.6416,
+     "points": 1689.64,
+     "roster_points": 2392.66,
+     "conversion": 0.7062,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1538.91,
-     "roster_points": 2398.44,
-     "conversion": 0.6416,
+     "points": 1689.64,
+     "roster_points": 2392.66,
+     "conversion": 0.7062,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -178.71,
-   "skill_delta_no_equation": -178.71,
+   "skill_delta": -27.98,
+   "skill_delta_no_equation": -27.98,
    "builder_counts": {
-    "WR": 5,
+    "WR": 3,
     "QB": 2,
     "RB": 7,
-    "TE": 1
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 85,
+    "builder_DEF": 76,
     "owner_K": 145,
     "owner_DEF": 136
    }
@@ -1464,17 +1410,17 @@
     "conversion": 0.8935
    },
    "builder": {
-    "points": 1399.42,
-    "roster_points": 1683.34,
-    "conversion": 0.8313
+    "points": 1629.92,
+    "roster_points": 1824.44,
+    "conversion": 0.8934
    },
    "builder_no_equation": {
-    "points": 1399.42,
-    "roster_points": 1683.34,
-    "conversion": 0.8313
+    "points": 1629.92,
+    "roster_points": 1824.44,
+    "conversion": 0.8934
    },
-   "delta": -103.5,
-   "delta_no_equation": -103.5,
+   "delta": 127,
+   "delta_no_equation": 127,
    "skill": {
     "owner": {
      "points": 1620.72,
@@ -1483,33 +1429,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1389.3,
-     "roster_points": 2172.68,
-     "conversion": 0.6394,
+     "points": 1664.3,
+     "roster_points": 2287.35,
+     "conversion": 0.7276,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1389.3,
-     "roster_points": 2172.68,
-     "conversion": 0.6394,
+     "points": 1664.3,
+     "roster_points": 2287.35,
+     "conversion": 0.7276,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -231.42,
-   "skill_delta_no_equation": -231.42,
+   "skill_delta": 43.58,
+   "skill_delta_no_equation": 43.58,
    "builder_counts": {
-    "RB": 5,
-    "WR": 5,
+    "RB": 4,
+    "WR": 4,
     "TE": 3,
-    "QB": 2
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 87,
+    "builder_DEF": 74,
     "owner_K": 127,
     "owner_DEF": 94
    }
@@ -1523,17 +1468,17 @@
     "conversion": 0.8229
    },
    "builder": {
-    "points": 1700.84,
-    "roster_points": 1917.74,
-    "conversion": 0.8869
+    "points": 1808.64,
+    "roster_points": 1879.94,
+    "conversion": 0.9621
    },
    "builder_no_equation": {
-    "points": 1700.84,
-    "roster_points": 1917.74,
-    "conversion": 0.8869
+    "points": 1808.64,
+    "roster_points": 1879.94,
+    "conversion": 0.9621
    },
-   "delta": -42.86,
-   "delta_no_equation": -42.86,
+   "delta": 64.94,
+   "delta_no_equation": 64.94,
    "skill": {
     "owner": {
      "points": 1442.29,
@@ -1542,33 +1487,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1449.57,
-     "roster_points": 2105.4,
-     "conversion": 0.6885,
+     "points": 1665.07,
+     "roster_points": 2067.6,
+     "conversion": 0.8053,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1449.57,
-     "roster_points": 2105.4,
-     "conversion": 0.6885,
+     "points": 1665.07,
+     "roster_points": 2067.6,
+     "conversion": 0.8053,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": 7.28,
-   "skill_delta_no_equation": 7.28,
+   "skill_delta": 222.78,
+   "skill_delta_no_equation": 222.78,
    "builder_counts": {
-    "RB": 5,
-    "WR": 6,
+    "RB": 4,
+    "WR": 5,
     "TE": 2,
-    "QB": 2
+    "DEF": 1,
+    "QB": 2,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 89,
+    "builder_DEF": 69,
     "owner_K": 109,
     "owner_DEF": 129
    }
@@ -1582,17 +1526,17 @@
     "conversion": 0.8455
    },
    "builder": {
-    "points": 1785.3,
-    "roster_points": 2160.52,
-    "conversion": 0.8263
+    "points": 1931.5,
+    "roster_points": 2216.22,
+    "conversion": 0.8715
    },
    "builder_no_equation": {
-    "points": 1785.3,
-    "roster_points": 2160.52,
-    "conversion": 0.8263
+    "points": 1931.5,
+    "roster_points": 2216.22,
+    "conversion": 0.8715
    },
-   "delta": -229,
-   "delta_no_equation": -229,
+   "delta": -82.8,
+   "delta_no_equation": -82.8,
    "skill": {
     "owner": {
      "points": 1718.34,
@@ -1601,33 +1545,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1428.5,
-     "roster_points": 2479.12,
-     "conversion": 0.5762,
+     "points": 1654.48,
+     "roster_points": 2466.42,
+     "conversion": 0.6708,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1428.5,
-     "roster_points": 2479.12,
-     "conversion": 0.5762,
+     "points": 1654.48,
+     "roster_points": 2466.42,
+     "conversion": 0.6708,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -289.84,
-   "skill_delta_no_equation": -289.84,
+   "skill_delta": -63.86,
+   "skill_delta_no_equation": -63.86,
    "builder_counts": {
-    "WR": 5,
+    "WR": 3,
     "RB": 7,
     "QB": 2,
-    "TE": 1
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 81,
+    "builder_DEF": 80,
     "owner_K": 121,
     "owner_DEF": 120
    }
@@ -1641,17 +1584,17 @@
     "conversion": 0.853
    },
    "builder": {
-    "points": 1878.62,
-    "roster_points": 2316.82,
-    "conversion": 0.8109
+    "points": 2058.62,
+    "roster_points": 2384.92,
+    "conversion": 0.8632
    },
    "builder_no_equation": {
-    "points": 1878.62,
-    "roster_points": 2316.82,
-    "conversion": 0.8109
+    "points": 2058.62,
+    "roster_points": 2384.92,
+    "conversion": 0.8632
    },
-   "delta": -251.9,
-   "delta_no_equation": -251.9,
+   "delta": -71.9,
+   "delta_no_equation": -71.9,
    "skill": {
     "owner": {
      "points": 1953.42,
@@ -1660,33 +1603,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1635.35,
-     "roster_points": 2560.47,
-     "conversion": 0.6387,
+     "points": 1877.64,
+     "roster_points": 2599.93,
+     "conversion": 0.7222,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1635.35,
-     "roster_points": 2560.47,
-     "conversion": 0.6387,
+     "points": 1877.64,
+     "roster_points": 2599.93,
+     "conversion": 0.7222,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -318.07,
-   "skill_delta_no_equation": -318.07,
+   "skill_delta": -75.78,
+   "skill_delta_no_equation": -75.78,
    "builder_counts": {
     "RB": 4,
-    "WR": 5,
+    "WR": 4,
     "QB": 2,
-    "TE": 4
+    "TE": 3,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 88,
+    "builder_DEF": 73,
     "owner_K": 133,
     "owner_DEF": 128
    }
@@ -1700,17 +1642,17 @@
     "conversion": 0.9812
    },
    "builder": {
-    "points": 1434.68,
-    "roster_points": 1486.78,
-    "conversion": 0.965
+    "points": 1572.78,
+    "roster_points": 1590.28,
+    "conversion": 0.989
    },
    "builder_no_equation": {
-    "points": 1434.68,
-    "roster_points": 1486.78,
-    "conversion": 0.965
+    "points": 1572.78,
+    "roster_points": 1590.28,
+    "conversion": 0.989
    },
-   "delta": -179.3,
-   "delta_no_equation": -179.3,
+   "delta": -41.2,
+   "delta_no_equation": -41.2,
    "skill": {
     "owner": {
      "points": 1705.63,
@@ -1719,33 +1661,32 @@
      "players_with_no_active_week": 1
     },
     "builder": {
-     "points": 1467.85,
-     "roster_points": 1961.12,
-     "conversion": 0.7485,
+     "points": 1683.04,
+     "roster_points": 2007.22,
+     "conversion": 0.8385,
      "players_with_no_active_week": 1
     },
     "builder_no_equation": {
-     "points": 1467.85,
-     "roster_points": 1961.12,
-     "conversion": 0.7485,
+     "points": 1683.04,
+     "roster_points": 2007.22,
+     "conversion": 0.8385,
      "players_with_no_active_week": 1
     }
    },
-   "skill_delta": -237.78,
-   "skill_delta_no_equation": -237.78,
+   "skill_delta": -22.59,
+   "skill_delta_no_equation": -22.59,
    "builder_counts": {
-    "WR": 7,
+    "WR": 5,
     "QB": 2,
     "RB": 4,
-    "TE": 2
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 90,
+    "builder_DEF": 71,
     "owner_K": 131,
     "owner_DEF": 130
    }
@@ -1759,17 +1700,17 @@
     "conversion": 0.8836
    },
    "builder": {
-    "points": 1690.8,
-    "roster_points": 2108.08,
-    "conversion": 0.8021
+    "points": 1828.6,
+    "roster_points": 2175.18,
+    "conversion": 0.8407
    },
    "builder_no_equation": {
-    "points": 1690.8,
-    "roster_points": 2108.08,
-    "conversion": 0.8021
+    "points": 1828.6,
+    "roster_points": 2175.18,
+    "conversion": 0.8407
    },
-   "delta": -47.12,
-   "delta_no_equation": -47.12,
+   "delta": 90.68,
+   "delta_no_equation": 90.68,
    "skill": {
     "owner": {
      "points": 1729.83,
@@ -1778,33 +1719,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1564.02,
-     "roster_points": 2931.49,
-     "conversion": 0.5335,
+     "points": 1784.27,
+     "roster_points": 2899.42,
+     "conversion": 0.6154,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1564.02,
-     "roster_points": 2931.49,
-     "conversion": 0.5335,
+     "points": 1784.27,
+     "roster_points": 2899.42,
+     "conversion": 0.6154,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -165.81,
-   "skill_delta_no_equation": -165.81,
+   "skill_delta": 54.44,
+   "skill_delta_no_equation": 54.44,
    "builder_counts": {
     "RB": 7,
     "TE": 1,
-    "WR": 4,
-    "QB": 3
+    "WR": 2,
+    "QB": 3,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 84,
+    "builder_DEF": 77,
     "owner_K": 144,
     "owner_DEF": 137
    }
@@ -1818,17 +1758,17 @@
     "conversion": 0.8642
    },
    "builder": {
-    "points": 1843.18,
-    "roster_points": 2235.98,
-    "conversion": 0.8243
+    "points": 2040.52,
+    "roster_points": 2282.62,
+    "conversion": 0.8939
    },
    "builder_no_equation": {
-    "points": 1843.18,
-    "roster_points": 2235.98,
-    "conversion": 0.8243
+    "points": 2040.52,
+    "roster_points": 2282.62,
+    "conversion": 0.8939
    },
-   "delta": -50.8,
-   "delta_no_equation": -50.8,
+   "delta": 146.54,
+   "delta_no_equation": 146.54,
    "skill": {
     "owner": {
      "points": 1729.03,
@@ -1837,33 +1777,32 @@
      "players_with_no_active_week": 0
     },
     "builder": {
-     "points": 1629.97,
-     "roster_points": 2385.77,
-     "conversion": 0.6832,
+     "points": 1904.97,
+     "roster_points": 2432.41,
+     "conversion": 0.7832,
      "players_with_no_active_week": 0
     },
     "builder_no_equation": {
-     "points": 1629.97,
-     "roster_points": 2385.77,
-     "conversion": 0.6832,
+     "points": 1904.97,
+     "roster_points": 2432.41,
+     "conversion": 0.7832,
      "players_with_no_active_week": 0
     }
    },
-   "skill_delta": -99.06,
-   "skill_delta_no_equation": -99.06,
+   "skill_delta": 175.94,
+   "skill_delta_no_equation": 175.94,
    "builder_counts": {
-    "WR": 4,
+    "WR": 3,
     "QB": 2,
-    "RB": 7,
-    "TE": 2
+    "RB": 6,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
    },
-   "unfillable": [
-    "K",
-    "DEF"
-   ],
+   "unfillable": [],
    "first_pick": {
-    "builder_K": null,
-    "builder_DEF": null,
+    "builder_K": 82,
+    "builder_DEF": 79,
     "owner_K": 102,
     "owner_DEF": 119
    }

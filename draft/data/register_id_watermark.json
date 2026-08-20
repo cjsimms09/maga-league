@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 147,
+ "next_numeric_id": 150,
  "history": [
   {
    "id": 47,
@@ -179,6 +179,11 @@
    "id": "143 (A, further origin/main) renumbered to 146",
    "claimed_at": "2026-08-20",
    "note": "A independently claimed 143 for a real, different row (register 142's follow-up sweep) on origin/main while D's own 143 (keeper-tooling) already existed locally. A's row kept, renumbered to 146 on merge since 143 was taken. Watermark now authoritative from 147."
+  },
+  {
+   "id": "D's 143-146 (never merged to main) reconciled against a further main sync",
+   "claimed_at": "2026-08-20",
+   "note": "D's branch has not yet been merged to main by A, so every D-only id (D's own renumbered 146, and 143/144/145) only ever existed on D's branch. A's further work on main independently reused 143 (same row D had moved to 146 — dropped D's copy, kept main's 143 as canonical), and claimed real, different new rows at 144 and 145. D's three still-unmerged, genuinely unique rows (keeper-tooling, unclassified blend fields, standalone-script test pattern) renumbered 143/144/145 -> 147/148/149. Watermark now authoritative from 150."
   }
  ]
 }

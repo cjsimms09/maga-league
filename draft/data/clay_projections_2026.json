@@ -3,6 +3,11 @@
  "_note": "Mike Clay's 2026 guide (draft/data/sources/clay_projections_2026.pdf), scored under THIS LEAGUE'S table from RAW STAT LINES. His own points column is full-PPR and is never read. Writes NO board field, not part of any blend. Kickers: raw counts only, not scored (no FG distance split). Team DEFENSE: not present in this guide in extractable form, zero DEF rows.",
  "scoring_source": "draft/backtest/nflverse_weekly_points_2024.json fingerprint (via multisource_projections.league_scoring, rule 11)",
  "source_pdf": "draft/data/sources/clay_projections_2026.pdf",
+ "guide_updated": "2026-08-19",
+ "version_gate": {
+  "status": "preseason_by_date",
+  "why": "no season-start boundary configured for this year -- the printed date is unambiguously months out"
+ },
  "known_positive_control": "Jahmyr Gibbs RB-table row verified against his independently-printed Detroit team-page row before any output was trusted \u2014 see _verify_known_positive",
  "crosswalk_note": null,
  "players": {

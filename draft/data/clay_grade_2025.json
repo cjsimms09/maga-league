@@ -2,6 +2,19 @@
  "_territory": "TERRITORY: C \u2014 written by draft/tools/clay_grade_2025.py",
  "_what": "Mike Clay's 2025 preseason projection (scored under our own table, from raw stat lines -- his full-PPR points were never read) graded against REALIZED 2025 season points from draft/backtest/nflverse_weekly_points_2025.json, weeks 1-17.",
  "_reused": "season_totals (exp_fp_hist_proj.py) and cell (sleeper_vs_fp_grade.py), both TERRITORY: A, imported read-only per rule 11 -- not re-derived.",
+ "_version_gate": {
+  "status": "preseason_confirmed_by_kickoff_check",
+  "season_start": "2025-09-04",
+  "guide_updated": "2025-09-04",
+  "kickoff_teams": [
+   "DAL",
+   "PHI"
+  ],
+  "kickoff_full_games": 17.0,
+  "n_kickoff_players_checked": 22,
+  "players_short_a_game": [],
+  "why": "the printed date is on/after this year's season start, so the date alone cannot prove a clean preseason forecast -- checked whether the season opener's two teams show a full game count instead"
+ },
  "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); mae is the level grade in fantasy points; bias is signed error (positive = Clay projected too high on average). topN is the fraction of the realized top-N Clay also had in his own top-N, None when the position has fewer than N graded players. `cells` grades SEASON TOTALS (Clay's assumed ~17 games vs however many the player actually played -- includes injury luck no preseason source can predict). `skill_cells` grades PER-GAME RATE instead (Clay's total / his own assumed games, vs realized total / games actually played) -- Cory's own standard elsewhere in this project: grade skill, not luck.",
  "population": {
   "clay_players_2025": 415,

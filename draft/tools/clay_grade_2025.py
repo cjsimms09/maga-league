@@ -46,6 +46,18 @@ POSITIONS = ("QB", "RB", "WR", "TE")
 def main() -> dict:
     clay_doc = build_store(2025)
 
+    # VERSION GATE, not narrated -- checked. The printed date (2025-09-04) IS
+    # 2025 Week 1 kickoff day, so it alone cannot prove a clean preseason
+    # forecast (A's conservative rule: on/after season start = in-season).
+    # `version_gate` is the EXECUTABLE proof this store carries instead: the
+    # opener's two teams (DAL/PHI) must show a full 17-game count, which a
+    # guide written after that Thursday game could not show. Refuse to grade
+    # rather than silently trust the date if that proof did not land.
+    gate = clay_doc["version_gate"]
+    if gate["status"] not in ("preseason_by_date", "preseason_confirmed_by_kickoff_check"):
+        raise SystemExit(f"REFUSING TO GRADE: version_gate status is {gate['status']!r}, "
+                          f"not a confirmed preseason edition — {gate.get('why')}")
+
     realized_store = json.loads((BACKTEST / "nflverse_weekly_points_2025.json").read_text())
     actual, games = season_totals(realized_store)
 
@@ -94,6 +106,7 @@ def main() -> dict:
                  "draft/backtest/nflverse_weekly_points_2025.json, weeks 1-17.",
         "_reused": "season_totals (exp_fp_hist_proj.py) and cell (sleeper_vs_fp_grade.py), "
                    "both TERRITORY: A, imported read-only per rule 11 -- not re-derived.",
+        "_version_gate": gate,
         "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); "
                         "mae is the level grade in fantasy points; bias is signed error "
                         "(positive = Clay projected too high on average). topN is the "

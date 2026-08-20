@@ -84,6 +84,9 @@ YEAR_CONFIG = {
         "out": DRAFT / "data" / "clay_projections_2026.json",
         "gibbs_expect": ("283", "1373", "14", "86", "68", "546", "3"),
         "has_kicker_section": True,
+        "season_start": None,       # months out; no version-gate ambiguity possible
+        "kickoff_teams": None,
+        "kickoff_full_games": None,
     },
     2025: {
         "pdf": DRAFT / "data" / "sources" / "clay_projections_2025.pdf",
@@ -91,6 +94,17 @@ YEAR_CONFIG = {
         "out": DRAFT / "data" / "clay_projections_2025.json",
         "gibbs_expect": ("235", "1153", "11", "82", "60", "567", "3"),
         "has_kicker_section": False,
+        # A, ROUTES.md 2026-08-20: the printed date IS Week 1 kickoff day, which
+        # this project's own conservative rule treats as in-season unless
+        # proven otherwise. Proof, not the date alone: the 2025 opener was
+        # DAL @ PHI (Thu 9/4) -- a guide written AFTER that game would show
+        # those rosters one game short (16, not 17). Independently verified
+        # against this store before trusting the date: 22/22 DAL+PHI players
+        # carry g=17.0. See _verify_preseason_edition, which runs the same
+        # check as code rather than only in a commit message.
+        "season_start": "2025-09-04",
+        "kickoff_teams": ("DAL", "PHI"),
+        "kickoff_full_games": 17.0,
     },
 }
 
@@ -273,11 +287,61 @@ def _verify_known_positive(lines: list[str], expect: tuple) -> None:
                           f"stop and look.")
 
 
+_UPDATED_RE = re.compile(r"Updated:\s*(\d{1,2})/(\d{1,2})/(\d{4})")
+
+
+def extract_guide_updated(text: str) -> str | None:
+    """The guide's own printed date, ISO -- the field A's version gate
+    (clay_2025_retrograde.js) reads to decide whether an accuracy grade is
+    even meaningful. `None` if the header text ever changes shape; a missing
+    field is what that gate's own docstring calls a safe default (treated as
+    in-season), never a guess."""
+    m = _UPDATED_RE.search(text)
+    if not m:
+        return None
+    mo, d, y = m.groups()
+    return f"{y}-{int(mo):02d}-{int(d):02d}"
+
+
+def verify_preseason_edition(players: dict, cfg: dict, guide_updated: str | None) -> dict:
+    """Does the printed date alone prove this is a clean preseason forecast?
+    On or after the configured season start, no -- so PROVE it instead of
+    trusting the date: a guide written after the season-opening game would
+    show that game's two teams one game short of a full season. Executable
+    version of the check A did once by hand and described in a commit
+    message (ROUTES.md 2026-08-20) -- run here on every build, not narrated."""
+    season_start = cfg.get("season_start")
+    if season_start is None:
+        return {"status": "preseason_by_date", "why": "no season-start boundary configured "
+                "for this year -- the printed date is unambiguously months out"}
+    if guide_updated is None or guide_updated < season_start:
+        return {"status": "preseason_by_date", "season_start": season_start,
+                "guide_updated": guide_updated}
+    teams = cfg["kickoff_teams"]
+    full = cfg["kickoff_full_games"]
+    rows = [p for p in players.values() if p.get("team_clay") in teams]
+    short = [p["clay_name"] for p in rows if p["raw_stats"].get("g") != full]
+    ok = bool(rows) and not short
+    return {
+        "status": "preseason_confirmed_by_kickoff_check" if ok else "in_season_or_unverifiable",
+        "season_start": season_start, "guide_updated": guide_updated,
+        "kickoff_teams": list(teams), "kickoff_full_games": full,
+        "n_kickoff_players_checked": len(rows),
+        "players_short_a_game": short,
+        "why": ("the printed date is on/after this year's season start, so the date alone "
+                "cannot prove a clean preseason forecast -- checked whether the season "
+                "opener's two teams show a full game count instead" if rows else
+                "the kickoff teams' players were not found in this parse -- cannot verify, "
+                "treated as NOT confirmed"),
+    }
+
+
 def build_store(year: int) -> dict:
     cfg = YEAR_CONFIG[year]
     text = source_text(cfg)
     lines = text.split("\n")
     _verify_known_positive(lines, cfg["gibbs_expect"])
+    guide_updated = extract_guide_updated(text)
 
     qb = parse_rows(section_lines(lines, "Quarterback Projections",
                                    ["Running Back Projections (1"]), 14)
@@ -392,6 +456,8 @@ def build_store(year: int) -> dict:
                              f"grade is against realized outcomes (clay_grade_2025.py), "
                              f"not against Sleeper."}
 
+    version_gate = verify_preseason_edition(players, cfg, guide_updated)
+
     doc = {
         "_territory": "TERRITORY: C — written by draft/tools/clay_projections.py",
         "_note": f"Mike Clay's {year} guide ({cfg['pdf'].relative_to(ROOT)}), "
@@ -403,6 +469,8 @@ def build_store(year: int) -> dict:
         "scoring_source": "draft/backtest/nflverse_weekly_points_2024.json fingerprint "
                            "(via multisource_projections.league_scoring, rule 11)",
         "source_pdf": str(cfg["pdf"].relative_to(ROOT)),
+        "guide_updated": guide_updated,
+        "version_gate": version_gate,
         "known_positive_control": "Jahmyr Gibbs RB-table row verified against his "
                                    "independently-printed Detroit team-page row before "
                                    "any output was trusted — see _verify_known_positive",
@@ -435,6 +503,7 @@ def build_store(year: int) -> dict:
     print(f"  positional plausibility violations: {len(positional_violations)}")
     print(f"  agreement vs Sleeper (Spearman): n={agree_vs_sleeper['n']} "
           f"rho={agree_vs_sleeper['spearman']}")
+    print(f"  guide_updated: {guide_updated}  version_gate: {version_gate['status']}")
     print(f"\n  wrote {out.relative_to(ROOT)}")
     return doc
 
