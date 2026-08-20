@@ -99,13 +99,13 @@ realized starter points both sides, season's end.
 
 ## TOOL 4 — LEAGUE ANALYZER (owner: E model, B surface)
 
-Weekly, per opponent: **predicted starters** (E's model, P249 — null to beat:
+Weekly, per opponent: **predicted starters** (E's model, P284 — null to beat:
 "last week's lineup minus injured", which is what persistence implies),
 playoff odds (champodds, calibration graded at season end), all-play luck,
 FAAB remaining, positional surplus/deficit (feeds trades), and **blocked
 value** (what MY claim denies THEIR lineup — the second term waivers need).
 
-**P249 (E, grade by 09-03):** leave-week-out on 2025, the starter-prediction
+**P284 (E, grade by 09-03):** leave-week-out on 2025, the starter-prediction
 model hits ≥ 80% of slots AND beats the persistence null; if it cannot beat
 "same as last week", the model is a costume and the null ships instead.
 
@@ -129,9 +129,10 @@ Cadence: **capture (C) → project (D) → decide (tools) → capture the decisi
 (routes, live) → grade (scoreboard + ledger) → change the weights or say why
 not.** The two 2027-goal bars stay the north star: beat Sleeper AND FP on
 start/sit at 3 of 4 positions (first grade 09-15); predict opponents better
-than persistence (P249, renumbered from P144 by E, 2026-08-20 -- P144 was
-already spoken for by the board-stability prediction; PREDICTION-LEDGER.md's
-P249 row carries the full collision note).
+than persistence (P284, renumbered from P144 then P249 by E, 2026-08-20 -- P144
+was spoken for by the board-stability prediction, P249 by A's post-chain
+acceptance-step row; PREDICTION-LEDGER.md's P284 row carries the full
+collision history).
 
 ## THE EDGE AXES — Cory's list (08-20), each with its program and owner
 
