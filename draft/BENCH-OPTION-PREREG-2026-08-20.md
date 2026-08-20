@@ -156,3 +156,15 @@ The cure already exists in this file: **§14d(b) supply-aware forcing** — when
 a needed position's remaining pool supply is down to the gap itself, force it
 NOW, while at least one exists. v5 adopts exactly that; nothing else moves.
 P266–P268 filed blind before the v5 run.
+
+---
+
+## 9 · V6 AMENDMENT, 2026-08-20 — HORIZON-AWARE FORCING (after P266–P268 FALSE)
+
+v5's supply-aware forcing checked supply AT my pick; nine rosters still ended
+TE-less because the last recorded TE went to an opponent BETWEEN my picks, and
+the early trips it did make cost points (+1.70 vs v4's +3.46). v6 forces a
+needed position at the **last safe moment**: when no copy of it survives past
+my next pick in the recorded order — deterministic, later than v5 (points
+recover), never blind to the between-picks horizon (vacancies close).
+P269–P271 blind before the run; nothing else moves.
