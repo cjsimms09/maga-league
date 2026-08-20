@@ -641,3 +641,177 @@ proved valuable. Escalated to A in ROUTES with a default: if unclaimed by
 Friday 10:00, the relay ships the one-line `$PATHS` addition itself — it is a
 capture list, not board logic, and the loss is irreversible while the change
 is trivially revertable.
+
+
+---
+
+## 13. PROJECTED AVAILABILITY — THE FOURTH THING THE MODEL CALCULATES
+
+The owner, 2026-08-20: *"we should use ADP in our projections for if someone is
+going to be available — if their ADP is 30 most likely not going to be there at
+40-45."*
+
+It already is ADP-based. `adp_source` is FantasyPros on **198 of the top 200**,
+with a per-player published standard deviation, and survival feeds VONA — so an
+error here propagates into the primary decision metric.
+
+**IT BEHAVES SANELY WITHIN A POSITION.** Rank correlation between ADP and
+survival-to-his-next-pick, measured at pick 33 (next pick 48):
+
+| position | n | corr(ADP, survival) |
+|---|---|---|
+| QB | 15 | 0.817 |
+| RB | 25 | 0.853 |
+| WR | 25 | 0.756 |
+| TE | 13 | 0.864 |
+
+*(My first version of this measurement compared ACROSS positions and looked
+scrambled — a QB at ADP 34 against a WR at ADP 38 — which is not a comparison,
+because few teams take a quarterback early. Recorded because a reviewer might
+make the same mistake.)*
+
+**HIS OWN EXAMPLE, RUN.** Wide receivers by ADP, survival to pick 48:
+
+```
+ADP 31  DeVonta Smith      44%        ADP 42  Garrett Wilson     44%
+ADP 34  Zay Flowers        39%        ADP 44  Jaylen Waddle      89%
+ADP 35  Tee Higgins        48%        ADP 49  DJ Moore          100%
+ADP 40  Ladd McConkey      68%
+```
+
+**Question 1:** he expects "ADP 31, gone by 48" to read lower than 44%. Is 44%
+defensible for a player whose published ADP sd is 3.4, fifteen picks out, in a
+10-team league where 16 players are off the board as keepers? **Is the model
+under-confident, or is his intuition calibrated to a full 12-team redraft?**
+
+**Question 2 — the jitter.** McConkey at ADP 40 survives 68% while Wilson at ADP
+42 survives 44%. That inversion is the uncertainty band: sds are 4.1 and 3.1
+respectively, and Waddle's 89% comes with an sd of 5.5. A wider band means more
+chance of falling. **Is treating sd this way right, or is it over-rewarding
+players the market simply disagrees about?**
+
+**Question 3 — AND THIS IS THE ONE I WOULD MOST LIKE ANSWERED.** The seven
+players above all carry genuine FFC-published sds. **The board as a whole does
+not: 374 players carry `adp_sd` of exactly 30.0 and 113 more exactly 15.0.**
+That is ~70% of the board running availability on a placeholder rather than a
+measurement (a known open item here, register 4n). Inside his draftable top 200
+the published values dominate, which is why his picks look reasonable. **What
+does a default sd of 30.0 do to survival for everyone past that, and does it
+contaminate anything inside it — for instance through `expectedBestAvailable`,
+which sums over the whole position pool?**
+
+### The survival entry point, verbatim
+
+```javascript
+  function survivalProbability(player, targetPick, rawCtx) {
+    const ctx = normalizeCtx(rawCtx);
+    // Both layers must answer the same question: "given he is available now,
+    // is he still there at targetPick?"
+    const t1 = ctx.currentPick != null
+      ? layer1TakenGivenAvailable(player, targetPick, ctx.currentPick, ctx)
+      : layer1Taken(player, targetPick, ctx);
+
+    let taken = t1;
+    let layers = ['adp'];
+    if (ctx.intervening && ctx.intervening.length) {
+      const l2 = layer2Taken(player, targetPick, ctx);
+      if (l2 != null) {
+        // Compose, don't blend across mismatched ranges. Layer 2 owns the window
+        // it modelled; Layer 1 carries the remainder, conditioned on surviving
+        // that window. Survival is then a product of survivals, which is both
+        // correct and monotone in targetPick by construction.
+        const cur = ctx.currentPick || 0;
+        const picksAway = l2.windowEnd - cur;
+        const w = layer2Weight(picksAway);
+        // ctx was missing on this call and the one below, so effectiveAdp and
+        // effectiveSd fell back to raw ADP: the global drift correction and any
+        // provided sd were silently dropped inside the Layer-2 path — the exact
+        // path that runs whenever a draft is live.
+        const t1Window = layer1TakenGivenAvailable(player, l2.windowEnd, cur, ctx);
+        const takenInWindow = w * l2.taken + (1 - w) * t1Window;
+        const survivesWindow = 1 - takenInWindow;
+        // Remainder: P(taken between windowEnd and targetPick | survived to windowEnd)
+        const takenAfter = layer1TakenGivenAvailable(player, targetPick, l2.windowEnd, ctx);
+        taken = 1 - survivesWindow * (1 - takenAfter);
+        layers = l2.windowEnd >= targetPick ? ['need'] : ['need→adp'];
+      }
+    }
+
+    const mult = (ctx.runMultipliers || {})[player.position];
+    if (mult && mult !== 1) {
+      // Scale the hazard, not the probability, so a 1.8x-hot position can never
+      // produce a >100% chance of being gone.
+      taken = 1 - Math.pow(1 - taken, mult);
+      layers.push('run');
+    }
+    const p = Math.max(0, Math.min(1, 1 - taken));
+    survivalProbability.lastLayers = layers;
+    return p;
+  }
+```
+
+### And the ADP layer it rests on
+
+```javascript
+  function layer1TakenGivenAvailable(player, pick, currentPick, ctx) {
+    /* ⚠ AN EMPTY WINDOW CONTAINS NO PICKS, AND THIS CHECK MUST COME BEFORE THE
+     * FAR-TAIL GUARD BELOW — the ordering was THE 41% WALL (Cory's capture,
+     * 2026-08-17: every fallen elite at every position printing one identical
+     * "gone by your next pick" number).
+     *
+     * The chain: survivalProbability's remainder leg asks for P(taken between
+     * windowEnd and targetPick | alive at windowEnd), and whenever Layer 2
+     * covers the whole window those two picks are EQUAL — the window is
+     * [48, 48), zero picks, so the true conditional is
+     * (F(48) − F(48)) / (1 − F(48)) = 0. But every player 25+ picks past his
+     * ADP has F ≥ 0.999 at ANY current pick, so the guard fired first and
+     * returned 1: "certainly taken inside a window in which nobody picks".
+     * That single impossibility multiplied survival by zero —
+     * 1 − survivesWindow × (1 − 1) = 1 — so the ROOM model's differentiated
+     * answer (Layer 2, which genuinely splits these players) was computed and
+     * then discarded for exactly the players the shortlist leads with. Every
+     * fallen player's raw survival became EXACTLY 0, the conservation tilt got
+     * identical weights w_i = 1, and exp(−λ·1) handed them all one number.
+     * Pinned by survival_fallen_uniform.test.js, which reproduces the board
+     * state from the capture. */
+    if (currentPick != null && currentPick > 0 && pick <= currentPick) return 0;
+    const fN = layer1Taken(player, pick, ctx);
+    if (currentPick == null || currentPick <= 0) return fN;
+    const fC = layer1Taken(player, currentPick, ctx);
+    /* Far past his ADP over a REAL (non-empty) window, the guard is the honest
+     * limit of this model, not a shortcut: P(alive at n | alive at c) for a
+     * normal is Q(z_n)/Q(z_c) ≈ exp(−(z_n²−z_c²)/2)·(z_c/z_n), which is ~0 for
+     * any n > c once z_c ≥ 3 — the market model genuinely converges to "gone",
+     * and the float arithmetic underflows (0/0) before the formula can say so.
+     * The same test proves the convergence with this closed form. */
+    if (fC >= 0.999) return 1;           // he should already be gone; treat as gone
+    return Math.max(0, Math.min(1, (fN - fC) / (1 - fC)));
+  }
+```
+
+---
+
+## 14. THE CHARTS AND BAR CHARTS
+
+The owner finds the war-room charts useful and asked for their soundness
+audited alongside the model. They are rendered by
+`public/js/draft/warroom_charts.js` and are **not** reproduced here, because a
+chart is only sound if the number behind it is, and every number they draw comes
+from sections 2-6 and 13 above.
+
+**So the question for a reviewer is narrower and more useful than "are the
+charts good":** given the quantities audited above — VONA, slot-gated VORP,
+stack, ADP-driven survival, and Draft Sharks' band travelling to other sources
+by ratio — **which of them can be honestly drawn as a bar, and which cannot?**
+
+Two specific traps this project has already hit and would like checked:
+
+1. **Bars invite comparison across categories.** The four projection sources are
+   not on one points scale (median ratio to blend: DS 1.04, FP 1.01, Sleeper
+   0.96, our model 0.79). Any chart drawing them as adjacent bars in points
+   reports a level offset as disagreement. Everything comparative in this
+   codebase is therefore done on RANK. **Is that sufficient, or does ranking
+   introduce its own distortion in a chart?**
+2. **A bar with no denominator lies quietly.** "Draft Sharks 247" was a true
+   count over all 700 board players and read as a broken source; over the top
+   200 it is 94%. Every count on a surface is supposed to state what it is over.
