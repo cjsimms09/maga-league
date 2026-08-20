@@ -84,3 +84,14 @@ valuation), written to be copied.
   3 bad weeks truncates its record at its worst and flatters every survivor.
   Cross-arm comparisons must include benched arms' records to the bench date,
   or state the truncation. The Wednesday sweep checks comparisons for this.
+
+### Enforcement, made mechanical (Cory, 08-20: "do we need to do something more strict")
+
+`prediction_ledger_check.js` (CI) now enforces the three-part standard:
+**every row from P283 fails the build immediately** if its claim lacks the
+labeled LEARNING TARGET / SKILL DESIGN / CONSEQUENCE ROUTE; the **88-row open
+back-catalog is under a grace window — warnings until 2026-09-10, FATAL
+after** (Cory's back-audit order: existing processes change to meet the
+standard, on a clock, without redlining every lane in one hour). Owner
+burn-down counts routed in ROUTES; the relay's Wednesday sweep reports the
+remaining count until it is zero.
