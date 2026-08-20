@@ -241,3 +241,21 @@ materially WORSE than the cap arm is FALSE even if actual improves).
 **Falsifiable signature:** the actual-arm gain must come from BENCH weeks
 (depth covering absences), not from the starters — if starters drive it, the
 mechanism is not the claimed one.
+
+**§10 GRADED, SAME DAY: FALSE — and the failure PRICES normality.** Every
+shape goal hit: 30/30 legal, exactly 1 K and 1 DEF, first K at mean 110.8
+(range 102–121, inside the human window, vs the humans' 126). And the value
+collapsed: **actual +32.2 (< +45.8), skill −5.1 (< +25)** — a −13.6/−34.4
+swing against the cap arm for the SAME rosters minus timing. The mechanism,
+visible in the pick logs: with rounds 9–10 blocked for onesies, the tiebreak
+buys bench bodies (worth 0 on skill) and the LAST picks — where the cap arm
+buys QB/TE/flex upgrades with real marginals — go to K/DEF instead. **The
+upgrades never happen. MLV's early K was never a quirk: taking the onesies the
+moment the lineup fills is what FREES the endgame for upgrades.**
+
+**So "a normal roster" has a measured price in this league: ≈ −34 skill /
+−14 actual points per season.** Third independent result pointing the same
+way (A's two dead ends both made points worse by forcing onesies later; this
+one measures the cost inside a mechanism that beats the humans). The cap arm
+remains the best measured equation; normal timing is a preference Cory can
+buy, now at a known price, not a free improvement.

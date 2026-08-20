@@ -50,22 +50,53 @@ const KDEF_TAX = process.argv.includes('--kdef-tax');
  * A curve taxes the POSITION COUNT; this taxes the DISPLACEMENT. No constants.
  * Flag-guarded: every shipped arm is byte-identical with the flag off. */
 const OBJECTIVE = process.argv.includes('--objective') || process.argv.includes('--objective-normal')
-  || process.argv.includes('--objective-look');
+  || process.argv.includes('--objective-look') || process.argv.includes('--objective-window');
 /* MLV-LOOKAHEAD (prereg S8): charge each pick its COST OF WAITING —
  * marginal(c) minus the marginal of the best same-position man still on the
  * board at my NEXT pick, availability read from the fixed-opponent draft
  * (the harness's own C3 information rule). No constants. */
 const OBJ_LOOK = process.argv.includes('--objective-look');
+/* NORMAL-WINDOW MLV (prereg S10): the league's own drafts define normal.
+ * A first K/DEF may not be taken earlier than ANY human owner in the three
+ * recorded drafts ever took theirs — min over 30 owner-seasons, per position,
+ * read from league history. Zero constants. Legality guard overrides. */
+const OBJ_WINDOW = process.argv.includes('--objective-window');
 /* Cory, 2026-08-19: "goal is to draft best team while fielding a normal
  * roster!!!" — the normal-roster variant adds K<=1, DEF<=1 as a SHAPE
  * CONSTRAINT from his words (a second onesie is an upgrade the no-injury
  * objective buys because bench is worth zero; a normal roster does not carry
  * one). Constraint from the brief, not a constant fitted to a grade. */
-const OBJ_NORMAL = process.argv.includes('--objective-normal') || OBJ_LOOK;
+const OBJ_NORMAL = process.argv.includes('--objective-normal') || OBJ_LOOK || OBJ_WINDOW;
 const KDEF_MODE = process.argv.includes('--kdef-supply');
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+
+/* earliest overall pick at which ANY human owner took their first K / DEF,
+ * across every recorded draft — the league's own definition of "too early".
+ * Computed after POSOF exists (see below); filled by initWindows(). */
+const ONESIE_WINDOW = { K: null, DEF: null };
+function initWindows() {
+  const seasons = Array.isArray(H.seasons) ? H.seasons : Object.values(H.seasons);
+  seasons.forEach(season => {
+    (season.drafts || []).forEach(d => {
+      if ((d.picks || []).length < 100) return;
+      const firstBySeat = {};
+      d.picks.slice().sort((a, b) => a.pick_no - b.pick_no).forEach(pk => {
+        const q = posOf(pk.player_id);
+        if (q !== 'K' && q !== 'DEF') return;
+        const key = pk.roster_id + ':' + q;
+        if (firstBySeat[key] == null) {
+          firstBySeat[key] = pk.pick_no;
+          if (ONESIE_WINDOW[q] == null || pk.pick_no < ONESIE_WINDOW[q]) ONESIE_WINDOW[q] = pk.pick_no;
+        }
+      });
+    });
+  });
+  if (OBJ_WINDOW && (ONESIE_WINDOW.K == null || ONESIE_WINDOW.DEF == null)) {
+    throw new Error('window arm: league history yielded no K/DEF window — refusing to run blind');
+  }
+}
 /* one position crosswalk, two sources, board first (rule 11) */
 const POSOF = {};
 Object.entries(PP.positions || {}).forEach(([id, q]) => { POSOF[String(id)] = q; });
@@ -341,7 +372,10 @@ function buildSeat(season, draft, seatId, rosterOn) {
         if (OBJ_NORMAL && (q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
         const needs = legalityNeeds(held);
         const remaining = myPickIdxs.filter(i => i >= idx).length;
-        if (remaining <= needs.total) {
+        const forced = remaining <= needs.total;
+        if (OBJ_WINDOW && !forced && (q === 'K' || q === 'DEF') && (held[q] || 0) === 0
+            && pk.pick_no < ONESIE_WINDOW[q]) continue;
+        if (forced) {
           const reduces = needs.perPos[q] > 0
             || (needs.flexExtra > 0 && FLEX.includes(q));
           if (!reduces) continue;
@@ -377,6 +411,7 @@ function buildSeat(season, draft, seatId, rosterOn) {
 const ownerRoster = (draft, seatId) => (draft.picks || [])
   .filter(p => p.roster_id === seatId).map(p => p.player_id);
 
+initWindows();
 /* ── run ──────────────────────────────────────────────────────────────────── */
 const seats = [];
 Object.values(H.seasons).forEach(season => {
