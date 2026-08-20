@@ -20,6 +20,7 @@ const MU = require('../matchup');          // slot-aligned matchup starters (QB 
 const MW = require('./memberweek');        // member week engine — previews, week nav, Sleeper-fed odds
 const RW = require('./recordswatch');      // records watch — chips when a franchise record is in play
 const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
+const PLOFF = require('../playoffOdds');   // playoff-odds / risk-posture widget over A's forward simulator feed
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const RD = require('./recap-data');        // the weekly recap: gather here, write in src/recap.js
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
@@ -898,8 +899,22 @@ router.get('/', aw(async (req, res) => {
     }
   } catch (e) { /* the nudge is a bonus; never break home */ }
 
+  // PLAYOFF-ODDS / RISK-POSTURE WIDGET (A dispatch, 2026-08-19; P103 graded
+  // TRUE). The feed refuses to exist until week 1 has a realized result, so
+  // a missing file is the normal pre-season state, not an error — degrade to
+  // { available: false } and the widget renders nothing, same contract as
+  // the durability table.
+  let playoffOdds = { available: false };
+  try {
+    const feedPath = path.join(__dirname, '..', '..', 'public', 'season_forward_live.json');
+    const feed = JSON.parse(fs.readFileSync(feedPath, 'utf8'));
+    const rid = PLOFF.myRosterId(world.config.sleeper_map || {}, req.owner.id);
+    playoffOdds = PLOFF.playoffOddsWidget(feed, rid);
+  } catch (e) { /* pre-season: the feed does not exist yet — expected, not an error */ }
+
   res.render('dashboard', {
     pickemNudge,
+    playoffOdds,
     // Sunday night / Monday only (Cory, 2026-08-18) — the home page's cue to
     // check the scores screen while games are actually live.
     gameNight: WW.primetimeWindow(),

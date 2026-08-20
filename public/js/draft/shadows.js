@@ -50,6 +50,20 @@
         weights: () => scale({ tier: B.tier * 1.5, need: B.need * 1.5, risk: B.risk * 0.5 }) },
       { key: 'keeper_builder', name: 'Keeper-Builder',
         weights: r => scale({ keeper: B.keeper * (r >= 8 ? 2 : 1) }) },
+      /* Cory, live 2026-08-20: "Give me a way to click in on war room to see
+       * what each model would take! Max value, MLV displacement, upside only
+       * model, floor model (safe pick)!" value_anchor above already IS "max
+       * value"; these two fill the gap — a genuine ceiling-only chaser and
+       * its opposite. Same weight-override pattern as every profile above,
+       * same legality rails (E.recommend always applies them regardless of
+       * weights — these do not skip the onesie/roster-shape checks). Neither
+       * is a measured edge, same as the profiles above it — that is what
+       * Phase H's out-of-season grade exists to find out. */
+      { key: 'upside_pure', name: 'Upside-Only',
+        weights: () => ({ value: B.value * 0.2, tier: B.tier * 0.3, need: 0, risk: 0,
+          ceiling: B.ceiling * 3, keeper: 0, bye: 0, stack: 0 }) },
+      { key: 'floor_safe', name: 'Floor (Safe)',
+        weights: () => scale({ risk: B.risk * 2.5, ceiling: 0 }) },
     ];
   }
 
