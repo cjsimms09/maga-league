@@ -9265,10 +9265,19 @@
         + '">' + esc(s.label)
         + ' <span class="muted">' + pct + '%</span></button>';
     }).join('');
+    /* DROP, NOT FALLBACK — Cory's ruling, stated twice: "I like the player
+     * disappearing when source is selected." A player the selected source
+     * does not cover is not on the board at all while it's active — the
+     * button's own count already says how many remain (source_board.js). */
+    var activeSrc = BUTTONS.find(function (s) { return s.key === active; });
+    var activeCov = active !== 'blend' ? SourceBoard.coverage(state.board, active) : null;
+    var missingCount = activeCov ? (state.board.length - activeCov.covered) : 0;
     const warn = active !== 'blend'
-      ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(BUTTONS.find(function (s) { return s.key === active; }).label)
+      ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(activeSrc.label)
         + '</b> — VONA, tiers and the recommended player on THIS ENTIRE PAGE now reflect only this '
-        + 'source, not the blend. Switch back to Blend for the board\'s normal number.</div>'
+        + 'source, not the blend. <b>' + missingCount + ' players ' + esc(activeSrc.label)
+        + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
+        + 'switch back to Blend.</div>'
       : '';
     host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
@@ -9295,8 +9304,7 @@
           : '';
       }())
       + '</p>'
-      + '<p class="muted rs-note">Changes who is recommended and VONA — this is a real re-rank, not just a different number. '
-      + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>'
+      + 'A player a source does not cover disappears from the board while that source is selected.</p>'
       /* ⚠️ WHAT THE BIG BOARD IS ORDERED BY, SAID OUT LOUD. Cory asked whether
        * the Big Board shows "pure ranking from that source". For Sleeper it now
        * does — they publish an overall rank and we carry it for all 700. For the

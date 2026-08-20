@@ -35,17 +35,24 @@ function mk(id, pos, proj_mean, over) {
   ck('an empty board returns itself under any source', SB.forSource([], 'ds').length === 0);
 }
 
-// ── 2. forSource — the real swap ─────────────────────────────────────────────
+// ── 2. forSource — the real swap, and DROP (Cory's ruling: "I like the
+// player disappearing when source is selected", overriding an earlier
+// FALLBACK version of this file — ROUTES.md, 2026-08-20) ────────────────────
 {
   const players = [
     mk('1', 'RB', 200, { vorp_ds: 90, tier_ds: 2, pos_rank_ds: 3, overall_rank_ds: 10,
       replacement_ds: 40, tier_size_ds: 4, tier_drop_ds: 5, tier_rank_ds: 2,
       proj_used_ds: 150, covered_ds: true }),
-    mk('2', 'RB', 180, { covered_ds: false, proj_used_ds: 180 }), // no vorp_ds/tier_ds at all — genuinely never ranked
+    mk('2', 'RB', 180, { covered_ds: false, proj_used_ds: 180 }), // NOT covered — must be DROPPED
   ];
   const out = SB.forSource(players, 'ds');
   ck('forSource returns a NEW array, not the same reference', out !== players);
   ck('the original array/objects are never mutated', players[0].proj_mean === 200 && players[0].vorp === 150);
+  ck('the original array still has BOTH players (drop happens in the copy, not the source)', players.length === 2);
+
+  ck('a player the source does NOT cover is DROPPED from the returned board entirely',
+    out.every(p => p.player_id !== '2'), out.map(p => p.player_id));
+  ck('...and covered players are the only ones that survive', out.length === 1);
 
   const p1 = out.find(p => p.player_id === '1');
   ck('proj_mean is swapped to the source\'s OWN proj_used (not the raw source field)', p1.proj_mean === 150);
@@ -54,10 +61,15 @@ function mk(id, pos, proj_mean, over) {
   ck('pos_rank/overall_rank/replacement/tier_* all swap too', p1.pos_rank === 3 && p1.overall_rank === 10
     && p1.replacement === 40 && p1.tier_size === 4 && p1.tier_drop === 5 && p1.tier_rank === 2);
   ck('the swapped player is tagged with which source ranked it', p1._sourceRanked === 'ds' && p1._sourceCovered === true);
+}
 
-  const p2 = out.find(p => p.player_id === '2');
-  ck('CONTROL — a player never run through the precompute (no vorp_ds at all) keeps his blend fields, not a crash or undefined',
-    p2.vorp === 130 && p2.tier === 1, p2);
+// ── 2b. THE ONE GUARD — an artifact with NO coverage data at all must not
+// blank the whole board (the pre-alt_source_rankings.py degrade case) ───────
+{
+  const players = [mk('1', 'RB', 200), mk('2', 'WR', 180)]; // no covered_ds field anywhere
+  const out = SB.forSource(players, 'ds');
+  ck('with zero coverage data anywhere on the board, nobody is dropped — the safe degrade, not a blanked board',
+    out.length === 2, out.map(p => p.player_id));
 }
 
 // ── 3. coverage() — the honesty check ────────────────────────────────────────
@@ -79,6 +91,10 @@ function mk(id, pos, proj_mean, over) {
   const hasAltFields = board.some(p => p.vorp_ds != null);
   if (hasAltFields) {
     const dsBoard = SB.forSource(board, 'ds');
+    ck('on the real board, Draft Sharks genuinely drops uncovered players (a smaller board, not the same 200)',
+      dsBoard.length > 0 && dsBoard.length < board.length, { before: board.length, after: dsBoard.length });
+    ck('...and every player that DOES survive is really marked covered',
+      dsBoard.every(p => p._sourceCovered === true));
     ck('on the real board, a genuine top-VORP RB swap happens under at least one source',
       (function () {
         const blendTop = board.filter(p => p.position === 'RB').sort((a, b) => (b.vorp || -1e9) - (a.vorp || -1e9))[0];
