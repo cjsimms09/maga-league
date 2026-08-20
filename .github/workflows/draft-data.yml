@@ -275,6 +275,12 @@ jobs:
           python draft/backtest/projection_coverage_census.py
 
       - name: Acceptance gate on the FRESH board — nothing untested is published
+        env:
+          # ⚠️ THE FRIDAY FLIP. "" = OFF = today's behaviour, byte-identical.
+          # Set to "1" ONLY to publish over a WORLD-STATE alarm (see the long
+          # note further down this step). Only the exact string "1" enables it.
+          # Unset it again the moment the condition clears.
+          ALLOW_WORLD_STATE_PUBLISH: ""
         # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
         # after the artifact is built and before it is committed. A board is the
         # single input every draft-day surface reads, so publishing one that fails
@@ -323,6 +329,35 @@ jobs:
             # kind we have — everything blocks by default, and only tests
             # named ADVISORY (with a stated reason, self-checked against
             # reading the board) may fail without stopping the publish.
+            # ── THE FRIDAY FLIP, PREPARED 2026-08-20 AND DELIBERATELY OFF ────
+            #
+            # Cory, asked directly: "Prepare the fallback now, decide Friday."
+            #
+            # A THIRD category exists in gate_triage — WORLD-STATE: a test that
+            # is about the board but is saying THE WORLD IS NOT SETTLED YET
+            # rather than THE BOARD IS WRONG. The live case is
+            # test_freeze_staleness_alarm: six of ten teams had keepers PLACED
+            # on the Sleeper draft, so the keeper lock read passed a day early,
+            # the pre-draft freeze could not seal, and a fact about the LEAGUE
+            # refused publication of the BOARD five times while 4640 other
+            # tests passed.
+            #
+            # ⚠️ IT IS OFF. `ALLOW_WORLD_STATE_PUBLISH` is unset below, and with
+            # it unset a world-state failure BLOCKS exactly as it does today —
+            # asserted, not claimed, by test_EQUIVALENCE_flag_off_classifies_
+            # exactly_as_before. Nothing about this run changes.
+            #
+            # TO TURN IT ON, if Friday night arrives with teams still unplaced:
+            # change the line below to `ALLOW_WORLD_STATE_PUBLISH: "1"` and
+            # re-run the workflow. Only the exact string "1" enables it — a typo
+            # fails closed. Even on, a real board failure still refuses, and the
+            # published board carries public/world_state_override.json naming
+            # what was waived, so it can never be mistaken for a clean build.
+            #
+            # UNSET IT AGAIN the moment all ten teams are placed: at that point
+            # the slate reports confirmed, a freeze re-take seals CONFIRMED, and
+            # the alarm goes quiet on its own. A permanent override is how a real
+            # alarm gets muted, which is the failure the alarm exists to prevent.
             echo "== suite failed — triaging: is this the BOARD, or the repo's own tooling?"
             if python3 draft/tools/gate_triage.py /tmp/board_gate_output.txt; then
               echo "::warning::Board published with ADVISORY test failures — repo hygiene, not the board. Fix them, but they did not hold the board."

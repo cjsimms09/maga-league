@@ -182,6 +182,36 @@ ck(true, 'the post-processing chain ran on the published board (blend + Draft '
   + 'Sharks bands) — without it the war room shows pre-blend numbers',
   !!BOARD.post_processed_at, { post_processed_at: BOARD.post_processed_at || 'ABSENT' });
 
+/* ⚠️ WAS THIS BOARD PUBLISHED OVER A WORLD-STATE ALARM?
+ *
+ * gate_triage gained a WORLD-STATE category on 2026-08-20, off by default: with
+ * ALLOW_WORLD_STATE_PUBLISH=1 the gate will publish a board whose only failures
+ * are about the LEAGUE not being settled (the pre-draft freeze still PROVISIONAL
+ * because fewer than ten teams have keepers placed) rather than about the board.
+ *
+ * That is a legitimate choice — a stale board is worse than a provisional freeze
+ * — but it is Cory's to make knowingly, and a board published that way must not
+ * reach this gate looking clean. The stamp travels with the board; if it is
+ * there, this says so, in his words, with what it costs.
+ *
+ * A SOFT failure, not a STOP: the override means someone already decided. What
+ * would be wrong is silence. */
+const OVERRIDE_PATH = path.join(ROOT, 'public', 'world_state_override.json');
+if (fs.existsSync(OVERRIDE_PATH)) {
+  let ov = null;
+  try { ov = JSON.parse(fs.readFileSync(OVERRIDE_PATH, 'utf8')); } catch (e) { ov = null; }
+  ck(false, 'the board was NOT published over a world-state alarm', false,
+    { overridden_at: (ov && ov.overridden_at) || 'unreadable',
+      waived: (ov && ov.tests) || 'unreadable' },
+    'this board is fine to draft on, but its freeze is PROVISIONAL — it was '
+    + 'validated against PREDICTED opponent keepers. Player data is unaffected. '
+    + 'Once all ten teams have keepers placed, unset ALLOW_WORLD_STATE_PUBLISH '
+    + 'and rebuild so the freeze seals');
+} else {
+  ck(true, 'the board was NOT published over a world-state alarm', true,
+    { world_state_override: 'absent — clean publish' });
+}
+
 /* ── 5. THE PICK SCHEDULE ──────────────────────────────────────────────────*/
 const picks = (SEAT && SEAT.my_picks) || null;
 ck(true, 'the seat plan knows Cory\'s picks', Array.isArray(picks) && picks.length > 0,
