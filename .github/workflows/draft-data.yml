@@ -212,81 +212,6 @@ jobs:
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
 
-      - name: Re-apply the blend, the Draft Sharks bands and the source sheet (added 2026-08-20)
-        # ⛔ WITHOUT THIS STEP THE NIGHTLY REBUILD SILENTLY UNDOES FOUR SHIPPED
-        # FIXES, AND IT WOULD HAVE DONE IT ON DRAFT MORNING.
-        #
-        # `build.py` writes a clean public/draft_data.json and this workflow
-        # COMMITS it. Everything that runs AFTER build.py -- the multi-source
-        # blend, the Draft Sharks floor/ceiling bands, the ranking rules -- lived
-        # only in scripts someone ran by hand. So each 08:00 UTC rebuild replaced
-        # a corrected board with an uncorrected one, and nothing said so.
-        #
-        # Found 2026-08-20 while answering "have we deployed everything, can I
-        # run mocks on the current model". The honest answer was "yes, until
-        # 3am". What the nightly rebuild was about to discard:
-        #   * Mike Clay in the blend (7 sources; Cory's ask, 08-20)
-        #   * register 140 -- 363 players whose floor/ceiling had been collapsed
-        #     to flat, restored to their own player-specific band
-        #   * register 139 -- the falsy-zero that ranked six replacement-level
-        #     players 695-700 (George Kittle at 697)
-        #   * register 139 -- Cory's 2026-08-17 K/DEF demotion ruling
-        #
-        # ORDER IS LOAD-BEARING: blended_projection reads the frozen projection
-        # snapshot; attach_draftsharks applies that blend plus the DS bands to
-        # the freshly built board and re-derives vorp/tier/ranks; source_boards
-        # reads the finished board. Any other order publishes a board built from
-        # a stale input.
-        #
-        # NOT `|| true`. If the board cannot be corrected it must fail loudly
-        # here rather than publish a quietly wrong board -- that is the whole
-        # lesson of the four rows above.
-        run: |
-          set -euo pipefail
-          node draft/tools/blended_projection.js
-          python3 draft/tools/attach_draftsharks.py
-          node draft/tools/source_boards.js
-          # EXTENDED 2026-08-20, SAME NIGHT, FOR THE SAME REASON ONE LAYER OUT.
-          # Wiring the three above exposed that FIVE MORE public/ artifacts are
-          # board-derived and regenerated only by hand. `seat_plan.json` is the
-          # one that matters: it is the panel Cory reads at EVERY PICK, and the
-          # live copy claimed the current board while 46 of its 60 shortlist
-          # projections did not match it. Regenerating moved 4 of his 12 planned
-          # picks. An artifact that derives from the board must be rebuilt WITH
-          # the board or it is a screenshot with a current-looking timestamp.
-          node draft/tools/emit_seat_plan.js
-          node draft/tools/position_boards.js
-          node draft/tools/mlv_snapshot.js
-          # The whole-draft MLV plan Cory asked for. It runs AFTER emit_seat_plan
-          # because it reads that file's `my_picks` rather than retyping his
-          # schedule -- register 98 was an eighteen-pick artifact quoted for hours
-          # after his real twelve were known.
-          node draft/tools/mlv_seat_plan.js
-          # ⚠️ I NAMED THE WRONG GENERATOR FOR THIS ONE AND THE EXCEPTION I WROTE
-          # WAS FICTION. The line below this step originally read "NOT WIRED:
-          # variance_portfolio.js (conditional_value_2026.json) — it exceeded two
-          # minutes". variance_portfolio.js writes variance_portfolio.json and
-          # has nothing to do with this artifact: I grepped for a MENTION of the
-          # filename, took the first hit as the writer, timed THAT program, and
-          # reported its runtime as this artifact's.
-          #
-          # The real generator is draft/backtest/conditional_value.py and it runs
-          # in FOUR SECONDS. The file feeding the war-room chips sat outside the
-          # nightly rebuild on the strength of a timing measurement taken on an
-          # unrelated program. It matters: the drifted rows were handcuff backups
-          # for Cory's own running backs. It runs BEFORE the consistency check
-          # below, or that check fails on an artifact this step was meant to fix.
-          python3 draft/backtest/conditional_value.py
-          # AND THEN PROVE IT, rather than trusting that running the steps was
-          # enough. This joins every artifact the war room reads BACK to the
-          # freshly built board and compares the VALUES -- not the timestamps,
-          # because timestamps are exactly what failed in register 143 (the
-          # stale seat plan and the fresh board agreed on their provenance
-          # stamps and disagreed on their numbers). Exit 1 on draft-critical
-          # drift, so a board that would mislead Cory fails the build instead of
-          # being published.
-          node draft/tools/draft_day_consistency.js
-
       - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
         # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
         # EXPERIMENT. Tracing PREDICTION-LEDGER P39 on 2026-08-18 established
@@ -507,6 +432,111 @@ jobs:
             gh issue comment "$EXISTING" --body "Rebuild at $(date -u +%Y-%m-%dT%H:%M:%SZ) passed clean. Closing — run: $RUN_URL"
             gh issue close "$EXISTING"
           fi
+
+      # ⚠️ MOVED HERE 2026-08-20, AFTER THE ACCEPTANCE GATE, AND THE REASON
+      # MATTERS. It first ran BEFORE the gate, and the very next build refused
+      # to publish: the gate's suite is written against the board THE BUILDER
+      # PRODUCES, and it was suddenly being handed a post-processed one. 18
+      # blocking failures, led by twelve undeclared fields the chain writes
+      # (now declared in season_stamp.py) plus two tests that pin raw-build
+      # values to the decimal — proj_ceiling_source's constructions, which the
+      # DS attach deliberately re-sources, and an exact-equality check on
+      # proj_mean that ANY post-processing breaks.
+      #
+      # Checked before reordering rather than assumed: the DS attach does NOT
+      # undo the 6-point-passing-TD correction (QB deltas -0.2 to +2.6), so
+      # those two are test SCOPE, not a scoring regression.
+      #
+      # Register 142's fix is intact — the chain still runs inside this job, so
+      # a rebuild cannot discard post-processing. What changed is only the
+      # order: the gate grades the builder's board, and the post-processed
+      # board is graded by draft_day_consistency.js at the end of this step.
+
+      - name: Re-apply the blend, the Draft Sharks bands and the source sheet (added 2026-08-20)
+        # ⛔ WITHOUT THIS STEP THE NIGHTLY REBUILD SILENTLY UNDOES FOUR SHIPPED
+        # FIXES, AND IT WOULD HAVE DONE IT ON DRAFT MORNING.
+        #
+        # `build.py` writes a clean public/draft_data.json and this workflow
+        # COMMITS it. Everything that runs AFTER build.py -- the multi-source
+        # blend, the Draft Sharks floor/ceiling bands, the ranking rules -- lived
+        # only in scripts someone ran by hand. So each 08:00 UTC rebuild replaced
+        # a corrected board with an uncorrected one, and nothing said so.
+        #
+        # Found 2026-08-20 while answering "have we deployed everything, can I
+        # run mocks on the current model". The honest answer was "yes, until
+        # 3am". What the nightly rebuild was about to discard:
+        #   * Mike Clay in the blend (7 sources; Cory's ask, 08-20)
+        #   * register 140 -- 363 players whose floor/ceiling had been collapsed
+        #     to flat, restored to their own player-specific band
+        #   * register 139 -- the falsy-zero that ranked six replacement-level
+        #     players 695-700 (George Kittle at 697)
+        #   * register 139 -- Cory's 2026-08-17 K/DEF demotion ruling
+        #
+        # ORDER IS LOAD-BEARING: blended_projection reads the frozen projection
+        # snapshot; attach_draftsharks applies that blend plus the DS bands to
+        # the freshly built board and re-derives vorp/tier/ranks; source_boards
+        # reads the finished board. Any other order publishes a board built from
+        # a stale input.
+        #
+        # NOT `|| true`. If the board cannot be corrected it must fail loudly
+        # here rather than publish a quietly wrong board -- that is the whole
+        # lesson of the four rows above.
+        run: |
+          set -euo pipefail
+          node draft/tools/blended_projection.js
+          python3 draft/tools/attach_draftsharks.py
+          node draft/tools/source_boards.js
+          # EXTENDED 2026-08-20, SAME NIGHT, FOR THE SAME REASON ONE LAYER OUT.
+          # Wiring the three above exposed that FIVE MORE public/ artifacts are
+          # board-derived and regenerated only by hand. `seat_plan.json` is the
+          # one that matters: it is the panel Cory reads at EVERY PICK, and the
+          # live copy claimed the current board while 46 of its 60 shortlist
+          # projections did not match it. Regenerating moved 4 of his 12 planned
+          # picks. An artifact that derives from the board must be rebuilt WITH
+          # the board or it is a screenshot with a current-looking timestamp.
+          node draft/tools/emit_seat_plan.js
+          node draft/tools/position_boards.js
+          node draft/tools/mlv_snapshot.js
+          # The whole-draft MLV plan Cory asked for. It runs AFTER emit_seat_plan
+          # because it reads that file's `my_picks` rather than retyping his
+          # schedule -- register 98 was an eighteen-pick artifact quoted for hours
+          # after his real twelve were known.
+          node draft/tools/mlv_seat_plan.js
+          # ⚠️ I NAMED THE WRONG GENERATOR FOR THIS ONE AND THE EXCEPTION I WROTE
+          # WAS FICTION. The line below this step originally read "NOT WIRED:
+          # variance_portfolio.js (conditional_value_2026.json) — it exceeded two
+          # minutes". variance_portfolio.js writes variance_portfolio.json and
+          # has nothing to do with this artifact: I grepped for a MENTION of the
+          # filename, took the first hit as the writer, timed THAT program, and
+          # reported its runtime as this artifact's.
+          #
+          # The real generator is draft/backtest/conditional_value.py and it runs
+          # in FOUR SECONDS. The file feeding the war-room chips sat outside the
+          # nightly rebuild on the strength of a timing measurement taken on an
+          # unrelated program. It matters: the drifted rows were handcuff backups
+          # for Cory's own running backs. It runs BEFORE the consistency check
+          # below, or that check fails on an artifact this step was meant to fix.
+          python3 draft/backtest/conditional_value.py
+          # AND THEN PROVE IT, rather than trusting that running the steps was
+          # enough. This joins every artifact the war room reads BACK to the
+          # freshly built board and compares the VALUES -- not the timestamps,
+          # because timestamps are exactly what failed in register 143 (the
+          # stale seat plan and the fresh board agreed on their provenance
+          # stamps and disagreed on their numbers). Exit 1 on draft-critical
+          # drift, so a board that would mislead Cory fails the build instead of
+          # being published.
+          node draft/tools/draft_day_consistency.js
+          # AND THEN: is any of it actually ON A SCREEN? Cory, 2026-08-20:
+          # "All the things we figure out here have to be implemented on the
+          # war room or it was all for nothing!!" He said it after finding that
+          # attach_draftsharks.py had been writing proj_ds onto the board for
+          # weeks while a grep across every war-room script returned ZERO hits.
+          # Report-only ON PURPOSE and not --strict: 25 fields and 2 artifacts
+          # are unshown today, and failing the board build on a backlog that
+          # predates the check would block Cory's rebuild two days before his
+          # draft. It goes strict once the backlog is worked down; the ratchet
+          # is the routed list to B, not this exit code.
+          node draft/tools/nothing_computed_goes_unshown.js || true
 
       - name: Commit the artifact if it changed
         # ⚠️ `draft/config/keepers.json` ADDED 2026-08-14 — it was REGENERATED EVERY

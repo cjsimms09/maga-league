@@ -1,0 +1,209 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/nothing_computed_goes_unshown.js",
+ "_what": "Every board field and published artifact, and whether ANY served file references it. Cory: \"All the things we figure out here have to be implemented on the war room or it was all for nothing.\"",
+ "_cannot": "Proves a REFERENCE exists in a served file. Does NOT prove it renders, that the panel mounts, or that Cory can find it. Necessary, not sufficient.",
+ "_comments_stripped": true,
+ "surfaces_scanned": 133,
+ "board_fields": 78,
+ "unshown_fields": [
+  {
+   "name": "adot",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "adp_season",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "air_yards_share",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "blend_n_sources",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "blend_sources_used",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "bye_source",
+   "on_players": 644,
+   "coverage_pct": 92,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "capital_tier",
+   "on_players": 326,
+   "coverage_pct": 46.6,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "consensus_rank_season",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "ds_band_from",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "gl_carries",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "injury_risk_pct",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "is_nfl_rookie",
+   "on_players": 326,
+   "coverage_pct": 46.6,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "opportunity_adj",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "pool_rank",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_baseline",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_draftsharks",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_mean_sleeper_only",
+   "on_players": 277,
+   "coverage_pct": 39.6,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_mean_source",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_ownmodel_source",
+   "on_players": 74,
+   "coverage_pct": 10.6,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_sd",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "raw_adp_season",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "rz_share",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "rz_targets",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "variance_why",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "weekly_sd",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  }
+ ],
+ "unshown_artifacts": [
+  {
+   "name": "mlv_recommend.json",
+   "kb": 3,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "position_boards.json",
+   "kb": 166,
+   "shown": false,
+   "declared": null
+  }
+ ],
+ "declared_not_for_display": {
+  "player_id": "a join key, not a fact about a player",
+  "proj_mean_pre_ds": "audit trail for the Draft Sharks swap (register 140), not a number Cory reads",
+  "proj_floor_pre_ds": "same audit trail",
+  "proj_ceiling_pre_ds": "same audit trail",
+  "proj_mean_source_pre_ds": "same audit trail",
+  "market_upside_2026.json": "research artifact, read by zero site files — measured, not assumed",
+  "draft_day_consistency.json": "a CI report about the board, not a board surface",
+  "unshown.json": "this tool's own output"
+ }
+}

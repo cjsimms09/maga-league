@@ -52,12 +52,26 @@ BOARD.players.forEach(p => {
 const WATCHED = [
   { file: 'seat_plan.json', draft_critical: true,
     why: 'the seat panel, read at EVERY pick' },
-  { file: 'position_boards.json', draft_critical: true,
-    why: 'the per-position board view' },
+  /* ⛔ CORRECTED 2026-08-20 — I DESCRIBED A CONSUMER THAT DOES NOT EXIST, and
+   * then reported this artifact CONSISTENT and "safe to draft on" to Cory. It
+   * said "the per-position board view". Measured: NOTHING READS IT. 166 KB
+   * rebuilt and committed every night, referenced by zero served files. The
+   * `why` column was an assumption I never checked, which is the same defect as
+   * the one below it. Kept in the watch list and demoted rather than deleted —
+   * it SHOULD be a screen (Cory asks position questions constantly), so it is
+   * routed to B rather than dropped. */
+  { file: 'position_boards.json', draft_critical: false,
+    why: 'MEASURED: read by ZERO served files. It is a per-position board with '
+       + 'no page — built nightly, invisible. Routed to B. Cannot mislead Cory '
+       + 'today because he cannot see it at all.' },
   { file: 'source_boards.json', draft_critical: true,
     why: 'the best-available-by-source cheat sheet' },
-  { file: 'mlv_recommend.json', draft_critical: true,
-    why: 'the roster-builder panel\'s static fallback' },
+  /* ⛔ ALSO CORRECTED 2026-08-20. Called "the roster-builder panel's static
+   * fallback" — it is not a fallback for anything. The panel computes live from
+   * mlv.js and never fetches this file; nothing does. */
+  { file: 'mlv_recommend.json', draft_critical: false,
+    why: 'MEASURED: read by ZERO served files. The roster-builder panel computes '
+       + 'live from mlv.js and never loads it.' },
   { file: 'mlv_plan.json', draft_critical: true,
     why: 'the whole-draft MLV plan panel — it is a NIGHTLY artifact that does not '
        + 're-run as the draft happens, which is exactly the shape register 143 '
