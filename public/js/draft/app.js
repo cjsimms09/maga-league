@@ -872,6 +872,21 @@
    * That is the same rule as the ledger capture — losing the seat line is a
    * worse board, losing the board is a lost draft.
    */
+  /* ── THE SOURCE CHEAT SHEET ────────────────────────────────────────────────
+   * Cory: "when looking at big board, maybe a way to easily show who each source
+   * has as their best available at each position". Same fail-soft contract as
+   * the seat plan: losing this costs a panel, never the board. */
+  function loadSourceBoards() {
+    fetch('/source_boards.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !d.order) return;
+        state.sourceBoards = d;
+        try { renderSourceBoards(); } catch (e) { console.error('[source-boards]', e && e.message); }
+      })
+      .catch(e => console.warn('[source-boards] unavailable:', e && e.message));
+  }
+
   function loadSeatPlan() {
     fetch('/seat_plan.json', { cache: 'no-cache' })
       .then(r => (r.ok ? r.json() : null))
@@ -972,13 +987,50 @@
         + 'term\'s slider is the one worth a second look.',
       src: 'engine.js recommend()/scorePlayer(); CFG.TIE_THRESHOLD',
     },
+    source_boards: {
+      what: 'What each projection source would take at each position RIGHT NOW: '
+        + 'their own ranking, walked past everyone already drafted. Six outside '
+        + 'sources plus the blend the board actually uses.',
+      read: 'Read the bullet, not the names — a dot means that source wants '
+        + 'someone the blend does not, and those are the only cells worth your '
+        + 'time. When every column agrees, the pick is not contested and you can '
+        + 'move on. When they split at a position, that is real disagreement '
+        + 'among people who do this for a living, and it is where your own read '
+        + 'is worth the most.',
+      do: 'Use it to sanity-check a pick that feels off, never to average the '
+        + 'columns — the blend already does that, properly centred. Ignore the '
+        + 'row entirely at a position where a source shows "no coverage".',
+      src: 'source_boards.json from draft/tools/source_boards.js; order only, no points',
+    },
+    roster_builder: {
+      what: 'A SECOND OPINION, deliberately not the ranking above. It scores each '
+        + 'man by what he adds to your STARTING LINEUP — lineup value with him minus '
+        + 'lineup value without him — valued as surplus over the waiver wire, which '
+        + 'makes these numbers comparable ACROSS positions. VONA is not.',
+      read: 'Read it against the ranking above, never instead of it. When the two '
+        + 'agree the pick is easy. When they disagree it is nearly always the same '
+        + 'reason: the board\'s top name is a body you already have and he would sit '
+        + 'on your bench. Treat "bench only — he does not crack your lineup" as the '
+        + 'most useful line on the panel and not a throwaway, because that is the '
+        + 'disagreement you can act on.',
+      do: 'Use it for the FLEX question and for any cross-position call, because '
+        + 'that is the one thing VONA cannot answer. Expect it to want a defence and '
+        + 'a kicker once your nine starting slots are full — that is the model being '
+        + 'consistent, not broken, and you can overrule it. It cannot value a bench '
+        + 'at all, so ignore it for your last few picks.',
+      src: 'mlv.js recommend(); measured on 30 seat-years, register 132/134',
+    },
     position_recs: {
       what: 'The best available at each position, so a run at one is visible '
         + 'without scanning the whole board.',
       read: 'Compare the DROP to your next pick, not the raw score: a position '
         + 'whose best name barely changes by then is one you can wait on.',
       do: 'Use the dropdown when you already know which position you want and need '
-        + 'the ranked field; the strip above answers the cross-position glance faster.',
+        + 'the ranked field; the strip above answers the cross-position glance faster. '
+        + '⚠️ Never compare one position\'s VONA or score against another\'s to settle '
+        + 'a FLEX — they are not on the same scale (a backup QB\'s cliff is the biggest '
+        + 'on the board and sits on 17 points of surplus; an RB\'s 11-point cliff sits '
+        + 'on 233). The roster builder panel is the one that can answer RB-or-WR.',
       src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
@@ -1353,6 +1405,7 @@
     loadWeights();
     loadFrozenBaseline();
     loadSeatPlan();
+    loadSourceBoards();
     loadConditionalValue();
     loadOpponentNeed();
     loadExpertSpread();
@@ -2356,6 +2409,8 @@
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
+    safeRender('rosterBuilder', renderRosterBuilder);
+    safeRender('sourceBoards', renderSourceBoards);
     safeRender('lists', renderLists);
     safeRender('queue', renderQueue);
     safeRender('threats', renderThreats);
@@ -4339,6 +4394,200 @@
     host.style.display = '';
   }
 
+  /* ── "ROSTER BUILDER MODEL SAYS" — a second voice, never the ranking ───────
+   *
+   * Cory, 2026-08-19: "it needs to be clear what player model is recommending
+   * and why and I still want to retain my current view. So maybe a spot that's
+   * says roster builder model says and then the player".
+   *
+   * marginal(c) = lineupValue(roster + c) - lineupValue(roster), valued as
+   * surplus over the waiver wire. The only arm to beat the human owners in all
+   * three seasons on BOTH gradings (+45.8 actual / +29.3 skill, 30/30 legal,
+   * register 132). Against our OWN shipped board the gain is weak (t 1.02, an
+   * upper bound), which is exactly why it is a panel and not a rewrite of
+   * scorePlayer two days before the draft.
+   *
+   * ⚠️ IT ANSWERS THE ONE QUESTION VONA CANNOT. VONA is a within-position
+   * quantity — a backup quarterback's best-to-second cliff is the largest on the
+   * board and sits on 17 points of surplus, a running back's 11-point cliff sits
+   * on 233 (trap 3, ROSTER-CONSTRUCTION-CALL). So "RB has a higher VONA than the
+   * next WR, do I take the RB for my flex" is not answerable from VONA at all.
+   * Marginal lineup value IS cross-position comparable, and this panel is where
+   * that comparison lives.
+   *
+   * REPORT ONLY: it never writes to the board, the roster, the queue or a pick.
+   * Self-mounting, same stopgap contract as the seat panel — if B ever adds a
+   * #roster-builder div, that placement wins and this creates nothing. */
+  function rosterBuilderHost() {
+    const found = $('#roster-builder');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'roster-builder';
+    el.className = 'card roster-builder';
+    el.setAttribute('data-mounted-by', 'app.js — no #roster-builder in the view');
+    /* Beneath the recommendations, because it is a SECOND opinion and reading it
+     * first would invert what it is for. */
+    const anchor = document.getElementById('pos-recs-out') || document.getElementById('recs');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function renderRosterBuilder() {
+    const host = rosterBuilderHost();
+    if (!host) return;
+    /* Rule 3e in the UI: a panel that renders nothing and a panel whose module
+     * never loaded look identical from the outside. Say which. */
+    if (typeof RosterBuilderMLV === 'undefined') {
+      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
+        + 'Roster builder unavailable — mlv.js did not load.</p></div>';
+      return;
+    }
+    const league = { starters: (state.data && state.data.league && state.data.league.starters) || {} };
+    const rec = RosterBuilderMLV.recommend(state.board || [], state.myRoster || [],
+      { league: league, topN: 3 });
+    if (!rec.length) {
+      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
+        + 'Nobody left to evaluate.</p></div>';
+      return;
+    }
+    /* Does it agree with the board? That comparison is the reason the panel is
+     * worth screen space, so it is stated rather than left to the eye. */
+    let topOfBoard = null;
+    try {
+      const sc = E.recommend(context());
+      topOfBoard = sc && sc.length ? sc[0].player : null;
+    } catch (e) { topOfBoard = null; }
+    const agrees = topOfBoard && rec[0] && rec[0].player
+      && String(topOfBoard.player_id) === String(rec[0].player.player_id);
+
+    const rows = rec.map((r, i) => {
+      const p = r.player;
+      const adp = p.adjusted_adp == null ? '—' : Math.round(p.adjusted_adp);
+      return '<li style="margin-bottom:.4rem">'
+        + '<b>' + escapeHtml(p.name) + '</b> '
+        + '<span class="muted">' + escapeHtml(p.position) + (p.team ? ' ' + escapeHtml(p.team) : '')
+        + ' · ADP ' + adp + ' · <b>+' + r.marginal + '</b> to your lineup</span>'
+        + '<br><span style="font-size:.78rem">' + escapeHtml(r.why) + '</span>'
+        + '</li>';
+    }).join('');
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">🧱 Roster builder model says '
+      + explainPanel('roster_builder') + '</h3>'
+      + '<ol style="margin:0;padding-left:1.1rem">' + rows + '</ol>'
+      + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
+      + (topOfBoard
+          ? (agrees
+              ? '✅ <b>Agrees with the board.</b> Both want ' + escapeHtml(topOfBoard.name) + '.'
+              : '⚠️ <b>Disagrees with the board</b>, which wants '
+                + escapeHtml(topOfBoard.name) + '. Usually that means the board\'s top name '
+                + 'would not start for you.')
+          : '')
+      + '<br>Points added to your STARTING LINEUP, not to your roster. '
+      + 'K and DEF are capped at one, not excluded — once your nine starting slots '
+      + 'are full they top this list, because a bench body is worth zero here.'
+      + '</p></div>';
+  }
+
+  /* ── "WHO DOES EACH SOURCE HAVE AS THEIR BEST AVAILABLE" ──────────────────
+   *
+   * Cory, 2026-08-19: "can we actually do this with all sources, basically model
+   * can tell me what every source says to draft" and "when looking at big board,
+   * maybe a way to easily show who each source has as their best available at
+   * each position".
+   *
+   * It walks each source's own committed order and prints the first man not yet
+   * taken, so it re-answers itself after every pick without any recomputation.
+   *
+   * ⚠️ ORDER ONLY, NEVER POINTS, AND THAT IS THE WHOLE DESIGN. The sources are
+   * not on one scale and their level offsets differ BY POSITION (register 107),
+   * so a cell showing "CBS 271.4" beside "ESPN 288.1" would invite exactly the
+   * cross-source comparison centring exists to prevent. Rank within a source and
+   * within a position is invariant to all of it, and "best available" is a rank
+   * question. Nothing on this panel can be subtracted from anything else on it.
+   *
+   * ⚠️ SIX COLUMNS DISAGREEING IS THE PRODUCT, not a defect to reconcile. The
+   * blend is its own labelled column and is the one the board actually uses. */
+  function sourceBoardsHost() {
+    const found = $('#source-boards');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'source-boards';
+    el.className = 'card source-boards';
+    el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view');
+    const anchor = document.getElementById('roster-builder')
+      || document.getElementById('pos-recs-out');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function renderSourceBoards() {
+    const host = sourceBoardsHost();
+    if (!host) return;
+    const d = state.sourceBoards;
+    if (!d) return;                                 // still loading; say nothing
+    /* Rule 3e in the UI again: a artifact that failed its own controls must not
+     * be rendered as if it had passed. */
+    if (d.controls_all_passed === false) {
+      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
+        + 'Source cheat sheet withheld — source_boards.json failed its own controls.'
+        + '</p></div>';
+      return;
+    }
+    const gone = state.drafted || new Set();
+    const byId = {};
+    (state.data && state.data.players ? state.data.players : []).forEach(p => {
+      byId[String(p.player_id)] = p;
+    });
+    const firstFree = (srcKey, pos) => {
+      const list = (d.order[srcKey] || {})[pos] || [];
+      for (let i = 0; i < list.length; i++) {
+        if (!gone.has(String(list[i]))) return byId[String(list[i])] || null;
+      }
+      return null;
+    };
+    /* Does this source's best-available differ from the blend's? That comparison
+     * is the reason to look at the panel at all, so it is marked rather than
+     * left to the eye scanning seven names. */
+    const head = '<tr><th style="text-align:left">pos</th>'
+      + d.sources.map(s => '<th style="text-align:left;font-weight:600">'
+          + escapeHtml(s.label) + (s.note ? ' <span class="muted">(' + escapeHtml(s.note) + ')</span>' : '')
+          + '</th>').join('') + '</tr>';
+    const rows = d.positions.map(q => {
+      const blend = firstFree('BLEND', q);
+      const cells = d.sources.map(s => {
+        const p = firstFree(s.key, q);
+        if (!p) {
+          const cov = (d.coverage[s.key] || {})[q];
+          return '<td class="muted">' + (cov ? '—' : 'no coverage') + '</td>';
+        }
+        const differs = blend && String(p.player_id) !== String(blend.player_id);
+        return '<td' + (differs ? ' style="font-weight:600"' : '') + '>'
+          + escapeHtml(p.name.length > 16 ? p.name.slice(0, 15) + '…' : p.name)
+          + (differs ? ' <span title="differs from the blend">•</span>' : '')
+          + '</td>';
+      }).join('');
+      return '<tr><td><span class="rec-pos ' + q + '">' + q + '</span></td>' + cells + '</tr>';
+    }).join('');
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">📋 Best available, by source '
+      + explainPanel('source_boards') + '</h3>'
+      + '<div style="overflow-x:auto"><table style="font-size:.8rem;border-collapse:collapse;width:100%">'
+      + head + rows + '</table></div>'
+      + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
+      + '<b>•</b> marks a source that wants someone different from the blend. '
+      + 'Order only — no points are shown, because the sources are not on one scale '
+      + 'and their offsets differ by position. Our own projections are excluded on '
+      + 'your ruling.</p></div>';
+  }
+
   function renderPositionRecs() {
     const host = $('#pos-recs-out');
     if (!host) return;
@@ -5294,7 +5543,19 @@
       + '<summary data-chips-toggle="1" title="The numbers behind this row — opens on every row and stays put">'
         + (state.chipsOpen ? '▾ numbers' : '▸ numbers') + '</summary>'
       + '<div class="rec-stats">'
-      + '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>'
+      /* ⚠️ THE TOOLTIP CARRIES THE CROSS-POSITION WARNING, because the number
+       * itself invites exactly the comparison it cannot support. Cory,
+       * 2026-08-19: "If I need a flex and RB has a higher VONA than next best
+       * WR, should I take RB?" — the answer is no, not from this number.
+       * Measured: a backup QB's best-to-second cliff is the largest on the
+       * board and sits on 17 points of surplus over the wire; a running back's
+       * 11-point cliff sits on 233 (trap 3, ROSTER-CONSTRUCTION-CALL). The
+       * cross-position question is the roster-builder panel's job. */
+      + '<span title="Value Over Next Available — what this pick is worth MORE than '
+        + 'the man you would get at this position at your next pick. It is the cost '
+        + 'of waiting. Compare it only WITHIN a position: an RB\'s VONA and a WR\'s '
+        + 'VONA are not on the same scale, so a bigger number does not mean the '
+        + 'better flex pick. Use the roster builder panel for that.">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>'
       // C3 — the raw projection, labelled by its true source count (the
       // consensus.js contract: source names when single, "Consensus (N)" when
       // ≥2), sat next to our VONA so a disagreement is visible on the card.

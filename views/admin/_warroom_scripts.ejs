@@ -132,6 +132,16 @@
     (expert_spread_display.test.js pins both halves). Guarded consumer: a
     missing module or artifact costs the badge, never the board. %>
 <script src="/js/draft/expert_spread.js"></script>
+<%# mlv.js — THE ROSTER BUILDER, A SECOND VOICE AND NOT THE RANKING.
+    Cory 2026-08-19: "it needs to be clear what player model is recommending and
+    why and I still want to retain my current view. So maybe a spot that's says
+    roster builder model says and then the player".
+    marginal(c) = lineupValue(roster+c) - lineupValue(roster): the only arm to
+    beat the humans in all three seasons on both gradings (register 132). It
+    NEVER writes to the board, the roster or a pick — app.js renders it into its
+    own labelled panel beneath the recommendations. Guarded consumer: a missing
+    module costs the panel, never the board. %>
+<script src="/js/draft/mlv.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with
