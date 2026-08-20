@@ -46,6 +46,15 @@ const PRODUCTION_INPUTS = {
     + 'built for this draft.',
   'seat_plan.json': 'The seat schedule derived from the current board and this '
     + 'year\'s keepers.',
+  'source_boards.json': 'THIS season\'s per-source, per-position draft ORDER, '
+    + 'derived from the same current-season projections already on the board plus '
+    + 'multisource_projections (CBS/ESPN/FFToday, this season). Cory asked to see '
+    + '"who each source has as their best available at each position". DISPLAY '
+    + 'ONLY and structurally incapable of being anything else: it carries no '
+    + 'points, only order, and no ranking code reads it — engine.js, composite.js, '
+    + 'valuation.js and survival.js never touch it. Declared rather than '
+    + 'grandfathered because a cheat sheet is exactly the kind of surface that '
+    + 'becomes an input by accident.',
   'league_history.json': 'Completed seasons of THIS league — head-to-head records, '
     + 'opponent tendencies, roster norms. Historical by nature and about this '
     + 'league, which is what makes it a legitimate input rather than a leak.',
