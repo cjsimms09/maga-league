@@ -166,6 +166,38 @@ const PANELS = [
       + 'button sit behind the disclosure, so the headline stays the only name '
       + 'above the fold.' },
 
+  { fn: 'renderRosterBuilder', weight: 'CONTEXT', lines: 62,
+    question: 'What does a SECOND model think, and does it disagree with the board?',
+    means: 'marginal lineup value — what this man adds to my STARTING lineup, valued '
+      + 'as surplus over the waiver wire. Unlike VONA it IS comparable across '
+      + 'positions, so it is the only thing on the page that can answer "RB or WR '
+      + 'for my flex".',
+    changes_it: 'any pick; anything entering or leaving my roster (it is scored on '
+      + 'the live roster, not on a snapshot)',
+    reads: ['mlv.js recommend()', 'state.board', 'state.myRoster', 'league.starters'],
+    note: 'A SECOND VOICE AND NEVER THE RANKING — Cory: "I still want to retain my '
+      + 'current view. So maybe a spot that\'s says roster builder model says and '
+      + 'then the player". B must not merge it into the shortlist or sort the board '
+      + 'by it. Two things it does that look like bugs and are not: it says "bench '
+      + 'only — he does not crack your lineup" about good players (that line is the '
+      + 'POINT of the panel), and once nine starting slots are full it wants a DEF '
+      + 'and a K at the top on a thinned board (register 134, measured). It cannot '
+      + 'value a bench at all, so it has nothing to say about the last few picks.',
+  },
+  { fn: 'renderSourceBoards', weight: 'CONTEXT', lines: 58,
+    question: 'Who does each projection source have as their best available, right now?',
+    means: 'each source\'s OWN ranking walked past everyone already drafted. Six '
+      + 'outside sources plus the blend the board actually uses.',
+    changes_it: 'any pick (the lists are fixed; what has been taken is not)',
+    reads: ['source_boards.json order{}', 'state.drafted'],
+    note: 'ORDER ONLY, NO POINTS, AND B MUST NOT ADD ANY. The sources are not on one '
+      + 'scale and their level offsets differ BY POSITION (register 107), so a cell '
+      + 'showing two sources\' numbers side by side invites exactly the comparison '
+      + 'centring exists to prevent. Ranking within a source and within a position '
+      + 'is invariant to that. The bullet marking a source that differs from the '
+      + 'blend is the readable payload; the names are the detail. Our own '
+      + 'projections are absent on Cory\'s ruling, not by oversight.',
+  },
   { fn: 'renderSeatPlan', weight: 'DECIDES', lines: 121,
     question: 'Which SEAT am I filling at this pick — and what is the plan for the rest?',
     means: 'The plan solves all twelve of my picks at once and assigns each a ROLE '

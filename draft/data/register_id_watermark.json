@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 135,
+ "next_numeric_id": 137,
  "history": [
   {
    "id": 47,
@@ -116,6 +116,16 @@
    "id": 134,
    "claimed_at": "2026-08-19",
    "note": "renumbered from a colliding 132 (the relay's marginal-lineup-value mechanism clears every bar) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 135,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from a colliding 133 (MLV-timing arm preregistered, never implemented) -- another session's row, first-allocation-wins per timestamp"
+  },
+  {
+   "id": 136,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from a colliding 134 (self-correction: sent Cory a number from a crashing arm) -- another session's row, first-allocation-wins per timestamp"
   }
  ]
 }

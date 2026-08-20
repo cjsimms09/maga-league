@@ -21,6 +21,12 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 ---
 
+## CORY RULED 2026-08-20 — K and DEF are CAPPED at one, never excluded
+
+| # | ruling | status |
+|---|---|---|
+| ⑥ | **Verbatim: *"Well if excluding those cost it that much it's the worse option.. do not ship that to my board."*** He is right and the measurement is not close: the exclusion arm scores **−83.7 actual / −211.3 skill** against the cap's **+45.8 / +29.3**, and leaves **0 of 30 rosters legal** — two starting slots scoring zero for seventeen weeks. **This ruling COINCIDES with what already ships**, verified against the live board rather than assumed: `public/js/draft/mlv.js` caps at `>= 1` and offers HOU DEF +22.7 / Aubrey K +16.9 once the lineup is full on a thinned board. Exclusion never reached his board — it only ever existed as a harness flag that threw a ReferenceError on every invocation (register 134). | ✅ **ENCODED, NOT PROMISED.** `draft/tests/roster_builder_panel.test.js` now carries three checks in his name: a kicker must be REACHABLE, worth a real positive number, and a SECOND one must still be refused. **The fail arm was demonstrated, not assumed** — patching the module to exclude turns the check red, and restoring it turns it green, with the file byte-identical afterward. A future edit that "tidies up" the panel by dropping onesies fails the build instead of shipping. |
+
 ## CORY RULED 2026-08-19 — own_v6's role, and the target roster shape
 
 | # | ruling | status |

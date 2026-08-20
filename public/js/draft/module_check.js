@@ -60,6 +60,9 @@
     ['SharedValuation', 'the sheet and the war room can disagree about a player'],
     ['DraftSession', 'the draft stops being persisted — a reset loses the picks'],
     ['OverrideRecord', 'overrides stop being captured, and draft night cannot be recaptured'],
+    ['RosterBuilderMLV', 'the "roster builder model says" second opinion goes dark — '
+      + 'and with it the only cross-position comparison on the page, which is the '
+      + 'one thing VONA cannot answer (the FLEX question)'],
   ];
 
   function missing() {

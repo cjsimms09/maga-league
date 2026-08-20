@@ -324,12 +324,14 @@ function buildSeat(season, draft, seatId, rosterOn) {
       return m + k * (raw(p) - m);
     };
   }
-  const mine = [], held = {}, mineVals = {};
+  /* mineAt[i] = the pick_no of MY OWN SLOT that produced mine[i]. Not the slot
+   * the player was really drafted at — the question is when I spent a pick. */
+  const mine = [], mineAt = [], held = {}, mineVals = {};
   const takenByMe = new Set();
   picks.forEach((pk, idx) => {
     if (pk.roster_id !== seatId) return;
     if (pk.is_keeper) {                       // keepers stay as recorded (C4)
-      mine.push(pk.player_id);
+      mine.push(pk.player_id); mineAt.push(pk.pick_no);
       const q = posOf(pk.player_id);
       if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk)); }
       return;
@@ -366,8 +368,14 @@ function buildSeat(season, draft, seatId, rosterOn) {
          * roster does not. If the cap is load-bearing it must be reported as a
          * rule, not as something the mechanism discovered. */
         if (MLV_CAP && (q === 'K' || q === 'DEF') && (held[q] || 0) >= 1) continue;
-        /* excluded entirely: only the forcing gate may seat them */
-        if (MLV_NO_ONESIE && (q === 'K' || q === 'DEF') && !forcing) continue;
+        /* Excluded entirely. ⚠️ THIS LINE READ `&& !forcing` UNTIL 2026-08-19 AND
+         * `forcing` IS DEFINED NOWHERE IN THIS HARNESS — the flag threw a
+         * ReferenceError on every invocation, so the "exclude entirely" row I
+         * sent Cory was the CAP arm printed twice. There is no forcing gate and
+         * there never was (zero definitions across all ten commits of this
+         * file), so exclusion here is unconditional: nothing else can seat a
+         * kicker. Register 134. */
+        if (MLV_NO_ONESIE && (q === 'K' || q === 'DEF')) continue;
         const cur = {};
         POS.forEach(z => { cur[z] = (mineVals[z] || []).slice(); });
         const before = lineupValueOf(cur);
@@ -381,10 +389,11 @@ function buildSeat(season, draft, seatId, rosterOn) {
     }
     if (!best) return;
     takenByMe.add(best.player_id);
-    mine.push(best.player_id);
+    mine.push(best.player_id); mineAt.push(pk.pick_no);
     const q = posOf(best.player_id);
     if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(best)); }
   });
+  mine.takenAt = mineAt;
   return mine;
 }
 
@@ -413,7 +422,17 @@ Object.values(H.seasons).forEach(season => {
     const cnt = {};
     on.forEach(id => { const q = posOf(id); if (q) cnt[q] = (cnt[q] || 0) + 1; });
     const short = POS.filter(q => (cnt[q] || 0) < (STARTERS[q] || 0));
-    const firstAt = (list, q) => { const g = list.find(x => posOf(x) === q); return g ? 1 : null; };
+    /* when did each side SPEND A PICK on a onesie. The owner arm is the
+     * known positive: it must reproduce the humans' K 126 / DEF 128 from
+     * ROSTER-CONSTRUCTION-CALL.md, computed here by a different path. */
+    const firstPickOf = (list, at, q) => {
+      for (let i = 0; i < list.length; i++) if (posOf(list[i]) === q) return at[i];
+      return null;
+    };
+    const ownerPicks = (draft.picks || []).filter(p => p.roster_id === seatId)
+      .sort((a, b) => a.pick_no - b.pick_no);
+    const ownerAt = ownerPicks.map(p => p.pick_no);
+    const ownerIds = ownerPicks.map(p => p.player_id);
     seats.push({ season: season.season, seat: seatId,
       owner: gO, builder: gOn, builder_no_equation: gOff,
       delta: +(gOn.points - gO.points).toFixed(2),
@@ -421,7 +440,11 @@ Object.values(H.seasons).forEach(season => {
       skill: { owner: sO, builder: sOn, builder_no_equation: sOff },
       skill_delta: +(sOn.points - sO.points).toFixed(2),
       skill_delta_no_equation: +(sOff.points - sO.points).toFixed(2),
-      builder_counts: cnt, unfillable: short });
+      builder_counts: cnt, unfillable: short,
+      first_pick: { builder_K: firstPickOf(on, on.takenAt, 'K'),
+        builder_DEF: firstPickOf(on, on.takenAt, 'DEF'),
+        owner_K: firstPickOf(ownerIds, ownerAt, 'K'),
+        owner_DEF: firstPickOf(ownerIds, ownerAt, 'DEF') } });
   });
 });
 
