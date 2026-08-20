@@ -43,6 +43,7 @@ const ST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'streamab
 if (!ST.controls_all_passed) throw new Error('streamability failed its controls — REFUSING');
 const STREAM = ST.streamability;
 const KDEF_TAX = process.argv.includes('--kdef-tax');
+const TE_BOOST = process.argv.includes('--te-boost');
 const KDEF_MODE = process.argv.includes('--kdef-supply');
 /* ── TE ARM: the MEASURED row instead of the transcribed one ──────────────────
  * Prereg: draft/TE-CAP-PREREG-2026-08-19.md. Top-3 finishers draft TE 1.67,
@@ -78,7 +79,14 @@ const posOf = id => POSOF[String(id)] || (/^[A-Z]{2,3}$/.test(String(id)) ? 'DEF
 /* Cory's transcribed curve, and the streaming tax on bench bodies — the two
  * pieces of the roster equation, unchanged from draft_model.js */
 const W = {
-  K: [1.00, 0], DEF: [1.00, 0], QB: [1.00, 0.05, 0], TE: [1.00, 0.05, 0],
+  K: [1.00, 0], DEF: [1.00, 0], QB: [1.00, 0.05, 0],
+  /* ── TE-CURVE-CHALLENGE-PREREG-2026-08-19.md ────────────────────────────
+   * Shipped curve treats a 2nd TE as a twentyfold hole (.05), but top-3
+   * finishers draft 1.67 of them against bottom-3's 1.11 -- the widest
+   * positional separation measured (ROSTER-CONSTRUCTION-CALL.md §1). Behind
+   * a flag, off by default; the shipped curve is untouched unless --te-boost
+   * is passed. */
+  TE: TE_BOOST ? [1.00, 0.50, 0] : [1.00, 0.05, 0],
   RB: [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };
