@@ -113,6 +113,23 @@ const fields = Object.keys(fieldCounts).sort().map(k => ({
   declared: NOT_FOR_DISPLAY[k] || null,
 }));
 
+/* ── ARTIFACTS LOADED BY A CONSTRUCTED URL ──────────────────────────────────
+ * A file fetched as `'/board_' + key + '.json'` never appears literally in the
+ * code, so a literal search calls it dead. That is a FALSE POSITIVE and the fix
+ * is not to declare it not-for-display — it IS displayed. It is declared here
+ * with the prefix that must appear in real code, and the declaration is
+ * VERIFIED: if the prefix is not actually there, the claim fails and the file
+ * is reported dead anyway. A declaration nobody checks is just a comment. */
+const DYNAMIC_READS = [
+  { match: /^board_[a-z]+\.json$/, prefix: "'/board_' + key + '.json'",
+    probe: /'\/board_'\s*\+\s*key\s*\+\s*'\.json'/,
+    why: 'the projection-source toggle fetches one per source in setProjSource' },
+];
+function dynamicallyRead(name) {
+  const d = DYNAMIC_READS.find(x => x.match.test(name));
+  return !!(d && d.probe.test(CODE));
+}
+
 /* ── PUBLISHED ARTIFACTS ────────────────────────────────────────────────────*/
 const artifacts = fs.readdirSync(PUB)
   .filter(f => f.endsWith('.json'))
@@ -120,7 +137,8 @@ const artifacts = fs.readdirSync(PUB)
   .map(f => ({
     name: f,
     kb: Math.round(fs.statSync(path.join(PUB, f)).size / 1024),
-    shown: new RegExp('[\'"/]' + f.replace('.', '\\.')).test(CODE),
+    shown: new RegExp('[\'"/]' + f.replace('.', '\\.')).test(CODE) || dynamicallyRead(f),
+    read_dynamically: dynamicallyRead(f),
     declared: NOT_FOR_DISPLAY[f] || null,
   }));
 
@@ -140,6 +158,8 @@ const doc = {
   unshown_fields: unshownFields,
   unshown_artifacts: unshownArtifacts,
   declared_not_for_display: NOT_FOR_DISPLAY,
+  dynamic_reads: DYNAMIC_READS.map(d => ({ prefix: d.prefix, why: d.why,
+    prefix_actually_present_in_code: d.probe.test(CODE) })),
 };
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'unshown.json'), JSON.stringify(doc, null, 1));
 

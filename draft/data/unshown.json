@@ -187,12 +187,14 @@
    "name": "mlv_recommend.json",
    "kb": 3,
    "shown": false,
+   "read_dynamically": false,
    "declared": null
   },
   {
    "name": "position_boards.json",
    "kb": 166,
    "shown": false,
+   "read_dynamically": false,
    "declared": null
   }
  ],
@@ -205,5 +207,12 @@
   "market_upside_2026.json": "research artifact, read by zero site files — measured, not assumed",
   "draft_day_consistency.json": "a CI report about the board, not a board surface",
   "unshown.json": "this tool's own output"
- }
+ },
+ "dynamic_reads": [
+  {
+   "prefix": "'/board_' + key + '.json'",
+   "why": "the projection-source toggle fetches one per source in setProjSource",
+   "prefix_actually_present_in_code": true
+  }
+ ]
 }
