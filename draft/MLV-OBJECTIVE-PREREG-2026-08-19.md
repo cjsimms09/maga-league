@@ -285,3 +285,41 @@ plainly: a better VALUE SIGNAL (projections that beat market order) or a
 real opponent model would move every rule including this one — and those are
 exactly Cory's two stated goals for the year. The equation is not the
 bottleneck. The inputs are.
+
+## 15. PREREG — CORY'S DEPTH DISCOUNT (`--mlv-depth`), committed before the run
+
+Cory, 08-20: *"study # of players taken in previous 3 sleeper drafts... if
+only 13 TE are taken on average every year, the 14th TE should have little to
+no value as I can get that on waiver wire."* **Premise verified before this
+was written: TE drafted = 13/14/15 across 2023-25 (mean 14.0), and every
+position's depth is stable to ±1-2: QB 16.0 · RB 47.3 · WR 52.3 · K 10.3 ·
+DEF 9.7.** The league's drafted depth is a real, repeatable constant.
+
+**Mechanism — the depth-anchored positional replacement:**
+`D_q` = leave-target-season-out mean drafted count at position q (rounded).
+`repl_q` = the market value of the D_q-th player of q taken in the TARGET
+draft (its own order, era-correct). Candidate value becomes
+`v'(c) = max(0, v(c) − repl_q)` — the k-th positional player is worth what he
+returns OVER the last man the league historically bothers to draft, and past
+that depth he is worth ~zero, which is Cory's sentence as an equation. MLV
+displacement then runs on `v'` unchanged, K≤1/DEF≤1 retained.
+
+**What this adds that MLV lacks:** MLV already zeroes SAME-position surplus
+(a 2nd TE displaces nothing) — the discount changes CROSS-position priority:
+positions whose replacement is worthless (K, DEF, late TE) deflate relative
+to positions whose D_q-th man still carries value.
+
+**Bars (waiver-graded, the realistic game; frozen reported beside, no bar):**
+actual > **+2.6** AND skill > **+2.1** · h2h vs MLV-cap ≥ **16/30** on skill
+· 30/30 legal, K≤1/DEF≤1. **Controls:** `--mlv` byte-guard (+45.84/+29.33);
+computed D printed with D_TE required in [13,15] (the premise, re-derived
+inside the run); engagement — differs from MLV-cap in ≥1 seat or the flag is
+presumed dead (P135 taught byte-identity is a real outcome, so it is a
+declared one).
+
+**P146, filed blind:** the discount is a benign re-pricing — waiver-graded
+means land within ±10 of MLV-cap's (+2.6/+2.1) and the full champion bar is
+NOT cleared, because MLV's displacement already contains most of Cory's
+mechanism within-position. If it DOES clear the bar, the cross-position half
+was the missing piece and the depth constant becomes a shipped input — filed
+as eagerly either way.
