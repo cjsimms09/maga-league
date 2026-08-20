@@ -252,3 +252,37 @@ friction now lives where C measured it. If the theorem regresses at DEF
 declared reading is that the MODEL is telling us something, and the level-
 discount alternative (loser gets the next wire body, not nothing) is the
 preregistered v11 — not a silent retreat to the old partition.
+
+---
+
+## 15 · V11 AMENDMENT, 2026-08-20 — BOTH FRICTIONS (after P283 FALSE / P284 TRUE-suspicious)
+
+v10 (per-slot contest probability, no budget) collapsed the theorem — the
+model bought insurance at EVERY position (K 2.00 / DEF 2.53 / QB 2.03),
+rationally, because an uninsured slot scored zero ~15-25% of weeks — while
+points exploded (+47.15/+18.56), which Rule 3d flags rather than celebrates.
+Reality has BOTH frictions and v11 models both, each from its own evidence:
+**one claim per week** (the roster-moves budget, v9's) **succeeding with
+probability 1 − c(q)/2** (C's measured contest rate on that position). All
+other slots beyond the claim score zero that week. Nothing else moves.
+P285 blind before the run; three-way paired read v9/v10/v11 declared.
+
+---
+
+## 16 · THE FRICTION QUESTION, RESOLVED BY THREE RUNS — v9 STANDS (2026-08-20)
+
+| arm | friction model | theorem | waiver skill |
+|---|---|---|---|
+| **v9** | empty slots refill free at wire | **3 of 4 clauses, 0 vacancies** | **+3.45 (16/30) ✓** |
+| v10 | per-slot contest probability (C-measured) | collapsed — insurance everywhere | +18.56 (suspicious, P284) |
+| v11 | one claim/week × contest probability | collapsed, points fell | −10.59 |
+
+**The mechanism the family surfaced:** any objective in which an uninsured
+absent K/DEF can score ZERO prices a backup at ~+10 and rationally buys one —
+and reality never produces that zero, because a lost contested claim still
+yields the next wire body as a free agent. **Wire friction governs the
+acquisition of ABOVE-wire value (P150's RB 1.47×), not slot replacement.**
+v9's free-replacement wire was the correct physics; C's contested-rate table
+is the right input for the UPGRADE side — waiver-claim advice (P282), where
+contests actually bind. This section, with all three runs, is the answer the
+OpenAI audit receives for its question 2.
