@@ -52,7 +52,11 @@
   }
  },
  "clay": {
-  "status": "NOT YET UPLOADED — draft/data/clay_projections_2025.json absent",
-  "what_C_must_report_first": "the guide's own printed \"Updated:\" date, verbatim"
+  "version_gate": {
+   "guide_updated_reported": null,
+   "season_start": "2025-09-04",
+   "verdict": "IN-SEASON OR UNDATED — ACCURACY GRADE DOES NOT RUN",
+   "why": "a guide updated after Week 1 contains games already played; grading it measures nothing but our willingness to be impressed. Missing or ambiguous is treated as in-season, because the conservative direction cannot manufacture a false result."
+  }
  }
 }
