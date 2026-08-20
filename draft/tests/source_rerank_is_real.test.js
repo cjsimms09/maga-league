@@ -142,6 +142,61 @@ if (fs.existsSync(planPath)) {
   ck('CONTROL — mlv_plan.json exists so the shape claim can be checked', false, null);
 }
 
+/* ── THE BIG BOARD TAB MUST FOLLOW THE TOGGLE ──────────────────────────────
+ * Cory, 2026-08-20: "when I select big board tab it shows me actual ranking of
+ * selected source correct?" It did NOT. context() used the swapped board so the
+ * recommendation and VONA followed, but renderBoard() read `state.board` raw,
+ * so the Big Board kept painting the BLEND's order under a Draft Sharks
+ * heading. Same class as the mock-end label lie: a surface asserting a source
+ * it is not using. */
+const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+/* A FIXED-WIDTH SLICE IS A TRAP: adding a comment block above the code pushed
+ * it out of a 3000-char window and turned two green checks red without the
+ * behaviour changing at all. Slice to the NEXT function instead, so the window
+ * tracks the function rather than its byte count. */
+const rbStart = APP.indexOf('function renderBoard()');
+const rbEnd = APP.indexOf('\n  function ', rbStart + 10);
+const renderBoardSrc = APP.slice(rbStart, rbEnd > rbStart ? rbEnd : rbStart + 8000);
+ck('renderBoard uses the SOURCE-ADJUSTED board, not state.board raw — the Big '
+   + 'Board tab is where Cory reads rankings and it was ignoring his selection',
+  /sourceAdjustedBoard\(\)/.test(renderBoardSrc), null);
+
+ck('...and re-orders when a source is active, because forSource swaps the '
+   + 'FIELD but the array still arrives in blend order',
+  /state\.rankSource/.test(renderBoardSrc) && /overall_rank/.test(renderBoardSrc), null);
+
+/* Cory, 2026-08-20: "it should just be pure ranking from that source!" */
+ck('SLEEPER uses its OWN published rank, because that is the one source whose '
+   + 'board we actually hold (sleeper_rank, all 700 players) — for the others '
+   + 'we ingested projections, not rankings',
+  /sleeper:\s*'sleeper_rank'/.test(renderBoardSrc), null);
+
+ck('...and the ordering is DECLARED to the panel rather than inferred from a '
+   + 'source name, so the heading cannot imply a board we do not have',
+  /bigBoardOrdering/.test(APP)
+    && /Sleeper\\'s own published/.test(APP)
+    && /our replacement math on/.test(APP), null);
+
+ck('KNOWN NEGATIVE — on BLEND it does not re-sort at all, so the shipped order '
+   + 'is byte-identical and this fix cannot have moved the default board',
+  /if \(!state\.rankSource\) return b;/.test(renderBoardSrc), null);
+
+/* And the data behind it must actually differ, or the fix is cosmetic. */
+const withRank = k => {
+  const b = boards[k];
+  if (!b) return null;
+  return b.players.filter(p => p.overall_rank != null).length;
+};
+ck('CONTROL — the board carries a per-source overall_rank for every source the '
+   + 'toggle offers, which is what makes the re-order possible at all',
+  SOURCES.every(k => {
+    const n = blend.players.filter(p => p['overall_rank_' + (k === 'own' ? 'ownmodel'
+      : k === 'fp' ? 'fantasypros' : k)] != null).length;
+    return n > 100;
+  }),
+  SOURCES.map(k => ({ k, n: blend.players.filter(p => p['overall_rank_'
+    + (k === 'own' ? 'ownmodel' : k === 'fp' ? 'fantasypros' : k)] != null).length })));
+
 /* ── 4. THE BOARDS ARE NOT STALE RELATIVE TO THE BLEND ─────────────────────*/
 SOURCES.forEach(k => {
   const b = boards[k];
@@ -151,5 +206,5 @@ SOURCES.forEach(k => {
     !!b.built_from_board, { built_from_board: b.built_from_board });
 });
 
-console.log('\n%d checks, %d failed', 20, fails.length);
+console.log('\n%d checks, %d failed', 26, fails.length);
 if (fails.length) { console.log('FAILED'); process.exit(1); }
