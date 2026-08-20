@@ -107,7 +107,14 @@ console.log('  total VORP    need=0 : '+tot(a.roster).toFixed(0)
  * filed in ROUTES on 08-19 without either arm ever being measured against it.
  * n = 9 is a real signal and a small sample: this REPORTS the distance, it does
  * not fit a weight to close it. */
-const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
+/* THE ONE DEFINITION — league_config.ruled_roster_target (register-153 pattern:
+ * a local literal here is exactly how register 70 compared against P120's 4.44
+ * by mistake). RAISES on a missing block rather than substituting a default. */
+const TARGET = (() => {
+  const t = require(path.join(ROOT, 'draft/config/league_config.json')).ruled_roster_target;
+  if (!t || !t.targets) throw new Error('league_config.ruled_roster_target missing — refusing to invent a target');
+  return t.targets;
+})();
 function shapeOf(r) { const c = {}; r.forEach(p => { c[p.position] = (c[p.position] || 0) + 1; }); return c; }
 function dist(r) {
   const c = shapeOf(r);
