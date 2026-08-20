@@ -477,7 +477,9 @@ is the one already shipped: ONE champion picks, the others show as labeled
 second opinions (the shadow panel, the source toggle) — advisors, never
 electors.** RETIRES the ensemble line.
 
-## 18. PREREG — REAL_VONA RE-RUN UNDER THE INCLUDE-SELF FIX (P250), committed before the run
+## 18. PREREG — REAL_VONA RE-RUN UNDER THE INCLUDE-SELF FIX (P251), committed before the run
+
+⚠️ Renumbered P250 -> P251 by E, 2026-08-20 -- collided with A's earlier-committed P250 ("post-chain acceptance step", 04:01:09 UTC vs this row's 18:45:58 UTC). First-allocation-wins per `prediction_ledger_check.js`.
 
 **Why now.** Cory, 2026-08-20: *"We made changes to VONA calculation. Make sure
 we're doing it correctly now and need to rerun roster construction test as
