@@ -308,6 +308,45 @@ const REAL_FILL = process.argv.includes('--real-fill');
 /* §14d: position-consistent units + supply-aware forcing. Implies REAL_FILL. */
 const REAL_POS = process.argv.includes('--real-pos');
 const REAL = REAL_VONA || REAL_FILL || REAL_POS || process.argv.includes('--real');
+
+/* ── CORY'S DEPTH DISCOUNT (relay, prereg §15 / P146 — committed before this) ─
+ * "if only 13 TE are taken on average every year, the 14th TE should have
+ * little to no value as I can get that on waiver wire." Premise measured
+ * first: TE drafted 13/14/15 across 2023-25; all positions stable to ±1-2.
+ * Candidate value becomes max(0, v − repl_q), repl_q = the market value of
+ * the D_q-th player of that position in the TARGET draft, D_q = the OTHER
+ * seasons' mean drafted count. MLV displacement runs on v' unchanged. */
+const MLV_DEPTH = process.argv.includes('--mlv-depth');
+let depthControlPrinted = false;
+function draftedDepthLOO(targetSeason) {
+  const counts = {};   // pos -> [count per other season]
+  Object.values(H.seasons).forEach(season => {
+    if (String(season.season) === String(targetSeason)) return;
+    if (!season.weeks || !(season.drafts || []).length) return;
+    const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
+    if (!draft) return;
+    const c = {};
+    (draft.picks || []).forEach(p => {
+      const q = posOf(p.player_id);
+      if (q) c[q] = (c[q] || 0) + 1;
+    });
+    POS.forEach(q => (counts[q] || (counts[q] = [])).push(c[q] || 0));
+  });
+  const D = {};
+  POS.forEach(q => {
+    const a = counts[q] || [];
+    D[q] = a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : 0;
+  });
+  if (!depthControlPrinted) {
+    depthControlPrinted = true;
+    if (!(D.TE >= 13 && D.TE <= 15)) {
+      throw new Error('depth control FAILED: LOO D_TE=' + D.TE + ' outside [13,15] — premise broke, REFUSING');
+    }
+    console.error('[depth control] LOO-' + targetSeason + ': ' + POS.map(q => q + '=' + D[q]).join(' ')
+      + ' — D_TE inside [13,15], premise re-derived live');
+  }
+  return D;
+}
 const SEASON_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
 const SEASON_WAIVER_FLEX = Math.max(SEASON_WAIVER.RB, SEASON_WAIVER.WR, SEASON_WAIVER.TE);
 
@@ -470,6 +509,25 @@ function buildSeat(season, draft, seatId, rosterOn) {
       if (m == null) return raw(p);
       const k = PERSIST[q] != null ? PERSIST[q] : 1;
       return m + k * (raw(p) - m);
+    };
+  }
+  if (MLV_DEPTH) {
+    /* repl_q = market value of the D_q-th player of q taken in THIS draft
+     * (its own order, keepers included — the count premise included them) */
+    const D = draftedDepthLOO(season.season);
+    const seen = {};
+    const repl = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (!q) return;
+      const r = (seen[q] = (seen[q] || 0) + 1);
+      if (r === D[q]) repl[q] = (N + 1) - p.pick_no;
+    });
+    POS.forEach(q => { if (repl[q] == null) repl[q] = 0; });   // fewer taken than D_q → no discount
+    const raw = valueOf;
+    valueOf = p => {
+      const q = posOf(p.player_id);
+      return Math.max(0, raw(p) - (q ? repl[q] : 0));
     };
   }
   if (REAL_POS) {
