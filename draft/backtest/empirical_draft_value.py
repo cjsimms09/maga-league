@@ -65,7 +65,24 @@ STARTER_RANK = {"RB": 24, "WR": 26, "QB": 10, "TE": 10}
 #   replacement IS the STARTER_RANK-th man's projection. Updating one
 #   without the other would leave this study comparing a level taken at
 #   rank 24 against a cliff measured at rank 21.
-BOARD_REPLACEMENT_2026 = {"RB": 170.47, "WR": 171.85, "QB": 350.26, "TE": 141.45}
+BOARD_REPLACEMENT_2026 = {"RB": 168.60, "WR": 170.10, "QB": 350.80, "TE": 141.70}
+# ^ RE-DERIVED 2026-08-20 from the published board, on the external
+#   reviewer's red-tests finding. Previous values
+#   {RB 170.47, WR 171.85, QB 350.26, TE 141.45} were the 08-19 board.
+#
+#   THE MOVE IS SMALL AND, UNLIKE THE 08-19 RE-DERIVATION, THE RANKS DID
+#   NOT MOVE WITH IT: RB -1.10%, WR -1.02%, QB +0.15%, TE +0.18%, while
+#   STARTER_RANK is still {RB 24, WR 26, QB 10, TE 10} on the board.
+#   The comment above warns that the pair must move together; here only
+#   one of them moved, which is the ordinary case of the market shifting
+#   a projection without shifting the flex allocation.
+#
+#   AND THE STUDY'S CONCLUSIONS DO NOT DEPEND ON THIS. Checked before
+#   updating rather than assumed: BOARD_REPLACEMENT_2026 is referenced
+#   in exactly ONE place besides its own definition — the reported field
+#   `board_replacement_2026_projection_space` — and never enters the
+#   cliff computation, which is built from realized outcomes. So this is
+#   a reported comparison figure catching up to the board, not a re-run.
 # ^ RE-DERIVED 2026-08-19 from the first board published with the MULTI-SOURCE
 #   MEAN (built_at 2026-08-19T05:11:30Z). The previous values were
 #   {RB 179.30, WR 162.60, QB 341.72, TE 136.40}, re-derived 2026-08-17.

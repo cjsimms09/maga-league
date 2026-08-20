@@ -94,8 +94,22 @@ def test_all_32_sweep_vs_sleepers_own_implied_totals():
 def test_all_32_sweep_correction_is_exactly_the_td_components():
     """For every DEF row: new score - old score == 6.0 x (sum of TD component
     values), to the cent — nothing else moved. And the committed board carries
-    exactly the new score as proj_baseline AND proj_mean (DEF opportunity_adj
-    is 0.0 across the board)."""
+    exactly the new score as proj_baseline.
+
+    ⚠️ THE proj_mean HALF WAS REMOVED 2026-08-20, ON THE EXTERNAL REVIEWER'S
+    RED-TESTS FINDING. It read "proj_baseline AND proj_mean (DEF
+    opportunity_adj is 0.0 across the board)", which was true when the only
+    thing between our scoring and proj_mean was the opportunity adjustment.
+    It is not true now: the MULTI-SOURCE BLEND overwrites proj_mean, and
+    measured on the committed board proj_baseline == proj_mean on ZERO of 32
+    DEF rows, every one stamped `proj_mean_source: "blend: mean of N sources,
+    centred per position"`. ARI is 80.0 baseline against 79 blended.
+
+    So the old assertion was asserting THAT THE BLEND DOES NOT EXIST, and it
+    would have gone red the day the blend shipped. `proj_baseline` is the field
+    that actually proves the TD-component correction reached the published
+    board, and it is kept. What replaced the proj_mean line is the stronger
+    current statement: proj_mean is the blend and SAYS it is."""
     changed = 0
     for pid, row in DEF_ROWS.items():
         old = score_stat_line(row, SCORING)
@@ -103,21 +117,82 @@ def test_all_32_sweep_correction_is_exactly_the_td_components():
         comps = sum(float(row[k]) for k in DEF_PROJ_TD_ALIASES if k in row)
         assert new - old == pytest.approx(6.0 * comps, abs=0.011), pid
         assert BOARD_DEFS[pid]["proj_baseline"] == pytest.approx(new), pid
-        assert BOARD_DEFS[pid]["proj_mean"] == pytest.approx(new), pid
+        #: and proj_mean is the BLEND, not our scoring -- asserted rather than
+        #  left silent, so a board that quietly stopped blending DEF (which
+        #  would restore the old equality and look like a fix) fails here.
+        src = str(BOARD_DEFS[pid].get("proj_mean_source") or "")
+        assert src.startswith("blend:"), (pid, src)
         if comps:
             changed += 1
     assert changed == 11    # ARI CAR DAL DET HOU JAX LAR MIN NE NO SEA
 
 
 def test_def_replacement_and_vorp_consistent():
-    """DEF replacement is the flex-aware N-th best DEF proj_mean (103.0 after
-    the correction; it was 99.0 before), and every DEF vorp is proj_mean minus
-    that one number."""
-    repl = BOARD["replacement"]["replacement_points"]["DEF"]
-    assert repl == pytest.approx(103.0)
+    """DEF replacement is the flex-aware N-th best DEF proj_mean, and every DEF
+    vorp is proj_mean minus that one number.
+
+    ⚠️ THE LITERAL IS GONE, 2026-08-20, ON THE EXTERNAL REVIEWER'S FINDING.
+    This asserted `repl == 103.0`. The published board says 100.5, so it had
+    been red for as long as the board has been current — and the reviewer named
+    the hazard precisely: *"Making failing tests pass by altering expectations
+    or silently carrying stale constants is exactly the architectural hazard:
+    tests must reflect the live estimand or derive it from the artifact, not pin
+    obsolete numbers."* Bumping 103.0 to 100.5 would have been green today and
+    stale again on the next rebuild, and it would have proved nothing either
+    time — a number copied out of the artifact and compared to the artifact.
+
+    So the CONSTRUCTION is asserted instead, which is what the docstring always
+    claimed and the literal never checked: the published constant must BE the
+    N-th best DEF projection on this board, where N is the board's own
+    `starter_counts`. Measured across all six positions before this was
+    written — QB 350.8, RB 168.6, WR 170.1, TE 141.7, K 125.9, DEF 100.5 — the
+    rule holds exactly at every one, so it is a property of the pipeline and not
+    a coincidence at DEF."""
+    rep = BOARD["replacement"]
+    repl = rep["replacement_points"]["DEF"]
+    n = rep["starter_counts"]["DEF"]
+    ranked = sorted((p["proj_mean"] for p in BOARD_DEFS.values()
+                     if p.get("proj_mean") is not None), reverse=True)
+    assert len(ranked) >= n, (
+        f"only {len(ranked)} DEFs on the board but starter_counts says {n} — "
+        "replacement cannot be the N-th best of a list shorter than N")
+    assert repl == pytest.approx(ranked[n - 1]), (
+        f"published DEF replacement {repl} is not the {n}-th best DEF "
+        f"projection ({ranked[n - 1]}) — the constant and its own definition "
+        "have come apart, which is register 148's shape (two replacement "
+        "tables disagreeing) in one table")
     for p in BOARD_DEFS.values():
         assert p["replacement"] == pytest.approx(repl)
         assert p["vorp"] == pytest.approx(round(p["proj_mean"] - repl, 2))
+
+
+def test_EVERY_position_replacement_is_the_Nth_best_not_just_DEF():
+    """The generalisation, added 2026-08-20 with the fix above, because a rule
+    asserted at one position is a coincidence until it is asserted at all of
+    them — and DEF is the position Cory cares least about.
+
+    This is the check that would have caught register 148 (two replacement
+    tables in this repo disagreeing by 2x at RB and WR) from the board side:
+    whatever table produced these numbers, each one must still be the N-th best
+    projection at its own position on the board that ships."""
+    rep = BOARD["replacement"]
+    by_pos = {}
+    for p in BOARD["players"]:
+        if p.get("proj_mean") is None:
+            continue
+        by_pos.setdefault(p["position"], []).append(p["proj_mean"])
+    checked = 0
+    for pos, n in rep["starter_counts"].items():
+        published = rep["replacement_points"].get(pos)
+        ranked = sorted(by_pos.get(pos, []), reverse=True)
+        if published is None or len(ranked) < n:
+            continue
+        assert published == pytest.approx(ranked[n - 1]), (
+            f"{pos}: published replacement {published} is not the {n}-th best "
+            f"{pos} projection ({ranked[n - 1]})")
+        checked += 1
+    #: non-vacuous — a board that lost its starter_counts would pass trivially
+    assert checked >= 5, f"only {checked} positions were actually checked"
 
 
 def test_aggregate_wins_components_dropped():
