@@ -1,4 +1,14 @@
 'use strict';
+/* Cory's real keepers — the roster: [] fiction is no longer legal now that
+ * need carries weight (register 160). See _empty_roster_fiction_precondition.js. */
+const KEEPERS_FOR_FIXTURE = (function () {
+  try {
+    const a = JSON.parse(require('fs').readFileSync(
+      require('path').join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+    return (a.kept_players || []).map(k => ({ player_id: k.player_id, name: k.name,
+      position: k.position, proj_mean: k.proj_mean, vorp: k.vorp, is_keeper: true }));
+  } catch (e) { return []; }
+}());
 /* SURVIVAL: THE ACCOUNTING, AND THE HONESTY OF HOW IT RENDERS.
  *
  * Survival is third on this project's own list of things most likely to be wrong.
@@ -264,9 +274,22 @@ if (block) {
  * red for the whole week the tilt was disconnected. */
 {
   const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
-  const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
-  // A's precondition (E31): this block's ctx below passes roster: [].
-  assertRosterFictionPrecondition(E);
+  /* ⚠️ THE EMPTY-ROSTER FICTION IS GONE FROM THIS BLOCK, so the guard that
+   * protected it no longer applies. Register 160 (Cory's ruling 2026-08-20)
+   * gave `need` weight 1.0, and need reads ctx.roster — so a `roster: []`
+   * fixture would score a seat that does not exist. The fixture now carries
+   * Cory's REAL keepers (KEEPERS_FOR_FIXTURE, read from the live board).
+   *
+   * Calling assertRosterFictionPrecondition here would now fail on a suite that
+   * has DONE THE RIGHT THING: it asserts a property of the weight vector
+   * ("need is zero"), which was the correct proxy while the fiction was in use
+   * and is the wrong question once it is not. Removed rather than weakened —
+   * weakening it would leave every OTHER suite's fiction unguarded. */
+  if (!KEEPERS_FOR_FIXTURE.length) {
+    throw new Error('this suite needs Cory\'s real keepers and the board did '
+      + 'not supply any — refusing to fall back to roster: [], which is the '
+      + 'fiction register 160 made illegal');
+  }
   const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const players = art.players.filter(p => p.vorp != null);
   const byAdp = players.slice().sort(
@@ -300,7 +323,7 @@ if (block) {
    * Measured on the live board at pick 33: 48 of 650 players shift, up to
    * 12.5pp (Terry McLaurin 80.2% -> 92.8%), concentrated in the ADP band around
    * the next pick, which is exactly where survival feeds VONA. */
-  const ctx = { board: board, roster: [], league: art.league, currentPick: CUR, nextPick: NEXT,
+  const ctx = { board: board, roster: KEEPERS_FOR_FIXTURE, league: art.league, currentPick: CUR, nextPick: NEXT,
     weights: E.MEASURED_WEIGHTS, totalPicks: 150, myPicksLeft: 8, progress: 34 / 150,
     roundsLeft: 11, intervening: iv, runMultipliers: {}, drift: null,
     pickBoard: ((art.pick_order || {}).picks) || null,

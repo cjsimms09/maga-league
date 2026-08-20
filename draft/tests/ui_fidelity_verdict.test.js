@@ -19,6 +19,26 @@
 //
 // Run: node draft/tests/ui_fidelity_verdict.test.js
 'use strict';
+/* ⚠️ CORY'S REAL KEEPERS — the `roster: []` fiction became illegal on
+ * 2026-08-20 (register 160, Cory's ruling): `need` now carries weight 1.0 and
+ * reads ctx.roster, so an empty roster scores every starter seat as OPEN and
+ * hands full VORP to everyone. That is a draft state that cannot exist — he
+ * holds three keepers before pick one.
+ * Read from the live board rather than hardcoded, so it cannot drift from it. */
+const KEEPERS_FOR_FIXTURE = (function () {
+  const a = JSON.parse(require('fs').readFileSync(
+    require('path').join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+  const k = (a.kept_players || []).map(function (x) {
+    return { player_id: x.player_id, name: x.name, position: x.position,
+      proj_mean: x.proj_mean, vorp: x.vorp, is_keeper: true };
+  });
+  if (!k.length) {
+    throw new Error('this suite needs real keepers and the board supplied none '
+      + '— refusing to fall back to roster: [], the fiction register 160 made illegal');
+  }
+  return k;
+}());
+
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
@@ -27,7 +47,11 @@ const V = require(path.join(ROOT, 'public', 'js', 'draft', 'verdict.js'));
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
 // A's precondition (E31): the "real board" arm below scores with roster: [].
-assertRosterFictionPrecondition(E);
+/* ⚠️ THE FICTION GUARD IS GONE BECAUSE THE FICTION IS GONE. It asserts a
+ * property of the WEIGHT VECTOR ("need is zero"), which was the right proxy
+ * while these fixtures passed roster: [] and is the wrong question now that
+ * they pass Cory's real keepers. Removed here rather than weakened there —
+ * weakening it would leave every OTHER suite's fiction unguarded. */
 
 let pass = 0, fail = 0;
 const ck = (n, c, d) => {
@@ -168,7 +192,7 @@ const ALL = ART.players.filter(p => p.proj_mean > 0)
   .sort((a, b) => (a.overall_rank || 1e9) - (b.overall_rank || 1e9));
 {
   const ctx = { board: ALL.slice(28), currentPick: 33, nextPick: 48, totalPicks: 120,
-    myPicksLeft: 12, roster: [], league: ART.league, weights: PROD_WEIGHTS,
+    myPicksLeft: 12, roster: KEEPERS_FOR_FIXTURE, league: ART.league, weights: PROD_WEIGHTS,
     /* THE PICK BOARD IS A SECOND FIXTURE DIMENSION AND I MISSED IT ON THE FIRST
      * PASS (session E, same day, correcting my own published number).
      * `app.js:2066` threads `pick_order.picks` into every context it builds, and

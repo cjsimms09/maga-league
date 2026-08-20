@@ -38,13 +38,37 @@
 //
 // Run: node draft/tests/predraft_survival_filter.test.js
 'use strict';
+/* ⚠️ CORY'S REAL KEEPERS — the `roster: []` fiction became illegal on
+ * 2026-08-20 (register 160, Cory's ruling): `need` now carries weight 1.0 and
+ * reads ctx.roster, so an empty roster scores every starter seat as OPEN and
+ * hands full VORP to everyone. That is a draft state that cannot exist — he
+ * holds three keepers before pick one.
+ * Read from the live board rather than hardcoded, so it cannot drift from it. */
+const KEEPERS_FOR_FIXTURE = (function () {
+  const a = JSON.parse(require('fs').readFileSync(
+    require('path').join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+  const k = (a.kept_players || []).map(function (x) {
+    return { player_id: x.player_id, name: x.name, position: x.position,
+      proj_mean: x.proj_mean, vorp: x.vorp, is_keeper: true };
+  });
+  if (!k.length) {
+    throw new Error('this suite needs real keepers and the board supplied none '
+      + '— refusing to fall back to roster: [], the fiction register 160 made illegal');
+  }
+  return k;
+}());
+
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
 // A's precondition (E31): this file's contexts pass roster: [].
-assertRosterFictionPrecondition(E);
+/* ⚠️ THE FICTION GUARD IS GONE BECAUSE THE FICTION IS GONE. It asserts a
+ * property of the WEIGHT VECTOR ("need is zero"), which was the right proxy
+ * while these fixtures passed roster: [] and is the wrong question now that
+ * they pass Cory's real keepers. Removed here rather than weakened there —
+ * weakening it would leave every OTHER suite's fiction unguarded. */
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 let pass = 0, fail = 0;
@@ -61,7 +85,7 @@ function ctxAt(pick, overrides) {
   const next = MY.find(p => p > pick) || null;
   return Object.assign({
     board: board, nextPick: next, totalPicks: (D.pick_order.picks || []).length || null,
-    myPicksLeft: MY.filter(p => p >= pick).length, roster: [], doctrine: null,
+    myPicksLeft: MY.filter(p => p >= pick).length, roster: KEEPERS_FOR_FIXTURE, doctrine: null,
     myPickIndex: Math.max(0, MY.indexOf(pick)), totalMyPicks: MY.length,
     currentKeepers: [], league: D.league, weights: E.MEASURED_WEIGHTS,
     runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: pick,
