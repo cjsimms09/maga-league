@@ -43,15 +43,32 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     + '"five of eight are zero" claim true of PRODUCTION and not of a default',
   /weights: Object\.assign\(\{\}, E\.MEASURED_WEIGHTS/.test(app));
 
-  /* RE-PINNED 2026-08-17: ceiling left the zeroed set on Cory's ruling
-   * ("IS THIS STUDIES? IF SO, YES" — 0.45, the exp-21 inverted-U peak; full
-   * record at MEASURED_WEIGHTS in engine.js). Five zeros became four. */
+  /* RE-PINNED TWICE, and the second one is why this check exists at all.
+   *   2026-08-17: ceiling left the zeroed set on Cory's ruling ("IS THIS
+   *     STUDIES? IF SO, YES" — 0.45). Five zeros became four.
+   *   2026-08-20: NEED left it too, on Cory's direct ruling after register 160
+   *     (found by E, verified by A). Four became three.
+   *
+   * Register 160 in one line: `value` is VONA, not VORP, and `need.value` was
+   * the ONLY path player.vorp took into the score — so at need 0.0 value over
+   * replacement never reached the live board. Cory was shown the blast radius
+   * (6 of his 12 picks change; the roster shape goes from 7 drafted RBs to 6 RB
+   * + 2 WR) and ruled to ship it.
+   *
+   * Derived from MEASURED_WEIGHTS rather than restated, so this can never
+   * disagree with the engine — it can only disagree with the DOCUMENT, which is
+   * the drift it is here to catch. */
   const zeroed = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] === 0);
-  ck('exactly four terms are zeroed (five until the 2026-08-17 ceiling ruling)',
-    zeroed.length === 4, zeroed);
-  ck('and they are the four the document names',
+  ck('exactly three terms are zeroed (five until the 2026-08-17 ceiling ruling, '
+    + 'four until the 2026-08-20 need ruling)',
+  zeroed.length === 3, zeroed);
+  ck('and they are the three the document names',
     JSON.stringify(zeroed.slice().sort())
-      === JSON.stringify(['bye', 'need', 'risk', 'tier']), zeroed);
+      === JSON.stringify(['bye', 'risk', 'tier']), zeroed);
+  ck('KNOWN NEGATIVE: `need` is no longer among them — the term that carries '
+    + 'VORP into the score is live',
+  zeroed.indexOf('need') < 0 && E.MEASURED_WEIGHTS.need === 1.0,
+  E.MEASURED_WEIGHTS.need);
   const live = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] !== 0);
   ck('the four that survive are value, ceiling, keeper and stack — the whole composite',
     JSON.stringify(live.slice().sort())
