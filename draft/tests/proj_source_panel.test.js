@@ -105,6 +105,24 @@ ck('a failed board load does NOT silently leave him on the blend while the '
    + 'identical from the outside)',
   /stayed on/.test(SRC), null);
 
+/* ── THE RELAY'S WAR-ROOM AUDIT, 2026-08-20 — both defects pinned ──────────*/
+const mockEnd = SRC.slice(SRC.indexOf('state.pristine.players = ') >= 0
+  ? SRC.indexOf('state.pristine.players = ')
+  : SRC.lastIndexOf('state.pristine.players.slice()'));
+ck('ending a mock resets the source LABEL with the pool — it restored the '
+   + 'pristine blend board while the toggle still claimed e.g. Sleeper, and a '
+   + 'UI-state lie is worse than a wrong number at 8 seconds a pick',
+  /state\.projSource = 'blend'/.test(mockEnd.slice(0, 1200)), null);
+
+ck('...and clears the cached source metadata too, so the orange re-ranked '
+   + 'banner cannot survive the restore',
+  /state\.sourceBoardMeta = null/.test(mockEnd.slice(0, 1200)), null);
+
+ck('applySourceBoard APPLIES the league it was handed rather than testing one '
+   + 'value and reading another — harmless while the boards agree, a trap the '
+   + 'day they do not',
+  /if \(league\) \{[\s\S]{0,160}state\.data\.league = league;/.test(SRC), null);
+
 const engineSrc = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'), 'utf8');
 ck('KNOWN NEGATIVE — engine.js does not read projSource, so switching source '
    + 'cannot silently move the board Cory drafts from',
@@ -123,5 +141,5 @@ ck('CONTROL — coverage genuinely DIFFERS between sources, which is why the '
    + 'homogenised and the warning should be re-examined, not deleted.',
   new Set(Object.values(cov)).size > 1, cov);
 
-console.log('\n%d checks, %d failed', 16, fails.length);
+console.log('\n%d checks, %d failed', 19, fails.length);
 if (fails.length) { console.log('FAILED'); process.exit(1); }
