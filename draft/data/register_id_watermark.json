@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 172,
+ "next_numeric_id": 178,
  "history": [
   {
    "id": 47,
@@ -359,6 +359,41 @@
    "id": 171,
    "claimed_at": "2026-08-20",
    "note": "D: a P282-build subagent's Rule 3f branch search for the --opt bench-option code was not exhaustive (git log --all plus locally-fetched branches only, never git ls-remote origin) and wrongly concluded the whole nine-commit bench-option chain was fabricated. Caught and corrected before it reached any shared file -- the code is real, on unmerged branch claude/fantasy-football-research-926y6z@01668acc, fetched and RUN directly (not just read), controls pass. Real residual: P282's own harness still reimplements the value function from prose rather than the real optV/optU, a Rule 11 debt to close once that branch is reachable. OPEN, owner D, recheck 08-27."
+  },
+  {
+   "id": "162-167 (main, unmerged) silently duplicated against D's own canonical 162-167",
+   "claimed_at": "2026-08-20",
+   "note": "origin/main's DEFECT-REGISTER.md merged with no textual conflict but landed six new rows at ids 162-167 in main's own numbering, colliding with D's already-canonical 162-167 (keeper-replacement mismatch, relay_publish false positive, grade-update-can't-overwrite, rookie UDFA mislabel, position-boards stale, VBD/need-weight now CLOSED). Also: main's own watermark.json entry for this range was sparse (bare id+claimed_at, no notes) while D's carried full history -- D's fuller history kept as authoritative per this file's own established convention. Main's six new rows (board rebuild flat-band regression, pre_ds band snapshot staleness, setProjSource duplicate-function bug, three-of-four mount-anchor ids wrong, the board-every-gate-reads-isn't-the-board-that-publishes design gap, and the computed-but-unshown Cory-asked-for-this-week fields) renumbered to 172-177, with internal cross-references between them fixed to match. Watermark now authoritative from 178."
+  },
+  {
+   "id": 172,
+   "claimed_at": "2026-08-20",
+   "note": "A: rebuilding the board creates ten flat floor/ceiling bands inside Cory's draft range, register 140's exact wound reopened by the act of rebuilding -- a REBUILD REGRESSION, live board unaffected (was 162 pre-renumber on main's side)"
+  },
+  {
+   "id": 173,
+   "claimed_at": "2026-08-20",
+   "note": "A: the *_pre_ds band snapshots are frozen from an old board and the fallback every rebuild depends on is reading days-old numbers -- durability problem, a fix that only works while nobody rebuilds is not a fix (was 163 pre-renumber on main's side)"
+  },
+  {
+   "id": 174,
+   "claimed_at": "2026-08-20",
+   "note": "A: two functions claimed the name setProjSource and Cory's position-boards toggle has been running the wrong one -- FIXED same day, was 164 pre-renumber on main's side"
+  },
+  {
+   "id": 175,
+   "claimed_at": "2026-08-20",
+   "note": "B: three of the four self-mounting war-room panels were anchored to ids that never existed -- one fixed, one owned by B (was 165 pre-renumber on main's side)"
+  },
+  {
+   "id": 176,
+   "claimed_at": "2026-08-20",
+   "note": "A: the board every gate reads is not the board that publishes -- projections/floors/ceilings/VORP/tiers/ranks rewritten AFTER the acceptance gate that exists to protect publication, post-draft design fix (was 166 pre-renumber on main's side)"
+  },
+  {
+   "id": 177,
+   "claimed_at": "2026-08-20",
+   "note": "B/A: every field Cory asked for this week is computed, committed, and on no screen -- the coverage flags are the one that can mislead him mid-draft (FantasyPros carries no K/DEF), source_boards.json already publishes the block so it is a render not a build (was 167 pre-renumber on main's side)"
   }
  ]
 }
