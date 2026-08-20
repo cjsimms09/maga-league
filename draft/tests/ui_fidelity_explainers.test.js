@@ -40,6 +40,20 @@ function extract(sig) {
   }
   return '';
 }
+/* extract() balances BRACES, so it stops at the first element of an ARRAY
+ * literal and hands back syntactically broken source. TERM_GLOSSARY is an
+ * array, and the truncated fragment threw a SyntaxError that looked exactly
+ * like the missing-symbol crash it was meant to fix. Same walk, brackets. */
+function extractArray(sig) {
+  const st = SRC.indexOf(sig);
+  if (st < 0) return '';
+  let d = 0;
+  for (let i = SRC.indexOf('[', st); i < SRC.length; i++) {
+    if (SRC[i] === '[') d++;
+    else if (SRC[i] === ']') { d--; if (d === 0) return SRC.slice(st, i + 1); }
+  }
+  return '';
+}
 const esc = s => String(s).replace(/[&<>"]/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -153,9 +167,19 @@ ck('VERDICT: `do` teaches implementation per chip — LOCK banks clock, TOSS-UP 
   let captured = '';
   const host = { childNodes: [], set innerHTML(v) { captured = v; }, get innerHTML() { return captured; } };
   const chipWords = extract('  const VERDICT_CHIP_WORDS = {');
+  /* ⚠️ ADDED 2026-08-20 AFTER THIS SUITE WENT RED IN CI. renderHelp began
+   * folding TERM_GLOSSARY into the assembled manual when the war room got a
+   * real term glossary, and this harness evals renderHelp in isolation from a
+   * hand-listed set of source fragments — so the new reference threw
+   * "TERM_GLOSSARY is not defined" before any assertion ran, and the suite
+   * reported a crash rather than a failure. Extracted from app.js the same way
+   * every other fragment here is, so it stays the SHIPPED table and cannot
+   * drift into a fixture that agrees with a manual nobody renders. */
+  const glossary = extractArray('  const TERM_GLOSSARY = [');
   // eslint-disable-next-line no-new-func
   const help = new Function('document', 'escapeHtml',
-    tableSrc + ';\n' + chipWords + ';\n' + helpSrc + '; return renderHelp;')(
+    tableSrc + ';\n' + chipWords + ';\n' + glossary + ';\n' + helpSrc
+    + '; return renderHelp;')(
     { getElementById: id => (id === 'wr-help' ? host : null) }, esc);
   help();
   ck('the assembled manual walks the night ("on the clock, the verdict block is the answer")',
