@@ -323,3 +323,42 @@ NOT cleared, because MLV's displacement already contains most of Cory's
 mechanism within-position. If it DOES clear the bar, the cross-position half
 was the missing piece and the depth constant becomes a shipped input — filed
 as eagerly either way.
+
+## 15-GRADED, SAME DAY — CORY'S MECHANISM IS THE BEST ARM IN THE PROGRAM, AND ONE CLAUSE SHORT OF CHAMPION
+
+Controls: byte-guard held; depth control live (LOO-2025: QB 17 · RB 48 ·
+WR 53 · TE 14 · K 10 · DEF 10); engagement real — 21/30 seats differ, 8 are
+byte-identical rosters (a declared outcome, not a dead flag; the discount only
+matters where cross-position priority was contested).
+
+| waiver-graded | actual | skill | h2h vs MLV (skill) | legal |
+|---|---|---|---|---|
+| MLV-cap | +2.57 (18/30) | +2.10 (16/30) | — | 30/30 |
+| **`--mlv-depth`** | **+25.90** (21/30) | **+18.56** (19/30) | **15/30** ❌ | 30/30 |
+
+Frozen beside: **+86.2 / +42.8** (vs +45.8/+29.3), h2h 21/30.
+
+**Bar verdict: NOT CLEARED — the h2h clause missed by one seat (15/30 vs
+≥16).** Both mean clauses cleared by an order of magnitude. **P146 FALSE, in
+the good direction:** my blind claim was "benign re-pricing, within ±10" and
+the truth is +23/+16 on the means — the CROSS-position half of Cory's
+mechanism was NOT already inside MLV, and it is worth real points.
+
+**Rule 3i, before anyone quotes the mean:** the per-seat skill difference runs
+−180 to +166 with 15 wins / 7 losses / 8 ties, and the **bootstrap 95% CI of
+the mean difference includes zero** (skill [−10.2, +42.1], actual [−2.2,
++49.6]). Per-season means are positive in ALL THREE seasons on both gradings
+(actual +33.0/+25.8/+11.2) — the direction is consistent, the magnitude is not
+separable from noise on 30 seats. **Status: the leading CANDIDATE, one
+independent confirmation short of champion.** The honest sentence for Cory:
+your idea beats everything I built today, and three seasons cannot yet prove
+it beats the incumbent beyond luck.
+
+**Follow-ups (3g):** (1) out-of-sample premise test filed as P147 — Saturday's
+own draft grades whether TE depth lands in [12,16]; (2) routed to A: the live
+board prices VORP off replacement levels — do they match the league's MEASURED
+drafted depth (the reference model's TE13 vs our measured TE14 agree; RB35/
+WR36 vs drafted RB47/WR52 do not, and which is right depends on whether
+replacement means "last starter" or "last man worth drafting"); (3) the 8
+identical seats say the discount binds only when scarce-position timing is
+contested — the mechanism to watch live is WHEN it moves K/DEF/TE picks.
