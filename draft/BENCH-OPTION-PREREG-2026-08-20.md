@@ -100,3 +100,27 @@ wire friction**.
 Nothing else moves: same constants, same M=200, same masks, same pruning,
 same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation
 policy — v1's FALSE stays on the record as the wire-liquidity lesson.
+
+---
+
+## 6 · V3 AMENDMENT, 2026-08-20 — ONE UNIT EVERYWHERE (after P257–P259 FALSE)
+
+v2's debug dump found the real defect: **units**. Roster players were valued on
+`posCurveFor` — a draft-slot OUTCOME curve built from league matchup data,
+where a player's points count only for weeks he sat on a roster (QB10 reads
+96.5 season pts; reality ~280) — while the wire levels are real measured
+points. Mixed units made the wire look better than most of the roster; the
+drafter responded rationally to a nonsense landscape. Snake-rank's lesson,
+one level deeper.
+
+**v3, declared before any v3 run (P260–P262):** player levels come from
+**nflverse LOO realized rank curves** (target season excluded; the SAME stores
+the §13 wire levels were measured against, so numerator and denominator share
+a unit); K/DEF (absent from nflverse) use the measured surplus schedules
+K(r) = 128.6 + max(0, 8−2r), DEF(r) = 100 + max(0, 14−3r) — the +6/+10
+starter surpluses from the 08-20 table, decaying to wire. Market rank (draft
+order within position) still indexes the curve, as every VBD baseline does.
+The realized-rank curve is optimistic about the r-th DRAFTED player (bust risk
+lives in the rank, not the curve); the absence rates (.19) carry bust-weeks —
+declared as a known approximation, not hidden. Friction wire and forcing
+fallback unchanged from v2.
