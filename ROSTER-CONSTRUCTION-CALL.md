@@ -227,6 +227,47 @@ That is the whole problem in one sentence, and nobody has answered it.
 
 ---
 
+## 7b. ⭐ THE §7 QUESTION IS ANSWERED — 2026-08-20, and the programme closed by its own rule
+
+**§7 asked: "is there a construction rule that gets the conversion without
+paying the acquisition?" Nobody had answered it. It is answered now, and the
+answer is MLV-cap + waiver-aware GRADING.**
+
+| | actual | skill |
+|---|---|---|
+| shipped shape term | −20.4 | +7.9 |
+| plain best-available | +2.5 | 0.0 |
+| **MLV, K/DEF capped at 1** | **+45.8** | **+29.3** |
+
+**Eight preregistered arms have now failed against it**, every bar committed
+before its run and every FALSE filed beside its mechanism:
+
+- the streaming tax and the supply deadline (dead ends 1 and 2, §4)
+- the RB-tail and TE-cap substitutions
+- **the relay's four objective arms** (`MLV-OBJECTIVE-PREREG-2026-08-19.md`
+  §14–§14d, P138–P141): waiver-floored objective (−5.3, **7/30 illegal** — a
+  floor prices an empty slot as free, so the drafter stops rostering kickers),
+  the VONA timing term, legality forcing, and position-consistent units
+  (−40.8/−22.3).
+- **the WHEN axis, closed TWICE INDEPENDENTLY** — the relay's `--objective-look`
+  and my own `--mlv-look`, same formula, separate implementations: actual rises
+  (+50.1 / +50.75) and skill collapses (+14.5 / +7.66 against a required +29.3).
+  Register 144, P240 FALSE.
+
+**THE MECHANISM, corroborated from two implementations:** a wait-cost rule buys
+raw-points efficiency by spending picks on cliffy positions, while the myopic
+displacement rule keeps better STARTERS — and no-injury grading pays starters.
+
+**FLOORS LIVE IN GRADING, NOT IN THE OBJECTIVE.** Waiver-aware *grading* is
++2.6/+2.1 against the owners (P137); a waiver floor inside the *objective* is
+the thing that went 7/30 illegal. That distinction is the settled answer.
+
+**⚠️ AND NOTHING NEW SHIPS FOR SATURDAY.** MLV-cap is live as a second-voice
+panel, not as the ranking, exactly as Cory ruled. The four retired `--real*`
+flags stay in the harness as the graded record.
+
+---
+
 ## 8. HOW TO REPLY
 
 Route to A in `ROUTES.md` with an **ASK, EVIDENCE, RECOMMENDATION and DEFAULT**,
