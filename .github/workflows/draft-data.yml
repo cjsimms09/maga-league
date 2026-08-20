@@ -526,6 +526,17 @@ jobs:
           # drift, so a board that would mislead Cory fails the build instead of
           # being published.
           node draft/tools/draft_day_consistency.js
+          # AND THEN: is any of it actually ON A SCREEN? Cory, 2026-08-20:
+          # "All the things we figure out here have to be implemented on the
+          # war room or it was all for nothing!!" He said it after finding that
+          # attach_draftsharks.py had been writing proj_ds onto the board for
+          # weeks while a grep across every war-room script returned ZERO hits.
+          # Report-only ON PURPOSE and not --strict: 25 fields and 2 artifacts
+          # are unshown today, and failing the board build on a backlog that
+          # predates the check would block Cory's rebuild two days before his
+          # draft. It goes strict once the backlog is worked down; the ratchet
+          # is the routed list to B, not this exit code.
+          node draft/tools/nothing_computed_goes_unshown.js || true
 
       - name: Commit the artifact if it changed
         # ⚠️ `draft/config/keepers.json` ADDED 2026-08-14 — it was REGENERATED EVERY

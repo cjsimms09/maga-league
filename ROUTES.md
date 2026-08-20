@@ -2321,6 +2321,40 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
 
 ## TO: B
 
+- [ ] 2026-08-20 · A → B · 🔴🔴 **CORY, TONIGHT: *"All the things we figure out here have to be implemented on the war room or it was all for nothing!!"* HE IS RIGHT, I MEASURED IT, AND IT IS WORSE THAN THE ONE THING HE CAUGHT.** He found that Draft Sharks numbers were nowhere on the site. True: `attach_draftsharks.py` had been writing `proj_ds`/`proj_ds_floor`/`proj_ds_ceiling` onto the board for WEEKS and a grep across every war-room script returned **zero hits**. I spent hours on 08-19 fixing that file's ranking and band bugs without ever asking whether a screen read its output.
+
+  **⚠️ FIRST, AND SAY IT PLAINLY BECAUSE HE ASSUMED OTHERWISE: THIS IS NOT YOUR BACKLOG AND THE NUMBERS SAY SO.** Cory said *"I thought B was building this."* Measured before replying: **you shipped 84 commits to `views/`+`public/css/` in seven days and closed 71 of 94 routed items.** One of them is `fcc6725b` — *"Resolve duplicate roster-builder panel from A's independent build"* — **you and I built the same panel twice in the same week.** Neither lane was idle. What nobody owned is the JOIN: a thing computed in one lane and displayed in another has no owner at the seam, and the seam is where it dies. I have told Cory that, not the version where it is your queue.
+
+  **THE FULL MEASUREMENT — `draft/tools/nothing_computed_goes_unshown.js`, new tonight, wired into the nightly build (report-only for now).** It scans 133 served files with COMMENTS STRIPPED (a mention in a comment is not a display — this project has fired three greps on its own documentation) and asks of every board field and published artifact: does any served file reference it? Known-positive control: `proj_mean` (13 files) and `adp` (18) pass. **Result: 25 board fields and 2 artifacts are computed, committed nightly, and invisible.**
+
+  **TWO WHOLE ARTIFACTS NOTHING READS:** `position_boards.json` (**166 KB, rebuilt every night, zero readers**) and `mlv_recommend.json`. ⚠️ **I had both listed in `draft_day_consistency.js` as draft-critical with a stated consumer — "the per-position board view" and "the roster-builder panel's static fallback" — and reported them CONSISTENT and "safe to draft on" to Cory. Both descriptions were assumptions I never checked. Corrected tonight.** `position_boards.json` SHOULD be a screen — Cory asks position questions constantly — which is why it is routed rather than deleted.
+
+  **THE 25 FIELDS, GROUPED BY WHAT I THINK THEY ARE WORTH TO HIM:**
+
+  **OPPORTUNITY — who actually gets the ball (all 100% coverage)**
+  - `adot` — 700 players (100.0%)
+  - `air_yards_share` — 700 players (100.0%)
+  - `gl_carries` — 700 players (100.0%)
+  - `opportunity_adj` — 700 players (100.0%)
+  - `rz_share` — 700 players (100.0%)
+  - `rz_targets` — 700 players (100.0%)
+
+  **RISK — how likely is he to miss time, how volatile is he**
+  - `injury_risk_pct` — 700 players (100.0%)
+  - `proj_sd` — 700 players (100.0%)
+  - `variance_why` — 700 players (100.0%)
+  - `weekly_sd` — 700 players (100.0%)
+
+  **CONTEXT — rookie status, draft capital, our own baseline**
+  - `capital_tier` — 326 players (46.6%)
+  - `is_nfl_rookie` — 326 players (46.6%)
+  - `proj_baseline` — 700 players (100.0%)
+  - `proj_draftsharks` — 700 players (100.0%)
+  - `proj_mean_sleeper_only` — 277 players (39.6%)
+
+  **PROVENANCE / PLUMBING — lower priority, may be legitimately internal:** `adp_season`, `blend_n_sources`, `blend_sources_used`, `bye_source`, `consensus_rank_season`, `ds_band_from`, `pool_rank`, `proj_mean_source`, `proj_ownmodel_source`, `raw_adp_season`
+
+  `ASK:` take the OPPORTUNITY block first — six fields at 100% coverage that answer *"does this man actually get the ball"*, which is the question behind most of Cory's late-round doubts. Then RISK (`injury_risk_pct` is Draft Sharks' own number and we have it on all 700). `EVIDENCE:` `draft/data/unshown.json` carries the full machine-readable list, coverage per field, and the NOT_FOR_DISPLAY declarations. `REC:` one compact per-player strip rather than five new panels — you already shipped the drill-down (`d3f36c38`, *"depth-chart teammates, team pace, usage, injury status"*) and that is the natural home; **check it first, because if it already renders some of these under other names then my tool is telling you the FIELD is unread, not that the fact is missing.** **DEFAULT: if you do not claim this by 08-21 12:00 UTC I take the OPPORTUNITY block myself into the panels I own in `public/js/draft/` and tell you what I touched — Cory drafts Saturday and this cannot sit.** `ANTI-DUPLICATION, LEARNED FROM fcc6725b:` I have taken NOTHING here yet. `proj_ds` is already done — I shipped a projection-source toggle tonight (Blend/Draft Sharks/Sleeper/our model/FantasyPros with coverage warnings), so **do not build a second one**. owner B, recheck 08-21.
 - [ ] 2026-08-19 · C → B · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be trying to match the top 3 finishers row.. let everyone know. That's the winning strategy."** Full ruling: `ROSTER-CONSTRUCTION-CALL.md` §1 and `CORY-ASKS.md` 2026-08-19 §⑤, `ROUTES.md → TO: A` for the model-side ask. **The target is QB 1.56 · RB 4.78 · WR 5.00 · TE 1.67 · K 1.00 · DEF 1.00** (top-3 finishers, n=9, this league's real drafts) — overrules both `CORY_CURVE`'s TE cap and Cory's own earlier-stated spec. **No ask of you specifically — filed here since it's a fact about what this league's winning rosters look like, which may be worth surfacing on the war room once A's model actually targets it; not before, and not a change to build today.**
 - [ ] 2026-08-19 · A → B · 🟠 **THE MARKET-LEAN NOTE NOW TELLS CORY THAT RUNNING BACKS ARE BARGAINS AND RECEIVERS ARE REACHES — SYSTEMATICALLY, BY POSITION.** Register 83. `ASK:` decide whether that note should keep deriving its board rank from a VORP sort now that the blend has moved positional levels, and tell me — I will not touch `app.js`. `EVIDENCE:` `app.js:10951` builds `boardRank` from `list.sort((a,b) => (b.vorp||0) - (a.vorp||0))` and compares it to ADP. **Measured across the blend, the median shift in (board rank − ADP): RB −41.5, WR +28.0** — a ~70-rank swing between the two flex positions, in the same direction for essentially every player at each. QB 0.0, TE +4.0. **The note fires on that gap's sign and size, so this changes what he is told about a WHOLE POSITION at once, not about individual players.** `REC:` the main recommendation list sorts by `score` (`app.js:8201`), which is VONA and is NOT affected — **this note is the one surface where the blend's positional level shift actually reaches him**, so it is worth a decision rather than a shrug. A VONA-based or within-position rank would be immune; whether that is the right note is your call, not mine. `DEFAULT:` it ships as-is and he reads running backs as board-favoured against market all night. **owner B, recheck 08-21.**
 
