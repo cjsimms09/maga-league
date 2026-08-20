@@ -21,6 +21,71 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 ---
 
+## ANSWERED 2026-08-20 — Mike Clay as a source, in the blend, and his other data
+
+**① WAR-ROOM COLUMN — DONE, live now.** "Mike Clay" is the eighth column on the
+best-available cheat sheet, scored under our own half-PPR table from his raw
+stat lines (his own full-PPR column is never read). Order only, no points, no
+board field touched — **so it shows you what he thinks without moving a single
+number you draft on.**
+
+**② IN THE BLEND — measured, and it is SAFE, which is a change from what I told
+C yesterday.** When the blast radius was unknown I said land-it-and-grade-it.
+Now it is known. `draft/tools/clay_blend_impact.js`, with a control that
+reproduces TODAY'S blend to 0.30 points before it is allowed to print a
+with-Clay one:
+
+| | |
+|---|---|
+| players Clay covers | **376 of 539** blended skill players |
+| point move where he has an opinion | median **1.21** · p95 **4.66** · max **23.8** |
+| positional rank moves inside ADP 200 | 67 of 181 move, **largest is THREE slots** |
+
+**Nobody's tier collapses and nobody moves more than three places at his own
+position. It is a nudge, not a reshuffle.**
+
+**✅ SHIPPED, 2026-08-20 — CLAY IS IN THE BLEND AND ON THE LIVE BOARD.** 189
+players now blend seven sources. **And the offline estimate reproduced the real
+pipeline exactly: predicted a 3-slot maximum, got a 3-slot maximum, same players
+in the same order** (RJ Harvey ▼3, Tyrone Tracy ▼3, Rome Odunze ▲2). 62 of 181
+players inside ADP 200 moved at all. Top of the board is unchanged.
+
+The one blocker was that `blended_projection.js` reads
+`projection_snapshot_2026.json`, which is frozen and marked immutable, and Clay
+landed one day after it was captured. **C routed it rather than touching my file,
+and they were right to.** Resolved by ADDING rather than regenerating: a
+re-run would have replaced every 08-19 forecast with an 08-20 one — the board
+has moved twice since — and destroyed exactly what that file exists to preserve.
+`draft/tools/snapshot_add_clay.py` adds `proj.clay` and nothing else, enforced by
+a byte-comparison of every pre-existing value with a demonstrated fail arm.
+`_captured` is untouched.
+
+**③ THE OTHER DATA — one real find, and one thing I expected to find and did
+not.**
+
+**NOT availability, and I checked because I assumed the opposite.** Clay
+projects **17 games for 409 of his 418 players** — his games-played is
+effectively a constant. **Our board already carries `games_expected` on all 700
+and it VARIES** (14.2, 15, 15.5, 16.5, 17…). **We are ahead of him here, not
+behind.**
+
+**YES on opportunity, and this is the one worth working.** He gives per-player
+**target share and carry share on 378 players**, and we already hold a target
+share from a different source. They disagree by a **median 2.0 percentage
+points, p90 7.1, max 13.7.** That matters because `opportunity_cap` was ruled to
+**0.0** in August after our single opportunity signal graded out as carrying no
+player information — **a second, independent opportunity source is exactly what
+that finding could not be tested against.** Post-draft study, not a draft-week
+change.
+
+**Also in the store and unused:** full stat lines (attempts, completions, pass
+yards/TD/INT/sacks, carries, rush yards/TD, targets, receptions, receiving
+yards/TD), which means anything can be recomputed under our table. **Still in
+the PDF and not ingested:** projected starters with player ratings (pp.75-82),
+unit grades, strength of schedule, projected standings.
+
+---
+
 ## ANSWERED 2026-08-20 — "How can they be that high?? That's a massive error"
 
 **It is not an error, and the measurement was already sitting on the board.**

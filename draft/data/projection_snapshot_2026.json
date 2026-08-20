@@ -16,7 +16,8 @@
   "draftsharks_consensus": "Draft Sharks' own consensus column (cons_proj)",
   "cbs": "CBS, via multisource_projections.json by_source",
   "espn": "ESPN, via multisource_projections.json by_source",
-  "fftoday": "FFToday, via multisource_projections.json by_source"
+  "fftoday": "FFToday, via multisource_projections.json by_source",
+  "clay": "Mike Clay's 2026 guide (draft/data/sources/clay_projections_2026.pdf, the guide's own header says Updated: 8/19/2026), ingested by draft/tools/clay_projections.py. Scored from RAW STAT LINES under this league's own half-PPR table -- his published points column is FULL PPR and is never read. Covers 418 skill players; no DEF, and kickers are carried unscored because the source has no field-goal distance split."
  },
  "controls": {
   "C1_at_least_four_independent_sources": {
@@ -81,7 +82,8 @@
     "draftsharks_consensus": 307.0,
     "cbs": 352.5,
     "espn": 327.9,
-    "fftoday": 331.4
+    "fftoday": 331.4,
+    "clay": 327.9
    },
    "bands": {
     "board_floor": 303.97,
@@ -112,7 +114,8 @@
     "draftsharks_consensus": 311.0,
     "cbs": 354.8,
     "espn": 312.0,
-    "fftoday": 324.9
+    "fftoday": 324.9,
+    "clay": 312.0
    },
    "bands": {
     "board_floor": 292.33,
@@ -143,7 +146,8 @@
     "draftsharks_consensus": 278.0,
     "cbs": 281.9,
     "espn": 305.0,
-    "fftoday": 304.9
+    "fftoday": 304.9,
+    "clay": 305.0
    },
    "bands": {
     "board_floor": 261.1,
@@ -174,7 +178,8 @@
     "draftsharks_consensus": 267.0,
     "cbs": 309.4,
     "espn": 297.1,
-    "fftoday": 281.3
+    "fftoday": 281.3,
+    "clay": 297.1
    },
    "bands": {
     "board_floor": 262.58,
@@ -205,7 +210,8 @@
     "draftsharks_consensus": 281.0,
     "cbs": 311.3,
     "espn": 292.5,
-    "fftoday": 268.5
+    "fftoday": 268.5,
+    "clay": 292.5
    },
    "bands": {
     "board_floor": 253.62,
@@ -236,7 +242,8 @@
     "draftsharks_consensus": 239.0,
     "cbs": 284.9,
     "espn": 271.9,
-    "fftoday": 255.6
+    "fftoday": 255.6,
+    "clay": 271.9
    },
    "bands": {
     "board_floor": 238.04,
@@ -267,7 +274,8 @@
     "draftsharks_consensus": 249.0,
     "cbs": 247.1,
     "espn": 266.3,
-    "fftoday": 259.2
+    "fftoday": 259.2,
+    "clay": 266.3
    },
    "bands": {
     "board_floor": 243.38,
@@ -298,7 +306,8 @@
     "draftsharks_consensus": 250.0,
     "cbs": 281.6,
     "espn": 262.4,
-    "fftoday": 239.2
+    "fftoday": 239.2,
+    "clay": 262.4
    },
    "bands": {
     "board_floor": 227.44,
@@ -329,7 +338,8 @@
     "draftsharks_consensus": 227.0,
     "cbs": 261.3,
     "espn": 262.9,
-    "fftoday": 258.6
+    "fftoday": 258.6,
+    "clay": 262.9
    },
    "bands": {
     "board_floor": 233.94,
@@ -360,7 +370,8 @@
     "draftsharks_consensus": 238.0,
     "cbs": 260.8,
     "espn": 248.9,
-    "fftoday": 236.3
+    "fftoday": 236.3,
+    "clay": 248.9
    },
    "bands": {
     "board_floor": 231.54,
@@ -391,7 +402,8 @@
     "draftsharks_consensus": 226.0,
     "cbs": 265.7,
     "espn": 239.3,
-    "fftoday": 237.8
+    "fftoday": 237.8,
+    "clay": 239.3
    },
    "bands": {
     "board_floor": 224.05,
@@ -422,7 +434,8 @@
     "draftsharks_consensus": 236.0,
     "cbs": 240.9,
     "espn": 253.1,
-    "fftoday": 241.3
+    "fftoday": 241.3,
+    "clay": 253.1
    },
    "bands": {
     "board_floor": 229.6,
@@ -453,7 +466,8 @@
     "draftsharks_consensus": 363.0,
     "cbs": 421.74,
     "espn": 419.84,
-    "fftoday": 418.18
+    "fftoday": 418.18,
+    "clay": 419.84
    },
    "bands": {
     "board_floor": 408.16,
@@ -484,7 +498,8 @@
     "draftsharks_consensus": 187.0,
     "cbs": 197.4,
     "espn": 192.9,
-    "fftoday": 202.3
+    "fftoday": 202.3,
+    "clay": 192.9
    },
    "bands": {
     "board_floor": 193.71,
@@ -515,7 +530,8 @@
     "draftsharks_consensus": 214.0,
     "cbs": 270.1,
     "espn": 218.0,
-    "fftoday": 222.7
+    "fftoday": 222.7,
+    "clay": 218.0
    },
    "bands": {
     "board_floor": 197.54,
@@ -546,7 +562,8 @@
     "draftsharks_consensus": 221.0,
     "cbs": 212.6,
     "espn": 236.7,
-    "fftoday": 241.5
+    "fftoday": 241.5,
+    "clay": 236.7
    },
    "bands": {
     "board_floor": 212.06,
@@ -577,7 +594,8 @@
     "draftsharks_consensus": 195.0,
     "cbs": 213.6,
     "espn": 186.3,
-    "fftoday": 198.9
+    "fftoday": 198.9,
+    "clay": 186.3
    },
    "bands": {
     "board_floor": 182.2,
@@ -608,7 +626,8 @@
     "draftsharks_consensus": 211.0,
     "cbs": 223.0,
     "espn": 244.3,
-    "fftoday": 209.2
+    "fftoday": 209.2,
+    "clay": 244.3
    },
    "bands": {
     "board_floor": 208.66,
@@ -639,7 +658,8 @@
     "draftsharks_consensus": 223.0,
     "cbs": 228.4,
     "espn": 244.4,
-    "fftoday": 226.7
+    "fftoday": 226.7,
+    "clay": 244.4
    },
    "bands": {
     "board_floor": 193.86,
@@ -670,7 +690,8 @@
     "draftsharks_consensus": 220.0,
     "cbs": 211.6,
     "espn": 248.1,
-    "fftoday": 231.9
+    "fftoday": 231.9,
+    "clay": 248.1
    },
    "bands": {
     "board_floor": 191.31,
@@ -701,7 +722,8 @@
     "draftsharks_consensus": 203.0,
     "cbs": 215.0,
     "espn": 236.2,
-    "fftoday": 218.3
+    "fftoday": 218.3,
+    "clay": 236.2
    },
    "bands": {
     "board_floor": 204.46,
@@ -732,7 +754,8 @@
     "draftsharks_consensus": 210.0,
     "cbs": 202.3,
     "espn": 252.5,
-    "fftoday": 222.0
+    "fftoday": 222.0,
+    "clay": 252.5
    },
    "bands": {
     "board_floor": 187.99,
@@ -763,7 +786,8 @@
     "draftsharks_consensus": 207.0,
     "cbs": 227.3,
     "espn": 218.0,
-    "fftoday": 230.6
+    "fftoday": 230.6,
+    "clay": 218.0
    },
    "bands": {
     "board_floor": 197.59,
@@ -794,7 +818,8 @@
     "draftsharks_consensus": 185.0,
     "cbs": 251.1,
     "espn": 225.7,
-    "fftoday": 201.7
+    "fftoday": 201.7,
+    "clay": 225.7
    },
    "bands": {
     "board_floor": 184.12,
@@ -825,7 +850,8 @@
     "draftsharks_consensus": 207.0,
     "cbs": 199.4,
     "espn": 244.9,
-    "fftoday": 216.8
+    "fftoday": 216.8,
+    "clay": 244.9
    },
    "bands": {
     "board_floor": 185.31,
@@ -856,7 +882,8 @@
     "draftsharks_consensus": 206.0,
     "cbs": 229.1,
     "espn": 206.4,
-    "fftoday": 200.5
+    "fftoday": 200.5,
+    "clay": 206.4
    },
    "bands": {
     "board_floor": 197.05,
@@ -887,7 +914,8 @@
     "draftsharks_consensus": 200.0,
     "cbs": 245.8,
     "espn": 199.2,
-    "fftoday": 189.2
+    "fftoday": 189.2,
+    "clay": 199.2
    },
    "bands": {
     "board_floor": 182.45,
@@ -918,7 +946,8 @@
     "draftsharks_consensus": 194.0,
     "cbs": 220.5,
     "espn": 208.1,
-    "fftoday": 224.4
+    "fftoday": 224.4,
+    "clay": 206.3
    },
    "bands": {
     "board_floor": 186.15,
@@ -949,7 +978,8 @@
     "draftsharks_consensus": 193.0,
     "cbs": 217.6,
     "espn": 207.4,
-    "fftoday": 200.1
+    "fftoday": 200.1,
+    "clay": 207.3
    },
    "bands": {
     "board_floor": 200.86,
@@ -980,7 +1010,8 @@
     "draftsharks_consensus": 194.0,
     "cbs": 233.2,
     "espn": 207.3,
-    "fftoday": 200.0
+    "fftoday": 200.0,
+    "clay": 207.3
    },
    "bands": {
     "board_floor": 189.99,
@@ -1011,7 +1042,8 @@
     "draftsharks_consensus": 196.0,
     "cbs": 207.0,
     "espn": 221.1,
-    "fftoday": 204.9
+    "fftoday": 204.9,
+    "clay": 223.2
    },
    "bands": {
     "board_floor": 191.43,
@@ -1042,7 +1074,8 @@
     "draftsharks_consensus": 185.0,
     "cbs": 220.2,
     "espn": 195.3,
-    "fftoday": 204.0
+    "fftoday": 204.0,
+    "clay": 195.3
    },
    "bands": {
     "board_floor": 187.43,
@@ -1073,7 +1106,8 @@
     "draftsharks_consensus": 182.0,
     "cbs": 193.7,
     "espn": 165.7,
-    "fftoday": 157.3
+    "fftoday": 157.3,
+    "clay": 165.7
    },
    "bands": {
     "board_floor": 155.26,
@@ -1104,7 +1138,8 @@
     "draftsharks_consensus": 182.0,
     "cbs": 216.4,
     "espn": 189.0,
-    "fftoday": 209.5
+    "fftoday": 209.5,
+    "clay": 189.0
    },
    "bands": {
     "board_floor": 179.35,
@@ -1135,7 +1170,8 @@
     "draftsharks_consensus": 178.0,
     "cbs": 215.8,
     "espn": 199.9,
-    "fftoday": 193.1
+    "fftoday": 193.1,
+    "clay": 199.8
    },
    "bands": {
     "board_floor": 185.62,
@@ -1166,7 +1202,8 @@
     "draftsharks_consensus": 328.0,
     "cbs": 380.76,
     "espn": 382.62,
-    "fftoday": 370.76
+    "fftoday": 370.76,
+    "clay": 382.62
    },
    "bands": {
     "board_floor": 369.86,
@@ -1197,7 +1234,8 @@
     "draftsharks_consensus": 159.0,
     "cbs": 207.9,
     "espn": 200.8,
-    "fftoday": 190.2
+    "fftoday": 190.2,
+    "clay": 200.9
    },
    "bands": {
     "board_floor": 185.36,
@@ -1228,7 +1266,8 @@
     "draftsharks_consensus": 188.0,
     "cbs": 194.3,
     "espn": 210.6,
-    "fftoday": 193.3
+    "fftoday": 193.3,
+    "clay": 210.6
    },
    "bands": {
     "board_floor": 180.66,
@@ -1259,7 +1298,8 @@
     "draftsharks_consensus": 315.0,
     "cbs": 363.2,
     "espn": 381.04,
-    "fftoday": 382.9
+    "fftoday": 382.9,
+    "clay": 381.04
    },
    "bands": {
     "board_floor": 362.94,
@@ -1290,7 +1330,8 @@
     "draftsharks_consensus": 181.0,
     "cbs": 192.3,
     "espn": 198.7,
-    "fftoday": 195.5
+    "fftoday": 195.5,
+    "clay": 198.7
    },
    "bands": {
     "board_floor": 185.17,
@@ -1321,7 +1362,8 @@
     "draftsharks_consensus": 186.0,
     "cbs": 196.3,
     "espn": 194.5,
-    "fftoday": 189.7
+    "fftoday": 189.7,
+    "clay": 194.5
    },
    "bands": {
     "board_floor": 188.52,
@@ -1352,7 +1394,8 @@
     "draftsharks_consensus": 181.0,
     "cbs": 204.2,
     "espn": 196.5,
-    "fftoday": 183.1
+    "fftoday": 183.1,
+    "clay": 196.5
    },
    "bands": {
     "board_floor": 180.91,
@@ -1383,7 +1426,8 @@
     "draftsharks_consensus": 161.0,
     "cbs": 163.4,
     "espn": 169.3,
-    "fftoday": 152.6
+    "fftoday": 152.6,
+    "clay": 169.3
    },
    "bands": {
     "board_floor": 153.47,
@@ -1414,7 +1458,8 @@
     "draftsharks_consensus": 166.0,
     "cbs": 197.2,
     "espn": 190.9,
-    "fftoday": 185.6
+    "fftoday": 185.6,
+    "clay": 190.9
    },
    "bands": {
     "board_floor": 183.66,
@@ -1445,7 +1490,8 @@
     "draftsharks_consensus": 311.0,
     "cbs": 367.1,
     "espn": 372.18,
-    "fftoday": 367.32
+    "fftoday": 367.32,
+    "clay": 372.18
    },
    "bands": {
     "board_floor": 362.63,
@@ -1476,7 +1522,8 @@
     "draftsharks_consensus": 165.0,
     "cbs": 187.8,
     "espn": 189.4,
-    "fftoday": 207.3
+    "fftoday": 207.3,
+    "clay": 189.4
    },
    "bands": {
     "board_floor": 163.58,
@@ -1507,7 +1554,8 @@
     "draftsharks_consensus": 183.0,
     "cbs": 206.4,
     "espn": 180.1,
-    "fftoday": 171.1
+    "fftoday": 171.1,
+    "clay": 180.1
    },
    "bands": {
     "board_floor": 169.51,
@@ -1538,7 +1586,8 @@
     "draftsharks_consensus": 177.0,
     "cbs": 185.8,
     "espn": 179.8,
-    "fftoday": 182.9
+    "fftoday": 182.9,
+    "clay": 180.2
    },
    "bands": {
     "board_floor": 179.79,
@@ -1569,7 +1618,8 @@
     "draftsharks_consensus": 159.0,
     "cbs": 191.7,
     "espn": 181.1,
-    "fftoday": 188.0
+    "fftoday": 188.0,
+    "clay": 181.1
    },
    "bands": {
     "board_floor": 176.56,
@@ -1600,7 +1650,8 @@
     "draftsharks_consensus": 313.0,
     "cbs": 368.04,
     "espn": 374.96,
-    "fftoday": 359.84
+    "fftoday": 359.84,
+    "clay": 374.96
    },
    "bands": {
     "board_floor": 347.34,
@@ -1631,7 +1682,8 @@
     "draftsharks_consensus": 176.0,
     "cbs": 192.5,
     "espn": 179.9,
-    "fftoday": 169.6
+    "fftoday": 169.6,
+    "clay": 179.9
    },
    "bands": {
     "board_floor": 171.34,
@@ -1662,7 +1714,8 @@
     "draftsharks_consensus": 168.0,
     "cbs": 179.6,
     "espn": 201.6,
-    "fftoday": 186.1
+    "fftoday": 186.1,
+    "clay": 201.6
    },
    "bands": {
     "board_floor": 163.44,
@@ -1693,7 +1746,8 @@
     "draftsharks_consensus": 141.0,
     "cbs": 175.9,
     "espn": 143.8,
-    "fftoday": 147.6
+    "fftoday": 147.6,
+    "clay": 143.8
    },
    "bands": {
     "board_floor": 132.97,
@@ -1724,7 +1778,8 @@
     "draftsharks_consensus": 154.0,
     "cbs": 163.0,
     "espn": 147.7,
-    "fftoday": 135.0
+    "fftoday": 135.0,
+    "clay": 147.7
    },
    "bands": {
     "board_floor": 137.22,
@@ -1755,7 +1810,8 @@
     "draftsharks_consensus": 155.0,
     "cbs": 166.9,
     "espn": 143.5,
-    "fftoday": 148.6
+    "fftoday": 148.6,
+    "clay": 143.5
    },
    "bands": {
     "board_floor": 138.26,
@@ -1786,7 +1842,8 @@
     "draftsharks_consensus": 301.0,
     "cbs": 376.66,
     "espn": 351.12,
-    "fftoday": 355.26
+    "fftoday": 355.26,
+    "clay": 351.12
    },
    "bands": {
     "board_floor": 345.78,
@@ -1817,7 +1874,8 @@
     "draftsharks_consensus": 315.0,
     "cbs": 369.42,
     "espn": 363.04,
-    "fftoday": 355.0
+    "fftoday": 355.0,
+    "clay": 363.04
    },
    "bands": {
     "board_floor": 344.06,
@@ -1848,7 +1906,8 @@
     "draftsharks_consensus": 154.0,
     "cbs": 169.5,
     "espn": 142.1,
-    "fftoday": 130.9
+    "fftoday": 130.9,
+    "clay": 142.1
    },
    "bands": {
     "board_floor": 127.51,
@@ -1879,7 +1938,8 @@
     "draftsharks_consensus": 179.0,
     "cbs": 185.3,
     "espn": 179.8,
-    "fftoday": 162.2
+    "fftoday": 162.2,
+    "clay": 179.8
    },
    "bands": {
     "board_floor": 165.09,
@@ -1910,7 +1970,8 @@
     "draftsharks_consensus": 163.0,
     "cbs": 175.1,
     "espn": 175.1,
-    "fftoday": 170.7
+    "fftoday": 170.7,
+    "clay": 175.1
    },
    "bands": {
     "board_floor": 170.42,
@@ -1941,7 +2002,8 @@
     "draftsharks_consensus": 165.0,
     "cbs": 184.2,
     "espn": 180.9,
-    "fftoday": 169.8
+    "fftoday": 169.8,
+    "clay": 180.9
    },
    "bands": {
     "board_floor": 161.85,
@@ -1972,7 +2034,8 @@
     "draftsharks_consensus": 300.0,
     "cbs": 368.14,
     "espn": 352.94,
-    "fftoday": 342.96
+    "fftoday": 342.96,
+    "clay": 352.94
    },
    "bands": {
     "board_floor": 341.82,
@@ -2003,7 +2066,8 @@
     "draftsharks_consensus": 162.0,
     "cbs": 185.4,
     "espn": 154.8,
-    "fftoday": 172.0
+    "fftoday": 172.0,
+    "clay": 154.8
    },
    "bands": {
     "board_floor": 158.24,
@@ -2034,7 +2098,8 @@
     "draftsharks_consensus": 137.0,
     "cbs": 156.5,
     "espn": 144.1,
-    "fftoday": 137.6
+    "fftoday": 137.6,
+    "clay": 144.1
    },
    "bands": {
     "board_floor": 133.44,
@@ -2065,7 +2130,8 @@
     "draftsharks_consensus": 157.0,
     "cbs": 171.5,
     "espn": 180.4,
-    "fftoday": 169.0
+    "fftoday": 169.0,
+    "clay": 180.4
    },
    "bands": {
     "board_floor": 168.27,
@@ -2096,7 +2162,8 @@
     "draftsharks_consensus": 285.0,
     "cbs": 351.76,
     "espn": 371.18,
-    "fftoday": 351.88
+    "fftoday": 351.88,
+    "clay": 371.18
    },
    "bands": {
     "board_floor": 334.83,
@@ -2127,7 +2194,8 @@
     "draftsharks_consensus": 168.0,
     "cbs": 171.1,
     "espn": 178.0,
-    "fftoday": 179.3
+    "fftoday": 179.3,
+    "clay": 178.0
    },
    "bands": {
     "board_floor": 157.31,
@@ -2158,7 +2226,8 @@
     "draftsharks_consensus": 158.0,
     "cbs": 181.3,
     "espn": 166.2,
-    "fftoday": 166.9
+    "fftoday": 166.9,
+    "clay": 166.2
    },
    "bands": {
     "board_floor": 164.09,
@@ -2189,7 +2258,8 @@
     "draftsharks_consensus": 300.0,
     "cbs": 372.8,
     "espn": 344.82,
-    "fftoday": 340.02
+    "fftoday": 340.02,
+    "clay": 344.82
    },
    "bands": {
     "board_floor": 333.46,
@@ -2220,7 +2290,8 @@
     "draftsharks_consensus": 146.0,
     "cbs": 162.5,
     "espn": 141.0,
-    "fftoday": 124.0
+    "fftoday": 124.0,
+    "clay": 141.0
    },
    "bands": {
     "board_floor": 123.83,
@@ -2251,7 +2322,8 @@
     "draftsharks_consensus": 162.0,
     "cbs": 181.1,
     "espn": 164.1,
-    "fftoday": 180.8
+    "fftoday": 180.8,
+    "clay": 164.1
    },
    "bands": {
     "board_floor": 154.28,
@@ -2282,7 +2354,8 @@
     "draftsharks_consensus": 294.0,
     "cbs": 364.54,
     "espn": 333.04,
-    "fftoday": 354.04
+    "fftoday": 354.04,
+    "clay": 333.04
    },
    "bands": {
     "board_floor": 334.44,
@@ -2313,7 +2386,8 @@
     "draftsharks_consensus": 123.0,
     "cbs": 149.3,
     "espn": 142.3,
-    "fftoday": 131.0
+    "fftoday": 131.0,
+    "clay": 142.3
    },
    "bands": {
     "board_floor": 129.22,
@@ -2344,7 +2418,8 @@
     "draftsharks_consensus": 156.0,
     "cbs": 169.9,
     "espn": 157.4,
-    "fftoday": 172.7
+    "fftoday": 172.7,
+    "clay": 157.4
    },
    "bands": {
     "board_floor": 159.99,
@@ -2375,7 +2450,8 @@
     "draftsharks_consensus": 127.0,
     "cbs": 171.6,
     "espn": 144.1,
-    "fftoday": 127.5
+    "fftoday": 127.5,
+    "clay": 144.1
    },
    "bands": {
     "board_floor": 108.93,
@@ -2406,7 +2482,8 @@
     "draftsharks_consensus": 159.0,
     "cbs": 166.4,
     "espn": 184.5,
-    "fftoday": 162.7
+    "fftoday": 162.7,
+    "clay": 184.5
    },
    "bands": {
     "board_floor": 152.98,
@@ -2437,7 +2514,8 @@
     "draftsharks_consensus": 146.0,
     "cbs": 176.6,
     "espn": 173.6,
-    "fftoday": 171.5
+    "fftoday": 171.5,
+    "clay": 173.6
    },
    "bands": {
     "board_floor": 152.48,
@@ -2468,7 +2546,8 @@
     "draftsharks_consensus": 162.0,
     "cbs": 167.7,
     "espn": 167.7,
-    "fftoday": 181.2
+    "fftoday": 181.2,
+    "clay": 167.7
    },
    "bands": {
     "board_floor": 149.58,
@@ -2499,7 +2578,8 @@
     "draftsharks_consensus": 292.0,
     "cbs": 363.08,
     "espn": 342.74,
-    "fftoday": 342.74
+    "fftoday": 342.74,
+    "clay": 342.74
    },
    "bands": {
     "board_floor": 331.16,
@@ -2530,7 +2610,8 @@
     "draftsharks_consensus": 300.0,
     "cbs": 359.86,
     "espn": 350.6,
-    "fftoday": 337.2
+    "fftoday": 337.2,
+    "clay": 350.6
    },
    "bands": {
     "board_floor": 328.63,
@@ -2561,7 +2642,8 @@
     "draftsharks_consensus": 281.0,
     "cbs": 350.46,
     "espn": 333.54,
-    "fftoday": 355.36
+    "fftoday": 355.36,
+    "clay": 333.54
    },
    "bands": {
     "board_floor": 330.59,
@@ -2592,7 +2674,8 @@
     "draftsharks_consensus": 301.0,
     "cbs": 352.76,
     "espn": 340.6,
-    "fftoday": 340.78
+    "fftoday": 340.78,
+    "clay": 340.6
    },
    "bands": {
     "board_floor": 335.43,
@@ -2623,7 +2706,8 @@
     "draftsharks_consensus": 290.0,
     "cbs": 328.96,
     "espn": 354.68,
-    "fftoday": 352.2
+    "fftoday": 352.2,
+    "clay": 354.68
    },
    "bands": {
     "board_floor": 329.0,
@@ -2654,7 +2738,8 @@
     "draftsharks_consensus": 152.0,
     "cbs": 171.8,
     "espn": 167.5,
-    "fftoday": 165.2
+    "fftoday": 165.2,
+    "clay": 167.5
    },
    "bands": {
     "board_floor": 150.92,
@@ -2685,7 +2770,8 @@
     "draftsharks_consensus": 156.0,
     "cbs": 185.2,
     "espn": 155.3,
-    "fftoday": 164.7
+    "fftoday": 164.7,
+    "clay": 155.3
    },
    "bands": {
     "board_floor": 147.13,
@@ -2716,7 +2802,8 @@
     "draftsharks_consensus": 122.0,
     "cbs": 162.2,
     "espn": 123.8,
-    "fftoday": 117.6
+    "fftoday": 117.6,
+    "clay": 123.9
    },
    "bands": {
     "board_floor": 110.14,
@@ -2747,7 +2834,8 @@
     "draftsharks_consensus": 152.0,
     "cbs": 171.3,
     "espn": 159.9,
-    "fftoday": 161.3
+    "fftoday": 161.3,
+    "clay": 159.9
    },
    "bands": {
     "board_floor": 154.42,
@@ -2778,7 +2866,8 @@
     "draftsharks_consensus": 153.0,
     "cbs": 172.6,
     "espn": 175.1,
-    "fftoday": 151.4
+    "fftoday": 151.4,
+    "clay": 175.1
    },
    "bands": {
     "board_floor": 142.42,
@@ -2809,7 +2898,8 @@
     "draftsharks_consensus": 129.0,
     "cbs": 149.8,
     "espn": 123.2,
-    "fftoday": 120.5
+    "fftoday": 120.5,
+    "clay": 123.2
    },
    "bands": {
     "board_floor": 116.37,
@@ -2840,7 +2930,8 @@
     "draftsharks_consensus": 129.0,
     "cbs": 140.6,
     "espn": 132.3,
-    "fftoday": 124.0
+    "fftoday": 124.0,
+    "clay": 132.3
    },
    "bands": {
     "board_floor": 121.84,
@@ -2871,7 +2962,8 @@
     "draftsharks_consensus": 149.0,
     "cbs": 168.1,
     "espn": 172.0,
-    "fftoday": 158.3
+    "fftoday": 158.3,
+    "clay": 172.0
    },
    "bands": {
     "board_floor": 147.36,
@@ -2902,7 +2994,8 @@
     "draftsharks_consensus": 157.0,
     "cbs": 162.7,
     "espn": 163.0,
-    "fftoday": 163.9
+    "fftoday": 163.9,
+    "clay": 162.9
    },
    "bands": {
     "board_floor": 154.41,
@@ -2933,7 +3026,8 @@
     "draftsharks_consensus": 145.0,
     "cbs": 165.7,
     "espn": 151.0,
-    "fftoday": 142.2
+    "fftoday": 142.2,
+    "clay": 151.0
    },
    "bands": {
     "board_floor": 141.97,
@@ -2964,7 +3058,8 @@
     "draftsharks_consensus": 142.0,
     "cbs": 169.7,
     "espn": 146.9,
-    "fftoday": 139.4
+    "fftoday": 139.4,
+    "clay": 146.9
    },
    "bands": {
     "board_floor": 139.25,
@@ -2995,7 +3090,8 @@
     "draftsharks_consensus": 147.0,
     "cbs": 154.4,
     "espn": 151.4,
-    "fftoday": 171.5
+    "fftoday": 171.5,
+    "clay": 151.4
    },
    "bands": {
     "board_floor": 137.81,
@@ -3026,7 +3122,8 @@
     "draftsharks_consensus": 119.0,
     "cbs": 146.4,
     "espn": 113.4,
-    "fftoday": 106.6
+    "fftoday": 106.6,
+    "clay": 113.4
    },
    "bands": {
     "board_floor": 104.28,
@@ -3057,7 +3154,8 @@
     "draftsharks_consensus": 119.0,
     "cbs": 126.4,
     "espn": 120.8,
-    "fftoday": 119.9
+    "fftoday": 119.9,
+    "clay": 120.8
    },
    "bands": {
     "board_floor": 119.5,
@@ -3088,7 +3186,8 @@
     "draftsharks_consensus": 115.0,
     "cbs": 142.5,
     "espn": 114.0,
-    "fftoday": 115.6
+    "fftoday": 115.6,
+    "clay": 114.0
    },
    "bands": {
     "board_floor": 105.5,
@@ -3119,7 +3218,8 @@
     "draftsharks_consensus": 136.0,
     "cbs": 145.9,
     "espn": 134.7,
-    "fftoday": 151.3
+    "fftoday": 151.3,
+    "clay": 134.7
    },
    "bands": {
     "board_floor": 135.76,
@@ -3150,7 +3250,8 @@
     "draftsharks_consensus": 147.0,
     "cbs": 142.3,
     "espn": 154.3,
-    "fftoday": 155.7
+    "fftoday": 155.7,
+    "clay": 154.3
    },
    "bands": {
     "board_floor": 136.79,
@@ -3181,7 +3282,8 @@
     "draftsharks_consensus": 157.0,
     "cbs": 126.1,
     "espn": 163.9,
-    "fftoday": 149.2
+    "fftoday": 149.2,
+    "clay": 163.9
    },
    "bands": {
     "board_floor": 128.73,
@@ -3212,7 +3314,8 @@
     "draftsharks_consensus": 139.0,
     "cbs": 145.5,
     "espn": 159.0,
-    "fftoday": 127.7
+    "fftoday": 127.7,
+    "clay": 159.0
    },
    "bands": {
     "board_floor": 129.61,
@@ -3243,7 +3346,8 @@
     "draftsharks_consensus": 99.0,
     "cbs": 127.9,
     "espn": 103.1,
-    "fftoday": 116.1
+    "fftoday": 116.1,
+    "clay": 103.3
    },
    "bands": {
     "board_floor": 102.69,
@@ -3274,7 +3378,8 @@
     "draftsharks_consensus": 274.0,
     "cbs": 347.82,
     "espn": 317.26,
-    "fftoday": 312.6
+    "fftoday": 312.6,
+    "clay": 317.22
    },
    "bands": {
     "board_floor": 304.34,
@@ -3305,7 +3410,8 @@
     "draftsharks_consensus": 102.0,
     "cbs": 163.3,
     "espn": 152.2,
-    "fftoday": 117.0
+    "fftoday": 117.0,
+    "clay": 152.2
    },
    "bands": {
     "board_floor": 120.45,
@@ -3336,7 +3442,8 @@
     "draftsharks_consensus": 107.0,
     "cbs": 103.1,
     "espn": 120.9,
-    "fftoday": 104.3
+    "fftoday": 104.3,
+    "clay": 120.9
    },
    "bands": {
     "board_floor": 101.19,
@@ -3367,7 +3474,8 @@
     "draftsharks_consensus": 136.0,
     "cbs": 145.1,
     "espn": 144.9,
-    "fftoday": 143.6
+    "fftoday": 143.6,
+    "clay": 144.9
    },
    "bands": {
     "board_floor": 138.65,
@@ -3398,7 +3506,8 @@
     "draftsharks_consensus": 130.0,
     "cbs": 166.6,
     "espn": 128.8,
-    "fftoday": 143.9
+    "fftoday": 143.9,
+    "clay": 128.8
    },
    "bands": {
     "board_floor": 120.49,
@@ -3429,7 +3538,8 @@
     "draftsharks_consensus": 129.0,
     "cbs": 161.3,
     "espn": 154.3,
-    "fftoday": 119.9
+    "fftoday": 119.9,
+    "clay": 154.3
    },
    "bands": {
     "board_floor": 119.06,
@@ -3460,7 +3570,8 @@
     "draftsharks_consensus": 140.0,
     "cbs": 157.8,
     "espn": 130.1,
-    "fftoday": 141.9
+    "fftoday": 141.9,
+    "clay": 130.1
    },
    "bands": {
     "board_floor": 129.61,
@@ -3491,7 +3602,8 @@
     "draftsharks_consensus": 127.0,
     "cbs": 160.4,
     "espn": 141.4,
-    "fftoday": 131.7
+    "fftoday": 131.7,
+    "clay": 141.4
    },
    "bands": {
     "board_floor": 127.86,
@@ -3522,7 +3634,8 @@
     "draftsharks_consensus": 136.0,
     "cbs": 148.4,
     "espn": 138.4,
-    "fftoday": 136.3
+    "fftoday": 136.3,
+    "clay": 138.4
    },
    "bands": {
     "board_floor": 135.34,
@@ -3553,7 +3666,8 @@
     "draftsharks_consensus": 140.0,
     "cbs": 148.9,
     "espn": 139.5,
-    "fftoday": 139.2
+    "fftoday": 139.2,
+    "clay": 139.5
    },
    "bands": {
     "board_floor": 135.02,
@@ -3584,7 +3698,8 @@
     "draftsharks_consensus": 128.0,
     "cbs": 147.6,
     "espn": 140.7,
-    "fftoday": 125.3
+    "fftoday": 125.3,
+    "clay": 140.7
    },
    "bands": {
     "board_floor": 128.5,
@@ -3615,7 +3730,8 @@
     "draftsharks_consensus": 269.0,
     "cbs": 325.3,
     "espn": 312.04,
-    "fftoday": 335.74
+    "fftoday": 335.74,
+    "clay": 312.04
    },
    "bands": {
     "board_floor": 302.99,
@@ -3646,7 +3762,8 @@
     "draftsharks_consensus": 123.0,
     "cbs": 146.4,
     "espn": 136.1,
-    "fftoday": 142.1
+    "fftoday": 142.1,
+    "clay": 136.1
    },
    "bands": {
     "board_floor": 134.1,
@@ -3677,7 +3794,8 @@
     "draftsharks_consensus": 127.0,
     "cbs": 135.5,
     "espn": 150.5,
-    "fftoday": 139.6
+    "fftoday": 139.6,
+    "clay": 150.5
    },
    "bands": {
     "board_floor": 131.64,
@@ -3708,7 +3826,8 @@
     "draftsharks_consensus": 126.0,
     "cbs": 140.2,
     "espn": 145.5,
-    "fftoday": 153.9
+    "fftoday": 153.9,
+    "clay": 145.5
    },
    "bands": {
     "board_floor": 117.06,
@@ -3739,7 +3858,8 @@
     "draftsharks_consensus": 275.0,
     "cbs": 316.38,
     "espn": 314.94,
-    "fftoday": 314.74
+    "fftoday": 314.74,
+    "clay": 314.94
    },
    "bands": {
     "board_floor": 313.09,
@@ -3770,7 +3890,8 @@
     "draftsharks_consensus": 133.0,
     "cbs": 142.0,
     "espn": 153.1,
-    "fftoday": 129.5
+    "fftoday": 129.5,
+    "clay": 153.1
    },
    "bands": {
     "board_floor": 120.2,
@@ -3801,7 +3922,8 @@
     "draftsharks_consensus": 101.0,
     "cbs": 104.1,
     "espn": 108.3,
-    "fftoday": 113.1
+    "fftoday": 113.1,
+    "clay": 108.3
    },
    "bands": {
     "board_floor": 101.98,
@@ -3832,7 +3954,8 @@
     "draftsharks_consensus": 113.0,
     "cbs": 141.5,
     "espn": 152.7,
-    "fftoday": 131.0
+    "fftoday": 131.0,
+    "clay": 152.7
    },
    "bands": {
     "board_floor": 119.66,
@@ -3863,7 +3986,8 @@
     "draftsharks_consensus": 124.0,
     "cbs": 123.6,
     "espn": 153.0,
-    "fftoday": 127.2
+    "fftoday": 127.2,
+    "clay": 153.0
    },
    "bands": {
     "board_floor": 121.27,
@@ -3894,7 +4018,8 @@
     "draftsharks_consensus": 281.0,
     "cbs": 332.22,
     "espn": 290.28,
-    "fftoday": 328.28
+    "fftoday": 328.28,
+    "clay": 290.28
    },
    "bands": {
     "board_floor": 293.03,
@@ -3925,7 +4050,8 @@
     "draftsharks_consensus": 130.0,
     "cbs": 139.3,
     "espn": 123.8,
-    "fftoday": 140.7
+    "fftoday": 140.7,
+    "clay": 123.8
    },
    "bands": {
     "board_floor": 126.65,
@@ -3956,7 +4082,8 @@
     "draftsharks_consensus": 86.0,
     "cbs": 112.8,
     "espn": 91.6,
-    "fftoday": 101.4
+    "fftoday": 101.4,
+    "clay": 91.6
    },
    "bands": {
     "board_floor": 93.28,
@@ -3987,7 +4114,8 @@
     "draftsharks_consensus": 252.0,
     "cbs": 333.66,
     "espn": 299.12,
-    "fftoday": 313.7
+    "fftoday": 313.7,
+    "clay": 299.12
    },
    "bands": {
     "board_floor": 295.09,
@@ -4018,7 +4146,8 @@
     "draftsharks_consensus": 127.0,
     "cbs": 122.7,
     "espn": 151.9,
-    "fftoday": 125.9
+    "fftoday": 125.9,
+    "clay": 151.9
    },
    "bands": {
     "board_floor": 117.24,
@@ -4049,7 +4178,8 @@
     "draftsharks_consensus": 106.0,
     "cbs": 107.5,
     "espn": 93.5,
-    "fftoday": 96.9
+    "fftoday": 96.9,
+    "clay": 93.5
    },
    "bands": {
     "board_floor": 92.56,
@@ -4080,7 +4210,8 @@
     "draftsharks_consensus": null,
     "cbs": 116.4,
     "espn": 96.0,
-    "fftoday": 111.6
+    "fftoday": 111.6,
+    "clay": 96.0
    },
    "bands": {
     "board_floor": 87.9,
@@ -4111,7 +4242,8 @@
     "draftsharks_consensus": 120.0,
     "cbs": 120.7,
     "espn": 136.8,
-    "fftoday": 136.6
+    "fftoday": 136.6,
+    "clay": 136.8
    },
    "bands": {
     "board_floor": 123.7,
@@ -4142,7 +4274,8 @@
     "draftsharks_consensus": 143.0,
     "cbs": 133.2,
     "espn": 126.1,
-    "fftoday": 137.6
+    "fftoday": 137.6,
+    "clay": 126.1
    },
    "bands": {
     "board_floor": 124.02,
@@ -4173,7 +4306,8 @@
     "draftsharks_consensus": null,
     "cbs": 128.3,
     "espn": 78.5,
-    "fftoday": 97.0
+    "fftoday": 97.0,
+    "clay": 78.5
    },
    "bands": {
     "board_floor": 76.92,
@@ -4204,7 +4338,8 @@
     "draftsharks_consensus": 134.0,
     "cbs": 128.7,
     "espn": 123.1,
-    "fftoday": 134.9
+    "fftoday": 134.9,
+    "clay": 123.1
    },
    "bands": {
     "board_floor": 124.11,
@@ -4235,7 +4370,8 @@
     "draftsharks_consensus": 117.0,
     "cbs": 145.0,
     "espn": 135.0,
-    "fftoday": 108.0
+    "fftoday": 108.0,
+    "clay": 134.5
    },
    "bands": {
     "board_floor": 111.58,
@@ -4266,7 +4402,8 @@
     "draftsharks_consensus": 117.0,
     "cbs": 135.1,
     "espn": 123.2,
-    "fftoday": 124.6
+    "fftoday": 124.6,
+    "clay": 123.2
    },
    "bands": {
     "board_floor": 121.69,
@@ -4297,7 +4434,8 @@
     "draftsharks_consensus": 113.0,
     "cbs": 110.3,
     "espn": 121.2,
-    "fftoday": 77.0
+    "fftoday": 77.0,
+    "clay": 121.2
    },
    "bands": {
     "board_floor": 72.85,
@@ -4328,7 +4466,8 @@
     "draftsharks_consensus": 139.0,
     "cbs": 121.3,
     "espn": 130.6,
-    "fftoday": 119.7
+    "fftoday": 119.7,
+    "clay": 130.6
    },
    "bands": {
     "board_floor": 117.82,
@@ -4359,7 +4498,8 @@
     "draftsharks_consensus": 102.0,
     "cbs": 109.4,
     "espn": 65.2,
-    "fftoday": 96.7
+    "fftoday": 96.7,
+    "clay": 65.2
    },
    "bands": {
     "board_floor": 71.94,
@@ -4390,7 +4530,8 @@
     "draftsharks_consensus": 113.0,
     "cbs": 146.0,
     "espn": 118.9,
-    "fftoday": 118.9
+    "fftoday": 118.9,
+    "clay": 118.9
    },
    "bands": {
     "board_floor": 109.13,
@@ -4421,7 +4562,8 @@
     "draftsharks_consensus": 74.0,
     "cbs": 97.5,
     "espn": 111.0,
-    "fftoday": 86.5
+    "fftoday": 86.5,
+    "clay": 111.0
    },
    "bands": {
     "board_floor": 80.4,
@@ -4452,7 +4594,8 @@
     "draftsharks_consensus": 117.0,
     "cbs": 138.6,
     "espn": 117.4,
-    "fftoday": 105.1
+    "fftoday": 105.1,
+    "clay": 117.4
    },
    "bands": {
     "board_floor": 106.66,
@@ -4483,7 +4626,8 @@
     "draftsharks_consensus": 265.0,
     "cbs": 336.56,
     "espn": 273.0,
-    "fftoday": 297.7
+    "fftoday": 297.7,
+    "clay": 273.0
    },
    "bands": {
     "board_floor": 271.31,
@@ -4514,7 +4658,8 @@
     "draftsharks_consensus": 256.0,
     "cbs": 340.5,
     "espn": 314.74,
-    "fftoday": 295.32
+    "fftoday": 295.32,
+    "clay": 314.74
    },
    "bands": {
     "board_floor": 258.18,
@@ -4545,7 +4690,8 @@
     "draftsharks_consensus": null,
     "cbs": 77.8,
     "espn": 96.9,
-    "fftoday": 86.0
+    "fftoday": 86.0,
+    "clay": 96.9
    },
    "bands": {
     "board_floor": 78.65,
@@ -4576,7 +4722,8 @@
     "draftsharks_consensus": 261.0,
     "cbs": 325.94,
     "espn": 296.9,
-    "fftoday": 284.16
+    "fftoday": 284.16,
+    "clay": 296.9
    },
    "bands": {
     "board_floor": 277.38,
@@ -4638,7 +4785,8 @@
     "draftsharks_consensus": null,
     "cbs": 105.3,
     "espn": 92.8,
-    "fftoday": 53.7
+    "fftoday": 53.7,
+    "clay": 92.8
    },
    "bands": {
     "board_floor": 61.95,
@@ -4669,7 +4817,8 @@
     "draftsharks_consensus": null,
     "cbs": 96.5,
     "espn": 71.3,
-    "fftoday": 90.5
+    "fftoday": 90.5,
+    "clay": 71.3
    },
    "bands": {
     "board_floor": 73.57,
@@ -4700,7 +4849,8 @@
     "draftsharks_consensus": 49.0,
     "cbs": 143.0,
     "espn": 110.1,
-    "fftoday": 99.7
+    "fftoday": 99.7,
+    "clay": 110.1
    },
    "bands": {
     "board_floor": 93.0,
@@ -4731,7 +4881,8 @@
     "draftsharks_consensus": 109.0,
     "cbs": 120.5,
     "espn": 133.3,
-    "fftoday": 96.9
+    "fftoday": 96.9,
+    "clay": 133.3
    },
    "bands": {
     "board_floor": 91.96,
@@ -4762,7 +4913,8 @@
     "draftsharks_consensus": 99.0,
     "cbs": 122.1,
     "espn": 113.5,
-    "fftoday": 109.5
+    "fftoday": 109.5,
+    "clay": 113.5
    },
    "bands": {
     "board_floor": 103.1,
@@ -4793,7 +4945,8 @@
     "draftsharks_consensus": null,
     "cbs": 93.9,
     "espn": 82.0,
-    "fftoday": 94.9
+    "fftoday": 94.9,
+    "clay": 82.0
    },
    "bands": {
     "board_floor": 61.01,
@@ -4824,7 +4977,8 @@
     "draftsharks_consensus": 89.0,
     "cbs": 123.9,
     "espn": 114.5,
-    "fftoday": 108.0
+    "fftoday": 108.0,
+    "clay": 114.5
    },
    "bands": {
     "board_floor": 99.08,
@@ -4855,7 +5009,8 @@
     "draftsharks_consensus": 102.0,
     "cbs": 131.0,
     "espn": 113.8,
-    "fftoday": 84.6
+    "fftoday": 84.6,
+    "clay": 113.8
    },
    "bands": {
     "board_floor": 88.15,
@@ -4886,7 +5041,8 @@
     "draftsharks_consensus": 83.0,
     "cbs": 123.9,
     "espn": 89.8,
-    "fftoday": 112.5
+    "fftoday": 112.5,
+    "clay": 61.9
    },
    "bands": {
     "board_floor": 90.43,
@@ -4917,7 +5073,8 @@
     "draftsharks_consensus": null,
     "cbs": 98.1,
     "espn": 48.4,
-    "fftoday": 85.1
+    "fftoday": 85.1,
+    "clay": 48.4
    },
    "bands": {
     "board_floor": 34.4,
@@ -4948,7 +5105,8 @@
     "draftsharks_consensus": 238.0,
     "cbs": 311.28,
     "espn": 280.8,
-    "fftoday": 283.1
+    "fftoday": 283.1,
+    "clay": 280.8
    },
    "bands": {
     "board_floor": 263.44,
@@ -4979,7 +5137,8 @@
     "draftsharks_consensus": 95.0,
     "cbs": 112.5,
     "espn": 108.9,
-    "fftoday": 99.0
+    "fftoday": 99.0,
+    "clay": 108.9
    },
    "bands": {
     "board_floor": 100.08,
@@ -5010,7 +5169,8 @@
     "draftsharks_consensus": 83.0,
     "cbs": 126.3,
     "espn": 104.4,
-    "fftoday": 103.2
+    "fftoday": 103.2,
+    "clay": 104.4
    },
    "bands": {
     "board_floor": 85.51,
@@ -5041,7 +5201,8 @@
     "draftsharks_consensus": 92.0,
     "cbs": 118.2,
     "espn": 114.2,
-    "fftoday": 105.6
+    "fftoday": 105.6,
+    "clay": 114.1
    },
    "bands": {
     "board_floor": 81.03,
@@ -5072,7 +5233,8 @@
     "draftsharks_consensus": 89.0,
     "cbs": 115.6,
     "espn": 101.8,
-    "fftoday": 91.7
+    "fftoday": 91.7,
+    "clay": 101.8
    },
    "bands": {
     "board_floor": 93.02,
@@ -5103,7 +5265,8 @@
     "draftsharks_consensus": null,
     "cbs": 98.0,
     "espn": 61.2,
-    "fftoday": 68.1
+    "fftoday": 68.1,
+    "clay": 61.2
    },
    "bands": {
     "board_floor": 52.95,
@@ -5134,7 +5297,8 @@
     "draftsharks_consensus": 103.0,
     "cbs": 118.7,
     "espn": 66.1,
-    "fftoday": 92.2
+    "fftoday": 92.2,
+    "clay": 66.1
    },
    "bands": {
     "board_floor": 70.59,
@@ -5165,7 +5329,8 @@
     "draftsharks_consensus": 104.0,
     "cbs": 116.8,
     "espn": 122.0,
-    "fftoday": 100.7
+    "fftoday": 100.7,
+    "clay": 122.0
    },
    "bands": {
     "board_floor": 70.06,
@@ -5196,7 +5361,8 @@
     "draftsharks_consensus": 165.0,
     "cbs": 94.1,
     "espn": 84.4,
-    "fftoday": 132.8
+    "fftoday": 132.8,
+    "clay": 84.4
    },
    "bands": {
     "board_floor": 76.13,
@@ -5227,7 +5393,8 @@
     "draftsharks_consensus": null,
     "cbs": 67.0,
     "espn": 60.9,
-    "fftoday": 81.5
+    "fftoday": 81.5,
+    "clay": 60.9
    },
    "bands": {
     "board_floor": 58.16,
@@ -5258,7 +5425,8 @@
     "draftsharks_consensus": 95.0,
     "cbs": 128.4,
     "espn": 89.6,
-    "fftoday": 83.1
+    "fftoday": 83.1,
+    "clay": 89.6
    },
    "bands": {
     "board_floor": 73.31,
@@ -5289,7 +5457,8 @@
     "draftsharks_consensus": null,
     "cbs": 57.7,
     "espn": 24.2,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 24.2
    },
    "bands": {
     "board_floor": 1.74,
@@ -5320,7 +5489,8 @@
     "draftsharks_consensus": null,
     "cbs": 75.6,
     "espn": 57.0,
-    "fftoday": 63.9
+    "fftoday": 63.9,
+    "clay": 57.0
    },
    "bands": {
     "board_floor": 56.04,
@@ -5351,7 +5521,8 @@
     "draftsharks_consensus": null,
     "cbs": 88.3,
     "espn": 90.2,
-    "fftoday": 89.6
+    "fftoday": 89.6,
+    "clay": 90.2
    },
    "bands": {
     "board_floor": 83.87,
@@ -5382,7 +5553,8 @@
     "draftsharks_consensus": null,
     "cbs": 85.5,
     "espn": 51.4,
-    "fftoday": 52.2
+    "fftoday": 52.2,
+    "clay": 51.4
    },
    "bands": {
     "board_floor": 45.02,
@@ -5413,7 +5585,8 @@
     "draftsharks_consensus": null,
     "cbs": 129.1,
     "espn": 82.5,
-    "fftoday": 70.4
+    "fftoday": 70.4,
+    "clay": 82.5
    },
    "bands": {
     "board_floor": 64.06,
@@ -5444,7 +5617,8 @@
     "draftsharks_consensus": null,
     "cbs": 65.8,
     "espn": 58.0,
-    "fftoday": 54.9
+    "fftoday": 54.9,
+    "clay": 58.0
    },
    "bands": {
     "board_floor": 54.69,
@@ -5475,7 +5649,8 @@
     "draftsharks_consensus": 90.0,
     "cbs": 83.0,
     "espn": 107.4,
-    "fftoday": 90.2
+    "fftoday": 90.2,
+    "clay": 107.4
    },
    "bands": {
     "board_floor": 76.99,
@@ -5506,7 +5681,8 @@
     "draftsharks_consensus": null,
     "cbs": 105.6,
     "espn": 97.5,
-    "fftoday": 52.2
+    "fftoday": 52.2,
+    "clay": 97.4
    },
    "bands": {
     "board_floor": 2.46,
@@ -5537,7 +5713,8 @@
     "draftsharks_consensus": null,
     "cbs": 120.6,
     "espn": 84.2,
-    "fftoday": 80.5
+    "fftoday": 80.5,
+    "clay": 84.2
    },
    "bands": {
     "board_floor": 64.64,
@@ -5568,7 +5745,8 @@
     "draftsharks_consensus": 76.0,
     "cbs": 107.1,
     "espn": 70.5,
-    "fftoday": 94.1
+    "fftoday": 94.1,
+    "clay": 70.5
    },
    "bands": {
     "board_floor": 68.87,
@@ -5599,7 +5777,8 @@
     "draftsharks_consensus": null,
     "cbs": 89.1,
     "espn": 89.6,
-    "fftoday": 93.7
+    "fftoday": 93.7,
+    "clay": 89.6
    },
    "bands": {
     "board_floor": 82.38,
@@ -5630,7 +5809,8 @@
     "draftsharks_consensus": null,
     "cbs": 45.9,
     "espn": 44.9,
-    "fftoday": 72.9
+    "fftoday": 72.9,
+    "clay": 44.9
    },
    "bands": {
     "board_floor": 41.53,
@@ -5661,7 +5841,8 @@
     "draftsharks_consensus": 239.0,
     "cbs": 278.48,
     "espn": 264.5,
-    "fftoday": 265.18
+    "fftoday": 265.18,
+    "clay": 264.5
    },
    "bands": {
     "board_floor": 253.63,
@@ -5692,7 +5873,8 @@
     "draftsharks_consensus": 99.0,
     "cbs": 97.4,
     "espn": 55.8,
-    "fftoday": 89.1
+    "fftoday": 89.1,
+    "clay": 55.8
    },
    "bands": {
     "board_floor": 62.82,
@@ -5723,7 +5905,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 26.0,
-    "fftoday": 51.0
+    "fftoday": 51.0,
+    "clay": 26.0
    },
    "bands": {
     "board_floor": 1.55,
@@ -5754,7 +5937,8 @@
     "draftsharks_consensus": 238.0,
     "cbs": 265.3,
     "espn": 272.6,
-    "fftoday": 264.46
+    "fftoday": 264.46,
+    "clay": 272.6
    },
    "bands": {
     "board_floor": 254.47,
@@ -5785,7 +5969,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 74.5,
-    "fftoday": 83.7
+    "fftoday": 83.7,
+    "clay": 74.5
    },
    "bands": {
     "board_floor": 73.09,
@@ -5816,7 +6001,8 @@
     "draftsharks_consensus": 76.0,
     "cbs": 128.5,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 99.4
    },
    "bands": {
     "board_floor": 2.49,
@@ -5847,7 +6033,8 @@
     "draftsharks_consensus": null,
     "cbs": 77.9,
     "espn": 93.0,
-    "fftoday": 84.7
+    "fftoday": 84.7,
+    "clay": 93.0
    },
    "bands": {
     "board_floor": 75.37,
@@ -5878,7 +6065,8 @@
     "draftsharks_consensus": 72.0,
     "cbs": 97.2,
     "espn": 94.7,
-    "fftoday": 78.2
+    "fftoday": 78.2,
+    "clay": 94.7
    },
    "bands": {
     "board_floor": 60.25,
@@ -5909,7 +6097,8 @@
     "draftsharks_consensus": 84.0,
     "cbs": 90.0,
     "espn": 90.4,
-    "fftoday": 80.5
+    "fftoday": 80.5,
+    "clay": 90.4
    },
    "bands": {
     "board_floor": 67.06,
@@ -5940,7 +6129,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 50.4,
-    "fftoday": 45.1
+    "fftoday": 45.1,
+    "clay": 50.4
    },
    "bands": {
     "board_floor": 44.45,
@@ -5971,7 +6161,8 @@
     "draftsharks_consensus": null,
     "cbs": 112.9,
     "espn": 74.4,
-    "fftoday": 59.0
+    "fftoday": 59.0,
+    "clay": 74.4
    },
    "bands": {
     "board_floor": 56.17,
@@ -6002,7 +6193,8 @@
     "draftsharks_consensus": 78.0,
     "cbs": 91.6,
     "espn": 78.1,
-    "fftoday": 78.5
+    "fftoday": 78.5,
+    "clay": 78.1
    },
    "bands": {
     "board_floor": 66.54,
@@ -6033,7 +6225,8 @@
     "draftsharks_consensus": null,
     "cbs": 66.3,
     "espn": 32.4,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 32.4
    },
    "bands": {
     "board_floor": 1.3,
@@ -6064,7 +6257,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 70.6,
-    "fftoday": 69.5
+    "fftoday": 69.5,
+    "clay": 70.6
    },
    "bands": {
     "board_floor": 63.73,
@@ -6095,7 +6289,8 @@
     "draftsharks_consensus": null,
     "cbs": 91.8,
     "espn": 72.6,
-    "fftoday": 76.1
+    "fftoday": 76.1,
+    "clay": 72.7
    },
    "bands": {
     "board_floor": 66.84,
@@ -6126,7 +6321,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 34.3,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 34.3
    },
    "bands": {
     "board_floor": 2.13,
@@ -6157,7 +6353,8 @@
     "draftsharks_consensus": 75.0,
     "cbs": 84.0,
     "espn": 91.5,
-    "fftoday": 66.2
+    "fftoday": 66.2,
+    "clay": 91.5
    },
    "bands": {
     "board_floor": 60.79,
@@ -6219,7 +6416,8 @@
     "draftsharks_consensus": 68.0,
     "cbs": 70.0,
     "espn": 83.0,
-    "fftoday": 61.6
+    "fftoday": 61.6,
+    "clay": 83.0
    },
    "bands": {
     "board_floor": 62.3,
@@ -6250,7 +6448,8 @@
     "draftsharks_consensus": null,
     "cbs": 97.4,
     "espn": 85.7,
-    "fftoday": 61.4
+    "fftoday": 61.4,
+    "clay": 85.7
    },
    "bands": {
     "board_floor": 1.29,
@@ -6281,7 +6480,8 @@
     "draftsharks_consensus": null,
     "cbs": 22.5,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.8
    },
    "bands": {
     "board_floor": 1.23,
@@ -6312,7 +6512,8 @@
     "draftsharks_consensus": null,
     "cbs": 20.6,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 10.7
    },
    "bands": {
     "board_floor": 1.23,
@@ -6343,7 +6544,8 @@
     "draftsharks_consensus": null,
     "cbs": 104.5,
     "espn": 52.9,
-    "fftoday": 45.5
+    "fftoday": 45.5,
+    "clay": 52.9
    },
    "bands": {
     "board_floor": 2.02,
@@ -6374,7 +6576,8 @@
     "draftsharks_consensus": 65.0,
     "cbs": 92.5,
     "espn": 71.7,
-    "fftoday": 86.7
+    "fftoday": 86.7,
+    "clay": 71.7
    },
    "bands": {
     "board_floor": 52.19,
@@ -6405,7 +6608,8 @@
     "draftsharks_consensus": null,
     "cbs": 109.0,
     "espn": 61.6,
-    "fftoday": 70.3
+    "fftoday": 70.3,
+    "clay": 61.6
    },
    "bands": {
     "board_floor": 50.35,
@@ -6436,7 +6640,8 @@
     "draftsharks_consensus": null,
     "cbs": 24.7,
     "espn": 5.8,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.8
    },
    "bands": {
     "board_floor": 1.19,
@@ -6467,7 +6672,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 51.4,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 51.5
    },
    "bands": {
     "board_floor": 2.06,
@@ -6498,7 +6704,8 @@
     "draftsharks_consensus": null,
     "cbs": 51.5,
     "espn": null,
-    "fftoday": 46.9
+    "fftoday": 46.9,
+    "clay": 10.2
    },
    "bands": {
     "board_floor": 32.91,
@@ -6529,7 +6736,8 @@
     "draftsharks_consensus": null,
     "cbs": 83.9,
     "espn": 60.1,
-    "fftoday": 77.5
+    "fftoday": 77.5,
+    "clay": 60.1
    },
    "bands": {
     "board_floor": 62.5,
@@ -6591,7 +6799,8 @@
     "draftsharks_consensus": null,
     "cbs": 83.8,
     "espn": 53.0,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 53.0
    },
    "bands": {
     "board_floor": 54.71,
@@ -6622,7 +6831,8 @@
     "draftsharks_consensus": null,
     "cbs": 27.4,
     "espn": 45.2,
-    "fftoday": 46.4
+    "fftoday": 46.4,
+    "clay": 45.2
    },
    "bands": {
     "board_floor": 31.05,
@@ -6653,7 +6863,8 @@
     "draftsharks_consensus": 57.0,
     "cbs": 98.4,
     "espn": 60.2,
-    "fftoday": 61.1
+    "fftoday": 61.1,
+    "clay": 60.2
    },
    "bands": {
     "board_floor": 49.4,
@@ -6684,7 +6895,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 78.9,
-    "fftoday": 79.7
+    "fftoday": 79.7,
+    "clay": 78.9
    },
    "bands": {
     "board_floor": 55.59,
@@ -6715,7 +6927,8 @@
     "draftsharks_consensus": null,
     "cbs": 101.3,
     "espn": 33.7,
-    "fftoday": 25.4
+    "fftoday": 25.4,
+    "clay": 33.7
    },
    "bands": {
     "board_floor": 1.91,
@@ -6746,7 +6959,8 @@
     "draftsharks_consensus": 43.0,
     "cbs": null,
     "espn": 89.8,
-    "fftoday": 62.6
+    "fftoday": 62.6,
+    "clay": 89.8
    },
    "bands": {
     "board_floor": 51.75,
@@ -6777,7 +6991,8 @@
     "draftsharks_consensus": null,
     "cbs": 95.1,
     "espn": 65.9,
-    "fftoday": 64.0
+    "fftoday": 64.0,
+    "clay": 65.9
    },
    "bands": {
     "board_floor": 49.32,
@@ -6808,7 +7023,8 @@
     "draftsharks_consensus": 223.0,
     "cbs": 244.08,
     "espn": 264.92,
-    "fftoday": 275.96
+    "fftoday": 275.96,
+    "clay": 264.88
    },
    "bands": {
     "board_floor": 213.59,
@@ -6839,7 +7055,8 @@
     "draftsharks_consensus": 54.0,
     "cbs": null,
     "espn": 58.0,
-    "fftoday": 66.1
+    "fftoday": 66.1,
+    "clay": 58.0
    },
    "bands": {
     "board_floor": 56.65,
@@ -6870,7 +7087,8 @@
     "draftsharks_consensus": 43.0,
     "cbs": null,
     "espn": 81.5,
-    "fftoday": 68.5
+    "fftoday": 68.5,
+    "clay": 81.5
    },
    "bands": {
     "board_floor": 48.62,
@@ -6901,7 +7119,8 @@
     "draftsharks_consensus": 256.0,
     "cbs": 302.5,
     "espn": 233.2,
-    "fftoday": 263.6
+    "fftoday": 263.6,
+    "clay": 233.2
    },
    "bands": {
     "board_floor": 189.66,
@@ -6932,7 +7151,8 @@
     "draftsharks_consensus": null,
     "cbs": 83.6,
     "espn": 47.1,
-    "fftoday": 60.6
+    "fftoday": 60.6,
+    "clay": 47.1
    },
    "bands": {
     "board_floor": 48.77,
@@ -6963,7 +7183,8 @@
     "draftsharks_consensus": 52.0,
     "cbs": 90.7,
     "espn": 58.2,
-    "fftoday": 54.1
+    "fftoday": 54.1,
+    "clay": 58.2
    },
    "bands": {
     "board_floor": 46.12,
@@ -7025,7 +7246,8 @@
     "draftsharks_consensus": 71.0,
     "cbs": null,
     "espn": 61.0,
-    "fftoday": 67.0
+    "fftoday": 67.0,
+    "clay": 91.1
    },
    "bands": {
     "board_floor": 61.39,
@@ -7056,7 +7278,8 @@
     "draftsharks_consensus": null,
     "cbs": 43.7,
     "espn": 32.7,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 32.7
    },
    "bands": {
     "board_floor": 24.22,
@@ -7087,7 +7310,8 @@
     "draftsharks_consensus": 88.0,
     "cbs": 136.0,
     "espn": 110.5,
-    "fftoday": 94.3
+    "fftoday": 94.3,
+    "clay": 110.5
    },
    "bands": {
     "board_floor": 1.75,
@@ -7118,7 +7342,8 @@
     "draftsharks_consensus": null,
     "cbs": 44.5,
     "espn": 29.1,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 29.1
    },
    "bands": {
     "board_floor": 22.84,
@@ -7149,7 +7374,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 63.8,
-    "fftoday": 53.2
+    "fftoday": 53.2,
+    "clay": 63.8
    },
    "bands": {
     "board_floor": 53.26,
@@ -7180,7 +7406,8 @@
     "draftsharks_consensus": null,
     "cbs": 37.7,
     "espn": 32.4,
-    "fftoday": 37.5
+    "fftoday": 37.5,
+    "clay": 32.4
    },
    "bands": {
     "board_floor": 22.62,
@@ -7211,7 +7438,8 @@
     "draftsharks_consensus": null,
     "cbs": 64.2,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 17.8
    },
    "bands": {
     "board_floor": 0.74,
@@ -7242,7 +7470,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 29.8,
-    "fftoday": 61.5
+    "fftoday": 61.5,
+    "clay": 29.8
    },
    "bands": {
     "board_floor": 0.78,
@@ -7273,7 +7502,8 @@
     "draftsharks_consensus": null,
     "cbs": 23.1,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 11.4
    },
    "bands": {
     "board_floor": 0.82,
@@ -7304,7 +7534,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 54.2,
-    "fftoday": 68.3
+    "fftoday": 68.3,
+    "clay": 54.2
    },
    "bands": {
     "board_floor": 53.8,
@@ -7335,7 +7566,8 @@
     "draftsharks_consensus": null,
     "cbs": 40.4,
     "espn": 26.6,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 26.6
    },
    "bands": {
     "board_floor": 22.02,
@@ -7366,7 +7598,8 @@
     "draftsharks_consensus": null,
     "cbs": 84.0,
     "espn": 27.2,
-    "fftoday": 64.2
+    "fftoday": 64.2,
+    "clay": 27.2
    },
    "bands": {
     "board_floor": 1.72,
@@ -7397,7 +7630,8 @@
     "draftsharks_consensus": null,
     "cbs": 69.8,
     "espn": 28.4,
-    "fftoday": 37.4
+    "fftoday": 37.4,
+    "clay": 28.4
    },
    "bands": {
     "board_floor": 0.8,
@@ -7428,7 +7662,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 51.5,
-    "fftoday": 67.6
+    "fftoday": 67.6,
+    "clay": 51.5
    },
    "bands": {
     "board_floor": 52.01,
@@ -7459,7 +7694,8 @@
     "draftsharks_consensus": 31.0,
     "cbs": 22.4,
     "espn": 42.5,
-    "fftoday": 30.8
+    "fftoday": 30.8,
+    "clay": 42.5
    },
    "bands": {
     "board_floor": 0.99,
@@ -7490,7 +7726,8 @@
     "draftsharks_consensus": 43.0,
     "cbs": 23.2,
     "espn": 66.4,
-    "fftoday": 25.3
+    "fftoday": 25.3,
+    "clay": 66.4
    },
    "bands": {
     "board_floor": 0.99,
@@ -7521,7 +7758,8 @@
     "draftsharks_consensus": null,
     "cbs": 70.3,
     "espn": 29.0,
-    "fftoday": 51.0
+    "fftoday": 51.0,
+    "clay": 29.0
    },
    "bands": {
     "board_floor": 0.75,
@@ -7552,7 +7790,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 73.8,
-    "fftoday": 45.4
+    "fftoday": 45.4,
+    "clay": 73.8
    },
    "bands": {
     "board_floor": 44.27,
@@ -7614,7 +7853,8 @@
     "draftsharks_consensus": 30.0,
     "cbs": null,
     "espn": 19.4,
-    "fftoday": 8.5
+    "fftoday": 8.5,
+    "clay": 19.4
    },
    "bands": {
     "board_floor": 0.97,
@@ -7676,7 +7916,8 @@
     "draftsharks_consensus": null,
     "cbs": 146.2,
     "espn": 87.7,
-    "fftoday": 20.5
+    "fftoday": 20.5,
+    "clay": 124.9
    },
    "bands": {
     "board_floor": 1.58,
@@ -7738,7 +7979,8 @@
     "draftsharks_consensus": null,
     "cbs": 25.7,
     "espn": 27.9,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 28.4
    },
    "bands": {
     "board_floor": 25.39,
@@ -7800,7 +8042,8 @@
     "draftsharks_consensus": null,
     "cbs": 52.8,
     "espn": 34.6,
-    "fftoday": 47.5
+    "fftoday": 47.5,
+    "clay": 34.6
    },
    "bands": {
     "board_floor": 0.73,
@@ -7831,7 +8074,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 55.8,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 55.8
    },
    "bands": {
     "board_floor": 1.5,
@@ -7862,7 +8106,8 @@
     "draftsharks_consensus": null,
     "cbs": 93.9,
     "espn": 28.9,
-    "fftoday": 50.1
+    "fftoday": 50.1,
+    "clay": 28.9
    },
    "bands": {
     "board_floor": 0.67,
@@ -7924,7 +8169,8 @@
     "draftsharks_consensus": null,
     "cbs": 29.0,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 22.5
    },
    "bands": {
     "board_floor": 0.69,
@@ -7986,7 +8232,8 @@
     "draftsharks_consensus": null,
     "cbs": 110.7,
     "espn": 54.4,
-    "fftoday": 40.1
+    "fftoday": 40.1,
+    "clay": 26.2
    },
    "bands": {
     "board_floor": 0.91,
@@ -8048,7 +8295,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 29.1,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 29.1
    },
    "bands": {
     "board_floor": 0.66,
@@ -8110,7 +8358,8 @@
     "draftsharks_consensus": null,
     "cbs": 59.4,
     "espn": 29.6,
-    "fftoday": 39.3
+    "fftoday": 39.3,
+    "clay": 29.6
    },
    "bands": {
     "board_floor": 0.59,
@@ -8141,7 +8390,8 @@
     "draftsharks_consensus": null,
     "cbs": 26.8,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 22.5
    },
    "bands": {
     "board_floor": 0.66,
@@ -8172,7 +8422,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 65.7,
-    "fftoday": 36.2
+    "fftoday": 36.2,
+    "clay": 65.7
    },
    "bands": {
     "board_floor": 37.96,
@@ -8203,7 +8454,8 @@
     "draftsharks_consensus": null,
     "cbs": 106.5,
     "espn": 27.4,
-    "fftoday": 31.2
+    "fftoday": 31.2,
+    "clay": 27.4
    },
    "bands": {
     "board_floor": 1.61,
@@ -8234,7 +8486,8 @@
     "draftsharks_consensus": null,
     "cbs": 104.8,
     "espn": 49.0,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 49.0
    },
    "bands": {
     "board_floor": 1.5,
@@ -8265,7 +8518,8 @@
     "draftsharks_consensus": 78.0,
     "cbs": 127.1,
     "espn": 109.5,
-    "fftoday": 107.3
+    "fftoday": 107.3,
+    "clay": 101.8
    },
    "bands": {
     "board_floor": 0.99,
@@ -8296,7 +8550,8 @@
     "draftsharks_consensus": 43.0,
     "cbs": 73.8,
     "espn": 29.9,
-    "fftoday": 53.4
+    "fftoday": 53.4,
+    "clay": 29.9
    },
    "bands": {
     "board_floor": 0.87,
@@ -8327,7 +8582,8 @@
     "draftsharks_consensus": null,
     "cbs": 122.1,
     "espn": 43.2,
-    "fftoday": 56.3
+    "fftoday": 56.3,
+    "clay": 43.2
    },
    "bands": {
     "board_floor": 1.53,
@@ -8420,7 +8676,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 54.6,
-    "fftoday": 56.7
+    "fftoday": 56.7,
+    "clay": 54.6
    },
    "bands": {
     "board_floor": 49.36,
@@ -8513,7 +8770,8 @@
     "draftsharks_consensus": null,
     "cbs": 53.7,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 23.3
    },
    "bands": {
     "board_floor": 0.59,
@@ -8544,7 +8802,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 24.7,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 24.7
    },
    "bands": {
     "board_floor": 1.45,
@@ -8575,7 +8834,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 41.4,
-    "fftoday": 54.2
+    "fftoday": 54.2,
+    "clay": 41.4
    },
    "bands": {
     "board_floor": 41.68,
@@ -8606,7 +8866,8 @@
     "draftsharks_consensus": null,
     "cbs": 29.7,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 22.2
    },
    "bands": {
     "board_floor": 0.58,
@@ -8637,7 +8898,8 @@
     "draftsharks_consensus": 41.0,
     "cbs": 85.7,
     "espn": 6.3,
-    "fftoday": 10.1
+    "fftoday": 10.1,
+    "clay": 6.3
    },
    "bands": {
     "board_floor": 0.77,
@@ -8668,7 +8930,8 @@
     "draftsharks_consensus": null,
     "cbs": 45.0,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 17.4
    },
    "bands": {
     "board_floor": 0.58,
@@ -8699,7 +8962,8 @@
     "draftsharks_consensus": null,
     "cbs": 67.9,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 17.2
    },
    "bands": {
     "board_floor": 0.56,
@@ -8730,7 +8994,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 8.2,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 8.2
    },
    "bands": {
     "board_floor": 1.43,
@@ -8823,7 +9088,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 30.1,
-    "fftoday": 21.9
+    "fftoday": 21.9,
+    "clay": 30.1
    },
    "bands": {
     "board_floor": 0.82,
@@ -8854,7 +9120,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 28.1,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 28.1
    },
    "bands": {
     "board_floor": 1.39,
@@ -8885,7 +9152,8 @@
     "draftsharks_consensus": null,
     "cbs": 96.6,
     "espn": 39.9,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 39.9
    },
    "bands": {
     "board_floor": 1.38,
@@ -8916,7 +9184,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 52.7,
-    "fftoday": 40.5
+    "fftoday": 40.5,
+    "clay": 52.7
    },
    "bands": {
     "board_floor": 41.14,
@@ -8947,7 +9216,8 @@
     "draftsharks_consensus": 90.0,
     "cbs": 112.3,
     "espn": 119.8,
-    "fftoday": 90.8
+    "fftoday": 90.8,
+    "clay": 119.8
    },
    "bands": {
     "board_floor": 0.91,
@@ -8978,7 +9248,8 @@
     "draftsharks_consensus": 53.0,
     "cbs": 27.6,
     "espn": 32.6,
-    "fftoday": 55.9
+    "fftoday": 55.9,
+    "clay": 32.6
    },
    "bands": {
     "board_floor": 0.68,
@@ -9009,7 +9280,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 24.2,
-    "fftoday": 44.2
+    "fftoday": 44.2,
+    "clay": 24.2
    },
    "bands": {
     "board_floor": 1.5,
@@ -9040,7 +9312,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 1.35,
@@ -9071,7 +9344,8 @@
     "draftsharks_consensus": 34.0,
     "cbs": null,
     "espn": 49.0,
-    "fftoday": 41.0
+    "fftoday": 41.0,
+    "clay": 49.0
    },
    "bands": {
     "board_floor": 41.38,
@@ -9102,7 +9376,8 @@
     "draftsharks_consensus": 69.0,
     "cbs": 109.6,
     "espn": 68.4,
-    "fftoday": 68.2
+    "fftoday": 68.2,
+    "clay": 68.4
    },
    "bands": {
     "board_floor": 0.79,
@@ -9133,7 +9408,8 @@
     "draftsharks_consensus": 43.0,
     "cbs": 54.8,
     "espn": 38.5,
-    "fftoday": 49.2
+    "fftoday": 49.2,
+    "clay": 38.5
    },
    "bands": {
     "board_floor": 37.61,
@@ -9164,7 +9440,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 27.4,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 27.4
    },
    "bands": {
     "board_floor": 1.3,
@@ -9195,7 +9472,8 @@
     "draftsharks_consensus": null,
     "cbs": 114.0,
     "espn": 22.1,
-    "fftoday": 30.5
+    "fftoday": 30.5,
+    "clay": 22.1
    },
    "bands": {
     "board_floor": 1.39,
@@ -9226,7 +9504,8 @@
     "draftsharks_consensus": null,
     "cbs": 85.4,
     "espn": 10.4,
-    "fftoday": 41.0
+    "fftoday": 41.0,
+    "clay": 10.4
    },
    "bands": {
     "board_floor": 1.2,
@@ -9257,7 +9536,8 @@
     "draftsharks_consensus": 244.0,
     "cbs": 213.42,
     "espn": 218.96,
-    "fftoday": 216.86
+    "fftoday": 216.86,
+    "clay": 218.96
    },
    "bands": {
     "board_floor": 209.24,
@@ -9288,7 +9568,8 @@
     "draftsharks_consensus": 35.0,
     "cbs": 26.3,
     "espn": 10.0,
-    "fftoday": 32.8
+    "fftoday": 32.8,
+    "clay": 10.0
    },
    "bands": {
     "board_floor": 0.7,
@@ -9350,7 +9631,8 @@
     "draftsharks_consensus": 42.0,
     "cbs": 32.7,
     "espn": 39.9,
-    "fftoday": 38.2
+    "fftoday": 38.2,
+    "clay": 39.9
    },
    "bands": {
     "board_floor": 31.15,
@@ -9412,7 +9694,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 22.9
    },
    "bands": {
     "board_floor": 0.3,
@@ -9474,7 +9757,8 @@
     "draftsharks_consensus": 28.0,
     "cbs": 37.3,
     "espn": 35.2,
-    "fftoday": 37.7
+    "fftoday": 37.7,
+    "clay": 35.2
    },
    "bands": {
     "board_floor": 33.42,
@@ -9505,7 +9789,8 @@
     "draftsharks_consensus": 40.0,
     "cbs": 110.5,
     "espn": 25.8,
-    "fftoday": 20.0
+    "fftoday": 20.0,
+    "clay": 53.4
    },
    "bands": {
     "board_floor": 0.66,
@@ -9536,7 +9821,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 26.4,
-    "fftoday": 43.0
+    "fftoday": 43.0,
+    "clay": 26.4
    },
    "bands": {
     "board_floor": 26.92,
@@ -9598,7 +9884,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 6.1
    },
    "bands": {
     "board_floor": 0.2,
@@ -9660,7 +9947,8 @@
     "draftsharks_consensus": null,
     "cbs": 30.7,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 17.9
    },
    "bands": {
     "board_floor": 0.19,
@@ -9691,7 +9979,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 8.4,
-    "fftoday": 13.1
+    "fftoday": 13.1,
+    "clay": 8.4
    },
    "bands": {
     "board_floor": 1.01,
@@ -9753,7 +10042,8 @@
     "draftsharks_consensus": null,
     "cbs": 45.1,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 21.7
    },
    "bands": {
     "board_floor": 0.18,
@@ -9784,7 +10074,8 @@
     "draftsharks_consensus": null,
     "cbs": 115.7,
     "espn": 30.1,
-    "fftoday": 52.1
+    "fftoday": 52.1,
+    "clay": 30.1
    },
    "bands": {
     "board_floor": 0.99,
@@ -9815,7 +10106,8 @@
     "draftsharks_consensus": null,
     "cbs": 19.1,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 16.6
    },
    "bands": {
     "board_floor": 0.16,
@@ -10063,7 +10355,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 49.8,
-    "fftoday": 28.4
+    "fftoday": 28.4,
+    "clay": 49.8
    },
    "bands": {
     "board_floor": 21.71,
@@ -10094,7 +10387,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 36.9,
-    "fftoday": 45.1
+    "fftoday": 45.1,
+    "clay": 36.9
    },
    "bands": {
     "board_floor": 23.5,
@@ -10125,7 +10419,8 @@
     "draftsharks_consensus": null,
     "cbs": 55.1,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 17.4
    },
    "bands": {
     "board_floor": 0.12,
@@ -10156,7 +10451,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 23.5,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 23.5
    },
    "bands": {
     "board_floor": 0.12,
@@ -10218,7 +10514,8 @@
     "draftsharks_consensus": null,
     "cbs": 36.8,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 16.9
    },
    "bands": {
     "board_floor": 0.11,
@@ -10342,7 +10639,8 @@
     "draftsharks_consensus": 25.0,
     "cbs": 29.6,
     "espn": 10.2,
-    "fftoday": 23.8
+    "fftoday": 23.8,
+    "clay": 10.2
    },
    "bands": {
     "board_floor": 0.55,
@@ -10373,7 +10671,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": 15.6
+    "fftoday": 15.6,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.55,
@@ -10404,7 +10703,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 28.4,
-    "fftoday": 47.1
+    "fftoday": 47.1,
+    "clay": 50.8
    },
    "bands": {
     "board_floor": 22.1,
@@ -10466,7 +10766,8 @@
     "draftsharks_consensus": null,
     "cbs": 93.4,
     "espn": 56.4,
-    "fftoday": 52.5
+    "fftoday": 52.5,
+    "clay": 56.4
    },
    "bands": {
     "board_floor": 0.54,
@@ -10497,7 +10798,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 10.1,
-    "fftoday": 12.7
+    "fftoday": 12.7,
+    "clay": 10.1
    },
    "bands": {
     "board_floor": 0.54,
@@ -10683,7 +10985,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 29.8,
-    "fftoday": 36.0
+    "fftoday": 36.0,
+    "clay": 29.8
    },
    "bands": {
     "board_floor": 26.12,
@@ -10838,7 +11141,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 24.3,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 24.3
    },
    "bands": {
     "board_floor": 0.88,
@@ -10869,7 +11173,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.8
    },
    "bands": {
     "board_floor": 0.88,
@@ -10962,7 +11267,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 32.8,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 32.8
    },
    "bands": {
     "board_floor": 0.86,
@@ -10993,7 +11299,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 35.3,
-    "fftoday": 29.4
+    "fftoday": 29.4,
+    "clay": 35.3
    },
    "bands": {
     "board_floor": 27.41,
@@ -11024,7 +11331,8 @@
     "draftsharks_consensus": null,
     "cbs": 80.7,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.9
    },
    "bands": {
     "board_floor": 0.89,
@@ -11055,7 +11363,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 3.6,
-    "fftoday": 13.4
+    "fftoday": 13.4,
+    "clay": 3.6
    },
    "bands": {
     "board_floor": 0.49,
@@ -11086,7 +11395,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 27.9,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 27.9
    },
    "bands": {
     "board_floor": 0.84,
@@ -11644,7 +11954,8 @@
     "draftsharks_consensus": 22.0,
     "cbs": null,
     "espn": 31.1,
-    "fftoday": 32.9
+    "fftoday": 32.9,
+    "clay": 31.1
    },
    "bands": {
     "board_floor": 22.28,
@@ -11675,7 +11986,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 33.9,
-    "fftoday": 30.7
+    "fftoday": 30.7,
+    "clay": 33.9
    },
    "bands": {
     "board_floor": 25.07,
@@ -11768,7 +12080,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 23.7,
-    "fftoday": 31.1
+    "fftoday": 31.1,
+    "clay": 23.7
    },
    "bands": {
     "board_floor": 24.08,
@@ -11799,7 +12112,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 17.8,
-    "fftoday": 33.0
+    "fftoday": 33.0,
+    "clay": 17.8
    },
    "bands": {
     "board_floor": 18.33,
@@ -11830,7 +12144,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 71.0,
-    "fftoday": 67.6
+    "fftoday": 67.6,
+    "clay": 71.0
    },
    "bands": {
     "board_floor": 0.7,
@@ -11861,7 +12176,8 @@
     "draftsharks_consensus": null,
     "cbs": 99.9,
     "espn": 23.0,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 23.0
    },
    "bands": {
     "board_floor": 0.44,
@@ -11954,7 +12270,8 @@
     "draftsharks_consensus": null,
     "cbs": 77.4,
     "espn": 35.0,
-    "fftoday": 34.4
+    "fftoday": 34.4,
+    "clay": 35.0
    },
    "bands": {
     "board_floor": 0.77,
@@ -11985,7 +12302,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 23.5,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 23.5
    },
    "bands": {
     "board_floor": 0.73,
@@ -12047,7 +12365,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 25.5,
-    "fftoday": 33.2
+    "fftoday": 33.2,
+    "clay": 25.5
    },
    "bands": {
     "board_floor": 18.72,
@@ -12078,7 +12397,8 @@
     "draftsharks_consensus": null,
     "cbs": 82.4,
     "espn": 5.4,
-    "fftoday": 12.0
+    "fftoday": 12.0,
+    "clay": 5.4
    },
    "bands": {
     "board_floor": 0.41,
@@ -12109,7 +12429,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 19.6,
-    "fftoday": 26.2
+    "fftoday": 26.2,
+    "clay": 19.6
    },
    "bands": {
     "board_floor": 19.55,
@@ -12140,7 +12461,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 30.6,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 30.6
    },
    "bands": {
     "board_floor": 0.7,
@@ -12171,7 +12493,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 35.4,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 35.4
    },
    "bands": {
     "board_floor": 0.7,
@@ -12202,7 +12525,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 17.3,
-    "fftoday": 31.1
+    "fftoday": 31.1,
+    "clay": 17.3
    },
    "bands": {
     "board_floor": 17.8,
@@ -12233,7 +12557,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 14.8,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 14.8
    },
    "bands": {
     "board_floor": 0.69,
@@ -12264,7 +12589,8 @@
     "draftsharks_consensus": 48.0,
     "cbs": 65.3,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 42.0
    },
    "bands": {
     "board_floor": 0.4,
@@ -12388,7 +12714,8 @@
     "draftsharks_consensus": 34.0,
     "cbs": null,
     "espn": 38.6,
-    "fftoday": 48.6
+    "fftoday": 48.6,
+    "clay": 38.6
    },
    "bands": {
     "board_floor": 0.39,
@@ -12419,7 +12746,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 16.7,
-    "fftoday": 48.1
+    "fftoday": 48.1,
+    "clay": 16.7
    },
    "bands": {
     "board_floor": 0.67,
@@ -12450,7 +12778,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 18.8,
-    "fftoday": 9.4
+    "fftoday": 9.4,
+    "clay": 18.8
    },
    "bands": {
     "board_floor": 0.38,
@@ -12481,7 +12810,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": 12.3
+    "fftoday": 12.3,
+    "clay": 5.7
    },
    "bands": {
     "board_floor": 0.67,
@@ -12512,7 +12842,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 11.3,
-    "fftoday": 25.4
+    "fftoday": 25.4,
+    "clay": 11.3
    },
    "bands": {
     "board_floor": 0.38,
@@ -12605,7 +12936,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 17.1,
-    "fftoday": 25.5
+    "fftoday": 25.5,
+    "clay": 17.1
    },
    "bands": {
     "board_floor": 17.47,
@@ -12667,7 +12999,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 21.8,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 21.8
    },
    "bands": {
     "board_floor": 0.63,
@@ -12822,7 +13155,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 25.5,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 25.5
    },
    "bands": {
     "board_floor": 0.53,
@@ -12915,7 +13249,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.4
    },
    "bands": {
     "board_floor": 0.59,
@@ -12946,7 +13281,8 @@
     "draftsharks_consensus": null,
     "cbs": 27.7,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.34,
@@ -12977,7 +13313,8 @@
     "draftsharks_consensus": null,
     "cbs": 89.8,
     "espn": null,
-    "fftoday": 22.7
+    "fftoday": 22.7,
+    "clay": 5.1
    },
    "bands": {
     "board_floor": 0.59,
@@ -13008,7 +13345,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 6.4,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 6.4
    },
    "bands": {
     "board_floor": 0.57,
@@ -13132,7 +13470,8 @@
     "draftsharks_consensus": null,
     "cbs": 54.5,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.3,
@@ -13163,7 +13502,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": 35.9
+    "fftoday": 35.9,
+    "clay": 34.1
    },
    "bands": {
     "board_floor": 0.24,
@@ -13473,7 +13813,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 43.3,
-    "fftoday": 55.1
+    "fftoday": 55.1,
+    "clay": 43.3
    },
    "bands": {
     "board_floor": 0.2,
@@ -13628,7 +13969,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 16.4
    },
    "bands": {
     "board_floor": 0.11,
@@ -13690,7 +14032,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 7.8,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 7.8
    },
    "bands": {
     "board_floor": 0.21,
@@ -13721,7 +14064,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.11,
@@ -13752,7 +14096,8 @@
     "draftsharks_consensus": null,
     "cbs": 71.2,
     "espn": 17.5,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 17.5
    },
    "bands": {
     "board_floor": 0.2,
@@ -13814,7 +14159,8 @@
     "draftsharks_consensus": null,
     "cbs": 31.6,
     "espn": 24.3,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 24.3
    },
    "bands": {
     "board_floor": 0.1,
@@ -14031,7 +14377,8 @@
     "draftsharks_consensus": 26.0,
     "cbs": null,
     "espn": 5.5,
-    "fftoday": 8.7
+    "fftoday": 8.7,
+    "clay": 12.1
    },
    "bands": {
     "board_floor": 0.08,
@@ -14093,7 +14440,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 7.0
    },
    "bands": {
     "board_floor": 0.16,
@@ -14155,7 +14503,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 2.4
    },
    "bands": {
     "board_floor": 0.15,
@@ -14217,7 +14566,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.07,
@@ -14341,7 +14691,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.3
    },
    "bands": {
     "board_floor": 0.14,
@@ -14527,7 +14878,8 @@
     "draftsharks_consensus": null,
     "cbs": 84.7,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 4.8
    },
    "bands": {
     "board_floor": 0.14,
@@ -14682,7 +15034,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.14,
@@ -14930,7 +15283,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 41.7,
-    "fftoday": 64.2
+    "fftoday": 64.2,
+    "clay": 41.7
    },
    "bands": {
     "board_floor": 0.1,
@@ -14961,7 +15315,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 1.2
    },
    "bands": {
     "board_floor": 0.1,
@@ -15023,7 +15378,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": 11.3,
-    "fftoday": 37.7
+    "fftoday": 37.7,
+    "clay": 11.3
    },
    "bands": {
     "board_floor": 0.1,
@@ -15054,7 +15410,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.1,
@@ -15085,7 +15442,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.1,
@@ -15147,7 +15505,8 @@
     "draftsharks_consensus": null,
     "cbs": 263.52,
     "espn": 135.24,
-    "fftoday": 169.96
+    "fftoday": 169.96,
+    "clay": 135.24
    },
    "bands": {
     "board_floor": 119.1,
@@ -15271,7 +15630,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 1.2
    },
    "bands": {
     "board_floor": 0.09,
@@ -15364,7 +15724,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 7.2
    },
    "bands": {
     "board_floor": 0.07,
@@ -15426,7 +15787,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.07,
@@ -15457,7 +15819,8 @@
     "draftsharks_consensus": null,
     "cbs": 86.2,
     "espn": 26.2,
-    "fftoday": 64.9
+    "fftoday": 64.9,
+    "clay": 26.2
    },
    "bands": {
     "board_floor": 0.07,
@@ -15581,7 +15944,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.04,
@@ -16294,7 +16658,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.03,
@@ -16325,7 +16690,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 2.7
    },
    "bands": {
     "board_floor": 0.02,
@@ -16387,7 +16753,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.02,
@@ -16418,7 +16785,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 0.0
    },
    "bands": {
     "board_floor": 0.01,
@@ -17472,7 +17840,8 @@
     "draftsharks_consensus": null,
     "cbs": null,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 5.5
    },
    "bands": {
     "board_floor": 0.0,
@@ -17534,7 +17903,8 @@
     "draftsharks_consensus": null,
     "cbs": 213.68,
     "espn": 142.7,
-    "fftoday": 152.7
+    "fftoday": 152.7,
+    "clay": 142.7
    },
    "bands": {
     "board_floor": 108.07,
@@ -17565,7 +17935,8 @@
     "draftsharks_consensus": null,
     "cbs": 46.16,
     "espn": 133.06,
-    "fftoday": 106.8
+    "fftoday": 106.8,
+    "clay": 133.06
    },
    "bands": {
     "board_floor": 0.88,
@@ -17596,7 +17967,8 @@
     "draftsharks_consensus": null,
     "cbs": 49.02,
     "espn": 113.24,
-    "fftoday": 140.12
+    "fftoday": 140.12,
+    "clay": 113.24
    },
    "bands": {
     "board_floor": 0.0,
@@ -17627,7 +17999,8 @@
     "draftsharks_consensus": null,
     "cbs": 11.34,
     "espn": 34.94,
-    "fftoday": 34.36
+    "fftoday": 34.36,
+    "clay": 34.94
    },
    "bands": {
     "board_floor": 0.0,
@@ -17658,7 +18031,8 @@
     "draftsharks_consensus": null,
     "cbs": 47.98,
     "espn": 52.38,
-    "fftoday": 60.46
+    "fftoday": 60.46,
+    "clay": 52.38
    },
    "bands": {
     "board_floor": 44.68,
@@ -17689,7 +18063,8 @@
     "draftsharks_consensus": null,
     "cbs": 12.02,
     "espn": 13.14,
-    "fftoday": 15.38
+    "fftoday": 15.38,
+    "clay": 13.14
    },
    "bands": {
     "board_floor": 0.0,
@@ -17720,7 +18095,8 @@
     "draftsharks_consensus": null,
     "cbs": 10.56,
     "espn": 10.7,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 10.7
    },
    "bands": {
     "board_floor": 0.0,
@@ -17999,7 +18375,8 @@
     "draftsharks_consensus": null,
     "cbs": 11.38,
     "espn": 48.36,
-    "fftoday": 17.24
+    "fftoday": 17.24,
+    "clay": 48.36
    },
    "bands": {
     "board_floor": 0.0,
@@ -18650,7 +19027,8 @@
     "draftsharks_consensus": null,
     "cbs": 13.62,
     "espn": null,
-    "fftoday": null
+    "fftoday": null,
+    "clay": 11.18
    },
    "bands": {
     "board_floor": 0.0,
@@ -21761,5 +22139,12 @@
     "draftsharks_injury_risk_pct": null
    }
   }
- ]
+ ],
+ "_amended": {
+  "date": "2026-08-20",
+  "added_source": "clay",
+  "players_given_a_clay_projection": 377,
+  "why": "Clay's guide landed 2026-08-20, one day after this snapshot was captured, and the season has not started. A preseason forecast we hold and do not freeze is precisely the loss `_why` describes.",
+  "what_was_NOT_done": "The snapshot was NOT regenerated. The board has moved since 2026-08-19 (register 139 ranking fix, register 140 band fix), so re-running projection_snapshot.py would have replaced every 08-19 forecast with an 08-20 one and destroyed what this file exists to preserve. Only additions were made; `_captured` is unchanged."
+ }
 }
