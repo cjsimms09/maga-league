@@ -50,7 +50,8 @@ const KDEF_TAX = process.argv.includes('--kdef-tax');
  * A curve taxes the POSITION COUNT; this taxes the DISPLACEMENT. No constants.
  * Flag-guarded: every shipped arm is byte-identical with the flag off. */
 const OBJECTIVE = process.argv.includes('--objective') || process.argv.includes('--objective-normal')
-  || process.argv.includes('--objective-look') || process.argv.includes('--objective-window');
+  || process.argv.includes('--objective-look') || process.argv.includes('--objective-window')
+  || process.argv.includes('--objective-points');
 /* MLV-LOOKAHEAD (prereg S8): charge each pick its COST OF WAITING —
  * marginal(c) minus the marginal of the best same-position man still on the
  * board at my NEXT pick, availability read from the fixed-opponent draft
@@ -61,12 +62,18 @@ const OBJ_LOOK = process.argv.includes('--objective-look');
  * recorded drafts ever took theirs — min over 30 owner-seasons, per position,
  * read from league history. Zero constants. Legality guard overrides. */
 const OBJ_WINDOW = process.argv.includes('--objective-window');
+/* UNITS TEST (prereg S11): identical cap arm, lineupValue computed on the
+ * empirical pick->realized-points curve instead of linear rank. The curve is
+ * fit LEAVE-ONE-SEASON-OUT so no replay ever sees its own season's outcomes;
+ * bucketed by round (15 picks, the draft's own unit), bucket means, monotone
+ * non-increasing enforced, linear interpolation between bucket centers. */
+const OBJ_POINTS = process.argv.includes('--objective-points');
 /* Cory, 2026-08-19: "goal is to draft best team while fielding a normal
  * roster!!!" — the normal-roster variant adds K<=1, DEF<=1 as a SHAPE
  * CONSTRAINT from his words (a second onesie is an upgrade the no-injury
  * objective buys because bench is worth zero; a normal roster does not carry
  * one). Constraint from the brief, not a constant fitted to a grade. */
-const OBJ_NORMAL = process.argv.includes('--objective-normal') || OBJ_LOOK || OBJ_WINDOW;
+const OBJ_NORMAL = process.argv.includes('--objective-normal') || OBJ_LOOK || OBJ_WINDOW || OBJ_POINTS;
 const KDEF_MODE = process.argv.includes('--kdef-supply');
 let deadlineFired = 0;   // C1: the deadline must be SEEN firing
 
@@ -258,9 +265,9 @@ function gradeSeason(season, roster) {
 /* market value of a HELD man: his own draft slot, era-correct, no hindsight.
  * Same units as valueOf below, so the marginal nets candidate against the man
  * he displaces on one scale. */
-function marketValueMap(picks, N) {
+function marketValueMap(picks, N, curve) {
   const mv = {};
-  picks.forEach(p => { mv[String(p.player_id)] = (N + 1) - p.pick_no; });
+  picks.forEach(p => { mv[String(p.player_id)] = curve ? curve(p.pick_no) : (N + 1) - p.pick_no; });
   return mv;
 }
 
@@ -307,7 +314,7 @@ function buildSeat(season, draft, seatId, rosterOn) {
   /* value = the market's own order. Era-correct, no hindsight, and the same
    * information the owner had. */
   const valueOf = p => (N + 1) - p.pick_no;
-  const MV = OBJECTIVE ? marketValueMap(picks, N) : null;
+  const MV = OBJECTIVE ? marketValueMap(picks, N, OBJ_POINTS ? CURVES[String(season.season)] : null) : null;
   const myPickIdxs = picks.map((p, i) => (p.roster_id === seatId && !p.is_keeper) ? i : -1)
     .filter(i => i >= 0);
   const mine = [], held = {};
@@ -412,6 +419,65 @@ const ownerRoster = (draft, seatId) => (draft.picks || [])
   .filter(p => p.roster_id === seatId).map(p => p.player_id);
 
 initWindows();
+
+/* ── LOO pick->points curves for the units test (prereg S11) ─────────────────
+ * curveFor(seasonKey) returns f(pick_no) fit on the OTHER seasons' realized
+ * totals. Realized total = the season's own weekly points, summed weeks 1-17. */
+const CURVES = {};
+function seasonTotals(season) {
+  const tot = {};
+  Object.entries(season.weeks || {}).forEach(([wn, arr]) => {
+    const w = +wn;
+    if (w < 1 || w > 17 || !Array.isArray(arr)) return;
+    const seen = new Set();
+    arr.forEach(m => Object.entries(m.players_points || {}).forEach(([id, v]) => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      tot[id] = (tot[id] || 0) + v;
+    }));
+  });
+  return tot;
+}
+function buildCurves() {
+  if (!OBJ_POINTS) return;
+  const seasons = Array.isArray(H.seasons) ? H.seasons : Object.values(H.seasons);
+  const usable = seasons.filter(sn => sn.weeks && (sn.drafts || []).some(d => (d.picks || []).length >= 100));
+  usable.forEach(target => {
+    const pts = [];                                   // [pick_no, realized] from OTHER seasons
+    usable.forEach(src => {
+      if (String(src.season) === String(target.season)) return;   // LOO — the leak rule
+      const draft = (src.drafts || []).find(d => (d.picks || []).length >= 100);
+      const tot = seasonTotals(src);
+      draft.picks.forEach(pk => {
+        const v = tot[String(pk.player_id)];
+        if (v != null) pts.push([pk.pick_no, v]);
+      });
+    });
+    const BUCKET = 15;                                // one round — the draft's own unit
+    const sums = {}, ns = {};
+    pts.forEach(([p, v]) => {
+      const b = Math.floor((p - 1) / BUCKET);
+      sums[b] = (sums[b] || 0) + v; ns[b] = (ns[b] || 0) + 1;
+    });
+    const bs = Object.keys(sums).map(Number).sort((a, b) => a - b);
+    const centers = bs.map(b => b * BUCKET + (BUCKET + 1) / 2);
+    let means = bs.map(b => sums[b] / ns[b]);
+    for (let i = 1; i < means.length; i++)            // monotone non-increasing
+      if (means[i] > means[i - 1]) means[i] = means[i - 1];
+    CURVES[String(target.season)] = pick => {
+      if (pick <= centers[0]) return means[0];
+      for (let i = 1; i < centers.length; i++) {
+        if (pick <= centers[i]) {
+          const t = (pick - centers[i - 1]) / (centers[i] - centers[i - 1]);
+          return means[i - 1] + t * (means[i] - means[i - 1]);
+        }
+      }
+      return means[means.length - 1];
+    };
+  });
+  if (!Object.keys(CURVES).length) throw new Error('units test: no LOO curves — refusing');
+}
+buildCurves();
 /* ── run ──────────────────────────────────────────────────────────────────── */
 const seats = [];
 Object.values(H.seasons).forEach(season => {

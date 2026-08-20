@@ -291,3 +291,22 @@ change within noise (actual within [+10, +82], the rank arm's bootstrap CI)?
   are not; live wiring proceeds with wide error bars, said out loud.
 - **Fails the bar** → MLV is a rank-space artifact; it must not touch the
   live board, and that verdict is filed like the rest.
+
+**§11 GRADED, SAME DAY: OUTCOME 1 — THE UNITS RISK IS RETIRED, WITH THE
+ENGAGEMENT PROOF ATTACHED.** The points-units arm grades **identically to the
+decimal**: actual +45.8 (20/30), skill +29.3 (18/30), 30/30 legal, same shape,
+same first-K. Per A's own lesson ("the byte-identity was itself the tell"),
+the identity was treated as a bug report until a probe proved the curve
+engages: under the flag, pick 1 prices at **198.5 pts** and pick 101 at
+**110.8** — a genuinely different, concave, LOO-fit scale — and the mechanism
+still makes the SAME 360 choices across all 30 seat-years. **MLV's picks are
+invariant to the rank→points transform.** The displacement comparisons that
+drive it survive a monotone re-scaling of the board, which is exactly what §9
+limit 4 feared they would not.
+
+Residual caveat, stated: the live board's projections are not a monotone
+function of ADP (players deviate from market order), so live behavior can
+still differ through the EVALUATION channel. But that is the harness's
+designed separation — it tests construction, not evaluation — and the
+construction rule is now shown units-robust. The cap arm is fit for A's
+live-board wiring on that axis.
