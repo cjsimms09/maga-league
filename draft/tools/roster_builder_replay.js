@@ -322,6 +322,11 @@ const MLV_DEPTH = process.argv.includes('--mlv-depth');
  * never while I still owe a starter there, or the rule locks a patient
  * drafter out of TE1 by everyone else's fourteen. */
 const POS_CAP = process.argv.includes('--pos-cap');
+/* §17 (P152): CORY'S ENSEMBLE VOTE — seven committed strategies share one
+ * roster; each names its candidate; plurality drafts. Tallies are written so
+ * a costume-sweep (7/7 on every pick) is declared, not discovered. */
+const VOTE = process.argv.includes('--vote');
+const VOTE_TALLIES = [];
 let depthControlPrinted = false;
 function draftedDepthLOO(targetSeason) {
   const counts = {};   // pos -> [count per other season]
@@ -568,6 +573,44 @@ function buildSeat(season, draft, seatId, rosterOn) {
     const curve = curveFor(season.season);
     valueOf = p => curve(p.pick_no);
   }
+  /* ── §17 vote-mode per-seat setup: the seven strategies' ingredients ── */
+  let voteCtx = null;
+  if (VOTE) {
+    const N2 = picks.length;
+    const rawVal = p => (N2 + 1) - p.pick_no;
+    /* persistence shrink means (the SHRINK block's own construction) */
+    const byPos = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (q) (byPos[q] || (byPos[q] = [])).push(rawVal(p));
+    });
+    const posMean = {};
+    Object.entries(byPos).forEach(([q, v]) => { posMean[q] = v.reduce((a, b) => a + b, 0) / v.length; });
+    /* depth-discount replacement (the MLV_DEPTH block's own construction) */
+    const D = draftedDepthLOO(season.season);
+    const seen = {}, repl = {};
+    picks.forEach(p => {
+      const q = posOf(p.player_id);
+      if (!q) return;
+      const r = (seen[q] = (seen[q] || 0) + 1);
+      if (r === D[q]) repl[q] = rawVal(p);
+    });
+    POS.forEach(q => { if (repl[q] == null) repl[q] = 0; });
+    /* the three shipped-curve variants */
+    const W_TEB = Object.assign({}, W, { TE: [1.00, 0.50, 0] });
+    const W_RBM = Object.assign({}, W, { RB: (MNC.curve.RB || []).filter(v => v != null) });
+    const prob = (Wset, q, heldN, kdefSupplyShort) => {
+      const row = Wset[q];
+      if (!row) return 0;
+      const base = heldN < row.length ? row[heldN] : 0;
+      if (kdefSupplyShort != null && (q === 'K' || q === 'DEF')) {
+        return kdefSupplyShort ? base : base * (1 - (STREAM[q] || 0));
+      }
+      if (heldN < (S_EFF[q] || 0)) return base;
+      return base * (1 - (STREAM[q] || 0));
+    };
+    voteCtx = { rawVal, posMean, repl, W_TEB, W_RBM, prob, valsRank: {}, valsDepth: {} };
+  }
   /* mineAt[i] = the pick_no of MY OWN SLOT that produced mine[i]. Not the slot
    * the player was really drafted at — the question is when I spent a pick. */
   const mine = [], mineAt = [], held = {}, mineVals = {};
@@ -593,7 +636,91 @@ function buildSeat(season, draft, seatId, rosterOn) {
     if (pk.is_keeper) {                       // keepers stay as recorded (C4)
       mine.push(pk.player_id); mineAt.push(pk.pick_no);
       const q = posOf(pk.player_id);
-      if (q) { held[q] = (held[q] || 0) + 1; (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk)); }
+      if (q) {
+        held[q] = (held[q] || 0) + 1;
+        (mineVals[q] || (mineVals[q] = [])).push(valueOf(pk));
+        if (voteCtx) {
+          (voteCtx.valsRank[q] || (voteCtx.valsRank[q] = [])).push(voteCtx.rawVal(pk));
+          (voteCtx.valsDepth[q] || (voteCtx.valsDepth[q] = []))
+            .push(Math.max(0, voteCtx.rawVal(pk) - (voteCtx.repl[q] || 0)));
+        }
+      }
+      return;
+    }
+    if (VOTE) {
+      const vc = voteCtx;
+      /* strategy 5's supply deadline, the KDEF_MODE construction verbatim */
+      const shortOf = {};
+      ['K', 'DEF'].forEach(z => {
+        const myNext = picks.findIndex((c2, k2) => k2 > idx && c2.roster_id === seatId);
+        const horizon = myNext < 0 ? N : myNext;
+        let left = 0;
+        for (let k2 = idx; k2 < horizon; k2++) {
+          const c2 = picks[k2];
+          if (c2.is_keeper || isGone(c2.player_id)) continue;
+          if (posOf(c2.player_id) === z) left++;
+        }
+        shortOf[z] = left < 1;
+      });
+      const best = Array.from({ length: 7 }, () => ({ v: -Infinity, c: null }));
+      const baseRank = {}, baseDepth = {};
+      POS.forEach(z => {
+        baseRank[z] = (vc.valsRank[z] || []).slice();
+        baseDepth[z] = (vc.valsDepth[z] || []).slice();
+      });
+      const Lrank = lineupValueOf(baseRank), Ldepth = lineupValueOf(baseDepth);
+      for (let j = idx; j < N; j++) {
+        const c = picks[j];
+        if (c.is_keeper || isGone(c.player_id)) continue;
+        const q = posOf(c.player_id);
+        if (!q) continue;
+        const vR = vc.rawVal(c);
+        const m = vc.posMean[q];
+        const vS = m == null ? vR : m + (PERSIST[q] != null ? PERSIST[q] : 1) * (vR - m);
+        const vD = Math.max(0, vR - (vc.repl[q] || 0));
+        const h = held[q] || 0;
+        const scores = [
+          vR * vc.prob(W, q, h, null),                                           // 1 shipped
+          null,                                                                  // 2 MLV-cap
+          null,                                                                  // 3 MLV-depth
+          vS * vc.prob(W, q, h, null),                                           // 4 persistence
+          vR * vc.prob(W, q, h, (q === 'K' || q === 'DEF') ? shortOf[q] : null), // 5 kdef-supply
+          vR * vc.prob(vc.W_TEB, q, h, null),                                    // 6 te-boost
+          vR * vc.prob(vc.W_RBM, q, h, null),                                    // 7 rb-measured
+        ];
+        if (!((q === 'K' || q === 'DEF') && h >= 1)) {
+          baseRank[q].push(vR);
+          scores[1] = lineupValueOf(baseRank) - Lrank;
+          baseRank[q].pop();
+          baseDepth[q].push(vD);
+          scores[2] = lineupValueOf(baseDepth) - Ldepth;
+          baseDepth[q].pop();
+        }
+        for (let s = 0; s < 7; s++) {
+          if (scores[s] != null && scores[s] > best[s].v) best[s] = { v: scores[s], c: c };
+        }
+      }
+      const tally = new Map();
+      best.forEach(b => { if (b.c) tally.set(b.c.player_id, (tally.get(b.c.player_id) || 0) + 1); });
+      let win = null, winN = -1;
+      tally.forEach((n, id) => {
+        const cand = best.find(b => b.c && b.c.player_id === id).c;
+        if (n > winN || (n === winN && win && cand.pick_no < win.pick_no)) { win = cand; winN = n; }
+      });
+      if (!win) return;
+      VOTE_TALLIES.push({ season: season.season, seat: seatId, my_pick: pk.pick_no,
+        winner: String(win.player_id), votes: winN,
+        split: [...tally.entries()].map(([id, n]) => id + ':' + n).join(' ') });
+      takenByMe.add(win.player_id);
+      mine.push(win.player_id); mineAt.push(pk.pick_no);
+      const wq = posOf(win.player_id);
+      if (wq) {
+        held[wq] = (held[wq] || 0) + 1;
+        (mineVals[wq] || (mineVals[wq] = [])).push(valueOf(win));
+        (vc.valsRank[wq] || (vc.valsRank[wq] = [])).push(vc.rawVal(win));
+        (vc.valsDepth[wq] || (vc.valsDepth[wq] = []))
+          .push(Math.max(0, vc.rawVal(win) - (vc.repl[wq] || 0)));
+      }
       return;
     }
     /* the board as it stood: everything not yet taken by the real draft, minus
@@ -875,6 +1002,13 @@ const doc = {
   },
   seats,
 };
+if (VOTE) {
+  const sweep = VOTE_TALLIES.filter(t => t.votes === 7).length;
+  console.error('[vote] ' + VOTE_TALLIES.length + ' picks; unanimous 7/7 on '
+    + sweep + ' (' + Math.round(100 * sweep / VOTE_TALLIES.length) + '%) — a 100% sweep would mean the voters are costumes');
+  fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'vote_tallies.json'),
+    JSON.stringify({ prereg: 'MLV-OBJECTIVE-PREREG §17 (P152)', tallies: VOTE_TALLIES }, null, 1));
+}
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'roster_builder_replay.json'), JSON.stringify(doc, null, 1));
 
 console.log('DOES THE ROSTER EQUATION BEAT THE HUMANS?\n');
