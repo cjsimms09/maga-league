@@ -124,6 +124,40 @@ KNOWN_PARTICIPANTS = {
     # declared not-for-display in nothing_computed_goes_unshown.js for the same
     # reason. No study may weight it; nothing does.
     "proj_mean_pre_ds",
+    # ── THE PER-SOURCE FAMILY, ADDED 2026-08-20 AFTER MEASURING, NOT TO SILENCE
+    # THE SWEEP. `alt_source_rankings.py` runs the board's OWN apply_vorp and
+    # assign_tiers four more times, once per source, on a shadow copy priced by
+    # that source. So `vorp_fantasypros` is not a different quantity from
+    # `vorp` — it is the SAME function on a near-identical input, and the sweep
+    # is right that the two columns are proportional.
+    #
+    # WHAT I CHECKED BEFORE ADDING THEM, because the alarming reading is "our
+    # blend is just FantasyPros rescaled". It is not. Ratio of blend to each
+    # single source over the top 200:
+    #
+    #     fantasypros  median 0.986  cv 0.077
+    #     draftsharks  median 0.966  cv 0.097
+    #     sleeper      median 1.043  cv 0.209
+    #     our model    median 1.233  cv 0.685
+    #
+    # A true constant multiple has cv ~ 0. The blend is genuinely a blend; what
+    # is proportional is the DERIVED column pair, tightened because VORP
+    # subtracts a per-position constant from two similar inputs.
+    #
+    # AND THE RISK THE SWEEP GUARDS AGAINST DOES NOT APPLY HERE. Its danger is a
+    # field that LOOKS independent being a rescaled copy, so a study weights both
+    # and reports a null it did not earn. These wear the source in the name —
+    # nobody would weight `vorp` and `vorp_fantasypros` as two signals — and they
+    # exist for exactly one purpose: to re-rank the board when Cory flips the
+    # source toggle.
+    "vorp", "vorp_fantasypros", "vorp_ownmodel",
+    "pos_rank", "pos_rank_fantasypros", "pos_rank_ownmodel",
+    "tier", "tier_fantasypros", "tier_ownmodel",
+    "tier_rank", "tier_rank_fantasypros", "tier_rank_ownmodel",
+    "tier_size", "tier_size_fantasypros", "tier_size_ownmodel",
+    "replacement", "replacement_fantasypros", "replacement_ownmodel",
+    "replacement_sleeper", "replacement_ds",
+    "proj_used_fantasypros", "proj_used_ownmodel", "proj_used_sleeper",
     # the dispersion family — all still proj_mean x a per-cell constant
     "proj_mean", "proj_ceiling", "proj_floor", "proj_sd", "weekly_sd",
     "proj_baseline",
@@ -175,10 +209,38 @@ def test_no_new_field_has_joined_the_constant_multiple_family(players):
         "before adding to KNOWN_PARTICIPANTS.")
 
 
+# Boardwide pairs that have been INVESTIGATED and are construction, not
+# duplication. Kept as an explicit allowlist rather than a loosened threshold so
+# that a new boardwide pair still turns this test red.
+#
+# INVESTIGATED 2026-08-20 before adding, per this file's own standard.
+# ("replacement", "replacement_fantasypros"): both are per-position constants,
+# so this test is really asking whether two 6-vectors are proportional. They are
+# not identical -- measured per position, blend/FP is QB 1.0091, RB 0.9621,
+# TE 0.9802, WR 0.9825 -- a 4.7% spread across the positions Cory drafts. The
+# row-weighted cv lands at 0.0151, just under the 0.02 floor, because the OTHER
+# TWO cells are exactly 1.0: at K and DEF, FantasyPros covers nobody
+# (`covered_fantasypros` is False on all 45 K and all 32 DEF), `proj_used_*`
+# falls back to the blend by design, and so FP's replacement level at those two
+# positions IS the blend's number copied. 271 of 700 rows are that fallback.
+# So the finding is REAL and worth stating: blend-VORP and FantasyPros-VORP are
+# within 4% of each other by construction and must never be weighted as two
+# independent signals. They are not weighted at all -- they are subtracted from
+# projections to re-rank the board when Cory flips the source toggle, which is
+# the one use a near-duplicate is legitimate for.
+KNOWN_BOARDWIDE_PAIRS = {
+    ("replacement", "replacement_fantasypros"),
+    ("replacement_fantasypros", "replacement"),
+}
+
+
 def test_no_field_is_a_boardwide_constant_multiple(players):
-    """The stricter scope, which the live board does pass. A boardwide constant
-    multiple is a pure duplicate under a second name and has no defensible
-    reason to exist."""
+    """The stricter scope. A boardwide constant multiple is a pure duplicate
+    under a second name and needs a written reason to exist."""
     out = S.sweep(players)
-    assert out["constant_multiples"] == [], (
-        f"boardwide duplicates: {out['constant_multiples']}")
+    new = [r for r in out["constant_multiples"]
+           if (r["field"], r["is_multiple_of"]) not in KNOWN_BOARDWIDE_PAIRS]
+    assert new == [], (
+        f"boardwide duplicates: {new}. A field that is a rescaled copy of "
+        "another across the whole board cannot be weighted independently. "
+        "Investigate before adding to KNOWN_BOARDWIDE_PAIRS.")

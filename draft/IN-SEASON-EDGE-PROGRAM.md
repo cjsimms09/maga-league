@@ -127,3 +127,21 @@ Cadence: **capture (C) → project (D) → decide (tools) → capture the decisi
 not.** The two 2027-goal bars stay the north star: beat Sleeper AND FP on
 start/sit at 3 of 4 positions (first grade 09-15); predict opponents better
 than persistence (P144).
+
+## THE EDGE AXES — Cory's list (08-20), each with its program and owner
+
+*"the goal is to gain edge based on skill and the things we can control"* —
+every axis Cory named, mapped to what exists. An axis with no live P-row by
+09-15 is a gap the relay files loudly.
+
+| axis (Cory's word) | live program / row | owner |
+|---|---|---|
+| roster building | bench-option objective (graded, plateau); P282 in-season transfer | D |
+| point projections | blend program, first grade 09-15 vs Sleeper+FP | D |
+| ceilings | CEILING-PROGRAM prereg; P151 target-share signal (08-28) | D |
+| floors | band family + reference doctrine (floor = starter instrument); floor-rank surface week-1 | A/B |
+| volatility | P113 cross-source disagreement vs band constant (2027 grade); weekly variance re-fit | D |
+| opportunity | snap counts + target share captures; C4 RB features; QB-context repricing | C+D |
+| vegas vetting | odds capture + game-script row (A+D, Cory-direct) | A+D |
+| team odds | champodds (shipped); weekly re-grade joins the Tuesday screen | D |
+| pace of play | GRADED NULL (P3/P4 died preregistered) — reopens ONLY with a new mechanism claim, not a re-run | — |

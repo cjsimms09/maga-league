@@ -66,14 +66,28 @@ const base = f => JSON.parse(fs.readFileSync(
 // moved v1 -> v27 (today's verified freeze, playoff-free inputs, deploy-probe
 // green, BOTH rulings carried), the localStorage key rotates with the pin, and
 // these checks now hold the ruled state instead of the trap.
+/* ⚠️ THIS TEST NAMED A VERSION AND WENT STALE TWICE. It pinned `v27` in three
+ * places; main moved to v29 and then v30, and the suite was RED ON MAIN before
+ * anyone noticed — so the guard against a stale pin was itself stale, which is
+ * the worst version of this failure because it looks like coverage.
+ *
+ * Register 5g has now happened THREE times (v1 -> v27 for the ceiling ruling,
+ * v27 -> v29 for ROSTER_SHAPE, v29 -> v30 for Cory's need ruling). Three is a
+ * property of the two-step — freeze, then pin — not three separate lapses. So
+ * this file no longer asserts WHICH version is pinned. It asserts the invariant
+ * that actually matters and that no future freeze can outrun:
+ *
+ *     the pinned baseline's MEASURED_WEIGHTS === the shipped MEASURED_WEIGHTS
+ *
+ * A freeze that forgets the pin now fails the build on the commit that causes
+ * it, instead of waiting for a human to catch it before draft night. */
 {
   const m = APP.match(/const BASELINE_VERSION = '(v\d+)'/);
-  ck('the client pins a NAMED baseline version by ruling (not v1, not "newest")',
-    !!m && m[1] === 'v27' && !/api\/baseline\?version=v1/.test(APP),
-    m && m[1]);
+  ck('the client pins a NAMED baseline version (not v1, not "newest")',
+    !!m && m[1] !== 'v1' && !/api\/baseline\?version=v1/.test(APP), m && m[1]);
 
-  ck('...and the localStorage key rotates with the pin, so a cached v1 cannot '
-    + 'shadow the ruled reference',
+  ck('...and the localStorage key rotates with the pin, so a cached older '
+    + 'baseline cannot shadow the ruled reference',
   /const BASELINE_KEY = 'mfga\.draft\.baseline\.' \+ BASELINE_VERSION/.test(APP));
 
   const v1 = base('v1.json');
@@ -83,43 +97,57 @@ const base = f => JSON.parse(fs.readFileSync(
     && v1.engine_policy.MEASURED_WEIGHTS.ceiling === 0
     && v1.engine_policy.MEASURED_WEIGHTS.stack === 0.5
     && /^2026-08-10/.test(v1.frozen_at || ''), v1.frozen_at);
-}
 
-// ── 2. THE DIFF IS CLOSED. RESTORING IS NOW A NO-OP AGAINST THE RULINGS. ───
-{
-  const restored = base('v27.json').engine_policy.MEASURED_WEIGHTS;
+  // ── THE INVARIANT. Derived from whatever the client actually pins. ──────
+  const pinned = m ? m[1] : null;
+  const file = pinned ? pinned + '.json' : null;
+  ck('CONTROL: the pinned baseline file exists — a pin naming a missing '
+    + 'version would fail the checks below for the wrong reason',
+  !!file && fs.existsSync(path.join(ROOT, 'draft', 'baseline', file)), file);
+
+  const restored = file && fs.existsSync(path.join(ROOT, 'draft', 'baseline', file))
+    ? (base(file).engine_policy || {}).MEASURED_WEIGHTS : null;
   const live = E.MEASURED_WEIGHTS;
+  const changed = restored
+    ? Object.keys(Object.assign({}, live, restored)).filter(k => live[k] !== restored[k])
+    : ['<no pinned baseline>'];
 
-  ck('the ruled pin carries CORY\'S CEILING RULING — restore no longer reverts it',
-    live.ceiling === 0.45 && restored.ceiling === 0.45,
-    { live: live.ceiling, restored: restored.ceiling });
+  ck('RESTORE IS A NO-OP: every shipped weight equals the pinned baseline\'s, '
+    + 'so one tap cannot silently revert a ruling. A freeze that forgets to '
+    + 'move the pin fails HERE, on the commit that causes it.',
+  changed.length === 0,
+  { pinned: pinned, differing: changed,
+    live: changed.map(k => k + '=' + live[k]),
+    baseline: restored ? changed.map(k => k + '=' + restored[k]) : null });
 
-  ck('and the D10 STACK ruling',
-    live.stack === 1 && restored.stack === 1,
-    { live: live.stack, restored: restored.stack });
+  /* ⚠️ THIS PINNED ceiling === 0.45, WHICH CORY RULED OFF ON 2026-08-20
+   * ("switch it off, its so arbitrary"). The 0.45 was measured on 08-17
+   * against the ceilings live that day; Draft Sharks became the ceiling source
+   * on 08-19, so the weight had been multiplying an input its runs never saw.
+   *
+   * The invariant this file exists for is unchanged and is asserted directly
+   * above: the pinned baseline equals the shipped vector. What is dropped is
+   * the LITERAL — pinning a specific value here made this file a second place
+   * a weight ruling has to be remembered, which is the same shape as the
+   * version literal it already had to give up. Each ruling is now checked as
+   * "shipped and baseline agree", and the ruling's own record lives in
+   * engine.js's WEIGHT_PROVENANCE where a reader will look for it. */
+  ck('...and the ceiling weight, whatever Cory has most recently ruled it to be',
+    restored && live.ceiling === restored.ceiling,
+    { live: live.ceiling, baseline: restored && restored.ceiling });
+  ck('...the D10 STACK ruling', live.stack === 1
+    && restored && restored.stack === 1, { live: live.stack });
+  ck('...and Cory\'s 2026-08-20 NEED ruling, the one this pin last outran',
+    live.need === 1.0 && restored && restored.need === 1.0,
+    { live: live.need, baseline: restored && restored.need });
 
-  /* FAIL ARM, inverted from the original DEFECT check: if live policy ever
-   * moves ahead of the pin on these two ruled weights again, this goes red —
-   * which is the next A ruling asking to be made, not a test to relax. */
-  const changed = Object.keys(Object.assign({}, live, restored))
-    .filter(k => live[k] !== restored[k]);
-  ck('no live weight differs from the ruled pin — one tap is one no-op today',
-    changed.length === 0, changed);
-}
-
-// ── 3. FRESHER BASELINES EXIST AND ARE NOT USED ────────────────────────────
-{
-  const newer = ['v25.json', 'v26.json', 'v27.json']
-    .filter(f => fs.existsSync(path.join(ROOT, 'draft', 'baseline', f)));
-  ck('CONTROL: newer baselines exist, so this is a stale PIN and not an '
-    + 'un-refrozen artifact', newer.length >= 1, newer);
-
-  const agree = newer.filter(f => {
-    const w = (base(f).engine_policy || {}).MEASURED_WEIGHTS;
-    return w && w.ceiling === E.MEASURED_WEIGHTS.ceiling;
-  });
-  ck('...and they already carry the ruling the pinned one reverts',
-    agree.length === newer.length, { newer: newer.length, agreeing: agree.length });
+  /* KNOWN NEGATIVE: v1 must FAIL the same invariant, or the check above passes
+   * on any baseline and proves nothing. */
+  const v1w = (v1.engine_policy || {}).MEASURED_WEIGHTS || {};
+  const v1changed = Object.keys(Object.assign({}, live, v1w)).filter(k => live[k] !== v1w[k]);
+  ck('KNOWN NEGATIVE: the ORIGINAL v1 pin still fails this invariant — so the '
+    + 'check is a real comparison and not one that passes on anything',
+  v1changed.length > 0, v1changed);
 }
 
 // ── 4. WHAT THE USER IS TOLD ───────────────────────────────────────────────

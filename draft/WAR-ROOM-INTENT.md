@@ -73,10 +73,34 @@ report a level offset as disagreement.** Compare on **rank** (overall or
 positional) — scale-free, and "is he WR13 or WR55" is the question anyway.
 
 **And weight disagreement by how often each source dissents.** Measured on the
-live board: our model is the lone dissenter on **63 of 83** cases (29.6% of
-judged players); Draft Sharks on **3** (1.4%). "Our model disagrees" is
-therefore nearly uninformative and "Draft Sharks disagrees" is worth reading. A
-flag that fires on a third of the board is decoration.
+⚠️ **THE FIGURES THIS PARAGRAPH USED TO CARRY WERE INTERNALLY INCONSISTENT, AND
+THE CONCLUSION DRAWN FROM THEM DOES NOT SURVIVE (A, 2026-08-20).** It read: *"our
+model is the lone dissenter on **63 of 83** cases (29.6% of judged players);
+Draft Sharks on **3** (1.4%)"* — but 63/83 is **75.9%**, not 29.6%, and 3/83 is
+**3.6%**, not 1.4%. The fraction and the percentage disagree with each other in
+the same sentence, so at least one of them is over a population that is not the
+one named. I wrote it, and B is designing a surface from it.
+
+**Re-measured over `draftable_scope.focus` (top 200), counting only players a
+source actually COVERS** — an uncovered player's rank is inherited from the
+blend, so counting it makes every source look unanimous:
+
+| source | lone-dissent rate |
+|---|---|
+| Our model | **6.1%** |
+| Sleeper | 1.7% |
+| Draft Sharks | 1.2% |
+| FantasyPros | 0.0% |
+
+**So "our model disagrees" is NOT nearly uninformative — at 6% it is one of the
+rarer dissents on the board, and the old paragraph told a reader to discount
+exactly the signal worth reading.** The rule the paragraph states is still
+right: a flag that fires on a third of the board is decoration. The numbers it
+rested on were not.
+
+**AND THE RATE IS NO LONGER QUOTED ANYWHERE.** `draft/tools/who_do_the_sources_like.js`
+computes it on the live board at run time and prints it beside each dissent, so
+this table cannot decay the way the one above it did.
 
 *(A standalone panel for this was built and removed the same day at Cory's
 instruction — "takes up way too much room". The lesson is placement, not
