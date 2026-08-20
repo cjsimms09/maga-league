@@ -174,7 +174,7 @@ the register: five of six premises handed to session D on 08-17 were wrong, and
 this is the file every session reads first.
 
 
-**⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** A is the
+**⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** **RULE 1c added 08-20 (Cory's order, after six research artifacts sat invisible on a branch while ROUTES rows pointed at them): the relay's research artifacts — preregs, program/policy docs, audit briefs, ledger rows, report-only instruments — publish STRAIGHT TO `main` like mailboxes, via `draft/tools/relay_publish.sh`. Every pointer in ROUTES now resolves on `main`; if one does not, that is a defect, file it.** A is the
 gatekeeper and the only one who merges to `main`; B, C and the relay feed A.
 Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so
 silence is consent to the default and nobody idles waiting. A can reply
