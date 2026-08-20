@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 164,
+ "next_numeric_id": 168,
  "history": [
   {
    "id": 47,
@@ -304,6 +304,36 @@
    "id": 163,
    "claimed_at": "2026-08-20",
    "note": "D: relay_publish.sh's paid-reviewer guard false positive, already FIXED (was 155 pre-renumber)"
+  },
+  {
+   "id": "155/156/157 (main, unmerged) reconciled against D's own canonical 155/156/157",
+   "claimed_at": "2026-08-20",
+   "note": "A fresh origin/main pull (16 commits) landed three more new rows at ids 155/156/157 in main's own numbering: relay_publish.sh's insert-never-overwrite silently refusing a grade update, a rookie draft-capital UDFA mislabel in C's own ceiling-program store (FIXED same day), and this same roster_state.py-never-reaches-main finding restated (already canonical here at 155). The two non-duplicate rows renumbered to 164/165; the roster_state.py restatement dropped as an exact duplicate of the already-present 155. Watermark now authoritative from 166."
+  },
+  {
+   "id": 164,
+   "claimed_at": "2026-08-20",
+   "note": "relay: relay_publish.sh cannot carry a grade update to an existing ledger row -- insert-never-overwrite refused P153-P156's grades silently, grafted to main by hand as a stopgap (was 155 pre-renumber on main's side)"
+  },
+  {
+   "id": 165,
+   "claimed_at": "2026-08-20",
+   "note": "C: the ceiling-program store (player_bio_capital.json) mislabeled the entire 2026 rookie class as UDFA -- Rule 3e's own coverage-only control passed at 100% while it shipped, FIXED same day (was 157 pre-renumber on main's side)"
+  },
+  {
+   "id": "159/160 (main, unmerged) silently duplicated against D's own canonical 159/160",
+   "claimed_at": "2026-08-20",
+   "note": "The same fresh origin/main pull auto-merged two more main-side rows onto D's already-claimed ids 159 and 160 with no conflict markers at all -- git's line-based merge placed them elsewhere in the table, so this collision was found only by re-reading the file, not by the merge tool. E's position-boards-panel-shows-drafted-players finding landed at 159, and E's MEASURED_WEIGHTS.need=0 VBD finding landed at 160. Both renumbered to 166/167 to keep D's canonical 159 (proj_sd stratification) and 160 (alt_source_rankings) intact. Watermark now authoritative from 168."
+  },
+  {
+   "id": 166,
+   "claimed_at": "2026-08-20",
+   "note": "E: Cory live mid-mock, board still showing gone players -- NOT a Sleeper sync error, the position-boards panel renders a static offline ADP-drain simulation with no live drafted-filter; FIXED same day, 3421368e (was 159 pre-renumber on main's side)"
+  },
+  {
+   "id": 167,
+   "claimed_at": "2026-08-20",
+   "note": "E: Cory's reference article (Snake Value Based Drafting) exposed that MEASURED_WEIGHTS.need=0 zeroes VORP out of the live score entirely for 2-starter positions (RB/WR) -- the board ranks on VONA+ceiling alone, not VBD+opportunity-cost as the article's own reference method does; measured live on Cory's actual keeper roster, Travis Etienne (highest VORP in the top 20) ranks #4 by score. OPEN -- Cory wants this before Saturday (was 160 pre-renumber on main's side)"
   }
  ]
 }

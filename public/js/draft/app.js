@@ -1123,8 +1123,13 @@
         });
       }
     }
+    /* `state.drafted` — Cory, 2026-08-20: "It is also showing players who are
+     * already gone". These lists are a PRE-SIMULATED snapshot of who was
+     * expected to be available at each pick, so the view had no idea who had
+     * actually been taken. Filtered at render; the panel also says so when the
+     * real draft has diverged from the simulation its numbers came from. */
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
-      state.projSource || 'ds', state.playerCalls || {}, badgeInfo());
+      state.projSource || 'ds', state.playerCalls || {}, badgeInfo(), state.drafted);
     wirePositionBoardsScroll(host);
   }
 
@@ -1730,7 +1735,32 @@
     const capt = k => (C[k] || {});
     const sign = n => (n > 0 ? '+' : '') + n;
 
-    const rows = (seat.shortlist || []).map(function (pl, i) {
+    /* ⚠️ THE SEAT PLAN IS PRE-COMPUTED, AND IT NAMED A DRAFTED PLAYER.
+     *
+     * Cory's screenshot, 2026-08-20: "SPLIT — your saved draft plan wins the
+     * tie" over Breece Hall. Breece Hall (id 8155) is in seat_plan.json's
+     * pick-33 shortlist on the live artifact, and the plan is built OFFLINE from
+     * the board — it has no idea who has since been taken.
+     *
+     * Fourth surface in one day with this shape, and the fourth distinct cause:
+     * mlv.js had no drafted concept, twenty app.js sites read state.board
+     * directly, position_boards renders a simulation, and this one renders a
+     * saved plan. The renderAll prune does not reach any artifact-backed panel,
+     * because none of them reads state.board.
+     *
+     * A shortlist entry that is gone is worse than useless here — this panel is
+     * the tie-breaker, so a stale name does not just clutter, it DECIDES. */
+    /* `state.drafted` guarded: a missing set must degrade to "nothing is
+     * known to be drafted", never to a thrown TypeError that blanks the seat
+     * panel mid-draft. Caught by seat_panel_markup.test.js, whose harness
+     * builds a state without one. */
+    const isGone = function (pl) {
+      return !!(pl && pl.player_id != null && state.drafted
+        && state.drafted.has(String(pl.player_id)));
+    };
+    const goneFromPlan = (seat.shortlist || []).filter(isGone);
+    const liveShortlist = (seat.shortlist || []).filter(function (pl) { return !isGone(pl); });
+    const rows = liveShortlist.map(function (pl, i) {
       const bw = pl.beats_wire_by;
       /* SIGNED, and captioned as such. Rendering |bw| here is the exact
        * misreading the contract exists to stop. */
@@ -1916,6 +1946,22 @@
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
       + spentLine
       + '<ol class="sp-list' + (seatSpent ? ' sp-list-spent' : '') + '">' + rows + '</ol>'
+      /* ⚠️ THE PLAN WAS BUILT BEFORE THESE PICKS HAPPENED, so say so rather
+       * than quietly showing a shorter list. This panel breaks ties — Cory's
+       * screenshot read "SPLIT — your saved draft plan wins the tie" over a
+       * player who was already drafted — so a silent removal changes WHICH NAME
+       * WINS with no trace. If the plan's own lead is gone, that is the loudest
+       * case and it is named. */
+      + (goneFromPlan.length
+          ? '<div class="sp-note" style="color:#b45309">\u26a0\ufe0f '
+            + goneFromPlan.length + ' name'
+            + (goneFromPlan.length === 1 ? '' : 's')
+            + ' from this saved plan '
+            + (goneFromPlan.length === 1 ? 'is' : 'are') + ' already drafted and '
+            + 'hidden: ' + escapeHtml(goneFromPlan.map(function (p) { return p.name; }).join(', '))
+            + '. The plan was computed before those picks, so the values and the '
+            + 'tie-break below predate them.</div>'
+          : '')
       + staleLine
       + gapLine
       + supLine
@@ -5099,14 +5145,25 @@
       if (p.none) {
         return '<tr><td>' + p.pick + '</td><td colspan="4" class="muted">nobody left</td></tr>';
       }
-      const dim = p.mlv_has_an_opinion ? '' : ' style="opacity:.62"';
+      /* ⚠️ A PLAN ROW WHOSE PLAYER IS ALREADY GONE. This panel is honestly
+       * labelled "a plan, not a prediction" and it walks all twelve FUTURE
+       * picks, so removing a row would break the pick sequence it exists to
+       * show. But leaving a drafted man in it unmarked is how Cory ends up
+       * reading a gone player as a suggestion. Marked, not removed. */
+      const planGone = !!(p.player && p.player.player_id != null && state.drafted
+        && state.drafted.has(String(p.player.player_id)));
+      const dim = planGone ? ' style="opacity:.45"'
+        : (p.mlv_has_an_opinion ? '' : ' style="opacity:.62"');
       const val = p.mlv_has_an_opinion
         ? '<b>+' + p.marginal + '</b>'
         : '<b>+' + p.wire_surplus + '</b> <span class="muted">wire</span>';
       return '<tr' + dim + '>'
         + '<td>' + p.pick + '</td>'
         + '<td>' + escapeHtml(p.player.position) + '</td>'
-        + '<td><b>' + escapeHtml(p.player.name) + '</b></td>'
+        + '<td><b' + (planGone ? ' style="text-decoration:line-through"' : '') + '>'
+          + escapeHtml(p.player.name) + '</b>'
+          + (planGone ? ' <span class="muted" style="color:#b45309;font-size:.7rem">'
+              + 'already drafted</span>' : '') + '</td>'
         + '<td class="muted">' + p.player.adp + '</td>'
         + '<td>' + val + '</td></tr>';
     };
@@ -10614,6 +10671,137 @@
    * drafts silently at my slots from the exact board snapshot; the 2026 season
    * grades them out-of-sample in dollars. Best-effort like every capture — a
    * shadow failure never touches the real clock. */
+  /* ── EVERY MODEL'S PICK, RECORDED BEFORE THE PICK IS MADE ──────────────────
+   *
+   * Cory, 2026-08-20: "We might as well be capturing predictions for ALL model
+   * recommendation (all the ones we've toyed with and discussed) so we can
+   * grade later and learn."
+   *
+   * He is right and the window is one-way: a pick is unrepeatable. What each
+   * model would have taken at pick 33, with pick 33's exact pool and roster, is
+   * computable for about a second and then gone forever. Miss it and the only
+   * honest answer in January is "we cannot say".
+   *
+   * WHAT WAS ALREADY CAPTURED, and is therefore NOT duplicated here (rule 11):
+   * the nine DraftShadows strategies, under kind `shadow_pick`, from the line
+   * above. Doctrine, opponent predictions, survival, runs and corrections have
+   * their own kinds too.
+   *
+   * WHAT WAS MISSING is everything Cory actually reads and decides against:
+   *   · the board's own #1            E.recommend(ctx)         — "THE PICK"
+   *   · marginal lineup value          RosterBuilderMLV        — the second voice
+   *   · the need rule                  DraftNeedRule           — his bench rule
+   *   · EACH SOURCE'S OWN #1           per-source boards       — the big gap
+   *
+   * The last is the one he keeps asking for — "tell me what all the sources
+   * think" — and grading it is how we eventually answer WHICH SOURCE to trust
+   * at which point in a draft, on this league's own outcomes rather than on a
+   * vendor's marketing.
+   *
+   * ⚠️ ONE POOL, ONE INSTANT. Every model here is handed `boardAtPick` and the
+   * same context the shadows got. A slate where the models saw different pools
+   * is not a comparison, it is four unrelated observations — and this repo has
+   * shipped that mistake in another form (register 148, two replacement tables).
+   *
+   * ⚠️ IT RECORDS, IT DOES NOT DECIDE. Nothing here re-ranks, re-orders or
+   * reaches a surface. A capture that changed a recommendation would be
+   * grading its own homework.
+   *
+   * Rehearsal entries carry `rehearsal: true` rather than being dropped: a mock
+   * is still a real decision under a real pool, and the grading side filters.
+   * Failures are swallowed — a ledger write must never cost Cory a pick. */
+  function modelSlateAt(boardAtPick, baseCtx) {
+    const out = [];
+    const add = function (model, player, extra) {
+      if (!player || player.player_id == null) return;
+      out.push(Object.assign({
+        model: model,
+        player_id: String(player.player_id),
+        name: player.name || null,
+        position: player.position || null,
+      }, extra || {}));
+    };
+
+    try {
+      const sc = E.recommend(baseCtx);
+      if (sc && sc.length) {
+        add('board_composite', sc[0].player, {
+          score: sc[0].score != null ? Math.round(sc[0].score * 10) / 10 : null,
+          gap_to_second: sc[0].gap_to_second != null
+            ? Math.round(sc[0].gap_to_second * 10) / 10 : null,
+        });
+      }
+    } catch (e) { /* one model failing must not lose the others */ }
+
+    try {
+      if (typeof RosterBuilderMLV !== 'undefined') {
+        const r = RosterBuilderMLV.recommend(boardAtPick, state.myRoster || [],
+          { league: state.data.league, topN: 1, taken: state.drafted });
+        if (r && r.length) add('mlv_displacement', r[0].player, { marginal: r[0].marginal });
+      }
+    } catch (e) { /* ignore */ }
+
+    try {
+      if (typeof DraftNeedRule !== 'undefined') {
+        const n = DraftNeedRule.recommend(boardAtPick, state.myRoster || []);
+        const p = n && (n.player || (n.length ? n[0] : null));
+        add('need_rule', p && p.player ? p.player : p, null);
+      }
+    } catch (e) { /* ignore */ }
+
+    /* EACH SOURCE'S OWN TOP AVAILABLE, by that source's own re-ranked board.
+     * `SourceBoard.forSource` swaps in the per-source vorp/rank the build
+     * already computed, so this is the source's opinion, not ours about it. */
+    try {
+      if (typeof SourceBoard !== 'undefined') {
+        SourceBoard.SOURCES.forEach(function (s) {
+          const swapped = SourceBoard.forSource(boardAtPick, s.key);
+          if (!swapped || !swapped.length) return;
+          const best = swapped.slice().sort(function (a, b) {
+            const ra = a.overall_rank == null ? 1e9 : a.overall_rank;
+            const rb = b.overall_rank == null ? 1e9 : b.overall_rank;
+            return ra - rb;
+          })[0];
+          add('source_' + s.key, best, {
+            covered: !!best['covered_' + s.key],
+            overall_rank: best.overall_rank != null ? best.overall_rank : null,
+          });
+        });
+      }
+    } catch (e) { /* ignore */ }
+
+    return out;
+  }
+
+  function captureModelSlate(boardAtPick, baseCtx, round) {
+    if (typeof PredLedger === 'undefined' || !PredLedger.capture) return;
+    try {
+      const models = modelSlateAt(boardAtPick, baseCtx);
+      if (!models.length) return;
+      const c = ledgerCtx();
+      /* ONCE PER PICK. updateShadows runs on every board change, and a slate
+       * written twice for one decision would double-count whichever model
+       * happened to be right. */
+      const fn = PredLedger.oncePer || PredLedger.capture;
+      fn.call(PredLedger, 'model_slate', {
+        season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'model-slate-v1',
+        payload: {
+          rehearsal: !!state.mockMode,
+          round: round,
+          pool_size: (boardAtPick || []).length,
+          roster: (state.myRoster || []).map(function (p) {
+            return { player_id: String(p.player_id), position: p.position };
+          }),
+          /* Named so a January reader knows what was NOT here rather than
+           * inferring it from an absence. */
+          also_captured_separately: ['shadow_pick (9 strategies)', 'doctrine'],
+          models: models,
+        },
+      }, 'slate');
+    } catch (e) { /* a ledger write never costs a pick */ }
+  }
+
   function updateShadows(boardAtPick) {
     if (typeof DraftShadows === 'undefined') return;
     try {
@@ -10641,6 +10829,8 @@
         PredLedger.capture('shadow_pick', { season: c.season, build_at: c.build_at,
           pick: c.pick, method: 'shadow-v1', payload: { picks: picks } });
       }
+      /* EVERY OTHER MODEL, AT THE SAME INSTANT, ON THE SAME POOL. */
+      captureModelSlate(boardAtPick, baseCtx, round);
       renderShadowStrip();
     } catch (e) { /* never block the draft on a shadow */ }
   }
