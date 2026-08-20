@@ -377,3 +377,141 @@ superseded implementation. Every draft-critical suite is green as of writing:
 engine, app-wiring, context-interface, sync/reconcile, keepers, survival
 honesty, the recommendation rows, and the four separate guards that stop a
 drafted player reaching any panel.
+
+
+---
+
+## 10. THE THREE TERMS THAT ACTUALLY DECIDE A PICK — MEASURED, NOT ASSUMED
+
+The score has eight weighted terms and two post-assembly deltas. **Three of them
+move anything.** Measured through the real `recommend()` path, top ten at each of
+the owner's twelve real picks, roster growing as the model drafts:
+
+| term | weight | fires on | mean \|value\| | max | verdict |
+|---|---|---|---|---|---|
+| `value` (VONA) | 1.0 | **120/120** | 3.56 | 16.71 | decides picks |
+| `need` (VORP, slot-gated) | 1.0 | **102/120** | 11.22 | 35.08 | fires often |
+| `ceiling` | 0.45 | **88/120** | 3.84 | 9.00 | fires often |
+| `stack` | 1.0 | 1/120 | 4.00 | 4.00 | rare |
+| `keeper` | 1.0 | **0/120** | 0.00 | 0.00 | inert |
+| `tier`, `risk`, `bye` | 0.0 | 0/120 | — | — | weighted away by design |
+| `onesie`, `doctrine` | post | **0/120** | 0.00 | 0.00 | inert |
+
+**So the model is VONA + slot-gated VORP + ceiling.** Sections 2-3 gave you the
+first two. The third is below.
+
+**`keeper` at weight 1.0 contributing zero is not a bug**, and it is worth
+stating because it looks like one. It prices whether a player drafted THIS year
+would be worth keeping NEXT year: `ramp x P(keep) x (nextYearVorp - what that
+forfeited pick returns next year) x 0.75`. Two independent reasons it is zero
+here: the measured ramp table is `{4-6: 1.0, 7-9: 0.2, 10-12: 0.0, 13-15: 0.0}`,
+so it is switched off from round 10; and in rounds 4-6 where it is live, keeping
+a mid-round player costs a FIRST-round pick next season under this league's
+`top_picks_flat` rule, so the surplus is negative for everyone available.
+**Question: is that reasoning right, or is a zero here hiding an error?**
+
+**⚠️ NOTE THE NAMING TRAP, which confused the owner and would confuse you.**
+`keeper` (above) has nothing to do with the three players he is actually keeping.
+Those enter through **`need`**, which reads `ctx.roster` — so holding 2 RB and
+1 WR is what makes the RB slots full and WR2 open, and that is the second-largest
+term on his board.
+
+### The ceiling term, verbatim
+
+```javascript
+  function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages, gateOpen) {
+    // UNIT MISMATCH — the bug this fixes.
+    //
+    // `raw` is proj_ceiling minus proj_mean, which is a SPREAD: it tracks
+    // proj_sd, not value over replacement. On the real board that is 136 points
+    // for Jahmyr Gibbs and 110 for McCaffrey. Every other term in the composite
+    // is denominated in points-over-replacement, where an elite player scores
+    // ~150 and a round-6 pick scores ~10. So the raw spread was entering the
+    // sum at elite-VORP magnitude for anyone with a wide projection, and the
+    // wider the uncertainty the bigger the bonus — variance was being paid for
+    // as though it were value.
+    //
+    // The plausibility rail caught it and was ignored: on the 2026-08-07 board
+    // it fired `ceiling is Nx this player's VORP` on 15 of the top 15, reaching
+    // 15.0x at pick 54. RAIL_COMPONENT_RATIO = 1.0 states the contract plainly
+    // — no single component may exceed the player's own VORP — so a term
+    // running 15x over it is not a tuning question.
+    //
+    // Two changes, both in named config:
+    //   CEILING_SPREAD_SHARE puts the spread on the composite's scale. Only a
+    //   fraction of theoretical upside is actually collectable, and paying the
+    //   whole spread assumes every boom outcome lands.
+    //   CEILING_MAX_BONUS is a hard ceiling on the ceiling. Whatever the
+    //   projection's variance, this term cannot outweigh the value terms.
+    //
+    // Deliberately NOT capped at the player's own VORP: a round-12 flier has a
+    // VORP near zero and upside is the entire reason to take him. Capping there
+    // would delete the lottery-ticket behaviour the next line exists to create.
+    /* ── POSITION-NORMALISED, 2026-08-13. THE UNITS DEFECT, FIXED AT SOURCE ──
+     *
+     * `proj_ceiling - proj_mean` is a SPREAD IN RAW SEASON POINTS. A quarterback
+     * scores 350-400 a season and a tight end 150, so the QB's spread is the
+     * biggest number on the board BY CONSTRUCTION — p90 of 66.5 at QB against
+     * 30.8 at TE. Ranking bench picks on it MEASURES SCALE AND CALLS IT UPSIDE,
+     * and it is why the board kept handing Cory a second quarterback and a
+     * second tight end he could not start.
+     *
+     * WHY THE ONESIE CAP DID NOT FIX IT, and this is the part that matters: the
+     * cap treats the OUTPUT while this drives the INPUT. And the term was
+     * supposed to be OFF — MEASURED_WEIGHTS.ceiling was 0 at the time (ruled
+     * to 0.45 on 2026-08-17; see the record at the constant), because the
+     * ceiling effect measured -4.8 with a [-26,+17] interval and could not be
+     * signed.
+     * But the bench branch floors it: `Math.max(BENCH_CEILING_FLOOR, w.ceiling)`
+     * with BENCH_CEILING_FLOOR = 0.25 SILENTLY RE-ENABLES A WEIGHT THE
+     * MEASUREMENT SET TO ZERO, for every bench pick. So the deliberately-
+     * disabled, unsignable, unnormalised term is the primary ranker of the whole
+     * back half of the draft.
+     *
+     * THE FIX IS A RATIO, NOT A CAP. Divide each spread by the TYPICAL SPREAD AT
+     * ITS OWN POSITION, then re-scale by the board-wide typical spread so the
+     * term keeps its magnitude on the composite's scale. What survives is "how
+     * much more upside than a normal player at this position" — dimensionless,
+     * and therefore comparable across positions, which is the one thing the raw
+     * spread never was. Median rather than mean: a handful of extreme boom
+     * projections at one position would otherwise set that position's scale. */
+    const rawSpread = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
+    const cs = _ceilingScales;
+    const posScale = cs && cs.scales[player.position];
+    const raw = (posScale > 0 && cs.ref > 0) ? rawSpread * (cs.ref / posScale) : rawSpread;
+    // Ceiling is LATE-ONLY for the LIVE recommendation: zero until CEILING_LATE_FROM
+    // of the draft, then ramps to full (Cory's model — mean+VONA+tiers decide early/mid;
+    // throwaway rounds get the lottery). `allStages` restores the old full-draft ramp
+    // ONLY for the strategy-exploration shadows, whose whole purpose is to explore
+    // ceiling-forward drafts (ctx.ceilingAllStages); it never touches the live board.
+    const lateness = totalPicks ? Math.min(1, pickNumber / totalPicks) : 0.5;
+    const from = CFG.CEILING_LATE_FROM != null ? CFG.CEILING_LATE_FROM : 0.6;
+    /* `gateOpen` REPLACES THE PROXY WITH THE REAL CONDITION.
+     *
+     * CEILING_LATE_FROM = 0.6 is a PROXY for "the throwaway rounds" — pick 90 of
+     * 150. The bench branch fires on the actual condition it is proxying for:
+     * every starting slot is full, so from here on every pick IS a lottery
+     * ticket. Measured, that happens near pick 70, so through rounds 8 and 9 the
+     * proxy said "not late yet" while the real condition had already arrived and
+     * the branch's only anchor read 0.00 for every player on the board.
+     *
+     * So the bench branch passes gateOpen and uses the condition instead of the
+     * proxy. THE STARTER BRANCH IS UNTOUCHED — it still ramps from 0.6, because
+     * that is the arithmetic the 2026-08-10 ceiling decision was made on. */
+    const gate = gateOpen ? 1
+      : allStages ? (0.3 + 0.7 * lateness)
+      : Math.max(0, (lateness - from)) / Math.max(1e-6, 1 - from);
+    const endgame = myPicksLeft != null && myPicksLeft <= 5 ? 1.6 : 1.0;
+    const scaled = raw * CFG.CEILING_SPREAD_SHARE * gate * endgame;
+    return Math.max(-CFG.CEILING_MAX_BONUS, Math.min(CFG.CEILING_MAX_BONUS, scaled));
+  }
+```
+
+`MEASURED_WEIGHTS.ceiling = 0.45`, set by the owner's ruling after three
+preregistered runs across two seed sets beat zero at every value from 0.15 to
+0.65. **Questions:** (a) the reference implementation this project studied
+(`ffanalytics`) emits `rank`, `floor_rank` and `ceiling_rank` as THREE SEPARATE
+rankings and never adds ceiling into value — we add `0.45 x ceiling` to every
+player at every pick. Is adding upside into a single score defensible, or is the
+reference right that upside is a bench instrument? (b) does the code above
+compute what its comments claim?
