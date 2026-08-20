@@ -8,6 +8,27 @@
 
 ## TO: A
 
+- [ ] 2026-08-20 · A → relay · 🎯 **CORY'S CEILINGS ARE FINE. FIVE SUITES SAY OTHERWISE AND ALL FIVE ARE POINTED AT A SUPERSEDED IMPLEMENTATION — measured, not assumed.**
+
+  Chasing the red draft-day suites I hit a cluster: `ceiling_source_window`, `ceiling_tiebreak_needs_a_real_ceiling`, `cohort_ceiling_is_marked`, `dispersion_flags_shipped`, `proj_sd_arm`. They report `per_player: 0`, `marked: 0`, `gaussian_z: 0`, `measured: 4`. Read cold, that says the per-player volatility work Cory explicitly ordered ("fix!!!! floors and ceilings need to be corrected like I have agreed to") never reached his board. **It is not what it says.**
+
+  **WHAT THEY ARE ACTUALLY PINNED TO.** All five look for the source stamp `measured-2023-25-p90-x-player-cv`. That string appears on ZERO rows, because the board moved to Draft Sharks and the multi-source blend:
+
+  | field | sources on the live 2026-08-19 board |
+  |---|---|
+  | `proj_ceiling_source` | draftsharks_pct 247 · pre-DS band % 363 · none 90 |
+  | `proj_sd_source` | cross-source-disagreement 308 · measured-2023-25-error 287 · position_variance 105 |
+
+  **THE SUBSTANCE HOLDS, AND I MEASURED IT TWO WAYS.** The 08-17 defect was a ceiling that is a monotone transform of the mean — constant in shape inside a cell. On the live board, inside `draftable_scope`, grouping by (position × ADP band × source): **21 ceiling cells judged, 0 constant. 20 sd cells judged, 0 constant.** Both fields carry player-specific information. Whatever the stamp says, Cory's upside numbers are real.
+
+  I also chased the fat tail rather than assuming: the largest ceiling/mean ratios in his range are Nicholas Singleton 3.54×, Tank Bigsby 3.47×, Kaelon Black 3.37× — **every one a backup RB**. A handcuff's ceiling IS the starter going down, so that tail is the model working. Median 1.33, p90 2.01.
+
+  **WHAT I DID, AND DELIBERATELY DID NOT DO.** I did NOT touch the five. Deleting or re-pointing an alarm because it names a superseded implementation is exactly how a real one gets switched off, and I am not doing that to five at once, two days out, on someone else's territory. Instead: `draft/tests/tails_carry_player_information.test.js` (17 checks) asserts the PROPERTY the whole effort was for, source-agnostic, so the substance stays guarded while the stamp-specific five get re-pointed properly.
+
+  ⚠️ **AND MY FIRST VERSION OF IT WAS WRONG, WHICH IS THE REUSABLE BIT.** I planted the real 08-17 defect — ceiling = mean × 1.42 on eleven band-1 RBs — and my new suite **passed 17/17**. It could not see the exact defect it was written to catch. Cause: a cell-constant ceiling is rounded to 2dp, so the ratios differ slightly and my ~zero tolerance never fired. Measured the two populations before placing a bar: rounding-induced spread maxes at **0.000261**, the smallest REAL within-cell spread on the board is **0.049989** — 192× apart, nothing in the gap to fit to. Tolerance 0.005, roughly centred. Both arms now proven: planted constant fails, live board passes.
+
+  **ASK:** who re-points the five — they are ceiling/dispersion territory and I do not want to unilaterally rewrite five suites I did not author. **EVIDENCE:** the cell measurements above, reproducible from `public/draft_data.json`; the new suite's fail arm. **REC:** re-point each to the invariant it was really protecting rather than to a stamp string, one at a time with a planted-defect arm each, AFTER the draft — none of them is reporting a live problem. **DEFAULT (08-22 12:00 UTC, i.e. after the draft):** silence and I take them myself in that order. — A
+
 - [ ] 2026-08-20 · A → relay · 🔴 **CI IS RED ON MAIN WITH 22 FAILING JS SUITES, NOT FOUR — THE T-MINUS-2 SWEEP UNDERCOUNTED BY 18, AND THE DRAFT IS SATURDAY.** Found while verifying my scope change caused no regressions. Measured, not inferred: all 384 `draft/tests/*.test.js` run locally with a 25s per-suite timeout, then the identical set re-run against `origin/main` in a clean worktree with `node_modules` symlinked — same names, same count, before and after my commits. So none of them are mine and none are local-environment artefacts.
 
   **CONFIRMED AGAINST CI, NOT JUST LOCALLY.** Run 32372582764's failed-job log shows `ui_fidelity_explainers` and `ui_fidelity_numbers` failing there with the same errors I reproduced here, so the local list tracks the runner.
