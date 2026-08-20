@@ -27,14 +27,30 @@ def ck(name, cond, detail=""):
 loaded = G.loaded_weights()
 ck("reads MEASURED_WEIGHTS out of engine.js", len(loaded) >= 6, loaded)
 ck("value is loaded at 1.0 (the measured core)", loaded.get("value") == 1.0, loaded.get("value"))
-# RE-PINNED 2026-08-17: Cory ruled ceiling non-zero ("IS THIS STUDIES? IF SO,
-# YES") after three preregistered runs on real-ceiling boards beat the shipped
-# zero 3/3 seeds, separably, at every value 0.15-0.65. 0.45 is the exp-21
-# inverted-U peak. The 2026-08-10 zero this line used to pin was measured on a
-# proj_mean-x-constant board and could not have come out any other way. Full
-# record at MEASURED_WEIGHTS in engine.js.
-ck("ceiling is loaded at 0.45 (Cory's 2026-08-17 ruling)",
-   loaded.get("ceiling") == 0.45, loaded.get("ceiling"))
+# ⚠️ THIS LINE HAS NOW BEEN RE-PINNED THREE TIMES — 0.0, then 0.45, then 0.0
+# again — AND EACH RE-PIN COST A BOARD REBUILD. The 08-20 one refused the
+# publish (run 32425450897) two days before the draft.
+#
+# So it no longer holds a literal. The value a weight SHIPS at is a ruling, and
+# rulings move; what this file can honestly assert is that the shipped value
+# and the recorded ruling AGREE, which is the actual defect class (a doc
+# claiming a policy the engine does not run). `graduation_gate.run()` already
+# computes exactly that as `stale_rulings`, from the doctrine documents, and
+# test_gate_components asserts it is empty. Duplicating the number here bought
+# nothing and broke every time a human changed their mind.
+#
+# The history, for the next reader: 0 on 08-10 (the "flip diagnostic" — a term
+# with no defensible sign deciding a third of the late board); 0.45 on 08-17
+# (three preregistered runs, two seed sets, every value 0.15-0.65 beat zero);
+# 0.0 on 08-20 by Cory — "switch it off, its so arbritrary" — because Draft
+# Sharks' per-player bands had replaced the Gaussian ceiling the 0.45 was
+# measured against, and a weight is not portable across a change of the field
+# it multiplies.
+ck("ceiling is loaded at whatever the doctrine docs record, not a literal "
+   "pinned in this test",
+   isinstance(loaded.get("ceiling"), float)
+   and not [s for s in G.run()["stale_rulings"] if "ceiling" in s],
+   (loaded.get("ceiling"), G.run()["stale_rulings"]))
 
 # ── An instrument that says it cannot measure the thing gets no vote ───────
 limited = {"build_up_from_core": {
