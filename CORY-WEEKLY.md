@@ -21,17 +21,24 @@ Captures, projections, and GRADES genuinely happen with zero humans. The
 board staleness tripwires and capture controls fail CI loudly if any of it
 silently breaks.
 
-## TIER 2 — NEEDS A SESSION AWAKE. One line from you, or it waits.
+## TIER 2 — NEEDS A SESSION AWAKE. Your exact weekly playbook (ruled MANUAL, 08-20).
 
-Claude lanes do not wake on their own. The THINKING half of the loop —
-acting on Tuesday's grades (bench/promote verdicts), building new arms,
-fixing what the drills and tripwires flag, chasing dispatches — runs when a
-lane runs. **Your cost: one line, once or twice a week — "go" to the relay
-is enough; I chase A/C/D/E through ROUTES from there.** Every dispatch
-already carries a default that fires on silence, so a missed week degrades
-gracefully instead of silently — but "adapt quickly" needs the lanes awake
-weekly. Best cadence: a "go" on Tuesday (after the auto-grades land) and
-optionally Thursday (before the archive freezes the week).
+Claude lanes do not wake on their own, and Cory ruled against API automation
+— so the weekly heartbeat is his, and it is deliberately tiny:
+
+1. **Tuesday, any time after mid-morning** (the auto-grades land overnight
+   after MNF): open the RELAY session, type **"go"**. The relay reads the
+   graded week, applies the bench/promote policy, sweeps every mailbox, and
+   replies with (a) the week's verdict, (b) the waiver recommendation before
+   Wednesday's run, and (c) **which lanes actually need opening this week —
+   often none.** Open only the lanes that reply names, one "go" each.
+2. **That's the whole week**, unless a reply asks for a ruling — those
+   arrive as one question with a recommendation and a default.
+
+A missed Tuesday degrades gracefully (every dispatch carries a default and
+the crons keep capturing and grading), but two missed Tuesdays means the
+adaptation policy's bench/promote verdicts sit unapplied — the loop keeps
+SCORING, it stops LEARNING.
 
 ## TIER 3 — ONLY YOU. The tools recommend; you decide.
 

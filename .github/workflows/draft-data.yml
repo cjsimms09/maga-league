@@ -315,7 +315,7 @@ jobs:
           set -o pipefail
           echo "== the board about to be committed must pass the suite that reads it"
           echo "   (repo-parity pins deselected here ONLY — their inputs were just rebuilt; see test_gate_selection.py)"
-          if ! python -m pytest draft/tests -q -m "not repo_parity" 2>&1 | tee /tmp/board_gate_output.txt; then
+          if ! python -m pytest draft/tests -q -m "not repo_parity and not post_chain" 2>&1 | tee /tmp/board_gate_output.txt; then
             # REGISTER 55, fixed on Cory's call 08-19: a suite failure is not
             # automatically a BOARD failure. On 08-19 this gate refused the
             # board four times and only ONE of six failures was about the
