@@ -49,8 +49,57 @@ def test_KNOWN_POSITIVE_proj_ceiling_source_really_does_have_three_values():
     vals = {p.get("proj_ceiling_source") for p in doc["players"]
             if p.get("proj_ceiling_source")}
     assert len(vals) >= 3, f"expected >=3 constructions, saw {sorted(vals)}"
-    assert "measured-2023-25-p90" in vals and "gaussian_z" in vals, sorted(vals)
-    assert any("x-player-cv" in v for v in vals), sorted(vals)
+    # ⚠️ THE LITERAL ENUM WAS REMOVED FROM THIS ASSERTION ON 2026-08-20, AND THE
+    # REASON IS WORTH MORE THAN THE TEST. It used to pin
+    # measured-2023-25-p90 / gaussian_z / *x-player-cv. Those are what
+    # `projections.py` writes. A board that has been through
+    # `attach_draftsharks.py` carries a COMPLETELY DIFFERENT enum —
+    # draftsharks_pct 247, "pre-DS band %, rescaled to the blended mean" 363,
+    # "none — no band..." 90, counted on the committed artifact.
+    #
+    # So no literal list can be true of both, because THE BOARD THE GATE READS
+    # AND THE BOARD THAT GETS PUBLISHED ARE NOT THE SAME ARTIFACT.
+    # `draft-data.yml` runs "Acceptance gate on the FRESH board" (full pytest)
+    # at step 16 and "Re-apply the blend, the Draft Sharks bands and the source
+    # sheet" at step 21 — the bands, the blend, the seat plan and the source
+    # boards are all attached AFTER the gate that is supposed to protect
+    # publication. Register 166.
+    #
+    # Pinning either enum here would therefore make this test a liar on one of
+    # the two artifacts and would red the pipeline that repairs the board. What
+    # is asserted instead is the property the founding defect was actually
+    # about: the stamp is a real, non-empty CONSTRUCTION NAME on every row that
+    # has one, and there are several of them, so a single silent construction
+    # cannot hide behind a shared label.
+    assert all(isinstance(v, str) and len(v) >= 4 for v in vals), sorted(vals)
+    assert not any(v.strip().lower() in ("none", "n/a", "unknown", "-")
+                   for v in vals), sorted(vals)
+
+
+def test_every_player_Cory_can_actually_draft_carries_a_real_band():
+    """WHY THE THIRD VALUE IS TOLERABLE. "none — no band from Draft Sharks or
+    the prior board" is a legitimate construction only if it never lands on a
+    player he might take. Cory, 2026-08-20: "if something doesnt affect any top
+    150 picks.. why is it there" — the same question pointed at a gap instead of
+    a feature. Measured: inside the top 150 by ADP, 148 carry draftsharks_pct
+    and 2 carry the rescaled pre-DS band; ZERO carry none. This test is what
+    keeps that true after the next rebuild.
+
+    Deliberately written against the WORD rather than the enum, for the reason
+    the test above documents: this must hold on the pre-band board the gate
+    reads AND on the post-band board that ships, and the two carry different
+    construction names."""
+    doc = PC.board()
+    top = sorted((p for p in doc["players"] if p.get("adp")),
+                 key=lambda p: p["adp"])[:150]
+    assert len(top) == 150, f"only {len(top)} players carry an adp"
+    bandless = [(p["name"], p["position"], p["adp"]) for p in top
+                if (p.get("proj_ceiling_source") or "").startswith("none")]
+    assert not bandless, (
+        f"{len(bandless)} of Cory's top 150 have no floor/ceiling band at all: "
+        f"{bandless[:10]}. His ruling was that every source's band comes off "
+        "the Draft Sharks percentage; a player inside his draft range with no "
+        "band is that ruling failing silently where it matters most.")
 
 
 def test_CONTROL_the_census_finds_several_stamps_and_not_everything():
