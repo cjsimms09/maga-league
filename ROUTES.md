@@ -3877,3 +3877,16 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   default — reasoning in the reply. Did not build a war-room-wide re-ranking toggle (would mean duplicating your Python vorp/tier logic in JS — a second
   implementation, rule 11 — for a Friday deadline); said so plainly rather than silently under-delivering against "one control... that switches which
   projection the board ranks on."
+
+- [x] 2026-08-20 · B · 🔎 **DISCLOSED TRESPASS INTO A'S FILE, MECHANICAL AND FACTUAL — `data_separation.test.js`'s production-inputs allowlist was missing a
+  real, already-shipped, two-day-old route.** Found while widening the drill-down panel per Cory's live ask ("depth chart info, team info, pace of play...
+  a powerhouse of info"): after an unrelated edit shifted a comment's position in `admin.js`, `data_separation.test.js` newly flagged `/admin/league-analysis`'s
+  read of `public/league_analysis_2026.json` as undeclared. **Verified before touching anything (rule 3f):** the route is real, `requireCory`-gated, added
+  2026-08-18 on Cory's own verbatim ask ("after draft it should immediately be ready for me, I will make bet with Richard"), and was reading this file the
+  whole time — the test's comment-stripping regex just never rendered it visible before my edit happened to shift where a later `/*` block landed. Not a
+  data-separation violation; a pre-existing blind spot in the test's own scan, exposed by accident. **Added ONE allowlist entry** with the route's own
+  justification quoted in, nothing else touched in the file. **ASK:** none — this is a fact about already-shipped code, not a ruling. **DEFAULT:** the entry
+  stands; correct the reason text if it needs it, no reply required. Also shipped in the same push: depth-chart teammates list, team pace, position-tailored
+  usage stats (carries/opportunity-share/red-zone-share for RB, target-share/WOPR/aDOT for WR/TE), and injury status/risk in the player-detail drill-down —
+  all from data already on the board, no new fetches. `draft/tests/drill_facts_rows.test.js` (75/75), full regression clean, live-verified in a real browser
+  with a screenshot review.
