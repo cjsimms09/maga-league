@@ -342,6 +342,144 @@ const GAUNTLET_KEYS = ['vona', 'hybrid', 'bav', 'adp', 'zerorb', 'herorb', 'late
 if (GAUNTLET && !GAUNTLET_KEYS.includes(GAUNTLET)) {
   throw new Error('unknown --gauntlet key: ' + GAUNTLET + ' (valid: ' + GAUNTLET_KEYS.join('|') + ')');
 }
+/* ── THE BENCH-OPTION OBJECTIVE (`--opt`) — relay, BENCH-OPTION-PREREG-2026-08-20,
+ * committed BEFORE this code. Cory: "any equation that recommends [2 K/DEF] is
+ * obviously missing an input." The input: the stochastic season plus a live
+ * wire. Each candidate is valued by his marginal on EXPECTED season lineup
+ * points where every rostered player independently misses each week at his
+ * position's measured absence rate (byes and busts included), and every slot a
+ * present rostered player cannot fill is refilled at the measured weekly wire
+ * level. NO caps, NO bench rule, NO need term — the prereg's P254 theorem is
+ * that the competent roster EMERGES. Constants pinned in the prereg; the
+ * absence RNG is a deterministic hash of (player, week, sim) so every
+ * candidate is priced against the SAME simulated seasons (paired comparison,
+ * zero MC noise between candidates at a pick). */
+const OPT = process.argv.includes('--opt');
+const OPT_M = 200;                    // simulated seasons per evaluation (prereg §2)
+const OPT_ABS = { QB: 0.216, RB: 0.191, WR: 0.190, TE: 0.186, K: 0.20, DEF: 0.20 };
+const OPT_CANDS_PER_POS = 4;          // declared pruning (value strictly decreasing)
+/* v3 (prereg §6): ONE UNIT everywhere. Player levels from nflverse LOO
+ * realized rank curves — the same stores the §13 wire levels were measured
+ * against. posCurveFor is a draft-slot OUTCOME curve (league-matchup data,
+ * points count only while rostered; QB10 reads 96.5 vs a real ~280) — a
+ * relative-VBD instrument, NOT an absolute level; mixing it with real-unit
+ * wire levels made v2 draft 3 kickers. K/DEF (absent from nflverse) use the
+ * measured surplus schedules from the 08-20 table, decaying to wire. */
+const OPT_CURVE_CACHE = {};
+function optCurveFor(targetSeason) {
+  const key = String(targetSeason);
+  if (OPT_CURVE_CACHE[key]) return OPT_CURVE_CACHE[key];
+  const byPosRank = {};
+  ['2021', '2022', '2023', '2024', '2025'].forEach(season => {
+    if (season === key) return;
+    let f;
+    try {
+      f = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'backtest',
+        'nflverse_weekly_points_' + season + '.json'), 'utf8'));
+    } catch (e) { return; }
+    const tot = {};
+    f.weeks.forEach(w => {
+      if (w.week >= 1 && w.week <= 17) Object.entries(w.points).forEach(([pid, p]) => { tot[pid] = (tot[pid] || 0) + p; });
+    });
+    const byPos = {};
+    Object.entries(tot).forEach(([pid, p]) => {
+      const q = posOf(pid);
+      if (q && q !== 'K' && q !== 'DEF') (byPos[q] || (byPos[q] = [])).push(p);
+    });
+    Object.entries(byPos).forEach(([q, arr]) => {
+      arr.sort((a, b) => b - a);
+      arr.forEach((p, i) => {
+        ((byPosRank[q] || (byPosRank[q] = {}))[i + 1] || (byPosRank[q][i + 1] = [])).push(p);
+      });
+    });
+  });
+  const curves = {};
+  Object.entries(byPosRank).forEach(([q, ranks]) => {
+    const maxR = Math.max(...Object.keys(ranks).map(Number));
+    const mean = [];
+    for (let r = 1; r <= maxR; r++) {
+      const a = ranks[r] || [];
+      mean[r] = a.length ? a.reduce((x, y) => x + y, 0) / a.length : mean[r - 1];
+    }
+    for (let r = 2; r <= maxR; r++) mean[r] = Math.min(mean[r], mean[r - 1]);
+    curves[q] = r => mean[Math.min(Math.max(r, 1), maxR)];
+  });
+  curves.K = r => 128.6 + Math.max(0, 8 - 2 * r);
+  curves.DEF = r => 100.0 + Math.max(0, 14 - 3 * r);
+  /* engagement control — REAL levels this time (P260's whole point): QB10
+   * must sit near ~280, RB20 near ~170, or the curve is the wrong quantity */
+  if (!(curves.QB(10) > 200 && curves.RB(20) > 120)) {
+    throw new Error('opt-curve control FAILED — levels are not realized points: QB10='
+      + curves.QB(10).toFixed(1) + ' RB20=' + curves.RB(20).toFixed(1));
+  }
+  if (!optCurveControlPrinted) {
+    optCurveControlPrinted = true;
+    console.log('[opt-curve control] LOO-' + key + ': QB10=' + curves.QB(10).toFixed(1)
+      + ' RB20=' + curves.RB(20).toFixed(1) + ' WR22=' + curves.WR(22).toFixed(1)
+      + ' — realized-point units, wire-comparable');
+  }
+  return (OPT_CURVE_CACHE[key] = curves);
+}
+let optCurveControlPrinted = false;
+const optSeedCache = new Map();
+function optSeed(pid) {
+  let h = optSeedCache.get(pid);
+  if (h != null) return h;
+  h = 2166136261;
+  const s = String(pid);
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  h = h >>> 0;
+  optSeedCache.set(pid, h);
+  return h;
+}
+/* uniform in [0,1) from (player, week, sim) — one mulberry32 scramble step */
+function optU(pid, wk, m) {
+  let t = (optSeed(pid) + 0x6D2B79F5 * (wk * 211 + m * 3571 + 20260820)) >>> 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+/** expected season lineup points of roster [{pid,q,w}] under absence + wire.
+ * v2 (prereg §5, after P254 graded FALSE): the wire has FRICTION — one fill
+ * per week across the whole roster (the weekly claim). Each week the single
+ * empty slot where the wire adds most gets its wire level; every other
+ * absent slot scores ZERO. v1's frictionless wire priced all bench depth at
+ * zero and bought K2/DEF2 insurance instead — the graded lesson. */
+function optV(roster) {
+  let tot = 0;
+  for (let m = 0; m < OPT_M; m++) {
+    for (let wk = 1; wk <= 17; wk++) {
+      const by = {};
+      for (let i = 0; i < roster.length; i++) {
+        const r = roster[i];
+        if (optU(r.pid, wk, m) >= OPT_ABS[r.q]) (by[r.q] || (by[r.q] = [])).push(r.w);
+      }
+      /* v4 (prereg §7): friction is POSITION-DEPENDENT. {QB,K,DEF} slots
+       * refill at wire without consuming the claim (nobody competes for
+       * kickers — P150: K adds 1.02x wire). {RB,WR,TE} empty slots incl.
+       * flex share ONE weekly claim; every further contested hole scores 0. */
+      let wkTot = 0; let flexBest = 0; let bestWire = 0;
+      for (let pi = 0; pi < POS.length; pi++) {
+        const q = POS[pi];
+        const contested = FLEX.includes(q);          // RB/WR/TE
+        const have = (by[q] || []).sort((a, b) => b - a);
+        const need = STARTERS[q] || 0;
+        for (let i = 0; i < need; i++) {
+          if (have[i] != null) wkTot += have[i];
+          else if (!contested) wkTot += WAIVER_WK[q] || 0;
+          else if ((WAIVER_WK[q] || 0) > bestWire) bestWire = WAIVER_WK[q] || 0;
+        }
+        if (contested && have[need] != null && have[need] > flexBest) flexBest = have[need];
+      }
+      /* the one contested claim: best empty RB/WR/TE slot, or stream the
+       * flex when no roster player fills it */
+      if (flexBest > 0) { wkTot += flexBest; if (bestWire > 0) wkTot += bestWire; }
+      else wkTot += Math.max(bestWire, WAIVER_FLEX);
+      tot += wkTot;
+    }
+  }
+  return tot / OPT_M;
+}
 /* classic VBD starter-rank baseline for `snake` (prereg §4 — deliberately the
  * starter table, NOT drafted depth; Subvertadown means standard VBD) */
 const SNAKE_BASE_RANK = { QB: 10, RB: 24, WR: 26, TE: 10, K: 10, DEF: 10 };
@@ -762,6 +900,144 @@ function buildSeat(season, draft, seatId, rosterOn) {
         (vc.valsDepth[wq] || (vc.valsDepth[wq] = []))
           .push(Math.max(0, vc.rawVal(win) - (vc.repl[wq] || 0)));
       }
+      return;
+    }
+    if (OPT) {
+      /* THE BENCH-OPTION PICK: argmax over candidates of the marginal on
+       * expected stochastic-season lineup points. No caps, no bench rule —
+       * only §14c legality forcing (a draft must produce a legal roster; that
+       * is the game's rule, not a value patch). */
+      let needPos = null;
+      {
+        let unfilled = 0;
+        const np = {};
+        POS.forEach(z => {
+          const gap = (STARTERS[z] || 0) - (held[z] || 0);
+          if (gap > 0) { unfilled += gap; np[z] = true; }
+        });
+        let remaining = 0;
+        for (let k = idx; k < N; k++) if (picks[k].roster_id === seatId && !picks[k].is_keeper) remaining++;
+        if (remaining <= unfilled) needPos = np;
+        /* v9 (prereg §12): the EDF FEASIBILITY SCHEDULE as the trigger.
+         * Sort needed positions by DEADLINE (last available copy's recorded
+         * pick_no, gaps>1 = multiple entries), match against my remaining
+         * pick numbers in order; the moment any k-th deadline precedes my
+         * k-th remaining pick, forcing starts. Provably sufficient — a
+         * vacancy after this means the pool itself ran dry. (v6 counted past
+         * one pick; v8 chose right but triggered late — the graded trail.) */
+        if (!needPos && unfilled > 0) {
+          const lastNo = {}, supplyNow = {};
+          for (let k = idx; k < N; k++) {
+            const c2 = picks[k];
+            if (c2.is_keeper || isGone(c2.player_id)) continue;
+            const z = posOf(c2.player_id);
+            if (!z || !np[z]) continue;
+            supplyNow[z] = (supplyNow[z] || 0) + 1;
+            if (c2.pick_no > (lastNo[z] || 0)) lastNo[z] = c2.pick_no;
+          }
+          const myPickNos = [pk.pick_no];
+          for (let k = idx + 1; k < N; k++) {
+            const c2 = picks[k];
+            if (c2.roster_id === seatId && !c2.is_keeper) myPickNos.push(c2.pick_no);
+          }
+          const deadlines = [];
+          Object.keys(np).forEach(z => {
+            if (!(supplyNow[z] > 0)) return;
+            const gap = (STARTERS[z] || 0) - (held[z] || 0);
+            for (let g = 0; g < gap; g++) deadlines.push(lastNo[z]);
+          });
+          deadlines.sort((a, b) => a - b);
+          /* the current pick must be FORCED when the schedule WITHOUT it
+           * fails — compare deadlines against my remaining picks EXCLUDING
+           * this one (v9's first cut compared including it: that tests "is
+           * it already broken", one pick too late — vac went 6→11 and the
+           * off-by-one is recorded in P278's grade). */
+          let mustForce = false;
+          for (let k = 0; k < deadlines.length; k++) {
+            if (k + 1 >= myPickNos.length || deadlines[k] < myPickNos[k + 1]) { mustForce = true; break; }
+          }
+          if (mustForce) needPos = np;
+        }
+      }
+      /* roster valuation: v3 REAL-UNIT LOO curve at market rank (ALL picks
+       * incl. keepers — a keeper needs his real level, not rank 999) */
+      const curves = optCurveFor(season.season);
+      const rankAll = {};
+      {
+        const rc = {};
+        picks.forEach(p2 => {
+          const q2 = posOf(p2.player_id);
+          if (!q2) return;
+          rankAll[String(p2.player_id)] = (rc[q2] = (rc[q2] || 0) + 1);
+        });
+      }
+      const wptsOf = pid => {
+        const q2 = posOf(pid);
+        const f = q2 && curves[q2];
+        return f ? f(rankAll[String(pid)] || 999) / 17 : 0;
+      };
+      const rosterNow = mine.map(pid => ({ pid: String(pid), q: posOf(pid), w: wptsOf(pid) }))
+        .filter(r => r.q);
+      /* candidates: first OPT_CANDS_PER_POS available per position, in pick
+       * order (market value strictly decreasing), forcing-restricted */
+      const collect = restrict => {
+        const out = [], perPos = {};
+        for (let j = idx; j < N; j++) {
+          const c = picks[j];
+          if (c.is_keeper || isGone(c.player_id)) continue;
+          const q = posOf(c.player_id);
+          if (!q) continue;
+          if (restrict && !restrict[q]) continue;
+          if ((perPos[q] || 0) >= OPT_CANDS_PER_POS) continue;
+          perPos[q] = (perPos[q] || 0) + 1;
+          out.push(c);
+        }
+        return out;
+      };
+      /* v2 forcing fallback (P256's vacancy bug): forcing with an empty
+       * shelf falls back to unrestricted candidates, never skips the pick */
+      let cands = collect(needPos);
+      if (!cands.length && needPos) cands = collect(null);
+      if (!cands.length) return;
+      /* v7 (prereg §10): a FORCED pick takes the SCARCEST needed position
+       * first — smallest supply surviving past my next pick — and marginal
+       * only breaks ties within it. v6's trace: forced {TE,K} with both
+       * marginals ~0 tie-broke to K while TE's last copy died (P269). */
+      if (needPos && cands.length) {
+        /* v8 (prereg §11): EARLIEST DEADLINE FIRST — take the needed position
+         * whose LAST available copy dies soonest. v7's count-past-next chose
+         * TE while the endgame K run ate every "surviving" K (P272). */
+        const lastNo = {};
+        for (let k = idx; k < N; k++) {
+          const c2 = picks[k];
+          if (c2.is_keeper || isGone(c2.player_id)) continue;
+          const z = posOf(c2.player_id);
+          if (z && needPos[z] && c2.pick_no > (lastNo[z] || 0)) lastNo[z] = c2.pick_no;
+        }
+        let urgentPos = null;
+        Object.keys(needPos).forEach(z => {
+          if (!cands.some(c2 => posOf(c2.player_id) === z)) return;
+          if (urgentPos == null || (lastNo[z] || 0) < (lastNo[urgentPos] || 0)) urgentPos = z;
+        });
+        if (urgentPos != null) cands = cands.filter(c2 => posOf(c2.player_id) === urgentPos);
+      }
+      const baseV = optV(rosterNow);
+      let chosen = null, bestMarg = -Infinity;
+      const dbg = process.env.OPT_DEBUG && season.season === '2023' && seatId === 1;
+      cands.forEach(c => {
+        const q = posOf(c.player_id);
+        const marg = optV(rosterNow.concat({ pid: String(c.player_id), q, w: wptsOf(c.player_id) })) - baseV;
+        if (dbg) console.error(`  pick ${pk.pick_no} cand ${q} rank${rankAll[String(c.player_id)]} w=${wptsOf(c.player_id).toFixed(1)} marg=${marg.toFixed(1)}`);
+        if (marg > bestMarg + 1e-9 || (Math.abs(marg - bestMarg) <= 1e-9 && chosen && c.pick_no < chosen.pick_no)) {
+          bestMarg = marg; chosen = c;
+        }
+      });
+      if (dbg && chosen) console.error(`  pick ${pk.pick_no} => ${posOf(chosen.player_id)} marg=${bestMarg.toFixed(1)} roster=${JSON.stringify(held)}`);
+      if (!chosen) return;
+      takenByMe.add(chosen.player_id);
+      mine.push(chosen.player_id); mineAt.push(pk.pick_no);
+      const cq = posOf(chosen.player_id);
+      if (cq) { held[cq] = (held[cq] || 0) + 1; (mineVals[cq] || (mineVals[cq] = [])).push(valueOf(chosen)); }
       return;
     }
     if (GAUNTLET) {
