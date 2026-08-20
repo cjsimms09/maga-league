@@ -716,7 +716,46 @@
    * picks, ceiling 0 vs 0.45: 0 of the top-60 move at picks 33, 48 and 68;
    * 19 move at 108 (max 4 spots); 32 at 128 (max 10); the TOP RECOMMENDATION
    * NEVER CHANGES. A late-round bench-ordering change, not a board-wide one. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.45,
+  /* ⚠️ need: 0.0 → 1.0, CORY'S DIRECT RULING 2026-08-20, WITH THE NUMBERS IN
+   * FRONT OF HIM. Register 160, found by E, verified independently by A.
+   *
+   * THE DEFECT. `value` is VONA, not VORP — line ~1825, `const v = vona(...)`.
+   * VORP reaches the score through exactly one path: `need.value`, which
+   * starterSlotMarginal() sets to `player.vorp` for a starter fill. At need 0.0
+   * that path was multiplied by zero, so VALUE OVER REPLACEMENT NEVER ENTERED
+   * THE LIVE SCORE AT ALL. E matched this against the snake-draft VBD/VONA
+   * reference Cory supplied, whose method is explicitly additive — "Snake Value
+   * = VBD + Opportunity Cost (VONA)" — and we were running opportunity cost
+   * alone.
+   *
+   * ⚠️ WHAT THIS TERM ACTUALLY IS, AND IT IS NOT UNCONDITIONAL VBD. Measured
+   * before shipping, and it changes how the number should be read:
+   * `need.value` is `player.vorp` ONLY when the position has an EMPTY dedicated
+   * starter slot; otherwise it is flex-marginal. So this credits VORP for
+   * positions Cory still needs and not for ones his keepers already fill. With
+   * 2 RB keepers and 1 WR keeper that systematically promotes WR and demotes
+   * RB. It is a ROSTER-CONDITIONAL VBD, and the reference article's VBD is
+   * unconditional — implementing that faithfully would be a NEW term, not this
+   * reweight. Recorded so nobody later reads this as "we implemented the
+   * article".
+   *
+   * BLAST RADIUS, measured on the real pick-33 pool (671 available after
+   * draining 29 by ADP and removing his 3 keepers):
+   *
+   *     need 0.0 (before)   RB Breece Hall · TE Colston Loveland · WR Zay Flowers
+   *     need 1.0 (after)    WR Zay Flowers · RB Breece Hall · WR DeVonta Smith
+   *
+   * THE TOP RECOMMENDATION AT HIS FIRST PICK CHANGES. That is not a side
+   * effect, it is the point, and Cory was shown exactly this before ruling.
+   *
+   * 1.0 IS PARITY WITH `value`, NOT A FITTED NUMBER. Nothing swept it and it
+   * must not be nudged after seeing a result (no_fit_guard). If it is ever
+   * moved, it moves on a graded replay, not on a draft-night hunch.
+   *
+   * NOT GRADED, AND IT CANNOT BE BEFORE SATURDAY. `model_slate` now records the
+   * OLD weighting alongside the new one at every pick, so January settles this
+   * on real outcomes instead of on argument. */
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 1.0, risk: 0.0, ceiling: 0.45,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
   /* Which zeros are measured and which are merely defaults, as data rather than
@@ -724,8 +763,21 @@
   const WEIGHT_PROVENANCE = {
     value: 'measured', keeper: 'measured', stack: 'measured (D10 ruling)',
     tier: 'measured',
-    need: 'measured (redundant with the lineup mask ON THE NEEDRULE CARD ONLY — '
-      + 'the composite list never calls the mask and is blind to positional fill)',
+    /* ⚠️ REWRITTEN 2026-08-20 WITH THE WEIGHT ITSELF. This entry still read
+     * "measured (redundant with the lineup mask...)" — the justification for a
+     * ZERO that is no longer zero. Register 5h is precisely that: a weight
+     * ruling ships and the prose quoting the old number never follows, and this
+     * file has been cited for it three times today. */
+    need: 'RULED 1.0 by Cory 2026-08-20 (register 160, found by E, verified by '
+      + 'A). At 0.0 this term was the ONLY path player.vorp took into the '
+      + 'score, so VALUE OVER REPLACEMENT NEVER REACHED THE LIVE BOARD — '
+      + '`value` is VONA, not VORP. NOT GRADED: 1.0 is parity with `value`, not '
+      + 'a fitted number, and it must move only on a graded replay. READ IT '
+      + 'CORRECTLY: starterSlotMarginal() returns player.vorp only for an EMPTY '
+      + 'dedicated starter slot, so this is ROSTER-CONDITIONAL VBD and not the '
+      + 'unconditional VBD of the reference article — on Cory\'s 2 RB + 1 WR '
+      + 'keeper base it promotes WR and demotes RB. Measured blast radius: his '
+      + '#1 at pick 33 moves from RB Breece Hall to WR Zay Flowers.',
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',

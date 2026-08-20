@@ -43,20 +43,46 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     + '"five of eight are zero" claim true of PRODUCTION and not of a default',
   /weights: Object\.assign\(\{\}, E\.MEASURED_WEIGHTS/.test(app));
 
-  /* RE-PINNED 2026-08-17: ceiling left the zeroed set on Cory's ruling
-   * ("IS THIS STUDIES? IF SO, YES" — 0.45, the exp-21 inverted-U peak; full
-   * record at MEASURED_WEIGHTS in engine.js). Five zeros became four. */
+  /* RE-PINNED TWICE, and the second one is why this check exists at all.
+   *   2026-08-17: ceiling left the zeroed set on Cory's ruling ("IS THIS
+   *     STUDIES? IF SO, YES" — 0.45). Five zeros became four.
+   *   2026-08-20: NEED left it too, on Cory's direct ruling after register 160
+   *     (found by E, verified by A). Four became three.
+   *
+   * Register 160 in one line: `value` is VONA, not VORP, and `need.value` was
+   * the ONLY path player.vorp took into the score — so at need 0.0 value over
+   * replacement never reached the live board. Cory was shown the blast radius
+   * (6 of his 12 picks change; the roster shape goes from 7 drafted RBs to 6 RB
+   * + 2 WR) and ruled to ship it.
+   *
+   * Derived from MEASURED_WEIGHTS rather than restated, so this can never
+   * disagree with the engine — it can only disagree with the DOCUMENT, which is
+   * the drift it is here to catch. */
   const zeroed = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] === 0);
-  ck('exactly four terms are zeroed (five until the 2026-08-17 ceiling ruling)',
-    zeroed.length === 4, zeroed);
-  ck('and they are the four the document names',
+  ck('exactly three terms are zeroed (five until the 2026-08-17 ceiling ruling, '
+    + 'four until the 2026-08-20 need ruling)',
+  zeroed.length === 3, zeroed);
+  ck('and they are the three the document names',
     JSON.stringify(zeroed.slice().sort())
-      === JSON.stringify(['bye', 'need', 'risk', 'tier']), zeroed);
+      === JSON.stringify(['bye', 'risk', 'tier']), zeroed);
+  ck('KNOWN NEGATIVE: `need` is no longer among them — the term that carries '
+    + 'VORP into the score is live',
+  zeroed.indexOf('need') < 0 && E.MEASURED_WEIGHTS.need === 1.0,
+  E.MEASURED_WEIGHTS.need);
   const live = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] !== 0);
-  ck('the four that survive are value, ceiling, keeper and stack — the whole composite',
-    JSON.stringify(live.slice().sort())
-      === JSON.stringify(['ceiling', 'keeper', 'stack', 'value']), live);
-  ck('the document says so', /`value \+ ceiling \+ keeper \+ stack`/.test(doc));
+  /* ⚠️ THE LIST IS DERIVED FROM THE ENGINE AND MATCHED AGAINST THE DOCUMENT,
+   * rather than both being hardcoded here. Pinned as four literal names, this
+   * check went red the moment `need` went live — which is a weight ruling
+   * landing correctly, not a defect. The invariant is that the DOCUMENT names
+   * exactly the live terms, so a ruling forces a documentation edit instead of
+   * a test edit. */
+  const expected = live.slice().sort().map(k => '`' + k + '`');
+  const stated = (doc.match(/`(?:value|need|tier|risk|ceiling|keeper|bye|stack)(?: \+ (?:value|need|tier|risk|ceiling|keeper|bye|stack))+`/) || [''])[0];
+  const statedTerms = (stated.match(/[a-z]+/g) || []).sort().map(k => '`' + k + '`');
+  ck('the document names EXACTLY the terms the engine actually weights — no '
+    + 'more, and none missing',
+  JSON.stringify(statedTerms) === JSON.stringify(expected),
+  { engine: expected, document: statedTerms || stated });
   ck('  and the ceiling it names is the ruled 0.45, matching the engine',
     /0\.45/.test(doc) && E.MEASURED_WEIGHTS.ceiling === 0.45, E.MEASURED_WEIGHTS.ceiling);
 }
@@ -203,26 +229,66 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     .sort((a, b) => tot[b] - tot[a]).filter(k => pct(k) >= 0.05)
     .map(k => k + ' ' + pct(k).toFixed(1) + '%').join(' · '));
 
-  ck('VONA really is the largest term, which is the claim the whole VONA section '
-    + 'rests on', Object.keys(tot).every(k => k === 'value' || tot[k] <= tot.value),
-  Object.keys(tot).map(k => k + ':' + pct(k).toFixed(1)));
+  /* ⚠️ THIS CHECKED THAT `value` WAS LARGEST, AND THAT IS THE FOURTH TIME A NAME
+   * WAS HARDCODED HERE AND A RULING INVALIDATED IT (2026-08-20, register 160).
+   *
+   * `need` went 0.0 → 1.0 on Cory's ruling and became the largest term at 53.5%,
+   * with `value` at 32.5%. The assertion "VONA is what decides a pick" is simply
+   * no longer true of the model we run. Editing the literal from `value` to
+   * `need` would set the same trap for the next ruling.
+   *
+   * So the invariant is now the one that survives a weight change: THE DOCUMENT
+   * NAMES WHICHEVER TERM MEASURES LARGEST. A ruling then forces a documentation
+   * edit — which is the entire purpose of this file — instead of a test edit. */
+  const MATERIAL_SHARE = 5.0;   // % of movement above which a term must be documented
+  const ranked = Object.keys(tot).filter(k => pct(k) >= 0.05)
+    .sort((a, b) => tot[b] - tot[a]);
+  const largest = ranked[0];
+  ck('CONTROL: the re-derivation produced a ranked, non-degenerate table',
+    ranked.length >= 3 && pct(largest) > pct(ranked[ranked.length - 1]),
+    ranked.map(k => k + ':' + pct(k).toFixed(1)));
+  ck('the document names the LARGEST term (' + largest + ') as the largest, '
+    + 'whichever one that is — a ruling must edit the document, not this test',
+  new RegExp('`' + largest + '`[^\\n]{0,80}(?:is (?:now )?the largest|LARGEST)', 'i').test(doc)
+    || new RegExp('(?:largest|LARGEST) term[^\\n]{0,80}`?' + largest + '`?', 'i').test(doc),
+  { largest: largest, share: pct(largest).toFixed(1) });
   /* BANDED, NOT PINNED. The board rebuilds nightly and these shares move with it;
-   * a hard 59.3 would go red on a projection refresh, which is the model being
-   * punished for the data changing. The band is wide enough to survive a rebuild
-   * and narrow enough that 78% — the empty-roster artifact — fails it. */
-  /* RE-DERIVED A THIRD TIME, 2026-08-17 EVENING: the ceiling term went live at
-   * 0.45 per Cory's ruling and now carries ~16% of top-five movement, taken
-   * mostly out of value's share (55.3 → 49.0 on the same board — one weight,
-   * not a rebuild). The band moves down with the mechanism stated; it stays
-   * narrow enough that the empty-roster artifact (78%) still fails it. */
-  ck('and its share matches the ~49-59% the document states, on a band that the '
-    + 'empty-roster artifact (78%) would fail',
-  pct('value') >= 42 && pct('value') <= 65, pct('value').toFixed(1));
+   * a hard 53.5 would go red on a projection refresh, which is the model being
+   * punished for the data changing. */
+  ck('the document\'s stated share for every material term is within 8 points of '
+    + 'the re-derivation — a table of percentages is exactly the claim that goes '
+    + 'stale silently, and this one already has, three times',
+  ranked.filter(k => pct(k) >= MATERIAL_SHARE).every(k => {
+    const m = doc.match(new RegExp('\\|\\s*\\*{0,2}`' + k + '`[^|\\n]*\\|\\s*\\*{0,2}([\\d.]+)%'));
+    return m && Math.abs(Number(m[1]) - pct(k)) <= 8;
+  }),
+  ranked.filter(k => pct(k) >= MATERIAL_SHARE).map(k => {
+    const m = doc.match(new RegExp('\\|\\s*\\*{0,2}`' + k + '`[^|\\n]*\\|\\s*\\*{0,2}([\\d.]+)%'));
+    return k + ' measured ' + pct(k).toFixed(1) + ' / document ' + (m ? m[1] : 'ABSENT');
+  }));
   ck('and ceiling is live and material — the ruled 0.45 is a participant, not '
     + 'a decoration (zero would mean the ruling did not ship)',
   pct('ceiling') >= 2, pct('ceiling').toFixed(1));
-  ck('onesie is live and material rather than a rounding term — the reason it had '
-    + 'to be named', pct('onesie') >= 5, pct('onesie').toFixed(1));
+  /* ⚠️ `onesie` STOPPED APPEARING, AND THE OLD 24% WAS NEVER WHAT IT SOUNDED
+   * LIKE. This asserted `pct('onesie') >= 5` on the strength of a 24.0% share.
+   * Measured by FIRING RATE rather than share, onesie was non-zero on 3 of 60
+   * top-five rows at need=0 (max 7.91) and 0 of 60 at need=1.0 — a large penalty
+   * on a rare row, not a broad driver. A mean-absolute-deviation share and a
+   * rate of firing are different quantities and this file published one as the
+   * other. With `need` live, a duplicate at a filled one-starter slot never
+   * reaches the top five for onesie to penalise; the term is REDUNDANT, not
+   * broken. Asserted as the redundancy, which is the true statement. */
+  {
+    const onesieLive = pct('onesie') >= 0.05;
+    ck('`onesie` is redundant now that `need` is live — it is a post-assembly '
+      + 'patch for the fact `need` now carries structurally, and it no longer '
+      + 'reaches a top-five row',
+    E.MEASURED_WEIGHTS.need > 0 ? !onesieLive : onesieLive,
+    { need: E.MEASURED_WEIGHTS.need, onesieShare: pct('onesie').toFixed(2) });
+    ck('...and the document says so, with the firing rate rather than only the '
+      + 'share, so a reader is not told a rare large penalty is a broad driver',
+    /redundant/i.test(doc) && /3 of 60/.test(doc), null);
+  }
   ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '
     + 'of 0.0% was an artifact and not a measurement', pct('stack') > 0,
   pct('stack').toFixed(1));
@@ -263,7 +329,7 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * LISTED — rather than re-asserting an order among names chosen in advance. A
    * new term appearing above the bar fails this; a rebuild nudging the middle
    * ranks does not. */
-  const MATERIAL = 5.0;   // % of movement above which a term must be documented
+  const MATERIAL = MATERIAL_SHARE;   // one bar, declared once, used by both blocks
   {
     const material = Object.keys(tot).filter(k => pct(k) >= MATERIAL)
       .sort((a, b) => tot[b] - tot[a]);
@@ -277,16 +343,24 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     material.every(k => new RegExp('\\|\\s*\\*{0,2}`' + k + '`').test(doc)),
     material.filter(k => !new RegExp('\\|\\s*\\*{0,2}`' + k + '`').test(doc)));
   }
-  ck('the two claims with the widest margins hold on their own — value is the '
-    + 'largest term and keeper is the SMALLEST',
-  Object.keys(tot).every(k => k === 'value' || tot[k] <= tot.value)
-    && Object.keys(tot).filter(k => pct(k) >= 0.05)
-      .every(k => k === 'keeper' || tot[k] >= tot.keeper),
-  Object.keys(tot).filter(k => pct(k) >= 0.05).sort((a, b) => tot[b] - tot[a])
-    .map(k => k + ':' + pct(k).toFixed(1)));
-  ck('and the document SAYS keeper is smallest and says WHY it moved, so the '
-    + 're-derivation above is the document\'s claim rather than a quiet test edit',
-  /`keeper` SMALLEST/.test(doc) && /keeper` MOVED FROM 14\.3% TO 0\.2%/.test(doc));
+  /* THE MARGIN THAT MATTERS, WITHOUT NAMING THE WINNER. `value` largest and
+   * `keeper` smallest was true for four days and then a weight ruling made half
+   * of it false. What is worth pinning is that the table is not a near-tie —
+   * a reader acts on the ORDER, and an order whose top two run within a point
+   * of each other is one nightly rebuild from reversing without anyone noticing.
+   * That property holds across rulings; a name does not. */
+  ck('the top term leads the second by a margin a nightly rebuild cannot flip — '
+    + 'a near-tie at the top is what made the 2026-08-17 keeper/onesie swap '
+    + 'invisible',
+  ranked.length >= 2 && (pct(ranked[0]) - pct(ranked[1])) >= 5,
+  ranked.slice(0, 3).map(k => k + ':' + pct(k).toFixed(1)));
+  ck('and `keeper` is still very nearly inert at Cory\'s picks, which the '
+    + 'document states rather than leaving a reader to infer from a small number',
+  pct('keeper') < 5 && /very nearly inert/.test(doc),
+  pct('keeper').toFixed(2));
+  ck('and the document still carries WHY keeper moved, so the re-derivation is '
+    + 'the document\'s claim rather than a quiet test edit',
+  /keeper` MOVED FROM 14\.3% TO 0\.2%/.test(doc));
   /* THE FIX THAT MOVED IT MUST STILL BE IN PLACE. Without this the table could
    * silently drift back to measuring the defect and every check above would
    * still pass on the old numbers. */
