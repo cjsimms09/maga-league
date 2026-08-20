@@ -11,6 +11,44 @@ for this feature (`proj_source_panel.test.js`) is 100% static regex-over-
 source-text and never actually exercises runtime behavior, which is exactly
 the gap a live drive can catch and a text-only test cannot.
 
+## ⚠️ UPDATE, SAME SESSION — A MORE SEVERE BUG FOUND WORKING THE RELAY'S 6-ITEM CHECKLIST (item 6): THE TOGGLE UI LIES AFTER A PAGE RELOAD
+
+**This is the lead finding, above everything below.** Item 6 asked: *"the
+localStorage-restored source on a fresh page load: does the board actually
+load that source or just highlight the button?"* — a reasonable worry given
+`currentProjSource()` reads `localStorage.getItem('wr_proj_source')` purely
+as a display fallback and nothing in `init()` actually calls
+`setProjSource()` with the restored key.
+
+**Confirmed live, exactly as suspected, and worse than a cosmetic gap.**
+Toggled to Draft Sharks, verified real (`state.board.length` 247, Gibbs VORP
+147.0). Reloaded the page — the same action a real network hiccup or an
+accidental refresh mid-draft would cause, with `localStorage` still carrying
+`'ds'` from before:
+
+```
+BEFORE reload:  projSource "ds"    board.length 247   Gibbs VORP 147.0
+AFTER reload:   projSource (unset) board.length 700   Gibbs VORP 155.9
+                button "Draft Sharks 247" shown BOLD/ACTIVE
+```
+
+**The button UI claims Draft Sharks is selected. Every actual number on the
+page — the big board, VORP, tiers, the recommendation, VONA — is silently
+the full 700-player BLEND.** `state.projSource` itself comes back unset;
+only the display-layer fallback (`currentProjSource()` reading localStorage
+directly) makes the button light up, while `state.board` was never swapped
+because nothing in the boot sequence calls `setProjSource(restoredKey)`.
+
+This is precisely the failure mode the toggle's OWN code comments say it was
+built to prevent (*"a re-ranked board that looks like the normal one is the
+most dangerous thing this panel could do"*) — except inverted: here a board
+that IS the normal one looks re-ranked, via the one piece of UI (the active
+button) a user would trust to tell them which board they're on. A refresh
+mid-draft is not a rare event, and there is no error, no warning, no console
+message — the page loads clean and confidently wrong.
+
+`draft/tests/proj_source_reload_check.js` reproduces this on demand.
+
 ## THE CORE MECHANISM: WORKS, VERIFIED LIVE
 
 Toggling from blend to Draft Sharks and back, with real DOM/state reads at
@@ -124,19 +162,57 @@ toggle), but I also did not fully trace whether it could read as confusing
 next to a toggle now showing a different source's numbers in the SAME row.
 Named rather than silently left out; not claiming a verdict either way.
 
+## THE RELAY'S 6-ITEM CHECKLIST, WORKED IN FULL
+
+1. **Ranks/VONA/tiers/recommended player all move on toggle** — ✅ CONFIRMED
+   live (see above): recommendation flips Allen→Bowers, VONA component
+   changes, board table rows change.
+2. **DS's thin 43-row K/DEF pool never gets silently seated early** — ✅
+   CONFIRMED clean. Best-ranked K/DEF in the DS-sourced board is
+   `overall_rank 205` of 247 (Brandon Aubrey) — the onesie demotion in
+   `apply_vorp` is preserved through `rerank_by_source.py`, same as Cory's
+   ruling on the blend.
+3. **A drafted player stays off every source's board** — ✅ CONFIRMED clean.
+   Drafted a player live, checked board length and membership across
+   blend→DS→Sleeper→blend: filtered correctly every time
+   (`draft/tests/proj_source_drafted_filter_check.js`).
+4. **Mock start/end while on a non-blend source** — not independently
+   re-verified; the relay's own code-level pass already found and routed
+   this exact defect to A (*"mock-end leaves the toggle label lying"*).
+   Redoing it would duplicate rather than add — flagging as already-tracked,
+   not re-investigated here to spend the remaining time on items nobody had
+   checked yet.
+5. **Overrides + keeper marks survive a toggle round-trip** — ✅ CONFIRMED
+   clean. Applied a 20% downgrade override, toggled to Draft Sharks and
+   back: the override persisted and correctly rescaled against each
+   source's own base value (259.6 → 257.6 → 259.6,
+   `draft/tests/proj_source_overrides_check.js`).
+6. **localStorage-restored source on a fresh page load** — 🔴 **CONFIRMED
+   BROKEN, the lead finding of this whole audit** (see the top of this
+   document). The button lies; the board silently does not follow.
+
 ## ASK / REC / DEFAULT
 
-`ASK:` A's call on both — wire `loadMlvPlan()` into the source-swap path (or
-disable/grey the panel with a label when source != blend, if a per-source
-plan file is out of scope before Saturday), and add a compact, persistent
-indicator near `#board` itself (even a one-line sticky note is enough) so
-the source is legible without scrolling back to the toggle panel.
+`ASK:` three items, in priority order. **(1) THE RELOAD BUG FIRST — this is
+the one that can actually hurt him Saturday, because a refresh mid-draft is
+an ordinary event, not an edge case.** Either call `setProjSource(restored
+key)` on boot instead of only reading it for display, or — cheaper and
+safer two days out — stop restoring the SELECTION at all and always boot on
+blend, keeping only the button's own click-to-load behavior. A silently
+wrong default is worse than a boringly correct one this close to Saturday.
+**(2)** wire `loadMlvPlan()` into the source-swap path, or disable/grey the
+panel with a label when source != blend, if a per-source plan file is out
+of scope before Saturday. **(3)** add a compact, persistent indicator near
+`#board` itself (even a one-line sticky note is enough) so the source is
+legible without scrolling back to the toggle panel.
 
-`REC:` the board-table indicator is the cheaper, safer fix with the higher
-payoff — it's the actual page Cory reads pick-by-pick. The MLV-plan wiring
-is more valuable but touches a file that was rebuilt three times tonight
-(register 146→150→151); I'd rather flag it clearly than patch a fast-moving
-file myself two days before the draft.
+`REC:` fix (1) before anything else — it is a correctness bug with silent
+failure, not a missing nicety, and the other two are visible-when-wrong
+(a frozen panel, a missing label) while this one is invisible-when-wrong.
+I have not patched `app.js` myself; it has been rebuilt multiple times
+tonight by A and B both, and this is exactly the kind of one-line fix that
+collides badly with someone else's in-flight edit if two sessions touch the
+same function at once.
 
 `DEFAULT:` if nothing changes before Saturday, Cory should be told directly
 (not left to discover) that the whole-draft MLV plan panel always reflects

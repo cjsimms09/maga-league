@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 153,
+ "next_numeric_id": 154,
  "history": [
   {
    "id": 47,
@@ -236,6 +236,11 @@
    "id": 152,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 149 (A: 25 board fields plus 2 whole artifacts computed nightly but shown on no screen, caught two of A's own false 'safe to draft' claims) -- same collision and deviation as 143-151"
+  },
+  {
+   "id": 153,
+   "claimed_at": "2026-08-20",
+   "note": "E: Cory's own war-room audit order -- the source-toggle button lies after a page reload (shows Draft Sharks active, board silently still the blend); confirmed live in a real browser. Two lower-severity findings filed with it: mlv_plan.json never refetches on toggle, no board-table source indicator."
   }
  ]
 }
