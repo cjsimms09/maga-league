@@ -44,7 +44,7 @@ ck('...and it explicitly rules out the thing a dollar-heavy tool would suggest',
   /not a dollar value/.test(APP));
 
 ck('the note is actually WIRED into the panel render (not built and dropped)',
-  /host\.innerHTML = explainPanel\('recommendations'\) \+ head \+ orderNote \+ decisiveLine/.test(APP));
+  /host\.innerHTML = explainPanel\('recommendations'\) \+ head \+ orderNote \+ contrarianHtml \+ decisiveLine/.test(APP));
 
 // ── CONTROLS: THE TWO REJECTED FIXES DID NOT SNEAK IN INSTEAD ───────────────
 {

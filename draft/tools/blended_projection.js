@@ -84,7 +84,19 @@ const EXCLUDE_FP = process.argv.includes('--exclude-fp');
  * It stays in projection_snapshot_2026.json and will be graded with everyone
  * else after this season. Cory can put it back with --with-own-v6. */
 const KEEP_OWN_V6 = process.argv.includes('--with-own-v6');
-const SOURCES = ['sleeper', 'cbs', 'espn', 'fftoday', 'draftsharks']
+/* ⚠️ `clay` ADDED 2026-08-20 ON CORY'S ASK ("also add to blended?"), AND THE
+ * BLAST RADIUS WAS MEASURED BEFORE IT WENT IN, NOT AFTER.
+ * draft/tools/clay_blend_impact.js, report-only, with a control that reproduces
+ * TODAY'S 6-source blend to a 0.30-point median before it is permitted to print
+ * a 7-source one. Result: Clay covers 376 of 539 blended skill players, the
+ * point move where he has an opinion is median 1.21 / p95 4.66 / max 23.8, and
+ * inside ADP 200 the LARGEST positional rank move is THREE SLOTS. A nudge, not
+ * a reshuffle.
+ * Scored from raw stat lines under this league's half-PPR table by C's
+ * draft/tools/clay_projections.py -- his published FULL-PPR points column is
+ * never read anywhere. Spearman 0.9776 against Sleeper on 380 players puts him
+ * in the same family as the rest (0.90-0.97). */
+const SOURCES = ['sleeper', 'cbs', 'espn', 'fftoday', 'draftsharks', 'clay']
   .concat(KEEP_OWN_V6 ? ['own_v6'] : [])
   .concat(EXCLUDE_FP ? [] : ['fantasypros']);
 

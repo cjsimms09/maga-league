@@ -109,6 +109,36 @@ def main() -> int:
     rb_ranked = sorted((p["proj_mean"] for p in pool if p["position"] == "RB"),
                        reverse=True)
 
+    # ── KEEPER SLATE, ADDED 2026-08-20 ──────────────────────────────────────
+    #
+    # Three freeze/keeper controls refused a board on 2026-08-20 and this tool
+    # printed NOTHING about keepers, so the refusal was unreadable from outside
+    # CI -- the candidate board is not downloadable from every sandbox (Azure
+    # blob answers 403 at CONNECT from mine), so "look at the artifact" is not
+    # always available. A refusal one day before KEEPER LOCK that cannot say
+    # what the keeper state was is the worst possible time for that gap.
+    #
+    # NOTHING IS SUPPRESSED HERE. The controls still refuse. This only makes
+    # the refusal legible.
+    slate = board.get("keeper_slate") or {}
+    print("\n-- keeper slate on the CANDIDATE board (what the freeze controls read):")
+    if not slate:
+        print("   keeper_slate ABSENT ENTIRELY — that alone fails "
+              "test_control_the_real_board_still_reports_the_lock_as_not_passed,")
+        print("   because .get('keeper_lock_passed') returns None, and the "
+              "control asserts `is False`.")
+    else:
+        for k in ("keeper_lock_passed", "status", "confirmed", "teams_expected",
+                  "teams_designated", "teams_placed", "placements_present"):
+            if k in slate:
+                print("   %-22s %r" % (k, slate[k]))
+        if "keeper_lock_passed" not in slate:
+            print("   MISSING: keeper_lock_passed — the control asserts `is False`, "
+                  "and a missing key is None, which is not False.")
+        for k in ("undesignated_teams", "mismatches"):
+            if slate.get(k):
+                print("   %-22s %r" % (k, slate[k]))
+
     print("\n-- replacement sensitivity (same scan as the characterization test):")
     print("   base RB replacement:   %.4f   (allocation: %r, flex slots: %r)" % (
         base["RB"], base_counts, base_diag["flex_slots_allocated"]))

@@ -202,6 +202,18 @@
     <span class="hero-sub">who's won it →</span>
   </a>
   <% } %>
+  <%# PLAYOFF-ODDS / RISK-POSTURE WIDGET (A dispatch, 2026-08-19; P103 graded
+      TRUE — beats the constant-odds baseline on all three hindcast seasons).
+      Absent entirely pre-season and pre-week-1 (the feed refuses to exist
+      until a real week is realized) — that is the expected state, not a gap. %>
+  <% const _po = (typeof playoffOdds !== 'undefined' && playoffOdds && playoffOdds.available) ? playoffOdds : null; %>
+  <% if (_po) { %>
+  <a class="hero-item clickable po-widget po-<%= _po.posture %>" href="/races">
+    <span class="hero-label">Playoff Odds <span class="sub">week <%= _po.asOfWeek %></span></span>
+    <span class="hero-value"><%= _po.pPlayoffsPct %>%</span>
+    <span class="hero-sub">$<%= Math.round(_po.p5) %>–$<%= Math.round(_po.p95) %> band · <%= _po.postureCopy %></span>
+  </a>
+  <% } %>
 </div>
 
 <%

@@ -135,9 +135,22 @@ const esc = s => String(s).replace(/[&<>"]/g, c =>
   ];
   const stubs = {
     $: sel => (sel === '#board-body' ? bodyHost : (sel === '#board-count' ? countHost : null)),
+    /* rankSource null = on the blend, which is the state this suite's
+     * assertions were all written against. renderBoard's source re-order is
+     * skipped entirely on blend, so the checks below measure exactly what they
+     * measured before the ranking-source toggle reached the Big Board. */
     state: { filterPos: 'ALL', search: '', board, data: { players: board },
+      rankSource: null,
       drafted: new Set(), lists: { queue: [], targets: [], avoid: [] } },
     escapeHtml: esc,
+    /* ⚠️ ADDED 2026-08-20 AFTER THIS SUITE WENT RED IN CI. renderBoard began
+     * calling sourceAdjustedBoard() when the Big Board was taught to follow the
+     * ranking-source toggle, and this harness evals renderBoard in isolation —
+     * so the new call threw "sourceAdjustedBoard is not defined" before a
+     * single assertion ran. The suite reported a crash, not a failure, which is
+     * why it read as unrelated breakage. On blend the real function returns the
+     * same array untouched, so this stub is the real behaviour, not a fake. */
+    sourceAdjustedBoard: () => board,
     nameScore: () => 1,
     resetCaveats: () => {},
     caveatOnce: (id, marker) => '<span class="cav">' + marker + '</span>',
@@ -148,9 +161,10 @@ const esc = s => String(s).replace(/[&<>"]/g, c =>
   // eslint-disable-next-line no-new-func
   const render = new Function('$', 'state', 'escapeHtml', 'nameScore', 'resetCaveats',
     'caveatOnce', 'projSourceMark', 'riskFlags', 'renderSearchTail',
+    'sourceAdjustedBoard',
     fnSrc + '; return renderBoard;')(stubs.$, stubs.state, stubs.escapeHtml,
     stubs.nameScore, stubs.resetCaveats, stubs.caveatOnce, stubs.projSourceMark,
-    stubs.riskFlags, stubs.renderSearchTail);
+    stubs.riskFlags, stubs.renderSearchTail, stubs.sourceAdjustedBoard);
   render();
   ck('SENTINEL (B2): a search_rank player\'s ADP cells never render the number',
     captured.indexOf('>328<') < 0 && captured.indexOf('>321<') < 0, 'searched for >328< / >321<');

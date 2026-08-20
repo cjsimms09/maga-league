@@ -138,6 +138,25 @@ def test_NO_CORE_FILE_REFERENCES_A_PAID_REVIEWER():
         else:
             body = "\n".join(l for l in src.splitlines()
                              if not l.lstrip().startswith("#"))
+        # ⛔ A GIT COMMIT TRAILER IS NOT AN API DEPENDENCY, AND ON 2026-08-20 IT
+        # REFUSED A BOARD REBUILD OVER ONE. `draft/tools/relay_publish.sh` writes
+        # a commit message containing `Co-Authored-By: Claude
+        # <noreply@anthropic.com>`. That line lives inside a quoted string, not a
+        # `#` comment, so the comment-stripping above left it in and the scan
+        # matched the vendor name in an EMAIL ADDRESS. The board refused to
+        # publish, one day before Cory's keeper lock, over authorship metadata.
+        #
+        # This is the same defect this repository keeps paying for: a grep that
+        # fires on a MENTION and is read as a FINDING. Three separate greps did
+        # it to their own documentation in one session.
+        #
+        # Narrowed, not weakened: authorship trailers are dropped, and nothing
+        # else is. A trailer cannot make a network call. Every real shape the
+        # guard exists to catch — an import, a client construction, a base URL,
+        # a key read — is untouched, and the execution-level proof below is the
+        # actual evidence regardless.
+        body = "\n".join(l for l in body.splitlines()
+                          if not l.lstrip().lower().startswith("co-authored-by:"))
         low = body.lower()
         for bad in FORBIDDEN:
             if bad in low:

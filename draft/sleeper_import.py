@@ -112,9 +112,60 @@ def _rows_with_stats(payload) -> int:
     return n
 
 
+def _is_season_shaped(data) -> bool:
+    """Does this payload describe a SEASON rather than one week?
+
+    A weekly row is one game: `gp` is 0 or 1. A season row carries the whole
+    year. Majority of rows with gp > 1.5 is season-shaped — the same test C
+    landed in weekly_projection_archive.py, moved here so every caller inherits
+    it instead of each one re-deriving it (rule 11).
+    """
+    rows = data.values() if isinstance(data, dict) else (data if isinstance(data, list) else [])
+    gps = []
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        st = r.get("stats") if isinstance(r.get("stats"), dict) else r
+        g = st.get("gp") if isinstance(st, dict) else None
+        if isinstance(g, (int, float)):
+            gps.append(g)
+    if len(gps) < 10:
+        return False                      # too little to judge; do not accuse
+    return sum(1 for g in gps if g > 1.5) > len(gps) / 2
+
+
 def _best_payload(paths: list, season: str, week, label: str, ttl: int) -> dict:
+    """
+    ⛔ THIS SHIPPED A SEASON-TOTAL PAYLOAD AS "WEEK 1", WITH A CLEAN STATUS AND
+    NO ERROR, AND IT REACHED main. C found it by hand, not by a test, running
+    weekly-projection-archive for real for the first time: Josh Allen's "week 1"
+    row carried gp 18.0 and 405.5 points — his full-SEASON number.
+
+    TWO CAUSES, BOTH HERE, BOTH MINE:
+
+      1. `_PROJECTION_PATHS[0]` is "/projections/nfl/regular/{season}" — it does
+         not interpolate {week} AT ALL, so it is structurally season-shaped no
+         matter what week is asked for. `_STATS_PATHS[0]` has the identical
+         shape, so fetch_stats(season, week=N) carried the same exposure.
+      2. The loop below ranked candidates purely by row-count-with-stats, with
+         no check that the winning SHAPE answers the QUESTION. Before kickoff
+         the real per-week endpoints legitimately return 0 rows, so the season
+         endpoint won by default — the failure mode appears exactly when the
+         data does not exist yet, which is when nobody is looking.
+
+    C guarded their own consumer. That is a workaround; this is the fix, because
+    they also established that EVERY caller of fetch_projections(season, week=N)
+    had the same exposure and they could only check their own.
+
+    A URL that cannot express the week cannot answer a question about the week.
+    """
+    want_week = str(week) != "season"
     best, best_n, best_path = {}, 0, None
     for tmpl in paths:
+        if want_week and "{week}" not in tmpl:
+            print(f"    {label} {tmpl}: SKIPPED — no {{week}} in the path, it "
+                  f"cannot answer a week-{week} request")
+            continue
         path = tmpl.format(season=season, week=week)
         try:
             data = _get(path, ttl=ttl)
@@ -126,6 +177,14 @@ def _best_payload(paths: list, season: str, week, label: str, ttl: int) -> dict:
         print(f"    {label} {path}: {size} rows, {n} with stats")
         if n > best_n:
             best, best_n, best_path = data, n, path
+    # BELT AND BRACES: even a {week} path could return the wrong shape. Refusing
+    # is the only safe answer — a caller that gets {} writes nothing, and a
+    # caller that gets season totals labelled "week 1" writes a clean-looking lie.
+    if best_path and want_week and _is_season_shaped(best):
+        print(f"  ! {label}: {best_path} returned a SEASON-SHAPED payload for "
+              f"week {week} — REFUSING it rather than passing off season totals "
+              f"as one week")
+        return {}
     if best_path:
         print(f"  {label}: using {best_path} ({best_n} rows with stats)")
     else:

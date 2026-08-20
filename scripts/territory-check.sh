@@ -205,6 +205,34 @@ c_owns() {
     draft/backtest/discovery_*) return 0 ;;
     draft/backtest/adp_asof_*) return 0 ;;
     draft/backtest/ingest_*) return 0 ;;
+    # BROADENED 2026-08-20 (FIFTH TIME), AND THIS ONE IS A DIFFERENT SHAPE OF
+    # GAP — IT IS THE FIRST THAT NO DECLARATION COULD HAVE FIXED.
+    #
+    # C hit it committing Mike Clay's 2025 guide, and reported it rather than
+    # working around it. A PDF CANNOT CARRY A `# TERRITORY:` HEADER. There is no
+    # line to add. `_needs_declaration()` only fires inside draft/backtest/ and
+    # draft/tests/, so the file was not asked for one either — it simply fell
+    # through `else own="A"` and reported TRESPASS against C for doing exactly
+    # its job. Every previous broadening here was a missing prefix; this is a
+    # file TYPE the scheme had no answer for.
+    #
+    # ⚠️ AND THE ASYMMETRY IS THE TELL: I committed the 2026 guide's PDF to this
+    # same directory hours earlier and the check passed silently, because
+    # falling through to "A" happened to be right for me and wrong for C. A
+    # guard that answers by default rather than by rule is a guard that is right
+    # by luck.
+    #
+    # VERIFIED AGAINST origin/main THE SAME WAY THE PREVIOUS FOUR WERE, before
+    # broadening: draft/data/sources/ holds exactly three files — two already
+    # declared `# TERRITORY: C`, and the 2026 PDF, which is an external ingest
+    # SOURCE DOCUMENT and therefore C's lane by the project's own description of
+    # it. NO A-owned file lives under this prefix, so nothing is handed away.
+    #
+    # Scoped to draft/data/sources/ rather than to binaries generally, per C's
+    # own recommendation and the tight-prefix reasoning every comment above
+    # uses. draft/data/ at large stays exactly as it was — it is full of A's
+    # stores and a directory rule there would hand over most of the lane.
+    draft/data/sources/*) return 0 ;;
     # BROADENED 2026-08-11 (FOURTH TIME, by C, announced as a cross-lane fix).
     # `within_pool_adp.py` is D7 — ADP built from the pool's own earlier picks —
     # created by C in 38d4391 and squarely "the ADP-snapshot fetch" from C's lane

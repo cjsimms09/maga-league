@@ -21,11 +21,135 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 ---
 
-## CORY RULED 2026-08-19 — own_v6's role, settling register 126
+## ANSWERED 2026-08-20 — Mike Clay as a source, in the blend, and his other data
+
+**① WAR-ROOM COLUMN — DONE, live now.** "Mike Clay" is the eighth column on the
+best-available cheat sheet, scored under our own half-PPR table from his raw
+stat lines (his own full-PPR column is never read). Order only, no points, no
+board field touched — **so it shows you what he thinks without moving a single
+number you draft on.**
+
+**② IN THE BLEND — measured, and it is SAFE, which is a change from what I told
+C yesterday.** When the blast radius was unknown I said land-it-and-grade-it.
+Now it is known. `draft/tools/clay_blend_impact.js`, with a control that
+reproduces TODAY'S blend to 0.30 points before it is allowed to print a
+with-Clay one:
+
+| | |
+|---|---|
+| players Clay covers | **376 of 539** blended skill players |
+| point move where he has an opinion | median **1.21** · p95 **4.66** · max **23.8** |
+| positional rank moves inside ADP 200 | 67 of 181 move, **largest is THREE slots** |
+
+**Nobody's tier collapses and nobody moves more than three places at his own
+position. It is a nudge, not a reshuffle.**
+
+**✅ SHIPPED, 2026-08-20 — CLAY IS IN THE BLEND AND ON THE LIVE BOARD.** 189
+players now blend seven sources. **And the offline estimate reproduced the real
+pipeline exactly: predicted a 3-slot maximum, got a 3-slot maximum, same players
+in the same order** (RJ Harvey ▼3, Tyrone Tracy ▼3, Rome Odunze ▲2). 62 of 181
+players inside ADP 200 moved at all. Top of the board is unchanged.
+
+The one blocker was that `blended_projection.js` reads
+`projection_snapshot_2026.json`, which is frozen and marked immutable, and Clay
+landed one day after it was captured. **C routed it rather than touching my file,
+and they were right to.** Resolved by ADDING rather than regenerating: a
+re-run would have replaced every 08-19 forecast with an 08-20 one — the board
+has moved twice since — and destroyed exactly what that file exists to preserve.
+`draft/tools/snapshot_add_clay.py` adds `proj.clay` and nothing else, enforced by
+a byte-comparison of every pre-existing value with a demonstrated fail arm.
+`_captured` is untouched.
+
+**③ THE OTHER DATA — one real find, and one thing I expected to find and did
+not.**
+
+**NOT availability, and I checked because I assumed the opposite.** Clay
+projects **17 games for 409 of his 418 players** — his games-played is
+effectively a constant. **Our board already carries `games_expected` on all 700
+and it VARIES** (14.2, 15, 15.5, 16.5, 17…). **We are ahead of him here, not
+behind.**
+
+**YES on opportunity, and this is the one worth working.** He gives per-player
+**target share and carry share on 378 players**, and we already hold a target
+share from a different source. They disagree by a **median 2.0 percentage
+points, p90 7.1, max 13.7.** That matters because `opportunity_cap` was ruled to
+**0.0** in August after our single opportunity signal graded out as carrying no
+player information — **a second, independent opportunity source is exactly what
+that finding could not be tested against.** Post-draft study, not a draft-week
+change.
+
+**Also in the store and unused:** full stat lines (attempts, completions, pass
+yards/TD/INT/sacks, carries, rush yards/TD, targets, receptions, receiving
+yards/TD), which means anything can be recomputed under our table. **Still in
+the PDF and not ingested:** projected starters with player ratings (pp.75-82),
+unit grades, strength of schedule, projected standings.
+
+---
+
+## ANSWERED 2026-08-20 — "How can they be that high?? That's a massive error"
+
+**It is not an error, and the measurement was already sitting on the board.**
+
+**Our league scores 6-point passing touchdowns; the ADP market is priced at 4.**
+`sleeper_league_settings.json`: `pass_td: 6`, `pass_int: -2`. The board's own
+`projections.scoring_gap_vs_adp_market` block records the market's assumption as
+`{pass_td: 4, pass_int: -1}` and measures the difference on 1,894 scored players:
+
+| position | mean gap | max | share of value |
+|---|---|---|---|
+| **QB (top 12)** | **+43.67** | +56 | **11.9%** |
+| RB · WR · TE · K · DEF | **0.00** | 0 | 0% |
+
+**So every QB number on the board reads ~44 points higher than a 4-point-league
+intuition expects, every other position is untouched, and it is isolated,
+measured and intentional rather than a bug.**
+
+**Six independent sources agree, which is the check that settles it.** Josh Allen
+379–421.7 across Sleeper / CBS / ESPN / FFToday / Draft Sharks / FantasyPros;
+Drake Maye 340–382.9, with ESPN (381.0) and FFToday (382.9) both ABOVE our
+blend's 372.5. **Our board is if anything conservative on the QBs that look
+highest.** And the outside sources are scored from RAW STAT LINES under our own
+table — `multisource_projections.json`'s note says the providers' own site points
+are *"deliberately ignored — it encodes their league's rules, not ours"* — so
+there is no 4-vs-6 mixing inside the blend.
+
+### ⚠️ AND IT CHANGES NOTHING ABOUT WHO TO DRAFT, WHICH IS THE PART WORTH KNOWING
+
+**A raw projection is not what a player is worth.** Measured on the live board:
+
+| | raw proj | wire level | **worth to your lineup** |
+|---|---|---|---|
+| Josh Allen (QB) | **415.3 — highest on the board** | 322.9 | **+92.4** |
+| Jahmyr Gibbs (RB) | 324.3 | 78.4 | **+245.9** |
+| Puka Nacua (WR) | 283.7 | 124.8 | +158.9 |
+
+**Allen projects 91 points MORE than Gibbs and is worth 2.7× LESS**, because a
+322-point quarterback is free off the waiver wire and a 78-point running back is
+what is free at his position. **Josh Allen is the 29th-best pick on the board by
+marginal lineup value.** This is the same fact as the FLEX answer: raw points do
+not compare across positions, and the roster-builder panel is the surface that
+does the comparison correctly.
+
+**The 6-point scoring also does NOT reorder the quarterbacks.** Our top four —
+Allen, Lamar, Maye, Burrow — are the room's QB1-4 in the identical order, and the
+QB1→QB12 spread is only 70.3 points. **One name does move and it is worth having
+on Saturday: Brock Purdy is QB8 on our board and QB15 by ADP** — seven slots of
+disagreement, the largest at the position.
+
+---
+
+## CORY RULED 2026-08-20 — K and DEF are CAPPED at one, never excluded
+
+| # | ruling | status |
+|---|---|---|
+| ⑥ | **Verbatim: *"Well if excluding those cost it that much it's the worse option.. do not ship that to my board."*** He is right and the measurement is not close: the exclusion arm scores **−83.7 actual / −211.3 skill** against the cap's **+45.8 / +29.3**, and leaves **0 of 30 rosters legal** — two starting slots scoring zero for seventeen weeks. **This ruling COINCIDES with what already ships**, verified against the live board rather than assumed: `public/js/draft/mlv.js` caps at `>= 1` and offers HOU DEF +22.7 / Aubrey K +16.9 once the lineup is full on a thinned board. Exclusion never reached his board — it only ever existed as a harness flag that threw a ReferenceError on every invocation (register 134). | ✅ **ENCODED, NOT PROMISED.** `draft/tests/roster_builder_panel.test.js` now carries three checks in his name: a kicker must be REACHABLE, worth a real positive number, and a SECOND one must still be refused. **The fail arm was demonstrated, not assumed** — patching the module to exclude turns the check red, and restoring it turns it green, with the file byte-identical afterward. A future edit that "tidies up" the panel by dropping onesies fails the build instead of shipping. |
+
+## CORY RULED 2026-08-19 — own_v6's role, and the target roster shape
 
 | # | ruling | status |
 |---|---|---|
 | ④ | **own_v6 keeps predicting and getting studied, just stays out of the war-room board this year — verbatim: "V6 should still be used to predict and study just not part of warroom this year."** | ✅ **DONE, and it already matches what shipped hours earlier the same evening.** own_v6 was pulled from `blended_projection.js`'s `proj_mean` blend after Cory's separate ruling ("lets remove V6 from the blended") — `public/sources.html` showed it disagreeing with the whole industry on contested rows (Matthew Golden 119 vs the other six's 38-62, Jalen McMillan 130 vs 55-72, Jeremiyah Love 53 vs 10-17) and it had never actually been graded. **That removal already preserved exactly what this ruling asks for:** own_v6 keeps predicting on its own schedule (`own-weekly-proj.yml`, Thursdays 14:00 UTC) and keeps getting graded against realized results (`own-weekly-grade.yml`, Tuesdays 06:00 UTC after MNF) — neither job touches or depends on the board blend. Its projections still land in `projection_snapshot_2026.json` every week for the season-end study `PREDICTION-LEDGER.md` already commits to. **Nothing was deprecated or stopped — only its vote in the number Cory drafts from.** **Closes register 126's open ASK** ("Cory to re-rule now that he has the evidence he did not have") — he has, verbally, and the ruling matches the default that already shipped. |
+| ⑤ | **The roster-construction target is the TOP-3 FINISHERS row, not Cory's own earlier-stated spec and not the shipped `CORY_CURVE` — verbatim: "We should be trying to match the top 3 finishers row.. let everyone know. That's the winning strategy."** | 🔄 **RULED, BROADCAST, NOT YET IMPLEMENTED.** Recorded directly in `ROSTER-CONSTRUCTION-CALL.md` §1 — the file A already addressed "To C, D, E and anyone else with a session" — so this reaches everyone already reading that doc, and posted as a new item to `ROUTES.md → TO: A` (the owner of `CORY_CURVE`/`engine.js`) making the same point. **The target, from that file's own measured table:** QB 1.56 · RB 4.78 · WR 5.00 · **TE 1.67** · K 1.00 · DEF 1.00 (n=9 top-3 finishers, three seasons, this league). **This directly overrules the shipped `CORY_CURVE`'s TE cap** (`[1, .05, 0]`, which prices a second tight end as a twentyfold hole and therefore cannot reach 1.67 no matter how it's fed) **and Cory's own earlier-stated spec** (RB 3-4, WR 4-5, summing to 7-9 bodies against every real team's ~10). **He is choosing the measured winners' shape over his own prior guess — the file's own honest caveat (n=9, small sample) stands, and does not undo the ruling; it says the mechanism that gets there still needs to be built and measured on `roster_builder_replay.js`, not that the target is wrong.** `ASK owner A:` fold this into the roster-shape mechanism the open call already requested. |
 
 ## CORY RULED 2026-08-17 — executing
 

@@ -1,0 +1,136 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by draft/tools/clay_grade_2025.py",
+ "_what": "Mike Clay's 2025 preseason projection (scored under our own table, from raw stat lines -- his full-PPR points were never read) graded against REALIZED 2025 season points from draft/backtest/nflverse_weekly_points_2025.json, weeks 1-17.",
+ "_reused": "season_totals (exp_fp_hist_proj.py) and cell (sleeper_vs_fp_grade.py), both TERRITORY: A, imported read-only per rule 11 -- not re-derived.",
+ "_version_gate": {
+  "status": "preseason_confirmed_by_kickoff_check",
+  "season_start": "2025-09-04",
+  "guide_updated": "2025-09-04",
+  "kickoff_teams": [
+   "DAL",
+   "PHI"
+  ],
+  "kickoff_full_games": 17.0,
+  "n_kickoff_players_checked": 22,
+  "players_short_a_game": [],
+  "why": "the printed date is on/after this year's season start, so the date alone cannot prove a clean preseason forecast -- checked whether the season opener's two teams show a full game count instead"
+ },
+ "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); mae is the level grade in fantasy points; bias is signed error (positive = Clay projected too high on average). topN is the fraction of the realized top-N Clay also had in his own top-N, None when the position has fewer than N graded players. `cells` grades SEASON TOTALS (Clay's assumed ~17 games vs however many the player actually played -- includes injury luck no preseason source can predict). `skill_cells` grades PER-GAME RATE instead (Clay's total / his own assumed games, vs realized total / games actually played) -- Cory's own standard elsewhere in this project: grade skill, not luck.",
+ "population": {
+  "clay_players_2025": 415,
+  "excluded_unmatched_crosswalk": 54,
+  "excluded_no_realized_2025_row": 5,
+  "graded_total": 356,
+  "graded_by_position": {
+   "QB": 38,
+   "RB": 99,
+   "WR": 147,
+   "TE": 72
+  },
+  "min_n_for_a_measured_cell": 10
+ },
+ "cells": {
+  "QB": {
+   "n": 38,
+   "status": "measured",
+   "spearman": 0.4441,
+   "mae": 83.56,
+   "bias": 59.28,
+   "top12": 0.4167,
+   "top24": 0.7917,
+   "top48": null
+  },
+  "RB": {
+   "n": 99,
+   "status": "measured",
+   "spearman": 0.7383,
+   "mae": 45.46,
+   "bias": 13.24,
+   "top12": 0.75,
+   "top24": 0.75,
+   "top48": 0.8125
+  },
+  "WR": {
+   "n": 147,
+   "status": "measured",
+   "spearman": 0.7375,
+   "mae": 42.44,
+   "bias": 15.16,
+   "top12": 0.4167,
+   "top24": 0.5833,
+   "top48": 0.7292
+  },
+  "TE": {
+   "n": 72,
+   "status": "measured",
+   "spearman": 0.7781,
+   "mae": 28.08,
+   "bias": 3.26,
+   "top12": 0.4167,
+   "top24": 0.7083,
+   "top48": 0.8958
+  },
+  "ALL": {
+   "n": 356,
+   "status": "measured",
+   "spearman": 0.7882,
+   "mae": 44.77,
+   "bias": 16.93,
+   "top12": 0.25,
+   "top24": 0.5417,
+   "top48": 0.7708
+  }
+ },
+ "skill_cells": {
+  "QB": {
+   "n": 38,
+   "status": "measured",
+   "spearman": 0.5997,
+   "mae": 3.45,
+   "bias": 1.58,
+   "top12": 0.4167,
+   "top24": 0.875,
+   "top48": null
+  },
+  "RB": {
+   "n": 99,
+   "status": "measured",
+   "spearman": 0.8116,
+   "mae": 2.4,
+   "bias": -0.45,
+   "top12": 0.75,
+   "top24": 0.7083,
+   "top48": 0.8333
+  },
+  "WR": {
+   "n": 147,
+   "status": "measured",
+   "spearman": 0.8123,
+   "mae": 2.2,
+   "bias": -0.41,
+   "top12": 0.5833,
+   "top24": 0.6667,
+   "top48": 0.8125
+  },
+  "TE": {
+   "n": 72,
+   "status": "measured",
+   "spearman": 0.8082,
+   "mae": 1.74,
+   "bias": -0.99,
+   "top12": 0.5833,
+   "top24": 0.7083,
+   "top48": 0.875
+  },
+  "ALL": {
+   "n": 356,
+   "status": "measured",
+   "spearman": 0.8442,
+   "mae": 2.3,
+   "bias": -0.33,
+   "top12": 0.4167,
+   "top24": 0.75,
+   "top48": 0.7917
+  }
+ }
+}

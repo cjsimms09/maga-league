@@ -135,8 +135,50 @@ function isClosed(r) {
 const RECHECK_RE =
   /recheck\b[\s:]*[*_~`]*\s*(?:[a-z]+-)?(?:(\d{4})-)?(\d{2})-(\d{2})/i;
 
+/* ⛔ AND THE FIRST DATE IN A ROW IS NOT THE ROW'S DATE — 2026-08-20.
+ *
+ * Row 115 came due and was reported overdue at 08-19 while its actual date,
+ * written at the end of the row, is 08-27. The 08-19 it matched is a date
+ * QUOTED AS AN EXAMPLE inside the row's own prose — and the row is the one
+ * documenting that this parser reads dates wrongly. It broke on itself.
+ *
+ * The register's convention is already last-wins and is written down inside it:
+ * row 21b says "recheck WAS 08-18 — see the 08-23 date at the end of this row".
+ * A row that gets re-dated appends; it does not rewrite history in place. So the
+ * OPERATIVE date is the last one, and first-match was reading the archive.
+ *
+ * ⚠️ MEASURED BEFORE CHANGING, over all 239 rows — and the first measurement
+ * was WRONG, which is worth recording because it is rule 3f exactly. I sized
+ * the blast radius with a hand-written regex simpler than this file's own
+ * (`recheck\s+(?:\*\*)?`) and predicted SEVEN rows moving, two of them open.
+ * Re-run with THE TOOL'S ACTUAL PATTERN: ELEVEN move, SIX of them open. A probe
+ * that does not use the code's own regex is not measuring the code.
+ *
+ * The eleven, and the only direction that is dangerous is a row silently
+ * getting MORE time:
+ *   115  OPEN  08-19 -> 08-27   later, and CORRECT — 08-19 was a date quoted
+ *                               as an example inside the row's own prose
+ *   E34  OPEN  08-22 -> 08-27   later; shape is "post-08-22 ... recheck 08-27",
+ *   46   OPEN  08-22 -> 08-25   later; same shape. The concrete trailing date
+ *                               is the operative one and "post-08-22" is a
+ *                               constraint phrase, which is the convention.
+ *   34   OPEN  08-25 -> 08-22   EARLIER — stricter
+ *   30   OPEN  08-25 -> 08-22   EARLIER — stricter
+ *   20b  OPEN  08-26 -> 08-20   EARLIER — stricter
+ *   2b 4x 5e 24 E28             all CLOSED; the guard does not read them
+ *
+ * ZERO rows lost a date (144 dated before, 144 after) — that is the control
+ * that matters, because an unparsed date is only reported, never failed on, so
+ * dropping one is the silent failure this whole file exists to prevent.
+ *
+ * The known-positive and known-negative for this precedence are in SELF_TEST. */
 function recheckOf(r) {
-  const m = r.all.match(RECHECK_RE);
+  /* last match, not first — see above. The regex is reused with /g rather than
+   * duplicated, because two copies of this pattern is two chances to disagree
+   * about what a recheck date looks like. */
+  const g = new RegExp(RECHECK_RE.source, 'gi');
+  let m = null, hit;
+  while ((hit = g.exec(r.all)) !== null) m = hit;
   if (!m) return null;
   return `${m[1] || YEAR}-${m[2]}-${m[3]}`;
 }
@@ -147,6 +189,19 @@ function recheckOf(r) {
  * keystroke from it; the NEGATIVES matter as much, because a regex loose
  * enough to match anything would "fix" the false negatives by never firing. */
 const SELF_TEST = [
+  /* ── PRECEDENCE: THE LAST DATE WINS, added 2026-08-20 ──────────────────────
+   * KNOWN POSITIVE — row 115's own shape, which broke this parser on the very
+   * row documenting that this parser breaks. Two dates quoted as EXAMPLES in
+   * the prose, the real one at the end. */
+  ['sixteen rows written `recheck **08-19**` and `recheck post-08-22` were '
+    + 'invisible. POST-DRAFT, owner relay, recheck 08-27.', '2026-08-27'],
+  /* KNOWN NEGATIVE — a single-date row must be untouched by the precedence
+   * change. Without this, "last wins" could be silently taking the only match
+   * and the positive above would pass for the wrong reason. */
+  ['owner A, recheck 08-24.', '2026-08-24'],
+  /* KNOWN NEGATIVE — the operative date is LAST even when it is EARLIER than
+   * an earlier-quoted one, so this is precedence and not "pick the latest". */
+  ['was recheck 09-30 before the ruling. recheck 08-21.', '2026-08-21'],
   // the shapes that were INVISIBLE before 08-19, each one keystrokes from the register
   ['recheck 08-26.', '2026-08-26'],
   ['recheck **08-26**.', '2026-08-26'],

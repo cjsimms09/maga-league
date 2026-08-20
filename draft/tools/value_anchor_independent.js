@@ -219,7 +219,36 @@ console.log('\n  CONTROL: the model DOES differentiate positions (spread '
 const RATIO = {};
 rows.forEach(r => { RATIO[r.pos] = isFinite(r.ratio) && r.ratio > 0 ? r.ratio : 1; });
 
-const MY = [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145];
+/* ⚠️ READ FROM THE ARTIFACT, NOT TYPED. This was
+ *   const MY = [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145];
+ * — the OLD renumbered-survivor scale. Cory's real picks are
+ * [33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148]: a keeper occupies his
+ * slot and nothing after it shifts up (verified against 2023/2024/2025 in
+ * league_history), so this file was measuring twelve picks he does not own.
+ *
+ * IT WAS SELF-CONSISTENT AND THEREFORE INVISIBLE, which is why it survived. On
+ * the old scale a pick number WAS a selection count, so the `pk - 1` slice
+ * below agreed with it exactly — two errors cancelling. Correcting either one
+ * alone would have made this tool wrong; both move together here.
+ *
+ * READING THE SCHEDULE DOES NOT COMPROMISE THIS FILE'S INDEPENDENCE. What is
+ * deliberately independent is the SURVIVAL/VONA machinery it is checking — it
+ * still imports none of draft_plan.js and derives the selection count itself,
+ * below, from pick_order.picks. The pick schedule is input data, not the thing
+ * under test, and hardcoding input data is not independence, it is drift. */
+const PO = (DATA.pick_order || {});
+const MY = Array.isArray(PO.my_picks) && PO.my_picks.length
+  ? PO.my_picks.slice()
+  : (() => { throw new Error(
+      'pick_order.my_picks missing from draft_data.json — refusing to fall back '
+      + 'to a typed pick list, which is the defect this replaced.'); })();
+
+/* Selections strictly before board pick `p`. Derived HERE from the artifact's
+ * own pick rows rather than imported, so this tool keeps its own arithmetic:
+ * a keeper_slot occupies a board pick but removes nobody extra from the pool. */
+const liveBefore = p => (PO.picks || [])
+  .filter(r => r.overall < p && !r.keeper_slot).length;
+
 const KEEP = require(path.join(__dirname, 'keepers_of.js')).keepersFrom(DATA);
 
 function ebaCorrected(at, nextPick, ctx, ratio) {
@@ -249,7 +278,7 @@ console.log('  pos    ratio   mean dVONA   direction');
 const deltas = {};
 POS.forEach(pos => { deltas[pos] = []; });
 MY.forEach(pk => {
-  const taken = new Set(byAdp.slice(0, pk - 1).map(p => String(p.player_id)));
+  const taken = new Set(byAdp.slice(0, liveBefore(pk)).map(p => String(p.player_id)));
   KEEP.forEach(k => taken.add(String(k.player_id)));
   const board = pool.filter(p => !taken.has(String(p.player_id)));
   const later = MY.filter(x => x > pk);

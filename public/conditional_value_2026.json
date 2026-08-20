@@ -2,7 +2,7 @@
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/conditional_value.py; DISPLAY-WIRED to the war room per Cory's ruling 2026-08-17 ('Yes!') \u2014 chips + drill-down read this, printed separately; the SCORING side stays gated: engine/composite/vorp/build never read it and the composite never contains these numbers",
  "rebuild_with": "python3 draft/backtest/conditional_value.py",
  "input_fingerprint": {
-  "board": "9b26df5b013c",
+  "board": "596479fed360",
   "keepers": "10b76c4ff681",
   "wire": "08700aea8f79",
   "component_2021": "27b467b7ecd2",
@@ -430,7 +430,7 @@
      "name": "Justice Hill",
      "adp": 210.5,
      "depth_chart_order": 2,
-     "proj_mean": 81.45,
+     "proj_mean": 81,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
      "class_elevated_sd": 7.6,
@@ -444,7 +444,7 @@
      "name": "Adam Randall",
      "adp": 305.0,
      "depth_chart_order": 3,
-     "proj_mean": 26.1,
+     "proj_mean": 42.6,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
      "class_elevated_sd": 7.6,
@@ -515,7 +515,7 @@
      "name": "Emmett Johnson",
      "adp": 207.0,
      "depth_chart_order": 4,
-     "proj_mean": 59.2,
+     "proj_mean": 39,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
      "class_elevated_sd": 7.6,
@@ -529,7 +529,7 @@
      "name": "Emari Demercado",
      "adp": 311.0,
      "depth_chart_order": 2,
-     "proj_mean": 32.3,
+     "proj_mean": 57.4,
      "own_elevated_history": null,
      "class_elevated_ppw": 12.5,
      "class_elevated_sd": 7.6,
@@ -566,7 +566,7 @@
    "WR": 10.85,
    "TE": 11.6
   },
-  "startable_rb_bar_ppw": 11.76
+  "startable_rb_bar_ppw": 11.73
  },
  "caveats": [
   "correlations come from 5 seasons of weekly rows and are NOISY \u2014 every class and pair above carries its n; pair-level r moves season to season (see per_season blocks) and the class-pooled rho is the stabler number",

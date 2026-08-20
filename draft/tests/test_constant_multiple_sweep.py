@@ -112,6 +112,18 @@ def test_exact_aliases_are_kept_out_of_the_findings():
 #: broken fields were each found by accident, and this list is what turns the
 #: next one into a test failure instead of another lucky catch.
 KNOWN_PARTICIPANTS = {
+    # proj_mean_pre_ds — ADDED 2026-08-20 after investigating, as this test
+    # demands, rather than to silence it. It is the blend's value BEFORE
+    # attach_draftsharks.py swaps Draft Sharks in, kept as an audit trail
+    # (register 140: 363 players' bands were collapsed to floor=ceiling=mean and
+    # shipped, and this is what makes that visible next time). It reads as a
+    # constant multiple for a mundane reason: for the 453 players Draft Sharks
+    # does not cover, the attach leaves proj_mean untouched, so the ratio is
+    # EXACTLY 1.0 across most of the board. That is a before/after snapshot, not
+    # a rescaled copy anyone could weight independently — and it is already
+    # declared not-for-display in nothing_computed_goes_unshown.js for the same
+    # reason. No study may weight it; nothing does.
+    "proj_mean_pre_ds",
     # the dispersion family — all still proj_mean x a per-cell constant
     "proj_mean", "proj_ceiling", "proj_floor", "proj_sd", "weekly_sd",
     "proj_baseline",

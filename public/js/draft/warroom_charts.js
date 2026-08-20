@@ -45,6 +45,11 @@
     return parts[parts.length - 1] || '';
   }
   var r1 = function (v) { return Math.round(v * 10) / 10; };
+  /* Used by pure builders below AND the browser-only controller section past
+   * the `typeof document === 'undefined'` guard — declared up here, not down
+   * there, so a pure-builder call from Node (unit tests) sees it too instead
+   * of tripping over an undefined array the guard never let it reach. */
+  var POS_ALL = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 
   /* ════════════════════════ PURE CHART BUILDERS ═══════════════════════════ */
 
@@ -177,11 +182,26 @@
   }
 
   /* ── TIER-CLIFF CHART — proj points vs positional rank, one position ─────
-   * rows: [{ name, proj, tier }] SORTED best-first for ONE position.
+   * rows: [{ name, proj, tier, id, floor, ceiling, gone }] SORTED best-first
+   * for ONE position. `id`/`floor`/`ceiling`/`gone` are optional — the chart
+   * degrades to the old bare name/pts/tier tooltip when they're missing,
+   * never a broken row.
    * opts.goneBy: how many of these are likely GONE before my next pick — the
    * reachable-window shading (index count from the left). Cliffs are drawn
    * where tier changes, each stamped data-cliff-at="<index>" (the LAST man of
-   * the ending tier), which is what the unit test pins.                      */
+   * the ending tier), which is what the unit test pins.
+   *
+   * ⚠️ LABELS SKIP RATHER THAN OVERLAP (Cory, live: "in tier cliff chart the
+   * words run together!!"). A CSS rotation mitigated this once already
+   * (warroom.css's own comment on .wr-cliff-lbl still describes the
+   * original overlap) but never fixed the root cause: every tier cliff got
+   * an unconditional label with no spacing check, so three cliffs inside
+   * ~40px still painted three names on top of each other, just at a slant.
+   * The CLIFF LINE always draws — it's the one fact "waiting drops you a
+   * tier" needs — the NAME only draws when there's real room since the last
+   * one, so a cluster of close cliffs reads as a cluster of thin red lines
+   * with the (still individually correct) name on the ones that fit,
+   * instead of an unreadable word-smear on all of them. */
   function tierCliffChart(rows, opts) {
     opts = opts || {};
     rows = (rows || []).filter(function (r) { return r && r.proj != null; });
@@ -190,14 +210,17 @@
     }
     var N = Math.min(rows.length, opts.maxN || 18);
     rows = rows.slice(0, N);
-    var W = opts.w || 280, H = opts.h || 110;
-    var padL = 30, padR = 6, padT = 8, padB = 18;
+    var W = opts.w || 280, H = opts.h || 116;
+    var padL = 30, padR = 6, padT = 8, padB = 24;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     var lo = Infinity, hi = -Infinity;
     rows.forEach(function (r) { if (r.proj < lo) lo = r.proj; if (r.proj > hi) hi = r.proj; });
     if (!(hi > lo)) { hi = lo + 1; }
     var x = function (i) { return padL + (N === 1 ? 0 : (i / (N - 1)) * plotW); };
     var y = function (v) { return padT + (hi - v) / (hi - lo) * plotH; };
+    // ~5.5px per rotated character at this font-size (measured, not guessed)
+    // is the collision budget; a name shorter than the gap always fits.
+    var MIN_LABEL_GAP = 22;
 
     var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="'
       + esc(opts.pos || '') + ' season projection by positional rank, tier cliffs marked">';
@@ -220,23 +243,34 @@
     var pts = rows.map(function (r, i) { return x(i).toFixed(1) + ',' + y(r.proj).toFixed(1); });
     svg += '<polyline class="wr-cliff-line" fill="none" points="' + pts.join(' ') + '"/>';
     // dots + cliffs
+    var lastLabelX = -Infinity;
     rows.forEach(function (r, i) {
+      var hasRange = r.floor != null && r.ceiling != null;
+      var tip = esc(r.name) + ' — ' + Math.round(r.proj) + ' pts · tier ' + esc(r.tier)
+        + (hasRange ? ' · floor ' + Math.round(r.floor) + '–ceiling ' + Math.round(r.ceiling) : '')
+        + (r.gone != null ? ' · ' + Math.round(r.gone * 100) + '% likely gone by your next pick' : '')
+        + (r.id != null ? ' · click for full detail' : '');
       svg += '<circle class="wr-cliff-dot" cx="' + x(i).toFixed(1) + '" cy="' + y(r.proj).toFixed(1)
-        + '" r="2.2"><title>' + esc(r.name) + ' — ' + Math.round(r.proj) + ' pts · tier '
-        + esc(r.tier) + '</title></circle>';
+        + '" r="2.2"' + (r.id != null ? ' data-drill="' + esc(String(r.id)) + '"' : '')
+        + '><title>' + tip + '</title></circle>';
       var nxt = rows[i + 1];
       if (nxt && nxt.tier !== r.tier) {
         var cx = (x(i) + x(i + 1)) / 2;
         svg += '<line class="wr-cliff-mark" data-cliff-at="' + i + '" x1="' + cx.toFixed(1)
           + '" y1="' + padT + '" x2="' + cx.toFixed(1) + '" y2="' + (padT + plotH) + '"/>';
-        svg += '<text class="wr-cliff-lbl" x="' + x(i).toFixed(1) + '" y="' + (H - 5)
-          + '" text-anchor="middle">' + esc(lastName(r.name)) + '</text>';
+        if (x(i) - lastLabelX >= MIN_LABEL_GAP) {
+          svg += '<text class="wr-cliff-lbl" x="' + x(i).toFixed(1) + '" y="' + (H - 5)
+            + '" text-anchor="middle">' + esc(lastName(r.name)) + '</text>';
+          lastLabelX = x(i);
+        }
       }
     });
     svg += '</svg>';
     return '<div class="wr-chart wr-cliffchart" data-chart="cockpit-cliff" data-pos="' + esc(opts.pos || '')
       + '">' + svg + '<p class="wr-chart-cap">season pts by ' + esc(opts.pos || 'positional')
-      + ' rank · <span class="wr-cliff-key">┆</span> tier cliff · shaded = likely gone before your next pick</p></div>';
+      + ' rank · <span class="wr-cliff-key">┆</span> tier cliff · shaded = likely gone before your next pick'
+      + (rows.some(function (r) { return r.id != null; }) ? ' · click a dot for the full player card' : '')
+      + '</p></div>';
   }
 
   /* ── SURVIVAL SPARKLINES — P(available) vs my upcoming picks ─────────────
@@ -344,7 +378,10 @@
   }
 
   /* ── BIG BOARD COLUMNS — per-position dense lists, cliffs as red lines ───
-   * cols: [{ pos, total, rows: [{ id, rank, name, proj, cliffAfter }] }].    */
+   * cols: [{ pos, total, rows: [{ id, rank, name, full, proj, cliffAfter }] }].
+   * `full`, when present, is the untruncated name shown on hover — the row's
+   * own `name` may already be a shortened display form (see renderColumns'
+   * DEF handling: p.team instead of the full team name). */
   function posColumns(cols) {
     cols = (cols || []).filter(function (c) { return c && c.pos; });
     if (!cols.length) return '<p class="wr-chart-empty">no board yet</p>';
@@ -352,7 +389,8 @@
       var rows = (c.rows || []).map(function (p) {
         return '<li class="wr-col-row" data-drill="' + esc(p.id) + '">'
           + '<span class="wr-col-rank">' + esc(p.rank) + '</span>'
-          + '<span class="wr-col-name">' + esc(shortName(p.name)) + '</span>'
+          + '<span class="wr-col-name"' + (p.full ? ' title="' + esc(p.full) + '"' : '') + '>'
+            + esc(shortName(p.name)) + '</span>'
           + '<span class="wr-col-proj">' + (p.proj != null ? Math.round(p.proj) : '—') + '</span>'
           + '</li>'
           + (p.cliffAfter ? '<li class="wr-cliffline" aria-label="tier cliff"></li>' : '');
@@ -372,6 +410,57 @@
     }).join('') + '</div>';
   }
 
+  /* ── OPPONENT ROSTERS + PICK DISTANCE ─────────────────────────────────────
+   * Cory: "show me everyone's current roster status... and where they draft
+   * relative to me.. I need to see what their needs are so I can try to calc
+   * if someone will fall to me." One row per opponent seat, soonest-to-pick
+   * first — the seats nearest the top are the ones that can actually take a
+   * player before your own next turn.
+   *
+   * rows: [{ slot, manager, picksUntil, have: {pos:count}, needs: [pos,...] }]
+   * `manager` null means the seat is honestly unmapped (same convention as
+   * the threat strip — a name from the order-fallback would be a guess). */
+  function oppPosStr(counts) {
+    return POS_ALL.filter(function (q) { return counts[q]; })
+      .map(function (q) { return (counts[q] > 1 ? counts[q] : '') + q; }).join(' ');
+  }
+  function opponentBoard(rows) {
+    rows = (rows || []).filter(function (r) { return r && r.slot != null; });
+    if (!rows.length) return '<p class="wr-chart-empty">no opponent rosters yet</p>';
+    var body = rows.map(function (r) {
+      var who = r.manager ? esc(r.manager) : 'Seat ' + esc(r.slot);
+      var onClock = r.picksUntil === 0;
+      var dist = r.picksUntil == null ? 'no more picks'
+        : onClock ? 'on the clock'
+        : r.picksUntil + ' pick' + (r.picksUntil === 1 ? '' : 's') + ' away';
+      var have = oppPosStr(r.have || {});
+      var needs = (r.needs || []).join(' ');
+      return '<li class="wr-opp-row' + (onClock ? ' wr-opp-onclock' : '') + '">'
+        + '<span class="wr-opp-who">' + who + '</span>'
+        + '<span class="wr-opp-dist">' + esc(dist) + '</span>'
+        + '<span class="wr-opp-needs" title="still needs a starter here">'
+          + (needs ? esc(needs) : '<span class="muted">starters full</span>') + '</span>'
+        + '<span class="wr-opp-have muted" title="roster so far">' + (have ? esc(have) : '—') + '</span>'
+        + '</li>';
+    }).join('');
+    return '<ul class="wr-opp-list">' + body + '</ul>';
+  }
+
+  /* ── LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS ──────────────────
+   * Cory: "a running count at the top of screen somewhere of # of players
+   * taken at each position (including keepers) would be nice." counts:
+   * {pos: n}. A position with 0 taken is still printed at 0, not omitted —
+   * "QB 0 taken" is itself information this early in a draft. */
+  function posTakenStrip(counts) {
+    counts = counts || {};
+    var total = POS_ALL.reduce(function (s, q) { return s + (counts[q] || 0); }, 0);
+    var cells = POS_ALL.map(function (q) {
+      return '<span class="pts-cell"><b>' + esc(q) + '</b> ' + (counts[q] || 0) + '</span>';
+    }).join('');
+    return '<span class="pts-label">taken (incl. keepers)</span>' + cells
+      + '<span class="pts-total">' + total + ' total</span>';
+  }
+
   var Charts = {
     rangeBar: rangeBar,
     posRails: posRails,
@@ -380,6 +469,8 @@
     survivalSpark: survivalSpark,
     rosterShape: rosterShape,
     posColumns: posColumns,
+    opponentBoard: opponentBoard,
+    posTakenStrip: posTakenStrip,
   };
   global.WarRoomCharts = Charts;
   if (typeof module !== 'undefined' && module.exports) module.exports = Charts;
@@ -388,7 +479,6 @@
    * Browser-only from here down: tabs, rails, charts, drill-down.            */
   if (typeof document === 'undefined') return;
 
-  var POS_ALL = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
   var ui = {
     tab: 'draft',
     cliffPos: null,        // null = follow the timing lead
@@ -521,8 +611,17 @@
       var s = sv[String(p.player_id)];
       if (s != null && s < 0.5) goneBy++;
     });
+    // Cory: "the tier cliff chart... could be a lot better and include more
+    // useable data!!!" — floor/ceiling and per-player gone% are already
+    // computed for every board player elsewhere on the page (proj_floor/
+    // proj_ceiling ship on the board itself, survival_to_next is `sv` right
+    // above); this just stops throwing them away before they reach the
+    // chart. `id` wires the click-through to the full drill-down card.
     host.innerHTML = Charts.tierCliffChart(at.map(function (p) {
-      return { name: p.name, proj: p.proj_mean, tier: p.tier };
+      var s = sv[String(p.player_id)];
+      return { name: p.name, proj: p.proj_mean, tier: p.tier, id: p.player_id,
+        floor: p.proj_floor, ceiling: p.proj_ceiling,
+        gone: s != null ? (1 - s) : null };
     }), { pos: pos, goneBy: goneBy });
   }
 
@@ -578,6 +677,45 @@
     host.innerHTML = Charts.rosterShape(slots, bench);
   }
 
+  /* ── opponent rosters + pick distance (Cory: "show me everyone's current
+   * roster status... and where they draft relative to me") ──────────────── */
+  function renderOpponents() {
+    var host = byId('wr-opponents-board');
+    var d = D();
+    if (!host || !d) return;
+    var cur = d.currentPick();
+    if (cur == null) { host.innerHTML = '<p class="wr-chart-empty">no board yet</p>'; return; }
+    var teams = d.teams(), mine = d.mySlot();
+    var starters = d.starters();
+    var rosters = d.rosters();
+    var picks = d.pickOrderPicks();
+    var rows = [];
+    for (var slot = 1; slot <= teams; slot++) {
+      if (slot === mine) continue;
+      var next = null;
+      for (var i = 0; i < picks.length; i++) {
+        if (picks[i].slot === slot && picks[i].overall >= cur) { next = picks[i]; break; }
+      }
+      var roster = rosters[slot] || [];
+      var have = (typeof DraftNeeds !== 'undefined') ? DraftNeeds.posCounts(roster) : {};
+      var needs = (typeof DraftNeeds !== 'undefined') ? DraftNeeds.teamNeeds(roster, starters) : [];
+      rows.push({
+        slot: slot,
+        manager: d.profileForSlot(slot) ? (d.profileForSlot(slot).name || d.profileForSlot(slot).display_name) : null,
+        picksUntil: next ? (next.overall - cur) : null,
+        have: have, needs: needs,
+      });
+    }
+    rows.sort(function (a, b) {
+      if (a.picksUntil == null) return b.picksUntil == null ? 0 : 1;
+      if (b.picksUntil == null) return -1;
+      return a.picksUntil - b.picksUntil;
+    });
+    var note = d.profilesMapped() ? '' : '<p class="wr-opp-note muted">seats unassigned until '
+      + 'Sleeper names them — showing Seat N until then</p>';
+    host.innerHTML = note + Charts.opponentBoard(rows);
+  }
+
   /* ── big-board columns ── */
   function renderColumns() {
     var host = byId('wr-board-columns');
@@ -592,12 +730,226 @@
         pos: pos, total: at.length,
         rows: at.slice(0, 30).map(function (p, i) {
           var nxt = at[i + 1];
-          return { id: p.player_id, rank: i + 1, name: p.name, proj: p.proj_mean,
+          /* DEF "players" ARE full team names ("Los Angeles Rams"), and
+           * shortName()'s person-name transform (first initial + rest)
+           * turns that into "L. Angeles Rams" — long enough to still hit
+           * this column's ellipsis and print "L. Angeles Ra…", the exact
+           * cut-off-text pattern Cory called out hard on the position
+           * boards' headers. p.team already carries the short code (LAR)
+           * every other DEF display in the app uses; shortName() leaves a
+           * single word alone, so this is a no-op for every other position. */
+          var nm = (pos === 'DEF' && p.team) ? p.team : p.name;
+          return { id: p.player_id, rank: i + 1, name: nm,
+            full: nm !== p.name ? p.name : null, proj: p.proj_mean,
             cliffAfter: !!(nxt && i < 29 && nxt.tier !== p.tier) };
         }),
       };
     });
     host.innerHTML = Charts.posColumns(cols);
+  }
+
+  /* ── two drill-down facts, Cory's ask (ROUTES.md 08-17): "is this player
+   * listed as starting RB, and maybe also how often that team passed or
+   * threw last year." Both read data that already exists — no new fetch,
+   * no new artifact. ── */
+  function depthChartRow(p) {
+    var ord = p && p.depth_chart_order;
+    if (ord == null) return null;
+    var label = ord === 1 ? 'starter' : ord === 2 ? '2nd string' : ord + ' on the depth chart';
+    return ['Depth chart', label + ' <span class="muted">(' + esc(p.position || '') + ', ' + esc(p.team || '') + ')</span>'];
+  }
+  /* REGISTER 4v'S DRILL-DOWN HALF (routed 08-18, exact line numbers given):
+   * the shortlist's rangeBar() already marks a cohort-constant ceiling with
+   * the `~` sup (app.js's cohortCeiling(), wired 08-18), but `renderDrill()`
+   * — the REAL drill-down Cory's own rehearsal harness exercises, reached
+   * from the shortlist/rail click — never called it, so the ceiling number
+   * here was a bare, unmarked figure. Same predicate as app.js's
+   * cohortCeiling(), inlined rather than cross-called (warroom_charts.js and
+   * app.js are separate modules; duplicating four lines beats coupling them
+   * for this). Reuses the SAME `.wr-ceil-cohort` class/CSS the shortlist
+   * mark already ships, so no new styling. */
+  function isCohortCeiling(p) {
+    var src = p && p.proj_ceiling_source;
+    if (typeof src !== 'string' || !src) return false;
+    if (/-x-player-cv$/.test(src)) return false;
+    return /^measured-/.test(src);
+  }
+
+  /* REGISTER 5c-adjacent ASK, ROUTES.md 08-19 — "the board's numbers change
+   * on the next rebuild and the war room cannot say which ones." From the
+   * multi-source-mean ship (`draft/multisource_blend.py`), a player's
+   * `proj_mean` silently becomes the mean of Sleeper+CBS+ESPN+FFToday
+   * instead of Sleeper alone, stamped `proj_mean_source:
+   * "multisource-mean-2026"` with the ORIGINAL Sleeper-only number kept
+   * alongside as `proj_mean_sleeper_only`. A's own REC: "a one-character
+   * badge next to the projection plus the old number in the tooltip" — this
+   * is that badge, glyph distinct from the `~` cohort-ceiling mark so the
+   * two provenance questions (is the MEAN blended vs is the CEILING a band
+   * constant) never look like the same fact. Absence of the source field
+   * means Sleeper-only, per A's own stated convention — nothing to mark. */
+  function projMeanBadge(p) {
+    if (!p || p.proj_mean_source !== 'multisource-mean-2026') return '';
+    var oldVal = p.proj_mean_sleeper_only;
+    var title = 'Multi-source mean (Sleeper + CBS + ESPN + FFToday). '
+      + (oldVal != null ? 'Sleeper alone had ' + (Math.round(oldVal * 10) / 10) + '.' : '');
+    return '<sup class="wr-proj-blend" title="' + esc(title) + '">✱</sup>';
+  }
+
+  function teamPassRateRow(p) {
+    var pace = typeof window !== 'undefined' && window.WR_TEAM_PACE;
+    var t = pace && p && p.team && pace.teams && pace.teams[p.team];
+    if (!t || t.pass_rate == null) return null;
+    var pct = Math.round(t.pass_rate * 1000) / 10;
+    return ['Team pass rate (' + esc(pace.season || '') + ')', pct + '%'
+      + (t.neutral_pass_rate != null
+        ? ' <span class="muted">(' + Math.round(t.neutral_pass_rate * 1000) / 10 + '% score-neutral)</span>' : '')];
+  }
+
+  /* TEAM PACE — Cory, live: "pace of play of team". Same artifact/window
+   * global as teamPassRateRow (widened server-side 2026-08-20 to forward
+   * plays_per_game/neutral_plays_per_game/neutral_sec_per_play), kept as its
+   * own row rather than folded into the pass-rate line: pass rate is a
+   * play-CALLING tendency, pace is how fast the team snaps the ball — two
+   * different facts a reader could otherwise conflate. Score-neutral pace is
+   * led with because that is the version not inflated/deflated by garbage-
+   * time snaps; raw plays/game rides along as a secondary figure. */
+  function teamPaceRow(p) {
+    var pace = typeof window !== 'undefined' && window.WR_TEAM_PACE;
+    var t = pace && p && p.team && pace.teams && pace.teams[p.team];
+    if (!t || t.neutral_plays_per_game == null) return null;
+    var neutral = Math.round(t.neutral_plays_per_game * 10) / 10;
+    return ['Team pace (' + esc(pace.season || '') + ')', neutral + ' neutral plays/gm'
+      + (t.plays_per_game != null
+        ? ' <span class="muted">(' + Math.round(t.plays_per_game * 10) / 10 + ' total/gm)</span>' : '')
+      + (t.neutral_sec_per_play != null
+        ? ' <span class="muted">· ' + Math.round(t.neutral_sec_per_play) + 's/play</span>' : '')];
+  }
+
+  /* USAGE — Cory: "more clear info... a powerhouse". Position-tailored,
+   * because a carry share means nothing for a WR and a target share means
+   * nothing for a RB — printing every field for every position would just be
+   * noise wearing the name "more data". QB/K/DEF have no comparable
+   * per-touch usage field on this board, so they get no row rather than an
+   * empty or misleading one. */
+  function usageRow(p) {
+    if (!p || !p.position) return null;
+    var pct = function (v) { return v == null ? null : Math.round(v * 1000) / 10 + '%'; };
+    if (p.position === 'RB') {
+      if (p.carries == null && p.opportunity_share == null && p.rz_share == null && p.gl_carries == null) return null;
+      var parts = [];
+      if (p.carries != null) parts.push(Math.round(p.carries) + ' carries/szn');
+      if (p.opportunity_share != null) parts.push(pct(p.opportunity_share) + ' opportunity share');
+      if (p.rz_share != null) parts.push(pct(p.rz_share) + ' red-zone share');
+      /* A, 2026-08-20 (nothing_computed_goes_unshown.js): gl_carries is
+       * computed on all 700 players and read by nothing. Goal-line work is
+       * the clearest TD-upside signal a raw carry count does not capture on
+       * its own — two backs can carry the ball the same number of times
+       * with very different scoring odds. */
+      if (p.gl_carries != null) parts.push('<span title="Goal-line carries per season — the clearest TD-upside signal, separate from total volume">'
+        + Math.round(p.gl_carries * 10) / 10 + ' goal-line carries/szn</span>');
+      return parts.length ? ['Usage', parts.join(' <span class="muted">·</span> ')] : null;
+    }
+    if (p.position === 'WR' || p.position === 'TE') {
+      if (p.target_share == null && p.wopr == null && p.rz_share == null && p.air_yards_share == null
+        && p.rz_targets == null) return null;
+      var wparts = [];
+      if (p.target_share != null) wparts.push(pct(p.target_share) + ' target share');
+      if (p.wopr != null) wparts.push('<span title="Weighted Opportunity Rating — target share and air-yards share blended into one usage number">'
+        + Math.round(p.wopr * 100) / 100 + ' WOPR</span>');
+      if (p.rz_share != null) wparts.push(pct(p.rz_share) + ' red-zone share');
+      /* A, 2026-08-20: rz_targets (the raw COUNT, not the share) — a share
+       * can be high on a low-volume offense; the count is what actually
+       * shows up in the box score. Computed for 700 players, read by none. */
+      if (p.rz_targets != null) wparts.push('<span title="Projected red-zone targets this season — the raw count behind the share above">'
+        + Math.round(p.rz_targets * 10) / 10 + ' red-zone targets/szn</span>');
+      if (p.adot != null) wparts.push('<span title="Average Depth of Target — how far downfield his targets travel">'
+        + Math.round(p.adot * 10) / 10 + ' aDOT</span>');
+      /* A, 2026-08-20: air_yards_share — his share of the TEAM's total air
+       * yards, distinct from aDOT (how far HIS OWN targets travel). A deep
+       * threat can have a high aDOT and still be a small slice of the
+       * offense; this is the slice. */
+      if (p.air_yards_share != null) wparts.push('<span title="His share of the TEAM\'s total air yards — a deep aDOT on a small slice of the offense reads very differently from a deep aDOT that IS the offense">'
+        + pct(p.air_yards_share) + ' air-yards share</span>');
+      return wparts.length ? ['Usage', wparts.join(' <span class="muted">·</span> ')] : null;
+    }
+    return null;
+  }
+
+  /* VOLATILITY — Cory: "All the things we figure out here have to be
+   * implemented on the war room or it was all for nothing." A's audit
+   * (nothing_computed_goes_unshown.js, 08-20): proj_sd and weekly_sd are
+   * computed for all 700 players and read by no served file. Two different
+   * questions, both real: proj_sd is season-to-season uncertainty (is this
+   * projection itself shaky); weekly_sd is start/sit swing (does he blow up
+   * or lay an egg week to week even if the season total lands as projected).
+   * `variance_why` (the third field in A's RISK block) is deliberately NOT
+   * echoed here — it is a methodology/provenance trail ("sd level from
+   * measured 2023-25 projection error, band RB|1-3...") aimed at a future
+   * session auditing the number, not a fact Cory needs at 8s/pick; showing
+   * it raw would be over-explaining in the opposite direction from an
+   * unexplained glyph. */
+  function volatilityRow(p) {
+    if (!p || p.proj_sd == null && p.weekly_sd == null) return null;
+    var parts = [];
+    if (p.proj_sd != null) parts.push('<span title="How much his SEASON projection itself could be off — a wide number means the projection is a rougher guess, not that he plays inconsistently">'
+      + '±' + (Math.round(p.proj_sd * 10) / 10) + ' season proj</span>');
+    if (p.weekly_sd != null) parts.push('<span title="How much he swings WEEK TO WEEK even if his season total lands as projected — a wide number means boom/bust, a narrow one means steady">'
+      + '±' + (Math.round(p.weekly_sd * 10) / 10) + ' week to week</span>');
+    return parts.length ? ['Volatility', parts.join(' <span class="muted">·</span> ')] : null;
+  }
+
+  /* INJURY — a designation alone ("Questionable") means nothing without
+   * knowing whether it is this week's tag or a stale field, and a bare risk
+   * percentage alone means nothing without a label. Both are real fields on
+   * every player; the row is skipped entirely (not printed as "healthy" or
+   * "0%") when NEITHER is present, matching this panel's honest-degrade
+   * convention rather than manufacturing a clean bill of health. */
+  function injuryRow(p) {
+    if (!p) return null;
+    var status = p.injury_status;
+    var riskPct = p.injury_risk_pct != null ? Math.round(p.injury_risk_pct) : null;
+    if (!status && riskPct == null) return null;
+    var val = status ? esc(status) : '<span class="muted">no designation</span>';
+    if (riskPct != null) val += ' <span class="muted">(' + riskPct + '% missed-game risk this season)</span>';
+    return ['Injury', val];
+  }
+
+  /* DRAFT PEDIGREE — shown only for a rookie: `nfl_draft_round` on a
+   * multi-year veteran is stale context nobody asked for (it never changes
+   * after year one), but for a rookie it is live, real, decision-relevant
+   * signal that has no other row on this panel. No year is claimed — the
+   * field doesn't carry one, and guessing would be exactly the kind of
+   * invented fact this panel's other rows refuse to print. */
+  function pedigreeRow(p) {
+    if (!p || p.is_nfl_rookie !== true || p.nfl_draft_round == null) return null;
+    return ['NFL draft', 'Round ' + p.nfl_draft_round
+      + (p.nfl_draft_pick != null ? ', pick ' + p.nfl_draft_pick : '')
+      + ' <span class="muted">(rookie)</span>'];
+  }
+
+  /* DEPTH CHART — TEAMMATES, not just this player's own slot. depthChartRow()
+   * above already prints "starter (RB, DET)"; Cory's ask goes further — who
+   * else is AHEAD or BEHIND him. Nothing new to fetch: every player on the
+   * board already carries `team`/`position`/`depth_chart_order`, so this is
+   * a filter+sort over data already in hand (the same grouping admin.js's
+   * `/admin/depth-charts` route already does server-side, ported here so a
+   * click doesn't need a second page). Capped at 5 rows — a depth chart
+   * beyond WR5/RB4 is bench noise for a redraft decision. */
+  function depthChartTeammates(p, allPlayers, esc) {
+    if (!p || !p.team || !p.position || !Array.isArray(allPlayers)) return '';
+    var mates = allPlayers.filter(function (x) {
+      return x && x.team === p.team && x.position === p.position && x.depth_chart_order != null;
+    }).sort(function (a, b) { return a.depth_chart_order - b.depth_chart_order; }).slice(0, 5);
+    if (!mates.length) return '';
+    var rows = mates.map(function (m) {
+      var isHim = String(m.player_id) === String(p.player_id);
+      return '<div class="wr-drill-dc-row' + (isHim ? ' wr-drill-dc-him' : '') + '">'
+        + '<span class="wr-drill-dc-ord">' + m.depth_chart_order + '</span>'
+        + '<span class="wr-drill-dc-name">' + esc(m.name || '') + '</span>'
+        + (isHim ? '<span class="muted">— this player</span>' : '') + '</div>';
+    }).join('');
+    return '<div class="wr-drill-dc"><div class="wr-drill-h">depth chart — '
+      + esc(p.position) + ', ' + esc(p.team) + '</div>' + rows + '</div>';
   }
 
   /* ── the drill-down — his "places to click for more info" ── */
@@ -632,10 +984,21 @@
     var nexts = d.myNextPicks().filter(function (pk) { return cur == null || pk > cur; }).slice(0, 3);
     var inQueue = d.queue().indexOf(String(p.player_id)) >= 0
       || d.queue().indexOf(p.player_id) >= 0;
+    var myCall = (d.playerCalls ? d.playerCalls() : {})[String(p.player_id)] || null;
 
     var num = function (v, dp) { return v == null ? '—' : (dp ? (+v).toFixed(dp) : Math.round(v)); };
     var rows = [
-      ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b> / ' + num(p.proj_ceiling)],
+      ['Proj (floor / mean / ceiling)', num(p.proj_floor) + ' / <b>' + num(p.proj_mean) + '</b>'
+        + projMeanBadge(p) + ' / ' + num(p.proj_ceiling)
+        + (isCohortCeiling(p) ? '<sup class="wr-ceil-cohort" title="This ceiling is the band '
+          + 'average, not a measurement of this player">~</sup>' : '')],
+      depthChartRow(p),
+      teamPassRateRow(p),
+      teamPaceRow(p),
+      usageRow(p),
+      volatilityRow(p),
+      injuryRow(p),
+      pedigreeRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
        * most of the board — the engine scores only the shortlist-depth slice
        * each pick, so a rail/board click outside it has no s. A blank the
@@ -647,7 +1010,7 @@
         : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
       ['Composite score', s ? s.score.toFixed(1)
         : '<span class="muted">not scored this pick — outside the engine\'s shortlist depth</span>'],
-      ['VORP', num(p.vorp, 1)],
+      ['<span title="Value Over Replacement Player — points above the last startable player at his position">VORP</span>', num(p.vorp, 1)],
       ['ADP vs our rank', num(p.adjusted_adp) + ' <span class="muted">adp</span> · #' + num(p.overall_rank) + ' <span class="muted">ours</span>'
         + (p.adjusted_adp != null && p.overall_rank != null
           ? ' <span class="' + (p.overall_rank < p.adjusted_adp ? 'wr-pos-delta' : 'wr-neg-delta') + '">('
@@ -668,12 +1031,34 @@
         ? { min: p.proj_floor - (p.proj_ceiling - p.proj_floor) * 0.1,
             max: p.proj_ceiling + (p.proj_ceiling - p.proj_floor) * 0.1, w: 220, h: 14 }
         : {});
+    /* Per-source rank (Cory: "if I click a player it should give me lots of
+     * info including where they rank on each source"). source_boards.json is
+     * ORDER ONLY — same contract renderSourceBoards() already holds to, never
+     * a raw score side by side (register 107: sources' point scales are not
+     * comparable). Honest "no coverage" when a source doesn't carry this
+     * position or player at all, matching this panel's other honest-degrade
+     * rows rather than hiding the row or printing a fake rank. */
+    var SOURCE_LABELS = { BLEND: 'Blend', SLEEPER: 'Sleeper', DRAFTSHARKS: 'Draft Sharks',
+      FANTASYPROS: 'FantasyPros', CBS: 'CBS', ESPN: 'ESPN', FFTODAY: 'FFToday' };
+    var srcBoards = d.sourceBoards ? d.sourceBoards() : null;
+    var srcRanksHtml = '';
+    if (srcBoards && srcBoards.order) {
+      var srcRows = Object.keys(SOURCE_LABELS).map(function (src) {
+        var arr = srcBoards.order[src] && srcBoards.order[src][p.position];
+        var idx = arr ? arr.indexOf(String(p.player_id)) : -1;
+        var rank = idx >= 0 ? '#' + (idx + 1) : '<span class="muted">no coverage</span>';
+        return '<tr><td>' + esc(SOURCE_LABELS[src]) + '</td><td class="wr-num">' + rank + '</td></tr>';
+      }).join('');
+      srcRanksHtml = '<div class="wr-drill-src"><div class="wr-drill-h">rank by source ('
+        + esc(p.position) + ')</div><table class="wr-drill-facts">' + srcRows + '</table></div>';
+    }
     /* Conditional-value readout (Cory's ruling 2026-08-17): app.js resolves
      * artifact + roster and hands back a finished string — this layer stays a
      * presenter. '' (absent, not zero) for everyone without a premium. */
     var condHtml = '';
     try { condHtml = (d.conditionalDrillHtml && d.conditionalDrillHtml(ui.drillId)) || ''; }
     catch (e) { condHtml = ''; }
+    var dcHtml = depthChartTeammates(p, d.players(), esc);
 
     host.innerHTML = '<div class="wr-drill-panel" role="dialog" aria-label="Player detail">'
       + '<button type="button" class="wr-drill-close" data-drill-close="1" title="Close">✕</button>'
@@ -682,10 +1067,12 @@
         + ' <span class="muted">' + esc(p.team || '') + '</span>'
         + (taken ? ' <span class="wr-drill-gone">GONE</span>' : '') + '</div>'
       + (range ? '<div class="wr-drill-range">' + range + '</div>' : '')
-      + '<table class="wr-drill-facts">' + rows.map(function (r) {
+      + '<table class="wr-drill-facts">' + rows.filter(Boolean).map(function (r) {
           return '<tr><td>' + r[0] + '</td><td class="wr-num">' + r[1] + '</td></tr>';
         }).join('') + '</table>'
+      + dcHtml
       + (survRows ? '<div class="wr-drill-surv"><div class="wr-drill-h">survives to my picks</div>' + survRows + '</div>' : '')
+      + srcRanksHtml
       + condHtml
       + (s && s.reasons && s.reasons.length
         ? '<div class="wr-drill-why"><div class="wr-drill-h">the engine\'s why</div>'
@@ -700,6 +1087,23 @@
         + '<button class="btn small ghost" data-draft-other="' + esc(p.player_id) + '">Gone</button>'
         + '<button class="btn small ghost" data-compare="' + esc(p.player_id) + '">⚖️ compare</button>'
         + '</div>')
+      /* Like/dislike — Cory: "a way to like and dislike players... grade me
+       * on these... to see if I was right." Deliberately available even
+       * when `taken`, unlike the actions above — an opinion about a player
+       * somebody ELSE drafted is exactly as gradeable as one about a player
+       * on your own roster, and locking the buttons the moment he's gone
+       * would make this feature useless for anyone but your own picks. */
+      + (function () {
+        var call = myCall && myCall.call;
+        return '<div class="wr-drill-actions wr-drill-calls">'
+          + '<button class="btn small ' + (call === 'like' ? 'gold' : 'ghost')
+            + '" data-call="like" data-call-id="' + esc(p.player_id) + '" title="Like — grade this later against what he actually does">'
+            + '\u{1F44D} ' + (call === 'like' ? 'liked' : 'like') + '</button>'
+          + '<button class="btn small ' + (call === 'dislike' ? 'navy' : 'ghost')
+            + '" data-call="dislike" data-call-id="' + esc(p.player_id) + '" title="Dislike — grade this later against what he actually does">'
+            + '\u{1F44E} ' + (call === 'dislike' ? 'disliked' : 'dislike') + '</button>'
+          + '</div>';
+      })()
       + '</div>';
     host.hidden = false;
   }
@@ -711,6 +1115,7 @@
     try { renderCliff(); } catch (e) { console.error('[cockpit cliff]', e && e.message); }
     try { renderSurvivalSpark(); } catch (e) { console.error('[cockpit surv]', e && e.message); }
     try { renderShape(); } catch (e) { console.error('[cockpit shape]', e && e.message); }
+    try { renderOpponents(); } catch (e) { console.error('[cockpit opponents]', e && e.message); }
     try { renderColumns(); } catch (e) { console.error('[cockpit cols]', e && e.message); }
     try { if (ui.drillId) renderDrill(); } catch (e) { console.error('[cockpit drill]', e && e.message); }
   }
@@ -722,7 +1127,21 @@
     if (fromHash) setTab(fromHash, true);
     document.addEventListener('click', function (ev) {
       var tabBtn = ev.target.closest ? ev.target.closest('[data-wrtab-btn]') : null;
-      if (tabBtn) { setTab(tabBtn.getAttribute('data-wrtab-btn')); return; }
+      if (tabBtn) {
+        setTab(tabBtn.getAttribute('data-wrtab-btn'));
+        /* Cory: "make sure there is definitions of all those things and how
+         * to use them" — one click from anywhere on the page to the term
+         * glossary, not "switch tabs, then go hunting for a details
+         * disclosure". */
+        if (tabBtn.hasAttribute('data-jump-help')) {
+          var helpCard = document.getElementById('help-card');
+          if (helpCard) {
+            helpCard.open = true;
+            setTimeout(function () { helpCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+          }
+        }
+        return;
+      }
       var chip = ev.target.closest ? ev.target.closest('[data-cliff-pos]') : null;
       if (chip) { ui.cliffPos = chip.getAttribute('data-cliff-pos'); renderCliff(); return; }
       var posChip = ev.target.closest ? ev.target.closest('[data-boardpos]') : null;

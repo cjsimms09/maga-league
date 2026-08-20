@@ -45,6 +45,7 @@ Run: python3 draft/tools/attach_draftsharks.py [--dry-run]
 """
 from __future__ import annotations
 import json, sys, copy
+import datetime as _dt
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -70,6 +71,7 @@ before = copy.deepcopy(board["players"])
 
 matched = 0
 banded = 0
+kept_band = 0
 no_band = 0
 for p in board["players"]:
     b = bl.get(str(p.get("player_id")))
@@ -118,13 +120,51 @@ for p in board["players"]:
         p["proj_ceiling_source"] = "draftsharks_pct"
         p["ds_band_from"] = "draftsharks_pct"
     else:
-        no_band += 1
-        # no honest band: the adjuster must not be able to move him
-        p["proj_floor"] = b["proj"]
-        p["proj_ceiling"] = b["proj"]
-        p["proj_floor_source"] = "none — no Draft Sharks band for this player"
-        p["proj_ceiling_source"] = "none — no Draft Sharks band for this player"
-        p["ds_band_from"] = None
+        # ⛔ THIS BRANCH COLLAPSED 363 PLAYERS' BANDS TO floor = ceiling = mean,
+        # AND IT SHIPPED. Cory found it by asking the right question: "the mean
+        # ceiling and floors match same percentage as draft sharks ceiling and
+        # floors from dark shark mean?"
+        #
+        # The old comment read "no honest band: the adjuster must not be able to
+        # move him", and the INTENT was right — do not invent a band. But it
+        # confused "Draft Sharks has no band for this player" with "this player
+        # has no band", and the board already had one. Measured before changing:
+        # the pre-DS bands are PLAYER-SPECIFIC, not the per-band constant this
+        # project killed in August — 216 DISTINCT ceiling/mean ratios across the
+        # 363 affected players, spanning 1.035 to 2.040. Darren Waller was
+        # 61.95 / 87.72 / 113.5 and became 85.4 / 85.4 / 85.4.
+        #
+        # Ten of them are inside Cory's draft range, including Cooper Kupp
+        # (ceiling 113.21 -> 89.9) and Ja'Kobi Lane (120.64 -> 93.7). With
+        # MEASURED_WEIGHTS.ceiling at 0.45 a collapsed ceiling is not neutral —
+        # it prices the player as having no upside at all.
+        #
+        # So: keep the player's OWN band SHAPE and rescale it to the new blended
+        # mean. That is the identical operation the Draft Sharks path performs —
+        # a band carried as a PERCENTAGE — sourced from what the board already
+        # held rather than from DS. Nothing is invented; a percentage that was
+        # already measured is preserved across a change of level.
+        pre_m = p.get("proj_mean_pre_ds")
+        pre_f = p.get("proj_floor_pre_ds")
+        pre_c = p.get("proj_ceiling_pre_ds")
+        usable = (pre_m and pre_m > 0 and pre_f is not None and pre_c is not None
+                  and abs(pre_c - pre_m) > 1e-9)
+        if usable:
+            kept_band += 1
+            p["proj_floor"] = round(b["proj"] * (pre_f / pre_m), 2)
+            p["proj_ceiling"] = round(b["proj"] * (pre_c / pre_m), 2)
+            p["proj_floor_source"] = "pre-DS band %, rescaled to the blended mean"
+            p["proj_ceiling_source"] = "pre-DS band %, rescaled to the blended mean"
+            p["ds_band_from"] = "pre_ds_pct"
+        else:
+            no_band += 1
+            # genuinely no band anywhere: collapse, and SAY so rather than
+            # letting a flat band read as a measured one.
+            p["proj_floor"] = b["proj"]
+            p["proj_ceiling"] = b["proj"]
+            p["proj_floor_source"] = "none — no band from Draft Sharks or the prior board"
+            p["proj_ceiling_source"] = "none — no band from Draft Sharks or the prior board"
+            p["ds_band_from"] = None
 
 # ── re-derive everything that is computed FROM proj_mean ────────────────────
 cfg = board.get("league") or {}
@@ -147,10 +187,38 @@ board["players"] = players
 # C6 below now checks that copy.
 board["replacement"] = vorp_diag
 
-# pool/overall/pos ranks follow the same order build.py uses: VORP desc, K/DEF
-# demoted out of the cross-position order (Cory's ruling 2026-08-17), which
-# apply_vorp already encodes in the vorp it returns.
-ranked = sorted(players, key=lambda p: -(p.get("vorp") or -1e9))
+# pool/overall/pos ranks follow the same order build.py uses.
+#
+# ⛔ TWO DEFECTS LIVED IN THE ONE LINE BELOW UNTIL 2026-08-20, BOTH SHIPPED TO
+# THE LIVE BOARD BY ME, ONE OF THEM REVERSING A CORY RULING. D found the first
+# and the second turned up checking their report.
+#
+# (1) FALSY ZERO. The key was `-(p.get("vorp") or -1e9)`, and `0.0 or -1e9` is
+#     `-1e9` in Python — so a vorp of EXACTLY zero sorted LAST. Exactly six
+#     players have vorp 0.0, one per position, because that is the definition of
+#     the replacement-level player. All six were ranked 695-700 of 700. George
+#     Kittle sat at 697 two days before the draft. `or` cannot distinguish a
+#     missing value from a zero one and must never guard a numeric.
+#
+# (2) THE K/DEF DEMOTION WAS SILENTLY DROPPED, which is the worse half. The
+#     comment here claimed "apply_vorp already encodes [it] in the vorp it
+#     returns". IT DOES NOT — `vorp.py` does it in the SORT KEY
+#     (`p["position"] in ONESIE_POSITIONS` as the primary term), not in the
+#     value. I asserted that premise instead of reading the function, and the
+#     result was Houston DEF at overall 39 and Brandon Aubrey at 44 on the board
+#     Cory drafts from — precisely the "engine recommending a 4th-round defence"
+#     that `vorp.py`'s own comment says Cory's 2026-08-17 ruling exists to stop.
+#
+# Both fixed by REUSING vorp.py's derivation rather than restating it (rule 11):
+# the onesie set is imported, not retyped, so the two files cannot drift.
+def _rank_key(p):
+    v = p.get("vorp")
+    if v is None:            # genuinely absent — not the same thing as 0.0
+        v = -1e9
+    return (p.get("position") in vorp_mod.ONESIE_POSITIONS, -v)
+
+
+ranked = sorted(players, key=_rank_key)
 for i, p in enumerate(ranked, 1):
     p["pool_rank"] = i
     p["overall_rank"] = i
@@ -272,6 +340,23 @@ if DRY:
 if not all_ok:
     print("\n  ⛔ CONTROLS FAILED — board NOT written")
     raise SystemExit(1)
+# ⛔ STAMP THE BOARD, BECAUSE NOT STAMPING IT MADE STALENESS UNDETECTABLE.
+#
+# This script rewrites proj_mean, the bands, vorp, tiers and every rank, and
+# then left `built_at` exactly as build.py wrote it. Downstream artifacts stamp
+# themselves with THAT value -- `seat_plan.json` records
+# `source_board_built_at` -- so a seat plan built from the pre-blend board and
+# one built from the post-blend board carry the IDENTICAL provenance stamp.
+#
+# Found 2026-08-20: the live seat plan claimed the current board and 46 of its
+# 60 shortlist projections did not match it. Not merely stale -- stale AND
+# asserting it was not, which is the harder failure to notice.
+#
+# `built_at` is deliberately NOT overwritten: it is build.py's fact about when
+# the board was BUILT and other code reads it as that. This adds a second,
+# separate fact.
+board["post_processed_at"] = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+board["post_processed_by"] = "draft/tools/attach_draftsharks.py"
 BOARD_P.write_text(json.dumps(board, indent=1))
 print(f"\n  wrote {BOARD_P.relative_to(ROOT)}")
 raise SystemExit(0)

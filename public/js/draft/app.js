@@ -11,6 +11,20 @@
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   const WEIGHT_KEY = 'mfga.draft.weights';
+  // ROUTES-B-TOGGLE.md (A→B, 2026-08-19): "toggle between them" — which
+  // projection arm position_boards' numbers display. 'ds' matches how that
+  // panel's own lists are selected and ranked (Draft Sharks); 'blend' shows
+  // the same already-selected players' public/draft_data.json proj_mean
+  // numbers instead. Neither choice re-ranks anything — display only.
+  const PROJ_SOURCE_KEY = 'mfga.draft.projsource';
+  // Cory, live 2026-08-20: "This toggle should just rearrange the board
+  // though and also may change vona calc or recommended player." A SEPARATE
+  // concept from PROJ_SOURCE_KEY above — this one genuinely re-ranks (VONA,
+  // composite score, the recommended player itself) by swapping in
+  // source_board.js's precomputed per-source vorp/tier before context()
+  // hands the board to the engine. null/'blend' is the trusted default and
+  // is byte-identical to every render before this feature existed.
+  const RANK_SOURCE_KEY = 'mfga.draft.ranksource';
 
   // ── MOCK SURVIVAL CALIBRATION ───────────────────────────────────────────────
   // Grade "% to last to my next pick" — the number Cory reads most, never once
@@ -74,6 +88,14 @@
     // `queue` is ordered and the other two are not, on purpose: targets and
     // never are opinions about players, the queue is a plan for picks.
     lists: { targets: [], avoid: [], queue: [] },
+    // Cory, live 2026-08-20: "a way to like and dislike players... this
+    // info needs to stay in the room for when I do my draft... grade me on
+    // these." Distinct from targets/avoid above on purpose: a target NUDGES
+    // the recommendation and avoid REMOVES a player from it — both change
+    // what the model does. A like/dislike changes nothing about the model;
+    // it is Cory's own read, recorded so it can be graded against what
+    // actually happens, same mock-and-real persistence as lists via A-1.
+    playerCalls: {},
     clockMode: false,     // the one-answer view
     clockIndex: 0,        // which recommendation it is showing
     // A2 slot verification: a slot can be set manually (a guess/placeholder) or
@@ -159,7 +181,8 @@
 
   function currentPrefs() {
     return { lists: state.lists, weights: state.weights, autoWeights: !!state.autoWeights,
-             playerOverrides: state.playerOverrides || {}, railAcks: state.railAcks || {} };
+             playerOverrides: state.playerOverrides || {}, railAcks: state.railAcks || {},
+             playerCalls: state.playerCalls || {} };
   }
   function markPrefsChanged() {
     if (prefsApplying) return;
@@ -179,10 +202,12 @@
       if (typeof p.autoWeights === 'boolean') state.autoWeights = p.autoWeights;
       if (p.playerOverrides) state.playerOverrides = p.playerOverrides;
       if (p.railAcks) state.railAcks = p.railAcks;
+      if (p.playerCalls) state.playerCalls = p.playerCalls;
       // Refresh the offline cache so a later offline load sees the same truth.
       try { localStorage.setItem(LISTS_KEY, JSON.stringify(state.lists)); } catch (e) {}
       try { localStorage.setItem(RAIL_ACK_KEY, JSON.stringify(state.railAcks || {})); } catch (e) {}
       try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); } catch (e) {}
+      try { localStorage.setItem(CALLS_KEY, JSON.stringify(state.playerCalls || {})); } catch (e) {}
       try { localStorage.setItem(WEIGHT_KEY, JSON.stringify(state.weights)); } catch (e) {}
       try { localStorage.setItem(AUTO_KEY, state.autoWeights ? '1' : '0'); } catch (e) {}
     } finally { prefsApplying = false; }
@@ -452,6 +477,7 @@
     loadOverrides();
     loadLists();
     loadRailAcks();
+    loadCalls();
     loadAuto();
     // A-1: after the local caches load, race them against the server document —
     // the prep laptop's Tuesday homework beats this phone's stale cache.
@@ -508,6 +534,51 @@
     markPrefsChanged();
     try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); }
     catch (e) { /* private mode */ }
+  }
+
+  /* ── Player calls — like/dislike, graded later ────────────────────────── */
+  const CALLS_KEY = 'mfga.draft.calls.players';
+  function loadCalls() {
+    try { state.playerCalls = JSON.parse(localStorage.getItem(CALLS_KEY) || '{}'); }
+    catch (e) { state.playerCalls = {}; }
+  }
+  function saveCalls() {
+    markPrefsChanged();
+    try { localStorage.setItem(CALLS_KEY, JSON.stringify(state.playerCalls || {})); }
+    catch (e) { /* private mode */ }
+  }
+  /* Toggling ON snapshots exactly what was known about the player AT THIS
+   * MOMENT — proj_mean/adp/tier are the board's own numbers, not re-derived
+   * later, because a grader asking "did Cory beat the board" needs the board
+   * as it stood when he made the call, not as it stands after ten more
+   * rebuilds. Re-clicking the SAME call clears it (a like is not forever);
+   * clicking the OTHER call overwrites, since a player cannot be both. */
+  function setPlayerCall(playerId, call) {
+    const id = String(playerId);
+    const calls = state.playerCalls || (state.playerCalls = {});
+    const existing = calls[id];
+    if (existing && existing.call === call) {
+      delete calls[id];
+      saveCalls();
+      renderAll();
+      return;
+    }
+    const p = (state.data && state.data.players || []).find(x => x.player_id === id);
+    calls[id] = {
+      call: call,
+      at: new Date().toISOString(),
+      season: (state.data && state.data.league && state.data.league.season) || null,
+      pick: (function () { try { return currentPick(); } catch (e) { return null; } })(),
+      name: p ? p.name : null,
+      position: p ? p.position : null,
+      team: p ? p.team : null,
+      proj_mean: p ? p.proj_mean : null,
+      adjusted_adp: p ? p.adjusted_adp : null,
+      tier: p ? p.tier : null,
+      games_expected: p ? p.games_expected : null,
+    };
+    saveCalls();
+    renderAll();
   }
 
   function setOverride(playerId, kind, pct) {
@@ -872,6 +943,21 @@
    * That is the same rule as the ledger capture — losing the seat line is a
    * worse board, losing the board is a lost draft.
    */
+  /* ── THE SOURCE CHEAT SHEET ────────────────────────────────────────────────
+   * Cory: "when looking at big board, maybe a way to easily show who each source
+   * has as their best available at each position". Same fail-soft contract as
+   * the seat plan: losing this costs a panel, never the board. */
+  function loadSourceBoards() {
+    fetch('/source_boards.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !d.order) return;
+        state.sourceBoards = d;
+        try { renderSourceBoards(); } catch (e) { console.error('[source-boards]', e && e.message); }
+      })
+      .catch(e => console.warn('[source-boards] unavailable:', e && e.message));
+  }
+
   function loadSeatPlan() {
     fetch('/seat_plan.json', { cache: 'no-cache' })
       .then(r => (r.ok ? r.json() : null))
@@ -881,6 +967,337 @@
         try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
       })
       .catch(e => console.warn('[seat-plan] unavailable:', e && e.message));
+  }
+
+  /* ── POSITION BOARDS — Cory redefined the war room, 2026-08-19 (A dispatch,
+   * ROUTES.md `48c915f1`): "not one recommendation — six position columns."
+   * A built the data (`draft/tools/position_boards.js` -> `public/position_boards.json`);
+   * `public/js/draft/position_boards_view.js` is the pure render module (TERRITORY: B).
+   * Same fail-soft shape as `loadSeatPlan` — an enhancement to the board, never
+   * a dependency of it. */
+  function loadPositionBoards() {
+    fetch('/position_boards.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.picks)) return;
+        state.positionBoards = d;
+        try { renderPositionBoardsPanel(); } catch (e) { console.error('[position-boards]', e && e.message); }
+      })
+      .catch(e => console.warn('[position-boards] unavailable:', e && e.message));
+  }
+
+  /* ⚠️ THE SURVIVAL OVERRIDE — LIVE ONLY WHEN THE TARGET ACTUALLY MATCHES.
+   *
+   * `position_boards.json`'s `pct_still_there_next_pick` is ADP-drain only (300
+   * simulated rooms, no live draft context, no keepers, no this-room profiles).
+   * A's own dispatch: app.js MUST override it with a live, opponent-aware
+   * number computed via `DraftSurvival.conservedSurvival()`.
+   *
+   * NOT a second computation — REUSED. `renderRecommendations()` already calls
+   * `E.onTheClock(context(), state.lists)`, which calls `conservedSurvival(ctx.board,
+   * ctx.nextPick, ctx)` internally (engine.js:944) and stamps the result onto
+   * every scored player as `survival_to_next` (line 2243). `renderSurvival()`
+   * reads the identical field for the same reason: ONE derivation, never two
+   * that can quietly disagree (2026-08-10 critique — Best Available and Survival
+   * Odds once showed different numbers for the same player on the same screen).
+   *
+   * BUT `survival_to_next` targets `ctx.nextPick` — MY NEXT TURN from wherever
+   * the draft is right now — and a position-boards block's `next_pick` is a
+   * DIFFERENT target unless I am actually on the clock for that block's own
+   * `pick`. Off the clock, `findPick` previews an UPCOMING entry (round 4,
+   * pick 33) while the live draft sits at pick 30; `ctx.nextPick` there is 33
+   * (my next turn), not the block's `next_pick` of 48. Stamping `survival_to_next`
+   * onto that preview would label a mismatched-window number "live" — worse
+   * than the estimate it would replace, because it LOOKS authoritative. So the
+   * override applies only when `currentPick() === pick.pick` (I am on the clock
+   * for this exact block) AND `pick.next_pick === ctx.nextPick` (the engine's
+   * own next-turn target agrees with the block's). Every other case falls back
+   * to the view's own built-in estimate marker — exactly as designed. */
+  // Default 'ds': position_boards' own lists SELECT and RANK on Draft Sharks
+  // (draft/tools/position_boards.js), so showing its numbers by default keeps
+  // the visible figure consistent with the order the list is actually in.
+  // 'blend' shows the same players' public/draft_data.json proj_mean instead
+  // — a genuine second lens, never a reselection (every player here carries
+  // both, ROUTES-B-TOGGLE.md's C4 control).
+  function loadProjSource() {
+    try {
+      const saved = localStorage.getItem(PROJ_SOURCE_KEY);
+      state.projSource = (saved === 'blend' || saved === 'ds') ? saved : 'ds';
+    } catch (e) { state.projSource = 'ds'; }
+  }
+  function setProjSource(src) {
+    if (src !== 'blend' && src !== 'ds') return;
+    state.projSource = src;
+    try { localStorage.setItem(PROJ_SOURCE_KEY, src); } catch (e) {}
+    try { renderPositionBoardsPanel(); } catch (e) { console.error('[position-boards]', e && e.message); }
+  }
+
+  /* Cory, live 2026-08-20: "This toggle should just rearrange the board
+   * though and also may change vona calc or recommended player." null/
+   * 'blend' is the trusted default (context().board is handed to the engine
+   * completely unchanged — this is the state this feature shipped in, and
+   * every render before today's push is reproduced exactly). A real source
+   * key swaps context() to a SourceBoard.forSource() copy, so VONA, the
+   * composite score and the recommended player all genuinely change — see
+   * source_board.js's own header for why that is safe (engine.js itself is
+   * never modified, only its INPUT board is). */
+  function loadRankSource() {
+    try {
+      const saved = localStorage.getItem(RANK_SOURCE_KEY);
+      const valid = typeof SourceBoard !== 'undefined'
+        && SourceBoard.SOURCES.some(function (s) { return s.key === saved; });
+      state.rankSource = valid ? saved : null;
+    } catch (e) { state.rankSource = null; }
+  }
+  function setRankSource(key) {
+    const valid = key === 'blend' || (typeof SourceBoard !== 'undefined'
+      && SourceBoard.SOURCES.some(function (s) { return s.key === key; }));
+    if (!valid) return;
+    state.rankSource = key === 'blend' ? null : key;
+    try {
+      if (state.rankSource) localStorage.setItem(RANK_SOURCE_KEY, state.rankSource);
+      else localStorage.removeItem(RANK_SOURCE_KEY);
+    } catch (e) {}
+    try { renderAll(); } catch (e) { console.error('[rank-source]', e && e.message); }
+  }
+  window.__setRankSource = setRankSource;
+
+  /* The board+roster context() actually hands to the engine — swapped when a
+   * non-blend rank source is active, untouched (same array, zero cost)
+   * otherwise. Roster is remapped too: engine.js reads incumbent players'
+   * vorp/proj_mean for the need/upgrade terms, and a roster still priced on
+   * the blend while the board is priced on Draft Sharks would compare two
+   * different currencies. */
+  function sourceAdjustedBoard() {
+    if (typeof SourceBoard === 'undefined') return state.board;
+    return SourceBoard.forSource(state.board, state.rankSource);
+  }
+  function sourceAdjustedRoster() {
+    if (typeof SourceBoard === 'undefined') return state.myRoster;
+    return SourceBoard.forSource(state.myRoster, state.rankSource);
+  }
+
+  /* HOW DEEP THE BOARD ACTUALLY MATTERS — Cory, 2026-08-20: "We really just
+   * need to focus on top 200 players maybe 250".
+   *
+   * ⚠️ THESE NUMBERS ARE NOT DECIDED HERE. They live in
+   * league_config.draftable_scope and ride onto the board as
+   * `league.draftable_scope` (build.py). The literals below are a FALLBACK for
+   * a board built before that block existed — including the 2026-08-19 board
+   * that is live right now — and draft/tests/draftable_scope_is_one_definition
+   * .test.js fails if they ever stop matching the config, so the fallback
+   * cannot quietly become a second opinion.
+   *
+   * WHY IT MATTERS ON THIS SCREEN: the source buttons used to print coverage
+   * over all 700 board players, so Draft Sharks read "247" beside Sleeper's
+   * "700" — a source that looks like it knows a third of the league. Measured
+   * on the live board, inside the 200 players Cory drafts from, DS covers 94%
+   * and Sleeper 100%. A 6-point gap was being drawn as a 3x one. */
+  const SCOPE_FALLBACK = { drafted: 150, focus: 200, outer: 250 };
+  function draftableScope() {
+    /* state.data.league — NOT state.league, which does not exist. Written
+     * wrong first; a bad path here reads as "no scope on the board" and pins
+     * the fallback forever, which is the silent-degrade failure this whole
+     * change exists to prevent. Verified against the served artifact. */
+    const s = state.data && state.data.league && state.data.league.draftable_scope;
+    if (s && typeof s.focus === 'number' && typeof s.outer === 'number'
+        && typeof s.drafted === 'number') return s;
+    return SCOPE_FALLBACK;
+  }
+
+  function renderPositionBoardsPanel() {
+    const host = $('#position-boards');
+    const d = state.positionBoards;
+    if (!host || !d || typeof PositionBoardsView === 'undefined') return;
+    const cur = currentPick();
+    const pick = PositionBoardsView.findPick(d, cur);
+    let liveSurvivalById = null;
+    if (pick && state.lastClock && state.lastClock.scored) {
+      const ctx = context();
+      if (cur === pick.pick && pick.next_pick === ctx.nextPick) {
+        liveSurvivalById = {};
+        state.lastClock.scored.forEach(function (s) {
+          if (s.survival_to_next != null) {
+            liveSurvivalById[String(s.player.player_id)] = s.survival_to_next;
+          }
+        });
+      }
+    }
+    /* `state.drafted` — Cory, 2026-08-20: "It is also showing players who are
+     * already gone". These lists are a PRE-SIMULATED snapshot of who was
+     * expected to be available at each pick, so the view had no idea who had
+     * actually been taken. Filtered at render; the panel also says so when the
+     * real draft has diverged from the simulation its numbers came from. */
+    host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
+      state.projSource || 'ds', state.playerCalls || {}, badgeInfo(), state.drafted);
+    wirePositionBoardsScroll(host);
+  }
+
+  /* Rookie ids + top-5-pace teams, computed once per render from data already
+   * on the page (state.board carries is_nfl_rookie; window.WR_TEAM_PACE
+   * carries neutral_plays_per_game) and handed to PositionBoardsView as plain
+   * Sets — same pattern as liveSurvivalById/callsById above: the pure view
+   * file never touches state or window itself. Cory, live 2026-08-20: "add
+   * some sort of tag to every rookie... a blue R" / "a red asterisk... team
+   * with a top 5 pace of play." */
+  function badgeInfo() {
+    const rookieIds = new Set();
+    (state.board || []).forEach(function (p) {
+      if (p && p.is_nfl_rookie === true && p.player_id != null) rookieIds.add(String(p.player_id));
+    });
+    const paceTeams = new Set();
+    try {
+      const pace = window.WR_TEAM_PACE;
+      const teams = pace && pace.teams;
+      if (teams) {
+        Object.keys(teams)
+          .filter(function (t) { return teams[t] && teams[t].neutral_plays_per_game != null; })
+          .sort(function (a, b) { return teams[b].neutral_plays_per_game - teams[a].neutral_plays_per_game; })
+          .slice(0, 5)
+          .forEach(function (t) { paceTeams.add(t); });
+      }
+    } catch (e) {}
+    return { rookieIds: rookieIds, paceTeams: paceTeams };
+  }
+
+  /* pb-grid is wider than the panel at a normal desktop width by design
+   * (see .pb-grid's own CSS comment) — a live screenshot showed that
+   * overflow has no visible signal, so K/DEF just vanish off the right
+   * edge with nothing telling you they're there. This measures the real
+   * scrollLeft (Rule 3e/3i: measure, don't assume) and toggles fade/hint
+   * classes only on the edge that actually has more content. Re-run after
+   * every re-render since host.innerHTML above replaces the scrollable
+   * element each time. */
+  function wirePositionBoardsScroll(host) {
+    var grid = host.querySelector('.pb-grid');
+    var wrap = host.querySelector('.pb-wrap');
+    if (!grid || !wrap) return;
+    function update() {
+      var max = grid.scrollWidth - grid.clientWidth;
+      wrap.classList.toggle('pb-grid-more-left', grid.scrollLeft > 2);
+      wrap.classList.toggle('pb-grid-more-right', max > 2 && grid.scrollLeft < max - 2);
+    }
+    update();
+    grid.addEventListener('scroll', update, { passive: true });
+    /* A synchronous update() right after innerHTML assignment measured a
+     * false "no overflow" on first load in real testing — the right rail's
+     * own async content was still settling and briefly left this panel
+     * wider than its final width. ResizeObserver's callback fires once on
+     * observe() with the CURRENT size and again on every later layout
+     * change (rail content finishing, window resize), so the fade/hint
+     * self-corrects once the page settles instead of staying wrong. */
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(update).observe(grid);
+    }
+  }
+
+  /* "ROSTER BUILDER MODEL SAYS" — ROSTER-BUILDER-PANEL-DESIGN.md (A,
+   * 2026-08-19). A SECOND VOICE beside the position boards above: Cory's own
+   * board is unchanged by this panel's existence — it only reports what a
+   * different, cross-position-aware model would take and why.
+   *
+   * §6 of the spec, twice, is why this stays this small: "do not feed it raw
+   * projections" (the module scores surplus-over-the-wire itself — state.board
+   * players already carry proj_mean, and mlv.js does the rest) and "do not let
+   * it write to the board, the roster, or any pick. Report only." This
+   * function computes and renders; nothing here can move a pick. */
+  function renderRosterBuilderPanel() {
+    const host = $('#roster-builder-mlv');
+    if (!host || typeof RosterBuilderMLV === 'undefined' || typeof RBMView === 'undefined') return;
+    const board = sourceAdjustedBoard() || [];
+    if (!board.length) { host.innerHTML = ''; return; }
+    let recs;
+    try {
+      recs = RosterBuilderMLV.recommend(board, sourceAdjustedRoster() || [],
+        /* `taken` added 2026-08-20 — Cory, from a rehearsal: "Roster builder
+         * model is recommending players that are already gone." state.board is
+         * pruned on every pick, so this is belt-and-braces; the point is that
+         * the panel can no longer name a gone player even if the board it is
+         * handed is stale. mlv.js counts anything it filters. */
+        { league: state.data.league, topN: 3, taken: state.drafted });
+    } catch (e) {
+      console.error('[roster-builder]', e && e.message);
+      host.innerHTML = ''; return;
+    }
+    /* Does this panel's #1 agree with the board's own #1? Compared by
+     * player_id, never by name — the reason the panel earns its screen
+     * space, so it is stated rather than left to the eye. */
+    let boardCompare = null;
+    try {
+      const sc = E.recommend(context());
+      const topOfBoard = sc && sc.length ? sc[0].player : null;
+      if (topOfBoard && recs.length && recs[0].player) {
+        boardCompare = { topName: topOfBoard.name,
+          agrees: String(topOfBoard.player_id) === String(recs[0].player.player_id) };
+      }
+    } catch (e) { boardCompare = null; }
+    host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, boardCompare,
+      explainPanel('roster_builder'), escapeHtml);
+
+    /* ⚠️ IF THE GUARD EVER FIRES, SAY SO RATHER THAN QUIETLY CLEANING UP.
+     * mlv.js now refuses to recommend a player who is already taken, and counts
+     * what it dropped. Zero is the healthy state and draws nothing. A non-zero
+     * count means this panel was handed a board that still contained drafted
+     * players — the SYMPTOM is fixed above, but the CAUSE would be upstream in
+     * whatever failed to prune, and hiding it is how that cause survives. */
+    if (recs && recs._taken_filtered) {
+      const note = document.createElement('p');
+      note.className = 'muted';
+      note.style.cssText = 'margin:.4rem 0 0;font-size:.72rem;color:#b45309';
+      note.textContent = '⚠️ ' + recs._taken_filtered + ' already-drafted player'
+        + (recs._taken_filtered === 1 ? '' : 's')
+        + ' were removed from this list ('
+        + (recs._taken_names || []).join(', ')
+        + '). They cannot be recommended, but the board handed to this panel '
+        + 'should not have contained them — please report this.';
+      host.appendChild(note);
+      console.error('[roster-builder] board contained drafted players:',
+        recs._taken_filtered, recs._taken_names);
+    }
+  }
+
+  /* LEAGUE-WIDE POSITION-TAKEN COUNT, INCLUDING KEEPERS — Cory: "a running
+   * count at the top of screen somewhere of # of players taken at each
+   * position (including keepers) would be nice." state.drafted already
+   * carries keeper ids alongside live picks (added once at keeper-apply
+   * time, same Set every pick-taken path adds to — see the accounting
+   * invariant's own comment above `myNextTurn`).
+   *
+   * ⚠️ A KEPT PLAYER IS NOT IN state.data.players. Checked live before
+   * shipping this, not assumed: DraftKeepers.reapply() REPLACES
+   * state.data.players with the reapplied set (line ~7291), and a kept
+   * player is never part of it — he was never "available," so he was
+   * never emitted into the pool. Live-drafted players stay in
+   * state.data.players (only state.board, the undrafted VIEW, drops
+   * them), so a first version that scanned state.data.players alone
+   * counted every live pick correctly and every keeper as zero — 3
+   * players confirmed in state.drafted, 0 showing on the strip. The fix
+   * is state.data.kept_players, unioned in. Visible on every tab (mounted
+   * outside .wr-zone1, next to #system-strip), not just the Draft tab,
+   * since it's a league fact rather than a per-pick recommendation. */
+  function renderPosTakenCounts() {
+    const host = $('#pos-taken-strip');
+    if (!host) return;
+    // `!==` here, not `!=` — script_load_order.test.js's guard-detection
+    // regex only recognises `typeof X !== ''`; the equivalent `=== 'undefined'`
+    // early-return this file uses elsewhere reads the same to a human but is
+    // invisible to that check, which then (correctly, per its own blind-spot
+    // comment for cross-file modules) demands warroom_charts.js's tag be
+    // findable — it isn't, since it loads from warroom.ejs, not this include.
+    if (typeof WarRoomCharts !== 'undefined' && state.data && Array.isArray(state.data.players)
+        && state.data.players.length) {
+      const posById = new Map();
+      (state.data.players || []).forEach(p => { if (p && p.position) posById.set(String(p.player_id), p.position); });
+      (state.data.kept_players || []).forEach(p => { if (p && p.position) posById.set(String(p.player_id), p.position); });
+      const counts = {};
+      state.drafted.forEach(id => {
+        const pos = posById.get(String(id));
+        if (pos) counts[pos] = (counts[pos] || 0) + 1;
+      });
+      host.innerHTML = WarRoomCharts.posTakenStrip(counts);
+    } else {
+      host.innerHTML = '';
+    }
   }
 
   /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
@@ -972,13 +1389,84 @@
         + 'term\'s slider is the one worth a second look.',
       src: 'engine.js recommend()/scorePlayer(); CFG.TIE_THRESHOLD',
     },
+    source_boards: {
+      what: 'What each projection source would take at each position RIGHT NOW: '
+        + 'their own ranking, walked past everyone already drafted. Six outside '
+        + 'sources plus the blend the board actually uses.',
+      read: 'Read the bullet, not the names — a dot means that source wants '
+        + 'someone the blend does not, and those are the only cells worth your '
+        + 'time. When every column agrees, the pick is not contested and you can '
+        + 'move on. When they split at a position, that is real disagreement '
+        + 'among people who do this for a living, and it is where your own read '
+        + 'is worth the most.',
+      do: 'Use it to sanity-check a pick that feels off, never to average the '
+        + 'columns — the blend already does that, properly centred. Ignore the '
+        + 'row entirely at a position where a source shows "no coverage".',
+      src: 'source_boards.json from draft/tools/source_boards.js; order only, no points',
+    },
+    proj_source: {
+      what: 'The same board, priced by ONE source instead of the blend: Draft '
+        + 'Sharks, Sleeper, our own model, FantasyPros, or the blend the board '
+        + 'normally uses. Shows that source\'s best available and how far it sits '
+        + 'from the blend.',
+      read: 'Switching source RE-RANKS THE WHOLE BOARD — rankings, VONA, tiers and the '
+        + 'recommended pick all change, because replacement level is recomputed from '
+        + 'that source. Read the last column. When a man is +20 on one source and the blend '
+        + 'does not have him that high, you are looking at one opinion rather than a '
+        + 'consensus — treat it as a tiebreak, never as a reason on its own. Always '
+        + 'check the coverage line first: Draft Sharks carries about a third of the '
+        + 'board, so a short list there means missing players, not bad ones.',
+      do: 'Switch it during a MOCK to see how a different source would have drafted '
+        + 'for you, then press Blend to come back. Do not leave it off Blend for the '
+        + 'real draft unless you mean to — the orange banner tells you when it is off, '
+        + 'and names anyone that source cannot see.',
+      src: 'draft_data.json per-player proj_* fields; display only, never scored',
+    },
+    mlv_plan: {
+      what: 'The whole draft, not just this pick: what the roster-builder model '
+        + 'would take at each of your twelve picks if the board drained in ADP '
+        + 'order and nobody reacted to you. K and DEF capped at one each, your rule.',
+      read: 'Read it as two halves and treat the orange line as the edge of what the '
+        + 'model knows. Above it, marginal lineup value — a real opinion. Below it, '
+        + 'once your nine starting slots are full, every player is worth exactly zero '
+        + 'to MLV, so those rows use your bench rule instead: the position you are '
+        + 'still short of the winning shape, taking whoever beats the waiver wire by '
+        + 'the most. If a name below the line looks wrong, trust yourself over it.',
+      do: 'Use the top half to see the SHAPE you are heading for and whether it '
+        + 'matches the top-3 finishers. Use the bottom half for nothing except '
+        + 'knowing the model has stopped talking — from round 7 on, this is your '
+        + 'call and the big board\'s, not the model\'s.',
+      src: 'mlv_plan.json from draft/tools/mlv_seat_plan.js; a PLAN, not a prediction',
+    },
+    roster_builder: {
+      what: 'A SECOND OPINION, deliberately not the ranking above. It scores each '
+        + 'man by what he adds to your STARTING LINEUP — lineup value with him minus '
+        + 'lineup value without him — valued as surplus over the waiver wire, which '
+        + 'makes these numbers comparable ACROSS positions. VONA is not.',
+      read: 'Read it against the ranking above, never instead of it. When the two '
+        + 'agree the pick is easy. When they disagree it is nearly always the same '
+        + 'reason: the board\'s top name is a body you already have and he would sit '
+        + 'on your bench. Treat "bench only — he does not crack your lineup" as the '
+        + 'most useful line on the panel and not a throwaway, because that is the '
+        + 'disagreement you can act on.',
+      do: 'Use it for the FLEX question and for any cross-position call, because '
+        + 'that is the one thing VONA cannot answer. Expect it to want a defence and '
+        + 'a kicker once your nine starting slots are full — that is the model being '
+        + 'consistent, not broken, and you can overrule it. It cannot value a bench '
+        + 'at all, so ignore it for your last few picks.',
+      src: 'mlv.js recommend(); measured on 30 seat-years, register 132/134',
+    },
     position_recs: {
       what: 'The best available at each position, so a run at one is visible '
         + 'without scanning the whole board.',
       read: 'Compare the DROP to your next pick, not the raw score: a position '
         + 'whose best name barely changes by then is one you can wait on.',
       do: 'Use the dropdown when you already know which position you want and need '
-        + 'the ranked field; the strip above answers the cross-position glance faster.',
+        + 'the ranked field; the strip above answers the cross-position glance faster. '
+        + '⚠️ Never compare one position\'s VONA or score against another\'s to settle '
+        + 'a FLEX — they are not on the same scale (a backup QB\'s cliff is the biggest '
+        + 'on the board and sits on 17 points of surplus; an RB\'s 11-point cliff sits '
+        + 'on 233). The roster builder panel is the one that can answer RB-or-WR.',
       src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
@@ -1063,6 +1551,101 @@
       src: 'movers.js movers() over build.py-stamped adp_velocity/adp_stale (draft/adp_series.py)',
     },
   };
+
+  /* TERM GLOSSARY — Cory, live 2026-08-20: "make sure there is definitions
+   * of all those things and how to use them (adot, war)." PANEL_GUIDE above
+   * explains whole PANELS (what/read/do/src); this explains individual
+   * STAT ABBREVIATIONS — the words themselves, wherever they appear on the
+   * board, the drill-down, or a side panel. Every term shown anywhere on
+   * this page with a tooltip or a bare label should have an entry here too,
+   * so "what does X mean" always has ONE place to look it up rather than
+   * needing to find the one row that happens to explain it.
+   *
+   * `use` is the "how to use it" half of the ask, not just a definition —
+   * a number with no instruction for what to DO with it is exactly the gap
+   * this file exists to close.
+   *
+   * No "WAR" entry: grepped the whole client for the bare token and this
+   * system does not carry a stat by that name (baseball/other-sport "Wins
+   * Above Replacement" has no equivalent field here). VORP is the closest
+   * real thing on this board — the entry below says so, in case that is
+   * what was meant. */
+  const TERM_GLOSSARY = [
+    { term: 'VORP', def: 'Value Over Replacement Player — how many points this player scores above the ' +
+      'last startable player at his position (the "replacement level"). Not the same as VONA below. ' +
+      '(If you were thinking of "WAR" from another sport — Wins Above Replacement — this is the same ' +
+      'idea in this system\'s own units: value above the freely available floor, not raw points.)',
+      use: 'Use it to compare players ACROSS positions — a QB and a TE with the same projected points ' +
+      'are not equally valuable, because QB replacement level is much higher. VORP already accounts ' +
+      'for that; raw projected points do not.' },
+    { term: 'VONA', def: 'Value Over Next Available — what waiting costs. The gap between this player\'s ' +
+      'projection and whoever will likely still be there at your NEXT pick at the same position.',
+      use: 'Use it to decide take-now vs. wait-one-more-round at a single position. A high VONA means ' +
+      'the position falls off fast after this player — take him now. A low VONA means the position is ' +
+      'deep — you can wait and spend this pick elsewhere.' },
+    { term: 'ADP', def: 'Average Draft Position — where the market expects a player to go. "Raw" is the ' +
+      'plain market number; "Adj ADP" is our own ranking, adjusted for this room (who\'s already gone, ' +
+      'this league\'s tendencies).',
+      use: 'A player whose Adj ADP is much better (lower) than his Raw ADP is someone we like more than ' +
+      'the market — a green "we like him more" note explains why on his row.' },
+    { term: 'Tier', def: 'A cluster of players the board treats as roughly interchangeable in value, ' +
+      'separated by real cliffs — a jump to the next tier means a real drop in projected points, not ' +
+      'just the next name on a list.',
+      use: 'Prefer taking the LAST player in a tier over the FIRST player in the next one — that is ' +
+      'exactly the value the tier boundary is marking. The tier-cliff chart shows where those drops sit.' },
+    { term: 'WOPR', def: 'Weighted Opportunity Rating — a receiver\'s target share and his share of the ' +
+      'team\'s air yards, blended into one usage number. Higher means the offense is built around him.',
+      use: 'Use it alongside target share for WR/TE — a high WOPR with a modest target share means he\'s ' +
+      'getting fewer but more valuable (deeper) targets; both high means he\'s the clear focal point.' },
+    { term: 'aDOT', def: 'Average Depth of Target — how far downfield (in yards) a receiver\'s targets ' +
+      'travel, on average.',
+      use: 'A low aDOT (short, high-floor targets — screens, slants) tends to mean more receptions but ' +
+      'less ceiling; a high aDOT (deep targets) means bigger plays but more week-to-week variance. Read ' +
+      'it beside floor/ceiling, not alone.' },
+    { term: 'Team pace', def: 'How many plays a team runs per game — "neutral" pace excludes garbage-time ' +
+      'snaps (blowout script inflates or deflates raw pace either direction), so it\'s the more honest read.',
+      use: 'More plays for the whole team means more opportunities to go around — a real but secondary ' +
+      'tailwind for everyone on that offense, not a reason to draft a specific player by itself.' },
+    { term: 'Team pass rate', def: 'How often a team throws vs. runs. "Score-neutral" strips out the ' +
+      'garbage-time script the same way team pace does.',
+      use: 'A pass-heavy team\'s RB2 is worth less than the raw depth-chart slot suggests; a run-heavy ' +
+      'team\'s WR2/3 likewise. Use it to sanity-check a player whose role looks good on paper.' },
+    { term: 'Survival %', def: 'The measured chance a player is STILL on the board when your next pick ' +
+      'comes around — live and room-aware once you\'re on the clock, an ADP-based estimate (marked ~) ' +
+      'before that.',
+      use: 'A player under 25% survival is very likely gone if you wait — that is your "take him now" ' +
+      'signal. Above 70%, waiting is close to free.' },
+    { term: 'Injury risk %', def: 'A measured estimate of this player\'s chance of missing games this ' +
+      'season, from Draft Sharks.',
+      use: 'Weigh it against floor, not against the mean projection — a boom/bust player with real ' +
+      'injury risk can still be right to draft if his ceiling and your roster need it; it\'s a caution, ' +
+      'not a veto.' },
+    { term: 'Depth chart order', def: 'Where a player sits on his own team\'s internal pecking order at ' +
+      'his position — 1 = starter, 2 = primary backup, and so on.',
+      use: 'A backup with a real depth-chart path to starting (order 2 behind an injury-prone or aging ' +
+      'starter) is worth more than his projection alone says — check the depth chart teammates list in ' +
+      'his dossier for who\'s actually ahead of him.' },
+    { term: 'Composite score', def: 'The engine\'s single blended value number for this pick — a weighted ' +
+      'sum of value, need, risk, ceiling, and the other adjuster terms, all on one comparable scale.',
+      use: 'It\'s what the ranked list is sorted by. A gap under ~2 points between the top two names is ' +
+      'the engine\'s own tie flag — that\'s when the verdict chip should read TOSS-UP or SPLIT, not LOCK.' },
+    { term: 'Steal gap', def: 'On the Ceiling Steals table: how many ranking spots earlier this player ' +
+      'would go if drafted by CEILING instead of by average draft position.',
+      use: 'A big steal gap is an upside bet, not a safe one — "if he hits" is doing real work in that ' +
+      'sentence. Best used late, on a bench spot, not to justify reaching early.' },
+    { term: 'ADP velocity', def: 'How many draft-position slots a player has moved over the tracked ' +
+      'window — positive means rising (going earlier than before), negative means falling.',
+      use: 'A fast riser or faller is a name to research before you pick, not a number to draft on by ' +
+      'itself — the ADP Movers panel exists to flag "check the news on this guy," not to rank anyone.' },
+    { term: 'STALE flag', def: 'A player whose ADP moved a round or more while the board\'s own overnight ' +
+      'number sat still — the board\'s price for him may be behind what the market already knows.',
+      use: 'Treat his board projection with a little more suspicion than usual, and check why before ' +
+      'paying his old price (a riser) or assuming he\'s a bargain (a faller).' },
+    { term: 'Marginal value', def: 'On the Roster Builder panel: how many points this specific player ' +
+      'adds to your STARTING lineup right now — not to your bench, not to your roster in general.',
+      use: 'This is why a good player can show a low (or zero) marginal value — if he can\'t crack your ' +
+      'current starting lineup, he isn\'t helping your score yet, whatever his own projection says.' },
+  ];
 
   /* ONE EMITTER, so every caption has the same shape and the same hook. Returns
    * '' for an unknown key rather than throwing — a missing caption must never
@@ -1352,7 +1935,12 @@
   function init() {
     loadWeights();
     loadFrozenBaseline();
+    loadProjSource();
+    loadRankSource();
     loadSeatPlan();
+    loadSourceBoards();
+    loadPositionBoards();
+    loadMlvPlan();
     loadConditionalValue();
     loadOpponentNeed();
     loadExpertSpread();
@@ -2099,11 +2687,11 @@
     const totalPicks = ((state.data.pick_order || {}).picks || []).length || null;
     const teams = state.data.league.teams || 10;
     return {
-      board: state.board,
+      board: sourceAdjustedBoard(),
       nextPick: next,
       totalPicks,
       myPicksLeft: upcoming.length,
-      roster: state.myRoster,
+      roster: sourceAdjustedRoster(),
       // STAGE 3: the enrolled doctrine reaches the SCORER. Without this line the
       // tilt is wired in the engine and live only in tests — the app would keep
       // scoring exactly as it did before while the banner claimed the plan was
@@ -2289,7 +2877,49 @@
     });
   }
 
+  /* ⚠️ NOTHING DRAFTED SURVIVES INTO A RENDER — added 2026-08-20 after Cory
+   * reported it twice: "Roster builder model is recommending players that are
+   * already gone", then "Mock draft is not working. It's telling me to take
+   * players already taken."
+   *
+   * The first fix went inside mlv.js. It was correct and TOO NARROW — it
+   * protected one panel, and the second report says whatever is stale reaches
+   * more than that. Twenty places in this file read `state.board` directly,
+   * including DraftNeedRule.recommend, DraftShadows, the left rail, the
+   * shortlist and the board count. Guarding them one at a time is how the next
+   * surface gets missed.
+   *
+   * So the prune happens ONCE, here, before anything paints. Every consumer is
+   * downstream of it whether it goes through sourceAdjustedBoard(), context(),
+   * or straight at state.board.
+   *
+   * `state.board` is SUPPOSED to be pruned on every pick, and all five ingest
+   * paths (manual, remote sync, rehearsal-noise, resume, mock-end) do prune it —
+   * I traced every one and could not name the failing path by reading. A fix
+   * that depended on my having found it would be a guess. This does not: on a
+   * healthy board it removes nothing, and on a stale one it is the difference
+   * between Cory taking a player who is gone and not.
+   *
+   * IT COUNTS AND NAMES WHAT IT REMOVES rather than cleaning up quietly, because
+   * a silent fix would bury the upstream cause. Logged once per change, and
+   * exposed on state.staleBoardDrops for __wrDiag(). */
+  function pruneDraftedFromBoard() {
+    if (!state.board || !state.drafted || !state.drafted.size) return;
+    const gone = state.board.filter(p => p && state.drafted.has(String(p.player_id)));
+    if (!gone.length) { state.staleBoardDrops = 0; return; }
+    state.board = state.board.filter(p => p && !state.drafted.has(String(p.player_id)));
+    state.staleBoardDrops = (state.staleBoardDrops || 0) + gone.length;
+    if (state._lastStaleReport !== state.staleBoardDrops) {
+      state._lastStaleReport = state.staleBoardDrops;
+      console.error('[board] ' + gone.length + ' drafted player(s) were still on '
+        + 'the board at render time — removed here, but the prune upstream did '
+        + 'not happen:', gone.slice(0, 8).map(p => p.name));
+    }
+  }
+
   function renderAll() {
+    /* BEFORE ANY PANEL READS THE POOL. See pruneDraftedFromBoard's header. */
+    try { pruneDraftedFromBoard(); } catch (e) { console.error('[board-prune]', e && e.message); }
     /* The seat panel must follow the clock. Loaded once, re-rendered on every
      * board update — otherwise it is a screenshot of the first pick and it would
      * be WRONG rather than merely stale, since the seat changes with the pick. */
@@ -2353,9 +2983,41 @@
     checkKeeperLock();
     safeRender('header', renderHeader);
     safeRender('recommendations', renderRecommendations);
+    // AFTER recommendations, not before: the live survival override reuses
+    // state.lastClock.scored's survival_to_next, which renderRecommendations
+    // just populated. Reordering this ahead of it would silently fall back
+    // to the JSON estimate on every render, never the live number.
+    safeRender('positionBoards', renderPositionBoardsPanel);
+    // A second voice beside the position boards above — same staleness
+    // reasoning: every pick changes both the available board and Cory's own
+    // roster, so it is recomputed on every render alongside them.
+    safeRender('rosterBuilderMlv', renderRosterBuilderPanel);
+    // League-wide, not per-pick-recommendation, but still stale the instant
+    // a pick lands and isn't reflected — same render cadence as everything
+    // else on the screen.
+    safeRender('posTakenCounts', renderPosTakenCounts);
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
+    safeRender('mlvPlan', renderMlvPlan);
+    /* ⛔ MY projection-source panel is UNWIRED as of the 2026-08-20 merge, and
+     * B's renderRankSourcePanel (source_board.js) is the one that ships.
+     *
+     * We built the same feature twice on the same night -- the FIFTH such
+     * collision in this session. B's wins on the merits, not on politeness:
+     *   · it FALLS BACK to the blend value for a player a source does not
+     *     cover; mine DROPPED him. A player vanishing from the board mid-draft
+     *     is worse than one priced conservatively.
+     *   · it feeds engine.js through context() unmodified, so VONA, tiers and
+     *     the recommended player genuinely follow the source. Mine swapped the
+     *     player pool, which is shallower.
+     *   · the war-room UI is B's territory and two toggles doing the same job
+     *     is a worse defect than either.
+     * The function and PROJ_SOURCES stay in the file, unreferenced, so the
+     * coverage-warning wording can be lifted into B's panel if it is wanted.
+     * They will show up in nothing_computed_goes_unshown.js as unread, which
+     * is correct and is the guard doing its job. */
+    safeRender('sourceBoards', renderSourceBoards);
     safeRender('lists', renderLists);
     safeRender('queue', renderQueue);
     safeRender('threats', renderThreats);
@@ -2738,8 +3400,19 @@
     'LOCK': 'LOCK \u2014 take it and bank the clock',
     'LEAN': 'LEAN \u2014 ahead, a real preference can override',
     'TOSS-UP': 'TOSS-UP \u2014 your call',
-    'SPLIT': 'SPLIT \u2014 two answers, rule wins ties',
+    /* Generic fallback for the glossary/legend, which lists every chip once
+     * with no specific pick behind it. The LIVE chip (renderVerdict, below)
+     * never uses this \u2014 it names which lens actually wins THIS split from
+     * v.splitBy, because a single static "rule wins ties" string was simply
+     * wrong on a plan-backed split (Cory read the contradiction live: the
+     * chip said "rule wins ties" while the why-sentence right under it said
+     * the season plan backed the pick). */
+    'SPLIT': 'SPLIT \u2014 two answers, the priority order decides',
     'PINNED': 'YOUR PIN \u2014 the board disagrees',
+  };
+  const SPLIT_CHIP_WORDS = {
+    'plan': 'SPLIT \u2014 your saved draft plan wins the tie',
+    'rule': 'SPLIT \u2014 the measured rule wins the tie',
   };
   function renderVerdict(out) {
     const host = $('#verdict-block');
@@ -2773,7 +3446,7 @@
       if (typeof DraftShadows !== 'undefined' && state.board && state.board.length && state.data) {
         const teams = ((state.data.league || {}).teams) || 10;
         const round = Math.max(1, Math.ceil(currentPick() / teams));
-        const proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        const proj = DraftShadows.project(sourceAdjustedBoard(), context(), round, sourceAdjustedRoster());
         const cons = DraftShadows.consensus(proj);
         if (cons && proj.length) {
           state._shadowProj = { proj: proj, cons: cons, pick: currentPick() };
@@ -2847,7 +3520,8 @@
       explainPanel('verdict')
       + '<div class="wrv-top">'
       + '<span class="wrv-chip ' + chipClass + '" data-verdict="' + escapeHtml(v.verdict) + '">'
-        + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
+        + escapeHtml((v.verdict === 'SPLIT' && SPLIT_CHIP_WORDS[v.splitBy])
+          || VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
       + '</div>'
       + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
         + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span>'
@@ -3000,7 +3674,12 @@
           + '<p>' + escapeHtml(g.read) + '</p>'
           + '<p><b>Do:</b> ' + escapeHtml(g.do || '') + '</p>'
           + '<p class="pe-src">source of truth: ' + escapeHtml(g.src || '') + '</p>';
-      }).join('');
+      }).join('')
+      + '<h3 id="wr-terms">Terms — what they mean and how to use them</h3>'
+      + '<dl class="wr-glossary">' + TERM_GLOSSARY.map(t =>
+          '<dt>' + escapeHtml(t.term) + '</dt>'
+          + '<dd>' + escapeHtml(t.def) + ' <b>Use it:</b> ' + escapeHtml(t.use) + '</dd>'
+        ).join('') + '</dl>';
   }
 
   /* ⓘ toggle — openness survives re-renders via state.explainOpen. */
@@ -3246,12 +3925,30 @@
     const chip = (id, kind) => '<button class="list-chip ' + kind + '" data-unlist="' + kind
       + '" data-id="' + escapeHtml(id) + '">' + escapeHtml(nameOf(id)) + ' \u2715</button>';
     const t = state.lists.targets, a = state.lists.avoid;
+    const calls = state.playerCalls || {};
+    const callChip = (id, entry) => '<button class="list-chip ' + (entry.call === 'like' ? 'targets' : 'avoid')
+      + '" data-uncall="' + escapeHtml(id) + '" title="' + escapeHtml(entry.call === 'like' ? 'Liked' : 'Disliked')
+      + (entry.proj_mean != null ? ' at ' + Math.round(entry.proj_mean) + ' proj pts' : '') + '">'
+      + escapeHtml(entry.name || nameOf(id)) + ' \u2715</button>';
+    const likedIds = Object.keys(calls).filter(id => calls[id].call === 'like');
+    const dislikedIds = Object.keys(calls).filter(id => calls[id].call === 'dislike');
     host.innerHTML =
       '<div class="list-row"><b>\u2b50 Targets</b>'
         + (t.length ? t.map(id => chip(id, 'targets')).join('') : '<span class="muted">none yet</span>')
       + '</div>'
       + '<div class="list-row"><b>\u{1F6AB} Never</b>'
         + (a.length ? a.map(id => chip(id, 'avoid')).join('') : '<span class="muted">none yet</span>')
+      + '</div>'
+      /* Deliberately a SEPARATE row pair from targets/avoid above \u2014 a like
+       * is Cory's opinion (graded later against what happens), a target is
+       * an instruction to the model (changes what it recommends now). */
+      + '<div class="list-row"><b>\u{1F44D} Liked (graded later)</b>'
+        + (likedIds.length ? likedIds.map(id => callChip(id, calls[id])).join('')
+          : '<span class="muted">none yet \u2014 click \u{1F44D} on a player</span>')
+      + '</div>'
+      + '<div class="list-row"><b>\u{1F44E} Disliked (graded later)</b>'
+        + (dislikedIds.length ? dislikedIds.map(id => callChip(id, calls[id])).join('')
+          : '<span class="muted">none yet</span>')
       + '</div>';
   }
 
@@ -3653,7 +4350,10 @@
       const name = p ? p.name : id;
       return '<div class="q-row' + (isGone ? ' gone' : '') + '">'
         + '<span class="q-rank">' + (i + 1) + '</span>'
-        + '<span class="q-name">' + escapeHtml(name)
+        // data-drill: the queue is "the list you read when the clock is at
+        // 8 seconds" — its only job before now was take/compare/reorder,
+        // with no way to glance at WHY a name is on it without leaving it.
+        + '<span class="q-name"' + (p ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '') + '>' + escapeHtml(name)
           + (p ? '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' : '')
           + (p && p.bye ? '<span class="muted"> bye ' + p.bye + '</span>' : '')
           + (isGone ? '<span class="q-gone">drafted</span>' : '')
@@ -3880,7 +4580,8 @@
         : '';
       return '<div class="wr-mover-row' + (r.stale ? ' is-stale' : '') + '">'
         + '<span class="wr-mover-dir" aria-hidden="true">' + (dir === 'up' ? '▲' : '▼') + '</span>'
-        + '<span class="wr-mover-name">' + escapeHtml(shortName(p.name))
+        + '<span class="wr-mover-name"' + (p.player_id != null ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '') + '>'
+        + escapeHtml(shortName(p.name))
         + ' <span class="rec-pos ' + p.position + '">' + p.position + '</span></span>'
         + '<span class="wr-mover-adp wr-num" title="current ADP (market)">'
         + (r.adp != null ? 'ADP ' + Math.round(r.adp) : 'ADP —') + '</span>'
@@ -4337,6 +5038,473 @@
       + ') is ' + lead.gone + '% gone by your next pick' + escapeHtml(more)
       + ' <button class="btn small gold" data-draft-me="' + escapeHtml(String(lead.id)) + '">I took him</button>';
     host.style.display = '';
+  }
+
+  /* ── "ROSTER BUILDER MODEL SAYS" ────────────────────────────────────────
+   * The real render function is renderRosterBuilderPanel(), above, mounted
+   * at #roster-builder-mlv — it already existed (B, commit 06d11b6b, the
+   * night before this comment) when A independently built a second,
+   * self-mounting implementation here under a different id (#roster-builder)
+   * that this exact stopgap comment said should defer to it. It didn't,
+   * because the id didn't match, and Cory would have seen the panel twice.
+   * Found and resolved in the 2026-08-20 rebase: A's genuinely good addition
+   * — stating whether this panel's #1 agrees with the board's own #1, which
+   * is the reason the panel earns its screen space — was ported into
+   * rbm_view.js's render() as the `board` param rather than lost along with
+   * the duplicate. A's `roster_builder` entry in panel_spec.js now points at
+   * renderRosterBuilderPanel instead of this deleted function. */
+
+  /* ── WHAT TEAM WOULD MLV ACTUALLY DRAFT ME? ───────────────────────────────
+   *
+   * Cory, 2026-08-20: "Let's have something on war room screen that tells me
+   * what MLV displacement with 1k and def would pick."
+   *
+   * The roster-builder panel above answers "who NOW". This answers "what do I
+   * END UP WITH", which is a different question and the one a plan answers.
+   *
+   * ⚠️ THE SPLIT IS THE PRODUCT, NOT A CAVEAT ON IT. MLV has a real opinion
+   * about six of his twelve picks and none about the other six — once nine
+   * starting slots are full every remaining player scores exactly zero, so the
+   * "ranking" below that line is the BOARD's order wearing MLV's name. The
+   * panel draws that line hard and labels everything under it. Register 146.
+   */
+  function mlvPlanHost() {
+    const found = $('#mlv-plan');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'mlv-plan';
+    el.className = 'card mlv-plan';
+    el.setAttribute('data-mounted-by', 'app.js — no #mlv-plan in the view');
+    const anchor = document.getElementById('roster-builder');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function loadMlvPlan() {
+    fetch('/mlv_plan.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.picks)) return;
+        state.mlvPlan = d;
+        try { renderMlvPlan(); } catch (e) { console.error('[mlv-plan]', e && e.message); }
+      })
+      .catch(e => console.warn('[mlv-plan] unavailable:', e && e.message));
+  }
+
+  function renderMlvPlan() {
+    const host = mlvPlanHost();
+    if (!host) return;
+    const d = state.mlvPlan;
+    if (!d) return;
+
+    const row = (p) => {
+      if (p.none) {
+        return '<tr><td>' + p.pick + '</td><td colspan="4" class="muted">nobody left</td></tr>';
+      }
+      const dim = p.mlv_has_an_opinion ? '' : ' style="opacity:.62"';
+      const val = p.mlv_has_an_opinion
+        ? '<b>+' + p.marginal + '</b>'
+        : '<b>+' + p.wire_surplus + '</b> <span class="muted">wire</span>';
+      return '<tr' + dim + '>'
+        + '<td>' + p.pick + '</td>'
+        + '<td>' + escapeHtml(p.player.position) + '</td>'
+        + '<td><b>' + escapeHtml(p.player.name) + '</b></td>'
+        + '<td class="muted">' + p.player.adp + '</td>'
+        + '<td>' + val + '</td></tr>';
+    };
+
+    const opinion = d.picks.filter(p => !p.none && p.mlv_has_an_opinion);
+    const blind = d.picks.filter(p => !p.none && !p.mlv_has_an_opinion);
+    const tied = blind.length ? blind[0].tied_at_zero : 0;
+
+    /* THE DIVIDER IS THE HONEST PART OF THIS PANEL. */
+    const divider = blind.length
+      ? '<tr><td colspan="5" style="padding:.45rem .2rem;border-top:2px solid #b45309;'
+        + 'color:#b45309;font-size:.76rem;line-height:1.35">'
+        + '<b>⛔ MLV STOPS HERE.</b> Your nine starting slots are full, so all '
+        + tied + ' remaining players are worth <b>exactly 0</b> to it — it cannot tell '
+        + 'them apart. Below this line is <b>your bench rule</b>: the position you are '
+        + 'still short of the top-3-finisher shape, taking the man worth most over what '
+        + 'the waiver wire gives you free. A 13th tight end scores 0 there; a 5th back '
+        + 'does not.'
+        + '</td></tr>'
+      : '';
+
+    const shape = Object.entries(d.final_shape || {})
+      .map(([q, n]) => q + ' ' + n).join(' · ');
+    const vs = Object.entries(d.vs_top3_finishers || {})
+      .filter(([, v]) => Math.abs(v.delta) >= 1)
+      .map(([q, v]) => q + ' ' + (v.delta > 0 ? '+' : '') + v.delta)
+      .join(', ');
+
+    const tilt = blind.length
+      ? '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
+        + '<b>What the wire gives you free:</b> QB 322.9 · RB 78.4 · WR 124.8 · '
+        + 'TE 130.4 · K 128.6 · DEF 100. A drafted man is only worth what he adds '
+        + 'ABOVE that. This league drafts ~14 TEs and ~47 RBs, which is why a late '
+        + 'tight end is worth nothing and a late back is not.</p>'
+      : '';
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">🗺️ What the roster builder would draft you '
+      + explainPanel('mlv_plan') + '</h3>'
+      + '<p class="muted" style="margin:0 0 .4rem;font-size:.75rem">'
+      + 'All twelve picks, K and DEF capped at one each (your rule). '
+      + '<b>A plan, not a prediction</b> — it assumes the board drains in ADP order '
+      + 'and nobody reacts to you.</p>'
+      + '<table class="mini" style="width:100%;font-size:.8rem"><thead><tr>'
+      + '<th>pick</th><th>pos</th><th>player</th><th>ADP</th><th>+lineup</th>'
+      + '</tr></thead><tbody>'
+      + opinion.map(row).join('') + divider + blind.map(row).join('')
+      + '</tbody></table>'
+      + '<p class="muted" style="margin:.5rem 0 0;font-size:.74rem">'
+      + 'Ends up: <b>' + escapeHtml(shape) + '</b>'
+      + (vs ? ' · vs the top-3 finishers you ruled we should match: <b>' + escapeHtml(vs) + '</b>' : '')
+      + '</p>' + tilt
+      + '</div>';
+  }
+
+  /* ── PROJECTION SOURCE: BLEND, OR ONE SOURCE ON ITS OWN ───────────────────
+   *
+   * Cory, 2026-08-20: "No draft shark info, no toggle between sources or blend."
+   *
+   * Both were true and neither was a deploy problem. `attach_draftsharks.py`
+   * has been writing proj_ds / proj_ds_floor / proj_ds_ceiling onto the board
+   * for weeks and NOTHING ON ANY SCREEN READ THEM — a grep for proj_ds across
+   * every war-room script returned zero hits. And no toggle had ever been
+   * built; the source-boards panel below shows ORDER per source, which is a
+   * different question from "show me their numbers".
+   *
+   * ⚠️ COVERAGE IS THE WHOLE DANGER HERE AND IT IS PRINTED, NOT HIDDEN. The
+   * sources do not cover the same players: blend and Sleeper have all 700,
+   * own-model 507, FantasyPros 429, Draft Sharks 247. A toggle that silently
+   * dropped the other 65% would look like a clean board and be a lie, so a man
+   * this source does not carry is COUNTED and named, never quietly removed.
+   *
+   * ⚠️ IT CHANGES WHAT YOU SEE, NOT WHAT THE ENGINE SCORES. The war room's
+   * ranking is untouched — this is a second lens on the same board, in the same
+   * spirit as the roster-builder panel. Nothing here feeds engine.js.
+   */
+  const PROJ_SOURCES = [
+    { key: 'blend', label: 'Blend', field: 'proj_mean',
+      note: 'the board\'s own number: mean of 7 sources, centred per position' },
+    { key: 'ds', label: 'Draft Sharks', field: 'proj_ds',
+      note: 'Draft Sharks, with their own floor/ceiling band' },
+    { key: 'sleeper', label: 'Sleeper', field: 'proj_sleeper', note: 'Sleeper\'s own projection' },
+    { key: 'own', label: 'Our model', field: 'proj_ownmodel', note: 'own_v6, our in-house model' },
+    { key: 'fp', label: 'FantasyPros', field: 'proj_fantasypros', note: 'FantasyPros consensus' },
+  ];
+
+  function projSourceHost() {
+    const found = $('#proj-source');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'proj-source';
+    el.className = 'card proj-source';
+    el.setAttribute('data-mounted-by', 'app.js — no #proj-source in the view');
+    /* HIGH ON THE PAGE ON PURPOSE. Cory reported not seeing the panels added
+     * tonight at all; they mount after #pos-recs-out, which on a phone is a
+     * long scroll down. This one answers a question he asks BEFORE a pick. */
+    const anchor = document.getElementById('recs') || document.getElementById('pos-recs-out');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function currentProjSource() {
+    let k = state.projSource;
+    if (!k) { try { k = localStorage.getItem('wr_proj_source'); } catch (e) { k = null; } }
+    return PROJ_SOURCES.find(s => s.key === k) || PROJ_SOURCES[0];
+  }
+
+  /* ── SWAPPING THE ACTUAL BOARD, NOT JUST THE DISPLAY ──────────────────────
+   *
+   * Cory, 2026-08-20: "And the board will rearrange based of the source I
+   * select? Ie it will change rankings, VONA, recommended player, etc because
+   * the source of data will change"
+   *
+   * The first version did NOT, and he was right to ask. It showed each source's
+   * numbers beside the blend and left the ranking alone — half a feature.
+   *
+   * ⚠️ THE RE-RANK IS DONE IN PYTHON, NOT HERE, AND THAT IS THE WHOLE POINT.
+   * `vorp` and `tier` come from build.py (engine.js reads proj_mean 47 times,
+   * tier 78, vorp 34). Recomputing them in the browser would be a SECOND
+   * implementation of replacement level — the exact defect register 148
+   * describes, where two replacement tables in this repo disagree by 2x at RB
+   * and WR. So `rerank_by_source.py` calls the SAME vorp functions the real
+   * board uses and emits public/board_<key>.json. This only swaps which one is
+   * loaded.
+   *
+   * ⚠️ IT REUSES MOCK MODE'S PRISTINE COPY rather than inventing a second way
+   * back. `state.pristine` exists precisely because mock mode overwrites the
+   * player pool; going back to the blend restores from it exactly as ending a
+   * mock does. One derivation, reused.
+   */
+  function applySourceBoard(players, league) {
+    state.data.players = fillTeamByes(players.slice());
+    /* ⚠️ THIS TESTED `league` AND THEN APPLIED `state.data.league` — harmless
+     * today because the alternate boards carry the same league block, and a
+     * trap the day they differ. Named by the relay's audit as "no action";
+     * fixed anyway, because a conditional that reads a different value than the
+     * one it tested is exactly the shape nobody re-reads. */
+    if (league) {
+      state.data.league = league;
+      state.format = E.applyFormatDefaults(league);
+    }
+    state.board = draftablePlayers(state.data.players)
+      .filter(p => !state.drafted.has(String(p.player_id)));
+    applyOverrides();
+    renderAll();
+  }
+
+  function setProjSource(key) {
+    const prev = state.projSource;
+    state.projSource = key;
+    try { localStorage.setItem('wr_proj_source', key); } catch (e) { /* private mode */ }
+
+    /* BLEND IS THE LIVE BOARD ITSELF, restored from the pristine copy — never
+     * refetched, so it is byte-for-byte what Cory booted with. */
+    if (key === 'blend') {
+      state.sourceBoardMeta = null;
+      if (state.pristine) applySourceBoard(state.pristine.players);
+      else try { renderProjSource(); } catch (e) { /* noop */ }
+      return;
+    }
+    if (state.sourceBoardCache && state.sourceBoardCache[key]) {
+      const d = state.sourceBoardCache[key];
+      state.sourceBoardMeta = d;
+      applySourceBoard(d.players, d.league);
+      return;
+    }
+    fetch('/board_' + key + '.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.players) || !d.players.length) {
+          /* Rule 3e in the UI: a failed load and an empty source look identical
+           * from the outside. Say which, and do NOT silently sit on the blend
+           * while the button claims otherwise. */
+          state.projSource = prev || 'blend';
+          try { renderProjSource(); } catch (e) { /* noop */ }
+          console.warn('[proj-source] board_' + key + '.json unavailable — stayed on '
+            + (prev || 'blend'));
+          return;
+        }
+        state.sourceBoardCache = state.sourceBoardCache || {};
+        state.sourceBoardCache[key] = d;
+        state.sourceBoardMeta = d;
+        applySourceBoard(d.players, d.league);
+      })
+      .catch(e => {
+        state.projSource = prev || 'blend';
+        try { renderProjSource(); } catch (_) { /* noop */ }
+        console.warn('[proj-source]', e && e.message);
+      });
+  }
+  window.__setProjSource = setProjSource;
+
+  function renderProjSource() {
+    const host = projSourceHost();
+    if (!host) return;
+    const pool = (state.board || []).filter(p => p && p.position);
+    if (!pool.length) {
+      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
+        + 'Board not loaded yet.</p></div>';
+      return;
+    }
+    const src = currentProjSource();
+    const val = p => (typeof p[src.field] === 'number' ? p[src.field] : null);
+
+    const covered = pool.filter(p => val(p) != null);
+    const missing = pool.length - covered.length;
+
+    const buttons = PROJ_SOURCES.map(s => {
+      const n = pool.filter(p => typeof p[s.field] === 'number').length;
+      const on = s.key === src.key;
+      return '<button type="button" onclick="__setProjSource(\'' + s.key + '\')" '
+        + 'style="margin:0 .25rem .25rem 0;padding:.25rem .5rem;border-radius:.35rem;'
+        + 'font-size:.75rem;cursor:pointer;border:1px solid ' + (on ? '#b45309' : '#4445')
+        + ';background:' + (on ? '#b4530922' : 'transparent') + ';color:inherit;'
+        + (on ? 'font-weight:700' : '') + '">'
+        + escapeHtml(s.label) + ' <span class="muted">' + n + '</span></button>';
+    }).join('');
+
+    const rows = covered.slice()
+      .sort((a, b) => val(b) - val(a))
+      .slice(0, 12)
+      .map((p, i) => {
+        const blend = typeof p.proj_mean === 'number' ? p.proj_mean : null;
+        const d = (blend != null && src.key !== 'blend') ? val(p) - blend : null;
+        const band = (src.key === 'ds' && typeof p.proj_ds_floor === 'number'
+          && typeof p.proj_ds_ceiling === 'number')
+          ? '<span class="muted"> · ' + Math.round(p.proj_ds_floor) + '–'
+            + Math.round(p.proj_ds_ceiling) + '</span>' : '';
+        return '<tr><td class="muted">' + (i + 1) + '</td>'
+          + '<td>' + escapeHtml(p.position) + '</td>'
+          + '<td><b>' + escapeHtml(p.name) + '</b></td>'
+          + '<td><b>' + Math.round(val(p)) + '</b>' + band + '</td>'
+          + '<td>' + (d == null ? '<span class="muted">—</span>'
+            : '<span style="color:' + (d > 0 ? '#16a34a' : (d < 0 ? '#dc2626' : 'inherit')) + '">'
+              + (d > 0 ? '+' : '') + Math.round(d) + '</span>') + '</td></tr>';
+      }).join('');
+
+    /* THE COVERAGE LINE IS NOT DECORATION. */
+    const cov = missing
+      ? '<p style="margin:.35rem 0 .4rem;font-size:.74rem;color:#b45309">'
+        + '⚠️ <b>' + escapeHtml(src.label) + ' does not cover ' + missing + ' of the '
+        + pool.length + ' players still on your board</b> (' + covered.length + ' covered, '
+        + Math.round(100 * covered.length / pool.length) + '%). Those men are NOT ranked '
+        + 'below — they are missing, not worthless. Compare inside this list only.</p>'
+      : '<p class="muted" style="margin:.35rem 0 .4rem;font-size:.74rem">'
+        + 'Covers all ' + pool.length + ' players still on your board.</p>';
+
+    /* ⚠️ IF THE BOARD IS NOT THE BLEND, SAY SO WHERE HE CANNOT MISS IT. Cory
+     * drafts from this screen; a re-ranked board that looks like the normal one
+     * is the most dangerous thing this panel could do. */
+    const meta = state.sourceBoardMeta;
+    const live = (src.key !== 'blend' && meta)
+      ? '<div style="margin:0 0 .45rem;padding:.4rem .5rem;border-radius:.35rem;'
+        + 'border:2px solid #b45309;background:#b4530922;font-size:.78rem;line-height:1.35">'
+        + '⚠️ <b>THE BOARD IS RE-RANKED ON ' + escapeHtml(String(meta.source_label).toUpperCase())
+        + '</b> — rankings, VONA, tiers and the recommended pick are all '
+        + escapeHtml(meta.source_label) + '\'s, not the blend\'s.'
+        + (meta.players_dropped
+            ? ' <b>' + meta.players_dropped + ' players are missing entirely</b> because '
+              + escapeHtml(meta.source_label) + ' does not project them'
+              + (meta.coverage_top150_pct != null
+                  ? ' (' + meta.coverage_top150_pct + '% of your top 150 covered)' : '')
+              + ((meta.dropped_inside_top150 || []).length
+                  ? ', including <b>' + escapeHtml((meta.dropped_inside_top150 || []).slice(0, 5).join(', '))
+                    + '</b>' : '')
+              + '.'
+            : '')
+        + ' Press <b>Blend</b> to go back.'
+        + '</div>'
+      : '';
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">🔀 Projection source '
+      + explainPanel('proj_source') + '</h3>'
+      + live
+      + '<div style="margin:0 0 .2rem">' + buttons + '</div>'
+      + '<p class="muted" style="margin:0 0 .2rem;font-size:.73rem">'
+      + escapeHtml(src.note) + '</p>'
+      + cov
+      + '<table class="mini" style="width:100%;font-size:.8rem"><thead><tr>'
+      + '<th>#</th><th>pos</th><th>best available</th><th>' + escapeHtml(src.label)
+      + '</th><th>vs blend</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
+      + 'Switching source <b>re-ranks the whole board</b> — rankings, VONA, tiers and '
+      + 'the recommended pick all change, because replacement level is recomputed from '
+      + 'that source\'s own numbers by the same code the real board uses.</p>'
+      + '</div>';
+  }
+
+  /* ── "WHO DOES EACH SOURCE HAVE AS THEIR BEST AVAILABLE" ──────────────────
+   *
+   * Cory, 2026-08-19: "can we actually do this with all sources, basically model
+   * can tell me what every source says to draft" and "when looking at big board,
+   * maybe a way to easily show who each source has as their best available at
+   * each position".
+   *
+   * It walks each source's own committed order and prints the first man not yet
+   * taken, so it re-answers itself after every pick without any recomputation.
+   *
+   * ⚠️ ORDER ONLY, NEVER POINTS, AND THAT IS THE WHOLE DESIGN. The sources are
+   * not on one scale and their level offsets differ BY POSITION (register 107),
+   * so a cell showing "CBS 271.4" beside "ESPN 288.1" would invite exactly the
+   * cross-source comparison centring exists to prevent. Rank within a source and
+   * within a position is invariant to all of it, and "best available" is a rank
+   * question. Nothing on this panel can be subtracted from anything else on it.
+   *
+   * ⚠️ SIX COLUMNS DISAGREEING IS THE PRODUCT, not a defect to reconcile. The
+   * blend is its own labelled column and is the one the board actually uses. */
+  function sourceBoardsHost() {
+    const found = $('#source-boards');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'source-boards';
+    el.className = 'card source-boards';
+    el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view');
+    const anchor = document.getElementById('roster-builder')
+      || document.getElementById('pos-recs-out');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function renderSourceBoards() {
+    const host = sourceBoardsHost();
+    if (!host) return;
+    const d = state.sourceBoards;
+    if (!d) return;                                 // still loading; say nothing
+    /* Rule 3e in the UI again: a artifact that failed its own controls must not
+     * be rendered as if it had passed. */
+    if (d.controls_all_passed === false) {
+      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
+        + 'Source cheat sheet withheld — source_boards.json failed its own controls.'
+        + '</p></div>';
+      return;
+    }
+    const gone = state.drafted || new Set();
+    const byId = {};
+    (state.data && state.data.players ? state.data.players : []).forEach(p => {
+      byId[String(p.player_id)] = p;
+    });
+    const firstFree = (srcKey, pos) => {
+      const list = (d.order[srcKey] || {})[pos] || [];
+      for (let i = 0; i < list.length; i++) {
+        if (!gone.has(String(list[i]))) return byId[String(list[i])] || null;
+      }
+      return null;
+    };
+    /* Does this source's best-available differ from the blend's? That comparison
+     * is the reason to look at the panel at all, so it is marked rather than
+     * left to the eye scanning seven names. */
+    const head = '<tr><th style="text-align:left">pos</th>'
+      + d.sources.map(s => '<th style="text-align:left;font-weight:600">'
+          + escapeHtml(s.label) + (s.note ? ' <span class="muted">(' + escapeHtml(s.note) + ')</span>' : '')
+          + '</th>').join('') + '</tr>';
+    const rows = d.positions.map(q => {
+      const blend = firstFree('BLEND', q);
+      const cells = d.sources.map(s => {
+        const p = firstFree(s.key, q);
+        if (!p) {
+          const cov = (d.coverage[s.key] || {})[q];
+          return '<td class="muted">' + (cov ? '—' : 'no coverage') + '</td>';
+        }
+        const differs = blend && String(p.player_id) !== String(blend.player_id);
+        const truncated = p.name.length > 16;
+        // data-drill + a full-name title: a truncated AND unclickable name was
+        // the worst combination on the page — you couldn't even confirm who a
+        // clipped name was without retyping it into search. Now both the
+        // truncation and the click open onto the same real answer.
+        return '<td' + (differs ? ' style="font-weight:600"' : '') + '>'
+          + '<span class="src-name" data-drill="' + escapeHtml(String(p.player_id)) + '"'
+            + (truncated ? ' title="' + escapeHtml(p.name) + '"' : '') + '>'
+          + escapeHtml(truncated ? p.name.slice(0, 15) + '…' : p.name) + '</span>'
+          + (differs ? ' <span title="differs from the blend">•</span>' : '')
+          + '</td>';
+      }).join('');
+      return '<tr><td><span class="rec-pos ' + q + '">' + q + '</span></td>' + cells + '</tr>';
+    }).join('');
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">📋 Best available, by source '
+      + explainPanel('source_boards') + '</h3>'
+      + '<div style="overflow-x:auto"><table style="font-size:.8rem;border-collapse:collapse;width:100%">'
+      + head + rows + '</table></div>'
+      + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
+      + '<b>•</b> marks a source that wants someone different from the blend. '
+      + 'Order only — no points are shown, because the sources are not on one scale '
+      + 'and their offsets differ by position. Our own projections are excluded on '
+      + 'your ruling.</p></div>';
   }
 
   function renderPositionRecs() {
@@ -4944,8 +6112,12 @@
         + '<span class="cmp-bar-val">' + (p[1] >= 0 ? '+' : '') + p[1] + '</span></div>';
     }).join('');
     const col = (p, isLeader) => {
+      // data-drill: same click-through as everywhere else — you are actively
+      // weighing these two names and should be able to open either one's
+      // full profile without closing the tray to go find him again.
       return '<div class="cmp-col' + (isLeader ? ' lead' : '') + '">'
-        + '<div class="cmp-name">' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
+        + '<div class="cmp-name"' + (p.player_id != null ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '')
+          + '>' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
         + '<div class="cmp-stat">proj <b>' + Math.round(p.proj_mean || 0) + '</b> · ceil <b>' + Math.round(p.proj_ceiling || 0) + '</b></div>'
         + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adjusted_adp || p.adp || 0) + '</b></div>'
         + '</div>';
@@ -4962,6 +6134,16 @@
       + '<div class="cmp-bars">' + bar + '</div>'
       + '<details class="cmp-why"><summary>Why? — the derivation</summary>'
         + '<div class="cmp-why-body">' + escapeHtml(g.terms.note)
+        /* ⚠ CRASH FIXED 2026-08-20 (found live-verifying click-in coverage,
+         * not reported by Cory): dollarGap() REFUSES a cross-position K/DEF
+         * or QB pair (D10a/5e rulings — comparing them prices two different
+         * constructions on one scale) and returns a `terms` object with only
+         * `.note`, no `.A`/`.B` breakdown. This code read `g.terms.A.dollars`
+         * unconditionally, so the very first thing a drafter does after
+         * comparing a QB against anyone else — open "Why?" — threw and left
+         * the tray broken. Guarded on `g.terms.A && g.terms.B`, same honest-
+         * degrade shape the rest of this file already uses: the refusal note
+         * above still explains why, this block just adds nothing further. */
         /* ⚠ `entry` AND `RS` ARE ONE SIGNAL, NOT TWO, AND THIS LINE USED TO
          * SHOW THEM AS TWO. Both are a constant times proj_mean
          * (DG_ENTRY_K 0.08, DG_RS_K 0.05), so their ratio is EXACTLY 1.6 for
@@ -4976,14 +6158,16 @@
          *
          * So the two mean-driven pots are shown as ONE season line with the
          * split named as the fixed ratio it is. */
-        + '<br>' + escapeHtml(a.name) + ': boom $' + g.terms.A.dollars.high
-          + ' · season $' + Math.round((g.terms.A.dollars.entry + g.terms.A.dollars.rs) * 10) / 10
-          + ' <span class="muted">(entry $' + g.terms.A.dollars.entry + ' + RS $' + g.terms.A.dollars.rs + ', fixed 1.6:1)</span>'
-        + '<br>' + escapeHtml(b.name) + ': boom $' + g.terms.B.dollars.high
-          + ' · season $' + Math.round((g.terms.B.dollars.entry + g.terms.B.dollars.rs) * 10) / 10
-          + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
-        + '<br><span class="muted">boom is the only term with independent information: '
-          + 'entry and RS are both a constant times the projection, so they always move together.</span>'
+        + (g.terms.A && g.terms.B
+          ? '<br>' + escapeHtml(a.name) + ': boom $' + g.terms.A.dollars.high
+            + ' · season $' + Math.round((g.terms.A.dollars.entry + g.terms.A.dollars.rs) * 10) / 10
+            + ' <span class="muted">(entry $' + g.terms.A.dollars.entry + ' + RS $' + g.terms.A.dollars.rs + ', fixed 1.6:1)</span>'
+          + '<br>' + escapeHtml(b.name) + ': boom $' + g.terms.B.dollars.high
+            + ' · season $' + Math.round((g.terms.B.dollars.entry + g.terms.B.dollars.rs) * 10) / 10
+            + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
+          + '<br><span class="muted">boom is the only term with independent information: '
+            + 'entry and RS are both a constant times the projection, so they always move together.</span>'
+          : '')
         + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
         + '</div></details>'
       + '</div>';
@@ -5264,6 +6448,8 @@
     try { renderMVS(out.scored, out.paths); } catch (e) { console.error('[mvs]', e && e.message); }
     // The strategy-split panel — projected from the live board, never blank.
     try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
+    try { renderModelCompare(); } catch (e) { console.error('[model-compare]', e && e.message); }
+    try { renderRankSourcePanel(); } catch (e) { console.error('[rank-source]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
@@ -5294,7 +6480,19 @@
       + '<summary data-chips-toggle="1" title="The numbers behind this row — opens on every row and stays put">'
         + (state.chipsOpen ? '▾ numbers' : '▸ numbers') + '</summary>'
       + '<div class="rec-stats">'
-      + '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>'
+      /* ⚠️ THE TOOLTIP CARRIES THE CROSS-POSITION WARNING, because the number
+       * itself invites exactly the comparison it cannot support. Cory,
+       * 2026-08-19: "If I need a flex and RB has a higher VONA than next best
+       * WR, should I take RB?" — the answer is no, not from this number.
+       * Measured: a backup QB's best-to-second cliff is the largest on the
+       * board and sits on 17 points of surplus over the wire; a running back's
+       * 11-point cliff sits on 233 (trap 3, ROSTER-CONSTRUCTION-CALL). The
+       * cross-position question is the roster-builder panel's job. */
+      + '<span title="Value Over Next Available — what this pick is worth MORE than '
+        + 'the man you would get at this position at your next pick. It is the cost '
+        + 'of waiting. Compare it only WITHIN a position: an RB\'s VONA and a WR\'s '
+        + 'VONA are not on the same scale, so a bigger number does not mean the '
+        + 'better flex pick. Use the roster builder panel for that.">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>'
       // C3 — the raw projection, labelled by its true source count (the
       // consensus.js contract: source names when single, "Consensus (N)" when
       // ≥2), sat next to our VONA so a disagreement is visible on the card.
@@ -5566,6 +6764,13 @@
       + 'the number beside each name (' + '<span class="rec-order-eg">17.3</span>'
       + ') is that score, not a dollar value.</div>';
 
+    /* CONTRARIAN PICKS DRAWER (market-delta chip, part 2 \u2014 A dispatch,
+     * ROUTES.md 08-18). One tap, closed by default, over the currently
+     * AVAILABLE pool (state.board is already undrafted-only) so it stays
+     * live as picks happen rather than a snapshot of who used to be open. */
+    const contrarianHtml = (typeof MarketDelta !== 'undefined')
+      ? MarketDelta.drawerHtml(state.board, escapeHtml) : '';
+
     /* WHICH TERM DECIDED THIS PICK, BEFORE IT IS MADE.
      *
      * decision_contract.js has been ON the war-room page and CALLED BY NOTHING.
@@ -5654,7 +6859,7 @@
       return (lo < hi) ? { min: lo, max: hi } : null;
     })();
     const curPickNo = (function () { try { return currentPick(); } catch (e) { return null; } })();
-    host.innerHTML = explainPanel('recommendations') + head + orderNote + decisiveLine + scored.map((s, i) => {
+    host.innerHTML = explainPanel('recommendations') + head + orderNote + contrarianHtml + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       /* FALLING (Cory, cockpit steering): value sliding past its market price —
@@ -5671,6 +6876,7 @@
               + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
               + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
             sourceGapBadge(p, state.board) +
+            (typeof MarketDelta !== 'undefined' ? MarketDelta.chipHtml(p, escapeHtml) : '') +
           '</div>' +
           ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
             ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
@@ -5841,11 +7047,61 @@
      * old filter kept board order, so a search that hit several men buried the
      * one actually typed — `gib` returned Jahmyr Gibbs and Antonio Gibson with
      * the winner decided by ADP rather than by what was asked for. */
+    /* ⛔ THE BIG BOARD IGNORED THE RANKING-SOURCE TOGGLE (found 2026-08-20 by
+     * Cory asking "when I select big board tab it shows me actual ranking of
+     * selected source correct?" — it did not).
+     *
+     * `context()` has always used sourceAdjustedBoard(), so the recommendation,
+     * VONA and tiers followed the toggle. This function read `state.board` raw,
+     * so the BIG BOARD TAB kept showing the BLEND's order under a Draft Sharks
+     * or Sleeper heading. That is the same class as the mock-end label lie B
+     * fixed: a surface asserting a source it is not actually using, at eight
+     * seconds a pick.
+     *
+     * Everything needed was already there — the board carries
+     * overall_rank_<source> for all four, and SourceBoard.forSource swaps
+     * `overall_rank` — so this only had to ask for it.
+     *
+     * ON BLEND, BEHAVIOUR IS BYTE-IDENTICAL: sourceAdjustedBoard() returns the
+     * same array and no re-sort happens, so the shipped order is untouched. */
+    /* ⚠️ CORY, 2026-08-20: "The big board shouldn't sort by VONA since all
+     * positions, it should just be pure ranking from that source!" He is right
+     * about the defect and the honest answer is narrower than the ask:
+     *
+     *   SLEEPER publishes its own overall rank and we carry it for all 700
+     *   players (`sleeper_rank`). That IS a pure source ranking, and it is what
+     *   this now uses.
+     *
+     *   DRAFT SHARKS, FANTASYPROS and OUR MODEL publish no ranking we hold — we
+     *   ingested their PROJECTIONS (247 / 429 / 507 players), not their boards.
+     *   So there is no pure ranking to show, and the two candidates are:
+     *     · their raw projection — MEASURED, and unusable: it puts TWELVE
+     *       QUARTERBACKS in the top twelve, because quarterbacks simply score
+     *       more points. Cross-position points are not comparable.
+     *     · our replacement math applied to their numbers — draftable, but it
+     *       is OUR opinion of their projections, not their ranking.
+     *   The second ships, and the panel now SAYS so rather than letting the
+     *   heading imply a board we do not have. Getting DS's published rankings
+     *   is a C ingest job, routed. */
+    const srcBoard = (function () {
+      const b = sourceAdjustedBoard();
+      if (!state.rankSource) return b;
+      const PURE = { sleeper: 'sleeper_rank' };
+      const field = PURE[state.rankSource];
+      const rk = field
+        ? p => (p && p[field] != null ? p[field] : 1e9)
+        : p => (p && p.overall_rank != null ? p.overall_rank : 1e9);
+      return b.slice().sort((x, y) => rk(x) - rk(y));
+    })();
+    /* Exposed so the panel can caption the ordering honestly instead of the
+     * reader inferring it from a source name. */
+    state.bigBoardOrdering = !state.rankSource ? 'blend'
+      : (state.rankSource === 'sleeper' ? 'pure' : 'derived');
     const rows = (state.search
-      ? state.board.filter(match)
+      ? srcBoard.filter(match)
         .map((p, i) => ({ p: p, s: nameScore(p.name, state.search), i: i }))
         .sort((a, b) => (b.s - a.s) || (a.i - b.i)).map(x => x.p)
-      : state.board.filter(match)).slice(0, 200);
+      : srcBoard.filter(match)).slice(0, 200);
 
     // Searching also looks at players already taken. "He isn't here" and "he
     // went four picks ago" are different answers, and only one of them means
@@ -7747,7 +9003,7 @@
       } else {
         const teams = ((state.data.league || {}).teams) || 10;
         const round = Math.max(1, Math.ceil(currentPick() / teams));
-        proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        proj = DraftShadows.project(sourceAdjustedBoard(), context(), round, sourceAdjustedRoster());
         cons = DraftShadows.consensus(proj);
       }
     } catch (e) { host.style.display = 'none'; return; }
@@ -7821,6 +9077,171 @@
         + (r.driver ? ' <span class="sp-rowdriver muted">' + esc(r.driver)
           + (r.driver_value != null ? ' ' + r.driver_value.toFixed(1) : '') + '</span>' : '')
         + '</span></div>';
+    }).join('');
+  }
+
+  /* THE RANKING-SOURCE TOGGLE — Cory, live 2026-08-20: "This toggle should
+   * just rearrange the board though and also may change vona calc or
+   * recommended player." Two earlier toggles (position_boards_view.js's
+   * ds/blend, and a separate lane's #proj-source panel) both only swapped
+   * a DISPLAYED number; neither reordered anything. This one genuinely
+   * does — see source_board.js's header for the mechanism (a shadow board
+   * with source-specific precomputed vorp/tier swapped in, fed to engine.js
+   * completely unmodified via context()). LOUD when off blend, on purpose:
+   * every recommendation on the page is now answering a DIFFERENT question
+   * than usual, and that has to be impossible to miss mid-draft. */
+  function renderRankSourcePanel() {
+    const card = document.getElementById('rank-source-card');
+    const host = document.getElementById('rank-source');
+    if (!card || !host) return;
+    if (typeof SourceBoard === 'undefined' || !state.board || !state.board.length) {
+      card.style.display = 'none'; return;
+    }
+    card.style.display = '';
+    const esc = escapeHtml;
+    const active = state.rankSource || 'blend';
+    const BUTTONS = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES);
+    /* ⚠️ SCOPED TO THE PLAYERS CORY DRAFTS, NOT TO ALL 700. Cory 2026-08-20:
+     * "We really just need to focus on top 200 players maybe 250". These
+     * buttons used to print the whole-board covered count — "Draft Sharks 247"
+     * beside "Sleeper 700" — which reads as a source that knows a third of the
+     * league. Measured on the live 2026-08-19 board, inside the top 200 by ADP
+     * DS covers 94% and Sleeper 100%: a 6-point gap drawn as a 3x one. The
+     * depth comes from league_config.draftable_scope via draftableScope(),
+     * never from a number typed here. */
+    const depth = Math.min(draftableScope().focus, state.board.length);
+    const btnHtml = BUTTONS.map(function (s) {
+      const cov = s.key === 'blend' ? null : SourceBoard.coverage(state.board, s.key, depth);
+      const pct = cov ? Math.round(100 * cov.covered / cov.total) : 100;
+      const on = active === s.key;
+      return '<button type="button" class="rs-btn' + (on ? ' rs-active' : '')
+        + '" data-rank-source="' + esc(s.key) + '" title="'
+        + esc(s.label + ' projects ' + (cov ? cov.covered : state.board.length)
+          + ' of the top ' + depth + ' players by ADP — the range you actually draft from')
+        + '">' + esc(s.label)
+        + ' <span class="muted">' + pct + '%</span></button>';
+    }).join('');
+    const warn = active !== 'blend'
+      ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(BUTTONS.find(function (s) { return s.key === active; }).label)
+        + '</b> — VONA, tiers and the recommended player on THIS ENTIRE PAGE now reflect only this '
+        + 'source, not the blend. Switch back to Blend for the board\'s normal number.</div>'
+      : '';
+    host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
+      /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
+       * had "Draft Sharks reads 35%" typed into it — a real measurement from
+       * the 2026-08-19 board that would have silently gone stale on the next
+       * rebuild. The widest source gap is derived from the board in hand. */
+      + '<p class="muted rs-note">The <b>%</b> on each button is how much of your '
+      + '<b>top ' + depth + ' by ADP</b> that source actually projects — the range you '
+      + 'draft from, not all ' + state.board.length + ' players on the board.'
+      + (function () {
+        const gaps = SourceBoard.SOURCES.map(function (s) {
+          const wide = SourceBoard.coverage(state.board, s.key);
+          const near = SourceBoard.coverage(state.board, s.key, depth);
+          if (!wide || !near || !wide.total || !near.total) return null;
+          const w = Math.round(100 * wide.covered / wide.total);
+          const n = Math.round(100 * near.covered / near.total);
+          return { label: s.label, wide: w, near: n, gap: n - w };
+        }).filter(Boolean).sort(function (a, b) { return b.gap - a.gap; });
+        return gaps.length && gaps[0].gap >= 10
+          ? ' Scoping matters most for <b>' + esc(gaps[0].label) + '</b>: '
+            + gaps[0].wide + '% of all ' + state.board.length + ', but '
+            + gaps[0].near + '% of the top ' + depth + '. Nobody drafts the '
+            + state.board.length + 'th player.'
+          : '';
+      }())
+      + '</p>'
+      + '<p class="muted rs-note">Changes who is recommended and VONA — this is a real re-rank, not just a different number. '
+      + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>'
+      /* ⚠️ WHAT THE BIG BOARD IS ORDERED BY, SAID OUT LOUD. Cory asked whether
+       * the Big Board shows "pure ranking from that source". For Sleeper it now
+       * does — they publish an overall rank and we carry it for all 700. For the
+       * others we hold PROJECTIONS, not boards, so the order is our replacement
+       * math on their numbers. Sorting them by raw projection instead was
+       * measured and is unusable: twelve quarterbacks in the top twelve. The
+       * heading must not imply a board we do not have. */
+      + (state.rankSource === 'sleeper'
+          ? '<p class="muted rs-note">Big Board order: <b>Sleeper\'s own published '
+            + 'ranking</b> — their board, not ours.</p>'
+          : (state.rankSource
+              ? '<p class="muted rs-note">Big Board order: <b>our replacement math on '
+                + esc(active) + '\'s projections</b>. They publish a ranking we do not '
+                + 'hold — we ingested their numbers, not their board — and sorting by '
+                + 'their raw points instead puts twelve quarterbacks in the top twelve, '
+                + 'because cross-position points are not comparable.</p>'
+              : ''));
+  }
+
+  /* THE MODEL-COMPARISON PANEL — Cory, live 2026-08-20: "Give me peace to
+   * click in on war room to see what each model would take! Max value, MLV
+   * displacement, upside only model, floor model (safe pick)!"
+   *
+   * Four named lenses, not the full 9-strategy dump #shadow-projection
+   * already shows one tap away — this is a curated, always-legible strip of
+   * exactly the four models Cory named, so "what would the safe pick be"
+   * never requires opening the full strategy list and finding it by eye.
+   *
+   *   Max Value       -> DraftShadows profile `value_anchor` (exact existing
+   *                      match — reused, not duplicated, per Rule 11).
+   *   Upside-Only      -> DraftShadows profile `upside_pure` (added this turn).
+   *   Floor (Safe)     -> DraftShadows profile `floor_safe` (added this turn).
+   *   MLV Displacement -> the Roster Builder Model's #1 (RosterBuilderMLV.
+   *                       recommend, mlv.js) — a DIFFERENT system from
+   *                       DraftShadows, already built for exactly this
+   *                       question ("what adds the most to my STARTING
+   *                       lineup right now"), reused rather than reinvented.
+   *
+   * Same legality rails as every other surface on this page (E.recommend /
+   * RosterBuilderMLV.recommend both apply them) — no model here can name an
+   * illegal pick. Read-only: nothing here writes to the board or a pick. */
+  function renderModelCompare() {
+    const card = document.getElementById('model-compare-card');
+    const host = document.getElementById('model-compare');
+    if (!card || !host) return;
+    if (!state.board || !state.board.length || !state.data) { card.style.display = 'none'; return; }
+    const rows = [];
+    try {
+      if (typeof DraftShadows !== 'undefined') {
+        const teams = ((state.data.league || {}).teams) || 10;
+        const round = Math.max(1, Math.ceil(currentPick() / teams));
+        const proj = DraftShadows.project(sourceAdjustedBoard(), context(), round, sourceAdjustedRoster());
+        const WANT = [
+          { key: 'value_anchor', label: 'Max Value',
+            title: 'The player who scores highest by raw value alone — no ceiling chase, no roster-need discount.' },
+          { key: 'upside_pure', label: 'Upside-Only',
+            title: 'The highest-ceiling player available — ignores need, risk and floor entirely.' },
+          { key: 'floor_safe', label: 'Floor (Safe)',
+            title: 'The lowest-risk player available — ignores ceiling entirely, leans hardest against injury/age risk.' },
+        ];
+        WANT.forEach(function (w) {
+          const r = proj.find(function (x) { return x.key === w.key; });
+          if (r) rows.push({ label: w.label, title: w.title, player: r.player, position: r.position, player_id: r.player_id });
+        });
+      }
+    } catch (e) { /* DraftShadows models are optional; MLV below is not */ }
+    try {
+      if (typeof RosterBuilderMLV !== 'undefined') {
+        /* `taken` — the MLV Displacement lens is one of the four models Cory
+         * clicks; it must not name a player who is gone (2026-08-20). */
+        const recs = RosterBuilderMLV.recommend(sourceAdjustedBoard(), sourceAdjustedRoster() || [],
+          { league: state.data.league, topN: 1, taken: state.drafted });
+        if (recs && recs.length && recs[0].player) {
+          rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
+            position: recs[0].position, player_id: String(recs[0].player.player_id),
+            title: 'The player who adds the most points to your STARTING lineup right now (marginal lineup value) — a different model from the three above.' });
+        }
+      }
+    } catch (e) { /* leave the MLV row off rather than break the strip */ }
+    if (!rows.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const esc = escapeHtml;
+    host.innerHTML = rows.map(function (r) {
+      return '<div class="mc-row"' + (r.player_id != null ? ' data-drill="' + esc(String(r.player_id)) + '"' : '')
+        + ' title="' + esc(r.title || '') + '">'
+        + '<span class="mc-label">' + esc(r.label) + '</span>'
+        + '<span class="mc-pick">' + esc(shortName(r.player))
+        + (r.position ? ' <span class="sp-pos">' + esc(r.position) + '</span>' : '') + '</span>'
+        + '</div>';
     }).join('');
   }
 
@@ -8026,6 +9447,16 @@
         : a.status === 'at-risk' ? 'WATCH' : 'ILLEGAL';
     host.innerHTML = '<span class="ls-tag">' + tag + '</span>'
       + '<span>' + escapeHtml(a.line) + '</span>';
+
+    // BYE-WEEK FIELDABILITY (register 59 item (4), ROUTES.md 08-19): a
+    // softer, roster-shape check riding the same starters/roster this
+    // function already has — legality asks "can this roster BE legal",
+    // this asks "once byes land, can it be STARTED on a given week".
+    const byeHost = document.getElementById('bye-fieldability-warn');
+    if (byeHost) {
+      byeHost.innerHTML = (typeof ByeFieldability !== 'undefined')
+        ? ByeFieldability.warningHtml(state.myRoster, starters, escapeHtml) : '';
+    }
     return a;
   }
 
@@ -10134,7 +11565,7 @@
       '<div class="ec-card">'
       + '<div class="ec-head">End this draft and clear all ' + n + ' picks?</div>'
       + '<div class="ec-body">The board goes back to full. Your targets, never-draft '
-      + 'list, weights and news overrides are kept.</div>'
+      + 'list, weights, news overrides and player likes/dislikes are kept.</div>'
       + '<label class="ec-label">Type <b>END</b> to confirm</label>'
       + '<input id="ec-input" class="ec-input" autocomplete="off" spellcheck="false">'
       + '<div id="ec-feedback" class="ec-feedback">waiting…</div>'
@@ -10267,6 +11698,15 @@
       state.data.pick_order = JSON.parse(JSON.stringify(state.pristine.pick_order));
       state.format = E.applyFormatDefaults(state.data.league);
       state.profiles = indexProfilesBySlot(state.data);
+      /* ⛔ AND THE SOURCE LABEL MUST COME BACK WITH THE POOL. Found by the
+       * relay's war-room audit, 2026-08-20: this restores the pristine BLEND
+       * pool but left `state.projSource` claiming e.g. Sleeper, so the toggle
+       * asserted a source the board was no longer ranked by. A UI-state lie is
+       * worse than a wrong number at 8 seconds a pick, because Cory has no way
+       * to see it. The board and the label are restored together or not at all. */
+      state.projSource = 'blend';
+      state.sourceBoardMeta = null;
+      try { localStorage.setItem('wr_proj_source', 'blend'); } catch (e) { /* private mode */ }
     }
     state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
@@ -10340,9 +11780,27 @@
     queue: function () { return (state.lists && state.lists.queue) || []; },
     drafted: function () { return state.drafted || new Set(); },
     currentPick: function () { try { return currentPick(); } catch (e) { return null; } },
+    /* OPPONENT ROSTERS + PICK DISTANCE (Cory: "show me everyone's current
+     * roster status... and where they draft relative to me... so I can try
+     * to calc if someone will fall to me"). Four narrow reads, same
+     * guard-every-call discipline as the rest of this accessor. */
+    teams: function () { return ((state.data || {}).league || {}).teams || 10; },
+    mySlot: function () { try { return mySlot(); } catch (e) { return null; } },
+    rosters: function () { return state.rosters || {}; },
+    pickOrderPicks: function () { return ((state.data || {}).pick_order || {}).picks || []; },
+    profilesMapped: function () { return !!state.profilesMappedFromDraft; },
+    profileForSlot: function (slot) { try { return profileForSlot(slot); } catch (e) { return null; } },
     myNextPicks: function () { try { return myNextPicks(); } catch (e) { return []; } },
     onTheClock: function () { try { return onTheClock(); } catch (e) { return false; } },
     playerById: function (id) { try { return playerById(id); } catch (e) { return null; } },
+    /* Per-source draft ORDER (source_boards.json) — Cory: "if I click a
+     * player it should give me lots of info including where they rank on
+     * each source (sleeper, fantasy pro, etc)". Order only, same contract
+     * renderSourceBoards() already holds to — never a raw score. */
+    sourceBoards: function () { return state.sourceBoards || null; },
+    /* Like/dislike calls, keyed by player_id — Cory: "a way to like and
+     * dislike players... this info needs to stay in the room". */
+    playerCalls: function () { return state.playerCalls || {}; },
     /* Survival to an arbitrary future pick — the SAME engine call the LRM strip
      * makes (full ctx shape: runMultipliers keeps normalizeCtx reading this as
      * a context, pickBoard keeps ADP on the board's own scale). */
@@ -10468,6 +11926,17 @@
       if (listBtn) { toggleList(listBtn.getAttribute('data-list'), listBtn.getAttribute('data-id')); return; }
       const unlist = ev.target.closest('[data-unlist]');
       if (unlist) { toggleList(unlist.getAttribute('data-unlist'), unlist.getAttribute('data-id')); return; }
+      // Like / dislike — Cory's own read, graded later, from anywhere on the
+      // page (the drill-down panel and the calls-review chips both use it).
+      const callBtn = ev.target.closest('[data-call]');
+      if (callBtn) { setPlayerCall(callBtn.getAttribute('data-call-id'), callBtn.getAttribute('data-call')); return; }
+      const uncall = ev.target.closest('[data-uncall]');
+      if (uncall) {
+        const id = uncall.getAttribute('data-uncall');
+        const existing = state.playerCalls && state.playerCalls[id];
+        if (existing) setPlayerCall(id, existing.call);   // same-call re-toggle clears it
+        return;
+      }
       // Queue: the same button adds from the board and removes from the panel,
       // so there is one gesture to learn rather than two.
       const qBtn = ev.target.closest('[data-queue]');
@@ -10511,6 +11980,16 @@
         cav.parentNode.appendChild(d);
         return;
       }
+      // Position boards' projection-source toggle (ROUTES-B-TOGGLE.md, A→B
+      // 2026-08-19: "can we actually program 2 models... I want to be able to
+      // toggle between them"). One shared preference, persisted, same pattern
+      // as the chip-grid disclosure above.
+      const pbSrc = ev.target.closest('[data-pb-source]');
+      if (pbSrc) { ev.preventDefault(); return setProjSource(pbSrc.getAttribute('data-pb-source')); }
+      // The RE-RANKING toggle — Cory: "should just rearrange the board...
+      // change vona calc or recommended player." Distinct from pbSrc above.
+      const rankSrc = ev.target.closest('[data-rank-source]');
+      if (rankSrc) { ev.preventDefault(); return setRankSource(rankSrc.getAttribute('data-rank-source')); }
     });
 
     $$('.weight-slider').forEach(sl => {
@@ -10938,6 +12417,42 @@
     return best;
   }
 
+  /* PER-POSITION MEDIAN (board rank − ADP), memoized per board (same pattern
+   * as cohortRatios above). E32's caveat compares one cross-position VORP
+   * rank against ADP, and that comparison carries a STRUCTURAL offset that
+   * varies hugely by position and has nothing to do with any player's own
+   * data — QB's median sits at +178 on the published board, K/DEF near
+   * −120, purely from how VORP crosses positions against where real drafters
+   * actually take them. sourceGapCaveat used to test the RAW gap against one
+   * fixed threshold (20) for every position, so on today's board it flags
+   * 60% of QBs and effectively no K/DEF regardless of any individual
+   * player's projections — a scale artifact wearing a source-disagreement
+   * label. Register 83/84: the register 79/80 blend moved RB/WR medians by a
+   * further ~35-70 ranks on top of that, which is what surfaced this. Netting
+   * out each position's own median restores the ORIGINAL intent (a player
+   * who is unusual relative to his own position peers) and is immune to
+   * both the pre-existing structural offset and the blend's shift. */
+  function positionGapMedians(board) {
+    if (state._gapMedFor === board && state._gapMedians) return state._gapMedians;
+    const list = (board || []).filter(x => x && x.proj_mean != null);
+    const byBoard = list.slice().sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+    const adpOf = x => (x.adjusted_adp != null ? x.adjusted_adp : x.raw_adp);
+    const byPos = {};
+    byBoard.forEach((p, i) => {
+      const adp = adpOf(p);
+      if (adp == null) return;
+      (byPos[p.position] = byPos[p.position] || []).push((i + 1) - adp);
+    });
+    const out = {};
+    Object.keys(byPos).forEach(pos => {
+      const arr = byPos[pos].slice().sort((a, b) => a - b);
+      out[pos] = arr[Math.floor(arr.length / 2)];
+    });
+    state._gapMedFor = board;
+    state._gapMedians = out;
+    return out;
+  }
+
   function sourceGapCaveat(p, board) {
     /* THE ONE-SOURCE SENTENCE, AT THE POINT OF DECISION (Cory's order, 08-18).
      *
@@ -10963,16 +12478,28 @@
     const adp = adpOf(p);
     if (!boardRank || adp == null) return '';
     const gap = boardRank - adp;                 // positive = board likes him LESS than market
-    if (gap <= 20) return '';                    // E32's own window edge
+    // Register 83/84: threshold applies to the gap NET of this position's own
+    // median gap — a player's own anomaly, not his whole position's offset.
+    const posMedian = (positionGapMedians(board) || {})[p.position] || 0;
+    const relGap = gap - posMedian;
+    if (relGap <= 20) return '';                  // E32's own window edge
+    /* ⚠️ THE RAW gap CAN BE SMALL OR NEGATIVE HERE — caught live (register
+     * 83/84): a TE with posMedian -93 and gap -5 still clears relGap > 20,
+     * and "board sits ~-5 slots below market" is self-contradictory (a
+     * negative gap means ABOVE market). The sentence now names what actually
+     * fired: how far this player sits from what's typical for HIS position,
+     * not his raw distance from ADP. */
     const fp = p.proj_fantasypros, sl = p.proj_sleeper != null ? p.proj_sleeper : p.proj_mean;
     if (fp != null && sl > 0 && fp > sl * 1.08) {
       const pct = Math.round((fp / sl - 1) * 100);
-      return 'SOURCE GAP: board sits ~' + Math.round(gap) + ' slots below market here, and gaps '
-        + 'this size are almost always one-source — FP projects him +' + pct + '% over Sleeper and '
-        + 'the board reads only Sleeper (32 of 33 such gaps, r=0.73). Lean market on this disagreement.\n';
+      return 'SOURCE GAP: board ranks him ~' + Math.round(relGap) + ' slots worse than a typical '
+        + p.position + ' at his spot on the board, and gaps this size are almost always one-source — '
+        + 'FP projects him +' + pct + '% over Sleeper and the board reads only Sleeper '
+        + '(32 of 33 such gaps, r=0.73). Lean market on this disagreement.\n';
     }
     if (fp != null && sl > 0 && fp <= sl * 1.08) {
-      return 'SOURCE GAP, UNEXPLAINED: board sits ~' + Math.round(gap) + ' slots below market and the '
+      return 'SOURCE GAP, UNEXPLAINED: board ranks him ~' + Math.round(relGap) + ' slots worse than a '
+        + 'typical ' + p.position + ' at his spot on the board, and the '
         + 'usual one-source cause does NOT apply (FP is not above Sleeper here). Nothing vouches for '
         + 'either number — extra doubt, both directions.\n';
     }
