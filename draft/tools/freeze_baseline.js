@@ -85,20 +85,35 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * MOVES a surface: the late-onesies-open state re-orders (bench ordering is
  * where the term lives), early/mid stay put. v21 remains the pre-ruling
  * reference. */
-const ACTIVE_VERSION = 'v29';
+/* v29 -> v30, 2026-08-20, REGISTER 160 — the largest deliberate reference
+ * update this project has made. Cory ruled `MEASURED_WEIGHTS.need` 0.0 -> 1.0
+ * ("Ship E's fix now"). `starterSlotMarginal` is the ONLY path by which a
+ * player's own VORP reaches the score — the `value` term carries VONA, not VORP
+ * — so at need=0 the composite was roster-conditional VONA with no VBD in it at
+ * all. This MOVES every frozen surface, which is the point: on a forward draft
+ * with his real growing roster the need-blind model finished QB1 RB9 WR2 TE1 K1
+ * DEF1, two receivers in a WR2+flex league.
+ *
+ * A FOURTH CANONICAL STATE joins here (keeper-loaded, his real condition), on
+ * the condition written beside its 2026-08-11 removal rather than on a new
+ * judgement. v29 remains the pre-ruling reference. */
+const ACTIVE_VERSION = 'v30';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
-/* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.
+/* CANONICAL STATES — FOUR AS OF 2026-08-20, and the fourth earns its place.
  *
  * Early (everything empty, value dominates), mid (the mask starts binding), late
- * (onesies forced, bench pricing). Chosen to span the regimes where the engine
- * behaves differently, not to be numerous.
+ * (onesies forced, bench pricing), and keeper-loaded (Cory's real condition).
+ * Chosen to span the regimes where the engine behaves differently, not to be
+ * numerous.
  *
- * There WAS a fourth, "keeper-loaded (our real condition)". It was removed on
- * 2026-08-11 because it emitted a byte-identical surface to early-empty-roster —
- * see the note where it used to sit, and the condition under which it must come
- * back. Four states that cover three regimes is a count that flatters itself; the
- * honest number is what is written here. */
+ * The fourth was REMOVED on 2026-08-11 for emitting a byte-identical surface to
+ * early-empty-roster, and RESTORED on 2026-08-20 when the condition recorded
+ * beside its removal fired: `need` went to 1.0 (register 160) and the two states
+ * stopped agreeing. Measured at pick 34 on restoration — empty-roster leads with
+ * three RBs, keeper-loaded leads with three WRs. Four states that cover three
+ * regimes would be a count flattering itself; four that cover four is the
+ * honest number, and the note where the state sits records which it is. */
 function canonicalStates(players, art) {
   const byPos = {};
   players.forEach(p => { (byPos[p.position] = byPos[p.position] || []).push(p); });
@@ -111,7 +126,35 @@ function canonicalStates(players, art) {
       roster: take('RB', 2).concat(take('WR', 1)) },
     { name: 'late-onesies-open', currentPick: 134, nextPick: 141,
       roster: take('RB', 3).concat(take('WR', 4), take('TE', 1)) },
-    /* THE FOURTH STATE IS GONE, AND THE COUNT IS THE HONEST ONE. Cory, 2026-08-11:
+    /* ⚠️ THE FOURTH STATE IS BACK, 2026-08-20, BECAUSE THE CONDITION WRITTEN
+     * BELOW FIRED. It is not a reversal of Cory's 2026-08-11 instruction — that
+     * instruction was against keeping a state that made the COUNT look better
+     * while adding no coverage, and this state now adds coverage.
+     *
+     * The condition, verbatim from the note that follows: "If `need` ever
+     * becomes nonzero ... a keeper-loaded state starts buying real coverage
+     * immediately and this baseline needs a fourth state again." Register 160
+     * (Cory's ruling, 2026-08-20) put `need` at 1.0. The baseline had been
+     * frozen on three states, the earliest of which is an EMPTY roster, and
+     * Cory's real condition — three keepers — is now the one the model behaves
+     * differently in. Freezing without it would freeze the model in a state he
+     * will never draft from.
+     *
+     * Read from the live board rather than synthesised: the old synthetic
+     * stand-in (top WR + top two RBs) is not his slate and the difference is no
+     * longer invisible. */
+    (function () {
+      const KEEP = require('./keepers_of.js');
+      const kept = KEEP.keepersFrom(art) || [];
+      if (!kept.length) {
+        throw new Error('freeze_baseline: the keeper-loaded canonical state needs '
+          + "Cory's real keepers and the board supplied none. Refusing to freeze a "
+          + 'baseline that silently drops the one state he actually drafts from.');
+      }
+      return { name: 'keeper-loaded (his real condition)', currentPick: 34,
+        nextPick: 41, roster: kept };
+    }()),
+    /* THE FOURTH STATE WAS GONE, AND THE COUNT WAS THE HONEST ONE. Cory, 2026-08-11:
      * "say that in the freeze rather than keeping a fourth state that makes the
      * count look better."
      *

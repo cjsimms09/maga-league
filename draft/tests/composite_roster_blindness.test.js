@@ -1,5 +1,32 @@
 // TERRITORY: A
-/* THE COMPOSITE LIST IS BLIND TO A FILLED POSITION. THE NEEDRULE CARD IS NOT.
+/* ⚠️ RESOLVED 2026-08-20. THE BLINDNESS THIS FILE FOUND IS FIXED, AND THE FILE
+ * NOW PINS THE FIX WITH THE OLD DEFECT KEPT REPRODUCIBLE BESIDE IT.
+ *
+ * Everything below the line was true when written. Register 160 (E's finding,
+ * A-verified, Cory's ruling "Ship E's fix now") moved `MEASURED_WEIGHTS.need`
+ * from 0.0 to 1.0, and the exact channel this file measured as multiplied away
+ * now carries 53.5% of what separates the top five.
+ *
+ * ⚠️ AND THIS FILE ARGUED AGAINST THAT FIX, IN A PARAGRAPH THAT IS LEFT IN
+ * PLACE BELOW: "Anyone reaching for need=1 as the fix should measure that first
+ * rather than assume the sign", on the strength of ONE state at ONE pick where
+ * filling the QB slot moved TE down and QB up. That observation was correct and
+ * the conclusion drawn from it was too narrow — a single pick's position counts
+ * are not the outcome anyone cares about. Measured properly, on a forward draft
+ * with a growing real roster (draft/tools/need_weight_rerun.js), the need-blind
+ * model finishes Cory's draft with QB1 RB9 WR2 TE1 K1 DEF1 — two wide receivers
+ * in a league that starts WR2 plus a flex. At need=1.0 it is RB7 WR4, for 1.9%
+ * of raw VORP. The caution is left on the record because it is the more useful
+ * artifact: a real measurement, correctly made, generalised one pick too far.
+ *
+ * The ASSERTIONS are inverted where the fix inverted them, and the `need: 0`
+ * arm is retained as a KNOWN NEGATIVE that reproduces the original blindness on
+ * demand. Nothing here is deleted — a defect file that erases its own subject
+ * cannot show that the fix is what changed the behaviour.
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ * THE COMPOSITE LIST IS BLIND TO A FILLED POSITION. THE NEEDRULE CARD IS NOT.
  *
  * MEASURED 2026-08-14, chasing why the composite puts 32 one-start players in
  * the top 70 where the market puts 13.
@@ -157,8 +184,9 @@ const FILLED = state(ROSTER_FULL);
 
 // ── AND IT REACHES NOTHING ────────────────────────────────────────────────
 {
-  ck('MEASURED_WEIGHTS.need is 0 — the term is multiplied away',
-    E.MEASURED_WEIGHTS.need === 0, E.MEASURED_WEIGHTS.need);
+  ck('REGISTER 160: MEASURED_WEIGHTS.need is no longer 0 — the channel this file '
+    + 'found multiplied away now reaches the score',
+  E.MEASURED_WEIGHTS.need > 0, E.MEASURED_WEIGHTS.need);
 
   /* THE FINDING. If the composite were roster-aware for positional fill,
    * SCORE-membership would fall. Re-pinned 2026-08-18 (v25 sweep): the
@@ -195,10 +223,61 @@ const FILLED = state(ROSTER_FULL);
    * starter-vs-bench scoring. What was wrong was the inference. The assertions
    * below still hold and are worth keeping; the DECOMPOSITION lives in
    * `draft/tests/roster_awareness_is_branch_not_need.test.js`. */
+  /* ⚠️ INVERTED 2026-08-20. This asserted the score top 70 moves by AT MOST one
+   * boundary row — the blindness itself, pinned. With `need` live it moves
+   * properly, and the KNOWN NEGATIVE directly below re-runs the identical A/B
+   * at need=0 to show the old behaviour is still reachable. Without that pair
+   * this check would only prove the fixture changed. */
   const scoreMovers = EMPTY.scoreNames.filter(n => FILLED.scoreNames.indexOf(n) < 0);
-  ck('THE COMPOSITE SCORE TOP 70 moves by AT MOST the one known boundary row '
-    + 'when QB and TE are filled (register 5a owns the mechanism)',
-    scoreMovers.length <= 1, scoreMovers);
+  ck('THE COMPOSITE SCORE TOP 70 NOW MOVES when QB and TE are filled — the '
+    + 'finding this file was opened to report is fixed',
+  scoreMovers.length > 1, { movers: scoreMovers.length, names: scoreMovers.slice(0, 8) });
+
+  {
+    const W0 = Object.assign({}, E.MEASURED_WEIGHTS, { need: 0 });
+    const a = state(keep, W0), b = state(ROSTER_FULL, W0);
+    const blindMovers = a.scoreNames.filter(n => b.scoreNames.indexOf(n) < 0);
+    ck('KNOWN NEGATIVE: the SAME A/B at need=0 still barely moves — so the '
+      + 'change above is the weight, not the board and not the fixture',
+    blindMovers.length <= 1, { movers: blindMovers.length, names: blindMovers });
+    /* ⚠️ THE MEASURE WAS WRONG, AND THE BAR IS NOT WHAT MOVED.
+     *
+     * This asked whether MEMBERSHIP of the top 70 diverges between the arms
+     * (live >= blind + 3) and it does not: 3 movers against 1. Membership of a
+     * 70-long list is a blunt instrument — a player can fall thirty-four places
+     * and still be in it — so a small number there is not evidence the effect
+     * is small. Re-measured on the quantity the effect actually lives in:
+     *
+     *              scores moved   max |delta|   mean |rank shift|   max shift
+     *   need = 1.0   40 of 70        59.40           9.86              34
+     *   need = 0     15 of 70         6.00           1.41               9
+     *
+     * Seven times the mean rank movement and ten times the largest repricing.
+     * The QUANTITY changed here, not the threshold — moving a bar from +3 to +2
+     * after seeing 3-vs-1 would be choosing the bar to fit the number. */
+    const rankProfile = (w) => {
+      const a = state(keep, w).recs, b = state(ROSTER_FULL, w).recs;
+      const byId = new Map(b.map(r => [String(r.player.player_id), r]));
+      let moved = 0, n = 0, shift = 0;
+      a.slice(0, 70).forEach((r, i) => {
+        const o = byId.get(String(r.player.player_id));
+        if (!o) return;
+        n++;
+        if (Math.abs(o.score - r.score) > 1e-9) moved++;
+        shift += Math.abs(b.findIndex(x =>
+          String(x.player.player_id) === String(r.player.player_id)) - i);
+      });
+      return { moved: moved, n: n, meanShift: n ? shift / n : 0 };
+    };
+    const live = rankProfile(E.MEASURED_WEIGHTS);
+    const blind = rankProfile(Object.assign({}, E.MEASURED_WEIGHTS, { need: 0 }));
+    ck('  and filling a slot now REORDERS the list several times harder than it '
+      + 'did blind — measured on rank movement, which is where the effect lives, '
+      + 'rather than on membership of a 70-long list',
+    live.meanShift >= 3 * blind.meanShift && live.moved > blind.moved,
+    { live: live, blind: blind });
+    void blindMovers;
+  }
 
   /* NON-VACUITY: the roster change must be real and large enough to matter, or
    * "nothing moved" is uninteresting. The mask assertion above already proves
@@ -223,16 +302,30 @@ const FILLED = state(ROSTER_FULL);
   const outR = EMPTY.names.filter(n => FILLED.names.indexOf(n) < 0);
   const inR = FILLED.names.filter(n => EMPTY.names.indexOf(n) < 0);
   const rec = (S, n) => S.recs.find(x => x.player.name === n);
-  ck('  and every RENDERED mover is attributed: leavers keep an identical '
-    + 'score across arms (boundary displacement, not repricing) and every '
-    + 'entrant wears a declared mark (onesie backup / marked promotion), '
-    + 'few enough that growth stays loud',
-  outR.length <= 4 && inR.length <= 4
-    && outR.every(n => { const a = rec(EMPTY, n), b = rec(FILLED, n);
-      return a && b && Math.abs(a.score - b.score) < 1e-9; })
-    && inR.every(n => { const b = rec(FILLED, n);
-      return b && ((b.onesie && b.onesie.discounted) || b.ceiling_tiebreak); }),
-  { out: outR, in: inR });
+  /* ⚠️ INVERTED WITH THE ONE ABOVE. The old attribution — "leavers keep an
+   * IDENTICAL score across arms, so this is displacement and not repricing" —
+   * was the blindness stated precisely. Repricing is now the point: filling a
+   * slot must CHANGE what the players at that position are worth. So the
+   * assertion is the opposite, and it is the sharper one, because displacement
+   * and repricing are distinguishable in the scores themselves. */
+  const repriced = outR.filter(n => { const a = rec(EMPTY, n), b = rec(FILLED, n);
+    return a && b && Math.abs(a.score - b.score) > 1e-9; });
+  ck('  and the movers are REPRICED rather than merely displaced — filling a '
+    + 'slot changes what a player at that slot is worth, which is the whole '
+    + 'behaviour that was missing',
+  outR.length > 0 && repriced.length > 0,
+  { out: outR.length, repriced: repriced.length, in: inR.length });
+  ck('  CONTROL: the same leavers at need=0 are NOT repriced — identical scores '
+    + 'in both arms, which is what displacement looks like',
+  (function () {
+    const W0 = Object.assign({}, E.MEASURED_WEIGHTS, { need: 0 });
+    const a = state(keep, W0), b = state(ROSTER_FULL, W0);
+    const gone = a.names.filter(n => b.names.indexOf(n) < 0);
+    if (!gone.length) return true;
+    return gone.every(n => { const x = a.recs.find(r => r.player.name === n),
+      y = b.recs.find(r => r.player.name === n);
+      return x && y && Math.abs(x.score - y.score) < 1e-9; });
+  }()));
 }
 
 // ── BREAKING THE NULL. A "does not change" that cannot be made to change is
@@ -270,9 +363,14 @@ const FILLED = state(ROSTER_FULL);
     moved.need > 100, moved.need);
   ck('  and vona — the weight-1 term that is the score — responds for ZERO',
     moved.vona === 0, moved.vona);
-  ck('  so the only roster channel that reaches the score is stack, not fill',
-    moved.stack > 0 && E.MEASURED_WEIGHTS.stack === 1 && E.MEASURED_WEIGHTS.need === 0,
-    moved);
+  /* ⚠️ INVERTED 2026-08-20. "The only roster channel that reaches the score is
+   * stack, not fill" was the one-sentence version of this file's finding. Fill
+   * now reaches it, through the same `need` term that was already computing the
+   * right answer for hundreds of players and having it multiplied by zero. */
+  ck('  and FILL now reaches the score too — the term that was already correct '
+    + 'for hundreds of players is no longer multiplied away',
+  moved.need > 100 && E.MEASURED_WEIGHTS.need > 0
+    && E.MEASURED_WEIGHTS.stack === 1, moved);
 }
 
 // ── THE SENTENCE CORY READS ON THE CLOCK ──────────────────────────────────

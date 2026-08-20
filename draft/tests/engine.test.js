@@ -1578,7 +1578,24 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   // other. This assertion is the reason the correction could not be silent.
   check('measured: stack at 1.0 (the one adjuster that earned — D10 as ruled)',
     m.stack === 1.0, String(m.stack));
-  check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
+  // REGISTER 160, RULED BY CORY 2026-08-20 ("Ship E's fix now"). This asserted
+  // `need === 0` on the reasoning that need was "inert by mask redundancy". That
+  // reasoning was wrong in a way nobody had checked: `starterSlotMarginal` is the
+  // ONLY path by which a player's own VORP reaches the score — the `value` term
+  // carries VONA (`const v = vona(...)`), not VORP — so at need=0 the composite
+  // was ROSTER-CONDITIONAL VONA with no VBD in it at all.
+  //
+  // 1.0 is PARITY WITH `value`, not a fitted number. Nobody has run a grid over
+  // it and nobody should run one and then keep the best-looking arm — that is
+  // choosing a weight after seeing where the value fell.
+  //
+  // Consequence, measured on a forward draft with the real growing roster
+  // (draft/tools/need_weight_rerun.js): 6 of Cory's 12 picks change, the roster
+  // goes QB1 RB9 WR2 TE1 K1 DEF1 -> QB1 RB7 WR4 TE1 K1 DEF1, and total VORP
+  // moves 210 -> 206. The need-blind model finished with two wide receivers in a
+  // WR2+flex league.
+  check('measured: need at 1.0 — the only term carrying VORP, at parity with '
+    + 'value (register 160, Cory\'s 2026-08-20 ruling)', m.need === 1.0, String(m.need));
   check('measured: ceiling at 0.45 — RULED 2026-08-17 (Cory: "IS THIS STUDIES? IF SO, YES"). '
     + 'The old -4.8 [-26,+17] zero was measured on a proj_mean-x-constant board (rank-identical '
     + 'to value, Spearman 1.0000); three preregistered runs on real ceilings beat zero 3/3 seeds, '
