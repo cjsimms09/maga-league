@@ -51,8 +51,8 @@
        "floor_blend": 331,
        "ceiling_blend": 484.8,
        "adp": 33.5,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 17.1
       },
       {
@@ -68,8 +68,8 @@
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
        "adp": 48,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 17.1
       },
       {
@@ -85,8 +85,8 @@
        "floor_blend": 316.9,
        "ceiling_blend": 460,
        "adp": 50.5,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 66,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 74,
        "surplus_over_wire": 14.1
       },
       {
@@ -103,7 +103,7 @@
        "ceiling_blend": 467.6,
        "adp": 56.9,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 11.1
       },
       {
@@ -119,8 +119,8 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.9,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 84,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 8.1
       },
       {
@@ -143,14 +143,31 @@
      ]
     },
     "RB": {
-     "best_now": 224,
+     "best_now": 234,
      "expected_best_at_next_pick": 199,
-     "VONA": 25,
-     "surplus_over_wire": 145.6,
-     "cliff_after_rank": 2,
-     "cliff_size": 15,
-     "note": "STRIKE — waiting costs 25 and he is +146 over the wire",
+     "VONA": 35,
+     "surplus_over_wire": 155.6,
+     "cliff_after_rank": 1,
+     "cliff_size": 10,
+     "note": "STRIKE — waiting costs 35 and he is +156 over the wire",
      "players": [
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "team": "GB",
+       "bye": 11,
+       "proj": 234,
+       "floor": 173,
+       "ceiling": 290,
+       "injury_risk_pct": 67,
+       "proj_blend": 223.9,
+       "floor_blend": 165.5,
+       "ceiling_blend": 277.5,
+       "adp": 26.1,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 155.6
+      },
       {
        "player_id": "8155",
        "name": "Breece Hall",
@@ -164,7 +181,7 @@
        "floor_blend": 186.7,
        "ceiling_blend": 279,
        "adp": 29.8,
-       "pct_available_now": 26,
+       "pct_available_now": 56,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 145.6
       },
@@ -181,9 +198,43 @@
        "floor_blend": 187.4,
        "ceiling_blend": 273.3,
        "adp": 28.8,
-       "pct_available_now": 18,
+       "pct_available_now": 48,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 144.6
+      },
+      {
+       "player_id": "8150",
+       "name": "Kyren Williams",
+       "team": "LAR",
+       "bye": 11,
+       "proj": 217,
+       "floor": 193,
+       "ceiling": 282,
+       "injury_risk_pct": 52,
+       "proj_blend": 214.1,
+       "floor_blend": 190.4,
+       "ceiling_blend": 278.2,
+       "adp": 24.5,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 138.6
+      },
+      {
+       "player_id": "13287",
+       "name": "Jeremiyah Love",
+       "team": "ARI",
+       "bye": 14,
+       "proj": 215,
+       "floor": 189,
+       "ceiling": 312,
+       "injury_risk_pct": 34,
+       "proj_blend": 220.5,
+       "floor_blend": 193.8,
+       "ceiling_blend": 320,
+       "adp": 23.1,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 136.6
       },
       {
        "player_id": "7543",
@@ -198,8 +249,8 @@
        "floor_blend": 186.5,
        "ceiling_blend": 285.1,
        "adp": 38,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 129.6
       },
       {
@@ -216,7 +267,7 @@
        "ceiling_blend": 262.8,
        "adp": 47.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 51,
+       "pct_still_there_next_pick": 72,
        "surplus_over_wire": 128.6
       },
       {
@@ -232,7 +283,7 @@
        "floor_blend": 167.3,
        "ceiling_blend": 276.1,
        "adp": 32.6,
-       "pct_available_now": 59,
+       "pct_available_now": 86,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 124.6
       },
@@ -249,8 +300,8 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 118.6
       },
       {
@@ -266,60 +317,9 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 111.6
-      },
-      {
-       "player_id": "12512",
-       "name": "Quinshon Judkins",
-       "team": "CLE",
-       "bye": 11,
-       "proj": 188,
-       "floor": 170,
-       "ceiling": 273,
-       "injury_risk_pct": 48,
-       "proj_blend": 192.5,
-       "floor_blend": 174.1,
-       "ceiling_blend": 279.6,
-       "adp": 41.2,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 15,
-       "surplus_over_wire": 109.6
-      },
-      {
-       "player_id": "7611",
-       "name": "Rhamondre Stevenson",
-       "team": "NE",
-       "bye": 11,
-       "proj": 180,
-       "floor": 152,
-       "ceiling": 256,
-       "injury_risk_pct": 64,
-       "proj_blend": 167.7,
-       "floor_blend": 141.6,
-       "ceiling_blend": 238.4,
-       "adp": 72.2,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 101.6
-      },
-      {
-       "player_id": "8228",
-       "name": "Jaylen Warren",
-       "team": "PIT",
-       "bye": 9,
-       "proj": 175,
-       "floor": 142,
-       "ceiling": 238,
-       "injury_risk_pct": 66,
-       "proj_blend": 166.6,
-       "floor_blend": 135.2,
-       "ceiling_blend": 226.6,
-       "adp": 65.4,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 96.6
       }
      ]
     },
@@ -345,7 +345,7 @@
        "floor_blend": 165,
        "ceiling_blend": 263,
        "adp": 27.3,
-       "pct_available_now": 5,
+       "pct_available_now": 26,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 99.2
       },
@@ -362,7 +362,7 @@
        "floor_blend": 176.5,
        "ceiling_blend": 231.8,
        "adp": 34.2,
-       "pct_available_now": 82,
+       "pct_available_now": 97,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 83.2
       },
@@ -379,8 +379,8 @@
        "floor_blend": 164.8,
        "ceiling_blend": 230,
        "adp": 35.3,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 80.2
       },
       {
@@ -396,7 +396,7 @@
        "floor_blend": 153.3,
        "ceiling_blend": 280,
        "adp": 28,
-       "pct_available_now": 13,
+       "pct_available_now": 34,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 74.2
       },
@@ -413,7 +413,7 @@
        "floor_blend": 176,
        "ceiling_blend": 240.5,
        "adp": 30.8,
-       "pct_available_now": 37,
+       "pct_available_now": 72,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 74.2
       },
@@ -431,7 +431,7 @@
        "ceiling_blend": 235.9,
        "adp": 42,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 8,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 72.2
       },
       {
@@ -465,7 +465,7 @@
        "ceiling_blend": 232.8,
        "adp": 54.7,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 68.2
       },
       {
@@ -481,8 +481,8 @@
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
        "adp": 44.3,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 33,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 68.2
       },
       {
@@ -498,21 +498,55 @@
        "floor_blend": 169,
        "ceiling_blend": 245.8,
        "adp": 37,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 60.2
       }
      ]
     },
     "TE": {
-     "best_now": 197,
+     "best_now": 209,
      "expected_best_at_next_pick": 177.3,
-     "VONA": 19.7,
-     "surplus_over_wire": 66.6,
-     "cliff_after_rank": 2,
+     "VONA": 31.7,
+     "surplus_over_wire": 78.6,
+     "cliff_after_rank": 4,
      "cliff_size": 21,
-     "note": "STRIKE — waiting costs 20 and he is +67 over the wire",
+     "note": "STRIKE — waiting costs 32 and he is +79 over the wire",
      "players": [
+      {
+       "player_id": "11604",
+       "name": "Brock Bowers",
+       "team": "LV",
+       "bye": 13,
+       "proj": 209,
+       "floor": 190,
+       "ceiling": 253,
+       "injury_risk_pct": 81,
+       "proj_blend": 197.7,
+       "floor_blend": 179.7,
+       "ceiling_blend": 239.4,
+       "adp": 18.8,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 78.6
+      },
+      {
+       "player_id": "8130",
+       "name": "Trey McBride",
+       "team": "ARI",
+       "bye": 14,
+       "proj": 201,
+       "floor": 187,
+       "ceiling": 241,
+       "injury_risk_pct": 46,
+       "proj_blend": 194.9,
+       "floor_blend": 181.3,
+       "ceiling_blend": 233.7,
+       "adp": 19.8,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 70.6
+      },
       {
        "player_id": "12517",
        "name": "Colston Loveland",
@@ -526,8 +560,8 @@
        "floor_blend": 142.8,
        "ceiling_blend": 209,
        "adp": 39.3,
-       "pct_available_now": 77,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 66.6
       },
       {
@@ -543,8 +577,8 @@
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
        "adp": 46.4,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 53,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 67,
        "surplus_over_wire": 51.6
       },
       {
@@ -560,8 +594,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.3,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 82,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 30.6
       },
       {
@@ -577,43 +611,9 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 29.6
-      },
-      {
-       "player_id": "12506",
-       "name": "Harold Fannin",
-       "team": "CLE",
-       "bye": 11,
-       "proj": 158,
-       "floor": 141,
-       "ceiling": 201,
-       "injury_risk_pct": 57,
-       "proj_blend": 149.6,
-       "floor_blend": 133.5,
-       "ceiling_blend": 190.3,
-       "adp": 64.5,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
-       "surplus_over_wire": 27.6
-      },
-      {
-       "player_id": "4217",
-       "name": "George Kittle",
-       "team": "SF",
-       "bye": 8,
-       "proj": 151,
-       "floor": 107,
-       "ceiling": 214,
-       "injury_risk_pct": 44,
-       "proj_blend": 141.7,
-       "floor_blend": 100.4,
-       "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
-       "surplus_over_wire": 20.6
       }
      ]
     },
@@ -804,8 +804,8 @@
        "floor_blend": 331,
        "ceiling_blend": 484.8,
        "adp": 33.5,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 17.1
       },
       {
@@ -821,8 +821,8 @@
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
        "adp": 48,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 48,
        "surplus_over_wire": 17.1
       },
       {
@@ -838,8 +838,8 @@
        "floor_blend": 316.9,
        "ceiling_blend": 460,
        "adp": 50.5,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 45,
+       "pct_available_now": 74,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 14.1
       },
       {
@@ -855,8 +855,8 @@
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
        "adp": 56.9,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 11.1
       },
       {
@@ -872,8 +872,8 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.9,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 80,
        "surplus_over_wire": 8.1
       },
       {
@@ -896,14 +896,31 @@
      ]
     },
     "RB": {
-     "best_now": 207,
+     "best_now": 208,
      "expected_best_at_next_pick": 189,
-     "VONA": 18,
-     "surplus_over_wire": 128.6,
-     "cliff_after_rank": 1,
+     "VONA": 19,
+     "surplus_over_wire": 129.6,
+     "cliff_after_rank": 2,
      "cliff_size": 10,
-     "note": "STRIKE — waiting costs 18 and he is +129 over the wire",
+     "note": "STRIKE — waiting costs 19 and he is +130 over the wire",
      "players": [
+      {
+       "player_id": "7543",
+       "name": "Travis Etienne",
+       "team": "NO",
+       "bye": 8,
+       "proj": 208,
+       "floor": 189,
+       "ceiling": 289,
+       "injury_risk_pct": 45,
+       "proj_blend": 205.2,
+       "floor_blend": 186.5,
+       "ceiling_blend": 285.1,
+       "adp": 38,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 129.6
+      },
       {
        "player_id": "6790",
        "name": "D'Andre Swift",
@@ -917,8 +934,8 @@
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
        "adp": 47.3,
-       "pct_available_now": 51,
-       "pct_still_there_next_pick": 23,
+       "pct_available_now": 72,
+       "pct_still_there_next_pick": 38,
        "surplus_over_wire": 128.6
       },
       {
@@ -934,8 +951,8 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 13,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 118.6
       },
       {
@@ -951,8 +968,8 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 51,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 111.6
       },
       {
@@ -968,8 +985,8 @@
        "floor_blend": 174.1,
        "ceiling_blend": 279.6,
        "adp": 41.2,
-       "pct_available_now": 15,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 109.6
       },
       {
@@ -1003,7 +1020,7 @@
        "ceiling_blend": 226.6,
        "adp": 65.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 96.6
       },
       {
@@ -1019,8 +1036,8 @@
        "floor_blend": 143.3,
        "ceiling_blend": 270,
        "adp": 49.8,
-       "pct_available_now": 70,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 94.6
       },
       {
@@ -1036,8 +1053,8 @@
        "floor_blend": 155.5,
        "ceiling_blend": 301.5,
        "adp": 53.8,
-       "pct_available_now": 91,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 91.6
       },
       {
@@ -1056,23 +1073,6 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 86.6
-      },
-      {
-       "player_id": "7021",
-       "name": "Rico Dowdle",
-       "team": "PIT",
-       "bye": 9,
-       "proj": 165,
-       "floor": 142,
-       "ceiling": 252,
-       "injury_risk_pct": 27,
-       "proj_blend": 159.7,
-       "floor_blend": 137.5,
-       "ceiling_blend": 243.9,
-       "adp": 76.1,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 86.6
       }
      ]
     },
@@ -1082,7 +1082,7 @@
      "VONA": 3,
      "surplus_over_wire": 72.2,
      "cliff_after_rank": 4,
-     "cliff_size": 10,
+     "cliff_size": 9,
      "note": "wait — only 3 lost by waiting, the tier holds",
      "players": [
       {
@@ -1098,8 +1098,8 @@
        "floor_blend": 172.5,
        "ceiling_blend": 235.9,
        "adp": 42,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 72.2
       },
       {
@@ -1116,7 +1116,7 @@
        "ceiling_blend": 215,
        "adp": 63.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 69.2
       },
       {
@@ -1132,8 +1132,8 @@
        "floor_blend": 151.4,
        "ceiling_blend": 232.8,
        "adp": 54.7,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 68.2
       },
       {
@@ -1149,9 +1149,26 @@
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
        "adp": 44.3,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 68.2
+      },
+      {
+       "player_id": "12514",
+       "name": "Emeka Egbuka",
+       "team": "TB",
+       "bye": 10,
+       "proj": 184,
+       "floor": 156,
+       "ceiling": 246,
+       "injury_risk_pct": 42,
+       "proj_blend": 187.1,
+       "floor_blend": 158.6,
+       "ceiling_blend": 250.1,
+       "adp": 36,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 59.2
       },
       {
        "player_id": "12519",
@@ -1166,8 +1183,8 @@
        "floor_blend": 141.4,
        "ceiling_blend": 230.8,
        "adp": 51.3,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 50,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 58.2
       },
       {
@@ -1183,8 +1200,8 @@
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
        "adp": 59.7,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 88,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 58.2
       },
       {
@@ -1200,8 +1217,8 @@
        "floor_blend": 157.7,
        "ceiling_blend": 240.5,
        "adp": 40.1,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 57.2
       },
       {
@@ -1217,8 +1234,8 @@
        "floor_blend": 155.8,
        "ceiling_blend": 232.7,
        "adp": 52.6,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 55,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 57.2
       },
       {
@@ -1234,26 +1251,9 @@
        "floor_blend": 158.6,
        "ceiling_blend": 240.4,
        "adp": 56.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 86,
-       "surplus_over_wire": 54.2
-      },
-      {
-       "player_id": "9487",
-       "name": "Parker Washington",
-       "team": "JAX",
-       "bye": 7,
-       "proj": 175,
-       "floor": 145,
-       "ceiling": 224,
-       "injury_risk_pct": 0,
-       "proj_blend": 156.9,
-       "floor_blend": 130,
-       "ceiling_blend": 200.8,
-       "adp": 70.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 50.2
+       "pct_still_there_next_pick": 96,
+       "surplus_over_wire": 54.2
       }
      ]
     },
@@ -1279,8 +1279,8 @@
        "floor_blend": 142.8,
        "ceiling_blend": 209,
        "adp": 39.3,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 31,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 66.6
       },
       {
@@ -1296,8 +1296,8 @@
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
        "adp": 46.4,
-       "pct_available_now": 53,
-       "pct_still_there_next_pick": 30,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 51.6
       },
       {
@@ -1313,8 +1313,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.3,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 77,
        "surplus_over_wire": 30.6
       },
       {
@@ -1330,8 +1330,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 82,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 87,
        "surplus_over_wire": 29.6
       },
       {
@@ -1347,8 +1347,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 27.6
       },
       {
@@ -1364,8 +1364,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 20.6
       }
      ]
@@ -1557,8 +1557,8 @@
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
        "adp": 48,
-       "pct_available_now": 28,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 48,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 17.1
       },
       {
@@ -1574,8 +1574,8 @@
        "floor_blend": 316.9,
        "ceiling_blend": 460,
        "adp": 50.5,
-       "pct_available_now": 45,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 14.1
       },
       {
@@ -1591,8 +1591,8 @@
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
        "adp": 56.9,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 15,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 25,
        "surplus_over_wire": 11.1
       },
       {
@@ -1608,8 +1608,8 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.9,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 80,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 8.1
       },
       {
@@ -1626,7 +1626,7 @@
        "ceiling_blend": 442.5,
        "adp": 81.4,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 88,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 6.1
       },
       {
@@ -1670,7 +1670,7 @@
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
        "adp": 47.3,
-       "pct_available_now": 23,
+       "pct_available_now": 38,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 128.6
       },
@@ -1687,7 +1687,7 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 13,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 118.6
       },
@@ -1704,9 +1704,26 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 10,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 111.6
+      },
+      {
+       "player_id": "12512",
+       "name": "Quinshon Judkins",
+       "team": "CLE",
+       "bye": 11,
+       "proj": 188,
+       "floor": 170,
+       "ceiling": 273,
+       "injury_risk_pct": 48,
+       "proj_blend": 192.5,
+       "floor_blend": 174.1,
+       "ceiling_blend": 279.6,
+       "adp": 41.2,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 109.6
       },
       {
        "player_id": "7611",
@@ -1722,7 +1739,7 @@
        "ceiling_blend": 238.4,
        "adp": 72.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 78,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 101.6
       },
       {
@@ -1738,8 +1755,8 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 41,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 96.6
       },
       {
@@ -1755,8 +1772,8 @@
        "floor_blend": 143.3,
        "ceiling_blend": 270,
        "adp": 49.8,
-       "pct_available_now": 40,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 58,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 94.6
       },
       {
@@ -1772,8 +1789,8 @@
        "floor_blend": 155.5,
        "ceiling_blend": 301.5,
        "adp": 53.8,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 91.6
       },
       {
@@ -1807,25 +1824,8 @@
        "ceiling_blend": 243.9,
        "adp": 76.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 86.6
-      },
-      {
-       "player_id": "13286",
-       "name": "Jadarian Price",
-       "team": "SEA",
-       "bye": 11,
-       "proj": 163,
-       "floor": 137,
-       "ceiling": 283,
-       "injury_risk_pct": 29,
-       "proj_blend": 169.8,
-       "floor_blend": 142.7,
-       "ceiling_blend": 294.7,
-       "adp": 57.7,
-       "pct_available_now": 71,
-       "pct_still_there_next_pick": 20,
-       "surplus_over_wire": 84.6
       }
      ]
     },
@@ -1851,8 +1851,8 @@
        "floor_blend": 139.6,
        "ceiling_blend": 215,
        "adp": 63.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 49,
        "surplus_over_wire": 69.2
       },
       {
@@ -1868,7 +1868,7 @@
        "floor_blend": 151.4,
        "ceiling_blend": 232.8,
        "adp": 54.7,
-       "pct_available_now": 74,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 68.2
       },
@@ -1885,7 +1885,7 @@
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
        "adp": 44.3,
-       "pct_available_now": 9,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 68.2
       },
@@ -1902,8 +1902,8 @@
        "floor_blend": 141.4,
        "ceiling_blend": 230.8,
        "adp": 51.3,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 58.2
       },
       {
@@ -1919,8 +1919,8 @@
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
        "adp": 59.7,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 13,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 58.2
       },
       {
@@ -1936,8 +1936,8 @@
        "floor_blend": 155.8,
        "ceiling_blend": 232.7,
        "adp": 52.6,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 57.2
       },
       {
@@ -1953,8 +1953,8 @@
        "floor_blend": 158.6,
        "ceiling_blend": 240.4,
        "adp": 56.2,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 54.2
       },
       {
@@ -1971,7 +1971,7 @@
        "ceiling_blend": 200.8,
        "adp": 70.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 72,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 50.2
       },
       {
@@ -1987,8 +1987,8 @@
        "floor_blend": 140.7,
        "ceiling_blend": 225.6,
        "adp": 48.9,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 49.2
       },
       {
@@ -2004,8 +2004,8 @@
        "floor_blend": 150.3,
        "ceiling_blend": 247.9,
        "adp": 60.8,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 48.2
       }
      ]
@@ -2032,7 +2032,7 @@
        "floor_blend": 142.8,
        "ceiling_blend": 209,
        "adp": 39.3,
-       "pct_available_now": 8,
+       "pct_available_now": 16,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 66.6
       },
@@ -2049,8 +2049,8 @@
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
        "adp": 46.4,
-       "pct_available_now": 30,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 43,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 51.6
       },
       {
@@ -2066,8 +2066,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.3,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 36,
+       "pct_available_now": 77,
+       "pct_still_there_next_pick": 48,
        "surplus_over_wire": 30.6
       },
       {
@@ -2083,8 +2083,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 50,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 57,
        "surplus_over_wire": 29.6
       },
       {
@@ -2100,8 +2100,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 37,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 27.6
       },
       {
@@ -2117,8 +2117,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 20.6
       }
      ]
@@ -2146,7 +2146,7 @@
        "ceiling_blend": 157,
        "adp": 115.7,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 48.4
       },
       {
@@ -2310,8 +2310,8 @@
        "floor_blend": 316.9,
        "ceiling_blend": 460,
        "adp": 50.5,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 14.1
       },
       {
@@ -2327,8 +2327,8 @@
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
        "adp": 56.9,
-       "pct_available_now": 15,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 25,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 11.1
       },
       {
@@ -2344,8 +2344,8 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.9,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 8.1
       },
       {
@@ -2361,8 +2361,8 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 79,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 6.1
       },
       {
@@ -2395,8 +2395,8 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.1,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 57,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 3.1
       }
      ]
@@ -2406,8 +2406,8 @@
      "expected_best_at_next_pick": 173.1,
      "VONA": 6.9,
      "surplus_over_wire": 101.6,
-     "cliff_after_rank": 2,
-     "cliff_size": 10,
+     "cliff_after_rank": 9,
+     "cliff_size": 9,
      "note": "neutral — 7 to wait, +102 over the wire",
      "players": [
       {
@@ -2423,8 +2423,8 @@
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
        "adp": 72.2,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 49,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 69,
        "surplus_over_wire": 101.6
       },
       {
@@ -2440,9 +2440,26 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 41,
-       "pct_still_there_next_pick": 15,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 96.6
+      },
+      {
+       "player_id": "12490",
+       "name": "Bhayshul Tuten",
+       "team": "JAX",
+       "bye": 7,
+       "proj": 170,
+       "floor": 146,
+       "ceiling": 283,
+       "injury_risk_pct": 43,
+       "proj_blend": 181.1,
+       "floor_blend": 155.5,
+       "ceiling_blend": 301.5,
+       "adp": 53.8,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 1,
+       "surplus_over_wire": 91.6
       },
       {
        "player_id": "5967",
@@ -2458,7 +2475,7 @@
        "ceiling_blend": 246.7,
        "adp": 77.9,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 87,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 86.6
       },
       {
@@ -2474,8 +2491,8 @@
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
        "adp": 76.1,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 75,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 86.6
       },
       {
@@ -2491,8 +2508,8 @@
        "floor_blend": 142.7,
        "ceiling_blend": 294.7,
        "adp": 57.7,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 26,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 84.6
       },
       {
@@ -2508,8 +2525,8 @@
        "floor_blend": 136,
        "ceiling_blend": 253.2,
        "adp": 84.7,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 87,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 82.6
       },
       {
@@ -2525,8 +2542,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 89.9,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 83,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 80.6
       },
       {
@@ -2542,8 +2559,8 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 76.6
       },
       {
@@ -2560,25 +2577,8 @@
        "ceiling_blend": 229.7,
        "adp": 100,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 67.6
-      },
-      {
-       "player_id": "12489",
-       "name": "RJ Harvey",
-       "team": "DEN",
-       "bye": 10,
-       "proj": 142,
-       "floor": 118,
-       "ceiling": 234,
-       "injury_risk_pct": 36,
-       "proj_blend": 136.1,
-       "floor_blend": 113.1,
-       "ceiling_blend": 224.3,
-       "adp": 79.4,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 78,
-       "surplus_over_wire": 63.6
       }
      ]
     },
@@ -2604,8 +2604,8 @@
        "floor_blend": 139.6,
        "ceiling_blend": 215,
        "adp": 63.4,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 49,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 69.2
       },
       {
@@ -2621,8 +2621,8 @@
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
        "adp": 59.7,
-       "pct_available_now": 13,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 30,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 58.2
       },
       {
@@ -2638,8 +2638,8 @@
        "floor_blend": 130,
        "ceiling_blend": 200.8,
        "adp": 70.5,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 50.2
       },
       {
@@ -2655,8 +2655,8 @@
        "floor_blend": 150.3,
        "ceiling_blend": 247.9,
        "adp": 60.8,
-       "pct_available_now": 16,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 48.2
       },
       {
@@ -2672,8 +2672,8 @@
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
        "adp": 80.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 48.2
       },
       {
@@ -2689,8 +2689,8 @@
        "floor_blend": 124.8,
        "ceiling_blend": 208.3,
        "adp": 67.8,
-       "pct_available_now": 53,
-       "pct_still_there_next_pick": 34,
+       "pct_available_now": 70,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 41.2
       },
       {
@@ -2740,8 +2740,8 @@
        "floor_blend": 140.3,
        "ceiling_blend": 225.1,
        "adp": 73.2,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 56,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 39.2
       },
       {
@@ -2785,8 +2785,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.3,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 48,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 30.6
       },
       {
@@ -2802,8 +2802,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 36,
+       "pct_available_now": 57,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 29.6
       },
       {
@@ -2819,8 +2819,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 37,
-       "pct_still_there_next_pick": 13,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 27.6
       },
       {
@@ -2836,8 +2836,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 84,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 20.6
       },
       {
@@ -2853,8 +2853,8 @@
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
        "adp": 71.4,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 46,
+       "pct_available_now": 80,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 17.6
       },
       {
@@ -2870,8 +2870,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 86,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 15.6
       }
      ]
@@ -2898,7 +2898,7 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 48.4
       },
@@ -3063,7 +3063,7 @@
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
        "adp": 56.9,
-       "pct_available_now": 7,
+       "pct_available_now": 11,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 11.1
       },
@@ -3080,8 +3080,8 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.9,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 8.1
       },
       {
@@ -3097,8 +3097,8 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 6.1
       },
       {
@@ -3115,7 +3115,7 @@
        "ceiling_blend": 450.1,
        "adp": 103.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 4.1
       },
       {
@@ -3131,8 +3131,8 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.1,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 3.1
       },
       {
@@ -3148,8 +3148,8 @@
        "floor_blend": 311.3,
        "ceiling_blend": 454.3,
        "adp": 77,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 81,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 2.1
       }
      ]
@@ -3176,8 +3176,8 @@
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
        "adp": 72.2,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 69,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 101.6
       },
       {
@@ -3193,8 +3193,8 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 15,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 30,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 96.6
       },
       {
@@ -3210,8 +3210,8 @@
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
        "adp": 77.9,
-       "pct_available_now": 87,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 86.6
       },
       {
@@ -3227,8 +3227,8 @@
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
        "adp": 76.1,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 86.6
       },
       {
@@ -3244,7 +3244,7 @@
        "floor_blend": 142.7,
        "ceiling_blend": 294.7,
        "adp": 57.7,
-       "pct_available_now": 10,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 84.6
       },
@@ -3261,8 +3261,8 @@
        "floor_blend": 136,
        "ceiling_blend": 253.2,
        "adp": 84.7,
-       "pct_available_now": 87,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 82.6
       },
       {
@@ -3278,8 +3278,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 89.9,
-       "pct_available_now": 83,
-       "pct_still_there_next_pick": 57,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 63,
        "surplus_over_wire": 80.6
       },
       {
@@ -3295,8 +3295,8 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 83,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 76.6
       },
       {
@@ -3312,8 +3312,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 100,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 86,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 67.6
       },
       {
@@ -3329,21 +3329,55 @@
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
        "adp": 79.4,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 29,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 37,
        "surplus_over_wire": 63.6
       }
      ]
     },
     "WR": {
-     "best_now": 175,
+     "best_now": 194,
      "expected_best_at_next_pick": 166.5,
-     "VONA": 8.5,
-     "surplus_over_wire": 50.2,
-     "cliff_after_rank": 2,
-     "cliff_size": 7,
-     "note": "neutral — 8 to wait, +50 over the wire",
+     "VONA": 27.5,
+     "surplus_over_wire": 69.2,
+     "cliff_after_rank": 1,
+     "cliff_size": 11,
+     "note": "STRIKE — waiting costs 27 and he is +69 over the wire",
      "players": [
+      {
+       "player_id": "8167",
+       "name": "Christian Watson",
+       "team": "GB",
+       "bye": 11,
+       "proj": 194,
+       "floor": 161,
+       "ceiling": 248,
+       "injury_risk_pct": 25,
+       "proj_blend": 168.2,
+       "floor_blend": 139.6,
+       "ceiling_blend": 215,
+       "adp": 63.4,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 69.2
+      },
+      {
+       "player_id": "2216",
+       "name": "Mike Evans",
+       "team": "SF",
+       "bye": 8,
+       "proj": 183,
+       "floor": 154,
+       "ceiling": 249,
+       "injury_risk_pct": 65,
+       "proj_blend": 170.1,
+       "floor_blend": 143.2,
+       "ceiling_blend": 231.5,
+       "adp": 59.7,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 58.2
+      },
       {
        "player_id": "9487",
        "name": "Parker Washington",
@@ -3357,9 +3391,26 @@
        "floor_blend": 130,
        "ceiling_blend": 200.8,
        "adp": 70.5,
-       "pct_available_now": 40,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 58,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 50.2
+      },
+      {
+       "player_id": "11620",
+       "name": "Rome Odunze",
+       "team": "CHI",
+       "bye": 10,
+       "proj": 173,
+       "floor": 151,
+       "ceiling": 249,
+       "injury_risk_pct": 36,
+       "proj_blend": 172.3,
+       "floor_blend": 150.3,
+       "ceiling_blend": 247.9,
+       "adp": 60.8,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 48.2
       },
       {
        "player_id": "5846",
@@ -3374,8 +3425,8 @@
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
        "adp": 80.4,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 18,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 48.2
       },
       {
@@ -3391,8 +3442,8 @@
        "floor_blend": 124.8,
        "ceiling_blend": 208.3,
        "adp": 67.8,
-       "pct_available_now": 34,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 41.2
       },
       {
@@ -3409,7 +3460,7 @@
        "ceiling_blend": 214,
        "adp": 86.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 48,
+       "pct_still_there_next_pick": 67,
        "surplus_over_wire": 40.2
       },
       {
@@ -3442,8 +3493,8 @@
        "floor_blend": 140.3,
        "ceiling_blend": 225.1,
        "adp": 73.2,
-       "pct_available_now": 56,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 39.2
       },
       {
@@ -3462,57 +3513,6 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 37.2
-      },
-      {
-       "player_id": "6819",
-       "name": "Michael Pittman",
-       "team": "PIT",
-       "bye": 9,
-       "proj": 161,
-       "floor": 138,
-       "ceiling": 206,
-       "injury_risk_pct": 60,
-       "proj_blend": 148.2,
-       "floor_blend": 127.1,
-       "ceiling_blend": 189.7,
-       "adp": 106.2,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 36.2
-      },
-      {
-       "player_id": "9500",
-       "name": "Josh Downs",
-       "team": "IND",
-       "bye": 13,
-       "proj": 161,
-       "floor": 137,
-       "ceiling": 232,
-       "injury_risk_pct": 61,
-       "proj_blend": 134.7,
-       "floor_blend": 114.6,
-       "ceiling_blend": 194.1,
-       "adp": 105.3,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
-       "surplus_over_wire": 36.2
-      },
-      {
-       "player_id": "11631",
-       "name": "Brian Thomas",
-       "team": "JAX",
-       "bye": 7,
-       "proj": 158,
-       "floor": 138,
-       "ceiling": 236,
-       "injury_risk_pct": 35,
-       "proj_blend": 151.6,
-       "floor_blend": 132.4,
-       "ceiling_blend": 226.4,
-       "adp": 69.7,
-       "pct_available_now": 38,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 33.2
       }
      ]
     },
@@ -3538,8 +3538,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.3,
-       "pct_available_now": 28,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 30.6
       },
       {
@@ -3555,8 +3555,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 42,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 29.6
       },
       {
@@ -3572,7 +3572,7 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 13,
+       "pct_available_now": 26,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 27.6
       },
@@ -3589,8 +3589,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 65,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 69,
        "surplus_over_wire": 20.6
       },
       {
@@ -3606,8 +3606,8 @@
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
        "adp": 71.4,
-       "pct_available_now": 46,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 17.6
       },
       {
@@ -3623,8 +3623,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 63,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 69,
        "surplus_over_wire": 15.6
       }
      ]
@@ -3652,7 +3652,7 @@
        "ceiling_blend": 157,
        "adp": 115.7,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 94,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 48.4
       },
       {
@@ -3816,8 +3816,8 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 40,
-       "pct_still_there_next_pick": 24,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 6.1
       },
       {
@@ -3833,8 +3833,8 @@
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
        "adp": 103.3,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 82,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 87,
        "surplus_over_wire": 4.1
       },
       {
@@ -3850,8 +3850,8 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.1,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 23,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 3.1
       },
       {
@@ -3867,8 +3867,8 @@
        "floor_blend": 311.3,
        "ceiling_blend": 454.3,
        "adp": 77,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 2.1
       },
       {
@@ -3884,8 +3884,8 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 96,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 2.1
       },
       {
@@ -3901,21 +3901,38 @@
        "floor_blend": 299.5,
        "ceiling_blend": 451.9,
        "adp": 68.8,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 15,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 1.1
       }
      ]
     },
     "RB": {
-     "best_now": 165,
+     "best_now": 180,
      "expected_best_at_next_pick": 157.1,
-     "VONA": 7.9,
-     "surplus_over_wire": 86.6,
-     "cliff_after_rank": 5,
-     "cliff_size": 9,
-     "note": "neutral — 8 to wait, +87 over the wire",
+     "VONA": 22.9,
+     "surplus_over_wire": 101.6,
+     "cliff_after_rank": 1,
+     "cliff_size": 15,
+     "note": "STRIKE — waiting costs 23 and he is +102 over the wire",
      "players": [
+      {
+       "player_id": "7611",
+       "name": "Rhamondre Stevenson",
+       "team": "NE",
+       "bye": 11,
+       "proj": 180,
+       "floor": 152,
+       "ceiling": 256,
+       "injury_risk_pct": 64,
+       "proj_blend": 167.7,
+       "floor_blend": 141.6,
+       "ceiling_blend": 238.4,
+       "adp": 72.2,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 1,
+       "surplus_over_wire": 101.6
+      },
       {
        "player_id": "5967",
        "name": "Tony Pollard",
@@ -3929,8 +3946,8 @@
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
        "adp": 77.9,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 86.6
       },
       {
@@ -3946,8 +3963,8 @@
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
        "adp": 76.1,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 86.6
       },
       {
@@ -3963,8 +3980,8 @@
        "floor_blend": 136,
        "ceiling_blend": 253.2,
        "adp": 84.7,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 82.6
       },
       {
@@ -3980,8 +3997,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 89.9,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 80.6
       },
       {
@@ -3997,8 +4014,8 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99.2,
-       "pct_available_now": 83,
-       "pct_still_there_next_pick": 73,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 80,
        "surplus_over_wire": 76.6
       },
       {
@@ -4014,8 +4031,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 100,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 76,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 67.6
       },
       {
@@ -4031,8 +4048,8 @@
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
        "adp": 79.4,
-       "pct_available_now": 29,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 37,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 63.6
       },
       {
@@ -4048,8 +4065,8 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 87.2,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 49,
        "surplus_over_wire": 60.6
       },
       {
@@ -4065,26 +4082,9 @@
        "floor_blend": 132.8,
        "ceiling_blend": 279.5,
        "adp": 75.3,
-       "pct_available_now": 7,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 59.6
-      },
-      {
-       "player_id": "11586",
-       "name": "Blake Corum",
-       "team": "LAR",
-       "bye": 11,
-       "proj": 135,
-       "floor": 124,
-       "ceiling": 260,
-       "injury_risk_pct": 33,
-       "proj_blend": 131.4,
-       "floor_blend": 120.7,
-       "ceiling_blend": 253.2,
-       "adp": 91.1,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 43,
-       "surplus_over_wire": 56.6
       }
      ]
     },
@@ -4110,8 +4110,8 @@
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
        "adp": 80.4,
-       "pct_available_now": 18,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 34,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 48.2
       },
       {
@@ -4127,8 +4127,8 @@
        "floor_blend": 138.8,
        "ceiling_blend": 214,
        "adp": 86.4,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 40.2
       },
       {
@@ -4145,8 +4145,25 @@
        "ceiling_blend": 194.8,
        "adp": 110.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 40.2
+      },
+      {
+       "player_id": "11628",
+       "name": "Marvin Harrison",
+       "team": "ARI",
+       "bye": 14,
+       "proj": 164,
+       "floor": 144,
+       "ceiling": 231,
+       "injury_risk_pct": 55,
+       "proj_blend": 159.8,
+       "floor_blend": 140.3,
+       "ceiling_blend": 225.1,
+       "adp": 73.2,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 2,
+       "surplus_over_wire": 39.2
       },
       {
        "player_id": "9756",
@@ -4162,7 +4179,7 @@
        "ceiling_blend": 192.1,
        "adp": 107.1,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 37.2
       },
       {
@@ -4179,7 +4196,7 @@
        "ceiling_blend": 189.7,
        "adp": 106.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 36.2
       },
       {
@@ -4195,8 +4212,8 @@
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
        "adp": 105.3,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 94,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 36.2
       },
       {
@@ -4212,8 +4229,8 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 89,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 33.2
       },
       {
@@ -4249,23 +4266,6 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 27.2
-      },
-      {
-       "player_id": "4037",
-       "name": "Chris Godwin",
-       "team": "TB",
-       "bye": 10,
-       "proj": 151,
-       "floor": 121,
-       "ceiling": 222,
-       "injury_risk_pct": 40,
-       "proj_blend": 139.4,
-       "floor_blend": 111.7,
-       "ceiling_blend": 205,
-       "adp": 88.3,
-       "pct_available_now": 60,
-       "pct_still_there_next_pick": 33,
-       "surplus_over_wire": 26.2
       }
      ]
     },
@@ -4291,8 +4291,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.3,
-       "pct_available_now": 7,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 30.6
       },
       {
@@ -4308,8 +4308,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 11,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 29.6
       },
       {
@@ -4325,8 +4325,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 54,
+       "pct_available_now": 69,
+       "pct_still_there_next_pick": 59,
        "surplus_over_wire": 20.6
       },
       {
@@ -4342,8 +4342,8 @@
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
        "adp": 71.4,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 17.6
       },
       {
@@ -4359,8 +4359,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 63,
-       "pct_still_there_next_pick": 54,
+       "pct_available_now": 69,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 15.6
       },
       {
@@ -4376,8 +4376,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.8,
-       "pct_available_now": 91,
-       "pct_still_there_next_pick": 88,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 0.6
       }
      ]
@@ -4404,8 +4404,8 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 94,
-       "pct_still_there_next_pick": 89,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 48.4
       },
       {
@@ -4439,7 +4439,7 @@
        "ceiling_blend": 153.2,
        "adp": 139.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
       },
       {
@@ -4552,8 +4552,8 @@
      "expected_best_at_next_pick": 323.4,
      "VONA": 5.6,
      "surplus_over_wire": 6.1,
-     "cliff_after_rank": 5,
-     "cliff_size": 6,
+     "cliff_after_rank": 1,
+     "cliff_size": 2,
      "note": "neutral — 6 to wait, +6 over the wire",
      "players": [
       {
@@ -4569,8 +4569,8 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 34,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 6.1
       },
       {
@@ -4586,8 +4586,8 @@
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
        "adp": 103.3,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 31,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 44,
        "surplus_over_wire": 4.1
       },
       {
@@ -4603,8 +4603,8 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.1,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 15,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 3.1
       },
       {
@@ -4620,7 +4620,7 @@
        "floor_blend": 311.3,
        "ceiling_blend": 454.3,
        "adp": 77,
-       "pct_available_now": 5,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
@@ -4637,38 +4637,72 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 83,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 2.1
       },
       {
-       "player_id": "12508",
-       "name": "Jaxson Dart",
-       "team": "NYG",
-       "bye": 8,
-       "proj": 319,
-       "floor": 277,
-       "ceiling": 417,
-       "injury_risk_pct": 36,
-       "proj_blend": 346.1,
-       "floor_blend": 300.6,
-       "ceiling_blend": 452.5,
-       "adp": 85.6,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 7,
-       "surplus_over_wire": 0
+       "player_id": "11560",
+       "name": "Caleb Williams",
+       "team": "CHI",
+       "bye": 10,
+       "proj": 324,
+       "floor": 279,
+       "ceiling": 421,
+       "injury_risk_pct": 20,
+       "proj_blend": 347.8,
+       "floor_blend": 299.5,
+       "ceiling_blend": 451.9,
+       "adp": 68.8,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 1.1
       }
      ]
     },
     "RB": {
-     "best_now": 161,
+     "best_now": 165,
      "expected_best_at_next_pick": 145.3,
-     "VONA": 15.7,
-     "surplus_over_wire": 82.6,
-     "cliff_after_rank": 3,
+     "VONA": 19.7,
+     "surplus_over_wire": 86.6,
+     "cliff_after_rank": 5,
      "cliff_size": 9,
-     "note": "STRIKE — waiting costs 16 and he is +83 over the wire",
+     "note": "STRIKE — waiting costs 20 and he is +87 over the wire",
      "players": [
+      {
+       "player_id": "5967",
+       "name": "Tony Pollard",
+       "team": "TEN",
+       "bye": 9,
+       "proj": 165,
+       "floor": 143,
+       "ceiling": 250,
+       "injury_risk_pct": 35,
+       "proj_blend": 162.8,
+       "floor_blend": 141.1,
+       "ceiling_blend": 246.7,
+       "adp": 77.9,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 86.6
+      },
+      {
+       "player_id": "7021",
+       "name": "Rico Dowdle",
+       "team": "PIT",
+       "bye": 9,
+       "proj": 165,
+       "floor": 142,
+       "ceiling": 252,
+       "injury_risk_pct": 27,
+       "proj_blend": 159.7,
+       "floor_blend": 137.5,
+       "ceiling_blend": 243.9,
+       "adp": 76.1,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 86.6
+      },
       {
        "player_id": "6806",
        "name": "J.K. Dobbins",
@@ -4682,8 +4716,8 @@
        "floor_blend": 136,
        "ceiling_blend": 253.2,
        "adp": 84.7,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 82.6
       },
       {
@@ -4699,8 +4733,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 89.9,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 51,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 80.6
       },
       {
@@ -4716,8 +4750,8 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99.2,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 30,
+       "pct_available_now": 80,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 76.6
       },
       {
@@ -4733,8 +4767,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 100,
-       "pct_available_now": 76,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 39,
        "surplus_over_wire": 67.6
       },
       {
@@ -4750,8 +4784,8 @@
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
        "adp": 79.4,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 24,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 63.6
       },
       {
@@ -4767,8 +4801,8 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 87.2,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 49,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 60.6
       },
       {
@@ -4784,8 +4818,8 @@
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
        "adp": 91.1,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 56.6
       },
       {
@@ -4801,55 +4835,38 @@
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
        "adp": 104.5,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 52.6
-      },
-      {
-       "player_id": "9508",
-       "name": "Tyjae Spears",
-       "team": "TEN",
-       "bye": 9,
-       "proj": 131,
-       "floor": 110,
-       "ceiling": 218,
-       "injury_risk_pct": 37,
-       "proj_blend": 114.2,
-       "floor_blend": 95.9,
-       "ceiling_blend": 190.1,
-       "adp": 160,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
-       "surplus_over_wire": 52.6
-      },
-      {
-       "player_id": "8136",
-       "name": "Rachaad White",
-       "team": "WAS",
-       "bye": 7,
-       "proj": 128,
-       "floor": 104,
-       "ceiling": 222,
-       "injury_risk_pct": 39,
-       "proj_blend": 134.6,
-       "floor_blend": 109.3,
-       "ceiling_blend": 233.4,
-       "adp": 109.3,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 50,
-       "surplus_over_wire": 49.6
       }
      ]
     },
     "WR": {
-     "best_now": 165,
+     "best_now": 173,
      "expected_best_at_next_pick": 163.1,
-     "VONA": 1.9,
-     "surplus_over_wire": 40.2,
-     "cliff_after_rank": 7,
-     "cliff_size": 4,
-     "note": "wait — only 2 lost by waiting, the tier holds",
+     "VONA": 9.9,
+     "surplus_over_wire": 48.2,
+     "cliff_after_rank": 1,
+     "cliff_size": 8,
+     "note": "neutral — 10 to wait, +48 over the wire",
      "players": [
+      {
+       "player_id": "5846",
+       "name": "DK Metcalf",
+       "team": "PIT",
+       "bye": 9,
+       "proj": 173,
+       "floor": 145,
+       "ceiling": 219,
+       "injury_risk_pct": 36,
+       "proj_blend": 160.6,
+       "floor_blend": 134.6,
+       "ceiling_blend": 203.4,
+       "adp": 80.4,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 48.2
+      },
       {
        "player_id": "5045",
        "name": "Courtland Sutton",
@@ -4863,7 +4880,7 @@
        "floor_blend": 138.8,
        "ceiling_blend": 214,
        "adp": 86.4,
-       "pct_available_now": 17,
+       "pct_available_now": 34,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 40.2
       },
@@ -4880,8 +4897,8 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 74,
        "surplus_over_wire": 40.2
       },
       {
@@ -4897,8 +4914,8 @@
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
        "adp": 107.1,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 39,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 37.2
       },
       {
@@ -4914,8 +4931,8 @@
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
        "adp": 106.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 57,
        "surplus_over_wire": 36.2
       },
       {
@@ -4931,8 +4948,8 @@
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
        "adp": 105.3,
-       "pct_available_now": 94,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 36.2
       },
       {
@@ -4948,8 +4965,8 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 33.2
       },
       {
@@ -4966,7 +4983,7 @@
        "ceiling_blend": 193.2,
        "adp": 122.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 31.2
       },
       {
@@ -4999,38 +5016,38 @@
        "floor_blend": 111.7,
        "ceiling_blend": 205,
        "adp": 88.3,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 26.2
-      },
-      {
-       "player_id": "2449",
-       "name": "Stefon Diggs",
-       "team": "WAS",
-       "bye": 7,
-       "proj": 149,
-       "floor": 124,
-       "ceiling": 225,
-       "injury_risk_pct": 31,
-       "proj_blend": 130.5,
-       "floor_blend": 108.6,
-       "ceiling_blend": 197.1,
-       "adp": 111.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 66,
-       "surplus_over_wire": 24.2
       }
      ]
     },
     "TE": {
-     "best_now": 160,
+     "best_now": 161,
      "expected_best_at_next_pick": 137.9,
-     "VONA": 22.1,
-     "surplus_over_wire": 29.6,
-     "cliff_after_rank": 3,
+     "VONA": 23.1,
+     "surplus_over_wire": 30.6,
+     "cliff_after_rank": 4,
      "cliff_size": 15,
-     "note": "waiting costs 22, but he is only +30 over the wire — thin",
+     "note": "waiting costs 23, but he is only +31 over the wire — thin",
      "players": [
+      {
+       "player_id": "9484",
+       "name": "Tucker Kraft",
+       "team": "GB",
+       "bye": 11,
+       "proj": 161,
+       "floor": 139,
+       "ceiling": 213,
+       "injury_risk_pct": 39,
+       "proj_blend": 146.5,
+       "floor_blend": 126.5,
+       "ceiling_blend": 193.8,
+       "adp": 62.3,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 30.6
+      },
       {
        "player_id": "10859",
        "name": "Sam LaPorta",
@@ -5044,8 +5061,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 67,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 29.6
       },
       {
@@ -5061,8 +5078,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 59,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 20.6
       },
       {
@@ -5078,8 +5095,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 15.6
       },
       {
@@ -5095,8 +5112,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.8,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 64,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 69,
        "surplus_over_wire": 0.6
       },
       {
@@ -5112,26 +5129,9 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.4,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 60,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 0.6
-      },
-      {
-       "player_id": "10236",
-       "name": "Dalton Kincaid",
-       "team": "BUF",
-       "bye": 7,
-       "proj": 130,
-       "floor": 115,
-       "ceiling": 180,
-       "injury_risk_pct": 62,
-       "proj_blend": 128.6,
-       "floor_blend": 113.8,
-       "ceiling_blend": 178.1,
-       "adp": 98.4,
-       "pct_available_now": 63,
-       "pct_still_there_next_pick": 28,
-       "surplus_over_wire": 0
       }
      ]
     },
@@ -5157,8 +5157,8 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 70,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 48.4
       },
       {
@@ -5175,7 +5175,7 @@
        "ceiling_blend": 146.4,
        "adp": 140.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 41.4
       },
       {
@@ -5191,8 +5191,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 139.1,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 94,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 29.4
       },
       {
@@ -5237,7 +5237,7 @@
        "ceiling_blend": 137.4,
        "adp": 119.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 25
       },
       {
@@ -5254,7 +5254,7 @@
        "ceiling_blend": 130,
        "adp": 126,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 22
       },
       {
@@ -5271,7 +5271,7 @@
        "ceiling_blend": 127,
        "adp": 128.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 20
       },
       {
@@ -5322,8 +5322,8 @@
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
        "adp": 103.3,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 44,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 4.1
       },
       {
@@ -5339,8 +5339,8 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 83,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 79,
        "surplus_over_wire": 2.1
       },
       {
@@ -5356,8 +5356,8 @@
        "floor_blend": 300.6,
        "ceiling_blend": 452.5,
        "adp": 85.6,
-       "pct_available_now": 7,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 0
       },
       {
@@ -5373,8 +5373,8 @@
        "floor_blend": 310.4,
        "ceiling_blend": 455.1,
        "adp": 101.5,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 39,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 0
       },
       {
@@ -5390,8 +5390,8 @@
        "floor_blend": 310.3,
        "ceiling_blend": 465.4,
        "adp": 95.7,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 0
       },
       {
@@ -5407,8 +5407,8 @@
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
        "adp": 112.5,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 71,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 0
       }
      ]
@@ -5435,8 +5435,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 89.9,
-       "pct_available_now": 14,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 18,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 80.6
       },
       {
@@ -5452,8 +5452,8 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99.2,
-       "pct_available_now": 30,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 41,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 76.6
       },
       {
@@ -5469,8 +5469,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 100,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 39,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 67.6
       },
       {
@@ -5486,8 +5486,8 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 87.2,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 13,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 60.6
       },
       {
@@ -5503,8 +5503,8 @@
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
        "adp": 91.1,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 13,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 56.6
       },
       {
@@ -5520,8 +5520,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
        "adp": 104.5,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 25,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 52.6
       },
       {
@@ -5537,8 +5537,8 @@
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
        "adp": 160,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 52.6
       },
       {
@@ -5554,8 +5554,8 @@
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
        "adp": 109.3,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 33,
+       "pct_available_now": 58,
+       "pct_still_there_next_pick": 44,
        "surplus_over_wire": 49.6
       },
       {
@@ -5571,8 +5571,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 45.6
       },
       {
@@ -5588,8 +5588,8 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 127.3,
-       "pct_available_now": 80,
-       "pct_still_there_next_pick": 75,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 41.6
       }
      ]
@@ -5616,8 +5616,8 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 74,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 40.2
       },
       {
@@ -5633,8 +5633,8 @@
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
        "adp": 107.1,
-       "pct_available_now": 39,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 37.2
       },
       {
@@ -5650,8 +5650,8 @@
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
        "adp": 106.2,
-       "pct_available_now": 38,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 57,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 36.2
       },
       {
@@ -5667,8 +5667,8 @@
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
        "adp": 105.3,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 47,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 36.2
       },
       {
@@ -5684,8 +5684,8 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 41,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 33.2
       },
       {
@@ -5701,8 +5701,8 @@
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
        "adp": 122.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 92,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 31.2
       },
       {
@@ -5719,7 +5719,7 @@
        "ceiling_blend": 207.5,
        "adp": 130.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 27.2
       },
       {
@@ -5735,8 +5735,8 @@
        "floor_blend": 108.6,
        "ceiling_blend": 197.1,
        "adp": 111.2,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 77,
+       "pct_still_there_next_pick": 57,
        "surplus_over_wire": 24.2
       },
       {
@@ -5797,8 +5797,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 18,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 20.6
       },
       {
@@ -5814,8 +5814,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 13,
+       "pct_available_now": 26,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 15.6
       },
       {
@@ -5831,8 +5831,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.8,
-       "pct_available_now": 64,
-       "pct_still_there_next_pick": 55,
+       "pct_available_now": 69,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 0.6
       },
       {
@@ -5848,8 +5848,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.4,
-       "pct_available_now": 60,
-       "pct_still_there_next_pick": 48,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 0.6
       },
       {
@@ -5865,8 +5865,8 @@
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
        "adp": 98.4,
-       "pct_available_now": 28,
-       "pct_still_there_next_pick": 19,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 0
       },
       {
@@ -5882,8 +5882,8 @@
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
        "adp": 108.5,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 57,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 0
       }
      ]
@@ -5910,8 +5910,8 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 70,
-       "pct_still_there_next_pick": 60,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 48.4
       },
       {
@@ -5927,8 +5927,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 140.6,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 41.4
       },
       {
@@ -5944,8 +5944,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 139.1,
-       "pct_available_now": 94,
-       "pct_still_there_next_pick": 89,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 29.4
       },
       {
@@ -5989,8 +5989,8 @@
        "floor_blend": 110,
        "ceiling_blend": 137.4,
        "adp": 119.6,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 73,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 25
       },
       {
@@ -6006,8 +6006,8 @@
        "floor_blend": 101.8,
        "ceiling_blend": 130,
        "adp": 126,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 22
       },
       {
@@ -6023,8 +6023,8 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 128.1,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 20
       },
       {
@@ -6075,8 +6075,8 @@
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
        "adp": 103.3,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 26,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 4.1
       },
       {
@@ -6092,8 +6092,8 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 35,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 2.1
       },
       {
@@ -6109,8 +6109,8 @@
        "floor_blend": 310.4,
        "ceiling_blend": 455.1,
        "adp": 101.5,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 26,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
@@ -6126,8 +6126,8 @@
        "floor_blend": 310.3,
        "ceiling_blend": 465.4,
        "adp": 95.7,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 0
       },
       {
@@ -6143,8 +6143,8 @@
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
        "adp": 112.5,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 50,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 0
       },
       {
@@ -6160,8 +6160,8 @@
        "floor_blend": 327.4,
        "ceiling_blend": 474.7,
        "adp": 97.6,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 0
       }
      ]
@@ -6188,8 +6188,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 89.9,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 80.6
       },
       {
@@ -6205,8 +6205,8 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99.2,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 23,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 76.6
       },
       {
@@ -6222,8 +6222,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 100,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 67.6
       },
       {
@@ -6239,9 +6239,26 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 87.2,
-       "pct_available_now": 6,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 60.6
+      },
+      {
+       "player_id": "11586",
+       "name": "Blake Corum",
+       "team": "LAR",
+       "bye": 11,
+       "proj": 135,
+       "floor": 124,
+       "ceiling": 260,
+       "injury_risk_pct": 33,
+       "proj_blend": 131.4,
+       "floor_blend": 120.7,
+       "ceiling_blend": 253.2,
+       "adp": 91.1,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 56.6
       },
       {
        "player_id": "7567",
@@ -6256,8 +6273,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
        "adp": 104.5,
-       "pct_available_now": 25,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 35,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 52.6
       },
       {
@@ -6273,8 +6290,8 @@
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
        "adp": 160,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 52.6
       },
       {
@@ -6290,8 +6307,8 @@
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
        "adp": 109.3,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 44,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 49.6
       },
       {
@@ -6307,8 +6324,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 51,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 45.6
       },
       {
@@ -6324,26 +6341,9 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 127.3,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 44,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 41.6
-      },
-      {
-       "player_id": "12474",
-       "name": "Woody Marks",
-       "team": "HOU",
-       "bye": 8,
-       "proj": 113,
-       "floor": 100,
-       "ceiling": 215,
-       "injury_risk_pct": 0,
-       "proj_blend": 103.4,
-       "floor_blend": 91.5,
-       "ceiling_blend": 196.8,
-       "adp": 147.7,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 93,
-       "surplus_over_wire": 34.6
       }
      ]
     },
@@ -6369,8 +6369,8 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 38,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 50,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 40.2
       },
       {
@@ -6386,8 +6386,8 @@
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
        "adp": 107.1,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 31,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 37.2
       },
       {
@@ -6403,7 +6403,7 @@
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
        "adp": 106.2,
-       "pct_available_now": 20,
+       "pct_available_now": 31,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
@@ -6420,7 +6420,7 @@
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
        "adp": 105.3,
-       "pct_available_now": 14,
+       "pct_available_now": 23,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
@@ -6437,7 +6437,7 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 10,
+       "pct_available_now": 20,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 33.2
       },
@@ -6454,8 +6454,8 @@
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
        "adp": 122.4,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 31.2
       },
       {
@@ -6471,8 +6471,8 @@
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
        "adp": 130.3,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 57,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 72,
        "surplus_over_wire": 27.2
       },
       {
@@ -6488,8 +6488,8 @@
        "floor_blend": 108.6,
        "ceiling_blend": 197.1,
        "adp": 111.2,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 57,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 24.2
       },
       {
@@ -6506,7 +6506,7 @@
        "ceiling_blend": 190,
        "adp": 141.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 93,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 23.2
       },
       {
@@ -6523,7 +6523,7 @@
        "ceiling_blend": 186.6,
        "adp": 138.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 85,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 23.2
       }
      ]
@@ -6550,8 +6550,8 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 92.2,
-       "pct_available_now": 18,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 20.6
       },
       {
@@ -6567,8 +6567,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 13,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 18,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 15.6
       },
       {
@@ -6584,8 +6584,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.8,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 25,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 0.6
       },
       {
@@ -6601,8 +6601,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.4,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 19,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 0.6
       },
       {
@@ -6618,8 +6618,8 @@
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
        "adp": 98.4,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 24,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
@@ -6635,8 +6635,8 @@
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
        "adp": 108.5,
-       "pct_available_now": 38,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 43,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 0
       }
      ]
@@ -6663,8 +6663,8 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 60,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 48.4
       },
       {
@@ -6680,8 +6680,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 140.6,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 77,
        "surplus_over_wire": 41.4
       },
       {
@@ -6697,8 +6697,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 139.1,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 69,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 29.4
       },
       {
@@ -6742,8 +6742,8 @@
        "floor_blend": 110,
        "ceiling_blend": 137.4,
        "adp": 119.6,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 25
       },
       {
@@ -6759,8 +6759,8 @@
        "floor_blend": 101.8,
        "ceiling_blend": 130,
        "adp": 126,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 40,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 22
       },
       {
@@ -6776,8 +6776,8 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 128.1,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 48,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 20
       },
       {
@@ -6794,7 +6794,7 @@
        "ceiling_blend": 113.7,
        "adp": 161.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
       }
      ]
@@ -6812,7 +6812,7 @@
      "VONA": 21.9,
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
-     "cliff_size": 22,
+     "cliff_size": 13,
      "note": "skip — the best QB left is worth 2 over a free one",
      "players": [
       {
@@ -6828,9 +6828,26 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 35,
-       "pct_still_there_next_pick": 24,
+       "pct_available_now": 42,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 2.1
+      },
+      {
+       "player_id": "11563",
+       "name": "Bo Nix",
+       "team": "DEN",
+       "bye": 10,
+       "proj": 312,
+       "floor": 281,
+       "ceiling": 412,
+       "injury_risk_pct": 28,
+       "proj_blend": 344.7,
+       "floor_blend": 310.4,
+       "ceiling_blend": 455.1,
+       "adp": 101.5,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 3,
+       "surplus_over_wire": 0
       },
       {
        "player_id": "3163",
@@ -6845,8 +6862,8 @@
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
        "adp": 112.5,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
@@ -6862,8 +6879,8 @@
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
        "adp": 152.7,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 0
       },
       {
@@ -6879,8 +6896,8 @@
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
        "adp": 133.9,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 74,
+       "pct_still_there_next_pick": 59,
        "surplus_over_wire": 0
       },
       {
@@ -6896,38 +6913,38 @@
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
        "adp": 131.7,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 42,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "5870",
-       "name": "Daniel Jones",
-       "team": "IND",
-       "bye": 13,
-       "proj": 277,
-       "floor": 261,
-       "ceiling": 405,
-       "injury_risk_pct": 36,
-       "proj_blend": 305.2,
-       "floor_blend": 287.6,
-       "ceiling_blend": 446.3,
-       "adp": 178,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
-     "best_now": 131,
+     "best_now": 155,
      "expected_best_at_next_pick": 130.3,
-     "VONA": 0.7,
-     "surplus_over_wire": 52.6,
-     "cliff_after_rank": 4,
-     "cliff_size": 7,
-     "note": "wait — only 1 lost by waiting, the tier holds",
+     "VONA": 24.7,
+     "surplus_over_wire": 76.6,
+     "cliff_after_rank": 1,
+     "cliff_size": 24,
+     "note": "STRIKE — waiting costs 25 and he is +77 over the wire",
      "players": [
+      {
+       "player_id": "8408",
+       "name": "Jordan Mason",
+       "team": "MIN",
+       "bye": 6,
+       "proj": 155,
+       "floor": 125,
+       "ceiling": 255,
+       "injury_risk_pct": 39,
+       "proj_blend": 137.6,
+       "floor_blend": 111,
+       "ceiling_blend": 226.4,
+       "adp": 99.2,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 3,
+       "surplus_over_wire": 76.6
+      },
       {
        "player_id": "9508",
        "name": "Tyjae Spears",
@@ -6941,8 +6958,8 @@
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
        "adp": 160,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 89,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 52.6
       },
       {
@@ -6958,8 +6975,8 @@
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
        "adp": 109.3,
-       "pct_available_now": 7,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 49.6
       },
       {
@@ -6975,8 +6992,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 14,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 45.6
       },
       {
@@ -6992,8 +7009,8 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 127.3,
-       "pct_available_now": 44,
-       "pct_still_there_next_pick": 35,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 41.6
       },
       {
@@ -7009,8 +7026,8 @@
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
        "adp": 147.7,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 85,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 34.6
       },
       {
@@ -7026,8 +7043,8 @@
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
        "adp": 145.7,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 28.6
       },
       {
@@ -7043,8 +7060,8 @@
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
        "adp": 171.3,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 28.6
       },
       {
@@ -7060,8 +7077,8 @@
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
        "adp": 135.6,
-       "pct_available_now": 67,
-       "pct_still_there_next_pick": 54,
+       "pct_available_now": 72,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 25.6
       },
       {
@@ -7077,26 +7094,9 @@
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
        "adp": 150.3,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 81,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 25.6
-      },
-      {
-       "player_id": "8132",
-       "name": "Tyler Allgeier",
-       "team": "ARI",
-       "bye": 14,
-       "proj": 97,
-       "floor": 82,
-       "ceiling": 199,
-       "injury_risk_pct": 23,
-       "proj_blend": 78.3,
-       "floor_blend": 66.2,
-       "ceiling_blend": 160.6,
-       "adp": 136.8,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 57,
-       "surplus_over_wire": 18.6
       }
      ]
     },
@@ -7122,8 +7122,8 @@
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
        "adp": 122.4,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 34,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 31.2
       },
       {
@@ -7139,8 +7139,8 @@
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
        "adp": 130.3,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 34,
+       "pct_available_now": 72,
+       "pct_still_there_next_pick": 48,
        "surplus_over_wire": 27.2
       },
       {
@@ -7156,8 +7156,8 @@
        "floor_blend": 108.6,
        "ceiling_blend": 197.1,
        "adp": 111.2,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 24.2
       },
       {
@@ -7173,8 +7173,8 @@
        "floor_blend": 108.1,
        "ceiling_blend": 190,
        "adp": 141.5,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 79,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 23.2
       },
       {
@@ -7190,8 +7190,8 @@
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
        "adp": 138.2,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 23.2
       },
       {
@@ -7207,8 +7207,8 @@
        "floor_blend": 108.6,
        "ceiling_blend": 204.5,
        "adp": 128.8,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 29,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 20.2
       },
       {
@@ -7224,8 +7224,8 @@
        "floor_blend": 118.6,
        "ceiling_blend": 200,
        "adp": 117.8,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 15,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 15.2
       },
       {
@@ -7242,7 +7242,7 @@
        "ceiling_blend": 180.7,
        "adp": 149.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 12.2
       },
       {
@@ -7258,8 +7258,8 @@
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
        "adp": 133,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 42,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 11.2
       },
       {
@@ -7275,21 +7275,55 @@
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
        "adp": 137.5,
-       "pct_available_now": 81,
-       "pct_still_there_next_pick": 66,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 8.2
       }
      ]
     },
     "TE": {
-     "best_now": 131,
+     "best_now": 151,
      "expected_best_at_next_pick": 129.9,
-     "VONA": 1.1,
-     "surplus_over_wire": 0.6,
+     "VONA": 21.1,
+     "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
-     "cliff_size": 2,
-     "note": "skip — the best TE left is worth 1 over a free one",
+     "cliff_size": 15,
+     "note": "waiting costs 21, but he is only +21 over the wire — thin",
      "players": [
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "team": "SF",
+       "bye": 8,
+       "proj": 151,
+       "floor": 107,
+       "ceiling": 214,
+       "injury_risk_pct": 44,
+       "proj_blend": 141.7,
+       "floor_blend": 100.4,
+       "ceiling_blend": 200.8,
+       "adp": 92.2,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 4,
+       "surplus_over_wire": 20.6
+      },
+      {
+       "player_id": "1466",
+       "name": "Travis Kelce",
+       "team": "KC",
+       "bye": 5,
+       "proj": 146,
+       "floor": 125,
+       "ceiling": 175,
+       "injury_risk_pct": 42,
+       "proj_blend": 142.9,
+       "floor_blend": 122.4,
+       "ceiling_blend": 171.3,
+       "adp": 93.2,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 3,
+       "surplus_over_wire": 15.6
+      },
       {
        "player_id": "5022",
        "name": "Dallas Goedert",
@@ -7303,8 +7337,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.8,
-       "pct_available_now": 25,
-       "pct_still_there_next_pick": 19,
+       "pct_available_now": 30,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 0.6
       },
       {
@@ -7320,9 +7354,26 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.4,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 14,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "10236",
+       "name": "Dalton Kincaid",
+       "team": "BUF",
+       "bye": 7,
+       "proj": 130,
+       "floor": 115,
+       "ceiling": 180,
+       "injury_risk_pct": 62,
+       "proj_blend": 128.6,
+       "floor_blend": 113.8,
+       "ceiling_blend": 178.1,
+       "adp": 98.4,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 3,
+       "surplus_over_wire": 0
       },
       {
        "player_id": "8110",
@@ -7337,59 +7388,8 @@
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
        "adp": 108.5,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 5,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "9480",
-       "name": "Brenton Strange",
-       "team": "JAX",
-       "bye": 7,
-       "proj": 128,
-       "floor": 111,
-       "ceiling": 164,
-       "injury_risk_pct": 48,
-       "proj_blend": 121.5,
-       "floor_blend": 105.3,
-       "ceiling_blend": 155.6,
-       "adp": 155.5,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 88,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "8131",
-       "name": "Isaiah Likely",
-       "team": "NYG",
-       "bye": 8,
-       "proj": 127,
-       "floor": 116,
-       "ceiling": 168,
-       "injury_risk_pct": 73,
-       "proj_blend": 129.4,
-       "floor_blend": 118.2,
-       "ceiling_blend": 171.2,
-       "adp": 100.8,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 3,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "7002",
-       "name": "Juwan Johnson",
-       "team": "NO",
-       "bye": 8,
-       "proj": 125,
-       "floor": 109,
-       "ceiling": 157,
-       "injury_risk_pct": 45,
-       "proj_blend": 119.7,
-       "floor_blend": 104.4,
-       "ceiling_blend": 150.3,
-       "adp": 157.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 0
       }
      ]
@@ -7416,8 +7416,8 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 24,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 48.4
       },
       {
@@ -7433,8 +7433,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 140.6,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 77,
+       "pct_still_there_next_pick": 67,
        "surplus_over_wire": 41.4
       },
       {
@@ -7450,8 +7450,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 139.1,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 59,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 29.4
       },
       {
@@ -7495,8 +7495,8 @@
        "floor_blend": 110,
        "ceiling_blend": 137.4,
        "adp": 119.6,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 18,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 25
       },
       {
@@ -7512,8 +7512,8 @@
        "floor_blend": 101.8,
        "ceiling_blend": 130,
        "adp": 126,
-       "pct_available_now": 40,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 22
       },
       {
@@ -7529,8 +7529,8 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 128.1,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 20
       },
       {
@@ -7546,8 +7546,8 @@
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
        "adp": 161.6,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 14
       }
      ]
@@ -7565,7 +7565,7 @@
      "VONA": 33.2,
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
-     "cliff_size": 29,
+     "cliff_size": 22,
      "note": "skip — the best QB left is worth 2 over a free one",
      "players": [
       {
@@ -7581,9 +7581,26 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 31,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 2.1
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "team": "DET",
+       "bye": 6,
+       "proj": 303,
+       "floor": 278,
+       "ceiling": 402,
+       "injury_risk_pct": 23,
+       "proj_blend": 340.6,
+       "floor_blend": 312.5,
+       "ceiling_blend": 451.9,
+       "adp": 112.5,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 0
       },
       {
        "player_id": "12545",
@@ -7598,8 +7615,8 @@
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
        "adp": 152.7,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 57,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 0
       },
       {
@@ -7615,8 +7632,8 @@
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
        "adp": 133.9,
-       "pct_available_now": 51,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 59,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 0
       },
       {
@@ -7632,8 +7649,8 @@
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
        "adp": 131.7,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 0
       },
       {
@@ -7650,24 +7667,7 @@
        "ceiling_blend": 446.3,
        "adp": 178,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "8161",
-       "name": "Malik Willis",
-       "team": "MIA",
-       "bye": 6,
-       "proj": 275,
-       "floor": 264,
-       "ceiling": 410,
-       "injury_risk_pct": 15,
-       "proj_blend": 297,
-       "floor_blend": 285.1,
-       "ceiling_blend": 442.8,
-       "adp": 151.2,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 48,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 0
       }
      ]
@@ -7677,9 +7677,9 @@
      "expected_best_at_next_pick": 125.5,
      "VONA": 5.5,
      "surplus_over_wire": 52.6,
-     "cliff_after_rank": 1,
+     "cliff_after_rank": 4,
      "cliff_size": 7,
-     "note": "wait — Tyjae Spears is there next pick 74% of the time",
+     "note": "wait — Tyjae Spears is there next pick 77% of the time",
      "players": [
       {
        "player_id": "9508",
@@ -7694,9 +7694,26 @@
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
        "adp": 160,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 77,
        "surplus_over_wire": 52.6
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "team": "WAS",
+       "bye": 7,
+       "proj": 128,
+       "floor": 104,
+       "ceiling": 222,
+       "injury_risk_pct": 39,
+       "proj_blend": 134.6,
+       "floor_blend": 109.3,
+       "ceiling_blend": 233.4,
+       "adp": 109.3,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 49.6
       },
       {
        "player_id": "4199",
@@ -7711,7 +7728,7 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 7,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 45.6
       },
@@ -7728,8 +7745,8 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 127.3,
-       "pct_available_now": 35,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 42,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 41.6
       },
       {
@@ -7745,8 +7762,8 @@
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
        "adp": 147.7,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 41,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 34.6
       },
       {
@@ -7762,8 +7779,8 @@
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
        "adp": 145.7,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 41,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 28.6
       },
       {
@@ -7779,8 +7796,8 @@
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
        "adp": 171.3,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 88,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 28.6
       },
       {
@@ -7796,8 +7813,8 @@
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
        "adp": 135.6,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 25.6
       },
       {
@@ -7813,8 +7830,8 @@
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
        "adp": 150.3,
-       "pct_available_now": 81,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 25.6
       },
       {
@@ -7830,26 +7847,9 @@
        "floor_blend": 66.2,
        "ceiling_blend": 160.6,
        "adp": 136.8,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 27,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 18.6
-      },
-      {
-       "player_id": "9511",
-       "name": "Keaton Mitchell",
-       "team": "LAC",
-       "bye": 7,
-       "proj": 95,
-       "floor": 82,
-       "ceiling": 224,
-       "injury_risk_pct": 33,
-       "proj_blend": 75.6,
-       "floor_blend": 65.3,
-       "ceiling_blend": 178.4,
-       "adp": 163.2,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 76,
-       "surplus_over_wire": 16.6
       }
      ]
     },
@@ -7858,8 +7858,8 @@
      "expected_best_at_next_pick": 136,
      "VONA": 20,
      "surplus_over_wire": 31.2,
-     "cliff_after_rank": 5,
-     "cliff_size": 8,
+     "cliff_after_rank": 9,
+     "cliff_size": 7,
      "note": "waiting costs 20, but he is only +31 over the wire — thin",
      "players": [
       {
@@ -7875,7 +7875,7 @@
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
        "adp": 122.4,
-       "pct_available_now": 8,
+       "pct_available_now": 14,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 31.2
       },
@@ -7892,8 +7892,8 @@
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
        "adp": 130.3,
-       "pct_available_now": 34,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 48,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 27.2
       },
       {
@@ -7909,8 +7909,8 @@
        "floor_blend": 108.1,
        "ceiling_blend": 190,
        "adp": 141.5,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 23.2
       },
       {
@@ -7926,8 +7926,8 @@
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
        "adp": 138.2,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 23.2
       },
       {
@@ -7943,9 +7943,26 @@
        "floor_blend": 108.6,
        "ceiling_blend": 204.5,
        "adp": 128.8,
-       "pct_available_now": 29,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 41,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 20.2
+      },
+      {
+       "player_id": "8126",
+       "name": "Wan'Dale Robinson",
+       "team": "TEN",
+       "bye": 9,
+       "proj": 140,
+       "floor": 121,
+       "ceiling": 204,
+       "injury_risk_pct": 36,
+       "proj_blend": 137.2,
+       "floor_blend": 118.6,
+       "ceiling_blend": 200,
+       "adp": 117.8,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 15.2
       },
       {
        "player_id": "8134",
@@ -7960,8 +7977,8 @@
        "floor_blend": 114.7,
        "ceiling_blend": 180.7,
        "adp": 149.6,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 68,
        "surplus_over_wire": 12.2
       },
       {
@@ -7977,8 +7994,8 @@
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
        "adp": 133,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 11.2
       },
       {
@@ -7994,8 +8011,8 @@
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
        "adp": 137.5,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 8.2
       },
       {
@@ -8014,23 +8031,6 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 1.2
-      },
-      {
-       "player_id": "10213",
-       "name": "Tre Tucker",
-       "team": "LV",
-       "bye": 13,
-       "proj": 124,
-       "floor": 105,
-       "ceiling": 199,
-       "injury_risk_pct": 0,
-       "proj_blend": 112.3,
-       "floor_blend": 95.1,
-       "ceiling_blend": 180.3,
-       "adp": 202.3,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 0
       }
      ]
     },
@@ -8039,8 +8039,8 @@
      "expected_best_at_next_pick": 127,
      "VONA": 4,
      "surplus_over_wire": 0.6,
-     "cliff_after_rank": 5,
-     "cliff_size": 4,
+     "cliff_after_rank": 4,
+     "cliff_size": 3,
      "note": "skip — the best TE left is worth 1 over a free one",
      "players": [
       {
@@ -8056,8 +8056,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.8,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 22,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0.6
       },
       {
@@ -8073,9 +8073,26 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.4,
-       "pct_available_now": 14,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "8110",
+       "name": "Jake Ferguson",
+       "team": "DAL",
+       "bye": 14,
+       "proj": 129,
+       "floor": 117,
+       "ceiling": 156,
+       "injury_risk_pct": 55,
+       "proj_blend": 129.3,
+       "floor_blend": 117.2,
+       "ceiling_blend": 156.3,
+       "adp": 108.5,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 1,
+       "surplus_over_wire": 0
       },
       {
        "player_id": "9480",
@@ -8090,8 +8107,8 @@
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
        "adp": 155.5,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 62,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 71,
        "surplus_over_wire": 0
       },
       {
@@ -8107,8 +8124,8 @@
        "floor_blend": 104.4,
        "ceiling_blend": 150.3,
        "adp": 157.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 0
       },
       {
@@ -8124,25 +8141,8 @@
        "floor_blend": 107.5,
        "ceiling_blend": 159.8,
        "adp": 144,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 39,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "5001",
-       "name": "Dalton Schultz",
-       "team": "HOU",
-       "bye": 8,
-       "proj": 119,
-       "floor": 109,
-       "ceiling": 148,
-       "injury_risk_pct": 57,
-       "proj_blend": 112.4,
-       "floor_blend": 102.9,
-       "ceiling_blend": 139.7,
-       "adp": 186.8,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 44,
        "surplus_over_wire": 0
       }
      ]
@@ -8169,8 +8169,8 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 28,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 48.4
       },
       {
@@ -8186,8 +8186,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 140.6,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 24,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 41.4
       },
       {
@@ -8203,8 +8203,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 139.1,
-       "pct_available_now": 59,
-       "pct_still_there_next_pick": 31,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 29.4
       },
       {
@@ -8227,14 +8227,31 @@
      ]
     },
     "DEF": {
-     "best_now": 122,
+     "best_now": 125,
      "expected_best_at_next_pick": 114.1,
-     "VONA": 7.9,
-     "surplus_over_wire": 22,
-     "cliff_after_rank": 2,
+     "VONA": 10.9,
+     "surplus_over_wire": 25,
+     "cliff_after_rank": 3,
      "cliff_size": 6,
-     "note": "neutral — 8 to wait, +22 over the wire",
+     "note": "neutral — 11 to wait, +25 over the wire",
      "players": [
+      {
+       "player_id": "HOU",
+       "name": "Houston Texans",
+       "team": "HOU",
+       "bye": 8,
+       "proj": 125,
+       "floor": 112,
+       "ceiling": 140,
+       "injury_risk_pct": 0,
+       "proj_blend": 122.7,
+       "floor_blend": 110,
+       "ceiling_blend": 137.4,
+       "adp": 119.6,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 25
+      },
       {
        "player_id": "DEN",
        "name": "Denver Broncos",
@@ -8248,8 +8265,8 @@
        "floor_blend": 101.8,
        "ceiling_blend": 130,
        "adp": 126,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 22
       },
       {
@@ -8265,7 +8282,7 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 128.1,
-       "pct_available_now": 28,
+       "pct_available_now": 43,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 20
       },
@@ -8282,25 +8299,8 @@
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
        "adp": 161.6,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 84,
-       "surplus_over_wire": 14
-      },
-      {
-       "player_id": "BAL",
-       "name": "Baltimore Ravens",
-       "team": "BAL",
-       "bye": 13,
-       "proj": 114,
-       "floor": 106,
-       "ceiling": 134,
-       "injury_risk_pct": 0,
-       "proj_blend": 100.3,
-       "floor_blend": 93.3,
-       "ceiling_blend": 117.9,
-       "adp": 200.1,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 14
       }
      ]
@@ -8334,7 +8334,7 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 123.4,
-       "pct_available_now": 6,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
@@ -8351,7 +8351,7 @@
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
        "adp": 152.7,
-       "pct_available_now": 57,
+       "pct_available_now": 66,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8368,7 +8368,7 @@
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
        "adp": 133.9,
-       "pct_available_now": 11,
+       "pct_available_now": 16,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8385,7 +8385,7 @@
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
        "adp": 131.7,
-       "pct_available_now": 10,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8402,7 +8402,7 @@
        "floor_blend": 287.6,
        "ceiling_blend": 446.3,
        "adp": 178,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8419,7 +8419,7 @@
        "floor_blend": 285.1,
        "ceiling_blend": 442.8,
        "adp": 151.2,
-       "pct_available_now": 48,
+       "pct_available_now": 56,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
@@ -8447,7 +8447,7 @@
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
        "adp": 160,
-       "pct_available_now": 74,
+       "pct_available_now": 77,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 52.6
       },
@@ -8464,7 +8464,7 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 127.3,
-       "pct_available_now": 9,
+       "pct_available_now": 11,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.6
       },
@@ -8481,7 +8481,7 @@
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
        "adp": 147.7,
-       "pct_available_now": 41,
+       "pct_available_now": 52,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 34.6
       },
@@ -8498,7 +8498,7 @@
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
        "adp": 145.7,
-       "pct_available_now": 41,
+       "pct_available_now": 46,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 28.6
       },
@@ -8515,7 +8515,7 @@
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
        "adp": 171.3,
-       "pct_available_now": 88,
+       "pct_available_now": 91,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 28.6
       },
@@ -8532,7 +8532,7 @@
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
        "adp": 135.6,
-       "pct_available_now": 16,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
@@ -8549,7 +8549,7 @@
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
        "adp": 150.3,
-       "pct_available_now": 51,
+       "pct_available_now": 58,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
@@ -8566,7 +8566,7 @@
        "floor_blend": 66.2,
        "ceiling_blend": 160.6,
        "adp": 136.8,
-       "pct_available_now": 27,
+       "pct_available_now": 31,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 18.6
       },
@@ -8583,7 +8583,7 @@
        "floor_blend": 65.3,
        "ceiling_blend": 178.4,
        "adp": 163.2,
-       "pct_available_now": 76,
+       "pct_available_now": 79,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 16.6
       },
@@ -8600,7 +8600,7 @@
        "floor_blend": 69.4,
        "ceiling_blend": 172.6,
        "adp": 139.9,
-       "pct_available_now": 29,
+       "pct_available_now": 35,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 15.6
       }
@@ -8628,7 +8628,7 @@
        "floor_blend": 108.1,
        "ceiling_blend": 190,
        "adp": 141.5,
-       "pct_available_now": 16,
+       "pct_available_now": 26,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
@@ -8645,7 +8645,7 @@
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
        "adp": 138.2,
-       "pct_available_now": 10,
+       "pct_available_now": 17,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
@@ -8662,9 +8662,26 @@
        "floor_blend": 114.7,
        "ceiling_blend": 180.7,
        "adp": 149.6,
-       "pct_available_now": 51,
+       "pct_available_now": 68,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 12.2
+      },
+      {
+       "player_id": "12501",
+       "name": "Matthew Golden",
+       "team": "GB",
+       "bye": 11,
+       "proj": 136,
+       "floor": 121,
+       "ceiling": 228,
+       "injury_risk_pct": 37,
+       "proj_blend": 136.4,
+       "floor_blend": 121.3,
+       "ceiling_blend": 228.6,
+       "adp": 133,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 11.2
       },
       {
        "player_id": "8676",
@@ -8679,7 +8696,7 @@
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
        "adp": 137.5,
-       "pct_available_now": 9,
+       "pct_available_now": 18,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 8.2
       },
@@ -8730,7 +8747,7 @@
        "floor_blend": 110.1,
        "ceiling_blend": 208.4,
        "adp": 159,
-       "pct_available_now": 77,
+       "pct_available_now": 84,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8747,7 +8764,7 @@
        "floor_blend": 98.3,
        "ceiling_blend": 197.4,
        "adp": 165.1,
-       "pct_available_now": 94,
+       "pct_available_now": 98,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8767,35 +8784,52 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
-      },
-      {
-       "player_id": "13417",
-       "name": "De'Zhaun Stribling",
-       "team": "SF",
-       "bye": 8,
-       "proj": 117,
-       "floor": 107,
-       "ceiling": 226,
-       "injury_risk_pct": 0,
-       "proj_blend": 113.5,
-       "floor_blend": 103.8,
-       "ceiling_blend": 219.3,
-       "adp": 134.7,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 0
       }
      ]
     },
     "TE": {
-     "best_now": 128,
+     "best_now": 131,
      "expected_best_at_next_pick": null,
      "VONA": null,
-     "surplus_over_wire": 0,
-     "cliff_after_rank": 3,
+     "surplus_over_wire": 0.6,
+     "cliff_after_rank": 5,
      "cliff_size": 4,
      "note": null,
      "players": [
+      {
+       "player_id": "5022",
+       "name": "Dallas Goedert",
+       "team": "PHI",
+       "bye": 10,
+       "proj": 131,
+       "floor": 115,
+       "ceiling": 166,
+       "injury_risk_pct": 83,
+       "proj_blend": 138,
+       "floor_blend": 121.1,
+       "ceiling_blend": 174.8,
+       "adp": 116.8,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "5012",
+       "name": "Mark Andrews",
+       "team": "BAL",
+       "bye": 13,
+       "proj": 131,
+       "floor": 117,
+       "ceiling": 174,
+       "injury_risk_pct": 36,
+       "proj_blend": 136.7,
+       "floor_blend": 122.1,
+       "ceiling_blend": 181.6,
+       "adp": 113.4,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 0.6
+      },
       {
        "player_id": "9480",
        "name": "Brenton Strange",
@@ -8809,7 +8843,7 @@
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
        "adp": 155.5,
-       "pct_available_now": 62,
+       "pct_available_now": 71,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8826,7 +8860,7 @@
        "floor_blend": 104.4,
        "ceiling_blend": 150.3,
        "adp": 157.2,
-       "pct_available_now": 72,
+       "pct_available_now": 82,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8843,7 +8877,7 @@
        "floor_blend": 107.5,
        "ceiling_blend": 159.8,
        "adp": 144,
-       "pct_available_now": 39,
+       "pct_available_now": 44,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8861,40 +8895,6 @@
        "ceiling_blend": 139.7,
        "adp": 186.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "5844",
-       "name": "T.J. Hockenson",
-       "team": "MIN",
-       "bye": 6,
-       "proj": 116,
-       "floor": 104,
-       "ceiling": 148,
-       "injury_risk_pct": 51,
-       "proj_blend": 112.5,
-       "floor_blend": 100.8,
-       "ceiling_blend": 143.5,
-       "adp": 173,
-       "pct_available_now": 83,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "8210",
-       "name": "Chig Okonkwo",
-       "team": "WAS",
-       "bye": 7,
-       "proj": 114,
-       "floor": 106,
-       "ceiling": 159,
-       "injury_risk_pct": 22,
-       "proj_blend": 101.4,
-       "floor_blend": 94.3,
-       "ceiling_blend": 141.5,
-       "adp": 153.4,
-       "pct_available_now": 63,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
@@ -8922,7 +8922,7 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.7,
-       "pct_available_now": 9,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 48.4
       },
@@ -8939,7 +8939,7 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 140.6,
-       "pct_available_now": 24,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.4
       },
@@ -8956,7 +8956,7 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 139.1,
-       "pct_available_now": 31,
+       "pct_available_now": 36,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 29.4
       },
@@ -9001,7 +9001,7 @@
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
        "adp": 161.6,
-       "pct_available_now": 84,
+       "pct_available_now": 90,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
       },
@@ -9131,9 +9131,9 @@
    "to_round": 5,
    "pos": {
     "QB": 0,
-    "RB": 17,
+    "RB": 26,
     "WR": 27,
-    "TE": 0,
+    "TE": 12,
     "K": 0,
     "DEF": 0
    },
@@ -9147,7 +9147,7 @@
    "to_round": 6,
    "pos": {
     "QB": 0,
-    "RB": 0,
+    "RB": 1,
     "WR": 3,
     "TE": 0,
     "K": 0,
@@ -9180,12 +9180,12 @@
    "pos": {
     "QB": 3,
     "RB": 0,
-    "WR": 19,
+    "WR": 0,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "WR",
+   "steepest": "QB",
    "flattest": "RB"
   },
   {
@@ -9195,14 +9195,14 @@
    "to_round": 9,
    "pos": {
     "QB": 5,
-    "RB": 15,
-    "WR": 2,
+    "RB": 0,
+    "WR": 21,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "RB",
-   "flattest": "TE"
+   "steepest": "WR",
+   "flattest": "RB"
   },
   {
    "from_pick": 88,
@@ -9211,13 +9211,13 @@
    "to_round": 10,
    "pos": {
     "QB": 0,
-    "RB": 4,
-    "WR": 8,
-    "TE": 1,
+    "RB": 15,
+    "WR": 0,
+    "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "WR",
+   "steepest": "RB",
    "flattest": "QB"
   },
   {
@@ -9227,14 +9227,14 @@
    "to_round": 11,
    "pos": {
     "QB": 2,
-    "RB": 2,
-    "WR": 0,
-    "TE": 9,
+    "RB": 6,
+    "WR": 8,
+    "TE": 10,
     "K": 0,
     "DEF": 0
    },
    "steepest": "TE",
-   "flattest": "WR"
+   "flattest": "K"
   },
   {
    "from_pick": 108,
@@ -9259,14 +9259,14 @@
    "to_round": 13,
    "pos": {
     "QB": 2,
-    "RB": 28,
+    "RB": 4,
     "WR": 9,
-    "TE": 20,
+    "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "RB",
-   "flattest": "K"
+   "steepest": "WR",
+   "flattest": "TE"
   },
   {
    "from_pick": 128,
@@ -9275,13 +9275,13 @@
    "to_round": 14,
    "pos": {
     "QB": 0,
-    "RB": 0,
+    "RB": 24,
     "WR": 0,
-    "TE": 0,
+    "TE": 20,
     "K": 0,
-    "DEF": 3
+    "DEF": 0
    },
-   "steepest": "DEF",
+   "steepest": "RB",
    "flattest": "QB"
   },
   {
@@ -9293,11 +9293,11 @@
     "QB": 0,
     "RB": 0,
     "WR": 8,
-    "TE": 3,
+    "TE": 0,
     "K": 0,
-    "DEF": 8
+    "DEF": 11
    },
-   "steepest": "WR",
+   "steepest": "DEF",
    "flattest": "QB"
   }
  ],

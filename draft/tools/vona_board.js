@@ -80,9 +80,14 @@ for (let r = 0; r < ROOMS; r++) {
   const order = pool.map(p => ({ p, k: p.adp + gauss() * p.sd }))
     .sort((x, y) => x.k - y.k).map(x => x.p.id);
   SCHED.forEach((pk, i) => {
-    const gone = new Set(order.slice(0, pk - 1));
+    /* ⚠️ liveBefore(pk), NOT pk - 1 — see simple_model.js for the derivation.
+     * `order` counts SELECTIONS, `pk` is a BOARD pick number, and they differ by
+     * the keeper slots ahead: exactly 3 at every one of Cory's twelve picks on
+     * this board. VONA is literally "what waiting costs", so an over-removed
+     * pool inflates the number this whole file exists to produce. */
+    const gone = new Set(order.slice(0, PLAN.liveBefore(pk)));
     const nextPick = SCHED[i + 1];
-    const goneNext = nextPick ? new Set(order.slice(0, nextPick - 1)) : null;
+    const goneNext = nextPick ? new Set(order.slice(0, PLAN.liveBefore(nextPick))) : null;
     POS.forEach(q => {
       let bn = null, bnName = null, bx = null, bc = null;
       for (const x of pool) {

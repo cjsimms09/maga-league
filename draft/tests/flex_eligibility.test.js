@@ -39,6 +39,26 @@ const SITES = [
    * to an ignore list would have silenced the alarm and left the copy free to
    * drift, which is the failure the file is named after. */
   { file: 'draft/tools/lineup_value.js', name: 'FLEX_ELIGIBLE', flexOnly: false, lane: 'A' },
+  /* EIGHTH THROUGH TWELFTH, added 2026-08-20 — five at once, which is the most
+   * this alarm has ever caught in one sweep. All five declare
+   * FLEX_ELIGIBLE = ['RB','WR','TE'] and therefore AGREE with the seven above,
+   * so nothing is drifting today; check 3 fired on their EXISTENCE, exactly as
+   * designed, before any of them had a chance to disagree.
+   *
+   * REGISTERED, NOT EXEMPTED — the same call made for lineup_value.js above and
+   * for the same reason: an ignore list silences the alarm and leaves the copy
+   * free to drift, which is the failure this file is named after. Register 148
+   * is what that costs when it happens (two replacement tables disagreeing by
+   * 2x at RB and WR), and mlv.js is not lab code — it is the module behind the
+   * MLV Displacement lens Cory clicks mid-draft.
+   *
+   * All five are flexOnly: none declares SUPER_FLEX or REC_FLEX, and this
+   * league has neither slot. */
+  { file: 'public/js/draft/mlv.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
+  { file: 'draft/tools/one_equation_plan.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
+  { file: 'draft/tools/draft_model.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
+  { file: 'draft/tools/simple_model.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
+  { file: 'draft/tools/average_draft.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
 ];
 
 // Pull the literal out of the source and evaluate it. Reading the SOURCE rather
