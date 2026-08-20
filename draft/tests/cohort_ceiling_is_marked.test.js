@@ -31,6 +31,30 @@ const ROOT = path.join(__dirname, '..', '..');
 const C = require(path.join(ROOT, 'public', 'js', 'draft', 'warroom_charts.js'));
 const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
 
+/* ⚠️ THE PREDICATE IS EXTRACTED FROM THE SHIPPED CODE, NOT RE-IMPLEMENTED.
+ * Added 2026-08-20. Until tonight this rule existed in FOUR places: app.js's
+ * cohortCeiling(), warroom_charts.js's isCohortCeiling(), and TWICE more
+ * inside this file as local copies. That is the drift trap this project keeps
+ * paying for — a test that re-implements the thing it guards passes while the
+ * shipped code is wrong, which is precisely what happened when Cory's Draft
+ * Sharks ruling retired the `measured-*` family: the copies all agreed with
+ * each other and none of them agreed with the board.
+ *
+ * So the test now reads app.js's own function body and runs it. If someone
+ * edits the shipped predicate, this file tests the edit. The two module copies
+ * remain (they are separate bundles) and `test_predicates_agree` below holds
+ * them to each other. */
+function shippedCohortPredicate() {
+  const src = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  const head = 'function cohortCeiling(player) {';
+  const i = src.indexOf(head);
+  if (i < 0) throw new Error('app.js no longer declares cohortCeiling — this test cannot guard what it cannot find');
+  const body = src.slice(i + head.length, src.indexOf('\n  }', i));
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('player', body + '\n');
+  return stamp => fn({ proj_ceiling_source: stamp });
+}
+
 let pass = 0, fail = 0;
 const ck = (n, c, d) => {
   if (c) { pass++; console.log('PASS  ' + n); }
@@ -94,11 +118,7 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
 {
   /* Extracted from app.js by behaviour rather than by import (the module is a
    * browser IIFE). These are the exact stamps the live board carries. */
-  const cohort = src => {
-    if (typeof src !== 'string' || !src) return false;
-    if (/-x-player-cv$/.test(src)) return false;
-    return /^measured-/.test(src);
-  };
+  const cohort = shippedCohortPredicate();
 
   ck('a band-constant stamp marks', cohort('measured-2023-25-p90') === true);
   ck('a per-player stamp does NOT mark',
@@ -130,23 +150,66 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
     }
     return null;
   };
-  const cohort = src => typeof src === 'string' && !!src
-    && !/-x-player-cv$/.test(src) && /^measured-/.test(src);
+  const cohort = shippedCohortPredicate();
 
   const range = board.players.filter(p =>
     ['QB', 'RB', 'WR', 'TE'].includes(p.position) && (p.proj_mean || 0) > 0
     && adp(p) != null && adp(p) >= 25 && adp(p) <= 220);
   const hit = range.filter(p => cohort(p.proj_ceiling_source));
 
-  /* KNOWN-POSITIVE (rule 3e): this predicate must return a real positive on the
-   * real board, or "nothing to mark" and "predicate broken" look identical. */
-  ck('KNOWN-POSITIVE: the predicate fires on the LIVE board inside Cory\'s '
-    + 'range — a silent zero here would be indistinguishable from a broken check',
-  hit.length >= 10, { in_range: range.length, marked: hit.length });
+  /* ⚠️ THE KNOWN-POSITIVE MOVED OFF THE LIVE BOARD, 2026-08-20, AND THE REASON
+   * IS THE GOOD ONE: THERE IS NOTHING LEFT TO MARK INSIDE CORY'S RANGE.
+   *
+   * It required >=10 marked players in ADP 25-220. The file's own header
+   * measured 34 there (19.7%), all carrying `measured-*` band-constant
+   * ceilings. Cory's Draft Sharks ruling replaced that construction entirely:
+   * ZERO `measured-*` and ZERO `gaussian_z` ceilings remain on the board.
+   *
+   * Rule 3e is still the point — "nothing to mark" and "predicate broken" must
+   * not look identical — but tying the known-positive to the BOARD HAVING THE
+   * DEFECT means the control dies the day the defect is fixed, which is
+   * exactly backwards. So it is driven SYNTHETICALLY: the predicate is handed
+   * one player per cohort construction and must fire on each, and handed the
+   * per-player constructions and must stay silent. That proves the check works
+   * whether or not the live board happens to contain an instance.
+   *
+   * Two of the three positives are CURRENT rather than historical, and one of
+   * them is A's own change from the same night: the position-median band
+   * fallback is a cohort number by construction (it is the POSITION's typical
+   * band, for players our pipeline scores at nothing), and a collapsed `none`
+   * band is not a claim about upside at all. Both were unmarked until this
+   * file caught them. */
+  {
+    const MUST_MARK = [
+      'measured-2023-25-p90',
+      'position-median band %, no player-specific band available — ABSTENTION, not a measurement',
+      'none — no band from Draft Sharks or the prior board',
+    ];
+    const MUST_NOT = [
+      'draftsharks_pct',
+      'pre-DS band %, rescaled to the blended mean',
+      'measured-2023-25-p90-x-player-cv',
+    ];
+    ck('KNOWN-POSITIVE (synthetic): the predicate fires on every cohort '
+      + 'construction — a control tied to the board HAVING the defect dies the '
+      + 'day the defect is fixed, which is backwards',
+      MUST_MARK.every(src => cohort(src)),
+      MUST_MARK.filter(src => !cohort(src)));
+    ck('KNOWN-NEGATIVE (synthetic): and stays silent on every PER-PLAYER '
+      + 'construction, so it discriminates rather than decorates',
+      MUST_NOT.every(src => !cohort(src)),
+      MUST_NOT.filter(src => cohort(src)));
+    ck('...and on the LIVE board inside Cory\'s range the count is REPORTED, '
+      + 'not required — today it is zero, which is the ruling working',
+      true, { in_range: range.length, marked: hit.length });
+  }
 
   ck('...and it does NOT fire on everything, so it is discriminating rather '
     + 'than decorating',
   hit.length < range.length / 2, { marked: hit.length, of: range.length });
+  //: the shared-ratio evidence below only means anything when something is
+  //  marked; today nothing is, so it is skipped rather than asserted on []
+  const HAVE_MARKED = hit.length > 0;
 
   /* The defect's signature, asserted directly: shared ratios. If these ever
    * become distinct the underlying problem is fixed and this mark should go. */
@@ -156,10 +219,24 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
     (ratios[r] = ratios[r] || []).push(p.name);
   });
   const shared = Object.values(ratios).filter(v => v.length > 1);
-  ck('the marked players SHARE ceiling ratios — the actual evidence that the '
-    + 'number is a cohort constant and not a measurement',
-  shared.length >= 2, Object.entries(ratios).filter(([, v]) => v.length > 1)
-    .map(([r, v]) => r + ' x' + v.length));
+  /* ⚠️ CONDITIONAL ON THERE BEING SOMETHING MARKED, 2026-08-20. This asserted
+   * >=2 shared ratios unconditionally, which was the right evidence when 34
+   * players in Cory's range carried band-constant ceilings. Today ZERO do —
+   * the Draft Sharks ruling retired that construction — so the assertion ran
+   * over an empty set and failed on `[]`, reporting the FIX as a defect.
+   * The file's own header already says what to do here: "If these ever become
+   * distinct the underlying problem is fixed and this mark should go." They
+   * did not become distinct; the population became empty, which is stronger. */
+  if (HAVE_MARKED) {
+    ck('the marked players SHARE ceiling ratios — the actual evidence that the '
+      + 'number is a cohort constant and not a measurement',
+    shared.length >= 2, Object.entries(ratios).filter(([, v]) => v.length > 1)
+      .map(([r, v]) => r + ' x' + v.length));
+  } else {
+    ck('nothing inside Cory\'s range carries a cohort ceiling any more, so the '
+      + 'shared-ratio evidence has no population — reported, not asserted',
+      true, { marked: hit.length, of: range.length });
+  }
 }
 
 // ── THE MARKER'S SCOPE, MEASURED 2026-08-18 — IT UNDER-MARKS, AND BY HOW MUCH
@@ -201,9 +278,17 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
   };
   const gauss = bd.players.filter(p => p.proj_ceiling_source === 'gaussian_z');
   const inRange = gauss.filter(p => adpOf(p) != null && adpOf(p) <= 150);
-  ck('CONTROL: gaussian_z ceilings DO exist on the board, so the scope note '
-    + 'above describes something real rather than an empty set',
-  gauss.length > 0, { gaussian_z: gauss.length });
+  /* ⚠️ RETIRED AS AN ASSERTION 2026-08-20, KEPT AS A REPORT. This required
+   * gaussian_z ceilings to EXIST, so that the scope note above described
+   * something real. There are now ZERO: Cory's Draft Sharks ruling replaced
+   * every ceiling construction on the board. The scope note is therefore
+   * history rather than a live under-marking, and it is left in place because
+   * the shape of the trade-off is worth reading — but a control that requires
+   * a defect to be present cannot survive the defect being fixed, which is the
+   * same correction made to the known-positive above. */
+  ck('gaussian_z ceilings on the board (was: REQUIRED to exist, so the scope '
+    + 'note described something real; now zero, and the note is history)',
+  true, { gaussian_z: gauss.length, in_range: inRange.length });
 
   ck('the UNMARKED cohort-derived ceilings inside Cory\'s draft range are K/DEF '
     + 'only — the measured reason the `~` is not widened. If this fails, a real '
@@ -216,6 +301,33 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
   ck('...and there are few enough of them to name — a count that grows is a '
     + 'signal the fallback is spreading',
   inRange.length <= 12, { in_range: inRange.length });
+}
+
+/* THE TWO SHIPPED COPIES MUST AGREE. app.js and warroom_charts.js are separate
+ * bundles and duplicate four lines on purpose; that is fine right up until one
+ * is edited and the other is not, which is how a mark appears on the shortlist
+ * and not in the drill-down. Asserted over every construction the board
+ * currently emits plus the retired family. */
+{
+  const charts = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft',
+    'warroom_charts.js'), 'utf8');
+  const head = 'function isCohortCeiling(p) {';
+  const i2 = charts.indexOf(head);
+  ck('warroom_charts.js still declares isCohortCeiling', i2 >= 0);
+  const body = charts.slice(i2 + head.length, charts.indexOf('\n  }', i2));
+  // eslint-disable-next-line no-new-func
+  const chartsFn = new Function('p', body + '\n');
+  const appFn = shippedCohortPredicate();
+  const STAMPS = ['draftsharks_pct', 'pre-DS band %, rescaled to the blended mean',
+    'position-median band %, no player-specific band available — ABSTENTION, not a measurement',
+    'none — no band from Draft Sharks or the prior board',
+    'measured-2023-25-p90', 'measured-2023-25-p90-x-player-cv', '', null];
+  const disagree = STAMPS.filter(st =>
+    !!appFn(st) !== !!chartsFn({ proj_ceiling_source: st }));
+  ck('the app.js and warroom_charts.js copies of the predicate agree on every '
+    + 'construction the board emits — one edited without the other is how a '
+    + 'mark appears on the shortlist and not in the drill-down',
+    disagree.length === 0, disagree);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

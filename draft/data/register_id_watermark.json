@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 173,
+ "next_numeric_id": 174,
  "history": [
   {
    "id": 47,
@@ -336,6 +336,11 @@
    "id": 172,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 165 (three of the four self-mounting war-room panels were anchored to ids that never existed) -- same collision and deviation as register 169"
+  },
+  {
+   "id": 173,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's own SECOND independent claim on register 169 (keeper lock passing does not release 13 withheld opponent keepers, committed 23:54:12 UTC) -- collided with this branch's 169 above, whose content traces back to origin's own earlier 23:18:21 UTC commit. First-allocation-wins by true content origin, not merge-commit time."
   }
  ]
 }
