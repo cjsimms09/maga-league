@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 146,
+ "next_numeric_id": 147,
  "history": [
   {
    "id": 47,
@@ -174,6 +174,11 @@
    "id": 145,
    "claimed_at": "2026-08-20",
    "note": "D: test_attach_draftsharks_ranking.py collects zero pytest items (was 142 pre-renumber)"
+  },
+  {
+   "id": "143 (A, further origin/main) renumbered to 146",
+   "claimed_at": "2026-08-20",
+   "note": "A independently claimed 143 for a real, different row (register 142's follow-up sweep) on origin/main while D's own 143 (keeper-tooling) already existed locally. A's row kept, renumbered to 146 on merge since 143 was taken. Watermark now authoritative from 147."
   }
  ]
 }

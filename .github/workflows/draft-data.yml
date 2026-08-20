@@ -246,6 +246,22 @@ jobs:
           node draft/tools/blended_projection.js
           python3 draft/tools/attach_draftsharks.py
           node draft/tools/source_boards.js
+          # EXTENDED 2026-08-20, SAME NIGHT, FOR THE SAME REASON ONE LAYER OUT.
+          # Wiring the three above exposed that FIVE MORE public/ artifacts are
+          # board-derived and regenerated only by hand. `seat_plan.json` is the
+          # one that matters: it is the panel Cory reads at EVERY PICK, and the
+          # live copy claimed the current board while 46 of its 60 shortlist
+          # projections did not match it. Regenerating moved 4 of his 12 planned
+          # picks. An artifact that derives from the board must be rebuilt WITH
+          # the board or it is a screenshot with a current-looking timestamp.
+          node draft/tools/emit_seat_plan.js
+          node draft/tools/position_boards.js
+          node draft/tools/mlv_snapshot.js
+          # NOT WIRED: draft/tools/variance_portfolio.js (conditional_value_2026.json).
+          # It exceeded two minutes locally and this job already has a long
+          # critical path; wiring something that may time out would turn a green
+          # nightly red for a reason unrelated to the board. Left as a named
+          # exception rather than silently omitted — register 143.
 
       - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
         # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
@@ -498,7 +514,7 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/source_boards.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
+          PATHS="public/draft_data.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
