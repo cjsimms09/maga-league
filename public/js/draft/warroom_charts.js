@@ -1084,7 +1084,21 @@
     if (fromHash) setTab(fromHash, true);
     document.addEventListener('click', function (ev) {
       var tabBtn = ev.target.closest ? ev.target.closest('[data-wrtab-btn]') : null;
-      if (tabBtn) { setTab(tabBtn.getAttribute('data-wrtab-btn')); return; }
+      if (tabBtn) {
+        setTab(tabBtn.getAttribute('data-wrtab-btn'));
+        /* Cory: "make sure there is definitions of all those things and how
+         * to use them" — one click from anywhere on the page to the term
+         * glossary, not "switch tabs, then go hunting for a details
+         * disclosure". */
+        if (tabBtn.hasAttribute('data-jump-help')) {
+          var helpCard = document.getElementById('help-card');
+          if (helpCard) {
+            helpCard.open = true;
+            setTimeout(function () { helpCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+          }
+        }
+        return;
+      }
       var chip = ev.target.closest ? ev.target.closest('[data-cliff-pos]') : null;
       if (chip) { ui.cliffPos = chip.getAttribute('data-cliff-pos'); renderCliff(); return; }
       var posChip = ev.target.closest ? ev.target.closest('[data-boardpos]') : null;

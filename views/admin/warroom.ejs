@@ -132,6 +132,11 @@
       <div class="wr-search">
         <span class="wr-search-icon" aria-hidden="true">🔎</span>
         <input type="text" id="search" placeholder="Search any player — take, queue or compare" autocomplete="off">
+        <%# Cory: "make sure there is definitions of all those things and how
+            to use them" — one tap from the decide surface to the glossary,
+            not a hunt through tabs for a collapsed help card. %>
+        <button type="button" class="btn small ghost wr-terms-btn" data-wrtab-btn="intel" data-jump-help="1"
+          title="What VORP, VONA, WOPR, aDOT and every other term on this page mean, and how to use them">❓ Terms</button>
       </div>
       <div id="search-tail" hidden></div>
       <%# QUEUE SLIP ALERT — in-flow, filled when a queued player is ~a turn from gone. %>
@@ -272,6 +277,18 @@
           <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
         </div>
       </div>
+
+      <%# Cory, live: "did you make sure I can see risers and fallers based
+          on ADP easy." Moved here from the ROSTERS tab — its own copy
+          already said "names to investigate before your pick... if a
+          mover is on your queue or in a tossup, that is the moment this
+          panel earns its space", which is a DRAFT-tab argument, not a
+          ROSTERS-tab one. Same #adp-movers host id, same renderAdpMovers()
+          call site — a relocation, not a rebuild. %>
+      <div class="card" id="adp-movers-card">
+        <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
+        <div class="body"><div id="adp-movers"></div></div>
+      </div>
     </div><%# /wr-zone1 %>
 
     <%# RIGHT RAIL — CHARTS (inline SVG, warroom_charts.js; pure functions,
@@ -394,11 +411,6 @@
       <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
       <div id="survival-conservation" style="display:none"></div>
       <div class="body"><div id="survival"></div></div>
-    </div>
-
-    <div class="card" id="adp-movers-card">
-      <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
-      <div class="body"><div id="adp-movers"></div></div>
     </div>
 
     <div class="card" id="stack-card" style="display:none">

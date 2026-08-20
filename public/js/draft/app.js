@@ -1379,6 +1379,101 @@
     },
   };
 
+  /* TERM GLOSSARY — Cory, live 2026-08-20: "make sure there is definitions
+   * of all those things and how to use them (adot, war)." PANEL_GUIDE above
+   * explains whole PANELS (what/read/do/src); this explains individual
+   * STAT ABBREVIATIONS — the words themselves, wherever they appear on the
+   * board, the drill-down, or a side panel. Every term shown anywhere on
+   * this page with a tooltip or a bare label should have an entry here too,
+   * so "what does X mean" always has ONE place to look it up rather than
+   * needing to find the one row that happens to explain it.
+   *
+   * `use` is the "how to use it" half of the ask, not just a definition —
+   * a number with no instruction for what to DO with it is exactly the gap
+   * this file exists to close.
+   *
+   * No "WAR" entry: grepped the whole client for the bare token and this
+   * system does not carry a stat by that name (baseball/other-sport "Wins
+   * Above Replacement" has no equivalent field here). VORP is the closest
+   * real thing on this board — the entry below says so, in case that is
+   * what was meant. */
+  const TERM_GLOSSARY = [
+    { term: 'VORP', def: 'Value Over Replacement Player — how many points this player scores above the ' +
+      'last startable player at his position (the "replacement level"). Not the same as VONA below. ' +
+      '(If you were thinking of "WAR" from another sport — Wins Above Replacement — this is the same ' +
+      'idea in this system\'s own units: value above the freely available floor, not raw points.)',
+      use: 'Use it to compare players ACROSS positions — a QB and a TE with the same projected points ' +
+      'are not equally valuable, because QB replacement level is much higher. VORP already accounts ' +
+      'for that; raw projected points do not.' },
+    { term: 'VONA', def: 'Value Over Next Available — what waiting costs. The gap between this player\'s ' +
+      'projection and whoever will likely still be there at your NEXT pick at the same position.',
+      use: 'Use it to decide take-now vs. wait-one-more-round at a single position. A high VONA means ' +
+      'the position falls off fast after this player — take him now. A low VONA means the position is ' +
+      'deep — you can wait and spend this pick elsewhere.' },
+    { term: 'ADP', def: 'Average Draft Position — where the market expects a player to go. "Raw" is the ' +
+      'plain market number; "Adj ADP" is our own ranking, adjusted for this room (who\'s already gone, ' +
+      'this league\'s tendencies).',
+      use: 'A player whose Adj ADP is much better (lower) than his Raw ADP is someone we like more than ' +
+      'the market — a green "we like him more" note explains why on his row.' },
+    { term: 'Tier', def: 'A cluster of players the board treats as roughly interchangeable in value, ' +
+      'separated by real cliffs — a jump to the next tier means a real drop in projected points, not ' +
+      'just the next name on a list.',
+      use: 'Prefer taking the LAST player in a tier over the FIRST player in the next one — that is ' +
+      'exactly the value the tier boundary is marking. The tier-cliff chart shows where those drops sit.' },
+    { term: 'WOPR', def: 'Weighted Opportunity Rating — a receiver\'s target share and his share of the ' +
+      'team\'s air yards, blended into one usage number. Higher means the offense is built around him.',
+      use: 'Use it alongside target share for WR/TE — a high WOPR with a modest target share means he\'s ' +
+      'getting fewer but more valuable (deeper) targets; both high means he\'s the clear focal point.' },
+    { term: 'aDOT', def: 'Average Depth of Target — how far downfield (in yards) a receiver\'s targets ' +
+      'travel, on average.',
+      use: 'A low aDOT (short, high-floor targets — screens, slants) tends to mean more receptions but ' +
+      'less ceiling; a high aDOT (deep targets) means bigger plays but more week-to-week variance. Read ' +
+      'it beside floor/ceiling, not alone.' },
+    { term: 'Team pace', def: 'How many plays a team runs per game — "neutral" pace excludes garbage-time ' +
+      'snaps (blowout script inflates or deflates raw pace either direction), so it\'s the more honest read.',
+      use: 'More plays for the whole team means more opportunities to go around — a real but secondary ' +
+      'tailwind for everyone on that offense, not a reason to draft a specific player by itself.' },
+    { term: 'Team pass rate', def: 'How often a team throws vs. runs. "Score-neutral" strips out the ' +
+      'garbage-time script the same way team pace does.',
+      use: 'A pass-heavy team\'s RB2 is worth less than the raw depth-chart slot suggests; a run-heavy ' +
+      'team\'s WR2/3 likewise. Use it to sanity-check a player whose role looks good on paper.' },
+    { term: 'Survival %', def: 'The measured chance a player is STILL on the board when your next pick ' +
+      'comes around — live and room-aware once you\'re on the clock, an ADP-based estimate (marked ~) ' +
+      'before that.',
+      use: 'A player under 25% survival is very likely gone if you wait — that is your "take him now" ' +
+      'signal. Above 70%, waiting is close to free.' },
+    { term: 'Injury risk %', def: 'A measured estimate of this player\'s chance of missing games this ' +
+      'season, from Draft Sharks.',
+      use: 'Weigh it against floor, not against the mean projection — a boom/bust player with real ' +
+      'injury risk can still be right to draft if his ceiling and your roster need it; it\'s a caution, ' +
+      'not a veto.' },
+    { term: 'Depth chart order', def: 'Where a player sits on his own team\'s internal pecking order at ' +
+      'his position — 1 = starter, 2 = primary backup, and so on.',
+      use: 'A backup with a real depth-chart path to starting (order 2 behind an injury-prone or aging ' +
+      'starter) is worth more than his projection alone says — check the depth chart teammates list in ' +
+      'his dossier for who\'s actually ahead of him.' },
+    { term: 'Composite score', def: 'The engine\'s single blended value number for this pick — a weighted ' +
+      'sum of value, need, risk, ceiling, and the other adjuster terms, all on one comparable scale.',
+      use: 'It\'s what the ranked list is sorted by. A gap under ~2 points between the top two names is ' +
+      'the engine\'s own tie flag — that\'s when the verdict chip should read TOSS-UP or SPLIT, not LOCK.' },
+    { term: 'Steal gap', def: 'On the Ceiling Steals table: how many ranking spots earlier this player ' +
+      'would go if drafted by CEILING instead of by average draft position.',
+      use: 'A big steal gap is an upside bet, not a safe one — "if he hits" is doing real work in that ' +
+      'sentence. Best used late, on a bench spot, not to justify reaching early.' },
+    { term: 'ADP velocity', def: 'How many draft-position slots a player has moved over the tracked ' +
+      'window — positive means rising (going earlier than before), negative means falling.',
+      use: 'A fast riser or faller is a name to research before you pick, not a number to draft on by ' +
+      'itself — the ADP Movers panel exists to flag "check the news on this guy," not to rank anyone.' },
+    { term: 'STALE flag', def: 'A player whose ADP moved a round or more while the board\'s own overnight ' +
+      'number sat still — the board\'s price for him may be behind what the market already knows.',
+      use: 'Treat his board projection with a little more suspicion than usual, and check why before ' +
+      'paying his old price (a riser) or assuming he\'s a bargain (a faller).' },
+    { term: 'Marginal value', def: 'On the Roster Builder panel: how many points this specific player ' +
+      'adds to your STARTING lineup right now — not to your bench, not to your roster in general.',
+      use: 'This is why a good player can show a low (or zero) marginal value — if he can\'t crack your ' +
+      'current starting lineup, he isn\'t helping your score yet, whatever his own projection says.' },
+  ];
+
   /* ONE EMITTER, so every caption has the same shape and the same hook. Returns
    * '' for an unknown key rather than throwing — a missing caption must never
    * take the board down mid-draft — and `panel_guide.test.js` fails on any
@@ -3344,7 +3439,12 @@
           + '<p>' + escapeHtml(g.read) + '</p>'
           + '<p><b>Do:</b> ' + escapeHtml(g.do || '') + '</p>'
           + '<p class="pe-src">source of truth: ' + escapeHtml(g.src || '') + '</p>';
-      }).join('');
+      }).join('')
+      + '<h3 id="wr-terms">Terms — what they mean and how to use them</h3>'
+      + '<dl class="wr-glossary">' + TERM_GLOSSARY.map(t =>
+          '<dt>' + escapeHtml(t.term) + '</dt>'
+          + '<dd>' + escapeHtml(t.def) + ' <b>Use it:</b> ' + escapeHtml(t.use) + '</dd>'
+        ).join('') + '</dl>';
   }
 
   /* ⓘ toggle — openness survives re-renders via state.explainOpen. */
@@ -4245,7 +4345,8 @@
         : '';
       return '<div class="wr-mover-row' + (r.stale ? ' is-stale' : '') + '">'
         + '<span class="wr-mover-dir" aria-hidden="true">' + (dir === 'up' ? '▲' : '▼') + '</span>'
-        + '<span class="wr-mover-name">' + escapeHtml(shortName(p.name))
+        + '<span class="wr-mover-name"' + (p.player_id != null ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '') + '>'
+        + escapeHtml(shortName(p.name))
         + ' <span class="rec-pos ' + p.position + '">' + p.position + '</span></span>'
         + '<span class="wr-mover-adp wr-num" title="current ADP (market)">'
         + (r.adp != null ? 'ADP ' + Math.round(r.adp) : 'ADP —') + '</span>'

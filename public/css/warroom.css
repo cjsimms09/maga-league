@@ -230,6 +230,8 @@
 .wr-mover-dir { flex: 0 0 auto; font-size: .6rem; color: var(--wr-muted); }
 .wr-mover-name { flex: 1 1 auto; min-width: 0; overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap; color: var(--wr-ink); font-weight: 600; }
+.wr-mover-name[data-drill] { cursor: pointer; }
+.wr-mover-name[data-drill]:hover { text-decoration: underline; }
 .wr-mover-adp { flex: 0 0 auto; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
 .wr-mover-vel { flex: 0 0 2.2rem; text-align: right; font-weight: 800; color: var(--wr-ink); }
 .wr-mover-rate { flex: 0 0 auto; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
@@ -266,6 +268,11 @@
 .wr-help h3 { margin: .9rem 0 .25rem; font-size: var(--wr-fs-title); color: var(--wr-structure); }
 .wr-help p { margin: .2rem 0; font-size: var(--wr-fs-body); line-height: 1.5; }
 .wr-help .pe-src { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+.wr-glossary { margin: 0; }
+.wr-glossary dt { font-weight: 800; color: var(--wr-structure); margin: .7rem 0 .1rem; font-size: var(--wr-fs-body); }
+.wr-glossary dt:first-child { margin-top: 0; }
+.wr-glossary dd { margin: 0; font-size: var(--wr-fs-body); line-height: 1.5; color: var(--wr-ink); }
+.wr-glossary dd b { color: var(--wr-structure); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    SIDE-BET CARD GRAMMAR — the in-season pass (2026-08-15) extends this file
