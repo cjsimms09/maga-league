@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 163,
+ "next_numeric_id": 164,
  "history": [
   {
    "id": 47,
@@ -286,6 +286,11 @@
    "id": 162,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 157 (C: ceiling-program store mislabeled the entire 2026 rookie class as UDFA, own Rule 3e control passed at 100% because it checked presence not correctness; fixed, joins draft_picks to roster by name when the gsis format check fails)"
+  },
+  {
+   "id": 163,
+   "claimed_at": "2026-08-20",
+   "note": "E: mechanism check per Cory's direct ask, why need:1.0 causes RB bloat -- read the real P110 artifact (engine_seat_choices_need1.json), need term dominates RB/WR chosen-score by ~6.5x over VONA while QB is VONA-dominant; both real positional signal AND a mechanical flex-discount gap (register 60's disconnection 2), currently on suppressed RB numbers per register 151's still-open bug"
   }
  ]
 }
