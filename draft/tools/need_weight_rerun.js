@@ -95,3 +95,34 @@ console.log('  roster shape  need='+W.need+' : '+shape(b.roster));
 const tot=r=>r.reduce((s,p)=>s+(p.vorp||0),0);
 console.log('  total VORP    need=0 : '+tot(a.roster).toFixed(0)
   +'   need='+W.need+' : '+tot(b.roster).toFixed(0)+'\n');
+
+/* ── AGAINST CORY'S RULED TARGET ────────────────────────────────────────────
+ *
+ * Cory, 2026-08-19, relayed by C: "We should be trying to match the top 3
+ * finishers row.. let everyone know. That's the winning strategy."
+ *   TARGET (top-3 finishers, this league's real drafts, n=9):
+ *   QB 1.56 · RB 4.78 · WR 5.00 · TE 1.67 · K 1.00 · DEF 1.00
+ *
+ * That ruling is the yardstick this rerun should be read against, and it was
+ * filed in ROUTES on 08-19 without either arm ever being measured against it.
+ * n = 9 is a real signal and a small sample: this REPORTS the distance, it does
+ * not fit a weight to close it. */
+const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
+function shapeOf(r) { const c = {}; r.forEach(p => { c[p.position] = (c[p.position] || 0) + 1; }); return c; }
+function dist(r) {
+  const c = shapeOf(r);
+  return Object.keys(TARGET).reduce((s, k) => s + Math.abs((c[k] || 0) - TARGET[k]), 0);
+}
+console.log('  AGAINST CORY\'S RULED TARGET (top-3 finishers, n=9)\n');
+console.log('  pos    target   need=0   need=' + W.need + '');
+Object.keys(TARGET).forEach(k => {
+  const x = shapeOf(a.roster)[k] || 0, y = shapeOf(b.roster)[k] || 0;
+  console.log('  ' + k.padEnd(7) + TARGET[k].toFixed(2).padEnd(9)
+    + String(x).padEnd(9) + String(y)
+    + (Math.abs(y - TARGET[k]) < Math.abs(x - TARGET[k]) ? '   closer'
+      : (Math.abs(y - TARGET[k]) > Math.abs(x - TARGET[k]) ? '   further' : '')));
+});
+console.log('\n  total |distance| from the ruled shape:  need=0 ' + dist(a.roster).toFixed(2)
+  + '   need=' + W.need + ' ' + dist(b.roster).toFixed(2));
+console.log('  NOT A FIT: reported, not closed. n=9 is a small sample and moving a\n'
+  + '  weight to shrink this number would be fitting to it.\n');
