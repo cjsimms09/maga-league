@@ -219,6 +219,39 @@ def fetch_fp_weekly(year: int, week: int, timeout: int = 30):  # pragma: no cove
     return html, page_url, diag
 
 
+def week_shape_check(sleeper_stats: dict) -> dict:
+    """Catches a SEASON-shaped Sleeper payload standing in for one week's data.
+
+    Found by hand on the real 2026-08-20 discovery dispatch, ~3 weeks before
+    kickoff: sleeper_import.fetch_projections()'s own candidate list starts
+    with `/projections/nfl/regular/{season}` -- a template that does not even
+    interpolate `{week}`, so it is structurally season-shaped no matter what
+    week is requested. Its ranking picks the candidate with the most rows
+    carrying a nonzero stat, with no check that those stats are WEEK-shaped
+    rather than SEASON-shaped. That week, both real per-week candidates
+    returned 0 rows (Sleeper had not published week 1 yet, this far out) so
+    the season endpoint won by default and was written to
+    weekly_projection_archive_2026_w1.json as "captured" -- Josh Allen's row
+    carried `scored: 405.5` and `gp: 18.0` for "week 1". Clean status, wrong
+    by a season.
+
+    `gp` (games played) is the cheap, general tell: a single week is 0 or 1
+    games; a season is many. Majority vote across all rows carrying the field,
+    because one bye-week bookkeeping oddity should not VOID a real week, but a
+    payload where MOST players show gp > 1.5 cannot be one week's projection.
+    """
+    gp_values = [v.get("gp") for v in (sleeper_stats or {}).values()
+                if isinstance(v, dict) and isinstance(v.get("gp"), (int, float))]
+    if not gp_values:
+        return {"ok": True, "why": "no gp field present in any row to check against"}
+    over = sum(1 for g in gp_values if g > 1.5)
+    if over > len(gp_values) / 2:
+        return {"ok": False, "rows_checked": len(gp_values), "rows_over_one_game": over,
+               "why": f"{over} of {len(gp_values)} rows carry gp > 1.5 -- this reads as "
+                      "a SEASON-shaped payload, not one week's"}
+    return {"ok": True, "rows_checked": len(gp_values), "rows_over_one_game": over}
+
+
 def _load_prior_fingerprints(season: int, week: int) -> dict | None:
     prior_path = ARCHIVE_DIR / f"weekly_projection_archive_{season}_w{week - 1}.json"
     if week <= 1 or not prior_path.exists():
@@ -252,6 +285,13 @@ def egress_main(season: int, week: int) -> dict:  # pragma: no cover  (egress; C
     sleeper_stats = sleeper_rows(sl_raw or {})
     if not sleeper_stats:
         return {"status": "VOID", "reason": "Sleeper returned no readable weekly stat lines"}
+
+    shape = week_shape_check(sleeper_stats)
+    if not shape["ok"]:
+        return {"status": "VOID",
+               "reason": "Sleeper's projection endpoint returned a SEASON-shaped "
+                         "payload for a single-week request -- see week_shape_check",
+               "shape_check": shape}
 
     try:
         text, url, diag = fetch_fp_weekly(season, week)

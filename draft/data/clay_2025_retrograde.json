@@ -53,10 +53,17 @@
  },
  "clay": {
   "version_gate": {
-   "guide_updated_reported": null,
+   "guide_updated_reported": "2025-09-04",
    "season_start": "2025-09-04",
-   "verdict": "IN-SEASON OR UNDATED — ACCURACY GRADE DOES NOT RUN",
-   "why": "a guide updated after Week 1 contains games already played; grading it measures nothing but our willingness to be impressed. Missing or ambiguous is treated as in-season, because the conservative direction cannot manufacture a false result."
+   "date_screen": "ON OR AFTER kickoff — substance test required",
+   "kickoff_teams": [
+    "DAL",
+    "PHI"
+   ],
+   "kickoff_players_checked": 22,
+   "kickoff_teams_still_at_17_games": true,
+   "verdict": "PRESEASON — grade may run",
+   "why": "a guide updated after Week 1 contains games already played; grading it measures nothing but our willingness to be impressed. The DATE is a screen; when it lands on or after kickoff the SUBSTANCE decides — had the opener been played, its two rosters would show 16 games left. Undated still fails, because the conservative direction cannot manufacture a false result."
   }
  }
 }

@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 147,
+ "next_numeric_id": 149,
  "history": [
   {
    "id": 47,
@@ -206,6 +206,16 @@
    "id": 146,
    "claimed_at": "2026-08-20",
    "note": "renumbered from origin/main's 143 (A: seat_plan.json was stale AND asserting it was not -- 46 of 60 shortlist projections mismatched the live board, fixed with a post_processed_at stamp plus wiring derived artifacts into the nightly job) -- same collision and deviation as 143-145; E's mlv.js citation finding still open and unfixed"
+  },
+  {
+   "id": 147,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 144 (relay: register 133's WHEN axis closed twice independently) -- same collision and deviation as 143-146"
+  },
+  {
+   "id": 148,
+   "claimed_at": "2026-08-20",
+   "note": "renumbered from origin/main's 145 (A: sleeper_import.py shipped a season-total payload as week 1, fixed at the source with a real test fixture) -- same collision and deviation as 143-147"
   }
  ]
 }

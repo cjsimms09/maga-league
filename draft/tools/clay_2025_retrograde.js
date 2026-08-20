@@ -33,6 +33,11 @@ const PP = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'player_p
 
 const CLAY25 = path.join(ROOT, 'draft', 'data', 'clay_projections_2025.json');
 const SEASON_START = '2025-09-04';       // 2025 NFL Week 1
+/* The Week 1 opener's two teams. A guide updated AFTER that game must show
+ * those rosters with 16 games left, not 17 — which turns "is this edition
+ * preseason?" from a judgement about a date into something measurable.
+ * 2025 Thursday opener: Dallas at Philadelphia. */
+const KICKOFF_TEAMS = ['DAL', 'PHI'];
 
 /* ── actual 2025 season points, per player, from the committed store ───────── */
 const actual = {};
@@ -125,14 +130,46 @@ if (fs.existsSync(CLAY25)) {
   clay = JSON.parse(fs.readFileSync(CLAY25, 'utf8'));
   const updated = clay.guide_updated || clay._guide_updated || clay.updated || null;
   const iso = updated ? String(updated) : null;
-  const inSeason = !iso || !/\d{4}-\d{2}-\d{2}/.test(iso) || iso >= SEASON_START;
+  const dated = !!iso && /\d{4}-\d{2}-\d{2}/.test(iso);
+  const afterKickoff = !dated || iso >= SEASON_START;
+
+  /* ⛔ THE DATE ALONE GAVE A FALSE NEGATIVE ON A CLEAN FILE, so the date is now
+   * a SCREEN and the substance is the TEST.
+   *
+   * The 2025 guide prints `Updated: 9/4/2025`, which IS Week 1 kickoff day, so
+   * the date rule refused it. But a guide published on kickoff MORNING contains
+   * no played games at all. Relaxing the threshold after seeing where the value
+   * fell would be `no_fit_guard` in its purest form, so instead this measures
+   * the thing the threshold was standing in for: had the opener been played,
+   * Dallas and Philadelphia would carry 16 projected games, not 17.
+   *
+   * ⚠️ IT IS A REAL TEST, NOT AN EXCUSE — it can fail. If those rosters come
+   * back at 16 the guide is in-season and the grade does not run. C verified
+   * the same thing independently on their own parse (22/22 at g=17) before
+   * either of us trusted it. */
+  let kickoffTeamsAt17 = null, kickoffChecked = 0;
+  if (afterKickoff && dated) {
+    const rows = Object.values(clay.players || {})
+      .filter(r => KICKOFF_TEAMS.indexOf(r.team_clay) >= 0 && r.raw_stats
+        && typeof r.raw_stats.g === 'number');
+    kickoffChecked = rows.length;
+    kickoffTeamsAt17 = rows.length > 0 && rows.every(r => r.raw_stats.g >= 17);
+  }
+  const preseason = (dated && iso < SEASON_START) || kickoffTeamsAt17 === true;
+
   gate = { guide_updated_reported: iso, season_start: SEASON_START,
-    verdict: inSeason ? 'IN-SEASON OR UNDATED — ACCURACY GRADE DOES NOT RUN'
-                      : 'PRESEASON — grade may run',
+    date_screen: dated ? (iso < SEASON_START ? 'before kickoff'
+      : 'ON OR AFTER kickoff — substance test required') : 'undated',
+    kickoff_teams: KICKOFF_TEAMS, kickoff_players_checked: kickoffChecked,
+    kickoff_teams_still_at_17_games: kickoffTeamsAt17,
+    verdict: preseason ? 'PRESEASON — grade may run'
+                       : 'IN-SEASON OR UNDATED — ACCURACY GRADE DOES NOT RUN',
     why: 'a guide updated after Week 1 contains games already played; grading it '
-       + 'measures nothing but our willingness to be impressed. Missing or '
-       + 'ambiguous is treated as in-season, because the conservative direction '
-       + 'cannot manufacture a false result.' };
+       + 'measures nothing but our willingness to be impressed. The DATE is a '
+       + 'screen; when it lands on or after kickoff the SUBSTANCE decides — had '
+       + 'the opener been played, its two rosters would show 16 games left. '
+       + 'Undated still fails, because the conservative direction cannot '
+       + 'manufacture a false result.' };
 }
 
 const doc = {

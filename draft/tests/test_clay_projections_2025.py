@@ -57,3 +57,41 @@ def test_2026_store_is_unaffected_by_building_2025():
     # state into the 2026 store or its own known-positive control.
     doc26 = C.main()
     assert doc26["coverage"]["by_position"] == {"QB": 40, "RB": 111, "WR": 187, "TE": 80}
+
+
+def test_guide_updated_extracted_and_matches_week_1_exactly():
+    # A's finding (ROUTES.md 2026-08-20): the printed date IS 2025 Week 1
+    # kickoff day -- not before it, not after, exactly on it. That is the
+    # whole reason a date check alone cannot settle this and the kickoff
+    # check exists.
+    doc = _doc()
+    assert doc["guide_updated"] == "2025-09-04"
+    assert doc["guide_updated"] == C.YEAR_CONFIG[2025]["season_start"]
+
+
+def test_version_gate_confirms_preseason_via_kickoff_check_not_the_date():
+    doc = _doc()
+    gate = doc["version_gate"]
+    assert gate["status"] == "preseason_confirmed_by_kickoff_check"
+    assert gate["players_short_a_game"] == []
+    assert gate["n_kickoff_players_checked"] == 22  # 11 DAL + 11 PHI on the roster
+
+
+def test_kickoff_check_fail_arm_actually_fires():
+    # rule 3f: prove the control can fail, not just that it currently passes.
+    # A DAL/PHI player one game short of a full season must flip the verdict.
+    doc = _doc()
+    players = dict(doc["players"])
+    some_pid = next(pid for pid, p in players.items() if p.get("team_clay") in ("DAL", "PHI"))
+    corrupted = dict(players)
+    corrupted[some_pid] = {**players[some_pid],
+                            "raw_stats": {**players[some_pid]["raw_stats"], "g": 16.0}}
+    cfg = C.YEAR_CONFIG[2025]
+    gate = C.verify_preseason_edition(corrupted, cfg, doc["guide_updated"])
+    assert gate["status"] == "in_season_or_unverifiable"
+    assert corrupted[some_pid]["clay_name"] in gate["players_short_a_game"]
+
+
+def test_2026_needs_no_kickoff_check_the_date_alone_suffices():
+    doc26 = C.main()
+    assert doc26["version_gate"]["status"] == "preseason_by_date"

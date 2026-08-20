@@ -77,3 +77,24 @@ def test_output_is_written():
     G.main()
     doc = json.loads(G.OUT.read_text())
     assert doc["population"]["graded_total"] > 300
+
+
+def test_version_gate_is_exposed_and_confirmed():
+    doc = _doc()
+    assert doc["_version_gate"]["status"] == "preseason_confirmed_by_kickoff_check"
+
+
+def test_refuses_to_grade_if_the_gate_is_not_confirmed(monkeypatch):
+    # FAIL ARM: the refusal in main() must actually fire, not just exist as
+    # an unreached branch. Monkeypatch build_store to return an otherwise
+    # real doc with the gate flipped to unconfirmed.
+    real = G.build_store(2025)
+    bad = {**real, "version_gate": {"status": "in_season_or_unverifiable",
+                                     "why": "test fixture"}}
+    monkeypatch.setattr(G, "build_store", lambda year: bad)
+    try:
+        G.main()
+        raised = False
+    except SystemExit:
+        raised = True
+    assert raised, "main() graded a store whose version_gate was not confirmed preseason"
