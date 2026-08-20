@@ -933,6 +933,18 @@
     return ['Injury', val];
   }
 
+  /* AGE — Cory, live 2026-08-20 design brief: "player ages" as one of the
+   * facts he wants visible while evaluating a pick, alongside floor/ceiling,
+   * stacks, depth chart, rookies. Before this it only existed as a silent
+   * ingredient in one risk flag (RB, age >= 30) — never shown as a plain fact
+   * for every player. Real coverage checked first (Rule 3i): 581/617 scored
+   * players carry it, 191/200 inside the top-200-by-ADP range that actually
+   * matters at the table, so this is not a sparse field worth hiding. */
+  function ageRow(p) {
+    if (!p || p.age == null) return null;
+    return ['Age', String(p.age)];
+  }
+
   /* DRAFT PEDIGREE — shown only for a rookie: `nfl_draft_round` on a
    * multi-year veteran is stale context nobody asked for (it never changes
    * after year one), but for a rookie it is live, real, decision-relevant
@@ -1017,6 +1029,7 @@
       usageRow(p),
       volatilityRow(p),
       injuryRow(p),
+      ageRow(p),
       pedigreeRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
        * most of the board — the engine scores only the shortlist-depth slice
