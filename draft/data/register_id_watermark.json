@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 161,
+ "next_numeric_id": 162,
  "history": [
   {
    "id": 47,
@@ -177,6 +177,10 @@
    "id": 160,
    "claimed_at": "2026-08-20",
    "note": "E: Cory's reference article (Snake Value Based Drafting) exposed that MEASURED_WEIGHTS.need=0 zeroes VORP out of the live score entirely for 2-starter positions (RB/WR) -- the board ranks on VONA+ceiling alone, not VBD+opportunity-cost as the article's own reference method does; measured live on Cory's actual keeper roster, Travis Etienne (highest VORP in the top 20) ranks #4 by score"
+  },
+  {
+   "id": 161,
+   "claimed_at": "2026-08-20"
   }
  ]
 }

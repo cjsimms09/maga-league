@@ -41,17 +41,66 @@ jobs:
       # run (Sleeper/FFC are refused at CONNECT in the agent sandbox, so it
       # cannot be committed), so arms compared across two runs would carry that
       # drift inside the delta. One job, one bundle, three arms.
-      # REGISTER 59 / P110 — the `need` weight arm. `need` is the only
-      # roster-aware term in the score and it ships at 0, which is why the tool
-      # drives Cory's own schedule to twelve running backs and two receivers.
-      # ONE binary against the shipped configuration, both arms on the SAME
-      # bundle: need=1.0 is DEFAULT_WEIGHTS' own value, not a value picked for
-      # looking good. `NEED-WEIGHT-PREREG.md`.
-      - name: need-weight arm N1 (need=1.0, shipped VONA)
+      # ⚠️ THE SHIPPED VALUE OF `need` MOVED, AND EVERY ARM BELOW THAT DOES NOT
+      # PIN IT CHANGED MEANING SILENTLY (A, 2026-08-20, register 160).
+      #
+      # This is the `a0: {}` lesson from replay_seats.js's own header, one
+      # parameter over. That header says: "an arm that sets nothing INHERITS the
+      # shipped default, so a0 would have quietly become a second copy of a1 and
+      # the next A1-minus-A0 delta would have read as a clean zero." `--need` is
+      # resolved the same way — `WEIGHTS = Object.assign({}, E.MEASURED_WEIGHTS)`
+      # unless overridden — so when Cory ruled `need` 0.0 -> 1.0 today, arm N1
+      # (`--need 1.0`) became byte-identical to a1 and the P110 binary collapsed
+      # to nothing. The workflow's own "every weight arm must differ from its
+      # control" guard catches it as a hard failure rather than a false null,
+      # which is the only reason this is a note and not a wrong number.
+      #
+      # THE BINARY IS THE SAME QUESTION WITH ITS ARMS SWAPPED. The shipped
+      # configuration is now need=1.0, so the counterfactual worth measuring is
+      # need=0.0 — the pre-ruling engine — against it. Same comparison, same
+      # bundle, same prereg (`NEED-WEIGHT-PREREG.md`); only which side is the
+      # control has moved, because the world moved.
+      - name: assert the shipped need weight is what these arm names claim
+        run: |
+          node -e "
+            global.window = global;
+            const E = require('./public/js/draft/engine.js');
+            const w = E.MEASURED_WEIGHTS.need;
+            if (w !== 1.0) {
+              console.error('MEASURED_WEIGHTS.need is ' + w + ', not 1.0.');
+              console.error('Every arm below that does not pass --need inherits it, so the');
+              console.error('arm names and the configurations they run have come apart.');
+              console.error('Re-point the arms deliberately; do not let them drift.');
+              process.exit(1);
+            }
+            console.log('shipped need = 1.0 — the arm names below mean what they say');
+          "
+      # REGISTER 59 / P110 — the `need` weight binary. BOTH arms are now written
+      # out and NEITHER is left implicit. N1 keeps its filename because four
+      # labs read it (`conversion_by_arm_lab.py`, `auto_phase_cost_lab.py`,
+      # `build_phase_tradeoff_lab.py`, and the compare step below); N0 is new
+      # and is the pre-ruling engine. The pair is compared against each other
+      # rather than N1 against a1, which is what stopped meaning anything the
+      # moment need=1.0 shipped.
+      - name: need-weight arm N1 (need=1.0 — the SHIPPED engine, shipped VONA)
         run: |
           node draft/backtest/replay_seats.js --arm a1 --need 1.0 \
             --in draft/backtest/bundles.json \
             --out draft/backtest/engine_seat_choices_need1.json
+      - name: need-weight arm N0 (need=0.0 — the pre-ruling engine, shipped VONA)
+        run: |
+          node draft/backtest/replay_seats.js --arm a1 --need 0.0 \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/engine_seat_choices_need0.json
+      - name: refuse identical need arms
+        run: |
+          if cmp -s draft/backtest/engine_seat_choices_need0.json \
+                    draft/backtest/engine_seat_choices_need1.json; then
+            echo "N0 and N1 are byte-identical — the need weight never reached the score."
+            echo "This is NOT a null result. Refusing to commit a gradeable artifact."
+            exit 1
+          fi
+          echo "need arms differ — the weight is live in the score"
       # REGISTER 59 / P114 — the `bye` weight arm. `bye` also ships at 0, and it
       # is the term aimed at the ACTUAL failure register 59 found: an empty
       # starting slot once byes are applied. Graded POST-DRAFT by design
@@ -82,14 +131,37 @@ jobs:
       # reading the delta against a1's file would compare two runs against two
       # separately-reassembled bundles, and that drift would sit inside the
       # delta. Same bundle, same job, both arms.
-      - name: slot-aware control arm s0 (== shipped, same bundle)
+      # ⚠️ THESE TWO ARMS NOW RUN AT need=1.0 AND THAT IS THE POINT, NOT AN
+      # ACCIDENT (A, 2026-08-20). Cory, today: "have we tried turning on slot
+      # aware with new VONA? does it help?"
+      #
+      # The answer was no. `--need` is unset here, so both arms inherit
+      # MEASURED_WEIGHTS.need — which was 0 when the prereg was written and is
+      # 1.0 since Cory's register-160 ruling. Left alone they would have started
+      # measuring a different question than their names describe, which is the
+      # `a0: {}` failure this workflow already carries a warning about. So the
+      # weight is PINNED EXPLICITLY on both, at the shipped value, and the pair
+      # now answers Cory's question directly: does slot-aware VONA add anything
+      # ON TOP of the roster-awareness `need` already supplies?
+      #
+      # THAT IS P111, ALREADY FILED AND STILL OPEN — "does `need` still pay once
+      # the flex/onesie rules it multiplies are no longer the only roster-aware
+      # terms (register 60's (2) and (3))?" — asked from the other side. Same
+      # binary either way, and the prereg's decision rule is untouched: a NULL
+      # here leaves the flag OFF.
+      #
+      # THE COLLAPSE HALF WAS TAKEN AT need=0 and is NOT re-used as though it
+      # transferred. It is condition (1) of four and it passed on a different
+      # configuration; whether it still holds at need=1.0 is re-run below rather
+      # than assumed, because assuming is what put this comment here.
+      - name: slot-aware control arm s0 (slot-aware OFF, need pinned to shipped 1.0)
         run: |
-          node draft/backtest/replay_seats.js --arm s0 \
+          node draft/backtest/replay_seats.js --arm s0 --need 1.0 \
             --in draft/backtest/bundles.json \
             --out draft/backtest/engine_seat_choices_slot_s0.json
-      - name: slot-aware arm s1 (VONA_SLOT_AWARE on)
+      - name: slot-aware arm s1 (slot-aware ON, need pinned to shipped 1.0)
         run: |
-          node draft/backtest/replay_seats.js --arm s1 \
+          node draft/backtest/replay_seats.js --arm s1 --need 1.0 \
             --in draft/backtest/bundles.json \
             --out draft/backtest/engine_seat_choices_slot_s1.json
       # THE ARMS MUST DIFFER, OR THE ARM NEVER RAN. `vona()` returns `straight`
