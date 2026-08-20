@@ -1,0 +1,39 @@
+name: Capture cron health (register 155's class, checked weekly)
+
+# TERRITORY: C — dispatches draft/tools/capture_cron_health.py.
+#
+# The page-turn dispatch, item 6: "the in-season captures you stood up get
+# a named weekly check (which jobs ran, which paths committed) — register
+# 155's class must never need a human to notice again."
+#
+# Report-only by design: this checks the fact register 155 actually turned
+# on — whether each store's OWN timestamp has moved within its declared
+# cadence — not whether the Actions run was green (a green run is not
+# proof of a landed commit, which is exactly how register 155 happened).
+#
+# Sundays 13:00 UTC — after the whole Wed/Thu capture family has had a
+# full week to run at least once.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 13 * * 0'   # Sundays 13:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure logic is tested first
+        run: python3 -m pytest draft/tests/test_capture_cron_health.py -q
+
+      - name: Check every C-owned scheduled capture
+        run: python3 draft/tools/capture_cron_health.py
