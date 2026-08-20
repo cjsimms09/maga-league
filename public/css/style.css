@@ -2722,15 +2722,16 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * deleted — still fully there, one scroll down, Take buttons and all —
  * this is a visual reorder only, and it is reversible in one line if
  * Cory wants the old card back on top. */
-.wr-zone1 > #position-boards   { order: 5; }   /* six columns + strike bar + the toggle — now the FIRST thing on screen */
+.wr-zone1 > #rank-source-card  { order: 5; }   /* Cory: "should just rearrange the board... vona calc or recommended player" — above the rec on purpose */
+.wr-zone1 > #position-boards   { order: 6; }   /* six columns + strike bar + the toggle */
 /* Same order as #position-boards, immediately after it in the DOM — flex
  * ties break by source order, so this needs no number of its own. A SECOND
  * VOICE belongs right beside the board it comments on, not buried past the
  * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
-.wr-zone1 > #roster-builder-mlv { order: 5; }
-.wr-zone1 > #recs-card         { order: 6; }   /* the retired one-answer card — still fully present, now second */
-.wr-zone1 > #doctrine-banner   { order: 7; }   /* THE PLAN — reference, beneath the rec */
-.wr-zone1 > #legality-strip    { order: 8; }   /* WATCH — reference, beneath the rec */
+.wr-zone1 > #roster-builder-mlv { order: 6; }
+.wr-zone1 > #recs-card         { order: 7; }   /* the retired one-answer card — still fully present, now second */
+.wr-zone1 > #doctrine-banner   { order: 8; }   /* THE PLAN — reference, beneath the rec */
+.wr-zone1 > #legality-strip    { order: 9; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
  * .wr-search (order 1) — and rendered first regardless of where app.js's
  * seatPlanHost() anchored it in the DOM (CSS flex `order` overrides DOM
@@ -2739,16 +2740,16 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * order (8) so app.js's existing DOM insertion (immediately after
  * #legality-strip) breaks the tie and lands it exactly where its own comment
  * already specified: seat plan below the recommendation, not above it. */
-.wr-zone1 > #seat-plan         { order: 8; }   /* which chair — beneath the rec, per app.js's own anchor */
-.wr-zone1 > #doctrine-switch   { order: 9; }
-.wr-zone1 > #doctrine-picker   { order: 9; }   /* A's compact plan table — reference, beneath the rec */
-.wr-zone1 > #mvs               { order: 10; }  /* redundant summary — hidden on warroom, ordered anyway */
-.wr-zone1 > #shadow-projection { order: 11; }
-.wr-zone1 > #model-compare-card { order: 12; }  /* Cory: "click in... what each model would take" */
-.wr-zone1 > #lrm-card          { order: 13; }
-.wr-zone1 > #branch-card       { order: 14; }
-.wr-zone1 > #queue-card        { order: 15; }
-.wr-zone1 > #adp-movers-card   { order: 16; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
+.wr-zone1 > #seat-plan         { order: 9; }   /* which chair — beneath the rec, per app.js's own anchor */
+.wr-zone1 > #doctrine-switch   { order: 10; }
+.wr-zone1 > #doctrine-picker   { order: 10; }  /* A's compact plan table — reference, beneath the rec */
+.wr-zone1 > #mvs               { order: 11; }  /* redundant summary — hidden on warroom, ordered anyway */
+.wr-zone1 > #shadow-projection { order: 12; }
+.wr-zone1 > #model-compare-card { order: 13; }  /* Cory: "click in... what each model would take" */
+.wr-zone1 > #lrm-card          { order: 14; }
+.wr-zone1 > #branch-card       { order: 15; }
+.wr-zone1 > #queue-card        { order: 16; }
+.wr-zone1 > #adp-movers-card   { order: 17; }  /* Cory: "see risers and fallers... easy" — moved from ROSTERS */
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
    ~172px of masthead + a draft-day notice already read + a redundant title).
@@ -2958,6 +2959,25 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 #model-compare .mc-label { color: var(--muted,#9aa4bb); font-weight: 600; }
 #model-compare .mc-pick { color: var(--ink); font-weight: 700; text-align: right; }
 #model-compare .sp-pos { font-size: .7rem; color: var(--muted,#9aa4bb); font-weight: 600; }
+
+/* RANKING SOURCE TOGGLE — Cory: "should just rearrange the board... vona
+   calc or recommended player." Loud amber warning when off blend (same
+   convention as .shadow-proj.contested) — every number on the page is
+   answering a different question while this is active, and that must be
+   impossible to miss mid-draft. */
+#rank-source .rs-buttons { display: flex; flex-wrap: wrap; gap: .35rem; }
+#rank-source .rs-btn {
+  font-size: .78rem; padding: .3rem .55rem; border-radius: .4rem; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.15); background: transparent; color: inherit;
+}
+#rank-source .rs-btn.rs-active {
+  border-color: #b45309; background: rgba(180,83,9,.16); font-weight: 700;
+}
+#rank-source .rs-warn {
+  margin-top: .5rem; padding: .5rem .6rem; border-radius: 8px; font-size: .82rem;
+  line-height: 1.4; background: rgba(245,196,69,.14); border: 1px solid rgba(245,196,69,.55);
+}
+#rank-source .rs-note { margin: .45rem 0 0; font-size: .72rem; }
 
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;

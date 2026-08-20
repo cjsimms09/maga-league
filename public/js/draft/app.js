@@ -17,6 +17,14 @@
   // the same already-selected players' public/draft_data.json proj_mean
   // numbers instead. Neither choice re-ranks anything — display only.
   const PROJ_SOURCE_KEY = 'mfga.draft.projsource';
+  // Cory, live 2026-08-20: "This toggle should just rearrange the board
+  // though and also may change vona calc or recommended player." A SEPARATE
+  // concept from PROJ_SOURCE_KEY above — this one genuinely re-ranks (VONA,
+  // composite score, the recommended player itself) by swapping in
+  // source_board.js's precomputed per-source vorp/tier before context()
+  // hands the board to the engine. null/'blend' is the trusted default and
+  // is byte-identical to every render before this feature existed.
+  const RANK_SOURCE_KEY = 'mfga.draft.ranksource';
 
   // ── MOCK SURVIVAL CALIBRATION ───────────────────────────────────────────────
   // Grade "% to last to my next pick" — the number Cory reads most, never once
@@ -1024,6 +1032,51 @@
     try { renderPositionBoardsPanel(); } catch (e) { console.error('[position-boards]', e && e.message); }
   }
 
+  /* Cory, live 2026-08-20: "This toggle should just rearrange the board
+   * though and also may change vona calc or recommended player." null/
+   * 'blend' is the trusted default (context().board is handed to the engine
+   * completely unchanged — this is the state this feature shipped in, and
+   * every render before today's push is reproduced exactly). A real source
+   * key swaps context() to a SourceBoard.forSource() copy, so VONA, the
+   * composite score and the recommended player all genuinely change — see
+   * source_board.js's own header for why that is safe (engine.js itself is
+   * never modified, only its INPUT board is). */
+  function loadRankSource() {
+    try {
+      const saved = localStorage.getItem(RANK_SOURCE_KEY);
+      const valid = typeof SourceBoard !== 'undefined'
+        && SourceBoard.SOURCES.some(function (s) { return s.key === saved; });
+      state.rankSource = valid ? saved : null;
+    } catch (e) { state.rankSource = null; }
+  }
+  function setRankSource(key) {
+    const valid = key === 'blend' || (typeof SourceBoard !== 'undefined'
+      && SourceBoard.SOURCES.some(function (s) { return s.key === key; }));
+    if (!valid) return;
+    state.rankSource = key === 'blend' ? null : key;
+    try {
+      if (state.rankSource) localStorage.setItem(RANK_SOURCE_KEY, state.rankSource);
+      else localStorage.removeItem(RANK_SOURCE_KEY);
+    } catch (e) {}
+    try { renderAll(); } catch (e) { console.error('[rank-source]', e && e.message); }
+  }
+  window.__setRankSource = setRankSource;
+
+  /* The board+roster context() actually hands to the engine — swapped when a
+   * non-blend rank source is active, untouched (same array, zero cost)
+   * otherwise. Roster is remapped too: engine.js reads incumbent players'
+   * vorp/proj_mean for the need/upgrade terms, and a roster still priced on
+   * the blend while the board is priced on Draft Sharks would compare two
+   * different currencies. */
+  function sourceAdjustedBoard() {
+    if (typeof SourceBoard === 'undefined') return state.board;
+    return SourceBoard.forSource(state.board, state.rankSource);
+  }
+  function sourceAdjustedRoster() {
+    if (typeof SourceBoard === 'undefined') return state.myRoster;
+    return SourceBoard.forSource(state.myRoster, state.rankSource);
+  }
+
   function renderPositionBoardsPanel() {
     const host = $('#position-boards');
     const d = state.positionBoards;
@@ -1118,11 +1171,11 @@
   function renderRosterBuilderPanel() {
     const host = $('#roster-builder-mlv');
     if (!host || typeof RosterBuilderMLV === 'undefined' || typeof RBMView === 'undefined') return;
-    const board = state.board || [];
+    const board = sourceAdjustedBoard() || [];
     if (!board.length) { host.innerHTML = ''; return; }
     let recs;
     try {
-      recs = RosterBuilderMLV.recommend(board, state.myRoster || [],
+      recs = RosterBuilderMLV.recommend(board, sourceAdjustedRoster() || [],
         { league: state.data.league, topN: 3 });
     } catch (e) {
       console.error('[roster-builder]', e && e.message);
@@ -1790,6 +1843,7 @@
     loadWeights();
     loadFrozenBaseline();
     loadProjSource();
+    loadRankSource();
     loadSeatPlan();
     loadSourceBoards();
     loadPositionBoards();
@@ -2539,11 +2593,11 @@
     const totalPicks = ((state.data.pick_order || {}).picks || []).length || null;
     const teams = state.data.league.teams || 10;
     return {
-      board: state.board,
+      board: sourceAdjustedBoard(),
       nextPick: next,
       totalPicks,
       myPicksLeft: upcoming.length,
-      roster: state.myRoster,
+      roster: sourceAdjustedRoster(),
       // STAGE 3: the enrolled doctrine reaches the SCORER. Without this line the
       // tilt is wired in the engine and live only in tests — the app would keep
       // scoring exactly as it did before while the banner claimed the plan was
@@ -3238,7 +3292,7 @@
       if (typeof DraftShadows !== 'undefined' && state.board && state.board.length && state.data) {
         const teams = ((state.data.league || {}).teams) || 10;
         const round = Math.max(1, Math.ceil(currentPick() / teams));
-        const proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        const proj = DraftShadows.project(sourceAdjustedBoard(), context(), round, sourceAdjustedRoster());
         const cons = DraftShadows.consensus(proj);
         if (cons && proj.length) {
           state._shadowProj = { proj: proj, cons: cons, pick: currentPick() };
@@ -5891,6 +5945,7 @@
     // The strategy-split panel — projected from the live board, never blank.
     try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
     try { renderModelCompare(); } catch (e) { console.error('[model-compare]', e && e.message); }
+    try { renderRankSourcePanel(); } catch (e) { console.error('[rank-source]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
@@ -8394,7 +8449,7 @@
       } else {
         const teams = ((state.data.league || {}).teams) || 10;
         const round = Math.max(1, Math.ceil(currentPick() / teams));
-        proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        proj = DraftShadows.project(sourceAdjustedBoard(), context(), round, sourceAdjustedRoster());
         cons = DraftShadows.consensus(proj);
       }
     } catch (e) { host.style.display = 'none'; return; }
@@ -8471,6 +8526,45 @@
     }).join('');
   }
 
+  /* THE RANKING-SOURCE TOGGLE — Cory, live 2026-08-20: "This toggle should
+   * just rearrange the board though and also may change vona calc or
+   * recommended player." Two earlier toggles (position_boards_view.js's
+   * ds/blend, and a separate lane's #proj-source panel) both only swapped
+   * a DISPLAYED number; neither reordered anything. This one genuinely
+   * does — see source_board.js's header for the mechanism (a shadow board
+   * with source-specific precomputed vorp/tier swapped in, fed to engine.js
+   * completely unmodified via context()). LOUD when off blend, on purpose:
+   * every recommendation on the page is now answering a DIFFERENT question
+   * than usual, and that has to be impossible to miss mid-draft. */
+  function renderRankSourcePanel() {
+    const card = document.getElementById('rank-source-card');
+    const host = document.getElementById('rank-source');
+    if (!card || !host) return;
+    if (typeof SourceBoard === 'undefined' || !state.board || !state.board.length) {
+      card.style.display = 'none'; return;
+    }
+    card.style.display = '';
+    const esc = escapeHtml;
+    const active = state.rankSource || 'blend';
+    const BUTTONS = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES);
+    const btnHtml = BUTTONS.map(function (s) {
+      const cov = s.key === 'blend' ? null : SourceBoard.coverage(state.board, s.key);
+      const n = cov ? cov.covered : state.board.length;
+      const on = active === s.key;
+      return '<button type="button" class="rs-btn' + (on ? ' rs-active' : '')
+        + '" data-rank-source="' + esc(s.key) + '">' + esc(s.label)
+        + ' <span class="muted">' + n + '</span></button>';
+    }).join('');
+    const warn = active !== 'blend'
+      ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(BUTTONS.find(function (s) { return s.key === active; }).label)
+        + '</b> — VONA, tiers and the recommended player on THIS ENTIRE PAGE now reflect only this '
+        + 'source, not the blend. Switch back to Blend for the board\'s normal number.</div>'
+      : '';
+    host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
+      + '<p class="muted rs-note">Changes who is recommended and VONA — this is a real re-rank, not just a different number. '
+      + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>';
+  }
+
   /* THE MODEL-COMPARISON PANEL — Cory, live 2026-08-20: "Give me peace to
    * click in on war room to see what each model would take! Max value, MLV
    * displacement, upside only model, floor model (safe pick)!"
@@ -8503,7 +8597,7 @@
       if (typeof DraftShadows !== 'undefined') {
         const teams = ((state.data.league || {}).teams) || 10;
         const round = Math.max(1, Math.ceil(currentPick() / teams));
-        const proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        const proj = DraftShadows.project(sourceAdjustedBoard(), context(), round, sourceAdjustedRoster());
         const WANT = [
           { key: 'value_anchor', label: 'Max Value',
             title: 'The player who scores highest by raw value alone — no ceiling chase, no roster-need discount.' },
@@ -8520,7 +8614,7 @@
     } catch (e) { /* DraftShadows models are optional; MLV below is not */ }
     try {
       if (typeof RosterBuilderMLV !== 'undefined') {
-        const recs = RosterBuilderMLV.recommend(state.board, state.myRoster || [],
+        const recs = RosterBuilderMLV.recommend(sourceAdjustedBoard(), sourceAdjustedRoster() || [],
           { league: state.data.league, topN: 1 });
         if (recs && recs.length && recs[0].player) {
           rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
@@ -11274,6 +11368,10 @@
       // as the chip-grid disclosure above.
       const pbSrc = ev.target.closest('[data-pb-source]');
       if (pbSrc) { ev.preventDefault(); return setProjSource(pbSrc.getAttribute('data-pb-source')); }
+      // The RE-RANKING toggle — Cory: "should just rearrange the board...
+      // change vona calc or recommended player." Distinct from pbSrc above.
+      const rankSrc = ev.target.closest('[data-rank-source]');
+      if (rankSrc) { ev.preventDefault(); return setRankSource(rankSrc.getAttribute('data-rank-source')); }
     });
 
     $$('.weight-slider').forEach(sl => {

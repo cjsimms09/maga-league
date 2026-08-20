@@ -144,6 +144,17 @@
 
       <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
 
+      <%# RANKING SOURCE — Cory, live 2026-08-20: "This toggle should just
+          rearrange the board though and also may change vona calc or
+          recommended player." Mounted ABOVE the recommendation card on
+          purpose — this changes what that card says, so it has to be read
+          first, not discovered after. Populated by renderRankSourcePanel()
+          in app.js via source_board.js. %>
+      <div class="card" id="rank-source-card" style="display:none">
+        <h2>🔀 Ranking Source</h2>
+        <div class="body"><div id="rank-source"></div></div>
+      </div>
+
       <%# ── THE ANSWER CARD — ONE VOICE, THEN STRUCTURED DISSENT.
           #verdict-block (DraftVerdict.derive — the seat-plan-owns-headline
           adjudication) is the ONE primary "TAKE <name>". The paths beneath it

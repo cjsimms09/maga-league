@@ -179,6 +179,11 @@
     Loaded before app.js, which calls PositionBoardsView.renderPositionBoards()
     from renderPositionBoardsPanel(). %>
 <script src="/js/draft/position_boards_view.js"></script>
+<%# source_board.js — the shadow-board field-swap that makes the ranking-
+    source toggle a real re-rank (VONA/tier/recommended player), not just a
+    displayed number. Loaded before app.js, which calls SourceBoard.forSource()
+    from context() on every render. %>
+<script src="/js/draft/source_board.js"></script>
 <script src="/js/draft/app.js"></script>
 <%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
     A reported DecisionContract undefined in a live browser on 2026-08-14, with

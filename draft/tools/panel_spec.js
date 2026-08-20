@@ -529,6 +529,20 @@ const PANELS = [
     note: 'DUPLICATES renderShadowProjection at a different size — the same '
       + 'pattern as renderThreats/renderThreatStrip. Two of these pairs on one '
       + 'screen is a large part of what "super busy yet very little info" is.' },
+  { fn: 'renderRankSourcePanel', weight: 'CONTEXT', lines: null,
+    question: 'Which projection source is the board even ranking on right now?',
+    means: 'A real re-rank, not a display swap — same class of control as the doctrine '
+      + 'switch above: it does not itself name a player, but it re-tilts what every '
+      + 'DECIDES panel below it computes. Switches which source\'s precomputed VORP/tier '
+      + 'context() hands to the engine (source_board.js\'s shadow-board field swap), so '
+      + 'VONA, the composite score and the recommended player all genuinely change '
+      + 'across the page when a non-blend source is active.',
+    changes_it: 'clicking a source button; a player missing that source\'s coverage falls '
+      + 'back to his own blend price rather than being zeroed',
+    reads: ['SourceBoard', 'state.board', 'state.rankSource'],
+    note: 'Mounted ABOVE #recs-card on purpose — it changes what that card says, so it '
+      + 'has to be seen first. Blend (the default) is byte-identical to every render '
+      + 'before this feature shipped; only a non-blend source changes anything.' },
   { fn: 'renderModelCompare', weight: 'CONTEXT', lines: null,
     question: 'Cory, live 2026-08-20: "what would each model take? Max value, MLV '
       + 'displacement, upside only model, floor model (safe pick)!"',
