@@ -48,28 +48,84 @@ dispersion family's calibration history says do not import it untested):
 * **NO CAPS. NO BENCH RULE. NO NEED TERM.** Every roster rule currently
   bolted on must EMERGE or the objective has failed its own thesis.
 
-## 3 · BLIND BARS (P257, P255–P256, filed with this commit)
+## 3 · BLIND BARS (P263, P264–P265, filed with this commit)
 
-* **P257 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
+*(renumbered from P254, P255–P256 — collided with the pre-existing P254
+REAL_VONA re-run row; REAL_VONA's commit at 19:57:26 UTC precedes this row's
+20:57:48 UTC, so by first-allocation-wins this row moves. Superseded anyway:
+v1 graded FALSE below and P254 is retired from this doc.)*
+
+* **P263 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
   **≤1 K and ≤1 DEF in ≥28/30 seats, and ≤1 QB and ≤2 TE in ≥25/30.**
   The known-negative is already graded: uncapped MLV drafts K 1.93 / DEF 1.90
   (register 136 C2). If `--opt` also multi-drafts them, the thesis is FALSE
   and files as such.
-* **P255 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
+* **P264 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
   the same 30 seat-years. Direction claim; the DP result says the frozen
   frame is closed, so any gain must come from exactly the stochastic terms —
   a null here means the option value is real but already captured by the cap
   + bench rule, which is itself worth knowing and files loudly.
-* **P256 — legality:** 30/30 rosters legal, every starting slot fillable by a
+* **P265 — legality:** 30/30 rosters legal, every starting slot fillable by a
   rostered player (wire floors price absence, never permanent vacancy).
 
 ## 4 · SHIP PATH AND CLOCK (2026, not 2027 — Cory's ruling)
 
-Grades land tonight/Thursday. If P257 AND P256 pass: the arm ships to the war
+Grades land tonight/Thursday. If P263 AND P265 pass: the arm ships to the war
 room **as the seat-plan panel's generator** (report-only, the exact class MLV
 shipped in), Friday-freeze compatible; A merges the harness code, B repoints
-the panel artifact. P255's result prints beside it either way — a FALSE there
+the panel artifact. P264's result prints beside it either way — a FALSE there
 does not block the ship (the theorem, not the delta, is what Cory asked for).
-If P257 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
+If P263 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
 bench rule stand for Saturday. **DEFAULT if grading is not done by Friday
 noon: nothing ships; the prereg grades post-draft.**
+
+---
+
+## 5 · V2 AMENDMENT, 2026-08-20 — FILED AFTER v1's GRADES, BEFORE ANY v2 RUN
+
+v1 ran and **P263 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
+the uncapped-MLV known-negative), while the QB/TE half of the theorem held
+(1.17 / 1.13). The localization is exact: v1's wire was FRICTIONLESS —
+unlimited claims, every slot, every week — under which real bench depth is
+worth zero (a late RB sits below the RB wire level) and the only positive
+late marginal anywhere is K/DEF starter insurance. Cory's diagnosis question
+("is it luck? lack of accounting for waivers?") has a measured answer:
+neither — waivers were OVER-credited. The missing input is absence **plus
+wire friction**.
+
+**v2 changes, declared before running (P257–P259):**
+1. **One wire fill per week across the roster** — the weekly claim. Each
+   simulated week, the single empty slot where the wire adds most gets its
+   wire level; every other absent slot scores ZERO. This is the real
+   liquidity constraint: three simultaneous RB holes cannot all be streamed.
+2. **Forcing fallback** — when §14c forcing restricts to a needed position
+   and the recorded pool has none left, fall back to unrestricted candidates
+   instead of skipping the pick (P265's vacancy bug, mechanism in the grade).
+
+Nothing else moves: same constants, same M=200, same masks, same pruning,
+same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation
+policy — v1's FALSE stays on the record as the wire-liquidity lesson.
+
+---
+
+## 6 · V3 AMENDMENT, 2026-08-20 — ONE UNIT EVERYWHERE (after P257–P259 FALSE)
+
+v2's debug dump found the real defect: **units**. Roster players were valued on
+`posCurveFor` — a draft-slot OUTCOME curve built from league matchup data,
+where a player's points count only for weeks he sat on a roster (QB10 reads
+96.5 season pts; reality ~280) — while the wire levels are real measured
+points. Mixed units made the wire look better than most of the roster; the
+drafter responded rationally to a nonsense landscape. Snake-rank's lesson,
+one level deeper.
+
+**v3, declared before any v3 run (P260–P262):** player levels come from
+**nflverse LOO realized rank curves** (target season excluded; the SAME stores
+the §13 wire levels were measured against, so numerator and denominator share
+a unit); K/DEF (absent from nflverse) use the measured surplus schedules
+K(r) = 128.6 + max(0, 8−2r), DEF(r) = 100 + max(0, 14−3r) — the +6/+10
+starter surpluses from the 08-20 table, decaying to wire. Market rank (draft
+order within position) still indexes the curve, as every VBD baseline does.
+The realized-rank curve is optimistic about the r-th DRAFTED player (bust risk
+lives in the rank, not the curve); the absence rates (.19) carry bust-weeks —
+declared as a known approximation, not hidden. Friction wire and forcing
+fallback unchanged from v2.
