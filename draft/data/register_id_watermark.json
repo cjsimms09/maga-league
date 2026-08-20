@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 158,
+ "next_numeric_id": 159,
  "history": [
   {
    "id": 47,
@@ -254,6 +254,16 @@
    "id": 157,
    "claimed_at": "2026-08-20",
    "note": "D: test_gate_selection.py hardcodes the old gate marker expression, left behind by A's own post_chain fix in the same commit that closed register 155"
+  },
+  {
+   "id": "151 (A, unmerged main claim) reconciled against D's own 151",
+   "claimed_at": "2026-08-20",
+   "note": "A claimed 151 on origin/main for the freeze-alarm-wiring row (self-corrected from an initial 150 typo, per the row's own text) while D's branch already held 151 for keeper-tooling test isolation. D's row kept as canonical 151 (established earlier, still unmerged to main); A's row renumbered to 158. Watermark now authoritative from 159."
+  },
+  {
+   "id": 158,
+   "claimed_at": "2026-08-20",
+   "note": "A: a world-state freeze alarm is wired into the board publish gate, blocking every rebuild once keeper lock passes (was 151 pre-renumber on main's side)"
   }
  ]
 }
