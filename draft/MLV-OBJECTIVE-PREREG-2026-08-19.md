@@ -221,3 +221,38 @@ positive: QB rank 1 > QB rank 10 and RB rank 1 > RB rank 20, printed or throw.
 program CLOSES with MLV-cap as the realistic equation** — the floors belong
 in grading, not in the objective — and the register row routes to A with that
 sentence.
+
+## 14d-GRADED, SAME DAY — FALSE (P141), AND THE PROGRAM CLOSES AS DECLARED
+
+Controls first: `--mlv` byte-guard held all day (+45.84/+29.33 re-printed
+before every implementation commit); per-position curves live (LOO-2025:
+QB1 342.7 · QB10 96.5 · RB1 192.1 · RB20 35.8, strictly decreasing).
+
+`--real-pos --grade-waiver`: actual **−40.79** (11/30), skill **−22.27**
+(12/30), h2h vs MLV-cap **10/30**. Legality: **29/30** — the one failure is a
+seat whose remaining candidate pool contains ZERO quarterbacks at forcing
+time; no rule can conjure supply the recorded draft does not hold. Frozen
+beside: −96.0/−43.1.
+
+**P141 FALSE. The declared closure rule executes: the realistic-equation
+program CLOSES with MLV-cap as the realistic equation.** Four preregistered
+arms (§14 real, §14 vona, §14c fill, §14d pos) all failed the same committed
+bar from four different directions, each failure diagnosed to a mechanism,
+none rescued post-hoc. The durable lesson each one paid for:
+
+* **Floors belong in GRADING, not the objective.** An agent optimizing
+  floored lineup points learns the floor is free and stops rostering the
+  floored positions (§14b: 7/30 illegal; QB marginal identically zero).
+* **Fixing the units (per-position curves) fixes legality and still loses**
+  (§14d): once starters are seated the floored objective prices every bench
+  pick at ~zero, so mid-draft picks stop discriminating — displacement
+  against an UNFLOORED lineup (MLV) keeps discriminating all draft long.
+* **Timing terms lose a third time** (P139; §8, §10 before it).
+
+**The equation Cory asked for, final answer with the whole trail graded:**
+`marginal-lineup-value displacement + K≤1/DEF≤1, graded under waiver floors`
+— MLV-cap. It beats the humans under the realistic game (+2.6/+2.1, §13),
+beats every realistic-objective variant tried against it head-to-head, and
+fields a normal roster in 30/30 seats without ever being told to. The floors'
+place is the GRADING, where Cory's waiver-realism objection is now
+permanently encoded (P137).
