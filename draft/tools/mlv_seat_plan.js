@@ -50,12 +50,34 @@
  * schedule it is SIX OF HIS TWELVE PICKS — every pick from round 7 on, half the
  * draft. That is the finding this plan exists to surface. Register 146.
  *
- * So: where MLV is indifferent, this file SAYS SO and hands the pick to the
- * board's own `overall_rank` — the ordering Cory already drafts from, complete
- * and strictly unique across all 617 players. That is a declared handoff to an
- * existing shipped rule, NOT a new tie-break invented here, and every such pick
- * is stamped `chosen_by: "board rank — MLV is indifferent"` so no reader can
- * mistake it for an MLV opinion.
+ * ── THE BENCH RULE, WHICH IS CORY'S AND NOT MINE ────────────────────────────
+ *
+ * The first fix handed indifferent picks to the board's `overall_rank`. That
+ * was wrong and Cory caught it in one sentence: *"why would it take all those
+ * TE and think they have value since after 12 TE taken, they have no value I
+ * can't get on waiver wire."* Measured, he is exactly right — TE12 projects
+ * 137, TE14 129, TE20 112, and the wire sits at 130.4, so **a drafted TE13 is
+ * worth +0.0 over a free one.** Spending a pick there buys nothing. The board
+ * rank thought otherwise because `vorp.py` prices the TE wire at TE10 and the
+ * RB wire at RB24 when this league really drafts 47 backs (register 148).
+ *
+ * His replacement rule, verbatim: *"which position the model would take at that
+ * pick based on need and remaining value and value drop off."* Both halves were
+ * already in the codebase, which is why this adds no new constants:
+ *
+ *   NEED             only positions still BELOW the top-3-finisher shape Cory
+ *                    ruled (QB 1.56 · RB 4.78 · WR 5.00 · TE 1.67 · K 1 · DEF 1).
+ *                    A hard filter, not a weight — nothing to tune, nothing
+ *                    selected from a sweep (no_fit_guard).
+ *   VALUE + DROP-OFF `max(0, proj − WAIVER[pos])` — MLV's OWN value function,
+ *                    the one it already uses and then discards for bench men.
+ *                    It IS the drop-off: it measures a player against the best
+ *                    man freely available at his position, so a position the
+ *                    room drains flat scores zero by construction.
+ *
+ * Every such pick is stamped `chosen_by: "bench rule — need + surplus over the
+ * wire"`. IT IS STILL NOT MLV, and the panel says so: MLV's answer is genuinely
+ * zero here, and this is a declared successor rule rather than a rescue of it.
  *
  * REPORT ONLY. Writes public/mlv_plan.json.
  * Run: node draft/tools/mlv_seat_plan.js
@@ -108,6 +130,14 @@ const roster = keepers.slice();
 const takenByMe = new Set(keepers.map(k => String(k.player_id)));
 const picks = [];
 
+/* the target Cory ruled: the top-3 finishers' measured shape. It is the NEED
+ * half of his bench rule and the yardstick the plan reports against — one
+ * constant, used for both, rather than two that can drift apart (rule 11). */
+const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
+
+/* the VALUE + DROP-OFF half: MLV's own value function, reused not re-derived */
+const surplus = p => Math.max(0, (p.proj_mean || 0) - (MLV.WAIVER[p.position] || 0));
+
 let indifferentFrom = null;
 
 MY_PICKS.forEach((pick, i) => {
@@ -123,16 +153,19 @@ MY_PICKS.forEach((pick, i) => {
    * first. That is not an opinion, and printing it as one is the bug. */
   const top = rec[0];
   const indifferent = !(top.marginal > 0);
-  let chosen, chosenBy, tied = null;
+  let chosen, chosenBy, tied = null, benchNeed = null;
   if (indifferent) {
     if (indifferentFrom == null) indifferentFrom = pick;
     const all = MLV.recommend(available, roster, { league, topN: available.length + 1 });
     tied = all.filter(r => !(r.marginal > 0)).length;
-    /* declared handoff to the board's own ordering — not a new rule */
-    chosen = all.slice().sort((a, b) =>
-      (a.player.overall_rank == null ? 1e9 : a.player.overall_rank)
-      - (b.player.overall_rank == null ? 1e9 : b.player.overall_rank))[0];
-    chosenBy = 'board rank — MLV is indifferent';
+    /* CORY'S BENCH RULE: need, then value-over-the-wire (which IS the drop-off) */
+    const have = {};
+    roster.forEach(p => { have[p.position] = (have[p.position] || 0) + 1; });
+    const under = all.filter(r => (have[r.position] || 0) < (TARGET[r.position] || 0));
+    const field = under.length ? under : all;
+    chosen = field.slice().sort((a, b) => surplus(b.player) - surplus(a.player))[0];
+    chosenBy = 'bench rule — need + surplus over the wire';
+    benchNeed = +((TARGET[chosen.position] || 0) - (have[chosen.position] || 0)).toFixed(2);
   } else {
     chosen = top;
     chosenBy = 'MLV';
@@ -149,9 +182,13 @@ MY_PICKS.forEach((pick, i) => {
     marginal: chosen.marginal,
     why: indifferent
       ? 'MLV IS INDIFFERENT — all ' + tied + ' remaining players are worth exactly 0 '
-        + 'to it, because your nine starting slots are already full. This name is '
-        + 'the board\'s top rank, not an MLV pick.'
+        + 'to it, because your nine starting slots are already full. Picked by your '
+        + 'bench rule instead: +' + Math.round(surplus(chosen.player)) + ' over what '
+        + 'the wire gives you at ' + chosen.position + ', at a position you are still '
+        + benchNeed + ' short of the top-3-finisher shape.'
       : chosen.why,
+    wire_surplus: Math.round(surplus(chosen.player) * 10) / 10,
+    short_of_target: benchNeed,
     mlv_has_an_opinion: !indifferent,
     chosen_by: chosenBy,
     tied_at_zero: tied,
@@ -189,8 +226,6 @@ Object.keys(tiltBy).sort().forEach(q => {
       ? a[(a.length - 1) / 2] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2 };
 });
 
-/* the target Cory ruled: the top-3 finishers' measured shape */
-const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
 const vsTarget = {};
 Object.keys(TARGET).forEach(q => {
   vsTarget[q] = { plan: shape[q] || 0, top3_finishers: TARGET[q],
@@ -241,21 +276,18 @@ picks.forEach(p => {
   if (!p.mlv_has_an_opinion && !saidCliff) {
     saidCliff = true;
     console.log('\n  ── MLV STOPS HERE. Your nine starting slots are full, so all '
-      + p.tied_at_zero + ' remaining\n     players are worth exactly 0 to it. Everything below is the '
-      + 'BOARD\'s\n     order, not MLV\'s opinion. ──\n');
+      + p.tied_at_zero + ' remaining\n     players are worth exactly 0 to it. Below this line is YOUR bench'
+      + '\n     rule: need + value over the waiver wire. ──\n');
   }
   console.log('  ' + String(p.pick).padStart(4) + '  ' + p.player.position.padEnd(4)
     + p.player.name.padEnd(24) + 'ADP ' + String(p.player.adp).padStart(5)
     + (p.mlv_has_an_opinion ? '   +' + String(p.marginal).padStart(6) + '   ' + p.why
-      : '   ' + String('board #' + p.player.overall_rank).padStart(9) + '   (MLV indifferent)'));
+      : '   +' + String(p.wire_surplus).padStart(5) + ' wire   (need: ' + p.short_of_target + ' short)'));
 });
 if (indifferentFrom != null) {
-  console.log('\n  WHY THOSE ARE ALL TIGHT ENDS — it is the BOARD, not MLV. Ranks earlier');
-  console.log('  than the market, median, by position:');
-  console.log('    ' + Object.entries(boardTilt)
-    .map(([q, v]) => q + ' ' + (v.median_ranks_earlier_than_market > 0 ? '+' : '')
-      + v.median_ranks_earlier_than_market).join('   '));
-  console.log('  Our board is high on TE, so the men still available late ARE tight ends.');
+  console.log('\n  WHAT THE WIRE GIVES YOU FREE at each position — this is why a 13th');
+  console.log('  tight end scores zero and a 5th running back does not:');
+  console.log('    ' + Object.entries(MLV.WAIVER).map(([q, v]) => q + ' ' + v).join('   '));
 }
 console.log('\n  final roster shape: ' + Object.entries(shape)
   .map(([q, n]) => q + ' ' + n).join('  '));

@@ -72,10 +72,36 @@ ck('an opinion pick has POSITIVE marginal and an indifferent one has zero — th
   PLAN.picks.filter(p => !p.none && (p.mlv_has_an_opinion !== (p.marginal > 0)))
     .map(p => ({ pick: p.pick, marginal: p.marginal, op: p.mlv_has_an_opinion })));
 
-ck('every indifferent pick is stamped as the BOARD\'s choice, never MLV\'s',
+ck('every indifferent pick is stamped as the BENCH RULE\'s choice, never MLV\'s',
   PLAN.picks.filter(p => !p.none && !p.mlv_has_an_opinion)
-    .every(p => /board rank/i.test(p.chosen_by || '')),
+    .every(p => /bench rule/i.test(p.chosen_by || '')),
   PLAN.picks.filter(p => !p.none && !p.mlv_has_an_opinion).map(p => p.chosen_by));
+
+/* ── CORY'S COMPLAINT, AS AN EXECUTABLE ASSERTION ──────────────────────────
+ * "why would it take all those TE and think they have value since after 12 TE
+ * taken, they have no value I can't get on waiver wire." The old rule drew SIX
+ * tight ends. The bench rule must never spend a pick on a man who is worth
+ * nothing over the wire while a position with real surplus is still short. */
+const benchPicks = PLAN.picks.filter(p => !p.none && !p.mlv_has_an_opinion);
+ck('no bench pick is a ZERO-surplus body taken while a needed position still '
+   + 'had surplus on the board — Cory\'s exact objection, as a test',
+  benchPicks.every((p, i) => p.wire_surplus > 0 || i === benchPicks.length - 1),
+  benchPicks.map(p => ({ pos: p.player.position, surplus: p.wire_surplus })));
+
+ck('the plan no longer stacks tight ends — TE count is within one body of the '
+   + 'top-3-finisher shape Cory ruled',
+  Math.abs((PLAN.final_shape.TE || 0) - 1.67) < 1,
+  { te: PLAN.final_shape.TE, target: 1.67 });
+
+ck('and every position lands within ONE BODY of that shape, which the '
+   + 'board-rank version missed at three positions (TE +4.33, WR -3.00)',
+  Object.values(PLAN.vs_top3_finishers).every(v => Math.abs(v.delta) < 1),
+  PLAN.vs_top3_finishers);
+
+ck('KNOWN NEGATIVE — the bench rule is not just "always RB": it changes '
+   + 'position as need fills, so it is reading the roster and not a constant',
+  new Set(benchPicks.map(p => p.player.position)).size >= 2,
+  benchPicks.map(p => p.player.position));
 
 ck('an indifferent pick shows NO runners-up — a ranked shortlist of players who '
    + 'all score zero is the exact illusion this file exists to remove',
@@ -149,8 +175,9 @@ if (typeof cliff === 'number') {
 }
 
 // ── 4. the handoff target's tilt is disclosed, and measured not asserted ────
-ck('the plan discloses the board\'s rank tilt by position, so the TE stacking it '
-   + 'produces is explained on its face rather than left to be discovered',
+ck('the plan still MEASURES the board\'s rank tilt, even though the tail no '
+   + 'longer defers to board rank — it is the evidence for register 147/148 and '
+   + 'must not vanish just because this tool stopped depending on it',
   PLAN.board_rank_tilt && typeof PLAN.board_rank_tilt.TE === 'object',
   PLAN.board_rank_tilt);
 
@@ -166,5 +193,5 @@ ck('the tool REFUSES rather than guesses when no pick schedule exists — the '
   /REFUSING to invent one/.test(
     fs.readFileSync(path.join(ROOT, 'draft', 'tools', 'mlv_seat_plan.js'), 'utf8')), null);
 
-console.log('\n%d checks, %d failed', 14, fails.length);
+console.log('\n%d checks, %d failed', 18, fails.length);
 if (fails.length) { console.log('FAILED'); process.exit(1); }
