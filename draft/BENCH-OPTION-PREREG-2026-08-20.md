@@ -48,37 +48,41 @@ dispersion family's calibration history says do not import it untested):
 * **NO CAPS. NO BENCH RULE. NO NEED TERM.** Every roster rule currently
   bolted on must EMERGE or the objective has failed its own thesis.
 
-## 3 · BLIND BARS (P269, P270–P271, filed with this commit)
+## 3 · BLIND BARS (P310, P311–P312, filed with this commit)
 
-*(renumbered TWICE by E, 2026-08-20. First P254→P263 for colliding with the
-pre-existing P254 REAL_VONA re-run row (REAL_VONA committed 19:57:26 UTC,
-before this row's 20:57:48 UTC). Then P263 itself collided with the relay's
-own live v4 numbering (§7 below, `0042d0ef`) — this branch had renumbered to
-263 before merging that commit. Landed at P269-271, past the relay's own v5
-(P266-268 in §8), so the next merge cannot repeat this. Superseded anyway: v1
-graded FALSE below and P254/P263 are both retired from this doc.)*
+*(renumbered THREE TIMES by E, 2026-08-20 — see PREDICTION-LEDGER.md's P310
+row for the full chase: P254→P263→P269→P310, each of the first two guesses
+landing on a relay v-N triplet that was live but not yet visible to this
+branch when the guess was made. The third guess is a deliberate LARGE jump,
+not another +1-past-last-seen guess, so it survives several more relay
+iterations before this has to happen again. The P269 collision merged
+SILENTLY — no conflict marker, because the two P269 rows sat on different
+lines — and was caught only by grepping for a duplicate ID after the fact;
+`prediction_ledger_check.js` has no duplicate-ID check, flagged to the relay.
+Superseded anyway: v1 graded FALSE below and P254/P263/P269 are all retired
+from this doc.)*
 
-* **P269 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
+* **P310 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
   **≤1 K and ≤1 DEF in ≥28/30 seats, and ≤1 QB and ≤2 TE in ≥25/30.**
   The known-negative is already graded: uncapped MLV drafts K 1.93 / DEF 1.90
   (register 136 C2). If `--opt` also multi-drafts them, the thesis is FALSE
   and files as such.
-* **P270 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
+* **P311 — the points bar:** waiver-aware skill mean ≥ MLV-cap's +2.10 over
   the same 30 seat-years. Direction claim; the DP result says the frozen
   frame is closed, so any gain must come from exactly the stochastic terms —
   a null here means the option value is real but already captured by the cap
   + bench rule, which is itself worth knowing and files loudly.
-* **P271 — legality:** 30/30 rosters legal, every starting slot fillable by a
+* **P312 — legality:** 30/30 rosters legal, every starting slot fillable by a
   rostered player (wire floors price absence, never permanent vacancy).
 
 ## 4 · SHIP PATH AND CLOCK (2026, not 2027 — Cory's ruling)
 
-Grades land tonight/Thursday. If P269 AND P271 pass: the arm ships to the war
+Grades land tonight/Thursday. If P310 AND P312 pass: the arm ships to the war
 room **as the seat-plan panel's generator** (report-only, the exact class MLV
 shipped in), Friday-freeze compatible; A merges the harness code, B repoints
-the panel artifact. P270's result prints beside it either way — a FALSE there
+the panel artifact. P311's result prints beside it either way — a FALSE there
 does not block the ship (the theorem, not the delta, is what Cory asked for).
-If P269 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
+If P310 fails: nothing ships, the FALSE files, and the shipped MLV-cap +
 bench rule stand for Saturday. **DEFAULT if grading is not done by Friday
 noon: nothing ships; the prereg grades post-draft.**
 
@@ -86,7 +90,7 @@ noon: nothing ships; the prereg grades post-draft.**
 
 ## 5 · V2 AMENDMENT, 2026-08-20 — FILED AFTER v1's GRADES, BEFORE ANY v2 RUN
 
-v1 ran and **P269 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
+v1 ran and **P310 graded FALSE, loudly**: mean K 2.40 / DEF 2.33 (worse than
 the uncapped-MLV known-negative), while the QB/TE half of the theorem held
 (1.17 / 1.13). The localization is exact: v1's wire was FRICTIONLESS —
 unlimited claims, every slot, every week — under which real bench depth is
@@ -103,7 +107,7 @@ wire friction**.
    liquidity constraint: three simultaneous RB holes cannot all be streamed.
 2. **Forcing fallback** — when §14c forcing restricts to a needed position
    and the recorded pool has none left, fall back to unrestricted candidates
-   instead of skipping the pick (P271's vacancy bug, mechanism in the grade).
+   instead of skipping the pick (P312's vacancy bug, mechanism in the grade).
 
 Nothing else moves: same constants, same M=200, same masks, same pruning,
 same bars otherwise. v2 is a NEW arm with NEW rows per the adaptation
