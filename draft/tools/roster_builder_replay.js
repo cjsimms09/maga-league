@@ -305,7 +305,9 @@ const REAL_VONA = process.argv.includes('--real-vona');
  * kicker and I have two picks", encoded. §14b measured 7/30 seats ending
  * ILLEGAL without it: the floor prices an empty slot as free. */
 const REAL_FILL = process.argv.includes('--real-fill');
-const REAL = REAL_VONA || REAL_FILL || process.argv.includes('--real');
+/* §14d: position-consistent units + supply-aware forcing. Implies REAL_FILL. */
+const REAL_POS = process.argv.includes('--real-pos');
+const REAL = REAL_VONA || REAL_FILL || REAL_POS || process.argv.includes('--real');
 const SEASON_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
 const SEASON_WAIVER_FLEX = Math.max(SEASON_WAIVER.RB, SEASON_WAIVER.WR, SEASON_WAIVER.TE);
 
@@ -366,6 +368,66 @@ function curveFor(targetSeason) {
   }
   return (CURVE_CACHE[key] = fn);
 }
+
+/* §14d(a): per-position RANK curves — the k-th QB drafted is valued at the
+ * mean points of the k-th QB in the OTHER seasons. Value and floor now share
+ * units within every position (the §14c root cause: a position-blind curve
+ * maxing at 211.3 under a 322.9 QB floor priced every QB at marginal zero). */
+const POS_CURVE_CACHE = {};
+let posCurveControlPrinted = false;
+function posCurveFor(targetSeason) {
+  const key = String(targetSeason);
+  if (POS_CURVE_CACHE[key]) return POS_CURVE_CACHE[key];
+  const byPosRank = {};   // pos -> rank -> [points...]
+  Object.values(H.seasons).forEach(season => {
+    if (String(season.season) === key) return;
+    if (!season.weeks || !(season.drafts || []).length) return;
+    const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
+    if (!draft) return;
+    const tot = {};
+    Object.entries(season.weeks).forEach(([wn, arr]) => {
+      const w = +wn;
+      if (w < 1 || w > 17 || !Array.isArray(arr)) return;
+      const seen = new Set();
+      arr.forEach(m => Object.entries(m.players_points || {}).forEach(([id, v]) => {
+        if (seen.has(id)) return;
+        seen.add(id);
+        tot[id] = (tot[id] || 0) + v;
+      }));
+    });
+    const perPos = {};
+    (draft.picks || []).slice().sort((a, b) => a.pick_no - b.pick_no).forEach(p => {
+      if (p.is_keeper) return;
+      const q = posOf(p.player_id);
+      if (!q) return;
+      const r = (perPos[q] = (perPos[q] || 0) + 1);
+      const t = tot[String(p.player_id)] || 0;
+      ((byPosRank[q] || (byPosRank[q] = {}))[r] || (byPosRank[q][r] = [])).push(t);
+    });
+  });
+  const curves = {};
+  Object.entries(byPosRank).forEach(([q, ranks]) => {
+    const maxR = Math.max(...Object.keys(ranks).map(Number));
+    const mean = [];
+    for (let r = 1; r <= maxR; r++) {
+      const a = ranks[r] || [];
+      mean[r] = a.length ? a.reduce((x, y) => x + y, 0) / a.length : mean[r - 1];
+    }
+    for (let r = 2; r <= maxR; r++) mean[r] = Math.min(mean[r], mean[r - 1]);
+    curves[q] = rank => mean[Math.min(Math.max(rank, 1), maxR)];
+  });
+  if (!posCurveControlPrinted) {
+    posCurveControlPrinted = true;
+    if (!(curves.QB(1) > curves.QB(10)) || !(curves.RB(1) > curves.RB(20))) {
+      throw new Error('pos-curve control FAILED: QB1=' + curves.QB(1) + ' QB10=' + curves.QB(10)
+        + ' RB1=' + curves.RB(1) + ' RB20=' + curves.RB(20));
+    }
+    console.error('[pos-curve control] LOO-' + key + ': QB1=' + curves.QB(1).toFixed(1)
+      + ' QB10=' + curves.QB(10).toFixed(1) + ' RB1=' + curves.RB(1).toFixed(1)
+      + ' RB20=' + curves.RB(20).toFixed(1) + ' — strictly decreasing, curves are live');
+  }
+  return (POS_CURVE_CACHE[key] = curves);
+}
 const MLV_CAP = !process.argv.includes('--no-onesie-cap');   // C2 runs it off
 /* Cory: "Or exclude def and k all together" — MLV never VOLUNTEERS a K or DEF;
  * the legality fill seats them at the end, which is what a human does. */
@@ -410,7 +472,23 @@ function buildSeat(season, draft, seatId, rosterOn) {
       return m + k * (raw(p) - m);
     };
   }
-  if (REAL) {
+  if (REAL_POS) {
+    /* candidate's rank among his position's non-keeper picks in THIS draft —
+     * the market's own positional order, era-correct */
+    const curves = posCurveFor(season.season);
+    const rankOf = {}, rc = {};
+    picks.forEach(p => {
+      if (p.is_keeper) return;
+      const q = posOf(p.player_id);
+      if (!q) return;
+      rankOf[String(p.player_id)] = (rc[q] = (rc[q] || 0) + 1);
+    });
+    valueOf = p => {
+      const q = posOf(p.player_id);
+      const c = q && curves[q];
+      return c ? c(rankOf[String(p.player_id)] || 999) : 0;
+    };
+  } else if (REAL) {
     const curve = curveFor(season.season);
     valueOf = p => curve(p.pick_no);
   }
@@ -450,7 +528,7 @@ function buildSeat(season, draft, seatId, rosterOn) {
      * (top-1 unless it is the candidate itself — the curve is monotone, so the
      * earliest surviving slot is the best survivor). */
     let mustFill = null;
-    if (REAL_FILL) {
+    if (REAL_FILL || REAL_POS) {
       let unfilled = 0;
       const needPos = {};
       POS.forEach(z => {
@@ -460,7 +538,26 @@ function buildSeat(season, draft, seatId, rosterOn) {
       let remaining = 0;
       /* a future keeper slot is spoken for — it cannot fill a hole */
       for (let k = idx; k < N; k++) if (picks[k].roster_id === seatId && !picks[k].is_keeper) remaining++;
-      if (remaining <= unfilled) mustFill = needPos;
+      /* §14d(b): supply-aware — §14c's forcing fired with an empty shelf.
+       * If a needed position's remaining SUPPLY in the whole pool is down to
+       * the gap itself, it is forced NOW (only if at least one exists). */
+      let forced = null;
+      if (REAL_POS && unfilled > 0) {
+        const supply = {};
+        for (let k = idx; k < N; k++) {
+          const s = picks[k];
+          if (s.is_keeper || isGone(s.player_id)) continue;
+          const z = posOf(s.player_id);
+          if (z && needPos[z]) supply[z] = (supply[z] || 0) + 1;
+        }
+        Object.keys(needPos).forEach(z => {
+          const gap = (STARTERS[z] || 0) - (held[z] || 0);
+          const sup = supply[z] || 0;
+          if (sup >= 1 && sup <= gap) (forced || (forced = {}))[z] = true;
+        });
+      }
+      if (forced) mustFill = forced;
+      else if (remaining <= unfilled) mustFill = needPos;
     }
     let survTop = null;
     if (REAL_VONA) {
