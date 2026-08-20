@@ -420,3 +420,59 @@ bench option value in the ~6 seats where it binds, and in those seats it
 never once won. **The soft version of Cory's idea (§15's re-pricing) strictly
 dominates the hard version (§16's constraint). Keep the discount as the
 candidate; the cap is retired.**
+
+## 17. PREREG — CORY'S ENSEMBLE VOTE (`--vote`), committed before the run
+
+Cory, 08-20: *"a test to see how it performs where we use lots of the models
+and strategies and then choose the player with most models agreeing?"*
+Never tested as a DRAFTING rule — the war room's shadow panel displays
+seven-strategy agreement (and has already caught a 7/7 consensus driven
+entirely by a zero-weighted term — agreement can be hollow), but the vote
+has never made the picks.
+
+**Mechanism.** One shared roster. At each pick, each of SEVEN committed
+strategies names its candidate GIVEN that shared roster: (1) the shipped
+curve · (2) MLV-cap · (3) MLV + depth discount · (4) shipped + persistence
+shrink · (5) shipped + K/DEF supply deadline · (6) shipped + TE boost ·
+(7) shipped + measured RB row. Plurality wins; ties break toward the
+candidate with the best market rank among the tied. All seven are committed
+flag families — nothing invented for the vote.
+
+**Bars (waiver-graded primary, frozen beside):** the §14 set — beat
+MLV-cap's +2.6/+2.1 on both means, h2h ≥16/30 on skill, 30/30 legal.
+Controls: `--mlv` byte-guard; per-pick vote tallies written to the artifact
+(a 7/7 sweep on every pick = the voters are costumes, declared not
+discovered); engagement vs MLV-cap counted.
+
+**P152, blind:** the ensemble does NOT beat MLV-cap — it lands BETWEEN its
+members. Majority voting helps when errors are independent, and these seven
+share one value signal (market order) — D measured five weekly arms at
+ρ≈0.997 and called it one signal in five costumes; the drafting version of
+that lesson predicts the vote tracks the shipped/MLV family rather than
+transcending it. A win would mean strategy DIVERSITY carries information the
+best single rule misses — filed so that result would be a genuine surprise.
+
+## 17-GRADED, SAME DAY — P152 TRUE: THE VOTE LANDS BETWEEN ITS MEMBERS, AND DEMOCRACY ELECTED A SECOND KICKER
+
+Controls: byte-guard held; tallies written (814 picks, unanimous on only
+13% — mode 5-6 of 7, so the voters genuinely disagree and the costume-sweep
+concern is CLEARED; the result is about voting, not about fake diversity).
+
+| ensemble vote | actual | skill | vs MLV-cap |
+|---|---|---|---|
+| waiver-graded | **−28.31** (13/30) | +3.07 | fails the +2.6 actual bar; h2h 18/30 on skill |
+| frozen | −1.84 (16/30) | +20.02 | far under +45.84/+29.33 |
+
+**And 2 of 30 seats drafted a SECOND K/DEF** — the four shipped-family
+voters outvote the MLV cap, so the plurality violates the normal-roster
+constraint the champion enforces. Cory's own "that's terrible" case, elected
+by majority.
+
+**P152 TRUE on its blind claim.** The mechanism is the textbook one:
+majority voting adds value when errors are INDEPENDENT; these seven share
+the market-order value signal, so the vote regresses the best member toward
+the family average instead of transcending it. Same lesson as D's ρ≈0.997
+weekly-arm null, now measured on drafting. **The way to use multiple models
+is the one already shipped: ONE champion picks, the others show as labeled
+second opinions (the shadow panel, the source toggle) — advisors, never
+electors.** RETIRES the ensemble line.

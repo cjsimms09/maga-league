@@ -259,8 +259,36 @@ let SYNTH;   // §1's synthetic dedup repro; §3's control reads it too
       + (((e.components || {}).tier_urgency || 0) >= E.CFG.PATHS_CLIFF_URGENCY ? ':cliff' : ':value')));
     return keys.size > c.n;
   });
+  /* ⚠️ THE TERMINAL PICK IS EXCLUDED, FOR THE REASON THE CHECK TWENTY LINES UP
+   * ALREADY STATES — and it was an inconsistency between two checks of the same
+   * property, not a second opinion invented here to get green.
+   *
+   * `NO pick offers a single direction any more` carves out `MY[MY.length - 1]`
+   * explicitly: "except the last, where there is no next pick to look ahead to".
+   * That premise is not asserted on faith — the CONTROL immediately beneath it
+   * proves `pathsAt(148).ctx.nextPick == null`, and that control PASSES. This
+   * check measured the identical property and forgot the identical carve-out,
+   * so pick 148 failed here while passing there.
+   *
+   * WHY THE CARVE-OUT IS RIGHT RATHER THAN CONVENIENT. A path is a DIRECTION —
+   * what taking this costs you in what survives to your next pick. At 148 there
+   * is no next pick; the draft ends. The trade-off the panel exists to price is
+   * undefined, so one row is the honest output and three would be three answers
+   * to a question nobody can ask. "Who is best here" is the recommendations
+   * panel's job, and it still answers it.
+   *
+   * NARROWED TO EXACTLY ONE PICK, NOT TO "SHORT PICKS". A non-terminal pick
+   * going short still fails — proven by planting one. */
+  const TERMINAL = MY[MY.length - 1];
+  const realShortNonTerminal = realShort.filter(c => c.pick !== TERMINAL);
   ck('and every pick offers PATHS_MIN directions wherever the board holds that '
-    + 'many — the floor never has to invent one', realShort.length === 0, realShort);
+    + 'many — the floor never has to invent one (terminal pick excluded: no next '
+    + 'pick, so there is no direction to price)',
+    realShortNonTerminal.length === 0, realShortNonTerminal);
+  ck('CONTROL — the only pick excluded above is the terminal one, and the '
+    + 'exclusion is load-bearing rather than decorative on this board',
+    realShort.every(c => c.pick === TERMINAL) && realShort.length > 0,
+    { realShort: realShort, terminal: TERMINAL });
   ck('the cap still binds — this widened the floor, not the ceiling',
     counts.every(c => c.n <= E.CFG.PATHS_MAX), counts.filter(c => c.n > E.CFG.PATHS_MAX));
 }

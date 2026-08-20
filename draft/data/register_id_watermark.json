@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 162,
+ "next_numeric_id": 163,
  "history": [
   {
    "id": 47,
@@ -284,6 +284,16 @@
    "id": 161,
    "claimed_at": "2026-08-20",
    "note": "A: the war room's source buttons priced every source over all 700 board players instead of the drafted-scope range, drawing a 6-point coverage gap as a 3x one -- was 153 pre-renumber on main's side, FIXED same day"
+  },
+  {
+   "id": "154 (A, unmerged main claim) reconciled against D's own 154",
+   "claimed_at": "2026-08-20",
+   "note": "A claimed 154 on origin/main for the keeper-replacement-table row (register 148's shape again, kept players priced on a different replacement table than their board) while D's branch already held 154 for the blend-grading job-2 finding. D's row kept as canonical 154; A's row renumbered to 162. Watermark now authoritative from 163."
+  },
+  {
+   "id": 162,
+   "claimed_at": "2026-08-20",
+   "note": "A: Cory's three keepers were priced on a different replacement table than every other player on his board -- was 154 pre-renumber on main's side, FIXED same day"
   }
  ]
 }
