@@ -259,3 +259,35 @@ way (A's two dead ends both made points worse by forcing onesies later; this
 one measures the cost inside a mechanism that beats the humans). The cap arm
 remains the best measured equation; normal timing is a preference Cory can
 buy, now at a known price, not a free improvement.
+
+---
+
+## 11. PREREG — THE UNITS TEST (`--objective-points`), committed before the run
+
+**§9 limit 4 is the biggest open risk: rank-units are not points.** This tests
+it directly. Everything about the cap arm is unchanged EXCEPT the scale on
+which `lineupValue` is computed:
+
+- rank-units arm: value(man) = (N+1) − pick_no  (linear in rank)
+- points-units arm: value(man) = **curve(pick_no)** — the empirical
+  pick→realized-season-points curve, fit **LEAVE-ONE-SEASON-OUT** (replaying
+  2024 uses the curve from 2023+2025 only), bucketed by round (15 picks — the
+  draft's own natural unit, not a tuned width), bucket means, monotone
+  non-increasing enforced, linear interpolation between bucket centers.
+
+No same-season outcome data ever enters a replay — the leak rule is the same
+AS-OF discipline the capture jobs use. Candidate ORDER within a position is
+still the market's (the curve is monotone), so this isolates UNITS: how
+marginals compare across positions and board regions, which is exactly what
+rank-linearity distorts.
+
+**Bar, declared now:** 30/30 legal · actual **> +2.5** and skill **> +7.9**
+(the open call's own table — beats plain BA and the shipped curve). The
+REPORTED question beside the bar: does the cap arm's win survive the unit
+change within noise (actual within [+10, +82], the rank arm's bootstrap CI)?
+- **Survives** → the translation risk is retired and the cap arm is fit for
+  A's live-board wiring.
+- **Clears the bar but leaves the CI** → the SIGN is unit-robust, magnitudes
+  are not; live wiring proceeds with wide error bars, said out loud.
+- **Fails the bar** → MLV is a rank-space artifact; it must not touch the
+  live board, and that verdict is filed like the rest.
