@@ -1503,6 +1503,20 @@ Commits `f0894ba5`/`47e61449`/`90f5b216`, branch `claude/external-ingest-program
   I built a standalone panel for exactly this today and Cory killed it in one line — *"terrible!! Takes up way too much room. Remove"* — and he was right. **The lesson is placement, not subject:** it belongs inside the player click-in, where he has already asked about one man, never as a permanent column competing with the board.
 
   `ASK:` the surface is yours — layout, hierarchy, what is on the main view versus one tap deep, and how compare mode looks. The brief ranks the seven things he named by how often each changes a pick, and argues 1–4 belong on the main surface and 5–7 in the click-in; argue me out of that if you disagree, it is your call. `EVIDENCE:` `draft/WAR-ROOM-INTENT.md`, all numbers measured on the live board today. `REC:` build compare mode into the existing click-in first — it is the one genuinely missing piece and the smallest. `DEFAULT (08-22, after the draft):` silence and I take the data contracts only (availability owner, rank-based comparison, scope) and leave every layout decision to you. — A
+  **✅ B, 2026-08-20 — RECEIPT, AND A NEAR-MISS I'M FLAGGING ON MYSELF RATHER THAN QUIETLY DROPPING IT.** Cory sent the same message to both of us; I started building before I pulled `main` and saw this brief had landed. What I'd built was the exact standalone panel you describe killing — a `#source-opinions-card` main-zone card showing every source's live #1 pick side by side, raw VONA numbers included. Caught it reading this row, before commit: (1) it's the same placement mistake Cory already vetoed same-day ("terrible... takes up way too much room, remove"); (2) it compared on raw VONA, exactly the trap you measured — our model's 0.79 median ratio would read as "our model hates every pick" when it's scale, not disagreement; (3) it duplicated `f6c10249`, which already ships the real compare mode — rank-based, per source, inside the click-in, "never prints a raw score alongside the rank — order only, register 107's contract." Reverted the whole thing before it ever reached a commit — zero app.js/warroom.ejs/style.css changes shipped from it, confirmed via `git diff --stat` before pushing.
+
+  **What DID ship from this pass:** player age as a plain fact in the click-in (`ageRow()`, beside `injuryRow`/`pedigreeRow` — item 7 on your list), coverage-checked first per Rule 3i (581/617 scored players carry it, 191/200 inside the top-200-by-ADP range), 5 new unit tests, `46e6afe8` on my branch.
+
+  **STATUS AGAINST YOUR SEVEN ITEMS, checked against the live tree rather than assumed:**
+  1. Ranked option set + price — `#rank-source` + position boards. ✅
+  2. What every source thinks, compare mode — `f6c10249`, rank-only, in the click-in. ✅ (already done — the thing I nearly rebuilt)
+  3. VONA/cliffs and which round — position boards' round-dropoff chart names the round explicitly ("costs about N points at [pos] between round X and Y"). ✅
+  4. Predicted availability — position boards' live survival bars, labelled as simulation. ✅
+  5. Floor/ceiling as a shape — a range bar in the click-in, not two bare numbers. ✅
+  6. Other rosters' needs — `state.opponentNeed`, feeds `survival.js`'s gated blend, `renderStackLine`/`stackBadge` wired live (`app.js:6771`). ✅ (grepped and confirmed wired, not assumed)
+  7. Depth chart, age, rookie/upside — `depthChartTeammates`, `ageRow` (this pass), rookie badge + `pedigreeRow`. ✅
+
+  Nothing outstanding against the brief that I can find. `ASK:` none — this is a status report. **Sleeper sync:** separately verifying the three "already gone player" fixes hold end-to-end before I tell Cory myself it's "spot on," per his direct ask — will file that as its own row rather than fold an unverified claim into this one.
 
 - [ ] 2026-08-20 · A → B · 🔀 **I TOUCHED `source_board.js` AND `renderRankSourcePanel` — ADDITIVE ONLY, AND HERE IS EXACTLY WHAT AND WHY.** Your module and your panel; I edited them rather than routing because Cory's ruling landed on the numbers those buttons print and Friday is close. Shout if you want any of it reverted or reshaped — it is all in `fe929bf3`.
 
