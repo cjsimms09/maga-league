@@ -93,13 +93,36 @@ before = copy.deepcopy(board["players"])
 # 2026-08-20 ruling), so proj_ceiling does not enter the score at all; this
 # changes what is DISPLAYED and what the rough dollar panel reads, nothing the
 # engine ranks on.
-def _position_band_medians(players):
+def _position_band_medians(players, ds_by_id):
+    """⚠️ READS THE RAW DRAFT SHARKS ROWS, NOT THE BOARD'S OWN proj_ds FIELDS,
+    AND THAT DISTINCTION IS THE WHOLE BUG THIS FUNCTION SHIPPED WITH.
+
+    The first version read `q["proj_ds"] / q["proj_ds_ceiling"]` off the board.
+    Those fields are written by the loop BELOW this line -- so on a freshly
+    BUILT board they do not exist yet, every position fell under the
+    minimum-sample floor, `_BAND_MEDIAN` came out EMPTY, and the fallback never
+    fired. Run 32429844489 refused the publish with Jayden Higgins still flat.
+
+    My control missed it because I ran it against the COMMITTED board, which
+    already carried proj_ds from a previous attach. It passed for the wrong
+    reason. That is the second time tonight I have verified something against
+    the committed artifact when the question was about a fresh one (the first
+    was alt_source_rankings' byte-identity check), so it is written here rather
+    than only in a commit message: WHEN A TOOL RUNS INSIDE THE BUILD CHAIN, ITS
+    CONTROL MUST USE THE STATE IT SEES AT THAT POINT IN THE CHAIN, not the
+    state of the artifact sitting in the repo.
+
+    `ds_by_id` is the raw Draft Sharks capture, keyed by sleeper_id, and it is
+    loaded before the loop -- so it is true of both boards.
+    """
     from statistics import median as _median
     acc = {}
     for q in players:
-        m = q.get("proj_mean")
-        c, f = q.get("proj_ceiling"), q.get("proj_floor")
-        ds, dsc, dsf = q.get("proj_ds"), q.get("proj_ds_ceiling"), q.get("proj_ds_floor")
+        row = ds_by_id.get(str(q.get("player_id")))
+        if not row:
+            continue
+        ds = row.get("ds_proj") or row.get("proj")
+        dsc, dsf = row.get("ceil_proj"), row.get("floor_proj")
         if not (ds and ds > 0 and dsc is not None and dsf is not None):
             continue
         acc.setdefault(q.get("position"), []).append((dsc / ds, dsf / ds))
@@ -110,7 +133,16 @@ def _position_band_medians(players):
         out[pos] = (_median(r[0] for r in rows), _median(r[1] for r in rows))
     return out
 
-_BAND_MEDIAN = _position_band_medians(board["players"])
+_BAND_MEDIAN = _position_band_medians(board["players"], _ds_by_id)
+#: LOUD IF EMPTY. A silent empty map is what shipped the bug above -- the
+#  fallback simply never fired and the board looked merely unlucky.
+if not _BAND_MEDIAN:
+    print("  ! position band medians came out EMPTY — the third band fallback "
+          "cannot fire. This is a broken join, not a board without bands.")
+else:
+    print("  position band medians (ceil/floor ratios): "
+          + ", ".join("%s %.3f/%.3f" % (k, v[0], v[1])
+                      for k, v in sorted(_BAND_MEDIAN.items())))
 
 matched = 0
 banded = 0
