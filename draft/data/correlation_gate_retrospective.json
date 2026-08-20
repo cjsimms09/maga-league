@@ -1,0 +1,47 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/tools/would_the_correlation_gate_have_caught_it.py",
+ "_question": "The ceiling program's audit left this UNKNOWN: would the >0.9 correlation gate have caught the constant-multiple defect?",
+ "_answer": "YES at every band count tested",
+ "gate_threshold": 0.9,
+ "n_players": 617,
+ "arms": [
+  {
+   "arm": "constant-multiple defect, 1 band(s)",
+   "spearman_vs_proj_mean": 1.0,
+   "caught_by_gate": true
+  },
+  {
+   "arm": "constant-multiple defect, 3 band(s)",
+   "spearman_vs_proj_mean": 0.999965,
+   "caught_by_gate": true
+  },
+  {
+   "arm": "constant-multiple defect, 5 band(s)",
+   "spearman_vs_proj_mean": 0.999917,
+   "caught_by_gate": true
+  },
+  {
+   "arm": "constant-multiple defect, 10 band(s)",
+   "spearman_vs_proj_mean": 0.999904,
+   "caught_by_gate": true
+  },
+  {
+   "arm": "constant-multiple defect, 20 band(s)",
+   "spearman_vs_proj_mean": 0.999894,
+   "caught_by_gate": true
+  },
+  {
+   "arm": "KNOWN POSITIVE \u2014 real Draft Sharks band width (n=247)",
+   "spearman_vs_proj_mean": 0.207539,
+   "caught_by_gate": false
+  },
+  {
+   "arm": "KNOWN NEGATIVE \u2014 pure noise",
+   "spearman_vs_proj_mean": 0.042164,
+   "caught_by_gate": false
+  }
+ ],
+ "gate_catches_every_defect_arm": true,
+ "gate_still_admits_a_real_signal": true,
+ "_caveat": "This reconstructs the defect's SHAPE (proj_mean x a per-band constant) on today's board. It is not the historical artifact, which is not recoverable. It answers 'would this gate catch this shape', not 'did it catch that file'."
+}
