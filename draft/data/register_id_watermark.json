@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 143,
+ "next_numeric_id": 146,
  "history": [
   {
    "id": 47,
@@ -156,9 +156,24 @@
    "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (genuinely new; verified not duplicated on main via direct grep)"
   },
   {
-   "id": 142,
+   "id": "140-142 (D, third branch) renumbered to 143-145",
    "claimed_at": "2026-08-20",
-   "note": "D: test_attach_draftsharks_ranking.py collects zero pytest items — a script-style test file in draft/tests/, red on test_ci_loop_integrity.py"
+   "note": "D claimed 140/141/142 for keeper-tooling, unclassified blend fields, and the zero-collection test file before syncing with a further origin/main update that claimed a real, different 140 (floor=ceiling collapse row). D's 140/141/142 renumbered to 143/144/145; main's 140 kept as-is. Watermark now authoritative from 146."
+  },
+  {
+   "id": 143,
+   "claimed_at": "2026-08-20",
+   "note": "D: keeper-tooling tests write to committed data paths (was 140 pre-renumber)"
+  },
+  {
+   "id": 144,
+   "claimed_at": "2026-08-20",
+   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (was 141 pre-renumber)"
+  },
+  {
+   "id": 145,
+   "claimed_at": "2026-08-20",
+   "note": "D: test_attach_draftsharks_ranking.py collects zero pytest items (was 142 pre-renumber)"
   }
  ]
 }
