@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 160,
+ "next_numeric_id": 161,
  "history": [
   {
    "id": 47,
@@ -269,6 +269,11 @@
    "id": 159,
    "claimed_at": "2026-08-20",
    "note": "D: job (3)'s error-hunt -- exp_tiebreak_signals.py pools proj_sd's three constructions into a borderline pair-inversion number that hides a clean, stratified result"
+  },
+  {
+   "id": 160,
+   "claimed_at": "2026-08-20",
+   "note": "D: the ranking-source toggle (alt_source_rankings.py) added 39 unclassified board fields and one undeclared TERRITORY file -- register 148/152's exact defect class recurring at a larger scale"
   }
  ]
 }
