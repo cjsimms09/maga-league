@@ -1002,6 +1002,21 @@
         + 'row entirely at a position where a source shows "no coverage".',
       src: 'source_boards.json from draft/tools/source_boards.js; order only, no points',
     },
+    proj_source: {
+      what: 'The same board, priced by ONE source instead of the blend: Draft '
+        + 'Sharks, Sleeper, our own model, FantasyPros, or the blend the board '
+        + 'normally uses. Shows that source\'s best available and how far it sits '
+        + 'from the blend.',
+      read: 'Read the last column. When a man is +20 on one source and the blend '
+        + 'does not have him that high, you are looking at one opinion rather than a '
+        + 'consensus — treat it as a tiebreak, never as a reason on its own. Always '
+        + 'check the coverage line first: Draft Sharks carries about a third of the '
+        + 'board, so a short list there means missing players, not bad ones.',
+      do: 'Use it to sanity-check a pick that feels off, and to see a source\'s own '
+        + 'floor/ceiling band on Draft Sharks. Ignore it entirely at a position where '
+        + 'the coverage warning is showing.',
+      src: 'draft_data.json per-player proj_* fields; display only, never scored',
+    },
     mlv_plan: {
       what: 'The whole draft, not just this pick: what the roster-builder model '
         + 'would take at each of your twelve picks if the board drained in ADP '
@@ -2428,6 +2443,7 @@
     safeRender('positionRecs', renderPositionRecs);
     safeRender('rosterBuilder', renderRosterBuilder);
     safeRender('mlvPlan', renderMlvPlan);
+    safeRender('projSource', renderProjSource);
     safeRender('sourceBoards', renderSourceBoards);
     safeRender('lists', renderLists);
     safeRender('queue', renderQueue);
@@ -4620,6 +4636,140 @@
       + 'Ends up: <b>' + escapeHtml(shape) + '</b>'
       + (vs ? ' · vs the top-3 finishers you ruled we should match: <b>' + escapeHtml(vs) + '</b>' : '')
       + '</p>' + tilt
+      + '</div>';
+  }
+
+  /* ── PROJECTION SOURCE: BLEND, OR ONE SOURCE ON ITS OWN ───────────────────
+   *
+   * Cory, 2026-08-20: "No draft shark info, no toggle between sources or blend."
+   *
+   * Both were true and neither was a deploy problem. `attach_draftsharks.py`
+   * has been writing proj_ds / proj_ds_floor / proj_ds_ceiling onto the board
+   * for weeks and NOTHING ON ANY SCREEN READ THEM — a grep for proj_ds across
+   * every war-room script returned zero hits. And no toggle had ever been
+   * built; the source-boards panel below shows ORDER per source, which is a
+   * different question from "show me their numbers".
+   *
+   * ⚠️ COVERAGE IS THE WHOLE DANGER HERE AND IT IS PRINTED, NOT HIDDEN. The
+   * sources do not cover the same players: blend and Sleeper have all 700,
+   * own-model 507, FantasyPros 429, Draft Sharks 247. A toggle that silently
+   * dropped the other 65% would look like a clean board and be a lie, so a man
+   * this source does not carry is COUNTED and named, never quietly removed.
+   *
+   * ⚠️ IT CHANGES WHAT YOU SEE, NOT WHAT THE ENGINE SCORES. The war room's
+   * ranking is untouched — this is a second lens on the same board, in the same
+   * spirit as the roster-builder panel. Nothing here feeds engine.js.
+   */
+  const PROJ_SOURCES = [
+    { key: 'blend', label: 'Blend', field: 'proj_mean',
+      note: 'the board\'s own number: mean of 7 sources, centred per position' },
+    { key: 'ds', label: 'Draft Sharks', field: 'proj_ds',
+      note: 'Draft Sharks, with their own floor/ceiling band' },
+    { key: 'sleeper', label: 'Sleeper', field: 'proj_sleeper', note: 'Sleeper\'s own projection' },
+    { key: 'own', label: 'Our model', field: 'proj_ownmodel', note: 'own_v6, our in-house model' },
+    { key: 'fp', label: 'FantasyPros', field: 'proj_fantasypros', note: 'FantasyPros consensus' },
+  ];
+
+  function projSourceHost() {
+    const found = $('#proj-source');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'proj-source';
+    el.className = 'card proj-source';
+    el.setAttribute('data-mounted-by', 'app.js — no #proj-source in the view');
+    /* HIGH ON THE PAGE ON PURPOSE. Cory reported not seeing the panels added
+     * tonight at all; they mount after #pos-recs-out, which on a phone is a
+     * long scroll down. This one answers a question he asks BEFORE a pick. */
+    const anchor = document.getElementById('recs') || document.getElementById('pos-recs-out');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.appendChild(el);
+    return el;
+  }
+
+  function currentProjSource() {
+    let k = state.projSource;
+    if (!k) { try { k = localStorage.getItem('wr_proj_source'); } catch (e) { k = null; } }
+    return PROJ_SOURCES.find(s => s.key === k) || PROJ_SOURCES[0];
+  }
+
+  function setProjSource(key) {
+    state.projSource = key;
+    try { localStorage.setItem('wr_proj_source', key); } catch (e) { /* private mode */ }
+    try { renderProjSource(); } catch (e) { console.error('[proj-source]', e && e.message); }
+  }
+  window.__setProjSource = setProjSource;
+
+  function renderProjSource() {
+    const host = projSourceHost();
+    if (!host) return;
+    const pool = (state.board || []).filter(p => p && p.position);
+    if (!pool.length) {
+      host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
+        + 'Board not loaded yet.</p></div>';
+      return;
+    }
+    const src = currentProjSource();
+    const val = p => (typeof p[src.field] === 'number' ? p[src.field] : null);
+
+    const covered = pool.filter(p => val(p) != null);
+    const missing = pool.length - covered.length;
+
+    const buttons = PROJ_SOURCES.map(s => {
+      const n = pool.filter(p => typeof p[s.field] === 'number').length;
+      const on = s.key === src.key;
+      return '<button type="button" onclick="__setProjSource(\'' + s.key + '\')" '
+        + 'style="margin:0 .25rem .25rem 0;padding:.25rem .5rem;border-radius:.35rem;'
+        + 'font-size:.75rem;cursor:pointer;border:1px solid ' + (on ? '#b45309' : '#4445')
+        + ';background:' + (on ? '#b4530922' : 'transparent') + ';color:inherit;'
+        + (on ? 'font-weight:700' : '') + '">'
+        + escapeHtml(s.label) + ' <span class="muted">' + n + '</span></button>';
+    }).join('');
+
+    const rows = covered.slice()
+      .sort((a, b) => val(b) - val(a))
+      .slice(0, 12)
+      .map((p, i) => {
+        const blend = typeof p.proj_mean === 'number' ? p.proj_mean : null;
+        const d = (blend != null && src.key !== 'blend') ? val(p) - blend : null;
+        const band = (src.key === 'ds' && typeof p.proj_ds_floor === 'number'
+          && typeof p.proj_ds_ceiling === 'number')
+          ? '<span class="muted"> · ' + Math.round(p.proj_ds_floor) + '–'
+            + Math.round(p.proj_ds_ceiling) + '</span>' : '';
+        return '<tr><td class="muted">' + (i + 1) + '</td>'
+          + '<td>' + escapeHtml(p.position) + '</td>'
+          + '<td><b>' + escapeHtml(p.name) + '</b></td>'
+          + '<td><b>' + Math.round(val(p)) + '</b>' + band + '</td>'
+          + '<td>' + (d == null ? '<span class="muted">—</span>'
+            : '<span style="color:' + (d > 0 ? '#16a34a' : (d < 0 ? '#dc2626' : 'inherit')) + '">'
+              + (d > 0 ? '+' : '') + Math.round(d) + '</span>') + '</td></tr>';
+      }).join('');
+
+    /* THE COVERAGE LINE IS NOT DECORATION. */
+    const cov = missing
+      ? '<p style="margin:.35rem 0 .4rem;font-size:.74rem;color:#b45309">'
+        + '⚠️ <b>' + escapeHtml(src.label) + ' does not cover ' + missing + ' of the '
+        + pool.length + ' players still on your board</b> (' + covered.length + ' covered, '
+        + Math.round(100 * covered.length / pool.length) + '%). Those men are NOT ranked '
+        + 'below — they are missing, not worthless. Compare inside this list only.</p>'
+      : '<p class="muted" style="margin:.35rem 0 .4rem;font-size:.74rem">'
+        + 'Covers all ' + pool.length + ' players still on your board.</p>';
+
+    host.innerHTML = '<div class="body">'
+      + '<h3 style="margin:0 0 .3rem">🔀 Projection source '
+      + explainPanel('proj_source') + '</h3>'
+      + '<div style="margin:0 0 .2rem">' + buttons + '</div>'
+      + '<p class="muted" style="margin:0 0 .2rem;font-size:.73rem">'
+      + escapeHtml(src.note) + '</p>'
+      + cov
+      + '<table class="mini" style="width:100%;font-size:.8rem"><thead><tr>'
+      + '<th>#</th><th>pos</th><th>best available</th><th>' + escapeHtml(src.label)
+      + '</th><th>vs blend</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
+      + 'This changes what you SEE, not what the board scores — the ranking above is '
+      + 'unchanged. Use it to check whether a pick you like is one source\'s opinion or '
+      + 'everyone\'s.</p>'
       + '</div>';
   }
 
