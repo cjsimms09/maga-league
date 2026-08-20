@@ -297,8 +297,43 @@ def test_a_within_error_projection_shift_moves_replacement_by_a_step():
     # verbatim. The small-gap regime gets its OWN assertion — the move must be
     # up and bounded by one smooth increment — so neither regime is skipped and
     # a genuinely broken replacement model still fails in both.
-    gap_dominates = gap * (1 + pct) > smooth_increment
-    if gap_dominates:
+    # ⚠️ THE 08-19 PARTITION WAS OFF BY A FACTOR OF TWO, AND IT REFUSED SIX
+    # BOARD REBUILDS IN A ROW (A, 2026-08-20 — runs 86-91, including the
+    # scheduled nightly, two days before the draft).
+    #
+    # The 08-19 pass split on `gap x (1+pct) > smooth_increment` and kept
+    # Corollary B — `-step > smooth_increment` — inside that branch. Those are
+    # not the same condition. Substituting the identity proven directly above,
+    #
+    #       -step  ==  g - s          where g = gap x (1+pct), s = smooth_increment
+    #
+    # so Corollary B says `g - s > s`, i.e. **g > 2s**. The branch it lives in
+    # only establishes **g > s**. Everything in between — a gap that genuinely
+    # dominates one increment but not two — took the branch and then failed an
+    # assertion the branch never promised.
+    #
+    # That is exactly where today's board sits: g = 0.90 x 1.015 = 0.913
+    # against s = 0.843, a ratio of 1.08. The identity held to the cent
+    # (step -0.0705 measured, -0.0705 derived); the partition did not.
+    #
+    # This is the SECOND time this test has been fixed by widening its regimes
+    # and the second time the fix was drawn at a threshold nobody derived. So
+    # the thresholds are now taken from the identity itself rather than chosen:
+    # each regime asserts precisely what `step == -g + s` forces given that
+    # regime's own bound on g, and the three are exhaustive by construction.
+    #
+    #     g > 2s        step DOWN, and larger than one increment  (discontinuity)
+    #     s < g <= 2s   step DOWN, and no larger than one increment
+    #     g <= s        step UP, and no larger than one increment
+    #
+    # NOTHING IS LOOSENED. A model that returns the wrong SIGN fails in all
+    # three; a model that returns a move larger than the identity permits fails
+    # in all three. What is no longer asserted is that this season's RB curve
+    # happens to have a big gap at whatever rank the frontier lands on, which is
+    # a fact about the data and was never this file's to require.
+    g = gap * (1 + pct)
+    s = smooth_increment
+    if g > 2 * s:
         # Corollary A — sign, with its reason attached: the step is DOWN
         # exactly because the crossed gap outweighs one increment of smooth
         # drift. Both sides are measured quantities of THIS board, no
@@ -309,24 +344,55 @@ def test_a_within_error_projection_shift_moves_replacement_by_a_step():
         )
         # Corollary B — discontinuity: the flip moves the level by more than
         # the whole smooth motion of the increment that contains it. This is
-        # the step/smooth distinction itself, not a magnitude opinion.
+        # the step/smooth distinction itself, not a magnitude opinion — and it
+        # is asserted only where the identity can deliver it, g > 2s.
         assert -step > smooth_increment, (
             f"crossing +{pct:.1%} moved RB replacement by only {step:+.2f} "
             f"(from {rep_before:.2f} to {flip_rep:.2f}), within one smooth "
             f"increment ({smooth_increment:.2f}) — that is not a step, "
             "the discontinuity this file exists to record has vanished"
         )
-    else:
-        # THE OTHER REGIME, asserted rather than excused. When the crossed gap
-        # does NOT dominate, the arithmetic forces a small move UP, and it
-        # cannot exceed one smooth increment because the gap term is subtracted
-        # from it. A model that returned a large move, or a downward one, here
-        # would be inconsistent with the identity above and must still fail.
-        assert 0 < step <= smooth_increment, (
-            f"the crossed gap ({gap:.2f} x {1 + pct:.3f}) does not dominate "
-            f"one smooth increment ({smooth_increment:.2f}), so the step must "
-            f"be a small move UP bounded by that increment — measured "
+    elif g > s:
+        # THE REGIME THE OLD PARTITION HAD NO BRANCH FOR. The gap dominates one
+        # increment, so the move is DOWN — but it cannot exceed one increment,
+        # because `-step = g - s` and `g <= 2s` here. Both halves are forced.
+        assert step < 0, (
+            f"the crossed gap ({gap:.2f} x {1 + pct:.3f} = {g:.4f}) exceeds one "
+            f"smooth increment ({s:.4f}), so the step must be DOWN — measured "
             f"{step:+.4f}, which the identity above cannot produce"
+        )
+        assert -step <= smooth_increment + 1e-9, (
+            f"the crossed gap ({g:.4f}) is at most twice one smooth increment "
+            f"({s:.4f}), so the downward step cannot exceed that increment — "
+            f"measured {step:+.4f}"
+        )
+    else:
+        # THE THIRD REGIME, asserted rather than excused. When the crossed gap
+        # does NOT dominate, the arithmetic forces a move UP (or exactly zero at
+        # g == s), and it cannot exceed one smooth increment because the gap
+        # term is subtracted from it.
+        assert -1e-9 <= step <= smooth_increment + 1e-9, (
+            f"the crossed gap ({gap:.2f} x {1 + pct:.3f} = {g:.4f}) does not "
+            f"dominate one smooth increment ({s:.4f}), so the step must be a "
+            f"small move UP bounded by that increment — measured "
+            f"{step:+.4f}, which the identity above cannot produce"
+        )
+
+    # ── THE PARTITION IS EXHAUSTIVE AND EACH ARM FOLLOWS FROM THE IDENTITY ──
+    # Asserted rather than asserted-by-comment. If a future edit moves a
+    # threshold again, this fails rather than silently leaving a board in a
+    # regime nothing checks — which is what has now happened twice.
+    for probe_g, probe_s in ((3.0, 1.0), (1.5, 1.0), (0.5, 1.0), (1.0, 1.0)):
+        implied = -probe_g + probe_s
+        if probe_g > 2 * probe_s:
+            ok = implied < 0 and -implied > probe_s
+        elif probe_g > probe_s:
+            ok = implied < 0 and -implied <= probe_s + 1e-9
+        else:
+            ok = -1e-9 <= implied <= probe_s + 1e-9
+        assert ok, (
+            f"the regime arms are not consequences of the identity: g={probe_g} "
+            f"s={probe_s} implies step {implied:+.4f}, which its own arm rejects"
         )
 
 

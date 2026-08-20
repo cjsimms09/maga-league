@@ -186,7 +186,14 @@ function run(players, league, w) {
    * now pinned on the vector that actually demonstrates it: a weight set that
    * zeroes the roster-reading terms is BLIND to this breakage, which is why a
    * capture test must never run under only one weight set. */
-  const blind = Object.assign({}, E.MEASURED_WEIGHTS, { ceiling: 0 });
+  /* RE-PINNED AGAIN 2026-08-20 (register 160). `need` went 0 -> 1.0 on Cory's
+   * ruling, and `need` is the most direct lineup-shape reader there is — so
+   * `MEASURED with ceiling: 0` stopped being a blind vector and this arm went
+   * red. The arm is not wrong; its definition of "blind" was written as a diff
+   * against a moving target. Stated as the PROPERTY instead: every term that
+   * reads the roster is zeroed. That definition survives the next ruling. */
+  const blind = Object.assign({}, E.MEASURED_WEIGHTS,
+    { ceiling: 0, need: 0, bye: 0, risk: 0, stack: 0, keeper: 0 });
   const c = run(frozenPlayers, noStarters, blind);
   const d = run(live, D.league, blind);
   const cn = c.slice(0, 25).map(x => x.player.name);

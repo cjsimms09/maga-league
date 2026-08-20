@@ -393,6 +393,14 @@
      * without a browser or a server. */
     boardState: boardState,
     capture: function (kind, info) { return send(kind, info); },
+    /* ⚠️ EXPORTED 2026-08-20. `oncePer` already existed and was reachable only
+     * through the named wrappers above, so a new caller wanting once-per-pick
+     * semantics had to either pick an unrelated wrapper or write a second dedup
+     * in app.js. A second implementation of "have I already recorded this
+     * decision" is exactly the shape this repo keeps paying for, and here it
+     * would double-count whichever model happened to be right. One dedup,
+     * reused (rule 11). */
+    oncePer: function (kind, info, sig) { return oncePer(kind, info, sig); },
     lastError: function () { return lastError; },
     /* HOW MANY RECORDS ARE PARKED RIGHT NOW. A status hook that shows only
      * lastError would go quiet the moment one post succeeded, while records
