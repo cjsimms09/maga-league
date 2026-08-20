@@ -272,7 +272,50 @@ def test_piecewise_break_recovers_a_planted_hinge():
 
 
 def test_piecewise_break_returns_none_on_a_curve_too_short_to_fit():
+    """THE LEGITIMATE NULL. Kept beside the test below so the two meanings of a
+    non-answer stay separated."""
     assert EDV._piecewise_break([10, 9, 8]) is None
+
+
+def test_piecewise_break_SHOUTS_when_the_fitter_never_ran(monkeypatch):
+    """RULE 3e, ADDED 2026-08-20 ON A LIVE INSTANCE. `_piecewise_break` caught
+    every `ols` exception and continued, which is correct for ONE breakpoint (a
+    singular design matrix at a particular k is ordinary) and a lie when it
+    happens at EVERY k — because the function then returns None, and None
+    already means "this curve has no break".
+
+    Found for real: with numpy absent, ols raised at all 32 breakpoints and the
+    function returned None for a curve with a hinge PLANTED AT RANK 12. The
+    study would have published `piecewise_break_pooled: null` as a finding about
+    football. "No cliff here" and "the fitter never ran" must not be the same
+    answer.
+
+    This drives the all-fail path deliberately rather than waiting for a broken
+    environment to produce it."""
+    def _always_singular(X, y):
+        raise ValueError("planted: singular matrix")
+    monkeypatch.setattr(EDV, "ols", _always_singular)
+    curve = [100 - 1.0 * x for x in range(1, 13)] + \
+            [88 - 9.0 * (x - 12) for x in range(13, 41)]
+    with pytest.raises(RuntimeError, match="failed at ALL"):
+        EDV._piecewise_break(curve)
+
+
+def test_a_SINGLE_failing_breakpoint_is_still_tolerated(monkeypatch):
+    """THE CONTROL FOR THE TEST ABOVE, so the fix is not just "raise on any
+    error" — which would turn an ordinary singular fit at one k into a crash and
+    be strictly worse than what it replaced."""
+    real = EDV.ols
+    def _fail_at_one(X, y):
+        #: the k=4 basis is the first one tried; fail exactly that one
+        if X[0][1] == 0.0 and X[-1][1] == len(X) - 4:
+            raise ValueError("planted: one bad breakpoint")
+        return real(X, y)
+    monkeypatch.setattr(EDV, "ols", _fail_at_one)
+    curve = [100 - 1.0 * x for x in range(1, 13)] + \
+            [88 - 9.0 * (x - 12) for x in range(13, 41)]
+    k = EDV._piecewise_break(curve)          # must not raise
+    assert k is None or isinstance(k, int)
 
 
 def test_leave_one_season_out_expectation_excludes_its_own_season():

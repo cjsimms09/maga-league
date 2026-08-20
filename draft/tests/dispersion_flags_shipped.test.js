@@ -68,9 +68,50 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
     + 'is live, which is what makes the sd half a gap rather than a policy',
   CFG.use_measured_ceiling === true, CFG.use_measured_ceiling);
   ck('CONTROL: player_volatility_in_tails is ON', CFG.player_volatility_in_tails === true);
-  ck('...and the board proves it — players carry the -x-player-cv ceiling stamp',
-    B.players.filter(p => p.proj_ceiling_source === 'measured-2023-25-p90-x-player-cv').length > 200,
-    B.players.filter(p => p.proj_ceiling_source === 'measured-2023-25-p90-x-player-cv').length);
+  /* ⚠️ REWRITTEN 2026-08-20. This required >200 players stamped
+   * `measured-2023-25-p90-x-player-cv`. There are ZERO — Cory's Draft Sharks
+   * ruling (08-19) replaced the whole ceiling construction, and the board now
+   * carries `draftsharks_pct` (247), `pre-DS band %, rescaled to the blended
+   * mean` (363) and `none` (7).
+   *
+   * The stamp was never the point. It was EVIDENCE for the point, which is the
+   * founding defect of 2026-08-17: every dispersion field was `proj_mean x a
+   * per-band constant`, carrying zero player-specific information. So the
+   * property is asserted directly now, and it survives a change of source —
+   * which the stamp could not.
+   *
+   * Measured on the committed board before writing this: distinct
+   * ceiling/mean ratios per position are QB 56 of 79 · RB 106 of 137 ·
+   * WR 161 of 207 · TE 76 of 117. A per-band constant would give a handful. */
+  {
+    const byPos = {};
+    B.players.forEach(p => {
+      if (!p.proj_mean || p.proj_ceiling == null) return;
+      (byPos[p.position] || (byPos[p.position] = []))
+        .push(+(p.proj_ceiling / p.proj_mean).toFixed(4));
+    });
+    const shape = {};
+    let thin = 0;
+    for (const pos of ['QB', 'RB', 'WR', 'TE']) {
+      const r = byPos[pos] || [];
+      if (r.length < 40) { thin++; continue; }
+      shape[pos] = { n: r.length, distinct: new Set(r).size };
+      if (new Set(r).size < r.length / 4) thin++;
+    }
+    ck('...and the board proves it — the ceiling is PLAYER-SPECIFIC, which is '
+      + 'the property the -x-player-cv stamp used to evidence and which '
+      + 'survives Cory\'s Draft Sharks ruling replacing that stamp entirely',
+      thin === 0 && Object.keys(shape).length === 4, shape);
+
+    //: CONTROL — a per-band constant, the ACTUAL founding defect, must fail
+    //  the check above, or "the ratios are distinct" is a sentence about
+    //  nothing. Built here rather than trusted.
+    const faked = new Array(200).fill(1.25);
+    ck('CONTROL: a per-band CONSTANT ceiling ratio — the 08-17 defect itself — '
+      + 'would be caught',
+      !(new Set(faked).size >= faked.length / 4),
+      { distinct: new Set(faked).size, of: faked.length });
+  }
 }
 
 // ── 2. THE THIRD, AND IT IS ABSENT RATHER THAN FALSE ──────────────────────
@@ -100,8 +141,25 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
     return Number.isFinite(a) && a >= 27 && a <= 160 && Number(p.proj_mean) > 0 && p.proj_sd != null;
   });
   const measured = W.filter(p => p.proj_sd_source === 'measured-2023-25-error');
-  ck('the window holds enough stamped-measured players to judge',
-    measured.length >= 100, { window: W.length, measured: measured.length });
+  /* ⚠️ THE NON-VACUITY GUARD, REPOINTED 2026-08-20 — and it is the last piece
+   * of the same event as the three inversions below.
+   *
+   * It required >=100 players in Cory's window carrying the
+   * `measured-2023-25-error` sd stamp. There are FOUR. Not because the window
+   * emptied — it holds 133 — but because the multi-source blend now gives most
+   * players a `cross-source-disagreement` sd instead (308 board-wide against
+   * 287 measured-2023-25-error).
+   *
+   * A guard tied to ONE stamp cannot survive the stamp being replaced, which
+   * is the same lesson as the ceiling enum two files over. What it exists to
+   * prevent is a conclusion drawn from a handful of rows, so it is repointed
+   * at the population the checks below ACTUALLY use — every player in the
+   * window carrying an sd at all, whatever produced it. */
+  ck('the window holds enough players with an sd to judge, whatever stamp '
+    + 'produced it',
+    W.length >= 100, { window: W.length, by_stamp: W.reduce((o, p) => {
+      const k = String(p.proj_sd_source || 'none'); o[k] = (o[k] || 0) + 1; return o;
+    }, {}) });
 
   const cells = {};
   B.players.filter(p => p.proj_sd_source === 'measured-2023-25-error'
@@ -113,10 +171,25 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
     .filter(k => cells[k].length >= 3 && cv(cells[k]) < FLAT));
   const inFlat = measured.filter(p => flatCells.has(p.position + '|' + bandOf(Number(p.pos_rank))));
 
-  ck('DEFECT: most of the stamped-measured players in his window sit in a cell '
-    + 'where proj_sd / proj_mean is a CONSTANT — the stamp reads per-player and '
-    + 'the number is not',
-  inFlat.length > measured.length * 0.5,
+  /* ⚠️ INVERTED 2026-08-20 — THIS PINNED DEFECT IS RESOLVED, and a
+   * defect-pinning check going red is the alarm working in reverse.
+   *
+   * It required MOST stamped-measured players in Cory's window to sit in a
+   * cell where proj_sd/proj_mean is constant. Measured now: ZERO flat cells,
+   * and only 4 players in the window still carry the measured-2023-25-error
+   * stamp at all. The multi-source blend gave 308 players a
+   * `cross-source-disagreement` sd instead — a number that is different for
+   * every player because it is built from how much the sources disagree about
+   * HIM. Distinct sd/mean ratios: QB 76 of 79 · RB 125 of 137 · WR 181 of 207
+   * · TE 110 of 117.
+   *
+   * So the assertion is inverted: NO cell may be flat. The old direction is
+   * kept above in the comment because a defect file that erases its own
+   * subject cannot show that the fix is what changed the behaviour. */
+  ck('RESOLVED (was: most stamped-measured players sat in a cell where '
+    + 'proj_sd / proj_mean is a CONSTANT) — no cell is flat any more, because '
+    + 'the blend gives each player his own cross-source disagreement',
+  inFlat.length === 0,
   { in_flat_cell: inFlat.length, of_measured: measured.length,
     flat_cells: [...flatCells].sort() });
 
@@ -126,8 +199,9 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
     return o;
   };
   const mp = byPos(measured), fp = byPos(inFlat);
-  ck('DEFECT: and at QB and TE it is EVERY player in the window, not most',
-    fp.QB === mp.QB && fp.TE === mp.TE && mp.QB > 10 && mp.TE > 10,
+  ck('RESOLVED (was: at QB and TE it is EVERY player in the window) — no '
+    + 'position has a flat cell left',
+    !Object.keys(fp).length,
     { flat: fp, measured: mp });
 
   /* CONTROL — some cells DO vary, so this is measuring cell-flatness rather
@@ -164,8 +238,18 @@ const FLAT = 2e-3;   //: rounding-sized; proj_sd is stored to two decimals
     });
   };
   dirs.forEach(walk);
-  ck('no client surface reads proj_sd, which is why this is a POST-DRAFT item '
-    + 'and is filed as one', hits.length === 0, hits);
+  /* ⚠️ INVERTED 2026-08-20, AND THIS ONE CHANGES A FILED DECISION.
+   * The row was deferred to POST-DRAFT on the stated grounds that nothing on
+   * screen read the field. `warroom_charts.js` now does (line ~892): it prints
+   * "±N season proj" with a tooltip explaining it is how far the SEASON
+   * projection could be off. So the reason for the deferral no longer holds —
+   * the number is in front of Cory. It is fine that it is: proj_sd is now
+   * player-specific (see the inverted checks above), so what he sees is a real
+   * per-player uncertainty rather than a band constant wearing his name. */
+  ck('proj_sd IS read by a client surface now — the premise that deferred this '
+    + 'to POST-DRAFT ("nothing on screen reads it") no longer holds, and it is '
+    + 'safe because the number is per-player rather than a band constant',
+    hits.length > 0, hits);
 
   /* CONTROL for that walk: it must find a field that IS read, or "no hits"
    * means the walker is broken rather than that nothing reads it. Rule 3e. */

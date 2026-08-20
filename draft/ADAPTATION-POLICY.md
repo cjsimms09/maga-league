@@ -108,3 +108,17 @@ grading harness) **go to the OpenAI auditor via A before they are relied on.
 Individual rows and routine grades do not.** The 08-20 loop-governance
 package (this standard, the CI gate, `skill_luck_r.py`) is the first
 submission under this ruling — routed in ROUTES the same day.
+
+**AMENDED BY CORY, 08-21, verbatim: "Every audit cost money!! Once you think
+we're too a point you can correct then stop sending."** Operationalized (the
+judgment call is A/relay's, per B's correct read): a structural change is
+submitted only when **(a)** it is a NEW CLASS of change the auditor has not
+yet confirmed, or **(b)** internal review has a named disagreement it cannot
+settle. Once a class is audit-confirmed AND our own gates demonstrably catch
+that class's mistakes, submissions of that class STOP. The evidence standard
+is the gate catch-record, not a feeling — 08-20/21 already shows it working
+twice (the relay's ledger pipe-split and A's defect re-instance, each caught
+by our own gates in one run). The queued 08-20 consolidated package
+(bench-option + loop governance + the friction three-run study) completes
+its round-trip as those classes' confirmation; after it, same-class changes
+go internal-first.
