@@ -1428,7 +1428,14 @@ def _keeper_map_for_board(full_map: dict, slate: dict, cfg: dict):
         return full_map, {"withheld": False, "teams": 0, "keepers": 0,
                           "reason": "slate confirmed — every designation applied"}
 
-    # ── CORY'S RULING, 2026-08-21, VERBATIM: "Locks once deadline passes." ──
+    # ── CORY'S RULING, VERBATIM: "Locks once deadline passes." ─────────────
+    #
+    # ⚠️ THE DATE IS DELIBERATELY NOT WRITTEN HERE. `test_keeper_lock_flag`
+    # forbids ANY keeper-lock date literal in this file — E25's defect was the
+    # repo holding two keeper-lock dates that nobody reconciled, and the guard
+    # cannot tell a ruling date from a deadline. It refused a rebuild over my
+    # comment, which is the guard working. The date lives in
+    # league_config.json, which is the one place it should.
     #
     # THE SECOND SWITCH, AND THE ONE THAT WILL ACTUALLY FIRE THIS YEAR. Six of
     # ten teams have designated. `status` only reaches 'confirmed' at ten of
@@ -1475,8 +1482,8 @@ def _keeper_map_for_board(full_map: dict, slate: dict, cfg: dict):
             "released_unverified": caveat,
             "reason": "the keeper lock has PASSED, so every designation on the "
                       "board is final by league rule and all of them are "
-                      "applied — Cory's ruling 2026-08-21, 'Locks once deadline "
-                      "passes'. A team with no designation is keeping nobody; "
+                      "applied — Cory's ruling, 'Locks once deadline passes'. "
+                      "A team with no designation is keeping nobody; "
                       "before the deadline that was UNKNOWN and withheld, which "
                       "is what the branch above still does.",
         }

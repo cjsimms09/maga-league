@@ -1,0 +1,29 @@
+# FREE NFL ODDS PROBE — Cory 08-21: "Explore free Vegas odds we can get".
+# Runs the keyless-source census in CI (where the network is open; the sandbox
+# gateway 403s arbitrary hosts). Manual dispatch only — this is a probe, not a
+# capture; winners graduate to real capture workflows via C.
+name: free-odds-probe
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the probe
+        run: |
+          set -uo pipefail
+          python3 draft/tools/free_odds_probe.py
+      - name: Commit the census
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/free_odds_probe_2026.json
+          git diff --cached --quiet && { echo "no change"; exit 0; }
+          git commit -m "Free-odds probe census: keyless NFL odds sources, known-positive controlled [skip deploy]"
+          git pull --rebase origin main
+          git push origin HEAD:main

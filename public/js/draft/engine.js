@@ -35,7 +35,43 @@
     RUN_BANNER_AT: 1.4,       // multiplier that earns a "RUN DETECTED" banner
     BENCH_DISCOUNT: 0.35,     // 12-team default; formatDefaults() overrides it
     BENCH_SCORE_FLOOR: 0.0,   // a bench lottery ticket is never scored below ~0 (PARKED fix C)
-    SURVIVOR_CUTOFF: 0.005,   // stop the VONA product once mass is negligible
+    SURVIVOR_CUTOFF: 0.005,   // CANDIDATE FILTER: a player this unlikely to last
+                              // is not a realistic option at the next pick
+    /* ⚠️ SPLIT OUT 2026-08-21. `SURVIVOR_CUTOFF` was doing TWO JOBS with one
+     * number: the candidate filter above, and the numerical truncation of the
+     * survivor product inside expectedBestAvailable. They are different
+     * questions and they want different values, and sharing the constant meant
+     * neither could be tuned without moving the other.
+     *
+     * THE COST, MEASURED — AND IT IS NOT A CONSTANT, WHICH IS THE WHOLE POINT.
+     * Truncating at 0.005 leaves residual probability mass that gets credited
+     * to the WORST player in the pool. How much is left depends on the shape
+     * of that position's survival curve at that horizon, so the error moves
+     * with BOTH the position and the pick:
+     *
+     *   nextPick     QB     RB     WR     TE
+     *         48  0.001  0.414  0.082  0.051
+     *         68  0.063  0.069  0.135  0.120
+     *         93  1.377  0.611  0.099  0.432
+     *        113  0.006  0.123  0.051  0.104
+     *        128  0.778  0.097  0.006  0.003
+     *        148  0.022  0.158  0.000  0.003
+     *
+     * (My first write-up of this quoted the pick-48 row as if it were a fixed
+     * per-position offset. It is not, and the difference matters: a fixed thumb
+     * would at least be predictable. This is an erratic error up to 1.4 points
+     * landing on exactly the CROSS-POSITION, CROSS-PICK comparison VONA exists
+     * to make.)
+     *
+     * IT IS LARGER THAN THE GAPS IT DECIDES. Javonte Williams over A.J. Brown
+     * turned on 0.137; Kyren Williams over Nico Collins on 0.237; Travis
+     * Etienne over Colston Loveland on 0.218. Ten orderings inside Cory's top
+     * 50 by VONA flip when it is removed — and at pick 128 the RECOMMENDED
+     * POSITION changes, QB to RB, because the QB residual there is 0.778.
+     *
+     * This is the tolerance for the ARITHMETIC only. The pools are ~200 deep,
+     * so running the product to convergence costs nothing measurable. */
+    EBA_TAIL_TOLERANCE: 1e-9, // numerical: stop when the mass really is spent
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
     // STAGE 2 CAP — the crude, evidence-gated deviation anchor (pre-registered in
     // draft/backtest/STAGE2-CAP-PREREG.md). OFF by default: shipping it on before
@@ -1064,7 +1100,7 @@
       expected += p.proj_mean * pBest;
       massUsed += pBest;
       allBetterGone *= (1 - surv);
-      if (allBetterGone < CFG.SURVIVOR_CUTOFF) break;
+      if (allBetterGone < CFG.EBA_TAIL_TOLERANCE) break;
     }
     // Whatever probability mass is left means everyone listed is gone; fall back
     // to the worst known player rather than silently crediting zero points.
