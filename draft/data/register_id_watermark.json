@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 200,
+ "next_numeric_id": 202,
  "history": [
   {
    "id": 47,
@@ -327,6 +327,10 @@
    "claimed_at": "2026-08-21"
   },
   {
+   "id": 195,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": 191,
    "claimed_at": "2026-08-21"
   },
@@ -356,6 +360,15 @@
   },
   {
    "id": 199,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 200,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 195 claim collided with main's PRINTED register 195 (the pre-draft survival collapse, fc55104c/edf59a15). Register 186's protocol, main-printed ids canonical, so my control-band row renumbers 195->200. SIXTH silent collision of this session (192, 193, P313, 194, 195) -- not one produced a conflict marker, because duplicate rows sit on different lines and git auto-merges them cleanly. The allocator cannot see across branch and main; only the merge can. ASK ON RECORD: the post-merge duplicate-id grep should be a CI step, not a habit -- test_defect_register.py already has test_no_two_rows_share_an_id, so the gap is that it only runs AFTER someone thinks to run it locally on a merged tree."
+  },
+  {
+   "id": 201,
    "claimed_at": "2026-08-21"
   }
  ]
