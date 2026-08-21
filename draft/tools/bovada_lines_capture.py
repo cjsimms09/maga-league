@@ -34,15 +34,22 @@ def main():
             if x.get('description') and x.get('displayGroups') and x.get('startTime'):
                 game = {'ts': ts, 'game': x['description'], 'start': x.get('startTime'),
                         'link': x.get('link'), 'markets': {}}
+                # v2 (census 4079809f): keep EVERY market group — the discards
+                # were the distributions. Alternate Lines = alt spreads/totals
+                # (P12's game-level ingredient); the 'Both teams to score X+'
+                # ladder = an empirical scoring CDF, 8 thresholds/game, free.
                 for g in x['displayGroups']:
+                    gname = g.get('description', '?')
                     for m in g.get('markets', []):
                         name = m.get('description')
-                        if name in ('Point Spread', 'Total', 'Moneyline'):
-                            game['markets'][name] = [
-                                {'o': oc.get('description'),
-                                 'h': (oc.get('price') or {}).get('handicap'),
-                                 'p': (oc.get('price') or {}).get('american')}
-                                for oc in m.get('outcomes', [])]
+                        if not name:
+                            continue
+                        key = name if gname == 'Game Lines' else gname + '|' + name
+                        game['markets'].setdefault(key, []).extend(
+                            {'o': oc.get('description'),
+                             'h': (oc.get('price') or {}).get('handicap'),
+                             'p': (oc.get('price') or {}).get('american')}
+                            for oc in m.get('outcomes', []))
                 if game['markets']:
                     rows.append(game)
             for v in x.values():

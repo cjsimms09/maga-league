@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-19T08:52:22Z",
-   "board_content_hash": "774e8ccc50d8",
+   "board_built_at": "2026-08-21T00:29:00Z",
+   "board_content_hash": "ca22d6cdc18b",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
@@ -66,12 +66,21 @@
     "pick": 33,
     "candidates": [
      {
+      "player_id": "8155",
+      "name": "Breece Hall",
+      "position": "RB",
+      "vorp": 46.9,
+      "survival": 0.29,
+      "adp": 29.8,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "12481",
       "name": "Cam Skattebo",
       "position": "RB",
       "vorp": 37.8,
-      "survival": 0.45,
-      "adp": 32.6,
+      "survival": 0.56,
+      "adp": 33.5,
       "_onesie_reach": false
      },
      {
@@ -80,7 +89,7 @@
       "position": "RB",
       "vorp": 35.2,
       "survival": 0.87,
-      "adp": 38.0,
+      "adp": 38.1,
       "_onesie_reach": false
      },
      {
@@ -88,8 +97,8 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "vorp": 31.8,
-      "survival": 0.99,
-      "adp": 47.3,
+      "survival": 1.0,
+      "adp": 47.1,
       "_onesie_reach": false
      },
      {
@@ -97,17 +106,8 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 31.1,
-      "survival": 0.76,
-      "adp": 39.3,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "11584",
-      "name": "Bucky Irving",
-      "position": "RB",
-      "vorp": 28.1,
-      "survival": 0.96,
-      "adp": 43.3,
+      "survival": 0.75,
+      "adp": 39.2,
       "_onesie_reach": false
      }
     ]
@@ -120,8 +120,8 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "vorp": 31.8,
-      "survival": 0.45,
-      "adp": 47.3,
+      "survival": 0.43,
+      "adp": 47.1,
       "_onesie_reach": false
      },
      {
@@ -129,8 +129,8 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 23.5,
-      "survival": 0.5,
-      "adp": 48.0,
+      "survival": 0.55,
+      "adp": 48.8,
       "_onesie_reach": false
      },
      {
@@ -139,7 +139,7 @@
       "position": "TE",
       "vorp": 19.8,
       "survival": 0.43,
-      "adp": 46.4,
+      "adp": 46.3,
       "_onesie_reach": false
      },
      {
@@ -147,8 +147,8 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 16.9,
-      "survival": 0.6,
-      "adp": 50.5,
+      "survival": 0.57,
+      "adp": 49.8,
       "_onesie_reach": false
      },
      {
@@ -156,7 +156,7 @@
       "name": "Bhayshul Tuten",
       "position": "RB",
       "vorp": 15.4,
-      "survival": 0.85,
+      "survival": 0.86,
       "adp": 53.8,
       "_onesie_reach": false
      }
@@ -166,12 +166,21 @@
     "pick": 53,
     "candidates": [
      {
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 23.5,
+      "survival": 0.27,
+      "adp": 48.8,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "6770",
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 16.9,
-      "survival": 0.4,
-      "adp": 50.5,
+      "survival": 0.37,
+      "adp": 49.8,
       "_onesie_reach": false
      },
      {
@@ -188,8 +197,8 @@
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 12.4,
-      "survival": 0.8,
-      "adp": 56.2,
+      "survival": 0.85,
+      "adp": 56.9,
       "_onesie_reach": false
      },
      {
@@ -198,16 +207,7 @@
       "position": "QB",
       "vorp": 11.6,
       "survival": 0.7,
-      "adp": 58.9,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "2133",
-      "name": "Davante Adams",
-      "position": "WR",
-      "vorp": 10.2,
-      "survival": 0.68,
-      "adp": 54.7,
+      "adp": 58.8,
       "_onesie_reach": false
      }
     ]
@@ -218,12 +218,21 @@
     "pick": 33,
     "candidates": [
      {
+      "player_id": "8155",
+      "name": "Breece Hall",
+      "position": "RB",
+      "vorp": 46.9,
+      "survival": 0.29,
+      "adp": 29.8,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "12481",
       "name": "Cam Skattebo",
       "position": "RB",
       "vorp": 37.8,
-      "survival": 0.45,
-      "adp": 32.6,
+      "survival": 0.56,
+      "adp": 33.5,
       "_onesie_reach": false
      },
      {
@@ -232,7 +241,7 @@
       "position": "RB",
       "vorp": 35.2,
       "survival": 0.87,
-      "adp": 38.0,
+      "adp": 38.1,
       "_onesie_reach": false
      },
      {
@@ -240,8 +249,8 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "vorp": 31.8,
-      "survival": 0.99,
-      "adp": 47.3,
+      "survival": 1.0,
+      "adp": 47.1,
       "_onesie_reach": false
      },
      {
@@ -249,17 +258,8 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 31.1,
-      "survival": 0.76,
-      "adp": 39.3,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "11584",
-      "name": "Bucky Irving",
-      "position": "RB",
-      "vorp": 28.1,
-      "survival": 0.96,
-      "adp": 43.3,
+      "survival": 0.75,
+      "adp": 39.2,
       "_onesie_reach": false
      }
     ]
@@ -272,8 +272,8 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "vorp": 31.8,
-      "survival": 0.45,
-      "adp": 47.3,
+      "survival": 0.43,
+      "adp": 47.1,
       "_onesie_reach": false
      },
      {
@@ -281,8 +281,8 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 23.5,
-      "survival": 0.5,
-      "adp": 48.0,
+      "survival": 0.55,
+      "adp": 48.8,
       "_onesie_reach": false
      },
      {
@@ -291,7 +291,7 @@
       "position": "TE",
       "vorp": 19.8,
       "survival": 0.43,
-      "adp": 46.4,
+      "adp": 46.3,
       "_onesie_reach": false
      },
      {
@@ -299,8 +299,8 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 16.9,
-      "survival": 0.6,
-      "adp": 50.5,
+      "survival": 0.57,
+      "adp": 49.8,
       "_onesie_reach": false
      },
      {
@@ -308,7 +308,7 @@
       "name": "Bhayshul Tuten",
       "position": "RB",
       "vorp": 15.4,
-      "survival": 0.85,
+      "survival": 0.86,
       "adp": 53.8,
       "_onesie_reach": false
      }
@@ -318,12 +318,21 @@
     "pick": 53,
     "candidates": [
      {
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 23.5,
+      "survival": 0.27,
+      "adp": 48.8,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "6770",
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 16.9,
-      "survival": 0.4,
-      "adp": 50.5,
+      "survival": 0.37,
+      "adp": 49.8,
       "_onesie_reach": false
      },
      {
@@ -340,8 +349,8 @@
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 12.4,
-      "survival": 0.8,
-      "adp": 56.2,
+      "survival": 0.85,
+      "adp": 56.9,
       "_onesie_reach": false
      },
      {
@@ -350,16 +359,7 @@
       "position": "QB",
       "vorp": 11.6,
       "survival": 0.7,
-      "adp": 58.9,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "2133",
-      "name": "Davante Adams",
-      "position": "WR",
-      "vorp": 10.2,
-      "survival": 0.68,
-      "adp": 54.7,
+      "adp": 58.8,
       "_onesie_reach": false
      }
     ]
