@@ -1,0 +1,66 @@
+{
+ "_territory": "relay probe; C consumes; results are the free-odds census",
+ "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
+ "captured_at": "2026-08-21T00:25:10.974854Z",
+ "sources": {
+  "espn": {
+   "status": 403,
+   "bytes": 0,
+   "verdict": "UNREACHABLE (status 403)"
+  },
+  "bovada": {
+   "status": 200,
+   "bytes": 626086,
+   "known_positive": [
+    {
+     "game": "New England Patriots @ Seattle Seahawks",
+     "market": "Moneyline",
+     "handicap": null
+    },
+    {
+     "game": "New England Patriots @ Seattle Seahawks",
+     "market": "Point Spread",
+     "handicap": "4.0"
+    },
+    {
+     "game": "New England Patriots @ Seattle Seahawks",
+     "market": "Total",
+     "handicap": "44.5"
+    }
+   ],
+   "markets_seen": 48,
+   "prop_mentions": 0,
+   "verdict": "POSITIVE \u2014 real lines on real games"
+  },
+  "polymarket": {
+   "status": 200,
+   "bytes": 831492,
+   "events": 20,
+   "known_positive": [
+    {
+     "event": "Tush Push banned for 2026 NFL Season?",
+     "price_yes": 0.002
+    },
+    {
+     "event": "Will Aaron Rodgers retire before next season?",
+     "price_yes": 0.011
+    },
+    {
+     "event": "Who will attend Taylor Swift and Travis Kelce's wedding?",
+     "price_yes": 0.002
+    }
+   ],
+   "verdict": "POSITIVE \u2014 real lines on real games"
+  },
+  "draftkings_public": {
+   "status": 403,
+   "bytes": 0,
+   "verdict": "UNREACHABLE (status 403)"
+  },
+  "yahoo": {
+   "status": 404,
+   "bytes": 0,
+   "verdict": "UNREACHABLE (status 404)"
+  }
+ }
+}
