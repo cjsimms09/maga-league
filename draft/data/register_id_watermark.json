@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 190,
+ "next_numeric_id": 191,
  "history": [
   {
    "id": 47,
@@ -314,6 +314,10 @@
    "id": 189,
    "claimed_at": "2026-08-21",
    "note": "E: claimed from the watermark at merge under register 186's protocol (ids printed on main are canonical). This row is refused rebuilds ate a day of an unbackfillable series; main prints the id it previously held here as a different finding. Full mine<->main mapping in draft/audit/REGISTER-ID-CLASSIFICATION-2026-08-21.md."
+  },
+  {
+   "id": 190,
+   "claimed_at": "2026-08-21"
   }
  ]
 }
