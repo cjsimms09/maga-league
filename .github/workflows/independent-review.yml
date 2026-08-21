@@ -17,6 +17,9 @@ on:
       claim_path:
         description: "Path to the agent's claim (what ran / what came back / what it proves / what it does NOT prove / uncertainty / next step)"
         default: ""
+      paths:
+        description: "Comma-separated pathspecs to scope the diff to (declared to the reviewer, never silent). Use when the claim is about specific files and the raw range is too big to send intact."
+        default: ""
       run_tests:
         description: "Run the suites and give the reviewer their real output"
         type: boolean
@@ -147,6 +150,7 @@ jobs:
             args="$args --base '${{ inputs.base_ref }}' --head '${{ inputs.head_ref }}'"
             [ "${{ inputs.run_tests }}" = "true" ] || args="$args --no-tests"
             [ -n "${{ inputs.claim_path }}" ] && args="$args --claim '${{ inputs.claim_path }}'"
+            [ -n "${{ inputs.paths }}" ] && args="$args --paths '${{ inputs.paths }}'"
           fi
           # `|| true` ON PURPOSE AND ONLY HERE. v1 does not gate on the verdict,
           # and the self-test exits non-zero by design when the reviewer misses

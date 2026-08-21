@@ -57,8 +57,21 @@ the adversarial pass myself and say so.
 
 Verify that path in one line, no key and no network needed:
 
-    OPENAI_API_KEY= python3 tools/independent_review.py --self-test --out /tmp/u.json
-    # -> exit 0, status UNAVAILABLE, .get("verdict") is None
+    OPENAI_API_KEY= python3 tools/independent_review.py \
+        --base HEAD~1 --head HEAD --no-tests --out /tmp/u.json
+    # -> exit 0, status UNAVAILABLE, unavailable_kind CONFIG, no "verdict" key
+
+⚠️ THIS LINE USED TO OFFER `--self-test` AS THAT PROOF, AND IT PROVES SOMETHING
+ELSE. Run keyless, `--self-test` exits **1**, deliberately: "a self-test that did
+not run cannot establish reviewer validity ... this exits non-zero so it cannot
+be mistaken for a passed validation." That is correct behaviour for the
+VALIDATION path and the wrong demonstration of the AVAILABILITY contract, which
+is what Cory's requirement is about. Anyone running the old one-liner saw exit 1
+and had to decide for themselves whether the contract was broken — it is not.
+The two paths are separate on purpose and this now says which is which.
+(Found 2026-08-21 while checking a `--paths` change had not broken the module;
+the exit code was pre-existing and identical on the unmodified file, confirmed by
+running HEAD's copy from inside the repo tree so ROOT resolved the same way.)
 
 Usage:
     python3 tools/independent_review.py --base origin/main --head HEAD \\
@@ -113,9 +126,36 @@ def _run(cmd: list[str], *, cwd: Path = ROOT) -> tuple[int, str]:
 
 
 # ── REPOSITORY FACTS ────────────────────────────────────────────────────────
-def collect_repo_facts(base: str, head: str, *, run_tests: bool) -> dict:
-    rc_d, diff = _run(["git", "diff", f"{base}...{head}"])
-    rc_n, names = _run(["git", "diff", "--numstat", f"{base}...{head}"])
+def collect_repo_facts(base: str, head: str, *, run_tests: bool,
+                       paths: list[str] | None = None) -> dict:
+    """
+    ⚠️ `paths` EXISTS BECAUSE A REVIEW CAN BE DEFEATED BY ARITHMETIC, and one was.
+
+    Run 32427618649 was dispatched with the VONA/VORP audit packet as its claim.
+    The reviewer declined to rule on it, correctly and in these words: "this
+    change does not modify VONA code ... an external reviewer cannot verify the
+    claims from this diff." The claim described the scoring model; the diff was
+    an unrelated mount-anchor fix. So the one question the packet was written to
+    answer — is adding gated VORP to VONA double-counting scarcity — came back
+    unanswered, and it read as if the audit had simply not found anything.
+
+    The obvious repair is to move `base` back to before the VORP work landed.
+    MEASURED before doing it, which is the only reason this parameter exists
+    instead of a wrong base ref: `a5afcbf0...origin/main` is **150,024,740
+    bytes across 2,931 files** against a MAX_DIFF_BYTES of 400,000. The reviewer
+    would have seen **0.27%** of it — and would have returned the same "cannot
+    verify from this diff" for a second paid call, because truncation is honest
+    but it is not coverage.
+
+    A claim about four functions needs those four functions in the diff, not a
+    week of unrelated commits truncated at the knees. `paths` scopes the diff to
+    what the claim is actually about; it is recorded in the payload so the
+    reviewer knows the scope was narrowed and by what, and can say so if the
+    scope itself is the problem. Unscoped behaviour is unchanged.
+    """
+    pathspec = (["--"] + list(paths)) if paths else []
+    rc_d, diff = _run(["git", "diff", f"{base}...{head}"] + pathspec)
+    rc_n, names = _run(["git", "diff", "--numstat", f"{base}...{head}"] + pathspec)
 
     raw_len = len(diff.encode())
     truncated = raw_len > MAX_DIFF_BYTES
@@ -139,6 +179,18 @@ def collect_repo_facts(base: str, head: str, *, run_tests: bool) -> dict:
         "diff_truncated": truncated,
         "diff_omitted_bytes": max(0, raw_len - MAX_DIFF_BYTES),
         "diff_command_exit": rc_d or rc_n,
+        #: DECLARED, never silent. A narrowed diff that does not announce itself
+        #: is the same defect as an undeclared truncation: the reviewer reports
+        #: "no issue found" about code it was never shown. If the scope is wrong,
+        #: the reviewer can now say so instead of answering the wrong question.
+        "diff_path_scope": list(paths) if paths else None,
+        "diff_scope_note": (
+            "The diff was DELIBERATELY SCOPED to the paths above because the "
+            "claim is about those files specifically; an unscoped diff over this "
+            "range is ~150MB against a 400KB budget and would reach you 99.7% "
+            "truncated. Judge whether this scope is the right one for the claim, "
+            "and say so if it is not." if paths else None
+        ),
     }
 
     if run_tests:
@@ -407,6 +459,8 @@ def main() -> int:
     ap.add_argument("--claim", default=None)
     ap.add_argument("--out", required=True)
     ap.add_argument("--no-tests", action="store_true")
+    ap.add_argument("--paths", default=None,
+                    help="Comma-separated pathspecs to scope the diff to. Use when the\nclaim is about specific files and the raw range is too large to send intact\n(the scope is declared to the reviewer, never applied silently).")
     ap.add_argument("--self-test", action="store_true",
                     help="grade the reviewer against a known-null change; "
                          "exits non-zero unless it BLOCKs")
@@ -417,7 +471,9 @@ def main() -> int:
     if a.self_test:
         payload = self_test_payload()
     else:
-        facts = collect_repo_facts(a.base, a.head, run_tests=not a.no_tests)
+        _paths = [x.strip() for x in a.paths.split(",") if x.strip()] if a.paths else None
+        facts = collect_repo_facts(a.base, a.head, run_tests=not a.no_tests,
+                                   paths=_paths)
         # ── AN EMPTY DIFF IS NOT A CLEAN CHANGE ─────────────────────────────
         # Found on the first dry run: `origin/main...HEAD` was empty because the
         # branch had just been merged. The harness would have sent a claim, no
