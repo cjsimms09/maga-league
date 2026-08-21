@@ -1484,6 +1484,10 @@ body.warroom-page .best-avail-strip { font-size: .72rem; }
 /* ── BIG BOARD tab ──────────────────────────────────────────────────────── */
 .wr-boardbar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 0 0 .5rem; }
 .wr-boardbar .wr-search { flex: 1 1 240px; margin: 0; }
+/* Cory, 2026-08-21: "does it change based on source selected?" -- the honest
+ * answer, computed all along, printed for the first time. Sits above both
+ * the by-position columns and the full table since they share one ordering. */
+.wr-board-ordering { margin: 0 0 .6rem; font-size: .78rem; }
 .wr-cols {
   display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .4rem;
   -webkit-overflow-scrolling: touch;

@@ -416,12 +416,25 @@
       </div>
       <div class="wr-chips" id="wr-pos-chips"></div>
     </div>
+    <%# Cory, 2026-08-21: "where do that info come from does it change based on
+        source selected?" — it does (state.bigBoardOrdering, app.js:7233), but
+        the answer was computed and never once printed anywhere, the exact
+        "unshown field" defect class this project keeps finding. One honest
+        sentence covers both the by-position columns below and the full table
+        further down — they share the same ordering, computed once. %>
+    <p class="muted wr-board-ordering" id="board-ordering-note"></p>
     <%# The columnar board — per-position side-scrolling columns, tier cliffs
         drawn as red lines, count in each header. warroom_charts.js renders. %>
     <div id="wr-board-columns" class="wr-board-columns"><p class="wr-railwait">Board loading…</p></div>
 
+    <%# Cory, 2026-08-21: "can we get a view or tab of big board that says
+        overall ranking (all players) of that source, not just by position?"
+        This already was that view — #pos-filter defaults to "All" — but the
+        old summary line never said so, which is very plausibly why he never
+        found it. Same data as the columns above, one flat list instead of
+        six side-by-side. %>
     <details class="wr-fulltable" id="wr-fulltable">
-      <summary class="layer-sum">Full table — flags, news overrides, queue &amp; take controls</summary>
+      <summary class="layer-sum">Overall ranking — every player, all positions, one list (plus flags, news overrides, queue &amp; take controls)</summary>
       <div class="card" style="margin-top:.6rem">
         <h2>
           Draft Board <span class="sub" id="board-count"></span>
