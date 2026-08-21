@@ -337,6 +337,11 @@ BOARD_FIELD_SOURCES = {
     "consensus_rank_season": "derived",
     "bye": "seasonal", "bye_source": "seasonal",
     "proj_sleeper": "seasonal", "proj_fantasypros": "seasonal",
+    # Same four providers, same reasoning — see the LIVE_FEED block below. Both
+    # registries, together, in one commit: registering a field in ONE of the two
+    # is the exact half-fix this file's own note records failing before.
+    "proj_cbs": "seasonal", "proj_espn": "seasonal",
+    "proj_fftoday": "seasonal", "proj_clay": "seasonal",
     # ── THE POST-PROCESSING CHAIN'S OWN FIELDS, ADDED 2026-08-20 ─────────────
     # Companion to the BOARD_FIELD_PURPOSE entries below; both tables are
     # asserted against the real artifact, so a field must be in BOTH. See the
@@ -550,6 +555,16 @@ BOARD_FIELD_PURPOSE = {
     "raw_adp_season": DERIVED_PURPOSE, "adp_season": DERIVED_PURPOSE,
     "consensus_rank_season": DERIVED_PURPOSE,
     "proj_fantasypros": LIVE_FEED, "proj_sleeper": LIVE_FEED,
+    # The four providers added for Cory's 08-21 source-toggle ruling. LIVE_FEED
+    # on the same criterion as the two above and READ OFF THE BUILDER rather than
+    # the name (`draft/tools/attach_multisource.py`): each is a provider's own
+    # published season projection, fetched into a store and stamped onto the
+    # board — CBS/ESPN/FFToday out of `multisource_projections.json`'s
+    # `by_source`, Clay out of `clay_projections_2026.json`'s `proj_clay_scored`.
+    # Scoring a fetched stat line under our own table does not make the number
+    # ours; `proj_fantasypros` has the same shape and the same classification.
+    "proj_cbs": LIVE_FEED, "proj_espn": LIVE_FEED,
+    "proj_fftoday": LIVE_FEED, "proj_clay": LIVE_FEED,
     # ── THE POST-PROCESSING CHAIN'S OWN FIELDS, ADDED 2026-08-20 ─────────────
     #
     # ⚠ WHY THEY APPEAR ONLY NOW, WHICH IS THE HONEST PART OF THIS ENTRY. These
@@ -704,7 +719,22 @@ BOARD_FIELD_PURPOSE = {
 # `apply_vorp`/`assign_tiers` on a shadow copy priced by one source's
 # projection, or (the band fields) as a ratio of two Draft Sharks numbers the
 # board already holds.
-_ALT_SOURCES = ("ds", "sleeper", "ownmodel", "fantasypros")
+# ⚠️ AND IT HAPPENED A THIRD TIME, 2026-08-21, TO ME (A), IN EXACTLY THE SHAPE
+# THE NOTE ABOVE DESCRIBES. Cory ruled that the Big Board toggle must carry every
+# blend source and that VONA must move with it, so `alt_source_rankings.py` grew
+# from four sources to eight — and this tuple, which is the ONLY thing that
+# declares that tool's output, was not grown with it. 48 more undeclared fields
+# on the live board, and the board-purpose gate caught every one.
+#
+# The lesson the previous note drew was "generate from a loop, do not hand-type".
+# That was right and insufficient: the loop still reads a source list that lives
+# in a DIFFERENT file, and nothing makes the two agree. The loop removed the
+# per-FIELD drift and left the per-SOURCE drift untouched, which is the half that
+# then bit. `test_alt_source_registry_matches_the_tool` (draft/tests) now asserts
+# this tuple against `alt_source_rankings.py`'s own list, so the next source is a
+# red test rather than a refused rebuild.
+_ALT_SOURCES = ("ds", "sleeper", "ownmodel", "fantasypros",
+                "cbs", "espn", "fftoday", "clay")
 _ALT_SUFFIXED = ("vorp", "tier", "pos_rank", "overall_rank", "replacement",
                  "tier_size", "tier_drop", "tier_rank", "proj_used", "covered",
                  "proj_ceiling", "proj_floor")

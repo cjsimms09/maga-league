@@ -161,8 +161,45 @@ def _fetch_practice_rows(season: int) -> list:  # pragma: no cover  (egress)
 
 
 def _fetch_crosswalk() -> dict:  # pragma: no cover  (egress)
+    """gsis_id -> sleeper_id, from nflverse's player crosswalk.
+
+    ⚠️ VERSION-TOLERANT ON PURPOSE (A, 2026-08-21). This called `nfl.import_ids()`
+    flat, and CI went red with `module 'nfl_data_py' has no attribute
+    'import_ids'` while the same call worked locally. `draft/requirements.txt`
+    pins only `nfl_data_py>=0.3.2`, so CI resolves whatever is newest and the
+    newest release dropped `import_ids` in favour of `import_players`. An
+    unpinned dependency plus a single-API call means upstream can turn this red
+    on any morning — including tomorrow's.
+
+    Pinning backwards would freeze us on an old release to keep one call
+    working. Instead: try both, prefer the one that exists, and say plainly
+    which shapes were tried if neither does. Both return a frame carrying
+    `gsis_id` and `sleeper_id`, which is all this needs.
+    """
     import nfl_data_py as nfl
-    df = nfl.import_ids()
+    df = None
+    tried = []
+    for name in ("import_ids", "import_players"):
+        fn = getattr(nfl, name, None)
+        if fn is None:
+            tried.append(name + " (absent)")
+            continue
+        try:
+            df = fn()
+            break
+        except Exception as exc:                            # noqa: BLE001
+            tried.append("%s (%s: %s)" % (name, type(exc).__name__, exc))
+    if df is None:
+        raise RuntimeError(
+            "no usable nfl_data_py crosswalk API — tried " + ", ".join(tried)
+            + ". Upstream renamed it again; add the new name to the list above "
+              "rather than pinning the package backwards.")
+    cols = set(getattr(df, "columns", []))
+    missing = {"gsis_id", "sleeper_id"} - cols
+    if missing:
+        raise RuntimeError(
+            "nfl_data_py crosswalk is missing %s — the columns this join needs. "
+            "Present: %s" % (sorted(missing), sorted(cols)[:20]))
     out = {}
     for row in df.to_dict("records"):
         g, s = row.get("gsis_id"), row.get("sleeper_id")

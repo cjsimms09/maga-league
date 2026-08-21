@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 230,
+ "next_numeric_id": 231,
  "history": [
   {
    "id": 47,
@@ -331,7 +331,7 @@
   {
    "id": "163-185 reconciled",
    "claimed_at": "2026-08-21",
-   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
   },
   {
    "id": "187-189",
@@ -341,7 +341,7 @@
   {
    "id": "192 -> 195",
    "claimed_at": "2026-08-21",
-   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. ⚠️ RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
+   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. \u26a0\ufe0f RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
   },
   {
    "id": "47-50 reconciled",
@@ -379,30 +379,34 @@
   {
    "id": 212,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
   },
   {
    "id": 213,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
   },
   {
    "id": 214,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
   },
   {
    "id": 215,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
   },
   {
    "id": 216,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
   },
   {
    "id": 217,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 218,
    "claimed_at": "2026-08-21"
   },
   {
@@ -450,7 +454,7 @@
   {
    "id": "200(->208),206,207,209 + P316",
    "claimed_at": "2026-08-21",
-   "note": "E: FOUR simultaneous silent collisions in one merge (191, 197, 199, P314), plus one row of mine that main had already renumbered for me. Protocol 186, main-printed ids canonical. My 191 (main-is-red) -> 208 (200 was already mine, from the 193->195->200 chain -- I caught that by grepping duplicates after the renumber, not before); my 197 (control-band k=) -> 206; my 199 (draft-pick-null review) -> 207; my P314 (slate countdown) -> P316. My blind-control row is DROPPED from my branch rather than renumbered: main already carries it at 197 with the full renumber history ('was 192, then 195, now 197'), so keeping my copy at 198 would be a third instance of one finding. ⚠️ AND MAIN ITSELF NOW CARRIES A DUPLICATE 197 -- my blind-control row and the ESPN/Clay row share it -- which means test_no_two_rows_share_an_id is RED on main. Flagged to A; not fixed here, because renumbering another lane's row is not mine to do. RESOLUTION OF MAIN'S OWN DUPLICATE: main printed 197 twice -- my blind-control row and the ESPN/Clay row -- so I moved MY row to 209 (its fourth id: 192->194/195->197->209) and left the ESPN/Clay row at 197, because renumbering another lane's row is not mine to do. test_no_two_rows_share_an_id is RED on main until A picks one."
+   "note": "E: FOUR simultaneous silent collisions in one merge (191, 197, 199, P314), plus one row of mine that main had already renumbered for me. Protocol 186, main-printed ids canonical. My 191 (main-is-red) -> 208 (200 was already mine, from the 193->195->200 chain -- I caught that by grepping duplicates after the renumber, not before); my 197 (control-band k=) -> 206; my 199 (draft-pick-null review) -> 207; my P314 (slate countdown) -> P316. My blind-control row is DROPPED from my branch rather than renumbered: main already carries it at 197 with the full renumber history ('was 192, then 195, now 197'), so keeping my copy at 198 would be a third instance of one finding. \u26a0\ufe0f AND MAIN ITSELF NOW CARRIES A DUPLICATE 197 -- my blind-control row and the ESPN/Clay row share it -- which means test_no_two_rows_share_an_id is RED on main. Flagged to A; not fixed here, because renumbering another lane's row is not mine to do. RESOLUTION OF MAIN'S OWN DUPLICATE: main printed 197 twice -- my blind-control row and the ESPN/Clay row -- so I moved MY row to 209 (its fourth id: 192->194/195->197->209) and left the ESPN/Clay row at 197, because renumbering another lane's row is not mine to do. test_no_two_rows_share_an_id is RED on main until A picks one."
   },
   {
    "id": 210,
@@ -481,10 +485,6 @@
    "claimed_at": "2026-08-21"
   },
   {
-   "id": 218,
-   "claimed_at": "2026-08-21"
-  },
-  {
    "id": 219,
    "claimed_at": "2026-08-21"
   },
@@ -505,6 +505,11 @@
   {
    "id": 229,
    "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 230,
+   "claimed_at": "2026-08-21",
+   "note": "E: FOURTEENTH collision round -- main printed 218; my refused-rebuild row takes 230."
   }
  ]
 }
