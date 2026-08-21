@@ -2,13 +2,13 @@
  "_territory": "TERRITORY: A \u2014 draft/backtest/start_sit_vs_random.py",
  "_what": "Getty et al. SIAM 2018 Test 3 (effect of player action) on our own league: actual start/sit vs a Monte-Carlo null of random LEGAL lineups from the same roster.",
  "n_owner_weeks": 531,
- "mean_percentile": 0.8484,
+ "mean_percentile": 0.8482,
  "null_95": [
   0.4754,
   0.5246
  ],
  "controls": {
-  "random_lineup": 0.4822,
+  "random_lineup": 0.5077,
   "oracle_lineup": 0.999
  },
  "n_draws_per_week": 400,
@@ -16,55 +16,72 @@
  "skipped": 9,
  "skipped_because_unmapped_player_was_started": 7,
  "unmapped_bench_players_dropped": 21,
+ "id_type_audit": {
+  "distinct_ids_in_history": 372,
+  "id_types_in_history": [
+   "str"
+  ],
+  "id_types_in_position_map": [
+   "str"
+  ],
+  "unmapped_raw": 6,
+  "unmapped_after_str_normalisation": 6,
+  "rescued_by_normalisation": 0
+ },
+ "greedy_oracle_vs_exact": {
+  "sampled_weeks": 60,
+  "weeks_greedy_understated": 0,
+  "max_gap_pts": 0.0
+ },
  "by_owner": {
   "coryjsimms": {
    "n": 52,
-   "mean_pct": 0.8502,
+   "mean_pct": 0.8529,
    "pts_left_per_week": 17.33
   },
   "ds7mmet": {
    "n": 54,
-   "mean_pct": 0.8129,
+   "mean_pct": 0.8108,
    "pts_left_per_week": 19.67
   },
   "cashworth": {
    "n": 54,
-   "mean_pct": 0.8855,
+   "mean_pct": 0.8857,
    "pts_left_per_week": 14.92
   },
   "Jreis": {
    "n": 53,
-   "mean_pct": 0.9031,
+   "mean_pct": 0.9023,
    "pts_left_per_week": 12.06
   },
   "B8T3S": {
    "n": 53,
-   "mean_pct": 0.8311,
+   "mean_pct": 0.8228,
    "pts_left_per_week": 15.24
   },
   "MarianSaar": {
    "n": 51,
-   "mean_pct": 0.7838,
+   "mean_pct": 0.7855,
    "pts_left_per_week": 19.31
   },
   "mhagen": {
    "n": 54,
-   "mean_pct": 0.8923,
+   "mean_pct": 0.8934,
    "pts_left_per_week": 14.09
   },
   "Richard2121": {
    "n": 53,
-   "mean_pct": 0.8425,
+   "mean_pct": 0.8403,
    "pts_left_per_week": 14.35
   },
   "Schmelley": {
    "n": 54,
-   "mean_pct": 0.8287,
+   "mean_pct": 0.8305,
    "pts_left_per_week": 17.6
   },
   "Sadbru": {
    "n": 53,
-   "mean_pct": 0.8513,
+   "mean_pct": 0.8552,
    "pts_left_per_week": 14.57
   }
  }

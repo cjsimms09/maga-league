@@ -62,10 +62,17 @@ label attached.
   band.** Building this tool, the first control seed drew R\*=−0.54 on fair
   coins (a legitimate sub-percentile fluke). The tool prints the band always;
   a naked R\* in a ledger row bounces at the Wednesday sweep.
-* **The skill-design menu (three-part standard, ADAPTATION-POLICY) now
-  includes split-half persistence**: any arm/tool/edge with ≥20 graded
-  outcomes gets R\*+band beside its mean. The weekly model scoreboard
-  (own vs Sleeper vs FP) reaches that n by midseason — D wires it in.
+* ~~**The skill-design menu now includes split-half persistence**: any
+  arm/tool/edge with ≥20 graded outcomes gets R\*+band beside its mean. The
+  weekly model scoreboard reaches that n by midseason — D wires it in.~~
+  **⚠️ WITHDRAWN 2026-08-21 — n≥20 prescribes on the wrong quantity.** Power
+  follows the size of the real EFFECT, not the outcome count: at our own spread
+  (≈0.106) R\* has 12% power at n=50 and 20% at n=150. A threshold admitting
+  n=20 manufactures non-significant numbers that get read as "not skill" — a
+  false negative dressed as a finding. **Replaced by the decision-null standard
+  in `ADAPTATION-POLICY.md`; D is NOT to wire this in.** The model scoreboard
+  is still the right target, but graded against a constructed null rather than
+  by split-half persistence.
 * **The quitting boundary layer is OUR quick-kill bias.** The paper measured
   that players quit after losing streaks, biasing records; our adaptation
   policy's quick-kill benches arms after 3 bad weeks — which truncates graded

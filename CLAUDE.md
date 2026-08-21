@@ -223,8 +223,19 @@ SKILL, not luck → implement the edge or keep studying. ENFORCED, not asked:**
 every ledger row from P283 must carry its LEARNING TARGET, SKILL DESIGN and
 CONSEQUENCE ROUTE or CI fails (`prediction_ledger_check.js`; P282 is the
 form); the 87-row open back-catalog goes FATAL 2026-09-10 — upgrade your own
-rows. Skill has an instrument now: `draft/tools/skill_luck_r.py` (split-half
-R* + null band, from Cory's SIAM upload — never quote R* without its band).
+rows. **Skill is graded by DECISION AGAINST A CONSTRUCTED NULL, not by outcome
+persistence** — Getty et al.'s Test 3, not their Test 4. `start_sit_vs_random.py`
+(wired into `weekly-grade.yml`; controls gate its exit code) scores each choice
+against random LEGAL alternatives, so power scales with the number of decisions
+and our ten-owner league stops being the limit: **530 owner-weeks, mean
+percentile 0.8497 vs a null band of [0.4754, 0.5246]**, decisive where R\* was
+not. **⚠️ `skill_luck_r.py` is NOT the skill instrument and the "≥20 graded
+outcomes" rule is WITHDRAWN** (08-21): on our own spread R\* has 12% power now
+and 20% after nine more seasons, so it cannot certify the standings and never
+will. It remains a descriptive tool; never quote R\* without its band.
+**Report the margin in the unit that pays — points left on the bench (league
+15.90/wk; Cory 17.33 ± 1.68 vs the best owner's 12.06 ± 1.43) — and never read
+adjacent ranks as findings; they sit inside one SE.**
 Structural changes to the grading process go to the OpenAI auditor first;
 routine rows and grades do not. `ADAPTATION-POLICY.md` bottom three sections.
 
