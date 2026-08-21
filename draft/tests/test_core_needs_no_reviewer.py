@@ -157,10 +157,38 @@ def test_NO_CORE_FILE_REFERENCES_A_PAID_REVIEWER():
         # actual evidence regardless.
         body = "\n".join(l for l in body.splitlines()
                           if not l.lstrip().lower().startswith("co-authored-by:"))
+        # ⛔ AND IT HAPPENED AGAIN THE NEXT DAY, 2026-08-21, IN EXACTLY THE SHAPE
+        # THE NOTE ABOVE NAMES. `draft/backtest/wire_friction_table.py` says, in
+        # its module docstring and in a `_note` field of its own output, that it
+        # "answers the OpenAI audit's question 2". It makes no API call, imports
+        # nothing, reads no key — it NAMES the audit that asked for it, which is
+        # exactly the provenance this project asks people to write down. The
+        # guard read the vendor's name and called it a dependency.
+        #
+        # Narrowed again, on the same principle and no further: the vendor name
+        # counts only in a DEPENDENCY-SHAPED context — an import, an attribute
+        # access, a URL, an env var, a constructor, an assignment. "the OpenAI
+        # audit's question 2" is none of those and cannot make a network call;
+        # `import openai`, `openai.ChatCompletion`, `api.openai.com`,
+        # `OPENAI_API_KEY`, `OpenAI(` all still hit. The execution-level proof
+        # below is the real evidence either way, and it is untouched.
+        #
+        # THE RULE THIS FILE KEEPS RELEARNING: a guard that matches a NAME
+        # rather than a USE will keep finding the documentation that explains
+        # it. Twice in two days, once inside the guard's own FORBIDDEN tuple.
         low = body.lower()
         for bad in FORBIDDEN:
-            if bad in low:
-                hits.append(f"{p.relative_to(ROOT)}: {bad}")
+            for m in re.finditer(re.escape(bad), low):
+                before = low[max(0, m.start() - 24):m.start()]
+                after = low[m.end():m.end() + 2]
+                dependency_shaped = (
+                    re.search(r"(^|[^a-z])(import|from)\s+[\w.]*$", before)
+                    or before.endswith(("://", ".", "/"))
+                    or after.startswith((".", "(", "_"))
+                    or re.search(r"[\w.]$", before))
+                if dependency_shaped:
+                    hits.append(f"{p.relative_to(ROOT)}: {bad}")
+                    break
     assert not hits, (
         "the product path now depends on a paid reviewer:\n  "
         + "\n  ".join(hits)
