@@ -124,6 +124,68 @@ def rz_multiplier(rate: float, pos_mean_rate: float) -> float:
     return max(lo, min(hi, rate / pos_mean_rate))
 
 
+def controls() -> dict:
+    """THE TWO CONTROLS — `GRADING-POLICY.md` requirement 3, register 198.
+
+    Owned by the SCRIPT so the run and the test share ONE definition (Rule 11)
+    and `cli()` can refuse to publish when either goes red.
+
+    known-POSITIVE — the multiplier must DISCRIMINATE: a heavy red-zone player
+    must price above his position mean and a zero-red-zone player at the clip
+    floor, or the study is measuring nothing.
+    known-NEGATIVE — a multiplier of exactly 1.0 must collapse the tilt to the
+    baseline EXACTLY, and a position mean of zero must fall back to 1.0 rather
+    than dividing by zero or zeroing the whole position out.
+
+    Note what this pair CANNOT do, since register 198 is about controls that
+    look stronger than they are: it watches the multiplier, not the arm's
+    accuracy. It passed while P292's arm was clipping 17.3% of player-weeks at
+    x3 — correctly, because clipping at the declared bound is the specified
+    behaviour. A control tells you the transform is the one you wrote; only
+    the grade tells you the transform is any good.
+    """
+    lo, hi = RZ_MULT_CLIP
+    heavy = rz_multiplier(rate=3.0, pos_mean_rate=1.0)
+    zero = rz_multiplier(rate=0.0, pos_mean_rate=1.0)
+    at_mean = 12.3 * (1.0 + TILT_SCALE * (rz_multiplier(rate=1.0, pos_mean_rate=1.0) - 1.0))
+    no_mean = rz_multiplier(rate=5.0, pos_mean_rate=0.0)
+    checks = [
+        {"control": "known-positive", "case": "heavy player prices above the mean",
+         "want": "> 1.0", "got": heavy, "ok": heavy > 1.0},
+        {"control": "known-positive", "case": "zero-red-zone player sits at the clip floor",
+         "want": lo, "got": zero, "ok": zero == lo},
+        {"control": "known-positive", "case": "heavy and zero are distinguishable",
+         "want": "heavy > zero", "got": (heavy, zero), "ok": heavy > zero},
+        {"control": "known-positive", "case": "a runaway rate clips at the ceiling",
+         "want": hi, "got": rz_multiplier(rate=100.0, pos_mean_rate=1.0),
+         "ok": rz_multiplier(rate=100.0, pos_mean_rate=1.0) == hi},
+        {"control": "known-negative", "case": "multiplier 1.0 collapses to the baseline exactly",
+         "want": 12.3, "got": at_mean, "ok": at_mean == 12.3},
+        {"control": "known-negative", "case": "a zero position mean falls back to 1.0",
+         "want": 1.0, "got": no_mean, "ok": no_mean == 1.0},
+    ]
+    return {"ok": all(c["ok"] for c in checks), "checks": checks}
+
+
+def print_controls(res: dict) -> None:
+    bad = [c for c in res["checks"] if not c["ok"]]
+    print(f"  controls: {len(res['checks']) - len(bad)}/{len(res['checks'])} pass")
+    for c in bad:
+        print(f"    RED  {c['control']} — {c['case']}: want {c['want']}, got {c['got']}")
+
+
+def cli() -> int:
+    """The exit code IS the verdict — register 198."""
+    res = controls()
+    print_controls(res)
+    if not res["ok"]:
+        print("\n  \u26d4 REFUSING: a control failed, so nothing below would be "
+              "evidence of anything. Artifact NOT written.")
+        return 1
+    main()
+    return 0
+
+
 def grade_fold(target_season: int) -> dict:
     pop = eligible_population(target_season)
     if not pop:
@@ -290,4 +352,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(cli())

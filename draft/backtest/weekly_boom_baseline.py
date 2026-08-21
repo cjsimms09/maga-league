@@ -132,6 +132,70 @@ def boom_sets(by_pos_week: dict) -> tuple[dict, dict]:
     return out, ties
 
 
+def synthetic_control_season(n_others: int = 30, weeks: int = 5) -> dict:
+    """A season where `star` outscores everyone every week and `bench` scores
+    zero every week; everyone else is mid-pack.
+
+    MOVED HERE FROM THE TEST at register 198. It used to live only in
+    `test_weekly_boom_baseline.py`, which meant the fixture and the assertions
+    it feeds could not be reached by the run that writes the artifact. The
+    test now imports THIS one, so there is a single definition and the two
+    callers cannot drift (Rule 11).
+    """
+    by_pos_week = {}
+    for w in range(1, weeks + 1):
+        rows = [("star", 100.0), ("bench", 0.0)]
+        rows += [(f"p{i}", 10.0 + i) for i in range(n_others)]
+        by_pos_week[("WR", w)] = rows
+    return by_pos_week
+
+
+def controls() -> dict:
+    """THE TWO CONTROLS — `GRADING-POLICY.md` requirement 3, register 198.
+
+    known-POSITIVE — a planted every-week top scorer must come back at boom
+    rate exactly 1.0.
+    known-NEGATIVE — a planted never-scorer must come back at exactly 0.0.
+
+    A harness that cannot produce those two is not measuring booms, and every
+    rate in the artifact would be meaningless while looking entirely normal —
+    which is the whole reason this study's degenerate unconditional reading is
+    labeled in the artifact rather than trusted.
+    """
+    booms, _ties = boom_sets(synthetic_control_season())
+    weeks = [k for k in booms if k[0] == "WR"]
+    star = sum(1 for k in weeks if "star" in booms[k])
+    bench = sum(1 for k in weeks if "bench" in booms[k])
+    checks = [
+        {"control": "fixture", "case": "the synthetic season built any weeks at all",
+         "want": "> 0", "got": len(weeks), "ok": bool(weeks)},
+        {"control": "known-positive", "case": "planted every-week top scorer booms every week",
+         "want": len(weeks), "got": star, "ok": bool(weeks) and star == len(weeks)},
+        {"control": "known-negative", "case": "planted never-scorer booms in no week",
+         "want": 0, "got": bench, "ok": bench == 0},
+    ]
+    return {"ok": all(c["ok"] for c in checks), "checks": checks}
+
+
+def print_controls(res: dict) -> None:
+    bad = [c for c in res["checks"] if not c["ok"]]
+    print(f"  controls: {len(res['checks']) - len(bad)}/{len(res['checks'])} pass")
+    for c in bad:
+        print(f"    RED  {c['control']} — {c['case']}: want {c['want']}, got {c['got']}")
+
+
+def cli() -> int:
+    """The exit code IS the verdict — register 198."""
+    res = controls()
+    print_controls(res)
+    if not res["ok"]:
+        print("\n  \u26d4 REFUSING: a control failed, so nothing below would be "
+              "evidence of anything. Artifact NOT written.")
+        return 1
+    main()
+    return 0
+
+
 def prior_season_tiers(season: int) -> dict:
     """{pid: (pos, tier, prior_ppg)} from season Y-1 only.
 
@@ -311,4 +375,4 @@ def main() -> dict:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(cli())

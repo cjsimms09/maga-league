@@ -30,14 +30,10 @@ def _doc() -> dict:
 # ── the harness itself ────────────────────────────────────────────────────
 
 def _synthetic(n_others: int = 30, weeks: int = 5):
-    """A season where `star` outscores everyone every week and `bench` scores
-    zero every week. Everyone else is mid-pack."""
-    by_pos_week = {}
-    for w in range(1, weeks + 1):
-        rows = [("star", 100.0), ("bench", 0.0)]
-        rows += [(f"p{i}", 10.0 + i) for i in range(n_others)]
-        by_pos_week[("WR", w)] = rows
-    return by_pos_week
+    """Delegates to the SCRIPT's fixture — register 198. This used to be a
+    second copy living only here, which is why the run that writes the
+    artifact could not reach the controls it feeds."""
+    return B.synthetic_control_season(n_others=n_others, weeks=weeks)
 
 
 def test_KNOWN_POSITIVE_a_planted_every_week_top_scorer_comes_back_at_rate_one():
@@ -135,3 +131,51 @@ def test_every_tier_cell_has_a_real_population_behind_its_rate():
             for tier, c in cells.items():
                 if c["boom_rate"] is not None:
                     assert c["player_weeks"] >= 30, (s["season"], pos, tier, c)
+
+
+# ── register 198: the controls, and that they can actually FAIL ───────────
+#
+# These call the SCRIPT's control functions, not copies. A test that
+# reimplements the control proves the test works, not the grader.
+#
+# ⚠️ Only the RED path calls cli(). A green cli() rewrites the committed
+# artifact as a side effect (register 58's shape), and a test suite that
+# quietly regenerates the thing it is asserting against is worthless.
+
+def _blind(bpw):
+    """Every boom set comes back empty — the star stops booming."""
+    return {k: set() for k in bpw}, {"weeks": len(bpw), "weeks_with_a_cutoff_tie": 0}
+
+
+def test_the_controls_PASS_on_the_real_code():
+    assert B.controls()["ok"] is True, B.controls()["checks"]
+
+
+def test_cli_REFUSES_and_returns_nonzero_when_a_control_goes_red(monkeypatch):
+    """`GRADING-POLICY.md` requirement 3: the controls gate the exit code."""
+    monkeypatch.setattr(B, "boom_sets", _blind)
+    assert B.cli() == 1
+
+
+def test_the_artifact_is_NOT_written_when_a_control_is_red(monkeypatch):
+    before = ARTIFACT.read_bytes()
+    monkeypatch.setattr(B, "boom_sets", _blind)
+    assert B.cli() == 1
+    assert ARTIFACT.read_bytes() == before, "a red run rewrote the artifact"
+
+
+def test_the_NEGATIVE_control_alone_would_have_PASSED_the_blinded_harness():
+    """Why the pair is a pair, measured rather than asserted. With every boom
+    set empty the never-scorer still booms zero times, so the known-negative
+    stays green — an empty harness looks perfect to it. Only the
+    known-positive catches it, which is register 198's whole argument."""
+    import weekly_boom_baseline as M
+    real, M.boom_sets = M.boom_sets, _blind
+    try:
+        checks = M.controls()["checks"]
+    finally:
+        M.boom_sets = real
+    neg = [c for c in checks if c["control"] == "known-negative"]
+    pos = [c for c in checks if c["control"] == "known-positive"]
+    assert neg and all(c["ok"] for c in neg), "the negative should NOT catch this"
+    assert pos and not any(c["ok"] for c in pos), "the positive must catch it"

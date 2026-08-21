@@ -11,6 +11,8 @@ sys.path.insert(0, str(ROOT / "draft" / "backtest"))
 
 import target_quality_tilt as T  # noqa: E402
 
+ARTIFACT = ROOT / "draft" / "backtest" / "target_quality_tilt.json"
+
 
 def test_multiplier_of_ONE_collapses_tilt_to_baseline_EXACTLY():
     pred = 12.3 * (1.0 + T.TILT_SCALE * (1.0 - 1.0))
@@ -109,3 +111,31 @@ def test_gsi_cross_correlation_is_computed_against_the_ALREADY_GRADED_sibling_ar
     f = T.grade_fold(2024)
     overlap = [r for r in f["rows"] if r["pred_gsi_interaction"] is not None]
     assert len(overlap) > 0, "no overlap with the GSI fold — the join between the two studies broke"
+
+
+# ── register 198: the controls, and that they can actually FAIL ───────────
+#
+# These call the SCRIPT's control functions, not copies. A test that
+# reimplements the control proves the test works, not the grader.
+#
+# ⚠️ Only the RED path calls cli(). A green cli() rewrites the committed
+# artifact as a side effect (register 58's shape), and a test suite that
+# quietly regenerates the thing it is asserting against is worthless.
+
+def test_the_controls_PASS_on_the_real_code():
+    assert T.controls()["ok"] is True, T.controls()["checks"]
+
+
+def test_cli_REFUSES_and_returns_nonzero_when_a_control_goes_red(monkeypatch):
+    """`GRADING-POLICY.md` requirement 3: the controls gate the exit code.
+    Before register 198 this pair lived only in pytest, so `main()` wrote the
+    artifact and returned 0 no matter what the controls would have said."""
+    monkeypatch.setattr(T, "rz_multiplier", lambda rate, pos_mean_rate: 1.0)
+    assert T.cli() == 1
+
+
+def test_the_artifact_is_NOT_written_when_a_control_is_red(monkeypatch, tmp_path):
+    before = ARTIFACT.read_bytes()
+    monkeypatch.setattr(T, "rz_multiplier", lambda rate, pos_mean_rate: 1.0)
+    assert T.cli() == 1
+    assert ARTIFACT.read_bytes() == before, "a red run rewrote the artifact"

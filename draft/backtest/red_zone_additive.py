@@ -104,6 +104,49 @@ def baseline_mae(rows: list) -> float:
     return mae(rows, 0.0)          # alpha=0 IS the baseline, exactly
 
 
+def controls() -> dict:
+    """THE TWO CONTROLS — `GRADING-POLICY.md` requirement 3, register 198.
+
+    Owned by the SCRIPT, not the test, so the run and the test share ONE
+    definition (Rule 11) and `cli()` can refuse to publish when either goes
+    red. Before register 198 this pair existed only in pytest: `main()` wrote
+    the artifact and returned, so a run outside CI published a JSON the
+    controls had never watched.
+
+    known-POSITIVE — a planted red-zone surplus must move the prediction by
+    EXACTLY alpha * surplus, and must actually move it.
+    known-NEGATIVE — a player AT his position mean must receive EXACTLY zero
+    correction, at every alpha in the grid.
+
+    ⚠️ THE POSITIVE CONTROL SKIPS alpha=0 ON PURPOSE. At alpha=0 the arm IS
+    the baseline, so "surplus moves the prediction by alpha * surplus" is
+    satisfied by not moving at all — the same arithmetic as the negative
+    control, and a check that cannot fail. That is the exact trap the policy
+    names ("a control that cannot fail is worse than no control"), reached
+    here by writing the loop over the whole grid first and then reading it.
+    """
+    checks = []
+    for a in ALPHA_GRID:
+        if a == 0.0:
+            continue                      # see the docstring — vacuous here
+        got = predict({"baseline": 10.0, "dev": 2.0}, a)
+        checks.append({"control": "known-positive", "case": f"alpha={a}",
+                       "want": 10.0 + 2.0 * a, "got": got,
+                       "ok": got == 10.0 + 2.0 * a and got != 10.0})
+    for a in ALPHA_GRID:
+        got = predict({"baseline": 10.0, "dev": 0.0}, a)
+        checks.append({"control": "known-negative", "case": f"alpha={a}",
+                       "want": 10.0, "got": got, "ok": got == 10.0})
+    return {"ok": all(c["ok"] for c in checks), "checks": checks}
+
+
+def print_controls(res: dict) -> None:
+    bad = [c for c in res["checks"] if not c["ok"]]
+    print(f"  controls: {len(res['checks']) - len(bad)}/{len(res['checks'])} pass")
+    for c in bad:
+        print(f"    RED  {c['control']} {c['case']}: want {c['want']}, got {c['got']}")
+
+
 def leave_one_out(by_season: dict) -> dict:
     """alpha fitted on the OTHER seasons, evaluated on the held-out one —
     the same discipline opponent_arm.py's lambda grid uses."""
@@ -213,5 +256,19 @@ def main() -> dict:
     return doc
 
 
-if __name__ == "__main__":
+def cli() -> int:
+    """The exit code IS the verdict — register 198. A grader that prints a red
+    control beside a headline and exits 0 publishes forever, because the cron
+    commits the artifact and the log scrolls past."""
+    res = controls()
+    print_controls(res)
+    if not res["ok"]:
+        print("\n  ⛔ REFUSING: a control failed, so nothing below would be "
+              "evidence of anything. Artifact NOT written.")
+        return 1
     main()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(cli())

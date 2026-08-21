@@ -102,3 +102,31 @@ def test_the_population_is_P292s_so_the_comparison_is_paired():
     """If this drifts from P292's 11,747 player-weeks the two studies stop
     being a paired transform comparison and the whole finding weakens."""
     assert _doc()["pooled"]["n_player_weeks"] == 11747
+
+
+# ── register 198: the controls, and that they can actually FAIL ───────────
+#
+# These call the SCRIPT's control functions, not copies. A test that
+# reimplements the control proves the test works, not the grader.
+#
+# ⚠️ Only the RED path calls cli(). A green cli() rewrites the committed
+# artifact as a side effect (register 58's shape), and a test suite that
+# quietly regenerates the thing it is asserting against is worthless.
+
+def test_the_controls_PASS_on_the_real_code():
+    assert R.controls()["ok"] is True, R.controls()["checks"]
+
+
+def test_cli_REFUSES_and_returns_nonzero_when_a_control_goes_red(monkeypatch):
+    """`GRADING-POLICY.md` requirement 3: the controls gate the exit code.
+    Before register 198 this pair lived only in pytest, so `main()` wrote the
+    artifact and returned 0 no matter what the controls would have said."""
+    monkeypatch.setattr(R, "predict", lambda row, alpha: row["baseline"])
+    assert R.cli() == 1
+
+
+def test_the_artifact_is_NOT_written_when_a_control_is_red(monkeypatch, tmp_path):
+    before = ARTIFACT.read_bytes()
+    monkeypatch.setattr(R, "predict", lambda row, alpha: row["baseline"])
+    assert R.cli() == 1
+    assert ARTIFACT.read_bytes() == before, "a red run rewrote the artifact"
