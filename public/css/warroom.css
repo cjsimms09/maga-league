@@ -1756,6 +1756,11 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    a live screenshot caught it painted over the TE column's "+66.6 wire"
    text, clipping a real number the same way the ellipsis headers used to. */
 .pb-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: 0 0 .5rem; }
+/* Cory, 2026-08-21: mistook this panel's DS/Blend-only toggle for the
+ * Ranking Source panel above it. The explanation used to live only in a
+ * hover title -- printed as a real line instead, full width, not squeezed
+ * into .pb-toolbar's flex row with the toggle and the scroll hint. */
+.pb-src-note { margin: 0 0 .6rem; font-size: .78rem; }
 .pb-grid-hint {
   font-size: .58rem; color: var(--wr-muted); font-style: italic;
   white-space: nowrap; opacity: 0; transition: opacity .15s;

@@ -9404,8 +9404,8 @@
     const activeLabel = activeSrc ? activeSrc.label : activeKey;
     const byPos = SourceBoard.topByPosition(state.board, state.rankSource, N);
     host.innerHTML = '<p class="muted stb-note">Showing <b>' + esc(activeLabel)
-      + '</b>\'s own top ' + N + ' available at each position — switch the toggle above to see a '
-      + 'different source\'s list.'
+      + '</b>\'s own top ' + N + ' available at each position — switch the <b>Ranking Source</b> '
+      + 'toggle above to see a different source\'s list.'
       + (state.rankSource ? ' A player <b>' + esc(activeLabel) + '</b> does not cover is left off, '
         + 'not shown at its blend price.' : '') + '</p>'
       + '<div class="stb-grid">' + POS.map(function (pos) {

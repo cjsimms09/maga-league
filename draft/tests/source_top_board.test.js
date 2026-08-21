@@ -98,5 +98,15 @@ const CSS = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8
     /#source-top-board \.stb-grid \{/.test(CSS));
 }
 
+{
+  /* Cory, 2026-08-21: looking at a DIFFERENT panel (position-boards, further
+   * down), he had no way to tell it apart from this one and the Ranking
+   * Source toggle above both. This panel's own "switch the toggle above"
+   * line named nothing — fixed to name the control explicitly. */
+  ck('the panel names the control that changes it — "the toggle above" alone '
+     + 'reads as any toggle on the page, not specifically Ranking Source',
+    /switch the <b>Ranking Source<\/b>/.test(APP));
+}
+
 console.log(`\n${pass}/${pass + fail} source_top_board checks passed`);
 if (fail) process.exit(1);
