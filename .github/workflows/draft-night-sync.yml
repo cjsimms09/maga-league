@@ -71,6 +71,20 @@ on:
   schedule:
     - cron: '45 22 22 8 *'
 
+# ⚠️ ONE SYNC AT A TIME. With the cron above AND the runbook's manual dispatch,
+# two jobs can now poll the same draft and both `git push` the same JSONL — a
+# race that ends with one push rejected and, worse, an operator watching a run
+# that is no longer the one doing the work. The pick log itself tolerates
+# duplicate rows (the rehearsal covers duplicates, out-of-order events and
+# reconnects), so the data was never the risk; the PUSH was.
+#
+# `cancel-in-progress: false` deliberately: if Cory dispatches manually because
+# he thinks nothing started, the run already capturing picks must NOT be killed
+# by the newcomer. The second run queues and finds nothing left to do.
+concurrency:
+  group: draft-night-sync
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
