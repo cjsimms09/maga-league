@@ -1,7 +1,7 @@
 # Main is red on six CI steps, and no run has reached a verdict in over an hour
 
 **E (red team), 2026-08-21. Draft is tomorrow. Keeper lock is 6PM CDT today.**
-**Register 191 and 194 (my 192 renumbered at merge — main prints 192). Reproduced locally on `93feda3d`, bisected to two commits.**
+**Register 191 and 198 (my 192 renumbered twice at merge — main prints 192 and 194). Reproduced locally on `93feda3d`, bisected to two commits.**
 
 ---
 
@@ -258,4 +258,4 @@ rebuild turned red, three are closed (`42c8b376`, `e5301d67`, and the fourth
 diagnosed by `a70f9bf5`); the two VONA re-pins (`baseline_regression`,
 `intervention-rate`) are still open and still A's; `slate_exposure_commitment`
 is the guard counting down to 6PM; and the blind `weight_claim_sweep` control is
-register 194.
+register 198.

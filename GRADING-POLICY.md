@@ -42,7 +42,7 @@ you have a weather report.
 |---|---|---|
 | start / sit | a random legal lineup from the roster held that week | **built** — `start_sit_vs_random.py` |
 | waiver claim | a random AVAILABLE player at the same position, same week | **built** — `waiver_vs_random.py` (755 claims, **0.7117** vs null [0.479, 0.521]) |
-| draft pick | a random legal pick from the board at that moment | proposed |
+| draft pick | a random AVAILABLE player at that pick | **built** — `draft_pick_vs_random.py` (345 picks, **0.8554** vs null [0.4695, 0.5305]) |
 | trade | a random swap of comparable roster slots | proposed |
 | a projection | the same players/weeks scored by a published source | `PROJECTION-PROGRAM-2027` |
 
@@ -129,6 +129,16 @@ prices worst; grade every one of them against its null.
 * `draft/backtest/start_sit_vs_random.py` — start/sit. Wired into
   `weekly-grade.yml`; controls gate the exit code; artifact committed.
 * `draft/backtest/waiver_vs_random.py` — waiver claims. Same shape.
+* `draft/backtest/draft_pick_vs_random.py` — the draft pick itself. **This is
+  the replacement yardstick for the retired engine-minus-owner comparison** in
+  `engine_seat_replay.json` / `replay_league_table.json`, whose estimand reads
+  "mean engine-minus-owner season total" and which contain neither the string
+  `random` nor `control`.
+  **⚠️ IT DOES NOT YET REPLACE THE −188.35 HEADLINE, and saying so plainly
+  matters: it grades the HUMAN picks in our historical drafts, not the engine's.
+  Retiring that number needs the engine run through the same counterfactual and
+  its picks scored against this same null.** What it establishes today is the
+  yardstick and that the yardstick works.
 * `draft/tests/test_start_sit_determinism.py` — reproducibility guard.
 * `draft/tools/skill_luck_r.py` — **retained as a descriptive instrument only.**
   Not required of any arm; never run on standings as a certification; never

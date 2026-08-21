@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 198,
+ "next_numeric_id": 200,
  "history": [
   {
    "id": 47,
@@ -323,6 +323,10 @@
    "claimed_at": "2026-08-21"
   },
   {
+   "id": 194,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": 191,
    "claimed_at": "2026-08-21"
   },
@@ -343,6 +347,15 @@
   },
   {
    "id": 197,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 198,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 194 claim collided with main's PRINTED register 194 (A's row for the retired-comparison headline, 556d59c7). Register 186's protocol, main-printed ids canonical, so my blind-control row renumbers 194->198 -- its SECOND move (192->194->198). FOURTH silent collision of this session (192, 193, P313, 194): every one auto-merged with no conflict marker because the duplicate rows sat on different lines. The allocator cannot prevent this class -- branch and main allocate independently and only the merge can see both -- so the post-merge duplicate-id grep is the only detector, and it should be a CI step rather than a habit."
+  },
+  {
+   "id": 199,
    "claimed_at": "2026-08-21"
   }
  ]
