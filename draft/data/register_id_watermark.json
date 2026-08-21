@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 182,
+ "next_numeric_id": 183,
  "history": [
   {
    "id": 47,
@@ -413,7 +413,12 @@
   {
    "id": 181,
    "claimed_at": "2026-08-21",
-   "note": "A/relay: the keeper-lock-passing-doesn't-release-withheld-opponent-keepers finding (13 keepers, board shows them as available Saturday) landed on main's own P169 -- a genuine independent collision with D's already-canonical 169 (the dollar-panel E[$] QB-inversion row, filed the same day earlier). No textual overlap so git's clean auto-merge missed it. Renumbered here, first allocation wins. Time-sensitive (recheck 08-21 12:00, before the 6pm keeper lock) -- flagged, not resolved; the underlying ASK to Cory is untouched. Watermark now authoritative from 182."
+   "note": "A/relay: the keeper-lock-passing-doesn't-release-withheld-opponent-keepers finding (13 keepers, board shows them as available Saturday) landed on main's own P169 -- a genuine independent collision with D's already-canonical 169 (the dollar-panel E[$] QB-inversion row, filed the same day earlier). No textual overlap so git's clean auto-merge missed it. Renumbered here, first allocation wins. Time-sensitive (recheck 08-21 12:00, before the 6pm keeper lock) -- flagged, not resolved; the underlying ASK to Cory is untouched. Watermark now authoritative from 182. UPDATE same merge round: Cory ruled it the same hour (\"Locks once deadline passes\") and A shipped the fix -- main's updated CLOSED content adopted over my earlier renumbered-but-OPEN copy, still at id 181."
+  },
+  {
+   "id": 182,
+   "claimed_at": "2026-08-21",
+   "note": "A: the refused-rebuilds-ate-a-day-of-an-unbackfillable-series finding (draft-data.yml 14 failed runs on 08-20, proj_series/adp_series stuck at 08-19, a deadlock where the completeness gate refuses the exact publish that would fix it) landed on main's own id 170 -- a genuine independent collision with D's already-canonical 170 (the ADAPTATION-POLICY.md wording-vs-code mismatch, filed earlier the same day). No textual overlap so git's clean auto-merge missed it; caught by test_defect_register.py::test_no_two_rows_share_an_id. Renumbered here, first allocation wins. Watermark now authoritative from 183."
   }
  ]
 }
