@@ -1,50 +1,42 @@
-// TERRITORY: B renders · relay measures
-// HOW MANY PLAYERS IN CORY'S ACTUAL PICK WINDOW HAVE A CEILING THAT SAYS
-// NOTHING ABOUT THEM — AND THE COUNT I GOT WRONG BY READING ONE FIELD LAZILY.
-//
-// Register row 4v. Written because I annotated that row this morning with
-// *"the remaining 9 are all K and DEF — not one skill player in his range is
-// affected"* and *"EVERY SKILL PLAYER IN CORY'S DRAFT RANGE NOW CARRIES A
-// MEASURED, PLAYER-SPECIFIC CEILING"*, and both are false. **The error pointed
-// toward not doing the fix**, which is the worst direction available.
-//
-// ── THE MISTAKE, EXACTLY ──────────────────────────────────────────────────
-//
-// `proj_ceiling_source` has THREE values, not two:
-//
-//   measured-2023-25-p90-x-player-cv   a per-player volatility tail — real
-//   measured-2023-25-p90               MEASURED, but a per-BAND constant
-//   gaussian_z                         no calibration cell at all (K/DEF)
-//
-// I read `gaussian_z` as the whole non-per-player population. The middle row is
-// measured and is still a cohort constant — which is precisely what 4v's own
-// headline complains about. Skipping it turned 25 into 9 and 15 skill players
-// into zero.
-//
-// ── WHY THE MIDDLE ROW IS A CONSTANT, IN THE STATISTIC E2 USED ────────────
-//
-// Within-cell cv of `proj_ceiling / proj_mean`:
-//
-//   measured-2023-25-p90          7.79e-4 WORST over 5 cells (n>=3)
-//   measured-2023-25-p90-x-cv     2.06e-2 BEST over 20 cells — 26x larger
-//
-// The first is storage rounding: `proj_ceiling` is written to two decimals and
-// `engine.js:2477` already says so in as many words. E2's original signature for
-// the same defect was "within-cell cv 6.3e-04 worst". Same order, same meaning.
-//
-// ── WHY IT MATTERS MORE AFTER TODAY ───────────────────────────────────────
-//
-// `DG_HIGH_K` (0.22) is the LARGEST coefficient in `playerDollars` and it
-// multiplies `ceiling - mean`. So for these players the DOMINANT term of the
-// money number on the compare tray, the doctrine banner and the paths badge
-// (register 5e) is a cohort constant.
-//
-// ⚠️ SECTIONS 2 AND 3 ARE CHARACTERIZATION and go red when B marks the display
-// or the volatility work reaches these players. That is the fix reporting
-// itself — update the counts in that commit, do not widen the ratchet to hide
-// a regression.
-//
-// Run: node draft/tests/ceiling_source_window.test.js
+// TERRITORY: A
+/* THE CEILING THAT PRICES CORY'S WINDOW MUST BE HIS, NOT HIS COHORT'S.
+ *
+ * ── WHAT THIS FILE USED TO SAY, AND WHY IT NO LONGER SAYS IT ──────────────
+ *
+ * It characterized a defect: inside Cory's ADP window, a population of players
+ * carried `proj_ceiling_source: measured-2023-25-p90` — measured, but a per-BAND
+ * constant rather than a per-player tail. Because `DG_HIGH_K` is the largest
+ * coefficient in `playerDollars` and multiplies `ceiling - mean`, the DOMINANT
+ * term of the money number on the compare tray was a cohort constant for those
+ * players.
+ *
+ * ⚠️ THAT DEFECT IS FIXED, AND NOT BY THIS TEST. Cory's Draft Sharks band ruling
+ * (2026-08-20) replaced the whole `measured-2023-25-p90*` family: DS publishes a
+ * real floor and ceiling, converted to a per-player RATIO against DS's own
+ * projection and applied to each source's own number. Measured on the live
+ * board, the old family is now at ZERO players — the strings do not appear.
+ *
+ * The old file went red because its subject stopped existing, which is exactly
+ * what its own header predicted ("SECTIONS 2 AND 3 ARE CHARACTERIZATION and go
+ * red when the volatility work reaches these players — that is the fix
+ * reporting itself, update the counts in that commit"). Nobody updated it, so
+ * it sat red for days as a false alarm. A red suite everyone learns to ignore
+ * is worse than no suite, which is the actual cost being paid here.
+ *
+ * ── WHAT IT GUARDS NOW ────────────────────────────────────────────────────
+ *
+ * The PROPERTY the old file was protecting, stated directly and measured with
+ * the same statistic: within-cell cv of `proj_ceiling / proj_mean`, grouped by
+ * (ceiling source x position). A per-BAND constant shows up as ~7.8e-4 — that
+ * is storage rounding on a two-decimal field, not variation. A genuine
+ * per-player tail is orders of magnitude above it.
+ *
+ * Live when rewritten: `draftsharks_pct` cells run 4.6e-2 to 3.5e-1 — 59x to
+ * 450x the constant signature — and the `pre-DS band %, rescaled` fallback runs
+ * 3.2e-2 to 9.0e-2. Both are genuinely player-specific. The only true constant
+ * left is `position-median band %`, which names itself honestly and covers 8
+ * players board-wide, ONE of them inside the top 200.
+ */
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -57,7 +49,6 @@ const ck = (n, c, d) => {
   else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 400) : '')); }
 };
 
-const PER_PLAYER = 'measured-2023-25-p90-x-player-cv';
 const SKILL = ['QB', 'RB', 'WR', 'TE'];
 const adp = p => Number(p.adjusted_adp != null ? p.adjusted_adp
   : (p.raw_adp != null ? p.raw_adp : p.adp));
@@ -70,6 +61,28 @@ const WINDOW = B.players.filter(p => {
   return Number.isFinite(a) && a >= LO && a <= HI;
 });
 
+/* The band-constant signature, and the margin. 7.8e-4 was the measured cv of
+ * the old per-band source; anything at or under BAND_CV is indistinguishable
+ * from "every player in this cell has the same ratio, to storage precision". */
+const BAND_CV = 5e-3;
+
+/* Sources that are ALLOWED to be constant because they say so in their own
+ * name. They are bounded by population below rather than exempted silently. */
+const HONEST_CONSTANTS = [
+  'position-median band %, no player-specific band available',
+];
+const isHonestConstant = s => HONEST_CONSTANTS.some(h => String(s).indexOf(h.slice(0, 24)) === 0);
+
+function cellCv(players) {
+  const r = players.map(p => Number(p.proj_ceiling) / Number(p.proj_mean))
+    .filter(x => Number.isFinite(x) && x > 0);
+  if (r.length < 3) return null;
+  const m = r.reduce((a, b) => a + b, 0) / r.length;
+  if (!(m > 0)) return null;
+  const v = r.reduce((a, b) => a + (b - m) * (b - m), 0) / r.length;
+  return Math.sqrt(v) / m;
+}
+
 // ── 1. THE WINDOW IS THE ONE THE ROW MEANS ────────────────────────────────
 {
   ck('the board still publishes my_picks, which is what makes this window his',
@@ -80,200 +93,103 @@ const WINDOW = B.players.filter(p => {
   ck('and it holds enough players for the counts below to mean anything',
     WINDOW.length >= 100, WINDOW.length);
   ck('every player in it carries a proj_ceiling_source — absent would make the '
-    + 'whole count meaningless and must never read as healthy',
+    + 'whole check meaningless and must never read as healthy',
   WINDOW.every(p => typeof p.proj_ceiling_source === 'string' && p.proj_ceiling_source),
   WINDOW.filter(p => !p.proj_ceiling_source).map(p => p.name).slice(0, 5));
 }
 
-// ── 2. THE COUNT I GOT WRONG. ⚠️ CHARACTERIZATION. ────────────────────────
+// ── 2. THE OLD DEFECT'S POPULATION IS GONE ────────────────────────────────
 {
-  const nonPer = WINDOW.filter(p => p.proj_ceiling_source !== PER_PLAYER);
-  const skill = nonPer.filter(p => SKILL.indexOf(p.position) >= 0);
-  const byPos = {};
-  nonPer.forEach(p => { byPos[p.position] = (byPos[p.position] || 0) + 1; });
-
-  ck('DEFECT: players in the window whose ceiling is NOT per-player is well '
-    + 'above the "9, all K/DEF" I reported this morning',
-  nonPer.length >= 20, { non_per_player: nonPer.length, of_window: WINDOW.length,
-    by_position: byPos });
-
-  ck('DEFECT: and SKILL players are affected — the claim "not one skill player '
-    + 'in his range" was the specific thing that was false',
-  skill.length >= 10, { skill_affected: skill.length,
-    names: skill.sort((a, b) => adp(a) - adp(b))
-      .map(p => `${p.name} (${p.position}, ADP ${adp(p).toFixed(1)})`) });
-
-  /* The one that decides whether this is worth B's time four days out: a name
-   * inside the first two rounds of his board, not a deep flier. */
-  const early = skill.filter(p => adp(p) <= 60).sort((a, b) => adp(a) - adp(b));
-  ck('DEFECT: at least one of them sits inside ADP 60 — near enough to his '
-    + 'first pick that a ceiling is what he would use to justify taking them',
-  early.length >= 1, early.map(p => `${p.name} (${p.position}, ADP ${adp(p).toFixed(1)})`));
-
-  /* CONTROL — the field discriminates. If everything read non-per-player the
-   * counts above would be trivially true and would say nothing. */
-  const per = WINDOW.filter(p => p.proj_ceiling_source === PER_PLAYER);
-  ck('CONTROL: the per-player tail DOES cover most of the window, so this is a '
-    + 'remainder and not a claim that the volatility work failed',
-  per.length > nonPer.length * 2, { per_player: per.length, non_per: nonPer.length });
+  const OLD = ['measured-2023-25-p90', 'measured-2023-25-p90-x-player-cv'];
+  const survivors = B.players.filter(p => OLD.indexOf(p.proj_ceiling_source) >= 0);
+  ck('the measured-2023-25-p90 family no longer prices anyone — Cory\'s Draft '
+    + 'Sharks band ruling replaced it, which is why this file was rewritten',
+  survivors.length === 0,
+  { survivors: survivors.length, sample: survivors.slice(0, 5).map(p => p.name) });
 }
 
-// ── 3. IT IS A BAND CONSTANT, IN THE STATISTIC E2 USED ────────────────────
+// ── 3. THE PROPERTY: EVERY CELL IN HIS WINDOW IS PLAYER-SPECIFIC ──────────
 {
-  const bandOf = r => (r <= 3 ? '1-3' : r <= 8 ? '4-8' : r <= 16 ? '9-16'
-    : r <= 32 ? '17-32' : '33+');
-  /* THE RANK THAT PICKS THE CELL IS THE FULL-UNIVERSE ONE (A's 08-18 ruling,
-   * projections.py:306): the pipeline bands players + kept_players by
-   * proj_mean, and the published pos_rank is the AVAILABILITY rank — they
-   * legitimately differ at band boundaries by exactly the keeper count.
-   * Grouping by pos_rank here put three boundary RBs into a cell the fitter
-   * never assigned them, which read as cv 0.077 in a genuinely flat source.
-   * Recompute the ruled rank instead of borrowing the published one. */
-  const universe = B.players.concat(B.kept_players || []);
-  const uniRank = {};
-  ['QB','RB','WR','TE','K','DEF'].forEach(pos => {
-    universe.filter(p => p.position === pos && Number(p.proj_mean) > 0)
-      .sort((a, b) => Number(b.proj_mean) - Number(a.proj_mean))
-      .forEach((p, i) => { uniRank[String(p.player_id)] = i + 1; });
+  const cells = {};
+  WINDOW.forEach(p => {
+    if (!(Number(p.proj_mean) > 0) || !(Number(p.proj_ceiling) > 0)) return;
+    const k = p.proj_ceiling_source + ' | ' + p.position;
+    (cells[k] = cells[k] || []).push(p);
   });
-  const cvByCell = src => {
-    const g = {};
-    B.players.filter(p => p.proj_ceiling_source === src
-      && Number(p.proj_mean) > 0 && p.proj_ceiling != null).forEach(p => {
-      const k = p.position + '|' + bandOf(Number(uniRank[String(p.player_id)] || p.pos_rank));
-      (g[k] = g[k] || []).push(p.proj_ceiling / p.proj_mean);
-    });
-    return Object.keys(g).filter(k => g[k].length >= 3).map(k => {
-      const v = g[k], m = v.reduce((a, b) => a + b, 0) / v.length;
-      return { cell: k, n: v.length,
-        cv: Math.sqrt(v.reduce((a, b) => a + (b - m) * (b - m), 0) / v.length) / m };
-    });
-  };
-  const flat = cvByCell('measured-2023-25-p90');
-  const real = cvByCell(PER_PLAYER);
-  ck('both sources have enough populated cells to compare',
-    flat.length >= 3 && real.length >= 10, { flat: flat.length, per_player: real.length });
+  const measured = Object.keys(cells)
+    .map(k => ({ k: k, n: cells[k].length, cv: cellCv(cells[k]),
+      honest: isHonestConstant(k.split(' | ')[0]) }))
+    .filter(r => r.cv != null);
 
-  const worstFlat = Math.max.apply(null, flat.map(c => c.cv));
-  const bestReal = Math.min.apply(null, real.map(c => c.cv));
-  ck('measured-2023-25-p90 is FLAT within every cell — worst cv is rounding-'
-    + 'sized, the same signature register E2 named (6.3e-04)',
-  worstFlat < 2e-3, flat.sort((a, b) => b.cv - a.cv).slice(0, 3));
-  ck('CONTROL: the per-player source is NOT flat in any cell — its BEST cell is '
-    + 'an order of magnitude above the flat source\'s WORST',
-  bestReal > worstFlat * 10, { worst_flat: worstFlat, best_per_player: bestReal });
+  ck('CONTROL: there are enough populated (source x position) cells in his '
+    + 'window to measure — one cell would make the check below a single reading',
+  measured.length >= 4, { cells: measured.length });
 
-  /* The rounding explanation, asserted: `proj_ceiling` is stored to 2dp, so a
-   * ratio inherits ~0.01/mean of pure noise. If the flat cells' spread were
-   * larger than that, "storage rounding" would be a story rather than a cause. */
-  const flatPlayers = B.players.filter(p => p.proj_ceiling_source === 'measured-2023-25-p90'
-    && Number(p.proj_mean) > 0);
-  ck('and the residual spread is no larger than two-decimal storage explains, '
-    + 'so "rounding" is a cause rather than a story about one',
-  flatPlayers.every(p => Math.abs(p.proj_ceiling * 100 - Math.round(p.proj_ceiling * 100)) < 1e-6),
-  flatPlayers.filter(p => Math.abs(p.proj_ceiling * 100 - Math.round(p.proj_ceiling * 100)) >= 1e-6)
-    .slice(0, 3).map(p => `${p.name} ${p.proj_ceiling}`));
+  const flat = measured.filter(r => r.cv <= BAND_CV && !r.honest);
+  ck('NO cell in Cory\'s window is a band CONSTANT — every ceiling that prices '
+    + 'him varies player to player, which is the whole point of a ceiling',
+  flat.length === 0,
+  { constant_cells: flat.map(r => ({ cell: r.k, n: r.n, cv: r.cv.toExponential(2) })),
+    all_cells: measured.map(r => r.k + ' n=' + r.n + ' cv=' + r.cv.toExponential(2)) });
+
+  /* The honest-constant fallback is allowed to exist and is NOT allowed to
+   * spread. If it ever prices a real part of his window, that is a coverage
+   * regression upstream and this is where it surfaces. */
+  const honestPlayers = WINDOW.filter(p => isHonestConstant(p.proj_ceiling_source));
+  ck('and the self-declared constant fallback stays rare inside his window — it '
+    + 'is a stated last resort, not a population',
+  honestPlayers.length <= Math.max(5, Math.round(0.05 * WINDOW.length)),
+  { on_fallback: honestPlayers.length, of_window: WINDOW.length,
+    names: honestPlayers.slice(0, 8).map(p => p.name) });
 }
 
-// ── 4. WHY IT REACHES THE MONEY NUMBER (register 5e) ──────────────────────
+// ── 4. KNOWN POSITIVE — THE STATISTIC CAN STILL SEE A CONSTANT ────────────
+{
+  /* Rule 3e/3f. Section 3 is a NULL: "no constant cells". A null from a probe
+   * that cannot return a positive is a bug report, not a finding — and this
+   * one would read identically if cellCv were broken, if the window were empty,
+   * or if the field were renamed. So: build a cohort that IS constant and
+   * confirm the same function flags it. */
+  const real = WINDOW.filter(p => Number(p.proj_mean) > 0 && Number(p.proj_ceiling) > 0)
+    .slice(0, 30);
+  const synthetic = real.map(p => ({
+    proj_mean: p.proj_mean,
+    // one band ratio for everyone, rounded to the board's two decimals — the
+    // exact shape the old measured-2023-25-p90 source had
+    proj_ceiling: Math.round(p.proj_mean * 1.23 * 100) / 100,
+  }));
+  const cv = cellCv(synthetic);
+  ck('KNOWN POSITIVE: a synthesised cohort-constant ceiling IS flagged by the '
+    + 'same statistic, so section 3\'s "none" is a measurement and not a blind spot',
+  cv != null && cv <= BAND_CV, { synthetic_cv: cv == null ? null : cv.toExponential(2),
+    threshold: BAND_CV.toExponential(2) });
+
+  const realCv = cellCv(real);
+  ck('KNOWN NEGATIVE: the same statistic on the REAL board is far above the '
+    + 'threshold, so the two cases are separated rather than both passing',
+  realCv != null && realCv > BAND_CV * 5,
+  { real_cv: realCv == null ? null : realCv.toExponential(2) });
+}
+
+// ── 5. WHY IT MATTERS — THE CEILING DRIVES THE MONEY NUMBER (register 5e) ──
 {
   const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
-  ck('DG_HIGH_K is the largest coefficient in playerDollars, so the ceiling '
-    + 'drives the dollar figure more than the projection does',
+  ck('DG_HIGH_K is still the largest coefficient in playerDollars, so the '
+    + 'ceiling drives the dollar figure more than the projection does — this is '
+    + 'the reason a constant ceiling would matter, and it has not changed',
   E.CFG.DG_HIGH_K > E.CFG.DG_ENTRY_K + E.CFG.DG_RS_K,
   { high: E.CFG.DG_HIGH_K, season: E.CFG.DG_ENTRY_K + E.CFG.DG_RS_K });
 
-  const nonPerSkill = WINDOW.filter(p => p.proj_ceiling_source !== PER_PLAYER
-    && SKILL.indexOf(p.position) >= 0 && Number(p.proj_mean) > 0);
-  const boomShare = p => {
+  const skill = WINDOW.filter(p => SKILL.indexOf(p.position) >= 0 && Number(p.proj_mean) > 0);
+  const shares = skill.map(p => {
     const d = E.playerDollars(p);
-    return d.total > 0 ? d.high / d.total : 0;
-  };
-  const shares = nonPerSkill.map(boomShare).filter(x => x > 0);
-  ck('and for the affected skill players the boom term is a large share of '
-    + 'their price, so the constant is not a rounding detail',
-  shares.length && shares.reduce((a, b) => a + b, 0) / shares.length > 0.4,
+    return d && d.total > 0 ? d.high / d.total : 0;
+  }).filter(x => x > 0);
+  ck('and the boom term is a large share of the price for skill players in his '
+    + 'window, so the ceiling being per-player is load-bearing, not cosmetic',
+  shares.length >= 20 && shares.reduce((a, b) => a + b, 0) / shares.length > 0.3,
   { n: shares.length,
     mean_boom_share: +(shares.reduce((a, b) => a + b, 0) / (shares.length || 1)).toFixed(3) });
-}
-
-// ── 5. THE FIFTEEN ARE TWO POPULATIONS, AND THE SUBSTITUTION HAS A DIRECTION.
-//      Traced rather than assumed: `_weekly_cv_2025()` keys on 2025 weeks under
-//      A's 08-18 ruling — a 2024 cv on a 2026 board is outside the measured
-//      persistence support — and its docstring names the injury-return group
-//      (Evans, G. Wilson, Nabers, Daniels) as the thing it is protecting. So
-//      five of the fifteen HAVE a reading and are deliberately denied it, and
-//      ten have none in any season.
-//
-//      THE RULING IS CORRECT AND NOTHING HERE ARGUES OTHERWISE. What is pinned
-//      is the consequence nobody had stated: the cohort constant is a band
-//      MEDIAN, so against each man's own last reading it is not a null
-//      substitution. It flatters most of them and undersells one, and that is
-//      why the display marker earns its place.
-{
-  let vol = null;
-  try {
-    vol = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'backtest', 'weekly_volatility.json'), 'utf8'));
-  } catch (e) { /* handled below */ }
-  ck('the volatility artifact the ceiling term reads is present and carries 2025',
-    vol && vol.per_player && vol.per_player['2025']
-    && Object.keys(vol.per_player['2025']).length > 100,
-    vol && vol.per_player ? Object.keys(vol.per_player).join(',') : 'unreadable');
-
-  if (vol && vol.per_player) {
-    const y25 = vol.per_player['2025'] || {}, y24 = vol.per_player['2024'] || {};
-    const nonPerSkill = WINDOW.filter(p => p.proj_ceiling_source !== PER_PLAYER
-      && SKILL.indexOf(p.position) >= 0);
-    const cvOf = (m, p) => (m[String(p.player_id)] || {}).cv;
-
-    ck('NONE of them has a 2025 cv — that is the actual criterion, so the '
-      + 'population is explained rather than merely counted',
-    nonPerSkill.every(p => !cvOf(y25, p)),
-    nonPerSkill.filter(p => cvOf(y25, p)).map(p => p.name));
-
-    const denied = nonPerSkill.filter(p => cvOf(y24, p));
-    ck('and a real subset DOES have a 2024 reading — the deliberately-denied '
-      + 'injury-return group the ruling names by player',
-    denied.length >= 3,
-    denied.map(p => `${p.name} 2024 cv ${cvOf(y24, p).toFixed(4)}`));
-
-    /* CONTROL — if every one of them had a 2024 reading the split would be
-     * imaginary, and if none did the ruling would not be what is operating. */
-    ck('CONTROL: the rest have no reading in ANY season, so this is two '
-      + 'populations and not one story told twice',
-    denied.length < nonPerSkill.length,
-    { denied: denied.length, of: nonPerSkill.length });
-
-    /* THE DIRECTION. Cohort = the band's 2025 cv median, built the way
-     * projections.py builds its cells. */
-    const bandOf = r => (r <= 3 ? '1-3' : r <= 8 ? '4-8' : r <= 16 ? '9-16'
-      : r <= 32 ? '17-32' : '33+');
-    const cells = {};
-    B.players.forEach(p => {
-      const c = cvOf(y25, p);
-      if (c) (cells[p.position + '|' + bandOf(Number(p.pos_rank))] = cells[p.position + '|' + bandOf(Number(p.pos_rank))] || []).push(c);
-    });
-    const median = a => {
-      const s = a.slice().sort((x, y) => x - y), n = s.length;
-      return n % 2 ? s[(n - 1) / 2] : 0.5 * (s[n / 2 - 1] + s[n / 2]);
-    };
-    const ratios = denied.map(p => {
-      const cell = cells[p.position + '|' + bandOf(Number(p.pos_rank))] || [];
-      return { name: p.name, adp: +adp(p).toFixed(1), n: cell.length,
-        ratio: cell.length ? +(cvOf(y24, p) / median(cell)).toFixed(3) : null };
-    }).filter(r => r.ratio != null);
-
-    ck('every denied player sits in a cell with enough 2025 readings for a '
-      + 'median to mean anything', ratios.length === denied.length
-      && ratios.every(r => r.n >= 5), ratios);
-    ck('the substitution is NOT neutral — it moves the ceiling spread away from '
-      + 'each man\'s own last reading, in both directions',
-    ratios.some(r => r.ratio < 0.9) && ratios.some(r => r.ratio > 1.2), ratios);
-    ck('...and most of them are FLATTERED by it, which is the direction that '
-      + 'matters when Cory is reaching for a ceiling to justify a pick',
-    ratios.filter(r => r.ratio < 1).length > ratios.filter(r => r.ratio > 1).length,
-    ratios.sort((a, b) => a.adp - b.adp));
-  }
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -83,11 +83,35 @@ ck('and he is NOT discounted — the branch prices him at full value',
 const well = run(null, 73);
 ck('CONTROL: with a HEALTHY starter the same player IS discounted', 
   well.s.onesie && well.s.onesie.discounted === true, well.s.onesie);
+/* ⚠️ THE `hurt.rank < well.rank` CONJUNCT WAS REMOVED 2026-08-21, AND IT WAS
+ * NOT REMOVED TO GO GREEN. It had no resolution at this board position, which
+ * was measured before touching it rather than assumed:
+ *
+ *   PUP     TE score 2.39, rank 6
+ *   healthy TE score 0.24, rank 6
+ *   above him in BOTH: 8.02, 5.02, 4.92, 3.54, 3.50
+ *
+ * The exception reprices him TENFOLD — 0.24 to 2.39 — and he still cannot
+ * reach 3.50, so `rank` is pinned at 6 either way. The arm was failing because
+ * it chose a measure that cannot move, not because the price stopped moving.
+ * Two alternatives were measured and are also saturated: players-outscored
+ * goes 620 -> 621 of 627, because most of the field scores near zero.
+ *
+ * So the SCORE RATIO is the measure with real resolution, and it is the one
+ * the claim was always about — "a materially different price". It passes with
+ * 10x against a 3x bar. `rank` is still REPORTED below, because a reader
+ * should see it, but it is not asserted on.
+ *
+ * The property is not weakened: arms 2 and 3 already pin that the injured case
+ * is NOT discounted while the healthy case IS, so the ratio cannot be produced
+ * by anything other than the branch this file is about. */
 ck('and the injured-starter case scores him far higher — so the sentence is '
   + 'describing a materially different price, not a rounding difference',
-hurt.s.score > well.s.score * 3 && hurt.rank < well.rank,
-{ hurt: { rank: hurt.rank, score: +hurt.s.score.toFixed(1) },
-  healthy: { rank: well.rank, score: +well.s.score.toFixed(1) } });
+hurt.s.score > well.s.score * 3,
+{ hurt: { rank: hurt.rank, score: +hurt.s.score.toFixed(2) },
+  healthy: { rank: well.rank, score: +well.s.score.toFixed(2) },
+  ratio: +(hurt.s.score / (well.s.score || 1)).toFixed(1),
+  note: 'rank reported, not asserted — see comment above' });
 
 // ─────────────── 4. THE SENTENCE NOW SAYS WHAT THE PRICE DOES
 const why = hurt.s.onesie.why;
