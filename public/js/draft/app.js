@@ -9133,10 +9133,26 @@
         + 'source, not the blend. <b>' + missingCount + ' players ' + esc(activeSrc.label)
         + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
         + 'switch back to Blend.'
+        /* ⚠️ THE "+N wire" CHIP CAME OFF THIS LIST 2026-08-21 BECAUSE IT NOW
+         * FOLLOWS THE TOGGLE — register 221 closed the same day this sentence
+         * was written to describe it. Leaving it named here would be the
+         * register 5h shape in the sentence written to prevent register 5h: a
+         * banner telling Cory to distrust a number that is now correct is not
+         * a smaller error than one telling him to trust a number that is not.
+         * `surplus_over_wire_by_source` is what the chip reads; if that ever
+         * stops being emitted the chip prints a labelled fallback, and
+         * wire_follows_source.test.js goes red before this line does.
+         *
+         * THE OTHER TWO ARE STILL FROZEN AND ARE STILL NAMED. Cliffs and the
+         * strike strip need a signature change through position_boards.js
+         * (registers 216 / 226); that is post-draft work, and until it lands
+         * this banner must keep saying so. */
         + '<br><b>Still Draft Sharks, NOT ' + esc(activeSrc.label) + ':</b> the tier-cliff lines '
-        + '("next tier drops N pts"), the strike strip and the "+N wire" chip. They do not follow '
+        + '("next tier drops N pts") and the strike strip. They do not follow '
         + 'this toggle — if one of them disagrees with the VONA chip beside it, the VONA chip is the '
-        + 'one on ' + esc(activeSrc.label) + '.</div>'
+        + 'one on ' + esc(activeSrc.label) + '. <b>The "+N wire" chip DOES follow it now</b> — its '
+        + 'count of players this league rosters comes from our own last three drafts, its price '
+        + 'from ' + esc(activeSrc.label) + '.</div>'
       : '';
     const panelHtml = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
