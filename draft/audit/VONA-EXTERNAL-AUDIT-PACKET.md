@@ -141,6 +141,36 @@ position. Section 5 covers it.
      * destroyed ordering among players who cannot start, and every one of them
      * showed up as the board filling with one-start positions. */
     const rate = INJURY_RATE[player.position] || 0.15;
+    /* ⚠️⚠️ READ THIS BEFORE JUDGING THE BLOCK BELOW: IT IS UNREACHABLE TODAY.
+     *
+     * The independent reviewer (run 32437911836, [high/boundary]) raised this
+     * against the packet and was right about the conclusion:
+     *
+     *   "The 'wire-comparison bench value' cannot currently affect scoring:
+     *    vona() returns early when CFG.VONA_SLOT_AWARE is false, so the
+     *    wireBenchValue() branch is unreachable even though CFG.VONA_WIRE_BENCH
+     *    is true ... readers could infer bench pricing now reflects wire levels.
+     *    It does not."
+     *
+     * Verified on the live tree rather than accepted: `engine.js:281` has
+     * `VONA_SLOT_AWARE: false`, and `engine.js:1170` is
+     * `if (!CFG.VONA_SLOT_AWARE) return straight;` -- which precedes this
+     * branch at :1226. So `VONA_WIRE_BENCH: true` is a switch behind a closed
+     * door, and any statement that bench pricing reflects measured wire levels
+     * is FALSE TODAY.
+     *
+     * ONE CORRECTION TO THE REVIEWER, because the distinction is actionable.
+     * It also wrote "no ctx.wireWeekly is plumbed here" -- true of the DIFF it
+     * was shown, false of the repository. The board DOES carry `wire_level`
+     * ({QB 23.38, RB 7.80, WR 10.85, TE 11.60}, with per-position n) and
+     * `app.js:2814` DOES pass it as `ctx.wireWeekly`. So the branch is inert
+     * for exactly ONE reason, not two: **flipping VONA_SLOT_AWARE alone would
+     * activate it**, with real data already underneath.
+     *
+     * That makes this a GATED DECISION AWAITING A RULING, not a half-built
+     * feature -- a materially different thing to hand Cory, and the reason the
+     * correction is worth making rather than just adopting the finding. The
+     * slot-aware flag is its own gate and stays false until ruled. */
     if (CFG.VONA_WIRE_BENCH) {
       const wb = wireBenchValue(player, ctx, forgone, rate);
       if (wb != null) return wb;
