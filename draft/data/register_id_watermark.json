@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 163,
+ "next_numeric_id": 187,
  "history": [
   {
    "id": 47,
@@ -185,6 +185,20 @@
   {
    "id": 162,
    "claimed_at": "2026-08-20"
+  },
+  {
+   "id": 175,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": "163-185 reconciled",
+   "claimed_at": "2026-08-21",
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+  },
+  {
+   "id": 186,
+   "claimed_at": "2026-08-21",
+   "note": "relay: the systemic id-divergence/invisible-receipts row"
   }
  ]
 }

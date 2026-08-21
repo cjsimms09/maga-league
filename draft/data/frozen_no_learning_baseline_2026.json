@@ -1,0 +1,104 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/tools/freeze_no_learning_baseline.py",
+ "_what": "P298's frozen no-learning control: the weekly arm set and per-position model config as of 2026-08-21, the day Cory ruled the cross-propagation rule. This arm absorbs NO propagated pattern for the rest of the season and is graded alongside the learning-enabled arms. If learning cannot beat it, the loop is circulating noise.",
+ "_authority": "ADAPTATION-POLICY.md cross-propagation rule, clause 3; ledger P298 (owner D)",
+ "_this_is_a_control_not_a_competitor": "Per P298's CONSEQUENCE ROUTE the frozen arm never retires, whichever way the comparison lands. Do not promote it, tune it, or let any propagated finding touch it \u2014 doing so destroys the only number that can falsify the learning programme as a whole.",
+ "frozen_as_of": "2026-08-21",
+ "git_commit_at_freeze": "09aa8780696958d17722f06c927e9f5ed1f28f7e",
+ "state": {
+  "arms": [
+   {
+    "name": "v1",
+    "divisor": 17,
+    "tilt_scale": 1.0
+   },
+   {
+    "name": "v1_tilt150",
+    "divisor": 17,
+    "tilt_scale": 1.5
+   },
+   {
+    "name": "v1_tilt050",
+    "divisor": 17,
+    "tilt_scale": 0.5
+   },
+   {
+    "name": "v1_notilt",
+    "divisor": 17,
+    "tilt_scale": 0.0
+   },
+   {
+    "name": "v1_pg16",
+    "divisor": 16,
+    "tilt_scale": 1.0
+   }
+  ],
+  "champion": {
+   "version": "own_weekly_v1",
+   "arm": "v1",
+   "since_week": null
+  },
+  "formula_version": "own_weekly_v1",
+  "vegas_sensitivity_vg": {
+   "QB": 0.5,
+   "RB": 0.5,
+   "WR": 0.5,
+   "TE": 0.0
+  },
+  "model_config_v5": {
+   "QB": {
+    "beta": 0.0,
+    "glam": 0.5,
+    "volume": "raw",
+    "pace_lam": null,
+    "vg": 0.5,
+    "weights": [
+     0.75,
+     0.25,
+     0.0
+    ],
+    "anchor": "blend_x_v4corr"
+   },
+   "RB": {
+    "beta": 0.5,
+    "glam": 0.5,
+    "volume": "raw",
+    "pace_lam": null,
+    "vg": 0.5,
+    "weights": [
+     0.5,
+     0.0,
+     0.5
+    ],
+    "anchor": "blend"
+   },
+   "WR": {
+    "beta": 0.5,
+    "glam": 0.7,
+    "volume": "share",
+    "pace_lam": 1.0,
+    "vg": 0.5,
+    "weights": [
+     0.75,
+     0.0,
+     0.25
+    ],
+    "anchor": "blend"
+   },
+   "TE": {
+    "beta": 0.25,
+    "glam": 0.7,
+    "volume": "share",
+    "pace_lam": 0.5,
+    "vg": 0.0,
+    "weights": [
+     0.25,
+     0.25,
+     0.5
+    ],
+    "anchor": "blend"
+   }
+  }
+ },
+ "_sha256_of_payload": "79e1d6318695e1df79d5db212837155280c0ec7c9434bc76ff91e84c20ec225e"
+}
