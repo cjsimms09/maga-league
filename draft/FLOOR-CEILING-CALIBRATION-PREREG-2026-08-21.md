@@ -100,13 +100,34 @@ requirements that depend on a nominal we do not have.
 * **MARGIN:** weekly start/sit decisions whose verdict FLIPS between mean-only
   and tail, **and the points that flipping is worth** — arm-vs-hindsight
   points left, then the percentile. Reported in that order.
+* **⚠️ POPULATION — CORRECTED 2026-08-21, HOURS AFTER THIS FILE WAS PUBLISHED,
+  AND THE FIRST VERSION WAS UNEXECUTABLE.** It said *"on 2023-25 owner-weeks"*.
+  **No historical file in this repo carries `proj_ceiling` — swept every store
+  for 2021-2025 with the live 2026 board as a known-positive control, and the
+  bands exist for 2026 only.** So the first version of this Part proposed
+  grading the published tails on three seasons that have no published tails,
+  which is precisely the unexecutable-premise failure §1 was written to catch,
+  committed by the person writing §1. Caught by checking my own "executable
+  now" claim rather than by anyone reading it.
+
+  **The population is 2026 in-season owner-weeks, from week 1.** Nothing else
+  about this Part changes — the ratio argument, both nulls, both controls and
+  the margin are unaffected, because none of them depended on the season.
+  **A reconstructed historical band was considered and rejected:** deriving a
+  weekly band from a player's own prior weeks is buildable and leak-free, but
+  it grades a construction nobody ships, which is the same objection §3 Part 2
+  raises against inventing a nominal.
+
 * **PREREGISTERED BAR:** the tail arm must leave **≥ 0.50 fewer points per
-  week** against hindsight than the mean-only arm, on ≥ 2 of the 3 seasons
-  2023-25. Chosen against the measured scale: the arm currently leaves
-  **29.87 pts/wk** and the owners **15.33**, so 0.50 is ~3.4% of the arm's own
-  gap — small enough to be reachable, large enough not to be noise. **If the
-  flip count is < 30 owner-weeks the result is reported as UNDERPOWERED and
-  not as a verdict**, whichever way it points.
+  week** against hindsight than the mean-only arm, pooled over 2026 owner-weeks,
+  **and hold that sign in ≥ 2 of the 3 fortnightly reads once three exist**.
+  Chosen against the measured scale: the arm currently leaves **29.87 pts/wk**
+  and the owners **15.33**, so 0.50 is ~3.4% of the arm's own gap — small
+  enough to be reachable, large enough not to be noise. **If the flip count is
+  < 30 owner-weeks the result is reported as UNDERPOWERED and not as a
+  verdict**, whichever way it points — and at the 09-22 first read, three weeks
+  x ten owners is **thirty owner-weeks before any filter**, so that clause is
+  load-bearing on day one rather than decorative. **Real power is ~week 6.**
 
 ### PART 2 — THE COVERAGE GRADE, at the unit the bands are actually in.
 
