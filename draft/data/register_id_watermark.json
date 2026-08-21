@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 181,
+ "next_numeric_id": 182,
  "history": [
   {
    "id": 47,
@@ -409,6 +409,11 @@
    "id": 180,
    "claimed_at": "2026-08-20",
    "note": "D: test_a_draft_day_decisions.py's open-row counter used a positive OPEN/WAITING/IN HAND/AWAITING match instead of the house TERMINAL-word-exclusion convention register_recheck_check.js enforces everywhere else, undercounting by 62 FIXED/BUILT/DIAGNOSED/MITIGATED/CORRECTED/ANSWERED rows -- caught when fixing A-DRAFT-DAY-DECISIONS.md's stated open-row count at merge time (189 live vs 136 from the test's own logic, outside its 34-row tolerance). Fixed by reusing the shared TERMINAL regex in the Python test rather than a second hand-maintained list. Watermark now authoritative from 181."
+  },
+  {
+   "id": 181,
+   "claimed_at": "2026-08-21",
+   "note": "A/relay: the keeper-lock-passing-doesn't-release-withheld-opponent-keepers finding (13 keepers, board shows them as available Saturday) landed on main's own P169 -- a genuine independent collision with D's already-canonical 169 (the dollar-panel E[$] QB-inversion row, filed the same day earlier). No textual overlap so git's clean auto-merge missed it. Renumbered here, first allocation wins. Time-sensitive (recheck 08-21 12:00, before the 6pm keeper lock) -- flagged, not resolved; the underlying ASK to Cory is untouched. Watermark now authoritative from 182."
   }
  ]
 }
