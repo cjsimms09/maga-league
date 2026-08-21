@@ -58,3 +58,27 @@ proved valuable. Escalated to A in ROUTES with a default: if unclaimed by
 Friday 10:00, the relay ships the one-line `$PATHS` addition itself — it is a
 capture list, not board logic, and the loss is irreversible while the change
 is trivially revertable.
+
+## ADDENDUM 2026-08-21 — Cory's simulation order, verbatim: "we need to be able to simulate everything we can about this year so we need to be capturing in a way that allows us to do that and makes sure it stays safe!!!"
+
+Three additions so EVERY decision type is simulable with its at-the-moment
+state (the thing no backfill can recover), plus the safety upgrade:
+
+| # | input | store / capture | status |
+|---|---|---|---|
+| 12 | **The Tuesday WIRE as it stood** — who was available when each claim was made; makes the waiver decision-null exact forever | new Tuesday cron (C's in-season queue #1, default 08-27 relay-builds) | 🟡 BUILD THIS WEEK |
+| 13 | **Trades WITH both rosters at accept-time** — the trade null's only food (history holds 6 trades; useless) | C's in-season queue #2 | 🟡 BUILD BEFORE WEEK 1 |
+| 14 | **Waiver PRIORITY ORDER, weekly** — this league is ROLLING PRIORITY, so claim-vs-wait cannot be simulated without the queue as it stood each Tuesday; derivable-in-part from claim sequences but exact only if captured | rides the same Tuesday cron as row 12, second payload | 🟡 WITH ROW 12 |
+
+**SAFETY, upgraded this same day:** `mailbox_deletion_guard.js` mode 2 now
+covers `draft/data/` and `draft/backtest/` `.json`/`.jsonl` stores as well as
+every `.md` — a capture emptied to zero bytes or removed without
+`[mailbox-prune]` fails the build (the fd33cd15 class, which zeroed 15
+documents unnoticed; a zeroed JSONL is a season of decisions gone).
+Regenerated stores are always nonzero, so nightly rebuilds never flag.
+
+**THE ONE LEAK (row 6) IS NOW THE WHOLE ORDER'S CRITICAL PATH:** nightly
+roster/injury state has NEVER reached main (register 155) — every night since
+08-17 is unrecoverable. Its fix rides A's first green CI run, which is hours
+away after the keeper-lock alarms clear. Escalated to A with Cory's order
+attached: the first green run must carry the $PATHS fix, not follow it.
