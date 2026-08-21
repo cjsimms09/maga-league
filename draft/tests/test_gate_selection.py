@@ -381,10 +381,43 @@ def test_the_workflow_gate_deselects_repo_parity_and_the_advisory_step_does_not(
     before the build the tree is as committed and the parity pins are
     meaningful there — that step is the anti-hand-edit check's nightly home."""
     gate, steps = _gate_step()
-    assert _gate_marker_expression() == "not repo_parity", (
+    # ⚠️ WIDENED TO INCLUDE `not post_chain`, 2026-08-21, AFTER CHECKING THAT THE
+    # DESELECTED TESTS ARE STILL RUN — which is the only thing that makes a
+    # widened exclusion safe, and is now asserted below rather than trusted.
+    #
+    # This arm pinned the expression at exactly "not repo_parity" and went red
+    # when the `post_chain` marker landed. Its own message says a broader
+    # expression "silently drops soundness tests from the gate", and that is the
+    # right fear — but it is not what happened here. The gate moved to run
+    # BEFORE post-processing so it grades what the builder produces, and a test
+    # of Draft Sharks bands cannot pass on a board that has no Draft Sharks
+    # bands yet (conftest.py records the reasoning). Those tests are re-run
+    # explicitly AFTER the chain, in a later step of the same workflow.
+    #
+    # So the pin is no longer on the STRING. It is on the PROPERTY the string was
+    # standing in for: nothing leaves the gate without being run somewhere else.
+    assert _gate_marker_expression() == "not repo_parity and not post_chain", (
         "the gate's marker expression changed — anything narrower readmits "
         "the by-construction refusals, anything broader silently drops "
-        "soundness tests from the gate")
+        "soundness tests from the gate. If a new marker was added, add it here "
+        "AND to the re-run assertion below, which is what keeps this safe.")
+
+    # THE PROPERTY, and the reason widening the expression above is not a
+    # loosening: every file deselected as `post_chain` must be named in a LATER
+    # pytest invocation in the same workflow. A marker that removes tests from
+    # the gate and nowhere re-runs them is the failure this file exists to stop.
+    post_chain_files = sorted({n.split("::", 1)[0]
+                               for n in _collect("-m", "post_chain")})
+    assert post_chain_files, (
+        "CONTROL: no test is marked post_chain, so the re-run assertion below "
+        "would pass vacuously — either the marker is gone (then remove it from "
+        "the expression above) or collection is broken")
+    gate_at = steps.index(gate)
+    later = "\n".join(str(st.get("run") or "") for st in steps[gate_at + 1:])
+    unrerun = sorted(f for f in post_chain_files if f not in later)
+    assert not unrerun, (
+        "these files are deselected from the gate as post_chain and are NOT "
+        "re-run by any later step — they are simply not running: %s" % unrerun)
     advisory = [s for s in steps
                 if "Run acceptance tests" in (s.get("name") or "")]
     assert len(advisory) == 1
@@ -419,9 +452,15 @@ def test_the_gate_selection_excludes_exactly_the_marked_set_and_nothing_else():
         "pinned nodes missing from the suite itself: %s"
         % sorted(REPO_PARITY_NODES - everything))
     excluded = everything - gate_selected
-    assert excluded == REPO_PARITY_NODES, (
+    # The gate now also defers `post_chain` (see the note in the test above:
+    # deselected from the pre-chain gate, re-run explicitly after the chain, and
+    # that re-run is asserted there). So the expected exclusion set is both
+    # marked sets, and this arm still fails on any test that leaves the gate
+    # without carrying one of the two markers.
+    expected = REPO_PARITY_NODES | _collect("-m", "post_chain")
+    assert excluded == expected, (
         "the gate's deselection is not exactly the repo_parity set.\n"
         "  extra exclusions (soundness tests the gate would silently skip): %s\n"
         "  missing exclusions (fresh boards refused by construction again): %s"
-        % (sorted(excluded - REPO_PARITY_NODES),
-           sorted(REPO_PARITY_NODES - excluded)))
+        % (sorted(excluded - expected),
+           sorted(expected - excluded)))
