@@ -237,3 +237,34 @@ defect in 202 exists only in that pre-draft state** — it should resolve the
 moment the first pick is recorded, which makes it a *draft-morning* problem
 rather than an all-day one, and does not make it less worth fixing: pre-draft is
 when he plans.
+
+---
+
+## Addendum, same night — one of my own instruments was wrong, and the audit survives it
+
+Hours after this audit I had to correct **register 201** (yesterday's survival
+verification): every survival percentage I published there was **understated**,
+because my probe hand-built the engine context and omitted `pickBoard`, `drift`
+and `runMultipliers`, which the conservation tilt reads. Live page vs my harness:
+Lamar Jackson **11%** vs 5.69, Maye **71%** vs 54.55, Loveland **26%** vs 16.41.
+**And the thin context does not merely shrink the column — it reorders it:** mine
+put Maye below Burrow; the live page puts Maye above.
+
+**So I re-checked this audit's three findings against the rendered page rather
+than the harness, and all three hold:**
+
+* **203** and **204** were read **entirely off the rendered page** — pick, pos,
+  player, ADP, the strike strip, the RUNNING OUT row, the three QB figures. No
+  harness was involved in either. Unaffected.
+* **202**'s *observation* was always from the live DOM (ten dashes on RB, nine on
+  WR). Only its *explanation* used the harness, so I re-confirmed the mechanism
+  on the rendered page: **the live RB VONA card starts at Josh Jacobs** — Gibbs,
+  Robinson, McCaffrey, Taylor, Cook, Achane, Jeanty, Barkley, Chase Brown and
+  Hampton are absent from it, exactly the ten players whose `gone?` cells are
+  blank. `preDraftPool` filtered them on the live page, not just in my harness.
+
+**The rule I am taking into Saturday: any number that reaches Cory gets read off
+the rendered page, never off a probe.** This audit was built that way by
+accident of method; register 201 was not, and that is the difference between the
+two.
+
