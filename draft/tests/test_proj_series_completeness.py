@@ -138,10 +138,47 @@ def test_no_WHOLE_DAY_is_missing_from_the_span():
     lo, hi = _dt.date.fromisoformat(dates[0]), _dt.date.fromisoformat(dates[-1])
     span = {(lo + _dt.timedelta(days=i)).isoformat() for i in range((hi - lo).days + 1)}
     missing = sorted(span - set(dates))
-    assert not missing, (
-        f"{len(missing)} whole day(s) never captured: {missing}\n"
+    new_gaps = [d for d in missing if d not in KNOWN_GAPS]
+    assert not new_gaps, (
+        f"{len(new_gaps)} whole day(s) never captured: {new_gaps}\n"
         "A daily job produced these rows, so a gap is a run that did not happen "
         "or did not write. This series cannot be backfilled (exp33).")
+
+
+#: KNOWN, EXPLAINED, AND PERMANENT — not forgiven, RECORDED. A gap here is a day
+#  of an unbackfillable series that the January 2027 experiment will not have.
+#  Adding a row is an admission, and each one must say what happened.
+KNOWN_GAPS = {
+    "2026-08-20": (
+        "EVERY draft-data run on this date was REFUSED by the publish gate — "
+        "fourteen of them; the last successful run was 2026-08-19T08:46Z. The "
+        "capture RAN on the 20th and the job that commits it never completed, "
+        "so the row was discarded with the rest of the refused board. That is "
+        "register 155's shape (a capture thrown away by an unrelated failure) "
+        "costing a day of a series whose own docstring says it cannot be "
+        "backfilled. Register 170."
+    ),
+}
+
+
+def test_the_known_gaps_are_still_REAL_gaps_and_stay_few():
+    """AN ALLOWLIST THAT OUTLIVES ITS ENTRIES BECOMES A PERMISSION SLIP.
+
+    Two ways this file could rot into uselessness, both closed here: a row left
+    behind after the day somehow reappears (then it is silently excusing a day
+    that is fine), and the list growing until "contiguous" means nothing. A
+    daily series that tolerates many holes is not a series."""
+    dates = set(_by_date())
+    stale = sorted(d for d in KNOWN_GAPS if d in dates)
+    assert not stale, (
+        f"{stale} is listed as a known gap but the series HAS it — remove the "
+        "row rather than leaving it to excuse a future gap on the same date")
+    assert len(KNOWN_GAPS) <= 3, (
+        f"{len(KNOWN_GAPS)} known gaps. Each one is a day the 2027 rerun will "
+        "not have. Past three, the honest move is to say the series is broken "
+        "rather than to keep listing the days it is missing.")
+    for d, why in KNOWN_GAPS.items():
+        assert len(why) > 60, f"{d} has no real explanation attached"
 
 
 def test_the_series_is_still_BEING_written():
