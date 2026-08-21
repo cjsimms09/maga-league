@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 193,
+ "next_numeric_id": 196,
  "history": [
   {
    "id": 47,
@@ -328,9 +328,17 @@
    "claimed_at": "2026-08-21"
   },
   {
-   "id": 192,
+   "id": "192 -> 195",
    "claimed_at": "2026-08-21",
-   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193."
+   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. ⚠️ RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
+  },
+  {
+   "id": 193,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 194,
+   "claimed_at": "2026-08-21"
   }
  ]
 }

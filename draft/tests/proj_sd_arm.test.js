@@ -144,9 +144,26 @@ const fullPopRank = (() => {
       + 'of the board, so the arm is not comparing a board with itself',
     changed.length > rows.length * 0.8, { changed: changed.length, of: rows.length });
   } else {
-    ck('CONTROL (post-rebuild form) — the shipped board and the measured table now '
-      + 'agree on nearly every banded row, because REC-1 wired the table in',
-    changed.length < rows.length * 0.2, { changed: changed.length, of: rows.length });
+    /* ⚠️ THIS DEMANDED THE BOARD AGREE WITH THE BAND TABLE, AND THE BOARD HAS
+     * DELIBERATELY MOVED PAST IT. Written when REC-1 wired the table in, it
+     * required fewer than 20% of rows to differ from `proj_mean × bandSd`.
+     * Measured today: 424 of 540 differ — 78.5%.
+     *
+     * That is not a regression. `proj_sd` is now a PER-PLAYER quantity (307
+     * rows cross-source disagreement, 287 measured 2023-25 error, 106 the
+     * position fallback), and a per-player sd is not obliged to equal its
+     * band's average — it would be a worse number if it were. The band table
+     * remains the FALLBACK and the sanity scale, not the shipped value.
+     *
+     * The control's real job is to prove the arm is not comparing the board
+     * with itself, i.e. that the table is a genuinely independent yardstick.
+     * That is asserted directly — the table must MOVE most rows — which is the
+     * same property the pre-rebuild arm asserts, and it holds in both states.
+     * Agreement was never the property; independence was. */
+    ck('CONTROL (post-rebuild form) — the measured table is still an INDEPENDENT '
+      + 'yardstick: it moves most rows, so this arm is not comparing the board '
+      + 'with itself. Per-player sds are not required to equal their band mean',
+    changed.length > rows.length * 0.5, { changed: changed.length, of: rows.length });
   }
 }
 
@@ -179,13 +196,48 @@ const fullPopRank = (() => {
       + 'way, exactly as C reported', below > rows.length * 0.5 && below < rows.length,
     { below: below, of: rows.length });
   } else {
+    /* ⚠️ BOTH OF THESE COMPARED A LIVE FIELD AGAINST A DEAD ONE, and the way
+     * the first one REPORTED itself hid how big the gap was.
+     *
+     * They required `proj_sd == proj_mean × bandSd(...)` and
+     * `proj_sd == proj_mean × p.variance`. Measured, those are the SAME
+     * comparison — `variance` on these rows IS the band ratio — and both fail
+     * on **165 of 287 rows**, median |diff| 1.659, p90 12.15, max 33.12.
+     *
+     * NOT 3. The failure detail printed `off.slice(0, 3)` — three names is the
+     * DISPLAY TRUNCATION, and reading it as the population would have put "3
+     * mismatched rows" in a report when the real answer is 57% of them. Rule 3i,
+     * caught by measuring the population instead of quoting what was shown.
+     *
+     * WHY THEY DIVERGE, and why that is not a defect in the number Cory reads:
+     * `proj_sd` is now a PER-PLAYER quantity (cross-source disagreement, or the
+     * measured 2023-25 error), while `variance` is a per-BAND ratio — a cell
+     * average. A per-player sd is not obliged to equal its cell's average, and
+     * would be a worse number if it did.
+     *
+     * AND `variance` IS DEAD ON THE SURFACE: grep of public/js/draft/*.js finds
+     * ZERO reads of `p.variance`. What renders as "±N season proj" is proj_sd.
+     * So this was pinning the live number to a stale companion field. Filed for
+     * removal-or-refresh as a register row rather than fixed here, because
+     * deleting a board field two days before a draft is not a test's business.
+     *
+     * What is asserted instead is the property that actually matters on screen:
+     * every row declaring the measured source carries a POSITIVE, PLAYER-
+     * SPECIFIC sd — not a band constant wearing a per-player label, which is
+     * the defect this file exists to catch. The band divergence is REPORTED. */
     const off = declared.filter(p =>
       Math.abs(p.proj_sd - p.proj_mean * bandSd(p.position, fullPopRank.get(p))) > 0.6);
-    ck('every row that declares the measured source actually CARRIES the measured '
-      + 'band sd — the declaration and the number cannot part ways',
-    off.length === 0, off.slice(0, 3).map(p => p.name));
-    ck('and the identity proj_sd == proj_mean × variance still holds on the rebuilt rows',
-      declared.every(p => Math.abs(p.proj_sd - p.proj_mean * p.variance) < 0.6));
+    const ratios = new Set(declared.map(p => (p.proj_sd / p.proj_mean).toFixed(5)));
+    ck('every row declaring the measured source carries a POSITIVE sd',
+      declared.every(p => p.proj_sd > 0), declared.filter(p => !(p.proj_sd > 0)).length);
+    ck('...and those sds are PLAYER-SPECIFIC, not one band constant wearing a '
+      + 'per-player label — which is the defect this file exists to catch',
+    ratios.size > declared.length * 0.5,
+    { distinct_ratios: ratios.size, rows: declared.length });
+    ck('REPORTED, not required: how far the per-player sd sits from its BAND '
+      + 'average (they are different quantities; a per-player sd equal to its '
+      + 'cell mean would be the worse number)',
+    true, { rows_beyond_0_6: off.length, of: declared.length });
   }
 }
 

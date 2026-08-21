@@ -9,7 +9,9 @@
  ],
  "controls": {
   "random_lineup": 0.4988,
-  "oracle_lineup": 0.9989
+  "oracle_lineup": 0.9989,
+  "known_negative_band_half_width": 0.0246,
+  "band_derived_from_n": 531
  },
  "n_draws_per_week": 400,
  "seed": 20260821,
