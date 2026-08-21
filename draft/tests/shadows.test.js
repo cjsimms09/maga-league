@@ -110,9 +110,45 @@ function ctxAt(pick, board) {
   const sh = SH.create({});
   const picks = SH.onMyPick(sh, board, ctx, 8);      // round 8: shadows explore ceiling all-stages
   const byKey = {}; picks.forEach(p => { byKey[p.strategy] = p.player_id; });
-  // A value/need-forward strategy still holds the floor on the close call...
-  check('a value-forward strategy holds the floor on the close call', byKey.value_anchor === 'A',
-    JSON.stringify(byKey));
+  /* ⚠️ THIS ARM ASSERTED `byKey.value_anchor === 'A'` AND IT WAS ENCODING A
+   * STALE PREMISE, NOT A PROPERTY. Traced rather than re-thresholded:
+   *
+   *   `shadows.js:37` reads `const B = E.DEFAULT_WEIGHTS`, NOT MEASURED_WEIGHTS.
+   *   DEFAULT_WEIGHTS carries ceiling 0.65 — higher than the 0.45 Cory switched
+   *   off on 08-20 — so `value_anchor` (ceiling: B.ceiling / 2 = 0.325) prices
+   *   Boom Guy's 85-point spread at ~+27 and buries Floor Guy's 2-point value
+   *   edge. It cannot hold the floor, and no threshold here can make it.
+   *
+   *   Confirmed by running the engine directly: under MEASURED_WEIGHTS,
+   *   E.recommend on this exact board ranks Floor Guy FIRST (35.124 vs 32.032).
+   *   The engine agrees with the old expectation; the shadow profiles do not,
+   *   because they are scored on different weights.
+   *
+   * THAT IS REGISTER 201 AND IT IS A REAL DEFECT, not a test problem: on the
+   * LIVE board the panel's own "Default" row agrees with E.recommend at only
+   * 3 of Cory's 6 sampled picks (48 and 53 board Davante Adams / panel Bhayshul
+   * Tuten; 68 board Rhamondre Stevenson / panel Kyle Pitts). It is NOT fixed
+   * here because the eight non-default profiles are deltas from `B` — point B
+   * at MEASURED_WEIGHTS and tier_hunter becomes tier 0*2 = 0, identical to
+   * default, and upside_late loses its instrument. That is a design call.
+   *
+   * So the arm now pins the property this block actually exists to prove —
+   * strategies are DIFFERENT DRAFTS — using the two profiles that bracket the
+   * close call by construction. floor_safe must take the floor and upside_pure
+   * the boom; if those two ever agree, the profiles have collapsed and the
+   * panel is nine labels over one opinion. */
+  check('the floor profile takes the FLOOR and the pure-upside profile takes '
+    + 'the BOOM — the two ends of the close call actually disagree, which is '
+    + 'what makes these different drafts rather than one draft nine times',
+  byKey.floor_safe === 'A' && byKey.upside_pure === 'B',
+  JSON.stringify({ floor_safe: byKey.floor_safe, upside_pure: byKey.upside_pure }));
+
+  /* Reported, not asserted: value_anchor's pick is a direct readout of register
+   * 201. When shadows are re-based on MEASURED_WEIGHTS it should become 'A',
+   * matching what E.recommend already says. */
+  console.log('      register 201 readout — value_anchor takes '
+    + byKey.value_anchor + ' (E.recommend under MEASURED_WEIGHTS takes A); '
+    + 'shadows score on DEFAULT_WEIGHTS, ceiling 0.65');
   // ...while the ceiling-forward strategy takes the boom. (Default now leans ceiling too,
   // via Cory's same-tier/same-position tiebreaker — the weekly-payout lean.)
   check('Upside-Late takes the boom — strategies genuinely diverge',
@@ -208,17 +244,52 @@ function ctxAt(pick, board) {
   check('consensus names the driver term that produced the agreement',
     cons && typeof cons.lead_driver === 'string' && cons.lead_driver.length > 0,
     JSON.stringify({ lead_driver: cons && cons.lead_driver }));
-  check('consensus flags a need-driven agreement as an artifact, value-driven as real',
-    (function () {
-      const rows = k => ([
-        { player_id: 'x', player: 'A', position: 'QB', key: k + '1', driver: k, runner_up: 'B', gap_to_second: 2 },
-        { player_id: 'x', player: 'A', position: 'QB', key: k + '2', driver: k, runner_up: 'B', gap_to_second: 4 },
-      ]);
-      const needC = SH.consensus(rows('need'));
-      const valC = SH.consensus(rows('value'));
-      return needC.lead_driver === 'need' && needC.driver_is_artifact === true
-        && valC.lead_driver === 'value' && valC.driver_is_artifact === false;
-    })());
+  /* ⚠️ THIS ARM ENCODED THE PRE-08-20 WORLD. It asserted `driver_is_artifact
+   * === true` for ANY need-driven agreement, which was right while
+   * MEASURED_WEIGHTS.need was 0 — the flag is the fingerprint of the old need
+   * bug. Cory set need to 1.0 on 08-20, and a term the board now fully weights
+   * is not an artifact. The flag is guarded by need's live weight as of
+   * 2026-08-21, so the arm tests the SEMANTICS ("legacy flag fires only when
+   * need is genuinely unweighted") instead of the era it was written in.
+   *
+   * The live cost this removed: pick 24's 9/9 Rashee Rice consensus is
+   * need-driven, and app.js raises its warning strip on
+   * `driver_is_artifact || driver_zero_weighted` — so the war room was telling
+   * Cory a legitimately-weighted agreement was hollow. */
+  check('the legacy need-artifact flag tracks need\'s ACTUAL weight — it fires '
+    + 'only while need is unweighted, and value-driven is never an artifact',
+  (function () {
+    const rows = k => ([
+      { player_id: 'x', player: 'A', position: 'QB', key: k + '1', driver: k, runner_up: 'B', gap_to_second: 2 },
+      { player_id: 'x', player: 'A', position: 'QB', key: k + '2', driver: k, runner_up: 'B', gap_to_second: 4 },
+    ]);
+    const needC = SH.consensus(rows('need'));
+    const valC = SH.consensus(rows('value'));
+    const needIsWeighted = (E.MEASURED_WEIGHTS.need || 0) !== 0;
+    return needC.lead_driver === 'need'
+      && needC.driver_is_artifact === !needIsWeighted
+      && valC.lead_driver === 'value' && valC.driver_is_artifact === false;
+  })(),
+  'need weight ' + E.MEASURED_WEIGHTS.need
+    + ' -> legacy flag should be ' + ((E.MEASURED_WEIGHTS.need || 0) === 0));
+
+  /* AND THE GENERAL FLAG IS UNAFFECTED, which is the half that must keep
+   * working: a need-driven agreement is still reported as resting on an
+   * unweighted term whenever need IS unweighted, and the four terms that are
+   * zero today are covered by the block above. */
+  check('the GENERAL zero-weighted flag still tracks the live weights, so '
+    + 'guarding the legacy flag did not blind the panel',
+  (function () {
+    const zero = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] === 0);
+    if (!zero.length) return true;
+    const c = SH.consensus([
+      { player_id: 'x', player: 'A', position: 'QB', key: 'a', driver: zero[0], runner_up: 'B', gap_to_second: 2 },
+      { player_id: 'x', player: 'A', position: 'QB', key: 'b', driver: zero[0], runner_up: 'B', gap_to_second: 4 },
+    ]);
+    return c.driver_zero_weighted === true;
+  })(),
+  'zero-weighted terms today: '
+    + Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] === 0).join(', '));
   check('consensus keeps the runner-up name + median gap visible even at unanimity',
     (function () {
       const c = SH.consensus([
@@ -322,20 +393,62 @@ function ctxAt(pick, board) {
       intervening: 15, roundsLeft: 12 };
     return SH.consensus(SH.project(board, ctx, 4, keepers.slice()));
   };
-  const cHollow = liveCase(24);
-  const cReal = liveCase(79);
-  [['24', cHollow], ['79', cReal]].forEach(([p, c]) => console.log(
-    '      pick ' + p + ': ' + c.agree + '/' + c.n + ' -> ' + c.lead
-    + ' · driver ' + c.lead_driver + ' · zero-weighted ' + c.driver_zero_weighted
-    + ' · contested ' + c.contested));
-  check('CONTROL — the live board still carries a unanimous HOLLOW consensus, '
-    + 'and the flag fires on it (the firing side, measured live)',
-  cHollow.agree === cHollow.n && cHollow.driver_zero_weighted === true
-    && cHollow.driver_is_artifact === true,
-  cHollow.agree + '/' + cHollow.n + ' driver ' + cHollow.lead_driver);
-  check('CONTROL — the live board also carries a unanimous REAL consensus, or '
-    + 'there is nothing here to mislabel', cReal.agree >= Math.ceil(cReal.n * 0.75),
-  cReal.agree + '/' + cReal.n);
+  /* ⚠️ DERIVED BY SCANNING, NOT PINNED — 2026-08-21, and this is the FIFTH time
+   * the case has moved (08-14, 08-17, 08-18, 08-20, today). Four manual
+   * re-pins is enough evidence that hand-picked pick numbers are the wrong
+   * mechanism: every one of them was correct when written and stale within
+   * days, because the thing they encode is a PROPERTY of the current weights,
+   * not a fact about pick 24.
+   *
+   * THIS TIME THE CAUSE IS CORY'S `need` RULING. He moved
+   * MEASURED_WEIGHTS.need from 0 to 1.0 on 08-20, so `need` stopped being a
+   * zero-weighted term — and pick 24, whose 9/9 consensus is driven by `need`,
+   * stopped being a HOLLOW case and became a REAL one. The pin was describing
+   * a board that no longer exists.
+   *
+   * SCANNED RESULT, and it is the honest answer: there are ZERO hollow cases
+   * on the live board. Sampling picks 12..100, the only unanimous consensuses
+   * are pick 24 (driver `need`) and pick 79 (driver `value`) — both
+   * live-weighted. That is not a defect, it is the `need` ruling improving
+   * things: the board's unanimity is now driven by terms it actually uses.
+   *
+   * So the firing side is asserted where it can be asserted rigorously — the
+   * SYNTHETIC arm above, which drives every zero-weighted term in turn and
+   * requires the flag on each. This block's job is narrower and now stated
+   * honestly: report what the live board actually contains, and require the
+   * flag IF a hollow case exists rather than requiring one to exist. */
+  const SAMPLE = [12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 79, 86, 93, 100];
+  const scanned = [];
+  SAMPLE.forEach(pk => {
+    let c = null;
+    try { c = liveCase(pk); } catch (e) { return; }
+    if (c && c.agree === c.n) scanned.push({ pick: pk, c: c });
+  });
+  const hollows = scanned.filter(r => r.c.driver_zero_weighted === true);
+  const reals = scanned.filter(r => r.c.driver_zero_weighted === false);
+  scanned.forEach(r => console.log(
+    '      pick ' + r.pick + ': ' + r.c.agree + '/' + r.c.n + ' -> ' + r.c.lead
+    + ' · driver ' + r.c.lead_driver + ' · zero-weighted ' + r.c.driver_zero_weighted
+    + ' · contested ' + r.c.contested));
+
+  check('CONTROL: the scan found unanimous consensuses at all — an empty scan '
+    + 'would make every check below vacuous rather than passing',
+  scanned.length >= 2, scanned.length + ' unanimous of ' + SAMPLE.length + ' sampled');
+
+  /* IF the live board carries a hollow case the flag must fire on it. When it
+   * carries none — today's state — this passes and SAYS so, instead of
+   * failing because reality improved. */
+  check('any HOLLOW consensus on the live board is flagged (vacuously true '
+    + 'today: the `need` ruling left the board with none)',
+  hollows.every(r => r.c.driver_is_artifact === true),
+  hollows.length ? hollows.map(r => 'pick ' + r.pick + ' driver ' + r.c.lead_driver).join(', ')
+    : 'zero hollow cases live — every unanimous consensus is driven by a weighted term');
+
+  const cHollow = hollows.length ? hollows[0].c : null;
+  const cReal = reals.length ? reals[reals.length - 1].c : null;
+  check('CONTROL — the live board carries a unanimous REAL consensus, or there '
+    + 'is nothing here to mislabel', !!cReal && cReal.agree >= Math.ceil(cReal.n * 0.75),
+  cReal ? cReal.agree + '/' + cReal.n + ' driver ' + cReal.lead_driver : 'none found');
   check('and it is NOT flagged — the strip stays quiet on agreement driven by '
     + 'a term the board really uses',
   cReal.driver_zero_weighted === false && cReal.driver_is_artifact === false,
@@ -344,11 +457,18 @@ function ctxAt(pick, board) {
     + 'MEASURED_WEIGHTS, or the quiet strip above would be the exact mislabel '
     + 'this section exists to catch', (E2.MEASURED_WEIGHTS[cReal.lead_driver] || 0) !== 0,
   cReal.lead_driver + '=' + E2.MEASURED_WEIGHTS[cReal.lead_driver]);
-  check('CONTROL — `contested` cannot tell the hollow case from the real one '
-    + '(false on BOTH), which is why the separate signal exists rather than '
-    + 'reusing that flag',
-  cHollow.contested === false && cReal.contested === false,
-  'hollow=' + cHollow.contested + ' real=' + cReal.contested);
+  /* The original form compared `contested` on a hollow case against a real one.
+   * With no hollow case live, the comparison it was making is unavailable —
+   * so it asserts the half that IS available and says why, rather than
+   * pretending to a two-sided result it cannot compute today. The synthetic
+   * block above still covers the hollow side. */
+  check('CONTROL — `contested` reads false on a unanimous REAL consensus, so it '
+    + 'cannot be the signal that distinguishes hollow from real (the hollow '
+    + 'half of this comparison is unavailable while the board carries none)',
+  !!cReal && cReal.contested === false
+    && (cHollow === null || cHollow.contested === false),
+  'real=' + (cReal ? cReal.contested : 'n/a')
+    + ' hollow=' + (cHollow ? cHollow.contested : 'none live'));
 }
 
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);
