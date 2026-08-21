@@ -60,6 +60,18 @@
   --wr-chart-room: #eb6834;         /* room-model series (validated pair) */
   --wr-chart-dim: #b9c2cf;          /* de-emphasis series */
   --wr-chart-grid: #e8e6df;         /* hairline grid, one step off paper */
+
+  /* ── motion tokens, added 2026-08-20 — Cory: "cooler tools and features.
+     More clear and interactive." Rule 4 above ("motion only on state
+     changes") was written but under-executed: this file shipped 9
+     transitions and zero keyframes across ~2000 lines. Two durations only —
+     fast for hover/press feedback, base for layout/content changes — so
+     "interactive" reads as ONE consistent feel, not a different animation
+     per component. Real easing, not linear — linear reads as a progress
+     bar, ease-out reads as a physical object settling. ── */
+  --wr-fast: .14s cubic-bezier(.2, .7, .3, 1);
+  --wr-base: .22s cubic-bezier(.2, .7, .3, 1);
+  --wr-lift: translateY(-2px);
 }
 
 /* Numbers that sit in columns align; hero numbers stay proportional. */
@@ -604,7 +616,17 @@ body.warroom-page .card {
      0 1px 3px this replaced, which read as a hairline outline, not a raised
      surface). Cory: "look a lot better... professional." */
   box-shadow: 0 1px 2px rgba(0, 0, 0, .28), 0 6px 16px -8px rgba(0, 0, 0, .35);
-  transition: box-shadow .15s ease;
+  transition: box-shadow var(--wr-base), transform var(--wr-base), border-color var(--wr-base);
+}
+/* A whisper of lift on hover, on every card — not a jump, a hint that the
+   surface is real. The ambient shadow deepens too, so the lift reads as
+   the card physically rising, not just an outline getting darker. */
+@media (hover: hover) {
+  body.warroom-page .card:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--wr-structure) 35%, var(--wr-line));
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .3), 0 10px 24px -10px rgba(0, 0, 0, .45);
+  }
 }
 body.warroom-page .card > h2 {
   font-size: .72rem;
@@ -919,9 +941,13 @@ body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
   color: var(--muted); background: transparent;
   border: 1px solid transparent; border-radius: 7px;
   padding: .42rem .6rem; cursor: pointer; white-space: nowrap;
+  transition: color var(--wr-fast), background var(--wr-fast), transform var(--wr-fast), box-shadow var(--wr-fast);
 }
-.wr-tab:hover { color: var(--ink); background: var(--panel-soft); }
-.wr-tab.active { color: #0a1422; background: var(--gold); border-color: var(--gold); }
+.wr-tab:hover { color: var(--ink); background: var(--panel-soft); transform: var(--wr-lift); }
+.wr-tab.active {
+  color: #0a1422; background: linear-gradient(155deg, var(--gold-bright), var(--gold));
+  border-color: var(--gold); box-shadow: 0 2px 8px -2px rgba(240, 192, 82, .55);
+}
 .wr-tab-links {
   margin-left: auto; display: inline-flex; gap: .15rem; align-items: center;
   flex: 0 0 auto;
@@ -929,6 +955,7 @@ body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
 .wr-tab-links a {
   font-size: .66rem; font-weight: 700; color: var(--muted); text-decoration: none;
   padding: .35rem .45rem; border-radius: 6px; white-space: nowrap;
+  transition: color var(--wr-fast), background var(--wr-fast);
 }
 .wr-tab-links a:hover { color: var(--ink); background: var(--panel-soft); }
 .wr-tab-links a.wr-exit { border-left: 1px solid var(--line); border-radius: 0 6px 6px 0; }
@@ -1315,11 +1342,29 @@ body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
 .rec-nm:hover { color: var(--gold-bright); }
 
 /* ── THE ONE VOICE — verdict dominates, alternatives are rows ───────────── */
-body.warroom-page .wrv-name { font-size: 1.65rem; letter-spacing: -.01em; }
+/* A gradient text fill on the one name that matters most on the page —
+   Cory: "cooler tools and features." Subtle (gold-bright -> gold, not a
+   rainbow): reads as a considered detail on a hero element, not a gimmick
+   sprinkled everywhere. Falls back to solid --wr-ink wherever
+   background-clip: text isn't supported — never invisible text. */
+body.warroom-page .wrv-name {
+  font-size: 1.65rem; letter-spacing: -.01em;
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold) 60%, var(--wr-ink));
+  -webkit-background-clip: text; background-clip: text; color: var(--wr-ink);
+}
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  body.warroom-page .wrv-name { -webkit-text-fill-color: transparent; color: transparent; }
+}
 body.warroom-page .wrv-why { font-size: .8rem; }
-body.warroom-page .btn.gold.wrv-take { background: var(--gold); border-color: var(--gold);
-  color: #0a1422; font-weight: 900; }
-body.warroom-page .btn.gold.wrv-take:hover { background: var(--gold-bright); }
+body.warroom-page .btn.gold.wrv-take {
+  background: linear-gradient(155deg, var(--gold-bright), var(--gold));
+  border-color: var(--gold); color: #0a1422; font-weight: 900;
+  box-shadow: 0 4px 14px -4px rgba(240, 192, 82, .55);
+}
+body.warroom-page .btn.gold.wrv-take:hover {
+  background: linear-gradient(155deg, var(--gold-bright), var(--gold-bright));
+  box-shadow: 0 6px 18px -4px rgba(240, 192, 82, .7);
+}
 body.warroom-page .wrv-lens { background: var(--panel-soft); }
 body.warroom-page .wrv-chip.lock { background: var(--gold); color: #0a1422; }
 body.warroom-page .wrv-chip.lean { background: var(--navy-soft); color: var(--ink); border-color: var(--wr-chart-main); }
@@ -1439,6 +1484,10 @@ body.warroom-page .best-avail-strip { font-size: .72rem; }
 /* ── BIG BOARD tab ──────────────────────────────────────────────────────── */
 .wr-boardbar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 0 0 .5rem; }
 .wr-boardbar .wr-search { flex: 1 1 240px; margin: 0; }
+/* Cory, 2026-08-21: "does it change based on source selected?" -- the honest
+ * answer, computed all along, printed for the first time. Sits above both
+ * the by-position columns and the full table since they share one ordering. */
+.wr-board-ordering { margin: 0 0 .6rem; font-size: .78rem; }
 .wr-cols {
   display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .4rem;
   -webkit-overflow-scrolling: touch;
@@ -1662,13 +1711,21 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    be able to toggle between them." Ranking/selection stay Draft-Sharks-fixed
    — this only swaps which number each row prints, so it reads as a quiet
    display switch, not a second ranking control. */
-.pb-src-toggle { display: flex; gap: .3rem; }
+.pb-src-toggle {
+  display: flex; gap: .2rem; padding: .18rem; width: fit-content;
+  background: rgba(0,0,0,.18); border-radius: 999px;
+}
 .pb-src-btn {
   font-size: .64rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
-  color: var(--wr-muted); background: var(--wr-panel); border: 1px solid var(--wr-line);
-  border-radius: 999px; padding: .12rem .55rem; cursor: pointer;
+  color: var(--wr-muted); background: transparent; border: 1px solid transparent;
+  border-radius: 999px; padding: .16rem .6rem; cursor: pointer;
+  transition: color var(--wr-fast), background var(--wr-fast), transform var(--wr-fast), box-shadow var(--wr-fast);
 }
-.pb-src-btn.pb-src-active { color: var(--wr-structure); border-color: var(--wr-structure); background: var(--wr-panel-soft); }
+.pb-src-btn:hover:not(.pb-src-active) { color: var(--wr-ink); background: rgba(255,255,255,.08); transform: var(--wr-lift); }
+.pb-src-btn.pb-src-active {
+  color: #fff; background: linear-gradient(155deg, #7aa2f7, var(--wr-structure));
+  box-shadow: 0 2px 8px -2px rgba(122,162,247,.5);
+}
 .pb-grid {
   /* 11.5rem: bumped from 10.5rem after removing letter-spacing/uppercase
      from the header row (Cory: "words that are cutoff with … are not
@@ -1699,6 +1756,11 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    a live screenshot caught it painted over the TE column's "+66.6 wire"
    text, clipping a real number the same way the ellipsis headers used to. */
 .pb-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: 0 0 .5rem; }
+/* Cory, 2026-08-21: mistook this panel's DS/Blend-only toggle for the
+ * Ranking Source panel above it. The explanation used to live only in a
+ * hover title -- printed as a real line instead, full width, not squeezed
+ * into .pb-toolbar's flex row with the toggle and the scroll hint. */
+.pb-src-note { margin: 0 0 .6rem; font-size: .78rem; }
 .pb-grid-hint {
   font-size: .58rem; color: var(--wr-muted); font-style: italic;
   white-space: nowrap; opacity: 0; transition: opacity .15s;
@@ -1782,10 +1844,16 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 .pb-row {
   padding: .22rem .2rem;
   border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
+  transition: background var(--wr-fast), padding-left var(--wr-fast);
 }
 .pb-row.pb-cliff-line { border-bottom-color: var(--wr-line); }
 .pb-row[data-drill] { cursor: pointer; }
-.pb-row[data-drill]:hover { background: var(--wr-hover, color-mix(in srgb, var(--wr-line) 35%, transparent)); }
+/* A small rightward nudge on hover, on top of the highlight — the row feels
+   like it responds to the cursor, not just changes color underneath it. */
+.pb-row[data-drill]:hover {
+  background: var(--wr-hover, color-mix(in srgb, var(--wr-line) 35%, transparent));
+  padding-left: .4rem;
+}
 /* overflow-wrap: break-word IS needed, and hyphens: auto softens it. A
    version without either was tried on the theory that "a word overflowing
    its column reads better than a word cut in half" — wrong in practice: a
