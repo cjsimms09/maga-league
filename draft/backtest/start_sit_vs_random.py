@@ -178,9 +178,11 @@ def main():
 
     print("\n  TEST 3 (Getty et al.): DO OUR START/SIT DECISIONS BEAT CHANCE?")
     print("  roster held FIXED; only WHICH of your own players start is randomised\n")
+    neg_ok = cr is not None and 0.42 < cr < 0.58
+    pos_ok = co is not None and co > 0.90
     print("  CONTROLS (rule 3e — both must pass or ignore everything below)")
-    print("    known-negative  random lineup   mean pct %.3f   %s" % (cr, "ok" if cr and 0.42 < cr < 0.58 else "⛔ FAILED"))
-    print("    known-positive  oracle lineup   mean pct %.3f   %s" % (co, "ok" if co and co > 0.90 else "⛔ FAILED"))
+    print("    known-negative  random lineup   mean pct %.3f   %s" % (cr, "ok" if neg_ok else "⛔ FAILED"))
+    print("    known-positive  oracle lineup   mean pct %.3f   %s" % (co, "ok" if pos_ok else "⛔ FAILED"))
     print("\n  owner-weeks used: %d   (skipped %d; of those %d because an UNMAPPED"
           " player was actually STARTED)" % (n, skipped + skip_started, skip_started))
     print("  unmapped BENCH players dropped from eligible pools (week kept): %d" % dropped_bench)
@@ -222,6 +224,27 @@ def main():
                      for o, v in per.items()},
     }, indent=1) + "\n")
     print("\n  wrote %s" % OUT.relative_to(ROOT))
+
+    # ⚠️ THE CONTROLS GATE THE EXIT CODE, and they did not until 2026-08-21.
+    #
+    # This now runs unattended in the weekly cron. Printing "⛔ FAILED" beside a
+    # headline number and then exiting 0 is exactly how a broken instrument
+    # keeps publishing confident output: the cron commits the artifact, the log
+    # scrolls, and nobody reads it. If this cannot separate a random owner from
+    # an oracle it cannot separate skill from luck either, and the run must go
+    # red rather than quietly ship a number.
+    #
+    # Written because the workflow comment wiring this step ALREADY CLAIMED the
+    # tool exits non-zero on a failed control -- a claim the code did not
+    # honour. That is the same defect (register 5h) I spent tonight correcting
+    # in CLAUDE.md and composite.js: prose asserting behaviour the constant
+    # beside it does not have.
+    if not (neg_ok and pos_ok):
+        print("\n  ⛔ REFUSING: a control failed, so the number above is not"
+              " evidence of anything. random=%.3f (want 0.42-0.58),"
+              " oracle=%.3f (want >0.90)" % (cr if cr is not None else -1,
+                                             co if co is not None else -1))
+        return 1
     return 0
 
 if __name__ == "__main__":

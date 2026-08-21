@@ -72,13 +72,62 @@ valuation), written to be copied.
 
 ### Amendments to the standard from the SIAM skill-luck paper (Cory's upload, 08-20)
 
-* **The skill-design menu explicitly includes split-half persistence**:
-  `draft/tools/skill_luck_r.py` (R* + its Monte-Carlo null band; controls
-  green). Any arm, tool, or edge with ≥20 graded outcomes reports R* beside
-  its mean. **A naked R* — or any split-half statistic — without its null band
-  bounces at the Wednesday sweep**; at small m the null band is enormous and
-  the statistic alone misleads (measured: fair coins drew R*=−0.54 on one
-  seed; our own league's W/L R*=0.68 sits INSIDE its m=10 null band).
+* ~~**The skill-design menu explicitly includes split-half persistence**:
+  any arm, tool, or edge with ≥20 graded outcomes reports R* beside its mean.~~
+  **⚠️ SUPERSEDED 2026-08-21 — THE ≥20 THRESHOLD WAS FAR TOO LOW AND THE RULE
+  HAD NO MECHANISM.** Two defects, both measured:
+
+  **(a) n≥20 prescribes on the wrong quantity.** Power for R* is driven by the
+  size of the real EFFECT, not by the outcome count. Measured on synthetic
+  leagues with a known persistent spread (25 seeds/cell, MC null per draw), at
+  our league's own spread of ≈0.106 (observed all-play range .366–.578):
+
+  | true spread | n=50 (today) | n=100 (~6 seasons) | n=150 (~9 seasons) |
+  |---|---|---|---|
+  | **0.10 ← ours** | **12%** | **16%** | **20%** |
+  | 0.20 | 60% | 88% | 96% |
+
+  A threshold that admits n=20 manufactures non-significant numbers that then
+  get quoted as *"not skill"* — **a false negative dressed as a finding**,
+  which is exactly rule 3e's shape. Nine more seasons still leaves us at 20%.
+  Corrected: **R* is not required of any arm, and is not to be run on league
+  standings as a certification at all.** It stays available as a descriptive
+  instrument, and its null band remains mandatory whenever it IS quoted.
+
+  **(b) NOTHING CALLED `skill_luck_r.py`.** No grader, no CI check, no
+  workflow — a tool sitting beside a policy sentence with no mechanism behind
+  it. By this file's own enforcement principle that is a rule that decays, and
+  it had already begun to: the sentence was written on 08-20 and was still
+  unwired on 08-21.
+
+* **⭐ WHAT REPLACES IT — GRADE THE DECISION AGAINST A CONSTRUCTED NULL, NOT
+  THE OUTCOME AGAINST OTHER OWNERS.** Getty et al.'s paper carries FOUR tests
+  and we had implemented only the fourth (persistence). Its **third** — *"do
+  the ACTIONS a player takes have statistically significant impact on
+  payoffs?"* — is answered by comparing the real decision against a Monte-Carlo
+  null of random LEGAL alternatives. **The null is built PER DECISION, so power
+  scales with the number of decisions rather than the number of competitors**,
+  and a ten-owner league stops being the binding constraint.
+
+  Demonstrated, not asserted: `draft/backtest/start_sit_vs_random.py` grades
+  530 owner-weeks of start/sit against random legal lineups from the same
+  roster. **Mean percentile 0.8497 against a null band of [0.4754, 0.5246]** —
+  a decisive answer from the same league and seasons where R* could not
+  produce one. Controls run on every invocation: random-lineup owner 0.510,
+  oracle owner 0.999.
+
+  **THE STANDARD, AS THE SKILL-DESIGN MENU'S FIRST ENTRY:** a graded decision
+  states the null it was graded against and that null must be CONSTRUCTIBLE —
+  random legal lineup, random available player at the position, random legal
+  pick from the board at that moment. A grade with no constructible null is a
+  weather report.
+
+  **AND REPORT THE MARGIN IN THE UNIT THAT PAYS, NOT THE PERCENTILE.** "Beats
+  random" is a low bar — random benches your stars. The number that moves a
+  decision is the gap to the perfect-hindsight choice: **the league leaves 15.90
+  points on the bench per week; Cory 17.33 ± 1.68, the best owner 12.06 ± 1.43,
+  a gap of ≈2.4 SE worth ~74 points a season.** Ranks between adjacent owners
+  are inside one SE and are NOT findings; say so wherever the table is shown.
 * **Quick-kill creates a quitting-boundary bias in our own records** (the
   paper's boundary-layer finding, pointed at ourselves): benching an arm after
   3 bad weeks truncates its record at its worst and flatters every survivor.
