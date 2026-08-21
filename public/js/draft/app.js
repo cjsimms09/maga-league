@@ -6978,7 +6978,16 @@
      * sentence covers both surfaces below (the by-position columns and the
      * full table), since both read this same srcBoard. */
     (function () {
-      const note = document.getElementById('board-ordering-note');
+      /* ⚠️ `$`, NOT `document` — 2026-08-21. This block used
+       * `document.getElementById` while every other lookup in this file goes
+       * through `$` (line 11, `document.querySelector`). That inconsistency is
+       * not cosmetic: `ui_fidelity_numbers.test.js` eval-lifts renderBoard with
+       * an injected `$` stub and NO `document`, so the raw call threw
+       * `ReferenceError: document is not defined` and took the whole suite down
+       * — one of six independent reasons CI on main had zero green runs.
+       * The stub returns null for ids it does not model, which the guard below
+       * already handles. */
+      const note = $('#board-ordering-note');
       if (!note) return;
       if (state.bigBoardOrdering === 'blend') {
         note.textContent = 'Ordered by the Blend — our own VONA-adjacent ranking, the board\'s default.';

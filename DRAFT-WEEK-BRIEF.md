@@ -1006,7 +1006,7 @@ instrument than a known one.
 Prereg `CEILING-REDERIVATION-PREREG.md`, result
 `draft/backtest/EXP-CEILING-REDERIVATION.md`.
 
-**~~The tool ships `ceiling = 0`.~~ THE TOOL SHIPS `ceiling = 0.45` — corrected 2026-08-18. That zero came from a −4.8 [−26, +17]
+**~~The tool ships `ceiling = 0`.~~ ~~THE TOOL SHIPS `ceiling = 0.45` — corrected 2026-08-18.~~ ⚠️ CORRECTED A SECOND TIME 2026-08-21: **THE TOOL SHIPS CEILING AT ZERO AGAIN.** Cory ruled it back off on 2026-08-20 (*"switch it off, its so arbitrary"*), so the 08-18 correction above is itself now the stale claim — the sixth instance of register 5h, and the second in this very sentence. Read `engine.js:826`, never this line. That zero came from a −4.8 [−26, +17]
 measurement taken on a board where `proj_ceiling` was `proj_mean × a constant`,
 which made the ceiling term rank-identical to the value term (Spearman
 1.0000).** Raising the ceiling slider was arithmetically the same as raising the
