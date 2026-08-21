@@ -28,10 +28,16 @@ from __future__ import annotations
 import json
 import random
 import statistics as st
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 OUT = Path(__file__).with_suffix(".json")
+
+sys.path.insert(0, str(HERE))
+from game_script_usage_interaction import spearman  # noqa: E402 — Rule 11, reused not reimplemented
+
+CORR_GATE = 0.98  # ROUTES 2026-08-20 ASK 2's own stated discipline, same as every other arm.
 
 SEASONS = (2023, 2024, 2025)
 POSITIONS = ("QB", "RB", "WR", "TE")
@@ -227,6 +233,25 @@ def main() -> dict:
         obs = st.mean(v["delta_mae"] for v in loo.values())
         draws = sorted(placebo_draws[pos])
         p = (sum(1 for d in draws if d >= obs) + 1) / (PLACEBO_DRAWS + 1)
+
+        # ROUTES 2026-08-20 ASK 2's correlation gate: is the arm just a
+        # relabeling of the baseline at the fitted lambdas? Pooled over the
+        # 3 seasons, each graded on its own LOO-fitted lambda (the same
+        # lambda judge() already used for that season's delta_mae) — not a
+        # second free parameter, the exact fit already graded above.
+        arm_preds, base_preds = [], []
+        for s in SEASONS:
+            lam = loo[str(s)]["lambda"]
+            for b, a, m in real[s][pos]:
+                arm_preds.append(b * (1.0 + lam * (m - 1.0)))
+                base_preds.append(b)
+        corr = spearman(arm_preds, base_preds) if len(arm_preds) >= 2 else float("nan")
+
+        v = judge(loo, round(p, 4))
+        v["correlation_vs_baseline"] = round(corr, 4)
+        v["correlation_gate"] = CORR_GATE
+        v["gate_clears"] = corr < CORR_GATE
+
         positions[pos] = {
             "n_rows": {str(s): len(real[s][pos]) for s in SEASONS},
             "leave_one_out": loo,
@@ -234,7 +259,7 @@ def main() -> dict:
                         "p95": round(draws[int(0.95 * len(draws))], 4),
                         "p_value": round(p, 4),
                         "gain_net_of_placebo": round(obs - st.mean(draws), 4)},
-            "verdict": judge(loo, round(p, 4)),
+            "verdict": v,
         }
 
     result = {
