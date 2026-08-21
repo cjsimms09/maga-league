@@ -46,6 +46,13 @@ import json
 import sys
 from pathlib import Path
 
+# Imported both as a package module and as a bare sibling (the test does
+# `import practice_participation`), so both spellings have to work.
+try:                                     # pragma: no cover
+    from . import id_crosswalk as _CROSSWALK
+except ImportError:                      # pragma: no cover
+    import id_crosswalk as _CROSSWALK
+
 HERE = Path(__file__).resolve().parent
 DRAFT = HERE.parent
 ROOT = DRAFT.parent
@@ -167,45 +174,24 @@ def _fetch_crosswalk() -> dict:  # pragma: no cover  (egress)
     flat, and CI went red with `module 'nfl_data_py' has no attribute
     'import_ids'` while the same call worked locally. `draft/requirements.txt`
     pins only `nfl_data_py>=0.3.2`, so CI resolves whatever is newest and the
-    newest release dropped `import_ids` in favour of `import_players`. An
-    unpinned dependency plus a single-API call means upstream can turn this red
-    on any morning — including tomorrow's.
+    newest release dropped `import_ids`. An unpinned dependency plus a
+    single-API call means upstream can turn this red on any morning.
 
-    Pinning backwards would freeze us on an old release to keep one call
-    working. Instead: try both, prefer the one that exists, and say plainly
-    which shapes were tried if neither does. Both return a frame carrying
-    `gsis_id` and `sleeper_id`, which is all this needs.
+    ⚠️⚠️ AND THE FIRST FIX FOR THAT DID NOT HOLD (E, 2026-08-21, register 232).
+    It fell back to `import_players` on the stated premise that *"both return a
+    frame carrying `gsis_id` and `sleeper_id`"*. **Measured against the branch
+    CI actually takes — delete `import_ids` off the module, then call this —
+    `import_players()` returns 25,049 rows with `gsis_id` and NO `sleeper_id`,
+    and this function raised `RuntimeError: missing ['sleeper_id']`.** The
+    failure only changed shape; the board still refused. The premise was never
+    exercised locally because 0.3.3 HAS `import_ids`, so the fallback branch
+    never ran here.
+
+    The chain now ends somewhere no rename can reach — see
+    `id_crosswalk.DYNASTYPROCESS_IDS_URL`, which is the file `import_ids`
+    itself reads. All three sources return the SAME 6,183 pairs, checked.
     """
-    import nfl_data_py as nfl
-    df = None
-    tried = []
-    for name in ("import_ids", "import_players"):
-        fn = getattr(nfl, name, None)
-        if fn is None:
-            tried.append(name + " (absent)")
-            continue
-        try:
-            df = fn()
-            break
-        except Exception as exc:                            # noqa: BLE001
-            tried.append("%s (%s: %s)" % (name, type(exc).__name__, exc))
-    if df is None:
-        raise RuntimeError(
-            "no usable nfl_data_py crosswalk API — tried " + ", ".join(tried)
-            + ". Upstream renamed it again; add the new name to the list above "
-              "rather than pinning the package backwards.")
-    cols = set(getattr(df, "columns", []))
-    missing = {"gsis_id", "sleeper_id"} - cols
-    if missing:
-        raise RuntimeError(
-            "nfl_data_py crosswalk is missing %s — the columns this join needs. "
-            "Present: %s" % (sorted(missing), sorted(cols)[:20]))
-    out = {}
-    for row in df.to_dict("records"):
-        g, s = row.get("gsis_id"), row.get("sleeper_id")
-        if g and s and s == s:  # s == s excludes NaN
-            out[g] = str(int(s)) if float(s).is_integer() else str(s)
-    return out
+    return _CROSSWALK.crosswalk()
 
 
 def run(seasons=SEASONS) -> dict:  # pragma: no cover  (egress)
