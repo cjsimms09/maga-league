@@ -494,7 +494,7 @@ defect and it belongs in the register with `relay` in the owner column.
   remaining headroom on every green run, so the next lane is warned instead of
   surprised.
 * **A check that could not answer the question it was assigned.** Register 2c
-  told E to re-run the ADP drift check after shipping `ceiling = 0.45`. Asking
+  told E to re-run the ADP drift check after the 2026-08-18 ceiling ruling (the weight was 0.45 at that time; Cory returned it to zero on 08-20 — this sentence is history, not a statement of what ships). Asking
   *"can this tool even see that?"* found it ranks on `vorp`, which carries no
   weight — so it would have returned "no movement" regardless, **and that null
   would have been read as evidence against the one edge decision Cory ruled
