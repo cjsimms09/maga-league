@@ -47,7 +47,18 @@ const ck = (n, c, d) => {
 const i = APP.indexOf('rs-warn');
 ck('CONTROL — the source banner is findable in app.js at all, so the checks '
   + 'below are reading the real thing', i !== -1);
-const banner = APP.slice(Math.max(0, i - 400), i + 1600);
+/* ⚠️ EXTRACT TO THE BANNER'S OWN END MARKER, NOT A BYTE COUNT. This read
+ * `APP.slice(i - 400, i + 1600)` — a fixed 2000-char window — and adding a
+ * comment block inside the banner on 2026-08-21 pushed the last sentence out of
+ * range, reddening a check about text that had not changed. A window that a
+ * comment can silently truncate is a window that can silently truncate a CLAIM
+ * too, which is the more dangerous direction: the banner could drop a
+ * disclosure and this file would read the shortened text and pass. */
+const end = APP.indexOf("</div>'", i);
+ck('CONTROL — the banner\'s closing marker is findable, so the text below is '
+  + 'the WHOLE banner rather than a fixed byte window a comment can truncate',
+  end > i, { i: i, end: end });
+const banner = APP.slice(Math.max(0, i - 400), end > i ? end + 8 : i + 1600);
 
 // ── 1. IT NO LONGER CLAIMS THE FROZEN FIELDS ────────────────────────────────
 ck('the banner no longer says "tiers" follow the source — the cliff lines say '
@@ -72,7 +83,26 @@ ck('and it still reports how many players the source does not cover, which is '
 ck('the banner NAMES the tier-cliff lines as still Draft Sharks',
   /tier-cliff lines/i.test(banner), banner.slice(0, 200));
 ck('...and the strike strip', /strike strip/i.test(banner));
-ck('...and the "+N wire" chip', /\+N wire/.test(banner));
+
+/* ⚠️ THE WIRE CHIP MOVED SIDES, 2026-08-21. This check used to assert the
+ * banner named "+N wire" among the FROZEN fields. It was true when written and
+ * became false hours later, when register 221 shipped
+ * `surplus_over_wire_by_source` and the chip started following the toggle.
+ *
+ * Flipping the assertion rather than deleting it, because the failure mode is
+ * symmetric and the second direction is the one this project keeps hitting: a
+ * banner that tells Cory to distrust a number which is now correct is not a
+ * smaller error than one telling him to trust a number that is not. Both are
+ * register 5h — prose outliving the code it describes. */
+ck('the banner does NOT still list the "+N wire" chip as frozen to Draft '
+  + 'Sharks — it follows the toggle since register 221, and a stale warning is '
+  + 'the same defect as a stale promise',
+  !/(strike strip and the "\+N wire" chip|"\+N wire" chip[^.]*do not follow)/.test(banner),
+  banner.slice(banner.indexOf('Still Draft Sharks'), banner.indexOf('Still Draft Sharks') + 300));
+
+ck('and it says so POSITIVELY, so a reader who remembers yesterday\'s warning '
+  + 'is told it is lifted rather than left to notice the sentence is gone',
+  /\+N wire" chip DOES follow/.test(banner), banner.slice(-320));
 ck('...and says which one to believe when two disagree, because that is the '
   + 'decision a reader actually has to make mid-pick',
 /the VONA chip is the/i.test(banner));
