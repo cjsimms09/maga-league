@@ -122,3 +122,41 @@ by our own gates in one run). The queued 08-20 consolidated package
 (bench-option + loop governance + the friction three-run study) completes
 its round-trip as those classes' confirmation; after it, same-class changes
 go internal-first.
+
+## THE CROSS-PROPAGATION RULE (Cory, 08-21: "Make it a rule!")
+
+Cory's question, verbatim: *"if one prediction is graded and finds a
+correlation or pattern, should the others try to use it as well? Or does this
+contaminate everything?"* Ruled: **propagate, mandatorily — but through the
+ledger, never directly.** The contamination risks have names (selection noise
+— the P3/P4 killer; correlated failure — shared priors end the mutual-catch
+culture; data reuse — a pattern "confirmed" on the data it came from), and one
+hop of quarantine defeats all three:
+
+1. **A graded finding propagates as a HYPOTHESIS, never as an edit.** When a
+   grade surfaces a pattern, the relay (rule 3g owner) routes it to the other
+   lanes as NEW preregistered prediction rows — "this pattern, applied to tool
+   Y, will do Z, grade by DATE." Nothing is written into another tool's
+   weights, thresholds, or logic on the strength of the first grade.
+2. **A pattern must win TWICE ON DIFFERENT DATA before it ships.** Only the
+   second, out-of-sample grade in the destination tool's own context earns
+   implementation. The first grade nominates; the second grade decides.
+3. **A frozen no-learning baseline runs forever.** One arm that never absorbs
+   any propagated pattern (the BEST-OF-K-family null BLEND-SEARCH-DESIGN
+   already owes) is graded alongside the learning-enabled arms. If learning
+   cannot beat the arm that ignored every finding, the loop is circulating
+   noise, and the /admin/loop page should show that comparison the day the
+   first cross-propagated prediction grades.
+
+**Enforced, not promised** (effective from P298, post the 08-21 renumber):
+`prediction_ledger_check.js` fails the build on any row whose *what changed*
+cell claims an implementation (the IMPLEMENT token) without naming its
+second grade (`second-grade:P<n>`), declaring it pending
+(`pending-second-grade`), or carrying a labeled exemption (`exempt:
+<reason>` — e.g. a pure capture with nothing to cross-validate). A false
+positive costs one explicit marker; a silent direct-edit is exactly the
+contamination Cory asked about.
+
+**Audit note:** this is a new structural class under the 08-20 audit ruling;
+it rides with A's queued consolidated package rather than a fresh
+submission (Cory 08-21: "Every audit cost money!!").
