@@ -2194,10 +2194,10 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             # (No calendar date in this comment, deliberately:
             # `test_keeper_lock_flag` bans the keeper-lock date literal
             # ANYWHERE in build.py — E25's second definition — and a date in
-            # prose is indistinguishable from one to a substring check. It
-            # went red on main for exactly this, 4h before the lock, and
-            # gate-triage calls it BLOCKING, so the post-lock rebuild would
-            # have refused to publish. Cite commits, not dates, in here.)
+            # prose is indistinguishable from one to a substring check. main
+            # went red on exactly this, 4h before the lock, and gate_triage
+            # calls it BLOCKING, so the post-lock rebuild would have refused
+            # to publish. Cite commits, not dates, in here. Register 247.)
             # OWN DOCSTRING SAID IT DID. Verbatim, before this line: "The source
             # that answered is recorded in `ID_CROSSWALK_SOURCE` so a degraded
             # run is legible in the artifact instead of only in the log."
