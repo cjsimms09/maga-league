@@ -9074,12 +9074,48 @@
     var activeSrc = BUTTONS.find(function (s) { return s.key === active; });
     var activeCov = active !== 'blend' ? SourceBoard.coverage(state.board, active) : null;
     var missingCount = activeCov ? (state.board.length - activeCov.covered) : 0;
+    /* ⚠️ THIS BANNER OVERCLAIMED, AND MY OWN VONA FIX IS WHAT MADE IT DANGEROUS
+     * (A, 2026-08-21, on E's browser measurement — registers 216 and 226).
+     *
+     * It said "VONA, tiers and the recommended player on THIS ENTIRE PAGE now
+     * reflect only this source". Two of those three words were wrong:
+     *
+     *   - "tiers": the cliff lines read "next tier drops 10 / 16 / 3 / 21 / 12 /
+     *     6 pts" — BYTE-IDENTICAL under all five sources E drove. They say the
+     *     word tier and they do not move.
+     *   - "THIS ENTIRE PAGE": measured across Blend/Sleeper/ESPN/CBS/Draft
+     *     Sharks, VONA produced 4 distinct value-sets of 5 (it follows), while
+     *     the strike strip, the cliff lines and the +N wire chip each produced
+     *     ONE (frozen). VONA moving in those same reads is the control that
+     *     makes "frozen" a property of the field rather than of the probe.
+     *
+     * WHY NOBODY CAUGHT IT UNTIL NOW, WHICH IS THE PART I OWN: Draft Sharks and
+     * Blend agree to 0.1, so the divergence only exists on the other three — and
+     * it was CREATED by making VONA per-source. Before that fix every one of
+     * these numbers was equally frozen and they agreed with each other. I moved
+     * one and left the rest, so at 8 seconds a pick the ESPN view now shows an
+     * RB VONA chip reading 56.6 and a strike strip two inches away reading
+     * "costs 35" — both answering what waiting at RB costs at this pick, both in
+     * points. CBS: 19.4 vs 35. Sleeper: 8.1 vs 35.
+     *
+     * The banner is the only thing on screen telling Cory which numbers to
+     * trust, so it was vouching for both halves of that contradiction.
+     *
+     * LABEL FIX ONLY, DELIBERATELY. Making the cliffs and strike peaks
+     * per-source is a signature change through position_boards.js, not a
+     * draft-eve edit. What ships tonight is a banner that claims exactly what is
+     * true, and it now NAMES the frozen fields instead of leaving the reader to
+     * discover them mid-pick. */
     const warn = active !== 'blend'
       ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(activeSrc.label)
-        + '</b> — VONA, tiers and the recommended player on THIS ENTIRE PAGE now reflect only this '
+        + '</b> — the player list, VONA and the recommended player reflect only this '
         + 'source, not the blend. <b>' + missingCount + ' players ' + esc(activeSrc.label)
         + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
-        + 'switch back to Blend.</div>'
+        + 'switch back to Blend.'
+        + '<br><b>Still Draft Sharks, NOT ' + esc(activeSrc.label) + ':</b> the tier-cliff lines '
+        + '("next tier drops N pts"), the strike strip and the "+N wire" chip. They do not follow '
+        + 'this toggle — if one of them disagrees with the VONA chip beside it, the VONA chip is the '
+        + 'one on ' + esc(activeSrc.label) + '.</div>'
       : '';
     const panelHtml = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
