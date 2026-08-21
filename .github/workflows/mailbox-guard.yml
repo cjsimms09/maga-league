@@ -8,14 +8,11 @@
 # register-190 clobber (57a4a95e) — the test suite pins that it fires.
 name: mailbox-guard
 on:
+  # No path filter: mode 2 (artifact files — the fd33cd15 class, 15 preregs
+  # emptied to zero bytes by a commit claiming to publish one) must see every
+  # push. The job costs seconds.
   push:
     branches: [main]
-    paths:
-      - 'ROUTES.md'
-      - 'CORY-ASKS.md'
-      - 'DEFECT-REGISTER.md'
-      - 'OPEN-QUESTIONS.md'
-      - 'PREDICTION-LEDGER.md'
 permissions:
   contents: read
 jobs:
