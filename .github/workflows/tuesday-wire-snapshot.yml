@@ -1,0 +1,79 @@
+name: Tuesday wire snapshot (in-season queue item 1 + manifest rows 12/14)
+
+# TERRITORY: C — dispatches draft/backtest/tuesday_wire_snapshot.py.
+#
+# Cory (via relay), 08-21: "the highest-value capture nobody has: every
+# Tuesday before waivers clear, snapshot WHO IS AVAILABLE... It makes the
+# waiver decision-null exact instead of reconstructed, forever, and it
+# cannot be backfilled — every missed Tuesday is gone." Plus the addendum
+# (manifest row 14): the WAIVER PRIORITY ORDER as it stands, same cron,
+# second object in the same artifact — already built that way, both facts
+# come out of one snapshot file.
+#
+# TIMING: before Tuesday waivers process. `sleeper_settings_registry.json`
+# itself flags the exact clear time as UNRESOLVED (waiver_day_of_week=2,
+# waiver_clear_days=2 — the UI reads "2 AM Wed", which only matches if
+# Sleeper counts Monday as day 0, unconfirmed against a real clear) — not
+# asserted here either. 11:00 UTC Tuesday is early enough under EITHER
+# reading (a Tuesday-vs-Wednesday clear are both hours away at that point)
+# and ahead of this session's other Tuesday jobs (covariance.yml 05:00,
+# own-weekly-grade.yml 06:30, weekly-grade.yml/weekly-recap.yml 13:30) so
+# it captures the wire BEFORE anything else that Tuesday touches roster
+# state.
+#
+# APPEND-ONLY, NEVER OVERWRITTEN: the module itself refuses to write over
+# an existing same-week file (register-172 lesson) — a re-dispatch after
+# a real Tuesday capture already landed is a safe no-op, not a clobber.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 11 * * 2'   # Tuesdays 11:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tuesday-wire-snapshot
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure wire/priority logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_tuesday_wire_snapshot.py -q
+
+      - name: Snapshot the wire and waiver priority order
+        run: python3 draft/backtest/tuesday_wire_snapshot.py
+
+      - name: Commit the snapshot
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/tuesday_wire_snapshot/
+          if ! git diff --cached --quiet; then
+            git commit -m "tuesday_wire_snapshot: weekly capture (in-season queue item 1, manifest rows 12/14) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost, and THIS WEEK CANNOT BE RECAPTURED."
+            exit 1
+          fi
+          echo "no change — nothing to commit (a same-week file already exists, correctly not overwritten)"
