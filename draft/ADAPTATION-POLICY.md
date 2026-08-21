@@ -209,3 +209,19 @@ contamination Cory asked about.
 **Audit note:** this is a new structural class under the 08-20 audit ruling;
 it rides with A's queued consolidated package rather than a fresh
 submission (Cory 08-21: "Every audit cost money!!").
+
+
+## GRADING-POLICY.md SUPERSEDES THE SKILL-DESIGN MECHANICS (A, ruled by Cory, 08-21)
+
+The three-part filing standard stands unchanged — but the SKILL DESIGN part of
+any DECISION-type row now means the four requirements of `GRADING-POLICY.md`:
+the decision and its moment · a CONSTRUCTIBLE null of the legal alternatives ·
+two controls that run every time and gate the exit code (a control that cannot
+fail is worse than none) · the margin in the unit that pays. The 08-20
+split-half/R* rule is WITHDRAWN as a skill instrument (12% power at our
+measured spread); R* is descriptive only. Captures stay exempt but must say so
+in the SKILL DESIGN cell. Cory's escalation, verbatim: "make sure everyone
+implements including for things we've already started!!" — rows and
+instruments with an ACTIVE grading design convert now; dormant back-catalog
+rows convert on the existing 2026-09-10 clock. The relay's Wednesday sweep
+enforces the four requirements in place of the withdrawn n>=20 rule.
