@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 200,
+ "next_numeric_id": 201,
  "history": [
   {
    "id": 47,
@@ -331,7 +331,7 @@
   {
    "id": "163-185 reconciled",
    "claimed_at": "2026-08-21",
-   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
   },
   {
    "id": "187-189",
@@ -341,12 +341,16 @@
   {
    "id": "192 -> 195",
    "claimed_at": "2026-08-21",
-   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. \u26a0\ufe0f RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
+   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. ⚠️ RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
   },
   {
    "id": "47-50 reconciled",
    "claimed_at": "2026-08-18",
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
+  },
+  {
+   "id": 200,
+   "claimed_at": "2026-08-21"
   }
  ]
 }
