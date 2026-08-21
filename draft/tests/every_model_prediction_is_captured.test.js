@@ -48,7 +48,28 @@ const a = APP.indexOf('  function modelSlateAt(');
 const b = APP.indexOf('\n  function captureModelSlate(');
 check('modelSlateAt() exists', a >= 0 && b > a);
 if (a < 0) { fails.forEach(f => console.log('  FAILED  ' + f)); process.exit(1); }
-const src = APP.slice(a, b);
+/* ⚠️ HELPERS modelSlateAt() CALLS ARE EXTRACTED FROM app.js TOO, NOT STUBBED.
+ *
+ * This harness slices one function out of app.js and injects its dependencies.
+ * That makes a NEW call to a NEW sibling helper a ReferenceError — swallowed by
+ * modelSlateAt's own per-model try/catch, which then drops the model from the
+ * slate. Which is exactly what happened when `activeWaiverBaseline()` was added
+ * for register 221: this file's only symptom was `mlv.marginal` reading
+ * undefined, three checks downstream of the real cause.
+ *
+ * Stubbing the helper would have silenced it and left the harness blind to the
+ * next one. Taking the REAL source instead means this file exercises the helper
+ * as shipped, and a helper that throws on a normal state still goes red here. */
+const HELPERS = ['  function activeWaiverBaseline('];
+const helperSrc = HELPERS.map(function (sig) {
+  const h = APP.indexOf(sig);
+  check('helper extracted from app.js: ' + sig.trim(), h >= 0);
+  if (h < 0) return '';
+  /* to the next top-level `  function ` declaration */
+  const end = APP.indexOf('\n  function ', h + sig.length);
+  return APP.slice(h, end > 0 ? end : h + sig.length);
+}).join('\n');
+const src = helperSrc + '\n' + APP.slice(a, b);
 
 const D = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));

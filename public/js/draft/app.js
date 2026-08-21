@@ -1076,6 +1076,27 @@
     return SourceBoard.forSource(state.myRoster, state.rankSource);
   }
 
+  /* THE WAIVER BASELINE FOR WHATEVER SOURCE IS ACTIVE — register 221, 08-21.
+   *
+   * `sourceAdjustedBoard()` above re-prices every player under the active
+   * source. RosterBuilderMLV then scores each one as `proj − waiver[pos]`, so
+   * if the numerator follows the toggle and the denominator does not, the
+   * roster-builder's answer drifts on every switch for a reason that is not
+   * about football. This closes that pairing for the second voice, the same
+   * way `surplus_over_wire_by_source` closed it for the "+N wire" chip.
+   *
+   * NULL IS A REAL ANSWER HERE, and it is the safe one: `position_boards.json`
+   * is fetched async and may not have landed, or may be a pre-08-21 artifact
+   * with no `waiver_by_source`. Returning null makes mlv.js keep its derived
+   * BLEND default rather than fall back to zero, which would price every
+   * player as pure surplus. */
+  function activeWaiverBaseline() {
+    const pb = state.positionBoards;
+    const by = pb && pb.waiver_by_source;
+    if (!by) return null;
+    return by[state.rankSource || 'blend'] || null;
+  }
+
   /* HOW DEEP THE BOARD ACTUALLY MATTERS — Cory, 2026-08-20: "We really just
    * need to focus on top 200 players maybe 250".
    *
@@ -9270,7 +9291,8 @@
         /* `taken` — the MLV Displacement lens is one of the four models Cory
          * clicks; it must not name a player who is gone (2026-08-20). */
         const recs = RosterBuilderMLV.recommend(sourceAdjustedBoard(), sourceAdjustedRoster() || [],
-          { league: state.data.league, topN: 1, taken: state.drafted });
+          { league: state.data.league, topN: 1, taken: state.drafted,
+            waiver: activeWaiverBaseline() });
         if (recs && recs.length && recs[0].player) {
           rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
             position: recs[0].position, player_id: String(recs[0].player.player_id),
@@ -10730,7 +10752,8 @@
     try {
       if (typeof RosterBuilderMLV !== 'undefined') {
         const r = RosterBuilderMLV.recommend(boardAtPick, state.myRoster || [],
-          { league: state.data.league, topN: 1, taken: state.drafted });
+          { league: state.data.league, topN: 1, taken: state.drafted,
+            waiver: activeWaiverBaseline() });
         if (r && r.length) add('mlv_displacement', r[0].player, { marginal: r[0].marginal });
       }
     } catch (e) { /* ignore */ }
