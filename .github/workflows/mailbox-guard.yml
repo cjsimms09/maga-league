@@ -1,0 +1,35 @@
+# TERRITORY: relay (loop-governance gate; Cory 08-21: "Do whatever you need
+# to to make sure it doesn't cause problems ... protect it").
+# THE MAILBOX DELETION GUARD, wired: every push to main that touches a
+# mailbox file is checked — a row present before and silently gone after
+# fails the build. Ticks, edits, renumbers-with-surviving-content, and
+# 1-for-1 closing rewrites all pass; deliberate pruning passes by saying so
+# ([mailbox-prune] in the commit message). Known-positive: the real
+# register-190 clobber (57a4a95e) — the test suite pins that it fires.
+name: mailbox-guard
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ROUTES.md'
+      - 'CORY-ASKS.md'
+      - 'DEFECT-REGISTER.md'
+      - 'OPEN-QUESTIONS.md'
+      - 'PREDICTION-LEDGER.md'
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: No mailbox row vanishes silently
+        run: |
+          set -euo pipefail
+          # compare against the push's base when available, else HEAD~1
+          FROM="${{ github.event.before }}"
+          if [ -z "$FROM" ] || ! git cat-file -e "$FROM" 2>/dev/null; then FROM="HEAD~1"; fi
+          node draft/tools/mailbox_deletion_guard.js "$FROM" HEAD
