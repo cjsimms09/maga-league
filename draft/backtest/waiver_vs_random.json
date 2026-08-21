@@ -9,7 +9,9 @@
  ],
  "controls": {
   "random_available": 0.4898,
-  "best_available": 0.9543
+  "best_available": 0.9543,
+  "known_negative_band_half_width": 0.0206,
+  "band_derived_from_n": 755
  },
  "median_pool_size": 17,
  "n_draws": 300,

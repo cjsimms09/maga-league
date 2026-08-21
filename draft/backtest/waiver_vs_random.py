@@ -151,13 +151,18 @@ def main():
     half = 1.96 * (1.0 / 12.0) ** 0.5 / (n ** 0.5)
     cr = statistics.fmean(ctl_rand)
     cb = statistics.fmean(ctl_best)
-    neg_ok = 0.42 < cr < 0.58
+    # SAME DEFECT, 3.89x here (n=755): a hardcoded ±0.08 against a derived
+    # half-width of 0.0206. See start_sit_vs_random.py's note. Derived from the
+    # control's own sample size so it tightens with evidence.
+    ctl_half = (1.96 * (1.0 / 12.0) ** 0.5 / (len(ctl_rand) ** 0.5)) if ctl_rand else 1.0
+    neg_ok = abs(cr - 0.5) <= ctl_half
     pos_ok = cb > 0.90
 
     print("\n  WAIVER / FREE-AGENT CLAIMS vs A RANDOM AVAILABLE PLAYER")
     print("  value = points the add produced from that week to season end\n")
     print("  CONTROLS (GRADING-POLICY §3 — both must pass)")
-    print("    known-negative  random available   %.3f   %s" % (cr, "ok" if neg_ok else "⛔ FAILED"))
+    print("    known-negative  random available   %.3f   (band ±%.4f, derived from n=%d)   %s"
+          % (cr, ctl_half, len(ctl_rand), "ok" if neg_ok else "⛔ FAILED"))
     print("    known-positive  best available     %.3f   %s" % (cb, "ok" if pos_ok else "⛔ FAILED"))
     print("\n  claims graded: %d   (skipped %d)   median pool size: %d"
           % (n, skipped, statistics.median(pool_sizes)))
@@ -181,7 +186,9 @@ def main():
         "_what": "Decision-null grading of waiver/FA claims: rest-of-season value vs a random AVAILABLE player at the same position that week.",
         "n_claims": n, "mean_percentile": round(mean_pct, 4),
         "null_95": [round(0.5 - half, 4), round(0.5 + half, 4)],
-        "controls": {"random_available": round(cr, 4), "best_available": round(cb, 4)},
+        "controls": {"random_available": round(cr, 4), "best_available": round(cb, 4),
+                     "known_negative_band_half_width": round(ctl_half, 4),
+                     "band_derived_from_n": len(ctl_rand)},
         "median_pool_size": statistics.median(pool_sizes),
         "n_draws": N_DRAWS, "seed": SEED, "skipped": skipped,
         "by_owner": {o: {"n": len(v), "mean_pct": round(statistics.fmean(v), 4),

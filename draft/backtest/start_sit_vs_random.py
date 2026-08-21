@@ -281,10 +281,29 @@ def main():
 
     print("\n  TEST 3 (Getty et al.): DO OUR START/SIT DECISIONS BEAT CHANCE?")
     print("  roster held FIXED; only WHICH of your own players start is randomised\n")
-    neg_ok = cr is not None and 0.42 < cr < 0.58
+    # ⚠️ THE CONTROL BAND WAS HARDCODED +-0.08 AND THAT IS 3.26x LOOSER THAN THE
+    # NULL THIS RUN PUBLISHES AGAINST. Caught by E, 2026-08-21 (register 194),
+    # and reproduced here to the decimal before accepting it.
+    #
+    # The known-negative is a mean of n percentiles, each U[0,1] under the null,
+    # so its own 95% half-width is 1.96/sqrt(12n) -- 0.0246 at n=531, not 0.08.
+    #
+    # THE CONSEQUENCE IS NOT COSMETIC: a control reading 0.546 passed as `ok`
+    # while the HEADLINE test in this same function, using the same null, would
+    # publish 0.546 as SKILL. The control was looser than the thing it guards, so
+    # it could certify the sampler as unbiased on a value the instrument's own
+    # criterion calls a finding.
+    #
+    # DERIVED, NOT PINNED -- the same rule GRADING-POLICY exists to enforce,
+    # violated in the grader written to enforce it. The band now comes from the
+    # control's OWN sample size, so it tightens as evidence accumulates instead
+    # of staying a constant somebody has to remember to re-tune.
+    ctl_half = (1.96 * (1.0 / 12.0) ** 0.5 / (len(ctl_rand) ** 0.5)) if ctl_rand else 1.0
+    neg_ok = cr is not None and abs(cr - 0.5) <= ctl_half
     pos_ok = co is not None and co > 0.90
     print("  CONTROLS (rule 3e — both must pass or ignore everything below)")
-    print("    known-negative  random lineup   mean pct %.3f   %s" % (cr, "ok" if neg_ok else "⛔ FAILED"))
+    print("    known-negative  random lineup   mean pct %.3f   (band ±%.4f, derived from n=%d)   %s"
+          % (cr, ctl_half, len(ctl_rand), "ok" if neg_ok else "⛔ FAILED"))
     print("    known-positive  oracle lineup   mean pct %.3f   %s" % (co, "ok" if pos_ok else "⛔ FAILED"))
     print("\n  owner-weeks used: %d   (skipped %d; of those %d because an UNMAPPED"
           " player was actually STARTED)" % (n, skipped + skip_started, skip_started))
@@ -329,7 +348,9 @@ def main():
         "_what": "Getty et al. SIAM 2018 Test 3 (effect of player action) on our own league: actual start/sit vs a Monte-Carlo null of random LEGAL lineups from the same roster.",
         "n_owner_weeks": n, "mean_percentile": round(mean_pct, 4),
         "null_95": [round(0.5 - half, 4), round(0.5 + half, 4)],
-        "controls": {"random_lineup": round(cr, 4), "oracle_lineup": round(co, 4)},
+        "controls": {"random_lineup": round(cr, 4), "oracle_lineup": round(co, 4),
+                     "known_negative_band_half_width": round(ctl_half, 4),
+                     "band_derived_from_n": len(ctl_rand)},
         "n_draws_per_week": N_DRAWS, "seed": SEED, "skipped": skipped + skip_started,
         "skipped_because_unmapped_player_was_started": skip_started,
         "unmapped_bench_players_dropped": dropped_bench,
