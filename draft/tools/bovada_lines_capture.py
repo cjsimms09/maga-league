@@ -23,22 +23,27 @@ URL = 'https://www.bovada.lv/services/sports/event/v2/events/A/description/footb
 OUT = 'draft/data/bovada_lines_2026.jsonl'
 UA = {'User-Agent': 'Mozilla/5.0 (league data project; lines snapshot)'}
 
-def main():
-    req = urllib.request.Request(URL, headers=UA)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        d = json.loads(r.read())
-    ts = datetime.datetime.utcnow().isoformat() + 'Z'
+
+def walk(x, ts=None):
+    """Recursively extract every event-shaped dict (description +
+    displayGroups + startTime) anywhere in a Bovada response tree, keeping
+    every market group under that event. Module-level (hoisted out of
+    main(), rule 11) so bovada_event_props_probe.py can reuse it verbatim
+    against a per-event response, which is expected to share this same
+    shape."""
     rows = []
-    def walk(x):
-        if isinstance(x, dict):
-            if x.get('description') and x.get('displayGroups') and x.get('startTime'):
-                game = {'ts': ts, 'game': x['description'], 'start': x.get('startTime'),
-                        'link': x.get('link'), 'markets': {}}
+    ts = ts or (datetime.datetime.utcnow().isoformat() + 'Z')
+
+    def _walk(node):
+        if isinstance(node, dict):
+            if node.get('description') and node.get('displayGroups') and node.get('startTime'):
+                game = {'ts': ts, 'game': node['description'], 'start': node.get('startTime'),
+                        'link': node.get('link'), 'markets': {}}
                 # v2 (census 4079809f): keep EVERY market group — the discards
                 # were the distributions. Alternate Lines = alt spreads/totals
                 # (P12's game-level ingredient); the 'Both teams to score X+'
                 # ladder = an empirical scoring CDF, 8 thresholds/game, free.
-                for g in x['displayGroups']:
+                for g in node['displayGroups']:
                     gname = g.get('description', '?')
                     for m in g.get('markets', []):
                         name = m.get('description')
@@ -52,12 +57,22 @@ def main():
                             for oc in m.get('outcomes', []))
                 if game['markets']:
                     rows.append(game)
-            for v in x.values():
-                walk(v)
-        elif isinstance(x, list):
-            for v in x:
-                walk(v)
-    walk(d)
+            for v in node.values():
+                _walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                _walk(v)
+
+    _walk(x)
+    return rows
+
+
+def main():
+    req = urllib.request.Request(URL, headers=UA)
+    with urllib.request.urlopen(req, timeout=30) as r:
+        d = json.loads(r.read())
+    ts = datetime.datetime.utcnow().isoformat() + 'Z'
+    rows = walk(d, ts=ts)
     def numeric(g):
         for mk in ('Point Spread', 'Total'):
             for oc in g['markets'].get(mk, []):
