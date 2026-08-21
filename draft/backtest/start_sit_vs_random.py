@@ -126,17 +126,33 @@ def best_or_random(roster, pos, slots, pts, rng, oracle=False):
     """Fill each slot legally. oracle=True takes the highest scorer available at
     each slot (greedy, slots hardest-first); otherwise picks uniformly at random.
     Returns total points, or None if the roster cannot legally fill the slots."""
-    avail = {p for p in roster if p in pos}
+    # ⚠️ THIS WAS A SET AND THE FIXED SEED DID NOT MAKE THE RUN REPRODUCIBLE.
+    #
+    # `avail` was `{p for p in roster if p in pos}` and the candidate list `ok`
+    # was built by iterating it. Python randomises string hashing per process,
+    # so set iteration order changes between runs -- and `rng.choice(ok)` then
+    # selects a different player from the SAME seed. Measured: two consecutive
+    # runs gave mean_percentile 0.8482 and 0.8472, controls 0.5077 and 0.5100.
+    #
+    # Small numbers, but the consequences are not: the committed artifact churns
+    # on every weekly cron with no real change, week-over-week comparisons show
+    # movement that is pure process noise, and SEED sat at the top of this file
+    # advertising a determinism it did not deliver. Found because a verification
+    # re-run dirtied a tree that was clean.
+    #
+    # A list preserves roster order, and `ok` is sorted so the candidate
+    # sequence handed to rng.choice is a function of the data alone.
+    avail = [p for p in roster if p in pos]
     # hardest first so a scarce position is not eaten by FLEX
     order = sorted(range(len(slots)), key=lambda i: (slots[i] == "FLEX", slots[i] in ("RB", "WR")))
     total = 0.0
     for i in order:
         s = slots[i]
-        ok = [p for p in avail if (pos[p] in FLEX_OK if s == "FLEX" else pos[p] == s)]
+        ok = sorted(p for p in avail if (pos[p] in FLEX_OK if s == "FLEX" else pos[p] == s))
         if not ok:
             return None
         pick = max(ok, key=lambda p: pts.get(p, 0.0)) if oracle else rng.choice(ok)
-        avail.discard(pick)
+        avail.remove(pick)   # list, not set -- see the note above
         total += pts.get(pick, 0.0)
     return round(total, 2)
 
