@@ -1,0 +1,78 @@
+diff --git a/draft/tools/weekly_projection_archive.py b/draft/tools/weekly_projection_archive.py
+index 0f856351..000a8240 100644
+--- a/draft/tools/weekly_projection_archive.py
++++ b/draft/tools/weekly_projection_archive.py
+@@ -172,6 +172,55 @@ def build_archive_doc(season: int, week: int, sleeper_stats: dict,
+     }
+ 
+ 
++
++def scored_by_id(payload: dict) -> dict:
++    """{pid: points} from this module's {pid: {raw, scored}} payload —
++    the shape `proj_series.append_snapshot` takes."""
++    return {str(pid): float(v["scored"]) for pid, v in (payload or {}).items()
++            if isinstance(v, dict) and isinstance(v.get("scored"), (int, float))}
++
++
++def mirror_to_proj_series(doc: dict, week: int, date: str, series_path: Path) -> dict:
++    """ALSO append this week's provider projections to proj_series.json.
++
++    REGISTER 223 — the defect this fixes. `weekly_own_grade.provider_weeklies()`
++    reads `draft/data/proj_series.json` and keeps rows where
++    `source == "<provider>_weekly"` AND `week == week`. This module was emitting
++    `fantasypros_weekly` ONLY into its own archive file, which that reader never
++    opens. The sleeper half worked (`weekly_proj_snapshot.py` writes
++    `sleeper_weekly` there), the FP half did not, and `cory_bar_startsit()`
++    refuses unless BOTH are present — so the 2027 programme's headline question
++    returned NOT RUN every week, and its docstring's *"the FP half starts the day
++    C's weekly archive carries it"* made that look expected rather than broken.
++
++    Mirrors `weekly_proj_snapshot.py` exactly — same helper, same `week=` dedupe
++    key — so there is ONE format and ONE reader rather than two of each. The
++    archive file is still written; this is additive.
++
++    Returns {source: n_players} for the caller to print. Never raises on a
++    missing/corrupt series file: the archive write must not fail because the
++    mirror could not.
++    """
++    written = {}
++    try:
++        sys.path.insert(0, str(DRAFT))
++        import proj_series as PS
++        cur = json.loads(series_path.read_text()) if series_path.exists() else {"series": []}
++        series = cur.get("series") or []
++        for source_key in ("sleeper_weekly", "fantasypros_weekly"):
++            proj = scored_by_id(doc.get(source_key))
++            if not proj:
++                continue
++            series = PS.append_snapshot(series, date, source_key, proj, week=week)
++            written[source_key] = len(proj)
++        if written:
++            cur["series"] = series
++            series_path.write_text(json.dumps(cur, indent=1, sort_keys=True))
++    except Exception as exc:                                  # noqa: BLE001
++        return {"_error": f"{type(exc).__name__}: {exc}"}
++    return written
++
++
+ # ── I/O: real fetches (CI only -- sandbox proxy blocks both sources) ──────
+ 
+ def fetch_fp_weekly(year: int, week: int, timeout: int = 30):  # pragma: no cover  (egress; CI only)
+@@ -368,6 +417,17 @@ def main() -> int:  # pragma: no cover  (egress; CI only)
+     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+     out_path = ARCHIVE_DIR / f"weekly_projection_archive_{season}_w{week}.json"
+     out_path.write_text(json.dumps(doc, indent=1))
++    # register 223 — the archive's output must reach the grader's reader too
++    mirrored = mirror_to_proj_series(
++        doc, week, doc.get("captured_at", "")[:10] or f"{season}-01-01",
++        DRAFT / "data" / "proj_series.json")
++    if mirrored.get("_error"):
++        print(f"! proj_series mirror FAILED ({mirrored['_error']}) — the archive "
++              f"file is written but weekly_own_grade will still see NO provider "
++              f"columns for week {week}", file=sys.stderr)
++    else:
++        print("mirrored to proj_series.json: "
++              + (", ".join(f"{k} {v}" for k, v in sorted(mirrored.items())) or "nothing"))
+     d = doc["diagnostics"]
+     print(f"wrote {out_path.name}: joined {d['joined_rows']} "
+          f"(sleeper {d['sleeper_rows']}, fp {d['fp_rows']}); "
