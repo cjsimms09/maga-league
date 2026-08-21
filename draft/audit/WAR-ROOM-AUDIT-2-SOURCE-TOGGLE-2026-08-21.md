@@ -163,3 +163,51 @@ active-button class verified after every click, full page text captured, and
 panels compared by exact string. Pre-draft state only (zero picks recorded), so
 panels that only populate mid-draft — OPPONENTS, RECENT PICKS — were seen in one
 state. **I changed nothing.**
+
+---
+
+## 9 · Addendum, same night — the cause, and a correction to my own framing
+
+Main shipped `draft/tests/source_toggle_moves_vona.test.js` — filed against
+Cory's own question, *"Does changing source change VONA as well?"* — and it
+**passes 20/20**, asserting *"switching to this source actually MOVES VONA."*
+
+**That guard is sound and my browser measurement is also right. They do not
+conflict, and the reason matters more than either of them.**
+
+The guard `require`s `engine.js` and `source_board.js` and computes per-player
+VONA directly. **It never loads `app.js` or renders the page.** So it measures
+the engine — and **the engine genuinely does recompute VONA per source.**
+
+**The page does not display that, because the VONA cards, the strike strip and
+the cliff lines are not computed live at all.** They are read whole from
+`public/draft/../position_boards.json`, and that artifact states its own
+limitation:
+
+> *"proj/floor/ceiling are Draft Sharks, which **SELECTS and RANKS every list
+> here** — that is unchanged. proj_blend/floor_blend/ceiling_blend carry the SAME
+> already-selected player's blend numbers … **They never change who is in the
+> list or its order**."*
+
+Built `2026-08-21T00:29:00Z`. One source. Twelve picks. The `DRAFT SHARKS /
+BLEND` toggle swaps which number is shown for an already-fixed list; the
+nine-source Ranking Source toggle does not feed it at all. `RUNNING OUT` moves
+because it is computed in the browser from `state.board`.
+
+**So the artifact and the banner contradict each other in writing, and the
+artifact is the one telling the truth.** This is not a defect in B's engine
+work — the engine is right, and the guard proving it is sound. It is a prebuilt
+artifact plus a banner that promises more than the page can deliver.
+
+**Two consequences worth carrying:**
+
+1. **The new guard has a permanent false green.** Being engine-level, it would
+   stay 20/20 through every version of this bug. *"Does the source toggle work"*
+   cannot be answered without reading the rendered page. **That is the exact
+   mirror of the mistake that bit me this morning in register 201 — where my
+   hand-built context understated and reordered the survival column — and it is
+   worth one line in the guard's own header.**
+2. **`position_boards.json` is stamped 00:29Z and the war-room header reads
+   `board 4h`.** It must be rebuilt on draft morning, or Cory drafts off a stale
+   twelve-pick plan regardless of any of the above.
+
