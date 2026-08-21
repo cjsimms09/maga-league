@@ -84,6 +84,32 @@ def bovada():
     out['prop_mentions'] = len(re.findall(r'(Passing|Receiving|Rushing) (Yards|Touchdowns)', txt))
     return out
 
+def bovada_event():
+    """Per-EVENT detail: does Bovada serve player props there? Self-discovers
+    the first upcoming event's link from the main payload (no hardcoded id)."""
+    st, body = get('https://www.bovada.lv/services/sports/event/v2/events/A/description/football/nfl')
+    out = {'status': st, 'bytes': len(body)}
+    if st != 200:
+        return out
+    txt = body.decode('utf-8', 'ignore')
+    m = re.search(r'"link":"(/football/nfl/[^"]+)"', txt)
+    if not m:
+        out['note'] = 'no event link found in main payload'
+        return out
+    link = m.group(1)
+    st2, body2 = get('https://www.bovada.lv/services/sports/event/v2/events/A/description' + link)
+    out['event_link'] = link
+    out['event_status'] = st2
+    out['event_bytes'] = len(body2)
+    if st2 == 200:
+        t2 = body2.decode('utf-8', 'ignore')
+        props = re.findall(r'"description":"(Total (?:Passing|Receiving|Rushing) (?:Yards|Touchdowns)[^"]*)"', t2)
+        anytd = t2.count('Anytime Touchdown')
+        out['prop_markets'] = len(props)
+        out['anytime_td_mentions'] = anytd
+        out['known_positive'] = [{'prop': p} for p in props[:3]] or ([{'prop': 'Anytime Touchdown'}] if anytd else [])
+    return out
+
 def polymkt():
     st, body = get('https://gamma-api.polymarket.com/events?tag_slug=nfl&closed=false&limit=20')
     out = {'status': st, 'bytes': len(body)}
@@ -119,7 +145,7 @@ def main():
         'captured_at': datetime.datetime.utcnow().isoformat() + 'Z',
         'sources': {},
     }
-    for name, fn in [('espn', espn), ('bovada', bovada), ('polymarket', polymkt),
+    for name, fn in [('espn', espn), ('bovada', bovada), ('bovada_event_props', bovada_event), ('polymarket', polymkt),
                      ('draftkings_public', dk_pub), ('yahoo', yahoo)]:
         try:
             res['sources'][name] = fn()
