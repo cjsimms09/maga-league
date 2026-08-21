@@ -104,10 +104,33 @@ def assess_slate(expected_teams, designations, placements=None, keeper_lock_pass
             "have not designated — unknown, not assumed empty."
             % (teams_designated, expected_teams, undesignated))
     elif teams_placed < expected_teams:
-        status = "partial"
-        confirmed = False
-        reason = (f"only {teams_placed}/{expected_teams} teams have keepers placed on the "
-                  "draft — incomplete; the rest are still predicted, not confirmed")
+        # ── THE DEADLINE RESOLVES UNKNOWN INTO ZERO (2026-08-21, the night it
+        # happened). build.py's release gate already carries this rule verbatim:
+        # "Empty designations are UNKNOWN, never zero" is exactly right until
+        # 18:00 and exactly wrong at 18:01. The RELEASE half learned that; this
+        # STATUS half did not, so the first real lock (9 teams kept, ONE team
+        # deliberately kept nobody — Cory's own ground truth) read 'partial',
+        # the freeze could not seal, and the post-lock rebuild refused over a
+        # team that had already made its decision by making none.
+        #
+        # Narrow on purpose: only a team with NEITHER a designation NOR a
+        # placement resolves to kept-none. A team that designated keepers whose
+        # placement is missing is a real gap (commissioner action lost), and
+        # still blocks — the deadline resolves silence, not contradictions.
+        unplaced_designators = [t for t in designations if t not in placements]
+        if keeper_lock_passed and not unplaced_designators and not mismatches:
+            status = "confirmed"
+            confirmed = True
+            resolved = expected_teams - teams_placed
+            reason = (f"{teams_placed}/{expected_teams} teams placed and consistent with "
+                      f"their designations; {resolved} team(s) with neither designation nor "
+                      "placement resolved to KEPT NONE by the passed lock — the deadline "
+                      "resolves unknown into zero (build.py's release-gate rule)")
+        else:
+            status = "partial"
+            confirmed = False
+            reason = (f"only {teams_placed}/{expected_teams} teams have keepers placed on the "
+                      "draft — incomplete; the rest are still predicted, not confirmed")
     elif mismatches:
         status = "mismatch"
         confirmed = False
@@ -126,6 +149,10 @@ def assess_slate(expected_teams, designations, placements=None, keeper_lock_pass
         "teams_placed": teams_placed if placed else None,
         "undesignated_teams": undesignated,
         "placements_present": placed,
+        # >0 only when the passed lock resolved silent teams to kept-none; the
+        # count is stamped so the resolution is visible, never silent.
+        "resolved_none_at_lock": (expected_teams - teams_placed)
+            if (confirmed and placed and teams_placed < expected_teams) else 0,
         "mismatches": mismatches,
         "keeper_lock_passed": bool(keeper_lock_passed),
         # WHEN the lock is, beside WHETHER it has passed (register E25). Always
