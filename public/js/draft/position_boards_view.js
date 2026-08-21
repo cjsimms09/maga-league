@@ -375,8 +375,23 @@
     return '<div class="pb-col">'
       + '<div class="pb-col-head">'
         + '<span class="pb-pos">' + esc(pos) + '</span>'
-        + '<span class="pb-vona" title="VONA — what waiting until your next pick costs">'
-          + 'VONA <b>' + esc(fmtNum(block.VONA)) + '</b></span>'
+        /* ⚠️ (DS) IS NOT DECORATION — E's audit, 2026-08-21: "all VONA is coming
+         * from draft shark and doesn't change with changing source". Correct
+         * for THIS panel and only this one. `draft/tools/position_boards.js`
+         * computes VONA from Draft Sharks' bestNow/bestNext and says so in its
+         * own comment ("Ranking, VONA, cliff and surplus above are unaffected:
+         * they stay computed from `ds`"), so this figure is frozen while the
+         * Ranking Source toggle sits right above it. The panel's note already
+         * said selection and order are DS-fixed, but it said "only the
+         * projection NUMBER changes" — and VONA is not the projection number,
+         * so a reader was told the opposite of the truth about this chip.
+         * The Big Board / THE PICK VONA is a DIFFERENT number from engine.js
+         * and DOES follow the toggle (source_toggle_moves_vona.test.js). */
+        + '<span class="pb-vona" title="VONA — what waiting until your next pick costs. '
+          + 'Draft Sharks only: this figure does NOT follow the Ranking Source toggle, '
+          + 'because this list is a one-shot Draft-Sharks pre-draft simulation. '
+          + 'The Big Board VONA does follow it.">'
+          + 'VONA <b>' + esc(fmtNum(block.VONA)) + '</b> <span class="pb-vona-src">DS</span></span>'
         + '<span class="pb-surplus" title="best available, points over a free waiver pickup">'
           + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire</span>'
       + '</div>'
@@ -425,8 +440,10 @@
    * toggle when only the printed number did. */
   function projSourceNote() {
     return '<p class="muted pb-src-note">This list\'s player selection and order always follow '
-      + '<b>Draft Sharks</b>’ pre-draft simulation, whichever source is active — only the '
-      + 'projection NUMBER above changes. For a live top-N list on any of the five sources, see '
+      + '<b>Draft Sharks</b>’ pre-draft simulation, whichever source is active — and so do the '
+      + '<b>VONA</b>, wire-surplus and cliff figures in the column headers (marked '
+      + '<span class="pb-vona-src">DS</span>). Only the per-player projection NUMBER follows the '
+      + 'toggle. For a live top-N list — and a VONA that does change with the source — see '
       + 'the <b>Top Available</b> panel above instead.</p>';
   }
 

@@ -1988,3 +1988,9 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 
 .src-name[data-drill] { cursor: pointer; }
 .src-name[data-drill]:hover { text-decoration: underline; }
+
+/* E's audit 2026-08-21, register 203: the by-position VONA is Draft Sharks and
+   does NOT follow the Ranking Source toggle sitting above it. Marked at the
+   point of reading rather than only in a note underneath. */
+.pb-vona-src{font-size:.62rem;letter-spacing:.03em;opacity:.7;border:1px solid currentColor;
+  border-radius:.25rem;padding:0 .18rem;margin-left:.15rem;vertical-align:.06em}
