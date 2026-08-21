@@ -50,10 +50,21 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   ck('trackable table carries every ledger row', idsInTable >= rows.length,
     `table has ${idsInTable}, ledger has ${rows.length}`);
 
-  // the skill section renders the artifact's number WITH its band
+  // GRADING-POLICY.md (08-21): decision-null grades LEAD the skill section,
+  // recomputed here from the graders' own artifacts — nothing hand-typed.
+  const ss = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'backtest', 'start_sit_vs_random.json'), 'utf8'));
+  ck('start/sit decision-null percentile rendered from the artifact',
+    html.includes(Math.round(ss.mean_percentile * 100) + 'th percentile'));
+  ck('start/sit null band rendered', html.includes(String(ss.null_95[0])));
+  const wv = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'backtest', 'waiver_vs_random.json'), 'utf8'));
+  ck('waiver decision-null rendered with its n', html.includes('<b>' + wv.n_claims + '</b>'));
+  ck('the unit trap is stated (rest-of-season, never total it)', /never total it/.test(html));
+
+  // R* survives as a DESCRIPTIVE footnote only, band still beside it
   const skill = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'skill_luck_league.json'), 'utf8'));
   ck('R* rendered from the artifact', html.includes(String(skill.R_star)));
   ck('null band rendered beside it (the honesty rule)', html.includes(String(skill.null['null_97.5'])));
+  ck('R* labeled withdrawn, not a skill verdict', /Withdrawn as a skill instrument/.test(html));
 
   // known-negative: a plain member is refused
   const mc = await login(member.username);

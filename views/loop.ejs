@@ -108,17 +108,32 @@
 
   <div class="loop-sec">
     <h2>🎲 Skill or luck?</h2>
+    <p class="small"><b>How we grade changed on 08-21 (GRADING-POLICY.md, your ruling):</b> every decision is graded
+    against a constructed null — what a random legal choice would have scored at that same moment — never against
+    the other owners' outcomes. Beating the null band means skill; inside it means luck.</p>
+    <% if (dnull && dnull.startsit) { %>
+      <p><b>Start/sit:</b> across <b><%= dnull.startsit.n_owner_weeks %></b> owner-weeks the league's real lineups
+      score at the <b><%= Math.round(dnull.startsit.mean_percentile*100) %>th percentile</b> of random legal lineups
+      (a coin flip would sit in [<%= dnull.startsit.null_95[0] %>, <%= dnull.startsit.null_95[1] %>]) — real skill,
+      decisively measurable. The margin that pays: the league still leaves points on the bench every week, and
+      closing that gap is worth more than the entire drafting edge we measured this month.</p>
+    <% } %>
+    <% if (dnull && dnull.waiver) { %>
+      <p><b>Waivers:</b> <b><%= dnull.waiver.n_claims %></b> real claims score at the
+      <b><%= Math.round(dnull.waiver.mean_percentile*100) %>th percentile</b> of random same-position pickups
+      (null band [<%= dnull.waiver.null_95[0] %>, <%= dnull.waiver.null_95[1] %>]). Note: waiver "points left" is
+      rest-of-season per claim — compare owners on it, never total it across a season.</p>
+    <% } %>
+    <% if (!(dnull && (dnull.startsit || dnull.waiver))) { %>
+      <p>The decision-null graders (<code>start_sit_vs_random.py</code>, <code>waiver_vs_random.py</code>) haven't
+      written their artifacts on this deploy yet; they run weekly in CI.</p>
+    <% } %>
     <% if (skill && skill.R_star != null) { %>
-      <p>Measured on this league's real matchups (<%= (skill.seasons_used||[]).join(', ') %>):
-      persistence score R* = <b><%= skill.R_star %></b>, where 0 is a coin flip and 1 is pure skill.
-      The honest catch: with only 10 owners the noise band is
-      [<%= skill.null && skill.null['null_2.5'] %>, <%= skill.null && skill.null['null_97.5'] %>] — so this is
-      <i>suggestive, not proof</i>. As the season's weekly grades pile up, our own models get this
-      same test with real statistical power.</p>
-    <% } else { %>
-      <p>The skill-vs-luck instrument is built (<code>draft/tools/skill_luck_r.py</code>) and its league
-      artifact hasn't been generated on this deploy yet. Once weekly grades accumulate this section shows
-      whether OUR calls persist half-to-half — the difference between an edge and a hot streak.</p>
+      <p class="small"><i>Descriptive footnote, not a skill verdict:</i> the season-standings persistence score
+      R* = <%= skill.R_star %> (noise band [<%= skill.null && skill.null['null_2.5'] %>,
+      <%= skill.null && skill.null['null_97.5'] %>]). Withdrawn as a skill instrument on 08-21 — at ten owners it
+      has ~12% power and cannot converge in this league's lifetime, which is exactly why the grades above are
+      built per-decision instead: thousands of decisions, not nine seasons.</p>
     <% } %>
   </div>
 

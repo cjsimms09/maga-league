@@ -1869,8 +1869,15 @@ router.get('/loop', requireCory, aw(async (req, res) => {
 
   // skill-vs-luck artifact if the tool has written one (regenerate:
   // python3 draft/tools/skill_luck_r.py --league > draft/data/skill_luck_league.json)
+  // GRADING-POLICY.md (Cory, 08-21) withdrew R* as a skill instrument (12%
+  // power at our spread) — it renders as descriptive only, BELOW the
+  // decision-null grades, which are the standard now.
   let skill = null;
   try { skill = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'skill_luck_league.json'), 'utf8')); } catch (e) {}
+  const dnull = {};
+  for (const [k, f] of [['startsit', 'start_sit_vs_random.json'], ['waiver', 'waiver_vs_random.json']]) {
+    try { dnull[k] = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'backtest', f), 'utf8')); } catch (e) { dnull[k] = null; }
+  }
 
   /* ── NEEDS YOUR EYES — Cory: "things i need to look for so I can intervene
    * if we are getting off track, if we arent grading something or acting on
@@ -1907,7 +1914,7 @@ router.get('/loop', requireCory, aw(async (req, res) => {
       pctActed: Math.round(100 * b.filter(r => r.changed && !/^NOTHING/i.test(r.changed)).length / b.length),
     });
   }
-  res.render('loop', { me: req.owner, stats, recentGrades, dueSoon, axes, skill, flags, allSorted, trend });
+  res.render('loop', { me: req.owner, stats, recentGrades, dueSoon, axes, skill, dnull, flags, allSorted, trend });
 }));
 
 module.exports = router;
