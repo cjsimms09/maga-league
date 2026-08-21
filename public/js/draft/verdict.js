@@ -361,7 +361,20 @@
               + ' weights — prefers ' + _name(top.player) + '; you ruled the'
               + ' headline to VONA alone on 08-21, so that name is your'
               + ' alternative, one line down.'
-            : ' The full model agrees.');
+            : ' The full model agrees.')
+        /* REGISTER 238 — four wait-cost numbers share this screen answering
+         * DIFFERENT questions (this player-level figure from engine.js's
+         * survival model; the position chips' 300-room ADP-drained wait cost;
+         * the strike strip's Draft Sharks figure; RUNNING OUT's tier drop).
+         * The biggest number sits in the biggest type, so IT carries the
+         * reconciliation clause. Label only — no computation changed.
+         * Applied by the relay on Cory's direction (A and B budget-frozen on
+         * draft eve); B rewords freely. */
+        + ' VONA here is player-level on our survival model. The position'
+        + ' columns\u2019 smaller VONA chips are position-level wait costs from'
+        + ' ADP-simulated rooms \u2014 when they disagree, the room usually lets'
+        + ' that position slide, and this number is what you lose if it'
+        + ' doesn\u2019t.';
       splitBy = compDiffers ? 'vona-ruling' : null;
     } else if (conf.level === 'pinned') {
       verdict = 'PINNED';
