@@ -376,8 +376,8 @@ Realized weekly volatility (`cv = sd/mean`, our scoring), 2023-25:
 **Volatility persists at ~two thirds the strength of scoring LEVEL.** Compare
 snap-share volatility at +0.19, pulled the same day.
 
-**Its boundary is sharp and non-random.** 130 of 155 draftable players have it (re-derived 08-18 on the 5d playoff-free stores; the tail restoration widened coverage), and of the 25 missing, only 8 are rookies — the rest are injury-returns.
-Of the 26 without, only 8 are rookies — **the rest are veterans who missed 2025**
+**Its boundary is sharp and non-random.** 129 of 154 draftable players have it (re-derived 08-21 against the live board; the count moves with every ADP refresh, which is why `test_draft_week_brief_numbers.py` re-checks it rather than trusting this sentence), and of the 25 missing, only 8 are rookies — the rest are injury-returns.
+Of the 25 without, only 8 are rookies — **the rest are veterans who missed 2025**
 (Nabers ADP 32, Garrett Wilson 45, Daniels 59, Evans 62). Any wiring that fills
 a gap with a positional mean hands the steadiest reading to the injury-return
 group. **Absent must stay absent.**

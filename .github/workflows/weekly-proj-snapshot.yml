@@ -34,6 +34,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
+      # ⚙️ ADDED 2026-08-21 (A). This job COMMITS DATA and nothing verified it —
+      # one of twelve such jobs, against a ratchet of eleven
+      # (`test_every_gate_can_fail.py::test_scheduled_jobs_that_commit_data_do_not
+      # _grow_more_unverified`, whose own note says "lower this in the commit that
+      # earns it"). The ratchet went red, and the honest fix is to EARN the number
+      # down rather than raise it.
+      #
+      # `test_weekly_proj_snapshot.py` already existed, already passed (11 checks),
+      # and was simply never wired into the job whose output it describes — a guard
+      # that exists and does not run, which is the most-repeated failure in this
+      # project. It runs BEFORE the snapshot, so a broken snapshotter fails the job
+      # instead of committing a bad artifact and being caught next week.
+      - name: Verify the snapshotter before it writes anything
+        run: |
+          pip install --quiet -r draft/requirements.txt
+          python -m pytest draft/tests/test_weekly_proj_snapshot.py -q
       - name: Snapshot this week's projections
         run: |
           if [ -n "${{ github.event.inputs.week }}" ]; then
