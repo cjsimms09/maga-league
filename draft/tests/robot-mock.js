@@ -1090,7 +1090,7 @@ if (!IS_FIXTURE) {
   // tail still there — moves the dollars, and that is what a run actually is.
   {
     const st = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
-    /* ── THE PREMISE CHECK WAS A FALSE-NEGATIVE MACHINE (register 205, 08-21) ──
+    /* ── THE PREMISE CHECK WAS A FALSE-NEGATIVE MACHINE (register 206, 08-21) ──
      *
      * The check below used to be a single arm — "a non-QB leads after the run" —
      * and a TOTAL WIPEOUT satisfies it, because a board with no QBs left also has
@@ -1123,7 +1123,7 @@ if (!IS_FIXTURE) {
      * at real prices. Nothing synthetic, nothing exempted.
      *
      * (The flatness itself — Bryce Young the most expensive man on the board at
-     * $74.4, above Lamar — is register 206, not this file's business.) */
+     * $74.4, above Lamar — is register 207, not this file's business.) */
     const qbTail = ALL.slice(120).filter(p => p.position === 'QB');
     const full = ALL.slice(0, 120).concat(qbTail).map(p => ({ player: p }));
 
@@ -1286,7 +1286,7 @@ if (!IS_FIXTURE) {
       check('R-doctrine: the same landslide lead switches on the minPicks-th consecutive read',
         second.switched === true, JSON.stringify(second));
 
-      /* KNOWN POSITIVE FOR THE BINDING GATE (register 207, rule 3e). The gate
+      /* KNOWN POSITIVE FOR THE BINDING GATE (register 208, rule 3e). The gate
        * added to `update()` makes a switch NOT happen, and a suppressor is
        * indistinguishable from a switcher that broke unless you show it still
        * fires when it should. Same landslide, `detail` SUPPLIED, nothing binding:
@@ -1326,14 +1326,14 @@ if (!IS_FIXTURE) {
        *     alternative "Balanced Value", gap -40, deferrals []
        *
        * That is the same one-sided price the retraction removed, on the `gap`
-       * field instead of the `sentence` field. Register 208, owner A, recheck
+       * field instead of the `sentence` field. Register 209, owner A, recheck
        * 08-25 — NOT changed here: it is a display-semantics change to the banner
        * on draft eve, and the switch was the half that instructs Cory to abandon
        * his plan. I did not write a vacuous arm asserting it is fine.
        *
        * (`confidence` on that same read says "Contested — alternative within the
        * band" for a $40 shortfall, because `_confidence` band-tests a SIGNED gap.
-       * Register 209, same owner, same recheck.) */
+       * Register 210, same owner, same recheck.) */
     }
 
     // Decline: the owner's call wins, the prior doctrine survives, it is logged.

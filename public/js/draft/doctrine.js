@@ -434,7 +434,7 @@
       ? scoresByKey[this.current] : (leader ? leader.score : 0);
     let switched = false;
 
-    /* ── THE RETRACTION ONLY EVER REACHED THE DISPLAY (register 207, 08-21) ───
+    /* ── THE RETRACTION ONLY EVER REACHED THE DISPLAY (register 208, 08-21) ───
      *
      * The block below this one already refuses to present a BINDING doctrine as
      * "an alternative that trails by $X", because that difference is one half of
