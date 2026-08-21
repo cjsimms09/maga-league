@@ -109,6 +109,47 @@ SB.SOURCES.forEach(s => {
       moved: shifts.filter(x => x > 1e-9).length });
 });
 
+/* ── EVERY DISPLAYED NUMBER COMES FROM ONE SOURCE, NOT TWO SPLICED TOGETHER ──
+ *
+ * Cory, 2026-08-21: "So everything that should changes when I change source??"
+ * It did not. `proj_ceiling` and `proj_floor` were absent from SWAP_FIELDS while
+ * `alt_source_rankings.py` had been writing per-source versions of both all
+ * along, so a source view showed that source's MEAN beside the BLEND's CEILING.
+ *
+ * This is the third instance of one shape — a frozen field surviving a toggle
+ * that everything around it follows (VONA frozen to Draft Sharks; two VONAs on
+ * one page; now the band). So the guard is written against the SHAPE rather than
+ * against those two field names: for every source, no player may carry a swapped
+ * mean beside an unswapped band when that source publishes a band for him.
+ */
+{
+  const bandFields = ['proj_ceiling', 'proj_floor'];
+  let checked = 0;
+  const spliced = [];
+  SB.SOURCES.forEach(s => {
+    const view = SB.forSource(base, s.key);
+    const byId = new Map(base.map(p => [String(p.player_id), p]));
+    view.forEach(q => {
+      const o = byId.get(String(q.player_id));
+      if (!o || q.proj_mean === o.proj_mean) return;   // mean did not move: nothing to splice
+      bandFields.forEach(f => {
+        const src = o[f + '_' + s.key];
+        if (src == null) return;                        // no band from this source: keeping blend is correct
+        checked++;
+        if (q[f] !== src) spliced.push({ src: s.key, player: q.name, field: f,
+          shown: q[f], should_be: src });
+      });
+    });
+  });
+  ck('CONTROL: there are players whose mean moves AND whose source publishes a '
+    + 'band, so the check below is measuring something rather than nothing',
+  checked >= 100, { comparisons: checked });
+  ck('no player shows one source\'s MEAN beside another source\'s BAND — the '
+    + 'floor/mean/ceiling a human reads is one opinion, not two spliced',
+  spliced.length === 0,
+  { spliced: spliced.length, sample: spliced.slice(0, 4) });
+}
+
 /* ESPN and Mike Clay are ONE source (register 197) — Clay is ESPN's projections
  * man and both stores score raw stat lines under our table.
  *

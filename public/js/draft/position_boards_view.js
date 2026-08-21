@@ -432,8 +432,26 @@
               + 'the Ranking Source toggle.">VONA <b>' + esc(fmtNum(v)) + '</b> '
               + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
           }())
-        + '<span class="pb-surplus" title="best available, points over a free waiver pickup">'
-          + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire</span>'
+        /* ⚠️ THIS ONE DOES **NOT** FOLLOW THE TOGGLE, AND NOW SAYS SO — Cory
+         * asked whether everything that should change with the source does, and
+         * the VONA chip immediately to its left advertises "Follows the Ranking
+         * Source toggle" while this chip sits beside it doing the opposite.
+         * `surplus_over_wire` is `max(0, projUsed - WAIVER[pos])` where
+         * `projUsed` reads `x.ds.proj` — Draft Sharks only
+         * (position_boards.js:135) — against a HARDCODED waiver baseline
+         * (position_boards.js:41, QB 322.9 / RB 78.4 / WR 124.8 / TE 130.4).
+         * position_boards.js says it outright: "Ranking, VONA, cliff and surplus
+         * above are unaffected: they stay computed from `ds`."
+         *
+         * Making it per-source needs per-source waiver baselines — a modelling
+         * change, not a wiring one, and not something to invent the night before
+         * a draft. So it is LABELLED rather than silently left looking live.
+         * Register 221, owner A, post-draft. */
+        + '<span class="pb-surplus" title="Best available, points over a free '
+          + 'waiver pickup. FIXED TO DRAFT SHARKS against a static waiver '
+          + 'baseline — unlike VONA, this does NOT follow the Ranking Source '
+          + 'toggle (register 221).">'
+          + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire <span class="pb-vona-src">DS</span></span>'
       + '</div>'
       + (block.note ? '<div class="pb-note">' + esc(block.note) + '</div>' : '')
       + (players.length ? '<div class="pb-table">'

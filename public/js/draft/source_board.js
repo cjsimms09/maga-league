@@ -68,8 +68,37 @@
    * suffixed source fields when present; left as-is (the blend value) when a
    * player was never run through alt_source_rankings.py at all — an older
    * cached artifact degrades to the blend rather than a crash or a hole. */
+  /* ⚠️ `proj_ceiling` AND `proj_floor` ADDED 2026-08-21 — Cory asked directly
+   * whether EVERYTHING that should change actually changes with the source, and
+   * these two did not.
+   *
+   * `alt_source_rankings.py` has been writing `proj_ceiling_<src>` and
+   * `proj_floor_<src>` all along; they were simply never listed here. So under a
+   * source view a player showed that SOURCE'S mean beside the BLEND'S ceiling —
+   * two different sources on one line, which is the exact class Cory has already
+   * caught twice (the frozen-to-Draft-Sharks VONA, and the two VONAs on one
+   * page). Measured under CBS: 398 players. Bijan Robinson read mean 354.8 (CBS)
+   * with ceiling 369.5 (blend) while CBS's own ceiling, sitting unused on the
+   * same row, was 415.26.
+   *
+   * IT DOES NOT MOVE A PICK, AND THAT WAS MEASURED BEFORE SHIPPING RATHER THAN
+   * ASSUMED: `MEASURED_WEIGHTS.ceiling` is 0, so the ceiling never enters the
+   * composite. Top-10 at pick 33 is byte-identical before and after under cbs,
+   * espn, sleeper, fantasypros and ownmodel.
+   *
+   * WHAT IT DOES FIX is every number a human reads. The floor/mean/ceiling band
+   * becomes one source's opinion instead of two spliced together, and E[$] stops
+   * being wrong: `playerDollars` computes `DG_HIGH_K x (ceiling - mean)` off CFG
+   * directly, so for Bijan under CBS the boom term was 369.5 - 354.8 = 14.7
+   * where the coherent number is 415.26 - 354.8 = 60.5 — a 4x error in the
+   * LARGEST coefficient of the dollar figure on the compare tray.
+   *
+   * The swap is conditional (`if (p[sf] != null)`), so a player the source
+   * carries no band for keeps his blend band rather than losing it — the same
+   * degrade-to-trusted rule the rest of this file uses. */
   var SWAP_FIELDS = ['proj_mean', 'vorp', 'tier', 'pos_rank', 'overall_rank',
-    'replacement', 'tier_size', 'tier_drop', 'tier_rank'];
+    'replacement', 'tier_size', 'tier_drop', 'tier_rank',
+    'proj_ceiling', 'proj_floor'];
 
   function isValidSource(key) {
     return SOURCES.some(function (s) { return s.key === key; });
