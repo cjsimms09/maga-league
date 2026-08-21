@@ -6070,6 +6070,15 @@
             + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
           + '<br><span class="muted">boom is the only term with independent information: '
             + 'entry and RS are both a constant times the projection, so they always move together.</span>'
+          /* Register 238 family, label-only (relay, Cory's direction, draft
+           * eve): the dollar model overprices QUARTERBACKS in this 1-QB
+           * league, so a $ comparison touching a QB says so out loud instead
+           * of relying on the reader remembering. Model re-rank is Sunday
+           * work; this line comes out with it. */
+          + ((a.position === 'QB' || b.position === 'QB')
+            ? '<br><span class="muted">\u26a0 dollar figures overprice QBs in a 1-QB league \u2014 '
+              + 'discount the QB side of this comparison.</span>'
+            : '')
           : '')
         + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
         + '</div></details>'
