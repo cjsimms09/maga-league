@@ -60,12 +60,18 @@ const SRC = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   ck('it triggers a FULL re-render (renderAll), not a single panel — this changes everything downstream',
     /try \{ renderAll\(\); \}/.test(body));
 
-  ck('RANK_SOURCE_KEY is a distinct localStorage key from PROJ_SOURCE_KEY (the two toggles must never collide)',
+  /* ⚠️ RULED AWAY, 2026-08-21 — Cory: "should only be one toggle for each
+   * source and blend." RANK_SOURCE_KEY used to need to be distinct from a
+   * second key, PROJ_SOURCE_KEY, so the two toggles' choices could never
+   * collide. There is no second toggle to collide with any more — asserting
+   * PROJ_SOURCE_KEY is GONE is now the correct form of this check. */
+  ck('RANK_SOURCE_KEY exists, and the retired PROJ_SOURCE_KEY does not — one '
+     + 'toggle, one persisted key, not two that could ever disagree',
     /const RANK_SOURCE_KEY = 'mfga\.draft\.ranksource'/.test(SRC)
-    && /const PROJ_SOURCE_KEY = 'mfga\.draft\.projsource'/.test(SRC));
+    && !/const PROJ_SOURCE_KEY/.test(SRC));
 
-  ck('loadRankSource() is called at init, alongside loadProjSource()',
-    /loadProjSource\(\);\s*\n\s*loadRankSource\(\);/.test(SRC));
+  ck('loadRankSource() is called at init, and the retired loadProjSource() is not',
+    /loadRankSource\(\);/.test(SRC) && !/function loadProjSource\(/.test(SRC));
 }
 
 // ── 4. every other scoring surface that read state.board directly was fixed too ─
