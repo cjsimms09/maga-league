@@ -3436,9 +3436,17 @@
       // derive() computes them after the verdict and backed pick are final, so
       // this input can never move the recommendation — pinned by
       // ui_fidelity_tiebreak.test.js.
+      /* CORY'S 08-21 RULING: the headline is the highest-VONA player on the
+       * ACTIVE source, so derive() has to be told which source that is — the
+       * sentence it prints names it, and a headline that said "the blend"
+       * while the board was ranked on CBS would be worse than no label. */
+      const _srcLabel = state.rankSource
+        ? ((SourceBoard.SOURCES.find(s => s.key === state.rankSource) || {}).label
+            || state.rankSource)
+        : 'the blend';
       v = DraftVerdict.derive({ cfg: E.CFG, scored: out.scored,
         confidence: out.confidence, rule: rule, plan: plan, poll: poll,
-        roster: state.myRoster || [] });
+        roster: state.myRoster || [], sourceLabel: _srcLabel });
     } catch (e) {
       console.error('[verdict]', e && e.message);
       host.style.display = 'none'; host.innerHTML = ''; return;
