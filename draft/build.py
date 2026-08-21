@@ -2190,7 +2190,14 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "config_confirmed": dict(confirmed_status),
             # Stamped whether or not it applied — see the note at the call site.
             "multisource_mean": dict(ms_diag),
-            # ⚠️ THIS FIELD DID NOT EXIST UNTIL 2026-08-21, AND `_id_crosswalk`'s
+            # ⚠️ THIS FIELD DID NOT EXIST UNTIL DRAFT EVE, AND `_id_crosswalk`'s
+            # (No calendar date in this comment, deliberately:
+            # `test_keeper_lock_flag` bans the keeper-lock date literal
+            # ANYWHERE in build.py — E25's second definition — and a date in
+            # prose is indistinguishable from one to a substring check. It
+            # went red on main for exactly this, 4h before the lock, and
+            # gate-triage calls it BLOCKING, so the post-lock rebuild would
+            # have refused to publish. Cite commits, not dates, in here.)
             # OWN DOCSTRING SAID IT DID. Verbatim, before this line: "The source
             # that answered is recorded in `ID_CROSSWALK_SOURCE` so a degraded
             # run is legible in the artifact instead of only in the log."
