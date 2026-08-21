@@ -1953,8 +1953,12 @@
     // Pass the full context (not just run multipliers) so the A2 three-layer
     // model reaches VONA. Passing ctx.runMultipliers here silently reduced the
     // primary decision metric to the ADP-only Layer 1.
-    const v = vona(player, ctx.board, ctx.nextPick, ctx);
-    const tier = tierCliffUrgency(player, ctx.board, ctx.nextPick, ctx);
+    /* survivalCtxFor, NOT ctx — register 195's sweep. Pre-draft the anchored
+     * ctx collapses every elite's survival onto one wall value, and `vona` is
+     * the `value` term at weight 1.0, so the wall priced the whole board. */
+    const survCtx = survivalCtxFor(ctx);
+    const v = vona(player, ctx.board, ctx.nextPick, survCtx);
+    const tier = tierCliffUrgency(player, ctx.board, ctx.nextPick, survCtx);
     const need = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
     // D3 flex-discount (approved, pre-registered material): a player who ONLY
     // "starts in your flex" is priced at his marginal value over the best
@@ -2866,14 +2870,82 @@
    * measured FROM THE START of the draft, which is the only coherent reading
    * when zero picks have landed. A live draft is untouched -- there
    * `preDraftPrep` is false and `ctx.board` is ground truth. */
+  /* ⚠️ EXTENDED 2026-08-21, AFTER THE SWEEP THE FIRST FIX OWED (register 195).
+   *
+   * The survival fix above was filed with the question "what ELSE reads
+   * `currentPick` as a proxy for board state" — and the answer was worse than
+   * the defect that prompted it. `vona()` and `tierCliffUrgency()` are handed
+   * the ANCHORED ctx at their call sites, and `vona` IS the `value` term at
+   * weight 1.0. So the collapsed wall was not merely printed in one column; it
+   * was the input to the pre-draft board's primary term. Waiting looks free
+   * when every elite reads 67% to survive, elite VONA collapses toward zero,
+   * and the positions whose VONA is genuinely ~0 float up to meet them.
+   *
+   * MEASURED on the live board with Cory's real keepers, before this fix:
+   * FOUR KICKERS AND THREE DEFENSES AT RANKS 12-18 of the pre-draft board —
+   * Aubrey 12, HOU 13, DEN 14, SEA 15, Myers 16, Fairbairn 17, Dicker 18 —
+   * above Rashee Rice, McCaffrey, A.J. Brown, Jeanty, Cook and Achane. 187 of
+   * 200 players moved rank once the unconditional question was asked; no K or
+   * DEF remains in the top 20. That is the board he opens the night before the
+   * draft, and it is what "survival percentages don't seem to make sense"
+   * looks like once it reaches the score.
+   *
+   * ONE helper rather than a fourth hand-rolled copy of the same object: the
+   * three that existed had already drifted apart in which fields they carried,
+   * which is how a fix gets applied in one of the places that needs it.
+   *
+   * ⚠️ IT CARRIES FOUR FIELDS AND DELIBERATELY OMITS `board`, WHICH IS NOT AN
+   * OVERSIGHT — omitting it is what turns the conservation tilt OFF, because
+   * `survival()` reads `if (!ctx.board) return survivalRaw(...)`. I went the
+   * other way first, and the measurement is the reason I came back.
+   *
+   * THE ARGUMENT FOR CARRYING `board`: re-anchoring the whole context changes
+   * exactly one thing (the anchor) and keeps the model's count identity, and
+   * on that identity it scores better — expected departures before pick 48 are
+   * 48.0 against a truth of 47, where this four-field form gives 45.5.
+   *
+   * WHY IT LOSES ANYWAY: with the tilt on, ALL 27 PLAYERS WITH ADP <= 28 READ
+   * 5.2005% — Bowers, McBride, Allen, Hampton, Nabers, every one of them the
+   * same number to four decimals. That is Cory's 67.4% wall again at a
+   * different value, and a survival column that satisfies a count identity by
+   * telling him nothing about any individual player has not been fixed, only
+   * moved. The four-field form differentiates: 0.0000 for Gibbs, 0.0003 for
+   * Bowers, 0.1089 for Lamar Jackson.
+   *
+   * So the pre-draft question is a LAYER-1 MARKET question — what the market
+   * alone says about one player reaching one pick — and it is answered without
+   * a count identity ON PURPOSE. The cost is stated rather than hidden: 45.5
+   * expected departures against 47, a ~3% shortfall, uniform.
+   *
+   * THE TILT'S BEHAVIOUR HERE IS ITSELF A DEFECT AND IS FILED (register 196):
+   * a conservation pass whose output is constant across 27 players is not
+   * conserving, it is flattening, and it belongs to the 41%-wall family. It is
+   * filed rather than fixed because the night before the draft is not when
+   * tilt arithmetic gets rewritten. */
+  function unconditionalSurvivalCtx(ctx) {
+    return { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
+      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
+  }
+
+  /* True only before a single pick has landed, which is the only state in which
+   * `currentPick` is an ANCHOR rather than a position the draft has reached. */
+  function anchoredOnAFullBoard(ctx) {
+    return !!(ctx.preDraftPrep && ctx.currentPick && ctx.currentPick > 1);
+  }
+
+  /* The survival ctx any pre-draft consumer should use: unconditional before the
+   * draft starts, ground truth once it has. `vona`/`tierCliffUrgency` read only
+   * survival off this object — `VONA_SLOT_AWARE` is false so `vona()` returns
+   * `straight` before it touches roster or league — so a pure survival ctx is
+   * complete for them. If that flag is ever turned on, this must carry roster,
+   * league and starters too, and `vona_predraft_survival.test.js` says so. */
+  function survivalCtxFor(ctx) {
+    return anchoredOnAFullBoard(ctx) ? unconditionalSurvivalCtx(ctx) : ctx;
+  }
+
   function survivalForDisplay(player, ctx) {
     if (!ctx.nextPick) return 0;
-    if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) {
-      return survival(player, ctx.nextPick, ctx);
-    }
-    const uncond = { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
-      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
-    return survival(player, ctx.nextPick, uncond);
+    return survival(player, ctx.nextPick, survivalCtxFor(ctx));
   }
 
   function preDraftPool(board, ctx) {
@@ -2890,8 +2962,15 @@
      * returned "certain to survive" for everyone else, so a 91%-taken player at
      * ADP 25 sailed through the same filter that cut Nacua. The unconditional
      * form is the one the filter's own definition wants, for every player. */
-    const uncond = { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
-      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
+    /* THE SHARED HELPER, which this used to hand-roll — see its comment for why
+     * the four fields are the four fields, and for the measurement that says
+     * carrying `board` through here would break this filter outright: the tilt
+     * lifts the whole pool, and the cut goes from 19 unreachable elites to NONE
+     * (`recommend()` returned 700 entries instead of 681, led by Jahmyr Gibbs
+     * at pick 33). Kept as one helper so the display, VONA and this filter
+     * cannot drift apart again — drifting apart is precisely how the display
+     * missed the fix this filter already had. */
+    const uncond = unconditionalSurvivalCtx(ctx);
     const kept = board.filter(p => survival(p, ctx.currentPick, uncond) >= CFG.SURVIVOR_CUTOFF);
     return kept.length ? kept : board;   // never recommend from an empty pool
   }
@@ -3137,7 +3216,9 @@
 
     // Everything except the player you would be taking.
     const remaining = ctx.board.filter(p => p.player_id !== entry.player.player_id);
-    const avail = remaining.map(p => survival(p, next, ctx));
+    // survivalCtxFor, not ctx: "what does waiting cost" is meaningless if the
+    // wall says every elite waits fine (register 195's sweep).
+    const avail = remaining.map(p => survival(p, next, survivalCtxFor(ctx)));
     const at = S.expectedBestByPos(remaining, avail);
     // Same measure right now, so "what does waiting cost" is a subtraction
     // rather than a number you have to hold two of in your head.
@@ -4033,7 +4114,9 @@
       // The one number worth carrying onto paper: not "is he good" — the sheet
       // is already sorted by that — but "can I wait". Null when there is no
       // next pick to survive to, rather than a fabricated 0.
-      survives_to_next: next ? Math.round(survival(p, next, ctx) * 100) : null,
+      // survivalCtxFor, not ctx: printed BEFORE the draft, so the anchored
+      // question would put the 67.4% wall on the paper he carries in.
+      survives_to_next: next ? Math.round(survival(p, next, survivalCtxFor(ctx)) * 100) : null,
       why: entry && entry.reasons && entry.reasons.length ? entry.reasons[0] : null,
     });
 
