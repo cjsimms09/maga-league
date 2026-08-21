@@ -1,0 +1,730 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/defense_vs_position.py",
+ "_note": "Weekly points ALLOWED by each defense to each position (QB/RB/WR/TE), scored under this league's own table, weeks 1-17, pooled across every season in `seasons`. Fully offline \u2014 component_stats_<season>.json (team/position, TERRITORY C) joined to vegas_lines_2021_2026.json (schedule, TERRITORY A, read-only) for the opponent key. `by_defense[team][pos].mean_allowed` is the per-week average; `league_avg[pos]` is the same pooled across all 32 teams as a comparison baseline.",
+ "seasons": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "weeks_per_season_measured": {
+  "2021": 2046,
+  "2022": 2039,
+  "2023": 2043,
+  "2024": 2045,
+  "2025": 2047
+ },
+ "league_avg": {
+  "QB": 19.56,
+  "RB": 20.11,
+  "WR": 25.55,
+  "TE": 10.72
+ },
+ "by_defense": {
+  "MIA": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 342.1,
+    "mean_allowed": 20.12
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 363.52,
+    "mean_allowed": 21.38
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 410.3,
+    "mean_allowed": 24.14
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 233.4,
+    "mean_allowed": 13.73
+   }
+  },
+  "NO": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 328.4,
+    "mean_allowed": 19.32
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 307.44,
+    "mean_allowed": 18.08
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 175.8,
+    "mean_allowed": 10.34
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 408.2,
+    "mean_allowed": 24.01
+   }
+  },
+  "TB": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 363.4,
+    "mean_allowed": 21.38
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 434.4,
+    "mean_allowed": 25.55
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 222.8,
+    "mean_allowed": 13.11
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 400.18,
+    "mean_allowed": 23.54
+   }
+  },
+  "HOU": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 297.1,
+    "mean_allowed": 17.48
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 256.32,
+    "mean_allowed": 15.08
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 353.4,
+    "mean_allowed": 20.79
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 167.0,
+    "mean_allowed": 9.82
+   }
+  },
+  "DAL": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 375.5,
+    "mean_allowed": 22.09
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 476.22,
+    "mean_allowed": 28.01
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 163.6,
+    "mean_allowed": 9.62
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 571.3,
+    "mean_allowed": 33.61
+   }
+  },
+  "NYJ": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 416.2,
+    "mean_allowed": 24.48
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 383.82,
+    "mean_allowed": 22.58
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 426.3,
+    "mean_allowed": 25.08
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 196.22,
+    "mean_allowed": 11.54
+   }
+  },
+  "LAC": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 302.4,
+    "mean_allowed": 17.79
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 261.88,
+    "mean_allowed": 15.4
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 150.9,
+    "mean_allowed": 8.88
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 385.02,
+    "mean_allowed": 22.65
+   }
+  },
+  "CAR": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 376.7,
+    "mean_allowed": 22.16
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 375.5,
+    "mean_allowed": 22.09
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 287.88,
+    "mean_allowed": 16.93
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 179.8,
+    "mean_allowed": 10.58
+   }
+  },
+  "CLE": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 347.98,
+    "mean_allowed": 20.47
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 162.6,
+    "mean_allowed": 9.56
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 270.46,
+    "mean_allowed": 15.91
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 374.0,
+    "mean_allowed": 22.0
+   }
+  },
+  "ATL": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 332.5,
+    "mean_allowed": 19.56
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 483.6,
+    "mean_allowed": 28.45
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 132.9,
+    "mean_allowed": 7.82
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 337.06,
+    "mean_allowed": 19.83
+   }
+  },
+  "TEN": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 345.4,
+    "mean_allowed": 20.32
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 492.0,
+    "mean_allowed": 28.94
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 375.86,
+    "mean_allowed": 22.11
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 176.9,
+    "mean_allowed": 10.41
+   }
+  },
+  "BUF": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 377.8,
+    "mean_allowed": 22.22
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 261.36,
+    "mean_allowed": 15.37
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 376.6,
+    "mean_allowed": 22.15
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 122.1,
+    "mean_allowed": 7.18
+   }
+  },
+  "IND": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 321.3,
+    "mean_allowed": 18.9
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 333.44,
+    "mean_allowed": 19.61
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 495.7,
+    "mean_allowed": 29.16
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 207.2,
+    "mean_allowed": 12.19
+   }
+  },
+  "JAX": {
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 291.5,
+    "mean_allowed": 17.15
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 325.84,
+    "mean_allowed": 19.17
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 437.6,
+    "mean_allowed": 25.74
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 211.4,
+    "mean_allowed": 12.44
+   }
+  },
+  "ARI": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 332.52,
+    "mean_allowed": 19.56
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 411.1,
+    "mean_allowed": 24.18
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 205.8,
+    "mean_allowed": 12.11
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 447.2,
+    "mean_allowed": 26.31
+   }
+  },
+  "SEA": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 296.3,
+    "mean_allowed": 17.43
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 378.3,
+    "mean_allowed": 22.25
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 209.2,
+    "mean_allowed": 12.31
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 292.6,
+    "mean_allowed": 17.21
+   }
+  },
+  "KC": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 308.58,
+    "mean_allowed": 18.15
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 146.9,
+    "mean_allowed": 8.64
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 402.1,
+    "mean_allowed": 23.65
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 291.4,
+    "mean_allowed": 17.14
+   }
+  },
+  "LA": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 312.38,
+    "mean_allowed": 18.38
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 446.4,
+    "mean_allowed": 26.26
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 165.9,
+    "mean_allowed": 9.76
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 304.1,
+    "mean_allowed": 17.89
+   }
+  },
+  "NE": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 312.18,
+    "mean_allowed": 18.36
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 407.9,
+    "mean_allowed": 23.99
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 191.7,
+    "mean_allowed": 11.28
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 288.4,
+    "mean_allowed": 16.96
+   }
+  },
+  "PIT": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 373.44,
+    "mean_allowed": 21.97
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 237.0,
+    "mean_allowed": 13.94
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 488.1,
+    "mean_allowed": 28.71
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 296.7,
+    "mean_allowed": 17.45
+   }
+  },
+  "SF": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 358.28,
+    "mean_allowed": 21.08
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 455.9,
+    "mean_allowed": 26.82
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 213.2,
+    "mean_allowed": 12.54
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 328.8,
+    "mean_allowed": 19.34
+   }
+  },
+  "DEN": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 374.8,
+    "mean_allowed": 22.05
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 283.56,
+    "mean_allowed": 16.68
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 187.0,
+    "mean_allowed": 11.0
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 276.5,
+    "mean_allowed": 16.26
+   }
+  },
+  "CIN": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 392.88,
+    "mean_allowed": 23.11
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 312.3,
+    "mean_allowed": 18.37
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 408.0,
+    "mean_allowed": 24.0
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 451.78,
+    "mean_allowed": 26.58
+   }
+  },
+  "DET": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 525.62,
+    "mean_allowed": 30.92
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 370.32,
+    "mean_allowed": 21.78
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 168.4,
+    "mean_allowed": 9.91
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 305.0,
+    "mean_allowed": 17.94
+   }
+  },
+  "PHI": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 370.0,
+    "mean_allowed": 21.76
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 345.1,
+    "mean_allowed": 20.3
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 108.7,
+    "mean_allowed": 6.39
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 276.86,
+    "mean_allowed": 16.29
+   }
+  },
+  "GB": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 449.5,
+    "mean_allowed": 26.44
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 309.38,
+    "mean_allowed": 18.2
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 162.6,
+    "mean_allowed": 9.56
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 328.6,
+    "mean_allowed": 19.33
+   }
+  },
+  "CHI": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 498.2,
+    "mean_allowed": 29.31
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 173.9,
+    "mean_allowed": 10.23
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 361.9,
+    "mean_allowed": 21.29
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 329.7,
+    "mean_allowed": 19.39
+   }
+  },
+  "WAS": {
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 229.4,
+    "mean_allowed": 13.49
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 498.6,
+    "mean_allowed": 29.33
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 406.18,
+    "mean_allowed": 23.89
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 397.3,
+    "mean_allowed": 23.37
+   }
+  },
+  "BAL": {
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 151.1,
+    "mean_allowed": 8.89
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 359.76,
+    "mean_allowed": 21.16
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 503.4,
+    "mean_allowed": 29.61
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 364.1,
+    "mean_allowed": 21.42
+   }
+  },
+  "MIN": {
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 226.02,
+    "mean_allowed": 13.3
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 308.3,
+    "mean_allowed": 18.14
+   },
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 340.5,
+    "mean_allowed": 20.03
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 145.4,
+    "mean_allowed": 8.55
+   }
+  },
+  "NYG": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 467.9,
+    "mean_allowed": 27.52
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 398.6,
+    "mean_allowed": 23.45
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 164.86,
+    "mean_allowed": 9.7
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 367.7,
+    "mean_allowed": 21.63
+   }
+  },
+  "LV": {
+   "WR": {
+    "weeks": 17,
+    "total_allowed": 462.7,
+    "mean_allowed": 27.22
+   },
+   "QB": {
+    "weeks": 17,
+    "total_allowed": 338.4,
+    "mean_allowed": 19.91
+   },
+   "TE": {
+    "weeks": 17,
+    "total_allowed": 153.1,
+    "mean_allowed": 9.01
+   },
+   "RB": {
+    "weeks": 17,
+    "total_allowed": 364.6,
+    "mean_allowed": 21.45
+   }
+  }
+ }
+}

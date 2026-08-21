@@ -1,0 +1,73 @@
+name: K/DEF weekly points backfill (register 67)
+
+# TERRITORY: C — dispatches draft/backtest/kdef_weekly_points.py.
+#
+# Register 67 (relay, 2026-08-20): no realized K or DEF score has ever been
+# stored, any season -- both whole positions have been ungradeable. This is a
+# ONE-TIME HISTORICAL BACKFILL (2023-2025, all three already-completed
+# seasons), not a recurring capture -- unlike weekly-projection-archive.yml
+# there is no new week to add once these three seasons are written, so no
+# schedule trigger. Re-running is safe (append_week dedupes by season+week)
+# if a season needs to be redone.
+#
+# Egress: nflverse-data's GitHub release assets are reachable from the dev
+# sandbox (verified 2026-08-20) but Sleeper (the kicker name crosswalk) is
+# proxy-blocked there, same as every other Sleeper-dependent fetch in this
+# repo -- so this runs in CI for that reason alone.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Space-separated seasons (blank = 2023 2024 2025)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kdef-weekly-points-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure assembly logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_kdef_weekly_points.py -q
+
+      - name: Build the K/DEF stores
+        run: |
+          cd draft/backtest
+          python3 kdef_weekly_points.py ${{ github.event.inputs.seasons || '2023 2024 2025' }}
+
+      - name: Commit the stores
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/nflverse_weekly_points_kdef_*.json
+          if ! git diff --cached --quiet; then
+            git commit -m "kdef_weekly_points: K/DEF realized weekly points backfilled (register 67) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"

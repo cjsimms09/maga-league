@@ -1,0 +1,7187 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/opponent_tendency.py",
+ "_note": "Feeds E's P144 opponent-model priors. Two of the three asked-for measures are real (bench-points-left, injury-reaction-rate); the third (lineup timing) is a measured refusal, stated in lineup_timing below rather than silently dropped.",
+ "lineup_timing": "UNMEASURABLE from any committed or reachable store -- checked, not assumed: league_history.json's matchup rows carry no lineup-submission timestamp; only `transactions` rows carry `created`, and a waiver claim is not a lineup set. A stand-in proxy would be a guess wearing this field's name; not built.",
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "rule_3e_control": {
+  "ok": true,
+  "roster_4_flagged": [
+   "4037"
+  ],
+  "roster_4_started": [],
+  "roster_7_flagged": [
+   "4034",
+   "7090"
+  ],
+  "roster_7_started": [
+   "4034"
+  ]
+ },
+ "per_owner_summary": {
+  "1": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 49.6,
+   "injury_start_rate": 0.2532,
+   "flagged_player_weeks": 79
+  },
+  "2": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 48.5,
+   "injury_start_rate": 0.1806,
+   "flagged_player_weeks": 72
+  },
+  "3": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 41.42,
+   "injury_start_rate": 0.2346,
+   "flagged_player_weeks": 81
+  },
+  "4": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 34.16,
+   "injury_start_rate": 0.2475,
+   "flagged_player_weeks": 101
+  },
+  "5": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 38.85,
+   "injury_start_rate": 0.2414,
+   "flagged_player_weeks": 87
+  },
+  "6": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 45.97,
+   "injury_start_rate": 0.1899,
+   "flagged_player_weeks": 79
+  },
+  "7": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 40.47,
+   "injury_start_rate": 0.2609,
+   "flagged_player_weeks": 69
+  },
+  "8": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 38.34,
+   "injury_start_rate": 0.2879,
+   "flagged_player_weeks": 66
+  },
+  "9": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 48.2,
+   "injury_start_rate": 0.2442,
+   "flagged_player_weeks": 86
+  },
+  "10": {
+   "weeks_seen": 54,
+   "bench_points_left_per_week": 41.08,
+   "injury_start_rate": 0.2955,
+   "flagged_player_weeks": 88
+  }
+ },
+ "by_season": {
+  "2025": {
+   "1": {
+    "1": {
+     "bench_points_left": 61.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 20.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 55.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 11.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4037"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 82.22,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 79.98,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 34.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4034",
+       "7090"
+      ],
+      "started_ids": [
+       "4034"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 43.82,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 31.72,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 85.92,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "2": {
+    "1": {
+     "bench_points_left": 33.4,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 45.58,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 95.46,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 12.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4037",
+       "5022"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 57.54,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11624"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 35.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11604"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 41.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 44.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12512"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 83.64,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 76.58,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7049"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "3": {
+    "1": {
+     "bench_points_left": 45.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 48.22,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "12514"
+      ],
+      "started_ids": [
+       "12514"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 44.68,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4066"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 30.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11566",
+       "4037"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 33.8,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "11624",
+       "7591",
+       "9484"
+      ],
+      "started_ids": [
+       "9484"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 58.72,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12518",
+       "9488"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 32.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 52.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "6790",
+       "9753"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 97.14,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7526"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 54.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7049"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "4": {
+    "1": {
+     "bench_points_left": 46.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12533"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 85.98,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 43.02,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "11638",
+       "2216",
+       "4892"
+      ],
+      "started_ids": [
+       "11638",
+       "4892"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 43.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11566",
+       "4037",
+       "7594"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 96.04,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "2133"
+      ],
+      "started_ids": [
+       "2133"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 59.98,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "12526"
+      ],
+      "started_ids": [
+       "12526"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 30.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8228"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 42.3,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5927",
+       "6790",
+       "9753"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 69.86,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 36.22,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6786",
+       "7049"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "5": {
+    "1": {
+     "bench_points_left": 49.4,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 20.3,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584",
+       "4881"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 35.22,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "11638",
+       "2216",
+       "7002"
+      ],
+      "started_ids": [
+       "7002"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 5.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7594"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 41.88,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 49.88,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11604"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 22.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 21.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5927"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 78.08,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 54.94,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6786",
+       "7049"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "6": {
+    "1": {
+     "bench_points_left": 29.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "5872",
+       "7564",
+       "9754"
+      ],
+      "started_ids": [
+       "5872",
+       "7564"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 11.9,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10236",
+       "11584",
+       "4881"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 30.82,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11638",
+       "2216"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 23.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4037",
+       "7594"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 29.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 8.3,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11604",
+       "5849"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 53.8,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 26.08,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5927"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 76.44,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 28.76,
+     "injury_reaction": {
+      "flagged": 6,
+      "started": 3,
+      "rate": 0.5,
+      "flagged_ids": [
+       "1433",
+       "4035",
+       "6149",
+       "6786",
+       "7049",
+       "9997"
+      ],
+      "started_ids": [
+       "1433",
+       "4035",
+       "9997"
+      ]
+     }
+    }
+   },
+   "7": {
+    "1": {
+     "bench_points_left": 34.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5872"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 25.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584",
+       "12514"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 38.94,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 2,
+      "rate": 0.5,
+      "flagged_ids": [
+       "11638",
+       "1339",
+       "2216",
+       "2449"
+      ],
+      "started_ids": [
+       "1339",
+       "2216"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 40.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4037",
+       "5850"
+      ],
+      "started_ids": [
+       "5850"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 71.86,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4981",
+       "8146"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 29.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11604",
+       "5849"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 34.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 57.48,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "2020",
+       "5927",
+       "5947",
+       "6790"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 68.34,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9493"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 55.4,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "1433",
+       "6149"
+      ],
+      "started_ids": [
+       "1433"
+      ]
+     }
+    }
+   },
+   "8": {
+    "1": {
+     "bench_points_left": 19.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 39.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10236",
+       "11584",
+       "4881"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 9.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11638"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 24.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11566",
+       "4037",
+       "5859"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 10.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4981",
+       "8112",
+       "8146"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 10.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 27.2,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 8.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "6790",
+       "7569"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 32.62,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "8155"
+      ],
+      "started_ids": [
+       "8155"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 50.78,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "1433"
+      ],
+      "started_ids": [
+       "1433"
+      ]
+     }
+    }
+   },
+   "9": {
+    "1": {
+     "bench_points_left": 53.08,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12530"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 37.72,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 14.1,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11638"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 17.78,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 12.2,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4981",
+       "8205"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 87.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 61.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 50.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5927",
+       "6790"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 20.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 60.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "1433",
+       "4035",
+       "8676"
+      ],
+      "started_ids": [
+       "1433"
+      ]
+     }
+    }
+   },
+   "10": {
+    "1": {
+     "bench_points_left": 29.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 20.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584",
+       "11631"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 38.2,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11638",
+       "9504"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 34.32,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4037"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 14.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8146"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 46.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12526",
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 25.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 47.7,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "12497",
+       "5927",
+       "6790"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 27.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 22.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": [
+       "4035"
+      ]
+     }
+    }
+   },
+   "11": {
+    "1": {
+     "bench_points_left": 34.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "6770",
+       "9754"
+      ],
+      "started_ids": [
+       "9754"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 13.9,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10236",
+       "11584",
+       "11631"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 34.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9504"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 47.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4037"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 14.0,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 2,
+      "rate": 0.4,
+      "flagged_ids": [
+       "2133",
+       "6806",
+       "8112",
+       "8146",
+       "8205"
+      ],
+      "started_ids": [
+       "2133",
+       "8112"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 48.3,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628",
+       "12508",
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 21.86,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10859"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 13.32,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12497",
+       "5927"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 79.12,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 31.34,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "12": {
+    "1": {
+     "bench_points_left": 20.2,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6770",
+       "8151"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 8.8,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10236",
+       "11584",
+       "11589",
+       "11631"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 30.16,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 19.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4037",
+       "5850"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 7.9,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11624",
+       "8112",
+       "8205"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 8.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628",
+       "12508",
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 76.72,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 48.56,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12497"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 48.66,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 49.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": [
+       "4035"
+      ]
+     }
+    }
+   },
+   "13": {
+    "1": {
+     "bench_points_left": 77.94,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "8144"
+      ],
+      "started_ids": [
+       "8144"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 51.7,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10236",
+       "11584",
+       "11589"
+      ],
+      "started_ids": [
+       "11584"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 66.76,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4892"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 54.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 28.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8112"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 58.46,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628",
+       "12518"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 51.34,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 60.26,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 57.9,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12507"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 41.24,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "14": {
+    "1": {
+     "bench_points_left": 28.9,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "8144"
+      ],
+      "started_ids": [
+       "8144"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 48.16,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "10236",
+       "11589"
+      ],
+      "started_ids": [
+       "10236"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 14.68,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "9487"
+      ],
+      "started_ids": [
+       "9487"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 22.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11620"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 24.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8112"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 5.72,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 56.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "7547"
+      ],
+      "started_ids": [
+       "7547"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 30.54,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 56.2,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12507"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 27.56,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4035",
+       "6797"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "15": {
+    "1": {
+     "bench_points_left": 50.3,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "2216",
+       "5872",
+       "9754"
+      ],
+      "started_ids": [
+       "5872"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 51.64,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 56.32,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9487"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 44.38,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "11620",
+       "5850"
+      ],
+      "started_ids": [
+       "5850"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 27.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "2133",
+       "7553",
+       "8112"
+      ],
+      "started_ids": [
+       "2133",
+       "7553"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 28.44,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 33.3,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10219",
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 48.38,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4988"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 54.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8110"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 44.0,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11435",
+       "4035"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "16": {
+    "1": {
+     "bench_points_left": 83.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9754"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 77.08,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 63.16,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11638"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 25.68,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10229",
+       "11620",
+       "5850"
+      ],
+      "started_ids": [
+       "5850"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 36.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "2133",
+       "8112"
+      ],
+      "started_ids": [
+       "8112"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 63.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 44.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 64.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4988",
+       "6790"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 38.66,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "12474",
+       "8167"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 28.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "17": {
+    "1": {
+     "bench_points_left": 115.64,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "11566",
+       "4217",
+       "8144"
+      ],
+      "started_ids": [
+       "4217"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 37.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4881",
+       "6804"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 45.08,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11638",
+       "9504"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 18.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11620"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 8.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "2133",
+       "4983",
+       "8112"
+      ],
+      "started_ids": [
+       "8112"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 37.58,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11628",
+       "12526"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 65.12,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5892",
+       "7547"
+      ],
+      "started_ids": [
+       "7547"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 57.4,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 65.28,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8167"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 10.2,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "18": {
+    "1": {
+     "bench_points_left": 34.94,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "11566",
+       "4199",
+       "4217",
+       "8144"
+      ],
+      "started_ids": [
+       "4217"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 44.92,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 48.44,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "11638",
+       "7588"
+      ],
+      "started_ids": [
+       "7588"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 10.1,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "11620",
+       "2307",
+       "5022"
+      ],
+      "started_ids": [
+       "5022"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 14.2,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 2,
+      "rate": 0.4,
+      "flagged_ids": [
+       "11624",
+       "2133",
+       "7553",
+       "8112",
+       "8205"
+      ],
+      "started_ids": [
+       "7553",
+       "8112"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 61.72,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "9226"
+      ],
+      "started_ids": [
+       "9226"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 62.32,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "11586",
+       "12506",
+       "7547",
+       "8126"
+      ],
+      "started_ids": [
+       "7547"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 39.98,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 18.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "12507",
+       "7526",
+       "8155"
+      ],
+      "started_ids": [
+       "12507",
+       "8155"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 17.4,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4035",
+       "8150"
+      ],
+      "started_ids": [
+       "8150"
+      ]
+     }
+    }
+   }
+  },
+  "2024": {
+   "1": {
+    "1": {
+     "bench_points_left": 46.42,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "7564"
+      ],
+      "started_ids": [
+       "7564"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 44.8,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 32.9,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1426",
+       "5848",
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 39.58,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 29.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1479"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 55.8,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 68.68,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4034"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 52.3,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 70.12,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 63.64,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "2": {
+    "1": {
+     "bench_points_left": 42.36,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 28.3,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5859",
+       "8151"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 22.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6801",
+       "8110"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 40.92,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11620"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 35.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1479"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 52.2,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "9226"
+      ],
+      "started_ids": [
+       "9226"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 21.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10222",
+       "2749",
+       "4034"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 20.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 46.34,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 48.16,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4033",
+       "8148",
+       "9756"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "3": {
+    "1": {
+     "bench_points_left": 37.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6804"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 44.44,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5859",
+       "6819",
+       "8151"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 58.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4018",
+       "4066"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 24.76,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4039",
+       "4217",
+       "5872"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 58.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1479"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 42.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9508"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 29.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2749"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 32.28,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 36.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 71.48,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4033"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "4": {
+    "1": {
+     "bench_points_left": 94.96,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6804"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 74.28,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584",
+       "5859"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 36.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4018",
+       "4066"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 56.28,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "4035",
+       "4039",
+       "5872"
+      ],
+      "started_ids": [
+       "4035",
+       "5872"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 38.0,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "1479",
+       "4663",
+       "5937"
+      ],
+      "started_ids": [
+       "5937"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 47.2,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8144"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 28.4,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2749",
+       "9502"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 27.24,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7525",
+       "8130"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 30.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2133"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 41.92,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4033",
+       "8136"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "5": {
+    "1": {
+     "bench_points_left": 76.62,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11632"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 22.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4988"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 36.0,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4018",
+       "4066",
+       "8134"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 10.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4039",
+       "4217"
+      ],
+      "started_ids": [
+       "4217"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 15.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5844",
+       "6130",
+       "6813"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 68.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8154"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 54.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 38.16,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "8130",
+       "9229"
+      ],
+      "started_ids": [
+       "8130"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 34.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2133"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 43.46,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4033"
+      ],
+      "started_ids": [
+       "4033"
+      ]
+     }
+    }
+   },
+   "6": {
+    "1": {
+     "bench_points_left": 53.16,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11632",
+       "7611",
+       "9224"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 43.9,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4988"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 32.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "4018",
+       "4066",
+       "8134"
+      ],
+      "started_ids": [
+       "4018"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 47.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 8.8,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "5937",
+       "6130",
+       "6813"
+      ],
+      "started_ids": [
+       "5937"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 0.0,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8138",
+       "8154"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 36.2,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 38.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 33.88,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "10937",
+       "2133"
+      ],
+      "started_ids": [
+       "10937"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 36.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8136"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "7": {
+    "1": {
+     "bench_points_left": 72.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11583",
+       "11635",
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 54.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4988",
+       "8151"
+      ],
+      "started_ids": [
+       "8151"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 36.66,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 27.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4039",
+       "5022"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 29.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "5844",
+       "5937",
+       "6813"
+      ],
+      "started_ids": [
+       "5937"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 26.2,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11575",
+       "8144",
+       "8154",
+       "9500"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 17.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7049"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 22.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8143"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 64.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7543"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 32.2,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 2,
+      "rate": 0.4,
+      "flagged_ids": [
+       "4199",
+       "8136",
+       "8676",
+       "9508",
+       "9754"
+      ],
+      "started_ids": [
+       "4199",
+       "9754"
+      ]
+     }
+    }
+   },
+   "8": {
+    "1": {
+     "bench_points_left": 125.94,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11566",
+       "11583",
+       "11635"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 61.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 52.88,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2216",
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 45.7,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "4217",
+       "5022",
+       "5872"
+      ],
+      "started_ids": [
+       "4217",
+       "5872"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 25.0,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5844",
+       "5937"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 53.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "9997"
+      ],
+      "started_ids": [
+       "9997"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 30.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7049"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 23.44,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5185",
+       "8143"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 39.3,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5846",
+       "7543",
+       "9493"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 40.72,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "3321",
+       "9508",
+       "9754"
+      ],
+      "started_ids": [
+       "3321"
+      ]
+     }
+    }
+   },
+   "9": {
+    "1": {
+     "bench_points_left": 57.12,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11583",
+       "6804"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 35.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584",
+       "11631"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 51.2,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "2216",
+       "5967",
+       "6801",
+       "6845"
+      ],
+      "started_ids": [
+       "5967"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 11.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5022",
+       "5850"
+      ],
+      "started_ids": [
+       "5850"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 34.84,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2309"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 67.2,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11618",
+       "8154"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 34.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "3200"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 36.88,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5185"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 10.56,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 2,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5846",
+       "7543",
+       "9225",
+       "9493"
+      ],
+      "started_ids": [
+       "7543",
+       "9493"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 64.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9508"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "10": {
+    "1": {
+     "bench_points_left": 33.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11583",
+       "8112"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 30.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11631"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 31.34,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2216",
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 28.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "11637",
+       "5872"
+      ],
+      "started_ids": [
+       "5872"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 46.18,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2309"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 8.2,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8144",
+       "8154"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 33.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "4034",
+       "8131",
+       "9502"
+      ],
+      "started_ids": [
+       "4034",
+       "9502"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 8.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7569"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 63.04,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 16.0,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "3294",
+       "3321"
+      ],
+      "started_ids": [
+       "3321"
+      ]
+     }
+    }
+   },
+   "11": {
+    "1": {
+     "bench_points_left": 37.54,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 52.88,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 12.2,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 67.08,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "11637",
+       "4217",
+       "8205"
+      ],
+      "started_ids": [
+       "4217"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 69.64,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "10859",
+       "2309"
+      ],
+      "started_ids": [
+       "2309"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 44.0,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 33.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10236"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 40.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 27.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "2133"
+      ],
+      "started_ids": [
+       "2133"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 55.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "3294",
+       "6786"
+      ],
+      "started_ids": [
+       "6786"
+      ]
+     }
+    }
+   },
+   "12": {
+    "1": {
+     "bench_points_left": 19.42,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "11583",
+       "11632",
+       "11635"
+      ],
+      "started_ids": [
+       "11632",
+       "11635"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 65.42,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 55.16,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "2216"
+      ],
+      "started_ids": [
+       "2216"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 10.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8205"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 31.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 38.8,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 0.0,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5987",
+       "6790"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 18.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7525"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 58.98,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 47.1,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8183"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "13": {
+    "1": {
+     "bench_points_left": 70.16,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 67.68,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 52.74,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 41.44,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11637"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 48.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4663"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 44.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9500"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 20.46,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10236",
+       "5987",
+       "7547"
+      ],
+      "started_ids": [
+       "7547"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 89.38,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "7525",
+       "8155"
+      ],
+      "started_ids": [
+       "8155"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 69.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6806"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 59.34,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 3,
+      "rate": 1.0,
+      "flagged_ids": [
+       "12185",
+       "5892",
+       "8183"
+      ],
+      "started_ids": [
+       "12185",
+       "5892",
+       "8183"
+      ]
+     }
+    }
+   },
+   "14": {
+    "1": {
+     "bench_points_left": 6.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "11632",
+       "11635"
+      ],
+      "started_ids": [
+       "11632"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 41.62,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "11584",
+       "8151"
+      ],
+      "started_ids": [
+       "11584"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 53.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 50.72,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11637",
+       "5022"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 19.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 39.4,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 9.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10444",
+       "5987",
+       "6790"
+      ],
+      "started_ids": [
+       "6790"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 11.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4983",
+       "8155"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 39.94,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8137"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 76.42,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5947"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "15": {
+    "1": {
+     "bench_points_left": 73.36,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11635"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 68.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11584",
+       "8151"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 76.92,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5848",
+       "5967"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 74.26,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 50.34,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4227"
+      ],
+      "started_ids": [
+       "4227"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 68.84,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 38.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10444",
+       "11651",
+       "6790"
+      ],
+      "started_ids": [
+       "11651"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 40.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5010",
+       "8155"
+      ],
+      "started_ids": [
+       "8155"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 41.94,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8137"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 38.96,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4033"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "16": {
+    "1": {
+     "bench_points_left": 62.48,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 48.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11655"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 53.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5967",
+       "7526"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 67.64,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 52.16,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5937"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 85.26,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8144"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 40.72,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10444",
+       "11651"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 46.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5010"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 39.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8111",
+       "8137"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 46.36,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "3321",
+       "4033",
+       "5892"
+      ],
+      "started_ids": [
+       "3321"
+      ]
+     }
+    }
+   },
+   "17": {
+    "1": {
+     "bench_points_left": 70.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11632"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 34.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6904",
+       "8151"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 38.6,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 2,
+      "rate": 0.4,
+      "flagged_ids": [
+       "4137",
+       "5967",
+       "6801",
+       "7526",
+       "7594"
+      ],
+      "started_ids": [
+       "4137",
+       "6801"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 50.02,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4035"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 45.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 37.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "11589",
+       "8144",
+       "9997"
+      ],
+      "started_ids": [
+       "9997"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 36.56,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10444",
+       "5248"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 57.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5010"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 35.7,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "2133",
+       "6768",
+       "6806",
+       "8111"
+      ],
+      "started_ids": [
+       "2133"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 15.6,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "3321",
+       "4033",
+       "5892",
+       "6786"
+      ],
+      "started_ids": [
+       "3321"
+      ]
+     }
+    }
+   },
+   "18": {
+    "1": {
+     "bench_points_left": 41.56,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "9224"
+      ],
+      "started_ids": [
+       "9224"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 21.5,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 3,
+      "rate": 0.75,
+      "flagged_ids": [
+       "1466",
+       "5859",
+       "6904",
+       "8150"
+      ],
+      "started_ids": [
+       "1466",
+       "5859",
+       "8150"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 21.2,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 2,
+      "rate": 0.4,
+      "flagged_ids": [
+       "3214",
+       "4046",
+       "5967",
+       "6801",
+       "7526"
+      ],
+      "started_ids": [
+       "3214",
+       "6801"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 22.54,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 4,
+      "rate": 0.8,
+      "flagged_ids": [
+       "4035",
+       "4039",
+       "4217",
+       "5872",
+       "8205"
+      ],
+      "started_ids": [
+       "4039",
+       "4217",
+       "5872",
+       "8205"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 21.3,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4098",
+       "4663"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 33.2,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "8143",
+       "8144"
+      ],
+      "started_ids": [
+       "8143"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 44.54,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5248",
+       "7090"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 44.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 2,
+      "rate": 1.0,
+      "flagged_ids": [
+       "421",
+       "7525"
+      ],
+      "started_ids": [
+       "421",
+       "7525"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 22.0,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 2,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4866",
+       "6768",
+       "8111",
+       "9493"
+      ],
+      "started_ids": [
+       "4866",
+       "9493"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 59.42,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 2,
+      "rate": 0.5,
+      "flagged_ids": [
+       "3321",
+       "4033",
+       "5892",
+       "8183"
+      ],
+      "started_ids": [
+       "3321",
+       "8183"
+      ]
+     }
+    }
+   }
+  },
+  "2023": {
+   "1": {
+    "1": {
+     "bench_points_left": 34.2,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4217"
+      ],
+      "started_ids": [
+       "4217"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 49.48,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1466"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 25.8,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 43.66,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "2505"
+      ],
+      "started_ids": [
+       "2505"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 60.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 73.44,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 42.52,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 17.1,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "4039",
+       "6783",
+       "8155"
+      ],
+      "started_ids": [
+       "8155"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 52.02,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "5012",
+       "5848",
+       "7611",
+       "8167"
+      ],
+      "started_ids": [
+       "7611"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 18.52,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "2": {
+    "1": {
+     "bench_points_left": 37.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199",
+       "5947"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 81.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "1466"
+      ],
+      "started_ids": [
+       "1466"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 33.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1426"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 56.26,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4663"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 46.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2197"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 28.96,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7567"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 78.62,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2309",
+       "5937"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 16.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "8155"
+      ],
+      "started_ids": [
+       "8155"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 72.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "5012",
+       "8167",
+       "9493"
+      ],
+      "started_ids": [
+       "5012"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 56.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "3": {
+    "1": {
+     "bench_points_left": 20.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199",
+       "5892",
+       "7526"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 65.66,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5846"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 28.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1426",
+       "7606"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 40.96,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4663"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 43.0,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6803",
+       "8205"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 102.26,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 47.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4149",
+       "7547"
+      ],
+      "started_ids": [
+       "7547"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 57.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4171"
+      ],
+      "started_ids": [
+       "4171"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 28.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "4866",
+       "8167",
+       "9493"
+      ],
+      "started_ids": [
+       "9493"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 34.06,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5995",
+       "6770"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "4": {
+    "1": {
+     "bench_points_left": 82.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4199",
+       "5892"
+      ],
+      "started_ids": [
+       "4199"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 51.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 37.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 11.9,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4017",
+       "4033",
+       "4663",
+       "7561"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 50.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 74.08,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 36.92,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "5872"
+      ],
+      "started_ids": [
+       "5872"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 25.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 82.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4866",
+       "5848",
+       "8167"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 44.54,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5995",
+       "6151"
+      ],
+      "started_ids": [
+       "6151"
+      ]
+     }
+    }
+   },
+   "5": {
+    "1": {
+     "bench_points_left": 47.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "2133",
+       "4199",
+       "7588"
+      ],
+      "started_ids": [
+       "2133"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 122.32,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 23.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8148"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 2.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7561"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 15.5,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6801",
+       "6813",
+       "9221"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 45.32,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 26.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7547"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 46.38,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4171"
+      ],
+      "started_ids": [
+       "4171"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 31.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4866",
+       "7611"
+      ],
+      "started_ids": [
+       "7611"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 84.46,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5995"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "6": {
+    "1": {
+     "bench_points_left": 25.1,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 70.32,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "1466",
+       "5284"
+      ],
+      "started_ids": [
+       "1466"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 34.0,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 19.8,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "2505",
+       "4017",
+       "4033"
+      ],
+      "started_ids": [
+       "2505"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 53.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10859",
+       "6801",
+       "9221"
+      ],
+      "started_ids": [
+       "10859"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 37.28,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10235"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 27.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9502"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 38.0,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 58.34,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4866",
+       "5848"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 55.38,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "6151"
+      ],
+      "started_ids": [
+       "6151"
+      ]
+     }
+    }
+   },
+   "7": {
+    "1": {
+     "bench_points_left": 27.7,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "4199",
+       "5849",
+       "5892"
+      ],
+      "started_ids": [
+       "4199"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 7.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5846",
+       "7591",
+       "8150"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 33.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4098"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 64.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4017"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 45.3,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 41.68,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10235"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 34.4,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4034",
+       "5872"
+      ],
+      "started_ids": [
+       "4034"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 14.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "3214"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 47.96,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7523"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 10.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "8": {
+    "1": {
+     "bench_points_left": 53.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5849",
+       "5892"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 59.26,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6845",
+       "7591"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 75.46,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4381"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 40.3,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "2505",
+       "3199",
+       "4017"
+      ],
+      "started_ids": [
+       "2505"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 61.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8143"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 50.26,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 53.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "5872",
+       "7547",
+       "7670"
+      ],
+      "started_ids": [
+       "7547"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 29.9,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4037"
+      ],
+      "started_ids": [
+       "4037"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 63.08,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "2374",
+       "2749",
+       "7523"
+      ],
+      "started_ids": [
+       "2749"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 80.62,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "9": {
+    "1": {
+     "bench_points_left": 13.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5849"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 46.3,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7591",
+       "9500"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 65.92,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 2,
+      "rate": 1.0,
+      "flagged_ids": [
+       "1426",
+       "4018"
+      ],
+      "started_ids": [
+       "1426",
+       "4018"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 17.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2505"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 15.3,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 48.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 12.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7670"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 58.3,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 13.8,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "421",
+       "9493"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 34.36,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11199",
+       "8112",
+       "8129"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "10": {
+    "1": {
+     "bench_points_left": 55.36,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "7564"
+      ],
+      "started_ids": [
+       "7564"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 38.94,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7591"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 60.2,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5844"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 71.74,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9511"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 49.0,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 25.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6794",
+       "6801"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 43.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4137"
+      ],
+      "started_ids": [
+       "4137"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 17.8,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 5.4,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7569"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 28.08,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "11199",
+       "8129"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "11": {
+    "1": {
+     "bench_points_left": 78.3,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 80.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 39.9,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5987"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 35.24,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4111",
+       "4234"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 26.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8146"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 19.0,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "6794",
+       "6801",
+       "9226"
+      ],
+      "started_ids": [
+       "9226"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 39.9,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 21.74,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 55.98,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "1479",
+       "2374",
+       "5022"
+      ],
+      "started_ids": [
+       "1479"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 21.64,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8129"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "12": {
+    "1": {
+     "bench_points_left": 52.18,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 47.88,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "8136"
+      ],
+      "started_ids": [
+       "8136"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 36.5,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 40.18,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4111",
+       "4234"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 87.9,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "9997"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 29.56,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6794",
+       "6801",
+       "8151",
+       "9226"
+      ],
+      "started_ids": []
+     }
+    },
+    "7": {
+     "bench_points_left": 93.02,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 34.66,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2161"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 60.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5012",
+       "5022"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 17.2,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "6770",
+       "6828",
+       "8129"
+      ],
+      "started_ids": [
+       "6828",
+       "8129"
+      ]
+     }
+    }
+   },
+   "13": {
+    "1": {
+     "bench_points_left": 24.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 82.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8130"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 5.3,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 30.02,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4234"
+      ],
+      "started_ids": []
+     }
+    },
+    "5": {
+     "bench_points_left": 6.5,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6813"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 43.6,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "5001",
+       "8144",
+       "8151"
+      ],
+      "started_ids": [
+       "8144"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 11.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "10222",
+       "9502"
+      ],
+      "started_ids": [
+       "9502"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 31.8,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 2,
+      "rate": 0.5,
+      "flagged_ids": [
+       "2161",
+       "3164",
+       "4037",
+       "8155"
+      ],
+      "started_ids": [
+       "4037",
+       "8155"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 47.78,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "1479",
+       "5022",
+       "7543"
+      ],
+      "started_ids": [
+       "1479",
+       "7543"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 16.6,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "14": {
+    "1": {
+     "bench_points_left": 50.7,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4199"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 41.42,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 28.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4381"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 30.64,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4234",
+       "7528"
+      ],
+      "started_ids": [
+       "7528"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 67.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6813",
+       "8205"
+      ],
+      "started_ids": []
+     }
+    },
+    "6": {
+     "bench_points_left": 39.5,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "5001",
+       "8144",
+       "8151",
+       "9753"
+      ],
+      "started_ids": [
+       "8144"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 49.62,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2309"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 74.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "3225",
+       "8155"
+      ],
+      "started_ids": [
+       "8155"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 71.76,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "7543",
+       "7611"
+      ],
+      "started_ids": [
+       "7543"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 18.0,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "15": {
+    "1": {
+     "bench_points_left": 71.54,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2133",
+       "4199"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 53.84,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8154"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 52.28,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5987"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 46.2,
+     "injury_reaction": {
+      "flagged": 5,
+      "started": 1,
+      "rate": 0.2,
+      "flagged_ids": [
+       "2505",
+       "4234",
+       "4666",
+       "5850",
+       "9758"
+      ],
+      "started_ids": [
+       "4666"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 11.5,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "2197",
+       "4983",
+       "6813",
+       "8205"
+      ],
+      "started_ids": [
+       "4983"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 56.3,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "6794",
+       "8144",
+       "9226"
+      ],
+      "started_ids": [
+       "6794"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 71.66,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 66.96,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "4037"
+      ],
+      "started_ids": [
+       "4037"
+      ]
+     }
+    },
+    "9": {
+     "bench_points_left": 46.02,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1479",
+       "7569",
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 2.6,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "3321",
+       "6828"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "16": {
+    "1": {
+     "bench_points_left": 39.94,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "7523",
+       "7564"
+      ],
+      "started_ids": []
+     }
+    },
+    "2": {
+     "bench_points_left": 40.8,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "8154"
+      ],
+      "started_ids": []
+     }
+    },
+    "3": {
+     "bench_points_left": 28.0,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "5987"
+      ],
+      "started_ids": []
+     }
+    },
+    "4": {
+     "bench_points_left": 18.6,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "4111",
+       "5850",
+       "6845",
+       "9758"
+      ],
+      "started_ids": [
+       "5850"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 48.3,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "9997"
+      ],
+      "started_ids": [
+       "9997"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 74.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "6819",
+       "8151"
+      ],
+      "started_ids": [
+       "6819"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 84.66,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "10222"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 46.5,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2161",
+       "6826"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 47.42,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "1479",
+       "7569",
+       "7611"
+      ],
+      "started_ids": []
+     }
+    },
+    "10": {
+     "bench_points_left": 30.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "3321",
+       "6828"
+      ],
+      "started_ids": []
+     }
+    }
+   },
+   "17": {
+    "1": {
+     "bench_points_left": 48.86,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "5849",
+       "7526",
+       "7564"
+      ],
+      "started_ids": [
+       "5849"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 78.32,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "5846"
+      ],
+      "started_ids": [
+       "5846"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 47.04,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "1348",
+       "6783"
+      ],
+      "started_ids": [
+       "1348"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 31.52,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "5850",
+       "6845"
+      ],
+      "started_ids": [
+       "5850"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 89.9,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 1,
+      "rate": 0.5,
+      "flagged_ids": [
+       "8205",
+       "9997"
+      ],
+      "started_ids": [
+       "9997"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 49.1,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "4035",
+       "6819",
+       "8151"
+      ],
+      "started_ids": [
+       "4035",
+       "6819"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 52.64,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "2309",
+       "6820"
+      ],
+      "started_ids": []
+     }
+    },
+    "8": {
+     "bench_points_left": 43.6,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "6826"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 29.2,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 1,
+      "rate": 0.25,
+      "flagged_ids": [
+       "1479",
+       "2749",
+       "5045",
+       "9493"
+      ],
+      "started_ids": [
+       "9493"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 25.7,
+     "injury_reaction": {
+      "flagged": 0,
+      "started": 0,
+      "rate": null,
+      "flagged_ids": [],
+      "started_ids": []
+     }
+    }
+   },
+   "18": {
+    "1": {
+     "bench_points_left": 42.98,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "10229",
+       "4892",
+       "7526"
+      ],
+      "started_ids": [
+       "10229"
+      ]
+     }
+    },
+    "2": {
+     "bench_points_left": 69.82,
+     "injury_reaction": {
+      "flagged": 1,
+      "started": 1,
+      "rate": 1.0,
+      "flagged_ids": [
+       "8150"
+      ],
+      "started_ids": [
+       "8150"
+      ]
+     }
+    },
+    "3": {
+     "bench_points_left": 59.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 2,
+      "rate": 1.0,
+      "flagged_ids": [
+       "1348",
+       "4046"
+      ],
+      "started_ids": [
+       "1348",
+       "4046"
+      ]
+     }
+    },
+    "4": {
+     "bench_points_left": 37.46,
+     "injury_reaction": {
+      "flagged": 4,
+      "started": 2,
+      "rate": 0.5,
+      "flagged_ids": [
+       "4234",
+       "5850",
+       "6845",
+       "7525"
+      ],
+      "started_ids": [
+       "5850",
+       "7525"
+      ]
+     }
+    },
+    "5": {
+     "bench_points_left": 48.4,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "6790",
+       "8205",
+       "9997"
+      ],
+      "started_ids": [
+       "6790",
+       "9997"
+      ]
+     }
+    },
+    "6": {
+     "bench_points_left": 53.0,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "4035",
+       "4881",
+       "6801"
+      ],
+      "started_ids": [
+       "4035",
+       "4881"
+      ]
+     }
+    },
+    "7": {
+     "bench_points_left": 26.84,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 2,
+      "rate": 0.6667,
+      "flagged_ids": [
+       "10222",
+       "2309",
+       "4034"
+      ],
+      "started_ids": [
+       "10222",
+       "4034"
+      ]
+     }
+    },
+    "8": {
+     "bench_points_left": 20.1,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4039",
+       "6826"
+      ],
+      "started_ids": []
+     }
+    },
+    "9": {
+     "bench_points_left": 19.8,
+     "injury_reaction": {
+      "flagged": 3,
+      "started": 1,
+      "rate": 0.3333,
+      "flagged_ids": [
+       "1479",
+       "2749",
+       "421"
+      ],
+      "started_ids": [
+       "421"
+      ]
+     }
+    },
+    "10": {
+     "bench_points_left": 5.7,
+     "injury_reaction": {
+      "flagged": 2,
+      "started": 0,
+      "rate": 0.0,
+      "flagged_ids": [
+       "4950",
+       "6828"
+      ],
+      "started_ids": []
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,92 @@
+name: FP expert ranks — WEEKLY in-season capture (pull-list refill #2, item 3)
+
+# TERRITORY: C — dispatches draft/backtest/fp_expert_ranks_weekly.py.
+#
+# Distinct from fp-expert-ranks-capture.yml (the PRESEASON draft-time
+# capture, register 4t) — this is the in-season weekly snapshot P129 needs
+# for season-END vs. as-it-stood ECR comparisons. Piggybacks the Wednesday
+# cron family: weekly-snap-counts.yml (11:00 UTC), weekly-routes.yml
+# (11:30 UTC), player-bio-capital-refresh.yml (12:00 UTC), this one last.
+#
+# Correctly a no-op during preseason: fp_expert_ranks_weekly.py's main()
+# reads Sleeper's own /state/nfl (weekly_proj_snapshot.nfl_state(), rule 11)
+# and exits clean, writing nothing, until season_type == "regular" — same
+# discipline as weekly_projection_archive.py. A cron fire before week 1 is
+# expected to log a clean skip, not an error.
+#
+# Egress: FantasyPros' API is proxy-blocked from the dev sandbox (same as
+# every other FP fetch this session) — CI only. The weekly URL's `type=`
+# value is UNCONFIRMED (self-discovering between "weekly" and "ros" — see
+# the module docstring); the first real in-season run's own log is where
+# that gets settled, same as weekly_projection_archive.py's FP weekly
+# projections fetch.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season (blank = auto-detect from Sleeper state)'
+        required: false
+      week:
+        description: 'Week (blank = auto-detect from Sleeper state)'
+        required: false
+  schedule:
+    - cron: '30 12 * * 3'   # Wednesdays 12:30 UTC — after the other three
+                             # Wednesday jobs (11:00/11:30/12:00 UTC)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fp-expert-ranks-weekly-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure assembly logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_fp_expert_ranks_weekly.py -q
+
+      - name: Capture this week's expert ranks
+        working-directory: draft/backtest
+        env:
+          YEAR: ${{ github.event.inputs.year }}
+          WEEK: ${{ github.event.inputs.week }}
+        run: |
+          set -uo pipefail
+          ARGS=""
+          if [ -n "${YEAR:-}" ]; then ARGS="$ARGS --year $YEAR"; fi
+          if [ -n "${WEEK:-}" ]; then ARGS="$ARGS --week $WEEK"; fi
+          python3 fp_expert_ranks_weekly.py $ARGS
+
+      - name: Commit the snapshot
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/fp_expert_ranks_weekly_*.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fp_expert_ranks_weekly: in-season snapshot (pull-list refill #2 item 3) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit (expected during preseason, or an unchanged week)"

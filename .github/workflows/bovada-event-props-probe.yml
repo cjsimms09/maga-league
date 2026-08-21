@@ -1,0 +1,69 @@
+name: Bovada per-event props probe
+
+# TERRITORY: C — dispatches draft/tools/bovada_event_props_probe.py.
+#
+# free_odds_probe (run e7b81242) found Bovada's general coupon endpoint
+# positive for game lines but zero player props, and named the per-event
+# detail path as where props usually live. This checks that, once — the
+# event-detail URL pattern is a guess from the coupon endpoint's own shape
+# (unconfirmed from the dev sandbox, which cannot reach bovada.lv at all),
+# so this is dispatch-only pending a first real read, same discipline as
+# every other untested-locally probe this session.
+#
+# If positive: graduate a tagged Thu/Sun props capture (the register-172
+# clobber lesson) alongside bovada_lines_capture.py. If negative or the URL
+# guess is wrong: report exactly what happened (404 vs empty vs reshaped)
+# so the next attempt starts from a real answer, not another guess.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Number of upcoming events to check (bounded-cost smoke test)'
+        required: false
+        default: '5'
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install pytest
+
+      - name: The pure URL/classification logic is tested before any real fetch
+        run: |
+          python3 -m pytest draft/tests/test_bovada_lines_capture.py \
+                            draft/tests/test_bovada_event_props_probe.py -q
+
+      - name: Probe the per-event detail path
+        run: python3 draft/tools/bovada_event_props_probe.py --limit "${{ github.event.inputs.limit }}"
+
+      - name: Commit the probe result
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/bovada_event_props_probe.json
+          if ! git diff --cached --quiet; then
+            git commit -m "bovada_event_props_probe: dispatch result [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the probe ran and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"

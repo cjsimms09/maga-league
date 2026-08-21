@@ -1,0 +1,1216 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/wire_friction_table.py",
+ "_note": "Answers the OpenAI audit's question 2 ('one contested claim/week over {RB,WR,TE}, free streaming for {QB,K,DEF} -- right constant, right partition?') from the real 2023-2025 waiver history, zero new egress (rule 11: reuses waiver_transaction_history's reshape and player_bio_capital's already-committed position crosswalk). 'made' counts every claim submitted at that position (complete or failed); 'won' is the complete subset; contested_rate = 1 - won/made.",
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "total_waiver_transactions": 648,
+ "position_resolved": 648,
+ "unresolved_count": 0,
+ "unresolved_ids": [],
+ "pooled": {
+  "DEF": {
+   "made": 204,
+   "won": 103,
+   "contested_rate": 0.4951
+  },
+  "WR": {
+   "made": 96,
+   "won": 62,
+   "contested_rate": 0.3542
+  },
+  "TE": {
+   "made": 80,
+   "won": 41,
+   "contested_rate": 0.4875
+  },
+  "K": {
+   "made": 38,
+   "won": 27,
+   "contested_rate": 0.2895
+  },
+  "RB": {
+   "made": 171,
+   "won": 84,
+   "contested_rate": 0.5088
+  },
+  "QB": {
+   "made": 58,
+   "won": 41,
+   "contested_rate": 0.2931
+  },
+  "P": {
+   "made": 1,
+   "won": 1,
+   "contested_rate": 0.0
+  }
+ },
+ "partition_check": {
+  "contested_positions_measured": {
+   "positions": [
+    "RB",
+    "WR",
+    "TE"
+   ],
+   "made": 347,
+   "won": 187,
+   "contested_rate": 0.4611
+  },
+  "stream_positions_measured": {
+   "positions": [
+    "QB",
+    "K",
+    "DEF"
+   ],
+   "made": 300,
+   "won": 171,
+   "contested_rate": 0.43
+  },
+  "partition_holds": true,
+  "why": "partition_holds is True only if the measured contested rate for {RB,WR,TE} pooled is STRICTLY higher than {QB,K,DEF} pooled -- the model's own claimed shape, not a looser bar."
+ },
+ "rule_3e_control": {
+  "ok": true,
+  "matched_transactions": 2,
+  "resolved_position": "TE"
+ },
+ "by_season_week": {
+  "2025": {
+   "1": {
+    "DEF": {
+     "made": 8,
+     "won": 4,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 4,
+     "won": 3,
+     "contested_rate": 0.25
+    },
+    "TE": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "2": {
+    "RB": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 15,
+     "won": 4,
+     "contested_rate": 0.7333
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    }
+   },
+   "3": {
+    "TE": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "DEF": {
+     "made": 7,
+     "won": 2,
+     "contested_rate": 0.7143
+    },
+    "K": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "WR": {
+     "made": 3,
+     "won": 3,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "4": {
+    "DEF": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "K": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "QB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "5": {
+    "TE": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "DEF": {
+     "made": 4,
+     "won": 2,
+     "contested_rate": 0.5
+    },
+    "RB": {
+     "made": 1,
+     "won": 0,
+     "contested_rate": 1.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 0,
+     "contested_rate": 1.0
+    }
+   },
+   "6": {
+    "RB": {
+     "made": 5,
+     "won": 1,
+     "contested_rate": 0.8
+    },
+    "K": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 3,
+     "won": 3,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    }
+   },
+   "7": {
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 4,
+     "won": 2,
+     "contested_rate": 0.5
+    }
+   },
+   "8": {
+    "RB": {
+     "made": 9,
+     "won": 3,
+     "contested_rate": 0.6667
+    },
+    "DEF": {
+     "made": 7,
+     "won": 2,
+     "contested_rate": 0.7143
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "9": {
+    "K": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "DEF": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 4,
+     "won": 2,
+     "contested_rate": 0.5
+    },
+    "TE": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 4,
+     "won": 3,
+     "contested_rate": 0.25
+    },
+    "QB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    }
+   },
+   "10": {
+    "DEF": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "11": {
+    "RB": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "DEF": {
+     "made": 6,
+     "won": 2,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 5,
+     "won": 2,
+     "contested_rate": 0.6
+    },
+    "TE": {
+     "made": 1,
+     "won": 0,
+     "contested_rate": 1.0
+    },
+    "QB": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "K": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "12": {
+    "DEF": {
+     "made": 6,
+     "won": 3,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "13": {
+    "DEF": {
+     "made": 8,
+     "won": 3,
+     "contested_rate": 0.625
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    }
+   },
+   "14": {
+    "DEF": {
+     "made": 4,
+     "won": 2,
+     "contested_rate": 0.5
+    },
+    "QB": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "WR": {
+     "made": 2,
+     "won": 0,
+     "contested_rate": 1.0
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "15": {
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "16": {
+    "QB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   }
+  },
+  "2024": {
+   "1": {
+    "QB": {
+     "made": 1,
+     "won": 0,
+     "contested_rate": 1.0
+    },
+    "TE": {
+     "made": 11,
+     "won": 2,
+     "contested_rate": 0.8182
+    },
+    "WR": {
+     "made": 3,
+     "won": 3,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 7,
+     "won": 2,
+     "contested_rate": 0.7143
+    },
+    "DEF": {
+     "made": 5,
+     "won": 2,
+     "contested_rate": 0.6
+    },
+    "K": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "2": {
+    "DEF": {
+     "made": 8,
+     "won": 5,
+     "contested_rate": 0.375
+    },
+    "RB": {
+     "made": 12,
+     "won": 6,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "QB": {
+     "made": 3,
+     "won": 3,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    }
+   },
+   "3": {
+    "RB": {
+     "made": 6,
+     "won": 4,
+     "contested_rate": 0.3333
+    },
+    "WR": {
+     "made": 9,
+     "won": 3,
+     "contested_rate": 0.6667
+    },
+    "DEF": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "TE": {
+     "made": 5,
+     "won": 1,
+     "contested_rate": 0.8
+    }
+   },
+   "4": {
+    "RB": {
+     "made": 3,
+     "won": 3,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 5,
+     "won": 2,
+     "contested_rate": 0.6
+    },
+    "QB": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 6,
+     "won": 3,
+     "contested_rate": 0.5
+    }
+   },
+   "5": {
+    "K": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "RB": {
+     "made": 4,
+     "won": 3,
+     "contested_rate": 0.25
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 4,
+     "won": 2,
+     "contested_rate": 0.5
+    }
+   },
+   "6": {
+    "DEF": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 5,
+     "won": 2,
+     "contested_rate": 0.6
+    },
+    "P": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "7": {
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "WR": {
+     "made": 4,
+     "won": 3,
+     "contested_rate": 0.25
+    }
+   },
+   "8": {
+    "QB": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "TE": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "RB": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "9": {
+    "K": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "DEF": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "10": {
+    "QB": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "DEF": {
+     "made": 6,
+     "won": 2,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 4,
+     "won": 3,
+     "contested_rate": 0.25
+    }
+   },
+   "11": {
+    "QB": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "12": {
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    }
+   },
+   "13": {
+    "RB": {
+     "made": 7,
+     "won": 2,
+     "contested_rate": 0.7143
+    },
+    "DEF": {
+     "made": 5,
+     "won": 4,
+     "contested_rate": 0.2
+    },
+    "WR": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "14": {
+    "DEF": {
+     "made": 6,
+     "won": 3,
+     "contested_rate": 0.5
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "15": {
+    "TE": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "RB": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "16": {
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   }
+  },
+  "2023": {
+   "1": {
+    "RB": {
+     "made": 14,
+     "won": 5,
+     "contested_rate": 0.6429
+    },
+    "WR": {
+     "made": 10,
+     "won": 3,
+     "contested_rate": 0.7
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    }
+   },
+   "2": {
+    "RB": {
+     "made": 12,
+     "won": 5,
+     "contested_rate": 0.5833
+    },
+    "DEF": {
+     "made": 6,
+     "won": 3,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 7,
+     "won": 3,
+     "contested_rate": 0.5714
+    },
+    "TE": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "3": {
+    "RB": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    },
+    "DEF": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 7,
+     "won": 4,
+     "contested_rate": 0.4286
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    }
+   },
+   "4": {
+    "RB": {
+     "made": 6,
+     "won": 3,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "5": {
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 8,
+     "won": 5,
+     "contested_rate": 0.375
+    },
+    "TE": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "DEF": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "6": {
+    "RB": {
+     "made": 7,
+     "won": 3,
+     "contested_rate": 0.5714
+    },
+    "DEF": {
+     "made": 7,
+     "won": 4,
+     "contested_rate": 0.4286
+    },
+    "TE": {
+     "made": 1,
+     "won": 0,
+     "contested_rate": 1.0
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "7": {
+    "QB": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "K": {
+     "made": 5,
+     "won": 2,
+     "contested_rate": 0.6
+    },
+    "RB": {
+     "made": 5,
+     "won": 2,
+     "contested_rate": 0.6
+    },
+    "DEF": {
+     "made": 6,
+     "won": 2,
+     "contested_rate": 0.6667
+    },
+    "TE": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "8": {
+    "TE": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "QB": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "RB": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "DEF": {
+     "made": 5,
+     "won": 3,
+     "contested_rate": 0.4
+    }
+   },
+   "9": {
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "QB": {
+     "made": 2,
+     "won": 2,
+     "contested_rate": 0.0
+    }
+   },
+   "10": {
+    "DEF": {
+     "made": 10,
+     "won": 5,
+     "contested_rate": 0.5
+    },
+    "RB": {
+     "made": 6,
+     "won": 2,
+     "contested_rate": 0.6667
+    },
+    "TE": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "K": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "11": {
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "RB": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "12": {
+    "RB": {
+     "made": 6,
+     "won": 2,
+     "contested_rate": 0.6667
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 6,
+     "won": 3,
+     "contested_rate": 0.5
+    },
+    "TE": {
+     "made": 3,
+     "won": 1,
+     "contested_rate": 0.6667
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "13": {
+    "QB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "TE": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "DEF": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "RB": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "14": {
+    "DEF": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "QB": {
+     "made": 3,
+     "won": 2,
+     "contested_rate": 0.3333
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    },
+    "WR": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   },
+   "15": {
+    "DEF": {
+     "made": 2,
+     "won": 1,
+     "contested_rate": 0.5
+    },
+    "K": {
+     "made": 1,
+     "won": 1,
+     "contested_rate": 0.0
+    }
+   }
+  }
+ }
+}

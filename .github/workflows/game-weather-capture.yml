@@ -1,0 +1,62 @@
+name: Game-day weather capture (source-hunt item 1)
+
+# TERRITORY: C — dispatches draft/backtest/game_weather.py.
+#
+# Relay's 08-21 source-hunt dispatch, item 1: weekly forecasts for outdoor
+# stadiums, feeding K/DEF streaming and start/sit (wind is the one weather
+# variable with a known kicker effect).
+#
+# DISPATCH-ONLY FOR NOW, DELIBERATELY — open-meteo's exact response shape is
+# UNCONFIRMED from the dev sandbox (both open-meteo.com and weather.gov
+# proxy-403 there; see the module's own docstring). This workflow is the
+# FIRST real check of that shape. Scheduling it on a cron before a human has
+# read one real run's output and its own known-positive control would be
+# trusting an unverified probe — Rule 3e says don't. Once a dispatch here
+# confirms the parser reads real data correctly, add a schedule block
+# (Thursday, matching the props-fetch cadence, is the natural slot).
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure parsing/roof logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_game_weather.py -q
+
+      - name: Fetch weather for every outdoor game in the committed schedule
+        run: python3 draft/backtest/game_weather.py
+
+      - name: Commit the store
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/game_weather.json
+          if ! git diff --cached --quiet; then
+            git commit -m "game_weather: capture run (source-hunt item 1) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"
